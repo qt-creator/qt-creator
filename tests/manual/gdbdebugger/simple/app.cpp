@@ -615,6 +615,9 @@ void testStdList()
     flist.push_back(3);
     flist.push_back(4);
 
+    foreach (Foo f, flist)
+    {}
+
     std::list<bool> vec;
     vec.push_back(true);
     vec.push_back(false);

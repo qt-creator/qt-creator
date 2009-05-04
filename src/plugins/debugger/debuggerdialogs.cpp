@@ -51,7 +51,7 @@
 
 
 namespace Debugger {
-    namespace Internal {
+namespace Internal {
 
 bool operator<(const ProcData &p1, const ProcData &p2)
 {
@@ -59,7 +59,8 @@ bool operator<(const ProcData &p1, const ProcData &p2)
 }
 
 // A filterable process list model
-class ProcessListFilterModel : public QSortFilterProxyModel {
+class ProcessListFilterModel : public QSortFilterProxyModel
+{
 public:
     explicit ProcessListFilterModel(QObject *parent);
     QString processIdAt(const QModelIndex &index) const;
@@ -69,9 +70,9 @@ private:
     QStandardItemModel *m_model;
 };
 
-ProcessListFilterModel::ProcessListFilterModel(QObject *parent) :
-   QSortFilterProxyModel(parent),
-   m_model(new QStandardItemModel(this))
+ProcessListFilterModel::ProcessListFilterModel(QObject *parent)
+  : QSortFilterProxyModel(parent),
+    m_model(new QStandardItemModel(this))
 {
     QStringList columns;
     columns << AttachExternalDialog::tr("Process ID")
@@ -115,6 +116,7 @@ void ProcessListFilterModel::populate(QList<ProcData> processes, const QString &
         root->appendRow(row);
     }
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -164,9 +166,10 @@ void AttachCoreDialog::setCoreFile(const QString &fileName)
     m_ui->coreFileName->setPath(fileName);
 }
 
+
 ///////////////////////////////////////////////////////////////////////
 //
-// process model helpers
+// Process model helpers
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -224,11 +227,11 @@ static QList<ProcData> processList()
 //
 ///////////////////////////////////////////////////////////////////////
 
-AttachExternalDialog::AttachExternalDialog(QWidget *parent) :
-        QDialog(parent),
-        m_selfPid(QString::number(QCoreApplication::applicationPid())),
-        m_ui(new Ui::AttachExternalDialog),
-        m_model(new ProcessListFilterModel(this))
+AttachExternalDialog::AttachExternalDialog(QWidget *parent)
+  : QDialog(parent),
+    m_selfPid(QString::number(QCoreApplication::applicationPid())),
+    m_ui(new Ui::AttachExternalDialog),
+    m_model(new ProcessListFilterModel(this))
 {
     m_ui->setupUi(this);
     okButton()->setDefault(true);
@@ -292,8 +295,10 @@ int AttachExternalDialog::attachPID() const
 
 void AttachExternalDialog::pidChanged(const QString &pid)
 {
-    okButton()->setEnabled(!pid.isEmpty() && pid != QLatin1String("0") && pid != m_selfPid);
+    bool enabled = !pid.isEmpty() && pid != QLatin1String("0") && pid != m_selfPid;;
+    okButton()->setEnabled(enabled);
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -301,39 +306,15 @@ void AttachExternalDialog::pidChanged(const QString &pid)
 //
 ///////////////////////////////////////////////////////////////////////
 
-AttachRemoteDialog::AttachRemoteDialog(QWidget *parent, const QString &pid) :
-        QDialog(parent),
-        m_ui(new Ui::AttachRemoteDialog),
-        m_model(new ProcessListFilterModel(this))
+AttachRemoteDialog::AttachRemoteDialog(QWidget *parent)
+  : QDialog(parent),
+    m_ui(new Ui::AttachRemoteDialog)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_defaultPID = pid;
-
-    m_ui->procView->setModel(m_model);
-    m_ui->procView->setSortingEnabled(true);
-
+    
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    // Do not use activated, will be single click in Oxygen
-    connect(m_ui->procView, SIGNAL(doubleClicked(QModelIndex)),
-        this, SLOT(procSelected(QModelIndex)));
-
-    QPushButton *refreshButton = new QPushButton(tr("Refresh"));
-    connect(refreshButton, SIGNAL(clicked()), this, SLOT(rebuildProcessList()));
-    m_ui->buttonBox->addButton(refreshButton, QDialogButtonBox::ActionRole);
-
-    connect(m_ui->pidLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(pidChanged(QString)));
-
-    connect(m_ui->filterClearToolButton, SIGNAL(clicked()),
-            m_ui->filterLineEdit, SLOT(clear()));
-    connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)),
-            m_model, SLOT(setFilterFixedString(QString)));
-
-    m_ui->pidLineEdit->setText(m_defaultPID);
-    rebuildProcessList();
 }
 
 AttachRemoteDialog::~AttachRemoteDialog()
@@ -341,37 +322,36 @@ AttachRemoteDialog::~AttachRemoteDialog()
     delete m_ui;
 }
 
-QPushButton *AttachRemoteDialog::okButton() const
+void AttachRemoteDialog::setRemoteChannel(const QString &channel)
 {
-    return m_ui->buttonBox->button(QDialogButtonBox::Ok);
+    m_ui->channelLineEdit->setText(channel);
 }
 
-void AttachRemoteDialog::rebuildProcessList()
+QString AttachRemoteDialog::remoteChannel() const
 {
-    m_model->populate(processList());
-    m_ui->procView->expandAll();
-    m_ui->procView->resizeColumnToContents(0);
-    m_ui->procView->resizeColumnToContents(1);
+    return m_ui->channelLineEdit->text();
 }
 
-void AttachRemoteDialog::procSelected(const QModelIndex &index0)
-{    
-    const QString proccessId  = m_model->processIdAt(index0);
-    if (!proccessId.isEmpty()) {
-        m_ui->pidLineEdit->setText(proccessId);
-        if (okButton()->isEnabled())
-            okButton()->animateClick();
+void AttachRemoteDialog::setRemoteArchitectures(const QStringList &list)
+{
+    m_ui->architectureComboBox->clear();
+    if (!list.isEmpty()) {
+        m_ui->architectureComboBox->insertItems(0, list);
+        m_ui->architectureComboBox->setCurrentIndex(0);
     }
 }
 
-int AttachRemoteDialog::attachPID() const
+void AttachRemoteDialog::setRemoteArchitecture(const QString &arch)
 {
-    return m_ui->pidLineEdit->text().toInt();
+    int index = m_ui->architectureComboBox->findText(arch);
+    if (index != -1)
+        m_ui->architectureComboBox->setCurrentIndex(index);
 }
 
-void AttachRemoteDialog::pidChanged(const QString &pid)
+QString AttachRemoteDialog::remoteArchitecture() const
 {
-    okButton()->setEnabled(!pid.isEmpty() && pid != QLatin1String("0"));
+    int index = m_ui->architectureComboBox->currentIndex();
+    return m_ui->architectureComboBox->itemText(index);
 }
 
 
@@ -426,5 +406,5 @@ QString StartExternalDialog::executableArguments() const
     return m_ui->argsEdit->text();
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

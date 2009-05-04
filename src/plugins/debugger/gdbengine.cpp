@@ -92,7 +92,14 @@ Q_DECLARE_METATYPE(Debugger::Internal::GdbMi);
 #define STRINGIFY_INTERNAL(x) #x
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 
-#define _c(s) QLatin1Char(s)
+struct _c
+{
+    inline _c(char c) : m_c(c) {}
+    inline operator QChar() const { return QLatin1Char(m_c); }
+    char m_c;    
+};
+
+#define _c(c) QLatin1Char(c)
 #define __(s) QLatin1String(s)
 #define _(s) QString::fromLatin1(s)
 
@@ -1601,6 +1608,8 @@ bool GdbEngine::startDebugger()
 
     if (q->startMode() == AttachCore || q->startMode() == AttachExternal) {
         // nothing to do
+    } else if (q->startMode() == AttachRemote) {
+        // nothing to do
     } else if (q->m_useTerminal) {
         m_stubProc.stop(); // We leave the console open, so recycle it now.
 
@@ -1726,6 +1735,7 @@ bool GdbEngine::startDebugger()
 
     if (q->startMode() == AttachExternal) {
         sendCommand(_("attach ") + QString::number(q->m_attachedPID), GdbAttached);
+        qq->breakHandler()->removeAllBreakpoints();
     } else if (q->startMode() == AttachCore) {
         QFileInfo fi(q->m_executable);
         QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
@@ -1733,9 +1743,17 @@ bool GdbEngine::startDebugger()
         // quoting core name below fails in gdb 6.8-debian
         QString coreName = fi2.absoluteFilePath();
         sendCommand(_("-file-exec-and-symbols ") + fileName);
-        sendCommand(_("target core ") + coreName, GdbTargetCore);
+        sendCommand(_("target core %1").arg(coreName), GdbTargetCore);
+        qq->breakHandler()->removeAllBreakpoints();
+    } else if (q->startMode() == AttachRemote) {
+        sendCommand(_("set architecture %1").arg(q->m_remoteArchitecture));
+        sendCommand(_("target remote %1").arg(q->m_remoteChannel));
+        qq->breakHandler()->setAllPending();
+        //sendCommand(_("info target"), GdbStart);
+        qq->notifyInferiorRunningRequested();
+        sendCommand(_("-exec-continue"), GdbExecContinue);
     } else if (q->m_useTerminal) {
-        // nothing needed, stub takes care
+        qq->breakHandler()->setAllPending();
     } else if (q->startMode() == StartInternal || q->startMode() == StartExternal) {
         QFileInfo fi(q->m_executable);
         QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
@@ -1756,13 +1774,8 @@ bool GdbEngine::startDebugger()
         qq->notifyInferiorRunningRequested();
         sendCommand(_("-exec-run"));
         #endif
-    }
-
-    // set all to "pending"
-    if (q->startMode() == AttachExternal || q->startMode() == AttachCore)
-        qq->breakHandler()->removeAllBreakpoints();
-    else if (q->startMode() == StartInternal || q->startMode() == StartExternal)
         qq->breakHandler()->setAllPending();
+    }
 
     return true;
 }
