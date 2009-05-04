@@ -31,6 +31,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_designer \
             plugin_resourceeditor \
 	    plugin_genericprojectmanager \
+	    plugin_qmlprojectmanager \
             debugger/dumper.pro
 
 plugin_coreplugin.subdir = coreplugin
@@ -162,3 +163,8 @@ plugin_genericprojectmanager.depends += plugin_projectexplorer
 plugin_genericprojectmanager.depends += plugin_cpptools
 plugin_genericprojectmanager.depends += plugin_cppeditor
 plugin_genericprojectmanager.depends += plugin_help
+
+plugin_qmlprojectmanager.subdir = qmlprojectmanager
+plugin_qmlprojectmanager.depends = plugin_texteditor
+plugin_qmlprojectmanager.depends += plugin_projectexplorer
+plugin_qmlprojectmanager.depends += plugin_help
