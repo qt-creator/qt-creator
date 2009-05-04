@@ -2,8 +2,7 @@
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
     <mime-type type="application/x-dui">
         <sub-class-of type="text/plain"/>
-        <comment>DUI file</comment>
-        <glob pattern="*.dui"/>
+        <comment>QML file</comment>
         <glob pattern="*.qml"/>
     </mime-type>
 </mime-info>
