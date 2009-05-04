@@ -37,9 +37,8 @@
     \class Core::Command
     \mainclass
 
-    \brief The class...
+    \brief The class Command represents an action like a menu item, tool button, or shortcut.
 
-    The Command interface...
 */
 
 /*!
