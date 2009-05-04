@@ -39,7 +39,6 @@
 #include "codecselector.h"
 
 #ifndef TEXTEDITOR_STANDALONE
-#include <coreplugin/manhattanstyle.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -1499,10 +1498,8 @@ QRect BaseTextEditor::collapseBox()
 
     QTextBlock begin = document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
 
-    if (true || !d->m_displaySettings.m_fancyFoldingBar) {
-        if (TextBlockUserData::hasCollapseAfter(begin.previous()))
-            begin = begin.previous();
-    }
+    if (TextBlockUserData::hasCollapseAfter(begin.previous()))
+        begin = begin.previous();
 
     QTextBlock end = document()->findBlockByNumber(d->m_highlightBlocksInfo.close.first());
     if (!begin.isValid() || !end.isValid())
@@ -1695,13 +1692,6 @@ void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
         q->ensureCursorVisible();
 }
 
-static QColor calcMixColor(const QColor &one, const QColor &two)
-{
-    return QColor((one.red() + two.red()) / 2,
-                  (one.green() + two.green()) / 2,
-                  (one.blue() + two.blue()) / 2);
-}
-
 static QColor calcBlendColor(const QColor &baseColor, int factor = 1)
 {
     const int blendBase = (baseColor.value() > 128) ? 0 : 255;
@@ -1771,11 +1761,13 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     const QColor baseColor = palette().base().color();
     const QColor blendColor = calcBlendColor(baseColor);
 
+    qreal lineX = 0;
+
     if (d->m_visibleWrapColumn > 0) {
-        qreal lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
+        lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
         painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()), blendColor);
     }
-    
+
 //    // keep right margin clean from full-width selection
 //    int maxX = offset.x() + qMax((qreal)viewportRect.width(), documentLayout->documentSize().width())
 //               - doc->documentMargin();
@@ -1836,7 +1828,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
             if (count) {
                 QRectF rr = r;
                 rr.setWidth(viewport()->width());
-                for(int i = 0; i <= depth; ++i) {
+                if (lineX > 0)
+                    rr.setRight(qMin(lineX, rr.right()));
+                for (int i = 0; i <= depth; ++i) {
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
                     painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
                 }
@@ -2134,8 +2128,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     }
 
 
-    if (d->m_visibleWrapColumn > 0) {
-        qreal lineX = fontMetrics().width('x') * d->m_visibleWrapColumn + offset.x() + 4;
+    if (lineX > 0) {
         const QColor bg = palette().base().color();
         QColor col = (bg.value() > 128) ? Qt::black : Qt::white;
         col.setAlpha(32);
@@ -2199,6 +2192,34 @@ void BaseTextEditor::slotUpdateExtraAreaWidth()
         setViewportMargins(0, 0, extraAreaWidth(), 0);
 }
 
+static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool end,
+                        const QPalette &pal)
+{
+    painter->setRenderHint(QPainter::Antialiasing, false);
+    const QColor c = pal.highlight().color();
+
+    QLinearGradient grad(rect.topRight(), rect.topLeft());
+    grad.setColorAt(0, c.lighter(110));
+    grad.setColorAt(1, c);
+
+    painter->fillRect(rect, grad);
+
+    QColor white = Qt::white;
+    white.setAlpha(128);
+    QColor black = Qt::black;
+    black.setAlpha(32);
+
+    painter->setPen(white);
+    painter->drawLine(rect.topLeft(), rect.bottomLeft());
+    if (start)
+        painter->drawLine(rect.topLeft(), rect.topRight());
+
+    painter->setPen(black);
+    painter->drawLine(rect.topRight(), rect.bottomRight());
+    if (end)
+        painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+}
+
 void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 {
     QTextDocument *doc = document();
@@ -2230,7 +2251,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
-    int top = (int)blockBoundingGeometry(block).translated(contentOffset()).top();
+    int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
     int bottom = top;
 
     while (block.isValid() && top <= e->rect().bottom()) {
@@ -2285,71 +2306,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                 }
             }
 
-            if (d->m_codeFoldingVisible && d->m_displaySettings.m_fancyFoldingBar) {
-                QRect r(extraAreaWidth+2, top, collapseBoxWidth-4, bottom - top);
-                bool drawBox = !nextBlock.isVisible();
-
-                int extraAreaHighlightCollapseBlockNumber = -1;
-                int extraAreaHighlightCollapseEndBlockNumber = -1;
-                if (!d->m_highlightBlocksInfo.isEmpty()) {
-                    extraAreaHighlightCollapseBlockNumber =  d->m_highlightBlocksInfo.open.last();
-                    extraAreaHighlightCollapseEndBlockNumber =  d->m_highlightBlocksInfo.close.first();
-
-                    QTextBlock before = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber-1);
-                    if (TextBlockUserData::hasCollapseAfter(before)) {
-                        extraAreaHighlightCollapseBlockNumber--;
-                    }
-                }
-                int minBraceDepth = qMax(braceDepth, previousBraceDepth);
-                QColor color = calcBlendColor(baseColor, minBraceDepth);
-                if (!d->m_highlightBlocksInfo.isEmpty()
-                    && blockNumber >= extraAreaHighlightCollapseBlockNumber
-                            && blockNumber <= extraAreaHighlightCollapseEndBlockNumber)
-                    color = calcMixColor(pal.highlight().color(), color);
-                painter.fillRect(r, color);
-
-                bool drawDown = !d->m_highlightBlocksInfo.isEmpty()
-                                && blockNumber == extraAreaHighlightCollapseBlockNumber;
-                bool drawUp = !d->m_highlightBlocksInfo.isEmpty()
-                              && blockNumber == extraAreaHighlightCollapseEndBlockNumber;
-
-                if (drawBox || drawDown || drawUp) {
-                    painter.setRenderHint(QPainter::Antialiasing, true);
-                    painter.translate(.5, .5);
-                    painter.setPen(pal.text().color());
-                    painter.setBrush(pal.text().color());
-
-                    if (drawBox) {
-                        QPointF points1[3] = { QPointF(r.left(), r.center().y()-1),
-                                               QPointF(r.center().x(), r.top()),
-                                               QPointF(r.right(), r.center().y()-1) };
-                        QPointF points2[3] = { QPointF(r.left(), r.center().y()+1),
-                                               QPointF(r.center().x(), r.bottom()-1),
-                                               QPointF(r.right(), r.center().y()+1) };
-                        painter.drawPolygon(points1, 3);
-                        painter.drawPolygon(points2, 3);
-                    } else if (drawUp) {
-
-                        // check that we are not collapsed
-                        QTextBlock open = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber);
-                        if (open.next().isVisible()) {
-
-                            QPointF points[3] = { QPointF(r.left(), r.bottom()-1),
-                                                  QPointF(r.center().x(), r.center().y()),
-                                                  QPointF(r.right(), r.bottom()-1) };
-                            painter.drawPolygon(points, 3);
-                        }
-                    } else if(drawDown) {
-                        QPointF points[3] = { QPointF(r.left(), r.top()),
-                                              QPointF(r.center().x(), r.center().y()),
-                                              QPointF(r.right(), r.top()) };
-                        painter.drawPolygon(points, 3);
-                    }
-                    painter.translate(-.5, -.5);
-                    painter.setRenderHint(QPainter::Antialiasing, false);
-                }
-
-            } else if (d->m_codeFoldingVisible) {
+            if (d->m_codeFoldingVisible) {
 
                 bool collapseThis = false;
                 bool collapseAfter = false;
@@ -2363,7 +2320,6 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                     }
                 }
 
-
                 int extraAreaHighlightCollapseBlockNumber = -1;
                 int extraAreaHighlightCollapseEndBlockNumber = -1;
                 bool endIsVisible = false;
@@ -2374,27 +2330,14 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
                     QTextBlock before = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber-1);
                     if (TextBlockUserData::hasCollapseAfter(before)) {
-                            extraAreaHighlightCollapseBlockNumber--;
+                        extraAreaHighlightCollapseBlockNumber--;
                     }
                 }
-
-                const QRect box(extraAreaWidth + collapseBoxWidth/4, top + collapseBoxWidth/4,
-                                2 * (collapseBoxWidth/4) + 1, 2 * (collapseBoxWidth/4) + 1);
-                const QPoint boxCenter = box.center();
-
-
-                QColor textColorInactive = pal.text().color();
-                textColorInactive.setAlpha(100);
-                QColor textColor = pal.text().color();
-
-                QPen activePen(textColor);
-                QPen inactivePen(textColorInactive);
 
                 TextBlockUserData *nextBlockUserData = TextEditDocumentLayout::testUserData(nextBlock);
 
                 bool collapseNext = nextBlockUserData
-                                    && nextBlockUserData->collapseMode()
-                                    == TextBlockUserData::CollapseThis
+                                    && nextBlockUserData->collapseMode() == TextBlockUserData::CollapseThis
                                     && !nextBlockUserData->ifdefedOut();
 
                 bool nextHasClosingCollapse = nextBlockUserData
@@ -2402,35 +2345,24 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                                               && nextBlockUserData->ifdefedOut();
 
                 bool drawBox = ((collapseAfter || collapseNext) && !nextHasClosingCollapse);
+                bool active = blockNumber == extraAreaHighlightCollapseBlockNumber;
+                bool drawStart = drawBox && active;
+                bool drawEnd = blockNumber == extraAreaHighlightCollapseEndBlockNumber || (drawStart && !endIsVisible);
 
-                if (blockNumber > extraAreaHighlightCollapseBlockNumber
-                    && blockNumber < extraAreaHighlightCollapseEndBlockNumber) {
-                    painter.setPen(activePen);
-                    painter.drawLine(boxCenter.x(), top, boxCenter.x(), bottom - 1);
-                } else if (blockNumber == extraAreaHighlightCollapseBlockNumber
-                           && nextVisibleBlockNumber <= extraAreaHighlightCollapseEndBlockNumber) {
-                    painter.setPen(activePen);
-                    painter.drawLine(boxCenter.x(), boxCenter.y(), boxCenter.x(), bottom - 1);
-                } else if (blockNumber == extraAreaHighlightCollapseEndBlockNumber) {
-                    painter.setPen(activePen);
-                    painter.drawLine(boxCenter.x(), top, boxCenter.x(), boxCenter.y());
+                if (   blockNumber >= extraAreaHighlightCollapseBlockNumber
+                    && blockNumber <= extraAreaHighlightCollapseEndBlockNumber) {
+
+                    QRect box = QRect(extraAreaWidth + 1, top, collapseBoxWidth - 2, collapseBoxWidth);
+                    drawRectBox(&painter, box, drawStart, drawEnd, pal);
                 }
 
                 if (drawBox) {
-                    painter.setPen(blockNumber == extraAreaHighlightCollapseBlockNumber ?
-                                   activePen : inactivePen);
-                    painter.setBrush(pal.base());
-                    painter.drawRect(box.adjusted(0, 0, -1, -1));
-                    if (!nextBlock.isVisible())
-                        painter.drawLine(boxCenter.x(), box.top() + 2, boxCenter.x(), box.bottom() - 2);
-                    painter.drawLine(box.left() + 2, boxCenter.y(), box.right() - 2, boxCenter.y());
-                } else if (blockNumber == extraAreaHighlightCollapseEndBlockNumber) {
-                    painter.setPen(activePen);
-                    painter.drawLine(boxCenter.x() + 1, boxCenter.y(), box.right() - 1, boxCenter.y());
+                    bool expanded = nextBlock.isVisible();
+                    QRect box(extraAreaWidth + collapseBoxWidth/4 + 1, top + collapseBoxWidth/4,
+                              2 * (collapseBoxWidth/4) + 1, 2 * (collapseBoxWidth/4) + 1);
+                    drawFoldingMarker(&painter, box, expanded, active);
                 }
-
             }
-
 
             painter.restore();
         }
@@ -2470,13 +2402,22 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
         block = nextVisibleBlock;
         blockNumber = nextVisibleBlockNumber;
     }
+}
 
-    if (d->m_codeFoldingVisible && d->m_displaySettings.m_fancyFoldingBar) {
-        painter.drawLine(extraAreaWidth, 0,
-                         extraAreaWidth, viewport()->height());
-        painter.drawLine(extraAreaWidth + collapseBoxWidth - 1, 0,
-                         extraAreaWidth + collapseBoxWidth - 1, viewport()->height());
-    }
+void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QRect &rect,
+                                       bool expanded, bool hovered) const
+{
+    QStyleOptionViewItemV2 opt;
+    opt.rect = QRect(rect.center(), QSize());
+    opt.state = QStyle::State_Active | QStyle::State_Item | QStyle::State_Children;
+
+    if (expanded)
+        opt.state |= QStyle::State_Open;
+
+    if (hovered)
+        opt.state |= QStyle::State_MouseOver | QStyle::State_Enabled | QStyle::State_Selected;
+
+    style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
 }
 
 void BaseTextEditor::slotModificationChanged(bool m)
@@ -2688,25 +2629,28 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
         d->extraAreaHighlightCollapseBlockNumber = -1;
         d->extraAreaHighlightCollapseColumn = -1;
 
-
         int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
         if (e->pos().x() > extraArea()->width() - collapseBoxWidth) {
             d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
             if (TextBlockUserData::canCollapse(cursor.block())
                 || !TextBlockUserData::hasClosingCollapse(cursor.block()))
                 d->extraAreaHighlightCollapseColumn = cursor.block().length()-1;
-            if ((true || !d->m_displaySettings.m_fancyFoldingBar)
-                && TextBlockUserData::hasCollapseAfter(cursor.block())) {
+            if (TextBlockUserData::hasCollapseAfter(cursor.block())) {
                 d->extraAreaHighlightCollapseBlockNumber++;
                 d->extraAreaHighlightCollapseColumn = -1;
                 if (TextBlockUserData::canCollapse(cursor.block().next())
                     || !TextBlockUserData::hasClosingCollapse(cursor.block().next()))
                     d->extraAreaHighlightCollapseColumn = cursor.block().next().length()-1;
             }
+        } else if (d->m_displaySettings.m_highlightBlocks) {
+            QTextCursor cursor = textCursor();
+            d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
+            d->extraAreaHighlightCollapseColumn = cursor.position() - cursor.block().position();
         }
+
         if (highlightBlockNumber != d->extraAreaHighlightCollapseBlockNumber
             || highlightColumn != d->extraAreaHighlightCollapseColumn)
-            d->m_highlightBlocksTimer->start(40);
+            d->m_highlightBlocksTimer->start(d->m_highlightBlocksInfo.isEmpty() ? 40 : 10);
     }
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
@@ -3462,12 +3406,12 @@ BaseTextEditorAnimator::BaseTextEditorAnimator(QObject *parent)
 
 void BaseTextEditorAnimator::setData(QFont f, QPalette pal, const QString &text)
 {
-        m_font = f;
-        m_palette = pal;
-        m_text = text;
-        QFontMetrics fm(m_font);
-        m_size = QSizeF(fm.width(m_text), fm.height());
-    }
+    m_font = f;
+    m_palette = pal;
+    m_text = text;
+    QFontMetrics fm(m_font);
+    m_size = QSizeF(fm.width(m_text), fm.height());
+}
 
 void BaseTextEditorAnimator::draw(QPainter *p, const QPointF &pos)
 {

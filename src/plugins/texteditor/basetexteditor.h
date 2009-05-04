@@ -511,6 +511,9 @@ private:
     void moveLineUpDown(bool up);
     void saveCurrentCursorPositionForNavigation();
 
+    void drawFoldingMarker(QPainter *painter, const QRect &rect,
+                           bool expanded, bool hovered) const;
+
     void toggleBlockVisible(const QTextBlock &block);
     QRect collapseBox();
 
