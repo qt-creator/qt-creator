@@ -794,7 +794,10 @@ void FakeVimHandler::Private::updateMiniBuffer()
             msg = "-- VISUAL BLOCK --";
         }
     } else if (m_mode == InsertMode) {
-        msg = "-- INSERT --";
+        if (m_submode == ReplaceSubMode)
+            msg = "-- REPLACE --";
+        else
+            msg = "-- INSERT --";
     } else {
         if (m_mode == SearchForwardMode)
             msg += '/';
@@ -1200,7 +1203,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveDown(qMax(count() - 1, 0));
         handleStartOfLine();
         finishMovement();
-    } else if (key == 'i') {
+    } else if (key == 'i' || key == Key_Insert) {
         setDotCommand("i"); // setDotCommand("%1i", count());
         enterInsertMode();
         updateMiniBuffer();
@@ -1484,6 +1487,16 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         m_dotCommand += QChar(27);
         recordNewUndo();
         enterCommandMode();
+    } else if (key == Key_Insert) {
+        if (m_submode == ReplaceSubMode) {
+            EDITOR(setCursorWidth(m_cursorWidth));
+            EDITOR(setOverwriteMode(false));
+            m_submode = NoSubMode;
+        } else {
+            EDITOR(setCursorWidth(m_cursorWidth));
+            EDITOR(setOverwriteMode(true));
+            m_submode = ReplaceSubMode;
+        }
     } else if (key == Key_Left) {
         moveLeft(count());
         m_lastInsertion.clear();
