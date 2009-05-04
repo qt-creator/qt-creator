@@ -46,7 +46,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
-#include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
@@ -308,7 +307,7 @@ void Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
     connect(m_nodesWatcher, SIGNAL(filesAdded()), this, SLOT(updateFileList()));
     connect(m_nodesWatcher, SIGNAL(filesRemoved()), this, SLOT(updateFileList()));
     connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
-            this, SLOT(scheduleUpdateCodeModel()));
+            this, SLOT(scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFileNode *)));
 
     update();
 
@@ -398,9 +397,10 @@ void Qt4Project::addUiFiles()
     m_uiFilesToAdd.clear();
 }
 
-void Qt4Project::scheduleUpdateCodeModel()
+void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
 {
     m_updateCodeModelTimer.start();
+    m_proFilesForCodeModelUpdate.append(pro);
 }
 
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
@@ -469,15 +469,11 @@ void Qt4Project::updateCodeModel()
     if (!modelmanager)
         return;
 
-    QStringList allIncludePaths;
-    QStringList allFrameworkPaths;
-
-    const QHash<QString, QString> versionInfo = qtVersion(activeBuildConfiguration())->versionInfo();
-    const QString newQtIncludePath = versionInfo.value(QLatin1String("QT_INSTALL_HEADERS"));
-    const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
+    QStringList predefinedIncludePaths;
+    QStringList predefinedFrameworkPaths;
+    QByteArray predefinedMacros;
 
     ToolChain *tc = toolChain(activeBuildConfiguration());
-    QByteArray predefinedMacros;
     QList<HeaderPath> allHeaderPaths;
     if (tc) {
         predefinedMacros = tc->predefinedMacros();
@@ -491,17 +487,21 @@ void Qt4Project::updateCodeModel()
     }
     foreach (HeaderPath headerPath, allHeaderPaths) {
         if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
-            allFrameworkPaths.append(headerPath.path());
+            predefinedFrameworkPaths.append(headerPath.path());
         else
-            allIncludePaths.append(headerPath.path());
+            predefinedIncludePaths.append(headerPath.path());
     }
 
-    allIncludePaths.append(newQtIncludePath);
+    const QHash<QString, QString> versionInfo = qtVersion(activeBuildConfiguration())->versionInfo();
+    const QString newQtIncludePath = versionInfo.value(QLatin1String("QT_INSTALL_HEADERS"));
+    const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
+
+    predefinedIncludePaths.append(newQtIncludePath);
     QDir dir(newQtIncludePath);
     foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs)) {
         if (! info.fileName().startsWith(QLatin1String("Qt")))
             continue;
-        allIncludePaths.append(info.absoluteFilePath());
+        predefinedIncludePaths.append(info.absoluteFilePath());
     }
 
 #ifdef Q_OS_MAC
@@ -517,15 +517,26 @@ void Qt4Project::updateCodeModel()
 
     FindQt4ProFiles findQt4ProFiles;
     QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
-    QByteArray definedMacros;
+    QByteArray definedMacros = predefinedMacros;
+    QStringList allIncludePaths = predefinedIncludePaths;
+    QStringList allFrameworkPaths = predefinedFrameworkPaths;
 
     foreach (Qt4ProFileNode *pro, proFiles) {
+        Internal::CodeModelInfo info;
+        info.defines = predefinedMacros;
+        info.includes = predefinedIncludePaths;
+        info.frameworkPaths = predefinedFrameworkPaths;
+
+        // Add custom defines
         foreach (const QString def, pro->variableValue(DefinesVar)) {
             definedMacros += "#define ";
+            info.defines += "#define ";
             const int index = def.indexOf(QLatin1Char('='));
             if (index == -1) {
                 definedMacros += def.toLatin1();
                 definedMacros += " 1\n";
+                info.defines += def.toLatin1();
+                info.defines += " 1\n";
             } else {
                 const QString name = def.left(index);
                 const QString value = def.mid(index + 1);
@@ -533,20 +544,47 @@ void Qt4Project::updateCodeModel()
                 definedMacros += ' ';
                 definedMacros += value.toLocal8Bit();
                 definedMacros += '\n';
+                info.defines += name.toLatin1();
+                info.defines += ' ';
+                info.defines += value.toLocal8Bit();
+                info.defines += '\n';
             }
         }
 
         const QStringList proIncludePaths = pro->variableValue(IncludePathVar);
         foreach (QString includePath, proIncludePaths) {
-            if (allIncludePaths.contains(includePath))
-                continue;
+            if (!allIncludePaths.contains(includePath))
+                allIncludePaths.append(includePath);
+            if (!info.includes.contains(includePath))
+                info.includes.append(includePath);
+        }
 
-            allIncludePaths.append(includePath);
+        // Add mkspec directory
+        info.includes.append(qtVersion(activeBuildConfiguration())->mkspecPath());
+
+        info.frameworkPaths = allFrameworkPaths;
+
+        foreach (FileNode *fileNode, pro->fileNodes()) {
+            const QString path = fileNode->path();
+            const int type = fileNode->fileType();
+            if (type == HeaderType || type == SourceType) {
+                m_codeModelInfo.insert(path, info);
+            }
         }
     }
 
     // Add mkspec directory
     allIncludePaths.append(qtVersion(activeBuildConfiguration())->mkspecPath());
+
+    // Dump things out
+    // This is debugging output...
+//    qDebug()<<"CodeModel stuff:";
+//    QMap<QString, CodeModelInfo>::const_iterator it, end;
+//    end = m_codeModelInfo.constEnd();
+//    for(it = m_codeModelInfo.constBegin(); it != end; ++it) {
+//        qDebug()<<"File: "<<it.key()<<"\nIncludes:"<<it.value().includes<<"\nDefines"<<it.value().defines<<"\n";
+//    }
+//    qDebug()<<"----------------------------";
 
     QStringList files;
     files += m_projectFiles->files[HeaderType];
@@ -562,6 +600,13 @@ void Qt4Project::updateCodeModel()
             pinfo.sourceFiles == files) {
         modelmanager->updateProjectInfo(pinfo);
     } else {
+        if (pinfo.defines != predefinedMacros         ||
+            pinfo.includePaths != allIncludePaths     ||
+            pinfo.frameworkPaths != allFrameworkPaths) {
+            pinfo.sourceFiles.append(QLatin1String("<configuration>"));
+        }
+
+
         pinfo.defines = predefinedMacros;
         // pinfo->defines += definedMacros;   // ### FIXME: me
         pinfo.includePaths = allIncludePaths;
@@ -571,8 +616,41 @@ void Qt4Project::updateCodeModel()
         modelmanager->updateProjectInfo(pinfo);
         modelmanager->updateSourceFiles(pinfo.sourceFiles);
     }
+
+    // TODO use this information
+    // These are the pro files that were actually changed
+    // if the list is empty we are at the initial stage
+    // TODO check that this also works if pro files get added
+    // and removed
+    m_proFilesForCodeModelUpdate.clear();
 }
 
+QByteArray Qt4Project::predefinedMacros(const QString &fileName) const
+{
+    QMap<QString, CodeModelInfo>::const_iterator it = m_codeModelInfo.constFind(fileName);
+    if (it == m_codeModelInfo.constEnd())
+        return QByteArray();
+    else
+        return (*it).defines;
+}
+
+QStringList Qt4Project::includePaths(const QString &fileName) const
+{
+    QMap<QString, CodeModelInfo>::const_iterator it = m_codeModelInfo.constFind(fileName);
+    if (it == m_codeModelInfo.constEnd())
+        return QStringList();
+    else
+        return (*it).includes;
+}
+
+QStringList Qt4Project::frameworkPaths(const QString &fileName) const
+{
+    QMap<QString, CodeModelInfo>::const_iterator it = m_codeModelInfo.constFind(fileName);
+    if (it == m_codeModelInfo.constEnd())
+        return QStringList();
+    else
+        return (*it).frameworkPaths;
+}
 
 ///*!
 //  Updates complete project
