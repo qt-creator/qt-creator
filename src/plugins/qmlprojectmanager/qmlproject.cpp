@@ -370,6 +370,7 @@ QmlApplicationRunConfiguration::QmlApplicationRunConfiguration(QmlProject *pro)
     : ProjectExplorer::ApplicationRunConfiguration(pro),
       m_project(pro)
 {
+    setName(tr("QML Viewer"));
 }
 
 QmlApplicationRunConfiguration::~QmlApplicationRunConfiguration()
@@ -378,7 +379,7 @@ QmlApplicationRunConfiguration::~QmlApplicationRunConfiguration()
 
 QString QmlApplicationRunConfiguration::type() const
 {
-    return tr("QML Viewer");
+    return QLatin1String("QmlProject.QmlApplicationRunConfiguration");
 }
 
 QString QmlApplicationRunConfiguration::executable() const
