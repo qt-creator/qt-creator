@@ -146,18 +146,6 @@ void DuiEditorPlugin::initializeEditor(DuiEditor::Internal::ScriptEditor *editor
 
 void DuiEditorPlugin::registerActions()
 {
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
-    Core::ActionContainer *mcontext = am->createMenu(DuiEditor::Constants::M_CONTEXT);
-
-    QAction *action = new QAction(this);
-    action->setSeparator(true);
-    Core::Command *cmd = am->registerAction(action, DuiEditor::Constants::RUN_SEP, m_scriptcontext);
-    mcontext->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-
-    action = new QAction(tr("Run"), this);
-    cmd = am->registerAction(action, DuiEditor::Constants::RUN, m_scriptcontext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
-    mcontext->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 }
 
 Q_EXPORT_PLUGIN(DuiEditorPlugin)

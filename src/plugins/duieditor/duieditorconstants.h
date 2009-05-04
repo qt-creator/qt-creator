@@ -34,7 +34,6 @@ namespace DuiEditor {
 namespace Constants {
 
 const char * const M_CONTEXT = "DUI Editor.ContextMenu";
-const char * const RUN = "DuiEditor.Run";
 const char * const RUN_SEP = "DuiEditor.Run.Separator";
 const char * const C_DUIEDITOR = "DUI Editor";
 

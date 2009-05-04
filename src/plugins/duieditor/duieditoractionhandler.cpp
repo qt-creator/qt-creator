@@ -40,61 +40,20 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 
-static QAction *actionFromId(const QString &id)
-{
-    Core::Command *cmd = Core::ICore::instance()->actionManager()->command(id);
-    if (!cmd)
-        return 0;
-    return cmd->action();
-}
-
 namespace DuiEditor {
 namespace Internal {
 
 DuiEditorActionHandler::DuiEditorActionHandler()
   : TextEditor::TextEditorActionHandler(QLatin1String(DuiEditor::Constants::C_DUIEDITOR),
-                                        Format),
-    m_runAction(0)
+                                        Format)
 {
 }
 
 void DuiEditorActionHandler::createActions()
 {
     TextEditor::TextEditorActionHandler::createActions();
-    m_runAction = actionFromId(QLatin1String(DuiEditor::Constants::RUN));
-    connect(m_runAction, SIGNAL(triggered()), this, SLOT(run()));
 }
 
-
-void DuiEditorActionHandler::run()
-{
-    typedef Core::ScriptManager::Stack Stack;
-    if (!currentEditor())
-        return;
-
-    const QString script = currentEditor()->toPlainText();
-
-    // run
-    Stack errorStack;
-    QString errorMessage;
-    if (Core::ICore::instance()->scriptManager()->runScript(script, &errorMessage, &errorStack))
-        return;
-
-    // try to find a suitable error line in the stack
-    // ignoring 0 and other files (todo: open other files?)
-    int errorLineNumber = 0;
-    if (const int numFrames = errorStack.size()) {
-        for (int f = 0; f < numFrames; f++) {
-            if (errorStack[f].lineNumber && errorStack[f].fileName.isEmpty()) {
-                errorLineNumber = errorStack[f].lineNumber;
-                break;
-            }
-        }
-    }
-    if (errorLineNumber)
-        currentEditor()->gotoLine(errorLineNumber);
-    QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("Qt Script Error"), errorMessage);
-}
 
 } // namespace Internal
 } // namespace DuiEditor

@@ -42,14 +42,7 @@ class DuiEditorActionHandler : public TextEditor::TextEditorActionHandler
 public:
     DuiEditorActionHandler();
 
-private:
-    virtual void createActions();
-
-private slots:
-    void run();
-
-private:
-    QAction *m_runAction;
+    void createActions();
 };
 
 } // namespace Internal
