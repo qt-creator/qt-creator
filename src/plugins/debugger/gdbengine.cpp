@@ -2073,7 +2073,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     cmd += where;
 #endif
 #ifdef Q_OS_WIN
-    QString cmd = "-break-insert ";
+    QString cmd = _("-break-insert ");
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + " ";
     cmd += where;
@@ -2222,16 +2222,16 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, int index)
 #endif
 #ifdef Q_OS_MAC
         QFileInfo fi(data->fileName);
-        QString where = "\"" + fi.fileName() + "\":"
+        QString where = _c('"') + fi.fileName() + _("\":")
             + data->lineNumber;
         sendCommand("break " + where, BreakInsert1, index);
 #endif
 #ifdef Q_OS_WIN
         QFileInfo fi(data->fileName);
-        QString where = "\"" + fi.fileName() + "\":"
+        QString where = _c('"') + fi.fileName() + _("\":")
             + data->lineNumber;
         //QString where = m_data->fileName + _c(':') + data->lineNumber;
-        sendCommand("break " + where, BreakInsert1, index);
+        sendCommand(_("break ") + where, BreakInsert1, index);
 #endif
     }
 }
@@ -2637,13 +2637,13 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, bool isFull
         const bool isBogus =
             // Assume this is wrong and points to some strange stl_algobase
             // implementation. Happens on Karsten's XP system with Gdb 5.50
-            (frame.file.endsWith("/bits/stl_algobase.h") && frame.line == 150)
+            (frame.file.endsWith(_("/bits/stl_algobase.h")) && frame.line == 150)
             // Also wrong. Happens on Vista with Gdb 5.50
-               || (frame.function == "operator new" && frame.line == 151);
+               || (frame.function == _("operator new") && frame.line == 151);
 
         // immediately leave bogus frames
         if (topFrame == -1 && isBogus) {
-            sendCommand("-exec-finish");
+            sendCommand(_("-exec-finish"));
             return;
         }
 
