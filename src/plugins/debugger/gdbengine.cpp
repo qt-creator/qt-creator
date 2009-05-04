@@ -919,11 +919,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
         return;
     }
 
-    GdbCookie cmd;
-    cmd.command = command;
-    cmd.type = -1;
-
-    m_gdbProc.write(cmd.command.toLatin1() + "\r\n");
+    m_gdbProc.write(command.toLatin1() + "\r\n");
 }
 
 void GdbEngine::handleTargetCore(const GdbResultRecord &record)
