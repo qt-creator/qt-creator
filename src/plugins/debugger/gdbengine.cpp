@@ -1057,7 +1057,7 @@ void GdbEngine::handleInfoProc(const GdbResultRecord &record)
     if (record.resultClass == GdbResultDone) {
         #if defined(Q_OS_MAC)
         //^done,process-id="85075"
-        maybeHandleInferiorPidChanged(record.data.findChild("process-id").data());
+        maybeHandleInferiorPidChanged(QString::fromLatin1(record.data.findChild("process-id").data()));
         #endif
 
         #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
@@ -2067,7 +2067,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     cmd += where;
 #endif
 #ifdef Q_OS_MAC
-    QString cmd = "-break-insert -l -1 ";
+    QString cmd = _("-break-insert -l -1 ");
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + " ";
     cmd += where;
@@ -2224,7 +2224,7 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, int index)
         QFileInfo fi(data->fileName);
         QString where = _c('"') + fi.fileName() + _("\":")
             + data->lineNumber;
-        sendCommand("break " + where, BreakInsert1, index);
+        sendCommand(_("break ") + where, BreakInsert1, index);
 #endif
 #ifdef Q_OS_WIN
         QFileInfo fi(data->fileName);
