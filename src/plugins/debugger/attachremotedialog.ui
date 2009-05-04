@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
-    <height>866</height>
+    <width>310</width>
+    <height>224</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,57 +22,34 @@
    </property>
    <item>
     <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
      <item row="0" column="0">
-      <widget class="QLabel" name="pidLabel">
+      <widget class="QLabel" name="channelLabel">
        <property name="text">
-        <string>Attach to Process ID:</string>
+        <string>Host and Port:</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="pidLineEdit"/>
+      <widget class="QLineEdit" name="channelLineEdit">
+       <property name="text">
+        <string>localhost:5115</string>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="architectureLabel">
        <property name="text">
-        <string>Filter:</string>
+        <string>Architecture:</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QWidget" name="filterWidget" native="true">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLineEdit" name="filterLineEdit"/>
-        </item>
-        <item>
-         <widget class="QToolButton" name="filterClearToolButton">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+      <widget class="QComboBox" name="architectureComboBox"/>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QTreeView" name="procView">
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

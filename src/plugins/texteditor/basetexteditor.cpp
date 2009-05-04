@@ -1753,6 +1753,8 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
     QPointF offset(contentOffset());
 
+    bool hasMainSelection = textCursor().hasSelection();
+
     QRect er = e->rect();
     QRect viewportRect = viewport()->rect();
 
@@ -1853,7 +1855,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
             int bllen = block.length();
 
             QVector<QTextLayout::FormatRange> selections;
-            QVector<QTextLayout::FormatRange> selectionsWithText;
+            QVector<QTextLayout::FormatRange> prioritySelections;
 
             for (int i = 0; i < context.selections.size(); ++i) {
                 const QAbstractTextDocumentLayout::Selection &range = context.selections.at(i);
@@ -1869,8 +1871,11 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                         o.start = qMin(blockSelection->firstColumn, bllen-1);
                         o.length = qMin(blockSelection->lastColumn, bllen-1) - o.start;
                     }
-                    if (o.format.foreground().style() != Qt::NoBrush)
-                        selectionsWithText.append(o);
+                    if ((hasMainSelection && i == context.selections.size()-1)
+                        || (o.format.foreground().style() == Qt::NoBrush
+                        && o.format.underlineStyle() != QTextCharFormat::NoUnderline
+                        && o.format.background() == Qt::NoBrush))
+                        prioritySelections.append(o);
                     else
                         selections.append(o);
                 } else if (!range.cursor.hasSelection() && range.format.hasProperty(QTextFormat::FullWidthSelection)
@@ -1884,14 +1889,11 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                     if (o.start + o.length == bllen - 1)
                         ++o.length; // include newline
                     o.format = range.format;
-                    if (o.format.foreground().style() != Qt::NoBrush)
-                        selectionsWithText.append(o);
-                    else
-                        selections.append(o);
+                    selections.append(o);
                 }
             }
             d->highlightSearchResults(block, &selections);
-            selections += selectionsWithText;
+            selections += prioritySelections;
 
             bool drawCursor = ((editable || true) // we want the cursor in read-only mode
                                && context.cursorPosition >= blpos
@@ -2356,7 +2358,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
                 if (drawBox) {
                     bool expanded = nextBlock.isVisible();
-                    QRect box(extraAreaWidth + collapseBoxWidth/4 + 1, top + collapseBoxWidth/4,
+                    QRect box(extraAreaWidth + collapseBoxWidth/4, top + collapseBoxWidth/4,
                               2 * (collapseBoxWidth/4) + 1, 2 * (collapseBoxWidth/4) + 1);
                     drawFoldingMarker(&painter, box, expanded, active);
                 }
@@ -2406,7 +2408,7 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QRect &rect,
                                        bool expanded, bool hovered) const
 {
     QStyleOptionViewItemV2 opt;
-    opt.rect = QRect(rect.center(), QSize());
+    opt.rect = rect;
     opt.state = QStyle::State_Active | QStyle::State_Item | QStyle::State_Children;
 
     if (expanded)

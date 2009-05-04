@@ -185,6 +185,7 @@ enum FileType {
     HeaderFile,
     C_SourceFile,
     CPP_SourceFile,
+    ObjectiveCPP_SourceFile,
     UnknownType
 };
 
@@ -198,6 +199,8 @@ static inline FileType fileType(const Core::MimeDatabase *mimeDatase, const  QFi
         return C_SourceFile;
     if (typeName == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
         return CPP_SourceFile;
+    if (typeName == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
+        return ObjectiveCPP_SourceFile;
     if (typeName == QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE)
         || typeName == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
         return HeaderFile;
@@ -212,11 +215,13 @@ static QStringList matchingCandidateSuffixes(const Core::MimeDatabase *mimeDatas
     case UnknownType:
         break;
     case HeaderFile: // Note that C/C++ headers are undistinguishable
-        return mimeDatase->findByType(QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)).suffixes() +
-               mimeDatase->findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)).suffixes();
+        return mimeDatase->findByType(QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)).suffixes()
+               + mimeDatase->findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)).suffixes()
+               + mimeDatase->findByType(QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)).suffixes();
     case C_SourceFile:
         return mimeDatase->findByType(QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE)).suffixes();
     case CPP_SourceFile:
+    case ObjectiveCPP_SourceFile:
         return mimeDatase->findByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)).suffixes();
     }
     return QStringList();

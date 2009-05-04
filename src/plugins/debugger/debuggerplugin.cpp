@@ -99,6 +99,7 @@ namespace Constants {
 const char * const STARTEXTERNAL        = "Debugger.StartExternal";
 const char * const ATTACHEXTERNAL       = "Debugger.AttachExternal";
 const char * const ATTACHCORE           = "Debugger.AttachCore";
+const char * const ATTACHREMOTE         = "Debugger.AttachRemote";
 
 const char * const RUN_TO_LINE          = "Debugger.RunToLine";
 const char * const RUN_TO_FUNCTION      = "Debugger.RunToFunction";
@@ -477,6 +478,15 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
                                  Constants::ATTACHCORE, globalcontext);
         mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
     }
+
+    #if 0
+    // FIXME: not yet functional
+    if (m_manager->m_attachRemoteAction) {
+        cmd = am->registerAction(m_manager->m_attachRemoteAction,
+                                 Constants::ATTACHREMOTE, globalcontext);
+        mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    }
+    #endif
 
     cmd = am->registerAction(m_manager->m_continueAction,
         ProjectExplorer::Constants::DEBUG, QList<int>() << m_gdbRunningContext);

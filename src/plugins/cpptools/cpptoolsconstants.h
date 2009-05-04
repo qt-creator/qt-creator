@@ -41,6 +41,7 @@ const char * const TASK_INDEX               = "CppTools.Task.Index";
 const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
 const char * const C_HEADER_MIMETYPE = "text/x-chdr";
 const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
+const char * const OBJECTIVE_CPP_SOURCE_MIMETYPE = "text/x-objcsrc";
 const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
 
 // QSettings keys for use by the "New Class" wizards.

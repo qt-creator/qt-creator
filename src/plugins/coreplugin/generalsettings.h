@@ -31,6 +31,7 @@
 #define GENERALSETTINGS_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
 namespace Core {
@@ -65,7 +66,7 @@ private slots:
 
 private:
     Ui::GeneralSettings *m_page;
-    QWidget *m_dialog;
+    QPointer<QWidget> m_dialog;
 };
 
 } // namespace Internal

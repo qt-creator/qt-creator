@@ -149,6 +149,7 @@ struct EditorManagerPrivate {
     QAction *m_saveAsAction;
     QAction *m_closeCurrentEditorAction;
     QAction *m_closeAllEditorsAction;
+    QAction *m_closeOtherEditorsAction;
     QAction *m_gotoNextDocHistoryAction;
     QAction *m_gotoPreviousDocHistoryAction;
     QAction *m_goBackAction;
@@ -187,6 +188,7 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_saveAsAction(new QAction(parent)),
     m_closeCurrentEditorAction(new QAction(EditorManager::tr("Close"), parent)),
     m_closeAllEditorsAction(new QAction(EditorManager::tr("Close All"), parent)),
+    m_closeOtherEditorsAction(new QAction(EditorManager::tr("Close Others"), parent)),
     m_gotoNextDocHistoryAction(new QAction(EditorManager::tr("Next Document in History"), parent)),
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Document in History"), parent)),
     m_goBackAction(new QAction(EditorManager::tr("Go back"), parent)),
@@ -291,6 +293,12 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+W")));
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(m_d->m_closeAllEditorsAction, SIGNAL(triggered()), this, SLOT(closeAllEditors()));
+
+    //Close All Others Action
+    cmd = am->registerAction(m_d->m_closeOtherEditorsAction, Constants::CLOSEOTHERS, editManagerContext);
+    mfile->addAction(cmd, Constants::G_FILE_CLOSE);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_d->m_closeOtherEditorsAction, SIGNAL(triggered()), this, SLOT(closeOtherEditors()));
 
     // Goto Previous In History Action
     cmd = am->registerAction(m_d->m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editManagerContext);
@@ -646,6 +654,16 @@ bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
     m_d->m_editorModel->removeAllRestoredEditors();
     return closeEditors(openedEditors(), askAboutModifiedEditors);
+}
+
+void EditorManager::closeOtherEditors()
+{
+    IEditor *current = currentEditor();
+    QTC_ASSERT(current, return);
+    m_d->m_editorModel->removeAllRestoredEditors();
+    QList<IEditor*> editors = openedEditors();
+    editors.removeAll(current);
+    closeEditors(editors, true);
 }
 
 bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askAboutModifiedEditors)
@@ -1331,7 +1349,7 @@ void EditorManager::updateActions()
 {
     QString fName;
     IEditor *curEditor = currentEditor();
-    int openedCount = openedEditors().count();
+    int openedCount = openedEditors().count() + m_d->m_editorModel->restoredEditorCount();
     if (curEditor) {
         if (!curEditor->file()->fileName().isEmpty()) {
             QFileInfo fi(curEditor->file()->fileName());
@@ -1367,6 +1385,8 @@ void EditorManager::updateActions()
     m_d->m_closeCurrentEditorAction->setEnabled(curEditor != 0);
     m_d->m_closeCurrentEditorAction->setText(tr("Close %1").arg(quotedName));
     m_d->m_closeAllEditorsAction->setEnabled(openedCount > 0);
+    m_d->m_closeOtherEditorsAction->setEnabled(openedCount > 1);
+    m_d->m_closeOtherEditorsAction->setText((openedCount > 1 ? tr("Close All Except %1").arg(quotedName) : tr("Close Others")));
 
     m_d->m_gotoNextDocHistoryAction->setEnabled(m_d->m_editorHistory.count() > 0);
     m_d->m_gotoPreviousDocHistoryAction->setEnabled(m_d->m_editorHistory.count() > 0);

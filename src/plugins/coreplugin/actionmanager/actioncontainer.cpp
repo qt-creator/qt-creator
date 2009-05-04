@@ -51,63 +51,98 @@ using namespace Core::Internal;
 
     \brief The ActionContainer class represents a menu or menu bar in Qt Creator.
 
-    
-*/
+    You don't create instances of this class directly, but instead use the
+    \l{ActionManager::createMenu()}
+    and \l{ActionManager::createMenuBar()} methods.
+    Retrieve existing action containers for an ID with
+    \l{ActionManager::actionContainer()}.
 
-/*!
-    \enum ActionContainer::ContainerType
+    Within a menu or menu bar you can group menus and items together by defining groups
+    (the order of the groups is defined by the order of the \l{ActionContainer::appendGroup()} calls), and
+    adding menus/actions to these groups. If no custom groups are defined, an action container
+    has three default groups \c{Core::Constants::G_DEFAULT_ONE}, \c{Core::Constants::G_DEFAULT_TWO}
+    and \c{Core::Constants::G_DEFAULT_THREE}.
+
+    You can define if the menu represented by this action container should automatically disable
+    or hide whenever it only contains disabled items and submenus by setting the corresponding
+    \l{ActionContainer::setEmptyAction()}{EmptyAction}.
 */
 
 /*!
     \enum ActionContainer::EmptyAction
+    Defines what happens when the represented menu is empty or contains only disabled/invisible items.
+    \omitvalue EA_Mask
+    \value EA_None
+        The menu will still be visible and active.
+    \value EA_Disable
+        The menu will be visible but disabled.
+    \value EA_Hide
+        The menu will not be visible until the state of the subitems change.
 */
 
 /*!
-    \fn virtual ActionContainer::setEmptyAction(EmptyAction ea)
+    \fn ActionContainer::setEmptyAction(EmptyAction disableOrHide)
+    Defines if the menu represented by this action container should automatically \a disableOrHide
+    whenever it only contains disabled items and submenus.
+    \sa ActionContainer::EmptyAction
 */
 
 /*!
-    \fn virtual int ActionContainer::id() const
+    \fn int ActionContainer::id() const
+    \internal
 */
 
 /*!
-    \fn virtual ContainerType ActionContainer::type() const
+    \fn QMenu *ActionContainer::menu() const
+    Returns the QMenu instance that is represented by this action container, or
+    0 if this action container represents a menu bar.
 */
 
 /*!
-    \fn virtual QMenu *ActionContainer::menu() const
+    \fn QMenuBar *ActionContainer::menuBar() const
+    Returns the QMenuBar instance that is represented by this action container, or
+    0 if this action container represents a menu.
 */
 
 /*!
-    \fn virtual QToolBar *ActionContainer::toolBar() const
+    \fn QAction *ActionContainer::insertLocation(const QString &group) const
+    Returns an action representing the \a group,
+    that could be used with \c{QWidget::insertAction}.
 */
 
 /*!
-    \fn virtual QMenuBar *ActionContainer::menuBar() const
+    \fn void ActionContainer::appendGroup(const QString &identifier)
+    Adds a group with the given \a identifier to the action container. Using groups
+    you can segment your action container into logical parts and add actions and
+    menus directly to these parts.
+    \sa addAction()
+    \sa addMenu()
 */
 
 /*!
-    \fn virtual QAction *ActionContainer::insertLocation(const QString &group) const
+    \fn void ActionContainer::addAction(Core::Command *action, const QString &group)
+    Add the \a action as a menu item to this action container. The action is added as the
+    last item of the specified \a group.
+    \sa appendGroup()
+    \sa addMenu()
 */
 
 /*!
-    \fn virtual void ActionContainer::appendGroup(const QString &group, bool global)
+    \fn void ActionContainer::addMenu(Core::ActionContainer *menu, const QString &group)
+    Add the \a menu as a submenu to this action container. The menu is added as the
+    last item of the specified \a group.
+    \sa appendGroup()
+    \sa addAction()
 */
 
 /*!
-    \fn virtual void ActionContainer::addAction(Core::Command *action, const QString &group)
+    \fn bool ActionContainer::update()
+    \internal
 */
 
 /*!
-    \fn virtual void ActionContainer::addMenu(Core::ActionContainer *menu, const QString &group)
-*/
-
-/*!
-    \fn virtual bool ActionContainer::update()
-*/
-
-/*!
-    \fn virtual ActionContainer::~ActionContainer()
+    \fn ActionContainer::~ActionContainer()
+    \internal
 */
 
 // ---------- ActionContainerPrivate ------------
