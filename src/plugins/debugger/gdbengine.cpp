@@ -92,16 +92,9 @@ Q_DECLARE_METATYPE(Debugger::Internal::GdbMi);
 #define STRINGIFY_INTERNAL(x) #x
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 
-struct _c
-{
-    inline _c(char c) : m_c(c) {}
-    inline operator QChar() const { return QLatin1Char(m_c); }
-    char m_c;    
-};
-
-#define _c(c) QLatin1Char(c)
-#define __(s) QLatin1String(s)
-#define _(s) QString::fromLatin1(s)
+typedef QLatin1Char _c;
+typedef QLatin1String __;
+static inline QString _(const char *s) { return QString::fromLatin1(s); }
 
 static const QString tooltipIName = _("tooltip");
 
