@@ -668,7 +668,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
         return;
     }
 
-    m_gdbProc.write(command.toLatin1() + "\r\n");
+    m_gdbProc.write(command.toLocal8Bit() + "\r\n");
 }
 
 void GdbEngine::handleTargetCore(const GdbResultRecord &, const QVariant &)
