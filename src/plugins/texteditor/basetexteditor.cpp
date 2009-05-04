@@ -2722,7 +2722,12 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
                     || !TextBlockUserData::hasClosingCollapse(cursor.block().next()))
                     d->extraAreaHighlightCollapseColumn = cursor.block().next().length()-1;
             }
+        } else if (d->m_displaySettings.m_highlightBlocks) {
+            QTextCursor cursor = textCursor();
+            d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
+            d->extraAreaHighlightCollapseColumn = cursor.position() - cursor.block().position();
         }
+
         if (highlightBlockNumber != d->extraAreaHighlightCollapseBlockNumber
             || highlightColumn != d->extraAreaHighlightCollapseColumn)
             d->m_highlightBlocksTimer->start(d->m_highlightBlocksInfo.isEmpty() ? 40 : 10);
