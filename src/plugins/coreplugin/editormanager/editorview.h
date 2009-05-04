@@ -95,6 +95,7 @@ public:
     bool isDuplicate(IEditor *editor) const;
     QList<IEditor *> duplicatesFor(IEditor *editor) const;
     IEditor *originalForDuplicate(IEditor *duplicate) const;
+    void makeOriginal(IEditor *duplicate);
     QModelIndex indexOf(IEditor *editor) const;
     QModelIndex indexOf(const QString &filename) const;
 

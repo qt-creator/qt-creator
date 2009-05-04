@@ -63,7 +63,7 @@
        </property>
        <property name="toolTip">
         <string>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
-To do this you type this shortcut and a space in the QuickOpen entry field, and then the word to search for.</string>
+To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</string>
        </property>
       </widget>
      </item>

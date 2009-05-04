@@ -42,7 +42,8 @@ using namespace QuickOpen::Internal;
 
 DirectoryFilter::DirectoryFilter()
   : m_name(tr("Generic Directory Filter")),
-    m_filters(QStringList() << "*.h" << "*.cpp" << "*.ui" << "*.qrc")
+    m_filters(QStringList() << QLatin1String("*.h") << QLatin1String("*.cpp")
+                            << QLatin1String("*.ui") << QLatin1String("*.qrc"))
 {
     setIncludedByDefault(true);
 }
@@ -112,7 +113,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_ui.nameEdit->selectAll();
     m_ui.directoryList->clear();
     m_ui.directoryList->addItems(m_directories);
-    m_ui.fileTypeEdit->setText(m_filters.join(tr(",")));
+    m_ui.fileTypeEdit->setText(m_filters.join(QString(QLatin1Char(','))));
     m_ui.shortcutEdit->setText(shortcutString());
     m_ui.defaultFlag->setChecked(!isIncludedByDefault());
     updateOptionButtons();
@@ -132,7 +133,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
             if (!directoriesChanged && m_directories.at(i) != oldDirectories.at(i))
                 directoriesChanged = true;
         }
-        m_filters = m_ui.fileTypeEdit->text().trimmed().split(tr(","));
+        m_filters = m_ui.fileTypeEdit->text().trimmed().split(QLatin1Char(','));
         setShortcutString(m_ui.shortcutEdit->text().trimmed());
         setIncludedByDefault(!m_ui.defaultFlag->isChecked());
         if (directoriesChanged || oldFilters != m_filters)
@@ -207,7 +208,8 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     }
     while (!dirs.isEmpty() && !future.isCanceled()) {
         if (future.isProgressUpdateNeeded()) {
-            future.setProgressValueAndText(progress, tr("%1 filter update: %2 files").arg(m_name).arg(files.size()));
+            future.setProgressValueAndText(progress,
+                                           tr("%1 filter update: %n files", 0, files.size()).arg(m_name));
         }
         QDir dir = dirs.pop();
         int dirProgressMax = progressValues.pop();

@@ -35,11 +35,35 @@
 #include <QtCore/QFutureInterface>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QRegExp>
-#include <QtGui/QApplication>
+#include <QtCore/QCoreApplication>
 
 #include <qtconcurrent/runextensions.h>
 
 using namespace Core::Utils;
+
+static inline QString msgCanceled(const QString &searchTerm, int numMatches, int numFilesSearched)
+{
+    return QCoreApplication::translate("Core::Utils::FileSearch",
+                                       "%1: canceled. %n occurrences found in %2 files.",
+                                       0, QCoreApplication::CodecForTr, numMatches).
+                                       arg(searchTerm).arg(numFilesSearched);
+}
+
+static inline QString msgFound(const QString &searchTerm, int numMatches, int numFilesSearched)
+{
+    return QCoreApplication::translate("Core::Utils::FileSearch",
+                                       "%1: %n occurrences found in %2 files.",
+                                       0, QCoreApplication::CodecForTr, numMatches).
+                                       arg(searchTerm).arg(numFilesSearched);
+}
+
+static inline QString msgFound(const QString &searchTerm, int numMatches, int numFilesSearched, int filesSize)
+{
+    return QCoreApplication::translate("Core::Utils::FileSearch",
+                                       "%1: %n occurrences found in %2 of %3 files.",
+                                       0, QCoreApplication::CodecForTr, numMatches).
+                                       arg(searchTerm).arg(numFilesSearched).arg(filesSize);
+}
 
 namespace {
 
@@ -71,9 +95,7 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
         if (future.isPaused())
             future.waitForResume();
         if (future.isCanceled()) {
-            future.setProgressValueAndText(numFilesSearched,
-                                           QApplication::translate("FileSearch", "%1: canceled. %2 occurrences found in %3 files.").
-                                           arg(searchTerm).arg(numMatches).arg(numFilesSearched));
+            future.setProgressValueAndText(numFilesSearched, msgCanceled(searchTerm, numMatches, numFilesSearched));
             break;
         }
         QFile file(s);
@@ -146,14 +168,10 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
             firstChunk = false;
         }
         ++numFilesSearched;
-        future.setProgressValueAndText(numFilesSearched,
-                                QApplication::translate("FileSearch", "%1: %2 occurrences found in %3 of %4 files.").
-                                arg(searchTerm).arg(numMatches).arg(numFilesSearched).arg(files.size()));
+        future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched, files.size()));
     }
     if (!future.isCanceled())
-        future.setProgressValueAndText(numFilesSearched,
-                                QApplication::translate("FileSearch", "%1: %2 occurrences found in %3 files.").
-                                arg(searchTerm).arg(numMatches).arg(numFilesSearched));
+        future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched));
 }
 
 void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
@@ -165,17 +183,15 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
     int numFilesSearched = 0;
     int numMatches = 0;
     if (flags & QTextDocument::FindWholeWords)
-        searchTerm = QString("\\b%1\\b").arg(searchTerm);
-    Qt::CaseSensitivity caseSensitivity = (flags & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
-    QRegExp expression(searchTerm, caseSensitivity);
+        searchTerm = QString::fromLatin1("\\b%1\\b").arg(searchTerm);
+    const Qt::CaseSensitivity caseSensitivity = (flags & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    const QRegExp expression(searchTerm, caseSensitivity);
 
-    foreach (QString s, files) {
+    foreach (const QString &s, files) {
         if (future.isPaused())
             future.waitForResume();
         if (future.isCanceled()) {
-            future.setProgressValueAndText(numFilesSearched,
-                                           QApplication::translate("FileSearch", "%1: canceled. %2 occurrences found in %3 files.").
-                                           arg(searchTerm).arg(numMatches).arg(numFilesSearched));
+            future.setProgressValueAndText(numFilesSearched, msgCanceled(searchTerm, numMatches, numFilesSearched));
             break;
         }
         QFile file(s);
@@ -195,14 +211,10 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
             ++lineNr;
         }
         ++numFilesSearched;
-        future.setProgressValueAndText(numFilesSearched,
-                                QApplication::translate("FileSearch", "%1: %2 occurrences found in %3 of %4 files.").
-                                arg(searchTerm).arg(numMatches).arg(numFilesSearched).arg(files.size()));
+        future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched, files.size()));
     }
     if (!future.isCanceled())
-        future.setProgressValueAndText(numFilesSearched,
-                                QApplication::translate("FileSearch", "%1: %2 occurrences found in %3 files.").
-                                arg(searchTerm).arg(numMatches).arg(numFilesSearched));
+        future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched));
 }
 
 } // namespace
