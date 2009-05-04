@@ -1498,10 +1498,8 @@ QRect BaseTextEditor::collapseBox()
 
     QTextBlock begin = document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
 
-    if (true || !d->m_displaySettings.m_fancyFoldingBar) {
-        if (TextBlockUserData::hasCollapseAfter(begin.previous()))
-            begin = begin.previous();
-    }
+    if (TextBlockUserData::hasCollapseAfter(begin.previous()))
+        begin = begin.previous();
 
     QTextBlock end = document()->findBlockByNumber(d->m_highlightBlocksInfo.close.first());
     if (!begin.isValid() || !end.isValid())
@@ -1692,13 +1690,6 @@ void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
     }
     if (ensureVisible)
         q->ensureCursorVisible();
-}
-
-static QColor calcMixColor(const QColor &one, const QColor &two)
-{
-    return QColor((one.red() + two.red()) / 2,
-                  (one.green() + two.green()) / 2,
-                  (one.blue() + two.blue()) / 2);
 }
 
 static QColor calcBlendColor(const QColor &baseColor, int factor = 1)
@@ -2313,71 +2304,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                 }
             }
 
-            if (d->m_codeFoldingVisible && d->m_displaySettings.m_fancyFoldingBar) {
-                QRect r(extraAreaWidth+2, top, collapseBoxWidth-4, bottom - top);
-
-                int extraAreaHighlightCollapseBlockNumber = -1;
-                int extraAreaHighlightCollapseEndBlockNumber = -1;
-                if (!d->m_highlightBlocksInfo.isEmpty()) {
-                    extraAreaHighlightCollapseBlockNumber =  d->m_highlightBlocksInfo.open.last();
-                    extraAreaHighlightCollapseEndBlockNumber =  d->m_highlightBlocksInfo.close.first();
-
-                    QTextBlock before = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber-1);
-                    if (TextBlockUserData::hasCollapseAfter(before)) {
-                        extraAreaHighlightCollapseBlockNumber--;
-                    }
-                }
-                int minBraceDepth = qMax(braceDepth, previousBraceDepth);
-                QColor color = calcBlendColor(baseColor, minBraceDepth);
-                if (!d->m_highlightBlocksInfo.isEmpty()
-                    && blockNumber >= extraAreaHighlightCollapseBlockNumber
-                            && blockNumber <= extraAreaHighlightCollapseEndBlockNumber)
-                    color = calcMixColor(pal.highlight().color(), color);
-                painter.fillRect(r, color);
-
-                bool drawBox = !nextBlock.isVisible();
-                bool drawDown = !d->m_highlightBlocksInfo.isEmpty()
-                                && blockNumber == extraAreaHighlightCollapseBlockNumber;
-                bool drawUp = !d->m_highlightBlocksInfo.isEmpty()
-                              && blockNumber == extraAreaHighlightCollapseEndBlockNumber;
-
-                if (drawBox || drawDown || drawUp) {
-                    painter.setRenderHint(QPainter::Antialiasing, true);
-                    painter.translate(.5, .5);
-                    painter.setPen(pal.text().color());
-                    painter.setBrush(pal.text().color());
-
-                    if (drawBox) {
-                        QPointF points1[3] = { QPointF(r.left(), r.center().y()-1),
-                                               QPointF(r.center().x(), r.top()),
-                                               QPointF(r.right(), r.center().y()-1) };
-                        QPointF points2[3] = { QPointF(r.left(), r.center().y()+1),
-                                               QPointF(r.center().x(), r.bottom()-1),
-                                               QPointF(r.right(), r.center().y()+1) };
-                        painter.drawPolygon(points1, 3);
-                        painter.drawPolygon(points2, 3);
-                    } else if (drawUp) {
-
-                        // check that we are not collapsed
-                        QTextBlock open = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber);
-                        if (open.next().isVisible()) {
-
-                            QPointF points[3] = { QPointF(r.left(), r.bottom()-1),
-                                                  QPointF(r.center().x(), r.center().y()),
-                                                  QPointF(r.right(), r.bottom()-1) };
-                            painter.drawPolygon(points, 3);
-                        }
-                    } else if(drawDown) {
-                        QPointF points[3] = { QPointF(r.left(), r.top()),
-                                              QPointF(r.center().x(), r.center().y()),
-                                              QPointF(r.right(), r.top()) };
-                        painter.drawPolygon(points, 3);
-                    }
-                    painter.translate(-.5, -.5);
-                    painter.setRenderHint(QPainter::Antialiasing, false);
-                }
-
-            } else if (d->m_codeFoldingVisible) {
+            if (d->m_codeFoldingVisible) {
 
                 bool collapseThis = false;
                 bool collapseAfter = false;
@@ -2472,13 +2399,6 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
         block = nextVisibleBlock;
         blockNumber = nextVisibleBlockNumber;
-    }
-
-    if (d->m_codeFoldingVisible && d->m_displaySettings.m_fancyFoldingBar) {
-        painter.drawLine(extraAreaWidth, 0,
-                         extraAreaWidth, viewport()->height());
-        painter.drawLine(extraAreaWidth + collapseBoxWidth - 1, 0,
-                         extraAreaWidth + collapseBoxWidth - 1, viewport()->height());
     }
 }
 
@@ -2707,15 +2627,13 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
         d->extraAreaHighlightCollapseBlockNumber = -1;
         d->extraAreaHighlightCollapseColumn = -1;
 
-
         int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
         if (e->pos().x() > extraArea()->width() - collapseBoxWidth) {
             d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
             if (TextBlockUserData::canCollapse(cursor.block())
                 || !TextBlockUserData::hasClosingCollapse(cursor.block()))
                 d->extraAreaHighlightCollapseColumn = cursor.block().length()-1;
-            if ((true || !d->m_displaySettings.m_fancyFoldingBar)
-                && TextBlockUserData::hasCollapseAfter(cursor.block())) {
+            if (TextBlockUserData::hasCollapseAfter(cursor.block())) {
                 d->extraAreaHighlightCollapseBlockNumber++;
                 d->extraAreaHighlightCollapseColumn = -1;
                 if (TextBlockUserData::canCollapse(cursor.block().next())
