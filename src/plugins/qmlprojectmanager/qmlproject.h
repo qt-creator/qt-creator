@@ -155,13 +155,8 @@ public:
 
     virtual void init(const QString &buildConfiguration);
 
-private Q_SLOTS:
-    void buildDirectoryChanged();
-
 private:
     QmlProject *m_project;
-    Core::Utils::PathChooser *m_pathChooser;
-    QString m_buildConfiguration;
 };
 
 class QmlApplicationRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration

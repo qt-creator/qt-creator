@@ -238,17 +238,9 @@ ProjectExplorer::Environment QmlProject::environment(const QString &) const
     return ProjectExplorer::Environment::systemEnvironment();
 }
 
-QString QmlProject::buildDirectory(const QString &buildConfiguration) const
+QString QmlProject::buildDirectory(const QString &) const
 {
-    QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
-
-    if (buildDirectory.isEmpty()) {
-        QFileInfo fileInfo(m_fileName);
-
-        buildDirectory = fileInfo.absolutePath();
-    }
-
-    return buildDirectory;
+    return QString();
 }
 
 ProjectExplorer::BuildStepConfigWidget *QmlProject::createConfigWidget()
@@ -305,30 +297,16 @@ void QmlProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &wri
 QmlBuildSettingsWidget::QmlBuildSettingsWidget(QmlProject *project)
     : m_project(project)
 {
-    QFormLayout *fl = new QFormLayout(this);
-
-    // build directory
-    m_pathChooser = new Core::Utils::PathChooser(this);
-    m_pathChooser->setEnabled(true);
-    fl->addRow(tr("Build directory:"), m_pathChooser);
-    connect(m_pathChooser, SIGNAL(changed()), this, SLOT(buildDirectoryChanged()));
 }
 
 QmlBuildSettingsWidget::~QmlBuildSettingsWidget()
 { }
 
 QString QmlBuildSettingsWidget::displayName() const
-{ return tr("Qml Manager"); }
+{ return tr("QML Manager"); }
 
-void QmlBuildSettingsWidget::init(const QString &buildConfiguration)
+void QmlBuildSettingsWidget::init(const QString &)
 {
-    m_buildConfiguration = buildConfiguration;
-    m_pathChooser->setPath(m_project->buildDirectory(buildConfiguration));
-}
-
-void QmlBuildSettingsWidget::buildDirectoryChanged()
-{
-    m_project->setValue(m_buildConfiguration, "buildDirectory", m_pathChooser->path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -405,7 +383,7 @@ QString QmlApplicationRunConfiguration::type() const
 
 QString QmlApplicationRunConfiguration::executable() const
 {
-    QString executable("/Users/raggi/Projects/qt/kinetic/bin/qmlviewer.app");
+    QString executable("qmlviewer");
     return executable;
 }
 
