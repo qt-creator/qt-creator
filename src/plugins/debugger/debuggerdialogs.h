@@ -101,29 +101,23 @@ private:
     ProcessListFilterModel *m_model;
 };
 
-
 class AttachRemoteDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit AttachRemoteDialog(QWidget *parent, const QString &pid);
+    explicit AttachRemoteDialog(QWidget *parent);
     ~AttachRemoteDialog();
 
-    int attachPID() const;
-
-private slots:
-    void rebuildProcessList();
-    void procSelected(const QModelIndex &);
-    void pidChanged(const QString &);
+    void setRemoteChannel(const QString &host);
+    void setRemoteArchitecture(const QString &arch);
+    void setRemoteArchitectures(const QStringList &arches);
+    QString remoteChannel() const;
+    QString remoteArchitecture() const;
 
 private:
-    inline QPushButton *okButton() const;
     Ui::AttachRemoteDialog *m_ui;
-    QString m_defaultPID;
-    ProcessListFilterModel *m_model;
 };
-
 
 class StartExternalDialog : public QDialog
 {

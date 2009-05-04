@@ -64,16 +64,32 @@ namespace {
     can specify all his keyboard shortcuts, and to provide a solution for actions that should
     behave differently in different contexts (like the copy/replace/undo/redo actions).
 
-    All actions that are registered with the same string id (but different context lists)
+    \section1 Contexts
+
+    All actions that are registered with the same string ID (but different context lists)
     are considered to be overloads of the same command, represented by an instance
     of the Command class.
+    Exactly only one of the registered actions with the same ID is active at any time.
+    Which action this is, is defined by the context list that the actions were registered
+    with:
+
+    If the current focus widget was registered via \l{ICore::addContextObject()},
+    all the contexts returned by its IContext object are active. In addition all
+    contexts set via \l{ICore::addAdditionalContext()} are active as well. If one
+    of the actions was registered for one of these active contexts, it is the one
+    active action, and receives \c triggered and \c toggled signals. Also the
+    appearance of the visible action for this ID might be adapted to this
+    active action (depending on the settings of the corresponding \l{Command} object).
+
     The action that is visible to the user is the one returned by Command::action().
     If you provide yourself a user visible representation of your action you need
     to use Command::action() for this.
     When this action is invoked by the user,
     the signal is forwarded to the registered action that is valid for the current context.
 
-    So to register a globally active action "My Action"
+    \section1 Registering Actions
+
+    To register a globally active action "My Action"
     put the following in your plugin's IPlugin::initialize method:
     \code
         Core::ActionManager *am = Core::ICore::instance()->actionManager();
@@ -96,7 +112,7 @@ namespace {
     Also use the ActionManager to add items to registered
     action containers like the applications menu bar or menus in that menu bar.
     To do this, you register your action via the
-    registerAction methods, get the action container for a specific id (like specified in
+    registerAction methods, get the action container for a specific ID (like specified in
     the Core::Constants namespace) with a call of
     actionContainer(const QString&) and add your command to this container.
 
@@ -105,15 +121,15 @@ namespace {
         am->actionContainer(Core::M_TOOLS)->addAction(cmd);
     \endcode
 
-    Important guidelines:
+    \section1 Important Guidelines:
     \list
     \o Always register your actions and shortcuts!
-    \o Register your actions and shortcuts during your plugin's IPlugin::initialize
-       or IPlugin::extensionsInitialized methods, otherwise the shortcuts won't appear
+    \o Register your actions and shortcuts during your plugin's \l{ExtensionSystem::IPlugin::initialize()}
+       or \l{ExtensionSystem::IPlugin::extensionsInitialized()} methods, otherwise the shortcuts won't appear
        in the keyboard settings dialog from the beginning.
-    \o When registering an action with cmd=registerAction(action, id, contexts) be sure to connect
-       your own action connect(action, SIGNAL...) but make cmd->action() visible to the user, i.e.
-       widget->addAction(cmd->action()).
+    \o When registering an action with \c{cmd=registerAction(action, id, contexts)} be sure to connect
+       your own action \c{connect(action, SIGNAL...)} but make \c{cmd->action()} visible to the user, i.e.
+       \c{widget->addAction(cmd->action())}.
     \o Use this class to add actions to the applications menus
     \endlist
 

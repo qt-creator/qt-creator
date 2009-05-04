@@ -342,23 +342,23 @@ QString decodeData(const QByteArray &ba, int encoding)
         }
         case 2: { //  base64 encoded 16 bit data, used for QString
             const QChar doubleQuote(QLatin1Char('"'));
-            const QByteArray ba = QByteArray::fromBase64(ba);
+            const QByteArray decodedBa = QByteArray::fromBase64(ba);
             QString rc = doubleQuote;
-            rc += QString::fromUtf16(reinterpret_cast<const ushort *>(ba.data()), ba.size() / 2);
+            rc += QString::fromUtf16(reinterpret_cast<const ushort *>(decodedBa.data()), decodedBa.size() / 2);
             rc += doubleQuote;
             return rc;
         }
         case 3: { //  base64 encoded 32 bit data
-            const QByteArray ba = QByteArray::fromBase64(ba);
+            const QByteArray decodedBa = QByteArray::fromBase64(ba);
             const QChar doubleQuote(QLatin1Char('"'));
             QString rc = doubleQuote;
-            rc += QString::fromUcs4(reinterpret_cast<const uint *>(ba.data()), ba.size() / 4);
+            rc += QString::fromUcs4(reinterpret_cast<const uint *>(decodedBa.data()), decodedBa.size() / 4);
             rc += doubleQuote;
             return rc;
         }
         case 4: { //  base64 encoded 16 bit data, without quotes (see 2)
-            const QByteArray ba = QByteArray::fromBase64(ba);
-            return QString::fromUtf16(reinterpret_cast<const ushort *>(ba.data()), ba.size() / 2);
+            const QByteArray decodedBa = QByteArray::fromBase64(ba);
+            return QString::fromUtf16(reinterpret_cast<const ushort *>(decodedBa.data()), decodedBa.size() / 2);
         }
     }
     return QCoreApplication::translate("Debugger", "<Encoding error>");

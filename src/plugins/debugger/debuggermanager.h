@@ -111,7 +111,8 @@ enum DebuggerStartMode
     StartInternal,                    // Start current start project's binary
     StartExternal,                    // Start binary found in file system
     AttachExternal,                   // Attach to running process
-    AttachCore                        // Attach to a core file
+    AttachCore,                       // Attach to a core file
+    AttachRemote                      // Attach to a remote process
 };
 
 class IDebuggerEngine;
@@ -225,6 +226,7 @@ public slots:
     void startExternalApplication();
     void attachExternalApplication();
     void attachCore();
+    void attachRemoteApplication();
 
     void jumpToLineExec();
     void runToLineExec();
@@ -358,6 +360,8 @@ public:
     QString m_dumperLib;
     int m_attachedPID;
     bool m_useTerminal;
+    QString m_remoteChannel;
+    QString m_remoteArchitecture;
 
 private:
     void init();
@@ -404,6 +408,7 @@ private:
     QAction *m_startExternalAction;
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
+    QAction *m_attachRemoteAction;
     QAction *m_continueAction;
     QAction *m_stopAction;
     QAction *m_resetAction; // FIXME: Should not be needed in a stable release

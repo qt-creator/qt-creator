@@ -89,6 +89,7 @@ using namespace Debugger::Constants;
 
 static const QString tooltipIName = "tooltip";
 
+#define _(s) QString::fromLatin1(s)
 
 static const char *stateName(int s)
 {
@@ -304,6 +305,11 @@ void DebuggerManager::init()
     m_attachCoreAction->setText(tr("Attach to Core..."));
     connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
 
+    m_attachRemoteAction = new QAction(this);
+    m_attachRemoteAction->setText(tr("Attach to Running Remote Application..."));
+    connect(m_attachRemoteAction, SIGNAL(triggered()),
+        this, SLOT(attachRemoteApplication()));
+
     m_continueAction = new QAction(this);
     m_continueAction->setText(tr("Continue"));
     m_continueAction->setIcon(QIcon(":/gdbdebugger/images/debugger_continue_small.png"));
@@ -437,7 +443,7 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(const QStringList 
 {
     QList<Core::IOptionsPage*> rc;
     gdbEngine = createGdbEngine(this, &rc);
-    const bool cdbDisabled = arguments.contains(QLatin1String("-disable-cdb"));
+    const bool cdbDisabled = arguments.contains(_("-disable-cdb"));
     winEngine = createWinEngine(this, cdbDisabled, &rc);
     scriptEngine = createScriptEngine(this, &rc);
     setDebuggerType(GdbDebugger);
@@ -810,12 +816,18 @@ void DebuggerManager::attachCore()
         emit debuggingFinished();
 }
 
+void DebuggerManager::attachRemoteApplication()
+{
+    if (!startNewDebugger(AttachRemote))
+        emit debuggingFinished();
+}
+
 // Figure out the debugger type of an executable
 static bool determineDebuggerType(const QString &executable,
                                   DebuggerManager::DebuggerType *dt,
                                   QString *errorMessage)
 {
-    if (executable.endsWith(QLatin1String(".js"))) {
+    if (executable.endsWith(_(".js"))) {
         *dt = DebuggerManager::ScriptDebugger;
         return true;
     }
@@ -869,21 +881,21 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
     case StartExternal: {
         StartExternalDialog dlg(mainWindow());
         dlg.setExecutableFile(
-            configValue(QLatin1String("LastExternalExecutableFile")).toString());
+            configValue(_("LastExternalExecutableFile")).toString());
         dlg.setExecutableArguments(
-            configValue(QLatin1String("LastExternalExecutableArguments")).toString());
+            configValue(_("LastExternalExecutableArguments")).toString());
         if (dlg.exec() != QDialog::Accepted)
             return false;
-        setConfigValue(QLatin1String("LastExternalExecutableFile"),
+        setConfigValue(_("LastExternalExecutableFile"),
             dlg.executableFile());
-        setConfigValue(QLatin1String("LastExternalExecutableArguments"),
+        setConfigValue(_("LastExternalExecutableArguments"),
             dlg.executableArguments());
         m_executable = dlg.executableFile();
         m_processArgs = dlg.executableArguments().split(' ');
         m_workingDir = QString();
         m_attachedPID = -1;
-    }
         break;
+    }
     case AttachExternal: {
         AttachExternalDialog dlg(mainWindow());
         if (dlg.exec() != QDialog::Accepted)
@@ -897,9 +909,9 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
                 tr("Cannot attach to PID 0"));
             return false;
         }
-    }
         break;
-    case StartInternal:
+    }
+    case StartInternal: {
         if (m_executable.isEmpty()) {
             QString startDirectory = m_executable;
             if (m_executable.isEmpty()) {
@@ -920,29 +932,45 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
             m_attachedPID = 0;
         } else {
             //m_executable = QDir::convertSeparators(m_executable);
-            //m_processArgs = sd.processArgs.join(QLatin1String(" "));
+            //m_processArgs = sd.processArgs.join(_(" "));
             m_attachedPID = 0;
         }
         break;
+    }
     case AttachCore: {
         AttachCoreDialog dlg(mainWindow());
         dlg.setExecutableFile(
-            configValue(QLatin1String("LastExternalExecutableFile")).toString());
+            configValue(_("LastExternalExecutableFile")).toString());
         dlg.setCoreFile(
-            configValue(QLatin1String("LastExternalCoreFile")).toString());
+            configValue(_("LastExternalCoreFile")).toString());
         if (dlg.exec() != QDialog::Accepted)
             return false;
-        setConfigValue(QLatin1String("LastExternalExecutableFile"),
+        setConfigValue(_("LastExternalExecutableFile"),
             dlg.executableFile());
-        setConfigValue(QLatin1String("LastExternalCoreFile"),
+        setConfigValue(_("LastExternalCoreFile"),
             dlg.coreFile());
         m_executable = dlg.executableFile();
         m_coreFile = dlg.coreFile();
         m_processArgs.clear();
         m_workingDir = QString();
         m_attachedPID = -1;
-    }
         break;
+    }
+    case AttachRemote: {
+        AttachRemoteDialog dlg(mainWindow());
+        QStringList arches;
+        arches.append(_("i386:x86-64:intel"));
+        dlg.setRemoteArchitectures(arches);
+        dlg.setRemoteChannel(configValue(_("LastRemoteChannel")).toString());
+        dlg.setRemoteArchitecture(configValue(_("LastRemoteArchtecture")).toString());
+        if (dlg.exec() != QDialog::Accepted)
+            return false;
+        setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
+        setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
+        m_remoteChannel = dlg.remoteChannel();
+        m_remoteArchitecture = dlg.remoteArchitecture();
+        break;
+    }
     }
 
     emit debugModeRequested();
@@ -1218,7 +1246,7 @@ void DebuggerManager::setStatus(int status)
 
     if (0 && !isAllowedTransition(m_status, status)) {
         const QString msg = QString::fromLatin1("%1: UNEXPECTED TRANSITION: %2 -> %3").
-                            arg(QLatin1String(Q_FUNC_INFO), QLatin1String(stateName(m_status)), QLatin1String(stateName(status)));
+                            arg(_(Q_FUNC_INFO), _(stateName(m_status)), _(stateName(status)));
         qWarning("%s", qPrintable(msg));
     }
 
@@ -1242,6 +1270,7 @@ void DebuggerManager::setStatus(int status)
 #else
     m_attachCoreAction->setEnabled(!started && !starting);
 #endif
+    m_attachRemoteAction->setEnabled(!started && !starting);
     m_watchAction->setEnabled(ready);
     m_breakAction->setEnabled(true);
 
@@ -1535,7 +1564,7 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
         dialog.setDetailedText(details);
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
-        Core::ICore::instance()->showOptionsDialog(QLatin1String("Qt4"), QLatin1String("Qt Versions"));
+        Core::ICore::instance()->showOptionsDialog(_("Qt4"), _("Qt Versions"));
     } else if (dialog.clickedButton() == helperOff) {
         theDebuggerAction(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);
     }
