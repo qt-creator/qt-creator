@@ -1064,7 +1064,7 @@ void GdbEngine::handleInfoProc(const GdbResultRecord &record)
     if (record.resultClass == GdbResultDone) {
         #if defined(Q_OS_MAC)
         //^done,process-id="85075"
-        maybeHandleInferiorPidChanged(QString::fromLatin1(record.data.findChild("process-id").data()));
+        maybeHandleInferiorPidChanged(_(record.data.findChild("process-id").data()));
         #endif
 
         #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
@@ -2650,9 +2650,9 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, bool isFull
         const bool isBogus =
             // Assume this is wrong and points to some strange stl_algobase
             // implementation. Happens on Karsten's XP system with Gdb 5.50
-            (frame.file.endsWith(_("/bits/stl_algobase.h")) && frame.line == 150)
+            (frame.file.endsWith(__("/bits/stl_algobase.h")) && frame.line == 150)
             // Also wrong. Happens on Vista with Gdb 5.50
-               || (frame.function == _("operator new") && frame.line == 151);
+               || (frame.function == __("operator new") && frame.line == 151);
 
         // immediately leave bogus frames
         if (topFrame == -1 && isBogus) {
