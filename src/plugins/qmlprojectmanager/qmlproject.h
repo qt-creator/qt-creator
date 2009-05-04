@@ -36,6 +36,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/applicationrunconfiguration.h>
 #include <coreplugin/ifile.h>
 
 QT_BEGIN_NAMESPACE
@@ -161,6 +162,36 @@ private:
     QmlProject *m_project;
     Core::Utils::PathChooser *m_pathChooser;
     QString m_buildConfiguration;
+};
+
+class QmlApplicationRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
+{
+    Q_OBJECT
+public:
+    QmlApplicationRunConfiguration(QmlProject *pro);
+    virtual ~QmlApplicationRunConfiguration();
+
+    virtual QString type() const;
+    virtual QString executable() const;
+    virtual RunMode runMode() const;
+    virtual QString workingDirectory() const;
+    virtual QStringList commandLineArguments() const;
+    virtual ProjectExplorer::Environment environment() const;
+    virtual QString dumperLibrary() const;
+    virtual QWidget *configurationWidget();
+
+    virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
+    virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
+
+private Q_SLOTS:
+    void setMainScript(const QString &scriptFile);
+
+private:
+    QString mainScript() const;
+
+private:
+    QmlProject *m_project;
+    QString m_scriptFile;
 };
 
 } // namespace Internal

@@ -36,6 +36,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QtDebug>
 #include <QtCore/QDir>
@@ -120,6 +121,9 @@ QmlProject::QmlProject(Manager *manager, const QString &fileName)
     m_rootNode = new QmlProjectNode(this, m_file);
 
     m_manager->registerProject(this);
+
+    QSharedPointer<QmlApplicationRunConfiguration> runConf(new QmlApplicationRunConfiguration(this));
+    addRunConfiguration(runConf);
 }
 
 QmlProject::~QmlProject()
@@ -257,9 +261,9 @@ QList<ProjectExplorer::BuildStepConfigWidget*> QmlProject::subConfigWidgets()
     return QList<ProjectExplorer::BuildStepConfigWidget*>();
 }
 
- void QmlProject::newBuildConfiguration(const QString &)
- {
- }
+void QmlProject::newBuildConfiguration(const QString &)
+{
+}
 
 QmlProjectNode *QmlProject::rootProjectNode() const
 {
@@ -382,4 +386,94 @@ bool QmlProjectFile::isSaveAsAllowed() const
 
 void QmlProjectFile::modified(ReloadBehavior *)
 {
+}
+
+QmlApplicationRunConfiguration::QmlApplicationRunConfiguration(QmlProject *pro)
+    : ProjectExplorer::ApplicationRunConfiguration(pro),
+      m_project(pro)
+{
+}
+
+QmlApplicationRunConfiguration::~QmlApplicationRunConfiguration()
+{
+}
+
+QString QmlApplicationRunConfiguration::type() const
+{
+    return tr("QML Viewer");
+}
+
+QString QmlApplicationRunConfiguration::executable() const
+{
+    QString executable("/Users/raggi/Projects/qt/kinetic/bin/qmlviewer.app");
+    return executable;
+}
+
+QmlApplicationRunConfiguration::RunMode QmlApplicationRunConfiguration::runMode() const
+{
+    return Gui;
+}
+
+QString QmlApplicationRunConfiguration::workingDirectory() const
+{
+    QFileInfo projectFile(m_project->file()->fileName());
+    return projectFile.filePath();
+}
+
+QStringList QmlApplicationRunConfiguration::commandLineArguments() const
+{
+    QStringList args;
+
+    const QString s = mainScript();
+    if (! s.isEmpty())
+        args.append(s);
+
+    return args;
+}
+
+ProjectExplorer::Environment QmlApplicationRunConfiguration::environment() const
+{
+    ProjectExplorer::Environment env;
+    return env;
+}
+
+QString QmlApplicationRunConfiguration::dumperLibrary() const
+{
+    return QString();
+}
+
+QWidget *QmlApplicationRunConfiguration::configurationWidget()
+{
+    QComboBox *combo = new QComboBox;
+    combo->addItem(tr("<Current File>"));
+    connect(combo, SIGNAL(activated(QString)), this, SLOT(setMainScript(QString)));
+    combo->addItems(m_project->files());
+    return combo;
+}
+
+QString QmlApplicationRunConfiguration::mainScript() const
+{
+    if (m_scriptFile.isEmpty() || m_scriptFile == tr("<Current File>")) {
+        Core::EditorManager *editorManager = Core::ICore::instance()->editorManager();
+        if (Core::IEditor *editor = editorManager->currentEditor()) {
+            return editor->file()->fileName();
+        }
+    }
+
+    return m_scriptFile;
+}
+
+void QmlApplicationRunConfiguration::setMainScript(const QString &scriptFile)
+{
+    m_scriptFile = scriptFile;
+}
+
+void QmlApplicationRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
+{
+    ProjectExplorer::ApplicationRunConfiguration::save(writer);
+}
+
+void QmlApplicationRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
+{
+    ProjectExplorer::ApplicationRunConfiguration::restore(reader);
 }
