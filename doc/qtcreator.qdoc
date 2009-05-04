@@ -1364,6 +1364,7 @@
 
     Since Qt Creator 1.1, support for \c CMake project files is available.
 
+
     \section1 Opening CMake Projects
 
     To open a \c CMake project select \gui Open from the \gui File menu and
@@ -1389,18 +1390,18 @@
     depending on your platform. The build errors and warnings are parsed and
     displayed in the \gui{Build Issues} output pane.
 
-    By default Qt Creator builds the "all" target. You can change which
-    targets get build in the Project/Build Settings.
+    By default Qt Creator builds the \e{all} target. You can specify which
+    targets to build in \gui{Project} mode, under \gui{Build Settings}.
 
     \image qtcreator-cmake-build-settings.png
 
-    Currently only one build configuration is supported and the
-    build directory can't be changed after the initial import. This
-    limitation will be fixed for the next version.
+    Qt Creator supports multiple build configurations. Also, the build
+    directory can be modified after the initial import.
+
 
     \section1 Running CMake Projects
-    Qt Creator automatically adds Run Configurations for all the
-    targets specified in the \c CMake project file.
+    Qt Creator automatically adds \gui{Run Configurations} for all targets
+    specified in the \c CMake project file.
 
     Known issues for the current version can be found
     \l{Known Issues of Version 1.1.80}{here}.
