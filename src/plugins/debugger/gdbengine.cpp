@@ -503,8 +503,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 if (*inner < 'a' || *inner > 'z')
                     break;
 
-            QByteArray resultClass(from, inner - from);
-
+            QByteArray resultClass = QByteArray::fromRawData(from, inner - from);
             if (resultClass == "done")
                 record.resultClass = GdbResultDone;
             else if (resultClass == "running")
