@@ -2358,7 +2358,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
                 if (drawBox) {
                     bool expanded = nextBlock.isVisible();
-                    QRect box(extraAreaWidth + collapseBoxWidth/4 + 1, top + collapseBoxWidth/4,
+                    QRect box(extraAreaWidth + collapseBoxWidth/4, top + collapseBoxWidth/4,
                               2 * (collapseBoxWidth/4) + 1, 2 * (collapseBoxWidth/4) + 1);
                     drawFoldingMarker(&painter, box, expanded, active);
                 }
@@ -2408,7 +2408,7 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QRect &rect,
                                        bool expanded, bool hovered) const
 {
     QStyleOptionViewItemV2 opt;
-    opt.rect = QRect(rect.center(), QSize());
+    opt.rect = rect;
     opt.state = QStyle::State_Active | QStyle::State_Item | QStyle::State_Children;
 
     if (expanded)
