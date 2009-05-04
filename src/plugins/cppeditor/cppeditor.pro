@@ -23,4 +23,4 @@ SOURCES += cppplugin.cpp \
     cppclasswizard.cpp
 RESOURCES += cppeditor.qrc
 
-OTHER_FILES += CppEditor.pluginspec
+OTHER_FILES += CppEditor.pluginspec CppEditor.mimetypes.xml
