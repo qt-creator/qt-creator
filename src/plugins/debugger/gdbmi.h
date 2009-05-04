@@ -132,6 +132,7 @@ private:
     friend class GdbEngine;
 
     static QByteArray parseCString(const char *&from, const char *to);
+    static QByteArray escapeCString(const QByteArray &ba);
     void parseResultOrValue(const char *&from, const char *to);
     void parseValue(const char *&from, const char *to);
     void parseTuple(const char *&from, const char *to);

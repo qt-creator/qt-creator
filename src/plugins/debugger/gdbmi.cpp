@@ -34,6 +34,8 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QTextStream>
 
+#include <ctype.h>
+
 namespace Debugger {
 namespace Internal {
 
@@ -44,7 +46,7 @@ QTextStream &operator<<(QTextStream &os, const GdbMi &mi)
 
 void GdbMi::parseResultOrValue(const char *&from, const char *to)
 {
-    while (from != to && QChar(*from).isSpace())
+    while (from != to && isspace(*from))
         ++from;
 
     //qDebug() << "parseResultOrValue: " << QByteArray(from, to - from);
@@ -74,6 +76,7 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
     //qDebug() << "parseCString: " << QByteArray::fromUtf16(from, to - from);
     if (*from != '"') {
         qDebug() << "MI Parse Error, double quote expected";
+        ++from; // So we don't hang
         return QByteArray();
     }
     const char *ptr = from;
@@ -84,22 +87,66 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
             result = QByteArray(from + 1, ptr - from - 2);
             break;
         }
-        if (*ptr == '\\' && ptr < to - 1)
+        if (*ptr == '\\') {
             ++ptr;
+            if (ptr == to) {
+                qDebug() << "MI Parse Error, unterminated backslash escape";
+                from = ptr; // So we don't hang
+                return QByteArray();
+            }
+        }
         ++ptr;
     }
+    from = ptr;
 
-    if (result.contains('\\')) {
-        if (result.contains("\\032\\032"))
-            result.clear();
-        else {
-            result = result.replace("\\n", "\n");
-            result = result.replace("\\t", "\t");
-            result = result.replace("\\\"", "\"");
-        }
+    int idx = result.indexOf('\\');
+    if (idx >= 0) {
+        char *dst = result.data() + idx;
+        const char *src = dst + 1, *end = result.data() + result.length();
+        do {
+            char c = *src++;
+            switch (c) {
+                case 'a': *dst++ = '\a'; break;
+                case 'b': *dst++ = '\b'; break;
+                case 'f': *dst++ = '\f'; break;
+                case 'n': *dst++ = '\n'; break;
+                case 'r': *dst++ = '\r'; break;
+                case 't': *dst++ = '\t'; break;
+                case 'v': *dst++ = '\v'; break;
+                case '"': *dst++ = '"'; break;
+                case '\\': *dst++ = '\\'; break;
+                default:
+                    {
+                        int chars = 0;
+                        uchar prod = 0;
+                        forever {
+                            if (c < '0' || c > '7') {
+                                --src;
+                                break;
+                            }
+                            prod = prod * 8 + c - '0';
+                            if (++chars == 3 || src == end)
+                                break;
+                            c = *src++;
+                        }
+                        if (!chars) {
+                            qDebug() << "MI Parse Error, unrecognized backslash escape";
+                            return QByteArray();
+                        }
+                        *dst++ = prod;
+                    }
+            }
+            while (src != end) {
+                char c = *src++;
+                if (c == '\\')
+                    break;
+                *dst++ = c;
+            }
+        } while (src != end);
+        *dst = 0;
+        result.truncate(dst - result.data());
     }
 
-    from = ptr;
     return result;
 }
 
@@ -203,10 +250,34 @@ void GdbMi::dumpChildren(QByteArray * str, bool multiline, int indent) const
     }
 }
 
-static QByteArray escaped(QByteArray ba)
+QByteArray GdbMi::escapeCString(const QByteArray &ba)
 {
-    ba.replace("\"", "\\\"");
-    return ba;
+    QByteArray ret;
+    ret.reserve(ba.length() * 2);
+    for (int i = 0; i < ba.length(); ++i) {
+        uchar c = ba.at(i);
+        switch (c) {
+            case '\\': ret += "\\\\"; break;
+            case '\a': ret += "\\a"; break;
+            case '\b': ret += "\\b"; break;
+            case '\f': ret += "\\f"; break;
+            case '\n': ret += "\\n"; break;
+            case '\r': ret += "\\r"; break;
+            case '\t': ret += "\\t"; break;
+            case '\v': ret += "\\v"; break;
+            case '"': ret += "\\\""; break;
+            default:
+                if (c < 32 || c == 127) {
+                    ret += '\\';
+                    ret += '0' + (c >> 6);
+                    ret += '0' + ((c >> 3) & 7);
+                    ret += '0' + (c & 7);
+                } else {
+                    ret += c;
+                }
+        }
+    }
+    return ret;
 }
 
 QByteArray GdbMi::toString(bool multiline, int indent) const
@@ -222,7 +293,7 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
         case Const: 
             if (!m_name.isEmpty())
                 result += m_name + "=";
-            result += "\"" + escaped(m_data) + "\"";
+            result += "\"" + escapeCString(m_data) + "\"";
             break;
         case Tuple:
             if (!m_name.isEmpty())
