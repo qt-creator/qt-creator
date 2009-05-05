@@ -409,10 +409,10 @@ void ScriptEditor::updateDocumentNow()
 
     bool parsed = parser.parse(&driver);
 
-    if (parsed) {
-        IdDeclarations updateIds;
-        m_ids = updateIds(parser.ast());
+    IdDeclarations updateIds;
+    m_ids = updateIds(parser.ast());
 
+    if (parsed) {
         if (DuiHighlighter *highlighter = qobject_cast<DuiHighlighter*>(baseTextDocument()->syntaxHighlighter())) {
             HighlightBindings highlightIds(document());
             highlightIds.setFormat(highlighter->labelTextCharFormat());
