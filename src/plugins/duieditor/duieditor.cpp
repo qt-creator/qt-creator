@@ -39,8 +39,6 @@
 #include "parser/javascriptastvisitor_p.h"
 #include "parser/javascriptast_p.h"
 
-#include <indenter.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <texteditor/basetextdocument.h>
@@ -69,11 +67,12 @@ namespace Internal {
 class IdDeclarations: protected Visitor
 {
 public:
-    typedef QMap<QString, QPair<AST::SourceLocation, AST::SourceLocation> > Result;
+    typedef QMap<QString, QList<AST::SourceLocation> > Result;
 
     Result operator()(AST::Node *node)
     {
         _ids.clear();
+        _maybeIds.clear();
         accept(node);
         return _ids;
     }
@@ -107,17 +106,37 @@ protected:
             if (AST::ExpressionStatement *stmt = AST::cast<AST::ExpressionStatement*>(node->statement)) {
                 if (AST::IdentifierExpression *idExpr = AST::cast<AST::IdentifierExpression *>(stmt->expression)) {
                     if (idExpr->name) {
-                        _ids[idExpr->name->asString()] = qMakePair(idExpr->firstSourceLocation(),
-                                                                   idExpr->lastSourceLocation());
+                        const QString id = idExpr->name->asString();
+                        QList<AST::SourceLocation> *locs = &_ids[id];
+                        locs->append(idExpr->firstSourceLocation());
+                        locs->append(_maybeIds.value(id));
+                        _maybeIds.remove(id);
                     }
                 }
             }
+        }
+
+        accept(node->statement);
+
+        return false;
+    }
+
+    virtual bool visit(AST::IdentifierExpression *node)
+    {
+        if (node->name) {
+            const QString name = node->name->asString();
+
+            if (_ids.contains(name))
+                _ids[name].append(node->identifierToken);
+            else
+                _maybeIds[name].append(node->identifierToken);
         }
         return false;
     }
 
 private:
     Result _ids;
+    Result _maybeIds;
 };
 
 class FindDeclarations: protected Visitor
@@ -477,15 +496,16 @@ void ScriptEditor::updateMethodBoxIndex()
     tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
     const QString wordUnderCursor = tc.selectedText();
 
-    const QPair<AST::SourceLocation, AST::SourceLocation> id = m_ids.value(wordUnderCursor);
-
     QList<QTextEdit::ExtraSelection> selections;
-    if (id.first.offset && id.second.offset) {
+    foreach (const AST::SourceLocation &loc, m_ids.value(wordUnderCursor)) {
+        if (! loc.isValid())
+            continue;
+
         QTextEdit::ExtraSelection sel;
         sel.format.setBackground(Qt::yellow);
         sel.cursor = textCursor();
-        sel.cursor.setPosition(id.first.begin());
-        sel.cursor.setPosition(id.second.end(), QTextCursor::KeepAnchor);
+        sel.cursor.setPosition(loc.begin());
+        sel.cursor.setPosition(loc.end(), QTextCursor::KeepAnchor);
         selections.append(sel);
     }
 

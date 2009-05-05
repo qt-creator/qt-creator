@@ -120,7 +120,7 @@ private:
     QComboBox *m_methodCombo;
     QList<Declaration> m_declarations;
     QStringList m_words;
-    QMap<QString, QPair<JavaScript::AST::SourceLocation, JavaScript::AST::SourceLocation> > m_ids;
+    QMap<QString, QList<JavaScript::AST::SourceLocation> > m_ids; // ### use QMultiMap
 };
 
 } // namespace Internal
