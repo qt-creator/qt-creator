@@ -32,6 +32,7 @@
 
 #include "abstractprocessstep.h"
 #include "projectexplorer.h"
+#include "projectexplorer_export.h"
 
 namespace ProjectExplorer {
 class BuildStep;
@@ -41,7 +42,7 @@ class Project;
 
 namespace ProjectExplorer {
 
-class AbstractMakeStep : public ProjectExplorer::AbstractProcessStep
+class PROJECTEXPLORER_EXPORT AbstractMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:
