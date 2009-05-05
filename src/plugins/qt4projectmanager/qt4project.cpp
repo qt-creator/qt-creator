@@ -504,6 +504,12 @@ void Qt4Project::updateCodeModel()
         predefinedIncludePaths.append(info.absoluteFilePath());
     }
 
+    FindQt4ProFiles findQt4ProFiles;
+    QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
+    QByteArray definedMacros = predefinedMacros;
+    QStringList allIncludePaths = predefinedIncludePaths;
+    QStringList allFrameworkPaths = predefinedFrameworkPaths;
+
 #ifdef Q_OS_MAC
     allFrameworkPaths.append(newQtLibsPath);
     // put QtXXX.framework/Headers directories in include path since that qmake's behavior
@@ -514,12 +520,6 @@ void Qt4Project::updateCodeModel()
         allIncludePaths.append(info.absoluteFilePath()+"/Headers");
     }
 #endif
-
-    FindQt4ProFiles findQt4ProFiles;
-    QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
-    QByteArray definedMacros = predefinedMacros;
-    QStringList allIncludePaths = predefinedIncludePaths;
-    QStringList allFrameworkPaths = predefinedFrameworkPaths;
 
     foreach (Qt4ProFileNode *pro, proFiles) {
         Internal::CodeModelInfo info;
