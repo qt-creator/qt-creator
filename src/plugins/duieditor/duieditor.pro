@@ -7,9 +7,11 @@ include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
 include(../../shared/qscripthighlighter/qscripthighlighter.pri)
 include(../../shared/indenter/indenter.pri)
-include($$(QTDIR_DUI)/src/declarative/qml/parser/parser.pri)
 
+include($$(QTDIR_DUI)/src/declarative/qml/parser/parser.pri)
 INCLUDEPATH += $$(QTDIR_DUI)/src/declarative/qml    # FIXME: remove me
+
+include(rewriter/rewriter.pri)
 
 HEADERS += duieditor.h \
 duieditorfactory.h \
