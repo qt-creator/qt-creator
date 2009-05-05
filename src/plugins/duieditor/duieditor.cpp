@@ -32,6 +32,8 @@
 #include "duihighlighter.h"
 #include "duieditorplugin.h"
 
+#include "rewriter/rewriter.h"
+
 #include "parser/javascriptengine_p.h"
 #include "parser/javascriptparser_p.h"
 #include "parser/javascriptlexer_p.h"
@@ -52,6 +54,7 @@
 
 #include <QtGui/QMenu>
 #include <QtGui/QComboBox>
+#include <QtGui/QInputDialog>
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 250
@@ -111,6 +114,7 @@ protected:
                         locs->append(idExpr->firstSourceLocation());
                         locs->append(_maybeIds.value(id));
                         _maybeIds.remove(id);
+                        return false;
                     }
                 }
             }
@@ -491,13 +495,8 @@ void ScriptEditor::updateMethodBoxIndex()
 
     m_methodCombo->setCurrentIndex(currentSymbolIndex);
 
-    QTextCursor tc = textCursor();
-    tc.movePosition(QTextCursor::StartOfWord);
-    tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    const QString wordUnderCursor = tc.selectedText();
-
     QList<QTextEdit::ExtraSelection> selections;
-    foreach (const AST::SourceLocation &loc, m_ids.value(wordUnderCursor)) {
+    foreach (const AST::SourceLocation &loc, m_ids.value(wordUnderCursor())) {
         if (! loc.isValid())
             continue;
 
@@ -520,6 +519,28 @@ void ScriptEditor::updateFileName()
 {
 }
 
+void ScriptEditor::renameIdUnderCursor()
+{
+    const QString id = wordUnderCursor();
+    bool ok = false;
+    const QString newId = QInputDialog::getText(0, tr("Rename..."),
+                                                QLatin1String("New id:"),
+                                                QLineEdit::Normal,
+                                                id, &ok);
+    if (ok) {
+        TextWriter writer;
+
+        QString code = toPlainText();
+
+        foreach (const AST::SourceLocation &loc, m_ids.value(id)) {
+            writer.replace(loc.offset, loc.length, newId);
+        }
+
+        QTextCursor tc = textCursor();
+        writer.write(&tc);
+    }
+}
+
 void ScriptEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditor::setFontSettings(fs);
@@ -540,6 +561,15 @@ void ScriptEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
     highlighter->setFormats(fs.toTextCharFormats(categories));
     highlighter->rehighlight();
+}
+
+QString ScriptEditor::wordUnderCursor() const
+{
+    QTextCursor tc = textCursor();
+    tc.movePosition(QTextCursor::StartOfWord);
+    tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    const QString word= tc.selectedText();
+    return word;
 }
 
 bool ScriptEditor::isElectricCharacter(const QChar &ch) const
@@ -625,6 +655,10 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
         foreach (QAction *action, contextMenu->actions())
             menu->addAction(action);
     }
+
+    menu->addSeparator();
+    QAction *a = menu->addAction(tr("Rename '%1'...").arg(wordUnderCursor()));
+    connect(a, SIGNAL(triggered()), this, SLOT(renameIdUnderCursor()));
 
     menu->exec(e->globalPos());
     delete menu;

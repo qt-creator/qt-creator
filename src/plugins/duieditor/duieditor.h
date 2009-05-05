@@ -105,6 +105,9 @@ private slots:
     void updateMethodBoxToolTip();
     void updateFileName();
 
+    // refactoring ops
+    void renameIdUnderCursor();
+
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
     TextEditor::BaseTextEditorEditable *createEditableInterface();
@@ -113,6 +116,8 @@ protected:
 private:
     virtual bool isElectricCharacter(const QChar &ch) const;
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
+
+    QString wordUnderCursor() const;
 
     const Context m_context;
 
