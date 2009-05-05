@@ -1352,5 +1352,5 @@ QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d)
     return in;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

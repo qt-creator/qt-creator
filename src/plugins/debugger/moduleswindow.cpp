@@ -209,5 +209,5 @@ void ModulesWindow::showSymbols(const QString &name)
     emit newDockRequested(w);
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger
