@@ -698,8 +698,10 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     } else if (m_submode == ReplaceSubMode) {
         m_submode = NoSubMode;
     } else if (m_submode == IndentSubMode) {
+        recordJump();
         indentRegion();
         m_submode = NoSubMode;
+        updateMiniBuffer();
     } else if (m_submode == ShiftRightSubMode) {
         recordJump();
         shiftRegionRight(1);
@@ -908,7 +910,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setAnchor();
         moveDown(count() - 1);
         m_moveType = MoveLineWise;
-        setDotCommand("%1>>", count());
+        setDotCommand("%1==", count());
         finishMovement();
     } else if (m_submode == ZSubMode) {
         //qDebug() << "Z_MODE " << cursorLineInDocument() << linesOnScreen();
@@ -2057,8 +2059,13 @@ void FakeVimHandler::Private::indentRegion(QChar typedChar)
     int endLine = lineForPosition(position());
     if (beginLine > endLine)
         qSwap(beginLine, endLine);
+
     int amount = 0;
     emit q->indentRegion(&amount, beginLine, endLine, typedChar);
+
+    setPosition(firstPositionInLine(beginLine));
+    moveToFirstNonBlankOnLine();
+    setTargetColumn();
     setDotCommand("%1==", endLine - beginLine + 1);
 }
 
@@ -2072,8 +2079,6 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     QString indent(len, ' ');
     int firstPos = firstPositionInLine(beginLine);
 
-    //setPosition(firstPos);
-
     for (int line = beginLine; line <= endLine; ++line) {
         setPosition(firstPositionInLine(line));
         m_tc.insertText(indent);
@@ -2081,6 +2086,7 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
 
     setPosition(firstPos);
     moveToFirstNonBlankOnLine();
+    setTargetColumn();
     setDotCommand("%1>>", endLine - beginLine + 1);
 }
 
@@ -2093,8 +2099,6 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
     int shift = config(ConfigShiftWidth).toInt() * repeat;
     int tab = config(ConfigTabStop).toInt();
     int firstPos = firstPositionInLine(beginLine);
-
-    //setPosition(firstPos);
 
     for (int line = beginLine; line <= endLine; ++line) {
         int pos = firstPositionInLine(line);
@@ -2118,6 +2122,7 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
 
     setPosition(firstPos);
     moveToFirstNonBlankOnLine();
+    setTargetColumn();
     setDotCommand("%1<<", endLine - beginLine + 1);
 }
 

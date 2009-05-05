@@ -332,6 +332,13 @@ void Qt4RunConfiguration::updateTarget()
     //qDebug()<<"updateTarget";
     Qt4Project *pro = static_cast<Qt4Project *>(project());
     Qt4PriFileNode * priFileNode = static_cast<Qt4Project *>(project())->rootProjectNode()->findProFileFor(m_proFilePath);
+    if (!priFileNode) {
+        m_workingDir = QString::null;
+        m_executable = QString::null;
+        m_cachedTargetInformationValid = true;
+        emit effectiveTargetInformationChanged();
+        return;
+    }
     ProFileReader *reader = priFileNode->createProFileReader();
     reader->setCumulative(false);
     reader->setQtVersion(pro->qtVersion(pro->activeBuildConfiguration()));

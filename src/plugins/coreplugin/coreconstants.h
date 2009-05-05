@@ -130,6 +130,7 @@ const char * const SAVEASDEFAULT         = "QtCreator.SaveAsDefaultLayout";
 const char * const RESTOREDEFAULT        = "QtCreator.RestoreDefaultLayout";
 const char * const CLOSE                 = "QtCreator.Close";
 const char * const CLOSEALL              = "QtCreator.CloseAll";
+const char * const CLOSEOTHERS           = "QtCreator.CloseOthers";
 const char * const GOTONEXT              = "QtCreator.GotoNext";
 const char * const GOTOPREV              = "QtCreator.GotoPrevious";
 const char * const GOTONEXTINHISTORY     = "QtCreator.GotoNextInHistory";

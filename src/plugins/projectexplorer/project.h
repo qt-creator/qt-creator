@@ -136,6 +136,12 @@ public:
     enum FilesMode { AllFiles, ExcludeGeneratedFiles };
     virtual QStringList files(FilesMode fileMode) const = 0;
 
+    // C++ specific
+    // TODO do a C++ project as a base ?
+    virtual QByteArray predefinedMacros(const QString &fileName) const;
+    virtual QStringList includePaths(const QString &fileName) const;
+    virtual QStringList frameworkPaths(const QString &fileName) const;
+
 signals:
     void fileListChanged();
     void activeBuildConfigurationChanged();

@@ -39,6 +39,7 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/toolchain.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -69,6 +70,14 @@ namespace Internal {
     class Qt4RunConfiguration;
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
+
+    class CodeModelInfo
+    {
+    public:
+        QByteArray defines;
+        QStringList includes;
+        QStringList frameworkPaths;
+    };
 }
 
 class QMakeStep;
@@ -185,10 +194,14 @@ public:
     // the Qt4RunConfigurations will update as soon as asked
     void invalidateCachedTargetInformation();
 
+    virtual QByteArray predefinedMacros(const QString &fileName) const;
+    virtual QStringList includePaths(const QString &fileName) const;
+    virtual QStringList frameworkPaths(const QString &fileName) const;
+
 public slots:
     void update();
     void proFileParseError(const QString &errorMessage);
-    void scheduleUpdateCodeModel();
+    void scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFileNode *);
 
 private slots:
     void updateCodeModel();
@@ -242,6 +255,9 @@ private:
     QTimer m_updateCodeModelTimer;
     QTimer m_addUiFilesTimer;
     QStringList m_uiFilesToAdd;
+    QList<Qt4ProjectManager::Internal::Qt4ProFileNode *> m_proFilesForCodeModelUpdate;
+
+    QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;
 
     friend class Qt4ProjectFile;
 };

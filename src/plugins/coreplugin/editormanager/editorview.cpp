@@ -205,6 +205,17 @@ void EditorModel::removeAllRestoredEditors()
     }
 }
 
+int EditorModel::restoredEditorCount() const
+{
+    int count = 0;
+    for (int i = m_editors.count()-1; i >= 0; --i) {
+        if (!m_editors.at(i).editor) {
+            ++count;
+        }
+    }
+    return count;
+}
+
 bool EditorModel::isDuplicate(IEditor *editor) const
 {
     return m_duplicateEditors.contains(editor);
