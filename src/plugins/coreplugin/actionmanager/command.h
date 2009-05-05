@@ -63,8 +63,6 @@ public:
     virtual void setDefaultText(const QString &text) = 0;
     virtual QString defaultText() const = 0;
 
-    virtual void setCategory(const QString &name) = 0;
-
     virtual int id() const = 0;
     virtual CommandType type() const = 0;
 
