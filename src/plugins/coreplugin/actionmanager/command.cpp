@@ -38,7 +38,25 @@
     \mainclass
 
     \brief The class Command represents an action like a menu item, tool button, or shortcut.
+    You don't create Command objects directly, instead use \l{ActionManager::registerAction()}
+    to register an action and retrieve a Command. The Command object represents the user visible
+    action and its properties. If multiple actions are registered with the same ID (but
+    different contexts) the returned Command is the shared one between these actions.
 
+    A Command has two basic properties: A default shortcut and a default text. The default
+    shortcut is a key sequence that the user can use to trigger the active action that
+    the Command represents. The default text is e.g. used for representing the Command
+    in the keyboard shortcut preference pane. If the default text is empty, the text
+    of the visible action is used.
+
+    The user visible action is updated to represent the state of the active action (if any).
+    For performance reasons only the enabled and visible state are considered by default though.
+    You can tell a Command to also update the actions icon and text by setting the
+    corresponding \l{Command::CommandAttribute}{attribute}.
+
+    If there is no active action, the default behavior of the visible action is to be disabled.
+    You can change that behavior to make the visible action hide instead via the Command's
+    \l{Command::CommandAttribute}{attributes}.
 */
 
 /*!
@@ -85,7 +103,6 @@ using namespace Core::Internal;
 
 /*!
     \class CommandPrivate
-    \inheaderfile command_p.h
     \internal
 */
 
@@ -417,9 +434,6 @@ bool OverrideableAction::setCurrentContext(const QList<int> &context)
     return false;
 }
 
-/*!
-    ...
-*/
 void OverrideableAction::addOverrideAction(QAction *action, const QList<int> &context)
 {
     if (context.isEmpty()) {
@@ -434,9 +448,6 @@ void OverrideableAction::addOverrideAction(QAction *action, const QList<int> &co
     }
 }
 
-/*!
-    ...
-*/
 void OverrideableAction::actionChanged()
 {
     if (hasAttribute(CA_UpdateIcon)) {
@@ -459,9 +470,6 @@ void OverrideableAction::actionChanged()
     m_action->setVisible(m_currentAction->isVisible());
 }
 
-/*!
-    ...
-*/
 bool OverrideableAction::isActive() const
 {
     return m_active;
