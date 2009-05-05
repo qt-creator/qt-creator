@@ -3835,7 +3835,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
     //sendCommand(_("handle SIGSEGV pass stop print"));
     //sendCommand(_("set unwindonsignal off"));
     execCommand(_("call LoadLibraryA(\"") + lib + _("\")"),
-        handleWatchDebuggingHelperSetup);
+        handleDebuggingHelperSetup);
     sendCommand(_("sharedlibrary ") + dotEscape(lib));
 #elif defined(Q_OS_MAC)
     //sendCommand(_("sharedlibrary libc")); // for malloc
