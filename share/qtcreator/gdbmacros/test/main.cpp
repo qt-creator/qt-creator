@@ -133,6 +133,17 @@ static int dumpStdString()
     return 0;
 }
 
+static int dumpStdWString()
+{
+    std::wstring test = L"hallo";
+    prepareInBuffer("std::wstring", "local.wstring", "local.wstring", "");
+    qDumpObjectData440(2, 42, &test, 1, 0, 0, 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
+
 static int dumpStdStringList()
 {
     std::list<std::string> test;
@@ -140,6 +151,18 @@ static int dumpStdStringList()
     test.push_back("item2");
     prepareInBuffer("std::list", "local.stringlist", "local.stringlist", "std::string");
     qDumpObjectData440(2, 42, &test, 1, sizeof(std::string), sizeof(std::list<std::string>::allocator_type), 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
+static int dumpStdStringQList()
+{
+    QList<std::string> test;
+    test.push_back("item1");
+    test.push_back("item2");
+    prepareInBuffer("QList", "local.stringqlist", "local.stringqlist", "std::string");
+    qDumpObjectData440(2, 42, &test, 1, sizeof(std::string), 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -169,11 +192,28 @@ static int dumpStdIntVector()
     return 0;
 }
 
+static int dumpStdStringVector()
+{
+    std::vector<std::string> test;
+    test.push_back("item1");
+    test.push_back("item2");
+    prepareInBuffer("std::vector", "local.stringvector", "local.stringvector", "std::string");
+    qDumpObjectData440(2, 42, &test, 1, sizeof(std::string), sizeof(std::list<int>::allocator_type), 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
+
 static int dumpQObject()
 {
     QTimer t;
     QObjectPrivate *tp = reinterpret_cast<QObjectPrivate *>(&t);
+#ifdef KNOWS_OFFSET
     const int childOffset = (char*)&tp->children - (char*)tp;
+#else
+    const int childOffset = 0;
+#endif
     printf("Qt version %s Child offset: %d\n", QT_VERSION_STR, childOffset);
     prepareInBuffer("QObject", "local.qobject", "local.qobject", "");
     qDumpObjectData440(2, 42, &t, 1, childOffset, 0, 0, 0);
@@ -200,16 +240,22 @@ int main(int argc, char *argv[])
             dumpQStringList();
         if (!qstrcmp(arg, "QList<int>"))
             dumpQIntList();
+        if (!qstrcmp(arg, "QList<std::string>"))
+            dumpStdStringQList();
         if (!qstrcmp(arg, "QVector<int>"))
             dumpQIntVector();
         if (!qstrcmp(arg, "string"))
             dumpStdString();
+        if (!qstrcmp(arg, "wstring"))
+            dumpStdWString();
         if (!qstrcmp(arg, "list<int>"))
             dumpStdIntList();
         if (!qstrcmp(arg, "list<string>"))
             dumpStdStringList();
         if (!qstrcmp(arg, "vector<int>"))
             dumpStdIntVector();
+        if (!qstrcmp(arg, "vector<string>"))
+            dumpStdStringVector();
         if (!qstrcmp(arg, "QObject"))
             dumpQObject();
     }
