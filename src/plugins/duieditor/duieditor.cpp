@@ -524,7 +524,7 @@ void ScriptEditor::renameIdUnderCursor()
     const QString id = wordUnderCursor();
     bool ok = false;
     const QString newId = QInputDialog::getText(0, tr("Rename..."),
-                                                QLatin1String("New id:"),
+                                                tr("New id:"),
                                                 QLineEdit::Normal,
                                                 id, &ok);
     if (ok) {
