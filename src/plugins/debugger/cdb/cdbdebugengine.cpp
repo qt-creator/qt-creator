@@ -594,21 +594,7 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
     // Clear any saved breakpoints and set initial breakpoints
     m_engine->executeDebuggerCommand(QLatin1String("bc"));
     if (m_debuggerManagerAccess->breakHandler()->hasPendingBreakpoints())
-        m_engine->attemptBreakpointSynchronization();    
-    // At any event, we want a temporary breakpoint at main() to load
-    // the dumpers.
-    if (m_dumper->state() == CdbDumperHelper::NotLoaded) {
-        if (!hasBreakPointAtMain(m_debuggerManagerAccess->breakHandler())) {
-            QString errorMessage;
-            CDBBreakPoint mainBP;
-            // Do not resolve at this point in the rare event someone
-            // has main in a module
-            mainBP.funcName = QLatin1String("main");            
-            mainBP.oneShot = true;
-            if (!mainBP.add(m_cif.debugControl, &errorMessage))
-                m_debuggerManagerAccess->showQtDumperLibraryWarning(errorMessage);
-        }
-    }
+        m_engine->attemptBreakpointSynchronization();        
 }
 
 void CdbDebugEngine::processTerminated(unsigned long exitCode)
@@ -1356,6 +1342,12 @@ void CdbDebugEngine::slotConsoleStubTerminated()
     exitDebugger();
 }
 
+void CdbDebugEnginePrivate::notifyCrashed()
+{
+    // Cannot go over crash point to execute calls.
+    m_dumper->disable();
+}
+
 void CdbDebugEnginePrivate::handleDebugEvent()
 {
     if (debugCDB)
@@ -1367,18 +1359,9 @@ void CdbDebugEnginePrivate::handleDebugEvent()
 
     switch (mode) {
     case BreakEventHandle:
-    case BreakEventMain:
-        if (mode == BreakEventMain)
-            m_dumper->load(m_debuggerManager);
         m_debuggerManagerAccess->notifyInferiorStopped();
         updateThreadList();
-        updateStackTrace();
-        break;
-    case BreakEventMainLoadDumpers:
-        // Temp stop to load dumpers    
-        m_dumper->load(m_debuggerManager);
-        m_engine->startWatchTimer();
-        continueInferiorProcess();
+        updateStackTrace();          
         break;
     case BreakEventIgnoreOnce:
         m_engine->startWatchTimer();
@@ -1492,6 +1475,7 @@ void CdbDebugEnginePrivate::handleModuleLoad(const QString &name)
 {
     if (debugCDB>2)
         qDebug() << Q_FUNC_INFO << "\n    " << name;
+    m_dumper->moduleLoadHook(name, m_hDebuggeeProcess);
     updateModules();
 }
 
@@ -1500,17 +1484,6 @@ void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT2 pBP)
     Q_UNUSED(pBP)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
-    // Did we hit main() and did the user want that or is that just
-    // our internal BP to load the dumpers?
-    QString errorMessage;
-    CDBBreakPoint bp;
-    if (bp.retrieve(pBP, &errorMessage) && !bp.funcName.isEmpty()) {
-        if (bp.funcName == QLatin1String("main") || bp.funcName.endsWith(QLatin1String("!main"))) {
-            m_breakEventMode = bp.oneShot ? BreakEventMainLoadDumpers : BreakEventMain;
-        }
-        if (debugCDB)
-            qDebug() << bp << " b-mode=" << m_breakEventMode;
-    }
 }
 
 void CdbDebugEngine::reloadSourceFiles()

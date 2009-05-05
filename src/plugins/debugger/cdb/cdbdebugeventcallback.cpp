@@ -300,7 +300,7 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
         str << "attempt to continue execution after noncontinuable exception";
         break;
     case EXCEPTION_PRIV_INSTRUCTION:
-        str << "priviledged instruction";
+        str << "privileged instruction";
         break;
     case EXCEPTION_SINGLE_STEP:
         str << "single step";
@@ -336,6 +336,19 @@ void formatException(const EXCEPTION_RECORD64 *e,
     }
 }
 
+static bool isFatalException(LONG code)
+{
+    switch (code) {
+    case EXCEPTION_BREAKPOINT:
+    case EXCEPTION_SINGLE_STEP:
+    case 0x406d1388: // Mysterious exception at start of application
+        return false;
+    default:
+        break;
+    }
+    return true;
+}
+
 STDMETHODIMP CdbDebugEventCallback::Exception(
     THIS_
     __in PEXCEPTION_RECORD64 Exception,
@@ -347,9 +360,12 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
         QTextStream str(&msg);
         formatException(Exception, m_pEngine->m_d->m_dumper, str);
     }
+    const bool fatal = isFatalException(Exception->ExceptionCode);
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << '\n' << msg;
+        qDebug() << Q_FUNC_INFO << '\n' << fatal << msg;
     m_pEngine->m_d->m_debuggerManagerAccess->showApplicationOutput(msg);
+    if (fatal)
+        m_pEngine->m_d->notifyCrashed();
     return S_OK;
 }
 

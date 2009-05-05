@@ -56,6 +56,7 @@ public slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on = true);
     void setModel(QAbstractItemModel *model);
+    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
     Q_SLOT void expandNode(const QModelIndex &index);

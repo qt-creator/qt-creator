@@ -279,6 +279,8 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
 
     m_group.insert(theDebuggerAction(ListSourceFiles), 
         m_ui.checkBoxListSourceFiles);
+    m_group.insert(theDebuggerAction(UseAlternatingRowColors), 
+        m_ui.checkBoxUseAlternatingRowColors);
     m_group.insert(theDebuggerAction(SkipKnownFrames), 
         m_ui.checkBoxSkipKnownFrames);
     m_group.insert(theDebuggerAction(UseToolTips), 

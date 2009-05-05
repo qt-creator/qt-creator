@@ -51,9 +51,10 @@ using Debugger::Internal::StackWindow;
 StackWindow::StackWindow(QWidget *parent)
     : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
 {
+    QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Stack"));
 
-    setAlternatingRowColors(true);
+    setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));
 
@@ -61,6 +62,8 @@ StackWindow::StackWindow(QWidget *parent)
 
     connect(this, SIGNAL(activated(QModelIndex)),
         this, SLOT(rowActivated(QModelIndex)));
+    connect(act, SIGNAL(toggled(bool)),
+        this, SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void StackWindow::resizeEvent(QResizeEvent *event)

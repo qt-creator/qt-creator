@@ -42,17 +42,14 @@ using namespace Debugger::Internal;
 DisassemblerWindow::DisassemblerWindow()
     : m_alwaysResizeColumnsToContents(true), m_alwaysReloadContents(false)
 {
+    QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Disassembler"));
     setSortingEnabled(false);
-    setAlternatingRowColors(true);
+    setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     header()->hide();
-    //setIconSize(QSize(10, 10));
-    //setWindowIcon(QIcon(":/gdbdebugger/images/debugger_breakpoints.png"));
-    //QHeaderView *hv = header();
-    //hv->setDefaultAlignment(Qt::AlignLeft);
-    //hv->setClickable(true);
-    //hv->setSortIndicatorShown(true);
+    connect(act, SIGNAL(toggled(bool)),
+        this, SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void DisassemblerWindow::resizeEvent(QResizeEvent *ev)

@@ -28,7 +28,9 @@
 **************************************************************************/
 
 #include "moduleswindow.h"
+
 #include "moduleshandler.h" // for model roles
+#include "debuggeractions.h"
 #include "debuggermanager.h"
 
 #include <QtCore/QDebug>
@@ -58,14 +60,17 @@ ModulesWindow::ModulesWindow(DebuggerManager *debuggerManager,
     m_alwaysResizeColumnsToContents(false),
     m_debuggerManager(debuggerManager)
 {
+    QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Modules"));
     setSortingEnabled(true);
-    setAlternatingRowColors(true);
+    setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));
 
     connect(this, SIGNAL(activated(QModelIndex)),
         this, SLOT(moduleActivated(QModelIndex)));
+    connect(act, SIGNAL(toggled(bool)),
+        this, SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void ModulesWindow::moduleActivated(const QModelIndex &index)

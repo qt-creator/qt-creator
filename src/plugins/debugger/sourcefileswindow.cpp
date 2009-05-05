@@ -165,6 +165,7 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
     : QTreeView(parent)
 {
     m_model = new SourceFilesModel(this);
+    QAction *act = theDebuggerAction(UseAlternatingRowColors);
 
     QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(m_model);
@@ -172,13 +173,15 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
 
     setWindowTitle(tr("Source Files"));
     setSortingEnabled(true);
-    setAlternatingRowColors(true);
+    setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));
     //header()->setDefaultAlignment(Qt::AlignLeft);
     
     connect(this, SIGNAL(activated(QModelIndex)),
         this, SLOT(sourceFileActivated(QModelIndex)));
+    connect(act, SIGNAL(toggled(bool)),
+        this, SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void SourceFilesWindow::sourceFileActivated(const QModelIndex &index)
