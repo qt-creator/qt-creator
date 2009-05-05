@@ -56,6 +56,7 @@ namespace Internal {
 
 class BreakpointData;
 class DebuggerManager;
+class DebuggerRunner;
 class DebugMode;
 class LocationMark;
 
@@ -96,6 +97,11 @@ private slots:
     void focusCurrentEditor(Core::IMode *mode);
     void showSettingsDialog();
 
+    void startExternalApplication();
+    void attachExternalApplication();
+    void attachCore();
+    void attachRemoteApplication();
+
 private:
     void readSettings();
     void writeSettings() const;
@@ -107,12 +113,18 @@ private:
 
     DebuggerManager *m_manager;
     DebugMode *m_debugMode;
+    DebuggerRunner *m_debuggerRunner;
 
     QString m_previousMode;
     LocationMark *m_locationMark;
     int m_gdbRunningContext;
 
     QAction *m_toggleLockedAction;
+
+    QAction *m_startExternalAction;
+    QAction *m_attachExternalAction;
+    QAction *m_attachCoreAction;
+    QAction *m_attachRemoteAction;
 };
 
 } // namespace Internal

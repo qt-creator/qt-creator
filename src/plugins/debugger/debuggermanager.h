@@ -56,6 +56,7 @@ namespace Debugger {
 namespace Internal {
 
 class DebuggerOutputWindow;
+class DebuggerRunControl;
 class DebuggerPlugin;
 class DebugMode;
 
@@ -204,7 +205,7 @@ public:
     enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
 
 public slots:
-    bool startNewDebugger(DebuggerStartMode mode);
+    void startNewDebugger(DebuggerRunControl *runControl);
     void exitDebugger(); 
 
     void setSimpleDockWidgetArrangement();
@@ -223,10 +224,6 @@ public slots:
     void resetLocation();
 
     void interruptDebuggingRequest();
-    void startExternalApplication();
-    void attachExternalApplication();
-    void attachCore();
-    void attachRemoteApplication();
 
     void jumpToLineExec();
     void runToLineExec();
@@ -328,7 +325,8 @@ public:
     // one of the interfaces
     QAbstractItemModel *threadsModel();
     int status() const { return m_status; }
-    DebuggerStartMode startMode() const { return m_startMode; }
+    DebuggerStartMode startMode() const;
+    DebuggerRunControl *runControl() const { return m_runControl; }
 
     QList<Symbol> moduleSymbols(const QString &moduleName);
 
@@ -377,7 +375,7 @@ private:
     BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
     void setToolTipExpression(const QPoint &pos, const QString &exp0);
 
-    DebuggerStartMode m_startMode;
+    DebuggerRunControl *m_runControl;
     DebuggerType m_debuggerType;
 
     /// Views
@@ -405,10 +403,6 @@ private:
 
     /// Actions
     friend class DebuggerPlugin;
-    QAction *m_startExternalAction;
-    QAction *m_attachExternalAction;
-    QAction *m_attachCoreAction;
-    QAction *m_attachRemoteAction;
     QAction *m_continueAction;
     QAction *m_stopAction;
     QAction *m_resetAction; // FIXME: Should not be needed in a stable release

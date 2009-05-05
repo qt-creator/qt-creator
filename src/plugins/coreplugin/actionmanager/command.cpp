@@ -50,12 +50,6 @@
 */
 
 /*!
-    \fn void Command::setCategory(const QString &name)
-
-    Sets the category to \a name.
-*/
-
-/*!
     \fn virtual void Command::setDefaultKeySequence(const QKeySequence &key)
 */
 
@@ -116,18 +110,6 @@ void CommandPrivate::setStateFlags(int state)
 int CommandPrivate::stateFlags() const
 {
     return (m_type & CS_Mask);
-}
-
-void CommandPrivate::setCategory(const QString &name)
-{
-    m_category = name;
-}
-
-QString CommandPrivate::category() const
-{
-    if (m_category.isEmpty())
-        return tr("Other");
-    return m_category;
 }
 
 void CommandPrivate::setDefaultKeySequence(const QKeySequence &key)
