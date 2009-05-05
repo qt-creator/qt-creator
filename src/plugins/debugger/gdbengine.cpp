@@ -261,7 +261,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
     static QTime lastTime;
 
     emit gdbOutputAvailable(_("            "), currentTime());
-    emit gdbOutputAvailable(_("stdout:"), QString::fromLocal8Bit(buff));
+    emit gdbOutputAvailable(_("stdout:"), QString::fromLocal8Bit(buff, buff.length()));
 
 #if 0
     qDebug() // << "#### start response handling #### "
