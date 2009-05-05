@@ -38,6 +38,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/synchronousprocess.h>
+
 #include <QtCore/QtDebug>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
@@ -384,7 +386,7 @@ QString QmlApplicationRunConfiguration::type() const
 
 QString QmlApplicationRunConfiguration::executable() const
 {
-    QString executable("qmlviewer");
+    const QString executable = Core::Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
     return executable;
 }
 
