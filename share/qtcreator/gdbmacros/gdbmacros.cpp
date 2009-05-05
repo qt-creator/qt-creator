@@ -94,10 +94,10 @@ int qtGhVersion = QT_VERSION;
   \c{qDumpObjectData440()}.
 
   In any case, dumper processesing should end up in 
-  \c{handleProtocolVersion2and3()} and needs an entry in the bis switch there.
+  \c{handleProtocolVersion2and3()} and needs an entry in the big switch there.
 
   Next step is to create a suitable \c{static void qDumpFoo(QDumper &d)}
-  function. At the bare minimum it should contain something like:
+  function. At the bare minimum it should contain something like this:
 
 
   \c{
@@ -127,7 +127,7 @@ int qtGhVersion = QT_VERSION;
   \endlist
 
   If the current item has children, it might be queried to produce information
-  about thes children. In this case the dumper should use something like
+  about these children. In this case the dumper should use something like this:
 
   \c{
     if (d.dumpChildren) {
@@ -1168,7 +1168,7 @@ static void qDumpQHashNode(QDumper &d)
 
     P(d, "numchild", 2);
     if (d.dumpChildren) {
-        // there is a hash specialization in cast the key are integers or shorts
+        // there is a hash specialization in case the keys are integers or shorts
         d << ",children=[";
         d.beginHash();
             P(d, "name", "key");
@@ -2679,7 +2679,7 @@ void *qDumpObjectData440(
 
         // This is a list of all available dumpers. Note that some templates
         // currently require special hardcoded handling in the debugger plugin.
-        // They are mentioned here nevertheless. For types that not listed
+        // They are mentioned here nevertheless. For types that are not listed
         // here, dumpers won't be used.
         d << "dumpers=["
             "\""NS"QByteArray\","
