@@ -29,6 +29,7 @@
 
 #include "threadswindow.h"
 
+#include "debuggeractions.h"
 #include "stackhandler.h"
 
 #include <utils/qtcassert.h>
@@ -47,16 +48,19 @@ using Debugger::Internal::ThreadsWindow;
 ThreadsWindow::ThreadsWindow(QWidget *parent)
     : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
 {
-    setWindowTitle(tr("Thread"));
+    QAction *act = theDebuggerAction(UseAlternatingRowColors);
 
-    setAlternatingRowColors(true);
+    setWindowTitle(tr("Thread"));
+    setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));
 
     header()->setDefaultAlignment(Qt::AlignLeft);
 
-    connect(this, SIGNAL(activated(const QModelIndex &)),
-        this, SLOT(rowActivated(const QModelIndex &)));
+    connect(this, SIGNAL(activated(QModelIndex)),
+        this, SLOT(rowActivated(QModelIndex)));
+    connect(act, SIGNAL(toggled(bool)),
+        this, SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void ThreadsWindow::resizeEvent(QResizeEvent *event)

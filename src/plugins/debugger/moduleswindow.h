@@ -57,6 +57,7 @@ public slots:
     void setAlwaysResizeColumnsToContents(bool on);
     void moduleActivated(const QModelIndex &);
     void showSymbols(const QString &name);
+    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
     void resizeEvent(QResizeEvent *ev);

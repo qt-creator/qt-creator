@@ -1570,7 +1570,6 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
     }
 }
 
-
 //////////////////////////////////////////////////////////////////////
 //
 // Testing

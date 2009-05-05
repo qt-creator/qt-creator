@@ -51,12 +51,12 @@ public slots:
     void setAlwaysResizeColumnsToContents(bool on);
     void reloadContents();
     void setAlwaysReloadContents(bool on);
+    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
-protected:
+private:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
 
-private:
     bool m_alwaysResizeColumnsToContents;
     bool m_alwaysReloadContents;
 };

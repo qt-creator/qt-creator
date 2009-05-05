@@ -48,27 +48,20 @@ using namespace Debugger::Internal;
 using namespace Debugger::Constants;
 
 RegisterWindow::RegisterWindow()
-    : m_alwaysResizeColumnsToContents(true), m_alwaysReloadContents(false)
+  : m_alwaysResizeColumnsToContents(true), m_alwaysReloadContents(false)
 {
+    QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Registers"));
     setSortingEnabled(true);
-    setAlternatingRowColors(true);
+    setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
-    //header()->hide();
-    //setIconSize(QSize(10, 10));
-    //setWindowIcon(QIcon(":/gdbdebugger/images/debugger_breakpoints.png"));
-    //QHeaderView *hv = header();
-    //hv->setDefaultAlignment(Qt::AlignLeft);
-    //hv->setClickable(true);
-    //hv->setSortIndicatorShown(true);
+
+    connect(act, SIGNAL(toggled(bool)),
+        this, SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void RegisterWindow::resizeEvent(QResizeEvent *ev)
 {
-    //QHeaderView *hv = header();
-    //int totalSize = ev->size().width() - 110;
-    //hv->resizeSection(0, totalSize / 4);
-    //hv->resizeSection(1, totalSize / 4);
     QTreeView::resizeEvent(ev);
 }
 

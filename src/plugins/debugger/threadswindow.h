@@ -51,6 +51,7 @@ public slots:
 
 private slots:
     void rowActivated(const QModelIndex &index);
+    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
     void resizeEvent(QResizeEvent *ev);

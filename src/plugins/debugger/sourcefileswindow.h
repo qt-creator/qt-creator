@@ -60,6 +60,7 @@ signals:
 
 private slots:
     void sourceFileActivated(const QModelIndex &index);
+    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
