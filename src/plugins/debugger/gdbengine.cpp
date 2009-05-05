@@ -104,6 +104,15 @@ static int &currentToken()
     return token;
 }
 
+#define execCommand(command,callback) \
+    execCommandInternal(command, NoFlags, &GdbEngine::callback, STRINGIFY(callback), QVariant())
+#define execCommandF(command,callback,flags) \
+    execCommandInternal(command, flags, &GdbEngine::callback, STRINGIFY(callback), QVariant())
+#define execCommandC(command,callback,cookie) \
+    execCommandInternal(command, NoFlags, &GdbEngine::callback, STRINGIFY(callback), cookie)
+#define execCommandFC(command,callback,flags,cookie) \
+    execCommandInternal(command, flags, &GdbEngine::callback, STRINGIFY(callback), cookie)
+
 ///////////////////////////////////////////////////////////////////////
 //
 // GdbEngine

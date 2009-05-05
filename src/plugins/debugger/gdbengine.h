@@ -176,14 +176,6 @@ private:
     void execCommandInternal(const QString &command, GdbCommandFlags flags,
                              GdbCommandCallback callback, const char *callbackName,
                              const QVariant &cookie);
-    #define execCommand(command,callback) \
-        execCommandInternal(command, NoFlags, &GdbEngine::callback, STRINGIFY(callback), QVariant())
-    #define execCommandF(command,callback,flags) \
-        execCommandInternal(command, flags, &GdbEngine::callback, STRINGIFY(callback), QVariant())
-    #define execCommandC(command,callback,cookie) \
-        execCommandInternal(command, NoFlags, &GdbEngine::callback, STRINGIFY(callback), cookie)
-    #define execCommandFC(command,callback,flags,cookie) \
-        execCommandInternal(command, flags, &GdbEngine::callback, STRINGIFY(callback), cookie)
     void sendCommand(const QString &command, GdbCommandFlags flags = NoFlags);
 
     void setTokenBarrier();
