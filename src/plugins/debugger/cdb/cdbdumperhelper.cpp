@@ -571,7 +571,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
     if (der == DumpExecuteSizeFailed)
         m_failedTypes.push_back(wd.type);    
     // log error
-    *errorMessage = *errorMessage = msgDumpFailed(wd, errorMessage);
+    *errorMessage = msgDumpFailed(wd, errorMessage);
     m_access->showDebuggerOutput(m_messagePrefix, *errorMessage);
     return DumpError;
 }
