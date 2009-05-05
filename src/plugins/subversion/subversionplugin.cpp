@@ -95,6 +95,8 @@ const char * const SubversionPlugin::STATUS             = "Subversion.Status";
 const char * const SubversionPlugin::UPDATE             = "Subversion.Update";
 const char * const SubversionPlugin::DESCRIBE           = "Subversion.Describe";
 
+static const char *nonInteractiveOptionC = "--non-interactive";
+
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
@@ -759,7 +761,7 @@ bool SubversionPlugin::commit(const QString &messageFile,
     // "[ADM]<blanks>file" into an args list. The files of the status log
     // can be relative or absolute depending on where the command was run.
     QStringList args = QStringList(QLatin1String("commit"));
-    args << QLatin1String("--non-interactive") << QLatin1String("--file") << messageFile;
+    args << QLatin1String(nonInteractiveOptionC) << QLatin1String("--file") << messageFile;
     args.append(subVersionFileList);
     const SubversionResponse response = runSvn(args, subversionLongTimeOut, true);
     return !response.error ;
@@ -803,6 +805,7 @@ void SubversionPlugin::updateProject()
         return;
 
     QStringList args(QLatin1String("update"));
+    args.push_back(QLatin1String(nonInteractiveOptionC));
     args.append(topLevels);
     runSvn(args, subversionLongTimeOut, false);
 }

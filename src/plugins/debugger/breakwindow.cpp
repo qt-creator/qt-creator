@@ -32,16 +32,18 @@
 #include "debuggeractions.h"
 #include "ui_breakcondition.h"
 
-#include <QAction>
-#include <QDir>
-#include <QFileInfo>
-#include <QFileInfoList>
-#include <QHeaderView>
-#include <QKeyEvent>
-#include <QMenu>
-#include <QResizeEvent>
-#include <QToolButton>
-#include <QTreeView>
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QFileInfoList>
+
+#include <QtGui/QAction>
+#include <QtGui/QHeaderView>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QMenu>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QToolButton>
+#include <QtGui/QTreeView>
 
 using Debugger::Internal::BreakWindow;
 
@@ -49,14 +51,17 @@ using Debugger::Internal::BreakWindow;
 BreakWindow::BreakWindow(QWidget *parent)
   : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
 {
+    QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Breakpoints"));
     setWindowIcon(QIcon(":/gdbdebugger/images/debugger_breakpoints.png"));
-    setAlternatingRowColors(true);
+    setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));
 
     connect(this, SIGNAL(activated(QModelIndex)),
         this, SLOT(rowActivated(QModelIndex)));
+    connect(act, SIGNAL(toggled(bool)),
+        this, SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void BreakWindow::keyPressEvent(QKeyEvent *ev)
@@ -68,16 +73,6 @@ void BreakWindow::keyPressEvent(QKeyEvent *ev)
 
 void BreakWindow::resizeEvent(QResizeEvent *ev)
 {
-/*
-    QHeaderView *hv = header();
-    int totalSize = ev->size().width() - 180;
-    hv->resizeSection(0, 60);
-    hv->resizeSection(1, (totalSize * 30) / 100);
-    hv->resizeSection(2, (totalSize * 30) / 100);
-    hv->resizeSection(3, (totalSize * 30) / 100);
-    hv->resizeSection(4, 70);
-    hv->resizeSection(5, 50);
-*/
     QTreeView::resizeEvent(ev);
 }
 
@@ -85,8 +80,8 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
     const QModelIndex index = indexAt(ev->pos());
-    const QModelIndex index0 = index.sibling(index.row(), 0);
     const bool indexIsValid = index.isValid();
+    const QModelIndex index0 = index.sibling(index.row(), 0);
     QAction *act0 = new QAction(tr("Delete breakpoint"), &menu);
     act0->setEnabled(indexIsValid);
     QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
@@ -96,7 +91,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act3 = new QAction(tr("Edit condition..."), &menu);
     act3->setEnabled(indexIsValid);    
     QAction *act4 = new QAction(tr("Synchronize breakpoints"), &menu);
-    bool enabled = model()->data(index0, Qt::UserRole).toBool();
+    bool enabled = indexIsValid && model()->data(index0, Qt::UserRole).toBool();
     QString str = enabled ? tr("Disable breakpoint") : tr("Enable breakpoint");
     QAction *act5 = new QAction(str, &menu);
 

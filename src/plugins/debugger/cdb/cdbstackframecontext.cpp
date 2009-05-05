@@ -117,8 +117,7 @@ WatchHandlerSorterInserter &WatchHandlerSorterInserter::operator=(WatchData wd)
 // -----------CdbStackFrameContext
 CdbStackFrameContext::CdbStackFrameContext(const QSharedPointer<CdbDumperHelper> &dumper,
                                            CdbSymbolGroupContext *symbolContext) :
-        m_useDumpers(dumper->state() == CdbDumperHelper::Loaded
-                     && theDebuggerBoolSetting(UseDebuggingHelpers)),
+        m_useDumpers(dumper->isEnabled() && theDebuggerBoolSetting(UseDebuggingHelpers)),
         m_dumper(dumper),
         m_symbolContext(symbolContext)
 {

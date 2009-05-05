@@ -31,6 +31,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="checkBoxUseAlternatingRowColors">
+        <property name="text">
+         <string>Use alternating row colors in debug views.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
         <property name="toolTip">
          <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic

@@ -53,6 +53,7 @@ signals:
 
 private slots:
     void rowActivated(const QModelIndex &index);
+    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 protected:
     void resizeEvent(QResizeEvent *ev);

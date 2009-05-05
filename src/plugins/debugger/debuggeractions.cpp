@@ -102,6 +102,7 @@ DebuggerSettings *DebuggerSettings::instance()
     if (instance)
         return instance;
 
+    const QString debugModeGroup = QLatin1String("DebugMode");
     instance = new DebuggerSettings;
 
     SavedAction *item = 0;
@@ -122,20 +123,27 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setText(tr("Always adjust column widths to contents"));
     item->setCheckable(true);
 
+    item = new SavedAction(instance);
+    item->setText(tr("Use alternating row colors"));
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseAlternatingRowColours"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    instance->insertItem(UseAlternatingRowColors, item);
+
     //
     // Locals & Watchers
     //
     item = new SavedAction(instance);
-    instance->insertItem(WatchExpression, item);
     item->setTextPattern(tr("Watch expression \"%1\""));
+    instance->insertItem(WatchExpression, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(RemoveWatchExpression, item);
     item->setTextPattern(tr("Remove watch expression \"%1\""));
+    instance->insertItem(RemoveWatchExpression, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(WatchExpressionInWindow, item);
     item->setTextPattern(tr("Watch expression \"%1\" in separate window"));
+    instance->insertItem(WatchExpressionInWindow, item);
 
     item = new SavedAction(instance);
     instance->insertItem(AssignValue, item);
@@ -144,23 +152,23 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(AssignType, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(ExpandItem, item);
     item->setText(tr("Expand item"));
+    instance->insertItem(ExpandItem, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(CollapseItem, item);
     item->setText(tr("Collapse item"));
+    instance->insertItem(CollapseItem, item);
 
     //
     // DebuggingHelper
-    const QString debugModeGroup = QLatin1String("DebugMode");
+    //
     item = new SavedAction(instance);
-    instance->insertItem(UseDebuggingHelpers, item);
     item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseDebuggingHelper"));
     item->setText(tr("Use debugging helper"));
     item->setCheckable(true);
     item->setDefaultValue(true);
+    instance->insertItem(UseDebuggingHelpers, item);
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("CustomDebuggingHelperLocation"));
@@ -234,8 +242,8 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setText(tr("Raw"));
     item->setCheckable(true);
     item->setSettingsKey(debugModeGroup, QLatin1String("FormatRaw"));
-    instance->insertItem(FormatRaw, item);
     item->setData(FormatRaw);
+    instance->insertItem(FormatRaw, item);
     instance->m_registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);

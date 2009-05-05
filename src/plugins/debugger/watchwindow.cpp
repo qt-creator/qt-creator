@@ -117,8 +117,9 @@ public:
 WatchWindow::WatchWindow(Type type, QWidget *parent)
     : QTreeView(parent), m_alwaysResizeColumnsToContents(true), m_type(type)
 {
+    QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Locals and Watchers"));
-    setAlternatingRowColors(true);
+    setAlternatingRowColors(act->isChecked());
     setIndentation(indentation() * 9/10);
     setUniformRowHeights(true);
     setItemDelegate(new WatchDelegate(this));
@@ -130,6 +131,8 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
         this, SLOT(expandNode(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)),
         this, SLOT(collapseNode(QModelIndex)));
+    connect(act, SIGNAL(toggled(bool)),
+        this, SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
 void WatchWindow::expandNode(const QModelIndex &idx)
