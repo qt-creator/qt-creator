@@ -3304,7 +3304,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
     QByteArray out = output.data();
 
     int markerPos = out.indexOf('"') + 1; // position of 'success marker'
-    if (markerPos == -1 || out.at(markerPos) == 'f') {  // 't' or 'f'
+    if (markerPos == 0 || out.at(markerPos) == 'f') {  // 't' or 'f'
         // custom dumper produced no output
         data.setError(strNotInScope);
         insertData(data);
