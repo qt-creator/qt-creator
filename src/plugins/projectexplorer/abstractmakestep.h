@@ -27,14 +27,11 @@
 **
 **************************************************************************/
 
-#ifndef MAKESTEP_H
-#define MAKESTEP_H
+#ifndef ABSTRACTMAKESTEP_H
+#define ABSTRACTMAKESTEP_H
 
-#include "ui_makestep.h"
-#include "qtversionmanager.h"
-
-#include <projectexplorer/abstractmakestep.h>
-#include <projectexplorer/projectexplorer.h>
+#include "abstractprocessstep.h"
+#include "projectexplorer.h"
 
 namespace ProjectExplorer {
 class BuildStep;
@@ -42,56 +39,36 @@ class IBuildStepFactory;
 class Project;
 }
 
-namespace Qt4ProjectManager {
+namespace ProjectExplorer {
 
-namespace Internal {
-class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
+class AbstractMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:
-    MakeStepFactory();
-    virtual ~MakeStepFactory();
-    bool canCreate(const QString & name) const;
-    ProjectExplorer::BuildStep * create(ProjectExplorer::Project * pro, const QString & name) const;
-    QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
-    QString displayNameForName(const QString &name) const;
-};
-}
-
-class Qt4Project;
-
-class MakeStep : public ProjectExplorer::AbstractMakeStep
-{
-    Q_OBJECT
-public:
-    MakeStep(Qt4Project * project);
-    ~MakeStep();
+    AbstractMakeStep(Project * project);
+    ~AbstractMakeStep();
     virtual bool init(const QString & name);
     virtual void run(QFutureInterface<bool> &);
-    virtual QString name();
-    virtual QString displayName();
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual bool immutable() const;
-private:
-    QString m_buildConfiguration;
-};
 
-class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    MakeStepConfigWidget(MakeStep *makeStep);
-    QString displayName() const;
-    void init(const QString &buildConfiguration);
+protected:
+    virtual void stdOut(const QString &line);
+    virtual void stdError(const QString &line);
+
+    // derived classes need to call those functions
+    void setBuildParser(const QString &parser);
+    QString buildParser() const;
 private slots:
-    void makeLineEditTextEdited();
-    void makeArgumentsLineEditTextEdited();
+    void slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description);
+    void addDirectory(const QString &dir);
+    void removeDirectory(const QString &dir);
 private:
+    Project *m_project;
+    QString m_buildParserName;
+    ProjectExplorer::BuildParserInterface *m_buildParser;
     QString m_buildConfiguration;
-    Ui::MakeStep m_ui;
-    MakeStep *m_makeStep;
+    QSet<QString> m_openDirectories;
 };
 
-} // Qt4ProjectManager
+} // ProjectExplorer
 
-#endif // MAKESTEP_H
+#endif // ABSTRACTMAKESTEP_H

@@ -30,7 +30,7 @@
 #ifndef MAKESTEP_H
 #define MAKESTEP_H
 
-#include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/abstractmakestep.h>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -43,7 +43,7 @@ namespace Internal {
 
 class CMakeProject;
 
-class MakeStep : public ProjectExplorer::AbstractProcessStep
+class MakeStep : public ProjectExplorer::AbstractMakeStep
 {
     Q_OBJECT
 public:
@@ -62,17 +62,11 @@ public:
     void setBuildTarget(const QString &buildConfiguration, const QString &target, bool on);
     QStringList additionalArguments(const QString &buildConfiguration) const;
     void setAdditionalArguments(const QString &buildConfiguration, const QStringList &list);
-private slots:
-    void slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description);
-    void addDirectory(const QString &dir);
-    void removeDirectory(const QString &dir);
 protected:
+    // For parsing [ 76%]
     virtual void stdOut(const QString &line);
-    virtual void stdError(const QString &line);
 private:
     CMakeProject *m_pro;
-    ProjectExplorer::BuildParserInterface *m_buildParser;
-    QSet<QString> m_openDirectories;
     QRegExp m_percentProgress;
     QFutureInterface<bool> *m_futureInterface;
 };
