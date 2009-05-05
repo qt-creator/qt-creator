@@ -59,8 +59,9 @@ HEADERS += projectexplorer.h \
     gccparser.h \
     msvcparser.h \
     filewatcher.h \
-    debugginghelper.h\
-    abstractmakestep.h
+    debugginghelper.h \
+    abstractmakestep.h \
+    projectexplorersettingspage.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -109,7 +110,8 @@ SOURCES += projectexplorer.cpp \
     msvcparser.cpp \
     filewatcher.cpp \
     debugginghelper.cpp \
-    abstractmakestep.cpp
+    abstractmakestep.cpp \
+    projectexplorersettingspage.cpp
 FORMS += dependenciespanel.ui \
     buildsettingspropertiespage.ui \
     processstep.ui \
@@ -118,7 +120,8 @@ FORMS += dependenciespanel.ui \
     sessiondialog.ui \
     projectwizardpage.ui \
     buildstepspage.ui \
-    removefiledialog.ui
+    removefiledialog.ui \
+    projectexplorersettingspage.ui
 win32 { 
     SOURCES += applicationlauncher_win.cpp \
         winguiprocess.cpp

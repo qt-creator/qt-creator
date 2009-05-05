@@ -71,6 +71,12 @@ class OutputPane;
 class ProjectWindow;
 class ProjectFileFactory;
 
+struct ProjectExplorerSettings
+{
+    bool buildBeforeRun;
+    bool saveBeforeBuild;
+};
+
 } // namespace Internal
 
 class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin
@@ -108,6 +114,9 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
     void shutdown();
+
+    void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
+    Internal::ProjectExplorerSettings projectExplorerSettings() const;
 
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
@@ -186,6 +195,7 @@ private slots:
 
 private:
     void runProjectImpl(Project *pro);
+    void executeRunConfiguration(QSharedPointer<RunConfiguration>, const QString &mode);
     void setCurrent(Project *project, QString filePath, Node *node);
 
     QStringList allFilesWithDependencies(Project *pro);
@@ -259,6 +269,7 @@ private:
     RunControl *m_debuggingRunControl;
     QString m_runMode;
     QString m_projectFilterString;
+    Internal::ProjectExplorerSettings m_projectExplorerSettings;
 };
 
 namespace Internal {
