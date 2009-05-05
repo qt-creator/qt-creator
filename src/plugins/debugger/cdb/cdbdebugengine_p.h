@@ -98,10 +98,6 @@ struct CdbDebugEnginePrivate
     enum HandleBreakEventMode { // Special modes for break event handler.
         BreakEventHandle,
         BreakEventIgnoreOnce,
-        // We hit main (and the user intended it)
-        BreakEventMain,
-        // We hit main (and the user did not intend it, just load dumpers)
-        BreakEventMainLoadDumpers,
         BreakEventSyncBreakPoints,
     };
 
@@ -134,6 +130,7 @@ struct CdbDebugEnginePrivate
     bool continueInferior(QString *errorMessage);
 
     bool attemptBreakpointSynchronization(QString *errorMessage);
+    void notifyCrashed();
 
     static bool executeDebuggerCommand(CIDebugControl *ctrl, const QString &command, QString *errorMessage);
     static bool evaluateExpression(CIDebugControl *ctrl, const QString &expression, DEBUG_VALUE *v, QString *errorMessage);

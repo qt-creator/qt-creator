@@ -46,54 +46,64 @@ class DebuggerManager;
 /* For code clarity, all the stuff related to custom dumpers goes here.
  * "Custom dumper" is a library compiled against the current
  * Qt containing functions to evaluate values of Qt classes
- * (such as QString, taking pointers to their addresses).
- * The library must be loaded into the debuggee.
- * Loading the dumpers requires making the debuggee call functions
- * (LoadLibrary() and the dumper functions). This only works if the
- * debuggee is in a 'well-defined' breakpoint state (such as at 'main()').
- * Calling the load functions from an IDebugEvent callback causes
- * WaitForEvent() to fail with unknown errors. Calling the load functions from an
- * non 'well-defined' (arbitrary) breakpoint state will cause LoadLibrary
- * to trigger an access violations.
- * Currently, we call the load function when stopping at 'main()' for which
- * we set a temporary break point if the user does not want to stop there. */
+ * (such as QString), taking pointers to their addresses.
+ * The dumper functions produce formatted string output which is
+ * converted into WatchData items with the help of QtDumperHelper.
+ *
+ * Usage: When launching the debugger, call reset() with path to dumpers
+ * and enabled flag. From the module load event callback, call
+ * moduleLoadHook() to initialize.
+ * dumpType() is the main query function to obtain a list  of WatchData from
+ * WatchData item produced by the smbol context.
+ * Call disable(), should the debuggee crash (as performing debuggee
+ * calls is no longer possible, then).*/
 
 class CdbDumperHelper
 {
     Q_DISABLE_COPY(CdbDumperHelper)
 public:
    enum State {
-        Disabled,
+        Disabled, // Disabled or failed
         NotLoaded,
+        InjectLoadFailed,
+        InjectLoading,
         Loaded,
-        Failed
+        Initialized, // List of types, etc. retrieved
     };
 
-    explicit CdbDumperHelper(IDebuggerManagerAccessForEngines *access,
+    explicit CdbDumperHelper(DebuggerManager *manager,
                              CdbComInterfaces *cif);
     ~CdbDumperHelper();
 
-    State state() const { return m_state; }
-    operator bool() const { return m_state == Loaded; }
+    State state() const    { return m_state; }
+    bool isEnabled() const { return m_state != Disabled; }
+
+    // Disable in case of a debuggee crash.
+    void disable();
 
     // Call before starting the debugger
     void reset(const QString &library, bool enabled);
 
-    // Call in a temporary breakpoint state to actually load.
-    void load(DebuggerManager *manager);
+    // Call from the module load callback to perform initialization.
+    void moduleLoadHook(const QString &module, HANDLE debuggeeHandle);
 
+    // Dump a WatchData item.
     enum DumpResult { DumpNotHandled, DumpOk, DumpError };
     DumpResult dumpType(const WatchData &d, bool dumpChildren, int source,
                         QList<WatchData> *result, QString *errorMessage);
 
-    // bool handlesType(const QString &typeName) const;
-
     inline CdbComInterfaces *comInterfaces() const { return m_cif; }
 
 private:
+    enum CallLoadResult { CallLoadOk, CallLoadError, CallLoadNoQtApp, CallLoadAlreadyLoaded };
+
     void clearBuffer();
-    bool resolveSymbols(QString *errorMessage);
-    bool getKnownTypes(QString *errorMessage);
+
+    bool ensureInitialized(QString *errorMessage);
+    CallLoadResult initCallLoad(QString *errorMessage);
+    bool initResolveSymbols(QString *errorMessage);
+    bool initKnownTypes(QString *errorMessage);
+
     bool getTypeSize(const QString &typeName, int *size, QString *errorMessage);
     bool runTypeSizeQuery(const QString &typeName, int *size, QString *errorMessage);
     bool callDumper(const QString &call, const QByteArray &inBuffer, const char **outputPtr, QString *errorMessage);
@@ -105,8 +115,10 @@ private:
 
     static bool writeToDebuggee(CIDebugDataSpaces *ds, const QByteArray &buffer, quint64 address, QString *errorMessage);
 
+    const bool m_tryInjectLoad;
     const QString m_messagePrefix;
     State m_state;
+    DebuggerManager *m_manager;
     IDebuggerManagerAccessForEngines *m_access;
     CdbComInterfaces *m_cif;
 
