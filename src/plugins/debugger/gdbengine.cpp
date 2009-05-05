@@ -3100,8 +3100,7 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
     QByteArray out = output.data();
     out = out.mid(out.indexOf('"') + 2); // + 1 is success marker
     out = out.left(out.lastIndexOf('"'));
-    //out.replace('\'', '"');
-    out.replace("\\", "");
+    out.replace('\\', ""); // optimization: dumper output never needs real C unquoting
     out = "dummy={" + out + "}";
     //qDebug() << "OUTPUT: " << out;
 
@@ -3313,7 +3312,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
 
     out = out.mid(markerPos +  1);
     out = out.left(out.lastIndexOf('"'));
-    out.replace("\\", "");
+    out.replace('\\', ""); // optimization: dumper output never needs real C unquoting
     out = "dummy={" + out + "}";
 
     GdbMi contents;
