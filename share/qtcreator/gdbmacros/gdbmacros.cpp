@@ -221,16 +221,19 @@ Q_DECL_EXPORT char qDumpOutBuffer[100000];
 
 namespace {
 
+static QByteArray strPtrConst = "* const";
+
 static bool isPointerType(const QByteArray &type)
 {
-    return type.endsWith("*") || type.endsWith("* const");
+    return type.endsWith('*') || type.endsWith(strPtrConst);
 }
 
-static QByteArray stripPointerType(QByteArray type)
+static QByteArray stripPointerType(const QByteArray &_type)
 {
-    if (type.endsWith("*"))
+    QByteArray type = _type;
+    if (type.endsWith('*'))
         type.chop(1);
-    if (type.endsWith("* const"))
+    if (type.endsWith(strPtrConst))
         type.chop(7);
     if (type.endsWith(' '))
         type.chop(1);
@@ -279,7 +282,10 @@ static bool isEqual(const char *s, const char *t)
 
 static bool startsWith(const char *s, const char *t)
 {
-    return qstrncmp(s, t, qstrlen(t)) == 0;
+    while (char c = *t++)
+        if (c != *s++)
+            return false;
+    return true;
 }
 
 // Check memory for read access and provoke segfault if nothing else helps.
@@ -293,11 +299,18 @@ static bool startsWith(const char *s, const char *t)
 #    define qCheckPointer(d) do { if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
 #endif
 
+#ifdef QT_NAMESPACE
 const char *stripNamespace(const char *type)
 {
-    static const size_t nslen = qstrlen(NS);
+    static const size_t nslen = strlen(NS);
     return startsWith(type, NS) ? type + nslen : type;
 }
+#else
+inline const char *stripNamespace(const char *type)
+{
+    return type;
+}
+#endif
 
 static bool isSimpleType(const char *type)
 {
