@@ -1,5 +1,7 @@
 #include "textwriter.h"
 
+using namespace DuiEditor::Internal;
+
 TextWriter::TextWriter()
         :string(0), cursor(0)
 {

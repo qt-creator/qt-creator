@@ -2,6 +2,7 @@
 #include "parser/javascriptast_p.h"
 
 using namespace JavaScript;
+using namespace DuiEditor::Internal;
 
 void Rewriter::replace(const AST::SourceLocation &loc, const QString &text)
 { replace(loc.offset, loc.length, text); }

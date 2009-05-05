@@ -5,6 +5,8 @@
 #include <QList>
 #include <QTextCursor>
 
+namespace DuiEditor {
+namespace Internal {
 
 class TextWriter
 {
@@ -45,5 +47,8 @@ public:
     void write(QTextCursor *textCursor);
 
 };
+
+} // end of namespace Internal
+} // end of namespace DuiEditor
 
 #endif // TEXTWRITER_H

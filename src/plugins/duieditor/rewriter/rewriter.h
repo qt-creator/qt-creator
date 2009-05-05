@@ -7,6 +7,9 @@
 #include "textwriter.h"
 #include "parser/javascriptastvisitor_p.h"
 
+namespace DuiEditor {
+namespace Internal {
+
 ////////////////////////////////////////////////////////////////////////////////
 // Replacement
 ////////////////////////////////////////////////////////////////////////////////
@@ -96,5 +99,8 @@ private:
     QString _code;
     QList<Replacement> _replacementList;
 };
+
+} // end of namespace Internal
+} // end of namespace DuiEditor
 
 #endif // REWRITER_H
