@@ -95,6 +95,7 @@ void AbstractMakeStep::setBuildParser(const QString &parser)
         }
 
     if (m_buildParser) {
+        m_buildParserName = parser;
         connect(m_buildParser, SIGNAL(addToOutputWindow(const QString &)),
                 this, SIGNAL(addToOutputWindow(const QString &)),
                 Qt::DirectConnection);

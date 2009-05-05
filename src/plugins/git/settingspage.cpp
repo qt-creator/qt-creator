@@ -97,16 +97,13 @@ QString SettingsPage::trCategory() const
 
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
-    if (!m_widget)
-        m_widget = new SettingsPageWidget(parent);
+    m_widget = new SettingsPageWidget(parent);
     m_widget->setSettings(GitPlugin::instance()->settings());
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
-    if (!m_widget)
-        return;
     const GitSettings newSettings = m_widget->settings();
     // Warn if git cannot be found in path if the widget is on top
     if (m_widget->isVisible()) {

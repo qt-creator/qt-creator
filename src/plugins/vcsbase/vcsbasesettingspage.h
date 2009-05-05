@@ -80,7 +80,7 @@ signals:
 
 private:
     void updateNickNames();
-    QPointer<VCSBaseSettingsWidget> m_widget;
+    VCSBaseSettingsWidget* m_widget;
     VCSBaseSettings m_settings;
 };
 

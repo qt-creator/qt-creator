@@ -71,20 +71,20 @@ QString SettingsPage::trCategory() const
 
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
-    if (!m_page) {
-        m_page = new QWidget(parent);
-        m_ui.setupUi(m_page);
-        connect(m_ui.filterList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-                this, SLOT(updateButtonStates()));
-        connect(m_ui.filterList, SIGNAL(itemActivated(QListWidgetItem *)),
-                this, SLOT(configureFilter(QListWidgetItem *)));
-        connect(m_ui.editButton, SIGNAL(clicked()),
-                this, SLOT(configureFilter()));
-        connect(m_ui.addButton, SIGNAL(clicked()),
-                this, SLOT(addCustomFilter()));
-        connect(m_ui.removeButton, SIGNAL(clicked()),
-                this, SLOT(removeCustomFilter()));
-    }
+
+    m_page = new QWidget(parent);
+    m_ui.setupUi(m_page);
+    connect(m_ui.filterList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
+            this, SLOT(updateButtonStates()));
+    connect(m_ui.filterList, SIGNAL(itemActivated(QListWidgetItem *)),
+            this, SLOT(configureFilter(QListWidgetItem *)));
+    connect(m_ui.editButton, SIGNAL(clicked()),
+            this, SLOT(configureFilter()));
+    connect(m_ui.addButton, SIGNAL(clicked()),
+            this, SLOT(addCustomFilter()));
+    connect(m_ui.removeButton, SIGNAL(clicked()),
+            this, SLOT(removeCustomFilter()));
+
     m_ui.refreshInterval->setValue(m_plugin->refreshInterval());
     m_filters = m_plugin->filters();
     m_customFilters = m_plugin->customFilters();

@@ -108,16 +108,12 @@ QString SettingsPage::trCategory() const
 
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
-    if (!m_widget)
-        m_widget = new SettingsPageWidget(parent);
+    m_widget = new SettingsPageWidget(parent);
     m_widget->setSettings(PerforcePlugin::perforcePluginInstance()->settings());
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
-    if (!m_widget)
-        return;
-
     PerforcePlugin::perforcePluginInstance()->setSettings(m_widget->p4Command(), m_widget->p4Port(), m_widget->p4Client(), m_widget->p4User(), m_widget->defaultEnv());
 }

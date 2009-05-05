@@ -51,10 +51,11 @@ public:
     virtual void run(QFutureInterface<bool> &);
 
 protected:
+    // derived classes needs to call these functions
     virtual void stdOut(const QString &line);
     virtual void stdError(const QString &line);
 
-    // derived classes need to call those functions
+    // derived classes needs to call this function
     void setBuildParser(const QString &parser);
     QString buildParser() const;
 private slots:
