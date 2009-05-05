@@ -30,7 +30,7 @@
 #ifndef GENERICMAKESTEP_H
 #define GENERICMAKESTEP_H
 
-#include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/abstractmakestep.h>
 
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;
@@ -45,7 +45,7 @@ namespace Internal {
 
 class GenericProject;
 
-class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
+class GenericMakeStep : public ProjectExplorer::AbstractMakeStep
 {
     Q_OBJECT
 public:
@@ -62,17 +62,8 @@ public:
     GenericProject *project() const;
     bool buildsTarget(const QString &buildConfiguration, const QString &target) const;
     void setBuildTarget(const QString &buildConfiguration, const QString &target, bool on);
-private slots:
-    void slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description);
-    void addDirectory(const QString &dir);
-    void removeDirectory(const QString &dir);
-protected:
-    virtual void stdOut(const QString &line);
-    virtual void stdError(const QString &line);
 private:
     GenericProject *m_pro;
-    ProjectExplorer::BuildParserInterface *m_buildParser;
-    QSet<QString> m_openDirectories;
 };
 
 class GenericMakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget

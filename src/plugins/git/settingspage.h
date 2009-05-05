@@ -78,7 +78,7 @@ public:
     void finish() { }
 
 private:
-    QPointer<SettingsPageWidget> m_widget;
+    SettingsPageWidget* m_widget;
 };
 
 } // namespace Internal

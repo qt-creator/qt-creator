@@ -367,7 +367,9 @@ QString decodeData(const QByteArray &ba, int encoding)
 // --------------- QtDumperResult
 
 QtDumperResult::Child::Child() :
-   valueEncoded(0)
+   valueEncoded(0),
+   childCount(0),
+   valuedisabled(false)
 {
 }
 
@@ -385,6 +387,7 @@ void QtDumperResult::clear()
     value.clear();
     address.clear();
     type.clear();
+    displayedType.clear();
     valueEncoded = 0;
     valuedisabled = false;
     childCount = 0;
@@ -403,7 +406,7 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
     const int lastDotIndex = root.iname.lastIndexOf(dot);
     root.exp = root.name = lastDotIndex == -1 ? iname : iname.mid(lastDotIndex + 1);
     root.setValue(decodeData(value, valueEncoded));
-    root.setType(type);
+    root.setType(displayedType.isEmpty() ? type : displayedType);
     root.valuedisabled = valuedisabled;
     root.setAddress(address);
     root.source = source;
@@ -419,8 +422,10 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
                 wchild.iname = iname;
                 wchild.iname += dot;
                 wchild.iname += dchild.name;                
-                wchild.exp = wchild.name = dchild.name;
-                wchild.setType(childType);
+                wchild.name = dchild.name;
+                wchild.exp = dchild.exp;
+                wchild.valuedisabled = dchild.valuedisabled;
+                wchild.setType(dchild.type.isEmpty() ? childType : dchild.type);
                 wchild.setAddress(dchild.address);
                 wchild.setValue(decodeData(dchild.value, dchild.valueEncoded));
                 wchild.setChildCount(0);
@@ -436,19 +441,23 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
 QDebug operator<<(QDebug in, const QtDumperResult &d)
 {
     QDebug nospace = in.nospace();
-    nospace << " iname=" << d.iname << " type=" << d.type << " address=" << d.address
+    nospace << " iname=" << d.iname << " type=" << d.type << " displayed=" << d.displayedType
+            << " address=" << d.address
             << " value="  << d.value
             << " disabled=" << d.valuedisabled
             << " encoded=" << d.valueEncoded << " internal=" << d.internal;
-    if (d.childCount) {
-        nospace << " childCount=" << d.childCount
+    const int realChildCount = d.children.size();
+    if (d.childCount || realChildCount) {
+        nospace << " childCount=" << d.childCount << '/' << realChildCount
                 << " childType=" << d.childType << '\n';
-        const int childCount = d.children.size();
-        for (int i = 0; i < childCount; i++) {
+        for (int i = 0; i < realChildCount; i++) {
             const QtDumperResult::Child &c = d.children.at(i);
             nospace << "   #" << i << " addr=" << c.address
+                    << " disabled=" << c.valuedisabled
+                    << " type=" << c.type
                     << " name=" << c.name << " encoded=" << c.valueEncoded
-                    << " value=" << c.value << '\n';
+                    << " value=" << c.value
+                    << "childcount=" << c.childCount << '\n';
         }
     }
     return in;
@@ -602,8 +611,6 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
 bool QtDumperHelper::needsExpressionSyntax(Type t)
 {
     switch (t) {
-        case QObjectType:
-        case QWidgetType:
         case QObjectSlotType:
         case QObjectSignalType:
         case QMapType:
@@ -1064,12 +1071,14 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     switch (td.type) {
     case QObjectType:
     case QWidgetType:
-        extraArgs[0] = QLatin1String("(char*)&((('");
-        extraArgs[0] += m_qtNamespace;
-        extraArgs[0] += QLatin1String("QObjectPrivate'*)&");
-        extraArgs[0] += data.exp;
-        extraArgs[0] += QLatin1String(")->children)-(char*)&");
-        extraArgs[0] += data.exp;
+        if (debugger == GdbDebugger) {
+            extraArgs[0] = QLatin1String("(char*)&((('");
+            extraArgs[0] += m_qtNamespace;
+            extraArgs[0] += QLatin1String("QObjectPrivate'*)&");
+            extraArgs[0] += data.exp;
+            extraArgs[0] += QLatin1String(")->children)-(char*)&");
+            extraArgs[0] += data.exp;
+        }
         break;
     case QVectorType:
         extraArgs[1] = QLatin1String("(char*)&((");
@@ -1201,13 +1210,16 @@ protected:
 
 private:
     enum Mode { None, ExpectingIName, ExpectingAddress, ExpectingValue,
-                ExpectingType, ExpectingInternal,
+                ExpectingType, ExpectingDisplayedType, ExpectingInternal,
                 ExpectingValueDisabled,  ExpectingValueEncoded,
-                ExpectingChildType, ExpectingChildCount,
+                ExpectingCommonChildType, ExpectingChildCount,
                 IgnoreNext,
                 ChildModeStart,
                 ExpectingChildren,ExpectingChildName, ExpectingChildAddress,
-                ExpectingChildValue, ExpectingChildValueEncoded  };
+                ExpectingChildExpression, ExpectingChildType,
+                ExpectingChildValue, ExpectingChildValueEncoded,
+                ExpectingChildValueDisabled, ExpectingChildChildCount
+              };
 
     static inline Mode nextMode(Mode in, const char *keyword, int size);
 
@@ -1226,11 +1238,15 @@ ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword
 {
     // Careful with same prefix
     switch (size) {
+    case 3:
+        if (!qstrncmp(keyword, "exp", size))
+            return ExpectingChildExpression;
+        break;
     case 4:
         if (!qstrncmp(keyword, "addr", size))
             return in > ChildModeStart ? ExpectingChildAddress : ExpectingAddress;
         if (!qstrncmp(keyword, "type", size))
-            return ExpectingType;
+            return in > ChildModeStart ? ExpectingChildType : ExpectingType;
         if (!qstrncmp(keyword, "name", size))
             return ExpectingChildName;
         break;
@@ -1244,13 +1260,13 @@ ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword
         if (!qstrncmp(keyword, "children", size))
             return ExpectingChildren;
         if (!qstrncmp(keyword, "numchild", size))
-            return ExpectingChildCount;
+            return in > ChildModeStart ?  ExpectingChildChildCount : ExpectingChildCount;
         if (!qstrncmp(keyword, "internal", size))
             return ExpectingInternal;
         break;
     case 9:
         if (!qstrncmp(keyword, "childtype", size))
-            return ExpectingChildType;
+            return ExpectingCommonChildType;
         break;    
     case 12:
         if (!qstrncmp(keyword, "valueencoded", size))
@@ -1258,7 +1274,9 @@ ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword
         break;
     case 13:
         if (!qstrncmp(keyword, "valuedisabled", size))
-            return ExpectingValueDisabled;
+            return in > ChildModeStart ? ExpectingChildValueDisabled : ExpectingValueDisabled;
+        if (!qstrncmp(keyword, "displayedtype", size))
+            return ExpectingDisplayedType;
         if (!qstrncmp(keyword, "childnumchild", size))
             return IgnoreNext;
         break;
@@ -1306,10 +1324,13 @@ bool ValueDumperParser::handleValue(const char *k, int size)
     case ExpectingType:
         m_result.type = QString::fromLatin1(valueBA);
         break;
+    case ExpectingDisplayedType:
+        m_result.displayedType = QString::fromLatin1(valueBA);
+        break;
     case ExpectingInternal:
         m_result.internal = valueBA == "true";
         break;
-    case ExpectingChildType:
+    case ExpectingCommonChildType:
         m_result.childType = QString::fromLatin1(valueBA);
         break;
     case ExpectingChildCount:
@@ -1327,8 +1348,20 @@ bool ValueDumperParser::handleValue(const char *k, int size)
     case ExpectingChildValue:
         m_result.children.back().value = valueBA;
         break;
+    case ExpectingChildExpression:
+        m_result.children.back().exp = QString::fromLatin1(valueBA);
+        break;
     case ExpectingChildValueEncoded:
         m_result.children.back().valueEncoded = QString::fromLatin1(valueBA).toInt();
+        break;
+    case ExpectingChildValueDisabled:
+        m_result.children.back().valuedisabled = valueBA == "true";
+        break;
+    case ExpectingChildType:
+        m_result.children.back().type = QString::fromLatin1(valueBA);
+        break;
+    case ExpectingChildChildCount:
+        m_result.children.back().childCount = QString::fromLatin1(valueBA).toInt();
         break;
     }
     return true;
@@ -1340,6 +1373,9 @@ bool QtDumperHelper::parseValue(const char *data, QtDumperResult *r)
     if (!parser.run())
         return false;
     *r = parser.result();
+    // Sanity
+    if (r->childCount < r->children.size())
+        r->childCount  = r->children.size();
     return true;
 }
 
@@ -1352,5 +1388,5 @@ QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d)
     return in;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

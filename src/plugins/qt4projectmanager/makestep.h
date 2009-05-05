@@ -33,7 +33,7 @@
 #include "ui_makestep.h"
 #include "qtversionmanager.h"
 
-#include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/abstractmakestep.h>
 #include <projectexplorer/projectexplorer.h>
 
 namespace ProjectExplorer {
@@ -60,8 +60,7 @@ public:
 
 class Qt4Project;
 
-// NBS move this class to an own plugin? So that there can be a make project at a future time
-class MakeStep : public ProjectExplorer::AbstractProcessStep
+class MakeStep : public ProjectExplorer::AbstractMakeStep
 {
     Q_OBJECT
 public:
@@ -73,20 +72,8 @@ public:
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-protected:
-    virtual void stdOut(const QString &line);
-    virtual void stdError(const QString &line);
-private slots:
-    void slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description);
-    void addDirectory(const QString &dir);
-    void removeDirectory(const QString &dir);
 private:
-    ProjectExplorer::BuildParserInterface *buildParser(const QtVersion *const version);
-    Qt4Project *m_project;
-    ProjectExplorer::BuildParserInterface *m_buildParser;
-    bool m_skipMakeClean;
     QString m_buildConfiguration;
-    QSet<QString> m_openDirectories;
 };
 
 class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

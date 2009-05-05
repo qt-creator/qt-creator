@@ -78,7 +78,7 @@ private:
 
     Ui::SettingsWidget m_ui;
     QuickOpenPlugin *m_plugin;
-    QPointer<QWidget> m_page;
+    QWidget* m_page;
     QList<IQuickOpenFilter *> m_filters;
     QList<IQuickOpenFilter *> m_addedFilters;
     QList<IQuickOpenFilter *> m_removedFilters;

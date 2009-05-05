@@ -2348,10 +2348,10 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                 bool active = blockNumber == extraAreaHighlightCollapseBlockNumber;
                 bool drawStart = drawBox && active;
                 bool drawEnd = blockNumber == extraAreaHighlightCollapseEndBlockNumber || (drawStart && !endIsVisible);
+                bool hovered = blockNumber >= extraAreaHighlightCollapseBlockNumber
+                               && blockNumber <= extraAreaHighlightCollapseEndBlockNumber;
 
-                if (   blockNumber >= extraAreaHighlightCollapseBlockNumber
-                    && blockNumber <= extraAreaHighlightCollapseEndBlockNumber) {
-
+                if (hovered) {
                     QRect box = QRect(extraAreaWidth + 1, top, collapseBoxWidth - 2, collapseBoxWidth);
                     drawRectBox(&painter, box, drawStart, drawEnd, pal);
                 }
@@ -2360,7 +2360,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                     bool expanded = nextBlock.isVisible();
                     QRect box(extraAreaWidth + collapseBoxWidth/4, top + collapseBoxWidth/4,
                               2 * (collapseBoxWidth/4) + 1, 2 * (collapseBoxWidth/4) + 1);
-                    drawFoldingMarker(&painter, box, expanded, active);
+                    drawFoldingMarker(&painter, pal, box, expanded, active, hovered);
                 }
             }
 
@@ -2404,8 +2404,11 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     }
 }
 
-void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QRect &rect,
-                                       bool expanded, bool hovered) const
+void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QPalette &pal,
+                                       const QRect &rect,
+                                       bool expanded,
+                                       bool active,
+                                       bool hovered) const
 {
     QStyleOptionViewItemV2 opt;
     opt.rect = rect;
@@ -2414,8 +2417,11 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QRect &rect,
     if (expanded)
         opt.state |= QStyle::State_Open;
 
-    if (hovered)
+    if (active)
         opt.state |= QStyle::State_MouseOver | QStyle::State_Enabled | QStyle::State_Selected;
+
+    if (hovered)
+        opt.palette.setBrush(QPalette::Window, pal.highlight());
 
     style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
 }

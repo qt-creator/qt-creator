@@ -34,9 +34,6 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <extensionsystem/pluginmanager.h>
-#include <utils/qtcassert.h>
-
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
@@ -47,39 +44,15 @@ using ExtensionSystem::PluginManager;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-namespace {
-bool debug = false;
-}
-
 MakeStep::MakeStep(Qt4Project * project)
-    : AbstractProcessStep(project),
-      m_project(project),
-      m_buildParser(0)
+    : AbstractMakeStep(project)
 {
+
 }
 
 MakeStep::~MakeStep()
 {
-    delete m_buildParser;
-    m_buildParser = 0;
-}
 
-ProjectExplorer::BuildParserInterface *MakeStep::buildParser(const QtVersion *const version)
-{
-    QString buildParser;
-    ProjectExplorer::ToolChain::ToolChainType type = version->toolchainType();
-    if ( type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
-        buildParser = ProjectExplorer::Constants::BUILD_PARSER_MSVC;
-    else
-        buildParser = ProjectExplorer::Constants::BUILD_PARSER_GCC;
-
-    QList<IBuildParserFactory *> buildParserFactories =
-            ExtensionSystem::PluginManager::instance()->getObjects<ProjectExplorer::IBuildParserFactory>();
-
-    foreach (IBuildParserFactory * factory, buildParserFactories)
-        if (factory->canCreate(buildParser))
-            return factory->create(buildParser);
-    return 0;
 }
 
 bool MakeStep::init(const QString &name)
@@ -135,87 +108,13 @@ bool MakeStep::init(const QString &name)
     setEnabled(name, !skipMakeClean);
     setArguments(name, args);
 
-    m_openDirectories.clear();
-    addDirectory(workingDirectory);
+    ProjectExplorer::ToolChain::ToolChainType type = qobject_cast<Qt4Project *>(project())->qtVersion(name)->toolchainType();
+    if ( type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
+        setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_MSVC);
+    else
+        setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_GCC);
 
-    delete m_buildParser;
-    m_buildParser = 0;
-
-    m_buildParser = buildParser(qobject_cast<Qt4Project *>(project())->qtVersion(name));
-    if (m_buildParser) {
-        connect(m_buildParser, SIGNAL(addToOutputWindow(const QString &)),
-                this, SIGNAL(addToOutputWindow(const QString &)),
-                Qt::DirectConnection);
-        connect(m_buildParser, SIGNAL(addToTaskWindow(const QString &, int, int, const QString &)),
-                this, SLOT(slotAddToTaskWindow(const QString &, int, int, const QString &)),
-                Qt::DirectConnection);
-        connect(m_buildParser, SIGNAL(enterDirectory(const QString &)),
-                this, SLOT(addDirectory(const QString &)),
-                Qt::DirectConnection);
-        connect(m_buildParser, SIGNAL(leaveDirectory(const QString &)),
-                this, SLOT(removeDirectory(const QString &)),
-                Qt::DirectConnection);
-    }
-
-    return AbstractProcessStep::init(name);
-}
-
-void MakeStep::slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description)
-{
-    QString filePath = fn;
-    if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
-        // We have no save way to decide which file in which subfolder
-        // is meant. Therefore we apply following heuristics:
-        // 1. Search for unique file in directories currently indicated as open by GNU make
-        //    (Enter directory xxx, Leave directory xxx...) + current directory
-        // 3. Check if file is unique in whole project
-        // 4. Otherwise give up
-
-        filePath = filePath.trimmed();
-
-        QList<QFileInfo> possibleFiles;
-        foreach (const QString &dir, m_openDirectories) {
-            QFileInfo candidate(dir + QLatin1Char('/') + filePath);
-            if (debug)
-                qDebug() << "Checking path " << candidate.filePath();
-            if (candidate.exists()
-                    && !possibleFiles.contains(candidate)) {
-                if (debug)
-                    qDebug() << candidate.filePath() << "exists!";
-                possibleFiles << candidate;
-            }
-        }
-        if (possibleFiles.count() == 0) {
-            if (debug)
-                qDebug() << "No success. Trying all files in project ...";
-            QString fileName = QFileInfo(filePath).fileName();
-            foreach (const QString &file, m_project->files(ProjectExplorer::Project::AllFiles)) {
-                QFileInfo candidate(file);
-                if (candidate.fileName() == fileName) {
-                    if (debug)
-                        qDebug() << "Found " << file;
-                    possibleFiles << candidate;
-                }
-            }
-        }
-        if (possibleFiles.count() == 1)
-            filePath = possibleFiles.first().filePath();
-        else
-            qWarning() << "Could not find absolute location of file " << filePath;
-    }
-    emit addToTaskWindow(filePath, type, linenumber, description);
-}
-
-void MakeStep::addDirectory(const QString &dir)
-{
-    if (!m_openDirectories.contains(dir))
-        m_openDirectories.insert(dir);
-}
-
-void MakeStep::removeDirectory(const QString &dir)
-{
-    if (m_openDirectories.contains(dir))
-        m_openDirectories.remove(dir);
+    return AbstractMakeStep::init(name);
 }
 
 void MakeStep::run(QFutureInterface<bool> & fi)
@@ -231,21 +130,7 @@ void MakeStep::run(QFutureInterface<bool> & fi)
         return;
     }
 
-    AbstractProcessStep::run(fi);
-}
-
-void MakeStep::stdOut(const QString &line)
-{
-    if (m_buildParser)
-        m_buildParser->stdOutput(line);
-    AbstractProcessStep::stdOut(line);
-}
-
-void MakeStep::stdError(const QString &line)
-{
-    if (m_buildParser)
-        m_buildParser->stdError(line);
-    AbstractProcessStep::stdError(line);
+    AbstractMakeStep::run(fi);
 }
 
 QString MakeStep::name()

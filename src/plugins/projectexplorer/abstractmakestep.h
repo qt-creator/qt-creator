@@ -27,60 +27,50 @@
 **
 **************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#ifndef ABSTRACTMAKESTEP_H
+#define ABSTRACTMAKESTEP_H
 
-#include "ui_settingspage.h"
+#include "abstractprocessstep.h"
+#include "projectexplorer.h"
+#include "projectexplorer_export.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+namespace ProjectExplorer {
+class BuildStep;
+class IBuildStepFactory;
+class Project;
+}
 
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
-#include <QtCore/QString>
+namespace ProjectExplorer {
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
-namespace Subversion {
-namespace Internal {
-
-struct SubversionSettings;
-
-class SettingsPageWidget : public QWidget {
-    Q_OBJECT
-public:
-    explicit SettingsPageWidget(QWidget *parent = 0);
-
-    SubversionSettings settings() const;
-    void setSettings(const SubversionSettings &);
-
-private:
-    Ui::SettingsPage m_ui;
-};
-
-
-class SettingsPage : public Core::IOptionsPage
+class PROJECTEXPLORER_EXPORT AbstractMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
-
 public:
-    SettingsPage();
+    AbstractMakeStep(Project * project);
+    ~AbstractMakeStep();
+    virtual bool init(const QString & name);
+    virtual void run(QFutureInterface<bool> &);
 
-    QString id() const;
-    QString trName() const;
-    QString category() const;
-    QString trCategory() const;
+protected:
+    // derived classes needs to call these functions
+    virtual void stdOut(const QString &line);
+    virtual void stdError(const QString &line);
 
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-
+    // derived classes needs to call this function
+    void setBuildParser(const QString &parser);
+    QString buildParser() const;
+private slots:
+    void slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description);
+    void addDirectory(const QString &dir);
+    void removeDirectory(const QString &dir);
 private:
-    SettingsPageWidget* m_widget;
+    Project *m_project;
+    QString m_buildParserName;
+    ProjectExplorer::BuildParserInterface *m_buildParser;
+    QString m_buildConfiguration;
+    QSet<QString> m_openDirectories;
 };
 
-} // namespace Subversion
-} // namespace Internal
+} // ProjectExplorer
 
-#endif  // SETTINGSPAGE_H
+#endif // ABSTRACTMAKESTEP_H

@@ -60,9 +60,6 @@ public:
 
     virtual QString name() const = 0;
 
-    void setCategory(const QString &name);
-    QString category() const;
-
     void setDefaultKeySequence(const QKeySequence &key);
     QKeySequence defaultKeySequence() const;
 

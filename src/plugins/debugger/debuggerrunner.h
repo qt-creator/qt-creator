@@ -30,6 +30,8 @@
 #ifndef DEBUGGERRUNNER_H
 #define DEBUGGERRUNNER_H
 
+#include "debuggermanager.h"
+
 #include <projectexplorer/runconfiguration.h>
 
 namespace ProjectExplorer {
@@ -55,17 +57,20 @@ class DebuggerRunner : public ProjectExplorer::IRunConfigurationRunner
 public:
     explicit DebuggerRunner(DebuggerManager *manager);
 
+    // ProjectExplorer::IRunConfigurationRunner
     virtual bool canRun(RunConfigurationPtr runConfiguration, const QString &mode);
     virtual QString displayName() const;
     virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration,
         const QString &mode);
     virtual QWidget *configurationWidget(RunConfigurationPtr runConfiguration);
 
+    virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration,
+        const QString &mode, DebuggerStartMode startMode);
 private:
     DebuggerManager *m_manager;
 };
 
-
+// This is a job description
 class DebuggerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
@@ -74,20 +79,25 @@ public:
     DebuggerRunControl(DebuggerManager *manager,
         ApplicationRunConfigurationPtr runConfiguration);
 
+    // ProjectExplorer::RunControl
     virtual void start();
     virtual void stop();
     virtual bool isRunning() const;
 
+    void setStartMode(DebuggerStartMode mode) { m_mode = mode; }
+    DebuggerStartMode startMode() const { return m_mode; }
+    Q_SLOT void debuggingFinished();
+    
 signals:
     void stopRequested();
 
 private slots:
-    void debuggingFinished();
     void slotAddToOutputWindowInline(const QString &output);
 
 private:
     DebuggerManager *m_manager;
     bool m_running;
+    DebuggerStartMode m_mode;
 };
 
 } // namespace Internal

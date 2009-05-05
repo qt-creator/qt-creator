@@ -32,6 +32,9 @@
 // this relies on contents copied from qobject_p.h
 #define PRIVATE_OBJECT_ALLOWED 1
 
+#ifdef HAS_QOBJECT_P_H
+#    include <QtCore/private/qobject_p.h>
+#endif
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -146,8 +149,7 @@ int qtGhVersion = QT_VERSION;
 #   define NSY ""
 #endif
 
-
-#if PRIVATE_OBJECT_ALLOWED
+#if PRIVATE_OBJECT_ALLOWED && !HAS_QOBJECT_P_H
 
 #if defined(QT_BEGIN_NAMESPACE)
 QT_BEGIN_NAMESPACE
@@ -1532,6 +1534,13 @@ static void qDumpQObject(QDumper &d)
     const QObject *ob = reinterpret_cast<const QObject *>(d.data);
     const QMetaObject *mo = ob->metaObject();
     unsigned childrenOffset = d.extraInt[0];
+#ifdef HAS_QOBJECT_P_H
+    // QObject child offset if known
+    if (!childrenOffset) {
+        QObjectPrivate qop;
+        childrenOffset = (char*)&qop.children - (char*)&qop;
+    }
+#endif
     P(d, "value", ob->objectName());
     P(d, "valueencoded", "2");
     P(d, "type", NS"QObject");
@@ -1588,7 +1597,8 @@ static void qDumpQObject(QDumper &d)
             P(d, "numchild", slotCount);
         d.endHash();
 #endif
-        d.beginHash();
+        if (childrenOffset) {
+            d.beginHash();
             P(d, "name", "children");
             // works always, but causes additional traffic on the list
             //P(d, "exp", "((class '"NS"QObject'*)" << d.data << ")->children()");
@@ -1597,9 +1607,10 @@ static void qDumpQObject(QDumper &d)
             //P(d, "type", NS"QList<QObject *>");
             //P(d, "value", "<" << children.size() << " items>");
             qDumpInnerValue(d, NS"QList<"NS"QObject *>",
-                addOffset(dfunc(ob), childrenOffset));
+                            addOffset(dfunc(ob), childrenOffset));
             P(d, "numchild", children.size());
-        d.endHash();
+            d.endHash();
+        }
 #if 0
         // Unneeded (and not working): Connections are listes as childen
         // of the signal or slot they are connected to.

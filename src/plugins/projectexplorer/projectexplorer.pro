@@ -59,7 +59,8 @@ HEADERS += projectexplorer.h \
     gccparser.h \
     msvcparser.h \
     filewatcher.h \
-    debugginghelper.h
+    debugginghelper.h\
+    abstractmakestep.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -107,7 +108,8 @@ SOURCES += projectexplorer.cpp \
     gccparser.cpp \
     msvcparser.cpp \
     filewatcher.cpp \
-    debugginghelper.cpp
+    debugginghelper.cpp \
+    abstractmakestep.cpp
 FORMS += dependenciespanel.ui \
     buildsettingspropertiespage.ui \
     processstep.ui \

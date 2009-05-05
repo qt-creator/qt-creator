@@ -96,15 +96,12 @@ QString SettingsPage::trCategory() const
 
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
-    if (!m_widget)
-        m_widget = new SettingsPageWidget(parent);
+    m_widget = new SettingsPageWidget(parent);
     m_widget->setSettings(SubversionPlugin::subversionPluginInstance()->settings());
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
-    if (!m_widget)
-        return;
     SubversionPlugin::subversionPluginInstance()->setSettings(m_widget->settings());
 }

@@ -30,6 +30,7 @@
 #include "debuggermanager.h"
 
 #include "debuggeractions.h"
+#include "debuggerrunner.h"
 #include "debuggerconstants.h"
 #include "idebuggerengine.h"
 
@@ -172,7 +173,7 @@ void DebuggerManager::init()
     m_busy = false;
 
     m_attachedPID = 0;
-    m_startMode = StartInternal;
+    m_runControl = 0;
 
     m_disassemblerHandler = 0;
     m_modulesHandler = 0;
@@ -295,21 +296,6 @@ void DebuggerManager::init()
     connect(m_watchHandler, SIGNAL(watchModelUpdateRequested()),
         this, SLOT(updateWatchModel()));
 
-    m_startExternalAction = new QAction(this);
-    m_startExternalAction->setText(tr("Start and Debug External Application..."));
-
-    m_attachExternalAction = new QAction(this);
-    m_attachExternalAction->setText(tr("Attach to Running External Application..."));
-
-    m_attachCoreAction = new QAction(this);
-    m_attachCoreAction->setText(tr("Attach to Core..."));
-    connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
-
-    m_attachRemoteAction = new QAction(this);
-    m_attachRemoteAction->setText(tr("Attach to Running Remote Application..."));
-    connect(m_attachRemoteAction, SIGNAL(triggered()),
-        this, SLOT(attachRemoteApplication()));
-
     m_continueAction = new QAction(this);
     m_continueAction->setText(tr("Continue"));
     m_continueAction->setIcon(QIcon(":/gdbdebugger/images/debugger_continue_small.png"));
@@ -370,11 +356,6 @@ void DebuggerManager::init()
     // For usuage hints oin focus{In,Out}
     connect(m_continueAction, SIGNAL(triggered()),
         this, SLOT(continueExec()));
-
-    connect(m_startExternalAction, SIGNAL(triggered()),
-        this, SLOT(startExternalApplication()));
-    connect(m_attachExternalAction, SIGNAL(triggered()),
-        this, SLOT(attachExternalApplication()));
 
     connect(m_stopAction, SIGNAL(triggered()),
         this, SLOT(interruptDebuggingRequest()));
@@ -798,30 +779,6 @@ void DebuggerManager::setConfigValue(const QString &name, const QVariant &value)
     emit setConfigValueRequested(name, value);
 }
 
-void DebuggerManager::startExternalApplication()
-{
-    if (!startNewDebugger(StartExternal))
-        emit debuggingFinished();
-}
-
-void DebuggerManager::attachExternalApplication()
-{
-    if (!startNewDebugger(AttachExternal))
-        emit debuggingFinished();
-}
-
-void DebuggerManager::attachCore()
-{
-    if (!startNewDebugger(AttachCore))
-        emit debuggingFinished();
-}
-
-void DebuggerManager::attachRemoteApplication()
-{
-    if (!startNewDebugger(AttachRemote))
-        emit debuggingFinished();
-}
-
 // Figure out the debugger type of an executable
 static bool determineDebuggerType(const QString &executable,
                                   DebuggerManager::DebuggerType *dt,
@@ -869,12 +826,13 @@ static bool determineDebuggerType(int  /* pid */,
     return true;
 }
 
-bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
+void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
 {
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << mode;
+    m_runControl = runControl;
 
-    m_startMode = mode;
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << startMode();
+
     // FIXME: Clean up
 
     switch  (startMode()) {
@@ -884,8 +842,10 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
             configValue(_("LastExternalExecutableFile")).toString());
         dlg.setExecutableArguments(
             configValue(_("LastExternalExecutableArguments")).toString());
-        if (dlg.exec() != QDialog::Accepted)
-            return false;
+        if (dlg.exec() != QDialog::Accepted) {
+            runControl->debuggingFinished();
+            return;
+        }
         setConfigValue(_("LastExternalExecutableFile"),
             dlg.executableFile());
         setConfigValue(_("LastExternalExecutableArguments"),
@@ -898,8 +858,10 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
     }
     case AttachExternal: {
         AttachExternalDialog dlg(mainWindow());
-        if (dlg.exec() != QDialog::Accepted)
-            return false;
+        if (dlg.exec() != QDialog::Accepted) {
+            runControl->debuggingFinished();
+            return;
+        }
         m_executable = QString();
         m_processArgs = QStringList();
         m_workingDir = QString();
@@ -907,7 +869,8 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
         if (m_attachedPID == 0) {
             QMessageBox::warning(mainWindow(), tr("Warning"),
                 tr("Cannot attach to PID 0"));
-            return false;
+            runControl->debuggingFinished();
+            return;
         }
         break;
     }
@@ -924,8 +887,10 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
             }
             StartExternalDialog dlg(mainWindow());
             dlg.setExecutableFile(startDirectory);
-            if (dlg.exec() != QDialog::Accepted)
-                return false;
+            if (dlg.exec() != QDialog::Accepted) {
+                runControl->debuggingFinished();
+                return;
+            }
             m_executable = dlg.executableFile();
             m_processArgs = dlg.executableArguments().split(' ');
             m_workingDir = QString();
@@ -943,8 +908,10 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
             configValue(_("LastExternalExecutableFile")).toString());
         dlg.setCoreFile(
             configValue(_("LastExternalCoreFile")).toString());
-        if (dlg.exec() != QDialog::Accepted)
-            return false;
+        if (dlg.exec() != QDialog::Accepted) {
+            runControl->debuggingFinished();
+            return;
+        }
         setConfigValue(_("LastExternalExecutableFile"),
             dlg.executableFile());
         setConfigValue(_("LastExternalCoreFile"),
@@ -963,8 +930,10 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
         dlg.setRemoteArchitectures(arches);
         dlg.setRemoteChannel(configValue(_("LastRemoteChannel")).toString());
         dlg.setRemoteArchitecture(configValue(_("LastRemoteArchtecture")).toString());
-        if (dlg.exec() != QDialog::Accepted)
-            return false;
+        if (dlg.exec() != QDialog::Accepted) {  
+            runControl->debuggingFinished();
+            return;
+        }
         setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
         setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
         m_remoteChannel = dlg.remoteChannel();
@@ -983,8 +952,8 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
     if (!hasDebugger) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
                 tr("Cannot debug '%1': %2").arg(m_executable, errorMessage));
-        return false;
-
+        debuggingFinished();
+        return;
     }
     if (Debugger::Constants::Internal::debug)
         qDebug() << m_executable << type;
@@ -994,10 +963,11 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
     setStatus(DebuggerProcessStartingUp);
     if (!m_engine->startDebugger()) {
         setStatus(DebuggerProcessNotReady);
-        return false;
+        debuggingFinished();
+        return;
     }
 
-    return true;
+    return;
 }
 
 void DebuggerManager::cleanupViews()
@@ -1257,20 +1227,21 @@ void DebuggerManager::setStatus(int status)
         || status == DebuggerInferiorStopRequested
         || status == DebuggerInferiorStopped;
 
-    const bool starting = status == DebuggerProcessStartingUp;
+    //const bool starting = status == DebuggerProcessStartingUp;
     const bool running = status == DebuggerInferiorRunning;
 
     const bool ready = status == DebuggerInferiorStopped
             && startMode() != AttachCore;
 
-    m_startExternalAction->setEnabled(!started && !starting);
-    m_attachExternalAction->setEnabled(!started && !starting);
-#ifdef Q_OS_WIN
-    m_attachCoreAction->setEnabled(false);
-#else
-    m_attachCoreAction->setEnabled(!started && !starting);
-#endif
-    m_attachRemoteAction->setEnabled(!started && !starting);
+// FIXME
+//    m_startExternalAction->setEnabled(!started && !starting);
+//    m_attachExternalAction->setEnabled(!started && !starting);
+//#ifdef Q_OS_WIN
+//    m_attachCoreAction->setEnabled(false);
+//#else
+//    m_attachCoreAction->setEnabled(!started && !starting);
+//#endif
+//    m_attachRemoteAction->setEnabled(!started && !starting);
     m_watchAction->setEnabled(ready);
     m_breakAction->setEnabled(true);
 
@@ -1570,6 +1541,12 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
     }
 }
 
+DebuggerStartMode DebuggerManager::startMode() const
+{
+    return m_runControl->startMode();
+}
+
+
 //////////////////////////////////////////////////////////////////////
 //
 // Testing
@@ -1581,8 +1558,7 @@ void DebuggerManager::runTest(const QString &fileName)
     m_executable = fileName;
     m_processArgs = QStringList() << "--run-debuggee";
     m_workingDir = QString();
-    if (!startNewDebugger(StartInternal))
-        emit debuggingFinished();
+    //startNewDebugger(StartInternal);
 }
 
 #include "debuggermanager.moc"
