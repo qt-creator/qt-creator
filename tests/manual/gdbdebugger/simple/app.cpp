@@ -76,10 +76,10 @@ uint qHash(const double & f)
 }
 
 
-class  Foo
+class Foo
 {
 public:
-    Foo(int i=0)
+    Foo(int i = 0)
         : a(i), b(2)
     {
         int s = 1;

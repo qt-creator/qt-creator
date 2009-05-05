@@ -908,7 +908,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setAnchor();
         moveDown(count() - 1);
         m_moveType = MoveLineWise;
-        setDotCommand("%1>>", count());
+        setDotCommand("%1==", count());
         finishMovement();
     } else if (m_submode == ZSubMode) {
         //qDebug() << "Z_MODE " << cursorLineInDocument() << linesOnScreen();
