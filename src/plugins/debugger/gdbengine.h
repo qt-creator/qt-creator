@@ -173,10 +173,15 @@ private:
     // send and decrements on receipt, effectively preventing 
     // watch model updates before everything is finished.
     void flushCommand(GdbCommand &cmd);
-    void execCommandInternal(const QString &command, GdbCommandFlags flags,
-                             GdbCommandCallback callback, const char *callbackName,
-                             const QVariant &cookie);
-    void sendCommand(const QString &command, GdbCommandFlags flags = NoFlags);
+    void execCommand(const QString &command,
+                     GdbCommandFlags flags,
+                     GdbCommandCallback callback = 0,
+                     const char *callbackName = 0,
+                     const QVariant &cookie = QVariant());
+    void execCommand(const QString &command,
+                     GdbCommandCallback callback = 0,
+                     const char *callbackName = 0,
+                     const QVariant &cookie = QVariant());
 
     void setTokenBarrier();
 
