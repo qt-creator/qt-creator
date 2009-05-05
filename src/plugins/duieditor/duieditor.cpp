@@ -55,6 +55,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QComboBox>
 #include <QtGui/QInputDialog>
+#include <QtGui/QMainWindow>
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 250
@@ -523,7 +524,8 @@ void ScriptEditor::renameIdUnderCursor()
 {
     const QString id = wordUnderCursor();
     bool ok = false;
-    const QString newId = QInputDialog::getText(0, tr("Rename..."),
+    const QString newId = QInputDialog::getText(Core::ICore::instance()->mainWindow(),
+                                                tr("Rename..."),
                                                 tr("New id:"),
                                                 QLineEdit::Normal,
                                                 id, &ok);
