@@ -463,31 +463,48 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     //Core::ActionContainer *mcppcontext =
     //    am->actionContainer(CppEditor::Constants::M_CONTEXT);
 
+    // External apps
+    m_startExternalAction = new QAction(this);
+    m_startExternalAction->setText(tr("Start and Debug External Application..."));
+    connect(m_startExternalAction, SIGNAL(triggered()),
+        this, SLOT(startExternalApplication()));
+
+    m_attachExternalAction = new QAction(this);
+    m_attachExternalAction->setText(tr("Attach to Running External Application..."));
+    connect(m_attachExternalAction, SIGNAL(triggered()),
+        this, SLOT(attachExternalApplication()));
+
+    m_attachCoreAction = new QAction(this);
+    m_attachCoreAction->setText(tr("Attach to Core..."));
+    connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
+
+    m_attachRemoteAction = new QAction(this);
+    m_attachRemoteAction->setText(tr("Attach to Running Remote Application..."));
+    connect(m_attachRemoteAction, SIGNAL(triggered()),
+        this, SLOT(attachRemoteApplication()));
+
+
     Core::ActionContainer *mdebug =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
 
     Core::Command *cmd = 0;
-    cmd = am->registerAction(m_manager->m_startExternalAction,
+    cmd = am->registerAction(m_startExternalAction,
         Constants::STARTEXTERNAL, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
-    cmd = am->registerAction(m_manager->m_attachExternalAction,
+    cmd = am->registerAction(m_attachExternalAction,
         Constants::ATTACHEXTERNAL, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
-    if (m_manager->m_attachCoreAction) {
-        cmd = am->registerAction(m_manager->m_attachCoreAction,
-                                 Constants::ATTACHCORE, globalcontext);
-        mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
-    }
+    cmd = am->registerAction(m_attachCoreAction,
+        Constants::ATTACHCORE, globalcontext);
+    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
-    #if 0
+    #if 1
     // FIXME: not yet functional
-    if (m_manager->m_attachRemoteAction) {
-        cmd = am->registerAction(m_manager->m_attachRemoteAction,
-                                 Constants::ATTACHREMOTE, globalcontext);
-        mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
-    }
+    cmd = am->registerAction(m_attachRemoteAction,
+        Constants::ATTACHREMOTE, globalcontext);
+    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
     #endif
 
     cmd = am->registerAction(m_manager->m_continueAction,
@@ -642,7 +659,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_debugMode = new DebugMode(this);
     //addAutoReleasedObject(m_debugMode);
 
-    addAutoReleasedObject(new DebuggerRunner(m_manager));
+    // register factory of DebuggerRunControl
+    m_debuggerRunner = new DebuggerRunner(m_manager);
+    addAutoReleasedObject(m_debuggerRunner);
 
     QList<int> context;
     context.append(uidm->uniqueIdentifier(Core::Constants::C_EDITORMANAGER));
@@ -1035,6 +1054,48 @@ void DebuggerPlugin::showSettingsDialog()
         QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY),
         QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE));
 }
+
+static QSharedPointer<RunConfiguration> activeRunConfiguration()
+{
+    ProjectExplorer::Project *project =
+        ProjectExplorerPlugin::instance()->currentProject();
+    if (project)
+        return project->activeRunConfiguration();
+    return QSharedPointer<RunConfiguration>();
+}
+
+void DebuggerPlugin::startExternalApplication()
+{
+    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (RunControl *runControl = m_debuggerRunner
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, StartExternal))
+        runControl->start();
+}
+
+void DebuggerPlugin::attachExternalApplication()
+{
+    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (RunControl *runControl = m_debuggerRunner
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, AttachExternal))
+        runControl->start();
+}
+
+void DebuggerPlugin::attachCore()
+{
+    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (RunControl *runControl = m_debuggerRunner
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, AttachCore))
+        runControl->start();
+}
+
+void DebuggerPlugin::attachRemoteApplication()
+{
+    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (RunControl *runControl = m_debuggerRunner
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, AttachRemote))
+        runControl->start();
+}
+
 
 #include "debuggerplugin.moc"
 

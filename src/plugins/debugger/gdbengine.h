@@ -219,6 +219,7 @@ private:
     void handleQuerySources(const GdbResultRecord &response, const QVariant &);
     void handleTargetCore(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
+    void handleTargetAsync(const GdbResultRecord &, const QVariant &);
     void debugMessage(const QString &msg);
 
     OutputCollector m_outputCollector;

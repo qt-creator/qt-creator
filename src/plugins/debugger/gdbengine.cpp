@@ -1313,7 +1313,7 @@ void GdbEngine::exitDebugger()
                 qDebug() << "STATUS ON EXITDEBUGGER: " << q->status());
             interruptInferior();
         }
-        if (q->startMode() == AttachExternal)
+        if (q->startMode() == AttachExternal || q->startMode() == AttachRemote)
             execCommand(_("detach"));
         else
             execCommand(_("kill"));
@@ -1496,11 +1496,13 @@ bool GdbEngine::startDebugger()
         qq->breakHandler()->removeAllBreakpoints();
     } else if (q->startMode() == AttachRemote) {
         execCommand(_("set architecture %1").arg(q->m_remoteArchitecture));
-        execCommand(_("target remote %1").arg(q->m_remoteChannel));
         qq->breakHandler()->setAllPending();
-        //execCommand(_("info target"), handleStart);
-        qq->notifyInferiorRunningRequested();
-        execCommand(_("-exec-continue"), CB(handleExecRun));
+        //QFileInfo fi(q->m_executable);
+        //QString fileName = fi.absoluteFileName();
+        QString fileName = q->m_executable;
+        execCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName));
+        // works only for > 6.8
+        execCommand(_("set target-async on"), CB(handleTargetAsync));
     } else if (q->m_useTerminal) {
         qq->breakHandler()->setAllPending();
     } else if (q->startMode() == StartInternal || q->startMode() == StartExternal) {
@@ -1595,6 +1597,22 @@ void GdbEngine::handleAttach(const GdbResultRecord &, const QVariant &)
     qq->reloadRegisters();
 }
 
+void GdbEngine::handleTargetAsync(const GdbResultRecord &record, const QVariant &)
+{
+    if (record.resultClass == GdbResultDone) {
+        //execCommand(_("info target"), handleStart);
+        qq->notifyInferiorRunningRequested();
+        execCommand(_("target remote %1").arg(q->m_remoteChannel));
+        execCommand(_("-exec-continue"), CB(handleExecRun));
+    } else if (record.resultClass == GdbResultError) {
+        // a typical response on "old" gdb is:
+        // &"set target-async on\n"
+        //&"No symbol table is loaded.  Use the \"file\" command.\n"
+        //^error,msg="No symbol table is loaded.  Use the \"file\" command."
+        execCommand(_("detach"));
+        execCommand(_("-gdb-exit"), CB(handleExit));
+    }
+}
 void GdbEngine::handleExit(const GdbResultRecord &, const QVariant &)
 {
     q->showStatusMessage(tr("Debugger exited."));

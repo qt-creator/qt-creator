@@ -33,7 +33,7 @@
       <item>
        <widget class="QCheckBox" name="checkBoxUseAlternatingRowColors">
         <property name="text">
-         <string>Use alternating row colors in debug views.</string>
+         <string>Use alternating row colors in debug views</string>
         </property>
        </widget>
       </item>
