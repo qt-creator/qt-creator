@@ -28,12 +28,17 @@
 **************************************************************************/
 
 #include <QtCore/QStringList>
+#include <QtCore/QVector>
+#include <QtCore/QTimer>
+#include <QtCore/private/qobject_p.h>
 
 #include <string>
 #include <list>
+#include <vector>
 
 #include <stdio.h>
 #include <string.h>
+
 
 /* Test program for Dumper development/porting.
  * Takes the type as first argument. */
@@ -106,6 +111,16 @@ static int dumpQIntList()
     return 0;
 }
 
+static int dumpQIntVector()
+{
+    QVector<int> test = QVector<int>() << 1 << 2;
+    prepareInBuffer("QVector", "local.qintvector", "local.qintvector", "int");
+    qDumpObjectData440(2, 42, &test, 1, sizeof(int), 0, 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
 // ---------------  std types
 
 static int dumpStdString()
@@ -142,28 +157,61 @@ static int dumpStdIntList()
     return 0;
 }
 
+static int dumpStdIntVector()
+{
+    std::vector<int> test;
+    test.push_back(1);
+    test.push_back(2);
+    prepareInBuffer("std::vector", "local.intvector", "local.intvector", "int");
+    qDumpObjectData440(2, 42, &test, 1, sizeof(int), sizeof(std::list<int>::allocator_type), 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
+static int dumpQObject()
+{
+    QTimer t;
+    QObjectPrivate *tp = reinterpret_cast<QObjectPrivate *>(&t);
+    const int childOffset = (char*)&tp->children - (char*)tp;
+    printf("Qt version %s Child offset: %d\n", QT_VERSION_STR, childOffset);
+    prepareInBuffer("QObject", "local.qobject", "local.qobject", "");
+    qDumpObjectData440(2, 42, &t, 1, childOffset, 0, 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     printf("Running query protocol\n");
-    qDumpObjectData440(1, 42, 0, 1, 0, 0, 0, 0);    
+    qDumpObjectData440(1, 42, 0, 1, 0, 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     fputc('\n', stdout);
     if (argc < 2)
         return 0;
-    const char *arg = argv[1];
-    if (!qstrcmp(arg, "QString"))
-        return dumpQString();
-    if (!qstrcmp(arg, "QStringList"))
-        return dumpQStringList();
-    if (!qstrcmp(arg, "QList<int>"))
-        return dumpQIntList();
-    if (!qstrcmp(arg, "string"))
-        return dumpStdString();
-    if (!qstrcmp(arg, "list<int>"))        
-        return dumpStdIntList();
-    if (!qstrcmp(arg, "list<string>"))
-        return dumpStdStringList();
-    fprintf(stderr, "Unhandled type %s\n", arg);
-    return 1;
+    for (int i = 1; i < argc; i++) {
+        const char *arg = argv[i];
+        printf("\nTesting %s\n", arg);
+        if (!qstrcmp(arg, "QString"))
+            dumpQString();
+        if (!qstrcmp(arg, "QStringList"))
+            dumpQStringList();
+        if (!qstrcmp(arg, "QList<int>"))
+            dumpQIntList();
+        if (!qstrcmp(arg, "QVector<int>"))
+            dumpQIntVector();
+        if (!qstrcmp(arg, "string"))
+            dumpStdString();
+        if (!qstrcmp(arg, "list<int>"))
+            dumpStdIntList();
+        if (!qstrcmp(arg, "list<string>"))
+            dumpStdStringList();
+        if (!qstrcmp(arg, "vector<int>"))
+            dumpStdIntVector();
+        if (!qstrcmp(arg, "QObject"))
+            dumpQObject();
+    }
+    return 0;
 }
