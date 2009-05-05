@@ -250,12 +250,18 @@ void GdbMi::dumpChildren(QByteArray * str, bool multiline, int indent) const
     }
 }
 
-QByteArray GdbMi::escapeCString(const QByteArray &ba)
+class MyString : public QString {
+public:
+    ushort at(int i) const { return constData()[i].unicode(); }
+};
+
+template<class ST, typename CT>
+inline ST escapeCStringTpl(const ST &ba)
 {
-    QByteArray ret;
+    ST ret;
     ret.reserve(ba.length() * 2);
     for (int i = 0; i < ba.length(); ++i) {
-        uchar c = ba.at(i);
+        CT c = ba.at(i);
         switch (c) {
             case '\\': ret += "\\\\"; break;
             case '\a': ret += "\\a"; break;
@@ -278,6 +284,16 @@ QByteArray GdbMi::escapeCString(const QByteArray &ba)
         }
     }
     return ret;
+}
+
+QString GdbMi::escapeCString(const QString &ba)
+{
+    return escapeCStringTpl<MyString, ushort>(static_cast<const MyString &>(ba));
+}
+
+QByteArray GdbMi::escapeCString(const QByteArray &ba)
+{
+    return escapeCStringTpl<QByteArray, uchar>(ba);
 }
 
 QByteArray GdbMi::toString(bool multiline, int indent) const
