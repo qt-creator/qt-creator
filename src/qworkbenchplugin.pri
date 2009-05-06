@@ -14,24 +14,16 @@ isEmpty(TARGET) {
     error("qworkbenchplugin.pri: You must provide a TARGET")
 }
 
-# Copy the pluginspec file to the library directory.
-# Note: On Windows/MinGW with some sh.exe in the path,
-# QMAKE_COPY is some cp command that does not understand
-# "\". Force the standard windows copy.
-COPYDEST = $${DESTDIR}
-COPYSRC = $${_PRO_FILE_PWD_}/$${TARGET}.pluginspec
+PLUGINSPECS = $${_PRO_FILE_PWD_}/$${TARGET}.pluginspec
+copy2build.input = PLUGINSPECS
+copy2build.output = $$DESTDIR/${QMAKE_FUNC_FILE_IN_stripSrcDir}
+isEmpty(vcproj):copy2build.variable_out = PRE_TARGETDEPS
+copy2build.commands = $$QMAKE_COPY \"${QMAKE_FILE_IN}\" \"${QMAKE_FILE_OUT}\"
+copy2build.name = COPY ${QMAKE_FILE_IN}
+copy2build.CONFIG += no_link
+QMAKE_EXTRA_COMPILERS += copy2build
 
 TARGET = $$qtLibraryTarget($$TARGET)
-
-win32 {
-    COPYDEST ~= s|/+|\|
-    COPYSRC ~= s|/+|\|
-    COPY_CMD=xcopy /y
-} else {
-    COPY_CMD=$${QMAKE_COPY}
-}
-
-QMAKE_POST_LINK += $${COPY_CMD} $${COPYSRC} $${COPYDEST}
 
 macx {
         QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../PlugIns/$${PROVIDER}/

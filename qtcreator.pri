@@ -16,6 +16,19 @@ defineReplace(targetPath) {
     return($$1)
 }
 
+# For use in custom compilers which just copy files
+win32:i_flag = i
+defineReplace(stripSrcDir) {
+    win32 {
+        !contains(1, ^.:.*):1 = $$OUT_PWD/$$1
+    } else {
+        !contains(1, ^/.*):1 = $$OUT_PWD/$$1
+    }
+    out = $$cleanPath($$1)
+    out ~= s|^$$re_escape($$PWD/)||$$i_flag
+    return($$out)
+}
+
 isEmpty(TEST):CONFIG(debug, debug|release) {
     !debug_and_release|build_pass {
         TEST = 1
@@ -49,6 +62,7 @@ macx {
     copydata = 1
 } else {
     win32 {
+        contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1
         IDE_APP_TARGET   = qtcreator
     } else {
         IDE_APP_WRAPPER  = qtcreator

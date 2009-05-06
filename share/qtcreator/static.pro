@@ -1,19 +1,5 @@
 include(../../qtcreator.pri)
 
-win32:i_flag = i
-defineReplace(stripSrcDir) {
-    win32 {
-        !contains(1, ^.:.*):1 = $$OUT_PWD/$$1
-    } else {
-        !contains(1, ^/.*):1 = $$OUT_PWD/$$1
-    }
-    out = $$cleanPath($$1)
-    out ~= s|^$$re_escape($$PWD/)||$$i_flag
-    return($$out)
-}
-
-contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1
-
 TEMPLATE = app
 TARGET = phony_target
 
