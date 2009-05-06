@@ -113,7 +113,7 @@ enum DebuggerStartMode
     StartExternal,                    // Start binary found in file system
     AttachExternal,                   // Attach to running process
     AttachCore,                       // Attach to a core file
-    AttachRemote                      // Attach to a remote process
+    StartRemote                       // Start and attach to a remote process
 };
 
 class IDebuggerEngine;

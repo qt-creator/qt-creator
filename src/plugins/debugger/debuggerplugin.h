@@ -98,9 +98,9 @@ private slots:
     void showSettingsDialog();
 
     void startExternalApplication();
+    void startRemoteApplication();
     void attachExternalApplication();
     void attachCore();
-    void attachRemoteApplication();
 
 private:
     void readSettings();
@@ -122,9 +122,9 @@ private:
     QAction *m_toggleLockedAction;
 
     QAction *m_startExternalAction;
+    QAction *m_startRemoteAction;
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
-    QAction *m_attachRemoteAction;
 };
 
 } // namespace Internal

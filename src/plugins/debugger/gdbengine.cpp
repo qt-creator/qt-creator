@@ -535,7 +535,7 @@ void GdbEngine::interruptInferior()
         return;
     }
 
-    if (q->startMode() == AttachRemote) {
+    if (q->startMode() == StartRemote) {
         execCommand(_("-exec-interrupt"));
         return;
     }
@@ -1313,7 +1313,7 @@ void GdbEngine::exitDebugger()
                 qDebug() << "STATUS ON EXITDEBUGGER: " << q->status());
             interruptInferior();
         }
-        if (q->startMode() == AttachExternal || q->startMode() == AttachRemote)
+        if (q->startMode() == AttachExternal || q->startMode() == StartRemote)
             execCommand(_("detach"));
         else
             execCommand(_("kill"));
@@ -1357,7 +1357,7 @@ bool GdbEngine::startDebugger()
 
     if (q->startMode() == AttachCore || q->startMode() == AttachExternal) {
         // nothing to do
-    } else if (q->startMode() == AttachRemote) {
+    } else if (q->startMode() == StartRemote) {
         // nothing to do
     } else if (q->m_useTerminal) {
         m_stubProc.stop(); // We leave the console open, so recycle it now.
@@ -1495,7 +1495,7 @@ bool GdbEngine::startDebugger()
         execCommand(_("-file-exec-and-symbols ") + fileName);
         execCommand(_("target core ") + coreName, CB(handleTargetCore));
         qq->breakHandler()->removeAllBreakpoints();
-    } else if (q->startMode() == AttachRemote) {
+    } else if (q->startMode() == StartRemote) {
         execCommand(_("set architecture %1").arg(q->m_remoteArchitecture));
         qq->breakHandler()->setAllPending();
         //QFileInfo fi(q->m_executable);

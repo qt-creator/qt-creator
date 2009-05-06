@@ -31,8 +31,8 @@
 
 #include "ui_attachcoredialog.h"
 #include "ui_attachexternaldialog.h"
-#include "ui_attachremotedialog.h"
 #include "ui_startexternaldialog.h"
+#include "ui_startremotedialog.h"
 
 #ifdef Q_OS_WIN
 #  include "dbgwinutils.h"
@@ -302,13 +302,13 @@ void AttachExternalDialog::pidChanged(const QString &pid)
 
 ///////////////////////////////////////////////////////////////////////
 //
-// AttachRemoteDialog
+// StartRemoteDialog
 //
 ///////////////////////////////////////////////////////////////////////
 
-AttachRemoteDialog::AttachRemoteDialog(QWidget *parent)
+StartRemoteDialog::StartRemoteDialog(QWidget *parent)
   : QDialog(parent),
-    m_ui(new Ui::AttachRemoteDialog)
+    m_ui(new Ui::StartRemoteDialog)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
@@ -317,22 +317,22 @@ AttachRemoteDialog::AttachRemoteDialog(QWidget *parent)
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
-AttachRemoteDialog::~AttachRemoteDialog()
+StartRemoteDialog::~StartRemoteDialog()
 {
     delete m_ui;
 }
 
-void AttachRemoteDialog::setRemoteChannel(const QString &channel)
+void StartRemoteDialog::setRemoteChannel(const QString &channel)
 {
     m_ui->channelLineEdit->setText(channel);
 }
 
-QString AttachRemoteDialog::remoteChannel() const
+QString StartRemoteDialog::remoteChannel() const
 {
     return m_ui->channelLineEdit->text();
 }
 
-void AttachRemoteDialog::setRemoteArchitectures(const QStringList &list)
+void StartRemoteDialog::setRemoteArchitectures(const QStringList &list)
 {
     m_ui->architectureComboBox->clear();
     if (!list.isEmpty()) {
@@ -341,14 +341,14 @@ void AttachRemoteDialog::setRemoteArchitectures(const QStringList &list)
     }
 }
 
-void AttachRemoteDialog::setRemoteArchitecture(const QString &arch)
+void StartRemoteDialog::setRemoteArchitecture(const QString &arch)
 {
     int index = m_ui->architectureComboBox->findText(arch);
     if (index != -1)
         m_ui->architectureComboBox->setCurrentIndex(index);
 }
 
-QString AttachRemoteDialog::remoteArchitecture() const
+QString StartRemoteDialog::remoteArchitecture() const
 {
     int index = m_ui->architectureComboBox->currentIndex();
     return m_ui->architectureComboBox->itemText(index);

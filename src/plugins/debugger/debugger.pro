@@ -77,7 +77,6 @@ SOURCES += \
     gdboptionspage.cpp
 
 FORMS += attachexternaldialog.ui \
-    attachremotedialog.ui \
     attachcoredialog.ui \
     breakbyfunction.ui \
     breakcondition.ui \
@@ -85,6 +84,7 @@ FORMS += attachexternaldialog.ui \
     gdboptionspage.ui \
     commonoptionspage.ui \
     startexternaldialog.ui \
+    startremotedialog.ui \
 
 RESOURCES += debugger.qrc
 

@@ -480,10 +480,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_attachCoreAction->setText(tr("Attach to Core..."));
     connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
 
-    m_attachRemoteAction = new QAction(this);
-    m_attachRemoteAction->setText(tr("Attach to Running Remote Application..."));
-    connect(m_attachRemoteAction, SIGNAL(triggered()),
-        this, SLOT(attachRemoteApplication()));
+    m_startRemoteAction = new QAction(this);
+    m_startRemoteAction->setText(tr("Start and Attach to Remote Application..."));
+    connect(m_startRemoteAction, SIGNAL(triggered()),
+        this, SLOT(startRemoteApplication()));
 
 
     Core::ActionContainer *mdebug =
@@ -502,12 +502,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         Constants::ATTACHCORE, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
-    #if 1
-    // FIXME: not yet functional
-    cmd = am->registerAction(m_attachRemoteAction,
+    cmd = am->registerAction(m_startRemoteAction,
         Constants::ATTACHREMOTE, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
-    #endif
 
     cmd = am->registerAction(m_manager->m_continueAction,
         ProjectExplorer::Constants::DEBUG, QList<int>() << m_gdbRunningContext);
@@ -1090,11 +1087,11 @@ void DebuggerPlugin::attachCore()
         runControl->start();
 }
 
-void DebuggerPlugin::attachRemoteApplication()
+void DebuggerPlugin::startRemoteApplication()
 {
     QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, AttachRemote))
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, StartRemote))
         runControl->start();
 }
 

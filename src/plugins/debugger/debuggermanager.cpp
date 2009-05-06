@@ -929,8 +929,8 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         m_attachedPID = -1;
         break;
     }
-    case AttachRemote: {
-        AttachRemoteDialog dlg(mainWindow());
+    case StartRemote: {
+        StartRemoteDialog dlg(mainWindow());
         QStringList arches;
         arches.append(_("i386:x86-64:intel"));
         dlg.setRemoteArchitectures(arches);
