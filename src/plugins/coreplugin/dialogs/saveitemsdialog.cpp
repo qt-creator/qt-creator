@@ -35,6 +35,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 #include <QtGui/QPushButton>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QHeaderView>
