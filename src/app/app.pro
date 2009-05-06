@@ -3,7 +3,7 @@ include(../shared/qtsingleapplication/qtsingleapplication.pri)
 
 TEMPLATE = app
 TARGET = $$IDE_APP_TARGET
-DESTDIR = ../../bin
+DESTDIR = $$IDE_APP_PATH
 
 
 SOURCES += main.cpp
