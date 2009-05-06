@@ -69,7 +69,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
             visibleName = info.fileName();
         }
         QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.treeWidget, QStringList()
-                                                    << visibleName << directory);
+                                                    << visibleName << QDir::toNativeSeparators(directory));
         item->setData(0, Qt::UserRole, qVariantFromValue(file));
     }
 
