@@ -34,6 +34,7 @@
 #include "duieditorconstants.h"
 #include "duieditorfactory.h"
 #include "duicodecompletion.h"
+#include "duihoverhandler.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -111,6 +112,8 @@ bool DuiEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
     m_completion = new DuiCodeCompletion();
     addAutoReleasedObject(m_completion);
+
+    addAutoReleasedObject(new DuiHoverHandler());
 
     // Restore settings
     QSettings *settings = Core::ICore::instance()->settings();

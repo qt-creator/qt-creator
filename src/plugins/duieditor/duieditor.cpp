@@ -446,20 +446,24 @@ void ScriptEditor::updateDocumentNow()
 
     QTextEdit::ExtraSelection sel;
 
-    foreach (const JavaScriptParser::DiagnosticMessage &d, parser.diagnosticMessages()) {
-        if (d.isWarning())
-            continue;
+    m_diagnosticMessages = parser.diagnosticMessages();
 
-        int line = d.line;
-        int column = d.column;
+    foreach (const JavaScriptParser::DiagnosticMessage &d, m_diagnosticMessages) {
+        int line = d.loc.startLine;
+        int column = d.loc.startColumn;
 
         if (column == 0)
             column = 1;
 
         QTextCursor c(document()->findBlockByNumber(line - 1));
         sel.cursor = c;
+
         sel.cursor.setPosition(c.position() + column - 1);
-        sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+        if (sel.cursor.atBlockEnd())
+            sel.cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+        else
+            sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+
         sel.format = errorFormat;
 
         selections.append(sel);

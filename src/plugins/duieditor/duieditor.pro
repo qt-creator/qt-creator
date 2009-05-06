@@ -19,13 +19,15 @@ duieditorplugin.h \
 duihighlighter.h \
 duieditoractionhandler.h \
 duicodecompletion.h \
-duieditorconstants.h
+duieditorconstants.h \
+duihoverhandler.h
 
 SOURCES += duieditor.cpp \
 duieditorfactory.cpp \
 duieditorplugin.cpp \
 duihighlighter.cpp \
 duieditoractionhandler.cpp \
-duicodecompletion.cpp
+duicodecompletion.cpp \
+duihoverhandler.cpp
 
 RESOURCES += duieditor.qrc

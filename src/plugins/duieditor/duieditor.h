@@ -32,6 +32,7 @@
 
 #include <texteditor/basetexteditor.h>
 #include <parser/javascriptast_p.h>
+#include <parser/javascriptparser_p.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -51,6 +52,8 @@ class ScriptEditor;
 
 class ScriptEditorEditable : public TextEditor::BaseTextEditorEditable
 {
+    Q_OBJECT
+
 public:
     ScriptEditorEditable(ScriptEditor *, const QList<int> &);
     QList<int> context() const;
@@ -94,6 +97,9 @@ public:
     QList<Declaration> declarations() const;
     QStringList words() const;
 
+    QList<JavaScriptParser::DiagnosticMessage> diagnosticMessages() const
+    { return m_diagnosticMessages; }
+
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
@@ -126,6 +132,7 @@ private:
     QList<Declaration> m_declarations;
     QStringList m_words;
     QMap<QString, QList<JavaScript::AST::SourceLocation> > m_ids; // ### use QMultiMap
+    QList<JavaScriptParser::DiagnosticMessage> m_diagnosticMessages;
 };
 
 } // namespace Internal
