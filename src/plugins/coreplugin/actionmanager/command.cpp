@@ -61,42 +61,128 @@
 
 /*!
     \enum Command::CommandAttribute
+    Defines how the user visible action is updated when the active action changes.
+    The default is to update the enabled and visible state, and to disable the
+    user visible action when there is no active action.
+    \omitvalue CA_Mask
+    \value CA_UpdateText
+        Also update the actions text.
+    \value CA_UpdateIcon
+        Also update the actions icon.
+    \value CA_Hide
+        When there is no active action, hide the user "visible" action, instead of just
+        disabling it.
+    \value CA_NonConfigureable
+        Flag to indicate that the keyboard shortcut of this Command should not be
+        configurable by the user.
 */
 
 /*!
-    \fn virtual void Command::setDefaultKeySequence(const QKeySequence &key)
+    \fn void Command::setDefaultKeySequence(const QKeySequence &key)
+    Set the default keyboard shortcut that can be used to activate this command to \a key.
+    This is used if the user didn't customize the shortcut, or resets the shortcut
+    to the default one.
 */
 
 /*!
-    \fn virtual int Command::id() const
+    \fn void Command::defaultKeySequence() const
+    Returns the default keyboard shortcut that can be used to activate this command.
+    \sa setDefaultKeySequence()
 */
 
 /*!
-    \fn virtual QAction *Command::action() const
+    \fn void Command::keySequenceChanged()
+    Sent when the keyboard shortcut assigned to this Command changes, e.g.
+    when the user sets it in the keyboard shortcut settings dialog.
 */
 
 /*!
-    \fn virtual QShortcut *Command::shortcut() const
+    \fn QKeySequence Command::keySequence() const
+    Returns the current keyboard shortcut assigned to this Command.
+    \sa defaultKeySequence()
 */
 
 /*!
-    \fn virtual void Command::setAttribute(CommandAttribute attr)
+    \fn void Command::setKeySequence(const QKeySequence &key)
+    \internal
 */
 
 /*!
-    \fn virtual void Command::removeAttribute(CommandAttribute attr)
+    \fn void Command::setDefaultText(const QString &text)
+    Set the \a text that is used to represent the Command in the
+    keyboard shortcut settings dialog. If you don't set this,
+    the current text from the user visible action is taken (which
+    is ok in many cases).
 */
 
 /*!
-    \fn virtual bool Command::hasAttribute(CommandAttribute attr) const
+    \fn QString Command::defaultText() const
+    Returns the text that is used to present this Command to the user.
+    \sa setDefaultText()
 */
 
 /*!
-    \fn virtual bool Command::isActive() const
+    \fn int Command::id() const
+    \internal
 */
 
 /*!
-    \fn virtual Command::~Command()
+    \fn QString Command::stringWithAppendedShortcut(const QString &string) const
+    Returns the \a string with an appended representation of the keyboard shortcut
+    that is currently assigned to this Command.
+*/
+
+/*!
+    \fn QAction *Command::action() const
+    Returns the user visible action for this Command.
+    If the Command represents a shortcut, it returns null.
+    Use this action to put it on e.g. tool buttons. The action
+    automatically forwards trigger and toggle signals to the
+    action that is currently active for this Command.
+    It also shows the current keyboard shortcut in its
+    tool tip (in addition to the tool tip of the active action)
+    and gets disabled/hidden when there is
+    no active action for the current context.
+*/
+
+/*!
+    \fn QShortcut *Command::shortcut() const
+    Returns the shortcut for this Command.
+    If the Command represents an action, it returns null.
+*/
+
+/*!
+    \fn void Command::setAttribute(CommandAttribute attribute)
+    Add the \a attribute to the attributes of this Command.
+    \sa CommandAttribute
+    \sa removeAttribute()
+    \sa hasAttribute()
+*/
+
+/*!
+    \fn void Command::removeAttribute(CommandAttribute attribute)
+    Remove the \a attribute from the attributes of this Command.
+    \sa CommandAttribute
+    \sa setAttribute()
+*/
+
+/*!
+    \fn bool Command::hasAttribute(CommandAttribute attribute) const
+    Returns if the Command has the \a attribute set.
+    \sa CommandAttribute
+    \sa removeAttribute()
+    \sa setAttribute()
+*/
+
+/*!
+    \fn bool Command::isActive() const
+    Returns if the Command has an active action/shortcut for the current
+    context.
+*/
+
+/*!
+    \fn Command::~Command()
+    \internal
 */
 
 using namespace Core::Internal;
@@ -171,20 +257,15 @@ QString CommandPrivate::stringWithAppendedShortcut(const QString &str) const
 
 /*!
     \class Shortcut
+    \internal
 */
 
-/*!
-    ...
-*/
 Shortcut::Shortcut(int id)
     : CommandPrivate(id), m_shortcut(0)
 {
 
 }
 
-/*!
-    ...
-*/
 QString Shortcut::name() const
 {
     if (!m_shortcut)
@@ -193,41 +274,26 @@ QString Shortcut::name() const
     return m_shortcut->whatsThis();
 }
 
-/*!
-    ...
-*/
 void Shortcut::setShortcut(QShortcut *shortcut)
 {
     m_shortcut = shortcut;
 }
 
-/*!
-    ...
-*/
 QShortcut *Shortcut::shortcut() const
 {
     return m_shortcut;
 }
 
-/*!
-    ...
-*/
 void Shortcut::setContext(const QList<int> &context)
 {
     m_context = context;
 }
 
-/*!
-    ...
-*/
 QList<int> Shortcut::context() const
 {
     return m_context;
 }
 
-/*!
-    ...
-*/
 void Shortcut::setDefaultKeySequence(const QKeySequence &key)
 {
     setKeySequence(key);
@@ -255,9 +321,6 @@ QString Shortcut::defaultText() const
     return m_defaultText;
 }
 
-/*!
-    ...
-*/
 bool Shortcut::setCurrentContext(const QList<int> &context)
 {
     foreach (int ctxt, m_context) {
@@ -270,9 +333,6 @@ bool Shortcut::setCurrentContext(const QList<int> &context)
     return false;
 }
 
-/*!
-    ...
-*/
 bool Shortcut::isActive() const
 {
     return m_shortcut->isEnabled();
@@ -281,11 +341,8 @@ bool Shortcut::isActive() const
 // ---------- Action ------------
 
 /*!
-    \class Action
-*/
-
-/*!
-    ...
+  \class Action
+  \internal
 */
 Action::Action(int id)
     : CommandPrivate(id), m_action(0)
@@ -293,9 +350,6 @@ Action::Action(int id)
 
 }
 
-/*!
-    ...
-*/
 QString Action::name() const
 {
     if (!m_action)
@@ -304,9 +358,6 @@ QString Action::name() const
     return m_action->text();
 }
 
-/*!
-    ...
-*/
 void Action::setAction(QAction *action)
 {
     m_action = action;
@@ -316,33 +367,21 @@ void Action::setAction(QAction *action)
     }
 }
 
-/*!
-    ...
-*/
 QAction *Action::action() const
 {
     return m_action;
 }
 
-/*!
-    ...
-*/
 void Action::setLocations(const QList<CommandLocation> &locations)
 {
     m_locations = locations;
 }
 
-/*!
-    ...
-*/
 QList<CommandLocation> Action::locations() const
 {
     return m_locations;
 }
 
-/*!
-    ...
-*/
 void Action::setDefaultKeySequence(const QKeySequence &key)
 {
     setKeySequence(key);
@@ -373,28 +412,20 @@ QKeySequence Action::keySequence() const
 
 /*!
     \class OverrideableAction
+    \internal
 */
 
-/*!
-    ...
-*/
 OverrideableAction::OverrideableAction(int id)
     : Action(id), m_currentAction(0), m_active(false),
     m_contextInitialized(false)
 {
 }
 
-/*!
-    ...
-*/
 void OverrideableAction::setAction(QAction *action)
 {
     Action::setAction(action);
 }
 
-/*!
-    ...
-*/
 bool OverrideableAction::setCurrentContext(const QList<int> &context)
 {
     m_context = context;

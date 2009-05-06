@@ -51,7 +51,6 @@ public:
     };
 
     virtual void setDefaultKeySequence(const QKeySequence &key) = 0;
-    virtual void setKeySequence(const QKeySequence &key) = 0;
     virtual QKeySequence defaultKeySequence() const = 0;
     virtual QKeySequence keySequence() const = 0;
     virtual void setDefaultText(const QString &text) = 0;
@@ -69,6 +68,8 @@ public:
     virtual bool isActive() const = 0;
 
     virtual ~Command() {}
+
+    virtual void setKeySequence(const QKeySequence &key) = 0;
 
     virtual QString stringWithAppendedShortcut(const QString &str) const = 0;
 
