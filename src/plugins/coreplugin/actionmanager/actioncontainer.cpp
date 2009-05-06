@@ -153,7 +153,7 @@ using namespace Core::Internal;
 */
 
 ActionContainerPrivate::ActionContainerPrivate(int id)
-    : m_data(CS_None), m_id(id)
+    : m_data(0), m_id(id)
 {
 
 }
@@ -166,16 +166,6 @@ void ActionContainerPrivate::setEmptyAction(EmptyAction ea)
 bool ActionContainerPrivate::hasEmptyAction(EmptyAction ea) const
 {
     return (m_data & EA_Mask) == ea;
-}
-
-void ActionContainerPrivate::setState(ContainerState state)
-{
-    m_data |= state;
-}
-
-bool ActionContainerPrivate::hasState(ContainerState state) const
-{
-    return (m_data & state);
 }
 
 void ActionContainerPrivate::appendGroup(const QString &group)
@@ -198,26 +188,14 @@ void ActionContainerPrivate::addAction(Command *action, const QString &group)
         return;
 
     ActionManagerPrivate *am = ActionManagerPrivate::instance();
-    Action *a = static_cast<Action *>(action);
-    if (a->stateFlags() & CommandPrivate::CS_PreLocation) {
-        QList<CommandLocation> locs = a->locations();
-        for (int i=0; i<locs.size(); ++i) {
-            if (ActionContainer *aci = am->actionContainer(locs.at(i).m_container)) {
-                ActionContainerPrivate *ac = static_cast<ActionContainerPrivate *>(aci);
-                ac->addAction(action, locs.at(i).m_position, false);
-            }
-        }
-        a->setStateFlags(a->stateFlags() | CommandPrivate::CS_Initialized);
-    } else {
-        UniqueIDManager *idmanager = UniqueIDManager::instance();
-        int grpid = idmanager->uniqueIdentifier(Constants::G_DEFAULT_TWO);
-        if (!group.isEmpty())
-            grpid = idmanager->uniqueIdentifier(group);
-        if (!m_groups.contains(grpid) && !am->defaultGroups().contains(grpid))
-            qWarning() << "*** addAction(): Unknown group: " << group;
-        int pos = ((grpid << 16) | 0xFFFF);
-        addAction(action, pos, true);
-    }
+    UniqueIDManager *idmanager = UniqueIDManager::instance();
+    int grpid = idmanager->uniqueIdentifier(Constants::G_DEFAULT_TWO);
+    if (!group.isEmpty())
+        grpid = idmanager->uniqueIdentifier(group);
+    if (!m_groups.contains(grpid) && !am->defaultGroups().contains(grpid))
+        qWarning() << "*** addAction(): Unknown group: " << group;
+    int pos = ((grpid << 16) | 0xFFFF);
+    addAction(action, pos, true);
 }
 
 void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &group)
@@ -227,24 +205,14 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &group
         return;
 
     ActionManagerPrivate *am = ActionManagerPrivate::instance();
-    MenuActionContainer *mc = static_cast<MenuActionContainer *>(menu);
-    if (mc->hasState(ActionContainerPrivate::CS_PreLocation)) {
-        CommandLocation loc = mc->location();
-        if (ActionContainer *aci = am->actionContainer(loc.m_container)) {
-            ActionContainerPrivate *ac = static_cast<ActionContainerPrivate *>(aci);
-            ac->addMenu(menu, loc.m_position, false);
-        }
-        mc->setState(ActionContainerPrivate::CS_Initialized);
-    } else {
-        UniqueIDManager *idmanager = UniqueIDManager::instance();
-        int grpid = idmanager->uniqueIdentifier(Constants::G_DEFAULT_TWO);
-        if (!group.isEmpty())
-            grpid = idmanager->uniqueIdentifier(group);
-        if (!m_groups.contains(grpid) && !am->defaultGroups().contains(grpid))
-            qWarning() << "*** addMenu(): Unknown group: " << group;
-        int pos = ((grpid << 16) | 0xFFFF);
-        addMenu(menu, pos, true);
-    }
+    UniqueIDManager *idmanager = UniqueIDManager::instance();
+    int grpid = idmanager->uniqueIdentifier(Constants::G_DEFAULT_TWO);
+    if (!group.isEmpty())
+        grpid = idmanager->uniqueIdentifier(group);
+    if (!m_groups.contains(grpid) && !am->defaultGroups().contains(grpid))
+        qWarning() << "*** addMenu(): Unknown group: " << group;
+    int pos = ((grpid << 16) | 0xFFFF);
+    addMenu(menu, pos, true);
 }
 
 int ActionContainerPrivate::id() const
@@ -264,14 +232,7 @@ QMenuBar *ActionContainerPrivate::menuBar() const
 
 bool ActionContainerPrivate::canAddAction(Command *action) const
 {
-    if (action->type() != Command::CT_OverridableAction)
-        return false;
-
-    CommandPrivate *cmd = static_cast<CommandPrivate *>(action);
-    if (cmd->stateFlags() & CommandPrivate::CS_Initialized)
-        return false;
-
-    return true;
+    return (action->action() != 0);
 }
 
 void ActionContainerPrivate::addAction(Command *action, int pos, bool setpos)
@@ -444,9 +405,6 @@ bool MenuActionContainer::update()
 
 bool MenuActionContainer::canBeAddedToMenu() const
 {
-    if (hasState(ActionContainerPrivate::CS_Initialized))
-        return false;
-
     return true;
 }
 

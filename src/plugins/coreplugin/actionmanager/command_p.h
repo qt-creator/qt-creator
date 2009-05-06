@@ -45,18 +45,8 @@ class CommandPrivate : public Core::Command
 {
     Q_OBJECT
 public:
-    enum CommandState {
-        CS_PreLocation      = 0x020000,
-        CS_LocationChanged  = 0x040000,
-        CS_Initialized      = 0x080000,
-        CS_Mask             = 0xFF0000
-    };
-
-    CommandPrivate(CommandType type, int id);
+    CommandPrivate(int id);
     virtual ~CommandPrivate() {}
-
-    void setStateFlags(int state);
-    int stateFlags() const;
 
     virtual QString name() const = 0;
 
@@ -67,7 +57,6 @@ public:
     QString defaultText() const;
 
     int id() const;
-    CommandType type() const;
 
     QAction *action() const;
     QShortcut *shortcut() const;
@@ -82,7 +71,7 @@ public:
 
 protected:
     QString m_category;
-    int m_type;
+    int m_attributes;
     int m_id;
     QKeySequence m_defaultKey;
     QString m_defaultText;
@@ -121,7 +110,7 @@ class Action : public CommandPrivate
 {
     Q_OBJECT
 public:
-    Action(CommandType type, int id);
+    Action(int id);
 
     QString name() const;
 

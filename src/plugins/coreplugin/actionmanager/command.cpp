@@ -42,10 +42,6 @@
 */
 
 /*!
-    \enum Command::CommandType
-*/
-
-/*!
     \enum Command::CommandAttribute
 */
 
@@ -55,10 +51,6 @@
 
 /*!
     \fn virtual int Command::id() const
-*/
-
-/*!
-    \fn virtual CommandType Command::type() const
 */
 
 /*!
@@ -97,19 +89,9 @@ using namespace Core::Internal;
     \internal
 */
 
-CommandPrivate::CommandPrivate(CommandType type, int id)
-    : m_type(type), m_id(id)
+CommandPrivate::CommandPrivate(int id)
+    : m_attributes(0), m_id(id)
 {
-}
-
-void CommandPrivate::setStateFlags(int state)
-{
-    m_type |= (state & CS_Mask);
-}
-
-int CommandPrivate::stateFlags() const
-{
-    return (m_type & CS_Mask);
 }
 
 void CommandPrivate::setDefaultKeySequence(const QKeySequence &key)
@@ -137,11 +119,6 @@ int CommandPrivate::id() const
     return m_id;
 }
 
-CommandPrivate::CommandType CommandPrivate::type() const
-{
-    return (CommandType)(m_type & CT_Mask);
-}
-
 QAction *CommandPrivate::action() const
 {
     return 0;
@@ -154,17 +131,17 @@ QShortcut *CommandPrivate::shortcut() const
 
 void CommandPrivate::setAttribute(CommandAttribute attr)
 {
-    m_type |= attr;
+    m_attributes |= attr;
 }
 
 void CommandPrivate::removeAttribute(CommandAttribute attr)
 {
-    m_type &= ~attr;
+    m_attributes &= ~attr;
 }
 
 bool CommandPrivate::hasAttribute(CommandAttribute attr) const
 {
-    return (m_type & attr);
+    return (m_attributes & attr);
 }
 
 QString CommandPrivate::stringWithAppendedShortcut(const QString &str) const
@@ -183,7 +160,7 @@ QString CommandPrivate::stringWithAppendedShortcut(const QString &str) const
     ...
 */
 Shortcut::Shortcut(int id)
-    : CommandPrivate(CT_Shortcut, id), m_shortcut(0)
+    : CommandPrivate(id), m_shortcut(0)
 {
 
 }
@@ -293,8 +270,8 @@ bool Shortcut::isActive() const
 /*!
     ...
 */
-Action::Action(CommandType type, int id)
-    : CommandPrivate(type, id), m_action(0)
+Action::Action(int id)
+    : CommandPrivate(id), m_action(0)
 {
 
 }
@@ -385,7 +362,7 @@ QKeySequence Action::keySequence() const
     ...
 */
 OverrideableAction::OverrideableAction(int id)
-    : Action(CT_OverridableAction, id), m_currentAction(0), m_active(false),
+    : Action(id), m_currentAction(0), m_active(false),
     m_contextInitialized(false)
 {
 }
