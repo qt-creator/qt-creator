@@ -1044,14 +1044,14 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             QString funcName = _(frame.findChild("func").data());
             QString fileName = QString::fromLocal8Bit(frame.findChild("file").data());
             if (isLeavableFunction(funcName, fileName)) {
-                //debugMessage("LEAVING" + funcName);
+                //debugMessage(_("LEAVING ") + funcName);
                 ++stepCounter;
                 q->stepOutExec();
                 //stepExec();
                 return;
             }
             if (isSkippableFunction(funcName, fileName)) {
-                //debugMessage("SKIPPING" + funcName);
+                //debugMessage(_("SKIPPING ") + funcName);
                 ++stepCounter;
                 q->stepExec();
                 return;
@@ -1071,7 +1071,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         if (reason == "breakpoint-hit") {
             q->showStatusMessage(tr("Stopped at breakpoint."));
             GdbMi frame = data.findChild("frame");
-            //debugMessage("HIT BREAKPOINT: " + frame.toString());
+            //debugMessage(_("HIT BREAKPOINT: " + frame.toString()));
             m_currentFrame = _(frame.findChild("addr").data() + '%' +
                  frame.findChild("func").data() + '%');
 
@@ -1272,7 +1272,7 @@ QString GdbEngine::fullName(const QString &fileName)
     if (fileName.isEmpty())
         return QString();
     QString full = m_shortToFullName.value(fileName, QString());
-    //debugMessage("RESOLVING: " + fileName + " " +  full);
+    //debugMessage(_("RESOLVING: ") + fileName + " " +  full);
     if (!full.isEmpty())
         return full;
     QFileInfo fi(fileName);
@@ -1282,7 +1282,7 @@ QString GdbEngine::fullName(const QString &fileName)
     #ifdef Q_OS_WIN
     full = QDir::cleanPath(full);
     #endif
-    //debugMessage("STORING: " + fileName + " " + full);
+    //debugMessage(_("STORING: ") + fileName + " " + full);
     m_shortToFullName[fileName] = full;
     m_fullToShortName[full] = fileName;
     return full;
@@ -1575,7 +1575,7 @@ void GdbEngine::handleStart(const GdbResultRecord &response, const QVariant &)
         QString msg = _(response.data.findChild("consolestreamoutput").data());
         QRegExp needle(_("\\bEntry point: (0x[0-9a-f]+)\\b"));
         if (needle.indexIn(msg) != -1) {
-            //debugMessage("STREAM: " + msg + " " + needle.cap(1));
+            //debugMessage(_("STREAM: ") + msg + " " + needle.cap(1));
             postCommand(_("tbreak *") + needle.cap(1));
             m_waitingForFirstBreakpointToBeHit = true;
             qq->notifyInferiorRunningRequested();
