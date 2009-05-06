@@ -1582,6 +1582,9 @@
             \o Go to a line
             \o Ctrl + L
         \row
+            \o Navigate between pages
+            \o Alt + Left, Alt + Right
+        \row
             \o Start debugging
             \o F5
         \row
