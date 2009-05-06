@@ -414,8 +414,7 @@ QStringList QmlApplicationRunConfiguration::commandLineArguments() const
 
 ProjectExplorer::Environment QmlApplicationRunConfiguration::environment() const
 {
-    ProjectExplorer::Environment env;
-    return env;
+    return ProjectExplorer::Environment::systemEnvironment();
 }
 
 QString QmlApplicationRunConfiguration::dumperLibrary() const
