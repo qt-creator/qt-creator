@@ -658,9 +658,13 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
             menu->addAction(action);
     }
 
-    menu->addSeparator();
-    QAction *a = menu->addAction(tr("Rename '%1'...").arg(wordUnderCursor()));
-    connect(a, SIGNAL(triggered()), this, SLOT(renameIdUnderCursor()));
+    const QString id = wordUnderCursor();
+    const QList<AST::SourceLocation> &locations = m_ids.value(id);
+    if (! locations.isEmpty()) {
+        menu->addSeparator();
+        QAction *a = menu->addAction(tr("Rename '%1'...").arg(wordUnderCursor()));
+        connect(a, SIGNAL(triggered()), this, SLOT(renameIdUnderCursor()));
+    }
 
     menu->exec(e->globalPos());
     delete menu;
