@@ -96,6 +96,7 @@ public:
 
     QList<Declaration> declarations() const;
     QStringList words() const;
+    QStringList keywords() const;
 
     QList<JavaScriptParser::DiagnosticMessage> diagnosticMessages() const
     { return m_diagnosticMessages; }

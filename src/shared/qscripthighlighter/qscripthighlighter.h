@@ -30,7 +30,8 @@
 #ifndef QSCRIPTSYNTAXHIGHLIGHTER_H
 #define QSCRIPTSYNTAXHIGHLIGHTER_H
 
-#include <QVector>
+#include <QtCore/QVector>
+#include <QtCore/QSet>
 #include <QtGui/QSyntaxHighlighter>
 
 namespace SharedTools {
@@ -56,7 +57,10 @@ public:
     QTextCharFormat labelTextCharFormat() const
     { return m_formats[LabelFormat]; }
 
-private:
+    const QSet<QString> &keywords() const
+    { return qscriptKeywords; }
+
+protected:
     // The functions are notified whenever parentheses are encountered.
     // Custom behaviour can be added, for example storing info for indenting.
     virtual int onBlockStart(); // returns the blocks initial state
@@ -69,6 +73,7 @@ private:
 
     bool m_duiEnabled;
     QTextCharFormat m_formats[NumFormats];
+    QSet<QString> qscriptKeywords;
 };
 
 } // namespace SharedTools

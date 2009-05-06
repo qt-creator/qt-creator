@@ -577,6 +577,19 @@ void ScriptEditor::renameIdUnderCursor()
     }
 }
 
+QStringList ScriptEditor::keywords() const
+{
+    QStringList words;
+
+    if (DuiHighlighter *highlighter = qobject_cast<DuiHighlighter*>(baseTextDocument()->syntaxHighlighter())) {
+        words = highlighter->keywords().toList();
+        words.append(QLatin1String("property")); // ### move
+        words.append(QLatin1String("signal")); // ### move
+    }
+
+    return words;
+}
+
 void ScriptEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditor::setFontSettings(fs);
@@ -696,12 +709,12 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
     const QList<AST::SourceLocation> &locations = m_ids.value(id);
     if (! locations.isEmpty()) {
         menu->addSeparator();
-        QAction *a = menu->addAction(tr("Rename '%1'...").arg(wordUnderCursor()));
+        QAction *a = menu->addAction(tr("Rename id '%1'...").arg(id));
         connect(a, SIGNAL(triggered()), this, SLOT(renameIdUnderCursor()));
     }
 
     menu->exec(e->globalPos());
-    delete menu;
+    menu->deleteLater();
 }
 
 } // namespace Internal

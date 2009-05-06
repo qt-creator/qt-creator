@@ -32,82 +32,75 @@
 #include <QtCore/QSet>
 #include <QtCore/QtAlgorithms>
 
-static const QSet<QString> &qscriptKeywords() {
-    static QSet<QString> keywords;
-    if (keywords.empty()) {
-        keywords.insert(QLatin1String("Infinity"));
-        keywords.insert(QLatin1String("NaN"));
-        keywords.insert(QLatin1String("abstract"));
-        keywords.insert(QLatin1String("boolean"));
-        keywords.insert(QLatin1String("break"));
-        keywords.insert(QLatin1String("byte"));
-        keywords.insert(QLatin1String("case"));
-        keywords.insert(QLatin1String("catch"));
-        keywords.insert(QLatin1String("char"));
-        keywords.insert(QLatin1String("class"));
-        keywords.insert(QLatin1String("const"));
-        keywords.insert(QLatin1String("constructor"));
-        keywords.insert(QLatin1String("continue"));
-        keywords.insert(QLatin1String("debugger"));
-        keywords.insert(QLatin1String("default"));
-        keywords.insert(QLatin1String("delete"));
-        keywords.insert(QLatin1String("do"));
-        keywords.insert(QLatin1String("double"));
-        keywords.insert(QLatin1String("else"));
-        keywords.insert(QLatin1String("enum"));
-        keywords.insert(QLatin1String("export"));
-        keywords.insert(QLatin1String("extends"));
-        keywords.insert(QLatin1String("false"));
-        keywords.insert(QLatin1String("final"));
-        keywords.insert(QLatin1String("finally"));
-        keywords.insert(QLatin1String("float"));
-        keywords.insert(QLatin1String("for"));
-        keywords.insert(QLatin1String("function"));
-        keywords.insert(QLatin1String("goto"));
-        keywords.insert(QLatin1String("if"));
-        keywords.insert(QLatin1String("implements"));
-        keywords.insert(QLatin1String("import"));
-        keywords.insert(QLatin1String("in"));
-        keywords.insert(QLatin1String("instanceof"));
-        keywords.insert(QLatin1String("int"));
-        keywords.insert(QLatin1String("interface"));
-        keywords.insert(QLatin1String("long"));
-        keywords.insert(QLatin1String("native"));
-        keywords.insert(QLatin1String("new"));
-        keywords.insert(QLatin1String("package"));
-        keywords.insert(QLatin1String("private"));
-        keywords.insert(QLatin1String("protected"));
-        keywords.insert(QLatin1String("public"));
-        keywords.insert(QLatin1String("return"));
-        keywords.insert(QLatin1String("short"));
-        keywords.insert(QLatin1String("static"));
-        keywords.insert(QLatin1String("super"));
-        keywords.insert(QLatin1String("switch"));
-        keywords.insert(QLatin1String("synchronized"));
-        keywords.insert(QLatin1String("this"));
-        keywords.insert(QLatin1String("throw"));
-        keywords.insert(QLatin1String("throws"));
-        keywords.insert(QLatin1String("transient"));
-        keywords.insert(QLatin1String("true"));
-        keywords.insert(QLatin1String("try"));
-        keywords.insert(QLatin1String("typeof"));
-        keywords.insert(QLatin1String("undefined"));
-        keywords.insert(QLatin1String("var"));
-        keywords.insert(QLatin1String("void"));
-        keywords.insert(QLatin1String("volatile"));
-        keywords.insert(QLatin1String("while"));
-        keywords.insert(QLatin1String("with"));    // end
-    }
-    return keywords;
-}
-
-
 namespace SharedTools {
 
 QScriptHighlighter::QScriptHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent),
       m_duiEnabled(false)
 {
+    qscriptKeywords.insert(QLatin1String("Infinity"));
+    qscriptKeywords.insert(QLatin1String("NaN"));
+    qscriptKeywords.insert(QLatin1String("abstract"));
+    qscriptKeywords.insert(QLatin1String("boolean"));
+    qscriptKeywords.insert(QLatin1String("break"));
+    qscriptKeywords.insert(QLatin1String("byte"));
+    qscriptKeywords.insert(QLatin1String("case"));
+    qscriptKeywords.insert(QLatin1String("catch"));
+    qscriptKeywords.insert(QLatin1String("char"));
+    qscriptKeywords.insert(QLatin1String("class"));
+    qscriptKeywords.insert(QLatin1String("const"));
+    qscriptKeywords.insert(QLatin1String("constructor"));
+    qscriptKeywords.insert(QLatin1String("continue"));
+    qscriptKeywords.insert(QLatin1String("debugger"));
+    qscriptKeywords.insert(QLatin1String("default"));
+    qscriptKeywords.insert(QLatin1String("delete"));
+    qscriptKeywords.insert(QLatin1String("do"));
+    qscriptKeywords.insert(QLatin1String("double"));
+    qscriptKeywords.insert(QLatin1String("else"));
+    qscriptKeywords.insert(QLatin1String("enum"));
+    qscriptKeywords.insert(QLatin1String("export"));
+    qscriptKeywords.insert(QLatin1String("extends"));
+    qscriptKeywords.insert(QLatin1String("false"));
+    qscriptKeywords.insert(QLatin1String("final"));
+    qscriptKeywords.insert(QLatin1String("finally"));
+    qscriptKeywords.insert(QLatin1String("float"));
+    qscriptKeywords.insert(QLatin1String("for"));
+    qscriptKeywords.insert(QLatin1String("function"));
+    qscriptKeywords.insert(QLatin1String("goto"));
+    qscriptKeywords.insert(QLatin1String("if"));
+    qscriptKeywords.insert(QLatin1String("implements"));
+    qscriptKeywords.insert(QLatin1String("import"));
+    qscriptKeywords.insert(QLatin1String("in"));
+    qscriptKeywords.insert(QLatin1String("instanceof"));
+    qscriptKeywords.insert(QLatin1String("int"));
+    qscriptKeywords.insert(QLatin1String("interface"));
+    qscriptKeywords.insert(QLatin1String("long"));
+    qscriptKeywords.insert(QLatin1String("native"));
+    qscriptKeywords.insert(QLatin1String("new"));
+    qscriptKeywords.insert(QLatin1String("package"));
+    qscriptKeywords.insert(QLatin1String("private"));
+    qscriptKeywords.insert(QLatin1String("protected"));
+    qscriptKeywords.insert(QLatin1String("public"));
+    qscriptKeywords.insert(QLatin1String("return"));
+    qscriptKeywords.insert(QLatin1String("short"));
+    qscriptKeywords.insert(QLatin1String("static"));
+    qscriptKeywords.insert(QLatin1String("super"));
+    qscriptKeywords.insert(QLatin1String("switch"));
+    qscriptKeywords.insert(QLatin1String("synchronized"));
+    qscriptKeywords.insert(QLatin1String("this"));
+    qscriptKeywords.insert(QLatin1String("throw"));
+    qscriptKeywords.insert(QLatin1String("throws"));
+    qscriptKeywords.insert(QLatin1String("transient"));
+    qscriptKeywords.insert(QLatin1String("true"));
+    qscriptKeywords.insert(QLatin1String("try"));
+    qscriptKeywords.insert(QLatin1String("typeof"));
+    qscriptKeywords.insert(QLatin1String("undefined"));
+    qscriptKeywords.insert(QLatin1String("var"));
+    qscriptKeywords.insert(QLatin1String("void"));
+    qscriptKeywords.insert(QLatin1String("volatile"));
+    qscriptKeywords.insert(QLatin1String("while"));
+    qscriptKeywords.insert(QLatin1String("with"));    // end
+
     setFormats(defaultFormats());
 }
 
@@ -266,10 +259,13 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                                   nextChar = text.at(i + 1);
                               if (state == StateStandard && !questionMark &&
                                   lastChar != ':' && nextChar != ':') {
-                                  for (int j = 0; j < i; ++j) {
-                                      if (format(j) == emptyFormat)
-                                          setFormat(j, 1, m_formats[LabelFormat]);
+                                  int start = i - 1;
+                                  for (; start != -1; --start) {
+                                      if (text.at(start).isSpace())
+                                          break;
                                   }
+                                  ++start;
+                                  setFormat(start, i - start, m_formats[LabelFormat]);
                               }
                               break;
                           }
@@ -438,7 +434,7 @@ void QScriptHighlighter::highlightKeyword(int currentPos, const QString &buffer)
     if (m_duiEnabled && buffer.at(0).isUpper() || (! m_duiEnabled && buffer.at(0) == QLatin1Char('Q'))) {
         setFormat(currentPos - buffer.length(), buffer.length(), m_formats[TypeFormat]);
     } else {
-        if (qscriptKeywords().contains(buffer))
+        if (qscriptKeywords.contains(buffer))
             setFormat(currentPos - buffer.length(), buffer.length(), m_formats[KeywordFormat]);
     }
 }
