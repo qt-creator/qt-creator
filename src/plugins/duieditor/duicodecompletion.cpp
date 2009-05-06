@@ -50,6 +50,9 @@ int DuiCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     m_completions.clear();
 
     foreach (const QString &word, edit->words()) {
+        if (word.isEmpty())
+            continue;
+
         TextEditor::CompletionItem item(this);
         item.m_text = word;
         m_completions.append(item);
