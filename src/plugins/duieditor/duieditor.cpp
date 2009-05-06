@@ -133,6 +133,40 @@ protected:
         return true;
     }
 
+    virtual bool visit(AST::FunctionExpression *node)
+    {
+        if (node->name)
+            _words.insert(node->name->asString());
+
+        for (AST::FormalParameterList *it = node->formals; it; it = it->next) {
+            if (it->name)
+                _words.insert(it->name->asString());
+        }
+
+        return true;
+    }
+
+    virtual bool visit(AST::FunctionDeclaration *node)
+    {
+        if (node->name)
+            _words.insert(node->name->asString());
+
+        for (AST::FormalParameterList *it = node->formals; it; it = it->next) {
+            if (it->name)
+                _words.insert(it->name->asString());
+        }
+
+        return true;
+    }
+
+    virtual bool visit(AST::VariableDeclaration *node)
+    {
+        if (node->name)
+            _words.insert(node->name->asString());
+
+        return true;
+    }
+
 private:
     QSet<QString> _words;
 };
