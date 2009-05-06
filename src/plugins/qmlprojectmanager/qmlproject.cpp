@@ -237,6 +237,11 @@ bool QmlProject::isApplication() const
     return true;
 }
 
+bool QmlProject::hasBuildSettings() const
+{
+    return false;
+}
+
 ProjectExplorer::Environment QmlProject::environment(const QString &) const
 {
     return ProjectExplorer::Environment::systemEnvironment();

@@ -66,8 +66,6 @@ void DuiHoverHandler::editorOpened(IEditor *editor)
     if (!duiEditor)
         return;
 
-    qDebug() << "connected for editor:" << editor->file()->fileName();
-
     connect(duiEditor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
             this, SLOT(showToolTip(TextEditor::ITextEditor*, QPoint, int)));
 

@@ -151,6 +151,11 @@ QStringList Project::buildConfigurations() const
     return result;
 }
 
+bool Project::hasBuildSettings() const
+{
+    return true;
+}
+
 QList<BuildStep *> Project::buildSteps() const
 {
     return m_buildSteps;

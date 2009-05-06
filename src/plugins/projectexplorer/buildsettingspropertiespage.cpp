@@ -49,9 +49,9 @@ using namespace ProjectExplorer::Internal;
 /// BuildSettingsPanelFactory
 ///
 
-bool BuildSettingsPanelFactory::supports(Project * /* project */)
+bool BuildSettingsPanelFactory::supports(Project *project)
 {
-    return true;
+    return project->hasBuildSettings();
 }
 
 PropertiesPanel *BuildSettingsPanelFactory::createPanel(Project *project)

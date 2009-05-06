@@ -80,6 +80,8 @@ public:
 
     virtual bool isApplication() const = 0;
 
+    virtual bool hasBuildSettings() const;
+
     // Build/Clean Step functions
     QList<BuildStep *> buildSteps() const;
     void insertBuildStep(int position, BuildStep *step);

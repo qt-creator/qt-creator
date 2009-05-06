@@ -64,6 +64,7 @@ public:
     virtual QList<ProjectExplorer::Project *> dependsOn();
 
     virtual bool isApplication() const;
+    virtual bool hasBuildSettings() const;
 
     virtual ProjectExplorer::Environment environment(const QString &buildConfiguration) const;
     virtual QString buildDirectory(const QString &buildConfiguration) const;
