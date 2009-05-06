@@ -114,6 +114,8 @@ public:
     void setRemoteArchitectures(const QStringList &arches);
     QString remoteChannel() const;
     QString remoteArchitecture() const;
+    void setServerStartScript(const QString &scriptName);
+    QString serverStartScript() const;
 
 private:
     Ui::StartRemoteDialog *m_ui;

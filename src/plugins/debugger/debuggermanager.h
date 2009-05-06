@@ -359,8 +359,10 @@ public:
     QString m_dumperLib;
     int m_attachedPID;
     bool m_useTerminal;
+    // for remote debugging
     QString m_remoteChannel;
     QString m_remoteArchitecture;
+    QString m_serverStartScript;
 
 private:
     void init();
