@@ -68,7 +68,76 @@ using namespace JavaScript::AST;
 namespace DuiEditor {
 namespace Internal {
 
-class IdDeclarations: protected Visitor
+class FindWords: protected Visitor
+{
+public:
+    QStringList operator()(AST::Node *node)
+    {
+        _words.clear();
+        accept(node);
+        return QStringList(_words.toList());
+    }
+
+protected:
+    void accept(AST::Node *node)
+    { AST::Node::acceptChild(node, this); }
+
+    using Visitor::visit;
+    using Visitor::endVisit;
+
+    virtual bool visit(AST::UiPublicMember *node)
+    {
+        if (node->name)
+            _words.insert(node->name->asString());
+
+        return true;
+    }
+
+    virtual bool visit(AST::UiObjectDefinition *node)
+    {
+        if (node->name)
+            _words.insert(node->name->asString());
+
+        return true;
+    }
+
+    virtual bool visit(AST::UiQualifiedId *node)
+    {
+        if (node->name)
+            _words.insert(node->name->asString());
+
+        return true;
+    }
+
+    virtual bool visit(AST::UiObjectBinding *node)
+    {
+        if (node->name)
+            _words.insert(node->name->asString());
+
+        return true;
+    }
+
+    virtual bool visit(AST::IdentifierExpression *node)
+    {
+        if (node->name)
+            _words.insert(node->name->asString());
+
+        return true;
+    }
+
+    virtual bool visit(AST::FieldMemberExpression *node)
+    {
+        if (node->name)
+            _words.insert(node->name->asString());
+
+        return true;
+    }
+
+private:
+    QSet<QString> _words;
+};
+
+class FindIdDeclarations: protected Visitor
 {
 public:
     typedef QMap<QString, QList<AST::SourceLocation> > Result;
@@ -344,16 +413,15 @@ void ScriptEditor::updateDocumentNow()
 
     bool parsed = parser.parse(&driver);
 
-    IdDeclarations updateIds;
+    FindIdDeclarations updateIds;
     m_ids = updateIds(parser.ast());
 
     if (parsed) {
         FindDeclarations findDeclarations;
         m_declarations = findDeclarations(parser.ast());
 
-        m_words.clear();
-        foreach (const JavaScriptNameIdImpl &id, driver.literals())
-            m_words.append(id.asString());
+        FindWords findWords;
+        m_words = findWords(parser.ast());
 
         QStringList items;
         items.append(tr("<Select Symbol>"));
