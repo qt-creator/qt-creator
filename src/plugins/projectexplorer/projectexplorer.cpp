@@ -1324,9 +1324,13 @@ bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
             Core::ICore::instance()->fileManager()->saveModifiedFilesSilently(filesToSave);
         } else {
             bool cancelled = false;
-            Core::ICore::instance()->fileManager()->saveModifiedFiles(filesToSave, &cancelled);
+            bool alwaysSave = false;
+            Core::ICore::instance()->fileManager()->saveModifiedFiles(filesToSave, &cancelled, QString::null, "Always save files before build", &alwaysSave);
             if (cancelled) {
                 return false;
+            }
+            if (alwaysSave) {
+                m_projectExplorerSettings.saveBeforeBuild = true;
             }
         }
     }

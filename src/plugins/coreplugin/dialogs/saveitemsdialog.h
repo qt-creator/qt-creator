@@ -57,7 +57,8 @@ public:
         QList<Core::IFile *> items);
 
     void setMessage(const QString &msg);
-
+    void setAlwaysSaveMessage(const QString &msg);
+    bool alwaysSaveChecked();
     QList<Core::IFile *> itemsToSave() const;
 
 private slots:
