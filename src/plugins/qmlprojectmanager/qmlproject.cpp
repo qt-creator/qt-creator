@@ -132,6 +132,11 @@ QmlProject::~QmlProject()
     delete m_rootNode;
 }
 
+QDir QmlProject::projectDir() const
+{
+    return QFileInfo(file()->fileName()).dir();
+}
+
 QString QmlProject::filesFileName() const
 { return m_fileName; }
 
@@ -421,11 +426,29 @@ QString QmlApplicationRunConfiguration::dumperLibrary() const
 
 QWidget *QmlApplicationRunConfiguration::configurationWidget()
 {
+    QWidget *config = new QWidget;
+    QFormLayout *form = new QFormLayout(config);
+
     QComboBox *combo = new QComboBox;
     combo->addItem(tr("<Current File>"));
     connect(combo, SIGNAL(activated(QString)), this, SLOT(setMainScript(QString)));
-    combo->addItems(m_project->files());
-    return combo;
+
+    QDir projectDir = m_project->projectDir();
+    QStringList files;
+
+    foreach (const QString &fn, m_project->files()) {
+        QFileInfo fileInfo(fn);
+        if (fileInfo.suffix() != QLatin1String("qml"))
+            continue;
+
+        files.append(projectDir.relativeFilePath(fn));
+    }
+
+    combo->addItems(files);
+
+    form->addRow(tr("Main QML Script:"), combo);
+
+    return config;
 }
 
 QString QmlApplicationRunConfiguration::mainScript() const
@@ -437,7 +460,7 @@ QString QmlApplicationRunConfiguration::mainScript() const
         }
     }
 
-    return m_scriptFile;
+    return m_project->projectDir().absoluteFilePath(m_scriptFile);
 }
 
 void QmlApplicationRunConfiguration::setMainScript(const QString &scriptFile)

@@ -39,16 +39,7 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <coreplugin/ifile.h>
 
-QT_BEGIN_NAMESPACE
-class QPushButton;
-class QStringListModel;
-QT_END_NAMESPACE
-
-namespace Core {
-namespace Utils {
-class PathChooser;
-}
-}
+#include <QtCore/QDir>
 
 namespace QmlProjectManager {
 namespace Internal {
@@ -96,6 +87,7 @@ public:
 
     void refresh(RefreshOptions options);
 
+    QDir projectDir() const;
     QStringList files() const;
 
 protected:
