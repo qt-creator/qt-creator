@@ -528,9 +528,15 @@ void GdbEngine::readGdbStandardOutput()
 void GdbEngine::interruptInferior()
 {
     qq->notifyInferiorStopRequested();
+
     if (m_gdbProc.state() == QProcess::NotRunning) {
         debugMessage(_("TRYING TO INTERRUPT INFERIOR WITHOUT RUNNING GDB"));
         qq->notifyInferiorExited();
+        return;
+    }
+
+    if (q->startMode() == AttachRemote) {
+        execCommand(_("-exec-interrupt"));
         return;
     }
 
