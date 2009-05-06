@@ -8,8 +8,18 @@ include(../../plugins/texteditor/texteditor.pri)
 include(../../shared/qscripthighlighter/qscripthighlighter.pri)
 include(../../shared/indenter/indenter.pri)
 
-include($$(QTDIR_DUI)/src/declarative/qml/parser/parser.pri)
-INCLUDEPATH += $$(QTDIR_DUI)/src/declarative/qml    # FIXME: remove me
+QT_BUILD_TREE=$$fromfile($$(QTDIR)/.qmake.cache,QT_BUILD_TREE)
+QT_SOURCE_TREE=$$fromfile($$(QTDIR)/.qmake.cache,QT_SOURCE_TREE)
+
+exists($$QT_SOURCE_TREE/src/declarative/qml/parser) {
+    include($$QT_SOURCE_TREE/src/declarative/qml/parser/parser.pri)
+    INCLUDEPATH += $$QT_SOURCE_TREE/src/declarative/qml
+} else {
+    isEmpty($$(QTDIR_DUI)):error(run with export QTDIR_DUI=<path to kinetic/qt>)
+    include($$(QTDIR_DUI)/src/declarative/qml/parser/parser.pri)
+    INCLUDEPATH += $$(QTDIR_DUI)/src/declarative/qml
+}
+
 
 include(rewriter/rewriter.pri)
 
