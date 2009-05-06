@@ -262,72 +262,6 @@ protected:
     }
 };
 
-class HighlightBindings: protected Visitor
-{
-public:
-    HighlightBindings(QTextDocument *doc)
-        : _doc(doc)
-    { }
-
-    void setFormat(const QTextCharFormat &format)
-    { _format = format; }
-
-    QList<QTextEdit::ExtraSelection> operator()(AST::Node *node)
-    {
-        _selections.clear();
-        accept(node);
-        return _selections;
-    }
-
-protected:
-    using Visitor::visit;
-
-    void accept(AST::Node *node)
-    { AST::Node::acceptChild(node, this); }
-
-    void highlight(int begin, int end)
-    {
-        QTextCursor cursor(_doc);
-        cursor.setPosition(begin);
-        cursor.setPosition(end, QTextCursor::KeepAnchor);
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = cursor;
-        sel.format = _format;
-        _selections.append(sel);
-    }
-
-    void highlight(AST::UiQualifiedId *id)
-    {
-        for (; id; id = id->next) {
-            highlight(id->identifierToken.begin(), id->identifierToken.end());
-        }
-    }
-
-    virtual bool visit(AST::UiScriptBinding *node)
-    {
-        highlight(node->qualifiedId);
-
-        return false; // there's no need to visit the JS statement, we can't find bindings there.
-    }
-
-    virtual bool visit(AST::UiObjectBinding *node)
-    {
-        highlight(node->qualifiedId);
-        return true; // search for more bindings
-    }
-
-    virtual bool visit(AST::UiArrayBinding *node)
-    {
-        highlight(node->qualifiedId);
-        return true; // search for more bindings
-    }
-
-private:
-    QTextDocument *_doc;
-    QTextCharFormat _format;
-    QList<QTextEdit::ExtraSelection> _selections;
-};
-
 ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor, const QList<int>& context)
     : BaseTextEditorEditable(editor), m_context(context)
 {
@@ -414,12 +348,6 @@ void ScriptEditor::updateDocumentNow()
     m_ids = updateIds(parser.ast());
 
     if (parsed) {
-        if (DuiHighlighter *highlighter = qobject_cast<DuiHighlighter*>(baseTextDocument()->syntaxHighlighter())) {
-            HighlightBindings highlightIds(document());
-            highlightIds.setFormat(highlighter->labelTextCharFormat());
-            setExtraSelections(CodeSemanticsSelection, highlightIds(parser.ast()));
-        }
-
         FindDeclarations findDeclarations;
         m_declarations = findDeclarations(parser.ast());
 
