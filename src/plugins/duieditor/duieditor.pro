@@ -15,7 +15,8 @@ exists($$QT_SOURCE_TREE/src/declarative/qml/parser) {
     include($$QT_SOURCE_TREE/src/declarative/qml/parser/parser.pri)
     INCLUDEPATH += $$QT_SOURCE_TREE/src/declarative/qml
 } else {
-    isEmpty($$(QTDIR_DUI)):error(run with export QTDIR_DUI=<path to kinetic/qt>)
+    DUI=$$(QTDIR_DUI)
+    isEmpty(DUI):error(run with export QTDIR_DUI=<path to kinetic/qt>)
     include($$(QTDIR_DUI)/src/declarative/qml/parser/parser.pri)
     INCLUDEPATH += $$(QTDIR_DUI)/src/declarative/qml
 }
