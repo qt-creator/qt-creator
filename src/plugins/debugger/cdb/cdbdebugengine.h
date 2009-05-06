@@ -85,9 +85,6 @@ public:
 
     virtual void attemptBreakpointSynchronization();
 
-    virtual void loadSessionData();
-    virtual void saveSessionData();
-
     virtual void reloadDisassembler();
 
     virtual void reloadModules();

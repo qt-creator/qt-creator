@@ -427,7 +427,7 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(const QStringList 
     const bool cdbDisabled = arguments.contains(_("-disable-cdb"));
     winEngine = createWinEngine(this, cdbDisabled, &rc);
     scriptEngine = createScriptEngine(this, &rc);
-    setDebuggerType(GdbDebugger);
+    setDebuggerType(NoDebugger);
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine << rc.size();
     return rc;
@@ -445,6 +445,8 @@ void DebuggerManager::setDebuggerType(DebuggerType type)
         case WinDebugger:
             m_engine = winEngine;
             break;
+        case NoDebugger:
+            m_engine = 0;
     }
 }
 
@@ -697,7 +699,6 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << fileName << lineNumber;
 
-    QTC_ASSERT(m_engine, return);
     QTC_ASSERT(m_breakHandler, return);
     if (status() != DebuggerInferiorRunning
          && status() != DebuggerInferiorStopped 
@@ -712,7 +713,8 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
         m_breakHandler->setBreakpoint(fileName, lineNumber);
     else
         m_breakHandler->removeBreakpoint(index);
-    m_engine->attemptBreakpointSynchronization();
+    
+    attemptBreakpointSynchronization();
 }
 
 void DebuggerManager::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
@@ -720,7 +722,6 @@ void DebuggerManager::toggleBreakpointEnabled(const QString &fileName, int lineN
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << fileName << lineNumber;
 
-    QTC_ASSERT(m_engine, return);
     QTC_ASSERT(m_breakHandler, return);
     if (status() != DebuggerInferiorRunning
          && status() != DebuggerInferiorStopped 
@@ -731,24 +732,26 @@ void DebuggerManager::toggleBreakpointEnabled(const QString &fileName, int lineN
     }
 
     m_breakHandler->toggleBreakpointEnabled(fileName, lineNumber);
-    m_engine->attemptBreakpointSynchronization();
+
+    attemptBreakpointSynchronization();
 }
 
 void DebuggerManager::attemptBreakpointSynchronization()
 {
-    m_engine->attemptBreakpointSynchronization();
+    if (m_engine)
+        m_engine->attemptBreakpointSynchronization();
 }
 
 void DebuggerManager::setToolTipExpression(const QPoint &pos, const QString &exp)
 {
-    QTC_ASSERT(m_engine, return);
-    m_engine->setToolTipExpression(pos, exp);
+    if (m_engine)
+        m_engine->setToolTipExpression(pos, exp);
 }
 
 void DebuggerManager::updateWatchModel()
 {
-    QTC_ASSERT(m_engine, return);
-    m_engine->updateWatchModel();
+    if (m_engine)
+        m_engine->updateWatchModel();
 }
 
 QVariant DebuggerManager::sessionValue(const QString &name)
@@ -946,9 +949,9 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
 
     DebuggerType type;
     QString errorMessage;
-    const bool hasDebugger = startMode() == AttachExternal ?
-         determineDebuggerType(m_attachedPID, &type, &errorMessage) :
-         determineDebuggerType(m_executable, &type, &errorMessage);
+    const bool hasDebugger = startMode() == AttachExternal
+        ? determineDebuggerType(m_attachedPID, &type, &errorMessage)
+        : determineDebuggerType(m_executable, &type, &errorMessage);
     if (!hasDebugger) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
                 tr("Cannot debug '%1': %2").arg(m_executable, errorMessage));
@@ -1117,18 +1120,14 @@ void DebuggerManager::aboutToSaveSession()
 
 void DebuggerManager::loadSessionData()
 {
-    QTC_ASSERT(m_engine, return);
     m_breakHandler->loadSessionData();
     m_watchHandler->loadSessionData();
-    m_engine->loadSessionData();
 }
 
 void DebuggerManager::saveSessionData()
 {
-    QTC_ASSERT(m_engine, return);
     m_breakHandler->saveSessionData();
     m_watchHandler->saveSessionData();
-    m_engine->saveSessionData();
 }
 
 void DebuggerManager::dumpLog()
@@ -1164,17 +1163,15 @@ void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)
         qDebug() << Q_FUNC_INFO << fileName << lineNumber;
 
     QTC_ASSERT(m_breakHandler, return);
-    QTC_ASSERT(m_engine, return);
     m_breakHandler->setBreakpoint(fileName, lineNumber);
-    m_engine->attemptBreakpointSynchronization();
+    attemptBreakpointSynchronization();
 }
 
 void DebuggerManager::breakByFunction(const QString &functionName)
 {
     QTC_ASSERT(m_breakHandler, return);
-    QTC_ASSERT(m_engine, return);
     m_breakHandler->breakByFunction(functionName);
-    m_engine->attemptBreakpointSynchronization();
+    attemptBreakpointSynchronization();
 }
 
 void DebuggerManager::breakByFunction()
@@ -1300,14 +1297,16 @@ void DebuggerManager::queryCurrentTextEditor(QString *fileName, int *lineNumber,
 
 void DebuggerManager::continueExec()
 {
-    m_engine->continueInferior();
+    if (m_engine)
+        m_engine->continueInferior();
 }
 
 void DebuggerManager::interruptDebuggingRequest()
 {
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << status();
-    QTC_ASSERT(m_engine, return);
+    if (!m_engine)
+        return;
     bool interruptIsExit = (status() != DebuggerInferiorRunning);
     if (interruptIsExit)
         exitDebugger();
@@ -1319,11 +1318,10 @@ void DebuggerManager::interruptDebuggingRequest()
 
 void DebuggerManager::runToLineExec()
 {
-    QTC_ASSERT(m_engine, return);
     QString fileName;
     int lineNumber = -1;
     emit currentTextEditorRequested(&fileName, &lineNumber, 0);
-    if (!fileName.isEmpty()) {
+    if (m_engine && !fileName.isEmpty()) {
         if (Debugger::Constants::Internal::debug)
             qDebug() << Q_FUNC_INFO << fileName << lineNumber;
         m_engine->runToLineExec(fileName, lineNumber);
@@ -1360,7 +1358,7 @@ void DebuggerManager::runToFunctionExec()
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << functionName;
 
-    if (!functionName.isEmpty())
+    if (m_engine && !functionName.isEmpty())
         m_engine->runToFunctionExec(functionName);
 }
 
@@ -1369,7 +1367,7 @@ void DebuggerManager::jumpToLineExec()
     QString fileName;
     int lineNumber = -1;
     emit currentTextEditorRequested(&fileName, &lineNumber, 0);
-    if (!fileName.isEmpty()) {
+    if (m_engine && !fileName.isEmpty()) {
         if (Debugger::Constants::Internal::debug)
             qDebug() << Q_FUNC_INFO << fileName << lineNumber;
         m_engine->jumpToLineExec(fileName, lineNumber);
@@ -1404,10 +1402,8 @@ void DebuggerManager::fileOpen(const QString &fileName)
 
 void DebuggerManager::reloadDisassembler()
 {
-    QTC_ASSERT(m_engine, return);
-    if (!m_disassemblerDock || !m_disassemblerDock->isVisible())
-        return;
-    m_engine->reloadDisassembler();
+    if (m_engine && m_disassemblerDock && m_disassemblerDock->isVisible())
+        m_engine->reloadDisassembler();
 }
 
 void DebuggerManager::disassemblerDockToggled(bool on)
@@ -1425,9 +1421,8 @@ void DebuggerManager::disassemblerDockToggled(bool on)
 
 void DebuggerManager::reloadSourceFiles()
 {
-    if (!m_sourceFilesDock || !m_sourceFilesDock->isVisible())
-        return;
-    m_engine->reloadSourceFiles();
+    if (m_engine && m_sourceFilesDock && m_sourceFilesDock->isVisible())
+        m_engine->reloadSourceFiles();
 }
 
 void DebuggerManager::sourceFilesDockToggled(bool on)
@@ -1445,9 +1440,8 @@ void DebuggerManager::sourceFilesDockToggled(bool on)
 
 void DebuggerManager::reloadModules()
 {
-    if (!m_modulesDock || !m_modulesDock->isVisible())
-        return;
-    m_engine->reloadModules();
+    if (m_engine && m_modulesDock && m_modulesDock->isVisible())
+        m_engine->reloadModules();
 }
 
 void DebuggerManager::modulesDockToggled(bool on)
@@ -1490,9 +1484,8 @@ void DebuggerManager::registerDockToggled(bool on)
 
 void DebuggerManager::reloadRegisters()
 {
-    if (!m_registerDock || !m_registerDock->isVisible())
-        return;
-    m_engine->reloadRegisters();
+    if (m_engine && m_registerDock && m_registerDock->isVisible())
+        m_engine->reloadRegisters();
 }
 
 //////////////////////////////////////////////////////////////////////

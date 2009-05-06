@@ -94,9 +94,6 @@ private:
 
     void attemptBreakpointSynchronization();
 
-    void loadSessionData() {}
-    void saveSessionData() {}
-
     void assignValueInDebugger(const QString &expr, const QString &value);
     void executeDebuggerCommand(const QString & command);
 
