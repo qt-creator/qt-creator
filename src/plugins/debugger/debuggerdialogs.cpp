@@ -312,6 +312,8 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    m_ui->serverStartScript->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->serverStartScript->setPromptDialogTitle(tr("Select Executable"));
     
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
@@ -354,6 +356,15 @@ QString StartRemoteDialog::remoteArchitecture() const
     return m_ui->architectureComboBox->itemText(index);
 }
 
+void StartRemoteDialog::setServerStartScript(const QString &scriptName)
+{
+    m_ui->serverStartScript->setPath(scriptName);
+}
+
+QString StartRemoteDialog::serverStartScript() const
+{
+    return m_ui->serverStartScript->path();
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
