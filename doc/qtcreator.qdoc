@@ -37,9 +37,9 @@
            files and classes using minimal keystrokes.
         \o \bold{Support for qmake's .pro file format}: The project's \c{.pro}
            file is used as a project description file.
-        \o \bold{Debugging Interface to GDB}: Applications can be debugged
+        \o \bold{Debugging Interface}: Applications can be debugged
            within Qt Creator using a graphical frontend to the GNU symbolic
-           debugger.
+           debugger (GDB) and the Microsoft Console Debugger (CDB).
     \endlist
     \endtable
 
@@ -1072,7 +1072,7 @@
 
     Here, you can lock or unlock the location of your views as well as display
     or hide them. Among the views you can display are \gui Breakpoints,
-    \gui Disassembler, \gui Modules, \gui Registers, \gui Gdb, \gui Stack, and
+    \gui Disassembler, \gui Modules, \gui Registers, \gui Debugger, \gui Stack, and
     \gui Thread. The position of your dock widgets will be saved for future
     sessions.
 

@@ -22,7 +22,7 @@
         <string>These options take effect at the next start of Qt Creator.</string>
        </property>
        <property name="title">
-        <string>CDB</string>
+        <string>Cdb</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
