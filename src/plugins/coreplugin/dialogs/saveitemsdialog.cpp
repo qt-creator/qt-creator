@@ -34,6 +34,7 @@
 #include <coreplugin/ifile.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 #include <QtGui/QPushButton>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QHeaderView>
