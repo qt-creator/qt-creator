@@ -368,6 +368,7 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     mdebug->addAction(cmd);
 #endif
 #endif
+    updateState();
 
     return w;
 }
@@ -376,9 +377,10 @@ void DebuggingHelperOptionPage::updateState()
 {
     m_ui.checkBoxUseCustomDebuggingHelperLocation->setEnabled(
         m_ui.checkBoxUseDebuggingHelpers->isChecked());
-    m_ui.dumperLocationChooser->setEnabled(
-        m_ui.checkBoxUseDebuggingHelpers->isChecked()
-            && m_ui.checkBoxUseCustomDebuggingHelperLocation->isChecked());
+    bool locationEnabled = m_ui.checkBoxUseDebuggingHelpers->isChecked()
+         && m_ui.checkBoxUseCustomDebuggingHelperLocation->isChecked();
+    m_ui.dumperLocationChooser->setEnabled(locationEnabled);
+    m_ui.dumperLocationLabel->setEnabled(locationEnabled);
 }
 
 } // namespace Internal

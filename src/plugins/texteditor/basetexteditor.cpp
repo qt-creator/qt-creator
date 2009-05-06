@@ -960,7 +960,8 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 
 skip_event:
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
-        slotCursorPositionChanged(); // parentheses matching
+        d->m_parenthesesMatchingTimer->start(50);
+
 
     if (!ro && d->m_contentsChanged && !e->text().isEmpty() && e->text().at(0).isPrint())
         emit requestAutoCompletion(editableInterface(), false);
@@ -3535,8 +3536,17 @@ void BaseTextEditor::_q_matchParentheses()
         }
         extraSelections.append(sel);
     }
-    setExtraSelections(ParenthesesMatchingSelection, extraSelections);
 
+
+    if (animatePosition >= 0) {
+        foreach (QTextEdit::ExtraSelection sel, BaseTextEditor::extraSelections(ParenthesesMatchingSelection)) {
+            if (sel.cursor.selectionStart() == animatePosition
+                || sel.cursor.selectionEnd() - 1 == animatePosition) {
+                animatePosition = -1;
+                break;
+            }
+        }
+    }
 
     if (animatePosition >= 0) {
         if (d->m_animator)
@@ -3549,9 +3559,9 @@ void BaseTextEditor::_q_matchParentheses()
         d->m_animator->setData(font(), pal, characterAt(d->m_animator->position()));
         connect(d->m_animator, SIGNAL(updateRequest(int,QRectF)),
                 this, SLOT(_q_animateUpdate(int,QRectF)));
-    } 
+    }
 
-
+    setExtraSelections(ParenthesesMatchingSelection, extraSelections);
 }
 
 void BaseTextEditor::_q_highlightBlocks()

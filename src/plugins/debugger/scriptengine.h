@@ -94,9 +94,6 @@ private:
 
     void attemptBreakpointSynchronization();
 
-    void loadSessionData() {}
-    void saveSessionData() {}
-
     void assignValueInDebugger(const QString &expr, const QString &value);
     void executeDebuggerCommand(const QString & command);
 
@@ -107,6 +104,7 @@ private:
     void reloadModules();
     void reloadRegisters() {}
     void reloadSourceFiles() {}
+    void reloadFullStack() {}
 
     bool supportsThreads() const { return true; }
     void maybeBreakNow(bool byFunction);

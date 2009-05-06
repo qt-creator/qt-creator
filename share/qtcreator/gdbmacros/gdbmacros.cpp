@@ -32,7 +32,7 @@
 // this relies on contents copied from qobject_p.h
 #define PRIVATE_OBJECT_ALLOWED 1
 
-#ifdef HAS_QOBJECT_P_H
+#ifdef HAS_QOBJECT_P_H // Detected by qmake
 #    include <QtCore/private/qobject_p.h>
 #endif
 #include <QtCore/QDateTime>
@@ -149,7 +149,7 @@ int qtGhVersion = QT_VERSION;
 #   define NSY ""
 #endif
 
-#if PRIVATE_OBJECT_ALLOWED && !HAS_QOBJECT_P_H
+#if PRIVATE_OBJECT_ALLOWED && !defined(HAS_QOBJECT_P_H)
 
 #if defined(QT_BEGIN_NAMESPACE)
 QT_BEGIN_NAMESPACE
@@ -292,8 +292,8 @@ static bool startsWith(const char *s, const char *t)
 // On Windows, try to be less crash-prone by checking memory using WinAPI
 
 #ifdef Q_OS_WIN
-#    define qCheckAccess(d) if (IsBadReadPtr(d, 1)) return; do { qProvokeSegFaultHelper = *(char*)d; } while (0)
-#    define qCheckPointer(d) if (d && IsBadReadPtr(d, 1)) return; do { if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
+#    define qCheckAccess(d) do { if (IsBadReadPtr(d, 1)) return; qProvokeSegFaultHelper = *(char*)d; } while (0)
+#    define qCheckPointer(d) do { if (d && IsBadReadPtr(d, 1)) return; if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
 #else
 #    define qCheckAccess(d) do { qProvokeSegFaultHelper = *(char*)d; } while (0)
 #    define qCheckPointer(d) do { if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
@@ -2252,7 +2252,14 @@ static void qDumpQWeakPointer(QDumper &d)
 static void qDumpStdList(QDumper &d)
 {
     const std::list<int> &list = *reinterpret_cast<const std::list<int> *>(d.data);
-    const void *p = d.data;
+#ifdef Q_CC_MSVC
+    const int size = static_cast<int>(list.size());
+    if (size < 0)
+        return;
+    if (size)
+        qCheckAccess(list.begin().operator ->());
+#else
+    const void *p = d.data;    
     qCheckAccess(p);
     p = deref(p);
     qCheckAccess(p);
@@ -2264,7 +2271,7 @@ static void qDumpStdList(QDumper &d)
     qCheckAccess(p);
     p = deref(addOffset(p, sizeof(void*)));
     qCheckAccess(p);
-
+#endif
     int nn = 0;
     std::list<int>::const_iterator it = list.begin();
     for (; nn < 101 && it != list.end(); ++nn, ++it)
@@ -2447,7 +2454,7 @@ static void qDumpStdWString(QDumper &d)
 }
 
 static void qDumpStdVector(QDumper &d)
-{
+{    
     // Correct type would be something like:
     // std::_Vector_base<int,std::allocator<int, std::allocator<int> >>::_Vector_impl
     struct VectorImpl {
@@ -2455,8 +2462,13 @@ static void qDumpStdVector(QDumper &d)
         char *finish;
         char *end_of_storage;
     };
+#ifdef Q_CC_MSVC
+    // Pointers are at end of the structure
+    const char * vcp = static_cast<const char *>(d.data);
+    const VectorImpl *v = reinterpret_cast<const VectorImpl *>(vcp + sizeof(std::vector<int>) - sizeof(VectorImpl));
+#else
     const VectorImpl *v = static_cast<const VectorImpl *>(d.data);
-
+#endif
     // Try to provoke segfaults early to prevent the frontend
     // from asking for unavailable child details
     int nn = (v->finish - v->start) / d.extraInt[0];

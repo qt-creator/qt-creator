@@ -85,9 +85,6 @@ public:
 
     virtual void attemptBreakpointSynchronization();
 
-    virtual void loadSessionData();
-    virtual void saveSessionData();
-
     virtual void reloadDisassembler();
 
     virtual void reloadModules();
@@ -97,6 +94,7 @@ public:
 
     virtual void reloadRegisters();
     virtual void reloadSourceFiles();
+    virtual void reloadFullStack() {}
 
 protected:
     void timerEvent(QTimerEvent*);

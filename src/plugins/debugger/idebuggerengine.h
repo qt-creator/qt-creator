@@ -74,9 +74,6 @@ public:
 
     virtual void attemptBreakpointSynchronization() = 0;
 
-    virtual void loadSessionData() = 0;
-    virtual void saveSessionData() = 0;
-
     virtual void reloadDisassembler() = 0;
 
     virtual void reloadModules() = 0;
@@ -87,6 +84,7 @@ public:
     virtual void reloadRegisters() = 0;
 
     virtual void reloadSourceFiles() = 0;
+    virtual void reloadFullStack() = 0;
 };
 
 } // namespace Internal

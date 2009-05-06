@@ -202,7 +202,7 @@ public:
     QMainWindow *mainWindow() const { return m_mainWindow; }
     QLabel *statusLabel() const { return m_statusLabel; }
 
-    enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
+    enum DebuggerType { NoDebugger, GdbDebugger, ScriptDebugger, WinDebugger };
 
 public slots:
     void startNewDebugger(DebuggerRunControl *runControl);
@@ -279,6 +279,7 @@ private slots:
     void setStatus(int status);
     void clearStatusMessage();
     void attemptBreakpointSynchronization();
+    void reloadFullStack();
 
 private:
     //
