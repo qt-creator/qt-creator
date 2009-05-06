@@ -9,8 +9,8 @@ defineReplace(prependAll) {
     return($$result)
 }
 
-LUPDATE = $$targetPath($$[QT_INSTALL_BINS]/bin/lupdate) -locations relative -no-ui-lines
-LRELEASE = $$targetPath($$[QT_INSTALL_BINS]/bin/lrelease)
+LUPDATE = $$targetPath($$[QT_INSTALL_BINS]/lupdate) -locations relative -no-ui-lines
+LRELEASE = $$targetPath($$[QT_INSTALL_BINS]/lrelease)
 
 TS_FILES = $$prependAll(TRANSLATIONS, $$PWD/qtcreator_,.ts)
 
