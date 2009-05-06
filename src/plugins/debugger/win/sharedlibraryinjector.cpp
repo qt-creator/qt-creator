@@ -56,6 +56,12 @@
 
 #include <QtCore/QDebug>
 
+#ifdef __GNUC__   // MinGW does not have a complete windows.h
+
+typedef DWORD (__stdcall *PTHREAD_START_ROUTINE) (LPVOID lpThreadParameter);
+
+#endif
+
 enum { debug = 0 };
 
 static QString msgFuncFailed(const char *f, unsigned long error)
@@ -68,7 +74,7 @@ template <class SymbolType>
 inline bool resolveSymbol(const char *libraryName, HMODULE libraryHandle, const char *symbolName, SymbolType *s, QString *errorMessage)
 {
     *s = 0;
-    void *vs = ::GetProcAddress(libraryHandle, symbolName);
+    FARPROC WINAPI vs = ::GetProcAddress(libraryHandle, symbolName);
     if (vs == 0) {
         *errorMessage = QString::fromLatin1("Unable to resolve '%2' in '%1'.").arg(QString::fromAscii(symbolName), QString::fromAscii(libraryName));
         return false;
@@ -158,29 +164,29 @@ bool SharedLibraryInjector::hasLoaded(const QString &modulePath)
 
 QString SharedLibraryInjector::findModule(const QString &moduleName)
 {
-    const TCHAR *moduleNameC = moduleName.utf16();
+    const TCHAR *moduleNameC = reinterpret_cast<const TCHAR*>(moduleName.utf16());
     if (GetFileAttributesW(moduleNameC) != INVALID_FILE_ATTRIBUTES)
         return moduleName;
 
     TCHAR testpathC[MAX_PATH];
     // Check application path first
     GetModuleFileNameW(NULL, testpathC, MAX_PATH);
-    QString testPath = QString::fromUtf16(testpathC);
+    QString testPath = QString::fromUtf16(reinterpret_cast<unsigned short*>(testpathC));
     const int lastSlash = testPath.lastIndexOf(QLatin1Char('\\'));
     if (lastSlash != -1)
         testPath.truncate(lastSlash + 1);
     testPath += moduleName;
-    if (GetFileAttributesW(testPath.utf16()) != INVALID_FILE_ATTRIBUTES)
+    if (GetFileAttributesW(reinterpret_cast<const TCHAR*>(testPath.utf16())) != INVALID_FILE_ATTRIBUTES)
         return testPath;
     // Path Search
-    if (SearchPathW(NULL, moduleName.utf16(), NULL, sizeof(testpathC)/2, testpathC, NULL))
-        return QString::fromUtf16(testpathC);
+    if (SearchPathW(NULL, reinterpret_cast<const TCHAR*>(moduleName.utf16()), NULL, sizeof(testpathC)/2, testpathC, NULL))
+        return QString::fromUtf16(reinterpret_cast<unsigned short*>(testpathC));
     // Last chance, if the module has already been loaded in this process, then use that path
-    const HMODULE loadedModule = GetModuleHandleW(moduleName.utf16());
+    const HMODULE loadedModule = GetModuleHandleW(reinterpret_cast<const TCHAR*>(moduleName.utf16()));
     if (loadedModule) {
         GetModuleFileNameW(loadedModule, testpathC, sizeof(testpathC));
         if (GetFileAttributes(testpathC) != INVALID_FILE_ATTRIBUTES)
-            return QString::fromUtf16(testpathC);
+            return QString::fromUtf16(reinterpret_cast<unsigned short*>(testpathC));
     }
     return QString();
 }
@@ -188,13 +194,13 @@ QString SharedLibraryInjector::findModule(const QString &moduleName)
 unsigned long SharedLibraryInjector::getModuleEntryPoint(const QString &moduleName)
 {
     // If file doesn't exist, just treat it like we cannot figure out the entry point
-    if (moduleName.isEmpty() || GetFileAttributesW(moduleName.utf16()) == INVALID_FILE_ATTRIBUTES)
+    if (moduleName.isEmpty() || GetFileAttributesW(reinterpret_cast<const TCHAR*>(moduleName.utf16())) == INVALID_FILE_ATTRIBUTES)
         return 0;
 
     // Read the first 1K of data from the file
     unsigned char peData[1024];
     unsigned long peDataSize = 0;
-    const HANDLE hFile = CreateFileW(moduleName.utf16(), FILE_READ_DATA, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+    const HANDLE hFile = CreateFileW(reinterpret_cast<const WCHAR*>(moduleName.utf16()), FILE_READ_DATA, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
     if (hFile == INVALID_HANDLE_VALUE
         || !ReadFile(hFile, peData, sizeof(peData), &peDataSize, NULL))
         return 0;
@@ -236,7 +242,7 @@ bool SharedLibraryInjector::escalatePrivileges(QString *errorMessage)
         Debug_Privileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED; // set to enable privilege
         Debug_Privileges.PrivilegeCount = 1;                              // working with only 1
 
-        if (!OpenProcessToken (GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken)) {
+        if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken)) {
             *errorMessage = msgFuncFailed("OpenProcessToken", GetLastError());
             break;
         }
@@ -289,8 +295,8 @@ bool SharedLibraryInjector::doStubInjection(unsigned long pid,
 
     if (!escalatePrivileges(errorMessage))
         return false;
-
-#if (defined(WIN64) || defined(_WIN64) || defined(__WIN64__))
+//  MinGW lacks  OpenThread() and the advapi.lib as of 6.5.2009
+#if (defined(WIN64) || defined(_WIN64) || defined(__WIN64__)) || defined(__GNUC__)
     *errorMessage = QLatin1String("Not implemented for this architecture.");
     return false;
 #else
@@ -462,7 +468,7 @@ HMODULE SharedLibraryInjector::findModuleHandle(const QString &modulePath, QStri
         for (unsigned i = 0; i < count; i++) {
             TCHAR szModName[MAX_PATH];
             if (m_pfnGetModuleFileNameExW(hProcess, hMods[i], szModName, sizeof(szModName))) {
-                if (QString::fromUtf16(szModName) == modulePath) {
+                if (QString::fromUtf16(reinterpret_cast<const unsigned short *>(szModName)) == modulePath) {
                     ::FreeLibrary(m_hModPSAPI);
                     ::CloseHandle(hProcess);
                     return hMods[i];

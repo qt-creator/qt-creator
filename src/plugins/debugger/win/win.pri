@@ -7,5 +7,8 @@ HEADERS += $$PWD/peutils.h \
            $$PWD/dbgwinutils.h \
            $$PWD/sharedlibraryinjector.h
 
-# For the Privilege manipulation functions in sharedlibraryinjector.cpp
-LIBS += advapi32.lib
+contains(QMAKE_CXX, cl) {
+#   For the Privilege manipulation functions in sharedlibraryinjector.cpp.
+#   Not required for MinGW.
+    LIBS += advapi32.lib
+}       
