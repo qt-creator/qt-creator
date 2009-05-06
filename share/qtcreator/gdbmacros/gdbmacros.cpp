@@ -94,10 +94,10 @@ int qtGhVersion = QT_VERSION;
   \c{qDumpObjectData440()}.
 
   In any case, dumper processesing should end up in 
-  \c{handleProtocolVersion2and3()} and needs an entry in the bis switch there.
+  \c{handleProtocolVersion2and3()} and needs an entry in the big switch there.
 
   Next step is to create a suitable \c{static void qDumpFoo(QDumper &d)}
-  function. At the bare minimum it should contain something like:
+  function. At the bare minimum it should contain something like this:
 
 
   \c{
@@ -127,7 +127,7 @@ int qtGhVersion = QT_VERSION;
   \endlist
 
   If the current item has children, it might be queried to produce information
-  about thes children. In this case the dumper should use something like
+  about these children. In this case the dumper should use something like this:
 
   \c{
     if (d.dumpChildren) {
@@ -221,16 +221,19 @@ Q_DECL_EXPORT char qDumpOutBuffer[100000];
 
 namespace {
 
+static QByteArray strPtrConst = "* const";
+
 static bool isPointerType(const QByteArray &type)
 {
-    return type.endsWith("*") || type.endsWith("* const");
+    return type.endsWith('*') || type.endsWith(strPtrConst);
 }
 
-static QByteArray stripPointerType(QByteArray type)
+static QByteArray stripPointerType(const QByteArray &_type)
 {
-    if (type.endsWith("*"))
+    QByteArray type = _type;
+    if (type.endsWith('*'))
         type.chop(1);
-    if (type.endsWith("* const"))
+    if (type.endsWith(strPtrConst))
         type.chop(7);
     if (type.endsWith(' '))
         type.chop(1);
@@ -279,7 +282,10 @@ static bool isEqual(const char *s, const char *t)
 
 static bool startsWith(const char *s, const char *t)
 {
-    return qstrncmp(s, t, qstrlen(t)) == 0;
+    while (char c = *t++)
+        if (c != *s++)
+            return false;
+    return true;
 }
 
 // Check memory for read access and provoke segfault if nothing else helps.
@@ -293,11 +299,18 @@ static bool startsWith(const char *s, const char *t)
 #    define qCheckPointer(d) do { if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
 #endif
 
+#ifdef QT_NAMESPACE
 const char *stripNamespace(const char *type)
 {
-    static const size_t nslen = qstrlen(NS);
+    static const size_t nslen = strlen(NS);
     return startsWith(type, NS) ? type + nslen : type;
 }
+#else
+inline const char *stripNamespace(const char *type)
+{
+    return type;
+}
+#endif
 
 static bool isSimpleType(const char *type)
 {
@@ -1168,7 +1181,7 @@ static void qDumpQHashNode(QDumper &d)
 
     P(d, "numchild", 2);
     if (d.dumpChildren) {
-        // there is a hash specialization in cast the key are integers or shorts
+        // there is a hash specialization in case the keys are integers or shorts
         d << ",children=[";
         d.beginHash();
             P(d, "name", "key");
@@ -2679,7 +2692,7 @@ void *qDumpObjectData440(
 
         // This is a list of all available dumpers. Note that some templates
         // currently require special hardcoded handling in the debugger plugin.
-        // They are mentioned here nevertheless. For types that not listed
+        // They are mentioned here nevertheless. For types that are not listed
         // here, dumpers won't be used.
         d << "dumpers=["
             "\""NS"QByteArray\","

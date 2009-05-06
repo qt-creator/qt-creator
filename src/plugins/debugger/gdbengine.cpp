@@ -1824,9 +1824,9 @@ void GdbEngine::sendInsertBreakpoint(int index)
         //if (where.isEmpty())
         //    where = data->fileName;
 #endif
-        // we need something like   "\"file name.cpp\":100"  to
-        // survive the gdb command line parser with file names intact
-        where = _("\"\\\"") + where + _("\\\":") + data->lineNumber + _c('"');
+        // The argument is simply a C-quoted version of the argument to the
+        // non-MI "break" command, including the "original" quoting it wants.
+        where = _("\"\\\"") + GdbMi::escapeCString(where) + _("\\\":") + data->lineNumber + _c('"');
     } else {
         where = data->funcName;
     }
@@ -1987,6 +1987,8 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, const QVariant 
         handler->updateMarkers();
     } else if (record.resultClass == GdbResultError) {
         const BreakpointData *data = handler->at(index);
+        // Note that it is perfectly correct that the file name is put
+        // in quotes but not escaped. GDB simply is like that.
 #ifdef Q_OS_LINUX
         //QString where = "\"\\\"" + data->fileName + "\\\":"
         //    + data->lineNumber + "\"";
@@ -3098,8 +3100,7 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
     QByteArray out = output.data();
     out = out.mid(out.indexOf('"') + 2); // + 1 is success marker
     out = out.left(out.lastIndexOf('"'));
-    //out.replace('\'', '"');
-    out.replace("\\", "");
+    out.replace('\\', ""); // optimization: dumper output never needs real C unquoting
     out = "dummy={" + out + "}";
     //qDebug() << "OUTPUT: " << out;
 
@@ -3302,7 +3303,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
     QByteArray out = output.data();
 
     int markerPos = out.indexOf('"') + 1; // position of 'success marker'
-    if (markerPos == -1 || out.at(markerPos) == 'f') {  // 't' or 'f'
+    if (markerPos == 0 || out.at(markerPos) == 'f') {  // 't' or 'f'
         // custom dumper produced no output
         data.setError(strNotInScope);
         insertData(data);
@@ -3311,7 +3312,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
 
     out = out.mid(markerPos +  1);
     out = out.left(out.lastIndexOf('"'));
-    out.replace("\\", "");
+    out.replace('\\', ""); // optimization: dumper output never needs real C unquoting
     out = "dummy={" + out + "}";
 
     GdbMi contents;
@@ -3848,13 +3849,13 @@ void GdbEngine::tryLoadDebuggingHelpers()
     execCommand(_("sharedlibrary .*")); // for LoadLibraryA
     //execCommand(_("handle SIGSEGV pass stop print"));
     //execCommand(_("set unwindonsignal off"));
-    execCommand(_("call LoadLibraryA(\"") + lib + _("\")"),
+    execCommand(_("call LoadLibraryA(\"") + GdbMi::escapeCString(lib) + _("\")"),
         CB(handleDebuggingHelperSetup));
     execCommand(_("sharedlibrary ") + dotEscape(lib));
 #elif defined(Q_OS_MAC)
     //execCommand(_("sharedlibrary libc")); // for malloc
     //execCommand(_("sharedlibrary libdl")); // for dlopen
-    execCommand(_("call (void)dlopen(\"") + lib + _("\", " STRINGIFY(RTLD_NOW) ")"),
+    execCommand(_("call (void)dlopen(\"") + GdbMi::escapeCString(lib) + _("\", " STRINGIFY(RTLD_NOW) ")"),
         CB(handleDebuggingHelperSetup));
     //execCommand(_("sharedlibrary ") + dotEscape(lib));
     m_debuggingHelperState = DebuggingHelperLoadTried;
@@ -3863,10 +3864,10 @@ void GdbEngine::tryLoadDebuggingHelpers()
     QString flag = QString::number(RTLD_NOW);
     execCommand(_("sharedlibrary libc")); // for malloc
     execCommand(_("sharedlibrary libdl")); // for dlopen
-    execCommand(_("call (void*)dlopen(\"") + lib + _("\", " STRINGIFY(RTLD_NOW) ")"),
+    execCommand(_("call (void*)dlopen(\"") + GdbMi::escapeCString(lib) + _("\", " STRINGIFY(RTLD_NOW) ")"),
         CB(handleDebuggingHelperSetup));
     // some older systems like CentOS 4.6 prefer this:
-    execCommand(_("call (void*)__dlopen(\"") + lib + _("\", " STRINGIFY(RTLD_NOW) ")"),
+    execCommand(_("call (void*)__dlopen(\"") + GdbMi::escapeCString(lib) + _("\", " STRINGIFY(RTLD_NOW) ")"),
         CB(handleDebuggingHelperSetup));
     execCommand(_("sharedlibrary ") + dotEscape(lib));
 #endif
