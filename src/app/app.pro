@@ -1,5 +1,3 @@
-IDE_BUILD_TREE = $$OUT_PWD/../..
-
 include(../../qtcreator.pri)
 include(../shared/qtsingleapplication/qtsingleapplication.pri)
 

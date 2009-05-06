@@ -1,5 +1,3 @@
-IDE_SOURCE_TREE = $$PWD
-
 defineReplace(cleanPath) {
     win32:1 ~= s|\\\\|/|g
     contains(1, ^/.*):pfx = /
@@ -35,10 +33,11 @@ equals(TEST, 1) {
     DEFINES += WITH_TESTS
 }
 
-isEmpty(IDE_BUILD_TREE) {
-    error("qtcreator.pri: including file must define IDE_BUILD_TREE (probably a relative path)")
-}
-IDE_BUILD_TREE = $$cleanPath($$IDE_BUILD_TREE)
+IDE_SOURCE_TREE = $$PWD
+sub_dir = $$_PRO_FILE_PWD_
+sub_dir ~= s,^$$re_escape($$PWD),,
+IDE_BUILD_TREE = $$cleanPath($$OUT_PWD)
+IDE_BUILD_TREE ~= s,$$re_escape($$sub_dir)$,,
 macx {
     IDE_APP_TARGET   = QtCreator
     IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/bin/$${IDE_APP_TARGET}.app/Contents/PlugIns

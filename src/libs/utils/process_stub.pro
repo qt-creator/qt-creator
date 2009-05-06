@@ -1,4 +1,3 @@
-IDE_BUILD_TREE = $$OUT_PWD/../../..
 include(../../../qtcreator.pri)
 
 TEMPLATE        = app

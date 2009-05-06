@@ -1,5 +1,3 @@
-IDE_BUILD_TREE = $$OUT_PWD/../..
-
 include(../../qtcreator.pri)
 
 win32:i_flag = i

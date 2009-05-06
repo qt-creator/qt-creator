@@ -1,9 +1,9 @@
+include(../../qworkbenchlibrary.pri)
 
 TEMPLATE = lib
 TARGET = DebuggingHelper
 CONFIG += shared
 DESTDIR  = ../../../bin
-include(../../qworkbenchlibrary.pri)
 
 linux-* {
 CONFIG -= release
