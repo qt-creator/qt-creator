@@ -279,6 +279,7 @@ private slots:
     void setStatus(int status);
     void clearStatusMessage();
     void attemptBreakpointSynchronization();
+    void reloadFullStack();
 
 private:
     //

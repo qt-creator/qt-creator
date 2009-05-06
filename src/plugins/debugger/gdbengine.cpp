@@ -158,17 +158,13 @@ void GdbEngine::initializeConnections()
         q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
 
+    // FIXME: These trigger even if the engine is not active
     connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setUseDebuggingHelpers(QVariant)));
     connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setDebugDebuggingHelpers(QVariant)));
     connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
         this, SLOT(recheckDebuggingHelperAvailability()));
-
-    connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
-        this, SLOT(reloadFullStack()));
-    connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
-        this, SLOT(reloadFullStack()));
 }
 
 void GdbEngine::initializeVariables()

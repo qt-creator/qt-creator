@@ -206,6 +206,10 @@ void DebuggerManager::init()
     stackView->setModel(m_stackHandler->stackModel());
     connect(stackView, SIGNAL(frameActivated(int)),
         this, SLOT(activateFrame(int)));
+    connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
+        this, SLOT(reloadFullStack()));
+    connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
+        this, SLOT(reloadFullStack()));
 
     // Threads
     m_threadsHandler = new ThreadsHandler;
@@ -273,9 +277,8 @@ void DebuggerManager::init()
     m_registerHandler = new RegisterHandler;
     registerView->setModel(m_registerHandler->model());
 
-    m_watchHandler = new WatchHandler;
-
     // Locals
+    m_watchHandler = new WatchHandler;
     QTreeView *localsView = qobject_cast<QTreeView *>(m_localsWindow);
     localsView->setModel(m_watchHandler->model());
 
@@ -1537,6 +1540,12 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
 DebuggerStartMode DebuggerManager::startMode() const
 {
     return m_runControl->startMode();
+}
+
+void DebuggerManager::reloadFullStack()
+{
+    if (m_engine)
+        m_engine->reloadFullStack();
 }
 
 

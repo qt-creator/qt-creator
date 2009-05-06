@@ -84,6 +84,7 @@ public:
     virtual void reloadRegisters() = 0;
 
     virtual void reloadSourceFiles() = 0;
+    virtual void reloadFullStack() = 0;
 };
 
 } // namespace Internal

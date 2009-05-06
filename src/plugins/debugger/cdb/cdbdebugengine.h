@@ -94,6 +94,7 @@ public:
 
     virtual void reloadRegisters();
     virtual void reloadSourceFiles();
+    virtual void reloadFullStack() {}
 
 protected:
     void timerEvent(QTimerEvent*);
