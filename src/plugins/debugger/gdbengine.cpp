@@ -1021,8 +1021,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         return;
     }
 
-    //tryLoadDebuggingHelpers();
-
     // jump over well-known frames
     static int stepCounter = 0;
     if (theDebuggerBoolSetting(SkipKnownFrames)) {
@@ -1420,6 +1418,7 @@ bool GdbEngine::startDebugger()
     //execCommand(_("set print pretty on"));
     //execCommand(_("set confirm off"));
     //execCommand(_("set pagination off"));
+    execCommand(_("set print inferior-events 1"));
     execCommand(_("set breakpoint pending on"));
     execCommand(_("set print elements 10000"));
     execCommand(_("-data-list-register-names"), CB(handleRegisterListNames));
@@ -1602,8 +1601,10 @@ void GdbEngine::handleTargetAsync(const GdbResultRecord &record, const QVariant 
     if (record.resultClass == GdbResultDone) {
         //execCommand(_("info target"), handleStart);
         qq->notifyInferiorRunningRequested();
-        execCommand(_("target remote %1").arg(q->m_remoteChannel));
-        execCommand(_("-exec-continue"), CB(handleExecRun));
+        execCommand(_("target remote %1").arg(q->m_remoteChannel),
+            CB(handleAttach));
+        //execCommand(_("-exec-continue"), CB(handleExecRun));
+        handleAqcuiredInferior();
     } else if (record.resultClass == GdbResultError) {
         // a typical response on "old" gdb is:
         // &"set target-async on\n"
