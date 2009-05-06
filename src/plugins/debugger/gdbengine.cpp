@@ -656,7 +656,7 @@ void GdbEngine::flushCommand(GdbCommand &cmd)
     ++currentToken();
     m_cookieForToken[currentToken()] = cmd;
     cmd.command = QString::number(currentToken()) + cmd.command;
-    if (cmd.command.contains(__("%1")))
+    if (cmd.flags & EmbedToken)
         cmd.command = cmd.command.arg(currentToken());
 
     m_gdbProc.write(cmd.command.toLatin1() + "\r\n");
@@ -2922,7 +2922,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
 
     QVariant var;
     var.setValue(data);
-    execCommand(cmd, WatchUpdate, CB(handleDebuggingHelperValue1), var);
+    execCommand(cmd, WatchUpdate | EmbedToken, CB(handleDebuggingHelperValue1), var);
 
     q->showStatusMessage(
         tr("Retrieving data for watch view (%1 requests pending)...")
@@ -3933,7 +3933,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
     execCommand(_("sharedlibrary ") + dotEscape(lib));
 #endif
     // retreive list of dumpable classes
-    execCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"));
+    execCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
     execCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
 }
 
@@ -3941,7 +3941,7 @@ void GdbEngine::recheckDebuggingHelperAvailability()
 {
     if (startModeAllowsDumpers()) {
         // retreive list of dumpable classes
-        execCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"));
+        execCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
         execCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
     }
 }
