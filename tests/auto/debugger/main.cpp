@@ -52,7 +52,7 @@ static const char test11[] =
      "{name=\"0\",value=\"one\",type=\"QByteArray\"}]";
 
 static const char test12[] =
-    "[{iname=\"local.hallo\",value=\"\\\"\\\"\",type=\"QByteArray\","
+    "[{iname=\"local.hallo\",value=\"\\\"\\\\\\00382\\t\\377\",type=\"QByteArray\","
      "numchild=\"0\"}]";
 
 class tst_Debugger : public QObject

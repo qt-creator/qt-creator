@@ -57,6 +57,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="saveBeforeBuildCheckBox">
+     <property name="text">
+      <string>Automatically save all Files before building</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

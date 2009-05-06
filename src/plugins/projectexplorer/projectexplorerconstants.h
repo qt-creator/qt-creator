@@ -176,6 +176,11 @@ const char * const RESOURCE_MIMETYPE = "application/vnd.nokia.xml.qt.resource";
 // build parsers
 const char * const BUILD_PARSER_MSVC    = "BuildParser.MSVC";
 const char * const BUILD_PARSER_GCC     = "BuildParser.Gcc";
+
+// settings page
+const char * const PROJECTEXPLORER_CATEGORY            = "ProjectExplorer";
+const char * const PROJECTEXPLORER_PAGE                = "ProjectExplorer.ProjectExplorer";
+
 } // namespace Constants
 } // namespace ProjectExplorer
 

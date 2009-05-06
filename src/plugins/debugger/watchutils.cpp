@@ -136,6 +136,7 @@ bool hasSideEffects(const QString &exp)
     return exp.contains(QLatin1String("-="))
         || exp.contains(QLatin1String("+="))
         || exp.contains(QLatin1String("/="))
+        || exp.contains(QLatin1String("%="))
         || exp.contains(QLatin1String("*="))
         || exp.contains(QLatin1String("&="))
         || exp.contains(QLatin1String("|="))
@@ -454,7 +455,7 @@ QDebug operator<<(QDebug in, const QtDumperResult &d)
             const QtDumperResult::Child &c = d.children.at(i);
             nospace << "   #" << i << " addr=" << c.address
                     << " disabled=" << c.valuedisabled
-                    << " type=" << c.type
+                    << " type=" << c.type << " exp=" << c.exp
                     << " name=" << c.name << " encoded=" << c.valueEncoded
                     << " value=" << c.value
                     << "childcount=" << c.childCount << '\n';
@@ -1376,6 +1377,8 @@ bool QtDumperHelper::parseValue(const char *data, QtDumperResult *r)
     // Sanity
     if (r->childCount < r->children.size())
         r->childCount  = r->children.size();
+    if (debug)
+        qDebug() << '\n' << data << *r;
     return true;
 }
 

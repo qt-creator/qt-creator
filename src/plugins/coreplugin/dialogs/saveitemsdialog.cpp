@@ -55,6 +55,8 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
     m_ui.buttonBox->button(QDialogButtonBox::Save)->setFocus(Qt::TabFocusReason);
     m_ui.buttonBox->button(QDialogButtonBox::Save)->setMinimumWidth(130); // bad magic number to avoid resizing of button
 
+    m_ui.saveBeforeBuildCheckBox->setVisible(false);
+
     foreach (IFile *file, items) {
         QString visibleName;
         QString directory;
@@ -120,4 +122,15 @@ void SaveItemsDialog::discardAll()
 QList<IFile*> SaveItemsDialog::itemsToSave() const
 {
     return m_itemsToSave;
+}
+
+void SaveItemsDialog::setAlwaysSaveMessage(const QString &msg)
+{
+    m_ui.saveBeforeBuildCheckBox->setText(msg);
+    m_ui.saveBeforeBuildCheckBox->setVisible(true);
+}
+
+bool SaveItemsDialog::alwaysSaveChecked()
+{
+    return m_ui.saveBeforeBuildCheckBox->isChecked();
 }

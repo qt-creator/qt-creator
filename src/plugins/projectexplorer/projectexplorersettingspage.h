@@ -27,51 +27,34 @@
 **
 **************************************************************************/
 
-#ifndef SAVEITEMSDIALOG_H
-#define SAVEITEMSDIALOG_H
+#ifndef PROJECTEXPLORERSETTINGSPAGE_H
+#define PROJECTEXPLORERSETTINGSPAGE_H
 
-#include <QtCore/QMap>
-#include <QtGui/QDialog>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include "ui_projectexplorersettingspage.h"
 
-#include "ui_saveitemsdialog.h"
-
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-QT_END_NAMESPACE
-
-namespace Core {
-
-class IFile;
-class EditorManager;
-
+namespace ProjectExplorer {
 namespace Internal {
 
-class MainWindow;
-
-class SaveItemsDialog : public QDialog
+class ProjectExplorerSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    SaveItemsDialog(QWidget *parent,
-        QList<Core::IFile *> items);
+    ProjectExplorerSettingsPage();
+    ~ProjectExplorerSettingsPage();
 
-    void setMessage(const QString &msg);
-    void setAlwaysSaveMessage(const QString &msg);
-    bool alwaysSaveChecked();
-    QList<Core::IFile *> itemsToSave() const;
+    virtual QString id() const;
+    virtual QString trName() const;
+    virtual QString category() const;
+    virtual QString trCategory() const;
 
-private slots:
-    void collectItemsToSave();
-    void discardAll();
-    void updateSaveButton();
-
+    virtual QWidget *createPage(QWidget *parent);
+    virtual void apply();
+    virtual void finish();
 private:
-    Ui::SaveItemsDialog m_ui;
-    QList<Core::IFile*> m_itemsToSave;
+    ProjectExplorer::Internal::Ui::ProjetExplorerSettingsPageUi m_ui;
 };
 
-} // namespace Internal
-} // namespace Core
+} // Internal
+} // ProjectExplorer
 
-#endif // SAVEITEMSDIALOG_H
+#endif // PROJECTEXPLORERSETTINGSPAGE_H

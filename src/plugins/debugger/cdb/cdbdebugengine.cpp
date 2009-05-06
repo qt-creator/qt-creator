@@ -1186,14 +1186,6 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
                                                  errorMessage);
 }
 
-void CdbDebugEngine::loadSessionData()
-{
-}
-
-void CdbDebugEngine::saveSessionData()
-{
-}
-
 void CdbDebugEngine::reloadDisassembler()
 {
     enum { ContextLines = 40 };

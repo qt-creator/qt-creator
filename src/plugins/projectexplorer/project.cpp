@@ -506,17 +506,17 @@ void Project::setDisplayNameFor(const QString &buildConfiguration, const QString
     emit buildConfigurationDisplayNameChanged(buildConfiguration);
 }
 
-QByteArray Project::predefinedMacros(const QString &fileName) const
+QByteArray Project::predefinedMacros(const QString &) const
 {
     return QByteArray();
 }
 
-QStringList Project::includePaths(const QString &fileName) const
+QStringList Project::includePaths(const QString &) const
 {
     return QStringList();
 }
 
-QStringList Project::frameworkPaths(const QString &fileName) const
+QStringList Project::frameworkPaths(const QString &) const
 {
     return QStringList();
 }

@@ -56,6 +56,7 @@
 #include "session.h"
 #include "sessiondialog.h"
 #include "buildparserfactory.h"
+#include "projectexplorersettingspage.h"
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
@@ -232,6 +233,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // Build parsers
     addAutoReleasedObject(new GccParserFactory);
     addAutoReleasedObject(new MsvcParserFactory);
+
+    // Settings page
+    addAutoReleasedObject(new ProjectExplorerSettingsPage);
 
     // context menus
     Core::ActionContainer *msessionContextMenu =
@@ -619,7 +623,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     }
     // < -- Creator 1.0 compatibility code
 
-    // TODO restore recentProjects
     if (QSettings *s = core->settings()) {
         const QStringList fileNames = s->value("ProjectExplorer/RecentProjects/FileNames").toStringList();
         const QStringList displayNames = s->value("ProjectExplorer/RecentProjects/DisplayNames").toStringList();
@@ -631,7 +634,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         }
     }
 
-
+    if (QSettings *s = core->settings()) {
+        m_projectExplorerSettings.buildBeforeRun = s->value("ProjectExplorer/Settings/BuildBeforeRun", true).toBool();
+        m_projectExplorerSettings.saveBeforeBuild = s->value("ProjectExplorer/Settings/SaveBeforeBuild", false).toBool();
+    }
 
     connect(m_sessionManagerAction, SIGNAL(triggered()), this, SLOT(showSessionManager()));
     connect(m_newAction, SIGNAL(triggered()), this, SLOT(newProject()));
@@ -856,6 +862,9 @@ void ProjectExplorerPlugin::savePersistentSettings()
 
         s->setValue("ProjectExplorer/RecentProjects/FileNames", fileNames);
         s->setValue("ProjectExplorer/RecentProjects/DisplayNames", displayNames);
+
+        s->setValue("ProjectExplorer/Settings/BuildBeforeRun", m_projectExplorerSettings.buildBeforeRun);
+        s->setValue("ProjectExplorer/Settings/SaveBeforeBuild", m_projectExplorerSettings.saveBeforeBuild);
     }
 }
 
@@ -1110,6 +1119,36 @@ void ProjectExplorerPlugin::buildStateChanged(Project * pro)
     updateActions();
 }
 
+void ProjectExplorerPlugin::executeRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration, const QString &runMode)
+{
+    IRunConfigurationRunner *runner = findRunner(runConfiguration, runMode);
+    if (runner) {
+        emit aboutToExecuteProject(runConfiguration->project());
+
+        RunControl *control = runner->run(runConfiguration, runMode);
+        m_outputPane->createNewOutputWindow(control);
+        if (runMode == ProjectExplorer::Constants::RUNMODE)
+            m_outputPane->popup(false);
+        m_outputPane->showTabFor(control);
+
+        connect(control, SIGNAL(addToOutputWindow(RunControl *, const QString &)),
+                this, SLOT(addToApplicationOutputWindow(RunControl *, const QString &)));
+        connect(control, SIGNAL(addToOutputWindowInline(RunControl *, const QString &)),
+                this, SLOT(addToApplicationOutputWindowInline(RunControl *, const QString &)));
+        connect(control, SIGNAL(error(RunControl *, const QString &)),
+                this, SLOT(addErrorToApplicationOutputWindow(RunControl *, const QString &)));
+        connect(control, SIGNAL(finished()),
+                this, SLOT(runControlFinished()));
+
+        if (runMode == ProjectExplorer::Constants::DEBUGMODE)
+            m_debuggingRunControl = control;
+
+        control->start();
+        updateRunAction();
+    }
+
+}
+
 void ProjectExplorerPlugin::buildQueueFinished(bool success)
 {
     if (debug)
@@ -1118,38 +1157,13 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
     updateActions();
 
     if (success && m_delayedRunConfiguration) {
-        IRunConfigurationRunner *runner = findRunner(m_delayedRunConfiguration, m_runMode);
-        if (runner) {
-            emit aboutToExecuteProject(m_delayedRunConfiguration->project());
-
-            RunControl *control = runner->run(m_delayedRunConfiguration, m_runMode);
-            m_outputPane->createNewOutputWindow(control);
-            if (m_runMode == ProjectExplorer::Constants::RUNMODE)
-                m_outputPane->popup(false);
-            m_outputPane->showTabFor(control);
-
-            connect(control, SIGNAL(addToOutputWindow(RunControl *, const QString &)),
-                    this, SLOT(addToApplicationOutputWindow(RunControl *, const QString &)));
-            connect(control, SIGNAL(addToOutputWindowInline(RunControl *, const QString &)),
-                    this, SLOT(addToApplicationOutputWindowInline(RunControl *, const QString &)));
-            connect(control, SIGNAL(error(RunControl *, const QString &)),
-                    this, SLOT(addErrorToApplicationOutputWindow(RunControl *, const QString &)));
-            connect(control, SIGNAL(finished()),
-                    this, SLOT(runControlFinished()));
-
-            if (m_runMode == ProjectExplorer::Constants::DEBUGMODE)
-                m_debuggingRunControl = control;
-
-            control->start();
-            updateRunAction();
-        }
+        executeRunConfiguration(m_delayedRunConfiguration, m_runMode);
+        m_delayedRunConfiguration = QSharedPointer<RunConfiguration>(0);
+        m_runMode = QString::null;
     } else {
         if (m_buildManager->tasksAvailable())
             m_buildManager->showTaskWindow();
     }
-
-    m_delayedRunConfiguration = QSharedPointer<RunConfiguration>(0);
-    m_runMode = QString::null;
 }
 
 void ProjectExplorerPlugin::updateTaskActions()
@@ -1306,10 +1320,18 @@ bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
     }
 
     if (!filesToSave.isEmpty()) {
-        bool cancelled;
-        Core::ICore::instance()->fileManager()->saveModifiedFiles(filesToSave, &cancelled);
-        if (cancelled) {
-            return false;
+        if (m_projectExplorerSettings.saveBeforeBuild) {
+            Core::ICore::instance()->fileManager()->saveModifiedFilesSilently(filesToSave);
+        } else {
+            bool cancelled = false;
+            bool alwaysSave = false;
+            Core::ICore::instance()->fileManager()->saveModifiedFiles(filesToSave, &cancelled, QString::null, "Always save files before build", &alwaysSave);
+            if (cancelled) {
+                return false;
+            }
+            if (alwaysSave) {
+                m_projectExplorerSettings.saveBeforeBuild = true;
+            }
         }
     }
     return true;
@@ -1408,12 +1430,16 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro)
     if (!pro)
         return;
 
-    if (saveModifiedFiles(QList<Project *>() << pro)) {
-        m_runMode = ProjectExplorer::Constants::RUNMODE;
+    if (m_projectExplorerSettings.buildBeforeRun) {
+        if (saveModifiedFiles(QList<Project *>() << pro)) {
+            m_runMode = ProjectExplorer::Constants::RUNMODE;
+            m_delayedRunConfiguration = pro->activeRunConfiguration();
 
-        m_delayedRunConfiguration = pro->activeRunConfiguration();
-        //NBS TODO make the build project step take into account project dependencies
-        m_buildManager->buildProject(pro, pro->activeBuildConfiguration());
+            //NBS TODO make the build project step take into account project dependencies
+            m_buildManager->buildProject(pro, pro->activeBuildConfiguration());
+        }
+    } else {
+        executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
     }
 }
 
@@ -1903,6 +1929,17 @@ void ProjectExplorerPlugin::setSession(QAction *action)
     QString session = action->text();
     if (session != m_session->activeSession())
         m_session->loadSession(session);
+}
+
+
+void ProjectExplorerPlugin::setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes)
+{
+    m_projectExplorerSettings = pes;
+}
+
+Internal::ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings() const
+{
+    return m_projectExplorerSettings;
 }
 
 Q_EXPORT_PLUGIN(ProjectExplorerPlugin)

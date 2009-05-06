@@ -30,11 +30,11 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVector>
 #include <QtCore/QTimer>
-#include <QtCore/private/qobject_p.h>
 
 #include <string>
 #include <list>
 #include <vector>
+#include <set>
 
 #include <stdio.h>
 #include <string.h>
@@ -204,19 +204,36 @@ static int dumpStdStringVector()
     return 0;
 }
 
+static int dumpStdIntSet()
+{
+    std::set<int> test;
+    test.insert(1);
+    test.insert(2);
+    prepareInBuffer("std::set", "local.intset", "local.intset", "int");
+    qDumpObjectData440(2, 42, &test, 1, sizeof(int), sizeof(std::list<int>::allocator_type), 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
+static int dumpStdStringSet()
+{
+    std::set<std::string> test;
+    test.insert("item1");
+    test.insert("item2");
+    prepareInBuffer("std::set", "local.stringset", "local.stringset", "std::string");
+    qDumpObjectData440(2, 42, &test, 1, sizeof(std::string), sizeof(std::list<int>::allocator_type), 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
 
 static int dumpQObject()
 {
+    // Requires the childOffset to be know, but that is not critical
     QTimer t;
-    QObjectPrivate *tp = reinterpret_cast<QObjectPrivate *>(&t);
-#ifdef KNOWS_OFFSET
-    const int childOffset = (char*)&tp->children - (char*)tp;
-#else
-    const int childOffset = 0;
-#endif
-    printf("Qt version %s Child offset: %d\n", QT_VERSION_STR, childOffset);
     prepareInBuffer("QObject", "local.qobject", "local.qobject", "");
-    qDumpObjectData440(2, 42, &t, 1, childOffset, 0, 0, 0);
+    qDumpObjectData440(2, 42, &t, 1, 0, 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -256,6 +273,10 @@ int main(int argc, char *argv[])
             dumpStdIntVector();
         if (!qstrcmp(arg, "vector<string>"))
             dumpStdStringVector();
+        if (!qstrcmp(arg, "set<int>"))
+            dumpStdIntSet();
+        if (!qstrcmp(arg, "set<string>"))
+            dumpStdStringSet();
         if (!qstrcmp(arg, "QObject"))
             dumpQObject();
     }

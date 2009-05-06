@@ -97,7 +97,9 @@ public:
     QList<IFile *> saveModifiedFilesSilently(const QList<IFile *> &files);
     QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
                                      bool *cancelled = 0,
-                                     const QString &message = QString());
+                                     const QString &message = QString(),
+                                     const QString &alwaysSaveMessage = QString::null,
+                                     bool *alwaysSave = 0);
 
 signals:
     void currentFileChanged(const QString &filePath);
@@ -116,7 +118,10 @@ private:
     void updateFileInfo(IFile *file);
 
     QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
-                               bool *cancelled, bool silently, const QString &message);
+                               bool *cancelled, bool silently,
+                               const QString &message,
+                               const QString &alwaysSaveMessage = QString::null,
+                               bool *alwaysSave = 0);
 
     QMap<IFile*, FileInfo> m_managedFiles;
 

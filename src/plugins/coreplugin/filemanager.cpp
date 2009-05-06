@@ -292,9 +292,11 @@ QList<IFile *> FileManager::saveModifiedFilesSilently(const QList<IFile *> &file
     Asks the user whether to save the files listed in \a files . Returns the files that have not been saved.
 */
 QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
-                                                     bool *cancelled, const QString &message)
+                                              bool *cancelled, const QString &message,
+                                              const QString &alwaysSaveMessage,
+                                              bool *alwaysSave)
 {
-    return saveModifiedFiles(files, cancelled, false, message);
+    return saveModifiedFiles(files, cancelled, false, message, alwaysSaveMessage, alwaysSave);
 }
 
 static QMessageBox::StandardButton skipFailedPrompt(QWidget *parent, const QString &fileName)
@@ -307,7 +309,11 @@ static QMessageBox::StandardButton skipFailedPrompt(QWidget *parent, const QStri
 }
 
 QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
-                                                     bool *cancelled, bool silently, const QString &message)
+                                              bool *cancelled,
+                                              bool silently,
+                                              const QString &message,
+                                              const QString &alwaysSaveMessage,
+                                              bool *alwaysSave)
 {
     if (cancelled)
         (*cancelled) = false;
@@ -338,12 +344,18 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
             SaveItemsDialog dia(m_mainWindow, modifiedFiles);
             if (!message.isEmpty())
                 dia.setMessage(message);
+            if (!alwaysSaveMessage.isNull())
+                dia.setAlwaysSaveMessage(alwaysSaveMessage);
             if (dia.exec() != QDialog::Accepted) {
                 if (cancelled)
                     (*cancelled) = true;
+                if (alwaysSave)
+                    *alwaysSave = dia.alwaysSaveChecked();
                 notSaved = modifiedFiles;
                 return notSaved;
             }
+            if (alwaysSave)
+                *alwaysSave = dia.alwaysSaveChecked();
             filesToSave = dia.itemsToSave();
         }
 
