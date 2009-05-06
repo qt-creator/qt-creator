@@ -46,6 +46,7 @@ macx {
     IDE_LIBEXEC_PATH = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/Resources
     IDE_DATA_PATH    = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/Resources
     contains(QT_CONFIG, ppc):CONFIG += ppc x86
+    copydata = 1
 } else {
     win32 {
         IDE_APP_TARGET   = qtcreator
@@ -57,6 +58,7 @@ macx {
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH/plugins
     IDE_LIBEXEC_PATH = $$IDE_APP_PATH # FIXME
     IDE_DATA_PATH    = $$IDE_BUILD_TREE/share/qtcreator
+    !isEqual(IDE_SOURCE_TREE, $$IDE_BUILD_TREE):copydata = 1
 }
 
 INCLUDEPATH += \

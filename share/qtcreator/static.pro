@@ -37,7 +37,7 @@ DATA_DIRS = \
     schemes \
     gdbmacros
 
-macx|!equals(_PRO_FILE_PWD_, $$OUT_PWD) {
+!isEmpty(copydata) {
 
     for(data_dir, DATA_DIRS) {
         files = $$files($$PWD/$$data_dir/*.*, true)
