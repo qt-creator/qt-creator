@@ -311,11 +311,11 @@ void GdbEngine::handleResponse(const QByteArray &buff)
     qDebug() // << "#### start response handling #### "
         << currentTime()
         << lastTime.msecsTo(QTime::currentTime()) << "ms,"
-        << "buf: " << buff.left(1500) << "..."
-        //<< "buf: " << buff
+        << "buf:" << buff.left(1500) << "..."
+        //<< "buf:" << buff
         << "size:" << buff.size();
 #else
-    //qDebug() << "buf: " << buff;
+    //qDebug() << "buf:" << buff;
 #endif
 
     lastTime = QTime::currentTime();
@@ -335,7 +335,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
     if (from != inner) {
         token = QByteArray(from, inner - from).toInt();
         from = inner;
-        //qDebug() << "found token " << token;
+        //qDebug() << "found token" << token;
     }
 
     // next char decides kind of record
@@ -366,7 +366,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 ++from; // skip ','
                 data.parseResultOrValue(from, to);
                 if (data.isValid()) {
-                    //qDebug() << "parsed response: " << data.toString();
+                    //qDebug() << "parsed response:" << data.toString();
                     record.m_children += data;
                     record.m_type = GdbMi::Tuple;
                 }
@@ -423,7 +423,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // loaded_addr="0x7f000", slide="0x7f000", prefix=""}}
             #endif
             } else {
-                qDebug() << "IGNORED ASYNC OUTPUT "
+                qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << record.toString();
             }
             break;
@@ -628,10 +628,10 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
 
     if (flags & RebuildModel) {
         ++m_pendingRequests;
-        PENDING_DEBUG("   CALLBACK " << callbackName << " INCREMENTS PENDING TO: "
+        PENDING_DEBUG("   CALLBACK" << callbackName << "INCREMENTS PENDING TO:"
             << m_pendingRequests << command);
     } else {
-        PENDING_DEBUG("   UNKNOWN CALLBACK " << callbackName << " LEAVES PENDING AT: "
+        PENDING_DEBUG("   UNKNOWN CALLBACK" << callbackName << "LEAVES PENDING AT:"
             << m_pendingRequests << command);
     }
 
@@ -646,7 +646,7 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
             && q->status() != DebuggerProcessStartingUp) {
         // queue the commands that we cannot send at once
         QTC_ASSERT(q->status() == DebuggerInferiorRunning,
-            qDebug() << "STATUS: " << q->status());
+            qDebug() << "STATUS:" << q->status());
         q->showStatusMessage(tr("Stopping temporarily."));
         debugMessage(_("QUEUING COMMAND ") + cmd.command);
         m_commandsToRunOnTemporaryBreak.append(cmd);
@@ -672,8 +672,8 @@ void GdbEngine::flushCommand(GdbCommand &cmd)
 
 void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 {
-    //qDebug() << "TOKEN: " << record.token
-    //    << " ACCEPTABLE: " << m_oldestAcceptableToken;
+    //qDebug() << "TOKEN:" << record.token
+    //    << " ACCEPTABLE:" << m_oldestAcceptableToken;
     //qDebug() << "";
     //qDebug() << "\nRESULT" << record.token << record.toString();
 
@@ -684,15 +684,15 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
     GdbCommand cmd = m_cookieForToken.take(token);
 
     if (record.token < m_oldestAcceptableToken && (cmd.flags & Discardable)) {
-        //qDebug() << "### SKIPPING OLD RESULT " << record.toString();
+        //qDebug() << "### SKIPPING OLD RESULT" << record.toString();
         //QMessageBox::information(m_mainWindow, tr("Skipped"), "xxx");
         return;
     }
 
 #if 0
-    qDebug() << "# handleOutput, "
-        << "cmd type: " << cmd.type
-        << "cmd synchronized: " << cmd.synchronized
+    qDebug() << "# handleOutput,"
+        << "cmd type:" << cmd.type
+        << " cmd synchronized:" << cmd.synchronized
         << "\n record: " << record.toString();
 #endif
 
@@ -785,7 +785,7 @@ void GdbEngine::handleQuerySources(const GdbResultRecord &record, const QVariant
             full = QDir::cleanPath(full);
             #endif
             if (fullName.isValid() && QFileInfo(full).isReadable()) {
-                //qDebug() << "STORING 2: " << fileName << full;
+                //qDebug() << "STORING 2:" << fileName << full;
                 m_shortToFullName[fileName] = full;
                 m_fullToShortName[full] = fileName;
             }
@@ -874,8 +874,8 @@ void GdbEngine::handleExecRunToFunction(const GdbResultRecord &record, const QVa
     GdbMi frame = record.data.findChild("frame");
     QString file = QString::fromLocal8Bit(frame.findChild("fullname").data());
     int line = frame.findChild("line").data().toInt();
-    qDebug() << "HIT: " << file << line << " IN " << frame.toString()
-        << " -- " << record.toString();
+    qDebug() << "HIT:" << file << line << "IN" << frame.toString()
+        << "--" << record.toString();
     q->gotoLocation(file, line, true);
 }
 
@@ -990,7 +990,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(q->status() == DebuggerInferiorStopRequested,
-            qDebug() << "STATUS: " << q->status())
+            qDebug() << "STATUS:" << q->status())
         qq->notifyInferiorStopped();
         q->showStatusMessage(tr("Temporarily stopped."));
         // FIXME: racy
@@ -1125,8 +1125,8 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     GdbMi frame = data.findChild("frame");
     QString file = QString::fromLocal8Bit(frame.findChild("fullname").data());
     int line = frame.findChild("line").data().toInt();
-    qDebug() << "HIT: " << file << line << " IN " << frame.toString()
-        << " -- " << data.toString();
+    qDebug() << "HIT:" << file << line << "IN" << frame.toString()
+        << "--" << data.toString();
     q->gotoLocation(file, line, true);
 #endif
 }
@@ -1187,7 +1187,7 @@ void GdbEngine::handleShowVersion(const GdbResultRecord &response, const QVarian
 {
     //qDebug () << "VERSION 2:" << response.data.findChild("consolestreamoutput").data();
     //qDebug () << "VERSION:" << response.toString();
-    debugMessage(_("VERSION:" + response.toString()));
+    debugMessage(_("VERSION: " + response.toString()));
     if (response.resultClass == GdbResultDone) {
         m_gdbVersion = 100;
         m_gdbBuildVersion = -1;
@@ -1322,7 +1322,7 @@ void GdbEngine::exitDebugger()
         if (q->status() != DebuggerInferiorStopped
             && q->status() != DebuggerProcessStartingUp) {
             QTC_ASSERT(q->status() == DebuggerInferiorRunning,
-                qDebug() << "STATUS ON EXITDEBUGGER: " << q->status());
+                qDebug() << "STATUS ON EXITDEBUGGER:" << q->status());
             interruptInferior();
         }
         if (q->startMode() == AttachExternal || q->startMode() == StartRemote)
@@ -1405,13 +1405,13 @@ bool GdbEngine::startDebugger()
     }
 
     #if 0
-    qDebug() << "Command: " << q->settings()->m_gdbCmd;
-    qDebug() << "WorkingDirectory: " << m_gdbProc.workingDirectory();
-    qDebug() << "ScriptFile: " << q->settings()->m_scriptFile;
-    qDebug() << "Environment: " << m_gdbProc.environment();
-    qDebug() << "Arguments: " << gdbArgs;
-    qDebug() << "BuildDir: " << q->m_buildDir;
-    qDebug() << "ExeFile: " << q->m_executable;
+    qDebug() << "Command:" << q->settings()->m_gdbCmd;
+    qDebug() << "WorkingDirectory:" << m_gdbProc.workingDirectory();
+    qDebug() << "ScriptFile:" << q->settings()->m_scriptFile;
+    qDebug() << "Environment:" << m_gdbProc.environment();
+    qDebug() << "Arguments:" << gdbArgs;
+    qDebug() << "BuildDir:" << q->m_buildDir;
+    qDebug() << "ExeFile:" << q->m_executable;
     #endif
 
     QString loc = theDebuggerStringSetting(GdbLocation);
@@ -1749,7 +1749,7 @@ void GdbEngine::setTokenBarrier()
 {
     foreach (const GdbCommand &cookie, m_cookieForToken) {
         QTC_ASSERT(!cookie.callback || (cookie.flags & Discardable),
-            qDebug() << "CMD: " << cookie.command << "CALLBACK: " << cookie.callbackName;
+            qDebug() << "CMD:" << cookie.command << " CALLBACK:" << cookie.callbackName;
             return
         );
     }
@@ -1916,10 +1916,10 @@ void GdbEngine::handleBreakList(const GdbResultRecord &record, const QVariant &)
 
 void GdbEngine::handleBreakList(const GdbMi &table)
 {
-    //qDebug() << "GdbEngine::handleOutput: table: "
+    //qDebug() << "GdbEngine::handleOutput: table:"
     //  << table.toString();
     GdbMi body = table.findChild("body");
-    //qDebug() << "GdbEngine::handleOutput: body: "
+    //qDebug() << "GdbEngine::handleOutput: body:"
     //  << body.toString();
     QList<GdbMi> bkpts;
     if (body.isValid()) {
@@ -1929,15 +1929,15 @@ void GdbEngine::handleBreakList(const GdbMi &table)
         // Mac
         bkpts = table.children();
         // remove the 'hdr' and artificial items
-        //qDebug() << "FOUND " << bkpts.size() << " BREAKPOINTS";
+        //qDebug() << "FOUND" << bkpts.size() << "BREAKPOINTS";
         for (int i = bkpts.size(); --i >= 0; ) {
             int num = bkpts.at(i).findChild("number").data().toInt();
             if (num <= 0) {
-                //qDebug() << "REMOVING " << i << bkpts.at(i).toString();
+                //qDebug() << "REMOVING" << i << bkpts.at(i).toString();
                 bkpts.removeAt(i);
             }
         }
-        //qDebug() << "LEFT " << bkpts.size() << " BREAKPOINTS";
+        //qDebug() << "LEFT" << bkpts.size() << "BREAKPOINTS";
     }
 
     BreakHandler *handler = qq->breakHandler();
@@ -1948,7 +1948,7 @@ void GdbEngine::handleBreakList(const GdbMi &table)
         if (found != -1)
             breakpointDataFromOutput(handler->at(found), bkpts.at(index));
         //else
-            //qDebug() << "CANNOT HANDLE RESPONSE " << bkpts.at(index).toString();
+            //qDebug() << "CANNOT HANDLE RESPONSE" << bkpts.at(index).toString();
     }
 
     attemptBreakpointSynchronization();
@@ -1993,7 +1993,7 @@ void GdbEngine::handleBreakCondition(const GdbResultRecord &record, const QVaria
         // we just assume it was successful. otherwise we had to parse
         // the output stream data
         BreakpointData *data = handler->at(index);
-        //qDebug() << "HANDLE BREAK CONDITION " << index << data->condition;
+        //qDebug() << "HANDLE BREAK CONDITION" << index << data->condition;
         data->bpCondition = data->condition;
         attemptBreakpointSynchronization();
         handler->updateMarkers();
@@ -2003,7 +2003,7 @@ void GdbEngine::handleBreakCondition(const GdbResultRecord &record, const QVaria
         if (1 || msg.startsWith("Error parsing breakpoint condition. "
                 " Will try again when we hit the breakpoint.")) {
             BreakpointData *data = handler->at(index);
-            //qDebug() << "ERROR BREAK CONDITION " << index << data->condition;
+            //qDebug() << "ERROR BREAK CONDITION" << index << data->condition;
             data->bpCondition = data->condition;
             attemptBreakpointSynchronization();
             handler->updateMarkers();
@@ -2016,12 +2016,12 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, const QVariant 
     int index = cookie.toInt();
     BreakHandler *handler = qq->breakHandler();
     if (record.resultClass == GdbResultDone) {
-        //qDebug() << "HANDLE BREAK INSERT " << index;
+        //qDebug() << "HANDLE BREAK INSERT" << index;
 //#ifdef Q_OS_MAC
         // interesting only on Mac?
         BreakpointData *data = handler->at(index);
         GdbMi bkpt = record.data.findChild("bkpt");
-        //qDebug() << "BKPT: " << bkpt.toString() << " DATA" << data->toToolTip();
+        //qDebug() << "BKPT:" << bkpt.toString() << " DATA:" << data->toToolTip();
         breakpointDataFromOutput(data, bkpt);
 //#endif
         attemptBreakpointSynchronization();
@@ -2428,7 +2428,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVari
     const GdbMi stack = record.data.findChild("stack");
     stack.toString();
     if (!stack.isValid()) {
-        qDebug() << "FIXME: stack: " << stack.toString();
+        qDebug() << "FIXME: stack:" << stack.toString();
         return;
     }
 
@@ -2436,7 +2436,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVari
 
     int n = stack.childCount();
     for (int i = 0; i != n; ++i) {
-        //qDebug() << "HANDLING FRAME: " << stack.childAt(i).toString();
+        //qDebug() << "HANDLING FRAME:" << stack.childAt(i).toString();
         const GdbMi frameMi = stack.childAt(i);
         StackFrame frame(i);
         QStringList files;
@@ -2483,7 +2483,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVari
         if (frame.isUsable())
             q->gotoLocation(frame.file, frame.line, true);
         else
-            qDebug() << "FULL NAME NOT USABLE 0: " << frame.file << topFrame;
+            qDebug() << "FULL NAME NOT USABLE 0:" << frame.file << topFrame;
     }
 }
 
@@ -2509,7 +2509,7 @@ void GdbEngine::activateFrame(int frameIndex)
 
     StackHandler *stackHandler = qq->stackHandler();
     int oldIndex = stackHandler->currentIndex();
-    //qDebug() << "ACTIVATE FRAME: " << frameIndex << oldIndex
+    //qDebug() << "ACTIVATE FRAME:" << frameIndex << oldIndex
     //    << stackHandler->currentIndex();
 
     if (frameIndex == stackHandler->stackSize()) {
@@ -2535,7 +2535,7 @@ void GdbEngine::activateFrame(int frameIndex)
     if (frame.isUsable())
         q->gotoLocation(frame.file, frame.line, true);
     else
-        qDebug() << "FULL NAME NOT USABLE: " << frame.file;
+        qDebug() << "FULL NAME NOT USABLE:" << frame.file;
 }
 
 void GdbEngine::handleStackListThreads(const GdbResultRecord &record, const QVariant &cookie)
@@ -2550,7 +2550,7 @@ void GdbEngine::handleStackListThreads(const GdbResultRecord &record, const QVar
         thread.id = items.at(index).data().toInt();
         threads.append(thread);
         if (thread.id == id) {
-            //qDebug() << "SETTING INDEX TO: " << index << " ID: "<< id << "RECOD: "<< record.toString();
+            //qDebug() << "SETTING INDEX TO:" << index << " ID:" << id << " RECOD:" << record.toString();
             currentIndex = index;
         }
     }
@@ -2719,7 +2719,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 /*
     for (int i = 0; i != m_currentLocals.childCount(); ++i) {
         if (m_currentLocals.childAt(i).exp == "this") {
-            qDebug() << "THIS IN ROW " << i;
+            qDebug() << "THIS IN ROW" << i;
             if (m_currentLocals.childAt(i).type.startsWith(exp)) {
                 QToolTip::showText(m_toolTipPos,
                     tr("%1: type of current 'this'").arg(exp));
@@ -2931,7 +2931,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
 {
     WatchData data = data0;
     #if DEBUG_SUBITEM
-    qDebug() << "UPDATE SUBITEM: " << data.toString();
+    qDebug() << "UPDATE SUBITEM:" << data.toString();
     #endif
     QTC_ASSERT(data.isValid(), return);
 
@@ -2942,7 +2942,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         if (!data.variable.isEmpty()) {
             // Update: It does so for out-of-scope watchers.
             #if 1
-            qDebug() << "FIXME: GdbEngine::updateSubItem: "
+            qDebug() << "FIXME: GdbEngine::updateSubItem:"
                  << data.toString() << "should not happen";
             #else
             data.setType("<out of scope>");
@@ -3073,7 +3073,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         return;
     }
 
-    qDebug() << "FIXME: UPDATE SUBITEM: " << data.toString();
+    qDebug() << "FIXME: UPDATE SUBITEM:" << data.toString();
     QTC_ASSERT(false, return);
 }
 
@@ -3143,7 +3143,7 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
     out = out.left(out.lastIndexOf('"'));
     out.replace('\\', ""); // optimization: dumper output never needs real C unquoting
     out = "dummy={" + out + "}";
-    //qDebug() << "OUTPUT: " << out;
+    //qDebug() << "OUTPUT:" << out;
 
     GdbMi contents;
     contents.fromString(out);
@@ -3156,12 +3156,12 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
         qtv = (qtversion.childAt(0).data().toInt() << 16)
                     + (qtversion.childAt(1).data().toInt() << 8)
                     + qtversion.childAt(2).data().toInt();
-        //qDebug() << "FOUND QT VERSION: " << qtversion.toString() << m_qtVersion;
+        //qDebug() << "FOUND QT VERSION:" << qtversion.toString() << m_qtVersion;
     }
     m_dumperHelper.setQtVersion(qtv);
 
-    //qDebug() << "CONTENTS: " << contents.toString();
-    //qDebug() << "SIMPLE DUMPERS: " << simple.toString();
+    //qDebug() << "CONTENTS:" << contents.toString();
+    //qDebug() << "SIMPLE DUMPERS:" << simple.toString();
 
     QStringList availableSimpleDebuggingHelpers;
     foreach (const GdbMi &item, simple.children())
@@ -3185,7 +3185,7 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
             .arg(m_dumperHelper.typeCount()));
     }
     //qDebug() << m_dumperHelper.toString(true);
-    //qDebug() << "DATA DUMPERS AVAILABLE" << m_availableSimpleDebuggingHelpers;
+    //qDebug() << m_availableSimpleDebuggingHelpers << "DATA DUMPERS AVAILABLE";
 }
 
 void GdbEngine::sendWatchParameters(const QByteArray &params0)
@@ -3233,7 +3233,7 @@ void GdbEngine::handleVarCreate(const GdbResultRecord &record,
     // happens e.g. when we already issued a var-evaluate command
     if (!data.isValid())
         return;
-    //qDebug() << "HANDLE VARIABLE CREATION: " << data.toString();
+    //qDebug() << "HANDLE VARIABLE CREATION:" << data.toString();
     if (record.resultClass == GdbResultDone) {
         data.variable = data.iname;
         setWatchDataType(data, record.data.findChild("type"));
@@ -3280,18 +3280,18 @@ void GdbEngine::handleEvaluateExpression(const GdbResultRecord &record,
     } else if (record.resultClass == GdbResultError) {
         data.setError(QString::fromLocal8Bit(record.data.findChild("msg").data()));
     }
-    //qDebug() << "HANDLE EVALUATE EXPRESSION: " << data.toString();
+    //qDebug() << "HANDLE EVALUATE EXPRESSION:" << data.toString();
     insertData(data);
     //updateWatchModel2();
 }
 
 void GdbEngine::handleDebuggingHelperSetup(const GdbResultRecord &record, const QVariant &)
 {
-    //qDebug() << "CUSTOM SETUP RESULT: " << record.toString();
+    //qDebug() << "CUSTOM SETUP RESULT:" << record.toString();
     if (record.resultClass == GdbResultDone) {
     } else if (record.resultClass == GdbResultError) {
         QString msg = QString::fromLocal8Bit(record.data.findChild("msg").data());
-        //qDebug() << "CUSTOM DUMPER SETUP ERROR MESSAGE: " << msg;
+        //qDebug() << "CUSTOM DUMPER SETUP ERROR MESSAGE:" << msg;
         q->showStatusMessage(tr("Custom dumper setup: %1").arg(msg), 10000);
     }
 }
@@ -3308,7 +3308,7 @@ void GdbEngine::handleDebuggingHelperValue1(const GdbResultRecord &record,
         // in transmission
         //--m_pendingRequests;
         QString msg = QString::fromLocal8Bit(record.data.findChild("msg").data());
-        //qDebug() << "CUSTOM DUMPER ERROR MESSAGE: " << msg;
+        //qDebug() << "CUSTOM DUMPER ERROR MESSAGE:" << msg;
 #ifdef QT_DEBUG
         // Make debugging of dumpers easier
         if (theDebuggerBoolSetting(DebugDebuggingHelpers)
@@ -3333,10 +3333,10 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
 {
     WatchData data = cookie.value<WatchData>();
     QTC_ASSERT(data.isValid(), return);
-    //qDebug() << "CUSTOM VALUE RESULT: " << record.toString();
-    //qDebug() << "FOR DATA: " << data.toString() << record.resultClass;
+    //qDebug() << "CUSTOM VALUE RESULT:" << record.toString();
+    //qDebug() << "FOR DATA:" << data.toString() << record.resultClass;
     if (record.resultClass != GdbResultDone) {
-        qDebug() << "STRANGE CUSTOM DUMPER RESULT DATA: " << data.toString();
+        qDebug() << "STRANGE CUSTOM DUMPER RESULT DATA:" << data.toString();
         return;
     }
 
@@ -3392,7 +3392,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
     WatchData childtemplate;
     setWatchDataType(childtemplate, contents.findChild("childtype"));
     setWatchDataChildCount(childtemplate, contents.findChild("childnumchild"));
-    //qDebug() << "DATA: " << data.toString();
+    //qDebug() << "DATA:" << data.toString();
     insertData(data);
     foreach (GdbMi item, children.children()) {
         WatchData data1 = childtemplate;
@@ -3436,8 +3436,8 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
         while (out.endsWith(' ') || out.endsWith('\n'))
             out.chop(1);
         QList<QByteArray> list = out.split(' ');
-        //qDebug() << "RECEIVED" << record.toString() << " FOR " << data0.toString()
-        //    <<  " STREAM: " << out;
+        //qDebug() << "RECEIVED" << record.toString() << "FOR" << data0.toString()
+        //    <<  " STREAM:" << out;
         if (list.isEmpty()) {
             //: Value for variable
             data.setValue(tr("<unavailable>"));
@@ -3605,7 +3605,7 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
             if (isPointerType(data.type) || data.name == __("this"))
                 data.setChildCount(1);
             if (0 && m_varToType.contains(data.framekey)) {
-                qDebug() << "RE-USING " << m_varToType.value(data.framekey);
+                qDebug() << "RE-USING" << m_varToType.value(data.framekey);
                 data.setType(m_varToType.value(data.framekey));
             }
             insertData(data);
@@ -3618,7 +3618,7 @@ void GdbEngine::insertData(const WatchData &data0)
     //qDebug() << "INSERT DATA" << data0.toString();
     WatchData data = data0;
     if (data.value.startsWith(__("mi_cmd_var_create:"))) {
-        qDebug() << "BOGUS VALUE: " << data.toString();
+        qDebug() << "BOGUS VALUE:" << data.toString();
         return;
     }
     qq->watchHandler()->insertData(data);
@@ -3647,16 +3647,16 @@ void GdbEngine::handleTypeContents(const QString &output)
             className = head.left(posColon - 1);
             tip = _("class ") + head + _(" { ... }");
         }
-        //qDebug() << "posColon: " << posColon;
-        //qDebug() << "posBrace: " << posBrace;
-        //qDebug() << "head: " << head;
+        //qDebug() << "posColon:" << posColon;
+        //qDebug() << "posBrace:" << posBrace;
+        //qDebug() << "head:" << head;
     } else {
         className = output.mid(7);
         tip = className;
     }
-    //qDebug() << "output: " << output.left(100) + "...";
-    //qDebug() << "className: " << className;
-    //qDebug() << "tip: " << tip;
+    //qDebug() << "output:" << output.left(100) + "...";
+    //qDebug() << "className:" << className;
+    //qDebug() << "tip:" << tip;
     //m_toolTip.type = className;
     m_toolTip.type.clear();
     m_toolTip.value = tip;
@@ -3666,7 +3666,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
     const WatchData &parent)
 {
     //qDebug() <<  "VAR_LIST_CHILDREN: PARENT 2" << parent.toString();
-    //qDebug() <<  "VAR_LIST_CHILDREN: APPENDEE " << data.toString();
+    //qDebug() <<  "VAR_LIST_CHILDREN: APPENDEE" << data.toString();
     QByteArray exp = item.findChild("exp").data();
     QByteArray name = item.findChild("name").data();
     if (isAccessSpecifier(_(exp))) {
@@ -3758,7 +3758,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         }
 
         //qDebug() <<  "VAR_LIST_CHILDREN: PARENT 3" << parent.toString();
-        //qDebug() <<  "VAR_LIST_CHILDREN: APPENDEE " << data.toString();
+        //qDebug() <<  "VAR_LIST_CHILDREN: APPENDEE" << data.toString();
         insertData(data);
     }
 }
@@ -3771,7 +3771,7 @@ void GdbEngine::handleVarListChildren(const GdbResultRecord &record,
     if (!data.isValid())
         return;
     if (record.resultClass == GdbResultDone) {
-        //qDebug() <<  "VAR_LIST_CHILDREN: PARENT " << data.toString();
+        //qDebug() <<  "VAR_LIST_CHILDREN: PARENT" << data.toString();
         GdbMi children = record.data.findChild("children");
 
         foreach (const GdbMi &child, children.children())
@@ -3807,7 +3807,7 @@ void GdbEngine::handleToolTip(const GdbResultRecord &record,
         const QVariant &cookie)
 {
     const QByteArray &what = cookie.toByteArray();
-    //qDebug() << "HANDLE TOOLTIP: " << what << m_toolTip.toString();
+    //qDebug() << "HANDLE TOOLTIP:" << what << m_toolTip.toString();
     //    << "record: " << record.toString();
     if (record.resultClass == GdbResultError) {
         if (what == "create") {
@@ -3863,7 +3863,7 @@ void GdbEngine::handleChangedItem(QStandardItem *item)
     QModelIndex index = item->index().sibling(item->index().row(), 0);
     //WatchData data = m_currentSet.takeData(iname);
     //m_editedData = inameFromItem(m_model.itemFromIndex(index)).exp;
-    //qDebug() << "HANDLE CHANGED EXPRESSION: " << m_editedData;
+    //qDebug() << "HANDLE CHANGED EXPRESSION:" << m_editedData;
 }
 #endif
 
@@ -3894,7 +3894,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
     if (!qq->qtDumperLibraryEnabled())
         return;
     const QString lib = qq->qtDumperLibraryName();
-    //qDebug() << "DUMPERLIB: " << lib;
+    //qDebug() << "DUMPERLIB:" << lib;
     // @TODO: same in CDB engine...
     const QFileInfo fi(lib);
     if (!fi.exists()) {
