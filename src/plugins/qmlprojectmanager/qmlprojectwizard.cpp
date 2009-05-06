@@ -264,7 +264,7 @@ bool QmlProjectWizard::isValidDir(const QFileInfo &fileInfo) const
 }
 
 Core::GeneratedFiles QmlProjectWizard::generateFiles(const QWizard *w,
-						     QString *errorMessage) const
+                                                     QString *errorMessage) const
 {
     Q_UNUSED(errorMessage)
 
@@ -273,7 +273,6 @@ Core::GeneratedFiles QmlProjectWizard::generateFiles(const QWizard *w,
     const QDir dir(projectPath);
     const QString projectName = wizard->projectName();
     const QString creatorFileName = QFileInfo(dir, projectName + QLatin1String(".qmlproject")).absoluteFilePath();
-    const QString filesFileName = QFileInfo(dir, projectName + QLatin1String(".files")).absoluteFilePath();
 
     Core::ICore *core = Core::ICore::instance();
     Core::MimeDatabase *mimeDatabase = core->mimeDatabase();
@@ -284,13 +283,9 @@ Core::GeneratedFiles QmlProjectWizard::generateFiles(const QWizard *w,
     getFileList(dir, projectPath, suffixes, &sources, &paths);
 
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
-    generatedCreatorFile.setContents(QLatin1String("[General]\n"));
-
-    Core::GeneratedFile generatedFilesFile(filesFileName);
-    generatedFilesFile.setContents(sources.join(QLatin1String("\n")));
+    generatedCreatorFile.setContents(sources.join(QLatin1String("\n")));
 
     Core::GeneratedFiles files;
-    files.append(generatedFilesFile);
     files.append(generatedCreatorFile);
 
     return files;

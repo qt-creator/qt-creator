@@ -52,8 +52,6 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager,
       m_actionHandler(handler)
 {
     m_mimeTypes.append(QLatin1String(Constants::FILES_MIMETYPE));
-    m_mimeTypes.append(QLatin1String(Constants::INCLUDES_MIMETYPE));
-    m_mimeTypes.append(QLatin1String(Constants::CONFIG_MIMETYPE));
 }
 
 ProjectFilesFactory::~ProjectFilesFactory()

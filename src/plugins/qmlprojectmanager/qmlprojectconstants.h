@@ -34,7 +34,7 @@ namespace QmlProjectManager {
 namespace Constants {
 
 const char *const PROJECTCONTEXT     = "QmlProject.ProjectContext";
-const char *const QMLMIMETYPE    = "text/x-qml-project"; // ### FIXME
+const char *const QMLMIMETYPE        = "text/x-qml-project"; // ### FIXME
 const char *const MAKESTEP           = "QmlProjectManager.MakeStep";
 
 // contexts
@@ -43,14 +43,8 @@ const char *const C_FILESEDITOR      = ".files Editor";
 // kinds
 const char *const PROJECT_KIND       = "Qml";
 
-const char *const FILES_EDITOR       = ".files Editor";
-const char *const FILES_MIMETYPE     = "application/vnd.nokia.qt.qml.files";
-
-const char *const INCLUDES_EDITOR    = ".includes Editor";
-const char *const INCLUDES_MIMETYPE  = "application/vnd.nokia.qt.qml.includes";
-
-const char *const CONFIG_EDITOR      = ".includes Editor";
-const char *const CONFIG_MIMETYPE    = "application/vnd.nokia.qt.qml.config";
+const char *const FILES_EDITOR       = ".qmlproject Editor";
+const char *const FILES_MIMETYPE     = QMLMIMETYPE;
 
 } // namespace Constants
 } // namespace QmlProjectManager

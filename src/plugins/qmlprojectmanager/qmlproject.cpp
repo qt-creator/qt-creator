@@ -114,10 +114,7 @@ QmlProject::QmlProject(Manager *manager, const QString &fileName)
       m_fileName(fileName)
 {
     QFileInfo fileInfo(m_fileName);
-    QDir dir = fileInfo.dir();
-
-    m_projectName      = fileInfo.completeBaseName();
-    m_filesFileName    = QFileInfo(dir, m_projectName + QLatin1String(".files")).absoluteFilePath();
+    m_projectName = fileInfo.completeBaseName();
 
     m_file = new QmlProjectFile(this, fileName);
     m_rootNode = new QmlProjectNode(this, m_file);
@@ -136,7 +133,7 @@ QmlProject::~QmlProject()
 }
 
 QString QmlProject::filesFileName() const
-{ return m_filesFileName; }
+{ return m_fileName; }
 
 static QStringList readLines(const QString &absoluteFileName)
 {

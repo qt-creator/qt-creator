@@ -6,11 +6,4 @@
     <comment>Qml Project file</comment>
     <glob pattern="*.qmlproject"/>
   </mime-type>
-
-  <mime-type type="application/vnd.nokia.qt.qml.files">
-    <sub-class-of type="text/plain"/>
-    <comment>Qml Project Files</comment>
-    <glob pattern="*.files"/>
-  </mime-type>
-
 </mime-info>
