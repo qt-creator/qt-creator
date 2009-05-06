@@ -392,7 +392,7 @@ CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent, const QSharedPointer<Cdb
     IDebuggerEngine(parent),
     m_d(new CdbDebugEnginePrivate(parent, options, this))
 {
-    // m_d->m_consoleStubProc.setDebug(true);
+    m_d->m_consoleStubProc.setMode(Core::Utils::ConsoleProcess::Suspend);
     connect(&m_d->m_consoleStubProc, SIGNAL(processError(QString)), this, SLOT(slotConsoleStubError(QString)));
     connect(&m_d->m_consoleStubProc, SIGNAL(processStarted()), this, SLOT(slotConsoleStubStarted()));
     connect(&m_d->m_consoleStubProc, SIGNAL(wrapperStopped()), this, SLOT(slotConsoleStubTerminated()));
@@ -469,10 +469,12 @@ bool CdbDebugEngine::startDebugger()
     m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
     QString errorMessage;
     bool rc = false;
+    bool needWatchTimer = false;
     m_d->clearForRun();
     switch (mode) {
     case AttachExternal:
         rc = startAttachDebugger(m_d->m_debuggerManager->m_attachedPID, &errorMessage);
+        needWatchTimer = true;
         break;
     case StartInternal:
     case StartExternal:
@@ -484,7 +486,9 @@ bool CdbDebugEngine::startDebugger()
             rc = m_d->m_consoleStubProc.start(m_d->m_debuggerManager->m_executable, m_d->m_debuggerManager->m_processArgs);
             if (!rc)
                 errorMessage = tr("The console stub process was unable to start '%1'.").arg(m_d->m_debuggerManager->m_executable);
+            // continues in slotConsoleStubStarted()...
         } else {
+            needWatchTimer = true;
             rc = startDebuggerWithExecutable(mode, &errorMessage);
         }
         break;
@@ -494,7 +498,8 @@ bool CdbDebugEngine::startDebugger()
     }
     if (rc) {
         m_d->m_debuggerManager->showStatusMessage(tr("Debugger Running"), -1);
-        startWatchTimer();
+        if (needWatchTimer)
+            startWatchTimer();
     } else {
         qWarning("%s\n", qPrintable(errorMessage));
     }
@@ -503,12 +508,12 @@ bool CdbDebugEngine::startDebugger()
 
 bool CdbDebugEngine::startAttachDebugger(qint64 pid, QString *errorMessage)
 {
-    // Need to aatrach invasively, otherwise, no notification signals
+    // Need to attrach invasively, otherwise, no notification signals
     // for for CreateProcess/ExitProcess occur.
-    const HRESULT hr = m_d->m_cif.debugClient->AttachProcess(NULL, pid,
-                                                          DEBUG_ATTACH_INVASIVE_RESUME_PROCESS);
+    const ULONG flags = DEBUG_ATTACH_INVASIVE_RESUME_PROCESS;
+    const HRESULT hr = m_d->m_cif.debugClient->AttachProcess(NULL, pid, flags);
     if (debugCDB)
-        qDebug() << "Attaching to " << pid << " returns " << hr;
+        qDebug() << "Attaching to " << pid << " returns " << hr << executionStatusString(m_d->m_cif.debugControl);
     if (FAILED(hr)) {
         *errorMessage = tr("AttachProcess failed for pid %1: %2").arg(pid).arg(msgDebugEngineComResult(hr));
         return false;
@@ -560,7 +565,6 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
         m_d->m_mode = sm;
     }
     m_d->m_debuggerManagerAccess->notifyInferiorRunning();
-
     return true;
 }
 
@@ -1318,7 +1322,9 @@ void CdbDebugEngine::slotConsoleStubStarted()
     QString errorMessage;
     if (startAttachDebugger(appPid, &errorMessage)) {
         m_d->m_debuggerManager->m_attachedPID = appPid;
+        startWatchTimer();
         m_d->m_debuggerManagerAccess->notifyInferiorPidChanged(appPid);
+        m_d->m_debuggerManagerAccess->notifyInferiorRunning();
     } else {
         QMessageBox::critical(m_d->m_debuggerManager->mainWindow(), tr("Debugger Error"), errorMessage);
     }
@@ -1343,7 +1349,8 @@ void CdbDebugEnginePrivate::notifyCrashed()
 void CdbDebugEnginePrivate::handleDebugEvent()
 {
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << m_hDebuggeeProcess;
+        qDebug() << Q_FUNC_INFO << '\n'  << m_hDebuggeeProcess << m_breakEventMode
+                << executionStatusString(m_cif.debugControl);
 
     // restore mode and do special handling
     const HandleBreakEventMode mode = m_breakEventMode;

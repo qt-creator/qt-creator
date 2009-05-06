@@ -59,14 +59,15 @@ class QWORKBENCH_UTILS_EXPORT ConsoleProcess : public QObject, public AbstractPr
     Q_OBJECT
 
 public:
+    enum Mode { Run, Debug, Suspend };
     ConsoleProcess(QObject *parent = 0);
     ~ConsoleProcess();
 
     bool start(const QString &program, const QStringList &args);
     void stop();
 
-    void setDebug(bool on) { m_debug = on; }
-    bool isDebug() const { return m_debug; }
+    void setMode(Mode m) { m_mode = m; }
+    Mode mode() const { return m_mode; }
 
     bool isRunning() const; // This reflects the state of the console+stub
     qint64 applicationPID() const { return m_appPid; }
@@ -99,6 +100,15 @@ private slots:
 #endif
 
 private:
+    static QString modeOption(Mode m);
+    static QString msgCommChannelFailed(const QString &error);
+    static QString msgPromptToClose();
+    static QString msgCannotCreateTempFile(const QString &why);
+    static QString msgCannotCreateTempDir(const QString & dir, const QString &why);
+    static QString msgUnexpectedOutput();
+    static QString msgCannotChangeToWorkDir(const QString & dir, const QString &why);
+    static QString msgCannotExecute(const QString & p, const QString &why);
+
     QString stubServerListen();
     void stubServerShutdown();
 #ifdef Q_OS_WIN
@@ -106,7 +116,7 @@ private:
     void cleanupInferior();
 #endif
 
-    bool m_debug;
+    Mode m_mode;
     qint64 m_appPid;
     int m_appCode;
     QString m_executable;

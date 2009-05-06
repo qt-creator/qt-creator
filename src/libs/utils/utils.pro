@@ -26,7 +26,8 @@ SOURCES += \
     savedaction.cpp \
     submiteditorwidget.cpp \
     synchronousprocess.cpp \
-    submitfieldwidget.cpp
+    submitfieldwidget.cpp \
+    consoleprocess.cpp
 
 win32 {
     SOURCES += abstractprocess_win.cpp \

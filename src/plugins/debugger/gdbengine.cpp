@@ -117,7 +117,7 @@ GdbEngine::GdbEngine(DebuggerManager *parent)
 {
     q = parent;
     qq = parent->engineInterface();
-    m_stubProc.setDebug(true);
+    m_stubProc.setMode(Core::Utils::ConsoleProcess::Debug);
     initializeVariables();
     initializeConnections();
 }
