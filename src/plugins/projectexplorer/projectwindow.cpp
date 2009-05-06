@@ -131,8 +131,6 @@ ProjectWindow::~ProjectWindow()
 
 void ProjectWindow::restoreStatus()
 {
-    m_panelsTabWidget->setFocus();
-
     if (!m_treeWidget->currentItem() && m_treeWidget->topLevelItemCount()) {
         m_treeWidget->setCurrentItem(m_treeWidget->topLevelItem(0), 0, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
     }
