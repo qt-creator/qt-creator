@@ -973,17 +973,14 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     //MAC: bool isFirstStop = data.findChild("bkptno").data() == "1";
     //!MAC: startSymbolName == data.findChild("frame").findChild("func")
     if (m_waitingForFirstBreakpointToBeHit) {
+        m_waitingForFirstBreakpointToBeHit = false;
+
         // If the executable dies already that early we might get something
         // like stdout:49*stopped,reason="exited",exit-code="0177"
         // This is handled now above.
 
         qq->notifyInferiorStopped();
-        m_waitingForFirstBreakpointToBeHit = false;
-        //
-        // this will "continue" if done
         m_waitingForBreakpointSynchronizationToContinue = true;
-        //
-        // that's the "early stop"
         handleAqcuiredInferior();
         return;
     }
