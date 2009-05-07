@@ -189,6 +189,8 @@ private slots:
     void gdbProcError(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();
+    void readUploadStandardOutput();
+    void readUploadStandardError();
     void readDebugeeOutput(const QByteArray &data);
     void stubStarted();
     void stubError(const QString &msg);

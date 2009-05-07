@@ -103,14 +103,13 @@ static inline QString _(const QByteArray &ba)
     return QString::fromLatin1(ba.data(), ba.size());
 }
 
-static const QString tooltipIName = _("tooltip");
-
 static int &currentToken()
 {
     static int token = 0;
     return token;
 }
 
+static const QString tooltipIName = _("tooltip");
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -154,6 +153,10 @@ void GdbEngine::initializeConnections()
 
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(uploadProcError(QProcess::ProcessError)));
+    connect(&m_uploadProc, SIGNAL(readyReadStandardOutput()),
+        this, SLOT(readUploadStandardOutput()));
+    connect(&m_uploadProc, SIGNAL(readyReadStandardError()),
+        this, SLOT(readUploadStandardError()));
 
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
@@ -271,6 +274,18 @@ void GdbEngine::uploadProcError(QProcess::ProcessError error)
 
     q->showStatusMessage(msg);
     QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
+}
+
+void GdbEngine::readUploadStandardOutput()
+{
+    QByteArray ba = m_uploadProc.readAllStandardOutput();
+    gdbOutputAvailable(_("upload-out:"), QString::fromLocal8Bit(ba, ba.length()));
+}
+
+void GdbEngine::readUploadStandardError()
+{
+    QByteArray ba = m_uploadProc.readAllStandardError();
+    gdbOutputAvailable(_("upload-err:"), QString::fromLocal8Bit(ba, ba.length()));
 }
 
 #if 0
@@ -2751,6 +2766,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 static const QString strNotInScope =
         QApplication::translate("Debugger::Internal::GdbEngine", "<not in scope>");
 
+
 static void setWatchDataValue(WatchData &data, const GdbMi &mi,
     int encoding = 0)
 {
@@ -2939,8 +2955,8 @@ void GdbEngine::updateSubItem(const WatchData &data0)
             qDebug() << "FIXME: GdbEngine::updateSubItem:"
                  << data.toString() << "should not happen";
             #else
-            data.setType("<out of scope>");
-            data.setValue("<out of scope>");
+            data.setType(strNotInScope);
+            data.setValue(strNotInScope);
             data.setChildCount(0);
             insertData(data);
             return;
@@ -3434,14 +3450,15 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
         //    <<  " STREAM:" << out;
         if (list.isEmpty()) {
             //: Value for variable
-            data.setValue(tr("<unavailable>"));
+            data.setValue(strNotInScope);
             data.setAllUnneeded();
             insertData(data);
         } else if (data.type == __("QString")
                 || data.type.endsWith(__("::QString"))) {
             QList<QByteArray> list = out.split(' ');
             QString str;
-            for (int i = 0; i < list.size(); ++i)
+            int l = out.isEmpty() ? 0 : list.size();
+            for (int i = 0; i < l; ++i)
                  str.append(list.at(i).toInt());
             data.setValue(_c('"') + str + _c('"'));
             data.setChildCount(0);
@@ -3449,35 +3466,42 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
             insertData(data);
         } else if (data.type == __("QStringList")
                 || data.type.endsWith(__("::QStringList"))) {
-            int l = list.size();
-            //: In string list
-            data.setValue(tr("<%1 items>").arg(l));
-            data.setChildCount(list.size());
-            data.setAllUnneeded();
-            insertData(data);
-            for (int i = 0; i < l; ++i) {
-                WatchData data1;
-                data1.name = _("[%1]").arg(i);
-                data1.type = data.type.left(data.type.size() - 4);
-                data1.iname = data.iname + _(".%1").arg(i);
-                data1.addr = _(list.at(i));
-                data1.exp = _("((") + gdbQuoteTypes(data1.type) + _("*)") + data1.addr + _c(')');
-                data1.setChildCount(0);
-                data1.setValueNeeded();
-                QString cmd = _("qdumpqstring (") + data1.exp + _c(')');
-                QVariant var;
-                var.setValue(data1);
-                postCommand(cmd, WatchUpdate, CB(handleDebuggingHelperValue3), var);
+            if (out.isEmpty()) {
+                data.setValue(tr("<0 items>"));
+                data.setChildCount(0);
+                data.setAllUnneeded();
+                insertData(data);
+            } else {
+                int l = list.size();
+                //: In string list
+                data.setValue(tr("<%1 items>").arg(l));
+                data.setChildCount(list.size());
+                data.setAllUnneeded();
+                insertData(data);
+                for (int i = 0; i < l; ++i) {
+                    WatchData data1;
+                    data1.name = _("[%1]").arg(i);
+                    data1.type = data.type.left(data.type.size() - 4);
+                    data1.iname = data.iname + _(".%1").arg(i);
+                    data1.addr = _(list.at(i));
+                    data1.exp = _("((") + gdbQuoteTypes(data1.type) + _("*)") + data1.addr + _c(')');
+                    data1.setChildCount(0);
+                    data1.setValueNeeded();
+                    QString cmd = _("qdumpqstring (") + data1.exp + _c(')');
+                    QVariant var;
+                    var.setValue(data1);
+                    postCommand(cmd, WatchUpdate, CB(handleDebuggingHelperValue3), var);
+                }
             }
         } else {
             //: Value for variable
-            data.setValue(tr("<unavailable>"));
+            data.setValue(strNotInScope);
             data.setAllUnneeded();
             insertData(data);
         }
     } else if (record.resultClass == GdbResultError) {
         WatchData data = cookie.value<WatchData>();
-        data.setValue(tr("<unavailable>"));
+        data.setValue(strNotInScope);
         data.setAllUnneeded();
         insertData(data);
     }
