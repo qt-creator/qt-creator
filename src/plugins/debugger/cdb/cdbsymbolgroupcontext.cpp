@@ -97,7 +97,7 @@ static inline QString getSymbolString(IDebugSymbolGroup2 *sg,
 }
 
 namespace Debugger {
-    namespace Internal {
+namespace Internal {
 
 static inline CdbSymbolGroupContext::SymbolState getSymbolState(const DEBUG_SYMBOL_PARAMETERS &p)
 {
@@ -125,7 +125,7 @@ CdbSymbolGroupContext *CdbSymbolGroupContext::create(const QString &prefix,
                                                      CIDebugSymbolGroup *symbolGroup,
                                                      QString *errorMessage)
 {
-    CdbSymbolGroupContext *rc= new CdbSymbolGroupContext(prefix, symbolGroup);
+    CdbSymbolGroupContext *rc = new CdbSymbolGroupContext(prefix, symbolGroup);
     if (!rc->init(errorMessage)) {
         delete rc;
         return 0;
@@ -401,7 +401,7 @@ static QString formatArrayHelper(const Integer *array, int size, int base = 10)
 {
     QString rc;
     const QString hexPrefix = QLatin1String("0x");
-    const QString separator= QLatin1String(", ");
+    const QString separator = QLatin1String(", ");
     const bool hex = base == 16;
     for (int i = 0; i < size; i++) {
         if (i)
