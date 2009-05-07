@@ -32,6 +32,7 @@
 #include "qmlprojectwizard.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectfileseditor.h"
+#include "qmlproject.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -75,6 +76,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addObject(m_projectFilesEditorFactory);
 
     addAutoReleasedObject(manager);
+    addAutoReleasedObject(new QmlRunConfigurationFactory);
     addAutoReleasedObject(new QmlProjectWizard);
 
     return true;

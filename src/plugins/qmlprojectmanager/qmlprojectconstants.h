@@ -35,7 +35,8 @@ namespace Constants {
 
 const char *const PROJECTCONTEXT     = "QmlProject.ProjectContext";
 const char *const QMLMIMETYPE        = "text/x-qml-project"; // ### FIXME
-const char *const MAKESTEP           = "QmlProjectManager.MakeStep";
+
+const char *const QMLRUNCONFIGURATION = "QmlProject.QmlApplicationRunConfiguration";
 
 // contexts
 const char *const C_FILESEDITOR      = ".files Editor";

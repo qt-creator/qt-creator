@@ -136,28 +136,12 @@ private:
     QString m_fileName;
 };
 
-class QmlBuildSettingsWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-
-public:
-    QmlBuildSettingsWidget(QmlProject *project);
-    virtual ~QmlBuildSettingsWidget();
-
-    virtual QString displayName() const;
-
-    virtual void init(const QString &buildConfiguration);
-
-private:
-    QmlProject *m_project;
-};
-
-class QmlApplicationRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
+class QmlRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
 {
     Q_OBJECT
 public:
-    QmlApplicationRunConfiguration(QmlProject *pro);
-    virtual ~QmlApplicationRunConfiguration();
+    QmlRunConfiguration(QmlProject *pro);
+    virtual ~QmlRunConfiguration();
 
     virtual QString type() const;
     virtual QString executable() const;
@@ -173,6 +157,8 @@ public:
 
 private Q_SLOTS:
     void setMainScript(const QString &scriptFile);
+    void onQmlViewerChanged();
+
 
 private:
     QString mainScript() const;
@@ -180,7 +166,34 @@ private:
 private:
     QmlProject *m_project;
     QString m_scriptFile;
+    QString m_qmlViewer;
+    QLatin1String m_type;
 };
+
+class QmlRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    QmlRunConfigurationFactory();
+    virtual ~QmlRunConfigurationFactory();
+
+    // used to recreate the runConfigurations when restoring settings
+    virtual bool canCreate(const QString &type) const;
+
+    // used to show the list of possible additons to a project, returns a list of types
+    virtual QStringList canCreate(ProjectExplorer::Project *pro) const;
+
+    // used to translate the types to names to display to the user
+    virtual QString nameForType(const QString &type) const;
+
+    virtual QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project,
+                                                                     const QString &type);
+
+private:
+    QLatin1String m_type;
+};
+
 
 } // namespace Internal
 } // namespace QmlProjectManager

@@ -39,6 +39,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/synchronousprocess.h>
+#include <utils/pathchooser.h>
 
 #include <QtCore/QtDebug>
 #include <QtCore/QDir>
@@ -49,61 +50,9 @@
 #include <QtGui/QFormLayout>
 #include <QtGui/QMainWindow>
 #include <QtGui/QComboBox>
-#include <QtGui/QStringListModel>
-#include <QtGui/QListWidget>
-#include <QtGui/QPushButton>
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
-
-namespace {
-
-/**
- * An editable string list model. New strings can be added by editing the entry
- * called "<new>", displayed at the end.
- */
-class ListModel: public QStringListModel
-{
-public:
-    ListModel(QObject *parent)
-        : QStringListModel(parent) {}
-
-    virtual ~ListModel() {}
-
-    virtual int rowCount(const QModelIndex &parent) const
-    { return 1 + QStringListModel::rowCount(parent); }
-
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const
-    { return QStringListModel::flags(index) | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled; }
-
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent) const
-    {
-        if (row == stringList().size())
-            return createIndex(row, column);
-
-        return QStringListModel::index(row, column, parent);
-    }
-
-    virtual QVariant data(const QModelIndex &index, int role) const
-    {
-        if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            if (index.row() == stringList().size())
-                return QCoreApplication::translate("QmlProject", "<new>");
-        }
-
-        return QStringListModel::data(index, role);
-    }
-
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role)
-    {
-        if (role == Qt::EditRole && index.row() == stringList().size())
-            insertRow(index.row(), QModelIndex());
-
-        return QStringListModel::setData(index, value, role);
-    }
-};
-
-} // end of anonymous namespace
 
 ////////////////////////////////////////////////////////////////////////////////////
 // QmlProject
@@ -120,9 +69,6 @@ QmlProject::QmlProject(Manager *manager, const QString &fileName)
     m_rootNode = new QmlProjectNode(this, m_file);
 
     m_manager->registerProject(this);
-
-    QSharedPointer<QmlApplicationRunConfiguration> runConf(new QmlApplicationRunConfiguration(this));
-    addRunConfiguration(runConf);
 }
 
 QmlProject::~QmlProject()
@@ -254,7 +200,7 @@ QString QmlProject::buildDirectory(const QString &) const
 
 ProjectExplorer::BuildStepConfigWidget *QmlProject::createConfigWidget()
 {
-    return new QmlBuildSettingsWidget(this);
+    return 0;
 }
 
 QList<ProjectExplorer::BuildStepConfigWidget*> QmlProject::subConfigWidgets()
@@ -291,31 +237,17 @@ void QmlProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &
 {
     Project::restoreSettingsImpl(reader);
 
+    if (runConfigurations().isEmpty()) {
+        QSharedPointer<QmlRunConfiguration> runConf(new QmlRunConfiguration(this));
+        addRunConfiguration(runConf);
+    }
+
     refresh(Everything);
 }
 
 void QmlProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
 {
     Project::saveSettingsImpl(writer);
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-// QmlBuildSettingsWidget
-////////////////////////////////////////////////////////////////////////////////////
-
-QmlBuildSettingsWidget::QmlBuildSettingsWidget(QmlProject *project)
-    : m_project(project)
-{
-}
-
-QmlBuildSettingsWidget::~QmlBuildSettingsWidget()
-{ }
-
-QString QmlBuildSettingsWidget::displayName() const
-{ return tr("QML Manager"); }
-
-void QmlBuildSettingsWidget::init(const QString &)
-{
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -375,40 +307,42 @@ void QmlProjectFile::modified(ReloadBehavior *)
 {
 }
 
-QmlApplicationRunConfiguration::QmlApplicationRunConfiguration(QmlProject *pro)
+QmlRunConfiguration::QmlRunConfiguration(QmlProject *pro)
     : ProjectExplorer::ApplicationRunConfiguration(pro),
-      m_project(pro)
+      m_project(pro),
+      m_type(Constants::QMLRUNCONFIGURATION)
 {
     setName(tr("QML Viewer"));
+
+    m_qmlViewer = Core::Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
 }
 
-QmlApplicationRunConfiguration::~QmlApplicationRunConfiguration()
+QmlRunConfiguration::~QmlRunConfiguration()
 {
 }
 
-QString QmlApplicationRunConfiguration::type() const
+QString QmlRunConfiguration::type() const
 {
-    return QLatin1String("QmlProject.QmlApplicationRunConfiguration");
+    return m_type;
 }
 
-QString QmlApplicationRunConfiguration::executable() const
+QString QmlRunConfiguration::executable() const
 {
-    const QString executable = Core::Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
-    return executable;
+    return m_qmlViewer;
 }
 
-QmlApplicationRunConfiguration::RunMode QmlApplicationRunConfiguration::runMode() const
+QmlRunConfiguration::RunMode QmlRunConfiguration::runMode() const
 {
     return Gui;
 }
 
-QString QmlApplicationRunConfiguration::workingDirectory() const
+QString QmlRunConfiguration::workingDirectory() const
 {
     QFileInfo projectFile(m_project->file()->fileName());
     return projectFile.filePath();
 }
 
-QStringList QmlApplicationRunConfiguration::commandLineArguments() const
+QStringList QmlRunConfiguration::commandLineArguments() const
 {
     QStringList args;
 
@@ -419,44 +353,60 @@ QStringList QmlApplicationRunConfiguration::commandLineArguments() const
     return args;
 }
 
-ProjectExplorer::Environment QmlApplicationRunConfiguration::environment() const
+ProjectExplorer::Environment QmlRunConfiguration::environment() const
 {
     return ProjectExplorer::Environment::systemEnvironment();
 }
 
-QString QmlApplicationRunConfiguration::dumperLibrary() const
+QString QmlRunConfiguration::dumperLibrary() const
 {
     return QString();
 }
 
-QWidget *QmlApplicationRunConfiguration::configurationWidget()
+QWidget *QmlRunConfiguration::configurationWidget()
 {
     QWidget *config = new QWidget;
     QFormLayout *form = new QFormLayout(config);
 
     QComboBox *combo = new QComboBox;
-    combo->addItem(tr("<Current File>"));
-    connect(combo, SIGNAL(activated(QString)), this, SLOT(setMainScript(QString)));
 
     QDir projectDir = m_project->projectDir();
     QStringList files;
+
+    files.append(tr("<Current File>"));
+
+    int currentIndex = -1;
 
     foreach (const QString &fn, m_project->files()) {
         QFileInfo fileInfo(fn);
         if (fileInfo.suffix() != QLatin1String("qml"))
             continue;
 
-        files.append(projectDir.relativeFilePath(fn));
+        QString fileName = projectDir.relativeFilePath(fn);
+        if (fileName == m_scriptFile)
+            currentIndex = files.size();
+
+        files.append(fileName);
     }
 
     combo->addItems(files);
+    if (currentIndex != -1)
+        combo->setCurrentIndex(currentIndex);
 
+    connect(combo, SIGNAL(activated(QString)), this, SLOT(setMainScript(QString)));
+
+    Core::Utils::PathChooser *qmlViewer = new Core::Utils::PathChooser;
+    qmlViewer->setExpectedKind(Core::Utils::PathChooser::Command);
+    qmlViewer->setPath(executable());
+    connect(qmlViewer, SIGNAL(changed()), this, SLOT(onQmlViewerChanged()));
+
+    form->addRow(tr("QML Viewer"), qmlViewer);
     form->addRow(tr("Main QML File:"), combo);
 
     return config;
 }
 
-QString QmlApplicationRunConfiguration::mainScript() const
+QString QmlRunConfiguration::mainScript() const
 {
     if (m_scriptFile.isEmpty() || m_scriptFile == tr("<Current File>")) {
         Core::EditorManager *editorManager = Core::ICore::instance()->editorManager();
@@ -468,17 +418,73 @@ QString QmlApplicationRunConfiguration::mainScript() const
     return m_project->projectDir().absoluteFilePath(m_scriptFile);
 }
 
-void QmlApplicationRunConfiguration::setMainScript(const QString &scriptFile)
+void QmlRunConfiguration::setMainScript(const QString &scriptFile)
 {
     m_scriptFile = scriptFile;
 }
 
-void QmlApplicationRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
+void QmlRunConfiguration::onQmlViewerChanged()
 {
-    ProjectExplorer::ApplicationRunConfiguration::save(writer);
+    if (Core::Utils::PathChooser *chooser = qobject_cast<Core::Utils::PathChooser *>(sender())) {
+        m_qmlViewer = chooser->path();
+    }
 }
 
-void QmlApplicationRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
+void QmlRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
+{
+    ProjectExplorer::ApplicationRunConfiguration::save(writer);
+
+    writer.saveValue(QLatin1String("qmlviewer"), m_qmlViewer);
+    writer.saveValue(QLatin1String("mainscript"), m_scriptFile);
+}
+
+void QmlRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
 {
     ProjectExplorer::ApplicationRunConfiguration::restore(reader);
+
+    m_qmlViewer = reader.restoreValue(QLatin1String("qmlviewer")).toString();
+    m_scriptFile = reader.restoreValue(QLatin1String("mainscript")).toString();
+
+    if (m_qmlViewer.isEmpty())
+        m_qmlViewer = Core::Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
+
+    if (m_scriptFile.isEmpty())
+        m_scriptFile = tr("<Current File>");
 }
+
+QmlRunConfigurationFactory::QmlRunConfigurationFactory()
+    : m_type(Constants::QMLRUNCONFIGURATION)
+{
+}
+
+QmlRunConfigurationFactory::~QmlRunConfigurationFactory()
+{
+}
+
+bool QmlRunConfigurationFactory::canCreate(const QString &type) const
+{
+    if (type.startsWith(m_type))
+        return true;
+
+    return false;
+}
+
+QStringList QmlRunConfigurationFactory::canCreate(ProjectExplorer::Project *) const
+{
+    return QStringList();
+}
+
+QString QmlRunConfigurationFactory::nameForType(const QString &type) const
+{
+    return type;
+}
+
+QSharedPointer<ProjectExplorer::RunConfiguration> QmlRunConfigurationFactory::create(ProjectExplorer::Project *project,
+                                                                                     const QString &)
+{
+    QmlProject *pro = qobject_cast<QmlProject *>(project);
+    QSharedPointer<ProjectExplorer::RunConfiguration> rc(new QmlRunConfiguration(pro));
+    return rc;
+}
+
+
