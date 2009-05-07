@@ -1131,7 +1131,10 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                 }
             }
 #endif
-            q->showStatusMessage(tr("Stopped: \"%1\"").arg(_(reason)));
+            if (reason.isEmpty())
+                q->showStatusMessage(tr("Stopped."));
+            else
+                q->showStatusMessage(tr("Stopped: \"%1\"").arg(_(reason)));
             handleAsyncOutput2(data);
         }
         return;
