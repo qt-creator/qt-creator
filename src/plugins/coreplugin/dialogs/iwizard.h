@@ -51,6 +51,7 @@ public:
     };
 
     IWizard(QObject *parent = 0) : QObject(parent) {}
+    virtual ~IWizard() {}
 
     virtual Kind kind() const = 0;
     virtual QIcon icon() const = 0;

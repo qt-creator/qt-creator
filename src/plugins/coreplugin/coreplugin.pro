@@ -73,7 +73,8 @@ SOURCES += mainwindow.cpp \
     mimedatabase.cpp \
     icore.cpp \
     editormanager/ieditor.cpp \
-    dialogs/ioptionspage.cpp
+    dialogs/ioptionspage.cpp \
+    dialogs/iwizard.cpp
 HEADERS += mainwindow.h \
     welcomemode.h \
     welcomemode_p.h \
