@@ -99,6 +99,7 @@ private:
     void setToolTipExpression(const QPoint &pos, const QString &exp);
     bool startDebugger();
     void exitDebugger();
+    void detachDebugger();
 
     void continueInferior();
     void interruptInferior();

@@ -1254,7 +1254,6 @@ void GdbEngine::handleExecRun(const GdbResultRecord &response, const QVariant &)
 {
     if (response.resultClass == GdbResultRunning) {
         qq->notifyInferiorRunning();
-        q->showStatusMessage(tr("Running..."));
     } else if (response.resultClass == GdbResultError) {
         const QByteArray &msg = response.data.findChild("msg").data();
         if (msg == "Cannot find bounds of current function") {
@@ -1323,6 +1322,12 @@ void GdbEngine::shutdown()
     exitDebugger();
 }
 
+void GdbEngine::detachDebugger()
+{
+    postCommand(_("detach"));
+    postCommand(_("-gdb-exit"), CB(handleExit));
+}
+
 void GdbEngine::exitDebugger()
 {
     debugMessage(_("GDBENGINE EXITDEBUFFER: %1").arg(m_gdbProc.state()));
@@ -1340,7 +1345,7 @@ void GdbEngine::exitDebugger()
                 qDebug() << "STATUS ON EXITDEBUGGER:" << q->status());
             interruptInferior();
         }
-        if (q->startMode() == AttachExternal || q->startMode() == StartRemote)
+        if (q->startMode() == AttachExternal)
             postCommand(_("detach"));
         else
             postCommand(_("kill"));

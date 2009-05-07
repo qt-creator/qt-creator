@@ -242,6 +242,7 @@ public slots:
     void stepIExec();
     void nextIExec();
     void continueExec();
+    void detachDebugger();
 
     void addToWatchWindow();
     void updateWatchModel();

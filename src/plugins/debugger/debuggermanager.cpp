@@ -1245,15 +1245,6 @@ void DebuggerManager::setStatus(int status)
     const bool ready = status == DebuggerInferiorStopped
             && startMode() != AttachCore;
 
-// FIXME
-//    m_startExternalAction->setEnabled(!started && !starting);
-//    m_attachExternalAction->setEnabled(!started && !starting);
-//#ifdef Q_OS_WIN
-//    m_attachCoreAction->setEnabled(false);
-//#else
-//    m_attachCoreAction->setEnabled(!started && !starting);
-//#endif
-//    m_attachRemoteAction->setEnabled(!started && !starting);
     m_watchAction->setEnabled(ready);
     m_breakAction->setEnabled(true);
 
@@ -1314,6 +1305,12 @@ void DebuggerManager::continueExec()
 {
     if (m_engine)
         m_engine->continueInferior();
+}
+
+void DebuggerManager::detachDebugger()
+{
+    if (m_engine)
+        m_engine->detachDebugger();
 }
 
 void DebuggerManager::interruptDebuggingRequest()

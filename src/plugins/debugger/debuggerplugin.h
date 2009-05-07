@@ -88,6 +88,8 @@ private slots:
     void setConfigValue(const QString &name, const QVariant &value);
     void requestContextMenu(TextEditor::ITextEditor *editor,
         int lineNumber, QMenu *menu);
+    void updateActions(int status);
+
 
     void resetLocation();
     void gotoLocation(const QString &fileName, int line, bool setMarker);
@@ -125,6 +127,7 @@ private:
     QAction *m_startRemoteAction;
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
+    QAction *m_detachAction;
 };
 
 } // namespace Internal
