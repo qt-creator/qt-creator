@@ -1,9 +1,11 @@
+# This is a compile check for the dumpers only. Don't install the library!
+
+include(../../qworkbenchlibrary.pri)
 
 TEMPLATE = lib
 TARGET = DebuggingHelper
 CONFIG += shared
-DESTDIR  = ../../../bin
-include(../../qworkbenchlibrary.pri)
+DESTDIR = $$IDE_LIBRARY_PATH # /tmp would be better in some respect ...
 
 linux-* {
 CONFIG -= release

@@ -34,7 +34,7 @@
 #include <coreplugin/icore.h>
 #include <QtCore/QCoreApplication>
 
-const char * const CDB_SETTINGS_ID = QT_TRANSLATE_NOOP("Debugger::Internal::CdbOptionsPageWidget", "CDB");
+const char * const CDB_SETTINGS_ID = QT_TRANSLATE_NOOP("Debugger::Internal::CdbOptionsPageWidget", "Cdb");
 
 namespace Debugger {
 namespace Internal {

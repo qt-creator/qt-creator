@@ -42,18 +42,17 @@
 
 using namespace Core::Utils;
 
-ConsoleProcess::ConsoleProcess(QObject *parent)
-    : QObject(parent)
+ConsoleProcess::ConsoleProcess(QObject *parent) :
+    QObject(parent),
+    m_mode(Run),
+    m_appPid(0),
+    m_pid(0),
+    m_hInferior(NULL),
+    m_tempFile(0),
+    m_stubSocket(0),
+    processFinishedNotifier(0),
+    inferiorFinishedNotifier(0)
 {
-    m_debug = false;
-    m_appPid = 0;
-    m_pid = 0;
-    m_hInferior = NULL;
-    m_tempFile = 0;
-    m_stubSocket = 0;
-    processFinishedNotifier = 0;
-    inferiorFinishedNotifier = 0;
-
     connect(&m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
 }
 
@@ -67,9 +66,9 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
     if (isRunning())
         return false;
 
-    QString err = stubServerListen();
+    const QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processError(tr("Cannot set up communication channel: %1").arg(err));
+        emit processError(msgCommChannelFailed(err));
         return false;
     }
 
@@ -77,7 +76,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         m_tempFile = new QTemporaryFile();
         if (!m_tempFile->open()) {
             stubServerShutdown();
-            emit processError(tr("Cannot create temporary file: %1").arg(m_tempFile->errorString()));
+            emit processError(msgCannotCreateTempFile(m_tempFile->errorString()));
             delete m_tempFile;
             m_tempFile = 0;
             return false;
@@ -102,15 +101,15 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         workDir.append('\\');
 
     QStringList stubArgs;
-    stubArgs << (m_debug ? "debug" : "exec")
+    stubArgs << modeOption(m_mode)
              << m_stubServer.fullServerName()
              << workDir
              << (m_tempFile ? m_tempFile->fileName() : 0)
              << createWinCommandline(program, args)
-             << tr("Press <RETURN> to close this window...");
+             << msgPromptToClose();
 
-    QString cmdLine = createWinCommandline(
-            QCoreApplication::applicationDirPath() + "/qtcreator_process_stub.exe", stubArgs);
+    const QString cmdLine = createWinCommandline(
+            QCoreApplication::applicationDirPath() + QLatin1String("/qtcreator_process_stub.exe"), stubArgs);
 
     bool success = CreateProcessW(0, (WCHAR*)cmdLine.utf16(),
                                   0, 0, FALSE, CREATE_NEW_CONSOLE,
@@ -180,13 +179,11 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = m_stubSocket->readLine();
         out.chop(2); // \r\n
         if (out.startsWith("err:chdir ")) {
-            emit processError(tr("Cannot change to working directory '%1': %2")
-                              .arg(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
+            emit processError(msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emit processError(tr("Cannot execute '%1': %2")
-                              .arg(m_executable, winErrorMessage(out.mid(9).toInt())));
+            emit processError(msgCannotExecute(m_executable, winErrorMessage(out.mid(9).toInt())));
         } else if (out.startsWith("pid ")) {
-            // Will not need it any more
+            // Wil not need it any more
             delete m_tempFile;
             m_tempFile = 0;
 
@@ -204,7 +201,7 @@ void ConsoleProcess::readStubOutput()
             connect(inferiorFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(inferiorExited()));
             emit processStarted();
         } else {
-            emit processError(tr("Unexpected output from helper program."));
+            emit processError(msgUnexpectedOutput());
             TerminateProcess(m_pid->hProcess, (unsigned)-1);
             break;
         }

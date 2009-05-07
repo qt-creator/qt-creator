@@ -929,21 +929,24 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         m_attachedPID = -1;
         break;
     }
-    case AttachRemote: {
-        AttachRemoteDialog dlg(mainWindow());
+    case StartRemote: {
+        StartRemoteDialog dlg(mainWindow());
         QStringList arches;
         arches.append(_("i386:x86-64:intel"));
         dlg.setRemoteArchitectures(arches);
         dlg.setRemoteChannel(configValue(_("LastRemoteChannel")).toString());
         dlg.setRemoteArchitecture(configValue(_("LastRemoteArchtecture")).toString());
+        dlg.setServerStartScript(configValue(_("LastServerStartScript")).toString());
         if (dlg.exec() != QDialog::Accepted) {  
             runControl->debuggingFinished();
             return;
         }
         setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
         setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
+        setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
         m_remoteChannel = dlg.remoteChannel();
         m_remoteArchitecture = dlg.remoteArchitecture();
+        m_serverStartScript = dlg.serverStartScript();
         break;
     }
     }

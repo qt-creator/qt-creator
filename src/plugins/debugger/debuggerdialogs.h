@@ -40,8 +40,8 @@ class QPushButton;
 namespace Ui {
 class AttachCoreDialog;
 class AttachExternalDialog;
-class AttachRemoteDialog;
 class StartExternalDialog;
+class StartRemoteDialog;
 } // namespace Ui
 
 QT_END_NAMESPACE
@@ -101,22 +101,24 @@ private:
     ProcessListFilterModel *m_model;
 };
 
-class AttachRemoteDialog : public QDialog
+class StartRemoteDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit AttachRemoteDialog(QWidget *parent);
-    ~AttachRemoteDialog();
+    explicit StartRemoteDialog(QWidget *parent);
+    ~StartRemoteDialog();
 
     void setRemoteChannel(const QString &host);
     void setRemoteArchitecture(const QString &arch);
     void setRemoteArchitectures(const QStringList &arches);
     QString remoteChannel() const;
     QString remoteArchitecture() const;
+    void setServerStartScript(const QString &scriptName);
+    QString serverStartScript() const;
 
 private:
-    Ui::AttachRemoteDialog *m_ui;
+    Ui::StartRemoteDialog *m_ui;
 };
 
 class StartExternalDialog : public QDialog

@@ -113,7 +113,7 @@ enum DebuggerStartMode
     StartExternal,                    // Start binary found in file system
     AttachExternal,                   // Attach to running process
     AttachCore,                       // Attach to a core file
-    AttachRemote                      // Attach to a remote process
+    StartRemote                       // Start and attach to a remote process
 };
 
 class IDebuggerEngine;
@@ -359,8 +359,10 @@ public:
     QString m_dumperLib;
     int m_attachedPID;
     bool m_useTerminal;
+    // for remote debugging
     QString m_remoteChannel;
     QString m_remoteArchitecture;
+    QString m_serverStartScript;
 
 private:
     void init();

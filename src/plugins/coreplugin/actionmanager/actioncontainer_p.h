@@ -41,21 +41,11 @@ namespace Internal {
 class ActionContainerPrivate : public Core::ActionContainer
 {
 public:
-    enum ContainerState {
-        CS_None         = 0x000000,
-        CS_Initialized  = 0x010000,
-        CS_PreLocation  = 0x020000,
-        CS_UserDefined  = 0x040000
-    };
-
     ActionContainerPrivate(int id);
     virtual ~ActionContainerPrivate() {}
 
     void setEmptyAction(EmptyAction ea);
     bool hasEmptyAction(EmptyAction ea) const;
-
-    void setState(ContainerState state);
-    bool hasState(ContainerState state) const;
 
     QAction *insertLocation(const QString &group) const;
     void appendGroup(const QString &group);

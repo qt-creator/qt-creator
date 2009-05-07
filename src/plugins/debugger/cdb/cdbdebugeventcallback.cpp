@@ -34,7 +34,7 @@
 #include "breakhandler.h"
 #include "cdbstacktracecontext.h"
 
-enum { cppExceptionCode = 0xe06d7363 };
+enum { cppExceptionCode = 0xe06d7363, startupCompleteTrap = 0x406d1388 };
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -245,6 +245,9 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
     case cppExceptionCode:
         str << "C++ exception";
         break;
+    case startupCompleteTrap:
+        str << "Startup complete";
+        break;
     case EXCEPTION_ACCESS_VIOLATION: {
             const bool writeOperation = e->ExceptionInformation[0];
             str << (writeOperation ? "write" : "read")
@@ -341,7 +344,7 @@ static bool isFatalException(LONG code)
     switch (code) {
     case EXCEPTION_BREAKPOINT:
     case EXCEPTION_SINGLE_STEP:
-    case 0x406d1388: // Mysterious exception at start of application
+    case startupCompleteTrap: // Mysterious exception at start of application
         return false;
     default:
         break;
@@ -362,7 +365,7 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
     }
     const bool fatal = isFatalException(Exception->ExceptionCode);
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << '\n' << fatal << msg;
+        qDebug() << Q_FUNC_INFO << "\nex=" << Exception->ExceptionCode << " fatal=" << fatal << msg;
     m_pEngine->m_d->m_debuggerManagerAccess->showApplicationOutput(msg);
     if (fatal)
         m_pEngine->m_d->notifyCrashed();

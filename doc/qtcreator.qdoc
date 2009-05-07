@@ -37,9 +37,9 @@
            files and classes using minimal keystrokes.
         \o \bold{Support for qmake's .pro file format}: The project's \c{.pro}
            file is used as a project description file.
-        \o \bold{Debugging Interface to GDB}: Applications can be debugged
+        \o \bold{Debugging Interface}: Applications can be debugged
            within Qt Creator using a graphical frontend to the GNU symbolic
-           debugger.
+           debugger (GDB) and the Microsoft Console Debugger (CDB).
     \endlist
     \endtable
 
@@ -57,6 +57,7 @@
        \o   \l{Debugging with Qt Creator}
        \o   \l{CMake Support in Qt Creator}
        \o   \l{Support for Generic Projects in Qt Creator}
+       \o   \l{Handling External Libraries}
        \o   \l{Tips and Tricks}
        \o   \l{Keyboard Shortcuts}
        \o   \l{Glossary}
@@ -694,7 +695,6 @@
 
 */
 
-
 /*!
     \contentspage index.html
     \previouspage creator-writing-program.html
@@ -1072,7 +1072,7 @@
 
     Here, you can lock or unlock the location of your views as well as display
     or hide them. Among the views you can display are \gui Breakpoints,
-    \gui Disassembler, \gui Modules, \gui Registers, \gui Gdb, \gui Stack, and
+    \gui Disassembler, \gui Modules, \gui Registers, \gui Debugger, \gui Stack, and
     \gui Thread. The position of your dock widgets will be saved for future
     sessions.
 
@@ -1358,7 +1358,7 @@
     \contentspage index.html
     \previouspage creator-debugging.html
     \page creator-cmake-support.html
-    \nextpage creator-tips.html
+    \nextpage creator-generic-projects.html
 
     \title CMake Support in Qt Creator
 
@@ -1412,7 +1412,7 @@
     \contentspage index.html
     \previouspage creator-cmake-support.html
     \page creator-generic-projects.html
-    \nextpage creator-tips.html
+    \nextpage creator-external-library-handling.html
 
     \title Support for Generic Projects in Qt Creator
 
@@ -1428,10 +1428,65 @@
 */
 
 
+/*!
+    \contentspage index.html
+    \previouspage creator-generic-projects.html
+    \page creator-external-library-handling.html
+    \nextpage creator-tips.html
+
+    \title Handling External Libraries
+
+    Knowing external libraries is not only important for the
+    underlying build system, but also for Qt Creator itself.
+    This way, it can support code completion and syntax highlighting 
+    for external libraries as if they were part of the current 
+    project or the Qt library.
+
+    The way to add a library to the project depends on the 
+    project type, which influcences the build system used. 
+    The following sections describe the the procedure required
+    for each project type.
+    
+    \section1 QMake Projects (the default)
+
+    Open your your (ending in \c{.pro}) file from the 
+    \gui{Projects} pane, which will now show up in the editor.
+    Follow the description in the
+    \l{http://doc.qtsoftware.com/latest/make-project-files.html#declaring-other-libraries}
+    {Declaring other Libraries} section of the Qt documentation.
+
+    If your project does sucessfully build and link against
+    the external library, syntax completion and highlighting
+    should also work.
+    
+    \section1 CMake Projects
+
+    In CMake, libaries are usually detected using the \c{FIND_PACKAGE()} macro.
+    A couple of them are already being shipped with CMake, they can be found in
+    the \c{Modules} directory of your CMake installation. If you provide 
+    libraries on your own, you will need to provide your own \c{FindFoo.cmake}
+    file. Refer to the \l{http://vtk.org/Wiki/CMake_FAQ#Writing_FindXXX.cmake_files}
+    {CMake FAQ} for details.
+    
+    As with qmake project, syntax completion and highlighting should work if 
+    you can sucessfully build and link against the external library.
+    
+    \section1 Generic Projects
+
+    If you import a project using the \e{Generic Projects} function, Qt Creator will
+    create a file called \c{<projectname>.includes} in your project root directory. It will
+    contain all project subdirectories it that was able to find relevant header files in. 
+    Simply add your include pathes there. 
+    
+    Note that in Generic Project mode, Qt Creator will refrain from touching any
+    project settings, so the above is merely a hint for the code completion and
+    the syntax highlighter.
+*/
+
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging.html
+    \previouspage creator-external-library-handling.html
     \page creator-tips.html
     \nextpage creator-keyboard-shortcuts.html
 
@@ -1526,6 +1581,9 @@
         \row
             \o Go to a line
             \o Ctrl + L
+        \row
+            \o Navigate between pages
+            \o Alt + Left, Alt + Right
         \row
             \o Start debugging
             \o F5
@@ -1734,4 +1792,3 @@
         QtCreator/src/shared/cplusplus
     \endlist
 */
-

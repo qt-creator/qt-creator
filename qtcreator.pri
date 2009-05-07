@@ -1,5 +1,3 @@
-IDE_SOURCE_TREE = $$PWD
-
 defineReplace(cleanPath) {
     win32:1 ~= s|\\\\|/|g
     contains(1, ^/.*):pfx = /
@@ -16,6 +14,19 @@ defineReplace(cleanPath) {
 defineReplace(targetPath) {
     win32:1 ~= s|/|\|g
     return($$1)
+}
+
+# For use in custom compilers which just copy files
+win32:i_flag = i
+defineReplace(stripSrcDir) {
+    win32 {
+        !contains(1, ^.:.*):1 = $$OUT_PWD/$$1
+    } else {
+        !contains(1, ^/.*):1 = $$OUT_PWD/$$1
+    }
+    out = $$cleanPath($$1)
+    out ~= s|^$$re_escape($$PWD/)||$$i_flag
+    return($$out)
 }
 
 isEmpty(TEST):CONFIG(debug, debug|release) {
@@ -35,18 +46,23 @@ equals(TEST, 1) {
     DEFINES += WITH_TESTS
 }
 
-isEmpty(IDE_BUILD_TREE) {
-    error("qtcreator.pri: including file must define IDE_BUILD_TREE (probably a relative path)")
-}
-IDE_BUILD_TREE = $$cleanPath($$IDE_BUILD_TREE)
+IDE_SOURCE_TREE = $$PWD
+sub_dir = $$_PRO_FILE_PWD_
+sub_dir ~= s,^$$re_escape($$PWD),,
+IDE_BUILD_TREE = $$cleanPath($$OUT_PWD)
+IDE_BUILD_TREE ~= s,$$re_escape($$sub_dir)$,,
+IDE_APP_PATH = $$IDE_BUILD_TREE/bin
 macx {
     IDE_APP_TARGET   = QtCreator
-    IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/bin/$${IDE_APP_TARGET}.app/Contents/PlugIns
+    IDE_LIBRARY_PATH = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/PlugIns
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH
-    IDE_DATA_PATH    = $$IDE_BUILD_TREE/bin/$${IDE_APP_TARGET}.app/Contents/Resources
+    IDE_LIBEXEC_PATH = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/Resources
+    IDE_DATA_PATH    = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/Resources
     contains(QT_CONFIG, ppc):CONFIG += ppc x86
+    copydata = 1
 } else {
     win32 {
+        contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1
         IDE_APP_TARGET   = qtcreator
     } else {
         IDE_APP_WRAPPER  = qtcreator
@@ -54,9 +70,10 @@ macx {
     }
     IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/$$IDE_LIBRARY_BASENAME/qtcreator
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH/plugins
+    IDE_LIBEXEC_PATH = $$IDE_APP_PATH # FIXME
     IDE_DATA_PATH    = $$IDE_BUILD_TREE/share/qtcreator
+    !isEqual(IDE_SOURCE_TREE, $$IDE_BUILD_TREE):copydata = 1
 }
-IDE_APP_PATH = $$IDE_BUILD_TREE/bin
 
 INCLUDEPATH += \
     $$IDE_SOURCE_TREE/src/libs \

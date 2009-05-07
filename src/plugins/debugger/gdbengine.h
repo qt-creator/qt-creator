@@ -147,7 +147,8 @@ public: // otherwise the Qt flag macros are unhappy
         NeedsStop = 1,
         Discardable = 2,
         RebuildModel = 4,
-        WatchUpdate = Discardable|RebuildModel
+        WatchUpdate = Discardable|RebuildModel,
+        EmbedToken = 8
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 private:
@@ -191,6 +192,7 @@ private slots:
     void readDebugeeOutput(const QByteArray &data);
     void stubStarted();
     void stubError(const QString &msg);
+    void uploadProcError(QProcess::ProcessError error);
 
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
@@ -226,6 +228,7 @@ private:
     QByteArray m_inbuffer;
 
     QProcess m_gdbProc;
+    QProcess m_uploadProc;
 
     Core::Utils::ConsoleProcess m_stubProc;
 
@@ -354,6 +357,8 @@ private:
         const WatchData &parent);
     void setWatchDataType(WatchData &data, const GdbMi &mi);
     void setLocals(const QList<GdbMi> &locals);
+   
+    bool startModeAllowsDumpers() const;
 
     QString m_editedData;
     int m_pendingRequests;

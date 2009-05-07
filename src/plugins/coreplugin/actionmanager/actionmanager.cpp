@@ -335,13 +335,12 @@ Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const 
     OverrideableAction *a = 0;
     const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
-        if (c->type() != Command::CT_OverridableAction) {
+        a = qobject_cast<OverrideableAction *>(c);
+        if (!a) {
             qWarning() << "registerAction: id" << id << "is registered with a different command type.";
             return c;
         }
-        a = static_cast<OverrideableAction *>(c);
-    }
-    if (!a) {
+    } else {
         a = new OverrideableAction(uid);
         m_idCmdMap.insert(uid, a);
     }
@@ -381,11 +380,11 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QStri
     Shortcut *sc = 0;
     int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
-        if (c->type() != Command::CT_Shortcut) {
+        sc = qobject_cast<Shortcut *>(c);
+        if (!sc) {
             qWarning() << "registerShortcut: id" << id << "is registered with a different command type.";
             return c;
         }
-        sc = static_cast<Shortcut *>(c);
     } else {
         sc = new Shortcut(uid);
         m_idCmdMap.insert(uid, sc);

@@ -39,6 +39,8 @@
 static FILE *qtcFd;
 static wchar_t *sleepMsg;
 
+enum RunMode { Run, Debug, Suspend };
+
 /* Print some "press enter" message, wait for that, exit. */
 static void doExit(int code)
 {
@@ -112,6 +114,7 @@ int main()
     STARTUPINFOW si;
     PROCESS_INFORMATION pi;
     DEBUG_EVENT dbev;
+    enum RunMode mode = Run;
 
     argv = CommandLineToArgvW(GetCommandLine(), &argc);
 
@@ -158,8 +161,20 @@ int main()
     si.cb = sizeof(si);
 
     creationFlags = CREATE_UNICODE_ENVIRONMENT;
-    if (!wcscmp(argv[ArgAction], L"debug"))
+    if (!wcscmp(argv[ArgAction], L"debug")) {
+        mode = Debug;
+    } else if (!wcscmp(argv[ArgAction], L"suspend")) {
+        mode = Suspend;
+    }
+
+    switch (mode) {
+    case Debug:
         creationFlags |= DEBUG_ONLY_THIS_PROCESS;
+        break;
+    case Suspend:
+        creationFlags |= CREATE_SUSPENDED;
+        break;
+    }
     if (!CreateProcessW(0, argv[ArgCmdLine], 0, 0, FALSE, creationFlags, env, 0, &si, &pi)) {
         /* Only expected error: no such file or direcotry, i.e. executable not found */
         sendMsg("err:exec %d\n", GetLastError());
@@ -172,7 +187,7 @@ int main()
        So instead we start a debugged process, eat all the initial
        debug events, suspend the process and detach from it. If gdb
        tries to attach *now*, everything goes smoothly. Yay. */
-    if (creationFlags & DEBUG_ONLY_THIS_PROCESS) {
+    if (mode == Debug) {
         do {
             if (!WaitForDebugEvent (&dbev, INFINITE))
                 systemError("Cannot fetch debug event, error %d\n");

@@ -207,7 +207,7 @@ public slots:
 DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
   : QWidget(parent)
 {
-    setWindowTitle(tr("Gdb"));
+    setWindowTitle(tr("Debugger"));
 
     QSplitter *m_splitter = new QSplitter(Qt::Horizontal, this);
     // mixed input/output

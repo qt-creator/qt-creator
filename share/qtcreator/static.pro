@@ -1,20 +1,4 @@
-IDE_BUILD_TREE = $$OUT_PWD/../..
-
 include(../../qtcreator.pri)
-
-win32:i_flag = i
-defineReplace(stripSrcDir) {
-    win32 {
-        !contains(1, ^.:.*):1 = $$OUT_PWD/$$1
-    } else {
-        !contains(1, ^/.*):1 = $$OUT_PWD/$$1
-    }
-    out = $$cleanPath($$1)
-    out ~= s|^$$re_escape($$PWD/)||$$i_flag
-    return($$out)
-}
-
-contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1
 
 TEMPLATE = app
 TARGET = phony_target
@@ -39,7 +23,7 @@ DATA_DIRS = \
     schemes \
     gdbmacros
 
-macx|!equals(_PRO_FILE_PWD_, $$OUT_PWD) {
+!isEmpty(copydata) {
 
     for(data_dir, DATA_DIRS) {
         files = $$files($$PWD/$$data_dir/*.*, true)

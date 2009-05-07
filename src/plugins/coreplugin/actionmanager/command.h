@@ -42,12 +42,6 @@ class CORE_EXPORT Command : public QObject
 {
     Q_OBJECT
 public:
-    enum CommandType {
-        CT_Shortcut = 0x0001,
-        CT_OverridableAction = 0x0002,
-        CT_Mask = 0x00FF
-    };
-
     enum CommandAttribute {
         CA_Hide             = 0x0100,
         CA_UpdateText       = 0x0200,
@@ -57,14 +51,12 @@ public:
     };
 
     virtual void setDefaultKeySequence(const QKeySequence &key) = 0;
-    virtual void setKeySequence(const QKeySequence &key) = 0;
     virtual QKeySequence defaultKeySequence() const = 0;
     virtual QKeySequence keySequence() const = 0;
     virtual void setDefaultText(const QString &text) = 0;
     virtual QString defaultText() const = 0;
 
     virtual int id() const = 0;
-    virtual CommandType type() const = 0;
 
     virtual QAction *action() const = 0;
     virtual QShortcut *shortcut() const = 0;
@@ -76,6 +68,8 @@ public:
     virtual bool isActive() const = 0;
 
     virtual ~Command() {}
+
+    virtual void setKeySequence(const QKeySequence &key) = 0;
 
     virtual QString stringWithAppendedShortcut(const QString &str) const = 0;
 

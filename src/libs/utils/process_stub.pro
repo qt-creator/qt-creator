@@ -1,13 +1,8 @@
-IDE_BUILD_TREE = $$OUT_PWD/../../..
 include(../../../qtcreator.pri)
 
 TEMPLATE        = app
 TARGET          = qtcreator_process_stub
-macx {
-    DESTDIR         = $$IDE_BUILD_TREE/bin/$${IDE_APP_TARGET}.app/Contents/Resources
-} else {
-    DESTDIR         = ../../../bin
-}
+DESTDIR         = $$IDE_LIBEXEC_PATH
 
 CONFIG          += warn_on console use_c_linker
 CONFIG          -= qt app_bundle
@@ -24,5 +19,5 @@ unix {
     LIBS += -lshell32
 }
 
-target.path  = /bin
+target.path  = /bin # FIXME: libexec, more or less
 INSTALLS    += target

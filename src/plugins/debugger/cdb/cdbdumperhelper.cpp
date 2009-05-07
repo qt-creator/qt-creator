@@ -352,7 +352,7 @@ bool CdbDumperHelper::ensureInitialized(QString *errorMessage)
                 return false;
             case CallLoadNoQtApp:
                 m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("CdbDumperHelper", "The debuggee does not appear to be Qt application."));
-                disable();
+                m_state = Disabled; // No message here
                 return true;
             }
         break;
@@ -367,7 +367,7 @@ bool CdbDumperHelper::ensureInitialized(QString *errorMessage)
         m_access->showDebuggerOutput(m_messagePrefix, m_helper.toString());
         m_state = Initialized;
     } else {
-        disable();
+        m_state = Disabled; // No message here
         *errorMessage = QCoreApplication::translate("CdbDumperHelper", "The custom dumper library could not be initialized: %1").arg(*errorMessage);
         m_access->showDebuggerOutput(m_messagePrefix, *errorMessage);
         m_access->showQtDumperLibraryWarning(*errorMessage);

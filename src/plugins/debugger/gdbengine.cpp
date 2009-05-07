@@ -117,7 +117,7 @@ GdbEngine::GdbEngine(DebuggerManager *parent)
 {
     q = parent;
     qq = parent->engineInterface();
-    m_stubProc.setDebug(true);
+    m_stubProc.setMode(Core::Utils::ConsoleProcess::Debug);
     initializeVariables();
     initializeConnections();
 }
@@ -131,22 +131,28 @@ GdbEngine::~GdbEngine()
 void GdbEngine::initializeConnections()
 {
     // Gdb Process interaction
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)), this,
-        SLOT(gdbProcError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()), this,
-        SLOT(readGdbStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardError()), this,
-        SLOT(readGdbStandardError()));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)), q,
-        SLOT(exitDebugger()));
+    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
+        this, SLOT(gdbProcError(QProcess::ProcessError)));
+    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
+        this, SLOT(readGdbStandardOutput()));
+    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
+        this, SLOT(readGdbStandardError()));
+    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
+        q, SLOT(exitDebugger()));
 
-    connect(&m_stubProc, SIGNAL(processError(QString)), SLOT(stubError(QString)));
-    connect(&m_stubProc, SIGNAL(processStarted()), SLOT(stubStarted()));
-    connect(&m_stubProc, SIGNAL(wrapperStopped()), q, SLOT(exitDebugger()));
+    connect(&m_stubProc, SIGNAL(processError(QString)),
+        this, SLOT(stubError(QString)));
+    connect(&m_stubProc, SIGNAL(processStarted()),
+        this, SLOT(stubStarted()));
+    connect(&m_stubProc, SIGNAL(wrapperStopped()),
+        q, SLOT(exitDebugger()));
+
+    connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
+        this, SLOT(uploadProcError(QProcess::ProcessError)));
 
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
-            SLOT(readDebugeeOutput(QByteArray)));
+        this, SLOT(readDebugeeOutput(QByteArray)));
 
     connect(this, SIGNAL(gdbOutputAvailable(QString,QString)),
         q, SLOT(showDebuggerOutput(QString,QString)),
@@ -223,6 +229,43 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
     QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
     // act as if it was closed by the core
     q->exitDebugger();
+}
+
+void GdbEngine::uploadProcError(QProcess::ProcessError error)
+{
+    QString msg;
+    switch (error) {
+        case QProcess::FailedToStart:
+            msg = tr("The upload process failed to start. Either the "
+                "invoked script '%1' is missing, or you may have insufficient "
+                "permissions to invoke the program.")
+                .arg(theDebuggerStringSetting(GdbLocation));
+            break;
+        case QProcess::Crashed:
+            msg = tr("The upload process crashed some time after starting "
+                "successfully.");
+            break;
+        case QProcess::Timedout:
+            msg = tr("The last waitFor...() function timed out. "
+                "The state of QProcess is unchanged, and you can try calling "
+                "waitFor...() again.");
+            break;
+        case QProcess::WriteError:
+            msg = tr("An error occurred when attempting to write "
+                "to the upload process. For example, the process may not be running, "
+                "or it may have closed its input channel.");
+            break;
+        case QProcess::ReadError:
+            msg = tr("An error occurred when attempting to read from "
+                "the upload process. For example, the process may not be running.");
+            break;
+        default:
+            msg = tr("An unknown error in the upload process occurred. "
+                "This is the default return value of error().");
+    }
+
+    q->showStatusMessage(msg);
+    QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
 }
 
 #if 0
@@ -535,7 +578,7 @@ void GdbEngine::interruptInferior()
         return;
     }
 
-    if (q->startMode() == AttachRemote) {
+    if (q->startMode() == StartRemote) {
         execCommand(_("-exec-interrupt"));
         return;
     }
@@ -613,7 +656,7 @@ void GdbEngine::flushCommand(GdbCommand &cmd)
     ++currentToken();
     m_cookieForToken[currentToken()] = cmd;
     cmd.command = QString::number(currentToken()) + cmd.command;
-    if (cmd.command.contains(__("%1")))
+    if (cmd.flags & EmbedToken)
         cmd.command = cmd.command.arg(currentToken());
 
     m_gdbProc.write(cmd.command.toLatin1() + "\r\n");
@@ -907,6 +950,7 @@ void GdbEngine::handleAqcuiredInferior()
     #endif
     if (theDebuggerBoolSetting(ListSourceFiles))
         reloadSourceFiles();
+
     tryLoadDebuggingHelpers();
 
     #ifndef Q_OS_MAC
@@ -1313,7 +1357,7 @@ void GdbEngine::exitDebugger()
                 qDebug() << "STATUS ON EXITDEBUGGER: " << q->status());
             interruptInferior();
         }
-        if (q->startMode() == AttachExternal || q->startMode() == AttachRemote)
+        if (q->startMode() == AttachExternal || q->startMode() == StartRemote)
             execCommand(_("detach"));
         else
             execCommand(_("kill"));
@@ -1357,8 +1401,19 @@ bool GdbEngine::startDebugger()
 
     if (q->startMode() == AttachCore || q->startMode() == AttachExternal) {
         // nothing to do
-    } else if (q->startMode() == AttachRemote) {
-        // nothing to do
+    } else if (q->startMode() == StartRemote) {
+        // Start the remote server
+        if (q->m_serverStartScript.isEmpty()) {
+            q->showStatusMessage(_("No server start script given. "
+                "Assuming server runs already."));
+        } else {
+            if (!q->m_workingDir.isEmpty())
+                m_uploadProc.setWorkingDirectory(q->m_workingDir);
+            if (!q->m_environment.isEmpty())
+                m_uploadProc.setEnvironment(q->m_environment);
+            m_uploadProc.start(_("/bin/sh ") + q->m_serverStartScript);
+            m_uploadProc.waitForStarted();
+        }
     } else if (q->m_useTerminal) {
         m_stubProc.stop(); // We leave the console open, so recycle it now.
 
@@ -1495,7 +1550,7 @@ bool GdbEngine::startDebugger()
         execCommand(_("-file-exec-and-symbols ") + fileName);
         execCommand(_("target core ") + coreName, CB(handleTargetCore));
         qq->breakHandler()->removeAllBreakpoints();
-    } else if (q->startMode() == AttachRemote) {
+    } else if (q->startMode() == StartRemote) {
         execCommand(_("set architecture %1").arg(q->m_remoteArchitecture));
         qq->breakHandler()->setAllPending();
         //QFileInfo fi(q->m_executable);
@@ -2795,7 +2850,7 @@ bool GdbEngine::hasDebuggingHelperForType(const QString &type) const
     if (!theDebuggerBoolSetting(UseDebuggingHelpers))
         return false;
 
-    if (q->startMode() == AttachCore) {
+    if (!startModeAllowsDumpers()) {
         // "call" is not possible in gdb when looking at core files
         return type == __("QString") || type.endsWith(__("::QString"))
             || type == __("QStringList") || type.endsWith(__("::QStringList"));
@@ -2834,7 +2889,7 @@ void GdbEngine::runDirectDebuggingHelper(const WatchData &data, bool dumpChildre
 
 void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
 {
-    if (q->startMode() == AttachCore) {
+    if (!startModeAllowsDumpers()) {
         runDirectDebuggingHelper(data0, dumpChildren);
         return;
     }
@@ -2867,7 +2922,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
 
     QVariant var;
     var.setValue(data);
-    execCommand(cmd, WatchUpdate, CB(handleDebuggingHelperValue1), var);
+    execCommand(cmd, WatchUpdate | EmbedToken, CB(handleDebuggingHelperValue1), var);
 
     q->showStatusMessage(
         tr("Retrieving data for watch view (%1 requests pending)...")
@@ -3832,6 +3887,9 @@ void GdbEngine::tryLoadDebuggingHelpers()
     if (m_debuggingHelperState != DebuggingHelperUninitialized)
         return;
 
+    if (!startModeAllowsDumpers())
+        return;
+
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
     m_debuggingHelperState = DebuggingHelperUnavailable;
     if (!qq->qtDumperLibraryEnabled())
@@ -3875,15 +3933,24 @@ void GdbEngine::tryLoadDebuggingHelpers()
     execCommand(_("sharedlibrary ") + dotEscape(lib));
 #endif
     // retreive list of dumpable classes
-    execCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"));
+    execCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
     execCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
 }
 
 void GdbEngine::recheckDebuggingHelperAvailability()
 {
-    // retreive list of dumpable classes
-    execCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"));
-    execCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
+    if (startModeAllowsDumpers()) {
+        // retreive list of dumpable classes
+        execCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
+        execCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
+    }
+}
+
+bool GdbEngine::startModeAllowsDumpers() const
+{
+    return q->startMode() == StartInternal
+        || q->startMode() == StartExternal
+        || q->startMode() == AttachExternal;
 }
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *opts)

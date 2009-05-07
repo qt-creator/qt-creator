@@ -44,14 +44,13 @@
 
 using namespace Core::Utils;
 
-ConsoleProcess::ConsoleProcess(QObject *parent)
-    : QObject(parent)
+ConsoleProcess::ConsoleProcess(QObject *parent)  :
+    QObject(parent),
+    m_mode(Run),
+    m_appPid(0),
+    m_stubSocket(0),
+    m_settings(0)
 {
-    m_debug = false;
-    m_appPid = 0;
-    m_stubSocket = 0;
-    m_settings = 0;
-
     connect(&m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
 
     m_process.setProcessChannelMode(QProcess::ForwardedChannels);
@@ -69,9 +68,9 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
     if (isRunning())
         return false;
 
-    QString err = stubServerListen();
+    const QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processError(tr("Cannot set up communication channel: %1").arg(err));
+        emit processError(msgCommChannelFailed(err));
         return false;
     }
 
@@ -79,7 +78,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         m_tempFile = new QTemporaryFile();
         if (!m_tempFile->open()) {
             stubServerShutdown();
-            emit processError(tr("Cannot create temporary file: %1").arg(m_tempFile->errorString()));
+            emit processError(msgCannotCreateTempFile(m_tempFile->errorString()));
             delete m_tempFile;
             m_tempFile = 0;
             return false;
@@ -94,13 +93,13 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
     QStringList xtermArgs = terminalEmulator(m_settings).split(QLatin1Char(' ')); // FIXME: quoting
     xtermArgs
 #ifdef Q_OS_MAC
-              << (QCoreApplication::applicationDirPath() + "/../Resources/qtcreator_process_stub")
+              << (QCoreApplication::applicationDirPath() + QLatin1String("/../Resources/qtcreator_process_stub"))
 #else
-              << (QCoreApplication::applicationDirPath() + "/qtcreator_process_stub")
+              << (QCoreApplication::applicationDirPath() + QLatin1String("/qtcreator_process_stub"))
 #endif
-              << (m_debug ? "debug" : "exec")
+              << modeOption(m_mode)
               << m_stubServer.fullServerName()
-              << tr("Press <RETURN> to close this window...")
+              << msgPromptToClose()
               << workingDirectory()
               << (m_tempFile ? m_tempFile->fileName() : 0)
               << program << args;
@@ -145,7 +144,7 @@ QString ConsoleProcess::stubServerListen()
         {
             QTemporaryFile tf;
             if (!tf.open())
-                return tr("Cannot create temporary file: %1").arg(tf.errorString());
+                return msgCannotCreateTempFile(tf.errorString());
             stubFifoDir = QFile::encodeName(tf.fileName());
         }
         // By now the temp file was deleted again
@@ -153,9 +152,9 @@ QString ConsoleProcess::stubServerListen()
         if (!::mkdir(m_stubServerDir.constData(), 0700))
             break;
         if (errno != EEXIST)
-            return tr("Cannot create temporary directory '%1': %2").arg(stubFifoDir, strerror(errno));
+            return msgCannotCreateTempDir(stubFifoDir, QString::fromLocal8Bit(strerror(errno)));
     }
-    QString stubServer  = stubFifoDir + "/stub-socket";
+    const QString stubServer  = stubFifoDir + "/stub-socket";
     if (!m_stubServer.listen(stubServer)) {
         ::rmdir(m_stubServerDir.constData());
         return tr("Cannot create socket '%1': %2").arg(stubServer, m_stubServer.errorString());
@@ -190,11 +189,9 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = m_stubSocket->readLine();
         out.chop(1); // \n
         if (out.startsWith("err:chdir ")) {
-            emit processError(tr("Cannot change to working directory '%1': %2")
-                              .arg(workingDirectory(), errorMsg(out.mid(10).toInt())));
+            emit processError(msgCannotChangeToWorkDir(workingDirectory(), errorMsg(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emit processError(tr("Cannot execute '%1': %2")
-                              .arg(m_executable, errorMsg(out.mid(9).toInt())));
+            emit processError(msgCannotExecute(m_executable, errorMsg(out.mid(9).toInt())));
         } else if (out.startsWith("pid ")) {
             // Will not need it any more
             delete m_tempFile;
@@ -213,7 +210,7 @@ void ConsoleProcess::readStubOutput()
             m_appPid = 0;
             emit processStopped();
         } else {
-            emit processError(tr("Unexpected output from helper program."));
+            emit processError(msgUnexpectedOutput());
             m_process.terminate();
             break;
         }
@@ -250,7 +247,7 @@ QString ConsoleProcess::defaultTerminalEmulator()
 
 QString ConsoleProcess::terminalEmulator(const QSettings *settings)
 {
-    QString dflt = defaultTerminalEmulator() + QLatin1String(" -e");
+    const QString dflt = defaultTerminalEmulator() + QLatin1String(" -e");
     if (!settings)
         return dflt;
     return settings->value(QLatin1String("General/TerminalEmulator"), dflt).toString();

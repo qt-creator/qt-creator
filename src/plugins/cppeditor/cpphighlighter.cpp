@@ -58,6 +58,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         braceDepth = previousState >> 8;
     }
 
+
     SimpleLexer tokenize;
     tokenize.setQtMocRunEnabled(false);
 
@@ -209,6 +210,28 @@ void CppHighlighter::highlightBlock(const QString &text)
     }
 
     TextEditDocumentLayout::setParentheses(currentBlock(), parentheses);
+
+
+    // optimization: if only the brace depth changes, we adjust subsequent blocks
+    // to have QSyntaxHighlighter stop the rehighlighting
+    int currentState = currentBlockState();
+    if (currentState != -1) {
+        int oldState = currentState & 0xff;
+        int oldBraceDepth = currentState >> 8;
+        if (oldState == tokenize.state() && oldBraceDepth != braceDepth) {
+            int delta = braceDepth - oldBraceDepth;
+            QTextBlock block = currentBlock().next();
+            while (block.isValid()) {
+                currentState = block.userState();
+                if (currentState != -1) {
+                    oldState = currentState & 0xff;
+                    oldBraceDepth = currentState >> 8;
+                    block.setUserState(qMax(0, (oldBraceDepth + delta) << 8 ) | oldState);
+                }
+                block = block.next();
+            }
+        }
+    }
 
     setCurrentBlockState((braceDepth << 8) | tokenize.state());
 }
