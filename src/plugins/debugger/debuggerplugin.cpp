@@ -99,6 +99,7 @@ namespace Constants {
 const char * const STARTEXTERNAL        = "Debugger.StartExternal";
 const char * const ATTACHEXTERNAL       = "Debugger.AttachExternal";
 const char * const ATTACHCORE           = "Debugger.AttachCore";
+const char * const ATTACHTCF            = "Debugger.AttachTcf";
 const char * const ATTACHREMOTE         = "Debugger.AttachRemote";
 const char * const DETACH               = "Debugger.Detach";
 
@@ -481,6 +482,14 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_attachCoreAction->setText(tr("Attach to Core..."));
     connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
 
+    m_attachTcfAction = new QAction(this);
+    m_attachTcfAction->setText(tr("Attach to Running TCF Agent..."));
+    m_attachTcfAction->setToolTip(tr("This attaches to a running "
+        "'Target Communication Framework' agent."));
+    connect(m_attachTcfAction, SIGNAL(triggered()),
+        this, SLOT(attachRemoteTcf()));
+
+
     m_startRemoteAction = new QAction(this);
     m_startRemoteAction->setText(tr("Start and Attach to Remote Application..."));
     connect(m_startRemoteAction, SIGNAL(triggered()),
@@ -506,6 +515,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     cmd = am->registerAction(m_attachCoreAction,
         Constants::ATTACHCORE, globalcontext);
+    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+
+    cmd = am->registerAction(m_attachTcfAction,
+        Constants::ATTACHTCF, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_startRemoteAction,

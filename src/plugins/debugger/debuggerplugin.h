@@ -128,6 +128,7 @@ private:
     QAction *m_startRemoteAction;
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
+    QAction *m_attachTcfAction;
     QAction *m_detachAction;
 };
 
