@@ -180,6 +180,11 @@ void DebuggerManager::init()
     m_registerHandler = 0;
 
     m_statusLabel = new QLabel;
+    // FIXME: Do something to show overly long messages at least partially
+    //QSizePolicy policy = m_statusLabel->sizePolicy();
+    //policy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
+    //m_statusLabel->setSizePolicy(policy);
+    //m_statusLabel->setWordWrap(true);
     m_breakWindow = new BreakWindow;
     m_disassemblerWindow = new DisassemblerWindow;
     m_modulesWindow = new ModulesWindow(this);

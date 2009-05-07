@@ -724,54 +724,14 @@ void GdbEngine::handleTargetCore(const GdbResultRecord &, const QVariant &)
 {
     qq->notifyInferiorStopped();
     q->showStatusMessage(tr("Core file loaded."));
-
     q->resetLocation();
-
-    //
-    // Stack
-    //
+    tryLoadDebuggingHelpers();
     qq->stackHandler()->setCurrentIndex(0);
     updateLocals(); // Quick shot
-
     reloadStack();
     if (supportsThreads())
         postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), 0);
-
-    //
-    // Disassembler
-    //
-    // XXX we have no data here ...
-    //m_address = data.findChild("frame").findChild("addr").data();
-    //qq->reloadDisassembler();
-
-    //
-    // Registers
-    //
     qq->reloadRegisters();
-
-    // Gdb-Macro based DebuggingHelpers
-    postCommand(_(
-        "define qdumpqstring\n"
-        "set $i = 0\n"
-        "set $l = $arg0->d->size\n"
-        "set $p = $arg0->d->data\n"
-        "while $i < $l\n"
-        "printf \"%d \",$p[$i++]\n"
-        "end\n"
-        "printf \"\\n\"\n"
-        "end\n"
-    ));
-
-    postCommand(_(
-        "define qdumpqstringlist\n"
-        "set $i = $arg0->d->begin\n"
-        "set $e = $arg0->d->end\n"
-        "while $i < $e\n"
-        "printf \"%d \",$arg0->d->array + $i++\n"
-        "end\n"
-        "printf \"\\n\"\n"
-        "end\n"
-    ));
 }
 
 #if 0
@@ -1677,6 +1637,7 @@ void GdbEngine::handleTargetRemote(const GdbResultRecord &record, const QVariant
 {
     if (record.resultClass == GdbResultDone) {
         //postCommand(_("-exec-continue"), CB(handleExecRun));
+        m_waitingForBreakpointSynchronizationToContinue = true;
         handleAqcuiredInferior();
     } else if (record.resultClass == GdbResultError) {
         // 16^error,msg="hd:5555: Connection timed out."
@@ -3904,8 +3865,32 @@ void GdbEngine::tryLoadDebuggingHelpers()
     if (m_debuggingHelperState != DebuggingHelperUninitialized)
         return;
 
-    if (!startModeAllowsDumpers())
+    if (!startModeAllowsDumpers()) {
+        // load gdb macro based dumpers at least 
+        postCommand(_(
+            "define qdumpqstring\n"
+            "set $i = 0\n"
+            "set $l = $arg0->d->size\n"
+            "set $p = $arg0->d->data\n"
+            "while $i < $l\n"
+            "printf \"%d \",$p[$i++]\n"
+            "end\n"
+            "printf \"\\n\"\n"
+            "end\n"
+        ));
+
+        postCommand(_(
+            "define qdumpqstringlist\n"
+            "set $i = $arg0->d->begin\n"
+            "set $e = $arg0->d->end\n"
+            "while $i < $e\n"
+            "printf \"%d \",$arg0->d->array + $i++\n"
+            "end\n"
+            "printf \"\\n\"\n"
+            "end\n"
+        ));
         return;
+    }
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
     m_debuggingHelperState = DebuggingHelperUnavailable;
