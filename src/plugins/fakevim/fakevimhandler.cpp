@@ -1125,6 +1125,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_registers[m_register] = removeSelectedText();
         m_mode = InsertMode;
         finishMovement();
+    } else if (key == control('c')) {
+        showBlackMessage("Type Alt-v,Alt-v  to quit FakeVim mode");
     } else if (key == 'd' && m_visualMode == NoVisualMode) {
         if (atEndOfLine())
             moveLeft();
