@@ -192,7 +192,7 @@ void GdbEngine::initializeVariables()
     m_oldestAcceptableToken = -1;
     m_outputCodec = QTextCodec::codecForLocale();
     m_pendingRequests = 0;
-    m_waitingForBreakpointSynchronizationToContinue = false;
+    m_autoContinue = false;
     m_waitingForFirstBreakpointToBeHit = false;
     m_commandsToRunOnTemporaryBreak.clear();
 }
@@ -522,8 +522,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 void GdbEngine::handleStubAttached(const GdbResultRecord &, const QVariant &)
 {
     qq->notifyInferiorStopped();
-    m_waitingForBreakpointSynchronizationToContinue = true;
     handleAqcuiredInferior();
+    m_autoContinue = true;
 }
 
 void GdbEngine::stubStarted()
@@ -712,6 +712,16 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
     } else {
         PENDING_DEBUG("   UNKNOWN TYPE " << cmd.type << " LEAVES PENDING AT: "
             << m_pendingRequests << cmd.command);
+    }
+
+    // This is somewhat inefficient, as it makes the last command synchronous.
+    // An optimization would be requesting the continue immediately when the
+    // event loop is entered, and let individual commands have a flag to suppress
+    // that behavior.
+    if (m_cookieForToken.isEmpty() && m_autoContinue) {
+        m_autoContinue = false;
+        continueInferior();
+        q->showStatusMessage(tr("Continuing after temporary stop."));
     }
 }
 
@@ -942,12 +952,6 @@ void GdbEngine::handleAqcuiredInferior()
     attemptBreakpointSynchronization();
 }
 
-void GdbEngine::handleAutoContinue(const GdbResultRecord &, const QVariant &)
-{
-    continueInferior();
-    q->showStatusMessage(tr("Continuing after temporary stop."));
-}
-
 void GdbEngine::handleAsyncOutput(const GdbMi &data)
 {
     const QByteArray &reason = data.findChild("reason").data();
@@ -980,8 +984,8 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         // This is handled now above.
 
         qq->notifyInferiorStopped();
-        m_waitingForBreakpointSynchronizationToContinue = true;
         handleAqcuiredInferior();
+        m_autoContinue = true;
         return;
     }
 
@@ -996,8 +1000,8 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                 .arg(cmd.command).arg(_(cmd.callbackName)));
             flushCommand(cmd);
         }
-        postCommand(_("p temporaryStop"), CB(handleAutoContinue));
-        q->showStatusMessage(tr("Handling queued commands."));
+        q->showStatusMessage(tr("Processing queued commands."));
+        m_autoContinue = true;
         return;
     }
 
@@ -1638,8 +1642,8 @@ void GdbEngine::handleTargetRemote(const GdbResultRecord &record, const QVariant
 {
     if (record.resultClass == GdbResultDone) {
         //postCommand(_("-exec-continue"), CB(handleExecRun));
-        m_waitingForBreakpointSynchronizationToContinue = true;
         handleAqcuiredInferior();
+        m_autoContinue = true;
     } else if (record.resultClass == GdbResultError) {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = __(record.data.findChild("msg").data());
@@ -2216,12 +2220,6 @@ void GdbEngine::attemptBreakpointSynchronization()
             data->markerFileName = fullName(data->markerFileName);
             handler->updateMarkers();
         }
-    }
-
-    if (!updateNeeded && m_waitingForBreakpointSynchronizationToContinue) {
-        m_waitingForBreakpointSynchronizationToContinue = false;
-        // we continue the execution
-        continueInferior();
     }
 
     inBreakpointSychronization = false;

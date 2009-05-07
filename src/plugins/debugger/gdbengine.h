@@ -205,7 +205,6 @@ private:
     void handleAsyncOutput2(const GdbMi &data);
     void handleAsyncOutput(const GdbMi &data);
     void handleResultRecord(const GdbResultRecord &response);
-    void handleAutoContinue(const GdbResultRecord &, const QVariant &);
     void handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &);
     void handleExecRun(const GdbResultRecord &response, const QVariant &);
     void handleExecJumpToLine(const GdbResultRecord &response, const QVariant &);
@@ -371,7 +370,7 @@ private:
     QString m_currentFrame;
     QMap<QString, QString> m_varToType;
 
-    bool m_waitingForBreakpointSynchronizationToContinue;
+    bool m_autoContinue;
     bool m_waitingForFirstBreakpointToBeHit;
     bool m_modulesListOutdated;
 
