@@ -188,27 +188,27 @@ static bool debuggeeLoadLibrary(IDebuggerManagerAccessForEngines *access,
 static inline QString msgMethod(bool injectOrCall)
 {
     return injectOrCall ?
-            QCoreApplication::translate("CdbDumperHelper", "injection") :
-            QCoreApplication::translate("CdbDumperHelper", "debugger call");
+            QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "injection") :
+            QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "debugger call");
 }
 
 static QString msgLoading(const QString &library, bool injectOrCall)
 {
-    return QCoreApplication::translate("CdbDumperHelper",
+    return QCoreApplication::translate("Debugger::Internal::CdbDumperHelper",
                                        "Loading the custom dumper library '%1' (%2) ...").
                                        arg(library, msgMethod(injectOrCall));
 }
 
 static QString msgLoadFailed(const QString &library, bool injectOrCall, const QString &why)
 {
-    return QCoreApplication::translate("CdbDumperHelper",
+    return QCoreApplication::translate("Debugger::Internal::CdbDumperHelper",
                                        "Loading of the custom dumper library '%1' (%2) failed: %3").
                                        arg(library, msgMethod(injectOrCall), why);
 }
 
 static QString msgLoadSucceeded(const QString &library, bool injectOrCall)
 {
-        return QCoreApplication::translate("CdbDumperHelper",
+        return QCoreApplication::translate("Debugger::Internal::CdbDumperHelper",
                                        "Loaded the custom dumper library '%1' (%2).").
                                        arg(library, msgMethod(injectOrCall));
 }
@@ -240,7 +240,7 @@ void CdbDumperHelper::disable()
 {
     if (loadDebug)
         qDebug() << Q_FUNC_INFO;
-    m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("CdbDumperHelper", "Disabling dumpers due to debuggee crash..."));
+    m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Disabling dumpers due to debuggee crash..."));
     m_state = Disabled;
 }
 
@@ -351,7 +351,7 @@ bool CdbDumperHelper::ensureInitialized(QString *errorMessage)
                 m_access->showQtDumperLibraryWarning(*errorMessage);
                 return false;
             case CallLoadNoQtApp:
-                m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("CdbDumperHelper", "The debuggee does not appear to be Qt application."));
+                m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The debuggee does not appear to be Qt application."));
                 m_state = Disabled; // No message here
                 return true;
             }
@@ -360,15 +360,15 @@ bool CdbDumperHelper::ensureInitialized(QString *errorMessage)
         break;
     }
     // Perform remaining initialization
-    m_manager->showStatusMessage(QCoreApplication::translate("CdbDumperHelper", "Initializing dumpers..."), 10000);
+    m_manager->showStatusMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Initializing dumpers..."), 10000);
     const bool ok = initResolveSymbols(errorMessage) && initKnownTypes(errorMessage);
     if (ok) {
-        m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("CdbDumperHelper", "Custom dumper library initialized."));
+        m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Custom dumper library initialized."));
         m_access->showDebuggerOutput(m_messagePrefix, m_helper.toString());
         m_state = Initialized;
     } else {
         m_state = Disabled; // No message here
-        *errorMessage = QCoreApplication::translate("CdbDumperHelper", "The custom dumper library could not be initialized: %1").arg(*errorMessage);
+        *errorMessage = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The custom dumper library could not be initialized: %1").arg(*errorMessage);
         m_access->showDebuggerOutput(m_messagePrefix, *errorMessage);
         m_access->showQtDumperLibraryWarning(*errorMessage);
     }
@@ -557,7 +557,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
         return DumpNotHandled;
 
     // Now evaluate
-    const QString message = QCoreApplication::translate("CdbDumperHelper",
+    const QString message = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper",
                                                         "Querying dumpers for '%1'/'%2' (%3)").
                                                         arg(wd.name, wd.exp, wd.type);
     m_access->showDebuggerOutput(m_messagePrefix, message);

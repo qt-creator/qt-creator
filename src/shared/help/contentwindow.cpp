@@ -118,7 +118,7 @@ bool ContentWindow::eventFilter(QObject *o, QEvent *e)
                 qobject_cast<QHelpContentModel*>(m_contentWidget->model());
             QHelpContentItem *itm =
                 contentModel->contentItemAt(m_contentWidget->currentIndex());
-            CentralWidget::instance()->setSourceInNewTab(itm->url());
+            Help::Internal::CentralWidget::instance()->setSourceInNewTab(itm->url());
         }
     }
     return QWidget::eventFilter(o, e);
@@ -143,7 +143,7 @@ void ContentWindow::showContextMenu(const QPoint &pos)
     if (curTab == action)
         emit linkActivated(itm->url());
     else if (newTab == action)
-        CentralWidget::instance()->setSourceInNewTab(itm->url());
+        Help::Internal::CentralWidget::instance()->setSourceInNewTab(itm->url());
 }
 
 void ContentWindow::itemClicked(const QModelIndex &index)

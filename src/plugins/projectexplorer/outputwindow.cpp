@@ -67,7 +67,7 @@ OutputPane::OutputPane()
     // Rerun
     m_reRunButton = new QToolButton;
     m_reRunButton->setIcon(runIcon);
-    m_reRunButton->setToolTip(tr("Rerun this runconfiguration"));
+    m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
     connect(m_reRunButton, SIGNAL(clicked()),

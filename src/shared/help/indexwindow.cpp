@@ -134,12 +134,12 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
                 if (model) {
                     QMap<QString, QUrl> links = model->linksForKeyword(keyword);
                     if (links.count() == 1) {
-                        CentralWidget::instance()->
+                        Help::Internal::CentralWidget::instance()->
                             setSourceInNewTab(links.constBegin().value());
                     } else {
                         TopicChooser tc(this, keyword, links);
                         if (tc.exec() == QDialog::Accepted) {
-                            CentralWidget::instance()->setSourceInNewTab(tc.link());
+                            Help::Internal::CentralWidget::instance()->setSourceInNewTab(tc.link());
                         }
                     }
                 }
@@ -158,10 +158,10 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
                 if (links.count() > 1) {
                     TopicChooser tc(this, keyword, links);
                     if (tc.exec() == QDialog::Accepted) {
-                        CentralWidget::instance()->setSourceInNewTab(tc.link());
+                        Help::Internal::CentralWidget::instance()->setSourceInNewTab(tc.link());
                     }
                 } else if (links.count() == 1) {
-                    CentralWidget::instance()->
+                    Help::Internal::CentralWidget::instance()->
                         setSourceInNewTab(links.constBegin().value());
                 }
             }

@@ -71,7 +71,7 @@ namespace {
         }
         return 0;
     }
-    CentralWidget *staticCentralWidget = 0;
+    Help::Internal::CentralWidget *staticCentralWidget = 0;
 }
 
 CentralWidget::CentralWidget(QHelpEngine *engine, QWidget *parent)

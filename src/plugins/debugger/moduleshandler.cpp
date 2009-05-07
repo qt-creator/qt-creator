@@ -87,7 +87,7 @@ QVariant ModulesModel::headerData(int section,
             tr("Module name") + "        ", 
             tr("Symbols read") + "        ",
             tr("Start address") + "        ",
-            tr("End addAress") + "        "
+            tr("End address") + "        "
         };
         return headers[section];
     }

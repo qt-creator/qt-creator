@@ -493,11 +493,11 @@ bool CdbDebugEngine::startDebugger()
         }
         break;
     case AttachCore:
-        errorMessage = tr("CdbDebugEngine: Attach to core not supported!");
+        errorMessage = tr("Attaching to core files is not supported!");
         break;
     }
     if (rc) {
-        m_d->m_debuggerManager->showStatusMessage(tr("Debugger Running"), -1);
+        m_d->m_debuggerManager->showStatusMessage(tr("Debugger running"), -1);
         if (needWatchTimer)
             startWatchTimer();
     } else {
@@ -515,7 +515,7 @@ bool CdbDebugEngine::startAttachDebugger(qint64 pid, QString *errorMessage)
     if (debugCDB)
         qDebug() << "Attaching to " << pid << " returns " << hr << executionStatusString(m_d->m_cif.debugControl);
     if (FAILED(hr)) {
-        *errorMessage = tr("AttachProcess failed for pid %1: %2").arg(pid).arg(msgDebugEngineComResult(hr));
+        *errorMessage = tr("Attaching to a process failed for process id %1: %2").arg(pid).arg(msgDebugEngineComResult(hr));
         return false;
     } else {
         m_d->m_mode = AttachExternal;
@@ -558,7 +558,7 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
                                                                m_d->m_debuggerManager->m_workingDir.utf16(),
                                                                env);
     if (FAILED(hr)) {
-        *errorMessage = tr("CreateProcess2Wide failed for '%1': %2").arg(cmd, msgDebugEngineComResult(hr));
+        *errorMessage = tr("Unable to create a process '%1': %2").arg(cmd, msgDebugEngineComResult(hr));
         m_d->m_debuggerManagerAccess->notifyInferiorExited();
         return false;
     } else {

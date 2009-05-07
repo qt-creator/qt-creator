@@ -400,7 +400,7 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
         emit requestShowLink(data);
     }
     else if (picked_action == showItemNewTab) {
-        CentralWidget::instance()->setSourceInNewTab(data);
+        Help::Internal::CentralWidget::instance()->setSourceInNewTab(data);
     }
     else if (picked_action == removeItem) {
         bookmarkManager->removeBookmarkItem(treeView,
@@ -575,7 +575,7 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
         if (index.isValid() && (me->button() == Qt::MidButton)) {
             QString data = index.data(Qt::UserRole + 10).toString();
             if (!data.isEmpty() && data != QLatin1String("Folder"))
-                CentralWidget::instance()->setSourceInNewTab(data);
+                Help::Internal::CentralWidget::instance()->setSourceInNewTab(data);
         }
     }
     return QWidget::eventFilter(object, e);

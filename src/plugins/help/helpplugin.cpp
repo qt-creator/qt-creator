@@ -230,7 +230,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
 #endif
 
-    m_centralWidget = new CentralWidget(m_helpEngine);
+    m_centralWidget = new Help::Internal::CentralWidget(m_helpEngine);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_centralWidget);
     agg->add(new HelpFindSupport(m_centralWidget));

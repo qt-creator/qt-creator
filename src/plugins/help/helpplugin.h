@@ -49,7 +49,6 @@ class IndexWindow;
 class ContentWindow;
 class BookmarkManager;
 class BookmarkWidget;
-class CentralWidget;
 class HelpViewer;
 QT_END_NAMESPACE
 
@@ -62,6 +61,9 @@ class SideBarItem;
 }
 
 namespace Help {
+namespace Internal {
+    class CentralWidget;
+}
 
 namespace Constants {
     const char * const C_MODE_HELP    = "Help Mode";
@@ -141,7 +143,7 @@ private:
     BookmarkWidget *m_bookmarkWidget;
     BookmarkManager *m_bookmarkManager;
     SearchWidget *m_searchWidget;
-    CentralWidget *m_centralWidget;
+    Help::Internal::CentralWidget *m_centralWidget;
     HelpViewer *m_helpViewerForSideBar;
     HelpMode *m_mode;
     bool m_shownLastPages;

@@ -51,6 +51,11 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+static inline QString msgProgress(int n, int total)
+{
+    return BuildManager::tr("Finished %n of %1 build steps", 0, n).arg(total);
+}
+
 BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     : QObject(parent)
     , m_running(false)
@@ -200,8 +205,7 @@ void BuildManager::startBuildQueue()
     } else {
         // Already running
         m_progressFutureInterface->setProgressRange(0, m_maxProgress * 100);
-        const QString &progressText = tr("Finished %1 of %2 build steps").arg(m_progress).arg(m_maxProgress);
-        m_progressFutureInterface->setProgressValueAndText(m_progress*100, progressText);
+        m_progressFutureInterface->setProgressValueAndText(m_progress*100, msgProgress(m_progress, m_maxProgress));
     }
 }
 
@@ -235,8 +239,7 @@ void BuildManager::nextBuildQueue()
                this, SLOT(addToOutputWindow(QString)));
 
     ++m_progress;
-    const QString &progressText = tr("Finished %1 of %2 build steps").arg(m_progress).arg(m_maxProgress);
-    m_progressFutureInterface->setProgressValueAndText(m_progress*100, progressText);
+    m_progressFutureInterface->setProgressValueAndText(m_progress*100, msgProgress(m_progress, m_maxProgress));
 
     bool result = m_watcher.result();
     if (!result) {
