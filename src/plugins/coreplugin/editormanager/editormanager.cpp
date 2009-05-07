@@ -406,7 +406,6 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
     // other setup
     m_d->m_splitter = new SplitterOrView(m_d->m_editorModel);
-    m_d->m_splitter->setRoot(true);
     m_d->m_view = m_d->m_splitter->view();
 
 

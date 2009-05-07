@@ -85,6 +85,8 @@ public:
     };
     QList<Entry> entries() const { return m_editors; }
 
+    inline IEditor *editorAt(int row) const { return m_editors.at(row).editor; }
+
     void removeEditor(IEditor *editor);
     void removeEditor(const QModelIndex &index);
 
@@ -155,6 +157,7 @@ private:
     void updateToolBar(IEditor *editor);
     void checkProjectLoaded(IEditor *editor);
 
+    EditorModel *m_model;
     QWidget *m_toolBar;
     QToolBar *m_activeToolBar;
     QStackedWidget *m_container;
@@ -181,15 +184,14 @@ class SplitterOrView  : public QWidget
 {
     Q_OBJECT
 public:
-    SplitterOrView(Internal::EditorModel *model = 0); // creates a splitter with an empty view
-    SplitterOrView(Core::IEditor *editor);
+    SplitterOrView(Internal::EditorModel *model); // creates a root splitter
+    SplitterOrView(Core::IEditor *editor = 0);
     ~SplitterOrView();
 
     void split(Qt::Orientation orientation);
     void unsplit();
 
     inline bool isView() const { return m_view != 0; }
-    inline void setRoot(bool b) { m_isRoot = b; }
     inline bool isRoot() const { return m_isRoot; }
     
     inline bool isSplitter() const { return m_splitter != 0; }
