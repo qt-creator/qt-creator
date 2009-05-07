@@ -169,22 +169,10 @@ void QmlProjectWizardDialog::updateFilesView(const QModelIndex &current,
 void QmlProjectWizardDialog::initializePage(int id)
 {
     Q_UNUSED(id)
-#if 0
-    if (id == m_secondPageId) {
-        using namespace Core::Utils;
-
-        const QString projectPath = m_pathChooser->path();
-
-        QDirModel *dirModel = qobject_cast<QDirModel *>(_dirView->model());
-        m_dirView->setRootIndex(dirModel->index(projectPath));
-    }
-#endif
 }
 
 bool QmlProjectWizardDialog::validateCurrentPage()
 {
-    using namespace Core::Utils;
-
     return QWizard::validateCurrentPage();
 }
 
@@ -199,8 +187,8 @@ Core::BaseFileWizardParameters QmlProjectWizard::parameters()
 {
     static Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(":/wizards/images/console.png"));
-    parameters.setName(tr("Import of QML Project"));
-    parameters.setDescription(tr("Creates a QML project."));
+    parameters.setName(tr("Import of existing QML directory"));
+    parameters.setDescription(tr("Creates a QML project from an existing directory of QML files."));
     parameters.setCategory(QLatin1String("Projects"));
     parameters.setTrCategory(tr("Projects"));
     return parameters;
