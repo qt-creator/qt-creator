@@ -55,6 +55,8 @@ class QHelpEngineCore;
 class QAbstractItemModel;
 class QSortFilterProxyModel;
 
+QT_END_NAMESPACE
+
 class BookmarkManager;
 
 class BookmarkDialog : public QDialog
@@ -189,7 +191,5 @@ private:
     QStandardItem *renameItem;
     QHelpEngineCore *helpEngine;
 };
-
-QT_END_NAMESPACE
 
 #endif

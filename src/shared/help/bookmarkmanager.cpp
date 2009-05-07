@@ -48,7 +48,6 @@
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QSortFilterProxyModel>
 
-QT_BEGIN_NAMESPACE
 
 BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
                                const QString &url, QWidget *parent)
@@ -858,5 +857,3 @@ void BookmarkManager::readBookmarksRecursive(const QStandardItem *item,
             readBookmarksRecursive(child, stream, (depth +1));
     }
 }
-
-QT_END_NAMESPACE

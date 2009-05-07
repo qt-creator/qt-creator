@@ -49,11 +49,13 @@ class QKeyEvent;
 class QMouseEvent;
 class QContextMenuEvent;
 
+QT_END_NAMESPACE
+
 namespace Help {
-    namespace Internal {
+namespace Internal {
         class CentralWidget;
-}
-}
+} // namespace Internal
+} // namespace Help
 
 #if !defined(QT_NO_WEBKIT)
 
@@ -158,7 +160,5 @@ private:
 };
 
 #endif
-
-QT_END_NAMESPACE
 
 #endif

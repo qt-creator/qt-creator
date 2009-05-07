@@ -44,13 +44,13 @@ class QHelpEngine;
 class QShortcut;
 class QToolBar;
 class QUrl;
+QT_END_NAMESPACE
 
 class IndexWindow;
 class ContentWindow;
 class BookmarkManager;
 class BookmarkWidget;
 class HelpViewer;
-QT_END_NAMESPACE
 
 
 namespace Core {

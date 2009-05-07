@@ -49,7 +49,6 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
-QT_BEGIN_NAMESPACE
 
 #if !defined(QT_NO_WEBKIT)
 
@@ -526,5 +525,3 @@ void HelpViewer::wheelEvent(QWheelEvent *e)
 }
 
 #endif  // !defined(QT_NO_WEBKIT)
-
-QT_END_NAMESPACE

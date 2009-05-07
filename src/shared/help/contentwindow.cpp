@@ -37,8 +37,6 @@
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpContentWidget>
 
-QT_BEGIN_NAMESPACE
-
 ContentWindow::ContentWindow(QHelpEngine *helpEngine)
     : m_helpEngine(helpEngine)
     , m_contentWidget(0)
@@ -157,5 +155,3 @@ void ContentWindow::itemClicked(const QModelIndex &index)
     if (itm)
         emit linkActivated(itm->url());
 }
-
-QT_END_NAMESPACE

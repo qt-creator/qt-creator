@@ -39,6 +39,8 @@ QT_BEGIN_NAMESPACE
 class QHelpEngine;
 class QHelpContentWidget;
 
+QT_END_NAMESPACE
+
 class ContentWindow : public QWidget
 {
     Q_OBJECT
@@ -68,7 +70,5 @@ private:
     QHelpContentWidget *m_contentWidget;
     int m_expandDepth;
 };
-
-QT_END_NAMESPACE
 
 #endif // CONTENTWINDOW_H

@@ -48,9 +48,9 @@ class QToolButton;
 class QTabWidget;
 class QHelpEngine;
 class QFocusEvent;
-class HelpViewer;
-
 QT_END_NAMESPACE
+
+class HelpViewer;
 
 namespace Help {
 namespace Internal {

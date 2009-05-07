@@ -42,8 +42,6 @@
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpIndexWidget>
 
-QT_BEGIN_NAMESPACE
-
 IndexWindow::IndexWindow(QHelpEngine *helpEngine, QWidget *parent)
     : QWidget(parent)
     , m_searchLineEdit(0)
@@ -200,5 +198,3 @@ void IndexWindow::focusInEvent(QFocusEvent *e)
         m_searchLineEdit->setFocus();
     }
 }
-
-QT_END_NAMESPACE
