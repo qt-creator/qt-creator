@@ -171,12 +171,12 @@ private:
     // send and decrements on receipt, effectively preventing 
     // watch model updates before everything is finished.
     void flushCommand(GdbCommand &cmd);
-    void execCommand(const QString &command,
+    void postCommand(const QString &command,
                      GdbCommandFlags flags,
                      GdbCommandCallback callback = 0,
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
-    void execCommand(const QString &command,
+    void postCommand(const QString &command,
                      GdbCommandCallback callback = 0,
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
