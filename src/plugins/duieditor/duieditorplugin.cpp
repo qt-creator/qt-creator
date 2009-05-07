@@ -95,8 +95,8 @@ bool DuiEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setDescription(tr("Qt Declarative UI File"));
-    wizardParameters.setName(tr("Qt Declarative UI File"));
+    wizardParameters.setDescription(tr("Qt QML File"));
+    wizardParameters.setName(tr("Qt QML File"));
     wizardParameters.setCategory(QLatin1String("Qt"));
     wizardParameters.setTrCategory(tr("Qt"));
     m_wizard = new TextEditor::TextFileWizard(QLatin1String(DuiEditor::Constants::C_DUIEDITOR_MIMETYPE),

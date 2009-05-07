@@ -35,7 +35,7 @@ namespace Constants {
 
 const char * const M_CONTEXT = "DUI Editor.ContextMenu";
 const char * const RUN_SEP = "DuiEditor.Run.Separator";
-const char * const C_DUIEDITOR = "DUI Editor";
+const char * const C_DUIEDITOR = "QML Editor";
 
 const char * const C_DUIEDITOR_MIMETYPE = "application/x-dui";
 

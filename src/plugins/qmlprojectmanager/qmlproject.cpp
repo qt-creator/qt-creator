@@ -451,7 +451,7 @@ QWidget *QmlApplicationRunConfiguration::configurationWidget()
 
     combo->addItems(files);
 
-    form->addRow(tr("Main QML Script:"), combo);
+    form->addRow(tr("Main QML File:"), combo);
 
     return config;
 }
