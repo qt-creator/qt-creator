@@ -43,7 +43,7 @@ Manager::Manager()
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_projectContext  = uidm->uniqueIdentifier(QmlProjectManager::Constants::PROJECTCONTEXT);
-    m_projectLanguage = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
+    m_projectLanguage = uidm->uniqueIdentifier(QmlProjectManager::Constants::LANG_QML);
 }
 
 Manager::~Manager()

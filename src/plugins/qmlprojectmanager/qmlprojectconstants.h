@@ -34,6 +34,7 @@ namespace QmlProjectManager {
 namespace Constants {
 
 const char *const PROJECTCONTEXT     = "QmlProject.ProjectContext";
+const char *const LANG_QML           = "QML";
 const char *const QMLMIMETYPE        = "text/x-qml-project"; // ### FIXME
 
 const char *const QMLRUNCONFIGURATION = "QmlProject.QmlApplicationRunConfiguration";
@@ -42,7 +43,7 @@ const char *const QMLRUNCONFIGURATION = "QmlProject.QmlApplicationRunConfigurati
 const char *const C_FILESEDITOR      = ".files Editor";
 
 // kinds
-const char *const PROJECT_KIND       = "Qml";
+const char *const PROJECT_KIND       = "QML";
 
 const char *const FILES_EDITOR       = ".qmlproject Editor";
 const char *const FILES_MIMETYPE     = QMLMIMETYPE;
