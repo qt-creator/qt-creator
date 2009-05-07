@@ -168,7 +168,7 @@ Core::IFile *QmlProject::file() const
     return m_file;
 }
 
-ProjectExplorer::IProjectManager *QmlProject::projectManager() const
+Manager *QmlProject::projectManager() const
 {
     return m_manager;
 }

@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qmlprojectnodes.h"
+#include "qmlprojectmanager.h"
 #include "qmlproject.h"
 
 #include <coreplugin/ifile.h>
@@ -153,7 +154,9 @@ bool QmlProjectNode::hasTargets() const
 
 QList<ProjectExplorer::ProjectNode::ProjectAction> QmlProjectNode::supportedActions() const
 {
-    return QList<ProjectAction>();
+    QList<ProjectAction> actions;
+    actions.append(AddFile);
+    return actions;
 }
 
 bool QmlProjectNode::addSubProjects(const QStringList &proFilePaths)
@@ -168,17 +171,45 @@ bool QmlProjectNode::removeSubProjects(const QStringList &proFilePaths)
     return false;
 }
 
-bool QmlProjectNode::addFiles(const ProjectExplorer::FileType fileType,
-                                  const QStringList &filePaths, QStringList *notAdded)
+bool QmlProjectNode::addFiles(const ProjectExplorer::FileType,
+                              const QStringList &filePaths, QStringList *notAdded)
 {
-    Q_UNUSED(fileType);
-    Q_UNUSED(filePaths);
-    Q_UNUSED(notAdded);
-    return false;
+    QDir projectDir(QFileInfo(projectFilePath()).dir());
+
+    QFile file(projectFilePath());
+    if (! file.open(QFile::WriteOnly | QFile::Append))
+        return false;
+
+    QTextStream stream(&file);
+    QStringList failedFiles;
+
+    bool first = true;
+    foreach (const QString &filePath, filePaths) {
+        const QString rel = projectDir.relativeFilePath(filePath);
+
+        if (rel.isEmpty() || rel.startsWith(QLatin1Char('.'))) {
+            failedFiles.append(rel);
+        } else {
+            if (first) {
+                stream << endl;
+                first = false;
+            }
+
+            stream << rel << endl;
+        }
+    }
+
+    if (notAdded)
+        *notAdded += failedFiles;
+
+    if (! first)
+        m_project->projectManager()->notifyChanged(projectFilePath());
+
+    return failedFiles.isEmpty();
 }
 
 bool QmlProjectNode::removeFiles(const ProjectExplorer::FileType fileType,
-                                     const QStringList &filePaths, QStringList *notRemoved)
+                                 const QStringList &filePaths, QStringList *notRemoved)
 {
     Q_UNUSED(fileType);
     Q_UNUSED(filePaths);

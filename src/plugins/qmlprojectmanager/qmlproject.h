@@ -59,7 +59,7 @@ public:
 
     virtual QString name() const;
     virtual Core::IFile *file() const;
-    virtual ProjectExplorer::IProjectManager *projectManager() const;
+    virtual Manager *projectManager() const;
 
     virtual QList<ProjectExplorer::Project *> dependsOn();
 
