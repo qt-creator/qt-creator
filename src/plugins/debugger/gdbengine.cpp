@@ -989,7 +989,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         QTC_ASSERT(q->status() == DebuggerInferiorStopRequested,
             qDebug() << "STATUS:" << q->status())
         qq->notifyInferiorStopped();
-        q->showStatusMessage(tr("Temporarily stopped."));
         // FIXME: racy
         while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
             GdbCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
