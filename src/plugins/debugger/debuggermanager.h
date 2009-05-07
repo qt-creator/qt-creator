@@ -204,10 +204,6 @@ public:
     QMainWindow *mainWindow() const { return m_mainWindow; }
     QLabel *statusLabel() const { return m_statusLabel; }
 
-    enum DebuggerType {
-        NoDebugger, GdbDebugger, ScriptDebugger, WinDebugger, TcfDebugger
-    };
-
 public slots:
     void startNewDebugger(DebuggerRunControl *runControl);
     void exitDebugger(); 
@@ -371,7 +367,6 @@ public:
 
 private:
     void init();
-    void setDebuggerType(DebuggerType type);
     void runTest(const QString &fileName);
     QDockWidget *createDockForWidget(QWidget *widget);
     Q_SLOT void createNewDock(QWidget *widget);
@@ -384,7 +379,6 @@ private:
     void setToolTipExpression(const QPoint &pos, const QString &exp0);
 
     DebuggerRunControl *m_runControl;
-    DebuggerType m_debuggerType;
 
     /// Views
     QMainWindow *m_mainWindow;

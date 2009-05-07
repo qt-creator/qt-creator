@@ -439,30 +439,10 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(const QStringList 
     winEngine = createWinEngine(this, cdbDisabled, &rc);
     scriptEngine = createScriptEngine(this, &rc);
     tcfEngine = createTcfEngine(this, &rc);
-    setDebuggerType(NoDebugger);
+    m_engine = 0;
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine << rc.size();
     return rc;
-}
-
-void DebuggerManager::setDebuggerType(DebuggerType type)
-{
-    switch (type) {
-        case GdbDebugger:
-            m_engine = gdbEngine;
-            break;
-        case ScriptDebugger:
-            m_engine = scriptEngine;
-            break;
-        case WinDebugger:
-            m_engine = winEngine;
-            break;
-        case TcfDebugger:
-            m_engine = tcfEngine;
-            break;
-        case NoDebugger:
-            m_engine = 0;
-    }
 }
 
 IDebuggerEngine *DebuggerManager::engine()
@@ -798,42 +778,42 @@ void DebuggerManager::setConfigValue(const QString &name, const QVariant &value)
 }
 
 // Figure out the debugger type of an executable
-static DebuggerManager::DebuggerType determineDebuggerType(const QString &executable,
+static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
                                   QString *errorMessage)
 {
     if (executable.endsWith(_(".js")))
-        return DebuggerManager::ScriptDebugger;
+        return scriptEngine;
 
 #ifndef Q_OS_WIN
     Q_UNUSED(errorMessage)
-    return DebuggerManager::GdbDebugger;
+    return gdbEngine;
 #else
     // If a file has PDB files, it has been compiled by VS.
     QStringList pdbFiles;
     if (!getPDBFiles(executable, &pdbFiles, errorMessage))
-        return DebuggerManager::NoDebugger;
+        return 0;
     if (pdbFiles.empty())
-        return DebuggerManager::GdbDebugger;
+        return gdbEngine;
 
     // We need the CDB debugger in order to be able to debug VS
     // executables
     if (!winEngine) {
         *errorMessage = DebuggerManager::tr("Debugging VS executables is not supported.");
-        return DebuggerManager::NoDebugger;
+        return 0;
     }
-    return DebuggerManager::WinDebugger;
+    return winEngine;
 #endif
 }
 
 // Figure out the debugger type of a PID
-static DebuggerManager::DebuggerType determineDebuggerType(int  /* pid */,
+static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
                                   QString * /*errorMessage*/)
 {
 #ifdef Q_OS_WIN
     // Preferably Windows debugger
-    return winEngine ? DebuggerManager::WinDebugger : DebuggerManager::GdbDebugger;
+    return winEngine ? winEngine : gdbEngine;
 #else
-    return DebuggerManager::GdbDebugger;
+    return gdbEngine;
 #endif
 }
 
@@ -994,25 +974,23 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
 
     emit debugModeRequested();
 
-    DebuggerType type = NoDebugger;
     QString errorMessage;
     if (startMode() == AttachExternal)
-        type = determineDebuggerType(m_attachedPID, &errorMessage);
+        m_engine = determineDebuggerEngine(m_attachedPID, &errorMessage);
     else if (startMode() == AttachTcf)
-        type = TcfDebugger;
+        m_engine = tcfEngine;
     else
-        type = determineDebuggerType(m_executable, &errorMessage);
+        m_engine = determineDebuggerEngine(m_executable, &errorMessage);
 
-    if (type == NoDebugger) {
+    if (!m_engine) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
                 tr("Cannot debug '%1': %2").arg(m_executable, errorMessage));
         debuggingFinished();
         return;
     }
     if (Debugger::Constants::Internal::debug)
-        qDebug() << m_executable << type;
+        qDebug() << m_executable << m_engine;
 
-    setDebuggerType(type);
     setBusyCursor(false);
     setStatus(DebuggerProcessStartingUp);
     if (!m_engine->startDebugger()) {
