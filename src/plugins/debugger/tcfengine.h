@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_SCRIPTENGINE_H
-#define DEBUGGER_SCRIPTENGINE_H
+#ifndef DEBUGGER_TCFENGINE_H
+#define DEBUGGER_TCFENGINE_H
 
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
@@ -58,13 +58,13 @@ class IDebuggerManagerAccessForEngines;
 class ScriptAgent;
 class WatchData;
 
-class ScriptEngine : public IDebuggerEngine
+class TcfEngine : public IDebuggerEngine
 {
     Q_OBJECT
 
 public:
-    ScriptEngine(DebuggerManager *parent);
-    ~ScriptEngine();
+    explicit TcfEngine(DebuggerManager *parent);
+    ~TcfEngine();
 
 private:
     // IDebuggerEngine implementation
@@ -111,20 +111,11 @@ private:
     void updateSubItem(const WatchData &data0);
 
 private:
-    friend class ScriptAgent;
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;
-
-    QScriptEngine *m_scriptEngine;
-    QString m_scriptContents;
-    QString m_scriptFileName;
-    ScriptAgent *m_scriptAgent;
-
-    bool m_stopped;
-    bool m_stopOnNextLine;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_SCRIPTENGINE_H
+#endif // DEBUGGER_TCFENGINE_H

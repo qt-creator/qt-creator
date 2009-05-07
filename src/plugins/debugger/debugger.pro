@@ -41,6 +41,7 @@ HEADERS += \
     stackhandler.h \
     stackwindow.h \
     sourcefileswindow.h \
+    tcfengine.h \
     threadswindow.h \
     watchhandler.h \
     watchwindow.h \
@@ -72,12 +73,14 @@ SOURCES += \
     stackwindow.cpp \
     sourcefileswindow.cpp \
     threadswindow.cpp \
+    tcfengine.cpp \
     watchhandler.cpp \
     watchwindow.cpp \
     gdboptionspage.cpp
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
+    attachtcfdialog.ui \
     breakbyfunction.ui \
     breakcondition.ui \
     dumperoptionpage.ui \

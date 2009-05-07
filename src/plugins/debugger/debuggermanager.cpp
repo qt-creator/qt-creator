@@ -142,6 +142,7 @@ public:
 static IDebuggerEngine *gdbEngine = 0;
 static IDebuggerEngine *winEngine = 0;
 static IDebuggerEngine *scriptEngine = 0;
+static IDebuggerEngine *tcfEngine = 0;
 
 // The creation functions take a list of options pages they can add to.
 // This allows for having a "enabled" toggle on the page indepently
@@ -154,6 +155,7 @@ IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineDisabled */, 
 { return 0; }
 #endif
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 
 DebuggerManager::DebuggerManager()
 {
@@ -165,6 +167,7 @@ DebuggerManager::~DebuggerManager()
     delete gdbEngine;
     delete winEngine;
     delete scriptEngine;
+    delete tcfEngine;
 }
 
 void DebuggerManager::init()
@@ -435,6 +438,7 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(const QStringList 
     const bool cdbDisabled = arguments.contains(_("-disable-cdb"));
     winEngine = createWinEngine(this, cdbDisabled, &rc);
     scriptEngine = createScriptEngine(this, &rc);
+    tcfEngine = createTcfEngine(this, &rc);
     setDebuggerType(NoDebugger);
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine << rc.size();
@@ -452,6 +456,9 @@ void DebuggerManager::setDebuggerType(DebuggerType type)
             break;
         case WinDebugger:
             m_engine = winEngine;
+            break;
+        case TcfDebugger:
+            m_engine = tcfEngine;
             break;
         case NoDebugger:
             m_engine = 0;
@@ -791,50 +798,43 @@ void DebuggerManager::setConfigValue(const QString &name, const QVariant &value)
 }
 
 // Figure out the debugger type of an executable
-static bool determineDebuggerType(const QString &executable,
-                                  DebuggerManager::DebuggerType *dt,
+static DebuggerManager::DebuggerType determineDebuggerType(const QString &executable,
                                   QString *errorMessage)
 {
-    if (executable.endsWith(_(".js"))) {
-        *dt = DebuggerManager::ScriptDebugger;
-        return true;
-    }
+    if (executable.endsWith(_(".js")))
+        return DebuggerManager::ScriptDebugger;
+
 #ifndef Q_OS_WIN
-    *dt = DebuggerManager::GdbDebugger;
     Q_UNUSED(errorMessage)
-    return true;
+    return DebuggerManager::GdbDebugger;
 #else
     // If a file has PDB files, it has been compiled by VS.
     QStringList pdbFiles;
     if (!getPDBFiles(executable, &pdbFiles, errorMessage))
-        return false;
-    if (pdbFiles.empty()) {
-        *dt = DebuggerManager::GdbDebugger;
-        return true;
-    }
+        return DebuggerManager::NoDebugger;
+    if (pdbFiles.empty())
+        return DebuggerManager::GdbDebugger;
+
     // We need the CDB debugger in order to be able to debug VS
     // executables
     if (!winEngine) {
         *errorMessage = DebuggerManager::tr("Debugging VS executables is not supported.");
-        return false;
+        return DebuggerManager::NoDebugger;
     }
-    *dt = DebuggerManager::WinDebugger;
-    return true;
+    return DebuggerManager::WinDebugger;
 #endif
 }
 
 // Figure out the debugger type of a PID
-static bool determineDebuggerType(int  /* pid */,
-                                  DebuggerManager::DebuggerType *dt,
+static DebuggerManager::DebuggerType determineDebuggerType(int  /* pid */,
                                   QString * /*errorMessage*/)
 {
 #ifdef Q_OS_WIN
     // Preferably Windows debugger
-    *dt = winEngine ? DebuggerManager::WinDebugger : DebuggerManager::GdbDebugger;
+    return winEngine ? DebuggerManager::WinDebugger : DebuggerManager::GdbDebugger;
 #else
-    *dt = DebuggerManager::GdbDebugger;
+    return DebuggerManager::GdbDebugger;
 #endif
-    return true;
 }
 
 void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
@@ -939,10 +939,14 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         QStringList arches;
         arches.append(_("i386:x86-64:intel"));
         dlg.setRemoteArchitectures(arches);
-        dlg.setRemoteChannel(configValue(_("LastRemoteChannel")).toString());
-        dlg.setRemoteArchitecture(configValue(_("LastRemoteArchtecture")).toString());
-        dlg.setServerStartScript(configValue(_("LastServerStartScript")).toString());
-        dlg.setUseServerStartScript(configValue(_("LastUseServerStartScript")).toBool());
+        dlg.setRemoteChannel(
+            configValue(_("LastRemoteChannel")).toString());
+        dlg.setRemoteArchitecture(
+            configValue(_("LastRemoteArchitecture")).toString());
+        dlg.setServerStartScript(
+            configValue(_("LastServerStartScript")).toString());
+        dlg.setUseServerStartScript(
+            configValue(_("LastUseServerStartScript")).toBool());
         if (dlg.exec() != QDialog::Accepted) {  
             runControl->debuggingFinished();
             return;
@@ -958,16 +962,48 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
             m_serverStartScript.clear();
         break;
     }
+    case AttachTcf: {
+        AttachTcfDialog dlg(mainWindow());
+        QStringList arches;
+        arches.append(_("i386:x86-64:intel"));
+        dlg.setRemoteArchitectures(arches);
+        dlg.setRemoteChannel(
+            configValue(_("LastTcfRemoteChannel")).toString());
+        dlg.setRemoteArchitecture(
+            configValue(_("LastTcfRemoteArchitecture")).toString());
+        dlg.setServerStartScript(
+            configValue(_("LastTcfServerStartScript")).toString());
+        dlg.setUseServerStartScript(
+            configValue(_("LastTcfUseServerStartScript")).toBool());
+        if (dlg.exec() != QDialog::Accepted) {  
+            runControl->debuggingFinished();
+            return;
+        }
+        setConfigValue(_("LastTcfRemoteChannel"), dlg.remoteChannel());
+        setConfigValue(_("LastTcfRemoteArchitecture"), dlg.remoteArchitecture());
+        setConfigValue(_("LastTcfServerStartScript"), dlg.serverStartScript());
+        setConfigValue(_("LastTcfUseServerStartScript"), dlg.useServerStartScript());
+        m_remoteChannel = dlg.remoteChannel();
+        m_remoteArchitecture = dlg.remoteArchitecture();
+        m_serverStartScript = dlg.serverStartScript();
+        if (!dlg.useServerStartScript())
+            m_serverStartScript.clear();
+        break;
+    }
     }
 
     emit debugModeRequested();
 
-    DebuggerType type;
+    DebuggerType type = NoDebugger;
     QString errorMessage;
-    const bool hasDebugger = startMode() == AttachExternal
-        ? determineDebuggerType(m_attachedPID, &type, &errorMessage)
-        : determineDebuggerType(m_executable, &type, &errorMessage);
-    if (!hasDebugger) {
+    if (startMode() == AttachExternal)
+        type = determineDebuggerType(m_attachedPID, &errorMessage);
+    else if (startMode() == AttachTcf)
+        type = TcfDebugger;
+    else
+        type = determineDebuggerType(m_executable, &errorMessage);
+
+    if (type == NoDebugger) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
                 tr("Cannot debug '%1': %2").arg(m_executable, errorMessage));
         debuggingFinished();

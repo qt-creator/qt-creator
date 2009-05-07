@@ -1109,6 +1109,14 @@ void DebuggerPlugin::startRemoteApplication()
         runControl->start();
 }
 
+void DebuggerPlugin::attachRemoteTcf()
+{
+    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (RunControl *runControl = m_debuggerRunner
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, AttachTcf))
+        runControl->start();
+}
+
 void DebuggerPlugin::updateActions(int status)
 {
     const bool started = status == DebuggerInferiorRunning

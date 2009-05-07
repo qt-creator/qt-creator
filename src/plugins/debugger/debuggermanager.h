@@ -109,11 +109,12 @@ enum DebuggerStatus
 
 enum DebuggerStartMode
 {
-    StartInternal,                    // Start current start project's binary
-    StartExternal,                    // Start binary found in file system
-    AttachExternal,                   // Attach to running process
-    AttachCore,                       // Attach to a core file
-    StartRemote                       // Start and attach to a remote process
+    StartInternal,   // Start current start project's binary
+    StartExternal,   // Start binary found in file system
+    AttachExternal,  // Attach to running process
+    AttachTcf,       // Attach to a running Target Communication Framework agent
+    AttachCore,      // Attach to a core file
+    StartRemote      // Start and attach to a remote process
 };
 
 class IDebuggerEngine;
@@ -142,13 +143,14 @@ public:
 private:
     // This is the part of the interface that's exclusively seen by the
     // debugger engines
-    friend class GdbEngine;
     friend class CdbDebugEngine;
     friend class CdbDebugEventCallback;
-    friend class ScriptEngine;
-    friend struct CdbDebugEnginePrivate;
     friend class CdbDumperHelper;
     friend class CdbExceptionLoggerEventCallback;
+    friend class GdbEngine;
+    friend class ScriptEngine;
+    friend class TcfEngine;
+    friend struct CdbDebugEnginePrivate;
 
     // called from the engines after successful startup
     virtual void notifyInferiorStopRequested() = 0;
@@ -202,7 +204,9 @@ public:
     QMainWindow *mainWindow() const { return m_mainWindow; }
     QLabel *statusLabel() const { return m_statusLabel; }
 
-    enum DebuggerType { NoDebugger, GdbDebugger, ScriptDebugger, WinDebugger };
+    enum DebuggerType {
+        NoDebugger, GdbDebugger, ScriptDebugger, WinDebugger, TcfDebugger
+    };
 
 public slots:
     void startNewDebugger(DebuggerRunControl *runControl);

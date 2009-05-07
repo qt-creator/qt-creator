@@ -103,6 +103,7 @@ private slots:
     void startRemoteApplication();
     void attachExternalApplication();
     void attachCore();
+    void attachRemoteTcf();
 
 private:
     void readSettings();
