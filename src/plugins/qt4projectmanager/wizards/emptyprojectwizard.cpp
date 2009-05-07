@@ -27,48 +27,43 @@
 **
 **************************************************************************/
 
-#ifndef QTPROJECTPARAMETERS_H
-#define QTPROJECTPARAMETERS_H
+#include "emptyprojectwizard.h"
 
-#include <QtCore/QString>
+#include "emptyprojectwizarddialog.h"
 
-QT_BEGIN_NAMESPACE
-class QTextStream;
-QT_END_NAMESPACE
+#include <utils/pathchooser.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-// Create a macro name by taking a file name, upper casing it and
-// appending a suffix.
-QString createMacro(const QString &name, const QString &suffix);
+EmptyProjectWizard::EmptyProjectWizard()
+  : QtWizard(tr("Empty Qt4 Project"),
+             tr("Creates an empty Qt project."),
+             QIcon(":/wizards/images/gui.png"))
+{
+}
 
-// Base parameters for application project generation with functionality to
-// write a .pro-file section.
+QWizard *EmptyProjectWizard::createWizardDialog(QWidget *parent,
+                                              const QString &defaultPath,
+                                              const WizardPageList &extensionPages) const
+{
+    EmptyProjectWizardDialog *dialog = new EmptyProjectWizardDialog(name(), icon(), extensionPages, parent);
+    dialog->setPath(defaultPath.isEmpty() ? Core::Utils::PathChooser::homePath() : defaultPath);
+    return dialog;
+}
 
-struct QtProjectParameters {
-    enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, Qt4Plugin, EmptyProject };
+Core::GeneratedFiles
+        EmptyProjectWizard::generateFiles(const QWizard *w,
+                                        QString * /*errorMessage*/) const
+{
+    const EmptyProjectWizardDialog *wizard = qobject_cast< const EmptyProjectWizardDialog *>(w);
+    const QtProjectParameters params = wizard->parameters();
+    const QString projectPath = params.projectPath();
+    const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.name, profileSuffix());
 
-    QtProjectParameters();
-    // Return project path as "path/name"
-    QString projectPath() const;
-    void writeProFile(QTextStream &) const;
-    static void writeProFileHeader(QTextStream &);
-
-    // Shared library: Name of export macro (XXX_EXPORT)
-    static QString exportMacro(const QString &projectName);
-    // Shared library: name of #define indicating compilation within library
-    static QString libraryMacro(const QString &projectName);
-
-    Type type;
-    QString name;
-    QString path;
-    QString selectedModules;
-    QString deselectedModules;
-    QString targetDirectory;
-};
+    Core::GeneratedFile profile(profileName);
+    return Core::GeneratedFiles() << profile;
+}
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
-
-#endif // QTPROJECTPARAMETERS_H

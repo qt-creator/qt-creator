@@ -27,48 +27,43 @@
 **
 **************************************************************************/
 
-#ifndef QTPROJECTPARAMETERS_H
-#define QTPROJECTPARAMETERS_H
+#ifndef EMPTYPROJECTWIZARDDIALOG_H
+#define EMPTYPROJECTWIZARDDIALOG_H
 
-#include <QtCore/QString>
+#include <QtGui/QWizard>
 
-QT_BEGIN_NAMESPACE
-class QTextStream;
-QT_END_NAMESPACE
+namespace Core {
+    namespace Utils {
+        class ProjectIntroPage;
+    }
+}
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-// Create a macro name by taking a file name, upper casing it and
-// appending a suffix.
-QString createMacro(const QString &name, const QString &suffix);
+struct QtProjectParameters;
 
-// Base parameters for application project generation with functionality to
-// write a .pro-file section.
+class EmptyProjectWizardDialog : public QWizard
+{
+    Q_OBJECT
 
-struct QtProjectParameters {
-    enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, Qt4Plugin, EmptyProject };
+public:
+    explicit EmptyProjectWizardDialog(const QString &templateName,
+                                    const QIcon &icon,
+                                    const QList<QWizardPage*> &extensionPages,
+                                    QWidget *parent = 0);
 
-    QtProjectParameters();
-    // Return project path as "path/name"
-    QString projectPath() const;
-    void writeProFile(QTextStream &) const;
-    static void writeProFileHeader(QTextStream &);
+    QtProjectParameters parameters() const;
 
-    // Shared library: Name of export macro (XXX_EXPORT)
-    static QString exportMacro(const QString &projectName);
-    // Shared library: name of #define indicating compilation within library
-    static QString libraryMacro(const QString &projectName);
+public slots:
+    void setPath(const QString &path);
+    void setName(const QString &name);
 
-    Type type;
-    QString name;
-    QString path;
-    QString selectedModules;
-    QString deselectedModules;
-    QString targetDirectory;
+private:
+    Core::Utils::ProjectIntroPage *m_introPage;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // QTPROJECTPARAMETERS_H
+#endif // EMPTYPROJECTWIZARDDIALOG_H

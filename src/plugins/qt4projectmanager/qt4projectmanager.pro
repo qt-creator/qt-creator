@@ -20,6 +20,8 @@ HEADERS = qt4projectmanagerplugin.h \
     wizards/librarywizard.h \
     wizards/librarywizarddialog.h \
     wizards/guiappwizarddialog.h \
+    wizards/emptyprojectwizard.h \
+    wizards/emptyprojectwizarddialog.h \
     wizards/modulespage.h \
     wizards/filespage.h \
     wizards/qtwizard.h \
@@ -51,6 +53,8 @@ SOURCES = qt4projectmanagerplugin.cpp \
     wizards/librarywizard.cpp \
     wizards/librarywizarddialog.cpp \
     wizards/guiappwizarddialog.cpp \
+    wizards/emptyprojectwizard.cpp \
+    wizards/emptyprojectwizarddialog.cpp \
     wizards/modulespage.cpp \
     wizards/filespage.cpp \
     wizards/qtwizard.cpp \

@@ -43,6 +43,7 @@ namespace Internal {
 class ProFileEditorFactory;
 class ConsoleAppWizard;
 class GuiAppWizard;
+class EmptyProjectWizard;
 class QMakeStepFactory;
 class MakeStepFactory;
 class GccParserFactory;

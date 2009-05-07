@@ -33,6 +33,7 @@
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
 #include "wizards/librarywizard.h"
+#include "wizards/emptyprojectwizard.h"
 #include "profileeditorfactory.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
@@ -114,6 +115,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     m_proFileEditorFactory = new ProFileEditorFactory(m_qt4ProjectManager, editorHandler);
     addObject(m_proFileEditorFactory);
+
+    addAutoReleasedObject(new EmptyProjectWizard);
 
     GuiAppWizard *guiWizard = new GuiAppWizard;
     addAutoReleasedObject(guiWizard);
