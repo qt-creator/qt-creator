@@ -1558,7 +1558,7 @@ bool GdbEngine::startDebugger()
         QString fileName = q->m_executable;
         execCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName));
         // works only for > 6.8
-        execCommand(_("set target-async on"), CB(handleTargetAsync));
+        execCommand(_("set target-async on"), CB(handleSetTargetAsync));
     } else if (q->m_useTerminal) {
         qq->breakHandler()->setAllPending();
     } else if (q->startMode() == StartInternal || q->startMode() == StartExternal) {
@@ -1653,15 +1653,13 @@ void GdbEngine::handleAttach(const GdbResultRecord &, const QVariant &)
     qq->reloadRegisters();
 }
 
-void GdbEngine::handleTargetAsync(const GdbResultRecord &record, const QVariant &)
+void GdbEngine::handleSetTargetAsync(const GdbResultRecord &record, const QVariant &)
 {
     if (record.resultClass == GdbResultDone) {
         //execCommand(_("info target"), handleStart);
         qq->notifyInferiorRunningRequested();
         execCommand(_("target remote %1").arg(q->m_remoteChannel),
-            CB(handleAttach));
-        //execCommand(_("-exec-continue"), CB(handleExecRun));
-        handleAqcuiredInferior();
+            CB(handleTargetRemote));
     } else if (record.resultClass == GdbResultError) {
         // a typical response on "old" gdb is:
         // &"set target-async on\n"
@@ -1671,6 +1669,22 @@ void GdbEngine::handleTargetAsync(const GdbResultRecord &record, const QVariant 
         execCommand(_("-gdb-exit"), CB(handleExit));
     }
 }
+
+void GdbEngine::handleTargetRemote(const GdbResultRecord &record, const QVariant &)
+{
+    if (record.resultClass == GdbResultDone) {
+        //execCommand(_("-exec-continue"), CB(handleExecRun));
+        handleAqcuiredInferior();
+    } else if (record.resultClass == GdbResultError) {
+        // 16^error,msg="hd:5555: Connection timed out."
+        QString msg = __(record.data.findChild("msg").data());
+        QString msg1 = tr("Connecting to remote server failed:");
+        q->showStatusMessage(msg1 + _c(' ') + msg);
+        QMessageBox::critical(q->mainWindow(), tr("Error"), msg1 + _c('\n') + msg);
+        execCommand(_("-gdb-exit"), CB(handleExit));
+    }
+}
+
 void GdbEngine::handleExit(const GdbResultRecord &, const QVariant &)
 {
     q->showStatusMessage(tr("Debugger exited."));

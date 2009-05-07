@@ -101,26 +101,6 @@ private:
     ProcessListFilterModel *m_model;
 };
 
-class StartRemoteDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit StartRemoteDialog(QWidget *parent);
-    ~StartRemoteDialog();
-
-    void setRemoteChannel(const QString &host);
-    void setRemoteArchitecture(const QString &arch);
-    void setRemoteArchitectures(const QStringList &arches);
-    QString remoteChannel() const;
-    QString remoteArchitecture() const;
-    void setServerStartScript(const QString &scriptName);
-    QString serverStartScript() const;
-
-private:
-    Ui::StartRemoteDialog *m_ui;
-};
-
 class StartExternalDialog : public QDialog
 {
     Q_OBJECT
@@ -137,6 +117,31 @@ public:
 
 private:
     Ui::StartExternalDialog *m_ui;
+};
+
+class StartRemoteDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit StartRemoteDialog(QWidget *parent);
+    ~StartRemoteDialog();
+
+    void setRemoteChannel(const QString &host);
+    void setRemoteArchitecture(const QString &arch);
+    void setRemoteArchitectures(const QStringList &arches);
+    QString remoteChannel() const;
+    QString remoteArchitecture() const;
+    void setServerStartScript(const QString &scriptName);
+    QString serverStartScript() const;
+    void setUseServerStartScript(bool on);
+    bool useServerStartScript() const;
+
+private slots:
+    void updateState();
+
+private:
+    Ui::StartRemoteDialog *m_ui;
 };
 
 } // namespace Debugger

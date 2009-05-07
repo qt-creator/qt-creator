@@ -937,6 +937,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         dlg.setRemoteChannel(configValue(_("LastRemoteChannel")).toString());
         dlg.setRemoteArchitecture(configValue(_("LastRemoteArchtecture")).toString());
         dlg.setServerStartScript(configValue(_("LastServerStartScript")).toString());
+        dlg.setUseServerStartScript(configValue(_("LastUseServerStartScript")).toBool());
         if (dlg.exec() != QDialog::Accepted) {  
             runControl->debuggingFinished();
             return;
@@ -944,9 +945,12 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
         setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
         setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
+        setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
         m_remoteChannel = dlg.remoteChannel();
         m_remoteArchitecture = dlg.remoteArchitecture();
         m_serverStartScript = dlg.serverStartScript();
+        if (!dlg.useServerStartScript())
+            m_serverStartScript.clear();
         break;
     }
     }

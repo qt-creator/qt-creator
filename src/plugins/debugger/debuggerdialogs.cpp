@@ -302,6 +302,58 @@ void AttachExternalDialog::pidChanged(const QString &pid)
 
 ///////////////////////////////////////////////////////////////////////
 //
+// StartExternalDialog
+//
+///////////////////////////////////////////////////////////////////////
+
+
+StartExternalDialog::StartExternalDialog(QWidget *parent)
+  : QDialog(parent), m_ui(new Ui::StartExternalDialog)
+{
+    m_ui->setupUi(this);
+    m_ui->execFile->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->execFile->setPromptDialogTitle(tr("Select Executable"));
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+
+    //execLabel->setHidden(false);
+    //execEdit->setHidden(false);
+    //browseButton->setHidden(false);
+
+    m_ui->execLabel->setText(tr("Executable:"));
+    m_ui->argLabel->setText(tr("Arguments:"));
+
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+StartExternalDialog::~StartExternalDialog()
+{
+    delete m_ui;
+}
+
+void StartExternalDialog::setExecutableFile(const QString &str)
+{
+    m_ui->execFile->setPath(str);
+}
+
+QString StartExternalDialog::executableFile() const
+{
+    return m_ui->execFile->path();
+}
+
+void StartExternalDialog::setExecutableArguments(const QString &str)
+{
+    m_ui->argsEdit->setText(str);
+}
+
+QString StartExternalDialog::executableArguments() const
+{
+    return m_ui->argsEdit->text();
+}
+
+
+///////////////////////////////////////////////////////////////////////
+//
 // StartRemoteDialog
 //
 ///////////////////////////////////////////////////////////////////////
@@ -314,9 +366,14 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     m_ui->serverStartScript->setExpectedKind(Core::Utils::PathChooser::File);
     m_ui->serverStartScript->setPromptDialogTitle(tr("Select Executable"));
+
+    connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), 
+        this, SLOT(updateState()));
     
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    updateState();
 }
 
 StartRemoteDialog::~StartRemoteDialog()
@@ -366,55 +423,21 @@ QString StartRemoteDialog::serverStartScript() const
     return m_ui->serverStartScript->path();
 }
 
-///////////////////////////////////////////////////////////////////////
-//
-// StartExternalDialog
-//
-///////////////////////////////////////////////////////////////////////
-
-
-StartExternalDialog::StartExternalDialog(QWidget *parent)
-  : QDialog(parent), m_ui(new Ui::StartExternalDialog)
+void StartRemoteDialog::setUseServerStartScript(bool on)
 {
-    m_ui->setupUi(this);
-    m_ui->execFile->setExpectedKind(Core::Utils::PathChooser::File);
-    m_ui->execFile->setPromptDialogTitle(tr("Select Executable"));
-    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-
-    //execLabel->setHidden(false);
-    //execEdit->setHidden(false);
-    //browseButton->setHidden(false);
-
-    m_ui->execLabel->setText(tr("Executable:"));
-    m_ui->argLabel->setText(tr("Arguments:"));
-
-    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    m_ui->useServerStartScriptCheckBox->setChecked(on);
 }
 
-StartExternalDialog::~StartExternalDialog()
+bool StartRemoteDialog::useServerStartScript() const
 {
-    delete m_ui;
+    return m_ui->useServerStartScriptCheckBox->isChecked();
 }
 
-void StartExternalDialog::setExecutableFile(const QString &str)
+void StartRemoteDialog::updateState()
 {
-    m_ui->execFile->setPath(str);
-}
-
-void StartExternalDialog::setExecutableArguments(const QString &str)
-{
-    m_ui->argsEdit->setText(str);
-}
-
-QString StartExternalDialog::executableFile() const
-{
-    return m_ui->execFile->path();
-}
-
-QString StartExternalDialog::executableArguments() const
-{
-    return m_ui->argsEdit->text();
+    bool enabled = m_ui->useServerStartScriptCheckBox->isChecked();
+    m_ui->serverStartScriptLabel->setEnabled(enabled);
+    m_ui->serverStartScript->setEnabled(enabled);
 }
 
 } // namespace Internal
