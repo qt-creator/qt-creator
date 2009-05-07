@@ -98,6 +98,11 @@ typedef QLatin1Char _c;
 typedef QLatin1String __;
 static inline QString _(const char *s) { return QString::fromLatin1(s); }
 
+static inline QString _(const QByteArray &ba)
+{
+    return QString::fromLatin1(ba.data(), ba.size());
+}
+
 static const QString tooltipIName = _("tooltip");
 
 static int &currentToken()
@@ -3425,50 +3430,59 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
 void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
     const QVariant &cookie)
 {
-    WatchData data = cookie.value<WatchData>();
-    QByteArray out = record.data.findChild("consolestreamoutput").data();
-    while (out.endsWith(' ') || out.endsWith('\n'))
-        out.chop(1);
-    QList<QByteArray> list = out.split(' ');
-    //qDebug() << "RECEIVED" << record.toString() << " FOR " << data0.toString()
-    //    <<  " STREAM: " << out;
-    if (list.isEmpty()) {
-        //: Value for variable
-        data.setValue(tr("<unavailable>"));
-        data.setAllUnneeded();
-        insertData(data);
-    } else if (data.type == __("QString") || data.type.endsWith(__("::QString"))) {
+    if (record.resultClass == GdbResultDone) {
+        WatchData data = cookie.value<WatchData>();
+        QByteArray out = record.data.findChild("consolestreamoutput").data();
+        while (out.endsWith(' ') || out.endsWith('\n'))
+            out.chop(1);
         QList<QByteArray> list = out.split(' ');
-        QString str;
-        for (int i = 0; i < list.size(); ++i)
-             str.append(list.at(i).toInt());
-        data.setValue(_c('"') + str + _c('"'));
-        data.setChildCount(0);
-        data.setAllUnneeded();
-        insertData(data);
-    } else if (data.type == __("QStringList") || data.type.endsWith(__("::QStringList"))) {
-        int l = list.size();
-        //: In string list
-        data.setValue(tr("<%1 items>").arg(l));
-        data.setChildCount(list.size());
-        data.setAllUnneeded();
-        insertData(data);
-        for (int i = 0; i < l; ++i) {
-            WatchData data1;
-            data1.name = _("[%1]").arg(i);
-            data1.type = data.type.left(data.type.size() - 4);
-            data1.iname = data.iname + _(".%1").arg(i);
-            data1.addr = _(list.at(i));
-            data1.exp = _("((") + gdbQuoteTypes(data1.type) + _("*)") + data1.addr + _c(')');
-            data1.setChildCount(0);
-            data1.setValueNeeded();
-            QString cmd = _("qdumpqstring (") + data1.exp + _c(')');
-            QVariant var;
-            var.setValue(data1);
-            postCommand(cmd, WatchUpdate, CB(handleDebuggingHelperValue3), var);
+        //qDebug() << "RECEIVED" << record.toString() << " FOR " << data0.toString()
+        //    <<  " STREAM: " << out;
+        if (list.isEmpty()) {
+            //: Value for variable
+            data.setValue(tr("<unavailable>"));
+            data.setAllUnneeded();
+            insertData(data);
+        } else if (data.type == __("QString")
+                || data.type.endsWith(__("::QString"))) {
+            QList<QByteArray> list = out.split(' ');
+            QString str;
+            for (int i = 0; i < list.size(); ++i)
+                 str.append(list.at(i).toInt());
+            data.setValue(_c('"') + str + _c('"'));
+            data.setChildCount(0);
+            data.setAllUnneeded();
+            insertData(data);
+        } else if (data.type == __("QStringList")
+                || data.type.endsWith(__("::QStringList"))) {
+            int l = list.size();
+            //: In string list
+            data.setValue(tr("<%1 items>").arg(l));
+            data.setChildCount(list.size());
+            data.setAllUnneeded();
+            insertData(data);
+            for (int i = 0; i < l; ++i) {
+                WatchData data1;
+                data1.name = _("[%1]").arg(i);
+                data1.type = data.type.left(data.type.size() - 4);
+                data1.iname = data.iname + _(".%1").arg(i);
+                data1.addr = _(list.at(i));
+                data1.exp = _("((") + gdbQuoteTypes(data1.type) + _("*)") + data1.addr + _c(')');
+                data1.setChildCount(0);
+                data1.setValueNeeded();
+                QString cmd = _("qdumpqstring (") + data1.exp + _c(')');
+                QVariant var;
+                var.setValue(data1);
+                postCommand(cmd, WatchUpdate, CB(handleDebuggingHelperValue3), var);
+            }
+        } else {
+            //: Value for variable
+            data.setValue(tr("<unavailable>"));
+            data.setAllUnneeded();
+            insertData(data);
         }
-    } else {
-        //: Value for variable
+    } else if (record.resultClass == GdbResultError) {
+        WatchData data = cookie.value<WatchData>();
         data.setValue(tr("<unavailable>"));
         data.setAllUnneeded();
         insertData(data);
@@ -3867,28 +3881,11 @@ void GdbEngine::tryLoadDebuggingHelpers()
 
     if (!startModeAllowsDumpers()) {
         // load gdb macro based dumpers at least 
-        postCommand(_(
-            "define qdumpqstring\n"
-            "set $i = 0\n"
-            "set $l = $arg0->d->size\n"
-            "set $p = $arg0->d->data\n"
-            "while $i < $l\n"
-            "printf \"%d \",$p[$i++]\n"
-            "end\n"
-            "printf \"\\n\"\n"
-            "end\n"
-        ));
-
-        postCommand(_(
-            "define qdumpqstringlist\n"
-            "set $i = $arg0->d->begin\n"
-            "set $e = $arg0->d->end\n"
-            "while $i < $e\n"
-            "printf \"%d \",$arg0->d->array + $i++\n"
-            "end\n"
-            "printf \"\\n\"\n"
-            "end\n"
-        ));
+        QFile file(_(":/gdbdebugger/gdbmacros.txt"));
+        file.open(QIODevice::ReadOnly);
+        QByteArray contents = file.readAll(); 
+        //qDebug() << "CONTENTS: " << contents;
+        postCommand(_(contents));
         return;
     }
 

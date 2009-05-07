@@ -1,0 +1,18 @@
+define qdumpqstring
+set $i = 0
+set $l = $arg0->d->size
+set $p = $arg0->d->data
+while $i < $l
+printf "%d ",$p[$i++]
+end
+printf "\n"
+end
+
+define qdumpqstringlist
+set $i = $arg0->d->begin
+set $e = $arg0->d->end
+while $i < $e
+printf "%d ",$arg0->d->array + $i++
+end
+printf "\n"
+end
