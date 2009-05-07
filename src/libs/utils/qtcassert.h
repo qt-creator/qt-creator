@@ -32,11 +32,14 @@
 
 #include <QtCore/QDebug>
 
+#define QTC_ASSERT_STRINGIFY_INTERNAL(x) #x
+#define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_INTERNAL(x)
+
 // we do not use the  'do {...} while (0)' idiom here to be able to use
 // 'break' and 'continue' as 'actions'.
 
 #define QTC_ASSERT(cond, action) \
-    if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED"<<__FILE__<<__LINE__;action;}
+    if(cond){}else{qDebug()<<"ASSERTION " #cond " FAILED AT " __FILE__ ":" QTC_ASSERT_STRINGIFY(__LINE__);action;}
 
 #endif // QTC_ASSERT_H
 
