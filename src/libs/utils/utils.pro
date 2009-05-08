@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = Utils
 QT += gui network
 
-DEFINES += QWORKBENCH_UTILS_LIBRARY
+DEFINES += QTCREATOR_UTILS_LIBRARY
 
 include(../../qtcreatorlibrary.pri)
 

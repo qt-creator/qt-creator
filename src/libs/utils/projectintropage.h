@@ -52,7 +52,7 @@ struct ProjectIntroPagePrivate;
  * layout, otherwise, QWizard will squeeze it due to its strange expanding
  * hacks. */
 
-class QWORKBENCH_UTILS_EXPORT ProjectIntroPage : public QWizardPage
+class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public QWizardPage
 {
     Q_OBJECT
     Q_DISABLE_COPY(ProjectIntroPage)

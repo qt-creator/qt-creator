@@ -60,7 +60,7 @@ void SynchronousProcessResponse::clear()
     stdErr.clear();
 }
 
-QWORKBENCH_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse& r)
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse& r)
 {
     QDebug nsp = str.nospace();
     nsp << "SynchronousProcessResponse: result=" << r.result << " ex=" << r.exitCode << '\n'

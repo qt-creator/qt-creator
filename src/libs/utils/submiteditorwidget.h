@@ -68,7 +68,7 @@ struct SubmitEditorWidgetPrivate;
  * Care should be taken to ensure the widget is deleted properly when the
  * editor closes. */
 
-class QWORKBENCH_UTILS_EXPORT SubmitEditorWidget : public QWidget
+class QTCREATOR_UTILS_EXPORT SubmitEditorWidget : public QWidget
 {
     Q_OBJECT
     Q_DISABLE_COPY(SubmitEditorWidget)

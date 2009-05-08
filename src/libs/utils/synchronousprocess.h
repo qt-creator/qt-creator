@@ -48,7 +48,7 @@ namespace Utils {
 struct SynchronousProcessPrivate;
 
 /* Result of SynchronousProcess execution */
-struct QWORKBENCH_UTILS_EXPORT SynchronousProcessResponse
+struct QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
 {
     enum Result {
         // Finished with return code 0
@@ -71,7 +71,7 @@ struct QWORKBENCH_UTILS_EXPORT SynchronousProcessResponse
     QString stdErr;
 };
 
-QWORKBENCH_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);
 
 /* SynchronousProcess: Runs a synchronous process in its own event loop
  * that blocks only user input events. Thus, it allows for the gui to
@@ -85,7 +85,7 @@ QWORKBENCH_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessRe
  * stdOutBufferedSignalsEnabled()/setStdErrBufferedSignalsEnabled().
  * They would typically be used for log windows. */
 
-class QWORKBENCH_UTILS_EXPORT SynchronousProcess : public QObject
+class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QObject
 {
     Q_OBJECT
 public:

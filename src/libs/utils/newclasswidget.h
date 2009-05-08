@@ -49,7 +49,7 @@ struct NewClassWidgetPrivate;
  * names for header, source and form files. Has some smart logic to derive
  * the file names from the class name.
  */
-class QWORKBENCH_UTILS_EXPORT NewClassWidget : public QWidget
+class QTCREATOR_UTILS_EXPORT NewClassWidget : public QWidget
 {
     Q_DISABLE_COPY(NewClassWidget)
     Q_OBJECT

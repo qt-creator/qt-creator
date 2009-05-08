@@ -42,8 +42,8 @@ namespace Utils {
 
 enum ReloadPromptAnswer { ReloadCurrent, ReloadAll, ReloadSkipCurrent, ReloadNone };
 
-QWORKBENCH_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName, QWidget *parent);
-QWORKBENCH_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title, const QString &prompt, QWidget *parent);
+QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName, QWidget *parent);
+QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title, const QString &prompt, QWidget *parent);
 
 } // namespace Utils
 } // namespace Core

@@ -37,7 +37,7 @@
 namespace Core {
 namespace Utils {
 
-class QWORKBENCH_UTILS_EXPORT AbstractProcess
+class QTCREATOR_UTILS_EXPORT AbstractProcess
 {
 public:
     AbstractProcess() {}

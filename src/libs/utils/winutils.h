@@ -41,7 +41,7 @@ namespace Utils {
 
 // Helper to format a Windows error message, taking the
 // code as returned by the GetLastError()-API.
-QWORKBENCH_UTILS_EXPORT QString winErrorMessage(unsigned long error);
+QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error);
 
 } // namespace Utils
 } // namespace Core

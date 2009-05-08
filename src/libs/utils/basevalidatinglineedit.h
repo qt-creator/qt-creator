@@ -50,7 +50,7 @@ struct BaseValidatingLineEditPrivate;
  * "<Enter name here>". This results in state 'DisplayingInitialText', which
  * is not valid, but is not marked red.
  */
-class QWORKBENCH_UTILS_EXPORT BaseValidatingLineEdit : public QLineEdit
+class QTCREATOR_UTILS_EXPORT BaseValidatingLineEdit : public QLineEdit
 {
     Q_OBJECT
     Q_DISABLE_COPY(BaseValidatingLineEdit)

@@ -35,7 +35,7 @@
 namespace Core {
 namespace Utils {
 
-QWORKBENCH_UTILS_EXPORT QString winErrorMessage(unsigned long error)
+QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error)
 {
     QString rc = QString::fromLatin1("#%1: ").arg(error);
     ushort *lpMsgBuf;

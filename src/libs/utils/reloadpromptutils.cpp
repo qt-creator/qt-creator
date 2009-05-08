@@ -34,7 +34,7 @@
 using namespace Core;
 using namespace Core::Utils;
 
-QWORKBENCH_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
+QTCREATOR_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
     Core::Utils::reloadPrompt(const QString &fileName, QWidget *parent)
 {
     return reloadPrompt(QObject::tr("File Changed"),
@@ -42,7 +42,7 @@ QWORKBENCH_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
                         parent);
 }
 
-QWORKBENCH_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
+QTCREATOR_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
     Core::Utils::reloadPrompt(const QString &title, const QString &prompt, QWidget *parent)
 {
     switch (QMessageBox::question(parent, title, prompt,

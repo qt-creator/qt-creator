@@ -54,7 +54,7 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Utils {
 
-class QWORKBENCH_UTILS_EXPORT ConsoleProcess : public QObject, public AbstractProcess
+class QTCREATOR_UTILS_EXPORT ConsoleProcess : public QObject, public AbstractProcess
 {
     Q_OBJECT
 

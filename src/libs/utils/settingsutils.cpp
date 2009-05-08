@@ -34,7 +34,7 @@
 namespace Core {
 namespace Utils {
 
-QWORKBENCH_UTILS_EXPORT QString settingsKey(const QString &category)
+QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category)
 {
     QString rc(category);
     const QChar underscore = QLatin1Char('_');

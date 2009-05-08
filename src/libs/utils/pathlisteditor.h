@@ -55,7 +55,7 @@ struct PathListEditorPrivate;
  * by new line characters for convenience.
  */
 
-class QWORKBENCH_UTILS_EXPORT PathListEditor : public QWidget
+class QTCREATOR_UTILS_EXPORT PathListEditor : public QWidget
 {
     Q_DISABLE_COPY(PathListEditor)
     Q_OBJECT
