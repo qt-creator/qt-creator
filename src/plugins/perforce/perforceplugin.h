@@ -138,10 +138,6 @@ private slots:;
     void printPendingChanges();
     void slotDiff(const QStringList &files);
 
-#ifdef USE_P4_API
-    void resolve();
-#endif
-
 private:
     QStringList environment() const;
 
@@ -222,12 +218,6 @@ private:
 
     static PerforcePlugin *m_perforcePluginInstance;
     QString pendingChangesData();
-
-#ifdef USE_P4_API
-    void runP4APICmd(const QString &cmd, const QStringList &args = QStringList());
-    WorkbenchClientUser *m_workbenchClientUser;
-    bool m_enableP4APIActions;
-#endif
 
     CoreListener *m_coreListener;
     Core::IEditorFactory *m_submitEditorFactory;

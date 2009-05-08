@@ -6848,25 +6848,6 @@ in your .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::WorkbenchClientUser</name>
-    <message>
-        <location filename="../../../src/plugins/perforce/workbenchclientuser.cpp" line="+143"/>
-        <location line="+138"/>
-        <source>Perforce Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-99"/>
-        <source>Closing p4 Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Do you want to submit this change list?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>PluginDialog</name>
     <message>
         <location filename="../../../src/libs/extensionsystem/test/manual/pluginview/plugindialog.cpp" line="+55"/>
