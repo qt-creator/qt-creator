@@ -33,7 +33,7 @@
 #include "settingsmanager.h"
 #include "settingspage.h"
 #include "editorwidget.h"
-#include "workbenchintegration.h"
+#include "qtcreatorintegration.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -238,7 +238,7 @@ void FormEditorW::fullInit()
     QDesignerComponents::initializePlugins(designerEditor());
     QDesignerComponents::initializeResources();
     initDesignerSubWindows();
-    m_integration = new WorkbenchIntegration(m_formeditor, this);
+    m_integration = new QtCreatorIntegration(m_formeditor, this);
     m_formeditor->setIntegration(m_integration);
 
     /**

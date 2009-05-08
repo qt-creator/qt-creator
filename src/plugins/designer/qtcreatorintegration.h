@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef WORKBENCHINTEGRATION_H
-#define WORKBENCHINTEGRATION_H
+#ifndef QTCREATORINTEGRATION_H
+#define QTCREATORINTEGRATION_H
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
@@ -39,10 +39,10 @@ namespace Internal {
 
 class FormEditorW;
 
-class WorkbenchIntegration : public qdesigner_internal::QDesignerIntegration {
+class QtCreatorIntegration : public qdesigner_internal::QDesignerIntegration {
     Q_OBJECT
 public:
-    WorkbenchIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent = 0);
+    QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent = 0);
 
     QWidget *containerWindow(QWidget *widget) const;
 
@@ -63,4 +63,4 @@ private:
 } // namespace Internal
 } // namespace Designer
 
-#endif // WORKBENCHINTEGRATION_H
+#endif // QTCREATORINTEGRATION_H

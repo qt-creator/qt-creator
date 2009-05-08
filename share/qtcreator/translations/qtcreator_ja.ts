@@ -4080,9 +4080,9 @@ Using gdb 6.7 or later is strongly recommended.</source>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::WorkbenchIntegration</name>
+    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
-        <location filename="../../../src/plugins/designer/workbenchintegration.cpp" line="+72"/>
+        <location filename="../../../src/plugins/designer/qtcreatorintegration.cpp" line="+72"/>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
         <translation type="unfinished"></translation>
     </message>

@@ -26,7 +26,7 @@ HEADERS += formeditorplugin.h \
         formwindowfile.h \
         formwindowhost.h \
         formwizard.h \
-        workbenchintegration.h \
+        qtcreatorintegration.h \
         designerconstants.h \
         settingspage.h \
         editorwidget.h \
@@ -41,7 +41,7 @@ SOURCES += formeditorplugin.cpp \
         formwindowfile.cpp \
         formwindowhost.cpp \
         formwizard.cpp \
-        workbenchintegration.cpp \
+        qtcreatorintegration.cpp \
         settingspage.cpp \
         editorwidget.cpp \
         formeditorw.cpp \
