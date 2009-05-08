@@ -354,8 +354,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     // Save opened files
     bool cancelled;
-    fileManager()->saveModifiedFiles(fileManager()->modifiedFiles(), &cancelled);
-    if (cancelled) {
+    QList<IFile*> notSaved = fileManager()->saveModifiedFiles(fileManager()->modifiedFiles(), &cancelled);
+    if (cancelled || !notSaved.isEmpty()) {
         event->ignore();
         return;
     }

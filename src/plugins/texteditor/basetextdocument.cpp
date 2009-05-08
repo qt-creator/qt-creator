@@ -163,18 +163,7 @@ void BaseTextDocument::checkPermissions()
 {
     if (!m_fileName.isEmpty()) {
         const QFileInfo fi(m_fileName);
-
-#ifdef Q_OS_WIN
-        // Check for permissions on NTFS file systems
-        qt_ntfs_permission_lookup++;
-#endif
-
         m_fileIsReadOnly = !fi.isWritable();
-
-#ifdef Q_OS_WIN
-        qt_ntfs_permission_lookup--;
-#endif
-
     } else {
         m_fileIsReadOnly = false;
     }
