@@ -528,7 +528,7 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
            for each project and all related CppCodeModelPart instances.
 
     It also takes care of updating the code models when C++ files are
-    modified within Workbench.
+    modified within Qt Creator.
 */
 
 CppModelManager::CppModelManager(QObject *parent)
