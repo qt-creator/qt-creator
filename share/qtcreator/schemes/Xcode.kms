@@ -60,7 +60,7 @@
  <shortcut id="QtCreator.ToggleSidebar" >
   <key value="Ctrl+0" />
  </shortcut>
- <shortcut id="QtCreator.AboutWorkbench" >
+ <shortcut id="QtCreator.AboutQtCreator" >
   <key value="" />
  </shortcut>
  <shortcut id="QtCreator.AboutPlugins" >

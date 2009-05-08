@@ -732,7 +732,7 @@ void MainWindow::registerDefaultActions()
 #else
     tmpaction = new QAction(tr("About &Qt Creator..."), this);
 #endif
-    cmd = am->registerAction(tmpaction, Constants:: ABOUT_WORKBENCH, m_globalContext);
+    cmd = am->registerAction(tmpaction, Constants::ABOUT_QTCREATOR, m_globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutQtCreator()));
