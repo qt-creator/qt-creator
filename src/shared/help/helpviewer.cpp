@@ -308,7 +308,7 @@ void HelpViewer::actionChanged()
 
 #else  // !defined(QT_NO_WEBKIT)
 
-HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
+HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *parent)
     : QTextBrowser(parent)
     , zoomCount(0)
     , controlPressed(false)
