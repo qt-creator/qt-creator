@@ -3779,8 +3779,12 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     }
 
     d->m_displaySettings = ds;
-    d->extraAreaHighlightCollapseBlockNumber = d->extraAreaHighlightCollapseColumn = -1;
-    d->m_highlightBlocksInfo = BaseTextEditorPrivateHighlightBlocks();
+    if (!ds.m_highlightBlocks) {
+        d->extraAreaHighlightCollapseBlockNumber = d->extraAreaHighlightCollapseColumn = -1;
+        d->m_highlightBlocksInfo = BaseTextEditorPrivateHighlightBlocks();
+    }
+    
+    slotCursorPositionChanged();
     viewport()->update();
     extraArea()->update();
 }
