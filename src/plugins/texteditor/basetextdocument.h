@@ -83,6 +83,7 @@ public:
     virtual bool isReadOnly() const;
     virtual bool isModified() const;
     virtual bool isSaveAsAllowed() const { return true; }
+    virtual void checkPermissions();
     virtual void modified(Core::IFile::ReloadBehavior *behavior);
     virtual QString mimeType() const;
     void setMimeType(const QString &mt);
@@ -141,6 +142,7 @@ private:
     LineTerminatorMode m_lineTerminatorMode;
     QTextCodec *m_codec;
 
+    bool m_fileIsReadOnly;
     bool m_isBinaryData;
     bool m_hasDecodingError;
     QByteArray m_decodingErrorSample;
