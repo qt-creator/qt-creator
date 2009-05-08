@@ -32,7 +32,6 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QObject>
-#include <QtCore/QPoint>
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
@@ -42,18 +41,22 @@ class QAbstractItemModel;
 class QDockWidget;
 class QLabel;
 class QMainWindow;
-class QModelIndex;
-class QSplitter;
+class QPoint;
 class QTimer;
 class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
-    class IOptionsPage;
-}
+class IOptionsPage;
+} // namespace Core
 
 namespace Debugger {
 namespace Internal {
+
+typedef QLatin1Char _c;
+typedef QLatin1String __;
+inline QString _(const char *s) { return QString::fromLatin1(s); }
+inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
 class DebuggerOutputWindow;
 class DebuggerRunControl;

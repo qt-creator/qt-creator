@@ -51,20 +51,28 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
 #include <QtGui/QToolTip>
+
+#include <QtNetwork/QTcpSocket>
 
 
 using namespace Debugger;
 using namespace Debugger::Internal;
 using namespace Debugger::Constants;
 
-//#define DEBUG_TCF 1
+#define DEBUG_TCF 1
 #if DEBUG_TCF
 #   define SDEBUG(s) qDebug() << s
 #else
 #   define SDEBUG(s)
 #endif
 # define XSDEBUG(s) qDebug() << s
+
+#define STRINGIFY_INTERNAL(x) #x
+#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
+#define CB(callback) &TcfEngine::callback, STRINGIFY(callback)
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -76,10 +84,64 @@ TcfEngine::TcfEngine(DebuggerManager *parent)
 {
     q = parent;
     qq = parent->engineInterface();
+    m_socket = new QTcpSocket(this);
+    connect(m_socket, SIGNAL(connected()), this, SLOT(socketConnected()));
+    connect(m_socket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
+    connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
+        this, SLOT(socketError(QAbstractSocket::SocketError)));
+
+    //void aboutToClose ()
+    //void bytesWritten ( qint64 bytes )
+    //void readChannelFinished ()
+    connect(m_socket, SIGNAL(readyRead()), this, SLOT(socketReadyRead()));
+
+    //connect(m_socket, SIGNAL(hostFound())
+    //connect(m_socket, SIGNAL(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)))
+    //connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+    //    thism SLOT(socketStateChanged(QAbstractSocket::SocketState)));
+
+    connect(this, SIGNAL(tcfOutputAvailable(QString,QString)),
+        q, SLOT(showDebuggerOutput(QString,QString)),
+        Qt::QueuedConnection);
+    connect(this, SIGNAL(tcfInputAvailable(QString,QString)),
+        q, SLOT(showDebuggerInput(QString,QString)),
+        Qt::QueuedConnection);
+    connect(this, SIGNAL(applicationOutputAvailable(QString)),
+        q, SLOT(showApplicationOutput(QString)),
+        Qt::QueuedConnection);
 }
 
 TcfEngine::~TcfEngine()
 {
+}
+
+void TcfEngine::socketReadyRead()
+{
+    //XSDEBUG("TcfEngine::socketReadyRead()");
+    m_inbuffer.append(m_socket->readAll());
+    //handleResponse(QByteArray::fromRawData(m_inbuffer.constData() + start, end - start));
+    handleResponse(m_inbuffer);
+    m_inbuffer.clear();
+}
+
+void TcfEngine::socketConnected()
+{
+    q->showStatusMessage("Socket connected.");
+    m_socket->waitForConnected(2000);
+    //sendCommand("Locator", "redirect", "ID");
+}
+
+void TcfEngine::socketDisconnected()
+{
+    XSDEBUG("FIXME:  TcfEngine::socketDisconnected()");
+}
+
+void TcfEngine::socketError(QAbstractSocket::SocketError)
+{
+    QString msg = tr("Socket error: %1").arg(m_socket->errorString());
+    QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
+    q->showStatusMessage(msg);
+    qq->notifyInferiorExited();
 }
 
 void TcfEngine::executeDebuggerCommand(const QString &command)
@@ -102,7 +164,11 @@ void TcfEngine::exitDebugger()
 bool TcfEngine::startDebugger()
 {
     qq->notifyInferiorRunningRequested();
-    QTimer::singleShot(0, this, SLOT(runInferior()));
+    int pos = q->m_remoteChannel.indexOf(':');
+    QString host = q->m_remoteChannel.left(pos);
+    quint16 port = q->m_remoteChannel.mid(pos + 1).toInt();
+    //QTimer::singleShot(0, this, SLOT(runInferior()));
+    m_socket->connectToHost(host, port);
     return true;
 }
 
@@ -201,6 +267,88 @@ QList<Symbol> TcfEngine::moduleSymbols(const QString & /*moduleName*/)
     return QList<Symbol>();
 }
 
+
+void TcfEngine::handleResponse(const QByteArray &buf)
+{
+    static QTime lastTime;
+
+    //emit tcfOutputAvailable(_("            "), currentTime());
+    TcfResponse response;
+    QList<QByteArray> parts = buf.split('\0');
+    int n = parts.size();
+    if (n >= 1)
+        response.tag = parts.at(0);
+    if (n >= 2)
+        response.service = parts.at(1);
+    if (n >= 3)
+        response.cmd = parts.at(2);
+    if (n >= 4)
+        response.data = parts.at(3);
+    if (response.cmd != "peerHeartBeat")
+        emit tcfOutputAvailable(_("\ntcf:"), quoteUnprintableLatin1(buf));
+    //emit tcfOutputAvailable(_("\ntcf:"), response.toString());
+    qDebug() << response.toString();
+
+    if (response.service == "Locator" && response.cmd == "Hello") {
+        postCommand('C', CB(handleRunControlSuspend),
+            "RunControl", "suspend", "\"Thread1\"");
+        //postCommand('F', "0", "", "");
+        //postCommand('E', "Locator", "Hello", "");
+        //postCommand('C', "Locator", "sync", "");
+        //postCommand("Locator", "redirect", "ID");
+        return;
+    }
+
+    TcfCommand tcf = m_cookieForToken[1];
+    if (tcf.callback)
+        (this->*(tcf.callback))(response, tcf.cookie);
+}
+
+void TcfEngine::postCommand(char tag,
+    TcfCommandCallback callback,
+    const char *callbackName,
+    const QByteArray &service,
+    const QByteArray &cmd,
+    const QByteArray &args)
+{
+    static int token;
+    ++token;
+    
+    const char delim = 0;
+    const char marker_eom = -1;
+    const char marker_eos = -2;
+    const char marker_null = -3;
+
+    QByteArray ba;
+    ba.append(tag);
+    ba.append(delim);
+    ba.append(QString::number(token).toLatin1());
+    ba.append(delim);
+    ba.append(service);
+    ba.append(delim);
+    ba.append(cmd);
+    ba.append(delim);
+    ba.append(args);
+    ba.append(delim);
+    ba.append(3);
+    ba.append(1);
+
+    TcfCommand tcf;
+    tcf.command = ba;
+    tcf.callback = callback;
+
+    m_cookieForToken[token] = tcf;
+
+    emit tcfInputAvailable("send", quoteUnprintableLatin1(ba));
+    int result = m_socket->write(tcf.command);
+    m_socket->flush();
+    emit tcfInputAvailable("send", QString::number(result));
+}
+
+void TcfEngine::handleRunControlSuspend(const TcfResponse &response, const QVariant &)
+{
+    qDebug() << "HANDLE RESULT";
+}
 
 //////////////////////////////////////////////////////////////////////
 //

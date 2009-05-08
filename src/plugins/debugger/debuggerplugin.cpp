@@ -483,7 +483,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
 
     m_attachTcfAction = new QAction(this);
-    m_attachTcfAction->setText(tr("Attach to Running TCF Agent..."));
+    m_attachTcfAction->setText(tr("Attach to Running Tcf Agent..."));
     m_attachTcfAction->setToolTip(tr("This attaches to a running "
         "'Target Communication Framework' agent."));
     connect(m_attachTcfAction, SIGNAL(triggered()),

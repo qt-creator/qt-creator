@@ -65,6 +65,7 @@ bool extractTemplate(const QString &type, QString *tmplate, QString *inner);
 QString extractTypeFromPTypeOutput(const QString &str);
 bool isIntOrFloatType(const QString &type);
 QString sizeofTypeExpression(const QString &type);
+QString quoteUnprintableLatin1(const QByteArray &ba);
 
 // Decode string data as returned by the dumper helpers.
 QString decodeData(const QByteArray &baIn, int encoding);

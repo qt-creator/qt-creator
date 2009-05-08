@@ -39,16 +39,14 @@
 #include <QtCore/QSet>
 #include <QtCore/QVariant>
 
+#include <QtNetwork/QAbstractSocket>
+
 QT_BEGIN_NAMESPACE
-class QAction;
-class QAbstractItemModel;
-class QSplitter;
-class QToolBar;
-class QScriptEngine;
-class QScriptValue;
+class QTcpSocket;
 QT_END_NAMESPACE
 
 #include "idebuggerengine.h"
+#include "debuggermanager.h"
 
 namespace Debugger {
 namespace Internal {
@@ -58,6 +56,27 @@ class IDebuggerManagerAccessForEngines;
 class ScriptAgent;
 class WatchData;
 
+class TcfResponse
+{
+public:
+    enum ResponseType
+    {
+        HelloResponse,
+        HeartBeatResponse
+    };
+
+    QString toString() const
+    {
+        return _("TAG: " + tag + "  SERVICE: " + service
+            + "  CMD: " + cmd + "  DATA: " + data);
+    }
+
+    QByteArray tag;
+    QByteArray service;
+    QByteArray cmd;
+    QByteArray data;
+};
+
 class TcfEngine : public IDebuggerEngine
 {
     Q_OBJECT
@@ -65,6 +84,11 @@ class TcfEngine : public IDebuggerEngine
 public:
     explicit TcfEngine(DebuggerManager *parent);
     ~TcfEngine();
+
+signals:
+    void tcfInputAvailable(const QString &prefix, const QString &msg);
+    void tcfOutputAvailable(const QString &prefix, const QString &msg);
+    void applicationOutputAvailable(const QString &output);
 
 private:
     // IDebuggerEngine implementation
@@ -110,9 +134,41 @@ private:
     void updateLocals();
     void updateSubItem(const WatchData &data0);
 
+    Q_SLOT void socketConnected();
+    Q_SLOT void socketDisconnected();
+    Q_SLOT void socketError(QAbstractSocket::SocketError);
+    Q_SLOT void socketReadyRead();
+
+    void handleResponse(const QByteArray &ba);
+    void handleRunControlSuspend(const TcfResponse &response, const QVariant &);
+
 private:
+    typedef void (TcfEngine::*TcfCommandCallback)
+        (const TcfResponse &record, const QVariant &cookie);
+
+    struct TcfCommand
+    {
+        TcfCommand() : flags(0), callback(0), callbackName(0) {}
+
+        int flags;
+        TcfCommandCallback callback;
+        const char *callbackName;
+        QByteArray command;
+        QVariant cookie;
+    };
+
+    void postCommand(char tag,
+        TcfCommandCallback callback,
+        const char *callbackName,
+        const QByteArray &service,
+        const QByteArray &cmd, const QByteArray &args);
+
+    QHash<int, TcfCommand> m_cookieForToken;
+
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;
+    QTcpSocket *m_socket;
+    QByteArray m_inbuffer;
 };
 
 } // namespace Internal

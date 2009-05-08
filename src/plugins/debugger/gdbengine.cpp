@@ -91,17 +91,7 @@ Q_DECLARE_METATYPE(Debugger::Internal::GdbMi);
 
 #define STRINGIFY_INTERNAL(x) #x
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
-
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
-
-typedef QLatin1Char _c;
-typedef QLatin1String __;
-static inline QString _(const char *s) { return QString::fromLatin1(s); }
-
-static inline QString _(const QByteArray &ba)
-{
-    return QString::fromLatin1(ba.data(), ba.size());
-}
 
 static int &currentToken()
 {
