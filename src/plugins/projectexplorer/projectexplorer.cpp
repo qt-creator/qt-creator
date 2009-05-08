@@ -1297,6 +1297,9 @@ bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
     foreach (Project *pro, projects)
         allFiles << allFilesWithDependencies(pro);
 
+    // allFiles must be sorted for the algorithm to work
+    qSort(allFiles);
+
     foreach (Core::IFile * fi, modifiedFi)
         modified.insert(fi->fileName(), fi);
 
