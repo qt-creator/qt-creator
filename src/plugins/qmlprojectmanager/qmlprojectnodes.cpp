@@ -35,6 +35,7 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <QFileInfo>
+#include <QDir>
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
