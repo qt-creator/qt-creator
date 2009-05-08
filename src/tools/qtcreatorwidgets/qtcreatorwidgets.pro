@@ -14,7 +14,11 @@ linux-* {
   QTC_LIBS=$$dirname(PWD)
   QTC_LIBS=$$dirname(QTC_LIBS)
   QTC_LIBS=$$dirname(QTC_LIBS)
-  QTC_LIBS=$$QTC_LIBS/lib/qtcreator
+  linux-*64 {
+    QTC_LIBS=$$QTC_LIBS/lib64/qtcreator
+  } else {
+    QTC_LIBS=$$QTC_LIBS/lib/qtcreator
+  }
   QMAKE_RPATHDIR *= $$QTC_LIBS
 }
 

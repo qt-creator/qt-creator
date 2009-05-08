@@ -154,6 +154,17 @@ SubmitFieldWidget_CW::SubmitFieldWidget_CW(QObject *parent) :
 {
 }
 
+PathListEditor_CW::PathListEditor_CW(QObject *parent) :
+    QObject(parent),
+    CustomWidget<Core::Utils::PathListEditor>
+    (QLatin1String("<utils/pathlisteditor.h>"),
+    false,
+    QLatin1String(groupC),
+    QIcon(),
+    QLatin1String("Edit a path list variable"))
+{
+}
+
 // -------------- WidgetCollection
 WidgetCollection::WidgetCollection(QObject *parent) :
     QObject(parent)
@@ -169,6 +180,7 @@ WidgetCollection::WidgetCollection(QObject *parent) :
     m_plugins.push_back(new QtColorButton_CW(this));
     m_plugins.push_back(new SubmitEditorWidget_CW(this));
     m_plugins.push_back(new SubmitFieldWidget_CW(this));
+    m_plugins.push_back(new PathListEditor_CW(this));
 }
 
 QList<QDesignerCustomWidgetInterface*> WidgetCollection::customWidgets() const

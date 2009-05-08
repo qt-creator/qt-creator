@@ -11,6 +11,7 @@ SOURCES += \
     settingsutils.cpp \
     filesearch.cpp \
     pathchooser.cpp \
+    pathlisteditor.cpp \
     filewizardpage.cpp \
     filewizarddialog.cpp \
     projectintropage.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     filesearch.h \
     listutils.h \
     pathchooser.h \
+    pathlisteditor.h \
     filewizardpage.h \
     filewizarddialog.h \
     projectintropage.h \
