@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = QtScriptEditor
 QT += script
 
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
 include(../../shared/qscripthighlighter/qscripthighlighter.pri)

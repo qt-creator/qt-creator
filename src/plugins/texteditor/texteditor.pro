@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = TextEditor
 DEFINES += TEXTEDITOR_LIBRARY
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(texteditor_dependencies.pri)
 SOURCES += texteditorplugin.cpp \
     textfilewizard.cpp \

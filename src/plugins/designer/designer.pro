@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = Designer
 
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(../../shared/designerintegrationv2/designerintegration.pri)
 include(cpp/cpp.pri)
 include(designer_dependencies.pri)

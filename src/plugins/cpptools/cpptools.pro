@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = CppTools
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(../../plugins/quickopen/quickopen.pri)
 include(cpptools_dependencies.pri)
 

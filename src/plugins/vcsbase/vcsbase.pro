@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = VCSBase
 DEFINES += VCSBASE_LIBRARY
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(vcsbase_dependencies.pri)
 HEADERS += vcsbase_global.h \
     vcsbaseconstants.h \

@@ -4,7 +4,7 @@ DEFINES += CORE_LIBRARY
 QT += xml \
     script \
     svg
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
 include(coreplugin_dependencies.pri)

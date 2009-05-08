@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = Debugger
 
 # CONFIG += single
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(../../plugins/projectexplorer/projectexplorer.pri)
 include(../../plugins/find/find.pri)
 include(../../plugins/coreplugin/coreplugin.pri)

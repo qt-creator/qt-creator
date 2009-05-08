@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = Qt4ProjectManager
 QT += network
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
 HEADERS = qt4projectmanagerplugin.h \
     qt4projectmanager.h \

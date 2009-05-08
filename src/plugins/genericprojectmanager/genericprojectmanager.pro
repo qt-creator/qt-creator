@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = GenericProjectManager
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(genericprojectmanager_dependencies.pri)
 HEADERS = genericproject.h \
     genericprojectplugin.h \

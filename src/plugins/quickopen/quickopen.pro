@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = QuickOpen
 DEFINES += QUICKOPEN_LIBRARY
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(quickopen_dependencies.pri)
 HEADERS += quickopenplugin.h \
     quickopentoolwindow.h \
