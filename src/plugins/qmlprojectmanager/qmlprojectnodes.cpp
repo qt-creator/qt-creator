@@ -175,7 +175,7 @@ bool QmlProjectNode::removeSubProjects(const QStringList &proFilePaths)
 bool QmlProjectNode::addFiles(const ProjectExplorer::FileType,
                               const QStringList &filePaths, QStringList *notAdded)
 {
-    QDir projectDir(QFileInfo(projectFilePath()).dir());
+    QDir projectDir = QFileInfo(projectFilePath()).dir();
 
     QFile file(projectFilePath());
     if (! file.open(QFile::WriteOnly | QFile::Append))
