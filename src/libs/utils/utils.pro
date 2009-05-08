@@ -4,7 +4,7 @@ QT += gui network
 
 DEFINES += QWORKBENCH_UTILS_LIBRARY
 
-include(../../qworkbenchlibrary.pri)
+include(../../qtcreatorlibrary.pri)
 
 SOURCES += \
     reloadpromptutils.cpp \

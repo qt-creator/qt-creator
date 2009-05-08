@@ -1,6 +1,6 @@
 # This is a compile check for the dumpers only. Don't install the library!
 
-include(../../qworkbenchlibrary.pri)
+include(../../qtcreatorlibrary.pri)
 
 TEMPLATE = lib
 TARGET = DebuggingHelper

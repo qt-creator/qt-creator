@@ -5,5 +5,5 @@ TARGET = CPlusPlus
 DEFINES += NDEBUG
 unix:QMAKE_CXXFLAGS_DEBUG += -O3
 
-include(../../qworkbenchlibrary.pri)
+include(../../qtcreatorlibrary.pri)
 include(cplusplus-lib.pri)
