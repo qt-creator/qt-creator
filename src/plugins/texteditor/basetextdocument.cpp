@@ -70,6 +70,7 @@ BaseTextDocument::BaseTextDocument()
 {
     m_documentMarker = new DocumentMarker(m_document);
     m_lineTerminatorMode = NativeLineTerminator;
+    m_fileIsReadOnly = false;
     m_isBinaryData = false;
     m_codec = QTextCodec::codecForLocale();
     m_hasDecodingError = false;
@@ -149,17 +150,8 @@ bool BaseTextDocument::isReadOnly() const
 
     const QFileInfo fi(m_fileName);
 
-#ifdef Q_OS_WIN
-    // Check for permissions on NTFS file systems
-    qt_ntfs_permission_lookup++;
-#endif
+    return m_fileIsReadOnly;
 
-    const bool ro = !fi.isWritable();
-
-#ifdef Q_OS_WIN
-    qt_ntfs_permission_lookup--;
-#endif
-    return ro;
 }
 
 bool BaseTextDocument::isModified() const
@@ -167,11 +159,33 @@ bool BaseTextDocument::isModified() const
     return m_document->isModified();
 }
 
+void BaseTextDocument::checkPermissions()
+{
+    if (!m_fileName.isEmpty()) {
+        const QFileInfo fi(m_fileName);
+
+#ifdef Q_OS_WIN
+        // Check for permissions on NTFS file systems
+        qt_ntfs_permission_lookup++;
+#endif
+
+        m_fileIsReadOnly = !fi.isWritable();
+
+#ifdef Q_OS_WIN
+        qt_ntfs_permission_lookup--;
+#endif
+
+    } else {
+        m_fileIsReadOnly = false;
+    }
+}
+
 bool BaseTextDocument::open(const QString &fileName)
 {
     QString title = tr("untitled");
     if (!fileName.isEmpty()) {
         const QFileInfo fi(fileName);
+        m_fileIsReadOnly = !fi.isWritable();
         m_fileName = fi.absoluteFilePath();
 
         QFile file(fileName);

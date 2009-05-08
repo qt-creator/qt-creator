@@ -60,6 +60,8 @@ public:
 
     virtual void modified(ReloadBehavior *behavior) = 0;
 
+    virtual void checkPermissions() {}
+
 signals:
     void changed();
 };
