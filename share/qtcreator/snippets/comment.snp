@@ -1,5 +1,5 @@
-<!DOCTYPE QtWorkbenchSnippet>
-<qtworkbench>
+<!DOCTYPE QtCreatorSnippet>
+<qtcreator>
  <data>
   <variable>Name</variable>
   <value type="QString" >/* ... */ Comment</value>
@@ -20,4 +20,4 @@
   <variable>Contents</variable>
   <value type="QString" ><![CDATA[/* $anchor$$selection$$cursor$ */]]></value>
  </data>
-</qtworkbench>
+</qtcreator>
