@@ -53,6 +53,8 @@ void CdbOptionsPageWidget::setOptions(CdbOptions &o)
 {
     m_ui.pathChooser->setPath(o.path);
     m_ui.cdbOptionsGroupBox->setChecked(o.enabled);
+    m_ui.symbolPathListEditor->setPathList(o.symbolPaths);
+    m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
 }
 
 CdbOptions CdbOptionsPageWidget::options() const
@@ -60,6 +62,8 @@ CdbOptions CdbOptionsPageWidget::options() const
     CdbOptions  rc;
     rc.path = m_ui.pathChooser->path();
     rc.enabled = m_ui.cdbOptionsGroupBox->isChecked();
+    rc.symbolPaths = m_ui.symbolPathListEditor->pathList();
+    rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
     return rc;
 }
 
@@ -121,9 +125,11 @@ void CdbOptionsPage::apply()
     if (!m_widget)
         return;
     const CdbOptions newOptions = m_widget->options();
-    if (newOptions != *m_options) {
+    if (const unsigned changedMask = m_options->compare(newOptions)) {
         *m_options = newOptions;
         m_options->toSettings(Core::ICore::instance()->settings());
+        if (changedMask & CdbOptions::DebuggerPathsChanged)
+            emit debuggerPathsChanged();
     }
 }
 

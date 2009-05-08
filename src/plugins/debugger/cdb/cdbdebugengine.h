@@ -96,13 +96,16 @@ public:
     virtual void reloadSourceFiles();
     virtual void reloadFullStack() {}
 
+public slots:
+    void syncDebuggerPaths();
+
 protected:
     void timerEvent(QTimerEvent*);
 
 private slots:
     void slotConsoleStubStarted();
     void slotConsoleStubError(const QString &msg);
-    void slotConsoleStubTerminated();
+    void slotConsoleStubTerminated();    
 
 private:
     bool startAttachDebugger(qint64 pid, QString *errorMessage);

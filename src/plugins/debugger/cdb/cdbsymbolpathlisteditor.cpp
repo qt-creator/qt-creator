@@ -27,46 +27,33 @@
 **
 **************************************************************************/
 
-#ifndef CDBSETTINGS_H
-#define CDBSETTINGS_H
+#include "cdbsymbolpathlisteditor.h"
 
-#include <QtCore/QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <QtGui/QFileDialog>
+#include <QtGui/QAction>
 
 namespace Debugger {
 namespace Internal {
 
-struct CdbOptions
+CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
+    Core::Utils::PathListEditor(parent)
 {
-public:
-    CdbOptions();
-    void clear();
+    //! Add Microsoft Symbol server connection
+    QAction *action = insertAction(lastAddActionIndex() + 1, tr("Symbol Server..."), this, SLOT(addSymbolServer()));
+    action->setToolTip(tr("Adds the Microsoft symbol server providing symbols for operating system libraries."
+                      "Requires specifying a local cache directory."));
+}
 
-    void fromSettings(const QSettings *s);
-    void toSettings(QSettings *s) const;
-
-    // A set of flags for comparison function.
-    enum ChangeFlags { InitializationOptionsChanged = 0x1, DebuggerPathsChanged = 0x2 };
-    unsigned compare(const CdbOptions &s) const;
-
-    // Locate the debugging tools
-    static bool autoDetectPath(QString *path);
-
-    bool enabled;
-    QString path;
-    QStringList symbolPaths;
-    QStringList sourcePaths;
-};
-
-inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.compare(s2) == 0u; }
-inline bool operator!=(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.compare(s2) != 0u; }
+void CdbSymbolPathListEditor::addSymbolServer()
+{
+    const QString title = tr("Pick a local cache directory");
+    const QString cacheDir = QFileDialog::getExistingDirectory(this, title);
+    if (!cacheDir.isEmpty()) {
+        const QString path = QString::fromLatin1("symsrv*symsrv.dll*%1*http://msdl.microsoft.com/download/symbols").
+                             arg(QDir::toNativeSeparators(cacheDir));
+        insertPathAtCursor(path);
+    }
+}
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // CDBSETTINGS_H

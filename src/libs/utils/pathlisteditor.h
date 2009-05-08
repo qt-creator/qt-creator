@@ -36,7 +36,7 @@
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
-class QAbstractButton;
+class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -72,8 +72,8 @@ public:
 
     static QChar separator();
 
-    // Add a convenience button "Import from 'Path'" (environment variable)
-    void addEnvVariableImportButton(const QString &var);
+    // Add a convenience action "Import from 'Path'" (environment variable)
+    void addEnvVariableImportAction(const QString &var);
 
 public slots:
     void clear();
@@ -83,17 +83,22 @@ public slots:
     void setFileDialogTitle(const QString &l);
 
 protected:
-    QAbstractButton *insertButton(int index /* -1 */, const QString &text, QObject * receiver, const char *slotFunc);
-    QAbstractButton *addButton(const QString &text, QObject * receiver, const char *slotFunc);
+    // Index after which to insert further "Add" actions
+    static int lastAddActionIndex();
+    QAction *insertAction(int index /* -1 */, const QString &text, QObject * receiver, const char *slotFunc);
+    QAction *addAction(const QString &text, QObject * receiver, const char *slotFunc);
+
     QString text() const;
     void setText(const QString &);
 
 protected slots:
     void insertPathAtCursor(const QString &);
     void deletePathAtCursor();
+    void appendPath(const QString &);
 
 private slots:
     void slotAdd();
+    void slotInsert();
 
 private:
     PathListEditorPrivate *m_d;

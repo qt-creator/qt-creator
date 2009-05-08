@@ -347,8 +347,10 @@ IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *parent,
                                         QString *errorMessage)
 {
     CdbDebugEngine *rc = new CdbDebugEngine(parent, options);
-    if (rc->m_d->init(errorMessage))
+    if (rc->m_d->init(errorMessage)) {
+        rc->syncDebuggerPaths();
         return rc;
+    }
     delete rc;
     return 0;
 }
@@ -452,6 +454,7 @@ void CdbDebugEnginePrivate::clearDisplay()
 bool CdbDebugEngine::startDebugger()
 {
     m_d->clearDisplay();
+
     const DebuggerStartMode mode = m_d->m_debuggerManager->startMode();
     // Figure out dumper. @TODO: same in gdb...
     const QString dumperLibName = QDir::toNativeSeparators(m_d->m_debuggerManagerAccess->qtDumperLibraryName());
@@ -1489,6 +1492,59 @@ void CdbDebugEngine::reloadSourceFiles()
 {
 }
 
+QStringList CdbDebugEnginePrivate::sourcePaths() const
+{
+    WCHAR wszBuf[MAX_PATH];
+    if (SUCCEEDED(m_cif.debugSymbols->GetSourcePathWide(wszBuf, MAX_PATH, 0)))
+        return QString::fromUtf16(wszBuf).split(QLatin1Char(';'));
+    return QStringList();
+}
+
+void CdbDebugEngine::syncDebuggerPaths()
+{
+     if (debugCDB)
+        qDebug() << Q_FUNC_INFO << m_d->m_options->symbolPaths << m_d->m_options->sourcePaths;
+    QString errorMessage;
+    if (!m_d->setSourcePaths(m_d->m_options->sourcePaths, &errorMessage)
+        || !m_d->setSymbolPaths(m_d->m_options->symbolPaths, &errorMessage)) {
+        errorMessage = QString::fromLatin1("Unable to set the debugger paths: %1").arg(errorMessage);
+        qWarning("%s\n", qPrintable(errorMessage));
+    }
+}
+
+static inline QString pathString(const QStringList &s)
+{  return s.join(QString(QLatin1Char(';')));  }
+
+bool CdbDebugEnginePrivate::setSourcePaths(const QStringList &s, QString *errorMessage)
+{
+    const HRESULT hr = m_cif.debugSymbols->SetSourcePathWide(pathString(s).utf16());
+    if (FAILED(hr)) {
+        if (errorMessage)
+            *errorMessage = msgComFailed("SetSourcePathWide", hr);
+        return false;
+    }
+    return true;
+}
+
+QStringList CdbDebugEnginePrivate::symbolPaths() const
+{
+    WCHAR wszBuf[MAX_PATH];
+    if (SUCCEEDED(m_cif.debugSymbols->GetSymbolPathWide(wszBuf, MAX_PATH, 0)))
+        return QString::fromUtf16(wszBuf).split(QLatin1Char(';'));
+    return QStringList();
+}
+
+bool CdbDebugEnginePrivate::setSymbolPaths(const QStringList &s, QString *errorMessage)
+{
+    const HRESULT hr = m_cif.debugSymbols->SetSymbolPathWide(pathString(s).utf16());
+    if (FAILED(hr)) {
+        if (errorMessage)
+            *errorMessage = msgComFailed("SetSymbolPathWide", hr);
+        return false;
+    }
+    return true;
+}
+
 } // namespace Internal
 } // namespace Debugger
 
@@ -1512,5 +1568,6 @@ Debugger::Internal::IDebuggerEngine *createWinEngine(Debugger::Internal::Debugge
         optionsPage->setFailureMessage(errorMessage);
         qWarning("%s", qPrintable(errorMessage));
     }
+    QObject::connect(optionsPage, SIGNAL(debuggerPathsChanged()), engine, SLOT(syncDebuggerPaths()));
     return engine;
 }

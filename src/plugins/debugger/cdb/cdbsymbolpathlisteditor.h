@@ -27,46 +27,25 @@
 **
 **************************************************************************/
 
-#ifndef CDBSETTINGS_H
-#define CDBSETTINGS_H
+#ifndef SYMBOLPATHLISTEDITOR_H
+#define SYMBOLPATHLISTEDITOR_H
 
-#include <QtCore/QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <utils/pathlisteditor.h>
 
 namespace Debugger {
 namespace Internal {
 
-struct CdbOptions
+class CdbSymbolPathListEditor : public Core::Utils::PathListEditor
 {
+    Q_OBJECT
 public:
-    CdbOptions();
-    void clear();
+    explicit CdbSymbolPathListEditor(QWidget *parent = 0);
 
-    void fromSettings(const QSettings *s);
-    void toSettings(QSettings *s) const;
-
-    // A set of flags for comparison function.
-    enum ChangeFlags { InitializationOptionsChanged = 0x1, DebuggerPathsChanged = 0x2 };
-    unsigned compare(const CdbOptions &s) const;
-
-    // Locate the debugging tools
-    static bool autoDetectPath(QString *path);
-
-    bool enabled;
-    QString path;
-    QStringList symbolPaths;
-    QStringList sourcePaths;
+private slots:
+    void addSymbolServer();
 };
-
-inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.compare(s2) == 0u; }
-inline bool operator!=(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.compare(s2) != 0u; }
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // CDBSETTINGS_H
+#endif // SYMBOLPATHLISTEDITOR_H

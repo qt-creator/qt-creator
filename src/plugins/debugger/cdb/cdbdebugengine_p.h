@@ -135,6 +135,12 @@ struct CdbDebugEnginePrivate
     static bool executeDebuggerCommand(CIDebugControl *ctrl, const QString &command, QString *errorMessage);
     static bool evaluateExpression(CIDebugControl *ctrl, const QString &expression, DEBUG_VALUE *v, QString *errorMessage);
 
+    QStringList sourcePaths() const;
+    bool setSourcePaths(const QStringList &s, QString *errorMessage);
+
+    QStringList symbolPaths() const;
+    bool setSymbolPaths(const QStringList &s, QString *errorMessage);
+
     const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;

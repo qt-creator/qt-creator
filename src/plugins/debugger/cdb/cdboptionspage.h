@@ -83,6 +83,9 @@ public:
     // Load  failure messages can be displayed here
     void setFailureMessage(const QString &msg) { m_failureMessage = msg; }
 
+signals:
+    void debuggerPathsChanged();
+
 private:
     const QSharedPointer<CdbOptions> m_options;
     QPointer<CdbOptionsPageWidget> m_widget;
