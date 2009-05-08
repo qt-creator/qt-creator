@@ -1173,6 +1173,8 @@ bool EditorManager::saveFile(IEditor *editor)
         return false;
 
     IFile *file = editor->file();
+    file->checkPermissions();
+
     const QString &fileName = file->fileName();
     if (!fileName.isEmpty() && file->isReadOnly()) {
         MakeWritableResult answer =
@@ -1242,6 +1244,7 @@ EditorManager::makeEditorWritable(IEditor *editor)
             QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"), tr("Could not open the file for edit with SCC."));
             return Failed;
         }
+        file->checkPermissions();
         return OpenedWithVersionControl;
     case RO_MakeWriteable: {
         const bool permsOk = QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
@@ -1250,6 +1253,7 @@ EditorManager::makeEditorWritable(IEditor *editor)
             return Failed;
         }
     }
+        file->checkPermissions();
         return MadeWritable;
     case RO_SaveAs :
         return saveFileAs(editor) ? SavedAs : Failed;

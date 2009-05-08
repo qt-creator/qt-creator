@@ -1312,15 +1312,6 @@ void BaseTextEditorPrivate::setupDocumentSignals(BaseTextDocument *document)
     q->slotUpdateExtraAreaWidth();
 }
 
-#ifndef TEXTEDITOR_STANDALONE
-bool BaseTextEditorPrivate::needMakeWritableCheck() const
-{
-    return !m_document->isModified()
-            && !m_document->fileName().isEmpty()
-            && m_document->isReadOnly();
-}
-#endif
-
 bool Parenthesis::hasClosingCollapse(const Parentheses &parentheses)
 {
     return closeCollapseAtPos(parentheses) >= 0;

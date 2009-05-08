@@ -128,9 +128,6 @@ public:
 #endif
     void setupDocumentSignals(BaseTextDocument *document);
     void updateLineSelectionColor();
-#ifndef TEXTEDITOR_STANDALONE
-    bool needMakeWritableCheck() const;
-#endif
 
     void print(QPrinter *printer);
 
