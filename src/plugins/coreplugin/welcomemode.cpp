@@ -106,6 +106,13 @@ WelcomeMode::WelcomeMode() :
 
     updateWelcomePage(WelcomePageData());
 
+    QButtonGroup *btnGrp = new QButtonGroup(this);
+    btnGrp->addButton(m_d->ui.gettingStartedSectButton, 0);
+    btnGrp->addButton(m_d->ui.developSectButton, 1);
+    btnGrp->addButton(m_d->ui.communitySectButton, 2);
+
+    connect(btnGrp, SIGNAL(buttonClicked(int)), m_d->ui.stackedWidget, SLOT(setCurrentIndex(int)));
+
     connect(m_d->ui.gettingStartedButton, SIGNAL(clicked()), SIGNAL(requestHelp()));
     connect(m_d->ui.feedbackButton, SIGNAL(clicked()), SLOT(slotFeedback()));
     connect(m_d->ui.restoreSessionButton, SIGNAL(clicked()), SLOT(slotRestoreLastSession()));
