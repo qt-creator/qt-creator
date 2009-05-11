@@ -1290,38 +1290,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
     if (debug)
         qDebug() << "ProjectExplorerPlugin::saveModifiedFiles";
 
-    QList<Core::IFile *> modifiedFi = Core::ICore::instance()->fileManager()->modifiedFiles();
-    QMap<QString, Core::IFile *> modified;
-
-    QStringList allFiles;
-    foreach (Project *pro, projects)
-        allFiles << allFilesWithDependencies(pro);
-
-    // allFiles must be sorted for the algorithm to work
-    qSort(allFiles);
-
-    foreach (Core::IFile * fi, modifiedFi)
-        modified.insert(fi->fileName(), fi);
-
-    QList<Core::IFile *> filesToSave;
-
-    QMap<QString, Core::IFile *>::const_iterator mit = modified.constBegin();
-    QStringList::const_iterator ait = allFiles.constBegin();
-    QMap<QString, Core::IFile *>::const_iterator mend = modified.constEnd();
-    QStringList::const_iterator aend = allFiles.constEnd();
-
-    while (mit != mend && ait != aend) {
-        if (mit.key() < *ait)
-            ++mit;
-        else if (*ait < mit.key())
-            ++ait;
-        else {
-            filesToSave.append(mit.value());
-            ++ait;
-            ++mit;
-        }
-    }
-
+    QList<Core::IFile *> filesToSave = Core::ICore::instance()->fileManager()->modifiedFiles();
     if (!filesToSave.isEmpty()) {
         if (m_projectExplorerSettings.saveBeforeBuild) {
             Core::ICore::instance()->fileManager()->saveModifiedFilesSilently(filesToSave);
