@@ -31,12 +31,14 @@
 #include "environment.h"
 #include "project.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/debugginghelper.h>
 
 #include <QtGui/QCheckBox>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
+#include <QtGui/QMainWindow>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QFileDialog>
@@ -190,7 +192,7 @@ QString CustomExecutableRunConfiguration::executable() const
     if (!QFileInfo(exec).exists()) {
         // Oh the executable doesn't exists, ask the user.
         QWidget *confWidget = const_cast<CustomExecutableRunConfiguration *>(this)->configurationWidget();
-        QDialog dialog;
+        QDialog dialog(Core::ICore::instance()->mainWindow());
         dialog.setLayout(new QVBoxLayout());
         dialog.layout()->addWidget(new QLabel(tr("Could not find the executable, please specify one.")));
         dialog.layout()->addWidget(confWidget);
