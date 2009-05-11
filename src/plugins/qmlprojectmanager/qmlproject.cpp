@@ -50,6 +50,7 @@
 #include <QtGui/QFormLayout>
 #include <QtGui/QMainWindow>
 #include <QtGui/QComboBox>
+#include <QtGui/QMessageBox>
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
@@ -328,6 +329,12 @@ QString QmlRunConfiguration::type() const
 
 QString QmlRunConfiguration::executable() const
 {
+    if (! QFile::exists(m_qmlViewer)) {
+        QMessageBox::information(Core::ICore::instance()->mainWindow(),
+                                 tr("QML Viewer"),
+                                 tr("Could not find the qmlviewer executable, please specify one."));
+    }
+
     return m_qmlViewer;
 }
 
