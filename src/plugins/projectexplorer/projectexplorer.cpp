@@ -797,7 +797,7 @@ void ProjectExplorerPlugin::newProject()
     }
 
     Core::ICore::instance()->showNewItemDialog(tr("New Project", "Title of dialog"),
-                              Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::ProjectWizard),
+                              Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard),
                               defaultLocation);
     updateActions();
 }
@@ -1641,8 +1641,8 @@ void ProjectExplorerPlugin::addNewFile()
         return;
     const QString location = QFileInfo(m_currentNode->path()).dir().absolutePath();
     Core::ICore::instance()->showNewItemDialog(tr("New File", "Title of dialog"),
-                              Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::FileWizard)
-                              + Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::ClassWizard),
+                              Core::IWizard::wizardsOfKind(Core::IWizard::FileWizard)
+                              + Core::IWizard::wizardsOfKind(Core::IWizard::ClassWizard),
                               location);
 }
 

@@ -151,11 +151,6 @@ public:
 
     virtual QStringList runWizard(const QString &path, QWidget *parent);
 
-    // Utility to find all registered wizards
-    static QList<IWizard*> allWizards();
-    // Utility to find all registered wizards of a certain kind
-    static QList<IWizard*> findWizardsOfKind(Kind kind);
-
     // Build a file name, adding the extension unless baseName already has one
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
 
@@ -221,20 +216,6 @@ protected:
                                                  const QString &name,
                                                  QString *errorMessage) const = 0;
 };
-
-/* A utility to find all wizards supporting a view mode and matching a predicate */
-template <class Predicate>
-    QList<IWizard*> findWizards(Predicate predicate)
-{
-    // Filter all wizards
-    const QList<IWizard*> allWizards = BaseFileWizard::allWizards();
-    QList<IWizard*> rc;
-    const QList<IWizard*>::const_iterator cend = allWizards.constEnd();
-    for (QList<IWizard*>::const_iterator it = allWizards.constBegin(); it != cend; ++it)
-        if (predicate(*(*it)))
-            rc.push_back(*it);
-    return rc;
-}
 
 } // namespace Core
 

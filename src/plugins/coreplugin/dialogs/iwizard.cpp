@@ -1,4 +1,35 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact:  Qt Software Information (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at qt-sales@nokia.com.
+**
+**************************************************************************/
+
 #include "iwizard.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 /*!
     \class Core::IWizard
@@ -95,3 +126,40 @@
     default path.
     Returns a list of files (absolute paths) that have been created, if any.
 */
+
+using namespace Core;
+
+/* A utility to find all wizards supporting a view mode and matching a predicate */
+template <class Predicate>
+    QList<IWizard*> findWizards(Predicate predicate)
+{
+    // Filter all wizards
+    const QList<IWizard*> allWizards = IWizard::allWizards();
+    QList<IWizard*> rc;
+    const QList<IWizard*>::const_iterator cend = allWizards.constEnd();
+    for (QList<IWizard*>::const_iterator it = allWizards.constBegin(); it != cend; ++it)
+        if (predicate(*(*it)))
+            rc.push_back(*it);
+    return rc;
+}
+
+QList<IWizard*> IWizard::allWizards()
+{
+    return ExtensionSystem::PluginManager::instance()->getObjects<IWizard>();
+}
+
+// Utility to find all registered wizards of a certain kind
+
+class WizardKindPredicate {
+public:
+    WizardKindPredicate(IWizard::Kind kind) : m_kind(kind) {}
+    bool operator()(const IWizard &w) const { return w.kind() == m_kind; }
+private:
+    const IWizard::Kind m_kind;
+};
+
+QList<IWizard*> IWizard::wizardsOfKind(Kind kind)
+{
+    return findWizards(WizardKindPredicate(kind));
+}
+

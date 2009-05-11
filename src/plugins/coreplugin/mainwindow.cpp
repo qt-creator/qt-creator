@@ -760,7 +760,7 @@ void MainWindow::registerDefaultActions()
 
 void MainWindow::newFile()
 {
-    showNewItemDialog(tr("New", "Title of dialog"),BaseFileWizard::allWizards());
+    showNewItemDialog(tr("New", "Title of dialog"), IWizard::allWizards());
 }
 
 void MainWindow::openFile()

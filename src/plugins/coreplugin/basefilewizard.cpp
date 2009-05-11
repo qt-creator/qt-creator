@@ -578,26 +578,6 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QString &l
     return yes ? OverwriteOk :  OverwriteCanceled;
 }
 
-QList<IWizard*> BaseFileWizard::allWizards()
-{
-    return ExtensionSystem::PluginManager::instance()->getObjects<IWizard>();
-}
-
-// Utility to find all registered wizards of a certain kind
-
-class WizardKindPredicate {
-public:
-    WizardKindPredicate(IWizard::Kind kind) : m_kind(kind) {}
-    bool operator()(const IWizard &w) const { return w.kind() == m_kind; }
-private:
-    const IWizard::Kind m_kind;
-};
-
-QList<IWizard*> BaseFileWizard::findWizardsOfKind(Kind kind)
-{
-    return findWizards(WizardKindPredicate(kind));
-}
-
 QString BaseFileWizard::buildFileName(const QString &path,
                                       const QString &baseName,
                                       const QString &extension)
