@@ -194,6 +194,8 @@ void QScriptHighlighter::highlightBlock(const QString &text)
     forever {
         const QChar c = text.at(i);
 
+        bool lookAtBinding = false;
+
         if (lastWasBackSlash) {
             input = InputSep;
         } else {
@@ -258,6 +260,7 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                               QChar nextChar = ' ';
                               if (i < text.length() - 1)
                                   nextChar = text.at(i + 1);
+
                               if (state == StateStandard && !questionMark &&
                                   lastChar != ':' && nextChar != ':') {
                                   int start = i - 1;
@@ -277,6 +280,8 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                                   }
 
                                   ++start;
+
+                                  lookAtBinding = true;
 
                                   if (m_duiEnabled && text.midRef(start, lastNonSpace - start) == QLatin1String("id")) {
                                       setFormat(start, i - start, m_formats[KeywordFormat]);
@@ -317,7 +322,8 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                                         setFormat(i - 1, 1, emptyFormat);
                                     makeLastStandard = false;
                                     if (!buffer.isEmpty() && input != InputAlpha ) {
-                                        highlightKeyword(i, buffer);
+                                        if (! lookAtBinding)
+                                            highlightKeyword(i, buffer);
                                         buffer.clear();
                                     }
                                 } break;
