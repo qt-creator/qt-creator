@@ -226,8 +226,16 @@ Core::GeneratedFiles QmlNewProjectWizard::generateFiles(const QWizard *w,
 
     QString contents;
     QTextStream out(&contents);
-    out << "Text {" << endl
-        << "    text: \"Hello, world!\"" << endl
+
+    out
+        << "Rect {" << endl
+        << "    width: 200" << endl
+        << "    height: 200" << endl
+        << "    color: \"white\"" << endl
+        << "    Text {" << endl
+        << "        text: \"Hello World\"" << endl
+        << "        anchors.centeredIn: parent" << endl
+        << "    }" << endl
         << "}" << endl;
 
     Core::GeneratedFile generatedMainFile(mainFileName);
