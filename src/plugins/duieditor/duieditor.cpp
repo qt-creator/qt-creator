@@ -583,8 +583,6 @@ QStringList ScriptEditor::keywords() const
 
     if (DuiHighlighter *highlighter = qobject_cast<DuiHighlighter*>(baseTextDocument()->syntaxHighlighter())) {
         words = highlighter->keywords().toList();
-        words.append(QLatin1String("property")); // ### move
-        words.append(QLatin1String("signal")); // ### move
     }
 
     return words;

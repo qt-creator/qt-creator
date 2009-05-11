@@ -40,6 +40,9 @@ DuiHighlighter::DuiHighlighter(QTextDocument *parent) :
     setDuiEnabled(true);
     m_currentBlockParentheses.reserve(20);
     m_braceDepth = 0;
+
+    qscriptKeywords.insert(QLatin1String("property"));
+    qscriptKeywords.insert(QLatin1String("signal"));
 }
 
 int DuiHighlighter::onBlockStart()
