@@ -8,12 +8,14 @@ HEADERS = qmlproject.h \
     qmlprojectconstants.h \
     qmlprojectnodes.h \
     qmlprojectwizard.h \
+    qmlnewprojectwizard.h \
     qmlprojectfileseditor.h
 SOURCES = qmlproject.cpp \
     qmlprojectplugin.cpp \
     qmlprojectmanager.cpp \
     qmlprojectnodes.cpp \
     qmlprojectwizard.cpp \
+    qmlnewprojectwizard.cpp \
     qmlprojectfileseditor.cpp
 RESOURCES += qmlproject.qrc
 
