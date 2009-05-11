@@ -615,7 +615,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     Q_ASSERT(!fileName.isEmpty());
 
     if (debug)
-        qDebug() << "SessionManager - loading session " << fileName << " ...";
+        qDebug() << "SessionManager - restoring session " << fileName << " ...";
 
     bool success = true;
 
@@ -634,8 +634,8 @@ bool SessionManager::loadImpl(const QString &fileName)
         emit sessionUnloaded();
         m_file = new SessionFile;
         if (!m_file->load(fileName)) {
-            QMessageBox::warning(0, tr("Error while loading session"),
-                                    tr("Could not load session %1").arg(fileName));
+            QMessageBox::warning(0, tr("Error while restoring session"),
+                                    tr("Could not restore session %1").arg(fileName));
             success = false;
         }
         // m_file->load() sets the m_file->startupProject
@@ -653,7 +653,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     }
 
     if (debug)
-        qDebug() << "SessionManager - loading session returned " << success;
+        qDebug() << "SessionManager - restoring session returned " << success;
 
     if (success)
         emit sessionLoaded();

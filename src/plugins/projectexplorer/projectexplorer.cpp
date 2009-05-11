@@ -438,7 +438,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         this, SLOT(updateRecentProjectMenu()));
 
     // unload action
-    m_unloadAction = new QAction(tr("Unload Project"), this);
+    m_unloadAction = new QAction(tr("Close Project"), this);
     cmd = am->registerAction(m_unloadAction, Constants::UNLOAD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_unloadAction->text());
@@ -446,7 +446,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mproject->addAction(cmd, Constants::G_PROJECT_FILES);
 
     // unload session action
-    m_clearSession = new QAction(tr("Unload All Projects"), this);
+    m_clearSession = new QAction(tr("Close All Projects"), this);
     cmd = am->registerAction(m_clearSession, Constants::CLEARSESSION, globalcontext);
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
@@ -1028,7 +1028,7 @@ void ProjectExplorerPlugin::restoreSession()
                 sessionToLoad = arg;
                 arguments.removeOne(arg);
                 if (debug)
-                    qDebug()<< "Found session argument, loading session"<<sessionToLoad;
+                    qDebug() << "Found session argument, restoring session" << sessionToLoad;
                 break;
             }
         }
@@ -1246,10 +1246,10 @@ void ProjectExplorerPlugin::updateActions()
 
     m_unloadAction->setEnabled(m_currentProject != 0);
     if (m_currentProject == 0) {
-        m_unloadAction->setText(tr("Unload Project"));
+        m_unloadAction->setText(tr("Close Project"));
         m_buildAction->setText(tr("Build Project"));
     } else {
-        m_unloadAction->setText(tr("Unload Project \"%1\"").arg(m_currentProject->name()));
+        m_unloadAction->setText(tr("Close Project \"%1\"").arg(m_currentProject->name()));
         m_buildAction->setText(tr("Build Project \"%1\"").arg(m_currentProject->name()));
     }
 

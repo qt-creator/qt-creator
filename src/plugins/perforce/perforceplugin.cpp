@@ -661,7 +661,7 @@ void PerforcePlugin::updateActions()
         m_submitAction->setEnabled(true);
     } else {
         m_diffProjectAction->setEnabled(false);
-        m_diffProjectAction->setText(tr("Diff Current Project/Soluion"));
+        m_diffProjectAction->setText(tr("Diff Current Project/Solution"));
         m_submitAction->setEnabled(false);
     }
     m_diffAllAction->setEnabled(true);
