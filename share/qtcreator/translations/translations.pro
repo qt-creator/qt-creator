@@ -1,6 +1,6 @@
 include(../../../qtcreator.pri)
 
-TRANSLATIONS = de ja
+TRANSLATIONS = de it ja
 
 # var, prepend, append
 defineReplace(prependAll) {
