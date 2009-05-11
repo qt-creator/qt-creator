@@ -650,7 +650,6 @@ void DebuggerManager::shutdown()
     doDelete(m_registerHandler);
     doDelete(m_stackHandler);
     doDelete(m_watchHandler);
-    //qDebug() << "DEBUGGER_MANAGER SHUTDOWN END";
     #undef doDelete
 }
 

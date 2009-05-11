@@ -1231,16 +1231,6 @@ void GdbEngine::handleExecRun(const GdbResultRecord &response, const QVariant &)
     }
 }
 
-void GdbEngine::queryFullName(const QString &fileName, QString *full)
-{
-    *full = fullName(fileName);
-}
-
-QString GdbEngine::shortName(const QString &fullName)
-{
-    return m_fullToShortName.value(fullName, QString());
-}
-
 QString GdbEngine::fullName(const QString &fileName)
 {
     //QString absName = m_manager->currentWorkingDirectory() + "/" + file; ??

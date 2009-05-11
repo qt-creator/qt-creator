@@ -134,9 +134,7 @@ private:
 
     void initializeConnections();
     void initializeVariables();
-    void queryFullName(const QString &fileName, QString *fullName);
     QString fullName(const QString &fileName);
-    QString shortName(const QString &fullName);
     // get one usable name out of these, try full names first
     QString fullName(const QStringList &candidates);
 
