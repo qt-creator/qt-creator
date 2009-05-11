@@ -2,9 +2,6 @@
 <ui version="4.0">
  <class>Core::Utils::NewClassWidget</class>
  <widget class="QWidget" name="Core::Utils::NewClassWidget">
-  <property name="windowTitle">
-   <string>Dialog</string>
-  </property>
   <layout class="QFormLayout" name="formLayout">
    <property name="fieldGrowthPolicy">
     <enum>QFormLayout::ExpandingFieldsGrow</enum>

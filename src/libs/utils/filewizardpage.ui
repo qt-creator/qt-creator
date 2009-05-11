@@ -10,9 +10,6 @@
     <height>68</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>WizardPage</string>
-  </property>
   <property name="title">
    <string>Choose the location</string>
   </property>
