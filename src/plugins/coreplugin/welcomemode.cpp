@@ -31,6 +31,7 @@
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
 #include "modemanager.h"
+#include "rssfetcher.h"
 
 #include <QtGui/QToolBar>
 #include <QtGui/QDesktopServices>
@@ -53,7 +54,7 @@ struct WelcomeModePrivate
     QWidget *m_widget;
     QWidget *m_welcomePage;
     Ui::WelcomePage ui;
-
+    RSSFetcher *rssFetcher;
     WelcomeMode::WelcomePageData lastData;
 };
 
@@ -97,11 +98,14 @@ WelcomeMode::WelcomeMode() :
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new QToolBar(m_d->m_widget));
-
+    m_d->rssFetcher = new RSSFetcher(6, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
     m_d->ui.sessTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.projTreeWidget->viewport()->setAutoFillBackground(false);
+    m_d->ui.newsTreeWidget->viewport()->setAutoFillBackground(false);
+    m_d->ui.sitesTreeWidget->viewport()->setAutoFillBackground(false);
+    m_d->ui.tutorialTreeWidget->viewport()->setAutoFillBackground(false);
     l->addWidget(m_d->m_welcomePage);
 
     updateWelcomePage(WelcomePageData());
@@ -118,6 +122,29 @@ WelcomeMode::WelcomeMode() :
     connect(m_d->ui.restoreSessionButton, SIGNAL(clicked()), SLOT(slotRestoreLastSession()));
     connect(m_d->ui.sessTreeWidget, SIGNAL(activated(QString)), SLOT(slotSessionClicked(QString)));
     connect(m_d->ui.projTreeWidget, SIGNAL(activated(QString)), SLOT(slotProjectClicked(QString)));
+    connect(m_d->ui.newsTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
+    connect(m_d->ui.sitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
+
+    connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString)),
+        m_d->ui.newsTreeWidget, SLOT(slotAddItem(QString, QString)));
+
+    //: Add localized feed here only if one exists
+    m_d->rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
+
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Software"), QLatin1String("http://www.qtsoftware.com"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Labs"), QLatin1String("http://labs.qtsoftware.com"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Git Hosting"), QLatin1String("http://qt.gitorious.org"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Centre"), QLatin1String("http://www.qtcentre.org"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt/S60 at Forum Nokia"), QLatin1String("http://discussion.forum.nokia.com/forum/forumdisplay.php?f=196"));
+
+    m_d->ui.tutorialTreeWidget->addItem(tr("Tutorial 1"), QLatin1String(""));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Tutorial 2"), QLatin1String(""));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Tutorial 3"), QLatin1String(""));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Tutorial 4"), QLatin1String(""));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Tutorial 5"), QLatin1String(""));
+
+    // ### check for first start, select getting started in this case
+    m_d->ui.developSectButton->animateClick();
 }
 
 WelcomeMode::~WelcomeMode()
@@ -218,6 +245,11 @@ void WelcomeMode::slotProjectClicked(const QString &data)
     activateEditMode();
 }
 
+void WelcomeMode::slotUrlClicked(const QString &data)
+{
+    QDesktopServices::openUrl(QUrl(data));
+}
+
 void WelcomeMode::slotRestoreLastSession()
 {
     emit requestSession(m_d->lastData.previousSession);
@@ -308,6 +340,11 @@ QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QStr
     setItemWidget(item, 1, wdg);
     item->setData(0, Qt::UserRole, data);
     return item;
+}
+
+void WelcomeModeTreeWidget::slotAddItem(const QString &label, const QString &data)
+{
+    addTopLevelItem(addItem(label,data));
 }
 
 void WelcomeModeTreeWidget::slotItemClicked(QTreeWidgetItem *item)

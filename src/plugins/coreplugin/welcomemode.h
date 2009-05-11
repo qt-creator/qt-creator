@@ -85,6 +85,7 @@ private slots:
     void slotRestoreLastSession();
     void slotSessionClicked(const QString &data);
     void slotProjectClicked(const QString &data);
+    void slotUrlClicked(const QString &data);
 
 private:
     void activateEditMode();

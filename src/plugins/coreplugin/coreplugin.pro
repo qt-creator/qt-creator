@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET = Core
 DEFINES += CORE_LIBRARY
 QT += xml \
+    network \
     script \
     svg
 include(../../qtcreatorplugin.pri)
@@ -19,6 +20,7 @@ DEPENDPATH += dialogs \
     scriptmanager
 SOURCES += mainwindow.cpp \
     welcomemode.cpp \
+    rssfetcher.cpp \
     editmode.cpp \
     tabpositionindicator.cpp \
     fancyactionbar.cpp \
@@ -78,6 +80,7 @@ SOURCES += mainwindow.cpp \
 HEADERS += mainwindow.h \
     welcomemode.h \
     welcomemode_p.h \
+    rssfetcher.h \
     editmode.h \
     tabpositionindicator.h \
     fancyactionbar.h \
