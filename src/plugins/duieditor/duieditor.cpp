@@ -344,6 +344,7 @@ protected:
         --_depth;
     }
 
+#if 0 // ### ignore script bindings for now.
     virtual bool visit(AST::UiScriptBinding *node)
     {
         ++_depth;
@@ -363,6 +364,7 @@ protected:
     {
         --_depth;
     }
+#endif
 };
 
 ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor, const QList<int>& context)
