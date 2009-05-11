@@ -609,10 +609,11 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
         (*template_argument_ptr)->template_argument = template_argument;
         template_argument_ptr = &(*template_argument_ptr)->next;
         while (LA() == T_COMMA) {
-            consumeToken();
+            unsigned comma_token = consumeToken();
 
             if (parseTemplateArgument(template_argument)) {
                 *template_argument_ptr = new (_pool) TemplateArgumentListAST;
+                (*template_argument_ptr)->comma_token = comma_token;
                 (*template_argument_ptr)->template_argument = template_argument;
                 template_argument_ptr = &(*template_argument_ptr)->next;
             }
@@ -993,7 +994,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
                 ExpressionAST *initializer = 0;
 
                 bool blocked = blockErrors(true);
-                if (parseInitializer(initializer)) {
+                if (parseInitializer(initializer, &node->equals_token)) {
                     if (NestedExpressionAST *expr = initializer->asNestedExpression()) {
                         if (expr->expression && expr->rparen_token && (LA() == T_COMMA || LA() == T_SEMICOLON)) {
                             rewind(lparen_token);
@@ -1151,6 +1152,7 @@ bool Parser::parseEnumSpecifier(SpecifierAST *&node)
             ast->enum_token = enum_token;
             ast->name = name;
             ast->lbrace_token = consumeToken();
+            unsigned comma_token = 0;
             EnumeratorAST **enumerator_ptr = &ast->enumerators;
             while (int tk = LA()) {
                 if (tk == T_RBRACE)
@@ -1161,13 +1163,13 @@ bool Parser::parseEnumSpecifier(SpecifierAST *&node)
                     skipUntil(T_IDENTIFIER);
                 }
 
-                if (parseEnumerator(*enumerator_ptr))
+                if (parseEnumerator(*enumerator_ptr)) {
+                    (*enumerator_ptr)->comma_token = comma_token;
                     enumerator_ptr = &(*enumerator_ptr)->next;
-
-                if (LA() != T_RBRACE) {
-                    unsigned comma_token = 0;
-                    match(T_COMMA, &comma_token);
                 }
+
+                if (LA() != T_RBRACE)
+                    match(T_COMMA, &comma_token);
             }
             match(T_RBRACE, &ast->rbrace_token);
             node = ast;
@@ -1183,7 +1185,7 @@ bool Parser::parseTemplateParameterList(DeclarationAST *&node)
     if (parseTemplateParameter(*template_parameter_ptr)) {
         template_parameter_ptr = &(*template_parameter_ptr)->next;
         while (LA() == T_COMMA) {
-            consumeToken();
+            consumeToken(); // XXX Store this token somewhere
 
             if (parseTemplateParameter(*template_parameter_ptr))
                 template_parameter_ptr = &(*template_parameter_ptr)->next;
@@ -1566,7 +1568,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node,
         }
         rewind(colon_token);
     } else if (LA() == T_EQUAL || (! acceptStructDeclarator && LA() == T_LPAREN)) {
-        parseInitializer(node->initializer);
+        parseInitializer(node->initializer, &node->equals_token);
     }
     return true;
 }
@@ -1581,10 +1583,12 @@ bool Parser::parseBaseClause(BaseSpecifierAST *&node)
             ast = &(*ast)->next;
 
             while (LA() == T_COMMA) {
-                consumeToken();
+                unsigned comma_token = consumeToken();
 
-                if (parseBaseSpecifier(*ast))
-                    ast = &(*ast)->next;
+                if (parseBaseSpecifier(*ast)) {
+                    (*ast)->comma_token = comma_token;
+                    ast = &(*ast)->next;\
+                }
             }
         }
 
@@ -1593,12 +1597,12 @@ bool Parser::parseBaseClause(BaseSpecifierAST *&node)
     return false;
 }
 
-bool Parser::parseInitializer(ExpressionAST *&node)
+bool Parser::parseInitializer(ExpressionAST *&node, unsigned *equals_token)
 {
     if (LA() == T_LPAREN) {
         return parsePrimaryExpression(node);
     } else if (LA() == T_EQUAL) {
-        consumeToken();
+        (*equals_token) = consumeToken();
         return parseInitializerClause(node);
     }
     return false;
@@ -1611,9 +1615,12 @@ bool Parser::parseMemInitializerList(MemInitializerAST *&node)
     if (parseMemInitializer(*initializer)) {
         initializer = &(*initializer)->next;
         while (LA() == T_COMMA) {
-            consumeToken();
-            if (parseMemInitializer(*initializer))
+            unsigned comma_token = consumeToken();
+
+            if (parseMemInitializer(*initializer)) {
+                (*initializer)->comma_token = comma_token;
                 initializer = &(*initializer)->next;
+            }
         }
         return true;
     }
@@ -1668,10 +1675,11 @@ bool Parser::parseExpressionList(ExpressionListAST *&node)
         (*expression_list_ptr)->expression = expression;
         expression_list_ptr = &(*expression_list_ptr)->next;
         while (LA() == T_COMMA) {
-            consumeToken();
+            unsigned comma_token = consumeToken();
 
             if (parseExpression(expression)) {
                 *expression_list_ptr = new (_pool) ExpressionListAST;
+                (*expression_list_ptr)->comma_token = comma_token;
                 (*expression_list_ptr)->expression = expression;
                 expression_list_ptr = &(*expression_list_ptr)->next;
             }
@@ -1716,10 +1724,11 @@ bool Parser::parseInitializerList(ExpressionListAST *&node)
         (*initializer_ptr)->expression = initializer;
         initializer_ptr = &(*initializer_ptr)->next;
         while (LA() == T_COMMA) {
-            consumeToken();
+            unsigned comma_token = consumeToken();
             initializer = 0;
             parseInitializerClause(initializer);
             *initializer_ptr = new (_pool) ExpressionListAST;
+            (*initializer_ptr)->comma_token = comma_token;
             (*initializer_ptr)->expression = initializer;
             initializer_ptr = &(*initializer_ptr)->next;
         }
@@ -2326,18 +2335,17 @@ bool Parser::parseAttributeList(AttributeAST *&node)
         AttributeAST *ast = new (_pool) AttributeAST;
         ast->identifier_token = consumeToken();
         if (LA() == T_LPAREN) {
-            consumeToken();
+            ast->lparen_token = consumeToken();
             if (LA() == T_IDENTIFIER && (LA(2) == T_COMMA || LA(2) == T_RPAREN)) {
                 ast->tag_token = consumeToken();
                 if (LA() == T_COMMA) {
-                    consumeToken();
+                    ast->comma_token = consumeToken();
                     parseExpressionList(ast->expression_list);
                 }
             } else {
                 parseExpressionList(ast->expression_list);
             }
-            unsigned rparen_token = 0;
-            match(T_RPAREN, &rparen_token);
+            match(T_RPAREN, &ast->rparen_token);
         }
         *attribute_ptr = ast;
 
@@ -2360,7 +2368,8 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierAST *&node)
         if (LA() == T_LPAREN) {
             unsigned lparen_token = consumeToken();
             if (parseTypeId(ast->expression) && LA() == T_RPAREN) {
-                consumeToken();
+                ast->lparen_token = lparen_token;
+                ast->rparen_token = consumeToken();
                 node = ast;
                 return true;
             }
@@ -2491,10 +2500,11 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
 
     if (LA() == T_COMMA || LA() == T_SEMICOLON || has_complex_type_specifier) {
         while (LA() == T_COMMA) {
-            consumeToken();
+            unsigned comma_token = consumeToken();
             declarator = 0;
             if (parseInitDeclarator(declarator, acceptStructDeclarator)) {
                 *declarator_ptr = new (_pool) DeclaratorListAST;
+                (*declarator_ptr)->comma_token = comma_token;
                 (*declarator_ptr)->declarator = declarator;
                 declarator_ptr = &(*declarator_ptr)->next;
             }
