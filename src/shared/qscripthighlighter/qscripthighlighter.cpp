@@ -254,7 +254,7 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                     }
                     break;
                 case ':': {
-                              input = InputAlpha;
+                              input = InputSep;
                               QChar nextChar = ' ';
                               if (i < text.length() - 1)
                                   nextChar = text.at(i + 1);
@@ -271,7 +271,8 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                                   int lastNonSpace = start + 1;
 
                                   for (; start != -1; --start) {
-                                      if (text.at(start).isSpace())
+                                      const QChar ch = text.at(start);
+                                      if (! (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char('.')))
                                           break;
                                   }
 
