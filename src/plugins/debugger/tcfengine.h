@@ -141,6 +141,8 @@ private:
 
     void handleResponse(const QByteArray &ba);
     void handleRunControlSuspend(const TcfResponse &response, const QVariant &);
+    void handleRunControlGetChildren(const TcfResponse &response, const QVariant &);
+    void handleSysMonitorGetChildren(const TcfResponse &response, const QVariant &);
 
 private:
     typedef void (TcfEngine::*TcfCommandCallback)

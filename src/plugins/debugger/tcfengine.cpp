@@ -138,8 +138,8 @@ void TcfEngine::socketDisconnected()
 
 void TcfEngine::socketError(QAbstractSocket::SocketError)
 {
-    QString msg = tr("Socket error: %1").arg(m_socket->errorString());
-    QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
+    QString msg = tr("%1.").arg(m_socket->errorString());
+    //QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
     q->showStatusMessage(msg);
     qq->notifyInferiorExited();
 }
@@ -290,8 +290,16 @@ void TcfEngine::handleResponse(const QByteArray &buf)
     qDebug() << response.toString();
 
     if (response.service == "Locator" && response.cmd == "Hello") {
-        postCommand('C', CB(handleRunControlSuspend),
-            "RunControl", "suspend", "\"Thread1\"");
+        //postCommand('C', CB(handleRunControlSuspend),
+        //    "RunControl", "suspend", "\"Thread1\"");
+        //postCommand('C', CB(handleRunControlSuspend),
+        //    "RunControl", "getContext", "\"P12318\"");
+        postCommand('C', CB(handleRunControlGetChildren),
+            "RunControl", "getChildren", "\"\"");
+
+        postCommand('C', CB(handleSysMonitorGetChildren),
+            "SysMonitor", "getChildren", "\"\"");
+
         //postCommand('F', "0", "", "");
         //postCommand('E', "Locator", "Hello", "");
         //postCommand('C', "Locator", "sync", "");
@@ -348,6 +356,16 @@ void TcfEngine::postCommand(char tag,
 void TcfEngine::handleRunControlSuspend(const TcfResponse &response, const QVariant &)
 {
     qDebug() << "HANDLE RESULT";
+}
+
+void TcfEngine::handleRunControlGetChildren(const TcfResponse &response, const QVariant &)
+{
+    qDebug() << "HANDLE RESULT" << response.toString();
+}
+
+void TcfEngine::handleSysMonitorGetChildren(const TcfResponse &response, const QVariant &)
+{
+    qDebug() << "HANDLE RESULT" << response.toString();
 }
 
 //////////////////////////////////////////////////////////////////////
