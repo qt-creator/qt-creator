@@ -129,6 +129,7 @@ private slots:
     void copyFromSideBar();
 
     void openGettingStarted();
+    void openHelpPage(const QString& url);
 
 private:
     QToolBar *createToolBar();

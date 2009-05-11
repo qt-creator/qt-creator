@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "welcomemode.h"
+#include "icore.h"
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
 #include "modemanager.h"
@@ -41,6 +42,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
+#include <QtCore/QSettings>
 
 #include "ui_welcomemode.h"
 
@@ -53,6 +55,7 @@ struct WelcomeModePrivate
 
     QWidget *m_widget;
     QWidget *m_welcomePage;
+    QButtonGroup *btnGrp;
     Ui::WelcomePage ui;
     RSSFetcher *rssFetcher;
     WelcomeMode::WelcomePageData lastData;
@@ -110,12 +113,12 @@ WelcomeMode::WelcomeMode() :
 
     updateWelcomePage(WelcomePageData());
 
-    QButtonGroup *btnGrp = new QButtonGroup(this);
-    btnGrp->addButton(m_d->ui.gettingStartedSectButton, 0);
-    btnGrp->addButton(m_d->ui.developSectButton, 1);
-    btnGrp->addButton(m_d->ui.communitySectButton, 2);
+    m_d->btnGrp = new QButtonGroup(this);
+    m_d->btnGrp->addButton(m_d->ui.gettingStartedSectButton, 0);
+    m_d->btnGrp->addButton(m_d->ui.developSectButton, 1);
+    m_d->btnGrp->addButton(m_d->ui.communitySectButton, 2);
 
-    connect(btnGrp, SIGNAL(buttonClicked(int)), m_d->ui.stackedWidget, SLOT(setCurrentIndex(int)));
+    connect(m_d->btnGrp, SIGNAL(buttonClicked(int)), m_d->ui.stackedWidget, SLOT(setCurrentIndex(int)));
 
     connect(m_d->ui.gettingStartedButton, SIGNAL(clicked()), SIGNAL(requestHelp()));
     connect(m_d->ui.feedbackButton, SIGNAL(clicked()), SLOT(slotFeedback()));
@@ -124,6 +127,7 @@ WelcomeMode::WelcomeMode() :
     connect(m_d->ui.projTreeWidget, SIGNAL(activated(QString)), SLOT(slotProjectClicked(QString)));
     connect(m_d->ui.newsTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
     connect(m_d->ui.sitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
+    connect(m_d->ui.tutorialTreeWidget, SIGNAL(activated(QString)), SIGNAL(openHelpPage(const QString&)));
 
     connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString)),
         m_d->ui.newsTreeWidget, SLOT(slotAddItem(QString, QString)));
@@ -137,18 +141,26 @@ WelcomeMode::WelcomeMode() :
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Centre"), QLatin1String("http://www.qtcentre.org"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt/S60 at Forum Nokia"), QLatin1String("http://discussion.forum.nokia.com/forum/forumdisplay.php?f=196"));
 
-    m_d->ui.tutorialTreeWidget->addItem(tr("Tutorial 1"), QLatin1String(""));
-    m_d->ui.tutorialTreeWidget->addItem(tr("Tutorial 2"), QLatin1String(""));
-    m_d->ui.tutorialTreeWidget->addItem(tr("Tutorial 3"), QLatin1String(""));
-    m_d->ui.tutorialTreeWidget->addItem(tr("Tutorial 4"), QLatin1String(""));
-    m_d->ui.tutorialTreeWidget->addItem(tr("Tutorial 5"), QLatin1String(""));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Using Qt Creator"),
+                                        QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Understanding Widgets"),
+                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/widgets-tutorial.html"));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Creating an address book"),
+                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/tutorials-addressbook.html"));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Building with qmake"),
+                                        QLatin1String("qthelp://com.trolltech.qmake/qdoc/qmake-tutorial.html"));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Writing test cases"),
+                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/qtestlib-tutorial.html"));
 
-    // ### check for first start, select getting started in this case
-    m_d->ui.developSectButton->animateClick();
+    QSettings *settings = ICore::instance()->settings();
+    int id = settings->value("General/WelcomeTab", 0).toInt();
+    m_d->btnGrp->button(id)->animateClick();
 }
 
 WelcomeMode::~WelcomeMode()
 {
+    QSettings *settings = ICore::instance()->settings();
+    settings->setValue("General/WelcomeTab", m_d->btnGrp->checkedId());
     delete m_d;
 }
 

@@ -66,6 +66,7 @@
 #include <QtGui/QStyle>
 #include <QtGui/QToolBar>
 #include <QtGui/QComboBox>
+#include <QtGui/QDesktopServices>
 #include <QtHelp/QHelpEngine>
 
 #ifndef QT_NO_WEBKIT
@@ -523,6 +524,7 @@ void HelpPlugin::extensionsInitialized()
 
     if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>(m_core->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
         connect(welcomeMode, SIGNAL(requestHelp()), this, SLOT(openGettingStarted()));
+        connect(welcomeMode, SIGNAL(openHelpPage(const QString&)), this, SLOT(openHelpPage(const QString&)));
     }
 }
 
@@ -722,11 +724,21 @@ void HelpPlugin::addNewBookmark(const QString &title, const QString &url)
 
 void HelpPlugin::openGettingStarted()
 {
-    activateHelpMode();
-    m_centralWidget->setSource(
+    openHelpPage(
         QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
 }
 
+void HelpPlugin::openHelpPage(const QString& url)
+{
+    activateHelpMode();
+    if (m_helpEngine->findFile(url).isValid())
+        m_centralWidget->setSource(url);
+    else {
+        QString page = url.mid(url.lastIndexOf('/')+1);
+        qDebug() << url << page << url.lastIndexOf('/');
+        QDesktopServices::openUrl(QLatin1String("http://doc.qtsoftware.com/latest/")+page);
+    }
+}
 
 Q_EXPORT_PLUGIN(HelpPlugin)
