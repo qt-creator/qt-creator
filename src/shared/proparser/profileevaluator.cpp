@@ -2076,16 +2076,6 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName, bool *resu
         if (result)
             *result = false;
     }
-/*    if (ok && readFeatures) {
-        QStringList configs = values("CONFIG");
-        QSet<QString> processed;
-        foreach (const QString &fn, configs) {
-            if (!processed.contains(fn)) {
-                processed.insert(fn);
-                evaluateFeatureFile(fn, 0);
-            }
-        }
-    } */
 
     return ok;
 }
