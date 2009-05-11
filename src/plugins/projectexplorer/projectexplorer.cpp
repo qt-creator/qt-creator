@@ -1421,12 +1421,16 @@ void ProjectExplorerPlugin::debugProject()
     if (!pro || m_debuggingRunControl )
         return;
 
-    if (saveModifiedFiles(QList<Project *>() << pro)) {
-        m_runMode = ProjectExplorer::Constants::DEBUGMODE;
-        m_delayedRunConfiguration = pro->activeRunConfiguration();
-        //NBS TODO make the build project step take into account project dependencies
-        m_buildManager->buildProject(pro, pro->activeBuildConfiguration());
-        updateRunAction();
+    if (m_projectExplorerSettings.buildBeforeRun) {
+        if (saveModifiedFiles(QList<Project *>() << pro)) {
+            m_runMode = ProjectExplorer::Constants::DEBUGMODE;
+            m_delayedRunConfiguration = pro->activeRunConfiguration();
+            //NBS TODO make the build project step take into account project dependencies
+            m_buildManager->buildProject(pro, pro->activeBuildConfiguration());
+            updateRunAction();
+        }
+    } else {
+        executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
     }
 }
 
