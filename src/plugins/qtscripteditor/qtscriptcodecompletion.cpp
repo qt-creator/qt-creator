@@ -24,8 +24,10 @@ void QtScriptCodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitiv
 
 bool QtScriptCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 {
+#if 0 // ### disable JS Completion. It's pretty buggy and it can crash Creator.
     if (qobject_cast<ScriptEditor *>(editor->widget()))
         return true;
+#endif
 
     return false;
 }
