@@ -34,6 +34,7 @@
 #include "ASTVisitor.h"
 
 #include <iosfwd>
+#include <QByteArray>
 
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
@@ -43,7 +44,7 @@ class CPLUSPLUS_EXPORT PrettyPrinter: protected ASTVisitor
 public:
     PrettyPrinter(Control *control, std::ostream &out);
 
-    void operator()(AST *ast);
+    void operator()(AST *ast, const QByteArray &contents);
 
 protected:
     virtual bool visit(AccessDeclarationAST *ast);
@@ -148,10 +149,14 @@ protected:
     void indent();
     void deindent();
     void newline();
+    void outToken(unsigned token);
 
 private:
-    std::ostream &out;
-    unsigned depth;
+    std::ostream &_out;
+    unsigned _depth;
+
+    unsigned _lastToken;
+    QByteArray _contents;
 };
 
 CPLUSPLUS_END_NAMESPACE

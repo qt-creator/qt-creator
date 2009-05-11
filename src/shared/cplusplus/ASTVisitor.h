@@ -67,6 +67,7 @@ public:
     Control *control() const;
     TranslationUnit *translationUnit() const;
 
+    unsigned tokenCount() const;
     const Token &tokenAt(unsigned index) const;
     int tokenKind(unsigned index) const;
     const char *spell(unsigned index) const;

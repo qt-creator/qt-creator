@@ -69,6 +69,9 @@ Control *ASTVisitor::control() const
 TranslationUnit *ASTVisitor::translationUnit() const
 { return _control->translationUnit(); }
 
+unsigned ASTVisitor::tokenCount() const
+{ return translationUnit()->tokenCount(); }
+
 const Token &ASTVisitor::tokenAt(unsigned index) const
 { return translationUnit()->tokenAt(index); }
 
