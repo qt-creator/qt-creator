@@ -1280,7 +1280,7 @@ EditorManager::makeEditorWritable(IEditor *editor)
     switch (promptReadOnlyFile(fileName, versionControl, m_d->m_core->mainWindow(), true)) {
     case RO_OpenVCS:
         if (!versionControl->vcsOpen(fileName)) {
-            QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"), tr("Could not open the file for edit with SCC."));
+            QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"), tr("Could not open the file for editing with SCC."));
             return Failed;
         }
         file->checkPermissions();

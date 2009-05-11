@@ -667,7 +667,7 @@ void FormEditorW::print()
         QString errorMessage;
         const QPixmap pixmap = m_fwm->createPreviewPixmap(&errorMessage);
         if (pixmap.isNull()) {
-            critical(tr("The image could not be create: %1").arg(errorMessage));
+            critical(tr("The image could not be created: %1").arg(errorMessage));
             break;
         }
 
