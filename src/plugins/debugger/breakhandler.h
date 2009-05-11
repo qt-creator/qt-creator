@@ -78,6 +78,7 @@ public:
     QString ignoreCount;    // ignore count associated with breakpoint
     QString lineNumber;     // line in source file
     QString funcName;       // name of containing function
+    bool useFullPath;       // should we use the full path when setting the bp?
 
     // this is what gdb produced in response
     QString bpNumber;       // breakpoint number assigned by the debugger engine

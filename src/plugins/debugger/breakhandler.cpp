@@ -154,6 +154,13 @@ BreakpointData::BreakpointData(BreakHandler *handler)
     marker = 0;
     markerLineNumber = 0;
     bpMultiple = false;
+//#if defined(Q_OS_MAC)
+//    // full names do not work on Mac/MI
+    useFullPath = false; 
+//#else
+//    //where = m_manager->shortName(data->fileName);
+//    useFullPath = true; 
+//#endif
 }
 
 BreakpointData::~BreakpointData()
@@ -326,6 +333,8 @@ void BreakHandler::saveBreakpoints()
             map["ignorecount"] = data->ignoreCount;
         if (!data->enabled)
             map["disabled"] = "1";
+        if (data->useFullPath)
+            map["usefullpath"] = "1";
         list.append(map);
     }
     setSessionValueRequested("Breakpoints", list);
@@ -347,6 +356,7 @@ void BreakHandler::loadBreakpoints()
         data->ignoreCount = map["ignorecount"].toString();
         data->funcName = map["funcname"].toString();
         data->enabled = !map["disabled"].toInt();
+        data->useFullPath = bool(map["usefullpath"].toInt());
         data->markerFileName = data->fileName;
         data->markerLineNumber = data->lineNumber.toInt();
         append(data);
@@ -427,8 +437,13 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 str = QFileInfo(str).fileName();
                 //if (data->bpMultiple && str.isEmpty() && !data->markerFileName.isEmpty())
                 //    str = data->markerFileName;
-                return str.isEmpty() ? empty : str;
+                str = str.isEmpty() ? empty : str;
+                if (data->useFullPath)
+                    str = "/.../" + str; 
+                return str;
             }
+            if (role == Qt::UserRole)
+                return data->useFullPath;
             break;
         case 3:
             if (role == Qt::DisplayRole) {
@@ -476,6 +491,13 @@ bool BreakHandler::setData(const QModelIndex &mi, const QVariant &value, int rol
         case 0: {
             if (data->enabled != value.toBool()) {
                 toggleBreakpointEnabled(data);
+                dataChanged(mi, mi);
+            }
+            return true;
+        }
+        case 2: {
+            if (data->useFullPath != value.toBool()) {
+                data->useFullPath = value.toBool();
                 dataChanged(mi, mi);
             }
             return true;

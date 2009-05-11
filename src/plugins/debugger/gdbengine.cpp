@@ -1821,23 +1821,12 @@ void GdbEngine::sendInsertBreakpoint(int index)
     const BreakpointData *data = qq->breakHandler()->at(index);
     QString where;
     if (data->funcName.isEmpty()) {
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-        where = data->fileName;
-#endif
-#if defined(Q_OS_MAC)
-        // full names do not work on Mac/MI
-        QFileInfo fi(data->fileName);
-        where = fi.fileName();
-        //where = fi.absoluteFilePath();
-#endif
-#if defined(Q_OS_WIN)
-        // full names do not work on Mac/MI
-        QFileInfo fi(data->fileName);
-        where = fi.fileName();
-    //where = m_manager->shortName(data->fileName);
-        //if (where.isEmpty())
-        //    where = data->fileName;
-#endif
+        if (data->useFullPath) {
+            where = data->fileName;
+        } else {
+            QFileInfo fi(data->fileName);
+            where = fi.fileName();
+        }
         // The argument is simply a C-quoted version of the argument to the
         // non-MI "break" command, including the "original" quoting it wants.
         where = _("\"\\\"") + GdbMi::escapeCString(where) + _("\\\":") + data->lineNumber + _c('"');

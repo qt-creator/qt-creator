@@ -82,6 +82,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     const QModelIndex index = indexAt(ev->pos());
     const bool indexIsValid = index.isValid();
     const QModelIndex index0 = index.sibling(index.row(), 0);
+    const QModelIndex index2 = index.sibling(index.row(), 2);
     QAction *act0 = new QAction(tr("Delete breakpoint"), &menu);
     act0->setEnabled(indexIsValid);
     QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
@@ -94,10 +95,14 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     bool enabled = indexIsValid && model()->data(index0, Qt::UserRole).toBool();
     QString str = enabled ? tr("Disable breakpoint") : tr("Enable breakpoint");
     QAction *act5 = new QAction(str, &menu);
+    bool fullpath = indexIsValid && model()->data(index2, Qt::UserRole).toBool();
+    QString str1 = fullpath ? tr("Use short path") : tr("Use full path");
+    QAction *act6 = new QAction(str1, &menu);
 
     menu.addAction(act0);
     menu.addAction(act3);
     menu.addAction(act5);
+    menu.addAction(act6);
     menu.addSeparator();
     menu.addAction(act1);
     menu.addAction(act2);
@@ -119,6 +124,9 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         emit breakpointSynchronizationRequested();
     else if (act == act5) {
         model()->setData(index0, !enabled);
+        emit breakpointSynchronizationRequested();
+    } else if (act == act6) {
+        model()->setData(index2, !fullpath);
         emit breakpointSynchronizationRequested();
     }
 }
