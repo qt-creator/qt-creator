@@ -31,6 +31,7 @@
 
 #include <QtCore/QSet>
 #include <QtCore/QtAlgorithms>
+#include <QtCore/QDebug>
 
 namespace SharedTools {
 
@@ -260,12 +261,27 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                               if (state == StateStandard && !questionMark &&
                                   lastChar != ':' && nextChar != ':') {
                                   int start = i - 1;
+
+                                  // skip white spaces
+                                  for (; start != -1; --start) {
+                                      if (! text.at(start).isSpace())
+                                          break;
+                                  }
+
+                                  int lastNonSpace = start + 1;
+
                                   for (; start != -1; --start) {
                                       if (text.at(start).isSpace())
                                           break;
                                   }
+
                                   ++start;
-                                  setFormat(start, i - start, m_formats[LabelFormat]);
+
+                                  if (m_duiEnabled && text.midRef(start, lastNonSpace - start) == QLatin1String("id")) {
+                                      setFormat(start, i - start, m_formats[KeywordFormat]);
+                                  } else {
+                                      setFormat(start, i - start, m_formats[LabelFormat]);
+                                  }
                               }
                               break;
                           }
