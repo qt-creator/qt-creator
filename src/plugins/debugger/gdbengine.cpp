@@ -416,7 +416,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray id = record.findChild("id").data();
                 q->showStatusMessage(tr("Thread %1 selected.").arg(_(id)));
                 //"{id="2"}" 
-            #ifdef Q_OS_MAC
+            #if defined(Q_OS_MAC)
             } else if (asyncClass == "shlibs-updated") {
                 // MAC announces updated libs
             } else if (asyncClass == "shlibs-added") {
@@ -566,7 +566,7 @@ void GdbEngine::readGdbStandardOutput()
         scan = newstart;
         if (end == start)
             continue;
-        #ifdef Q_OS_WIN
+        #if defined(Q_OS_WIN)
         if (m_inbuffer.at(end - 1) == '\r') {
             --end;
             if (end == start)
@@ -753,35 +753,6 @@ void GdbEngine::handleTargetCore(const GdbResultRecord &, const QVariant &)
         postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), 0);
     qq->reloadRegisters();
 }
-
-#if 0
-void GdbEngine::handleQueryPwd(const GdbResultRecord &record)
-{
-    // FIXME: remove this special case as soon as 'pwd'
-    // is supported by MI
-    //qDebug() << "PWD OUTPUT:" <<  record.toString();
-    // Gdb responses _unless_ we get an error first.
-    if (record.resultClass == GdbResultDone) {
-        QByteArray pwd = record.data.findChild("consolestreamoutput").data();
-#ifdef Q_OS_LINUX
-        // "5^done,{logstreamoutput="pwd ",consolestreamoutput
-        // ="Working directory /home/apoenitz/dev/work/test1.  "}
-        int pos = pwd.indexOf("Working directory");
-        pwd = pwd.mid(pos + 18);
-        pwd = pwd.trimmed();
-        if (pwd.endsWith('.'))
-            pwd.chop(1);
-#endif
-#ifdef Q_OS_WIN
-        FIXME: this is broken
-        // ~"Working directory C:\\Users\\Thomas\\Documents\\WBTest3\\debug.\n"
-        pwd = pwd.trimmed();
-#endif
-        m_pwd = QString::fromLocal8Bit(pwd);
-        debugMessage("PWD RESULT: " + m_pwd);
-    }
-}
-#endif
 
 void GdbEngine::handleQuerySources(const GdbResultRecord &record, const QVariant &)
 {
@@ -1484,7 +1455,7 @@ bool GdbEngine::startDebugger()
     //postCommand(_("handle SIGTERM pass nostop print"));
 
     postCommand(_("set unwindonsignal on"));
-    //postCommand(_("pwd", handleQueryPwd));
+    //postCommand(_("pwd"));
     postCommand(_("set width 0"));
     postCommand(_("set height 0"));
 
@@ -1575,7 +1546,7 @@ void GdbEngine::continueInferior()
 
 void GdbEngine::handleStart(const GdbResultRecord &response, const QVariant &)
 {
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
     Q_UNUSED(response);
 #else
     if (response.resultClass == GdbResultDone) {
@@ -1860,14 +1831,16 @@ void GdbEngine::sendInsertBreakpoint(int index)
     const BreakpointData *data = qq->breakHandler()->at(index);
     QString where;
     if (data->funcName.isEmpty()) {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
         where = data->fileName;
-#ifdef Q_OS_MAC
+#endif
+#if defined(Q_OS_MAC)
         // full names do not work on Mac/MI
         QFileInfo fi(data->fileName);
         where = fi.fileName();
         //where = fi.absoluteFilePath();
 #endif
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
         // full names do not work on Mac/MI
         QFileInfo fi(data->fileName);
         where = fi.fileName();
@@ -1884,19 +1857,19 @@ void GdbEngine::sendInsertBreakpoint(int index)
 
     // set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     QString cmd = _("-break-insert -f ");
     //if (!data->condition.isEmpty())
     //    cmd += _("-c ") + data->condition + ' ';
     cmd += where;
 #endif
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
     QString cmd = _("-break-insert -l -1 ");
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + " ";
     cmd += where;
 #endif
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
     QString cmd = _("-break-insert ");
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + " ";
@@ -2027,7 +2000,7 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, const QVariant 
     BreakHandler *handler = qq->breakHandler();
     if (record.resultClass == GdbResultDone) {
         //qDebug() << "HANDLE BREAK INSERT" << index;
-//#ifdef Q_OS_MAC
+//#if defined(Q_OS_MAC)
         // interesting only on Mac?
         BreakpointData *data = handler->at(index);
         GdbMi bkpt = record.data.findChild("bkpt");
@@ -2040,7 +2013,7 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, const QVariant 
         const BreakpointData *data = handler->at(index);
         // Note that it is perfectly correct that the file name is put
         // in quotes but not escaped. GDB simply is like that.
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
         //QString where = "\"\\\"" + data->fileName + "\\\":"
         //    + data->lineNumber + "\"";
         QString where = _c('"') + data->fileName + _("\":")
@@ -2048,12 +2021,12 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, const QVariant 
         // Should not happen with -break-insert -f. gdb older than 6.8?
         QTC_ASSERT(false, /**/);
 #endif
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
         QFileInfo fi(data->fileName);
         QString where = _c('"') + fi.fileName() + _("\":")
             + data->lineNumber;
 #endif
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
         QFileInfo fi(data->fileName);
         QString where = _c('"') + fi.fileName() + _("\":")
             + data->lineNumber;
@@ -2454,7 +2427,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVari
 
         stackFrames.append(frame);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
         const bool isBogus =
             // Assume this is wrong and points to some strange stl_algobase
             // implementation. Happens on Karsten's XP system with Gdb 5.50

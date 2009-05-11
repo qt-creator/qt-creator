@@ -164,10 +164,12 @@ DebuggerManager::DebuggerManager()
 
 DebuggerManager::~DebuggerManager()
 {
-    delete gdbEngine;
-    delete winEngine;
-    delete scriptEngine;
-    delete tcfEngine;
+    #define doDelete(ptr) delete ptr; ptr = 0
+    doDelete(gdbEngine);
+    doDelete(winEngine);
+    doDelete(scriptEngine);
+    doDelete(tcfEngine);
+    #undef doDelete
 }
 
 void DebuggerManager::init()
@@ -507,8 +509,8 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     m_mainWindow->tabifyDockWidget(m_watchDock, m_threadsDock);
     m_mainWindow->tabifyDockWidget(m_watchDock, m_sourceFilesDock);
 
-    // They are rarely used even in ordinary debugging. Hiding them also saves
-    // cycles since the corresponding information won't be retrieved.
+    // They following views are rarely used in ordinary debugging. Hiding them
+    // saves cycles since the corresponding information won't be retrieved.
     m_sourceFilesDock->hide();
     m_registerDock->hide();
     m_disassemblerDock->hide();
@@ -621,54 +623,35 @@ void DebuggerManager::shutdown()
         m_engine->shutdown();
     m_engine = 0;
 
-    delete scriptEngine;
-    scriptEngine = 0;
-    delete gdbEngine;
-    gdbEngine = 0;
-    delete winEngine;
-    winEngine = 0;
+    #define doDelete(ptr) delete ptr; ptr = 0
+    doDelete(scriptEngine);
+    doDelete(gdbEngine);
+    doDelete(winEngine);
+    doDelete(tcfEngine);
 
     // Delete these manually before deleting the manager
     // (who will delete the models for most views)
-    delete m_breakWindow;
-    delete m_disassemblerWindow;
-    delete m_modulesWindow;
-    delete m_outputWindow;
-    delete m_registerWindow;
-    delete m_stackWindow;
-    delete m_sourceFilesWindow;
-    delete m_threadsWindow;
-    delete m_tooltipWindow;
-    delete m_watchersWindow;
-    delete m_localsWindow;
-    // These widgets are all in some layout which will take care of deletion.
-    m_breakWindow = 0;
-    m_disassemblerWindow = 0;
-    m_modulesWindow = 0;
-    m_outputWindow = 0;
-    m_registerWindow = 0;
-    m_stackWindow = 0;
-    m_sourceFilesWindow = 0;
-    m_threadsWindow = 0;
-    m_tooltipWindow = 0;
-    m_watchersWindow = 0;
-    m_localsWindow = 0;
+    doDelete(m_breakWindow);
+    doDelete(m_disassemblerWindow);
+    doDelete(m_modulesWindow);
+    doDelete(m_outputWindow);
+    doDelete(m_registerWindow);
+    doDelete(m_stackWindow);
+    doDelete(m_sourceFilesWindow);
+    doDelete(m_threadsWindow);
+    doDelete(m_tooltipWindow);
+    doDelete(m_watchersWindow);
+    doDelete(m_localsWindow);
 
-    delete m_breakHandler;
-    delete m_disassemblerHandler;
-    delete m_threadsHandler;
-    delete m_modulesHandler;
-    delete m_registerHandler;
-    delete m_stackHandler;
-    delete m_watchHandler;
-    m_breakHandler = 0;
-    m_disassemblerHandler = 0;
-    m_threadsHandler = 0;
-    m_modulesHandler = 0;
-    m_registerHandler = 0;
-    m_stackHandler = 0;
-    m_watchHandler = 0;
+    doDelete(m_breakHandler);
+    doDelete(m_disassemblerHandler);
+    doDelete(m_threadsHandler);
+    doDelete(m_modulesHandler);
+    doDelete(m_registerHandler);
+    doDelete(m_stackHandler);
+    doDelete(m_watchHandler);
     //qDebug() << "DEBUGGER_MANAGER SHUTDOWN END";
+    #undef doDelete
 }
 
 BreakpointData *DebuggerManager::findBreakpoint(const QString &fileName, int lineNumber)
