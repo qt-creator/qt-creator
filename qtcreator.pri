@@ -47,10 +47,12 @@ equals(TEST, 1) {
 }
 
 IDE_SOURCE_TREE = $$PWD
-sub_dir = $$_PRO_FILE_PWD_
-sub_dir ~= s,^$$re_escape($$PWD),,
-IDE_BUILD_TREE = $$cleanPath($$OUT_PWD)
-IDE_BUILD_TREE ~= s,$$re_escape($$sub_dir)$,,
+isEmpty(IDE_BUILD_TREE) {
+    sub_dir = $$_PRO_FILE_PWD_
+    sub_dir ~= s,^$$re_escape($$PWD),,
+    IDE_BUILD_TREE = $$cleanPath($$OUT_PWD)
+    IDE_BUILD_TREE ~= s,$$re_escape($$sub_dir)$,,
+}
 IDE_APP_PATH = $$IDE_BUILD_TREE/bin
 macx {
     IDE_APP_TARGET   = QtCreator
