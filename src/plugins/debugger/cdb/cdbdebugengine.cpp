@@ -615,59 +615,73 @@ void CdbDebugEngine::processTerminated(unsigned long exitCode)
     m_d->m_debuggerManager->exitDebugger();
 }
 
+// End debugging using
+void CdbDebugEnginePrivate::endDebugging(EndDebuggingMode em)
+{
+    enum Action { Detach, Terminate };
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << em;
+
+    if (m_mode == AttachCore || !m_hDebuggeeProcess)
+        return;
+    // Figure out action
+    Action action;
+    switch (em) {
+    case EndDebuggingAuto:
+        action = m_mode == AttachExternal ? Detach : Terminate;
+        break;
+    case EndDebuggingDetach:
+        action = Detach;
+        break;
+    case EndDebuggingTerminate:
+        action = Terminate;
+        break;
+    }
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << action;
+    // Need a stopped debuggee to act
+    QString errorMessage;
+    const bool wasRunning = isDebuggeeRunning();
+    if (wasRunning) { // Process must be stopped in order to terminate
+        interruptInterferiorProcess(&errorMessage);
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    }    
+    HRESULT hr;
+    switch (action) {
+    case Detach:
+        hr = m_cif.debugClient->DetachCurrentProcess();
+        if (FAILED(hr))
+            errorMessage += msgComFailed("DetachCurrentProcess", hr);
+        break;
+    case Terminate:
+        hr = m_cif.debugClient->TerminateCurrentProcess();
+        if (FAILED(hr))
+            errorMessage += msgComFailed("TerminateCurrentProcess", hr);
+        if (!wasRunning) {
+            hr = m_cif.debugClient->TerminateProcesses();
+            if (FAILED(hr))
+                errorMessage += msgComFailed("TerminateProcesses", hr);
+        }
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        break;
+    }
+    setDebuggeeHandles(0, 0);
+    m_engine->killWatchTimer();
+    if (!errorMessage.isEmpty()) {
+        errorMessage = QString::fromLatin1("There were errors trying to end debugging: %1").arg(errorMessage);
+        m_debuggerManagerAccess->showDebuggerOutput(QLatin1String("error"), errorMessage);
+        qWarning("%s\n", qPrintable(errorMessage));
+    }
+}
+
 void CdbDebugEngine::exitDebugger()
 {
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO;
+    m_d->endDebugging();
+}
 
-    if (m_d->m_hDebuggeeProcess) {
-        QString errorMessage;
-        m_d->clearForRun();
-        bool wasRunning = false;
-        // Terminate or detach if we are running
-        HRESULT hr;
-        switch (m_d->m_mode) {
-        case AttachExternal:
-            wasRunning = m_d->isDebuggeeRunning();
-            if (wasRunning) { // Process must be stopped in order to detach
-                m_d->interruptInterferiorProcess(&errorMessage);
-                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-            }
-            hr = m_d->m_cif.debugClient->DetachCurrentProcess();
-            if (FAILED(hr))
-                errorMessage += msgComFailed("DetachCurrentProcess", hr);
-            if (debugCDB)
-                qDebug() << Q_FUNC_INFO << "detached" << msgDebugEngineComResult(hr);
-            break;
-        case StartExternal:
-        case StartInternal:
-            wasRunning = m_d->isDebuggeeRunning();
-            if (wasRunning) { // Process must be stopped in order to terminate
-                m_d->interruptInterferiorProcess(&errorMessage);
-                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-            }
-            // Terminate and wait for stop events.
-            hr = m_d->m_cif.debugClient->TerminateCurrentProcess();
-            if (FAILED(hr))
-                errorMessage += msgComFailed("TerminateCurrentProcess", hr);
-            if (!wasRunning) {
-                hr = m_d->m_cif.debugClient->TerminateProcesses();
-                if (FAILED(hr))
-                    errorMessage += msgComFailed("TerminateProcesses", hr);
-            }
-            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-            if (debugCDB)
-                qDebug() << Q_FUNC_INFO << "terminated" << msgDebugEngineComResult(hr);
-
-            break;
-        case AttachCore:
-            break;
-        }
-        m_d->setDebuggeeHandles(0, 0);
-        if (!errorMessage.isEmpty())
-            qWarning("exitDebugger: %s\n", qPrintable(errorMessage));
-    }
-    killWatchTimer();
+void CdbDebugEngine::detachDebugger()
+{
+    m_d->endDebugging(CdbDebugEnginePrivate::EndDebuggingDetach);
 }
 
 CdbStackFrameContext *CdbDebugEnginePrivate::getStackFrameContext(int frameIndex, QString *errorMessage) const

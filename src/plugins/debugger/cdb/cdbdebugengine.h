@@ -63,6 +63,7 @@ public:
     virtual void setToolTipExpression(const QPoint &pos, const QString &exp);
     virtual bool startDebugger();
     virtual void exitDebugger();
+    virtual void detachDebugger();
     virtual void updateWatchModel();
 
     virtual void stepExec();

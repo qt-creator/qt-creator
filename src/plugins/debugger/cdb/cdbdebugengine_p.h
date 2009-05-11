@@ -132,6 +132,9 @@ struct CdbDebugEnginePrivate
     bool attemptBreakpointSynchronization(QString *errorMessage);
     void notifyCrashed();
 
+    enum EndDebuggingMode { EndDebuggingDetach, EndDebuggingTerminate, EndDebuggingAuto };
+    void endDebugging(EndDebuggingMode em = EndDebuggingAuto);
+
     static bool executeDebuggerCommand(CIDebugControl *ctrl, const QString &command, QString *errorMessage);
     static bool evaluateExpression(CIDebugControl *ctrl, const QString &expression, DEBUG_VALUE *v, QString *errorMessage);
 
