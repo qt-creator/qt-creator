@@ -97,7 +97,6 @@ public slots:
     void runQMakeContextMenu();
 
 private slots:
-    void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
     void uiEditorContentsChanged();
     void editorChanged(Core::IEditor*);

@@ -118,9 +118,6 @@ void Qt4Manager::init()
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(editorChanged(Core::IEditor*)));
-
-    foreach(Core::IEditor *editor,  Core::EditorManager::instance()->openedEditors())
-        editorOpened(editor);
 }
 
 void Qt4Manager::editorChanged(Core::IEditor *editor)
