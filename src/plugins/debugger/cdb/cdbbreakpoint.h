@@ -63,7 +63,7 @@ struct CDBBreakPoint
     // Apply parameters
     bool apply(IDebugBreakpoint2 *ibp, QString *errorMessage) const;
     // Convenience to add to a IDebugControl4
-    bool add(CIDebugControl* debugControl, QString *errorMessage) const;
+    bool add(CIDebugControl* debugControl, quint64 *address, unsigned long *id, QString *errorMessage) const;
 
     // Retrieve/parse breakpoints from the interfaces
     bool retrieve(IDebugBreakpoint2 *ibp, QString *errorMessage);
@@ -84,6 +84,7 @@ struct CDBBreakPoint
     int lineNumber;     // line in source file
     QString funcName;       // name of containing function
     bool oneShot;
+    bool enabled;
 };
 
 QDebug operator<<(QDebug, const CDBBreakPoint &bp);
@@ -92,9 +93,6 @@ inline bool operator==(const CDBBreakPoint& b1, const CDBBreakPoint& b2)
     { return b1.compare(b2) == 0; }
 inline bool operator!=(const CDBBreakPoint& b1, const CDBBreakPoint& b2)
     { return b1.compare(b2) != 0; }
-inline bool operator<(const CDBBreakPoint& b1, const CDBBreakPoint& b2)
-    { return b1.compare(b2) <  0; }
-
 } // namespace Internal
 } // namespace Debugger
 

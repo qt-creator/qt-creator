@@ -154,6 +154,7 @@ template <class OutputIterator>
 
 template <class OutputIterator>
 bool CdbSymbolGroupContext::populateModelInitially(CdbSymbolGroupContext *sg,
+                                                   QSet<QString> expandedINames,
                                                    OutputIterator it,
                                                    QString *errorMessage)
 {
@@ -164,7 +165,26 @@ bool CdbSymbolGroupContext::populateModelInitially(CdbSymbolGroupContext *sg,
     QList<WatchData> watchList;
     if (!sg->getChildSymbols(sg->prefix(), WatchDataBackInserter(watchList), errorMessage))
         return false;
-
+    // (Recursively) expand symbols stored as expanded in the history until no more matches
+    // are found.
+    while (!expandedINames.empty()) {
+        unsigned matchCount = 0;
+        for (QSet<QString>::iterator it = expandedINames.begin(); it != expandedINames.end(); ) {
+            // Try to expand. We might hit on a leaf due to name mismatches, ignore errors.
+            unsigned long index;
+            if (sg->lookupPrefix(*it, &index)) {
+                if (!sg->expandSymbol(*it, index, errorMessage))
+                    qWarning("%s\n", qPrintable(*errorMessage));
+                matchCount++;
+                it = expandedINames.erase(it);
+            } else {
+                ++it;
+            }
+        } // loop set
+        if (matchCount == 0)
+            break;
+    }
+    // Insert data
     foreach(const WatchData &wd, watchList)
         if (!insertSymbolRecursion(wd, sg, it, 0, 0, errorMessage))
             return false;

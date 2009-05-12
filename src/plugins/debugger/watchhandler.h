@@ -181,6 +181,8 @@ public:
         { return m_displayedINames.contains(iname); }
     bool isExpandedIName(const QString &iname) const
         { return m_expandedINames.contains(iname); }
+    QSet<QString> expandedINames() const
+        { return m_expandedINames; }
 
     void insertData(const WatchData &data);
     QList<WatchData> takeCurrentIncompletes();

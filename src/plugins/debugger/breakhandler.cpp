@@ -34,6 +34,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
 
 using namespace Debugger;
@@ -191,23 +192,25 @@ void BreakpointData::updateMarker()
 
 QString BreakpointData::toToolTip() const
 {
-    QString str;
-    str += "<table>";
-    str += "<tr><td>Marker File:</td><td>" + markerFileName + "</td></tr>";
-    str += "<tr><td>Marker Line:</td><td>" + QString::number(markerLineNumber) + "</td></tr>";
-    str += "<tr><td>BP Number:</td><td>" + bpNumber + "</td></tr>";
-    str += "<tr><td>BP Address:</td><td>" + bpAddress + "</td></tr>";
-    str += "<tr><td>----------</td><td></td><td></td></tr>";
-    str += "<tr><td>Property:</td><td>Wanted:</td><td>Actual:</td></tr>";
-    str += "<tr><td></td><td></td><td></td></tr>";
-    str += "<tr><td>Internal Number:</td><td>-</td><td>" + bpNumber + "</td></tr>";
-    str += "<tr><td>File Name:</td><td>" + fileName + "</td><td>" + bpFileName + "</td></tr>";
-    str += "<tr><td>Function Name:</td><td>" + funcName + "</td><td>" + bpFuncName + "</td></tr>";
-    str += "<tr><td>Line Number:</td><td>" + lineNumber + "</td><td>" + bpLineNumber + "</td></tr>";
-    str += "<tr><td>Condition:</td><td>" + condition + "</td><td>" + bpCondition + "</td></tr>";
-    str += "<tr><td>Ignore count:</td><td>" + ignoreCount + "</td><td>" + bpIgnoreCount + "</td></tr>";
-    str += "</table>";
-    return str;
+    QString rc;
+    QTextStream str(&rc);
+    str << "<html><body><table>";
+    str << "<tr><td>" << BreakHandler::tr("Marker File:") << "</td><td>" << markerFileName << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Marker Line:") << "</td><td>" << markerLineNumber << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Breakpoint Number:") << "</td><td>" << bpNumber << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Breakpoint Address:") << "</td><td>" << bpAddress << "</td></tr>";
+    str << "</table><br><hr><table>";
+    str << "<tr><th>" << BreakHandler::tr("Property")
+        << "</th><th>" << BreakHandler::tr("Requested")
+        << "</th><th>" << BreakHandler::tr("Obtained") << "</th></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Internal Number:") << "</td><td>&mdash;</td><td>" << bpNumber << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("File Name:") << "</td><td>" << fileName << "</td><td>" << bpFileName << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Function Name:") << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Line Number:") << "</td><td>" << lineNumber << "</td><td>" << bpLineNumber << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Condition:") << "</td><td>" << condition << "</td><td>" << bpCondition << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Ignore Count:") << "</td><td>" << ignoreCount << "</td><td>" << bpIgnoreCount << "</td></tr>";
+    str << "</table></body></html>";
+    return rc;
 }
 
 bool BreakpointData::isLocatedAt(const QString &fileName_, int lineNumber_) const
@@ -522,6 +525,22 @@ bool BreakHandler::setData(const QModelIndex &mi, const QVariant &value, int rol
             return false;
         }
     }
+}
+
+void BreakHandler::append(BreakpointData *data)
+{
+    m_bp.append(data);
+    m_inserted.append(data);
+}
+
+QList<BreakpointData *> BreakHandler::insertedBreakpoints() const
+{
+    return m_inserted;
+}
+
+void BreakHandler::takeInsertedBreakPoint(BreakpointData *d)
+{
+    m_inserted.removeAll(d);
 }
 
 QList<BreakpointData *> BreakHandler::takeRemovedBreakpoints()

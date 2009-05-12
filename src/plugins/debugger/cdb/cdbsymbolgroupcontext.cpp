@@ -213,11 +213,23 @@ CdbSymbolGroupContext::SymbolState CdbSymbolGroupContext::symbolState(const QStr
 {
     if (prefix == m_prefix) // root
         return ExpandedSymbol;
+    unsigned long index;
+    if (!lookupPrefix(prefix, &index)) {
+        qWarning("WARNING %s: %s\n", Q_FUNC_INFO, msgSymbolNotFound(prefix));
+        return LeafSymbol;
+    }
+    return symbolState(index);
+}
+
+// Find index of a prefix
+bool CdbSymbolGroupContext::lookupPrefix(const QString &prefix, unsigned long *index) const
+{
+    *index = 0;
     const NameIndexMap::const_iterator it = m_inameIndexMap.constFind(prefix);
-    if (it != m_inameIndexMap.constEnd())
-        return symbolState(it.value());
-    qWarning("WARNING %s: %s\n", Q_FUNC_INFO, msgSymbolNotFound(prefix));
-    return LeafSymbol;
+    if (it == m_inameIndexMap.constEnd())
+        return false;
+    *index = it.value();
+    return true;
 }
 
 /* Retrieve children and get the position. */
