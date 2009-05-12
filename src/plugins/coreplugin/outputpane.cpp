@@ -525,16 +525,16 @@ void OutputPaneManager::changePage()
     }
 
     int idx = m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt();
-    if (m_lastIndex == idx)
-        return;
-    m_outputWidgetPane->setCurrentIndex(idx);
-    m_opToolBarWidgets->setCurrentIndex(idx);
-    m_pageMap.value(idx)->visibilityChanged(true);
-    m_pageMap.value(m_lastIndex)->visibilityChanged(false);
+    if (m_lastIndex != idx) {
+        m_outputWidgetPane->setCurrentIndex(idx);
+        m_opToolBarWidgets->setCurrentIndex(idx);
+        m_pageMap.value(idx)->visibilityChanged(true);
+        m_pageMap.value(m_lastIndex)->visibilityChanged(false);
 
-    bool canNavigate = m_pageMap.value(idx)->canNavigate();
-    m_prevAction->setEnabled(canNavigate && m_pageMap.value(idx)->canPrevious());
-    m_nextAction->setEnabled(canNavigate && m_pageMap.value(idx)->canNext());
+        bool canNavigate = m_pageMap.value(idx)->canNavigate();
+        m_prevAction->setEnabled(canNavigate && m_pageMap.value(idx)->canPrevious());
+        m_nextAction->setEnabled(canNavigate && m_pageMap.value(idx)->canNext());
+    }
 
     if (m_buttons.value(m_lastIndex))
         m_buttons.value(m_lastIndex)->setChecked(false);
