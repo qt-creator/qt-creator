@@ -182,11 +182,7 @@ static inline QStringList getPluginPaths()
     // 1) "plugins" (Win/Linux)
     QString pluginPath = rootDirPath;
     pluginPath += QDir::separator();
-#if defined(QT_ARCH_X86_64) && defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    pluginPath += QLatin1String("lib64");
-#else
-    pluginPath += QLatin1String("lib");
-#endif
+    pluginPath += QLatin1String(IDE_LIBRARY_BASENAME);
     pluginPath += QDir::separator();
     pluginPath += QLatin1String("qtcreator");
     pluginPath += QDir::separator();

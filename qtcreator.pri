@@ -35,11 +35,11 @@ isEmpty(TEST):CONFIG(debug, debug|release) {
     }
 }
 
-linux-*-64 {
-    IDE_LIBRARY_BASENAME = lib64
-} else {
+isEmpty(IDE_LIBRARY_BASENAME) {
     IDE_LIBRARY_BASENAME = lib
 }
+
+DEFINES += IDE_LIBRARY_BASENAME=\\\"$$IDE_LIBRARY_BASENAME\\\"
 
 equals(TEST, 1) {
     QT +=testlib
