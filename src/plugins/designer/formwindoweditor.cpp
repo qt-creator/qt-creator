@@ -356,3 +356,10 @@ QString FormWindowEditor::contextHelpId() const
     return className;
 #endif
 }
+
+QString FormWindowEditor::contents() const
+{
+    if (m_host && m_host->formWindow())
+        return m_host->formWindow()->contents();
+    return QString::null;
+}

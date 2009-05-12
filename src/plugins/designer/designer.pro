@@ -1,5 +1,6 @@
 TEMPLATE = lib
 TARGET = Designer
+DEFINES += DESIGNER_LIBRARY
 
 include(../../qtcreatorplugin.pri)
 include(../../shared/designerintegrationv2/designerintegration.pri)
@@ -33,7 +34,8 @@ HEADERS += formeditorplugin.h \
         formeditorw.h \
         settingsmanager.h \
         formtemplatewizardpage.h \
-        formwizarddialog.h
+        formwizarddialog.h \
+        designer_export.h
 
 SOURCES += formeditorplugin.cpp \
         formeditorfactory.cpp \
