@@ -35,7 +35,7 @@
      <item row="0" column="1">
       <widget class="QLineEdit" name="channelLineEdit">
        <property name="text">
-        <string>localhost:5115</string>
+        <string notr="true">localhost:5115</string>
        </property>
       </widget>
      </item>
