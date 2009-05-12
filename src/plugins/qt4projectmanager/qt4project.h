@@ -213,7 +213,6 @@ private slots:
                             const Qt4ProjectManager::Internal::Qt4ProjectType oldType,
                             const Qt4ProjectManager::Internal::Qt4ProjectType newType);
     void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
-    void addUiFiles();
 
 protected:
     virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &settingsReader);
