@@ -29,9 +29,6 @@
       </item>
       <item row="0" column="1">
        <widget class="QLabel" name="repositoryFieldLabel">
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
        </widget>
       </item>
      </layout>
