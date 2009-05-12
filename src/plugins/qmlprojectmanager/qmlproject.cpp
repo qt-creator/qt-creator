@@ -346,7 +346,7 @@ QmlRunConfiguration::RunMode QmlRunConfiguration::runMode() const
 QString QmlRunConfiguration::workingDirectory() const
 {
     QFileInfo projectFile(m_project->file()->fileName());
-    return projectFile.filePath();
+    return projectFile.absolutePath();
 }
 
 QStringList QmlRunConfiguration::commandLineArguments() const
