@@ -38,11 +38,14 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMouseEvent>
 
+#include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 #include <QtCore/QSettings>
+
+#include <cstdlib>
 
 #include "ui_welcomemode.h"
 
@@ -101,7 +104,8 @@ WelcomeMode::WelcomeMode() :
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new QToolBar(m_d->m_widget));
-    m_d->rssFetcher = new RSSFetcher(6, this);
+    // limit to 7 items to avoid scrollbars
+    m_d->rssFetcher = new RSSFetcher(7, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
     m_d->ui.sessTreeWidget->viewport()->setAutoFillBackground(false);
@@ -109,6 +113,7 @@ WelcomeMode::WelcomeMode() :
     m_d->ui.newsTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.sitesTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.tutorialTreeWidget->viewport()->setAutoFillBackground(false);
+    m_d->ui.didYouKnowTextBrowser->viewport()->setAutoFillBackground(false);
     l->addWidget(m_d->m_welcomePage);
 
     updateWelcomePage(WelcomePageData());
@@ -120,7 +125,6 @@ WelcomeMode::WelcomeMode() :
 
     connect(m_d->btnGrp, SIGNAL(buttonClicked(int)), m_d->ui.stackedWidget, SLOT(setCurrentIndex(int)));
 
-    connect(m_d->ui.gettingStartedButton, SIGNAL(clicked()), SIGNAL(requestHelp()));
     connect(m_d->ui.feedbackButton, SIGNAL(clicked()), SLOT(slotFeedback()));
     connect(m_d->ui.restoreSessionButton, SIGNAL(clicked()), SLOT(slotRestoreLastSession()));
     connect(m_d->ui.sessTreeWidget, SIGNAL(activated(QString)), SLOT(slotSessionClicked(QString)));
@@ -141,9 +145,9 @@ WelcomeMode::WelcomeMode() :
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Centre"), QLatin1String("http://www.qtcentre.org"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt/S60 at Forum Nokia"), QLatin1String("http://discussion.forum.nokia.com/forum/forumdisplay.php?f=196"));
 
-    m_d->ui.tutorialTreeWidget->addItem(tr("Using Qt Creator"),
+    m_d->ui.tutorialTreeWidget->addItem(tr("Qt Creator - A quick tour"),
                                         QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
-    m_d->ui.tutorialTreeWidget->addItem(tr("Understanding Widgets"),
+    m_d->ui.tutorialTreeWidget->addItem(tr("Understanding widgets"),
                                         QLatin1String("qthelp://com.trolltech.qt/qdoc/widgets-tutorial.html"));
     m_d->ui.tutorialTreeWidget->addItem(tr("Creating an address book"),
                                         QLatin1String("qthelp://com.trolltech.qt/qdoc/tutorials-addressbook.html"));
@@ -152,6 +156,7 @@ WelcomeMode::WelcomeMode() :
     m_d->ui.tutorialTreeWidget->addItem(tr("Writing test cases"),
                                         QLatin1String("qthelp://com.trolltech.qt/qdoc/qtestlib-tutorial.html"));
 
+    m_d->ui.didYouKnowTextBrowser->setText(getTipOfTheDay());
     QSettings *settings = ICore::instance()->settings();
     int id = settings->value("General/WelcomeTab", 0).toInt();
     m_d->btnGrp->button(id)->setChecked(true);
@@ -210,7 +215,8 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
         m_d->ui.projTreeWidget->clear();
 
         if (welcomePageData.sessionList.count() > 1) {
-            foreach (const QString &s, welcomePageData.sessionList) {
+            // limit list to 7 displayed entries to avoid a scrollbar
+            foreach (const QString &s, welcomePageData.sessionList.mid(0, 6)) {
                 QString str = s;
                 if (s == welcomePageData.previousSession)
                     str = tr("%1 (last session)").arg(s);
@@ -223,7 +229,8 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
         }
 
         typedef QPair<QString, QString> QStringPair;
-        foreach (const QStringPair &it, welcomePageData.projectList) {
+        // limit list to 8 displayed entries to avoid a scrollbar
+        foreach (const QStringPair &it, welcomePageData.projectList.mid(0, 7)) {
             QTreeWidgetItem *item = m_d->ui.projTreeWidget->addItem(it.second, it.first);
             const QFileInfo fi(it.first);
             item->setToolTip(1, QDir::toNativeSeparators(fi.absolutePath()));
@@ -274,6 +281,27 @@ void WelcomeMode::slotFeedback()
     QDesktopServices::openUrl(QUrl(QLatin1String(
             "http://www.qtsoftware.com/forms/feedback-forms/qt-creator-user-feedback/view")));
 }
+
+QString WelcomeMode::getTipOfTheDay()
+{
+    static QStringList tips;
+    if (tips.isEmpty()) {
+        tips.append(tr("You can switch between Qt Creator's modes using <tt>Ctrl+number</tt>:"
+                       "<ol><li> - Welcome</li><li> - Edit</li><li>- Debug</li><li>- Projects</li><li>- Help</li>"
+                       "<li></li><li>- Output</li></ol>"));
+        tips.append(tr("You can show and hide the side bar using <tt>Alt+0<tt>."));
+        tips.append(tr("You can fine tune the <tt>Find</tt> function by selecting &quot;Whole Words&quot; "
+                       "or &quot;Case Sensitive&quot;. Simply click on the icons on the right end of the line edit."));                       
+        tips.append(tr("If you add a <a href=\"qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html\""
+                       ">external libraries</a>, Qt Creator will automatically offer syntax highlighting "
+                        "and code completion."));
+    }
+
+    srand(QDateTime::currentDateTime().toTime_t());
+    return tips.at(rand()%tips.count());
+}
+
+
 
 // ---  WelcomeModeButton
 

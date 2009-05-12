@@ -79,7 +79,6 @@ signals:
     void requestProject(const QString &project);
     void requestSession(const QString &session);
     void openHelpPage(const QString&);
-    void requestHelp();
 
 private slots:
     void slotFeedback();
@@ -90,6 +89,7 @@ private slots:
 
 private:
     void activateEditMode();
+    QString getTipOfTheDay();
 
     WelcomeModePrivate *m_d;
 };

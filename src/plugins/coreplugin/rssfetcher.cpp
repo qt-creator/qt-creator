@@ -74,18 +74,17 @@ void RSSFetcher::parseXml()
     while (!m_xml.atEnd()) {
         m_xml.readNext();
         if (m_xml.isStartElement()) {
-            if (m_xml.name() == "item")
-                m_linkString = m_xml.attributes().value("rss:about").toString();
+            if (m_xml.name() == "item") {
+                m_titleString.clear();
+                m_linkString.clear();
+            }
             m_currentTag = m_xml.name().toString();
         } else if (m_xml.isEndElement()) {
             if (m_xml.name() == "item") {
                 m_items++;
                 if (m_items > m_maxItems)
                     return;
-
                 emit newsItemReady(m_titleString, m_linkString);
-                m_titleString.clear();
-                m_linkString.clear();
             }
 
         } else if (m_xml.isCharacters() && !m_xml.isWhitespace()) {
