@@ -32,7 +32,7 @@
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
 #include "modemanager.h"
-#include "rssfetcher.h"
+//#include "rssfetcher.h"
 
 #include <QtGui/QToolBar>
 #include <QtGui/QDesktopServices>
@@ -57,7 +57,7 @@ struct WelcomeModePrivate
     QWidget *m_welcomePage;
     QButtonGroup *btnGrp;
     Ui::WelcomePage ui;
-    RSSFetcher *rssFetcher;
+    //RSSFetcher *rssFetcher;
     WelcomeMode::WelcomePageData lastData;
 };
 
@@ -101,7 +101,7 @@ WelcomeMode::WelcomeMode() :
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new QToolBar(m_d->m_widget));
-    m_d->rssFetcher = new RSSFetcher(6, this);
+    //m_d->rssFetcher = new RSSFetcher(6, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
     m_d->ui.sessTreeWidget->viewport()->setAutoFillBackground(false);
@@ -129,11 +129,11 @@ WelcomeMode::WelcomeMode() :
     connect(m_d->ui.sitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
     connect(m_d->ui.tutorialTreeWidget, SIGNAL(activated(QString)), SIGNAL(openHelpPage(const QString&)));
 
-    connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString)),
-        m_d->ui.newsTreeWidget, SLOT(slotAddItem(QString, QString)));
+    //connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString)),
+    //    m_d->ui.newsTreeWidget, SLOT(slotAddItem(QString, QString)));
 
     //: Add localized feed here only if one exists
-    m_d->rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
+    //m_d->rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
 
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Software"), QLatin1String("http://www.qtsoftware.com"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Labs"), QLatin1String("http://labs.qtsoftware.com"));
