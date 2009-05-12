@@ -648,6 +648,16 @@ QByteArray CppModelManager::internalDefinedMacros() const
     return macros;
 }
 
+void CppModelManager::addEditorSupport(AbstractEditorSupport *editorSupport)
+{
+    m_addtionalEditorSupport.insert(editorSupport);
+}
+
+void CppModelManager::removeEditorSupport(AbstractEditorSupport *editorSupport)
+{
+    m_addtionalEditorSupport.remove(editorSupport);
+}
+
 QMap<QString, QByteArray> CppModelManager::buildWorkingCopyList()
 {
     QMap<QString, QByteArray> workingCopy;
@@ -658,6 +668,12 @@ QMap<QString, QByteArray> CppModelManager::buildWorkingCopyList()
         CppEditorSupport *editorSupport = it.value();
         QString fileName = textEditor->file()->fileName();
         workingCopy[fileName] = editorSupport->contents();
+    }
+
+    QSetIterator<AbstractEditorSupport *> jt(m_addtionalEditorSupport);
+    while (jt.hasNext()) {
+        AbstractEditorSupport *es =  jt.next();
+        workingCopy[es->fileName()] = es->contents();
     }
 
     // add the project configuration file
