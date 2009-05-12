@@ -187,9 +187,9 @@ public:
     QString currentDirectory() const;
     ProFile *currentProFile() const;
 
-    bool evaluateConditionalFunction(const QString &function, const QString &arguments, bool *result);
-    bool evaluateFile(const QString &fileName, bool *result);
-    bool evaluateFeatureFile(const QString &fileName, bool *result);
+    bool evaluateConditionalFunction(const QString &function, const QString &arguments);
+    bool evaluateFile(const QString &fileName);
+    bool evaluateFeatureFile(const QString &fileName);
 
     QStringList qmakeFeaturePaths();
 
@@ -637,7 +637,6 @@ bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
     PRE(pro);
     bool ok = true;
     m_lineNo = pro->lineNumber();
-
     if (m_origfile.isEmpty())
         m_origfile = pro->fileName();
     if (m_oldPath.isEmpty()) {
@@ -653,8 +652,8 @@ bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
         if (!mkspecDirectory.isEmpty() && m_parsePreAndPostFiles) {
             bool cumulative = m_cumulative;
             m_cumulative = false;
-            evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"), &ok);
-            evaluateFile(mkspecDirectory + QLatin1String("/features/default_pre.prf"), &ok);
+            evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"));
+            evaluateFile(mkspecDirectory + QLatin1String("/features/default_pre.prf"));
 
             QStringList tmp = m_valuemap.value(QLatin1String("CONFIG"));
             tmp.append(m_addUserConfigCmdArgs);
@@ -681,7 +680,7 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
             bool cumulative = m_cumulative;
             m_cumulative = false;
 
-            evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"), &ok);
+            evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"));
 
             QSet<QString> processed;
             forever {
@@ -691,9 +690,8 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
                     const QString config = configs[i].toLower();
                     if (!processed.contains(config)) {
                         processed.insert(config);
-                        evaluateFile(mkspecDirectory + QLatin1String("/features/")
-                                     + config + QLatin1String(".prf"), &ok);
-                        if (ok) {
+                        if (evaluateFile(mkspecDirectory + QLatin1String("/features/")
+                                         + config + QLatin1String(".prf"))) {
                             finished = false;
                             break;
                         }
@@ -828,13 +826,13 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
                 // FIXME: qmake variable-expands val first.
                 if (val.length() < 4 || val[0] != QLatin1Char('s')) {
                     q->logMessage(format("the ~= operator can handle only the s/// function."));
-                    return false;
+                    break;
                 }
                 QChar sep = val.at(1);
                 QStringList func = val.split(sep);
                 if (func.count() < 3 || func.count() > 4) {
                     q->logMessage(format("the s/// function expects 3 or 4 arguments."));
-                    return false;
+                    break;
                 }
 
                 bool global = false, quote = false, case_sense = false;
@@ -875,11 +873,7 @@ bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
         QString arguments = text.mid(lparen + 1, rparen - lparen - 1);
         QString funcName = text.left(lparen);
         m_lineNo = func->lineNumber();
-        bool result;
-        if (!evaluateConditionalFunction(funcName.trimmed(), arguments, &result)) {
-            m_invertNext = false;
-            return false;
-        }
+        bool result = evaluateConditionalFunction(funcName.trimmed(), arguments);
         if (!m_skipLevel && (result ^ m_invertNext))
             m_condition = ConditionTrue;
     }
@@ -1630,8 +1624,8 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
     return ret;
 }
 
-bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &function,
-    const QString &arguments, bool *result)
+bool ProFileEvaluator::Private::evaluateConditionalFunction(
+        const QString &function, const QString &arguments)
 {
     QStringList argumentsList = split_arg_list(arguments);
     QString sep;
@@ -1679,9 +1673,6 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
         functions->insert(QLatin1String("error"), T_MESSAGE);     //v
     }
 
-    bool cond = false;
-    bool ok = true;
-
     TestFunc func_t = (TestFunc)functions->value(function);
 
     switch (func_t) {
@@ -1704,12 +1695,11 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
         case T_CONFIG: {
             if (args.count() < 1 || args.count() > 2) {
                 q->logMessage(format("CONFIG(config) requires one or two arguments."));
-                ok = false;
-                break;
+                return false;
             }
             if (args.count() == 1) {
                 //cond = isActiveConfig(args.first()); XXX
-                break;
+                return false;
             }
             const QStringList mutuals = args[1].split(QLatin1Char('|'));
             const QStringList &configs = valuesDirect(QLatin1String("CONFIG"));
@@ -1717,19 +1707,16 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             for (int i = configs.size() - 1; i >= 0; i--) {
                 for (int mut = 0; mut < mutuals.count(); mut++) {
                     if (configs[i] == mutuals[mut].trimmed()) {
-                        cond = (configs[i] == args[0]);
-                        goto done_T_CONFIG;
+                        return (configs[i] == args[0]);
                     }
                 }
             }
-          done_T_CONFIG:
-            break;
+            return false;
         }
         case T_CONTAINS: {
             if (args.count() < 2 || args.count() > 3) {
                 q->logMessage(format("contains(var, val) requires two or three arguments."));
-                ok = false;
-                break;
+                return false;
             }
 
             QRegExp regx(args[1]);
@@ -1738,8 +1725,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 for (int i = 0; i < l.size(); ++i) {
                     const QString val = l[i];
                     if (regx.exactMatch(val) || val == args[1]) {
-                        cond = true;
-                        break;
+                        return true;
                     }
                 }
             } else {
@@ -1748,63 +1734,57 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                     const QString val = l[i];
                     for (int mut = 0; mut < mutuals.count(); mut++) {
                         if (val == mutuals[mut].trimmed()) {
-                            cond = (regx.exactMatch(val) || val == args[1]);
-                            goto done_T_CONTAINS;
+                            return (regx.exactMatch(val) || val == args[1]);
                         }
                     }
                 }
             }
-          done_T_CONTAINS:
-            break;
+            return false;
         }
         case T_COUNT: {
             if (args.count() != 2 && args.count() != 3) {
                 q->logMessage(format("count(var, count, op=\"equals\") requires two or three arguments."));
-                ok = false;
-                break;
+                return false;
             }
             if (args.count() == 3) {
                 QString comp = args[2];
                 if (comp == QLatin1String(">") || comp == QLatin1String("greaterThan")) {
-                    cond = values(args.first()).count() > args[1].toInt();
+                    return (values(args.first()).count() > args[1].toInt());
                 } else if (comp == QLatin1String(">=")) {
-                    cond = values(args.first()).count() >= args[1].toInt();
+                    return (values(args.first()).count() >= args[1].toInt());
                 } else if (comp == QLatin1String("<") || comp == QLatin1String("lessThan")) {
-                    cond = values(args.first()).count() < args[1].toInt();
+                    return (values(args.first()).count() < args[1].toInt());
                 } else if (comp == QLatin1String("<=")) {
-                    cond = values(args.first()).count() <= args[1].toInt();
-                } else if (comp == QLatin1String("equals") || comp == QLatin1String("isEqual") || comp == QLatin1String("=") || comp == QLatin1String("==")) {
-                    cond = values(args.first()).count() == args[1].toInt();
+                    return (values(args.first()).count() <= args[1].toInt());
+                } else if (comp == QLatin1String("equals") || comp == QLatin1String("isEqual")
+                           || comp == QLatin1String("=") || comp == QLatin1String("==")) {
+                    return (values(args.first()).count() == args[1].toInt());
                 } else {
-                    ok = false;
                     q->logMessage(format("unexpected modifier to count(%2)").arg(comp));
+                    return false;
                 }
-                break;
             }
-            cond = values(args.first()).count() == args[1].toInt();
-            break;
+            return (values(args.first()).count() == args[1].toInt());
         }
         case T_INCLUDE: {
             if (m_skipLevel && !m_cumulative)
-                break;
+                return false;
             QString parseInto;
             if (args.count() == 2) {
                 parseInto = args[1];
             } else if (args.count() != 1) {
                 q->logMessage(format("include(file) requires one or two arguments."));
-                ok = false;
-                break;
+                return false;
             }
             QString fileName = args.first();
             // ### this breaks if we have include(c:/reallystupid.pri) but IMHO that's really bad style.
             QDir currentProPath(currentDirectory());
             fileName = QDir::cleanPath(currentProPath.absoluteFilePath(fileName));
-            ok = evaluateFile(fileName, &ok);
-            break;
+            return evaluateFile(fileName);
         }
         case T_LOAD: {
             if (m_skipLevel && !m_cumulative)
-                break;
+                return false;
             QString parseInto;
             bool ignore_error = false;
             if (args.count() == 2) {
@@ -1812,20 +1792,18 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 ignore_error = (sarg.toLower() == QLatin1String("true") || sarg.toInt());
             } else if (args.count() != 1) {
                 q->logMessage(format("load(feature) requires one or two arguments."));
-                ok = false;
-                break;
+                return false;
             }
-            ok = evaluateFeatureFile( args.first(), &cond);
-            break;
+            // XXX ignore_error unused
+            return evaluateFeatureFile(args.first());
         }
         case T_DEBUG:
             // Yup - do nothing. Nothing is going to enable debug output anyway.
-            break;
+            return false;
         case T_MESSAGE: {
             if (args.count() != 1) {
                 q->logMessage(format("%1(message) requires one argument.").arg(function));
-                ok = false;
-                break;
+                return false;
             }
             QString msg = fixEnvVariables(args.first());
             if (function == QLatin1String("error")) {
@@ -1842,46 +1820,42 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             } else {
                 q->fileMessage(format("Project MESSAGE: %1").arg(msg));
             }
-            break;
+            return false;
         }
 #if 0 // Way too dangerous to enable.
         case T_SYSTEM: {
             if (args.count() != 1) {
                 q->logMessage(format("system(exec) requires one argument."));
-                ok = false;
-                break;
+                false;
             }
-            ok = system(args.first().toLatin1().constData()) == 0;
-            break;
+            return (system(args.first().toLatin1().constData()) == 0);
         }
 #endif
         case T_ISEMPTY: {
             if (args.count() != 1) {
                 q->logMessage(format("isEmpty(var) requires one argument."));
-                ok = false;
-                break;
+                return false;
             }
             QStringList sl = values(args.first());
             if (sl.count() == 0) {
-                cond = true;
+                return true;
             } else if (sl.count() > 0) {
                 QString var = sl.first();
-                cond = (var.isEmpty());
+                if (var.isEmpty())
+                    return true;
             }
-            break;
+            return false;
         }
         case T_EXISTS: {
             if (args.count() != 1) {
                 q->logMessage(format("exists(file) requires one argument."));
-                ok = false;
-                break;
+                return false;
             }
             QString file = args.first();
             file = Option::fixPathToLocalOS(file);
 
             if (QFile::exists(file)) {
-                cond = true;
-                break;
+                return true;
             }
             //regular expression I guess
             QString dirstr = currentDirectory();
@@ -1891,23 +1865,19 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 file = file.right(file.length() - slsh - 1);
             }
             if (file.contains(QLatin1Char('*')) || file.contains(QLatin1Char('?')))
-                cond = QDir(dirstr).entryList(QStringList(file)).count();
+                if (!QDir(dirstr).entryList(QStringList(file)).isEmpty())
+                    return true;
 
-            break;
+            return false;
         }
         case 0:
             // This is too chatty currently (missing defineTest and defineReplace)
             //q->logMessage(format("'%1' is not a recognized test function").arg(function));
-            break;
+            return false;
         default:
             q->logMessage(format("Function '%1' is not implemented").arg(function));
-            break;
+            return false;
     }
-
-    if (result)
-        *result = cond;
-
-    return ok;
 }
 
 QStringList ProFileEvaluator::Private::values(const QString &variableName,
@@ -2060,27 +2030,21 @@ void ProFileEvaluator::releaseParsedProFile(ProFile *proFile)
     delete proFile;
 }
 
-bool ProFileEvaluator::Private::evaluateFile(const QString &fileName, bool *result)
+bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
 {
-    bool ok = true;
     ProFile *pro = q->parsedProFile(fileName);
     if (pro) {
         m_profileStack.push(pro);
-        ok = pro->Accept(this);
+        bool ok = pro->Accept(this);
         m_profileStack.pop();
         q->releaseParsedProFile(pro);
-
-        if (result)
-            *result = true;
+        return ok;
     } else {
-        if (result)
-            *result = false;
+        return false;
     }
-
-    return ok;
 }
 
-bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName, bool *result)
+bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
 {
     QString fn;
     foreach (const QString &path, qmakeFeaturePaths()) {
@@ -2099,7 +2063,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName, boo
         return false;
     bool cumulative = m_cumulative;
     m_cumulative = false;
-    bool ok = evaluateFile(fn, result);
+    bool ok = evaluateFile(fn);
     m_cumulative = cumulative;
     return ok;
 }
