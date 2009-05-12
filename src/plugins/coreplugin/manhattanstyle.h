@@ -30,6 +30,8 @@
 #ifndef MANHATTANSTYLE_H
 #define MANHATTANSTYLE_H
 
+#include "core_global.h"
+
 #include <QStyle>
 #include <QWindowsStyle>
 
@@ -40,14 +42,16 @@ QT_END_NAMESPACE
 
 class ManhattanStylePrivate;
 
-class ManhattanStyle : public QWindowsStyle
+class CORE_EXPORT ManhattanStyle : public QWindowsStyle
 {
-    Q_OBJECT;
+    Q_OBJECT
 
 public:
     ManhattanStyle(const QString &);
 
     ~ManhattanStyle();
+
+    QStyle *systemStyle() const;
 
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const;
     void drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const;
