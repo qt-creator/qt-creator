@@ -154,7 +154,8 @@ WelcomeMode::WelcomeMode() :
 
     QSettings *settings = ICore::instance()->settings();
     int id = settings->value("General/WelcomeTab", 0).toInt();
-    m_d->btnGrp->button(id)->animateClick();
+    m_d->btnGrp->button(id)->setChecked(true);
+    m_d->ui.stackedWidget->setCurrentIndex(id);
 }
 
 WelcomeMode::~WelcomeMode()
