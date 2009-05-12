@@ -34,6 +34,7 @@
 #include "qt4nodes.h"
 #include "qt4project.h"
 #include "qt4projectmanager.h"
+#include "qtuicodemodelsupport.h"
 
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/filewatcher.h>
@@ -540,13 +541,22 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
 
 Qt4ProFileNode::~Qt4ProFileNode()
 {
-
+    CppTools::CppModelManagerInterface *modelManager
+            = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+    QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it, end;
+    end = m_uiCodeModelSupport.constEnd();
+    for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
+        modelManager->removeEditorSupport(it.value());
+        delete it.value();
+    }
 }
 
 void Qt4ProFileNode::buildStateChanged(ProjectExplorer::Project *project)
 {
-    if (project == m_project && !ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager()->isBuilding(m_project))
-        updateUiFiles();
+    if (project == m_project && !ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager()->isBuilding(m_project)) {
+        QStringList filesToUpdate = updateUiFiles();
+        updateCodeModelSupportFromBuild(filesToUpdate);
+    }
 }
 
 bool Qt4ProFileNode::hasTargets() const
@@ -717,6 +727,7 @@ void Qt4ProFileNode::update()
                 emit qt4Watcher->variablesChanged(this, m_varValues, newVarValues);
     }
 
+    createUiCodeModelSupport();
     updateUiFiles();
 
     foreach (NodesWatcher *watcher, watchers())
@@ -746,17 +757,16 @@ namespace {
 }
 
 // This function is triggered after a build, and updates the state ui files
-// That is it adds files that didn't exist yet to the project tree, and calls
-// updateSourceFiles() for files that changed
 // It does so by storing a modification time for each ui file we know about.
 
 // TODO this function should also be called if the build directory is changed
-void Qt4ProFileNode::updateUiFiles()
+QStringList Qt4ProFileNode::updateUiFiles()
 {
+    qDebug()<<"Qt4ProFileNode::updateUiFiles()";
     // Only those two project types can have ui files for us
     if (m_projectType != ApplicationTemplate
         && m_projectType != LibraryTemplate)
-        return;
+        return QStringList();
 
     // Find all ui files
     FindUiFileNodesVisitor uiFilesVisitor;
@@ -841,7 +851,8 @@ void Qt4ProFileNode::updateUiFiles()
             m_uitimestamps.insert(file->path(), QFileInfo(file->path()).lastModified());
             toUpdate << file->path();
 
-            // Also adding files depending on that.
+            // Also adding files depending on that
+            // We only need to do that for files that were newly created
             QString fileName = QFileInfo(file->path()).fileName();
             foreach (CPlusPlus::Document::Ptr doc, modelManager->snapshot()) {
                 if (doc->includedFiles().contains(fileName)) {
@@ -852,7 +863,7 @@ void Qt4ProFileNode::updateUiFiles()
         }
         addFileNodes(toAdd, this);
     }
-    m_project->addUiFilesToCodeModel(toUpdate);
+    return toUpdate;
 }
 
 ProFileReader *Qt4PriFileNode::createProFileReader() const
@@ -1012,6 +1023,83 @@ void Qt4ProFileNode::invalidate()
             emit qt4Watcher->projectTypeChanged(this, oldType, InvalidProject);
 }
 
+void Qt4ProFileNode::updateCodeModelSupportFromBuild(const QStringList &files)
+{
+    qDebug()<<"Qt4ProFileNode::updateCodeModelSupportFromBuild"<<files;
+    foreach (const QString &file, files) {
+        QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it, end;
+        end = m_uiCodeModelSupport.constEnd();
+        for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
+            if (it.value()->fileName() == file)
+                it.value()->updateFromBuild();
+        }
+    }
+}
+
+void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::Internal::FormWindowEditor *fw)
+{
+    QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it;
+    it = m_uiCodeModelSupport.constFind(uiFileName);
+    if (it != m_uiCodeModelSupport.constEnd()) {
+        it.value()->updateFromEditor(fw);
+    }
+    foreach (ProjectExplorer::ProjectNode *pro, subProjectNodes())
+        if (Qt4ProFileNode *qt4proFileNode = qobject_cast<Qt4ProFileNode *>(pro))
+            qt4proFileNode->updateCodeModelSupportFromEditor(uiFileName, fw);
+}
+
+void Qt4ProFileNode::createUiCodeModelSupport()
+{
+    qDebug()<<"creatUiCodeModelSupport()";
+    CppTools::CppModelManagerInterface *modelManager
+            = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+
+    // First move all to
+    QMap<QString, Qt4UiCodeModelSupport *> oldCodeModelSupport;
+    oldCodeModelSupport = m_uiCodeModelSupport;
+    m_uiCodeModelSupport.clear();
+
+    // Only those two project types can have ui files for us
+    if (m_projectType == ApplicationTemplate || m_projectType == LibraryTemplate) {
+        // Find all ui files
+        FindUiFileNodesVisitor uiFilesVisitor;
+        this->accept(&uiFilesVisitor);
+        const QList<FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
+
+        // Find the UiDir, there can only ever be one
+        QString uiDir = buildDir();
+        QStringList tmp = m_varValues[UiDirVar];
+        if (tmp.size() != 0)
+            uiDir = tmp.first();
+
+        foreach (FileNode *uiFile, uiFiles) {
+            const QString uiHeaderFilePath
+                    = QString("%1/ui_%2.h").arg(uiDir, QFileInfo(uiFile->path()).completeBaseName());
+
+            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;
+            QMap<QString, Qt4UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
+            if (it != oldCodeModelSupport.end()) {
+                qDebug()<<"updated old codemodelsupport";
+                Qt4UiCodeModelSupport *cms = it.value();
+                cms->setFileName(uiHeaderFilePath);
+                m_uiCodeModelSupport.insert(it.key(), cms);
+                oldCodeModelSupport.erase(it);
+            } else {
+                qDebug()<<"adding new codemodelsupport";
+                Qt4UiCodeModelSupport *cms = new Qt4UiCodeModelSupport(modelManager, m_project, uiFile->path(), uiHeaderFilePath);
+                m_uiCodeModelSupport.insert(uiFile->path(), cms);
+                modelManager->addEditorSupport(cms);
+            }
+        }
+    }
+    // Remove old
+    QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it, end;
+    end = oldCodeModelSupport.constEnd();
+    for (it = oldCodeModelSupport.constBegin(); it!=end; ++it) {
+        modelManager->removeEditorSupport(it.value());
+        delete it.value();
+    }
+}
 
 Qt4NodesWatcher::Qt4NodesWatcher(QObject *parent)
         : NodesWatcher(parent)

@@ -184,9 +184,6 @@ public:
 
     void notifyChanged(const QString &name);
 
-    // called by qt4ProjectNode to add ui_*.h files to the codemodel
-    void addUiFilesToCodeModel(const QStringList &files);
-
     QString makeCommand(const QString &buildConfiguration) const;
 
     // Is called by qmakestep qt4configurationwidget if the settings change
@@ -253,8 +250,6 @@ private:
     Internal::Qt4ProjectFiles *m_projectFiles;
 
     QTimer m_updateCodeModelTimer;
-    QTimer m_addUiFilesTimer;
-    QStringList m_uiFilesToAdd;
     QList<Qt4ProjectManager::Internal::Qt4ProFileNode *> m_proFilesForCodeModelUpdate;
 
     QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;

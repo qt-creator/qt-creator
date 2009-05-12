@@ -64,6 +64,7 @@ public:
     QString mkspec() const;
     QString mkspecPath() const;
     QString qmakeCommand() const;
+    QString uicCommand() const;
     QString qtVersionString() const;
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
@@ -109,7 +110,6 @@ private:
     mutable QString m_mkspec; // updated lazily
     mutable QString m_mkspecFullPath;
     QString m_mingwDirectory;
-    QString m_prependPath;
     QString m_msvcVersion;
     mutable QHash<QString,QString> m_versionInfo; // updated lazily
     int m_id;
@@ -118,6 +118,7 @@ private:
     mutable bool m_defaultConfigIsDebug;
     mutable bool m_defaultConfigIsDebugAndRelease;
     mutable QString m_qmakeCommand;
+    mutable QString m_uicCommand;
     // This is updated on first call to qmakeCommand
     // That function is called from updateVersionInfo()
     mutable QString m_qtVersionString;

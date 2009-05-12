@@ -34,9 +34,10 @@ HEADERS = qt4projectmanagerplugin.h \
     speinfo.h \
     qt4projectconfigwidget.h \
     qt4buildenvironmentwidget.h \
-    projectloadwizard.h\
-    qtversionmanager.h\
-    qtoptionspage.h
+    projectloadwizard.h \
+    qtversionmanager.h \
+    qtoptionspage.h \
+    qtuicodemodelsupport.h
 SOURCES = qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \
@@ -66,9 +67,10 @@ SOURCES = qt4projectmanagerplugin.cpp \
     speinfo.cpp \
     qt4projectconfigwidget.cpp \
     qt4buildenvironmentwidget.cpp \
-    projectloadwizard.cpp\
-    qtversionmanager.cpp\
-    qtoptionspage.cpp
+    projectloadwizard.cpp \
+    qtversionmanager.cpp \
+    qtoptionspage.cpp \
+    qtuicodemodelsupport.cpp
 FORMS = envvariablespage.ui \
     enveditdialog.ui \
     proeditorcontainer.ui \
@@ -77,11 +79,10 @@ FORMS = envvariablespage.ui \
     qt4projectconfigwidget.ui \
     embeddedpropertiespage.ui \
     qt4buildenvironmentwidget.ui \
-    qtversionmanager.ui\
+    qtversionmanager.ui \
     showbuildlog.ui
 RESOURCES = qt4projectmanager.qrc \
     wizards/wizards.qrc
 include(../../shared/proparser/proparser.pri)
 DEFINES += QT_NO_CAST_TO_ASCII
-
 OTHER_FILES += Qt4ProjectManager.pluginspec

@@ -245,10 +245,6 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_updateCodeModelTimer.setSingleShot(true);
     m_updateCodeModelTimer.setInterval(20);
     connect(&m_updateCodeModelTimer, SIGNAL(timeout()), this, SLOT(updateCodeModel()));
-
-    m_addUiFilesTimer.setSingleShot(true);
-    m_addUiFilesTimer.setInterval(20);
-    connect(&m_addUiFilesTimer, SIGNAL(timeout()), this, SLOT(addUiFiles()));
 }
 
 Qt4Project::~Qt4Project()
@@ -374,27 +370,6 @@ namespace {
                 m_proFiles.append(pro);
         }
     };
-}
-
-void Qt4Project::addUiFilesToCodeModel(const QStringList &files)
-{
-    // if we already have a full updateCodeModel() scheduled
-    // then we don't need to this seperately
-    // since that one will add also all the ui files
-    if (m_updateCodeModelTimer.isActive())
-        return;
-    m_addUiFilesTimer.start();
-    m_uiFilesToAdd << files;
-}
-
-void Qt4Project::addUiFiles()
-{
-    if (m_updateCodeModelTimer.isActive())
-        return;
-    CppTools::CppModelManagerInterface *modelManager =
-        ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
-    modelManager->updateSourceFiles(m_uiFilesToAdd);
-    m_uiFilesToAdd.clear();
 }
 
 void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)

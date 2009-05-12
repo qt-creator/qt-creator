@@ -36,6 +36,10 @@
 
 #include <QtCore/QModelIndex>
 
+namespace Core {
+    class IEditor;
+}
+
 namespace ExtensionSystem {
 class PluginManager;
 }
@@ -92,6 +96,12 @@ public slots:
     void runQMake();
     void runQMakeContextMenu();
 
+private slots:
+    void editorOpened(Core::IEditor *editor);
+    void editorAboutToClose(Core::IEditor *editor);
+    void uiEditorContentsChanged();
+    void editorChanged(Core::IEditor*);
+
 private:
     QList<Qt4Project *> m_projects;
     void runQMake(ProjectExplorer::Project *p);
@@ -104,7 +114,8 @@ private:
     ProjectExplorer::Project *m_contextProject;
 
     int m_languageID;
-
+    Core::IEditor *m_lastEditor;
+    bool m_dirty;
 };
 
 } // namespace Qt4ProjectManager
