@@ -128,7 +128,7 @@ private slots:
     void slotHideRightPane();
     void copyFromSideBar();
 
-    void openGettingStarted();
+    void openHelpPage(const QUrl& url);
     void openHelpPage(const QString& url);
 
 private:

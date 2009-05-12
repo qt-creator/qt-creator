@@ -356,6 +356,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     createRightPaneSideBar();
 
+    QDesktopServices::setUrlHandler("qthelp", this, "openHelpPage");
+
     return true;
 }
 
@@ -523,7 +525,6 @@ void HelpPlugin::extensionsInitialized()
     m_bookmarkManager->setupBookmarkModels();
 
     if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>(m_core->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
-        connect(welcomeMode, SIGNAL(requestHelp()), this, SLOT(openGettingStarted()));
         connect(welcomeMode, SIGNAL(openHelpPage(const QString&)), this, SLOT(openHelpPage(const QString&)));
     }
 }
@@ -722,11 +723,9 @@ void HelpPlugin::addNewBookmark(const QString &title, const QString &url)
     m_bookmarkManager->showBookmarkDialog(m_centralWidget, title, url);
 }
 
-void HelpPlugin::openGettingStarted()
+void HelpPlugin::openHelpPage(const QUrl& url)
 {
-    openHelpPage(
-        QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html")
-        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
+    openHelpPage(url.toString());
 }
 
 void HelpPlugin::openHelpPage(const QString& url)
