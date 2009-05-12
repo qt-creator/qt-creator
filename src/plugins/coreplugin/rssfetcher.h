@@ -64,8 +64,8 @@ private:
 
     QHttp m_http;
     int m_connectionId;
-    int m_maxItems;
     int m_items;
+    int m_maxItems;
 };
 
 } // namespace Internal

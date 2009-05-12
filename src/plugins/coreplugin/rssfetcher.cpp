@@ -64,6 +64,7 @@ void RSSFetcher::readData(const QHttpResponseHeader &resp)
 
 void RSSFetcher::finished(int id, bool error)
 {
+    Q_UNUSED(id)
     m_items = 0;
     emit finished(error);
 }
