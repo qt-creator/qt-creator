@@ -51,7 +51,7 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
 
     m_introPage->setDescription(tr("This wizard generates a Qt4 console application "
                           "project. The application derives from QCoreApplication and does not "
-                          "present a GUI. You can press 'Finish' at any point in time."));
+                          "provide a GUI."));
 
     addPage(m_introPage);
 

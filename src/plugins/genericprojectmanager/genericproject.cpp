@@ -495,7 +495,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     QComboBox *toolChainChooser = new QComboBox;
     toolChainChooser->addItems(ProjectExplorer::ToolChain::supportedToolChains());
     toolChainChooser->setCurrentIndex(toolChainChooser->findText(m_project->toolChainId()));
-    fl->addRow(tr("Tool chain:"), toolChainChooser);
+    fl->addRow(tr("Toolchain:"), toolChainChooser);
     connect(toolChainChooser, SIGNAL(activated(QString)), m_project, SLOT(setToolChainId(QString)));
 }
 

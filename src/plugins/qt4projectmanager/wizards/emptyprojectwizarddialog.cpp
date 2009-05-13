@@ -48,8 +48,7 @@ EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
     Core::BaseFileWizard::setupWizard(this);
 
     m_introPage->setDescription(tr("This wizard generates an empty Qt4 project. "
-                          "Add files to it later on by using the other wizards. "
-                          "You can press 'Finish' at any point in time."));
+                          "Add files to it later on by using the other wizards."));
 
     addPage(m_introPage);
 

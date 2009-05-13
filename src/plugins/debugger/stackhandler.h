@@ -48,6 +48,7 @@ struct StackFrame
 {
     StackFrame(int level = 0);    
     bool isUsable() const;
+    QString toToolTip() const;
 
     int level;
     QString function;

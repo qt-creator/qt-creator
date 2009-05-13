@@ -236,6 +236,35 @@ QString WatchData::toString() const
     return res + QLatin1Char('}');
 }
 
+// Format a tooltip fow with aligned colon
+template <class Streamable>
+        inline void formatToolTipRow(QTextStream &str,
+                                     const QString &category,
+                                     const Streamable &value)
+{
+    str << "<tr><td>" << category << "</td><td> : </td><td>" << value  << "</td></tr>";
+}
+
+QString WatchData::toToolTip() const
+{
+    QString res;
+    QTextStream str(&res);
+    str << "<html><body><table>";
+    formatToolTipRow(str, WatchHandler::tr("Expression"), Qt::escape(exp));
+    formatToolTipRow(str, WatchHandler::tr("Type"), Qt::escape(type));
+    QString val = value;
+    if (value.size() > 1000) {
+        val.truncate(1000);
+        val +=  WatchHandler::tr(" ... <cut off>");
+    }
+    formatToolTipRow(str, WatchHandler::tr("Value"), Qt::escape(val));
+    formatToolTipRow(str, WatchHandler::tr("Object Address"), Qt::escape(addr));
+    formatToolTipRow(str, WatchHandler::tr("Stored Address"), Qt::escape(saddr));
+    formatToolTipRow(str, WatchHandler::tr("iname"), Qt::escape(iname));
+    str << "</table></body></html>";
+    return res;
+}
+
 static bool iNameSorter(const WatchData &d1, const WatchData &d2)
 {
     if (d1.level != d2.level)
@@ -482,36 +511,8 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
             break;
         }
 
-        case Qt::ToolTipRole: {
-            QString val = data.value;
-            if (val.size() > 1000)
-                val = val.left(1000) + QLatin1String(" ... <cut off>");
-
-            QString tt = QLatin1String("<table>");
-            //tt += QLatin1String("<tr><td>internal name</td><td> : </td><td>");
-            //tt += Qt::escape(iname) + QLatin1String("</td></tr>");
-            tt += QLatin1String("<tr><td>expression</td><td> : </td><td>");
-            tt += Qt::escape(data.exp) + QLatin1String("</td></tr>");
-            tt += QLatin1String("<tr><td>type</td><td> : </td><td>");
-            tt += Qt::escape(data.type) + QLatin1String("</td></tr>");
-            //if (!valuetooltip.isEmpty())
-            //    tt += valuetooltip;
-            //else
-                tt += QLatin1String("<tr><td>value</td><td> : </td><td>"); 
-                tt += Qt::escape(data.value) + QLatin1String("</td></tr>");
-            tt += QLatin1String("<tr><td>object addr</td><td> : </td><td>");
-            tt += Qt::escape(data.addr) + QLatin1String("</td></tr>");
-            tt += QLatin1String("<tr><td>stored addr</td><td> : </td><td>");
-            tt += Qt::escape(data.saddr) + QLatin1String("</td></tr>");
-            tt += QLatin1String("<tr><td>iname</td><td> : </td><td>");
-            tt += Qt::escape(data.iname) + QLatin1String("</td></tr>");
-            tt += QLatin1String("</table>");
-            tt.replace(QLatin1String("@value@"), Qt::escape(data.value));
-
-            if (tt.size() > 10000)
-                tt = tt.left(10000) + QLatin1String(" ... <cut off>");
-            return tt;
-        }
+        case Qt::ToolTipRole:
+            return data.toToolTip();
 
         case Qt::ForegroundRole: {
             static const QVariant red(QColor(200, 0, 0));

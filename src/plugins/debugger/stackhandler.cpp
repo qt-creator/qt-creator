@@ -46,6 +46,21 @@ bool StackFrame::isUsable() const
     return !file.isEmpty() && QFileInfo(file).isReadable();
 }
 
+QString StackFrame::toToolTip() const
+{
+    QString res;
+    QTextStream str(&res);
+    str << "<html><body><table>"
+        << "<tr><td>" << StackHandler::tr("Address:") << "</td><td>" <<  address << "</td></tr>"
+        << "<tr><td>" << StackHandler::tr("Function:") << "</td><td>" << function << "</td></tr>"
+        << "<tr><td>" << StackHandler::tr("File:") << "</td><td>" << file << "</td></tr>"
+        << "<tr><td>" << StackHandler::tr("Line:") << "</td><td>" << line << "</td></tr>"
+        << "<tr><td>" << StackHandler::tr("From:") << "</td><td>" << from << "</td></tr>"
+        << "<tr><td>" << StackHandler::tr("To:") << "</td><td>" << to << "</td></tr>"
+        << "</table></body></html>";
+    return res;
+}
+
 ////////////////////////////////////////////////////////////////////////
 //
 // StackHandler
@@ -104,14 +119,7 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         }
     } else if (role == Qt::ToolTipRole) {
         //: Tooltip for variable
-        return  tr("<table><tr><td>Address:</td><td>%1</td></tr>"
-                   "<tr><td>Function: </td><td>%2</td></tr>"
-                   "<tr><td>File: </td><td>%3</td></tr>"
-                   "<tr><td>Line: </td><td>%4</td></tr>"
-                   "<tr><td>From: </td><td>%5</td></tr></table>"
-                   "<tr><td>To: </td><td>%6</td></tr></table>")
-                .arg(frame.address, frame.function,
-                     frame.file, QString::number(frame.line), frame.from, frame.to);
+        return frame.toToolTip();
     } else if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;

@@ -90,7 +90,7 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
     const FormClassWizardParameters params = wizardDialog->parameters();
 
     if (params.uiTemplate.isEmpty()) {
-        *errorMessage = tr("Internal error: FormClassWizard::generateFiles: empty template contents");
+        *errorMessage = QLatin1String("Internal error: FormClassWizard::generateFiles: empty template contents");
         return Core::GeneratedFiles();
     }
 

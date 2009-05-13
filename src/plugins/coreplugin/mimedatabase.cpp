@@ -647,7 +647,7 @@ static bool parseNumber(const QString &n, int *target, QString *errorMessage)
     bool ok;
     *target = n.toInt(&ok);
     if (!ok) {
-        *errorMessage = QCoreApplication::translate("MimeDatabase", "Not a number '%1'.").arg(n);
+        *errorMessage = QString::fromLatin1("Not a number '%1'.").arg(n);
         return false;
     }
     return true;
@@ -667,7 +667,7 @@ static bool addMagicMatchRule(const QXmlStreamAttributes &atts,
     }
     const QString value = atts.value(QLatin1String(matchValueAttributeC)).toString();
     if (value.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("MimeDatabase", "Empty match value detected.");
+        *errorMessage = QString::fromLatin1("Empty match value detected.");
         return false;
     }
     // Parse for offset as "1" or "1:10"
@@ -699,7 +699,7 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
             case ParseMimeType: { // start parsing a type
                 const QString type = reader.attributes().value(QLatin1String(mimeTypeAttributeC)).toString();
                 if (type.isEmpty()) {
-                    reader.raiseError(QCoreApplication::translate("MimeDatabase", "Missing 'type'-attribute"));
+                    reader.raiseError(QString::fromLatin1("Missing 'type'-attribute"));
                 } else {
                     data.type = type;
                 }
@@ -748,7 +748,7 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
                     return false;
                 break;
             case ParseError:
-                reader.raiseError(QCoreApplication::translate("MimeDatabase", "Unexpected element <%1>").arg(reader.name().toString()));
+                reader.raiseError(QString::fromLatin1("Unexpected element <%1>").arg(reader.name().toString()));
                 break;
             default:
                 break;
@@ -775,7 +775,7 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
     }
 
     if (reader.hasError()) {
-        *errorMessage = QCoreApplication::translate("MimeDatabase", "An error has been encountered at line %1 of %2: %3:").arg(reader.lineNumber()).arg(fileName, reader.errorString());
+        *errorMessage = QString::fromLatin1("An error has been encountered at line %1 of %2: %3:").arg(reader.lineNumber()).arg(fileName, reader.errorString());
         return false;
     }
     return true;
@@ -890,7 +890,7 @@ bool MimeDatabasePrivate::addMimeTypes(const QString &fileName, QString *errorMe
 {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        *errorMessage = QCoreApplication::translate("MimeDatabase", "Cannot open %1: %2").arg(fileName, file.errorString());
+        *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(fileName, file.errorString());
         return false;
     }
     return addMimeTypes(&file, fileName, errorMessage);
