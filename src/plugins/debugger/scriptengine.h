@@ -39,8 +39,6 @@
 #include <QtCore/QSet>
 #include <QtCore/QVariant>
 
-#include <QtNetwork/QLocalSocket>
-
 QT_BEGIN_NAMESPACE
 class QAction;
 class QAbstractItemModel;

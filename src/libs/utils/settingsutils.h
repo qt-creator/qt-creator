@@ -37,7 +37,7 @@ namespace Utils {
 
 // Create a usable settings key from a category,
 // for example Editor|C++ -> Editor_C__
-QWORKBENCH_UTILS_EXPORT QString settingsKey(const QString &category);
+QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category);
 
 } // namespace Utils
 } // namespace Core

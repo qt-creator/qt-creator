@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET   = QTestLibPlugin
 QT      += xml
 
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 
 SOURCES += qtestlibplugin.cpp

@@ -33,6 +33,7 @@
 #include "cpphighlighter.h"
 
 #include <AST.h>
+#include <Control.h>
 #include <Token.h>
 #include <Scope.h>
 #include <Symbols.h>
@@ -40,8 +41,10 @@
 #include <Control.h>
 #include <CoreTypes.h>
 #include <Literals.h>
+#include <PrettyPrinter.h>
 #include <Semantic.h>
 #include <SymbolVisitor.h>
+#include <TranslationUnit.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
@@ -76,6 +79,8 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QTreeView>
 #include <QtGui/QSortFilterProxyModel>
+
+#include <sstream>
 
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
@@ -375,6 +380,34 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
     OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
     treeView->sync();
     updateMethodBoxIndex();
+}
+
+void CPPEditor::reformatDocument()
+{
+    using namespace CPlusPlus;
+
+    QByteArray source = toPlainText().toUtf8();
+
+    Control control;
+    StringLiteral *fileId = control.findOrInsertFileName("<file>");
+    TranslationUnit unit(&control, fileId);
+    unit.setQtMocRunEnabled(true);
+    unit.setSource(source.constData(), source.length());
+    unit.parse();
+    if (! unit.ast())
+        return;
+
+    std::ostringstream s;
+
+    TranslationUnitAST *ast = unit.ast()->asTranslationUnit();
+    PrettyPrinter pp(&control, s);
+    pp(ast, source);
+
+    const std::string str = s.str();
+    QTextCursor c = textCursor();
+    c.setPosition(0);
+    c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    c.insertText(QString::fromUtf8(str.c_str(), str.length()));
 }
 
 void CPPEditor::updateFileName()
@@ -855,6 +888,10 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
 
     foreach (QAction *action, contextMenu->actions())
         menu->addAction(action);
+
+    QAction *reformatDocument = new QAction(tr("Reformat Document"), menu);
+    connect(reformatDocument, SIGNAL(triggered()), this, SLOT(reformatDocument()));
+    menu->addAction(reformatDocument);
 
     menu->exec(e->globalPos());
     delete menu;

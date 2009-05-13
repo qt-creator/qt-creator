@@ -47,7 +47,7 @@ QString createMacro(const QString &name, const QString &suffix);
 // write a .pro-file section.
 
 struct QtProjectParameters {
-    enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, Qt4Plugin };
+    enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, Qt4Plugin, EmptyProject };
 
     QtProjectParameters();
     // Return project path as "path/name"

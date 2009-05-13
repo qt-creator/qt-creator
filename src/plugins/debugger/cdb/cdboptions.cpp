@@ -34,8 +34,10 @@
 #include <QtCore/QFileInfo>
 
 static const char *settingsGroupC = "CDB";
-static const char *enabledKeyC = "enabled";
-static const char *pathKeyC = "path";
+static const char *enabledKeyC = "Enabled";
+static const char *pathKeyC = "Path";
+static const char *symbolPathsKeyC = "SymbolPaths";
+static const char *sourcePathsKeyC = "SourcePaths";
 
 namespace Debugger {
 namespace Internal {
@@ -65,6 +67,8 @@ void CdbOptions::fromSettings(const QSettings *s)
     }
     enabled = s->value(enabledKey, false).toBool();
     path = s->value(keyRoot + QLatin1String(pathKeyC), QString()).toString();
+    symbolPaths = s->value(keyRoot + QLatin1String(symbolPathsKeyC), QStringList()).toStringList();
+    sourcePaths = s->value(keyRoot + QLatin1String(sourcePathsKeyC), QStringList()).toStringList();
 }
 
 void CdbOptions::toSettings(QSettings *s) const
@@ -72,6 +76,8 @@ void CdbOptions::toSettings(QSettings *s) const
     s->beginGroup(QLatin1String(settingsGroupC));
     s->setValue(QLatin1String(enabledKeyC), enabled);
     s->setValue(QLatin1String(pathKeyC), path);
+    s->setValue(QLatin1String(symbolPathsKeyC), symbolPaths);
+    s->setValue(QLatin1String(sourcePathsKeyC), sourcePaths);
     s->endGroup();
 }
 
@@ -105,9 +111,14 @@ bool CdbOptions::autoDetectPath(QString *outPath)
     return false;
 }
 
-bool CdbOptions::equals(const CdbOptions &rhs) const
+unsigned CdbOptions::compare(const CdbOptions &rhs) const
 {
-    return enabled == rhs.enabled && path == rhs.path;
+    unsigned rc = 0;
+    if (enabled != rhs.enabled || path != rhs.path)
+        rc |= InitializationOptionsChanged;
+    if (symbolPaths != rhs.symbolPaths || sourcePaths != rhs.sourcePaths)
+        rc |= DebuggerPathsChanged;
+    return rc;
 }
 
 } // namespace Internal

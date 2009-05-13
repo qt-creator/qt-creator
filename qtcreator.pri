@@ -35,11 +35,11 @@ isEmpty(TEST):CONFIG(debug, debug|release) {
     }
 }
 
-linux-*-64 {
-    IDE_LIBRARY_BASENAME = lib64
-} else {
+isEmpty(IDE_LIBRARY_BASENAME) {
     IDE_LIBRARY_BASENAME = lib
 }
+
+DEFINES += IDE_LIBRARY_BASENAME=\\\"$$IDE_LIBRARY_BASENAME\\\"
 
 equals(TEST, 1) {
     QT +=testlib
@@ -47,10 +47,12 @@ equals(TEST, 1) {
 }
 
 IDE_SOURCE_TREE = $$PWD
-sub_dir = $$_PRO_FILE_PWD_
-sub_dir ~= s,^$$re_escape($$PWD),,
-IDE_BUILD_TREE = $$cleanPath($$OUT_PWD)
-IDE_BUILD_TREE ~= s,$$re_escape($$sub_dir)$,,
+isEmpty(IDE_BUILD_TREE) {
+    sub_dir = $$_PRO_FILE_PWD_
+    sub_dir ~= s,^$$re_escape($$PWD),,
+    IDE_BUILD_TREE = $$cleanPath($$OUT_PWD)
+    IDE_BUILD_TREE ~= s,$$re_escape($$sub_dir)$,,
+}
 IDE_APP_PATH = $$IDE_BUILD_TREE/bin
 macx {
     IDE_APP_TARGET   = QtCreator

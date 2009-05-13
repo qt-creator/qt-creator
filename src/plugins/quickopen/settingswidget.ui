@@ -48,7 +48,7 @@
         <bool>false</bool>
        </property>
        <property name="text" >
-        <string>Edit</string>
+        <string>Edit...</string>
        </property>
       </widget>
      </item>
@@ -72,12 +72,12 @@
      <item>
       <widget class="QLabel" name="label" >
        <property name="text" >
-        <string>Refresh Intervall:</string>
+        <string>Refresh Interval:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="refreshIntervall" >
+      <widget class="QSpinBox" name="refreshInterval" >
        <property name="frame" >
         <bool>true</bool>
        </property>

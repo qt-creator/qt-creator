@@ -49,7 +49,6 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
-QT_BEGIN_NAMESPACE
 
 #if !defined(QT_NO_WEBKIT)
 
@@ -148,7 +147,7 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
 class HelpPage : public QWebPage
 {
 public:
-    HelpPage(CentralWidget *central, QHelpEngine *engine, QObject *parent);
+    HelpPage(Help::Internal::CentralWidget *central, QHelpEngine *engine, QObject *parent);
 
 protected:
     virtual QWebPage *createWindow(QWebPage::WebWindowType);
@@ -157,11 +156,11 @@ protected:
         const QNetworkRequest &request, NavigationType type);
 
 private:
-    CentralWidget *centralWidget;
+    Help::Internal::CentralWidget *centralWidget;
     QHelpEngine *helpEngine;
 };
 
-HelpPage::HelpPage(CentralWidget *central, QHelpEngine *engine, QObject *parent)
+HelpPage::HelpPage(Help::Internal::CentralWidget *central, QHelpEngine *engine, QObject *parent)
     : QWebPage(parent), centralWidget(central), helpEngine(engine)
 {    
 }
@@ -209,7 +208,7 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *,
     return false;
 }
 
-HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
+HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *parent)
     : QWebView(parent), helpEngine(engine), parentWidget(parent)
 {    
     setPage(new HelpPage(parent, helpEngine, this));
@@ -309,7 +308,7 @@ void HelpViewer::actionChanged()
 
 #else  // !defined(QT_NO_WEBKIT)
 
-HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
+HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *parent)
     : QTextBrowser(parent)
     , zoomCount(0)
     , controlPressed(false)
@@ -526,5 +525,3 @@ void HelpViewer::wheelEvent(QWheelEvent *e)
 }
 
 #endif  // !defined(QT_NO_WEBKIT)
-
-QT_END_NAMESPACE

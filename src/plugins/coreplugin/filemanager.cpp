@@ -394,6 +394,7 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
                 if (!fileName.isEmpty()) {
                     blockFileChange(file);
                     ok = file->save(fileName);
+                    file->checkPermissions();
                     unblockFileChange(file);
                 }
                 if (!ok)

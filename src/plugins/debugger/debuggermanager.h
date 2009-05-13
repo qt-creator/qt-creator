@@ -32,7 +32,6 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QObject>
-#include <QtCore/QPoint>
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
@@ -42,18 +41,22 @@ class QAbstractItemModel;
 class QDockWidget;
 class QLabel;
 class QMainWindow;
-class QModelIndex;
-class QSplitter;
+class QPoint;
 class QTimer;
 class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
-    class IOptionsPage;
-}
+class IOptionsPage;
+} // namespace Core
 
 namespace Debugger {
 namespace Internal {
+
+typedef QLatin1Char _c;
+typedef QLatin1String __;
+inline QString _(const char *s) { return QString::fromLatin1(s); }
+inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
 class DebuggerOutputWindow;
 class DebuggerRunControl;
@@ -109,11 +112,12 @@ enum DebuggerStatus
 
 enum DebuggerStartMode
 {
-    StartInternal,                    // Start current start project's binary
-    StartExternal,                    // Start binary found in file system
-    AttachExternal,                   // Attach to running process
-    AttachCore,                       // Attach to a core file
-    StartRemote                       // Start and attach to a remote process
+    StartInternal,   // Start current start project's binary
+    StartExternal,   // Start binary found in file system
+    AttachExternal,  // Attach to running process
+    AttachTcf,       // Attach to a running Target Communication Framework agent
+    AttachCore,      // Attach to a core file
+    StartRemote      // Start and attach to a remote process
 };
 
 class IDebuggerEngine;
@@ -142,13 +146,14 @@ public:
 private:
     // This is the part of the interface that's exclusively seen by the
     // debugger engines
-    friend class GdbEngine;
     friend class CdbDebugEngine;
     friend class CdbDebugEventCallback;
-    friend class ScriptEngine;
-    friend struct CdbDebugEnginePrivate;
     friend class CdbDumperHelper;
     friend class CdbExceptionLoggerEventCallback;
+    friend class GdbEngine;
+    friend class ScriptEngine;
+    friend class TcfEngine;
+    friend struct CdbDebugEnginePrivate;
 
     // called from the engines after successful startup
     virtual void notifyInferiorStopRequested() = 0;
@@ -202,8 +207,6 @@ public:
     QMainWindow *mainWindow() const { return m_mainWindow; }
     QLabel *statusLabel() const { return m_statusLabel; }
 
-    enum DebuggerType { NoDebugger, GdbDebugger, ScriptDebugger, WinDebugger };
-
 public slots:
     void startNewDebugger(DebuggerRunControl *runControl);
     void exitDebugger(); 
@@ -242,6 +245,7 @@ public slots:
     void stepIExec();
     void nextIExec();
     void continueExec();
+    void detachDebugger();
 
     void addToWatchWindow();
     void updateWatchModel();
@@ -366,7 +370,6 @@ public:
 
 private:
     void init();
-    void setDebuggerType(DebuggerType type);
     void runTest(const QString &fileName);
     QDockWidget *createDockForWidget(QWidget *widget);
     Q_SLOT void createNewDock(QWidget *widget);
@@ -379,7 +382,6 @@ private:
     void setToolTipExpression(const QPoint &pos, const QString &exp0);
 
     DebuggerRunControl *m_runControl;
-    DebuggerType m_debuggerType;
 
     /// Views
     QMainWindow *m_mainWindow;

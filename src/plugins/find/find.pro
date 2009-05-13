@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = Find
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(find_dependencies.pri)
 DEFINES += FIND_LIBRARY
 HEADERS += findtoolwindow.h \

@@ -20,7 +20,7 @@ struct SubmitFieldWidgetPrivate;
  * When choosing a different field in the combo, a new row is opened if text
  * has been entered for the current field. Optionally, a "Browse..." button and
  * completer can be added. */
-class QWORKBENCH_UTILS_EXPORT SubmitFieldWidget : public QWidget
+class QTCREATOR_UTILS_EXPORT SubmitFieldWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QStringList fields READ fields WRITE setFields DESIGNABLE true)

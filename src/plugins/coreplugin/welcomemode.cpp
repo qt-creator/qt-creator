@@ -28,18 +28,24 @@
 **************************************************************************/
 
 #include "welcomemode.h"
+#include "icore.h"
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
 #include "modemanager.h"
+#include "rssfetcher.h"
 
 #include <QtGui/QToolBar>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMouseEvent>
 
+#include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
+#include <QtCore/QSettings>
+
+#include <cstdlib>
 
 #include "ui_welcomemode.h"
 
@@ -52,8 +58,9 @@ struct WelcomeModePrivate
 
     QWidget *m_widget;
     QWidget *m_welcomePage;
+    QButtonGroup *btnGrp;
     Ui::WelcomePage ui;
-
+    RSSFetcher *rssFetcher;
     WelcomeMode::WelcomePageData lastData;
 };
 
@@ -97,24 +104,69 @@ WelcomeMode::WelcomeMode() :
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new QToolBar(m_d->m_widget));
-
+    // limit to 7 items to avoid scrollbars
+    m_d->rssFetcher = new RSSFetcher(7, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
     m_d->ui.sessTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.projTreeWidget->viewport()->setAutoFillBackground(false);
+    m_d->ui.newsTreeWidget->viewport()->setAutoFillBackground(false);
+    m_d->ui.sitesTreeWidget->viewport()->setAutoFillBackground(false);
+    m_d->ui.tutorialTreeWidget->viewport()->setAutoFillBackground(false);
+    m_d->ui.didYouKnowTextBrowser->viewport()->setAutoFillBackground(false);
     l->addWidget(m_d->m_welcomePage);
 
     updateWelcomePage(WelcomePageData());
 
-    connect(m_d->ui.gettingStartedButton, SIGNAL(clicked()), SIGNAL(requestHelp()));
+    m_d->btnGrp = new QButtonGroup(this);
+    m_d->btnGrp->addButton(m_d->ui.gettingStartedSectButton, 0);
+    m_d->btnGrp->addButton(m_d->ui.developSectButton, 1);
+    m_d->btnGrp->addButton(m_d->ui.communitySectButton, 2);
+
+    connect(m_d->btnGrp, SIGNAL(buttonClicked(int)), m_d->ui.stackedWidget, SLOT(setCurrentIndex(int)));
+
     connect(m_d->ui.feedbackButton, SIGNAL(clicked()), SLOT(slotFeedback()));
     connect(m_d->ui.restoreSessionButton, SIGNAL(clicked()), SLOT(slotRestoreLastSession()));
     connect(m_d->ui.sessTreeWidget, SIGNAL(activated(QString)), SLOT(slotSessionClicked(QString)));
     connect(m_d->ui.projTreeWidget, SIGNAL(activated(QString)), SLOT(slotProjectClicked(QString)));
+    connect(m_d->ui.newsTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
+    connect(m_d->ui.sitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
+    connect(m_d->ui.tutorialTreeWidget, SIGNAL(activated(QString)), SIGNAL(openHelpPage(const QString&)));
+
+    connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString)),
+        m_d->ui.newsTreeWidget, SLOT(slotAddItem(QString, QString)));
+
+    //: Add localized feed here only if one exists
+    m_d->rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
+
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Software"), QLatin1String("http://www.qtsoftware.com"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Labs"), QLatin1String("http://labs.qtsoftware.com"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Git Hosting"), QLatin1String("http://qt.gitorious.org"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Centre"), QLatin1String("http://www.qtcentre.org"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt/S60 at Forum Nokia"), QLatin1String("http://discussion.forum.nokia.com/forum/forumdisplay.php?f=196"));
+
+    m_d->ui.tutorialTreeWidget->addItem(tr("Qt Creator - A quick tour"),
+                                        QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Understanding widgets"),
+                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/widgets-tutorial.html"));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Creating an address book"),
+                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/tutorials-addressbook.html"));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Building with qmake"),
+                                        QLatin1String("qthelp://com.trolltech.qmake/qdoc/qmake-tutorial.html"));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Writing test cases"),
+                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/qtestlib-tutorial.html"));
+
+    m_d->ui.didYouKnowTextBrowser->setText(getTipOfTheDay());
+    QSettings *settings = ICore::instance()->settings();
+    int id = settings->value("General/WelcomeTab", 0).toInt();
+    m_d->btnGrp->button(id)->setChecked(true);
+    m_d->ui.stackedWidget->setCurrentIndex(id);
 }
 
 WelcomeMode::~WelcomeMode()
 {
+    QSettings *settings = ICore::instance()->settings();
+    settings->setValue("General/WelcomeTab", m_d->btnGrp->checkedId());
     delete m_d;
 }
 
@@ -163,7 +215,8 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
         m_d->ui.projTreeWidget->clear();
 
         if (welcomePageData.sessionList.count() > 1) {
-            foreach (const QString &s, welcomePageData.sessionList) {
+            // limit list to 7 displayed entries to avoid a scrollbar
+            foreach (const QString &s, welcomePageData.sessionList.mid(0, 6)) {
                 QString str = s;
                 if (s == welcomePageData.previousSession)
                     str = tr("%1 (last session)").arg(s);
@@ -176,7 +229,8 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
         }
 
         typedef QPair<QString, QString> QStringPair;
-        foreach (const QStringPair &it, welcomePageData.projectList) {
+        // limit list to 8 displayed entries to avoid a scrollbar
+        foreach (const QStringPair &it, welcomePageData.projectList.mid(0, 7)) {
             QTreeWidgetItem *item = m_d->ui.projTreeWidget->addItem(it.second, it.first);
             const QFileInfo fi(it.first);
             item->setToolTip(1, QDir::toNativeSeparators(fi.absolutePath()));
@@ -211,6 +265,11 @@ void WelcomeMode::slotProjectClicked(const QString &data)
     activateEditMode();
 }
 
+void WelcomeMode::slotUrlClicked(const QString &data)
+{
+    QDesktopServices::openUrl(QUrl(data));
+}
+
 void WelcomeMode::slotRestoreLastSession()
 {
     emit requestSession(m_d->lastData.previousSession);
@@ -222,6 +281,27 @@ void WelcomeMode::slotFeedback()
     QDesktopServices::openUrl(QUrl(QLatin1String(
             "http://www.qtsoftware.com/forms/feedback-forms/qt-creator-user-feedback/view")));
 }
+
+QString WelcomeMode::getTipOfTheDay()
+{
+    static QStringList tips;
+    if (tips.isEmpty()) {
+        tips.append(tr("You can switch between Qt Creator's modes using <tt>Ctrl+number</tt>:"
+                       "<ol><li> - Welcome</li><li> - Edit</li><li>- Debug</li><li>- Projects</li><li>- Help</li>"
+                       "<li></li><li>- Output</li></ol>"));
+        tips.append(tr("You can show and hide the side bar using <tt>Alt+0<tt>."));
+        tips.append(tr("You can fine tune the <tt>Find</tt> function by selecting &quot;Whole Words&quot; "
+                       "or &quot;Case Sensitive&quot;. Simply click on the icons on the right end of the line edit."));                       
+        tips.append(tr("If you add a <a href=\"qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html\""
+                       ">external libraries</a>, Qt Creator will automatically offer syntax highlighting "
+                        "and code completion."));
+    }
+
+    srand(QDateTime::currentDateTime().toTime_t());
+    return tips.at(rand()%tips.count());
+}
+
+
 
 // ---  WelcomeModeButton
 
@@ -301,6 +381,11 @@ QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QStr
     setItemWidget(item, 1, wdg);
     item->setData(0, Qt::UserRole, data);
     return item;
+}
+
+void WelcomeModeTreeWidget::slotAddItem(const QString &label, const QString &data)
+{
+    addTopLevelItem(addItem(label,data));
 }
 
 void WelcomeModeTreeWidget::slotItemClicked(QTreeWidgetItem *item)

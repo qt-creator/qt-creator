@@ -78,6 +78,7 @@ public:
     QString ignoreCount;    // ignore count associated with breakpoint
     QString lineNumber;     // line in source file
     QString funcName;       // name of containing function
+    bool useFullPath;       // should we use the full path when setting the bp?
 
     // this is what gdb produced in response
     QString bpNumber;       // breakpoint number assigned by the debugger engine
@@ -122,7 +123,7 @@ public:
     BreakpointData *at(int index) const { return index < size() ? m_bp.at(index) : 0; }
     int size() const { return m_bp.size(); }
     bool hasPendingBreakpoints() const;
-    void append(BreakpointData *data) { m_bp.append(data); }
+    void append(BreakpointData *data);
     void removeAt(int index); // also deletes the marker
     void clear(); // also deletes all the marker
     int indexOf(BreakpointData *data) { return m_bp.indexOf(data); }
@@ -131,6 +132,8 @@ public:
     int findBreakpoint(int bpNumber); // returns index
     void updateMarkers();
 
+    QList<BreakpointData *> insertedBreakpoints() const;
+    void takeInsertedBreakPoint(BreakpointData *);
     QList<BreakpointData *> takeRemovedBreakpoints(); // owned
     QList<BreakpointData *> takeEnabledBreakpoints(); // not owned
     QList<BreakpointData *> takeDisabledBreakpoints(); // not owned
@@ -170,6 +173,7 @@ private:
     void removeBreakpointHelper(int index);
 
     QList<BreakpointData *> m_bp;
+    QList<BreakpointData *> m_inserted; // lately inserted breakpoints
     QList<BreakpointData *> m_removed; // lately removed breakpoints
     QList<BreakpointData *> m_enabled; // lately enabled breakpoints
     QList<BreakpointData *> m_disabled; // lately disabled breakpoints

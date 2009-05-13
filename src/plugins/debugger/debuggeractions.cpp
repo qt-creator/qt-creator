@@ -194,7 +194,7 @@ DebuggerSettings *DebuggerSettings::instance()
     // Breakpoints
     //
     item = new SavedAction(instance);
-    item->setText(tr("Syncronize breakpoints"));
+    item->setText(tr("Synchronize breakpoints"));
     instance->insertItem(SynchronizeBreakpoints, item);
 
 

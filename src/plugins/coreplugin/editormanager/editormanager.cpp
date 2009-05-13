@@ -406,7 +406,6 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
     // other setup
     m_d->m_splitter = new SplitterOrView(m_d->m_editorModel);
-    m_d->m_splitter->setRoot(true);
     m_d->m_view = m_d->m_splitter->view();
 
 
@@ -699,9 +698,9 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
         if (cancelled)
             return false;
         if (!list.isEmpty()) {
+            closingFailed = true;
             QSet<IEditor*> skipSet = editorsForFiles(list).toSet();
             acceptedEditors = acceptedEditors.toSet().subtract(skipSet).toList();
-            closingFailed = false;
         }
     }
     if (acceptedEditors.isEmpty())
@@ -1204,23 +1203,35 @@ bool EditorManager::saveFile(IEditor *editor)
     file->checkPermissions();
 
     const QString &fileName = file->fileName();
-    if (!fileName.isEmpty() && file->isReadOnly()) {
+
+    if (fileName.isEmpty())
+        return saveFileAs(editor);
+
+    bool success = false;
+
+    // try saving, no matter what isReadOnly tells us
+    m_d->m_core->fileManager()->blockFileChange(file);
+    success = file->save(fileName);
+    m_d->m_core->fileManager()->unblockFileChange(file);
+
+    if (!success) {
         MakeWritableResult answer =
                 makeEditorWritable(editor);
         if (answer == Failed)
             return false;
         if (answer == SavedAs)
             return true;
+
+        file->checkPermissions();
+
+        m_d->m_core->fileManager()->blockFileChange(file);
+        success = file->save(fileName);
+        m_d->m_core->fileManager()->unblockFileChange(file);
     }
 
-    if (file->isReadOnly() || fileName.isEmpty())
-        return saveFileAs(editor);
-
-    m_d->m_core->fileManager()->blockFileChange(file);
-    const bool success = file->save(fileName);
-    m_d->m_core->fileManager()->unblockFileChange(file);
     if (success)
         m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
+
     return success;
 }
 
@@ -1242,7 +1253,7 @@ EditorManager::ReadOnlyAction
 
     QPushButton *saveAsButton = 0;
     if (displaySaveAsButton)
-        msgBox.addButton(QObject::tr("Save as ..."), QMessageBox::ActionRole);
+        saveAsButton = msgBox.addButton(QObject::tr("Save as ..."), QMessageBox::ActionRole);
 
     msgBox.setDefaultButton(sccButton ? sccButton : makeWritableButton);
     msgBox.exec();
@@ -1269,7 +1280,7 @@ EditorManager::makeEditorWritable(IEditor *editor)
     switch (promptReadOnlyFile(fileName, versionControl, m_d->m_core->mainWindow(), true)) {
     case RO_OpenVCS:
         if (!versionControl->vcsOpen(fileName)) {
-            QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"), tr("Could not open the file for edit with SCC."));
+            QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"), tr("Could not open the file for editing with SCC."));
             return Failed;
         }
         file->checkPermissions();
@@ -1311,6 +1322,7 @@ bool EditorManager::saveFileAs(IEditor *editor)
     m_d->m_core->fileManager()->blockFileChange(editor->file());
     const bool success = editor->file()->save(absoluteFilePath);
     m_d->m_core->fileManager()->unblockFileChange(editor->file());
+    editor->file()->checkPermissions();
 
     if (success)
         m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());

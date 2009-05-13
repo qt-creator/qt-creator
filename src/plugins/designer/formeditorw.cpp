@@ -33,7 +33,7 @@
 #include "settingsmanager.h"
 #include "settingspage.h"
 #include "editorwidget.h"
-#include "workbenchintegration.h"
+#include "qtcreatorintegration.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -238,7 +238,7 @@ void FormEditorW::fullInit()
     QDesignerComponents::initializePlugins(designerEditor());
     QDesignerComponents::initializeResources();
     initDesignerSubWindows();
-    m_integration = new WorkbenchIntegration(m_formeditor, this);
+    m_integration = new QtCreatorIntegration(m_formeditor, this);
     m_formeditor->setIntegration(m_integration);
 
     /**
@@ -667,7 +667,7 @@ void FormEditorW::print()
         QString errorMessage;
         const QPixmap pixmap = m_fwm->createPreviewPixmap(&errorMessage);
         if (pixmap.isNull()) {
-            critical(tr("The image could not be create: %1").arg(errorMessage));
+            critical(tr("The image could not be created: %1").arg(errorMessage));
             break;
         }
 

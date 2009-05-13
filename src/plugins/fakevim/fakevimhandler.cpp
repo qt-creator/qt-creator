@@ -1125,6 +1125,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_registers[m_register] = removeSelectedText();
         m_mode = InsertMode;
         finishMovement();
+    } else if (key == control('c')) {
+        showBlackMessage("Type Alt-v,Alt-v  to quit FakeVim mode");
     } else if (key == 'd' && m_visualMode == NoVisualMode) {
         if (atEndOfLine())
             moveLeft();
@@ -1475,7 +1477,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
 EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
     const QString &text)
 {
-    if (key == Key_Escape || key == 27) {
+    if (key == Key_Escape || key == 27 || key == control('c')) {
         // start with '1', as one instance was already physically inserted
         // while typing
         QString data = m_lastInsertion;
@@ -1573,7 +1575,7 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodifi
 {
     Q_UNUSED(text)
 
-    if (key == Key_Escape) {
+    if (key == Key_Escape || key == control('c')) {
         m_commandBuffer.clear();
         enterCommandMode();
         updateMiniBuffer();

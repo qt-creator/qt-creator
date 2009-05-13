@@ -204,7 +204,7 @@ void CodepasterPlugin::fetch()
     }
     m_fetcher = new CustomFetcher(serverUrl());
 
-    QDialog dialog;
+    QDialog dialog(ICore::instance()->mainWindow());
     Ui_PasteSelectDialog ui;
     ui.setupUi(&dialog);
 

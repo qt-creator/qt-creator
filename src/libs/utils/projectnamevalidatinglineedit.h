@@ -35,7 +35,7 @@
 namespace Core {
 namespace Utils {
 
-class QWORKBENCH_UTILS_EXPORT ProjectNameValidatingLineEdit : public BaseValidatingLineEdit
+class QTCREATOR_UTILS_EXPORT ProjectNameValidatingLineEdit : public BaseValidatingLineEdit
 {
     Q_OBJECT
     Q_DISABLE_COPY(ProjectNameValidatingLineEdit)

@@ -44,7 +44,7 @@ class FileWizardPage;
    and path. Custom pages can be added via Core::IWizardExtension.
 */
 
-class QWORKBENCH_UTILS_EXPORT FileWizardDialog : public QWizard {
+class QTCREATOR_UTILS_EXPORT FileWizardDialog : public QWizard {
     Q_OBJECT
     Q_DISABLE_COPY(FileWizardDialog)
 public:

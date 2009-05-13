@@ -41,7 +41,7 @@ struct ClassNameValidatingLineEditPrivate;
 /* A Line edit that validates a C++ class name and emits a signal
  * to derive suggested file names from it. */
 
-class QWORKBENCH_UTILS_EXPORT ClassNameValidatingLineEdit
+class QTCREATOR_UTILS_EXPORT ClassNameValidatingLineEdit
   : public Core::Utils::BaseValidatingLineEdit
 {
     Q_DISABLE_COPY(ClassNameValidatingLineEdit)

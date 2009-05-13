@@ -57,5 +57,7 @@
         <file>images/welcomemode/product_logo.png</file>
         <file>images/welcomemode/qt_logo.png</file>
         <file>images/welcomemode/rc_combined.png</file>
+        <file>images/welcomemode/background_center_frame.png</file>
+        <file>images/welcomemode/center_frame_header.png</file>
     </qresource>
 </RCC>

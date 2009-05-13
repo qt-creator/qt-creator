@@ -1,7 +1,8 @@
 TEMPLATE = lib
 TARGET = Designer
+DEFINES += DESIGNER_LIBRARY
 
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(../../shared/designerintegrationv2/designerintegration.pri)
 include(cpp/cpp.pri)
 include(designer_dependencies.pri)
@@ -26,14 +27,15 @@ HEADERS += formeditorplugin.h \
         formwindowfile.h \
         formwindowhost.h \
         formwizard.h \
-        workbenchintegration.h \
+        qtcreatorintegration.h \
         designerconstants.h \
         settingspage.h \
         editorwidget.h \
         formeditorw.h \
         settingsmanager.h \
         formtemplatewizardpage.h \
-        formwizarddialog.h
+        formwizarddialog.h \
+        designer_export.h
 
 SOURCES += formeditorplugin.cpp \
         formeditorfactory.cpp \
@@ -41,7 +43,7 @@ SOURCES += formeditorplugin.cpp \
         formwindowfile.cpp \
         formwindowhost.cpp \
         formwizard.cpp \
-        workbenchintegration.cpp \
+        qtcreatorintegration.cpp \
         settingspage.cpp \
         editorwidget.cpp \
         formeditorw.cpp \

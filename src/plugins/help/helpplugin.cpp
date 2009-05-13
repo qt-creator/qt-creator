@@ -66,6 +66,7 @@
 #include <QtGui/QStyle>
 #include <QtGui/QToolBar>
 #include <QtGui/QComboBox>
+#include <QtGui/QDesktopServices>
 #include <QtHelp/QHelpEngine>
 
 #ifndef QT_NO_WEBKIT
@@ -230,7 +231,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
 #endif
 
-    m_centralWidget = new CentralWidget(m_helpEngine);
+    m_centralWidget = new Help::Internal::CentralWidget(m_helpEngine);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_centralWidget);
     agg->add(new HelpFindSupport(m_centralWidget));
@@ -354,6 +355,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     nextAction->setEnabled(m_centralWidget->isForwardAvailable());
 
     createRightPaneSideBar();
+
+    QDesktopServices::setUrlHandler("qthelp", this, "openHelpPage");
 
     return true;
 }
@@ -522,7 +525,7 @@ void HelpPlugin::extensionsInitialized()
     m_bookmarkManager->setupBookmarkModels();
 
     if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>(m_core->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
-        connect(welcomeMode, SIGNAL(requestHelp()), this, SLOT(openGettingStarted()));
+        connect(welcomeMode, SIGNAL(openHelpPage(const QString&)), this, SLOT(openHelpPage(const QString&)));
     }
 }
 
@@ -720,13 +723,21 @@ void HelpPlugin::addNewBookmark(const QString &title, const QString &url)
     m_bookmarkManager->showBookmarkDialog(m_centralWidget, title, url);
 }
 
-void HelpPlugin::openGettingStarted()
+void HelpPlugin::openHelpPage(const QUrl& url)
 {
-    activateHelpMode();
-    m_centralWidget->setSource(
-        QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html")
-        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
+    openHelpPage(url.toString());
 }
 
+void HelpPlugin::openHelpPage(const QString& url)
+{
+    activateHelpMode();
+    if (m_helpEngine->findFile(url).isValid())
+        m_centralWidget->setSource(url);
+    else {
+        QString page = url.mid(url.lastIndexOf('/')+1);
+        qDebug() << url << page << url.lastIndexOf('/');
+        QDesktopServices::openUrl(QLatin1String("http://doc.qtsoftware.com/latest/")+page);
+    }
+}
 
 Q_EXPORT_PLUGIN(HelpPlugin)

@@ -347,8 +347,10 @@ IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *parent,
                                         QString *errorMessage)
 {
     CdbDebugEngine *rc = new CdbDebugEngine(parent, options);
-    if (rc->m_d->init(errorMessage))
+    if (rc->m_d->init(errorMessage)) {
+        rc->syncDebuggerPaths();
         return rc;
+    }
     delete rc;
     return 0;
 }
@@ -452,6 +454,7 @@ void CdbDebugEnginePrivate::clearDisplay()
 bool CdbDebugEngine::startDebugger()
 {
     m_d->clearDisplay();
+
     const DebuggerStartMode mode = m_d->m_debuggerManager->startMode();
     // Figure out dumper. @TODO: same in gdb...
     const QString dumperLibName = QDir::toNativeSeparators(m_d->m_debuggerManagerAccess->qtDumperLibraryName());
@@ -493,11 +496,11 @@ bool CdbDebugEngine::startDebugger()
         }
         break;
     case AttachCore:
-        errorMessage = tr("CdbDebugEngine: Attach to core not supported!");
+        errorMessage = tr("Attaching to core files is not supported!");
         break;
     }
     if (rc) {
-        m_d->m_debuggerManager->showStatusMessage(tr("Debugger Running"), -1);
+        m_d->m_debuggerManager->showStatusMessage(tr("Debugger running"), -1);
         if (needWatchTimer)
             startWatchTimer();
     } else {
@@ -515,7 +518,7 @@ bool CdbDebugEngine::startAttachDebugger(qint64 pid, QString *errorMessage)
     if (debugCDB)
         qDebug() << "Attaching to " << pid << " returns " << hr << executionStatusString(m_d->m_cif.debugControl);
     if (FAILED(hr)) {
-        *errorMessage = tr("AttachProcess failed for pid %1: %2").arg(pid).arg(msgDebugEngineComResult(hr));
+        *errorMessage = tr("Attaching to a process failed for process id %1: %2").arg(pid).arg(msgDebugEngineComResult(hr));
         return false;
     } else {
         m_d->m_mode = AttachExternal;
@@ -558,7 +561,7 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
                                                                m_d->m_debuggerManager->m_workingDir.utf16(),
                                                                env);
     if (FAILED(hr)) {
-        *errorMessage = tr("CreateProcess2Wide failed for '%1': %2").arg(cmd, msgDebugEngineComResult(hr));
+        *errorMessage = tr("Unable to create a process '%1': %2").arg(cmd, msgDebugEngineComResult(hr));
         m_d->m_debuggerManagerAccess->notifyInferiorExited();
         return false;
     } else {
@@ -612,59 +615,73 @@ void CdbDebugEngine::processTerminated(unsigned long exitCode)
     m_d->m_debuggerManager->exitDebugger();
 }
 
+// End debugging using
+void CdbDebugEnginePrivate::endDebugging(EndDebuggingMode em)
+{
+    enum Action { Detach, Terminate };
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << em;
+
+    if (m_mode == AttachCore || !m_hDebuggeeProcess)
+        return;
+    // Figure out action
+    Action action;
+    switch (em) {
+    case EndDebuggingAuto:
+        action = m_mode == AttachExternal ? Detach : Terminate;
+        break;
+    case EndDebuggingDetach:
+        action = Detach;
+        break;
+    case EndDebuggingTerminate:
+        action = Terminate;
+        break;
+    }
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << action;
+    // Need a stopped debuggee to act
+    QString errorMessage;
+    const bool wasRunning = isDebuggeeRunning();
+    if (wasRunning) { // Process must be stopped in order to terminate
+        interruptInterferiorProcess(&errorMessage);
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    }    
+    HRESULT hr;
+    switch (action) {
+    case Detach:
+        hr = m_cif.debugClient->DetachCurrentProcess();
+        if (FAILED(hr))
+            errorMessage += msgComFailed("DetachCurrentProcess", hr);
+        break;
+    case Terminate:
+        hr = m_cif.debugClient->TerminateCurrentProcess();
+        if (FAILED(hr))
+            errorMessage += msgComFailed("TerminateCurrentProcess", hr);
+        if (!wasRunning) {
+            hr = m_cif.debugClient->TerminateProcesses();
+            if (FAILED(hr))
+                errorMessage += msgComFailed("TerminateProcesses", hr);
+        }
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        break;
+    }
+    setDebuggeeHandles(0, 0);
+    m_engine->killWatchTimer();
+    if (!errorMessage.isEmpty()) {
+        errorMessage = QString::fromLatin1("There were errors trying to end debugging: %1").arg(errorMessage);
+        m_debuggerManagerAccess->showDebuggerOutput(QLatin1String("error"), errorMessage);
+        qWarning("%s\n", qPrintable(errorMessage));
+    }
+}
+
 void CdbDebugEngine::exitDebugger()
 {
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO;
+    m_d->endDebugging();
+}
 
-    if (m_d->m_hDebuggeeProcess) {
-        QString errorMessage;
-        m_d->clearForRun();
-        bool wasRunning = false;
-        // Terminate or detach if we are running
-        HRESULT hr;
-        switch (m_d->m_mode) {
-        case AttachExternal:
-            wasRunning = m_d->isDebuggeeRunning();
-            if (wasRunning) { // Process must be stopped in order to detach
-                m_d->interruptInterferiorProcess(&errorMessage);
-                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-            }
-            hr = m_d->m_cif.debugClient->DetachCurrentProcess();
-            if (FAILED(hr))
-                errorMessage += msgComFailed("DetachCurrentProcess", hr);
-            if (debugCDB)
-                qDebug() << Q_FUNC_INFO << "detached" << msgDebugEngineComResult(hr);
-            break;
-        case StartExternal:
-        case StartInternal:
-            wasRunning = m_d->isDebuggeeRunning();
-            if (wasRunning) { // Process must be stopped in order to terminate
-                m_d->interruptInterferiorProcess(&errorMessage);
-                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-            }
-            // Terminate and wait for stop events.
-            hr = m_d->m_cif.debugClient->TerminateCurrentProcess();
-            if (FAILED(hr))
-                errorMessage += msgComFailed("TerminateCurrentProcess", hr);
-            if (!wasRunning) {
-                hr = m_d->m_cif.debugClient->TerminateProcesses();
-                if (FAILED(hr))
-                    errorMessage += msgComFailed("TerminateProcesses", hr);
-            }
-            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-            if (debugCDB)
-                qDebug() << Q_FUNC_INFO << "terminated" << msgDebugEngineComResult(hr);
-
-            break;
-        case AttachCore:
-            break;
-        }
-        m_d->setDebuggeeHandles(0, 0);
-        if (!errorMessage.isEmpty())
-            qWarning("exitDebugger: %s\n", qPrintable(errorMessage));
-    }
-    killWatchTimer();
+void CdbDebugEngine::detachDebugger()
+{
+    m_d->endDebugging(CdbDebugEnginePrivate::EndDebuggingDetach);
 }
 
 CdbStackFrameContext *CdbDebugEnginePrivate::getStackFrameContext(int frameIndex, QString *errorMessage) const
@@ -1489,6 +1506,59 @@ void CdbDebugEngine::reloadSourceFiles()
 {
 }
 
+QStringList CdbDebugEnginePrivate::sourcePaths() const
+{
+    WCHAR wszBuf[MAX_PATH];
+    if (SUCCEEDED(m_cif.debugSymbols->GetSourcePathWide(wszBuf, MAX_PATH, 0)))
+        return QString::fromUtf16(wszBuf).split(QLatin1Char(';'));
+    return QStringList();
+}
+
+void CdbDebugEngine::syncDebuggerPaths()
+{
+     if (debugCDB)
+        qDebug() << Q_FUNC_INFO << m_d->m_options->symbolPaths << m_d->m_options->sourcePaths;
+    QString errorMessage;
+    if (!m_d->setSourcePaths(m_d->m_options->sourcePaths, &errorMessage)
+        || !m_d->setSymbolPaths(m_d->m_options->symbolPaths, &errorMessage)) {
+        errorMessage = QString::fromLatin1("Unable to set the debugger paths: %1").arg(errorMessage);
+        qWarning("%s\n", qPrintable(errorMessage));
+    }
+}
+
+static inline QString pathString(const QStringList &s)
+{  return s.join(QString(QLatin1Char(';')));  }
+
+bool CdbDebugEnginePrivate::setSourcePaths(const QStringList &s, QString *errorMessage)
+{
+    const HRESULT hr = m_cif.debugSymbols->SetSourcePathWide(pathString(s).utf16());
+    if (FAILED(hr)) {
+        if (errorMessage)
+            *errorMessage = msgComFailed("SetSourcePathWide", hr);
+        return false;
+    }
+    return true;
+}
+
+QStringList CdbDebugEnginePrivate::symbolPaths() const
+{
+    WCHAR wszBuf[MAX_PATH];
+    if (SUCCEEDED(m_cif.debugSymbols->GetSymbolPathWide(wszBuf, MAX_PATH, 0)))
+        return QString::fromUtf16(wszBuf).split(QLatin1Char(';'));
+    return QStringList();
+}
+
+bool CdbDebugEnginePrivate::setSymbolPaths(const QStringList &s, QString *errorMessage)
+{
+    const HRESULT hr = m_cif.debugSymbols->SetSymbolPathWide(pathString(s).utf16());
+    if (FAILED(hr)) {
+        if (errorMessage)
+            *errorMessage = msgComFailed("SetSymbolPathWide", hr);
+        return false;
+    }
+    return true;
+}
+
 } // namespace Internal
 } // namespace Debugger
 
@@ -1512,5 +1582,6 @@ Debugger::Internal::IDebuggerEngine *createWinEngine(Debugger::Internal::Debugge
         optionsPage->setFailureMessage(errorMessage);
         qWarning("%s", qPrintable(errorMessage));
     }
+    QObject::connect(optionsPage, SIGNAL(debuggerPathsChanged()), engine, SLOT(syncDebuggerPaths()));
     return engine;
 }

@@ -6,12 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>369</width>
-    <height>281</height>
+    <width>522</width>
+    <height>512</height>
    </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -48,13 +45,45 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>0</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="pathGroupBox">
+     <property name="title">
+      <string>Debugger Paths</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="symbolPathLabel">
+        <property name="text">
+         <string>Symbol paths:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="Debugger::Internal::CdbSymbolPathListEditor" name="symbolPathListEditor" native="true"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="sourcePathLabel">
+        <property name="text">
+         <string>Source paths:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="Core::Utils::PathListEditor" name="sourcePathListEditor" native="true"/>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -64,7 +93,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>223</height>
+       <height>203</height>
       </size>
      </property>
     </spacer>
@@ -73,9 +102,6 @@
     <widget class="QLabel" name="failureLabel">
      <property name="styleSheet">
       <string notr="true">background-color: 'red';</string>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -89,6 +115,18 @@
    <class>Core::Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Core::Utils::PathListEditor</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathlisteditor.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Debugger::Internal::CdbSymbolPathListEditor</class>
+   <extends>QWidget</extends>
+   <header>cdbsymbolpathlisteditor.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -4080,9 +4080,9 @@ Using gdb 6.7 or later is strongly recommended.</source>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::WorkbenchIntegration</name>
+    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
-        <location filename="../../../src/plugins/designer/workbenchintegration.cpp" line="+72"/>
+        <location filename="../../../src/plugins/designer/qtcreatorintegration.cpp" line="+72"/>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6844,25 +6844,6 @@ in your .pro file.</source>
     <message>
         <location/>
         <source>User:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::WorkbenchClientUser</name>
-    <message>
-        <location filename="../../../src/plugins/perforce/workbenchclientuser.cpp" line="+143"/>
-        <location line="+138"/>
-        <source>Perforce Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-99"/>
-        <source>Closing p4 Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Do you want to submit this change list?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -438,7 +438,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         this, SLOT(updateRecentProjectMenu()));
 
     // unload action
-    m_unloadAction = new QAction(tr("Unload Project"), this);
+    m_unloadAction = new QAction(tr("Close Project"), this);
     cmd = am->registerAction(m_unloadAction, Constants::UNLOAD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_unloadAction->text());
@@ -446,7 +446,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mproject->addAction(cmd, Constants::G_PROJECT_FILES);
 
     // unload session action
-    m_clearSession = new QAction(tr("Unload All Projects"), this);
+    m_clearSession = new QAction(tr("Close All Projects"), this);
     cmd = am->registerAction(m_clearSession, Constants::CLEARSESSION, globalcontext);
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
@@ -797,7 +797,7 @@ void ProjectExplorerPlugin::newProject()
     }
 
     Core::ICore::instance()->showNewItemDialog(tr("New Project", "Title of dialog"),
-                              Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::ProjectWizard),
+                              Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard),
                               defaultLocation);
     updateActions();
 }
@@ -1028,7 +1028,7 @@ void ProjectExplorerPlugin::restoreSession()
                 sessionToLoad = arg;
                 arguments.removeOne(arg);
                 if (debug)
-                    qDebug()<< "Found session argument, loading session"<<sessionToLoad;
+                    qDebug() << "Found session argument, restoring session" << sessionToLoad;
                 break;
             }
         }
@@ -1246,10 +1246,10 @@ void ProjectExplorerPlugin::updateActions()
 
     m_unloadAction->setEnabled(m_currentProject != 0);
     if (m_currentProject == 0) {
-        m_unloadAction->setText(tr("Unload Project"));
+        m_unloadAction->setText(tr("Close Project"));
         m_buildAction->setText(tr("Build Project"));
     } else {
-        m_unloadAction->setText(tr("Unload Project \"%1\"").arg(m_currentProject->name()));
+        m_unloadAction->setText(tr("Close Project \"%1\"").arg(m_currentProject->name()));
         m_buildAction->setText(tr("Build Project \"%1\"").arg(m_currentProject->name()));
     }
 
@@ -1290,35 +1290,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
     if (debug)
         qDebug() << "ProjectExplorerPlugin::saveModifiedFiles";
 
-    QList<Core::IFile *> modifiedFi = Core::ICore::instance()->fileManager()->modifiedFiles();
-    QMap<QString, Core::IFile *> modified;
-
-    QStringList allFiles;
-    foreach (Project *pro, projects)
-        allFiles << allFilesWithDependencies(pro);
-
-    foreach (Core::IFile * fi, modifiedFi)
-        modified.insert(fi->fileName(), fi);
-
-    QList<Core::IFile *> filesToSave;
-
-    QMap<QString, Core::IFile *>::const_iterator mit = modified.constBegin();
-    QStringList::const_iterator ait = allFiles.constBegin();
-    QMap<QString, Core::IFile *>::const_iterator mend = modified.constEnd();
-    QStringList::const_iterator aend = allFiles.constEnd();
-
-    while (mit != mend && ait != aend) {
-        if (mit.key() < *ait)
-            ++mit;
-        else if (*ait < mit.key())
-            ++ait;
-        else {
-            filesToSave.append(mit.value());
-            ++ait;
-            ++mit;
-        }
-    }
-
+    QList<Core::IFile *> filesToSave = Core::ICore::instance()->fileManager()->modifiedFiles();
     if (!filesToSave.isEmpty()) {
         if (m_projectExplorerSettings.saveBeforeBuild) {
             Core::ICore::instance()->fileManager()->saveModifiedFilesSilently(filesToSave);
@@ -1449,12 +1421,16 @@ void ProjectExplorerPlugin::debugProject()
     if (!pro || m_debuggingRunControl )
         return;
 
-    if (saveModifiedFiles(QList<Project *>() << pro)) {
-        m_runMode = ProjectExplorer::Constants::DEBUGMODE;
-        m_delayedRunConfiguration = pro->activeRunConfiguration();
-        //NBS TODO make the build project step take into account project dependencies
-        m_buildManager->buildProject(pro, pro->activeBuildConfiguration());
-        updateRunAction();
+    if (m_projectExplorerSettings.buildBeforeRun) {
+        if (saveModifiedFiles(QList<Project *>() << pro)) {
+            m_runMode = ProjectExplorer::Constants::DEBUGMODE;
+            m_delayedRunConfiguration = pro->activeRunConfiguration();
+            //NBS TODO make the build project step take into account project dependencies
+            m_buildManager->buildProject(pro, pro->activeBuildConfiguration());
+            updateRunAction();
+        }
+    } else {
+        executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
     }
 }
 
@@ -1638,8 +1614,8 @@ void ProjectExplorerPlugin::addNewFile()
         return;
     const QString location = QFileInfo(m_currentNode->path()).dir().absolutePath();
     Core::ICore::instance()->showNewItemDialog(tr("New File", "Title of dialog"),
-                              Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::FileWizard)
-                              + Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::ClassWizard),
+                              Core::IWizard::wizardsOfKind(Core::IWizard::FileWizard)
+                              + Core::IWizard::wizardsOfKind(Core::IWizard::ClassWizard),
                               location);
 }
 

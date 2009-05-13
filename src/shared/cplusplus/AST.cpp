@@ -148,6 +148,7 @@ AttributeAST *AttributeAST::clone(MemoryPool *pool) const
     ast->rparen_token = rparen_token;
     if (next)
         ast->next = next->clone(pool);
+    ast->comma_token = comma_token;
     return ast;
 }
 
@@ -331,6 +332,7 @@ unsigned AsmDefinitionAST::lastToken() const
 BaseSpecifierAST *BaseSpecifierAST::clone(MemoryPool *pool) const
 {
     BaseSpecifierAST *ast = new (pool) BaseSpecifierAST;
+    ast->comma_token = comma_token;
     ast->token_virtual = token_virtual;
     ast->token_access_specifier = token_access_specifier;
     if (name)
@@ -1149,6 +1151,7 @@ unsigned DeclaratorIdAST::lastToken() const
 DeclaratorListAST *DeclaratorListAST::clone(MemoryPool *pool) const
 {
     DeclaratorListAST *ast = new (pool) DeclaratorListAST;
+    ast->comma_token = comma_token;
     if (declarator)
         ast->declarator = declarator->clone(pool);
     if (next)
@@ -1395,6 +1398,7 @@ unsigned EnumSpecifierAST::lastToken() const
 EnumeratorAST *EnumeratorAST::clone(MemoryPool *pool) const
 {
     EnumeratorAST *ast = new (pool) EnumeratorAST;
+    ast->comma_token = comma_token;
     ast->identifier_token = identifier_token;
     ast->equal_token = equal_token;
     if (expression)
@@ -1517,6 +1521,7 @@ unsigned ExceptionSpecificationAST::lastToken() const
 ExpressionListAST *ExpressionListAST::clone(MemoryPool *pool) const
 {
     ExpressionListAST *ast = new (pool) ExpressionListAST;
+    ast->comma_token = comma_token;
     if (expression)
         ast->expression = expression->clone(pool);
     if (next)
@@ -1954,6 +1959,7 @@ unsigned LinkageSpecificationAST::lastToken() const
 MemInitializerAST *MemInitializerAST::clone(MemoryPool *pool) const
 {
     MemInitializerAST *ast = new (pool) MemInitializerAST;
+    ast->comma_token = comma_token;
     if (name)
         ast->name = name->clone(pool);
     ast->lparen_token = lparen_token;
@@ -2938,8 +2944,10 @@ TypeofSpecifierAST *TypeofSpecifierAST::clone(MemoryPool *pool) const
 {
     TypeofSpecifierAST *ast = new (pool) TypeofSpecifierAST;
     ast->typeof_token = typeof_token;
+    ast->lparen_token = lparen_token;
     if (expression)
         ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
     if (next)
         ast->next = next->clone(pool);
     return ast;
@@ -3066,6 +3074,7 @@ unsigned SwitchStatementAST::lastToken() const
 TemplateArgumentListAST *TemplateArgumentListAST::clone(MemoryPool *pool) const
 {
     TemplateArgumentListAST *ast = new (pool) TemplateArgumentListAST;
+    ast->comma_token = comma_token;
     if (template_argument)
         ast->template_argument = template_argument->clone(pool);
     if (next)

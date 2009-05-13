@@ -114,8 +114,9 @@ QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qtInstallD
 QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env)
 {
     QString directory = copyDebuggingHelperLibrary(qtInstallDataDir(qmakePath), qtDir(qmakePath));
+    if (directory.isEmpty())
+        return QString::null;
     return buildDebuggingHelperLibrary(directory, make, qmakePath, QString::null, env);
-    return QString::null;
 }
 
 QString DebuggingHelperLibrary::copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir)

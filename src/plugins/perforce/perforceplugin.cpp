@@ -30,7 +30,6 @@
 #include "perforceplugin.h"
 
 #include "changenumberdialog.h"
-#include "p4.h"
 #include "pendingchangesdialog.h"
 #include "perforceconstants.h"
 #include "perforceeditor.h"
@@ -188,9 +187,6 @@ PerforcePlugin::PerforcePlugin() :
     m_undoAction(0),
     m_redoAction(0),
     m_changeTmpFile(0),
-#ifdef USE_P4_API
-    m_workbenchClientUser(0),
-#endif
     m_coreListener(0),
     m_submitEditorFactory(0),
     m_versionControl(0)
@@ -333,13 +329,6 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+O")));
     connect(m_openedAction, SIGNAL(triggered()), this, SLOT(printOpenedFileList()));
     mperforce->addAction(command);
-
-#ifdef USE_P4_API
-    m_resolveAction = new QAction(tr("Resolve"), this);
-    command = am->registerAction(m_resolveAction, PerforcePlugin::RESOLVE, globalcontext);
-    connect(m_resolveAction, SIGNAL(triggered()), this, SLOT(resolve()));
-    mperforce->addAction(command);
-#endif
 
     m_submitAction = new QAction(tr("Submit Project"), this);
     command = am->registerAction(m_submitAction, PerforcePlugin::SUBMIT, globalcontext);
@@ -492,14 +481,6 @@ void PerforcePlugin::printOpenedFileList()
         e->widget()->setFocus();
     PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("opened"), QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
 }
-
-#ifdef USE_P4_API
-void PerforcePlugin::resolve()
-{
-    m_workbenchClientUser->setMode(WorkbenchClientUser::Resolve);
-    runP4APICmd(QLatin1String("resolve"));
-}
-#endif
 
 void PerforcePlugin::submit()
 {
@@ -680,7 +661,7 @@ void PerforcePlugin::updateActions()
         m_submitAction->setEnabled(true);
     } else {
         m_diffProjectAction->setEnabled(false);
-        m_diffProjectAction->setText(tr("Diff Current Project/Soluion"));
+        m_diffProjectAction->setText(tr("Diff Current Project/Solution"));
         m_submitAction->setEnabled(false);
     }
     m_diffAllAction->setEnabled(true);
@@ -689,11 +670,6 @@ void PerforcePlugin::updateActions()
     m_annotateAction->setEnabled(true);
     m_filelogAction->setEnabled(true);
     m_pendingAction->setEnabled(true);
-
-
-#ifdef USE_P4_API
-    m_resolveAction->setEnabled(m_enableP4APIActions);
-#endif
 }
 
 bool PerforcePlugin::managesDirectory(const QString &directory) const

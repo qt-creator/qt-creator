@@ -46,7 +46,7 @@ class FancyLineEditPrivate;
  * text if isShowingHintText() returns true (that is, does not contain
  * valid user input).
  */
-class QWORKBENCH_UTILS_EXPORT FancyLineEdit : public QLineEdit
+class QTCREATOR_UTILS_EXPORT FancyLineEdit : public QLineEdit
 {
     Q_DISABLE_COPY(FancyLineEdit)
     Q_OBJECT

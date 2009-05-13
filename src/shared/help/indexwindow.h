@@ -39,6 +39,8 @@ QT_BEGIN_NAMESPACE
 class QHelpIndexWidget;
 class QHelpEngine;
 
+QT_END_NAMESPACE
+
 class IndexWindow : public QWidget
 {
     Q_OBJECT
@@ -72,7 +74,5 @@ private:
     QHelpIndexWidget *m_indexWidget;
     QHelpEngine *m_helpEngine;
 };
-
-QT_END_NAMESPACE
 
 #endif // INDEXWINDOW_H

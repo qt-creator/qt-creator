@@ -127,7 +127,7 @@ public:
     bool parseInclusiveOrExpression(ExpressionAST *&node);
     bool parseInitDeclarator(DeclaratorAST *&node, bool acceptStructDeclarator);
     bool parseInitializerList(ExpressionListAST *&node);
-    bool parseInitializer(ExpressionAST *&node);
+    bool parseInitializer(ExpressionAST *&node, unsigned *equals_token);
     bool parseInitializerClause(ExpressionAST *&node);
     bool parseLabeledStatement(StatementAST *&node);
     bool parseLinkageBody(DeclarationAST *&node);

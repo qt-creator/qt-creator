@@ -38,6 +38,7 @@ namespace Internal {
 
 class ProjectExplorerSettingsPage : public Core::IOptionsPage
 {
+    Q_OBJECT
 public:
     ProjectExplorerSettingsPage();
     ~ProjectExplorerSettingsPage();

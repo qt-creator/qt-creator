@@ -77,6 +77,8 @@ void QtProjectParameters::writeProFile(QTextStream &str) const
     case Qt4Plugin:
         str << "TEMPLATE = lib\nCONFIG += plugin\n";
         break;
+    default:
+        break;
     }
 
     if (!targetDirectory.isEmpty())

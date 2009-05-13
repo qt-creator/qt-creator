@@ -3,7 +3,7 @@ TARGET = ResourceEditor
 
 qtAddLibrary(QtDesigner)
 
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../shared/qrceditor/qrceditor.pri)

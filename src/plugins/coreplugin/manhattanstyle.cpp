@@ -134,6 +134,11 @@ ManhattanStyle::~ManhattanStyle()
     d = 0;
 }
 
+QStyle *ManhattanStyle::systemStyle() const
+{
+    return d->style;
+}
+
 // Draws a CSS-like border image where the defined borders are not stretched
 void drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
                      int left = 0, int top = 0, int right = 0,

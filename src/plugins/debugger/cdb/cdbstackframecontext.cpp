@@ -135,9 +135,11 @@ bool CdbStackFrameContext::populateModelInitially(WatchHandler *wh, QString *err
         qDebug() << "populateModelInitially";
     const bool rc = m_useDumpers ?
         CdbSymbolGroupContext::populateModelInitially(m_symbolContext,
-                                                      WatchHandlerSorterInserter(wh, m_dumper),
+                                                      wh->expandedINames(),
+                                                      WatchHandlerSorterInserter(wh, m_dumper),                                                      
                                                       errorMessage) :
         CdbSymbolGroupContext::populateModelInitially(m_symbolContext,
+                                                      wh->expandedINames(),
                                                       WatchHandlerModelInserter(wh),
                                                       errorMessage);
     return rc;

@@ -2025,7 +2025,8 @@ static void qDumpQString(QDumper &d)
 
     if (!str.isEmpty()) {
         qCheckAccess(str.unicode());
-        qCheckAccess(str.unicode() + str.size());
+        if (!str.unicode()[str.size()].isNull()) // must be '\0' terminated
+            qCheckAccess(0);
     }
 
     P(d, "value", str);

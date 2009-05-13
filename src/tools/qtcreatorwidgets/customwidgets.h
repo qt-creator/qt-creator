@@ -42,6 +42,7 @@
 #include <utils/qtcolorbutton.h>
 #include <utils/submiteditorwidget.h>
 #include <utils/submitfieldwidget.h>
+#include <utils/pathlisteditor.h>
 
 #include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
 
@@ -150,6 +151,16 @@ class SubmitFieldWidget_CW :
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
     explicit SubmitFieldWidget_CW(QObject *parent = 0);
+};
+
+class PathListEditor_CW :
+    public QObject,
+    public CustomWidget<Core::Utils::PathListEditor>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit PathListEditor_CW(QObject *parent = 0);
 };
 
 // Collection

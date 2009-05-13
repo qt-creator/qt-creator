@@ -320,10 +320,49 @@ void EditorModel::itemChanged()
     emitDataChanged(qobject_cast<IEditor*>(sender()));
 }
 
+
+class EditorProxyModel : public QSortFilterProxyModel
+{
+    EditorView *m_view;
+    EditorModel *m_model;
+public:
+    EditorProxyModel(EditorModel *source, EditorView *view)
+        : QSortFilterProxyModel(view), m_view(view), m_model(source) {
+        setSourceModel(source);
+
+    }
+
+    QVariant data(const QModelIndex &proxyIndex, int role = Qt::DisplayRole) const
+    {
+        QVariant variant = QSortFilterProxyModel::data(proxyIndex, role);
+        if (role == Qt::FontRole) {
+            if (IEditor *editor = m_model->editorAt(proxyIndex.row()) ) {
+                if (m_view->hasEditor(editor)) {
+                    QFont font = m_view->font();
+                    font.setBold(true);
+                    return font;
+                }
+                foreach (IEditor *duplicate, m_model->duplicatesFor(editor)) {
+                    if (duplicate&& m_view->hasEditor(duplicate)) {
+                        QFont font = m_view->font();
+                        font.setBold(true);
+                        return font;
+                    }
+                }
+            }
+        }
+        return QSortFilterProxyModel::data(proxyIndex, role);
+    }
+
+};
+
+
+
 //================EditorView====================
 
 EditorView::EditorView(EditorModel *model, QWidget *parent) :
     QWidget(parent),
+    m_model(model),
     m_toolBar(new QWidget),
     m_container(new QStackedWidget(this)),
     m_editorList(new QComboBox),
@@ -339,9 +378,15 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
     tl->setSpacing(0);
     tl->setMargin(0);
     {
+        QAbstractItemModel *itemModel = m_model;
+        if (!itemModel) {
+            m_model = CoreImpl::instance()->editorManager()->openedEditorsModel();
+            itemModel = new EditorProxyModel(m_model, this);
+        }
+
         m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         m_editorList->setMinimumContentsLength(20);
-        m_editorList->setModel(model);
+        m_editorList->setModel(itemModel);
         m_editorList->setMaxVisibleItems(40);
 
         QToolBar *editorListToolBar = new QToolBar;
@@ -583,7 +628,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
     const int idx = m_container->indexOf(editor->widget());
     QTC_ASSERT(idx >= 0, return);
     m_container->setCurrentIndex(idx);
-    m_editorList->setCurrentIndex(qobject_cast<EditorModel*>(m_editorList->model())->indexOf(editor->file()->fileName()).row());
+    m_editorList->setCurrentIndex(m_model->indexOf(editor->file()->fileName()).row());
     updateEditorStatus(editor);
     updateToolBar(editor);
 
@@ -667,9 +712,10 @@ void EditorView::listSelectionActivated(int index)
 
 SplitterOrView::SplitterOrView(Internal::EditorModel *model)
 {
-    m_isRoot = false;
+    Q_ASSERT(model);
+    m_isRoot = true;
     m_layout = new QStackedLayout(this);
-    m_view = new EditorView(model ? model : CoreImpl::instance()->editorManager()->openedEditorsModel());
+    m_view = new EditorView(model);
     m_splitter = 0;
     m_layout->addWidget(m_view);
     setFocusPolicy(Qt::ClickFocus);
@@ -679,8 +725,9 @@ SplitterOrView::SplitterOrView(Core::IEditor *editor)
 {
     m_isRoot = false;
     m_layout = new QStackedLayout(this);
-    m_view = new EditorView(CoreImpl::instance()->editorManager()->openedEditorsModel());
-    m_view->addEditor(editor);
+    m_view = new EditorView();
+    if (editor)
+        m_view->addEditor(editor);
     m_splitter = 0;
     m_layout->addWidget(m_view);
     setFocusPolicy(Qt::ClickFocus);

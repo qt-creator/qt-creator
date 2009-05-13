@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = CMakeProjectManager
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(cmakeprojectmanager_dependencies.pri)
 HEADERS = cmakeproject.h \
     cmakeprojectplugin.h \

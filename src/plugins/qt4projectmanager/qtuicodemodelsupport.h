@@ -27,40 +27,49 @@
 **
 **************************************************************************/
 
-#ifndef WORKBENCHINTEGRATION_H
-#define WORKBENCHINTEGRATION_H
+#ifndef QTUICODEMODELSUPPORT_H
+#define QTUICODEMODELSUPPORT_H
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
-#include <qt_private/qdesigner_integration_p.h>
+#include <QtCore/QDateTime>
 
 namespace Designer {
 namespace Internal {
+class FormWindowEditor;
+}
+}
 
-class FormEditorW;
+namespace Qt4ProjectManager {
+class Qt4Project;
+namespace Internal {
 
-class WorkbenchIntegration : public qdesigner_internal::QDesignerIntegration {
-    Q_OBJECT
+class Qt4UiCodeModelSupport : public CppTools::AbstractEditorSupport
+{
 public:
-    WorkbenchIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent = 0);
-
-    QWidget *containerWindow(QWidget *widget) const;
-
-    bool supportsToSlotNavigation() { return true; };
-
-public slots:
-    void updateSelection();
-private slots:
-    void slotNavigateToSlot(const QString &objectName, const QString &signalSignature, const QStringList &parameterNames);
+    Qt4UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+                          Qt4Project *project,
+                          const QString &sourceFile,
+                          const QString &uiHeaderFile);
+    ~Qt4UiCodeModelSupport();
+    void setFileName(const QString &name);
+    void setSourceName(const QString &name);
+    virtual QByteArray contents() const;
+    virtual QString fileName() const;
+    void updateFromEditor(Designer::Internal::FormWindowEditor *);
+    void updateFromBuild();
 private:
-    bool navigateToSlot(const QString &objectName,
-                        const QString &signalSignature,
-                        const QStringList &parameterNames,
-                        QString *errorMessage);
-    FormEditorW *m_few;
+    void init();
+    bool runUic(const QString &ui) const;
+    Qt4Project *m_project;
+    QString m_sourceName;
+    QString m_fileName;
+    mutable bool m_updateIncludingFiles;
+    mutable QByteArray m_contents;
+    mutable QDateTime m_cacheTime;
 };
 
-} // namespace Internal
-} // namespace Designer
 
-#endif // WORKBENCHINTEGRATION_H
+} // Internal
+} // Qt4ProjectManager
+#endif // QTUICODEMODELSUPPORT_H

@@ -2,15 +2,16 @@ TEMPLATE = lib
 TARGET = Utils
 QT += gui network
 
-DEFINES += QWORKBENCH_UTILS_LIBRARY
+DEFINES += QTCREATOR_UTILS_LIBRARY
 
-include(../../qworkbenchlibrary.pri)
+include(../../qtcreatorlibrary.pri)
 
 SOURCES += \
     reloadpromptutils.cpp \
     settingsutils.cpp \
     filesearch.cpp \
     pathchooser.cpp \
+    pathlisteditor.cpp \
     filewizardpage.cpp \
     filewizarddialog.cpp \
     projectintropage.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     filesearch.h \
     listutils.h \
     pathchooser.h \
+    pathlisteditor.h \
     filewizardpage.h \
     filewizarddialog.h \
     projectintropage.h \

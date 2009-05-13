@@ -142,6 +142,7 @@ public:
 static IDebuggerEngine *gdbEngine = 0;
 static IDebuggerEngine *winEngine = 0;
 static IDebuggerEngine *scriptEngine = 0;
+static IDebuggerEngine *tcfEngine = 0;
 
 // The creation functions take a list of options pages they can add to.
 // This allows for having a "enabled" toggle on the page indepently
@@ -154,6 +155,7 @@ IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineDisabled */, 
 { return 0; }
 #endif
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 
 DebuggerManager::DebuggerManager()
 {
@@ -162,9 +164,12 @@ DebuggerManager::DebuggerManager()
 
 DebuggerManager::~DebuggerManager()
 {
-    delete gdbEngine;
-    delete winEngine;
-    delete scriptEngine;
+    #define doDelete(ptr) delete ptr; ptr = 0
+    doDelete(gdbEngine);
+    doDelete(winEngine);
+    doDelete(scriptEngine);
+    doDelete(tcfEngine);
+    #undef doDelete
 }
 
 void DebuggerManager::init()
@@ -180,6 +185,11 @@ void DebuggerManager::init()
     m_registerHandler = 0;
 
     m_statusLabel = new QLabel;
+    // FIXME: Do something to show overly long messages at least partially
+    //QSizePolicy policy = m_statusLabel->sizePolicy();
+    //policy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
+    //m_statusLabel->setSizePolicy(policy);
+    //m_statusLabel->setWordWrap(true);
     m_breakWindow = new BreakWindow;
     m_disassemblerWindow = new DisassemblerWindow;
     m_modulesWindow = new ModulesWindow(this);
@@ -430,27 +440,11 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(const QStringList 
     const bool cdbDisabled = arguments.contains(_("-disable-cdb"));
     winEngine = createWinEngine(this, cdbDisabled, &rc);
     scriptEngine = createScriptEngine(this, &rc);
-    setDebuggerType(NoDebugger);
+    tcfEngine = createTcfEngine(this, &rc);
+    m_engine = 0;
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine << rc.size();
     return rc;
-}
-
-void DebuggerManager::setDebuggerType(DebuggerType type)
-{
-    switch (type) {
-        case GdbDebugger:
-            m_engine = gdbEngine;
-            break;
-        case ScriptDebugger:
-            m_engine = scriptEngine;
-            break;
-        case WinDebugger:
-            m_engine = winEngine;
-            break;
-        case NoDebugger:
-            m_engine = 0;
-    }
 }
 
 IDebuggerEngine *DebuggerManager::engine()
@@ -515,8 +509,8 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     m_mainWindow->tabifyDockWidget(m_watchDock, m_threadsDock);
     m_mainWindow->tabifyDockWidget(m_watchDock, m_sourceFilesDock);
 
-    // They are rarely used even in ordinary debugging. Hiding them also saves
-    // cycles since the corresponding information won't be retrieved.
+    // They following views are rarely used in ordinary debugging. Hiding them
+    // saves cycles since the corresponding information won't be retrieved.
     m_sourceFilesDock->hide();
     m_registerDock->hide();
     m_disassemblerDock->hide();
@@ -629,54 +623,34 @@ void DebuggerManager::shutdown()
         m_engine->shutdown();
     m_engine = 0;
 
-    delete scriptEngine;
-    scriptEngine = 0;
-    delete gdbEngine;
-    gdbEngine = 0;
-    delete winEngine;
-    winEngine = 0;
+    #define doDelete(ptr) delete ptr; ptr = 0
+    doDelete(scriptEngine);
+    doDelete(gdbEngine);
+    doDelete(winEngine);
+    doDelete(tcfEngine);
 
     // Delete these manually before deleting the manager
     // (who will delete the models for most views)
-    delete m_breakWindow;
-    delete m_disassemblerWindow;
-    delete m_modulesWindow;
-    delete m_outputWindow;
-    delete m_registerWindow;
-    delete m_stackWindow;
-    delete m_sourceFilesWindow;
-    delete m_threadsWindow;
-    delete m_tooltipWindow;
-    delete m_watchersWindow;
-    delete m_localsWindow;
-    // These widgets are all in some layout which will take care of deletion.
-    m_breakWindow = 0;
-    m_disassemblerWindow = 0;
-    m_modulesWindow = 0;
-    m_outputWindow = 0;
-    m_registerWindow = 0;
-    m_stackWindow = 0;
-    m_sourceFilesWindow = 0;
-    m_threadsWindow = 0;
-    m_tooltipWindow = 0;
-    m_watchersWindow = 0;
-    m_localsWindow = 0;
+    doDelete(m_breakWindow);
+    doDelete(m_disassemblerWindow);
+    doDelete(m_modulesWindow);
+    doDelete(m_outputWindow);
+    doDelete(m_registerWindow);
+    doDelete(m_stackWindow);
+    doDelete(m_sourceFilesWindow);
+    doDelete(m_threadsWindow);
+    doDelete(m_tooltipWindow);
+    doDelete(m_watchersWindow);
+    doDelete(m_localsWindow);
 
-    delete m_breakHandler;
-    delete m_disassemblerHandler;
-    delete m_threadsHandler;
-    delete m_modulesHandler;
-    delete m_registerHandler;
-    delete m_stackHandler;
-    delete m_watchHandler;
-    m_breakHandler = 0;
-    m_disassemblerHandler = 0;
-    m_threadsHandler = 0;
-    m_modulesHandler = 0;
-    m_registerHandler = 0;
-    m_stackHandler = 0;
-    m_watchHandler = 0;
-    //qDebug() << "DEBUGGER_MANAGER SHUTDOWN END";
+    doDelete(m_breakHandler);
+    doDelete(m_disassemblerHandler);
+    doDelete(m_threadsHandler);
+    doDelete(m_modulesHandler);
+    doDelete(m_registerHandler);
+    doDelete(m_stackHandler);
+    doDelete(m_watchHandler);
+    #undef doDelete
 }
 
 BreakpointData *DebuggerManager::findBreakpoint(const QString &fileName, int lineNumber)
@@ -786,50 +760,43 @@ void DebuggerManager::setConfigValue(const QString &name, const QVariant &value)
 }
 
 // Figure out the debugger type of an executable
-static bool determineDebuggerType(const QString &executable,
-                                  DebuggerManager::DebuggerType *dt,
+static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
                                   QString *errorMessage)
 {
-    if (executable.endsWith(_(".js"))) {
-        *dt = DebuggerManager::ScriptDebugger;
-        return true;
-    }
+    if (executable.endsWith(_(".js")))
+        return scriptEngine;
+
 #ifndef Q_OS_WIN
-    *dt = DebuggerManager::GdbDebugger;
     Q_UNUSED(errorMessage)
-    return true;
+    return gdbEngine;
 #else
     // If a file has PDB files, it has been compiled by VS.
     QStringList pdbFiles;
     if (!getPDBFiles(executable, &pdbFiles, errorMessage))
-        return false;
-    if (pdbFiles.empty()) {
-        *dt = DebuggerManager::GdbDebugger;
-        return true;
-    }
+        return 0;
+    if (pdbFiles.empty())
+        return gdbEngine;
+
     // We need the CDB debugger in order to be able to debug VS
     // executables
     if (!winEngine) {
         *errorMessage = DebuggerManager::tr("Debugging VS executables is not supported.");
-        return false;
+        return 0;
     }
-    *dt = DebuggerManager::WinDebugger;
-    return true;
+    return winEngine;
 #endif
 }
 
 // Figure out the debugger type of a PID
-static bool determineDebuggerType(int  /* pid */,
-                                  DebuggerManager::DebuggerType *dt,
+static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
                                   QString * /*errorMessage*/)
 {
 #ifdef Q_OS_WIN
     // Preferably Windows debugger
-    *dt = winEngine ? DebuggerManager::WinDebugger : DebuggerManager::GdbDebugger;
+    return winEngine ? winEngine : gdbEngine;
 #else
-    *dt = DebuggerManager::GdbDebugger;
+    return gdbEngine;
 #endif
-    return true;
 }
 
 void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
@@ -934,9 +901,14 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         QStringList arches;
         arches.append(_("i386:x86-64:intel"));
         dlg.setRemoteArchitectures(arches);
-        dlg.setRemoteChannel(configValue(_("LastRemoteChannel")).toString());
-        dlg.setRemoteArchitecture(configValue(_("LastRemoteArchtecture")).toString());
-        dlg.setServerStartScript(configValue(_("LastServerStartScript")).toString());
+        dlg.setRemoteChannel(
+            configValue(_("LastRemoteChannel")).toString());
+        dlg.setRemoteArchitecture(
+            configValue(_("LastRemoteArchitecture")).toString());
+        dlg.setServerStartScript(
+            configValue(_("LastServerStartScript")).toString());
+        dlg.setUseServerStartScript(
+            configValue(_("LastUseServerStartScript")).toBool());
         if (dlg.exec() != QDialog::Accepted) {  
             runControl->debuggingFinished();
             return;
@@ -944,30 +916,63 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
         setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
         setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
+        setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
         m_remoteChannel = dlg.remoteChannel();
         m_remoteArchitecture = dlg.remoteArchitecture();
         m_serverStartScript = dlg.serverStartScript();
+        if (!dlg.useServerStartScript())
+            m_serverStartScript.clear();
+        break;
+    }
+    case AttachTcf: {
+        AttachTcfDialog dlg(mainWindow());
+        QStringList arches;
+        arches.append(_("i386:x86-64:intel"));
+        dlg.setRemoteArchitectures(arches);
+        dlg.setRemoteChannel(
+            configValue(_("LastTcfRemoteChannel")).toString());
+        dlg.setRemoteArchitecture(
+            configValue(_("LastTcfRemoteArchitecture")).toString());
+        dlg.setServerStartScript(
+            configValue(_("LastTcfServerStartScript")).toString());
+        dlg.setUseServerStartScript(
+            configValue(_("LastTcfUseServerStartScript")).toBool());
+        if (dlg.exec() != QDialog::Accepted) {  
+            runControl->debuggingFinished();
+            return;
+        }
+        setConfigValue(_("LastTcfRemoteChannel"), dlg.remoteChannel());
+        setConfigValue(_("LastTcfRemoteArchitecture"), dlg.remoteArchitecture());
+        setConfigValue(_("LastTcfServerStartScript"), dlg.serverStartScript());
+        setConfigValue(_("LastTcfUseServerStartScript"), dlg.useServerStartScript());
+        m_remoteChannel = dlg.remoteChannel();
+        m_remoteArchitecture = dlg.remoteArchitecture();
+        m_serverStartScript = dlg.serverStartScript();
+        if (!dlg.useServerStartScript())
+            m_serverStartScript.clear();
         break;
     }
     }
 
     emit debugModeRequested();
 
-    DebuggerType type;
     QString errorMessage;
-    const bool hasDebugger = startMode() == AttachExternal
-        ? determineDebuggerType(m_attachedPID, &type, &errorMessage)
-        : determineDebuggerType(m_executable, &type, &errorMessage);
-    if (!hasDebugger) {
+    if (startMode() == AttachExternal)
+        m_engine = determineDebuggerEngine(m_attachedPID, &errorMessage);
+    else if (startMode() == AttachTcf)
+        m_engine = tcfEngine;
+    else
+        m_engine = determineDebuggerEngine(m_executable, &errorMessage);
+
+    if (!m_engine) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
                 tr("Cannot debug '%1': %2").arg(m_executable, errorMessage));
         debuggingFinished();
         return;
     }
     if (Debugger::Constants::Internal::debug)
-        qDebug() << m_executable << type;
+        qDebug() << m_executable << m_engine;
 
-    setDebuggerType(type);
     setBusyCursor(false);
     setStatus(DebuggerProcessStartingUp);
     if (!m_engine->startDebugger()) {
@@ -1236,15 +1241,6 @@ void DebuggerManager::setStatus(int status)
     const bool ready = status == DebuggerInferiorStopped
             && startMode() != AttachCore;
 
-// FIXME
-//    m_startExternalAction->setEnabled(!started && !starting);
-//    m_attachExternalAction->setEnabled(!started && !starting);
-//#ifdef Q_OS_WIN
-//    m_attachCoreAction->setEnabled(false);
-//#else
-//    m_attachCoreAction->setEnabled(!started && !starting);
-//#endif
-//    m_attachRemoteAction->setEnabled(!started && !starting);
     m_watchAction->setEnabled(ready);
     m_breakAction->setEnabled(true);
 
@@ -1305,6 +1301,12 @@ void DebuggerManager::continueExec()
 {
     if (m_engine)
         m_engine->continueInferior();
+}
+
+void DebuggerManager::detachDebugger()
+{
+    if (m_engine)
+        m_engine->detachDebugger();
 }
 
 void DebuggerManager::interruptDebuggingRequest()
@@ -1526,8 +1528,8 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
     dialog.setText(tr("The debugger did not find the debugging helper library."));
     dialog.setInformativeText(tr("The debugging helper is used to nicely format the values of Qt "
                                  "data types and some STL data types. "
-                                 "It must be compiled for each Qt version, "
-                                 "you can do this in the Qt preferences page by selecting "
+                                 "It must be compiled for each Qt version which "
+                                 "you can do in the Qt preferences page by selecting "
                                  "a Qt installation and clicking on 'Rebuild' for the debugging "
                                  "helper."));
     if (!details.isEmpty())

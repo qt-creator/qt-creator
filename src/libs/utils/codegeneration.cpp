@@ -53,7 +53,7 @@ static QString toAlphaNum(const QString &s)
     return rc;
 }
 
-QWORKBENCH_UTILS_EXPORT QString headerGuard(const QString &file)
+QTCREATOR_UTILS_EXPORT QString headerGuard(const QString &file)
 {
     const QFileInfo fi(file);
     QString rc = toAlphaNum(fi.completeBaseName()).toUpper();
@@ -62,7 +62,7 @@ QWORKBENCH_UTILS_EXPORT QString headerGuard(const QString &file)
     return rc;
 }
 
-QWORKBENCH_UTILS_EXPORT
+QTCREATOR_UTILS_EXPORT
 void writeIncludeFileDirective(const QString &file, bool globalInclude,
                                QTextStream &str)
 {
@@ -71,7 +71,7 @@ void writeIncludeFileDirective(const QString &file, bool globalInclude,
     str << QLatin1String("#include ") << opening << file <<  closing << QLatin1Char('\n');
 }
 
-QWORKBENCH_UTILS_EXPORT
+QTCREATOR_UTILS_EXPORT
 QString writeOpeningNameSpaces(const QStringList &l, const QString &indent,
                                QTextStream &str)
 {
@@ -87,7 +87,7 @@ QString writeOpeningNameSpaces(const QStringList &l, const QString &indent,
     return rc;
 }
 
-QWORKBENCH_UTILS_EXPORT
+QTCREATOR_UTILS_EXPORT
 void writeClosingNameSpaces(const QStringList &l, const QString &indent,
                             QTextStream &str)
 {

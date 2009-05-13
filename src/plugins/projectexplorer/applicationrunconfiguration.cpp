@@ -89,7 +89,7 @@ QString ApplicationRunConfigurationRunner::displayName() const
     return tr("Run");
 }
 
-RunControl* ApplicationRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
+RunControl *ApplicationRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
 {
     QSharedPointer<ApplicationRunConfiguration> rc = qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration);
     Q_ASSERT(rc);

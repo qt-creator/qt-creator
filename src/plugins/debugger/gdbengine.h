@@ -99,6 +99,7 @@ private:
     void setToolTipExpression(const QPoint &pos, const QString &exp);
     bool startDebugger();
     void exitDebugger();
+    void detachDebugger();
 
     void continueInferior();
     void interruptInferior();
@@ -133,9 +134,7 @@ private:
 
     void initializeConnections();
     void initializeVariables();
-    void queryFullName(const QString &fileName, QString *fullName);
     QString fullName(const QString &fileName);
-    QString shortName(const QString &fullName);
     // get one usable name out of these, try full names first
     QString fullName(const QStringList &candidates);
 
@@ -171,12 +170,12 @@ private:
     // send and decrements on receipt, effectively preventing 
     // watch model updates before everything is finished.
     void flushCommand(GdbCommand &cmd);
-    void execCommand(const QString &command,
+    void postCommand(const QString &command,
                      GdbCommandFlags flags,
                      GdbCommandCallback callback = 0,
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
-    void execCommand(const QString &command,
+    void postCommand(const QString &command,
                      GdbCommandCallback callback = 0,
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
@@ -189,6 +188,8 @@ private slots:
     void gdbProcError(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();
+    void readUploadStandardOutput();
+    void readUploadStandardError();
     void readDebugeeOutput(const QByteArray &data);
     void stubStarted();
     void stubError(const QString &msg);
@@ -205,7 +206,6 @@ private:
     void handleAsyncOutput2(const GdbMi &data);
     void handleAsyncOutput(const GdbMi &data);
     void handleResultRecord(const GdbResultRecord &response);
-    void handleAutoContinue(const GdbResultRecord &, const QVariant &);
     void handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &);
     void handleExecRun(const GdbResultRecord &response, const QVariant &);
     void handleExecJumpToLine(const GdbResultRecord &response, const QVariant &);
@@ -218,7 +218,8 @@ private:
     void handleQuerySources(const GdbResultRecord &response, const QVariant &);
     void handleTargetCore(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleTargetAsync(const GdbResultRecord &, const QVariant &);
+    void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
+    void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void debugMessage(const QString &msg);
 
     OutputCollector m_outputCollector;
@@ -370,7 +371,7 @@ private:
     QString m_currentFrame;
     QMap<QString, QString> m_varToType;
 
-    bool m_waitingForBreakpointSynchronizationToContinue;
+    bool m_autoContinue;
     bool m_waitingForFirstBreakpointToBeHit;
     bool m_modulesListOutdated;
 

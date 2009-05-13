@@ -51,6 +51,7 @@ public:
     };
 
     IWizard(QObject *parent = 0) : QObject(parent) {}
+    virtual ~IWizard() {}
 
     virtual Kind kind() const = 0;
     virtual QIcon icon() const = 0;
@@ -61,6 +62,11 @@ public:
     virtual QString trCategory() const = 0;
 
     virtual QStringList runWizard(const QString &path, QWidget *parent) = 0;
+
+    // Utility to find all registered wizards
+    static QList<IWizard*> allWizards();
+    // Utility to find all registered wizards of a certain kind
+    static QList<IWizard*> wizardsOfKind(Kind kind);
 };
 
 } // namespace Core

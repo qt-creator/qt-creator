@@ -34,9 +34,8 @@
 
 #include <find/ifindsupport.h>
 
-QT_BEGIN_NAMESPACE
+
 class HelpViewer;
-QT_END_NAMESPACE
 
 namespace Help {
 namespace Internal {

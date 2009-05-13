@@ -10,9 +10,6 @@
     <height>198</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form</string>
-  </property>
   <layout class="QVBoxLayout">
    <property name="spacing">
     <number>6</number>

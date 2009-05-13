@@ -47,6 +47,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/listutils.h>
+#include <designer/formwindoweditor.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -81,7 +82,9 @@ Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin)
     m_plugin(plugin),
     m_projectExplorer(0),
     m_contextProject(0),
-    m_languageID(0)
+    m_languageID(0),
+    m_lastEditor(0),
+    m_dirty(false)
 {
     m_languageID = Core::UniqueIDManager::instance()->
                    uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
@@ -110,6 +113,61 @@ void Qt4Manager::notifyChanged(const QString &name)
 void Qt4Manager::init()
 {
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+    connect(Core::EditorManager::instance(), SIGNAL(editorAboutToClose(Core::IEditor*)),
+            this, SLOT(editorAboutToClose(Core::IEditor*)));
+
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(editorChanged(Core::IEditor*)));
+}
+
+void Qt4Manager::editorChanged(Core::IEditor *editor)
+{
+    // Handle old editor
+    Designer::Internal::FormWindowEditor *lastEditor = qobject_cast<Designer::Internal::FormWindowEditor *>(m_lastEditor);
+    if (lastEditor) {
+        disconnect(lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+
+        if (m_dirty) {
+            foreach(Qt4Project *project, m_projects)
+                project->rootProjectNode()->updateCodeModelSupportFromEditor(lastEditor->file()->fileName(), lastEditor);
+            m_dirty = false;
+        }
+    }
+
+    m_lastEditor = editor;
+
+    // Handle new editor
+    if (Designer::Internal::FormWindowEditor *fw = qobject_cast<Designer::Internal::FormWindowEditor *>(editor))
+        connect(fw, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+}
+
+void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
+{
+    if (m_lastEditor == editor) {
+        // Oh no our editor is going to be closed
+        // get the content first
+        Designer::Internal::FormWindowEditor *lastEditor = qobject_cast<Designer::Internal::FormWindowEditor *>(m_lastEditor);
+        if (lastEditor) {
+            disconnect(lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+            if (m_dirty) {
+                foreach(Qt4Project *project, m_projects)
+                    project->rootProjectNode()->updateCodeModelSupportFromEditor(lastEditor->file()->fileName(), lastEditor);
+                m_dirty = false;
+            }
+        }
+        m_lastEditor = 0;
+    }
+}
+
+void Qt4Manager::uiEditorContentsChanged()
+{
+    // cast sender, get filename
+    if (m_dirty)
+        return;
+    Designer::Internal::FormWindowEditor *fw = qobject_cast<Designer::Internal::FormWindowEditor *>(sender());
+    if (!fw)
+        return;
+    m_dirty = true;
 }
 
 int Qt4Manager::projectContext() const

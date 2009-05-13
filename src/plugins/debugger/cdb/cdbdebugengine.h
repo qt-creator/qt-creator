@@ -63,6 +63,7 @@ public:
     virtual void setToolTipExpression(const QPoint &pos, const QString &exp);
     virtual bool startDebugger();
     virtual void exitDebugger();
+    virtual void detachDebugger();
     virtual void updateWatchModel();
 
     virtual void stepExec();
@@ -96,13 +97,16 @@ public:
     virtual void reloadSourceFiles();
     virtual void reloadFullStack() {}
 
+public slots:
+    void syncDebuggerPaths();
+
 protected:
     void timerEvent(QTimerEvent*);
 
 private slots:
     void slotConsoleStubStarted();
     void slotConsoleStubError(const QString &msg);
-    void slotConsoleStubTerminated();
+    void slotConsoleStubTerminated();    
 
 private:
     bool startAttachDebugger(qint64 pid, QString *errorMessage);

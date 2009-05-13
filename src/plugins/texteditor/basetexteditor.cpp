@@ -41,6 +41,7 @@
 #ifndef TEXTEDITOR_STANDALONE
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/manhattanstyle.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <texteditor/fontsettings.h>
@@ -2415,7 +2416,16 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QPalette &pal,
     if (hovered)
         opt.palette.setBrush(QPalette::Window, pal.highlight());
 
-    style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
+    QStyle *s = style();
+
+    if (ManhattanStyle *ms = qobject_cast<ManhattanStyle*>(s))
+        s = ms->systemStyle();
+
+    // QGtkStyle needs a small correction to draw the marker in the right place
+    if (qstrcmp(s->metaObject()->className(), "QGtkStyle") == 0)
+        opt.rect.translate(-2, 0);
+
+    s->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
 }
 
 void BaseTextEditor::slotModificationChanged(bool m)
@@ -3769,8 +3779,12 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     }
 
     d->m_displaySettings = ds;
-    d->extraAreaHighlightCollapseBlockNumber = d->extraAreaHighlightCollapseColumn = -1;
-    d->m_highlightBlocksInfo = BaseTextEditorPrivateHighlightBlocks();
+    if (!ds.m_highlightBlocks) {
+        d->extraAreaHighlightCollapseBlockNumber = d->extraAreaHighlightCollapseColumn = -1;
+        d->m_highlightBlocksInfo = BaseTextEditorPrivateHighlightBlocks();
+    }
+    
+    slotCursorPositionChanged();
     viewport()->update();
     extraArea()->update();
 }

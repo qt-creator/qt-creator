@@ -9,9 +9,6 @@
     <height>505</height>
    </rect>
   </property>
-  <property name="windowTitle" >
-   <string>Form</string>
-  </property>
   <layout class="QGridLayout" >
    <property name="leftMargin" >
     <number>2</number>
@@ -37,9 +34,6 @@
    </item>
    <item row="0" column="1" >
     <widget class="QLabel" name="name" >
-     <property name="text" >
-      <string>TextLabel</string>
-     </property>
     </widget>
    </item>
    <item row="1" column="0" >
@@ -54,9 +48,6 @@
    </item>
    <item row="1" column="1" >
     <widget class="QLabel" name="version" >
-     <property name="text" >
-      <string>TextLabel</string>
-     </property>
     </widget>
    </item>
    <item row="2" column="0" >
@@ -71,9 +62,6 @@
    </item>
    <item row="2" column="1" >
     <widget class="QLabel" name="compatVersion" >
-     <property name="text" >
-      <string>TextLabel</string>
-     </property>
     </widget>
    </item>
    <item row="3" column="0" >
@@ -88,9 +76,6 @@
    </item>
    <item row="3" column="1" >
     <widget class="QLabel" name="vendor" >
-     <property name="text" >
-      <string>TextLabel</string>
-     </property>
     </widget>
    </item>
    <item row="4" column="0" >
@@ -105,9 +90,6 @@
    </item>
    <item row="4" column="1" >
     <widget class="QLabel" name="url" >
-     <property name="text" >
-      <string>TextLabel</string>
-     </property>
     </widget>
    </item>
    <item row="5" column="0" >
@@ -122,9 +104,6 @@
    </item>
    <item row="5" column="1" >
     <widget class="QLabel" name="location" >
-     <property name="text" >
-      <string>TextLabel</string>
-     </property>
      <property name="wordWrap" >
       <bool>false</bool>
      </property>
@@ -179,9 +158,6 @@
    </item>
    <item row="7" column="1" >
     <widget class="QLabel" name="copyright" >
-     <property name="text" >
-      <string>TextLabel</string>
-     </property>
     </widget>
    </item>
    <item row="8" column="0" >

@@ -91,6 +91,9 @@ public:
     void stopEditorSelectionsUpdate()
     { m_updateEditorSelectionsTimer->stop(); }
 
+    virtual void addEditorSupport(AbstractEditorSupport *editorSupport);
+    virtual void removeEditorSupport(AbstractEditorSupport *editorSupport);
+
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
 
@@ -160,6 +163,8 @@ private:
 
     // editor integration
     QMap<TextEditor::ITextEditor *, CppEditorSupport *> m_editorSupport;
+
+    QSet<AbstractEditorSupport *> m_addtionalEditorSupport;
 
     // project integration
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;

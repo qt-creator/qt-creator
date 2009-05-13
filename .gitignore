@@ -69,12 +69,13 @@ doc-build
 src/corelib/lib
 src/network/lib
 src/xml/lib/
+run/*
 
 # Binaries
 # --------
 bin/*.dll
 bin/qtcreator.bin
-bin/qtcreator_process_stub
+bin/qtcreator_process_stub*
 bin/qtcreator.exe
-doc/qtcreator.qch
+share/doc/qtcreator/qtcreator.qch
 tests/manual/cplusplus/cplusplus0

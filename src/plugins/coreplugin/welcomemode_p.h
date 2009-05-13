@@ -68,6 +68,9 @@ public:
     WelcomeModeTreeWidget(QWidget *parent = 0);
     QTreeWidgetItem *addItem(const QString &label, const QString &data);
 
+public slots:
+    void slotAddItem(const QString &label, const QString &data);
+
 signals:
     void activated(const QString &data);
 

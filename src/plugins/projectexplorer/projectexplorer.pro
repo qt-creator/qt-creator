@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = ProjectExplorer
 QT += xml \
     script
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(projectexplorer_dependencies.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
 include(../../libs/utils/utils.pri)

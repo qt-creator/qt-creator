@@ -38,119 +38,133 @@ CPLUSPLUS_USE_NAMESPACE
 
 PrettyPrinter::PrettyPrinter(Control *control, std::ostream &out)
     : ASTVisitor(control),
-      out(out),
-      depth(0)
+      _out(out),
+      _depth(0),
+      _lastToken(0)
 { }
 
-void PrettyPrinter::operator()(AST *ast)
-{ accept(ast); }
+void PrettyPrinter::operator()(AST *ast, const QByteArray &contents)
+{
+    _contents = contents;
+    accept(ast);
+
+    if (_lastToken + 1 < tokenCount())
+        outToken(_lastToken + 1);
+}
 
 void PrettyPrinter::indent()
-{ ++depth; }
+{ ++_depth; }
 
 void PrettyPrinter::deindent()
-{ --depth; }
+{ --_depth; }
 
 void PrettyPrinter::newline()
-{ out << '\n' << std::string(depth * 4, ' '); }
+{
+    _out << '\n' << std::string(_depth * 4, ' ');
+}
+
+void PrettyPrinter::outToken(unsigned token)
+{
+    if (!token)
+        return;
+
+    const Token &t = tokenAt(token);
+    const unsigned start = _lastToken ? tokenAt(_lastToken).end() : 0;
+    const unsigned end = t.begin();
+    _lastToken = token;
+
+    // Preserve non-AST text
+    QByteArray ba(_contents.constData() + start, end - start);
+    _out << ba.constData();
+
+    // Print the token itself
+    QByteArray tt(_contents.constData() + t.begin(), t.length);
+    _out << tt.constData();
+}
 
 bool PrettyPrinter::visit(AccessDeclarationAST *ast)
 {
     deindent();
-    newline();
-    out << spell(ast->access_specifier_token);
-    if (ast->slots_token)
-        out << ' ' << spell(ast->slots_token);
-    out << ':' << std::endl;
+    outToken(ast->access_specifier_token);
+    outToken(ast->slots_token);
+    outToken(ast->colon_token);
     indent();
     return false;
 }
 
 bool PrettyPrinter::visit(ArrayAccessAST *ast)
 {
-    out << '[';
+    outToken(ast->lbracket_token);
     accept(ast->expression);
-    out << ']';
+    outToken(ast->rbracket_token);
     return false;
 }
 
 bool PrettyPrinter::visit(ArrayDeclaratorAST *ast)
 {
-    out << '[';
+    outToken(ast->lbracket_token);
     accept(ast->expression);
-    out << ']';
+    outToken(ast->rbracket_token);
     return false;
 }
 
 bool PrettyPrinter::visit(ArrayInitializerAST *ast)
 {
-    out << '{';
+    outToken(ast->lbrace_token);
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
+        outToken(it->comma_token);
         accept(it->expression);
-        if (it->next)
-            out << ", ";
     }
-    out << '}';
+    outToken(ast->rbrace_token);
     return false;
 }
 
 bool PrettyPrinter::visit(AsmDefinitionAST *ast)
 {
-    out << spell(ast->asm_token);
-    if (ast->volatile_token)
-        out << ' ' << spell(ast->volatile_token) << ' ';
-    out << '(';
-    out << "/* ### implement me */";
-    out << ");";
+    outToken(ast->asm_token);
+    outToken(ast->volatile_token);
+    outToken(ast->lparen_token);
+    /* ### implement me */
+    outToken(ast->rparen_token);
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(AttributeSpecifierAST *ast)
 {
-    out << "attribute((";
+    outToken(ast->attribute_token);
+    outToken(ast->first_lparen_token);
+    outToken(ast->second_lparen_token);
     for (AttributeAST *it = ast->attributes; it; it = it->next) {
+        outToken(it->comma_token);
         accept(it);
-        if (it->next)
-            out << ", ";
     }
-    out << "))";
+    outToken(ast->first_rparen_token);
+    outToken(ast->second_rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(AttributeAST *ast)
 {
-    out << spell(ast->identifier_token);
+    outToken(ast->identifier_token);
     if (ast->lparen_token) {
-        out << '(';
-        out << spell(ast->tag_token);
+        outToken(ast->lparen_token);
+        outToken(ast->tag_token);
         if (ast->expression_list) {
-            out << '(';
             for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
+                outToken(ast->expression_list->comma_token);
                 accept(it->expression);
-                if (it->next)
-                    out << ", ";
             }
-            out << ')';
         }
-        out << ')';
+        outToken(ast->rparen_token);
     }
     return false;
 }
 
 bool PrettyPrinter::visit(BaseSpecifierAST *ast)
 {
-    if (ast->token_virtual && ast->token_access_specifier) {
-        out << "virtual";
-        out << ' ';
-        out << spell(ast->token_access_specifier);
-        out << ' ';
-    } else if (ast->token_virtual) {
-        out << "virtual";
-        out << ' ';
-    } else if (ast->token_access_specifier) {
-        out << spell(ast->token_access_specifier);
-        out << ' ';
-    }
+    outToken(ast->token_virtual);
+    outToken(ast->token_access_specifier);
     accept(ast->name);
     return false;
 }
@@ -158,132 +172,113 @@ bool PrettyPrinter::visit(BaseSpecifierAST *ast)
 bool PrettyPrinter::visit(BinaryExpressionAST *ast)
 {
     accept(ast->left_expression);
-    out << ' '  << spell(ast->binary_op_token) << ' ';
+    outToken(ast->binary_op_token);
     accept(ast->right_expression);
     return false;
 }
 
 bool PrettyPrinter::visit(BoolLiteralAST *ast)
 {
-    out << spell(ast->token);
+    outToken(ast->token);
     return false;
 }
 
-bool PrettyPrinter::visit(BreakStatementAST *)
+bool PrettyPrinter::visit(BreakStatementAST *ast)
 {
-    out << "break;";
+    outToken(ast->break_token);
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(CallAST *ast)
 {
-    out << '(';
+    outToken(ast->lparen_token);
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
+        outToken(it->comma_token);
         accept(it->expression);
-        if (it->next)
-            out << ", ";
     }
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(CaseStatementAST *ast)
 {
-    out << "case ";
+    outToken(ast->case_token);
     accept(ast->expression);
-    out << ':';
-    if (! ast->statement) {
-        newline();
+    outToken(ast->colon_token);
+    if (! ast->statement)
         return false;
-    }
 
     if (ast->statement->asCompoundStatement()) {
-        out << ' ';
         accept(ast->statement);
     } else if (ast->statement->asCaseStatement() || ast->statement->asLabeledStatement()) {
-        newline();
         accept(ast->statement);
     } else {
         indent();
-        newline();
         accept(ast->statement);
         deindent();
-        newline();
     }
     return false;
 }
 
 bool PrettyPrinter::visit(CastExpressionAST *ast)
 {
-    out << '(';
+    outToken(ast->lparen_token);
     accept(ast->type_id);
-    out << ')';
+    outToken(ast->rparen_token);
     accept(ast->expression);
     return false;
 }
 
 bool PrettyPrinter::visit(CatchClauseAST *ast)
 {
-    out << "catch";
-    out << '(';
+    outToken(ast->catch_token);
+    outToken(ast->lparen_token);
     accept(ast->exception_declaration);
-    out << ')';
+    outToken(ast->rparen_token);
     accept(ast->statement);
     return false;
 }
 
 bool PrettyPrinter::visit(ClassSpecifierAST *ast)
 {
-    out << spell(ast->classkey_token);
-    out << ' ';
+    outToken(ast->classkey_token);
     if (ast->attributes) {
         accept(ast->attributes);
-        out << ' ';
     }
     accept(ast->name);
     if (ast->colon_token) {
-        out << ':';
-        out << ' ';
+        outToken(ast->colon_token);
         for (BaseSpecifierAST *it = ast->base_clause; it; it = it->next) {
+            outToken(it->comma_token);
             accept(it);
-            if (it->next)
-                out << ", ";
         }
     }
-    newline();
-    out << '{';
+    outToken(ast->lbrace_token);
     if (ast->member_specifiers) {
         indent();
-        newline();
         if (ast->member_specifiers) {
             for (DeclarationAST *it = ast->member_specifiers; it; it = it->next) {
                 accept(it);
-                if (it->next)
-                    newline();
             }
         }
         deindent();
-        newline();
     }
-    out << '}';
+    outToken(ast->rbrace_token);
     return false;
 }
 
 bool PrettyPrinter::visit(CompoundStatementAST *ast)
 {
-    out << '{';
+    outToken(ast->lbrace_token);
     if (ast->statements) {
         indent();
-        newline();
         for (StatementAST *it = ast->statements; it; it = it->next) {
             accept(it);
-            if (it->next)
-                newline();
         }
         deindent();
-        newline();
     }
-    out << '}';
+    outToken(ast->rbrace_token);
     return false;
 }
 
@@ -291,13 +286,8 @@ bool PrettyPrinter::visit(ConditionAST *ast)
 {
     for (SpecifierAST *it = ast->type_specifier; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     if (ast->declarator) {
-        if (ast->type_specifier)
-            out << ' ';
-
         accept(ast->declarator);
     }
     return false;
@@ -306,28 +296,25 @@ bool PrettyPrinter::visit(ConditionAST *ast)
 bool PrettyPrinter::visit(ConditionalExpressionAST *ast)
 {
     accept(ast->condition);
-    out << '?';
+    outToken(ast->question_token);
     accept(ast->left_expression);
-    out << ':';
+    outToken(ast->colon_token);
     accept(ast->right_expression);
     return false;
 }
 
-bool PrettyPrinter::visit(ContinueStatementAST *)
+bool PrettyPrinter::visit(ContinueStatementAST *ast)
 {
-    out << "continue";
-    out << ';';
+    outToken(ast->continue_token);
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(ConversionFunctionIdAST *ast)
 {
-    out << "operator";
-    out << ' ';
+    outToken(ast->operator_token);
     for (SpecifierAST *it = ast->type_specifier; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     for (PtrOperatorAST *it = ast->ptr_operators; it; it = it->next) {
         accept(it);
@@ -337,29 +324,25 @@ bool PrettyPrinter::visit(ConversionFunctionIdAST *ast)
 
 bool PrettyPrinter::visit(CppCastExpressionAST *ast)
 {
-    out << spell(ast->cast_token);
-    out << '<';
-    out << ' ';
+    outToken(ast->cast_token);
+    outToken(ast->less_token);
     accept(ast->type_id);
-    out << ' ';
-    out << '>';
-    out << '(';
+    outToken(ast->greater_token);
+    outToken(ast->lparen_token);
     accept(ast->expression);
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(CtorInitializerAST *ast)
 {
-    out << ':';
-    out << ' ';
+    outToken(ast->colon_token);
     for (MemInitializerAST *it = ast->member_initializers; it; it = it->next) {
+        outToken(it->comma_token);
         accept(it->name);
-        out << '(';
+        outToken(it->lparen_token);
         accept(it->expression);
-        out << ')';
-        if (it->next)
-            out << ", ";
+        outToken(it->rparen_token);
     }
     return false;
 }
@@ -370,8 +353,6 @@ bool PrettyPrinter::visit(DeclaratorAST *ast)
         accept(it);
     }
     if (ast->core_declarator) {
-        if (ast->ptr_operators)
-            out << ' ';
         accept(ast->core_declarator);
     }
     for (PostfixDeclaratorAST *it = ast->postfix_declarators; it; it = it->next) {
@@ -379,13 +360,9 @@ bool PrettyPrinter::visit(DeclaratorAST *ast)
     }
     for (SpecifierAST *it = ast->attributes; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     if (ast->initializer) {
-        out << ' ';
-        out << '=';
-        out << ' ';
+        outToken(ast->equals_token);
         accept(ast->initializer);
     }
     return false;
@@ -406,20 +383,17 @@ bool PrettyPrinter::visit(DeclaratorIdAST *ast)
 bool PrettyPrinter::visit(DeclaratorListAST *ast)
 {
     for (DeclaratorListAST *it = ast; it; it = it->next) {
+        outToken(ast->comma_token);
         accept(it->declarator);
-        if (it->next)
-            out << ", ";
     }
     return false;
 }
 
 bool PrettyPrinter::visit(DeleteExpressionAST *ast)
 {
-    if (ast->scope_token)
-        out << "::";
-    out << "delete";
+    outToken(ast->scope_token);
+    outToken(ast->delete_token);
     if (ast->expression) {
-        out << ' ';
         accept(ast->expression);
     }
     return false;
@@ -427,75 +401,64 @@ bool PrettyPrinter::visit(DeleteExpressionAST *ast)
 
 bool PrettyPrinter::visit(DestructorNameAST *ast)
 {
-    out << '~';
-    out << spell(ast->identifier_token);
+    outToken(ast->tilde_token);
+    outToken(ast->identifier_token);
     return false;
 }
 
 bool PrettyPrinter::visit(DoStatementAST *ast)
 {
-    out << "do";
+    outToken(ast->do_token);
     if (ast->statement) {
-        out << ' ';
         accept(ast->statement);
     }
-    out << "while";
-    out << '(';
+    outToken(ast->while_token);
+    outToken(ast->lparen_token);
     accept(ast->expression);
-    out << ')';
-    out << ';';
+    outToken(ast->rparen_token);
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(ElaboratedTypeSpecifierAST *ast)
 {
-    out << spell(ast->classkey_token);
+    outToken(ast->classkey_token);
     if (ast->name) {
-        out << ' ';
         accept(ast->name);
     }
     return false;
 }
 
-bool PrettyPrinter::visit(EmptyDeclarationAST *)
+bool PrettyPrinter::visit(EmptyDeclarationAST *ast)
 {
-    out << ';';
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(EnumSpecifierAST *ast)
 {
-    out << "enum";
+    outToken(ast->enum_token);
     if (ast->name) {
-        out << ' ';
         accept(ast->name);
     }
-    out << ' ';
-    out << '{';
+    outToken(ast->lbrace_token);
     if (ast->enumerators) {
         indent();
-        newline();
         for (EnumeratorAST *it = ast->enumerators; it; it = it->next) {
+            outToken(it->comma_token);
             accept(it);
-            if (it->next) {
-                out << ", ";
-                newline();
-            }
         }
         deindent();
-        newline();
     }
-    out << '}';
+    outToken(ast->rbrace_token);
     return false;
 }
 
 bool PrettyPrinter::visit(EnumeratorAST *ast)
 {
-    out << spell(ast->identifier_token);
+    outToken(ast->identifier_token);
     if (ast->equal_token) {
-        out << ' ';
-        out << '=';
-        out << ' ';
+        outToken(ast->equal_token);
         accept(ast->expression);
     }
     return false;
@@ -505,42 +468,35 @@ bool PrettyPrinter::visit(ExceptionDeclarationAST *ast)
 {
     for (SpecifierAST *it = ast->type_specifier; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     if (ast->declarator) {
-        if (ast->type_specifier)
-            out << ' ';
         accept(ast->declarator);
     }
-    if (ast->dot_dot_dot_token)
-        out << "...";
+    outToken(ast->dot_dot_dot_token);
     return false;
 }
 
 bool PrettyPrinter::visit(ExceptionSpecificationAST *ast)
 {
-    out << "throw";
-    out << '(';
+    outToken(ast->throw_token);
+    outToken(ast->lparen_token);
     if (ast->dot_dot_dot_token)
-        out << "...";
+        outToken(ast->dot_dot_dot_token);
     else {
         for (ExpressionListAST *it = ast->type_ids; it; it = it->next) {
+            outToken(it->comma_token);
             accept(it->expression);
-            if (it->next)
-                out << ", ";
         }
     }
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(ExpressionListAST *ast)
 {
     for (ExpressionListAST *it = ast; it; it = it->next) {
+        outToken(it->comma_token);
         accept(it->expression);
-        if (it->next)
-            out << ", ";
     }
     return false;
 }
@@ -554,35 +510,32 @@ bool PrettyPrinter::visit(ExpressionOrDeclarationStatementAST *ast)
 bool PrettyPrinter::visit(ExpressionStatementAST *ast)
 {
     accept(ast->expression);
-    out << ';';
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(ForStatementAST *ast)
 {
-    out << "for";
-    out << ' ';
-    out << '(';
+    outToken(ast->for_token);
+    outToken(ast->lparen_token);
     accept(ast->initializer);
     accept(ast->condition);
-    out << ';';
+    outToken(ast->semicolon_token);
     accept(ast->expression);
-    out << ')';
+    outToken(ast->rparen_token);
     accept(ast->statement);
     return false;
 }
 
 bool PrettyPrinter::visit(FunctionDeclaratorAST *ast)
 {
-    out << '(';
+    outToken(ast->lparen_token);
     accept(ast->parameters);
-    out << ')';
+    outToken(ast->rparen_token);
     for (SpecifierAST *it = ast->cv_qualifier_seq; it; it = it->next) {
-        out << ' ';
         accept(it);
     }
     if (ast->exception_specification) {
-        out << ' ';
         accept(ast->exception_specification);
     }
     return false;
@@ -592,51 +545,38 @@ bool PrettyPrinter::visit(FunctionDefinitionAST *ast)
 {
     for (SpecifierAST *it = ast->decl_specifier_seq; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     if (ast->declarator) {
-        if (ast->decl_specifier_seq)
-            out << ' ';
         accept(ast->declarator);
     }
     accept(ast->ctor_initializer);
-    newline();
     accept(ast->function_body);
-    if (ast->next)
-        newline(); // one extra line after the function definiton.
     return false;
 }
 
 bool PrettyPrinter::visit(GotoStatementAST *ast)
 {
-    out << "goto";
-    out << ' ';
-    out << spell(ast->identifier_token);
-    out << ';';
+    outToken(ast->goto_token);
+    outToken(ast->identifier_token);
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(IfStatementAST *ast)
 {
-    out << "if";
-    out << ' ';
-    out << '(';
+    outToken(ast->if_token);
+    outToken(ast->lparen_token);
     accept(ast->condition);
-    out << ')';
+    outToken(ast->rparen_token);
     if (ast->statement->asCompoundStatement()) {
-        out << ' ';
         accept(ast->statement);
     } else {
         indent();
-        newline();
         accept(ast->statement);
         deindent();
-        newline();
     }
     if (ast->else_token) {
-        out << "else";
-        out << ' ';
+        outToken(ast->else_token);
         accept(ast->else_statement);
     }
     return false;
@@ -644,37 +584,31 @@ bool PrettyPrinter::visit(IfStatementAST *ast)
 
 bool PrettyPrinter::visit(LabeledStatementAST *ast)
 {
-    out << spell(ast->label_token);
-    out << ':';
+    outToken(ast->label_token);
+    outToken(ast->colon_token);
     accept(ast->statement);
     return false;
 }
 
 bool PrettyPrinter::visit(LinkageBodyAST *ast)
 {
-    out << '{';
+    outToken(ast->lbrace_token);
     if (ast->declarations) {
         indent();
-        newline();
         for (DeclarationAST *it = ast->declarations; it; it = it->next) {
             accept(it);
-            if (it->next)
-                newline();
         }
         deindent();
-        newline();
     }
-    out << '}';
+    outToken(ast->rbrace_token);
     return false;
 }
 
 bool PrettyPrinter::visit(LinkageSpecificationAST *ast)
 {
-    out << "extern";
-    out << ' ';
+    outToken(ast->extern_token);
     if (ast->extern_type) {
-        out << '"' << spell(ast->extern_type) << '"';
-        out << ' ';
+        outToken(ast->extern_type);
     }
 
     accept(ast->declaration);
@@ -684,19 +618,16 @@ bool PrettyPrinter::visit(LinkageSpecificationAST *ast)
 bool PrettyPrinter::visit(MemInitializerAST *ast)
 {
     accept(ast->name);
-    out << '(';
+    outToken(ast->lparen_token);
     accept(ast->expression);
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(MemberAccessAST *ast)
 {
-    out << spell(ast->access_token);
-    if (ast->template_token) {
-        out << "template";
-        out << ' ';
-    }
+    outToken(ast->access_token);
+    outToken(ast->template_token);
     accept(ast->member_name);
     return false;
 }
@@ -709,78 +640,65 @@ bool PrettyPrinter::visit(NamedTypeSpecifierAST *ast)
 
 bool PrettyPrinter::visit(NamespaceAST *ast)
 {
-    out << "namespace";
-    if (ast->identifier_token) {
-        out << ' ';
-        out << spell(ast->identifier_token);
-    }
+    outToken(ast->namespace_token);
+    outToken(ast->identifier_token);
     for (SpecifierAST *it = ast->attributes; it; it = it->next) {
-        out << ' ';
         accept(it);
     }
-    out << ' ';
     accept(ast->linkage_body);
     return false;
 }
 
 bool PrettyPrinter::visit(NamespaceAliasDefinitionAST *ast)
 {
-    out << "namespace";
-    out << ' ';
-    out << spell(ast->namespace_name);
-    out << ' ';
-    out << '=';
-    out << ' ';
+    outToken(ast->namespace_token);
+    outToken(ast->namespace_name);
+    outToken(ast->equal_token);
     accept(ast->name);
-    out << ';';
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(NestedDeclaratorAST *ast)
 {
-    out << '(';
+    outToken(ast->lparen_token);
     accept(ast->declarator);
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(NestedExpressionAST *ast)
 {
-    out << '(';
+    outToken(ast->lparen_token);
     accept(ast->expression);
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(NestedNameSpecifierAST *ast)
 {
     accept(ast->class_or_namespace_name);
-    if (ast->scope_token)
-        out << "::";
+    outToken(ast->scope_token);
     return false;
 }
 
 bool PrettyPrinter::visit(NewArrayDeclaratorAST *ast)
 {
-    out << '[';
+    outToken(ast->lbracket_token);
     accept(ast->expression);
-    out << ']';
+    outToken(ast->rbracket_token);
     return false;
 }
 
 bool PrettyPrinter::visit(NewExpressionAST *ast)
 {
-    if (ast->scope_token)
-        out << "::";
-    out << "new";
-    out << ' ';
+    outToken(ast->scope_token);
+    outToken(ast->new_token);
     accept(ast->new_placement);
-    if (ast->new_placement)
-        out << ' ';
     if (ast->lparen_token) {
-        out << '(';
+        outToken(ast->lparen_token);
         accept(ast->type_id);
-        out << ')';
+        outToken(ast->rparen_token);
     } else {
         accept(ast->new_type_id);
     }
@@ -790,29 +708,26 @@ bool PrettyPrinter::visit(NewExpressionAST *ast)
 
 bool PrettyPrinter::visit(NewPlacementAST *ast)
 {
-    out << '(';
+    outToken(ast->lparen_token);
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
+        outToken(it->comma_token);
         accept(it->expression);
-        if (it->next)
-            out << ", ";
     }
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(NewInitializerAST *ast)
 {
-    out << '(';
+    outToken(ast->lparen_token);
     accept(ast->expression);
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(NewTypeIdAST *ast)
 {
     for (SpecifierAST *it = ast->type_specifier; it; it = it->next) {
-        if (it != ast->type_specifier)
-            out << ' ';
         accept(it);
     }
     for (PtrOperatorAST *it = ast->ptr_operators; it; it = it->next) {
@@ -826,34 +741,23 @@ bool PrettyPrinter::visit(NewTypeIdAST *ast)
 
 bool PrettyPrinter::visit(NumericLiteralAST *ast)
 {
-    switch (tokenKind(ast->token)) {
-    case T_CHAR_LITERAL:
-        out << '\'' << spell(ast->token) << '\'';
-        break;
-    case T_WIDE_CHAR_LITERAL:
-        out << "L\'" << spell(ast->token) << '\'';
-        break;
-
-    default:
-        out << spell(ast->token);
-    }
+    outToken(ast->token);
     return false;
 }
 
 bool PrettyPrinter::visit(OperatorAST *ast)
 {
-    out << spell(ast->op_token);
+    outToken(ast->op_token);
     if (ast->open_token) {
-        out << spell(ast->open_token);
-        out << spell(ast->close_token);
+        outToken(ast->open_token);
+        outToken(ast->close_token);
     }
     return false;
 }
 
 bool PrettyPrinter::visit(OperatorFunctionIdAST *ast)
 {
-    out << "operator";
-    out << ' ';
+    outToken(ast->operator_token);
     accept(ast->op);
     return false;
 }
@@ -862,18 +766,11 @@ bool PrettyPrinter::visit(ParameterDeclarationAST *ast)
 {
     for (SpecifierAST *it = ast->type_specifier; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     if (ast->declarator) {
-        out << ' ';
         accept(ast->declarator);
     }
-    if (ast->equal_token) {
-        out << ' ';
-        out << '=';
-        out << ' ';
-    }
+    outToken(ast->equal_token);
     accept(ast->expression);
     return false;
 }
@@ -881,43 +778,37 @@ bool PrettyPrinter::visit(ParameterDeclarationAST *ast)
 bool PrettyPrinter::visit(ParameterDeclarationClauseAST *ast)
 {
     for (DeclarationAST *it = ast->parameter_declarations; it; it = it->next) {
+        // XXX handle the comma tokens correctly
         accept(it);
-        if (it->next)
-            out << ", ";
     }
     return false;
 }
 
 bool PrettyPrinter::visit(PointerAST *ast)
 {
-    out << '*';
+    outToken(ast->star_token);
     for (SpecifierAST *it = ast->cv_qualifier_seq; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     return false;
 }
 
 bool PrettyPrinter::visit(PointerToMemberAST *ast)
 {
-    if (ast->global_scope_token)
-        out << "::";
+    outToken(ast->global_scope_token);
     for (NestedNameSpecifierAST *it = ast->nested_name_specifier; it; it = it->next) {
         accept(it);
     }
-    out << '*';
+    outToken(ast->star_token);
     for (SpecifierAST *it = ast->cv_qualifier_seq; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     return false;
 }
 
 bool PrettyPrinter::visit(PostIncrDecrAST *ast)
 {
-    out << spell(ast->incr_decr_token);
+    outToken(ast->incr_decr_token);
     return false;
 }
 
@@ -932,8 +823,7 @@ bool PrettyPrinter::visit(PostfixExpressionAST *ast)
 
 bool PrettyPrinter::visit(QualifiedNameAST *ast)
 {
-    if (ast->global_scope_token)
-        out << "::";
+    outToken(ast->global_scope_token);
     for (NestedNameSpecifierAST *it = ast->nested_name_specifier; it; it = it->next) {
         accept(it);
     }
@@ -941,20 +831,19 @@ bool PrettyPrinter::visit(QualifiedNameAST *ast)
     return false;
 }
 
-bool PrettyPrinter::visit(ReferenceAST *)
+bool PrettyPrinter::visit(ReferenceAST *ast)
 {
-    out << '&';
+    outToken(ast->amp_token);
     return false;
 }
 
 bool PrettyPrinter::visit(ReturnStatementAST *ast)
 {
-    out << "return";
+    outToken(ast->return_token);
     if (ast->expression) {
-        out << ' ';
         accept(ast->expression);
     }
-    out << ';';
+    outToken(ast->semicolon_token);
     return false;
 }
 
@@ -962,39 +851,32 @@ bool PrettyPrinter::visit(SimpleDeclarationAST *ast)
 {
     for (SpecifierAST *it = ast->decl_specifier_seq; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     if (ast->declarators) {
-        if (ast->decl_specifier_seq)
-            out << ' ';
-
         for (DeclaratorListAST *it = ast->declarators; it; it = it->next) {
+            outToken(it->comma_token);
             accept(it->declarator);
-            if (it->next)
-                out << ", ";
         }
     }
-    out << ';';
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(SimpleNameAST *ast)
 {
-    out << spell(ast->identifier_token);
+    outToken(ast->identifier_token);
     return false;
 }
 
 bool PrettyPrinter::visit(SimpleSpecifierAST *ast)
 {
-    out << spell(ast->specifier_token);
+    outToken(ast->specifier_token);
     return false;
 }
 
 bool PrettyPrinter::visit(SizeofExpressionAST *ast)
 {
-    out << "sizeof";
-    out << ' ';
+    outToken(ast->sizeof_token);
     accept(ast->expression);
     return false;
 }
@@ -1002,23 +884,17 @@ bool PrettyPrinter::visit(SizeofExpressionAST *ast)
 bool PrettyPrinter::visit(StringLiteralAST *ast)
 {
     for (StringLiteralAST *it = ast; it; it = it->next) {
-        if (tokenKind(ast->token) == T_STRING_LITERAL)
-            out << '"' << spell(ast->token) << '"';
-        else
-            out << "L\"" << spell(ast->token) << '"';
-        if (it->next)
-            out << ' ';
+        outToken(it->token);
     }
     return false;
 }
 
 bool PrettyPrinter::visit(SwitchStatementAST *ast)
 {
-    out << "switch";
-    out << ' ';
-    out << '(';
+    outToken(ast->switch_token);
+    outToken(ast->lparen_token);
     accept(ast->condition);
-    out << ')';
+    outToken(ast->rparen_token);
     accept(ast->statement);
     return false;
 }
@@ -1026,92 +902,71 @@ bool PrettyPrinter::visit(SwitchStatementAST *ast)
 bool PrettyPrinter::visit(TemplateArgumentListAST *ast)
 {
     for (TemplateArgumentListAST *it = ast; it; it = it->next) {
+        outToken(it->comma_token);
         accept(it->template_argument);
-        if (it->next)
-            out << ", ";
     }
     return false;
 }
 
 bool PrettyPrinter::visit(TemplateDeclarationAST *ast)
 {
-    if (ast->export_token) {
-        out << "export";
-        out << ' ';
-    }
-    out << "template";
-    out << ' ';
-    out << '<';
+    outToken(ast->export_token);
+    outToken(ast->template_token);
+    outToken(ast->less_token);
     if (ast->template_parameters) {
-        out << ' ';
         for (DeclarationAST *it = ast->template_parameters; it; it = it->next) {
+            // XXX handle the comma tokens correctly
             accept(it);
-            if (it->next)
-                out << ", ";
         }
-        out << ' ';
     }
-    out << '>';
-    newline();
+    outToken(ast->greater_token);
     accept(ast->declaration);
     return false;
 }
 
 bool PrettyPrinter::visit(TemplateIdAST *ast)
 {
-    out << spell(ast->identifier_token);
-    out << '<';
+    outToken(ast->identifier_token);
+    outToken(ast->less_token);
     if (ast->template_arguments) {
-        out << ' ';
         for (TemplateArgumentListAST *it = ast->template_arguments; it; it = it->next) {
+            outToken(it->comma_token);
             accept(it->template_argument);
-            if (it->next)
-                out << ", ";
         }
-        out << ' ';
     }
-    out << '>';
+    outToken(ast->greater_token);
     return false;
 }
 
 bool PrettyPrinter::visit(TemplateTypeParameterAST *ast)
 {
-    out << "template";
-    out << ' ';
-    out << '<';
+    outToken(ast->template_token);
+    outToken(ast->less_token);
     if (ast->template_parameters) {
-        out << ' ';
         for (DeclarationAST *it = ast->template_parameters; it; it = it->next) {
+            // XXX handle the comma tokens correctly
             accept(it);
-            if (it->next)
-                out << ", ";
         }
-        out << ' ';
     }
-    out << '>';
-    out << ' ';
-    out << "class";
-    out << ' ';
+    outToken(ast->greater_token);
+    outToken(ast->class_token);
     accept(ast->name);
     if (ast->equal_token) {
-        out << ' ';
-        out << '=';
-        out << ' ';
+        outToken(ast->equal_token);
         accept(ast->type_id);
     }
     return false;
 }
 
-bool PrettyPrinter::visit(ThisExpressionAST *)
+bool PrettyPrinter::visit(ThisExpressionAST *ast)
 {
-    out << "this";
+    outToken(ast->this_token);
     return false;
 }
 
 bool PrettyPrinter::visit(ThrowExpressionAST *ast)
 {
-    out << "throw";
-    out << ' ';
+    outToken(ast->throw_token);
     accept(ast->expression);
     return false;
 }
@@ -1120,16 +975,13 @@ bool PrettyPrinter::visit(TranslationUnitAST *ast)
 {
     for (DeclarationAST *it = ast->declarations; it; it = it->next) {
         accept(it);
-        if (it->next)
-            newline();
     }
     return false;
 }
 
 bool PrettyPrinter::visit(TryBlockStatementAST *ast)
 {
-    out << "try";
-    out << ' ';
+    outToken(ast->try_token);
     accept(ast->statement);
     for (CatchClauseAST *it = ast->catch_clause_seq; it; it = it->next) {
         accept(it);
@@ -1141,16 +993,13 @@ bool PrettyPrinter::visit(TypeConstructorCallAST *ast)
 {
     for (SpecifierAST *it = ast->type_specifier; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
-    out << '(';
+    outToken(ast->lparen_token);
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
+        outToken(it->comma_token);
         accept(it->expression);
-        if (it->next)
-            out << ", ";
     }
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
@@ -1158,11 +1007,8 @@ bool PrettyPrinter::visit(TypeIdAST *ast)
 {
     for (SpecifierAST *it = ast->type_specifier; it; it = it->next) {
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     if (ast->type_specifier && ast->declarator) {
-        out << ' ';
         accept(ast->declarator);
     }
     return false;
@@ -1170,48 +1016,43 @@ bool PrettyPrinter::visit(TypeIdAST *ast)
 
 bool PrettyPrinter::visit(TypeidExpressionAST *ast)
 {
-    out << "typeid";
-    out << '(';
+    outToken(ast->typeid_token);
+    outToken(ast->lparen_token);
     accept(ast->expression);
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(TypeofSpecifierAST *ast)
 {
-    out << "typeof";
-    out << '(';
+    outToken(ast->typeof_token);
+    outToken(ast->lparen_token);
     accept(ast->expression);
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(TypenameCallExpressionAST *ast)
 {
-    out << "typename";
-    out << ' ';
+    outToken(ast->typename_token);
     accept(ast->name);
-    out << '(';
+    outToken(ast->lparen_token);
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
+        outToken(it->comma_token);
         accept(it->expression);
-        if (it->next)
-            out << ", ";
     }
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(TypenameTypeParameterAST *ast)
 {
-    out << spell(ast->classkey_token);
+    outToken(ast->classkey_token);
     if (ast->name) {
-        out << ' ';
         accept(ast->name);
     }
     if (ast->equal_token) {
-        out << ' ';
-        out << '=';
-        out << ' ';
+        outToken(ast->equal_token);
         accept(ast->type_id);
     }
     return false;
@@ -1219,70 +1060,59 @@ bool PrettyPrinter::visit(TypenameTypeParameterAST *ast)
 
 bool PrettyPrinter::visit(UnaryExpressionAST *ast)
 {
-    out << spell(ast->unary_op_token);
+    outToken(ast->unary_op_token);
     accept(ast->expression);
     return false;
 }
 
 bool PrettyPrinter::visit(UsingAST *ast)
 {
-    out << "using";
-    out << ' ';
-    if (ast->typename_token) {
-        out << "typename";
-        out << ' ';
-    }
+    outToken(ast->using_token);
+    outToken(ast->typename_token);
     accept(ast->name);
-    out << ';';
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(UsingDirectiveAST *ast)
 {
-    out << "using";
-    out << ' ';
-    out << "namespace";
-    out << ' ';
+    outToken(ast->using_token);
+    outToken(ast->namespace_token);
     accept(ast->name);
-    out << ';';
+    outToken(ast->semicolon_token);
     return false;
 }
 
 bool PrettyPrinter::visit(WhileStatementAST *ast)
 {
-    out << "while";
-    out << ' ';
-    out << '(';
+    outToken(ast->while_token);
+    outToken(ast->lparen_token);
     accept(ast->condition);
-    out << ')';
-    out << ' ';
+    outToken(ast->rparen_token);
     if (ast->statement && ast->statement->asCompoundStatement())
         accept(ast->statement);
     else {
         indent();
-        newline();
         accept(ast->statement);
         deindent();
-        newline();
     }
     return false;
 }
 
 bool PrettyPrinter::visit(QtMethodAST *ast)
 {
-    out << ast->method_token;
-    out << '(';
+    outToken(ast->method_token);
+    outToken(ast->lparen_token);
     accept(ast->declarator);
-    out << ')';
+    outToken(ast->rparen_token);
     return false;
 }
 
 bool PrettyPrinter::visit(CompoundLiteralAST *ast)
 {
-    out << '(';
+    outToken(ast->lparen_token);
     accept(ast->type_id);
-    out << ')';
-    out << ' ';
+    outToken(ast->rparen_token);
     accept(ast->initializer);
     return false;
 }

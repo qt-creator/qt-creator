@@ -313,7 +313,7 @@ QString sizeofTypeExpression(const QString &type)
 
 // Utilities to decode string data returned by the dumper helpers.
 
-static QString quoteUnprintableLatin1(const QByteArray &ba)
+QString quoteUnprintableLatin1(const QByteArray &ba)
 {
     QString res;
     char buf[10];

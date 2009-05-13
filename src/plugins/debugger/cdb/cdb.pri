@@ -40,7 +40,8 @@ HEADERS += \
     $$PWD/cdbassembler.h \
     $$PWD/cdboptions.h \
     $$PWD/cdboptionspage.h \
-    $$PWD/cdbdumperhelper.h
+    $$PWD/cdbdumperhelper.h \
+    $$PWD/cdbsymbolpathlisteditor.h
 
 SOURCES += \
     $$PWD/cdbdebugengine.cpp \
@@ -54,7 +55,8 @@ SOURCES += \
     $$PWD/cdbassembler.cpp \
     $$PWD/cdboptions.cpp \
     $$PWD/cdboptionspage.cpp \
-    $$PWD/cdbdumperhelper.cpp
+    $$PWD/cdbdumperhelper.cpp \
+    $$PWD/cdbsymbolpathlisteditor.cpp
 
 FORMS += $$PWD/cdboptionspagewidget.ui
 

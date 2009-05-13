@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = RegExp
 
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 
 QT += xml

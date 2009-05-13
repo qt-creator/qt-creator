@@ -78,16 +78,18 @@ public:
 signals:
     void requestProject(const QString &project);
     void requestSession(const QString &session);
-    void requestHelp();
+    void openHelpPage(const QString&);
 
 private slots:
     void slotFeedback();
     void slotRestoreLastSession();
     void slotSessionClicked(const QString &data);
     void slotProjectClicked(const QString &data);
+    void slotUrlClicked(const QString &data);
 
 private:
     void activateEditMode();
+    QString getTipOfTheDay();
 
     WelcomeModePrivate *m_d;
 };

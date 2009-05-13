@@ -1,5 +1,5 @@
-<!DOCTYPE QtWorkbenchSnippet>
-<qtworkbench>
+<!DOCTYPE QtCreatorSnippet>
+<qtcreator>
  <data>
   <variable>Name</variable>
   <value type="QString" >Class - QObject</value>
@@ -26,4 +26,4 @@ public:
     $selection$
 };]]></value>
  </data>
-</qtworkbench>
+</qtcreator>

@@ -30,7 +30,7 @@
 #ifndef CDBSETTINGS_H
 #define CDBSETTINGS_H
 
-#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -48,19 +48,23 @@ public:
     void fromSettings(const QSettings *s);
     void toSettings(QSettings *s) const;
 
-    bool equals(const CdbOptions &s) const;
+    // A set of flags for comparison function.
+    enum ChangeFlags { InitializationOptionsChanged = 0x1, DebuggerPathsChanged = 0x2 };
+    unsigned compare(const CdbOptions &s) const;
 
     // Locate the debugging tools
     static bool autoDetectPath(QString *path);
 
     bool enabled;
     QString path;
+    QStringList symbolPaths;
+    QStringList sourcePaths;
 };
 
 inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.equals(s2); }
+{ return s1.compare(s2) == 0u; }
 inline bool operator!=(const CdbOptions &s1, const CdbOptions &s2)
-{ return !s1.equals(s2); }
+{ return s1.compare(s2) != 0u; }
 
 } // namespace Internal
 } // namespace Debugger

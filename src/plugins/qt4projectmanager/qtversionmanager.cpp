@@ -384,6 +384,7 @@ void QtVersion::setPath(const QString &path)
     m_versionInfoUpToDate = false;
     m_mkspecUpToDate = false;
     m_qmakeCommand = QString::null;
+    m_uicCommand = QString::null;
 // TODO do i need to optimize this?
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
 }
@@ -748,6 +749,29 @@ QString QtVersion::qmakeCommand() const
                 m_qmakeCommand = qmake.absoluteFilePath();
                 return qmake.absoluteFilePath();
             }
+        }
+    }
+    return QString::null;
+}
+
+QString QtVersion::uicCommand() const
+{
+    if (!isValid())
+        return QString::null;
+    if (!m_uicCommand.isNull())
+        return m_uicCommand;
+    QString qtdirbin = versionInfo().value("QT_INSTALL_BINS") + "/";
+    QStringList possibleCommands;
+#ifdef Q_OS_WIN
+    possibleCommands<< "uic.exe";
+#else
+    possibleCommands << "uic-qt4" << "uic4" << "uic" ;
+#endif
+    foreach (const QString &possibleCommand, possibleCommands) {
+        const QString &fullPath = qtdirbin + possibleCommand;
+        if (QFileInfo(fullPath).exists()) {
+            m_uicCommand = QDir::cleanPath(fullPath);
+            return m_uicCommand;
         }
     }
     return QString::null;

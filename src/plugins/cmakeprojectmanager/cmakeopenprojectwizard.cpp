@@ -184,9 +184,9 @@ InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
     setLayout(new QVBoxLayout);
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
-    label->setText(tr("Qt Creator has detected an in source build. "
-                   "This prevents shadow builds, Qt Creator won't allow you to change the build directory. "
-                   "If you want a shadow build, clean your source directory and open the project again."));
+    label->setText(tr("Qt Creator has detected an in-source-build "
+                   "which prevents shadow builds. Qt Creator will not allow you to change the build directory. "
+                   "If you want a shadow build, clean your source directory and re-open the project."));
     layout()->addWidget(label);
 }
 
@@ -199,7 +199,7 @@ XmlFileUpToDatePage::XmlFileUpToDatePage(CMakeOpenProjectWizard *cmakeWizard)
     label->setWordWrap(true);
     label->setText(tr("Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. "
                    "You can change the command line arguments used to create this file in the project mode. "
-                   "Click finish to load the project"));
+                   "Click finish to load the project."));
     layout()->addWidget(label);
 }
 
@@ -281,15 +281,15 @@ void CMakeRunPage::initializePage()
         m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
                                        "Creator needs to update this file by running cmake. "
                                        "If you want to add additional command line arguments, "
-                                       "add them in the below. Note, that cmake remembers command "
-                                       "line arguments from the former runs.").arg(m_buildDirectory));
+                                       "add them below. Note that cmake remembers command "
+                                       "line arguments from the previous runs.").arg(m_buildDirectory));
     } else if(m_mode == CMakeRunPage::Recreate) {
-        m_descriptionLabel->setText(tr("The directory %1 specified in a buildconfiguration, "
+        m_descriptionLabel->setText(tr("The directory %1 specified in a build-configuration, "
                                        "does not contain a cbp file. Qt Creator needs to "
                                        "recreate this file, by running cmake. "
                                        "Some projects require command line arguments to "
-                                       "the initial cmake call. Note, that cmake remembers command "
-                                       "line arguments from the former runs.").arg(m_buildDirectory));
+                                       "the initial cmake call. Note that cmake remembers command "
+                                       "line arguments from the previous runs.").arg(m_buildDirectory));
     } else if(m_mode == CMakeRunPage::Change) {
         m_buildDirectory = m_cmakeWizard->buildDirectory();
         m_descriptionLabel->setText(tr("Qt Creator needs to run cmake in the new build directory. "

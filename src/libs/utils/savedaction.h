@@ -48,7 +48,7 @@ namespace Utils {
 
 enum ApplyMode { ImmediateApply, DeferedApply };
 
-class QWORKBENCH_UTILS_EXPORT SavedAction : public QAction
+class QTCREATOR_UTILS_EXPORT SavedAction : public QAction
 {
     Q_OBJECT
 
@@ -106,7 +106,7 @@ private:
     ApplyMode m_applyMode;
 };
 
-class QWORKBENCH_UTILS_EXPORT SavedActionSet
+class QTCREATOR_UTILS_EXPORT SavedActionSet
 {
 public:
     SavedActionSet() {}

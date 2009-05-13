@@ -96,6 +96,7 @@ public slots:
 
     void deleteStartOfToken();
     void deleteEndOfToken();
+
 protected:
     void contextMenuEvent(QContextMenuEvent *);
     void mouseMoveEvent(QMouseEvent *);
@@ -114,6 +115,7 @@ private slots:
     void updateMethodBoxIndex();
     void updateMethodBoxToolTip();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
+    void reformatDocument();
 
 private:
     bool sortedMethodOverview() const;

@@ -46,7 +46,7 @@ struct FileWizardPagePrivate;
  * The name and path labels can be changed. By default they are simply "Name:"
  * and "Path:".
  */
-class QWORKBENCH_UTILS_EXPORT FileWizardPage : public QWizardPage
+class QTCREATOR_UTILS_EXPORT FileWizardPage : public QWizardPage
 {
     Q_OBJECT
     Q_DISABLE_COPY(FileWizardPage)

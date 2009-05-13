@@ -41,6 +41,8 @@ namespace ProjectExplorer {
 }
 
 namespace CppTools {
+    
+class AbstractEditorSupport;
 
 class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
 {
@@ -87,6 +89,25 @@ public:
     virtual QList<ProjectInfo> projectInfos() const = 0;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
     virtual void updateProjectInfo(const ProjectInfo &pinfo) = 0;
+
+    virtual void addEditorSupport(AbstractEditorSupport *editorSupport) = 0;
+    virtual void removeEditorSupport(AbstractEditorSupport *editorSupport) = 0;
+};
+
+class CPPTOOLS_EXPORT AbstractEditorSupport
+{
+public:
+    AbstractEditorSupport(CppModelManagerInterface *modelmanager)
+        : m_modelmanager(modelmanager)  {}
+    virtual ~AbstractEditorSupport() {}
+    virtual QByteArray contents() const = 0;
+    virtual QString fileName() const = 0;
+
+    void updateDocument()
+    { m_modelmanager->updateSourceFiles(QStringList() << fileName()); }
+
+private:
+    CppModelManagerInterface *m_modelmanager;
 };
 
 } // namespace CppTools

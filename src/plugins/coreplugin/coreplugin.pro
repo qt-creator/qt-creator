@@ -2,9 +2,10 @@ TEMPLATE = lib
 TARGET = Core
 DEFINES += CORE_LIBRARY
 QT += xml \
+    network \
     script \
     svg
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
 include(coreplugin_dependencies.pri)
@@ -19,6 +20,7 @@ DEPENDPATH += dialogs \
     scriptmanager
 SOURCES += mainwindow.cpp \
     welcomemode.cpp \
+    rssfetcher.cpp \
     editmode.cpp \
     tabpositionindicator.cpp \
     fancyactionbar.cpp \
@@ -73,10 +75,12 @@ SOURCES += mainwindow.cpp \
     mimedatabase.cpp \
     icore.cpp \
     editormanager/ieditor.cpp \
-    dialogs/ioptionspage.cpp
+    dialogs/ioptionspage.cpp \
+    dialogs/iwizard.cpp
 HEADERS += mainwindow.h \
     welcomemode.h \
     welcomemode_p.h \
+    rssfetcher.h \
     editmode.h \
     tabpositionindicator.h \
     fancyactionbar.h \

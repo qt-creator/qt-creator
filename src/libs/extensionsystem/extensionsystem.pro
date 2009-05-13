@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = ExtensionSystem
 QT += xml
 DEFINES += EXTENSIONSYSTEM_LIBRARY
-include(../../qworkbenchlibrary.pri)
+include(../../qtcreatorlibrary.pri)
 include(extensionsystem_dependencies.pri)
 
 unix:!macx {

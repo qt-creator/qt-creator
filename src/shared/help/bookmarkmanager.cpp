@@ -48,7 +48,6 @@
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QSortFilterProxyModel>
 
-QT_BEGIN_NAMESPACE
 
 BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
                                const QString &url, QWidget *parent)
@@ -400,7 +399,7 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
         emit requestShowLink(data);
     }
     else if (picked_action == showItemNewTab) {
-        CentralWidget::instance()->setSourceInNewTab(data);
+        Help::Internal::CentralWidget::instance()->setSourceInNewTab(data);
     }
     else if (picked_action == removeItem) {
         bookmarkManager->removeBookmarkItem(treeView,
@@ -575,7 +574,7 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
         if (index.isValid() && (me->button() == Qt::MidButton)) {
             QString data = index.data(Qt::UserRole + 10).toString();
             if (!data.isEmpty() && data != QLatin1String("Folder"))
-                CentralWidget::instance()->setSourceInNewTab(data);
+                Help::Internal::CentralWidget::instance()->setSourceInNewTab(data);
         }
     }
     return QWidget::eventFilter(object, e);
@@ -700,7 +699,7 @@ void BookmarkManager::removeBookmarkItem(QTreeView *treeView, const QModelIndex&
         if (data == QLatin1String("Folder") && item->rowCount() > 0) {
             int value = QMessageBox::question(treeView, tr("Remove"),
                         tr("You are going to delete a Folder which will also<br>"
-                        "remove its content. Are you sure to continue?"),
+                        "remove its content. Are you sure you would like to continue?"),
                         QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
 
             if (value == QMessageBox::Cancel)
@@ -858,5 +857,3 @@ void BookmarkManager::readBookmarksRecursive(const QStandardItem *item,
             readBookmarksRecursive(child, stream, (depth +1));
     }
 }
-
-QT_END_NAMESPACE

@@ -39,6 +39,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QPair>
 #include <QtCore/QMap>
+#include <QtCore/QSet>
 
 namespace Debugger {
 namespace Internal {
@@ -74,7 +75,9 @@ public:
                      QString *newValue /* = 0 */, QString *errorMessage);
 
     template <class OutputIterator>
-    static bool populateModelInitially(CdbSymbolGroupContext *sg, OutputIterator it, QString *errorMessage);
+    static bool populateModelInitially(CdbSymbolGroupContext *sg,
+                                       QSet<QString> expandedINames,
+                                       OutputIterator it, QString *errorMessage);
 
     template <class OutputIterator>
     static bool completeModel(CdbSymbolGroupContext *sg,
@@ -116,6 +119,7 @@ private:
     void populateINameIndexMap(const QString &prefix, unsigned long parentId, unsigned long start, unsigned long count);
     WatchData symbolAt(unsigned long index) const;
     QString symbolINameAt(unsigned long index) const;
+    bool lookupPrefix(const QString &prefix, unsigned long *index) const;
     int getDisplayableChildCount(unsigned long index) const;
 
     inline DEBUG_SYMBOL_PARAMETERS *symbolParameters() { return &(*m_symbolParameters.begin()); }

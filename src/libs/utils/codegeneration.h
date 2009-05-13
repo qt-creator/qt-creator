@@ -41,22 +41,22 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Utils {
 
-QWORKBENCH_UTILS_EXPORT QString headerGuard(const QString &file);
+QTCREATOR_UTILS_EXPORT QString headerGuard(const QString &file);
 
-QWORKBENCH_UTILS_EXPORT
+QTCREATOR_UTILS_EXPORT
 void writeIncludeFileDirective(const QString &file,
                                bool globalInclude,
                                QTextStream &str);
 
 // Write opening namespaces and return an indentation string to be used
 // in the following code if there are any.
-QWORKBENCH_UTILS_EXPORT
+QTCREATOR_UTILS_EXPORT
 QString writeOpeningNameSpaces(const QStringList &namespaces,
                                const QString &indent,
                                QTextStream &str);
 
 // Close namespacesnamespaces
-QWORKBENCH_UTILS_EXPORT
+QTCREATOR_UTILS_EXPORT
 void writeClosingNameSpaces(const QStringList &namespaces,
                             const QString &indent,
                             QTextStream &str);

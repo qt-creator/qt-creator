@@ -97,7 +97,7 @@ static inline QString getSymbolString(IDebugSymbolGroup2 *sg,
 }
 
 namespace Debugger {
-    namespace Internal {
+namespace Internal {
 
 static inline CdbSymbolGroupContext::SymbolState getSymbolState(const DEBUG_SYMBOL_PARAMETERS &p)
 {
@@ -125,7 +125,7 @@ CdbSymbolGroupContext *CdbSymbolGroupContext::create(const QString &prefix,
                                                      CIDebugSymbolGroup *symbolGroup,
                                                      QString *errorMessage)
 {
-    CdbSymbolGroupContext *rc= new CdbSymbolGroupContext(prefix, symbolGroup);
+    CdbSymbolGroupContext *rc = new CdbSymbolGroupContext(prefix, symbolGroup);
     if (!rc->init(errorMessage)) {
         delete rc;
         return 0;
@@ -213,11 +213,23 @@ CdbSymbolGroupContext::SymbolState CdbSymbolGroupContext::symbolState(const QStr
 {
     if (prefix == m_prefix) // root
         return ExpandedSymbol;
+    unsigned long index;
+    if (!lookupPrefix(prefix, &index)) {
+        qWarning("WARNING %s: %s\n", Q_FUNC_INFO, msgSymbolNotFound(prefix));
+        return LeafSymbol;
+    }
+    return symbolState(index);
+}
+
+// Find index of a prefix
+bool CdbSymbolGroupContext::lookupPrefix(const QString &prefix, unsigned long *index) const
+{
+    *index = 0;
     const NameIndexMap::const_iterator it = m_inameIndexMap.constFind(prefix);
-    if (it != m_inameIndexMap.constEnd())
-        return symbolState(it.value());
-    qWarning("WARNING %s: %s\n", Q_FUNC_INFO, msgSymbolNotFound(prefix));
-    return LeafSymbol;
+    if (it == m_inameIndexMap.constEnd())
+        return false;
+    *index = it.value();
+    return true;
 }
 
 /* Retrieve children and get the position. */
@@ -401,7 +413,7 @@ static QString formatArrayHelper(const Integer *array, int size, int base = 10)
 {
     QString rc;
     const QString hexPrefix = QLatin1String("0x");
-    const QString separator= QLatin1String(", ");
+    const QString separator = QLatin1String(", ");
     const bool hex = base == 16;
     for (int i = 0; i < size; i++) {
         if (i)

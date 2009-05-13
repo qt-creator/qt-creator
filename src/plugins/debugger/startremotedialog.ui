@@ -28,14 +28,14 @@
      <item row="0" column="0">
       <widget class="QLabel" name="channelLabel">
        <property name="text">
-        <string>Host and Port:</string>
+        <string>Host and port:</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="channelLineEdit">
        <property name="text">
-        <string>localhost:5115</string>
+        <string notr="true">localhost:5115</string>
        </property>
       </widget>
      </item>
@@ -49,15 +49,25 @@
      <item row="1" column="1">
       <widget class="QComboBox" name="architectureComboBox"/>
      </item>
+     <item row="2" column="1">
+      <widget class="QCheckBox" name="useServerStartScriptCheckBox"/>
+     </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="serverStartScriptLabel">
+      <widget class="QLabel" name="useServerStartScriptLabel">
        <property name="text">
-        <string>Server start script</string>
+        <string>Use server start script:</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-       <widget class="Core::Utils::PathChooser" name="serverStartScript" native="true"/>
+     <item row="3" column="1">
+      <widget class="Core::Utils::PathChooser" name="serverStartScript" native="true"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="serverStartScriptLabel">
+       <property name="text">
+        <string>Server start script:</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -73,6 +83,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Core::Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

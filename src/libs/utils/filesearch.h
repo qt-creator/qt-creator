@@ -39,7 +39,7 @@
 namespace Core {
 namespace Utils {
 
-class QWORKBENCH_UTILS_EXPORT FileSearchResult
+class QTCREATOR_UTILS_EXPORT FileSearchResult
 {
 public:
     FileSearchResult() {}
@@ -54,10 +54,10 @@ public:
     int matchLength;
 };
 
-QWORKBENCH_UTILS_EXPORT QFuture<FileSearchResult> findInFiles(const QString &searchTerm, const QStringList &files,
+QTCREATOR_UTILS_EXPORT QFuture<FileSearchResult> findInFiles(const QString &searchTerm, const QStringList &files,
     QTextDocument::FindFlags flags);
 
-QWORKBENCH_UTILS_EXPORT QFuture<FileSearchResult> findInFilesRegExp(const QString &searchTerm, const QStringList &files,
+QTCREATOR_UTILS_EXPORT QFuture<FileSearchResult> findInFilesRegExp(const QString &searchTerm, const QStringList &files,
     QTextDocument::FindFlags flags);
 
 } // namespace Utils

@@ -27,19 +27,31 @@
 **
 **************************************************************************/
 
-#ifndef P4_API_INCL
-#define P4_API_INCL
+#ifndef EMPTYPROJECTWIZARD_H
+#define EMPTYPROJECTWIZARD_H
 
-#include <qconfig.h>
+#include "qtwizard.h"
 
-#ifdef USE_P4_API
-#
-#  if defined(Q_OS_WIN) && defined(SetPort)
-#    undef SetPort
-#  endif
-#
-#  include <clientapi.h>
-#  include <diff.h>
-#endif
+namespace Qt4ProjectManager {
+namespace Internal {
 
-#endif // P4_API_INCL
+class EmptyProjectWizard : public QtWizard
+{
+    Q_OBJECT
+
+public:
+    EmptyProjectWizard();
+
+protected:
+    virtual QWizard *createWizardDialog(QWidget *parent,
+                                        const QString &defaultPath,
+                                        const WizardPageList &extensionPages) const;
+
+    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
+                                               QString *errorMessage) const;
+};
+
+} // namespace Internal
+} // namespace Qt4ProjectManager
+
+#endif // EMPTYPROJECTWIZARD_H

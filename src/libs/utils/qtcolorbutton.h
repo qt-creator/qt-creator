@@ -37,7 +37,7 @@
 namespace Core {
 namespace Utils {
 
-class QWORKBENCH_UTILS_EXPORT QtColorButton : public QToolButton
+class QTCREATOR_UTILS_EXPORT QtColorButton : public QToolButton
 {
     Q_OBJECT
     Q_PROPERTY(bool backgroundCheckered READ isBackgroundCheckered WRITE setBackgroundCheckered)

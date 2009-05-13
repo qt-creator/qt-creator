@@ -10,9 +10,6 @@
     <height>452</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBoxLocations">
@@ -32,7 +29,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="labelGdbLocation">
         <property name="toolTip">
-         <string>This is either a full abolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</string>
+         <string>This is either a full absolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</string>
         </property>
         <property name="text">
          <string>Gdb location:</string>

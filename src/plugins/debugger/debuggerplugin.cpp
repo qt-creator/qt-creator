@@ -99,7 +99,9 @@ namespace Constants {
 const char * const STARTEXTERNAL        = "Debugger.StartExternal";
 const char * const ATTACHEXTERNAL       = "Debugger.AttachExternal";
 const char * const ATTACHCORE           = "Debugger.AttachCore";
+const char * const ATTACHTCF            = "Debugger.AttachTcf";
 const char * const ATTACHREMOTE         = "Debugger.AttachRemote";
+const char * const DETACH               = "Debugger.Detach";
 
 const char * const RUN_TO_LINE          = "Debugger.RunToLine";
 const char * const RUN_TO_FUNCTION      = "Debugger.RunToFunction";
@@ -346,8 +348,10 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
         this, SLOT(updateState()));
 
     m_group.clear();
+#ifdef QT_DEBUG
     m_group.insert(theDebuggerAction(UseDebuggingHelpers),
         m_ui.checkBoxUseDebuggingHelpers);
+#endif
     m_group.insert(theDebuggerAction(UseCustomDebuggingHelperLocation),
         m_ui.checkBoxUseCustomDebuggingHelperLocation);
     m_group.insert(theDebuggerAction(CustomDebuggingHelperLocation),
@@ -480,11 +484,24 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_attachCoreAction->setText(tr("Attach to Core..."));
     connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
 
+    m_attachTcfAction = new QAction(this);
+    m_attachTcfAction->setText(tr("Attach to Running Tcf Agent..."));
+    m_attachTcfAction->setToolTip(tr("This attaches to a running "
+        "'Target Communication Framework' agent."));
+    connect(m_attachTcfAction, SIGNAL(triggered()),
+        this, SLOT(attachRemoteTcf()));
+
+
     m_startRemoteAction = new QAction(this);
     m_startRemoteAction->setText(tr("Start and Attach to Remote Application..."));
     connect(m_startRemoteAction, SIGNAL(triggered()),
         this, SLOT(startRemoteApplication()));
 
+
+    m_detachAction = new QAction(this);
+    m_detachAction->setText(tr("Detach debugger"));
+    connect(m_detachAction, SIGNAL(triggered()),
+        m_manager, SLOT(detachDebugger()));
 
     Core::ActionContainer *mdebug =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
@@ -502,12 +519,21 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         Constants::ATTACHCORE, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
+    cmd = am->registerAction(m_attachTcfAction,
+        Constants::ATTACHTCF, globalcontext);
+    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+
     cmd = am->registerAction(m_startRemoteAction,
         Constants::ATTACHREMOTE, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_manager->m_continueAction,
         ProjectExplorer::Constants::DEBUG, QList<int>() << m_gdbRunningContext);
+    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+
+    cmd = am->registerAction(m_detachAction,
+        Constants::DETACH, globalcontext);
+    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_manager->m_stopAction,
         Constants::INTERRUPT, globalcontext);
@@ -783,6 +809,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         this, SLOT(activatePreviousMode()));
     connect(m_manager, SIGNAL(debugModeRequested()),
         this, SLOT(activateDebugMode()));
+    connect(m_manager, SIGNAL(statusChanged(int)),
+        this, SLOT(updateActions(int)));
+
 
     connect(theDebuggerAction(SettingsDialog), SIGNAL(triggered()),
         this, SLOT(showSettingsDialog()));
@@ -1095,6 +1124,36 @@ void DebuggerPlugin::startRemoteApplication()
         runControl->start();
 }
 
+void DebuggerPlugin::attachRemoteTcf()
+{
+    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (RunControl *runControl = m_debuggerRunner
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, AttachTcf))
+        runControl->start();
+}
+
+void DebuggerPlugin::updateActions(int status)
+{
+    const bool started = status == DebuggerInferiorRunning
+        || status == DebuggerInferiorRunningRequested
+        || status == DebuggerInferiorStopRequested
+        || status == DebuggerInferiorStopped;
+
+    const bool starting = status == DebuggerProcessStartingUp;
+    //const bool running = status == DebuggerInferiorRunning;
+
+    const bool ready = status == DebuggerInferiorStopped
+            && m_manager->startMode() != AttachCore;
+    m_startExternalAction->setEnabled(!started && !starting);
+    m_attachExternalAction->setEnabled(!started && !starting);
+#ifdef Q_OS_WIN
+    m_attachCoreAction->setEnabled(false);
+#else
+    m_attachCoreAction->setEnabled(!started && !starting);
+#endif
+    m_startRemoteAction->setEnabled(!started && !starting);
+    m_detachAction->setEnabled(ready);
+}
 
 #include "debuggerplugin.moc"
 

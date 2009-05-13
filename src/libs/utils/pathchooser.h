@@ -43,7 +43,7 @@ struct PathChooserPrivate;
  * A control that let's the user choose a path, consisting of a QLineEdit and
  * a "Browse" button. Has some validation logic for embedding into QWizardPage.
  */
-class QWORKBENCH_UTILS_EXPORT PathChooser : public QWidget
+class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
 {
     Q_DISABLE_COPY(PathChooser)
     Q_OBJECT

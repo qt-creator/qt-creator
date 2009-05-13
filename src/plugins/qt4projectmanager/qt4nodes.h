@@ -52,6 +52,12 @@ namespace ProjectExplorer {
 class FileWatcher;
 }
 
+namespace Designer {
+namespace Internal {
+class FormWindowEditor;
+}
+}
+
 namespace Qt4ProjectManager {
 
 // Import base classes into namespace
@@ -76,6 +82,7 @@ namespace Internal {
 
 using ProjectExplorer::FileType;
 class ProFileReader;
+class Qt4UiCodeModelSupport;
 
 //  Type of projects
 enum Qt4ProjectType {
@@ -127,7 +134,6 @@ public:
 
     //internal
     ProFileReader *createProFileReader() const;
-
 protected:
     void clear();
     static QStringList varNames(FileType type);
@@ -165,6 +171,8 @@ private:
     // watching changes to the .pro and .pri files on disk
     ProjectExplorer::FileWatcher *m_fileWatcher;
 
+    QMap<QString, Qt4UiCodeModelSupport *> m_uiCodeModelSupport;
+
     // managed by Qt4ProFileNode
     friend class Qt4ProFileNode;
 };
@@ -186,6 +194,8 @@ public:
 
     QStringList variableValue(const Qt4Variable var) const;
 
+    void updateCodeModelSupportFromBuild(const QStringList &files);
+    void updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::Internal::FormWindowEditor *fw);
 public slots:
     void scheduleUpdate();
     void update();
@@ -193,7 +203,8 @@ private slots:
     void buildStateChanged(ProjectExplorer::Project*);
 
 private:
-    void updateUiFiles();
+    void createUiCodeModelSupport();
+    QStringList updateUiFiles();
     Qt4ProFileNode *createSubProFileNode(const QString &path);
 
     QStringList uiDirPaths(ProFileReader *reader) const;

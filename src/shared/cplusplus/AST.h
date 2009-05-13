@@ -265,6 +265,7 @@ public:
     ExpressionListAST *expression_list;
     unsigned rparen_token;
     AttributeAST *next;
+    unsigned comma_token;
 
 public:
     virtual AttributeAST *asAttribute()
@@ -283,7 +284,9 @@ class CPLUSPLUS_EXPORT TypeofSpecifierAST: public SpecifierAST
 {
 public:
     unsigned typeof_token;
+    unsigned lparen_token;
     ExpressionAST *expression;
+    unsigned rparen_token;
 
 public:
     virtual TypeofSpecifierAST *asTypeofSpecifier()
@@ -359,6 +362,7 @@ public:
     CoreDeclaratorAST *core_declarator;
     PostfixDeclaratorAST *postfix_declarators;
     SpecifierAST *attributes;
+    unsigned equals_token;
     ExpressionAST *initializer;
 
 public:
@@ -377,6 +381,7 @@ protected:
 class CPLUSPLUS_EXPORT ExpressionListAST: public ExpressionAST
 {
 public:
+    unsigned comma_token;
     ExpressionAST *expression;
     ExpressionListAST *next;
 
@@ -482,6 +487,7 @@ protected:
 class CPLUSPLUS_EXPORT BaseSpecifierAST: public AST
 {
 public:
+    unsigned comma_token;
     unsigned token_virtual;
     unsigned token_access_specifier;
     NameAST *name;
@@ -847,6 +853,7 @@ protected:
 class CPLUSPLUS_EXPORT DeclaratorListAST: public AST
 {
 public:
+    unsigned comma_token;
     DeclaratorAST *declarator;
     DeclaratorListAST *next;
 
@@ -971,6 +978,7 @@ protected:
 class CPLUSPLUS_EXPORT EnumeratorAST: public AST
 {
 public:
+    unsigned comma_token;
     unsigned identifier_token;
     unsigned equal_token;
     ExpressionAST *expression;
@@ -1229,6 +1237,7 @@ protected:
 class CPLUSPLUS_EXPORT MemInitializerAST: public AST
 {
 public:
+    unsigned comma_token;
     NameAST *name;
     unsigned lparen_token;
     ExpressionAST *expression;
@@ -2073,6 +2082,7 @@ protected:
 class CPLUSPLUS_EXPORT TemplateArgumentListAST: public AST
 {
 public:
+    unsigned comma_token;
     ExpressionAST *template_argument;
     TemplateArgumentListAST *next;
 

@@ -48,18 +48,13 @@ class QToolButton;
 class QTabWidget;
 class QHelpEngine;
 class QFocusEvent;
-class CentralWidget;
-class HelpViewer;
-
 QT_END_NAMESPACE
+
+class HelpViewer;
 
 namespace Help {
 namespace Internal {
 class PrintHelper;
-} // namespace Internal
-} // namespace Help
-
-QT_BEGIN_NAMESPACE
 
 class CentralWidget : public QWidget
 {
@@ -143,8 +138,7 @@ private:
     QPrinter *printer;
 };
 
-QT_END_NAMESPACE
-//} // namespace Internal
-//} // namespace Help
+} // namespace Internal
+} // namespace Help
 
 #endif  // CENTRALWIDGET_H

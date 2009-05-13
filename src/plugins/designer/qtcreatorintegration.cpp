@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "formeditorplugin.h"
-#include "workbenchintegration.h"
+#include "qtcreatorintegration.h"
 #include "formeditorw.h"
 #include "formwindoweditor.h"
 
@@ -69,7 +69,7 @@ static QString msgClassNotFound(const QString &uiClassName, const QList<Document
             files += QLatin1String(", ");
         files += doc->fileName();
     }
-    return WorkbenchIntegration::tr("The class definition of '%1' could not be found in %2.").arg(uiClassName, files);
+    return QtCreatorIntegration::tr("The class definition of '%1' could not be found in %2.").arg(uiClassName, files);
 }
 
 static inline CppTools::CppModelManagerInterface *cppModelManagerInstance()
@@ -78,7 +78,7 @@ static inline CppTools::CppModelManagerInterface *cppModelManagerInstance()
         ->getObject<CppTools::CppModelManagerInterface>();
 }
 
-WorkbenchIntegration::WorkbenchIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent) :
+QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent) :
     qdesigner_internal::QDesignerIntegration(core, ::qobject_cast<QObject*>(parent)),
     m_few(parent)
 {
@@ -89,14 +89,14 @@ WorkbenchIntegration::WorkbenchIntegration(QDesignerFormEditorInterface *core, F
             this, SLOT(slotNavigateToSlot(QString, QString, QStringList)));
 }
 
-void WorkbenchIntegration::updateSelection()
+void QtCreatorIntegration::updateSelection()
 {
     if (FormWindowEditor *afww = m_few->activeFormWindow())
         afww->updateFormWindowSelectionHandles(true);
     qdesigner_internal::QDesignerIntegration::updateSelection();
 }
 
-QWidget *WorkbenchIntegration::containerWindow(QWidget * /*widget*/) const
+QWidget *QtCreatorIntegration::containerWindow(QWidget * /*widget*/) const
 {
     FormWindowEditor *fw = m_few->activeFormWindow();
     if (!fw)
@@ -526,7 +526,7 @@ static ClassDocumentPtrPair
     return ClassDocumentPtrPair(0, Document::Ptr());
 }
 
-void WorkbenchIntegration::slotNavigateToSlot(const QString &objectName, const QString &signalSignature,
+void QtCreatorIntegration::slotNavigateToSlot(const QString &objectName, const QString &signalSignature,
         const QStringList &parameterNames)
 {
     QString errorMessage;
@@ -549,7 +549,7 @@ static inline QString uiClassName(QString formObjectName)
 // Goto slot invoked by the designer context menu. Either navigates
 // to an existing slot function or create a new one.
 
-bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
+bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                                           const QString &signalSignature,
                                           const QStringList &parameterNames,
                                           QString *errorMessage)

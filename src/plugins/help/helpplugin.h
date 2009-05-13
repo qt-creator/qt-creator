@@ -44,14 +44,13 @@ class QHelpEngine;
 class QShortcut;
 class QToolBar;
 class QUrl;
+QT_END_NAMESPACE
 
 class IndexWindow;
 class ContentWindow;
 class BookmarkManager;
 class BookmarkWidget;
-class CentralWidget;
 class HelpViewer;
-QT_END_NAMESPACE
 
 
 namespace Core {
@@ -62,6 +61,9 @@ class SideBarItem;
 }
 
 namespace Help {
+namespace Internal {
+    class CentralWidget;
+}
 
 namespace Constants {
     const char * const C_MODE_HELP    = "Help Mode";
@@ -126,7 +128,8 @@ private slots:
     void slotHideRightPane();
     void copyFromSideBar();
 
-    void openGettingStarted();
+    void openHelpPage(const QUrl& url);
+    void openHelpPage(const QString& url);
 
 private:
     QToolBar *createToolBar();
@@ -141,7 +144,7 @@ private:
     BookmarkWidget *m_bookmarkWidget;
     BookmarkManager *m_bookmarkManager;
     SearchWidget *m_searchWidget;
-    CentralWidget *m_centralWidget;
+    Help::Internal::CentralWidget *m_centralWidget;
     HelpViewer *m_helpViewerForSideBar;
     HelpMode *m_mode;
     bool m_shownLastPages;

@@ -35,6 +35,8 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QStringList>
 
+#include "designer_export.h"
+
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 class QDesignerFormWindowManagerInterface;
@@ -56,7 +58,7 @@ class EditorWidget;
 // Master class maintaining a form window editor,
 // containing file and widget host
 
-class FormWindowEditor : public Core::IEditor
+class DESIGNER_EXPORT FormWindowEditor : public Core::IEditor
 {
     Q_OBJECT
 public:
@@ -87,6 +89,8 @@ public:
     QWidget *integrationContainer();
     void updateFormWindowSelectionHandles(bool state);
     void setSuggestedFileName(const QString &fileName);
+
+    QString contents() const;
 
 signals:
     // Internal

@@ -354,8 +354,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     // Save opened files
     bool cancelled;
-    fileManager()->saveModifiedFiles(fileManager()->modifiedFiles(), &cancelled);
-    if (cancelled) {
+    QList<IFile*> notSaved = fileManager()->saveModifiedFiles(fileManager()->modifiedFiles(), &cancelled);
+    if (cancelled || !notSaved.isEmpty()) {
         event->ignore();
         return;
     }
@@ -732,7 +732,7 @@ void MainWindow::registerDefaultActions()
 #else
     tmpaction = new QAction(tr("About &Qt Creator..."), this);
 #endif
-    cmd = am->registerAction(tmpaction, Constants:: ABOUT_WORKBENCH, m_globalContext);
+    cmd = am->registerAction(tmpaction, Constants::ABOUT_QTCREATOR, m_globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutQtCreator()));
@@ -760,7 +760,7 @@ void MainWindow::registerDefaultActions()
 
 void MainWindow::newFile()
 {
-    showNewItemDialog(tr("New", "Title of dialog"),BaseFileWizard::allWizards());
+    showNewItemDialog(tr("New", "Title of dialog"), IWizard::allWizards());
 }
 
 void MainWindow::openFile()

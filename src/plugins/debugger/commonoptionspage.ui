@@ -10,9 +10,6 @@
     <height>452</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QGroupBox" name="groupBox">
@@ -51,7 +48,7 @@
       <item>
        <widget class="QCheckBox" name="checkBoxUseToolTips">
         <property name="toolTip">
-         <string>Checking this will make enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</string>
+         <string>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</string>
         </property>
         <property name="text">
          <string>Use tooltips while debugging</string>

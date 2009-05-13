@@ -1,5 +1,5 @@
-<!DOCTYPE QtWorkbenchSnippet>
-<qtworkbench>
+<!DOCTYPE QtCreatorSnippet>
+<qtcreator>
 
  <data>
   <variable>Name</variable>
@@ -45,4 +45,4 @@
   </valuemap>
  </data>
 
-</qtworkbench>
+</qtcreator>

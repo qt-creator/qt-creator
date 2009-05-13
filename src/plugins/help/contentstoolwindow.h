@@ -43,6 +43,7 @@ class ContentsToolWindow;
 class ContentsToolWidget : public QTreeWidget
 {
     Q_OBJECT
+
 public:
     ContentsToolWidget();
 
