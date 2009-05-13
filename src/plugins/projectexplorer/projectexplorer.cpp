@@ -518,29 +518,32 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // build project only menu
-    Core::ActionContainer *mpo = am->createMenu(Constants::BUILDPRJONLYMENU);
-    m_buildPrjOnlyMenu = mpo->menu();
-    m_buildPrjOnlyMenu->setTitle(tr("Project Only"));
+    Core::ActionContainer *mpo = am->createMenu(Constants::BUILDPROJECTONLYMENU);
+    m_buildProjectOnlyMenu = mpo->menu();
+    m_buildProjectOnlyMenu->setTitle(tr("Project Only"));
     mbuild->addMenu(mpo, Constants::G_BUILD_PROJECT);
     mproject->addMenu(mpo, Constants::G_PROJECT_BUILD);
 
     // build action
-    m_buildPrjOnlyAction = new QAction(tr("Build Project Only"), this);
-    cmd = am->registerAction(m_buildPrjOnlyAction, Constants::BUILDPRJONLY, globalcontext);
+    m_buildProjectOnlyAction = new QAction(tr("Build Project Only"), this);
+    cmd = am->registerAction(m_buildProjectOnlyAction, Constants::BUILDPROJECTONLY, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    mpo->addAction(cmd, "");
+    cmd->setDefaultText(m_buildProjectOnlyAction->text());
+    mpo->addAction(cmd);
 
     // rebuild action
-    m_rebuildPrjOnlyAction = new QAction(tr("Rebuild Project only"), this);
-    cmd = am->registerAction(m_rebuildPrjOnlyAction, Constants::REBUILDPRJONLY, globalcontext);
+    m_rebuildProjectOnlyAction = new QAction(tr("Rebuild Project only"), this);
+    cmd = am->registerAction(m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    mpo->addAction(cmd, "");
+    cmd->setDefaultText(m_rebuildProjectOnlyAction->text());
+    mpo->addAction(cmd);
 
     // clean action
-    m_cleanPrjOnlyAction = new QAction(tr("Clean Project only"), this);
-    cmd = am->registerAction(m_cleanPrjOnlyAction, Constants::CLEANPRJONLY, globalcontext);
+    m_cleanProjectOnlyAction = new QAction(tr("Clean Project only"), this);
+    cmd = am->registerAction(m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    mpo->addAction(cmd, "");
+    cmd->setDefaultText(m_cleanProjectOnlyAction->text());
+    mpo->addAction(cmd);
 
     // Add Set Build Configuration to menu
     mbuild->addMenu(mbc, Constants::G_BUILD_PROJECT);
@@ -668,13 +671,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #if 0
     connect(m_loadAction, SIGNAL(triggered()), this, SLOT(loadAction()));
 #endif
-    connect(m_buildPrjOnlyAction, SIGNAL(triggered()), this, SLOT(buildProjectOnly()));
+    connect(m_buildProjectOnlyAction, SIGNAL(triggered()), this, SLOT(buildProjectOnly()));
     connect(m_buildAction, SIGNAL(triggered()), this, SLOT(buildProject()));
     connect(m_buildSessionAction, SIGNAL(triggered()), this, SLOT(buildSession()));
-    connect(m_rebuildPrjOnlyAction, SIGNAL(triggered()), this, SLOT(rebuildProjectOnly()));
+    connect(m_rebuildProjectOnlyAction, SIGNAL(triggered()), this, SLOT(rebuildProjectOnly()));
     connect(m_rebuildAction, SIGNAL(triggered()), this, SLOT(rebuildProject()));
     connect(m_rebuildSessionAction, SIGNAL(triggered()), this, SLOT(rebuildSession()));
-    connect(m_cleanPrjOnlyAction, SIGNAL(triggered()), this, SLOT(cleanProjectOnly()));
+    connect(m_cleanProjectOnlyAction, SIGNAL(triggered()), this, SLOT(cleanProjectOnly()));
     connect(m_cleanAction, SIGNAL(triggered()), this, SLOT(cleanProject()));
     connect(m_cleanSessionAction, SIGNAL(triggered()), this, SLOT(cleanSession()));
     connect(m_runAction, SIGNAL(triggered()), this, SLOT(runProject()));
@@ -1274,26 +1277,26 @@ void ProjectExplorerPlugin::updateActions()
     m_unloadAction->setEnabled(m_currentProject != 0);
     if (m_currentProject == 0) {
         m_unloadAction->setText(tr("Close Project"));
-        m_buildPrjOnlyMenu->setTitle(tr("Project only"));
-        m_buildPrjOnlyAction->setText(tr("Build Project only"));
-        m_rebuildPrjOnlyAction->setText(tr("Rebuild Project only"));
-        m_cleanPrjOnlyAction->setText(tr("Clean Project only"));
+        m_buildProjectOnlyMenu->setTitle(tr("Project only"));
+        m_buildProjectOnlyAction->setText(tr("Build Project only"));
+        m_rebuildProjectOnlyAction->setText(tr("Rebuild Project only"));
+        m_cleanProjectOnlyAction->setText(tr("Clean Project only"));
     } else {
         m_unloadAction->setText(tr("Close Project \"%1\"").arg(m_currentProject->name()));
-        m_buildPrjOnlyMenu->setTitle(tr("Project \"%1\" only").arg(m_currentProject->name()));
-        m_buildPrjOnlyAction->setText(tr("Build Project \"%1\" only").arg(m_currentProject->name()));
-        m_rebuildPrjOnlyAction->setText(tr("Rebuild Project \"%1\" only").arg(m_currentProject->name()));
-        m_cleanPrjOnlyAction->setText(tr("Clean Project \"%1\" only").arg(m_currentProject->name()));
+        m_buildProjectOnlyMenu->setTitle(tr("Project \"%1\" only").arg(m_currentProject->name()));
+        m_buildProjectOnlyAction->setText(tr("Build Project \"%1\" only").arg(m_currentProject->name()));
+        m_rebuildProjectOnlyAction->setText(tr("Rebuild Project \"%1\" only").arg(m_currentProject->name()));
+        m_cleanProjectOnlyAction->setText(tr("Clean Project \"%1\" only").arg(m_currentProject->name()));
     }
 
     m_buildAction->setEnabled(enableBuildActions);
     m_rebuildAction->setEnabled(enableBuildActions);
     m_cleanAction->setEnabled(enableBuildActions);
 
-    m_buildPrjOnlyMenu->setEnabled(enableBuildActions);
-    m_buildPrjOnlyAction->setEnabled(enableBuildActions);
-    m_rebuildPrjOnlyAction->setEnabled(enableBuildActions);
-    m_cleanPrjOnlyAction->setEnabled(enableBuildActions);
+    m_buildProjectOnlyMenu->setEnabled(enableBuildActions);
+    m_buildProjectOnlyAction->setEnabled(enableBuildActions);
+    m_rebuildProjectOnlyAction->setEnabled(enableBuildActions);
+    m_cleanProjectOnlyAction->setEnabled(enableBuildActions);
 
     m_clearSession->setEnabled(hasProjects && !building);
     m_buildSessionAction->setEnabled(hasProjects && !building);
