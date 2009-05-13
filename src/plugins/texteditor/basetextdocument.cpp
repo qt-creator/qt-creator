@@ -47,18 +47,6 @@
 
 using namespace TextEditor;
 
-#if defined (Q_OS_WIN)
-QT_BEGIN_NAMESPACE
-extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
-QT_END_NAMESPACE
-#endif
-
-#if defined (Q_OS_WIN)
-# define NATIVE_LINE_TERMINATOR CRLFLineTerminator
-#else
-# define NATIVE_LINE_TERMINATOR LFLineTerminator
-#endif
-
 DocumentMarker::DocumentMarker(QTextDocument *doc)
   : ITextMarkable(doc), document(doc)
 {
