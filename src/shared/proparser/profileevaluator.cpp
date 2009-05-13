@@ -193,11 +193,13 @@ public:
 
     QStringList qmakeFeaturePaths();
 
-    enum { ConditionTrue, ConditionFalse, ConditionElse };
-    int m_condition;
-    int m_prevCondition;
-    bool m_updateCondition;
-    bool m_invertNext;
+    enum Condition { ConditionFalse, ConditionTrue, ConditionElse };
+    struct State {
+        Condition condition;
+        Condition prevCondition;
+        bool updateCondition; // == !(enclosingBlock()->kind() & ScopeContents)
+    } m_sts;
+    bool m_invertNext; // Short-lived, so not in State
     int m_skipLevel;
     bool m_cumulative;
     bool m_isFirstVariableValue;
@@ -224,6 +226,8 @@ public:
     bool m_parsePreAndPostFiles;
 };
 
+Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::State, Q_PRIMITIVE_TYPE);
+
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
   : q(q_)
 {
@@ -236,8 +240,8 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
     m_cumulative = true;
 
     // Evaluator state
-    m_updateCondition = false;
-    m_condition = ConditionFalse;
+    m_sts.updateCondition = false;
+    m_sts.condition = ConditionFalse;
     m_invertNext = false;
     m_skipLevel = 0;
     m_isFirstVariableValue = true;
@@ -556,16 +560,16 @@ void ProFileEvaluator::Private::updateItem()
 bool ProFileEvaluator::Private::visitBeginProBlock(ProBlock *block)
 {
     if (block->blockKind() == ProBlock::ScopeKind) {
-        m_updateCondition = true;
+        m_sts.updateCondition = true;
         if (!m_skipLevel) {
-            m_prevCondition = m_condition;
-            m_condition = ConditionFalse;
+            m_sts.prevCondition = m_sts.condition;
+            m_sts.condition = ConditionFalse;
         } else {
-            Q_ASSERT(m_condition != ConditionTrue);
+            Q_ASSERT(m_sts.condition != ConditionTrue);
         }
     } else if (block->blockKind() & ProBlock::ScopeContentsKind) {
-        m_updateCondition = false;
-        if (m_condition != ConditionTrue)
+        m_sts.updateCondition = false;
+        if (m_sts.condition != ConditionTrue)
             ++m_skipLevel;
         else
             Q_ASSERT(!m_skipLevel);
@@ -577,12 +581,12 @@ bool ProFileEvaluator::Private::visitEndProBlock(ProBlock *block)
 {
     if (block->blockKind() & ProBlock::ScopeContentsKind) {
         if (m_skipLevel) {
-            Q_ASSERT(m_condition != ConditionTrue);
+            Q_ASSERT(m_sts.condition != ConditionTrue);
             --m_skipLevel;
         } else {
             // Conditionals contained inside this block may have changed the state.
             // So we reset it here to make an else following us do the right thing.
-            m_condition = ConditionTrue;
+            m_sts.condition = ConditionTrue;
         }
     }
     return true;
@@ -619,13 +623,13 @@ bool ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
         if (cond->text().toLower() == QLatin1String("else")) {
             // The state ConditionElse makes sure that subsequential elses are ignored.
             // That's braindead, but qmake is like that.
-            if (m_prevCondition == ConditionTrue)
-                m_condition = ConditionElse;
-            else if (m_prevCondition == ConditionFalse)
-                m_condition = ConditionTrue;
-        } else if (m_condition == ConditionFalse) {
+            if (m_sts.prevCondition == ConditionTrue)
+                m_sts.condition = ConditionElse;
+            else if (m_sts.prevCondition == ConditionFalse)
+                m_sts.condition = ConditionTrue;
+        } else if (m_sts.condition == ConditionFalse) {
             if (isActiveConfig(cond->text(), true) ^ m_invertNext)
-                m_condition = ConditionTrue;
+                m_sts.condition = ConditionTrue;
         }
     }
     m_invertNext = false;
@@ -865,7 +869,7 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
 
 bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
 {
-    if (!m_updateCondition || m_condition == ConditionFalse) {
+    if (!m_sts.updateCondition || m_sts.condition == ConditionFalse) {
         QString text = func->text();
         int lparen = text.indexOf(QLatin1Char('('));
         int rparen = text.lastIndexOf(QLatin1Char(')'));
@@ -875,7 +879,7 @@ bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
         m_lineNo = func->lineNumber();
         bool result = evaluateConditionalFunction(funcName.trimmed(), arguments);
         if (!m_skipLevel && (result ^ m_invertNext))
-            m_condition = ConditionTrue;
+            m_sts.condition = ConditionTrue;
     }
     m_invertNext = false;
     return true;

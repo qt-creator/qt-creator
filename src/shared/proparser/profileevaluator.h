@@ -87,6 +87,8 @@ public:
 private:
     class Private;
     Private *d;
+
+    template<typename T> friend class QTypeInfo;
 };
 
 QT_END_NAMESPACE
