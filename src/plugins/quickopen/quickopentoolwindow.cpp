@@ -238,7 +238,7 @@ void CompletionList::updatePreferredSize()
         preferredWidth = width();
 #endif
 
-    m_preferredSize = QSize(600, //qMax(600, preferredWidth),
+    m_preferredSize = QSize(730, //qMax(600, preferredWidth),
                             shint.height() * 17 + frameWidth() * 2);
     //header()->setStretchLastSection(true);
 }
