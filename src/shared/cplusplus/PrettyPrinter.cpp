@@ -30,9 +30,13 @@
 #include "PrettyPrinter.h"
 #include "AST.h"
 #include "Token.h"
+
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <cassert>
+
+#include <QString>
 
 CPLUSPLUS_USE_NAMESPACE
 
@@ -73,13 +77,38 @@ void PrettyPrinter::outToken(unsigned token)
     const unsigned end = t.begin();
     _lastToken = token;
 
+    std::ostringstream oss;
+
     // Preserve non-AST text
     QByteArray ba(_contents.constData() + start, end - start);
-    _out << ba.constData();
+    oss << ba.constData();
 
     // Print the token itself
     QByteArray tt(_contents.constData() + t.begin(), t.length);
-    _out << tt.constData();
+    oss << tt.constData();
+
+    QString stuff = QString::fromUtf8(oss.str().c_str());
+    QString indent = QString(_depth * 4, QLatin1Char(' '));
+
+    int from = 0;
+    int index = 0;
+    while ((index = stuff.indexOf(QLatin1Char('\n'), from)) != -1) {
+        from = index + 1;
+        int firstNonWhitespace = from;
+
+        while (firstNonWhitespace < stuff.length()) {
+            const QChar c = stuff.at(firstNonWhitespace);
+            if (c.isSpace() && c != QLatin1Char('\n'))
+                ++firstNonWhitespace;
+            else
+                break;
+        }
+
+        if (firstNonWhitespace != from)
+            stuff.replace(from, firstNonWhitespace - from, indent);
+    }
+
+    _out << stuff.toUtf8().constData();
 }
 
 bool PrettyPrinter::visit(AccessDeclarationAST *ast)
