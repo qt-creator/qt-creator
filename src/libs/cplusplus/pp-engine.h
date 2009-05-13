@@ -70,6 +70,10 @@ public:
     QByteArray operator()(const QByteArray &filename,
                           const QByteArray &source);
 
+    void preprocess(const QByteArray &filename,
+                    const QByteArray &source,
+                    QByteArray *result);
+
 private:
     enum { MAX_LEVEL = 512 };
 
@@ -98,10 +102,6 @@ private:
     };
 
     bool markGeneratedTokens(bool markGeneratedTokens, TokenIterator dot = 0);
-
-    void preprocess(const QByteArray &filename,
-                    const QByteArray &source,
-                    QByteArray *result);
 
     QByteArray expand(const QByteArray &source);
     void expand(const QByteArray &source, QByteArray *result);
@@ -164,6 +164,10 @@ private:
     void popState();
 
     State createStateFromSource(const QByteArray &source) const;
+
+    void out(const QByteArray &text);
+    void out(char ch);
+    void out(const char *s);
 
 private:
     Client *client;

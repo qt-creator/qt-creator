@@ -590,6 +590,24 @@ void Preprocessor::expand(const char *first, const char *last, QByteArray *resul
     return expand(source, result);
 }
 
+void Preprocessor::out(const QByteArray &text)
+{
+    if (_result)
+        _result->append(text);
+}
+
+void Preprocessor::out(char ch)
+{
+    if (_result)
+        _result->append(ch);
+}
+
+void Preprocessor::out(const char *s)
+{
+    if (_result)
+        _result->append(s);
+}
+
 Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source) const
 {
     State state;
@@ -611,16 +629,16 @@ void Preprocessor::processNewline(bool force)
         return;
 
     if (force || env->currentLine > _dot->lineno) {
-        _result->append("\n# ");
-        _result->append(QByteArray::number(_dot->lineno));
-        _result->append(' ');
-        _result->append('"');
-        _result->append(env->currentFile);
-        _result->append('"');
-        _result->append('\n');
+        out("\n# ");
+        out(QByteArray::number(_dot->lineno));
+        out(' ');
+        out('"');
+        out(env->currentFile);
+        out('"');
+        out('\n');
     } else {
         for (unsigned i = env->currentLine; i < _dot->lineno; ++i)
-            _result->append('\n');
+            out('\n');
     }
 
     env->currentLine = _dot->lineno;
@@ -661,9 +679,9 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
             dot = _dot;
 
         if (_markGeneratedTokens)
-            _result->append("\n#gen true");
+            out("\n#gen true");
         else
-            _result->append("\n#gen false");
+            out("\n#gen false");
 
         processNewline(/*force = */ true);
 
@@ -684,10 +702,10 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
 
         for (; it != end; ++it) {
             if (! std::isspace(*it))
-                _result->append(' ');
+                out(' ');
 
             else
-                _result->append(*it);
+                out(*it);
         }
     }
 
@@ -737,7 +755,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
         } else {
 
             if (_dot->joined)
-                _result->append("\\\n");
+                out("\\\n");
 
             else if (_dot->whitespace) {
                 const unsigned endOfPreviousToken = (_dot - 1)->end();
@@ -755,15 +773,15 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
                 for (; it != end; ++it) {
                     if (std::isspace(*it))
-                        _result->append(*it);
+                        out(*it);
 
                     else
-                        _result->append(' ');
+                        out(' ');
                 }
             }
 
             if (_dot->isNot(T_IDENTIFIER)) {
-                _result->append(tokenSpell(*_dot));
+                out(tokenSpell(*_dot));
                 ++_dot;
 
             } else {
@@ -798,7 +816,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                     }
 
                     // it's not a function or object-like macro.
-                    _result->append(spell);
+                    out(spell);
                 }
             }
         }
@@ -893,7 +911,7 @@ Macro *Preprocessor::processObjectLikeMacro(TokenIterator identifierToken,
     }
 
     const bool was = markGeneratedTokens(true, identifierToken);
-    _result->append(tmp);
+    out(tmp);
     (void) markGeneratedTokens(was);
     return 0;
 }
