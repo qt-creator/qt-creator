@@ -1436,32 +1436,31 @@
 
     \title Handling External Libraries
 
-    Knowing external libraries is not only important for the
-    underlying build system, but also for Qt Creator itself.
-    This way, it can support code completion and syntax highlighting 
-    for external libraries as if they were part of the current 
-    project or the Qt library.
+    The ability to recognize external libraries is not only important for the
+    underlying buidl system, but also for Qt Creator itself. This ability
+    allows Qt Creator to support code completion and syntax highlighting for
+    external libraries as if they were part of the current project or the Qt
+    library.
 
-    The way to add a library to the project depends on the 
-    project type, which influcences the build system used. 
-    The following sections describe the the procedure required
-    for each project type.
+    The procedure of adding a library to a project, depends on the type of
+    project, which influences the build system used. The following sections
+    describe the the procedure required for each project type.
     
+
     \section1 QMake Projects (the default)
 
-    Open your your (ending in \c{.pro}) file from the 
-    \gui{Projects} pane, which will now show up in the editor.
-    Follow the description in the
+    Open your project file (\c{.pro}) from the \gui{Projects} pane. Then,
+    follow the guidelines in the
     \l{http://doc.qtsoftware.com/latest/make-project-files.html#declaring-other-libraries}
     {Declaring other Libraries} section of the Qt documentation.
 
-    If your project does sucessfully build and link against
-    the external library, syntax completion and highlighting
-    should also work.
+    If your project successfully builds and links against the external library,
+    syntax completion and highlighting should also work.
     
+
     \section1 CMake Projects
 
-    In CMake, libaries are usually detected using the \c{FIND_PACKAGE()} macro.
+    In CMake, libraries are usually detected using the \c{FIND_PACKAGE()} macro.
     A couple of them are already being shipped with CMake, they can be found in
     the \c{Modules} directory of your CMake installation. If you provide 
     libraries on your own, you will need to provide your own \c{FindFoo.cmake}
