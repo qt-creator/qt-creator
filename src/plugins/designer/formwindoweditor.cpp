@@ -363,6 +363,9 @@ QString FormWindowEditor::contents() const
 {
     if (!m_formWindow)
         return QString::null;
+//  Activate once all Qt branches around have integrated 4.5.2
+//  (Kinetic)
+/*  
 #if QT_VERSION > 0x040501
     // Quiet save as of Qt 4.5.2
     qdesigner_internal::FormWindowBase *fwb = qobject_cast<qdesigner_internal::FormWindowBase *>(m_formWindow);
@@ -371,4 +374,6 @@ QString FormWindowEditor::contents() const
 #else
     return m_formWindow->contents();
 #endif
+*/
+    return m_formWindow->contents();
 }
