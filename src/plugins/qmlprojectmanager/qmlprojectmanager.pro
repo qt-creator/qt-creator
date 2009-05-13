@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = QmlProjectManager
-include(../../qworkbenchplugin.pri)
+include(../../qtcreatorplugin.pri)
 include(qmlprojectmanager_dependencies.pri)
 HEADERS = qmlproject.h \
     qmlprojectplugin.h \
