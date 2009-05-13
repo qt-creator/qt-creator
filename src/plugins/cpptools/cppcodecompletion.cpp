@@ -208,15 +208,15 @@ FunctionArgumentWidget::FunctionArgumentWidget():
     m_popupFrame->setFocusPolicy(Qt::NoFocus);
     m_popupFrame->setAttribute(Qt::WA_DeleteOnClose);
 
-    QToolButton *leftArrow = new QToolButton;
-    leftArrow->setArrowType(Qt::LeftArrow);
-    leftArrow->setFixedSize(16, 16);
-    leftArrow->setAutoRaise(true);
+    QToolButton *downArrow = new QToolButton;
+    downArrow->setArrowType(Qt::DownArrow);
+    downArrow->setFixedSize(16, 16);
+    downArrow->setAutoRaise(true);
 
-    QToolButton *rightArrow = new QToolButton;
-    rightArrow->setArrowType(Qt::RightArrow);
-    rightArrow->setFixedSize(16, 16);
-    rightArrow->setAutoRaise(true);
+    QToolButton *upArrow = new QToolButton;
+    upArrow->setArrowType(Qt::UpArrow);
+    upArrow->setFixedSize(16, 16);
+    upArrow->setAutoRaise(true);
 
     m_popupFrame->setFrameStyle(QFrame::Box);
     m_popupFrame->setFrameShadow(QFrame::Plain);
@@ -228,10 +228,10 @@ FunctionArgumentWidget::FunctionArgumentWidget():
     QHBoxLayout *hbox = new QHBoxLayout(m_pager);
     hbox->setMargin(0);
     hbox->setSpacing(0);
-    hbox->addWidget(leftArrow);
+    hbox->addWidget(upArrow);
     m_numberLabel = new QLabel;
     hbox->addWidget(m_numberLabel);
-    hbox->addWidget(rightArrow);
+    hbox->addWidget(downArrow);
 
     QHBoxLayout *layout = new QHBoxLayout;
     layout->setMargin(0);
@@ -240,8 +240,8 @@ FunctionArgumentWidget::FunctionArgumentWidget():
     layout->addWidget(this);
     m_popupFrame->setLayout(layout);
 
-    connect(leftArrow, SIGNAL(clicked()), SLOT(previousPage()));
-    connect(rightArrow, SIGNAL(clicked()), SLOT(nextPage()));
+    connect(upArrow, SIGNAL(clicked()), SLOT(previousPage()));
+    connect(downArrow, SIGNAL(clicked()), SLOT(nextPage()));
 
     QPalette pal = m_popupFrame->palette();
     setAutoFillBackground(true);
