@@ -55,14 +55,12 @@ RegisterHandler::RegisterHandler(QObject *parent)
 
 int RegisterHandler::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
-    return m_registers.size();
+    return parent.isValid() ? 0 : m_registers.size();
 }
 
 int RegisterHandler::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
-    return 2;
+    return parent.isValid() ? 0 : 2;
 }
 
 QVariant RegisterHandler::data(const QModelIndex &index, int role) const
