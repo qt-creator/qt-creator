@@ -30,6 +30,7 @@
 #ifndef QT4RUNCONFIGURATION_H
 #define QT4RUNCONFIGURATION_H
 
+#include <utils/pathchooser.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <QtCore/QStringList>
 #include <QtGui/QWidget>
@@ -87,6 +88,7 @@ public slots:
 signals:
     void nameChanged(const QString&);
     void commandLineArgumentsChanged(const QString&);
+    void workingDirectoryChanged(const QString&);
     void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
     void usingDyldImageSuffixChanged(bool);
 
@@ -95,6 +97,7 @@ signals:
 
 private slots:
     void setCommandLineArguments(const QString &argumentsString);
+    void setWorkingDirectory(const QString &workingDirectory);
     void nameEdited(const QString&);
     void setRunMode(RunMode runMode);
 
@@ -110,10 +113,10 @@ private:
     ProjectExplorer::ApplicationRunConfiguration::RunMode m_runMode;
     bool m_userSetName;
     QWidget *m_configWidget;
-    QLabel *m_executableLabel;
-    QLabel *m_workingDirectoryLabel;
     bool m_cachedTargetInformationValid;
     bool m_isUsingDyldImageSuffix;
+    bool m_userSetWokingDirectory;
+    QString m_userWorkingDirectory;
 };
 
 class Qt4RunConfigurationWidget : public QWidget
@@ -125,12 +128,16 @@ protected:
     void showEvent(QShowEvent *event);
     void hideEvent(QHideEvent *event);
 private slots:
+    void setWorkingDirectory();
+    void resetWorkingDirectory();
     void setCommandLineArguments(const QString &arguments);
     void nameEdited(const QString &name);
-    // TODO connect to signals from qt4runconfiguration for changed arguments and names
+
+    void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
     void nameChanged(const QString &name);
     void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
+
     void effectiveTargetInformationChanged();
     void termToggled(bool);
     void usingDyldImageSuffixToggled(bool);
@@ -139,7 +146,7 @@ private:
     Qt4RunConfiguration *m_qt4RunConfiguration;
     bool m_ignoreChange;
     QLabel *m_executableLabel;
-    QLabel *m_workingDirectoryLabel;
+    Core::Utils::PathChooser *m_workingDirectoryEdit;
     QLineEdit *m_nameLineEdit;
     QLineEdit *m_argumentsLineEdit;
     QCheckBox *m_useTerminalCheck;

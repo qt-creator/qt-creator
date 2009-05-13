@@ -45,6 +45,7 @@
 #include <QtGui/QInputDialog>
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
+#include <QtGui/QToolButton>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
@@ -58,10 +59,9 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
       m_runMode(Gui),
       m_userSetName(false),
       m_configWidget(0),
-      m_executableLabel(0),
-      m_workingDirectoryLabel(0),
       m_cachedTargetInformationValid(false),
-      m_isUsingDyldImageSuffix(false)
+      m_isUsingDyldImageSuffix(false),
+      m_userSetWokingDirectory(false)
 {
     if (!m_proFilePath.isEmpty())
         setName(QFileInfo(m_proFilePath).completeBaseName());
@@ -104,8 +104,19 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_executableLabel = new QLabel(m_qt4RunConfiguration->executable());
     toplayout->addRow(tr("Executable:"), m_executableLabel);
 
-    m_workingDirectoryLabel = new QLabel(m_qt4RunConfiguration->workingDirectory());
-    toplayout->addRow(tr("Working Directory:"), m_workingDirectoryLabel);
+    m_workingDirectoryEdit = new Core::Utils::PathChooser();
+    m_workingDirectoryEdit->setPath(m_qt4RunConfiguration->workingDirectory());
+    m_workingDirectoryEdit->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_workingDirectoryEdit->setPromptDialogTitle(tr("Select the working directory"));
+
+    QToolButton *resetButton = new QToolButton();
+    resetButton->setToolTip(tr("Reset to default"));
+    resetButton->setIcon(QIcon(":/core/images/reset.png"));
+
+    QHBoxLayout *boxlayout = new QHBoxLayout();
+    boxlayout->addWidget(m_workingDirectoryEdit);
+    boxlayout->addWidget(resetButton);
+    toplayout->addRow(tr("Working Directory:"), boxlayout);
 
     QLabel *argumentsLabel = new QLabel(tr("&Arguments:"));
     m_argumentsLineEdit = new QLineEdit(ProjectExplorer::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()));
@@ -124,12 +135,21 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(usingDyldImageSuffixToggled(bool)));
 #endif
 
+    connect(m_workingDirectoryEdit, SIGNAL(changed()),
+            this, SLOT(setWorkingDirectory()));
+
+    connect(resetButton, SIGNAL(clicked()),
+            this, SLOT(resetWorkingDirectory()));
+
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(setCommandLineArguments(QString)));
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(nameEdited(QString)));
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
+
+    connect(qt4RunConfiguration, SIGNAL(workingDirectoryChanged(QString)),
+            this, SLOT(workingDirectoryChanged(QString)));
 
     connect(qt4RunConfiguration, SIGNAL(commandLineArgumentsChanged(QString)),
             this, SLOT(commandLineArgumentsChanged(QString)));
@@ -142,6 +162,22 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     connect(qt4RunConfiguration, SIGNAL(effectiveTargetInformationChanged()),
             this, SLOT(effectiveTargetInformationChanged()), Qt::QueuedConnection);
+}
+
+void Qt4RunConfigurationWidget::setWorkingDirectory()
+{
+    if (m_ignoreChange)
+        return;
+    m_ignoreChange = true;
+    m_qt4RunConfiguration->setWorkingDirectory(m_workingDirectoryEdit->path());
+    m_ignoreChange = false;
+}
+
+void Qt4RunConfigurationWidget::resetWorkingDirectory()
+{
+    // This emits a signal connected to workingDirectoryChanged()
+    // that sets the m_workingDirectoryEdit
+    m_qt4RunConfiguration->setWorkingDirectory("");
 }
 
 void Qt4RunConfigurationWidget::setCommandLineArguments(const QString &args)
@@ -173,6 +209,12 @@ void Qt4RunConfigurationWidget::usingDyldImageSuffixToggled(bool state)
     m_ignoreChange = false;
 }
 
+void Qt4RunConfigurationWidget::workingDirectoryChanged(const QString &workingDirectory)
+{
+    if (!m_ignoreChange)
+        m_workingDirectoryEdit->setPath(workingDirectory);
+}
+
 void Qt4RunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
 {
     if (!m_ignoreChange)
@@ -201,7 +243,9 @@ void Qt4RunConfigurationWidget::effectiveTargetInformationChanged()
 {
     if (m_isShown) {
         m_executableLabel->setText(QDir::toNativeSeparators(m_qt4RunConfiguration->executable()));
-        m_workingDirectoryLabel->setText(QDir::toNativeSeparators(m_qt4RunConfiguration->workingDirectory()));
+        m_ignoreChange = true;
+        m_workingDirectoryEdit->setPath(QDir::toNativeSeparators(m_qt4RunConfiguration->workingDirectory()));
+        m_ignoreChange = false;
     }
 }
 
@@ -275,6 +319,11 @@ void Qt4RunConfiguration::setUsingDyldImageSuffix(bool state)
 
 QString Qt4RunConfiguration::workingDirectory() const
 {
+    // if the user overrode us, then return his working directory
+    if (m_userSetWokingDirectory)
+        return m_userWorkingDirectory;
+
+    // else what the pro file reader tells us
     const_cast<Qt4RunConfiguration *>(this)->updateTarget();
     return m_workingDir;
 }
@@ -294,6 +343,19 @@ ProjectExplorer::Environment Qt4RunConfiguration::environment() const
         env.set("DYLD_IMAGE_SUFFIX", "_debug");
     }
     return env;
+}
+
+void Qt4RunConfiguration::setWorkingDirectory(const QString &wd)
+{
+    if (wd== "") {
+        m_userSetWokingDirectory = false;
+        m_userWorkingDirectory = QString::null;
+        emit workingDirectoryChanged(workingDirectory());
+    } else {
+        m_userSetWokingDirectory = true;
+        m_userWorkingDirectory = wd;
+        emit workingDirectoryChanged(m_userWorkingDirectory);
+    }
 }
 
 void Qt4RunConfiguration::setCommandLineArguments(const QString &argumentsString)
