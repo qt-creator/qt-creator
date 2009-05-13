@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>429</width>
-    <height>452</height>
+    <width>379</width>
+    <height>243</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -68,9 +68,6 @@
          <widget class="QSpinBox" name="spinBoxMaximalStackDepth">
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="frame">
-           <bool>false</bool>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
