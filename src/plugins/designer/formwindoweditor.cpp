@@ -38,6 +38,8 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/nodesvisitor.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
@@ -359,7 +361,14 @@ QString FormWindowEditor::contextHelpId() const
 
 QString FormWindowEditor::contents() const
 {
-    if (m_host && m_host->formWindow())
-        return m_host->formWindow()->contents();
-    return QString::null;
+    if (!m_formWindow)
+        return QString::null;
+#if QT_VERSION > 0x040501
+    // Quiet save as of Qt 4.5.2
+    qdesigner_internal::FormWindowBase *fwb = qobject_cast<qdesigner_internal::FormWindowBase *>(m_formWindow);
+    QTC_ASSERT(fwb, return QString::null);
+    return fwb->fileContents();
+#else
+    return m_formWindow->contents();
+#endif
 }

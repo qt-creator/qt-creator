@@ -55,8 +55,8 @@ syncHeader()
   TARGET=qt_private/$HDR
 
   # Exchange license header
-  head -n 32 formwindowfile.h > $TARGET || exit 1
-  tail -n +11 $QTHDR >> $TARGET || exit 1
+  head -n 28 formwindowfile.h > $TARGET || exit 1
+  tail -n +41 $QTHDR >> $TARGET || exit 1
 }
 
 for H in $REQUIRED_HEADERS
