@@ -32,9 +32,6 @@
 // this relies on contents copied from qobject_p.h
 #define PRIVATE_OBJECT_ALLOWED 1
 
-#ifdef HAS_QOBJECT_P_H // Detected by qmake
-#    include <QtCore/private/qobject_p.h>
-#endif
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -149,7 +146,7 @@ int qtGhVersion = QT_VERSION;
 #   define NSY ""
 #endif
 
-#if PRIVATE_OBJECT_ALLOWED && !defined(HAS_QOBJECT_P_H)
+#if PRIVATE_OBJECT_ALLOWED
 
 #if defined(QT_BEGIN_NAMESPACE)
 QT_BEGIN_NAMESPACE
@@ -1547,13 +1544,6 @@ static void qDumpQObject(QDumper &d)
     const QObject *ob = reinterpret_cast<const QObject *>(d.data);
     const QMetaObject *mo = ob->metaObject();
     unsigned childrenOffset = d.extraInt[0];
-#ifdef HAS_QOBJECT_P_H
-    // QObject child offset if known
-    if (!childrenOffset) {
-        QObjectPrivate qop;
-        childrenOffset = (char*)&qop.children - (char*)&qop;
-    }
-#endif
     P(d, "value", ob->objectName());
     P(d, "valueencoded", "2");
     P(d, "type", NS"QObject");
@@ -1624,24 +1614,6 @@ static void qDumpQObject(QDumper &d)
             P(d, "numchild", children.size());
             d.endHash();
         }
-#if 0
-        // Unneeded (and not working): Connections are listes as childen
-        // of the signal or slot they are connected to.
-        // d.beginHash();
-        //     P(d, "name", "connections");
-        //     P(d, "exp", "*(*(class "NS"QObjectPrivate*)" << dfunc(ob) << ")->connectionLists");
-        //     P(d, "type", NS"QVector<"NS"QList<"NS"QObjectPrivate::Connection> >");
-        // d.endHash();
-#endif
-#if 0
-        d.beginHash();
-            P(d, "name", "objectprivate");
-            P(d, "type", NS"QObjectPrivate");
-            P(d, "addr", dfunc(ob));
-            P(d, "value", "");
-            P(d, "numchild", "1");
-        d.endHash();
-#endif
         d.beginHash();
             P(d, "name", "parent");
             qDumpInnerValueHelper(d, NS"QObject *", ob->parent());
