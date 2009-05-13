@@ -105,8 +105,7 @@ WelcomeMode::WelcomeMode() :
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new QToolBar(m_d->m_widget));
-    // limit to 7 items to avoid scrollbars
-    m_d->rssFetcher = new RSSFetcher(7, this);
+    m_d->rssFetcher = new RSSFetcher(8, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
     m_d->ui.sessTreeWidget->viewport()->setAutoFillBackground(false);
@@ -227,8 +226,7 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
         m_d->ui.projTreeWidget->clear();
 
         if (welcomePageData.sessionList.count() > 1) {
-            // limit list to 7 displayed entries to avoid a scrollbar
-            foreach (const QString &s, welcomePageData.sessionList.mid(0, 6)) {
+            foreach (const QString &s, welcomePageData.sessionList) {
                 QString str = s;
                 if (s == welcomePageData.previousSession)
                     str = tr("%1 (last session)").arg(s);
@@ -241,8 +239,7 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
         }
 
         typedef QPair<QString, QString> QStringPair;
-        // limit list to 8 displayed entries to avoid a scrollbar
-        foreach (const QStringPair &it, welcomePageData.projectList.mid(0, 7)) {
+        foreach (const QStringPair &it, welcomePageData.projectList) {
             QTreeWidgetItem *item = m_d->ui.projTreeWidget->addItem(it.second, it.first);
             const QFileInfo fi(it.first);
             item->setToolTip(1, QDir::toNativeSeparators(fi.absolutePath()));

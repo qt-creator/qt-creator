@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>721</width>
+    <width>742</width>
     <height>637</height>
    </rect>
   </property>
@@ -30,38 +30,21 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
 }</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <property name="margin">
+      <property name="leftMargin">
+       <number>4</number>
+      </property>
+      <property name="topMargin">
+       <number>4</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
        <number>0</number>
       </property>
       <property name="spacing">
        <number>0</number>
       </property>
-      <item row="0" column="1">
-       <spacer name="verticalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="1" column="1">
        <widget class="QFrame" name="mainFrame">
         <property name="minimumSize">
@@ -73,7 +56,7 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
         <property name="maximumSize">
          <size>
           <width>662</width>
-          <height>515</height>
+          <height>16777215</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -219,383 +202,355 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
          <item>
           <widget class="QStackedWidget" name="stackedWidget">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
-           <widget class="QWidget" name="page">
-            <widget class="QFrame" name="recentProjectsFrame_2">
-             <property name="geometry">
-              <rect>
-               <x>30</x>
-               <y>20</y>
-               <width>270</width>
-               <height>290</height>
-              </rect>
+           <widget class="QWidget" name="gettingStartedPage">
+            <layout class="QGridLayout" name="gridLayout_9">
+             <property name="margin">
+              <number>18</number>
              </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+             <property name="spacing">
+              <number>24</number>
              </property>
-             <property name="maximumSize">
-              <size>
-               <width>400</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string/>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_6">
-              <item row="0" column="0">
-               <widget class="QLabel" name="projTitleLabel_2">
-                <property name="text">
-                 <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+             <item row="0" column="0" rowspan="2">
+              <widget class="QFrame" name="recentProjectsFrame_2">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>400</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string/>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_6">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="projTitleLabel_2">
+                  <property name="text">
+                   <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; color:#555555;&quot;&gt;Tutorials&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="Core::Internal::WelcomeModeTreeWidget" name="tutorialTreeWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="focusPolicy">
-                 <enum>Qt::NoFocus</enum>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="selectionMode">
-                 <enum>QAbstractItemView::NoSelection</enum>
-                </property>
-                <property name="verticalScrollMode">
-                 <enum>QAbstractItemView::ScrollPerPixel</enum>
-                </property>
-                <property name="rootIsDecorated">
-                 <bool>false</bool>
-                </property>
-                <property name="uniformRowHeights">
-                 <bool>true</bool>
-                </property>
-                <property name="allColumnsShowFocus">
-                 <bool>true</bool>
-                </property>
-                <property name="columnCount">
-                 <number>2</number>
-                </property>
-                <attribute name="headerVisible">
-                 <bool>false</bool>
-                </attribute>
-                <attribute name="headerDefaultSectionSize">
-                 <number>24</number>
-                </attribute>
-                <attribute name="headerMinimumSectionSize">
-                 <number>0</number>
-                </attribute>
-                <column>
-                 <property name="text">
-                  <string notr="true">1</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string notr="true">2</string>
-                 </property>
-                </column>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QFrame" name="recentProjectsFrame_3">
-             <property name="geometry">
-              <rect>
-               <x>350</x>
-               <y>119</y>
-               <width>274</width>
-               <height>191</height>
-              </rect>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>400</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string/>
-             </property>
-             <widget class="QLabel" name="projTitleLabel_3">
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>251</width>
-                <height>36</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="Core::Internal::WelcomeModeTreeWidget" name="tutorialTreeWidget">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::NoFocus</enum>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="selectionMode">
+                   <enum>QAbstractItemView::NoSelection</enum>
+                  </property>
+                  <property name="verticalScrollMode">
+                   <enum>QAbstractItemView::ScrollPerPixel</enum>
+                  </property>
+                  <property name="rootIsDecorated">
+                   <bool>false</bool>
+                  </property>
+                  <property name="uniformRowHeights">
+                   <bool>true</bool>
+                  </property>
+                  <property name="allColumnsShowFocus">
+                   <bool>true</bool>
+                  </property>
+                  <property name="columnCount">
+                   <number>2</number>
+                  </property>
+                  <attribute name="headerVisible">
+                   <bool>false</bool>
+                  </attribute>
+                  <attribute name="headerDefaultSectionSize">
+                   <number>24</number>
+                  </attribute>
+                  <attribute name="headerMinimumSectionSize">
+                   <number>0</number>
+                  </attribute>
+                  <column>
+                   <property name="text">
+                    <string notr="true">1</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string notr="true">2</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QFrame" name="recentProjectsFrame_4">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>400</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string/>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_8">
+                <item row="0" column="0" colspan="3">
+                 <widget class="QLabel" name="projTitleLabel_4">
+                  <property name="text">
+                   <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; color:#555555;&quot;&gt;Qt Demos and Examples&lt;/span&gt;&lt;/p&gt;
+&lt;hr /&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QComboBox" name="comboBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QToolButton" name="toolButton">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Open</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QFrame" name="recentProjectsFrame_3">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>400</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string/>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_10">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="projTitleLabel_3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; color:#555555;&quot;&gt;Did you know?&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-              </property>
-             </widget>
-             <widget class="QTextBrowser" name="didYouKnowTextBrowser">
-              <property name="geometry">
-               <rect>
-                <x>9</x>
-                <y>51</y>
-                <width>256</width>
-                <height>131</height>
-               </rect>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Plain</enum>
-              </property>
-              <property name="verticalScrollBarPolicy">
-               <enum>Qt::ScrollBarAlwaysOff</enum>
-              </property>
-              <property name="horizontalScrollBarPolicy">
-               <enum>Qt::ScrollBarAlwaysOff</enum>
-              </property>
-              <property name="openExternalLinks">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="QWidget" name="">
-              <property name="geometry">
-               <rect>
-                <x>210</x>
-                <y>14</y>
-                <width>51</width>
-                <height>20</height>
-               </rect>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
-               <item>
-                <widget class="QToolButton" name="prevTipBtn">
-                 <property name="text">
-                  <string>&lt;</string>
-                 </property>
-                 <property name="arrowType">
-                  <enum>Qt::LeftArrow</enum>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QToolButton" name="nextTipBtn">
-                 <property name="text">
-                  <string>&gt;</string>
-                 </property>
-                 <property name="arrowType">
-                  <enum>Qt::RightArrow</enum>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </widget>
-            <widget class="QFrame" name="recentProjectsFrame_4">
-             <property name="geometry">
-              <rect>
-               <x>350</x>
-               <y>20</y>
-               <width>271</width>
-               <height>83</height>
-              </rect>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>400</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string/>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_8">
-              <item row="0" column="0" colspan="3">
-               <widget class="QLabel" name="projTitleLabel_4">
-                <property name="text">
-                 <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; color:#555555;&quot;&gt;Demos and Examples&lt;/span&gt;&lt;/p&gt;
-&lt;hr /&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QComboBox" name="comboBox">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QToolButton" name="toolButton">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="text">
-                 <string>Open</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="3">
+                 <widget class="QTextBrowser" name="didYouKnowTextBrowser">
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Plain</enum>
+                  </property>
+                  <property name="verticalScrollBarPolicy">
+                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                  </property>
+                  <property name="horizontalScrollBarPolicy">
+                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                  </property>
+                  <property name="openExternalLinks">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <layout class="QHBoxLayout" name="horizontalLayout_2">
+                  <item>
+                   <widget class="QToolButton" name="prevTipBtn">
+                    <property name="text">
+                     <string>&lt;</string>
+                    </property>
+                    <property name="arrowType">
+                     <enum>Qt::LeftArrow</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QToolButton" name="nextTipBtn">
+                    <property name="text">
+                     <string>&gt;</string>
+                    </property>
+                    <property name="arrowType">
+                     <enum>Qt::RightArrow</enum>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
            </widget>
-           <widget class="QWidget" name="page_2">
-            <widget class="QFrame" name="recentSessionsFrame">
-             <property name="geometry">
-              <rect>
-               <x>30</x>
-               <y>20</y>
-               <width>270</width>
-               <height>291</height>
-              </rect>
+           <widget class="QWidget" name="developPage">
+            <layout class="QGridLayout" name="gridLayout_4">
+             <property name="margin">
+              <number>18</number>
              </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+             <property name="spacing">
+              <number>24</number>
              </property>
-             <property name="minimumSize">
-              <size>
-               <width>270</width>
-               <height>130</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>270</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string/>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_3">
-              <item row="0" column="0" colspan="2">
-               <widget class="QLabel" name="titleLabel">
-                <property name="text">
-                 <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+             <item row="0" column="0">
+              <widget class="QFrame" name="recentSessionsFrame">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>270</width>
+                 <height>130</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string/>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_3">
+                <item row="0" column="0" colspan="2">
+                 <widget class="QLabel" name="titleLabel">
+                  <property name="text">
+                   <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; color:#555555;&quot;&gt;Sessions&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" colspan="2">
-               <widget class="Core::Internal::WelcomeModeTreeWidget" name="sessTreeWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="focusPolicy">
-                 <enum>Qt::NoFocus</enum>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="selectionMode">
-                 <enum>QAbstractItemView::NoSelection</enum>
-                </property>
-                <property name="verticalScrollMode">
-                 <enum>QAbstractItemView::ScrollPerPixel</enum>
-                </property>
-                <property name="rootIsDecorated">
-                 <bool>false</bool>
-                </property>
-                <property name="uniformRowHeights">
-                 <bool>true</bool>
-                </property>
-                <property name="allColumnsShowFocus">
-                 <bool>true</bool>
-                </property>
-                <property name="columnCount">
-                 <number>2</number>
-                </property>
-                <attribute name="headerVisible">
-                 <bool>false</bool>
-                </attribute>
-                <attribute name="headerDefaultSectionSize">
-                 <number>24</number>
-                </attribute>
-                <attribute name="headerMinimumSectionSize">
-                 <number>0</number>
-                </attribute>
-                <column>
-                 <property name="text">
-                  <string notr="true">1</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string notr="true">2</string>
-                 </property>
-                </column>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="Core::Internal::WelcomeModeButton" name="restoreSessionButton">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string>* {
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="2">
+                 <widget class="Core::Internal::WelcomeModeTreeWidget" name="sessTreeWidget">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::NoFocus</enum>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="selectionMode">
+                   <enum>QAbstractItemView::NoSelection</enum>
+                  </property>
+                  <property name="verticalScrollMode">
+                   <enum>QAbstractItemView::ScrollPerPixel</enum>
+                  </property>
+                  <property name="rootIsDecorated">
+                   <bool>false</bool>
+                  </property>
+                  <property name="uniformRowHeights">
+                   <bool>true</bool>
+                  </property>
+                  <property name="allColumnsShowFocus">
+                   <bool>true</bool>
+                  </property>
+                  <property name="columnCount">
+                   <number>2</number>
+                  </property>
+                  <attribute name="headerVisible">
+                   <bool>false</bool>
+                  </attribute>
+                  <attribute name="headerDefaultSectionSize">
+                   <number>24</number>
+                  </attribute>
+                  <attribute name="headerMinimumSectionSize">
+                   <number>0</number>
+                  </attribute>
+                  <column>
+                   <property name="text">
+                    <string notr="true">1</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string notr="true">2</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="Core::Internal::WelcomeModeButton" name="restoreSessionButton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="styleSheet">
+                   <string>* {
     border-image: url(:/core/images/welcomemode/btn_26.png) 7;
     border-width: 7;
     padding: -2px 0;
@@ -609,308 +564,291 @@ p, li { white-space: pre-wrap; }
     color: white;
 }
 </string>
-                </property>
-                <property name="text">
-                 <string>&lt;qt&gt;Restore Last Session &amp;gt;&amp;gt;</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>89</width>
-                  <height>22</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QFrame" name="recentProjectsFrame">
-             <property name="geometry">
-              <rect>
-               <x>350</x>
-               <y>20</y>
-               <width>270</width>
-               <height>291</height>
-              </rect>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>270</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string/>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_5">
-              <item row="0" column="0">
-               <widget class="QLabel" name="projTitleLabel">
-                <property name="text">
-                 <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+                  </property>
+                  <property name="text">
+                   <string>&lt;qt&gt;Restore Last Session &amp;gt;&amp;gt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <spacer name="horizontalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Preferred</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>89</width>
+                    <height>22</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QFrame" name="recentProjectsFrame">
+               <property name="styleSheet">
+                <string/>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_5">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="projTitleLabel">
+                  <property name="text">
+                   <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; color:#555555;&quot;&gt;Projects&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="Core::Internal::WelcomeModeTreeWidget" name="projTreeWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="focusPolicy">
-                 <enum>Qt::NoFocus</enum>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="selectionMode">
-                 <enum>QAbstractItemView::NoSelection</enum>
-                </property>
-                <property name="verticalScrollMode">
-                 <enum>QAbstractItemView::ScrollPerPixel</enum>
-                </property>
-                <property name="rootIsDecorated">
-                 <bool>false</bool>
-                </property>
-                <property name="uniformRowHeights">
-                 <bool>true</bool>
-                </property>
-                <property name="allColumnsShowFocus">
-                 <bool>true</bool>
-                </property>
-                <property name="columnCount">
-                 <number>2</number>
-                </property>
-                <attribute name="headerVisible">
-                 <bool>false</bool>
-                </attribute>
-                <attribute name="headerDefaultSectionSize">
-                 <number>24</number>
-                </attribute>
-                <attribute name="headerMinimumSectionSize">
-                 <number>0</number>
-                </attribute>
-                <column>
-                 <property name="text">
-                  <string notr="true">1</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string notr="true">2</string>
-                 </property>
-                </column>
-               </widget>
-              </item>
-             </layout>
-            </widget>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="Core::Internal::WelcomeModeTreeWidget" name="projTreeWidget">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::NoFocus</enum>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="selectionMode">
+                   <enum>QAbstractItemView::NoSelection</enum>
+                  </property>
+                  <property name="verticalScrollMode">
+                   <enum>QAbstractItemView::ScrollPerPixel</enum>
+                  </property>
+                  <property name="rootIsDecorated">
+                   <bool>false</bool>
+                  </property>
+                  <property name="uniformRowHeights">
+                   <bool>true</bool>
+                  </property>
+                  <property name="allColumnsShowFocus">
+                   <bool>true</bool>
+                  </property>
+                  <property name="columnCount">
+                   <number>2</number>
+                  </property>
+                  <attribute name="headerVisible">
+                   <bool>false</bool>
+                  </attribute>
+                  <attribute name="headerDefaultSectionSize">
+                   <number>24</number>
+                  </attribute>
+                  <attribute name="headerMinimumSectionSize">
+                   <number>0</number>
+                  </attribute>
+                  <column>
+                   <property name="text">
+                    <string notr="true">1</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string notr="true">2</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
            </widget>
-           <widget class="QWidget" name="Seite">
-            <widget class="QFrame" name="frame">
-             <property name="geometry">
-              <rect>
-               <x>30</x>
-               <y>20</y>
-               <width>330</width>
-               <height>291</height>
-              </rect>
+           <widget class="QWidget" name="communityPage">
+            <layout class="QGridLayout" name="gridLayout_7">
+             <property name="margin">
+              <number>18</number>
              </property>
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
+             <property name="spacing">
+              <number>24</number>
              </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_2">
-              <item>
-               <widget class="QLabel" name="titleLabel_2">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+             <item row="0" column="0">
+              <widget class="QFrame" name="frame">
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Plain</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_2">
+                <item>
+                 <widget class="QLabel" name="titleLabel_2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; color:#555555;&quot;&gt;News from the Qt Labs&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="Core::Internal::WelcomeModeTreeWidget" name="newsTreeWidget">
-                <property name="minimumSize">
-                 <size>
-                  <width>280</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="focusPolicy">
-                 <enum>Qt::NoFocus</enum>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="selectionMode">
-                 <enum>QAbstractItemView::NoSelection</enum>
-                </property>
-                <property name="verticalScrollMode">
-                 <enum>QAbstractItemView::ScrollPerPixel</enum>
-                </property>
-                <property name="rootIsDecorated">
-                 <bool>false</bool>
-                </property>
-                <property name="uniformRowHeights">
-                 <bool>true</bool>
-                </property>
-                <property name="allColumnsShowFocus">
-                 <bool>true</bool>
-                </property>
-                <property name="columnCount">
-                 <number>2</number>
-                </property>
-                <attribute name="headerVisible">
-                 <bool>false</bool>
-                </attribute>
-                <attribute name="headerDefaultSectionSize">
-                 <number>24</number>
-                </attribute>
-                <attribute name="headerMinimumSectionSize">
-                 <number>0</number>
-                </attribute>
-                <column>
-                 <property name="text">
-                  <string notr="true">1</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string notr="true">2</string>
-                 </property>
-                </column>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QFrame" name="frame_2">
-             <property name="geometry">
-              <rect>
-               <x>400</x>
-               <y>20</y>
-               <width>220</width>
-               <height>290</height>
-              </rect>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_3">
-              <item>
-               <widget class="QLabel" name="titleLabel_3">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="Core::Internal::WelcomeModeTreeWidget" name="newsTreeWidget">
+                  <property name="minimumSize">
+                   <size>
+                    <width>360</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::NoFocus</enum>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="selectionMode">
+                   <enum>QAbstractItemView::NoSelection</enum>
+                  </property>
+                  <property name="verticalScrollMode">
+                   <enum>QAbstractItemView::ScrollPerPixel</enum>
+                  </property>
+                  <property name="rootIsDecorated">
+                   <bool>false</bool>
+                  </property>
+                  <property name="uniformRowHeights">
+                   <bool>true</bool>
+                  </property>
+                  <property name="allColumnsShowFocus">
+                   <bool>true</bool>
+                  </property>
+                  <property name="columnCount">
+                   <number>2</number>
+                  </property>
+                  <attribute name="headerVisible">
+                   <bool>false</bool>
+                  </attribute>
+                  <attribute name="headerDefaultSectionSize">
+                   <number>24</number>
+                  </attribute>
+                  <attribute name="headerMinimumSectionSize">
+                   <number>0</number>
+                  </attribute>
+                  <column>
+                   <property name="text">
+                    <string notr="true">1</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string notr="true">2</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QFrame" name="frame_2">
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Plain</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_3">
+                <item>
+                 <widget class="QLabel" name="titleLabel_3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; color:#555555;&quot;&gt;Qt Websites&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="Core::Internal::WelcomeModeTreeWidget" name="sitesTreeWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="focusPolicy">
-                 <enum>Qt::NoFocus</enum>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="selectionMode">
-                 <enum>QAbstractItemView::NoSelection</enum>
-                </property>
-                <property name="verticalScrollMode">
-                 <enum>QAbstractItemView::ScrollPerPixel</enum>
-                </property>
-                <property name="rootIsDecorated">
-                 <bool>false</bool>
-                </property>
-                <property name="uniformRowHeights">
-                 <bool>true</bool>
-                </property>
-                <property name="allColumnsShowFocus">
-                 <bool>true</bool>
-                </property>
-                <property name="columnCount">
-                 <number>2</number>
-                </property>
-                <attribute name="headerVisible">
-                 <bool>false</bool>
-                </attribute>
-                <attribute name="headerDefaultSectionSize">
-                 <number>24</number>
-                </attribute>
-                <attribute name="headerMinimumSectionSize">
-                 <number>0</number>
-                </attribute>
-                <column>
-                 <property name="text">
-                  <string notr="true">1</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string notr="true">2</string>
-                 </property>
-                </column>
-               </widget>
-              </item>
-             </layout>
-            </widget>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="Core::Internal::WelcomeModeTreeWidget" name="sitesTreeWidget">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::NoFocus</enum>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="selectionMode">
+                   <enum>QAbstractItemView::NoSelection</enum>
+                  </property>
+                  <property name="verticalScrollMode">
+                   <enum>QAbstractItemView::ScrollPerPixel</enum>
+                  </property>
+                  <property name="rootIsDecorated">
+                   <bool>false</bool>
+                  </property>
+                  <property name="uniformRowHeights">
+                   <bool>true</bool>
+                  </property>
+                  <property name="allColumnsShowFocus">
+                   <bool>true</bool>
+                  </property>
+                  <property name="columnCount">
+                   <number>2</number>
+                  </property>
+                  <attribute name="headerVisible">
+                   <bool>false</bool>
+                  </attribute>
+                  <attribute name="headerDefaultSectionSize">
+                   <number>24</number>
+                  </attribute>
+                  <attribute name="headerMinimumSectionSize">
+                   <number>0</number>
+                  </attribute>
+                  <column>
+                   <property name="text">
+                    <string notr="true">1</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string notr="true">2</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </widget>
          </item>
@@ -985,31 +923,43 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </item>
-      <item row="1" column="2">
-       <spacer name="horizontalSpacer_4">
+      <item row="2" column="1">
+       <spacer name="verticalSpacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Maximum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>0</width>
-          <height>0</height>
+          <width>20</width>
+          <height>40</height>
          </size>
         </property>
        </spacer>
       </item>
-      <item row="2" column="1">
+      <item row="0" column="1">
        <spacer name="verticalSpacer_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Maximum</enum>
+        </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>0</width>
-          <height>0</height>
+          <width>20</width>
+          <height>40</height>
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="1" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
+      </item>
+      <item row="1" column="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_4"/>
       </item>
      </layout>
     </widget>
