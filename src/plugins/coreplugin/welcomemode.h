@@ -86,10 +86,12 @@ private slots:
     void slotSessionClicked(const QString &data);
     void slotProjectClicked(const QString &data);
     void slotUrlClicked(const QString &data);
+    void slotNextTip();
+    void slotPrevTip();
 
 private:
     void activateEditMode();
-    QString getTipOfTheDay();
+    QStringList tipsOfTheDay();
 
     WelcomeModePrivate *m_d;
 };

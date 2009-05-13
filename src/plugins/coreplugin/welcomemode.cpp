@@ -52,6 +52,13 @@
 namespace Core {
 namespace Internal {
 
+namespace {
+    QString htmlSkel = "<html><head><style type=\"text/css\">"
+              "a:link { color: #ccc;}"
+              "a:hover { color: black; text-decoration:underline;} "
+              "</style></head><body>%1</body></html>>";
+}
+
 struct WelcomeModePrivate
 {
     WelcomeModePrivate();
@@ -62,6 +69,7 @@ struct WelcomeModePrivate
     Ui::WelcomePage ui;
     RSSFetcher *rssFetcher;
     WelcomeMode::WelcomePageData lastData;
+    int currentTip;
 };
 
 WelcomeModePrivate::WelcomeModePrivate()
@@ -156,7 +164,18 @@ WelcomeMode::WelcomeMode() :
     m_d->ui.tutorialTreeWidget->addItem(tr("Writing test cases"),
                                         QLatin1String("qthelp://com.trolltech.qt/qdoc/qtestlib-tutorial.html"));
 
-    m_d->ui.didYouKnowTextBrowser->setText(getTipOfTheDay());
+    srand(QDateTime::currentDateTime().toTime_t());
+    QStringList tips = tipsOfTheDay();
+    m_d->currentTip = rand()%tips.count();
+
+    QTextDocument *doc = m_d->ui.didYouKnowTextBrowser->document();
+    doc->setDefaultStyleSheet("a:link {color:black;}");
+    m_d->ui.didYouKnowTextBrowser->setDocument(doc);
+    m_d->ui.didYouKnowTextBrowser->setText(tips.at(m_d->currentTip));
+
+    connect(m_d->ui.nextTipBtn, SIGNAL(clicked()), this, SLOT(slotNextTip()));
+    connect(m_d->ui.prevTipBtn, SIGNAL(clicked()), this, SLOT(slotPrevTip()));
+
     QSettings *settings = ICore::instance()->settings();
     int id = settings->value("General/WelcomeTab", 0).toInt();
     m_d->btnGrp->button(id)->setChecked(true);
@@ -282,7 +301,19 @@ void WelcomeMode::slotFeedback()
             "http://www.qtsoftware.com/forms/feedback-forms/qt-creator-user-feedback/view")));
 }
 
-QString WelcomeMode::getTipOfTheDay()
+void WelcomeMode::slotNextTip()
+{
+    QStringList tips = tipsOfTheDay();
+    m_d->ui.didYouKnowTextBrowser->setText(tips.at((++m_d->currentTip)%tips.count()));
+}
+
+void WelcomeMode::slotPrevTip()
+{
+    QStringList tips = tipsOfTheDay();
+    m_d->ui.didYouKnowTextBrowser->setText(tips.at((--m_d->currentTip)%tips.count()));
+}
+
+QStringList WelcomeMode::tipsOfTheDay()
 {
     static QStringList tips;
     if (tips.isEmpty()) {
@@ -292,16 +323,12 @@ QString WelcomeMode::getTipOfTheDay()
         tips.append(tr("You can show and hide the side bar using <tt>Alt+0<tt>."));
         tips.append(tr("You can fine tune the <tt>Find</tt> function by selecting &quot;Whole Words&quot; "
                        "or &quot;Case Sensitive&quot;. Simply click on the icons on the right end of the line edit."));                       
-        tips.append(tr("If you add a <a href=\"qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html\""
+        tips.append(tr("If you add <a href=\"qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html\""
                        ">external libraries</a>, Qt Creator will automatically offer syntax highlighting "
                         "and code completion."));
     }
-
-    srand(QDateTime::currentDateTime().toTime_t());
-    return tips.at(rand()%tips.count());
+    return tips;
 }
-
-
 
 // ---  WelcomeModeButton
 
