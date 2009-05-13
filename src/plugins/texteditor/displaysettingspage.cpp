@@ -123,7 +123,8 @@ void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings) const
     displaySettings.m_displayFoldingMarkers = m_d->m_page.displayFoldingMarkers->isChecked();
     displaySettings.m_highlightCurrentLine = m_d->m_page.highlightCurrentLine->isChecked();
     displaySettings.m_highlightBlocks = m_d->m_page.highlightBlocks->isChecked();
-    displaySettings.m_animateMatchingParentheses= m_d->m_page.animateMatchingParentheses->isChecked();
+    displaySettings.m_animateMatchingParentheses = m_d->m_page.animateMatchingParentheses->isChecked();
+    displaySettings.m_mouseNavigation = m_d->m_page.mouseNavigation->isChecked();
 }
 
 void DisplaySettingsPage::settingsToUI()
@@ -138,6 +139,7 @@ void DisplaySettingsPage::settingsToUI()
     m_d->m_page.highlightCurrentLine->setChecked(displaySettings.m_highlightCurrentLine);
     m_d->m_page.highlightBlocks->setChecked(displaySettings.m_highlightBlocks);
     m_d->m_page.animateMatchingParentheses->setChecked(displaySettings.m_animateMatchingParentheses);
+    m_d->m_page.mouseNavigation->setChecked(displaySettings.m_mouseNavigation);
 }
 
 DisplaySettings DisplaySettingsPage::displaySettings() const

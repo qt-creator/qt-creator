@@ -126,7 +126,7 @@ void BehaviorSettingsPage::apply()
 }
 
 void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,
-                                         StorageSettings &storageSettings) const
+                                          StorageSettings &storageSettings) const
 {
     tabSettings.m_spacesForTabs = m_d->m_page.insertSpaces->isChecked();
     tabSettings.m_autoIndent = m_d->m_page.autoIndent->isChecked();

@@ -87,6 +87,7 @@ public:
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
+    virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     void setSortedMethodOverview(bool sort);
     void switchDeclarationDefinition();
     void jumpToDefinition();
@@ -153,11 +154,13 @@ private:
 
     void showLink(const Link &);
     void clearLink();
-    bool m_showingLink;
 
     Link findLinkAt(const QTextCursor &, bool lookupDefinition = true);
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
     bool openCppEditorAt(const Link &);
+
+    bool m_mouseNavigationEnabled;
+    bool m_showingLink;
     QTextCharFormat m_linkFormat;
 
     CppTools::CppModelManagerInterface *m_modelManager;

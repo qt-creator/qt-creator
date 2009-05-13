@@ -43,6 +43,7 @@ static const char * const displayFoldingMarkersKey = "DisplayFoldingMarkers";
 static const char * const highlightCurrentLineKey = "HighlightCurrentLineKeyV2";
 static const char * const highlightBlocksKey = "HighlightBlocksKey";
 static const char * const animateMatchingParenthesesKey= "AnimateMatchingParenthesesKey";
+static const char * const mouseNavigationKey = "MouseNavigation";
 static const char * const groupPostfix = "DisplaySettings";
 
 namespace TextEditor {
@@ -56,7 +57,8 @@ DisplaySettings::DisplaySettings() :
     m_displayFoldingMarkers(true),
     m_highlightCurrentLine(false),
     m_highlightBlocks(false),
-    m_animateMatchingParentheses(true)
+    m_animateMatchingParentheses(true),
+    m_mouseNavigation(true)
 {
 }
 
@@ -75,6 +77,7 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine);
     s->setValue(QLatin1String(highlightBlocksKey), m_highlightBlocks);
     s->setValue(QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses);
+    s->setValue(QLatin1String(mouseNavigationKey), m_mouseNavigation);
     s->endGroup();
 }
 
@@ -96,6 +99,7 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_highlightCurrentLine = s->value(group + QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine).toBool();
     m_highlightBlocks = s->value(group + QLatin1String(highlightBlocksKey), m_highlightBlocks).toBool();
     m_animateMatchingParentheses = s->value(group + QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses).toBool();
+    m_mouseNavigation = s->value(group + QLatin1String(mouseNavigationKey), m_mouseNavigation).toBool();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const
@@ -109,6 +113,7 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_highlightCurrentLine == ds.m_highlightCurrentLine
         && m_highlightBlocks == ds.m_highlightBlocks
         && m_animateMatchingParentheses == ds.m_animateMatchingParentheses
+        && m_mouseNavigation == ds.m_mouseNavigation
         ;
 }
 
