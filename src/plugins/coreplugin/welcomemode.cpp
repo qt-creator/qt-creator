@@ -52,13 +52,6 @@
 namespace Core {
 namespace Internal {
 
-namespace {
-    QString htmlSkel = "<html><head><style type=\"text/css\">"
-              "a:link { color: #ccc;}"
-              "a:hover { color: black; text-decoration:underline;} "
-              "</style></head><body>%1</body></html>>";
-}
-
 struct WelcomeModePrivate
 {
     WelcomeModePrivate();
