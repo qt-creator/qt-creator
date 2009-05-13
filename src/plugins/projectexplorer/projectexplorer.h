@@ -106,7 +106,7 @@ public:
 
     BuildManager *buildManager() const;
 
-    bool saveModifiedFiles(const QList<Project *> & projects);
+    bool saveModifiedFiles();
 
     void showContextMenu(const QPoint &globalPos, Node *node);
 

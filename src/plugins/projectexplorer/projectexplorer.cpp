@@ -1327,7 +1327,7 @@ QStringList ProjectExplorerPlugin::allFilesWithDependencies(Project *pro)
     return filesToSave;
 }
 
-bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
+bool ProjectExplorerPlugin::saveModifiedFiles()
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::saveModifiedFiles";
@@ -1359,7 +1359,7 @@ void ProjectExplorerPlugin::buildProjectOnly()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::buildProjectOnly";
 
-    if (saveModifiedFiles(QList<Project *>() << m_currentProject))
+    if (saveModifiedFiles())
         buildManager()->buildProject(m_currentProject, m_currentProject->activeBuildConfiguration());
 }
 
@@ -1368,8 +1368,8 @@ void ProjectExplorerPlugin::buildProject()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::buildProject";
 
-    const QList<Project *> & projects = m_session->projectOrder(m_currentProject);
-    if (saveModifiedFiles(projects)) {
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder(m_currentProject);
         QStringList configurations;
         foreach (const Project * pro, projects)
             configurations << pro->activeBuildConfiguration();
@@ -1383,8 +1383,8 @@ void ProjectExplorerPlugin::buildSession()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::buildSession";
 
-    const QList<Project *> & projects = m_session->projectOrder();
-    if (saveModifiedFiles(projects)) {
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder();
         QStringList configurations;
         foreach (const Project * pro, projects)
             configurations << pro->activeBuildConfiguration();
@@ -1398,7 +1398,7 @@ void ProjectExplorerPlugin::rebuildProjectOnly()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::rebuildProjectOnly";
 
-    if (saveModifiedFiles(QList<Project *>() << m_currentProject)) {
+    if (saveModifiedFiles()) {
         m_buildManager->cleanProject(m_currentProject, m_currentProject->activeBuildConfiguration());
         m_buildManager->buildProject(m_currentProject, m_currentProject->activeBuildConfiguration());
     }
@@ -1409,8 +1409,8 @@ void ProjectExplorerPlugin::rebuildProject()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::rebuildProject";
 
-    const QList<Project *> & projects = m_session->projectOrder(m_currentProject);
-    if (saveModifiedFiles(projects)) {
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder(m_currentProject);
         QStringList configurations;
         foreach (const Project * pro, projects)
             configurations << pro->activeBuildConfiguration();
@@ -1425,8 +1425,8 @@ void ProjectExplorerPlugin::rebuildSession()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::rebuildSession";
 
-    const QList<Project *> & projects = m_session->projectOrder();
-    if (saveModifiedFiles(projects)) {
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder();
         QStringList configurations;
         foreach (const Project * pro, projects)
             configurations << pro->activeBuildConfiguration();
@@ -1441,7 +1441,7 @@ void ProjectExplorerPlugin::cleanProjectOnly()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::cleanProjectOnly";
 
-    if (saveModifiedFiles(QList<Project *>() << m_currentProject))
+    if (saveModifiedFiles())
         m_buildManager->cleanProject(m_currentProject, m_currentProject->activeBuildConfiguration());
 }
 
@@ -1450,8 +1450,8 @@ void ProjectExplorerPlugin::cleanProject()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::cleanProject";
 
-    const QList<Project *> & projects = m_session->projectOrder(m_currentProject);
-    if (saveModifiedFiles(projects)) {
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder(m_currentProject);
         QStringList configurations;
         foreach (const Project * pro, projects)
             configurations << pro->activeBuildConfiguration();
@@ -1465,8 +1465,8 @@ void ProjectExplorerPlugin::cleanSession()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::cleanSession";
 
-    const QList<Project *> & projects = m_session->projectOrder();
-    if (saveModifiedFiles(projects)) {
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder();
         QStringList configurations;
         foreach (const Project * pro, projects)
             configurations << pro->activeBuildConfiguration();
@@ -1491,7 +1491,7 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro)
         return;
 
     if (m_projectExplorerSettings.buildBeforeRun) {
-        if (saveModifiedFiles(QList<Project *>() << pro)) {
+        if (saveModifiedFiles()) {
             m_runMode = ProjectExplorer::Constants::RUNMODE;
             m_delayedRunConfiguration = pro->activeRunConfiguration();
 
@@ -1514,7 +1514,7 @@ void ProjectExplorerPlugin::debugProject()
         return;
 
     if (m_projectExplorerSettings.buildBeforeRun) {
-        if (saveModifiedFiles(QList<Project *>() << pro)) {
+        if (saveModifiedFiles()) {
             m_runMode = ProjectExplorer::Constants::DEBUGMODE;
             m_delayedRunConfiguration = pro->activeRunConfiguration();
 
