@@ -44,9 +44,15 @@
 
 QT_BEGIN_NAMESPACE
 
+
 /*
 TRANSLATOR qdesigner_internal::ResourceModel
 */
+
+static QString msgFileNameEmpty()
+{
+    return QCoreApplication::translate("Designer", "The file name is empty.");
+}
 
 namespace qdesigner_internal {
 
@@ -82,7 +88,7 @@ bool ResourceFile::load()
     m_error_message.clear();
 
     if (m_file_name.isEmpty()) {
-        m_error_message = QCoreApplication::translate("Designer", "file name is empty");
+        m_error_message = msgFileNameEmpty();
         return false;
     }
 
@@ -106,7 +112,7 @@ bool ResourceFile::load()
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
     if (root.isNull()) {
-        m_error_message = QCoreApplication::translate("Designer", "no <RCC> root element");
+        m_error_message = QCoreApplication::translate("Designer", "The <RCC> root element is missing.");
         return false;
     }
 
@@ -145,7 +151,7 @@ bool ResourceFile::save()
     m_error_message.clear();
 
     if (m_file_name.isEmpty()) {
-        m_error_message = QCoreApplication::translate("Designer", "file name is empty");
+        m_error_message = msgFileNameEmpty();
         return false;
     }
 

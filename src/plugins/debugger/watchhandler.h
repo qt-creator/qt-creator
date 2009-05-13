@@ -101,6 +101,7 @@ public:
     WatchData pointerChildPlaceHolder() const;
 
     QString toString() const;
+    QString toToolTip() const;
     bool isLocal() const { return iname.startsWith(QLatin1String("local.")); }
     bool isWatcher() const { return iname.startsWith(QLatin1String("watch.")); }
     bool isValid() const { return !iname.isEmpty(); }

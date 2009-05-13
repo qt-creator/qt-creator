@@ -1241,19 +1241,19 @@ EditorManager::ReadOnlyAction
                                       QWidget *parent,
                                       bool displaySaveAsButton)
 {
-    QMessageBox msgBox(QMessageBox::Question, QObject::tr("File is Read Only"),
-                       QObject::tr("The file %1 is read only.").arg(fileName),
+    QMessageBox msgBox(QMessageBox::Question, tr("File is Read Only"),
+                       tr("The file %1 is read only.").arg(fileName),
                        QMessageBox::Cancel, parent);
 
     QPushButton *sccButton = 0;
     if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation))
-        sccButton = msgBox.addButton(QObject::tr("Open with VCS (%1)").arg(versionControl->name()), QMessageBox::AcceptRole);
+        sccButton = msgBox.addButton(tr("Open with VCS (%1)").arg(versionControl->name()), QMessageBox::AcceptRole);
 
-    QPushButton *makeWritableButton =  msgBox.addButton(QObject::tr("Make writable"), QMessageBox::AcceptRole);
+    QPushButton *makeWritableButton =  msgBox.addButton(tr("Make writable"), QMessageBox::AcceptRole);
 
     QPushButton *saveAsButton = 0;
     if (displaySaveAsButton)
-        saveAsButton = msgBox.addButton(QObject::tr("Save as ..."), QMessageBox::ActionRole);
+        saveAsButton = msgBox.addButton(tr("Save as ..."), QMessageBox::ActionRole);
 
     msgBox.setDefaultButton(sccButton ? sccButton : makeWritableButton);
     msgBox.exec();

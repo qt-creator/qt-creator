@@ -189,6 +189,7 @@ CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
 
 CPPEditor::CPPEditor(QWidget *parent)
     : TextEditor::BaseTextEditor(parent)
+    , m_mouseNavigationEnabled(true)
     , m_showingLink(false)
 {
     setParenthesesMatchingEnabled(true);
@@ -901,7 +902,7 @@ void CPPEditor::mouseMoveEvent(QMouseEvent *e)
 {
     bool linkFound = false;
 
-    if (e->modifiers() & Qt::ControlModifier) {
+    if (m_mouseNavigationEnabled && e->modifiers() & Qt::ControlModifier) {
         // Link emulation behaviour for 'go to definition'
         const QTextCursor cursor = cursorForPosition(e->pos());
 
@@ -1027,6 +1028,11 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     m_linkFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LINK));
 }
 
+void CPPEditor::setDisplaySettings(const TextEditor::DisplaySettings &ds)
+{
+    TextEditor::BaseTextEditor::setDisplaySettings(ds);
+    m_mouseNavigationEnabled = ds.m_mouseNavigation;
+}
 
 void CPPEditor::unCommentSelection()
 {

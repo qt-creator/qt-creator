@@ -20,7 +20,7 @@
        <property name="text" >
         <string>Use Virtual Box&#xd;
 Note: This adds the toolchain to the build environment and runs the program inside a virtual machine.&#xd;
-It also automatically sets the correct qt version.</string>
+It also automatically sets the correct Qt version.</string>
        </property>
       </widget>
      </item>

@@ -210,7 +210,7 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
     import2Label = new QLabel(importPage);
     import2Label->setTextFormat(Qt::RichText);
     if (m_temporaryVersion)
-        import2Label->setText(tr("<b>Note:</b> Importing the settings will automatically add the Qt Version from:<br><b>%1</b> to the list of qt versions.")
+        import2Label->setText(tr("<b>Note:</b> Importing the settings will automatically add the Qt Version from:<br><b>%1</b> to the list of Qt versions.")
                               .arg(QDir::toNativeSeparators(m_importVersion->path())));
     importLayout->addWidget(import2Label);
     addPage(importPage);

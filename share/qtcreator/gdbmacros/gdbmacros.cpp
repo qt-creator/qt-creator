@@ -29,12 +29,6 @@
 
 #include <qglobal.h>
 
-// this relies on contents copied from qobject_p.h
-#define PRIVATE_OBJECT_ALLOWED 1
-
-#ifdef HAS_QOBJECT_P_H // Detected by qmake
-#    include <QtCore/private/qobject_p.h>
-#endif
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -149,48 +143,13 @@ int qtGhVersion = QT_VERSION;
 #   define NSY ""
 #endif
 
-#if PRIVATE_OBJECT_ALLOWED && !defined(HAS_QOBJECT_P_H)
-
 #if defined(QT_BEGIN_NAMESPACE)
 QT_BEGIN_NAMESPACE
 #endif
 
-class QVariant;
-class QThreadData;
-class QObjectConnectionListVector;
+struct Sender { QObject *sender; int signal; int ref; };
 
-class QObjectPrivate : public QObjectData
-{
-    Q_DECLARE_PUBLIC(QObject)
-
-public:
-    QObjectPrivate() {}
-    virtual ~QObjectPrivate() {}
-
-    // preserve binary compatibility with code compiled without Qt 3 support
-    QList<QObject *> pendingChildInsertedEvents; // unused
-
-    // id of the thread that owns the object
-    QThreadData *threadData;
-
-    struct Sender
-    {
-        QObject *sender;
-        int signal;
-        int ref;
-    };
-
-    Sender *currentSender; // object currently activating the object
-    QObject *currentChildBeingDeleted;
-
-    QList<QPointer<QObject> > eventFilters;
-
-    struct ExtraData;
-    ExtraData *extraData;
-    mutable quint32 connectedSignals;
-
-    QString objectName;
-
+#if QT_VERSION < 0x040600
     struct Connection
     {
         QObject *receiver;
@@ -198,18 +157,61 @@ public:
         uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
         QBasicAtomicPointer<int> argumentTypes;
     };
-    typedef QList<Connection> ConnectionList;
 
-    QObjectConnectionListVector *connectionLists;
-    QList<Sender> senders;
+    typedef QList<Connection> ConnectionList;
+    typedef QList<Sender> SenderList;
+
+    const Connection &connectionAt(const ConnectionList &l, int i) { return l.at(i); }
+    const QObject *senderAt(const SenderList &l, int i) { return l.at(i).sender; }
+    int signalAt(const SenderList &l, int i) { return l.at(i).signal; }
+#endif
+
+#if QT_VERSION >= 0x040600
+    struct Connection
+    {
+        QObject *sender;
+        QObject *receiver;
+        int method;
+        uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
+        QBasicAtomicPointer<int> argumentTypes;
+    };
+
+    typedef QList<Connection *> ConnectionList;
+    typedef ConnectionList SenderList;
+
+    const Connection &connectionAt(const ConnectionList &l, int i) { return *l.at(i); }
+    const QObject *senderAt(const SenderList &l, int i) { return l.at(i)->sender; }
+    // FIXME: 'method' is wrong
+    int signalAt(const SenderList &l, int i) { return l.at(i)->method; }
+#endif
+
+class QObjectPrivate : public QObjectData
+{
+public:
+    QObjectPrivate() {}
+    virtual ~QObjectPrivate() {}
+
+    QList<QObject *> pendingChildInsertedEvents;
+    void *threadData;
+    void *currentSender;
+    void *currentChildBeingDeleted;
+
+    QList<QPointer<QObject> > eventFilters;
+
+    void *extraData;
+    mutable quint32 connectedSignals;
+
+    QString objectName;
+
+    void *connectionLists;
+    SenderList senders;
     int *deleteWatch;
 };
+
 
 #if defined(QT_BEGIN_NAMESPACE)
 QT_END_NAMESPACE
 #endif
-
-#endif // PRIVATE_OBJECT_ALLOWED
 
 
 // This can be mangled typenames of nested templates, each char-by-char
@@ -1547,13 +1549,6 @@ static void qDumpQObject(QDumper &d)
     const QObject *ob = reinterpret_cast<const QObject *>(d.data);
     const QMetaObject *mo = ob->metaObject();
     unsigned childrenOffset = d.extraInt[0];
-#ifdef HAS_QOBJECT_P_H
-    // QObject child offset if known
-    if (!childrenOffset) {
-        QObjectPrivate qop;
-        childrenOffset = (char*)&qop.children - (char*)&qop;
-    }
-#endif
     P(d, "value", ob->objectName());
     P(d, "valueencoded", "2");
     P(d, "type", NS"QObject");
@@ -1594,7 +1589,6 @@ static void qDumpQObject(QDumper &d)
             P(d, "type", NS"QList<"NS"QObjectPrivateSender>");
         d.endHash();
 #endif
-#if PRIVATE_OBJECT_ALLOWED
         d.beginHash();
             P(d, "name", "signals");
             P(d, "exp", "*(class '"NS"QObject'*)" << d.data);
@@ -1609,7 +1603,6 @@ static void qDumpQObject(QDumper &d)
             P(d, "value", "<" << slotCount << " items>");
             P(d, "numchild", slotCount);
         d.endHash();
-#endif
         if (childrenOffset) {
             d.beginHash();
             P(d, "name", "children");
@@ -1624,24 +1617,6 @@ static void qDumpQObject(QDumper &d)
             P(d, "numchild", children.size());
             d.endHash();
         }
-#if 0
-        // Unneeded (and not working): Connections are listes as childen
-        // of the signal or slot they are connected to.
-        // d.beginHash();
-        //     P(d, "name", "connections");
-        //     P(d, "exp", "*(*(class "NS"QObjectPrivate*)" << dfunc(ob) << ")->connectionLists");
-        //     P(d, "type", NS"QVector<"NS"QList<"NS"QObjectPrivate::Connection> >");
-        // d.endHash();
-#endif
-#if 0
-        d.beginHash();
-            P(d, "name", "objectprivate");
-            P(d, "type", NS"QObjectPrivate");
-            P(d, "addr", dfunc(ob));
-            P(d, "value", "");
-            P(d, "numchild", "1");
-        d.endHash();
-#endif
         d.beginHash();
             P(d, "name", "parent");
             qDumpInnerValueHelper(d, NS"QObject *", ob->parent());
@@ -1720,7 +1695,6 @@ static void qDumpQObjectMethodList(QDumper &d)
     d.disarm();
 }
 
-#if PRIVATE_OBJECT_ALLOWED
 const char * qConnectionTypes[] ={
     "auto",
     "direct",
@@ -1730,13 +1704,13 @@ const char * qConnectionTypes[] ={
 };
 
 #if QT_VERSION >= 0x040400
-static const QObjectPrivate::ConnectionList &qConnectionList(const QObject *ob, int signalNumber)
+static const ConnectionList &qConnectionList(const QObject *ob, int signalNumber)
 {
-    static const QObjectPrivate::ConnectionList emptyList;
+    static const ConnectionList emptyList;
     const QObjectPrivate *p = reinterpret_cast<const QObjectPrivate *>(dfunc(ob));
     if (!p->connectionLists)
         return emptyList;
-    typedef QVector<QObjectPrivate::ConnectionList> ConnLists;
+    typedef QVector<ConnectionList> ConnLists;
     const ConnLists *lists = reinterpret_cast<const ConnLists *>(p->connectionLists);
     // there's an optimization making the lists only large enough to hold the
     // last non-empty item
@@ -1758,9 +1732,9 @@ static void qDumpQObjectSignal(QDumper &d)
     if (d.dumpChildren) {
         const QObject *ob = reinterpret_cast<const QObject *>(d.data);
         d << ",children=[";
-        const QObjectPrivate::ConnectionList &connList = qConnectionList(ob, signalNumber);
+        const ConnectionList &connList = qConnectionList(ob, signalNumber);
         for (int i = 0; i != connList.size(); ++i) {
-            const QObjectPrivate::Connection &conn = connList.at(i);
+            const Connection &conn = connectionAt(connList, i);
             d.beginHash();
                 P(d, "name", i << " receiver");
                 qDumpInnerValueHelper(d, NS"QObject *", conn.receiver);
@@ -1804,7 +1778,7 @@ static void qDumpQObjectSignalList(QDumper &d)
             const QMetaMethod & method = mo->method(i);
             if (method.methodType() == QMetaMethod::Signal) {
                 int k = mo->indexOfSignal(method.signature());
-                const QObjectPrivate::ConnectionList &connList = qConnectionList(ob, k);
+                const ConnectionList &connList = qConnectionList(ob, k);
                 d.beginHash();
                 P(d, "name", k);
                 P(d, "value", method.signature());
@@ -1836,18 +1810,17 @@ static void qDumpQObjectSlot(QDumper &d)
         const QObject *ob = reinterpret_cast<const QObject *>(d.data);
         const QObjectPrivate *p = reinterpret_cast<const QObjectPrivate *>(dfunc(ob));
         for (int s = 0; s != p->senders.size(); ++s) {
-            const QObjectPrivate::Sender &sender = p->senders.at(s);
-            const QObjectPrivate::ConnectionList &connList
-                = qConnectionList(sender.sender, sender.signal);
+            const QObject *sender = senderAt(p->senders, s);
+            int signal = signalAt(p->senders, s);
+            const ConnectionList &connList = qConnectionList(sender, signal);
             for (int i = 0; i != connList.size(); ++i) {
-                const QObjectPrivate::Connection &conn = connList.at(i);
+                const Connection &conn = connectionAt(connList, i);
                 if (conn.receiver == ob && conn.method == slotNumber) {
                     ++numchild;
-                    const QMetaMethod & method =
-                        sender.sender->metaObject()->method(sender.signal);
+                    const QMetaMethod &method = sender->metaObject()->method(signal);
                     d.beginHash();
                         P(d, "name", s << " sender");
-                        qDumpInnerValueHelper(d, NS"QObject *", sender.sender);
+                        qDumpInnerValueHelper(d, NS"QObject *", sender);
                     d.endHash();
                     d.beginHash();
                         P(d, "name", s << " signal");
@@ -1899,11 +1872,11 @@ static void qDumpQObjectSlotList(QDumper &d)
                 // count senders. expensive...
                 int numchild = 0;
                 for (int s = 0; s != p->senders.size(); ++s) {
-                    const QObjectPrivate::Sender & sender = p->senders.at(s);
-                    const QObjectPrivate::ConnectionList &connList
-                        = qConnectionList(sender.sender, sender.signal);
+                    const QObject *sender = senderAt(p->senders, s);
+                    int signal = signalAt(p->senders, s);
+                    const ConnectionList &connList = qConnectionList(sender, signal);
                     for (int c = 0; c != connList.size(); ++c) {
-                        const QObjectPrivate::Connection &conn = connList.at(c);
+                        const Connection &conn = connectionAt(connList, c);
                         if (conn.receiver == ob && conn.method == k)
                             ++numchild;
                     }
@@ -1919,7 +1892,6 @@ static void qDumpQObjectSlotList(QDumper &d)
 #endif
     d.disarm();
 }
-#endif // PRIVATE_OBJECT_ALLOWED
 
 
 static void qDumpQPixmap(QDumper &d)
@@ -2609,7 +2581,6 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQObjectPropertyList(d);
             else if (isEqual(type, "QObjectMethodList"))
                 qDumpQObjectMethodList(d);
-            #if PRIVATE_OBJECT_ALLOWED
             else if (isEqual(type, "QObjectSignal"))
                 qDumpQObjectSignal(d);
             else if (isEqual(type, "QObjectSignalList"))
@@ -2618,7 +2589,6 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQObjectSlot(d);
             else if (isEqual(type, "QObjectSlotList"))
                 qDumpQObjectSlotList(d);
-            #endif
             break;
         case 'P':
             if (isEqual(type, "QPixmap"))
@@ -2728,12 +2698,10 @@ void *qDumpObjectData440(
             "\""NS"QObject\","
             "\""NS"QObjectMethodList\","   // hack to get nested properties display
             "\""NS"QObjectPropertyList\","
-#if PRIVATE_OBJECT_ALLOWED
             "\""NS"QObjectSignal\","
             "\""NS"QObjectSignalList\","
             "\""NS"QObjectSlot\","
             "\""NS"QObjectSlotList\","
-#endif // PRIVATE_OBJECT_ALLOWED
             // << "\""NS"QRegion\","
             "\""NS"QSet\","
             "\""NS"QSharedPointer\","

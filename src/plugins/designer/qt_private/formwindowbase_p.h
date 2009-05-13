@@ -78,6 +78,9 @@ public:
     QVariantMap formData();
     void setFormData(const QVariantMap &vm);
 
+    // Return contents without warnings. Should be 'contents(bool quiet)'
+    QString fileContents() const;
+
     // Return the widget containing the form. This is used to
     // apply embedded design settings to that are inherited (for example font).
     // These are meant to be applied to the form only and not to the other editors

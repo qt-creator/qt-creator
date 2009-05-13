@@ -30,6 +30,7 @@
 #include "reloadpromptutils.h"
 
 #include <QtGui/QMessageBox>
+#include <QtCore/QCoreApplication>
 
 using namespace Core;
 using namespace Core::Utils;
@@ -37,9 +38,10 @@ using namespace Core::Utils;
 QTCREATOR_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
     Core::Utils::reloadPrompt(const QString &fileName, QWidget *parent)
 {
-    return reloadPrompt(QObject::tr("File Changed"),
-                        QObject::tr("The file %1 has changed outside Qt Creator. Do you want to reload it?").arg(fileName),
-                        parent);
+    const QString title = QCoreApplication::translate("Core::Utils::reloadPrompt", "File Changed");
+    const QString msg = QCoreApplication::translate("Core::Utils::reloadPrompt",
+                                                    "The file %1 has changed outside Qt Creator. Do you want to reload it?").arg(fileName);
+    return reloadPrompt(title, msg, parent);
 }
 
 QTCREATOR_UTILS_EXPORT Core::Utils::ReloadPromptAnswer

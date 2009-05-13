@@ -501,7 +501,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // build action
     m_buildAction = new QAction(tr("Build Project"), this);
     cmd = am->registerAction(m_buildAction, Constants::BUILD, globalcontext);
-    cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
     mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
@@ -517,6 +516,34 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(m_cleanAction, Constants::CLEAN, globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
     mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
+
+    // build project only menu
+    Core::ActionContainer *mpo = am->createMenu(Constants::BUILDPROJECTONLYMENU);
+    m_buildProjectOnlyMenu = mpo->menu();
+    m_buildProjectOnlyMenu->setTitle(tr("Project Only"));
+    mbuild->addMenu(mpo, Constants::G_BUILD_PROJECT);
+    mproject->addMenu(mpo, Constants::G_PROJECT_BUILD);
+
+    // build action
+    m_buildProjectOnlyAction = new QAction(tr("Build Project Only"), this);
+    cmd = am->registerAction(m_buildProjectOnlyAction, Constants::BUILDPROJECTONLY, globalcontext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDefaultText(m_buildProjectOnlyAction->text());
+    mpo->addAction(cmd);
+
+    // rebuild action
+    m_rebuildProjectOnlyAction = new QAction(tr("Rebuild Project only"), this);
+    cmd = am->registerAction(m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY, globalcontext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDefaultText(m_rebuildProjectOnlyAction->text());
+    mpo->addAction(cmd);
+
+    // clean action
+    m_cleanProjectOnlyAction = new QAction(tr("Clean Project only"), this);
+    cmd = am->registerAction(m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDefaultText(m_cleanProjectOnlyAction->text());
+    mpo->addAction(cmd);
 
     // Add Set Build Configuration to menu
     mbuild->addMenu(mbc, Constants::G_BUILD_PROJECT);
@@ -644,10 +671,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #if 0
     connect(m_loadAction, SIGNAL(triggered()), this, SLOT(loadAction()));
 #endif
+    connect(m_buildProjectOnlyAction, SIGNAL(triggered()), this, SLOT(buildProjectOnly()));
     connect(m_buildAction, SIGNAL(triggered()), this, SLOT(buildProject()));
     connect(m_buildSessionAction, SIGNAL(triggered()), this, SLOT(buildSession()));
+    connect(m_rebuildProjectOnlyAction, SIGNAL(triggered()), this, SLOT(rebuildProjectOnly()));
     connect(m_rebuildAction, SIGNAL(triggered()), this, SLOT(rebuildProject()));
     connect(m_rebuildSessionAction, SIGNAL(triggered()), this, SLOT(rebuildSession()));
+    connect(m_cleanProjectOnlyAction, SIGNAL(triggered()), this, SLOT(cleanProjectOnly()));
     connect(m_cleanAction, SIGNAL(triggered()), this, SLOT(cleanProject()));
     connect(m_cleanSessionAction, SIGNAL(triggered()), this, SLOT(cleanSession()));
     connect(m_runAction, SIGNAL(triggered()), this, SLOT(runProject()));
@@ -1010,7 +1040,6 @@ void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode)
 
 void ProjectExplorerPlugin::restoreSession()
 {
-
     if (debug)
         qDebug() << "ProjectExplorerPlugin::restoreSession";
 
@@ -1247,15 +1276,27 @@ void ProjectExplorerPlugin::updateActions()
     m_unloadAction->setEnabled(m_currentProject != 0);
     if (m_currentProject == 0) {
         m_unloadAction->setText(tr("Close Project"));
-        m_buildAction->setText(tr("Build Project"));
+        m_buildProjectOnlyMenu->setTitle(tr("Project only"));
+        m_buildProjectOnlyAction->setText(tr("Build Project only"));
+        m_rebuildProjectOnlyAction->setText(tr("Rebuild Project only"));
+        m_cleanProjectOnlyAction->setText(tr("Clean Project only"));
     } else {
         m_unloadAction->setText(tr("Close Project \"%1\"").arg(m_currentProject->name()));
-        m_buildAction->setText(tr("Build Project \"%1\"").arg(m_currentProject->name()));
+        m_buildProjectOnlyMenu->setTitle(tr("Project \"%1\" only").arg(m_currentProject->name()));
+        m_buildProjectOnlyAction->setText(tr("Build Project \"%1\" only").arg(m_currentProject->name()));
+        m_rebuildProjectOnlyAction->setText(tr("Rebuild Project \"%1\" only").arg(m_currentProject->name()));
+        m_cleanProjectOnlyAction->setText(tr("Clean Project \"%1\" only").arg(m_currentProject->name()));
     }
 
     m_buildAction->setEnabled(enableBuildActions);
     m_rebuildAction->setEnabled(enableBuildActions);
     m_cleanAction->setEnabled(enableBuildActions);
+
+    m_buildProjectOnlyMenu->setEnabled(enableBuildActions);
+    m_buildProjectOnlyAction->setEnabled(enableBuildActions);
+    m_rebuildProjectOnlyAction->setEnabled(enableBuildActions);
+    m_cleanProjectOnlyAction->setEnabled(enableBuildActions);
+
     m_clearSession->setEnabled(hasProjects && !building);
     m_buildSessionAction->setEnabled(hasProjects && !building);
     m_rebuildSessionAction->setEnabled(hasProjects && !building);
@@ -1285,7 +1326,7 @@ QStringList ProjectExplorerPlugin::allFilesWithDependencies(Project *pro)
     return filesToSave;
 }
 
-bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
+bool ProjectExplorerPlugin::saveModifiedFiles()
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::saveModifiedFiles";
@@ -1312,13 +1353,32 @@ bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
 //NBS handle case where there is no activeBuildConfiguration
 // because someone delete all build configurations
 
+void ProjectExplorerPlugin::buildProjectOnly()
+{
+    if (debug)
+        qDebug() << "ProjectExplorerPlugin::buildProjectOnly";
+
+    if (saveModifiedFiles())
+        buildManager()->buildProject(m_currentProject, m_currentProject->activeBuildConfiguration());
+}
+
+static QStringList configurations(const QList<Project *> &projects)
+{
+    QStringList result;
+    foreach (const Project * pro, projects)
+        result << pro->activeBuildConfiguration();
+    return result;
+}
+
 void ProjectExplorerPlugin::buildProject()
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::buildProject";
 
-    if (saveModifiedFiles(QList<Project *>() << m_currentProject))
-        buildManager()->buildProject(m_currentProject, m_currentProject->activeBuildConfiguration());
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder(m_currentProject);
+        m_buildManager->buildProjects(projects, configurations(projects));
+    }
 }
 
 void ProjectExplorerPlugin::buildSession()
@@ -1326,13 +1386,20 @@ void ProjectExplorerPlugin::buildSession()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::buildSession";
 
-    const QList<Project *> & projects = m_session->projectOrder();
-    if (saveModifiedFiles(projects)) {
-        QStringList configurations;
-        foreach (const Project * pro, projects)
-            configurations << pro->activeBuildConfiguration();
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder();
+        m_buildManager->buildProjects(projects, configurations(projects));
+    }
+}
 
-        m_buildManager->buildProjects(projects, configurations);
+void ProjectExplorerPlugin::rebuildProjectOnly()
+{
+    if (debug)
+        qDebug() << "ProjectExplorerPlugin::rebuildProjectOnly";
+
+    if (saveModifiedFiles()) {
+        m_buildManager->cleanProject(m_currentProject, m_currentProject->activeBuildConfiguration());
+        m_buildManager->buildProject(m_currentProject, m_currentProject->activeBuildConfiguration());
     }
 }
 
@@ -1341,9 +1408,12 @@ void ProjectExplorerPlugin::rebuildProject()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::rebuildProject";
 
-    if (saveModifiedFiles(QList<Project *>() << m_currentProject)) {
-        m_buildManager->cleanProject(m_currentProject, m_currentProject->activeBuildConfiguration());
-        m_buildManager->buildProject(m_currentProject, m_currentProject->activeBuildConfiguration());
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder(m_currentProject);
+        const QStringList configs = configurations(projects);
+
+        m_buildManager->cleanProjects(projects, configs);
+        m_buildManager->buildProjects(projects, configs);
     }
 }
 
@@ -1352,15 +1422,22 @@ void ProjectExplorerPlugin::rebuildSession()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::rebuildSession";
 
-    const QList<Project *> & projects = m_session->projectOrder();
-    if (saveModifiedFiles(projects)) {
-        QStringList configurations;
-        foreach (const Project * pro, projects)
-            configurations << pro->activeBuildConfiguration();
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder();
+        const QStringList configs = configurations(projects);
 
-        m_buildManager->cleanProjects(projects, configurations);
-        m_buildManager->buildProjects(projects, configurations);
+        m_buildManager->cleanProjects(projects, configs);
+        m_buildManager->buildProjects(projects, configs);
     }
+}
+
+void ProjectExplorerPlugin::cleanProjectOnly()
+{
+    if (debug)
+        qDebug() << "ProjectExplorerPlugin::cleanProjectOnly";
+
+    if (saveModifiedFiles())
+        m_buildManager->cleanProject(m_currentProject, m_currentProject->activeBuildConfiguration());
 }
 
 void ProjectExplorerPlugin::cleanProject()
@@ -1368,8 +1445,10 @@ void ProjectExplorerPlugin::cleanProject()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::cleanProject";
 
-    if (saveModifiedFiles(QList<Project *>() << m_currentProject))
-        m_buildManager->cleanProject(m_currentProject, m_currentProject->activeBuildConfiguration());
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder(m_currentProject);
+        m_buildManager->cleanProjects(projects, configurations(projects));
+    }
 }
 
 void ProjectExplorerPlugin::cleanSession()
@@ -1377,13 +1456,9 @@ void ProjectExplorerPlugin::cleanSession()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::cleanSession";
 
-    const QList<Project *> & projects = m_session->projectOrder();
-    if (saveModifiedFiles(projects)) {
-        QStringList configurations;
-        foreach (const Project * pro, projects)
-            configurations << pro->activeBuildConfiguration();
-
-        m_buildManager->cleanProjects(projects, configurations);
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = m_session->projectOrder();
+        m_buildManager->cleanProjects(projects, configurations(projects));
     }
 }
 
@@ -1403,12 +1478,12 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro)
         return;
 
     if (m_projectExplorerSettings.buildBeforeRun) {
-        if (saveModifiedFiles(QList<Project *>() << pro)) {
+        if (saveModifiedFiles()) {
             m_runMode = ProjectExplorer::Constants::RUNMODE;
             m_delayedRunConfiguration = pro->activeRunConfiguration();
 
-            //NBS TODO make the build project step take into account project dependencies
-            m_buildManager->buildProject(pro, pro->activeBuildConfiguration());
+            const QList<Project *> & projects = m_session->projectOrder(pro);
+            m_buildManager->buildProjects(projects, configurations(projects));
         }
     } else {
         executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
@@ -1422,11 +1497,13 @@ void ProjectExplorerPlugin::debugProject()
         return;
 
     if (m_projectExplorerSettings.buildBeforeRun) {
-        if (saveModifiedFiles(QList<Project *>() << pro)) {
+        if (saveModifiedFiles()) {
             m_runMode = ProjectExplorer::Constants::DEBUGMODE;
             m_delayedRunConfiguration = pro->activeRunConfiguration();
-            //NBS TODO make the build project step take into account project dependencies
-            m_buildManager->buildProject(pro, pro->activeBuildConfiguration());
+
+            const QList<Project *> & projects = m_session->projectOrder(pro);
+            m_buildManager->buildProjects(projects, configurations(projects));
+
             updateRunAction();
         }
     } else {

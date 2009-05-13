@@ -45,6 +45,7 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
 #include <QtCore/QtAlgorithms>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QStack>
 
 using namespace Core::Utils;
@@ -113,58 +114,59 @@ FakeVimSettings *theFakeVimSettings()
 
     SavedAction *item = 0;
 
+    const QString group = QLatin1String("FakeVim");
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Toggle vim-style editing"));
-    item->setSettingsKey("FakeVim", "UseFakeVim");
+    item->setText(QCoreApplication::translate("FakeVim::Internal", "Toggle vim-style editing"));
+    item->setSettingsKey(group, QLatin1String("UseFakeVim"));
     item->setCheckable(true);
     instance->insertItem(ConfigUseFakeVim, item);
 
     item = new SavedAction(instance);
     item->setDefaultValue(false);
-    item->setSettingsKey("FakeVim", "StartOfLine");
+    item->setSettingsKey(group, QLatin1String("StartOfLine"));
     item->setCheckable(true);
-    instance->insertItem(ConfigStartOfLine, item, "startofline", "sol");
+    instance->insertItem(ConfigStartOfLine, item, QLatin1String("startofline"), QLatin1String("sol"));
 
     item = new SavedAction(instance);
     item->setDefaultValue(8);
-    item->setSettingsKey("FakeVim", "TabStop");
-    instance->insertItem(ConfigTabStop, item, "tabstop", "ts");
+    item->setSettingsKey(group, QLatin1String("TabStop"));
+    instance->insertItem(ConfigTabStop, item, QLatin1String("tabstop"), QLatin1String("ts"));
 
     item = new SavedAction(instance);
     item->setDefaultValue(false);
-    item->setSettingsKey("FakeVim", "SmartTab");
-    instance->insertItem(ConfigSmartTab, item, "smarttab", "sta");
+    item->setSettingsKey(group, QLatin1String("SmartTab"));
+    instance->insertItem(ConfigSmartTab, item, QLatin1String("smarttab"), QLatin1String("sta"));
 
     item = new SavedAction(instance);
     item->setDefaultValue(true);
-    item->setSettingsKey("FakeVim", "HlSearch");
+    item->setSettingsKey(group, QLatin1String("HlSearch"));
     item->setCheckable(true);
-    instance->insertItem(ConfigHlSearch, item, "hlsearch", "hls");
+    instance->insertItem(ConfigHlSearch, item, QLatin1String("hlsearch"), QLatin1String("hls"));
 
     item = new SavedAction(instance);
     item->setDefaultValue(8);
-    item->setSettingsKey("FakeVim", "ShiftWidth");
-    instance->insertItem(ConfigShiftWidth, item, "shiftwidth", "sw");
+    item->setSettingsKey(group, QLatin1String("ShiftWidth"));
+    instance->insertItem(ConfigShiftWidth, item, QLatin1String("shiftwidth"), QLatin1String("sw"));
 
     item = new SavedAction(instance);
     item->setDefaultValue(false);
-    item->setSettingsKey("FakeVim", "ExpandTab");
+    item->setSettingsKey(group, QLatin1String("ExpandTab"));
     item->setCheckable(true);
-    instance->insertItem(ConfigExpandTab, item, "expandtab", "et");
+    instance->insertItem(ConfigExpandTab, item, QLatin1String("expandtab"), QLatin1String("et"));
 
     item = new SavedAction(instance);
     item->setDefaultValue(false);
-    item->setSettingsKey("FakeVim", "AutoIndent");
+    item->setSettingsKey(group, QLatin1String("AutoIndent"));
     item->setCheckable(true);
-    instance->insertItem(ConfigAutoIndent, item, "autoindent", "ai");
+    instance->insertItem(ConfigAutoIndent, item, QLatin1String("autoindent"), QLatin1String("ai"));
 
     item = new SavedAction(instance);
-    item->setDefaultValue("indent,eol,start");
-    item->setSettingsKey("FakeVim", "Backspace");
-    instance->insertItem(ConfigBackspace, item, "backspace", "bs");
+    item->setDefaultValue(QLatin1String("indent,eol,start"));
+    item->setSettingsKey(group, QLatin1String("Backspace"));
+    instance->insertItem(ConfigBackspace, item, QLatin1String("backspace"), QLatin1String("bs"));
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("FakeVim properties..."));
+    item->setText(QCoreApplication::translate("FakeVim::Internal", "FakeVim properties..."));
     instance->insertItem(SettingsDialog, item);
 
     return instance;
