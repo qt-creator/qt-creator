@@ -719,6 +719,7 @@ void Qt4ProFileNode::update()
     newVarValues[IncludePathVar] = includePaths(reader);
     newVarValues[UiDirVar] = uiDirPaths(reader);
     newVarValues[MocDirVar] = mocDirPaths(reader);
+    newVarValues[PkgConfigVar] = reader->values(QLatin1String("PKGCONFIG"));
 
     if (m_varValues != newVarValues) {
         m_varValues = newVarValues;

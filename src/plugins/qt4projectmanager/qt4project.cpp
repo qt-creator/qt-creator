@@ -527,11 +527,25 @@ void Qt4Project::updateCodeModel()
         }
 
         const QStringList proIncludePaths = pro->variableValue(IncludePathVar);
-        foreach (QString includePath, proIncludePaths) {
+        foreach (const QString &includePath, proIncludePaths) {
             if (!allIncludePaths.contains(includePath))
                 allIncludePaths.append(includePath);
             if (!info.includes.contains(includePath))
                 info.includes.append(includePath);
+        }
+
+        { // Pkg Config support
+            QStringList pkgConfig = pro->variableValue(PkgConfigVar);
+            if (!pkgConfig.isEmpty()) {
+                pkgConfig.prepend("--cflags-only-I");
+                QProcess process;
+                process.start("pkg-config", pkgConfig);
+                process.waitForFinished();
+                QString result = process.readAllStandardOutput();
+                foreach(const QString &part, result.trimmed().split(' ', QString::SkipEmptyParts)) {
+                    info.includes.append(part.mid(2)); // Chop off "-I"
+                }
+            }
         }
 
         // Add mkspec directory
