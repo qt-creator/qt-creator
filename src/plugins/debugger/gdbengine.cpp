@@ -68,6 +68,9 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
+#ifdef Q_OS_WIN
+#    include "sharedlibraryinjector.h"
+#endif
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 #include <unistd.h>
@@ -108,7 +111,12 @@ static const QString tooltipIName = _("tooltip");
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(DebuggerManager *parent)
+GdbEngine::GdbEngine(DebuggerManager *parent) :
+#ifdef Q_OS_WIN // Do injection loading with MinGW (call loading does not work with 64bit)
+    m_dumperInjectionLoad(true)
+#else
+    m_dumperInjectionLoad(false)
+#endif
 {
     q = parent;
     qq = parent->engineInterface();
@@ -615,6 +623,8 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
     debugMessage(_("FOUND PID %1").arg(pid));
     q->m_attachedPID = pid;
     qq->notifyInferiorPidChanged(pid);
+    if (m_dumperInjectionLoad)
+        tryLoadDebuggingHelpers();
 }
 
 void GdbEngine::postCommand(const QString &command, GdbCommandCallback callback,
@@ -784,15 +794,29 @@ void GdbEngine::handleQuerySources(const GdbResultRecord &record, const QVariant
 
 void GdbEngine::handleInfoThreads(const GdbResultRecord &record, const QVariant &)
 {
-    if (record.resultClass == GdbResultDone) {
-        // FIXME: use something more robust
-        // WIN:     * 3 Thread 2312.0x4d0  0x7c91120f in ?? ()
-        // LINUX:   * 1 Thread 0x7f466273c6f0 (LWP 21455)  0x0000000000404542 in ...
-        QRegExp re(_("^\\*? +\\d+ +[Tt]hread (\\d+)\\.0x.* in"));
-        QString data = _(record.data.findChild("consolestreamoutput").data());
-        if (re.indexIn(data) != -1)
-            maybeHandleInferiorPidChanged(re.cap(1));
+    if (record.resultClass != GdbResultDone)
+        return;
+    // FIXME: use something more robust
+    // WIN:     [New thread 3380.0x2bc]
+    //          * 3 Thread 2312.0x4d0  0x7c91120f in ?? ()
+    // LINUX:   * 1 Thread 0x7f466273c6f0 (LWP 21455)  0x0000000000404542 in ...
+    const QString data = _(record.data.findChild("consolestreamoutput").data());
+    if (data.isEmpty())
+        return;
+    // check "[New thread 3380.0x2bc]"
+    if (data.startsWith(QLatin1Char('['))) {
+        QRegExp ren(_("^\\[New thread (\\d+)\\.0x.*"));
+        Q_ASSERT(ren.isValid());
+        if (ren.indexIn(data) != -1) {
+            maybeHandleInferiorPidChanged(ren.cap(1));
+            return;
+        }
     }
+    // check "* 3 Thread ..."
+    QRegExp re(_("^\\*? +\\d+ +[Tt]hread (\\d+)\\.0x.* in"));
+    Q_ASSERT(re.isValid());
+    if (re.indexIn(data) != -1)
+        maybeHandleInferiorPidChanged(re.cap(1));
 }
 
 void GdbEngine::handleInfoProc(const GdbResultRecord &record, const QVariant &)
@@ -919,7 +943,8 @@ void GdbEngine::handleAqcuiredInferior()
           + theDebuggerStringSetting(SelectedPluginBreakpointsPattern));
     } else if (theDebuggerBoolSetting(NoPluginBreakpoints)) {
         // should be like that already
-        postCommand(_("set auto-solib-add off"));
+        if (!m_dumperInjectionLoad)
+            postCommand(_("set auto-solib-add off"));
         postCommand(_("set stop-on-solib-events 0"));
     }
     #endif
@@ -1511,8 +1536,9 @@ bool GdbEngine::startDebugger()
         #endif
         if (!q->m_processArgs.isEmpty())
             postCommand(_("-exec-arguments ") + q->m_processArgs.join(_(" ")));
-        #ifndef Q_OS_MAC
-        postCommand(_("set auto-solib-add off"));
+        #ifndef Q_OS_MAC        
+        if (!m_dumperInjectionLoad)
+            postCommand(_("set auto-solib-add off"));
         postCommand(_("info target"), CB(handleStart));
         #else
         // On MacOS, breaking in at the entry point wreaks havoc.
@@ -3457,6 +3483,11 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
 
 void GdbEngine::updateLocals()
 {
+    // Asynchronous load of injected library, initialize in first stop
+    if (m_dumperInjectionLoad && m_debuggingHelperState == DebuggingHelperLoadTried && m_dumperHelper.typeCount() == 0
+        && q->m_attachedPID > 0)
+        tryQueryDebuggingHelpers();
+
     m_pendingRequests = 0;
 
     PENDING_DEBUG("\nRESET PENDING");
@@ -3844,7 +3875,6 @@ void GdbEngine::tryLoadDebuggingHelpers()
 {
     if (m_debuggingHelperState != DebuggingHelperUninitialized)
         return;
-
     if (!startModeAllowsDumpers()) {
         // load gdb macro based dumpers at least 
         QFile file(_(":/gdbdebugger/gdbmacros.txt"));
@@ -3854,6 +3884,8 @@ void GdbEngine::tryLoadDebuggingHelpers()
         postCommand(_(contents));
         return;
     }
+    if (m_dumperInjectionLoad && q->m_attachedPID <= 0) // Need PID to inject
+        return;
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
     m_debuggingHelperState = DebuggingHelperUnavailable;
@@ -3872,12 +3904,28 @@ void GdbEngine::tryLoadDebuggingHelpers()
 
     m_debuggingHelperState = DebuggingHelperLoadTried;
 #if defined(Q_OS_WIN)
-    postCommand(_("sharedlibrary .*")); // for LoadLibraryA
-    //postCommand(_("handle SIGSEGV pass stop print"));
-    //postCommand(_("set unwindonsignal off"));
-    postCommand(_("call LoadLibraryA(\"") + GdbMi::escapeCString(lib) + _("\")"),
-        CB(handleDebuggingHelperSetup));
-    postCommand(_("sharedlibrary ") + dotEscape(lib));
+    if (m_dumperInjectionLoad) {
+        /// Launch asynchronous remote thread to load.
+        SharedLibraryInjector injector(q->m_attachedPID);
+        QString errorMessage;
+        if (injector.remoteInject(lib, false, &errorMessage)) {
+            debugMessage(tr("Dumper injection loading triggered (%1)...").arg(lib));
+        } else {
+            debugMessage(tr("Dumper loading (%1) failed: %2").arg(lib, errorMessage));
+            debugMessage(errorMessage);
+            qq->showQtDumperLibraryWarning(errorMessage);
+            m_debuggingHelperState = DebuggingHelperUnavailable;
+            return;
+        }
+    } else {
+        debugMessage(tr("Loading dumpers via debugger call (%1)...").arg(lib));
+        postCommand(_("sharedlibrary .*")); // for LoadLibraryA
+        //postCommand(_("handle SIGSEGV pass stop print"));
+        //postCommand(_("set unwindonsignal off"));
+        postCommand(_("call LoadLibraryA(\"") + GdbMi::escapeCString(lib) + _("\")"),
+                    CB(handleDebuggingHelperSetup));
+        postCommand(_("sharedlibrary ") + dotEscape(lib));
+    }
 #elif defined(Q_OS_MAC)
     //postCommand(_("sharedlibrary libc")); // for malloc
     //postCommand(_("sharedlibrary libdl")); // for dlopen
@@ -3897,7 +3945,13 @@ void GdbEngine::tryLoadDebuggingHelpers()
         CB(handleDebuggingHelperSetup));
     postCommand(_("sharedlibrary ") + dotEscape(lib));
 #endif
-    // retreive list of dumpable classes
+    if (!m_dumperInjectionLoad)
+        tryQueryDebuggingHelpers();
+}
+
+void GdbEngine::tryQueryDebuggingHelpers()
+{
+    // retrieve list of dumpable classes
     postCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
     postCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
 }

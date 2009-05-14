@@ -222,6 +222,8 @@ private:
     void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void debugMessage(const QString &msg);
 
+    const bool m_dumperInjectionLoad;
+
     OutputCollector m_outputCollector;
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;
@@ -329,6 +331,7 @@ private:
     void maybeHandleInferiorPidChanged(const QString &pid);
 
     void tryLoadDebuggingHelpers();
+    void tryQueryDebuggingHelpers();
     Q_SLOT void recheckDebuggingHelperAvailability();
     void runDebuggingHelper(const WatchData &data, bool dumpChildren);
     void runDirectDebuggingHelper(const WatchData &data, bool dumpChildren);
