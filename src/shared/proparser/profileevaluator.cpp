@@ -1782,7 +1782,10 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(
             // ### this breaks if we have include(c:/reallystupid.pri) but IMHO that's really bad style.
             QDir currentProPath(currentDirectory());
             fileName = QDir::cleanPath(currentProPath.absoluteFilePath(fileName));
-            return evaluateFile(fileName);
+            State sts = m_sts;
+            bool ok = evaluateFile(fileName);
+            m_sts = sts;
+            return ok;
         }
         case T_LOAD: {
             if (m_skipLevel && !m_cumulative)
