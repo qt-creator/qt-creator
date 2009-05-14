@@ -1834,11 +1834,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
 #if 0
         case T_INFILE:
         case T_REQUIRES:
-        case T_GREATERTHAN:
-        case T_LESSTHAN:
-        case T_EQUALS:
-        case T_CLEAR:
-        case T_UNSET:
         case T_EVAL:
         case T_IF:
         case T_BREAK:
@@ -1917,6 +1912,59 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 }
             }
             return returnBool(values(args.first()).count() == args[1].toInt());
+        }
+        case T_GREATERTHAN:
+        case T_LESSTHAN: {
+            if (args.count() != 2) {
+                q->logMessage(format("%1(variable, value) requires two arguments.").arg(function));
+                return ProItem::ReturnFalse;
+            }
+            QString rhs(args[1]), lhs(values(args[0]).join(QString(Option::field_sep)));
+            bool ok;
+            int rhs_int = rhs.toInt(&ok);
+            if (ok) { // do integer compare
+                int lhs_int = lhs.toInt(&ok);
+                if (ok) {
+                    if (func_t == T_GREATERTHAN)
+                        return returnBool(lhs_int > rhs_int);
+                    return returnBool(lhs_int < rhs_int);
+                }
+            }
+            if (func_t == T_GREATERTHAN)
+                return returnBool(lhs > rhs);
+            return returnBool(lhs < rhs);
+        }
+        case T_EQUALS:
+            if (args.count() != 2) {
+                q->logMessage(format("%1(variable, value) requires two arguments.").arg(function));
+                return ProItem::ReturnFalse;
+            }
+            return returnBool(values(args[0]).join(QString(Option::field_sep)) == args[1]);
+        case T_CLEAR: {
+            if (m_skipLevel && !m_cumulative)
+                return ProItem::ReturnFalse;
+            if (args.count() != 1) {
+                q->logMessage(format("%1(variable) requires one argument.").arg(function));
+                return ProItem::ReturnFalse;
+            }
+            QHash<QString, QStringList>::Iterator it = m_valuemap.find(args[0]);
+            if (it == m_valuemap.end())
+                return ProItem::ReturnFalse;
+            it->clear();
+            return ProItem::ReturnTrue;
+        }
+        case T_UNSET: {
+            if (m_skipLevel && !m_cumulative)
+                return ProItem::ReturnFalse;
+            if (args.count() != 1) {
+                q->logMessage(format("%1(variable) requires one argument.").arg(function));
+                return ProItem::ReturnFalse;
+            }
+            QHash<QString, QStringList>::Iterator it = m_valuemap.find(args[0]);
+            if (it == m_valuemap.end())
+                return ProItem::ReturnFalse;
+            m_valuemap.erase(it);
+            return ProItem::ReturnTrue;
         }
         case T_INCLUDE: {
             if (m_skipLevel && !m_cumulative)
