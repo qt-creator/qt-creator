@@ -31,8 +31,11 @@
 #define DUIDITORW_H
 
 #include <texteditor/basetexteditor.h>
-#include <parser/javascriptast_p.h>
-#include <parser/javascriptparser_p.h>
+
+#include "parser/javascriptastfwd_p.h"
+#include "parser/javascriptengine_p.h"
+
+#include "duidocument.h"
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -98,7 +101,7 @@ public:
     QStringList words() const;
     QStringList keywords() const;
 
-    QList<JavaScriptParser::DiagnosticMessage> diagnosticMessages() const
+    QList<JavaScript::DiagnosticMessage> diagnosticMessages() const
     { return m_diagnosticMessages; }
 
 public slots:
@@ -133,7 +136,8 @@ private:
     QList<Declaration> m_declarations;
     QStringList m_words;
     QMap<QString, QList<JavaScript::AST::SourceLocation> > m_ids; // ### use QMultiMap
-    QList<JavaScriptParser::DiagnosticMessage> m_diagnosticMessages;
+    QList<JavaScript::DiagnosticMessage> m_diagnosticMessages;
+    DuiDocument::Ptr m_document;
 };
 
 } // namespace Internal

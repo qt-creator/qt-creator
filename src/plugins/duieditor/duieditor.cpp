@@ -438,6 +438,7 @@ void ScriptEditor::updateDocumentNow()
     DuiDocument::Ptr doc = DuiDocument::create(fileName);
     doc->setSource(source);
     bool parsed = doc->parse();
+    m_document = doc;
 
     FindIdDeclarations updateIds;
     m_ids = updateIds(doc->program());
@@ -470,7 +471,7 @@ void ScriptEditor::updateDocumentNow()
 
     m_diagnosticMessages = doc->diagnosticMessages();
 
-    foreach (const JavaScriptParser::DiagnosticMessage &d, m_diagnosticMessages) {
+    foreach (const DiagnosticMessage &d, m_diagnosticMessages) {
         int line = d.loc.startLine;
         int column = d.loc.startColumn;
 
