@@ -47,6 +47,7 @@ QT_END_NAMESPACE
 
 #include "idebuggerengine.h"
 #include "debuggermanager.h"
+#include "gdbmi.h"
 
 namespace Debugger {
 namespace Internal {
@@ -56,25 +57,10 @@ class IDebuggerManagerAccessForEngines;
 class ScriptAgent;
 class WatchData;
 
-class TcfResponse
+class TcfData : public GdbMi
 {
 public:
-    enum ResponseType
-    {
-        HelloResponse,
-        HeartBeatResponse
-    };
-
-    QString toString() const
-    {
-        return _("TAG: " + tag + "  SERVICE: " + service
-            + "  CMD: " + cmd + "  DATA: " + data);
-    }
-
-    QByteArray tag;
-    QByteArray service;
-    QByteArray cmd;
-    QByteArray data;
+    TcfData(const QByteArray &data);
 };
 
 class TcfEngine : public IDebuggerEngine
@@ -140,13 +126,15 @@ private:
     Q_SLOT void socketReadyRead();
 
     void handleResponse(const QByteArray &ba);
-    void handleRunControlSuspend(const TcfResponse &response, const QVariant &);
-    void handleRunControlGetChildren(const TcfResponse &response, const QVariant &);
-    void handleSysMonitorGetChildren(const TcfResponse &response, const QVariant &);
+    void handleRunControlSuspend(const TcfData &response, const QVariant &);
+    void handleRunControlGetChildren(const TcfData &response, const QVariant &);
+    void handleSysMonitorGetChildren(const TcfData &response, const QVariant &);
 
 private:
+    Q_SLOT void startDebugging();
+
     typedef void (TcfEngine::*TcfCommandCallback)
-        (const TcfResponse &record, const QVariant &cookie);
+        (const TcfData &record, const QVariant &cookie);
 
     struct TcfCommand
     {
@@ -171,6 +159,7 @@ private:
     IDebuggerManagerAccessForEngines *qq;
     QTcpSocket *m_socket;
     QByteArray m_inbuffer;
+    QStringList m_services;
 };
 
 } // namespace Internal
