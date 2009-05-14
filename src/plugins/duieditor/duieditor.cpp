@@ -47,6 +47,8 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/uncommentselection.h>
+
 #include <QtCore/QTimer>
 #include <QtCore/QtDebug>
 
@@ -706,6 +708,11 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
 
     menu->exec(e->globalPos());
     menu->deleteLater();
+}
+
+void ScriptEditor::unCommentSelection()
+{
+    Core::Utils::unCommentSelection(this);
 }
 
 } // namespace Internal

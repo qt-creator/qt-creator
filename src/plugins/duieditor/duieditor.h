@@ -104,6 +104,8 @@ public:
     QList<JavaScript::DiagnosticMessage> diagnosticMessages() const
     { return m_diagnosticMessages; }
 
+    virtual void unCommentSelection();
+
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
