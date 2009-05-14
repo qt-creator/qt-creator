@@ -370,6 +370,7 @@ public slots:
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
 
+    void cutLine();
     void deleteLine();
     void unCollapseAll();
     void collapse();
@@ -405,6 +406,9 @@ protected:
     QMimeData *createMimeDataFromSelection() const;
     bool canInsertFromMimeData(const QMimeData *source) const;
     void insertFromMimeData(const QMimeData *source);
+
+private:
+    void maybeSelectLine();
 
 public:
     void duplicateFrom(BaseTextEditor *editor);

@@ -98,6 +98,7 @@ private slots:
     void unCollapseAll();
     void collapse();
     void expand();
+    void cutLine();
     void deleteLine();
     void selectEncoding();
     void increaseFontSize();
@@ -129,6 +130,7 @@ private:
     QAction *m_unCollapseAllAction;
     QAction *m_collapseAction;
     QAction *m_expandAction;
+    QAction *m_cutLineAction;
     QAction *m_deleteLineAction;
     QAction *m_selectEncodingAction;
     QAction *m_increaseFontSizeAction;

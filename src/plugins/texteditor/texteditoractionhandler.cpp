@@ -72,6 +72,7 @@ TextEditorActionHandler::TextEditorActionHandler(const QString &context,
     m_unCollapseAllAction = 0;
     m_collapseAction = 0;
     m_expandAction = 0;
+    m_cutLineAction = 0;
     m_deleteLineAction = 0;
     m_selectEncodingAction = 0;
     m_increaseFontSizeAction = 0;
@@ -173,9 +174,13 @@ void TextEditorActionHandler::createActions()
     connect(m_unCommentSelectionAction, SIGNAL(triggered()), this, SLOT(unCommentSelection()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
 
+    m_cutLineAction = new QAction(tr("Cut &Line"), this);
+    command = am->registerAction(m_cutLineAction, Constants::CUT_LINE, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Shift+Del")));
+    connect(m_cutLineAction, SIGNAL(triggered()), this, SLOT(cutLine()));
+
     m_deleteLineAction = new QAction(tr("Delete &Line"), this);
     command = am->registerAction(m_deleteLineAction, Constants::DELETE_LINE, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(tr("Shift+Del")));
     connect(m_deleteLineAction, SIGNAL(triggered()), this, SLOT(deleteLine()));
 
     m_collapseAction = new QAction(tr("Collapse"), this);
@@ -385,6 +390,7 @@ FUNCTION2(formatAction, format)
 FUNCTION2(selectAllAction, selectAll)
 FUNCTION(cleanWhitespace)
 FUNCTION(unCommentSelection)
+FUNCTION(cutLine)
 FUNCTION(deleteLine)
 FUNCTION(unCollapseAll)
 FUNCTION(collapse)
@@ -415,7 +421,6 @@ void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
         updateActions();
     }
 }
-
 
 const QPointer<BaseTextEditor> &TextEditorActionHandler::currentEditor() const
 {

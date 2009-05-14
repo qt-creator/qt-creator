@@ -3622,8 +3622,7 @@ void BaseTextEditor::changeEvent(QEvent *e)
     }
 }
 
-// shift+del
-void BaseTextEditor::deleteLine()
+void BaseTextEditor::maybeSelectLine()
 {
     QTextCursor cursor = textCursor();
     if (!cursor.hasSelection()) {
@@ -3638,7 +3637,19 @@ void BaseTextEditor::deleteLine()
         }
         setTextCursor(cursor);
     }
+}
+
+// shift+del
+void BaseTextEditor::cutLine()
+{
+    maybeSelectLine();
     cut();
+}
+
+void BaseTextEditor::deleteLine()
+{
+    maybeSelectLine();
+    textCursor().removeSelectedText();
 }
 
 void BaseTextEditor::setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections)
