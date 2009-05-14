@@ -11,6 +11,7 @@ DEFINES += CPPTOOLS_LIBRARY
 HEADERS += completionsettingspage.h \
     cppclassesfilter.h \
     cppcodecompletion.h \
+    cppcurrentdocumentfilter.h \
     cppfunctionsfilter.h \
     cppmodelmanager.h \
     cppmodelmanagerinterface.h \
@@ -26,6 +27,7 @@ HEADERS += completionsettingspage.h \
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
     cppcodecompletion.cpp \
+    cppcurrentdocumentfilter.cpp \
     cppfunctionsfilter.cpp \
     cppmodelmanager.cpp \
     cppquickopenfilter.cpp \

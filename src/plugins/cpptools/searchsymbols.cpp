@@ -128,17 +128,20 @@ bool SearchSymbols::visit(Namespace *symbol)
     return false;
 }
 
-#if 0
 bool SearchSymbols::visit(Declaration *symbol)
 {
-    if (symbol->type()->isFunction()) {
-        QString name = scopedSymbolName(symbol);
-        QString type = overview.prettyType(symbol->type());
-        appendItems(name, type, ModelItemInfo::Method, symbol->fileName());
-    }
+    if (!(symbolsToSearchFor & Declarations))
+        return false;
+
+    QString name = symbolName(symbol);
+    QString scopedName = scopedSymbolName(name);
+    QString type = overview.prettyType(symbol->type(),
+                                       separateScope ? symbol->identity() : 0);
+    appendItem(separateScope ? type : scopedName,
+               separateScope ? _scope : type,
+               ModelItemInfo::Declaration, symbol);
     return false;
 }
-#endif
 
 bool SearchSymbols::visit(Class *symbol)
 {
