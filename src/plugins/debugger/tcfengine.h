@@ -34,9 +34,11 @@
 #include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QObject>
-#include <QtCore/QProcess>
 #include <QtCore/QPoint>
+#include <QtCore/QProcess>
+#include <QtCore/QQueue>
 #include <QtCore/QSet>
+#include <QtCore/QTimer>
 #include <QtCore/QVariant>
 
 #include <QtNetwork/QAbstractSocket>
@@ -138,28 +140,44 @@ private:
 
     struct TcfCommand
     {
-        TcfCommand() : flags(0), callback(0), callbackName(0) {}
+        TcfCommand() : flags(0), token(-1), callback(0), callbackName(0) {}
+
+        QString toString() const;
 
         int flags;
+        int token;
         TcfCommandCallback callback;
         const char *callbackName;
         QByteArray command;
         QVariant cookie;
     };
 
-    void postCommand(char tag,
-        TcfCommandCallback callback,
+    void postCommand(TcfCommandCallback callback,
         const char *callbackName,
         const QByteArray &service,
-        const QByteArray &cmd, const QByteArray &args);
+        const QByteArray &cmd,
+        const QByteArray &args = "\"\"");
+    void sendCommandNow(const TcfCommand &command);
 
     QHash<int, TcfCommand> m_cookieForToken;
+
+    QQueue<TcfCommand> m_sendQueue;
+    
+    // timer based congestion control. does not seem to work well.
+    void enqueueCommand(const TcfCommand &command);
+    Q_SLOT void handleSendTimer();
+    int m_congestion;
+    QTimer m_sendTimer;
+
+    // synchrounous communication
+    void acknowledgeResult();
+    int m_inAir;
 
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;
     QTcpSocket *m_socket;
     QByteArray m_inbuffer;
-    QStringList m_services;
+    QList<QByteArray> m_services;
 };
 
 } // namespace Internal

@@ -76,6 +76,8 @@ using namespace Debugger::Constants;
 #define CB(callback) &TcfEngine::callback, STRINGIFY(callback)
 
 
+//#define USE_CONGESTION_CONTROL
+
 ///////////////////////////////////////////////////////////////////////
 //
 // TcfData
@@ -86,7 +88,19 @@ using namespace Debugger::Constants;
 TcfData::TcfData(const QByteArray &data)
 {
     fromString(data);
-    qDebug() << "TCF RESPONSE: " << data << " -> " << toString();
+}
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// TcfCommand
+//
+///////////////////////////////////////////////////////////////////////
+
+
+QString TcfEngine::TcfCommand::toString() const
+{
+    return quoteUnprintableLatin1(command);
 }
 
 
@@ -100,6 +114,14 @@ TcfEngine::TcfEngine(DebuggerManager *parent)
 {
     q = parent;
     qq = parent->engineInterface();
+
+    m_congestion = 0;
+    m_inAir = 0;
+
+    m_sendTimer.setSingleShot(true);
+    m_sendTimer.setInterval(100); // ms
+    connect(&m_sendTimer, SIGNAL(timeout()), this, SLOT(handleSendTimer()));
+
     m_socket = new QTcpSocket(this);
     connect(m_socket, SIGNAL(connected()), this, SLOT(socketConnected()));
     connect(m_socket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
@@ -175,6 +197,9 @@ void TcfEngine::executeDebuggerCommand(const QString &command)
 
 void TcfEngine::shutdown()
 {
+    m_congestion = 0;
+    m_inAir = 0;
+    m_services.clear();
     exitDebugger(); 
 }
 
@@ -298,87 +323,104 @@ void TcfEngine::handleResponse(const QByteArray &response)
     //emit tcfOutputAvailable(_("            "), currentTime());
     QList<QByteArray> parts = response.split('\0');
     if (parts.size() < 2 || !parts.last().isEmpty()) {
-        qDebug() << "Wrong response packet layout"
-            << quoteUnprintableLatin1(response);
+        SDEBUG("WRONG RESPONSE PACKET LAYOUT" << parts);
         return;
     }
     parts.removeLast(); // always empty
     QByteArray tag = parts.at(0);
     int n = parts.size();
-    if (n == 1 && tag == "N") { // unidentified command
-        qDebug() << "Command not recognized.";
-    } else if (n == 2 && tag == "N") { // flow control
-        int congestion = parts.at(1).toInt();
-        qDebug() << "Congestion: " << congestion;
+    if (n == 2 && tag == "N") { // unidentified command
+        int token = parts.at(1).toInt();
+        TcfCommand tcf = m_cookieForToken[token];
+        SDEBUG("COMMAND NOT RECOGNIZED FOR TOKEN" << token << tcf.toString());
+        emit tcfOutputAvailable("", QString::number(token) + "^"
+               + "NOT RECOQNIZED: " + quoteUnprintableLatin1(response));
+        acknowledgeResult();
+    } else if (n == 2 && tag == "F") { // flow control
+        m_congestion = parts.at(1).toInt();
+        SDEBUG("CONGESTION: " << m_congestion);
     } else if (n == 4 && tag == "R") { // result data
+        acknowledgeResult();
         int token = parts.at(1).toInt();
         QByteArray message = parts.at(2);
         TcfData data(parts.at(3));
-        emit tcfOutputAvailable(_("\ntcf R:"), quoteUnprintableLatin1(response));
+        emit tcfOutputAvailable("", QString::number(token) + "^"
+            + quoteUnprintableLatin1(response) + data.toString());
         TcfCommand tcf = m_cookieForToken[token];
         TcfData result(data);
-        //qDebug() << "Good response: " << quoteUnprintableLatin1(response);
+        SDEBUG("GOOD RESPONSE: " << quoteUnprintableLatin1(response));
         if (tcf.callback)
             (this->*(tcf.callback))(result, tcf.cookie);
     } else if (n == 3 && tag == "P") { // progress data (partial result)
         //int token = parts.at(1).toInt();
         QByteArray data = parts.at(2);
-        emit tcfOutputAvailable(_("\ntcf P:"), quoteUnprintableLatin1(response));
+        SDEBUG(_("\nTCF PARTIAL:") << quoteUnprintableLatin1(response));
     } else if (n == 4 && tag == "E") { // an event
         QByteArray service = parts.at(1);
         QByteArray eventName = parts.at(2);
         TcfData data(parts.at(3));
         if (eventName != "peerHeartBeat")
-            emit tcfOutputAvailable(_("\ntcf E:"), quoteUnprintableLatin1(response));
+            SDEBUG(_("\nTCF EVENT:") << quoteUnprintableLatin1(response)
+                << data.toString());
         if (service == "Locator" && eventName == "Hello") {
             m_services.clear();
-            foreach (const GdbMi &service, data.children()) {
-                qDebug() << "Found service: " << service.data();
+            foreach (const GdbMi &service, data.children())
                 m_services.append(service.data());
-            }
             QTimer::singleShot(0, this, SLOT(startDebugging()));
         }
     } else {
-        qDebug() << "Unknown response packet"
-            << quoteUnprintableLatin1(response) << parts;
+        SDEBUG("UNKNOWN RESPONSE PACKET:"
+            << quoteUnprintableLatin1(response) << parts);
     }
 }
 
 void TcfEngine::startDebugging()
 {
-        //postCommand('C', CB(handleRunControlSuspend),
-        //    "RunControl", "suspend", "\"Thread1\"");
-        //postCommand('C', CB(handleRunControlSuspend),
-        //    "RunControl", "getContext", "\"P12318\"");
-        postCommand('C', CB(handleRunControlGetChildren),
-            "RunControl", "getChildren", "\"\"");
+    foreach (const QByteArray &service, m_services) {
+        postCommand(CB(handleRunControlGetChildren),
+            service, "getChildren", "\"\"");
+    }
 
-        postCommand('C', CB(handleSysMonitorGetChildren),
-            "SysMonitor", "getChildren", "\"\"");
+    postCommand(CB(handleRunControlGetChildren), "Diagnostics", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "Streams", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "Expressions", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "SysMonitor", "getChildren");
+    //postCommand(CB(handleRunControlGetChildren), "FileSystem", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "Processes", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "LineNumbers", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "Symbols", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "StackTrace", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "Registers", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "Memory", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "Breakpoints", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "RunControl", "getChildren");
+    postCommand(CB(handleRunControlGetChildren), "Locator", "getChildren");
 
-        //postCommand('F', "0", "", "");
-        //postCommand('E', "Locator", "Hello", "");
-        //postCommand('C', "Locator", "sync", "");
-        //postCommand("Locator", "redirect", "ID");
+
+    //postCommand(CB(handleRunControlSuspend),
+    //    "RunControl", "suspend", "\"Thread1\"");
+    //postCommand(CB(handleRunControlSuspend),
+    //    "RunControl", "getContext", "\"P12318\"");
+
+    //postCommand("Locator", "sync", "");
+    //postCommand("Locator", "redirect", "ID");
 }
 
-void TcfEngine::postCommand(char tag,
-    TcfCommandCallback callback,
+void TcfEngine::postCommand(TcfCommandCallback callback,
     const char *callbackName,
     const QByteArray &service,
     const QByteArray &cmd,
     const QByteArray &args)
 {
-    static int token = 50;
+    static int token = 20;
     ++token;
     
     const char delim = 0;
-    const char marker_eom = -1;
-    const char marker_eos = -2;
-    const char marker_null = -3;
+    //const char marker_eom = -1;
+    //const char marker_eos = -2;
+    //const char marker_null = -3;
 
-    QByteArray ba;
-    ba.append(tag);
+    QByteArray ba = "C";
     ba.append(delim);
     ba.append(QByteArray::number(token));
     ba.append(delim);
@@ -394,28 +436,84 @@ void TcfEngine::postCommand(char tag,
     TcfCommand tcf;
     tcf.command = ba;
     tcf.callback = callback;
+    tcf.callbackName = callbackName;
+    tcf.token = token;
 
     m_cookieForToken[token] = tcf;
 
-    emit tcfInputAvailable("send", quoteUnprintableLatin1(ba));
-    int result = m_socket->write(tcf.command);
+    enqueueCommand(tcf);  // congestion based
+}
+
+// Congestion control does not seem to work that way. Basically it's
+// already too late when we get a flow control packet
+void TcfEngine::enqueueCommand(const TcfCommand &cmd)
+{
+#ifdef USE_CONGESTION_CONTROL
+    // congestion controled
+    if (m_congestion <= 0 && m_sendQueue.isEmpty()) {
+        //SDEBUG("DIRECT SEND" << cmd.toString());
+        sendCommandNow(cmd);
+    } else {
+        SDEBUG("QUEUE " << cmd.toString());
+        m_sendQueue.enqueue(cmd);
+        m_sendTimer.start();
+    }
+#else
+    // synchrounously
+    if (m_inAir == 0)
+        sendCommandNow(cmd);
+    else
+        m_sendQueue.enqueue(cmd);
+#endif
+}
+
+void TcfEngine::handleSendTimer()
+{
+    QTC_ASSERT(!m_sendQueue.isEmpty(), return);
+
+    if (m_congestion > 0) {
+        // not ready...
+        SDEBUG("WAITING FOR CONGESTION TO GO DOWN...");
+        m_sendTimer.start();
+    } else {
+        // go!
+        sendCommandNow(m_sendQueue.dequeue());
+    }
+}
+
+void TcfEngine::sendCommandNow(const TcfCommand &cmd)
+{
+    ++m_inAir;
+    int result = m_socket->write(cmd.command);
     m_socket->flush();
-    emit tcfInputAvailable("send", QString::number(result));
+    emit tcfInputAvailable("send", QString::number(cmd.token)
+        + " " + cmd.toString() + " " + QString::number(result));
+    SDEBUG("SEND " <<  cmd.toString() << " " << QString::number(result));
+}
+
+void TcfEngine::acknowledgeResult()
+{
+#if !defined(USE_CONGESTION_CONTROL)
+    QTC_ASSERT(m_inAir == 1, /**/);
+    m_inAir = 0;
+    if (!m_sendQueue.isEmpty())
+        sendCommandNow(m_sendQueue.dequeue());
+#endif
 }
 
 void TcfEngine::handleRunControlSuspend(const TcfData &data, const QVariant &)
 {
-    qDebug() << "HANDLE RESULT";
+    SDEBUG("HANDLE RESULT");
 }
 
 void TcfEngine::handleRunControlGetChildren(const TcfData &data, const QVariant &)
 {
-    qDebug() << "HANDLE RUN CONTROL GET CHILDREN" << data.toString();
+    SDEBUG("HANDLE RUN CONTROL GET CHILDREN" << data.toString());
 }
 
 void TcfEngine::handleSysMonitorGetChildren(const TcfData &data, const QVariant &)
 {
-    qDebug() << "HANDLE RUN CONTROL GET CHILDREN" << data.toString();
+    SDEBUG("HANDLE RUN CONTROL GET CHILDREN" << data.toString());
 }
 
 
