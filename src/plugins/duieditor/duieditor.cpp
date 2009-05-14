@@ -31,15 +31,13 @@
 #include "duieditorconstants.h"
 #include "duihighlighter.h"
 #include "duieditorplugin.h"
+#include "duidocument.h"
 
 #include "rewriter/rewriter.h"
 
-#include "parser/javascriptengine_p.h"
-#include "parser/javascriptparser_p.h"
-#include "parser/javascriptlexer_p.h"
-#include "parser/javascriptnodepool_p.h"
 #include "parser/javascriptastvisitor_p.h"
 #include "parser/javascriptast_p.h"
+#include "parser/javascriptengine_p.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -435,29 +433,21 @@ void ScriptEditor::updateDocumentNow()
     m_updateDocumentTimer->stop();
 
     const QString fileName = file()->fileName();
-    const QString code = toPlainText();
+    const QString source = toPlainText();
 
-    JavaScriptParser parser;
-    JavaScriptEnginePrivate driver;
-
-    NodePool nodePool(fileName, &driver);
-    driver.setNodePool(&nodePool);
-
-    Lexer lexer(&driver);
-    lexer.setCode(code, /*line = */ 1);
-    driver.setLexer(&lexer);
-
-    bool parsed = parser.parse(&driver);
+    DuiDocument::Ptr doc = DuiDocument::create(fileName);
+    doc->setSource(source);
+    bool parsed = doc->parse();
 
     FindIdDeclarations updateIds;
-    m_ids = updateIds(parser.ast());
+    m_ids = updateIds(doc->program());
 
     if (parsed) {
         FindDeclarations findDeclarations;
-        m_declarations = findDeclarations(parser.ast());
+        m_declarations = findDeclarations(doc->program());
 
         FindWords findWords;
-        m_words = findWords(parser.ast());
+        m_words = findWords(doc->program());
 
         QStringList items;
         items.append(tr("<Select Symbol>"));
@@ -478,7 +468,7 @@ void ScriptEditor::updateDocumentNow()
 
     QTextEdit::ExtraSelection sel;
 
-    m_diagnosticMessages = parser.diagnosticMessages();
+    m_diagnosticMessages = doc->diagnosticMessages();
 
     foreach (const JavaScriptParser::DiagnosticMessage &d, m_diagnosticMessages) {
         int line = d.loc.startLine;

@@ -17,11 +17,15 @@ class MakeDepend: public Client
 {
     Environment *env;
     QList<QDir> systemDirs;
+    QStringList included;
 
 public:
     MakeDepend(Environment *env)
         : env(env)
     { }
+
+    QStringList includedFiles() const
+    { return included; }
 
     void addSystemDir(const QDir &dir)
     { systemDirs.append(dir); }
@@ -32,17 +36,22 @@ public:
     virtual void macroAdded(const Macro &)
     { }
 
-    virtual void sourceNeeded(QString &fileName, IncludeType mode, unsigned)
-    {
-        if (mode == IncludeLocal) {
-            // ### cache
-            const QFileInfo currentFile(QFile::decodeName(env->currentFile));
-            const QDir dir = currentFile.dir();
+    void addInclude(const QString &absoluteFilePath)
+    { included.append(absoluteFilePath); }
 
+    virtual void sourceNeeded(QString &fileName, IncludeType mode, unsigned line)
+    {
+        // ### cache
+        const QString currentFile = QFile::decodeName(env->currentFile);
+
+        if (mode == IncludeLocal) {
+            const QFileInfo currentFileInfo(currentFile);
+            const QDir dir = currentFileInfo.dir();
+
+            // ### cleanup
             QFileInfo fileInfo(dir, fileName);
             if (fileInfo.exists()) {
-                fileName = fileInfo.absoluteFilePath();
-                std::cout << ' ' << qPrintable(fileName);
+                addInclude(fileInfo.absoluteFilePath());
                 return;
             }
         }
@@ -50,13 +59,15 @@ public:
         foreach (const QDir &dir, systemDirs) {
             QFileInfo fileInfo(dir, fileName);
             if (fileInfo.exists() && fileInfo.isFile()) {
-                fileName = fileInfo.absoluteFilePath();
-                std::cout << ' ' << qPrintable(fileName);
+                addInclude(fileInfo.absoluteFilePath());
                 return;
             }
         }
 
-        std::cerr << "file '" << qPrintable(fileName) << "' not found" << std::endl;
+#ifdef PP_WITH_DIAGNOSTICS
+        std::cerr << qPrintable(currentFile) << ':' << line << ": error: "
+                << qPrintable(fileName) << ": No such file or directory" << std::endl;
+#endif
     }
 
     virtual void startExpandingMacro(unsigned, const Macro &,
@@ -76,22 +87,51 @@ public:
 
 int main(int argc, char *argv[])
 {
-    Environment env;
-    MakeDepend client(&env);
+    QCoreApplication app(argc, argv);
 
-    client.addSystemDir(QLatin1String("/usr/include"));
-    Preprocessor preproc(&client, &env);
+    QStringList todo = app.arguments();
+    todo.removeFirst();
 
-    for (int i = 1; i < argc; ++i) {
-        const QByteArray fileName = argv[i];
-        std::cout << fileName.constData() << ':';
-        QFile file(QFile::decodeName(fileName));
+    if (todo.isEmpty())
+        todo.append(qgetenv("QTDIR") + "/include/QtCore/QtCore");
+
+    QMap<QString, QStringList> processed;
+
+    while (! todo.isEmpty()) {
+        const QString fn = todo.takeFirst();
+
+        if (processed.contains(fn))
+            continue;
+
+        QStringList deps;
+
+        QFile file(fn);
         if (file.open(QFile::ReadOnly)) {
             // ### we should QTextStream here.
             const QByteArray code = file.readAll();
-            preproc.preprocess(fileName, code, /*result = */ 0);
+
+            Environment env;
+            MakeDepend client(&env);
+            client.addSystemDir(qgetenv("QTDIR") + "/include");
+
+            Preprocessor preproc(&client, &env);
+            preproc.preprocess(QFile::encodeName(fn), code, /*result = */ 0);
+            deps = client.includedFiles();
+            todo += deps;
         }
-        std::cout << std::endl;
+
+        processed.insert(fn, deps);
+    }
+
+    QMapIterator<QString, QStringList> it(processed);
+    while (it.hasNext()) {
+        it.next();
+
+        if (it.value().isEmpty())
+            continue; // no deps, nothing to do.
+
+        std::cout << qPrintable(it.key()) << ": \\\n  " << qPrintable(it.value().join(QLatin1String(" \\\n  ")))
+                << std::endl << std::endl;
     }
 
     return 0;

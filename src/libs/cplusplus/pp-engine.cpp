@@ -581,7 +581,8 @@ QByteArray Preprocessor::expand(const QByteArray &source)
 
 void Preprocessor::expand(const QByteArray &source, QByteArray *result)
 {
-    _expand(source, result);
+    if (result)
+        _expand(source, result);
 }
 
 void Preprocessor::expand(const char *first, const char *last, QByteArray *result)
