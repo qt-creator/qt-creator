@@ -59,7 +59,7 @@
    <item>
     <widget class="QCheckBox" name="saveBeforeBuildCheckBox">
      <property name="text">
-      <string>Automatically save all Files before building</string>
+      <string>Automatically save all files before building</string>
      </property>
     </widget>
    </item>

@@ -115,11 +115,11 @@ QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QStrin
     cmake->setProcessChannelMode(QProcess::MergedChannels);
 
 #ifdef Q_OS_WIN
-    QString generator = "-GCodeBlocks - MinGW Makefiles";
+    const QString generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
 #else // Q_OS_WIN
-    QString generator = "-GCodeBlocks - Unix Makefiles";
+    const QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
 #endif // Q_OS_WIN
-    QString srcdir = buildDirectory.exists("CMakeCache.txt") ? QString(".") : sourceDirectory;
+    const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ? QString(QLatin1Char('.')) : sourceDirectory;
     qDebug()<<cmakeExecutable()<<srcdir<<arguments<<generator;
     cmake->start(cmakeExecutable(), QStringList() << srcdir << arguments << generator);
     return cmake;
@@ -132,8 +132,8 @@ QString CMakeManager::findCbpFile(const QDir &directory)
     //   so this method below could find the wrong cbp file, if the user changes the project()
     //   2name
     foreach (const QString &cbpFile , directory.entryList()) {
-        if (cbpFile.endsWith(".cbp"))
-            return directory.path() + "/" + cbpFile;
+        if (cbpFile.endsWith(QLatin1String(".cbp")))
+            return directory.path() + QLatin1Char('/') + cbpFile;
     }
     return QString::null;
 }
@@ -142,14 +142,14 @@ QString CMakeManager::findCbpFile(const QDir &directory)
 QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
 {
     QProcess qmake;
-    qmake.start(qmakePath, QStringList()<<"--version");
+    qmake.start(qmakePath, QStringList(QLatin1String("--version")));
     if (!qmake.waitForFinished())
         return false;
     QString output = qmake.readAllStandardOutput();
-    QRegExp regexp("(QMake version|Qmake version:)[\\s]*([\\d.]*)");
+    QRegExp regexp(QLatin1String("(QMake version|Qmake version:)[\\s]*([\\d.]*)"));
     regexp.indexIn(output);
-    if (regexp.cap(2).startsWith("2.")) {
-        QRegExp regexp2("Using Qt version[\\s]*([\\d\\.]*)");
+    if (regexp.cap(2).startsWith(QLatin1String("2."))) {
+        QRegExp regexp2(QLatin1String("Using Qt version[\\s]*([\\d\\.]*)"));
         regexp2.indexIn(output);
         return regexp2.cap(1);
     }
@@ -176,17 +176,17 @@ void CMakeRunner::run(QFutureInterface<void> &fi)
     QString executable = m_executable;
     m_mutex.unlock();
     QProcess cmake;
-    cmake.start(executable, QStringList()<<"--help");
+    cmake.start(executable, QStringList(QLatin1String("--help")));
     cmake.waitForFinished();
     QString response = cmake.readAll();
-    QRegExp versionRegexp("^cmake version ([*\\d\\.]*)-(|patch (\\d*))(|\\r)\\n");
+    QRegExp versionRegexp(QLatin1String("^cmake version ([*\\d\\.]*)-(|patch (\\d*))(|\\r)\\n"));
     versionRegexp.indexIn(response);
 
     m_mutex.lock();
-    m_supportsQtCreator = response.contains("QtCreator");
+    m_supportsQtCreator = response.contains(QLatin1String("QtCreator"));
     m_version = versionRegexp.cap(1);
     if (!versionRegexp.capturedTexts().size()>3)
-        m_version += "." + versionRegexp.cap(3);
+        m_version += QLatin1Char('.') + versionRegexp.cap(3);
     m_cacheUpToDate = true;
     m_mutex.unlock();
     fi.reportFinished();
@@ -243,15 +243,15 @@ CMakeSettingsPage::CMakeSettingsPage()
 {
     Core::ICore *core = Core::ICore::instance();
     QSettings * settings = core->settings();
-    settings->beginGroup("CMakeSettings");
-    m_cmakeRunner.setExecutable(settings->value("cmakeExecutable").toString());
+    settings->beginGroup(QLatin1String("CMakeSettings"));
+    m_cmakeRunner.setExecutable(settings->value(QLatin1String("cmakeExecutable")).toString());
     settings->endGroup();
 }
 
 QString CMakeSettingsPage::findCmakeExecutable() const
 {
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-    return env.searchInPath("cmake");
+    return env.searchInPath(QLatin1String("cmake"));
 }
 
 QString CMakeSettingsPage::id() const
@@ -280,7 +280,7 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
     QFormLayout *fl = new QFormLayout(w);
     m_pathchooser = new Core::Utils::PathChooser(w);
     m_pathchooser->setExpectedKind(Core::Utils::PathChooser::Command);
-    fl->addRow("CMake executable", m_pathchooser);
+    fl->addRow(tr("CMake executable"), m_pathchooser);
     m_pathchooser->setPath(cmakeExecutable());
     return w;
 }
@@ -288,8 +288,8 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
 void CMakeSettingsPage::saveSettings() const
 {
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup("CMakeSettings");
-    settings->setValue("cmakeExecutable", m_cmakeRunner.executable());
+    settings->beginGroup(QLatin1String("CMakeSettings"));
+    settings->setValue(QLatin1String("cmakeExecutable"), m_cmakeRunner.executable());
     settings->endGroup();
 }
 

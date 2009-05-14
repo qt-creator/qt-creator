@@ -1726,7 +1726,7 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
 void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 {
     QString cmd = cmd0;
-    if (cmd.startsWith("%"))
+    if (cmd.startsWith(QLatin1Char('%')))
         cmd = "1,$" + cmd.mid(1);
 
     int beginLine = -1;
@@ -1822,7 +1822,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         enterCommandMode();
         showBlackMessage(tr("\"%1\" %2L, %3C")
             .arg(m_currentFileName).arg(data.count('\n')).arg(data.size()));
-    } else if (cmd.startsWith("!")) {
+    } else if (cmd.startsWith(QLatin1Char('!'))) {
         selectRange(beginLine, endLine);
         QString command = cmd.mid(1).trimmed();
         QString text = removeSelectedText();
@@ -1838,15 +1838,14 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         setPosition(firstPositionInLine(beginLine));
         enterCommandMode();
         //qDebug() << "FILTER: " << command;
-        showBlackMessage(tr("%1 lines filtered").arg(text.count('\n')));
-    } else if (cmd.startsWith(">")) {
+        showBlackMessage(tr("%n lines filtered", 0, text.count('\n')));
+    } else if (cmd.startsWith(QLatin1Char('>'))) {
         m_anchor = firstPositionInLine(beginLine);
         setPosition(firstPositionInLine(endLine));
         shiftRegionRight(1);
         leaveVisualMode();
         enterCommandMode();
-        showBlackMessage(tr("%1 lines >ed %2 time")
-            .arg(endLine - beginLine + 1).arg(1));
+        showBlackMessage(tr("%n lines >ed %1 time", 0, (endLine - beginLine + 1)).arg(1));
     } else if (cmd == "red" || cmd == "redo") { // :redo
         redo();
         enterCommandMode();

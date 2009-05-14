@@ -96,6 +96,19 @@ QDebug operator<<(QDebug dgb, const WelcomeMode::WelcomePageData &d)
     return dgb;
 }
 
+// Format a title + ruler for projects/session labels
+static inline QString devTitleLabel(const QString &text)
+{
+    QString  rc = QLatin1String(
+    "<html><head><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head>"
+    "<body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">"
+    "<p style=\" margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+    "<span style=\" font-size:x-large; color:#555555;\">");
+    rc += text;
+    rc += QLatin1String("</span></p><hr/></body></html>");
+    return rc;
+}
+
 // ---  WelcomeMode
 WelcomeMode::WelcomeMode() :
     m_d(new WelcomeModePrivate)
@@ -108,6 +121,8 @@ WelcomeMode::WelcomeMode() :
     m_d->rssFetcher = new RSSFetcher(8, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
+    m_d->ui.projTitleLabel->setText(devTitleLabel(tr("Projects")));
+    m_d->ui.titleLabel->setText(devTitleLabel(tr("Sessions")));
     m_d->ui.sessTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.projTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.newsTreeWidget->viewport()->setAutoFillBackground(false);
