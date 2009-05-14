@@ -763,7 +763,7 @@ namespace {
 // TODO this function should also be called if the build directory is changed
 QStringList Qt4ProFileNode::updateUiFiles()
 {
-    qDebug()<<"Qt4ProFileNode::updateUiFiles()";
+//    qDebug()<<"Qt4ProFileNode::updateUiFiles()";
     // Only those two project types can have ui files for us
     if (m_projectType != ApplicationTemplate
         && m_projectType != LibraryTemplate)
@@ -1051,7 +1051,7 @@ void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName,
 
 void Qt4ProFileNode::createUiCodeModelSupport()
 {
-    qDebug()<<"creatUiCodeModelSupport()";
+//    qDebug()<<"creatUiCodeModelSupport()";
     CppTools::CppModelManagerInterface *modelManager
             = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
 
@@ -1077,16 +1077,16 @@ void Qt4ProFileNode::createUiCodeModelSupport()
             const QString uiHeaderFilePath
                     = QString("%1/ui_%2.h").arg(uiDir, QFileInfo(uiFile->path()).completeBaseName());
 
-            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;
+//            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;
             QMap<QString, Qt4UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
             if (it != oldCodeModelSupport.end()) {
-                qDebug()<<"updated old codemodelsupport";
+//                qDebug()<<"updated old codemodelsupport";
                 Qt4UiCodeModelSupport *cms = it.value();
                 cms->setFileName(uiHeaderFilePath);
                 m_uiCodeModelSupport.insert(it.key(), cms);
                 oldCodeModelSupport.erase(it);
             } else {
-                qDebug()<<"adding new codemodelsupport";
+//                qDebug()<<"adding new codemodelsupport";
                 Qt4UiCodeModelSupport *cms = new Qt4UiCodeModelSupport(modelManager, m_project, uiFile->path(), uiHeaderFilePath);
                 m_uiCodeModelSupport.insert(uiFile->path(), cms);
                 modelManager->addEditorSupport(cms);
