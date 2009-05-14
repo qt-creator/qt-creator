@@ -97,14 +97,18 @@ public:
 class CPPTOOLS_EXPORT AbstractEditorSupport
 {
 public:
-    AbstractEditorSupport(CppModelManagerInterface *modelmanager)
-        : m_modelmanager(modelmanager)  {}
-    virtual ~AbstractEditorSupport() {}
+    explicit AbstractEditorSupport(CppModelManagerInterface *modelmanager);
+    virtual ~AbstractEditorSupport();
+
     virtual QByteArray contents() const = 0;
     virtual QString fileName() const = 0;
 
-    void updateDocument()
-    { m_modelmanager->updateSourceFiles(QStringList() << fileName()); }
+    void updateDocument();
+
+    // TODO: find a better place for common utility functions
+    static QString functionAt(const CppModelManagerInterface *mm,
+                              const QString &fileName,
+                              int line, int column);
 
 private:
     CppModelManagerInterface *m_modelmanager;

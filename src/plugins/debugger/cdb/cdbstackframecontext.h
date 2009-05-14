@@ -51,10 +51,11 @@ class CdbStackFrameContext
 public:
     explicit CdbStackFrameContext(const QSharedPointer<CdbDumperHelper> &dumper,
                                   CdbSymbolGroupContext *symbolContext);
-    ~CdbStackFrameContext();
+    ~CdbStackFrameContext();   
 
     bool assignValue(const QString &iname, const QString &value,
                      QString *newValue /* = 0 */, QString *errorMessage);
+    bool editorToolTip(const QString &iname, QString *value, QString *errorMessage);
 
     bool populateModelInitially(WatchHandler *wh, QString *errorMessage);
 

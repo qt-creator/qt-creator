@@ -96,7 +96,7 @@ private:
     void nextIExec();
 
     void shutdown();
-    void setToolTipExpression(const QPoint &pos, const QString &exp);
+    void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
     bool startDebugger();
     void exitDebugger();
     void detachDebugger();

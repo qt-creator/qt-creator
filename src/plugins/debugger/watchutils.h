@@ -37,6 +37,14 @@ QT_BEGIN_NAMESPACE
 class QDebug;
 QT_END_NAMESPACE
 
+namespace TextEditor {
+    class ITextEditor;
+}
+
+namespace Core {
+    class IEditor;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -66,6 +74,11 @@ QString extractTypeFromPTypeOutput(const QString &str);
 bool isIntOrFloatType(const QString &type);
 QString sizeofTypeExpression(const QString &type);
 QString quoteUnprintableLatin1(const QByteArray &ba);
+
+// Editor tooltip support
+bool isCppEditor(Core::IEditor *editor);
+QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
+                        int *line, int *column, QString *function = 0);
 
 // Decode string data as returned by the dumper helpers.
 QString decodeData(const QByteArray &baIn, int encoding);

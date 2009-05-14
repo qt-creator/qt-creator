@@ -948,28 +948,10 @@ void DebuggerPlugin::requestMark(TextEditor::ITextEditor *editor, int lineNumber
 void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
     const QPoint &point, int pos)
 {
-    if (!theDebuggerBoolSetting(UseToolTips))
+    if (!theDebuggerBoolSetting(UseToolTips) || m_manager->status() == DebuggerProcessNotReady)
         return;
 
-    QPlainTextEdit *plaintext = qobject_cast<QPlainTextEdit*>(editor->widget());
-    if (!plaintext)
-        return;
-
-    QString expr = plaintext->textCursor().selectedText();
-    if (expr.isEmpty()) {
-        QTextCursor tc(plaintext->document());
-        tc.setPosition(pos);
-
-        const QChar ch = editor->characterAt(pos);
-        if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
-            tc.movePosition(QTextCursor::EndOfWord);
-
-        // Fetch the expression's code.
-        CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
-        expr = expressionUnderCursor(tc);
-    }
-    //qDebug() << " TOOLTIP  EXPR " << expr;
-    m_manager->setToolTipExpression(point, expr);
+    m_manager->setToolTipExpression(point, editor, pos);
 }
 
 void DebuggerPlugin::setSessionValue(const QString &name, const QVariant &value)

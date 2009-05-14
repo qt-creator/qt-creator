@@ -186,5 +186,32 @@ CdbStackFrameContext::~CdbStackFrameContext()
     delete m_symbolContext;
 }
 
+bool CdbStackFrameContext::editorToolTip(const QString &iname,
+                                         QString *value,
+                                         QString *errorMessage)
+{
+    value->clear();
+    unsigned long index;
+    if (!m_symbolContext->lookupPrefix(iname, &index)) {
+        *errorMessage = QString::fromLatin1("%1 not found.").arg(iname);
+        return false;
+    }
+    const WatchData wd = m_symbolContext->symbolAt(index);
+    // Check dumpers. Should actually be just one item.
+    if (m_useDumpers && m_dumper->state() != CdbDumperHelper::Disabled) {
+        QList<WatchData> result;
+        if (CdbDumperHelper::DumpOk == m_dumper->dumpType(wd, false, OwnerDumper, &result, errorMessage))  {
+            foreach (const WatchData &dwd, result) {
+                if (!value->isEmpty())
+                    value->append(QLatin1Char('\n'));
+                value->append(dwd.toToolTip());
+            }
+            return true;
+        } // Dumped ok
+    }     // has Dumpers
+    *value = wd.toToolTip();
+    return true;
+}
+
 } // namespace Internal
 } // namespace Debugger

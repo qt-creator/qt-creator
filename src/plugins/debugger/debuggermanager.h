@@ -50,6 +50,10 @@ namespace Core {
 class IOptionsPage;
 } // namespace Core
 
+namespace TextEditor {
+    class ITextEditor;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -379,7 +383,7 @@ private:
     void toggleBreakpoint(const QString &fileName, int lineNumber);
     void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
     BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
-    void setToolTipExpression(const QPoint &pos, const QString &exp0);
+    void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
 
     DebuggerRunControl *m_runControl;
 

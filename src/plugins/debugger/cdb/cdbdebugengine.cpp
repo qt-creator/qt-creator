@@ -52,6 +52,7 @@
 #include <utils/qtcassert.h>
 #include <utils/winutils.h>
 #include <utils/consoleprocess.h>
+#include <texteditor/itexteditor.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
@@ -63,6 +64,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
 #include <QtGui/QApplication>
+#include <QtGui/QToolTip>
 
 #define DBGHELP_TRANSLATE_TCHAR
 #include <inc/Dbghelp.h>
@@ -380,6 +382,7 @@ void CdbDebugEnginePrivate::clearForRun()
     m_breakEventMode = BreakEventHandle;
     m_firstActivatedFrame = false;
     cleanStackTrace();
+    m_editorToolTipCache.clear();
 }
 
 void CdbDebugEnginePrivate::cleanStackTrace()
@@ -438,10 +441,66 @@ void CdbDebugEngine::shutdown()
     exitDebugger();
 }
 
-void CdbDebugEngine::setToolTipExpression(const QPoint & pos, const QString & exp)
+QString CdbDebugEngine::editorToolTip(const QString &exp, const QString &function)
 {
+    // Figure the editor tooltip. Ask the frame context of the
+    // function if it is a local variable it knows. If that is not
+    // the case, try to evaluate via debugger
+    QString errorMessage;
+    QString rc;
+    // Find the frame of the function if there is any
+    CdbStackFrameContext *frame = 0;
+    if (m_d->m_currentStackTrace &&  !function.isEmpty()) {
+        const int frameIndex = m_d->m_currentStackTrace->indexOf(function);
+        if (frameIndex != -1)
+            frame = m_d->m_currentStackTrace->frameContextAt(frameIndex, &errorMessage);
+    }
+    if (frame && frame->editorToolTip(QLatin1String("local.") + exp, &rc, &errorMessage))
+        return rc;
+    // No function/symbol context found, try to evaluate in current context.
+    // Do not append type as this will mostly be 'long long' for integers, etc.
+    QString type;
+    if (!evaluateExpression(exp, &rc, &type, &errorMessage))
+        return QString();
+    return rc;
+}
+
+void CdbDebugEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
+{
+    typedef CdbDebugEnginePrivate::EditorToolTipCache EditorToolTipCache;
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << '\n' << pos << exp;
+        qDebug() << Q_FUNC_INFO << '\n' << cursorPos;
+    // Need a stopped debuggee and a cpp file
+    if (!m_d->m_hDebuggeeProcess || m_d->isDebuggeeRunning())
+        return;
+    if (!isCppEditor(editor))
+        return;
+    // Determine expression and function
+    QString toolTip;
+    do {
+        int line;
+        int column;
+        QString function;
+        const QString exp = cppExpressionAt(editor, cursorPos, &line, &column, &function);
+        if (function.isEmpty() || exp.isEmpty())
+            break;
+        // Check cache (key containing function) or try to figure out expression
+        QString cacheKey = function;
+        cacheKey += QLatin1Char('@');
+        cacheKey += exp;
+        const EditorToolTipCache::const_iterator cit = m_d->m_editorToolTipCache.constFind(cacheKey);
+        if (cit != m_d->m_editorToolTipCache.constEnd()) {
+            toolTip = cit.value();
+        } else {
+            toolTip = editorToolTip(exp, function);
+            if (!toolTip.isEmpty())
+                m_d->m_editorToolTipCache.insert(cacheKey, toolTip);
+        }
+    } while (false);
+    // Display
+    QToolTip::hideText();
+    if (!toolTip.isEmpty())
+        QToolTip::showText(mousePos, toolTip);
 }
 
 void CdbDebugEnginePrivate::clearDisplay()

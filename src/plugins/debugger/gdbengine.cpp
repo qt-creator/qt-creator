@@ -50,6 +50,7 @@
 #include "debuggerdialogs.h"
 
 #include <utils/qtcassert.h>
+#include <texteditor/itexteditor.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
@@ -2605,11 +2606,10 @@ static QString m_toolTipExpression;
 static QPoint m_toolTipPos;
 static QMap<QString, WatchData> m_toolTipCache;
 
-void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
+void GdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
 {
-    //qDebug() << "SET TOOLTIP EXP" << pos << exp0;
-    if (q->status() != DebuggerInferiorStopped) {
-        //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED";
+    if (q->status() != DebuggerInferiorStopped || !isCppEditor(editor)) {
+        //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED/Non Cpp editor";
         return;
     }
 
@@ -2618,9 +2618,10 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
         return;
     }
 
-    m_toolTipPos = pos;
-    m_toolTipExpression = exp0;
-    QString exp = exp0;
+    m_toolTipPos = mousePos;
+    int line, column;
+    m_toolTipExpression = cppExpressionAt(editor, cursorPos, &line, &column);
+    QString exp = m_toolTipExpression;
 /*
     if (m_toolTip.isTypePending()) {
         qDebug() << "suppressing duplicated tooltip creation";

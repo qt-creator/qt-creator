@@ -43,6 +43,11 @@
 
 #include <utils/qtcassert.h>
 
+#include <qtscripteditor/qtscripteditorconstants.h>
+
+#include <texteditor/itexteditor.h>
+#include <coreplugin/ifile.h>
+
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -423,18 +428,24 @@ static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
 
-void ScriptEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
+void ScriptEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
 {
-    Q_UNUSED(pos);
-    Q_UNUSED(exp0);
+    Q_UNUSED(mousePos);
+    Q_UNUSED(editor);
+    Q_UNUSED(cursorPos);
 
     if (q->status() != DebuggerInferiorStopped) {
         //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
         return;
     }
+    // Check mime type and get expression (borrowing some C++ - functions)
+    const QString javaScriptMimeType = QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE);
+    if (!editor->file() || editor->file()->mimeType() != javaScriptMimeType)
+        return;
 
-    //m_toolTipPos = pos;
-    QString exp = exp0;
+    int line;
+    int column;
+    QString exp = cppExpressionAt(editor, cursorPos, &line, &column);
 
 /*
     if (m_toolTipCache.contains(exp)) {

@@ -38,6 +38,10 @@ class QPoint;
 class QString;
 QT_END_NAMESPACE
 
+namespace TextEditor {
+    class ITextEditor;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -49,7 +53,7 @@ public:
     IDebuggerEngine(QObject *parent = 0) : QObject(parent) {}
 
     virtual void shutdown() = 0;
-    virtual void setToolTipExpression(const QPoint &pos, const QString &exp) = 0;
+    virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos) = 0;
     virtual bool startDebugger() = 0;
     virtual void exitDebugger() = 0;
     virtual void detachDebugger() {}

@@ -31,11 +31,26 @@
 #include "watchhandler.h"
 #include <utils/qtcassert.h>
 
+#include <texteditor/basetexteditor.h>
+#include <texteditor/basetextmark.h>
+#include <texteditor/itexteditor.h>
+#include <texteditor/texteditorconstants.h>
+
+#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cpptoolsconstants.h>
+
+#include <cplusplus/ExpressionUnderCursor.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QTime>
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextStream>
+
+#include <QtGui/QTextCursor>
+#include <QtGui/QPlainTextEdit>
 
 #include <string.h>
 #include <ctype.h>
@@ -363,6 +378,68 @@ QString decodeData(const QByteArray &ba, int encoding)
         }
     }
     return QCoreApplication::translate("Debugger", "<Encoding error>");
+}
+
+// Editor tooltip support
+bool isCppEditor(Core::IEditor *editor)
+{
+    static QStringList cppMimeTypes;
+    if (cppMimeTypes.empty()) {
+        cppMimeTypes << QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
+                << QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
+                << QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)
+                << QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
+    }
+    if (const Core::IFile *file = editor->file())
+        return cppMimeTypes.contains(file->mimeType());
+    return  false;
+}
+
+// Find the function the cursor is in to use a scope.
+
+
+    
+
+
+// Return the Cpp expression, and, if desired, the function
+QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
+                        int *line, int *column, QString *function /* = 0 */)
+{
+
+    *line = *column = 0;
+    if (function)
+        function->clear();
+
+    const QPlainTextEdit *plaintext = qobject_cast<QPlainTextEdit*>(editor->widget());
+    if (!plaintext)
+        return QString();
+
+    QString expr = plaintext->textCursor().selectedText();
+    if (expr.isEmpty()) {
+        QTextCursor tc(plaintext->document());
+        tc.setPosition(pos);
+
+        const QChar ch = editor->characterAt(pos);
+        if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
+            tc.movePosition(QTextCursor::EndOfWord);
+
+        // Fetch the expression's code.
+        CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
+        expr = expressionUnderCursor(tc);
+        *column = tc.columnNumber();
+        *line = tc.blockNumber();
+    } else {
+        const QTextCursor tc = plaintext->textCursor();
+        *column = tc.columnNumber();
+        *line = tc.blockNumber();
+    }    
+
+    if (function && !expr.isEmpty())
+        if (const Core::IFile *file = editor->file())
+            if (CppTools::CppModelManagerInterface *modelManager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>())
+                *function = CppTools::AbstractEditorSupport::functionAt(modelManager, file->fileName(), *line, *column);
+
+    return expr;
 }
 
 // --------------- QtDumperResult

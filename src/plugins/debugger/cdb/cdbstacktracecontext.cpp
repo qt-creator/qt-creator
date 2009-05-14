@@ -118,6 +118,27 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
     return true;
 }
 
+int CdbStackTraceContext::indexOf(const QString &function) const
+{    
+
+    const QChar exclamationMark = QLatin1Char('!');
+    const int count = m_frames.size();
+    // Module contained ('module!foo'). Exact match
+    if (function.contains(exclamationMark)) {
+
+        for (int i = 0; i < count; i++)
+            if (m_frames.at(i).function == function)
+                return i;
+        return -1;
+    }
+    // No module, fuzzy match
+    QString pattern = exclamationMark + function;
+    for (int i = 0; i < count; i++)
+        if (m_frames.at(i).function.endsWith(pattern))
+            return i;
+    return -1;
+}
+
 CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *errorMessage)
 {
     // Create a frame on demand

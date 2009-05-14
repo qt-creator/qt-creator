@@ -39,6 +39,7 @@
 
 #include <utils/consoleprocess.h>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QMap>
 
 namespace Debugger {
 namespace Internal {
@@ -94,7 +95,9 @@ struct CdbComInterfaces
 };
 
 struct CdbDebugEnginePrivate
-{    
+{
+    typedef QMap<QString, QString> EditorToolTipCache;
+
     enum HandleBreakEventMode { // Special modes for break event handler.
         BreakEventHandle,
         BreakEventIgnoreOnce,
@@ -160,6 +163,8 @@ struct CdbDebugEnginePrivate
     DebuggerManager *m_debuggerManager;
     IDebuggerManagerAccessForEngines *m_debuggerManagerAccess;
     CdbStackTraceContext *m_currentStackTrace;
+    EditorToolTipCache m_editorToolTipCache;
+
     bool m_firstActivatedFrame;
 
     DebuggerStartMode m_mode;

@@ -33,7 +33,8 @@ SOURCES += completionsettingspage.cpp \
     cpptoolsplugin.cpp \
     searchsymbols.cpp \
     cppdoxygen.cpp \
-    cppfilesettingspage.cpp
+    cppfilesettingspage.cpp \
+    abstracteditorsupport.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui

@@ -69,6 +69,8 @@ public:
 
     QList<StackFrame> frames() const { return m_frames; }
     inline int frameCount() const { return m_frames.size(); }
+    // Search for function. Should ideally contain the module as 'module!foo'.
+    int indexOf(const QString &function) const;
 
     // Top-Level instruction offset for disassembler
     ULONG64 instructionOffset() const { return m_instructionOffset; }

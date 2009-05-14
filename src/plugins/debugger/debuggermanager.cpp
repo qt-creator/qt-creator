@@ -719,10 +719,10 @@ void DebuggerManager::attemptBreakpointSynchronization()
         m_engine->attemptBreakpointSynchronization();
 }
 
-void DebuggerManager::setToolTipExpression(const QPoint &pos, const QString &exp)
+void DebuggerManager::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
 {
     if (m_engine)
-        m_engine->setToolTipExpression(pos, exp);
+        m_engine->setToolTipExpression(mousePos, editor, cursorPos);
 }
 
 void DebuggerManager::updateWatchModel()

@@ -429,10 +429,12 @@ static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
 
-void TcfEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
+void TcfEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
 {
+    Q_UNUSED(mousePos)
+    Q_UNUSED(editor)
+    Q_UNUSED(cursorPos)
 }
-
 
 //////////////////////////////////////////////////////////////////////
 //
