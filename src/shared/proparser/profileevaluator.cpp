@@ -869,6 +869,9 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
 
 bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
 {
+    // Make sure that called subblocks don't inherit & destroy the state
+    bool invertThis = m_invertNext;
+    m_invertNext = false;
     if (!m_sts.updateCondition || m_sts.condition == ConditionFalse) {
         QString text = func->text();
         int lparen = text.indexOf(QLatin1Char('('));
@@ -878,10 +881,9 @@ bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
         QString funcName = text.left(lparen);
         m_lineNo = func->lineNumber();
         bool result = evaluateConditionalFunction(funcName.trimmed(), arguments);
-        if (!m_skipLevel && (result ^ m_invertNext))
+        if (!m_skipLevel && (result ^ invertThis))
             m_sts.condition = ConditionTrue;
     }
-    m_invertNext = false;
     return true;
 }
 
