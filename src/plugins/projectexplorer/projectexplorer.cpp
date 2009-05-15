@@ -525,21 +525,21 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mproject->addMenu(mpo, Constants::G_PROJECT_BUILD);
 
     // build action
-    m_buildProjectOnlyAction = new QAction(tr("Build Project Only"), this);
+    m_buildProjectOnlyAction = new QAction(tr("Build"), this);
     cmd = am->registerAction(m_buildProjectOnlyAction, Constants::BUILDPROJECTONLY, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_buildProjectOnlyAction->text());
     mpo->addAction(cmd);
 
     // rebuild action
-    m_rebuildProjectOnlyAction = new QAction(tr("Rebuild Project only"), this);
+    m_rebuildProjectOnlyAction = new QAction(tr("Rebuild"), this);
     cmd = am->registerAction(m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_rebuildProjectOnlyAction->text());
     mpo->addAction(cmd);
 
     // clean action
-    m_cleanProjectOnlyAction = new QAction(tr("Clean Project only"), this);
+    m_cleanProjectOnlyAction = new QAction(tr("Clean"), this);
     cmd = am->registerAction(m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_cleanProjectOnlyAction->text());
@@ -1276,16 +1276,10 @@ void ProjectExplorerPlugin::updateActions()
     m_unloadAction->setEnabled(m_currentProject != 0);
     if (m_currentProject == 0) {
         m_unloadAction->setText(tr("Close Project"));
-        m_buildProjectOnlyMenu->setTitle(tr("Project only"));
-        m_buildProjectOnlyAction->setText(tr("Build Project only"));
-        m_rebuildProjectOnlyAction->setText(tr("Rebuild Project only"));
-        m_cleanProjectOnlyAction->setText(tr("Clean Project only"));
+        m_buildProjectOnlyMenu->setTitle(tr("Current Project"));
     } else {
         m_unloadAction->setText(tr("Close Project \"%1\"").arg(m_currentProject->name()));
-        m_buildProjectOnlyMenu->setTitle(tr("Project \"%1\" only").arg(m_currentProject->name()));
-        m_buildProjectOnlyAction->setText(tr("Build Project \"%1\" only").arg(m_currentProject->name()));
-        m_rebuildProjectOnlyAction->setText(tr("Rebuild Project \"%1\" only").arg(m_currentProject->name()));
-        m_cleanProjectOnlyAction->setText(tr("Clean Project \"%1\" only").arg(m_currentProject->name()));
+        m_buildProjectOnlyMenu->setTitle(tr("Project \"%1\"").arg(m_currentProject->name()));
     }
 
     m_buildAction->setEnabled(enableBuildActions);

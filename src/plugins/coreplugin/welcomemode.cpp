@@ -96,8 +96,8 @@ QDebug operator<<(QDebug dgb, const WelcomeMode::WelcomePageData &d)
     return dgb;
 }
 
-// Format a title + ruler for projects/session labels
-static inline QString devTitleLabel(const QString &text)
+// Format a title + ruler for title labels
+static inline QString titleLabel(const QString &text)
 {
     QString  rc = QLatin1String(
     "<html><head><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head>"
@@ -121,8 +121,13 @@ WelcomeMode::WelcomeMode() :
     m_d->rssFetcher = new RSSFetcher(8, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
-    m_d->ui.projTitleLabel->setText(devTitleLabel(tr("Projects")));
-    m_d->ui.titleLabel->setText(devTitleLabel(tr("Sessions")));
+    m_d->ui.projTitleLabel->setText(titleLabel(tr("Projects")));
+    m_d->ui.recentSessionsTitleLabel->setText(titleLabel(tr("Sessions")));
+    m_d->ui.tutorialsTitleLabel->setText(titleLabel(tr("Tutorials")));
+    m_d->ui.demoTitleLabel->setText(titleLabel(tr("Qt Demos and Examples")));
+    m_d->ui.didYouKnowTitleLabel->setText(titleLabel(tr("Did you know?")));
+    m_d->ui.labsTitleLabel->setText(titleLabel(tr("News from the Qt Labs")));
+    m_d->ui.sitesTitleLabel->setText(titleLabel(tr("Qt Websites")));
     m_d->ui.sessTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.projTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.newsTreeWidget->viewport()->setAutoFillBackground(false);

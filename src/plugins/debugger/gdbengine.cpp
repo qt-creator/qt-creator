@@ -2834,6 +2834,11 @@ bool GdbEngine::hasDebuggingHelperForType(const QString &type) const
     return m_dumperHelper.type(type) != QtDumperHelper::UnknownType;
 }
 
+static inline QString msgRetrievingWatchData(int pending)
+{
+    return GdbEngine::tr("Retrieving data for watch view (%n requests pending)...", 0, pending);
+}
+
 void GdbEngine::runDirectDebuggingHelper(const WatchData &data, bool dumpChildren)
 {
     Q_UNUSED(dumpChildren);
@@ -2849,9 +2854,7 @@ void GdbEngine::runDirectDebuggingHelper(const WatchData &data, bool dumpChildre
     var.setValue(data);
     postCommand(cmd, WatchUpdate, CB(handleDebuggingHelperValue3), var);
 
-    q->showStatusMessage(
-        tr("Retrieving data for watch view (%1 requests pending)...")
-            .arg(m_pendingRequests + 1), 10000);
+    q->showStatusMessage(msgRetrievingWatchData(m_pendingRequests + 1), 10000);
 }
 
 void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
@@ -2891,9 +2894,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     var.setValue(data);
     postCommand(cmd, WatchUpdate | EmbedToken, CB(handleDebuggingHelperValue1), var);
 
-    q->showStatusMessage(
-        tr("Retrieving data for watch view (%1 requests pending)...")
-            .arg(m_pendingRequests + 1), 10000);
+    q->showStatusMessage(msgRetrievingWatchData(m_pendingRequests + 1), 10000);
 
     // retrieve response
     postCommand(_("p (char*)&qDumpOutBuffer"), WatchUpdate,
@@ -3165,8 +3166,7 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
         //        );
     } else {
         m_debuggingHelperState = DebuggingHelperAvailable;
-        q->showStatusMessage(tr("%1 custom dumpers found.")
-            .arg(m_dumperHelper.typeCount()));
+        q->showStatusMessage(tr("%n custom dumpers found.", 0, m_dumperHelper.typeCount()));
     }
     //qDebug() << m_dumperHelper.toString(true);
     //qDebug() << m_availableSimpleDebuggingHelpers << "DATA DUMPERS AVAILABLE";
@@ -3448,7 +3448,7 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
             } else {
                 int l = list.size();
                 //: In string list
-                data.setValue(tr("<%1 items>").arg(l));
+                data.setValue(tr("<%n items>", 0, l));
                 data.setChildCount(list.size());
                 data.setAllUnneeded();
                 insertData(data);
