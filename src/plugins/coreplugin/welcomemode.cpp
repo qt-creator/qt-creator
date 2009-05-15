@@ -314,13 +314,15 @@ void WelcomeMode::slotFeedback()
 void WelcomeMode::slotNextTip()
 {
     QStringList tips = tipsOfTheDay();
-    m_d->ui.didYouKnowTextBrowser->setText(tips.at((++m_d->currentTip)%tips.count()));
+    m_d->currentTip = ((m_d->currentTip+1)%tips.count());
+    m_d->ui.didYouKnowTextBrowser->setText(tips.at(m_d->currentTip));
 }
 
 void WelcomeMode::slotPrevTip()
 {
     QStringList tips = tipsOfTheDay();
-    m_d->ui.didYouKnowTextBrowser->setText(tips.at((--m_d->currentTip)%tips.count()));
+    m_d->currentTip = tips.count()-((m_d->currentTip-1)%tips.count());
+    m_d->ui.didYouKnowTextBrowser->setText(tips.at(m_d->currentTip));
 }
 
 QStringList WelcomeMode::tipsOfTheDay()
