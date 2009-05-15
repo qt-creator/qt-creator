@@ -387,6 +387,9 @@ public slots:
     void moveLineUp();
     void moveLineDown();
 
+    void copyLineUp();
+    void copyLineDown();
+
     void cleanWhitespace();
 
 signals:
@@ -509,6 +512,7 @@ private:
     void handleHomeKey(bool anchor);
     void handleBackspaceKey();
     void moveLineUpDown(bool up);
+    void copyLineUpDown(bool up);
     void saveCurrentCursorPositionForNavigation();
 
     void drawFoldingMarker(QPainter *painter, const QPalette &pal,
