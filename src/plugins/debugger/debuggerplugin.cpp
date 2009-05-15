@@ -756,7 +756,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     readSettings();
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(focusCurrentEditor(Core::IMode*)));
+            this, SLOT(onModeChanged(Core::IMode*)));
     m_debugMode->widget()->setFocusProxy(EditorManager::instance());
     addObject(m_debugMode);
 
@@ -1040,10 +1040,13 @@ void DebuggerPlugin::readSettings()
     m_manager->mainWindow()->restoreState(ba);
 }
 
-void DebuggerPlugin::focusCurrentEditor(IMode *mode)
+void DebuggerPlugin::onModeChanged(IMode *mode)
 {
-    if (mode != m_debugMode)
+    if (mode != m_debugMode) {
+        m_manager->setFloatingDockWidgetsVisible(false);
         return;
+    }
+    m_manager->setFloatingDockWidgetsVisible(true);
 
     EditorManager *editorManager = EditorManager::instance();
 
