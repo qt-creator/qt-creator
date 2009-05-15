@@ -430,6 +430,14 @@ void DebuggerManager::init()
 
     m_threadsDock = createDockForWidget(m_threadsWindow);
 
+    QSplitter *localsAndWatchers = new QSplitter(Qt::Vertical, 0);
+    localsAndWatchers->setWindowTitle(m_localsWindow->windowTitle());
+    localsAndWatchers->addWidget(m_localsWindow);
+    localsAndWatchers->addWidget(m_watchersWindow);
+    localsAndWatchers->setStretchFactor(0, 3);
+    localsAndWatchers->setStretchFactor(1, 1);
+    m_watchDock = createDockForWidget(localsAndWatchers);
+
     setStatus(DebuggerProcessNotReady);
 }
 
@@ -455,17 +463,6 @@ IDebuggerEngine *DebuggerManager::engine()
 IDebuggerManagerAccessForEngines *DebuggerManager::engineInterface()
 {
     return dynamic_cast<IDebuggerManagerAccessForEngines *>(this);
-}
-
-void DebuggerManager::createDockWidgets()
-{
-    QSplitter *localsAndWatchers = new QSplitter(Qt::Vertical, 0);
-    localsAndWatchers->setWindowTitle(m_localsWindow->windowTitle());
-    localsAndWatchers->addWidget(m_localsWindow);
-    localsAndWatchers->addWidget(m_watchersWindow);
-    localsAndWatchers->setStretchFactor(0, 3);
-    localsAndWatchers->setStretchFactor(1, 1);
-    m_watchDock = createDockForWidget(localsAndWatchers);
 }
 
 void DebuggerManager::createNewDock(QWidget *widget)

@@ -316,7 +316,6 @@ private:
     //
     QWidget *threadsWindow() const { return m_threadsWindow; }
     QList<QDockWidget*> dockWidgets() const { return m_dockWidgets; }
-    void createDockWidgets();
 
     virtual bool qtDumperLibraryEnabled() const;
     virtual QString qtDumperLibraryName() const;
