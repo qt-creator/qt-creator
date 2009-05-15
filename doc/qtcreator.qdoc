@@ -5,7 +5,7 @@
 
     \title Qt Creator Manual
 
-    \section1 Version 1.1.0
+    \section1 Version 1.1.1
 
     The goal of Qt Creator is to provide a cross-platform, complete Integrated
     Development Environment (IDE) to develop Qt projects. It is available for
@@ -61,7 +61,7 @@
        \o   \l{Keyboard Shortcuts}
        \o   \l{Glossary}
        \o   \l{Supported Platforms}
-       \o   \l{Known Issues of Version 1.1.0}
+       \o   \l{Known Issues of Version 1.1.1}
        \o   \l{Acknowledgements}
     \endlist
 
@@ -1304,7 +1304,7 @@
     targets specified in the \c CMake project file.
 
     Known issues for the current version can be found
-    \l{Known Issues of Version 1.1.0}{here}.
+    \l{Known Issues of Version 1.1.1}{here}.
 */
 
 
@@ -1545,9 +1545,9 @@
     \page creator-known-issues.html
     \nextpage creator-acknowledgements.html
 
-    \title Known Issues of Version 1.1.0
+    \title Known Issues of Version 1.1.1
 
-    There are some known issues with Qt Creator 1.1.0.
+    There are some known issues with Qt Creator 1.1.1.
     The development team is aware of those, there is no need to report them as bug.
 
     \list
