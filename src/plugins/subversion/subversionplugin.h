@@ -52,6 +52,9 @@ QT_END_NAMESPACE
 namespace Core {
     class IEditorFactory;
     class IVersionControl;
+    namespace Utils {
+        class ParameterAction;
+    }
 }
 
 namespace ProjectExplorer {
@@ -151,15 +154,15 @@ private:
     SubversionOutputWindow *m_subversionOutputWindow;
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 
-    QAction *m_addAction;
-    QAction *m_deleteAction;
-    QAction *m_revertAction;
+    Core::Utils::ParameterAction *m_addAction;
+    Core::Utils::ParameterAction *m_deleteAction;
+    Core::Utils::ParameterAction *m_revertAction;
     QAction *m_diffProjectAction;
-    QAction *m_diffCurrentAction;
+    Core::Utils::ParameterAction *m_diffCurrentAction;
     QAction *m_commitAllAction;
-    QAction *m_commitCurrentAction;
-    QAction *m_filelogCurrentAction;
-    QAction *m_annotateCurrentAction;
+    Core::Utils::ParameterAction *m_commitCurrentAction;
+    Core::Utils::ParameterAction *m_filelogCurrentAction;
+    Core::Utils::ParameterAction *m_annotateCurrentAction;
     QAction *m_statusAction;
     QAction *m_updateProjectAction;
     QAction *m_describeAction;

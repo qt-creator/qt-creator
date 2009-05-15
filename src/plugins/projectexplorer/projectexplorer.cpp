@@ -79,6 +79,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/parameteraction.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDateTime>
@@ -438,7 +439,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         this, SLOT(updateRecentProjectMenu()));
 
     // unload action
-    m_unloadAction = new QAction(tr("Close Project"), this);
+    m_unloadAction = new Core::Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     cmd = am->registerAction(m_unloadAction, Constants::UNLOAD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_unloadAction->text());
@@ -1273,12 +1274,11 @@ void ProjectExplorerPlugin::updateActions()
     if (debug)
         qDebug()<<"BuildManager::isBuilding()"<<building;
 
-    m_unloadAction->setEnabled(m_currentProject != 0);
     if (m_currentProject == 0) {
-        m_unloadAction->setText(tr("Close Project"));
+        m_unloadAction->setParameter(QString());
         m_buildProjectOnlyMenu->setTitle(tr("Current Project"));
     } else {
-        m_unloadAction->setText(tr("Close Project \"%1\"").arg(m_currentProject->name()));
+	m_unloadAction->setParameter(m_currentProject->name());
         m_buildProjectOnlyMenu->setTitle(tr("Project \"%1\"").arg(m_currentProject->name()));
     }
 

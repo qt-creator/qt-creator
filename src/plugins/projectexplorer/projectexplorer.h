@@ -54,6 +54,9 @@ class IFileFactory;
 namespace Internal {
     class WelcomeMode;
 }
+    namespace Utils {
+        class ParameterAction;
+    }
 }
 
 namespace ProjectExplorer {
@@ -225,7 +228,7 @@ private:
 #if 0
     QAction *m_loadAction;
 #endif
-    QAction *m_unloadAction;
+    Core::Utils::ParameterAction *m_unloadAction;
     QAction *m_clearSession;
     QAction *m_buildProjectOnlyAction;
     QAction *m_buildAction;
