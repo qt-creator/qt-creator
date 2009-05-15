@@ -47,6 +47,7 @@
 */
 
 #include "pp.h"
+#include "pp-cctype.h"
 
 #include <Lexer.h>
 #include <Token.h>
@@ -702,7 +703,7 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
         ++it;
 
         for (; it != end; ++it) {
-            if (! std::isspace(*it))
+            if (! pp_isspace(*it))
                 out(' ');
 
             else
@@ -773,7 +774,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                 ++it;
 
                 for (; it != end; ++it) {
-                    if (std::isspace(*it))
+                    if (pp_isspace(*it))
                         out(*it);
 
                     else
