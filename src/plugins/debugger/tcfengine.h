@@ -152,11 +152,8 @@ private:
         QVariant cookie;
     };
 
-    void postCommand(TcfCommandCallback callback,
-        const char *callbackName,
-        const QByteArray &service,
-        const QByteArray &cmd,
-        const QByteArray &args = "\"\"");
+    void postCommand(const QByteArray &cmd,
+        TcfCommandCallback callback = 0, const char *callbackName = 0);
     void sendCommandNow(const TcfCommand &command);
 
     QHash<int, TcfCommand> m_cookieForToken;
