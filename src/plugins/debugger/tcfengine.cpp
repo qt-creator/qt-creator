@@ -75,6 +75,20 @@ using namespace Debugger::Constants;
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) &TcfEngine::callback, STRINGIFY(callback)
 
+QByteArray C(const QByteArray &ba1,
+    const QByteArray &ba2 = QByteArray(),
+    const QByteArray &ba3 = QByteArray(),
+    const QByteArray &ba4 = QByteArray(),
+    const QByteArray &ba5 = QByteArray())
+{
+    QByteArray result = ba1;
+    if (!ba2.isEmpty()) { result += '\0'; result += ba2; }
+    if (!ba3.isEmpty()) { result += '\0'; result += ba3; }
+    if (!ba4.isEmpty()) { result += '\0'; result += ba4; }
+    if (!ba5.isEmpty()) { result += '\0'; result += ba5; }
+    return result;
+}
+
 
 //#define USE_CONGESTION_CONTROL
 
@@ -159,7 +173,8 @@ void TcfEngine::socketReadyRead()
     m_inbuffer.append(m_socket->readAll());
     int pos = 0;
     while (1) {
-        int next = m_inbuffer.indexOf("\3\1", pos);
+        // the  "\3" is followed by either "\1" or "\2"
+        int next = m_inbuffer.indexOf("\3", pos);
         //qDebug() << "pos: " << pos << "next: " << next;
         if (next == -1)
             break;
@@ -191,8 +206,17 @@ void TcfEngine::socketError(QAbstractSocket::SocketError)
 
 void TcfEngine::executeDebuggerCommand(const QString &command)
 {
-    Q_UNUSED(command);
-    XSDEBUG("FIXME:  TcfEngine::executeDebuggerCommand()");
+    QByteArray cmd = command.toUtf8();
+    cmd = cmd.mid(cmd.indexOf(' ') + 1);
+    QByteArray null;
+    null.append('\0');
+    // FIXME: works for single-digit escapes only
+    cmd.replace("\\0", null);
+    cmd.replace("\\1", "\1");
+    cmd.replace("\\3", "\3");
+    TcfCommand tcf;
+    tcf.command = cmd;
+    enqueueCommand(tcf);
 }
 
 void TcfEngine::shutdown()
@@ -324,6 +348,8 @@ void TcfEngine::handleResponse(const QByteArray &response)
     QList<QByteArray> parts = response.split('\0');
     if (parts.size() < 2 || !parts.last().isEmpty()) {
         SDEBUG("WRONG RESPONSE PACKET LAYOUT" << parts);
+        //if (response.isEmpty())
+            acknowledgeResult();
         return;
     }
     parts.removeLast(); // always empty
@@ -376,25 +402,26 @@ void TcfEngine::handleResponse(const QByteArray &response)
 
 void TcfEngine::startDebugging()
 {
-    foreach (const QByteArray &service, m_services) {
-        postCommand(CB(handleRunControlGetChildren),
-            service, "getChildren", "\"\"");
-    }
+    //foreach (const QByteArray &service, m_services) {
+    //    postCommand(CB(handleRunControlGetChildren),
+    //        service, "getChildren", "\"\"");
+    //}
 
-    postCommand(CB(handleRunControlGetChildren), "Diagnostics", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "Streams", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "Expressions", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "SysMonitor", "getChildren");
-    //postCommand(CB(handleRunControlGetChildren), "FileSystem", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "Processes", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "LineNumbers", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "Symbols", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "StackTrace", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "Registers", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "Memory", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "Breakpoints", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "RunControl", "getChildren");
-    postCommand(CB(handleRunControlGetChildren), "Locator", "getChildren");
+    postCommand(C("Diagnostics", "getChildren", "\"\""),
+        CB(handleRunControlGetChildren));
+    postCommand(C("Streams", "getChildren", "\"\""));
+    postCommand(C("Expressions", "getChildren", "\"\""));
+    postCommand(C("SysMonitor", "getChildren", "\"\""));
+    //postCommand(C("FileSystem", "getChildren", "\"\""));
+    //postCommand(C("Processes", "getChildren", "\"\""));
+    //postCommand(CB(handleRunControlGetChildren), "LineNumbers", "getChildren");
+    //postCommand(CB(handleRunControlGetChildren), "Symbols", "getChildren");
+    //postCommand(CB(handleRunControlGetChildren), "StackTrace", "getChildren");
+    //postCommand(CB(handleRunControlGetChildren), "Registers", "getChildren");
+    //postCommand(CB(handleRunControlGetChildren), "Memory", "getChildren");
+    //postCommand(CB(handleRunControlGetChildren), "Breakpoints", "getChildren");
+    //postCommand(CB(handleRunControlGetChildren), "RunControl", "getChildren");
+    //postCommand(CB(handleRunControlGetChildren), "Locator", "getChildren");
 
 
     //postCommand(CB(handleRunControlSuspend),
@@ -402,36 +429,33 @@ void TcfEngine::startDebugging()
     //postCommand(CB(handleRunControlSuspend),
     //    "RunControl", "getContext", "\"P12318\"");
 
-    //postCommand("Locator", "sync", "");
+    //postCommand(C("Locator", "sync"), CB(handleRunControlGetChildren));
     //postCommand("Locator", "redirect", "ID");
+
+    //postCommand(C("FileSystem", "open", "\"/bin/ls\"", "1", "2", "3"),
+    //    CB(handleRunControlGetChildren));
+    postCommand(C("FileSystem", "stat", "\"/bin/ls\""),
+        CB(handleRunControlGetChildren));
 }
 
-void TcfEngine::postCommand(TcfCommandCallback callback,
-    const char *callbackName,
-    const QByteArray &service,
-    const QByteArray &cmd,
-    const QByteArray &args)
+void TcfEngine::postCommand(const QByteArray &cmd,
+    TcfCommandCallback callback, const char *callbackName)
 {
     static int token = 20;
     ++token;
     
-    const char delim = 0;
     //const char marker_eom = -1;
     //const char marker_eos = -2;
     //const char marker_null = -3;
 
     QByteArray ba = "C";
-    ba.append(delim);
+    ba.append('\0');
     ba.append(QByteArray::number(token));
-    ba.append(delim);
-    ba.append(service);
-    ba.append(delim);
+    ba.append('\0');
     ba.append(cmd);
-    ba.append(delim);
-    ba.append(args);
-    ba.append(delim);
-    ba.append(3);
-    ba.append(1);
+    ba.append('\0');
+    ba.append('\3');
+    ba.append('\1');
 
     TcfCommand tcf;
     tcf.command = ba;
@@ -441,7 +465,7 @@ void TcfEngine::postCommand(TcfCommandCallback callback,
 
     m_cookieForToken[token] = tcf;
 
-    enqueueCommand(tcf);  // congestion based
+    enqueueCommand(tcf);
 }
 
 // Congestion control does not seem to work that way. Basically it's
@@ -485,10 +509,10 @@ void TcfEngine::sendCommandNow(const TcfCommand &cmd)
 {
     ++m_inAir;
     int result = m_socket->write(cmd.command);
+    Q_UNUSED(result);
     m_socket->flush();
-    emit tcfInputAvailable("send", QString::number(cmd.token)
-        + " " + cmd.toString() + " " + QString::number(result));
-    SDEBUG("SEND " <<  cmd.toString() << " " << QString::number(result));
+    emit tcfInputAvailable("send", QString::number(cmd.token) + " " + cmd.toString());
+    SDEBUG("SEND " <<  cmd.toString()); //<< " " << QString::number(result));
 }
 
 void TcfEngine::acknowledgeResult()
@@ -503,7 +527,7 @@ void TcfEngine::acknowledgeResult()
 
 void TcfEngine::handleRunControlSuspend(const TcfData &data, const QVariant &)
 {
-    SDEBUG("HANDLE RESULT");
+    SDEBUG("HANDLE RESULT" << data.toString());
 }
 
 void TcfEngine::handleRunControlGetChildren(const TcfData &data, const QVariant &)
@@ -559,6 +583,7 @@ void TcfEngine::updateWatchModel()
 
 void TcfEngine::updateSubItem(const WatchData &data0)
 {
+    Q_UNUSED(data0);
     QTC_ASSERT(false, return);
 }
 
