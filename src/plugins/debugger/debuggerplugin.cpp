@@ -173,10 +173,6 @@ class DebugMode : public Core::BaseMode
 public:
     DebugMode(QObject *parent = 0);
     ~DebugMode();
-
-    // IMode
-    void activated() {}
-    void shutdown() {}
 };
 
 DebugMode::DebugMode(QObject *parent)
@@ -409,8 +405,6 @@ DebuggerPlugin::~DebuggerPlugin()
 
 void DebuggerPlugin::shutdown()
 {
-    if (m_debugMode)
-        m_debugMode->shutdown(); // saves state including manager information
     QTC_ASSERT(m_manager, /**/);
     if (m_manager)
         m_manager->shutdown();
@@ -758,7 +752,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     toolBarAddingLayout->addWidget(rightPaneSplitter);
     toolBarAddingLayout->addWidget(debugToolBar);
 
-    m_manager->createDockWidgets();
     m_manager->setSimpleDockWidgetArrangement();
     readSettings();
 
