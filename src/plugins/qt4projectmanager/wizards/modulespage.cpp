@@ -58,7 +58,7 @@ ModulesPage::ModulesPage(QWidget *parent)
 
     QGridLayout *layout = new QGridLayout;
 
-    const QList<SPEInfoItem*> infoItemsList = *SPEInfo::list(SPEInfoItem::QtModule);
+    const QList<SPEInfoItem*> infoItemsList = *SPEInfo::qtModulesList();
     int itemId = 0;
     int rowsCount = (infoItemsList.count() + 1) / 2;
     foreach (const SPEInfoItem *infoItem, infoItemsList) {
@@ -80,7 +80,7 @@ ModulesPage::ModulesPage(QWidget *parent)
 // Return the key that goes into the Qt config line for a module
 QString ModulesPage::idOfModule(const QString &module)
 {
-    const QList<SPEInfoItem*> infoItemsList = *SPEInfo::list(SPEInfoItem::QtModule);
+    const QList<SPEInfoItem*> infoItemsList = *SPEInfo::qtModulesList();
     foreach (const SPEInfoItem *infoItem, infoItemsList)
         if (infoItem->name().startsWith(module))
             return infoItem->id();
@@ -115,7 +115,7 @@ QString ModulesPage::modules(bool selected) const
 {
     QStringList modules;
 
-    const QList<SPEInfoItem*> infoItemsList = *SPEInfo::list(SPEInfoItem::QtModule);
+    const QList<SPEInfoItem*> infoItemsList = *SPEInfo::qtModulesList();
     foreach (const SPEInfoItem *infoItem, infoItemsList) {
         if (selected != infoItem->data(SPEInfoItem::keyIncludedByDefault).toBool()
             && selected == field(infoItem->id()).toBool())

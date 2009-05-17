@@ -36,12 +36,7 @@
 using namespace Qt4ProjectManager::Internal;
 
 bool SPEInfo::m_listsInitialized = false;
-QList<SPEInfoItem*> SPEInfo::m_configurationList;
-QList<SPEInfoItem*> SPEInfo::m_platformList;
-QList<SPEInfoItem*> SPEInfo::m_variableList;
 QList<SPEInfoItem*> SPEInfo::m_qtmoduleList;
-QList<SPEInfoItem*> SPEInfo::m_templateList;
-QList<SPEInfoItem*> SPEInfo::m_operatorList;
 
 QHash<QPair<SPEInfoItem::InfoKind, QString> ,SPEInfoItem*> SPEInfo::m_itemHash;
 
@@ -51,247 +46,6 @@ const QString SPEInfoItem::valuePath("path");
 const QString SPEInfoItem::keyIncludedByDefault("includedbydefault");
 const QString SPEInfoItem::keyImageFileName("imagefilename");
 
-// Configurations (Debug, Release, ...)
-class InfoItemConfigurationCross : public SPEInfoItem
-{
-public:
-    InfoItemConfigurationCross(): SPEInfoItem("", Configuration) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Debug and Release"); }
-};
-
-class InfoItemConfigurationDebug : public SPEInfoItem
-{
-public:
-    InfoItemConfigurationDebug(): SPEInfoItem("debug", Configuration) {}
-    QString name() const {return QCoreApplication::translate("SimpleProEditor", "Debug specific");}
-};
-
-class InfoItemConfigurationRelease : public SPEInfoItem
-{
-public:
-    InfoItemConfigurationRelease(): SPEInfoItem("release", Configuration) {}
-    QString name() const {return QCoreApplication::translate("SimpleProEditor", "Release specific");}
-};
-
-
-// Platforms (Windows, Mac, ...)
-class InfoItemPlatformCross : public SPEInfoItem
-{
-public:
-    InfoItemPlatformCross(): SPEInfoItem("", Platform) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "All platforms"); }
-};
-
-class InfoItemPlatformWindows : public SPEInfoItem
-{
-public:
-    InfoItemPlatformWindows(): SPEInfoItem("win32", Platform) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "MS Windows specific"); }
-};
-
-class InfoItemPlatformUnix : public SPEInfoItem
-{
-public:
-    InfoItemPlatformUnix(): SPEInfoItem("unix", Platform) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Linux/Unix specific"); }
-};
-
-class InfoItemPlatformOSX : public SPEInfoItem
-{
-public:
-    InfoItemPlatformOSX(): SPEInfoItem("macx", Platform) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Mac OSX specific"); }
-};
-
-
-// Variables (Target options, Libraries, Defines, ...)
-class InfoItemVariableTargetOptions : public SPEInfoItem
-{
-public:
-    InfoItemVariableTargetOptions(): SPEInfoItem("TEMPLATE", Variable)
-    {
-        m_data.insert(keyImageFileName, ":/variableimages/images/target.png");
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Target Options");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "Type and name of the target.");
-    }
-};
-
-class InfoItemVariableDefines : public SPEInfoItem
-{
-public:
-    InfoItemVariableDefines(): SPEInfoItem("DEFINES", Variable)
-    {
-        m_data.insert(keyImageFileName, ":/variableimages/images/defines.png");
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Preprocessor Definitions");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "Setting of the preprocessor definitions.");
-    }
-};
-
-class InfoItemVariableIncludePath : public SPEInfoItem
-{
-public:
-    InfoItemVariableIncludePath(): SPEInfoItem("INCLUDEPATH", Variable)
-    {
-        m_data.insert(keyType, valuePath);
-        m_data.insert(keyImageFileName, ":/variableimages/images/includes.png");
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Include path"); }
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "Setting of the pathes where the header files are located.");
-    }
-};
-
-class InfoItemVariableLibs : public SPEInfoItem
-{
-public:
-    InfoItemVariableLibs(): SPEInfoItem("LIBS", Variable)
-    {
-        m_data.insert(keyImageFileName, ":/variableimages/images/libs.png");
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Libraries");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "Defining the libraries to link the target against and the pathes where these are located.");
-    }
-};
-
-class InfoItemVariableSources : public SPEInfoItem
-{
-public:
-    InfoItemVariableSources(): SPEInfoItem("SOURCES", Variable)
-    {
-        m_data.insert(keyType, valueFile);
-        m_data.insert(keyImageFileName, ":/variableimages/images/sources.png");
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Source Files");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "");
-    }
-};
-
-class InfoItemVariableHeaders : public SPEInfoItem
-{
-public:
-    InfoItemVariableHeaders(): SPEInfoItem("HEADERS", Variable)
-    {
-        m_data.insert(keyType, valueFile);
-        m_data.insert(keyImageFileName, ":/variableimages/images/headers.png");
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Header Files");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "");
-    }
-};
-
-class InfoItemVariableForms : public SPEInfoItem
-{
-public:
-    InfoItemVariableForms(): SPEInfoItem("FORMS", Variable)
-    {
-        m_data.insert(keyType, valueFile);
-        m_data.insert(keyImageFileName, ":/variableimages/images/forms.png");
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Forms");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "");
-    }
-};
-
-class InfoItemVariableQtModules : public SPEInfoItem
-{
-public:
-    InfoItemVariableQtModules(): SPEInfoItem("QT", Variable)
-    {
-        m_data.insert(keyImageFileName, ":/variableimages/images/qtmodules.png");
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Qt Modules");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "Setting up which of the Qt modules will be used in the target application.");
-    }
-};
-
-class InfoItemVariableResources : public SPEInfoItem
-{
-public:
-    InfoItemVariableResources(): SPEInfoItem("RESOURCES", Variable)
-    {
-        m_data.insert(keyType, valueFile);
-        m_data.insert(keyImageFileName, ":/variableimages/images/resources.png");
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Resource files");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "");
-    }
-};
-
-class InfoItemVariableTarget : public SPEInfoItem
-{
-public:
-    InfoItemVariableTarget(): SPEInfoItem("TARGET", Variable) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Target name");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "The name of the resulting target.");
-    }
-};
-
-class InfoItemVariableConfig : public SPEInfoItem
-{
-public:
-    InfoItemVariableConfig(): SPEInfoItem("CONFIG", Variable) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Configuration");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "Configuration.");
-    }
-};
-
-class InfoItemVariableDestdir : public SPEInfoItem
-{
-public:
-    InfoItemVariableDestdir(): SPEInfoItem("DESTDIR", Variable) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Destination directory");}
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "Where the resulting target will be created.");
-    }
-};
-
-
-// Qt modules
 class InfoItemModulesCore : public SPEInfoItem
 {
 public:
@@ -516,93 +270,6 @@ public:
     }
 };
 
-
-// Target templates
-class InfoItemTemplatesApp : public SPEInfoItem
-{
-public:
-    InfoItemTemplatesApp(): SPEInfoItem("app", Template)
-    {
-        m_data.insert(keyIncludedByDefault, false);
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Application"); }
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "Create a standalone application");
-    }
-};
-
-class InfoItemTemplatesDynamicLib : public SPEInfoItem
-{
-public:
-    InfoItemTemplatesDynamicLib(): SPEInfoItem("lib", Template)
-    {
-        m_data.insert(keyIncludedByDefault, false);
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Dynamic Library"); }
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "Create a dynamic library for usage in other applications");
-    }
-};
-
-class InfoItemTemplatesStaticLib : public SPEInfoItem
-{
-public:
-    InfoItemTemplatesStaticLib(): SPEInfoItem("staticlib", Template)
-    {
-        m_data.insert(keyIncludedByDefault, false);
-    }
-
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Static Library"); }
-    QString description() const
-    {
-        return QCoreApplication::translate("SimpleProEditor",
-            "Create a static library for usage in other applications");
-    }
-};
-
-// Variable operators
-class InfoItemOperatorsAdd : public SPEInfoItem
-{
-public:
-    InfoItemOperatorsAdd(): SPEInfoItem("+=", Operator) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Add Operator"); }
-};
-
-class InfoItemOperatorsRemove : public SPEInfoItem
-{
-public:
-    InfoItemOperatorsRemove(): SPEInfoItem("-=", Operator) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Remove Operator"); }
-};
-
-class InfoItemOperatorsReplace : public SPEInfoItem
-{
-public:
-    InfoItemOperatorsReplace(): SPEInfoItem("~=", Operator) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Replace Operator"); }
-};
-
-class InfoItemOperatorsSet : public SPEInfoItem
-{
-public:
-    InfoItemOperatorsSet(): SPEInfoItem("=", Operator) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Set Operator"); }
-};
-
-class InfoItemOperatorsUniqueAdd : public SPEInfoItem
-{
-public:
-    InfoItemOperatorsUniqueAdd(): SPEInfoItem("*=", Operator) {}
-    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Unique Add Operator"); }
-};
-
-
 SPEInfoItem::SPEInfoItem(const QString &id, InfoKind kind)
 :   m_id(id)
 ,   m_infoKind(kind)
@@ -625,27 +292,6 @@ QVariant SPEInfoItem::data(const QString &key) const
     return m_data.value(key);
 }
 
-const SPEInfoItem *SPEInfoItem::parentItem() const
-{
-    return m_parentItem;
-}
-
-void SPEInfoItem::setParentItem(const SPEInfoItem *parentItem)
-{
-    m_parentItem = parentItem;
-}
-
-bool SPEInfoItem::isAncestorOf(const SPEInfoItem *successor) const
-{
-    const SPEInfoItem *ancestorCursor = successor;
-
-    while ((ancestorCursor = ancestorCursor->parentItem()) != NULL)
-        if (ancestorCursor == this)
-            return true;
-
-    return false;
-}
-
 QString SPEInfoItem::id() const
 {
     return m_id;
@@ -661,23 +307,11 @@ SPEInfo::~SPEInfo()
     deleteLists();
 }
 
-const QList<SPEInfoItem*> *SPEInfo::list(SPEInfoItem::InfoKind kind)
+const QList<SPEInfoItem*> *SPEInfo::qtModulesList()
 {
     if (!m_listsInitialized)
         initializeLists();
-    return
-            kind == SPEInfoItem::Configuration?&m_configurationList
-            :kind == SPEInfoItem::Platform?&m_platformList
-            :kind == SPEInfoItem::Variable?&m_variableList
-            :kind == SPEInfoItem::QtModule?&m_qtmoduleList
-            :kind == SPEInfoItem::Template?&m_templateList
-            :/*kind == SPEInfoItem::Operator?*/&m_operatorList
-            ;
-}
-
-const SPEInfoItem *SPEInfo::defaultInfoOfKind(SPEInfoItem::InfoKind kind)
-{
-    return list(kind)->at(0);
+    return &m_qtmoduleList;
 }
 
 void SPEInfo::addListToHash(const QList<SPEInfoItem*> &list)
@@ -688,46 +322,6 @@ void SPEInfo::addListToHash(const QList<SPEInfoItem*> &list)
 
 void SPEInfo::initializeLists()
 {
-    InfoItemConfigurationCross *infoItemConfigurationCross = new InfoItemConfigurationCross;
-    InfoItemConfigurationDebug *infoItemConfigurationDebug = new InfoItemConfigurationDebug;
-    infoItemConfigurationDebug->setParentItem(infoItemConfigurationCross);
-    InfoItemConfigurationRelease *infoItemConfigurationRelease = new InfoItemConfigurationRelease;
-    infoItemConfigurationRelease->setParentItem(infoItemConfigurationCross);
-    m_configurationList
-        << infoItemConfigurationCross
-        << infoItemConfigurationDebug
-        << infoItemConfigurationRelease;
-    addListToHash(m_configurationList);
-
-    InfoItemPlatformCross *infoItemPlatformCross = new InfoItemPlatformCross;
-    InfoItemPlatformWindows *infoItemPlatformWindows = new InfoItemPlatformWindows;
-    infoItemPlatformWindows->setParentItem(infoItemPlatformCross);
-    InfoItemPlatformUnix *infoItemPlatformUnix = new InfoItemPlatformUnix;
-    infoItemPlatformUnix->setParentItem(infoItemPlatformCross);
-    InfoItemPlatformOSX *infoItemPlatformOSX = new InfoItemPlatformOSX;
-    infoItemPlatformOSX->setParentItem(infoItemPlatformUnix);
-    m_platformList
-        << infoItemPlatformCross
-        << infoItemPlatformWindows
-        << infoItemPlatformUnix
-        << infoItemPlatformOSX;
-    addListToHash(m_platformList);
-
-    m_variableList
-        << new InfoItemVariableTargetOptions
-        << new InfoItemVariableDefines
-        << new InfoItemVariableLibs
-        << new InfoItemVariableIncludePath
-        << new InfoItemVariableSources
-        << new InfoItemVariableHeaders
-        << new InfoItemVariableForms
-        << new InfoItemVariableQtModules
-        << new InfoItemVariableResources
-        << new InfoItemVariableTarget
-        << new InfoItemVariableConfig
-        << new InfoItemVariableDestdir;
-    addListToHash(m_variableList);
-
     m_qtmoduleList
         << new InfoItemModulesCore
         << new InfoItemModulesGui
@@ -745,20 +339,6 @@ void SPEInfo::initializeLists()
         << new InfoItemModulesDBus;
     addListToHash(m_qtmoduleList);
 
-    m_templateList
-        << new InfoItemTemplatesApp
-        << new InfoItemTemplatesDynamicLib
-        << new InfoItemTemplatesStaticLib;
-    addListToHash(m_templateList);
-
-    m_operatorList
-        << new InfoItemOperatorsAdd
-        << new InfoItemOperatorsRemove
-        << new InfoItemOperatorsReplace
-        << new InfoItemOperatorsSet
-        << new InfoItemOperatorsUniqueAdd;
-    addListToHash(m_operatorList);
-
     m_listsInitialized = true;
 }
 
@@ -766,19 +346,8 @@ void SPEInfo::deleteLists()
 {
     m_itemHash.clear();
 
-    static QList<SPEInfoItem*> *lists[] = {
-        &m_configurationList,
-        &m_platformList,
-        &m_variableList,
-        &m_qtmoduleList,
-        &m_templateList,
-        &m_operatorList
-    };
-
-    for (size_t i = 0; i < sizeof(lists)/sizeof(lists[0]); i++) {
-        qDeleteAll(*lists[i]);
-        lists[i]->clear();
-    }
+    qDeleteAll(m_qtmoduleList);
+    m_qtmoduleList.clear();
 
     m_listsInitialized = false;
 }
@@ -788,16 +357,6 @@ const SPEInfoItem *SPEInfo::infoOfKindForId(SPEInfoItem::InfoKind kind,
 {
     QPair<SPEInfoItem::InfoKind, QString > keyPair = qMakePair(kind, id);
     return m_itemHash.contains(keyPair)?m_itemHash.value(keyPair):defaultInfoItem;
-}
-
-const SPEInfoItem *SPEInfo::platformInfoForId(const QString &id)
-{
-    return infoOfKindForId(SPEInfoItem::Platform, id, SPEInfo::defaultInfoOfKind(SPEInfoItem::Platform));
-}
-
-const SPEInfoItem *SPEInfo::configurationInfoForId(const QString &id)
-{
-    return infoOfKindForId(SPEInfoItem::Configuration, id, SPEInfo::defaultInfoOfKind(SPEInfoItem::Configuration));
 }
 
 static SPEInfo speInfoInstance; // it's destructor will call deleteLists()

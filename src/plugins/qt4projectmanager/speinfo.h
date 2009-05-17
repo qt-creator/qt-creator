@@ -41,12 +41,7 @@ class SPEInfoItem
 {
 public:
     enum InfoKind {
-        Configuration,
-        Platform,
-        Variable,
-        QtModule,
-        Template,
-        Operator
+        QtModule
     };
 
     SPEInfoItem(const QString &id, InfoKind kind);
@@ -57,10 +52,6 @@ public:
     virtual QString name() const;
     virtual QString description() const;
     QVariant data(const QString &key) const;
-    const SPEInfoItem *parentItem() const;
-    void setParentItem(const SPEInfoItem *parentItem);
-
-    bool isAncestorOf(const SPEInfoItem *ancestor) const;
 
     static const QString keyType;
     static const QString valueFile;
@@ -83,10 +74,7 @@ class SPEInfo
 public:
     ~SPEInfo();
 
-    static const QList<SPEInfoItem*> *list(SPEInfoItem::InfoKind kind);
-    static const SPEInfoItem *defaultInfoOfKind(SPEInfoItem::InfoKind kind);
-    static const SPEInfoItem *platformInfoForId(const QString &id);
-    static const SPEInfoItem *configurationInfoForId(const QString &id);
+    static const QList<SPEInfoItem*> *qtModulesList();
     static const SPEInfoItem *infoOfKindForId(SPEInfoItem::InfoKind kind,
         const QString &id, const SPEInfoItem *defaultInfoItem = NULL);
 
@@ -95,12 +83,7 @@ private:
     static void initializeLists();
     static void deleteLists();
 
-    static QList<SPEInfoItem*> m_configurationList;
-    static QList<SPEInfoItem*> m_platformList;
-    static QList<SPEInfoItem*> m_variableList;
     static QList<SPEInfoItem*> m_qtmoduleList;
-    static QList<SPEInfoItem*> m_templateList;
-    static QList<SPEInfoItem*> m_operatorList;
 
     static QHash<QPair<SPEInfoItem::InfoKind, QString> ,SPEInfoItem* > m_itemHash;
 
