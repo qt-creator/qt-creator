@@ -31,7 +31,7 @@ HEADERS = qt4projectmanagerplugin.h \
     deployhelper.h \
     embeddedpropertiespage.h \
     qt4runconfiguration.h \
-    speinfo.h \
+    qtmodulesinfo.h \
     qt4projectconfigwidget.h \
     qt4buildenvironmentwidget.h \
     projectloadwizard.h \
@@ -64,7 +64,7 @@ SOURCES = qt4projectmanagerplugin.cpp \
     deployhelper.cpp \
     embeddedpropertiespage.cpp \
     qt4runconfiguration.cpp \
-    speinfo.cpp \
+    qtmodulesinfo.cpp \
     qt4projectconfigwidget.cpp \
     qt4buildenvironmentwidget.cpp \
     projectloadwizard.cpp \

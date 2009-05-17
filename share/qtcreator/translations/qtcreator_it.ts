@@ -10218,336 +10218,118 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
     </message>
 </context>
 <context>
-    <name>SimpleProEditor</name>
+    <name>QtModulesInfo</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/speinfo.cpp" line="+59"/>
-        <source>Debug and Release</source>
-        <translation>Debug e Release</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Debug specific</source>
-        <translation>Specifico del Debug</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Release specific</source>
-        <translation>Specifico del Release</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>All platforms</source>
-        <translation>Tutte le piattaforme</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>MS Windows specific</source>
-        <translation>Specifico di MS Windows</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Linux/Unix specific</source>
-        <translation>Specifico di Linux/Unix</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Mac OSX specific</source>
-        <translation>Specifico di Max OSX</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Target Options</source>
-        <translation>Opzioni Destinazione</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Type and name of the target.</source>
-        <translation>Tipo e nome della destinazione.</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Preprocessor Definitions</source>
-        <translation>Definizioni del Preprocessore</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Setting of the preprocessor definitions.</source>
-        <translation>Impostazione delle definizioni del preprocessore.</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Include path</source>
-        <translation>Percorso degli Include</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Setting of the pathes where the header files are located.</source>
-        <translation>Impostazione dei percorsi dove si trovano i file header.</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Libraries</source>
-        <translation>Librerie</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Defining the libraries to link the target against and the pathes where these are located.</source>
-        <translation>Definizione delle librerie con cui linkare la destinazione a dei percorsi che le contengono.</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Source Files</source>
-        <translation>File Sorgenti</translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Header Files</source>
-        <translation>File Header</translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Forms</source>
-        <translation>Form</translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>Qt Modules</source>
-        <translation>Moduli Qt</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Setting up which of the Qt modules will be used in the target application.</source>
-        <translation>Imposta quali moduli Qt saranno usati nell&apos;applicazione di destinazione.</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Resource files</source>
-        <translation>File delle Risorse</translation>
-    </message>
-    <message>
-        <location line="+12"/>
-        <source>Target name</source>
-        <translation>Nome Destinazione</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>The name of the resulting target.</source>
-        <translation>Il nome della destinazione.</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Configuration</source>
-        <translation>Configurazione</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Configuration.</source>
-        <translation>Configurazione.</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Destination directory</source>
-        <translation>Cartella di Destinazione</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Where the resulting target will be created.</source>
-        <translation>La destinazione sarà creata qui dentro.</translation>
-    </message>
-    <message>
-        <location line="+15"/>
         <source>QtCore Module</source>
         <translation>Modulo QtCore</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Core non-GUI classes used by other modules</source>
         <translation>Classi di Core, non-GUI, usate dagli altri moduli</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtGui Module</source>
         <translation>Modulo QtGui</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Graphical user interface components</source>
         <translation>Componenti dell&apos;interfaccia grafica</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtNetwork Module</source>
         <translation>Modulo QtNetwork</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for network programming</source>
         <translation>Classi per la programmazione della rete</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtOpenGL Module</source>
         <translation>Modulo QtOpenGL</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>OpenGL support classes</source>
         <translation>Classi per il supporto OpenGL</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtSql Module</source>
         <translation>Modulo QtSql</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for database integration using SQL</source>
         <translation>Classi per l&apos;integrazione con database SQL</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtScript Module</source>
         <translation>Modulo QtScript</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for evaluating Qt Scripts</source>
         <translation>Classi per l&apos;esecuzione di Qt Script</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtSvg Module</source>
         <translation>Modulo QtSvg</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for displaying the contents of SVG files</source>
         <translation>Classi per la visualizzazione del contenuto di file SVG</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtWebKit Module</source>
         <translation>Modulo QtWebKit</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for displaying and editing Web content</source>
         <translation>Classi per la visualizzazione e modifica del contenuto Web</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtXml Module</source>
         <translation>Modulo QtXml</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for handling XML</source>
         <translation>Classi per la gestione di XML</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtXmlPatterns Module</source>
         <translation>Modulo QtXmlPatterns</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>An XQuery/XPath engine for XML and custom data models</source>
         <translation>Un motore XQuery/XPath per XML e modelli di dati speciali</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Phonon Module</source>
         <translation>Modulo Phonon</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Multimedia framework classes</source>
         <translation>Classi del framework multimediale</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Qt3Support Module</source>
         <translation>Modulo Qt3Support</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes that ease porting from Qt 3 to Qt 4</source>
         <translation>Classi che facilitano il porting da Qt 3 a Qt 4</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtTest Module</source>
         <translation>Modulo QtTest</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Tool classes for unit testing</source>
         <translation>Classi di ausilio per lo unit testing</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtDBus module</source>
         <translation>Modulo QtDBus</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for Inter-Process Communication using the D-Bus</source>
         <translation>Classi per la comunicazione-intra-processo usando il D-Bus</translation>
-    </message>
-    <message>
-        <location line="+15"/>
-        <source>Application</source>
-        <translation>Applicazione</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create a standalone application</source>
-        <translation>Crea un&apos;applicazione</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Dynamic Library</source>
-        <translation>Libreria Condivisa</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create a dynamic library for usage in other applications</source>
-        <translation>Crea una libreria condivisa per l&apos;uso in altre applicazioni</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Static Library</source>
-        <translation>Libreria Statica</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create a static library for usage in other applications</source>
-        <translation>Crea una libreria statica per l&apos;uso in altre applicazioni</translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Add Operator</source>
-        <translation>Operatore di Aggiunta</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Remove Operator</source>
-        <translation>Operatore di Rimozione</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Replace Operator</source>
-        <translation>Operatore di Sostituzione</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Set Operator</source>
-        <translation>Operatore di Assegnazione</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Unique Add Operator</source>
-        <translation>Operatore di Aggiunta Unica</translation>
     </message>
 </context>
 <context>
