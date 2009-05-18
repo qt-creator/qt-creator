@@ -108,10 +108,9 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
                 m_indexWidget->setCurrentIndex(idx);
             break;
         case Qt::Key_Escape:
-            emit escapePressed();            
+            emit escapePressed();
             break;
-        default:
-            ;
+        default: ; // stop complaining
         }
     } else if (obj == m_indexWidget && e->type() == QEvent::ContextMenu) {
         QContextMenuEvent *ctxtEvent = static_cast<QContextMenuEvent*>(e);
@@ -126,42 +125,18 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
             if (curTab == action)
                 m_indexWidget->activateCurrentItem();
             else if (newTab == action) {
-                QHelpIndexModel *model =
-                    qobject_cast<QHelpIndexModel*>(m_indexWidget->model());
-                QString keyword = model->data(idx, Qt::DisplayRole).toString();
-                if (model) {
-                    QMap<QString, QUrl> links = model->linksForKeyword(keyword);
-                    if (links.count() == 1) {
-                        Help::Internal::CentralWidget::instance()->
-                            setSourceInNewTab(links.constBegin().value());
-                    } else {
-                        TopicChooser tc(this, keyword, links);
-                        if (tc.exec() == QDialog::Accepted) {
-                            Help::Internal::CentralWidget::instance()->setSourceInNewTab(tc.link());
-                        }
-                    }
-                }
+                open(m_indexWidget, idx);
             }
         }
     } else if (m_indexWidget && obj == m_indexWidget->viewport()
         && e->type() == QEvent::MouseButtonRelease) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
         QModelIndex idx = m_indexWidget->indexAt(mouseEvent->pos());
-        if (idx.isValid() && mouseEvent->button()==Qt::MidButton) {
-            QHelpIndexModel *model =
-                qobject_cast<QHelpIndexModel*>(m_indexWidget->model());
-            QString keyword = model->data(idx, Qt::DisplayRole).toString();
-            if (model) {
-                QMap<QString, QUrl> links = model->linksForKeyword(keyword);
-                if (links.count() > 1) {
-                    TopicChooser tc(this, keyword, links);
-                    if (tc.exec() == QDialog::Accepted) {
-                        Help::Internal::CentralWidget::instance()->setSourceInNewTab(tc.link());
-                    }
-                } else if (links.count() == 1) {
-                    Help::Internal::CentralWidget::instance()->
-                        setSourceInNewTab(links.constBegin().value());
-                }
+        if (idx.isValid()) {
+            Qt::MouseButtons button = mouseEvent->button();
+            if (((button == Qt::LeftButton) && (mouseEvent->modifiers() & Qt::ControlModifier))
+                || (button == Qt::MidButton)) {
+                open(m_indexWidget, idx);
             }
         }
     }
@@ -196,5 +171,30 @@ void IndexWindow::focusInEvent(QFocusEvent *e)
     if (e->reason() != Qt::MouseFocusReason) {
         m_searchLineEdit->selectAll();
         m_searchLineEdit->setFocus();
+    }
+}
+
+void IndexWindow::open(QHelpIndexWidget* indexWidget, const QModelIndex &index)
+{
+    QHelpIndexModel *model = qobject_cast<QHelpIndexModel*>(indexWidget->model());
+    if (model) {
+        QString keyword = model->data(index, Qt::DisplayRole).toString();
+        QMap<QString, QUrl> links = model->linksForKeyword(keyword);
+
+        QUrl url;
+        if (links.count() > 1) {
+            TopicChooser tc(this, keyword, links);
+            if (tc.exec() == QDialog::Accepted) 
+                url = tc.link();
+        } else if (links.count() == 1) {
+            url = links.constBegin().value();
+        } else {
+            return;
+        }
+
+        if (url.path().endsWith(QLatin1String(".pdf"), Qt::CaseInsensitive))
+            Help::Internal::CentralWidget::instance()->setSource(url);
+        else
+            Help::Internal::CentralWidget::instance()->setSourceInNewTab(url);
     }
 }

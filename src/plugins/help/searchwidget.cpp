@@ -62,11 +62,16 @@ SearchWidget::SearchWidget(QHelpSearchEngine *engine, QWidget *parent)
     setFocusProxy(queryWidget);
 
     connect(queryWidget, SIGNAL(search()), this, SLOT(search()));
-    connect(resultWidget, SIGNAL(requestShowLink(const QUrl&)),
-        this, SIGNAL(requestShowLink(const QUrl&)));
+    connect(resultWidget, SIGNAL(requestShowLink(QUrl)), this,
+        SIGNAL(requestShowLink(QUrl)));
 
-    connect(searchEngine, SIGNAL(searchingStarted()), this, SLOT(searchingStarted()));
-    connect(searchEngine, SIGNAL(searchingFinished(int)), this, SLOT(searchingFinished(int)));
+    connect(searchEngine, SIGNAL(searchingStarted()), this,
+        SLOT(searchingStarted()));
+    connect(searchEngine, SIGNAL(searchingFinished(int)), this,
+        SLOT(searchingFinished(int)));
+
+    QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
+    browser->viewport()->installEventFilter(this);
 }
 
 SearchWidget::~SearchWidget()
@@ -76,10 +81,6 @@ SearchWidget::~SearchWidget()
 
 void SearchWidget::zoomIn()
 {
-#ifndef QT_CLUCENE_SUPPORT
-    return;
-#endif
-
     QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
     if (browser && zoomCount != 10) {
         zoomCount++;
@@ -89,10 +90,6 @@ void SearchWidget::zoomIn()
 
 void SearchWidget::zoomOut()
 {
-#ifndef QT_CLUCENE_SUPPORT
-        return;
-#endif
-
     QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
     if (browser && zoomCount != -5) {
         zoomCount--;
@@ -102,10 +99,6 @@ void SearchWidget::zoomOut()
 
 void SearchWidget::resetZoom()
 {
-#ifndef QT_CLUCENE_SUPPORT
-    return;
-#endif
-
     if (zoomCount == 0)
         return;
 
@@ -133,6 +126,24 @@ void SearchWidget::searchingFinished(int hits)
     qApp->restoreOverrideCursor();
 }
 
+bool SearchWidget::eventFilter(QObject* o, QEvent *e)
+{
+    QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
+    if (browser && o == browser->viewport()
+        && e->type() == QEvent::MouseButtonRelease){
+        QMouseEvent *me = static_cast<QMouseEvent*>(e);
+        QUrl link = resultWidget->linkAt(me->pos());
+        if (!link.isEmpty() || link.isValid()) {
+            bool controlPressed = me->modifiers() & Qt::ControlModifier;
+            if((me->button() == Qt::LeftButton && controlPressed)
+                || (me->button() == Qt::MidButton)) {
+                    emit requestShowLinkInNewTab(link);
+            }
+        }
+    }
+    return QWidget::eventFilter(o,e);
+}
+
 void SearchWidget::keyPressEvent(QKeyEvent *keyEvent)
 {
     if (keyEvent->key() == Qt::Key_Escape)
@@ -144,7 +155,6 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
     QMenu menu;
     QPoint point = contextMenuEvent->globalPos();
 
-#ifdef QT_CLUCENE_SUPPORT
     QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
     if (!browser)
         return;
@@ -155,22 +165,25 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 
     QUrl link = browser->anchorAt(point);
 
-    QAction *copyAction = menu.addAction(tr("&Copy") +
-        QString(QLatin1String("\t") + QString(QKeySequence(Qt::CTRL | Qt::Key_C))));
+    QKeySequence keySeq(QKeySequence::Copy);
+    QAction *copyAction = menu.addAction(tr("&Copy") + QLatin1String("\t") +
+        keySeq.toString(QKeySequence::NativeText));
     copyAction->setEnabled(QTextCursor(browser->textCursor()).hasSelection());
 
     QAction *copyAnchorAction = menu.addAction(tr("Copy &Link Location"));
     copyAnchorAction->setEnabled(!link.isEmpty() && link.isValid());
 
+    keySeq = QKeySequence(Qt::CTRL);
     QAction *newTabAction = menu.addAction(tr("Open Link in New Tab") +
-        QString(QLatin1String("\t") + QString(QKeySequence(Qt::CTRL))) +
+        QLatin1String("\t") + keySeq.toString(QKeySequence::NativeText) +
         QLatin1String("LMB"));
     newTabAction->setEnabled(!link.isEmpty() && link.isValid());
 
     menu.addSeparator();
 
+    keySeq = QKeySequence::SelectAll;
     QAction *selectAllAction = menu.addAction(tr("Select All") +
-        QString(QLatin1String("\t") + QString(QKeySequence(Qt::CTRL | Qt::Key_A))));
+        QLatin1String("\t") + keySeq.toString(QKeySequence::NativeText));
 
     QAction *usedAction = menu.exec(mapToGlobal(contextMenuEvent->pos()));
     if (usedAction == copyAction) {
@@ -191,19 +204,4 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
     else if (usedAction == selectAllAction) {
         browser->selectAll();
     }
-#else
-    point = resultWidget->mapFromGlobal(point);
-    QUrl link = resultWidget->linkAt(point);
-    if (link.isEmpty() || !link.isValid())
-        return;
-
-    QAction *curTab = menu.addAction(tr("Open Link"));
-    QAction *newTab = menu.addAction(tr("Open Link in New Tab"));
-
-    QAction *action = menu.exec(mapToGlobal(contextMenuEvent->pos()));
-    if (curTab == action)
-        emit requestShowLink(link);
-    else if (newTab == action)
-        emit requestShowLinkInNewTab(link);
-#endif
 }

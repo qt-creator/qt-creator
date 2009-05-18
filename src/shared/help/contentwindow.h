@@ -37,6 +37,7 @@
 QT_BEGIN_NAMESPACE
 
 class QHelpEngine;
+class QHelpContentItem;
 class QHelpContentWidget;
 
 QT_END_NAMESPACE
@@ -65,6 +66,7 @@ private:
     void focusInEvent(QFocusEvent *e);
     void keyPressEvent(QKeyEvent *e);
     bool eventFilter(QObject *o, QEvent *e);
+    bool isPdfFile(QHelpContentItem *item) const;
 
     QHelpEngine *m_helpEngine;
     QHelpContentWidget *m_contentWidget;

@@ -146,6 +146,7 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
 
 class HelpPage : public QWebPage
 {
+    friend class HelpViewer;
 public:
     HelpPage(Help::Internal::CentralWidget *central, QHelpEngine *engine, QObject *parent);
 
@@ -158,11 +159,17 @@ protected:
 private:
     Help::Internal::CentralWidget *centralWidget;
     QHelpEngine *helpEngine;
+    Qt::MouseButtons m_pressedButtons;
+    Qt::KeyboardModifiers m_keyboardModifiers;
 };
 
 HelpPage::HelpPage(Help::Internal::CentralWidget *central, QHelpEngine *engine, QObject *parent)
-    : QWebPage(parent), centralWidget(central), helpEngine(engine)
-{    
+    : QWebPage(parent)
+    , centralWidget(central)
+    , helpEngine(engine)
+    , m_pressedButtons(Qt::NoButton)
+    , m_keyboardModifiers(Qt::NoModifier)
+{
 }
 
 QWebPage *HelpPage::createWindow(QWebPage::WebWindowType)
@@ -184,14 +191,18 @@ static bool isLocalUrl(const QUrl &url)
 }
 
 bool HelpPage::acceptNavigationRequest(QWebFrame *,
-    const QNetworkRequest &request, QWebPage::NavigationType)
+    const QNetworkRequest &request, QWebPage::NavigationType type)
 {
     const QUrl &url = request.url();
     if (isLocalUrl(url)) {
-        if (url.path().endsWith(QLatin1String("pdf"))) {
-            QString fileName = url.toString();
-            fileName = QDir::tempPath() + QDir::separator() + fileName.right
-                (fileName.length() - fileName.lastIndexOf(QChar('/')));
+        const QString& path = url.path();
+        if (path.endsWith(QLatin1String(".pdf"))) {
+            const int lastDash = path.lastIndexOf(QChar('/'));
+            QString fileName = QDir::tempPath() + QDir::separator();
+            if (lastDash < 0)
+                fileName += path;
+            else
+                fileName += path.mid(lastDash + 1, path.length());
 
             QFile tmpFile(QDir::cleanPath(fileName));
             if (tmpFile.open(QIODevice::ReadWrite)) {
@@ -201,6 +212,17 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *,
             QDesktopServices::openUrl(QUrl(tmpFile.fileName()));
             return false;
         }
+
+        if (type == QWebPage::NavigationTypeLinkClicked
+            && (m_keyboardModifiers & Qt::ControlModifier
+            || m_pressedButtons == Qt::MidButton)) {
+                HelpViewer* viewer = centralWidget->newEmptyTab();
+                if (viewer)
+                    centralWidget->setSource(url);
+                m_pressedButtons = Qt::NoButton;
+                m_keyboardModifiers = Qt::NoModifier;
+                return false;
+        }
         return true;
     }
 
@@ -209,7 +231,10 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *,
 }
 
 HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *parent)
-    : QWebView(parent), helpEngine(engine), parentWidget(parent)
+    : QWebView(parent)
+    , helpEngine(engine)
+    , parentWidget(parent)
+    , multiTabsAllowed(true)
 {    
     setPage(new HelpPage(parent, helpEngine, this));
     settings()->setAttribute(QWebSettings::PluginsEnabled, false);
@@ -219,8 +244,10 @@ HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *paren
 
     QAction* action = pageAction(QWebPage::OpenLinkInNewWindow);
     action->setText(tr("Open Link in New Tab"));
-    if (!parent)
+    if (!parent) {
+        multiTabsAllowed = false;
         action->setVisible(false);
+    }
 
     pageAction(QWebPage::DownloadLinkToDisk)->setVisible(false);
     pageAction(QWebPage::DownloadImageToDisk)->setVisible(false);
@@ -304,6 +331,16 @@ void HelpViewer::actionChanged()
         emit backwardAvailable(a->isEnabled());
     else if (a == pageAction(QWebPage::Forward))
         emit forwardAvailable(a->isEnabled());
+}
+
+void HelpViewer::mousePressEvent(QMouseEvent *event)
+{
+    HelpPage *currentPage = static_cast<HelpPage*>(page());
+    if ((currentPage != 0) && multiTabsAllowed) {
+        currentPage->m_pressedButtons = event->buttons();
+        currentPage->m_keyboardModifiers = event->modifiers();
+    }
+    QWebView::mousePressEvent(event);
 }
 
 #else  // !defined(QT_NO_WEBKIT)
