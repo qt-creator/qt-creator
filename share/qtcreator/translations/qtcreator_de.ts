@@ -5329,8 +5329,8 @@ Grund: %3</translation>
     <name>FilterSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/help/filtersettingspage.ui"/>
-        <source>Filter:</source>
-        <translation>Filter:</translation>
+        <source>Filters</source>
+        <translation>Filter</translation>
     </message>
     <message>
         <location/>

@@ -4931,8 +4931,8 @@ Causa: %3</translation>
     <name>FilterSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/help/filtersettingspage.ui"/>
-        <source>Filter:</source>
-        <translation>Filtro:</translation>
+        <source>Filters</source>
+        <translation>Filtri</translation>
     </message>
     <message>
         <location/>

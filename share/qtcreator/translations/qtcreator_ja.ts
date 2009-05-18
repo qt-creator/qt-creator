@@ -4662,7 +4662,7 @@ Reason: %3</source>
     </message>
     <message>
         <location/>
-        <source>Filter:</source>
+        <source>Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
