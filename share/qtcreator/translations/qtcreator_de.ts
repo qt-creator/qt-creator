@@ -4409,6 +4409,11 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 <context>
     <name>DebuggingHelperOptionPage</name>
     <message>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-596"/>
+        <source>Debugging Helper</source>
+        <translation>Ausgabe-Hilfsbibliothek</translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/debugger/dumperoptionpage.ui"/>
         <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
         <translation>Diese Einstellung ermöglicht die Anzeige von Qt- und Standardbibliotheksobjekten in der Ansicht &quot;Lokale Variablen und Über&amp;wachte Ausdrücke&quot;</translation>

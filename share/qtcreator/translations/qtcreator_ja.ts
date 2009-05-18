@@ -3719,6 +3719,11 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>DebuggingHelperOptionPage</name>
     <message>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-596"/>
+        <source>Debugging Helper</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/debugger/dumperoptionpage.ui"/>
         <source>Form</source>
         <translation type="unfinished">フォーム</translation>

@@ -4059,6 +4059,11 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
 <context>
     <name>DebuggingHelperOptionPage</name>
     <message>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-596"/>
+        <source>Debugging Helper</source>
+        <translation>Helper del Debug</translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/debugger/dumperoptionpage.ui"/>
         <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
         <translation>Marcando questa casella si abilita la visualizzazione dei tipi Qt e STL nella vista Variabili Locali &amp; Osservazione</translation>
