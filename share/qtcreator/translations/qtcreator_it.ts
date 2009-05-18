@@ -2302,6 +2302,11 @@ p {
 <context>
     <name>CppFileSettingsPage</name>
     <message>
+        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+52"/>
+        <source>File naming conventions</source>
+        <translation>Convenzioni sul nome dei file</translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
         <source>Header suffix:</source>
         <translation>Estensione header:</translation>

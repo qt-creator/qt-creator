@@ -2474,6 +2474,11 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
 <context>
     <name>CppFileSettingsPage</name>
     <message>
+        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+52"/>
+        <source>File naming conventions</source>
+        <translation>Konventionen für die Bildung von Dateinamen</translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
         <source>Header suffix:</source>
         <translation>Endung für Header-Dateien:</translation>

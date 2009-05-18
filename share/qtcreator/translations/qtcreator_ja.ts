@@ -2225,6 +2225,11 @@ background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
 <context>
     <name>CppFileSettingsPage</name>
     <message>
+        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+51"/>
+        <source>File naming conventions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
         <source>Form</source>
         <translation type="unfinished">フォーム</translation>
