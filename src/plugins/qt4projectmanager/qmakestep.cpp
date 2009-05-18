@@ -114,11 +114,6 @@ bool QMakeStep::init(const QString &name)
     QStringList args = arguments(name);
     QString workingDirectory = m_pro->buildDirectory(name);
 
-    Environment environment = m_pro->environment(name);
-    if (!environment.value("QMAKESPEC").isEmpty() && environment.value("QMAKESPEC") != qtVersion->mkspec())
-        emit addToOutputWindow(tr("QMAKESPEC from environment (%1) overrides mkspec of selected Qt (%2).")
-                               .arg(environment.value("QMAKESPEC"), qtVersion->mkspec()));
-
     QString program = qtVersion->qmakeCommand();
 
     // Check wheter we need to run qmake
