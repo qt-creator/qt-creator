@@ -45,6 +45,10 @@
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
 
+#ifdef Q_OS_WIN32
+#include <windows.h>
+#endif
+
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
@@ -873,6 +877,21 @@ QString QtVersion::debuggingHelperLibrary() const
 }
 
 
+bool QtVersion::isMSVC64Bit() const
+{
+        const QString make = qmakeCommand();
+        qDebug() << make;
+        bool isAmd64 = false;
+#ifdef Q_OS_WIN32
+        DWORD binaryType = 0;
+        bool success = GetBinaryTypeW(make.utf16(), &binaryType) != 0;
+        if (success && binaryType == SCS_64BIT_BINARY)
+            isAmd64=true;
+//        qDebug() << "isAmd64:" << isAmd64 << binaryType;
+        return isAmd64;
+#endif
+}
+
 QString QtVersion::buildDebuggingHelperLibrary()
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
@@ -888,7 +907,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
     if (t == ProjectExplorer::ToolChain::MinGW)
         toolChain = ProjectExplorer::ToolChain::createMinGWToolChain("g++", mingwDirectory());
     else if(t == ProjectExplorer::ToolChain::MSVC)
-        toolChain = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion());
+        toolChain = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isMSVC64Bit());
     if (toolChain) {
         toolChain->addToEnvironment(env);
         delete toolChain;

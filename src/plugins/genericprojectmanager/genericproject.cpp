@@ -308,7 +308,7 @@ void GenericProject::setToolChainId(const QString &toolChainId)
 
     } else if (toolChainId == QLatin1String("msvc")) {
         const QString msvcVersion; // ### FIXME
-        m_toolChain = ToolChain::createMSVCToolChain(msvcVersion);
+        m_toolChain = ToolChain::createMSVCToolChain(msvcVersion, false);
 
     } else if (toolChainId == QLatin1String("wince")) {
         const QString msvcVersion, wincePlatform; // ### FIXME

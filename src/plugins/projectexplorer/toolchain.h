@@ -90,7 +90,7 @@ public:
     // Factory methods
     static ToolChain *createGccToolChain(const QString &gcc);
     static ToolChain *createMinGWToolChain(const QString &gcc, const QString &mingwPath);
-    static ToolChain *createMSVCToolChain(const QString &name);
+    static ToolChain *createMSVCToolChain(const QString &name, bool amd64);
     static ToolChain *createWinCEToolChain(const QString &name, const QString &platform);
     static QStringList availableMSVCVersions();
     static QStringList supportedToolChains();
@@ -136,7 +136,7 @@ private:
 class MSVCToolChain : public ToolChain
 {
 public:
-    MSVCToolChain(const QString &name);
+    MSVCToolChain(const QString &name, bool amd64 = false);
     virtual QByteArray predefinedMacros();
     virtual QList<HeaderPath> systemHeaderPaths();
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
@@ -149,6 +149,7 @@ private:
     mutable QList<QPair<QString, QString> > m_values;
     mutable bool m_valuesSet;
     mutable ProjectExplorer::Environment m_lastEnvironment;
+    bool m_amd64;
 };
 
 // TODO some stuff needs to be moved into here

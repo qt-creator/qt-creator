@@ -400,7 +400,7 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
         m_test = ToolChain::createMinGWToolChain(qmake_cxx, version->mingwDirectory());
         //qDebug()<<"Mingw ToolChain";
     } else if(t == ToolChain::MSVC) {
-        m_test = ToolChain::createMSVCToolChain(version->msvcVersion());
+        m_test = ToolChain::createMSVCToolChain(version->msvcVersion(), version->isMSVC64Bit());
         //qDebug()<<"MSVC ToolChain ("<<version->msvcVersion()<<")";
     } else if(t == ToolChain::WINCE) {
         m_test = ToolChain::createWinCEToolChain(version->msvcVersion(), version->wincePlatform());
