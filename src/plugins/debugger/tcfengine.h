@@ -49,7 +49,7 @@ QT_END_NAMESPACE
 
 #include "idebuggerengine.h"
 #include "debuggermanager.h"
-#include "gdbmi.h"
+#include "json.h"
 
 namespace Debugger {
 namespace Internal {
@@ -58,12 +58,6 @@ class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
 class ScriptAgent;
 class WatchData;
-
-class TcfData : public GdbMi
-{
-public:
-    TcfData(const QByteArray &data);
-};
 
 class TcfEngine : public IDebuggerEngine
 {
@@ -128,15 +122,15 @@ private:
     Q_SLOT void socketReadyRead();
 
     void handleResponse(const QByteArray &ba);
-    void handleRunControlSuspend(const TcfData &response, const QVariant &);
-    void handleRunControlGetChildren(const TcfData &response, const QVariant &);
-    void handleSysMonitorGetChildren(const TcfData &response, const QVariant &);
+    void handleRunControlSuspend(const JsonValue &response, const QVariant &);
+    void handleRunControlGetChildren(const JsonValue &response, const QVariant &);
+    void handleSysMonitorGetChildren(const JsonValue &response, const QVariant &);
 
 private:
     Q_SLOT void startDebugging();
 
     typedef void (TcfEngine::*TcfCommandCallback)
-        (const TcfData &record, const QVariant &cookie);
+        (const JsonValue &record, const QVariant &cookie);
 
     struct TcfCommand
     {

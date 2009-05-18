@@ -6,6 +6,7 @@ UTILSDIR = ../../../src/libs
 
 SOURCES += \
     $$DEBUGGERDIR/gdbmi.cpp \
+    $$DEBUGGERDIR/json.cpp \
     main.cpp \
 
 INCLUDEPATH += $$DEBUGGERDIR $$UTILSDIR

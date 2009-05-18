@@ -40,7 +40,7 @@
 #include "watchhandler.h"
 #include "watchutils.h"
 #include "moduleshandler.h"
-#include "gdbmi.h"
+#include "json.h"
 
 #include <utils/qtcassert.h>
 
@@ -91,18 +91,6 @@ QByteArray C(const QByteArray &ba1,
 
 
 //#define USE_CONGESTION_CONTROL
-
-///////////////////////////////////////////////////////////////////////
-//
-// TcfData
-//
-///////////////////////////////////////////////////////////////////////
-
-
-TcfData::TcfData(const QByteArray &data)
-{
-    fromString(data);
-}
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -369,11 +357,11 @@ void TcfEngine::handleResponse(const QByteArray &response)
         acknowledgeResult();
         int token = parts.at(1).toInt();
         QByteArray message = parts.at(2);
-        TcfData data(parts.at(3));
+        JsonValue data(parts.at(3));
         emit tcfOutputAvailable("", QString::number(token) + "^"
             + quoteUnprintableLatin1(response) + data.toString());
         TcfCommand tcf = m_cookieForToken[token];
-        TcfData result(data);
+        JsonValue result(data);
         SDEBUG("GOOD RESPONSE: " << quoteUnprintableLatin1(response));
         if (tcf.callback)
             (this->*(tcf.callback))(result, tcf.cookie);
@@ -384,13 +372,13 @@ void TcfEngine::handleResponse(const QByteArray &response)
     } else if (n == 4 && tag == "E") { // an event
         QByteArray service = parts.at(1);
         QByteArray eventName = parts.at(2);
-        TcfData data(parts.at(3));
+        JsonValue data(parts.at(3));
         if (eventName != "peerHeartBeat")
             SDEBUG(_("\nTCF EVENT:") << quoteUnprintableLatin1(response)
                 << data.toString());
         if (service == "Locator" && eventName == "Hello") {
             m_services.clear();
-            foreach (const GdbMi &service, data.children())
+            foreach (const JsonValue &service, data.children())
                 m_services.append(service.data());
             QTimer::singleShot(0, this, SLOT(startDebugging()));
         }
@@ -525,17 +513,17 @@ void TcfEngine::acknowledgeResult()
 #endif
 }
 
-void TcfEngine::handleRunControlSuspend(const TcfData &data, const QVariant &)
+void TcfEngine::handleRunControlSuspend(const JsonValue &data, const QVariant &)
 {
     SDEBUG("HANDLE RESULT" << data.toString());
 }
 
-void TcfEngine::handleRunControlGetChildren(const TcfData &data, const QVariant &)
+void TcfEngine::handleRunControlGetChildren(const JsonValue &data, const QVariant &)
 {
     SDEBUG("HANDLE RUN CONTROL GET CHILDREN" << data.toString());
 }
 
-void TcfEngine::handleSysMonitorGetChildren(const TcfData &data, const QVariant &)
+void TcfEngine::handleSysMonitorGetChildren(const JsonValue &data, const QVariant &)
 {
     SDEBUG("HANDLE RUN CONTROL GET CHILDREN" << data.toString());
 }

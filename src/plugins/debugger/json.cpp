@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "gdbmi.h"
+#include "json.h"
 
 #include <utils/qtcassert.h>
 
@@ -36,46 +36,56 @@
 
 #include <ctype.h>
 
+//#define DEBUG_JASON
+#ifdef DEBUG_JASON
+#define JDEBUG(s) qDebug() << s
+#else
+#define JDEBUG(s)
+#endif
+
 namespace Debugger {
 namespace Internal {
 
-QTextStream &operator<<(QTextStream &os, const GdbMi &mi)
+static void skipSpaces(const char *&from, const char *to)
+{
+    while (from != to && isspace(*from))
+        ++from;
+}
+
+QTextStream &operator<<(QTextStream &os, const JsonValue &mi)
 {
     return os << mi.toString();
 }
 
-void GdbMi::parseResultOrValue(const char *&from, const char *to)
+void JsonValue::parsePair(const char *&from, const char *to)
 {
-    while (from != to && isspace(*from))
+    skipSpaces(from, to);
+    JDEBUG("parsePair: " << QByteArray(from, to - from));
+    m_name = parseCString(from, to);
+    skipSpaces(from, to);
+    while (from < to && *from != ':') {
+        JDEBUG("not a colon" << *from);
         ++from;
-
-    //qDebug() << "parseResultOrValue: " << QByteArray(from, to - from);
+    }
+    ++from;
     parseValue(from, to);
-    if (isValid()) {
-        //qDebug() << "no valid result in " << QByteArray(from, to - from);
-        return;
-    }
-    if (from == to || *from == '(')
-        return;
-    const char *ptr = from;
-    while (ptr < to && *ptr != '=') {
-        //qDebug() << "adding" << QChar(*ptr) << "to name";
-        ++ptr;
-    }
-    m_name = QByteArray(from, ptr - from);
-    from = ptr;
-    if (from < to && *from == '=') {
-        ++from;
-        parseValue(from, to);
-    }
+    skipSpaces(from, to);
 }
 
-QByteArray GdbMi::parseCString(const char *&from, const char *to)
+QByteArray JsonValue::parseNumber(const char *&from, const char *to)
 {
     QByteArray result;
-    //qDebug() << "parseCString: " << QByteArray(from, to - from);
+    while (from < to && *from >= '0' && *from <= '9')
+        result.append(*from++);
+    return result;
+}
+
+QByteArray JsonValue::parseCString(const char *&from, const char *to)
+{
+    QByteArray result;
+    JDEBUG("parseCString: " << QByteArray(from, to - from));
     if (*from != '"') {
-        qDebug() << "MI Parse Error, double quote expected";
+        qDebug() << "JSON Parse Error, double quote expected";
         ++from; // So we don't hang
         return QByteArray();
     }
@@ -90,7 +100,7 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
         if (*ptr == '\\') {
             ++ptr;
             if (ptr == to) {
-                qDebug() << "MI Parse Error, unterminated backslash escape";
+                qDebug() << "JSON Parse Error, unterminated backslash escape";
                 from = ptr; // So we don't hang
                 return QByteArray();
             }
@@ -130,7 +140,7 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
                             c = *src++;
                         }
                         if (!chars) {
-                            qDebug() << "MI Parse Error, unrecognized backslash escape";
+                            qDebug() << "JSON Parse Error, unrecognized backslash escape";
                             return QByteArray();
                         }
                         *dst++ = prod;
@@ -147,49 +157,46 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
         result.truncate(dst - result.data());
     }
 
+    JDEBUG("parseCString, got " << result);
     return result;
 }
 
-void GdbMi::parseValue(const char *&from, const char *to)
+void JsonValue::parseValue(const char *&from, const char *to)
 {
-    //qDebug() << "parseValue: " << QByteArray(from, to - from);
+    JDEBUG("parseValue: " << QByteArray(from, to - from));
     switch (*from) {
         case '{':
-            parseTuple(from, to);
+            parseObject(from, to);
             break;
         case '[':
-            parseList(from, to);
+            parseArray(from, to);
             break;
         case '"':
-            m_type = Const;
+            m_type = String;
             m_data = parseCString(from, to);
             break;
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+            m_type = Number;
+            m_data = parseNumber(from, to);
         default:
             break;
     }
 }
 
-
-void GdbMi::parseTuple(const char *&from, const char *to)
+void JsonValue::parseObject(const char *&from, const char *to)
 {
-    //qDebug() << "parseTuple: " << QByteArray(from, to - from);
+    JDEBUG("parseObject: " << QByteArray(from, to - from));
     QTC_ASSERT(*from == '{', /**/);
     ++from;
-    parseTuple_helper(from, to);
-}
-
-void GdbMi::parseTuple_helper(const char *&from, const char *to)
-{
-    //qDebug() << "parseTuple_helper: " << QByteArray(from, to - from);
-    m_type = Tuple;
+    m_type = Object;
     while (from < to) {
         if (*from == '}') {
             ++from;
             break;
         }
-        GdbMi child;
-        child.parseResultOrValue(from, to);
-        //qDebug() << "\n=======\n" << qPrintable(child.toString()) << "\n========\n";
+        JsonValue child;
+        child.parsePair(from, to);
         if (!child.isValid())
             return;
         m_children += child;
@@ -198,19 +205,19 @@ void GdbMi::parseTuple_helper(const char *&from, const char *to)
     }
 }
 
-void GdbMi::parseList(const char *&from, const char *to)
+void JsonValue::parseArray(const char *&from, const char *to)
 {
-    //qDebug() << "parseList: " << QByteArray(from, to - from);
+    JDEBUG("parseArray: " << QByteArray(from, to - from));
     QTC_ASSERT(*from == '[', /**/);
     ++from;
-    m_type = List;
+    m_type = Array;
     while (from < to) {
         if (*from == ']') {
             ++from;
             break;
         }
-        GdbMi child;
-        child.parseResultOrValue(from, to);
+        JsonValue child;
+        child.parseValue(from, to);
         if (child.isValid())
             m_children += child;
         if (*from == ',')
@@ -218,17 +225,17 @@ void GdbMi::parseList(const char *&from, const char *to)
     }
 }
 
-void GdbMi::setStreamOutput(const QByteArray &name, const QByteArray &content)
+void JsonValue::setStreamOutput(const QByteArray &name, const QByteArray &content)
 {
     if (content.isEmpty())
         return;
-    GdbMi child;
-    child.m_type = Const;
+    JsonValue child;
+    child.m_type = String;
     child.m_name = name;
     child.m_data = content;
     m_children += child;
     if (m_type == Invalid)
-        m_type = Tuple;
+        m_type = Object;
 }
 
 static QByteArray ind(int indent)
@@ -236,7 +243,7 @@ static QByteArray ind(int indent)
     return QByteArray(2 * indent, ' ');
 }
 
-void GdbMi::dumpChildren(QByteArray * str, bool multiline, int indent) const
+void JsonValue::dumpChildren(QByteArray * str, bool multiline, int indent) const
 {
     for (int i = 0; i < m_children.size(); ++i) {
         if (i != 0) {
@@ -286,17 +293,17 @@ inline ST escapeCStringTpl(const ST &ba)
     return ret;
 }
 
-QString GdbMi::escapeCString(const QString &ba)
+QString JsonValue::escapeCString(const QString &ba)
 {
     return escapeCStringTpl<MyString, ushort>(static_cast<const MyString &>(ba));
 }
 
-QByteArray GdbMi::escapeCString(const QByteArray &ba)
+QByteArray JsonValue::escapeCString(const QByteArray &ba)
 {
     return escapeCStringTpl<QByteArray, uchar>(ba);
 }
 
-QByteArray GdbMi::toString(bool multiline, int indent) const
+QByteArray JsonValue::toString(bool multiline, int indent) const
 {
     QByteArray result;
     switch (m_type) {
@@ -306,14 +313,19 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
             else
                 result += "Invalid";
             break;
-        case Const: 
+        case String: 
             if (!m_name.isEmpty())
                 result += m_name + "=";
-            result += "\"" + escapeCString(m_data) + "\"";
+            result += '"' + escapeCString(m_data) + '"';
             break;
-        case Tuple:
+        case Number: 
             if (!m_name.isEmpty())
-                result += m_name + "=";
+                result += '"' + m_name + "\":";
+            result += m_data;
+            break;
+        case Object:
+            if (!m_name.isEmpty())
+                result += m_name + '=';
             if (multiline) {
                 result += "{\n";
                 dumpChildren(&result, multiline, indent + 1);
@@ -324,7 +336,7 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
                 result += "}";
             }
             break;
-        case List:
+        case Array:
             if (!m_name.isEmpty())
                 result += m_name + "=";
             if (multiline) {
@@ -341,50 +353,19 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
     return result;
 }
 
-void GdbMi::fromString(const QByteArray &ba)
+void JsonValue::fromString(const QByteArray &ba)
 {
     const char *from = ba.constBegin();
     const char *to = ba.constEnd();
-    parseResultOrValue(from, to);
+    parseValue(from, to);
 }
 
-GdbMi GdbMi::findChild(const char *name) const
+JsonValue JsonValue::findChild(const char *name) const
 {
     for (int i = 0; i < m_children.size(); ++i)
         if (m_children.at(i).m_name == name)
             return m_children.at(i);
-    return GdbMi();
-}
-
-//////////////////////////////////////////////////////////////////////////////////
-//
-// GdbResultRecord
-//
-//////////////////////////////////////////////////////////////////////////////////
-
-QByteArray stringFromResultClass(GdbResultClass resultClass)
-{
-    switch (resultClass) {
-        case GdbResultDone: return "done";
-        case GdbResultRunning: return "running";
-        case GdbResultConnected: return "connected";
-        case GdbResultError: return "error";
-        case GdbResultExit: return "exit";
-        default: return "unknown";
-    }
-};
-
-QByteArray GdbResultRecord::toString() const
-{
-    QByteArray result;
-    if (token != -1)
-        result = QByteArray::number(token);
-    result += '^';
-    result += stringFromResultClass(resultClass);
-    if (data.isValid())
-        result += ',' + data.toString();
-    result += '\n';
-    return result;
+    return JsonValue();
 }
 
 } // namespace Internal
