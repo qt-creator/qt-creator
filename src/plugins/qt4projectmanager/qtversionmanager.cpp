@@ -319,11 +319,11 @@ QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isSy
     m_defaultConfigIsDebugAndRelease(true),
     m_hasDebuggingHelper(false)
 {
-    setPath(path);
     if (id == -1)
         m_id = getUniqueId();
     else
         m_id = id;
+    setPath(path);
 }
 
 QtVersion::QtVersion(const QString &name, const QString &path)
@@ -333,8 +333,8 @@ QtVersion::QtVersion(const QString &name, const QString &path)
     m_isSystemVersion(false),
     m_hasDebuggingHelper(false)
 {
-    setPath(path);
     m_id = getUniqueId();
+    setPath(path);
 }
 
 QString QtVersion::name() const
