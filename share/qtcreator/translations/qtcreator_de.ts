@@ -12116,6 +12116,11 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
     <message>
         <location/>
+        <source>Common</source>
+        <translation>Allgemein</translation>
+    </message>
+    <message>
+        <location/>
         <source>Wrap submit message at:</source>
         <translation>Beschreibung umbrechen bei:</translation>
     </message>

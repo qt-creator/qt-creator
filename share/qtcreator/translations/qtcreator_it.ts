@@ -11543,6 +11543,11 @@ Queste codifiche dovrebbero andare bene:</translation>
     </message>
     <message>
         <location/>
+        <source>Common</source>
+        <translation>Comune</translation>
+    </message>
+    <message>
+        <location/>
         <source>Wrap submit message at:</source>
         <translation>Ritorno a capo del messaggio alla colonna:</translation>
     </message>
