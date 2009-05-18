@@ -85,6 +85,14 @@ protected:
     using Visitor::visit;
     using Visitor::endVisit;
 
+    void addWords(AST::UiQualifiedId *id)
+    {
+        for (; id; id = id->next) {
+            if (id->name)
+                _words.insert(id->name->asString());
+        }
+    }
+
     virtual bool visit(AST::UiPublicMember *node)
     {
         if (node->name)
@@ -93,23 +101,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::UiObjectDefinition *node)
-    {
-        if (node->name)
-            _words.insert(node->name->asString());
-
-        return true;
-    }
-
     virtual bool visit(AST::UiQualifiedId *node)
-    {
-        if (node->name)
-            _words.insert(node->name->asString());
-
-        return true;
-    }
-
-    virtual bool visit(AST::UiObjectBinding *node)
     {
         if (node->name)
             _words.insert(node->name->asString());
@@ -302,8 +294,8 @@ protected:
         init(&decl, node);
 
         decl.text.fill(QLatin1Char(' '), _depth);
-        if (node->name)
-            decl.text.append(node->name->asString());
+        if (node->qualifiedObjectNameId)
+            decl.text.append(asString(node->qualifiedObjectNameId));
         else
             decl.text.append(QLatin1Char('?'));
 
@@ -329,8 +321,8 @@ protected:
         decl.text.append(asString(node->qualifiedId));
         decl.text.append(QLatin1String(": "));
 
-        if (node->name)
-            decl.text.append(node->name->asString());
+        if (node->qualifiedObjectNameId)
+            decl.text.append(asString(node->qualifiedObjectNameId));
         else
             decl.text.append(QLatin1Char('?'));
 
