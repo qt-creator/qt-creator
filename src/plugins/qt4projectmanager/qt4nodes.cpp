@@ -1026,7 +1026,6 @@ void Qt4ProFileNode::invalidate()
 
 void Qt4ProFileNode::updateCodeModelSupportFromBuild(const QStringList &files)
 {
-    qDebug()<<"Qt4ProFileNode::updateCodeModelSupportFromBuild"<<files;
     foreach (const QString &file, files) {
         QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it, end;
         end = m_uiCodeModelSupport.constEnd();
