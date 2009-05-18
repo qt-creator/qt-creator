@@ -51,6 +51,9 @@ QT_END_NAMESPACE
 
 namespace Core {
     class IEditorFactory;
+    namespace Utils {
+        class ParameterAction;
+    }
 }
 
 namespace Perforce {
@@ -170,21 +173,21 @@ private:
     SettingsPage *m_settingsPage;
     QList<Core::IEditorFactory*> m_editorFactories;
 
-    QAction *m_editAction;
-    QAction *m_addAction;
-    QAction *m_deleteAction;
+    Core::Utils::ParameterAction *m_editAction;
+    Core::Utils::ParameterAction *m_addAction;
+    Core::Utils::ParameterAction *m_deleteAction;
     QAction *m_openedAction;
-    QAction *m_revertAction;
-    QAction *m_diffCurrentAction;
-    QAction *m_diffProjectAction;
+    Core::Utils::ParameterAction *m_revertAction;
+    Core::Utils::ParameterAction *m_diffCurrentAction;
+    Core::Utils::ParameterAction *m_diffProjectAction;
     QAction *m_diffAllAction;
     QAction *m_resolveAction;
     QAction *m_submitAction;
     QAction *m_pendingAction;
     QAction *m_describeAction;
-    QAction *m_annotateCurrentAction;
+    Core::Utils::ParameterAction *m_annotateCurrentAction;
     QAction *m_annotateAction;
-    QAction *m_filelogCurrentAction;
+    Core::Utils::ParameterAction *m_filelogCurrentAction;
     QAction *m_filelogAction;
     QAction *m_submitCurrentLogAction;
     bool m_submitActionTriggered;

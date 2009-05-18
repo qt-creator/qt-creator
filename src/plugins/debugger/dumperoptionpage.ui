@@ -10,85 +10,98 @@
     <height>434</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QCheckBox" name="checkBoxUseDebuggingHelpers">
-     <property name="toolTip">
-      <string>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</string>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Debugging helper</string>
      </property>
-     <property name="text">
-      <string>Use debugging helper</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>10</width>
-         <height>10</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="checkBoxUseCustomDebuggingHelperLocation">
-       <property name="toolTip">
-        <string>This will load a dumper library</string>
-       </property>
-       <property name="text">
-        <string>Use debugging helper from custom location</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="dumperLocationLabel">
-       <property name="text">
-        <string>Location: </string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="Core::Utils::PathChooser" name="dumperLocationChooser" native="true"/>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="checkBoxDebugDebuggingHelpers">
-     <property name="toolTip">
-      <string notr="true">This is an internal tool to make debugging the debugging helper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
-     </property>
-     <property name="text">
-      <string>Debug debugging helper</string>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QCheckBox" name="checkBoxUseDebuggingHelpers">
+        <property name="toolTip">
+         <string>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</string>
+        </property>
+        <property name="text">
+         <string>Use debugging helper</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>10</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxUseCustomDebuggingHelperLocation">
+          <property name="toolTip">
+           <string>This will load a dumper library</string>
+          </property>
+          <property name="text">
+           <string>Use debugging helper from custom location</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="dumperLocationLabel">
+          <property name="text">
+           <string>Location: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Core::Utils::PathChooser" name="dumperLocationChooser" native="true"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxDebugDebuggingHelpers">
+        <property name="toolTip">
+         <string notr="true">This is an internal tool to make debugging the debugging helper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
+        </property>
+        <property name="text">
+         <string>Debug debugging helper</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+     <zorder></zorder>
+     <zorder>checkBoxDebugDebuggingHelpers</zorder>
+     <zorder>checkBoxUseDebuggingHelpers</zorder>
+     <zorder></zorder>
     </widget>
    </item>
    <item>
@@ -105,8 +118,6 @@
     </spacer>
    </item>
   </layout>
-  <zorder>checkBoxDebugDebuggingHelpers</zorder>
-  <zorder>checkBoxUseDebuggingHelpers</zorder>
  </widget>
  <customwidgets>
   <customwidget>

@@ -2225,6 +2225,11 @@ background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
 <context>
     <name>CppFileSettingsPage</name>
     <message>
+        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+51"/>
+        <source>File naming conventions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
         <source>Form</source>
         <translation type="unfinished">フォーム</translation>
@@ -3714,6 +3719,11 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>DebuggingHelperOptionPage</name>
     <message>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-596"/>
+        <source>Debugging Helper</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/debugger/dumperoptionpage.ui"/>
         <source>Form</source>
         <translation type="unfinished">フォーム</translation>
@@ -4112,7 +4122,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <location/>
-        <source>Registered Documentation:</source>
+        <source>Registered Documentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10000,335 +10010,117 @@ To do this you type this shortcut and a space in the QuickOpen entry field, and 
     </message>
 </context>
 <context>
-    <name>SimpleProEditor</name>
+    <name>QtModulesInfo</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/speinfo.cpp" line="+59"/>
-        <source>Debug and Release</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Debug specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Release specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>All platforms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>MS Windows specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Linux/Unix specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Mac OSX specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Target Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Type and name of the target.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Preprocessor Definitions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Setting of the preprocessor definitions.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Include path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Setting of the pathes where the header files are located.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Libraries</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Defining the libraries to link the target against and the pathes where these are located.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Source Files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Header Files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Forms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>Qt Modules</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Setting up which of the Qt modules will be used in the target application.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Resource files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+12"/>
-        <source>Target name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>The name of the resulting target.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Configuration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Destination directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Where the resulting target will be created.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+15"/>
         <source>QtCore Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Core non-GUI classes used by other modules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtGui Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Graphical user interface components</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtNetwork Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for network programming</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtOpenGL Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>OpenGL support classes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtSql Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for database integration using SQL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtScript Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for evaluating Qt Scripts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtSvg Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for displaying the contents of SVG files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtWebKit Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for displaying and editing Web content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtXml Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for handling XML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtXmlPatterns Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>An XQuery/XPath engine for XML and custom data models</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Phonon Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Multimedia framework classes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Qt3Support Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes that ease porting from Qt 3 to Qt 4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtTest Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Tool classes for unit testing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtDBus module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for Inter-Process Communication using the D-Bus</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+15"/>
-        <source>Application</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create a standalone application</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Dynamic Library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create a dynamic library for usage in other applications</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Static Library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create a static library for usage in other applications</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Add Operator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Remove Operator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Replace Operator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Set Operator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Unique Add Operator</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -11504,6 +11296,11 @@ The following encodings are likely to fit:</source>
         <location filename="../../../src/plugins/vcsbase/vcsbasesettingspage.ui"/>
         <source>Form</source>
         <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Common</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location/>

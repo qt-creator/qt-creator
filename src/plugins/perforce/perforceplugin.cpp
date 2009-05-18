@@ -48,6 +48,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
+#include <utils/parameteraction.h>
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -263,7 +264,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     Core::Command *command;
     QAction *tmpaction;
 
-    m_editAction = new QAction(tr("Edit"), this);
+    m_editAction = new Core::Utils::ParameterAction(tr("Edit"), tr("Edit \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_editAction, PerforcePlugin::EDIT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+E")));
@@ -271,7 +272,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_editAction, SIGNAL(triggered()), this, SLOT(openCurrentFile()));
     mperforce->addAction(command);
 
-    m_addAction = new QAction(tr("Add"), this);
+    m_addAction = new Core::Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_addAction, PerforcePlugin::ADD, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+A")));
@@ -279,14 +280,14 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     mperforce->addAction(command);
 
-    m_deleteAction = new QAction(tr("Delete"), this);
+    m_deleteAction = new Core::Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_deleteAction, PerforcePlugin::DELETE_FILE, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultText(tr("Delete File"));
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
     mperforce->addAction(command);
 
-    m_revertAction = new QAction(tr("Revert"), this);
+    m_revertAction = new Core::Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_revertAction, PerforcePlugin::REVERT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+R")));
@@ -299,14 +300,14 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     command = am->registerAction(tmpaction, QLatin1String("Perforce.Sep.Edit"), globalcontext);
     mperforce->addAction(command);
 
-    m_diffCurrentAction = new QAction(tr("Diff Current File"), this);
+    m_diffCurrentAction = new Core::Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_diffCurrentAction, PerforcePlugin::DIFF_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultText(tr("Diff Current File"));
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     mperforce->addAction(command);
 
-    m_diffProjectAction = new QAction(tr("Diff Current Project/Session"), this);
+    m_diffProjectAction = new Core::Utils::ParameterAction(tr("Diff Current Project/Session"), tr("Diff Project \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_diffProjectAction, PerforcePlugin::DIFF_PROJECT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+D")));
@@ -351,7 +352,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_describeAction, SIGNAL(triggered()), this, SLOT(describeChange()));
     mperforce->addAction(command);
 
-    m_annotateCurrentAction = new QAction(tr("Annotate Current File"), this);
+    m_annotateCurrentAction = new Core::Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_annotateCurrentAction, PerforcePlugin::ANNOTATE_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultText(tr("Annotate Current File"));
@@ -363,7 +364,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_annotateAction, SIGNAL(triggered()), this, SLOT(annotate()));
     mperforce->addAction(command);
 
-    m_filelogCurrentAction = new QAction(tr("Filelog Current File"), this);
+    m_filelogCurrentAction = new Core::Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_filelogCurrentAction, PerforcePlugin::FILELOG_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+F")));
@@ -628,40 +629,22 @@ void PerforcePlugin::filelog(const QString &fileName)
 
 void PerforcePlugin::updateActions()
 {
-    QString fileName = currentFileName();
-    QString baseName = QFileInfo(fileName).fileName();
-    const bool hasFile = !currentFileName().isEmpty();
-    m_editAction->setEnabled(hasFile);
-    m_addAction->setEnabled(hasFile);
-    m_deleteAction->setEnabled(hasFile);
-    m_revertAction->setEnabled(hasFile);
-    m_diffCurrentAction->setEnabled(hasFile);
-    m_annotateCurrentAction->setEnabled(hasFile);
-    m_filelogCurrentAction->setEnabled(hasFile);
-    if (hasFile) {
-        m_editAction->setText(tr("Edit %1").arg(baseName));
-        m_addAction->setText(tr("Add %1").arg(baseName));
-        m_deleteAction->setText(tr("Delete %1").arg(baseName));
-        m_revertAction->setText(tr("Revert %1").arg(baseName));
-        m_diffCurrentAction->setText(tr("Diff %1").arg(baseName));
-        m_annotateCurrentAction->setText(tr("Annotate %1").arg(baseName));
-        m_filelogCurrentAction->setText(tr("Filelog %1").arg(baseName));
-    } else {
-        m_editAction->setText(tr("Edit"));
-        m_addAction->setText(tr("Add"));
-        m_deleteAction->setText(tr("Delete"));
-        m_revertAction->setText(tr("Revert"));
-        m_diffCurrentAction->setText(tr("Diff"));
-        m_annotateCurrentAction->setText(tr("Annotate Current File"));
-        m_filelogCurrentAction->setText(tr("Filelog Current File"));
-    }
+    const QString fileName = currentFileName();
+    const QString baseName = fileName.isEmpty() ? fileName : QFileInfo(fileName).fileName();
+
+    m_editAction->setParameter(baseName);
+    m_addAction->setParameter(baseName);
+    m_deleteAction->setParameter(baseName);
+    m_revertAction->setParameter(baseName);
+    m_diffCurrentAction->setParameter(baseName);
+    m_annotateCurrentAction->setParameter(baseName);
+    m_filelogCurrentAction->setParameter(baseName);
+    
     if (m_projectExplorer && m_projectExplorer->currentProject()) {
-        m_diffProjectAction->setEnabled(true);
-        m_diffProjectAction->setText(tr("Diff Project %1").arg(m_projectExplorer->currentProject()->name()));
+        m_diffProjectAction->setParameter(m_projectExplorer->currentProject()->name());
         m_submitAction->setEnabled(true);
     } else {
-        m_diffProjectAction->setEnabled(false);
-        m_diffProjectAction->setText(tr("Diff Current Project/Solution"));
+        m_diffProjectAction->setParameter(QString());
         m_submitAction->setEnabled(false);
     }
     m_diffAllAction->setEnabled(true);

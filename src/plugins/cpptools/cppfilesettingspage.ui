@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
+<ui version="4.0" >
  <class>CppFileSettingsPage</class>
- <widget class="QWidget" name="CppFileSettingsPage">
-  <property name="geometry">
+ <widget class="QWidget" name="CppFileSettingsPage" >
+  <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
@@ -10,70 +10,58 @@
     <height>503</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" >
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <layout class="QFormLayout" name="formLayout">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::ExpandingFieldsGrow</enum>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="headerSuffixLabel">
-         <property name="text">
-          <string>Header suffix:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="headerSuffixComboBox"/>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="lowerCaseFileNamesLabel">
-         <property name="toolTip">
-          <string>This determines how the file names of the class wizards are generated (&quot;MyClass.h&quot; versus &quot;myclass.h&quot;).</string>
-         </property>
-         <property name="text">
-          <string>Lower case file names:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QCheckBox" name="lowerCaseFileNamesCheckBox"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="sourceSuffixLabel">
-         <property name="text">
-          <string>Source suffix:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="sourceSuffixComboBox"/>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Maximum" hsizetype="Preferred" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title" >
+      <string>File naming conventions</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout" >
+      <property name="fieldGrowthPolicy" >
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
+      <item row="0" column="0" >
+       <widget class="QLabel" name="headerSuffixLabel" >
+        <property name="text" >
+         <string>Header suffix:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QComboBox" name="headerSuffixComboBox" />
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="sourceSuffixLabel" >
+        <property name="text" >
+         <string>Source suffix:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QComboBox" name="sourceSuffixComboBox" />
+      </item>
+      <item row="2" column="1" >
+       <widget class="QCheckBox" name="lowerCaseFileNamesCheckBox" >
+        <property name="text" >
+         <string>Lower case file names</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
+    <spacer name="verticalSpacer" >
+     <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" stdset="0">
+     <property name="sizeHint" stdset="0" >
       <size>
        <width>20</width>
        <height>430</height>

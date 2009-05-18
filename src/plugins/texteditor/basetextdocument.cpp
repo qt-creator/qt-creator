@@ -135,11 +135,7 @@ bool BaseTextDocument::isReadOnly() const
         return true;
     if (m_fileName.isEmpty()) //have no corresponding file, so editing is ok
         return false;
-
-    const QFileInfo fi(m_fileName);
-
     return m_fileIsReadOnly;
-
 }
 
 bool BaseTextDocument::isModified() const

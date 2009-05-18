@@ -47,6 +47,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/parameteraction.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -275,7 +276,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Core::Command *command;
 
-    m_diffAction = new QAction(tr("Diff Current File"), this);
+    m_diffAction = new Core::Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_diffAction, "Git.Diff", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
 #ifndef Q_OS_MAC
@@ -284,7 +285,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_diffAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     gitContainer->addAction(command);
 
-    m_statusAction = new QAction(tr("File Status"), this);
+    m_statusAction = new Core::Utils::ParameterAction(tr("File Status"), tr("Status Related to \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_statusAction, "Git.Status", globalcontext);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+S")));
@@ -293,7 +294,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_statusAction, SIGNAL(triggered()), this, SLOT(statusFile()));
     gitContainer->addAction(command);
 
-    m_logAction = new QAction(tr("Log File"), this);
+    m_logAction = new Core::Utils::ParameterAction(tr("Log File"), tr("Log of \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_logAction, "Git.Log", globalcontext);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+L")));
@@ -302,7 +303,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_logAction, SIGNAL(triggered()), this, SLOT(logFile()));
     gitContainer->addAction(command);
 
-    m_blameAction = new QAction(tr("Blame"), this);
+    m_blameAction = new Core::Utils::ParameterAction(tr("Blame"), tr("Blame for \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_blameAction, "Git.Blame", globalcontext);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+B")));
@@ -311,7 +312,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_blameAction, SIGNAL(triggered()), this, SLOT(blameFile()));
     gitContainer->addAction(command);
 
-    m_undoFileAction = new QAction(tr("Undo Changes"), this);
+    m_undoFileAction = new Core::Utils::ParameterAction(tr("Undo Changes"), tr("Undo Changes for \"%1\""),  Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_undoFileAction, "Git.Undo", globalcontext);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+U")));
@@ -320,7 +321,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_undoFileAction, SIGNAL(triggered()), this, SLOT(undoFileChanges()));
     gitContainer->addAction(command);
 
-    m_stageAction = new QAction(tr("Stage File for Commit"), this);
+    m_stageAction = new Core::Utils::ParameterAction(tr("Stage File for Commit"), tr("Stage \"%1\" for Commit"), Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_stageAction, "Git.Stage", globalcontext);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+A")));
@@ -329,13 +330,13 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_stageAction, SIGNAL(triggered()), this, SLOT(stageFile()));
     gitContainer->addAction(command);
 
-    m_unstageAction = new QAction(tr("Unstage File from Commit"), this);
+    m_unstageAction = new Core::Utils::ParameterAction(tr("Unstage File from Commit"), tr("Unstage \"%1\" from Commit"), Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_unstageAction, "Git.Unstage", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_unstageAction, SIGNAL(triggered()), this, SLOT(unstageFile()));
     gitContainer->addAction(command);
 
-    m_revertAction = new QAction(tr("Revert..."), this);
+    m_revertAction = new Core::Utils::ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_revertAction, "Git.Revert", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertFile()));
@@ -343,7 +344,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Project"), this));
 
-    m_diffProjectAction = new QAction(tr("Diff Current Project"), this);
+    m_diffProjectAction = new Core::Utils::ParameterAction(tr("Diff Current Project"), tr("Diff Project \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_diffProjectAction, "Git.DiffProject", globalcontext);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence("Alt+G,Alt+Shift+D"));
@@ -352,13 +353,13 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
     gitContainer->addAction(command);
 
-    m_statusProjectAction = new QAction(tr("Project Status"), this);
+    m_statusProjectAction = new Core::Utils::ParameterAction(tr("Project Status"), tr("Status Project \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_statusProjectAction, "Git.StatusProject", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_statusProjectAction, SIGNAL(triggered()), this, SLOT(statusProject()));
     gitContainer->addAction(command);
 
-    m_logProjectAction = new QAction(tr("Log Project"), this);
+    m_logProjectAction = new Core::Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_logProjectAction, "Git.LogProject", globalcontext);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+K")));
@@ -785,15 +786,14 @@ void GitPlugin::updateActions()
     const QString repository = m_gitClient->findRepositoryForFile(current.absoluteFilePath());
     // First check for file commands and if the current file is inside
     // a Git-repository
-    const QString file = fileName.isEmpty() ? tr("File") : "\"" + fileName + '"';
-    m_diffAction->setText(tr("Diff %1").arg(file));
-    m_statusAction->setText(tr("Status Related to %1").arg(file));
-    m_logAction->setText(tr("Log of %1").arg(file));
-    m_blameAction->setText(tr("Blame for %1").arg(file));
-    m_undoFileAction->setText(tr("Undo Changes for %1").arg(file));
-    m_stageAction->setText(tr("Stage %1 for Commit").arg(file));
-    m_unstageAction->setText(tr("Unstage %1 from Commit").arg(file));
-    m_revertAction->setText(tr("Revert %1...").arg(file));
+    m_diffAction->setParameter(fileName);
+    m_statusAction->setParameter(fileName);
+    m_logAction->setParameter(fileName);
+    m_blameAction->setParameter(fileName);
+    m_undoFileAction->setParameter(fileName);
+    m_stageAction->setParameter(fileName);
+    m_unstageAction->setParameter(fileName);
+    m_revertAction->setParameter(fileName);
 
     bool enabled = !fileName.isEmpty() && !repository.isEmpty();
     m_diffAction->setEnabled(enabled);
@@ -809,10 +809,10 @@ void GitPlugin::updateActions()
         // If the file is not in a repository, the corresponding project will
         // be neither and we can disable everything and return
         m_diffProjectAction->setEnabled(false);
-        m_diffProjectAction->setText(tr("Diff Project"));
-        m_statusProjectAction->setText(tr("Status Project"));
+        m_diffProjectAction->setParameter(repository);
+        m_statusProjectAction->setParameter(repository);
         m_statusProjectAction->setEnabled(false);
-        m_logProjectAction->setText(tr("Log Project"));
+        m_logProjectAction->setParameter(repository);
         m_logProjectAction->setEnabled(false);
         return;
     }
@@ -822,18 +822,18 @@ void GitPlugin::updateActions()
     using namespace ProjectExplorer;
     QString project;
     if (m_projectExplorer) {
-        if (Node *node = m_projectExplorer->currentNode())
-            if (Node *projectNode = node->projectNode()) 
-                project = '"' + QFileInfo(projectNode->path()).completeBaseName() + '"';
+        if (const Node *node = m_projectExplorer->currentNode())
+            if (const Node *projectNode = node->projectNode())
+                project = QFileInfo(projectNode->path()).completeBaseName();
     }
 
     enabled = !project.isEmpty();
     m_diffProjectAction->setEnabled(enabled);
-    m_diffProjectAction->setText(tr("Diff Project %1").arg(project));
+    m_diffProjectAction->setParameter(project);
     m_statusProjectAction->setEnabled(enabled);
-    m_statusProjectAction->setText(tr("Status Project %1").arg(project));
+    m_statusProjectAction->setParameter(project);
     m_logProjectAction->setEnabled(enabled);
-    m_logProjectAction->setText(tr("Log Project %1").arg(project));
+    m_logProjectAction->setParameter(project);
 }
 
 void GitPlugin::showCommit()

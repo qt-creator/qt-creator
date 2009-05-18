@@ -41,6 +41,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <utils/synchronousprocess.h>
+#include <utils/parameteraction.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -320,7 +321,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     globalcontext << core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
 
     Core::Command *command;
-    m_addAction = new QAction(tr("Add"), this);
+    m_addAction = new Core::Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_addAction, SubversionPlugin::ADD,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -330,14 +331,14 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     subversionMenu->addAction(command);
 
-    m_deleteAction = new QAction(tr("Delete"), this);
+    m_deleteAction = new Core::Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_deleteAction, SubversionPlugin::DELETE_FILE,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
     subversionMenu->addAction(command);
 
-    m_revertAction = new QAction(tr("Revert"), this);
+    m_revertAction = new Core::Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_revertAction, SubversionPlugin::REVERT,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -352,7 +353,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffProject()));
     subversionMenu->addAction(command);
 
-    m_diffCurrentAction = new QAction(tr("Diff Current File"), this);
+    m_diffCurrentAction = new Core::Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_diffCurrentAction,
         SubversionPlugin::DIFF_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -370,7 +371,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_commitAllAction, SIGNAL(triggered()), this, SLOT(startCommitAll()));
     subversionMenu->addAction(command);
 
-    m_commitCurrentAction = new QAction(tr("Commit Current File"), this);
+    m_commitCurrentAction = new Core::Utils::ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_commitCurrentAction,
         SubversionPlugin::COMMIT_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -382,7 +383,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     subversionMenu->addAction(createSeparator(this, ami, SubversionPlugin::SEPARATOR2, globalcontext));
 
-    m_filelogCurrentAction = new QAction(tr("Filelog Current File"), this);
+    m_filelogCurrentAction = new Core::Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_filelogCurrentAction,
         SubversionPlugin::FILELOG_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -390,7 +391,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
         SLOT(filelogCurrentFile()));
     subversionMenu->addAction(command);
 
-    m_annotateCurrentAction = new QAction(tr("Annotate Current File"), this);
+    m_annotateCurrentAction = new Core::Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_annotateCurrentAction,
         SubversionPlugin::ANNOTATE_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -549,32 +550,21 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
 
 void SubversionPlugin::updateActions()
 {
-    const QString fileName = currentFileName();
-    const bool hasFile = !fileName.isEmpty();
-
-    m_addAction->setEnabled(hasFile);
-    m_deleteAction->setEnabled(hasFile);
-    m_revertAction->setEnabled(hasFile);
     m_diffProjectAction->setEnabled(true);
-    m_diffCurrentAction->setEnabled(hasFile);
     m_commitAllAction->setEnabled(true);
-    m_commitCurrentAction->setEnabled(hasFile);
-    m_filelogCurrentAction->setEnabled(hasFile);
-    m_annotateCurrentAction->setEnabled(hasFile);
     m_statusAction->setEnabled(true);
     m_describeAction->setEnabled(true);
 
-    QString baseName;
-    if (hasFile)
-        baseName = QFileInfo(fileName).fileName();
+    const QString fileName = currentFileName();
+    const QString baseName = fileName.isEmpty() ? fileName : QFileInfo(fileName).fileName();
 
-    m_addAction->setText(tr("Add %1").arg(baseName));
-    m_deleteAction->setText(tr("Delete %1").arg(baseName));
-    m_revertAction->setText(tr("Revert %1").arg(baseName));
-    m_diffCurrentAction->setText(tr("Diff %1").arg(baseName));
-    m_commitCurrentAction->setText(tr("Commit %1").arg(baseName));
-    m_filelogCurrentAction->setText(tr("Filelog %1").arg(baseName));
-    m_annotateCurrentAction->setText(tr("Annotate %1").arg(baseName));
+    m_addAction->setParameter(baseName);
+    m_deleteAction->setParameter(baseName);
+    m_revertAction->setParameter(baseName);
+    m_diffCurrentAction->setParameter(baseName);
+    m_commitCurrentAction->setParameter(baseName);
+    m_filelogCurrentAction->setParameter(baseName);
+    m_annotateCurrentAction->setParameter(baseName);
 }
 
 void SubversionPlugin::addCurrentFile()

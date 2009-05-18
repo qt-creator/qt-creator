@@ -217,7 +217,9 @@ public slots:
 
     void setSimpleDockWidgetArrangement();
     void setLocked(bool locked);
-    void dockToggled(bool on);
+    void setFloatingDockWidgetsVisible(bool visible);
+    void updateDockWidgetActiveStates();
+    void dockActionTriggered();
 
     void setBusyCursor(bool on);
     void queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **ed);
@@ -316,7 +318,6 @@ private:
     //
     QWidget *threadsWindow() const { return m_threadsWindow; }
     QList<QDockWidget*> dockWidgets() const { return m_dockWidgets; }
-    void createDockWidgets();
 
     virtual bool qtDumperLibraryEnabled() const;
     virtual QString qtDumperLibraryName() const;
@@ -400,6 +401,7 @@ private:
     QDockWidget *m_threadsDock;
     QDockWidget *m_watchDock;
     QList<QDockWidget*> m_dockWidgets;
+    QList<bool> m_dockWidgetActiveState;
 
     BreakHandler *m_breakHandler;
     DisassemblerHandler *m_disassemblerHandler;

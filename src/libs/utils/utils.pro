@@ -29,7 +29,8 @@ SOURCES += \
     synchronousprocess.cpp \
     submitfieldwidget.cpp \
     consoleprocess.cpp \
-    uncommentselection.cpp
+    uncommentselection.cpp \
+    parameteraction.cpp
 
 win32 {
     SOURCES += abstractprocess_win.cpp \
@@ -66,7 +67,8 @@ HEADERS += \
     consoleprocess.h \
     synchronousprocess.h \
     submitfieldwidget.h \
-    uncommentselection.h
+    uncommentselection.h \
+    parameteraction.h
 
 FORMS += filewizardpage.ui \
          projectintropage.ui \
