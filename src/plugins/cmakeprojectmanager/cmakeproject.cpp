@@ -74,12 +74,37 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     m_watcher = new ProjectExplorer::FileWatcher(this);
     connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
     m_watcher->addFile(fileName);
+
+    connect(this, SIGNAL(activeBuildConfigurationChanged()),
+            this, SLOT(slotActiveBuildConfiguration()));
 }
 
 CMakeProject::~CMakeProject()
 {
     delete m_rootNode;
     delete m_toolChain;
+}
+
+void CMakeProject::slotActiveBuildConfiguration()
+{
+    // Pop up a dialog asking the user to rerun cmake
+    QFileInfo sourceFileInfo(m_fileName);
+    QStringList needToCreate;
+    QStringList needToUpdate;
+
+    QString cbpFile = CMakeManager::findCbpFile(QDir(buildDirectory(activeBuildConfiguration())));
+    QFileInfo cbpFileFi(cbpFile);
+    if (!cbpFileFi.exists())
+        needToCreate << buildDirectory(activeBuildConfiguration());
+    else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
+        needToUpdate << buildDirectory(activeBuildConfiguration());
+
+    if (!needToCreate.isEmpty() || !needToUpdate.isEmpty()) {
+        CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), needToCreate, needToUpdate);
+        copw.exec();
+    }
+    // reparse
+    parseCMakeLists();
 }
 
 void CMakeProject::fileChanged(const QString &fileName)
@@ -89,26 +114,7 @@ void CMakeProject::fileChanged(const QString &fileName)
     m_insideFileChanged = true;
     if (fileName == m_fileName) {
         // Oh we have changed...
-
-        // Pop up a dialog asking the user to rerun cmake
-        QFileInfo sourceFileInfo(m_fileName);
-        QStringList needToCreate;
-        QStringList needToUpdate;
-        foreach(const QString &buildConfiguration, buildConfigurations()) {
-            QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
-            QString cbpFile = CMakeManager::findCbpFile(QDir(buildDirectory));
-            QFileInfo cbpFileFi(cbpFile);
-            if (!cbpFileFi.exists())
-                needToCreate << buildDirectory;
-            else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
-                needToUpdate << buildDirectory;
-        }
-        if (!needToCreate.isEmpty() || !needToUpdate.isEmpty()) {
-            CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), needToCreate, needToUpdate);
-            copw.exec();
-        }
-        // reparse
-        parseCMakeLists();
+        slotActiveBuildConfiguration();
     }
     m_insideFileChanged = false;
 }
@@ -461,6 +467,12 @@ QList<ProjectExplorer::BuildStepConfigWidget*> CMakeProject::subConfigWidgets()
  {
      // Default to all
      makeStep()->setBuildTarget(buildConfiguration, "all", true);
+
+    CMakeOpenProjectWizard copw(projectManager(), sourceDirectory(), buildDirectory(buildConfiguration));
+    if (copw.exec() == QDialog::Accepted) {
+        setValue(buildConfiguration, "buildDirectory", copw.buildDirectory());
+        parseCMakeLists();
+    }
  }
 
 ProjectExplorer::ProjectNode *CMakeProject::rootProjectNode() const
@@ -526,15 +538,13 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         QFileInfo sourceFileInfo(m_fileName);
         QStringList needToCreate;
         QStringList needToUpdate;
-        foreach(const QString &buildConfiguration, buildConfigurations()) {
-            QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
-            QString cbpFile = CMakeManager::findCbpFile(QDir(buildDirectory));
-            QFileInfo cbpFileFi(cbpFile);
-            if (!cbpFileFi.exists())
-                needToCreate << buildDirectory;
-            else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
-                needToUpdate << buildDirectory;
-        }
+        QString cbpFile = CMakeManager::findCbpFile(QDir(buildDirectory(activeBuildConfiguration())));
+        QFileInfo cbpFileFi(cbpFile);
+        if (!cbpFileFi.exists())
+            needToCreate << buildDirectory(activeBuildConfiguration());
+        else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
+            needToUpdate << buildDirectory(activeBuildConfiguration());
+
         if (!needToCreate.isEmpty() || !needToUpdate.isEmpty()) {
             CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), needToCreate, needToUpdate);
             copw.exec();
@@ -642,7 +652,7 @@ void CMakeBuildSettingsWidget::init(const QString &buildConfiguration)
     if (m_project->buildDirectory(buildConfiguration) == m_project->sourceDirectory())
         m_changeButton->setEnabled(false);
     else
-        m_changeButton->setEnabled(false);
+        m_changeButton->setEnabled(true);
 }
 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()

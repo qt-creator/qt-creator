@@ -108,6 +108,7 @@ protected:
 
 private slots:
     void fileChanged(const QString &fileName);
+    void slotActiveBuildConfiguration();
 
 private:
     void parseCMakeLists();
