@@ -49,6 +49,13 @@ public:
         BlockKind
     };
 
+    enum ProItemReturn {
+        ReturnFalse,
+        ReturnTrue,
+        ReturnSkip,
+        ReturnReturn
+   };
+
     ProItem() : m_lineNumber(0) {}
     virtual ~ProItem() {}
 
@@ -57,7 +64,7 @@ public:
     void setComment(const QString &comment);
     QString comment() const;
 
-    virtual bool Accept(AbstractProItemVisitor *visitor) = 0;
+    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor) = 0;
     int lineNumber() const { return m_lineNumber; }
     void setLineNumber(int lineNumber) { m_lineNumber = lineNumber; }
 
@@ -75,7 +82,8 @@ public:
         ScopeContentsKind   = 0x02,
         VariableKind        = 0x04,
         ProFileKind         = 0x08,
-        SingleLine          = 0x10
+        FunctionBodyKind    = 0x10,
+        SingleLine          = 0x80
     };
 
     ProBlock(ProBlock *parent);
@@ -91,14 +99,18 @@ public:
     void setParent(ProBlock *parent);
     ProBlock *parent() const;
 
+    void ref() { ++m_refCount; }
+    void deref() { if (!--m_refCount) delete this; }
+
     ProItem::ProItemKind kind() const;
 
-    virtual bool Accept(AbstractProItemVisitor *visitor);
+    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 protected:
     QList<ProItem *> m_proitems;
 private:
     ProBlock *m_parent;
     int m_blockKind;
+    int m_refCount;
 };
 
 class ProVariable : public ProBlock
@@ -120,7 +132,7 @@ public:
     void setVariable(const QString &name);
     QString variable() const;
 
-    virtual bool Accept(AbstractProItemVisitor *visitor);
+    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 private:
     VariableOperator m_variableKind;
     QString m_variable;
@@ -139,7 +151,7 @@ public:
 
     ProItem::ProItemKind kind() const;
 
-    virtual bool Accept(AbstractProItemVisitor *visitor);
+    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 private:
     QString m_value;
     ProVariable *m_variable;
@@ -155,7 +167,7 @@ public:
 
     ProItem::ProItemKind kind() const;
 
-    virtual bool Accept(AbstractProItemVisitor *visitor);
+    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 private:
     QString m_text;
 };
@@ -170,7 +182,7 @@ public:
 
     ProItem::ProItemKind kind() const;
 
-    virtual bool Accept(AbstractProItemVisitor *visitor);
+    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 private:
     QString m_text;
 };
@@ -190,7 +202,7 @@ public:
 
     ProItem::ProItemKind kind() const;
 
-    virtual bool Accept(AbstractProItemVisitor *visitor);
+    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 private:
     OperatorKind m_operatorKind;
 };
@@ -210,7 +222,7 @@ public:
     void setModified(bool modified);
     bool isModified() const;
 
-    virtual bool Accept(AbstractProItemVisitor *visitor);
+    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 
 private:
     QString m_fileName;

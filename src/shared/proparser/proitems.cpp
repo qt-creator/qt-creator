@@ -46,15 +46,21 @@ QString ProItem::comment() const
 }
 
 // --------------- ProBlock ----------------
+
 ProBlock::ProBlock(ProBlock *parent)
 {
     m_blockKind = 0;
     m_parent = parent;
+    m_refCount = 1;
 }
 
 ProBlock::~ProBlock()
 {
-    qDeleteAll(m_proitems);
+    foreach (ProItem *itm, m_proitems)
+        if (itm->kind() == BlockKind)
+            static_cast<ProBlock *>(itm)->deref();
+        else
+            delete itm;
 }
 
 void ProBlock::appendItem(ProItem *proitem)
@@ -97,15 +103,16 @@ ProItem::ProItemKind ProBlock::kind() const
     return ProItem::BlockKind;
 }
 
-bool ProBlock::Accept(AbstractProItemVisitor *visitor)
+ProItem::ProItemReturn ProBlock::Accept(AbstractProItemVisitor *visitor)
 {
-    visitor->visitBeginProBlock(this);
-    foreach (ProItem *item, m_proitems) {
-        if (!item->Accept(visitor))
-            return false;
-    }
+    if (visitor->visitBeginProBlock(this) == ReturnSkip)
+        return ReturnTrue;
+    ProItemReturn rt = ReturnTrue;
+    foreach (ProItem *item, m_proitems)
+        if ((rt = item->Accept(visitor)) != ReturnTrue && rt != ReturnFalse)
+            break;
     visitor->visitEndProBlock(this);
-    return true;
+    return rt;
 }
 
 // --------------- ProVariable ----------------
@@ -137,15 +144,13 @@ QString ProVariable::variable() const
     return m_variable;
 }
 
-bool ProVariable::Accept(AbstractProItemVisitor *visitor)
+ProItem::ProItemReturn ProVariable::Accept(AbstractProItemVisitor *visitor)
 {
     visitor->visitBeginProVariable(this);
-    foreach (ProItem *item, m_proitems) {
-        if (!item->Accept(visitor))
-            return false;
-    }
+    foreach (ProItem *item, m_proitems)
+        item->Accept(visitor); // cannot fail
     visitor->visitEndProVariable(this);
-    return true;
+    return ReturnTrue;
 }
 
 // --------------- ProValue ----------------
@@ -180,10 +185,10 @@ ProItem::ProItemKind ProValue::kind() const
     return ProItem::ValueKind;
 }
 
-bool ProValue::Accept(AbstractProItemVisitor *visitor)
+ProItem::ProItemReturn ProValue::Accept(AbstractProItemVisitor *visitor)
 {
     visitor->visitProValue(this);
-    return true;
+    return ReturnTrue;
 }
 
 // --------------- ProFunction ----------------
@@ -207,10 +212,9 @@ ProItem::ProItemKind ProFunction::kind() const
     return ProItem::FunctionKind;
 }
 
-bool ProFunction::Accept(AbstractProItemVisitor *visitor)
+ProItem::ProItemReturn ProFunction::Accept(AbstractProItemVisitor *visitor)
 {
-    visitor->visitProFunction(this);
-    return true;
+    return visitor->visitProFunction(this);
 }
 
 // --------------- ProCondition ----------------
@@ -234,10 +238,10 @@ ProItem::ProItemKind ProCondition::kind() const
     return ProItem::ConditionKind;
 }
 
-bool ProCondition::Accept(AbstractProItemVisitor *visitor)
+ProItem::ProItemReturn ProCondition::Accept(AbstractProItemVisitor *visitor)
 {
     visitor->visitProCondition(this);
-    return true;
+    return ReturnTrue;
 }
 
 // --------------- ProOperator ----------------
@@ -261,10 +265,10 @@ ProItem::ProItemKind ProOperator::kind() const
     return ProItem::OperatorKind;
 }
 
-bool ProOperator::Accept(AbstractProItemVisitor *visitor)
+ProItem::ProItemReturn ProOperator::Accept(AbstractProItemVisitor *visitor)
 {
     visitor->visitProOperator(this);
-    return true;
+    return ReturnTrue;
 }
 
 // --------------- ProFile ----------------
@@ -309,13 +313,12 @@ bool ProFile::isModified() const
     return m_modified;
 }
 
-bool ProFile::Accept(AbstractProItemVisitor *visitor)
+ProItem::ProItemReturn ProFile::Accept(AbstractProItemVisitor *visitor)
 {
-    visitor->visitBeginProFile(this);
-    foreach (ProItem *item, m_proitems) {
-        if (!item->Accept(visitor))
-            return false;
-    }
+    ProItemReturn rt;
+    if ((rt = visitor->visitBeginProFile(this)) != ReturnTrue)
+        return rt;
+    ProBlock::Accept(visitor); // cannot fail
     return visitor->visitEndProFile(this);
 }
 
