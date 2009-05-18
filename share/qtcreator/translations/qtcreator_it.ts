@@ -2302,14 +2302,14 @@ p {
 <context>
     <name>CppFileSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+52"/>
-        <source>File naming conventions</source>
-        <translation>Convenzioni sul nome dei file</translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
         <source>Header suffix:</source>
         <translation>Estensione header:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>File naming conventions</source>
+        <translation>Convenzioni sul nome dei file</translation>
     </message>
     <message>
         <location/>
@@ -4059,14 +4059,14 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
 <context>
     <name>DebuggingHelperOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-596"/>
-        <source>Debugging Helper</source>
-        <translation>Helper del Debug</translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/debugger/dumperoptionpage.ui"/>
         <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
         <translation>Marcando questa casella si abilita la visualizzazione dei tipi Qt e STL nella vista Variabili Locali &amp; Osservazione</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Debugging Helper</source>
+        <translation>Helper del Debug</translation>
     </message>
     <message>
         <location/>
@@ -4931,8 +4931,8 @@ Causa: %3</translation>
     <name>FilterSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/help/filtersettingspage.ui"/>
-        <source>Filter:</source>
-        <translation>Filtro:</translation>
+        <source>Filters</source>
+        <translation>Filtri</translation>
     </message>
     <message>
         <location/>

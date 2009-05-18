@@ -2225,14 +2225,14 @@ background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
 <context>
     <name>CppFileSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+51"/>
-        <source>File naming conventions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
         <source>Form</source>
         <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <location/>
+        <source>File naming conventions</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location/>
@@ -3719,14 +3719,14 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>DebuggingHelperOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-596"/>
-        <source>Debugging Helper</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/debugger/dumperoptionpage.ui"/>
         <source>Form</source>
         <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Debugging Helper</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location/>
@@ -4662,7 +4662,7 @@ Reason: %3</source>
     </message>
     <message>
         <location/>
-        <source>Filter:</source>
+        <source>Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -52,7 +52,7 @@ QString ProjectExplorerSettingsPage::id() const
 
 QString ProjectExplorerSettingsPage::trName() const
 {
-    return tr("Build and Run Settings");
+    return tr("Build and Run");
 }
 
 QString ProjectExplorerSettingsPage::category() const

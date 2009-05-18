@@ -2474,14 +2474,14 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
 <context>
     <name>CppFileSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+52"/>
-        <source>File naming conventions</source>
-        <translation>Konventionen für die Bildung von Dateinamen</translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
         <source>Header suffix:</source>
         <translation>Endung für Header-Dateien:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>File naming conventions</source>
+        <translation>Konventionen für die Bildung von Dateinamen</translation>
     </message>
     <message>
         <location/>
@@ -4409,14 +4409,14 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 <context>
     <name>DebuggingHelperOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-596"/>
-        <source>Debugging Helper</source>
-        <translation>Ausgabe-Hilfsbibliothek</translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/debugger/dumperoptionpage.ui"/>
         <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
         <translation>Diese Einstellung ermöglicht die Anzeige von Qt- und Standardbibliotheksobjekten in der Ansicht &quot;Lokale Variablen und Über&amp;wachte Ausdrücke&quot;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Debugging Helper</source>
+        <translation>Ausgabe-Hilfsbibliothek</translation>
     </message>
     <message>
         <location/>
@@ -5329,8 +5329,8 @@ Grund: %3</translation>
     <name>FilterSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/help/filtersettingspage.ui"/>
-        <source>Filter:</source>
-        <translation>Filter:</translation>
+        <source>Filters</source>
+        <translation>Filter</translation>
     </message>
     <message>
         <location/>

@@ -85,6 +85,8 @@ TextEditorActionHandler::TextEditorActionHandler(const QString &context,
     m_selectBlockDownAction = 0;
     m_moveLineUpAction = 0;
     m_moveLineDownAction = 0;
+    m_copyLineUpAction = 0;
+    m_copyLineDownAction = 0;
 
     m_contextId << Core::UniqueIDManager::instance()->uniqueIdentifier(context);
 
@@ -251,6 +253,16 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_moveLineDownAction, Constants::MOVE_LINE_DOWN, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Down")));
     connect(m_moveLineDownAction, SIGNAL(triggered()), this, SLOT(moveLineDown()));
+
+    m_copyLineUpAction= new QAction(tr("Copy Line Up"), this);
+    command = am->registerAction(m_copyLineUpAction, Constants::COPY_LINE_UP, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Up")));
+    connect(m_copyLineUpAction, SIGNAL(triggered()), this, SLOT(copyLineUp()));
+
+    m_copyLineDownAction= new QAction(tr("Copy Line Down"), this);
+    command = am->registerAction(m_copyLineDownAction, Constants::COPY_LINE_DOWN, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Down")));
+    connect(m_copyLineDownAction, SIGNAL(triggered()), this, SLOT(copyLineDown()));
 }
 
 bool TextEditorActionHandler::supportsAction(const QString & /*id */) const
@@ -406,6 +418,8 @@ FUNCTION(selectBlockUp)
 FUNCTION(selectBlockDown)
 FUNCTION(moveLineUp)
 FUNCTION(moveLineDown)
+FUNCTION(copyLineUp)
+FUNCTION(copyLineDown)
 
 void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
 {

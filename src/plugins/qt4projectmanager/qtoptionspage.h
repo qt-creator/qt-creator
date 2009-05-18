@@ -72,6 +72,7 @@ private slots:
     void removeQtDir();
     void updateState();
     void makeMingwVisible(bool visible);
+    void makeMSVCVisible(bool visible);
     void onQtBrowsed();
     void onMingwBrowsed();
     void defaultChanged(int index);

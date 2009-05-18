@@ -70,9 +70,9 @@ ToolChain *ToolChain::createMinGWToolChain(const QString &gcc, const QString &mi
     return new MinGWToolChain(gcc, mingwPath);
 }
 
-ToolChain *ToolChain::createMSVCToolChain(const QString &name)
+ToolChain *ToolChain::createMSVCToolChain(const QString &name, bool amd64 = false)
 {
-    return new MSVCToolChain(name);
+    return new MSVCToolChain(name, amd64);
 }
 
 ToolChain *ToolChain::createWinCEToolChain(const QString &name, const QString &platform)
@@ -85,6 +85,7 @@ QStringList ToolChain::availableMSVCVersions()
     QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7",
                        QSettings::NativeFormat);
     QStringList versions = registry.allKeys();
+//    qDebug() << "AVAILABLE MSVC VERSIONS:" << versions;
     return versions;
 }
 
@@ -226,14 +227,15 @@ QString MinGWToolChain::makeCommand() const
 }
 
 
-MSVCToolChain::MSVCToolChain(const QString &name)
-    : m_name(name), m_valuesSet(false)
+MSVCToolChain::MSVCToolChain(const QString &name, bool amd64)
+    : m_name(name), m_valuesSet(false), m_amd64(amd64)
 {
     if (m_name.isEmpty()) { // Could be because system qt doesn't set this
         QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7",
                        QSettings::NativeFormat);
-        if (registry.allKeys().count())
-            m_name = registry.allKeys().first();
+        QStringList keys = registry.allKeys();
+        if (keys.count())
+            m_name = keys.first();
     }
 }
 
@@ -283,7 +285,12 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
             return;
         QString path = registry.value(m_name).toString();
         QString desc;
-        QString varsbat = path + "Common7\\Tools\\vsvars32.bat";
+        QString varsbat;
+        if (m_amd64)
+                varsbat = path + "VC\\bin\\amd64\\vcvarsamd64.bat";
+        else
+                varsbat = path + "Common7\\Tools\\vsvars32.bat";
+//        qDebug() << varsbat;
         if (QFileInfo(varsbat).exists()) {
             QTemporaryFile tf(QDir::tempPath() + "\\XXXXXX.bat");
             if (!tf.open())
@@ -378,8 +385,9 @@ void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
     MSVCToolChain::addToEnvironment(env);
     QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7",
-                       QSettings::NativeFormat);
+                   QSettings::NativeFormat);
     QString path = registry.value(m_name).toString();
+
     // Find MSVC path
 
     path += "/";

@@ -69,6 +69,7 @@ private slots:
     void searchingFinished(int hits);
 
 private:
+    bool eventFilter(QObject* o, QEvent *e);
     void keyPressEvent(QKeyEvent *keyEvent);
     void contextMenuEvent(QContextMenuEvent *contextMenuEvent);
 

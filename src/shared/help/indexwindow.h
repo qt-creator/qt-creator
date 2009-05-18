@@ -38,6 +38,7 @@ QT_BEGIN_NAMESPACE
 
 class QHelpIndexWidget;
 class QHelpEngine;
+class QModelIndex;
 
 QT_END_NAMESPACE
 
@@ -69,6 +70,7 @@ private slots:
 private:
     bool eventFilter(QObject *obj, QEvent *e);
     void focusInEvent(QFocusEvent *e);
+    void open(QHelpIndexWidget* indexWidget, const QModelIndex &index);
 
     QLineEdit *m_searchLineEdit;
     QHelpIndexWidget *m_indexWidget;

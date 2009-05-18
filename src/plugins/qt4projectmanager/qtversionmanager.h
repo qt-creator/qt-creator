@@ -85,6 +85,7 @@ public:
     QString buildDebuggingHelperLibrary();
 
     int uniqueId() const;
+    bool isMSVC64Bit() const;
 
     enum QmakeBuildConfig
     {

@@ -5,6 +5,7 @@
 #include "qtversionmanager.h"
 #include <coreplugin/coreconstants.h>
 
+#include <QtCore/QDebug>
 #include <QtCore/QDir>
 
 using namespace Qt4ProjectManager;
@@ -254,25 +255,32 @@ void QtOptionsPageWidget::makeMingwVisible(bool visible)
     m_ui->mingwPath->setVisible(visible);
 }
 
+void QtOptionsPageWidget::makeMSVCVisible(bool visible)
+{
+    m_ui->msvcLabel->setVisible(visible);
+    m_ui->msvcComboBox->setVisible(visible);
+    m_ui->msvcNotFoundLabel->setVisible(false);
+}
+
 void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
 {
-    m_ui->msvcComboBox->setVisible(false);
     if (item) {
         int index = m_ui->qtdirList->indexOfTopLevelItem(item);
         m_ui->errorLabel->setText("");
         ProjectExplorer::ToolChain::ToolChainType t = m_versions.at(index)->toolchainType();
         if (t == ProjectExplorer::ToolChain::MinGW) {
-            m_ui->msvcComboBox->setVisible(false);
+            makeMSVCVisible(false);
             makeMingwVisible(true);
             m_ui->mingwPath->setPath(m_versions.at(index)->mingwDirectory());
         } else if (t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE){
-            m_ui->msvcComboBox->setVisible(false);
+            makeMSVCVisible(false);
             makeMingwVisible(false);
             QStringList msvcEnvironments = ProjectExplorer::ToolChain::availableMSVCVersions();
             if (msvcEnvironments.count() == 0) {
-            } else if (msvcEnvironments.count() == 1) {
+                m_ui->msvcLabel->setVisible(true);
+                m_ui->msvcNotFoundLabel->setVisible(true);
             } else {
-                 m_ui->msvcComboBox->setVisible(true);
+                 makeMSVCVisible(true);
                  bool block = m_ui->msvcComboBox->blockSignals(true);
                  m_ui->msvcComboBox->clear();
                  foreach(const QString &msvcenv, msvcEnvironments) {
@@ -284,7 +292,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
                  m_ui->msvcComboBox->blockSignals(block);
             }
         } else if (t == ProjectExplorer::ToolChain::INVALID) {
-            m_ui->msvcComboBox->setVisible(false);
+            makeMSVCVisible(false);
             makeMingwVisible(false);
             if (!m_versions.at(index)->isInstalled())
                 m_ui->errorLabel->setText(tr("The Qt Version %1 is not installed. Run make install")
@@ -292,14 +300,14 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             else
                 m_ui->errorLabel->setText(tr("%1 is not a valid Qt directory").arg(QDir::toNativeSeparators(m_versions.at(index)->path())));
         } else { //ProjectExplorer::ToolChain::GCC
-            m_ui->msvcComboBox->setVisible(false);
+            makeMSVCVisible(false);
             makeMingwVisible(false);
             m_ui->errorLabel->setText(tr("Found Qt version %1, using mkspec %2")
                                      .arg(m_versions.at(index)->qtVersionString(),
                                           m_versions.at(index)->mkspec()));
         }
     } else {
-        m_ui->msvcComboBox->setVisible(false);
+        makeMSVCVisible(false);
         makeMingwVisible(false);
     }
 }

@@ -111,6 +111,8 @@ private slots:
     void selectBlockDown();
     void moveLineUp();
     void moveLineDown();
+    void copyLineUp();
+    void copyLineDown();
     void updateCurrentEditor(Core::IEditor *editor);
 
 private:
@@ -143,6 +145,8 @@ private:
     QAction *m_selectBlockDownAction;
     QAction *m_moveLineUpAction;
     QAction *m_moveLineDownAction;
+    QAction *m_copyLineUpAction;
+    QAction *m_copyLineDownAction;
 
     uint m_optionalActions;
     QPointer<BaseTextEditor> m_currentEditor;

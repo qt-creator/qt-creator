@@ -294,8 +294,8 @@ protected:
         init(&decl, node);
 
         decl.text.fill(QLatin1Char(' '), _depth);
-        if (node->qualifiedObjectNameId)
-            decl.text.append(asString(node->qualifiedObjectNameId));
+        if (node->qualifiedTypeNameId)
+            decl.text.append(asString(node->qualifiedTypeNameId));
         else
             decl.text.append(QLatin1Char('?'));
 
@@ -321,8 +321,8 @@ protected:
         decl.text.append(asString(node->qualifiedId));
         decl.text.append(QLatin1String(": "));
 
-        if (node->qualifiedObjectNameId)
-            decl.text.append(asString(node->qualifiedObjectNameId));
+        if (node->qualifiedTypeNameId)
+            decl.text.append(asString(node->qualifiedTypeNameId));
         else
             decl.text.append(QLatin1Char('?'));
 
