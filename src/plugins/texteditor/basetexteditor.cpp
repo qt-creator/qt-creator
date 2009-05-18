@@ -932,11 +932,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             QTextCursor cursor = textCursor();
             const QString text = e->text();
             cursor.insertText(text);
-            const QString leftText = cursor.block().text().left(cursor.position() - 1 - cursor.block().position());
-            if (leftText.simplified().isEmpty()) {
-                const QChar typedChar = e->text().at(0);
-                indent(document(), cursor, typedChar);
-            }
+            indent(document(), cursor, QChar::Null);
 #if 0
             TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document()->documentLayout());
             QTC_ASSERT(documentLayout, return);
