@@ -694,6 +694,66 @@ void BaseTextEditor::selectBlockDown()
     _q_matchParentheses();
 }
 
+void BaseTextEditor::copyLineUp()
+{
+    copyLineUpDown(true);
+}
+
+void BaseTextEditor::copyLineDown()
+{
+    copyLineUpDown(false);
+}
+
+void BaseTextEditor::copyLineUpDown(bool up)
+{
+    QTextCursor cursor = textCursor();
+    QTextCursor move = cursor;
+    move.beginEditBlock();
+
+    bool hasSelection = cursor.hasSelection();
+
+    if (hasSelection) {
+        move.setPosition(cursor.selectionStart());
+        move.movePosition(QTextCursor::StartOfBlock);
+        move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
+        move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    } else {
+        move.movePosition(QTextCursor::StartOfBlock);
+        move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    }
+
+    QString text = move.selectedText();
+
+    if (up) {
+        move.setPosition(cursor.selectionStart());
+        move.movePosition(QTextCursor::StartOfBlock);
+        move.insertBlock();
+        move.movePosition(QTextCursor::Left);
+    } else {
+        move.movePosition(QTextCursor::EndOfBlock);
+        if (move.atBlockStart()) {
+            move.movePosition(QTextCursor::NextBlock);
+            move.insertBlock();
+            move.movePosition(QTextCursor::Left);
+        } else {
+            move.insertBlock();
+        }
+    }
+
+    int start = move.position();
+    move.clearSelection();
+    move.insertText(text);
+    int end = move.position();
+
+    move.setPosition(start);
+    move.setPosition(end, QTextCursor::KeepAnchor);
+
+    indent(document(), move, QChar::Null);
+    move.endEditBlock();
+
+    setTextCursor(move);
+}
+
 void BaseTextEditor::moveLineUp()
 {
     moveLineUpDown(true);
