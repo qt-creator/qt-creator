@@ -121,6 +121,7 @@ bool QMakeStep::init(const QString &name)
     if (QDir(workingDirectory).exists(QLatin1String("Makefile")))
         needToRunQMake = false;
 
+    Environment environment = m_pro->environment(name);
     QStringList newEnv = environment.toStringList();
     newEnv.sort();
 
