@@ -1010,7 +1010,9 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
     m_d->m_editorModel->addEditor(editor, isDuplicate);
     if (!isDuplicate) {
         m_d->m_core->fileManager()->addFile(editor->file());
-        m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
+        if (!editor->temporayEditor()) {
+            m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
+        }
     }
 
     m_d->m_editorHistory.removeAll(editor);
@@ -1275,7 +1277,7 @@ bool EditorManager::saveFile(IEditor *editor)
         m_d->m_core->fileManager()->unblockFileChange(file);
     }
 
-    if (success)
+    if (success && !editor->temporayEditor())
         m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
 
     return success;
@@ -1370,7 +1372,7 @@ bool EditorManager::saveFileAs(IEditor *editor)
     m_d->m_core->fileManager()->unblockFileChange(editor->file());
     editor->file()->checkPermissions();
 
-    if (success)
+    if (success && !editor->temporayEditor())
         m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
 
     updateActions();

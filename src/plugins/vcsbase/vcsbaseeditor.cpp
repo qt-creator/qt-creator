@@ -75,6 +75,8 @@ public:
     Core::IEditor *duplicate(QWidget * /*parent*/) { return 0; }
     const char *kind() const { return m_kind; }
 
+    bool temporayEditor() const { return true; }
+
 private:
     const char *m_kind;
     QList<int> m_context;
@@ -103,6 +105,8 @@ public:
 
     virtual QToolBar *toolBar()                { return m_toolBar; }
     QComboBox *diffFileBrowseComboBox() const  { return m_diffFileBrowseComboBox; }
+
+    bool temporayEditor() const { return true; }
 
 private:
     QComboBox *m_diffFileBrowseComboBox;
