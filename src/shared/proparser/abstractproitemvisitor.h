@@ -37,19 +37,19 @@ QT_BEGIN_NAMESPACE
 struct AbstractProItemVisitor
 {
     virtual ~AbstractProItemVisitor() {}
-    virtual bool visitBeginProBlock(ProBlock *block) = 0;
-    virtual bool visitEndProBlock(ProBlock *block) = 0;
+    virtual void visitBeginProBlock(ProBlock *block) = 0;
+    virtual void visitEndProBlock(ProBlock *block) = 0;
 
-    virtual bool visitBeginProVariable(ProVariable *variable) = 0;
-    virtual bool visitEndProVariable(ProVariable *variable) = 0;
+    virtual void visitBeginProVariable(ProVariable *variable) = 0;
+    virtual void visitEndProVariable(ProVariable *variable) = 0;
 
     virtual bool visitBeginProFile(ProFile *value) = 0;
     virtual bool visitEndProFile(ProFile *value) = 0;
 
-    virtual bool visitProValue(ProValue *value) = 0;
-    virtual bool visitProFunction(ProFunction *function) = 0;
-    virtual bool visitProOperator(ProOperator *function) = 0;
-    virtual bool visitProCondition(ProCondition *function) = 0;
+    virtual void visitProValue(ProValue *value) = 0;
+    virtual void visitProFunction(ProFunction *function) = 0;
+    virtual void visitProOperator(ProOperator *function) = 0;
+    virtual void visitProCondition(ProCondition *function) = 0;
 };
 
 QT_END_NAMESPACE

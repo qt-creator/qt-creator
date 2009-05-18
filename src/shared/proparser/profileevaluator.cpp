@@ -157,16 +157,16 @@ public:
     /////////////// Evaluating pro file contents
 
     // implementation of AbstractProItemVisitor
-    bool visitBeginProBlock(ProBlock *block);
-    bool visitEndProBlock(ProBlock *block);
-    bool visitBeginProVariable(ProVariable *variable);
-    bool visitEndProVariable(ProVariable *variable);
+    void visitBeginProBlock(ProBlock *block);
+    void visitEndProBlock(ProBlock *block);
+    void visitBeginProVariable(ProVariable *variable);
+    void visitEndProVariable(ProVariable *variable);
     bool visitBeginProFile(ProFile *value);
     bool visitEndProFile(ProFile *value);
-    bool visitProValue(ProValue *value);
-    bool visitProFunction(ProFunction *function);
-    bool visitProOperator(ProOperator *oper);
-    bool visitProCondition(ProCondition *condition);
+    void visitProValue(ProValue *value);
+    void visitProFunction(ProFunction *function);
+    void visitProOperator(ProOperator *oper);
+    void visitProCondition(ProCondition *condition);
 
     QStringList valuesDirect(const QString &variableName) const { return m_valuemap[variableName]; }
     QStringList values(const QString &variableName) const;
@@ -555,7 +555,7 @@ void ProFileEvaluator::Private::updateItem()
 }
 
 
-bool ProFileEvaluator::Private::visitBeginProBlock(ProBlock *block)
+void ProFileEvaluator::Private::visitBeginProBlock(ProBlock *block)
 {
     if (block->blockKind() & ProBlock::ScopeContentsKind) {
         if (!m_sts.condition)
@@ -572,10 +572,9 @@ bool ProFileEvaluator::Private::visitBeginProBlock(ProBlock *block)
             Q_ASSERT(!m_sts.condition);
         }
     }
-    return true;
 }
 
-bool ProFileEvaluator::Private::visitEndProBlock(ProBlock *block)
+void ProFileEvaluator::Private::visitEndProBlock(ProBlock *block)
 {
     if (block->blockKind() & ProBlock::ScopeContentsKind) {
         if (m_skipLevel) {
@@ -587,35 +586,31 @@ bool ProFileEvaluator::Private::visitEndProBlock(ProBlock *block)
             m_sts.condition = true;
         }
     }
-    return true;
 }
 
-bool ProFileEvaluator::Private::visitBeginProVariable(ProVariable *variable)
+void ProFileEvaluator::Private::visitBeginProVariable(ProVariable *variable)
 {
     m_lastVarName = variable->variable();
     m_variableOperator = variable->variableOperator();
     m_isFirstVariableValue = true;
     m_tempValuemap = m_valuemap;
     m_tempFilevaluemap = m_filevaluemap;
-    return true;
 }
 
-bool ProFileEvaluator::Private::visitEndProVariable(ProVariable *variable)
+void ProFileEvaluator::Private::visitEndProVariable(ProVariable *variable)
 {
     Q_UNUSED(variable);
     m_valuemap = m_tempValuemap;
     m_filevaluemap = m_tempFilevaluemap;
     m_lastVarName.clear();
-    return true;
 }
 
-bool ProFileEvaluator::Private::visitProOperator(ProOperator *oper)
+void ProFileEvaluator::Private::visitProOperator(ProOperator *oper)
 {
     m_invertNext = (oper->operatorKind() == ProOperator::NotOperator);
-    return true;
 }
 
-bool ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
+void ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 {
     if (!m_skipLevel) {
         if (cond->text().toLower() == QLatin1String("else")) {
@@ -627,7 +622,6 @@ bool ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
         }
     }
     m_invertNext = false;
-    return true;
 }
 
 bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
@@ -726,7 +720,7 @@ static void replaceInList(QStringList *varlist,
     }
 }
 
-bool ProFileEvaluator::Private::visitProValue(ProValue *value)
+void ProFileEvaluator::Private::visitProValue(ProValue *value)
 {
     PRE(value);
     m_lineNo = value->lineNumber();
@@ -858,10 +852,9 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
 
     }
     m_isFirstVariableValue = false;
-    return true;
 }
 
-bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
+void ProFileEvaluator::Private::visitProFunction(ProFunction *func)
 {
     // Make sure that called subblocks don't inherit & destroy the state
     bool invertThis = m_invertNext;
@@ -880,7 +873,6 @@ bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
         if (!m_skipLevel && (result ^ invertThis))
             m_sts.condition = true;
     }
-    return true;
 }
 
 
