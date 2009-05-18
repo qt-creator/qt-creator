@@ -523,58 +523,57 @@ void BookmarkWidget::focusInEvent(QFocusEvent *e)
 
 bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
 {
-    if (object == this && e->type() == QEvent::KeyPress) {
-        QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+    if ((object == this) || (object == treeView->viewport())) {
         QModelIndex index = treeView->currentIndex();
-        switch (ke->key()) {
+        if (e->type() == QEvent::KeyPress) {
+            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
             if (index.isValid() && searchField->text().isEmpty()) {
-                case Qt::Key_F2: {
-                    const QModelIndex& source = filterBookmarkModel->mapToSource(index);
-                    QStandardItem *item =
-                        bookmarkManager->treeBookmarkModel()->itemFromIndex(source);
+                if (ke->key() == Qt::Key_F2) {
+                    QStandardItem *item =  bookmarkManager->treeBookmarkModel()
+                        ->itemFromIndex(filterBookmarkModel->mapToSource(index));
                     if (item) {
                         item->setEditable(true);
                         treeView->edit(index);
                         item->setEditable(false);
                     }
-                }   break;
-
-                case Qt::Key_Delete: {
+                } else if (ke->key() == Qt::Key_Delete) {
                     bookmarkManager->removeBookmarkItem(treeView,
                         filterBookmarkModel->mapToSource(index));
-                }   break;
+                }
             }
 
-            case Qt::Key_Up:
-            case Qt::Key_Down:
-                treeView->subclassKeyPressEvent(ke);
-                break;
+            switch (ke->key()) {
+                default: break;
+                case Qt::Key_Up: {
+                case Qt::Key_Down:
+                    treeView->subclassKeyPressEvent(ke);
+                }   break;
 
-            case Qt::Key_Enter: {
-            case Qt::Key_Return:
-                index = treeView->selectionModel()->currentIndex();
-                if (index.isValid()) {
-                    QString data = index.data(Qt::UserRole + 10).toString();
-                    if (!data.isEmpty() && data != QLatin1String("Folder"))
-                        emit requestShowLink(data);
+                case Qt::Key_Enter: {
+                case Qt::Key_Return:
+                    index = treeView->selectionModel()->currentIndex();
+                    if (index.isValid()) {
+                        QString data = index.data(Qt::UserRole + 10).toString();
+                        if (!data.isEmpty() && data != QLatin1String("Folder"))
+                            emit requestShowLink(data);
+                    }
+                }   break;
+
+                case Qt::Key_Escape: {
+                    emit escapePressed();
+                }   break;
+            }
+        } else if (e->type() == QEvent::MouseButtonRelease) {
+            if (index.isValid()) {
+                QMouseEvent *me = static_cast<QMouseEvent*>(e);
+                bool controlPressed = me->modifiers() & Qt::ControlModifier;
+                if(((me->button() == Qt::LeftButton) && controlPressed)
+                    || (me->button() == Qt::MidButton)) {
+                        QString data = index.data(Qt::UserRole + 10).toString();
+                        if (!data.isEmpty() && data != QLatin1String("Folder"))
+                            Help::Internal::CentralWidget::instance()->setSourceInNewTab(data);
                 }
-            }   break;
-
-            case Qt::Key_Escape:
-                emit escapePressed();
-                break;
-
-            default:
-                break;
-        }
-    }
-    else if (object == treeView->viewport() && e->type() == QEvent::MouseButtonRelease) {
-        const QModelIndex& index = treeView->currentIndex();
-        QMouseEvent *me = static_cast<QMouseEvent*>(e);
-        if (index.isValid() && (me->button() == Qt::MidButton)) {
-            QString data = index.data(Qt::UserRole + 10).toString();
-            if (!data.isEmpty() && data != QLatin1String("Folder"))
-                Help::Internal::CentralWidget::instance()->setSourceInNewTab(data);
+            }
         }
     }
     return QWidget::eventFilter(object, e);

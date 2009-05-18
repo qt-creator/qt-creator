@@ -29,11 +29,12 @@
 
 #include "modulespage.h"
 
-#include "speinfo.h"
+#include "qtmodulesinfo.h"
 
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QVariant>
 
 #include <QtGui/QCheckBox>
 #include <QtGui/QLabel>
@@ -58,19 +59,19 @@ ModulesPage::ModulesPage(QWidget *parent)
 
     QGridLayout *layout = new QGridLayout;
 
-    const QList<SPEInfoItem*> infoItemsList = *SPEInfo::list(SPEInfoItem::QtModule);
-    int itemId = 0;
-    int rowsCount = (infoItemsList.count() + 1) / 2;
-    foreach (const SPEInfoItem *infoItem, infoItemsList) {
-        QCheckBox *moduleCheckBox = new QCheckBox(infoItem->name());
-        moduleCheckBox->setToolTip(infoItem->description());
-        moduleCheckBox->setWhatsThis(infoItem->description());
-        registerField(infoItem->id(), moduleCheckBox);
-        int row = itemId % rowsCount;
-        int column = itemId / rowsCount;
+    const QStringList &modulesList = QtModulesInfo::modules();
+    int moduleId = 0;
+    int rowsCount = (modulesList.count() + 1) / 2;
+    foreach (const QString &module, modulesList) {
+        QCheckBox *moduleCheckBox = new QCheckBox(QtModulesInfo::moduleName(module));
+        moduleCheckBox->setToolTip(QtModulesInfo::moduleDescription(module));
+        moduleCheckBox->setWhatsThis(QtModulesInfo::moduleDescription(module));
+        registerField(module, moduleCheckBox);
+        int row = moduleId % rowsCount;
+        int column = moduleId / rowsCount;
         layout->addWidget(moduleCheckBox, row, column);
-        m_moduleCheckBoxMap[infoItem->id()] = moduleCheckBox;
-        itemId++;
+        m_moduleCheckBoxMap[module] = moduleCheckBox;
+        moduleId++;
     }
 
     vlayout->addLayout(layout);
@@ -80,10 +81,10 @@ ModulesPage::ModulesPage(QWidget *parent)
 // Return the key that goes into the Qt config line for a module
 QString ModulesPage::idOfModule(const QString &module)
 {
-    const QList<SPEInfoItem*> infoItemsList = *SPEInfo::list(SPEInfoItem::QtModule);
-    foreach (const SPEInfoItem *infoItem, infoItemsList)
-        if (infoItem->name().startsWith(module))
-            return infoItem->id();
+    const QStringList &moduleIdList = QtModulesInfo::modules();
+    foreach (const QString &id, moduleIdList)
+        if (QtModulesInfo::moduleName(id).startsWith(module))
+            return id;
     return QString();
 }
 
@@ -114,13 +115,10 @@ void ModulesPage::setModuleEnabled(const QString &module, bool enabled) const
 QString ModulesPage::modules(bool selected) const
 {
     QStringList modules;
-
-    const QList<SPEInfoItem*> infoItemsList = *SPEInfo::list(SPEInfoItem::QtModule);
-    foreach (const SPEInfoItem *infoItem, infoItemsList) {
-        if (selected != infoItem->data(SPEInfoItem::keyIncludedByDefault).toBool()
-            && selected == field(infoItem->id()).toBool())
-            modules << infoItem->id();
+    foreach (const QString &module, QtModulesInfo::modules()) {
+        if (selected != QtModulesInfo::moduleIsDefault(module)
+            && selected == field(module).toBool())
+            modules << module;
     }
-
     return modules.join(QString(QLatin1Char(' ')));
 }

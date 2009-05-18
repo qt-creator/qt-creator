@@ -26,55 +26,24 @@
 ** contact the sales department at qt-sales@nokia.com.
 **
 **************************************************************************/
+#ifndef QTMODULESINFO_H
+#define QTMODULESINFO_H
 
-#ifndef INDEXWINDOW_H
-#define INDEXWINDOW_H
+#include <QtCore/QStringList>
 
-#include <QtCore/QUrl>
-#include <QtGui/QWidget>
-#include <QtGui/QLineEdit>
+namespace Qt4ProjectManager {
+namespace Internal {
 
-QT_BEGIN_NAMESPACE
-
-class QHelpIndexWidget;
-class QHelpEngine;
-class QModelIndex;
-
-QT_END_NAMESPACE
-
-class IndexWindow : public QWidget
+class QtModulesInfo
 {
-    Q_OBJECT
-
 public:
-    IndexWindow(QHelpEngine *helpEngine, QWidget *parent = 0);
-    ~IndexWindow();
-
-    void setSearchLineEditText(const QString &text);
-    QString searchLineEditText() const
-    {
-        return m_searchLineEdit->text();
-    }
-
-signals:
-    void linkActivated(const QUrl &link);
-    void linksActivated(const QMap<QString, QUrl> &links,
-        const QString &keyword);
-    void escapePressed();
-
-private slots:
-    void filterIndices(const QString &filter);
-    void enableSearchLineEdit();
-    void disableSearchLineEdit();
-
-private:
-    bool eventFilter(QObject *obj, QEvent *e);
-    void focusInEvent(QFocusEvent *e);
-    void open(QHelpIndexWidget* indexWidget, const QModelIndex &index);
-
-    QLineEdit *m_searchLineEdit;
-    QHelpIndexWidget *m_indexWidget;
-    QHelpEngine *m_helpEngine;
+    static QStringList modules();
+    static QString moduleName(const QString &module);
+    static QString moduleDescription(const QString &module);
+    static bool moduleIsDefault(const QString &module);
 };
 
-#endif // INDEXWINDOW_H
+} // namespace Internal
+} // namespace Qt4ProjectManager
+
+#endif // QTMODULESINFO_H

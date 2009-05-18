@@ -430,6 +430,14 @@ void DebuggerManager::init()
 
     m_threadsDock = createDockForWidget(m_threadsWindow);
 
+    QSplitter *localsAndWatchers = new QSplitter(Qt::Vertical, 0);
+    localsAndWatchers->setWindowTitle(m_localsWindow->windowTitle());
+    localsAndWatchers->addWidget(m_localsWindow);
+    localsAndWatchers->addWidget(m_watchersWindow);
+    localsAndWatchers->setStretchFactor(0, 3);
+    localsAndWatchers->setStretchFactor(1, 1);
+    m_watchDock = createDockForWidget(localsAndWatchers);
+
     setStatus(DebuggerProcessNotReady);
 }
 
@@ -457,17 +465,6 @@ IDebuggerManagerAccessForEngines *DebuggerManager::engineInterface()
     return dynamic_cast<IDebuggerManagerAccessForEngines *>(this);
 }
 
-void DebuggerManager::createDockWidgets()
-{
-    QSplitter *localsAndWatchers = new QSplitter(Qt::Vertical, 0);
-    localsAndWatchers->setWindowTitle(m_localsWindow->windowTitle());
-    localsAndWatchers->addWidget(m_localsWindow);
-    localsAndWatchers->addWidget(m_watchersWindow);
-    localsAndWatchers->setStretchFactor(0, 3);
-    localsAndWatchers->setStretchFactor(1, 1);
-    m_watchDock = createDockForWidget(localsAndWatchers);
-}
-
 void DebuggerManager::createNewDock(QWidget *widget)
 {
     QDockWidget *dockWidget = new QDockWidget(widget->windowTitle(), m_mainWindow);
@@ -482,12 +479,13 @@ QDockWidget *DebuggerManager::createDockForWidget(QWidget *widget)
 {
     QDockWidget *dockWidget = new QDockWidget(widget->windowTitle(), m_mainWindow);
     dockWidget->setObjectName(widget->windowTitle());
-    dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
+    dockWidget->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable);
     dockWidget->setTitleBarWidget(new QWidget(dockWidget));
     dockWidget->setWidget(widget);
-    connect(dockWidget->toggleViewAction(), SIGNAL(toggled(bool)),
-        this, SLOT(dockToggled(bool)), Qt::QueuedConnection);
+    connect(dockWidget->toggleViewAction(), SIGNAL(triggered()),
+        this, SLOT(dockActionTriggered()), Qt::QueuedConnection);
     m_dockWidgets.append(dockWidget);
+    m_dockWidgetActiveState.append(false);
     return dockWidget;
 }
 
@@ -518,11 +516,30 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     m_outputDock->hide();
 }
 
+void DebuggerManager::updateDockWidgetActiveStates()
+{
+    for (int i = 0; i < m_dockWidgets.size(); ++i) {
+        m_dockWidgetActiveState[i] = m_dockWidgets.at(i)->isVisible();
+    }
+}
+
+void DebuggerManager::setFloatingDockWidgetsVisible(bool visible)
+{
+    for (int i = 0; i < m_dockWidgets.size(); ++i) {
+        QDockWidget *dockWidget = m_dockWidgets.at(i);
+        if (dockWidget->isFloating() && m_dockWidgetActiveState.at(i)) {
+            dockWidget->setVisible(visible);
+        }
+    }
+    if (visible)
+        updateDockWidgetActiveStates(); // we can't do that earlier, because the dock widgets are not visible at startup
+}
+
 void DebuggerManager::setLocked(bool locked)
 {
     const QDockWidget::DockWidgetFeatures features =
-            (locked) ? QDockWidget::DockWidgetClosable :
-                       QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable;
+            (locked) ? QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable :
+                       QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable;
 
     foreach (QDockWidget *dockWidget, m_dockWidgets) {
         QWidget *titleBarWidget = dockWidget->titleBarWidget();
@@ -537,11 +554,16 @@ void DebuggerManager::setLocked(bool locked)
     }
 }
 
-void DebuggerManager::dockToggled(bool on)
+void DebuggerManager::dockActionTriggered()
 {
     QDockWidget *dw = qobject_cast<QDockWidget *>(sender()->parent());
-    if (on && dw)
-        dw->raise();
+    if (dw) {
+        if (dw->isVisible())
+            dw->raise();
+        int index = m_dockWidgets.indexOf(dw);
+        if (index >= 0)
+            m_dockWidgetActiveState[index] = dw->isVisible();
+    }
 }
 
 QAbstractItemModel *DebuggerManager::threadsModel()

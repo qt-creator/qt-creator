@@ -96,7 +96,7 @@ private slots:
 
     void breakpointSetRemoveMarginActionTriggered();
     void breakpointEnableDisableMarginActionTriggered();
-    void focusCurrentEditor(Core::IMode *mode);
+    void onModeChanged(Core::IMode *mode);
     void showSettingsDialog();
 
     void startExternalApplication();

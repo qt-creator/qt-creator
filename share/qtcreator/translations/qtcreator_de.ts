@@ -14,7 +14,7 @@
         <translation>Die Kommandozeilen-Argumente konnten nicht an die laufende Instanz übermittelt werden. Sie antwortet nicht.</translation>
     </message>
     <message>
-        <location line="+136"/>
+        <location line="+132"/>
         <source>Couldn&apos;t find &apos;Core.pluginspec&apos; in %1</source>
         <translation>Die Datei  &apos;Core.pluginspec&apos; konnte in %1 nicht gefunden werden</translation>
     </message>
@@ -61,6 +61,34 @@
     </message>
 </context>
 <context>
+    <name>AttachTcfDialog</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/attachtcfdialog.ui"/>
+        <source>Start Debugger</source>
+        <translation>Debugger starten</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Host and port:</source>
+        <translation>Host und Portnummer:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Architecture:</source>
+        <translation>Architektur:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use server start script:</source>
+        <translation>Server-Startskript benutzen:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Server start script:</source>
+        <translation>Server-Startskript:</translation>
+    </message>
+</context>
+<context>
     <name>BINEditor::Internal::BinEditorPlugin</name>
     <message>
         <location filename="../../../src/plugins/bineditor/bineditorplugin.cpp" line="+377"/>
@@ -101,7 +129,7 @@
         <translation>Neuer Ordner</translation>
     </message>
     <message>
-        <location filename="../../../src/shared/help/bookmarkmanager.cpp" line="+173"/>
+        <location filename="../../../src/shared/help/bookmarkmanager.cpp" line="+172"/>
         <location line="+18"/>
         <location line="+36"/>
         <location line="+24"/>
@@ -139,21 +167,25 @@
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location line="+110"/>
+        <location line="+1"/>
+        <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
+        <translation>Beim Löschen eines Ordners wird auch dessen Inhalt gelöscht.&lt;br&gt;Möchten Sie trotzdem fortsetzen?</translation>
+    </message>
+    <message>
+        <location line="+109"/>
         <location line="+9"/>
         <source>New Folder</source>
         <translation>Neuer Ordner</translation>
     </message>
     <message>
-        <location line="-118"/>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure to continue?</source>
-        <translation>Beim Löschen eines Ordners wird auch dessen Inhalt gelöscht.&lt;br&gt;Möchten Sie trotzdem fortsetzen?</translation>
+        <translation type="obsolete">Beim Löschen eines Ordners wird auch dessen Inhalt gelöscht.&lt;br&gt;Möchten Sie trotzdem fortsetzen?</translation>
     </message>
 </context>
 <context>
     <name>BookmarkWidget</name>
     <message>
-        <location line="-319"/>
+        <location line="-437"/>
         <source>Delete Folder</source>
         <translation>Ordner löschen</translation>
     </message>
@@ -307,11 +339,6 @@
     <name>BreakCondition</name>
     <message>
         <location filename="../../../src/plugins/debugger/breakcondition.ui"/>
-        <source>Dialog</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Condition:</source>
         <translation>Bedingung:</translation>
     </message>
@@ -386,6 +413,11 @@
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
+    <message>
+        <location line="+9"/>
+        <source>CMake executable</source>
+        <translation>Ausführbare CMake-Datei</translation>
+    </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
@@ -459,11 +491,6 @@
     <name>CdbOptionsPageWidget</name>
     <message>
         <location filename="../../../src/plugins/debugger/cdb/cdboptionspagewidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>These options take effect at the next start of Qt Creator.</source>
         <translation>Die Einstellungen werden beim nächsten Start von Qt Creator wirksam.</translation>
     </message>
@@ -474,13 +501,23 @@
     </message>
     <message>
         <location/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <source>Cdb</source>
+        <translation>Cdb</translation>
     </message>
     <message>
         <location/>
-        <source>Cdb</source>
-        <translation>Cdb</translation>
+        <source>Debugger Paths</source>
+        <translation>Debugger-Pfade</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Symbol paths:</source>
+        <translation>Symbolpfade:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Source paths:</source>
+        <translation>Quelltext-Pfade:</translation>
     </message>
 </context>
 <context>
@@ -494,11 +531,6 @@
     <name>ChangeSelectionDialog</name>
     <message>
         <location filename="../../../src/plugins/git/changeselectiondialog.ui"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Repository Location:</source>
         <translation>Repository:</translation>
     </message>
@@ -576,11 +608,6 @@
     <name>CodePaster::PasteSelectDialog</name>
     <message>
         <location filename="../../../src/plugins/cpaster/pasteselect.ui"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Paste:</source>
         <translation>Ausschnitt:</translation>
     </message>
@@ -589,11 +616,6 @@
     <name>CodePaster::SettingsPage</name>
     <message>
         <location filename="../../../src/plugins/cpaster/settingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>CodePaster Server:</source>
         <translation>CodePaster Server:</translation>
     </message>
@@ -627,11 +649,6 @@
     <name>CommonOptionsPage</name>
     <message>
         <location filename="../../../src/plugins/debugger/commonoptionspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>User interface</source>
         <translation>Benutzeroberfläche</translation>
     </message>
@@ -686,11 +703,6 @@
     <name>CompletionSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/cpptools/completionsettingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Code Completion</source>
         <translation>Code-Vervollständigung</translation>
     </message>
@@ -728,7 +740,7 @@
 <context>
     <name>ContentWindow</name>
     <message>
-        <location filename="../../../src/shared/help/contentwindow.cpp" line="+133"/>
+        <location filename="../../../src/shared/help/contentwindow.cpp" line="+131"/>
         <source>Open Link</source>
         <translation>Adresse öffnen</translation>
     </message>
@@ -810,12 +822,12 @@ Sollen sie überschrieben werden?</translation>
     <name>Core::EditorManager</name>
     <message>
         <location filename="../../../src/plugins/coreplugin/editormanager/editormanager.cpp" line="+186"/>
-        <location line="+1467"/>
+        <location line="+1483"/>
         <source>Revert to Saved</source>
         <translation>Wiederherstellen</translation>
     </message>
     <message>
-        <location line="-1464"/>
+        <location line="-1480"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
@@ -826,12 +838,12 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+1198"/>
+        <location line="+1214"/>
         <source>Close Others</source>
         <translation>Andere schließen</translation>
     </message>
     <message>
-        <location line="-1197"/>
+        <location line="-1213"/>
         <source>Next Document in History</source>
         <translation>Nächstes Dokument im Verlauf</translation>
     </message>
@@ -971,7 +983,7 @@ Sollen sie überschrieben werden?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+682"/>
+        <location line="+681"/>
         <source>Opening File</source>
         <translation>Datei Öffnen</translation>
     </message>
@@ -986,28 +998,53 @@ Sollen sie überschrieben werden?</translation>
         <translation>Datei öffnen</translation>
     </message>
     <message>
-        <location line="+162"/>
-        <location line="+7"/>
+        <location line="+137"/>
+        <source>File is Read Only</source>
+        <translation>Die Datei ist schreibgeschützt</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The file %1 is read only.</source>
+        <translation>Die Datei %1 ist schreibgeschützt.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Open with VCS (%1)</source>
+        <translation>Öffnen mittels Versionskontrollsystem (%1)</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Save as ...</source>
+        <translation>Speichern als...</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <location line="+8"/>
         <source>Failed!</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location line="-7"/>
-        <source>Could not open the file for edit with SCC.</source>
+        <location line="-8"/>
+        <source>Could not open the file for editing with SCC.</source>
         <translation>Die Datei konnte nicht mit Hilfe der Versionsverwaltung schreibbar gemacht werden.</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <source>Could not open the file for edit with SCC.</source>
+        <translation type="obsolete">Die Datei konnte nicht mit Hilfe der Versionsverwaltung schreibbar gemacht werden.</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Could not set permissions to writable.</source>
         <translation>Die Datei konnte schreibbar gemacht werden.</translation>
     </message>
     <message>
-        <location line="+88"/>
+        <location line="+90"/>
         <source>&lt;b&gt;Warning:&lt;/b&gt; You are changing a read-only file.</source>
         <translation>&lt;b&gt;Hinweis:&lt;/b&gt; Sie sind im Begriff, eine schreibgeschützte Datei zu ändern.</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-129"/>
+        <location line="+130"/>
         <source>Make writable</source>
         <translation>Schreibbar machen</translation>
     </message>
@@ -1070,7 +1107,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Die Datei &apos;%1&apos; kann nicht gespeichert werden. Wollen Sie trotzdem fortsetzen und Ihre Änderungen aufgeben?</translation>
     </message>
     <message>
-        <location line="+112"/>
+        <location line="+113"/>
         <source>Overwrite?</source>
         <translation>Überschreiben?</translation>
     </message>
@@ -1177,7 +1214,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::Internal::EditorView</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="+406"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="+451"/>
         <location line="+35"/>
         <source>Placeholder</source>
         <translation>Platzhalter</translation>
@@ -1217,11 +1254,6 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/coreplugin/generalsettings.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>General settings</source>
         <translation>Allgemeine Einstellungen</translation>
     </message>
@@ -1489,11 +1521,6 @@ Sollen sie überschrieben werden?</translation>
         <source>1</source>
         <translation>1</translation>
     </message>
-    <message>
-        <location/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>Core::Internal::OpenEditorsWidget</name>
@@ -1534,12 +1561,12 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+6"/>
         <source>Next Item</source>
-        <translation>Nächstes Element</translation>
+        <translation>Nächster Eintrag</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Previous Item</source>
-        <translation>Voriges Element</translation>
+        <translation>Vorangehender Eintrag</translation>
     </message>
     <message>
         <location line="+56"/>
@@ -1670,7 +1697,98 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::Internal::WelcomeMode</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/welcomemode.cpp" line="+123"/>
+        <location filename="../../../src/plugins/coreplugin/welcomemode.cpp" line="+124"/>
+        <source>Projects</source>
+        <translation>Projekte</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Sessions</source>
+        <translation>Sitzungen</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Tutorials</source>
+        <translation>Anleitungen</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Demos and Examples</source>
+        <translation>Qt Demos und Beispiele</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Did you know?</source>
+        <translation>Wussten Sie schon?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>News from the Qt Labs</source>
+        <translation>Neuigkeiten von Qt Labs</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Websites</source>
+        <translation>Qt Internetseiten</translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>http://labs.trolltech.com/blogs/feed</source>
+        <extracomment>Add localized feed here only if one exists</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Qt Software</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Labs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Git Hosting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Centre</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt/S60 at Forum Nokia</source>
+        <translation>Qt/S60 beim Forum Nokia</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Qt Creator - A quick tour</source>
+        <translation>Qt Creator - Schnelleinstieg</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Understanding widgets</source>
+        <translation>Widgets verstehen</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Creating an address book</source>
+        <translation>Erstellen einer Adressbuch-Beispielanwendung</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Building with qmake</source>
+        <translation>Mit qmake arbeiten</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Writing test cases</source>
+        <translation>Testfälle erstellen</translation>
+    </message>
+    <message>
+        <location line="+30"/>
         <source>Welcome</source>
         <translation>Willkommen</translation>
     </message>
@@ -1679,11 +1797,34 @@ Sollen sie überschrieben werden?</translation>
         <source>%1 (last session)</source>
         <translation>%1 (zuletzt benutzt)</translation>
     </message>
+    <message>
+        <location line="+80"/>
+        <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ol&gt;&lt;li&gt; - Welcome&lt;/li&gt;&lt;li&gt; - Edit&lt;/li&gt;&lt;li&gt;- Debug&lt;/li&gt;&lt;li&gt;- Projects&lt;/li&gt;&lt;li&gt;- Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;- Output&lt;/li&gt;&lt;/ol&gt;</source>
+        <translation>Sie können mittels &lt;tt&gt;Ctrl+Ziffer&lt;/tt&gt; zwischen den Modi von Qt Creator wechseln:&lt;ol&gt;&lt;li&gt; - Willkommen&lt;/li&gt;&lt;li&gt; - Editieren&lt;/li&gt;&lt;li&gt;- Debuggen&lt;/li&gt;&lt;li&gt;- Projekte&lt;/li&gt;&lt;li&gt;- Hilfe&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;- Ausgabe&lt;/li&gt;&lt;/ol&gt;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>You can show and hide the side bar using &lt;tt&gt;Alt+0&lt;tt&gt;.</source>
+        <translation>Die Sichtbarkeit der Seitenleiste kann mittels &lt;tt&gt;Alt+0&lt;tt&gt; umgeschaltet werden.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You can fine tune the &lt;tt&gt;Find&lt;/tt&gt; function by selecting &amp;quot;Whole Words&amp;quot; or &amp;quot;Case Sensitive&amp;quot;. Simply click on the icons on the right end of the line edit.</source>
+        <translation>Sie können die &lt;tt&gt;Finden&lt;/tt&gt;-Funktion durch Auswahl von &amp;quot;Ganze Wörter&amp;quot; oder &amp;quot;Groß/Kleinschreibung&amp;quot; steuern. Klicken Sie einfach auf die Symbole rechts vom Eingabefeld.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
+        <translation>Wenn Sie eine &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;externe Bibliothek&lt;/a&gt;, hinzufügen, bietet Qt Creator automatisch Syntax-Hervorhebung und Code-Vervollständigung.</translation>
+    </message>
+    <message>
+        <source>If you add a &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
+        <translation type="obsolete">Wenn Sie eine &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;externe Bibliothek&lt;/a&gt;, hinzufügen, bietet Qt Creator automatisch Syntax-Hervorhebung und Code-Vervollständigung.</translation>
+    </message>
 </context>
 <context>
     <name>Core::Internal::WelcomePage</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/welcomemode.ui"/>
         <source>&lt;style&gt;
 h1 {
     font-size: 24px;
@@ -1707,7 +1848,7 @@ p {
 &lt;p&gt;&lt;strong&gt;Started&lt;/strong&gt; to begin developing with Qt Creator.&lt;/p&gt;
 &lt;hr style=&quot;margin-top:15px&quot;/&gt;
 </source>
-        <translation type="unfinished">&lt;style&gt;
+        <translation type="obsolete">&lt;style&gt;
 h1 {
     font-size: 24px;
     font-weight: normal;
@@ -1734,39 +1875,11 @@ p {
 &lt;hr style=&quot;margin-top:15px&quot;/&gt;</translation>
     </message>
     <message>
-        <location/>
-        <source>* {
-    border-image: url(:/core/images/welcomemode/btn_27.png) 7;
-    border-width: 7;
-    padding: -2px 0;
-    font-size: 12px;
-    font-family: lucida sans, dejavu sans, sans serif;
-    color: black;
-}
-
-*:hover {
-    border-image: url(:/core/images/welcomemode/btn_27_hover.png) 7;
-    color: white;
-}
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;qt&gt;Getting Started &amp;gt;&amp;gt;</source>
-        <translation>&lt;qt&gt;Schnelleinstieg &amp;gt;&amp;gt;</translation>
+        <translation type="obsolete">&lt;qt&gt;Schnelleinstieg &amp;gt;&amp;gt;</translation>
     </message>
     <message>
-        <location/>
-        <source>#recentSessionsFrame {
-    border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
-    border-width: 8;
-}
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
+        <location filename="../../../src/plugins/coreplugin/welcomemode.ui"/>
         <source>* {
     border-image: url(:/core/images/welcomemode/btn_26.png) 7;
     border-width: 7;
@@ -1787,14 +1900,6 @@ p {
         <location/>
         <source>&lt;qt&gt;Restore Last Session &amp;gt;&amp;gt;</source>
         <translation>&lt;qt&gt;Zuletzt benutzt &amp;gt;&amp;gt;</translation>
-    </message>
-    <message>
-        <location/>
-        <source>#bottomWidget {
-    background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
-}
-</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location/>
@@ -1823,6 +1928,59 @@ p {
         <source>Help us make Qt Creator even better</source>
         <translation>Helfen Sie uns, Qt Creator zu verbessern</translation>
     </message>
+    <message>
+        <location/>
+        <source>#Core--Internal--WelcomePage {
+background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
+}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>#gradientWidget {
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
+}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>#headerFrame {
+    border-image: url(:/core/images/welcomemode/center_frame_header.png) 0;
+    border-width: 0;
+}
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Getting Started</source>
+        <translation>Schnelleinstieg</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Develop</source>
+        <translation>Entwicklung</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Community</source>
+        <translation>Community</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Open</source>
+        <translation>Öffnen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Core::ModeManager</name>
@@ -1849,7 +2007,7 @@ p {
 <context>
     <name>Core::StandardFileWizard</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/basefilewizard.cpp" line="+73"/>
+        <location filename="../../../src/plugins/coreplugin/basefilewizard.cpp" line="+53"/>
         <source>New %1</source>
         <translatorcomment>TODO: Grammatical case problem</translatorcomment>
         <translation>Neue %1</translation>
@@ -2010,11 +2168,6 @@ p {
     </message>
     <message>
         <location filename="../../../src/libs/utils/newclasswidget.ui"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Class name:</source>
         <translation>Klassenname:</translation>
     </message>
@@ -2098,6 +2251,34 @@ p {
     </message>
 </context>
 <context>
+    <name>Core::Utils::PathListEditor</name>
+    <message>
+        <location filename="../../../src/libs/utils/pathlisteditor.cpp" line="+120"/>
+        <source>Insert...</source>
+        <translation>Einfügen...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Add...</source>
+        <translation>Hinzufügen...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Delete line</source>
+        <translation>Zeile löschen</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Clear</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <location line="+130"/>
+        <source>From &quot;%1&quot;</source>
+        <translation>Von &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
     <name>Core::Utils::ProjectIntroPage</name>
     <message>
         <location filename="../../../src/libs/utils/projectintropage.cpp" line="+66"/>
@@ -2116,18 +2297,8 @@ p {
     </message>
     <message>
         <location filename="../../../src/libs/utils/projectintropage.ui"/>
-        <source>WizardPage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Introduction and project location</source>
         <translation>Einführung und Projektverzeichnis</translation>
-    </message>
-    <message>
-        <location/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location/>
@@ -2170,11 +2341,6 @@ p {
     <name>Core::Utils::WizardPage</name>
     <message>
         <location filename="../../../src/libs/utils/filewizardpage.ui"/>
-        <source>WizardPage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Choose the location</source>
         <translation>Verzeichnis auswählen</translation>
     </message>
@@ -2190,11 +2356,29 @@ p {
     </message>
 </context>
 <context>
+    <name>Core::Utils::reloadPrompt</name>
+    <message>
+        <location filename="../../../src/libs/utils/reloadpromptutils.cpp" line="+41"/>
+        <source>File Changed</source>
+        <translation>Datei geändert</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The file %1 has changed outside Qt Creator. Do you want to reload it?</source>
+        <translation>Die Datei %1 wurde außerhalb von Qt Creator geändert. Möchten Sie sie neu laden?</translation>
+    </message>
+</context>
+<context>
     <name>CppEditor::Internal::CPPEditor</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+258"/>
+        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+265"/>
         <source>Sort alphabetically</source>
         <translation>Alphabetisch sortieren</translation>
+    </message>
+    <message>
+        <location line="+629"/>
+        <source>Reformat Document</source>
+        <translation>Dokument neu formatieren</translation>
     </message>
 </context>
 <context>
@@ -2291,13 +2475,13 @@ p {
     <name>CppFileSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
+        <source>Header suffix:</source>
+        <translation>Endung für Header-Dateien:</translation>
     </message>
     <message>
         <location/>
-        <source>Header suffix:</source>
-        <translation>Endung für Header-Dateien:</translation>
+        <source>File naming conventions</source>
+        <translation>Konventionen für die Bildung von Dateinamen</translation>
     </message>
     <message>
         <location/>
@@ -2368,7 +2552,7 @@ p {
 <context>
     <name>CppTools::Internal::CppModelManager</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+253"/>
+        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+269"/>
         <source>Indexing</source>
         <translation>Indizierung</translation>
     </message>
@@ -2415,7 +2599,7 @@ p {
         <translation>Debugger</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+365"/>
+        <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+380"/>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Encoding-Fehler&gt;</translation>
     </message>
@@ -2423,7 +2607,7 @@ p {
 <context>
     <name>Debugger::Internal::AttachCoreDialog</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+133"/>
+        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+134"/>
         <source>Select Executable</source>
         <translation>Ausführbare Datei auswählen</translation>
     </message>
@@ -2457,9 +2641,82 @@ p {
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::AttachTcfDialog</name>
+    <message>
+        <location line="+71"/>
+        <source>Select Executable</source>
+        <translation>Ausführbare Datei auswählen</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::BreakHandler</name>
     <message>
-        <location filename="../../../src/plugins/debugger/breakhandler.cpp" line="+387"/>
+        <location filename="../../../src/plugins/debugger/breakhandler.cpp" line="+198"/>
+        <source>Marker File:</source>
+        <translation>Marker-Datei:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Marker Line:</source>
+        <translation>Marker-Zeile:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Breakpoint Number:</source>
+        <translation>Nummer des Haltepunkts:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Breakpoint Address:</source>
+        <translation>Adresse des Haltepunkts:</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Property</source>
+        <translation>Eigenschaft</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Requested</source>
+        <translation>Angefordert</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Obtained</source>
+        <translation>Erhalten</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Internal Number:</source>
+        <translation>Interne Nummer:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>File Name:</source>
+        <translation>Dateiname:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Function Name:</source>
+        <translation>Funktionsname:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line Number:</source>
+        <translation>Zeilennummer:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Condition:</source>
+        <translation>Bedingung:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ignore Count:</source>
+        <translation>Anhalten erst nach:</translation>
+    </message>
+    <message>
+        <location line="+189"/>
         <source>Number</source>
         <translation>Zahl</translation>
     </message>
@@ -2489,7 +2746,7 @@ p {
         <translation>Anhalten nach</translation>
     </message>
     <message>
-        <location line="+57"/>
+        <location line="+62"/>
         <source>Breakpoint will only be hit if this condition is met.</source>
         <translation>Der Haltepunkt wird nur ausgelöst, wenn die Bedingung erfüllt ist.</translation>
     </message>
@@ -2507,7 +2764,7 @@ p {
         <translation>Haltepunkte</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+31"/>
         <source>Delete breakpoint</source>
         <translation>Haltepunkt löschen</translation>
     </message>
@@ -2542,7 +2799,17 @@ p {
         <translation>Haltepunkt aktivieren</translation>
     </message>
     <message>
-        <location line="+47"/>
+        <location line="+3"/>
+        <source>Use short path</source>
+        <translation>Verkürzten Pfad verwenden</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Use full path</source>
+        <translation>Vollen Pfad verwenden</translation>
+    </message>
+    <message>
+        <location line="+51"/>
         <source>Conditions on Breakpoint %1</source>
         <translation>Bedingungen des Haltepunkts %1</translation>
     </message>
@@ -2550,7 +2817,7 @@ p {
 <context>
     <name>Debugger::Internal::CdbDebugEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdbdebugengine.cpp" line="+124"/>
+        <location filename="../../../src/plugins/debugger/cdb/cdbdebugengine.cpp" line="+126"/>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation>Die Debugger-Bibliothek konnte &apos;%1&apos; nicht geladen werden: %2</translation>
     </message>
@@ -2560,7 +2827,7 @@ p {
         <translation>&apos;%1&apos; konnte in der Debugger-Bibliothek &apos;%2&apos; nicht gefunden werden</translation>
     </message>
     <message>
-        <location line="+229"/>
+        <location line="+289"/>
         <source>The dumper library &apos;%1&apos; does not exist.</source>
         <translation>Es existiert keine Ausgabe-Hilfsbibliothek &apos;%1&apos;.</translation>
     </message>
@@ -2602,7 +2869,7 @@ p {
         <translation type="obsolete">Der Debugger konnte sich nicht an den Prozess %1 anhängen: %2</translation>
     </message>
     <message>
-        <location line="+465"/>
+        <location line="+479"/>
         <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos;: %3</source>
         <translation>Der Wert &apos;%1&apos; konnte nicht an &apos;%2&apos; zugewiesen werden: %3</translation>
     </message>
@@ -2690,9 +2957,27 @@ p {
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::CdbSymbolPathListEditor</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/cdb/cdbsymbolpathlisteditor.cpp" line="+42"/>
+        <source>Symbol Server...</source>
+        <translation>Symbol-Server...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Adds the Microsoft symbol server providing symbols for operating system libraries.Requires specifying a local cache directory.</source>
+        <translation>Fügt den von Microsoft betriebenen Symbol-Server hinzu, der die Symbole für die Bibliotheken des Betriebssystems bereitstellt. Erfordert die Angabe eines lokalen Cache-Verzeichnisses.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Pick a local cache directory</source>
+        <translation>Wählen Sie ein Cache-Verzeichnis aus</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::DebugMode</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="+184"/>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="+181"/>
         <source>Debug</source>
         <translation>Debuggen</translation>
     </message>
@@ -2700,18 +2985,18 @@ p {
 <context>
     <name>Debugger::Internal::DebuggerManager</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+308"/>
+        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+313"/>
         <source>Continue</source>
         <translation>Fortsetzen</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+945"/>
+        <location line="+933"/>
         <source>Interrupt</source>
         <translation>Anhalten</translation>
     </message>
     <message>
-        <location line="-941"/>
+        <location line="-929"/>
         <source>Reset Debugger</source>
         <translation>Debugger zurücksetzen</translation>
     </message>
@@ -2776,7 +3061,7 @@ p {
         <translation>Zu Überwachten Ausdrücken hinzufügen</translation>
     </message>
     <message>
-        <location line="+225"/>
+        <location line="+206"/>
         <source>Stop requested...</source>
         <translation>Stop angefordert...</translation>
     </message>
@@ -2797,34 +3082,34 @@ p {
         <translation>Läuft...</translation>
     </message>
     <message>
-        <location line="+108"/>
+        <location line="+88"/>
         <location line="+23"/>
         <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
         <translation>Das Ändern des Haltepunkt-Status erfordert, dass die Anwendung läuft oder vollständig gestoppt ist.</translation>
     </message>
     <message>
-        <location line="+81"/>
+        <location line="+77"/>
         <source>Debugging VS executables is not supported.</source>
         <translation>Das Debuggen von mit VS erzeugten ausführbaren Dateien wird nicht unterstützt.</translation>
     </message>
     <message>
-        <location line="+63"/>
-        <location line="+90"/>
+        <location line="+60"/>
+        <location line="+125"/>
         <source>Warning</source>
         <translation>Warnung</translation>
     </message>
     <message>
-        <location line="-89"/>
+        <location line="-124"/>
         <source>Cannot attach to PID 0</source>
         <translation>Der Debugger kann nicht an die Prozess-Id 0 angehängt werden</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+125"/>
         <source>Cannot debug &apos;%1&apos;: %2</source>
         <translation>&apos;%1&apos; kann nicht debuggt werden: %2</translation>
     </message>
     <message>
-        <location line="+179"/>
+        <location line="+178"/>
         <source>Save Debugger Log</source>
         <translation>Debugger Log speichern</translation>
     </message>
@@ -2895,16 +3180,26 @@ p {
     </message>
     <message>
         <location line="+4"/>
+        <source>Attach to Running Tcf Agent...</source>
+        <translation>An laufenden Tcf-Agenten anhängen...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This attaches to a running &apos;Target Communication Framework&apos; agent.</source>
+        <translation>An einen laufenden &apos;Target Communication Framework&apos;-Agenten anhängen.</translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Start and Attach to Remote Application...</source>
         <translation>An entfernte Anwendung anhängen...</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Detach debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger abhängen</translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+41"/>
         <source>Stop Debugger/Interrupt Debugger</source>
         <translation>Debugger anhalten/unterbrechen</translation>
     </message>
@@ -2934,7 +3229,7 @@ p {
         <translation>Threads:</translation>
     </message>
     <message>
-        <location line="+158"/>
+        <location line="+157"/>
         <source>Remove Breakpoint</source>
         <translation>Haltepunkt löschen</translation>
     </message>
@@ -3093,7 +3388,7 @@ p {
 <context>
     <name>Debugger::Internal::DebuggingHelperOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-585"/>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-596"/>
         <source>Debugging Helper</source>
         <translation>Ausgabe-Hilfsbibliothek</translation>
     </message>
@@ -3103,7 +3398,7 @@ p {
         <translation>Pfad zur Ausgabe-Hilfsbibliothek einstellen</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+30"/>
         <source>Ctrl+Shift+F11</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3157,7 +3452,7 @@ p {
 <context>
     <name>Debugger::Internal::GdbEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdbengine.cpp" line="+208"/>
+        <location filename="../../../src/plugins/debugger/gdbengine.cpp" line="+207"/>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Der Start des Gdb-Prozesses schlug fehl. Entweder fehlt die ausführbare Datei &apos;%1&apos; oder die Berechtigungen sind nicht ausreichend.</translation>
     </message>
@@ -3175,12 +3470,12 @@ p {
     <message>
         <location line="-34"/>
         <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>Ein Fehler trat beim Versuch des Schreibens zum Gdb-Process auf. Wahrscheinlich läuft der Prozess nicht, oder hat seinen Eingabekanal geschlossen.</translation>
+        <translation>Ein Fehler trat beim Versuch des Schreibens zum Gdb-Prozess auf. Wahrscheinlich läuft der Prozess nicht, oder hat seinen Eingabekanal geschlossen.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>An error occurred when attempting to read from the Gdb process. For example, the process may not be running.</source>
-        <translation>Ein Fehler trat beim Versuch des Lesens vom Gdb-Process auf. Wahrscheinlich läuft der Prozess nicht.</translation>
+        <translation>Ein Fehler trat beim Versuch des Lesens vom Gdb-Prozess auf. Wahrscheinlich läuft der Prozess nicht.</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -3190,14 +3485,14 @@ p {
     <message>
         <location line="+5"/>
         <location line="+39"/>
-        <location line="+970"/>
+        <location line="+958"/>
         <location line="+19"/>
-        <location line="+407"/>
+        <location line="+398"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location line="-1272"/>
+        <location line="-1251"/>
         <source>Library %1 loaded.</source>
         <translation>Bibliothek %1 geladen.</translation>
     </message>
@@ -3237,7 +3532,7 @@ p {
         <translation>Debugger-Fehler</translation>
     </message>
     <message>
-        <location line="+112"/>
+        <location line="+114"/>
         <source>Stopping temporarily.</source>
         <translation>Temporär Anhalten.</translation>
     </message>
@@ -3252,94 +3547,97 @@ p {
         <translation>Core-Datei geladen.</translation>
     </message>
     <message>
-        <location line="-509"/>
+        <location line="-511"/>
         <source>The upload process failed to start. Either the invoked script &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Hochladen konnte nicht gestartet weden. Entweder fehlt das Skript &apos;%1&apos;, oder die Berechtigungen sind nicht ausreichend.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Hochladen ist nach dem Starten abgestürzt.</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Fehler trat beim Versuch des Schreibens zum Hochlade-Prozess auf. Wahrscheinlich läuft der Prozess nicht, oder hat seinen Eingabekanal geschlossen.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Fehler trat beim Versuch des Lesens vom Hochlade-Prozess auf. Wahrscheinlich läuft der Prozess nicht.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="unfinished"></translation>
+        <translation>Es trat ein unbekannter Fehler im Hochlade-Prozess auf.</translation>
     </message>
     <message>
         <location line="+180"/>
         <source>Reading %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lese %1...</translation>
     </message>
     <message>
-        <location line="+422"/>
+        <location line="+409"/>
         <source>Jumped. Stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprung ausgeführt/ Angehalten.</translation>
     </message>
     <message>
         <location line="+25"/>
-        <location line="+241"/>
+        <location line="+242"/>
         <source>Run to Function finished. Stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgeführung bis zu Funktion beendet. Angehalten.</translation>
     </message>
     <message>
         <location line="-161"/>
         <source>Program exited with exit code %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Programm wurde beendet, Rückgabewert %1</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Program exited after receiving signal %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Programm wurde nach Erhalt des Signals %1 beendet</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Program exited normally</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Programm wurde normal beendet</translation>
     </message>
     <message>
         <location line="+48"/>
         <source>Loading %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade %1...</translation>
     </message>
     <message>
         <location line="+55"/>
         <source>Stopped at breakpoint.</source>
-        <translation type="unfinished"></translation>
+        <translation>An Haltepunkt angehalten.</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>Stopped: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Angehalten: &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+99"/>
         <source>The debugger you are using identifies itself as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Der benutzte Debugger ist:</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>This version is not officially supported by Qt Creator.
 Debugging will most likely not work well.
 Using gdb 6.7 or later is strongly recommended.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Version wird von Qt Creator nicht offiziell unterstützt.
+Das Debuggen wird wahrscheinlich nicht richtig funktionieren.
+Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     </message>
     <message>
         <location line="+29"/>
         <location line="+19"/>
         <source>Starting executable failed:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten der ausführbaren Datei schlug fehl:
+</translation>
     </message>
     <message>
         <source>Running...</source>
@@ -3348,7 +3646,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location line="-248"/>
         <source>Processing queued commands.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando-Warteschlange wird abgearbeitet.</translation>
     </message>
     <message>
         <location line="+97"/>
@@ -3356,77 +3654,77 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Angehalten.</translation>
     </message>
     <message>
-        <location line="+299"/>
+        <location line="+289"/>
         <location line="+27"/>
         <source>Debugger Startup Failure</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Starten des Debuggers</translation>
     </message>
     <message>
         <location line="-26"/>
         <source>Cannot set up communication with child process: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Kommunikation mit dem untergeordneten Prozesss konnte nicht hergestellt werden: %1</translation>
     </message>
     <message>
         <location line="+23"/>
         <source>Starting Debugger: </source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Debugger: </translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Cannot start debugger: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Debugger konnte nicht gestartet werden: %1</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Gdb Running...</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdb läuft...</translation>
     </message>
     <message>
         <location line="+71"/>
         <source>Cannot find debugger initialization script</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Initalisierungsskript konnte nicht gefunden werden</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The debugger settings point to a script file at &apos;%1&apos; which is not accessible. If a script file is not needed, consider clearing that entry to avoid this warning. </source>
-        <translation type="unfinished"></translation>
+        <translation>Auf die in den Debugger-Einstellungen angegebene Skriptdatei &apos;%1&apos; kann nicht zugegriffen werden. Wenn kein Skript benötigt wird, können Sie die Einstellung rücksetzen, um diese Warnung zu umgehen.</translation>
     </message>
     <message>
-        <location line="+93"/>
+        <location line="+94"/>
         <source>Attached to running process. Stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>An laufenden Prozess angehängt. Angehalten.</translation>
     </message>
     <message>
         <location line="+55"/>
         <source>Connecting to remote server failed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Verbindung zum Server konnte nicht hergestellt werden:</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Debugger exited.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger beendet.</translation>
     </message>
     <message>
-        <location line="+623"/>
+        <location line="+614"/>
         <source>&lt;could not retreive module information&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Modulinformation nicht verfügbar&gt;</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; kann nicht ausgeführt werden: %2</translation>
     </message>
     <message>
         <location line="+61"/>
         <source>&lt;unknown&gt;</source>
         <extracomment>End address of loaded module</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;unbekannt&gt;</translation>
     </message>
     <message>
         <location line="+30"/>
         <location line="+83"/>
         <source>Retrieving data for stack view...</source>
-        <translation type="unfinished"></translation>
+        <translation>Daten der Stack-Anzeige werden empfangen...</translation>
     </message>
     <message>
         <location line="+188"/>
@@ -3449,95 +3747,122 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <extracomment>Variable</extracomment>
         <translation>&lt;nicht im Bereich&gt;</translation>
     </message>
-    <message>
-        <location line="+112"/>
-        <location line="+42"/>
-        <source>Retrieving data for watch view (%1 requests pending)...</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <location line="+98"/>
+        <source>Retrieving data for watch view (%n requests pending)...</source>
+        <translation>
+            <numerusform>Daten der für die Anzeige der lokalen Variablen werden empfangen (noch eine austehende Anfrage) ...</numerusform>
+            <numerusform>Daten der für die Anzeige der lokalen Variablen werden empfangen (%n austehende Anfragen) ...</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+330"/>
+        <source>%n custom dumpers found.</source>
+        <translation>
+            <numerusform>Ein unterstützter Typ wurde in der Ausgabe-Hilfsbibliothek gefunden.</numerusform>
+            <numerusform>%n unterstützte Typen wurden in der Ausgabe-Hilfsbibliothek gefunden.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+282"/>
+        <source>&lt;%n items&gt;</source>
+        <extracomment>In string list</extracomment>
+        <translation>
+            <numerusform>&lt;Ein Element&gt;</numerusform>
+            <numerusform>&lt;%n Elemente&gt;</numerusform>
+        </translation>
     </message>
     <message>
-        <location line="+209"/>
+        <source>Retrieving data for watch view (%1 requests pending)...</source>
+        <translation type="obsolete">Daten der für die Anzeige der lokalen Variablen werden empfangen (noch %1 austehende Anfragen) ...</translation>
+    </message>
+    <message>
+        <location line="-346"/>
         <source>Finished retrieving data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Daten erhalten.</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Cannot evaluate expression: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Ausdruck konnte nicht ausgewertet werden: %1</translation>
     </message>
     <message>
         <location line="+42"/>
         <source>Debugging helpers not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabe-Hilfsbibliothek konnte nicht gefunden werden.</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <source>%1 custom dumpers found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+111"/>
+        <location line="+121"/>
         <source>Custom dumper setup: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe-Hilfsbibliothek-Initialisierung: %1</translation>
     </message>
     <message>
         <location line="+165"/>
         <source>&lt;0 items&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;leer&gt;</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>&lt;%1 items&gt;</source>
-        <extracomment>In string list</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+124"/>
+        <location line="+136"/>
         <source>%1 &lt;shadowed %2&gt;</source>
         <extracomment>Variable %1 &lt;FIXME: does something - bug Andre about it&gt;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 &lt;überlagert %2&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>&lt;shadowed&gt;</source>
         <extracomment>Type of variable &lt;FIXME: what? bug Andre about it&gt;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;überlagert&gt;</translation>
     </message>
     <message>
         <location line="+159"/>
         <source>&lt;n/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;k.a.&gt;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&lt;anonymous union&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Datentyp anonyme Union&gt;</translation>
     </message>
     <message>
         <location line="+38"/>
         <source>&lt;no information&gt;</source>
         <extracomment>About variable&apos;s value</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;keine Angabe&gt;</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Unknown error: </source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler: </translation>
     </message>
     <message>
         <location line="+19"/>
         <source>%1 is a typedef.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ist eine Typdefinition (typedef).</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Retrieving data for tooltip...</source>
-        <translation type="unfinished"></translation>
+        <translation>Empfange Daten für Tooltip...</translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location line="+70"/>
         <source>The dumper library &apos;%1&apos; does not exist.</source>
         <translation>Es existiert keine Dumper-Bibliothek &apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Dumper injection loading triggered (%1)...</source>
+        <translation>Das Laden der Ausgabe-Hilfsbibliothek (%1) per Injektion wurde gestartet...</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Dumper loading (%1) failed: %2</source>
+        <translation>Das Laden der Ausgabe-Hilfsbibliothek (%1) schlug fehl: %2</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Loading dumpers via debugger call (%1)...</source>
+        <translation>Lade die Ausgabe-Hilfsbibliothek (%1) per Debugger-Aufruf...</translation>
     </message>
 </context>
 <context>
@@ -3555,7 +3880,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location line="+2"/>
         <source>Choose Location of Startup Script File</source>
-        <translation>Pfad zu Startup Script</translation>
+        <translation>Pfad zu Startup-Skript</translation>
     </message>
 </context>
 <context>
@@ -3678,18 +4003,18 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location line="+11"/>
         <source>Cannot create FiFo %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die FiFo %1 konnte nicht erzeugt werden: %2</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Cannot open FiFo %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die FiFo %1 konnte nicht geöffnet werden: %2</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::RegisterHandler</name>
     <message>
-        <location filename="../../../src/plugins/debugger/registerhandler.cpp" line="+92"/>
+        <location filename="../../../src/plugins/debugger/registerhandler.cpp" line="+90"/>
         <source>Name</source>
         <translation>Name</translation>
     </message>
@@ -3730,7 +4055,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::ScriptEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/scriptengine.cpp" line="+455"/>
+        <location filename="../../../src/plugins/debugger/scriptengine.cpp" line="+466"/>
         <source>&apos;%1&apos; contains no identifier</source>
         <translation>&apos;%1&apos; enthält keinen Bezeichner</translation>
     </message>
@@ -3789,7 +4114,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::StackHandler</name>
     <message>
-        <location filename="../../../src/plugins/debugger/stackhandler.cpp" line="+82"/>
+        <location filename="../../../src/plugins/debugger/stackhandler.cpp" line="+97"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3799,13 +4124,42 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>&lt;Mehr&gt;</translation>
     </message>
     <message>
-        <location line="+23"/>
         <source>&lt;table&gt;&lt;tr&gt;&lt;td&gt;Address:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Function: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File: &lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Line: &lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;From: &lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;tr&gt;&lt;td&gt;To: &lt;/td&gt;&lt;td&gt;%6&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <extracomment>Tooltip for variable</extracomment>
-        <translation>&lt;table&gt;&lt;tr&gt;&lt;td&gt;Adresse:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Funktion: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Datei: &lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Zeile: &lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Von: &lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;tr&gt;&lt;td&gt;bis: &lt;/td&gt;&lt;td&gt;%6&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+        <translation type="obsolete">&lt;table&gt;&lt;tr&gt;&lt;td&gt;Adresse:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Funktion: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Datei: &lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Zeile: &lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Von: &lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;tr&gt;&lt;td&gt;bis: &lt;/td&gt;&lt;td&gt;%6&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="-45"/>
+        <source>Address:</source>
+        <translation>Adresse:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Function:</source>
+        <translation>Funktion:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>File:</source>
+        <translation>Datei:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line:</source>
+        <translation>Zeile:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>From:</source>
+        <translation>Von:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>To:</source>
+        <translation>Bis:</translation>
+    </message>
+    <message>
+        <location line="+76"/>
         <source>Level</source>
         <translation>Tiefe</translation>
     </message>
@@ -3856,7 +4210,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::StartExternalDialog</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+70"/>
+        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+87"/>
         <source>Select Executable</source>
         <translation>Ausführbare Datei auswählen</translation>
     </message>
@@ -3877,6 +4231,19 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <location line="+45"/>
         <source>Select Executable</source>
         <translation>Ausführbare Datei auswählen</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::TcfEngine</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/tcfengine.cpp" line="+201"/>
+        <source>%1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+380"/>
+        <source>Stopped.</source>
+        <translation>Angehalten.</translation>
     </message>
 </context>
 <context>
@@ -3921,7 +4288,32 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::WatchHandler</name>
     <message>
-        <location line="+232"/>
+        <location line="+185"/>
+        <source>Expression</source>
+        <translation>Ausdruck</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source> ... &lt;cut off&gt;</source>
+        <translation>...&lt;Rest abgeschnitten&gt;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Object Address</source>
+        <translation>Adresse des Objekts</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Stored Address</source>
+        <translation>Speicheradresse</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>iname</source>
+        <translation>iname</translation>
+    </message>
+    <message>
+        <location line="+66"/>
         <source>Root</source>
         <translation>Wurzelelement</translation>
     </message>
@@ -3941,17 +4333,19 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Überwachte Ausdrücke</translation>
     </message>
     <message>
-        <location line="+270"/>
+        <location line="+242"/>
         <source>Name</source>
         <translation>Name</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-338"/>
+        <location line="+339"/>
         <source>Value</source>
         <translation>Wert</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-345"/>
+        <location line="+346"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
@@ -4016,13 +4410,13 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <name>DebuggingHelperOptionPage</name>
     <message>
         <location filename="../../../src/plugins/debugger/dumperoptionpage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
+        <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
+        <translation>Diese Einstellung ermöglicht die Anzeige von Qt- und Standardbibliotheksobjekten in der Ansicht &quot;Lokale Variablen und Über&amp;wachte Ausdrücke&quot;</translation>
     </message>
     <message>
         <location/>
-        <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
-        <translation>Diese Einstellung ermöglicht die Anzeige von Qt- und Standardbibliotheksobjekten in der Ansicht &quot;Lokale Variablen und Über&amp;wachte Ausdrücke&quot;</translation>
+        <source>Debugging Helper</source>
+        <translation>Ausgabe-Hilfsbibliothek</translation>
     </message>
     <message>
         <location/>
@@ -4055,31 +4449,30 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="+118"/>
         <source>Unable to add dependency</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Abhängigkeit konnte nicht hinzugefügt werden</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>This would create a circular dependency.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dadurch würde eine zirkuläre Abhängigkeit entstehen.</translation>
     </message>
 </context>
 <context>
     <name>Designer</name>
     <message>
-        <location filename="../../../src/shared/qrceditor/resourcefile.cpp" line="+85"/>
-        <location line="+63"/>
-        <source>file name is empty</source>
-        <translation type="unfinished"></translation>
+        <location filename="../../../src/shared/qrceditor/resourcefile.cpp" line="+54"/>
+        <source>The file name is empty.</source>
+        <translation>Der Dateiname ist leer.</translation>
     </message>
     <message>
-        <location line="-46"/>
+        <location line="+54"/>
         <source>XML error on line %1, col %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>XML-Fehler auf Zeile %1, Spalte %2: %3</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>no &lt;RCC&gt; root element</source>
-        <translation type="unfinished"></translation>
+        <source>The &lt;RCC&gt; root element is missing.</source>
+        <translation>Das Wurzelelement (&lt;RCC&gt;) fehlt.</translation>
     </message>
 </context>
 <context>
@@ -4087,20 +4480,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/editorwidget.cpp" line="+174"/>
         <source>Action editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktionseditor</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Signals and slots editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizard</name>
-    <message>
-        <location filename="../../../src/plugins/designer/cpp/formclasswizard.cpp" line="+93"/>
-        <source>Internal error: FormClassWizard::generateFiles: empty template contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Signale und Slots</translation>
     </message>
 </context>
 <context>
@@ -4108,7 +4493,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/cpp/formclasswizarddialog.cpp" line="+52"/>
         <source>Qt Designer Form Class</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Designer-Formular-Klasse</translation>
     </message>
 </context>
 <context>
@@ -4116,17 +4501,17 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/cpp/formclasswizardpage.cpp" line="+194"/>
         <source>%1 - Error</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - Fehler</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/designer/cpp/formclasswizardpage.ui"/>
         <source>Choose a class name</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie einen Klassennamen</translation>
     </message>
     <message>
         <location/>
         <source>Class</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasse</translation>
     </message>
     <message>
         <location/>
@@ -4136,37 +4521,32 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location/>
         <source>More</source>
-        <translation type="unfinished"></translation>
+        <translation>Weiter</translation>
     </message>
     <message>
         <location/>
         <source>Embedding of the UI class</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendung der UI-Klasse</translation>
     </message>
     <message>
         <location/>
         <source>Aggregation as a pointer member</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttonGroup</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggregation als Zeiger</translation>
     </message>
     <message>
         <location/>
         <source>Aggregation</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggregation</translation>
     </message>
     <message>
         <location/>
         <source>Multiple Inheritance</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehrfachvererbung</translation>
     </message>
     <message>
         <location/>
         <source>Support for changing languages at runtime</source>
-        <translation type="unfinished"></translation>
+        <translation>Wechsel der Sprache zur Laufzeit unterstützen</translation>
     </message>
 </context>
 <context>
@@ -4174,27 +4554,27 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formeditorplugin.cpp" line="+148"/>
         <source>Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Qt Designer Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Designer-Formular</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>This creates a new Qt Designer form file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine neues Qt Designer-Formular </translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Qt Designer Form Class</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Designer-Formular-Klasse</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>This creates a new Qt Designer form class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine neue Qt Designer-Formular-Klasse.</translation>
     </message>
 </context>
 <context>
@@ -4202,37 +4582,37 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formeditorw.cpp" line="+272"/>
         <source>Designer widgetbox</source>
-        <translation type="unfinished"></translation>
+        <translation>Widgetbox</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Object inspector</source>
-        <translation type="unfinished"></translation>
+        <translation>Objektanzeige</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Property editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenschaften</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Signals and slots editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Signale und Slots</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Action editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktionseditor</translation>
     </message>
     <message>
         <location line="+42"/>
         <source>For&amp;m editor</source>
-        <translation type="unfinished"></translation>
+        <translation>For&amp;mulareditor</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>Edit widgets</source>
-        <translation type="unfinished"></translation>
+        <translation>Widgets bearbeiten</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4242,7 +4622,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location line="+4"/>
         <source>Edit signals/slots</source>
-        <translation type="unfinished"></translation>
+        <translation>Signale und Slots bearbeiten</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4252,12 +4632,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location line="+4"/>
         <source>Edit buddies</source>
-        <translation type="unfinished"></translation>
+        <translation>Buddies bearbeiten</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Edit tab order</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabulatorreihenfolge bearbeiten</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -4307,22 +4687,22 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location line="+15"/>
         <source>About Qt Designer plugins....</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugins...</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>Preview in</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorschau in</translation>
     </message>
     <message>
         <location line="+53"/>
         <source>Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Designer</translation>
     </message>
     <message>
         <location line="+131"/>
-        <source>The image could not be create: %1</source>
-        <translation type="unfinished"></translation>
+        <source>The image could not be created: %1</source>
+        <translation>Das Bild konnte nicht erstellt werden: %1</translation>
     </message>
 </context>
 <context>
@@ -4330,18 +4710,18 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formtemplatewizardpage.cpp" line="+62"/>
         <source>Choose a form template</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine Vorlage</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>%1 - Error</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - Fehler</translation>
     </message>
 </context>
 <context>
     <name>Designer::Internal::FormWindowEditor</name>
     <message>
-        <location filename="../../../src/plugins/designer/formwindoweditor.cpp" line="+161"/>
+        <location filename="../../../src/plugins/designer/formwindoweditor.cpp" line="+163"/>
         <source>untitled</source>
         <translation>kein Titel</translation>
     </message>
@@ -4351,17 +4731,17 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formwindowfile.cpp" line="+76"/>
         <source>Error saving %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Speichern von %1</translation>
     </message>
     <message>
         <location line="+100"/>
         <source>Unable to open %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kann nicht geöffnet werden: %2</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Unable to write to %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei %1 kann nicht geschrieben werden: %2</translation>
     </message>
 </context>
 <context>
@@ -4369,15 +4749,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formwizarddialog.cpp" line="+60"/>
         <source>Qt Designer Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::SettingsPage</name>
-    <message>
-        <location filename="../../../src/plugins/designer/settingspage.cpp" line="+63"/>
-        <source>Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Designer-Formular</translation>
     </message>
 </context>
 <context>
@@ -4385,35 +4757,39 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/qtcreatorintegration.cpp" line="+72"/>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Definition der Klasse &apos;%1&apos; konnte in %2 nicht gefunden werden.</translation>
     </message>
     <message>
         <location line="+462"/>
         <source>Error finding/adding a slot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auffinden/Hinzufügen des Slot-Codes.</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>No documents matching &apos;%1&apos; could be found.
 Rebuilding the project might help.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnten keine dem Suchmuster &apos;%1&apos; entsprechenden Dokumente gefunden werden.
+Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <location line="+59"/>
         <source>Unable to add the method definition.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Definition der Methode konnte nicht hinzugefügt werden.</translation>
+    </message>
+</context>
+<context>
+    <name>Designer::Internal::SettingsPage</name>
+    <message>
+        <location filename="../../../src/plugins/designer/settingspage.cpp" line="+63"/>
+        <source>Designer</source>
+        <translation>Designer</translation>
     </message>
 </context>
 <context>
     <name>DocSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/help/docsettingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Registered Documentation:</source>
+        <source>Registered Documentation</source>
         <translation>Registrierte Dokumentationen</translation>
     </message>
     <message>
@@ -4428,22 +4804,54 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
+    <name>DuiEditor::Internal::DuiEditorPlugin</name>
+    <message>
+        <location filename="../../../src/plugins/duieditor/duieditorplugin.cpp" line="+98"/>
+        <location line="+1"/>
+        <source>Qt QML File</source>
+        <translation>Qt QML-Datei</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Qt</source>
+        <translation>Qt</translation>
+    </message>
+</context>
+<context>
+    <name>DuiEditor::Internal::ScriptEditor</name>
+    <message>
+        <location filename="../../../src/plugins/duieditor/duieditor.cpp" line="+456"/>
+        <source>&lt;Select Symbol&gt;</source>
+        <translation>&lt;Symbol auswählen&gt;</translation>
+    </message>
+    <message>
+        <location line="+101"/>
+        <source>Rename...</source>
+        <translation>Umbenennen...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>New id:</source>
+        <translation>Neue Id:</translation>
+    </message>
+    <message>
+        <location line="+147"/>
+        <source>Rename id &apos;%1&apos;...</source>
+        <translation>Id &apos;%1&apos; Umbenennen</translation>
+    </message>
+</context>
+<context>
     <name>EmbeddedPropertiesPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/embeddedpropertiespage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
+        <source>Skin:</source>
+        <translation>Skin:</translation>
     </message>
     <message>
         <location/>
         <source>Use Virtual Box
 Note: This adds the toolchain to the build environment and runs the program inside a virtual machine.
-It also automatically sets the correct qt version.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Skin:</source>
+It also automatically sets the correct Qt version.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4451,86 +4859,66 @@ It also automatically sets the correct qt version.</source>
     <name>ExtensionSystem::Internal::PluginDetailsView</name>
     <message>
         <location filename="../../../src/libs/extensionsystem/plugindetailsview.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Name:</source>
         <translation>Name:</translation>
     </message>
     <message>
         <location/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Version:</translation>
     </message>
     <message>
         <location/>
         <source>Compatibility Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompatible zu Version:</translation>
     </message>
     <message>
         <location/>
         <source>Vendor:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anbieter:</translation>
     </message>
     <message>
         <location/>
         <source>Url:</source>
-        <translation type="unfinished"></translation>
+        <translation>Url:</translation>
     </message>
     <message>
         <location/>
         <source>Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <location/>
         <source>Description:</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung:</translation>
     </message>
     <message>
         <location/>
         <source>Copyright:</source>
-        <translation type="unfinished"></translation>
+        <translation>Copyright:</translation>
     </message>
     <message>
         <location/>
         <source>License:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenz:</translation>
     </message>
     <message>
         <location/>
         <source>Dependencies:</source>
-        <translation type="unfinished"></translation>
+        <translation>Abhängigkeiten:</translation>
     </message>
 </context>
 <context>
     <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <location filename="../../../src/libs/extensionsystem/pluginerrorview.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>State:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>Status:</translation>
     </message>
     <message>
         <location/>
         <source>Error Message:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlermeldung:</translation>
     </message>
 </context>
 <context>
@@ -4538,28 +4926,23 @@ It also automatically sets the correct qt version.</source>
     <message>
         <location filename="../../../src/libs/extensionsystem/pluginspec.cpp" line="+415"/>
         <source>File does not exist: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &apos;%1&apos; existiert nicht.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Could not open file for read: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei konnte nicht zum Lesen geöffnen werden: %1</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Lesen der Datei %1: %2 auf Zeile %3, Spalte %4</translation>
     </message>
 </context>
 <context>
     <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <location filename="../../../src/libs/extensionsystem/pluginview.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>State</source>
         <translation>Status</translation>
     </message>
@@ -4571,17 +4954,17 @@ It also automatically sets the correct qt version.</source>
     <message>
         <location/>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Version</translation>
     </message>
     <message>
         <location/>
         <source>Vendor</source>
-        <translation type="unfinished"></translation>
+        <translation>Anbieter</translation>
     </message>
     <message>
         <location/>
         <source>Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad</translation>
     </message>
 </context>
 <context>
@@ -4589,82 +4972,82 @@ It also automatically sets the correct qt version.</source>
     <message>
         <location filename="../../../src/libs/extensionsystem/pluginerrorview.cpp" line="+78"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültig</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Description file found, but error on read</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlerhafte Beschreibungsdatei gefunden</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Read</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelesen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Description successfully read</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibungsdatei gelesen</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Resolved</source>
-        <translation type="unfinished"></translation>
+        <translation>Abhängigkeiten bestimmt</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Dependencies are successfully resolved</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Abhängigkeiten wurden erfolgreich bestimmt</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Geladen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Library is loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Bibliothek wurde geladen</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Initialized</source>
-        <translation type="unfinished"></translation>
+        <translation>Initialisiert</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Plugin&apos;s initialization method succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Initialisierungsmethode des Plugins wurde erfolgreich abgearbeitet</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Läuft</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Plugin successfully loaded and running</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin wurde erfolgreich geladen und läuft</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Stopped</source>
-        <translation type="unfinished"></translation>
+        <translation>Angehalten</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Plugin was shut down</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin wurde angehalten</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelöscht</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Plugin ended it&apos;s life cycle and was deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin wurde nach Ablauf seiner Nutzungsdauer gelöscht</translation>
     </message>
 </context>
 <context>
@@ -4673,30 +5056,46 @@ It also automatically sets the correct qt version.</source>
         <location filename="../../../src/libs/extensionsystem/pluginmanager.cpp" line="+618"/>
         <source>Circular dependency detected:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Zirkuläre Abhängigkeit festgestellt:
+</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>%1(%2) depends on
 </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2) hängt von
+</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>%1(%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1(%2)</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Cannot load plugin because dependencies are not resolved</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin kann nicht geladen werden, weil die Abhängigkeiten nicht bestimmt werden konnten</translation>
     </message>
     <message>
         <location line="+8"/>
         <location line="+29"/>
         <source>Cannot load plugin because dependency failed to load: %1(%2)
 Reason: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin kann nicht geladen werden, weil eine Abhängigkeit nicht geladen werden konnte: %1(%2)
+Grund: %3</translation>
+    </message>
+</context>
+<context>
+    <name>FakeVim::Internal</name>
+    <message>
+        <location filename="../../../src/plugins/fakevim/fakevimactions.cpp" line="+119"/>
+        <source>Toggle vim-style editing</source>
+        <translation>Editieren im vim-Modus umschalten</translation>
+    </message>
+    <message>
+        <location line="+50"/>
+        <source>FakeVim properties...</source>
+        <translation>FakeVim-Einstellungen...</translation>
     </message>
 </context>
 <context>
@@ -4715,84 +5114,92 @@ Reason: %3</source>
     <message>
         <location line="+25"/>
         <source>Not implemented in FakeVim</source>
-        <translation type="unfinished"></translation>
+        <translation>In FakeVim nicht implementiert</translation>
     </message>
     <message>
         <location line="+120"/>
         <location line="+685"/>
         <location line="+19"/>
         <source>E20: Mark &apos;%1&apos; not set</source>
-        <translation type="unfinished"></translation>
+        <translation>E20: Die Marke &apos;%1&apos; ist nicht gesetzt</translation>
     </message>
     <message>
         <location line="+103"/>
         <source>File &apos;%1&apos; exists (add ! to override)</source>
-        <translation type="unfinished"></translation>
+        <translation>Die &apos;%1&apos; existiert bereits (Fügen Sie ! an, um sie zu überschreiben)</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Cannot open file &apos;%1&apos; for writing</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &apos;%1&apos; kann nicht zum Schreiben geöffnet werden</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&quot;%1&quot; %2 %3L, %4C written</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; %2 %3L, %4C geschrieben</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Cannot open file &apos;%1&apos; for reading</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &apos;%1&apos; kann nicht zum Lesen geöffnet werden</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>&quot;%1&quot; %2L, %3C</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location line="+18"/>
-        <source>%1 lines filtered</source>
-        <translation type="unfinished"></translation>
+        <source>%n lines filtered</source>
+        <translation type="unfinished">
+            <numerusform>Eine Zeile gefiltert</numerusform>
+            <numerusform>%n Zeilen gefiltert
+</numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location line="+7"/>
-        <source>%1 lines &gt;ed %2 time</source>
-        <translation type="unfinished"></translation>
+        <source>%n lines &gt;ed %1 time</source>
+        <translatorcomment>What is that?</translatorcomment>
+        <translation type="unfinished">
+            <numerusform>Eine Zeile &gt;ed %1-mal</numerusform>
+            <numerusform>%n Zeilen &gt;ed %1-mal</numerusform>
+        </translation>
     </message>
     <message>
-        <location line="+82"/>
+        <location line="+81"/>
         <source>E512: Unknown option: </source>
-        <translation type="unfinished"></translation>
+        <translation>E512: Unbekannte Option:</translation>
     </message>
     <message>
         <location line="+21"/>
         <source>E492: Not an editor command: </source>
-        <translation type="unfinished"></translation>
+        <translation>E492: Kein Editor-Kommando:</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>search hit BOTTOM, continuing at TOP</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Suche hat das Ende erreicht, setze am Anfang fort</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>search hit TOP, continuing at BOTTOM</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Suche hat den Anfang erreicht, setze am Ende fort</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>E486: Pattern not found: </source>
-        <translation type="unfinished"></translation>
+        <translation>E486: Suchmuster nicht gefunden: </translation>
     </message>
     <message>
         <location line="+374"/>
         <source>Already at oldest change</source>
-        <translation type="unfinished"></translation>
+        <translation>Älteste Änderung erreicht</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Already at newest change</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte Änderung erreicht</translation>
     </message>
 </context>
 <context>
@@ -4805,7 +5212,7 @@ Reason: %3</source>
     <message>
         <location line="+2"/>
         <source>FakeVim</source>
-        <translation type="unfinished"></translation>
+        <translation>FakeVim</translation>
     </message>
 </context>
 <context>
@@ -4814,100 +5221,95 @@ Reason: %3</source>
         <location line="+299"/>
         <location line="+141"/>
         <source>Quit FakeVim</source>
-        <translation type="unfinished"></translation>
+        <translation>FakeVim Beenden</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>FakeVim Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informationen zu FakeVim</translation>
     </message>
 </context>
 <context>
     <name>FakeVimOptionPage</name>
     <message>
         <location filename="../../../src/plugins/fakevim/fakevimoptions.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Use FakeVim</source>
-        <translation type="unfinished"></translation>
+        <translation>FakeVim benutzen</translation>
     </message>
     <message>
         <location/>
         <source>Vim style settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen für Vim-Stil </translation>
     </message>
     <message>
         <location/>
         <source>vim&apos;s &quot;expandtab&quot; option</source>
-        <translation type="unfinished"></translation>
+        <translation>Die &quot;expandtab&quot;-Einstellung von vim</translation>
     </message>
     <message>
         <location/>
         <source>Expand tabulators:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabulatoren expandieren:</translation>
     </message>
     <message>
         <location/>
         <source>Highlight search results:</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchergebnisse hervorheben:</translation>
     </message>
     <message>
         <location/>
         <source>Shift width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrückung:</translation>
     </message>
     <message>
         <location/>
         <source>Smart tabulators:</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Smart&quot;-Tabularmodus:</translation>
     </message>
     <message>
         <location/>
         <source>Start of line:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilenanfang:</translation>
     </message>
     <message>
         <location/>
         <source>vim&apos;s &quot;tabstop&quot; option</source>
-        <translation type="unfinished"></translation>
+        <translation>Die &quot;tabstop&quot;-Einstellung von vim</translation>
     </message>
     <message>
         <location/>
         <source>Tabulator size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabulatorweite:</translation>
     </message>
     <message>
         <location/>
         <source>Backspace:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rücktaste:</translation>
     </message>
     <message>
         <location/>
         <source>VIM&apos;s &quot;autoindent&quot; option</source>
-        <translation type="unfinished"></translation>
+        <translation>Die &quot;autoindent&quot;-Einstellung von vim</translation>
     </message>
     <message>
         <location/>
         <source>Automatic indentation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Einrückung:</translation>
     </message>
     <message>
         <location/>
         <source>Copy text editor settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Texteditor-Einstellungen</translation>
     </message>
     <message>
         <location/>
         <source>Set Qt style</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Stil setzen</translation>
     </message>
     <message>
         <location/>
         <source>Set plain style</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfachen Stil setzen</translation>
     </message>
 </context>
 <context>
@@ -4915,30 +5317,25 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/shared/help/filternamedialog.ui"/>
         <source>Add Filter Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Filternamen hinzufügen</translation>
     </message>
     <message>
         <location/>
         <source>Filter Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtername:</translation>
     </message>
 </context>
 <context>
     <name>FilterSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/help/filtersettingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Filter:</source>
-        <translation>Filter:</translation>
+        <source>Filters</source>
+        <translation>Filter</translation>
     </message>
     <message>
         <location/>
         <source>Attributes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Attribute:</translation>
     </message>
     <message>
         <location/>
@@ -5115,86 +5512,76 @@ Reason: %3</source>
     <name>GdbOptionsPage</name>
     <message>
         <location filename="../../../src/plugins/debugger/gdboptionspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Gdb interaction</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>This is either a full abolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdb-Interaktion</translation>
     </message>
     <message>
         <location/>
         <source>Gdb location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu Gdb </translation>
     </message>
     <message>
         <location/>
         <source>Environment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Umgebung:</translation>
     </message>
     <message>
         <location/>
         <source>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Skript mit Kommandos, die unmittelbar nach dem Gdb-Start ausgeführt werden (optional).</translation>
     </message>
     <message>
         <location/>
         <source>Gdb startup script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdb-Startskript:</translation>
     </message>
     <message>
         <location/>
         <source>Behaviour of breakpoint setting in plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzen von Haltepunkten in Plugins</translation>
     </message>
     <message>
         <location/>
         <source>This is the slowest but safest option.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die sicherste Einstellung, zugleich aber auch die langsamste.</translation>
     </message>
     <message>
         <location/>
         <source>Try to set breakpoints in plugins always automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versuche, Haltepunkte in Plugins automatisch zu setzen.</translation>
     </message>
     <message>
         <location/>
         <source>Try to set breakpoints in selected plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Versuche, Haltepunkte in ausgewählten Plugins zu setzen</translation>
     </message>
     <message>
         <location/>
         <source>Matching regular expression: </source>
-        <translation type="unfinished"></translation>
+        <translation>Regulärer Ausdruck: </translation>
     </message>
     <message>
         <location/>
         <source>Never set breakpoints in plugins automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Haltepunkte in Plugins niemals automatisch setzen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>This is either a full absolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</source>
+        <translation>Geben Sie den vollen, absoluten Pfad zu der ausführbaren Datei ein, oder einen relativen Pfad, der in der Pfad-Variable gesucht wird.</translation>
     </message>
 </context>
 <context>
     <name>GenericMakeStep</name>
     <message>
         <location filename="../../../src/plugins/genericprojectmanager/genericmakestep.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Override %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibe %1:</translation>
     </message>
     <message>
         <location/>
         <source>Make arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeilenargumente für make:</translation>
     </message>
     <message>
         <location/>
@@ -5207,7 +5594,7 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/genericprojectmanager/genericproject.cpp" line="+90"/>
         <source>&lt;new&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;neu&gt;</translation>
     </message>
 </context>
 <context>
@@ -5219,7 +5606,7 @@ Reason: %3</source>
     </message>
     <message>
         <location line="+7"/>
-        <source>Tool chain:</source>
+        <source>Toolchain:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5233,7 +5620,7 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/genericprojectmanager/genericmakestep.cpp" line="+164"/>
         <source>Override %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibe %1:</translation>
     </message>
 </context>
 <context>
@@ -5241,12 +5628,12 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/genericprojectmanager/genericprojectwizard.cpp" line="+246"/>
         <source>Import of Makefile-based Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Makefile-basiertes Projekt importieren</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a generic project, supporting any build system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein generisches Projekt, was ein beliebiges Build-System unterstützt.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -5256,7 +5643,7 @@ Reason: %3</source>
     <message>
         <location line="+124"/>
         <source>The project %1 could not be opened.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt %1 konnte nicht geöffnet werden.</translation>
     </message>
 </context>
 <context>
@@ -5264,27 +5651,27 @@ Reason: %3</source>
     <message>
         <location line="-249"/>
         <source>Import of Makefile-based Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Import eines Makefile-basierten Projektes</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Generic Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Generisches Projekt</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Project name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektname:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Second Page Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Titel der zweiten Seite</translation>
     </message>
 </context>
 <context>
@@ -5302,47 +5689,47 @@ Reason: %3</source>
     <message>
         <location line="+20"/>
         <source>Unable to find the repository directory for &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Repository-Verzeichnis für &apos;%1&apos; konnte nicht gefunden werden.</translation>
     </message>
     <message>
         <location line="+69"/>
         <source>Delete Branch</source>
-        <translation type="unfinished"></translation>
+        <translation>Branch löschen</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Would you like to delete the branch &apos;%1&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie den Branch &apos;%1&apos; löschen?</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Failed to delete branch</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Löschen des Branches schlug fehl</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Failed to create branch</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Erstellen des Branches schlug fehl</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Failed to stash</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Operation &apos;stash&apos; schlug fehl</translation>
     </message>
     <message>
         <location line="+36"/>
         <source>Would you like to create a local branch &apos;%1&apos; tracking the remote branch &apos;%2&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie einen lokalen Branch &apos;%1&apos; erstellen, der dem entfernten Branch &apos;%2&apos; folgt?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Create branch</source>
-        <translation type="unfinished"></translation>
+        <translation>Branch erstellen</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Failed to create a tracking branch</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Erstellen des Branches schlug fehl</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/git/branchdialog.ui"/>
@@ -5352,16 +5739,11 @@ Reason: %3</source>
     <message>
         <location/>
         <source>General information</source>
-        <translation type="unfinished"></translation>
+        <translation>Allgemeine Informationen</translation>
     </message>
     <message>
         <location/>
         <source>Repository:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5375,12 +5757,12 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/changeselectiondialog.cpp" line="+42"/>
         <source>Select a Git commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie einen Commit aus</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Select Git repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen ein Git-Repository aus</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -5390,7 +5772,7 @@ Reason: %3</source>
     <message>
         <location line="+1"/>
         <source>Selected directory is not a Git repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ausgewählte Verzeichnis ist kein Git-Repository</translation>
     </message>
 </context>
 <context>
@@ -5403,24 +5785,24 @@ Reason: %3</source>
     <message>
         <location line="+15"/>
         <source>Unable to determine the repository for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Repository von %1 konnte nicht bestimmt werden.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Unable to parse the file output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabe der Datei konnte nicht ausgewertet werden.</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>%1 Executing: %2 %3
 </source>
         <extracomment>&lt;timestamp&gt; Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 Kommando: %2 %3</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Waiting for data...</source>
-        <translation type="unfinished"></translation>
+        <translation>Warte auf Daten...</translation>
     </message>
     <message>
         <location line="+100"/>
@@ -5450,99 +5832,101 @@ Reason: %3</source>
     <message numerus="yes">
         <location line="+56"/>
         <source>Unable to add %n file(s) to %1: %2</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Keine der %n Dateien konnte zu %1 hinzugefügt werden: %2</numerusform>
+            <numerusform>Keine der %n Dateien konnte zu %1 hinzugefügt werden: %2</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+37"/>
         <source>Unable to reset %n file(s) in %1: %2</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Keine der %n Dateien in %1 konnte zurückgesetzt werden: %2</numerusform>
+            <numerusform>Keine der %n Dateien in %1 konnte zurückgesetzt werden: %2</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+18"/>
         <source>Unable to checkout %n file(s) in %1: %2</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Die Operation &apos;checkout&apos; schlug für eine Datei in %1 fehl: %2</numerusform>
+            <numerusform>Die Operation &apos;checkout&apos; schlug für %n Dateien in %1 fehl: %2</numerusform>
         </translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Unable stash in %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Operation &apos;stash&apos; schlug in %1 fehl: %2</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Unable to run branch command: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando &apos;branch&apos; konnte nicht ausgeführt werden: %1: %2</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Unable to run show: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando &apos;show&apos; konnte nicht ausgeführt werden: %1: %2</translation>
     </message>
     <message>
         <location line="+142"/>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>You have modified files. Would you like to stash your changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden Dateien geändert. Möchten Sie stash ausführen?</translation>
     </message>
     <message>
         <location line="+51"/>
         <source>Unable to obtain the status: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Status konnte nicht abgefragt werden: %1</translation>
     </message>
     <message>
         <location line="+50"/>
         <source>The repository %1 is not initialized yet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Repository ist noch nicht initialisiert.</translation>
     </message>
     <message numerus="yes">
         <location line="+102"/>
         <source>Committed %n file(s).
 </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Datei abgegeben.</numerusform>
+            <numerusform>%n Dateien abgegeben.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+1"/>
         <source>Unable to commit %n file(s): %1
 </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Commit schlug für eine Datei fehl: %1
+</numerusform>
+            <numerusform>Commit schlug für %n Dateien fehl: %1
+</numerusform>
         </translation>
     </message>
     <message>
         <location line="+81"/>
         <source>Revert</source>
-        <translation type="unfinished"></translation>
+        <translation>Rückgängig machen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The file has been changed. Do you want to revert it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei wurde geändert. Möchten Sie die Änderungen rückgängig machen?</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>The file is not modified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei ungeändert.</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>There are no modified files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es gibt keine geänderten Dateien.</translation>
     </message>
 </context>
 <context>
@@ -5550,25 +5934,30 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/gitoutputwindow.cpp" line="+48"/>
         <source>Git Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Git-Ausgabe</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Git</source>
-        <translation type="unfinished"></translation>
+        <translation>Git</translation>
     </message>
 </context>
 <context>
     <name>Git::Internal::GitPlugin</name>
     <message>
-        <location filename="../../../src/plugins/git/gitplugin.cpp" line="+269"/>
+        <location filename="../../../src/plugins/git/gitplugin.cpp" line="+270"/>
         <source>&amp;Git</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Diff Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für Datei</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Diff &quot;%1&quot;</source>
+        <translation>Diff für &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -5578,7 +5967,12 @@ Reason: %3</source>
     <message>
         <location line="+5"/>
         <source>File Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Datei</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Status Related to &quot;%1&quot;</source>
+        <translation>Status relativ zu &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5588,7 +5982,12 @@ Reason: %3</source>
     <message>
         <location line="+6"/>
         <source>Log File</source>
-        <translation type="unfinished"></translation>
+        <translation>Log für Datei</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Log of &quot;%1&quot;</source>
+        <translation>Log für &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5598,7 +5997,12 @@ Reason: %3</source>
     <message>
         <location line="+6"/>
         <source>Blame</source>
-        <translation type="unfinished"></translation>
+        <translation>Blame für Datei</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Blame for &quot;%1&quot;</source>
+        <translation>Blame für &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5608,7 +6012,12 @@ Reason: %3</source>
     <message>
         <location line="+6"/>
         <source>Undo Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen rückgängig machen</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Undo Changes for &quot;%1&quot;</source>
+        <translation>Änderungen in &quot;%1&quot; rückgängig machen</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5618,7 +6027,12 @@ Reason: %3</source>
     <message>
         <location line="+6"/>
         <source>Stage File for Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei zu Commit hinzufügen (stage)</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Stage &quot;%1&quot; for Commit</source>
+        <translation>&quot;%1&quot; zu Commit hinzufügen (stage)</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5628,38 +6042,62 @@ Reason: %3</source>
     <message>
         <location line="+6"/>
         <source>Unstage File from Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei aus Commit entfernen (unstage)</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Unstage &quot;%1&quot; from Commit</source>
+        <translation>&quot;%1&quot; aus Commit entfernen (unstage)</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Revert...</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen in Datei rückgängig machen...</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Revert &quot;%1&quot;...</source>
+        <translation>Änderungen in &quot;%1&quot; rückgängig machen...</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Diff Current Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für Projekt</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Diff Project &quot;%1&quot;</source>
+        <translation>Diff für Projekt &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Project Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status des Projekts (status)</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Status Project &quot;%1&quot;</source>
+        <translation>Status des Projekts &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+6"/>
-        <location line="+454"/>
         <source>Log Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Log für Projekt</translation>
     </message>
     <message>
-        <location line="-451"/>
+        <location line="+0"/>
+        <source>Log Project &quot;%1&quot;</source>
+        <translation>Log für Projekt &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Alt+G,Alt+K</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Undo Project Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen des Projekts rückgängig machen</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -5669,7 +6107,7 @@ Reason: %3</source>
     <message>
         <location line="+1"/>
         <source>Saves the current state of your work.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sichert den gegenwärtigen Arbeitsstand.</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -5684,7 +6122,7 @@ Reason: %3</source>
     <message>
         <location line="+1"/>
         <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stellt den gesicherten Zustand von &quot;Stash&quot; wieder her.</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -5709,22 +6147,22 @@ Reason: %3</source>
     <message>
         <location line="+6"/>
         <source>List Stashes</source>
-        <translation type="unfinished"></translation>
+        <translation>Stashes auflisten</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Show Commit...</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit anzeigen...</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Abgeben</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Diff Selected Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für Auswahl</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5739,12 +6177,12 @@ Reason: %3</source>
     <message>
         <location line="+60"/>
         <source>Could not find working directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Arbeitsverzeichnis konnte nicht gefunden werden.</translation>
     </message>
     <message>
         <location line="+85"/>
         <source>Another submit is currently beeing executed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es läuft bereits ein Commit.</translation>
     </message>
     <message>
         <location line="+31"/>
@@ -5754,87 +6192,73 @@ Reason: %3</source>
     <message>
         <location line="+58"/>
         <source>Closing git editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Git-Editor schließen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie den Commit ausführen?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Überprüfung der Beschreibung schlug fehl. Möchten Sie den Commit trotzdem ausführen?</translation>
     </message>
     <message>
-        <location line="+106"/>
         <source>File</source>
-        <translation>Datei</translation>
+        <translation type="obsolete">Datei</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Diff %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Diff für %1</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Status Related to %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Status relativ zu %1</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Log of %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Log für %1</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Blame for %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Blame für %1</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Undo Changes for %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Änderungen in %1 rückgängig machen</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Stage %1 for Commit</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Datei %1 zu Commit hinzufügen (stage)</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Unstage %1 from Commit</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Datei %1 aus Commit entfernen (unstage)</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Revert %1...</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">%1 Rücksetzen (revert)...</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>Diff Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Diff für Projekt</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Status Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Status des Projekts</translation>
     </message>
     <message>
-        <location line="+19"/>
         <source>Diff Project %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Diff für Projekt %1</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Status Project %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Status des Projekts %1 (status)</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Log Project %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Log für Projekt %1</translation>
     </message>
 </context>
 <context>
@@ -5842,7 +6266,7 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/gitsettings.cpp" line="+100"/>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei &apos;%1&apos; konnte nicht im Pfad &apos;%2&apos; gefunden werden</translation>
     </message>
 </context>
 <context>
@@ -5858,7 +6282,7 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/gitsubmitpanel.ui"/>
         <source>General Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Allgemeine Informationen</translation>
     </message>
     <message>
         <location/>
@@ -5883,17 +6307,17 @@ Reason: %3</source>
     <message>
         <location/>
         <source>Commit Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informationen zu Commit</translation>
     </message>
     <message>
         <location/>
         <source>Author:</source>
-        <translation type="unfinished"></translation>
+        <translation>Autor:</translation>
     </message>
     <message>
         <location/>
         <source>Email:</source>
-        <translation type="unfinished"></translation>
+        <translation>E-Mail-Adresse:</translation>
     </message>
 </context>
 <context>
@@ -5901,12 +6325,12 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/branchmodel.cpp" line="+181"/>
         <source>&lt;New branch&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Neuer Branch&gt;</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Type to create a new branch</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Namen des neuen Branches ein</translation>
     </message>
 </context>
 <context>
@@ -5914,57 +6338,52 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/settingspage.cpp" line="+85"/>
         <source>Git</source>
-        <translation type="unfinished"></translation>
+        <translation>Git</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Git Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Git-Einstellungen</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/git/settingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Environment variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Umgebungsvariablen</translation>
     </message>
     <message>
         <location/>
         <source>PATH:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad-Variable:</translation>
     </message>
     <message>
         <location/>
         <source>From system</source>
-        <translation type="unfinished"></translation>
+        <translation>Vom System</translation>
     </message>
     <message>
         <location/>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hinweis:&lt;/b&gt;</translation>
     </message>
     <message>
         <location/>
         <source>Git needs to find Perl in the environment as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Git benötigt Perl.</translation>
     </message>
     <message>
         <location/>
         <source>Log commit display count:</source>
-        <translation type="unfinished"></translation>
+        <translation>Log-Anzeige beschränken auf:</translation>
     </message>
     <message>
         <location/>
         <source>Note that huge amount of commits might take some time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beachten Sie, dass eine hohe Anzahl lange Wartezeiten hervorrufen kann.</translation>
     </message>
     <message>
         <location/>
         <source>Timeout (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitlimit (Sekunden):</translation>
     </message>
 </context>
 <context>
@@ -5974,14 +6393,18 @@ Reason: %3</source>
         <source>
 &apos;%1&apos; failed (exit code %2).
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+&apos;%1&apos; schlug fehl (Rückgabewert %2).
+</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>
 &apos;%1&apos; completed (exit code %2).
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+&apos;%1&apos; erfolgreich ausgeführt (Rückgabewert %2).
+</translation>
     </message>
 </context>
 <context>
@@ -6144,7 +6567,7 @@ Reason: %3</source>
 <context>
     <name>Help::Internal::HelpPlugin</name>
     <message>
-        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+177"/>
+        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+178"/>
         <location line="+36"/>
         <source>Contents</source>
         <translation>Inhalt</translation>
@@ -6173,18 +6596,18 @@ Reason: %3</source>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+168"/>
+        <location line="+170"/>
         <source>Previous</source>
         <translation>Vorige</translation>
     </message>
     <message>
-        <location line="-164"/>
-        <location line="+165"/>
+        <location line="-166"/>
+        <location line="+167"/>
         <source>Next</source>
         <translation>Nächste</translation>
     </message>
     <message>
-        <location line="-161"/>
+        <location line="-163"/>
         <source>Add Bookmark</source>
         <translation>Lesezeichen hinzufügen</translation>
     </message>
@@ -6209,7 +6632,7 @@ Reason: %3</source>
         <translation>Suchen im Modus &quot;Hilfe&quot; zeigen</translation>
     </message>
     <message>
-        <location line="+219"/>
+        <location line="+221"/>
         <location line="+4"/>
         <location line="+66"/>
         <source>Unfiltered</source>
@@ -6313,7 +6736,7 @@ Sie wird übersprungen.</translation>
 <context>
     <name>HelpViewer</name>
     <message>
-        <location filename="../../../src/shared/help/helpviewer.cpp" line="+222"/>
+        <location filename="../../../src/shared/help/helpviewer.cpp" line="+221"/>
         <source>Open Link in New Tab</source>
         <translation>Adresse in neuem Reiter öffnen</translation>
     </message>
@@ -6352,7 +6775,7 @@ Sie wird übersprungen.</translation>
 <context>
     <name>IndexWindow</name>
     <message>
-        <location filename="../../../src/shared/help/indexwindow.cpp" line="+54"/>
+        <location filename="../../../src/shared/help/indexwindow.cpp" line="+52"/>
         <source>&amp;Look for:</source>
         <translation>&amp;Suche nach:</translation>
     </message>
@@ -6372,7 +6795,7 @@ Sie wird übersprungen.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+75"/>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können eine Zeile mittels &lt;Ctrl-Return&gt; ausführen.</translation>
     </message>
 </context>
 <context>
@@ -6385,7 +6808,7 @@ Sie wird übersprungen.</translation>
     <message>
         <location line="+1"/>
         <source>Locator</source>
-        <translation type="unfinished"></translation>
+        <translation>Locator</translation>
     </message>
 </context>
 <context>
@@ -6414,7 +6837,7 @@ Sie wird übersprungen.</translation>
     <message>
         <location line="+2"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Beenden</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -6479,7 +6902,7 @@ Sie wird übersprungen.</translation>
     <message>
         <location line="+8"/>
         <source>Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -6527,51 +6950,28 @@ in your .pro file.</source>
     <name>MakeStep</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/makestep.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Override %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibe %1:</translation>
     </message>
     <message>
         <location/>
         <source>Make arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeilenargumente für make:</translation>
     </message>
 </context>
 <context>
     <name>MimeDatabase</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/mimedatabase.cpp" line="+650"/>
         <source>Not a number &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&apos;%1&apos; ist keine gültige Zahlenangabe.</translation>
     </message>
     <message>
-        <location line="+20"/>
         <source>Empty match value detected.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Es wurde ein leerer Wert eines Match-Elementes gefunden.</translation>
     </message>
     <message>
-        <location line="+32"/>
         <source>Missing &apos;type&apos;-attribute</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+49"/>
-        <source>Unexpected element &lt;%1&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+27"/>
-        <source>An error has been encountered at line %1 of %2: %3:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+115"/>
-        <source>Cannot open %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Das &apos;type&apos;-Attribut fehlt</translation>
     </message>
 </context>
 <context>
@@ -6589,7 +6989,7 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/nicknamedialog.ui"/>
         <source>Nick Names</source>
-        <translation type="unfinished"></translation>
+        <translation>Aliasnamen</translation>
     </message>
     <message>
         <location/>
@@ -6603,24 +7003,16 @@ in your .pro file.</source>
     </message>
 </context>
 <context>
-    <name>OpenEditorsView</name>
-    <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/openeditorsview.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>OpenWithDialog</name>
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/openwithdialog.ui"/>
         <source>Open File With...</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne Datei mit...</translation>
     </message>
     <message>
         <location/>
         <source>Open file extension with:</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne Endung mit:</translation>
     </message>
 </context>
 <context>
@@ -6628,12 +7020,12 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/perforce/changenumberdialog.ui"/>
         <source>Change Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Change-Nummer</translation>
     </message>
     <message>
         <location/>
         <source>Change Number:</source>
-        <translation type="unfinished"></translation>
+        <translation>Change-Nummer:</translation>
     </message>
 </context>
 <context>
@@ -6641,12 +7033,12 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/perforce/pendingchangesdialog.ui"/>
         <source>P4 Pending Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>P4 Ausstehende Changes</translation>
     </message>
     <message>
         <location/>
         <source>Submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Abgeben</translation>
     </message>
     <message>
         <location/>
@@ -6664,7 +7056,7 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/perforce/perforceoutputwindow.cpp" line="+48"/>
         <source>Perforce Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce-Ausgabe</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -6674,101 +7066,127 @@ in your .pro file.</source>
     <message>
         <location line="+34"/>
         <source>Perforce</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce</translation>
     </message>
 </context>
 <context>
     <name>Perforce::Internal::PerforcePlugin</name>
     <message>
-        <location filename="../../../src/plugins/perforce/perforceplugin.cpp" line="+253"/>
+        <location filename="../../../src/plugins/perforce/perforceplugin.cpp" line="+250"/>
         <source>&amp;Perforce</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+17"/>
-        <location line="+399"/>
         <source>Edit</source>
-        <translation>Editieren</translation>
+        <translation>Anfordern</translation>
     </message>
     <message>
-        <location line="-396"/>
+        <location line="+0"/>
+        <source>Edit &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; anfordern</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Alt+P,Alt+E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Edit File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei zum Editieren anfordern</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+392"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
     </message>
     <message>
-        <location line="-389"/>
+        <location line="+0"/>
+        <source>Add &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; hinzufügen</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Alt+P,Alt+A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei hinzufügen</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+385"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location line="-382"/>
+        <location line="+0"/>
+        <source>Delete &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; löschen</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Delete File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei löschen</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+379"/>
         <source>Revert</source>
-        <translation type="unfinished"></translation>
+        <translation>Rückgängig machen</translation>
     </message>
     <message>
-        <location line="-376"/>
+        <location line="+0"/>
+        <source>Revert &quot;%1&quot;</source>
+        <translation>Änderungen in &quot;%1&quot; rückgängig machen (revert)</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Alt+P,Alt+R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Revert File</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen in Datei rückgängig machen (revert)</translation>
     </message>
     <message>
         <location line="+9"/>
         <location line="+3"/>
         <source>Diff Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für Datei</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="-3"/>
+        <source>Diff &quot;%1&quot;</source>
+        <translation>Diff für &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <location line="+4"/>
         <source>Diff Current Project/Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für Projekt/Sitzung</translation>
     </message>
     <message>
-        <location line="-1"/>
+        <location line="-4"/>
+        <source>Diff Project &quot;%1&quot;</source>
+        <translation>Diff für Projekt &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Alt+P,Alt+D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Diff Opened Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für angeforderte Dateien</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Angefordert</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -6776,14 +7194,9 @@ in your .pro file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Resolve</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
+        <location line="+4"/>
         <source>Submit Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt abgeben</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -6793,51 +7206,59 @@ in your .pro file.</source>
     <message>
         <location line="+4"/>
         <source>Pending Changes...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausstehende Changes...</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Describe...</source>
-        <translation type="unfinished"></translation>
+        <translation>Change anzeigen...</translation>
     </message>
     <message>
         <location line="+5"/>
         <location line="+3"/>
-        <location line="+306"/>
         <source>Annotate Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotation für Datei</translation>
     </message>
     <message>
-        <location line="-302"/>
+        <location line="-3"/>
+        <source>Annotate &quot;%1&quot;</source>
+        <translation>Annotation für &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Annotate...</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotation...</translation>
     </message>
     <message>
         <location line="+5"/>
         <location line="+4"/>
-        <location line="+294"/>
         <source>Filelog Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Filelog für Datei</translation>
     </message>
     <message>
-        <location line="-295"/>
+        <location line="-4"/>
+        <source>Filelog &quot;%1&quot;</source>
+        <translation>Filelog für &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Alt+P,Alt+F</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Filelog...</source>
-        <translation type="unfinished"></translation>
+        <translation>Filelog...</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Abgeben</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Diff Selected Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für Auswahl</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6852,39 +7273,40 @@ in your .pro file.</source>
     <message>
         <location line="+49"/>
         <source>p4 revert</source>
-        <translation type="unfinished"></translation>
+        <translation>Rückgängig machen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The file has been changed. Do you want to revert it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei wurde geändert. Möchten Sie die Änderungen rückgängig machen?</translation>
     </message>
     <message>
-        <location line="+57"/>
-        <location line="+262"/>
+        <location line="+49"/>
+        <location line="+239"/>
         <location line="+232"/>
         <source>No p4 executable specified!</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde keine ausführbaren Datei angegeben!
+</translation>
     </message>
     <message>
-        <location line="-489"/>
+        <location line="-466"/>
         <source>Another submit is currently executed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es läuft bereits ein Submit-Vorgang.</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Cannot create temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte keine temporäre Datei erstellt werden.</translation>
     </message>
     <message>
         <location line="+32"/>
         <source>Project has no files</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt hat keine Dateien</translation>
     </message>
     <message>
         <location line="+50"/>
         <source>p4 annotate</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotationen</translation>
     </message>
     <message>
         <location line="+14"/>
@@ -6894,7 +7316,7 @@ in your .pro file.</source>
     <message>
         <location line="+14"/>
         <source>p4 filelog</source>
-        <translation type="unfinished"></translation>
+        <translation>Filelog</translation>
     </message>
     <message>
         <location line="+14"/>
@@ -6902,80 +7324,43 @@ in your .pro file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+18"/>
         <source>Edit %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">%1 bearbeiten</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Add %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Delete %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Revert %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Diff %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Diff für %1</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Annotate %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Filelog %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Diff</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
         <source>Diff Project %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Diff für Projekt %1</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Diff Current Project/Soluion</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+115"/>
+        <location line="+132"/>
         <source>%1 Executing: %2
 </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Kommando: %2
+</translation>
     </message>
     <message>
         <location line="+34"/>
         <source>The process terminated with exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde beendet, Rückgabewert %1.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>The process terminated abnormally.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde in unnormaler Weise beendet.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Could not start perforce &apos;%1&apos;. Please check your settings in the preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Perforce-Kommando &apos;%1&apos; konnte nicht gestartet werden. Bitte überprüfen Sie die Einstellungen.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Perforce did not respond within timeout limit (%1 ms).</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Antwort von Perforce innerhalb des Zeitlimits (%1 ms).</translation>
     </message>
     <message>
         <location line="+85"/>
@@ -6990,43 +7375,43 @@ in your .pro file.</source>
     <message>
         <location line="+37"/>
         <source>Closing p4 Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>P4-Editor schließen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Do you want to submit this change list?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie die Changes abgeben?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The commit message check failed. Do you want to submit this change list</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Überprüfung der Beschreibung schlug fehl. Möchten Sie den Submit-Vorgang trotzdem ausführen?</translation>
     </message>
     <message>
         <location line="+25"/>
         <location line="+8"/>
         <source>Cannot execute p4 submit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando p4 submit konnte nicht ausgeführt werden.</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Pending change</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausstehender Change</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Submit-Vorgang konnte nicht ausgeführt werden, weil Ihr Arbeitsbereich nicht auf dem aktuellsten Stand ist. Es wurde ein ausstehender Submit-Vorgang erzeugt.</translation>
     </message>
     <message>
         <location line="+167"/>
         <source>Timeout waiting for &quot;where&quot; (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitüberschreitung bei der Ausführung von &quot;where&quot; (%1).</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler bei der Ausführung von &quot;where&quot; auf %1: Die Datei ist nicht bekannt</translation>
     </message>
 </context>
 <context>
@@ -7054,43 +7439,38 @@ in your .pro file.</source>
     <name>Perforce::Internal::SettingsPage</name>
     <message>
         <location filename="../../../src/plugins/perforce/settingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>P4 Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>P4-Kommando:</translation>
     </message>
     <message>
         <location/>
         <source>Use default P4 environment variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgefundene P4-Umgebungsvariablen benutzen</translation>
     </message>
     <message>
         <location/>
         <source>Environment variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Umgebungsvariablen</translation>
     </message>
     <message>
         <location/>
         <source>P4 Client:</source>
-        <translation type="unfinished"></translation>
+        <translation>P4 Client:</translation>
     </message>
     <message>
         <location/>
         <source>P4 User:</source>
-        <translation type="unfinished"></translation>
+        <translation>P4 Nutzer:</translation>
     </message>
     <message>
         <location/>
         <source>P4 Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>P4 Portnummer:</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/perforce/settingspage.cpp" line="+96"/>
         <source>Perforce</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce</translation>
     </message>
 </context>
 <context>
@@ -7098,7 +7478,7 @@ in your .pro file.</source>
     <message>
         <location line="-49"/>
         <source>Perforce Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce-Kommando</translation>
     </message>
 </context>
 <context>
@@ -7106,7 +7486,7 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/perforce/submitpanel.ui"/>
         <source>Submit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7116,12 +7496,12 @@ in your .pro file.</source>
     <message>
         <location/>
         <source>Client:</source>
-        <translation type="unfinished"></translation>
+        <translation>Client:</translation>
     </message>
     <message>
         <location/>
         <source>User:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nutzer:</translation>
     </message>
 </context>
 <context>
@@ -7149,7 +7529,7 @@ in your .pro file.</source>
     <message>
         <location line="+20"/>
         <source>Plugin Errors of %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlermeldungen von %1</translation>
     </message>
 </context>
 <context>
@@ -7158,17 +7538,17 @@ in your .pro file.</source>
         <location filename="../../../src/libs/extensionsystem/optionsparser.cpp" line="+106"/>
         <location line="+18"/>
         <source>The plugin &apos;%1&apos; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es existiert kein Plugin &apos;%1&apos;.</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>Unknown option %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Kommandozeilenargument %1</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>The option %1 requires an argument.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommandozeilenargument %1erfordert ein Argument</translation>
     </message>
 </context>
 <context>
@@ -7176,94 +7556,90 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/libs/extensionsystem/pluginspec.cpp" line="+22"/>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Attribut &apos;%1&apos; fehlt bei &apos;%2&apos;</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>&apos;%1&apos; has invalid format</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; ist in einem ungültigem Format</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Invalid element &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Element &apos;%1&apos;</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Unexpected closing element &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Falsch platziertes schließendes Element &apos;%1&apos;</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Unexpected token</source>
-        <translation type="unfinished"></translation>
+        <translation>Falsch platziertes Token</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Expected element &apos;%1&apos; as top level element</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Wurzelelement muss &apos;%1&apos; sein</translation>
     </message>
     <message>
         <location line="+234"/>
         <source>Resolving dependencies failed because state != Read</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Bestimmen der Abhängigkeiten schlug fehl, weil der Status != Gelesen ist</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Could not resolve dependency &apos;%1(%2)&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Abhängigkeit &apos;%1 (%2)&apos; konnte nicht aufgelöst werden</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Loading the library failed because state != Resolved</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Laden der Bibliothek schlug fehl, weil der Status != &apos;Abhängigkeiten bestimmt&apos; ist</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>
 Library base name: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Basisname der Bibliothek: %1</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Plugin is not valid (doesn&apos;t derive from IPlugin)</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin ist ungültig (nicht von Klasse IPlugin abgeleitet)</translation>
     </message>
     <message>
         <location line="+21"/>
         <source>Initializing the plugin failed because state != Loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Initialisierung des Plugins schlug fehl, weil der Status != Geladen ist</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Internal error: have no plugin instance to initialize</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Es existiert keine Plugininstanz zur Initialisierung</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Plugin initialization failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Initialisierungs des Plugins schlug fehl: %1</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Cannot perform extensionsInitialized because state != Initialized</source>
-        <translation type="unfinished"></translation>
+        <translation>extensionsInitialized kann nicht abgearbeitet werden, weil der Status != Initialisiert ist</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Internal error: have no plugin instance to perform extensionsInitialized</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Es existiert keine Plugininstanz zur Abarbeitung von extensionsInitialized</translation>
     </message>
 </context>
 <context>
     <name>ProEditorContainer</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/proeditorcontainer.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Advanced Mode</source>
         <translation>Erweiterter Modus</translation>
     </message>
@@ -7339,7 +7715,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="+158"/>
+        <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="+160"/>
         <source>Custom Executable</source>
         <translation>Benutzerdefinierte, ausführbare Datei</translation>
     </message>
@@ -7449,11 +7825,6 @@ Library base name: %1</source>
     <name>ProjectExplorer::Internal::BuildSettingsPropertiesPage</name>
     <message>
         <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Configurations</source>
         <translation>Konfigurationen</translation>
     </message>
@@ -7465,11 +7836,6 @@ Library base name: %1</source>
     <message>
         <location/>
         <source>-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7537,11 +7903,6 @@ Library base name: %1</source>
     <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <location filename="../../../src/plugins/projectexplorer/buildstepspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>1</source>
         <translation>1</translation>
     </message>
@@ -7583,7 +7944,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+113"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+114"/>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation>Erstellen abbrechen und schließen</translation>
     </message>
@@ -7708,11 +8069,6 @@ Library base name: %1</source>
     <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <location filename="../../../src/plugins/projectexplorer/editorsettingspropertiespage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Default File Encoding:</source>
         <translation>Encoding-Vorgabe:</translation>
     </message>
@@ -7797,11 +8153,6 @@ Library base name: %1</source>
     <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <location filename="../../../src/plugins/projectexplorer/processstep.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Enable custom process step</source>
         <translation>Benutzerdefinierten Verarbeitungsschritt aktivieren</translation>
     </message>
@@ -7932,11 +8283,6 @@ Library base name: %1</source>
     <name>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi</name>
     <message>
         <location filename="../../../src/plugins/projectexplorer/projectexplorersettingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Build Settings</source>
         <translation>&apos;Build&apos;-Einstellungen</translation>
     </message>
@@ -7992,11 +8338,6 @@ Library base name: %1</source>
     <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
     <message>
         <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Run &amp;configuration:</source>
         <translation>Ausführungskonfiguration</translation>
     </message>
@@ -8072,7 +8413,7 @@ Library base name: %1</source>
         <location line="-347"/>
         <location filename="../../../src/plugins/projectexplorer/taskwindow.h" line="+61"/>
         <source>Build Issues</source>
-        <translation></translation>
+        <translation>Build-Probleme</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -8097,11 +8438,6 @@ Library base name: %1</source>
     <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <location filename="../../../src/plugins/projectexplorer/projectwizardpage.ui"/>
-        <source>WizardPage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Project management</source>
         <translation>Projektmanagement</translation>
     </message>
@@ -8197,15 +8533,22 @@ Library base name: %1</source>
         <translation>Zuletzt bearbeitete Projekte</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <location line="+808"/>
         <source>Unload Project</source>
-        <translation>Projekt entladen</translation>
+        <translation type="obsolete">Projekt entladen</translation>
     </message>
     <message>
-        <location line="-800"/>
         <source>Unload All Projects</source>
-        <translation>Alle Projekte entladen</translation>
+        <translation type="obsolete">Alle Projekte entladen</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Close Project</source>
+        <translation>Projekt schließen</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Close All Projects</source>
+        <translation>Alle Projekte schließen</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -8239,12 +8582,11 @@ Library base name: %1</source>
     </message>
     <message>
         <location line="+6"/>
-        <location line="+748"/>
         <source>Build Project</source>
         <translation>Projekt erstellen</translation>
     </message>
     <message>
-        <location line="-745"/>
+        <location line="+2"/>
         <source>Ctrl+B</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8259,7 +8601,37 @@ Library base name: %1</source>
         <translation>Projekt bereinigen</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+8"/>
+        <source>Project Only</source>
+        <translation>Aktuelles Projekt</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Build</source>
+        <translation>Erstellen</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Rebuild</source>
+        <translation>Neu Erstellen</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Clean</source>
+        <translation>Bereinigen</translation>
+    </message>
+    <message>
+        <location line="+736"/>
+        <source>Current Project</source>
+        <translation>Aktuelles Projekt</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Project &quot;%1&quot;</source>
+        <translation>Projekt &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="-725"/>
         <location line="+18"/>
         <source>Run</source>
         <translation>Ausführen</translation>
@@ -8316,7 +8688,7 @@ Library base name: %1</source>
         <translation>Umbenennen</translation>
     </message>
     <message>
-        <location line="+120"/>
+        <location line="+123"/>
         <source>Load Project</source>
         <translation>Projekt laden</translation>
     </message>
@@ -8327,17 +8699,20 @@ Library base name: %1</source>
         <translation>Neues Projekt</translation>
     </message>
     <message>
-        <location line="+453"/>
+        <location line="-388"/>
+        <source>Close Project &quot;%1&quot;</source>
+        <translation>Projekt &quot;%1&quot; schließen</translation>
+    </message>
+    <message>
         <source>Unload Project &quot;%1&quot;</source>
-        <translation>Projekt &quot;%1&quot; entladen</translation>
+        <translation type="obsolete">Projekt &quot;%1&quot; entladen</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Build Project &quot;%1&quot;</source>
-        <translation>Projekt &apos;%1&quot; erstellen</translation>
+        <translation type="obsolete">Projekt &apos;%1&quot; erstellen</translation>
     </message>
     <message>
-        <location line="+387"/>
+        <location line="+1245"/>
         <source>New File</source>
         <comment>Title of dialog</comment>
         <translation>Neue Datei</translation>
@@ -8409,14 +8784,22 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
 <context>
     <name>ProjectExplorer::SessionManager</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/session.cpp" line="+297"/>
         <source>Error while loading session</source>
-        <translation>Fehler beim Laden der Sitzung</translation>
+        <translation type="obsolete">Fehler beim Laden der Sitzung</translation>
+    </message>
+    <message>
+        <source>Could not load session %1</source>
+        <translation type="obsolete">Die Sitzung %1 konnte nicht geladen werden</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/session.cpp" line="+297"/>
+        <source>Error while restoring session</source>
+        <translation>Beim Wiederherstellen der Sitzung ist ein Fehler aufgetreten</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Could not load session %1</source>
-        <translation>Die Sitzung %1 konnte nicht geladen werden</translation>
+        <source>Could not restore session %1</source>
+        <translation>Die Sitzung %1 konnte nicht wiederhergestellt werden</translation>
     </message>
     <message>
         <location line="+36"/>
@@ -8521,23 +8904,18 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <name>QMakeStep</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qmakestep.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>QMake Build Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>QMake Build-Konfiguration:</translation>
     </message>
     <message>
         <location/>
         <source>debug</source>
-        <translation type="unfinished"></translation>
+        <translation>debug</translation>
     </message>
     <message>
         <location/>
         <source>release</source>
-        <translation type="unfinished"></translation>
+        <translation>release</translation>
     </message>
     <message>
         <location/>
@@ -8547,55 +8925,14 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location/>
         <source>Effective qmake call:</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultierender qmake-Aufruf:</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../../src/libs/utils/reloadpromptutils.cpp" line="+40"/>
-        <source>File Changed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>The file %1 has changed outside Qt Creator. Do you want to reload it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/editormanager.cpp" line="-480"/>
-        <source>File is Read Only</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>The file %1 is read only.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Open with VCS (%1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
         <source>Make writable</source>
-        <translation>Schreibbar machen</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Save as ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/plugins/fakevim/fakevimactions.cpp" line="+117"/>
-        <source>Toggle vim-style editing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+50"/>
-        <source>FakeVim properties...</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Schreibbar machen</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qtestlib/qtestlibplugin.cpp" line="+59"/>
@@ -8685,15 +9022,123 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
     <message>
-        <location filename="../../../src/shared/qrceditor/qrceditor.ui"/>
-        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+151"/>
-        <source>Form</source>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlnewprojectwizard.cpp" line="+188"/>
+        <source>QML Application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
+        <location line="+1"/>
+        <source>Creates a QML application.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Projects</source>
+        <translation>Projekte</translation>
+    </message>
+    <message>
+        <location line="+68"/>
+        <source>The project %1 could not be opened.</source>
+        <translation>Das Projekt %1 konnte nicht geöffnet werden.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
+    <message>
+        <location line="-134"/>
+        <source>New QML Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>This wizard generates a QML application project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectwizard.cpp" line="+190"/>
+        <source>Import of existing QML directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Creates a QML project from an existing directory of QML files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Projects</source>
+        <translation>Projekte</translation>
+    </message>
+    <message>
+        <location line="+94"/>
+        <source>The project %1 could not be opened.</source>
+        <translation>Das Projekt %1 konnte nicht geöffnet werden.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
+    <message>
+        <location line="-163"/>
+        <source>Import of QML Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>QML Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Project name:</source>
+        <translation>Projektname:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Location:</source>
+        <translation>Pfad:</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+316"/>
+        <location line="+18"/>
+        <location line="+76"/>
+        <source>QML Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-75"/>
+        <source>Could not find the qmlviewer executable, please specify one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+48"/>
+        <location line="+35"/>
+        <location line="+41"/>
+        <source>&lt;Current File&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-48"/>
+        <source>Main QML File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QrcEditor</name>
+    <message>
+        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+151"/>
+        <source>Form</source>
+        <translation>Formular</translation>
+    </message>
+    <message>
+        <location filename="../../../src/shared/qrceditor/qrceditor.ui"/>
         <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
@@ -8708,7 +9153,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <location/>
         <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenschaften</translation>
     </message>
     <message>
         <location/>
@@ -8720,13 +9165,13 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <location/>
         <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Language:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprache:</translation>
     </message>
     <message>
         <location/>
         <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Alias:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aliasname:</translation>
     </message>
 </context>
 <context>
@@ -8734,20 +9179,24 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizard.cpp" line="+58"/>
         <source>Qt4 Console Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt4 Konsolenanwendung</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a Qt4 console application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt4 Konsolenanwendung.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizarddialog.cpp" line="+52"/>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not present a GUI. You can press &apos;Finish&apos; at any point in time.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Dieser Wizard erstellt eine Qt4 Konsolenanwendung. Sie leitet von der Klasse QCoreApplication ab und hat keine Benutzeroberfläche. Sie können jederzeit </translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizarddialog.cpp" line="+52"/>
+        <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
+        <translation>Dieser Wizard erstellt eine Qt4 Konsolenanwendung. Sie leitet von der Klasse QCoreApplication ab und hat keine Benutzeroberfläche.</translation>
     </message>
 </context>
 <context>
@@ -8755,7 +9204,28 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/embeddedpropertiespage.cpp" line="+80"/>
         <source>Embedded Linux</source>
-        <translation type="unfinished"></translation>
+        <translation>Embedded Linux</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::EmptyProjectWizard</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/emptyprojectwizard.cpp" line="+40"/>
+        <source>Empty Qt4 Project</source>
+        <translation>Leeres Qt4-Projekt</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Creates an empty Qt project.</source>
+        <translation>Erstellt ein leeres Qt-Projekt.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::EmptyProjectWizardDialog</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/emptyprojectwizarddialog.cpp" line="+50"/>
+        <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
+        <translation>Dieser Wizard erstellt ein leeres Qt4-Projekt. Mit Hilfe der anderen Wizards können später Dateien hinzufügt werden.</translation>
     </message>
 </context>
 <context>
@@ -8763,22 +9233,22 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/enveditdialog.ui"/>
         <source>Build Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Umgebung</translation>
     </message>
     <message>
         <location/>
         <source>Make Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>make-Kommando:</translation>
     </message>
     <message>
         <location/>
         <source>Build Environment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Umgebung:</translation>
     </message>
     <message>
         <location/>
         <source>mkspec:</source>
-        <translation type="unfinished"></translation>
+        <translation>mkspec:</translation>
     </message>
     <message>
         <location/>
@@ -8793,17 +9263,17 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location/>
         <source>Values:</source>
-        <translation type="unfinished"></translation>
+        <translation>Werte:</translation>
     </message>
     <message>
         <location/>
         <source>Variable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen:</translation>
     </message>
     <message>
         <location/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Import</translation>
     </message>
     <message>
         <location/>
@@ -8820,13 +9290,8 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <name>Qt4ProjectManager::Internal::EnvVariablesPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/envvariablespage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Build Environments</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Umgebungen</translation>
     </message>
     <message>
         <location/>
@@ -8846,12 +9311,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location/>
         <source>Default mkspec:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-mkspec:</translation>
     </message>
     <message>
         <location/>
         <source>Default make command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-make-Kommando:</translation>
     </message>
 </context>
 <context>
@@ -8859,12 +9324,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/filespage.cpp" line="+45"/>
         <source>Class Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information bezüglich Klasse</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie Informationen bezüglich der Klassen ein, für die Sie Quelltexte generieren wollen.</translation>
     </message>
 </context>
 <context>
@@ -8872,17 +9337,17 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizard.cpp" line="+72"/>
         <source>Qt4 Gui Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt4-Gui-Anwendung</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a Qt4 Gui Application with one form.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt4-Gui-Anwendung mit einem Formular.</translation>
     </message>
     <message>
         <location line="+92"/>
         <source>The template file &apos;%1&apos; could not be opened for reading: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Vorgabendatei &apos;%1&apos; konnte nicht zum Lesen geöffnet werden: %2</translation>
     </message>
 </context>
 <context>
@@ -8890,7 +9355,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizarddialog.cpp" line="+63"/>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Wizard erstellt eine Qt4-GUI-Anwendung. Sie leitet von der Klasse QApplication ab und enthält ein leeres Widget.</translation>
     </message>
 </context>
 <context>
@@ -8898,12 +9363,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizard.cpp" line="+50"/>
         <source>C++ Library</source>
-        <translation type="unfinished"></translation>
+        <translation>C++-Bibliothek</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a C++ Library.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine C++-Bibliothek.</translation>
     </message>
 </context>
 <context>
@@ -8911,17 +9376,17 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizarddialog.cpp" line="+122"/>
         <source>Shared library</source>
-        <translation type="unfinished"></translation>
+        <translation>Dynamisch gebunden</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Statically linked library</source>
-        <translation type="unfinished"></translation>
+        <translation>Statisch gebunden</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Qt 4 plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 4 Plugin</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -8931,7 +9396,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+35"/>
         <source>This wizard generates a C++ library project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Wizard erstellt ein C++-Bibliotheksprojekt.</translation>
     </message>
 </context>
 <context>
@@ -8939,12 +9404,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/modulespage.cpp" line="+50"/>
         <source>Select required modules</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl der benötigten Module</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Select the modules you want to include in your project. The recommended modules for this project are selected by default.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die Module aus, die Sie in Ihrem Projekt verwenden wollen. Die empfohlenen Module für dieses Projekt sind bereits ausgewählt.</translation>
     </message>
 </context>
 <context>
@@ -8962,27 +9427,27 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location/>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach oben</translation>
     </message>
     <message>
         <location/>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach unten</translation>
     </message>
     <message>
         <location filename="../../../src/shared/proparser/proeditor.cpp" line="+51"/>
         <source>Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausschneiden</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
         <location line="+37"/>
@@ -9002,17 +9467,17 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+9"/>
         <source>Add Variable</source>
-        <translation type="unfinished"></translation>
+        <translation>Variable hinzufügen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add Scope</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereich hinzufügen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add Block</source>
-        <translation type="unfinished"></translation>
+        <translation>Block hinzufügen</translation>
     </message>
 </context>
 <context>
@@ -9020,47 +9485,47 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/shared/proparser/proeditormodel.cpp" line="+446"/>
         <source>&lt;Global Scope&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Globaler Bereich&gt;</translation>
     </message>
     <message>
         <location line="+74"/>
         <source>Change Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Element bearbeiten</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Change Variable Assignment</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablenzuweisung bearbeiten</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Change Variable Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Type der Variablen bearbeiten</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Change Scope Condition</source>
-        <translation type="unfinished"></translation>
+        <translation>Bedingung des Bereichs bearbeiten</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Change Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausdruck ändern</translation>
     </message>
     <message>
         <location line="+51"/>
         <source>Move Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Element verschieben</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>Remove Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Element löschen</translation>
     </message>
     <message>
         <location line="+49"/>
         <source>Insert Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Element einfügen</translation>
     </message>
 </context>
 <context>
@@ -9068,35 +9533,30 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/projectloadwizard.cpp" line="+189"/>
         <source>Import existing settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Existierende Einstellungen importieren</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Qt Creator has found an already existing build in the source directory.&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt Version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Build configuration:&lt;/b&gt; %2&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator hat einen existierenden Build im Quelverzeichnis gefunden.&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt-Version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Build-Konfiguration:&lt;/b&gt; %2&lt;br&gt;</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Import existing build settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Existierende Einstellungen importieren.</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>&lt;b&gt;Note:&lt;/b&gt; Importing the settings will automatically add the Qt Version from:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; to the list of qt versions.</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;b&gt;Note:&lt;/b&gt; Importing the settings will automatically add the Qt Version from:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; to the list of Qt versions.</source>
+        <translation>&lt;b&gt;Hinweis:&lt;/b&gt; Das Importieren der Einstellungen wird die Qt-Version aus:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; zur Liste der Qt-Versionen hinzufügen.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4buildenvironmentwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Clear system environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Systemumgebung löschen</translation>
     </message>
     <message>
         <location/>
@@ -9106,27 +9566,27 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location/>
         <source>&amp;Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinzu&amp;fügen</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rücksetzen</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Unset</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Leeren</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4buildenvironmentwidget.cpp" line="+84"/>
         <source>Build Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Umgebung</translation>
     </message>
     <message>
         <location line="+54"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Rücksetzen</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -9137,7 +9597,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4PriFileNode</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+280"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+281"/>
         <location line="+7"/>
         <source>Failed!</source>
         <translation>Fehler</translation>
@@ -9155,78 +9615,73 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+33"/>
         <source>There are unsaved changes for project file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Projektdatei %1 hat ungespeicherte Änderungen.</translation>
     </message>
     <message>
         <location line="+22"/>
         <source>Error while parsing file %1. Giving up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten von %1. Abbruch.</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Error while changing pro file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Ändern der Projektdatei %1.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4ProFileNode</name>
     <message>
-        <location line="+227"/>
+        <location line="+236"/>
         <source>Error while parsing file %1. Giving up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten von %1. Abbruch.</translation>
     </message>
     <message>
-        <location line="+373"/>
+        <location line="+375"/>
         <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Die .pro-Datei des Unterverzeichnisses &apos;%1&apos; konnte in &apos;%2&apos; nicht gefunden werden</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Configuration Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der Konfiguration:</translation>
     </message>
     <message>
         <location/>
         <source>Qt Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Version:</translation>
     </message>
     <message>
         <location/>
         <source>Manage Qt Versions</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Versionen verwalten</translation>
     </message>
     <message>
         <location/>
         <source>This Qt-Version is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Qt-Version ist ungültig.</translation>
     </message>
     <message>
         <location/>
         <source>Shadow Build:</source>
-        <translation type="unfinished"></translation>
+        <translation>Shadow-Build:</translation>
     </message>
     <message>
         <location/>
         <source>Build Directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Verzeichnis:</translation>
     </message>
     <message>
         <location/>
         <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;import&quot;&gt;Existierenden Build importieren&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.cpp" line="+59"/>
         <source>Shadow Build Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Shadow-Build-Verzeichnis</translation>
     </message>
     <message>
         <location line="+45"/>
@@ -9236,13 +9691,13 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+35"/>
         <source>Default Qt Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Qt-Version</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4ProjectManagerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+151"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+154"/>
         <location line="+5"/>
         <source>Run qmake</source>
         <translation>qmake ausführen</translation>
@@ -9252,20 +9707,20 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <name>Qt4ProjectManager::Internal::Qt4RunConfiguration</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4runconfiguration.cpp" line="+69"/>
-        <location line="+245"/>
+        <location line="+307"/>
         <source>Qt4RunConfiguration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+52"/>
         <source>Could not parse %1. The Qt4 run configuration %2 can not be started.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 konnte nicht ausgewertet werden. Die Qt 4-Ausführungskonfiguration %2 konnte nicht gestartet werden.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget</name>
     <message>
-        <location line="-267"/>
+        <location line="-329"/>
         <source>Name:</source>
         <translation>Name:</translation>
     </message>
@@ -9275,14 +9730,24 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>Ausführbare Datei:</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <source>Select the working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+3"/>
+        <source>Reset to default</source>
+        <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>Working Directory:</source>
         <translation>Arbeitsverzeichnis:</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeilen&amp;argumente:</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -9292,7 +9757,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+5"/>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
-        <translation type="unfinished"></translation>
+        <translation>Debug-Version des Frameworks verwenden (DYLD_IMAGE_SUFFIX=_debug)</translation>
     </message>
 </context>
 <context>
@@ -9300,37 +9765,37 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qtoptionspage.cpp" line="+65"/>
         <source>&lt;specify a name&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Geben Sie einen Namen an&gt;</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&lt;specify a path&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Geben Sie einenPfad an&gt;</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Select QTDIR</source>
-        <translation type="unfinished"></translation>
+        <translation>QTDIR Auswählen</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Select the Qt Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie das Qt-Verzeichnis aus</translation>
     </message>
     <message>
         <location line="+211"/>
         <source>The Qt Version %1 is not installed. Run make install</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version %1 ist nicht installiert. Führen Sie make install aus</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>%1 is not a valid qt directory</source>
-        <translation type="unfinished"></translation>
+        <source>%1 is not a valid Qt directory</source>
+        <translation>%1 ist kein gültiges Qt-Verzeichnis</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Found Qt version %1, using mkspec %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version %1 mit mkspec %2 wurde gefunden</translation>
     </message>
 </context>
 <context>
@@ -9342,13 +9807,8 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Qt versions</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Versionen</translation>
     </message>
     <message>
         <location/>
@@ -9378,32 +9838,32 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location/>
         <source>Version Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der Version:</translation>
     </message>
     <message>
         <location/>
         <source>MinGw Directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>MinGw-Verzeichnis:</translation>
     </message>
     <message>
         <location/>
         <source>Debugging Helper:</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger-Ausgabe-Hilfsbibliothek:</translation>
     </message>
     <message>
         <location/>
         <source>Show &amp;Log</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Protokoll anzeigen</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Rebuild</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Neu erstellen</translation>
     </message>
     <message>
         <location/>
         <source>Default Qt Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Qt-Version:</translation>
     </message>
 </context>
 <context>
@@ -9411,7 +9871,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/qtwizard.cpp" line="+91"/>
         <source>The project %1 could not be opened.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt %1 konnte nicht geöffnet werden.</translation>
     </message>
 </context>
 <context>
@@ -9419,67 +9879,67 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/shared/proparser/valueeditor.ui"/>
         <source>Edit Variable</source>
-        <translation type="unfinished"></translation>
+        <translation>Variable bearbeiten</translation>
     </message>
     <message>
         <location/>
         <source>Variable Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der Variablen:</translation>
     </message>
     <message>
         <location/>
         <source>Assignment Operator:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuweisungsoperator:</translation>
     </message>
     <message>
         <location/>
         <source>Variable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen:</translation>
     </message>
     <message>
         <location/>
         <source>Append (+=)</source>
-        <translation type="unfinished"></translation>
+        <translation>Anhängen (+=)</translation>
     </message>
     <message>
         <location/>
         <source>Remove (-=)</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen (-=)</translation>
     </message>
     <message>
         <location/>
         <source>Replace (~=)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ersetzen (~=)</translation>
     </message>
     <message>
         <location/>
         <source>Set (=)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuweisen (=)</translation>
     </message>
     <message>
         <location/>
         <source>Unique (*=)</source>
-        <translation type="unfinished"></translation>
+        <translation>Eindeutig zuweisen (*=)</translation>
     </message>
     <message>
         <location/>
         <source>Select Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Element auswählen</translation>
     </message>
     <message>
         <location/>
         <source>Edit Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Element bearbeiten</translation>
     </message>
     <message>
         <location/>
         <source>Select Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Elemente auswählen</translation>
     </message>
     <message>
         <location/>
         <source>Edit Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Elemente bearbeiten</translation>
     </message>
     <message>
         <location/>
@@ -9494,22 +9954,22 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/shared/proparser/valueeditor.cpp" line="+252"/>
         <source>Edit Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Werte bearbeiten</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Edit %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 bearbeiten</translation>
     </message>
     <message>
         <location line="+69"/>
         <source>Edit Scope</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereich bearbeiten</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Edit Advanced Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterten Ausdruck bearbeiten</translation>
     </message>
 </context>
 <context>
@@ -9517,12 +9977,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="+78"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&quot;#ff0000&quot;&gt;Das make-Kommando %1 konnte in der Build-Umgebung nicht gefunden werden&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+50"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;No Makefile found, assuming project is clean.&lt;/b&gt;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;Es wurde kein Makefile gefunden; das Projekt ist offenbar im bereinigten Zustand.&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -9530,7 +9990,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+52"/>
         <source>Override %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibe %1:</translation>
     </message>
 </context>
 <context>
@@ -9540,58 +10000,62 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <source>
 &lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Preferences &lt;/b&gt;&lt;/font&gt;
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Es ist keine gültige Qt-Version gesetzt. Setzen Sie sie unter Einstellungen&lt;/b&gt;&lt;/font&gt;
+</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>
 &lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Tools/Options &lt;/b&gt;&lt;/font&gt;
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Es ist keine gültige Qt-Version gesetzt. Setzen Sie sie unter Werkzeuge/Einstellungen&lt;/b&gt;&lt;/font&gt;
+</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>QMAKESPEC from environment (%1) overrides mkspec of selected Qt (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Die QMAKESPEC-ANgabe aus der Umgebung (%1) überschreibt die mkspec-Angabe der gewählten Qt-Version (%2).</translation>
     </message>
     <message>
         <location line="+53"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration unchanged, skipping QMake step.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&quot;#0000ff&quot;&gt;Konfiguration unverändert, übersrpinge QMake-Schritt.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Qt4Manager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanager.cpp" line="+133"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanager.cpp" line="+191"/>
         <source>Loading project %1 ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade Projekt %1 ...</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt %1 konnte nicht geöffnet werden: Die Projektdatei existiert nicht</translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+7"/>
         <source>Failed opening project</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt konnte nicht geöffnet werden</translation>
     </message>
     <message>
         <location line="-1"/>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt %1 konnte nicht geöffnet werden da es bereits geladen ist</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Opening %1 ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne %1 ...</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Done opening project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt geöffnet</translation>
     </message>
 </context>
 <context>
@@ -9611,15 +10075,15 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
 <context>
     <name>QtDumperHelper</name>
     <message>
-        <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+163"/>
+        <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+225"/>
         <source>&lt;none&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;kein&gt;</translation>
     </message>
     <message numerus="yes">
         <location line="+1"/>
         <source>%n known types, Qt version: %1, Qt namespace: %2</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n bekannte Typen, Qt-Version: %1, Namensraum: %2</numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -9643,7 +10107,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+2"/>
         <source>Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt</translation>
     </message>
     <message>
         <location line="+57"/>
@@ -9723,11 +10187,6 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <name>QuickOpen::Internal::DirectoryFilterOptions</name>
     <message>
         <location filename="../../../src/plugins/quickopen/directoryfilter.ui"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Name:</source>
         <translation>Name:</translation>
     </message>
@@ -9885,14 +10344,12 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location/>
         <source>Edit</source>
-        <translation>Editieren</translation>
+        <translation type="obsolete">Editieren</translation>
     </message>
     <message>
-        <location/>
         <source>Refresh Intervall:</source>
-        <translation>Aktualisierungsintervall:</translation>
+        <translation type="obsolete">Aktualisierungsintervall:</translation>
     </message>
     <message>
         <location/>
@@ -9903,6 +10360,16 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <location/>
         <source>Refresh now!</source>
         <translation>Jetzt aktualisieren!</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Edit...</source>
+        <translation>Ändern...</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Refresh Interval:</source>
+        <translation>Aktualisierungsintervall:</translation>
     </message>
 </context>
 <context>
@@ -10060,7 +10527,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="+2"/>
         <source>Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -10086,17 +10553,17 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/saveitemsdialog.ui"/>
         <source>Save Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen speichern</translation>
     </message>
     <message>
         <location/>
         <source>The following files have unsaved changes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Dateien wurden geändert:</translation>
     </message>
     <message>
         <location/>
-        <source>Automatically save all Files before building</source>
-        <translation type="unfinished"></translation>
+        <source>Automatically save all files before building</source>
+        <translation>Geänderte Dateien vorm Erstellen automatisch speichern</translation>
     </message>
 </context>
 <context>
@@ -10104,7 +10571,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/settingsdialog.ui"/>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <location/>
@@ -10117,62 +10584,62 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location filename="../../../src/shared/qrceditor/qrceditor.cpp" line="+57"/>
         <source>Add Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien hinzufügen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add Prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>Präfix hinzufügen</translation>
     </message>
     <message>
         <location line="+156"/>
         <source>Invalid file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Datei</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Skip</source>
-        <translation type="unfinished"></translation>
+        <translation>Überspringen</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Abort</source>
-        <translation type="unfinished"></translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>The file %1 is not in a subdirectory of the resource file. Continuing will result in an invalid resource file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei %1 befindet sich nicht in einem Unterverzeichnis der Ressourcendatei. Durch das Hinzufügen würde eine ungültige Ressourcendatei entstehen.</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Choose copy location</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Ziel zum Kopieren</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Overwrite failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Überschreiben</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Could not overwrite file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei %1 konnte nicht überschrieben werden.</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Copying failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kopieren schlug fehl</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Could not copy the file to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei konnte nicht nach %1 kopiert werden.</translation>
     </message>
 </context>
 <context>
@@ -10180,32 +10647,32 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location filename="../../../src/shared/qrceditor/resourceview.cpp" line="+362"/>
         <source>Add Files...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien hinzufügen...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Change Alias...</source>
-        <translation type="unfinished"></translation>
+        <translation>Alias ändern...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add Prefix...</source>
-        <translation type="unfinished"></translation>
+        <translation>Präfix hinzufügen...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Change Prefix...</source>
-        <translation type="unfinished"></translation>
+        <translation>Präfix ändern...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Change Language...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprache ändern...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Remove Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Element löschen</translation>
     </message>
     <message>
         <location line="+41"/>
@@ -10215,50 +10682,45 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="+2"/>
         <source>All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Dateien (*)</translation>
     </message>
     <message>
         <location line="+93"/>
         <source>Change Prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>Präfix ändern</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Input Prefix:</source>
-        <translation type="unfinished"></translation>
+        <translation>Präfix:</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Change Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprache ändern</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Language:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprache:</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Change File Alias</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateialias ändern</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Alias:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aliasname:</translation>
     </message>
 </context>
 <context>
     <name>ShortcutSettings</name>
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/shortcutsettings.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Tastenkürzel</translation>
     </message>
     <message>
         <location/>
@@ -10268,7 +10730,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location/>
         <source>Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando</translation>
     </message>
     <message>
         <location/>
@@ -10278,37 +10740,37 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location/>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Tastenkürzel</translation>
     </message>
     <message>
         <location/>
         <source>Defaults</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe</translation>
     </message>
     <message>
         <location/>
         <source>Import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Importieren...</translation>
     </message>
     <message>
         <location/>
         <source>Export...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportieren...</translation>
     </message>
     <message>
         <location/>
         <source>Key Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Tastenfolge</translation>
     </message>
     <message>
         <location/>
         <source>Shortcut:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tastenkürzel:</translation>
     </message>
     <message>
         <location/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Rücksetzen</translation>
     </message>
     <message>
         <location/>
@@ -10321,339 +10783,121 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/showbuildlog.ui"/>
         <source>Debugging Helper Build Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellungsprotokoll der Ausgabe-Hilfsbibliothek</translation>
     </message>
 </context>
 <context>
-    <name>SimpleProEditor</name>
+    <name>QtModulesInfo</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/speinfo.cpp" line="+59"/>
-        <source>Debug and Release</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Debug specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Release specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>All platforms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>MS Windows specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Linux/Unix specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Mac OSX specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Target Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Type and name of the target.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Preprocessor Definitions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Setting of the preprocessor definitions.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Include path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Setting of the pathes where the header files are located.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Libraries</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Defining the libraries to link the target against and the pathes where these are located.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Source Files</source>
-        <translation>Quelldateien</translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Header Files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Forms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>Qt Modules</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Setting up which of the Qt modules will be used in the target application.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Resource files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+12"/>
-        <source>Target name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>The name of the resulting target.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Configuration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Destination directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Where the resulting target will be created.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+15"/>
         <source>QtCore Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Core non-GUI classes used by other modules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtGui Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Graphical user interface components</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtNetwork Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for network programming</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtOpenGL Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>OpenGL support classes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtSql Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for database integration using SQL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtScript Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for evaluating Qt Scripts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtSvg Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for displaying the contents of SVG files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtWebKit Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for displaying and editing Web content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtXml Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for handling XML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtXmlPatterns Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>An XQuery/XPath engine for XML and custom data models</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Phonon Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Multimedia framework classes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Qt3Support Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes that ease porting from Qt 3 to Qt 4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtTest Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Tool classes for unit testing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>QtDBus module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Classes for Inter-Process Communication using the D-Bus</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+15"/>
-        <source>Application</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create a standalone application</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Dynamic Library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create a dynamic library for usage in other applications</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Static Library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create a static library for usage in other applications</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Add Operator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Remove Operator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Replace Operator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Set Operator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Unique Add Operator</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -10700,61 +10944,51 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     </message>
     <message>
         <location/>
-        <source>localhost:5115</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Architecture:</source>
-        <translation type="unfinished"></translation>
+        <translation>Architektur:</translation>
     </message>
     <message>
         <location/>
         <source>Host and port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Host und Portnummer:</translation>
     </message>
     <message>
         <location/>
         <source>Use server start script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Startskript benutzen:</translation>
     </message>
     <message>
         <location/>
         <source>Server start script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Startskript:</translation>
     </message>
 </context>
 <context>
     <name>Subversion::Internal::SettingsPage</name>
     <message>
         <location filename="../../../src/plugins/subversion/settingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Subversion Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Subversion-Kommando:</translation>
     </message>
     <message>
         <location/>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Authentifizierung</translation>
     </message>
     <message>
         <location/>
         <source>User name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nutzername:</translation>
     </message>
     <message>
         <location/>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Passwort:</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/subversion/settingspage.cpp" line="+84"/>
         <source>Subversion</source>
-        <translation type="unfinished"></translation>
+        <translation>Subversion</translation>
     </message>
 </context>
 <context>
@@ -10762,7 +10996,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="-34"/>
         <source>Subversion Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Subversion-Kommando</translation>
     </message>
 </context>
 <context>
@@ -10770,25 +11004,30 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location filename="../../../src/plugins/subversion/subversionoutputwindow.cpp" line="+43"/>
         <source>Subversion Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Subversion-Ausgabe</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Subversion</source>
-        <translation type="unfinished"></translation>
+        <translation>Subversion</translation>
     </message>
 </context>
 <context>
     <name>Subversion::Internal::SubversionPlugin</name>
     <message>
-        <location filename="../../../src/plugins/subversion/subversionplugin.cpp" line="+312"/>
+        <location filename="../../../src/plugins/subversion/subversionplugin.cpp" line="+313"/>
         <source>&amp;Subversion</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Subversion</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Add &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; hinzufügen</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -10801,19 +11040,34 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>Löschen</translation>
     </message>
     <message>
+        <location line="+0"/>
+        <source>Delete &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; löschen</translation>
+    </message>
+    <message>
         <location line="+7"/>
         <source>Revert</source>
-        <translation type="unfinished"></translation>
+        <translation>Rückgängig machen</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Revert &quot;%1&quot;</source>
+        <translation>Änderungen in &quot;%1&quot; rückgängig machen (revert)</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Diff Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für Projekt</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Diff Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für Datei</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Diff &quot;%1&quot;</source>
+        <translation>Diff für &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -10823,12 +11077,17 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="+7"/>
         <source>Commit All Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Dateien abgeben</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Commit Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei abgeben</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Commit &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; abgeben</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -10838,37 +11097,47 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="+7"/>
         <source>Filelog Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Filelog für Datei</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Filelog &quot;%1&quot;</source>
+        <translation>Filelog für &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Annotate Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotation für Datei</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Annotate &quot;%1&quot;</source>
+        <translation>Annotation für &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Describe...</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung zu...</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Project Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status des Projekts (status)</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Update Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt auf aktuellen Stand bringen</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Abgeben</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Diff Selected Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für Auswahl</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -10883,72 +11152,41 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="+39"/>
         <source>Closing Subversion Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Subversion-Editor schließen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie den Commit ausführen?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Überprüfung der Beschreibung schlug fehl. Möchten Sie den Commit trotzdem ausführen?</translation>
     </message>
     <message>
-        <location line="+97"/>
-        <source>Add %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Delete %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Revert %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Diff %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Diff für %1</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Commit %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Filelog %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Annotate %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+32"/>
+        <location line="+124"/>
         <source>The file has been changed. Do you want to revert it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei wurde geändert. Möchten Sie sie zurücksetzen?</translation>
     </message>
     <message>
         <location line="+90"/>
         <source>The commit list spans several respositories (%1). Please commit them one by one.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die abzugebenden Dateien umfassen mehrere Repositories. Bitte geben Sie sie einzeln ab.</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Another commit is currently being executed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es läuft bereits ein Abgabevorgang.</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>There are no modified files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es gibt keine geänderten Dateien.</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -10958,44 +11196,45 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="+184"/>
         <source>Describe</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibe</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Revision number:</source>
-        <translation type="unfinished"></translation>
+        <translation>Revisionsnummer:</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>No subversion executable specified!</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde keine ausführbaren Subversion-Datei angegeben!
+</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>%1 Executing: %2 %3
 </source>
         <extracomment>&lt;timestamp&gt; Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 Kommando: %2 %3</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>The process terminated with exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde beendet, Rückgabewert %1.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>The process terminated abnormally.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde in unnormaler Weise beendet.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Could not start subversion &apos;%1&apos;. Please check your settings in the preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Subversion-Kommando &apos;%1&apos; konnte nicht gestartet werden. Bitte überprüfen Sie die Einstellungen.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Subversion did not respond within timeout limit (%1 ms).</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Antwort von Subversion innerhalb des Zeitlimits (%1 ms).</translation>
     </message>
 </context>
 <context>
@@ -11028,12 +11267,12 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextDocument</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basetextdocument.cpp" line="+172"/>
+        <location filename="../../../src/plugins/texteditor/basetextdocument.cpp" line="+158"/>
         <source>untitled</source>
         <translation>kein Titel</translation>
     </message>
     <message>
-        <location line="+67"/>
+        <location line="+68"/>
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
         <translation>&lt;em&gt;Binäre Daten&lt;/em&gt;</translation>
     </message>
@@ -11041,7 +11280,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditor</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+227"/>
+        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+228"/>
         <source>Print Document</source>
         <translation>Dokument drucken</translation>
     </message>
@@ -11059,7 +11298,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+3570"/>
+        <location line="+3585"/>
         <source>Line: %1, Col: %2</source>
         <translation>Zeile: %1, Spalte: %2</translation>
     </message>
@@ -11073,11 +11312,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/texteditor/behaviorsettingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Storage</source>
         <translation>Abspeichern</translation>
     </message>
@@ -11156,11 +11390,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <location filename="../../../src/plugins/texteditor/displaysettingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Display</source>
         <translation>Anzeige</translation>
     </message>
@@ -11213,6 +11442,16 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <location/>
         <source>Animate matching parentheses</source>
         <translation>Passende Klammern animieren</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Navigation</source>
+        <translation>Navigation</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Enable &amp;mouse navigation</source>
+        <translation>&amp;Mausnavigation aktivieren</translation>
     </message>
 </context>
 <context>
@@ -11292,11 +11531,6 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <name>TextEditor::Internal::FontSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/texteditor/fontsettingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Font</source>
         <translation>Zeichensatz</translation>
     </message>
@@ -11400,7 +11634,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
 <context>
     <name>TextEditor::TextEditorActionHandler</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/texteditoractionhandler.cpp" line="+115"/>
+        <location filename="../../../src/plugins/texteditor/texteditoractionhandler.cpp" line="+116"/>
         <source>&amp;Undo</source>
         <translation>&amp;Rückgangig</translation>
     </message>
@@ -11460,17 +11694,22 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+9"/>
         <source>Delete &amp;Line</source>
         <translation>&amp;Zeile löschen</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-3"/>
         <source>Shift+Del</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-2"/>
+        <source>Cut &amp;Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Collapse</source>
         <translation>Einklappen</translation>
     </message>
@@ -11745,27 +11984,27 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/shared/help/topicchooser.cpp" line="+42"/>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Thema für &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
     <message>
         <location filename="../../../src/shared/help/topicchooser.ui"/>
         <source>Choose Topic</source>
-        <translation type="unfinished"></translation>
+        <translation>Themenwahl</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Topics</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Themen</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Display</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Anzeigen</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Schließen</translation>
     </message>
 </context>
 <context>
@@ -11773,7 +12012,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseconstants.h" line="+38"/>
         <source>Version Control</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionskontrolle</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11791,22 +12030,22 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location line="+0"/>
         <source>E-mail</source>
-        <translation type="unfinished"></translation>
+        <translation>E-Mail-Adresse</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Alias</source>
-        <translation type="unfinished"></translation>
+        <translation>Alias</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Alias e-mail</source>
-        <translation type="unfinished"></translation>
+        <translation>Alias-E-Mail-Adresse</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Cannot open &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &apos;%1&apos; kann nicht geöffnet werden: %2</translation>
     </message>
 </context>
 <context>
@@ -11827,7 +12066,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseeditor.cpp" line="+315"/>
         <source>Describe change %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Details zur Änderung %1 anzeigen</translation>
     </message>
 </context>
 <context>
@@ -11835,86 +12074,87 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbasesubmiteditor.cpp" line="+134"/>
         <source>Check message</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung prüfen</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Insert name...</source>
-        <translation type="unfinished"></translation>
+        <translation>Namen einfügen...</translation>
     </message>
     <message>
         <location line="+361"/>
         <source>Submit Message Check failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Überprüfung der Beschreibung schlug fehl</translation>
     </message>
     <message>
         <location line="+28"/>
         <source>Unable to open &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; kann nicht geöffnet werden: %2</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The check script &apos;%1&apos; could not be started: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Skript zur Überprüfung &apos;%1&apos; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The check script &apos;%1&apos; could not be run: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Skript zur Überprüfung &apos;%1&apos; konnte nicht ausgeführt werden: %2</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>The check script returned exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Skript zur Überprüfung wurde beendet, Rückgabewert %1.</translation>
     </message>
 </context>
 <context>
     <name>VCSBaseSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbasesettingspage.ui"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
+        <source>Prompt to submit</source>
+        <translation>Abgabe bestätigen</translation>
     </message>
     <message>
         <location/>
-        <source>Prompt to submit</source>
-        <translation type="unfinished"></translation>
+        <source>Common</source>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <location/>
         <source>Wrap submit message at:</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung umbrechen bei:</translation>
     </message>
     <message>
         <location/>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine ausführbare Datei, die mit der Beschreibung in einer temporären Datei als erstem Kommandozeilenparameter aufgerufen wird. Bei Fehlschlag sollte sie einen Rückgabewert ungleich Null mit einer entsprechende Nachricht auf der Fehlerausgabe zurückgeben.</translation>
     </message>
     <message>
         <location/>
         <source>Submit message check script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skript zur Überprüfung der Beschreibung:</translation>
     </message>
     <message>
         <location/>
         <source>A file listing user names and email addresses in a 4-column mailmap format:
 name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Datei, die Nutzernamen und E-Mail-Adressen in einem vierspaltigen Format (mailmap) enthält:
+Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
     </message>
     <message>
         <location/>
         <source>User/alias configuration file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nutzer/Alias-Konfigurationsdatei:</translation>
     </message>
     <message>
         <location/>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Datei, die Zeilen mit Feldnamen (zum Beispiel &quot;Reviewed-By:&quot;) enthält, die im Abgabefenster unter der Beschreibung erscheinen.</translation>
     </message>
     <message>
         <location/>
         <source>User fields configuration file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nutzerfeld-Konfigurationsdatei:</translation>
     </message>
 </context>
 <context>
@@ -11922,13 +12162,14 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location filename="../../../src/plugins/coreplugin/vcsmanager.cpp" line="+132"/>
         <source>Version Control</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionskontrolle</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Would you like to remove this file from the version control system (%1)?
 Note: This might remove the local file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie die Datei aus der Versionskontrolle entferned (%1)?
+Hinweis: Unter Umständen wird die Datei gelöscht.</translation>
     </message>
 </context>
 <context>
@@ -11936,25 +12177,25 @@ Note: This might remove the local file.</source>
     <message>
         <location filename="../../../src/shared/cpaster/view.cpp" line="+89"/>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
         <location line="+11"/>
         <location line="+41"/>
         <source>&lt;Username&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Nutzername&gt;</translation>
     </message>
     <message>
         <location line="-33"/>
         <location line="+38"/>
         <source>&lt;Description&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Beschreibung&gt;</translation>
     </message>
     <message>
         <location line="-30"/>
         <location line="+35"/>
         <source>&lt;Comment&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Kommentar&gt;</translation>
     </message>
 </context>
 <context>
@@ -11962,27 +12203,27 @@ Note: This might remove the local file.</source>
     <message>
         <location filename="../../../src/shared/cpaster/view.ui"/>
         <source>Send to Codepaster</source>
-        <translation type="unfinished"></translation>
+        <translation>An CodePaster senden</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nutzername:</translation>
     </message>
     <message>
         <location/>
         <source>&lt;Username&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Nutzername&gt;</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Description:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Beschreibung:</translation>
     </message>
     <message>
         <location/>
         <source>&lt;Description&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Beschreibung&gt;</translation>
     </message>
     <message>
         <location/>
@@ -11990,12 +12231,15 @@ Note: This might remove the local file.</source>
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;lt;Comment&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;lt;Kommentar&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
         <source>Parts to send to codepaster</source>
-        <translation type="unfinished"></translation>
+        <translation>An CodePaster zu sendende Teile</translation>
     </message>
     <message>
         <location/>
