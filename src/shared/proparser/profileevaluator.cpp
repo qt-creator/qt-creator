@@ -1835,10 +1835,90 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         case T_INFILE:
         case T_REQUIRES:
         case T_EVAL:
-        case T_IF:
         case T_BREAK:
         case T_NEXT:
 #endif
+        case T_IF: {
+            if (args.count() != 1) {
+                q->logMessage(format("if(condition) requires one argument."));
+                return ProItem::ReturnFalse;
+            }
+            QString cond = args.first();
+            bool escaped = false; // This is more than qmake does
+            bool quoted = false;
+            bool ret = true;
+            bool orOp = false;
+            bool invert = false;
+            bool isFunc = false;
+            int parens = 0;
+            QString test;
+            test.reserve(20);
+            QString args;
+            args.reserve(50);
+            const QChar *d = cond.unicode();
+            const QChar *ed = d + cond.length();
+            while (d < ed) {
+                ushort c = (d++)->unicode();
+                if (!escaped) {
+                    if (c == '\\') {
+                        escaped = true;
+                        args += c; // Assume no-one quotes the test name
+                        continue;
+                    } else if (c == '"') {
+                        quoted = !quoted;
+                        args += c; // Ditto
+                        continue;
+                    }
+                } else {
+                    escaped = false;
+                }
+                if (quoted) {
+                    args += c; // Ditto
+                } else {
+                    bool isOp = false;
+                    if (c == '(') {
+                        isFunc = true;
+                        if (parens)
+                            args += c;
+                        ++parens;
+                    } else if (c == ')') {
+                        --parens;
+                        if (parens)
+                            args += c;
+                    } else if (!parens) {
+                        if (c == ':' || c == '|')
+                            isOp = true;
+                        else if (c == '!')
+                            invert = true;
+                        else
+                            test += c;
+                    } else {
+                        args += c;
+                    }
+                    if (!parens && (isOp || d == ed)) {
+                        // Yes, qmake doesn't shortcut evaluations here. We can't, either,
+                        // as some test functions have side effects.
+                        bool success;
+                        if (isFunc) {
+                            success = evaluateConditionalFunction(test, args);
+                        } else {
+                            success = isActiveConfig(test, true);
+                        }
+                        success ^= invert;
+                        if (orOp)
+                            ret |= success;
+                        else
+                            ret &= success;
+                        orOp = (c == '|');
+                        invert = false;
+                        isFunc = false;
+                        test.clear();
+                        args.clear();
+                    }
+                }
+            }
+            return returnBool(ret);
+        }
         case T_CONFIG: {
             if (args.count() < 1 || args.count() > 2) {
                 q->logMessage(format("CONFIG(config) requires one or two arguments."));
