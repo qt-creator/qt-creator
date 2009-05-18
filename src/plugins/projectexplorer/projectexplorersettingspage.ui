@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>541</width>
-    <height>358</height>
+    <width>296</width>
+    <height>152</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Build Settings</string>
+      <string>Build and Run</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -24,15 +24,6 @@
         </property>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Run Settings</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QCheckBox" name="buildProjectBeforeRunCheckBox">
         <property name="text">
