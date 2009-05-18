@@ -4784,7 +4784,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <name>DocSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/help/docsettingspage.ui"/>
-        <source>Registered Documentation:</source>
+        <source>Registered Documentation</source>
         <translation>Registrierte Dokumentationen</translation>
     </message>
     <message>

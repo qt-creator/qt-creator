@@ -4443,8 +4443,8 @@ La ricompilazione del progetto potrebbe aiutare.</translation>
     <name>DocSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/help/docsettingspage.ui"/>
-        <source>Registered Documentation:</source>
-        <translation>Documentazione Registrata:</translation>
+        <source>Registered Documentation</source>
+        <translation>Documentazione Registrata</translation>
     </message>
     <message>
         <location/>

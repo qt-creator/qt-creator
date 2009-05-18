@@ -4117,7 +4117,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <location/>
-        <source>Registered Documentation:</source>
+        <source>Registered Documentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
