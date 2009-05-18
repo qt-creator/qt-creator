@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>428</width>
-    <height>325</height>
+    <width>615</width>
+    <height>367</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
@@ -122,6 +122,29 @@
       <string>Tabs and Indentation</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="insertSpaces">
+        <property name="text">
+         <string>Insert &amp;spaces instead of tabs</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>10</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="0" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
@@ -184,6 +207,13 @@
         </property>
        </spacer>
       </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="autoIndent">
+        <property name="text">
+         <string>Enable automatic &amp;indentation</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
@@ -233,7 +263,7 @@
         </item>
        </layout>
       </item>
-      <item row="3" column="0">
+      <item row="2" column="0">
        <widget class="QCheckBox" name="smartBackspace">
         <property name="toolTip">
          <string>Backspace will go back one indentation level instead of one space.</string>
@@ -243,35 +273,51 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <spacer name="horizontalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Expanding</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>0</width>
-          <height>10</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="insertSpaces">
-        <property name="text">
-         <string>Insert &amp;spaces instead of tabs</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="autoIndent">
-        <property name="text">
-         <string>Enable automatic &amp;indentation</string>
-        </property>
-       </widget>
+      <item row="3" column="0" colspan="4">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Tab key performs auto-indent:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="tabKeyBehavior">
+          <item>
+           <property name="text">
+            <string>Never</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Always</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>In leading white space</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>31</width>
+            <height>24</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

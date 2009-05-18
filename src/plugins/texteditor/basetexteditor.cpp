@@ -845,11 +845,22 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
     } break;
 #endif
     case Qt::Key_Tab:
-    case Qt::Key_Backtab:
+    case Qt::Key_Backtab: {
         if (ro) break;
-        indentOrUnindent(e->key() == Qt::Key_Tab);
+        QTextCursor cursor = textCursor();
+        int newPosition;
+        if (d->m_document->tabSettings().tabShouldIndent(document(), cursor, &newPosition)) {
+            if (newPosition != cursor.position() && !cursor.hasSelection()) {
+                cursor.setPosition(newPosition);
+                setTextCursor(cursor);
+            }
+            indent(document(), cursor, QChar::Null);
+        } else {
+            indentOrUnindent(e->key() == Qt::Key_Tab);
+        }
         e->accept();
         return;
+    } break;
     case Qt::Key_Backspace:
         if (ro) break;
         if (d->m_document->tabSettings().m_smartBackspace

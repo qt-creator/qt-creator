@@ -40,6 +40,7 @@ static const char *smartBackspaceKey = "SmartBackspace";
 static const char *autoIndentKey = "AutoIndent";
 static const char *tabSizeKey = "TabSize";
 static const char *indentSizeKey = "IndentSize";
+static const char *tabKeyBehaviorKey = "TabKeyBehavior";
 static const char *groupPostfix = "TabSettings";
 
 namespace TextEditor {
@@ -49,7 +50,8 @@ TabSettings::TabSettings() :
     m_autoIndent(true),
     m_smartBackspace(false),
     m_tabSize(8),
-    m_indentSize(4)
+    m_indentSize(4),
+    m_tabKeyBehavior(TabNeverIndents)
 {
 }
 
@@ -64,6 +66,7 @@ void TabSettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(smartBackspaceKey), m_smartBackspace);
     s->setValue(QLatin1String(tabSizeKey), m_tabSize);
     s->setValue(QLatin1String(indentSizeKey), m_indentSize);
+    s->setValue(QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior);
     s->endGroup();
 }
 
@@ -81,6 +84,7 @@ void TabSettings::fromSettings(const QString &category, const QSettings *s)
     m_smartBackspace  = s->value(group + QLatin1String(smartBackspaceKey), m_smartBackspace).toBool();
     m_tabSize         = s->value(group + QLatin1String(tabSizeKey), m_tabSize).toInt();
     m_indentSize      = s->value(group + QLatin1String(indentSizeKey), m_indentSize).toInt();
+    m_tabKeyBehavior  = (TabKeyBehavior)s->value(group + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
 }
 
 int TabSettings::lineIndentPosition(const QString &text) const
@@ -138,6 +142,28 @@ bool TabSettings::isIndentationClean(const QString &text) const
         ++i;
     }
     return true;
+}
+
+bool TabSettings::tabShouldIndent(const QTextDocument *document, QTextCursor cursor, int *suggestedPosition) const
+{
+    if (m_tabKeyBehavior == TabNeverIndents)
+        return false;
+    QTextCursor tc = cursor;
+    if (suggestedPosition)
+        *suggestedPosition = tc.position(); // At least suggest original position
+    tc.movePosition(QTextCursor::StartOfLine);
+    if (tc.atBlockEnd()) // cursor was on a blank line
+        return true;
+    if (document->characterAt(tc.position()).isSpace()) {
+        tc.movePosition(QTextCursor::WordRight);
+        if (tc.columnNumber() >= cursor.columnNumber()) {
+            if (suggestedPosition)
+                *suggestedPosition = tc.position(); // Suggest position after whitespace
+            if (m_tabKeyBehavior == TabLeadingWhitespaceIndents)
+                return true;
+        }
+    }
+    return (m_tabKeyBehavior == TabAlwaysIndents);
 }
 
 int TabSettings::columnAt(const QString &text, int position) const
@@ -229,7 +255,8 @@ bool TabSettings::equals(const TabSettings &ts) const
         && m_autoIndent == ts.m_autoIndent
         && m_smartBackspace == ts.m_smartBackspace
         && m_tabSize == ts.m_tabSize
-        && m_indentSize == ts.m_indentSize;
+        && m_indentSize == ts.m_indentSize
+        && m_tabKeyBehavior == ts.m_tabKeyBehavior;
 }
 
 } // namespace TextEditor
