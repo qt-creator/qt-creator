@@ -45,6 +45,7 @@ const char * const PROINCLUDEFILE_MIMETYPE  = "application/vnd.nokia.qt.qmakepro
 const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
 const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
 const char * const FORM_MIMETYPE = "application/x-designer";
+const char * const LINGUIST_MIMETYPE = "application/x-linguist";
 
 //actions
 const char * const NEWMENU             = "Qt4.NewMenu";

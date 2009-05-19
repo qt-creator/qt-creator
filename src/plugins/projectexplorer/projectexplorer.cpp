@@ -70,6 +70,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/mainwindow.h>
@@ -93,7 +94,8 @@
 #include <QtGui/QMessageBox>
 
 Q_DECLARE_METATYPE(QSharedPointer<ProjectExplorer::RunConfiguration>);
-Q_DECLARE_METATYPE(Core::IEditorFactory *);
+Q_DECLARE_METATYPE(Core::IEditorFactory*);
+Q_DECLARE_METATYPE(Core::IExternalEditor*);
 
 namespace {
 bool debug = false;
@@ -1901,6 +1903,7 @@ void ProjectExplorerPlugin::runConfigurationMenuTriggered(QAction *action)
 void ProjectExplorerPlugin::populateOpenWithMenu()
 {
     typedef QList<Core::IEditorFactory*> EditorFactoryList;
+    typedef QList<Core::IExternalEditor*> ExternalEditorList;
 
     m_openWithMenu->clear();
 
@@ -1910,7 +1913,8 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
     Core::ICore *core = Core::ICore::instance();
     if (const Core::MimeType mt = core->mimeDatabase()->findByFile(QFileInfo(fileName))) {
         const EditorFactoryList factories = core->editorManager()->editorFactories(mt, false);
-        anyMatches = !factories.empty();
+        const ExternalEditorList externalEditors = core->editorManager()->externalEditors(mt, false);
+        anyMatches = !factories.empty() || !externalEditors.empty();
         if (anyMatches) {
             const QList<Core::IEditor *> editorsOpenForFile = core->editorManager()->editorsForFileName(fileName);
             // Add all suitable editors
@@ -1930,8 +1934,13 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
                     }
                     action->setEnabled(enabled);
                 }
+            } // for editor factories
+            // Add all suitable external editors
+            foreach (Core::IExternalEditor *externalEditor, externalEditors) {
+                QAction * const action = m_openWithMenu->addAction(externalEditor->kind());
+                action->setData(qVariantFromValue(externalEditor));
             }
-        }
+        } // matches
     }
     m_openWithMenu->setEnabled(anyMatches);   
 }
@@ -1942,14 +1951,18 @@ void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
         qWarning() << "ProjectExplorerPlugin::openWithMenuTriggered no action, can't happen.";
         return;
     }
-    Core::IEditorFactory * const editorFactory = qVariantValue<Core::IEditorFactory *>(action->data());
-    if (!editorFactory) {
-        qWarning() << "Editor Factory not attached to action, can't happen"<<editorFactory;
+    Core::EditorManager *em = Core::EditorManager::instance();
+    const QVariant data = action->data();
+    if (qVariantCanConvert<Core::IEditorFactory *>(data)) {
+        Core::IEditorFactory *factory = qVariantValue<Core::IEditorFactory *>(data);
+        em->openEditor(currentNode()->path(), factory->kind());
+        em->ensureEditorManagerVisible();
         return;
     }
-    Core::EditorManager *em = Core::EditorManager::instance();
-    em->openEditor(currentNode()->path(), editorFactory->kind());
-    em->ensureEditorManagerVisible();
+    if (qVariantCanConvert<Core::IExternalEditor *>(data)) {
+        Core::IExternalEditor *externalEditor = qVariantValue<Core::IExternalEditor *>(data);
+        em->openExternalEditor(currentNode()->path(), externalEditor->kind());
+    }
 }
 
 void ProjectExplorerPlugin::updateSessionMenu()

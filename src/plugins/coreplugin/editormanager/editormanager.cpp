@@ -44,6 +44,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/baseview.h>
 #include <coreplugin/imode.h>
 
@@ -439,7 +440,7 @@ void EditorManager::init()
     context << m_d->m_core->uniqueIDManager()->uniqueIdentifier("QtCreator.OpenDocumentsView");
 
     m_d->m_coreListener = new EditorClosingCoreListener(this);
-    
+
     pluginManager()->addObject(m_d->m_coreListener);
 
     m_d->m_openEditorsFactory = new OpenEditorsViewFactory();
@@ -894,22 +895,23 @@ void EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEdit
     }
 }
 
-/* Find editors for a mimetype, best matching at the front
- * of the list. Recurse over the parent classes of the mimetype to
- * find them. */
+/* For something that has a 'QStringList mimeTypes' (IEditorFactory
+ * or IExternalEditor), find the one best matching the mimetype passed in.
+ *  Recurse over the parent classes of the mimetype to find them. */
+template <class EditorFactoryLike>
 static void mimeTypeFactoryRecursion(const MimeDatabase *db,
                                      const MimeType &mimeType,
-                                     const QList<IEditorFactory*> &allFactories,
+                                     const QList<EditorFactoryLike*> &allFactories,
                                      bool firstMatchOnly,
-                                     QList<IEditorFactory*> *list)
+                                     QList<EditorFactoryLike*> *list)
 {
-    typedef QList<IEditorFactory*> EditorFactoryList;
+    typedef typename QList<EditorFactoryLike*>::const_iterator EditorFactoryLikeListConstIterator;
     // Loop factories to find type
     const QString type = mimeType.type();
-    const EditorFactoryList::const_iterator fcend = allFactories.constEnd();
-    for (EditorFactoryList::const_iterator fit = allFactories.constBegin(); fit != fcend; ++fit) {
+    const EditorFactoryLikeListConstIterator fcend = allFactories.constEnd();
+    for (EditorFactoryLikeListConstIterator fit = allFactories.constBegin(); fit != fcend; ++fit) {
         // Exclude duplicates when recursing over xml or C++ -> C -> text.
-        IEditorFactory *factory = *fit;
+        EditorFactoryLike *factory = *fit;
         if (!list->contains(factory) && factory->mimeTypes().contains(type)) {
             list->push_back(*fit);
             if (firstMatchOnly)
@@ -917,7 +919,7 @@ static void mimeTypeFactoryRecursion(const MimeDatabase *db,
             break;
         }
     }
-    // Any parent classes? -> recurse
+    // Any parent mime type classes? -> recurse
     QStringList parentTypes = mimeType.subClassesOf();
     if (parentTypes.empty())
         return;
@@ -937,6 +939,29 @@ EditorManager::EditorFactoryList
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.type() << " returns " << rc;
     return rc;
+}
+
+EditorManager::ExternalEditorList
+        EditorManager::externalEditors(const MimeType &mimeType, bool bestMatchOnly) const
+{
+    ExternalEditorList rc;
+    const ExternalEditorList allEditors = pluginManager()->getObjects<IExternalEditor>();
+    mimeTypeFactoryRecursion(m_d->m_core->mimeDatabase(), mimeType, allEditors, bestMatchOnly, &rc);
+    if (debugEditorManager)
+        qDebug() << Q_FUNC_INFO << mimeType.type() << " returns " << rc;
+    return rc;
+}
+
+/* For something that has a 'QString kind' (IEditorFactory
+ * or IExternalEditor), find the one matching a kind. */
+template <class EditorFactoryLike>
+        inline EditorFactoryLike *findByKind(ExtensionSystem::PluginManager *pm,
+                                             const QString &kind)
+{
+    foreach(EditorFactoryLike *efl, pm->getObjects<EditorFactoryLike>())
+        if (kind == efl->kind())
+            return efl;
+    return 0;
 }
 
 IEditor *EditorManager::createEditor(const QString &editorKind,
@@ -959,14 +984,8 @@ IEditor *EditorManager::createEditor(const QString &editorKind,
         factories = editorFactories(mimeType, true);
     } else {
         // Find by editor kind
-        const EditorFactoryList allFactories = pluginManager()->getObjects<IEditorFactory>();
-        const EditorFactoryList::const_iterator acend = allFactories.constEnd();
-        for (EditorFactoryList::const_iterator ait = allFactories.constBegin(); ait != acend; ++ait) {
-            if (editorKind == (*ait)->kind()) {
-                factories.push_back(*ait);
-                break;
-            }
-        }
+        if (IEditorFactory *factory = findByKind<IEditorFactory>(pluginManager(), editorKind))
+            factories.push_back(factory);
     }
     if (factories.empty()) {
         qWarning("%s: unable to find an editor factory for the file '%s', editor kind '%s'.",
@@ -1002,27 +1021,40 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
 
 // Run the OpenWithDialog and return the editor kind
 // selected by the user.
-QString EditorManager::getOpenWithEditorKind(const QString &fileName) const
+QString EditorManager::getOpenWithEditorKind(const QString &fileName,
+                                             bool *isExternalEditor) const
 {
-    QStringList editorKinds;
     // Collect editors that can open the file
-    if (const MimeType mt = m_d->m_core->mimeDatabase()->findByFile(fileName)) {
-        const EditorFactoryList editors = editorFactories(mt, false);
-        const int size = editors.size();
-        for (int i = 0; i < size; i++) {
-            editorKinds.push_back(editors.at(i)->kind());
-        }
-    }
-    if (editorKinds.empty())
+    const MimeType mt = m_d->m_core->mimeDatabase()->findByFile(fileName);
+    if (!mt)
         return QString();
-
+    QStringList allEditorKinds;
+    QStringList externalEditorKinds;
+    // Built-in
+    const EditorFactoryList editors = editorFactories(mt, false);
+    const int size = editors.size();
+    for (int i = 0; i < size; i++) {
+        allEditorKinds.push_back(editors.at(i)->kind());
+    }
+    // External editors
+    const ExternalEditorList exEditors = externalEditors(mt, false);
+    const int esize = exEditors.size();
+    for (int i = 0; i < esize; i++) {
+        externalEditorKinds.push_back(exEditors.at(i)->kind());
+        allEditorKinds.push_back(exEditors.at(i)->kind());
+    }
+    if (allEditorKinds.empty())
+        return QString();
     // Run dialog.
     OpenWithDialog dialog(fileName, m_d->m_core->mainWindow());
-    dialog.setEditors(editorKinds);
+    dialog.setEditors(allEditorKinds);
     dialog.setCurrentEditor(0);
     if (dialog.exec() != QDialog::Accepted)
         return QString();
-    return dialog.editor();
+    const QString selectedKind = dialog.editor();
+    if (isExternalEditor)
+        *isExternalEditor = externalEditorKinds.contains(selectedKind);
+    return selectedKind;
 }
 
 static QString formatFileFilters(const Core::ICore *core, QString *selectedFilter)
@@ -1091,6 +1123,20 @@ IEditor *EditorManager::openEditor(const QString &fileName, const QString &edito
 
     activateEditor(editor, flags);
     return editor;
+}
+
+bool EditorManager::openExternalEditor(const QString &fileName, const QString &editorKind)
+{
+    IExternalEditor *ee = findByKind<IExternalEditor>(pluginManager(), editorKind);
+    if (!ee)
+        return false;
+    QString errorMessage;
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    const bool ok = ee->startEditor(fileName, &errorMessage);
+    QApplication::restoreOverrideCursor();
+    if (!ok)
+        QMessageBox::critical(m_d->m_core->mainWindow(), tr("Opening File"), errorMessage);
+    return ok;
 }
 
 QStringList EditorManager::getOpenFileNames() const
@@ -1440,7 +1486,7 @@ void EditorManager::addCurrentPositionToNavigationHistory(const QByteArray &save
         return;
     if (!editor->file())
         return;
-    
+
     QString fileName = editor->file()->fileName();
     QByteArray state;
     if (saveState.isNull()) {
@@ -1577,7 +1623,6 @@ QByteArray EditorManager::saveState() const
 
     stream << m_d->m_editorStates;
 
-    
     QList<EditorModel::Entry> entries = m_d->m_editorModel->entries();
     stream << entries.count();
 

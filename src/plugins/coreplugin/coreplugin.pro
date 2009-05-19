@@ -39,6 +39,7 @@ SOURCES += mainwindow.cpp \
     editormanager/editorview.cpp \
     editormanager/openeditorsview.cpp \
     editormanager/openeditorswindow.cpp \
+    editormanager/iexternaleditor.cpp \
     actionmanager/actionmanager.cpp \
     actionmanager/command.cpp \
     actionmanager/actioncontainer.cpp \
@@ -99,6 +100,7 @@ HEADERS += mainwindow.h \
     editormanager/openeditorsview.h \
     editormanager/openeditorswindow.h \
     editormanager/ieditor.h \
+    editormanager/iexternaleditor.h \
     editormanager/ieditorfactory.h \
     actionmanager/actioncontainer.h \
     actionmanager/actionmanager.h \

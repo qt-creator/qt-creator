@@ -49,6 +49,7 @@ class IContext;
 class ICore;
 class IEditor;
 class IEditorFactory;
+class IExternalEditor;
 class MimeType;
 class IFile;
 class IMode;
@@ -93,6 +94,7 @@ class CORE_EXPORT EditorManager : public QWidget
 
 public:
     typedef QList<IEditorFactory*> EditorFactoryList;
+    typedef QList<IExternalEditor*> ExternalEditorList;
 
     explicit EditorManager(ICore *core, QWidget *parent);
     virtual ~EditorManager();
@@ -108,10 +110,11 @@ public:
     IEditor *openEditor(const QString &fileName,
                         const QString &editorKind = QString(),
                         OpenEditorFlags flags = 0);
+
+    bool openExternalEditor(const QString &fileName, const QString &editorKind);
     
     QStringList getOpenFileNames() const;
-    QString getOpenWithEditorKind(const QString &fileName) const;
-
+    QString getOpenWithEditorKind(const QString &fileName, bool *isExternalEditor = 0) const;
 
     void ensureEditorManagerVisible();
     IEditor *newFile(const QString &editorKind,
@@ -167,6 +170,7 @@ public:
     void hideEditorStatusBar(const QString &kind);
 
     EditorFactoryList editorFactories(const MimeType &mimeType, bool bestMatchOnly = true) const;
+    ExternalEditorList externalEditors(const MimeType &mimeType, bool bestMatchOnly = true) const;
 
     void setExternalEditor(const QString &);
     QString externalEditor() const;

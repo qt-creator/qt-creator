@@ -42,6 +42,7 @@
 #include "profilereader.h"
 #include "qtversionmanager.h"
 #include "qtoptionspage.h"
+#include "externaleditors.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -132,6 +133,13 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
     addAutoReleasedObject(new Qt4RunConfigurationFactoryUser);
+
+#ifdef Q_OS_MAC
+    addAutoReleasedObject(new MacDesignerExternalEditor);
+#else
+    addAutoReleasedObject(new DesignerExternalEditor);
+#endif
+    addAutoReleasedObject(new LinguistExternalEditor);
 
     // TODO reenable
     //m_embeddedPropertiesPage = new EmbeddedPropertiesPage;

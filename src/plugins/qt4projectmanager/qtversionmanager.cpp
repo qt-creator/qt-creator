@@ -387,9 +387,8 @@ void QtVersion::setPath(const QString &path)
     updateSourcePath();
     m_versionInfoUpToDate = false;
     m_mkspecUpToDate = false;
-    m_qmakeCommand = QString::null;
-    m_uicCommand = QString::null;
-// TODO do i need to optimize this?
+    m_designerCommand = m_linguistCommand = m_qmakeCommand = m_uicCommand = QString::null;
+    // TODO do i need to optimize this?
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
 }
 
@@ -742,7 +741,7 @@ QString QtVersion::qmakeCommand() const
     if (!m_qmakeCommand.isNull())
         return m_qmakeCommand;
 
-    QDir qtDir = path() + "/bin/";
+    QDir qtDir = path() + QLatin1String("/bin/");
     foreach (const QString &possibleCommand, DebuggingHelperLibrary::possibleQMakeCommands()) {
         QString s = qtDir.absoluteFilePath(possibleCommand);
         QFileInfo qmake(s);
@@ -758,27 +757,68 @@ QString QtVersion::qmakeCommand() const
     return QString::null;
 }
 
+QString QtVersion::findQtBinary(const QStringList &possibleCommands) const
+{
+    const QString qtdirbin = versionInfo().value(QLatin1String("QT_INSTALL_BINS")) + QLatin1Char('/');
+    foreach (const QString &possibleCommand, possibleCommands) {
+        const QString fullPath = qtdirbin + possibleCommand;
+        if (QFileInfo(fullPath).isFile())
+            return QDir::cleanPath(fullPath);
+    }
+    return QString::null;
+}
+
 QString QtVersion::uicCommand() const
 {
     if (!isValid())
         return QString::null;
     if (!m_uicCommand.isNull())
         return m_uicCommand;
-    QString qtdirbin = versionInfo().value("QT_INSTALL_BINS") + "/";
-    QStringList possibleCommands;
 #ifdef Q_OS_WIN
-    possibleCommands<< "uic.exe";
+    const QStringList possibleCommands(QLatin1String("uic.exe"));
 #else
-    possibleCommands << "uic-qt4" << "uic4" << "uic" ;
+    QStringList possibleCommands;
+    possibleCommands << QLatin1String("uic-qt4") << QLatin1String("uic4") << QLatin1String("uic");
 #endif
-    foreach (const QString &possibleCommand, possibleCommands) {
-        const QString &fullPath = qtdirbin + possibleCommand;
-        if (QFileInfo(fullPath).exists()) {
-            m_uicCommand = QDir::cleanPath(fullPath);
-            return m_uicCommand;
-        }
-    }
-    return QString::null;
+    m_uicCommand = findQtBinary(possibleCommands);
+    return m_uicCommand;
+}
+
+// Return a list of GUI binary names
+// 'foo', 'foo.exe', 'Foo.app/Contents/MacOS/Foo'
+static inline QStringList possibleGuiBinaries(const QString &name)
+{
+#ifdef Q_OS_WIN
+    return QStringList(name + QLatin1String(".exe"));
+#endif
+#ifdef Q_OS_MAC // 'Foo.app/Contents/MacOS/Foo'
+    QString upCaseName = name;
+    upCaseName[0] = upCaseName.at(0).toUpper();
+    QString macBinary = upCaseName;
+    macBinary += QLatin1String(".app/Contents/MacOS/");
+    macBinary += upCaseName;
+    return QStringList(macBinary);
+#else
+    return QStringList(name);
+#endif
+}
+
+QString QtVersion::designerCommand() const
+{
+    if (!isValid())
+        return QString::null;
+    if (m_designerCommand.isNull())
+        m_designerCommand = findQtBinary(possibleGuiBinaries(QLatin1String("designer")));
+    return m_designerCommand;
+}
+
+QString QtVersion::linguistCommand() const
+{
+    if (!isValid())
+        return QString::null;
+    if (m_linguistCommand.isNull())
+        m_linguistCommand = findQtBinary(possibleGuiBinaries(QLatin1String("linguist")));
+    return m_linguistCommand;
 }
 
 ProjectExplorer::ToolChain::ToolChainType QtVersion::toolchainType() const
@@ -889,6 +929,9 @@ bool QtVersion::isMSVC64Bit() const
             isAmd64=true;
 //        qDebug() << "isAmd64:" << isAmd64 << binaryType;
         return isAmd64;
+#else
+        Q_UNUSED(isAmd64)
+        return false;
 #endif
 }
 

@@ -37,7 +37,8 @@ HEADERS = qt4projectmanagerplugin.h \
     projectloadwizard.h \
     qtversionmanager.h \
     qtoptionspage.h \
-    qtuicodemodelsupport.h
+    qtuicodemodelsupport.h \
+    externaleditors.h
 SOURCES = qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \
@@ -70,7 +71,8 @@ SOURCES = qt4projectmanagerplugin.cpp \
     projectloadwizard.cpp \
     qtversionmanager.cpp \
     qtoptionspage.cpp \
-    qtuicodemodelsupport.cpp
+    qtuicodemodelsupport.cpp \
+    externaleditors.cpp
 FORMS = envvariablespage.ui \
     enveditdialog.ui \
     proeditorcontainer.ui \
