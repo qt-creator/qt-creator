@@ -81,11 +81,11 @@ void CdbOptions::toSettings(QSettings *s) const
     s->endGroup();
 }
 
-bool CdbOptions::autoDetectPath(QString *outPath)
+bool CdbOptions::autoDetectPath(QString *outPath, QStringList *checkedDirectories /* = 0 */)
 {
     // Look for $ProgramFiles/"Debugging Tools For Windows" and its
     // :" (x86)", " (x64)" variations
-    static const char *postFixes[] = { " (x86)", " (x64)" };
+    static const char *postFixes[] = { " (x86)", " (x32)", " (x64)" };
 
     outPath->clear();
     const QByteArray programDirB = qgetenv("ProgramFiles");
@@ -95,6 +95,8 @@ bool CdbOptions::autoDetectPath(QString *outPath)
     const QString programDir = QString::fromLocal8Bit(programDirB) + QDir::separator();
     const QString installDir = QLatin1String("Debugging Tools For Windows");
     QString path = programDir + installDir;
+    if (checkedDirectories)
+        checkedDirectories->push_back(path);
     if (QFileInfo(path).isDir()) {
         *outPath = QDir::toNativeSeparators(path);
         return true;
@@ -103,6 +105,8 @@ bool CdbOptions::autoDetectPath(QString *outPath)
     for (int i = 0; i < sizeof(postFixes)/sizeof(const char*); i++) {
         path.truncate(rootLength);
         path += QLatin1String(postFixes[i]);
+        if (checkedDirectories)
+            checkedDirectories->push_back(path);
         if (QFileInfo(path).isDir()) {
             *outPath = QDir::toNativeSeparators(path);
             return true;
