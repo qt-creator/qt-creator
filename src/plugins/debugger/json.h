@@ -71,7 +71,7 @@ public:
     inline const QList<JsonValue> &children() const { return m_children; }
     inline int childCount() const { return m_children.size(); }
 
-    const JsonValue &childAt(int index) const { return m_children[index]; } 
+    const JsonValue &childAt(int index) const { return m_children[index]; }
     JsonValue &childAt(int index) { return m_children[index]; }
     JsonValue findChild(const char *name) const;
 

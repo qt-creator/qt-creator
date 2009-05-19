@@ -313,12 +313,12 @@ QByteArray JsonValue::toString(bool multiline, int indent) const
             else
                 result += "Invalid";
             break;
-        case String: 
+        case String:
             if (!m_name.isEmpty())
                 result += m_name + "=";
             result += '"' + escapeCString(m_data) + '"';
             break;
-        case Number: 
+        case Number:
             if (!m_name.isEmpty())
                 result += '"' + m_name + "\":";
             result += m_data;
