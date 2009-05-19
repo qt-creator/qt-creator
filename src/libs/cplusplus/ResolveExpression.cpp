@@ -42,6 +42,7 @@
 #include <NameVisitor.h>
 
 #include <QtCore/QList>
+#include <QtCore/QVarLengthArray>
 #include <QtCore/QtDebug>
 
 using namespace CPlusPlus;
@@ -68,13 +69,27 @@ public:
 protected:
     FullySpecifiedType subst(Name *name)
     {
+        if (TemplateNameId *t = name->asTemplateNameId()) {
+            QVarLengthArray<FullySpecifiedType, 8> args(t->templateArgumentCount());
+
+            for (unsigned i = 0; i < t->templateArgumentCount(); ++i)
+                args[i] = subst(t->templateArgumentAt(i));
+
+            TemplateNameId *n = _control->templateNameId(t->identifier(),
+                                                         args.data(), args.size());
+
+            return FullySpecifiedType(_control->namedType(n));
+        } else if (name->isQualifiedNameId()) {
+            // ### implement me
+        }
+
         for (int i = 0; i < _substitution.size(); ++i) {
             const QPair<Name *, FullySpecifiedType> s = _substitution.at(i);
             if (name->isEqualTo(s.first))
                 return s.second;
         }
 
-        return _control->namedType(name);
+        return FullySpecifiedType(_control->namedType(name));
     }
 
     FullySpecifiedType subst(const FullySpecifiedType &ty)
@@ -116,7 +131,10 @@ protected:
     }
 
     virtual void visit(NamedType *ty)
-    { _type.setType(subst(ty->name()).type()); } // ### merge the specifiers
+    {
+        Name *name = ty->name();
+        _type.setType(subst(name).type());
+    }
 
     virtual void visit(Function *ty)
     {
