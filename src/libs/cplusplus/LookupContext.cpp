@@ -60,6 +60,17 @@ bool LookupContext::isNameCompatibleWithIdentifier(Name *name, Identifier *id)
     return false;
 }
 
+#ifndef CPLUSPLUS_WITH_NO_DEBUG
+static void printScopes(const QList<Scope *> &scopes)
+{
+    qDebug() << "===========";
+    foreach (Scope *scope, scopes) {
+        qDebug() << "scope:" << scope << scope->owner()->name() << scope->owner()->fileName()
+                << scope->owner()->line() << scope->owner()->column();
+    }
+}
+#endif
+
 /////////////////////////////////////////////////////////////////////
 // LookupContext
 /////////////////////////////////////////////////////////////////////
@@ -270,33 +281,38 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
     return candidates;
 }
 
+void LookupContext::buildVisibleScopes_helper(Document::Ptr doc, QList<Scope *> *scopes,
+                                              QSet<QString> *processed)
+{
+    if (doc && ! processed->contains(doc->fileName())) {
+        processed->insert(doc->fileName());
+
+        if (doc->globalSymbolCount())
+            scopes->append(doc->globalSymbols());
+
+        foreach (const Document::Include &incl, doc->includes()) {
+            buildVisibleScopes_helper(_documents.value(incl.fileName()),
+                                      scopes, processed);
+        }
+    }
+}
+
 QList<Scope *> LookupContext::buildVisibleScopes()
 {
     QList<Scope *> scopes;
 
     if (_symbol) {
         for (Scope *scope = _symbol->scope(); scope; scope = scope->enclosingScope()) {
+            if (scope == _thisDocument->globalSymbols())
+                break;
+
             scopes.append(scope);
         }
     }
 
     QSet<QString> processed;
-    processed.insert(_thisDocument->fileName());
-
-    QList<QString> todo = _thisDocument->includedFiles();
-    while (! todo.isEmpty()) {
-        QString fn = todo.last();
-        todo.removeLast();
-
-        if (processed.contains(fn))
-            continue;
-
-        processed.insert(fn);
-        if (Document::Ptr doc = document(fn)) {
-            scopes.append(doc->globalNamespace()->members());
-            todo += doc->includedFiles();
-        }
-    }
+    buildVisibleScopes_helper(_thisDocument, &scopes, &processed);
+    return scopes;
 
     while (true) {
         QList<Scope *> expandedScopes;

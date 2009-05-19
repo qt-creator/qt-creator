@@ -128,6 +128,10 @@ public:
 
 private:
     QList<Scope *> buildVisibleScopes();
+
+    void buildVisibleScopes_helper(Document::Ptr doc, QList<Scope *> *scopes,
+                                   QSet<QString> *processed);
+
     static bool isNameCompatibleWithIdentifier(Name *name, Identifier *id);
 
     static bool maybeValidSymbol(Symbol *symbol,
