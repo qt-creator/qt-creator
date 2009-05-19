@@ -696,27 +696,31 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
 bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpression::Result> &results)
 {
-    ConvertToCompletionItem toCompletionItem(this);
-    Overview o;
-    o.setShowReturnTypes(true);
-    o.setShowArgumentNames(true);
-
     QList<Function *> functions;
 
     foreach (const TypeOfExpression::Result &result, results) {
         FullySpecifiedType exprTy = result.first;
 
         if (Class *klass = exprTy->asClassType()) {
+            Name *className = klass->name();
+            if (! className)
+                continue; // nothing to do for anonymoous classes.
+
             for (unsigned i = 0; i < klass->memberCount(); ++i) {
                 Symbol *member = klass->memberAt(i);
-                if (! member->type()->isFunctionType())
-                    continue;
-                else if (! member->identity())
-                    continue;
-                else if (! member->identity()->isEqualTo(klass->identity()))
-                    continue;
-                if (TextEditor::CompletionItem item = toCompletionItem(member)) {
-                    functions.append(member->type()->asFunctionType());
+                Name *memberName = member->name();
+
+                if (! memberName)
+                    continue; // skip anonymous member.
+
+                else if (memberName->isQualifiedNameId())
+                    continue; // skip
+
+                if (Function *funTy = member->type()->asFunctionType()) {
+                    if (memberName->isEqualTo(className)) {
+                        // it's a ctor.
+                        functions.append(funTy);
+                    }
                 }
             }
 
@@ -725,27 +729,38 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
     }
 
     if (functions.isEmpty()) {
-        QSet<QString> signatures;
-
         foreach (const TypeOfExpression::Result &p, results) {
             FullySpecifiedType ty = p.first;
 
             if (Function *fun = ty->asFunctionType()) {
-                if (TextEditor::CompletionItem item = toCompletionItem(fun)) {
-                    QString signature;
-                    signature += overview.prettyName(fun->name());
-                    signature += overview.prettyType(fun->type());
-                    if (signatures.contains(signature))
-                        continue;
-                    signatures.insert(signature);
 
-                    functions.append(fun);
+                if (! fun->name())
+                    continue;
+                else if (! functions.isEmpty() && functions.first()->scope() != fun->scope())
+                    continue; // skip fun, it's an hidden declaration.
+
+                Name *name = fun->name();
+                if (QualifiedNameId *q = fun->name()->asQualifiedNameId())
+                    name = q->unqualifiedNameId();
+
+                bool newOverload = true;
+
+                foreach (Function *f, functions) {
+                    if (fun->isEqualTo(f)) {
+                        newOverload = false;
+                        break;
+                    }
                 }
+
+                if (newOverload)
+                    functions.append(fun);
             }
         }
+
     }
 
     if (! functions.isEmpty()) {
+
         // Recreate if necessary
         if (!m_functionArgumentWidget)
             m_functionArgumentWidget = new FunctionArgumentWidget;

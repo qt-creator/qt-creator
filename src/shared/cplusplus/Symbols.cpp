@@ -187,6 +187,11 @@ bool Function::isEqualTo(const Type *other) const
     const Function *o = other->asFunctionType();
     if (! o)
         return false;
+    else if (isConst() != o->isConst())
+        return false;
+    else if (isVolatile() != o->isVolatile())
+        return false;
+
     Name *l = identity();
     Name *r = o->identity();
     if (l == r || (l && l->isEqualTo(r))) {
