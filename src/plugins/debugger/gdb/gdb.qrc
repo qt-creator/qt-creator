@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/gdb" >
+        <file>gdbmacros.txt</file>
+    </qresource>
+</RCC>

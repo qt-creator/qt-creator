@@ -34,7 +34,6 @@
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggerrunner.h"
-#include "gdbengine.h"
 
 #include "ui_commonoptionspage.h"
 #include "ui_dumperoptionpage.h"

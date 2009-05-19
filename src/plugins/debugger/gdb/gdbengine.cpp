@@ -3877,7 +3877,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
         return;
     if (!startModeAllowsDumpers()) {
         // load gdb macro based dumpers at least 
-        QFile file(_(":/gdbdebugger/gdbmacros.txt"));
+        QFile file(_(":/gdb/gdbmacros.txt"));
         file.open(QIODevice::ReadOnly);
         QByteArray contents = file.readAll(); 
         //qDebug() << "CONTENTS: " << contents;

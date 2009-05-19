@@ -27,8 +27,6 @@ HEADERS += \
     disassemblerhandler.h \
     disassemblerwindow.h \
     watchutils.h \
-    gdbengine.h \
-    gdbmi.h \
     idebuggerengine.h \
     imports.h \
     moduleshandler.h \
@@ -45,7 +43,6 @@ HEADERS += \
     threadswindow.h \
     watchhandler.h \
     watchwindow.h \
-    gdboptionspage.h
 
 SOURCES += \
     breakhandler.cpp \
@@ -60,8 +57,6 @@ SOURCES += \
     disassemblerhandler.cpp \
     disassemblerwindow.cpp \
     watchutils.cpp \
-    gdbengine.cpp \
-    gdbmi.cpp \
     moduleshandler.cpp \
     moduleswindow.cpp \
     outputcollector.cpp \
@@ -76,7 +71,6 @@ SOURCES += \
     tcfengine.cpp \
     watchhandler.cpp \
     watchwindow.cpp \
-    gdboptionspage.cpp
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
@@ -84,7 +78,6 @@ FORMS += attachexternaldialog.ui \
     breakbyfunction.ui \
     breakcondition.ui \
     dumperoptionpage.ui \
-    gdboptionspage.ui \
     commonoptionspage.ui \
     startexternaldialog.ui \
     startremotedialog.ui \
@@ -96,6 +89,8 @@ SOURCES += $$PWD/modeltest.cpp
 HEADERS += $$PWD/modeltest.h
 DEFINES += USE_MODEL_TEST=1
 }
+
+include(gdb/gdb.pri)
 
 win32 {
     include(win/win.pri)
