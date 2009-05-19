@@ -129,6 +129,11 @@ QSettings *CoreImpl::settings() const
     return m_mainwindow->settings();
 }
 
+SettingsDatabase *CoreImpl::settingsDatabase() const
+{
+    return m_mainwindow->settingsDatabase();
+}
+
 QPrinter *CoreImpl::printer() const
 {
     return m_mainwindow->printer();

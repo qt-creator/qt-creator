@@ -64,6 +64,7 @@ public:
     MimeDatabase *mimeDatabase() const;
 
     QSettings *settings() const;
+    SettingsDatabase *settingsDatabase() const;
     QPrinter *printer() const;
 
     QString resourcePath() const;

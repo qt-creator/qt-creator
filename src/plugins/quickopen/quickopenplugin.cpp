@@ -38,12 +38,12 @@
 #include "settingspage.h"
 
 #include <QtCore/QtPlugin>
-#include <QtCore/QSettings>
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
 
 #include <coreplugin/baseview.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/settingsdatabase.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -145,27 +145,27 @@ void QuickOpenPlugin::startSettingsLoad()
 
 void QuickOpenPlugin::loadSettings()
 {
-    QSettings settings;
-    settings.beginGroup("QuickOpen");
-    m_refreshTimer.setInterval(settings.value("RefreshInterval", 60).toInt()*60000);
+    Core::SettingsDatabase *settings = Core::ICore::instance()->settingsDatabase();
+    settings->beginGroup("QuickOpen");
+    m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
     foreach (IQuickOpenFilter *filter, m_filters) {
-        if (settings.contains(filter->name())) {
-            const QByteArray state = settings.value(filter->name()).toByteArray();
+        if (settings->contains(filter->name())) {
+            const QByteArray state = settings->value(filter->name()).toByteArray();
             if (!state.isEmpty())
                 filter->restoreState(state);
         }
     }
-    settings.beginGroup("CustomFilters");
+    settings->beginGroup("CustomFilters");
     QList<IQuickOpenFilter *> customFilters;
-    foreach (const QString &key, settings.childKeys()) {
+    foreach (const QString &key, settings->childKeys()) {
         IQuickOpenFilter *filter = new DirectoryFilter;
-        filter->restoreState(settings.value(key).toByteArray());
+        filter->restoreState(settings->value(key).toByteArray());
         m_filters.append(filter);
         customFilters.append(filter);
     }
     setCustomFilters(customFilters);
-    settings.endGroup();
-    settings.endGroup();
+    settings->endGroup();
+    settings->endGroup();
 }
 
 void QuickOpenPlugin::settingsLoaded()
@@ -178,8 +178,8 @@ void QuickOpenPlugin::settingsLoaded()
 void QuickOpenPlugin::saveSettings()
 {
     Core::ICore *core = Core::ICore::instance();
-    if (core && core->settings()) {
-        QSettings *s = core->settings();
+    if (core && core->settingsDatabase()) {
+        Core::SettingsDatabase *s = core->settingsDatabase();
         s->beginGroup("QuickOpen");
         s->setValue("Interval", m_refreshTimer.interval() / 60000);
         s->remove("");

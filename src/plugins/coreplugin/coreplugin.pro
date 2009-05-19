@@ -4,7 +4,8 @@ DEFINES += CORE_LIBRARY
 QT += xml \
     network \
     script \
-    svg
+    svg \
+    sql
 include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
@@ -77,7 +78,8 @@ SOURCES += mainwindow.cpp \
     icore.cpp \
     editormanager/ieditor.cpp \
     dialogs/ioptionspage.cpp \
-    dialogs/iwizard.cpp
+    dialogs/iwizard.cpp \
+    settingsdatabase.cpp
 HEADERS += mainwindow.h \
     welcomemode.h \
     welcomemode_p.h \
@@ -156,7 +158,8 @@ HEADERS += mainwindow.h \
     rightpane.h \
     sidebar.h \
     fileiconprovider.h \
-    mimedatabase.h
+    mimedatabase.h \
+    settingsdatabase.h
 FORMS += dialogs/newdialog.ui \
     dialogs/settingsdialog.ui \
     dialogs/shortcutsettings.ui \

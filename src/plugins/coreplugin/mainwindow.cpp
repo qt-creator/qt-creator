@@ -66,6 +66,7 @@
 #include "ioutputpane.h"
 
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/settingsdatabase.h>
 #include <utils/pathchooser.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -111,7 +112,11 @@ MainWindow::MainWindow() :
     m_uniqueIDManager(new UniqueIDManager()),
     m_globalContext(QList<int>() << Constants::C_GLOBAL_ID),
     m_additionalContexts(m_globalContext),
-    m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope, QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
+    m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope,
+                             QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
+    m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
+                                            QLatin1String("QtCreator"),
+                                            this)),
     m_printer(0),
     m_actionManager(new ActionManagerPrivate(this)),
     m_editorManager(0),
