@@ -39,11 +39,22 @@ Overview::Overview()
       _showArgumentNames(false),
       _showReturnTypes(false),
       _showFunctionSignatures(true),
-      _showFullyQualifiedNames(false)
+      _showFullyQualifiedNames(false),
+      _richText(false)
 { }
 
 Overview::~Overview()
 { }
+
+bool Overview::richText() const
+{
+    return _richText;
+}
+
+void Overview::setRichText(bool richText)
+{
+    _richText = richText;
+}
 
 bool Overview::showArgumentNames() const
 {

@@ -382,6 +382,7 @@ bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
 void FunctionArgumentWidget::updateHintText()
 {
     Overview overview;
+    overview.setRichText(true);
     overview.setShowReturnTypes(true);
     overview.setShowArgumentNames(true);
     overview.setMarkArgument(m_currentarg + 1);

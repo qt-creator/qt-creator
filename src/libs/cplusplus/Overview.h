@@ -44,6 +44,9 @@ public:
     Overview();
     ~Overview();
 
+    bool richText() const;
+    void setRichText(bool richText);
+
     bool showArgumentNames() const;
     void setShowArgumentNames(bool showArgumentNames);
 
@@ -77,6 +80,7 @@ private:
     bool _showReturnTypes: 1;
     bool _showFunctionSignatures: 1;
     bool _showFullyQualifiedNames: 1;
+    bool _richText: 1;
 };
 
 } // end of namespace CPlusPlus

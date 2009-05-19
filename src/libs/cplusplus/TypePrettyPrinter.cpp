@@ -35,6 +35,7 @@
 #include <Scope.h>
 #include <QStringList>
 #include <QtDebug>
+#include <QTextDocument> // Qt::escape()
 
 using namespace CPlusPlus;
 
@@ -54,7 +55,7 @@ static QString fullyQualifiedName(Symbol *symbol, const Overview *overview)
         }
 
         if (! owner->name())
-            nestedNameSpecifier.prepend(QLatin1String("<anonymous>"));
+            nestedNameSpecifier.prepend(QLatin1String("$anonymous"));
 
         else {
             const QString name = overview->prettyName(owner->name());
@@ -325,7 +326,7 @@ void TypePrettyPrinter::visit(Function *type)
 
             if (Argument *arg = type->argumentAt(index)->asArgument()) {
                 if (index + 1 == _overview->markArgument())
-                    out(QLatin1String("<b>"));
+                    outPlain(QLatin1String("<b>"));
 
                 Name *name = 0;
 
@@ -335,7 +336,7 @@ void TypePrettyPrinter::visit(Function *type)
                 out(argumentText(arg->type(), name));
 
                 if (index + 1 == _overview->markArgument())
-                    out(QLatin1String("</b>"));
+                    outPlain(QLatin1String("</b>"));
             }
         }
 
@@ -367,8 +368,16 @@ void TypePrettyPrinter::space()
         _text += QLatin1Char(' ');
 }
 
-void TypePrettyPrinter::out(const QString &text)
+void TypePrettyPrinter::outPlain(const QString &text)
 { _text += text; }
+
+void TypePrettyPrinter::out(const QString &text)
+{
+    if (overview()->richText())
+        _text += Qt::escape(text);
+    else
+        _text += text;
+}
 
 void TypePrettyPrinter::out(const QChar &ch)
 { _text += ch; }

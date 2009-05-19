@@ -72,6 +72,7 @@ protected:
     virtual void visit(Enum *type);
 
     void space();
+    void outPlain(const QString &text);
     void out(const QString &text);
     void out(const QChar &ch);
     void outCV(const FullySpecifiedType &ty);
