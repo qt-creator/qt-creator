@@ -311,11 +311,11 @@ void DebuggerManager::init()
 
     m_continueAction = new QAction(this);
     m_continueAction->setText(tr("Continue"));
-    m_continueAction->setIcon(QIcon(":/gdbdebugger/images/debugger_continue_small.png"));
+    m_continueAction->setIcon(QIcon(":/debugger/images/debugger_continue_small.png"));
 
     m_stopAction = new QAction(this);
     m_stopAction->setText(tr("Interrupt"));
-    m_stopAction->setIcon(QIcon(":/gdbdebugger/images/debugger_interrupt_small.png"));
+    m_stopAction->setIcon(QIcon(":/debugger/images/debugger_interrupt_small.png"));
 
     m_resetAction = new QAction(this);
     m_resetAction->setText(tr("Reset Debugger"));
@@ -323,27 +323,27 @@ void DebuggerManager::init()
     m_nextAction = new QAction(this);
     m_nextAction->setText(tr("Step Over"));
     //m_nextAction->setShortcut(QKeySequence(tr("F6")));
-    m_nextAction->setIcon(QIcon(":/gdbdebugger/images/debugger_stepover_small.png"));
+    m_nextAction->setIcon(QIcon(":/debugger/images/debugger_stepover_small.png"));
 
     m_stepAction = new QAction(this);
     m_stepAction->setText(tr("Step Into"));
     //m_stepAction->setShortcut(QKeySequence(tr("F7")));
-    m_stepAction->setIcon(QIcon(":/gdbdebugger/images/debugger_stepinto_small.png"));
+    m_stepAction->setIcon(QIcon(":/debugger/images/debugger_stepinto_small.png"));
 
     m_nextIAction = new QAction(this);
     m_nextIAction->setText(tr("Step Over Instruction"));
     //m_nextIAction->setShortcut(QKeySequence(tr("Shift+F6")));
-    m_nextIAction->setIcon(QIcon(":/gdbdebugger/images/debugger_stepoverproc_small.png"));
+    m_nextIAction->setIcon(QIcon(":/debugger/images/debugger_stepoverproc_small.png"));
 
     m_stepIAction = new QAction(this);
     m_stepIAction->setText(tr("Step One Instruction"));
     //m_stepIAction->setShortcut(QKeySequence(tr("Shift+F9")));
-    m_stepIAction->setIcon(QIcon(":/gdbdebugger/images/debugger_steponeproc_small.png"));
+    m_stepIAction->setIcon(QIcon(":/debugger/images/debugger_steponeproc_small.png"));
 
     m_stepOutAction = new QAction(this);
     m_stepOutAction->setText(tr("Step Out"));
     //m_stepOutAction->setShortcut(QKeySequence(tr("Shift+F7")));
-    m_stepOutAction->setIcon(QIcon(":/gdbdebugger/images/debugger_stepout_small.png"));
+    m_stepOutAction->setIcon(QIcon(":/debugger/images/debugger_stepout_small.png"));
 
     m_runToLineAction = new QAction(this);
     m_runToLineAction->setText(tr("Run to Line"));
@@ -1268,10 +1268,10 @@ void DebuggerManager::setStatus(int status)
 
     bool interruptIsExit = !running;
     if (interruptIsExit) {
-        m_stopAction->setIcon(QIcon(":/gdbdebugger/images/debugger_stop_small.png"));
+        m_stopAction->setIcon(QIcon(":/debugger/images/debugger_stop_small.png"));
         m_stopAction->setText(tr("Stop Debugger"));
     } else {
-        m_stopAction->setIcon(QIcon(":/gdbdebugger/images/debugger_interrupt_small.png"));
+        m_stopAction->setIcon(QIcon(":/debugger/images/debugger_interrupt_small.png"));
         m_stopAction->setText(tr("Interrupt"));
     }
 

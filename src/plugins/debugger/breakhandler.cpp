@@ -77,9 +77,9 @@ public:
 
     static const QIcon &icon(bool pending, bool enabled)
     {
-        static const QIcon icon(":/gdbdebugger/images/breakpoint.svg");
-        static const QIcon icon1(":/gdbdebugger/images/breakpoint_disabled.svg");
-        static const QIcon icon2(":/gdbdebugger/images/breakpoint_pending.svg");
+        static const QIcon icon(":/debugger/images/breakpoint.svg");
+        static const QIcon icon1(":/debugger/images/breakpoint_disabled.svg");
+        static const QIcon icon2(":/debugger/images/breakpoint_pending.svg");
         return enabled ? (pending ? icon2 : icon) : icon1;
     }
 

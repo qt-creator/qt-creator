@@ -85,8 +85,8 @@ private:
 DisassemblerModel::DisassemblerModel(QObject *parent)
   : QAbstractTableModel(parent), m_currentLine(0)
 {
-    m_emptyIcon = QIcon(":/gdbdebugger/images/empty.svg");
-    m_positionIcon = QIcon(":/gdbdebugger/images/location.svg");
+    m_emptyIcon = QIcon(":/debugger/images/empty.svg");
+    m_positionIcon = QIcon(":/debugger/images/location.svg");
 }
 
 int DisassemblerModel::rowCount(const QModelIndex &parent) const

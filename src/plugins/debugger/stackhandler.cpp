@@ -69,8 +69,8 @@ QString StackFrame::toToolTip() const
 
 StackHandler::StackHandler(QObject *parent)
   : QAbstractTableModel(parent),
-    m_positionIcon(QIcon(":/gdbdebugger/images/location.svg")),
-    m_emptyIcon(QIcon(":/gdbdebugger/images/empty.svg"))
+    m_positionIcon(QIcon(":/debugger/images/location.svg")),
+    m_emptyIcon(QIcon(":/debugger/images/empty.svg"))
 {
     m_currentIndex = 0;
     m_canExpand = false;
@@ -215,8 +215,8 @@ bool StackHandler::isDebuggingDebuggingHelpers() const
 ThreadsHandler::ThreadsHandler(QObject *parent)
   : QAbstractTableModel(parent), m_currentIndex(0)
 {
-    m_emptyIcon = QIcon(":/gdbdebugger/images/empty.svg");
-    m_positionIcon = QIcon(":/gdbdebugger/images/location.svg");
+    m_emptyIcon = QIcon(":/debugger/images/empty.svg");
+    m_positionIcon = QIcon(":/debugger/images/location.svg");
 }
 
 int ThreadsHandler::rowCount(const QModelIndex &parent) const

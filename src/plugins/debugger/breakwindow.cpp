@@ -53,7 +53,7 @@ BreakWindow::BreakWindow(QWidget *parent)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Breakpoints"));
-    setWindowIcon(QIcon(":/gdbdebugger/images/debugger_breakpoints.png"));
+    setWindowIcon(QIcon(":/debugger/images/debugger_breakpoints.png"));
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));

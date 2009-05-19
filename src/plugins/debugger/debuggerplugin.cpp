@@ -225,7 +225,7 @@ LocationMark::~LocationMark()
 
 QIcon LocationMark::icon() const
 {
-    static const QIcon icon(":/gdbdebugger/images/location.svg");
+    static const QIcon icon(":/debugger/images/location.svg");
     return icon;
 }
 
