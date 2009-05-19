@@ -39,7 +39,6 @@ HEADERS += \
     stackhandler.h \
     stackwindow.h \
     sourcefileswindow.h \
-    tcfengine.h \
     threadswindow.h \
     watchhandler.h \
     watchwindow.h \
@@ -68,7 +67,6 @@ SOURCES += \
     stackwindow.cpp \
     sourcefileswindow.cpp \
     threadswindow.cpp \
-    tcfengine.cpp \
     watchhandler.cpp \
     watchwindow.cpp \
 
@@ -91,6 +89,7 @@ DEFINES += USE_MODEL_TEST=1
 }
 
 include(gdb/gdb.pri)
+include(tcf/tcf.pri)
 
 win32 {
     include(win/win.pri)
