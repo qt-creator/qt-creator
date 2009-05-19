@@ -32,7 +32,9 @@
 #include "debuggerconstants.h"
 
 #include <coreplugin/icore.h>
+
 #include <QtCore/QCoreApplication>
+#include <QtGui/QMessageBox>
 
 const char * const CDB_SETTINGS_ID = QT_TRANSLATE_NOOP("Debugger::Internal::CdbOptionsPageWidget", "Cdb");
 
@@ -70,10 +72,18 @@ CdbOptions CdbOptionsPageWidget::options() const
 void CdbOptionsPageWidget::autoDetect()
 {
     QString path;
-    const bool ok = CdbOptions::autoDetectPath(&path);
+    QStringList checkedDirectories;
+    const bool ok = CdbOptions::autoDetectPath(&path, &checkedDirectories);
     m_ui.cdbOptionsGroupBox->setChecked(ok);
-    if (ok)
+    if (ok) {
         m_ui.pathChooser->setPath(path);
+    } else {
+        const QString msg = tr("\"Debugging Tools for Windows\" could not be found.");
+        const QString details = tr("Checked:\n%1").arg(checkedDirectories.join(QString(QLatin1Char('\n'))));
+        QMessageBox msbBox(QMessageBox::Information, tr("Autodetection"), msg, QMessageBox::Ok, this);
+        msbBox.setDetailedText(details);
+        msbBox.exec();
+    }
 }
 
 void CdbOptionsPageWidget::setFailureMessage(const QString &msg)

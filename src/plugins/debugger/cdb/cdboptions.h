@@ -53,7 +53,7 @@ public:
     unsigned compare(const CdbOptions &s) const;
 
     // Locate the debugging tools
-    static bool autoDetectPath(QString *path);
+    static bool autoDetectPath(QString *path, QStringList *checkedDirectories = 0);
 
     bool enabled;
     QString path;
