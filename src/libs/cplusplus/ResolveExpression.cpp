@@ -143,6 +143,8 @@ protected:
 
         Function *fun = _control->newFunction(0, name);
         fun->setScope(ty->scope());
+        fun->setConst(ty->isConst());
+        fun->setVolatile(ty->isVolatile());
         fun->setReturnType(returnType);
         for (unsigned i = 0; i < ty->argumentCount(); ++i) {
             Symbol *arg = ty->argumentAt(i);
