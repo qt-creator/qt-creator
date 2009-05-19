@@ -1073,8 +1073,9 @@ void Qt4ProFileNode::createUiCodeModelSupport()
             uiDir = tmp.first();
 
         foreach (FileNode *uiFile, uiFiles) {
-            const QString uiHeaderFilePath
+            QString uiHeaderFilePath
                     = QString("%1/ui_%2.h").arg(uiDir, QFileInfo(uiFile->path()).completeBaseName());
+	    uiHeaderFilePath = QDir::cleanPath(uiHeaderFilePath);
 
 //            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;
             QMap<QString, Qt4UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
