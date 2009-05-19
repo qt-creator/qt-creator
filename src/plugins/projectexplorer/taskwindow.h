@@ -69,7 +69,6 @@ public:
     int numberOfTasks() const;
     int numberOfErrors() const;
 
-    void gotoFirstError();
     bool canFocus();
     bool hasFocus();
     void setFocus();

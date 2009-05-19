@@ -51,6 +51,7 @@
 #include <QtGui/QFont>
 #include <QtGui/QFontMetrics>
 #include <QtGui/QTextLayout>
+#include <QDebug>
 
 using namespace ProjectExplorer::Internal;
 
@@ -79,7 +80,6 @@ public:
                          const QString &description, const QString &file, int line);
     int sizeOfFile();
     int sizeOfLineNumber();
-    QModelIndex firstError() const;
     void setFileNotFound(const QModelIndex &index, bool b);
 
     enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type };
@@ -233,17 +233,6 @@ int TaskModel::sizeOfLineNumber()
     return fm.width("8888");
 }
 
-QModelIndex TaskModel::firstError() const
-{
-    int size = m_items.size();
-    for (int i=0; i<size; ++i) {
-        if (m_items.at(i).type == ProjectExplorer::BuildParserInterface::Error) {
-            return index(i, 0);
-        }
-    }
-    return QModelIndex();
-}
-
 void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
 {
     if (idx.isValid() && idx.row() < m_items.size()) {
@@ -390,13 +379,6 @@ int TaskWindow::numberOfErrors() const
 int TaskWindow::priorityInStatusBar() const
 {
     return 90;
-}
-
-void TaskWindow::gotoFirstError()
-{
-    QModelIndex idx = m_model->firstError();
-    if (idx.isValid())
-        showTaskInFile(idx);
 }
 
 bool TaskWindow::hasFocus()
