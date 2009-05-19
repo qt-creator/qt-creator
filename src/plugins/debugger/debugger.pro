@@ -35,7 +35,6 @@ HEADERS += \
     procinterrupt.h \
     registerhandler.h \
     registerwindow.h \
-    scriptengine.h \
     stackhandler.h \
     stackwindow.h \
     sourcefileswindow.h \
@@ -62,7 +61,6 @@ SOURCES += \
     procinterrupt.cpp \
     registerhandler.cpp \
     registerwindow.cpp \
-    scriptengine.cpp \
     stackhandler.cpp \
     stackwindow.cpp \
     sourcefileswindow.cpp \
@@ -92,5 +90,6 @@ include(gdb/gdb.pri)
 include(tcf/tcf.pri)
 include(win/win.pri)
 include(cdb/cdb.pri)
+include(script/script.pri)
 
 OTHER_FILES += Debugger.pluginspec
