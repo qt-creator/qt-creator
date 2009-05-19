@@ -90,10 +90,7 @@ DEFINES += USE_MODEL_TEST=1
 
 include(gdb/gdb.pri)
 include(tcf/tcf.pri)
-
-win32 {
-    include(win/win.pri)
-    include(cdb/cdb.pri)
-}    
+include(win/win.pri)
+include(cdb/cdb.pri)
 
 OTHER_FILES += Debugger.pluginspec

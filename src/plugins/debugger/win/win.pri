@@ -1,4 +1,8 @@
+
+win32 {
+
 INCLUDEPATH+=$$PWD
+
 SOURCES += $$PWD/peutils.cpp \
            $$PWD/dbgwinutils.cpp \
 	   $$PWD/sharedlibraryinjector.cpp
@@ -12,3 +16,5 @@ contains(QMAKE_CXX, cl) {
 #   Not required for MinGW.
     LIBS += advapi32.lib
 }       
+
+}
