@@ -396,6 +396,7 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
         QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
         Environment env = Environment::systemEnvironment();
         qtVersion(activeBuildConfiguration())->addToEnvironment(env);
+        env.prependOrSetPath(qtVersion(activeBuildConfiguration())->mingwDirectory()+"/bin");
         qmake_cxx = env.searchInPath(qmake_cxx);
         m_test = ToolChain::createMinGWToolChain(qmake_cxx, version->mingwDirectory());
         //qDebug()<<"Mingw ToolChain";
