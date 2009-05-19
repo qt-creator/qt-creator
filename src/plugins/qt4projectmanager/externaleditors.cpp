@@ -115,7 +115,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
     data->arguments.push_back(fileName);
 #ifdef Q_OS_MAC
     if (useMacOpenCommand)
-        createMacOpenCommand(&binary, &(data->arguments));
+        createMacOpenCommand(&(data->binary), &(data->arguments));
 #else
     Q_UNUSED(useMacOpenCommand)
 #endif
