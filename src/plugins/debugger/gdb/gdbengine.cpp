@@ -69,7 +69,7 @@
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
 #ifdef Q_OS_WIN
-#    include "sharedlibraryinjector.h"
+#    include "shared/sharedlibraryinjector.h"
 #endif
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)

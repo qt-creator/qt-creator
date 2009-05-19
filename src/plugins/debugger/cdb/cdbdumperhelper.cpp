@@ -35,7 +35,7 @@
 #include "cdbsymbolgroupcontext.h"
 #include "watchhandler.h"
 
-#include "sharedlibraryinjector.h"
+#include "shared/sharedlibraryinjector.h"
 
 #include <QtCore/QRegExp>
 #include <QtCore/QCoreApplication>

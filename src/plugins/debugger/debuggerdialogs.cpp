@@ -36,7 +36,7 @@
 #include "ui_startremotedialog.h"
 
 #ifdef Q_OS_WIN
-#  include "dbgwinutils.h"
+#  include "shared/dbgwinutils.h"
 #endif
 
 #include <QtCore/QDebug>

@@ -55,7 +55,7 @@
 
 #include "debuggerdialogs.h"
 #ifdef Q_OS_WIN
-#  include "peutils.h"
+#  include "shared/peutils.h"
 #endif
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>

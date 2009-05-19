@@ -86,10 +86,11 @@ HEADERS += $$PWD/modeltest.h
 DEFINES += USE_MODEL_TEST=1
 }
 
-include(gdb/gdb.pri)
-include(tcf/tcf.pri)
-include(win/win.pri)
 include(cdb/cdb.pri)
+include(gdb/gdb.pri)
 include(script/script.pri)
+include(tcf/tcf.pri)
+
+include(shared/shared.pri)
 
 OTHER_FILES += Debugger.pluginspec
