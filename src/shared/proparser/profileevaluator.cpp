@@ -159,6 +159,8 @@ public:
     // implementation of AbstractProItemVisitor
     ProItem::ProItemReturn visitBeginProBlock(ProBlock *block);
     void visitEndProBlock(ProBlock *block);
+    ProItem::ProItemReturn visitProLoopIteration();
+    void visitProLoopCleanup();
     void visitBeginProVariable(ProVariable *variable);
     void visitEndProVariable(ProVariable *variable);
     ProItem::ProItemReturn visitBeginProFile(ProFile *value);
@@ -180,6 +182,7 @@ public:
     void expandPatternHelper(const QString &relName, const QString &absName,
         QStringList &sources_out);
     QStringList expandVariableReferences(const QString &value);
+    void doVariableReplace(QString *str);
     QStringList evaluateExpandFunction(const QString &function, const QString &arguments);
     QString format(const char *format) const;
 
@@ -211,6 +214,14 @@ public:
     QString m_origfile;
     QString m_oldPath;                              // To restore the current path to the path
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
+    struct ProLoop {
+        QString variable;
+        QStringList oldVarVal;
+        QStringList list;
+        int index;
+        bool infinite;
+    };
+    QStack<ProLoop> m_loopStack;
 
     // we need the following two variables for handling
     // CONFIG = foo bar $$CONFIG
@@ -238,6 +249,7 @@ public:
 };
 
 Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::State, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::ProLoop, Q_MOVABLE_TYPE);
 
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
   : q(q_)
@@ -616,6 +628,36 @@ void ProFileEvaluator::Private::visitEndProBlock(ProBlock *block)
             m_sts.condition = true;
         }
     }
+}
+
+ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoopIteration()
+{
+    ProLoop &loop = m_loopStack.top();
+
+    if (loop.infinite) {
+        if (!loop.variable.isEmpty())
+            m_valuemap[loop.variable] = QStringList(QString::number(loop.index++));
+        if (loop.index > 1000) {
+            q->errorMessage(format("ran into infinite loop (> 1000 iterations)."));
+            return ProItem::ReturnFalse;
+        }
+    } else {
+        QString val;
+        do {
+            if (loop.index >= loop.list.count())
+                return ProItem::ReturnFalse;
+            val = loop.list.at(loop.index++);
+        } while (val.isEmpty()); // stupid, but qmake is like that
+        m_valuemap[loop.variable] = QStringList(val);
+    }
+    return ProItem::ReturnTrue;
+}
+
+void ProFileEvaluator::Private::visitProLoopCleanup()
+{
+    ProLoop &loop = m_loopStack.top();
+    m_valuemap[loop.variable] = loop.oldVarVal;
+    m_loopStack.pop_back();
 }
 
 void ProFileEvaluator::Private::visitBeginProVariable(ProVariable *variable)
@@ -1035,6 +1077,11 @@ QString ProFileEvaluator::Private::currentDirectory() const
 {
     ProFile *cur = m_profileStack.top();
     return cur->directoryName();
+}
+
+void ProFileEvaluator::Private::doVariableReplace(QString *str)
+{
+    *str = expandVariableReferences(*str).join(QString(Option::field_sep));
 }
 
 QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &str)
@@ -1738,7 +1785,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
                     T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
                     T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_IF,
-                    T_DEFINE_TEST, T_DEFINE_REPLACE };
+                    T_FOR, T_DEFINE_TEST, T_DEFINE_REPLACE };
 
     static QHash<QString, int> *functions = 0;
     if (!functions) {
@@ -1771,6 +1818,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         functions->insert(QLatin1String("message"), T_MESSAGE);   //v
         functions->insert(QLatin1String("warning"), T_MESSAGE);   //v
         functions->insert(QLatin1String("error"), T_MESSAGE);     //v
+        functions->insert(QLatin1String("for"), T_FOR);     //v
         functions->insert(QLatin1String("defineTest"), T_DEFINE_TEST);        //v
         functions->insert(QLatin1String("defineReplace"), T_DEFINE_REPLACE);  //v
     }
@@ -1835,9 +1883,79 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         case T_INFILE:
         case T_REQUIRES:
         case T_EVAL:
-        case T_BREAK:
-        case T_NEXT:
 #endif
+        case T_FOR: {
+            if (m_cumulative) // This is a no-win situation, so just pretend it's no loop
+                return ProItem::ReturnTrue;
+            if (m_skipLevel)
+                return ProItem::ReturnFalse;
+            if (args.count() > 2 || args.count() < 1) {
+                q->logMessage(format("for({var, list|var, forever|ever})"
+                                     " requires one or two arguments."));
+                return ProItem::ReturnFalse;
+            }
+            ProLoop loop;
+            loop.infinite = false;
+            loop.index = 0;
+            QString it_list;
+            if (args.count() == 1) {
+                doVariableReplace(&args[0]);
+                it_list = args[0];
+                if (args[0] != QLatin1String("ever")) {
+                    q->logMessage(format("for({var, list|var, forever|ever})"
+                                         " requires one or two arguments."));
+                    return ProItem::ReturnFalse;
+                }
+                it_list = QLatin1String("forever");
+            } else {
+                loop.variable = args[0];
+                loop.oldVarVal = m_valuemap.value(loop.variable);
+                doVariableReplace(&args[1]);
+                it_list = args[1];
+            }
+            loop.list = m_valuemap[it_list];
+            if (loop.list.isEmpty()) {
+                if (it_list == QLatin1String("forever")) {
+                    loop.infinite = true;
+                } else {
+                    int dotdot = it_list.indexOf(QLatin1String(".."));
+                    if (dotdot != -1) {
+                        bool ok;
+                        int start = it_list.left(dotdot).toInt(&ok);
+                        if (ok) {
+                            int end = it_list.mid(dotdot+2).toInt(&ok);
+                            if (ok) {
+                                if (start < end) {
+                                    for (int i = start; i <= end; i++)
+                                        loop.list << QString::number(i);
+                                } else {
+                                    for (int i = start; i >= end; i--)
+                                        loop.list << QString::number(i);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            m_loopStack.push(loop);
+            m_sts.condition = true;
+            return ProItem::ReturnLoop;
+        }
+        case T_BREAK:
+            if (m_skipLevel)
+                return ProItem::ReturnFalse;
+            if (!m_loopStack.isEmpty())
+                return ProItem::ReturnBreak;
+            // ### missing: breaking out of multiline blocks
+            q->logMessage(format("unexpected break()."));
+            return ProItem::ReturnFalse;
+        case T_NEXT:
+            if (m_skipLevel)
+                return ProItem::ReturnFalse;
+            if (!m_loopStack.isEmpty())
+                return ProItem::ReturnNext;
+            q->logMessage(format("unexpected next()."));
+            return ProItem::ReturnFalse;
         case T_IF: {
             if (args.count() != 1) {
                 q->logMessage(format("if(condition) requires one argument."));

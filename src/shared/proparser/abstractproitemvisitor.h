@@ -41,6 +41,9 @@ struct AbstractProItemVisitor
     virtual ProItem::ProItemReturn visitBeginProBlock(ProBlock *block) = 0;
     virtual void visitEndProBlock(ProBlock *block) = 0;
 
+    virtual ProItem::ProItemReturn visitProLoopIteration() = 0;
+    virtual void visitProLoopCleanup() = 0;
+
     virtual void visitBeginProVariable(ProVariable *variable) = 0;
     virtual void visitEndProVariable(ProVariable *variable) = 0;
 

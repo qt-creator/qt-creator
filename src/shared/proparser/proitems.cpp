@@ -108,9 +108,30 @@ ProItem::ProItemReturn ProBlock::Accept(AbstractProItemVisitor *visitor)
     if (visitor->visitBeginProBlock(this) == ReturnSkip)
         return ReturnTrue;
     ProItemReturn rt = ReturnTrue;
-    foreach (ProItem *item, m_proitems)
-        if ((rt = item->Accept(visitor)) != ReturnTrue && rt != ReturnFalse)
+    for (int i = 0; i < m_proitems.count(); ++i) {
+        rt = m_proitems.at(i)->Accept(visitor);
+        if (rt != ReturnTrue && rt != ReturnFalse) {
+            if (rt == ReturnLoop) {
+                rt = ReturnTrue;
+                while (visitor->visitProLoopIteration())
+                    for (int j = i; ++j < m_proitems.count(); ) {
+                        rt = m_proitems.at(j)->Accept(visitor);
+                        if (rt != ReturnTrue && rt != ReturnFalse) {
+                            if (rt == ReturnNext) {
+                                rt = ReturnTrue;
+                                break;
+                            }
+                            if (rt == ReturnBreak)
+                                rt = ReturnTrue;
+                            goto do_break;
+                        }
+                    }
+              do_break:
+                visitor->visitProLoopCleanup();
+            }
             break;
+        }
+    }
     visitor->visitEndProBlock(this);
     return rt;
 }
