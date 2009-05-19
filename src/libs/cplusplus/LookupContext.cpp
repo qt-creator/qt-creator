@@ -312,7 +312,6 @@ QList<Scope *> LookupContext::buildVisibleScopes()
 
     QSet<QString> processed;
     buildVisibleScopes_helper(_thisDocument, &scopes, &processed);
-    return scopes;
 
     while (true) {
         QList<Scope *> expandedScopes;
