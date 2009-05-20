@@ -34,6 +34,18 @@
 #include <QtSql/QSqlQuery>
 #include <QDebug>
 
+/*!
+    \class Core::SettingsDatabase
+    \brief An alternative to the application-wide QSettings that is more
+    suitable for storing large amounts of data.
+
+    The settings database is SQLite based, and lazily retrieves data when it
+    is asked for. It also does incremental updates of the database rather than
+    rewriting the whole file each time one of the settings change.
+
+    The SettingsDatabase API mimics that of QSettings.
+*/
+
 using namespace Core;
 using namespace Core::Internal;
 
