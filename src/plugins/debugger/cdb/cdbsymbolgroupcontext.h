@@ -132,6 +132,7 @@ private:
     CIDebugSymbolGroup *m_symbolGroup;
     NameIndexMap m_inameIndexMap;
     QVector<DEBUG_SYMBOL_PARAMETERS> m_symbolParameters;
+    int m_unnamedSymbolNumber;
 };
 
 // Helper to a sequence of  WatchData into a list.

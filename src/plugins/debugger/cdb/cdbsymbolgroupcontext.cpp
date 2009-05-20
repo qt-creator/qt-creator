@@ -112,7 +112,8 @@ CdbSymbolGroupContext::CdbSymbolGroupContext(const QString &prefix,
                                              CIDebugSymbolGroup *symbolGroup) :
     m_prefix(prefix),
     m_nameDelimiter(QLatin1Char('.')),
-    m_symbolGroup(symbolGroup)
+    m_symbolGroup(symbolGroup),
+    m_unnamedSymbolNumber(1)
 {
 }
 
@@ -143,15 +144,17 @@ bool CdbSymbolGroupContext::init(QString *errorMessage)
         return false;
     }
 
-    m_symbolParameters.reserve(3u * count);
-    m_symbolParameters.resize(count);
+    if (count) {
+        m_symbolParameters.reserve(3u * count);
+        m_symbolParameters.resize(count);
 
-    hr = m_symbolGroup->GetSymbolParameters(0, count, symbolParameters());
-    if (FAILED(hr)) {
-        *errorMessage = msgComFailed("GetSymbolParameters", hr);
-        return false;
+        hr = m_symbolGroup->GetSymbolParameters(0, count, symbolParameters());
+        if (FAILED(hr)) {
+            *errorMessage = QString::fromLatin1("In %1: %2 (%3 symbols)").arg(QLatin1String(Q_FUNC_INFO), msgComFailed("GetSymbolParameters", hr)).arg(count);
+            return false;
+        }
+        populateINameIndexMap(m_prefix, DEBUG_ANY_ID, 0, count);
     }
-    populateINameIndexMap(m_prefix, DEBUG_ANY_ID, 0, count);
     if (debug)
         qDebug() << Q_FUNC_INFO << '\n'<< toString();
     return true;
@@ -172,7 +175,15 @@ void CdbSymbolGroupContext::populateINameIndexMap(const QString &prefix, unsigne
         const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(i);
         if (parentId == p.ParentSymbol) {
             seenChildren++;
-            const QString name = symbolPrefix + getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolNameWide, i);
+            // "__formal" occurs when someone writes "void foo(int /* x */)..."
+            static const QString unnamedFormalParameter = QLatin1String("__formal");
+            QString symbolName = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolNameWide, i);
+            if (symbolName == unnamedFormalParameter) {
+                symbolName = QLatin1String("<unnamed");
+                symbolName += QString::number(m_unnamedSymbolNumber++);
+                symbolName += QLatin1Char('>');
+            }
+            const QString name = symbolPrefix + symbolName;
             m_inameIndexMap.insert(name, i);
             if (getSymbolState(p) == ExpandedSymbol)
                 populateINameIndexMap(name, i, i + 1, p.SubElements);
@@ -215,7 +226,7 @@ CdbSymbolGroupContext::SymbolState CdbSymbolGroupContext::symbolState(const QStr
         return ExpandedSymbol;
     unsigned long index;
     if (!lookupPrefix(prefix, &index)) {
-        qWarning("WARNING %s: %s\n", Q_FUNC_INFO, msgSymbolNotFound(prefix));
+        qWarning("WARNING %s: %s\n", Q_FUNC_INFO, qPrintable(msgSymbolNotFound(prefix)));
         return LeafSymbol;
     }
     return symbolState(index);
@@ -265,6 +276,11 @@ bool CdbSymbolGroupContext::getChildSymbolsPosition(const QString &prefix,
     return true;
 }
 
+static inline QString msgExpandFailed(const QString &prefix, unsigned long index, const QString &why)
+{
+    return QString::fromLatin1("Unable to expand '%1' %2: %3").arg(prefix).arg(index).arg(why);
+}
+
 // Expand a symbol using the symbol group interface.
 bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage)
 {
@@ -283,8 +299,7 @@ bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long in
 
     HRESULT hr = m_symbolGroup->ExpandSymbol(index, TRUE);
     if (FAILED(hr)) {
-        *errorMessage = QString::fromLatin1("Unable to expand '%1' %2: %3").
-                        arg(prefix).arg(index).arg(msgComFailed("ExpandSymbol", hr));
+        *errorMessage = msgExpandFailed(prefix, index, msgComFailed("ExpandSymbol", hr));
         return false;
     }
     // Hopefully, this will never fail, else data structure will be foobar.
@@ -292,7 +307,7 @@ bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long in
     ULONG newSize;
     hr = m_symbolGroup->GetNumberSymbols(&newSize);
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("GetNumberSymbols", hr);
+        *errorMessage = msgExpandFailed(prefix, index, msgComFailed("GetNumberSymbols", hr));
         return false;
     }
 
@@ -302,7 +317,7 @@ bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long in
 
     hr = m_symbolGroup->GetSymbolParameters(0, newSize, symbolParameters());
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("GetSymbolParameters", hr);
+        *errorMessage = msgExpandFailed(prefix, index, msgComFailed("GetSymbolParameters", hr));
         return false;
     }
     // The new symbols are inserted after the parent symbol.

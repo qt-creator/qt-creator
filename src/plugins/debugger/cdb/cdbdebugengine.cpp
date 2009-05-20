@@ -886,7 +886,8 @@ void CdbDebugEngine::stepExec()
 
     m_d->clearForRun();
     const HRESULT hr = m_d->m_cif.debugControl->SetExecutionStatus(DEBUG_STATUS_STEP_INTO);
-    Q_UNUSED(hr)
+    if (FAILED(hr))
+        qWarning("%s : %s", Q_FUNC_INFO, qPrintable(msgComFailed("SetExecutionStatus", hr)));
 
     m_d->m_breakEventMode = CdbDebugEnginePrivate::BreakEventIgnoreOnce;
     startWatchTimer();

@@ -34,7 +34,8 @@
 #include "breakhandler.h"
 #include "cdbstacktracecontext.h"
 
-enum { cppExceptionCode = 0xe06d7363, startupCompleteTrap = 0x406d1388 };
+enum { cppExceptionCode = 0xe06d7363, startupCompleteTrap = 0x406d1388,
+       rpcServerUnavailableExceptionCode = 0x6ba };
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -345,6 +346,7 @@ static bool isFatalException(LONG code)
     case EXCEPTION_BREAKPOINT:
     case EXCEPTION_SINGLE_STEP:
     case startupCompleteTrap: // Mysterious exception at start of application
+    case rpcServerUnavailableExceptionCode:
         return false;
     default:
         break;

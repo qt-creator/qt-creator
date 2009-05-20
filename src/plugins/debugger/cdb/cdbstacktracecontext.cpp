@@ -139,6 +139,12 @@ int CdbStackTraceContext::indexOf(const QString &function) const
     return -1;
 }
 
+static inline QString msgFrameContextFailed(int index, const StackFrame &f, const QString &why)
+{
+    return QString::fromLatin1("Unable to create stack frame context #%1, %2:%3 (%4): %5").
+            arg(index).arg(f.function).arg(f.line).arg(f.file, why);
+}
+
 CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *errorMessage)
 {
     // Create a frame on demand
@@ -153,11 +159,15 @@ CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *e
     if (m_frameContexts.at(index))
         return m_frameContexts.at(index);
     CIDebugSymbolGroup *sg  = createSymbolGroup(index, errorMessage);
-    if (!sg)
+    if (!sg) {
+        *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
         return 0;
+    }
     CdbSymbolGroupContext *sc = CdbSymbolGroupContext::create(QLatin1String("local"), sg, errorMessage);
-    if (!sc)
+    if (!sc) {
+        *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
         return 0;
+    }
     CdbStackFrameContext *fr = new CdbStackFrameContext(m_dumper, sc);
     m_frameContexts[index] = fr;
     return fr;
