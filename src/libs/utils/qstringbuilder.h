@@ -46,7 +46,7 @@
 
 #include <string.h>
 
-// Using this relies on chaning the QString::QString(QChar *, int)
+// Using this relies on changing the QString::QString(QChar *, int)
 // constructor to allocated an unitialized string of the given size.
 //#define USE_CHANGED_QSTRING 1
 
@@ -85,7 +85,7 @@ private:
     const char *m_data;
 };
 
-template <class A>
+template <typename A>
 class QStringBuilder : public A
 {
 public:
@@ -173,14 +173,14 @@ operator%(const A &a, const B &b)
 
 // QString related specializations
 
-template <class A>
+template <typename A>
 inline QStringBuilder< QStringBuilderPair<A, QStringBuilder<QString> > >
 operator%(const A &a, const QString &b)
 {
     return QStringBuilderPair<A, QStringBuilder<QString> > (a, b);
 }
 
-template <class B>
+template <typename B>
 inline QStringBuilder< QStringBuilderPair<QStringBuilder<QString>, B> >
 operator%(const QString &a, const B &b)
 {

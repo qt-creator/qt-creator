@@ -10,6 +10,8 @@
 #define COMPARE(a, b) QCOMPARE(a, b)
 //#define COMPARE(a, b)
 
+#define SEP(s) qDebug() << "\n------- " s "  ----------";
+
 class tst_qstringbuilder : public QObject
 {
     Q_OBJECT
@@ -18,22 +20,28 @@ public:
     tst_qstringbuilder();
 
 private slots:
-    // QStringBuilder based 
-    void b_separator() { qDebug() << "\n------- QStringBuilder based ----------"; }
+    void separator_2() { SEP("string + string  (builder first)"); }
     void b_2_l1literal();
-    void b_3_l1literal();
-    void b_4_l1literal();
-    void b_5_l1literal();
-    void b_string_4_char();
-    void b_char_string_char();
-
-    // QString based for comparison
-    void s_separator() { qDebug() << "\n-------- QString based ---------"; }
     void s_2_l1string();
+
+    void separator_3() { SEP("3 strings"); }
+    void b_3_l1literal();
     void s_3_l1string();
+
+    void separator_4() { SEP("4 strings"); }
+    void b_4_l1literal();
     void s_4_l1string();
+
+    void separator_5() { SEP("5 strings"); }
+    void b_5_l1literal();
     void s_5_l1string();
+
+    void separator_6() { SEP("4 chars"); }
+    void b_string_4_char();
     void s_string_4_char();
+
+    void separator_7() { SEP("char + string + char"); }
+    void b_char_string_char();
     void s_char_string_char();
 
 private:
