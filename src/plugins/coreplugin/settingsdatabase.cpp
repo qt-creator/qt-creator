@@ -49,7 +49,7 @@
 using namespace Core;
 using namespace Core::Internal;
 
-enum { debug_settings = 1 };
+enum { debug_settings = 0 };
 
 namespace Core {
 namespace Internal {
@@ -67,7 +67,7 @@ public:
     QString effectiveKey(const QString &key) const
     {
         QString g = effectiveGroup();
-        if (!g.isEmpty())
+        if (!g.isEmpty() && !key.isEmpty())
             g += QLatin1Char('/');
         g += key;
         return g;
@@ -181,8 +181,25 @@ bool SettingsDatabase::contains(const QString &key) const
 
 void SettingsDatabase::remove(const QString &key)
 {
-    Q_UNUSED(key);
-    // TODO: Remove key and all subkeys
+    const QString effectiveKey = d->effectiveKey(key);
+
+    // Delete keys from the database
+    QSqlQuery query(d->m_db);
+    query.prepare(QLatin1String("DELETE FROM settings WHERE key = ? OR key LIKE ?"));
+    query.addBindValue(effectiveKey);
+    query.addBindValue(effectiveKey + QLatin1String("/%"));
+    query.exec();
+
+    // Remove keys from the cache
+    foreach (const QString &k, d->m_settings.keys()) {
+        // Either it's an exact match, or it matches up to a /
+        if (k.startsWith(effectiveKey)
+            && (k.length() == effectiveKey.length()
+                || k.at(effectiveKey.length()) == QLatin1Char('/')))
+        {
+            d->m_settings.remove(k);
+        }
+    }
 }
 
 void SettingsDatabase::beginGroup(const QString &prefix)

@@ -206,8 +206,8 @@ void QuickOpenPlugin::saveSettings()
     if (core && core->settingsDatabase()) {
         Core::SettingsDatabase *s = core->settingsDatabase();
         s->beginGroup("QuickOpen");
-        s->setValue("RefreshInterval", refreshInterval());
         s->remove("");
+        s->setValue("RefreshInterval", refreshInterval());
         foreach (IQuickOpenFilter *filter, m_filters) {
             if (!m_customFilters.contains(filter))
                 s->setValue(filter->name(), filter->saveState());
