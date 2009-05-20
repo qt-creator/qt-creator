@@ -41,6 +41,12 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+#ifdef Q_OS_WIN64
+static const char * MSVC_RegKey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VC7";
+#else
+static const char * MSVC_RegKey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7";
+#endif
+
 bool ToolChain::equals(ToolChain *a, ToolChain *b)
 {
     if (a == b)
@@ -82,10 +88,9 @@ ToolChain *ToolChain::createWinCEToolChain(const QString &name, const QString &p
 
 QStringList ToolChain::availableMSVCVersions()
 {
-    QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7",
-                       QSettings::NativeFormat);
+    QSettings registry(MSVC_RegKey, QSettings::NativeFormat);
     QStringList versions = registry.allKeys();
-//    qDebug() << "AVAILABLE MSVC VERSIONS:" << versions;
+    // qDebug() << "AVAILABLE MSVC VERSIONS:" << versions << "at" << MSVC_RegKey;
     return versions;
 }
 
@@ -231,8 +236,7 @@ MSVCToolChain::MSVCToolChain(const QString &name, bool amd64)
     : m_name(name), m_valuesSet(false), m_amd64(amd64)
 {
     if (m_name.isEmpty()) { // Could be because system qt doesn't set this
-        QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7",
-                       QSettings::NativeFormat);
+        QSettings registry(MSVC_RegKey, QSettings::NativeFormat);
         QStringList keys = registry.allKeys();
         if (keys.count())
             m_name = keys.first();
@@ -279,8 +283,7 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
     if (!m_valuesSet || env != m_lastEnvironment) {
         m_lastEnvironment = env;
-        QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7",
-                       QSettings::NativeFormat);
+        QSettings registry(MSVC_RegKey, QSettings::NativeFormat);
         if (m_name.isEmpty())
             return;
         QString path = registry.value(m_name).toString();
@@ -384,8 +387,7 @@ QList<HeaderPath> WinCEToolChain::systemHeaderPaths()
 void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
     MSVCToolChain::addToEnvironment(env);
-    QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7",
-                   QSettings::NativeFormat);
+    QSettings registry(MSVC_RegKey, QSettings::NativeFormat);
     QString path = registry.value(m_name).toString();
 
     // Find MSVC path
