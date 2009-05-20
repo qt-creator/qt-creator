@@ -2208,7 +2208,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             }
             QString msg = fixEnvVariables(args.first());
             q->fileMessage(QString::fromLatin1("Project %1: %2").arg(function.toUpper(), msg));
-            return ProItem::ReturnFalse;
+            // ### Consider real termination in non-cumulative mode
+            return returnBool(function != QLatin1String("error"));
         }
 #if 0 // Way too dangerous to enable.
         case T_SYSTEM: {
