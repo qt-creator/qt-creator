@@ -34,17 +34,43 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QUrl>
 #include <QtGui/QMessageBox>
+#include <QtGui/QDesktopServices>
 
 const char * const CDB_SETTINGS_ID = QT_TRANSLATE_NOOP("Debugger::Internal::CdbOptionsPageWidget", "Cdb");
 
+static const char *dgbToolsDownloadLink32C = "http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx";
+static const char *dgbToolsDownloadLink64C = "http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx";
+
 namespace Debugger {
 namespace Internal {
+
+static inline QString msgPathConfigNote()
+{
+#ifdef Q_OS_WIN64
+    const bool is64bit = true;
+#else
+    const bool is64bit = false;
+#endif
+    const QString link = is64bit ? QLatin1String(dgbToolsDownloadLink64C) : QLatin1String(dgbToolsDownloadLink32C);
+    //: Label text for path configuration. Singular form is not very likely to occur ;-)
+    return CdbOptionsPageWidget::tr(
+    "<html><body><p>Specify the path to the "
+    "<a href=\"%1\">Debugging Tools for Windows</a>"
+    " (%n bit-version) here.</p>"
+    "<p><b>Note:</b> Restarting Qt Creator is required for these settings to take effect.</p></p>"
+    "</body></html>", 0, (is64bit ? 64 : 32)).arg(link);
+}
 
 CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
+    m_ui.noteLabel->setText(msgPathConfigNote());
+    m_ui.noteLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    connect(m_ui.noteLabel, SIGNAL(linkActivated(QString)), this, SLOT(downLoadLinkActivated(QString)));
+
     m_ui.pathChooser->setExpectedKind(Core::Utils::PathChooser::Directory);
     m_ui.pathChooser->addButton(tr("Autodetect"), this, SLOT(autoDetect()));
     m_ui.failureLabel->setVisible(false);
@@ -54,7 +80,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
 void CdbOptionsPageWidget::setOptions(CdbOptions &o)
 {
     m_ui.pathChooser->setPath(o.path);
-    m_ui.cdbOptionsGroupBox->setChecked(o.enabled);
+    m_ui.cdbPathGroupBox->setChecked(o.enabled);
     m_ui.symbolPathListEditor->setPathList(o.symbolPaths);
     m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
 }
@@ -63,7 +89,7 @@ CdbOptions CdbOptionsPageWidget::options() const
 {
     CdbOptions  rc;
     rc.path = m_ui.pathChooser->path();
-    rc.enabled = m_ui.cdbOptionsGroupBox->isChecked();
+    rc.enabled = m_ui.cdbPathGroupBox->isChecked();
     rc.symbolPaths = m_ui.symbolPathListEditor->pathList();
     rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
     return rc;
@@ -74,7 +100,7 @@ void CdbOptionsPageWidget::autoDetect()
     QString path;
     QStringList checkedDirectories;
     const bool ok = CdbOptions::autoDetectPath(&path, &checkedDirectories);
-    m_ui.cdbOptionsGroupBox->setChecked(ok);
+    m_ui.cdbPathGroupBox->setChecked(ok);
     if (ok) {
         m_ui.pathChooser->setPath(path);
     } else {
@@ -90,6 +116,11 @@ void CdbOptionsPageWidget::setFailureMessage(const QString &msg)
 {
     m_ui.failureLabel->setText(msg);
     m_ui.failureLabel->setVisible(!msg.isEmpty());
+}
+
+void CdbOptionsPageWidget::downLoadLinkActivated(const QString &link)
+{
+    QDesktopServices::openUrl(QUrl(link));
 }
 
 // ---------- CdbOptionsPage

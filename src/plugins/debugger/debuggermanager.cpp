@@ -783,13 +783,15 @@ void DebuggerManager::setConfigValue(const QString &name, const QVariant &value)
 
 // Figure out the debugger type of an executable
 static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
-                                  QString *errorMessage)
+                                  QString *errorMessage,
+                                  QString *settingsIdHint)
 {
     if (executable.endsWith(_(".js")))
         return scriptEngine;
 
 #ifndef Q_OS_WIN
     Q_UNUSED(errorMessage)
+    Q_UNUSED(settingsIdHint)
     return gdbEngine;
 #else
     // If a file has PDB files, it has been compiled by VS.
@@ -802,7 +804,8 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
     // We need the CDB debugger in order to be able to debug VS
     // executables
     if (!winEngine) {
-        *errorMessage = DebuggerManager::tr("Debugging VS executables is not supported.");
+        *errorMessage = DebuggerManager::tr("Debugging VS executables is currently not enabled.");
+        *settingsIdHint = QLatin1String("Cdb");
         return 0;
     }
     return winEngine;
@@ -979,17 +982,29 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
     emit debugModeRequested();
 
     QString errorMessage;
-    if (startMode() == AttachExternal)
+    QString settingsIdHint;
+    switch (startMode()) {
+    case AttachExternal:
         m_engine = determineDebuggerEngine(m_attachedPID, &errorMessage);
-    else if (startMode() == AttachTcf)
+        break;
+    case AttachTcf:
         m_engine = tcfEngine;
-    else
-        m_engine = determineDebuggerEngine(m_executable, &errorMessage);
+        break;
+    default:
+        m_engine = determineDebuggerEngine(m_executable, &errorMessage, &settingsIdHint);
+        break;
+    }
 
     if (!m_engine) {
-        QMessageBox::warning(mainWindow(), tr("Warning"),
-                tr("Cannot debug '%1': %2").arg(m_executable, errorMessage));
         debuggingFinished();
+        // Create Message box with possibility to go to settings
+        QAbstractButton *settingsButton = 0;
+        QMessageBox msgBox(QMessageBox::Warning, tr("Warning"), tr("Cannot debug '%1': %2").arg(m_executable, errorMessage), QMessageBox::Ok);
+        if (!settingsIdHint.isEmpty())
+            settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
+        msgBox.exec();
+        if (msgBox.clickedButton() == settingsButton)
+            Core::ICore::instance()->showOptionsDialog(_(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
         return;
     }
     if (Debugger::Constants::Internal::debug)

@@ -55,6 +55,7 @@ public:
 
 private slots:
     void autoDetect();
+    void downLoadLinkActivated(const QString &);
 
 private:
     Ui::CdbOptionsPageWidget m_ui;

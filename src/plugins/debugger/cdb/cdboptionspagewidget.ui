@@ -14,42 +14,36 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QGroupBox" name="cdbOptionsGroupBox">
+      <widget class="QGroupBox" name="cdbPathGroupBox">
        <property name="toolTip">
         <string>These options take effect at the next start of Qt Creator.</string>
        </property>
        <property name="title">
-        <string>Cdb</string>
+        <string extracomment="Placeholder">Cdb</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
        </property>
        <layout class="QFormLayout" name="formLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
+        <item row="1" column="0">
+         <widget class="QLabel" name="pathLabel">
           <property name="text">
-           <string>Path to &quot;Debugging Tools for Windows&quot;:</string>
+           <string>Path:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="1">
          <widget class="Core::Utils::PathChooser" name="pathChooser" native="true"/>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <widget class="QLabel" name="noteLabel">
+          <property name="text">
+           <string extracomment="Placeholder">ote: bla, blah</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>0</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
