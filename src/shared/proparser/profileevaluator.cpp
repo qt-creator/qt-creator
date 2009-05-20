@@ -2207,20 +2207,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 return ProItem::ReturnFalse;
             }
             QString msg = fixEnvVariables(args.first());
-            if (function == QLatin1String("error")) {
-                QStringList parents;
-                foreach (ProFile *proFile, m_profileStack)
-                    parents.append(proFile->fileName());
-                if (!parents.isEmpty())
-                    parents.takeLast();
-                if (parents.isEmpty()) 
-                    q->fileMessage(format("Project ERROR: %1").arg(msg));
-                else
-                    q->fileMessage(format("Project ERROR: %1. File was included from: '%2'")
-                        .arg(msg).arg(parents.join(QLatin1String("', '"))));
-            } else {
-                q->fileMessage(format("Project MESSAGE: %1").arg(msg));
-            }
+            q->fileMessage(QString::fromLatin1("Project %1: %2").arg(function.toUpper(), msg));
             return ProItem::ReturnFalse;
         }
 #if 0 // Way too dangerous to enable.
