@@ -37,6 +37,7 @@
 #include "directoryfilter.h"
 #include "settingspage.h"
 
+#include <QtCore/QSettings>
 #include <QtCore/QtPlugin>
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
@@ -143,12 +144,16 @@ void QuickOpenPlugin::startSettingsLoad()
     connect(&m_loadWatcher, SIGNAL(finished()), this, SLOT(settingsLoaded()));
 }
 
-void QuickOpenPlugin::loadSettings()
+namespace QuickOpen {
+namespace Internal {
+
+template <typename S>
+static void loadSettingsHelper(QuickOpenPlugin *p, S *settings)
 {
-    Core::SettingsDatabase *settings = Core::ICore::instance()->settingsDatabase();
     settings->beginGroup("QuickOpen");
-    m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
-    foreach (IQuickOpenFilter *filter, m_filters) {
+    p->m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
+
+    foreach (IQuickOpenFilter *filter, p->m_filters) {
         if (settings->contains(filter->name())) {
             const QByteArray state = settings->value(filter->name()).toByteArray();
             if (!state.isEmpty())
@@ -160,19 +165,39 @@ void QuickOpenPlugin::loadSettings()
     foreach (const QString &key, settings->childKeys()) {
         IQuickOpenFilter *filter = new DirectoryFilter;
         filter->restoreState(settings->value(key).toByteArray());
-        m_filters.append(filter);
+        p->m_filters.append(filter);
         customFilters.append(filter);
     }
-    setCustomFilters(customFilters);
+    p->setCustomFilters(customFilters);
     settings->endGroup();
     settings->endGroup();
+}
+
+} // namespace Internal
+} // namespace QuickOpen
+
+void QuickOpenPlugin::loadSettings()
+{
+    Core::ICore *core = Core::ICore::instance();
+    QSettings *qs = core->settings();
+
+    // Backwards compatibility to old settings location
+    if (qs->contains("QuickOpen/FiltersFilter")) {
+        loadSettingsHelper(this, qs);
+    } else {
+        Core::SettingsDatabase *settings = core->settingsDatabase();
+        loadSettingsHelper(this, settings);
+    }
+
+    qs->remove("QuickOpen");
 }
 
 void QuickOpenPlugin::settingsLoaded()
 {
     m_quickOpenToolWindow->updateFilterList();
     m_quickOpenToolWindow->setEnabled(true);
-    m_refreshTimer.start();
+    if (m_refreshTimer.interval() > 0)
+        m_refreshTimer.start();
 }
 
 void QuickOpenPlugin::saveSettings()
@@ -181,7 +206,7 @@ void QuickOpenPlugin::saveSettings()
     if (core && core->settingsDatabase()) {
         Core::SettingsDatabase *s = core->settingsDatabase();
         s->beginGroup("QuickOpen");
-        s->setValue("Interval", m_refreshTimer.interval() / 60000);
+        s->setValue("RefreshInterval", refreshInterval());
         s->remove("");
         foreach (IQuickOpenFilter *filter, m_filters) {
             if (!m_customFilters.contains(filter))
@@ -232,7 +257,7 @@ void QuickOpenPlugin::setCustomFilters(QList<IQuickOpenFilter *> filters)
 
 int QuickOpenPlugin::refreshInterval()
 {
-    return m_refreshTimer.interval()/60000;
+    return m_refreshTimer.interval() / 60000;
 }
 
 void QuickOpenPlugin::setRefreshInterval(int interval)
@@ -242,7 +267,7 @@ void QuickOpenPlugin::setRefreshInterval(int interval)
         m_refreshTimer.setInterval(0);
         return;
     }
-    m_refreshTimer.setInterval(interval*60000);
+    m_refreshTimer.setInterval(interval * 60000);
     m_refreshTimer.start();
 }
 
@@ -252,7 +277,9 @@ void QuickOpenPlugin::refresh(QList<IQuickOpenFilter*> filters)
         filters = m_filters;
     QFuture<void> task = QtConcurrent::run(&IQuickOpenFilter::refresh, filters);
     Core::FutureProgress *progress = Core::ICore::instance()
-            ->progressManager()->addTask(task, tr("Indexing"), QuickOpen::Constants::TASK_INDEX, Core::ProgressManager::CloseOnSuccess);
+            ->progressManager()->addTask(task, tr("Indexing"),
+                                         QuickOpen::Constants::TASK_INDEX,
+                                         Core::ProgressManager::CloseOnSuccess);
     connect(progress, SIGNAL(finished()), this, SLOT(saveSettings()));
 }
 

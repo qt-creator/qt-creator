@@ -86,6 +86,9 @@ private:
     OpenDocumentsFilter *m_openDocumentsFilter;
     FileSystemFilter *m_fileSystemFilter;
     QFutureWatcher<void> m_loadWatcher;
+
+    template <typename S>
+    friend void loadSettingsHelper(QuickOpenPlugin *p, S *settings);
 };
 
 } // namespace Internal
