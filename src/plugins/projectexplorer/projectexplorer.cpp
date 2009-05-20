@@ -1190,12 +1190,12 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
 
     if (success && m_delayedRunConfiguration) {
         executeRunConfiguration(m_delayedRunConfiguration, m_runMode);
-        m_delayedRunConfiguration = QSharedPointer<RunConfiguration>(0);
-        m_runMode = QString::null;
     } else {
         if (m_buildManager->tasksAvailable())
             m_buildManager->showTaskWindow();
     }
+    m_delayedRunConfiguration = QSharedPointer<RunConfiguration>(0);
+    m_runMode = QString::null;
 }
 
 void ProjectExplorerPlugin::updateTaskActions()
