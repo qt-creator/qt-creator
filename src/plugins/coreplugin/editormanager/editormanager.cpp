@@ -47,6 +47,7 @@
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/baseview.h>
 #include <coreplugin/imode.h>
+#include <coreplugin/settingsdatabase.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -694,7 +695,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     //ask whether to save modified files
     if (askAboutModifiedEditors) {
         bool cancelled = false;
-        QList<IFile*> list = ICore::instance()->fileManager()->
+        QList<IFile*> list = m_d->m_core->fileManager()->
             saveModifiedFiles(filesForEditors(acceptedEditors), &cancelled);
         if (cancelled)
             return false;
@@ -1687,21 +1688,36 @@ bool EditorManager::restoreState(const QByteArray &state)
     return true;
 }
 
-void EditorManager::saveSettings(QSettings *settings)
+static const char * const documentStatesKey = "EditorManager/DocumentStates";
+static const char * const externalEditorKey = "EditorManager/ExternalEditorCommand";
+
+void EditorManager::saveSettings()
 {
-    settings->setValue(QLatin1String("EditorManager/DocumentStates"),
-                       m_d->m_editorStates);
-    settings->setValue(QLatin1String("EditorManager/ExternalEditorCommand"),
-                       m_d->m_externalEditor);
+    SettingsDatabase *settings = m_d->m_core->settingsDatabase();
+    settings->setValue(QLatin1String(documentStatesKey), m_d->m_editorStates);
+    settings->setValue(QLatin1String(externalEditorKey), m_d->m_externalEditor);
 }
 
-void EditorManager::readSettings(QSettings *settings)
+void EditorManager::readSettings()
 {
-    if (settings->contains(QLatin1String("EditorManager/DocumentStates")))
-        m_d->m_editorStates = settings->value(QLatin1String("EditorManager/DocumentStates"))
+    // Backward compatibility to old locations for these settings
+    QSettings *qs = m_d->m_core->settings();
+    if (qs->contains(QLatin1String(documentStatesKey))) {
+        m_d->m_editorStates = qs->value(QLatin1String(documentStatesKey))
             .value<QMap<QString, QVariant> >();
-    if (settings->contains(QLatin1String("EditorManager/ExternalEditorCommand")))
-        m_d->m_externalEditor = settings->value(QLatin1String("EditorManager/ExternalEditorCommand")).toString();
+        qs->remove(QLatin1String(documentStatesKey));
+    }
+    if (qs->contains(QLatin1String(externalEditorKey))) {
+        m_d->m_externalEditor = qs->value(QLatin1String(externalEditorKey)).toString();
+        qs->remove(QLatin1String(externalEditorKey));
+    }
+
+    SettingsDatabase *settings = m_d->m_core->settingsDatabase();
+    if (settings->contains(QLatin1String(documentStatesKey)))
+        m_d->m_editorStates = settings->value(QLatin1String(documentStatesKey))
+            .value<QMap<QString, QVariant> >();
+    if (settings->contains(QLatin1String(externalEditorKey)))
+        m_d->m_externalEditor = settings->value(QLatin1String(externalEditorKey)).toString();
 }
 
 
@@ -1803,7 +1819,7 @@ void EditorManager::openInExternalEditor()
         return;
     if (editor->file()->isModified()) {
         bool cancelled = false;
-        QList<IFile*> list = ICore::instance()->fileManager()->
+        QList<IFile*> list = m_d->m_core->fileManager()->
                              saveModifiedFiles(QList<IFile*>() << editor->file(), &cancelled);
         if (cancelled)
             return;

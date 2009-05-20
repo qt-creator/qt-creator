@@ -1104,7 +1104,7 @@ void MainWindow::readSettings()
 
     m_settings->endGroup();
 
-    m_editorManager->readSettings(m_settings);
+    m_editorManager->readSettings();
     m_navigationWidget->restoreSettings(m_settings);
     m_rightPaneWidget->readSettings(m_settings);
 }
@@ -1129,7 +1129,7 @@ void MainWindow::writeSettings()
     m_fileManager->saveRecentFiles();
     m_viewManager->saveSettings(m_settings);
     m_actionManager->saveSettings(m_settings);
-    m_editorManager->saveSettings(m_settings);
+    m_editorManager->saveSettings();
     m_navigationWidget->saveSettings(m_settings);
 }
 
