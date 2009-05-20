@@ -1,12 +1,12 @@
 load(qttest_p4)
 TEMPLATE = app
 TARGET = tst_qstringbuilder
-DEPENDPATH += .
-INCLUDEPATH += .
+STRINGBUILDERDIR = ../../../src/libs/utils
+INCLUDEPATH += $$STRINGBUILDERDIR
 
 QT -= gui
 
 CONFIG += release
 
 # Input
-SOURCES += main.cpp
+SOURCES += main.cpp $$STRINGBUILDERDIR/qstringbuilder.cpp

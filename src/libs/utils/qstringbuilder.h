@@ -46,14 +46,18 @@
 
 #include <string.h>
 
+// Using this relies on chaning the QString::QString(QChar *, int)
+// constructor to allocated an unitialized string of the given size.
+//#define USE_CHANGED_QSTRING 1
+
 class QLatin1Literal
 {
 public:
     template <int N>
     QLatin1Literal(const char (&str)[N]) : m_size(N - 1), m_data(str) {}
 
-    int size() const { return m_size; }
-    const char *data() const { return m_data; }
+    inline int size() const { return m_size; }
+    inline const char *data() const { return m_data; }
 
     void append(QChar *&out) const
     {
@@ -64,12 +68,17 @@ public:
 
     operator QString() const
     {
+#ifdef USE_CHANGED_QSTRING
+        QString s(m_size, QChar(-1));
+#else
         QString s;
         s.resize(m_size);
+#endif
         QChar *d = s.data();
         append(d);
         return s;
     }
+
 
 private:
     const int m_size;
@@ -84,8 +93,12 @@ public:
 
     operator QString() const
     {
+#ifdef USE_CHANGED_QSTRING
+        QString s(this->size(), QChar(-1));
+#else
         QString s;
         s.resize(this->size());
+#endif
         QChar *d = s.data();
         this->append(d);
         return s;
@@ -115,35 +128,42 @@ private:
 };
 
 
-template <>
-class QStringBuilder<char>
-{
-public:
-    QStringBuilder(char c_) : c(c_) {}
+template <typename A>
+int qStringBuilderSize(const A a) { return a.size(); }
 
-    inline int size() const { return 1; }
-    inline void append(QChar *&out) const { *out++ = QLatin1Char(c); }
-
-private:
-    const char c;
-};
+inline int qStringBuilderSize(const char) { return 1; }
 
 
+template <typename A>
+inline void qStringBuilderAppend(const A a, QChar *&out) { a.append(out); }
 
-template <class A, class B>
+inline void qStringBuilderAppend(char c, QChar *&out) { *out++ = QLatin1Char(c); }
+
+
+template <typename A, typename B>
 class QStringBuilderPair
 {
 public:
     QStringBuilderPair(A a_, B b_) : a(a_), b(b_) {}
-    inline int size() const { return a.size() + b.size(); }
-    inline void append(QChar *&out) const { a.append(out); b.append(out); }
+
+    inline int size() const
+    {
+        return qStringBuilderSize(a) + qStringBuilderSize(b);
+    }
+
+    inline void append(QChar *&out) const
+    {
+        qStringBuilderAppend(a, out);
+        qStringBuilderAppend(b, out);
+    }
+
 private:
     A a;
     B b;
 };
 
 
-template <class A, class B>
+template <typename A, typename B>
 QStringBuilder< QStringBuilderPair<A, B> >
 operator%(const A &a, const B &b)
 {
@@ -174,32 +194,6 @@ operator%(const QString &a, const QString &b)
 {
     return QStringBuilderPair< QStringBuilder<QString>,
         QStringBuilder<QString> > (a, b);
-}
-
-// char related specializations
-
-template <class A>
-inline QStringBuilder< QStringBuilderPair<A, QStringBuilder<char> > >
-operator%(const A &a, char b)
-{
-    return QStringBuilderPair<A, QStringBuilder<char> > (a, b);
-}
-
-template <class B>
-inline QStringBuilder< QStringBuilderPair<QStringBuilder<char>, B> >
-operator%(char a, const B &b)
-{
-    return QStringBuilderPair<QStringBuilder<QString>, B> (a, b);
-}
-
-inline QStringBuilder<
-    QStringBuilderPair<QStringBuilder<QString>, QStringBuilder<char> >
->
-operator%(const QString &a, char b)
-{
-    return QStringBuilderPair<
-               QStringBuilder<QString>, QStringBuilder<char>
-           > (a, b);
 }
 
 

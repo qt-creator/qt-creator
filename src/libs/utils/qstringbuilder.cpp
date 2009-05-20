@@ -53,7 +53,7 @@
     smaller chunks.
 
     Contrary to \c QLatin1String, a \c QLatin1Literal can retrieve its size
-    int \i{O(1)}.
+    without iterating over the literal.
 
     \ingroup tools
     \ingroup shared
@@ -127,5 +127,7 @@
  
    Creates a helper object containing both parameters. 
 
-   This is the main function to build up 
+   This is the main function to build up complex QStringBuilder objects from
+   smaller QStringBuilder objects.
 */
+
