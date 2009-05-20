@@ -1995,10 +1995,15 @@ static void qDumpQString(QDumper &d)
 {
     const QString &str = *reinterpret_cast<const QString *>(d.data);
 
-    if (!str.isEmpty()) {
-        qCheckAccess(str.unicode());
-        if (!str.unicode()[str.size()].isNull()) // must be '\0' terminated
-            qCheckAccess(0);
+    const int size = str.size();
+    if (size < 0)
+        return;
+    if (size) {
+        const QChar *unicode = str.unicode();
+        qCheckAccess(unicode);
+        qCheckAccess(unicode + size);
+        if (!unicode[size].isNull()) // must be '\0' terminated
+            return;
     }
 
     P(d, "value", str);
