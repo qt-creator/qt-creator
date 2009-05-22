@@ -923,8 +923,11 @@ bool QtVersion::isMSVC64Bit() const
         qDebug() << make;
         bool isAmd64 = false;
 #ifdef Q_OS_WIN32
+#  ifdef __GNUC__   // MinGW lacking some definitions/winbase.h
+#    define SCS_64BIT_BINARY 6
+#  endif   
         DWORD binaryType = 0;
-        bool success = GetBinaryTypeW(make.utf16(), &binaryType) != 0;
+        bool success = GetBinaryTypeW(reinterpret_cast<const TCHAR*>(make.utf16()), &binaryType) != 0;
         if (success && binaryType == SCS_64BIT_BINARY)
             isAmd64=true;
 //        qDebug() << "isAmd64:" << isAmd64 << binaryType;
