@@ -39,6 +39,16 @@
 #include <stdio.h>
 #include <string.h>
 
+// Test uninitialized variables allocing memory
+bool optTestUninitialized = false;
+
+template <class T>
+        inline T* testAddress(T* in)
+{
+    return optTestUninitialized ?
+        (reinterpret_cast<T*>(new char[sizeof(T)]))
+        : in;
+}
 
 /* Test program for Dumper development/porting.
  * Takes the type as first argument. */
@@ -85,9 +95,10 @@ static int dumpQString()
 {
     QString test = QLatin1String("hallo");
     prepareInBuffer("QString", "local.qstring", "local.qstring", "");
-    qDumpObjectData440(2, 42, &test, 1, 0, 0, 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, 0, 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
+    QString uninitialized;
     return 0;
 }
 
@@ -95,7 +106,7 @@ static int dumpQStringList()
 {
     QStringList test = QStringList() << QLatin1String("item1") << QLatin1String("item2");
     prepareInBuffer("QList", "local.qstringlist", "local.qstringlist", "QString");
-    qDumpObjectData440(2, 42, &test, 1, sizeof(QString), 0, 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(QString), 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -105,7 +116,7 @@ static int dumpQIntList()
 {
     QList<int> test = QList<int>() << 1 << 2;
     prepareInBuffer("QList", "local.qintlist", "local.qintlist", "int");
-    qDumpObjectData440(2, 42, &test, 1, sizeof(int), 0, 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -115,7 +126,7 @@ static int dumpQIntVector()
 {
     QVector<int> test = QVector<int>() << 1 << 2;
     prepareInBuffer("QVector", "local.qintvector", "local.qintvector", "int");
-    qDumpObjectData440(2, 42, &test, 1, sizeof(int), 0, 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -127,7 +138,7 @@ static int dumpStdString()
 {
     std::string test = "hallo";
     prepareInBuffer("std::string", "local.string", "local.string", "");
-    qDumpObjectData440(2, 42, &test, 1, 0, 0, 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, 0, 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -137,12 +148,11 @@ static int dumpStdWString()
 {
     std::wstring test = L"hallo";
     prepareInBuffer("std::wstring", "local.wstring", "local.wstring", "");
-    qDumpObjectData440(2, 42, &test, 1, 0, 0, 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, 0, 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
 }
-
 
 static int dumpStdStringList()
 {
@@ -150,7 +160,7 @@ static int dumpStdStringList()
     test.push_back("item1");
     test.push_back("item2");
     prepareInBuffer("std::list", "local.stringlist", "local.stringlist", "std::string");
-    qDumpObjectData440(2, 42, &test, 1, sizeof(std::string), sizeof(std::list<std::string>::allocator_type), 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(std::string), sizeof(std::list<std::string>::allocator_type), 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -162,7 +172,7 @@ static int dumpStdStringQList()
     test.push_back("item1");
     test.push_back("item2");
     prepareInBuffer("QList", "local.stringqlist", "local.stringqlist", "std::string");
-    qDumpObjectData440(2, 42, &test, 1, sizeof(std::string), 0, 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(std::string), 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -174,7 +184,7 @@ static int dumpStdIntList()
     test.push_back(1);
     test.push_back(2);
     prepareInBuffer("std::list", "local.intlist", "local.intlist", "int");
-    qDumpObjectData440(2, 42, &test, 1, sizeof(int), sizeof(std::list<int>::allocator_type), 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), sizeof(std::list<int>::allocator_type), 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -186,7 +196,7 @@ static int dumpStdIntVector()
     test.push_back(1);
     test.push_back(2);
     prepareInBuffer("std::vector", "local.intvector", "local.intvector", "int");
-    qDumpObjectData440(2, 42, &test, 1, sizeof(int), sizeof(std::list<int>::allocator_type), 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), sizeof(std::list<int>::allocator_type), 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -198,7 +208,7 @@ static int dumpStdStringVector()
     test.push_back("item1");
     test.push_back("item2");
     prepareInBuffer("std::vector", "local.stringvector", "local.stringvector", "std::string");
-    qDumpObjectData440(2, 42, &test, 1, sizeof(std::string), sizeof(std::list<int>::allocator_type), 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(std::string), sizeof(std::list<int>::allocator_type), 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -210,7 +220,7 @@ static int dumpStdIntSet()
     test.insert(1);
     test.insert(2);
     prepareInBuffer("std::set", "local.intset", "local.intset", "int");
-    qDumpObjectData440(2, 42, &test, 1, sizeof(int), sizeof(std::list<int>::allocator_type), 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), sizeof(std::list<int>::allocator_type), 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -222,7 +232,7 @@ static int dumpStdStringSet()
     test.insert("item1");
     test.insert("item2");
     prepareInBuffer("std::set", "local.stringset", "local.stringset", "std::string");
-    qDumpObjectData440(2, 42, &test, 1, sizeof(std::string), sizeof(std::list<int>::allocator_type), 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(std::string), sizeof(std::list<int>::allocator_type), 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -233,7 +243,7 @@ static int dumpQObject()
     // Requires the childOffset to be know, but that is not critical
     QTimer t;
     prepareInBuffer("QObject", "local.qobject", "local.qobject", "");
-    qDumpObjectData440(2, 42, &t, 1, 0, 0, 0, 0);
+    qDumpObjectData440(2, 42, testAddress(&t), 1, 0, 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -250,6 +260,11 @@ int main(int argc, char *argv[])
         return 0;
     for (int i = 1; i < argc; i++) {
         const char *arg = argv[i];
+        if (!strcmp(arg, "-u")) {
+            optTestUninitialized = true;
+            printf("\nTesting uninitialized...\n");
+            continue;
+        }
         printf("\nTesting %s\n", arg);
         if (!qstrcmp(arg, "QString"))
             dumpQString();

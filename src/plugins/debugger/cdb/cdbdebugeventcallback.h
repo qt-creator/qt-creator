@@ -257,10 +257,12 @@ public:
 
     int exceptionCount() const { return m_exceptionMessages.size(); }
     QStringList exceptionMessages() const { return m_exceptionMessages; }
+    QList<ULONG> exceptionCodes()  const { return m_exceptionCodes; }
 
 private:
     const QString m_logPrefix;
     IDebuggerManagerAccessForEngines *m_access;
+    QList<ULONG> m_exceptionCodes;
     QStringList m_exceptionMessages;
 };
 

@@ -106,7 +106,8 @@ private:
 
     bool getTypeSize(const QString &typeName, int *size, QString *errorMessage);
     bool runTypeSizeQuery(const QString &typeName, int *size, QString *errorMessage);
-    bool callDumper(const QString &call, const QByteArray &inBuffer, const char **outputPtr, QString *errorMessage);
+    bool callDumper(const QString &call, const QByteArray &inBuffer, const char **outputPtr,
+                    bool ignoreAccessViolation, QString *errorMessage);
 
     enum DumpExecuteResult { DumpExecuteOk, DumpExecuteSizeFailed, DumpExecuteCallFailed };
     DumpExecuteResult executeDump(const WatchData &wd,

@@ -29,13 +29,9 @@
 
 #include "cdbdebugeventcallback.h"
 #include "cdbdebugengine.h"
+#include "cdbexceptionutils.h"
 #include "cdbdebugengine_p.h"
 #include "debuggermanager.h"
-#include "breakhandler.h"
-#include "cdbstacktracecontext.h"
-
-enum { cppExceptionCode = 0xe06d7363, startupCompleteTrap = 0x406d1388,
-       rpcServerUnavailableExceptionCode = 0x6ba };
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -236,123 +232,6 @@ STDMETHODIMP CdbDebugEventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT2 Bp)
     return S_OK;
 }
 
-// Simple exception formatting
-void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
-{
-    str.setIntegerBase(16);
-    str << "\nException at 0x"  << e->ExceptionAddress
-            <<  ", code: 0x" << e->ExceptionCode << ": ";
-    switch (e->ExceptionCode) {
-    case cppExceptionCode:
-        str << "C++ exception";
-        break;
-    case startupCompleteTrap:
-        str << "Startup complete";
-        break;
-    case EXCEPTION_ACCESS_VIOLATION: {
-            const bool writeOperation = e->ExceptionInformation[0];
-            str << (writeOperation ? "write" : "read")
-                << " access violation at: 0x" << e->ExceptionInformation[1];
-    }
-        break;
-    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
-        str << "arrary bounds exceeded";
-        break;
-    case EXCEPTION_BREAKPOINT:
-        str << "breakpoint";
-        break;
-    case EXCEPTION_DATATYPE_MISALIGNMENT:
-        str << "datatype misalignment";
-        break;
-    case EXCEPTION_FLT_DENORMAL_OPERAND:
-        str << "floating point exception";
-        break;
-    case EXCEPTION_FLT_DIVIDE_BY_ZERO:
-        str << "division by zero";
-        break;
-    case EXCEPTION_FLT_INEXACT_RESULT:
-        str << " floating-point operation cannot be represented exactly as a decimal fraction";
-        break;
-    case EXCEPTION_FLT_INVALID_OPERATION:
-        str << "invalid floating-point operation";
-        break;
-    case EXCEPTION_FLT_OVERFLOW:
-        str << "floating-point overflow";
-        break;
-    case EXCEPTION_FLT_STACK_CHECK:
-        str << "floating-point operation stack over/underflow";
-        break;
-    case  EXCEPTION_FLT_UNDERFLOW:
-        str << "floating-point UNDERFLOW";
-        break;
-    case  EXCEPTION_ILLEGAL_INSTRUCTION:
-        str << "invalid instruction";
-        break;
-    case EXCEPTION_IN_PAGE_ERROR:
-        str << "page in error";
-        break;
-    case EXCEPTION_INT_DIVIDE_BY_ZERO:
-        str << "integer division by zero";
-        break;
-    case EXCEPTION_INT_OVERFLOW:
-        str << "integer overflow";
-        break;
-    case EXCEPTION_INVALID_DISPOSITION:
-        str << "invalid disposition to exception dispatcher";
-        break;
-    case EXCEPTION_NONCONTINUABLE_EXCEPTION:
-        str << "attempt to continue execution after noncontinuable exception";
-        break;
-    case EXCEPTION_PRIV_INSTRUCTION:
-        str << "privileged instruction";
-        break;
-    case EXCEPTION_SINGLE_STEP:
-        str << "single step";
-        break;
-    case EXCEPTION_STACK_OVERFLOW:
-        str << "stack_overflow";
-        break;
-    }
-    str << ", flags=0x" << e->ExceptionFlags;
-    if (e->ExceptionFlags == EXCEPTION_NONCONTINUABLE) {
-        str << " (execution cannot be continued)";
-    }
-    str << "\n\n";
-    str.setIntegerBase(10);
-}
-
-// Format exception with stacktrace in case of C++ exception
-void formatException(const EXCEPTION_RECORD64 *e,
-                     const QSharedPointer<CdbDumperHelper> &dumper,
-                     QTextStream &str)
-{
-    formatException(e, str);
-    if (e->ExceptionCode == cppExceptionCode) {
-        QString errorMessage;
-        ULONG currentThreadId = 0;
-        dumper->comInterfaces()->debugSystemObjects->GetCurrentThreadId(&currentThreadId);
-        if (CdbStackTraceContext *stc = CdbStackTraceContext::create(dumper, currentThreadId, &errorMessage)) {
-            str << "at:\n";
-            stc->format(str);
-            str <<'\n';
-            delete stc;
-        }
-    }
-}
-
-static bool isFatalException(LONG code)
-{
-    switch (code) {
-    case EXCEPTION_BREAKPOINT:
-    case EXCEPTION_SINGLE_STEP:
-    case startupCompleteTrap: // Mysterious exception at start of application
-    case rpcServerUnavailableExceptionCode:
-        return false;
-    default:
-        break;
-    }
-    return true;
-}
 
 STDMETHODIMP CdbDebugEventCallback::Exception(
     THIS_
@@ -512,6 +391,7 @@ STDMETHODIMP CdbExceptionLoggerEventCallback::Exception(
     __in ULONG /* FirstChance */
     )
 {
+    m_exceptionCodes.push_back(Exception->ExceptionCode);
     m_exceptionMessages.push_back(QString());
     {
         QTextStream str(&m_exceptionMessages.back());

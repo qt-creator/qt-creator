@@ -34,6 +34,7 @@
 #include "cdbdebugeventcallback.h"
 #include "cdbsymbolgroupcontext.h"
 #include "watchhandler.h"
+#include "cdbexceptionutils.h"
 
 #include "shared/sharedlibraryinjector.h"
 
@@ -440,7 +441,7 @@ bool CdbDumperHelper::initKnownTypes(QString *errorMessage)
     QString callCmd;
     QTextStream(&callCmd) << ".call " << m_dumpObjectSymbol << "(1,0,0,0,0,0,0,0)";
     const char *outData;
-    if (!callDumper(callCmd, QByteArray(), &outData, errorMessage)) {
+    if (!callDumper(callCmd, QByteArray(), &outData, false, errorMessage)) {
         return false;
     }
     if (!m_helper.parseQuery(outData, QtDumperHelper::CdbDebugger)) {
@@ -469,7 +470,8 @@ bool CdbDumperHelper::writeToDebuggee(CIDebugDataSpaces *ds, const QByteArray &b
     return true;
 }
 
-bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuffer, const char **outDataPtr, QString *errorMessage)
+bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuffer, const char **outDataPtr,
+                                 bool ignoreAccessViolation, QString *errorMessage)
 {
     *outDataPtr = 0;
     CdbExceptionLoggerEventCallback exLogger(m_messagePrefix, m_access);
@@ -483,7 +485,7 @@ bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuf
         return false;
     // Set up call and a temporary breakpoint after it.
     // Try to skip debuggee crash exceptions and dumper exceptions
-    // by using 'gh' (go handled)
+    // by using 'gN' (go not handled -> pass handling to dumper __try/__catch block)
     for (int i = 0; i < 10; i++) {
         const int oldExceptionCount = exLogger.exceptionCount();
         // Go. If an exception occurs in loop 2, let the dumper handle it.
@@ -499,6 +501,13 @@ bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuf
         // no new exceptions? -> break
         if (oldExceptionCount == newExceptionCount)
             break;
+        // If we are to ignore EXCEPTION_ACCESS_VIOLATION, check if anything
+        // else occurred.
+        if (ignoreAccessViolation) {
+            const QList<ULONG> newExceptionCodes = exLogger.exceptionCodes().mid(oldExceptionCount);
+            if (newExceptionCodes.count(EXCEPTION_ACCESS_VIOLATION) == newExceptionCodes.size())
+                break;
+        }
     }
     if (exLogger.exceptionCount()) {
         const QString exMsgs = exLogger.exceptionMessages().join(QString(QLatin1Char(',')));
@@ -612,7 +621,13 @@ CdbDumperHelper::DumpExecuteResult
     if (loadDebug)
         qDebug() << "Query: " << wd.toString() << "\nwith: " << callCmd << '\n';
     const char *outputData;
-    if (!callDumper(callCmd, inBuffer, &outputData, errorMessage))
+    // Completely ignore EXCEPTION_ACCESS_VIOLATION crashes in the dumpers.
+    ExceptionBlocker eb(m_cif->debugControl, EXCEPTION_ACCESS_VIOLATION, ExceptionBlocker::IgnoreException);
+    if (!eb) {
+        *errorMessage = eb.errorString();
+        return DumpExecuteCallFailed;
+    }
+    if (!callDumper(callCmd, inBuffer, &outputData, true, errorMessage))
         return DumpExecuteCallFailed;
     QtDumperResult dumpResult;
     if (!QtDumperHelper::parseValue(outputData, &dumpResult)) {
