@@ -29,6 +29,7 @@
 
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
+#include "qmlmakestep.h"
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -231,6 +232,10 @@ QStringList QmlProject::targets() const
 
 QmlMakeStep *QmlProject::makeStep() const
 {
+    foreach (ProjectExplorer::BuildStep *bs, buildSteps()) {
+        if (QmlMakeStep *ms = qobject_cast<QmlMakeStep *>(bs))
+            return ms;
+    }
     return 0;
 }
 
@@ -241,6 +246,11 @@ void QmlProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &
     if (runConfigurations().isEmpty()) {
         QSharedPointer<QmlRunConfiguration> runConf(new QmlRunConfiguration(this));
         addRunConfiguration(runConf);
+    }
+
+    if (buildSteps().isEmpty()) {
+        QmlMakeStep *makeStep = new QmlMakeStep(this);
+        insertBuildStep(0, makeStep);
     }
 
     refresh(Everything);

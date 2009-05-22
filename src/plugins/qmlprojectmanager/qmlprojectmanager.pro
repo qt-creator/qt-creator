@@ -9,14 +9,16 @@ HEADERS = qmlproject.h \
     qmlprojectnodes.h \
     qmlprojectwizard.h \
     qmlnewprojectwizard.h \
-    qmlprojectfileseditor.h
+    qmlprojectfileseditor.h \
+    qmlmakestep.h
 SOURCES = qmlproject.cpp \
     qmlprojectplugin.cpp \
     qmlprojectmanager.cpp \
     qmlprojectnodes.cpp \
     qmlprojectwizard.cpp \
     qmlnewprojectwizard.cpp \
-    qmlprojectfileseditor.cpp
+    qmlprojectfileseditor.cpp \
+    qmlmakestep.cpp
 RESOURCES += qmlproject.qrc
 
 OTHER_FILES += QmlProjectManager.pluginspec

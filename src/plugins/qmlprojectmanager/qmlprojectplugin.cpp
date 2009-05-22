@@ -34,6 +34,7 @@
 #include "qmlprojectconstants.h"
 #include "qmlprojectfileseditor.h"
 #include "qmlproject.h"
+#include "qmlmakestep.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -80,6 +81,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addAutoReleasedObject(new QmlRunConfigurationFactory);
     addAutoReleasedObject(new QmlNewProjectWizard);
     addAutoReleasedObject(new QmlProjectWizard);
+    addAutoReleasedObject(new QmlMakeStepFactory);
 
     return true;
 }
