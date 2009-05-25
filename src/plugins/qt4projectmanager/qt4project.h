@@ -223,10 +223,6 @@ private:
     static void findProFile(const QString& fileName, Internal::Qt4ProFileNode *root, QList<Internal::Qt4ProFileNode *> &list);
     static bool hasSubNode(Internal::Qt4PriFileNode *root, const QString &path);
 
-    ProjectExplorer::ToolChain *toolChain(const QString &buildConfiguration) const;
-    mutable ProjectExplorer::ToolChain *m_toolChain;
-
-
     QList<Internal::Qt4ProFileNode *> m_applicationProFileChange;
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;
 

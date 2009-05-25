@@ -51,8 +51,9 @@ public:
     QtVersion(const QString &name, const QString &path);
     QtVersion(const QString &name, const QString &path, int id, bool isSystemVersion = false);
     QtVersion()
-        :m_name(QString::null), m_path(QString::null), m_id(-1)
-    { }
+        :m_name(QString::null), m_id(-1), m_toolChain(0)
+    { setPath(QString::null); }
+    ~QtVersion();
 
     bool isValid() const; //TOOD check that the dir exists and the name is non empty
     bool isInstalled() const;
@@ -67,6 +68,8 @@ public:
     QString uicCommand() const;
     QString designerCommand() const;
     QString linguistCommand() const;
+    QString qmakeCXX() const;
+    ProjectExplorer::ToolChain *toolChain() const;
 
     QString qtVersionString() const;
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
@@ -79,7 +82,7 @@ public:
     QString msvcVersion() const;
     QString wincePlatform() const;
     void setMsvcVersion(const QString &version);
-    void addToEnvironment(ProjectExplorer::Environment &env);
+    void addToEnvironment(ProjectExplorer::Environment &env) const;
 
     bool hasDebuggingHelper() const;
     QString debuggingHelperLibrary() const;
@@ -104,32 +107,41 @@ private:
     void setName(const QString &name);
     void setPath(const QString &path);
     void updateSourcePath();
-    void updateVersionInfo() const;
     void updateMkSpec() const;
+    void updateVersionInfo() const;
+    void updateQMakeCXX() const;
+    void updateToolChain() const;
     QString findQtBinary(const QStringList &possibleName) const;
     QString m_name;
-    mutable bool m_versionInfoUpToDate;
-    mutable bool m_mkspecUpToDate;
     QString m_path;
     QString m_sourcePath;
-    mutable QString m_mkspec; // updated lazily
-    mutable QString m_mkspecFullPath;
     QString m_mingwDirectory;
     QString m_msvcVersion;
-    mutable QHash<QString,QString> m_versionInfo; // updated lazily
     int m_id;
     bool m_isSystemVersion;
+    bool m_hasDebuggingHelper;
+
+    mutable bool m_mkspecUpToDate;
+    mutable QString m_mkspec; // updated lazily
+    mutable QString m_mkspecFullPath;
+
+    mutable bool m_versionInfoUpToDate;
+    mutable QHash<QString,QString> m_versionInfo; // updated lazily
     mutable bool m_notInstalled;
     mutable bool m_defaultConfigIsDebug;
     mutable bool m_defaultConfigIsDebugAndRelease;
+
     mutable QString m_qmakeCommand;
+    mutable QString m_qtVersionString;
     mutable QString m_uicCommand;
     mutable QString m_designerCommand;
     mutable QString m_linguistCommand;
-    // This is updated on first call to qmakeCommand
-    // That function is called from updateVersionInfo()
-    mutable QString m_qtVersionString;
-    bool m_hasDebuggingHelper;
+
+    mutable bool m_qmakeCXXUpToDate;
+    mutable QString m_qmakeCXX;
+
+    mutable bool m_toolChainUpToDate;
+    mutable ProjectExplorer::ToolChain *m_toolChain;
 };
 
 class QtVersionManager : public QObject

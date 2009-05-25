@@ -66,6 +66,7 @@ public:
     void setCumulative(bool on); // Default is true!
     void setOutputDir(const QString &dir); // Default is empty
     void setUserConfigCmdArgs(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs);
+    void setParsePreAndPostFiles(bool on); // Default is true
 
     bool queryProFile(ProFile *pro);
     bool accept(ProFile *pro);

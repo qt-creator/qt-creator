@@ -97,7 +97,6 @@ enum Qt4ProjectType {
 enum Qt4Variable {
     DefinesVar = 1,
     IncludePathVar,
-    CxxCompilerVar,
     UiDirVar,
     MocDirVar,
     PkgConfigVar

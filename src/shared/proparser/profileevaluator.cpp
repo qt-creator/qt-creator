@@ -221,6 +221,7 @@ public:
     ProFile *m_prevProFile;                         // See m_prevLineNo
     QStringList m_addUserConfigCmdArgs;
     QStringList m_removeUserConfigCmdArgs;
+    bool m_parsePreAndPostFiles;
 };
 
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
@@ -240,6 +241,7 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
     m_invertNext = false;
     m_skipLevel = 0;
     m_isFirstVariableValue = true;
+    m_parsePreAndPostFiles = true;
 }
 
 bool ProFileEvaluator::Private::read(ProFile *pro)
@@ -648,11 +650,9 @@ bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
         m_profileStack.push(pro);
 
         const QString mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
-        if (!mkspecDirectory.isEmpty()) {
+        if (!mkspecDirectory.isEmpty() && m_parsePreAndPostFiles) {
             bool cumulative = m_cumulative;
             m_cumulative = false;
-            // This is what qmake does, everything set in the mkspec is also set
-            // But this also creates a lot of problems
             evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"), &ok);
             evaluateFile(mkspecDirectory + QLatin1String("/features/default_pre.prf"), &ok);
 
@@ -677,7 +677,7 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
     m_lineNo = pro->lineNumber();
     if (m_profileStack.count() == 1 && !m_oldPath.isEmpty()) {
         const QString &mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
-        if (!mkspecDirectory.isEmpty()) {
+        if (!mkspecDirectory.isEmpty() && m_parsePreAndPostFiles) {
             bool cumulative = m_cumulative;
             m_cumulative = false;
 
@@ -2320,6 +2320,11 @@ void ProFileEvaluator::setUserConfigCmdArgs(const QStringList &addUserConfigCmdA
 {
     d->m_addUserConfigCmdArgs = addUserConfigCmdArgs;
     d->m_removeUserConfigCmdArgs = removeUserConfigCmdArgs;
+}
+
+void ProFileEvaluator::setParsePreAndPostFiles(bool on)
+{
+    d->m_parsePreAndPostFiles = on;
 }
 
 void evaluateProFile(const ProFileEvaluator &visitor, QHash<QByteArray, QStringList> *varMap)
