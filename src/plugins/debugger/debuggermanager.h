@@ -289,7 +289,6 @@ public slots:
     void nextIExec();
     void continueExec();
     void detachDebugger();
-    void reverseDirection();
 
     void addToWatchWindow();
     void updateWatchModel();
