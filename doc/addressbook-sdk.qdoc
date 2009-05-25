@@ -66,6 +66,9 @@
         \o  Input and output devices
     \endlist
 
+    All these technologies will be introduced via the Qt Creator Integrated
+    Development Environment (IDE).
+
     If you are completely new to Qt, please read \l{How to Learn Qt} if you
     have not already done so.
 
@@ -112,12 +115,12 @@
 
     We begin by launching Qt Creator and use it to generate a new project. To
     do this, select \gui New from the \gui File menu. In the
-    \gui{New File or Project} dialog. Follow the step by step guide on how to
-    create a \gui Project with Qt Creator, refer to the document
-    \l{Creating a Project in Qt Creator}{here}. Ensure that you select QWidget
-    as your subclass and name it \c AddressBook.
+    \gui{New...} dialog, select \gui{Projects|Qt4 Gui Application}. For a step
+    by step guide on how to create a \gui Project with Qt Creator, refer to the
+    \l{Creating a Project in Qt Creator}. Ensure that you select QWidget as
+    your subclass and name it \c AddressBook.
 
-    There are five files generated in this \gui{Project}:
+    Five files will be generated in this \gui{Project}:
 
     \list
         \o  \c{addressbook.pro} - the project file,
@@ -130,7 +133,7 @@
         \o  \c{addressbook.ui} - the user interface file created with \QD.
     \endlist
 
-    Now we have all the files we need, let's move on to designing the user
+    Now that we have all the files we need, let's move on to designing the user
     interface.
 
     \section1 Placing Widgets on the Form
@@ -139,9 +142,9 @@
     The \QD plugin will be launched, allowing you to design your program's user
     interface.
 
-    We require two \l{QLabel}s to label the input fields as well as a
-    QLineEdit and a QTextEdit as the input fields. So, drag those widgets from
-    the \gui{Widget Box} to your form. In the \gui{Property Editor}, set their
+    We require two \l{QLabel}s to label the input fields as well as a QLineEdit
+    and a QTextEdit for the input fields. So, drag those widgets from the
+    \gui{Widget Box} to your form. In the \gui{Property Editor}, set their
     \gui{objectName} property to \c nameLabel and \c addressLabel for the
     \l{QLabel}s, \c nameLine for the QLineEdit and finally, \c addressText for
     the QTextEdit.
@@ -166,9 +169,9 @@
     Let's take a look at what is already provided for us by Qt Creator. The
     \c AddressBook class has been defined as a QWidget subclass with a
     constructor and destructor.The Q_OBJECT macro is used to indicate that this
-    class uses internationalization and Qt's signals and slots features.
-    Although the macro implements some of the more advanced features of Qt, for
-    now, it is useful to think of it as a shortcut that allows us to use the
+    class uses internationalization as well as Qt's signals and slots features.
+    Although the macro implements some of Qt's more advanced features, for now,
+    it is useful to think of it as a shortcut that allows us to use the
     \l{QObject::}{tr()} and \l{QObject::}{connect()} functions.
 
     \snippet examples/addressbook-sdk/part1/addressbook.h class definition
@@ -197,9 +200,17 @@
     The code constructs a new \c AddressBook widget on the heap using the
     \c new keyword and invokes its \l{QWidget::}{show()} function to display
     it. However, the widget will not be shown until the application's event
-    loop is started, by calling the application's \l{QApplication::}{exec()}
-    function. Finally, the result returned by \l{QApplication::}{exec()} is
-    used as the return value from the \c main() function.
+    loop is started. This is done by calling the application's
+    \l{QApplication::}{exec()} function. Finally, the result returned by
+    \l{QApplication::}{exec()} is used as the \c main() function's return
+    value.
+
+
+    \section1 Running the Application
+
+    To run your application with Qt Creator, simply click on the Play button
+    (image). A bare bones Address Book will be displayed. Click on the X button
+    to close it.
 
 
     \section1 Qt Programming - Subclassing
@@ -225,8 +236,8 @@
     standard Qt widget class and add features to it. The \c AddressBook class
     we create in this tutorial can be reused in situations where a basic
     address book is needed.
-
 */
+
 
 /*!
     \page tutorials-addressbook-sdk-part2.html
