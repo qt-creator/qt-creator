@@ -84,13 +84,30 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QToolTip>
 
+namespace Debugger {
+    namespace Internal {
+QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
+{
+    QDebug nospace = str.nospace();
+    const QString sep = QString(QLatin1Char(','));
+    nospace << "executable=" << p.executable << " coreFile=" << p.coreFile
+            << " processArgs=" << p.processArgs.join(sep)
+            << " environment=<" << p.environment.size() << " variables>"
+            << " workingDir=" << p.workingDir << " buildDir=" << p.buildDir
+            << " attachPID=" << p.attachPID << " useTerminal=" << p.useTerminal
+            << " remoteChannel=" << p.remoteChannel
+            << " remoteArchitecture=" << p.remoteArchitecture
+            << " serverStartScript=" << p.serverStartScript << '\n';
+    return str;
+}
+} // namespace Internal
+} // namespace Debugger
+
 using namespace Debugger;
 using namespace Debugger::Internal;
 using namespace Debugger::Constants;
 
 static const QString tooltipIName = "tooltip";
-
-#define _(s) QString::fromLatin1(s)
 
 static const char *stateName(int s)
 {
@@ -148,7 +165,7 @@ static IDebuggerEngine *tcfEngine = 0;
 // This allows for having a "enabled" toggle on the page indepently
 // of the engine.
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
-IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineDisabled */, QList<Core::IOptionsPage*> *)
+IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineEnabled */, QList<Core::IOptionsPage*> *)
 #ifdef CDB_ENABLED
 ;
 #else
@@ -157,7 +174,33 @@ IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineDisabled */, 
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 
-DebuggerManager::DebuggerManager()
+// ---------------- DebuggerStartParameters
+
+DebuggerStartParameters::DebuggerStartParameters() :
+    attachPID(-1),
+    useTerminal(false)
+{
+}
+
+void DebuggerStartParameters::clear()
+{
+    executable.clear();
+    coreFile.clear();
+    processArgs.clear();
+    environment.clear();
+    workingDir.clear();
+    buildDir.clear();
+    attachPID = -1;
+    useTerminal = false;
+    remoteChannel.clear();
+    remoteArchitecture.clear();
+    serverStartScript.clear();
+}
+
+// --------- DebuggerManager
+DebuggerManager::DebuggerManager() :
+    m_startParameters(new DebuggerStartParameters),
+    m_inferiorPid(0)
 {
     init();
 }
@@ -177,7 +220,6 @@ void DebuggerManager::init()
     m_status = -1;
     m_busy = false;
 
-    m_attachedPID = 0;
     m_runControl = 0;
 
     m_disassemblerHandler = 0;
@@ -284,7 +326,7 @@ void DebuggerManager::init()
     connect(sourceFilesView, SIGNAL(fileOpenRequested(QString)),
         this, SLOT(fileOpen(QString)));
 
-    // Registers 
+    // Registers
     QAbstractItemView *registerView =
         qobject_cast<QAbstractItemView *>(m_registerWindow);
     m_registerHandler = new RegisterHandler;
@@ -295,7 +337,7 @@ void DebuggerManager::init()
     QTreeView *localsView = qobject_cast<QTreeView *>(m_localsWindow);
     localsView->setModel(m_watchHandler->model());
 
-    // Watchers 
+    // Watchers
     QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
     watchersView->setModel(m_watchHandler->model());
     connect(m_watchHandler, SIGNAL(sessionValueRequested(QString,QVariant*)),
@@ -444,14 +486,16 @@ void DebuggerManager::init()
     setStatus(DebuggerProcessNotReady);
 }
 
-QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(const QStringList &arguments)
+QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTypeFlags)
 {
     QList<Core::IOptionsPage*> rc;
-    gdbEngine = createGdbEngine(this, &rc);
-    const bool cdbDisabled = arguments.contains(_("-disable-cdb"));
-    winEngine = createWinEngine(this, cdbDisabled, &rc);
-    scriptEngine = createScriptEngine(this, &rc);
-    tcfEngine = createTcfEngine(this, &rc);
+    if (enabledTypeFlags & GdbEngineType)
+        gdbEngine = createGdbEngine(this, &rc);
+    winEngine = createWinEngine(this, (enabledTypeFlags & CdbEngineType), &rc);
+    if (enabledTypeFlags & ScriptEngineType)
+        scriptEngine = createScriptEngine(this, &rc);
+    if (enabledTypeFlags & TcfEngineType)
+        tcfEngine = createTcfEngine(this, &rc);
     m_engine = 0;
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine << rc.size();
@@ -643,12 +687,15 @@ void DebuggerManager::notifyInferiorExited()
     showStatusMessage(tr("Stopped."), 5000);
 }
 
-void DebuggerManager::notifyInferiorPidChanged(int pid)
+void DebuggerManager::notifyInferiorPidChanged(qint64 pid)
 {
     if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << pid;
-    //QMessageBox::warning(0, "PID", "PID: " + QString::number(pid)); 
-    emit inferiorPidChanged(pid);
+        qDebug() << Q_FUNC_INFO << m_inferiorPid << pid;
+
+    if (m_inferiorPid != pid) {
+        m_inferiorPid = pid;
+        emit inferiorPidChanged(pid);
+    }
 }
 
 void DebuggerManager::showApplicationOutput(const QString &str)
@@ -720,7 +767,7 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
 
     QTC_ASSERT(m_breakHandler, return);
     if (status() != DebuggerInferiorRunning
-         && status() != DebuggerInferiorStopped 
+         && status() != DebuggerInferiorStopped
          && status() != DebuggerProcessNotReady) {
         showStatusMessage(tr("Changing breakpoint state requires either a "
             "fully running or fully stopped application."));
@@ -732,7 +779,7 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
         m_breakHandler->setBreakpoint(fileName, lineNumber);
     else
         m_breakHandler->removeBreakpoint(index);
-    
+
     attemptBreakpointSynchronization();
 }
 
@@ -743,7 +790,7 @@ void DebuggerManager::toggleBreakpointEnabled(const QString &fileName, int lineN
 
     QTC_ASSERT(m_breakHandler, return);
     if (status() != DebuggerInferiorRunning
-         && status() != DebuggerInferiorStopped 
+         && status() != DebuggerInferiorStopped
          && status() != DebuggerProcessNotReady) {
         showStatusMessage(tr("Changing breakpoint state requires either a "
             "fully running or fully stopped application."));
@@ -779,26 +826,6 @@ QVariant DebuggerManager::sessionValue(const QString &name)
     QVariant value;
     emit sessionValueRequested(name, &value);
     return value;
-}
-
-QVariant DebuggerManager::configValue(const QString &name)
-{
-    // this is answered by the plugin
-    QVariant value;
-    emit configValueRequested(name, &value);
-    return value;
-}
-
-void DebuggerManager::queryConfigValue(const QString &name, QVariant *value)
-{
-    // this is answered by the plugin
-    emit configValueRequested(name, value);
-}
-
-void DebuggerManager::setConfigValue(const QString &name, const QVariant &value)
-{
-    // this is answered by the plugin
-    emit setConfigValueRequested(name, value);
 }
 
 // Figure out the debugger type of an executable
@@ -844,160 +871,14 @@ static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
 #endif
 }
 
-void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
+void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl, const QSharedPointer<DebuggerStartParameters> &startParameters)
 {
-    m_runControl = runControl;
-
     if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << startMode();
+        qDebug() << Q_FUNC_INFO << '\n' << *startParameters;
 
-    // FIXME: Clean up
-
-    switch  (startMode()) {
-    case StartExternal: {
-        StartExternalDialog dlg(mainWindow());
-        dlg.setExecutableFile(
-            configValue(_("LastExternalExecutableFile")).toString());
-        dlg.setExecutableArguments(
-            configValue(_("LastExternalExecutableArguments")).toString());
-        if (dlg.exec() != QDialog::Accepted) {
-            runControl->debuggingFinished();
-            return;
-        }
-        setConfigValue(_("LastExternalExecutableFile"),
-            dlg.executableFile());
-        setConfigValue(_("LastExternalExecutableArguments"),
-            dlg.executableArguments());
-        m_executable = dlg.executableFile();
-        m_processArgs = dlg.executableArguments().split(' ');
-        m_workingDir = QString();
-        m_attachedPID = -1;
-        break;
-    }
-    case AttachExternal: {
-        AttachExternalDialog dlg(mainWindow());
-        if (dlg.exec() != QDialog::Accepted) {
-            runControl->debuggingFinished();
-            return;
-        }
-        m_executable = QString();
-        m_processArgs = QStringList();
-        m_workingDir = QString();
-        m_attachedPID = dlg.attachPID();
-        if (m_attachedPID == 0) {
-            QMessageBox::warning(mainWindow(), tr("Warning"),
-                tr("Cannot attach to PID 0"));
-            runControl->debuggingFinished();
-            return;
-        }
-        break;
-    }
-    case StartInternal: {
-        if (m_executable.isEmpty()) {
-            QString startDirectory = m_executable;
-            if (m_executable.isEmpty()) {
-                QString fileName;
-                emit currentTextEditorRequested(&fileName, 0, 0);
-                if (!fileName.isEmpty()) {
-                    const QFileInfo editorFile(fileName);
-                    startDirectory = editorFile.dir().absolutePath();
-                }
-            }
-            StartExternalDialog dlg(mainWindow());
-            dlg.setExecutableFile(startDirectory);
-            if (dlg.exec() != QDialog::Accepted) {
-                runControl->debuggingFinished();
-                return;
-            }
-            m_executable = dlg.executableFile();
-            m_processArgs = dlg.executableArguments().split(' ');
-            m_workingDir = QString();
-            m_attachedPID = 0;
-        } else {
-            //m_executable = QDir::convertSeparators(m_executable);
-            //m_processArgs = sd.processArgs.join(_(" "));
-            m_attachedPID = 0;
-        }
-        break;
-    }
-    case AttachCore: {
-        AttachCoreDialog dlg(mainWindow());
-        dlg.setExecutableFile(
-            configValue(_("LastExternalExecutableFile")).toString());
-        dlg.setCoreFile(
-            configValue(_("LastExternalCoreFile")).toString());
-        if (dlg.exec() != QDialog::Accepted) {
-            runControl->debuggingFinished();
-            return;
-        }
-        setConfigValue(_("LastExternalExecutableFile"),
-            dlg.executableFile());
-        setConfigValue(_("LastExternalCoreFile"),
-            dlg.coreFile());
-        m_executable = dlg.executableFile();
-        m_coreFile = dlg.coreFile();
-        m_processArgs.clear();
-        m_workingDir = QString();
-        m_attachedPID = -1;
-        break;
-    }
-    case StartRemote: {
-        StartRemoteDialog dlg(mainWindow());
-        QStringList arches;
-        arches.append(_("i386:x86-64:intel"));
-        dlg.setRemoteArchitectures(arches);
-        dlg.setRemoteChannel(
-            configValue(_("LastRemoteChannel")).toString());
-        dlg.setRemoteArchitecture(
-            configValue(_("LastRemoteArchitecture")).toString());
-        dlg.setServerStartScript(
-            configValue(_("LastServerStartScript")).toString());
-        dlg.setUseServerStartScript(
-            configValue(_("LastUseServerStartScript")).toBool());
-        if (dlg.exec() != QDialog::Accepted) {  
-            runControl->debuggingFinished();
-            return;
-        }
-        setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
-        setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
-        setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
-        setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
-        m_remoteChannel = dlg.remoteChannel();
-        m_remoteArchitecture = dlg.remoteArchitecture();
-        m_serverStartScript = dlg.serverStartScript();
-        if (!dlg.useServerStartScript())
-            m_serverStartScript.clear();
-        break;
-    }
-    case AttachTcf: {
-        AttachTcfDialog dlg(mainWindow());
-        QStringList arches;
-        arches.append(_("i386:x86-64:intel"));
-        dlg.setRemoteArchitectures(arches);
-        dlg.setRemoteChannel(
-            configValue(_("LastTcfRemoteChannel")).toString());
-        dlg.setRemoteArchitecture(
-            configValue(_("LastTcfRemoteArchitecture")).toString());
-        dlg.setServerStartScript(
-            configValue(_("LastTcfServerStartScript")).toString());
-        dlg.setUseServerStartScript(
-            configValue(_("LastTcfUseServerStartScript")).toBool());
-        if (dlg.exec() != QDialog::Accepted) {  
-            runControl->debuggingFinished();
-            return;
-        }
-        setConfigValue(_("LastTcfRemoteChannel"), dlg.remoteChannel());
-        setConfigValue(_("LastTcfRemoteArchitecture"), dlg.remoteArchitecture());
-        setConfigValue(_("LastTcfServerStartScript"), dlg.serverStartScript());
-        setConfigValue(_("LastTcfUseServerStartScript"), dlg.useServerStartScript());
-        m_remoteChannel = dlg.remoteChannel();
-        m_remoteArchitecture = dlg.remoteArchitecture();
-        m_serverStartScript = dlg.serverStartScript();
-        if (!dlg.useServerStartScript())
-            m_serverStartScript.clear();
-        break;
-    }
-    }
+    m_startParameters  = startParameters;
+    m_inferiorPid = startParameters->attachPID > 0 ? startParameters->attachPID : 0;
+    m_runControl = runControl;
 
     emit debugModeRequested();
 
@@ -1005,13 +886,13 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
     QString settingsIdHint;
     switch (startMode()) {
     case AttachExternal:
-        m_engine = determineDebuggerEngine(m_attachedPID, &errorMessage);
+        m_engine = determineDebuggerEngine(m_startParameters->attachPID, &errorMessage);
         break;
     case AttachTcf:
         m_engine = tcfEngine;
         break;
     default:
-        m_engine = determineDebuggerEngine(m_executable, &errorMessage, &settingsIdHint);
+        m_engine = determineDebuggerEngine(m_startParameters->executable, &errorMessage, &settingsIdHint);
         break;
     }
 
@@ -1019,7 +900,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         debuggingFinished();
         // Create Message box with possibility to go to settings
         QAbstractButton *settingsButton = 0;
-        QMessageBox msgBox(QMessageBox::Warning, tr("Warning"), tr("Cannot debug '%1': %2").arg(m_executable, errorMessage), QMessageBox::Ok);
+        QMessageBox msgBox(QMessageBox::Warning, tr("Warning"), tr("Cannot debug '%1': %2").arg(m_startParameters->executable, errorMessage), QMessageBox::Ok);
         if (!settingsIdHint.isEmpty())
             settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
         msgBox.exec();
@@ -1028,7 +909,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         return;
     }
     if (Debugger::Constants::Internal::debug)
-        qDebug() << m_executable << m_engine;
+        qDebug() << m_startParameters->executable << m_engine;
 
     setBusyCursor(false);
     setStatus(DebuggerProcessStartingUp);
@@ -1037,8 +918,6 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         debuggingFinished();
         return;
     }
-
-    return;
 }
 
 void DebuggerManager::cleanupViews()
@@ -1064,6 +943,21 @@ void DebuggerManager::exitDebugger()
     setStatus(DebuggerProcessNotReady);
     setBusyCursor(false);
     emit debuggingFinished();
+}
+
+QSharedPointer<DebuggerStartParameters> DebuggerManager::startParameters() const
+{
+    return m_startParameters;
+}
+
+void DebuggerManager::setQtDumperLibraryName(const QString &dl)
+{
+    m_dumperLib = dl;
+}
+
+qint64 DebuggerManager::inferiorPid() const
+{
+    return m_inferiorPid;
 }
 
 void DebuggerManager::assignValueInDebugger()
@@ -1117,7 +1011,7 @@ void DebuggerManager::stepExec()
     QTC_ASSERT(m_engine, return);
     resetLocation();
     m_engine->stepExec();
-} 
+}
 
 void DebuggerManager::stepOutExec()
 {
@@ -1173,7 +1067,7 @@ void DebuggerManager::sessionLoaded()
 void DebuggerManager::sessionUnloaded()
 {
     return;
-    //FIXME: Breakview crashes on startup as there is 
+    //FIXME: Breakview crashes on startup as there is
     //cleanupViews();
     if (m_engine)
         m_engine->shutdown();
@@ -1207,7 +1101,7 @@ void DebuggerManager::dumpLog()
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly))
         return;
-    QTextStream ts(&file);      
+    QTextStream ts(&file);
     ts << m_outputWindow->inputContents();
     ts << "\n\n=======================================\n\n";
     ts << m_outputWindow->combinedContents();
@@ -1245,7 +1139,7 @@ void DebuggerManager::breakByFunction(const QString &functionName)
 void DebuggerManager::breakByFunction()
 {
     BreakByFunctionDialog dlg(m_mainWindow);
-    if (dlg.exec()) 
+    if (dlg.exec())
         breakByFunction(dlg.functionName());
 }
 
@@ -1268,7 +1162,7 @@ static bool isAllowedTransition(int from, int to)
       || (from == DebuggerInferiorRunning && to == DebuggerInferiorStopRequested)
       || (from == DebuggerInferiorRunning && to == DebuggerInferiorStopped)
       || (from == DebuggerInferiorStopRequested && to == DebuggerInferiorStopped)
-      || (to == DebuggerProcessNotReady);  
+      || (to == DebuggerProcessNotReady);
 }
 
 void DebuggerManager::setStatus(int status)
@@ -1619,9 +1513,9 @@ void DebuggerManager::reloadFullStack()
 
 void DebuggerManager::runTest(const QString &fileName)
 {
-    m_executable = fileName;
-    m_processArgs = QStringList() << "--run-debuggee";
-    m_workingDir = QString();
+    m_startParameters->executable = fileName;
+    m_startParameters->processArgs = QStringList() << "--run-debuggee";
+    m_startParameters->workingDir.clear();
     //startNewDebugger(StartInternal);
 }
 

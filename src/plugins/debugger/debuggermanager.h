@@ -34,6 +34,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -44,6 +45,7 @@ class QMainWindow;
 class QPoint;
 class QTimer;
 class QWidget;
+class QDebug;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -87,9 +89,9 @@ class Symbol;
 //     DebuggerProcessStartingUp
 //          | <-------------------------------------.
 //     DebuggerInferiorRunningRequested             |
-//          |                                       | 
-//     DebuggerInferiorRunning                      | 
-//          |                                       |  
+//          |                                       |
+//     DebuggerInferiorRunning                      |
+//          |                                       |
 //     DebuggerInferiorStopRequested                |
 //          |                                       |
 //     DebuggerInferiorStopped                      |
@@ -124,11 +126,40 @@ enum DebuggerStartMode
     StartRemote      // Start and attach to a remote process
 };
 
+struct DebuggerStartParameters {
+    DebuggerStartParameters();
+    void clear();
+
+    QString executable;
+    QString coreFile;
+    QStringList processArgs;
+    QStringList environment;
+    QString workingDir;
+    QString buildDir;
+    qint64 attachPID;
+    bool useTerminal;
+    // for remote debugging
+    QString remoteChannel;
+    QString remoteArchitecture;
+    QString serverStartScript;
+};
+
+QDebug operator<<(QDebug str, const DebuggerStartParameters &);
+
 class IDebuggerEngine;
 class GdbEngine;
 class ScriptEngine;
 class CdbDebugEngine;
 struct CdbDebugEnginePrivate;
+
+// Flags for initialization
+enum DebuggerEngineTypeFlags {
+    GdbEngineType = 0x1,
+    ScriptEngineType = 0x2,
+    CdbEngineType = 0x4,
+    TcfEngineType = 0x8,
+    AllEngineTypes = (GdbEngineType|ScriptEngineType|CdbEngineType|TcfEngineType)
+};
 
 // The construct below is not nice but enforces a bit of order. The
 // DebuggerManager interfaces a lots of thing: The DebuggerPlugin,
@@ -150,6 +181,7 @@ public:
 private:
     // This is the part of the interface that's exclusively seen by the
     // debugger engines
+
     friend class CdbDebugEngine;
     friend class CdbDebugEventCallback;
     friend class CdbDumperHelper;
@@ -161,11 +193,11 @@ private:
 
     // called from the engines after successful startup
     virtual void notifyInferiorStopRequested() = 0;
-    virtual void notifyInferiorStopped() = 0; 
+    virtual void notifyInferiorStopped() = 0;
     virtual void notifyInferiorRunningRequested() = 0;
     virtual void notifyInferiorRunning() = 0;
     virtual void notifyInferiorExited() = 0;
-    virtual void notifyInferiorPidChanged(int) = 0;
+    virtual void notifyInferiorPidChanged(qint64) = 0;
 
     virtual DisassemblerHandler *disassemblerHandler() = 0;
     virtual ModulesHandler *modulesHandler() = 0;
@@ -179,7 +211,7 @@ private:
     virtual void showApplicationOutput(const QString &data) = 0;
     virtual void showDebuggerOutput(const QString &prefix, const QString &msg) = 0;
     virtual void showDebuggerInput(const QString &prefix, const QString &msg) = 0;
-    
+
     virtual void reloadDisassembler() = 0;
     virtual void reloadModules() = 0;
     virtual void reloadSourceFiles() = 0;
@@ -189,6 +221,9 @@ private:
     virtual QString qtDumperLibraryName() const = 0;
     virtual void showQtDumperLibraryWarning(const QString &details = QString()) = 0;
 
+    virtual qint64 inferiorPid() const = 0;
+
+    virtual QSharedPointer<DebuggerStartParameters> startParameters() const = 0;
 };
 
 
@@ -203,7 +238,7 @@ class DebuggerManager : public QObject,
 
 public:
     DebuggerManager();
-    QList<Core::IOptionsPage*> initializeEngines(const QStringList &arguments);
+    QList<Core::IOptionsPage*> initializeEngines(unsigned enabledTypeFlags);
 
     ~DebuggerManager();
 
@@ -212,8 +247,13 @@ public:
     QLabel *statusLabel() const { return m_statusLabel; }
 
 public slots:
-    void startNewDebugger(DebuggerRunControl *runControl);
-    void exitDebugger(); 
+    void startNewDebugger(DebuggerRunControl *runControl, const QSharedPointer<DebuggerStartParameters> &startParameters);
+    void exitDebugger();
+
+    virtual QSharedPointer<DebuggerStartParameters> startParameters() const;
+    virtual qint64 inferiorPid() const;
+
+    void setQtDumperLibraryName(const QString &dl); // Run Control
 
     void setSimpleDockWidgetArrangement();
     void setLocked(bool locked);
@@ -222,9 +262,6 @@ public slots:
 
     void setBusyCursor(bool on);
     void queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **ed);
-    QVariant configValue(const QString &name);
-    void queryConfigValue(const QString &name, QVariant *value);
-    void setConfigValue(const QString &name, const QVariant &value);
     QVariant sessionValue(const QString &name);
 
     void gotoLocation(const QString &file, int line, bool setLocationMarker);
@@ -254,7 +291,7 @@ public slots:
 
     void addToWatchWindow();
     void updateWatchModel();
-    
+
     void sessionLoaded();
     void sessionUnloaded();
     void aboutToSaveSession();
@@ -293,7 +330,7 @@ private slots:
 private:
     //
     // Implementation of IDebuggerManagerAccessForEngines
-    // 
+    //
     DisassemblerHandler *disassemblerHandler() { return m_disassemblerHandler; }
     ModulesHandler *modulesHandler() { return m_modulesHandler; }
     BreakHandler *breakHandler() { return m_breakHandler; }
@@ -308,9 +345,9 @@ private:
     void notifyInferiorStopRequested();
     void notifyInferiorRunning();
     void notifyInferiorExited();
-    void notifyInferiorPidChanged(int);
+    void notifyInferiorPidChanged(qint64);
 
-    void cleanupViews(); 
+    void cleanupViews();
 
     //
     // Implementation of IDebuggerManagerAccessForDebugMode
@@ -322,15 +359,15 @@ private:
     virtual QString qtDumperLibraryName() const;
     virtual void showQtDumperLibraryWarning(const QString &details = QString());
 
-    //    
+    //
     // internal implementation
-    //  
+    //
     Q_SLOT void loadSessionData();
     Q_SLOT void saveSessionData();
     Q_SLOT void dumpLog();
 
 public:
-    // stuff in this block should be made private by moving it to 
+    // stuff in this block should be made private by moving it to
     // one of the interfaces
     QAbstractItemModel *threadsModel();
     int status() const { return m_status; }
@@ -357,20 +394,6 @@ signals:
     void applicationOutputAvailable(const QString &output);
 
 public:
-    // FIXME: make private
-    QString m_executable;
-    QString m_coreFile;
-    QStringList m_environment;
-    QString m_workingDir;
-    QString m_buildDir;
-    QStringList m_processArgs;
-    QString m_dumperLib;
-    int m_attachedPID;
-    bool m_useTerminal;
-    // for remote debugging
-    QString m_remoteChannel;
-    QString m_remoteArchitecture;
-    QString m_serverStartScript;
 
 private:
     void init();
@@ -388,7 +411,11 @@ private:
     BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
     void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
 
+    QSharedPointer<DebuggerStartParameters> m_startParameters;
     DebuggerRunControl *m_runControl;
+    QString m_dumperLib;
+    qint64 m_inferiorPid;
+
 
     /// Views
     QMainWindow *m_mainWindow;

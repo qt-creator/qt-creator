@@ -225,7 +225,6 @@ void Qt4ProjectFile::modified(Core::IFile::ReloadBehavior *)
   */
 
 Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
-    m_toolChain(0),
     m_manager(manager),
     m_rootProjectNode(0),
     m_nodesWatcher(new Internal::Qt4NodesWatcher(this)),
@@ -251,8 +250,6 @@ Qt4Project::~Qt4Project()
 {
     m_manager->unregisterProject(this);
     delete m_projectFiles;
-    delete m_toolChain;
-    m_toolChain = 0;
 }
 
 void Qt4Project::defaultQtVersionChanged()
@@ -380,57 +377,7 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
 
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
 {
-    return toolChain(buildConfiguration)->makeCommand();
-}
-
-ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
-{
-    if (debug)
-        qDebug()<<"Qt4Project::toolChain() for buildconfiguration:"<<buildConfiguration;
-    Q_UNUSED(buildConfiguration);
-    ToolChain *m_test= 0;
-    QtVersion *version = qtVersion(activeBuildConfiguration());
-    ToolChain::ToolChainType t = version->toolchainType();
-    if (t == ToolChain::MinGW) {
-        QStringList list = rootProjectNode()->variableValue(Internal::CxxCompilerVar);
-        QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
-        Environment env = Environment::systemEnvironment();
-        qtVersion(activeBuildConfiguration())->addToEnvironment(env);
-        env.prependOrSetPath(qtVersion(activeBuildConfiguration())->mingwDirectory()+"/bin");
-        qmake_cxx = env.searchInPath(qmake_cxx);
-        m_test = ToolChain::createMinGWToolChain(qmake_cxx, version->mingwDirectory());
-        //qDebug()<<"Mingw ToolChain";
-    } else if(t == ToolChain::MSVC) {
-        m_test = ToolChain::createMSVCToolChain(version->msvcVersion(), version->isMSVC64Bit());
-        //qDebug()<<"MSVC ToolChain ("<<version->msvcVersion()<<")";
-    } else if(t == ToolChain::WINCE) {
-        m_test = ToolChain::createWinCEToolChain(version->msvcVersion(), version->wincePlatform());
-        //qDebug()<<"WinCE ToolChain ("<<version->msvcVersion()<<","<<version->wincePlatform()<<")";
-    } else if(t == ToolChain::GCC || t == ToolChain::LinuxICC) {
-        QStringList list = rootProjectNode()->variableValue(Internal::CxxCompilerVar);
-        QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
-        Environment env = Environment::systemEnvironment();
-        qtVersion(activeBuildConfiguration())->addToEnvironment(env);
-        qmake_cxx = env.searchInPath(qmake_cxx);
-        if (qmake_cxx.isEmpty()) {
-            // macx-xcode mkspec resets the value of QMAKE_CXX.
-            // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
-            qmake_cxx = QLatin1String("cc");
-        }
-        m_test = ToolChain::createGccToolChain(qmake_cxx);
-        //qDebug()<<"GCC ToolChain ("<<qmake_cxx<<")";
-    } else {
-        qDebug()<<"Could not detect ToolChain for"<<version->mkspec();
-        qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
-    }
-
-    if (ToolChain::equals(m_test, m_toolChain)) {
-        delete m_test;
-    } else {
-        delete m_toolChain;
-        m_toolChain = m_test;
-    }
-    return m_toolChain;
+    return qtVersion(buildConfiguration)->toolChain()->makeCommand();
 }
 
 void Qt4Project::updateCodeModel()
@@ -449,7 +396,7 @@ void Qt4Project::updateCodeModel()
     QStringList predefinedFrameworkPaths;
     QByteArray predefinedMacros;
 
-    ToolChain *tc = toolChain(activeBuildConfiguration());
+    ToolChain *tc = qtVersion(activeBuildConfiguration())->toolChain();
     QList<HeaderPath> allHeaderPaths;
     if (tc) {
         predefinedMacros = tc->predefinedMacros();
@@ -755,9 +702,6 @@ ProjectExplorer::Environment Qt4Project::baseEnvironment(const QString &buildCon
 {
     Environment env = useSystemEnvironment(buildConfiguration) ? Environment(QProcess::systemEnvironment()) : Environment();
     qtVersion(buildConfiguration)->addToEnvironment(env);
-    ToolChain *tc = toolChain(buildConfiguration);
-    if (tc)
-        tc->addToEnvironment(env);
     return env;
 }
 

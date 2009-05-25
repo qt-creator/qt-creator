@@ -107,6 +107,7 @@ private slots:
     void slotConsoleStubStarted();
     void slotConsoleStubError(const QString &msg);
     void slotConsoleStubTerminated();    
+    void warning(const QString &w);
 
 private:
     bool startAttachDebugger(qint64 pid, QString *errorMessage);

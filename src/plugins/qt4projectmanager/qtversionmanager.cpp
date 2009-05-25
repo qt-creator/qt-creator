@@ -30,6 +30,7 @@
 #include "qtversionmanager.h"
 
 #include "qt4projectmanagerconstants.h"
+#include "profilereader.h"
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/projectexplorer.h>
@@ -38,6 +39,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <help/helpplugin.h>
 #include <utils/qtcassert.h>
+
 
 #include <QtCore/QProcess>
 #include <QtCore/QSettings>
@@ -314,10 +316,11 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
 QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isSystemVersion)
     : m_name(name),
     m_isSystemVersion(isSystemVersion),
+    m_hasDebuggingHelper(false),
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
     m_defaultConfigIsDebugAndRelease(true),
-    m_hasDebuggingHelper(false)
+    m_toolChain(0)
 {
     if (id == -1)
         m_id = getUniqueId();
@@ -328,13 +331,20 @@ QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isSy
 
 QtVersion::QtVersion(const QString &name, const QString &path)
     : m_name(name),
-    m_versionInfoUpToDate(false),
-    m_mkspecUpToDate(false),
     m_isSystemVersion(false),
-    m_hasDebuggingHelper(false)
+    m_hasDebuggingHelper(false),
+    m_mkspecUpToDate(false),
+    m_versionInfoUpToDate(false),
+    m_toolChain(0)
 {
     m_id = getUniqueId();
     setPath(path);
+}
+
+QtVersion::~QtVersion()
+{
+    m_toolChain = 0;
+    delete m_toolChain;
 }
 
 QString QtVersion::name() const
@@ -376,6 +386,13 @@ QHash<QString,QString> QtVersion::versionInfo() const
     return m_versionInfo;
 }
 
+QString QtVersion::qmakeCXX() const
+{
+    updateQMakeCXX();
+    return m_qmakeCXX;
+}
+
+
 void QtVersion::setName(const QString &name)
 {
     m_name = name;
@@ -390,6 +407,9 @@ void QtVersion::setPath(const QString &path)
     m_designerCommand = m_linguistCommand = m_qmakeCommand = m_uicCommand = QString::null;
     // TODO do i need to optimize this?
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
+    m_qmakeCXX = QString::null;
+    m_qmakeCXXUpToDate = false;
+    m_toolChainUpToDate = false;
 }
 
 void QtVersion::updateSourcePath()
@@ -757,6 +777,73 @@ QString QtVersion::qmakeCommand() const
     return QString::null;
 }
 
+void QtVersion::updateQMakeCXX() const
+{
+    if (m_qmakeCXXUpToDate)
+        return;
+    ProFileReader *reader = new ProFileReader();
+    reader->setCumulative(false);
+    reader->setParsePreAndPostFiles(false);
+    reader->readProFile(mkspecPath() + "/qmake.conf");
+    m_qmakeCXX = reader->value("QMAKE_CXX");
+    delete reader;
+    m_qmakeCXXUpToDate = true;
+}
+
+ProjectExplorer::ToolChain *QtVersion::toolChain() const
+{
+    updateToolChain();
+    return m_toolChain;
+}
+
+void QtVersion::updateToolChain() const
+{
+    if (m_toolChainUpToDate)
+        return;
+    ProjectExplorer::ToolChain *m_test= 0;
+    ProjectExplorer::ToolChain::ToolChainType t = toolchainType();
+    if (t == ProjectExplorer::ToolChain::MinGW) {
+        QString qmake_cxx = qmakeCXX();
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        //addToEnvironment(env);
+        env.prependOrSetPath(mingwDirectory()+"/bin");
+        qmake_cxx = env.searchInPath(qmake_cxx);
+        m_test = ProjectExplorer::ToolChain::createMinGWToolChain(qmake_cxx, mingwDirectory());
+        //qDebug()<<"Mingw ToolChain";
+    } else if(t == ProjectExplorer::ToolChain::MSVC) {
+        m_test = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isMSVC64Bit());
+        //qDebug()<<"MSVC ToolChain ("<<version->msvcVersion()<<")";
+    } else if(t == ProjectExplorer::ToolChain::WINCE) {
+        m_test = ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatform());
+        //qDebug()<<"WinCE ToolChain ("<<version->msvcVersion()<<","<<version->wincePlatform()<<")";
+    } else if(t == ProjectExplorer::ToolChain::GCC || t == ProjectExplorer::ToolChain::LinuxICC) {
+        QString qmake_cxx = qmakeCXX();
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        //addToEnvironment(env);
+        qmake_cxx = env.searchInPath(qmake_cxx);
+        if (qmake_cxx.isEmpty()) {
+            // macx-xcode mkspec resets the value of QMAKE_CXX.
+            // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
+            qmake_cxx = QLatin1String("cc");
+        }
+        m_test = ProjectExplorer::ToolChain::createGccToolChain(qmake_cxx);
+        //qDebug()<<"GCC ToolChain ("<<qmake_cxx<<")";
+    } else {
+        qDebug()<<"Could not detect ToolChain for"<<mkspec();
+        qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
+    }
+
+    if (ProjectExplorer::ToolChain::equals(m_test, m_toolChain)) {
+        delete m_test;
+    } else {
+        delete m_toolChain;
+        m_toolChain = m_test;
+    }
+
+    m_toolChainUpToDate = true;
+}
+
+
 QString QtVersion::findQtBinary(const QStringList &possibleCommands) const
 {
     const QString qtdirbin = versionInfo().value(QLatin1String("QT_INSTALL_BINS")) + QLatin1Char('/');
@@ -849,6 +936,7 @@ QString QtVersion::mingwDirectory() const
 void QtVersion::setMingwDirectory(const QString &directory)
 {
     m_mingwDirectory = directory;
+    m_toolChainUpToDate = false;
 }
 
 QString QtVersion::msvcVersion() const
@@ -865,9 +953,10 @@ QString QtVersion::wincePlatform() const
 void QtVersion::setMsvcVersion(const QString &version)
 {
     m_msvcVersion = version;
+    m_toolChainUpToDate = false;
 }
 
-void QtVersion::addToEnvironment(ProjectExplorer::Environment &env)
+void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
 {
     env.set("QTDIR", m_path);
     QString qtdirbin = versionInfo().value("QT_INSTALL_BINS");
@@ -875,6 +964,9 @@ void QtVersion::addToEnvironment(ProjectExplorer::Environment &env)
     // add libdir, includedir and bindir
     // or add Mingw dirs
     // or do nothing on other
+    ProjectExplorer::ToolChain *tc = toolChain();
+    if (tc)
+        tc->addToEnvironment(env);
 }
 
 int QtVersion::uniqueId() const
@@ -946,36 +1038,9 @@ QString QtVersion::buildDebuggingHelperLibrary()
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     addToEnvironment(env);
 
-    // TODO this is a hack to get, to be removed and rewritten for 1.2
-    // For MSVC and MINGW, we need a toolchain to get the right environment
-    ProjectExplorer::ToolChain::ToolChainType t = toolchainType();
-    ProjectExplorer::ToolChain *toolChain = 0;
-    if (t == ProjectExplorer::ToolChain::MinGW)
-        toolChain = ProjectExplorer::ToolChain::createMinGWToolChain("g++", mingwDirectory());
-    else if(t == ProjectExplorer::ToolChain::MSVC)
-        toolChain = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isMSVC64Bit());
-    if (toolChain) {
-        toolChain->addToEnvironment(env);
-        delete toolChain;
-        toolChain = 0;
-    }
-
-    QString make;
-    // TODO this is butt ugly
-    // only qt4projects have a toolchain() method. (Reason mostly, that in order to create
-    // the toolchain, we need to have the path to gcc
-    // which might depend on environment settings of the project
-    // so we hardcode the toolchainType to make conversation here
-    // and think about how to fix that later
-    if (t == ProjectExplorer::ToolChain::MinGW)
-        make = "mingw32-make.exe";
-    else if(t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE)
-        make = "nmake.exe";
-    else if (t == ProjectExplorer::ToolChain::GCC || t == ProjectExplorer::ToolChain::LinuxICC)
-        make = "make";
-
+    ProjectExplorer::ToolChain *tc = toolChain();
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, path());
-    QString output = DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, make, qmakeCommand(), mkspec(), env);
+    QString output = DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), mkspec(), env);
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     return output;
 }
