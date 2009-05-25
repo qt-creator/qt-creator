@@ -137,6 +137,7 @@ inline int qStringBuilderSize(const QLatin1Char) { return 1; }
 
 inline int qStringBuilderSize(const QLatin1String a) { return qstrlen(a.latin1()); }
 
+
 template <typename A>
 inline void qStringBuilderAppend(const A a, QChar *&out) { a.appendTo(out); }
 
@@ -149,6 +150,14 @@ inline void qStringBuilderAppend(QLatin1String a, QChar *&out)
     for (const char *s = a.latin1(); *s; )
         *out++ = QLatin1Char(*s++);
 }
+
+inline void qStringBuilderAppend(QStringRef a, QChar *&out)
+{
+    const int n = a.size();
+    memcpy(out, (char*)a.constData(), sizeof(QChar) * n);
+    out += n; 
+}
+
 
 
 template <typename A, typename B>

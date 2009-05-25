@@ -22,6 +22,7 @@ public:
       : l1literal("some string literal"),
         l1string("some string literal"),
         string(l1string),
+        stringref(&string, 2, 10),
         achar('c')
     {}
 
@@ -87,6 +88,18 @@ private slots:
     void s_2_string() {
         QBENCHMARK { r = string + string; }
         COMPARE(r, QString(string % string));
+    }
+
+
+    void separator_2c() { SEP("2 string refs"); }
+
+    void b_2_stringref() {
+        QBENCHMARK { r = stringref % stringref; }
+        COMPARE(r, stringref.toString() + stringref.toString());
+    }
+    void s_2_stringref() {
+        QBENCHMARK { r = stringref.toString() + stringref.toString(); }
+        COMPARE(r, QString(stringref % stringref));
     }
 
 
@@ -188,6 +201,7 @@ private:
     const QLatin1Literal l1literal;
     const QLatin1String l1string;
     const QString string;
+    const QStringRef stringref;
     const QLatin1Char achar;
 
     QString r;
