@@ -79,6 +79,8 @@ void MakeStep::run(QFutureInterface<bool> &fi)
     m_futureInterface = &fi;
     m_futureInterface->setProgressRange(0, 100);
     AbstractMakeStep::run(fi);
+    m_futureInterface->setProgressValue(100);
+    m_futureInterface->reportFinished();
     m_futureInterface = 0;
 }
 
