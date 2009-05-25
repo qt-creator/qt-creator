@@ -295,6 +295,12 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(SkipKnownFrames, item);
 
     item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("EnableReverseDebugging"));
+    item->setText(tr("Enable reverse debugging"));
+    item->setCheckable(true);
+    instance->insertItem(EnableReverseDebugging, item);
+
+    item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("AllPluginBreakpoints"));
     item->setDefaultValue(true);
     instance->insertItem(AllPluginBreakpoints, item);

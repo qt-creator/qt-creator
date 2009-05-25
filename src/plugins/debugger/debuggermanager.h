@@ -220,6 +220,7 @@ private:
     virtual bool qtDumperLibraryEnabled() const = 0;
     virtual QString qtDumperLibraryName() const = 0;
     virtual void showQtDumperLibraryWarning(const QString &details = QString()) = 0;
+    virtual bool isReverseDebugging() const = 0;
 
     virtual qint64 inferiorPid() const = 0;
 
@@ -288,6 +289,7 @@ public slots:
     void nextIExec();
     void continueExec();
     void detachDebugger();
+    void reverseDirection();
 
     void addToWatchWindow();
     void updateWatchModel();
@@ -358,6 +360,7 @@ private:
     virtual bool qtDumperLibraryEnabled() const;
     virtual QString qtDumperLibraryName() const;
     virtual void showQtDumperLibraryWarning(const QString &details = QString());
+    virtual bool isReverseDebugging() const;
 
     //
     // internal implementation
@@ -461,6 +464,7 @@ private:
     QAction *m_sepAction;
     QAction *m_stepIAction;
     QAction *m_nextIAction;
+    QAction *m_reverseDirectionAction;
 
     QWidget *m_breakWindow;
     QWidget *m_disassemblerWindow;

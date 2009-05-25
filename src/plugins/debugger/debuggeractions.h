@@ -112,6 +112,7 @@ enum DebuggerActionCode
 
     // Running
     SkipKnownFrames,
+    EnableReverseDebugging,
 
     // Breakpoints
     SynchronizeBreakpoints,

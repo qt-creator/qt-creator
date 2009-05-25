@@ -47,6 +47,7 @@ const char * const STEPOUT              = "Debugger.StepOut";
 const char * const NEXT                 = "Debugger.NextLine";
 const char * const STEPI                = "Debugger.StepInstruction";
 const char * const NEXTI                = "Debugger.NextInstruction";
+const char * const REVERSE              = "Debugger.ReverseDirection";
 
 const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
 

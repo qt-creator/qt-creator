@@ -928,6 +928,10 @@ void GdbEngine::handleAqcuiredInferior()
     if (theDebuggerBoolSetting(ListSourceFiles))
         reloadSourceFiles();
 
+    // Reverse debugging. FIXME: Should only be used when available.
+    if (theDebuggerBoolSetting(EnableReverseDebugging))
+        postCommand(_("target record"));
+
     tryLoadDebuggingHelpers();
 
     #ifndef Q_OS_MAC
@@ -1664,14 +1668,20 @@ void GdbEngine::stepExec()
 {
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
-    postCommand(_("-exec-step"), CB(handleExecRun));
+    if (qq->isReverseDebugging())
+        postCommand(_("reverse-step"), CB(handleExecRun));
+    else
+        postCommand(_("-exec-step"), CB(handleExecRun));
 }
 
 void GdbEngine::stepIExec()
 {
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
-    postCommand(_("-exec-step-instruction"), CB(handleExecRun));
+    if (qq->isReverseDebugging())
+        postCommand(_("reverse-stepi"), CB(handleExecRun));
+    else
+        postCommand(_("-exec-step-instruction"), CB(handleExecRun));
 }
 
 void GdbEngine::stepOutExec()
@@ -1685,14 +1695,20 @@ void GdbEngine::nextExec()
 {
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
-    postCommand(_("-exec-next"), CB(handleExecRun));
+    if (qq->isReverseDebugging())
+        postCommand(_("reverse-next"), CB(handleExecRun));
+    else
+        postCommand(_("-exec-next"), CB(handleExecRun));
 }
 
 void GdbEngine::nextIExec()
 {
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
-    postCommand(_("-exec-next-instruction"), CB(handleExecRun));
+    if (qq->isReverseDebugging())
+        postCommand(_("reverse-nexti"), CB(handleExecRun));
+    else
+        postCommand(_("exec-next-instruction"), CB(handleExecRun));
 }
 
 void GdbEngine::runToLineExec(const QString &fileName, int lineNumber)

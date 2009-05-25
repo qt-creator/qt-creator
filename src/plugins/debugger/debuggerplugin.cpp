@@ -120,6 +120,7 @@ const char * const STEPOUT_KEY              = "Shift+F7";
 const char * const NEXT_KEY                 = "F6";
 const char * const STEPI_KEY                = "Shift+F9";
 const char * const NEXTI_KEY                = "Shift+F6";
+const char * const REVERSE_KEY              = "";
 const char * const RUN_TO_LINE_KEY          = "Shift+F8";
 const char * const RUN_TO_FUNCTION_KEY      = "Ctrl+F6";
 const char * const JUMP_TO_LINE_KEY         = "Alt+D,Alt+L";
@@ -135,6 +136,7 @@ const char * const STEPOUT_KEY              = "Shift+F11";
 const char * const NEXT_KEY                 = "F10";
 const char * const STEPI_KEY                = "";
 const char * const NEXTI_KEY                = "";
+const char * const REVERSE_KEY              = "F12";
 const char * const RUN_TO_LINE_KEY          = "";
 const char * const RUN_TO_FUNCTION_KEY      = "";
 const char * const JUMP_TO_LINE_KEY         = "";
@@ -284,7 +286,9 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         m_ui.checkBoxSkipKnownFrames);
     m_group.insert(theDebuggerAction(UseToolTips),
         m_ui.checkBoxUseToolTips);
-    m_group.insert(theDebuggerAction(MaximalStackDepth),
+    m_group.insert(theDebuggerAction(EnableReverseDebugging), 
+        m_ui.checkBoxEnableReverseDebugging);
+    m_group.insert(theDebuggerAction(MaximalStackDepth), 
         m_ui.spinBoxMaximalStackDepth);
 
     return w;
@@ -671,6 +675,11 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         Constants::JUMP_TO_LINE, debuggercontext);
     mdebug->addAction(cmd);
 
+    cmd = am->registerAction(m_manager->m_reverseDirectionAction,
+        Constants::REVERSE, debuggercontext);
+    cmd->setDefaultKeySequence(QKeySequence(Constants::REVERSE_KEY));
+    mdebug->addAction(cmd);
+
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep3"), globalcontext);
@@ -815,6 +824,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     debugToolBar->addSeparator();
     debugToolBar->addAction(am->command(Constants::STEPI)->action());
     debugToolBar->addAction(am->command(Constants::NEXTI)->action());
+    debugToolBar->addSeparator();
+    debugToolBar->addAction(am->command(Constants::REVERSE)->action());
     debugToolBar->addSeparator();
     debugToolBar->addWidget(new QLabel(tr("Threads:")));
 

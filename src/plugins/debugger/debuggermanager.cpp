@@ -411,6 +411,12 @@ void DebuggerManager::init()
     m_watchAction = new QAction(this);
     m_watchAction->setText(tr("Add to Watch Window"));
 
+    m_reverseDirectionAction = new QAction(this);
+    m_reverseDirectionAction->setText(tr("Reverse Direction"));
+    m_reverseDirectionAction->setCheckable(true);
+    m_reverseDirectionAction->setChecked(false);
+    //m_reverseDirectionAction->setIcon(QIcon(":/debugger/images/debugger_stepoverproc_small.png"));
+
     // For usuage hints oin focus{In,Out}
     connect(m_continueAction, SIGNAL(triggered()),
         this, SLOT(continueExec()));
@@ -1502,6 +1508,11 @@ void DebuggerManager::reloadFullStack()
 {
     if (m_engine)
         m_engine->reloadFullStack();
+}
+
+bool DebuggerManager::isReverseDebugging() const
+{
+    return m_reverseDirectionAction->isChecked();
 }
 
 

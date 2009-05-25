@@ -945,6 +945,13 @@ void testQVectorOfQList()
     Q_UNUSED(pv);
 }
 
+
+void testNoArgumentName(int i, int, int k)
+{
+    i = 1;
+    k = 2;
+}
+
 void foo() {}
 void foo(int) {}
 void foo(QList<int>) {}
@@ -1082,6 +1089,8 @@ int main(int argc, char *argv[])
     QString hallo = "hallo";
     QStringList list;
     list << "aaa" << "bbb" << "cc";
+
+    testNoArgumentName(1, 2, 3);
     testIO();
     testHidden();
     testArray();
