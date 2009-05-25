@@ -59,11 +59,11 @@ public:
     inline int size() const { return m_size; }
     inline const char *data() const { return m_data; }
 
-    void append(QChar *&out) const
+    void appendTo(QChar *&out) const
     {
         const char *s = m_data;
         for (int i = m_size; --i >= 0;)    
-            *out++ = *s++;
+            *out++ = QLatin1Char(*s++);
     }
 
     operator QString() const
@@ -75,7 +75,7 @@ public:
         s.resize(m_size);
 #endif
         QChar *d = s.data();
-        append(d);
+        appendTo(d);
         return s;
     }
 
@@ -100,7 +100,7 @@ public:
         s.resize(this->size());
 #endif
         QChar *d = s.data();
-        this->append(d);
+        this->appendTo(d);
         return s;
     }
 
@@ -114,7 +114,7 @@ public:
 
     inline int size() const { return a->size(); }
 
-    inline void append(QChar *&out) const
+    inline void appendTo(QChar *&out) const
     {
         const int n = a->size();
         memcpy(out, (char*)a->constData(), sizeof(QChar) * n);
@@ -133,11 +133,22 @@ int qStringBuilderSize(const A a) { return a.size(); }
 
 inline int qStringBuilderSize(const char) { return 1; }
 
+inline int qStringBuilderSize(const QLatin1Char) { return 1; }
+
+inline int qStringBuilderSize(const QLatin1String a) { return qstrlen(a.latin1()); }
 
 template <typename A>
-inline void qStringBuilderAppend(const A a, QChar *&out) { a.append(out); }
+inline void qStringBuilderAppend(const A a, QChar *&out) { a.appendTo(out); }
 
 inline void qStringBuilderAppend(char c, QChar *&out) { *out++ = QLatin1Char(c); }
+
+inline void qStringBuilderAppend(QLatin1Char c, QChar *&out) { *out++ = c; }
+
+inline void qStringBuilderAppend(QLatin1String a, QChar *&out)
+{
+    for (const char *s = a.latin1(); *s; )
+        *out++ = QLatin1Char(*s++);
+}
 
 
 template <typename A, typename B>
@@ -151,7 +162,7 @@ public:
         return qStringBuilderSize(a) + qStringBuilderSize(b);
     }
 
-    inline void append(QChar *&out) const
+    inline void appendTo(QChar *&out) const
     {
         qStringBuilderAppend(a, out);
         qStringBuilderAppend(b, out);
