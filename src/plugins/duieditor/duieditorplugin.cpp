@@ -95,7 +95,7 @@ bool DuiEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setDescription(tr("Qt QML File"));
+    wizardParameters.setDescription(tr("Creates a Qt QML file."));
     wizardParameters.setName(tr("Qt QML File"));
     wizardParameters.setCategory(QLatin1String("Qt"));
     wizardParameters.setTrCategory(tr("Qt"));
