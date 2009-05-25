@@ -87,7 +87,7 @@ public:
     explicit AttachExternalDialog(QWidget *parent);
     ~AttachExternalDialog();
 
-    int attachPID() const;
+    qint64 attachPID() const;
 
 private slots:
     void rebuildProcessList();

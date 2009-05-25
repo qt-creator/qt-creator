@@ -33,6 +33,7 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemView;
@@ -69,9 +70,11 @@ public:
     ~DebuggerPlugin();
 
 private:
-    bool initialize(const QStringList &arguments, QString *error_message);
-    void shutdown();
-    void extensionsInitialized();
+    virtual bool initialize(const QStringList &arguments, QString *error_message);
+    virtual void shutdown();
+    virtual void extensionsInitialized();
+
+    QVariant configValue(const QString &name) const;
 
 private slots:
     void activatePreviousMode();
@@ -90,7 +93,6 @@ private slots:
         int lineNumber, QMenu *menu);
     void updateActions(int status);
 
-
     void resetLocation();
     void gotoLocation(const QString &fileName, int line, bool setMarker);
 
@@ -104,10 +106,16 @@ private slots:
     void attachExternalApplication();
     void attachCore();
     void attachRemoteTcf();
+    void attachCmdLinePid();
 
 private:
     void readSettings();
     void writeSettings() const;
+    bool parseArguments(const QStringList &args, QString *errorMessage);
+    inline bool parseArgument(QStringList::const_iterator &it,
+                              const QStringList::const_iterator& end,
+                              QString *errorMessage);
+    void attachExternalApplication(qint64 pid);
 
     friend class DebuggerManager;
     friend class GdbOptionPage;
@@ -121,7 +129,10 @@ private:
     QString m_previousMode;
     LocationMark *m_locationMark;
     int m_gdbRunningContext;
-
+    unsigned m_cmdLineEnabledEngines;
+    quint64 m_cmdLineAttachPid;
+    // Exception that crashed an app passed on by Windows
+    unsigned long m_cmdLineWinException;
     QAction *m_toggleLockedAction;
 
     QAction *m_startExternalAction;

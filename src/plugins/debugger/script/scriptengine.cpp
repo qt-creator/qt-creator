@@ -224,7 +224,8 @@ bool ScriptEngine::startDebugger()
     m_stopped = false;
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
-    QFileInfo fi(q->m_executable);
+    const QSharedPointer<DebuggerStartParameters> sp = q->startParameters();
+    QFileInfo fi(sp->executable);
     m_scriptFileName = fi.absoluteFilePath();
     QFile scriptFile(m_scriptFileName);
     if (!scriptFile.open(QIODevice::ReadOnly))

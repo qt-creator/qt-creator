@@ -59,14 +59,19 @@ public:
 
     // ProjectExplorer::IRunConfigurationRunner
     virtual bool canRun(RunConfigurationPtr runConfiguration, const QString &mode);
+    virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration, const QString &mode);
     virtual QString displayName() const;
-    virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration,
-        const QString &mode);
+
     virtual QWidget *configurationWidget(RunConfigurationPtr runConfiguration);
 
-    virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration,
-        const QString &mode, DebuggerStartMode startMode);
+    virtual ProjectExplorer::RunControl
+            *run(RunConfigurationPtr runConfiguration,
+                 const QString &mode,
+                 const QSharedPointer<DebuggerStartParameters> &sp,
+                 DebuggerStartMode startMode);
+
 private:
+    QSharedPointer<DebuggerStartParameters> m_startParameters;
     DebuggerManager *m_manager;
 };
 
@@ -76,18 +81,20 @@ class DebuggerRunControl : public ProjectExplorer::RunControl
     Q_OBJECT
 
 public:
-    DebuggerRunControl(DebuggerManager *manager,
-        ApplicationRunConfigurationPtr runConfiguration);
+    explicit DebuggerRunControl(DebuggerManager *manager,
+                                DebuggerStartMode mode,
+                                const QSharedPointer<DebuggerStartParameters> &sp,
+                                ApplicationRunConfigurationPtr runConfiguration);
+
+    DebuggerStartMode startMode() const { return m_mode; }
 
     // ProjectExplorer::RunControl
     virtual void start();
     virtual void stop();
     virtual bool isRunning() const;
 
-    void setStartMode(DebuggerStartMode mode) { m_mode = mode; }
-    DebuggerStartMode startMode() const { return m_mode; }
     Q_SLOT void debuggingFinished();
-    
+
 signals:
     void stopRequested();
 
@@ -95,9 +102,10 @@ private slots:
     void slotAddToOutputWindowInline(const QString &output);
 
 private:
+    const DebuggerStartMode m_mode;
+    const QSharedPointer<DebuggerStartParameters> m_startParameters;
     DebuggerManager *m_manager;
     bool m_running;
-    DebuggerStartMode m_mode;
 };
 
 } // namespace Internal

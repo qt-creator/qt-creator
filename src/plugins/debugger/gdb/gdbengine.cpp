@@ -542,9 +542,9 @@ void GdbEngine::handleStubAttached(const GdbResultRecord &, const QVariant &)
 
 void GdbEngine::stubStarted()
 {
-    q->m_attachedPID = m_stubProc.applicationPID();
-    qq->notifyInferiorPidChanged(q->m_attachedPID);
-    postCommand(_("attach %1").arg(q->m_attachedPID), CB(handleStubAttached));
+    const qint64 attachedPID = m_stubProc.applicationPID();
+    qq->notifyInferiorPidChanged(attachedPID);
+    postCommand(_("attach %1").arg(attachedPID), CB(handleStubAttached));
 }
 
 void GdbEngine::stubError(const QString &msg)
@@ -602,26 +602,27 @@ void GdbEngine::interruptInferior()
         return;
     }
 
-    if (q->m_attachedPID <= 0) {
+    const qint64 attachedPID = q->inferiorPid();
+    if (attachedPID <= 0) {
         debugMessage(_("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED"));
         return;
     }
 
-    if (!interruptProcess(q->m_attachedPID))
-        debugMessage(_("CANNOT INTERRUPT %1").arg(q->m_attachedPID));
+    if (!interruptProcess(attachedPID))
+        debugMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
 }
 
 void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
 {
-    int pid = pid0.toInt();
+    const qint64 pid = pid0.toLongLong();
     if (pid == 0) {
         debugMessage(_("Cannot parse PID from %1").arg(pid0));
         return;
     }
-    if (pid == q->m_attachedPID)
+    if (pid == q->inferiorPid())
         return;
-    debugMessage(_("FOUND PID %1").arg(pid));
-    q->m_attachedPID = pid;
+    debugMessage(_("FOUND PID %1").arg(pid));    
+
     qq->notifyInferiorPidChanged(pid);
     if (m_dumperInjectionLoad)
         tryLoadDebuggingHelpers();
@@ -1364,27 +1365,29 @@ bool GdbEngine::startDebugger()
     gdbArgs.prepend(_("mi"));
     gdbArgs.prepend(_("-i"));
 
+    const QSharedPointer<DebuggerStartParameters> sp = q->startParameters();
+
     if (q->startMode() == AttachCore || q->startMode() == AttachExternal) {
         // nothing to do
     } else if (q->startMode() == StartRemote) {
         // Start the remote server
-        if (q->m_serverStartScript.isEmpty()) {
+        if (sp->serverStartScript.isEmpty()) {
             q->showStatusMessage(_("No server start script given. "
                 "Assuming server runs already."));
         } else {
-            if (!q->m_workingDir.isEmpty())
-                m_uploadProc.setWorkingDirectory(q->m_workingDir);
-            if (!q->m_environment.isEmpty())
-                m_uploadProc.setEnvironment(q->m_environment);
-            m_uploadProc.start(_("/bin/sh ") + q->m_serverStartScript);
+            if (!sp->workingDir.isEmpty())
+                m_uploadProc.setWorkingDirectory(sp->workingDir);
+            if (!sp->environment.isEmpty())
+                m_uploadProc.setEnvironment(sp->environment);
+            m_uploadProc.start(_("/bin/sh ") + sp->serverStartScript);
             m_uploadProc.waitForStarted();
         }
-    } else if (q->m_useTerminal) {
+    } else if (sp->useTerminal) {
         m_stubProc.stop(); // We leave the console open, so recycle it now.
 
-        m_stubProc.setWorkingDirectory(q->m_workingDir);
-        m_stubProc.setEnvironment(q->m_environment);
-        if (!m_stubProc.start(q->m_executable, q->m_processArgs))
+        m_stubProc.setWorkingDirectory(sp->workingDir);
+        m_stubProc.setEnvironment(sp->environment);
+        if (!m_stubProc.start(sp->executable, sp->processArgs))
             return false; // Error message for user is delivered via a signal.
     } else {
         if (!m_outputCollector.listen()) {
@@ -1395,10 +1398,10 @@ bool GdbEngine::startDebugger()
         }
         gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
 
-        if (!q->m_workingDir.isEmpty())
-            m_gdbProc.setWorkingDirectory(q->m_workingDir);
-        if (!q->m_environment.isEmpty())
-            m_gdbProc.setEnvironment(q->m_environment);
+        if (!sp->workingDir.isEmpty())
+            m_gdbProc.setWorkingDirectory(sp->workingDir);
+        if (!sp->environment.isEmpty())
+            m_gdbProc.setEnvironment(sp->environment);
     }
 
     #if 0
@@ -1407,8 +1410,8 @@ bool GdbEngine::startDebugger()
     qDebug() << "ScriptFile:" << q->settings()->m_scriptFile;
     qDebug() << "Environment:" << m_gdbProc.environment();
     qDebug() << "Arguments:" << gdbArgs;
-    qDebug() << "BuildDir:" << q->m_buildDir;
-    qDebug() << "ExeFile:" << q->m_executable;
+    qDebug() << "BuildDir:" << sp->buildDir;
+    qDebug() << "ExeFile:" << sp->executable;
     #endif
 
     QString loc = theDebuggerStringSetting(GdbLocation);
@@ -1504,38 +1507,38 @@ bool GdbEngine::startDebugger()
     }
 
     if (q->startMode() == AttachExternal) {
-        postCommand(_("attach %1").arg(q->m_attachedPID), CB(handleAttach));
+        postCommand(_("attach %1").arg(sp->attachPID), CB(handleAttach));
         qq->breakHandler()->removeAllBreakpoints();
     } else if (q->startMode() == AttachCore) {
-        QFileInfo fi(q->m_executable);
+        QFileInfo fi(sp->executable);
         QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
-        QFileInfo fi2(q->m_coreFile);
+        QFileInfo fi2(sp->coreFile);
         // quoting core name below fails in gdb 6.8-debian
         QString coreName = fi2.absoluteFilePath();
         postCommand(_("-file-exec-and-symbols ") + fileName);
         postCommand(_("target core ") + coreName, CB(handleTargetCore));
         qq->breakHandler()->removeAllBreakpoints();
     } else if (q->startMode() == StartRemote) {
-        postCommand(_("set architecture %1").arg(q->m_remoteArchitecture));
+        postCommand(_("set architecture %1").arg(sp->remoteArchitecture));
         qq->breakHandler()->setAllPending();
-        //QFileInfo fi(q->m_executable);
+        //QFileInfo fi(sp->executable);
         //QString fileName = fi.absoluteFileName();
-        QString fileName = q->m_executable;
+        QString fileName = sp->executable;
         postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName));
         // works only for > 6.8
         postCommand(_("set target-async on"), CB(handleSetTargetAsync));
-    } else if (q->m_useTerminal) {
+    } else if (sp->useTerminal) {
         qq->breakHandler()->setAllPending();
     } else if (q->startMode() == StartInternal || q->startMode() == StartExternal) {
-        QFileInfo fi(q->m_executable);
+        QFileInfo fi(sp->executable);
         QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
         postCommand(_("-file-exec-and-symbols ") + fileName, CB(handleFileExecAndSymbols));
         //postCommand(_("file ") + fileName, handleFileExecAndSymbols);
         #ifdef Q_OS_MAC
         postCommand(_("sharedlibrary apply-load-rules all"));
         #endif
-        if (!q->m_processArgs.isEmpty())
-            postCommand(_("-exec-arguments ") + q->m_processArgs.join(_(" ")));
+        if (!sp->processArgs.isEmpty())
+            postCommand(_("-exec-arguments ") + sp->processArgs.join(_(" ")));
         #ifndef Q_OS_MAC        
         if (!m_dumperInjectionLoad)
             postCommand(_("set auto-solib-add off"));
@@ -1624,7 +1627,7 @@ void GdbEngine::handleSetTargetAsync(const GdbResultRecord &record, const QVaria
     if (record.resultClass == GdbResultDone) {
         //postCommand(_("info target"), handleStart);
         qq->notifyInferiorRunningRequested();
-        postCommand(_("target remote %1").arg(q->m_remoteChannel),
+        postCommand(_("target remote %1").arg(q->startParameters()->remoteChannel),
             CB(handleTargetRemote));
     } else if (record.resultClass == GdbResultError) {
         // a typical response on "old" gdb is:
@@ -3485,7 +3488,7 @@ void GdbEngine::updateLocals()
 {
     // Asynchronous load of injected library, initialize in first stop
     if (m_dumperInjectionLoad && m_debuggingHelperState == DebuggingHelperLoadTried && m_dumperHelper.typeCount() == 0
-        && q->m_attachedPID > 0)
+        && q->inferiorPid() > 0)
         tryQueryDebuggingHelpers();
 
     m_pendingRequests = 0;
@@ -3884,7 +3887,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
         postCommand(_(contents));
         return;
     }
-    if (m_dumperInjectionLoad && q->m_attachedPID <= 0) // Need PID to inject
+    if (m_dumperInjectionLoad && q->inferiorPid() <= 0) // Need PID to inject
         return;
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
@@ -3906,7 +3909,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
 #if defined(Q_OS_WIN)
     if (m_dumperInjectionLoad) {
         /// Launch asynchronous remote thread to load.
-        SharedLibraryInjector injector(q->m_attachedPID);
+        SharedLibraryInjector injector(q->inferiorPid());
         QString errorMessage;
         if (injector.remoteInject(lib, false, &errorMessage)) {
             debugMessage(tr("Dumper injection loading triggered (%1)...").arg(lib));

@@ -58,13 +58,13 @@ using ProjectExplorer::ApplicationRunConfiguration;
 ////////////////////////////////////////////////////////////////////////
 
 // A factory to create DebuggerRunControls
-DebuggerRunner::DebuggerRunner(DebuggerManager *manager)
-  : m_manager(manager)
+DebuggerRunner::DebuggerRunner(DebuggerManager *manager) :
+        m_manager(manager)
 {}
 
 bool DebuggerRunner::canRun(RunConfigurationPtr runConfiguration, const QString &mode)
 {
-    return mode == ProjectExplorer::Constants::DEBUGMODE 
+    return mode == ProjectExplorer::Constants::DEBUGMODE
        && !qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration).isNull();
 }
 
@@ -74,22 +74,24 @@ QString DebuggerRunner::displayName() const
 }
 
 RunControl* DebuggerRunner::run(RunConfigurationPtr runConfiguration,
-    const QString &mode, DebuggerStartMode startMode)
+                                const QString &mode,
+                                const QSharedPointer<DebuggerStartParameters> &sp,
+                                DebuggerStartMode startMode)
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     ApplicationRunConfigurationPtr rc =
         qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration);
     //QTC_ASSERT(rc, return 0);
     //qDebug() << "***** Debugging" << rc->name() << rc->executable();
-    DebuggerRunControl *runControl = new DebuggerRunControl(m_manager, rc);
-    runControl->setStartMode(startMode);
+    DebuggerRunControl *runControl = new DebuggerRunControl(m_manager, startMode, sp, rc);
     return runControl;
 }
 
 RunControl* DebuggerRunner::run(RunConfigurationPtr runConfiguration,
     const QString &mode)
 {
-    return run(runConfiguration, mode, StartInternal);
+    const QSharedPointer<DebuggerStartParameters> sp(new DebuggerStartParameters);
+    return run(runConfiguration, mode, sp, StartInternal);
 }
 
 QWidget *DebuggerRunner::configurationWidget(RunConfigurationPtr runConfiguration)
@@ -109,8 +111,14 @@ QWidget *DebuggerRunner::configurationWidget(RunConfigurationPtr runConfiguratio
 
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
-        QSharedPointer<ApplicationRunConfiguration> runConfiguration)
-  : RunControl(runConfiguration), m_manager(manager), m_running(false)
+                                       DebuggerStartMode mode,
+                                       const QSharedPointer<DebuggerStartParameters> &startParameters,
+                                       QSharedPointer<ApplicationRunConfiguration> runConfiguration) :
+    RunControl(runConfiguration),
+    m_mode(mode),
+    m_startParameters(startParameters),
+    m_manager(manager),
+    m_running(false)
 {
     connect(m_manager, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()),
@@ -131,28 +139,31 @@ void DebuggerRunControl::start()
     ApplicationRunConfigurationPtr rc =
         qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration());
     if (rc) {
-        m_manager->m_executable = rc->executable();
-        m_manager->m_environment = rc->environment().toStringList();
-        m_manager->m_workingDir = rc->workingDirectory();
-        m_manager->m_processArgs = rc->commandLineArguments();
-        m_manager->m_dumperLib = rc->dumperLibrary();
-        ProjectExplorer::Project *project = rc->project();
-        QTC_ASSERT(project, /**/);
-        if (project) {
-            m_manager->m_buildDir =
-                project->buildDirectory(project->activeBuildConfiguration());
+        // Enhance parameters by info from the project, but do not clobber
+        // arguments given in the dialogs
+        if (m_startParameters->executable.isEmpty())
+            m_startParameters->executable = rc->executable();
+        if (m_startParameters->environment.empty())
+            m_startParameters->environment = rc->environment().toStringList();
+        if (m_startParameters->workingDir.isEmpty())
+            m_startParameters->workingDir = rc->workingDirectory();
+        if (m_mode != StartExternal)
+            m_startParameters->processArgs = rc->commandLineArguments();
+        m_manager->setQtDumperLibraryName(rc->dumperLibrary());
+        if (const ProjectExplorer::Project *project = rc->project()) {
+            m_startParameters->buildDir = project->buildDirectory(project->activeBuildConfiguration());
         }
-        m_manager->m_useTerminal = rc->runMode() == ApplicationRunConfiguration::Console;
+        m_startParameters->useTerminal = rc->runMode() == ApplicationRunConfiguration::Console;
     }
 
     //emit addToOutputWindow(this, tr("Debugging %1").arg(m_executable));
-    m_manager->startNewDebugger(this);
+    m_manager->startNewDebugger(this, m_startParameters);
     emit started();
     //debuggingFinished();
 }
 
 void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data)
-{  
+{
     emit addToOutputWindowInline(this, data);
 }
 

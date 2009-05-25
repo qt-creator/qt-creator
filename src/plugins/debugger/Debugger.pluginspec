@@ -25,6 +25,11 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
         <dependency name="Find" version="1.1.80"/>
     </dependencyList>
     <argumentList>
-        <argument name="-disable-cdb">Disable CDB debugger engine</argument>
+        <argument name="-disable-cdb">Disable Cdb debugger engine</argument>
+        <argument name="-disable-gdb">Disable Gdb debugger engine</argument>
+        <argument name="-disable-sdb">Disable Qt Script debugger engine</argument>
+        <argument name="-disable-tcf">Disable Tcf debugger engine</argument>
+        <argument name="-debug" parameter="process-id">Attach to Process-Id</argument>
+        <argument name="-winexception" parameter="exception-code">Exception code</argument>
     </argumentList>
 </plugin>

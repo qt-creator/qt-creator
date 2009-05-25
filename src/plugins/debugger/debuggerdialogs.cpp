@@ -289,9 +289,9 @@ void AttachExternalDialog::procSelected(const QModelIndex &proxyIndex)
     }
 }
 
-int AttachExternalDialog::attachPID() const
+qint64 AttachExternalDialog::attachPID() const
 {
-    return m_ui->pidLineEdit->text().toInt();
+    return m_ui->pidLineEdit->text().toLongLong();
 }
 
 void AttachExternalDialog::pidChanged(const QString &pid)
