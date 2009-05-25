@@ -1150,11 +1150,17 @@ void DebuggerPlugin::readSettings()
 
 void DebuggerPlugin::onModeChanged(IMode *mode)
 {
+     // FIXME: This one gets always called, even if switching between modes
+     //        different then the debugger mode. E.g. Welcome and Help mode and
+     //        also on shutdown.
+
     if (mode != m_debugMode) {
-        m_manager->modeVisibilityChanged(false);
+        if (m_manager)
+            m_manager->modeVisibilityChanged(false);
         return;
     }
-    m_manager->modeVisibilityChanged(true);
+    if (m_manager)
+        m_manager->modeVisibilityChanged(true);
 
     EditorManager *editorManager = EditorManager::instance();
 
