@@ -148,14 +148,14 @@ bool FormEditorPlugin::initializeTemplates(QString *error)
     wizardParameters.setTrCategory(tr("Qt"));
     const QString formFileType = QLatin1String(Constants::FORM_FILE_TYPE);
     wizardParameters.setName(tr("Qt Designer Form"));
-    wizardParameters.setDescription(tr("This creates a new Qt Designer form file."));
+    wizardParameters.setDescription(tr("Creates a Qt Designer form file (.ui)."));
     m_formWizard = new FormWizard(wizardParameters, this);
     addObject(m_formWizard);
 
 #ifdef CPP_ENABLED
     wizardParameters.setKind(Core::IWizard::ClassWizard);
     wizardParameters.setName(tr("Qt Designer Form Class"));
-    wizardParameters.setDescription(tr("This creates a new Qt Designer form class."));
+    wizardParameters.setDescription(tr("Creates a Qt Designer form file (.ui) with a matching class."));
     m_formClassWizard = new FormClassWizard(wizardParameters, this);
     addObject(m_formClassWizard);
 #endif

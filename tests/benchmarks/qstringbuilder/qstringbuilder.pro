@@ -4,6 +4,9 @@ TARGET = tst_qstringbuilder
 STRINGBUILDERDIR = ../../../src/libs/utils
 INCLUDEPATH += $$STRINGBUILDERDIR
 
+QMAKE_CXXFLAGS += -g
+QMAKE_CFLAGS += -g
+
 QT -= gui
 
 CONFIG += release

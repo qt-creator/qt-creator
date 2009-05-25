@@ -149,8 +149,8 @@ public:
 
     IEditor *restoreEditor(QString fileName, QString editorKind, EditorGroup *group);
 
-    void saveSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    void saveSettings();
+    void readSettings();
 
     Internal::OpenEditorsWindow *windowPopup() const;
     void showWindowPopup() const;

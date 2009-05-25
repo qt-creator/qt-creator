@@ -165,11 +165,11 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     wizardParameters.setCategory(QLatin1String("C++"));
     wizardParameters.setTrCategory(tr("C++"));
-    wizardParameters.setDescription(tr("Creates a new C++ header file."));
+    wizardParameters.setDescription(tr("Creates a C++ header file."));
     wizardParameters.setName(tr("C++ Header File"));
     addAutoReleasedObject(new CppFileWizard(wizardParameters, Header, core));
 
-    wizardParameters.setDescription(tr("Creates a new C++ source file."));
+    wizardParameters.setDescription(tr("Creates a C++ source file."));
     wizardParameters.setName(tr("C++ Source File"));
     addAutoReleasedObject(new CppFileWizard(wizardParameters, Source, core));
 

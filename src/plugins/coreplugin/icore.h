@@ -52,6 +52,7 @@ class MimeDatabase;
 class ModeManager;
 class ProgressManager;
 class ScriptManager;
+class SettingsDatabase;
 class UniqueIDManager;
 class VariableManager;
 class VCSManager;
@@ -87,6 +88,7 @@ public:
     virtual MimeDatabase *mimeDatabase() const = 0;
 
     virtual QSettings *settings() const = 0;
+    virtual SettingsDatabase *settingsDatabase() const = 0;
     virtual QPrinter *printer() const = 0;
 
     virtual QString resourcePath() const = 0;

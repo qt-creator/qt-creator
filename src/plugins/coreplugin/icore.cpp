@@ -179,6 +179,19 @@
 
     You can use it to retrieve or set application wide settings
     (in contrast to session or project specific settings).
+
+    \see settingsDatabase()
+*/
+
+/*!
+    \fn SettingsDatabase *ICore::settingsDatabase() const
+    \brief Returns the application's settings database.
+
+    The settings database is meant as an alternative to the regular settings
+    object. It is more suitable for storing large amounts of data. The settings
+    are application wide.
+
+    \see SettingsDatabase
 */
 
 /*!
@@ -186,7 +199,7 @@
     \brief Returns the application's printer object.
 
     Always use this printer object for printing, so the different parts of the
-    application re-use it's settings.
+    application re-use its settings.
 */
 
 /*!
@@ -251,7 +264,7 @@
     \brief Registers an additional \a context object.
 
     After registration this context object gets automatically the
-    current context object whenever it's widget gets focus.
+    current context object whenever its widget gets focus.
 
     \sa ICore::removeContextObject()
     \sa ICore::addAdditionalContext()
@@ -324,11 +337,11 @@
 /*!
     \fn void ICore::contextAboutToChange(Core::IContext *context)
     \brief Sent just before a new \a context becomes the current context
-    (meaning that it's widget got focus).
+    (meaning that its widget got focus).
 */
 
 /*!
     \fn void ICore::contextChanged(Core::IContext *context)
     \brief Sent just after a new \a context became the current context
-    (meaning that it's widget got focus).
+    (meaning that its widget got focus).
 */

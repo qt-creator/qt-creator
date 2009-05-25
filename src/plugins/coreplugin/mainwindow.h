@@ -60,6 +60,7 @@ class ModeManager;
 class ProgressManager;
 class RightPaneWidget;
 class ScriptManager;
+class SettingsDatabase;
 class UniqueIDManager;
 class VariableManager;
 class VCSManager;
@@ -109,6 +110,7 @@ public:
 
     VCSManager *vcsManager() const;
     inline QSettings *settings() const { return m_settings; }
+    inline SettingsDatabase *settingsDatabase() const { return m_settingsDatabase; }
     virtual QPrinter *printer() const;
     IContext * currentContextObject() const;
     QStatusBar *statusBar() const;
@@ -169,6 +171,7 @@ private:
     QList<int> m_globalContext;
     QList<int> m_additionalContexts;
     QSettings *m_settings;
+    SettingsDatabase *m_settingsDatabase;
     mutable QPrinter *m_printer;
     ActionManagerPrivate *m_actionManager;
     EditorManager *m_editorManager;

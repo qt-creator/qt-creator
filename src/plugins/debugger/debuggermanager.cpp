@@ -184,6 +184,9 @@ void DebuggerManager::init()
     m_modulesHandler = 0;
     m_registerHandler = 0;
 
+    m_locked = true;
+    m_handleDockVisibilityChanges = false;
+
     m_statusLabel = new QLabel;
     // FIXME: Do something to show overly long messages at least partially
     //QSizePolicy policy = m_statusLabel->sizePolicy();
@@ -479,18 +482,22 @@ QDockWidget *DebuggerManager::createDockForWidget(QWidget *widget)
 {
     QDockWidget *dockWidget = new QDockWidget(widget->windowTitle(), m_mainWindow);
     dockWidget->setObjectName(widget->windowTitle());
-    dockWidget->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable);
-    dockWidget->setTitleBarWidget(new QWidget(dockWidget));
     dockWidget->setWidget(widget);
     connect(dockWidget->toggleViewAction(), SIGNAL(triggered()),
         this, SLOT(dockActionTriggered()), Qt::QueuedConnection);
+    connect(dockWidget, SIGNAL(visibilityChanged(bool)),
+            this, SLOT(onDockVisibilityChange(bool)));
+    connect(dockWidget, SIGNAL(topLevelChanged(bool)),
+            this, SLOT(onTopLevelChanged()));
     m_dockWidgets.append(dockWidget);
-    m_dockWidgetActiveState.append(false);
+    m_dockWidgetActiveState.append(true);
+    updateDockWidget(dockWidget);
     return dockWidget;
 }
 
 void DebuggerManager::setSimpleDockWidgetArrangement()
 {
+    m_handleDockVisibilityChanges = false;
     foreach (QDockWidget *dockWidget, m_dockWidgets)
         m_mainWindow->removeDockWidget(dockWidget);
 
@@ -514,44 +521,60 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     m_disassemblerDock->hide();
     m_modulesDock->hide();
     m_outputDock->hide();
+    for (int i = 0; i < m_dockWidgets.size(); ++i)
+        m_dockWidgetActiveState[i] = m_dockWidgets[i]->isVisible();
+    m_handleDockVisibilityChanges = true;
 }
 
-void DebuggerManager::updateDockWidgetActiveStates()
+void DebuggerManager::onDockVisibilityChange(bool visible)
 {
-    for (int i = 0; i < m_dockWidgets.size(); ++i) {
-        m_dockWidgetActiveState[i] = m_dockWidgets.at(i)->isVisible();
-    }
+    if (!m_handleDockVisibilityChanges)
+        return;
+    QDockWidget *dockWidget = qobject_cast<QDockWidget *>(sender());
+    int index = m_dockWidgets.indexOf(dockWidget);
+    m_dockWidgetActiveState[index] = visible;
 }
 
-void DebuggerManager::setFloatingDockWidgetsVisible(bool visible)
+void DebuggerManager::modeVisibilityChanged(bool visible)
 {
+    m_handleDockVisibilityChanges = false;
     for (int i = 0; i < m_dockWidgets.size(); ++i) {
         QDockWidget *dockWidget = m_dockWidgets.at(i);
-        if (dockWidget->isFloating() && m_dockWidgetActiveState.at(i)) {
-            dockWidget->setVisible(visible);
+        if (dockWidget->isFloating()) {
+            dockWidget->setVisible(visible && m_dockWidgetActiveState.at(i));
         }
     }
     if (visible)
-        updateDockWidgetActiveStates(); // we can't do that earlier, because the dock widgets are not visible at startup
+        m_handleDockVisibilityChanges = true;
+}
+
+void DebuggerManager::onTopLevelChanged()
+{
+    updateDockWidget(qobject_cast<QDockWidget*>(sender()));
 }
 
 void DebuggerManager::setLocked(bool locked)
 {
-    const QDockWidget::DockWidgetFeatures features =
-            (locked) ? QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable :
-                       QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable;
-
+    m_locked = locked;
     foreach (QDockWidget *dockWidget, m_dockWidgets) {
-        QWidget *titleBarWidget = dockWidget->titleBarWidget();
-        if (locked && !titleBarWidget)
-            titleBarWidget = new QWidget(dockWidget);
-        else if (!locked && titleBarWidget) {
-            delete titleBarWidget;
-            titleBarWidget = 0;
-        }
-        dockWidget->setTitleBarWidget(titleBarWidget);
-        dockWidget->setFeatures(features);
+        updateDockWidget(dockWidget);
     }
+}
+
+void DebuggerManager::updateDockWidget(QDockWidget *dockWidget)
+{
+    const QDockWidget::DockWidgetFeatures features =
+            (m_locked) ? QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable :
+                       QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable;
+    QWidget *titleBarWidget = dockWidget->titleBarWidget();
+    if (m_locked && !titleBarWidget && !dockWidget->isFloating())
+        titleBarWidget = new QWidget(dockWidget);
+    else if ((!m_locked || dockWidget->isFloating()) && titleBarWidget) {
+        delete titleBarWidget;
+        titleBarWidget = 0;
+    }
+    dockWidget->setTitleBarWidget(titleBarWidget);
+    dockWidget->setFeatures(features);
 }
 
 void DebuggerManager::dockActionTriggered()
@@ -560,9 +583,6 @@ void DebuggerManager::dockActionTriggered()
     if (dw) {
         if (dw->isVisible())
             dw->raise();
-        int index = m_dockWidgets.indexOf(dw);
-        if (index >= 0)
-            m_dockWidgetActiveState[index] = dw->isVisible();
     }
 }
 

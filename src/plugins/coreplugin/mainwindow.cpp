@@ -66,6 +66,7 @@
 #include "ioutputpane.h"
 
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/settingsdatabase.h>
 #include <utils/pathchooser.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -111,7 +112,11 @@ MainWindow::MainWindow() :
     m_uniqueIDManager(new UniqueIDManager()),
     m_globalContext(QList<int>() << Constants::C_GLOBAL_ID),
     m_additionalContexts(m_globalContext),
-    m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope, QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
+    m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope,
+                             QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
+    m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
+                                            QLatin1String("QtCreator"),
+                                            this)),
     m_printer(0),
     m_actionManager(new ActionManagerPrivate(this)),
     m_editorManager(0),
@@ -760,7 +765,7 @@ void MainWindow::registerDefaultActions()
 
 void MainWindow::newFile()
 {
-    showNewItemDialog(tr("New", "Title of dialog"), IWizard::allWizards());
+    showNewItemDialog(tr("New...", "Title of dialog"), IWizard::allWizards());
 }
 
 void MainWindow::openFile()
@@ -1099,7 +1104,7 @@ void MainWindow::readSettings()
 
     m_settings->endGroup();
 
-    m_editorManager->readSettings(m_settings);
+    m_editorManager->readSettings();
     m_navigationWidget->restoreSettings(m_settings);
     m_rightPaneWidget->readSettings(m_settings);
 }
@@ -1124,7 +1129,7 @@ void MainWindow::writeSettings()
     m_fileManager->saveRecentFiles();
     m_viewManager->saveSettings(m_settings);
     m_actionManager->saveSettings(m_settings);
-    m_editorManager->saveSettings(m_settings);
+    m_editorManager->saveSettings();
     m_navigationWidget->saveSettings(m_settings);
 }
 

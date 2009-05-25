@@ -27,44 +27,44 @@
 **
 **************************************************************************/
 
-#ifndef PLAINTEXTEDITOR_H
-#define PLAINTEXTEDITOR_H
+#ifndef SETTINGSDATABASE_H
+#define SETTINGSDATABASE_H
 
-#include "basetexteditor.h"
+#include "core_global.h"
 
-#include <QtCore/QList>
+#include <QtCore/QObject>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtCore/QVariant>
 
-namespace TextEditor {
+namespace Core {
 
-class PlainTextEditor;
+namespace Internal {
+class SettingsDatabasePrivate;
+}
 
-class TEXTEDITOR_EXPORT PlainTextEditorEditable : public BaseTextEditorEditable
+class CORE_EXPORT SettingsDatabase : public QObject
 {
 public:
-    PlainTextEditorEditable(PlainTextEditor *);
-    QList<int> context() const;
+    SettingsDatabase(const QString &path, const QString &application, QObject *parent = 0);
+    ~SettingsDatabase();
 
-    bool duplicateSupported() const { return true; }
-    Core::IEditor *duplicate(QWidget *parent);
-    const char *kind() const;
-    bool temporaryEditor() const { return false; }
+    void setValue(const QString &key, const QVariant &value);
+    QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
+    bool contains(const QString &key) const;
+    void remove(const QString &key);
+
+    void beginGroup(const QString &prefix);
+    void endGroup();
+    QString group() const;
+    QStringList childKeys() const;
+
+    void sync();
+
 private:
-    QList<int> m_context;
+    Internal::SettingsDatabasePrivate *d;
 };
 
-class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
-{
-    Q_OBJECT
+} // namespace Core
 
-public:
-    PlainTextEditor(QWidget *parent);
-
-protected:
-    BaseTextEditorEditable *createEditableInterface() { return new PlainTextEditorEditable(this); }
-    // Indent a text block based on previous line.
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
-};
-
-} // namespace TextEditor
-
-#endif // PLAINTEXTEDITOR_H
+#endif // SETTINGSDATABASE_H

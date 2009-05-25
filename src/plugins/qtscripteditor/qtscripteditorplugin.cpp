@@ -94,7 +94,7 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setDescription(tr("Qt Script file"));
+    wizardParameters.setDescription(tr("Creates a Qt Script file."));
     wizardParameters.setName(tr("Qt Script file"));
     wizardParameters.setCategory(QLatin1String("Qt"));
     wizardParameters.setTrCategory(tr("Qt"));

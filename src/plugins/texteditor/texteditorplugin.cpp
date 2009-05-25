@@ -90,7 +90,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
         return false;
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setDescription(tr("This creates a new text file (.txt)"));
+    wizardParameters.setDescription(tr("Creates a text file (.txt)."));
     wizardParameters.setName(tr("Text File"));
     wizardParameters.setCategory(QLatin1String("General"));
     wizardParameters.setTrCategory(tr("General"));

@@ -105,6 +105,7 @@ public:
     QWidget *widget();
 
     void setSuggestedFileName(const QString &fileName);
+    bool temporaryEditor() const { return false; }
 
 private slots:
     void dirtyChanged(bool);
