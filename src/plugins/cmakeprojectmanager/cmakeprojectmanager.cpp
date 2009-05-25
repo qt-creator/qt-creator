@@ -185,7 +185,7 @@ void CMakeRunner::run(QFutureInterface<void> &fi)
     m_mutex.lock();
     m_supportsQtCreator = response.contains(QLatin1String("QtCreator"));
     m_version = versionRegexp.cap(1);
-    if (!versionRegexp.capturedTexts().size()>3)
+    if (!(versionRegexp.capturedTexts().size() > 3))
         m_version += QLatin1Char('.') + versionRegexp.cap(3);
     m_cacheUpToDate = true;
     m_mutex.unlock();
