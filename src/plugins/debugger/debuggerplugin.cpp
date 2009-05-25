@@ -1037,15 +1037,16 @@ void DebuggerPlugin::readSettings()
     s->endGroup();
 
     m_manager->mainWindow()->restoreState(ba);
+    m_manager->setLocked(m_toggleLockedAction->isChecked());
 }
 
 void DebuggerPlugin::onModeChanged(IMode *mode)
 {
     if (mode != m_debugMode) {
-        m_manager->setFloatingDockWidgetsVisible(false);
+        m_manager->modeVisibilityChanged(false);
         return;
     }
-    m_manager->setFloatingDockWidgetsVisible(true);
+    m_manager->modeVisibilityChanged(true);
 
     EditorManager *editorManager = EditorManager::instance();
 

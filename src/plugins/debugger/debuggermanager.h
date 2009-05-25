@@ -217,9 +217,8 @@ public slots:
 
     void setSimpleDockWidgetArrangement();
     void setLocked(bool locked);
-    void setFloatingDockWidgetsVisible(bool visible);
-    void updateDockWidgetActiveStates();
     void dockActionTriggered();
+    void modeVisibilityChanged(bool visible);
 
     void setBusyCursor(bool on);
     void queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **ed);
@@ -378,6 +377,9 @@ private:
     void runTest(const QString &fileName);
     QDockWidget *createDockForWidget(QWidget *widget);
     Q_SLOT void createNewDock(QWidget *widget);
+    void updateDockWidget(QDockWidget *dockWidget);
+    Q_SLOT void onDockVisibilityChange(bool visible);
+    Q_SLOT void onTopLevelChanged();
 
     void shutdown();
 
@@ -402,6 +404,8 @@ private:
     QDockWidget *m_watchDock;
     QList<QDockWidget*> m_dockWidgets;
     QList<bool> m_dockWidgetActiveState;
+    bool m_locked;
+    bool m_handleDockVisibilityChanges;
 
     BreakHandler *m_breakHandler;
     DisassemblerHandler *m_disassemblerHandler;
