@@ -685,7 +685,7 @@ void ProFileEvaluator::Private::visitProOperator(ProOperator *oper)
 void ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 {
     if (!m_skipLevel) {
-        if (cond->text().toLower() == QLatin1String("else")) {
+        if (!cond->text().compare(QLatin1String("else"), Qt::CaseInsensitive)) {
             m_sts.condition = !m_sts.prevCondition;
         } else {
             m_sts.prevCondition = false;
@@ -1536,7 +1536,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
 
                 bool singleLine = true;
                 if (args.count() > 1)
-                    singleLine = (args[1].toLower() == QLatin1String("true"));
+                    singleLine = (!args[1].compare(QLatin1String("true"), Qt::CaseInsensitive));
 
                 QFile qfile(file);
                 if (qfile.open(QIODevice::ReadOnly)) {
@@ -1610,7 +1610,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                     FILE *proc = QT_POPEN(args[0].toLatin1(), "r");
                     bool singleLine = true;
                     if (args.count() > 1)
-                        singleLine = (args[1].toLower() == QLatin1String("true"));
+                        singleLine = (!args[1].compare(QLatin1String("true"), Qt::CaseInsensitive));
                     QString output;
                     while (proc && !feof(proc)) {
                         int read_in = int(fread(buff, 1, 255, proc));
@@ -1690,7 +1690,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             } else {
                 bool recursive = false;
                 if (args.count() == 2)
-                    recursive = (args[1].toLower() == QLatin1String("true") || args[1].toInt());
+                    recursive = (!args[1].compare(QLatin1String("true"), Qt::CaseInsensitive) || args[1].toInt());
                 QStringList dirs;
                 QString r = Option::fixPathToLocalOS(args[0]);
                 int slash = r.lastIndexOf(QDir::separator());
@@ -2190,7 +2190,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             bool ignore_error = false;
             if (args.count() == 2) {
                 QString sarg = args[1];
-                ignore_error = (sarg.toLower() == QLatin1String("true") || sarg.toInt());
+                ignore_error = (!sarg.compare(QLatin1String("true"), Qt::CaseInsensitive) || sarg.toInt());
             } else if (args.count() != 1) {
                 q->logMessage(format("load(feature) requires one or two arguments."));
                 return ProItem::ReturnFalse;
@@ -2586,14 +2586,14 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType()
 {
     QStringList templ = values(QLatin1String("TEMPLATE"));
     if (templ.count() >= 1) {
-        QString t = templ.last().toLower();
-        if (t == QLatin1String("app"))
+        const QString &t = templ.last();
+        if (!t.compare(QLatin1String("app"), Qt::CaseInsensitive))
             return TT_Application;
-        if (t == QLatin1String("lib"))
+        if (!t.compare(QLatin1String("lib"), Qt::CaseInsensitive))
             return TT_Library;
-        if (t == QLatin1String("script"))
+        if (!t.compare(QLatin1String("script"), Qt::CaseInsensitive))
             return TT_Script;
-        if (t == QLatin1String("subdirs"))
+        if (!t.compare(QLatin1String("subdirs"), Qt::CaseInsensitive))
             return TT_Subdirs;
     }
     return TT_Unknown;
