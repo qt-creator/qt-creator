@@ -63,7 +63,7 @@ public:
     virtual int currentLine() const { return 0; }
     virtual int currentColumn() const { return 0; }
 
-    virtual bool temporayEditor() const = 0;
+    virtual bool temporaryEditor() const = 0;
 
     virtual QToolBar *toolBar() = 0;
 

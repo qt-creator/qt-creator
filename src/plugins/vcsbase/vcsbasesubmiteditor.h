@@ -159,7 +159,7 @@ public:
     // be restricted to them
     static QStringList currentProjectFiles(bool nativeSeparators, QString *name = 0);
 
-    bool temporayEditor() const { return true; }
+    bool temporaryEditor() const { return true; }
 
 signals:
     void diffSelectedFiles(const QStringList &files);
