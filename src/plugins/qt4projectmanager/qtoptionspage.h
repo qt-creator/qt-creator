@@ -60,6 +60,8 @@ private:
     void showEnvironmentPage(QTreeWidgetItem * item);
     void fixQtVersionName(int index);
     int indexForWidget(QWidget *debuggingHelperWidget) const;
+    int indexForTreeItem(QTreeWidgetItem *item) const;
+
     Internal::Ui::QtVersionManager *m_ui;
     QList<QtVersion *> m_versions;
     int m_defaultVersion;
