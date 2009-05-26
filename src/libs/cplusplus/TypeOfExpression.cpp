@@ -133,6 +133,9 @@ QString TypeOfExpression::preprocessedExpression(const QString &expression,
                                                  Snapshot documents,
                                                  Document::Ptr thisDocument) const
 {
+    if (expression.trimmed().isEmpty())
+        return expression;
+
     Environment env;
     QSet<QString> processed;
     processEnvironment(documents, thisDocument,
