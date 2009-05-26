@@ -73,10 +73,7 @@ SOURCES = qt4projectmanagerplugin.cpp \
     qtoptionspage.cpp \
     qtuicodemodelsupport.cpp \
     externaleditors.cpp
-FORMS = envvariablespage.ui \
-    enveditdialog.ui \
-    proeditorcontainer.ui \
-    makestep.ui \
+FORMS = makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
     embeddedpropertiespage.ui \

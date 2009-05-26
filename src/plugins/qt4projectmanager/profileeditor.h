@@ -30,8 +30,6 @@
 #ifndef PROFILEEDITOR_H
 #define PROFILEEDITOR_H
 
-#include "ui_proeditorcontainer.h"
-
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
 
