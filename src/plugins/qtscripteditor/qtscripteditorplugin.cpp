@@ -128,7 +128,6 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
 
 void QtScriptEditorPlugin::extensionsInitialized()
 {
-    m_actionHandler->initializeActions();
 }
 
 void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEditor *editor)

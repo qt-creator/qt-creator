@@ -119,7 +119,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     settings->beginGroup(QLatin1String("Completion"));
     const bool caseSensitive = settings->value(QLatin1String("CaseSensitive"), true).toBool();
     m_completion->setCaseSensitivity(caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
-    m_completion->setAutoInsertBraces(settings->value(QLatin1String("AutoInsertBraces"), true).toBool());
+    m_completion->setAutoInsertBrackets(settings->value(QLatin1String("AutoInsertBraces"), true).toBool());
     m_completion->setPartialCompletionEnabled(settings->value(QLatin1String("PartiallyComplete"), true).toBool());
     settings->endGroup();
     settings->endGroup();
@@ -143,7 +143,7 @@ void CppToolsPlugin::shutdown()
     settings->beginGroup(QLatin1String("CppTools"));
     settings->beginGroup(QLatin1String("Completion"));
     settings->setValue(QLatin1String("CaseSensitive"), m_completion->caseSensitivity() == Qt::CaseSensitive);
-    settings->setValue(QLatin1String("AutoInsertBraces"), m_completion->autoInsertBraces());
+    settings->setValue(QLatin1String("AutoInsertBraces"), m_completion->autoInsertBrackets());
     settings->setValue(QLatin1String("PartiallyComplete"), m_completion->isPartialCompletionEnabled());
     settings->endGroup();
     settings->endGroup();
