@@ -414,7 +414,7 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
     : ICompletionCollector(manager),
       m_manager(manager),
       m_caseSensitivity(Qt::CaseSensitive),
-      m_autoInsertBraces(true),
+      m_autoInsertBrackets(true),
       m_forcedCompletion(false),
       m_completionOperator(T_EOF_SYMBOL)
 {
@@ -435,14 +435,14 @@ void CppCodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
     m_caseSensitivity = caseSensitivity;
 }
 
-bool CppCodeCompletion::autoInsertBraces() const
+bool CppCodeCompletion::autoInsertBrackets() const
 {
-    return m_autoInsertBraces;
+    return m_autoInsertBrackets;
 }
 
-void CppCodeCompletion::setAutoInsertBraces(bool autoInsertBraces)
+void CppCodeCompletion::setAutoInsertBrackets(bool autoInsertBrackets)
 {
-    m_autoInsertBraces = autoInsertBraces;
+    m_autoInsertBrackets = autoInsertBrackets;
 }
 
 bool CppCodeCompletion::isPartialCompletionEnabled() const
@@ -1230,7 +1230,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
         //qDebug() << "current symbol:" << overview.prettyName(symbol->name())
         //<< overview.prettyType(symbol->type());
 
-        if (m_autoInsertBraces && symbol && symbol->type()) {
+        if (m_autoInsertBrackets && symbol && symbol->type()) {
             QString extraChars;
 
             if (Function *function = symbol->type()->asFunctionType()) {

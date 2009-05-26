@@ -73,7 +73,7 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     m_page->setupUi(w);
 
     m_page->caseSensitive->setChecked(m_completion->caseSensitivity() == Qt::CaseSensitive);
-    m_page->autoInsertBraces->setChecked(m_completion->autoInsertBraces());
+    m_page->autoInsertBrackets->setChecked(m_completion->autoInsertBrackets());
     m_page->partiallyComplete->setChecked(m_completion->isPartialCompletionEnabled());
 
     return w;
@@ -83,6 +83,6 @@ void CompletionSettingsPage::apply()
 {
     m_completion->setCaseSensitivity(
             m_page->caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive);
-    m_completion->setAutoInsertBraces(m_page->autoInsertBraces->isChecked());
+    m_completion->setAutoInsertBrackets(m_page->autoInsertBrackets->isChecked());
     m_completion->setPartialCompletionEnabled(m_page->partiallyComplete->isChecked());
 }

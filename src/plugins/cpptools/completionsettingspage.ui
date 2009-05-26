@@ -31,12 +31,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="autoInsertBraces">
+       <widget class="QCheckBox" name="autoInsertBrackets">
         <property name="toolTip">
          <string>Automatically insert (, ) and ; when appropriate.</string>
         </property>
         <property name="text">
-         <string>&amp;Automatically insert braces</string>
+         <string>&amp;Automatically insert brackets</string>
         </property>
         <property name="checked">
          <bool>true</bool>

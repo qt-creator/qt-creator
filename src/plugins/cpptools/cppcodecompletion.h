@@ -72,8 +72,8 @@ public:
     Qt::CaseSensitivity caseSensitivity() const;
     void setCaseSensitivity(Qt::CaseSensitivity caseSensitivity);
 
-    bool autoInsertBraces() const;
-    void setAutoInsertBraces(bool autoInsertBraces);
+    bool autoInsertBrackets() const;
+    void setAutoInsertBrackets(bool autoInsertBrackets);
 
     bool isPartialCompletionEnabled() const;
     void setPartialCompletionEnabled(bool partialCompletionEnabled);
@@ -125,7 +125,7 @@ private:
 
     CppModelManager *m_manager;
     Qt::CaseSensitivity m_caseSensitivity;
-    bool m_autoInsertBraces;
+    bool m_autoInsertBrackets;
     bool m_partialCompletionEnabled;
 
     bool m_forcedCompletion;
