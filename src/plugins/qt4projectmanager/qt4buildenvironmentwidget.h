@@ -33,7 +33,7 @@
 #include <projectexplorer/buildstep.h>
 
 namespace ProjectExplorer {
-class EnvironmentModel;
+class EnvironmentWidget;
 }
 
 namespace Qt4ProjectManager {
@@ -41,11 +41,6 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
-
-namespace Ui {
-class Qt4BuildEnvironmentWidget;
-}
-
 class Qt4BuildEnvironmentWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
@@ -59,19 +54,11 @@ public:
 
 private slots:
     void environmentModelUserChangesUpdated();
-    void editEnvironmentButtonClicked();
-    void addEnvironmentButtonClicked();
-    void removeEnvironmentButtonClicked();
-    void unsetEnvironmentButtonClicked();
-    void switchEnvironmentTab(int newTab);
-    void environmentCurrentIndexChanged(const QModelIndex &current, const QModelIndex &previous);
-    void clearSystemEnvironmentCheckBoxClicked(bool);
-    void updateButtonsEnabled();
+    void clearSystemEnvironmentCheckBoxClicked(bool checked);
 
 private:
-    Ui::Qt4BuildEnvironmentWidget *m_ui;
+    ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;
     Qt4Project *m_pro;
-    ProjectExplorer::EnvironmentModel *m_environmentModel;
     QString m_buildConfiguration;
 };
 

@@ -29,6 +29,9 @@
 
 #include "environmenteditmodel.h"
 
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QHeaderView>
+
 using namespace ProjectExplorer;
 
 EnvironmentModel::EnvironmentModel()
@@ -415,4 +418,166 @@ void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
     m_items = list;
     updateResultEnvironment();
     emit reset();
+}
+
+////
+// EnvironmentWidget::EnvironmentWidget
+////
+
+EnvironmentWidget::EnvironmentWidget(QWidget *parent)
+    : QWidget(parent)
+{
+    m_model = new EnvironmentModel();
+    m_model->setMergedEnvironments(true);
+    connect(m_model, SIGNAL(userChangesUpdated()),
+            this, SIGNAL(userChangesUpdated()));
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    m_clearSystemEnvironmentCheckBox = new QCheckBox(this);
+    m_clearSystemEnvironmentCheckBox->setText("Clear system environment");
+    verticalLayout->addWidget(m_clearSystemEnvironmentCheckBox);
+
+    QHBoxLayout *horizontalLayout = new QHBoxLayout();
+    m_environmentTreeView = new QTreeView(this);
+    m_environmentTreeView->setRootIsDecorated(false);
+    m_environmentTreeView->setHeaderHidden(false);
+    m_environmentTreeView->setModel(m_model);
+    m_environmentTreeView->header()->resizeSection(0, 250);
+    horizontalLayout->addWidget(m_environmentTreeView);
+
+    QVBoxLayout *verticalLayout_2 = new QVBoxLayout();
+
+    m_editButton = new QPushButton(this);
+    m_editButton->setText("&Edit");
+    verticalLayout_2->addWidget(m_editButton);
+
+    m_addButton = new QPushButton(this);
+    m_addButton->setText("&Add");
+    verticalLayout_2->addWidget(m_addButton);
+
+    m_removeButton = new QPushButton(this);
+    m_removeButton->setEnabled(false);
+    m_removeButton->setText("&Reset");
+    verticalLayout_2->addWidget(m_removeButton);
+
+    m_unsetButton = new QPushButton(this);
+    m_unsetButton->setEnabled(false);
+    m_unsetButton->setText("&Unset");
+    verticalLayout_2->addWidget(m_unsetButton);
+
+    QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    verticalLayout_2->addItem(verticalSpacer);
+    horizontalLayout->addLayout(verticalLayout_2);
+    verticalLayout->addLayout(horizontalLayout);
+
+    connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+            this, SLOT(updateButtons()));
+
+    connect(m_editButton, SIGNAL(clicked(bool)),
+            this, SLOT(editEnvironmentButtonClicked()));
+    connect(m_addButton, SIGNAL(clicked(bool)),
+            this, SLOT(addEnvironmentButtonClicked()));
+    connect(m_removeButton, SIGNAL(clicked(bool)),
+            this, SLOT(removeEnvironmentButtonClicked()));
+    connect(m_unsetButton, SIGNAL(clicked(bool)),
+            this, SLOT(unsetEnvironmentButtonClicked()));
+    connect(m_environmentTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+            this, SLOT(environmentCurrentIndexChanged(QModelIndex, QModelIndex)));
+    connect(m_clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
+            this, SIGNAL(clearSystemEnvironmentCheckBoxClicked(bool)));
+}
+
+EnvironmentWidget::~EnvironmentWidget()
+{
+    delete m_model;
+    m_model = 0;
+}
+
+void EnvironmentWidget::setClearSystemEnvironment(bool b)
+{
+    m_clearSystemEnvironmentCheckBox->setChecked(b);
+}
+
+void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)
+{
+    m_model->setBaseEnvironment(env);
+}
+
+void EnvironmentWidget::setMergedEnvironments(bool b)
+{
+    m_model->setMergedEnvironments(b);
+}
+
+bool EnvironmentWidget::mergedEnvironments()
+{
+    return m_model->mergedEnvironments();
+}
+
+QList<EnvironmentItem> EnvironmentWidget::userChanges() const
+{
+    return m_model->userChanges();
+}
+
+void EnvironmentWidget::setUserChanges(QList<EnvironmentItem> list)
+{
+    m_model->setUserChanges(list);
+}
+
+void EnvironmentWidget::updateButtons()
+{
+    environmentCurrentIndexChanged(m_environmentTreeView->currentIndex(), QModelIndex());
+}
+
+void EnvironmentWidget::editEnvironmentButtonClicked()
+{
+    m_environmentTreeView->edit(m_environmentTreeView->currentIndex());
+}
+
+void EnvironmentWidget::addEnvironmentButtonClicked()
+{
+    QModelIndex index = m_model->addVariable();
+    m_environmentTreeView->setCurrentIndex(index);
+    m_environmentTreeView->edit(index);
+    updateButtons();
+}
+
+void EnvironmentWidget::removeEnvironmentButtonClicked()
+{
+    const QString &name = m_model->indexToVariable(m_environmentTreeView->currentIndex());
+    m_model->removeVariable(name);
+    updateButtons();
+}
+
+// unset in Merged Environment Mode means, unset if it comes from the base environment
+// or remove when it is just a change we added
+// unset in changes view, means just unset
+void EnvironmentWidget::unsetEnvironmentButtonClicked()
+{
+    const QString &name = m_model->indexToVariable(m_environmentTreeView->currentIndex());
+    if (!m_model->isInBaseEnvironment(name) && m_model->mergedEnvironments())
+        m_model->removeVariable(name);
+    else
+        m_model->unset(name);
+    updateButtons();
+}
+
+void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    Q_UNUSED(previous)
+    if (current.isValid()) {
+        if (m_model->mergedEnvironments()) {
+            const QString &name = m_model->indexToVariable(current);
+            bool modified = m_model->isInBaseEnvironment(name) && m_model->changes(name);
+            bool unset = m_model->isUnset(name);
+            m_removeButton->setEnabled(modified || unset);
+            m_unsetButton->setEnabled(!unset);
+        } else {
+            m_removeButton->setEnabled(true);
+            m_unsetButton->setEnabled(!m_model->isUnset(m_model->indexToVariable(current)));
+        }
+    } else {
+        m_editButton->setEnabled(current.isValid());
+        m_removeButton->setEnabled(false);
+        m_unsetButton->setEnabled(false);
+    }
 }

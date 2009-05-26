@@ -786,6 +786,7 @@ void QtVersion::updateQMakeCXX() const
     reader->setParsePreAndPostFiles(false);
     reader->readProFile(mkspecPath() + "/qmake.conf");
     m_qmakeCXX = reader->value("QMAKE_CXX");
+
     delete reader;
     m_qmakeCXXUpToDate = true;
 }

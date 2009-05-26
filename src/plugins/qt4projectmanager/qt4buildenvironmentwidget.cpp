@@ -45,38 +45,20 @@ using ProjectExplorer::EnvironmentModel;
 Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
     : BuildStepConfigWidget(), m_pro(project)
 {
-    m_ui = new Ui::Qt4BuildEnvironmentWidget();
-    m_ui->setupUi(this);
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setMargin(0);
+    m_buildEnvironmentWidget = new ProjectExplorer::EnvironmentWidget(this);
+    vbox->addWidget(m_buildEnvironmentWidget);
 
-    m_environmentModel = new EnvironmentModel();
-    m_environmentModel->setMergedEnvironments(true);
-    m_ui->environmentTreeView->setModel(m_environmentModel);
-    m_ui->environmentTreeView->header()->resizeSection(0, 250);
-
-    connect(m_environmentModel, SIGNAL(userChangesUpdated()),
+    connect(m_buildEnvironmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(environmentModelUserChangesUpdated()));
-
-    connect(m_environmentModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-            this, SLOT(updateButtonsEnabled()));
-
-    connect(m_ui->editButton, SIGNAL(clicked(bool)),
-            this, SLOT(editEnvironmentButtonClicked()));
-    connect(m_ui->addButton, SIGNAL(clicked(bool)),
-            this, SLOT(addEnvironmentButtonClicked()));
-    connect(m_ui->removeButton, SIGNAL(clicked(bool)),
-            this, SLOT(removeEnvironmentButtonClicked()));
-    connect(m_ui->unsetButton, SIGNAL(clicked(bool)),
-            this, SLOT(unsetEnvironmentButtonClicked()));
-    connect(m_ui->environmentTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-            this, SLOT(environmentCurrentIndexChanged(QModelIndex, QModelIndex)));
-    connect(m_ui->clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
+    connect(m_buildEnvironmentWidget, SIGNAL(clearSystemEnvironmentCheckBoxClicked(bool)),
             this, SLOT(clearSystemEnvironmentCheckBoxClicked(bool)));
 }
 
 Qt4BuildEnvironmentWidget::~Qt4BuildEnvironmentWidget()
 {
-    delete m_ui;
-    delete m_environmentModel;
+
 }
 
 QString Qt4BuildEnvironmentWidget::displayName() const
@@ -90,91 +72,20 @@ void Qt4BuildEnvironmentWidget::init(const QString &buildConfiguration)
         qDebug() << "Qt4BuildConfigWidget::init()";
 
     m_buildConfiguration = buildConfiguration;
-    m_ui->clearSystemEnvironmentCheckBox->setChecked(!m_pro->useSystemEnvironment(buildConfiguration));
-    m_environmentModel->setBaseEnvironment(m_pro->baseEnvironment(buildConfiguration));
-    m_environmentModel->setUserChanges(m_pro->userEnvironmentChanges(buildConfiguration));
 
-    updateButtonsEnabled();
+    m_buildEnvironmentWidget->setClearSystemEnvironment(!m_pro->useSystemEnvironment(buildConfiguration));
+    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(buildConfiguration));
+    m_buildEnvironmentWidget->setUserChanges(m_pro->userEnvironmentChanges(buildConfiguration));
+    m_buildEnvironmentWidget->updateButtons();
 }
 
-
-void Qt4BuildEnvironmentWidget::editEnvironmentButtonClicked()
+void Qt4BuildEnvironmentWidget::environmentModelUserChangesUpdated()
 {
-    m_ui->environmentTreeView->edit(m_ui->environmentTreeView->currentIndex());
-}
-
-void Qt4BuildEnvironmentWidget::addEnvironmentButtonClicked()
-{
-    QModelIndex index = m_environmentModel->addVariable();
-    m_ui->environmentTreeView->setCurrentIndex(index);
-    m_ui->environmentTreeView->edit(index);
-    updateButtonsEnabled();
-}
-
-void Qt4BuildEnvironmentWidget::removeEnvironmentButtonClicked()
-{
-    const QString &name = m_environmentModel->indexToVariable(m_ui->environmentTreeView->currentIndex());
-    m_environmentModel->removeVariable(name);
-    updateButtonsEnabled();
-}
-// unset in Merged Environment Mode means, unset if it comes from the base environment
-// or remove when it is just a change we added
-// unset in changes view, means just unset
-void Qt4BuildEnvironmentWidget::unsetEnvironmentButtonClicked()
-{
-    const QString &name = m_environmentModel->indexToVariable(m_ui->environmentTreeView->currentIndex());
-    if (!m_environmentModel->isInBaseEnvironment(name) && m_environmentModel->mergedEnvironments())
-        m_environmentModel->removeVariable(name);
-    else
-        m_environmentModel->unset(name);
-    updateButtonsEnabled();
-}
-
-void Qt4BuildEnvironmentWidget::switchEnvironmentTab(int newTab)
-{
-    bool mergedEnvironments = (newTab == 0);
-    m_environmentModel->setMergedEnvironments(mergedEnvironments);
-    if (mergedEnvironments) {
-        m_ui->removeButton->setText(tr("Reset"));
-    } else {
-        m_ui->removeButton->setText(tr("Remove"));
-    }
-}
-
-void Qt4BuildEnvironmentWidget::updateButtonsEnabled()
-{
-    environmentCurrentIndexChanged(m_ui->environmentTreeView->currentIndex(), QModelIndex());
-}
-
-void Qt4BuildEnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current, const QModelIndex &previous)
-{
-    Q_UNUSED(previous)
-    if (current.isValid()) {
-        if (m_environmentModel->mergedEnvironments()) {
-            const QString &name = m_environmentModel->indexToVariable(current);
-            bool modified = m_environmentModel->isInBaseEnvironment(name) && m_environmentModel->changes(name);
-            bool unset = m_environmentModel->isUnset(name);
-            m_ui->removeButton->setEnabled(modified || unset);
-            m_ui->unsetButton->setEnabled(!unset);
-            return;
-        } else {
-            m_ui->removeButton->setEnabled(true);
-            m_ui->unsetButton->setEnabled(!m_environmentModel->isUnset(m_environmentModel->indexToVariable(current)));
-            return;
-        }
-    }
-    m_ui->editButton->setEnabled(current.isValid());
-    m_ui->removeButton->setEnabled(false);
-    m_ui->unsetButton->setEnabled(false);
+    m_pro->setUserEnvironmentChanges(m_buildConfiguration, m_buildEnvironmentWidget->userChanges());
 }
 
 void Qt4BuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked(bool checked)
 {
     m_pro->setUseSystemEnvironment(m_buildConfiguration, !checked);
-    m_environmentModel->setBaseEnvironment(m_pro->baseEnvironment(m_buildConfiguration));
-}
-
-void Qt4BuildEnvironmentWidget::environmentModelUserChangesUpdated()
-{
-    m_pro->setUserEnvironmentChanges(m_buildConfiguration, m_environmentModel->userChanges());
+    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(m_buildConfiguration));
 }

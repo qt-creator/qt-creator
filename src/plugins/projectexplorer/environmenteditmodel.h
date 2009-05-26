@@ -35,7 +35,10 @@
 #include <QtCore/QString>
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QDebug>
-#include <QtGui/QFont>
+#include <QtGui/QWidget>
+#include <QtGui/QCheckBox>
+#include <QtGui/QTreeView>
+#include <QtGui/QPushButton>
 
 namespace ProjectExplorer {
 
@@ -82,6 +85,46 @@ private:
     ProjectExplorer::Environment m_resultEnvironment;
     QList<EnvironmentItem> m_items;
     bool m_mergedEnvironments;
+};
+
+
+class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    EnvironmentWidget(QWidget *parent);
+    ~EnvironmentWidget();
+
+    void setBaseEnvironment(const ProjectExplorer::Environment &env);
+    void setMergedEnvironments(bool b);
+    void setClearSystemEnvironment(bool b);
+
+    bool mergedEnvironments();
+    QList<EnvironmentItem> userChanges() const;
+    void setUserChanges(QList<EnvironmentItem> list);
+
+public slots:
+    void updateButtons();
+
+signals:
+    void userChangesUpdated();
+    void clearSystemEnvironmentCheckBoxClicked(bool on);
+
+private slots:
+    void editEnvironmentButtonClicked();
+    void addEnvironmentButtonClicked();
+    void removeEnvironmentButtonClicked();
+    void unsetEnvironmentButtonClicked();
+    void environmentCurrentIndexChanged(const QModelIndex &current, const QModelIndex &previous);
+
+private:
+    EnvironmentModel *m_model;
+    QCheckBox *m_clearSystemEnvironmentCheckBox;
+    QTreeView *m_environmentTreeView;
+    QPushButton *m_editButton;
+    QPushButton *m_addButton;
+    QPushButton *m_removeButton;
+    QPushButton *m_unsetButton;
 };
 
 } // namespace ProjectExplorer
