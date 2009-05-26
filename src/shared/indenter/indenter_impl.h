@@ -1076,7 +1076,7 @@ int Indenter<Iterator>::indentForBottomLine(const Iterator &current,
 	    */
 	    indent -= ppIndentSize;
 	} else if ( okay(typedIn, colon) ) {
-	    if ( m_constants.m_caseLabel.exactMatch(bottomLine) ) {
+	    if ( m_constants.m_caseLabel.indexIn(bottomLine) != -1 ) {
 		/*
 		  Move a case label (or the ':' in front of a
 		  constructor initialization list) one level to the
