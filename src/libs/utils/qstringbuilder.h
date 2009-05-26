@@ -80,14 +80,26 @@ public:
         return s;
     }
 
-
 private:
     const int m_size;
     const char *m_data;
 };
 
 
-namespace Qt {
+namespace {
+
+template <typename A, typename B>
+class QStringBuilder
+{
+public:
+    QStringBuilder(const A &a_, const B &b_) : a(a_), b(b_) {}
+    operator QString() const;
+
+public:
+    const A &a;
+    const B &b;
+};
+
 
 inline int qStringBuilderSize(const char) { return 1; }
 
@@ -101,10 +113,12 @@ inline int qStringBuilderSize(const QString &a) { return a.size(); }
 
 inline int qStringBuilderSize(const QStringRef &a) { return a.size(); }
 
-template <typename A, typename B> class  QStringBuilder;
-
 template <typename A, typename B>
-inline int qStringBuilderSize(const QStringBuilder<A, B> &p);
+inline int qStringBuilderSize(const QStringBuilder<A, B> &p)
+{
+    return qStringBuilderSize(p.a) + qStringBuilderSize(p.b);
+}
+
 
 inline void qStringBuilderAppend(const char c, QChar *&out)
 {
@@ -143,55 +157,46 @@ inline void qStringBuilderAppend(const QLatin1Literal &a, QChar *&out)
 }
 
 template <typename A, typename B>
-inline void qStringBuilderAppend(const QStringBuilder<A, B> &p, QChar
-*&out);
-
-template <typename A, typename B>
-class QStringBuilder
-{
-public:
-    QStringBuilder(const A &a_, const B &b_) : a(a_), b(b_) {}
-
-    operator QString() const
-    {
-    #ifdef USE_CHANGED_QSTRING
-        QString s(this->size(), QChar(-1));
-    #else
-        QString s;
-        s.resize(Qt::qStringBuilderSize(*this));
-    #endif
-        QChar *d = s.data();
-        Qt::qStringBuilderAppend(*this, d);
-        return s;
-    }
-
-public:
-    const A &a;
-    const B &b;
-};
-
-
-template <typename A, typename B>
-inline int qStringBuilderSize(const QStringBuilder<A, B> &p)
-{
-    return qStringBuilderSize(p.a) + qStringBuilderSize(p.b);
-}
-
-template <typename A, typename B>
 inline void qStringBuilderAppend(const QStringBuilder<A, B> &p, QChar *&out)
 {
     qStringBuilderAppend(p.a, out);
     qStringBuilderAppend(p.b, out);
 }
 
-} // Qt
+
+template <typename A, typename B>
+QStringBuilder<A, B>::operator QString() const 
+{
+#ifdef USE_CHANGED_QSTRING
+    QString s(this->size(), QChar(-1));
+#else
+    QString s;
+    s.resize(qStringBuilderSize(*this));
+#endif
+    QChar *d = s.data();
+    qStringBuilderAppend(*this, d);
+    return s;
+}
+
+// make sure the operator% defined below acts only on types we want to handle.
+template <typename T> struct QConcatenable {};
+template <> struct QConcatenable<QString> { typedef QString type; };
+template <> struct QConcatenable<QLatin1String> { typedef QLatin1String type; };
+template <> struct QConcatenable<QLatin1Literal> { typedef QLatin1Literal type; };
+template <> struct QConcatenable<QLatin1Char> { typedef QLatin1Char type; };
+template <> struct QConcatenable<QStringRef> { typedef QStringRef type; };
+template <typename A, typename B>
+struct QConcatenable< QStringBuilder<A, B> > { typedef QStringBuilder<A, B> type; };
+
+} // namespace
 
 
 template <typename A, typename B>
-Qt::QStringBuilder<A, B>
-operator%(const A &a, const B &b)
+QStringBuilder<A, B> operator%(const A &a, const B &b)
 {
-    return Qt::QStringBuilder<A, B>(a, b);
+    typedef typename QConcatenable<A>::type A1;
+    typedef typename QConcatenable<B>::type B1;
+    return QStringBuilder<A1, B1>(a, b);
 }
 
 

@@ -217,6 +217,48 @@ private slots:
         QBENCHMARK { result = ba + ba + ba; }
     }
 
+
+    void separator_9() { SEP("QString::reserve()"); }
+
+    void b_reserve() {
+        QBENCHMARK {
+            r.clear();
+            r = string % string % string % string;
+        }
+        COMPARE(r, string + string + string + string);
+    }
+    void b_reserve_lit() {
+        QBENCHMARK {
+            r.clear();
+            r = string % l1literal % string % string;
+        }
+        COMPARE(r, string + string + string + string);
+    }
+    void s_reserve() {
+        QBENCHMARK {
+            r.clear();
+            r.reserve(string.size() + string.size() + string.size() + string.size());
+            r += string;
+            r += string;
+            r += string;
+            r += string;
+        }
+        COMPARE(r, string + string + string + string);
+    }
+    void s_reserve_lit() {
+        QBENCHMARK {
+            r.clear();
+            //r.reserve(string.size() + qstrlen(l1string.latin1())
+            //    + string.size() + string.size());
+            r.reserve(1024);
+            r += string;
+            r += l1string;
+            r += string;
+            r += string;
+        }
+        COMPARE(r, string + string + string + string);
+    }
+
 private:
     const QLatin1Literal l1literal;
     const QLatin1String l1string;
@@ -229,8 +271,15 @@ private:
 };
 
 
+//void operator%(QString, int) {}
+
 int main(int argc, char *argv[])
 {
+    42 % 3; // Sanity test, should always work.
+
+    //QString("x") % 2; // Sanity test, should only compile when the 
+    // operator%(QString, int) is visible.
+
     if (argc == 2 && (argv[1] == L("--run-builder") || argv[1] == L("-b"))) {
         tst_qstringbuilder test;
         return test.run_builder();
