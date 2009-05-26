@@ -87,17 +87,6 @@ private:
 };
 
 
-template <typename A, typename B>
-class QStringBuilderPair
-{
-public:
-    QStringBuilderPair(const A &a_, const B &b_) : a(a_), b(b_) {}
-
-    const A &a;
-    const B &b;
-};
-
-
 namespace Qt {
 
 inline int qStringBuilderSize(const char) { return 1; }
@@ -112,12 +101,10 @@ inline int qStringBuilderSize(const QString &a) { return a.size(); }
 
 inline int qStringBuilderSize(const QStringRef &a) { return a.size(); }
 
-template <typename A, typename B>
-inline int qStringBuilderSize(const QStringBuilderPair<A, B> &p)
-{
-    return qStringBuilderSize(p.a) + qStringBuilderSize(p.b);
-}
+template <typename A, typename B> class  QStringBuilder;
 
+template <typename A, typename B>
+inline int qStringBuilderSize(const QStringBuilder<A, B> &p);
 
 inline void qStringBuilderAppend(const char c, QChar *&out)
 {
@@ -156,7 +143,42 @@ inline void qStringBuilderAppend(const QLatin1Literal &a, QChar *&out)
 }
 
 template <typename A, typename B>
-inline void qStringBuilderAppend(const QStringBuilderPair<A, B> &p, QChar *&out)
+inline void qStringBuilderAppend(const QStringBuilder<A, B> &p, QChar
+*&out);
+
+template <typename A, typename B>
+class QStringBuilder
+{
+public:
+    QStringBuilder(const A &a_, const B &b_) : a(a_), b(b_) {}
+
+    operator QString() const
+    {
+    #ifdef USE_CHANGED_QSTRING
+        QString s(this->size(), QChar(-1));
+    #else
+        QString s;
+        s.resize(Qt::qStringBuilderSize(*this));
+    #endif
+        QChar *d = s.data();
+        Qt::qStringBuilderAppend(*this, d);
+        return s;
+    }
+
+public:
+    const A &a;
+    const B &b;
+};
+
+
+template <typename A, typename B>
+inline int qStringBuilderSize(const QStringBuilder<A, B> &p)
+{
+    return qStringBuilderSize(p.a) + qStringBuilderSize(p.b);
+}
+
+template <typename A, typename B>
+inline void qStringBuilderAppend(const QStringBuilder<A, B> &p, QChar *&out)
 {
     qStringBuilderAppend(p.a, out);
     qStringBuilderAppend(p.b, out);
@@ -165,33 +187,11 @@ inline void qStringBuilderAppend(const QStringBuilderPair<A, B> &p, QChar *&out)
 } // Qt
 
 
-template <typename A>
-class QStringBuilder : public A
-{
-public:
-    QStringBuilder(const A &a_) : A(a_) {}
-
-    operator QString() const
-    {
-#ifdef USE_CHANGED_QSTRING
-        QString s(this->size(), QChar(-1));
-#else
-        QString s;
-        s.resize(Qt::qStringBuilderSize(*this));
-#endif
-        QChar *d = s.data();
-        Qt::qStringBuilderAppend(*this, d);
-        return s;
-    }
-
-};
-
-
 template <typename A, typename B>
-QStringBuilder< QStringBuilderPair<A, B> >
+Qt::QStringBuilder<A, B>
 operator%(const A &a, const B &b)
 {
-    return QStringBuilderPair<A, B> (a, b);
+    return Qt::QStringBuilder<A, B>(a, b);
 }
 
 
