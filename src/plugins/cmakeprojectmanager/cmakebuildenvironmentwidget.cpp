@@ -27,20 +27,20 @@
 **
 **************************************************************************/
 
-#include "qt4buildenvironmentwidget.h"
-#include "qt4project.h"
-
+#include "cmakebuildenvironmentwidget.h"
+#include "cmakeproject.h"
 #include <projectexplorer/environmenteditmodel.h>
+#include <QtGui/QVBoxLayout>
 
 namespace {
 bool debug = false;
 }
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace CMakeProjectManager;
+using namespace CMakeProjectManager::Internal;
 using ProjectExplorer::EnvironmentModel;
 
-Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
+CMakeBuildEnvironmentWidget::CMakeBuildEnvironmentWidget(CMakeProject *project)
     : BuildStepConfigWidget(), m_pro(project)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
@@ -54,12 +54,12 @@ Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
             this, SLOT(clearSystemEnvironmentCheckBoxClicked(bool)));
 }
 
-QString Qt4BuildEnvironmentWidget::displayName() const
+QString CMakeBuildEnvironmentWidget::displayName() const
 {
     return tr("Build Environment");
 }
 
-void Qt4BuildEnvironmentWidget::init(const QString &buildConfiguration)
+void CMakeBuildEnvironmentWidget::init(const QString &buildConfiguration)
 {
     if (debug)
         qDebug() << "Qt4BuildConfigWidget::init()";
@@ -72,12 +72,12 @@ void Qt4BuildEnvironmentWidget::init(const QString &buildConfiguration)
     m_buildEnvironmentWidget->updateButtons();
 }
 
-void Qt4BuildEnvironmentWidget::environmentModelUserChangesUpdated()
+void CMakeBuildEnvironmentWidget::environmentModelUserChangesUpdated()
 {
     m_pro->setUserEnvironmentChanges(m_buildConfiguration, m_buildEnvironmentWidget->userChanges());
 }
 
-void Qt4BuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked(bool checked)
+void CMakeBuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked(bool checked)
 {
     m_pro->setUseSystemEnvironment(m_buildConfiguration, !checked);
     m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(m_buildConfiguration));

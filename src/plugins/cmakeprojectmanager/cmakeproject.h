@@ -79,7 +79,14 @@ public:
 
     virtual bool isApplication() const;
 
-    virtual ProjectExplorer::Environment environment(const QString &buildConfiguration) const;
+    //building environment
+    ProjectExplorer::Environment environment(const QString &buildConfiguration) const;
+    ProjectExplorer::Environment baseEnvironment(const QString &buildConfiguration) const;
+    void setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff);
+    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges(const QString &buildConfig) const;
+    bool useSystemEnvironment(const QString &buildConfiguration) const;
+    void setUseSystemEnvironment(const QString &buildConfiguration, bool b);
+
     virtual QString buildDirectory(const QString &buildConfiguration) const;
 
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();

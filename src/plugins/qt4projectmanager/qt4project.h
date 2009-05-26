@@ -143,13 +143,10 @@ public:
     ProjectExplorer::Environment baseEnvironment(const QString &buildConfiguration) const;
     void setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff);
     QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges(const QString &buildConfig) const;
-
-    virtual QString buildDirectory(const QString &buildConfiguration) const;
-
-    //Qt4Project specific(?)
     bool useSystemEnvironment(const QString &buildConfiguration) const;
     void setUseSystemEnvironment(const QString &buildConfiguration, bool b);
 
+    virtual QString buildDirectory(const QString &buildConfiguration) const;
     // returns the CONFIG variable from the .pro file
     QStringList qmakeConfig() const;
     // returns the qtdir (depends on the current QtVersion)

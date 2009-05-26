@@ -77,7 +77,6 @@ FORMS = makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
     embeddedpropertiespage.ui \
-    qt4buildenvironmentwidget.ui \
     qtversionmanager.ui \
     showbuildlog.ui
 RESOURCES = qt4projectmanager.qrc \

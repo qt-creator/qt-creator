@@ -33,6 +33,7 @@
 #include "cmakerunconfiguration.h"
 #include "makestep.h"
 #include "cmakeopenprojectwizard.h"
+#include "cmakebuildenvironmentwidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -50,7 +51,8 @@
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
-
+using ProjectExplorer::Environment;
+using ProjectExplorer::EnvironmentItem;
 
 // QtCreator CMake Generator wishlist:
 // Which make targets we need to build to get all executables
@@ -60,7 +62,6 @@ using namespace CMakeProjectManager::Internal;
 
 // Open Questions
 // Who sets up the environment for cl.exe ? INCLUDEPATH and so on
-
 
 
 CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
@@ -436,11 +437,38 @@ bool CMakeProject::isApplication() const
     return true;
 }
 
+ProjectExplorer::Environment CMakeProject::baseEnvironment(const QString &buildConfiguration) const
+{
+    Environment env = useSystemEnvironment(buildConfiguration) ? Environment(QProcess::systemEnvironment()) : Environment();
+    return env;
+}
+
 ProjectExplorer::Environment CMakeProject::environment(const QString &buildConfiguration) const
 {
-    Q_UNUSED(buildConfiguration)
-    //TODO CMakeProject::Environment;
-    return ProjectExplorer::Environment::systemEnvironment();
+    Environment env = baseEnvironment(buildConfiguration);
+    env.modify(userEnvironmentChanges(buildConfiguration));
+    return env;
+}
+
+void CMakeProject::setUseSystemEnvironment(const QString &buildConfiguration, bool b)
+{
+    setValue(buildConfiguration, "clearSystemEnvironment", !b);
+}
+
+bool CMakeProject::useSystemEnvironment(const QString &buildConfiguration) const
+{
+    bool b = !(value(buildConfiguration, "clearSystemEnvironment").isValid() && value(buildConfiguration, "clearSystemEnvironment").toBool());
+    return b;
+}
+
+QList<ProjectExplorer::EnvironmentItem> CMakeProject::userEnvironmentChanges(const QString &buildConfig) const
+{
+    return EnvironmentItem::fromStringList(value(buildConfig, "userEnvironmentChanges").toStringList());
+}
+
+void CMakeProject::setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff)
+{
+    setValue(buildConfig, "userEnvironmentChanges", EnvironmentItem::toStringList(diff));
 }
 
 QString CMakeProject::buildDirectory(const QString &buildConfiguration) const
@@ -458,7 +486,9 @@ ProjectExplorer::BuildStepConfigWidget *CMakeProject::createConfigWidget()
 
 QList<ProjectExplorer::BuildStepConfigWidget*> CMakeProject::subConfigWidgets()
 {
-    return QList<ProjectExplorer::BuildStepConfigWidget*>();
+    QList<ProjectExplorer::BuildStepConfigWidget*> list;
+    list <<  new CMakeBuildEnvironmentWidget(this);
+    return list;
 }
 
 // This method is called for new build configurations

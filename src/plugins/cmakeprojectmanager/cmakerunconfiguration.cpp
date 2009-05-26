@@ -82,8 +82,7 @@ QStringList CMakeRunConfiguration::commandLineArguments() const
 
 ProjectExplorer::Environment CMakeRunConfiguration::environment() const
 {
-    // TODO have a way for the user to setup the environment
-    return ProjectExplorer::Environment::systemEnvironment();
+    return project()->environment(project()->activeBuildConfiguration());
 }
 
 QString CMakeRunConfiguration::title() const

@@ -698,6 +698,16 @@ Qt4ProFileNode *Qt4Project::rootProjectNode() const
     return m_rootProjectNode;
 }
 
+QString Qt4Project::buildDirectory(const QString &buildConfiguration) const
+{
+    QString workingDirectory;
+    if (value(buildConfiguration, "useShadowBuild").toBool())
+        workingDirectory = value(buildConfiguration, "buildDirectory").toString();
+    if (workingDirectory.isEmpty())
+        workingDirectory = QFileInfo(file()->fileName()).absolutePath();
+    return workingDirectory;
+}
+
 ProjectExplorer::Environment Qt4Project::baseEnvironment(const QString &buildConfiguration) const
 {
     Environment env = useSystemEnvironment(buildConfiguration) ? Environment(QProcess::systemEnvironment()) : Environment();
@@ -712,16 +722,6 @@ ProjectExplorer::Environment Qt4Project::environment(const QString &buildConfigu
     return env;
 }
 
-QString Qt4Project::buildDirectory(const QString &buildConfiguration) const
-{
-    QString workingDirectory;
-    if (value(buildConfiguration, "useShadowBuild").toBool())
-        workingDirectory = value(buildConfiguration, "buildDirectory").toString();
-    if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(file()->fileName()).absolutePath();
-    return workingDirectory;
-}
-
 void Qt4Project::setUseSystemEnvironment(const QString &buildConfiguration, bool b)
 {
     setValue(buildConfiguration, "clearSystemEnvironment", !b);
@@ -731,6 +731,16 @@ bool Qt4Project::useSystemEnvironment(const QString &buildConfiguration) const
 {
     bool b = !(value(buildConfiguration, "clearSystemEnvironment").isValid() && value(buildConfiguration, "clearSystemEnvironment").toBool());
     return b;
+}
+
+QList<ProjectExplorer::EnvironmentItem> Qt4Project::userEnvironmentChanges(const QString &buildConfig) const
+{
+    return EnvironmentItem::fromStringList(value(buildConfig, "userEnvironmentChanges").toStringList());
+}
+
+void Qt4Project::setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff)
+{
+    setValue(buildConfig, "userEnvironmentChanges", EnvironmentItem::toStringList(diff));
 }
 
 QString Qt4Project::qtDir(const QString &buildConfiguration) const
@@ -800,16 +810,6 @@ QList<BuildStepConfigWidget*> Qt4Project::subConfigWidgets()
     QList<BuildStepConfigWidget*> subWidgets;
     subWidgets << new Qt4BuildEnvironmentWidget(this);
     return subWidgets;
-}
-
-QList<ProjectExplorer::EnvironmentItem> Qt4Project::userEnvironmentChanges(const QString &buildConfig) const
-{
-    return EnvironmentItem::fromStringList(value(buildConfig, "userEnvironmentChanges").toStringList());
-}
-
-void Qt4Project::setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff)
-{
-    setValue(buildConfig, "userEnvironmentChanges", EnvironmentItem::toStringList(diff));
 }
 
 /// **************************

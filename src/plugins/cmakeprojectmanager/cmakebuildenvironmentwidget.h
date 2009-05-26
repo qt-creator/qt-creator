@@ -36,17 +36,16 @@ namespace ProjectExplorer {
 class EnvironmentWidget;
 }
 
-namespace Qt4ProjectManager {
-
-class Qt4Project;
-
+namespace CMakeProjectManager {
 namespace Internal {
-class Qt4BuildEnvironmentWidget : public ProjectExplorer::BuildStepConfigWidget
+class CMakeProject;
+
+class CMakeBuildEnvironmentWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 
 public:
-    Qt4BuildEnvironmentWidget(Qt4Project *project);
+    CMakeBuildEnvironmentWidget(CMakeProject *project);
 
     QString displayName() const;
     void init(const QString &buildConfiguration);
@@ -57,7 +56,7 @@ private slots:
 
 private:
     ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;
-    Qt4Project *m_pro;
+    CMakeProject *m_pro;
     QString m_buildConfiguration;
 };
 
