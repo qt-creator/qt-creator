@@ -118,12 +118,13 @@ enum DebuggerStatus
 
 enum DebuggerStartMode
 {
-    StartInternal,   // Start current start project's binary
-    StartExternal,   // Start binary found in file system
-    AttachExternal,  // Attach to running process
-    AttachTcf,       // Attach to a running Target Communication Framework agent
-    AttachCore,      // Attach to a core file
-    StartRemote      // Start and attach to a remote process
+    StartInternal,         // Start current start project's binary
+    StartExternal,         // Start binary found in file system
+    AttachExternal,        // Attach to running process by process id
+    AttachCrashedExternal, // Attach to crashed process by process id
+    AttachTcf,             // Attach to a running Target Communication Framework agent
+    AttachCore,            // Attach to a core file
+    StartRemote            // Start and attach to a remote process
 };
 
 struct DebuggerStartParameters {
@@ -138,6 +139,7 @@ struct DebuggerStartParameters {
     QString buildDir;
     qint64 attachPID;
     bool useTerminal;
+    QString crashParameter; // for AttachCrashedExternal
     // for remote debugging
     QString remoteChannel;
     QString remoteArchitecture;

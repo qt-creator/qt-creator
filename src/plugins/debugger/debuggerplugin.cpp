@@ -404,7 +404,7 @@ DebuggerPlugin::DebuggerPlugin()
     m_gdbRunningContext(0),
     m_cmdLineEnabledEngines(AllEngineTypes),
     m_cmdLineAttachPid(0),
-    m_cmdLineWinException(0),
+    m_cmdLineWinCrashEvent(0),
     m_toggleLockedAction(0)
 {}
 
@@ -465,15 +465,16 @@ bool DebuggerPlugin::parseArgument(QStringList::const_iterator &it,
         }
         return true;
     }
-    // -winexception <exception code>, passed in by Windows System
-    if (*it == QLatin1String("-winexception")) {
+    // -wincrashevent <event-handle>. A handle used for
+    // a handshake when attaching to a crashed Windows process.
+    if (*it == QLatin1String("-wincrashevent")) {
         ++it;
         if (it == cend) {
             *errorMessage = msgParameterMissing(*it);
             return false;
         }
         bool ok;
-        m_cmdLineWinException = it->toULong(&ok);
+        m_cmdLineWinCrashEvent = it->toULongLong(&ok);
         if (!ok) {
             *errorMessage = msgInvalidNumericParameter(option, *it);
             return false;
@@ -515,8 +516,12 @@ bool DebuggerPlugin::parseArguments(const QStringList &args, QString *errorMessa
 
 bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    if (!parseArguments(arguments, errorMessage))
-        return false;
+    // Do not fail the whole plugin if something goes wrong here
+    if (!parseArguments(arguments, errorMessage)) {
+        *errorMessage = tr("Error evaluating command line arguments: %1").arg(*errorMessage);
+        qWarning("%s\n", qPrintable(*errorMessage));
+        errorMessage->clear();
+    }
 
     m_manager = new DebuggerManager;
     const QList<Core::IOptionsPage *> engineOptionPages = m_manager->initializeEngines(m_cmdLineEnabledEngines);
@@ -915,11 +920,9 @@ void DebuggerPlugin::extensionsInitialized()
 
 void DebuggerPlugin::attachCmdLinePid()
 {
-    const QString msg = m_cmdLineWinException ?
-        tr("Attaching to PID %1 (exception code %2).").arg(m_cmdLineAttachPid).arg(m_cmdLineWinException) :
-        tr("Attaching to PID %1.").arg(m_cmdLineAttachPid);
-    m_manager->showStatusMessage(msg);
-    attachExternalApplication(m_cmdLineAttachPid);
+    m_manager->showStatusMessage(tr("Attaching to PID %1.").arg(m_cmdLineAttachPid));
+    const QString crashParameter = m_cmdLineWinCrashEvent ? QString::number(m_cmdLineWinCrashEvent) : QString();
+    attachExternalApplication(m_cmdLineAttachPid, crashParameter);
 }
 
 /*! Activates the previous mode when the current mode is the debug mode. */
@@ -1215,7 +1218,7 @@ void DebuggerPlugin::attachExternalApplication()
         attachExternalApplication(dlg.attachPID());
 }
 
-void DebuggerPlugin::attachExternalApplication(qint64 pid)
+void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashParameter)
 {
     if (pid == 0) {
         QMessageBox::warning(m_manager->mainWindow(), tr("Warning"), tr("Cannot attach to PID 0"));
@@ -1223,9 +1226,11 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid)
     }
     const QSharedPointer<DebuggerStartParameters> sp(new DebuggerStartParameters);
     sp->attachPID = pid;
+    sp->crashParameter = crashParameter;
+    const DebuggerStartMode dsm = crashParameter.isEmpty() ?  AttachExternal : AttachCrashedExternal;
     QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, AttachExternal))
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, dsm))
         runControl->start();
 }
 

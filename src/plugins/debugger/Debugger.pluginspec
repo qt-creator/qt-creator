@@ -30,6 +30,6 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
         <argument name="-disable-sdb">Disable Qt Script debugger engine</argument>
         <argument name="-disable-tcf">Disable Tcf debugger engine</argument>
         <argument name="-debug" parameter="process-id">Attach to Process-Id</argument>
-        <argument name="-winexception" parameter="exception-code">Exception code</argument>
+        <argument name="-wincrashevent" parameter="event-handle">Event handle used for attaching to crashed processes</argument>
     </argumentList>
 </plugin>

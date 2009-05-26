@@ -61,7 +61,7 @@ public:
 
     virtual void shutdown();
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
-    virtual bool startDebugger();
+    virtual bool startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters);
     virtual void exitDebugger();
     virtual void detachDebugger();
     virtual void updateWatchModel();
@@ -107,10 +107,11 @@ private slots:
     void slotConsoleStubStarted();
     void slotConsoleStubError(const QString &msg);
     void slotConsoleStubTerminated();    
+    void slotAttachedCrashed();
     void warning(const QString &w);
 
 private:
-    bool startAttachDebugger(qint64 pid, QString *errorMessage);
+    bool startAttachDebugger(qint64 pid, DebuggerStartMode sm, QString *errorMessage);
     bool startDebuggerWithExecutable(DebuggerStartMode sm, QString *errorMessage);
     void startWatchTimer();
     void killWatchTimer();

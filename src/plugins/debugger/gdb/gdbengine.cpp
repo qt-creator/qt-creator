@@ -1327,7 +1327,7 @@ void GdbEngine::exitDebugger()
                 qDebug() << "STATUS ON EXITDEBUGGER:" << q->status());
             interruptInferior();
         }
-        if (q->startMode() == AttachExternal)
+        if (q->startMode() == AttachExternal || q->startMode() == AttachCrashedExternal)
             postCommand(_("detach"));
         else
             postCommand(_("kill"));
@@ -1355,7 +1355,7 @@ int GdbEngine::currentFrame() const
     return qq->stackHandler()->currentIndex();
 }
 
-bool GdbEngine::startDebugger()
+bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
     debugMessage(DebuggerSettings::instance()->dump());
     QStringList gdbArgs;
@@ -1369,9 +1369,7 @@ bool GdbEngine::startDebugger()
     gdbArgs.prepend(_("mi"));
     gdbArgs.prepend(_("-i"));
 
-    const QSharedPointer<DebuggerStartParameters> sp = q->startParameters();
-
-    if (q->startMode() == AttachCore || q->startMode() == AttachExternal) {
+    if (q->startMode() == AttachCore || q->startMode() == AttachExternal || q->startMode() == AttachCrashedExternal) {
         // nothing to do
     } else if (q->startMode() == StartRemote) {
         // Start the remote server
@@ -1510,7 +1508,7 @@ bool GdbEngine::startDebugger()
         }
     }
 
-    if (q->startMode() == AttachExternal) {
+    if (q->startMode() == AttachExternal || q->startMode() == AttachCrashedExternal) {
         postCommand(_("attach %1").arg(sp->attachPID), CB(handleAttach));
         qq->breakHandler()->removeAllBreakpoints();
     } else if (q->startMode() == AttachCore) {

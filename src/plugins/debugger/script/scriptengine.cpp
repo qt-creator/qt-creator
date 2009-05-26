@@ -219,12 +219,12 @@ void ScriptEngine::exitDebugger()
     qq->notifyInferiorExited();
 }
 
-bool ScriptEngine::startDebugger()
+bool ScriptEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
     m_stopped = false;
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
-    const QSharedPointer<DebuggerStartParameters> sp = q->startParameters();
+
     QFileInfo fi(sp->executable);
     m_scriptFileName = fi.absoluteFilePath();
     QFile scriptFile(m_scriptFileName);

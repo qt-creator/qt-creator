@@ -221,10 +221,9 @@ void TcfEngine::exitDebugger()
     qq->notifyInferiorExited();
 }
 
-bool TcfEngine::startDebugger()
+bool TcfEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
     qq->notifyInferiorRunningRequested();
-    const QSharedPointer<DebuggerStartParameters> sp = qq->startParameters();
     const int pos = sp->remoteChannel.indexOf(QLatin1Char(':'));
     const QString host = sp->remoteChannel.left(pos);
     const quint16 port = sp->remoteChannel.mid(pos + 1).toInt();

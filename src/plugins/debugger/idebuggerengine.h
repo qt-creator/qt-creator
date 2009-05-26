@@ -32,6 +32,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QPoint;
@@ -46,6 +47,7 @@ namespace Debugger {
 namespace Internal {
 
 class Symbol;
+struct DebuggerStartParameters;
 
 class IDebuggerEngine : public QObject
 {
@@ -54,7 +56,7 @@ public:
 
     virtual void shutdown() = 0;
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos) = 0;
-    virtual bool startDebugger() = 0;
+    virtual bool startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters) = 0;
     virtual void exitDebugger() = 0;
     virtual void detachDebugger() {}
     virtual void updateWatchModel() = 0;

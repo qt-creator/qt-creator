@@ -526,15 +526,16 @@ void CdbDebugEnginePrivate::clearDisplay()
     m_debuggerManagerAccess->registerHandler()->removeAll();
 }
 
-bool CdbDebugEngine::startDebugger()
+bool CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
     m_d->clearDisplay();
 
     const DebuggerStartMode mode = m_d->m_debuggerManager->startMode();
-    const QSharedPointer<DebuggerStartParameters> sp = m_d->m_debuggerManager->startParameters();
     // Figure out dumper. @TODO: same in gdb...
     const QString dumperLibName = QDir::toNativeSeparators(m_d->m_debuggerManagerAccess->qtDumperLibraryName());
-    bool dumperEnabled = mode != AttachCore && !dumperLibName.isEmpty()
+    bool dumperEnabled = mode != AttachCore
+                         && mode != AttachCrashedExternal
+                         && !dumperLibName.isEmpty()
                          && m_d->m_debuggerManagerAccess->qtDumperLibraryEnabled();
     if (dumperEnabled) {
         const QFileInfo fi(dumperLibName);
@@ -552,8 +553,9 @@ bool CdbDebugEngine::startDebugger()
     m_d->clearForRun();
     switch (mode) {
     case AttachExternal:
-        rc = startAttachDebugger(sp->attachPID, &errorMessage);
-        needWatchTimer = true;
+    case AttachCrashedExternal:
+        rc = startAttachDebugger(sp->attachPID, mode, &errorMessage);
+        needWatchTimer = true; // Fetch away module load, etc. even if crashed
         break;
     case StartInternal:
     case StartExternal:
@@ -585,7 +587,7 @@ bool CdbDebugEngine::startDebugger()
     return rc;
 }
 
-bool CdbDebugEngine::startAttachDebugger(qint64 pid, QString *errorMessage)
+bool CdbDebugEngine::startAttachDebugger(qint64 pid, DebuggerStartMode sm, QString *errorMessage)
 {
     // Need to attrach invasively, otherwise, no notification signals
     // for for CreateProcess/ExitProcess occur.
@@ -597,7 +599,7 @@ bool CdbDebugEngine::startAttachDebugger(qint64 pid, QString *errorMessage)
         *errorMessage = tr("Attaching to a process failed for process id %1: %2").arg(pid).arg(msgDebugEngineComResult(hr));
         return false;
     } else {
-        m_d->m_mode = AttachExternal;
+        m_d->m_mode = sm;
     }
     return true;
 }
@@ -679,6 +681,17 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
     m_engine->executeDebuggerCommand(QLatin1String("bc"));
     if (m_debuggerManagerAccess->breakHandler()->hasPendingBreakpoints())
         m_engine->attemptBreakpointSynchronization();
+    // Attaching to crashed: This handshake (signalling an event) is required for
+    // the exception to be delivered to the debugger
+    if (m_mode == AttachCrashedExternal) {
+        const QString crashParameter = m_debuggerManager->startParameters()->crashParameter;
+        if (!crashParameter.isEmpty()) {
+            ULONG64 evtNr = crashParameter.toULongLong();
+            const HRESULT hr = m_cif.debugControl->SetNotifyEventHandle(evtNr);
+            if (FAILED(hr))
+                m_engine->warning(QString::fromLatin1("Handshake failed on event #%1: %2").arg(evtNr).arg(msgComFailed("SetNotifyEventHandle", hr)));
+        }
+    }
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << '\n' << executionStatusString(m_cif.debugControl);
 }
@@ -707,7 +720,8 @@ void CdbDebugEnginePrivate::endDebugging(EndDebuggingMode em)
     Action action;
     switch (em) {
     case EndDebuggingAuto:
-        action = m_mode == AttachExternal ? Detach : Terminate;
+        action = (m_mode == AttachExternal || m_mode == AttachCrashedExternal) ?
+                 Detach : Terminate;
         break;
     case EndDebuggingDetach:
         action = Detach;
@@ -1417,7 +1431,7 @@ void CdbDebugEngine::slotConsoleStubStarted()
         qDebug() << Q_FUNC_INFO << appPid;
     // Attach to console process
     QString errorMessage;
-    if (startAttachDebugger(appPid, &errorMessage)) {
+    if (startAttachDebugger(appPid, AttachExternal, &errorMessage)) {
         startWatchTimer();
         m_d->m_debuggerManagerAccess->notifyInferiorPidChanged(appPid);
         m_d->m_debuggerManagerAccess->notifyInferiorRunning();
@@ -1434,6 +1448,12 @@ void CdbDebugEngine::slotConsoleStubError(const QString &msg)
 void CdbDebugEngine::slotConsoleStubTerminated()
 {
     exitDebugger();
+}
+
+void CdbDebugEngine::slotAttachedCrashed()
+{
+ m_d->m_debuggerManagerAccess->showDebuggerOutput("A","A");
+    m_d->handleDebugEvent();
 }
 
 void CdbDebugEngine::warning(const QString &w)

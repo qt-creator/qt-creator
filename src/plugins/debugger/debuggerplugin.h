@@ -115,7 +115,7 @@ private:
     inline bool parseArgument(QStringList::const_iterator &it,
                               const QStringList::const_iterator& end,
                               QString *errorMessage);
-    void attachExternalApplication(qint64 pid);
+    void attachExternalApplication(qint64 pid, const QString &crashParameter = QString());
 
     friend class DebuggerManager;
     friend class GdbOptionPage;
@@ -131,8 +131,8 @@ private:
     int m_gdbRunningContext;
     unsigned m_cmdLineEnabledEngines;
     quint64 m_cmdLineAttachPid;
-    // Exception that crashed an app passed on by Windows
-    unsigned long m_cmdLineWinException;
+    // Event handle for attaching to crashed Windows processes.
+    quint64 m_cmdLineWinCrashEvent;
     QAction *m_toggleLockedAction;
 
     QAction *m_startExternalAction;

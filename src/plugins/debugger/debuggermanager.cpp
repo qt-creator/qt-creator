@@ -192,6 +192,7 @@ void DebuggerStartParameters::clear()
     buildDir.clear();
     attachPID = -1;
     useTerminal = false;
+    crashParameter.clear();
     remoteChannel.clear();
     remoteArchitecture.clear();
     serverStartScript.clear();
@@ -892,6 +893,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl, const QSh
     QString settingsIdHint;
     switch (startMode()) {
     case AttachExternal:
+    case AttachCrashedExternal:
         m_engine = determineDebuggerEngine(m_startParameters->attachPID, &errorMessage);
         break;
     case AttachTcf:
@@ -919,7 +921,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl, const QSh
 
     setBusyCursor(false);
     setStatus(DebuggerProcessStartingUp);
-    if (!m_engine->startDebugger()) {
+    if (!m_engine->startDebugger(m_startParameters)) {
         setStatus(DebuggerProcessNotReady);
         debuggingFinished();
         return;
