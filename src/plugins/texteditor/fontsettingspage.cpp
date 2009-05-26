@@ -320,6 +320,7 @@ void FontSettingsPage::changeBackColor()
     if (!newColor.isValid())
         return;
     d_ptr->ui.backgroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+    d_ptr->ui.eraseBackgroundToolButton->setEnabled(true);
 
     const int numFormats = d_ptr->m_descriptions.size();
     for (int i = 0; i < numFormats; i++) {
@@ -344,6 +345,7 @@ void FontSettingsPage::eraseBackColor()
         if (!items.isEmpty() && items.first()->isSelected())
             d_ptr->m_value.formatFor(d_ptr->m_descriptions[i].name()).setBackground(newColor);
     }
+    d_ptr->ui.eraseBackgroundToolButton->setEnabled(false);
 
     updatePreview();
 }
