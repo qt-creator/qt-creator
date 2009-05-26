@@ -140,7 +140,7 @@ private:
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanChangeTmpFile();
 
-    const QString m_svnDotDirectory;
+    const QStringList m_svnDirectories;
 
     SubversionSettings m_settings;
     Core::IVersionControl *m_versionControl;

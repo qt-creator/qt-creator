@@ -164,11 +164,22 @@ StatusList parseStatusOutput(const QString &output)
     return changeSet;
 }
 
+// Return a list of names for the internal svn directories
+static inline QStringList svnDirectories()
+{
+    QStringList rc(QLatin1String(".svn"));
+#ifdef Q_OS_WIN
+    // Option on Windows systems to avoid hassle with some IDEs
+    rc.push_back(QLatin1String("_svn"));
+#endif
+    return rc;
+}
+
 // ------------- SubversionPlugin
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 
 SubversionPlugin::SubversionPlugin() :
-    m_svnDotDirectory(QLatin1String(".svn")),
+    m_svnDirectories(svnDirectories()),
     m_versionControl(0),
     m_coreListener(0),
     m_settingsPage(0),
@@ -1100,8 +1111,13 @@ bool SubversionPlugin::managesDirectory(const QString &directory) const
 
 bool SubversionPlugin::managesDirectory(const QDir &directory) const
 {
-    const QString svnDir = directory.absoluteFilePath(m_svnDotDirectory);
-    return QFileInfo(svnDir).isDir();
+    const int dirCount = m_svnDirectories.size();
+    for (int i = 0; i < dirCount; i++) {
+        const QString svnDir = directory.absoluteFilePath(m_svnDirectories.at(i));
+        if (QFileInfo(svnDir).isDir())
+            return true;
+    }
+    return false;
 }
 
 QString SubversionPlugin::findTopLevelForDirectory(const QString &directory) const
