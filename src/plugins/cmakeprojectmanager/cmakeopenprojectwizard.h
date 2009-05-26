@@ -30,6 +30,8 @@
 #ifndef CMAKEOPENPROJECTWIZARD_H
 #define CMAKEOPENPROJECTWIZARD_H
 
+#include <projectexplorer/environment.h>
+
 #include <QtCore/QProcess>
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
@@ -66,11 +68,11 @@ public:
     };
 
     // used at importing a project without a .user file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const ProjectExplorer::Environment &env);
     // used to update if we have already a .user file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &buildDirectory, Mode mode);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &buildDirectory, Mode mode, const ProjectExplorer::Environment &env);
     // used to change the build directory of one buildconfiguration
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory, const ProjectExplorer::Environment &env);
 
     virtual int nextId() const;
     QString buildDirectory() const;
@@ -79,6 +81,7 @@ public:
     CMakeManager *cmakeManager() const;
     QStringList arguments() const;
     void setArguments(const QStringList &args);
+    ProjectExplorer::Environment environment() const;
 private:
     bool existsUpToDateXmlFile() const;
     bool hasInSourceBuild() const;
@@ -87,6 +90,7 @@ private:
     QString m_sourceDirectory;
     QStringList m_arguments;
     bool m_creatingCbpFiles;
+    ProjectExplorer::Environment m_environment;
 };
 
 class InSourceBuildPage : public QWizardPage

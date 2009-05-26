@@ -96,7 +96,7 @@ QString CMakeManager::cmakeExecutable() const
 // we probably want the process instead of this function
 // cmakeproject then could even run the cmake process in the background, adding the files afterwards
 // sounds like a plan
-QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory)
+QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory, const ProjectExplorer::Environment &env)
 {
     // We create a cbp file, only if we didn't find a cbp file in the base directory
     // Yet that can still override cbp files in subdirectories
@@ -113,6 +113,7 @@ QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QStrin
     QProcess *cmake = new QProcess;
     cmake->setWorkingDirectory(buildDirectoryPath);
     cmake->setProcessChannelMode(QProcess::MergedChannels);
+    cmake->setEnvironment(env.toStringList());
 
 #ifdef Q_OS_WIN
     const QString generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");

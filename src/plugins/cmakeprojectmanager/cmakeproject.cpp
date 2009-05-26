@@ -104,7 +104,11 @@ void CMakeProject::slotActiveBuildConfiguration()
         mode = CMakeOpenProjectWizard::Nothing;
 
     if (mode != CMakeOpenProjectWizard::Nothing) {
-        CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), buildDirectory(activeBuildConfiguration()), mode);
+        CMakeOpenProjectWizard copw(m_manager,
+                                    sourceFileInfo.absolutePath(),
+                                    buildDirectory(activeBuildConfiguration()),
+                                    mode,
+                                    environment(activeBuildConfiguration()));
         copw.exec();
     }
     // reparse
@@ -501,7 +505,7 @@ QList<ProjectExplorer::BuildStepConfigWidget*> CMakeProject::subConfigWidgets()
      // Default to all
      makeStep()->setBuildTarget(buildConfiguration, "all", true);
 
-    CMakeOpenProjectWizard copw(projectManager(), sourceDirectory(), buildDirectory(buildConfiguration));
+    CMakeOpenProjectWizard copw(projectManager(), sourceDirectory(), buildDirectory(buildConfiguration), environment(buildConfiguration));
     if (copw.exec() == QDialog::Accepted) {
         setValue(buildConfiguration, "buildDirectory", copw.buildDirectory());
         parseCMakeLists();
@@ -544,7 +548,7 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         // Ask the user for where he wants to build it
         // and the cmake command line
 
-        CMakeOpenProjectWizard copw(m_manager, sourceDirectory());
+        CMakeOpenProjectWizard copw(m_manager, sourceDirectory(), ProjectExplorer::Environment::systemEnvironment());
         copw.exec();
         // TODO handle cancel....
 
@@ -581,7 +585,11 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
             mode = CMakeOpenProjectWizard::NeedToUpdate;
 
         if (mode != CMakeOpenProjectWizard::Nothing) {
-            CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), buildDirectory(activeBuildConfiguration()), mode);
+            CMakeOpenProjectWizard copw(m_manager,
+                                        sourceFileInfo.absolutePath(),
+                                        buildDirectory(activeBuildConfiguration()),
+                                        mode,
+                                        environment(activeBuildConfiguration()));
             copw.exec();
         }
     }
@@ -692,7 +700,10 @@ void CMakeBuildSettingsWidget::init(const QString &buildConfiguration)
 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
-    CMakeOpenProjectWizard copw(m_project->projectManager(), m_project->sourceDirectory(), m_project->buildDirectory(m_buildConfiguration));
+    CMakeOpenProjectWizard copw(m_project->projectManager(),
+                                m_project->sourceDirectory(),
+                                m_project->buildDirectory(m_buildConfiguration),
+                                m_project->environment(m_buildConfiguration));
     if (copw.exec() == QDialog::Accepted) {
         m_project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
         m_pathLineEdit->setText(m_project->buildDirectory(m_buildConfiguration));

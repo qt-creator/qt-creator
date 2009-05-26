@@ -55,10 +55,11 @@ using namespace CMakeProjectManager::Internal;
 //                                   |--> Already existing cbp file (and new enough) --> Page: Ready to load the project
 //                                   |--> Page: Ask for cmd options, run generator
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory)
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const ProjectExplorer::Environment &env)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
-      m_creatingCbpFiles(false)
+      m_creatingCbpFiles(false),
+      m_environment(env)
 {
     int startid;
     if (hasInSourceBuild()) {
@@ -80,10 +81,12 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 }
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
-                                               const QString &buildDirectory, CMakeOpenProjectWizard::Mode mode)
+                                               const QString &buildDirectory, CMakeOpenProjectWizard::Mode mode,
+                                               const ProjectExplorer::Environment &env)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
-      m_creatingCbpFiles(true)
+      m_creatingCbpFiles(true),
+      m_environment(env)
 {
     if (mode == CMakeOpenProjectWizard::NeedToCreate)
         addPage(new CMakeRunPage(this, CMakeRunPage::Recreate, buildDirectory));
@@ -94,10 +97,12 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 }
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
-                                               const QString &oldBuildDirectory)
+                                               const QString &oldBuildDirectory,
+                                               const ProjectExplorer::Environment &env)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
-      m_creatingCbpFiles(true)
+      m_creatingCbpFiles(true),
+      m_environment(env)
 {
     m_buildDirectory = oldBuildDirectory;
     addPage(new ShadowBuildPage(this, true));
@@ -175,6 +180,11 @@ QStringList CMakeOpenProjectWizard::arguments() const
 void CMakeOpenProjectWizard::setArguments(const QStringList &args)
 {
     m_arguments = args;
+}
+
+ProjectExplorer::Environment CMakeOpenProjectWizard::environment() const
+{
+    return m_environment;
 }
 
 
@@ -304,7 +314,7 @@ void CMakeRunPage::runCMake()
     m_argumentsLineEdit->setEnabled(false);
     QStringList arguments = ProjectExplorer::Environment::parseCombinedArgString(m_argumentsLineEdit->text());
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
-    m_cmakeProcess = cmakeManager->createXmlFile(arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory);
+    m_cmakeProcess = cmakeManager->createXmlFile(arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory, m_cmakeWizard->environment());
     connect(m_cmakeProcess, SIGNAL(readyRead()), this, SLOT(cmakeReadyRead()));
     connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
 }

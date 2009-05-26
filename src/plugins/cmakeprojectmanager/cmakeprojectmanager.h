@@ -59,7 +59,10 @@ public:
     virtual QString mimeType() const;
     QString cmakeExecutable() const;
 
-    QProcess* createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory);
+    QProcess* createXmlFile(const QStringList &arguments,
+                            const QString &sourceDirectory,
+                            const QDir &buildDirectory,
+                            const ProjectExplorer::Environment &env);
     static QString findCbpFile(const QDir &);
 
     static QString findDumperLibrary(const ProjectExplorer::Environment &env);
