@@ -225,7 +225,6 @@ void CppPlugin::writeSettings()
 
 void CppPlugin::extensionsInitialized()
 {
-    m_actionHandler->initializeActions();
 }
 
 void CppPlugin::shutdown()

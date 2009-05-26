@@ -131,7 +131,6 @@ bool DuiEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
 void DuiEditorPlugin::extensionsInitialized()
 {
-    m_actionHandler->initializeActions();
 }
 
 void DuiEditorPlugin::initializeEditor(DuiEditor::Internal::ScriptEditor *editor)

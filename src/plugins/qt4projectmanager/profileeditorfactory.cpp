@@ -85,8 +85,3 @@ QStringList ProFileEditorFactory::mimeTypes() const
 {
     return m_mimeTypes;
 }
-
-void ProFileEditorFactory::initializeActions()
-{
-    m_actionHandler->initializeActions();
-}

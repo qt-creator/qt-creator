@@ -63,8 +63,6 @@ public:
 
     inline Qt4Manager *qt4ProjectManager() const { return m_manager; }
 
-    void initializeActions();
-
 private:
     const QString m_kind;
     const QStringList m_mimeTypes;
