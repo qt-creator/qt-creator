@@ -124,11 +124,11 @@ private slots:
     }
     void b_string_l1string() {
         QBENCHMARK { r = string % l1string; }
-        COMPARE(r, string + l1literal);
+        COMPARE(r, string + l1string);
     }
     void s_string_l1literal() {
-        QBENCHMARK { r = string + l1literal; }
-        COMPARE(r, QString(string % l1string));
+        QBENCHMARK { r = string + l1string; }
+        COMPARE(r, QString(string % l1literal));
     }
     void s_string_l1string() {
         QBENCHMARK { r = string + l1string; }
