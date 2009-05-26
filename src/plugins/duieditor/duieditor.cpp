@@ -621,7 +621,8 @@ void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedCha
         QTextCursor tc = textCursor();
         if (TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tc)) {
             const QString text = tc.block().text();
-            ts.indentLine(block, ts.lineIndentPosition(text));
+            int indent = ts.columnAt(text, ts.firstNonSpace(text));
+            ts.indentLine(block, indent);
             return;
         }
     }
@@ -642,7 +643,7 @@ void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedCha
         const QString text = it.text();
 
         if (! text.isEmpty()) {
-            indent = ts.lineIndentPosition(text);
+            indent = ts.columnAt(text, ts.firstNonSpace(text));
             break;
         }
     }
