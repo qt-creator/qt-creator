@@ -33,8 +33,8 @@
 #include <QtCore/QMap>
 #include <QtCore/QString>
 
-#include "parser/javascriptengine_p.h"
-#include "parser/javascriptastfwd_p.h"
+#include "javascriptengine_p.h"
+#include "javascriptastfwd_p.h"
 
 namespace DuiEditor {
 namespace Internal {
@@ -42,36 +42,36 @@ namespace Internal {
 class DuiDocument
 {
 public:
-    typedef QSharedPointer<DuiDocument> Ptr;
+	typedef QSharedPointer<DuiDocument> Ptr;
 
 protected:
-    DuiDocument(const QString &fileName);
+	DuiDocument(const QString &fileName);
 
 public:
-    ~DuiDocument();
+	~DuiDocument();
 
-    static DuiDocument::Ptr create(const QString &fileName);
+	static DuiDocument::Ptr create(const QString &fileName);
 
-    JavaScript::AST::UiProgram *program() const;
-    QList<JavaScript::DiagnosticMessage> diagnosticMessages() const;
+	JavaScript::AST::UiProgram *program() const;
+	QList<JavaScript::DiagnosticMessage> diagnosticMessages() const;
 
-    void setSource(const QString &source);
-    bool parse();
+	void setSource(const QString &source);
+	bool parse();
 
 private:
-    JavaScript::Engine *_engine;
-    JavaScript::NodePool *_pool;
-    JavaScript::AST::UiProgram *_program;
-    QList<JavaScript::DiagnosticMessage> _diagnosticMessages;
-    QString _fileName;
-    QString _source;
+	JavaScript::Engine *_engine;
+	JavaScript::NodePool *_pool;
+	JavaScript::AST::UiProgram *_program;
+	QList<JavaScript::DiagnosticMessage> _diagnosticMessages;
+	QString _fileName;
+	QString _source;
 };
 
 class Snapshot: public QMap<QString, DuiDocument>
 {
 public:
-    Snapshot();
-    ~Snapshot();
+	Snapshot();
+	~Snapshot();
 };
 
 } // end of namespace Internal

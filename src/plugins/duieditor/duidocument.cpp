@@ -28,66 +28,66 @@
 **************************************************************************/
 
 #include "duidocument.h"
-#include "parser/javascriptast_p.h"
-#include "parser/javascriptlexer_p.h"
-#include "parser/javascriptparser_p.h"
-#include "parser/javascriptengine_p.h"
-#include "parser/javascriptnodepool_p.h"
+#include "javascriptast_p.h"
+#include "javascriptlexer_p.h"
+#include "javascriptparser_p.h"
+#include "javascriptengine_p.h"
+#include "javascriptnodepool_p.h"
 
 using namespace DuiEditor;
 using namespace DuiEditor::Internal;
 using namespace JavaScript;
 
 DuiDocument::DuiDocument(const QString &fileName)
-    : _engine(0), _pool(0), _program(0), _fileName(fileName)
+	: _engine(0), _pool(0), _program(0), _fileName(fileName)
 {
 }
 
 DuiDocument::~DuiDocument()
 {
-    delete _engine;
-    delete _pool;
+	delete _engine;
+	delete _pool;
 }
 
 DuiDocument::Ptr DuiDocument::create(const QString &fileName)
 {
-    DuiDocument::Ptr doc(new DuiDocument(fileName));
-    return doc;
+	DuiDocument::Ptr doc(new DuiDocument(fileName));
+	return doc;
 }
 
 AST::UiProgram *DuiDocument::program() const
 {
-    return _program;
+	return _program;
 }
 
 QList<DiagnosticMessage> DuiDocument::diagnosticMessages() const
 {
-    return _diagnosticMessages;
+	return _diagnosticMessages;
 }
 
 void DuiDocument::setSource(const QString &source)
 {
-    _source = source;
+	_source = source;
 }
 
 bool DuiDocument::parse()
 {
-    Q_ASSERT(! _engine);
-    Q_ASSERT(! _pool);
-    Q_ASSERT(! _program);
+	Q_ASSERT(! _engine);
+	Q_ASSERT(! _pool);
+	Q_ASSERT(! _program);
 
-    _engine = new Engine();
-    _pool = new NodePool(_fileName, _engine);
+	_engine = new Engine();
+	_pool = new NodePool(_fileName, _engine);
 
-    Lexer lexer(_engine);
-    Parser parser(_engine);
+	Lexer lexer(_engine);
+	Parser parser(_engine);
 
-    lexer.setCode(_source, /*line = */ 1);
+	lexer.setCode(_source, /*line = */ 1);
 
-    bool parsed = parser.parse();
-    _program = parser.ast();
-    _diagnosticMessages = parser.diagnosticMessages();
-    return parsed;
+	bool parsed = parser.parse();
+	_program = parser.ast();
+	_diagnosticMessages = parser.diagnosticMessages();
+	return parsed;
 }
 
 Snapshot::Snapshot()

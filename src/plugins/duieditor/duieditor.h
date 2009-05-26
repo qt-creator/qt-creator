@@ -32,9 +32,8 @@
 
 #include <texteditor/basetexteditor.h>
 
-#include "parser/javascriptastfwd_p.h"
-#include "parser/javascriptengine_p.h"
-
+#include "javascriptastfwd_p.h"
+#include "javascriptengine_p.h"
 #include "duidocument.h"
 
 QT_BEGIN_NAMESPACE
@@ -43,7 +42,7 @@ class QTimer;
 QT_END_NAMESPACE
 
 namespace Core {
-    class ICore;
+	class ICore;
 }
 
 namespace DuiEditor {
@@ -55,92 +54,92 @@ class ScriptEditor;
 
 class ScriptEditorEditable : public TextEditor::BaseTextEditorEditable
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    ScriptEditorEditable(ScriptEditor *, const QList<int> &);
-    QList<int> context() const;
+	ScriptEditorEditable(ScriptEditor *, const QList<int> &);
+	QList<int> context() const;
 
-    bool duplicateSupported() const { return true; }
-    Core::IEditor *duplicate(QWidget *parent);
-    const char *kind() const;
-    bool temporaryEditor() const { return false; }
+	bool duplicateSupported() const { return true; }
+	Core::IEditor *duplicate(QWidget *parent);
+	const char *kind() const;
+	bool temporaryEditor() const { return false; }
 
 private:
-    QList<int> m_context;
+	QList<int> m_context;
 };
 
 
 struct Declaration
 {
-    QString text;
-    int startLine;
-    int startColumn;
-    int endLine;
-    int endColumn;
+	QString text;
+	int startLine;
+	int startColumn;
+	int endLine;
+	int endColumn;
 
-    Declaration()
-        : startLine(0),
-          startColumn(0),
-          endLine(0),
-          endColumn(0)
-    { }
+	Declaration()
+		: startLine(0),
+		  startColumn(0),
+		  endLine(0),
+		  endColumn(0)
+	{ }
 };
 
 class ScriptEditor : public TextEditor::BaseTextEditor
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    typedef QList<int> Context;
+	typedef QList<int> Context;
 
-    ScriptEditor(const Context &context,
-                 QWidget *parent = 0);
-    ~ScriptEditor();
+	ScriptEditor(const Context &context,
+				 QWidget *parent = 0);
+	~ScriptEditor();
 
-    QList<Declaration> declarations() const;
-    QStringList words() const;
-    QStringList keywords() const;
+	QList<Declaration> declarations() const;
+	QStringList words() const;
+	QStringList keywords() const;
 
-    QList<JavaScript::DiagnosticMessage> diagnosticMessages() const
-    { return m_diagnosticMessages; }
+	QList<JavaScript::DiagnosticMessage> diagnosticMessages() const
+	{ return m_diagnosticMessages; }
 
-    virtual void unCommentSelection();
+	virtual void unCommentSelection();
 
 public slots:
-    virtual void setFontSettings(const TextEditor::FontSettings &);
+	virtual void setFontSettings(const TextEditor::FontSettings &);
 
 private slots:
-    void updateDocument();
-    void updateDocumentNow();
-    void jumpToMethod(int index);
-    void updateMethodBoxIndex();
-    void updateMethodBoxToolTip();
-    void updateFileName();
+	void updateDocument();
+	void updateDocumentNow();
+	void jumpToMethod(int index);
+	void updateMethodBoxIndex();
+	void updateMethodBoxToolTip();
+	void updateFileName();
 
-    // refactoring ops
-    void renameIdUnderCursor();
+	// refactoring ops
+	void renameIdUnderCursor();
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *e);
-    TextEditor::BaseTextEditorEditable *createEditableInterface();
-    void createToolBar(ScriptEditorEditable *editable);
+	void contextMenuEvent(QContextMenuEvent *e);
+	TextEditor::BaseTextEditorEditable *createEditableInterface();
+	void createToolBar(ScriptEditorEditable *editable);
 
 private:
-    virtual bool isElectricCharacter(const QChar &ch) const;
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
+	virtual bool isElectricCharacter(const QChar &ch) const;
+	virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 
-    QString wordUnderCursor() const;
+	QString wordUnderCursor() const;
 
-    const Context m_context;
+	const Context m_context;
 
-    QTimer *m_updateDocumentTimer;
-    QComboBox *m_methodCombo;
-    QList<Declaration> m_declarations;
-    QStringList m_words;
-    QMap<QString, QList<JavaScript::AST::SourceLocation> > m_ids; // ### use QMultiMap
-    QList<JavaScript::DiagnosticMessage> m_diagnosticMessages;
-    DuiDocument::Ptr m_document;
+	QTimer *m_updateDocumentTimer;
+	QComboBox *m_methodCombo;
+	QList<Declaration> m_declarations;
+	QStringList m_words;
+	QMap<QString, QList<JavaScript::AST::SourceLocation> > m_ids; // ### use QMultiMap
+	QList<JavaScript::DiagnosticMessage> m_diagnosticMessages;
+	DuiDocument::Ptr m_document;
 };
 
 } // namespace Internal

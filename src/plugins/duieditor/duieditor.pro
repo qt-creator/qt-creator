@@ -1,6 +1,5 @@
 TEMPLATE = lib
 TARGET = DuiEditor
-QT += script
 
 include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
@@ -12,13 +11,11 @@ DUI=$$(QTDIR_DUI)
 isEmpty(DUI):DUI=$$fromfile($$(QTDIR)/.qmake.cache,QT_SOURCE_TREE)
 
 !isEmpty(DUI):exists($$DUI/src/declarative/qml/parser) {
-    include($$DUI/src/declarative/qml/parser/parser.pri)
-    INCLUDEPATH += $$DUI/src/declarative/qml
+	include($$DUI/src/declarative/qml/parser/parser.pri)
+	include($$DUI/src/declarative/qml/rewriter/rewriter.pri)
 } else {
-    error(run with export QTDIR_DUI=<path to kinetic/qt>)
+	error(run with export QTDIR_DUI=<path to kinetic/qt>)
 }
-
-include(rewriter/rewriter.pri)
 
 HEADERS += duieditor.h \
 duieditorfactory.h \
