@@ -59,10 +59,16 @@ public:
         CMakeRunPageId
     };
 
+    enum Mode {
+        Nothing,
+        NeedToCreate,
+        NeedToUpdate
+    };
+
     // used at importing a project without a .user file
     CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory);
     // used to update if we have already a .user file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QStringList &needToCreate, const QStringList &needToUpdate);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &buildDirectory, Mode mode);
     // used to change the build directory of one buildconfiguration
     CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory);
 

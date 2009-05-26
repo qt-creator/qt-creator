@@ -95,13 +95,16 @@ void CMakeProject::slotActiveBuildConfiguration()
 
     QString cbpFile = CMakeManager::findCbpFile(QDir(buildDirectory(activeBuildConfiguration())));
     QFileInfo cbpFileFi(cbpFile);
+    CMakeOpenProjectWizard::Mode mode;
     if (!cbpFileFi.exists())
-        needToCreate << buildDirectory(activeBuildConfiguration());
+        mode = CMakeOpenProjectWizard::NeedToCreate;
     else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
-        needToUpdate << buildDirectory(activeBuildConfiguration());
+        mode = CMakeOpenProjectWizard::NeedToUpdate;
+    else
+        mode = CMakeOpenProjectWizard::Nothing;
 
-    if (!needToCreate.isEmpty() || !needToUpdate.isEmpty()) {
-        CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), needToCreate, needToUpdate);
+    if (mode != CMakeOpenProjectWizard::Nothing) {
+        CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), buildDirectory(activeBuildConfiguration()), mode);
         copw.exec();
     }
     // reparse
@@ -570,13 +573,15 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         QStringList needToUpdate;
         QString cbpFile = CMakeManager::findCbpFile(QDir(buildDirectory(activeBuildConfiguration())));
         QFileInfo cbpFileFi(cbpFile);
-        if (!cbpFileFi.exists())
-            needToCreate << buildDirectory(activeBuildConfiguration());
-        else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
-            needToUpdate << buildDirectory(activeBuildConfiguration());
 
-        if (!needToCreate.isEmpty() || !needToUpdate.isEmpty()) {
-            CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), needToCreate, needToUpdate);
+        CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
+        if (!cbpFileFi.exists())
+            mode = CMakeOpenProjectWizard::NeedToCreate;
+        else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
+            mode = CMakeOpenProjectWizard::NeedToUpdate;
+
+        if (mode != CMakeOpenProjectWizard::Nothing) {
+            CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), buildDirectory(activeBuildConfiguration()), mode);
             copw.exec();
         }
     }

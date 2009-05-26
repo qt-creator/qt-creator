@@ -80,14 +80,14 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 }
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
-                                               const QStringList &needToCreate, const QStringList &needToUpdate)
+                                               const QString &buildDirectory, CMakeOpenProjectWizard::Mode mode)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true)
 {
-    foreach(const QString &buildDirectory, needToCreate)
+    if (mode == CMakeOpenProjectWizard::NeedToCreate)
         addPage(new CMakeRunPage(this, CMakeRunPage::Recreate, buildDirectory));
-    foreach(const QString &buildDirectory, needToUpdate)
+    else
         addPage(new CMakeRunPage(this, CMakeRunPage::Update, buildDirectory));
     setOption(QWizard::NoCancelButton);
     setOption(QWizard::NoBackButtonOnStartPage);
