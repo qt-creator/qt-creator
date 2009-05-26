@@ -21,6 +21,7 @@ public:
     tst_qstringbuilder()
       : l1literal("some string literal"),
         l1string("some string literal"),
+        ba("some string literal"),
         string(l1string),
         stringref(&string, 2, 10),
         achar('c')
@@ -197,9 +198,29 @@ private slots:
         COMPARE(r, QString(achar % string % achar));
     }
 
+    void separator_8() { SEP("string.arg"); }
+
+    void b_string_arg() {
+        const QString pattern = l1string + "%1" + l1string;
+        QBENCHMARK { r = l1literal % string % l1literal; }
+        COMPARE(r, l1string + string + l1string);
+    }
+
+    void s_string_arg() {
+        const QString pattern = l1string + "%1" + l1string;
+        QBENCHMARK { r = pattern.arg(string); }
+        COMPARE(r, l1string + string + l1string);
+    }
+
+    void s_bytearray_arg() {
+        QByteArray result;
+        QBENCHMARK { result = ba + ba + ba; }
+    }
+
 private:
     const QLatin1Literal l1literal;
     const QLatin1String l1string;
+    const QByteArray ba;
     const QString string;
     const QStringRef stringref;
     const QLatin1Char achar;

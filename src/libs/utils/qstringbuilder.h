@@ -46,6 +46,13 @@
 
 #include <string.h>
 
+QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
+
+QT_MODULE(Core)
+
+
 // Using this relies on changing the QString::QString(QChar *, int)
 // constructor to allocated an unitialized string of the given size.
 //#define USE_CHANGED_QSTRING 1
@@ -89,7 +96,7 @@ template <typename A>
 class QStringBuilder : public A
 {
 public:
-    QStringBuilder(A a_) : A(a_) {}
+    QStringBuilder(const A &a_) : A(a_) {}
 
     operator QString() const
     {
@@ -164,7 +171,7 @@ template <typename A, typename B>
 class QStringBuilderPair
 {
 public:
-    QStringBuilderPair(A a_, B b_) : a(a_), b(b_) {}
+    QStringBuilderPair(const A &a_, const B &b_) : a(a_), b(b_) {}
 
     inline int size() const
     {
@@ -178,8 +185,8 @@ public:
     }
 
 private:
-    A a;
-    B b;
+    const A a;
+    const B b;
 };
 
 
@@ -216,5 +223,8 @@ operator%(const QString &a, const QString &b)
         QStringBuilder<QString> > (a, b);
 }
 
+QT_END_NAMESPACE
+
+QT_END_HEADER
 
 #endif // QSTRINGBUILDER_H
