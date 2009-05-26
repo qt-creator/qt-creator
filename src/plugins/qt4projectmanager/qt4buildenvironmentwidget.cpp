@@ -44,13 +44,17 @@ Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
     : BuildStepConfigWidget(), m_pro(project)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
-    vbox->setMargin(0);
+
+    m_clearSystemEnvironmentCheckBox = new QCheckBox(this);
+    m_clearSystemEnvironmentCheckBox->setText("Clear system environment");
+    vbox->addWidget(m_clearSystemEnvironmentCheckBox);
+
     m_buildEnvironmentWidget = new ProjectExplorer::EnvironmentWidget(this);
     vbox->addWidget(m_buildEnvironmentWidget);
 
     connect(m_buildEnvironmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(environmentModelUserChangesUpdated()));
-    connect(m_buildEnvironmentWidget, SIGNAL(clearSystemEnvironmentCheckBoxClicked(bool)),
+    connect(m_clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(clearSystemEnvironmentCheckBoxClicked(bool)));
 }
 
@@ -66,7 +70,7 @@ void Qt4BuildEnvironmentWidget::init(const QString &buildConfiguration)
 
     m_buildConfiguration = buildConfiguration;
 
-    m_buildEnvironmentWidget->setClearSystemEnvironment(!m_pro->useSystemEnvironment(buildConfiguration));
+    m_clearSystemEnvironmentCheckBox->setChecked(!m_pro->useSystemEnvironment(buildConfiguration));
     m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(buildConfiguration));
     m_buildEnvironmentWidget->setUserChanges(m_pro->userEnvironmentChanges(buildConfiguration));
     m_buildEnvironmentWidget->updateButtons();

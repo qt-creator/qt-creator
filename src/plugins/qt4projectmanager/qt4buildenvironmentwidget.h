@@ -32,6 +32,10 @@
 
 #include <projectexplorer/buildstep.h>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 class EnvironmentWidget;
 }
@@ -57,6 +61,7 @@ private slots:
 
 private:
     ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;
+    QCheckBox *m_clearSystemEnvironmentCheckBox;
     Qt4Project *m_pro;
     QString m_buildConfiguration;
 };

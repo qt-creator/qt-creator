@@ -432,12 +432,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent)
     connect(m_model, SIGNAL(userChangesUpdated()),
             this, SIGNAL(userChangesUpdated()));
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
-    m_clearSystemEnvironmentCheckBox = new QCheckBox(this);
-    m_clearSystemEnvironmentCheckBox->setText("Clear system environment");
-    verticalLayout->addWidget(m_clearSystemEnvironmentCheckBox);
-
-    QHBoxLayout *horizontalLayout = new QHBoxLayout();
+    QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
     m_environmentTreeView = new QTreeView(this);
     m_environmentTreeView->setRootIsDecorated(false);
     m_environmentTreeView->setHeaderHidden(false);
@@ -468,7 +463,6 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent)
     QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
     verticalLayout_2->addItem(verticalSpacer);
     horizontalLayout->addLayout(verticalLayout_2);
-    verticalLayout->addLayout(horizontalLayout);
 
     connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateButtons()));
@@ -483,19 +477,12 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent)
             this, SLOT(unsetEnvironmentButtonClicked()));
     connect(m_environmentTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this, SLOT(environmentCurrentIndexChanged(QModelIndex, QModelIndex)));
-    connect(m_clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
-            this, SIGNAL(clearSystemEnvironmentCheckBoxClicked(bool)));
 }
 
 EnvironmentWidget::~EnvironmentWidget()
 {
     delete m_model;
     m_model = 0;
-}
-
-void EnvironmentWidget::setClearSystemEnvironment(bool b)
-{
-    m_clearSystemEnvironmentCheckBox->setChecked(b);
 }
 
 void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)

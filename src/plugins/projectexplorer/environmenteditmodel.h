@@ -97,7 +97,6 @@ public:
 
     void setBaseEnvironment(const ProjectExplorer::Environment &env);
     void setMergedEnvironments(bool b);
-    void setClearSystemEnvironment(bool b);
 
     bool mergedEnvironments();
     QList<EnvironmentItem> userChanges() const;
@@ -108,7 +107,6 @@ public slots:
 
 signals:
     void userChangesUpdated();
-    void clearSystemEnvironmentCheckBoxClicked(bool on);
 
 private slots:
     void editEnvironmentButtonClicked();
@@ -119,7 +117,6 @@ private slots:
 
 private:
     EnvironmentModel *m_model;
-    QCheckBox *m_clearSystemEnvironmentCheckBox;
     QTreeView *m_environmentTreeView;
     QPushButton *m_editButton;
     QPushButton *m_addButton;
