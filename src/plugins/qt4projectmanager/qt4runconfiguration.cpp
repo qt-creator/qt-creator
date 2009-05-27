@@ -71,6 +71,12 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
 
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
+
+    connect(pro, SIGNAL(activeBuildConfigurationChanged()),
+            this, SIGNAL(baseEnvironmentChanged()));
+
+    connect(pro, SIGNAL(environmentChanged(QString)),
+            this, SIGNAL(baseEnvironmentChanged()));
 }
 
 Qt4RunConfiguration::~Qt4RunConfiguration()
@@ -178,6 +184,13 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(qt4RunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
             this, SLOT(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)));
 
+    connect(qt4RunConfiguration, SIGNAL(baseEnvironmentChanged()),
+            this, SLOT(baseEnvironmentChanged()));
+}
+
+void Qt4RunConfigurationWidget::baseEnvironmentChanged()
+{
+    m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
 }
 
 void Qt4RunConfigurationWidget::userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges)

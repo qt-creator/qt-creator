@@ -93,6 +93,7 @@ signals:
     void workingDirectoryChanged(const QString&);
     void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
     void usingDyldImageSuffixChanged(bool);
+    void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
 
     // note those signals might not emited for every change
@@ -147,6 +148,7 @@ private slots:
     void nameChanged(const QString &name);
     void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
+    void baseEnvironmentChanged();
 
     void effectiveTargetInformationChanged();
     void termToggled(bool);

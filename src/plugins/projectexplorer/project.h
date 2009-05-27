@@ -151,7 +151,8 @@ signals:
     void removedRunConfiguration(const QString &name);
     void addedRunConfiguration(const QString &name);
     // This signal is jut there for updating the tree list in the buildsettings wizard
-    void buildConfigurationDisplayNameChanged(const QString &buildConfiguraiton);
+    void buildConfigurationDisplayNameChanged(const QString &buildConfiguration);
+    void environmentChanged(const QString &buildConfiguration);
 
 protected:
     /* This method is called when the project .user file is saved. Simply call

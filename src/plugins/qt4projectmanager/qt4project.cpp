@@ -724,7 +724,10 @@ ProjectExplorer::Environment Qt4Project::environment(const QString &buildConfigu
 
 void Qt4Project::setUseSystemEnvironment(const QString &buildConfiguration, bool b)
 {
+    if (useSystemEnvironment(buildConfiguration) == b)
+        return;
     setValue(buildConfiguration, "clearSystemEnvironment", !b);
+    emit environmentChanged(buildConfiguration);
 }
 
 bool Qt4Project::useSystemEnvironment(const QString &buildConfiguration) const
@@ -740,7 +743,11 @@ QList<ProjectExplorer::EnvironmentItem> Qt4Project::userEnvironmentChanges(const
 
 void Qt4Project::setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff)
 {
-    setValue(buildConfig, "userEnvironmentChanges", EnvironmentItem::toStringList(diff));
+    QStringList list = EnvironmentItem::toStringList(diff);
+    if (list == value(buildConfig, "userEnvironmentChanges").toStringList())
+        return;
+    setValue(buildConfig, "userEnvironmentChanges", list);
+    emit environmentChanged(buildConfig);
 }
 
 QString Qt4Project::qtDir(const QString &buildConfiguration) const
