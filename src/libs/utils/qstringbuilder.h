@@ -66,20 +66,6 @@ public:
     inline int size() const { return m_size; }
     inline const char *data() const { return m_data; }
 
-    operator QString() const
-    {
-#ifdef USE_CHANGED_QSTRING
-        QString s(m_size, QChar(-1));
-#else
-        QString s;
-        s.resize(m_size);
-#endif
-        QChar *d = s.data();
-        for (const char *s = m_data; *s; )
-            *d++ = QLatin1Char(*s++);
-        return s;
-    }
-
 private:
     const int m_size;
     const char *m_data;
@@ -100,68 +86,8 @@ public:
     const B &b;
 };
 
-
-inline int qStringBuilderSize(const char) { return 1; }
-
-inline int qStringBuilderSize(const QLatin1Char) { return 1; }
-
-inline int qStringBuilderSize(const QLatin1String &a) { return qstrlen(a.latin1()); }
-
-inline int qStringBuilderSize(const QLatin1Literal &a) { return a.size(); }
-
-inline int qStringBuilderSize(const QString &a) { return a.size(); }
-
-inline int qStringBuilderSize(const QStringRef &a) { return a.size(); }
-
-template <typename A, typename B>
-inline int qStringBuilderSize(const QStringBuilder<A, B> &p)
-{
-    return qStringBuilderSize(p.a) + qStringBuilderSize(p.b);
-}
-
-
-inline void qStringBuilderAppend(const char c, QChar *&out)
-{
-    *out++ = QLatin1Char(c);
-}
-
-inline void qStringBuilderAppend(const QLatin1Char c, QChar *&out)
-{
-    *out++ = c;
-}
-
-inline void qStringBuilderAppend(const QLatin1String &a, QChar *&out)
-{
-    for (const char *s = a.latin1(); *s; )
-        *out++ = QLatin1Char(*s++);
-}
-
-inline void qStringBuilderAppend(QStringRef a, QChar *&out)
-{
-    const int n = a.size();
-    memcpy(out, (char*)a.constData(), sizeof(QChar) * n);
-    out += n; 
-}
-
-inline void qStringBuilderAppend(const QString &a, QChar *&out)
-{
-    const int n = a.size();
-    memcpy(out, (char*)a.constData(), sizeof(QChar) * n);
-    out += n; 
-}
-
-inline void qStringBuilderAppend(const QLatin1Literal &a, QChar *&out)
-{
-    for (const char *s = a.data(); *s; )
-        *out++ = QLatin1Char(*s++);
-}
-
-template <typename A, typename B>
-inline void qStringBuilderAppend(const QStringBuilder<A, B> &p, QChar *&out)
-{
-    qStringBuilderAppend(p.a, out);
-    qStringBuilderAppend(p.b, out);
-}
+// make sure the operator% defined below acts only on types we want to handle.
+template <typename T> struct QConcatenable {};
 
 
 template <typename A, typename B>
@@ -171,22 +97,95 @@ QStringBuilder<A, B>::operator QString() const
     QString s(this->size(), QChar(-1));
 #else
     QString s;
-    s.resize(qStringBuilderSize(*this));
+    s.resize(QConcatenable< QStringBuilder<A, B> >::size(*this));
 #endif
     QChar *d = s.data();
-    qStringBuilderAppend(*this, d);
+    QConcatenable< QStringBuilder<A, B> >::appendTo(*this, d);
     return s;
 }
 
-// make sure the operator% defined below acts only on types we want to handle.
-template <typename T> struct QConcatenable {};
-template <> struct QConcatenable<QString> { typedef QString type; };
-template <> struct QConcatenable<QLatin1String> { typedef QLatin1String type; };
-template <> struct QConcatenable<QLatin1Literal> { typedef QLatin1Literal type; };
-template <> struct QConcatenable<QLatin1Char> { typedef QLatin1Char type; };
-template <> struct QConcatenable<QStringRef> { typedef QStringRef type; };
+template <> struct QConcatenable<char>
+{
+    typedef char type;
+    static int size(const char) { return 1; }
+    static inline void appendTo(const char c, QChar *&out)
+    {
+        *out++ = QLatin1Char(c);
+    }
+};
+
+template <> struct QConcatenable<QLatin1Char>
+{
+    typedef QLatin1Char type;
+    static int size(const QLatin1Char) { return 1; }
+    static inline void appendTo(const QLatin1Char c, QChar *&out)
+    {
+        *out++ = c;
+    }
+};
+
+template <> struct QConcatenable<QLatin1String>
+{
+    typedef QLatin1String type;
+    static int size(const QLatin1String &a) { return qstrlen(a.latin1()); }
+    static inline void appendTo(const QLatin1String &a, QChar *&out)
+    {
+        for (const char *s = a.latin1(); *s; )
+            *out++ = QLatin1Char(*s++);
+    }
+
+};
+
+template <> struct QConcatenable<QLatin1Literal>
+{
+    typedef QLatin1Literal type;
+    static int size(const QLatin1Literal &a) { return a.size(); }
+    static inline void appendTo(const QLatin1Literal &a, QChar *&out)
+    {
+        for (const char *s = a.data(); *s; )
+            *out++ = QLatin1Char(*s++);
+    }
+};
+
+template <> struct QConcatenable<QString>
+{
+    typedef QString type;
+    static int size(const QString &a) { return a.size(); }
+    static inline void appendTo(const QString &a, QChar *&out)
+    {
+        const int n = a.size();
+        memcpy(out, (char*)a.constData(), sizeof(QChar) * n);
+        out += n; 
+    }
+};
+
+template <> struct QConcatenable<QStringRef>
+{
+    typedef QStringRef type;
+    static int size(const QStringRef &a) { return a.size(); }
+    static inline void appendTo(QStringRef a, QChar *&out)
+    {
+        const int n = a.size();
+        memcpy(out, (char*)a.constData(), sizeof(QChar) * n);
+        out += n; 
+    }
+};
+
+
 template <typename A, typename B>
-struct QConcatenable< QStringBuilder<A, B> > { typedef QStringBuilder<A, B> type; };
+struct QConcatenable< QStringBuilder<A, B> >
+{
+    typedef QStringBuilder<A, B> type;
+    static int size(const type &p) 
+    {
+        return QConcatenable<A>::size(p.a) + QConcatenable<B>::size(p.b);
+    }
+    static inline void appendTo(const QStringBuilder<A, B> &p, QChar *&out)
+    {
+        QConcatenable<A>::appendTo(p.a, out);
+        QConcatenable<B>::appendTo(p.b, out);
+    }
+};
 
 } // namespace
 
