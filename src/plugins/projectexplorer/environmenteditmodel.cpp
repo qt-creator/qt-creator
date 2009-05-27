@@ -551,6 +551,7 @@ void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &curren
 {
     Q_UNUSED(previous)
     if (current.isValid()) {
+        m_editButton->setEnabled(true);
         if (m_model->mergedEnvironments()) {
             const QString &name = m_model->indexToVariable(current);
             bool modified = m_model->isInBaseEnvironment(name) && m_model->changes(name);
@@ -562,7 +563,7 @@ void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &curren
             m_unsetButton->setEnabled(!m_model->isUnset(m_model->indexToVariable(current)));
         }
     } else {
-        m_editButton->setEnabled(current.isValid());
+        m_editButton->setEnabled(false);
         m_removeButton->setEnabled(false);
         m_unsetButton->setEnabled(false);
     }
