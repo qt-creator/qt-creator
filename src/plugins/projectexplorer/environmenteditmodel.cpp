@@ -323,7 +323,6 @@ QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
             m_items.insert(rowInChanges, item);
             updateResultEnvironment();
             endInsertRows();
-            qDebug()<<"returning index: "<<rowInResult;
             emit userChangesUpdated();
             return index(rowInResult, 0, QModelIndex());
         }
