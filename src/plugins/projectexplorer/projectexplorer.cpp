@@ -1099,8 +1099,6 @@ void ProjectExplorerPlugin::showContextMenu(const QPoint &globalPos, Node *node)
 {
     QMenu *contextMenu = 0;
 
-    updateContextMenuActions();
-
     if (!node)
         node = m_session->sessionNode();
 
@@ -1131,6 +1129,7 @@ void ProjectExplorerPlugin::showContextMenu(const QPoint &globalPos, Node *node)
         contextMenu = m_sessionContextMenu;
     }
 
+    updateContextMenuActions();
     if (contextMenu && contextMenu->actions().count() > 0) {
         contextMenu->popup(globalPos);
     }
