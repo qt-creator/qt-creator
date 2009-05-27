@@ -104,10 +104,10 @@ const itemVectorType itemVector()
             false},
         {"dbus",
             QCoreApplication::translate("QtModulesInfo", "QtDBus Module"),
-            QCoreApplication::translate("QtModulesInfo", "Classes for Inter-Process Communication using the D-Bus",
-            false)}
+            QCoreApplication::translate("QtModulesInfo", "Classes for Inter-Process Communication using the D-Bus"),
+            false}
     };
-    const uint itemsCount = sizeof items / sizeof items[0];
+    const int itemsCount = sizeof items / sizeof items[0];
     itemVectorType result;
     result.reserve(itemsCount);
     for (int i = 0; i < itemsCount; i++)
