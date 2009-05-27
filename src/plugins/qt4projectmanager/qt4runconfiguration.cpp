@@ -94,7 +94,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_usingDyldImageSuffix(0),
     m_isShown(false)
 {
-    QFormLayout *toplayout = new QFormLayout(this);
+    QFormLayout *toplayout = new QFormLayout();
     toplayout->setMargin(0);
 
     QLabel *nameLabel = new QLabel(tr("Name:"));
@@ -136,10 +136,14 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(usingDyldImageSuffixToggled(bool)));
 #endif
 
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->addLayout(toplayout);
+
     m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this);
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
     m_environmentWidget->setUserChanges(m_qt4RunConfiguration->userEnvironmentChanges());
-    toplayout->addRow(m_environmentWidget);
+    m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    vbox->addWidget(m_environmentWidget);
 
     connect(m_workingDirectoryEdit, SIGNAL(changed()),
             this, SLOT(setWorkingDirectory()));
