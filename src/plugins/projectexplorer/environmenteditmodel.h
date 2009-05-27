@@ -96,9 +96,10 @@ public:
     ~EnvironmentWidget();
 
     void setBaseEnvironment(const ProjectExplorer::Environment &env);
-    void setMergedEnvironments(bool b);
 
+    void setMergedEnvironments(bool b);
     bool mergedEnvironments();
+
     QList<EnvironmentItem> userChanges() const;
     void setUserChanges(QList<EnvironmentItem> list);
 

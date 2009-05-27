@@ -49,6 +49,11 @@ struct PROJECTEXPLORER_EXPORT EnvironmentItem
     QString value;
     bool unset;
 
+    bool operator==(const EnvironmentItem &other)
+    {
+        return (unset == other.unset) && (name == other.name) && (value == other.value);
+    }
+
     static QList<EnvironmentItem> fromStringList(QStringList list);
     static QStringList toStringList(QList<EnvironmentItem> list);
 };

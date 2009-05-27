@@ -32,6 +32,8 @@
 
 #include <utils/pathchooser.h>
 #include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/environment.h>
+#include <projectexplorer/environmenteditmodel.h>
 #include <QtCore/QStringList>
 #include <QtGui/QWidget>
 
@@ -53,7 +55,7 @@ class Qt4PriFileNode;
 class Qt4RunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
 {
     Q_OBJECT
-    // to change the name and arguments
+    // to change the name and arguments and set the userenvironmentchanges
     friend class Qt4RunConfigurationWidget;
 public:
     Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath);
@@ -91,6 +93,7 @@ signals:
     void workingDirectoryChanged(const QString&);
     void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
     void usingDyldImageSuffixChanged(bool);
+    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
 
     // note those signals might not emited for every change
     void effectiveTargetInformationChanged();
@@ -102,6 +105,10 @@ private slots:
     void setRunMode(RunMode runMode);
 
 private:
+    ProjectExplorer::Environment baseEnvironment() const;
+    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
+
     void updateTarget();
     QStringList m_commandLineArguments;
     QString m_proFilePath; // Full path to the Application Pro File
@@ -117,6 +124,7 @@ private:
     bool m_isUsingDyldImageSuffix;
     bool m_userSetWokingDirectory;
     QString m_userWorkingDirectory;
+    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
 };
 
 class Qt4RunConfigurationWidget : public QWidget
@@ -132,11 +140,13 @@ private slots:
     void resetWorkingDirectory();
     void setCommandLineArguments(const QString &arguments);
     void nameEdited(const QString &name);
+    void userChangesUpdated();
 
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
     void nameChanged(const QString &name);
     void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
+    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
 
     void effectiveTargetInformationChanged();
     void termToggled(bool);
@@ -151,6 +161,7 @@ private:
     QLineEdit *m_argumentsLineEdit;
     QCheckBox *m_useTerminalCheck;
     QCheckBox *m_usingDyldImageSuffix;
+    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     bool m_isShown;
 };
 

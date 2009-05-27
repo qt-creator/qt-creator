@@ -39,6 +39,7 @@
 #include <coreplugin/variablemanager.h>
 #include <coreplugin/ifile.h>
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/environmenteditmodel.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QFormLayout>
@@ -135,6 +136,11 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(usingDyldImageSuffixToggled(bool)));
 #endif
 
+    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this);
+    m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
+    m_environmentWidget->setUserChanges(m_qt4RunConfiguration->userEnvironmentChanges());
+    toplayout->addRow(m_environmentWidget);
+
     connect(m_workingDirectoryEdit, SIGNAL(changed()),
             this, SLOT(setWorkingDirectory()));
 
@@ -148,6 +154,9 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
+    connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
+            this, SLOT(userChangesUpdated()));
+
     connect(qt4RunConfiguration, SIGNAL(workingDirectoryChanged(QString)),
             this, SLOT(workingDirectoryChanged(QString)));
 
@@ -159,9 +168,26 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode)));
     connect(qt4RunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
             this, SLOT(usingDyldImageSuffixChanged(bool)));
-
     connect(qt4RunConfiguration, SIGNAL(effectiveTargetInformationChanged()),
             this, SLOT(effectiveTargetInformationChanged()), Qt::QueuedConnection);
+
+    connect(qt4RunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
+            this, SLOT(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)));
+
+}
+
+void Qt4RunConfigurationWidget::userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges)
+{
+    if (m_ignoreChange)
+        return;
+    m_environmentWidget->setUserChanges(userChanges);
+}
+
+void Qt4RunConfigurationWidget::userChangesUpdated()
+{
+    m_ignoreChange = true;
+    m_qt4RunConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
+    m_ignoreChange = false;
 }
 
 void Qt4RunConfigurationWidget::setWorkingDirectory()
@@ -276,6 +302,7 @@ void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue("UserSetName", m_userSetName);
     writer.saveValue("UseTerminal", m_runMode == Console);
     writer.saveValue("UseDyldImageSuffix", m_isUsingDyldImageSuffix);
+    writer.saveValue("UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     ApplicationRunConfiguration::save(writer);
 }
 
@@ -293,6 +320,7 @@ void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
         if (!m_userSetName)
             setName(QFileInfo(m_proFilePath).completeBaseName());
     }
+    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("UserEnvironmentChanges").toStringList());
 }
 
 QString Qt4RunConfiguration::executable() const
@@ -333,8 +361,13 @@ QStringList Qt4RunConfiguration::commandLineArguments() const
     return m_commandLineArguments;
 }
 
-ProjectExplorer::Environment Qt4RunConfiguration::environment() const
+ProjectExplorer::Environment Qt4RunConfiguration::baseEnvironment() const
 {
+    // TODO use either System Environment
+    // build environment
+    // or empty
+    //Environment env = Environment(QProcess::systemEnvironment());
+
     Qt4Project *pro = qobject_cast<Qt4Project *>(project());
     Q_ASSERT(pro);
     QString config = pro->activeBuildConfiguration();
@@ -343,6 +376,26 @@ ProjectExplorer::Environment Qt4RunConfiguration::environment() const
         env.set("DYLD_IMAGE_SUFFIX", "_debug");
     }
     return env;
+}
+
+ProjectExplorer::Environment Qt4RunConfiguration::environment() const
+{
+    ProjectExplorer::Environment env = baseEnvironment();
+    env.modify(userEnvironmentChanges());
+    return env;
+}
+
+QList<ProjectExplorer::EnvironmentItem> Qt4RunConfiguration::userEnvironmentChanges() const
+{
+    return m_userEnvironmentChanges;
+}
+
+void Qt4RunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
+{
+    if (m_userEnvironmentChanges != diff) {
+        m_userEnvironmentChanges = diff;
+        emit userEnvironmentChangesChanged(diff);
+    }
 }
 
 void Qt4RunConfiguration::setWorkingDirectory(const QString &wd)
