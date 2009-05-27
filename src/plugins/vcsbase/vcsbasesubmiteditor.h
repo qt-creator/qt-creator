@@ -159,7 +159,10 @@ public:
     // be restricted to them
     static QStringList currentProjectFiles(bool nativeSeparators, QString *name = 0);
 
-    bool temporaryEditor() const { return true; }
+    virtual bool temporaryEditor() const { return true; }
+
+    // Helper to raise an already open submit editor to prevent opening twice.
+    static bool raiseSubmitEditor();
 
 signals:
     void diffSelectedFiles(const QStringList &files);

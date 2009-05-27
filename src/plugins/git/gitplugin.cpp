@@ -588,6 +588,8 @@ void GitPlugin::revertFile()
 
 void GitPlugin::startCommit()
 {
+    if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
+        return;
     if (m_changeTmpFile) {
         m_outputWindow->append(tr("Another submit is currently beeing executed."));
         m_outputWindow->popup(false);

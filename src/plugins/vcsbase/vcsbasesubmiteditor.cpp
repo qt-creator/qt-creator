@@ -36,6 +36,7 @@
 #include <aggregation/aggregate.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/submiteditorwidget.h>
@@ -592,4 +593,23 @@ QStringList VCSBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QStr
     }
     return files;
 }
+
+// Helper to raise an already open submit editor to prevent opening twice.
+bool VCSBaseSubmitEditor::raiseSubmitEditor()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    // Nothing to do?
+    if (Core::IEditor *ce = em->currentEditor())
+        if (qobject_cast<VCSBaseSubmitEditor*>(ce))
+            return true;
+    // Try to activate a hidden one
+    foreach (Core::IEditor *e, em->openedEditors()) {
+        if (qobject_cast<VCSBaseSubmitEditor*>(e)) {
+            em->activateEditor(e, Core::EditorManager::IgnoreNavigationHistory);
+            return true;
+        }
+    }
+    return false;
+}
+
 } // namespace VCSBase

@@ -485,6 +485,9 @@ void PerforcePlugin::printOpenedFileList()
 
 void PerforcePlugin::submit()
 {
+    if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
+        return;
+
     if (!checkP4Command()) {
         showOutput(tr("No p4 executable specified!"), true);
         return;

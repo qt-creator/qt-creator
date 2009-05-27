@@ -712,7 +712,8 @@ void SubversionPlugin::startCommit(const QStringList &files)
 {
     if (files.empty())
         return;
-
+    if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
+        return;
     if (m_changeTmpFile) {
         showOutput(tr("Another commit is currently being executed."));
         return;
