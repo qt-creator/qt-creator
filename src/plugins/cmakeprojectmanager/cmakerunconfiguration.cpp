@@ -49,6 +49,12 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
     , m_title(title)
 {
     setName(title);
+
+    connect(pro, SIGNAL(activeBuildConfigurationChanged()),
+            this, SIGNAL(baseEnvironmentChanged()));
+
+    connect(pro, SIGNAL(environmentChanged(QString)),
+            this, SIGNAL(baseEnvironmentChanged()));
 }
 
 CMakeRunConfiguration::~CMakeRunConfiguration()
@@ -80,11 +86,6 @@ QStringList CMakeRunConfiguration::commandLineArguments() const
     return ProjectExplorer::Environment::parseCombinedArgString(m_arguments);
 }
 
-ProjectExplorer::Environment CMakeRunConfiguration::environment() const
-{
-    return project()->environment(project()->activeBuildConfiguration());
-}
-
 QString CMakeRunConfiguration::title() const
 {
     return m_title;
@@ -108,6 +109,7 @@ void CMakeRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writ
     writer.saveValue("CMakeRunConfiguration.UseTerminal", m_runMode == Console);
     writer.saveValue("CMakeRunConfiguation.Title", m_title);
     writer.saveValue("CMakeRunConfiguration.Arguments", m_arguments);
+    writer.saveValue("CMakeRunConfiguration.UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
 }
 
 void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
@@ -118,19 +120,12 @@ void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsRea
     m_runMode = reader.restoreValue("CMakeRunConfiguration.UseTerminal").toBool() ? Console : Gui;
     m_title = reader.restoreValue("CMakeRunConfiguation.Title").toString();
     m_arguments = reader.restoreValue("CMakeRunConfiguration.Arguments").toString();
+    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("CMakeRunConfiguration.UserEnvironmentChanges").toStringList());
 }
 
 QWidget *CMakeRunConfiguration::configurationWidget()
 {
-    QWidget *widget = new QWidget();
-    QFormLayout *fl = new QFormLayout();
-    widget->setLayout(fl);
-    QLineEdit *argumentsLineEdit = new QLineEdit(widget);
-    argumentsLineEdit->setText(m_arguments);
-    connect(argumentsLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(setArguments(QString)));
-    fl->addRow(tr("Arguments:"), argumentsLineEdit);
-    return widget;
+    return new CMakeRunConfigurationWidget(this);
 }
 
 void CMakeRunConfiguration::setArguments(const QString &newText)
@@ -144,6 +139,89 @@ QString CMakeRunConfiguration::dumperLibrary() const
     QString dhl = ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibrary(qmakePath);
     return dhl;
 }
+
+ProjectExplorer::Environment CMakeRunConfiguration::baseEnvironment() const
+{
+    // TODO use either System Environment
+    // build environment
+    // or empty
+    //Environment env = Environment(QProcess::systemEnvironment());
+
+    QString config = project()->activeBuildConfiguration();
+    ProjectExplorer::Environment env = project()->environment(project()->activeBuildConfiguration());
+    return env;
+}
+
+ProjectExplorer::Environment CMakeRunConfiguration::environment() const
+{
+    ProjectExplorer::Environment env = baseEnvironment();
+    env.modify(userEnvironmentChanges());
+    return env;
+}
+
+QList<ProjectExplorer::EnvironmentItem> CMakeRunConfiguration::userEnvironmentChanges() const
+{
+    return m_userEnvironmentChanges;
+}
+
+void CMakeRunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
+{
+    if (m_userEnvironmentChanges != diff) {
+        m_userEnvironmentChanges = diff;
+        emit userEnvironmentChangesChanged(diff);
+    }
+}
+
+// Configuration widget
+
+
+CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent)
+    : QWidget(parent), m_cmakeRunConfiguration(cmakeRunConfiguration)
+{
+
+    QFormLayout *fl = new QFormLayout();
+    QLineEdit *argumentsLineEdit = new QLineEdit();
+    argumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(cmakeRunConfiguration->commandLineArguments()));
+    connect(argumentsLineEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(setArguments(QString)));
+    fl->addRow(tr("Arguments:"), argumentsLineEdit);
+
+    QVBoxLayout *vbx = new QVBoxLayout(this);
+    vbx->addLayout(fl);
+    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this);
+    vbx->addWidget(m_environmentWidget);
+    m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
+    m_environmentWidget->setUserChanges(m_cmakeRunConfiguration->userEnvironmentChanges());
+
+    connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
+            this, SLOT(userChangesUpdated()));
+
+    connect(m_cmakeRunConfiguration, SIGNAL(baseEnvironmentChanged()),
+            this, SLOT(baseEnvironmentChanged()));
+    connect(m_cmakeRunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
+            this, SLOT(userEnvironmentChangesChanged()));
+}
+
+void CMakeRunConfigurationWidget::userChangesUpdated()
+{
+    m_cmakeRunConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
+}
+
+void CMakeRunConfigurationWidget::baseEnvironmentChanged()
+{
+    m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
+}
+
+void CMakeRunConfigurationWidget::userEnvironmentChangesChanged()
+{
+    m_environmentWidget->setUserChanges(m_cmakeRunConfiguration->userEnvironmentChanges());
+}
+
+void CMakeRunConfigurationWidget::setArguments(const QString &args)
+{
+    m_cmakeRunConfiguration->setArguments(args);
+}
+
 
 // Factory
 CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
