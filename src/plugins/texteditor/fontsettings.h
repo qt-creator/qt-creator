@@ -123,6 +123,12 @@ public:
     void setFontSize(int size);
 
     /**
+     * Returns the configured antialiasing behavior.
+     */
+    bool antialias() const;
+    void setAntialias(bool antialias);
+
+    /**
      * Returns the format for the given font category.
      */
     Format &formatFor(const QString &category);
@@ -135,6 +141,7 @@ public:
 private:
     QString m_family;
     int m_fontSize;
+    bool m_antialias;
     QMap<QString, Format> m_formats;
 };
 

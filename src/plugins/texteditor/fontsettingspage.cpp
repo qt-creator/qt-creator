@@ -240,8 +240,11 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
     const int idx = families.indexOf(d_ptr->m_value.family());
     d_ptr->ui.familyComboBox->setCurrentIndex(idx);
 
+    d_ptr->ui.antialias->setChecked(d_ptr->m_value.antialias());
+
     connect(d_ptr->ui.familyComboBox, SIGNAL(activated(int)), this, SLOT(updatePointSizes()));
     connect(d_ptr->ui.sizeComboBox, SIGNAL(activated(int)), this, SLOT(updatePreview()));
+    connect(d_ptr->ui.antialias, SIGNAL(toggled(bool)), this, SLOT(updatePreview()));
     connect(d_ptr->ui.itemListWidget, SIGNAL(itemSelectionChanged()),
         this, SLOT(itemChanged()));
     connect(d_ptr->ui.foregroundToolButton, SIGNAL(clicked()),
@@ -389,6 +392,7 @@ void FontSettingsPage::updatePreview()
     if (currentFormat.background().isValid())
         format.setBackground(QBrush(currentFormat.background()));
     format.setFontFamily(d_ptr->ui.familyComboBox->currentText());
+    format.setFontStyleStrategy(d_ptr->ui.antialias->isChecked() ? QFont::PreferAntialias : QFont::NoAntialias);
     bool ok;
     int size = d_ptr->ui.sizeComboBox->currentText().toInt(&ok);
     if (!ok) {
@@ -436,6 +440,7 @@ void FontSettingsPage::delayedChange()
 void FontSettingsPage::apply()
 {
     d_ptr->m_value.setFamily(d_ptr->ui.familyComboBox->currentText());
+    d_ptr->m_value.setAntialias(d_ptr->ui.antialias->isChecked());
 
     bool ok = true;
     const int size = d_ptr->ui.sizeComboBox->currentText().toInt(&ok);

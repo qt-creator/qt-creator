@@ -37,10 +37,13 @@
 
 static const char *fontFamilyKey = "FontFamily";
 static const char *fontSizeKey = "FontSize";
+static const char *antialiasKey = "FontAntialias";
 static const char *trueString = "true";
 static const char *falseString = "false";
 
 namespace {
+static const bool DEFAULT_ANTIALIAS = true;
+
 #ifdef Q_WS_MAC
     enum { DEFAULT_FONT_SIZE = 12 };
     static const char *DEFAULT_FONT_FAMILY = "Monaco";
@@ -135,7 +138,8 @@ bool Format::equals(const Format &f) const
 // -- FontSettings
 FontSettings::FontSettings(const FormatDescriptions &fd) :
     m_family(defaultFixedFontFamily()),
-    m_fontSize(DEFAULT_FONT_SIZE)
+    m_fontSize(DEFAULT_FONT_SIZE),
+    m_antialias(DEFAULT_ANTIALIAS)
 {
     Q_UNUSED(fd);
 }
@@ -144,6 +148,7 @@ void FontSettings::clear()
 {
     m_family = defaultFixedFontFamily();
     m_fontSize = DEFAULT_FONT_SIZE;
+    m_antialias = DEFAULT_ANTIALIAS;
     qFill(m_formats.begin(), m_formats.end(), Format());
 }
 
@@ -159,6 +164,9 @@ void FontSettings::toSettings(const QString &category,
 
     if (m_fontSize != DEFAULT_FONT_SIZE || s->contains(QLatin1String(fontSizeKey)))
         s->setValue(QLatin1String(fontSizeKey), m_fontSize);
+
+    if (m_antialias != DEFAULT_ANTIALIAS || s->contains(QLatin1String(antialiasKey)))
+        s->setValue(QLatin1String(antialiasKey), m_antialias);
 
     const Format defaultFormat;
 
@@ -184,7 +192,8 @@ bool FontSettings::fromSettings(const QString &category,
     group += QLatin1Char('/');
 
     m_family = s->value(group + QLatin1String(fontFamilyKey), defaultFixedFontFamily()).toString();
-    m_fontSize = s->value(group + QLatin1String(QLatin1String(fontSizeKey)), m_fontSize).toInt();
+    m_fontSize = s->value(group + QLatin1String(fontSizeKey), m_fontSize).toInt();
+    m_antialias = s->value(group + QLatin1String(antialiasKey), DEFAULT_ANTIALIAS).toBool();
 
     foreach (const FormatDescription &desc, descriptions) {
         const QString name = desc.name();
@@ -203,6 +212,7 @@ bool FontSettings::equals(const FontSettings &f) const
 {
     return m_family == f.m_family
             && m_fontSize == f.m_fontSize
+            && m_antialias == f.m_antialias
             && m_formats == f.m_formats;
 }
 
@@ -213,6 +223,7 @@ QTextCharFormat FontSettings::toTextCharFormat(const QString &category) const
     if (category == QLatin1String("Text")) {
         tf.setFontFamily(m_family);
         tf.setFontPointSize(m_fontSize);
+        tf.setFontStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
     }
 
     if (f.foreground().isValid())
@@ -253,6 +264,17 @@ void FontSettings::setFontSize(int size)
 {
     m_fontSize = size;
 }
+
+bool FontSettings::antialias() const
+{
+    return m_antialias;
+}
+
+void FontSettings::setAntialias(bool antialias)
+{
+    m_antialias = antialias;
+}
+
 
 Format &FontSettings::formatFor(const QString &category)
 {
