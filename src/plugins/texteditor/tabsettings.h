@@ -44,6 +44,13 @@ namespace TextEditor {
 // with some convenience functions for formatting.
 struct TEXTEDITOR_EXPORT TabSettings
 {
+    // This enum must match the indexes of tabKeyBehavior widget
+    enum TabKeyBehavior {
+        TabNeverIndents = 0,
+        TabAlwaysIndents = 1,
+        TabLeadingWhitespaceIndents = 2
+    };
+
     TabSettings();
 
     void toSettings(const QString &category, QSettings *s) const;
@@ -61,13 +68,14 @@ struct TEXTEDITOR_EXPORT TabSettings
 
     int trailingWhitespaces(const QString &text) const;
     bool isIndentationClean(const QString &text) const;
-
+    bool tabShouldIndent(const QTextDocument *document, QTextCursor cursor, int *suggestedPosition = 0) const;
 
     bool m_spacesForTabs;
     bool m_autoIndent;
     bool m_smartBackspace;
     int m_tabSize;
     int m_indentSize;
+    TabKeyBehavior m_tabKeyBehavior;
 
     bool equals(const TabSettings &ts) const;
 };
