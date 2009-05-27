@@ -75,7 +75,6 @@ private:
     void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
     QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
 
-
     RunMode m_runMode;
     QString m_target;
     QString m_workingDirectory;
