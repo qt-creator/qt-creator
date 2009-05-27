@@ -2552,7 +2552,9 @@ void BaseTextEditor::slotCursorPositionChanged()
         if (extraSelections(ParenthesesMatchingSelection).isEmpty()) {
             d->m_parenthesesMatchingTimer->start(50);
         } else {
-            _q_matchParentheses();
+             // use 0-timer, not direct call, to give the syntax highlighter a chance
+            // to update the parantheses information
+            d->m_parenthesesMatchingTimer->start(0);
         }
     }
 
@@ -3536,6 +3538,7 @@ void BaseTextEditor::_q_matchParentheses()
         return;
 
 
+    qDebug() << "_q_matchParentheses()" << textCursor().position();
     QTextCursor backwardMatch = textCursor();
     QTextCursor forwardMatch = textCursor();
     const TextBlockUserData::MatchType backwardMatchType = TextBlockUserData::matchCursorBackward(&backwardMatch);
@@ -3545,11 +3548,13 @@ void BaseTextEditor::_q_matchParentheses()
 
     if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch) {
         setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
+        qDebug() << "no match";
         return;
     }
 
     int animatePosition = -1;
     if (backwardMatch.hasSelection()) {
+        qDebug() << "backward match";
         QTextEdit::ExtraSelection sel;
         if (backwardMatchType == TextBlockUserData::Mismatch) {
             sel.cursor = backwardMatch;
@@ -3578,6 +3583,7 @@ void BaseTextEditor::_q_matchParentheses()
     }
 
     if (forwardMatch.hasSelection()) {
+        qDebug() << "forward match";
         QTextEdit::ExtraSelection sel;
         if (forwardMatchType == TextBlockUserData::Mismatch) {
             sel.cursor = forwardMatch;
