@@ -514,6 +514,26 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         start = pos;
     }
 
+    if (k == T_LPAREN) {
+        const QList<SimpleToken> &tokens = tokenUnderCursor.tokens();
+        int i = 0;
+        for (; i < tokens.size(); ++i) {
+            const SimpleToken &token = tokens.at(i);
+            if (token.position() == tk.position()) {
+                if (i == 0) // no token on the left, but might be on a previous line
+                    break;
+                const SimpleToken &previousToken = tokens.at(i - 1);
+                if (previousToken.is(T_IDENTIFIER) || previousToken.is(T_GREATER))
+                    break;
+            }
+        }
+
+        if (i == tokens.size()) {
+            k = T_EOF_SYMBOL;
+            start = pos;
+        }
+    }
+
     if (kind)
         *kind = k;
 

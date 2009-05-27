@@ -56,6 +56,12 @@ public:
     inline int length() const
     { return _length; }
 
+    inline int begin() const
+    { return _position; }
+
+    inline int end() const
+    { return _position + _length; }
+
     inline QStringRef text() const
     { return _text; }
 

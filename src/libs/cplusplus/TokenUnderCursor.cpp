@@ -42,7 +42,7 @@ TokenUnderCursor::TokenUnderCursor()
 TokenUnderCursor::~TokenUnderCursor()
 { }
 
-SimpleToken TokenUnderCursor::operator()(const QTextCursor &cursor, QTextBlock *b) const
+SimpleToken TokenUnderCursor::operator()(const QTextCursor &cursor, QTextBlock *b)
 {
     SimpleLexer tokenize;
     tokenize.setObjCEnabled(true);
@@ -51,9 +51,9 @@ SimpleToken TokenUnderCursor::operator()(const QTextCursor &cursor, QTextBlock *
     QTextBlock block = cursor.block();
     int column = cursor.columnNumber();
 
-    QList<SimpleToken> tokens = tokenize(block.text(), previousBlockState(block));
-    for (int index = tokens.size() - 1; index != -1; --index) {
-        const SimpleToken &tk = tokens.at(index);
+    _tokens = tokenize(block.text(), previousBlockState(block));
+    for (int index = _tokens.size() - 1; index != -1; --index) {
+        const SimpleToken &tk = _tokens.at(index);
         if (tk.position() < column) {
             if (b)
                 *b = block;
