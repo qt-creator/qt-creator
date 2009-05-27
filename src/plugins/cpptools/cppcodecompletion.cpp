@@ -523,7 +523,8 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
                 if (i == 0) // no token on the left, but might be on a previous line
                     break;
                 const SimpleToken &previousToken = tokens.at(i - 1);
-                if (previousToken.is(T_IDENTIFIER) || previousToken.is(T_GREATER))
+                if (previousToken.is(T_IDENTIFIER) || previousToken.is(T_GREATER)
+                    || previousToken.is(T_SIGNAL) || previousToken.is(T_SLOT))
                     break;
             }
         }
