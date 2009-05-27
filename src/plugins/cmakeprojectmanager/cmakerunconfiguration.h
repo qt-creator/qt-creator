@@ -33,6 +33,7 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/persistentsettings.h>
+#include <projectexplorer/environmenteditmodel.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -41,6 +42,7 @@ class CMakeProject;
 
 class CMakeRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
 {
+    friend class CMakeRunConfigurationWidget;
     Q_OBJECT
 public:
     CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory, const QString &title);
@@ -62,24 +64,40 @@ public:
     virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
     virtual QString dumperLibrary() const;
 
+signals:
+    void baseEnvironmentChanged();
+    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
+
 private slots:
     void setArguments(const QString &newText);
 private:
+    ProjectExplorer::Environment baseEnvironment() const;
+    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
+
     RunMode m_runMode;
     QString m_target;
     QString m_workingDirectory;
     QString m_title;
     QString m_arguments;
+    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
 };
 
-/* The run configuration factory is used for restoring run configurations from
- * settings. And used to create new runconfigurations in the "Run Settings" Dialog.
- * For the first case bool canCreate(const QString &type) and
- * QSharedPointer<RunConfiguration> create(Project *project, QString type) are used.
- * For the second type the functions QStringList canCreate(Project *pro) and
- * QString nameForType(const QString&) are used to generate a list of creatable
- * RunConfigurations, and create(..) is used to create it.
- */
+class CMakeRunConfigurationWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent = 0);
+private slots:
+    void setArguments(const QString &args);
+    void baseEnvironmentChanged();
+    void userEnvironmentChangesChanged();
+    void userChangesUpdated();
+private:
+    CMakeRunConfiguration *m_cmakeRunConfiguration;
+    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
+};
+
 class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT;

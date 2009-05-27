@@ -65,6 +65,7 @@ QtVersionManager *QtVersionManager::m_self = 0;
 QtVersionManager::QtVersionManager()
     : m_emptyVersion(new QtVersion)
 {
+    m_self = this;
     QSettings *s = Core::ICore::instance()->settings();
     m_defaultVersion = s->value(defaultQtVersionKey, 0).toInt();
 

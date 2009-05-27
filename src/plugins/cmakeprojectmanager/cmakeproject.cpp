@@ -459,7 +459,10 @@ ProjectExplorer::Environment CMakeProject::environment(const QString &buildConfi
 
 void CMakeProject::setUseSystemEnvironment(const QString &buildConfiguration, bool b)
 {
+    if (b == useSystemEnvironment(buildConfiguration))
+        return;
     setValue(buildConfiguration, "clearSystemEnvironment", !b);
+    emit environmentChanged(buildConfiguration);
 }
 
 bool CMakeProject::useSystemEnvironment(const QString &buildConfiguration) const
@@ -475,7 +478,11 @@ QList<ProjectExplorer::EnvironmentItem> CMakeProject::userEnvironmentChanges(con
 
 void CMakeProject::setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff)
 {
+    QStringList list = EnvironmentItem::toStringList(diff);
+    if (list == value(buildConfig, "userEnvironmentChanges"))
+        return;
     setValue(buildConfig, "userEnvironmentChanges", EnvironmentItem::toStringList(diff));
+    emit environmentChanged(buildConfig);
 }
 
 QString CMakeProject::buildDirectory(const QString &buildConfiguration) const

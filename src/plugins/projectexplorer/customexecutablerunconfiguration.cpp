@@ -63,10 +63,8 @@ public:
 };
 
 CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc)
-    : m_ignoreChange(false)
+    : m_ignoreChange(false), m_runConfiguration(rc)
 {
-    m_runConfiguration = rc;
-    
     QFormLayout *layout = new QFormLayout;
     layout->setMargin(0);
 
@@ -88,7 +86,14 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);
 
-    setLayout(layout);
+    m_environmentWidget = new EnvironmentWidget(this);
+    m_environmentWidget->setBaseEnvironment(rc->baseEnvironment());
+    m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
+
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->addLayout(layout);
+    vbox->addWidget(m_environmentWidget);
+
     changed();
     
     connect(m_userName, SIGNAL(textEdited(QString)),
@@ -103,7 +108,31 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
             this, SLOT(termToggled(bool)));
 
     connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
+
+    connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
+            this, SLOT(userChangesUpdated()));
+
+    connect(m_runConfiguration, SIGNAL(baseEnvironmentChanged()),
+            this, SLOT(baseEnvironmentChanged()));
+    connect(m_runConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
+            this, SLOT(userEnvironmentChangesChanged()));
 }
+
+void CustomExecutableConfigurationWidget::userChangesUpdated()
+{
+    m_runConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
+}
+
+void CustomExecutableConfigurationWidget::baseEnvironmentChanged()
+{
+    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
+}
+
+void CustomExecutableConfigurationWidget::userEnvironmentChangesChanged()
+{
+    m_environmentWidget->setUserChanges(m_runConfiguration->userEnvironmentChanges());
+}
+
 
 void CustomExecutableConfigurationWidget::setExecutable()
 {
@@ -158,6 +187,13 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
 {
     m_workingDirectory = "$BUILDDIR";
     setName(tr("Custom Executable"));
+
+    connect(pro, SIGNAL(activeBuildConfigurationChanged()),
+            this, SIGNAL(baseEnvironmentChanged()));
+
+    connect(pro, SIGNAL(environmentChanged(QString)),
+            this, SIGNAL(baseEnvironmentChanged()));
+
 }
 
 CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
@@ -241,11 +277,37 @@ QStringList CustomExecutableRunConfiguration::commandLineArguments() const
     return m_cmdArguments;
 }
 
-Environment CustomExecutableRunConfiguration::environment() const
+ProjectExplorer::Environment CustomExecutableRunConfiguration::baseEnvironment() const
 {
-    return project()->environment(project()->activeBuildConfiguration());
+    // TODO use either System Environment
+    // build environment
+    // or empty
+    //Environment env = Environment(QProcess::systemEnvironment());
+
+    QString config = project()->activeBuildConfiguration();
+    ProjectExplorer::Environment env = project()->environment(project()->activeBuildConfiguration());
+    return env;
 }
 
+ProjectExplorer::Environment CustomExecutableRunConfiguration::environment() const
+{
+    ProjectExplorer::Environment env = baseEnvironment();
+    env.modify(userEnvironmentChanges());
+    return env;
+}
+
+QList<ProjectExplorer::EnvironmentItem> CustomExecutableRunConfiguration::userEnvironmentChanges() const
+{
+    return m_userEnvironmentChanges;
+}
+
+void CustomExecutableRunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
+{
+    if (m_userEnvironmentChanges != diff) {
+        m_userEnvironmentChanges = diff;
+        emit userEnvironmentChangesChanged(diff);
+    }
+}
 
 void CustomExecutableRunConfiguration::save(PersistentSettingsWriter &writer) const
 {
@@ -255,6 +317,7 @@ void CustomExecutableRunConfiguration::save(PersistentSettingsWriter &writer) co
     writer.saveValue("UseTerminal", m_runMode == Console);
     writer.saveValue("UserSetName", m_userSetName);
     writer.saveValue("UserName", m_userName);
+    writer.saveValue("UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     ApplicationRunConfiguration::save(writer);
 }
 
@@ -266,6 +329,7 @@ void CustomExecutableRunConfiguration::restore(const PersistentSettingsReader &r
     m_runMode = reader.restoreValue("UseTerminal").toBool() ? Console : Gui;
     m_userSetName = reader.restoreValue("UserSetName").toBool();
     m_userName = reader.restoreValue("UserName").toString();
+    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("UserEnvironmentChanges").toStringList());
     ApplicationRunConfiguration::restore(reader);
 }
 

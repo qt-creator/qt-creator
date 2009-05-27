@@ -33,6 +33,7 @@
 #include "applicationrunconfiguration.h"
 
 #include <utils/pathchooser.h>
+#include <projectexplorer/environmenteditmodel.h>
 
 #include <QtGui/QToolButton>
 
@@ -91,7 +92,15 @@ public:
 signals:
     void changed();
 
+    void baseEnvironmentChanged();
+    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
+
+
 private:
+    ProjectExplorer::Environment baseEnvironment() const;
+    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
+
     void setExecutable(const QString &executable);
     void setCommandLineArguments(const QString &commandLineArguments);
     void setWorkingDirectory(const QString &workingDirectory);
@@ -103,6 +112,7 @@ private:
     RunMode m_runMode;
     bool m_userSetName;
     QString m_userName;
+    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
 };
 
 class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
@@ -137,6 +147,10 @@ private slots:
     void setWorkingDirectory();
     void termToggled(bool);
 
+    void userChangesUpdated();
+    void baseEnvironmentChanged();
+    void userEnvironmentChangesChanged();
+
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
@@ -145,6 +159,7 @@ private:
     QLineEdit *m_commandLineArgumentsLineEdit;
     Core::Utils::PathChooser *m_workingDirectory;
     QCheckBox *m_useTerminalCheck;
+    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
 };
 
 } // namespace Internal
