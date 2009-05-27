@@ -761,7 +761,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         foreach (const Document::MacroUse use, doc->macroUses()) {
             if (use.contains(endOfName - 1)) {
                 const Macro &macro = use.macro();
-                link.fileName = QString::fromUtf8(macro.fileName());
+                link.fileName = macro.fileName();
                 link.line = macro.line();
                 link.pos = use.begin();
                 link.length = use.end() - use.begin();

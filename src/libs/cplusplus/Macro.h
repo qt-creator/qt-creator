@@ -80,10 +80,10 @@ public:
     void addFormal(const QByteArray &formal)
     { _formals.append(formal); }
 
-    QByteArray fileName() const
+    QString fileName() const
     { return _fileName; }
 
-    void setFileName(const QByteArray &fileName)
+    void setFileName(const QString &fileName)
     { _fileName = fileName; }
 
     unsigned line() const
@@ -120,7 +120,7 @@ private:
     QByteArray _name;
     QByteArray _definition;
     QVector<QByteArray> _formals;
-    QByteArray _fileName;
+    QString _fileName;
     unsigned _line;
 
     union

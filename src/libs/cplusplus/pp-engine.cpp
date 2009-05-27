@@ -564,7 +564,7 @@ void Preprocessor::popState()
     _savedStates.removeLast();
 }
 
-QByteArray Preprocessor::operator()(const QByteArray &filename,
+QByteArray Preprocessor::operator()(const QString &filename,
                                     const QByteArray &source)
 {
     QByteArray preprocessed;
@@ -635,7 +635,7 @@ void Preprocessor::processNewline(bool force)
         out(QByteArray::number(_dot->lineno));
         out(' ');
         out('"');
-        out(env->currentFile);
+        out(env->currentFile.toUtf8());
         out('"');
         out('\n');
     } else {
@@ -714,7 +714,7 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
     return previous;
 }
 
-void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &source,
+void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                               QByteArray *result)
 {
     QByteArray *previousResult = _result;
@@ -722,7 +722,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
     pushState(createStateFromSource(source));
 
-    const QByteArray previousFileName = env->currentFile;
+    const QString previousFileName = env->currentFile;
     env->currentFile = fileName;
 
     const unsigned previousCurrentLine = env->currentLine;

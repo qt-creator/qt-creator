@@ -53,6 +53,7 @@
 
 #include <QList>
 #include <QByteArray>
+#include <QString>
 
 namespace CPlusPlus {
 
@@ -88,7 +89,7 @@ private:
     void rehash();
 
 public:
-    QByteArray currentFile;
+    QString currentFile;
     unsigned currentLine;
     bool hideNext;
 

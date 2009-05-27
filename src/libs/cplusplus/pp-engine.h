@@ -67,10 +67,10 @@ class CPLUSPLUS_EXPORT Preprocessor
 public:
     Preprocessor(Client *client, Environment *env);
 
-    QByteArray operator()(const QByteArray &filename,
+    QByteArray operator()(const QString &filename,
                           const QByteArray &source);
 
-    void preprocess(const QByteArray &filename,
+    void preprocess(const QString &filename,
                     const QByteArray &source,
                     QByteArray *result);
 
