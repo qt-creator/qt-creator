@@ -41,6 +41,13 @@ class SimpleLexer;
 class CPLUSPLUS_EXPORT SimpleToken
 {
 public:
+    SimpleToken(int kind, int position, int length, const QStringRef &text)
+        : _kind(kind)
+        , _position(position)
+        , _length(length)
+        , _text(text)
+    { }
+
     SimpleToken()
         : _kind(0),
           _position(0),
