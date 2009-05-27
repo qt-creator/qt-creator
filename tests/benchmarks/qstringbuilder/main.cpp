@@ -13,17 +13,15 @@
 #define SEP(s) qDebug() << "\n\n-------- " s "  ---------";
 #define L(s) QLatin1String(s)
 
-const char l1literal[] = "some string literal";
-
 class tst_qstringbuilder : public QObject
 {
     Q_OBJECT
 
 public:
     tst_qstringbuilder()
-      :
-        l1string(l1literal),
-        ba(l1literal),
+      : l1literal("some string literal"),
+        l1string("some string literal"),
+        ba("some string literal"),
         string(l1string),
         stringref(&string, 2, 10),
         achar('c')
@@ -73,12 +71,12 @@ private slots:
     void separator_1() { SEP("literal + literal  (builder first)"); }
 
     void b_2_l1literal() {
-        QBENCHMARK { r = l1string % l1literal; }
+        QBENCHMARK { r = l1literal % l1literal; }
         COMPARE(r, l1string + l1string);
     }
     void s_2_l1string() {
         QBENCHMARK { r = l1string + l1string; }
-        COMPARE(r, QString(l1string % l1literal));
+        COMPARE(r, QString(l1literal % l1literal));
     }
 
 
@@ -141,37 +139,37 @@ private slots:
     void separator_3() { SEP("3 literals"); }
 
     void b_3_l1literal() {
-        QBENCHMARK { r = l1string % l1literal % l1literal; }
+        QBENCHMARK { r = l1literal % l1literal % l1literal; }
         COMPARE(r, l1string + l1string + l1string);
     }
     void s_3_l1string() {
         QBENCHMARK { r = l1string + l1string + l1string; }
-        COMPARE(r, QString(l1string % l1literal % l1literal));
+        COMPARE(r, QString(l1literal % l1literal % l1literal));
     }
 
 
     void separator_4() { SEP("4 literals"); }
 
     void b_4_l1literal() {
-        QBENCHMARK { r = l1string % l1literal % l1literal % l1literal; }
+        QBENCHMARK { r = l1literal % l1literal % l1literal % l1literal; }
         COMPARE(r, l1string + l1string + l1string + l1string);
     }
     void s_4_l1string() {
         QBENCHMARK { r = l1string + l1string + l1string + l1string; }
-        COMPARE(r, QString(l1string % l1literal % l1literal % l1literal));
+        COMPARE(r, QString(l1literal % l1literal % l1literal % l1literal));
     }
 
 
     void separator_5() { SEP("5 literals"); }
 
     void b_5_l1literal() {
-        QBENCHMARK { r = l1string % l1literal % l1literal % l1literal %l1literal; }
+        QBENCHMARK { r = l1literal % l1literal % l1literal % l1literal %l1literal; }
         COMPARE(r, l1string + l1string + l1string + l1string + l1string);
     }
 
     void s_5_l1string() {
         QBENCHMARK { r = l1string + l1string + l1string + l1string + l1string; }
-        COMPARE(r, QString(l1string % l1literal % l1literal % l1literal % l1literal));
+        COMPARE(r, QString(l1literal % l1literal % l1literal % l1literal % l1literal));
     }
 
 
@@ -262,6 +260,7 @@ private slots:
     }
 
 private:
+    const QLatin1Literal l1literal;
     const QLatin1String l1string;
     const QByteArray ba;
     const QString string;
