@@ -364,7 +364,8 @@ void TypePrettyPrinter::space()
 
     const QChar ch = _text.at(_text.length() - 1);
 
-    if (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char(')'))
+    if (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char(')')
+            || ch == QLatin1Char('>'))
         _text += QLatin1Char(' ');
 }
 

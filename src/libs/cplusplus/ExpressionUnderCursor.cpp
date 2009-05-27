@@ -36,13 +36,100 @@
 
 using namespace CPlusPlus;
 
+namespace CPlusPlus {
+
+class BackwardsScanner
+{
+    enum { MAX_BLOCK_COUNT = 10 };
+
+public:
+    BackwardsScanner(const QTextCursor &cursor)
+        : _offset(0)
+        , _blocksTokenized(0)
+        , _block(cursor.block())
+    {
+        _tokenize.setSkipComments(true);
+        _text = _block.text().left(cursor.position() - cursor.block().position());
+        _tokens.append(_tokenize(_text, previousBlockState(_block)));
+    }
+
+    QList<SimpleToken> tokens() const { return _tokens; }
+
+    const SimpleToken &operator[](int i)
+    {
+        while (_offset + i < 0) {
+            _block = _block.previous();
+            if (_blocksTokenized == MAX_BLOCK_COUNT || !_block.isValid()) {
+                ++_offset;
+                _tokens.prepend(SimpleToken()); // sentinel
+                break;
+            } else {
+                ++_blocksTokenized;
+
+                QString blockText = _block.text();
+                _text.prepend(blockText);
+                QList<SimpleToken> adaptedTokens;
+                for (int i = 0; i < _tokens.size(); ++i) {
+                    const SimpleToken &t = _tokens.at(i);
+                    const int position = t.position() + blockText.length();
+                    adaptedTokens.append(SimpleToken(t.kind(),
+                                                     position,
+                                                     t.length(),
+                                                     _text.midRef(position, t.length())));
+                }
+
+                _tokens = _tokenize(blockText, previousBlockState(_block));
+                _offset += _tokens.size();
+                _tokens += adaptedTokens;
+            }
+        }
+
+        return _tokens.at(_offset + i);
+    }
+
+    int startPosition() const
+    { return _block.position(); }
+
+    const QString &text() const
+    { return _text; }
+
+    QString text(int begin, int end) const
+    {
+        const SimpleToken &firstToken = _tokens.at(begin + _offset);
+        const SimpleToken &lastToken = _tokens.at(end + _offset - 1);
+        return _text.mid(firstToken.begin(), lastToken.end() - firstToken.begin());
+    }
+
+    int previousBlockState(const QTextBlock &block)
+    {
+        const QTextBlock prevBlock = block.previous();
+        if (prevBlock.isValid()) {
+            int state = prevBlock.userState();
+
+            if (state != -1)
+                return state;
+        }
+        return 0;
+    }
+
+private:
+    QList<SimpleToken> _tokens;
+    int _offset;
+    int _blocksTokenized;
+    QTextBlock _block;
+    QString _text;
+    SimpleLexer _tokenize;
+};
+
+}
+
 ExpressionUnderCursor::ExpressionUnderCursor()
 { }
 
 ExpressionUnderCursor::~ExpressionUnderCursor()
 { }
 
-int ExpressionUnderCursor::startOfMatchingBrace(const QList<SimpleToken> &tk, int index)
+int ExpressionUnderCursor::startOfMatchingBrace(BackwardsScanner &tk, int index)
 {
     if (tk[index - 1].is(T_RPAREN)) {
         int i = index - 1;
@@ -54,7 +141,7 @@ int ExpressionUnderCursor::startOfMatchingBrace(const QList<SimpleToken> &tk, in
             } else if (tk[i].is(T_RPAREN))
                 --count;
             --i;
-        } while (count != 0 && i > -1);
+        } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
     } else if (tk[index - 1].is(T_RBRACKET)) {
         int i = index - 1;
         int count = 0;
@@ -65,7 +152,7 @@ int ExpressionUnderCursor::startOfMatchingBrace(const QList<SimpleToken> &tk, in
             } else if (tk[i].is(T_RBRACKET))
                 --count;
             --i;
-        } while (count != 0 && i > -1);
+        } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
     } else if (tk[index - 1].is(T_GREATER)) {
         int i = index - 1;
         int count = 0;
@@ -76,13 +163,13 @@ int ExpressionUnderCursor::startOfMatchingBrace(const QList<SimpleToken> &tk, in
             } else if (tk[i].is(T_GREATER))
                 --count;
             --i;
-        } while (count != 0 && i > -1);
+        } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
     }
 
     return index;
 }
 
-int ExpressionUnderCursor::startOfExpression(const QList<SimpleToken> &tk, int index)
+int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
 {
     // tk is a reference to a const QList. So, don't worry about [] access.
     // ### TODO implement multiline support. It should be pretty easy.
@@ -178,95 +265,37 @@ bool ExpressionUnderCursor::isAccessToken(const SimpleToken &tk)
     } // switch
 }
 
-int ExpressionUnderCursor::previousBlockState(const QTextBlock &block)
-{
-    const QTextBlock prevBlock = block.previous();
-    if (prevBlock.isValid()) {
-        int state = prevBlock.userState();
-
-        if (state != -1)
-            return state;
-    }
-    return 0;
-}
-
-void ExpressionUnderCursor::init(const QTextCursor &cursor,
-                                 QList<SimpleToken> *tokens,
-                                 QString *text,
-                                 int *startPosition)
-{
-    enum { MAX_BLOCK_COUNT = 5 };
-
-    QTextBlock block = cursor.block();
-    QTextBlock initialBlock = block;
-    for (int i = 0; i < MAX_BLOCK_COUNT; ++i) {
-        if (! initialBlock.previous().isValid())
-            break;
-
-        initialBlock = initialBlock.previous();
-    }
-
-    QTextBlock it = initialBlock;
-    for (; it.isValid(); it = it.next()) {
-        QString textBlock = it.text();
-
-        if (it == block)
-            textBlock = textBlock.left(cursor.position() - cursor.block().position());
-
-        text->append(textBlock);
-
-        if (it == block)
-            break;
-
-        text->append(QLatin1Char('\n'));
-    }
-
-    SimpleLexer tokenize;
-    tokenize.setSkipComments(true);
-    tokens->append(tokenize(*text, previousBlockState(initialBlock)));
-    tokens->prepend(SimpleToken()); // sentinel
-
-    if (startPosition)
-        *startPosition = initialBlock.position();
-}
-
 QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
 {
-    QList<SimpleToken> tokens;
-    QString text;
-
-    init(cursor, &tokens, &text);
+    BackwardsScanner scanner(cursor);
 
     _jumpedComma = false;
 
-    const int i = startOfExpression(tokens, tokens.size());
-    if (i == tokens.size())
+    const int initialSize = scanner.tokens().size();
+    const int i = startOfExpression(scanner, initialSize);
+    if (i == initialSize)
         return QString();
 
-    return text.mid(tokens.at(i).position(),
-                    tokens.last().position() + tokens.last().length()
-                                             - tokens.at(i).position());
+    return scanner.text(i, initialSize);
 }
 
 int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor)
 {
-    QList<SimpleToken> tokens;
     QString text;
-    int startPosition;
 
-    init(cursor, &tokens, &text, &startPosition);
+    BackwardsScanner scanner(cursor);
 
-    int index = tokens.size();
+    int index = scanner.tokens().size();
 
     forever {
-        const SimpleToken &tk = tokens.at(index - 1);
+        const SimpleToken &tk = scanner[index - 1];
 
         if (tk.is(T_EOF_SYMBOL))
             break;
         else if (tk.is(T_LPAREN))
-            return startPosition + tk.position();
+            return scanner.startPosition() + tk.position();
         else if (tk.is(T_RPAREN)) {
-            int matchingBrace = startOfMatchingBrace(tokens, index);
+            int matchingBrace = startOfMatchingBrace(scanner, index);
 
             if (matchingBrace == index) // If no matching brace found
                 return -1;

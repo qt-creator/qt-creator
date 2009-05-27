@@ -41,6 +41,7 @@ QT_END_NAMESPACE
 
 namespace CPlusPlus {
 
+class BackwardsScanner;
 class SimpleToken;
 
 class CPLUSPLUS_EXPORT ExpressionUnderCursor
@@ -53,13 +54,8 @@ public:
     int startOfFunctionCall(const QTextCursor &cursor);
 
 private:
-    void init(const QTextCursor &cursor,
-              QList<SimpleToken> *tokens,
-              QString *text,
-              int *startPosition = 0);
-
-    int startOfMatchingBrace(const QList<SimpleToken> &tk, int index);
-    int startOfExpression(const QList<SimpleToken> &tk, int index);
+    int startOfMatchingBrace(BackwardsScanner &tk, int index);
+    int startOfExpression(BackwardsScanner &tk, int index);
     int previousBlockState(const QTextBlock &block);
     bool isAccessToken(const SimpleToken &tk);
 

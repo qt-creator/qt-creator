@@ -110,19 +110,19 @@ public:
     void expand(Scope *scope, const QList<Scope *> &visibleScopes,
                 QList<Scope *> *expandedScopes) const;
 
-    void expandNamespace(Scope *scope,
+    void expandNamespace(Namespace *namespaceSymbol,
                          const QList<Scope *> &visibleScopes,
                          QList<Scope *> *expandedScopes) const;
 
-    void expandClass(Scope *scope,
+    void expandClass(Class *classSymbol,
                      const QList<Scope *> &visibleScopes,
                      QList<Scope *> *expandedScopes) const;
 
-    void expandBlock(Scope *scope,
+    void expandBlock(Block *blockSymbol,
                      const QList<Scope *> &visibleScopes,
                      QList<Scope *> *expandedScopes) const;
 
-    void expandFunction(Scope *scope,
+    void expandFunction(Function *functionSymbol,
                         const QList<Scope *> &visibleScopes,
                         QList<Scope *> *expandedScopes) const;
 

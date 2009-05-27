@@ -351,14 +351,10 @@ void LookupContext::expand(const QList<Scope *> &scopes, QList<Scope *> *expande
     }
 }
 
-void LookupContext::expandNamespace(Scope *scope,
+void LookupContext::expandNamespace(Namespace *ns,
                                     const QList<Scope *> &visibleScopes,
                                     QList<Scope *> *expandedScopes) const
 {
-    Namespace *ns = scope->owner()->asNamespace();
-    if (! ns)
-        return;
-
     if (Name *nsName = ns->name()) {
         const QList<Symbol *> namespaceList = resolveNamespace(nsName, visibleScopes);
         foreach (Symbol *otherNs, namespaceList) {
@@ -368,10 +364,10 @@ void LookupContext::expandNamespace(Scope *scope,
         }
     }
 
-    for (unsigned i = 0; i < scope->symbolCount(); ++i) { // ### make me fast
-        Symbol *symbol = scope->symbolAt(i);
-        if (Namespace *ns = symbol->asNamespace()) {
-            if (! ns->name()) {
+    for (unsigned i = 0; i < ns->memberCount(); ++i) { // ### make me fast
+        Symbol *symbol = ns->memberAt(i);
+        if (Namespace *otherNs = symbol->asNamespace()) {
+            if (! otherNs->name()) {
                 expand(ns->members(), visibleScopes, expandedScopes);
             }
         } else if (UsingNamespaceDirective *u = symbol->asUsingNamespaceDirective()) {
@@ -386,16 +382,12 @@ void LookupContext::expandNamespace(Scope *scope,
     }
 }
 
-void LookupContext::expandClass(Scope *scope,
+void LookupContext::expandClass(Class *klass,
                                 const QList<Scope *> &visibleScopes,
                                 QList<Scope *> *expandedScopes) const
 {
-    Class *klass = scope->owner()->asClass();
-    if (! klass)
-        return;
-
-    for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-        Symbol *symbol = scope->symbolAt(i);
+    for (unsigned i = 0; i < klass->memberCount(); ++i) {
+        Symbol *symbol = klass->memberAt(i);
         if (Class *nestedClass = symbol->asClass()) {
             if (! nestedClass->name()) {
                 expand(nestedClass->members(), visibleScopes, expandedScopes);
@@ -442,12 +434,12 @@ void LookupContext::expandClass(Scope *scope,
     }
 }
 
-void LookupContext::expandBlock(Scope *scope,
+void LookupContext::expandBlock(Block *blockSymbol,
                                 const QList<Scope *> &visibleScopes,
                                 QList<Scope *> *expandedScopes) const
 {
-    for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-        Symbol *symbol = scope->symbolAt(i);
+    for (unsigned i = 0; i < blockSymbol->memberCount(); ++i) {
+        Symbol *symbol = blockSymbol->memberAt(i);
         if (UsingNamespaceDirective *u = symbol->asUsingNamespaceDirective()) {
             const QList<Symbol *> candidates = resolveNamespace(u->name(),
                                                                 visibleScopes);
@@ -460,13 +452,13 @@ void LookupContext::expandBlock(Scope *scope,
     }
 }
 
-void LookupContext::expandFunction(Scope *scope,
+void LookupContext::expandFunction(Function *function,
                                    const QList<Scope *> &visibleScopes,
                                    QList<Scope *> *expandedScopes) const
 {
-    Function *function = scope->owner()->asFunction();
     if (! expandedScopes->contains(function->arguments()))
         expandedScopes->append(function->arguments());
+
     if (QualifiedNameId *q = function->name()->asQualifiedNameId()) {
         Name *nestedNameSpec = 0;
         if (q->nameCount() == 1)
@@ -491,15 +483,13 @@ void LookupContext::expand(Scope *scope,
 
     expandedScopes->append(scope);
 
-    if (scope->isNamespaceScope()) {
-        expandNamespace(scope, visibleScopes, expandedScopes);
-    } else if (scope->isClassScope()) {
-        expandClass(scope, visibleScopes, expandedScopes);
-    } else if (scope->isBlockScope()) {
-        expandBlock(scope, visibleScopes, expandedScopes);
-    } else if (scope->isFunctionScope()) {
-        expandFunction(scope, visibleScopes, expandedScopes);
-    } else if (scope->isPrototypeScope()) {
-        //qDebug() << "prototype scope" << overview.prettyName(scope->owner()->name());
+    if (Namespace *ns = scope->owner()->asNamespace()) {
+        expandNamespace(ns, visibleScopes, expandedScopes);
+    } else if (Class *klass = scope->owner()->asClass()) {
+        expandClass(klass, visibleScopes, expandedScopes);
+    } else if (Block *block = scope->owner()->asBlock()) {
+        expandBlock(block, visibleScopes, expandedScopes);
+    } else if (Function *fun = scope->owner()->asFunction()) {
+        expandFunction(fun, visibleScopes, expandedScopes);
     }
 }
