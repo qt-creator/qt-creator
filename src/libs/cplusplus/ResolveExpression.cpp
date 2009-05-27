@@ -457,7 +457,6 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
     foreach (Symbol *symbol, symbols) {
         if (symbol->isTypedef()) {
             if (NamedType *namedTy = symbol->type()->asNamedType()) {
-                LookupContext symbolContext(symbol, _context);
                 const Result r(namedTy, symbol);
                 const QList<Symbol *> resolvedClasses =
                         resolveClass(r, _context);

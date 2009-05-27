@@ -92,30 +92,6 @@ LookupContext::LookupContext(Symbol *symbol,
     _visibleScopes = buildVisibleScopes();
 }
 
-LookupContext::LookupContext(Symbol *symbol,
-                             const LookupContext &context)
-    : _control(context._control),
-      _symbol(symbol),
-      _expressionDocument(context._expressionDocument),
-      _documents(context._documents)
-{
-    const QString fn = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
-    _thisDocument = _documents.value(fn);
-    _visibleScopes = buildVisibleScopes();
-}
-
-LookupContext::LookupContext(Symbol *symbol,
-              Document::Ptr thisDocument,
-              const LookupContext &context)
-    : _control(context._control),
-      _symbol(symbol),
-      _expressionDocument(context._expressionDocument),
-      _thisDocument(thisDocument),
-      _documents(context._documents)
-{
-    _visibleScopes = buildVisibleScopes();
-}
-
 bool LookupContext::isValid() const
 { return _control != 0; }
 
@@ -418,13 +394,6 @@ void LookupContext::expandClass(Class *klass,
             Name *baseClassName = baseClass->name();
             const QList<Symbol *> baseClassCandidates = resolveClass(baseClassName,
                                                                      classVisibleScopes);
-
-#if 0
-            if (baseClassCandidates.isEmpty()) {
-                Overview overview;
-                qDebug() << "unresolved base class:" << overview.prettyName(baseClassName);
-            }
-#endif
 
             for (int j = 0; j < baseClassCandidates.size(); ++j) {
                 if (Class *baseClassSymbol = baseClassCandidates.at(j)->asClass())

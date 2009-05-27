@@ -45,13 +45,6 @@ public:
                   Document::Ptr thisDocument,
                   const Snapshot &documents);
 
-    LookupContext(Symbol *symbol,
-                  const LookupContext &context);
-
-    LookupContext(Symbol *symbol,
-                  Document::Ptr thisDocument,
-                  const LookupContext &context);
-
     bool isValid() const;
     operator bool() const;
 
