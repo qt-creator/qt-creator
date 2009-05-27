@@ -44,9 +44,6 @@ public:
     Overview();
     ~Overview();
 
-    bool richText() const;
-    void setRichText(bool richText);
-
     bool showArgumentNames() const;
     void setShowArgumentNames(bool showArgumentNames);
 
@@ -59,10 +56,15 @@ public:
     bool showFullyQualifiedNames() const;
     void setShowFullyQualifiedNamed(bool showFullyQualifiedNames);
 
-    // 1-based
-    // ### rename
-    unsigned markArgument() const;
-    void setMarkArgument(unsigned position);
+    // argument index that you want to mark
+    unsigned markedArgument() const;
+    void setMarkedArgument(unsigned position);
+
+    int markedArgumentBegin() const;
+    void setMarkedArgumentBegin(int begin);
+
+    int markedArgumentEnd() const;
+    void setMarkedArgumentEnd(int end);
 
     QString operator()(Name *name) const
     { return prettyName(name); }
@@ -75,12 +77,13 @@ public:
     QString prettyType(const FullySpecifiedType &type, const QString &name) const;
 
 private:
-    unsigned _markArgument;
+    unsigned _markedArgument;
+    int _markedArgumentBegin;
+    int _markedArgumentEnd;
     bool _showArgumentNames: 1;
     bool _showReturnTypes: 1;
     bool _showFunctionSignatures: 1;
     bool _showFullyQualifiedNames: 1;
-    bool _richText: 1;
 };
 
 } // end of namespace CPlusPlus

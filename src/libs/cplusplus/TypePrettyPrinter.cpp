@@ -35,7 +35,6 @@
 #include <Scope.h>
 #include <QStringList>
 #include <QtDebug>
-#include <QTextDocument> // Qt::escape()
 
 using namespace CPlusPlus;
 
@@ -107,10 +106,10 @@ QString TypePrettyPrinter::operator()(const FullySpecifiedType &type, const QStr
 void TypePrettyPrinter::acceptType(const FullySpecifiedType &ty)
 {
     if (ty.isSigned())
-        out(QLatin1String("signed "));
+        _text += QLatin1String("signed ");
 
     else if (ty.isUnsigned())
-        out(QLatin1String("unsigned "));
+        _text += QLatin1String("unsigned ");
 
     const FullySpecifiedType previousFullySpecifiedType = _fullySpecifiedType;
     _fullySpecifiedType = ty;
@@ -148,14 +147,14 @@ void TypePrettyPrinter::applyPtrOperators(bool wantSpace)
             space();
 
         if (op->isPointerType()) {
-            out(QLatin1Char('*'));
+            _text += QLatin1Char('*');
             outCV(op);
         } else if (op->isReferenceType()) {
-            out(QLatin1Char('&'));
+            _text += QLatin1Char('&');
         } else if (const PointerToMemberType *memPtrTy = op->asPointerToMemberType()) {
             space();
-            out(_overview->prettyName(memPtrTy->memberName()));
-            out(QLatin1Char('*'));
+            _text += _overview->prettyName(memPtrTy->memberName());
+            _text += QLatin1Char('*');
             outCV(op);
         }
     }
@@ -163,13 +162,13 @@ void TypePrettyPrinter::applyPtrOperators(bool wantSpace)
 
 void TypePrettyPrinter::visit(VoidType *)
 {
-    out(QLatin1String("void"));
+    _text += QLatin1String("void");
     applyPtrOperators();
 }
 
 void TypePrettyPrinter::visit(NamedType *type)
 {
-    out(overview()->prettyName(type->name()));
+    _text += overview()->prettyName(type->name());
     applyPtrOperators();
 }
 
@@ -206,25 +205,25 @@ void TypePrettyPrinter::visit(IntegerType *type)
 {
     switch (type->kind()) {
     case IntegerType::Char:
-        out(QLatin1String("char"));
+        _text += QLatin1String("char");
         break;
     case IntegerType::WideChar:
-        out(QLatin1String("wchar_t"));
+        _text += QLatin1String("wchar_t");
         break;
     case IntegerType::Bool:
-        out(QLatin1String("bool"));
+        _text += QLatin1String("bool");
         break;
     case IntegerType::Short:
-        out(QLatin1String("short"));
+        _text += QLatin1String("short");
         break;
     case IntegerType::Int:
-        out(QLatin1String("int"));
+        _text += QLatin1String("int");
         break;
     case IntegerType::Long:
-        out(QLatin1String("long"));
+        _text += QLatin1String("long");
         break;
     case IntegerType::LongLong:
-        out(QLatin1String("long long"));
+        _text += QLatin1String("long long");
         break;
     }
 
@@ -235,13 +234,13 @@ void TypePrettyPrinter::visit(FloatType *type)
 {
     switch (type->kind()) {
     case FloatType::Float:
-        out(QLatin1String("float"));
+        _text += QLatin1String("float");
         break;
     case FloatType::Double:
-        out(QLatin1String("double"));
+        _text += QLatin1String("double");
         break;
     case FloatType::LongDouble:
-        out(QLatin1String("long double"));
+        _text += QLatin1String("long double");
         break;
     }
 
@@ -277,26 +276,26 @@ void TypePrettyPrinter::visit(ReferenceType *type)
 
 void TypePrettyPrinter::visit(ArrayType *type)
 {
-    out(overview()->prettyType(type->elementType()));
+    _text += overview()->prettyType(type->elementType());
     if (! _ptrOperators.isEmpty()) {
-        out(QLatin1Char('('));
+        _text += QLatin1Char('(');
         applyPtrOperators(false);
         if (! _name.isEmpty()) {
-            out(_name);
+            _text += _name;
             _name.clear();
         }
-        out(QLatin1Char(')'));
+        _text += QLatin1Char(')');
     }
-    out(QLatin1String("[]"));
+    _text += QLatin1String("[]");
 }
 
 void TypePrettyPrinter::visit(Function *type)
 {
     if (_overview->showReturnTypes())
-        out(_overview->prettyType(type->returnType()));
+        _text += _overview->prettyType(type->returnType());
 
     if (! _ptrOperators.isEmpty()) {
-        out(QLatin1Char('('));
+        _text += QLatin1Char('(');
         applyPtrOperators(false);
 
         if (! _name.isEmpty()) {
@@ -304,11 +303,11 @@ void TypePrettyPrinter::visit(Function *type)
             _name.clear();
         }
 
-        out(QLatin1Char(')'));
+        _text += QLatin1Char(')');
 
     } else if (! _name.isEmpty() && _overview->showFunctionSignatures()) {
         space();
-        out(_name);
+        _text += _name;
         _name.clear();
     }
 
@@ -318,41 +317,41 @@ void TypePrettyPrinter::visit(Function *type)
         argumentText.setShowArgumentNames(false);
         argumentText.setShowFunctionSignatures(true);
 
-        out(QLatin1Char('('));
+        _text += QLatin1Char('(');
 
         for (unsigned index = 0; index < type->argumentCount(); ++index) {
             if (index != 0)
-                out(QLatin1String(", "));
+                _text += QLatin1String(", ");
 
             if (Argument *arg = type->argumentAt(index)->asArgument()) {
-                if (index + 1 == _overview->markArgument())
-                    outPlain(QLatin1String("<b>"));
+                if (index + 1 == _overview->markedArgument())
+                    const_cast<Overview*>(_overview)->setMarkedArgumentBegin(_text.length());
 
                 Name *name = 0;
 
                 if (_overview->showArgumentNames())
                     name = arg->name();
 
-                out(argumentText(arg->type(), name));
+                _text += argumentText(arg->type(), name);
 
-                if (index + 1 == _overview->markArgument())
-                    outPlain(QLatin1String("</b>"));
+                if (index + 1 == _overview->markedArgument())
+                    const_cast<Overview*>(_overview)->setMarkedArgumentEnd(_text.length());
             }
         }
 
         if (type->isVariadic())
-            out(QLatin1String("..."));
+            _text += QLatin1String("...");
 
-        out(QLatin1Char(')'));
+        _text += QLatin1Char(')');
         if (type->isConst() && type->isVolatile()) {
             space();
-            out("const volatile");
+            _text += "const volatile";
         } else if (type->isConst()) {
             space();
-            out("const");
+            _text += "const";
         } else if (type->isVolatile()) {
             space();
-            out("volatile");
+            _text += "volatile";
         }
     }
 }
@@ -369,28 +368,14 @@ void TypePrettyPrinter::space()
         _text += QLatin1Char(' ');
 }
 
-void TypePrettyPrinter::outPlain(const QString &text)
-{ _text += text; }
-
-void TypePrettyPrinter::out(const QString &text)
-{
-    if (overview()->richText())
-        _text += Qt::escape(text);
-    else
-        _text += text;
-}
-
-void TypePrettyPrinter::out(const QChar &ch)
-{ _text += ch; }
-
 void TypePrettyPrinter::outCV(const FullySpecifiedType &ty)
 {
     if (ty.isConst() && ty.isVolatile())
-        out(QLatin1String("const volatile"));
+        _text += QLatin1String("const volatile");
 
     else if (ty.isConst())
-        out(QLatin1String("const"));
+        _text += QLatin1String("const");
 
     else if (ty.isVolatile())
-        out(QLatin1String("volatile"));
+        _text += QLatin1String("volatile");
 }

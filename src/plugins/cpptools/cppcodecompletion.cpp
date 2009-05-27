@@ -66,6 +66,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QTextDocument> // Qt::escape()
 
 using namespace CPlusPlus;
 
@@ -382,13 +383,23 @@ bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
 void FunctionArgumentWidget::updateHintText()
 {
     Overview overview;
-    overview.setRichText(true);
     overview.setShowReturnTypes(true);
     overview.setShowArgumentNames(true);
-    overview.setMarkArgument(m_currentarg + 1);
+    overview.setMarkedArgument(m_currentarg + 1);
     Function *f = currentFunction();
 
-    setText(overview(f->type(), f->name()));
+    const QString prettyMethod = overview(f->type(), f->name());
+    const int begin = overview.markedArgumentBegin();
+    const int end = overview.markedArgumentEnd();
+
+    QString hintText;
+    hintText += Qt::escape(prettyMethod.left(begin));
+    hintText += "<b>";
+    hintText += Qt::escape(prettyMethod.mid(begin, end - begin));
+    hintText += "</b>";
+    hintText += Qt::escape(prettyMethod.mid(end));
+    setText(hintText);
+
     m_numberLabel->setText(tr("%1 of %2").arg(m_current + 1).arg(m_items.size()));
 
     m_popupFrame->setFixedWidth(m_popupFrame->minimumSizeHint().width());

@@ -35,26 +35,17 @@
 using namespace CPlusPlus;
 
 Overview::Overview()
-    : _markArgument(0),
+    : _markedArgument(0),
+      _markedArgumentBegin(0),
+      _markedArgumentEnd(0),
       _showArgumentNames(false),
       _showReturnTypes(false),
       _showFunctionSignatures(true),
-      _showFullyQualifiedNames(false),
-      _richText(false)
+      _showFullyQualifiedNames(false)
 { }
 
 Overview::~Overview()
 { }
-
-bool Overview::richText() const
-{
-    return _richText;
-}
-
-void Overview::setRichText(bool richText)
-{
-    _richText = richText;
-}
 
 bool Overview::showArgumentNames() const
 {
@@ -76,14 +67,34 @@ bool Overview::showReturnTypes() const
     return _showReturnTypes;
 }
 
-unsigned Overview::markArgument() const
+unsigned Overview::markedArgument() const
 {
-    return _markArgument;
+    return _markedArgument;
 }
 
-void Overview::setMarkArgument(unsigned position)
+void Overview::setMarkedArgument(unsigned position)
 {
-    _markArgument = position;
+    _markedArgument = position;
+}
+
+int Overview::markedArgumentBegin() const
+{
+    return _markedArgumentBegin;
+}
+
+void Overview::setMarkedArgumentBegin(int begin)
+{
+    _markedArgumentBegin = begin;
+}
+
+int Overview::markedArgumentEnd() const
+{
+    return _markedArgumentEnd;
+}
+
+void Overview::setMarkedArgumentEnd(int end)
+{
+    _markedArgumentEnd = end;
 }
 
 bool Overview::showFunctionSignatures() const
