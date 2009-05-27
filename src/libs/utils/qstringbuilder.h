@@ -53,10 +53,6 @@ QT_BEGIN_NAMESPACE
 QT_MODULE(Core)
 
 
-// Using this relies on changing the QString::QString(QChar *, int)
-// constructor to allocated an unitialized string of the given size.
-//#define USE_CHANGED_QSTRING 1
-
 class QLatin1Literal
 {
 public:
@@ -74,35 +70,33 @@ private:
 
 namespace {
 
+template <typename T> class QConcatenable {};
+
 template <typename A, typename B>
 class QStringBuilder
 {
 public:
     QStringBuilder(const A &a_, const B &b_) : a(a_), b(b_) {}
-    operator QString() const;
 
-public:
+    operator QString() const
+    {
+        #if 0
+        QString s(QConcatenable< QStringBuilder<A, B> >::size(*this),
+            QString::Uninitialized());
+        #else
+        QString s;
+        s.resize(QConcatenable< QStringBuilder<A, B> >::size(*this));
+        #endif
+        
+        QChar *d = s.data();
+        QConcatenable< QStringBuilder<A, B> >::appendTo(*this, d);
+        return s;
+    }
+
     const A &a;
     const B &b;
 };
 
-// make sure the operator% defined below acts only on types we want to handle.
-template <typename T> struct QConcatenable {};
-
-
-template <typename A, typename B>
-QStringBuilder<A, B>::operator QString() const 
-{
-#ifdef USE_CHANGED_QSTRING
-    QString s(this->size(), QChar(-1));
-#else
-    QString s;
-    s.resize(QConcatenable< QStringBuilder<A, B> >::size(*this));
-#endif
-    QChar *d = s.data();
-    QConcatenable< QStringBuilder<A, B> >::appendTo(*this, d);
-    return s;
-}
 
 template <> struct QConcatenable<char>
 {

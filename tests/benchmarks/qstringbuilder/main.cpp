@@ -275,8 +275,8 @@ private:
 
 int main(int argc, char *argv[])
 {
-    42 % 3; // Sanity test, should always work.
-
+    //qDebug() << (QString("xx") * QLatin1String("y")).toString();
+    //42 % 3; // Sanity test, should always work.
     //QString("x") % 2; // Sanity test, should only compile when the 
     // operator%(QString, int) is visible.
 
