@@ -63,6 +63,8 @@ public:
     Name();
     virtual ~Name();
 
+    virtual Identifier *identifier() const = 0;
+
     bool isNameId() const;
     bool isTemplateNameId() const;
     bool isDestructorNameId() const;

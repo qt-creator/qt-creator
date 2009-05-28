@@ -296,6 +296,14 @@ void Symbol::setName(Name *name)
     }
 }
 
+Identifier *Symbol::identifier() const
+{
+    if (_name)
+        return _name->identifier();
+
+    return 0;
+}
+
 Scope *Symbol::scope() const
 { return _scope; }
 
