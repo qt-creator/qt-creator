@@ -130,8 +130,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 #endif
     connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
 
-    addAutoReleasedObject(new FindInFiles(
-        ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>()));
 
     return true;
 }
@@ -146,6 +144,10 @@ void TextEditorPlugin::extensionsInitialized()
             this, SLOT(updateSearchResultsFont(TextEditor::FontSettings)));
 
     updateSearchResultsFont(m_settings->fontSettings());
+
+    addAutoReleasedObject(new FindInFiles(
+        ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>()));
+
 }
 
 void TextEditorPlugin::initializeEditor(PlainTextEditor *editor)
