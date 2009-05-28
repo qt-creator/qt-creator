@@ -130,6 +130,7 @@ private slots:
 
     void openHelpPage(const QUrl& url);
     void openHelpPage(const QString& url);
+    void openContextHelpPage(const QString &url);
 
 private:
     QToolBar *createToolBar();

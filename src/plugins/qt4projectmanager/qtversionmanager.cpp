@@ -35,7 +35,10 @@
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/cesdkhandler.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/modemanager.h>
+#include <coreplugin/welcomemode.h>
 #include <extensionsystem/pluginmanager.h>
 #include <help/helpplugin.h>
 #include <utils/qtcassert.h>
@@ -98,7 +101,15 @@ QtVersionManager::QtVersionManager()
     updateSystemVersion();
 
     writeVersionsIntoSettings();
+
+    if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>
+        (Core::ICore::instance()->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
+        connect(this, SIGNAL(updatedExamples(QString,QString,QString)),
+                welcomeMode, SIGNAL(updatedExamples(QString,QString, QString)));
+    }
+    else
     updateDocumentation();
+    updateExamples();
 }
 
 QtVersionManager::~QtVersionManager()
@@ -129,11 +140,36 @@ void QtVersionManager::updateDocumentation()
     QStringList fileEndings = QStringList() << "/qch/qt.qch" << "/qch/qmake.qch" << "/qch/designer.qch";
     QStringList files;
     foreach (QtVersion *version, m_versions) {
-        QString docPath = version->versionInfo().value("QT_INSTALL_DOCS");
+        QString docPath = version->documentationPath();
         foreach (const QString &fileEnding, fileEndings)
             files << docPath+fileEnding;
     }
     helpManager->registerDocumentation(files);
+}
+
+void QtVersionManager::updateExamples()
+{
+    QList<QtVersion *> versions;
+    versions.append(currentQtVersion());
+    versions.append(m_versions);
+
+    QString examplesPath;
+    QString docPath;
+    QString demosPath;
+    QtVersion *version = 0;
+    // try to find a version which has both, examples and docs, starting with default Qt
+    foreach (version, versions) {
+        if (version->hasExamples())
+            examplesPath = version->examplesPath();
+        if (version->hasDemos())
+            demosPath = version->demosPath();
+        if (version->hasDocumentation())
+            docPath = version->documentationPath();
+        if (!examplesPath.isEmpty() && !demosPath.isEmpty() && !docPath.isEmpty()) {
+            emit updatedExamples(examplesPath, demosPath, docPath);
+            return;
+        }
+    }
 }
 
 int QtVersionManager::getUniqueId()
@@ -302,8 +338,10 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
     }
 
     emit qtVersionsChanged();
-    if (emitDefaultChanged)
+    if (emitDefaultChanged) {
         emit defaultQtVersionChanged();
+        updateExamples();
+    }
 
     writeVersionsIntoSettings();
 }
@@ -321,6 +359,9 @@ QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isSy
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
     m_defaultConfigIsDebugAndRelease(true),
+    m_hasExamples(false),
+    m_hasDemos(false),
+    m_hasDocumentation(false),
     m_toolChain(0)
 {
     if (id == -1)
@@ -600,6 +641,8 @@ void QtVersion::updateVersionInfo() const
     // extract data from qmake executable
     m_versionInfo.clear();
     m_notInstalled = false;
+    m_hasExamples = false;
+    m_hasDocumentation = false;
     QFileInfo qmake(qmakeCommand());
     if (qmake.exists()) {
         static const char * const variables[] = {
@@ -644,6 +687,21 @@ void QtVersion::updateVersionInfo() const
             QFileInfo fi(m_versionInfo.value("QT_INSTALL_HEADERS"));
             if (!fi.exists())
                 m_notInstalled = true;
+        }
+        if (m_versionInfo.contains("QT_INSTALL_DOCS")){
+            QFileInfo fi(m_versionInfo.value("QT_INSTALL_DOCS"));
+            if (fi.exists())
+                m_hasDocumentation = true;
+        }
+        if (m_versionInfo.contains("QT_INSTALL_EXAMPLES")){
+            QFileInfo fi(m_versionInfo.value("QT_INSTALL_EXAMPLES"));
+            if (fi.exists())
+                m_hasExamples = true;
+        }
+        if (m_versionInfo.contains("QT_INSTALL_DEMOS")){
+            QFileInfo fi(m_versionInfo.value("QT_INSTALL_DEMOS"));
+            if (fi.exists())
+                m_hasDemos = true;
         }
 
         // Parse qconfigpri
@@ -1010,6 +1068,41 @@ QString QtVersion::debuggingHelperLibrary() const
     return DebuggingHelperLibrary::debuggingHelperLibrary(qtInstallData, path());
 }
 
+bool QtVersion::hasDocumentation() const
+{
+    updateVersionInfo();
+    return m_hasDocumentation;
+}
+
+QString QtVersion::documentationPath() const
+{
+    updateVersionInfo();
+    return m_versionInfo["QT_INSTALL_DOCS"];
+}
+
+bool QtVersion::hasDemos() const
+{
+    updateVersionInfo();
+    return m_hasDemos;
+}
+
+QString QtVersion::demosPath() const
+{
+    updateVersionInfo();
+    return m_versionInfo["QT_INSTALL_DEMOS"];
+}
+
+bool QtVersion::hasExamples() const
+{
+    updateVersionInfo();
+    return m_hasExamples;
+}
+
+QString QtVersion::examplesPath() const
+{
+    updateVersionInfo();
+    return m_versionInfo["QT_INSTALL_EXAMPLES"];
+}
 
 bool QtVersion::isMSVC64Bit() const
 {

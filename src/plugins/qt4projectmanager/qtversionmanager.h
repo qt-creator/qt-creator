@@ -86,9 +86,19 @@ public:
 
     bool hasDebuggingHelper() const;
     QString debuggingHelperLibrary() const;
+
     // Builds a debugging library
     // returns the output of the commands
     QString buildDebuggingHelperLibrary();
+
+    bool hasExamples() const;
+    QString examplesPath() const;
+
+    bool hasDocumentation() const;
+    QString documentationPath() const;
+
+    bool hasDemos() const;
+    QString demosPath() const;
 
     int uniqueId() const;
     bool isMSVC64Bit() const;
@@ -130,6 +140,9 @@ private:
     mutable bool m_notInstalled;
     mutable bool m_defaultConfigIsDebug;
     mutable bool m_defaultConfigIsDebugAndRelease;
+    mutable bool m_hasExamples;
+    mutable bool m_hasDemos;
+    mutable bool m_hasDocumentation;
 
     mutable QString m_qmakeCommand;
     mutable QString m_qtVersionString;
@@ -170,6 +183,7 @@ public:
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();
+    void updatedExamples(const QString& examplesPath, const QString& demosPath, const QString& docPath);
 private:
     // Used by QtOptionsPage
     void setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion);
@@ -179,6 +193,7 @@ private:
     void addNewVersionsFromInstaller();
     void updateSystemVersion();
     void updateDocumentation();
+    void updateExamples();
 
     static int indexOfVersionInList(const QtVersion * const version, const QList<QtVersion *> &list);
     void updateUniqueIdToIndexMap();

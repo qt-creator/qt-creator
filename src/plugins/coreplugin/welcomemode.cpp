@@ -126,7 +126,7 @@ WelcomeMode::WelcomeMode() :
     m_d->ui.projTitleLabel->setText(titleLabel(tr("Projects")));
     m_d->ui.recentSessionsTitleLabel->setText(titleLabel(tr("Sessions")));
     m_d->ui.tutorialsTitleLabel->setText(titleLabel(tr("Tutorials")));
-    m_d->ui.demoTitleLabel->setText(titleLabel(tr("Qt Demos and Examples")));
+    m_d->ui.demoTitleLabel->setText(titleLabel(tr("Explore Qt Examples")));
     m_d->ui.didYouKnowTitleLabel->setText(titleLabel(tr("Did you know?")));
     m_d->ui.labsTitleLabel->setText(titleLabel(tr("News from the Qt Labs")));
     m_d->ui.sitesTitleLabel->setText(titleLabel(tr("Qt Websites")));
@@ -155,6 +155,11 @@ WelcomeMode::WelcomeMode() :
     connect(m_d->ui.newsTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
     connect(m_d->ui.sitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
     connect(m_d->ui.tutorialTreeWidget, SIGNAL(activated(QString)), SIGNAL(openHelpPage(const QString&)));
+    connect(m_d->ui.openExampleButton, SIGNAL(clicked()), SLOT(slotOpenExample()));
+    connect(m_d->ui.examplesComboBox, SIGNAL(currentIndexChanged(int)), SLOT(slotEnableExampleButton(int)));
+
+    connect(this, SIGNAL(updatedExamples(QString, QString, QString)),
+            this, SLOT(slotUpdateExamples(QString, QString, QString)));
 
     connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString, QString)),
         m_d->ui.newsTreeWidget, SLOT(slotAddNewsItem(QString, QString, QString)));
@@ -170,10 +175,10 @@ WelcomeMode::WelcomeMode() :
 
     m_d->ui.tutorialTreeWidget->addItem(tr("<b>Qt Creator - A quick tour</b>"),
                                         QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
-    m_d->ui.tutorialTreeWidget->addItem(tr("Understanding widgets"),
-                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/widgets-tutorial.html"));
     m_d->ui.tutorialTreeWidget->addItem(tr("Creating an address book"),
                                         QLatin1String("qthelp://com.trolltech.qt/qdoc/tutorials-addressbook.html"));
+    m_d->ui.tutorialTreeWidget->addItem(tr("Understanding widgets"),
+                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/widgets-tutorial.html"));
     m_d->ui.tutorialTreeWidget->addItem(tr("Building with qmake"),
                                         QLatin1String("qthelp://com.trolltech.qmake/qdoc/qmake-tutorial.html"));
     m_d->ui.tutorialTreeWidget->addItem(tr("Writing test cases"),
@@ -300,6 +305,84 @@ void WelcomeMode::slotProjectClicked(const QString &data)
 void WelcomeMode::slotUrlClicked(const QString &data)
 {
     QDesktopServices::openUrl(QUrl(data));
+}
+
+void WelcomeMode::slotUpdateExamples(const QString& examplePath, const QString& demosPath, const QString& docPath)
+{
+    QString demoxml = demosPath + "/qtdemo/xml/examples.xml";
+    if (!QFile::exists(demoxml))
+        return;
+
+    QFile description(demoxml);
+    if (!description.open(QFile::ReadOnly))
+        return;
+
+    m_d->ui.examplesComboBox->clear();
+    m_d->ui.examplesComboBox->setEnabled(true);
+
+    m_d->ui.examplesComboBox->addItem(tr("Choose an example..."));
+    QFont f = widget()->font();
+    f.setItalic(true);
+    m_d->ui.examplesComboBox->setItemData(0, f, Qt::FontRole);
+    f.setItalic(false);
+    bool inExamples = false;
+    QString dirName;
+    QXmlStreamReader reader(&description);
+    while (!reader.atEnd()) {
+        switch (reader.readNext()) {
+            case QXmlStreamReader::StartElement:
+            if (reader.name() == "category") {
+                QString name = reader.attributes().value(QLatin1String("name")).toString();
+                if (name.contains("tutorial"))
+                    break;
+                dirName = reader.attributes().value(QLatin1String("dirname")).toString();
+                m_d->ui.examplesComboBox->addItem(name);
+                f.setBold(true);
+                m_d->ui.examplesComboBox->setItemData(m_d->ui.examplesComboBox->count()-1, f, Qt::FontRole);
+                f.setBold(false);
+                inExamples = true;
+            }
+            if (inExamples && reader.name() == "example") {
+                QString name = reader.attributes().value(QLatin1String("name")).toString();
+                QString fn = reader.attributes().value(QLatin1String("filename")).toString();
+                QString fileName = examplePath + '/' + dirName + '/' + fn + '/' + fn + ".pro";
+                QString helpPath = "qthelp://com.trolltech.qt/qdoc/" + dirName.replace("/", "-") + "-" + fn + ".html";
+
+                m_d->ui.examplesComboBox->addItem("  " + name, fileName);
+                m_d->ui.examplesComboBox->setItemData(m_d->ui.examplesComboBox->count()-1, helpPath, Qt::UserRole+1);
+            }
+            break;
+            case QXmlStreamReader::EndElement:
+            if (reader.name() == "category")
+                inExamples = false;
+            break;
+            default:
+            break;
+        }
+    }
+}
+
+void WelcomeMode::slotEnableExampleButton(int index)
+{
+    QString fileName = m_d->ui.examplesComboBox->itemData(index, Qt::UserRole).toString();
+    m_d->ui.openExampleButton->setEnabled(!fileName.isEmpty());
+}
+
+void WelcomeMode::slotOpenExample()
+{
+    QComboBox *box = m_d->ui.examplesComboBox;
+    QString proFile = box->itemData(box->currentIndex(), Qt::UserRole).toString();
+    QString helpFile = box->itemData(box->currentIndex(), Qt::UserRole + 1).toString();
+    QStringList files;
+    QFileInfo fi(proFile);
+    QString tryFile = fi.path() + "/main.cpp";
+    files << proFile;
+    if(!QFile::exists(tryFile))
+        tryFile = fi.path() + '/' + fi.baseName() + ".cpp";
+    if(QFile::exists(tryFile))
+        files << tryFile;
+    Core::ICore::instance()->openFiles(files);
+    emit openContextHelpPage(helpFile);
 }
 
 void WelcomeMode::slotFeedback()

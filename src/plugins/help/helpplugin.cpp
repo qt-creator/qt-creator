@@ -526,6 +526,7 @@ void HelpPlugin::extensionsInitialized()
 
     if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>(m_core->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
         connect(welcomeMode, SIGNAL(openHelpPage(const QString&)), this, SLOT(openHelpPage(const QString&)));
+        connect(welcomeMode, SIGNAL(openContextHelpPage(const QString&)), this, SLOT(openContextHelpPage(QString)));
     }
 }
 
@@ -555,6 +556,12 @@ void HelpPlugin::modeChanged(Core::IMode *mode)
         m_centralWidget->setLastShownPages();
         qApp->restoreOverrideCursor();
     }
+}
+
+void HelpPlugin::openContextHelpPage(const QString &url)
+{
+    Core::RightPaneWidget::instance()->setShown(true);
+    m_helpViewerForSideBar->setSource(QUrl(url));
 }
 
 void HelpPlugin::activateContext()
