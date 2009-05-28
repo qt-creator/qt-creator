@@ -1046,14 +1046,21 @@
             \o Debugger Engine
             \o Notes
         \row
+            \o Gdb
+            \o Requires gdb version 6.8.
+        \row
             \o Debugging Tools for Windows
             \o Using this engine requires you to install the
-               \e{Debugging Tools for Windows} 32-bit package (Version 6.10),
+               \e{Debugging Tools for Windows}
+               \l{http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx}{32-bit}
+               or
+               \l{http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx}{64-bit}
+               package (Version 6.10 for the 32-bit or the 64-bit version of Qt Creator, respectively),
                which is freely available for download from the
                \l{http://msdn.microsoft.com/en-us/default.aspx}
-               {Microsoft Developer Network} or directly from
-               \l{http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx}
-               {Microsoft}. The pre-built \e{Qt SDK for Windows} will make use
+               {Microsoft Developer Network}.
+
+               The pre-built \e{Qt SDK for Windows} will make use
                of the library if it is present on the system. When building Qt
                Creator using the Microsoft Visual C++ Compiler, the
                \c{"%ProgramFiles%\Debugging Tools for Windows"} path will be
@@ -1701,6 +1708,14 @@
     \previouspage creator-supported-platforms.html
     \page creator-known-issues.html
     \nextpage creator-acknowledgements.html
+
+    \title Known Issues of Version 1.2.0
+
+    \list
+        \o Gdb on Windows may not work if the 'Embassy Security Center' software
+           by 'Wave Systems' is installed and active (causing crashes in \c{vxvault.dll)}).
+        \o Only simple data types (POD) work in the Watch Window of CDB
+    \endlist
 
     \title Known Issues of Version 1.1.80
 
