@@ -488,8 +488,9 @@ void PerforcePlugin::submit()
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
 
-    if (!checkP4Command()) {
-        showOutput(tr("No p4 executable specified!"), true);
+    QString errorMessage;
+    if (!checkP4Configuration(&errorMessage)) {
+        showOutput(errorMessage, true);
         return;
     }
 
@@ -660,7 +661,7 @@ void PerforcePlugin::updateActions()
 
 bool PerforcePlugin::managesDirectory(const QString &directory) const
 {
-    if (!checkP4Command())
+    if (!checkP4Configuration())
         return false;
     const QString p4Path = directory + QLatin1String("/...");
     QStringList args;
@@ -727,8 +728,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
         qDebug() << "PerforcePlugin::runP4Cmd" << args << extraArgs << debugCodec(outputCodec);
     PerforceResponse response;
     response.error = true;
-    if (!checkP4Command()) {
-        response.message = tr("No p4 executable specified!");
+    if (!checkP4Configuration(&response.message)) {
         m_perforceOutputWindow->append(response.message, true);
         return response;
     }
@@ -959,8 +959,9 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
         if (answer == VCSBase::VCSBaseSubmitEditor::SubmitConfirmed) {
             m_changeTmpFile->seek(0);
             QByteArray change = m_changeTmpFile->readAll();
-            if (!checkP4Command()) {
-                showOutput(tr("No p4 executable specified!"), true);
+            QString errorMessage;
+            if (!checkP4Configuration(&errorMessage)) {
+                showOutput(errorMessage, true);
                 return false;
             }
 
@@ -1005,7 +1006,7 @@ void PerforcePlugin::openFiles(const QStringList &files)
 
 QString PerforcePlugin::clientFilePath(const QString &serverFilePath)
 {
-    if (!checkP4Command())
+    if (!checkP4Configuration())
         return QString();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -1040,15 +1041,19 @@ QString PerforcePlugin::currentFileName()
     return fileName;
 }
 
-bool PerforcePlugin::checkP4Command() const
+bool PerforcePlugin::checkP4Configuration(QString *errorMessage /* = 0 */) const
 {
-    return m_settings.isValid();
+    if (m_settings.isValid())
+        return true;
+    if (errorMessage)
+        *errorMessage = tr("Invalid configuration: %1").arg(m_settings.errorString());
+    return false;
 }
 
 QString PerforcePlugin::pendingChangesData()
 {
     QString data;
-    if (!checkP4Command())
+    if (!checkP4Configuration())
         return data;
 
     QString user;
@@ -1124,18 +1129,10 @@ const PerforceSettings& PerforcePlugin::settings() const
     return m_settings;
 }
 
-void PerforcePlugin::setSettings(const QString &p4Command, const QString &p4Port, const QString &p4Client, const QString p4User, bool defaultEnv)
+void PerforcePlugin::setSettings(const Settings &newSettings)
 {
-
-    if (m_settings.p4Command() == p4Command
-        && m_settings.p4Port() == p4Port
-        && m_settings.p4Client() == p4Client
-        && m_settings.p4User() == p4User
-        && m_settings.defaultEnv() == defaultEnv)
-    {
-        // Nothing to do
-    } else {
-        m_settings.setSettings(p4Command, p4Port, p4Client, p4User, defaultEnv);
+    if (newSettings != m_settings.settings()) {
+        m_settings.setSettings(newSettings);
         m_settings.toSettings(Core::ICore::instance()->settings());
     }
 }

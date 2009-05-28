@@ -40,13 +40,40 @@ QT_END_NAMESPACE
 namespace Perforce {
 namespace Internal {
 
+struct Settings {
+    Settings();
+    bool equals(const Settings &s) const;
+    QStringList basicP4Args() const;
+
+    bool check(QString *errorMessage) const;
+    static bool doCheck(const QString &binary, const QStringList &basicArgs, QString *errorMessage);
+
+    QString p4Command;
+    QString p4Port;
+    QString p4Client;
+    QString p4User;
+    QString errorString;
+    bool defaultEnv;
+};
+
+inline bool operator==(const Settings &s1, const Settings &s2) { return s1.equals(s2); }
+inline bool operator!=(const Settings &s1, const Settings &s2) { return !s1.equals(s2); }
+
+// PerforceSettings: Aggregates settings struct and contains a sophisticated
+// background check invoked on setSettings() to figure out whether the p4
+// configuration is actually valid (disabling it when invalid to save time
+// when updating actions. etc.)
+
 class PerforceSettings {
 public:
     PerforceSettings();
     ~PerforceSettings();
     void fromSettings(QSettings *settings);
     void toSettings(QSettings *) const;
-    void setSettings(const QString &p4Command, const QString &p4Port, const QString &p4Client, const QString p4User, bool defaultEnv);
+
+    void setSettings(const Settings &s);
+    Settings settings() const;
+
     bool isValid() const;
 
     QString p4Command() const;
@@ -55,16 +82,18 @@ public:
     QString p4User() const;
     bool defaultEnv() const;
     QStringList basicP4Args() const;
+
+    // Error code of last check
+    QString errorString() const;
+
 private:
     void run(QFutureInterface<void> &fi);
+
     mutable QFuture<void> m_future;
     mutable QMutex m_mutex;
 
-    QString m_p4Command;
-    QString m_p4Port;
-    QString m_p4Client;
-    QString m_p4User;
-    bool m_defaultEnv;
+    Settings m_settings;
+    QString m_errorString;
     bool m_valid;
     Q_DISABLE_COPY(PerforceSettings);
 };

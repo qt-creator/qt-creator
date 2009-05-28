@@ -33,7 +33,7 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QtCore/QCoreApplication>
+#include <QtGui/QApplication>
 #include <QtGui/QLineEdit>
 #include <QtGui/QFileDialog>
 
@@ -46,31 +46,31 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.setupUi(this);
     m_ui.pathChooser->setPromptDialogTitle(tr("Perforce Command"));
     m_ui.pathChooser->setExpectedKind(PathChooser::Command);
+    connect(m_ui.testPushButton, SIGNAL(clicked()), this, SLOT(slotTest()));
 }
 
-QString SettingsPageWidget::p4Command() const
+void SettingsPageWidget::slotTest()
 {
-    return m_ui.pathChooser->path();
+    QString message;
+    QApplication::setOverrideCursor(Qt::BusyCursor);
+    setStatusText(true, tr("Testing..."));
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    const bool ok = settings().check(&message);
+    QApplication::restoreOverrideCursor();
+    if (ok)
+        message = tr("Test succeeded.");
+    setStatusText(ok, message);
 }
 
-bool SettingsPageWidget::defaultEnv() const
+Settings SettingsPageWidget::settings() const
 {
-    return m_ui.defaultCheckBox->isChecked();
-}
-
-QString SettingsPageWidget::p4Port() const
-{
-    return m_ui.portLineEdit->text();
-}
-
-QString SettingsPageWidget::p4User() const
-{
-    return m_ui.userLineEdit->text();
-}
-
-QString SettingsPageWidget::p4Client() const
-{
-    return m_ui.clientLineEdit->text();
+    Settings  settings;
+    settings.p4Command = m_ui.pathChooser->path();
+    settings.defaultEnv = m_ui.defaultCheckBox->isChecked();
+    settings.p4Port = m_ui.portLineEdit->text();
+    settings.p4User = m_ui.userLineEdit->text();
+    settings.p4Client=  m_ui.clientLineEdit->text();
+    return settings;
 }
 
 void SettingsPageWidget::setSettings(const PerforceSettings &s)
@@ -80,6 +80,14 @@ void SettingsPageWidget::setSettings(const PerforceSettings &s)
     m_ui.portLineEdit->setText(s.p4Port());
     m_ui.clientLineEdit->setText(s.p4Client());
     m_ui.userLineEdit->setText(s.p4User());
+    const QString errorString = s.errorString();
+    setStatusText(errorString.isEmpty(), errorString);
+}
+
+void SettingsPageWidget::setStatusText(bool ok, const QString &t)
+{
+    m_ui.errorLabel->setStyleSheet(ok ? QString() : QString(QLatin1String("background-color: red")));
+    m_ui.errorLabel->setText(t);
 }
 
 SettingsPage::SettingsPage()
@@ -115,5 +123,5 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 
 void SettingsPage::apply()
 {
-    PerforcePlugin::perforcePluginInstance()->setSettings(m_widget->p4Command(), m_widget->p4Port(), m_widget->p4Client(), m_widget->p4User(), m_widget->defaultEnv());
+    PerforcePlugin::perforcePluginInstance()->setSettings(m_widget->settings());
 }

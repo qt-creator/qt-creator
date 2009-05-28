@@ -33,7 +33,10 @@
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QSettings>
 #include <QtCore/QStringList>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QProcess>
+
+enum { debug = 0 };
 
 static const char *groupC = "Perforce";
 static const char *commandKeyC = "Command";
@@ -55,6 +58,85 @@ static QString defaultCommand()
 namespace Perforce {
 namespace Internal {
 
+Settings::Settings() :
+    defaultEnv(true)
+{
+}
+
+bool Settings::equals(const Settings &rhs) const
+{
+    return defaultEnv == rhs.defaultEnv
+            && p4Command == rhs.p4Command && p4Port == rhs.p4Port
+            && p4Client == rhs.p4Client && p4User == rhs.p4User;
+};
+
+QStringList Settings::basicP4Args() const
+{
+    if (defaultEnv)
+        return QStringList();
+    QStringList lst;
+    if (!p4Client.isEmpty())
+        lst << QLatin1String("-c") << p4Client;
+    if (!p4Port.isEmpty())
+        lst << QLatin1String("-p") << p4Port;
+    if (!p4User.isEmpty())
+        lst << QLatin1String("-u") << p4User;
+    return lst;
+}
+
+bool Settings::check(QString *errorMessage) const
+{
+    return doCheck(p4Command, basicP4Args(), errorMessage);
+}
+
+// Check on a p4 view by grepping "view -o" for mapped files
+bool Settings::doCheck(const QString &binary, const QStringList &basicArgs, QString *errorMessage)
+{
+    errorMessage->clear();
+    if (binary.isEmpty()) {
+        *errorMessage = QCoreApplication::translate("Perforce::Internal",  "No executable specified");
+        return false;
+    }
+    // List the client state and check for mapped files
+    QProcess p4;
+    QStringList args = basicArgs;
+    args << QLatin1String("client") << QLatin1String("-o");
+    if (debug)
+        qDebug() << binary << args;
+    p4.start(binary, args);
+    if (!p4.waitForStarted()) {
+        *errorMessage = QCoreApplication::translate("Perforce::Internal", "Unable to launch \"%1\": %2").arg(binary, p4.errorString());
+        return false;
+    }
+    p4.closeWriteChannel();
+    const int timeOutMS = 5000;
+    if (!p4.waitForFinished(timeOutMS)) {
+        p4.kill();
+        p4.waitForFinished();
+        *errorMessage = QCoreApplication::translate("Perforce::Internal", "\"%1\" timed out after %2ms.").arg(binary).arg(timeOutMS);
+        return false;
+    }
+    if (p4.exitStatus() != QProcess::NormalExit) {
+        *errorMessage = QCoreApplication::translate("Perforce::Internal", "\"%1\" crashed.").arg(binary);
+        return false;
+    }
+    const QString stdErr = QString::fromLocal8Bit(p4.readAllStandardError());
+    if (p4.exitCode()) {
+        *errorMessage = QCoreApplication::translate("Perforce::Internal", "\"%1\" terminated with exit code %2: %3").
+                        arg(binary).arg(p4.exitCode()).arg(stdErr);
+        return false;
+
+    }
+    // List the client state and check for "View"
+    const QString response = QString::fromLocal8Bit(p4.readAllStandardOutput());
+    if (!response.contains(QLatin1String("View:")) && !response.contains(QLatin1String("//depot/"))) {
+        *errorMessage = QCoreApplication::translate("Perforce::Internal", "The client does not seem to contain any mapped files.");
+        return false;
+    }
+    return true;
+}
+
+// --------------------PerforceSettings
 PerforceSettings::PerforceSettings()
     : m_valid(false)
 {
@@ -79,29 +161,20 @@ bool PerforceSettings::isValid() const
 void PerforceSettings::run(QFutureInterface<void> &fi)
 {
     m_mutex.lock();
-    QString executable = m_p4Command;
-    QStringList arguments = basicP4Args();
+    const QString executable = m_settings.p4Command;
+    const QStringList arguments = basicP4Args();
     m_mutex.unlock();
 
-    // TODO actually check
-    bool valid = true;
-
-    QProcess p4;
-    p4.start(m_p4Command, QStringList() << "client"<<"-o");
-    p4.waitForFinished(2000);
-    if (p4.state() != QProcess::NotRunning) {
-        p4.kill();
-        p4.waitForFinished();
-        valid = false;
-    } else {
-        QString response = p4.readAllStandardOutput();
-        if (!response.contains("View:"))
-            valid = false;
-    }
+    QString errorString;
+    const bool isValid = Settings::doCheck(executable, arguments, &errorString);
+    if (debug)
+        qDebug() << isValid << errorString;
 
     m_mutex.lock();
-    if (executable == m_p4Command && arguments == basicP4Args()) // Check that those settings weren't changed in between
-        m_valid = valid;
+    if (executable == m_settings.p4Command && arguments == basicP4Args()) { // Check that those settings weren't changed in between
+        m_errorString = errorString;
+        m_valid = isValid;
+    }
     m_mutex.unlock();
     fi.reportFinished();
 }
@@ -110,11 +183,11 @@ void PerforceSettings::fromSettings(QSettings *settings)
 {
     m_mutex.lock();
     settings->beginGroup(QLatin1String(groupC));
-    m_p4Command = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
-    m_defaultEnv = settings->value(QLatin1String(defaultKeyC), true).toBool();
-    m_p4Port = settings->value(QLatin1String(portKeyC), QString()).toString();
-    m_p4Client = settings->value(QLatin1String(clientKeyC), QString()).toString();
-    m_p4User = settings->value(QLatin1String(userKeyC), QString()).toString();
+    m_settings.p4Command = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
+    m_settings.defaultEnv = settings->value(QLatin1String(defaultKeyC), true).toBool();
+    m_settings.p4Port = settings->value(QLatin1String(portKeyC), QString()).toString();
+    m_settings.p4Client = settings->value(QLatin1String(clientKeyC), QString()).toString();
+    m_settings.p4User = settings->value(QLatin1String(userKeyC), QString()).toString();
     settings->endGroup();
     m_mutex.unlock();
 
@@ -125,64 +198,69 @@ void PerforceSettings::toSettings(QSettings *settings) const
 {
     m_mutex.lock();
     settings->beginGroup(QLatin1String(groupC));
-    settings->setValue(commandKeyC, m_p4Command);
-    settings->setValue(defaultKeyC, m_defaultEnv);
-    settings->setValue(portKeyC, m_p4Port);
-    settings->setValue(clientKeyC, m_p4Client);
-    settings->setValue(userKeyC, m_p4User);
+    settings->setValue(commandKeyC, m_settings.p4Command);
+    settings->setValue(defaultKeyC, m_settings.defaultEnv);
+    settings->setValue(portKeyC, m_settings.p4Port);
+    settings->setValue(clientKeyC, m_settings.p4Client);
+    settings->setValue(userKeyC, m_settings.p4User);
     settings->endGroup();
     m_mutex.unlock();
 }
 
-void PerforceSettings::setSettings(const QString &p4Command, const QString &p4Port, const QString &p4Client, const QString p4User, bool defaultEnv)
+void PerforceSettings::setSettings(const Settings &newSettings)
+{    
+    if (newSettings != m_settings) {
+        // trigger check
+        m_settings = newSettings;
+        m_mutex.lock();
+        m_valid = false;
+        m_mutex.unlock();
+        m_future = QtConcurrent::run(&PerforceSettings::run, this);
+    }
+}
+
+Settings PerforceSettings::settings() const
 {
-    m_mutex.lock();
-    m_p4Command = p4Command;
-    m_p4Port = p4Port;
-    m_p4Client = p4Client;
-    m_p4User = p4User;
-    m_defaultEnv = defaultEnv;
-    m_valid = false;
-    m_mutex.unlock();
-    m_future = QtConcurrent::run(&PerforceSettings::run, this);
+    return m_settings;
 }
 
 QString PerforceSettings::p4Command() const
 {
-    return m_p4Command;
+    return m_settings.p4Command;
 }
 
 QString PerforceSettings::p4Port() const
 {
-    return m_p4Port;
+    return m_settings.p4Port;
 }
 
 QString PerforceSettings::p4Client() const
 {
-    return m_p4Client;
+    return m_settings.p4Client;
 }
 
 QString PerforceSettings::p4User() const
 {
-    return m_p4User;
+    return m_settings.p4User;
 }
 
 bool PerforceSettings::defaultEnv() const
 {
-    return m_defaultEnv;
+    return m_settings.defaultEnv;
+}
+
+QString PerforceSettings::errorString() const
+{
+    m_mutex.lock();
+    const QString rc = m_errorString;
+    m_mutex.unlock();
+    return rc;
 }
 
 QStringList PerforceSettings::basicP4Args() const
 {
-    QStringList lst;
-    if (!m_defaultEnv) {
-        lst << QLatin1String("-c") << m_p4Client;
-        lst << QLatin1String("-p") << m_p4Port;
-        lst << QLatin1String("-u") << m_p4User;
-    }
-    return lst;
+    return m_settings.basicP4Args();
 }
-
 
 } // Internal
 } // Perforce

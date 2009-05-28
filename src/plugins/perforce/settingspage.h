@@ -41,21 +41,22 @@ namespace Perforce {
 namespace Internal {
 
 class PerforceSettings;
+struct Settings;
 
 class SettingsPageWidget : public QWidget {
     Q_OBJECT
 public:
     explicit SettingsPageWidget(QWidget *parent);
 
-    QString p4Command() const;
-    bool defaultEnv() const;
-    QString p4Port() const;
-    QString p4User() const;
-    QString p4Client() const;
-
     void setSettings(const PerforceSettings &);
+    Settings settings() const;
+
+private slots:
+    void slotTest();
 
 private:
+    void setStatusText(bool ok, const QString &);
+
     Ui::SettingsPage m_ui;
 };
 

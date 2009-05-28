@@ -112,7 +112,7 @@ public:
     static PerforcePlugin *perforcePluginInstance();
 
     const PerforceSettings& settings() const;
-    void setSettings(const QString &p4Command, const QString &p4Port, const QString &p4Client, const QString p4User, bool defaultEnv);
+    void setSettings(const Settings &s);
 
     // Map a perforce name "//xx" to its real name in the file system
     QString fileNameFromPerforceName(const QString& perforceName, QString *errorMessage) const;
@@ -162,7 +162,7 @@ private:
 
     QString clientFilePath(const QString &serverFilePath);
     QString currentFileName();
-    bool checkP4Command() const;
+    bool checkP4Configuration(QString *errorMessage = 0) const;
     void showOutput(const QString &output, bool popup = false) const;
     void annotate(const QString &fileName);
     void filelog(const QString &fileName);
