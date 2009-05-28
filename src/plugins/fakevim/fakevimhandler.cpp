@@ -1044,6 +1044,11 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveDown();
         moveToFirstNonBlankOnLine();
         finishMovement();
+    } else if (key == '-') {
+        moveToStartOfLine();
+        moveUp();
+        moveToFirstNonBlankOnLine();
+        finishMovement();
     } else if (key == Key_Home) {
         moveToStartOfLine();
         setTargetColumn();
