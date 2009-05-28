@@ -43,16 +43,16 @@ public:
     LookupContext(Symbol *symbol,
                   Document::Ptr expressionDocument,
                   Document::Ptr thisDocument,
-                  const Snapshot &documents);
+                  const Snapshot &snapshot);
 
     bool isValid() const;
-    operator bool() const;
 
     Control *control() const;
     Symbol *symbol() const;
     Document::Ptr expressionDocument() const;
     Document::Ptr thisDocument() const;
     Document::Ptr document(const QString &fileName) const;
+    Snapshot snapshot() const;
 
     QList<Symbol *> resolve(Name *name) const
     { return resolve(name, visibleScopes()); }
@@ -66,9 +66,6 @@ public:
     QList<Symbol *> resolveClassOrNamespace(Name *name) const
     { return resolveClassOrNamespace(name, visibleScopes()); }
 
-    Snapshot snapshot() const
-    { return _documents; }
-
     enum ResolveMode {
         ResolveSymbol           = 0x01,
         ResolveClass            = 0x02,
@@ -76,8 +73,6 @@ public:
         ResolveClassOrNamespace = ResolveClass  | ResolveNamespace,
         ResolveAll              = ResolveSymbol | ResolveClassOrNamespace
     };
-
-    Identifier *identifier(Name *name) const;
 
     QList<Symbol *> resolve(Name *name, const QList<Scope *> &visibleScopes,
                             ResolveMode mode = ResolveAll) const;
@@ -120,6 +115,8 @@ public:
                         QList<Scope *> *expandedScopes) const;
 
 private:
+    Identifier *identifier(const Name *name) const;
+
     QList<Scope *> buildVisibleScopes();
 
     void buildVisibleScopes_helper(Document::Ptr doc, QList<Scope *> *scopes,
@@ -144,7 +141,7 @@ private:
     Document::Ptr _thisDocument;
 
     // All documents.
-    Snapshot _documents;
+    Snapshot _snapshot;
 
     // Visible scopes.
     QList<Scope *> _visibleScopes;

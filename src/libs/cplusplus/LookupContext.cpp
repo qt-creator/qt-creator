@@ -82,20 +82,17 @@ LookupContext::LookupContext(Control *control)
 LookupContext::LookupContext(Symbol *symbol,
                              Document::Ptr expressionDocument,
                              Document::Ptr thisDocument,
-                             const Snapshot &documents)
+                             const Snapshot &snapshot)
     : _symbol(symbol),
       _expressionDocument(expressionDocument),
       _thisDocument(thisDocument),
-      _documents(documents)
+      _snapshot(snapshot)
 {
     _control = _expressionDocument->control();
     _visibleScopes = buildVisibleScopes();
 }
 
 bool LookupContext::isValid() const
-{ return _control != 0; }
-
-LookupContext::operator bool() const
 { return _control != 0; }
 
 Control *LookupContext::control() const
@@ -111,20 +108,10 @@ Document::Ptr LookupContext::thisDocument() const
 { return _thisDocument; }
 
 Document::Ptr LookupContext::document(const QString &fileName) const
-{ return _documents.value(fileName); }
+{ return _snapshot.value(fileName); }
 
-Identifier *LookupContext::identifier(Name *name) const
-{
-    if (NameId *nameId = name->asNameId())
-        return nameId->identifier();
-    else if (TemplateNameId *templId = name->asTemplateNameId())
-        return templId->identifier();
-    else if (DestructorNameId *dtorId = name->asDestructorNameId())
-        return dtorId->identifier();
-    else if (QualifiedNameId *q = name->asQualifiedNameId())
-        return identifier(q->unqualifiedNameId());
-    return 0;
-}
+Snapshot LookupContext::snapshot() const
+{ return _snapshot; }
 
 bool LookupContext::maybeValidSymbol(Symbol *symbol,
                                      ResolveMode mode,
@@ -257,6 +244,14 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
     return candidates;
 }
 
+Identifier *LookupContext::identifier(const Name *name) const
+{
+    if (name)
+        return name->identifier();
+
+    return 0;
+}
+
 void LookupContext::buildVisibleScopes_helper(Document::Ptr doc, QList<Scope *> *scopes,
                                               QSet<QString> *processed)
 {
@@ -267,7 +262,7 @@ void LookupContext::buildVisibleScopes_helper(Document::Ptr doc, QList<Scope *> 
             scopes->append(doc->globalSymbols());
 
         foreach (const Document::Include &incl, doc->includes()) {
-            buildVisibleScopes_helper(_documents.value(incl.fileName()),
+            buildVisibleScopes_helper(_snapshot.value(incl.fileName()),
                                       scopes, processed);
         }
     }

@@ -125,6 +125,9 @@ public:
     /// Sets this Symbol's name.
     void setName(Name *name); // ### dangerous
 
+    /// Returns this Symbol's (optional) identifier
+    Identifier *identifier() const;
+
     /// Returns this Symbol's storage class specifier.
     int storage() const;
 

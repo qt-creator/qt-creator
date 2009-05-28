@@ -64,6 +64,8 @@ public:
                     bool isGlobal = false);
     virtual ~QualifiedNameId();
 
+    virtual Identifier *identifier() const;
+
     unsigned nameCount() const;
     Name *nameAt(unsigned index) const;
     Name *const *names() const;
@@ -94,7 +96,7 @@ public:
     NameId(Identifier *identifier);
     virtual ~NameId();
 
-    Identifier *identifier() const;
+    virtual Identifier *identifier() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
@@ -117,7 +119,7 @@ public:
     DestructorNameId(Identifier *identifier);
     virtual ~DestructorNameId();
 
-    Identifier *identifier() const;
+    virtual Identifier *identifier() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
@@ -142,7 +144,7 @@ public:
                    unsigned templateArgumentCount);
     virtual ~TemplateNameId();
 
-    Identifier *identifier() const;
+    virtual Identifier *identifier() const;
 
     // ### find a better name
     unsigned templateArgumentCount() const;
@@ -229,6 +231,7 @@ public:
 
     int kind() const;
 
+    virtual Identifier *identifier() const;
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const OperatorNameId *asOperatorNameId() const
@@ -252,6 +255,7 @@ public:
 
     FullySpecifiedType type() const;
 
+    virtual Identifier *identifier() const;
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const ConversionNameId *asConversionNameId() const

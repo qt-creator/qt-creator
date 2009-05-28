@@ -73,6 +73,14 @@ QualifiedNameId::~QualifiedNameId()
 void QualifiedNameId::accept0(NameVisitor *visitor)
 { visitor->visit(this); }
 
+Identifier *QualifiedNameId::identifier() const
+{
+    if (Name *u = unqualifiedNameId())
+        return u->identifier();
+
+    return 0;
+}
+
 unsigned QualifiedNameId::nameCount() const
 { return _nameCount; }
 
@@ -225,6 +233,9 @@ void OperatorNameId::accept0(NameVisitor *visitor)
 int OperatorNameId::kind() const
 { return _kind; }
 
+Identifier *OperatorNameId::identifier() const
+{ return 0; }
+
 bool OperatorNameId::isEqualTo(const Name *other) const
 {
     const OperatorNameId *o = other->asOperatorNameId();
@@ -245,6 +256,9 @@ void ConversionNameId::accept0(NameVisitor *visitor)
 
 FullySpecifiedType ConversionNameId::type() const
 { return _type; }
+
+Identifier *ConversionNameId::identifier() const
+{ return 0; }
 
 bool ConversionNameId::isEqualTo(const Name *other) const
 {
