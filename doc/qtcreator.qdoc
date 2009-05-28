@@ -62,7 +62,7 @@
        \o   \l{Keyboard Shortcuts}
        \o   \l{Glossary}
        \o   \l{Supported Platforms}
-       \o   \l{Known Issues of Version 1.1.80}
+       \o   \l{Known Issues}
        \o   \l{Acknowledgements}
     \endlist
 
@@ -1709,18 +1709,20 @@
     \page creator-known-issues.html
     \nextpage creator-acknowledgements.html
 
-    \title Known Issues of Version 1.2.0
+    \title Known Issues
+
+    There are some known issues with Qt Creator.
+    The development team is aware of those, there is no need to report them as bug.
+
+    \section1 Known Issues of Version 1.2.0
 
     \list
-        \o Gdb on Windows may not work if the 'Embassy Security Center' software
-           by 'Wave Systems' is installed and active (causing crashes in \c{vxvault.dll)}).
-        \o Only simple data types (POD) work in the Watch Window of CDB
+        \o Gdb on Windows may not work if the 'Embassy \reg Security Center' software
+           by 'Wave \reg Systems' is installed and active (causing crashes in \c{vxvault.dll)}).
+        \o Only simple data types (POD) work in the Watch Window of CDB.
     \endlist
 
-    \title Known Issues of Version 1.1.80
-
-    There are some known issues with Qt Creator 1.1.80.
-    The development team is aware of those, there is no need to report them as bug.
+    \section1 Known Issues of Version 1.1.0
 
     \list
         \o Paths or file names containing spaces or special characters, e.g.,
