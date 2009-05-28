@@ -126,59 +126,48 @@ bool LookupContext::maybeValidSymbol(Symbol *symbol,
     return false;
 }
 
+QList<Scope *> LookupContext::resolveNestedNameSpecifier(QualifiedNameId *q,
+                                                          const QList<Scope *> &visibleScopes) const
+{
+    QList<Symbol *> candidates;
+    QList<Scope *> scopes = visibleScopes;
+
+    for (unsigned i = 0; i < q->nameCount() - 1; ++i) {
+        Name *name = q->nameAt(i);
+
+        candidates = resolveClassOrNamespace(name, scopes);
+
+        if (candidates.isEmpty())
+            break;
+
+        scopes.clear();
+
+        foreach (Symbol *candidate, candidates) {
+            ScopedSymbol *scoped = candidate->asScopedSymbol();
+            Scope *members = scoped->members();
+
+            if (! scopes.contains(members))
+                scopes.append(members);
+        }
+    }
+
+    return scopes;
+}
+
 QList<Symbol *> LookupContext::resolveQualifiedNameId(QualifiedNameId *q,
                                                       const QList<Scope *> &visibleScopes,
                                                       ResolveMode mode) const
 {
-    QList<Scope *> scopes = visibleScopes;
-    QList<Symbol *> candidates;
+    QList<Scope *> scopes;
 
-    for (unsigned i = 0; i < q->nameCount(); ++i) {
-        Name *name = q->nameAt(i);
+    if (q->nameCount() == 1)
+        scopes = visibleScopes;     // ### handle global scope lookup
+    else
+        scopes = resolveNestedNameSpecifier(q, visibleScopes);
 
-        if (i + 1 == q->nameCount())
-            candidates = resolve(name, scopes, mode);
-        else
-            candidates = resolveClassOrNamespace(name, scopes);
+    // ### expand the scopes.
 
-        if (candidates.isEmpty() || i + 1 == q->nameCount())
-            break;
-
-        scopes.clear();
-        foreach (Symbol *candidate, candidates) {
-            if (ScopedSymbol *scoped = candidate->asScopedSymbol()) {
-                scopes.append(scoped->members());
-            }
-        }
-    }
-
-    Identifier *id = q->identifier();
-    foreach (Scope *scope, visibleScopes) {
-        Symbol *symbol = scope->lookat(id);
-        for (; symbol; symbol = symbol->next()) {
-            if (! symbol->name())
-                continue;
-            else if (! maybeValidSymbol(symbol, mode, candidates))
-                continue;
-            QualifiedNameId *qq = symbol->name()->asQualifiedNameId();
-            if (! qq)
-                continue;
-            if (q->nameCount() > qq->nameCount())
-                continue;
-
-            for (int i = q->nameCount() - 1; i != -1; --i) {
-                Name *a = q->nameAt(i);
-                Name *b = qq->nameAt(i);
-
-                if (! a->isEqualTo(b))
-                    break;
-                else if (i == 0)
-                    candidates.append(symbol);
-            }
-        }
-    }
-
-    return candidates;
+    return resolve(q->unqualifiedNameId(), scopes, mode);
 }
 
 QList<Symbol *> LookupContext::resolveOperatorNameId(OperatorNameId *opId,

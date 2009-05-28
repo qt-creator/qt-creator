@@ -123,6 +123,9 @@ private:
                                           const QList<Scope *> &visibleScopes,
                                           ResolveMode mode) const;
 
+    QList<Scope *> resolveNestedNameSpecifier(QualifiedNameId *q,
+                                               const QList<Scope *> &visibleScopes) const;
+
     Identifier *identifier(const Name *name) const;
 
     QList<Scope *> buildVisibleScopes();
