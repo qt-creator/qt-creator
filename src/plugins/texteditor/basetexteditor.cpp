@@ -1872,7 +1872,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     while (block.isValid()) {
 
         QRectF r = blockBoundingRect(block).translated(offset);
-        
+
         if (!d->m_highlightBlocksInfo.isEmpty()) {
 
             int n = block.blockNumber();
@@ -1896,7 +1896,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 }
             }
         }
-        
+
         QTextLayout *layout = block.layout();
 
         QTextOption option = layout->textOption();
@@ -3537,8 +3537,6 @@ void BaseTextEditor::_q_matchParentheses()
     if (isReadOnly())
         return;
 
-
-    qDebug() << "_q_matchParentheses()" << textCursor().position();
     QTextCursor backwardMatch = textCursor();
     QTextCursor forwardMatch = textCursor();
     const TextBlockUserData::MatchType backwardMatchType = TextBlockUserData::matchCursorBackward(&backwardMatch);
@@ -3548,13 +3546,11 @@ void BaseTextEditor::_q_matchParentheses()
 
     if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch) {
         setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
-        qDebug() << "no match";
         return;
     }
 
     int animatePosition = -1;
     if (backwardMatch.hasSelection()) {
-        qDebug() << "backward match";
         QTextEdit::ExtraSelection sel;
         if (backwardMatchType == TextBlockUserData::Mismatch) {
             sel.cursor = backwardMatch;
@@ -3583,7 +3579,6 @@ void BaseTextEditor::_q_matchParentheses()
     }
 
     if (forwardMatch.hasSelection()) {
-        qDebug() << "forward match";
         QTextEdit::ExtraSelection sel;
         if (forwardMatchType == TextBlockUserData::Mismatch) {
             sel.cursor = forwardMatch;
@@ -3867,7 +3862,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
         d->extraAreaHighlightCollapseBlockNumber = d->extraAreaHighlightCollapseColumn = -1;
         d->m_highlightBlocksInfo = BaseTextEditorPrivateHighlightBlocks();
     }
-    
+
     slotCursorPositionChanged();
     viewport()->update();
     extraArea()->update();
