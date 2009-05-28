@@ -1,0 +1,40 @@
+The QtCreator 1.2 release contains bug fixes and new features.
+
+A more detailed list of changes follows below. If you want to know the exact
+and complete list of changes, you can check out the QtCreator sources from the
+public git repository and check the logs, e.g.
+
+git clone git://labs.trolltech.com/qt-creator
+git log --pretty=oneline v1.1.0..v1.2.0
+
+This release introduces source and binary incompatible changes to the plugin
+API, so if you created your own custom plugins these need to be adapted.
+
+Editing
+
+
+Building and Running
+
+
+Debugging
+   * Added Windows Console Debugger support
+   * Added command line options to attach to process ids
+   * Further improved dumpers; do additional memory checking on Windows to
+     avoid crashes for speedup
+   * Changed method of dumper loading on Windows, enabling it for MinGW 64
+
+Wizards
+
+Designer
+   * Added "Qt Designer" (external editor) to "Open With" menus
+
+Version control plugins
+   * Made submit action raise existing submit editors
+   * Made svn detection recognize TortoiseSVN using "_svn" as directory
+   * Fixed perforce configuration checking, made it use the settings correctly
+
+I18N
+   * Added infrastructure for translations
+   * Added German translation
+
+Additional credits go to:
