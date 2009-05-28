@@ -310,9 +310,8 @@ void WelcomeMode::slotFeedback()
 
 void WelcomeMode::slotCreateNewProject()
 {
-    Core::Internal::NewDialog dlg(widget());
-    dlg.setWizards(Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
-    dlg.showDialog();
+    Core::ICore::instance()->showNewItemDialog(tr("New Project..."),
+                                               Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
 }
 
 void WelcomeMode::slotNextTip()
