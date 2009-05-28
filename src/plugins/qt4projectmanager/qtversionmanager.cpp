@@ -62,6 +62,7 @@ using ProjectExplorer::DebuggingHelperLibrary;
 static const char *QtVersionsSectionName = "QtVersions";
 static const char *defaultQtVersionKey = "DefaultQtVersion";
 static const char *newQtVersionsKey = "NewQtVersions";
+static const char *PATH_AUTODETECTION_SOURCE = "PATH";
 
 QtVersionManager *QtVersionManager::m_self = 0;
 
@@ -86,14 +87,20 @@ QtVersionManager::QtVersionManager()
         else if (id > m_idcount)
             m_idcount = id;
         bool isAutodetected;
-        if (s->contains("isAutodetected"))
+        QString autodetectionSource;
+        if (s->contains("isAutodetected")) {
             isAutodetected = s->value("isAutodetected", false).toBool();
-        else // compatibility
+            autodetectionSource = s->value("autodetectionSource", QString()).toString();
+        } else {// compatibility
             isAutodetected = s->value("IsSystemVersion", false).toBool();
+            if (isAutodetected)
+                autodetectionSource = QLatin1String(PATH_AUTODETECTION_SOURCE);
+        }
         QtVersion *version = new QtVersion(s->value("Name").toString(),
                                            s->value("Path").toString(),
                                            id,
-                                           isAutodetected);
+                                           isAutodetected,
+                                           autodetectionSource);
         version->setMingwDirectory(s->value("MingwDirectory").toString());
         version->setMsvcVersion(s->value("msvcVersion").toString());
         m_versions.append(version);
@@ -192,13 +199,16 @@ void QtVersionManager::writeVersionsIntoSettings()
     s->setValue(defaultQtVersionKey, m_defaultVersion);
     s->beginWriteArray(QtVersionsSectionName);
     for (int i = 0; i < m_versions.size(); ++i) {
+        const QtVersion *version = m_versions.at(i);
         s->setArrayIndex(i);
-        s->setValue("Name", m_versions.at(i)->name());
-        s->setValue("Path", m_versions.at(i)->path());
-        s->setValue("Id", m_versions.at(i)->uniqueId());
-        s->setValue("MingwDirectory", m_versions.at(i)->mingwDirectory());
-        s->setValue("msvcVersion", m_versions.at(i)->msvcVersion());
-        s->setValue("isAutodetected", m_versions.at(i)->isAutodetected());
+        s->setValue("Name", version->name());
+        s->setValue("Path", version->path());
+        s->setValue("Id", version->uniqueId());
+        s->setValue("MingwDirectory", version->mingwDirectory());
+        s->setValue("msvcVersion", version->msvcVersion());
+        s->setValue("isAutodetected", version->isAutodetected());
+        if (version->isAutodetected())
+            s->setValue("autodetectionSource", version->autodetectionSource());
     }
     s->endArray();
 }
@@ -288,7 +298,8 @@ void QtVersionManager::updateSystemVersion()
     }
 
     foreach (QtVersion *version, m_versions) {
-        if (version->isAutodetected()) { //TODO this needs to additionally check for the autodetectionsource
+        if (version->isAutodetected()
+            && version->autodetectionSource() == PATH_AUTODETECTION_SOURCE) {
             version->setPath(systemQtPath);
             version->setName(tr("Qt in PATH"));
             haveSystemVersion = true;
@@ -299,7 +310,8 @@ void QtVersionManager::updateSystemVersion()
     QtVersion *version = new QtVersion(tr("Qt in PATH"),
                                        systemQtPath,
                                        getUniqueId(),
-                                       true);
+                                       true,
+                                       PATH_AUTODETECTION_SOURCE);
     m_versions.prepend(version);
     updateUniqueIdToIndexMap();
     if (m_versions.size() > 1) // we had other versions before adding system version
@@ -354,9 +366,11 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
 /// QtVersion
 ///
 
-QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isAutodetected)
+QtVersion::QtVersion(const QString &name, const QString &path, int id,
+                     bool isAutodetected, const QString &autodetectionSource)
     : m_name(name),
     m_isAutodetected(isAutodetected),
+    m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
