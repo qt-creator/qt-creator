@@ -142,7 +142,8 @@ enum SubMode
     ShiftRightSubMode, // used for >
     WindowSubMode,     // used for Ctrl-w
     YankSubMode,       // used for y
-    ZSubMode,
+    ZSubMode,          // used for z
+    CapitalZSubMode    // used for Z
 };
 
 enum SubSubMode
@@ -939,6 +940,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             qDebug() << "IGNORED Z_MODE " << key << text;
         }
         m_submode = NoSubMode;
+    } else if (m_submode == CapitalZSubMode) {
+        // Recognize ZZ and ZQ as aliases for ":x" and ":q!".
+        m_submode = NoSubMode;
+        if (key == 'Z')
+            handleExCommand("x");
+        else if (key == 'Q')
+            handleExCommand("q!");
     } else if (m_subsubmode == FtSubSubMode) {
         m_semicolonType = m_subsubdata;
         m_semicolonKey = key;
@@ -1228,7 +1236,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
     } else if (key == 'j' || key == Key_Down) {
         if (m_submode == NoSubMode || m_submode == ZSubMode
-                || m_submode == RegisterSubMode) {
+                || m_submode == CapitalZSubMode || m_submode == RegisterSubMode) {
             moveDown(count());
         } else {
             m_moveType = MoveLineWise;
@@ -1254,7 +1262,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
     } else if (key == 'k' || key == Key_Up) {
         if (m_submode == NoSubMode || m_submode == ZSubMode
-                || m_submode == RegisterSubMode) {
+                || m_submode == CapitalZSubMode || m_submode == RegisterSubMode) {
             moveUp(count());
         } else {
             m_moveType = MoveLineWise;
@@ -1434,6 +1442,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == 'z') {
         m_submode = ZSubMode;
+    } else if (key == 'Z') {
+        m_submode = CapitalZSubMode;
     } else if (key == '~' && !atEndOfLine()) {
         setAnchor();
         moveRight(qMin(count(), rightDist()));
@@ -2260,7 +2270,7 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
     emit q->moveToMatchingParenthesis(&moved, &forward, &m_tc);
 
     if (moved && forward) {
-       if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode)
+       if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == CapitalZSubMode || m_submode == RegisterSubMode)
             m_tc.movePosition(Left, KeepAnchor, 1);
     }
     setTargetColumn();
