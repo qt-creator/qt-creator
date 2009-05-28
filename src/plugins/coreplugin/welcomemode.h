@@ -79,13 +79,14 @@ signals:
     void requestProject(const QString &project);
     void requestSession(const QString &session);
     void openHelpPage(const QString&);
+    void manageSessions();
 
 private slots:
     void slotFeedback();
-    void slotRestoreLastSession();
     void slotSessionClicked(const QString &data);
     void slotProjectClicked(const QString &data);
     void slotUrlClicked(const QString &data);
+    void slotCreateNewProject();
     void slotNextTip();
     void slotPrevTip();
 

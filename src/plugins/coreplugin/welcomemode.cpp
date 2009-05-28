@@ -29,9 +29,11 @@
 
 #include "welcomemode.h"
 #include "icore.h"
+#include "iwizard.h"
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
 #include "modemanager.h"
+#include "newdialog.h"
 #include "rssfetcher.h"
 
 #include <QtGui/QToolBar>
@@ -118,7 +120,7 @@ WelcomeMode::WelcomeMode() :
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new QToolBar(m_d->m_widget));
-    m_d->rssFetcher = new RSSFetcher(8, this);
+    m_d->rssFetcher = new RSSFetcher(7, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
     m_d->ui.projTitleLabel->setText(titleLabel(tr("Projects")));
@@ -146,26 +148,27 @@ WelcomeMode::WelcomeMode() :
     connect(m_d->btnGrp, SIGNAL(buttonClicked(int)), m_d->ui.stackedWidget, SLOT(setCurrentIndex(int)));
 
     connect(m_d->ui.feedbackButton, SIGNAL(clicked()), SLOT(slotFeedback()));
-    connect(m_d->ui.restoreSessionButton, SIGNAL(clicked()), SLOT(slotRestoreLastSession()));
+    connect(m_d->ui.manageSessionsButton, SIGNAL(clicked()), SIGNAL(manageSessions()));
+    connect(m_d->ui.createNewProjectButton, SIGNAL(clicked()), SLOT(slotCreateNewProject()));
     connect(m_d->ui.sessTreeWidget, SIGNAL(activated(QString)), SLOT(slotSessionClicked(QString)));
     connect(m_d->ui.projTreeWidget, SIGNAL(activated(QString)), SLOT(slotProjectClicked(QString)));
     connect(m_d->ui.newsTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
     connect(m_d->ui.sitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
     connect(m_d->ui.tutorialTreeWidget, SIGNAL(activated(QString)), SIGNAL(openHelpPage(const QString&)));
 
-    connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString)),
-        m_d->ui.newsTreeWidget, SLOT(slotAddItem(QString, QString)));
+    connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString, QString)),
+        m_d->ui.newsTreeWidget, SLOT(slotAddNewsItem(QString, QString, QString)));
 
     //: Add localized feed here only if one exists
     m_d->rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
 
-    m_d->ui.sitesTreeWidget->addItem(tr("Qt Software"), QLatin1String("http://www.qtsoftware.com"));
-    m_d->ui.sitesTreeWidget->addItem(tr("Qt Labs"), QLatin1String("http://labs.qtsoftware.com"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Software"), QLatin1String("http://www.trolltech.com"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Labs"), QLatin1String("http://labs.trolltech.com"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Git Hosting"), QLatin1String("http://qt.gitorious.org"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Centre"), QLatin1String("http://www.qtcentre.org"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt for S60 at Forum Nokia"), QLatin1String("http://discussion.forum.nokia.com/forum/forumdisplay.php?f=196"));
 
-    m_d->ui.tutorialTreeWidget->addItem(tr("Qt Creator - A quick tour"),
+    m_d->ui.tutorialTreeWidget->addItem(tr("<b>Qt Creator - A quick tour</b>"),
                                         QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
     m_d->ui.tutorialTreeWidget->addItem(tr("Understanding widgets"),
                                         QLatin1String("qthelp://com.trolltech.qt/qdoc/widgets-tutorial.html"));
@@ -299,16 +302,17 @@ void WelcomeMode::slotUrlClicked(const QString &data)
     QDesktopServices::openUrl(QUrl(data));
 }
 
-void WelcomeMode::slotRestoreLastSession()
-{
-    emit requestSession(m_d->lastData.previousSession);
-    activateEditMode();
-}
-
 void WelcomeMode::slotFeedback()
 {
     QDesktopServices::openUrl(QUrl(QLatin1String(
-            "http://www.qtsoftware.com/forms/feedback-forms/qt-creator-user-feedback/view")));
+            "http://www.trolltech.com/forms/feedback-forms/qt-creator-user-feedback/view")));
+}
+
+void WelcomeMode::slotCreateNewProject()
+{
+    Core::Internal::NewDialog dlg(widget());
+    dlg.setWizards(Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
+    dlg.showDialog();
 }
 
 void WelcomeMode::slotNextTip()
@@ -409,7 +413,8 @@ QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QStr
     QTreeWidgetItem *item = new QTreeWidgetItem(this);
     item->setIcon(0, m_bullet);
     item->setSizeHint(0, QSize(24, 30));
-    QWidget *lbl = new QLabel(label);
+    QLabel *lbl = new QLabel(label);
+    lbl->setTextInteractionFlags(Qt::NoTextInteraction);
     lbl->setCursor(QCursor(Qt::PointingHandCursor));
     lbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QBoxLayout *lay = new QVBoxLayout;
@@ -422,9 +427,15 @@ QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QStr
     return item;
 }
 
-void WelcomeModeTreeWidget::slotAddItem(const QString &label, const QString &data)
+void WelcomeModeTreeWidget::slotAddNewsItem(const QString &title, const QString &description, const QString &link)
 {
-    addTopLevelItem(addItem(label,data));
+    int itemWidth = width()-header()->sectionSize(0);
+    QFont f = font();
+    QString elidedText = QFontMetrics(f).elidedText(description, Qt::ElideRight, itemWidth);
+    f.setBold(true);
+    QString elidedTitle = QFontMetrics(f).elidedText(title, Qt::ElideRight, itemWidth);
+    QString data = QString::fromLatin1("<b>%1</b><br />%2").arg(elidedTitle).arg(elidedText);
+    addTopLevelItem(addItem(data,link));
 }
 
 void WelcomeModeTreeWidget::slotItemClicked(QTreeWidgetItem *item)

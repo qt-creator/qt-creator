@@ -69,7 +69,7 @@ public:
     QTreeWidgetItem *addItem(const QString &label, const QString &data);
 
 public slots:
-    void slotAddItem(const QString &label, const QString &data);
+    void slotAddNewsItem(const QString &title, const QString &description, const QString &link);
 
 signals:
     void activated(const QString &data);

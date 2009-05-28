@@ -736,7 +736,7 @@ void HelpPlugin::openHelpPage(const QString& url)
     else {
         QString page = url.mid(url.lastIndexOf('/')+1);
         qDebug() << url << page << url.lastIndexOf('/');
-        QDesktopServices::openUrl(QLatin1String("http://doc.qtsoftware.com/latest/")+page);
+        QDesktopServices::openUrl(QLatin1String("http://doc.trolltech.com/latest/")+page);
     }
 }
 

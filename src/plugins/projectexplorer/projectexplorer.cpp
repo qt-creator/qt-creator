@@ -78,6 +78,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <coreplugin/welcomemode.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
@@ -669,6 +670,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         m_projectExplorerSettings.saveBeforeBuild = s->value("ProjectExplorer/Settings/SaveBeforeBuild", false).toBool();
     }
 
+    if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>
+        (Core::ICore::instance()->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
+        connect(welcomeMode, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
+    }
     connect(m_sessionManagerAction, SIGNAL(triggered()), this, SLOT(showSessionManager()));
     connect(m_newAction, SIGNAL(triggered()), this, SLOT(newProject()));
 #if 0

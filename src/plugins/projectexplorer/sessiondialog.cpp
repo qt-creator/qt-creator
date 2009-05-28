@@ -124,6 +124,7 @@ SessionDialog::SessionDialog(SessionManager *sessionManager, const QString &last
     connect(m_ui.sessionList, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)),
             this, SLOT(updateActions()));
 
+    m_ui.whatsASessionLabel->setOpenExternalLinks(true);
     QStringList sessions = sessionManager->sessions();
     foreach (const QString &session, sessions) {
         m_ui.sessionList->addItem(session);

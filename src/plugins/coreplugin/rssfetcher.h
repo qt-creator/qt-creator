@@ -44,7 +44,7 @@ public:
     RSSFetcher(int maxItems, QObject *parent = 0);
 
 signals:
-    void newsItemReady(const QString& title, const QString& url);
+    void newsItemReady(const QString& title, const QString& desciption, const QString& url);
 
 public slots:
     void fetch(const QUrl &url);
@@ -60,6 +60,7 @@ private:
     QXmlStreamReader m_xml;
     QString m_currentTag;
     QString m_linkString;
+    QString m_descriptionString;
     QString m_titleString;
 
     QHttp m_http;

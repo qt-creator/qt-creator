@@ -28,13 +28,84 @@
 **************************************************************************/
 
 #include <QtCore/QDebug>
+#include <QtCore/QSysInfo>
+#include <QtCore/QLocale>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QLineEdit>
 #include <QtNetwork/QHttp>
 
+#include <coreplugin/coreconstants.h>
+
 #include "rssfetcher.h"
 
+#ifdef Q_OS_UNIX
+#include <sys/utsname.h>
+#endif
+
 using namespace Core::Internal;
+
+static const QString getOsString()
+{
+    QString osString;
+#if defined(Q_OS_WIN)
+    switch (QSysInfo::WindowsVersion) {
+    case (QSysInfo::WV_4_0):
+        osString += QLatin1String("WinNT4.0");
+        break;
+    case (QSysInfo::WV_5_0):
+        osString += QLatin1String("Windows NT 5.0");
+        break;
+    case (QSysInfo::WV_5_1):
+        osString += QLatin1String("Windows NT 5.1");
+        break;
+    case (QSysInfo::WV_5_2):
+        osString += QLatin1String("Windows NT 5.2");
+        break;
+    case (QSysInfo::WV_6_0):
+        osString += QLatin1String("Windows NT 6.0");
+        break;
+    case (QSysInfo::WV_6_1):
+        osString += QLatin1String("Windows NT 6.1");
+        break;
+    default:
+        osString += QLatin1String("Windows NT (Unknown)");
+        break;
+    }
+#elif defined (Q_OS_MAC)
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
+        osString += QLatin1String("PPC ");
+    else
+        osString += QLatin1String("Intel ");
+    osString += QLatin1String("Mac OS X ");
+    switch (QSysInfo::MacintoshVersion) {
+    case (QSysInfo::MV_10_3):
+        osString += QLatin1String("10_3");
+        break;
+    case (QSysInfo::MV_10_4):
+        osString += QLatin1String("10_4");
+        break;
+    case (QSysInfo::MV_10_5):
+        osString += QLatin1String("10_5");
+        break;
+    case (QSysInfo::MV_10_6):
+        osString += QLatin1String("10_6");
+        break;
+    default:
+        osString += QLatin1String("(Unknown)");
+        break;
+    }
+#elif defined (Q_OS_UNIX)
+    struct utsname uts;
+    if (uname(&uts) == 0)
+        osString += QString("%1 %2").arg(QLatin1String(uts.sysname))
+                        .arg(QLatin1String(uts.release));
+    else
+        osString += QLatin1String("Unix (Unknown)");
+#else
+    ossttring = QLatin1String("Unknown OS");
+#endif
+    return osString;
+}
 
 RSSFetcher::RSSFetcher(int maxItems, QObject *parent)
     : QObject(parent), m_items(0), m_maxItems(maxItems)
@@ -49,7 +120,15 @@ RSSFetcher::RSSFetcher(int maxItems, QObject *parent)
 void RSSFetcher::fetch(const QUrl &url)
 {
     m_http.setHost(url.host());
-    m_connectionId = m_http.get(url.path());
+    QString agentStr = QString("Qt-Creator/%1 (QHttp %2; %3; %4; %5 bit)")
+                    .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
+                    .arg(getOsString()).arg(QLocale::system().name())
+                    .arg(QSysInfo::WordSize);
+    QHttpRequestHeader header("GET", url.path());
+    qDebug() << agentStr;
+    header.setValue("User-Agent", agentStr);
+    header.setValue("Host", url.host());
+    m_connectionId = m_http.request(header);
 }
 
 void RSSFetcher::readData(const QHttpResponseHeader &resp)
@@ -76,6 +155,7 @@ void RSSFetcher::parseXml()
         if (m_xml.isStartElement()) {
             if (m_xml.name() == "item") {
                 m_titleString.clear();
+                m_descriptionString.clear();
                 m_linkString.clear();
             }
             m_currentTag = m_xml.name().toString();
@@ -84,12 +164,14 @@ void RSSFetcher::parseXml()
                 m_items++;
                 if (m_items > m_maxItems)
                     return;
-                emit newsItemReady(m_titleString, m_linkString);
+                emit newsItemReady(m_titleString, m_descriptionString, m_linkString);
             }
 
         } else if (m_xml.isCharacters() && !m_xml.isWhitespace()) {
             if (m_currentTag == "title")
                 m_titleString += m_xml.text().toString();
+            else if (m_currentTag == "description")
+                m_descriptionString += m_xml.text().toString();
             else if (m_currentTag == "link")
                 m_linkString += m_xml.text().toString();
         }
