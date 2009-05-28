@@ -242,6 +242,7 @@ private slots:
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void writeFile(bool *handled, const QString &fileName, const QString &contents);
     void quitFile(bool forced);
+    void quitAllFiles(bool forced);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void indentRegion(int *amount, int beginLine, int endLine,  QChar typedChar);
 
@@ -391,6 +392,8 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(showCommandBuffer(QString)));
     connect(handler, SIGNAL(quitRequested(bool)),
         this, SLOT(quitFile(bool)), Qt::QueuedConnection);
+    connect(handler, SIGNAL(quitAllRequested(bool)),
+        this, SLOT(quitAllFiles(bool)), Qt::QueuedConnection);
     connect(handler, SIGNAL(writeFileRequested(bool*,QString,QString)),
         this, SLOT(writeFile(bool*,QString,QString)));
     connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
@@ -458,6 +461,11 @@ void FakeVimPluginPrivate::quitFile(bool forced)
     QList<Core::IEditor *> editors;
     editors.append(m_editorToHandler.key(handler));
     Core::EditorManager::instance()->closeEditors(editors, !forced);
+}
+
+void FakeVimPluginPrivate::quitAllFiles(bool forced)
+{
+    Core::EditorManager::instance()->closeAllEditors(!forced);
 }
 
 void FakeVimPluginPrivate::writeFile(bool *handled,

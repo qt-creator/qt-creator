@@ -66,6 +66,7 @@ signals:
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
     void quitRequested(bool force);
+    void quitAllRequested(bool force);
     void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
     void writeFileRequested(bool *handled,
         const QString &fileName, const QString &contents);

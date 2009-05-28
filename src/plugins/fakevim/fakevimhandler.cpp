@@ -1745,27 +1745,31 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 
     //qDebug() << "RANGE: " << beginLine << endLine << cmd << cmd0 << m_marks;
 
+    static QRegExp reQuit("^qa?!?$");
     static QRegExp reDelete("^d( (.*))?$");
     static QRegExp reHistory("^his(tory)?( (.*))?$");
     static QRegExp reNormal("^norm(al)?( (.*))?$");
     static QRegExp reSet("^set?( (.*))?$");
-    static QRegExp reWrite("^w!?( (.*))?$");
+    static QRegExp reWrite("^[wx]q?a?!?( (.*))?$");
     static QRegExp reSubstitute("^s(.)(.*)\\1(.*)\\1([gi]*)");
 
     if (cmd.isEmpty()) {
         setPosition(firstPositionInLine(beginLine));
         showBlackMessage(QString());
         enterCommandMode();
-    } else if (cmd == "q!" || cmd == "q") { // :q
+    } else if (reQuit.indexIn(cmd) != -1) { // :q
         showBlackMessage(QString());
-        q->quitRequested(cmd == "q!");
+        if (cmd.contains(QChar('a')))
+            q->quitAllRequested(cmd.contains(QChar('!')));
+        else
+            q->quitRequested(cmd.contains(QChar('!')));
     } else if (reDelete.indexIn(cmd) != -1) { // :d
         selectRange(beginLine, endLine);
         QString reg = reDelete.cap(2);
         QString text = removeSelectedText();
         if (!reg.isEmpty())
             m_registers[reg.at(0).unicode()] = text;
-    } else if (reWrite.indexIn(cmd) != -1) { // :w
+    } else if (reWrite.indexIn(cmd) != -1) { // :w and :x
         enterCommandMode();
         bool noArgs = (beginLine == -1);
         if (beginLine == -1)
@@ -1773,7 +1777,15 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         if (endLine == -1)
             endLine = linesInDocument();
         //qDebug() << "LINES: " << beginLine << endLine;
-        bool forced = cmd.startsWith("w!");
+        int indexOfSpace = cmd.indexOf(QChar(' '));
+        QString prefix;
+        if (indexOfSpace < 0)
+            prefix = cmd;
+        else
+            prefix = cmd.left(indexOfSpace);
+        bool forced = prefix.contains(QChar('!'));
+        bool quit = prefix.contains(QChar('q')) || prefix.contains(QChar('x'));
+        bool quitAll = quit && prefix.contains(QChar('a'));
         QString fileName = reWrite.cap(2);
         if (fileName.isEmpty())
             fileName = m_currentFileName;
@@ -1809,6 +1821,10 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             showBlackMessage(tr("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(exists ? " " : " [New] ")
                 .arg(ba.count('\n')).arg(ba.size()));
+            if (quitAll)
+                q->quitAllRequested(forced);
+            else if (quit)
+                q->quitRequested(forced);
         } else {
             showRedMessage(tr("Cannot open file '%1' for reading").arg(fileName));
         }
