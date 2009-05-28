@@ -101,9 +101,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     Core::ActionManager *am = core->actionManager();
 
-    QtVersionManager::m_self = new QtVersionManager();
-    addAutoReleasedObject(QtVersionManager::m_self);
-
+    addAutoReleasedObject(new QtVersionManager());
     addAutoReleasedObject(new QtOptionsPage());
 
 
