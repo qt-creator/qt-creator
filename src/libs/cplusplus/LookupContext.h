@@ -119,6 +119,10 @@ private:
                                            const QList<Scope *> &visibleScopes,
                                            ResolveMode mode) const;
 
+    QList<Symbol *> resolveOperatorNameId(OperatorNameId *opId,
+                                          const QList<Scope *> &visibleScopes,
+                                          ResolveMode mode) const;
+
     Identifier *identifier(const Name *name) const;
 
     QList<Scope *> buildVisibleScopes();

@@ -181,20 +181,45 @@ QList<Symbol *> LookupContext::resolveQualifiedNameId(QualifiedNameId *q,
     return candidates;
 }
 
+QList<Symbol *> LookupContext::resolveOperatorNameId(OperatorNameId *opId,
+                                                     const QList<Scope *> &visibleScopes,
+                                                     ResolveMode) const
+{
+    QList<Symbol *> candidates;
+
+    for (int scopeIndex = 0; scopeIndex < visibleScopes.size(); ++scopeIndex) {
+        Scope *scope = visibleScopes.at(scopeIndex);
+
+        for (Symbol *symbol = scope->lookat(opId->kind()); symbol; symbol = symbol->next()) {
+            if (! opId->isEqualTo(symbol->name()))
+                continue;
+
+            if (! candidates.contains(symbol))
+                candidates.append(symbol);
+        }
+    }
+
+    return candidates;
+}
+
 QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visibleScopes,
                                        ResolveMode mode) const
 {
     QList<Symbol *> candidates;
 
     if (!name)
-        return candidates;
+        return candidates; // nothing to do, the symbol is anonymous.
 
-    if (QualifiedNameId *q = name->asQualifiedNameId())
+    else if (QualifiedNameId *q = name->asQualifiedNameId())
         return resolveQualifiedNameId(q, visibleScopes, mode);
 
-    if (Identifier *id = identifier(name)) {
+    else if (OperatorNameId *opId = name->asOperatorNameId())
+        return resolveOperatorNameId(opId, visibleScopes, mode);
+
+    else if (Identifier *id = identifier(name)) {
         for (int scopeIndex = 0; scopeIndex < visibleScopes.size(); ++scopeIndex) {
             Scope *scope = visibleScopes.at(scopeIndex);
+
             for (Symbol *symbol = scope->lookat(id); symbol; symbol = symbol->next()) {
                 if (! symbol->name()) {
                     continue;
@@ -235,16 +260,6 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
                 }
 
                 candidates.append(symbol);
-            }
-        }
-    } else if (OperatorNameId *opId = name->asOperatorNameId()) {
-        for (int scopeIndex = 0; scopeIndex < visibleScopes.size(); ++scopeIndex) {
-            Scope *scope = visibleScopes.at(scopeIndex);
-            for (Symbol *symbol = scope->lookat(opId->kind()); symbol; symbol = symbol->next()) {
-                if (! opId->isEqualTo(symbol->name()))
-                    continue;
-                else if (! candidates.contains(symbol))
-                    candidates.append(symbol);
             }
         }
     }
