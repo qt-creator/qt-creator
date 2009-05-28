@@ -40,6 +40,7 @@
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QLineEdit;
+class QRadioButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -97,6 +98,9 @@ signals:
 
 
 private:
+    enum BaseEnvironmentBase { CleanEnvironmentBase, SystemEnvironmentBase, BuildEnvironmentBase };
+    void setBaseEnvironmentBase(BaseEnvironmentBase env);
+    BaseEnvironmentBase baseEnvironmentBase() const;
     ProjectExplorer::Environment baseEnvironment() const;
     void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
     QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
@@ -113,6 +117,7 @@ private:
     bool m_userSetName;
     QString m_userName;
     QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
+    BaseEnvironmentBase m_baseEnvironmentBase;
 };
 
 class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
@@ -150,7 +155,7 @@ private slots:
     void userChangesUpdated();
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged();
-
+    void baseEnvironmentRadioButtonChanged();
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
@@ -160,6 +165,9 @@ private:
     Core::Utils::PathChooser *m_workingDirectory;
     QCheckBox *m_useTerminalCheck;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
+    QRadioButton *m_cleanEnvironmentRadioButton;
+    QRadioButton *m_systemEnvironmentRadioButton;
+    QRadioButton *m_buildEnvironmentRadioButton;
 };
 
 } // namespace Internal

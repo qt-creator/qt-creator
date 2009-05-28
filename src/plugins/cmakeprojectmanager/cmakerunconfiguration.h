@@ -35,6 +35,10 @@
 #include <projectexplorer/persistentsettings.h>
 #include <projectexplorer/environmenteditmodel.h>
 
+QT_BEGIN_NAMESPACE
+class QRadioButton;
+QT_END_INCLUDE_NAMESPACE
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -71,6 +75,9 @@ signals:
 private slots:
     void setArguments(const QString &newText);
 private:
+    enum BaseEnvironmentBase { CleanEnvironmentBase, SystemEnvironmentBase, BuildEnvironmentBase };
+    void setBaseEnvironmentBase(BaseEnvironmentBase env);
+    BaseEnvironmentBase baseEnvironmentBase() const;
     ProjectExplorer::Environment baseEnvironment() const;
     void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
     QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
@@ -81,6 +88,7 @@ private:
     QString m_title;
     QString m_arguments;
     QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
+    BaseEnvironmentBase m_baseEnvironmentBase;
 };
 
 class CMakeRunConfigurationWidget : public QWidget
@@ -93,9 +101,15 @@ private slots:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged();
     void userChangesUpdated();
+private slots:
+    void baseEnvironmentRadioButtonChanged();
 private:
+    bool m_ignoreChange;
     CMakeRunConfiguration *m_cmakeRunConfiguration;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
+    QRadioButton *m_cleanEnvironmentRadioButton;
+    QRadioButton *m_systemEnvironmentRadioButton;
+    QRadioButton *m_buildEnvironmentRadioButton;
 };
 
 class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

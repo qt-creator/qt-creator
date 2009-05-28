@@ -42,6 +42,8 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QFileDialog>
+#include <QtGui/QGroupBox>
+#include <QtGui/QRadioButton>
 #include <QDialogButtonBox>
 
 using namespace ProjectExplorer;
@@ -86,13 +88,43 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);
 
+    QGroupBox *box = new QGroupBox(tr("Environment"),this);
+    QVBoxLayout *boxLayout = new QVBoxLayout();
+    box->setLayout(boxLayout);
+    box->setFlat(true);
+
+    QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
+    boxLayout->addWidget(label);
+
+    m_cleanEnvironmentRadioButton = new QRadioButton("Clean Environment", box);
+    m_systemEnvironmentRadioButton = new QRadioButton("System Environment", box);
+    m_buildEnvironmentRadioButton = new QRadioButton("Build Environment", box);
+    boxLayout->addWidget(m_cleanEnvironmentRadioButton);
+    boxLayout->addWidget(m_systemEnvironmentRadioButton);
+    boxLayout->addWidget(m_buildEnvironmentRadioButton);
+
+    if (rc->baseEnvironmentBase() == CustomExecutableRunConfiguration::CleanEnvironmentBase)
+        m_cleanEnvironmentRadioButton->setChecked(true);
+    else if (rc->baseEnvironmentBase() == CustomExecutableRunConfiguration::SystemEnvironmentBase)
+        m_systemEnvironmentRadioButton->setChecked(true);
+    else if (rc->baseEnvironmentBase() == CustomExecutableRunConfiguration::BuildEnvironmentBase)
+        m_buildEnvironmentRadioButton->setChecked(true);
+
+    connect(m_cleanEnvironmentRadioButton, SIGNAL(toggled(bool)),
+            this, SLOT(baseEnvironmentRadioButtonChanged()));
+    connect(m_systemEnvironmentRadioButton, SIGNAL(toggled(bool)),
+            this, SLOT(baseEnvironmentRadioButtonChanged()));
+    connect(m_buildEnvironmentRadioButton, SIGNAL(toggled(bool)),
+            this, SLOT(baseEnvironmentRadioButtonChanged()));
+
     m_environmentWidget = new EnvironmentWidget(this);
     m_environmentWidget->setBaseEnvironment(rc->baseEnvironment());
     m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
+    boxLayout->addWidget(m_environmentWidget);
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->addLayout(layout);
-    vbox->addWidget(m_environmentWidget);
+    vbox->addWidget(box);
 
     changed();
     
@@ -123,8 +155,32 @@ void CustomExecutableConfigurationWidget::userChangesUpdated()
     m_runConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
 }
 
+void CustomExecutableConfigurationWidget::baseEnvironmentRadioButtonChanged()
+{
+    m_ignoreChange = true;
+    if (m_cleanEnvironmentRadioButton->isChecked())
+        m_runConfiguration->setBaseEnvironmentBase(CustomExecutableRunConfiguration::CleanEnvironmentBase);
+    else if (m_systemEnvironmentRadioButton->isChecked())
+        m_runConfiguration->setBaseEnvironmentBase(CustomExecutableRunConfiguration::SystemEnvironmentBase);
+    else if (m_buildEnvironmentRadioButton->isChecked())
+        m_runConfiguration->setBaseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase);
+
+    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
+    m_ignoreChange = false;
+}
+
 void CustomExecutableConfigurationWidget::baseEnvironmentChanged()
 {
+    if (m_ignoreChange)
+        return;
+
+    if (m_runConfiguration->baseEnvironmentBase() == CustomExecutableRunConfiguration::CleanEnvironmentBase)
+        m_cleanEnvironmentRadioButton->setChecked(true);
+    else if (m_runConfiguration->baseEnvironmentBase() == CustomExecutableRunConfiguration::SystemEnvironmentBase)
+        m_systemEnvironmentRadioButton->setChecked(true);
+    else if (m_runConfiguration->baseEnvironmentBase() == CustomExecutableRunConfiguration::BuildEnvironmentBase)
+        m_buildEnvironmentRadioButton->setChecked(true);
+
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
 }
 
@@ -183,7 +239,8 @@ void CustomExecutableConfigurationWidget::changed()
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
     : ApplicationRunConfiguration(pro),
       m_runMode(Gui),
-      m_userSetName(false)
+      m_userSetName(false),
+      m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
 {
     m_workingDirectory = "$BUILDDIR";
     setName(tr("Custom Executable"));
@@ -279,14 +336,29 @@ QStringList CustomExecutableRunConfiguration::commandLineArguments() const
 
 ProjectExplorer::Environment CustomExecutableRunConfiguration::baseEnvironment() const
 {
-    // TODO use either System Environment
-    // build environment
-    // or empty
-    //Environment env = Environment(QProcess::systemEnvironment());
-
-    QString config = project()->activeBuildConfiguration();
-    ProjectExplorer::Environment env = project()->environment(project()->activeBuildConfiguration());
+    ProjectExplorer::Environment env;
+    if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::CleanEnvironmentBase) {
+        // Nothing
+    } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::SystemEnvironmentBase) {
+        env = ProjectExplorer::Environment::systemEnvironment();
+    } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
+        QString config = project()->activeBuildConfiguration();
+        env = project()->environment(project()->activeBuildConfiguration());
+    }
     return env;
+}
+
+void CustomExecutableRunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
+{
+    if (m_baseEnvironmentBase == env)
+        return;
+    m_baseEnvironmentBase = env;
+    emit baseEnvironmentChanged();
+}
+
+CustomExecutableRunConfiguration::BaseEnvironmentBase CustomExecutableRunConfiguration::baseEnvironmentBase() const
+{
+    return m_baseEnvironmentBase;
 }
 
 ProjectExplorer::Environment CustomExecutableRunConfiguration::environment() const
@@ -318,6 +390,7 @@ void CustomExecutableRunConfiguration::save(PersistentSettingsWriter &writer) co
     writer.saveValue("UserSetName", m_userSetName);
     writer.saveValue("UserName", m_userName);
     writer.saveValue("UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    writer.saveValue("BaseEnvironmentBase", m_baseEnvironmentBase);
     ApplicationRunConfiguration::save(writer);
 }
 
@@ -331,6 +404,8 @@ void CustomExecutableRunConfiguration::restore(const PersistentSettingsReader &r
     m_userName = reader.restoreValue("UserName").toString();
     m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("UserEnvironmentChanges").toStringList());
     ApplicationRunConfiguration::restore(reader);
+    QVariant tmp = reader.restoreValue("BaseEnvironmentBase");
+    m_baseEnvironmentBase = tmp.isValid() ? BaseEnvironmentBase(tmp.toInt()) : CustomExecutableRunConfiguration::BuildEnvironmentBase;
 }
 
 void CustomExecutableRunConfiguration::setExecutable(const QString &executable)

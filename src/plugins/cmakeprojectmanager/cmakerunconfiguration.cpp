@@ -37,6 +37,9 @@
 #include <utils/qtcassert.h>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>
+#include <QtGui/QGroupBox>
+#include <QtGui/QLabel>
+#include <QtGui/QRadioButton>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -47,6 +50,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
     , m_target(target)
     , m_workingDirectory(workingDirectory)
     , m_title(title)
+    , m_baseEnvironmentBase(CMakeRunConfiguration::BuildEnvironmentBase)
 {
     setName(title);
 
@@ -110,6 +114,7 @@ void CMakeRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writ
     writer.saveValue("CMakeRunConfiguation.Title", m_title);
     writer.saveValue("CMakeRunConfiguration.Arguments", m_arguments);
     writer.saveValue("CMakeRunConfiguration.UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    writer.saveValue("BaseEnvironmentBase", m_baseEnvironmentBase);
 }
 
 void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
@@ -121,6 +126,8 @@ void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsRea
     m_title = reader.restoreValue("CMakeRunConfiguation.Title").toString();
     m_arguments = reader.restoreValue("CMakeRunConfiguration.Arguments").toString();
     m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("CMakeRunConfiguration.UserEnvironmentChanges").toStringList());
+    QVariant tmp = reader.restoreValue("BaseEnvironmentBase");
+    m_baseEnvironmentBase = tmp.isValid() ? BaseEnvironmentBase(tmp.toInt()) : CMakeRunConfiguration::BuildEnvironmentBase;
 }
 
 QWidget *CMakeRunConfiguration::configurationWidget()
@@ -142,14 +149,29 @@ QString CMakeRunConfiguration::dumperLibrary() const
 
 ProjectExplorer::Environment CMakeRunConfiguration::baseEnvironment() const
 {
-    // TODO use either System Environment
-    // build environment
-    // or empty
-    //Environment env = Environment(QProcess::systemEnvironment());
-
-    QString config = project()->activeBuildConfiguration();
-    ProjectExplorer::Environment env = project()->environment(project()->activeBuildConfiguration());
+    ProjectExplorer::Environment env;
+    if (m_baseEnvironmentBase == CMakeRunConfiguration::CleanEnvironmentBase) {
+        // Nothing
+    } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::SystemEnvironmentBase) {
+        env = ProjectExplorer::Environment::systemEnvironment();
+    } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::BuildEnvironmentBase) {
+        QString config = project()->activeBuildConfiguration();
+        env = project()->environment(project()->activeBuildConfiguration());
+    }
     return env;
+}
+
+void CMakeRunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
+{
+    if (m_baseEnvironmentBase == env)
+        return;
+    m_baseEnvironmentBase = env;
+    emit baseEnvironmentChanged();
+}
+
+CMakeRunConfiguration::BaseEnvironmentBase CMakeRunConfiguration::baseEnvironmentBase() const
+{
+    return m_baseEnvironmentBase;
 }
 
 ProjectExplorer::Environment CMakeRunConfiguration::environment() const
@@ -176,7 +198,7 @@ void CMakeRunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplore
 
 
 CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent)
-    : QWidget(parent), m_cmakeRunConfiguration(cmakeRunConfiguration)
+    : QWidget(parent), m_ignoreChange(false), m_cmakeRunConfiguration(cmakeRunConfiguration)
 {
 
     QFormLayout *fl = new QFormLayout();
@@ -186,12 +208,44 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
             this, SLOT(setArguments(QString)));
     fl->addRow(tr("Arguments:"), argumentsLineEdit);
 
-    QVBoxLayout *vbx = new QVBoxLayout(this);
-    vbx->addLayout(fl);
+    QGroupBox *box = new QGroupBox(tr("Environment"),this);
+    QVBoxLayout *boxLayout = new QVBoxLayout();
+    box->setLayout(boxLayout);
+    box->setFlat(true);
+
+    QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
+    boxLayout->addWidget(label);
+
+    m_cleanEnvironmentRadioButton = new QRadioButton("Clean Environment", box);
+    m_systemEnvironmentRadioButton = new QRadioButton("System Environment", box);
+    m_buildEnvironmentRadioButton = new QRadioButton("Build Environment", box);
+    boxLayout->addWidget(m_cleanEnvironmentRadioButton);
+    boxLayout->addWidget(m_systemEnvironmentRadioButton);
+    boxLayout->addWidget(m_buildEnvironmentRadioButton);
+
+    if (cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::CleanEnvironmentBase)
+        m_cleanEnvironmentRadioButton->setChecked(true);
+    else if (cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::SystemEnvironmentBase)
+        m_systemEnvironmentRadioButton->setChecked(true);
+    else if (cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::BuildEnvironmentBase)
+        m_buildEnvironmentRadioButton->setChecked(true);
+
+    connect(m_cleanEnvironmentRadioButton, SIGNAL(toggled(bool)),
+            this, SLOT(baseEnvironmentRadioButtonChanged()));
+    connect(m_systemEnvironmentRadioButton, SIGNAL(toggled(bool)),
+            this, SLOT(baseEnvironmentRadioButtonChanged()));
+    connect(m_buildEnvironmentRadioButton, SIGNAL(toggled(bool)),
+            this, SLOT(baseEnvironmentRadioButtonChanged()));
+
     m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this);
-    vbx->addWidget(m_environmentWidget);
     m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
     m_environmentWidget->setUserChanges(m_cmakeRunConfiguration->userEnvironmentChanges());
+
+    boxLayout->addWidget(m_environmentWidget);
+
+    QVBoxLayout *vbx = new QVBoxLayout(this);
+    vbx->addLayout(fl);
+    vbx->addWidget(box);
 
     connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(userChangesUpdated()));
@@ -207,8 +261,32 @@ void CMakeRunConfigurationWidget::userChangesUpdated()
     m_cmakeRunConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
 }
 
+void CMakeRunConfigurationWidget::baseEnvironmentRadioButtonChanged()
+{
+    m_ignoreChange = true;
+    if (m_cleanEnvironmentRadioButton->isChecked())
+        m_cmakeRunConfiguration->setBaseEnvironmentBase(CMakeRunConfiguration::CleanEnvironmentBase);
+    else if (m_systemEnvironmentRadioButton->isChecked())
+        m_cmakeRunConfiguration->setBaseEnvironmentBase(CMakeRunConfiguration::SystemEnvironmentBase);
+    else if (m_buildEnvironmentRadioButton->isChecked())
+        m_cmakeRunConfiguration->setBaseEnvironmentBase(CMakeRunConfiguration::BuildEnvironmentBase);
+
+    m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
+    m_ignoreChange = false;
+}
+
 void CMakeRunConfigurationWidget::baseEnvironmentChanged()
 {
+    if (m_ignoreChange)
+        return;
+
+    if (m_cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::CleanEnvironmentBase)
+        m_cleanEnvironmentRadioButton->setChecked(true);
+    else if (m_cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::SystemEnvironmentBase)
+        m_systemEnvironmentRadioButton->setChecked(true);
+    else if (m_cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::BuildEnvironmentBase)
+        m_buildEnvironmentRadioButton->setChecked(true);
+
     m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
 }
 
