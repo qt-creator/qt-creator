@@ -42,35 +42,6 @@
 
 using namespace CPlusPlus;
 
-bool LookupContext::isNameCompatibleWithIdentifier(Name *name, Identifier *id)
-{
-    if (! name) {
-        return false;
-    } else if (NameId *nameId = name->asNameId()) {
-        Identifier *identifier = nameId->identifier();
-        return identifier->isEqualTo(id);
-    } else if (DestructorNameId *nameId = name->asDestructorNameId()) {
-        Identifier *identifier = nameId->identifier();
-        return identifier->isEqualTo(id);
-    } else if (TemplateNameId *templNameId = name->asTemplateNameId()) {
-        Identifier *identifier = templNameId->identifier();
-        return identifier->isEqualTo(id);
-    }
-
-    return false;
-}
-
-#ifndef CPLUSPLUS_WITH_NO_DEBUG
-static void printScopes(const QList<Scope *> &scopes)
-{
-    qDebug() << "===========";
-    foreach (Scope *scope, scopes) {
-        qDebug() << "scope:" << scope << scope->owner()->name() << scope->owner()->fileName()
-                << scope->owner()->line() << scope->owner()->column();
-    }
-}
-#endif
-
 /////////////////////////////////////////////////////////////////////
 // LookupContext
 /////////////////////////////////////////////////////////////////////
@@ -205,20 +176,30 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
     else if (OperatorNameId *opId = name->asOperatorNameId())
         return resolveOperatorNameId(opId, visibleScopes, mode);
 
-    else if (Identifier *id = identifier(name)) {
+    else if (Identifier *id = name->identifier()) {
         for (int scopeIndex = 0; scopeIndex < visibleScopes.size(); ++scopeIndex) {
             Scope *scope = visibleScopes.at(scopeIndex);
 
             for (Symbol *symbol = scope->lookat(id); symbol; symbol = symbol->next()) {
-                if (! symbol->name()) {
-                    continue;
-                } else if (! maybeValidSymbol(symbol, mode, candidates)) {
-                    continue;
-                } else if (QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
-                    if (! q->unqualifiedNameId()->isEqualTo(name))
+                if (! symbol->name())
+                    continue; // nothing to do, the symbol is anonymous.
+
+                else if (! maybeValidSymbol(symbol, mode, candidates))
+                    continue; // skip it, we're not looking for this kind of symbols
+
+
+                else if (Identifier *symbolId = symbol->identifier()) {
+                    if (! symbolId->isEqualTo(id))
+                        continue; // skip it, the symbol's id is not compatible with this lookup.
+                }
+
+
+                if (QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
+
+                    if (name->isDestructorNameId() != q->unqualifiedNameId()->isDestructorNameId())
                         continue;
 
-                    if (q->nameCount() > 1) {
+                    else if (q->nameCount() > 1) {
                         Name *classOrNamespaceName = control()->qualifiedNameId(q->names(),
                                                                                 q->nameCount() - 1);
 
@@ -242,13 +223,13 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
                         if (! good)
                             continue;
                     }
-                } else if (! isNameCompatibleWithIdentifier(symbol->name(), id)) {
-                    continue;
                 } else if (symbol->name()->isDestructorNameId() != name->isDestructorNameId()) {
+                    // ### FIXME: this is wrong!
                     continue;
                 }
 
-                candidates.append(symbol);
+                if (! candidates.contains(symbol))
+                    candidates.append(symbol);
             }
         }
     }
