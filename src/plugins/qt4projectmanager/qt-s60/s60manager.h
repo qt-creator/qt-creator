@@ -30,11 +30,15 @@
 #ifndef S60MANAGER_H
 #define S60MANAGER_H
 
+#include "qtversionmanager.h"
+
 #include <extensionsystem/iplugin.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QObject>
 
 namespace Qt4ProjectManager {
+
 namespace Internal {
 
 class S60Devices;
@@ -46,16 +50,20 @@ class S60Manager : public QObject
 public:
     S60Manager(QObject *parent = 0);
     ~S60Manager();
+    static S60Manager *instance();
+
+    ProjectExplorer::ToolChain *createWINSCWToolChain(const Qt4ProjectManager::QtVersion *version) const;
 
 private slots:
     void updateQtVersions();
 
 private:
+    static S60Manager *m_instance;
     S60Devices *m_devices;
     S60DevicesPreferencePane *m_devicesPreferencePane;
 };
 
-#endif // S60MANAGER_H
-
 } // namespace Internal
 } // namespace Qt4ProjectManager
+
+#endif // S60MANAGER_H

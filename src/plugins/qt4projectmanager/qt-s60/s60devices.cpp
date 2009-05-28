@@ -129,12 +129,25 @@ QList<S60Devices::Device> S60Devices::devices() const
     return m_devices;
 }
 
-S60Devices::Device S60Devices::deviceForRoot(const QString &epocRoot) const
+S60Devices::Device S60Devices::deviceForId(const QString &id) const
 {
     foreach (const S60Devices::Device &i, m_devices) {
-        if (i.epocRoot == epocRoot) {
+        if (i.id == id) {
             return i;
         }
     }
     return Device();
+}
+
+QString S60Devices::cleanedRootPath(const QString &deviceRoot)
+{
+    QString path = deviceRoot;
+    if (path.size() > 1 && path[1] == QChar(':')) {
+        path = path.mid(2);
+    }
+
+    if (!path.size() || path[path.size()-1] != QChar('\\')) {
+        path += QChar('\\');
+    }
+    return path;
 }

@@ -73,6 +73,9 @@ public:
         MinGW,
         MSVC,
         WINCE,
+#ifdef QTCREATOR_WITH_S60
+        WINSCW,
+#endif
         OTHER,
         UNKNOWN,
         INVALID

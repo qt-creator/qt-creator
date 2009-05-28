@@ -1,3 +1,11 @@
 * When the refresh button in the SDK option page is pressed
   the qtoptionspage is not updated to reflect the new versions
   though we update them in S60Manager
+
+* QtVersion:
+    * support the different tool chains
+
+* WINSCW tool chain:
+    * predefined macros
+    * system includes
+    * get rid of hardcoded carbide path

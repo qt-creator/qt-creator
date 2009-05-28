@@ -32,6 +32,10 @@
 #include "qt4projectmanagerconstants.h"
 #include "profilereader.h"
 
+#ifdef QTCREATOR_WITH_S60
+#include "qt-s60/s60manager.h"
+#endif
+
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/cesdkhandler.h>
@@ -913,6 +917,10 @@ void QtVersion::updateToolChain() const
         }
         m_test = ProjectExplorer::ToolChain::createGccToolChain(qmake_cxx);
         //qDebug()<<"GCC ToolChain ("<<qmake_cxx<<")";
+#ifdef QTCREATOR_WITH_S60
+    } else if (t == ProjectExplorer::ToolChain::WINSCW) {
+        m_test = S60Manager::instance()->createWINSCWToolChain(this);
+#endif
     } else {
         qDebug()<<"Could not detect ToolChain for"<<mkspec();
         qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
@@ -1007,6 +1015,8 @@ ProjectExplorer::ToolChain::ToolChainType QtVersion::toolchainType() const
         return ProjectExplorer::ToolChain::WINCE;
     else if (spec.contains("linux-icc"))
         return ProjectExplorer::ToolChain::LinuxICC;
+    else if (spec.contains("abld"))
+        return ProjectExplorer::ToolChain::WINSCW;
     else
         return ProjectExplorer::ToolChain::GCC;
 }

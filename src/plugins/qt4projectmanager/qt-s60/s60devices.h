@@ -26,8 +26,9 @@ public:
     QString errorString() const;
     QList<Device> devices() const;
     bool detectQtForDevices();
-    Device deviceForRoot(const QString &epocRoot) const;
+    Device deviceForId(const QString &id) const;
 
+    static QString cleanedRootPath(const QString &deviceRoot);
 signals:
     void qtVersionsChanged();
 

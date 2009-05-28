@@ -31,21 +31,26 @@
 
 #include "s60devices.h"
 #include "s60devicespreferencepane.h"
-#include "qtversionmanager.h"
+#include "winscwtoolchain.h"
 
 #include <extensionsystem/pluginmanager.h>
 
 using namespace Qt4ProjectManager::Internal;
 
+S60Manager *S60Manager::m_instance = 0;
+
 namespace {
 static const char *S60_AUTODETECTION_SOURCE = "QTS60";
 }
+
+S60Manager *S60Manager::instance() { return m_instance; }
 
 S60Manager::S60Manager(QObject *parent)
         : QObject(parent),
         m_devices(new S60Devices(this)),
         m_devicesPreferencePane(new S60DevicesPreferencePane(m_devices, this))
 {
+    m_instance = this;
     m_devices->detectQtForDevices();
     ExtensionSystem::PluginManager::instance()
             ->addObject(m_devicesPreferencePane);
@@ -104,4 +109,10 @@ void S60Manager::updateQtVersions()
     foreach (QtVersion *version, versionsToAdd) {
         versionManager->addVersion(version);
     }
+}
+
+ProjectExplorer::ToolChain *S60Manager::createWINSCWToolChain(const Qt4ProjectManager::QtVersion *version) const
+{
+    QString id = version->autodetectionSource().mid(QString(S60_AUTODETECTION_SOURCE).length()+1);
+    return new WINSCWToolChain(m_devices->deviceForId(id));
 }
