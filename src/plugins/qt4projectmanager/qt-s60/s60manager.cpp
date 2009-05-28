@@ -31,10 +31,15 @@
 
 #include "s60devices.h"
 #include "s60devicespreferencepane.h"
+#include "qtversionmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 
 using namespace Qt4ProjectManager::Internal;
+
+namespace {
+static const char *S60_AUTODETECTION_SOURCE = "QTS60";
+}
 
 S60Manager::S60Manager(QObject *parent)
         : QObject(parent),
@@ -44,10 +49,57 @@ S60Manager::S60Manager(QObject *parent)
     m_devices->detectQtForDevices();
     ExtensionSystem::PluginManager::instance()
             ->addObject(m_devicesPreferencePane);
+    updateQtVersions();
 }
 
 S60Manager::~S60Manager()
 {
     ExtensionSystem::PluginManager::instance()
             ->removeObject(m_devicesPreferencePane);
+}
+
+void S60Manager::updateQtVersions()
+{
+    // This assumes that the QtVersionManager has already read
+    // the Qt versions from the settings
+    QtVersionManager *versionManager = QtVersionManager::instance();
+    QList<QtVersion *> versions = versionManager->versions();
+    QList<QtVersion *> handledVersions;
+    QList<QtVersion *> versionsToAdd;
+    foreach (const S60Devices::Device &device, m_devices->devices()) {
+        if (device.qt.isEmpty()) // no Qt version found for this sdk
+            continue;
+        QtVersion *deviceVersion = 0;
+        // look if we have a respective Qt version already
+        foreach (QtVersion *version, versions) {
+            if (version->isAutodetected()
+                    && version->autodetectionSource().startsWith(S60_AUTODETECTION_SOURCE)
+                    && version->autodetectionSource().mid(QString(S60_AUTODETECTION_SOURCE).length()+1) == device.id) {
+                deviceVersion = version;
+                break;
+            }
+        }
+        if (deviceVersion) {
+            deviceVersion->setName(QString("%1 (Qt %2)").arg(device.id, deviceVersion->qtVersionString()));
+            deviceVersion->setPath(device.qt);
+            handledVersions.append(deviceVersion);
+        } else {
+            deviceVersion = new QtVersion(QString("%1 (Qt %2)").arg(device.id), device.qt,
+                                          true, QString("%1.%2").arg(S60_AUTODETECTION_SOURCE, device.id));
+            deviceVersion->setName(deviceVersion->name().arg(deviceVersion->qtVersionString()));
+            versionsToAdd.append(deviceVersion);
+        }
+    }
+    // remove old autodetected versions
+    foreach (QtVersion *version, versions) {
+        if (version->isAutodetected()
+                && version->autodetectionSource().startsWith(S60_AUTODETECTION_SOURCE)
+                && !handledVersions.contains(version)) {
+            versionManager->removeVersion(version);
+        }
+    }
+    // add new versions
+    foreach (QtVersion *version, versionsToAdd) {
+        versionManager->addVersion(version);
+    }
 }

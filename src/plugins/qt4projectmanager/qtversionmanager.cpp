@@ -143,6 +143,14 @@ void QtVersionManager::addVersion(QtVersion *version)
     writeVersionsIntoSettings();
 }
 
+void QtVersionManager::removeVersion(QtVersion *version)
+{
+    m_versions.removeAll(version);
+    emit qtVersionsChanged();
+    writeVersionsIntoSettings();
+    delete version;
+}
+
 void QtVersionManager::updateDocumentation()
 {
     Help::HelpManager *helpManager
@@ -387,9 +395,11 @@ QtVersion::QtVersion(const QString &name, const QString &path, int id,
     setPath(path);
 }
 
-QtVersion::QtVersion(const QString &name, const QString &path)
+QtVersion::QtVersion(const QString &name, const QString &path,
+                     bool isAutodetected, const QString &autodetectionSource)
     : m_name(name),
-    m_isAutodetected(false),
+    m_isAutodetected(isAutodetected),
+    m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_mkspecUpToDate(false),
     m_versionInfoUpToDate(false),

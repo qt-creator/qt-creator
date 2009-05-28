@@ -46,8 +46,7 @@ class S60Manager : public QObject
 public:
     S60Manager(QObject *parent = 0);
     ~S60Manager();
-
-    S60Devices *devices() const { return m_devices; }
+    void updateQtVersions();
 
 private:
     S60Devices *m_devices;

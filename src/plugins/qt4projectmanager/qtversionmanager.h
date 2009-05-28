@@ -46,10 +46,10 @@ class Qt4ProjectManagerPlugin;
 
 class QtVersion
 {
-    friend class Internal::QtOptionsPageWidget; //for changing name and path
     friend class QtVersionManager;
 public:
-    QtVersion(const QString &name, const QString &path);
+    QtVersion(const QString &name, const QString &path,
+              bool isAutodetected = false, const QString &autodetectionSource = QString());
     QtVersion(const QString &name, const QString &path, int id,
               bool isAutodetected = false, const QString &autodetectionSource = QString());
     QtVersion()
@@ -73,6 +73,9 @@ public:
     QString linguistCommand() const;
     QString qmakeCXX() const;
     ProjectExplorer::ToolChain *toolChain() const;
+
+    void setName(const QString &name);
+    void setPath(const QString &path);
 
     QString qtVersionString() const;
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
@@ -117,8 +120,6 @@ public:
 private:
     static int getUniqueId();
     // Also used by QtOptionsPageWidget
-    void setName(const QString &name);
-    void setPath(const QString &path);
     void updateSourcePath();
     void updateMkSpec() const;
     void updateVersionInfo() const;
@@ -180,6 +181,7 @@ public:
     QtVersion *qtVersionForDirectory(const QString &directory);
     // Used by the projectloadwizard
     void addVersion(QtVersion *version);
+    void removeVersion(QtVersion *version);
 
     // Static Methods
     static QtVersion::QmakeBuildConfig scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
