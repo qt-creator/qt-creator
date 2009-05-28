@@ -1010,12 +1010,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_commandHistoryIndex = m_commandHistory.size() - 1;
         updateMiniBuffer();
     } else if (key == '/' || key == '?') {
-        enterExMode(); // to get the cursor disabled
-        m_mode = (key == '/') ? SearchForwardMode : SearchBackwardMode;
-        m_commandBuffer.clear();
-        m_searchHistory.append(QString());
-        m_searchHistoryIndex = m_searchHistory.size() - 1;
-        updateMiniBuffer();
+        emit q->findRequested(key == '?');
     } else if (key == '`') {
         m_subsubmode = BackTickSubSubMode;
     } else if (key == '#' || key == '*') {

@@ -56,6 +56,8 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textblockiterator.h>
 
+#include <find/textfindconstants.h>
+
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
@@ -232,6 +234,7 @@ private slots:
     void quitFakeVim();
     void triggerCompletions();
     void windowCommand(int key);
+    void find(bool reverse);
     void showSettingsDialog();
 
     void showCommandBuffer(const QString &contents);
@@ -246,6 +249,8 @@ private:
     FakeVimPlugin *q;
     FakeVimOptionPage *m_fakeVimOptionsPage;
     QHash<Core::IEditor *, FakeVimHandler *> m_editorToHandler;
+
+    void triggerAction(const QString& code);
 };
 
 } // namespace Internal
@@ -310,6 +315,17 @@ void FakeVimPluginPrivate::showSettingsDialog()
     Core::ICore::instance()->showOptionsDialog("FakeVim", "General");
 }
 
+void FakeVimPluginPrivate::triggerAction(const QString& code)
+{
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    QTC_ASSERT(am, return);
+    Core::Command *cmd = am->command(code);
+    QTC_ASSERT(cmd, return);
+    QAction *action = cmd->action();
+    QTC_ASSERT(action, return);
+    action->trigger();
+}
+
 void FakeVimPluginPrivate::windowCommand(int key)
 {
     #define control(n) (256 + n)
@@ -341,13 +357,13 @@ void FakeVimPluginPrivate::windowCommand(int key)
         qDebug() << "UNKNOWN WINDOWS COMMAND: " << key;
         return;
     }
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
-    QTC_ASSERT(am, return);
-    Core::Command *cmd = am->command(code);
-    QTC_ASSERT(cmd, return);
-    QAction *action = cmd->action();
-    QTC_ASSERT(action, return);
-    action->trigger();
+    triggerAction(code);
+}
+
+void FakeVimPluginPrivate::find(bool reverse)
+{
+    Q_UNUSED(reverse);  // TODO: Creator needs an action for find in reverse.
+    triggerAction(Find::Constants::FIND_IN_DOCUMENT);
 }
 
 void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
@@ -387,6 +403,8 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(triggerCompletions()));
     connect(handler, SIGNAL(windowCommandRequested(int)),
         this, SLOT(windowCommand(int)));
+    connect(handler, SIGNAL(findRequested(bool)),
+        this, SLOT(find(bool)));
 
     handler->setCurrentFileName(editor->file()->fileName());
     handler->installEventFilter();

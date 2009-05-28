@@ -73,6 +73,7 @@ signals:
     void indentRegion(int *amount, int beginLine, int endLine, QChar typedChar);
     void completionRequested();
     void windowCommandRequested(int key);
+    void findRequested(bool reverse);
 
 public:
     class Private;
