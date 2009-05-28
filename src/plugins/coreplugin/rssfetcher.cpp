@@ -125,7 +125,7 @@ void RSSFetcher::fetch(const QUrl &url)
                     .arg(getOsString()).arg(QLocale::system().name())
                     .arg(QSysInfo::WordSize);
     QHttpRequestHeader header("GET", url.path());
-    qDebug() << agentStr;
+    //qDebug() << agentStr;
     header.setValue("User-Agent", agentStr);
     header.setValue("Host", url.host());
     m_connectionId = m_http.request(header);
