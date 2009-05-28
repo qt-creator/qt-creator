@@ -115,6 +115,10 @@ public:
                         QList<Scope *> *expandedScopes) const;
 
 private:
+    QList<Symbol *> resolveQualifiedNameId(QualifiedNameId *q,
+                                           const QList<Scope *> &visibleScopes,
+                                           ResolveMode mode) const;
+
     Identifier *identifier(const Name *name) const;
 
     QList<Scope *> buildVisibleScopes();
