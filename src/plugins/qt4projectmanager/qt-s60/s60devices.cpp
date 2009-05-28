@@ -115,6 +115,7 @@ bool S60Devices::detectQtForDevices()
         }
         qtDll.close();
     }
+    emit qtVersionsChanged();
     return true;
 }
 

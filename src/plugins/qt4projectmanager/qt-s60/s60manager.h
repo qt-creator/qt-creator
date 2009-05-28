@@ -46,6 +46,8 @@ class S60Manager : public QObject
 public:
     S60Manager(QObject *parent = 0);
     ~S60Manager();
+
+private slots:
     void updateQtVersions();
 
 private:

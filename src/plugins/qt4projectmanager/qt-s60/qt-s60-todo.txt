@@ -1,0 +1,3 @@
+* When the refresh button in the SDK option page is pressed
+  the qtoptionspage is not updated to reflect the new versions
+  though we update them in S60Manager

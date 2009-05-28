@@ -27,6 +27,10 @@ public:
     QList<Device> devices() const;
     bool detectQtForDevices();
     Device deviceForRoot(const QString &epocRoot) const;
+
+signals:
+    void qtVersionsChanged();
+
 private:
     QString m_errorString;
     QList<Device> m_devices;

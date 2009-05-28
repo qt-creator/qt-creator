@@ -50,6 +50,8 @@ S60Manager::S60Manager(QObject *parent)
     ExtensionSystem::PluginManager::instance()
             ->addObject(m_devicesPreferencePane);
     updateQtVersions();
+    connect(m_devices, SIGNAL(qtVersionsChanged()),
+            this, SLOT(updateQtVersions()));
 }
 
 S60Manager::~S60Manager()

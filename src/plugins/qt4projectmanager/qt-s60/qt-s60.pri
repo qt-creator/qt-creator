@@ -11,5 +11,5 @@ SUPPORT_QT_S60 = $$(QTCREATOR_WITH_S60)
         $$PWD/s60devicespreferencepane.h \
         $$PWD/s60manager.h
 
-    FORMS   += $$PWD/s60devicespreferencepane.ui
+    OTHER_FILES += qt-s60-todo.txt
 }
