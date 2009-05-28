@@ -104,6 +104,10 @@ void GitCommand::execute()
     if (m_jobs.empty())
         return;
 
+    if(!QFileInfo(m_binaryPath).exists()){
+        emit errorText(QLatin1String("Error: Git not found.")+m_binaryPath);
+        return;
+    }
     // For some reason QtConcurrent::run() only works on this
     QFuture<void> task = QtConcurrent::run(this, &GitCommand::run);
     const QString taskName = QLatin1String("Git ") + m_jobs.front().arguments.at(0);
