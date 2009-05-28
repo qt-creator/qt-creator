@@ -237,7 +237,6 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
 {
     m_methodCombo = new QComboBox;
     m_methodCombo->setMinimumContentsLength(22);
-    m_methodCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
     // Make the combo box prefer to expand
     QSizePolicy policy = m_methodCombo->sizePolicy();

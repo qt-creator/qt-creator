@@ -4047,8 +4047,7 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     QHBoxLayout *l = new QHBoxLayout;
     QWidget *w = new QWidget;
     l->setMargin(0);
-    l->setContentsMargins(0, 0, 5, 0);
-    l->addStretch(1);
+    l->setContentsMargins(5, 0, 5, 0);
     l->addWidget(m_cursorPositionLabel);
     w->setLayout(l);
 
