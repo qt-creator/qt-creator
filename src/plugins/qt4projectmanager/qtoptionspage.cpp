@@ -98,7 +98,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
     for (int i = 0; i < m_versions.count(); ++i) {
         const QtVersion * const version = m_versions.at(i);
-        QTreeWidgetItem *item = new QTreeWidgetItem(version->isSystemVersion()? autoItem : manualItem);
+        QTreeWidgetItem *item = new QTreeWidgetItem(version->isAutodetected()? autoItem : manualItem);
         item->setText(0, version->name());
         item->setText(1, QDir::toNativeSeparators(version->path()));
         item->setData(0, Qt::UserRole, version->uniqueId());
@@ -241,11 +241,11 @@ void QtOptionsPageWidget::updateState()
 {
     int currentIndex = indexForTreeItem(m_ui->qtdirList->currentItem());
     bool enabled = (currentIndex >= 0);
-    bool isSystemVersion = (enabled
-        && m_versions.at(currentIndex)->isSystemVersion());
-    m_ui->delButton->setEnabled(enabled && !isSystemVersion);
-    m_ui->nameEdit->setEnabled(enabled && !isSystemVersion);
-    m_ui->qtPath->setEnabled(enabled && !isSystemVersion);
+    bool isAutodetected = (enabled
+        && m_versions.at(currentIndex)->isAutodetected());
+    m_ui->delButton->setEnabled(enabled && !isAutodetected);
+    m_ui->nameEdit->setEnabled(enabled && !isAutodetected);
+    m_ui->qtPath->setEnabled(enabled && !isAutodetected);
     m_ui->mingwPath->setEnabled(enabled);
 
     bool hasLog = enabled && !m_ui->qtdirList->currentItem()->data(2, Qt::UserRole).toString().isEmpty();

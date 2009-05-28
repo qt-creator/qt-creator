@@ -50,7 +50,7 @@ class QtVersion
     friend class QtVersionManager;
 public:
     QtVersion(const QString &name, const QString &path);
-    QtVersion(const QString &name, const QString &path, int id, bool isSystemVersion = false);
+    QtVersion(const QString &name, const QString &path, int id, bool isAutodetected = false);
     QtVersion()
         :m_name(QString::null), m_id(-1), m_toolChain(0)
     { setPath(QString::null); }
@@ -58,7 +58,7 @@ public:
 
     bool isValid() const; //TOOD check that the dir exists and the name is non empty
     bool isInstalled() const;
-    bool isSystemVersion() const { return m_isSystemVersion; }
+    bool isAutodetected() const { return m_isAutodetected; }
 
     QString name() const;
     QString path() const;
@@ -129,7 +129,7 @@ private:
     QString m_mingwDirectory;
     QString m_msvcVersion;
     int m_id;
-    bool m_isSystemVersion;
+    bool m_isAutodetected;
     bool m_hasDebuggingHelper;
 
     mutable bool m_mkspecUpToDate;

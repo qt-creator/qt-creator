@@ -85,10 +85,15 @@ QtVersionManager::QtVersionManager()
             id = getUniqueId();
         else if (id > m_idcount)
             m_idcount = id;
+        bool isAutodetected;
+        if (s->contains("isAutodetected"))
+            isAutodetected = s->value("isAutodetected", false).toBool();
+        else // compatibility
+            isAutodetected = s->value("IsSystemVersion", false).toBool();
         QtVersion *version = new QtVersion(s->value("Name").toString(),
                                            s->value("Path").toString(),
                                            id,
-                                           s->value("IsSystemVersion", false).toBool());
+                                           isAutodetected);
         version->setMingwDirectory(s->value("MingwDirectory").toString());
         version->setMsvcVersion(s->value("msvcVersion").toString());
         m_versions.append(version);
@@ -193,7 +198,7 @@ void QtVersionManager::writeVersionsIntoSettings()
         s->setValue("Id", m_versions.at(i)->uniqueId());
         s->setValue("MingwDirectory", m_versions.at(i)->mingwDirectory());
         s->setValue("msvcVersion", m_versions.at(i)->msvcVersion());
-        s->setValue("IsSystemVersion", m_versions.at(i)->isSystemVersion());
+        s->setValue("isAutodetected", m_versions.at(i)->isAutodetected());
     }
     s->endArray();
 }
@@ -283,7 +288,7 @@ void QtVersionManager::updateSystemVersion()
     }
 
     foreach (QtVersion *version, m_versions) {
-        if (version->isSystemVersion()) {
+        if (version->isAutodetected()) { //TODO this needs to additionally check for the autodetectionsource
             version->setPath(systemQtPath);
             version->setName(tr("Qt in PATH"));
             haveSystemVersion = true;
@@ -349,9 +354,9 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
 /// QtVersion
 ///
 
-QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isSystemVersion)
+QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isAutodetected)
     : m_name(name),
-    m_isSystemVersion(isSystemVersion),
+    m_isAutodetected(isAutodetected),
     m_hasDebuggingHelper(false),
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
@@ -370,7 +375,7 @@ QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isSy
 
 QtVersion::QtVersion(const QString &name, const QString &path)
     : m_name(name),
-    m_isSystemVersion(false),
+    m_isAutodetected(false),
     m_hasDebuggingHelper(false),
     m_mkspecUpToDate(false),
     m_versionInfoUpToDate(false),
