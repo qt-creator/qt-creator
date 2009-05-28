@@ -27,6 +27,9 @@ moc_*.cpp
 ui_*.h
 qrc_*.cpp
 
+# qtcreator generated files
+*.pro.user
+
 # xemacs temporary files
 *.flc
 
