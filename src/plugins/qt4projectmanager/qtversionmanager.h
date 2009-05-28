@@ -146,7 +146,6 @@ private:
 
 class QtVersionManager : public QObject
 {
-    friend class Internal::Qt4ProjectManagerPlugin;
     Q_OBJECT
     // for getUniqueId();
     friend class QtVersion;
