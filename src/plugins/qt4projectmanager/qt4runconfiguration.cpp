@@ -47,6 +47,8 @@
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
 #include <QtGui/QToolButton>
+#include <QtGui/QGroupBox>
+#include <QtGui/QRadioButton>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
@@ -62,7 +64,8 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
       m_configWidget(0),
       m_cachedTargetInformationValid(false),
       m_isUsingDyldImageSuffix(false),
-      m_userSetWokingDirectory(false)
+      m_userSetWokingDirectory(false),
+      m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase)
 {
     if (!m_proFilePath.isEmpty())
         setName(QFileInfo(m_proFilePath).completeBaseName());
@@ -142,14 +145,46 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(usingDyldImageSuffixToggled(bool)));
 #endif
 
-    QVBoxLayout *vbox = new QVBoxLayout(this);
-    vbox->addLayout(toplayout);
+
+
+    QGroupBox *box = new QGroupBox(tr("Environment"),this);
+    QVBoxLayout *boxLayout = new QVBoxLayout();
+    box->setLayout(boxLayout);
+    box->setFlat(true);
+
+    QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
+    boxLayout->addWidget(label);
+
+    m_cleanEnvironmentRadioButton = new QRadioButton("Clean Environment", box);
+    m_systemEnvironmentRadioButton = new QRadioButton("System Environment", box);
+    m_buildEnvironmentRadioButton = new QRadioButton("Build Environment", box);
+    boxLayout->addWidget(m_cleanEnvironmentRadioButton);
+    boxLayout->addWidget(m_systemEnvironmentRadioButton);
+    boxLayout->addWidget(m_buildEnvironmentRadioButton);
+
+    if (qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::CleanEnvironmentBase)
+        m_cleanEnvironmentRadioButton->setChecked(true);
+    else if (qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::SystemEnvironmentBase)
+        m_systemEnvironmentRadioButton->setChecked(true);
+    else if (qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::BuildEnvironmentBase)
+        m_buildEnvironmentRadioButton->setChecked(true);
+
+    connect(m_cleanEnvironmentRadioButton, SIGNAL(toggled(bool)),
+            this, SLOT(baseEnvironmentRadioButtonChanged()));
+    connect(m_systemEnvironmentRadioButton, SIGNAL(toggled(bool)),
+            this, SLOT(baseEnvironmentRadioButtonChanged()));
+    connect(m_buildEnvironmentRadioButton, SIGNAL(toggled(bool)),
+            this, SLOT(baseEnvironmentRadioButtonChanged()));
 
     m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this);
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
     m_environmentWidget->setUserChanges(m_qt4RunConfiguration->userEnvironmentChanges());
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    vbox->addWidget(m_environmentWidget);
+    boxLayout->addWidget(m_environmentWidget);
+
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->addLayout(toplayout);
+    vbox->addWidget(box);
 
     connect(m_workingDirectoryEdit, SIGNAL(changed()),
             this, SLOT(setWorkingDirectory()));
@@ -188,8 +223,32 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(baseEnvironmentChanged()));
 }
 
+void Qt4RunConfigurationWidget::baseEnvironmentRadioButtonChanged()
+{
+    m_ignoreChange = true;
+    if (m_cleanEnvironmentRadioButton->isChecked())
+        m_qt4RunConfiguration->setBaseEnvironmentBase(Qt4RunConfiguration::CleanEnvironmentBase);
+    else if (m_systemEnvironmentRadioButton->isChecked())
+        m_qt4RunConfiguration->setBaseEnvironmentBase(Qt4RunConfiguration::SystemEnvironmentBase);
+    else if (m_buildEnvironmentRadioButton->isChecked())
+        m_qt4RunConfiguration->setBaseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase);
+
+    m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
+    m_ignoreChange = false;
+}
+
 void Qt4RunConfigurationWidget::baseEnvironmentChanged()
 {
+    if (m_ignoreChange)
+        return;
+
+    if (m_qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::CleanEnvironmentBase)
+        m_cleanEnvironmentRadioButton->setChecked(true);
+    else if (m_qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::SystemEnvironmentBase)
+        m_systemEnvironmentRadioButton->setChecked(true);
+    else if (m_qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::BuildEnvironmentBase)
+        m_buildEnvironmentRadioButton->setChecked(true);
+
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
 }
 
@@ -320,6 +379,7 @@ void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue("UseTerminal", m_runMode == Console);
     writer.saveValue("UseDyldImageSuffix", m_isUsingDyldImageSuffix);
     writer.saveValue("UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    writer.saveValue("BaseEnvironmentBase", m_baseEnvironmentBase);
     ApplicationRunConfiguration::save(writer);
 }
 
@@ -338,6 +398,8 @@ void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
             setName(QFileInfo(m_proFilePath).completeBaseName());
     }
     m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("UserEnvironmentChanges").toStringList());
+    QVariant tmp = reader.restoreValue("BaseEnvironmentBase");
+    m_baseEnvironmentBase = tmp.isValid() ? BaseEnvironmentBase(tmp.toInt()) : Qt4RunConfiguration::BuildEnvironmentBase;
 }
 
 QString Qt4RunConfiguration::executable() const
@@ -380,15 +442,15 @@ QStringList Qt4RunConfiguration::commandLineArguments() const
 
 ProjectExplorer::Environment Qt4RunConfiguration::baseEnvironment() const
 {
-    // TODO use either System Environment
-    // build environment
-    // or empty
-    //Environment env = Environment(QProcess::systemEnvironment());
-
-    Qt4Project *pro = qobject_cast<Qt4Project *>(project());
-    Q_ASSERT(pro);
-    QString config = pro->activeBuildConfiguration();
-    ProjectExplorer::Environment env = pro->environment(pro->activeBuildConfiguration());
+    ProjectExplorer::Environment env;
+    if (m_baseEnvironmentBase == Qt4RunConfiguration::CleanEnvironmentBase) {
+        // Nothing
+    } else  if (m_baseEnvironmentBase == Qt4RunConfiguration::SystemEnvironmentBase) {
+        env = ProjectExplorer::Environment::systemEnvironment();
+    } else  if (m_baseEnvironmentBase == Qt4RunConfiguration::BuildEnvironmentBase) {
+        QString config = project()->activeBuildConfiguration();
+        env = project()->environment(project()->activeBuildConfiguration());
+    }
     if (m_isUsingDyldImageSuffix) {
         env.set("DYLD_IMAGE_SUFFIX", "_debug");
     }
@@ -564,6 +626,18 @@ QString Qt4RunConfiguration::dumperLibrary() const
     return version->debuggingHelperLibrary();
 }
 
+void Qt4RunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
+{
+    if (m_baseEnvironmentBase == env)
+        return;
+    m_baseEnvironmentBase = env;
+    emit baseEnvironmentChanged();
+}
+
+Qt4RunConfiguration::BaseEnvironmentBase Qt4RunConfiguration::baseEnvironmentBase() const
+{
+    return m_baseEnvironmentBase;
+}
 
 ///
 /// Qt4RunConfigurationFactory

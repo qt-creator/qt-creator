@@ -710,7 +710,7 @@ QString Qt4Project::buildDirectory(const QString &buildConfiguration) const
 
 ProjectExplorer::Environment Qt4Project::baseEnvironment(const QString &buildConfiguration) const
 {
-    Environment env = useSystemEnvironment(buildConfiguration) ? Environment(QProcess::systemEnvironment()) : Environment();
+    Environment env = useSystemEnvironment(buildConfiguration) ? Environment::systemEnvironment() : Environment();
     qtVersion(buildConfiguration)->addToEnvironment(env);
     return env;
 }
