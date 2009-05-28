@@ -1069,7 +1069,7 @@ int Indenter<Iterator>::indentForBottomLine(const Iterator &current,
 	    indent = indentForStandaloneLine();
 	}
 
-	if ( okay(typedIn, closingBrace) && firstCh == closingBrace ) {
+	if ( firstCh == closingBrace ) {
 	    /*
 	      A closing brace is one level more to the left than the
 	      code it follows.
