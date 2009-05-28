@@ -547,6 +547,7 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
     process.setEnvironment(environment.toStringList());
 
     process.start(m_binaryPath, arguments);
+    process.closeWriteChannel();
 
     if (!process.waitForFinished()) {
         if (errorText)

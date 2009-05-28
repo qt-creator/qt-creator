@@ -133,6 +133,7 @@ void GitCommand::run()
             qDebug() << "GitCommand::run" << j << '/' << count << m_jobs.at(j).arguments;
 
         process.start(m_binaryPath, m_jobs.at(j).arguments);
+        process.closeWriteChannel();
         if (!process.waitForFinished(m_jobs.at(j).timeout * 1000)) {
             ok = false;
             error += QLatin1String("Error: Git timed out");
