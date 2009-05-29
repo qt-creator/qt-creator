@@ -160,6 +160,8 @@
     Place your widgets accordingly and save the form by choosing
     \gui{File | Save} or using the \key{Ctrl+S} shortcut.
 
+    A common
+
 
     \section1 The AddressBook Class
 
@@ -259,7 +261,27 @@
 
     \section1 Placing Widgets on the Form
 
+
     Now that we have the labels and input fields set up, we add push buttons to
-    complete the process of adding a contact.
+    complete the process of adding a contact. So, we begin by breaking the
+    existing layouts. Then, we add three push buttons. Double-click on each of
+    them to set their text to "Add", "Submit", and "Cancel". We now require a
+    vertical spacer to ensure that the push buttons will be laid out neatly;
+    drag one from the \gui{Widget Box}.
+
+    Next, lay out these three push buttons and the spacer vertically, by
+    selecting all three of them (using the \key{Ctrl + click}) and choosing
+    \gui{Lay out Vertically} from the context menu. Alternatively you can click
+    on the ... button or use the \key{Ctrl+L} shortcut. We use the spacer as we
+    do not want the buttons to be evenly spaced, but arranged closer to the top
+    of the widget. The figure below shows the difference between using the
+    spacer and not using it.
+
+    ## image
+
+    Select all the objects on the form (use \key{Ctrl+A}) and lay them out in a
+    grid.
+
+
 
 */
