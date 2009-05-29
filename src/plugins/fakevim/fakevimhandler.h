@@ -75,6 +75,7 @@ signals:
     void completionRequested();
     void windowCommandRequested(int key);
     void findRequested(bool reverse);
+    void findNextRequested(bool reverse);
 
 public:
     class Private;

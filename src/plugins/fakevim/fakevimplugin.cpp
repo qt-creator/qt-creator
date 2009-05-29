@@ -235,6 +235,7 @@ private slots:
     void triggerCompletions();
     void windowCommand(int key);
     void find(bool reverse);
+    void findNext(bool reverse);
     void showSettingsDialog();
 
     void showCommandBuffer(const QString &contents);
@@ -367,6 +368,14 @@ void FakeVimPluginPrivate::find(bool reverse)
     triggerAction(Find::Constants::FIND_IN_DOCUMENT);
 }
 
+void FakeVimPluginPrivate::findNext(bool reverse)
+{
+    if (reverse)
+        triggerAction(Find::Constants::FIND_PREVIOUS);
+    else
+        triggerAction(Find::Constants::FIND_NEXT);
+}
+
 void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 {
     if (!editor)
@@ -408,6 +417,8 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(windowCommand(int)));
     connect(handler, SIGNAL(findRequested(bool)),
         this, SLOT(find(bool)));
+    connect(handler, SIGNAL(findNextRequested(bool)),
+        this, SLOT(findNext(bool)));
 
     handler->setCurrentFileName(editor->file()->fileName());
     handler->installEventFilter();

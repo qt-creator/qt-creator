@@ -944,9 +944,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         // Recognize ZZ and ZQ as aliases for ":x" and ":q!".
         m_submode = NoSubMode;
         if (key == 'Z')
-            handleExCommand("x");
+            handleCommand("x");
         else if (key == 'Q')
-            handleExCommand("q!");
+            handleCommand("q!");
     } else if (m_subsubmode == FtSubSubMode) {
         m_semicolonType = m_subsubdata;
         m_semicolonKey = key;
@@ -1291,10 +1291,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         handleStartOfLine();
         finishMovement();
     } else if (key == 'n') {
-        search(lastSearchString(), m_lastSearchForward);
+        emit q->findNextRequested(false);
         recordJump();
     } else if (key == 'N') {
-        search(lastSearchString(), !m_lastSearchForward);
+        emit q->findNextRequested(true);
         recordJump();
     } else if (key == 'o' || key == 'O') {
         setDotCommand("%1o", count());
