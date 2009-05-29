@@ -807,12 +807,12 @@
     </message>
     <message>
         <location line="-22"/>
-        <location line="+110"/>
+        <location line="+111"/>
         <source>Existing files</source>
         <translation>Bereits existierende Dateien</translation>
     </message>
     <message>
-        <location line="-438"/>
+        <location line="-439"/>
         <source>Unable to create the directory %1.</source>
         <translation>Das Verzeichnis %1 kann nicht erstellt werden.</translation>
     </message>
@@ -827,7 +827,7 @@
         <translation>Fehler beim Schreiben in %1: %2</translation>
     </message>
     <message>
-        <location line="+365"/>
+        <location line="+366"/>
         <source>Failed to open an editor for &apos;%1&apos;.</source>
         <translation>Es konnte kein Editor für die Datei &apos;%1&apos; geöffnet werden.</translation>
     </message>
@@ -1748,7 +1748,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::Internal::WelcomeMode</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/welcomemode.cpp" line="+124"/>
+        <location filename="../../../src/plugins/coreplugin/welcomemode.cpp" line="+126"/>
         <source>Projects</source>
         <translation>Projekte</translation>
     </message>
@@ -1783,7 +1783,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Qt Internetseiten</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+31"/>
         <source>http://labs.trolltech.com/blogs/feed</source>
         <extracomment>Add localized feed here only if one exists</extracomment>
         <translation type="unfinished"></translation>
@@ -1814,13 +1814,17 @@ Sollen sie überschrieben werden?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+2"/>
+        <source>&lt;b&gt;Qt Creator - A quick tour&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Qt Creator - Eine kurze Einführung&lt;/b&gt;</translation>
+    </message>
+    <message>
         <source>Qt/S60 at Forum Nokia</source>
         <translation type="obsolete">Qt/S60 beim Forum Nokia</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Qt Creator - A quick tour</source>
-        <translation>Qt Creator - Schnelleinstieg</translation>
+        <translation type="obsolete">Qt Creator - Schnelleinstieg</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1853,7 +1857,12 @@ Sollen sie überschrieben werden?</translation>
         <translation>%1 (zuletzt benutzt)</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+58"/>
+        <source>New Project...</source>
+        <translation>Neues Projekt...</translation>
+    </message>
+    <message>
+        <location line="+22"/>
         <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ol&gt;&lt;li&gt; - Welcome&lt;/li&gt;&lt;li&gt; - Edit&lt;/li&gt;&lt;li&gt;- Debug&lt;/li&gt;&lt;li&gt;- Projects&lt;/li&gt;&lt;li&gt;- Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;- Output&lt;/li&gt;&lt;/ol&gt;</source>
         <translation>Sie können mittels &lt;tt&gt;Ctrl+Ziffer&lt;/tt&gt; zwischen den Modi von Qt Creator wechseln:&lt;ol&gt;&lt;li&gt; - Willkommen&lt;/li&gt;&lt;li&gt; - Editieren&lt;/li&gt;&lt;li&gt;- Debuggen&lt;/li&gt;&lt;li&gt;- Projekte&lt;/li&gt;&lt;li&gt;- Hilfe&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;- Ausgabe&lt;/li&gt;&lt;/ol&gt;</translation>
     </message>
@@ -1952,9 +1961,8 @@ p {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&lt;qt&gt;Restore Last Session &amp;gt;&amp;gt;</source>
-        <translation>&lt;qt&gt;Zuletzt benutzt &amp;gt;&amp;gt;</translation>
+        <translation type="obsolete">&lt;qt&gt;Zuletzt benutzt &amp;gt;&amp;gt;</translation>
     </message>
     <message>
         <location/>
@@ -2035,6 +2043,16 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
         <location/>
         <source>&gt;</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Create New Project...</source>
+        <translation>Neues Projekt...</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Manage Sessions...</source>
+        <translation>Sitzungen...</translation>
     </message>
 </context>
 <context>
@@ -2426,12 +2444,12 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
 <context>
     <name>CppEditor::Internal::CPPEditor</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+265"/>
+        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+264"/>
         <source>Sort alphabetically</source>
         <translation>Alphabetisch sortieren</translation>
     </message>
     <message>
-        <location line="+630"/>
+        <location line="+629"/>
         <source>Reformat Document</source>
         <translation>Dokument neu formatieren</translation>
     </message>
@@ -3593,7 +3611,7 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
 <context>
     <name>Debugger::Internal::GdbEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+207"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+210"/>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Der Start des Gdb-Prozesses schlug fehl. Entweder fehlt die ausführbare Datei &apos;%1&apos; oder die Berechtigungen sind nicht ausreichend.</translation>
     </message>
@@ -4382,7 +4400,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+380"/>
+        <location line="+381"/>
         <source>Stopped.</source>
         <translation>Angehalten.</translation>
     </message>
@@ -4709,12 +4727,12 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+1"/>
         <source>Creates a Qt Designer form file (.ui).</source>
-        <translation type="unfinished">Erstellt eine Qt Designer-Formular-Datei (.ui).</translation>
+        <translation>Erstellt eine Qt Designer-Formular-Datei (.ui).</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
-        <translation type="unfinished">Erstellt eine Qt Designer-Formular-Datei (.ui) mit zugehörigem Klassenrumpf.</translation>
+        <translation>Erstellt eine Qt Designer-Formular-Datei (.ui) mit zugehörigem Klassenrumpf.</translation>
     </message>
     <message>
         <source>This creates a new Qt Designer form file.</source>
@@ -6030,7 +6048,7 @@ Grund: %3</translation>
         <translation>Das Kommando &apos;show&apos; konnte nicht ausgeführt werden: %1: %2</translation>
     </message>
     <message>
-        <location line="+142"/>
+        <location line="+143"/>
         <source>Changes</source>
         <translation>Änderungen</translation>
     </message>
@@ -8158,7 +8176,7 @@ Basisname der Bibliothek: %1</translation>
 <context>
     <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+116"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+117"/>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation>Erstellen abbrechen und schließen</translation>
     </message>
@@ -8583,7 +8601,7 @@ Basisname der Bibliothek: %1</translation>
     <message>
         <location filename="../../../src/plugins/projectexplorer/sessiondialog.ui"/>
         <source>Session Manager</source>
-        <translation>Sessionverwaltung</translation>
+        <translation>Sitzungsverwaltung</translation>
     </message>
     <message>
         <location/>
@@ -8604,6 +8622,11 @@ Basisname der Bibliothek: %1</translation>
         <location/>
         <source>Delete Session</source>
         <translation>Sitzung löschen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Was ist eine Sitzung?&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -8842,7 +8865,7 @@ Basisname der Bibliothek: %1</translation>
         <translation>Bereinigen</translation>
     </message>
     <message>
-        <location line="+735"/>
+        <location line="+739"/>
         <source>Current Project</source>
         <translation>Aktuelles Projekt</translation>
     </message>
@@ -8852,7 +8875,7 @@ Basisname der Bibliothek: %1</translation>
         <translation>Projekt &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="-724"/>
+        <location line="-728"/>
         <location line="+18"/>
         <source>Run</source>
         <translation>Ausführen</translation>
@@ -8909,7 +8932,7 @@ Basisname der Bibliothek: %1</translation>
         <translation>Umbenennen</translation>
     </message>
     <message>
-        <location line="+123"/>
+        <location line="+127"/>
         <source>Load Project</source>
         <translation>Projekt laden</translation>
     </message>
@@ -8920,7 +8943,7 @@ Basisname der Bibliothek: %1</translation>
         <translation>Neues Projekt</translation>
     </message>
     <message>
-        <location line="-388"/>
+        <location line="-392"/>
         <source>Close Project &quot;%1&quot;</source>
         <translation>Projekt &quot;%1&quot; schließen</translation>
     </message>
@@ -8933,7 +8956,7 @@ Basisname der Bibliothek: %1</translation>
         <translation type="obsolete">Projekt &apos;%1&quot; erstellen</translation>
     </message>
     <message>
-        <location line="+1244"/>
+        <location line="+1248"/>
         <source>New File</source>
         <comment>Title of dialog</comment>
         <translation>Neue Datei</translation>
@@ -9916,7 +9939,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4ProjectManagerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+162"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+160"/>
         <location line="+5"/>
         <source>Run qmake</source>
         <translation>qmake ausführen</translation>
@@ -10906,8 +10929,12 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation type="obsolete">Ressourcendatei</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/resourceeditor/resourceeditorplugin.cpp" line="+77"/>
         <source>Create a Qt Resource file (.qrc).</source>
+        <translation type="obsolete">Erzeugt eine neue Qt-Ressource-Datei (.qrc).</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/resourceeditor/resourceeditorplugin.cpp" line="+77"/>
+        <source>Creates a Qt Resource file (.qrc).</source>
         <translation>Erzeugt eine neue Qt-Ressource-Datei (.qrc).</translation>
     </message>
     <message>
@@ -11574,7 +11601,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+3653"/>
+        <location line="+3652"/>
         <source>Line: %1, Col: %2</source>
         <translation>Zeile: %1, Spalte: %2</translation>
     </message>
