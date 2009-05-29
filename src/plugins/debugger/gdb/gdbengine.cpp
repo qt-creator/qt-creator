@@ -2776,10 +2776,12 @@ static void setWatchDataEditValue(WatchData &data, const GdbMi &mi)
         data.editvalue = mi.data();
 }
 
-static void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi)
+static void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
+        int encoding = 0)
 {
+    qDebug() << "TOOLTIP: " << mi.data().size() << "ENC:" << encoding;
     if (mi.isValid())
-        data.setValueToolTip(_(mi.data()));
+        data.setValueToolTip(decodeData(mi.data(), encoding));
 }
 
 static void setWatchDataChildCount(WatchData &data, const GdbMi &mi)
@@ -3375,7 +3377,8 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
     setWatchDataAddress(data, contents.findChild("addr"));
     setWatchDataSAddress(data, contents.findChild("saddr"));
     setWatchDataChildCount(data, contents.findChild("numchild"));
-    setWatchDataValueToolTip(data, contents.findChild("valuetooltip"));
+    setWatchDataValueToolTip(data, contents.findChild("valuetooltip"),
+        contents.findChild("valuetooltipencoded").data().toInt());
     setWatchDataValueDisabled(data, contents.findChild("valuedisabled"));
     setWatchDataEditValue(data, contents.findChild("editvalue"));
     if (qq->watchHandler()->isDisplayedIName(data.iname)) {
@@ -3422,7 +3425,8 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
             item.findChild("valueencoded").data().toInt());
         setWatchDataAddress(data1, item.findChild("addr"));
         setWatchDataSAddress(data1, item.findChild("saddr"));
-        setWatchDataValueToolTip(data1, item.findChild("valuetooltip"));
+        setWatchDataValueToolTip(data1, item.findChild("valuetooltip"),
+            contents.findChild("valuetooltipencoded").data().toInt());
         setWatchDataValueDisabled(data1, item.findChild("valuedisabled"));
         if (!qq->watchHandler()->isExpandedIName(data1.iname))
             data1.setChildrenUnneeded();
@@ -3722,7 +3726,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
     } else if (exp == "staticMetaObject") {
         //    && item.findChild("type").data() == "const QMetaObject")
         // FIXME: Namespaces?
-        // { do nothing }    FIXME: make coinfigurable?
+        // { do nothing }    FIXME: make configurable?
         // special "clever" hack to avoid clutter in the GUI.
         // I am not sure this is a good idea...
     } else {

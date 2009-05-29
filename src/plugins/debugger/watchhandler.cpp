@@ -247,6 +247,8 @@ template <class Streamable>
 
 QString WatchData::toToolTip() const
 {
+    if (!valuetooltip.isEmpty())
+        return QString::number(valuetooltip.size());
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>";

@@ -219,7 +219,7 @@ QT_END_NAMESPACE
 Q_DECL_EXPORT char qDumpInBuffer[10000];
 
 // The output buffer.
-Q_DECL_EXPORT char qDumpOutBuffer[100000];
+Q_DECL_EXPORT char qDumpOutBuffer[1000000];
 
 namespace {
 
@@ -1206,7 +1206,37 @@ static void qDumpQImage(QDumper &d)
     const QImage &im = *reinterpret_cast<const QImage *>(d.data);
     P(d, "value", "(" << im.width() << "x" << im.height() << ")");
     P(d, "type", NS"QImage");
+    P(d, "numchild", "1");
+    if (d.dumpChildren) {
+        d << ",children=[";
+        d.beginHash();
+            P(d, "name", "key");
+            P(d, "type", NS "QImageData");
+            P(d, "addr", d.data);
+        d.endHash();
+    }
+    d.disarm();
+#else
+    Q_UNUSED(d);
+#endif
+}
+
+static void qDumpQImageData(QDumper &d)
+{
+#ifdef QT_GUI_LIB
+    const QImage &im = *reinterpret_cast<const QImage *>(d.data);
+    const QByteArray ba(QByteArray::fromRawData((const char*)im.bits(), im.numBytes()));
+    P(d, "type", NS"QImageData");
     P(d, "numchild", "0");
+#if 1
+    P(d, "value", "<hover here>");
+    P(d, "valuetooltipencoded", "1");
+    P(d, "valuetooltipsize", ba.size());
+    P(d, "valuetooltip", ba);
+#else
+    P(d, "valueencoded", "1");
+    P(d, "value", ba);
+#endif
     d.disarm();
 #else
     Q_UNUSED(d);
@@ -2560,6 +2590,8 @@ static void handleProtocolVersion2and3(QDumper & d)
         case 'I':
             if (isEqual(type, "QImage"))
                 qDumpQImage(d);
+            else if (isEqual(type, "QImageData"))
+                qDumpQImageData(d);
             break;
         case 'L':
             if (isEqual(type, "QList"))
@@ -2691,6 +2723,7 @@ void *qDumpObjectData440(
             "\""NS"QHash\","
             "\""NS"QHashNode\","
             "\""NS"QImage\","
+            "\""NS"QImageData\","
             "\""NS"QLinkedList\","
             "\""NS"QList\","
             "\""NS"QLocale\","

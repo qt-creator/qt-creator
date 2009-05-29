@@ -1090,6 +1090,7 @@ int main(int argc, char *argv[])
     QStringList list;
     list << "aaa" << "bbb" << "cc";
 
+    testQImage();
     testNoArgumentName(1, 2, 3);
     testIO();
     testHidden();

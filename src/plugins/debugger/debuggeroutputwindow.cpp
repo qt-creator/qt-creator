@@ -252,8 +252,8 @@ void DebuggerOutputWindow::showOutput(const QString &prefix, const QString &outp
     foreach (QString line, output.split("\n")) {
         // FIXME: QTextEdit asserts on really long lines...
         const int n = 3000;
-        if (line.size() > n)
-            line = line.left(n) + " [...] <cut off>";
+        //if (line.size() > n)
+        //    line = line.left(n) + " [...] <cut off>";
         m_combinedText->appendPlainText(prefix + line);
     }
     QTextCursor cursor = m_combinedText->textCursor();
