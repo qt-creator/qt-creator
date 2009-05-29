@@ -445,8 +445,8 @@ void FindToolBar::updateIcons()
 
 void FindToolBar::updateFlagMenus()
 {
-    bool wholeOnly = ((m_findFlags & QTextDocument::FindWholeWords));
-    bool sensitive = ((m_findFlags & QTextDocument::FindCaseSensitively));
+    bool wholeOnly = ((m_findFlags & IFindSupport::FindWholeWords));
+    bool sensitive = ((m_findFlags & IFindSupport::FindCaseSensitively));
     if (m_wholeWordAction->isChecked() != wholeOnly)
         m_wholeWordAction->setChecked(wholeOnly);
     if (m_caseSensitiveAction->isChecked() != sensitive)
