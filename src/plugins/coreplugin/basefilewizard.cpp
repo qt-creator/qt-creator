@@ -500,6 +500,7 @@ void BaseFileWizard::setupWizard(QWizard *w)
     w->setPixmap(QWizard::WatermarkPixmap, watermark());
     w->setOption(QWizard::NoCancelButton, false);
     w->setOption(QWizard::NoDefaultButton, false);
+    w->setOption(QWizard::NoBackButtonOnStartPage, true);
 }
 
 bool BaseFileWizard::postGenerateFiles(const GeneratedFiles &l, QString *errorMessage)
