@@ -89,10 +89,10 @@ public:
         model->setData(index, value, Qt::EditRole);
         if (index.column() == 1) {
             // the value column
-            theDebuggerAction(AssignValue)->trigger(exp + '=' + value);
+            theDebuggerAction(AssignValue)->trigger(QString(exp + '=' + value));
         } else if (index.column() == 2) {
             // the type column
-            theDebuggerAction(AssignType)->trigger(exp + '=' + value);
+            theDebuggerAction(AssignType)->trigger(QString(exp + '=' + value));
         } else if (index.column() == 0) {
             // the watcher name column
             theDebuggerAction(RemoveWatchExpression)->trigger(exp);

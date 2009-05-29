@@ -190,9 +190,10 @@ void SavedAction::setTextPattern(const QString &value)
 
 QString SavedAction::toString() const
 {
-    return "value: " + m_value.toString()
-        + "  defaultvalue: " + m_defaultValue.toString()
-        + "  settingskey: " + m_settingsGroup + '/' + m_settingsKey;
+    return QLatin1String("value: ") + m_value.toString()
+        + QLatin1String("  defaultvalue: ") + m_defaultValue.toString()
+        + QLatin1String("  settingskey: ") + m_settingsGroup
+        + '/' + m_settingsKey;
 }
 
 /*!

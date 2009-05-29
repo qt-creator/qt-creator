@@ -653,7 +653,7 @@ void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
     if (Debugger::Constants::Internal::debug)
         qDebug() << "STATUS MSG: " << msg;
     showDebuggerOutput("status:", msg);
-    m_statusLabel->setText("   " + msg);
+    m_statusLabel->setText(QLatin1String("   ") + msg);
     if (timeout > 0) {
         m_statusTimer->setSingleShot(true);
         m_statusTimer->start(timeout);

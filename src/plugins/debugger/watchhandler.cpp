@@ -595,9 +595,9 @@ QVariant WatchHandler::headerData(int section, Qt::Orientation orientation,
         return QVariant();
     if (role == Qt::DisplayRole) {
         switch (section) {
-            case 0: return tr("Name")  + QLatin1String("     ");
-            case 1: return tr("Value") + QLatin1String("     ");
-            case 2: return tr("Type")  + QLatin1String("     ");
+            case 0: return QString(tr("Name")  + QLatin1String("     "));
+            case 1: return QString(tr("Value") + QLatin1String("     "));
+            case 2: return QString(tr("Type")  + QLatin1String("     "));
         }
     }
     return QVariant(); 

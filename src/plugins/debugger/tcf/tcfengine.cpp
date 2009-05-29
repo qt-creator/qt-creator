@@ -358,8 +358,9 @@ void TcfEngine::handleResponse(const QByteArray &response)
         int token = parts.at(1).toInt();
         QByteArray message = parts.at(2);
         JsonValue data(parts.at(3));
-        emit tcfOutputAvailable("", QString::number(token) + "^"
-            + quoteUnprintableLatin1(response) + data.toString());
+        emit tcfOutputAvailable("", QString("%1^%2%3").arg(token)
+            .arg(quoteUnprintableLatin1(response))
+            .arg(QString::fromUtf8(data.toString())));
         TcfCommand tcf = m_cookieForToken[token];
         JsonValue result(data);
         SDEBUG("GOOD RESPONSE: " << quoteUnprintableLatin1(response));

@@ -1,6 +1,9 @@
 TEMPLATE = lib
 TARGET = Debugger
 
+#DEFINES += QT_USE_FAST_OPERATOR_PLUS
+#DEFINES += QT_USE_FAST_CONCATENATION
+
 # CONFIG += single
 include(../../qtcreatorplugin.pri)
 include(../../plugins/projectexplorer/projectexplorer.pri)
