@@ -33,6 +33,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QLineEdit>
 #include <QtNetwork/QHttp>
+#include <QtNetwork/QNetworkProxyFactory>
 
 #include <coreplugin/coreconstants.h>
 
@@ -119,6 +120,7 @@ RSSFetcher::RSSFetcher(int maxItems, QObject *parent)
 
 void RSSFetcher::fetch(const QUrl &url)
 {
+    m_http.setProxy(QNetworkProxyFactory::systemProxyForQuery(QNetworkProxyQuery(url)).first());
     m_http.setHost(url.host());
     QString agentStr = QString("Qt-Creator/%1 (QHttp %2; %3; %4; %5 bit)")
                     .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
