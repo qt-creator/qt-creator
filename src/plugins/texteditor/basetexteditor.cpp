@@ -2488,9 +2488,10 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QPalette &pal,
         s = ms->systemStyle();
 
     // QGtkStyle needs a small correction to draw the marker in the right place
-    if (!qstrcmp(s->metaObject()->className(), "QGtkStyle") == 0 ||
-        !qstrcmp(s->metaObject()->className(), "QMacStyle") == 0)
-        opt.rect.translate(-2, 0);
+    if (qstrcmp(s->metaObject()->className(), "QGtkStyle") == 0)
+       opt.rect.translate(-2, 0);
+    else if (qstrcmp(s->metaObject()->className(), "QMacStyle") == 0)
+        opt.rect.translate(-1, 0);
 
     s->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
 
