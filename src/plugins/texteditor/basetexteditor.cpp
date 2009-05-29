@@ -2258,24 +2258,24 @@ static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool e
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing, false);
     QColor c = pal.highlight().color();
-    c.setAlpha(36);
+    c.setAlpha(40);
     QLinearGradient grad(rect.topLeft(), rect.topRight());
     grad.setColorAt(0, c.darker(130));
-    grad.setColorAt(1, c.lighter(150));
+    grad.setColorAt(1, c.lighter(160));
     QColor outline = c.darker(110);
     outline.setAlpha(100);
+    QRect r = rect;
+
+    painter->fillRect(rect, grad);
     painter->setPen(outline);
-    QRect r = rect.adjusted(0, 0, 0, -1);
-    painter->setBrush(grad);
-    painter->save();
-    painter->setClipRect(rect.adjusted(0, 0, -1, 0));
-    if (!start)
-        r.adjust(0,-3, 0 ,0);
-    if (!end)
-        r.adjust(0, 0, 0, 3);
-    painter->drawRoundedRect(r, 3, 3);
-    painter->restore();
-    painter->drawLine(rect.topRight(), rect.bottomRight());
+    if (start)
+        painter->drawLine(rect.topLeft() + QPoint(1, 0), rect.topRight() -  QPoint(1, 0));
+    if (end)
+        painter->drawLine(rect.bottomLeft() + QPoint(1, 0), rect.bottomRight() -  QPoint(1, 0));
+
+    painter->drawLine(rect.topRight() + QPoint(0, start ? 1 : 0), rect.bottomRight() - QPoint(0, end ? 1 : 0));
+    painter->drawLine(rect.topLeft() + QPoint(0, start ? 1 : 0), rect.bottomLeft() - QPoint(0, end ? 1 : 0));
+
     painter->restore();
 }
 
@@ -2488,10 +2488,12 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QPalette &pal,
         s = ms->systemStyle();
 
     // QGtkStyle needs a small correction to draw the marker in the right place
-    if (qstrcmp(s->metaObject()->className(), "QGtkStyle") == 0)
+    if (!qstrcmp(s->metaObject()->className(), "QGtkStyle") == 0 ||
+        !qstrcmp(s->metaObject()->className(), "QMacStyle") == 0)
         opt.rect.translate(-2, 0);
 
     s->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
+
 }
 
 void BaseTextEditor::slotModificationChanged(bool m)
