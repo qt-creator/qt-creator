@@ -99,7 +99,7 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
            <property name="minimumSize">
             <size>
              <width>649</width>
-             <height>89</height>
+             <height>74</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -125,24 +125,54 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
          </item>
          <item>
           <widget class="QFrame" name="navFrame">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
            <property name="autoFillBackground">
             <bool>false</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">#navFrame QToolButton {
-  border: none; 
-  font-size: 10pt;
-  color: grey;
+            <string notr="true">QToolButton {
+  	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0, 
+	stop: 0 #777777, 
+	stop: 0.4 #606060, 
+	stop: 0.401 #575757, 
+	stop: 1 #333333); 
+	border: 0px solid black;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	color: white;
 }
 
-#navFrame QToolButton:hover {
-  color: black;
+QToolButton:hover {
+  	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0, 
+	stop: 0 #808080, 
+	stop: 0.4 #707070, 
+	stop: 0.401 #606060, 
+	stop: 1 #333333); 
 }
 
-#navFrame QToolButton:checked {  
-  color: black;
-  border-bottom: 1px solid ;
-}</string>
+
+QToolButton:checked {
+  background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0, 
+	stop: 0 #ffffff, 
+	stop: 0.4 #eeeeee, 
+	stop: 0.401 #dddddd, 
+	stop: 1 #cccccc); 
+	color: black;
+	border-top: 1px solid #606060;
+	border-bottom: 1px solid #404040;
+}
+</string>
            </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
@@ -151,21 +181,47 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
             <enum>QFrame::Plain</enum>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
-            <property name="leftMargin">
+            <property name="margin">
              <number>0</number>
             </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="spacing">
              <number>0</number>
             </property>
             <item row="0" column="0">
              <widget class="QToolButton" name="gettingStartedSectButton">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QToolButton {
+	border-right: 1px solid #555555;
+}</string>
+              </property>
               <property name="text">
                <string>Getting Started</string>
               </property>
               <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
                <bool>true</bool>
               </property>
               <property name="autoExclusive">
@@ -175,6 +231,24 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
             </item>
             <item row="0" column="1">
              <widget class="QToolButton" name="developSectButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
               <property name="text">
                <string>Develop</string>
               </property>
@@ -188,6 +262,29 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
             </item>
             <item row="0" column="2">
              <widget class="QToolButton" name="communitySectButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QToolButton {
+	border-left: 1px solid #555555;
+}</string>
+              </property>
               <property name="text">
                <string>Community</string>
               </property>
@@ -195,6 +292,22 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
                <bool>true</bool>
               </property>
              </widget>
+            </item>
+            <item row="0" column="3">
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>5</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
