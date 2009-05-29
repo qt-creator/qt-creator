@@ -121,6 +121,9 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
     q = parent;
     qq = parent->engineInterface();
     m_stubProc.setMode(Core::Utils::ConsoleProcess::Debug);
+#ifdef Q_OS_UNIX
+    m_stubProc.setSettings(Core::ICore::instance()->settings());
+#endif
     initializeVariables();
     initializeConnections();
 }
