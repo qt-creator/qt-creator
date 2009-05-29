@@ -4,7 +4,7 @@ A more detailed list of changes follows below. If you want to know the exact
 and complete list of changes, you can check out the QtCreator sources from the
 public git repository and check the logs, e.g.
 
-git clone git://labs.trolltech.com/qt-creator
+git clone git://gitorious.org/qt-creator/qt-creator.git
 git log --pretty=oneline v1.1.0..v1.2.0
 
 This release introduces source and binary incompatible changes to the plugin
