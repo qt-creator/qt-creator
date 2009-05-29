@@ -142,11 +142,11 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
            </property>
            <property name="styleSheet">
             <string notr="true">QToolButton {
-  	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0, 
-	stop: 0 #777777, 
-	stop: 0.4 #606060, 
-	stop: 0.401 #575757, 
-	stop: 1 #333333); 
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0,
+	stop: 0 #777777,
+	stop: 0.4 #606060,
+	stop: 0.401 #575757,
+	stop: 1 #333333);
 	border: 0px solid black;
 	border-top: 1px solid black;
 	border-bottom: 1px solid black;
@@ -154,20 +154,20 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
 }
 
 QToolButton:hover {
-  	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0, 
-	stop: 0 #808080, 
-	stop: 0.4 #707070, 
-	stop: 0.401 #606060, 
-	stop: 1 #333333); 
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0,
+	stop: 0 #808080,
+	stop: 0.4 #707070,
+	stop: 0.401 #606060,
+	stop: 1 #333333);
 }
 
 
 QToolButton:checked {
-  background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0, 
-	stop: 0 #ffffff, 
-	stop: 0.4 #eeeeee, 
-	stop: 0.401 #dddddd, 
-	stop: 1 #cccccc); 
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0,
+	stop: 0 #ffffff,
+	stop: 0.4 #eeeeee,
+	stop: 0.401 #dddddd,
+	stop: 1 #cccccc);
 	color: black;
 	border-top: 1px solid #606060;
 	border-bottom: 1px solid #404040;
