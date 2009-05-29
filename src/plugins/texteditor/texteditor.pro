@@ -25,7 +25,8 @@ SOURCES += texteditorplugin.cpp \
     findinfiles.cpp \
     basefilefind.cpp \
     texteditorsettings.cpp \
-    codecselector.cpp
+    codecselector.cpp \
+    findincurrentfile.cpp
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
     plaintexteditor.h \
@@ -54,10 +55,10 @@ HEADERS += texteditorplugin.h \
     findinfiles.h \
     basefilefind.h \
     texteditorsettings.h \
-    codecselector.h
+    codecselector.h \
+    findincurrentfile.h
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \
     fontsettingspage.ui
 RESOURCES += texteditor.qrc
-
 OTHER_FILES += TextEditor.pluginspec

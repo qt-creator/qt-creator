@@ -30,6 +30,7 @@
 #include "texteditorplugin.h"
 
 #include "findinfiles.h"
+#include "findincurrentfile.h"
 #include "fontsettings.h"
 #include "linenumberfilter.h"
 #include "texteditorconstants.h"
@@ -147,7 +148,8 @@ void TextEditorPlugin::extensionsInitialized()
 
     addAutoReleasedObject(new FindInFiles(
         ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>()));
-
+    addAutoReleasedObject(new FindInCurrentFile(
+        ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>()));
 }
 
 void TextEditorPlugin::initializeEditor(PlainTextEditor *editor)

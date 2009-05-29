@@ -83,7 +83,8 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
 {
     m_isSearching = true;
     emit changed();
-    updateComboEntries(m_filterCombo, false);
+    if (m_filterCombo)
+        updateComboEntries(m_filterCombo, false);
     m_watcher.setFuture(QFuture<FileSearchResult>());
     m_resultWindow->clearContents();
     m_resultWindow->popup(true);
@@ -194,7 +195,8 @@ void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaul
     if (m_filterSetting.isEmpty())
         m_filterSetting = filters.first();
     m_filterStrings.setStringList(filters);
-    syncComboWithSettings(m_filterCombo, m_filterSetting);
+    if (m_filterCombo)
+        syncComboWithSettings(m_filterCombo, m_filterSetting);
 }
 
 void BaseFileFind::syncComboWithSettings(QComboBox *combo, const QString &setting)
