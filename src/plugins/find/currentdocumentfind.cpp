@@ -89,33 +89,33 @@ QString CurrentDocumentFind::completedFindString() const
     return m_currentFind->completedFindString();
 }
 
-void CurrentDocumentFind::highlightAll(const QString &txt, QTextDocument::FindFlags findFlags)
+void CurrentDocumentFind::highlightAll(const QString &txt, IFindSupport::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return);
     m_currentFind->highlightAll(txt, findFlags);
 }
 
-bool CurrentDocumentFind::findIncremental(const QString &txt, QTextDocument::FindFlags findFlags)
+bool CurrentDocumentFind::findIncremental(const QString &txt, IFindSupport::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return false);
     return m_currentFind->findIncremental(txt, findFlags);
 }
 
-bool CurrentDocumentFind::findStep(const QString &txt, QTextDocument::FindFlags findFlags)
+bool CurrentDocumentFind::findStep(const QString &txt, IFindSupport::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return false);
     return m_currentFind->findStep(txt, findFlags);
 }
 
 bool CurrentDocumentFind::replaceStep(const QString &before, const QString &after,
-    QTextDocument::FindFlags findFlags)
+    IFindSupport::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return false);
     return m_currentFind->replaceStep(before, after, findFlags);
 }
 
 int CurrentDocumentFind::replaceAll(const QString &before, const QString &after,
-    QTextDocument::FindFlags findFlags)
+    IFindSupport::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return 0);
     return m_currentFind->replaceAll(before, after, findFlags);

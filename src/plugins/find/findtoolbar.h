@@ -52,7 +52,8 @@ public:
     FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumentFind);
     ~FindToolBar();
 
-    void invokeClearResults();
+    void readSettings();
+    void writeSettings();
 
 private slots:
     void invokeFindNext();
@@ -75,11 +76,17 @@ private slots:
     void updateActions();
     void findFlagsChanged();
 
+    void setCaseSensitive(bool sensitive);
+    void setWholeWord(bool wholeOnly);
+
 protected:
     bool focusNextPrevChild(bool next);
 
 private:
+    void invokeClearResults();
     bool setFocusToCurrentFindSupport();
+    void setFindFlag(IFindSupport::FindFlag flag, bool enabled);
+    bool hasFindFlag(IFindSupport::FindFlag flag);
 
     bool eventFilter(QObject *obj, QEvent *event);
     void setFindText(const QString &text);
@@ -104,6 +111,7 @@ private:
     QAction *m_caseSensitiveAction;
     QAction *m_wholeWordAction;
     QWidget *m_widget;
+    IFindSupport::FindFlags m_findFlags;
 };
 
 } // namespace Internal

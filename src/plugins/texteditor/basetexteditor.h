@@ -34,6 +34,8 @@
 #include "tabsettings.h"
 #include "itexteditable.h"
 
+#include <find/ifindsupport.h>
+
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QLabel>
 #include <QtGui/QKeyEvent>
@@ -428,7 +430,7 @@ private slots:
     void editorContentsChange(int position, int charsRemoved, int charsAdded);
     void memorizeCursorPosition();
     void restoreCursorPosition();
-    void highlightSearchResults(const QString &txt, QTextDocument::FindFlags findFlags);
+    void highlightSearchResults(const QString &txt, Find::IFindSupport::FindFlags findFlags);
     void setFindScope(const QTextCursor &);
     void currentEditorChanged(Core::IEditor *editor);
 

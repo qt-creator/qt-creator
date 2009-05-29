@@ -52,23 +52,23 @@ public:
     QString currentFindString() const;
     QString completedFindString() const;
 
-    bool findIncremental(const QString &txt, QTextDocument::FindFlags findFlags);
-    bool findStep(const QString &txt, QTextDocument::FindFlags findFlags);
+    bool findIncremental(const QString &txt, IFindSupport::FindFlags findFlags);
+    bool findStep(const QString &txt, IFindSupport::FindFlags findFlags);
     bool replaceStep(const QString &before, const QString &after,
-        QTextDocument::FindFlags findFlags);
+        IFindSupport::FindFlags findFlags);
     int replaceAll(const QString &before, const QString &after,
-        QTextDocument::FindFlags findFlags);
+        IFindSupport::FindFlags findFlags);
 
     void defineFindScope();
     void clearFindScope();
 
 signals:
-    void highlightAll(const QString &txt, QTextDocument::FindFlags findFlags);
+    void highlightAll(const QString &txt, Find::IFindSupport::FindFlags findFlags);
     void findScopeChanged(const QTextCursor &);
 
 private:
     bool find(const QString &txt,
-              QTextDocument::FindFlags findFlags,
+              IFindSupport::FindFlags findFlags,
               QTextCursor start);
 
     QTextCursor textCursor() const;

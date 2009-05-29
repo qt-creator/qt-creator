@@ -30,7 +30,7 @@
 #ifndef CURRENTDOCUMENTFIND_H
 #define CURRENTDOCUMENTFIND_H
 
-#include "ifindfilter.h"
+#include "ifindsupport.h"
 
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
@@ -52,13 +52,13 @@ public:
     QString completedFindString() const;
 
     bool isEnabled() const;
-    void highlightAll(const QString &txt, QTextDocument::FindFlags findFlags);
-    bool findIncremental(const QString &txt, QTextDocument::FindFlags findFlags);
-    bool findStep(const QString &txt, QTextDocument::FindFlags findFlags);
+    void highlightAll(const QString &txt, IFindSupport::FindFlags findFlags);
+    bool findIncremental(const QString &txt, IFindSupport::FindFlags findFlags);
+    bool findStep(const QString &txt, IFindSupport::FindFlags findFlags);
     bool replaceStep(const QString &before, const QString &after,
-        QTextDocument::FindFlags findFlags);
+        IFindSupport::FindFlags findFlags);
     int replaceAll(const QString &before, const QString &after,
-        QTextDocument::FindFlags findFlags);
+        IFindSupport::FindFlags findFlags);
     void defineFindScope();
     void clearFindScope();
 

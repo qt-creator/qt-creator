@@ -55,15 +55,15 @@ public:
     QString currentFindString() const;
     QString completedFindString() const;
 
-    bool findIncremental(const QString &txt, QTextDocument::FindFlags findFlags);
-    bool findStep(const QString &txt, QTextDocument::FindFlags findFlags);
+    bool findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags);
+    bool findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags);
     bool replaceStep(const QString &, const QString &,
-        QTextDocument::FindFlags ) { return false; }
+        Find::IFindSupport::FindFlags ) { return false; }
     int replaceAll(const QString &, const QString &,
-        QTextDocument::FindFlags ) { return 0; }
+        Find::IFindSupport::FindFlags ) { return 0; }
 
 private:
-    bool find(const QString &ttf, QTextDocument::FindFlags findFlags, bool incremental);
+    bool find(const QString &ttf, Find::IFindSupport::FindFlags findFlags, bool incremental);
 
     CentralWidget *m_centralWidget;
 };
@@ -81,15 +81,15 @@ public:
     QString currentFindString() const;
     QString completedFindString() const { return QString(); }
 
-    bool findIncremental(const QString &txt, QTextDocument::FindFlags findFlags);
-    bool findStep(const QString &txt, QTextDocument::FindFlags findFlags);
+    bool findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags);
+    bool findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags);
     bool replaceStep(const QString &, const QString &,
-        QTextDocument::FindFlags ) { return false; }
+        Find::IFindSupport::FindFlags ) { return false; }
     int replaceAll(const QString &, const QString &,
-        QTextDocument::FindFlags ) { return 0; }
+        Find::IFindSupport::FindFlags ) { return 0; }
 
 private:
-    bool find(const QString &ttf, QTextDocument::FindFlags findFlags, bool incremental);
+    bool find(const QString &ttf, Find::IFindSupport::FindFlags findFlags, bool incremental);
     HelpViewer *m_viewer;
 };
 

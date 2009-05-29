@@ -119,13 +119,13 @@ QString BaseTextFind::completedFindString() const
     return cursor.selectedText();
 }
 
-bool BaseTextFind::findIncremental(const QString &txt, QTextDocument::FindFlags findFlags)
+bool BaseTextFind::findIncremental(const QString &txt, IFindSupport::FindFlags findFlags)
 {
     QTextCursor cursor = textCursor();
     if (m_incrementalStartPos < 0)
         m_incrementalStartPos = cursor.selectionStart();
     cursor.setPosition(m_incrementalStartPos);
-    findFlags &= ~QTextDocument::FindBackward;
+    findFlags &= ~IFindSupport::FindBackward;
     bool found =  find(txt, findFlags, cursor);
     if (found)
         emit highlightAll(txt, findFlags);
@@ -134,7 +134,7 @@ bool BaseTextFind::findIncremental(const QString &txt, QTextDocument::FindFlags 
     return found;
 }
 
-bool BaseTextFind::findStep(const QString &txt, QTextDocument::FindFlags findFlags)
+bool BaseTextFind::findStep(const QString &txt, IFindSupport::FindFlags findFlags)
 {
     bool found = find(txt, findFlags, textCursor());
     if (found)
@@ -143,21 +143,21 @@ bool BaseTextFind::findStep(const QString &txt, QTextDocument::FindFlags findFla
 }
 
 bool BaseTextFind::replaceStep(const QString &before, const QString &after,
-    QTextDocument::FindFlags findFlags)
+    IFindSupport::FindFlags findFlags)
 {
     QTextCursor cursor = textCursor();
     if (cursor.selectedText().compare(before,
-            ((findFlags&QTextDocument::FindCaseSensitively)!=0) ? Qt::CaseSensitive : Qt::CaseInsensitive) == 0) {
+            ((findFlags&IFindSupport::FindCaseSensitively)!=0) ? Qt::CaseSensitive : Qt::CaseInsensitive) == 0) {
         int start = cursor.selectionStart();
         cursor.insertText(after);
-        if ((findFlags&QTextDocument::FindBackward) != 0)
+        if ((findFlags&IFindSupport::FindBackward) != 0)
             cursor.setPosition(start);
     }
     return find(before, findFlags, cursor);
 }
 
 int BaseTextFind::replaceAll(const QString &before, const QString &after,
-    QTextDocument::FindFlags findFlags)
+    IFindSupport::FindFlags findFlags)
 {
     QTextCursor editCursor = textCursor();
     if (!m_findScope.isNull())
@@ -167,27 +167,27 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
     editCursor.beginEditBlock();
     int count = 0;
     QTextCursor found;
-    found = document()->find(before, editCursor, findFlags);
+    found = document()->find(before, editCursor, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
     while (!found.isNull() && inScope(found.selectionStart(), found.selectionEnd())) {
         ++count;
         editCursor.setPosition(found.selectionStart());
         editCursor.setPosition(found.selectionEnd(), QTextCursor::KeepAnchor);
         editCursor.insertText(after);
-        found = document()->find(before, editCursor, findFlags);
+        found = document()->find(before, editCursor, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
     }
     editCursor.endEditBlock();
     return count;
 }
 
 bool BaseTextFind::find(const QString &txt,
-                               QTextDocument::FindFlags findFlags,
+                               IFindSupport::FindFlags findFlags,
                                QTextCursor start)
 {
     if (txt.isEmpty()) {
         setTextCursor(start);
         return true;
     }
-    QTextCursor found = document()->find(txt, start, findFlags);
+    QTextCursor found = document()->find(txt, start, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
 
     if (!m_findScope.isNull()) {
 
@@ -197,7 +197,7 @@ bool BaseTextFind::find(const QString &txt,
                 start.setPosition(m_findScope.selectionStart());
             else
                 start.setPosition(m_findScope.selectionEnd());
-            found = document()->find(txt, start, findFlags);
+            found = document()->find(txt, start, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
             if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd()))
                 return false;
         }
@@ -209,7 +209,7 @@ bool BaseTextFind::find(const QString &txt,
                 start.movePosition(QTextCursor::Start);
             else
                 start.movePosition(QTextCursor::End);
-            found = document()->find(txt, start, findFlags);
+            found = document()->find(txt, start, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
             if (found.isNull()) {
                 return false;
             }

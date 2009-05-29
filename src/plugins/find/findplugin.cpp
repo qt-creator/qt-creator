@@ -248,6 +248,7 @@ void FindPlugin::writeSettings()
     settings->setValue("FindStrings", m_findCompletions);
     settings->setValue("ReplaceStrings", m_replaceCompletions);
     settings->endGroup();
+    m_findToolBar->writeSettings();
     m_findDialog->writeSettings();
 }
 
@@ -265,6 +266,7 @@ void FindPlugin::readSettings()
     m_findCompletionModel->setStringList(m_findCompletions);
     m_replaceCompletionModel->setStringList(m_replaceCompletions);
     settings->endGroup();
+    m_findToolBar->readSettings();
     m_findDialog->readSettings();
     emit findFlagsChanged(); // would have been done in the setXXX methods above
 }

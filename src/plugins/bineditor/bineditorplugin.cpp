@@ -69,51 +69,51 @@ public:
     QString completedFindString() const { return QString(); }
 
 
-    int find(const QByteArray &pattern, int pos, QTextDocument::FindFlags findFlags) {
+    int find(const QByteArray &pattern, int pos, Find::IFindSupport::FindFlags findFlags) {
         if (pattern.isEmpty()) {
             m_editor->setCursorPosition(pos);
             return pos;
         }
 
-        int found = m_editor->find(pattern, pos, findFlags);
+        int found = m_editor->find(pattern, pos, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
         if (found < 0)
             found = m_editor->find(pattern,
-                                   (findFlags & QTextDocument::FindBackward)?m_editor->data().size()-1:0,
-                                   findFlags);
+                                   (findFlags & Find::IFindSupport::FindBackward)?m_editor->data().size()-1:0,
+                                   Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
         return found;
     }
 
-    bool findIncremental(const QString &txt, QTextDocument::FindFlags findFlags) {
+    bool findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags) {
         QByteArray pattern = txt.toLatin1();
         if (m_incrementalStartPos < 0)
             m_incrementalStartPos = m_editor->selectionStart();
         int pos = m_incrementalStartPos;
-        findFlags &= ~QTextDocument::FindBackward;
+        findFlags &= ~Find::IFindSupport::FindBackward;
         int found =  find(pattern, pos, findFlags);
         if (found >= 0)
-            m_editor->highlightSearchResults(pattern, findFlags);
+            m_editor->highlightSearchResults(pattern, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
         else
             m_editor->highlightSearchResults(QByteArray(), 0);
         return found >= 0;
     }
 
-    bool findStep(const QString &txt, QTextDocument::FindFlags findFlags) {
+    bool findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags) {
         QByteArray pattern = txt.toLatin1();
         bool wasReset = (m_incrementalStartPos < 0);
         int pos = m_editor->cursorPosition();
-        if (findFlags & QTextDocument::FindBackward)
+        if (findFlags & Find::IFindSupport::FindBackward)
             pos = m_editor->selectionStart()-1;
         int found = find(pattern, pos, findFlags);
         if (found)
             m_incrementalStartPos = found;
         if (wasReset && found >= 0)
-            m_editor->highlightSearchResults(pattern, findFlags);
+            m_editor->highlightSearchResults(pattern, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
         return found >= 0;
     }
     bool replaceStep(const QString &, const QString &,
-                     QTextDocument::FindFlags) { return false;}
+                     Find::IFindSupport::FindFlags) { return false;}
     int replaceAll(const QString &, const QString &,
-                   QTextDocument::FindFlags) { return 0; }
+                   Find::IFindSupport::FindFlags) { return 0; }
 
 private:
     BinEditor *m_editor;

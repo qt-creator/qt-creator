@@ -1630,7 +1630,7 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
         if (idx < 0)
             break;
         int l = m_searchExpr.matchedLength();
-        if ((m_findFlags & QTextDocument::FindWholeWords)
+        if ((m_findFlags & Find::IFindSupport::FindWholeWords)
             && ((idx && text.at(idx-1).isLetterOrNumber())
                 || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
             continue;
@@ -3441,13 +3441,13 @@ TextBlockUserData::MatchType TextBlockUserData::matchCursorForward(QTextCursor *
 }
 
 
-void BaseTextEditor::highlightSearchResults(const QString &txt, QTextDocument::FindFlags findFlags)
+void BaseTextEditor::highlightSearchResults(const QString &txt, Find::IFindSupport::FindFlags findFlags)
 {
     if (d->m_searchExpr.pattern() == txt)
         return;
     d->m_searchExpr.setPattern(txt);
     d->m_searchExpr.setPatternSyntax(QRegExp::FixedString);
-    d->m_searchExpr.setCaseSensitivity((findFlags & QTextDocument::FindCaseSensitively) ?
+    d->m_searchExpr.setCaseSensitivity((findFlags & Find::IFindSupport::FindCaseSensitively) ?
                                        Qt::CaseSensitive : Qt::CaseInsensitive);
     d->m_findFlags = findFlags;
     viewport()->update();
@@ -4036,8 +4036,8 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     using namespace Find;
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(editor);
-    connect(baseTextFind, SIGNAL(highlightAll(QString, QTextDocument::FindFlags)),
-            editor, SLOT(highlightSearchResults(QString, QTextDocument::FindFlags)));
+    connect(baseTextFind, SIGNAL(highlightAll(QString, Find::IFindSupport::FindFlags)),
+            editor, SLOT(highlightSearchResults(QString, Find::IFindSupport::FindFlags)));
     connect(baseTextFind, SIGNAL(findScopeChanged(QTextCursor)), editor, SLOT(setFindScope(QTextCursor)));
     aggregate->add(baseTextFind);
     aggregate->add(editor);

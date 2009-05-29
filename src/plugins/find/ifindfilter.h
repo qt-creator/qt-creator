@@ -30,11 +30,13 @@
 #ifndef IFINDFILTER_H
 #define IFINDFILTER_H
 
-#include "ifindsupport.h"
+#include "find_global.h"
+
 #include <QtCore/QSettings>
 #include <QtGui/QIcon>
 #include <QtGui/QKeySequence>
 #include <QtGui/QWidget>
+#include <QtGui/QTextDocument>
 
 namespace Find {
 

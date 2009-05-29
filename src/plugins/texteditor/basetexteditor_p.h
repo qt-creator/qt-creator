@@ -202,7 +202,7 @@ public:
     QTextCharFormat m_ifdefedOutFormat;
 
     QRegExp m_searchExpr;
-    QTextDocument::FindFlags m_findFlags;
+    Find::IFindSupport::FindFlags m_findFlags;
     QTextCharFormat m_searchResultFormat;
     QTextCharFormat m_searchScopeFormat;
     QTextCharFormat m_currentLineFormat;

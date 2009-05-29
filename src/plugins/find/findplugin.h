@@ -30,7 +30,6 @@
 #ifndef FINDPLUGIN_H
 #define FINDPLUGIN_H
 
-#include "ui_findwidget.h"
 #include "ifindfilter.h"
 #include "findtoolbar.h"
 
