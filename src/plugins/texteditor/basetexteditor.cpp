@@ -850,7 +850,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 e->accept();
                 return;
             }
-        } else if (e == QKeySequence::Delete) {
+        } else if (e == QKeySequence::Delete || e->key() == Qt::Key_Backspace) {
             if (!ro) {
                 d->removeBlockSelection();
                 e->accept();
