@@ -2255,29 +2255,28 @@ void BaseTextEditor::slotUpdateExtraAreaWidth()
 static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool end,
                         const QPalette &pal)
 {
+    painter->save();
     painter->setRenderHint(QPainter::Antialiasing, false);
-    const QColor c = pal.highlight().color();
-
-    QLinearGradient grad(rect.topRight(), rect.topLeft());
-    grad.setColorAt(0, c.lighter(110));
-    grad.setColorAt(1, c);
-
-    painter->fillRect(rect, grad);
-
-    QColor white = Qt::white;
-    white.setAlpha(128);
-    QColor black = Qt::black;
-    black.setAlpha(32);
-
-    painter->setPen(white);
-    painter->drawLine(rect.topLeft(), rect.bottomLeft());
-    if (start)
-        painter->drawLine(rect.topLeft(), rect.topRight());
-
-    painter->setPen(black);
+    QColor c = pal.highlight().color();
+    c.setAlpha(36);
+    QLinearGradient grad(rect.topLeft(), rect.topRight());
+    grad.setColorAt(0, c.darker(130));
+    grad.setColorAt(1, c.lighter(150));
+    QColor outline = c.darker(110);
+    outline.setAlpha(100);
+    painter->setPen(outline);
+    QRect r = rect.adjusted(0, 0, 0, -1);
+    painter->setBrush(grad);
+    painter->save();
+    painter->setClipRect(rect.adjusted(0, 0, -1, 0));
+    if (!start)
+        r.adjust(0,-3, 0 ,0);
+    if (!end)
+        r.adjust(0, 0, 0, 3);
+    painter->drawRoundedRect(r, 3, 3);
+    painter->restore();
     painter->drawLine(rect.topRight(), rect.bottomRight());
-    if (end)
-        painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+    painter->restore();
 }
 
 void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
