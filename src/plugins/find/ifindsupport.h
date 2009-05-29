@@ -46,6 +46,7 @@ public:
         FindBackward = 0x01,
         FindCaseSensitively = 0x02,
         FindWholeWords = 0x04,
+        FindRegularExpression = 0x08
     };
     Q_DECLARE_FLAGS(FindFlags, FindFlag);
 

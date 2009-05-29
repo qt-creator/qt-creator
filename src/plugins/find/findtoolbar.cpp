@@ -214,6 +214,14 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     connect(m_wholeWordAction, SIGNAL(triggered(bool)), this, SLOT(setWholeWord(bool)));
     lineEditMenu->addAction(m_wholeWordAction);
 
+    m_regularExpressionAction = new QAction(tr("Use Regular Expressions"), this);
+    m_regularExpressionAction->setCheckable(true);
+    m_regularExpressionAction->setChecked(false);
+    cmd = am->registerAction(m_regularExpressionAction, Constants::REGULAR_EXPRESSIONS, globalcontext);
+    mfind->addAction(cmd, Constants::G_FIND_FLAGS);
+    connect(m_regularExpressionAction, SIGNAL(triggered(bool)), this, SLOT(setRegularExpressions(bool)));
+    lineEditMenu->addAction(m_regularExpressionAction);
+
     connect(m_currentDocumentFind, SIGNAL(changed()), this, SLOT(updateActions()));
     updateActions();
     updateIcons();
@@ -278,6 +286,7 @@ void FindToolBar::updateActions()
     m_replaceAllAction->setEnabled(replaceEnabled);
     m_caseSensitiveAction->setEnabled(enabled);
     m_wholeWordAction->setEnabled(enabled);
+    m_regularExpressionAction->setEnabled(enabled);
     if (QApplication::clipboard()->supportsFindBuffer())
         m_enterFindStringAction->setEnabled(enabled);
     bool replaceFocus = m_ui.replaceEdit->hasFocus();
@@ -447,10 +456,13 @@ void FindToolBar::updateFlagMenus()
 {
     bool wholeOnly = ((m_findFlags & IFindSupport::FindWholeWords));
     bool sensitive = ((m_findFlags & IFindSupport::FindCaseSensitively));
+    bool regexp = ((m_findFlags & IFindSupport::FindRegularExpression));
     if (m_wholeWordAction->isChecked() != wholeOnly)
         m_wholeWordAction->setChecked(wholeOnly);
     if (m_caseSensitiveAction->isChecked() != sensitive)
         m_caseSensitiveAction->setChecked(sensitive);
+    if (m_regularExpressionAction->isChecked() != regexp)
+        m_regularExpressionAction->setChecked(regexp);
 }
 
 bool FindToolBar::setFocusToCurrentFindSupport()
@@ -506,6 +518,7 @@ void FindToolBar::writeSettings()
     settings->setValue("Backward", QVariant((m_findFlags & IFindSupport::FindBackward) != 0));
     settings->setValue("CaseSensitively", QVariant((m_findFlags & IFindSupport::FindCaseSensitively) != 0));
     settings->setValue("WholeWords", QVariant((m_findFlags & IFindSupport::FindWholeWords) != 0));
+    settings->setValue("RegularExpression", QVariant((m_findFlags & IFindSupport::FindRegularExpression) != 0));
     settings->endGroup();
     settings->endGroup();
 }
@@ -522,6 +535,8 @@ void FindToolBar::readSettings()
         flags |= IFindSupport::FindCaseSensitively;
     if (settings->value("WholeWords", false).toBool())
         flags |= IFindSupport::FindWholeWords;
+    if (settings->value("RegularExpression", false).toBool())
+        flags |= IFindSupport::FindRegularExpression;
     settings->endGroup();
     settings->endGroup();
     m_findFlags = flags;
@@ -554,4 +569,9 @@ void FindToolBar::setCaseSensitive(bool sensitive)
 void FindToolBar::setWholeWord(bool wholeOnly)
 {
     setFindFlag(IFindSupport::FindWholeWords, wholeOnly);
+}
+
+void FindToolBar::setRegularExpressions(bool regexp)
+{
+    setFindFlag(IFindSupport::FindRegularExpression, regexp);
 }

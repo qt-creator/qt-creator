@@ -3446,7 +3446,8 @@ void BaseTextEditor::highlightSearchResults(const QString &txt, Find::IFindSuppo
     if (d->m_searchExpr.pattern() == txt)
         return;
     d->m_searchExpr.setPattern(txt);
-    d->m_searchExpr.setPatternSyntax(QRegExp::FixedString);
+    d->m_searchExpr.setPatternSyntax((findFlags & Find::IFindSupport::FindRegularExpression) ?
+                                     QRegExp::RegExp : QRegExp::FixedString);
     d->m_searchExpr.setCaseSensitivity((findFlags & Find::IFindSupport::FindCaseSensitively) ?
                                        Qt::CaseSensitive : Qt::CaseInsensitive);
     d->m_findFlags = findFlags;

@@ -49,6 +49,7 @@ const char * const REPLACE_PREVIOUS  = "Find.ReplacePrevious";
 const char * const REPLACE_ALL       = "Find.ReplaceAll";
 const char * const CASE_SENSITIVE    = "Find.CaseSensitive";
 const char * const WHOLE_WORDS       = "Find.WholeWords";
+const char * const REGULAR_EXPRESSIONS="Find.RegularExpressions";
 const char * const TASK_SEARCH       = "Find.Task.Search";
 
 } // namespace Constants

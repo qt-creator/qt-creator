@@ -78,6 +78,7 @@ private slots:
 
     void setCaseSensitive(bool sensitive);
     void setWholeWord(bool wholeOnly);
+    void setRegularExpressions(bool regexp);
 
 protected:
     bool focusNextPrevChild(bool next);
@@ -110,6 +111,7 @@ private:
     QAction *m_replaceAllAction;
     QAction *m_caseSensitiveAction;
     QAction *m_wholeWordAction;
+    QAction *m_regularExpressionAction;
     QWidget *m_widget;
     IFindSupport::FindFlags m_findFlags;
 };
