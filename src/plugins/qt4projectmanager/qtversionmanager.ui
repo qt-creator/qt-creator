@@ -246,8 +246,14 @@ p, li { white-space: pre-wrap; }
  </customwidgets>
  <tabstops>
   <tabstop>qtdirList</tabstop>
+  <tabstop>addButton</tabstop>
   <tabstop>delButton</tabstop>
   <tabstop>nameEdit</tabstop>
+  <tabstop>qtPath</tabstop>
+  <tabstop>mingwPath</tabstop>
+  <tabstop>msvcComboBox</tabstop>
+  <tabstop>showLogButton</tabstop>
+  <tabstop>rebuildButton</tabstop>
   <tabstop>defaultCombo</tabstop>
  </tabstops>
  <resources/>
