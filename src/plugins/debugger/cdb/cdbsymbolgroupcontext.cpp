@@ -91,7 +91,7 @@ static inline QString getSymbolString(IDebugSymbolGroup2 *sg,
     const HRESULT hr = (sg->*wsf)(index, nameBuffer, MAX_PATH, &nameLength);
     if (SUCCEEDED(hr)) {
         nameBuffer[nameLength] = 0;
-        return QString::fromUtf16(nameBuffer);
+        return QString::fromUtf16(reinterpret_cast<const ushort *>(nameBuffer));
     }
     return QString();
 }
@@ -411,7 +411,7 @@ bool CdbSymbolGroupContext::assignValue(const QString &iname, const QString &val
         return false;
     }
     const unsigned long  index = it.value();
-    const HRESULT hr = m_symbolGroup->WriteSymbolWide(index, value.utf16());
+    const HRESULT hr = m_symbolGroup->WriteSymbolWide(index, reinterpret_cast<PCWSTR>(value.utf16()));
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Unable to assign '%1' to '%2': %3").
                         arg(value, iname, msgComFailed("WriteSymbolWide", hr));

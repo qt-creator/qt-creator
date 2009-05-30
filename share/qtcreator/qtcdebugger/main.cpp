@@ -61,11 +61,9 @@ static const WCHAR *debuggerRegistryDefaultValueNameC = L"Debugger.Default";
 
 static const char *linkC = "http://msdn.microsoft.com/en-us/library/cc266343.aspx";
 
+static inline QString wCharToQString(const WCHAR *w) { return QString::fromUtf16(reinterpret_cast<const ushort *>(w)); }
 #ifdef __GNUC__
-static inline QString wCharToQString(const WCHAR *w) { return QString::fromUtf16(reinterpret_cast<const ushort*>(w)); }
 #define RRF_RT_ANY             0x0000ffff  // no type restriction
-#else
-static inline QString wCharToQString(const WCHAR *w) { return QString::fromUtf16(w); }
 #endif
 
 

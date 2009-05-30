@@ -156,7 +156,7 @@ bool CDBBreakPoint::apply(CIDebugBreakpoint *ibp, QString *errorMessage) const
     const QString expr = expression();
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << *this << expr;
-    const HRESULT hr = ibp->SetOffsetExpressionWide(expr.utf16());
+    const HRESULT hr = ibp->SetOffsetExpressionWide(reinterpret_cast<PCWSTR>(expr.utf16()));
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Unable to set breakpoint '%1' : %2").
                         arg(expr, msgComFailed("SetOffsetExpressionWide", hr));
@@ -238,7 +238,7 @@ bool CDBBreakPoint::retrieve(CIDebugBreakpoint *ibp, QString *errorMessage)
     ibp->GetFlags(&flags);
     oneShot = (flags & DEBUG_BREAKPOINT_ONE_SHOT);
     enabled = (flags & DEBUG_BREAKPOINT_ENABLED);
-    const QString expr = QString::fromUtf16(wszBuf);
+    const QString expr = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
     if (!parseExpression(expr)) {
         *errorMessage = QString::fromLatin1("Parsing of '%1' failed.").arg(expr);
         return false;
