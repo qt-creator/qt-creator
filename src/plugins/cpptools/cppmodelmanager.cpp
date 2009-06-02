@@ -68,6 +68,8 @@
 #include <Lexer.h>
 #include <Token.h>
 
+#include <cplusplus/LookupContext.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QMutexLocker>
@@ -247,25 +249,103 @@ void CppPreprocessor::setTodo(const QStringList &files)
 
 namespace {
 
+class Process;
+
+class CheckUndefinedBaseClasses: protected ASTVisitor
+{
+public:
+    CheckUndefinedBaseClasses(Control *control)
+        : ASTVisitor(control), _context(0)
+    { }
+
+    void operator()(AST *ast, Process *process)
+    { _process = process; accept(ast); }
+
+protected:
+    using ASTVisitor::visit;
+
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        if (ast->base_clause) {
+            unsigned line, col;
+            getTokenStartPosition(ast->firstToken(), &line, &col);
+            _context = lookupContext(line, col);
+        }
+        return true;
+    }
+
+    virtual bool visit(BaseSpecifierAST *base)
+    {
+        if (base->name) {
+            const QList<Symbol *> symbols = _context.resolveClass(base->name->name);
+
+            if (symbols.isEmpty()) {
+                const char *token = "after `:'";
+
+                if (base->comma_token)
+                    token = "after `,'";
+
+                translationUnit()->warning(base->name->firstToken(),
+                                           "expected class-name %s token", token);
+            }
+        }
+        return true;
+    }
+
+    LookupContext lookupContext(unsigned line, unsigned column) const;
+
+private:
+    Process *_process;
+    LookupContext _context;
+};
+
 class Process: public std::unary_function<Document::Ptr, void>
 {
     QPointer<CppModelManager> _modelManager;
+    Snapshot _snapshot;
+    QMap<QString, QByteArray> _workingCopy;
+    Document::Ptr _doc;
 
 public:
-    Process(QPointer<CppModelManager> modelManager)
-        : _modelManager(modelManager)
+    Process(QPointer<CppModelManager> modelManager,
+            Snapshot snapshot,
+            const QMap<QString, QByteArray> &workingCopy)
+        : _modelManager(modelManager),
+          _snapshot(snapshot),
+          _workingCopy(workingCopy)
     { }
 
-    void operator()(Document::Ptr doc) const
+    LookupContext lookupContext(unsigned line, unsigned column) const
+    { return lookupContext(_doc->findSymbolAt(line, column)); }
+
+    LookupContext lookupContext(Symbol *symbol) const
     {
+        LookupContext context(symbol, Document::create("<none>"), _doc, _snapshot);
+        return context;
+    }
+
+    void operator()(Document::Ptr doc)
+    {
+        _doc = doc;
         doc->parse();
         doc->check();
+
+        if (_workingCopy.contains(doc->fileName())) {
+            // check for undefined symbols.
+
+            CheckUndefinedBaseClasses checkUndefinedBaseClasses(doc->control());
+            checkUndefinedBaseClasses(doc->translationUnit()->ast(), this);
+        }
+
         doc->releaseTranslationUnit();
 
         if (_modelManager)
             _modelManager->emitDocumentUpdated(doc); // ### TODO: compress
     }
 };
+
+LookupContext CheckUndefinedBaseClasses::lookupContext(unsigned line, unsigned column) const
+{ return _process->lookupContext(line, column); }
 
 } // end of anonymous namespace
 
@@ -507,7 +587,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     snapshot.insert(doc->fileName(), doc);
     m_todo.remove(fileName);
 
-    Process process(m_modelManager);
+    Process process(m_modelManager, snapshot, m_workingCopy);
 
     process(doc);
 
