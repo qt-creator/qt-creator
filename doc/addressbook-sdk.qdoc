@@ -269,7 +269,6 @@
 
     \section1 Placing Widgets on the Form
 
-
     Now that we have the labels and input fields set up, we add push buttons to
     complete the process of adding a contact. So, we begin by breaking the
     existing layouts. Then, we add three push buttons. Double-click on each of
@@ -292,6 +291,34 @@
     on the widget and selecting \gui{Lay out Horizontally} or
     \gui{Lay out Vertically}.
 
+    The final design of the form is shown in the screenshot below:
 
+    ## image
+
+
+    \section1 The AddressBook Class
+
+    To ensure that the Address Book reacts to user interaction, we need to
+    write slots for each push button that we added earlier. A slot is a
+    function that responds to a particular signal. We will discuss this
+    concept in further detail below. However, for an overview of Qt's signals
+    and slots concept, you can refer to the \l{Signals and Slots} document.
+
+    In the \l{examples/addressbook-sdk/part2/addressbook.h}{\c addressbook.h}
+    file, we add the following code:
+
+    \snippet examples/addressbook-sdk/part2/addressbook.h slot definition
+
+    Next, we have to provide private members for the \c AddressBook class so
+    that we can access these members freely throughout the application.
+
+    \note The names, e.g., \c addButton etc., correspond to the name of the
+    actual object. You can modify them by double-clicking on their names within
+    \QD's \gui{Object Inspector}.
+
+    We need a container to store our address book contacts, so that we can
+    traverse and display them. A QMap object, \c contacts, is used for this
+    purpose as it holds a key-value pair: the contact's name as the \e key, and
+    the contact's address as the \e value.
 
 */
