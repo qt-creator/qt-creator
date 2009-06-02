@@ -328,12 +328,18 @@ void tst_FakeVim::command_i()
 
 
     // combine insertions
+    check("i1" + escape, "@1" + lines);
+    check("i2" + escape, "@21" + lines);
+    check("i3" + escape, "@321" + lines);
+    check("u",           "@21" + lines);
+    check("u",           "@1" + lines);
+    check("u",           "@" + lines);
     check("ia" + escape, "@a" + lines);
     check("ibx" + escape, "b@xa" + lines);
     check("icyy" + escape, "bcy@yxa" + lines);
-return; // FIXME
     check("u", "b@xa" + lines);
     check("u", "@a" + lines);   // undo broken
+return; // FIXME
     checkEx("redo", "b@xa" + lines);
     check("u", "@a" + lines);
     check("u", "@" + lines);

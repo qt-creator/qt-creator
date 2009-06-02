@@ -212,8 +212,6 @@ enum EventResult
     EventPassedToCore
 };
 
-class UndoBreaker;
-
 class FakeVimHandler::Private
 {
 public:
@@ -229,7 +227,6 @@ public:
     void restoreWidget();
 
     friend class FakeVimHandler;
-    friend class UndoBreaker;
     static int shift(int key) { return key + 32; }
     static int control(int key) { return key + 256; }
 
@@ -354,7 +351,6 @@ public:
     void undo();
     void redo();
     QMap<int, int> m_undoCursorPosition; // revision -> position
-    bool m_needMoreUndo;
 
     // extra data for '.'
     void replay(const QString &text, int count);
@@ -2412,10 +2408,7 @@ void FakeVimHandler::Private::undo()
 {
     int current = m_tc.document()->revision();
     m_tc.endEditBlock();
-    m_needMoreUndo = false;
     EDITOR(undo());
-    if (m_needMoreUndo)
-        EDITOR(undo());
     m_tc.beginEditBlock();
     int rev = m_tc.document()->revision();
     if (current == rev)
@@ -2430,10 +2423,7 @@ void FakeVimHandler::Private::redo()
 {
     int current = m_tc.document()->revision();
     m_tc.endEditBlock();
-    m_needMoreUndo = false;
     EDITOR(redo());
-    if (m_needMoreUndo)
-        EDITOR(redo());
     m_tc.beginEditBlock();
     int rev = m_tc.document()->revision();
     if (rev == current)
@@ -2487,20 +2477,9 @@ void FakeVimHandler::Private::recordJump()
     UNDO_DEBUG("jumps: " << m_jumpListUndo);
 }
 
-class UndoBreaker : public QAbstractUndoItem
-{
-public:
-    UndoBreaker(FakeVimHandler::Private *doc) : m_doc(doc) {}
-    void undo() { m_doc->m_needMoreUndo = true; }
-    void redo() { m_doc->m_needMoreUndo = true; }
-private:   
-    FakeVimHandler::Private *m_doc;
-};
-
 void FakeVimHandler::Private::recordNewUndo()
 {
     m_tc.endEditBlock();
-    m_tc.document()->appendUndoItem(new UndoBreaker(this));
     m_tc.beginEditBlock();
 }
 
