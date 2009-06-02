@@ -75,7 +75,8 @@ void PluginDetailsView::update(PluginSpec *spec)
     m_ui->version->setText(spec->version());
     m_ui->compatVersion->setText(spec->compatVersion());
     m_ui->vendor->setText(spec->vendor());
-    m_ui->url->setText(spec->url());
+    const QString link = QString::fromLatin1("<a href=\"%1\">%1</a>").arg(spec->url());
+    m_ui->url->setText(link);
     m_ui->location->setText(QDir::toNativeSeparators(spec->filePath()));
     m_ui->description->setText(spec->description());
     m_ui->copyright->setText(spec->copyright());
