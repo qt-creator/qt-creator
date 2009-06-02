@@ -1018,7 +1018,19 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_commandHistoryIndex = m_commandHistory.size() - 1;
         updateMiniBuffer();
     } else if (key == '/' || key == '?') {
-        emit q->findRequested(key == '?');
+        if (hasConfig(ConfigIncSearch)) {
+            // re-use the core dialog.
+            emit q->findRequested(key == '?');
+        } else {
+            // FIXME: make core find dialog sufficiently flexible to
+            // produce the "default vi" behaviour too. For now, roll our own.
+            enterExMode(); // to get the cursor disabled
+            m_mode = (key == '/') ? SearchForwardMode : SearchBackwardMode;
+            m_commandBuffer.clear();
+            m_searchHistory.append(QString());
+            m_searchHistoryIndex = m_searchHistory.size() - 1;
+            updateMiniBuffer();
+        }
     } else if (key == '`') {
         m_subsubmode = BackTickSubSubMode;
     } else if (key == '#' || key == '*') {
@@ -1290,11 +1302,17 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()) / 2)));
         handleStartOfLine();
         finishMovement();
-    } else if (key == 'n') {
-        emit q->findNextRequested(false);
+    } else if (key == 'n') { // FIXME: see comment for '/'
+        if (hasConfig(ConfigIncSearch))
+            emit q->findNextRequested(false);
+        else
+            search(lastSearchString(), m_lastSearchForward);
         recordJump();
     } else if (key == 'N') {
-        emit q->findNextRequested(true);
+        if (hasConfig(ConfigIncSearch))
+            emit q->findNextRequested(true);
+        else
+            search(lastSearchString(), !m_lastSearchForward);
         recordJump();
     } else if (key == 'o' || key == 'O') {
         setDotCommand("%1o", count());

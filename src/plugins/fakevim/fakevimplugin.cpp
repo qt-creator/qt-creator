@@ -158,6 +158,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 
     m_group.insert(theFakeVimSetting(ConfigAutoIndent), 
         m_ui.checkBoxAutoIndent);
+    m_group.insert(theFakeVimSetting(ConfigIncSearch), 
+        m_ui.checkBoxIncSearch);
 
     connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
         this, SLOT(copyTextEditorSettings()));
@@ -179,6 +181,8 @@ void FakeVimOptionPage::copyTextEditorSettings()
     m_ui.lineEditShiftWidth->setText(QString::number(ts.m_indentSize));
     m_ui.checkBoxSmartTab->setChecked(ts.m_smartBackspace);
     m_ui.checkBoxAutoIndent->setChecked(ts.m_autoIndent);
+    // FIXME: Not present in core
+    //m_ui.checkBoxIncSearch->setChecked(ts.m_incSearch);
 }
 
 void FakeVimOptionPage::setQtStyle()
@@ -188,6 +192,7 @@ void FakeVimOptionPage::setQtStyle()
     m_ui.lineEditShiftWidth->setText("4");
     m_ui.checkBoxSmartTab->setChecked(true);
     m_ui.checkBoxAutoIndent->setChecked(true);
+    m_ui.checkBoxIncSearch->setChecked(true);
     m_ui.lineEditBackspace->setText("indent,eol,start");
 }
 
@@ -198,6 +203,7 @@ void FakeVimOptionPage::setPlainStyle()
     m_ui.lineEditShiftWidth->setText("8");
     m_ui.checkBoxSmartTab->setChecked(false);
     m_ui.checkBoxAutoIndent->setChecked(false);
+    m_ui.checkBoxIncSearch->setChecked(false);
     m_ui.lineEditBackspace->setText(QString());
 }
 
