@@ -1763,12 +1763,11 @@ Sollen sie überschrieben werden?</translation>
         <translation>Anleitungen</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Qt Demos and Examples</source>
-        <translation>Qt Demos und Beispiele</translation>
+        <translation type="obsolete">Qt Demos und Beispiele</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Did you know?</source>
         <translation>Wussten Sie schon?</translation>
     </message>
@@ -1783,7 +1782,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Qt Internetseiten</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+36"/>
         <source>http://labs.trolltech.com/blogs/feed</source>
         <extracomment>Add localized feed here only if one exists</extracomment>
         <translation type="unfinished"></translation>
@@ -1827,17 +1826,22 @@ Sollen sie überschrieben werden?</translation>
         <translation type="obsolete">Qt Creator - Schnelleinstieg</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+4"/>
         <source>Understanding widgets</source>
         <translation>Widgets verstehen</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-2"/>
         <source>Creating an address book</source>
         <translation>Erstellen einer Adressbuch-Beispielanwendung</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-49"/>
+        <source>Explore Qt Examples</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+53"/>
         <source>Building with qmake</source>
         <translation>Mit qmake arbeiten</translation>
     </message>
@@ -1857,7 +1861,12 @@ Sollen sie überschrieben werden?</translation>
         <translation>%1 (zuletzt benutzt)</translation>
     </message>
     <message>
-        <location line="+58"/>
+        <location line="+63"/>
+        <source>Choose an example...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+73"/>
         <source>New Project...</source>
         <translation>Neues Projekt...</translation>
     </message>
@@ -2053,6 +2062,11 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
         <location/>
         <source>Manage Sessions...</source>
         <translation>Sitzungen...</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Examples not installed</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3907,7 +3921,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>&lt;nicht im Bereich&gt;</translation>
     </message>
     <message numerus="yes">
-        <location line="+98"/>
+        <location line="+100"/>
         <source>Retrieving data for watch view (%n requests pending)...</source>
         <translation>
             <numerusform>Daten der für die Anzeige der lokalen Variablen werden empfangen (noch eine austehende Anfrage) ...</numerusform>
@@ -3923,7 +3937,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+282"/>
+        <location line="+284"/>
         <source>&lt;%n items&gt;</source>
         <extracomment>In string list</extracomment>
         <translation>
@@ -3936,7 +3950,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation type="obsolete">Daten der für die Anzeige der lokalen Variablen werden empfangen (noch %1 austehende Anfragen) ...</translation>
     </message>
     <message>
-        <location line="-346"/>
+        <location line="-348"/>
         <source>Finished retrieving data.</source>
         <translation>Alle Daten erhalten.</translation>
     </message>
@@ -3956,7 +3970,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Ausgabe-Hilfsbibliothek-Initialisierung: %1</translation>
     </message>
     <message>
-        <location line="+165"/>
+        <location line="+167"/>
         <source>&lt;0 items&gt;</source>
         <translation>&lt;leer&gt;</translation>
     </message>
@@ -4447,7 +4461,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 <context>
     <name>Debugger::Internal::WatchHandler</name>
     <message>
-        <location line="+185"/>
+        <location line="+187"/>
         <source>Expression</source>
         <translation>Ausdruck</translation>
     </message>
@@ -5276,7 +5290,7 @@ Grund: %3</translation>
 <context>
     <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
-        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+827"/>
+        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+828"/>
         <source>%1,%2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5292,14 +5306,14 @@ Grund: %3</translation>
         <translation>In FakeVim nicht implementiert</translation>
     </message>
     <message>
-        <location line="+120"/>
-        <location line="+685"/>
+        <location line="+127"/>
+        <location line="+687"/>
         <location line="+19"/>
         <source>E20: Mark &apos;%1&apos; not set</source>
         <translation>E20: Die Marke &apos;%1&apos; ist nicht gesetzt</translation>
     </message>
     <message>
-        <location line="+103"/>
+        <location line="+115"/>
         <source>File &apos;%1&apos; exists (add ! to override)</source>
         <translation>Die &apos;%1&apos; existiert bereits (Fügen Sie ! an, um sie zu überschreiben)</translation>
     </message>
@@ -5314,7 +5328,7 @@ Grund: %3</translation>
         <translation>&quot;%1&quot; %2 %3L, %4C geschrieben</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+8"/>
         <source>Cannot open file &apos;%1&apos; for reading</source>
         <translation>Die Datei &apos;%1&apos; kann nicht zum Lesen geöffnet werden</translation>
     </message>
@@ -5380,7 +5394,7 @@ Grund: %3</translation>
 <context>
     <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/fakevim/fakevimplugin.cpp" line="+112"/>
+        <location filename="../../../src/plugins/fakevim/fakevimplugin.cpp" line="+114"/>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>
@@ -5393,8 +5407,8 @@ Grund: %3</translation>
 <context>
     <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
-        <location line="+299"/>
-        <location line="+141"/>
+        <location line="+329"/>
+        <location line="+146"/>
         <source>Quit FakeVim</source>
         <translation>FakeVim Beenden</translation>
     </message>
@@ -5644,6 +5658,11 @@ Grund: %3</translation>
         <location line="+9"/>
         <source>Whole Words Only</source>
         <translation>Ganze Worte</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Use Regular Expressions</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6813,7 +6832,7 @@ Grund: %3</translation>
     <message>
         <location line="+221"/>
         <location line="+4"/>
-        <location line="+66"/>
+        <location line="+73"/>
         <source>Unfiltered</source>
         <translation>Kein</translation>
     </message>
@@ -9377,43 +9396,36 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
 <context>
     <name>QrcEditor</name>
     <message>
-        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+151"/>
         <source>Form</source>
-        <translation>Formular</translation>
+        <translation type="obsolete">Formular</translation>
     </message>
     <message>
         <location filename="../../../src/shared/qrceditor/qrceditor.ui"/>
-        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
     </message>
     <message>
         <location/>
-        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
         <location/>
-        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Properties</source>
         <translation>Eigenschaften</translation>
     </message>
     <message>
         <location/>
-        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Prefix:</source>
         <translation>Präfix:</translation>
     </message>
     <message>
         <location/>
-        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Language:</source>
         <translation>Sprache:</translation>
     </message>
     <message>
         <location/>
-        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Alias:</source>
         <translation>Aliasname:</translation>
     </message>
@@ -10320,7 +10332,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::QtVersionManager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+245"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+281"/>
         <source>&lt;not found&gt;</source>
         <translation>&lt;nicht gefunden&gt;</translation>
     </message>
@@ -11551,7 +11563,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseFileFind</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+113"/>
+        <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+114"/>
         <location line="+19"/>
         <source>%1 found</source>
         <translation>%1 gefunden</translation>
@@ -11601,7 +11613,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+3652"/>
+        <location line="+3655"/>
         <source>Line: %1, Col: %2</source>
         <translation>Zeile: %1, Spalte: %2</translation>
     </message>
@@ -11823,6 +11835,14 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
 </context>
 <context>
+    <name>TextEditor::Internal::FindInCurrentFile</name>
+    <message>
+        <location filename="../../../src/plugins/texteditor/findincurrentfile.cpp" line="+57"/>
+        <source>Current File</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TextEditor::Internal::FindInFiles</name>
     <message>
         <location filename="../../../src/plugins/texteditor/findinfiles.cpp" line="+55"/>
@@ -11933,7 +11953,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation type="obsolete">Erzeugt eine neue Textdatei (.txt)</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/texteditor/texteditorplugin.cpp" line="+93"/>
+        <location filename="../../../src/plugins/texteditor/texteditorplugin.cpp" line="+94"/>
         <source>Creates a text file (.txt).</source>
         <translation>Erzeugt eine Textdatei (.txt)</translation>
     </message>
