@@ -407,6 +407,11 @@ void HelpPlugin::createRightPaneSideBar()
         << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR),
         this));
 
+    connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
+        SLOT(updateSideBarSource(QUrl)));
+    connect(m_centralWidget, SIGNAL(currentViewerChanged()), this,
+        SLOT(updateSideBarSource()));
+
     QAction *copyActionSideBar = new QAction(this);
     Core::Command *cmd = m_core->actionManager()->registerAction(copyActionSideBar,
         Core::Constants::COPY, QList<int>()
@@ -563,6 +568,19 @@ void HelpPlugin::openContextHelpPage(const QString &url)
 {
     Core::RightPaneWidget::instance()->setShown(true);
     m_helpViewerForSideBar->setSource(QUrl(url));
+}
+
+void HelpPlugin::updateSideBarSource()
+{
+    const QUrl &url = m_centralWidget->currentSource();
+    if (url.isValid())
+        updateSideBarSource(url);
+}
+
+void HelpPlugin::updateSideBarSource(const QUrl &newUrl)
+{
+    if (m_helpViewerForSideBar)
+        m_helpViewerForSideBar->setSource(newUrl);
 }
 
 void HelpPlugin::activateContext()

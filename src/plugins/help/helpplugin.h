@@ -132,6 +132,9 @@ private slots:
     void openHelpPage(const QString& url);
     void openContextHelpPage(const QString &url);
 
+    void updateSideBarSource();
+    void updateSideBarSource(const QUrl &newUrl);
+
 private:
     QToolBar *createToolBar();
     void createRightPaneSideBar();
