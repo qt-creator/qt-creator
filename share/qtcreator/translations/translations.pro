@@ -17,8 +17,6 @@ contains(QT_VERSION, ^4\.[0-5]\..*):ts.commands = @echo This Qt version is too o
 else:ts.commands = (cd $$IDE_SOURCE_TREE && $$LUPDATE src -ts $$TS_FILES)
 QMAKE_EXTRA_TARGETS += ts
 
-contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1
-
 TEMPLATE = app
 TARGET = phony_target2
 QT =
