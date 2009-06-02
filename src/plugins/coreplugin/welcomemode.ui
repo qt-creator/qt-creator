@@ -21,7 +21,14 @@ QToolButton, QPushButton, QComboBox {
     padding: 0px 6px;
     font-size: 12px;
     font-family: lucida sans, dejavu sans, sans serif;
+}
+
+*{
     color: black;
+}
+
+ QComboBox QAbstractItemView {
+    background-color:white;
 }
 
  QComboBox::down-arrow {
@@ -41,7 +48,7 @@ QToolButton:hover, QPushButton:hover, QComboBox:hover {
     border-image: url(:/core/images/welcomemode/btn_26_hover.png) 4;
 }
 
-QToolButton:disabled, QPushButton:disabled {
+QToolButton:disabled, QPushButton:disabled, QComboBox::disabled {
 	color:gray;
 }
 
@@ -187,8 +194,8 @@ QToolButton:pressed, QPushButton:pressed{
 	stop: 0.401 #636363,
 	stop: 1 #4a4a4a);
 	border: 0px solid black;
-	border-top: 1px solid black;
-	border-bottom: 1px solid black;
+	border-top: 1px solid #303030;
+	border-bottom: 1px solid #202020;
 	color: white;
 	height:20px;
 }
@@ -202,7 +209,7 @@ QToolButton:hover {
 	stop: 1 #555555);
 }
 
-QToolButton:checked {
+QToolButton:checked, QToolButton:checked:pressed {
 	border-image:none;
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0,
 	stop: 0 #ffffff,
@@ -884,6 +891,9 @@ QToolButton:pressed {
                   </property>
                   <property name="text">
                    <string>Create New Project...</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>

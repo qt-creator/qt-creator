@@ -214,7 +214,7 @@ void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const Q
     }
 
     QLinearGradient grad(spanRect.topLeft(), spanRect.bottomLeft());
-    QColor menuColor = mergedColors(StyleHelper::baseColor(), QColor(240, 240, 240), 25);
+    QColor menuColor = mergedColors(StyleHelper::baseColor(), QColor(244, 244, 244), 25);
     grad.setColorAt(0, menuColor.lighter(112));
     grad.setColorAt(1, menuColor);
     p->fillRect(rect, grad);
