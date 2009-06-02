@@ -368,6 +368,7 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
             path += frameworkName;
             path += QLatin1String(".framework/Headers/");
             path += name;
+            path = QDir::cleanPath(path);
             QByteArray contents;
             if (includeFile(path, &contents)) {
                 fileName = path;

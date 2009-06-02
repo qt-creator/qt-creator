@@ -142,6 +142,8 @@ public:
                               unsigned line,
                               StringLiteral *fileName);
 
+    unsigned findPreviousLineOffset(unsigned tokenIndex) const;
+
 public:
     struct PPLine {
         unsigned offset;

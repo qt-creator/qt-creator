@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "cpptoolsplugin.h"
-
 #include "completionsettingspage.h"
 #include "cppfilesettingspage.h"
 #include "cppclassesfilter.h"
@@ -38,13 +37,33 @@
 #include "cpptoolsconstants.h"
 #include "cppquickopenfilter.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <cppeditor/cppeditorconstants.h>
+
+#include <QtCore/QtConcurrentRun>
+#include <QtCore/QFutureSynchronizer>
+#include <qtconcurrent/runextensions.h>
+
+#include <find/ifindfilter.h>
+#include <find/searchresultwindow.h>
+#include <utils/filesearch.h>
+
+#include <Control.h>
+#include <AST.h>
+#include <ASTVisitor.h>
+#include <TranslationUnit.h>
+#include <PrettyPrinter.h>
+
+#include <cplusplus/PreprocessorEnvironment.h>
+#include <cplusplus/pp.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QFileInfo>
@@ -54,12 +73,229 @@
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 
+#include <sstream>
+
 using namespace CppTools::Internal;
+using namespace CPlusPlus;
 
 enum { debug = 0 };
 
-
 CppToolsPlugin *CppToolsPlugin::m_instance = 0;
+
+namespace {
+
+class SimpleClient: public Client
+{
+    Environment _env;
+    QPointer<CppModelManager> _modelManager;
+    Snapshot _snapshot;
+    Preprocessor _preproc;
+    QSet<QString> _merged;
+
+public:
+    SimpleClient(QPointer<CppModelManager> modelManager)
+        : _modelManager(modelManager),
+          _snapshot(_modelManager->snapshot()),
+          _preproc(this, &_env)
+    { }
+
+    QByteArray run(QString fileName, const QByteArray &source)
+    {
+        const QByteArray preprocessed = _preproc(fileName, source);
+        return preprocessed;
+    }
+
+    virtual void sourceNeeded(QString &fileName, IncludeType, unsigned)
+    { mergeEnvironment(fileName); }
+
+    virtual void macroAdded(const Macro &) {}
+
+    virtual void startExpandingMacro(unsigned,
+                                     const Macro &,
+                                     const QByteArray &,
+                                     const QVector<MacroArgumentReference> &) {}
+
+    virtual void stopExpandingMacro(unsigned, const Macro &) {}
+
+    virtual void startSkippingBlocks(unsigned) {}
+    virtual void stopSkippingBlocks(unsigned) {}
+
+    void mergeEnvironment(const QString &fileName)
+    {
+        if (! _merged.contains(fileName)) {
+            _merged.insert(fileName);
+
+            if (Document::Ptr doc = _snapshot.value(fileName)) {
+                foreach (const Document::Include &i, doc->includes())
+                    mergeEnvironment(i.fileName());
+
+                _env.addMacros(doc->definedMacros());
+            }
+        }
+    }
+};
+
+class FindClass: protected ASTVisitor
+{
+    QFutureInterface<Core::Utils::FileSearchResult> &_future;
+    Document::Ptr _doc;
+    Snapshot _snapshot;
+
+    QByteArray _source;
+    QString _text;
+    QTextDocument::FindFlags _findFlags;
+
+public:
+    FindClass(QFutureInterface<Core::Utils::FileSearchResult> &future, Document::Ptr doc, Snapshot snapshot)
+        : ASTVisitor(doc->control()),
+          _future(future),
+          _doc(doc),
+          _snapshot(snapshot)
+    {
+    }
+
+    void operator()(AST *ast, const QByteArray &source, const QString &text,
+                    QTextDocument::FindFlags findFlags)
+    {
+        _source = source;
+        _text = text;
+        _findFlags = findFlags;
+        accept(ast);
+    }
+
+protected:
+    using ASTVisitor::visit;
+
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        if (ast->name) {
+            Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+            if (_findFlags & QTextDocument::FindCaseSensitively)
+                cs = Qt::CaseSensitive;
+
+            Token start = tokenAt(ast->name->firstToken());
+            Token end = tokenAt(ast->name->lastToken() - 1);
+            const QString className = QString::fromUtf8(_source.constData() + start.begin(),
+                                                        end.end() - start.begin());
+
+            int idx = className.indexOf(_text, cs);
+            if (idx != -1) {
+                const char *beg = _source.constData();
+                const char *cp = beg + start.offset;
+                for (; cp != beg - 1; --cp) {
+                    if (*cp == '\n')
+                        break;
+                }
+
+                ++cp;
+
+                const char *lineEnd = cp + 1;
+                for (; *lineEnd; ++lineEnd) {
+                    if (*lineEnd == '\n')
+                        break;
+                }
+
+                const QString matchingLine = QString::fromUtf8(cp, lineEnd - cp);
+
+                unsigned line, col;
+                getTokenStartPosition(ast->name->firstToken(), &line, &col);
+
+                _future.reportResult(Core::Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
+                                                                   line, matchingLine,
+                                                                   col + idx - 1, _text.length()));
+            }
+        }
+
+        return true;
+    }
+};
+
+static void searchClassDeclarations(QFutureInterface<Core::Utils::FileSearchResult> &future,
+                                    QPointer<CppModelManager> modelManager,
+                                    QString text,
+                                    QTextDocument::FindFlags findFlags)
+{
+    const Snapshot snapshot = modelManager->snapshot();
+
+    future.setProgressRange(0, snapshot.size());
+    future.setProgressValue(0);
+
+    int progress = 0;
+    foreach (Document::Ptr doc, snapshot) {
+        const QString fileName = doc->fileName();
+
+        QFile file(fileName);
+        if (! file.open(QFile::ReadOnly))
+            continue;
+
+        const QString contents = QTextStream(&file).readAll();
+
+        SimpleClient r(modelManager);
+        const QByteArray source = r.run(fileName, contents.toUtf8());
+
+        Document::Ptr newDoc = Document::create(fileName);
+        newDoc->setSource(source);
+        newDoc->parse();
+
+        FindClass findClass(future, newDoc, snapshot);
+        findClass(newDoc->translationUnit()->ast(), source, text, findFlags);
+
+        future.setProgressValue(++progress);
+    }
+}
+
+} // end of anonymous namespace
+
+FindClassDeclarations::FindClassDeclarations(CppModelManager *modelManager)
+    : _modelManager(modelManager),
+      _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
+{
+    m_watcher.setPendingResultsLimit(1);
+    connect(&m_watcher, SIGNAL(resultReadyAt(int)), this, SLOT(displayResult(int)));
+    connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
+}
+
+void FindClassDeclarations::findAll(const QString &txt, QTextDocument::FindFlags findFlags)
+{
+    _resultWindow->clearContents();
+    _resultWindow->popup(true);
+
+    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+
+    QFuture<Core::Utils::FileSearchResult> result =
+            QtConcurrent::run(&searchClassDeclarations, _modelManager, txt, findFlags);
+
+    m_watcher.setFuture(result);
+
+    Core::FutureProgress *progress = progressManager->addTask(result, tr("Search class"),
+                                                              CppTools::Constants::TASK_INDEX,
+                                                              Core::ProgressManager::CloseOnSuccess);
+
+    connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
+}
+
+void FindClassDeclarations::displayResult(int index)
+{
+    Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
+    Find::ResultWindowItem *item = _resultWindow->addResult(result.fileName,
+                                                            result.lineNumber,
+                                                            result.matchingLine,
+                                                            result.matchStart,
+                                                            result.matchLength);
+    if (item)
+        connect(item, SIGNAL(activated(const QString&,int,int)),
+                this, SLOT(openEditor(const QString&,int,int)));
+}
+
+void FindClassDeclarations::searchFinished()
+{
+    emit changed();
+}
+
+void FindClassDeclarations::openEditor(const QString &fileName, int line, int column)
+{
+    TextEditor::BaseTextEditor::openEditorAt(fileName, line, column);
+}
 
 CppToolsPlugin::CppToolsPlugin() :
     m_context(-1),
@@ -94,6 +330,8 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CompletionSettingsPage(m_completion));
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
+
+    addAutoReleasedObject(new FindClassDeclarations(m_modelManager));
 
     // Menus
     Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);

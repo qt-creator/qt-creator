@@ -32,12 +32,27 @@
 
 #include <extensionsystem/iplugin.h>
 #include <projectexplorer/projectexplorer.h>
+#include <find/ifindfilter.h>
+#include <utils/filesearch.h>
+
+#include <QtGui/QTextDocument>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QFutureInterface>
+#include <QtCore/QPointer>
+#include <QtCore/QFutureWatcher>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
 class QDir;
 QT_END_NAMESPACE
+
+namespace CPlusPlus {
+class Snapshot;
+}
+
+namespace Find {
+class SearchResultWindow;
+}
 
 namespace CppTools {
 namespace Internal {
@@ -45,6 +60,32 @@ namespace Internal {
 class CppCodeCompletion;
 class CppModelManager;
 struct CppFileSettings;
+
+class FindClassDeclarations: public Find::IFindFilter
+{
+    Q_OBJECT
+
+public:
+    FindClassDeclarations(CppModelManager *modelManager);
+
+    // Find::IFindFilter
+    virtual QString id() const { return QLatin1String("CppTools.Find.ClassDeclarations"); }
+    virtual QString name() const { return tr("Class Declarations"); }
+    virtual bool isEnabled() const { return true; }
+    virtual QKeySequence defaultShortcut() const { return QKeySequence(); }
+    virtual void findAll(const QString &txt, QTextDocument::FindFlags findFlags);
+
+protected Q_SLOTS:
+    void displayResult(int);
+    void searchFinished();
+    void openEditor(const QString&, int, int);
+
+private:
+    QPointer<CppModelManager> _modelManager;
+    Find::SearchResultWindow *_resultWindow;
+    QFutureWatcher<Core::Utils::FileSearchResult> m_watcher;
+};
+
 
 class CppToolsPlugin : public ExtensionSystem::IPlugin
 {

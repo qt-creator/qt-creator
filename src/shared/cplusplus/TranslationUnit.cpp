@@ -465,6 +465,12 @@ void TranslationUnit::fatal(unsigned index, const char *format, ...)
     exit(EXIT_FAILURE);
 }
 
+unsigned TranslationUnit::findPreviousLineOffset(unsigned tokenIndex) const
+{
+    unsigned lineOffset = _lineOffsets[findLineNumber(_tokens->at(tokenIndex).offset)];
+    return lineOffset;
+}
+
 void TranslationUnit::showErrorLine(unsigned index, unsigned column, FILE *out)
 {
     unsigned lineOffset = _lineOffsets[findLineNumber(_tokens->at(index).offset)];
