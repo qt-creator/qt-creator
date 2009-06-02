@@ -957,19 +957,20 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             .arg(QChar(m_semicolonType))
             .arg(QChar(m_semicolonKey)));
     } else if (m_submode == ReplaceSubMode) {
-        if (count() < rightDist() && text.size() == 1
+        if (count() <= (rightDist() + atEndOfLine()) && text.size() == 1
                 && (text.at(0).isPrint() || text.at(0).isSpace())) {
+            if (atEndOfLine())
+                moveLeft();
             setAnchor();
             moveRight(count());
-            removeSelectedText();
+            QString rem = removeSelectedText();
             m_tc.insertText(QString(count(), text.at(0)));
             m_moveType = MoveExclusive;
-            m_submode = NoSubMode;
             setDotCommand("%1r" + text, count());
-            finishMovement();
-        } else {
-            m_submode = NoSubMode;
         }
+        setTargetColumn();
+        m_submode = NoSubMode;
+        finishMovement();
     } else if (m_subsubmode == MarkSubSubMode) {
         m_marks[key] = m_tc.position();
         m_subsubmode = NoSubSubMode;
