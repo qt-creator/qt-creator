@@ -95,7 +95,7 @@ mv -f "${TMPFILE}" "${INSTALLER_RC}"
 
 ## Patch Info.plist
 TMPFILE=`mktemp versionPatch.XXXXXX`
-INFO_PLIST="${SCRIPT_DIR}/share/qtcreator/Info.plist"
+INFO_PLIST="${SCRIPT_DIR}/src/app/Info.plist"
 echo "Patching \`${INFO_PLIST}'"
 sed \
         -e "s/"${OLD}"/"${NEW}"/" \

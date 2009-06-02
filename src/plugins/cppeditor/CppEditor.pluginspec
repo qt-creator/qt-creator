@@ -1,4 +1,4 @@
-<plugin name="CppEditor" version="1.1.80" compatVersion="1.1.80">
+<plugin name="CppEditor" version="1.2.0" compatVersion="1.2.0">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,8 +19,8 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>C/C++ editor component.</description>
     <url>http://www.qtsoftware.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.1.80"/>
-        <dependency name="TextEditor" version="1.1.80"/>
-        <dependency name="CppTools" version="1.1.80"/>
+        <dependency name="Core" version="1.2.0"/>
+        <dependency name="TextEditor" version="1.2.0"/>
+        <dependency name="CppTools" version="1.2.0"/>
     </dependencyList>
 </plugin>
