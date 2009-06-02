@@ -121,7 +121,7 @@
     <message>
         <location/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
@@ -1774,7 +1774,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+1"/>
         <source>News from the Qt Labs</source>
-        <translation>Neuigkeiten von Qt Labs</translation>
+        <translation type="unfinished">Neuigkeiten aus den Qt Labs</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1833,12 +1833,12 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="-2"/>
         <source>Creating an address book</source>
-        <translation>Erstellen einer Adressbuch-Beispielanwendung</translation>
+        <translation>Erstellen eines Adressbuchs</translation>
     </message>
     <message>
         <location line="-49"/>
         <source>Explore Qt Examples</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt Beispiele öffnen</translation>
     </message>
     <message>
         <location line="+53"/>
@@ -1863,7 +1863,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+63"/>
         <source>Choose an example...</source>
-        <translation type="unfinished"></translation>
+        <translation>Beispiel wählen...</translation>
     </message>
     <message>
         <location line="+73"/>
@@ -2066,7 +2066,7 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
     <message>
         <location/>
         <source>Examples not installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Beispiele nicht installiert</translation>
     </message>
 </context>
 <context>
@@ -2083,12 +2083,13 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
         <location filename="../../../src/plugins/coreplugin/scriptmanager/scriptmanager.cpp" line="+237"/>
         <source>Exception at line %1: %2
 %3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ausnahme in Zeile%1: %2
+%3</translation>
     </message>
     <message>
         <location line="+67"/>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
 </context>
 <context>
@@ -3573,7 +3574,7 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
     <message>
         <location line="+30"/>
         <source>Ctrl+Shift+F11</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4289,7 +4290,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/stackhandler.cpp" line="+97"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+2"/>
@@ -4411,7 +4412,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/tcf/tcfengine.cpp" line="+189"/>
         <source>%1.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+381"/>
