@@ -60,7 +60,6 @@
 #include <AST.h>
 #include <ASTVisitor.h>
 #include <TranslationUnit.h>
-#include <PrettyPrinter.h>
 
 #include <cplusplus/PreprocessorEnvironment.h>
 #include <cplusplus/pp.h>
@@ -140,6 +139,7 @@ class FindClass: protected ASTVisitor
     QFutureInterface<Core::Utils::FileSearchResult> &_future;
     Document::Ptr _doc;
     Snapshot _snapshot;
+    Document::Ptr _thisDocument;
 
     QByteArray _source;
     QString _text;
@@ -152,6 +152,7 @@ public:
           _doc(doc),
           _snapshot(snapshot)
     {
+        _thisDocument = _snapshot.value(_doc->fileName());
     }
 
     void operator()(AST *ast, const QByteArray &source, const QString &text,
