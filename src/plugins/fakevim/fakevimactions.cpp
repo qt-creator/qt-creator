@@ -161,6 +161,12 @@ FakeVimSettings *theFakeVimSettings()
     instance->insertItem(ConfigAutoIndent, item, QLatin1String("autoindent"), QLatin1String("ai"));
 
     item = new SavedAction(instance);
+    item->setDefaultValue(true);
+    item->setSettingsKey(group, QLatin1String("IncSearch"));
+    item->setCheckable(true);
+    instance->insertItem(ConfigIncSearch, item, QLatin1String("incsearch"), QLatin1String("is"));
+
+    item = new SavedAction(instance);
     item->setDefaultValue(QLatin1String("indent,eol,start"));
     item->setSettingsKey(group, QLatin1String("Backspace"));
     instance->insertItem(ConfigBackspace, item, QLatin1String("backspace"), QLatin1String("bs"));
