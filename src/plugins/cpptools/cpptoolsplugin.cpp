@@ -178,7 +178,7 @@ protected:
             const QString className = QString::fromUtf8(_source.constData() + start.begin(),
                                                         end.end() - start.begin());
 
-            int idx = className.indexOf(_text, cs);
+            int idx = className.indexOf(_text, 0, cs);
             if (idx != -1) {
                 const char *beg = _source.constData();
                 const char *cp = beg + start.offset;
