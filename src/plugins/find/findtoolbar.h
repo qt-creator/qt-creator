@@ -114,6 +114,10 @@ private:
     QAction *m_regularExpressionAction;
     QWidget *m_widget;
     IFindSupport::FindFlags m_findFlags;
+
+    QPixmap m_casesensitiveIcon;
+    QPixmap m_regexpIcon;
+    QPixmap m_wholewordsIcon;
 };
 
 } // namespace Internal
