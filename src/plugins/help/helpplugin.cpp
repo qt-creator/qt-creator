@@ -196,10 +196,11 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     QAction *previousAction = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
         tr("Previous"), this);
     cmd = am->registerAction(previousAction, QLatin1String("Help.Previous"), modecontext);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_Backspace));
+    cmd->setDefaultKeySequence(QKeySequence::Back);
 
     QAction *nextAction = new QAction(QIcon(QLatin1String(":/help/images/next.png")), tr("Next"), this);
     cmd = am->registerAction(nextAction, QLatin1String("Help.Next"), modecontext);
+    cmd->setDefaultKeySequence(QKeySequence::Forward);
 
     QAction *addBookmarkAction = new QAction(QIcon(QLatin1String(":/help/images/bookmark.png")),
         tr("Add Bookmark"), this);
