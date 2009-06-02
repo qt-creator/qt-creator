@@ -406,7 +406,6 @@ void HelpPlugin::createRightPaneSideBar()
     m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar, QList<int>()
         << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR),
         this));
-
     connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
         SLOT(updateSideBarSource(QUrl)));
     connect(m_centralWidget, SIGNAL(currentViewerChanged()), this,
@@ -449,7 +448,6 @@ void HelpPlugin::activateHelpMode()
 void HelpPlugin::switchToHelpMode()
 {
     switchToHelpMode(m_helpViewerForSideBar->source());
-    Core::RightPaneWidget::instance()->setShown(false);
 }
 
 void HelpPlugin::switchToHelpMode(const QUrl &source)
@@ -585,79 +583,50 @@ void HelpPlugin::updateSideBarSource(const QUrl &newUrl)
 
 void HelpPlugin::activateContext()
 {
-    using namespace Core;
-    // case 1 sidebar shown and has focus, we show whatever we have in the
-    // sidebar in big
-    RightPanePlaceHolder* placeHolder = RightPanePlaceHolder::current();
+    Core::RightPanePlaceHolder* placeHolder = Core::RightPanePlaceHolder::current();
     if (placeHolder && Core::RightPaneWidget::instance()->hasFocus()) {
         switchToHelpMode();
         return;
-    }
+    } else if (m_core->modeManager()->currentMode() == m_mode)
+        return;
 
-    bool useSideBar = false;
-    if (placeHolder && !Core::RightPaneWidget::instance()->hasFocus())
-        useSideBar = true;
+    QString id;
+    QMap<QString, QUrl> links;
 
     // Find out what to show
-    HelpViewer *viewer = 0;
-    if (IContext *context = m_core->currentContextObject()) {
+    if (Core::IContext *context = m_core->currentContextObject()) {
         if (!m_contextHelpEngine) {
-            m_contextHelpEngine = new QHelpEngineCore(m_helpEngine->collectionFile(), this);
-            //m_contextHelpEngine->setAutoSaveFilter(false);
+            m_contextHelpEngine =
+                new QHelpEngineCore(m_helpEngine->collectionFile(), this);
             m_contextHelpEngine->setupData();
             m_contextHelpEngine->setCurrentFilter(tr("Unfiltered"));
         }
 
-        const QString &id = context->contextHelpId();
-        QMap<QString, QUrl> links = m_contextHelpEngine->linksForIdentifier(id);
-        if (!links.isEmpty()) {
-            if (useSideBar) {
-                Core::RightPaneWidget::instance()->setShown(true);
-                viewer = m_helpViewerForSideBar;
-            } else {
-                viewer = m_centralWidget->currentHelpViewer();
-                m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
-            }
+        id = context->contextHelpId();
+        links = m_contextHelpEngine->linksForIdentifier(id);
+    }
 
-            if (viewer) {
-                QUrl source = *links.begin();
-                if (viewer->source() != source)
-                    viewer->setSource(source);
-                viewer->setFocus();
-            }
-        } else {
-            // No link found
-            if (useSideBar) {
-                Core::RightPaneWidget::instance()->setShown(true);
-                viewer = m_helpViewerForSideBar;
-            } else {
-                viewer = m_centralWidget->currentHelpViewer();
-                activateHelpMode();
-            }
-            
-            if (viewer) {
-                viewer->setHtml(tr("<html><head><title>No Documentation</title></head><body><br/>"
-                    "<center><b>%1</b><br/>No documentation available.</center></body></html>").
-                    arg(id));
-                viewer->setSource(QUrl());
-                //activateIndex();
-            }
-        }
+    HelpViewer *viewer = 0;
+    if (placeHolder && !Core::RightPaneWidget::instance()->hasFocus()) {
+        Core::RightPaneWidget::instance()->setShown(true);
+        viewer = m_helpViewerForSideBar;
     } else {
-        // No context object
-        if (useSideBar) {
-            Core::RightPaneWidget::instance()->setShown(true);
-            viewer = m_helpViewerForSideBar;
-        } else {
-            viewer = m_centralWidget->currentHelpViewer();
-            activateHelpMode();
-        }
+        viewer = m_centralWidget->currentHelpViewer();
+        activateHelpMode();
+    }
 
-        if (viewer) {
+    if (viewer) {
+        if (links.isEmpty()) {
+            // No link found or no context object
+            viewer->setHtml(tr("<html><head><title>No Documentation</title>"
+                "</head><body><br/><center><b>%1</b><br/>No documentation "
+                "available.</center></body></html>").arg(id));
             viewer->setSource(QUrl());
-            viewer->setHtml(tr("<html><head><title>No Documentation</title></head><body><br/><br/><center>No"
-                " documentation available.</center></body></html>"));
-            //activateIndex();
+        } else {
+            QUrl source = *links.begin();
+            if (viewer->source() != source)
+                viewer->setSource(source);
+            viewer->setFocus();
         }
     }
 }
