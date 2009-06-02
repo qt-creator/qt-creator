@@ -1107,7 +1107,7 @@ QString QtVersion::examplesPath() const
 bool QtVersion::isMSVC64Bit() const
 {
         const QString make = qmakeCommand();
-        qDebug() << make;
+//        qDebug() << make;
         bool isAmd64 = false;
 #ifdef Q_OS_WIN32
 #  ifdef __GNUC__   // MinGW lacking some definitions/winbase.h
