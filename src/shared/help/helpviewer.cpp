@@ -235,7 +235,7 @@ HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *paren
     , helpEngine(engine)
     , parentWidget(parent)
     , multiTabsAllowed(true)
-{    
+{
     setPage(new HelpPage(parent, helpEngine, this));
     settings()->setAttribute(QWebSettings::PluginsEnabled, false);
     settings()->setAttribute(QWebSettings::JavaEnabled, false);

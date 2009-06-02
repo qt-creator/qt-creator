@@ -113,8 +113,8 @@ CentralWidget::CentralWidget(QHelpEngine *engine, QWidget *parent)
     if (tabBar) {
         tabBar->installEventFilter(this);
         tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(tabBar, SIGNAL(customContextMenuRequested(const QPoint&)),
-                this, SLOT(showTabBarContextMenu(const QPoint&)));
+        connect(tabBar, SIGNAL(customContextMenuRequested(QPoint)), this,
+            SLOT(showTabBarContextMenu(QPoint)));
     }
 
     staticCentralWidget = this;
@@ -314,7 +314,8 @@ void CentralWidget::printPreview()
 #ifndef QT_NO_PRINTER
     initPrinter();
     QPrintPreviewDialog preview(printer, this);
-    connect(&preview, SIGNAL(paintRequested(QPrinter *)), SLOT(printPreview(QPrinter *)));
+    connect(&preview, SIGNAL(paintRequested(QPrinter*)),
+        SLOT(printPreview(QPrinter*)));
     preview.exec();
 #endif
 }
@@ -422,13 +423,18 @@ void CentralWidget::connectSignals()
 {
     const HelpViewer* viewer = currentHelpViewer();
     if (viewer) {
-        connect(viewer, SIGNAL(copyAvailable(bool)), this, SIGNAL(copyAvailable(bool)));
-        connect(viewer, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
-        connect(viewer, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
-        connect(viewer, SIGNAL(sourceChanged(const QUrl&)), this, SIGNAL(sourceChanged(const QUrl&)));
-        connect(viewer, SIGNAL(highlighted(const QString&)), this, SIGNAL(highlighted(const QString&)));
-
-        connect(viewer, SIGNAL(sourceChanged(const QUrl&)), this, SLOT(setTabTitle(const QUrl&)));
+        connect(viewer, SIGNAL(copyAvailable(bool)), this,
+            SIGNAL(copyAvailable(bool)));
+        connect(viewer, SIGNAL(forwardAvailable(bool)), this,
+            SIGNAL(forwardAvailable(bool)));
+        connect(viewer, SIGNAL(backwardAvailable(bool)), this,
+            SIGNAL(backwardAvailable(bool)));
+        connect(viewer, SIGNAL(sourceChanged(QUrl)), this,
+            SIGNAL(sourceChanged(QUrl)));
+        connect(viewer, SIGNAL(highlighted(QString)), this,
+            SIGNAL(highlighted(QString)));
+        connect(viewer, SIGNAL(sourceChanged(QUrl)), this,
+            SLOT(setTabTitle(QUrl)));
     }
 }
 

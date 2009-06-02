@@ -35,7 +35,7 @@
 #include <QtHelp/QHelpEngine>
 
 using namespace Help::Internal;
-    
+
 FilterSettingsPage::FilterSettingsPage(QHelpEngine *helpEngine) :
     m_helpEngine(helpEngine)
 {
@@ -67,18 +67,17 @@ QWidget *FilterSettingsPage::createPage(QWidget *parent)
     m_ui.setupUi(m_currentPage);
     m_ui.attributeWidget->header()->hide();
     m_ui.attributeWidget->setRootIsDecorated(false);
-    
+
     connect(m_ui.attributeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
         this, SLOT(updateFilterMap()));
     connect(m_ui.filterWidget,
-        SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
-        this, SLOT(updateAttributes(QListWidgetItem*)));
-    connect(m_ui.filterAddButton, SIGNAL(clicked()),
-        this, SLOT(addFilter()));
-    connect(m_ui.filterRemoveButton, SIGNAL(clicked()),
-        this, SLOT(removeFilter()));
+        SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this,
+        SLOT(updateAttributes(QListWidgetItem*)));
+    connect(m_ui.filterAddButton, SIGNAL(clicked()), this, SLOT(addFilter()));
+    connect(m_ui.filterRemoveButton, SIGNAL(clicked()), this,
+        SLOT(removeFilter()));
     updateFilterPage();
-            
+
     return m_currentPage;
 }
 
@@ -91,7 +90,7 @@ void FilterSettingsPage::updateFilterPage()
     m_ui.attributeWidget->clear();
 
     QHelpEngineCore help(m_helpEngine->collectionFile(), 0);
-    help.setupData();    
+    help.setupData();
     m_filterMapBackup.clear();
     const QStringList filters = help.customFilters();
     foreach (const QString filter, filters) {
@@ -105,7 +104,7 @@ void FilterSettingsPage::updateFilterPage()
 
     foreach (const QString a, help.filterAttributes())
         new QTreeWidgetItem(m_ui.attributeWidget, QStringList() << a);
-    
+
     if (m_filterMap.keys().count())
         m_ui.filterWidget->setCurrentRow(0);
 }
@@ -132,7 +131,7 @@ void FilterSettingsPage::updateFilterMap()
     QString filter = m_ui.filterWidget->currentItem()->text();
     if (!m_filterMap.contains(filter))
         return;
-    
+
     QStringList newAtts;
     QTreeWidgetItem *itm = 0;
     for (int i=0; i<m_ui.attributeWidget->topLevelItemCount(); ++i) {
@@ -140,7 +139,7 @@ void FilterSettingsPage::updateFilterMap()
         if (itm->checkState(0) == Qt::Checked)
             newAtts.append(itm->text(0));
     }
-    m_filterMap[filter] = newAtts;    
+    m_filterMap[filter] = newAtts;
 }
 
 void FilterSettingsPage::addFilter()
@@ -157,7 +156,7 @@ void FilterSettingsPage::addFilter()
 
     QList<QListWidgetItem*> lst = m_ui.filterWidget
         ->findItems(filterName, Qt::MatchCaseSensitive);
-    m_ui.filterWidget->setCurrentItem(lst.first());    
+    m_ui.filterWidget->setCurrentItem(lst.first());
 }
 
 void FilterSettingsPage::removeFilter()
@@ -175,7 +174,7 @@ void FilterSettingsPage::removeFilter()
 }
 
 void FilterSettingsPage::apply()
-{    
+{
     // This is handled via HelpPlugin::checkForHelpChanges, which is connected
     // to DocSettingsPage::apply.
 }

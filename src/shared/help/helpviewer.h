@@ -142,7 +142,7 @@ protected:
     void wheelEvent(QWheelEvent *e);
 
 private:
-    QVariant loadResource(int type, const QUrl &name);    
+    QVariant loadResource(int type, const QUrl &name);
     void openLinkInNewTab(const QString &link);
     bool hasAnchorAt(const QPoint& pos);
     void contextMenuEvent(QContextMenuEvent *e);
