@@ -582,6 +582,7 @@ CppModelManager::~CppModelManager()
 
 Snapshot CppModelManager::snapshot() const
 {
+    QMutexLocker locker(&protectSnapshot);
     return m_snapshot;
 }
 
@@ -795,7 +796,11 @@ void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
 void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 {
     const QString fileName = doc->fileName();
-    m_snapshot[fileName] = doc;
+
+    protectSnapshot.lock();
+    m_snapshot.insert(doc);
+    protectSnapshot.unlock();
+
     QList<Core::IEditor *> openedEditors = m_core->editorManager()->openedEditors();
     foreach (Core::IEditor *editor, openedEditors) {
         if (editor->file()->fileName() == fileName) {
@@ -1074,7 +1079,9 @@ void CppModelManager::parse(QFutureInterface<void> &future,
 
 void CppModelManager::GC()
 {
+    protectSnapshot.lock();
     Snapshot documents = m_snapshot;
+    protectSnapshot.unlock();
 
     QSet<QString> processed;
     QStringList todo = projectFiles();
@@ -1105,7 +1112,10 @@ void CppModelManager::GC()
     }
 
     emit aboutToRemoveFiles(removedFiles);
+
+    protectSnapshot.lock();
     m_snapshot = documents;
+    protectSnapshot.unlock();
 }
 
 

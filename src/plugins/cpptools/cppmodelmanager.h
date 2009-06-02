@@ -170,6 +170,7 @@ private:
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
 
     mutable QMutex mutex;
+    mutable QMutex protectSnapshot;
 
     struct Editor {
         QPointer<TextEditor::ITextEditor> textEditor;
