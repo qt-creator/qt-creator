@@ -36,6 +36,7 @@
 
 #include <QtCore/QDate>
 #include <QtCore/QFile>
+#include <QtCore/QSysInfo>
 
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QGridLayout>
@@ -62,26 +63,28 @@ VersionDialog::VersionDialog(QWidget *parent)
     QString version = QLatin1String(IDE_VERSION_LONG);
     version += QDate(2007, 25, 10).toString(Qt::SystemLocaleDate);
 
-    const QString description = tr(
-        "<h3>Qt Creator %1</h3>"
-        "Based on Qt %2<br/>"
-        "<br/>"
-        "Built on " __DATE__ " at " __TIME__ "<br />"
+    QString ideRev;
 #ifdef IDE_REVISION
-        "From revision %5<br/>"
+     //: This gets conditionally inserted as argument %8 into the description string.
+     ideRev = tr("From revision %1<br/>").arg(QString::fromLatin1(IDE_REVISION_STR).left(10));
 #endif
+
+     const QString description = tr(
+        "<h3>Qt Creator %1</h3>"
+        "Based on Qt %2 (%3 bit)<br/>"
         "<br/>"
+        "Built on %4 at %5<br />"
         "<br/>"
-        "Copyright 2008-%3 %4. All rights reserved.<br/>"
+        "%8"
+        "<br/>"
+        "Copyright 2008-%6 %7. All rights reserved.<br/>"
         "<br/>"
         "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
         "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
         "PARTICULAR PURPOSE.<br/>")
-        .arg(version, QLatin1String(QT_VERSION_STR), QLatin1String(IDE_YEAR), (QLatin1String(IDE_AUTHOR))
-#ifdef IDE_REVISION
-             , QString(IDE_REVISION_STR).left(10)
-#endif
-             );
+        .arg(version, QLatin1String(QT_VERSION_STR), QString::number(QSysInfo::WordSize), 
+             QLatin1String(__DATE__), QLatin1String(__TIME__), QLatin1String(IDE_YEAR), 
+             (QLatin1String(IDE_AUTHOR)), ideRev);
 
     QLabel *copyRightLabel = new QLabel(description);
     copyRightLabel->setWordWrap(true);
