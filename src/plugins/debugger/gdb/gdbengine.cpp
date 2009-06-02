@@ -2779,7 +2779,6 @@ static void setWatchDataEditValue(WatchData &data, const GdbMi &mi)
 static void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
         int encoding = 0)
 {
-    qDebug() << "TOOLTIP: " << mi.data().size() << "ENC:" << encoding;
     if (mi.isValid())
         data.setValueToolTip(decodeData(mi.data(), encoding));
 }
@@ -3207,6 +3206,9 @@ void GdbEngine::sendWatchParameters(const QByteArray &params0)
         encoded.append(buf);
     }
     encoded[encoded.size() - 1] = '}';
+
+    params.replace('\0','!');
+    emit gdbInputAvailable(QString(), QString::fromUtf8(params));
 
     postCommand(_(encoded));
 }
