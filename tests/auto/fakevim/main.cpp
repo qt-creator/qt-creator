@@ -326,7 +326,6 @@ void tst_FakeVim::command_i()
     check("ixxx" + escape, "xx@x" + lines);
     check("u", "@" + lines);
 
-
     // combine insertions
     check("i1" + escape, "@1" + lines);
     check("i2" + escape, "@21" + lines);
@@ -338,10 +337,10 @@ void tst_FakeVim::command_i()
     check("ibx" + escape, "b@xa" + lines);
     check("icyy" + escape, "bcy@yxa" + lines);
     check("u", "b@xa" + lines);
-    check("u", "@a" + lines);   // undo broken
-return; // FIXME
-    checkEx("redo", "b@xa" + lines);
-    check("u", "@a" + lines);
+    check("u", "@a" + lines); 
+// FIXME undo broken
+//    checkEx("redo", "b@xa" + lines);
+//    check("u", "@a" + lines);
     check("u", "@" + lines);
 }
 

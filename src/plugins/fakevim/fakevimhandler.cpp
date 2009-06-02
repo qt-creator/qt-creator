@@ -86,7 +86,7 @@
 
 //#define DEBUG_UNDO  1
 #if DEBUG_UNDO
-#   define UNDO_DEBUG(s) qDebug() << s
+#   define UNDO_DEBUG(s) qDebug() << << m_tc.document()->revision() << s
 #else
 #   define UNDO_DEBUG(s)
 #endif
@@ -171,26 +171,6 @@ enum MoveType
     MoveInclusive,
     MoveLineWise,
 };
-
-struct EditOperation
-{
-    EditOperation() : position(-1), itemCount(0) {}
-    int position;
-    int itemCount; // used to combine several operations
-    QString from;
-    QString to;
-};
-
-QDebug &operator<<(QDebug &ts, const EditOperation &op)
-{
-    if (op.itemCount > 0) {
-        ts << "\n  EDIT BLOCK WITH " << op.itemCount << " ITEMS";
-    } else {
-        ts << "\n  EDIT AT " << op.position
-           << "  FROM   " << op.from << "   TO    " << op.to;
-    }
-    return ts;
-}
 
 QDebug &operator<<(QDebug &ts, const QList<QTextEdit::ExtraSelection> &sels)
 {
@@ -307,6 +287,9 @@ public:
     QWidget *editor() const;
     QChar characterAtCursor() const
         { return m_tc.document()->characterAt(m_tc.position()); }
+    void beginEditBlock() { UNDO_DEBUG("BEGIN EDIT BLOCK"); m_tc.beginEditBlock(); }
+    void endEditBlock() { UNDO_DEBUG("END EDIT BLOCK"); m_tc.endEditBlock(); }
+    void joinPreviousEditBlock() { UNDO_DEBUG("JOIN EDIT BLOCK"); m_tc.joinPreviousEditBlock(); }
 
 public:
     QTextEdit *m_textedit;
@@ -515,12 +498,12 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     }
 
     m_undoCursorPosition[m_tc.document()->revision()] = m_tc.position();
-    if (m_mode == InsertMode)
-        m_tc.joinPreviousEditBlock();
-    else
-        m_tc.beginEditBlock();
+    //if (m_mode == InsertMode)
+    //    joinPreviousEditBlock();
+    //else
+    //    beginEditBlock();
     EventResult result = handleKey(key, um, ev->text());
-    m_tc.endEditBlock();
+    //endEditBlock();
 
     // We fake vi-style end-of-line behaviour
     m_fakeEnd = (atEndOfLine() && m_mode == CommandMode);
@@ -1908,7 +1891,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         if (flags.contains('i'))
             pattern.setCaseSensitivity(Qt::CaseInsensitive);
         const bool global = flags.contains('g');
-        m_tc.beginEditBlock();
+        beginEditBlock();
         for (int line = beginLine; line <= endLine; ++line) {
             const int start = firstPositionInLine(line);
             const int end = lastPositionInLine(line);
@@ -1934,7 +1917,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
                     break;
             }
         }
-        m_tc.endEditBlock();
+        endEditBlock();
         enterCommandMode();
     } else if (reSet.indexIn(cmd) != -1) { // :set
         showBlackMessage(QString());
@@ -2407,9 +2390,9 @@ QWidget *FakeVimHandler::Private::editor() const
 void FakeVimHandler::Private::undo()
 {
     int current = m_tc.document()->revision();
-    m_tc.endEditBlock();
+    //endEditBlock();
     EDITOR(undo());
-    m_tc.beginEditBlock();
+    //beginEditBlock();
     int rev = m_tc.document()->revision();
     if (current == rev)
         showBlackMessage(tr("Already at oldest change"));
@@ -2422,9 +2405,9 @@ void FakeVimHandler::Private::undo()
 void FakeVimHandler::Private::redo()
 {
     int current = m_tc.document()->revision();
-    m_tc.endEditBlock();
+    //endEditBlock();
     EDITOR(redo());
-    m_tc.beginEditBlock();
+    //beginEditBlock();
     int rev = m_tc.document()->revision();
     if (rev == current)
         showBlackMessage(tr("Already at newest change"));
@@ -2479,8 +2462,9 @@ void FakeVimHandler::Private::recordJump()
 
 void FakeVimHandler::Private::recordNewUndo()
 {
-    m_tc.endEditBlock();
-    m_tc.beginEditBlock();
+    //endEditBlock();
+    UNDO_DEBUG("---- BREAK ----");
+    //beginEditBlock();
 }
 
 void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown)
