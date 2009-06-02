@@ -11,9 +11,44 @@
    </rect>
   </property>
   <property name="styleSheet">
-   <string>#Core--Internal--WelcomePage {
+   <string notr="true">#Core--Internal--WelcomePage {
 background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
-}</string>
+}
+
+QToolButton, QPushButton, QComboBox {
+    border-image: url(:/core/images/welcomemode/btn_26.png) 4;
+    border-width: 4;
+    padding: 0px 6px;
+    font-size: 12px;
+    font-family: lucida sans, dejavu sans, sans serif;
+    color: black;
+}
+
+ QComboBox::down-arrow {
+     image: url(:/core/images/welcomemode/combobox_arrow.png);
+ }
+
+QComboBox:drop-down
+{
+     subcontrol-origin: padding;
+     subcontrol-position: top right;
+     border-left-style: none; 
+     border-top-right-radius: 1px;
+     border-bottom-right-radius: 1px;
+}
+
+QToolButton:hover, QPushButton:hover, QComboBox:hover {
+    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 4;
+}
+
+QToolButton:disabled, QPushButton:disabled {
+	color:gray;
+}
+
+QToolButton:pressed, QPushButton:pressed{
+    border-image: url(:/core/images/welcomemode/btn_26_pressed.png) 4;
+}
+</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <property name="spacing">
@@ -137,41 +172,58 @@ background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0
              <bold>false</bold>
             </font>
            </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
            <property name="autoFillBackground">
             <bool>false</bool>
            </property>
            <property name="styleSheet">
             <string notr="true">QToolButton {
+	border-image:none;
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0,
-	stop: 0 #777777,
-	stop: 0.4 #606060,
-	stop: 0.401 #575757,
-	stop: 1 #333333);
+	stop: 0 #838383,
+	stop: 0.4 #707070,
+	stop: 0.401 #636363,
+	stop: 1 #4a4a4a);
 	border: 0px solid black;
 	border-top: 1px solid black;
 	border-bottom: 1px solid black;
 	color: white;
+	height:20px;
 }
 
 QToolButton:hover {
+	border-image:none;
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0,
-	stop: 0 #808080,
-	stop: 0.4 #707070,
-	stop: 0.401 #606060,
-	stop: 1 #333333);
+	stop: 0 #909090,
+	stop: 0.4 #808080,
+	stop: 0.401 #707070,
+	stop: 1 #555555);
 }
 
-
 QToolButton:checked {
+	border-image:none;
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0,
 	stop: 0 #ffffff,
 	stop: 0.4 #eeeeee,
-	stop: 0.401 #dddddd,
-	stop: 1 #cccccc);
+	stop: 0.401 #e2e2e2,
+	stop: 1 #dddddd);
 	color: black;
 	border-top: 1px solid #606060;
 	border-bottom: 1px solid #404040;
 }
+
+QToolButton:pressed {
+	border-image:none;
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.0, y2: 1.0,
+	stop: 0 #383838,
+	stop: 0.2 #404040,
+	stop: 0.201 #484848,
+	stop: 1 #505050);
+}
+
+
 </string>
            </property>
            <property name="frameShape">
@@ -201,19 +253,17 @@ QToolButton:checked {
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>24</height>
+                <height>0</height>
                </size>
               </property>
               <property name="font">
                <font>
-                <weight>75</weight>
-                <bold>true</bold>
+                <family>lucida sans ,dejavu sans ,sans serif</family>
+                <pointsize>-1</pointsize>
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">QToolButton {
-	border-right: 1px solid #555555;
-}</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string>Getting Started</string>
@@ -240,13 +290,13 @@ QToolButton:checked {
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>24</height>
+                <height>0</height>
                </size>
               </property>
               <property name="font">
                <font>
-                <weight>75</weight>
-                <bold>true</bold>
+                <family>lucida sans ,dejavu sans ,sans serif</family>
+                <pointsize>-1</pointsize>
                </font>
               </property>
               <property name="text">
@@ -271,19 +321,17 @@ QToolButton:checked {
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>24</height>
+                <height>0</height>
                </size>
               </property>
               <property name="font">
                <font>
-                <weight>75</weight>
-                <bold>true</bold>
+                <family>lucida sans ,dejavu sans ,sans serif</family>
+                <pointsize>-1</pointsize>
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">QToolButton {
-	border-left: 1px solid #555555;
-}</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string>Community</string>
@@ -319,7 +367,16 @@ QToolButton:checked {
            </property>
            <widget class="QWidget" name="gettingStartedPage">
             <layout class="QGridLayout" name="gridLayout_9">
-             <property name="margin">
+             <property name="leftMargin">
+              <number>18</number>
+             </property>
+             <property name="topMargin">
+              <number>18</number>
+             </property>
+             <property name="rightMargin">
+              <number>12</number>
+             </property>
+             <property name="bottomMargin">
               <number>18</number>
              </property>
              <property name="spacing">
@@ -430,6 +487,9 @@ QToolButton:checked {
                 <string/>
                </property>
                <layout class="QGridLayout" name="gridLayout_8">
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
                 <item row="0" column="0" colspan="3">
                  <widget class="QLabel" name="demoTitleLabel">
                   <property name="alignment">
@@ -443,7 +503,7 @@ QToolButton:checked {
                    <bool>false</bool>
                   </property>
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -459,6 +519,12 @@ QToolButton:checked {
                  <widget class="QToolButton" name="openExampleButton">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
                   </property>
                   <property name="text">
                    <string>Open</string>
@@ -486,6 +552,9 @@ QToolButton:checked {
                 <string/>
                </property>
                <layout class="QGridLayout" name="gridLayout_11">
+                <property name="rightMargin">
+                 <number>6</number>
+                </property>
                 <item row="0" column="0">
                  <widget class="QLabel" name="didYouKnowTitleLabel">
                   <property name="sizePolicy">
@@ -496,6 +565,31 @@ QToolButton:checked {
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="2">
+                 <widget class="QTextBrowser" name="didYouKnowTextBrowser">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Plain</enum>
+                  </property>
+                  <property name="verticalScrollBarPolicy">
+                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                  </property>
+                  <property name="horizontalScrollBarPolicy">
+                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                  </property>
+                  <property name="openExternalLinks">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -522,21 +616,45 @@ QToolButton:checked {
                   </item>
                   <item row="1" column="0">
                    <widget class="QToolButton" name="prevTipBtn">
+                    <property name="styleSheet">
+                     <string notr="true">QToolButton{
+	border-right:solid 0 px;
+	height:16px;
+	width:12px;
+}
+</string>
+                    </property>
                     <property name="text">
-                     <string>&lt;</string>
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="core.qrc">
+                      <normaloff>:/core/images/welcomemode/arrow-left.png</normaloff>:/core/images/welcomemode/arrow-left.png</iconset>
                     </property>
                     <property name="arrowType">
-                     <enum>Qt::LeftArrow</enum>
+                     <enum>Qt::NoArrow</enum>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="1">
                    <widget class="QToolButton" name="nextTipBtn">
+                    <property name="styleSheet">
+                     <string notr="true">QToolButton{
+	border-left:solid 0 px;
+	height:16px;
+	width:12px;
+}
+</string>
+                    </property>
                     <property name="text">
-                     <string>&gt;</string>
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="core.qrc">
+                      <normaloff>:/core/images/welcomemode/arrow-right.png</normaloff>:/core/images/welcomemode/arrow-right.png</iconset>
                     </property>
                     <property name="arrowType">
-                     <enum>Qt::RightArrow</enum>
+                     <enum>Qt::NoArrow</enum>
                     </property>
                    </widget>
                   </item>
@@ -554,31 +672,6 @@ QToolButton:checked {
                    </spacer>
                   </item>
                  </layout>
-                </item>
-                <item row="1" column="0" colspan="2">
-                 <widget class="QTextBrowser" name="didYouKnowTextBrowser">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::NoFrame</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                  <property name="verticalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
-                  </property>
-                  <property name="horizontalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
-                  </property>
-                  <property name="openExternalLinks">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
                 </item>
                </layout>
               </widget>
@@ -611,6 +704,9 @@ QToolButton:checked {
                 <string/>
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
                 <item row="0" column="0" colspan="3">
                  <widget class="QLabel" name="recentSessionsTitleLabel">
                   <property name="sizePolicy">
@@ -677,63 +773,25 @@ QToolButton:checked {
                   </column>
                  </widget>
                 </item>
-                <item row="2" column="0" colspan="2">
-                 <widget class="Core::Internal::WelcomeModeButton" name="manageSessionsButton">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="styleSheet">
-                   <string>* {
-    border-image: url(:/core/images/welcomemode/btn_26.png) 7;
-    border-width: 7;
-    padding: -2px 0;
-    font-size: 12px;
-    font-family: lucida sans, dejavu sans, sans serif;
-    color: black;
-}
-
-*:hover {
-    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 7;
-    color: white;
-}
-</string>
+                <item row="3" column="0">
+                 <widget class="QPushButton" name="manageSessionsButton">
+                  <property name="focusPolicy">
+                   <enum>Qt::TabFocus</enum>
                   </property>
                   <property name="text">
                    <string>Manage Sessions...</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="2">
-                 <spacer name="horizontalSpacer_3">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeType">
-                   <enum>QSizePolicy::Expanding</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>89</width>
-                    <height>22</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="3" column="1">
+                <item row="4" column="0">
                  <spacer name="verticalSpacer">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
-                  <property name="sizeType">
-                   <enum>QSizePolicy::Expanding</enum>
-                  </property>
                   <property name="sizeHint" stdset="0">
                    <size>
                     <width>20</width>
-                    <height>53</height>
+                    <height>40</height>
                    </size>
                   </property>
                  </spacer>
@@ -741,12 +799,18 @@ QToolButton:checked {
                </layout>
               </widget>
              </item>
-             <item row="0" column="1">
+             <item row="0" column="2">
               <widget class="QFrame" name="recentProjectsFrame">
                <property name="styleSheet">
                 <string/>
                </property>
                <layout class="QGridLayout" name="gridLayout_5">
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="spacing">
+                 <number>0</number>
+                </property>
                 <item row="0" column="0" colspan="3">
                  <widget class="QLabel" name="projTitleLabel">
                   <property name="sizePolicy">
@@ -813,55 +877,20 @@ QToolButton:checked {
                   </column>
                  </widget>
                 </item>
-                <item row="2" column="0" colspan="2">
-                 <widget class="Core::Internal::WelcomeModeButton" name="createNewProjectButton">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="styleSheet">
-                   <string>* {
-    border-image: url(:/core/images/welcomemode/btn_26.png) 7;
-    border-width: 7;
-    padding: -2px 0;
-    font-size: 12px;
-    font-family: lucida sans, dejavu sans, sans serif;
-    color: black;
-}
-
-*:hover {
-    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 7;
-    color: white;
-}
-</string>
+                <item row="3" column="0">
+                 <widget class="QPushButton" name="createNewProjectButton">
+                  <property name="focusPolicy">
+                   <enum>Qt::TabFocus</enum>
                   </property>
                   <property name="text">
                    <string>Create New Project...</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="2">
-                 <spacer name="horizontalSpacer">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>157</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="3" column="1">
+                <item row="4" column="0">
                  <spacer name="verticalSpacer_2">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeType">
-                   <enum>QSizePolicy::Expanding</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -1053,10 +1082,10 @@ QToolButton:checked {
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
            <property name="rightMargin">
-            <number>15</number>
+            <number>17</number>
            </property>
            <property name="bottomMargin">
-            <number>15</number>
+            <number>17</number>
            </property>
            <item>
             <spacer name="horizontalSpacer_5">
@@ -1095,24 +1124,19 @@ QToolButton:checked {
             </spacer>
            </item>
            <item>
-            <widget class="Core::Internal::WelcomeModeButton" name="feedbackButton">
+            <widget class="QPushButton" name="feedbackButton">
+             <property name="focusPolicy">
+              <enum>Qt::TabFocus</enum>
+             </property>
              <property name="styleSheet">
-              <string>* {
-    border-image: url(:/core/images/welcomemode/btn_26.png) 7;
-    border-width: 7;
-    padding: -2px 2px;
-    font-size: 12px;
-    font-family: lucida sans, dejavu sans, sans serif;
-}
-
-*:hover {
-    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 7;
-    color: white;
-}
-</string>
+              <string notr="true">height:19px;</string>
              </property>
              <property name="text">
-              <string>&lt;qt&gt;Feedback&amp;nbsp;&amp;nbsp;&lt;img src=&quot;:/core/images/welcomemode/feedback_arrow.png&quot; /&gt;</string>
+              <string>Feedback</string>
+             </property>
+             <property name="icon">
+              <iconset resource="core.qrc">
+               <normaloff>:/core/images/welcomemode/feedback_arrow.png</normaloff>:/core/images/welcomemode/feedback_arrow.png</iconset>
              </property>
             </widget>
            </item>
@@ -1166,16 +1190,13 @@ QToolButton:checked {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Internal::WelcomeModeButton</class>
-   <extends>QLabel</extends>
-   <header>welcomemode_p.h</header>
-  </customwidget>
-  <customwidget>
    <class>Core::Internal::WelcomeModeTreeWidget</class>
    <extends>QTreeWidget</extends>
    <header>welcomemode_p.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="core.qrc"/>
+ </resources>
  <connections/>
 </ui>
