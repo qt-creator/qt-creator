@@ -206,6 +206,7 @@ WelcomeMode::~WelcomeMode()
 {
     QSettings *settings = ICore::instance()->settings();
     settings->setValue("General/WelcomeTab", m_d->btnGrp->checkedId());
+    delete m_d->m_widget;
     delete m_d;
 }
 

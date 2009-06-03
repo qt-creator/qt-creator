@@ -418,6 +418,7 @@ void DebuggerPlugin::shutdown()
         m_manager->shutdown();
 
     writeSettings();
+    delete DebuggerSettings::instance();
 
     //qDebug() << "DebuggerPlugin::~DebuggerPlugin";
     removeObject(m_debugMode);
