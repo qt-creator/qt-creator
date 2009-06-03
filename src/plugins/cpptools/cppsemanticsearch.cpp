@@ -33,8 +33,6 @@
 #include <AST.h>
 #include <TranslationUnit.h>
 
-#include <cplusplus/FastPreprocessor.h>
-
 #include <QtCore/QDir>
 #include <QtCore/QPointer>
 #include <QtCore/QtConcurrentRun>
@@ -175,12 +173,8 @@ static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult
             continue;
 
         const QString contents = QTextStream(&file).readAll(); // ### FIXME
-
-        FastPreprocessor r(snapshot);
-        const QByteArray source = r.run(fileName, contents.toUtf8());
-
-        Document::Ptr newDoc = Document::create(fileName);
-        newDoc->setSource(source);
+        const QByteArray source = snapshot.preprocessedCode(contents.toUtf8(), fileName);
+        Document::Ptr newDoc = snapshot.documentFromSource(source, fileName);
         newDoc->parse();
 
         if (SemanticSearch *search = factory->create(future, newDoc, snapshot)) {
