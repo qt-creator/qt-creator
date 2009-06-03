@@ -28,7 +28,8 @@
 **************************************************************************/
 
 #include "CppDocument.h"
-#include "pp.h"
+#include "CppBindings.h"
+#include "FastPreprocessor.h"
 
 #include <Control.h>
 #include <TranslationUnit.h>
@@ -345,3 +346,31 @@ void Snapshot::insert(Document::Ptr doc)
         insert(doc->fileName(), doc);
 }
 
+QByteArray Snapshot::preprocessedCode(const QByteArray &source, const QString &fileName) const
+{
+    FastPreprocessor pp(*this);
+    return pp.run(fileName, source);
+}
+
+Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
+                                           const QString &fileName) const
+{
+    if (Document::Ptr thisDocument = value(fileName)) {
+        FastPreprocessor pp(*this);
+        Document::Ptr newDoc = Document::create(fileName);
+
+        newDoc->_includes = thisDocument->_includes;
+        newDoc->_definedMacros = thisDocument->_definedMacros;
+
+        newDoc->setSource(preprocessedCode);
+        newDoc->parse();
+        return newDoc;
+    }
+
+    return Document::Ptr();
+}
+
+QSharedPointer<NamespaceBinding> Snapshot::globalNamespaceBinding(Document::Ptr doc) const
+{
+    return CPlusPlus::bind(doc, *this);
+}

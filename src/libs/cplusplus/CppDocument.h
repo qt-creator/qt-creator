@@ -45,6 +45,7 @@ namespace CPlusPlus {
 
 class Macro;
 class MacroArgumentReference;
+class NamespaceBinding;
 
 class CPLUSPLUS_EXPORT Document
 {
@@ -257,6 +258,8 @@ private:
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;
     QByteArray _source;
+
+    friend class Snapshot;
 };
 
 class CPLUSPLUS_EXPORT Snapshot: public QMap<QString, Document::Ptr>
@@ -266,6 +269,14 @@ class CPLUSPLUS_EXPORT Snapshot: public QMap<QString, Document::Ptr>
 public:
     Snapshot();
     ~Snapshot();
+
+    QByteArray preprocessedCode(const QByteArray &source,
+                                const QString &fileName) const;
+
+    Document::Ptr documentFromSource(const QByteArray &preprocessedCode,
+                                     const QString &fileName) const;
+
+    QSharedPointer<NamespaceBinding> globalNamespaceBinding(Document::Ptr doc) const;
 
     void insert(Document::Ptr doc);
 
