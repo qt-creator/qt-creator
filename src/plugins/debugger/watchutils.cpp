@@ -658,6 +658,7 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
     if (s.startsWith(QLatin1String("std::")))
         return stdType(s.mid(5));
     // Strip namespace
+    // FIXME: that's not a good idea as it makes all namespaces equal.
     const int namespaceIndex = s.lastIndexOf(QLatin1String("::"));
     if (namespaceIndex == -1) {
         // None ... check for std..
@@ -665,7 +666,7 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
         if (sType != UnknownType)
             return sType;
     } else {
-        s.remove(namespaceIndex + 2);
+        s = s.mid(namespaceIndex + 2);
     }
     if (s == QLatin1String("QObject"))
         return QObjectType;
@@ -677,6 +678,8 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
         return QObjectSignalType;
     if (s == QLatin1String("QVector"))
         return QVectorType;
+    if (s == QLatin1String("QAbstractItem"))
+        return QAbstractItemType;
     if (s == QLatin1String("QMap"))
         return QMapType;
     if (s == QLatin1String("QMultiMap"))
@@ -689,6 +692,7 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
 bool QtDumperHelper::needsExpressionSyntax(Type t)
 {
     switch (t) {
+        case QAbstractItemType:
         case QObjectSlotType:
         case QObjectSignalType:
         case QMapType:
@@ -1058,6 +1062,7 @@ void QtDumperHelper::addSize(const QString &name, int size)
             break;
         }
         if (name == QLatin1String("std::wstring")) {
+            // FIXME: check space between > > below?
             m_sizeCache.insert(QLatin1String("std::basic_string<unsigned short,std::char_traits<unsignedshort>,std::allocator<unsignedshort> >"), size);
             break;
         }
@@ -1078,7 +1083,7 @@ QtDumperHelper::TypeData QtDumperHelper::typeData(const QString &typeName) const
     const Type st = simpleType(typeName);
     if (st != UnknownType) {
         td.isTemplate = false;
-        td.type =st;
+        td.type = st;
         return td;
     }
     // Try template
@@ -1129,6 +1134,8 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     if (outertype == m_qtNamespace + QLatin1String("QWidget"))
         outertype = m_qtNamespace + QLatin1String("QObject");
 
+    QString inner = td.inner;
+
     extraArgs.clear();
 
     if (!inners.empty()) {
@@ -1147,6 +1154,9 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
 
     // in rare cases we need more or less:
     switch (td.type) {
+    case QAbstractItemType:
+        inner = data.addr.mid(1);
+        break;
     case QObjectType:
     case QWidgetType:
         if (debugger == GdbDebugger) {
@@ -1258,9 +1268,7 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     inBuffer->append('\0');
     inBuffer->append(data.exp.toUtf8());
     inBuffer->append('\0');
-    inBuffer->append(td.inner.toUtf8());
-    inBuffer->append('\0');
-    inBuffer->append(data.iname.toUtf8());
+    inBuffer->append(inner.toUtf8());
     inBuffer->append('\0');
 
     if (debug)

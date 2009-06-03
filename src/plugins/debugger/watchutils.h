@@ -145,6 +145,7 @@ public:
         UnknownType,
         SupportedType, // A type that requires no special handling by the dumper
         // Below types require special handling
+        QAbstractItemType,
         QObjectType, QWidgetType, QObjectSlotType, QObjectSignalType,
         QVectorType, QMapType, QMultiMapType, QMapNodeType,
         StdVectorType, StdDequeType, StdSetType, StdMapType, StdStackType,

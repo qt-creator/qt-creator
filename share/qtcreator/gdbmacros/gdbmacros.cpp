@@ -851,6 +851,102 @@ static void qDumpInnerValueOrPointer(QDumper &d,
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct ModelIndex { int r; int c; void *p; void *m; };
+
+static void qDumpQAbstractItem(QDumper &d)
+{
+    ModelIndex mm;
+    mm.r = mm.c = 0;
+    mm.p = mm.m = 0;
+    sscanf(d.templateParameters[0], "%d,%d,%p,%p", &mm.r, &mm.c, &mm.p, &mm.m);
+    const QModelIndex &mi(*reinterpret_cast<QModelIndex *>(&mm));
+    const QAbstractItemModel *m = mi.model();
+    const int rowCount = m->rowCount(mi);
+    if (rowCount < 0)
+        return;
+    const int columnCount = m->columnCount(mi);
+    if (columnCount < 0)
+        return;
+    P(d, "type", NS"QAbstractItem");
+    P(d, "addr", "$" << mm.r << "," << mm.c << "," << mm.p << "," << mm.m);
+    //P(d, "value", "(" << rowCount << "," << columnCount << ")");
+    P(d, "value", m->data(mi, Qt::DisplayRole).toString());
+    P(d, "valueencoded", "2");
+    P(d, "numchild", "1");
+    if (d.dumpChildren) {
+        d << ",children=[";
+        for (int row = 0; row < rowCount; ++row) {
+            for (int column = 0; column < columnCount; ++column) {
+                QModelIndex child = m->index(row, column, mi);
+                d.beginHash();
+                P(d, "name", "[" << row << "," << column << "]");
+                //P(d, "numchild", (m->hasChildren(child) ? "1" : "0"));
+                P(d, "numchild", "1");
+                P(d, "addr", "$" << child.row() << "," << child.column() << ","
+                    << child.internalPointer() << "," << child.model());
+                P(d, "type", NS"QAbstractItem");
+                P(d, "value", m->data(mi, Qt::DisplayRole).toString());
+                P(d, "valueencoded", "2");
+                d.endHash();
+            }
+        }
+        d.beginHash();
+        P(d, "name", "DisplayRole");
+        P(d, "numchild", 0); 
+        P(d, "value", m->data(mi, Qt::DisplayRole).toString());
+        P(d, "valueencoded", 2);
+        P(d, "type", NS"QString");
+        d.endHash();
+        d << "]";
+    }
+    d.disarm();
+}
+
+static void qDumpQAbstractItemModel(QDumper &d)
+{
+    const QAbstractItemModel &m = *reinterpret_cast<const QAbstractItemModel *>(d.data);
+
+    const int rowCount = m.rowCount();
+    if (rowCount < 0)
+        return;
+    const int columnCount = m.columnCount();
+    if (columnCount < 0)
+        return;
+
+    P(d, "type", NS"QAbstractItemModel");
+    P(d, "value", "(" << rowCount << "," << columnCount << ")");
+    P(d, "numchild", "1");
+    if (d.dumpChildren) {
+        d << ",children=[";
+        d.beginHash();
+            P(d, "numchild", "1");
+            P(d, "name", NS"QObject");
+            P(d, "addr", d.data);
+            P(d, "value", m.objectName());
+            P(d, "valueencoded", "2");
+            P(d, "type", NS"QObject");
+            P(d, "displayedtype", m.metaObject()->className());
+        d.endHash();
+        for (int row = 0; row < rowCount; ++row) {
+            for (int column = 0; column < columnCount; ++column) {
+                QModelIndex mi = m.index(row, column);
+                d.beginHash();
+                P(d, "name", "[" << row << "," << column << "]");
+                P(d, "value", m.data(mi, Qt::DisplayRole).toString());
+                P(d, "valueencoded", "2");
+                //P(d, "numchild", (m.hasChildren(mi) ? "1" : "0"));
+                P(d, "numchild", "1");
+                P(d, "addr", "$" << mi.row() << "," << mi.column() << ","
+                    << mi.internalPointer() << "," << mi.model());
+                P(d, "type", NS"QAbstractItem");
+                d.endHash();
+            }
+        }
+        d << "]";
+    }
+    d.disarm();
+}
+
 static void qDumpQByteArray(QDumper &d)
 {
     const QByteArray &ba = *reinterpret_cast<const QByteArray *>(d.data);
@@ -1210,7 +1306,7 @@ static void qDumpQImage(QDumper &d)
     if (d.dumpChildren) {
         d << ",children=[";
         d.beginHash();
-            P(d, "name", "key");
+            P(d, "name", "data");
             P(d, "type", NS "QImageData");
             P(d, "addr", d.data);
         d.endHash();
@@ -2533,7 +2629,8 @@ static void handleProtocolVersion2and3(QDumper & d)
 
     d.setupTemplateParameters();
     P(d, "iname", d.iname);
-    P(d, "addr", d.data);
+    if (d.data)
+        P(d, "addr", d.data);
 
 #ifdef QT_NO_QDATASTREAM
     if (d.protocolVersion == 3) {
@@ -2554,6 +2651,12 @@ static void handleProtocolVersion2and3(QDumper & d)
         case 'a':
             if (isEqual(type, "map"))
                 qDumpStdMap(d);
+            break;
+        case 'A':
+            if (isEqual(type, "QAbstractItemModel"))
+                qDumpQAbstractItemModel(d);
+            else if (isEqual(type, "QAbstractItem"))
+                qDumpQAbstractItem(d);
             break;
         case 'B':
             if (isEqual(type, "QByteArray"))
@@ -2715,6 +2818,8 @@ void *qDumpObjectData440(
         // They are mentioned here nevertheless. For types that are not listed
         // here, dumpers won't be used.
         d << "dumpers=["
+            "\""NS"QAbstractItem\","
+            "\""NS"QAbstractItemModel\","
             "\""NS"QByteArray\","
             "\""NS"QDateTime\","
             "\""NS"QDir\","
@@ -2810,7 +2915,6 @@ void *qDumpObjectData440(
         d.iname     = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
         d.exp       = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
         d.innertype = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
-        d.iname     = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
 
         handleProtocolVersion2and3(d);
     }

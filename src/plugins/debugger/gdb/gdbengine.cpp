@@ -2813,7 +2813,7 @@ static void setWatchDataAddress(WatchData &data, const GdbMi &mi)
 {
     if (mi.isValid()) {
         data.addr = _(mi.data());
-        if (data.exp.isEmpty())
+        if (data.exp.isEmpty() && !data.addr.startsWith(_("$")))
             data.exp = _("(*(") + gdbQuoteTypes(data.type) + _("*)") + data.addr + _c(')');
     }
 }
@@ -2885,7 +2885,6 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
         return;
     }
     WatchData data = data0;
-    QTC_ASSERT(!data.exp.isEmpty(), return);
 
     QByteArray params;
     QStringList extraArgs;
@@ -2900,6 +2899,8 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     QString addr;
     if (data.addr.startsWith(__("0x")))
         addr = _("(void*)") + data.addr;
+    else if (data.exp.isEmpty()) // happens e.g. for QAbstractItem
+        addr = _("0");
     else
         addr = _("&(") + data.exp + _c(')');
 

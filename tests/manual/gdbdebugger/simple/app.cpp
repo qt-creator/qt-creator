@@ -48,6 +48,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPainter>
 #include <QtGui/QPainterPath>
+#include <QtGui/QStandardItemModel>
 
 #include <QtNetwork/QHostAddress>
 
@@ -787,6 +788,21 @@ void testStdVector()
     vec.push_back(false);
 }
 
+void testQStandardItemModel()
+{
+    QStandardItemModel m;
+    QStandardItem *i1, *i2, *i11;
+    m.appendRow(QList<QStandardItem *>()
+         << (i1 = new QStandardItem("1")) << (new QStandardItem("a")));
+    m.appendRow(QList<QStandardItem *>()
+         << (i2 = new QStandardItem("2")) << (new QStandardItem("b")));
+    i1->appendRow(QList<QStandardItem *>()
+         << (i11 = new QStandardItem("11")) << (new QStandardItem("aa")));
+    int i = 1;
+    ++i;
+    ++i;
+}
+
 void testQString()
 {
     QString str = "Hello ";
@@ -1090,6 +1106,7 @@ int main(int argc, char *argv[])
     QStringList list;
     list << "aaa" << "bbb" << "cc";
 
+    testQStandardItemModel();
     testQImage();
     testNoArgumentName(1, 2, 3);
     testIO();
