@@ -2257,13 +2257,17 @@ static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool e
 {
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing, false);
-    QColor c = pal.highlight().color();
-    c.setAlpha(40);
+
+    QRgb b = pal.base().color().rgb();
+    QRgb h = pal.highlight().color().rgb();
+    QColor c = QColor((qRed(b)*2+qRed(h))/3,
+                      (qGreen(b)*2+qGreen(h))/3,
+                      (qBlue(b)*2+qBlue(h))/3);
+
     QLinearGradient grad(rect.topLeft(), rect.topRight());
-    grad.setColorAt(0, c.darker(130));
+    grad.setColorAt(0, c.lighter(110));
     grad.setColorAt(1, c.lighter(160));
-    QColor outline = c.darker(110);
-    outline.setAlpha(100);
+    QColor outline = c;
     QRect r = rect;
 
     painter->fillRect(rect, grad);
