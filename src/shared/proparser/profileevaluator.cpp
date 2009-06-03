@@ -893,7 +893,7 @@ void ProFileEvaluator::Private::visitProValue(ProValue *value)
             {
                 // DEFINES ~= s/a/b/?[gqi]
 
-                // FIXME: qmake variable-expands val first.
+                doVariableReplace(&val);
                 if (val.length() < 4 || val[0] != QLatin1Char('s')) {
                     q->logMessage(format("the ~= operator can handle only the s/// function."));
                     break;
