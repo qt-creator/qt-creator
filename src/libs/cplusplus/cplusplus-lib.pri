@@ -26,6 +26,7 @@ HEADERS += \
     $$PWD/TypePrettyPrinter.h \
     $$PWD/ResolveExpression.h \
     $$PWD/LookupContext.h \
+    $$PWD/CppBindings.h \
     $$PWD/PreprocessorClient.h \
     $$PWD/PreprocessorEnvironment.h \
     $$PWD/Macro.h \
@@ -44,6 +45,7 @@ SOURCES += \
     $$PWD/TypePrettyPrinter.cpp \
     $$PWD/ResolveExpression.cpp \
     $$PWD/LookupContext.cpp \
+    $$PWD/CppBindings.cpp \
     $$PWD/PreprocessorClient.cpp \
     $$PWD/PreprocessorEnvironment.cpp \
     $$PWD/Macro.cpp \
