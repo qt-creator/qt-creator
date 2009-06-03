@@ -55,6 +55,7 @@
 #include "MemoryPool.h"
 #include "SymbolVisitor.h"
 #include "NameVisitor.h"
+#include "Scope.h"
 #include <cstddef>
 #include <cassert>
 
@@ -311,6 +312,61 @@ void Symbol::setScope(Scope *scope)
 {
     assert(! _scope);
     _scope = scope;
+}
+
+Scope *Symbol::enclosingNamespaceScope() const
+{
+    if (! _scope)
+        return 0;
+
+    else if (_scope->isNamespaceScope())
+        return _scope;
+
+    return _scope->enclosingNamespaceScope();
+}
+
+Scope *Symbol::enclosingClassScope() const
+{
+    if (! _scope)
+        return 0;
+
+    else if (_scope->isNamespaceScope())
+        return _scope;
+
+    return _scope->enclosingNamespaceScope();
+}
+
+Scope *Symbol::enclosingEnumScope() const
+{
+    if (! _scope)
+        return 0;
+
+    else if (_scope->isEnumScope())
+        return _scope;
+
+    return _scope->enclosingEnumScope();
+}
+
+Scope *Symbol::enclosingFunctionScope() const
+{
+    if (! _scope)
+        return 0;
+
+    else if (_scope->isFunctionScope())
+        return _scope;
+
+    return _scope->enclosingFunctionScope();
+}
+
+Scope *Symbol::enclosingBlockScope() const
+{
+    if (! _scope)
+        return 0;
+
+    else if (_scope->isBlockScope())
+        return _scope;
+
+    return _scope->enclosingBlockScope();
 }
 
 unsigned Symbol::index() const

@@ -248,6 +248,21 @@ public:
 
     bool isGenerated() const;
 
+    /// Returns the eclosing namespace scope.
+    Scope *enclosingNamespaceScope() const;
+
+    /// Returns the enclosing class scope.
+    Scope *enclosingClassScope() const;
+
+    /// Returns the enclosing enum scope.
+    Scope *enclosingEnumScope() const;
+
+    /// Returns the enclosing function scope.
+    Scope *enclosingFunctionScope() const;
+
+    /// Returns the enclosing Block scope.
+    Scope *enclosingBlockScope() const;
+
     void setScope(Scope *scope); // ### make me private
     void setSourceLocation(unsigned sourceLocation); // ### make me private
 
