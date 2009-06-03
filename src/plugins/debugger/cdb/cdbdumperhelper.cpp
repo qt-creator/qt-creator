@@ -384,7 +384,7 @@ static inline bool getSymbolAddress(CIDebugSymbols *sg,
                                     QString *errorMessage)
 {
     // Get address
-    HRESULT hr = sg->GetOffsetByNameWide(name.utf16(), address);
+    HRESULT hr = sg->GetOffsetByNameWide(reinterpret_cast<PCWSTR>(name.utf16()), address);
     if (FAILED(hr)) {
         *errorMessage = msgComFailed("GetOffsetByNameWide", hr);
         return false;

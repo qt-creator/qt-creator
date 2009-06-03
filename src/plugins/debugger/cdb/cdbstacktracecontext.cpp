@@ -102,7 +102,7 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
         frame.address = QString::fromLatin1("0x%1").arg(instructionOffset, 0, 16);
 
         m_cif->debugSymbols->GetNameByOffsetWide(instructionOffset, wszBuf, MAX_PATH, 0, 0);
-        frame.function = QString::fromUtf16(wszBuf);
+        frame.function = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
 
         ULONG ulLine;
         ULONG64 ul64Displacement;
@@ -111,7 +111,7 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
             frame.line = ulLine;
             // Vitally important  to use canonical file that matches editormanager,
             // else the marker will not show.
-            frame.file = CDBBreakPoint::canonicalSourceFile(QString::fromUtf16(wszBuf));
+            frame.file = CDBBreakPoint::canonicalSourceFile(QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf)));
         }
         m_frames.push_back(frame);
     }
