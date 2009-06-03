@@ -1306,7 +1306,7 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
 
     if (m_valuemapStack.count() >= 100) {
         q->errorMessage(format("ran into infinite recursion (depth > 100)."));
-        ok = false;
+        oki = false;
     } else {
         State sts = m_sts;
         m_valuemapStack.push(m_valuemap);
