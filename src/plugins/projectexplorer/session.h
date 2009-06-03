@@ -180,8 +180,6 @@ private:
     QStringList dependenciesOrder() const;
     Project *defaultStartupProject() const;
 
-    QList<Project *> requestCloseOfAllFiles(bool *cancelled);
-
     void updateName(const QString &session);
 
     Core::ICore *m_core;
