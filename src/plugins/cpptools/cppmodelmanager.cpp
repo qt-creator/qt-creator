@@ -299,7 +299,7 @@ protected:
 
     virtual bool visit(UsingDirectiveAST *ast)
     {
-        if (ast->name && ast->name->name && _globalNamespaceBinding) {
+        if (ast->symbol && _globalNamespaceBinding) {
             const Location loc = Location(ast->symbol);
 
             NamespaceBinding *binding = _globalNamespaceBinding.data();
@@ -307,7 +307,7 @@ protected:
             if (Scope *enclosingNamespaceScope = ast->symbol->enclosingNamespaceScope())
                 binding = NamespaceBinding::find(enclosingNamespaceScope->owner()->asNamespace(), binding);
 
-            if (! binding || ! binding->resolveNamespace(loc, ast->name->name)) {
+            if (! binding || ! binding->resolveNamespace(loc, ast->symbol->name())) {
                 translationUnit()->warning(ast->name->firstToken(),
                                            "expected a namespace after `=' token");
             }
