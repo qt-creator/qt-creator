@@ -76,7 +76,6 @@ private:
     bool eventFilter(QObject *obj, QEvent *event);
 
     void showEvent(QShowEvent *e);
-    void focusInEvent(QFocusEvent *e);
 
     bool isShowingTypeHereMessage() const;
     void showCompletionList();

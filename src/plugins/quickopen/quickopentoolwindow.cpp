@@ -345,6 +345,8 @@ bool QuickOpenToolWindow::eventFilter(QObject *obj, QEvent *event)
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
         m_completionList->hide();
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
+        if (static_cast<QFocusEvent*>(event)->reason() != Qt::MouseFocusReason)
+            m_fileLineEdit->selectAll();
         updateCompletionList(m_fileLineEdit->typedText());
         showCompletionList();
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
@@ -468,15 +470,6 @@ void QuickOpenToolWindow::filterSelected()
          searchText.length());
     updateCompletionList(m_fileLineEdit->text());
     m_fileLineEdit->setFocus();
-}
-
-void QuickOpenToolWindow::focusInEvent(QFocusEvent *e)
-{
-    m_fileLineEdit->setFocus(e->reason());
-    if (e->reason() != Qt::MouseFocusReason) {
-        m_fileLineEdit->selectAll();
-    }
-    QWidget::focusInEvent(e);
 }
 
 void QuickOpenToolWindow::showEvent(QShowEvent *event)
