@@ -30,6 +30,7 @@ HEADERS += \
     $$PWD/PreprocessorClient.h \
     $$PWD/PreprocessorEnvironment.h \
     $$PWD/Macro.h \
+    $$PWD/FastPreprocessor.h \
     $$PWD/pp.h \
     $$PWD/pp-cctype.h \
     $$PWD/pp-engine.h \
@@ -48,6 +49,7 @@ SOURCES += \
     $$PWD/CppBindings.cpp \
     $$PWD/PreprocessorClient.cpp \
     $$PWD/PreprocessorEnvironment.cpp \
+    $$PWD/FastPreprocessor.cpp \
     $$PWD/Macro.cpp \
     $$PWD/pp-engine.cpp \
     $$PWD/pp-macro-expander.cpp \

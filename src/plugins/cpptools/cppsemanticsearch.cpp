@@ -33,8 +33,7 @@
 #include <AST.h>
 #include <TranslationUnit.h>
 
-#include <cplusplus/PreprocessorClient.h>
-#include <cplusplus/pp.h>
+#include <cplusplus/FastPreprocessor.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QPointer>
@@ -46,57 +45,6 @@ using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
 namespace {
-
-class SimpleClient: public Client
-{
-    Environment _env;
-    QPointer<CppModelManager> _modelManager;
-    Snapshot _snapshot;
-    Preprocessor _preproc;
-    QSet<QString> _merged;
-
-public:
-    SimpleClient(QPointer<CppModelManager> modelManager)
-        : _modelManager(modelManager),
-          _snapshot(_modelManager->snapshot()),
-          _preproc(this, &_env)
-    { }
-
-    QByteArray run(QString fileName, const QByteArray &source)
-    {
-        const QByteArray preprocessed = _preproc(fileName, source);
-        return preprocessed;
-    }
-
-    virtual void sourceNeeded(QString &fileName, IncludeType, unsigned)
-    { mergeEnvironment(fileName); }
-
-    virtual void macroAdded(const Macro &) {}
-
-    virtual void startExpandingMacro(unsigned,
-                                     const Macro &,
-                                     const QByteArray &,
-                                     const QVector<MacroArgumentReference> &) {}
-
-    virtual void stopExpandingMacro(unsigned, const Macro &) {}
-
-    virtual void startSkippingBlocks(unsigned) {}
-    virtual void stopSkippingBlocks(unsigned) {}
-
-    void mergeEnvironment(const QString &fileName)
-    {
-        if (! _merged.contains(fileName)) {
-            _merged.insert(fileName);
-
-            if (Document::Ptr doc = _snapshot.value(fileName)) {
-                foreach (const Document::Include &i, doc->includes())
-                    mergeEnvironment(i.fileName());
-
-                _env.addMacros(doc->definedMacros());
-            }
-        }
-    }
-};
 
 class FindClass: public SemanticSearch
 {
@@ -228,7 +176,7 @@ static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult
 
         const QString contents = QTextStream(&file).readAll(); // ### FIXME
 
-        SimpleClient r(modelManager);
+        FastPreprocessor r(snapshot);
         const QByteArray source = r.run(fileName, contents.toUtf8());
 
         Document::Ptr newDoc = Document::create(fileName);
