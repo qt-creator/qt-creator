@@ -772,6 +772,8 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
         setCurrentView(m_d->m_splitter->findView(currentView));
         if (IEditor *e = currentView->currentEditor())
             activateEditor(currentView, e);
+        else
+            emit currentEditorChanged(0);
     }
 
     return !closingFailed;
