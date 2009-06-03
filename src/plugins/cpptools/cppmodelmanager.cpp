@@ -299,7 +299,7 @@ protected:
 
     virtual bool visit(UsingDirectiveAST *ast)
     {
-        if (ast->symbol && _globalNamespaceBinding) {
+        if (ast->symbol && ast->symbol->name() && _globalNamespaceBinding) {
             const Location loc = Location(ast->symbol);
 
             NamespaceBinding *binding = _globalNamespaceBinding.data();
