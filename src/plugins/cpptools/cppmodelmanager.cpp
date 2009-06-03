@@ -275,6 +275,67 @@ protected:
             getTokenStartPosition(ast->firstToken(), &line, &col);
             _context = lookupContext(line, col);
         }
+
+        bool hasQ_OBJECT_CHECK = false;
+
+        if (ast->symbol) {
+            Class *klass = ast->symbol->asClass();
+
+            for (unsigned i = 0; i < klass->memberCount(); ++i) {
+                Symbol *symbol = klass->memberAt(i);
+
+                if (symbol->name() && symbol->name()->isNameId()) {
+                    NameId *nameId = symbol->name()->asNameId();
+
+                    if (! qstrcmp(nameId->identifier()->chars(), "qt_check_for_QOBJECT_macro")) {
+                        hasQ_OBJECT_CHECK = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        _qobjectStack.append(hasQ_OBJECT_CHECK);
+
+        return true;
+    }
+
+    virtual void endVisit(ClassSpecifierAST *)
+    { _qobjectStack.removeLast(); }
+
+    bool qobjectCheck() const
+    {
+        if (_qobjectStack.isEmpty())
+            return false;
+
+        return _qobjectStack.last();
+    }
+
+    virtual bool visit(FunctionDefinitionAST *ast)
+    {
+        if (ast->symbol) {
+            Function *fun = ast->symbol->asFunction();
+            if ((fun->isSignal() || fun->isSlot()) && ! qobjectCheck()) {
+                translationUnit()->warning(ast->firstToken(),
+                                           "you forgot the Q_OBJECT macro");
+            }
+        }
+        return true;
+    }
+
+    virtual bool visit(SimpleDeclarationAST *ast)
+    {
+        const bool check = qobjectCheck();
+        for (List<Declaration *> *it = ast->symbols; it; it = it->next) {
+            Declaration *decl = it->value;
+
+            if (Function *fun = decl->type()->asFunctionType()) {
+                if ((fun->isSignal() || fun->isSlot()) && ! check) {
+                    translationUnit()->warning(ast->firstToken(),
+                                               "you forgot the Q_OBJECT macro");
+                }
+            }
+        }
         return true;
     }
 
@@ -323,6 +384,7 @@ private:
     Document::Ptr _doc;
     LookupContext _context;
     NamespaceBindingPtr _globalNamespaceBinding;
+    QList<bool> _qobjectStack;
 };
 
 class Process: public std::unary_function<Document::Ptr, void>
