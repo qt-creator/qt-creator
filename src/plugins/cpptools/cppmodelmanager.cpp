@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include <cplusplus/pp.h>
+#include <cplusplus/CppBindings.h>
 
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
@@ -331,6 +332,10 @@ public:
         doc->check();
 
         if (_workingCopy.contains(doc->fileName())) {
+            // run the binding pass
+            NamespaceBindingPtr ns = bind(doc, _snapshot);
+            Q_UNUSED(ns);
+
             // check for undefined symbols.
 
             CheckUndefinedBaseClasses checkUndefinedBaseClasses(doc->control());

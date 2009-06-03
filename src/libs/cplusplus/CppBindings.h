@@ -30,7 +30,7 @@
 #ifndef CPPBINDINGS_H
 #define CPPBINDINGS_H
 
-#include <CPlusPlusForwardDeclarations.h>
+#include "CppDocument.h"
 
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
@@ -170,6 +170,8 @@ public: // attributes
     /// Bindings for the base classes.
     QList<ClassBinding *> baseClassBindings;
 };
+
+CPLUSPLUS_EXPORT NamespaceBindingPtr bind(Document::Ptr doc, Snapshot snapshot);
 
 } // end of namespace CPlusPlus
 

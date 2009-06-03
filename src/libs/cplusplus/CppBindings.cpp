@@ -567,3 +567,12 @@ bool Binder::visit(Block *)
 
 } // end of anonymous namespace
 
+NamespaceBindingPtr CPlusPlus::bind(Document::Ptr doc, Snapshot snapshot)
+{
+    NamespaceBindingPtr global(new NamespaceBinding());
+
+    Binder bind(global.data());
+    bind(doc, snapshot);
+    return global;
+}
+
