@@ -269,12 +269,13 @@
 
     \section1 Placing Widgets on the Form
 
-    Now that we have the labels and input fields set up, we add push buttons to
-    complete the process of adding a contact. So, we begin by breaking the
-    existing layouts. Then, we add three push buttons. Double-click on each of
-    them to set their text to "Add", "Submit", and "Cancel". We now require a
-    vertical spacer to ensure that the push buttons will be laid out neatly;
-    drag one from the \gui{Widget Box}.
+    We shall continue with the form we had from the last chapter; we have the
+    labels and input fields set up, but we need to add push buttons to complete
+    the process of adding a contact. So, we begin by breaking the existing
+    layouts. Then, we add three push buttons. Double-click on each of them to
+    set their text to "Add", "Submit", and "Cancel". We now require a vertical
+    spacer to ensure that the push buttons will be laid out neatly; drag one
+    from the \gui{Widget Box}.
 
     Next, lay out these three push buttons and the spacer vertically, by
     selecting all three of them (using the \key{Ctrl + click}) and choosing
@@ -312,6 +313,8 @@
     Next, we have to provide private members for the \c AddressBook class so
     that we can access these members freely throughout the application.
 
+    \snippet examples/addressbook-sdk/part2/addressbook.h members1
+
     \note The names, e.g., \c addButton etc., correspond to the name of the
     actual object. You can modify them by double-clicking on their names within
     \QD's \gui{Object Inspector}.
@@ -320,5 +323,35 @@
     traverse and display them. A QMap object, \c contacts, is used for this
     purpose as it holds a key-value pair: the contact's name as the \e key, and
     the contact's address as the \e value.
+
+    \snippet examples/addressbook-sdk/part2/addressbook.h members2
+
+    We also declare two private QString objects, \c oldName and \c oldAddress.
+    These objects are needed to hold the name and address of hte contact that
+    was last displayed, before the user clicked \gui Add. So, when the user
+    clicks \gui Cancel, we can revert to displaying the details of the last
+    contact.
+
+    Let's move on to implementing the slots we defined earlier. Within the
+    constructor of \c AddressBook, we extract the widgets from the form using
+    the \c ui object by pointing our private members to them.
+
+    \snippet examples/addressbook-sdk/part2/addressbook.cpp extract objects
+
+    Then we set \c nameLine and \c addressText to read-only, so that we can
+    only display but not edit existing contact details. We also hide
+    \c submitButton and \c cancelButton as they will only be be displayed
+    when the user clicks \gui Add, and this is handled by the \c addContact()
+    function discussed below.
+
+    \snippet examples/addressbook-sdk/part2/addressbook.cpp signal slot
+
+    We connect the push buttons' \l{QAbstractButton::clicked()}{clicked()}
+    signal to their respective slots. The figure below illustrates this.
+
+    #image
+
+    \section2 The \c{addContact()} Function
+
 
 */
