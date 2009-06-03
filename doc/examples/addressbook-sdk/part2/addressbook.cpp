@@ -6,14 +6,37 @@ AddressBook::AddressBook(QWidget *parent)
 {
     ui->setupUi(this);
 
-    addButton = new QPushButton();
+    //! [extract objects]
+    nameLine = new QLineEdit;
+    nameLine = ui->nameLine;
+    nameLine->setReadOnly(true);
+
+    addressText = new QTextEdit;
+    addressText = ui->addressText;
+    addressText->setReadOnly(true);
+
+    addButton = new QPushButton;
     addButton = ui->addButton;
 
-    submitButton = new QPushButton();
+    submitButton = new QPushButton;
     submitButton = ui->submitButton;
+    submitButton->hide();
 
-    cancelButton = new QPushButton();
+    cancelButton = new QPushButton;
     cancelButton = ui->cancelButton;
+    cancelButton->hide();
+    //! [extract objects]
+
+    //! [signal slot]
+    connect(addButton, SIGNAL(clicked()), this,
+                SLOT(addContact()));
+    connect(submitButton, SIGNAL(clicked()), this,
+                SLOT(submitContact()));
+    connect(cancelButton, SIGNAL(clicked()), this,
+                SLOT(cancel()));
+    //! [signal slot]
+
+    setWindowTitle(tr("Simple Address Book"));
 }
 
 AddressBook::~AddressBook()
