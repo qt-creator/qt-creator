@@ -162,7 +162,8 @@ static void loadSettingsHelper(QuickOpenPlugin *p, S *settings)
     }
     settings->beginGroup("CustomFilters");
     QList<IQuickOpenFilter *> customFilters;
-    foreach (const QString &key, settings->childKeys()) {
+    const QStringList keys = settings->childKeys();
+    foreach (const QString &key, keys) {
         IQuickOpenFilter *filter = new DirectoryFilter;
         filter->restoreState(settings->value(key).toByteArray());
         p->m_filters.append(filter);
