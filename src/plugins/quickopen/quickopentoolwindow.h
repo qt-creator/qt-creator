@@ -67,7 +67,7 @@ public:
     void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
 
 private slots:
-    void textEdited(const QString &text);
+    void showPopup();
     void acceptCurrentEntry();
     void filterSelected();
     void showConfigureDialog();

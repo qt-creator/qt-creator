@@ -296,7 +296,7 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
     connect(m_refreshAction, SIGNAL(triggered()), m_quickOpenPlugin, SLOT(refresh()));
     connect(m_configureAction, SIGNAL(triggered()), this, SLOT(showConfigureDialog()));
     connect(m_fileLineEdit, SIGNAL(textEdited(const QString&)),
-        this, SLOT(textEdited(const QString&)));
+        this, SLOT(showPopup()));
     connect(m_completionList, SIGNAL(activated(QModelIndex)),
             this, SLOT(acceptCurrentEntry()));
 }
@@ -347,8 +347,7 @@ bool QuickOpenToolWindow::eventFilter(QObject *obj, QEvent *event)
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
         if (static_cast<QFocusEvent*>(event)->reason() != Qt::MouseFocusReason)
             m_fileLineEdit->selectAll();
-        updateCompletionList(m_fileLineEdit->typedText());
-        showCompletionList();
+        showPopup();
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
@@ -369,9 +368,9 @@ void QuickOpenToolWindow::showCompletionList()
     m_completionList->show();
 }
 
-void QuickOpenToolWindow::textEdited(const QString &text)
+void QuickOpenToolWindow::showPopup()
 {
-    updateCompletionList(text);
+    updateCompletionList(m_fileLineEdit->typedText());
     showCompletionList();
 }
 
@@ -440,7 +439,11 @@ void QuickOpenToolWindow::show(const QString &text, int selectionStart, int sele
 {
     m_fileLineEdit->hideHintText();
     m_fileLineEdit->setText(text);
-    setFocus();
+    if (!m_fileLineEdit->hasFocus())
+        m_fileLineEdit->setFocus();
+    else
+        showPopup();
+
     if (selectionStart >= 0)
         m_fileLineEdit->setSelection(selectionStart, selectionLength);
     else
