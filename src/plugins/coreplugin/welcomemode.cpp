@@ -136,6 +136,8 @@ WelcomeMode::WelcomeMode() :
     m_d->ui.sitesTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.tutorialTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.didYouKnowTextBrowser->viewport()->setAutoFillBackground(false);
+    m_d->ui.helpUsLabel->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    m_d->ui.feedbackButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     l->addWidget(m_d->m_welcomePage);
 
     updateWelcomePage(WelcomePageData());
