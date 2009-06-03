@@ -252,12 +252,15 @@ namespace {
 
 class Process;
 
-class CheckUndefinedBaseClasses: protected ASTVisitor
+class CheckUndefinedSymbols: protected ASTVisitor
 {
 public:
-    CheckUndefinedBaseClasses(Control *control)
-        : ASTVisitor(control), _context(0)
+    CheckUndefinedSymbols(Document::Ptr doc)
+        : ASTVisitor(doc->control()), _process(0), _doc(doc)
     { }
+
+    void setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding)
+    { _globalNamespaceBinding = globalNamespaceBinding; }
 
     void operator()(AST *ast, Process *process)
     { _process = process; accept(ast); }
@@ -290,6 +293,26 @@ protected:
                                            "expected class-name %s token", token);
             }
         }
+
+        return true;
+    }
+
+    virtual bool visit(UsingDirectiveAST *ast)
+    {
+        if (ast->name && ast->name->name && _globalNamespaceBinding) {
+            const Location loc = Location(ast->symbol);
+
+            NamespaceBinding *binding = _globalNamespaceBinding.data();
+
+            if (Scope *enclosingNamespaceScope = ast->symbol->enclosingNamespaceScope())
+                binding = NamespaceBinding::find(enclosingNamespaceScope->owner()->asNamespace(), binding);
+
+            if (! binding || ! binding->resolveNamespace(loc, ast->name->name)) {
+                translationUnit()->warning(ast->name->firstToken(),
+                                           "expected a namespace after `=' token");
+            }
+        }
+
         return true;
     }
 
@@ -297,7 +320,9 @@ protected:
 
 private:
     Process *_process;
+    Document::Ptr _doc;
     LookupContext _context;
+    NamespaceBindingPtr _globalNamespaceBinding;
 };
 
 class Process: public std::unary_function<Document::Ptr, void>
@@ -334,12 +359,12 @@ public:
         if (_workingCopy.contains(doc->fileName())) {
             // run the binding pass
             NamespaceBindingPtr ns = bind(doc, _snapshot);
-            Q_UNUSED(ns);
 
             // check for undefined symbols.
+            CheckUndefinedSymbols checkUndefinedSymbols(doc);
+            checkUndefinedSymbols.setGlobalNamespaceBinding(ns);
 
-            CheckUndefinedBaseClasses checkUndefinedBaseClasses(doc->control());
-            checkUndefinedBaseClasses(doc->translationUnit()->ast(), this);
+            checkUndefinedSymbols(doc->translationUnit()->ast(), this);
         }
 
         doc->releaseTranslationUnit();
@@ -349,7 +374,7 @@ public:
     }
 };
 
-LookupContext CheckUndefinedBaseClasses::lookupContext(unsigned line, unsigned column) const
+LookupContext CheckUndefinedSymbols::lookupContext(unsigned line, unsigned column) const
 { return _process->lookupContext(line, column); }
 
 } // end of anonymous namespace

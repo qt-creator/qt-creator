@@ -118,6 +118,8 @@ public:
 
     virtual NamespaceBinding *asNamespaceBinding() { return this; }
 
+    static NamespaceBinding *find(Namespace *symbol, NamespaceBinding *binding);
+
 private:
     NamespaceBinding *findNamespaceBindingForNameId(NameId *name);
 

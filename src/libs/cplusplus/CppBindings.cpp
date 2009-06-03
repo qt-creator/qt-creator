@@ -567,6 +567,32 @@ bool Binder::visit(Block *)
 
 } // end of anonymous namespace
 
+static NamespaceBinding *find_helper(Namespace *symbol, NamespaceBinding *binding,
+                                     QSet<QByteArray> *processed)
+{
+    const QByteArray id = binding->qualifiedId();
+
+    if (! processed->contains(id)) {
+        processed->insert(id);
+
+        if (binding->symbols.contains(symbol))
+            return binding;
+
+        foreach (NamespaceBinding *nestedBinding, binding->children) {
+            if (NamespaceBinding *ns = find_helper(symbol, nestedBinding, processed))
+                return ns;
+        }
+    }
+
+    return 0;
+}
+
+NamespaceBinding *NamespaceBinding::find(Namespace *symbol, NamespaceBinding *binding)
+{
+    QSet<QByteArray> processed;
+    return find_helper(symbol, binding, &processed);
+}
+
 NamespaceBindingPtr CPlusPlus::bind(Document::Ptr doc, Snapshot snapshot)
 {
     NamespaceBindingPtr global(new NamespaceBinding());
