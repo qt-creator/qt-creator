@@ -21,7 +21,8 @@ HEADERS += completionsettingspage.h \
     cpptoolsplugin.h \
     searchsymbols.h \
     cppdoxygen.h \
-    cppfilesettingspage.h
+    cppfilesettingspage.h \
+    cppsemanticsearch.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -34,7 +35,8 @@ SOURCES += completionsettingspage.cpp \
     searchsymbols.cpp \
     cppdoxygen.cpp \
     cppfilesettingspage.cpp \
-    abstracteditorsupport.cpp
+    abstracteditorsupport.cpp \
+    cppsemanticsearch.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui
