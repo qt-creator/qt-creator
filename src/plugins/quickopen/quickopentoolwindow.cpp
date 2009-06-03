@@ -258,6 +258,7 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
     // Explicitly hide the completion list popup.
     m_completionList->hide();
 
+    setFocusProxy(m_fileLineEdit);
     setWindowTitle(tr("Locate..."));
     resize(200, 90);
     QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);

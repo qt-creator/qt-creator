@@ -17,10 +17,10 @@ contains(QT_VERSION, ^4\.[0-5]\..*):ts.commands = @echo This Qt version is too o
 else:ts.commands = (cd $$IDE_SOURCE_TREE && $$LUPDATE src -ts $$TS_FILES)
 QMAKE_EXTRA_TARGETS += ts
 
-contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1
-
 TEMPLATE = app
 TARGET = phony_target2
+QT =
+LIBS =
 
 updateqm.target = $$IDE_DATA_DIR/translations
 updateqm.input = TS_FILES
@@ -32,7 +32,7 @@ updateqm.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += updateqm
 
 isEmpty(vcproj) {
-    QMAKE_LINK = : IGNORE REST
+    QMAKE_LINK = @: IGNORE THIS LINE
     OBJECTS_DIR =
     win32:CONFIG -= embed_manifest_exe
 } else {

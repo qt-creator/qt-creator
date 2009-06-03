@@ -2,9 +2,11 @@ include(../../qtcreator.pri)
 
 TEMPLATE = app
 TARGET = phony_target
+QT =
+LIBS =
 
 isEmpty(vcproj) {
-    QMAKE_LINK = : IGNORE REST
+    QMAKE_LINK = @: IGNORE THIS LINE
     OBJECTS_DIR =
     win32:CONFIG -= embed_manifest_exe
 } else {

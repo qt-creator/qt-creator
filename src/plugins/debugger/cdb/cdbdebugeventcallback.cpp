@@ -342,7 +342,7 @@ STDMETHODIMP CdbDebugEventCallback::LoadModule(
     Q_UNUSED(TimeDateStamp)
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << ModuleName;
-    m_pEngine->m_d->handleModuleLoad(QString::fromUtf16(ModuleName));
+    m_pEngine->m_d->handleModuleLoad(QString::fromUtf16(reinterpret_cast<const ushort *>(ModuleName)));
     return S_OK;
 }
 

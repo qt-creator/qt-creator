@@ -87,7 +87,7 @@ HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
 QString HelpViewerFindSupport::currentFindString() const
 {
     QTC_ASSERT(m_viewer, return QString());
-#if !defined(QT_NO_WEBKIT)   
+#if !defined(QT_NO_WEBKIT)
     return m_viewer->selectedText();
 #else
     return QString();

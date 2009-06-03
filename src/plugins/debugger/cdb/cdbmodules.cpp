@@ -59,7 +59,7 @@ bool getModuleNameList(CIDebugSymbols *syms, QStringList *modules, QString *erro
     WCHAR wszBuf[MAX_PATH];
     for (ULONG m = 0; m < count; m++)
         if (SUCCEEDED(syms->GetModuleNameStringWide(DEBUG_MODNAME_IMAGE, m, 0, wszBuf, MAX_PATH - 1, 0)))
-                modules->push_back(QString::fromUtf16(wszBuf));
+                modules->push_back(QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf)));
     return true;
 }
 
@@ -94,7 +94,7 @@ bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorM
                 *errorMessage= msgComFailed("GetModuleNameStringWide", hr);
                 return false;
             }
-            module.moduleName = QString::fromUtf16(wszBuf);
+            module.moduleName = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
             modules->push_back(module);
         }
     }
@@ -109,7 +109,7 @@ bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
     ULONG64 handle = 0;
     // E_NOINTERFACE means "no match". Apparently, it does not always
     // set handle.
-    HRESULT hr = syms->StartSymbolMatchWide(pattern.utf16(), &handle);
+    HRESULT hr = syms->StartSymbolMatchWide(reinterpret_cast<PCWSTR>(pattern.utf16()), &handle);
     if (hr == E_NOINTERFACE) {
         if (handle)
             syms->EndSymbolMatch(handle);
@@ -125,7 +125,7 @@ bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
         if (hr == E_NOINTERFACE)
             break;
         if (hr == S_OK)
-            matches->push_back(QString::fromUtf16(wszBuf));
+            matches->push_back(QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf)));
     }
     syms->EndSymbolMatch(handle);
     if (matches->empty())
@@ -217,7 +217,7 @@ bool getModuleSymbols(CIDebugSymbols *syms, const QString &moduleName,
         Symbol symbol;
         symbol.name = name;
         ULONG64 offset = 0;
-        if (SUCCEEDED(syms->GetOffsetByNameWide(name.utf16(), &offset)))
+        if (SUCCEEDED(syms->GetOffsetByNameWide(reinterpret_cast<PCWSTR>(name.utf16()), &offset)))
             symbol.address = hexPrefix + QString::number(offset, 16);
         symbols->push_back(symbol);
     }

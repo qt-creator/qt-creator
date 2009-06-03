@@ -132,7 +132,13 @@ void GitCommand::run()
         if (Git::Constants::debug)
             qDebug() << "GitCommand::run" << j << '/' << count << m_jobs.at(j).arguments;
 
+#ifdef Q_OS_WIN
+        QStringList args;
+        args << "/c" << m_binaryPath << m_jobs.at(j).arguments;
+        process.start(QLatin1String("cmd.exe"), args);
+#else
         process.start(m_binaryPath, m_jobs.at(j).arguments);
+#endif
         if(!process.waitForStarted()) {
             ok = false;
             error += QString::fromLatin1("Error: \"%1\" could not be started: %2").arg(m_binaryPath, process.errorString());

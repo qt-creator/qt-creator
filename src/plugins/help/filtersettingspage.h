@@ -63,7 +63,7 @@ private slots:
     void updateFilterMap();
     void updateFilterPage();
     void addFilter();
-    void removeFilter();    
+    void removeFilter();
 
 private:
     QHelpEngine *m_helpEngine;

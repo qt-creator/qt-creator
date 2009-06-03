@@ -618,7 +618,7 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
         qDebug() << Q_FUNC_INFO <<filename;
 
     const QFileInfo fi(filename);
-    m_d->m_cif.debugSymbols->AppendImagePathWide(QDir::toNativeSeparators(fi.absolutePath()).utf16());
+    m_d->m_cif.debugSymbols->AppendImagePathWide(reinterpret_cast<PCWSTR>(QDir::toNativeSeparators(fi.absolutePath()).utf16()));
     //m_cif.debugSymbols->SetSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_DEBUG | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS);
     m_d->m_cif.debugSymbols->SetSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS);
     //m_cif.debugSymbols->AddSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_DEBUG | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS | SYMOPT_NO_IMAGE_SEARCH);
@@ -634,10 +634,10 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
         env = reinterpret_cast<PCWSTR>(envData.data());
     }
     const HRESULT hr = m_d->m_cif.debugClient->CreateProcess2Wide(NULL,
-                                                               const_cast<PWSTR>(cmd.utf16()),
+                                                               reinterpret_cast<PWSTR>(const_cast<ushort *>(cmd.utf16())),
                                                                &dbgopts,
                                                                sizeof(dbgopts),
-                                                               sp->workingDir.utf16(),
+                                                               reinterpret_cast<PCWSTR>(sp->workingDir.utf16()),
                                                                env);
     if (FAILED(hr)) {
         *errorMessage = tr("Unable to create a process '%1': %2").arg(cmd, msgDebugEngineComResult(hr));
@@ -1149,7 +1149,7 @@ void CdbDebugEngine::executeDebuggerCommand(const QString &command)
 bool CdbDebugEnginePrivate::executeDebuggerCommand(CIDebugControl *ctrl, const QString &command, QString *errorMessage)
 {
     // output to all clients, else we do not see anything
-    const HRESULT hr = ctrl->ExecuteWide(DEBUG_OUTCTL_ALL_CLIENTS, command.utf16(), 0);
+    const HRESULT hr = ctrl->ExecuteWide(DEBUG_OUTCTL_ALL_CLIENTS, reinterpret_cast<PCWSTR>(command.utf16()), 0);
     if (debugCDB)
         qDebug() << "executeDebuggerCommand" << command << SUCCEEDED(hr);
     if (FAILED(hr)) {
@@ -1184,7 +1184,7 @@ bool CdbDebugEnginePrivate::evaluateExpression(CIDebugControl *ctrl,
     // Original syntax must be restored, else setting breakpoints will fail.
     SyntaxSetter syntaxSetter(ctrl, DEBUG_EXPR_CPLUSPLUS);
     ULONG errorPosition = 0;
-    const HRESULT hr = ctrl->EvaluateWide(expression.utf16(),
+    const HRESULT hr = ctrl->EvaluateWide(reinterpret_cast<PCWSTR>(expression.utf16()),
                                           DEBUG_VALUE_INVALID, debugValue,
                                           &errorPosition);
     if (FAILED(hr)) {
@@ -1616,7 +1616,7 @@ QStringList CdbDebugEnginePrivate::sourcePaths() const
 {
     WCHAR wszBuf[MAX_PATH];
     if (SUCCEEDED(m_cif.debugSymbols->GetSourcePathWide(wszBuf, MAX_PATH, 0)))
-        return QString::fromUtf16(wszBuf).split(QLatin1Char(';'));
+        return QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf)).split(QLatin1Char(';'));
     return QStringList();
 }
 
@@ -1637,7 +1637,7 @@ static inline QString pathString(const QStringList &s)
 
 bool CdbDebugEnginePrivate::setSourcePaths(const QStringList &s, QString *errorMessage)
 {
-    const HRESULT hr = m_cif.debugSymbols->SetSourcePathWide(pathString(s).utf16());
+    const HRESULT hr = m_cif.debugSymbols->SetSourcePathWide(reinterpret_cast<PCWSTR>(pathString(s).utf16()));
     if (FAILED(hr)) {
         if (errorMessage)
             *errorMessage = msgComFailed("SetSourcePathWide", hr);
@@ -1650,13 +1650,13 @@ QStringList CdbDebugEnginePrivate::symbolPaths() const
 {
     WCHAR wszBuf[MAX_PATH];
     if (SUCCEEDED(m_cif.debugSymbols->GetSymbolPathWide(wszBuf, MAX_PATH, 0)))
-        return QString::fromUtf16(wszBuf).split(QLatin1Char(';'));
+        return QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf)).split(QLatin1Char(';'));
     return QStringList();
 }
 
 bool CdbDebugEnginePrivate::setSymbolPaths(const QStringList &s, QString *errorMessage)
 {
-    const HRESULT hr = m_cif.debugSymbols->SetSymbolPathWide(pathString(s).utf16());
+    const HRESULT hr = m_cif.debugSymbols->SetSymbolPathWide(reinterpret_cast<PCWSTR>(pathString(s).utf16()));
     if (FAILED(hr)) {
         if (errorMessage)
             *errorMessage = msgComFailed("SetSymbolPathWide", hr);

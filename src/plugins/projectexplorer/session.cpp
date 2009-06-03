@@ -393,6 +393,8 @@ SessionManager::SessionManager(QObject *parent)
             this, SLOT(setEditorCodec(Core::IEditor *, QString)));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(updateWindowTitle()));
+    connect(m_core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(updateWindowTitle()));
 }
 
 SessionManager::~SessionManager()
@@ -920,6 +922,13 @@ void SessionManager::updateWindowTitle()
     } else {
         if (Project *currentProject = ProjectExplorerPlugin::instance()->currentProject())
             windowTitle.prepend(currentProject->name() + " - ");
+    }
+    if (m_core->editorManager()->currentEditor()) {
+        QFileInfo fi(m_core->editorManager()->currentEditor()->file()->fileName());
+        windowTitle.prepend(fi.fileName() + " - ");
+        m_core->mainWindow()->setWindowFilePath(fi.absoluteFilePath());
+    } else {
+        m_core->mainWindow()->setWindowFilePath(QString());
     }
     m_core->mainWindow()->setWindowTitle(windowTitle);
 }

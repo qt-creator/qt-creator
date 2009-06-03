@@ -68,7 +68,10 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
       m_findNextAction(0),
       m_findPreviousAction(0),
       m_replaceNextAction(0),
-      m_widget(new QWidget)
+      m_widget(new QWidget),
+      m_casesensitiveIcon(":/find/images/casesensitively.png"),
+      m_regexpIcon(":/find/images/regexp.png"),
+      m_wholewordsIcon(":/find/images/wholewords.png")
 {
     //setup ui
     m_ui.setupUi(m_widget);
@@ -215,6 +218,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     lineEditMenu->addAction(m_wholeWordAction);
 
     m_regularExpressionAction = new QAction(tr("Use Regular Expressions"), this);
+    m_regularExpressionAction->setIcon(QIcon(":/find/images/regexp.png"));
     m_regularExpressionAction->setCheckable(true);
     m_regularExpressionAction->setChecked(false);
     cmd = am->registerAction(m_regularExpressionAction, Constants::REGULAR_EXPRESSIONS, globalcontext);
@@ -435,21 +439,30 @@ void FindToolBar::findFlagsChanged()
 
 void FindToolBar::updateIcons()
 {
-    bool casesensitive = m_findFlags & QTextDocument::FindCaseSensitively;
-    bool wholewords = m_findFlags & QTextDocument::FindWholeWords;
+    bool casesensitive = m_findFlags & IFindSupport::FindCaseSensitively;
+    bool wholewords = m_findFlags & IFindSupport::FindWholeWords;
+    bool regexp = m_findFlags & IFindSupport::FindRegularExpression;
+    QPixmap pixmap(17, 17);
+    QPainter painter(&pixmap);
+    painter.eraseRect(0, 0, 17, 17);
+    int x = 16;
 
-    if (casesensitive && wholewords) {
-        QPixmap image = QPixmap(":/find/images/wordandcase.png");
-        m_ui.findEdit->setPixmap(image);
-    } else if (casesensitive) {
-        QPixmap image = QPixmap(":/find/images/casesensitively.png");
-        m_ui.findEdit->setPixmap(image);
-    } else if (wholewords) {
-        QPixmap image = QPixmap(":/find/images/wholewords.png");
-        m_ui.findEdit->setPixmap(image);
-    } else {
-        m_ui.findEdit->setPixmap(QPixmap(Core::Constants::ICON_MAGNIFIER));
+    if (casesensitive) {
+        painter.drawPixmap(x-10, 0, m_casesensitiveIcon);
+        x -= 6;
     }
+    if (wholewords) {
+        painter.drawPixmap(x-10, 0, m_wholewordsIcon);
+        x -= 6;
+    }
+    if (regexp) {
+        painter.drawPixmap(x-10, 0, m_regexpIcon);
+    }
+    if (!casesensitive && !wholewords && !regexp) {
+        QPixmap mag(Core::Constants::ICON_MAGNIFIER);
+        painter.drawPixmap(0, (pixmap.height() - mag.height()) / 2, mag);
+    }
+    m_ui.findEdit->setPixmap(pixmap);
 }
 
 void FindToolBar::updateFlagMenus()

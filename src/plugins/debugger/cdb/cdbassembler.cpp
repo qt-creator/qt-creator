@@ -65,7 +65,7 @@ bool getRegisters(CIDebugControl *ctl,
             return false;
         }
         Register reg;
-        reg.name = QString::fromUtf16(wszBuf);
+        reg.name = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
         registers->push_back(reg);
     }
     // get values
