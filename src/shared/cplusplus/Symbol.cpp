@@ -330,10 +330,10 @@ Scope *Symbol::enclosingClassScope() const
     if (! _scope)
         return 0;
 
-    else if (_scope->isNamespaceScope())
+    else if (_scope->isClassScope())
         return _scope;
 
-    return _scope->enclosingNamespaceScope();
+    return _scope->enclosingClassScope();
 }
 
 Scope *Symbol::enclosingEnumScope() const
