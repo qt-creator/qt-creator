@@ -36,7 +36,9 @@ AddressBook::AddressBook(QWidget *parent)
                 SLOT(cancel()));
     //! [signal slot]
 
+    //! [window title]
     setWindowTitle(tr("Simple Address Book"));
+    //! [window title]
 }
 
 AddressBook::~AddressBook()
@@ -44,9 +46,24 @@ AddressBook::~AddressBook()
     delete ui;
 }
 
+//! [addContact]
 void AddressBook::addContact()
 {
+    oldName = nameLine->text();
+    oldAddress = addressTExt->toPlainText();
+
+    nameLine->clear();
+    addressText->clear();
+
+    nameLine->setReadOnly(false);
+    nameLine->setFocus(Qt::OtherFocusReason);
+    addressText->setReadOnly(false);
+
+    addButton->setEnabled(false);
+    submitButton->show();
+    cancelButton->show();
 }
+//! [addContact]
 
 void AddressBook::submitContact()
 {

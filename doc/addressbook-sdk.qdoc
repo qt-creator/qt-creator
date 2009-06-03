@@ -346,12 +346,22 @@
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp signal slot
 
-    We connect the push buttons' \l{QAbstractButton::clicked()}{clicked()}
-    signal to their respective slots. The figure below illustrates this.
+    We connect the push buttons' \l{QAbstractButton::}{clicked()} signal to
+    their respective slots. The figure below illustrates this.
 
     #image
 
+    Finally, we set the window title to "Simple Address Book" using the
+    \l{QWidget::}{setWindowTitle()} function.
+
+    \snippet examples/addressbook-sdk/part2/addressbook.cpp window title
+
     \section2 The \c{addContact()} Function
 
+    In this function, we begin by storing the last displayed contact details
+    in \c oldName and \c oldAddress. Then we clear these input fields and turn
+    off the read-only mode. The focus is set on \c nameLine and we display
+    \c submitButton and \c cancelButton; but we disable \c addButton.
 
+    \snippet examples/addressbook-sdk/part2/addressbook.cpp addContact
 */
