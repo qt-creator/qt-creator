@@ -6,6 +6,8 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
 #include <QtGui/QTextEdit>
+#include <QtGui/QMessageBox>
+
 
 namespace Ui
 {

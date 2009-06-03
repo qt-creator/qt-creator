@@ -50,7 +50,7 @@ AddressBook::~AddressBook()
 void AddressBook::addContact()
 {
     oldName = nameLine->text();
-    oldAddress = addressTExt->toPlainText();
+    oldAddress = addressText->toPlainText();
 
     nameLine->clear();
     addressText->clear();
@@ -65,10 +65,57 @@ void AddressBook::addContact()
 }
 //! [addContact]
 
+//! [submitContact part1]
 void AddressBook::submitContact()
 {
-}
+    QString name = nameLine->text();
+    QString address = addressText->toPlainText();
 
+    if (name == "" || address == "") {
+        QMessageBox::information(this, tr("Empty Field"),
+            tr("Please enter a name and address."));
+        return;
+    }
+//! [submitContact part1]
+
+//! [submitContact part2]
+    if (!contacts.contains(name)) {
+        contacts.insert(name, address);
+        QMessageBox::information(this, tr("Add Successful"),
+            tr("\"%1\" has been added to your address book.").arg(name));
+        return;
+    } else {
+        QMessageBox::information(this, tr("Add Unsuccessful"),
+            tr("Sorry, \"%1\" is already in your address book.").arg(name));
+        return;
+    }
+//! [submitContact part2]
+
+//! [submitContact part3]
+    if (contacts.isEmpty()) {
+        nameLine->clear();
+        addressText->clear();
+    }
+
+    nameLine->setReadOnly(true);
+    addressText->setReadOnly(true);
+    addButton->setEnabled(true);
+    submitButton->hide();
+    cancelButton->hide();
+}
+//! [submitContact part3]
+
+//! [cancel]
 void AddressBook::cancel()
 {
+    nameLine->setText(oldName);
+    nameLine->setReadOnly(true);
+
+    addressText->setText(oldAddress);
+    addressText->setReadOnly(true);
+
+    addButton->setEnabled(true);
+    submitButton->hide();
+    cancelButton->hide();
 }
+//! [cancel]

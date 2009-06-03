@@ -364,4 +364,57 @@
     \c submitButton and \c cancelButton; but we disable \c addButton.
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp addContact
+
+    \section2 The \c{submitContact()} Function
+
+    This function can be divided into three parts:
+
+    \list 1
+        \o  We extract the contact's detail from \c nameLine and \c addressText
+            and store them in QString objects. We also validate to ensure that
+            the user did not click \gui Submit with empty input fields;
+            otherwise, a QMessageBox is displayed to remind the user for a name
+            and address.
+
+            \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part1
+
+        \o  We then proceed to check if the contact already exists. If it does
+            not exist, we add the contact to \c contacts and we display a
+            QMessageBox to inform the user about this, preventing the user from
+            adding duplicate contacts. Our \c contacts object is based on
+            key-value pairs or name and address, hence, we want to ensure that
+            \e key is unique.
+
+            \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part2
+
+        \o  Once we have handled both cases mentioned above, we restore the
+            push buttons to their normal state with the following code:
+
+            \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part3
+    \endlist
+
+    The screenshot below shows the QMessageBox object we use to display
+    information messages to the user.
+
+    # image
+
+    \section2 The \c{cancel()} Function
+
+    This function restores the last displayed contact details and enables
+    \c addButton, as well as hides \c submitButton and \c cancelButton.
+
+    \snippet examples/addressbook-sdk/part2/addressbook.cpp cancel
+
+    The general idea behind adding a contact is to give the user the
+    flexibility to click \gui Submit or \gui Cancel at any time. The flowchart
+    below further explains this concept:
+
+    \image addressbook-tutorial-part2-add-flowchart.png
+
+
+    \section1 Running the Application
+
+    Run your application now. You will be able to add as many unique contacts
+    as you like.
+
 */
