@@ -147,7 +147,7 @@ void ModeManager::objectAdded(QObject *obj)
     m_modeShortcuts.insert(index, cmd);
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateModeToolTip()));
     for (int i = 0; i < m_modeShortcuts.size(); ++i) {
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
         m_modeShortcuts.at(i)->setDefaultKeySequence(QKeySequence(QString("Meta+%1").arg(i+1)));
 #else
         m_modeShortcuts.at(i)->setDefaultKeySequence(QKeySequence(QString("Ctrl+%1").arg(i+1)));

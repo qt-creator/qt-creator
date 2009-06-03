@@ -48,7 +48,7 @@ static const bool DEFAULT_ANTIALIAS = true;
     enum { DEFAULT_FONT_SIZE = 12 };
     static const char *DEFAULT_FONT_FAMILY = "Monaco";
 #else
-#ifdef Q_OS_UNIX
+#ifdef Q_WS_X11
     enum { DEFAULT_FONT_SIZE = 9 };
     static const char *DEFAULT_FONT_FAMILY = "Monospace";
 #else

@@ -124,7 +124,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     // Make sure the shortcut still works when the completion widget is active
     completionShortcut->setContext(Qt::ApplicationShortcut);
     Core::Command *command = am->registerShortcut(completionShortcut, Constants::COMPLETE_THIS, context);
-#ifndef Q_OS_MAC
+#ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Space")));
 #else
     command->setDefaultKeySequence(QKeySequence(tr("Meta+Space")));

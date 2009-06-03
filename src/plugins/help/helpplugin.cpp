@@ -241,7 +241,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     am->actionContainer(Core::Constants::M_HELP)->addAction(cmd,
         Core::Constants::G_HELP_HELP);
 
-#ifndef Q_OS_MAC
+#ifndef Q_WS_MAC
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, QLatin1String("Help.Separator"), globalcontext);
@@ -344,7 +344,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     actionList << previousAction
         << nextAction
         << homeAction
-#ifndef Q_OS_MAC
+#ifndef Q_WS_MAC
         << sep
 #endif
         << copyAction;

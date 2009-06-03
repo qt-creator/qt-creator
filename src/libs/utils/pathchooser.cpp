@@ -44,11 +44,10 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QPushButton>
 
-#ifdef Q_OS_MAC
 /*static*/ const char * const Core::Utils::PathChooser::browseButtonLabel =
+#ifdef Q_WS_MAC
                    QT_TRANSLATE_NOOP("Core::Utils::PathChooser", "Choose...");
 #else
-/*static*/ const char * const Core::Utils::PathChooser::browseButtonLabel =
                    QT_TRANSLATE_NOOP("Core::Utils::PathChooser", "Browse...");
 #endif
 
@@ -128,7 +127,7 @@ PathChooser::~PathChooser()
 
 void PathChooser::addButton(const QString &text, QObject *receiver, const char *slotFunc)
 {
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
     QPushButton *button = new QPushButton;
 #else
     QToolButton *button = new QToolButton;

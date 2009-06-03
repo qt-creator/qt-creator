@@ -85,7 +85,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     QPainter p(this);
     p.drawPicture(0, 0, m_buttonElements.value(svgIdButtonBase));
     p.drawPicture(0, 0, m_buttonElements.value(isDown() ? svgIdButtonPressedBase : svgIdButtonNormalBase));
-#ifndef Q_WS_MAC // Mac UI's dont usually do hover
+#ifndef Q_WS_MAC // Mac UIs usually don't hover
     if (underMouse() && isEnabled())
         p.drawPicture(0, 0, m_buttonElements.value(svgIdButtonHoverOverlay));
 #endif

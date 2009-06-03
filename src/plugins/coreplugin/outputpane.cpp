@@ -207,7 +207,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_buttonsWidget = new QWidget;
     m_buttonsWidget->setLayout(new QHBoxLayout);
     m_buttonsWidget->layout()->setContentsMargins(5,0,0,0);
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
     m_buttonsWidget->layout()->setSpacing(16);
 #else
     m_buttonsWidget->layout()->setSpacing(4);
@@ -299,7 +299,7 @@ void OutputPaneManager::init()
 
         Command *cmd = am->registerAction(action, actionId, QList<int>() << Constants::C_GLOBAL_ID);
         if (outPane->priorityInStatusBar() != -1) {
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
             cmd->setDefaultKeySequence(QKeySequence(paneShortCut(Qt::CTRL, shortcutNumber)));
 #else
             cmd->setDefaultKeySequence(QKeySequence(paneShortCut(Qt::ALT, shortcutNumber)));
@@ -567,7 +567,7 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text, 
             "QPushButton { border-image: url(:/core/images/panel_button.png) 2 2 2 19;"
                          " border-width: 2px 2px 2px 19px; padding-left: -17; padding-right: 4 } "
             "QPushButton:checked { border-image: url(:/core/images/panel_button_checked.png) 2 2 2 19 } "
-#ifndef Q_WS_MAC // Mac UI's dont usually do hover
+#ifndef Q_WS_MAC // Mac UIs usually don't hover
             "QPushButton:checked:hover { border-image: url(:/core/images/panel_button_checked_hover.png) 2 2 2 19 } "
             "QPushButton:pressed:hover { border-image: url(:/core/images/panel_button_pressed.png) 2 2 2 19 } "
             "QPushButton:hover { border-image: url(:/core/images/panel_button_hover.png) 2 2 2 19 } "

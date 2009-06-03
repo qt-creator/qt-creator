@@ -85,10 +85,10 @@ CentralWidget::CentralWidget(QHelpEngine *engine, QWidget *parent)
     globalActionList.clear();
     collectionFile = helpEngine->collectionFile();
 
-    QString system = QLatin1String("win");
-
 #ifdef Q_OS_MAC
-    system = QLatin1String("mac");
+#   define SYSTEM "mac"
+#else
+#   define SYSTEM "win"
 #endif
 
     tabWidget = new QTabWidget;
@@ -100,7 +100,7 @@ CentralWidget::CentralWidget(QHelpEngine *engine, QWidget *parent)
     QToolButton *newTabButton = new QToolButton(this);
     newTabButton->setAutoRaise(true);
     newTabButton->setToolTip(tr("Add new page"));
-    newTabButton->setIcon(QIcon(QString::fromUtf8(":/trolltech/assistant/images/%1/addtab.png").arg(system)));
+    newTabButton->setIcon(QIcon(QString::fromLatin1(":/trolltech/assistant/images/" SYSTEM "/addtab.png")));
 
     tabWidget->setCornerWidget(newTabButton, Qt::TopLeftCorner);
     connect(newTabButton, SIGNAL(clicked()), this, SLOT(newTab()));

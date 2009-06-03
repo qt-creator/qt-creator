@@ -215,10 +215,11 @@ QStringList DebuggingHelperLibrary::possibleQMakeCommands()
     // On windows noone has renamed qmake, right?
 #ifdef Q_OS_WIN
     return QStringList() << "qmake.exe";
-#endif
+#else
     // On unix some distributions renamed qmake to avoid clashes
     QStringList result;
     result << "qmake-qt4" << "qmake4" << "qmake";
     return result;
+#endif
 }
 

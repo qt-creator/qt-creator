@@ -86,7 +86,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     m_toggleAction = new QAction(tr("Toggle Bookmark"), this);
     Core::Command *cmd =
         am->registerAction(m_toggleAction, BOOKMARKS_TOGGLE_ACTION, textcontext);
-#ifndef Q_OS_MAC
+#ifndef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+M")));
 #else
     cmd->setDefaultKeySequence(QKeySequence(tr("Meta+M")));
@@ -116,7 +116,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     //Previous
     m_prevAction = new QAction(tr("Previous Bookmark"), this);
     cmd = am->registerAction(m_prevAction, BOOKMARKS_PREV_ACTION, globalcontext);
-#ifndef Q_OS_MAC
+#ifndef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+,")));
 #else
     cmd->setDefaultKeySequence(QKeySequence(tr("Meta+,")));
@@ -126,7 +126,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     //Next
     m_nextAction = new QAction(tr("Next Bookmark"), this);
     cmd = am->registerAction(m_nextAction, BOOKMARKS_NEXT_ACTION, globalcontext);
-#ifndef Q_OS_MAC
+#ifndef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+.")));
 #else
     cmd->setDefaultKeySequence(QKeySequence(tr("Meta+.")));

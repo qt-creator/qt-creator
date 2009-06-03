@@ -956,7 +956,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
     case Qt::Key_End:
     case Qt::Key_Right:
     case Qt::Key_Left:
-#ifndef Q_OS_MAC
+#ifndef Q_WS_MAC
         if ((e->modifiers() & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier)) {
 
             d->m_lastEventWasBlockSelectionEvent = true;

@@ -937,8 +937,7 @@ static inline QStringList possibleGuiBinaries(const QString &name)
 {
 #ifdef Q_OS_WIN
     return QStringList(name + QLatin1String(".exe"));
-#endif
-#ifdef Q_OS_MAC // 'Foo.app/Contents/MacOS/Foo'
+#elif defined(Q_OS_MAC) // 'Foo.app/Contents/MacOS/Foo'
     QString upCaseName = name;
     upCaseName[0] = upCaseName.at(0).toUpper();
     QString macBinary = upCaseName;

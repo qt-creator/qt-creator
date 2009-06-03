@@ -255,7 +255,7 @@ void CompletionWidget::updatePositionAndSize(int startPos)
     // Determine the position, keeping the popup on the screen
     const QRect cursorRect = m_editor->cursorRect(startPos);
     const QDesktopWidget *desktop = QApplication::desktop();
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
     const QRect screen = desktop->availableGeometry(desktop->screenNumber(m_editorWidget));
 #else
     const QRect screen = desktop->screenGeometry(desktop->screenNumber(m_editorWidget));

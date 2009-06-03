@@ -103,7 +103,7 @@ bool QMakeStep::init(const QString &name)
 
 
     if (!qtVersion->isValid()) {
-#if defined(Q_OS_MAC)
+#if defined(Q_WS_MAC)
         emit addToOutputWindow(tr("\n<font color=\"#ff0000\"><b>No valid Qt version set. Set one in Preferences </b></font>\n"));
 #else
         emit addToOutputWindow(tr("\n<font color=\"#ff0000\"><b>No valid Qt version set. Set one in Tools/Options </b></font>\n"));
