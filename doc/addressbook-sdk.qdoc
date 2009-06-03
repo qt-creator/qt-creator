@@ -418,3 +418,35 @@
     as you like.
 
 */
+
+
+/*!
+    \page tutorials-addressbook-sdk-part3.html
+    \previouspage Address Book 2 - Adding Addresses
+    \contentspage {Address Book Tutorial}{Contents}
+    \nextpage \l{examples/addressbook-sdk/part4}{Chapter 4}
+    \example examples/addressbook-sdk/part3
+    \title Address Book 3 - Navigating between Entries}
+
+    The address book application is now half complete. We need to add some
+    functions to navigate between contacts. But first, we have to decide what
+    sort of a data structure we would like to use to hold these contacts.
+
+    In Chapter 2, we used a QMap of key-value pairs with the contact's name as
+    the \e key, and the contact's address as the \e value. This works well for
+    our case. However, in order to navigate and display each entry, a little
+    bit of enhancement is needed.
+
+    We enhance the QMap by making it replicate a data structure similar to a
+    circularly-linked list, where all elements are connected, including the
+    first element and the last element. The figure below illustrates this data
+    structure;
+
+    \image addressbook-tutorial-part3-linkedlist.png
+
+
+    \section1 Placing Widgets on the Form
+
+    \section1 The AddressBook Class
+
+*/
