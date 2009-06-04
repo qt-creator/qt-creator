@@ -73,6 +73,10 @@ Name *CheckName::check(NameAST *name, Scope *scope)
     Name *previousName = switchName(0);
     Scope *previousScope = switchScope(scope);
     accept(name);
+
+    if (_name && name)
+        name->name = _name;
+
     (void) switchScope(previousScope);
     return switchName(previousName);
 }

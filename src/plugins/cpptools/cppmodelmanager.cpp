@@ -29,6 +29,7 @@
 
 #include <cplusplus/pp.h>
 #include <cplusplus/CppBindings.h>
+#include <cplusplus/Overview.h>
 
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
@@ -254,19 +255,137 @@ class Process;
 
 class CheckUndefinedSymbols: protected ASTVisitor
 {
+    QSet<QByteArray> _types;
+
 public:
     CheckUndefinedSymbols(Document::Ptr doc)
         : ASTVisitor(doc->control()), _process(0), _doc(doc)
     { }
 
     void setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding)
-    { _globalNamespaceBinding = globalNamespaceBinding; }
+    {
+        _globalNamespaceBinding = globalNamespaceBinding;
+        _types.clear();
+
+        if (_globalNamespaceBinding) {
+            QSet<NamespaceBinding *> processed;
+            buildTypeMap(_globalNamespaceBinding.data(), &processed);
+        }
+    }
 
     void operator()(AST *ast, Process *process)
     { _process = process; accept(ast); }
 
 protected:
     using ASTVisitor::visit;
+
+    void addType(Name *name)
+    {
+        if (! name)
+            return;
+
+        if (Identifier *id = name->identifier())
+            _types.insert(QByteArray(id->chars(), id->size()));
+    }
+
+    void buildTypeMap(Class *klass)
+    {
+        addType(klass->name());
+
+        for (unsigned i = 0; i < klass->memberCount(); ++i) {
+            Symbol *member = klass->memberAt(i);
+
+            if (Class *klass = member->asClass()) {
+                buildTypeMap(klass);
+            } else if (Enum *e = member->asEnum()) {
+                addType(e->name());
+            } else if (ForwardClassDeclaration *fwd = member->asForwardClassDeclaration()) {
+                addType(fwd->name());
+            } else if (Declaration *decl = member->asDeclaration()) {
+                if (decl->isTypedef())
+                    addType(decl->name());
+            }
+        }
+    }
+
+    void buildTypeMap(NamespaceBinding *binding, QSet<NamespaceBinding *> *processed)
+    {
+        if (! processed->contains(binding)) {
+            processed->insert(binding);
+
+            foreach (Namespace *ns, binding->symbols) {
+                for (unsigned i = 0; i < ns->memberCount(); ++i) {
+                    Symbol *member = ns->memberAt(i);
+
+                    if (Class *klass = member->asClass()) {
+                        buildTypeMap(klass);
+                    } else if (Enum *e = member->asEnum()) {
+                        addType(e->name());
+                    } else if (ForwardClassDeclaration *fwd = member->asForwardClassDeclaration()) {
+                        addType(fwd->name());
+                    } else if (Declaration *decl = member->asDeclaration()) {
+                        if (decl->isTypedef())
+                            addType(decl->name());
+                    }
+                }
+            }
+
+            foreach (NamespaceBinding *childBinding, binding->children) {
+                buildTypeMap(childBinding, processed);
+            }
+        }
+    }
+
+    QList<FunctionDeclaratorAST *> functionDeclarationStack;
+
+    FunctionDeclaratorAST *currentFunctionDeclarator() const
+    {
+        if (functionDeclarationStack.isEmpty())
+            return 0;
+
+        return functionDeclarationStack.last();
+    }
+
+    virtual bool visit(FunctionDeclaratorAST *ast)
+    {
+        functionDeclarationStack.append(ast);
+
+        return true;
+    }
+
+    virtual void endVisit(FunctionDeclaratorAST *)
+    {
+        functionDeclarationStack.removeLast();
+    }
+
+    virtual bool visit(TypeofSpecifierAST *ast)
+    {
+        accept(ast->next);
+        return false;
+    }
+
+    virtual bool visit(NamedTypeSpecifierAST *ast)
+    {
+        if (ast->name) {
+            if (! ast->name->name) {
+                unsigned line, col;
+                getTokenStartPosition(ast->firstToken(), &line, &col);
+                // qWarning() << _doc->fileName() << line << col;
+            } else if (Identifier *id = ast->name->name->identifier()) {
+                if (! _types.contains(QByteArray::fromRawData(id->chars(), id->size()))) {
+                    if (FunctionDeclaratorAST *functionDeclarator = currentFunctionDeclarator()) {
+                        if (functionDeclarator->as_cpp_initializer)
+                            return true;
+                    }
+
+                    Overview oo;
+                    translationUnit()->warning(ast->firstToken(), "`%s' is not a type-name",
+                                               qPrintable(oo(ast->name->name)));
+                }
+            }
+        }
+        return true;
+    }
 
     virtual bool visit(ClassSpecifierAST *ast)
     {

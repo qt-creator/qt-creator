@@ -208,13 +208,20 @@ bool CheckExpression::visit(TemplateIdAST *ast)
     return false;
 }
 
-bool CheckExpression::visit(NewExpressionAST *)
+bool CheckExpression::visit(NewExpressionAST *ast)
 {
     // ### FIXME
-    //FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
-    //FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
-    // ### process new-typeid
+    // ### process ast->new_placement
+
+    FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
+
+    if (ast->new_type_id) {
+        FullySpecifiedType ty = semantic()->check(ast->new_type_id->type_specifier, _scope);
+        // ### process ast->new_type_id
+    }
+
     // ### process new-initializer
+
     return false;
 }
 
