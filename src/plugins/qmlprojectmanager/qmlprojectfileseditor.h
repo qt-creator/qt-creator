@@ -79,7 +79,7 @@ public:
 
     virtual bool duplicateSupported() const;
     virtual Core::IEditor *duplicate(QWidget *parent);
-    virtual bool temporaryEditor() const { return false; }
+    virtual bool isTemporary() const { return false; }
 
 private:
     QList<int> m_context;

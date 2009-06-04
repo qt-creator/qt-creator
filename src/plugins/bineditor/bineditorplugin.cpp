@@ -278,7 +278,7 @@ public:
 
     QToolBar *toolBar() { return m_toolBar; }
 
-    bool temporaryEditor() const { return false; }
+    bool isTemporary() const { return false; }
 
 signals:
     void changed();
