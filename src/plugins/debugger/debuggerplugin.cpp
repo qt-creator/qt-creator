@@ -291,6 +291,10 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(MaximalStackDepth), 
         m_ui.spinBoxMaximalStackDepth);
 
+#ifdef USE_REVERSE_DEBUGGING
+    m_ui.checkBoxEnableReverseDebugging->hide();
+#endif
+
     return w;
 }
 
@@ -682,10 +686,12 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         Constants::JUMP_TO_LINE, debuggercontext);
     mdebug->addAction(cmd);
 
+#ifdef USE_REVERSE_DEBUGGING
     cmd = am->registerAction(m_manager->m_reverseDirectionAction,
         Constants::REVERSE, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::REVERSE_KEY));
     mdebug->addAction(cmd);
+#endif
 
     sep = new QAction(this);
     sep->setSeparator(true);
@@ -831,8 +837,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     debugToolBar->addSeparator();
     debugToolBar->addAction(am->command(Constants::STEPI)->action());
     debugToolBar->addAction(am->command(Constants::NEXTI)->action());
+#ifdef USE_REVERSE_DEBUGGING
     debugToolBar->addSeparator();
     debugToolBar->addAction(am->command(Constants::REVERSE)->action());
+#endif
     debugToolBar->addSeparator();
     debugToolBar->addWidget(new QLabel(tr("Threads:")));
 
