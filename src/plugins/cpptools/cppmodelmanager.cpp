@@ -502,7 +502,7 @@ protected:
 
             if (! binding || ! binding->resolveNamespace(loc, ast->symbol->name())) {
                 translationUnit()->warning(ast->name->firstToken(),
-                                           "expected a namespace after `=' token");
+                                           "expected a namespace");
             }
         }
 
