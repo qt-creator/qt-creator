@@ -48,7 +48,7 @@ namespace Internal {
 
 struct ModelItemInfo
 {
-    enum ItemType { Enum, Class, Method };
+    enum ItemType { Enum, Class, Method, Declaration };
 
     ModelItemInfo()
     { }
@@ -80,9 +80,10 @@ class SearchSymbols: public std::unary_function<CPlusPlus::Document::Ptr, QList<
 {
 public:
     enum SymbolType {
-        Classes   = 0x1,
-        Functions = 0x2,
-        Enums     = 0x4
+        Classes      = 0x1,
+        Functions    = 0x2,
+        Enums        = 0x4,
+        Declarations = 0x8
     };
     Q_DECLARE_FLAGS(SymbolTypes, SymbolType)
 
@@ -106,10 +107,7 @@ protected:
     virtual bool visit(CPlusPlus::Enum *symbol);
     virtual bool visit(CPlusPlus::Function *symbol);
     virtual bool visit(CPlusPlus::Namespace *symbol);
-#if 0
-    // This visit method would make function declaration be included in QuickOpen
     virtual bool visit(CPlusPlus::Declaration *symbol);
-#endif
     virtual bool visit(CPlusPlus::Class *symbol);
 
     QString scopedSymbolName(const QString &symbolName) const;

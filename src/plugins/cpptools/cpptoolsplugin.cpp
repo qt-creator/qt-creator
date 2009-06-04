@@ -33,6 +33,7 @@
 #include "cppclassesfilter.h"
 #include "cppcodecompletion.h"
 #include "cppfunctionsfilter.h"
+#include "cppcurrentdocumentfilter.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "cppquickopenfilter.h"
@@ -157,6 +158,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(quickOpenFilter);
     addAutoReleasedObject(new CppClassesFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, core->editorManager()));
+    addAutoReleasedObject(new CppCurrentDocumentFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CompletionSettingsPage(m_completion));
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
 
