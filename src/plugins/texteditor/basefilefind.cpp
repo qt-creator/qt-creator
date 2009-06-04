@@ -124,6 +124,7 @@ void BaseFileFind::searchFinished()
 QWidget *BaseFileFind::createProgressWidget()
 {
     m_resultLabel = new QLabel;
+    m_resultLabel->setAlignment(Qt::AlignCenter);
     // ### TODO this setup should be done by style
     QFont f = m_resultLabel->font();
     f.setBold(true);

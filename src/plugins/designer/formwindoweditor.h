@@ -79,7 +79,7 @@ public:
     QToolBar *toolBar();
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
-    virtual bool temporaryEditor() const { return false; }
+    virtual bool isTemporary() const { return false; }
 
     // ContextInterface
     virtual QList<int> context() const;

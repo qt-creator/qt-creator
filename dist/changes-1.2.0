@@ -10,19 +10,29 @@ git log --pretty=oneline v1.1.0..v1.2.0
 This release introduces source and binary incompatible changes to the plugin
 API, so if you created your own custom plugins these need to be adapted.
 
+General:
+   * Reworked Welcome Screen
+   * Speed improvement: Store large amounts of persistent data
+     (e.g. locator cache) in an SQLite database.
+   
 Editing
-
+   * Added option to allow alphabetical method combo box
+   * Introduced Block highlighting
+   * Improved code folding markers
+   * Further improvements to FakeVim mode
+   * Make it possible to disable Ctrl+Click navigation
+   * Added optional XCode-style tab indentation
 
 Building and Running
 
-
 Debugging
-   * Added Windows Console Debugger support
+   * Added Windows Console Debugger support (x86 and AMD64)
    * Added command line options to attach to process ids
    * Further improved dumpers; do additional memory checking on Windows to
      avoid crashes for speedup
    * Changed method of dumper loading on Windows, enabling it for MinGW 64
-
+   * Make it possible to disable breakpoints
+   
 Wizards
 
 Designer
@@ -33,8 +43,30 @@ Version control plugins
    * Made svn detection recognize TortoiseSVN using "_svn" as directory
    * Fixed perforce configuration checking, made it use the settings correctly
 
+Documentation
+   * Added tutorial on how to create an application from scratch using Creator
+
 I18N
    * Added infrastructure for translations
    * Added German translation
 
+Platform Specific
+
+Windows
+  * Show native path separators
+  * Experimental support for the Microsoft C++ compilers from Windows SDKs 
+    or VS 2005/2008 (x86 and AMD64)
+
+Mac
+
+Linux
+
+Other Unixes
+   * Made Qt Creator less dependant on Linux specific defines
+   
 Additional credits go to:
+   * axasia <axasia@gmail.com> (japanese translation)
+   * Christian Hoenig <christian@hoenig.cc> ("Build Project Only" submenu and build project dependencies, various patches)
+   * Enrico Ros <enrico.ros@gmail.com> (italian translation)
+   * Joel Nordell <joel.nordell@chloridepower.com> (XCode-style tab behavior, various patches)
+   * Serge Ratke <dev.serge.ratke@gmx.de> (copy lines up/down by Ctrl+Alt+Up/Down)

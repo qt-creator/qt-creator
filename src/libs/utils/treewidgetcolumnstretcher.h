@@ -27,44 +27,37 @@
 **
 **************************************************************************/
 
-#ifndef PLAINTEXTEDITOR_H
-#define PLAINTEXTEDITOR_H
+#ifndef TREEWIDGETCOLUMNSTRETCHER_H
+#define TREEWIDGETCOLUMNSTRETCHER_H
 
-#include "basetexteditor.h"
+#include "utils_global.h"
+#include <QObject>
 
-#include <QtCore/QList>
+QT_BEGIN_NAMESPACE
+class QTreeWidget;
+QT_END_NAMESPACE
 
-namespace TextEditor {
+namespace Core {
+namespace Utils {
 
-class PlainTextEditor;
+/*
 
-class TEXTEDITOR_EXPORT PlainTextEditorEditable : public BaseTextEditorEditable
+The class fixes QTreeWidget to resize all columns to contents, except one
+stretching column. As opposed to standard QTreeWidget, all columns are
+still interactively resizable.
+
+*/
+
+class QTCREATOR_UTILS_EXPORT TreeWidgetColumnStretcher : public QObject
 {
+    int m_columnToStretch;
 public:
-    PlainTextEditorEditable(PlainTextEditor *);
-    QList<int> context() const;
+    TreeWidgetColumnStretcher(QTreeWidget *treeWidget, int columnToStretch);
 
-    bool duplicateSupported() const { return true; }
-    Core::IEditor *duplicate(QWidget *parent);
-    const char *kind() const;
-    bool isTemporary() const { return false; }
-private:
-    QList<int> m_context;
+    bool eventFilter(QObject *obj, QEvent *ev);
 };
 
-class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
-{
-    Q_OBJECT
+} // namespace Utils
+} // namespace Core
 
-public:
-    PlainTextEditor(QWidget *parent);
-
-protected:
-    BaseTextEditorEditable *createEditableInterface() { return new PlainTextEditorEditable(this); }
-    // Indent a text block based on previous line.
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
-};
-
-} // namespace TextEditor
-
-#endif // PLAINTEXTEDITOR_H
+#endif // TREEWIDGETCOLUMNSTRETCHER_H

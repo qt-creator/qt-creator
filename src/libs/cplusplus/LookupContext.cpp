@@ -136,9 +136,19 @@ QList<Symbol *> LookupContext::resolveQualifiedNameId(QualifiedNameId *q,
     else
         scopes = resolveNestedNameSpecifier(q, visibleScopes);
 
-    // ### expand the scopes.
+    QList<Scope *> expanded;
+    foreach (Scope *scope, scopes) {
+        expanded.append(scope);
 
-    return resolve(q->unqualifiedNameId(), scopes, mode);
+        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+            Symbol *member = scope->symbolAt(i);
+
+            if (ScopedSymbol *scopedSymbol = member->asScopedSymbol())
+                expandEnumOrAnonymousSymbol(scopedSymbol, &expanded);
+        }
+    }
+
+    return resolve(q->unqualifiedNameId(), expanded, mode);
 }
 
 QList<Symbol *> LookupContext::resolveOperatorNameId(OperatorNameId *opId,
@@ -299,6 +309,31 @@ QList<Scope *> LookupContext::visibleScopes(const QPair<FullySpecifiedType, Symb
     scopes += visibleScopes();
     scopes = expand(scopes);
     return scopes;
+}
+
+void LookupContext::expandEnumOrAnonymousSymbol(ScopedSymbol *scopedSymbol,
+                                                QList<Scope *> *expandedScopes) const
+{
+    if (! scopedSymbol || expandedScopes->contains(scopedSymbol->members()))
+        return;
+
+    Scope *members = scopedSymbol->members();
+
+    if (scopedSymbol->isEnum())
+        expandedScopes->append(members);
+    else if (! scopedSymbol->name() && (scopedSymbol->isClass() || scopedSymbol->isNamespace())) {
+        // anonymous class or namespace
+
+        expandedScopes->append(members);
+
+        for (unsigned i = 0; i < members->symbolCount(); ++i) {
+            Symbol *member = members->symbolAt(i);
+
+            if (ScopedSymbol *nested = member->asScopedSymbol()) {
+                expandEnumOrAnonymousSymbol(nested, expandedScopes);
+            }
+        }
+    }
 }
 
 QList<Scope *> LookupContext::expand(const QList<Scope *> &scopes) const

@@ -658,7 +658,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         QString text = removeSelectedText();
         //qDebug() << "CHANGING TO INSERT MODE" << text;
         m_registers[m_register] = text;
-        m_mode = InsertMode;
+        enterInsertMode();
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
         if (m_moveType == MoveInclusive)
@@ -1093,13 +1093,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToMatchingParanthesis();
         finishMovement();
     } else if (key == 'a') {
-        m_mode = InsertMode;
+        enterInsertMode();
         m_lastInsertion.clear();
         if (!atEndOfLine())
             moveRight();
         updateMiniBuffer();
     } else if (key == 'A') {
-        m_mode = InsertMode;
+        enterInsertMode();
         moveToEndOfLine();
         m_lastInsertion.clear();
     } else if (key == control('a')) {
@@ -1123,7 +1123,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setAnchor();
         moveToEndOfLine();
         m_registers[m_register] = removeSelectedText();
-        m_mode = InsertMode;
+        enterInsertMode();
         finishMovement();
     } else if (key == control('c')) {
         showBlackMessage("Type Alt-v,Alt-v  to quit FakeVim mode");
@@ -1341,7 +1341,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         // FIXME: right now we repeat the insertion count() times,
         // but not the deletion
         m_lastInsertion.clear();
-        m_mode = InsertMode;
+        enterInsertMode();
         m_submode = ReplaceSubMode;
         setDotCommand("R");
     } else if (key == control('r')) {

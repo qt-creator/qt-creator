@@ -114,6 +114,9 @@ public:
                         const QList<Scope *> &visibleScopes,
                         QList<Scope *> *expandedScopes) const;
 
+    void expandEnumOrAnonymousSymbol(ScopedSymbol *scopedSymbol,
+                                     QList<Scope *> *expandedScopes) const;
+
 private:
     QList<Symbol *> resolveQualifiedNameId(QualifiedNameId *q,
                                            const QList<Scope *> &visibleScopes,

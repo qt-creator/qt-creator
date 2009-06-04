@@ -56,8 +56,10 @@
 
 #ifdef Q_OS_WIN32
 #define QT_POPEN _popen
+#define QT_PCLOSE _pclose
 #else
 #define QT_POPEN popen
+#define QT_PCLOSE pclose
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -740,29 +742,32 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
     m_lineNo = pro->lineNumber();
     if (m_profileStack.count() == 1 && !m_oldPath.isEmpty()) {
         const QString &mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
-        if (!mkspecDirectory.isEmpty() && m_parsePreAndPostFiles) {
-            bool cumulative = m_cumulative;
-            m_cumulative = false;
+        if (!mkspecDirectory.isEmpty()) {
+            if (m_parsePreAndPostFiles) {
+                bool cumulative = m_cumulative;
+                m_cumulative = false;
 
-            evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"));
+                evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"));
 
-            QSet<QString> processed;
-            forever {
-                bool finished = true;
-                QStringList configs = valuesDirect(QLatin1String("CONFIG"));
-                for (int i = configs.size() - 1; i >= 0; --i) {
-                    const QString config = configs[i].toLower();
-                    if (!processed.contains(config)) {
-                        processed.insert(config);
-                        if (evaluateFile(mkspecDirectory + QLatin1String("/features/")
-                                         + config + QLatin1String(".prf"))) {
-                            finished = false;
-                            break;
+                QSet<QString> processed;
+                forever {
+                    bool finished = true;
+                    QStringList configs = valuesDirect(QLatin1String("CONFIG"));
+                    for (int i = configs.size() - 1; i >= 0; --i) {
+                        const QString config = configs[i].toLower();
+                        if (!processed.contains(config)) {
+                            processed.insert(config);
+                            if (evaluateFile(mkspecDirectory + QLatin1String("/features/")
+                                + config + QLatin1String(".prf"))) {
+                                finished = false;
+                                break;
+                            }
                         }
                     }
+                    if (finished)
+                        break;
                 }
-                if (finished)
-                    break;
+                m_cumulative = cumulative;
             }
 
             foreach (ProBlock *itm, m_replaceFunctions)
@@ -771,8 +776,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
             foreach (ProBlock *itm, m_testFunctions)
                 itm->deref();
             m_testFunctions.clear();
-
-            m_cumulative = cumulative;
         }
 
         m_profileStack.pop();
@@ -1353,35 +1356,34 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                       E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
                       E_REPLACE };
 
-    static QHash<QString, int> *expands = 0;
-    if (!expands) {
-        expands = new QHash<QString, int>;
-        expands->insert(QLatin1String("member"), E_MEMBER);
-        expands->insert(QLatin1String("first"), E_FIRST);
-        expands->insert(QLatin1String("last"), E_LAST);
-        expands->insert(QLatin1String("cat"), E_CAT);
-        expands->insert(QLatin1String("fromfile"), E_FROMFILE); // implementation disabled (see comment below)
-        expands->insert(QLatin1String("eval"), E_EVAL);
-        expands->insert(QLatin1String("list"), E_LIST);
-        expands->insert(QLatin1String("sprintf"), E_SPRINTF);
-        expands->insert(QLatin1String("join"), E_JOIN);
-        expands->insert(QLatin1String("split"), E_SPLIT);
-        expands->insert(QLatin1String("basename"), E_BASENAME);
-        expands->insert(QLatin1String("dirname"), E_DIRNAME);
-        expands->insert(QLatin1String("section"), E_SECTION);
-        expands->insert(QLatin1String("find"), E_FIND);
-        expands->insert(QLatin1String("system"), E_SYSTEM);
-        expands->insert(QLatin1String("unique"), E_UNIQUE);
-        expands->insert(QLatin1String("quote"), E_QUOTE);
-        expands->insert(QLatin1String("escape_expand"), E_ESCAPE_EXPAND);
-        expands->insert(QLatin1String("upper"), E_UPPER);
-        expands->insert(QLatin1String("lower"), E_LOWER);
-        expands->insert(QLatin1String("re_escape"), E_RE_ESCAPE);
-        expands->insert(QLatin1String("files"), E_FILES);
-        expands->insert(QLatin1String("prompt"), E_PROMPT); // interactive, so cannot be implemented
-        expands->insert(QLatin1String("replace"), E_REPLACE);
+    static QHash<QString, int> expands;
+    if (expands.isEmpty()) {
+        expands.insert(QLatin1String("member"), E_MEMBER);
+        expands.insert(QLatin1String("first"), E_FIRST);
+        expands.insert(QLatin1String("last"), E_LAST);
+        expands.insert(QLatin1String("cat"), E_CAT);
+        expands.insert(QLatin1String("fromfile"), E_FROMFILE); // implementation disabled (see comment below)
+        expands.insert(QLatin1String("eval"), E_EVAL);
+        expands.insert(QLatin1String("list"), E_LIST);
+        expands.insert(QLatin1String("sprintf"), E_SPRINTF);
+        expands.insert(QLatin1String("join"), E_JOIN);
+        expands.insert(QLatin1String("split"), E_SPLIT);
+        expands.insert(QLatin1String("basename"), E_BASENAME);
+        expands.insert(QLatin1String("dirname"), E_DIRNAME);
+        expands.insert(QLatin1String("section"), E_SECTION);
+        expands.insert(QLatin1String("find"), E_FIND);
+        expands.insert(QLatin1String("system"), E_SYSTEM);
+        expands.insert(QLatin1String("unique"), E_UNIQUE);
+        expands.insert(QLatin1String("quote"), E_QUOTE);
+        expands.insert(QLatin1String("escape_expand"), E_ESCAPE_EXPAND);
+        expands.insert(QLatin1String("upper"), E_UPPER);
+        expands.insert(QLatin1String("lower"), E_LOWER);
+        expands.insert(QLatin1String("re_escape"), E_RE_ESCAPE);
+        expands.insert(QLatin1String("files"), E_FILES);
+        expands.insert(QLatin1String("prompt"), E_PROMPT); // interactive, so cannot be implemented
+        expands.insert(QLatin1String("replace"), E_REPLACE);
     }
-    ExpandFunc func_t = ExpandFunc(expands->value(func.toLower()));
+    ExpandFunc func_t = ExpandFunc(expands.value(func.toLower()));
 
     QStringList ret;
 
@@ -1626,6 +1628,8 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                         output += QLatin1String(buff);
                     }
                     ret += split_value_list(output);
+                    if (proc)
+                        QT_PCLOSE(proc);
                 }
             }
             break;
@@ -1789,43 +1793,42 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                     T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_IF,
                     T_FOR, T_DEFINE_TEST, T_DEFINE_REPLACE };
 
-    static QHash<QString, int> *functions = 0;
-    if (!functions) {
-        functions = new QHash<QString, int>;
-        functions->insert(QLatin1String("requires"), T_REQUIRES);
-        functions->insert(QLatin1String("greaterThan"), T_GREATERTHAN);
-        functions->insert(QLatin1String("lessThan"), T_LESSTHAN);
-        functions->insert(QLatin1String("equals"), T_EQUALS);
-        functions->insert(QLatin1String("isEqual"), T_EQUALS);
-        functions->insert(QLatin1String("exists"), T_EXISTS);
-        functions->insert(QLatin1String("export"), T_EXPORT);
-        functions->insert(QLatin1String("clear"), T_CLEAR);
-        functions->insert(QLatin1String("unset"), T_UNSET);
-        functions->insert(QLatin1String("eval"), T_EVAL);
-        functions->insert(QLatin1String("CONFIG"), T_CONFIG);
-        functions->insert(QLatin1String("if"), T_IF);
-        functions->insert(QLatin1String("isActiveConfig"), T_CONFIG);
-        functions->insert(QLatin1String("system"), T_SYSTEM);
-        functions->insert(QLatin1String("return"), T_RETURN);
-        functions->insert(QLatin1String("break"), T_BREAK);
-        functions->insert(QLatin1String("next"), T_NEXT);
-        functions->insert(QLatin1String("defined"), T_DEFINED);
-        functions->insert(QLatin1String("contains"), T_CONTAINS);
-        functions->insert(QLatin1String("infile"), T_INFILE);
-        functions->insert(QLatin1String("count"), T_COUNT);
-        functions->insert(QLatin1String("isEmpty"), T_ISEMPTY);
-        functions->insert(QLatin1String("load"), T_LOAD);         //v
-        functions->insert(QLatin1String("include"), T_INCLUDE);   //v
-        functions->insert(QLatin1String("debug"), T_DEBUG);
-        functions->insert(QLatin1String("message"), T_MESSAGE);   //v
-        functions->insert(QLatin1String("warning"), T_MESSAGE);   //v
-        functions->insert(QLatin1String("error"), T_MESSAGE);     //v
-        functions->insert(QLatin1String("for"), T_FOR);     //v
-        functions->insert(QLatin1String("defineTest"), T_DEFINE_TEST);        //v
-        functions->insert(QLatin1String("defineReplace"), T_DEFINE_REPLACE);  //v
+    static QHash<QString, int> functions;
+    if (functions.isEmpty()) {
+        functions.insert(QLatin1String("requires"), T_REQUIRES);
+        functions.insert(QLatin1String("greaterThan"), T_GREATERTHAN);
+        functions.insert(QLatin1String("lessThan"), T_LESSTHAN);
+        functions.insert(QLatin1String("equals"), T_EQUALS);
+        functions.insert(QLatin1String("isEqual"), T_EQUALS);
+        functions.insert(QLatin1String("exists"), T_EXISTS);
+        functions.insert(QLatin1String("export"), T_EXPORT);
+        functions.insert(QLatin1String("clear"), T_CLEAR);
+        functions.insert(QLatin1String("unset"), T_UNSET);
+        functions.insert(QLatin1String("eval"), T_EVAL);
+        functions.insert(QLatin1String("CONFIG"), T_CONFIG);
+        functions.insert(QLatin1String("if"), T_IF);
+        functions.insert(QLatin1String("isActiveConfig"), T_CONFIG);
+        functions.insert(QLatin1String("system"), T_SYSTEM);
+        functions.insert(QLatin1String("return"), T_RETURN);
+        functions.insert(QLatin1String("break"), T_BREAK);
+        functions.insert(QLatin1String("next"), T_NEXT);
+        functions.insert(QLatin1String("defined"), T_DEFINED);
+        functions.insert(QLatin1String("contains"), T_CONTAINS);
+        functions.insert(QLatin1String("infile"), T_INFILE);
+        functions.insert(QLatin1String("count"), T_COUNT);
+        functions.insert(QLatin1String("isEmpty"), T_ISEMPTY);
+        functions.insert(QLatin1String("load"), T_LOAD);         //v
+        functions.insert(QLatin1String("include"), T_INCLUDE);   //v
+        functions.insert(QLatin1String("debug"), T_DEBUG);
+        functions.insert(QLatin1String("message"), T_MESSAGE);   //v
+        functions.insert(QLatin1String("warning"), T_MESSAGE);   //v
+        functions.insert(QLatin1String("error"), T_MESSAGE);     //v
+        functions.insert(QLatin1String("for"), T_FOR);     //v
+        functions.insert(QLatin1String("defineTest"), T_DEFINE_TEST);        //v
+        functions.insert(QLatin1String("defineReplace"), T_DEFINE_REPLACE);  //v
     }
 
-    TestFunc func_t = (TestFunc)functions->value(function);
+    TestFunc func_t = (TestFunc)functions.value(function);
 
     switch (func_t) {
         case T_DEFINE_TEST:

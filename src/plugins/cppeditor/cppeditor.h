@@ -69,7 +69,7 @@ public:
     Core::IEditor *duplicate(QWidget *parent);
     const char *kind() const;
 
-    bool temporaryEditor() const { return false; }
+    bool isTemporary() const { return false; }
 
 private:
     QList<int> m_context;

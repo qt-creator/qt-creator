@@ -385,8 +385,8 @@ QtVersion::QtVersion(const QString &name, const QString &path)
 
 QtVersion::~QtVersion()
 {
-    m_toolChain = 0;
     delete m_toolChain;
+    m_toolChain = 0;
 }
 
 QString QtVersion::name() const
