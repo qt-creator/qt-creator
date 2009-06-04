@@ -49,6 +49,7 @@ public:
     bool hasError() const;
     QSize sizeHint() const;
     void paintEvent(QPaintEvent *);
+    void mouseMoveEvent(QMouseEvent *);
 
 signals:
     void clicked();

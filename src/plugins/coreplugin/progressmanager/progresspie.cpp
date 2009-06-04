@@ -40,6 +40,7 @@ ProgressBar::ProgressBar(QWidget *parent)
     : QProgressBar(parent), m_error(false)
 {
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    setMouseTracking(true);
 }
 
 ProgressBar::~ProgressBar()
@@ -88,6 +89,11 @@ void ProgressBar::mousePressEvent(QMouseEvent *event)
     QProgressBar::mousePressEvent(event);
 }
 
+void ProgressBar::mouseMoveEvent(QMouseEvent *)
+{
+    update();
+}
+
 void ProgressBar::paintEvent(QPaintEvent *)
 {
     // TODO move font into stylehelper
@@ -117,13 +123,20 @@ void ProgressBar::paintEvent(QPaintEvent *)
     p.setPen(QColor(255, 255, 255, 70));
     p.drawLine(0, 1, size().width(), 1);
 
+    QRect textRect = rect();
+    textRect.setHeight(h+5);
+
+    p.setPen(QColor(30, 30, 30, 80));
+    p.drawText(textRect, Qt::AlignHCenter | Qt::AlignBottom, m_title);
+    p.translate(0, -1);
     p.setPen(StyleHelper::panelTextColor());
-    p.drawText(QPoint(7, h+1), m_title);
+    p.drawText(textRect, Qt::AlignHCenter | Qt::AlignBottom, m_title);
+    p.translate(0, 1);
 
     m_progressHeight = h-4;
     m_progressHeight += ((m_progressHeight % 2) + 1) % 2; // make odd
     // draw outer rect
-    QRect rect(INDENT, h+6, size().width()-2*INDENT-m_progressHeight+1, m_progressHeight-1);
+    QRect rect(INDENT - 1, h+6, size().width()-2*INDENT, m_progressHeight-1);
     p.setPen(StyleHelper::panelTextColor());
     p.drawRect(rect);
 
@@ -131,7 +144,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     QColor c = StyleHelper::panelTextColor();
     c.setAlpha(180);
     p.setPen(Qt::NoPen);
-    p.setBrush(c);
+
     QRect inner = rect.adjusted(2, 2, -1, -1);
     inner.adjust(0, 0, qRound((percent - 1) * inner.width()), 0);
     if (m_error) {
@@ -142,19 +155,34 @@ void ProgressBar::paintEvent(QPaintEvent *)
         if (inner.width() < 10)
             inner.adjust(0, 0, 10 - inner.width(), 0);
     } else if (value() == maximum()) {
-        QColor green(140, 255, 140, 180);
-        p.setBrush(green);
+        c = QColor(120, 245, 90, 180);
     }
+
+    QLinearGradient grad(inner.topLeft(), inner.bottomLeft());
+    grad.setColorAt(0, c.lighter(114));
+    grad.setColorAt(0.5, c.lighter(104));
+    grad.setColorAt(0.51, c.darker(108));
+    grad.setColorAt(1, c.darker(120));
+
+    p.setBrush(grad);
     p.drawRect(inner);
 
     if (value() < maximum() && !m_error) {
-        // draw cancel thingy
-        // TODO this is quite ugly at the moment
-        p.setPen(StyleHelper::panelTextColor());
-        p.setBrush(QBrush(Qt::NoBrush));
-        QRect cancelRect(size().width()-INDENT-m_progressHeight+3, h+6+1, m_progressHeight-3, m_progressHeight-3);
+        QColor cancelOutline = StyleHelper::panelTextColor();
+        p.setPen(cancelOutline);
+        QRect cancelRect(rect.right() - m_progressHeight + 2, rect.top(), m_progressHeight-1, rect.height());
+        if (cancelRect.contains(mapFromGlobal(QCursor::pos())))
+            p.setBrush(QColor(230, 90, 40, 190));
+        else
+            p.setBrush(Qt::NoBrush);
+
         p.drawRect(cancelRect);
-        p.setPen(c);
+
+        p.setPen(QPen(QColor(0, 0, 0, 70), 3));
+        p.drawLine(cancelRect.center()+QPoint(-1,-1), cancelRect.center()+QPoint(+3,+3));
+        p.drawLine(cancelRect.center()+QPoint(+3,-1), cancelRect.center()+QPoint(-1,+3));
+
+        p.setPen(StyleHelper::panelTextColor());
         p.drawLine(cancelRect.center()+QPoint(-1,-1), cancelRect.center()+QPoint(+3,+3));
         p.drawLine(cancelRect.center()+QPoint(+3,-1), cancelRect.center()+QPoint(-1,+3));
     }
