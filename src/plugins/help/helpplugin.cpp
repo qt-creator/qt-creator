@@ -743,12 +743,13 @@ void HelpPlugin::filterDocumentation(const QString &customFilter)
 
 void HelpPlugin::addBookmark()
 {
-    addNewBookmark(m_centralWidget->currentTitle(), m_centralWidget->currentSource().toString());
+    addNewBookmark(m_centralWidget->currentTitle(),
+        m_centralWidget->currentSource().toString());
 }
 
 void HelpPlugin::addNewBookmark(const QString &title, const QString &url)
 {
-    if (url.isEmpty())
+    if (url.isEmpty() || url == QLatin1String("about:blank"))
         return;
 
     m_bookmarkManager->showBookmarkDialog(m_centralWidget, title, url);
@@ -765,9 +766,8 @@ void HelpPlugin::openHelpPage(const QString& url)
     if (m_helpEngine->findFile(url).isValid())
         m_centralWidget->setSource(url);
     else {
-        QString page = url.mid(url.lastIndexOf('/')+1);
-        qDebug() << url << page << url.lastIndexOf('/');
-        QDesktopServices::openUrl(QLatin1String("http://doc.trolltech.com/latest/")+page);
+        QDesktopServices::openUrl(QLatin1String("http://doc.trolltech.com/latest/")
+            + url.mid(url.lastIndexOf('/') + 1));
     }
 }
 

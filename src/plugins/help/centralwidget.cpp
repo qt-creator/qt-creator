@@ -520,6 +520,10 @@ void CentralWidget::showTabBarContextMenu(const QPoint &point)
         close_pages->setEnabled(false);
     }
 
+    const QString &url = viewer->source().toString();
+    if (url.isEmpty() || url == QLatin1String("about:blank"))
+        newBookmark->setEnabled(false);
+
     QAction *picked_action = menu.exec(tabBar->mapToGlobal(point));
     if (!picked_action)
         return;
@@ -547,19 +551,19 @@ void CentralWidget::showTabBarContextMenu(const QPoint &point)
     }
 
     if (picked_action == newBookmark)
-        emit addNewBookmark(viewer->documentTitle(), viewer->source().toString());
+        emit addNewBookmark(viewer->documentTitle(), url);
 }
 
-// if we have a current help viewer then this is the 'focus proxy', otherwise
-// it's the tab widget itself
-// this is needed, so an embedding program can just set the focus to the central widget
-// and it does TheRightThing
+// If we have a current help viewer then this is the 'focus proxy', otherwise
+// it's the tab widget itself. This is needed, so an embedding program can just
+// set the focus to the central widget and it does TheRightThing(TM)
 void CentralWidget::focusInEvent(QFocusEvent * /* event */)
 {
+    QObject *receiver = tabWidget;
     if (currentHelpViewer())
-        QTimer::singleShot(1, currentHelpViewer(), SLOT(setFocus()));
-    else
-        QTimer::singleShot(1, tabWidget, SLOT(setFocus()));
+        receiver = currentHelpViewer();
+
+    QTimer::singleShot(1, receiver, SLOT(setFocus()));
 }
 
 bool CentralWidget::eventFilter(QObject *object, QEvent *e)
