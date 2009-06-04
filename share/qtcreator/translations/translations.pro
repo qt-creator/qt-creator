@@ -23,7 +23,7 @@ CONFIG -= qt
 QT =
 LIBS =
 
-updateqm.target = $$IDE_DATA_DIR/translations
+updateqm.target = $$IDE_DATA_PATH/translations
 updateqm.input = TS_FILES
 updateqm.output = ${QMAKE_FILE_BASE}.qm
 isEmpty(vcproj):updateqm.variable_out = PRE_TARGETDEPS
