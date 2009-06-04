@@ -210,17 +210,30 @@ bool CheckExpression::visit(TemplateIdAST *ast)
 
 bool CheckExpression::visit(NewExpressionAST *ast)
 {
-    // ### FIXME
-    // ### process ast->new_placement
+    if (ast->new_placement) {
+        for (ExpressionListAST *it = ast->new_placement->expression_list; it; it = it->next) {
+            FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
+            Q_UNUSED(exprTy);
+        }
+    }
 
     FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
 
     if (ast->new_type_id) {
         FullySpecifiedType ty = semantic()->check(ast->new_type_id->type_specifier, _scope);
-        // ### process ast->new_type_id
+        Q_UNUSED(ty);
+
+        for (NewArrayDeclaratorAST *it = ast->new_type_id->new_array_declarators; it; it = it->next) {
+            FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
+            Q_UNUSED(exprTy);
+        }
     }
 
     // ### process new-initializer
+    if (ast->new_initializer) {
+        FullySpecifiedType exprTy = semantic()->check(ast->new_initializer->expression, _scope);
+        Q_UNUSED(exprTy);
+    }
 
     return false;
 }
