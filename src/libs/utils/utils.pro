@@ -1,13 +1,10 @@
 TEMPLATE = lib
 TARGET = Utils
-QT += gui network
-
+QT += gui \
+    network
 DEFINES += QTCREATOR_UTILS_LIBRARY
-
 include(../../qtcreatorlibrary.pri)
-
-SOURCES += \
-    reloadpromptutils.cpp \
+SOURCES += reloadpromptutils.cpp \
     settingsutils.cpp \
     filesearch.cpp \
     pathchooser.cpp \
@@ -30,19 +27,16 @@ SOURCES += \
     submitfieldwidget.cpp \
     consoleprocess.cpp \
     uncommentselection.cpp \
-    parameteraction.cpp
-
-win32 {
+    parameteraction.cpp \
+    treewidgetcolumnstretcher.cpp
+win32 { 
     SOURCES += abstractprocess_win.cpp \
-               consoleprocess_win.cpp \
-               winutils.cpp
+        consoleprocess_win.cpp \
+        winutils.cpp
     HEADERS += winutils.h
-} else {
-    SOURCES += consoleprocess_unix.cpp
 }
-
-HEADERS += \
-    utils_global.h \
+else:SOURCES += consoleprocess_unix.cpp
+HEADERS += utils_global.h \
     reloadpromptutils.h \
     settingsutils.h \
     filesearch.h \
@@ -68,11 +62,10 @@ HEADERS += \
     synchronousprocess.h \
     submitfieldwidget.h \
     uncommentselection.h \
-    parameteraction.h
-
+    parameteraction.h \
+    treewidgetcolumnstretcher.h
 FORMS += filewizardpage.ui \
-         projectintropage.ui \
-         newclasswidget.ui \
-         submiteditorwidget.ui
-
+    projectintropage.ui \
+    newclasswidget.ui \
+    submiteditorwidget.ui
 RESOURCES += utils.qrc

@@ -37,6 +37,8 @@
 #include "filemanager.h"
 #include "icore.h"
 #include "uniqueidmanager.h"
+#include <utils/treewidgetcolumnstretcher.h>
+
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QShortcut>
@@ -111,10 +113,7 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
         this, SLOT(commandChanged(QTreeWidgetItem *)));
     connect(m_page->shortcutEdit, SIGNAL(textChanged(QString)), this, SLOT(keyChanged()));
 
-    QHeaderView *hv = m_page->commandList->header();
-    hv->resizeSection(0, 210);
-    hv->resizeSection(1, 110);
-    hv->setStretchLastSection(true);
+    new Core::Utils::TreeWidgetColumnStretcher(m_page->commandList, 1);
 
     commandChanged(0);
 

@@ -4,6 +4,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "qtversionmanager.h"
 #include <coreplugin/coreconstants.h>
+#include <utils/treewidgetcolumnstretcher.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -60,6 +61,8 @@ void QtOptionsPage::apply()
 }
 
 //-----------------------------------------------------
+
+
 QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion)
     : QWidget(parent)
     , m_defaultVersion(versions.indexOf(defaultVersion))
@@ -81,6 +84,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
     m_ui->addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui->delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
+
+    new Core::Utils::TreeWidgetColumnStretcher(m_ui->qtdirList, 1);
 
     for (int i = 0; i < m_versions.count(); ++i) {
         const QtVersion * const version = m_versions.at(i);
