@@ -379,7 +379,7 @@ protected:
                     }
 
                     Overview oo;
-                    translationUnit()->warning(ast->firstToken(), "`%s' is not a type-name",
+                    translationUnit()->warning(ast->firstToken(), "`%s' is not a type name",
                                                qPrintable(oo(ast->name->name)));
                 }
             }

@@ -55,7 +55,8 @@ class DocumentDiagnosticClient : public DiagnosticClient
 public:
     DocumentDiagnosticClient(Document *doc, QList<Document::DiagnosticMessage> *messages)
         : doc(doc),
-          messages(messages)
+          messages(messages),
+          errorCount(0)
     { }
 
     virtual void report(int level,
@@ -63,8 +64,12 @@ public:
                         unsigned line, unsigned column,
                         const char *format, va_list ap)
     {
-        if (messages->count() == MAX_MESSAGE_COUNT)
-            return;
+        if (level == Error) {
+            ++errorCount;
+
+            if (errorCount >= MAX_MESSAGE_COUNT)
+                return; // ignore the error
+        }
 
         const QString fileName = QString::fromUtf8(fileId->chars(), fileId->size());
 
@@ -88,8 +93,10 @@ public:
         }
     }
 
+private:
     Document *doc;
     QList<Document::DiagnosticMessage> *messages;
+    int errorCount;
 };
 
 } // anonymous namespace
