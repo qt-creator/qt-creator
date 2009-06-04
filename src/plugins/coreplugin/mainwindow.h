@@ -208,7 +208,7 @@ private:
     QAction *m_optionsAction;
     QAction *m_toggleSideBarAction;
     QAction *m_toggleFullScreenAction;
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
     QAction *m_minimizeAction;
     QAction *m_zoomAction;
 #endif

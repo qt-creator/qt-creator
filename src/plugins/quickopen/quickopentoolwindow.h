@@ -67,7 +67,7 @@ public:
     void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
 
 private slots:
-    void textEdited(const QString &text);
+    void showPopup();
     void acceptCurrentEntry();
     void filterSelected();
     void showConfigureDialog();
@@ -76,7 +76,6 @@ private:
     bool eventFilter(QObject *obj, QEvent *event);
 
     void showEvent(QShowEvent *e);
-    void focusInEvent(QFocusEvent *e);
 
     bool isShowingTypeHereMessage() const;
     void showCompletionList();

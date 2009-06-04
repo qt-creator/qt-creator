@@ -112,7 +112,7 @@ const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
 const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
 const char * const ADD_TO_WATCH         = "Debugger.AddToWatch";
 
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
 const char * const INTERRUPT_KEY            = "Shift+F5";
 const char * const RESET_KEY                = "Ctrl+Shift+F5";
 const char * const STEP_KEY                 = "F7";
@@ -418,6 +418,7 @@ void DebuggerPlugin::shutdown()
         m_manager->shutdown();
 
     writeSettings();
+    delete DebuggerSettings::instance();
 
     //qDebug() << "DebuggerPlugin::~DebuggerPlugin";
     removeObject(m_debugMode);
@@ -1135,7 +1136,7 @@ void DebuggerPlugin::readSettings()
     DebuggerSettings::instance()->readSettings(s);
 
     QString defaultCommand("gdb");
-#if defined(Q_OS_WIN32)
+#ifdef Q_OS_WIN
     defaultCommand.append(".exe");
 #endif
     //QString defaultScript = ICore::instance()->resourcePath() +

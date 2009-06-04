@@ -405,7 +405,7 @@ void FunctionArgumentWidget::updateHintText()
     m_popupFrame->setFixedWidth(m_popupFrame->minimumSizeHint().width());
 
     const QDesktopWidget *desktop = QApplication::desktop();
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
     const QRect screen = desktop->availableGeometry(desktop->screenNumber(m_editor->widget()));
 #else
     const QRect screen = desktop->screenGeometry(desktop->screenNumber(m_editor->widget()));

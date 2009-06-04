@@ -63,6 +63,7 @@ private slots:
     void command_e();
     void command_i();
     void command_left();
+    void command_r();
     void command_right();
     void command_up();
     void command_w();
@@ -325,16 +326,21 @@ void tst_FakeVim::command_i()
     check("ixxx" + escape, "xx@x" + lines);
     check("u", "@" + lines);
 
-return;
-
     // combine insertions
+    check("i1" + escape, "@1" + lines);
+    check("i2" + escape, "@21" + lines);
+    check("i3" + escape, "@321" + lines);
+    check("u",           "@21" + lines);
+    check("u",           "@1" + lines);
+    check("u",           "@" + lines);
     check("ia" + escape, "@a" + lines);
     check("ibx" + escape, "b@xa" + lines);
     check("icyy" + escape, "bcy@yxa" + lines);
     check("u", "b@xa" + lines);
-    check("u", "@a" + lines);   // undo broken
-    checkEx("redo", "b@xa" + lines);
-    check("u", "@a" + lines);
+    check("u", "@a" + lines); 
+// FIXME undo broken
+//    checkEx("redo", "b@xa" + lines);
+//    check("u", "@a" + lines);
     check("u", "@" + lines);
 }
 
@@ -344,9 +350,24 @@ void tst_FakeVim::command_left()
     move("4j",  "@int main");
     move("h",   "@int main"); // no move over left border
     move("$",   "argv[])@");
-    move("h",   "argv[]@)");
+    //move("h",   "argv[]@)");
+    check("h",   lmid(0, 4) + "\nint main(int argc, char *argv[]@)\n" + lmid(5));
     move("3h",  "arg@v[])");
     move("50h", "@int main");
+}
+
+void tst_FakeVim::command_r()
+{
+    setup();
+    move("4j",   "@int main");
+    move("$",    "int main(int argc, char *argv[])@");
+    check("rx",  lmid(0, 4) + "\nint main(int argc, char *argv[]x@\n" + lmid(5)); 
+    check("2h",  lmid(0, 4) + "\nint main(int argc, char *argv[@]x\n" + lmid(5));
+    check("4ra", lmid(0, 4) + "\nint main(int argc, char *argv[@]x\n" + lmid(5));
+return; // FIXME
+    check("3rb", lmid(0, 4) + "\nint main(int argc, char *argv[bb@b\n" + lmid(5));
+    check("2rc", lmid(0, 4) + "\nint main(int argc, char *argv[bb@b\n" + lmid(5));
+    check("h2rc",lmid(0, 4) + "\nint main(int argc, char *argv[bc@c\n" + lmid(5));
 }
 
 void tst_FakeVim::command_right()

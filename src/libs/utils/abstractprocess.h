@@ -59,7 +59,7 @@ public:
 //signals:
     virtual void processError(const QString &error) = 0;
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     // Add PATH and SystemRoot environment variables in case they are missing
     static QStringList fixWinEnvironment(const QStringList &env);
     // Quote a Windows command line correctly for the "CreateProcess" API

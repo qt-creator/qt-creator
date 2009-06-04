@@ -90,7 +90,7 @@ protected:
             QTreeView::focusOutEvent(event);
     }
 
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
     void keyPressEvent(QKeyEvent *event)
     {
         if ((event->key() == Qt::Key_Return

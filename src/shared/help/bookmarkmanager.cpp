@@ -436,9 +436,10 @@ void BookmarkWidget::setup(bool showButtons)
     treeView = new TreeView(this);
     vlayout->addWidget(treeView);
 
-    QString system = QLatin1String("win");
 #ifdef Q_OS_MAC
-    system = QLatin1String("mac");
+#   define SYSTEM "mac"
+#else
+#   define SYSTEM "win"
 #endif
 
     if (showButtons) {
@@ -449,8 +450,8 @@ void BookmarkWidget::setup(bool showButtons)
 
         addButton = new QToolButton(this);
         addButton->setText(tr("Add"));
-        addButton->setIcon(QIcon(QString::fromUtf8(
-            ":/trolltech/assistant/images/%1/addtab.png").arg(system)));
+        addButton->setIcon(QIcon(QString::fromLatin1(
+            ":/trolltech/assistant/images/" SYSTEM "/addtab.png")));
         addButton->setAutoRaise(true);
         addButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         hlayout->addWidget(addButton);
@@ -458,8 +459,8 @@ void BookmarkWidget::setup(bool showButtons)
 
         removeButton = new QToolButton(this);
         removeButton->setText(tr("Remove"));
-        removeButton->setIcon(QIcon(QString::fromUtf8(
-            ":/trolltech/assistant/images/%1/closetab.png").arg(system)));
+        removeButton->setIcon(QIcon(QString::fromLatin1(
+            ":/trolltech/assistant/images/" SYSTEM "/closetab.png")));
         removeButton->setAutoRaise(true);
         removeButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         hlayout->addWidget(removeButton);

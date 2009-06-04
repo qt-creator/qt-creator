@@ -72,7 +72,7 @@
 #    include "shared/sharedlibraryinjector.h"
 #endif
 
-#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+#ifdef Q_OS_UNIX
 #include <unistd.h>
 #include <dlfcn.h>
 #endif
@@ -826,12 +826,10 @@ void GdbEngine::handleInfoThreads(const GdbResultRecord &record, const QVariant 
 void GdbEngine::handleInfoProc(const GdbResultRecord &record, const QVariant &)
 {
     if (record.resultClass == GdbResultDone) {
-        #if defined(Q_OS_MAC)
+        #ifdef Q_OS_MAC
         //^done,process-id="85075"
         maybeHandleInferiorPidChanged(_(record.data.findChild("process-id").data()));
-        #endif
-
-        #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
+        #else
         // FIXME: use something more robust
         QRegExp re(__("process (\\d+)"));
         QString data = __(record.data.findChild("consolestreamoutput").data());
@@ -919,14 +917,12 @@ static bool isStoppedReason(const QByteArray &reason)
 
 void GdbEngine::handleAqcuiredInferior()
 {
-    #if defined(Q_OS_WIN)
+    #ifdef Q_OS_WIN
     postCommand(_("info thread"), CB(handleInfoThreads));
-    #endif
-    #if defined(Q_OS_LINUX)
-    postCommand(_("info proc"), CB(handleInfoProc));
-    #endif
-    #if defined(Q_OS_MAC)
+    #elif defined(Q_OS_MAC)
     postCommand(_("info pid"), NeedsStop, CB(handleInfoProc));
+    #else
+    postCommand(_("info proc"), CB(handleInfoProc));
     #endif
     if (theDebuggerBoolSetting(ListSourceFiles))
         reloadSourceFiles();
@@ -1883,22 +1879,20 @@ void GdbEngine::sendInsertBreakpoint(int index)
 
     // set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    QString cmd = _("-break-insert -f ");
-    //if (!data->condition.isEmpty())
-    //    cmd += _("-c ") + data->condition + ' ';
-    cmd += where;
-#endif
-#if defined(Q_OS_MAC)
-    QString cmd = _("-break-insert -l -1 ");
-    //if (!data->condition.isEmpty())
-    //    cmd += "-c " + data->condition + " ";
-    cmd += where;
-#endif
 #if defined(Q_OS_WIN)
     QString cmd = _("-break-insert ");
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + " ";
+    cmd += where;
+#elif defined(Q_OS_MAC)
+    QString cmd = _("-break-insert -l -1 ");
+    //if (!data->condition.isEmpty())
+    //    cmd += "-c " + data->condition + " ";
+    cmd += where;
+#else
+    QString cmd = _("-break-insert -f ");
+    //if (!data->condition.isEmpty())
+    //    cmd += _("-c ") + data->condition + ' ';
     cmd += where;
 #endif
     debugMessage(_("Current state: %1").arg(q->status()));
@@ -2039,24 +2033,22 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, const QVariant 
         const BreakpointData *data = handler->at(index);
         // Note that it is perfectly correct that the file name is put
         // in quotes but not escaped. GDB simply is like that.
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+#if defined(Q_OS_WIN)
+        QFileInfo fi(data->fileName);
+        QString where = _c('"') + fi.fileName() + _("\":")
+            + data->lineNumber;
+        //QString where = m_data->fileName + _c(':') + data->lineNumber;
+#elif defined(Q_OS_MAC)
+        QFileInfo fi(data->fileName);
+        QString where = _c('"') + fi.fileName() + _("\":")
+            + data->lineNumber;
+#else
         //QString where = "\"\\\"" + data->fileName + "\\\":"
         //    + data->lineNumber + "\"";
         QString where = _c('"') + data->fileName + _("\":")
             + data->lineNumber;
         // Should not happen with -break-insert -f. gdb older than 6.8?
         QTC_ASSERT(false, /**/);
-#endif
-#if defined(Q_OS_MAC)
-        QFileInfo fi(data->fileName);
-        QString where = _c('"') + fi.fileName() + _("\":")
-            + data->lineNumber;
-#endif
-#if defined(Q_OS_WIN)
-        QFileInfo fi(data->fileName);
-        QString where = _c('"') + fi.fileName() + _("\":")
-            + data->lineNumber;
-        //QString where = m_data->fileName + _c(':') + data->lineNumber;
 #endif
         postCommand(_("break ") + where, CB(handleBreakInsert1), index);
     }
@@ -2779,7 +2771,6 @@ static void setWatchDataEditValue(WatchData &data, const GdbMi &mi)
 static void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
         int encoding = 0)
 {
-    qDebug() << "TOOLTIP: " << mi.data().size() << "ENC:" << encoding;
     if (mi.isValid())
         data.setValueToolTip(decodeData(mi.data(), encoding));
 }
@@ -2814,7 +2805,7 @@ static void setWatchDataAddress(WatchData &data, const GdbMi &mi)
 {
     if (mi.isValid()) {
         data.addr = _(mi.data());
-        if (data.exp.isEmpty())
+        if (data.exp.isEmpty() && !data.addr.startsWith(_("$")))
             data.exp = _("(*(") + gdbQuoteTypes(data.type) + _("*)") + data.addr + _c(')');
     }
 }
@@ -2886,7 +2877,6 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
         return;
     }
     WatchData data = data0;
-    QTC_ASSERT(!data.exp.isEmpty(), return);
 
     QByteArray params;
     QStringList extraArgs;
@@ -2901,6 +2891,8 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     QString addr;
     if (data.addr.startsWith(__("0x")))
         addr = _("(void*)") + data.addr;
+    else if (data.exp.isEmpty()) // happens e.g. for QAbstractItem
+        addr = _("0");
     else
         addr = _("&(") + data.exp + _c(')');
 
@@ -3207,6 +3199,9 @@ void GdbEngine::sendWatchParameters(const QByteArray &params0)
         encoded.append(buf);
     }
     encoded[encoded.size() - 1] = '}';
+
+    params.replace('\0','!');
+    emit gdbInputAvailable(QString(), QString::fromUtf8(params));
 
     postCommand(_(encoded));
 }

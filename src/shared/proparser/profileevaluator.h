@@ -88,6 +88,7 @@ private:
     class Private;
     Private *d;
 
+    // This doesn't help gcc 3.3 ...
     template<typename T> friend class QTypeInfo;
 };
 

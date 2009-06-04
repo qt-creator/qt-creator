@@ -46,7 +46,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 
-#ifdef Q_OS_DARWIN
+#ifdef Q_OS_MAC
 #  include <sys/resource.h>
 #endif
 
@@ -71,7 +71,7 @@ static const char *CLIENT_OPTION = "-client";
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 
 // Helpers for displaying messages. Note that there is no console on Windows.
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 // Format as <pre> HTML
 static inline void toHtml(QString &t)
 {
@@ -204,7 +204,7 @@ static inline QStringList getPluginPaths()
 
 int main(int argc, char **argv)
 {
-#ifdef Q_OS_DARWIN
+#ifdef Q_OS_MAC
     // increase the number of file that can be opened in Qt Creator.
     struct rlimit rl;
     getrlimit(RLIMIT_NOFILE, &rl);

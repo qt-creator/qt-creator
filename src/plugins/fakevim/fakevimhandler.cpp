@@ -86,7 +86,7 @@
 
 //#define DEBUG_UNDO  1
 #if DEBUG_UNDO
-#   define UNDO_DEBUG(s) qDebug() << s
+#   define UNDO_DEBUG(s) qDebug() << << m_tc.document()->revision() << s
 #else
 #   define UNDO_DEBUG(s)
 #endif
@@ -172,26 +172,6 @@ enum MoveType
     MoveLineWise,
 };
 
-struct EditOperation
-{
-    EditOperation() : position(-1), itemCount(0) {}
-    int position;
-    int itemCount; // used to combine several operations
-    QString from;
-    QString to;
-};
-
-QDebug &operator<<(QDebug &ts, const EditOperation &op)
-{
-    if (op.itemCount > 0) {
-        ts << "\n  EDIT BLOCK WITH " << op.itemCount << " ITEMS";
-    } else {
-        ts << "\n  EDIT AT " << op.position
-           << "  FROM   " << op.from << "   TO    " << op.to;
-    }
-    return ts;
-}
-
 QDebug &operator<<(QDebug &ts, const QList<QTextEdit::ExtraSelection> &sels)
 {
     foreach (QTextEdit::ExtraSelection sel, sels)
@@ -212,8 +192,6 @@ enum EventResult
     EventPassedToCore
 };
 
-class UndoBreaker;
-
 class FakeVimHandler::Private
 {
 public:
@@ -229,7 +207,6 @@ public:
     void restoreWidget();
 
     friend class FakeVimHandler;
-    friend class UndoBreaker;
     static int shift(int key) { return key + 32; }
     static int control(int key) { return key + 256; }
 
@@ -310,6 +287,9 @@ public:
     QWidget *editor() const;
     QChar characterAtCursor() const
         { return m_tc.document()->characterAt(m_tc.position()); }
+    void beginEditBlock() { UNDO_DEBUG("BEGIN EDIT BLOCK"); m_tc.beginEditBlock(); }
+    void endEditBlock() { UNDO_DEBUG("END EDIT BLOCK"); m_tc.endEditBlock(); }
+    void joinPreviousEditBlock() { UNDO_DEBUG("JOIN EDIT BLOCK"); m_tc.joinPreviousEditBlock(); }
 
 public:
     QTextEdit *m_textedit;
@@ -354,7 +334,6 @@ public:
     void undo();
     void redo();
     QMap<int, int> m_undoCursorPosition; // revision -> position
-    bool m_needMoreUndo;
 
     // extra data for '.'
     void replay(const QString &text, int count);
@@ -519,12 +498,12 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     }
 
     m_undoCursorPosition[m_tc.document()->revision()] = m_tc.position();
-    if (m_mode == InsertMode)
-        m_tc.joinPreviousEditBlock();
-    else
-        m_tc.beginEditBlock();
+    //if (m_mode == InsertMode)
+    //    joinPreviousEditBlock();
+    //else
+    //    beginEditBlock();
     EventResult result = handleKey(key, um, ev->text());
-    m_tc.endEditBlock();
+    //endEditBlock();
 
     // We fake vi-style end-of-line behaviour
     m_fakeEnd = (atEndOfLine() && m_mode == CommandMode);
@@ -957,19 +936,20 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             .arg(QChar(m_semicolonType))
             .arg(QChar(m_semicolonKey)));
     } else if (m_submode == ReplaceSubMode) {
-        if (count() < rightDist() && text.size() == 1
+        if (count() <= (rightDist() + atEndOfLine()) && text.size() == 1
                 && (text.at(0).isPrint() || text.at(0).isSpace())) {
+            if (atEndOfLine())
+                moveLeft();
             setAnchor();
             moveRight(count());
-            removeSelectedText();
+            QString rem = removeSelectedText();
             m_tc.insertText(QString(count(), text.at(0)));
             m_moveType = MoveExclusive;
-            m_submode = NoSubMode;
             setDotCommand("%1r" + text, count());
-            finishMovement();
-        } else {
-            m_submode = NoSubMode;
         }
+        setTargetColumn();
+        m_submode = NoSubMode;
+        finishMovement();
     } else if (m_subsubmode == MarkSubSubMode) {
         m_marks[key] = m_tc.position();
         m_subsubmode = NoSubSubMode;
@@ -1911,7 +1891,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         if (flags.contains('i'))
             pattern.setCaseSensitivity(Qt::CaseInsensitive);
         const bool global = flags.contains('g');
-        m_tc.beginEditBlock();
+        beginEditBlock();
         for (int line = beginLine; line <= endLine; ++line) {
             const int start = firstPositionInLine(line);
             const int end = lastPositionInLine(line);
@@ -1937,7 +1917,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
                     break;
             }
         }
-        m_tc.endEditBlock();
+        endEditBlock();
         enterCommandMode();
     } else if (reSet.indexIn(cmd) != -1) { // :set
         showBlackMessage(QString());
@@ -2410,12 +2390,9 @@ QWidget *FakeVimHandler::Private::editor() const
 void FakeVimHandler::Private::undo()
 {
     int current = m_tc.document()->revision();
-    m_tc.endEditBlock();
-    m_needMoreUndo = false;
+    //endEditBlock();
     EDITOR(undo());
-    if (m_needMoreUndo)
-        EDITOR(undo());
-    m_tc.beginEditBlock();
+    //beginEditBlock();
     int rev = m_tc.document()->revision();
     if (current == rev)
         showBlackMessage(tr("Already at oldest change"));
@@ -2428,12 +2405,9 @@ void FakeVimHandler::Private::undo()
 void FakeVimHandler::Private::redo()
 {
     int current = m_tc.document()->revision();
-    m_tc.endEditBlock();
-    m_needMoreUndo = false;
+    //endEditBlock();
     EDITOR(redo());
-    if (m_needMoreUndo)
-        EDITOR(redo());
-    m_tc.beginEditBlock();
+    //beginEditBlock();
     int rev = m_tc.document()->revision();
     if (rev == current)
         showBlackMessage(tr("Already at newest change"));
@@ -2486,21 +2460,11 @@ void FakeVimHandler::Private::recordJump()
     UNDO_DEBUG("jumps: " << m_jumpListUndo);
 }
 
-class UndoBreaker : public QAbstractUndoItem
-{
-public:
-    UndoBreaker(FakeVimHandler::Private *doc) : m_doc(doc) {}
-    void undo() { m_doc->m_needMoreUndo = true; }
-    void redo() { m_doc->m_needMoreUndo = true; }
-private:   
-    FakeVimHandler::Private *m_doc;
-};
-
 void FakeVimHandler::Private::recordNewUndo()
 {
-    m_tc.endEditBlock();
-    m_tc.document()->appendUndoItem(new UndoBreaker(this));
-    m_tc.beginEditBlock();
+    //endEditBlock();
+    UNDO_DEBUG("---- BREAK ----");
+    //beginEditBlock();
 }
 
 void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown)

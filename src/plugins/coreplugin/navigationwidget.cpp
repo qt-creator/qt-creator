@@ -363,7 +363,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget)
 
     m_navigationComboBox = new NavComboBox(this);
     m_navigationWidget = 0;
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
     // this is to avoid ugly tool bar behavior
     m_navigationComboBox->setMaximumWidth(130);
 #endif

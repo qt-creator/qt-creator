@@ -43,11 +43,10 @@ namespace Internal {
 class DebuggerSettings : public QObject
 {
     Q_OBJECT
-
 public:
     DebuggerSettings(QObject *parent = 0);
     ~DebuggerSettings();
-    
+
     void insertItem(int code, Core::Utils::SavedAction *item);
     Core::Utils::SavedAction *item(int code) const;
 

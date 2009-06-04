@@ -50,7 +50,7 @@ static int range(float x, int min, int max)
 
 qreal StyleHelper::sidebarFontSize()
 {
-#if defined(Q_OS_MAC)
+#if defined(Q_WS_MAC)
     return 9;
 #else
     return 7.5;

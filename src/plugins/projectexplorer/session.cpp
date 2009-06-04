@@ -112,7 +112,7 @@ private:
 } // namespace ProjectExplorer
 
 using namespace ProjectExplorer;
-using Internal::SessionFile;
+using namespace ProjectExplorer::Internal;
 
 
 void SessionFile::sessionLoadingProgress()
@@ -215,7 +215,6 @@ bool SessionFile::load(const QString &fileName)
             qWarning() << "Could not find startup project" << startupProjectPath;
     }
 
-
     const QVariant &editorsettings = reader.restoreValue(QLatin1String("EditorSettings"));
     if (editorsettings.isValid()) {
         connect(m_core->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
@@ -271,6 +270,7 @@ bool SessionFile::save(const QString &fileName)
         ++i;
     }
     writer.saveValue(QLatin1String("ProjectDependencies"), QVariant(depMap));
+
 
     writer.saveValue(QLatin1String("OpenEditors"),
                      m_core->editorManager()->openedEditors().count());
@@ -694,27 +694,15 @@ bool SessionManager::clear()
     if (debug)
         qDebug() << "SessionManager - clearing session ...";
 
-    bool cancelled;
-    QList<Project *> notClosed = requestCloseOfAllFiles(&cancelled);
-
-    bool success = !cancelled;
+    bool success = m_core->editorManager()->closeAllEditors();
 
     if (success) {
         if (debug)
             qDebug() << "SessionManager - Removing projects ...";
 
-        QList<Project *> toClose;
-        foreach (Project *pro, projects()) {
-            if (!notClosed.contains(pro))
-                toClose << pro;
-        }
-
         setStartupProject(0);
-        removeProjects(toClose);
+        removeProjects(projects());
     }
-
-    if (!notClosed.isEmpty())
-        success = false;
 
     if (debug)
         qDebug() << "SessionManager - clearing session result is " << success;
@@ -881,29 +869,6 @@ void SessionManager::setEditorCodec(Core::IEditor *editor, const QString &fileNa
     if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor))
         if (Project *project = projectForFile(fileName))
             textEditor->setTextCodec(project->editorConfiguration()->defaultTextCodec());
-}
-
-QList<Project *> SessionManager::requestCloseOfAllFiles(bool *cancelled)
-{
-    *cancelled = false;
-    QList<Core::IFile*> filesToClose;
-    foreach (Project *pro, projects())
-        filesToClose << pro->file();
-    foreach (Core::IEditor *editor, m_core->editorManager()->openedEditors())
-        filesToClose << editor->file();
-    QList<Core::IFile*> notClosed;
-    if (!filesToClose.isEmpty())
-        notClosed = m_core->fileManager()->saveModifiedFiles(filesToClose, cancelled);
-    // close editors here by hand
-    if (!*cancelled) {
-        QList<Core::IEditor*> editorsToClose;
-        foreach (Core::IEditor *editor, m_core->editorManager()->openedEditors())
-            if (!notClosed.contains(editor->file()))
-                editorsToClose << editor;
-        m_core->editorManager()->closeEditors(editorsToClose, false);
-        // project files are closed/removed later (in this::clear)
-    }
-    return Core::Utils::qwConvertList<Project*>(notClosed);
 }
 
 Core::IFile *SessionManager::file() const

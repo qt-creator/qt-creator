@@ -48,7 +48,7 @@
 #ifdef Q_OS_UNIX
 #include <unistd.h>
 #include <sys/utsname.h>
-#elif defined(Q_OS_WIN32)
+#else
 #include <Windows.h>
 #endif
 #include <stdio.h>
@@ -248,8 +248,10 @@ public:
     bool m_parsePreAndPostFiles;
 };
 
+#if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
 Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::State, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::ProLoop, Q_MOVABLE_TYPE);
+#endif
 
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
   : q(q_)
@@ -893,7 +895,7 @@ void ProFileEvaluator::Private::visitProValue(ProValue *value)
             {
                 // DEFINES ~= s/a/b/?[gqi]
 
-                // FIXME: qmake variable-expands val first.
+                doVariableReplace(&val);
                 if (val.length() < 4 || val[0] != QLatin1Char('s')) {
                     q->logMessage(format("the ~= operator can handle only the s/// function."));
                     break;
@@ -1306,7 +1308,7 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
 
     if (m_valuemapStack.count() >= 100) {
         q->errorMessage(format("ran into infinite recursion (depth > 100)."));
-        ok = false;
+        oki = false;
     } else {
         State sts = m_sts;
         m_valuemapStack.push(m_valuemap);

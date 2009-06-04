@@ -146,7 +146,7 @@ void TextEditorActionHandler::createActions()
     m_visualizeWhitespaceAction->setCheckable(true);
     command = am->registerAction(m_visualizeWhitespaceAction,
                                  TextEditor::Constants::VISUALIZE_WHITESPACE, m_contextId);
-#ifndef Q_OS_MAC
+#ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, Ctrl+V")));
 #endif
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
@@ -162,7 +162,7 @@ void TextEditorActionHandler::createActions()
     m_textWrappingAction = new QAction(tr("Enable Text &Wrapping"), this);
     m_textWrappingAction->setCheckable(true);
     command = am->registerAction(m_textWrappingAction, TextEditor::Constants::TEXT_WRAPPING, m_contextId);
-#ifndef Q_OS_MAC
+#ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, Ctrl+W")));
 #endif
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);

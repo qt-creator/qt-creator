@@ -23,9 +23,7 @@ qch_docs.files = $$QCH_FILE
 
 unix:!macx {
     system("mkdir -p `dirname $$QCH_FILE` && touch $$QCH_FILE")
-}
 
-unix:!macx {
     qch_docs.path = /share/doc/qtcreator
     INSTALLS += qch_docs
 }

@@ -280,6 +280,7 @@ void FakeVimPluginPrivate::shutdown()
     delete m_fakeVimOptionsPage;
     m_fakeVimOptionsPage = 0;
     theFakeVimSettings()->writeSettings(Core::ICore::instance()->settings());
+    delete theFakeVimSettings();
 }
 
 bool FakeVimPluginPrivate::initialize()
