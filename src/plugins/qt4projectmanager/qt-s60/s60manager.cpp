@@ -114,5 +114,5 @@ void S60Manager::updateQtVersions()
 ProjectExplorer::ToolChain *S60Manager::createWINSCWToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
     QString id = version->autodetectionSource().mid(QString(S60_AUTODETECTION_SOURCE).length()+1);
-    return new WINSCWToolChain(m_devices->deviceForId(id));
+    return new WINSCWToolChain(m_devices->deviceForId(id), version->mwcDirectory());
 }

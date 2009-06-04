@@ -11,7 +11,7 @@ namespace Internal {
 class WINSCWToolChain : public ProjectExplorer::ToolChain
 {
 public:
-    WINSCWToolChain(S60Devices::Device device);
+    WINSCWToolChain(S60Devices::Device device, const QString &mwcDirectory);
     QByteArray predefinedMacros();
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
     void addToEnvironment(ProjectExplorer::Environment &env);

@@ -162,6 +162,16 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="mwcLabel">
+        <property name="text">
+         <string>MWC Directory:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="Core::Utils::PathChooser" name="mwcPath" native="true"/>
+      </item>
       <item row="6" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
@@ -208,6 +218,20 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
      </layout>
+     <zorder>qtdirList</zorder>
+     <zorder>versionNameLabel</zorder>
+     <zorder>nameEdit</zorder>
+     <zorder>pathLabel</zorder>
+     <zorder>qtPath</zorder>
+     <zorder>mingwLabel</zorder>
+     <zorder>mingwPath</zorder>
+     <zorder>msvcLabel</zorder>
+     <zorder>label</zorder>
+     <zorder>errorLabel</zorder>
+     <zorder>mwcLabel</zorder>
+     <zorder>mwcPath</zorder>
+     <zorder>msvcComboBox</zorder>
+     <zorder>msvcNotFoundLabel</zorder>
     </widget>
    </item>
    <item>

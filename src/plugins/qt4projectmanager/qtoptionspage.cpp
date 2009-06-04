@@ -81,6 +81,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     m_ui->qtPath->setPromptDialogTitle(tr("Select QTDIR"));
     m_ui->mingwPath->setExpectedKind(Core::Utils::PathChooser::Directory);
     m_ui->qtPath->setPromptDialogTitle(tr("Select the Qt Directory"));
+    m_ui->mwcPath->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_ui->mwcPath->setPromptDialogTitle(tr("Select \"x86build\" Directory from Carbide Install"));
 
     m_ui->addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui->delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
@@ -126,6 +128,10 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
             this, SLOT(updateCurrentQtPath()));
     connect(m_ui->mingwPath, SIGNAL(changed()),
             this, SLOT(updateCurrentMingwDirectory()));
+#ifdef QTCREATOR_WITH_S60
+    connect(m_ui->mwcPath, SIGNAL(changed()),
+            this, SLOT(updateCurrentMwcDirectory()));
+#endif
 
     connect(m_ui->addButton, SIGNAL(clicked()),
             this, SLOT(addQtDir()));
@@ -278,6 +284,12 @@ void QtOptionsPageWidget::makeMSVCVisible(bool visible)
     m_ui->msvcNotFoundLabel->setVisible(false);
 }
 
+void QtOptionsPageWidget::makeMWCVisible(bool visible)
+{
+    m_ui->mwcLabel->setVisible(visible);
+    m_ui->mwcPath->setVisible(visible);
+}
+
 void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
 {
     if (item) {
@@ -285,6 +297,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
         if (index < 0) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
+            makeMWCVisible(false);
             return;
         }
         m_ui->errorLabel->setText("");
@@ -292,10 +305,12 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
         if (t == ProjectExplorer::ToolChain::MinGW) {
             makeMSVCVisible(false);
             makeMingwVisible(true);
+            makeMWCVisible(false);
             m_ui->mingwPath->setPath(m_versions.at(index)->mingwDirectory());
         } else if (t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE){
             makeMSVCVisible(false);
             makeMingwVisible(false);
+            makeMWCVisible(false);
             QStringList msvcEnvironments = ProjectExplorer::ToolChain::availableMSVCVersions();
             if (msvcEnvironments.count() == 0) {
                 m_ui->msvcLabel->setVisible(true);
@@ -312,9 +327,17 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
                  }
                  m_ui->msvcComboBox->blockSignals(block);
             }
+#ifdef QTCREATOR_WITH_S60
+        } else if (t == ProjectExplorer::ToolChain::WINSCW) {
+            makeMSVCVisible(false);
+            makeMingwVisible(false);
+            makeMWCVisible(true);
+            m_ui->mwcPath->setPath(m_versions.at(index)->mwcDirectory());
+#endif
         } else if (t == ProjectExplorer::ToolChain::INVALID) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
+            makeMWCVisible(false);
             if (!m_versions.at(index)->isInstalled())
                 m_ui->errorLabel->setText(tr("The Qt Version %1 is not installed. Run make install")
                                            .arg(QDir::toNativeSeparators(m_versions.at(index)->path())));
@@ -323,6 +346,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
         } else { //ProjectExplorer::ToolChain::GCC
             makeMSVCVisible(false);
             makeMingwVisible(false);
+            makeMWCVisible(false);
             m_ui->errorLabel->setText(tr("Found Qt version %1, using mkspec %2")
                                      .arg(m_versions.at(index)->qtVersionString(),
                                           m_versions.at(index)->mkspec()));
@@ -330,6 +354,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
     } else {
         makeMSVCVisible(false);
         makeMingwVisible(false);
+        makeMWCVisible(false);
     }
 }
 
@@ -506,6 +531,18 @@ void QtOptionsPageWidget::msvcVersionChanged()
         return;
     m_versions[currentItemIndex]->setMsvcVersion(msvcVersion);
 }
+
+#ifdef QTCREATOR_WITH_S60
+void QtOptionsPageWidget::updateCurrentMwcDirectory()
+{
+    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
+    Q_ASSERT(currentItem);
+    int currentItemIndex = indexForTreeItem(currentItem);
+    if (currentItemIndex < 0)
+        return;
+    m_versions[currentItemIndex]->setMwcDirectory(m_ui->mwcPath->path());
+}
+#endif
 
 QList<QtVersion *> QtOptionsPageWidget::versions() const
 {

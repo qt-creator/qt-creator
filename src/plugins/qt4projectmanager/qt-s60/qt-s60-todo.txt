@@ -8,4 +8,5 @@
 * WINSCW tool chain:
     * predefined macros
     * system includes
-    * get rid of hardcoded carbide path
+
+* Run WINSCW executables

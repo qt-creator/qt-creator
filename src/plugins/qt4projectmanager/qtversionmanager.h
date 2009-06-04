@@ -83,6 +83,10 @@ public:
 
     ProjectExplorer::ToolChain::ToolChainType toolchainType() const;
 
+#ifdef QTCREATOR_WITH_S60
+    QString mwcDirectory() const;
+    void setMwcDirectory(const QString &directory);
+#endif
     QString mingwDirectory() const;
     void setMingwDirectory(const QString &directory);
     QString msvcVersion() const;
@@ -135,6 +139,9 @@ private:
     bool m_isAutodetected;
     QString m_autodetectionSource;
     bool m_hasDebuggingHelper;
+#ifdef QTCREATOR_WITH_S60
+    QString m_mwcDirectory;
+#endif
 
     mutable bool m_mkspecUpToDate;
     mutable QString m_mkspec; // updated lazily

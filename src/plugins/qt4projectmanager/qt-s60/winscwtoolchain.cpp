@@ -3,9 +3,9 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-WINSCWToolChain::WINSCWToolChain(S60Devices::Device device)
+WINSCWToolChain::WINSCWToolChain(S60Devices::Device device, const QString &mwcDirectory)
         // TODO get rid of hardcoded carbide path
-    : m_carbidePath(QLatin1String("C:\\Apps\\Nokia\\Carbide.c++ v2.0")),
+    : m_carbidePath(mwcDirectory),
     m_deviceId(device.id),
     m_deviceName(device.name),
     m_deviceRoot(device.epocRoot)
