@@ -364,6 +364,14 @@ protected:
         return false;
     }
 
+    virtual bool visit(TypenameTypeParameterAST *ast)
+    {
+        if (ast->name)
+            addType(ast->name->name);
+
+        return true;
+    }
+
     virtual bool visit(NamedTypeSpecifierAST *ast)
     {
         if (ast->name) {
