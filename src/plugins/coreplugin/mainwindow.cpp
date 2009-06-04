@@ -898,7 +898,7 @@ bool MainWindow::showOptionsDialog(const QString &category,
 void MainWindow::saveAll()
 {
     bool success;
-    m_fileManager->saveModifiedFiles(m_fileManager->modifiedFiles());
+    m_fileManager->saveModifiedFilesSilently(m_fileManager->modifiedFiles());
     emit m_coreImpl->saveSettingsRequested();
 }
 
