@@ -35,6 +35,7 @@
 #include <QtGui/QBrush>
 #include <QtGui/QColor>
 #include <QtDebug>
+#define PROGRESSBAR_HEIGHT 11
 
 ProgressBar::ProgressBar(QWidget *parent)
     : QProgressBar(parent), m_error(false)
@@ -72,7 +73,7 @@ QSize ProgressBar::sizeHint() const
 {
     QSize s;
     s.setWidth(50);
-    s.setHeight(fontMetrics().height() * 2);
+    s.setHeight(fontMetrics().height() + PROGRESSBAR_HEIGHT + 7);
     return s;
 }
 
@@ -133,7 +134,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     p.drawText(textRect, Qt::AlignHCenter | Qt::AlignBottom, m_title);
     p.translate(0, 1);
 
-    m_progressHeight = h-4;
+    m_progressHeight = PROGRESSBAR_HEIGHT;
     m_progressHeight += ((m_progressHeight % 2) + 1) % 2; // make odd
     // draw outer rect
     QRect rect(INDENT - 1, h+6, size().width()-2*INDENT, m_progressHeight-1);
