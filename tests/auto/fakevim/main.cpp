@@ -68,6 +68,9 @@ private slots:
     void command_up();
     void command_w();
 
+    // special tests
+    void test_i_cw_i();
+
 private:
     void setup();    
     void send(const QString &command) { sendEx("normal " + command); }
@@ -113,6 +116,11 @@ const QString tst_FakeVim::lines =
 const QStringList tst_FakeVim::l = tst_FakeVim::lines.split('\n');
 
 const QString tst_FakeVim::escape = QChar(27);
+
+QString control(int c)
+{
+    return QChar(c + 256);
+}
 
 
 tst_FakeVim::tst_FakeVim(bool usePlainTextEdit)
@@ -321,6 +329,9 @@ void tst_FakeVim::command_i()
     // small insertion at start of document
     check("ix" + escape, "@x" + lines);
     check("u", "@" + lines);
+// FIXME redo broken
+    //check(control('r'), "@x" + lines);
+    //check("u", "@" + lines);
 
     // small insertion at start of document
     check("ixxx" + escape, "xx@x" + lines);
@@ -341,7 +352,6 @@ void tst_FakeVim::command_i()
 // FIXME undo broken
 //    checkEx("redo", "b@xa" + lines);
 //    check("u", "@a" + lines);
-    check("u", "@" + lines);
 }
 
 void tst_FakeVim::command_left()
@@ -350,8 +360,7 @@ void tst_FakeVim::command_left()
     move("4j",  "@int main");
     move("h",   "@int main"); // no move over left border
     move("$",   "argv[])@");
-    //move("h",   "argv[]@)");
-    check("h",   lmid(0, 4) + "\nint main(int argc, char *argv[]@)\n" + lmid(5));
+    move("h",   "argv[]@)");
     move("3h",  "arg@v[])");
     move("50h", "@int main");
 }
@@ -420,6 +429,16 @@ int main(int argc, char *argv[])
 }
 */
 
+
+void tst_FakeVim::test_i_cw_i()
+{
+    setup();
+    move("j",                "@" + l[1]);
+    check("ixx" + escape,    l[0] + "\nx@x" + lmid(1));
+return; // FIXME: not in sync with Gui behaviour?
+    check("cwyy" + escape,   l[0] + "\nxy@y" + lmid(1));
+    check("iaa" + escape,    l[0] + "\nxya@ay" + lmid(1));
+}
 
 
 //////////////////////////////////////////////////////////////////////////
