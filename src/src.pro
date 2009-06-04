@@ -4,6 +4,5 @@ CONFIG   += ordered
 SUBDIRS = \
     libs \
     app \
-    plugins
-
- 
+    plugins \
+    tools
