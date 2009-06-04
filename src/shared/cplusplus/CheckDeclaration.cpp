@@ -211,6 +211,11 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         else if (ty.isTypedef())
             symbol->setStorage(Symbol::Typedef);
 
+        if (it->declarator && it->declarator->initializer) {
+            FullySpecifiedType initTy = semantic()->check(it->declarator->initializer, _scope);
+            Q_UNUSED(initTy);
+        }
+
         *decl_it = new (translationUnit()->memoryPool()) List<Declaration *>();
         (*decl_it)->value = symbol;
         decl_it = &(*decl_it)->next;
