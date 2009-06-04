@@ -890,10 +890,6 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     foreach (QAction *action, contextMenu->actions())
         menu->addAction(action);
 
-    QAction *reformatDocument = new QAction(tr("Reformat Document"), menu);
-    connect(reformatDocument, SIGNAL(triggered()), this, SLOT(reformatDocument()));
-    menu->addAction(reformatDocument);
-
     menu->exec(e->globalPos());
     delete menu;
 }
