@@ -256,6 +256,7 @@ class Process;
 class CheckUndefinedSymbols: protected ASTVisitor
 {
     QSet<QByteArray> _types;
+    QSet<QByteArray> _namespaceNames;
 
 public:
     CheckUndefinedSymbols(Document::Ptr doc)
@@ -312,6 +313,10 @@ protected:
     {
         if (! processed->contains(binding)) {
             processed->insert(binding);
+
+            if (Identifier *id = binding->identifier()) {
+                _namespaceNames.insert(QByteArray(id->chars(), id->size()));
+            }
 
             foreach (Namespace *ns, binding->symbols) {
                 for (unsigned i = 0; i < ns->memberCount(); ++i) {
@@ -498,6 +503,26 @@ protected:
             if (! binding || ! binding->resolveNamespace(loc, ast->symbol->name())) {
                 translationUnit()->warning(ast->name->firstToken(),
                                            "expected a namespace after `=' token");
+            }
+        }
+
+        return true;
+    }
+
+    virtual bool visit(QualifiedNameAST *ast)
+    {
+        if (ast->name) {
+            QualifiedNameId *q = ast->name->asQualifiedNameId();
+            for (unsigned i = 0; i < q->nameCount() - 1; ++i) {
+                Name *name = q->nameAt(i);
+                if (Identifier *id = name->identifier()) {
+                    const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
+                    if (! (_namespaceNames.contains(spell) || _types.contains(spell))) {
+                        translationUnit()->warning(ast->firstToken(),
+                                                   "`%s' is not a namespace or class name",
+                                                   spell.constData());
+                    }
+                }
             }
         }
 
