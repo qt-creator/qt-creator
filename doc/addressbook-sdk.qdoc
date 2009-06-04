@@ -272,10 +272,11 @@
     We shall continue with the form we had from the last chapter; we have the
     labels and input fields set up, but we need to add push buttons to complete
     the process of adding a contact. So, we begin by breaking the existing
-    layouts. Then, we add three push buttons. Double-click on each of them to
-    set their text to "Add", "Submit", and "Cancel". We now require a vertical
-    spacer to ensure that the push buttons will be laid out neatly; drag one
-    from the \gui{Widget Box}.
+    layouts: select \gui{Break Layout} from the context menu. You might have to
+    do a \gui{Select All} with \key{Ctrl+A} first.. Then, we add three push
+    buttons. Double-click on each of them to set their text to "Add", "Submit",
+    and "Cancel". We now require a vertical spacer to ensure that the push
+    buttons will be laid out neatly; drag one from the \gui{Widget Box}.
 
     Next, lay out these three push buttons and the spacer vertically, by
     selecting all three of them (using the \key{Ctrl + click}) and choosing
@@ -447,6 +448,21 @@
 
     \section1 Placing Widgets on the Form
 
+    So far, our application allows us to add new contacts. However, we also
+    need to traverse the existing contacts. To do so, we add two push buttons
+    at the bottom of our application and name them: \gui Next and
+    \gui Previous. Place them in a horizontal layout.
+
+    To lay the buttons out, we begin by breaking our top level layout. Simply
+    right-click on \c AddressBook in the \gui{Object Inspector} and then select
+    \gui{Lay out|Break Layout} Then we drag two push buttons onto the form and
+    name them accordingly. The buttons' \c objectName should be \c nextButton
+    and \c previousButton, respectively.
+
     \section1 The AddressBook Class
+
+    In order to add navigation functions to the address book application, we
+    need to add two more slots to our \c AddressBook class: \c next() and
+    \c previous().
 
 */
