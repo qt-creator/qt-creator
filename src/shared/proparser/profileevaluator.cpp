@@ -742,29 +742,32 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
     m_lineNo = pro->lineNumber();
     if (m_profileStack.count() == 1 && !m_oldPath.isEmpty()) {
         const QString &mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
-        if (!mkspecDirectory.isEmpty() && m_parsePreAndPostFiles) {
-            bool cumulative = m_cumulative;
-            m_cumulative = false;
+        if (!mkspecDirectory.isEmpty()) {
+            if (m_parsePreAndPostFiles) {
+                bool cumulative = m_cumulative;
+                m_cumulative = false;
 
-            evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"));
+                evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"));
 
-            QSet<QString> processed;
-            forever {
-                bool finished = true;
-                QStringList configs = valuesDirect(QLatin1String("CONFIG"));
-                for (int i = configs.size() - 1; i >= 0; --i) {
-                    const QString config = configs[i].toLower();
-                    if (!processed.contains(config)) {
-                        processed.insert(config);
-                        if (evaluateFile(mkspecDirectory + QLatin1String("/features/")
-                                         + config + QLatin1String(".prf"))) {
-                            finished = false;
-                            break;
+                QSet<QString> processed;
+                forever {
+                    bool finished = true;
+                    QStringList configs = valuesDirect(QLatin1String("CONFIG"));
+                    for (int i = configs.size() - 1; i >= 0; --i) {
+                        const QString config = configs[i].toLower();
+                        if (!processed.contains(config)) {
+                            processed.insert(config);
+                            if (evaluateFile(mkspecDirectory + QLatin1String("/features/")
+                                + config + QLatin1String(".prf"))) {
+                                finished = false;
+                                break;
+                            }
                         }
                     }
+                    if (finished)
+                        break;
                 }
-                if (finished)
-                    break;
+                m_cumulative = cumulative;
             }
 
             foreach (ProBlock *itm, m_replaceFunctions)
@@ -773,8 +776,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
             foreach (ProBlock *itm, m_testFunctions)
                 itm->deref();
             m_testFunctions.clear();
-
-            m_cumulative = cumulative;
         }
 
         m_profileStack.pop();
