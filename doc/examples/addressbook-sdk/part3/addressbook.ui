@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>addressbook</class>
- <widget class="QWidget" name="addressbook">
+ <class>AddressBook</class>
+ <widget class="QWidget" name="AddressBook">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>505</width>
-    <height>326</height>
+    <width>600</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>addressbook</string>
+   <string>AddressBook</string>
   </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>20</y>
      <width>413</width>
      <height>225</height>

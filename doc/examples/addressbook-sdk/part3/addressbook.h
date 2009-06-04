@@ -11,7 +11,7 @@
 
 namespace Ui
 {
-    class AddressBookClass;
+    class AddressBook;
 }
 
 class AddressBook : public QWidget
@@ -30,7 +30,7 @@ public slots:
 //! [slot definition]
 
 private:
-    Ui::AddressBookClass *ui;
+    Ui::AddressBook *ui;
 
 //! [members1]
     QPushButton *addButton;
