@@ -87,6 +87,8 @@ public:
 
     void unCommentSelection();
 
+    void indentInsertedText(const QTextCursor &tc);
+
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
@@ -119,6 +121,7 @@ private slots:
     void updateMethodBoxToolTip();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
     void reformatDocument();
+    void simplifyDeclarations();
 
 private:
     bool sortedMethodOverview() const;

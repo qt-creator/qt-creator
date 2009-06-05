@@ -143,6 +143,111 @@ protected:
     }
 };
 
+class SimplifyDeclarations: protected ASTVisitor
+{
+    CPPEditor *_editor;
+    Document::Ptr _doc;
+    QByteArray _source;
+    QTextCursor _textCursor;
+    unsigned _line;
+    unsigned _column;
+
+public:
+    SimplifyDeclarations(CPPEditor *ed, Document::Ptr doc)
+        : ASTVisitor(doc->control()), _editor(ed),
+          _doc(doc), _source(doc->source())
+    { }
+
+    void operator()(QTextCursor tc)
+    {
+        _textCursor = tc;
+
+        _line = _textCursor.blockNumber() + 1;
+        _column = _textCursor.columnNumber() + 1;
+
+        accept(_doc->translationUnit()->ast());
+    }
+
+protected:
+    QByteArray text(unsigned firstToken, unsigned lastToken) const
+    {
+        const unsigned begin = tokenAt(firstToken).begin();
+        const unsigned end = tokenAt(lastToken - 1).end();
+        return _source.mid(begin, end - begin);
+    }
+
+    virtual bool visit(SimpleDeclarationAST *ast)
+    {
+        if (! ast->decl_specifier_seq) {
+            // e.g a ctor/dtor or a cast-function-id.
+            return true;
+        } if (! ast->declarators) {
+            // e.g.
+            // struct foo { int a; };
+            return true;
+        } else if (! ast->declarators->next) {
+            // e.g.
+            // int a;
+            return true;
+        }
+
+        unsigned startLine, startColumn;
+        unsigned endLine, endColumn;
+
+        getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
+        getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
+
+        if (_line < startLine || (_line == startLine && _column < startColumn))
+            return true;
+        else if (_line > endLine || (_line == endLine && _column >= endColumn))
+            return true;
+
+        unsigned beginOfDeclSpecifiers = ast->decl_specifier_seq->firstToken();
+        unsigned endOfDeclSpecifiers = 0;
+
+        for (SpecifierAST *spec = ast->decl_specifier_seq; spec; spec = spec->next) {
+            if (spec->asClassSpecifier() != 0) {
+                // e.g.
+                // struct foo { int a; } x, y, z;
+                return true;
+            } else if (! spec->next)
+                endOfDeclSpecifiers = spec->lastToken();
+        }
+
+        const QByteArray declSpecifiers =
+                text(beginOfDeclSpecifiers, endOfDeclSpecifiers);
+
+        QByteArray code;
+        for (DeclaratorListAST *it = ast->declarators; it; it = it->next) {
+            DeclaratorAST *decl = it->declarator;
+
+            const QByteArray declaratorText = text(decl->firstToken(), decl->lastToken());
+            code += declSpecifiers;
+            code += ' ';
+            code += declaratorText;
+            code += ';';
+            code += '\n';
+        }
+
+        const QString refactoredCode = QString::fromUtf8(code);
+
+        QTextCursor tc = _textCursor;
+        tc.beginEditBlock();
+        tc.setPosition(tc.document()->findBlockByNumber(startLine - 1).position() + startColumn - 1);
+        int startPos = tc.position();
+        tc.setPosition(tc.document()->findBlockByNumber(endLine - 1).position() + endColumn - 1,
+                       QTextCursor::KeepAnchor);
+        tc.removeSelectedText();
+        tc.insertText(refactoredCode);
+        tc.setPosition(startPos);
+        tc.setPosition(tc.position() + refactoredCode.length(), QTextCursor::KeepAnchor);
+        _editor->indentInsertedText(tc);
+        tc.endEditBlock();
+
+        return true;
+    }
+};
+
 } // end of anonymous namespace
 
 static QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
@@ -409,6 +514,18 @@ void CPPEditor::reformatDocument()
     c.setPosition(0);
     c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     c.insertText(QString::fromUtf8(str.c_str(), str.length()));
+}
+
+void CPPEditor::simplifyDeclarations()
+{
+    Snapshot snapshot = m_modelManager->snapshot();
+    const QByteArray plainText = toPlainText().toUtf8();
+    const QString fileName = file()->fileName();
+    const QByteArray preprocessedCode = snapshot.preprocessedCode(plainText, fileName);
+    Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, fileName);
+
+    SimplifyDeclarations simplify(this, doc);
+    simplify(textCursor());
 }
 
 void CPPEditor::updateFileName()
@@ -848,6 +965,11 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
+void CPPEditor::indentInsertedText(const QTextCursor &tc)
+{
+    indent(tc.document(), tc, QChar::Null);
+}
+
 // Indent a code line based on previous
 template <class Iterator>
 static void indentCPPBlock(const CPPEditor::TabSettings &ts,
@@ -889,6 +1011,10 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
 
     foreach (QAction *action, contextMenu->actions())
         menu->addAction(action);
+
+    QAction *simplifyDeclarations = new QAction(tr("Simplify Declarations"), menu);
+    connect(simplifyDeclarations, SIGNAL(triggered()), this, SLOT(simplifyDeclarations()));
+    menu->addAction(simplifyDeclarations);
 
     menu->exec(e->globalPos());
     delete menu;
