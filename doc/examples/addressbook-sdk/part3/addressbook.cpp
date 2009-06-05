@@ -6,7 +6,6 @@ AddressBook::AddressBook(QWidget *parent)
 {
     ui->setupUi(this);
 
-    //! [extract objects]
     nameLine = new QLineEdit;
     nameLine = ui->nameLine;
     nameLine->setReadOnly(true);
@@ -25,20 +24,29 @@ AddressBook::AddressBook(QWidget *parent)
     cancelButton = new QPushButton;
     cancelButton = ui->cancelButton;
     cancelButton->hide();
-    //! [extract objects]
 
-    //! [signal slot]
+//! [extract objects]
+    nextButton = new QPushButton;
+    nextButton = ui->nextButton;
+
+    previousButton = new QPushButton;
+    previousButton = ui->previousButton;
+//! [extract objects]
+
     connect(addButton, SIGNAL(clicked()), this,
                 SLOT(addContact()));
     connect(submitButton, SIGNAL(clicked()), this,
                 SLOT(submitContact()));
     connect(cancelButton, SIGNAL(clicked()), this,
                 SLOT(cancel()));
-    //! [signal slot]
+//! [signal slot]
+    connect(nextButton, SIGNAL(clicked()), this,
+                SLOT(next()));
+    connect(previousButton, SIGNAL(clicked()), this,
+                SLOT(previous()));
+//! [signal slot]
 
-    //! [window title]
     setWindowTitle(tr("Simple Address Book"));
-    //! [window title]
 }
 
 AddressBook::~AddressBook()
@@ -46,7 +54,6 @@ AddressBook::~AddressBook()
     delete ui;
 }
 
-//! [addContact]
 void AddressBook::addContact()
 {
     oldName = nameLine->text();
@@ -63,9 +70,7 @@ void AddressBook::addContact()
     submitButton->show();
     cancelButton->show();
 }
-//! [addContact]
 
-//! [submitContact part1]
 void AddressBook::submitContact()
 {
     QString name = nameLine->text();
@@ -76,9 +81,7 @@ void AddressBook::submitContact()
             tr("Please enter a name and address."));
         return;
     }
-//! [submitContact part1]
 
-//! [submitContact part2]
     if (!contacts.contains(name)) {
         contacts.insert(name, address);
         QMessageBox::information(this, tr("Add Successful"),
@@ -89,9 +92,7 @@ void AddressBook::submitContact()
             tr("Sorry, \"%1\" is already in your address book.").arg(name));
         return;
     }
-//! [submitContact part2]
 
-//! [submitContact part3]
     if (contacts.isEmpty()) {
         nameLine->clear();
         addressText->clear();
@@ -103,9 +104,7 @@ void AddressBook::submitContact()
     submitButton->hide();
     cancelButton->hide();
 }
-//! [submitContact part3]
 
-//! [cancel]
 void AddressBook::cancel()
 {
     nameLine->setText(oldName);
@@ -118,4 +117,41 @@ void AddressBook::cancel()
     submitButton->hide();
     cancelButton->hide();
 }
-//! [cancel]
+
+//! [next]
+void AddressBook::next()
+{
+    QString name = nameLine->text();
+    QMap<QString, QString>::iterator i = contacts.find(name);
+
+    if (i != contacts.end())
+        i++;
+    if (i == contacts.end())
+        i = contacts.begin();
+
+    nameLine->setText(i.key());
+    addressText->setText(i.value());
+}
+//! [next]
+
+//! [previous]
+void AddressBook::previous()
+{
+    QString name = nameLine->text();
+    QMap<QString, QString>::iterator i = contacts.find(name);
+
+    if (i == contacts.end()) {
+        nameLine->clear();
+        addressText->clear();
+        return;
+    }
+
+    if (i == contacts.begin())
+        i = contacts.end();
+
+    i--;
+    nameLine->setText(i.key());
+    addressText->setText(i.value());
+}
+//! [previous]
+

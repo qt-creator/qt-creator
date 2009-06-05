@@ -451,18 +451,42 @@
     So far, our application allows us to add new contacts. However, we also
     need to traverse the existing contacts. To do so, we add two push buttons
     at the bottom of our application and name them: \gui Next and
-    \gui Previous. Place them in a horizontal layout.
+    \gui Previous. The buttons' \c objectName should be \c nextButton and
+    \c previousButton, respectively. Then, we break our top level layout.
+    Simply right-click on \c AddressBook in the \gui{Object Inspector} and
+    then select \gui{Lay out|Break Layout}. Place the \gui Next and
+    \gui Previous buttons in a horizontal layout. Now drag and drop the buttons
+    together with their layout into the existing grid layout. The screenshot
+    below illustrates what you will see as the button layout approaches the
+    grid layout; drop it then.
 
-    To lay the buttons out, we begin by breaking our top level layout. Simply
-    right-click on \c AddressBook in the \gui{Object Inspector} and then select
-    \gui{Lay out|Break Layout} Then we drag two push buttons onto the form and
-    name them accordingly. The buttons' \c objectName should be \c nextButton
-    and \c previousButton, respectively.
+    \image addressbook-tutorial-part3-drop-into-gridlayout
+
+    Finally, set a top level layout for the widget again.
+
 
     \section1 The AddressBook Class
 
-    In order to add navigation functions to the address book application, we
-    need to add two more slots to our \c AddressBook class: \c next() and
-    \c previous().
+    Let's move on to the code. In order to add navigation functions to the
+    address book application, we need to add two more slots to our
+    \c AddressBook class: \c next() and \c previous().
+
+    \snippet examples/addressbook-sdk/part3/addressbook.h slot definition
+
+    We also define two more QPushButton objects:
+
+    \snippet examples/addressbook-sdk/part3/addressbook.h members
+
+    To implement these slots, we begin by extracting the push buttons from
+    the form:
+
+    \snippet examples/addressbook-sdk/part3/addressbook.cpp extract objects
+
+    Next, we make the necessary signal-slot connections.
+
+    \snippet examples/addressbook-sdk/part3/addressbook.cpp signal slot
+
+
+
 
 */

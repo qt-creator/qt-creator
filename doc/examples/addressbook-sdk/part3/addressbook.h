@@ -22,29 +22,31 @@ public:
     AddressBook(QWidget *parent = 0);
     ~AddressBook();
 
-//! [slot definition]
 public slots:
     void addContact();
     void submitContact();
     void cancel();
 //! [slot definition]
+    void next();
+    void previous();
+//! [slot definition]
 
 private:
     Ui::AddressBook *ui;
 
-//! [members1]
     QPushButton *addButton;
     QPushButton *submitButton;
     QPushButton *cancelButton;
+//! [members]
+    QPushButton *nextButton;
+    QPushButton *previousButton;
+//! [members]
     QLineEdit *nameLine;
     QTextEdit *addressText;
-//! [members1]
 
-//! [members2]
     QMap<QString, QString> contacts;
     QString oldName;
     QString oldAddress;
-//! [members2]
 };
 
 #endif // ADDRESSBOOK_H
