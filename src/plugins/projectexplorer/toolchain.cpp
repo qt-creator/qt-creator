@@ -100,7 +100,9 @@ QStringList ToolChain::supportedToolChains()
     return QStringList() << QLatin1String("gcc")
                          << QLatin1String("mingw")
                          << QLatin1String("msvc")
-                         << QLatin1String("wince");
+                         << QLatin1String("wince")
+                         << QLatin1String("winscw")
+                         << QLatin1String("gcce");
 }
 
 QString ToolChain::toolChainName(ToolChainType tc)

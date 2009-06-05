@@ -380,6 +380,11 @@ QString Qt4Project::makeCommand(const QString &buildConfiguration) const
     return qtVersion(buildConfiguration)->toolChain()->makeCommand();
 }
 
+QString Qt4Project::defaultMakeTarget(const QString &buildConfiguration) const
+{
+    return qtVersion(buildConfiguration)->toolChain()->defaultMakeTarget();
+}
+
 void Qt4Project::updateCodeModel()
 {
     if (debug)

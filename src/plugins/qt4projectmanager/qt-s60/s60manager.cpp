@@ -32,6 +32,7 @@
 #include "s60devices.h"
 #include "s60devicespreferencepane.h"
 #include "winscwtoolchain.h"
+#include "gccetoolchain.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -115,4 +116,10 @@ ProjectExplorer::ToolChain *S60Manager::createWINSCWToolChain(const Qt4ProjectMa
 {
     QString id = version->autodetectionSource().mid(QString(S60_AUTODETECTION_SOURCE).length()+1);
     return new WINSCWToolChain(m_devices->deviceForId(id), version->mwcDirectory());
+}
+
+ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const
+{
+    QString id = version->autodetectionSource().mid(QString(S60_AUTODETECTION_SOURCE).length()+1);
+    return new GCCEToolChain(m_devices->deviceForId(id));
 }

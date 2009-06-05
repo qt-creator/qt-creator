@@ -53,6 +53,7 @@ public:
     static S60Manager *instance();
 
     ProjectExplorer::ToolChain *createWINSCWToolChain(const Qt4ProjectManager::QtVersion *version) const;
+    ProjectExplorer::ToolChain *createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const;
 
 private slots:
     void updateQtVersions();

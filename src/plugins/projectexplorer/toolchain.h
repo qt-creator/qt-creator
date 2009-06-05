@@ -75,6 +75,7 @@ public:
         WINCE,
 #ifdef QTCREATOR_WITH_S60
         WINSCW,
+        GCCE,
 #endif
         OTHER,
         UNKNOWN,
@@ -86,6 +87,7 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env) = 0;
     virtual ToolChainType type() const = 0;
     virtual QString makeCommand() const = 0;
+    virtual QString defaultMakeTarget() const = 0;
 
     ToolChain();
     virtual ~ToolChain();
@@ -115,6 +117,7 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
+    virtual QString defaultMakeTarget() const { return ""; }
 
 protected:
     virtual bool equals(ToolChain *other) const;
@@ -148,6 +151,7 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
+    virtual QString defaultMakeTarget() const { return ""; }
 protected:
     virtual bool equals(ToolChain *other) const;
     QString m_name;

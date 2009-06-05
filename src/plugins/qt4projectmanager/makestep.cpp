@@ -68,7 +68,8 @@ bool MakeStep::init(const QString &name)
         workingDirectory = QFileInfo(project()->file()->fileName()).absolutePath();
     setWorkingDirectory(name, workingDirectory);
 
-    QString makeCmd = qobject_cast<Qt4Project *>(project())->makeCommand(name);
+    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
+    QString makeCmd = qt4project->makeCommand(name);
     if (!value(name, "makeCmd").toString().isEmpty())
         makeCmd = value(name, "makeCmd").toString();
     if (!QFileInfo(makeCmd).isAbsolute()) {
@@ -92,6 +93,7 @@ bool MakeStep::init(const QString &name)
         }
     } else {
         args = value(name, "makeargs").toStringList();
+        args << qt4project->defaultMakeTarget(name);
     }
 
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the

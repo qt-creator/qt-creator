@@ -1,5 +1,5 @@
-#ifndef WINSCWTOOLCHAIN_H
-#define WINSCWTOOLCHAIN_H
+#ifndef GCCETOOLCHAIN_H
+#define GCCETOOLCHAIN_H
 
 #include "s60devices.h"
 
@@ -8,10 +8,10 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class WINSCWToolChain : public ProjectExplorer::ToolChain
+class GCCEToolChain : public ProjectExplorer::ToolChain
 {
 public:
-    WINSCWToolChain(S60Devices::Device device, const QString &mwcDirectory);
+    GCCEToolChain(S60Devices::Device device);
     QByteArray predefinedMacros();
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
     void addToEnvironment(ProjectExplorer::Environment &env);
@@ -23,7 +23,6 @@ protected:
     bool equals(ToolChain *other) const;
 
 private:
-    QString m_carbidePath;
     QString m_deviceId;
     QString m_deviceName;
     QString m_deviceRoot;
@@ -34,4 +33,4 @@ private:
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // WINSCWTOOLCHAIN_H
+#endif // GCCETOOLCHAIN_H

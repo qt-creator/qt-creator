@@ -4,8 +4,15 @@
 
 * QtVersion:
     * support the different tool chains
+    * gui for overriding the default make target if necessary,
+      make arguments --> make options
+    * more general "debug / release" configuration to be used in toolchain
 
 * WINSCW tool chain:
+    * predefined macros
+    * system includes
+
+* GCCE tool chain:
     * predefined macros
     * system includes
 

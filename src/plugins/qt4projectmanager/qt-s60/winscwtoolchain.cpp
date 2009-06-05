@@ -4,7 +4,6 @@ using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
 WINSCWToolChain::WINSCWToolChain(S60Devices::Device device, const QString &mwcDirectory)
-        // TODO get rid of hardcoded carbide path
     : m_carbidePath(mwcDirectory),
     m_deviceId(device.id),
     m_deviceName(device.name),
@@ -62,8 +61,14 @@ QString WINSCWToolChain::makeCommand() const
     return "make";
 }
 
+QString WINSCWToolChain::defaultMakeTarget() const
+{
+    return "debug-winscw";
+}
+
 bool WINSCWToolChain::equals(ToolChain *other) const
 {
-    return (m_deviceId == static_cast<WINSCWToolChain *>(other)->m_deviceId
+    return (other->type() == type()
+            && m_deviceId == static_cast<WINSCWToolChain *>(other)->m_deviceId
             && m_deviceName == static_cast<WINSCWToolChain *>(other)->m_deviceName);
 }
