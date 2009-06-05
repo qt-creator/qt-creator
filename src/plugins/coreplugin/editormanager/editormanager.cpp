@@ -165,6 +165,10 @@ struct EditorManagerPrivate {
 
     QList<IEditor *> m_editorHistory;
     QList<EditLocation *> m_navigationHistory;
+    void clearNavigationHistory() {
+        qDeleteAll(m_navigationHistory);
+        m_navigationHistory.clear();
+    }
     int currentNavigationHistoryPosition;
     Internal::OpenEditorsWindow *m_windowPopup;
     Core::BaseView *m_openEditorsView;
@@ -205,8 +209,7 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
 
 EditorManagerPrivate::~EditorManagerPrivate()
 {
-    qDeleteAll(m_navigationHistory);
-    m_navigationHistory.clear();
+    clearNavigationHistory();
 }
 
 EditorManager *EditorManager::m_instance = 0;
@@ -654,7 +657,11 @@ QList<IFile *> EditorManager::filesForEditors(QList<IEditor *> editors) const
 bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
     m_d->m_editorModel->removeAllRestoredEditors();
-    return closeEditors(openedEditors(), askAboutModifiedEditors);
+    if (closeEditors(openedEditors(), askAboutModifiedEditors)) {
+        m_d->clearNavigationHistory();
+        return true;
+    }
+    return false;
 }
 
 void EditorManager::closeOtherEditors()
