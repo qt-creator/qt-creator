@@ -14,17 +14,10 @@
    <string>Session Manager</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Choose your session</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
+   <item row="0" column="0" colspan="2">
     <widget class="QListWidget" name="sessionList"/>
    </item>
-   <item row="1" column="2">
+   <item row="0" column="2">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QPushButton" name="btCreateNew">
@@ -62,14 +55,14 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="1" column="0">
     <widget class="QLabel" name="whatsASessionLabel">
      <property name="text">
       <string>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1" colspan="2">
+   <item row="1" column="1" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
