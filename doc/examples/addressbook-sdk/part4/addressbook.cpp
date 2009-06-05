@@ -31,7 +31,15 @@ AddressBook::AddressBook(QWidget *parent)
 
     previousButton = new QPushButton;
     previousButton = ui->previousButton;
-    nextButton->setEnabled(false);
+    previousButton->setEnabled(false);
+
+    editButton = new QPushButton;
+    editButton = ui->editButton;
+    editButton->setEnabled(false);
+
+    removeButton = new QPushButton;
+    removeButton = ui->removeButton;
+    removeButton->setEnabled(false);
 
     connect(addButton, SIGNAL(clicked()), this,
                 SLOT(addContact()));

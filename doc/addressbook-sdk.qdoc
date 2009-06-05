@@ -575,6 +575,15 @@
 
     \section1 Placing Widgets on the Form
 
+    To edit and remove contacts, we need two push buttons. Drag them and name
+    them accordingly. Their \c objectName properties should be \c editButton
+    and \c removeButton, respectively. The quickest way to place these two
+    buttons into our existing layout, is to simply drag and drop them. Use the
+    screenshot below as a guide:
+
+    \image addressbook-tutorial-part4-drop-in-gridlayout.png
+
+
     \section1 The AddressBook Class
 
     We update the header file to contain the \c Mode enum:
@@ -585,6 +594,26 @@
     current list of public slots.
 
     \snippet examples/addressbook-sdk/part4/addressbook.h slot definition
+
+    In order to switch between modes, we introduce the \c updateInterface()
+    function to control the enabling and disabling of all push buttons. We also
+    add two new push buttons, \c editButton and \c removeButton, for the edit
+    and remove functions mentioned earlier.
+
+    \snippet examples/addressbook-sdk/part4/adressbook.h updateInterface
+    \dots
+    \snippet examples/addressbook-sdk/part4/addressbook.h members
+
+    Lastly, we declare \c currentMode to keep track of the enum's current mode.
+
+    \snippet examples/addressbook-sdk/part4/addressbook.h current mode
+
+    Let's begin by implementing the mode-changing features of the address book
+    application. The \c editButton and \c removeButton are extracted and
+    disabled by default, as the address book starts up with zero contacts in
+    memory.
+
+
 
 */
 
