@@ -124,7 +124,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     p.setPen(QColor(255, 255, 255, 70));
     p.drawLine(0, 1, size().width(), 1);
 
-    QRect textRect = rect();
+    QRect textRect = rect().adjusted(0, 0, -1, 0);
     textRect.setHeight(h+5);
 
     p.setPen(QColor(30, 30, 30, 80));
