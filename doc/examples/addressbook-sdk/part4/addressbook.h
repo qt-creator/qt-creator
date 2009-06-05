@@ -1,4 +1,3 @@
-//! [class definition]
 #ifndef ADDRESSBOOK_H
 #define ADDRESSBOOK_H
 
@@ -39,20 +38,27 @@ public slots:
 private:
     Ui::AddressBook *ui;
 
+//! [updateInterface]
+    void updateInterface(Mode mode);
+//! [updateInterface]
     QPushButton *addButton;
     QPushButton *submitButton;
     QPushButton *cancelButton;
 //! [members]
+    QPushButton *editButton;
+    QPushButton *removeButton;
+//! [members]
     QPushButton *nextButton;
     QPushButton *previousButton;
-//! [members]
     QLineEdit *nameLine;
     QTextEdit *addressText;
 
     QMap<QString, QString> contacts;
     QString oldName;
     QString oldAddress;
+//! [current mode]
+    Mode currentMode;
+//! [current mode]
 };
 
 #endif // ADDRESSBOOK_H
-//! [class definition]
