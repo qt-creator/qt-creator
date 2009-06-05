@@ -460,9 +460,13 @@
     below illustrates what you will see as the button layout approaches the
     grid layout; drop it then.
 
-    \image addressbook-tutorial-part3-drop-into-gridlayout
+    \image addressbook-tutorial-part3-drop-in-gridlayout
 
     Finally, set a top level layout for the widget again.
+
+    \note We follow basic conventions for \c next() and \c previous() functions
+    by placing the \c nextButton on the right and the \c previousButton on the
+    left.
 
 
     \section1 The AddressBook Class
@@ -477,16 +481,64 @@
 
     \snippet examples/addressbook-sdk/part3/addressbook.h members
 
-    To implement these slots, we begin by extracting the push buttons from
-    the form:
+    In the \c AddressBook constructor, we extract the push buttons from the
+    \c ui object and disable them by default. This is because navigation is
+    only enabled when there is more than one contact in the address book.
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp extract objects
 
-    Next, we make the necessary signal-slot connections.
+    Next, we connect the buttons to their respective slots:
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp signal slot
 
+    The screenshot below is our expected graphical user interface. Notice that
+    it is getting closer to our final application.
 
+    Within our \c addContact() function, we have to disable the \gui Next and
+    \gui Previous buttons so that the user does not attempt to navigate while
+    adding a contact.
 
+    \snippet examples/addressbook-sdk/part3/addressbook.cpp disable navigation
+
+    Also, in our \c submitContact() function, we enable the navigation buttons,
+    depending on the size of \c contacts. Asmentioned earlier, navigation is
+    only enabled when there is more than one contact in the address book. The
+    following lines of code demonstrates how to do this:
+
+    \snippet examples/addressbook-sdk/part3/addressbook.cpp enable navigation
+
+    We also include these lins of code in the \c cancel() function.
+
+    Recall that we intend to emulate a circularly-linked list with our QMap
+    object, \c contacts. So in the \c next() function, we obtain an iterator
+    for \c contacts and then:
+
+    \list
+        \o If the iterator is not at the end of \c contacts, we increment it by
+           one.
+        \o If the iterator is at the end of \c contacts, we move it to the
+           beginning of \c contacts. This gives us the illusion that our QMap
+           is working like a circularly-linked list.
+    \endlist
+
+    \snippet examples/addressbook-sdk/part3/addressbook.cpp next
+
+    Once we have iterated to the current object in \c contacts, we display its
+    contents on \c nameLine and \c addressText.
+
+    Similarly, for the \c previous() function,we obtain an iterator for
+    \c contacts and then:
+
+    \list
+        \o  If the iterator is at teh end of \c contacts, we clear the display
+            and return.
+        \o  If the iterator is at the beginning of \c contacts, we move it to
+            the end.
+        \o  We then decrement the iterator by one.
+    \endlist
+
+    \snippet examples/addressbook-sdk/part3/addressbook.cpp previous
+
+    Again, we display the contents of the current object in \c contacts.
 
 */
