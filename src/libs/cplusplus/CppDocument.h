@@ -85,7 +85,9 @@ public:
 
     Symbol *findSymbolAt(unsigned line, unsigned column) const;
 
+    QByteArray source() const;
     void setSource(const QByteArray &source);
+
     void startSkippingBlocks(unsigned offset);
     void stopSkippingBlocks(unsigned offset);
 

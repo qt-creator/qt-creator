@@ -242,6 +242,9 @@ Document::Ptr Document::create(const QString &fileName)
     return doc;
 }
 
+QByteArray Document::source() const
+{ return _source; }
+
 void Document::setSource(const QByteArray &source)
 {
     _source = source;
