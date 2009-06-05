@@ -31,6 +31,7 @@
 
 #include <QtCore/QMap>
 #include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
 #include <QDebug>
 
@@ -101,21 +102,24 @@ SettingsDatabase::SettingsDatabase(const QString &path,
 
     d->m_db = QSqlDatabase::addDatabase("QSQLITE", QLatin1String("settings"));
     d->m_db.setDatabaseName(fileName);
-    if (!d->m_db.open())
-        qWarning() << "Warning: Failed to open settings database!";
+    if (!d->m_db.open()) {
+        qWarning().nospace() << "Warning: Failed to open settings database at " << fileName << " ("
+                             << d->m_db.lastError().driverText() << ")";
+    } else {
+        // Create the settings table if it doesn't exist yet
+        QSqlQuery query(d->m_db);
+        query.prepare(QLatin1String("CREATE TABLE IF NOT EXISTS settings ("
+                                    "key PRIMARY KEY ON CONFLICT REPLACE, "
+                                    "value)"));
+        if (!query.exec())
+            qWarning().nospace() << "Warning: Failed to prepare settings database! ("
+                                 << query.lastError().driverText() << ")";
 
-    // Create the settings table if it doesn't exist yet
-    QSqlQuery query(d->m_db);
-    query.prepare(QLatin1String("CREATE TABLE IF NOT EXISTS settings ("
-                                "key PRIMARY KEY ON CONFLICT REPLACE, "
-                                "value)"));
-    if (d->m_db.isOpen() && !query.exec())
-        qWarning() << "Warning: Failed to prepare settings database!";
-
-    // Retrieve all available keys (values are retrieved lazily)
-    if (query.exec(QLatin1String("SELECT key FROM settings"))) {
-        while (query.next()) {
-            d->m_settings.insert(query.value(0).toString(), QVariant());
+        // Retrieve all available keys (values are retrieved lazily)
+        if (query.exec(QLatin1String("SELECT key FROM settings"))) {
+            while (query.next()) {
+                d->m_settings.insert(query.value(0).toString(), QVariant());
+            }
         }
     }
 }
@@ -134,6 +138,9 @@ void SettingsDatabase::setValue(const QString &key, const QVariant &value)
 
     // Add to cache
     d->m_settings.insert(effectiveKey, value);
+
+    if (!d->m_db.isOpen())
+        return;
 
     // Instant apply (TODO: Delay writing out settings)
     QSqlQuery query(d->m_db);
@@ -154,7 +161,7 @@ QVariant SettingsDatabase::value(const QString &key, const QVariant &defaultValu
     SettingsMap::const_iterator i = d->m_settings.constFind(effectiveKey);
     if (i != d->m_settings.constEnd() && i.value().isValid()) {
         value = i.value();
-    } else {
+    } else if (d->m_db.isOpen()) {
         // Try to read the value from the database
         QSqlQuery query(d->m_db);
         query.prepare(QLatin1String("SELECT value FROM settings WHERE key = ?"));
@@ -183,13 +190,6 @@ void SettingsDatabase::remove(const QString &key)
 {
     const QString effectiveKey = d->effectiveKey(key);
 
-    // Delete keys from the database
-    QSqlQuery query(d->m_db);
-    query.prepare(QLatin1String("DELETE FROM settings WHERE key = ? OR key LIKE ?"));
-    query.addBindValue(effectiveKey);
-    query.addBindValue(effectiveKey + QLatin1String("/%"));
-    query.exec();
-
     // Remove keys from the cache
     foreach (const QString &k, d->m_settings.keys()) {
         // Either it's an exact match, or it matches up to a /
@@ -200,6 +200,16 @@ void SettingsDatabase::remove(const QString &key)
             d->m_settings.remove(k);
         }
     }
+
+    if (!d->m_db.isOpen())
+        return;
+
+    // Delete keys from the database
+    QSqlQuery query(d->m_db);
+    query.prepare(QLatin1String("DELETE FROM settings WHERE key = ? OR key LIKE ?"));
+    query.addBindValue(effectiveKey);
+    query.addBindValue(effectiveKey + QLatin1String("/%"));
+    query.exec();
 }
 
 void SettingsDatabase::beginGroup(const QString &prefix)
