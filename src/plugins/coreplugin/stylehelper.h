@@ -55,6 +55,7 @@ public:
     static QColor shadowColor();
     static QColor borderColor();
     static QColor buttonTextColor() { return QColor(0x4c4c4c); }
+    static QColor mergedColors(const QColor &colorA, const QColor &colorB, int factor = 50);
 
     // Sets the base color and makes sure all top level widgets are updated
     static void setBaseColor(const QColor &color);

@@ -42,6 +42,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
+#include <coreplugin/stylehelper.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <texteditor/fontsettings.h>
@@ -2260,13 +2261,11 @@ static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool e
 
     QRgb b = pal.base().color().rgb();
     QRgb h = pal.highlight().color().rgb();
-    QColor c = QColor((qRed(b)*2+qRed(h))/3,
-                      (qGreen(b)*2+qGreen(h))/3,
-                      (qBlue(b)*2+qBlue(h))/3);
+    QColor c = StyleHelper::mergedColors(b,h, 40);
 
     QLinearGradient grad(rect.topLeft(), rect.topRight());
     grad.setColorAt(0, c.lighter(110));
-    grad.setColorAt(1, c.lighter(160));
+    grad.setColorAt(1, c.lighter(130));
     QColor outline = c;
     QRect r = rect;
 
