@@ -28,9 +28,11 @@ AddressBook::AddressBook(QWidget *parent)
 //! [extract objects]
     nextButton = new QPushButton;
     nextButton = ui->nextButton;
+    nextButton->setEnabled(false);
 
     previousButton = new QPushButton;
     previousButton = ui->previousButton;
+    nextButton->setEnabled(false);
 //! [extract objects]
 
     connect(addButton, SIGNAL(clicked()), this,
@@ -67,6 +69,10 @@ void AddressBook::addContact()
     addressText->setReadOnly(false);
 
     addButton->setEnabled(false);
+//! [disable navigation]
+    nextButton->setEnabled(false);
+    previousButton->setEnabled(false);
+//! [disable navigation]
     submitButton->show();
     cancelButton->show();
 }
@@ -101,6 +107,12 @@ void AddressBook::submitContact()
     nameLine->setReadOnly(true);
     addressText->setReadOnly(true);
     addButton->setEnabled(true);
+
+//! [enable navigation]
+    int number = contacts.size();
+    nextButton->setEnabled(number > 1);
+    previousButton->setEnabled(number > 1);
+//! [enable navigation]
     submitButton->hide();
     cancelButton->hide();
 }
@@ -112,8 +124,12 @@ void AddressBook::cancel()
 
     addressText->setText(oldAddress);
     addressText->setReadOnly(true);
-
     addButton->setEnabled(true);
+
+    int number = contacts.size();
+    nextButton->setEnabled(number > 1);
+    previousButton->setEnabled(number > 1);
+
     submitButton->hide();
     cancelButton->hide();
 }
