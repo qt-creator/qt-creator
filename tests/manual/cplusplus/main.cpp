@@ -47,6 +47,8 @@
 #include <iostream>
 #include <sstream>
 
+CPLUSPLUS_USE_NAMESPACE
+
 class Rewrite
 {
     QMultiMap<unsigned, QByteArray> _insertBefore;
