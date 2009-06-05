@@ -2732,8 +2732,9 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
         }
 
         if (highlightBlockNumber != d->extraAreaHighlightCollapseBlockNumber
-            || highlightColumn != d->extraAreaHighlightCollapseColumn)
-            d->m_highlightBlocksTimer->start(d->m_highlightBlocksInfo.isEmpty() ? 40 : 10);
+            || highlightColumn != d->extraAreaHighlightCollapseColumn) {
+            d->m_highlightBlocksTimer->start(d->m_highlightBlocksInfo.isEmpty() ? 120 : 0);
+        }
     }
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
