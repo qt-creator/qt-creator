@@ -34,12 +34,17 @@
 #include <Semantic.h>
 #include <TranslationUnit.h>
 #include <PrettyPrinter.h>
+#include <Literals.h>
+#include <Symbols.h>
+#include <Names.h>
+#include <CoreTypes.h>
 
 #include <QFile>
 #include <QList>
 #include <QCoreApplication>
 #include <QStringList>
 #include <QFileInfo>
+#include <QTime>
 #include <QtDebug>
 
 #include <cstdio>
@@ -213,6 +218,129 @@ protected:
     }
 };
 
+class CloneCG: protected ASTVisitor
+{
+public:
+    CloneCG(Control *control)
+        : ASTVisitor(control)
+    { }
+
+    void operator()(AST *ast)
+    {
+        std::cout <<
+            "/**************************************************************************\n"
+            "**\n"
+            "** This file is part of Qt Creator\n"
+            "**\n"
+            "** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).\n"
+            "**\n"
+            "** Contact:  Qt Software Information (qt-info@nokia.com)\n"
+            "**\n"
+            "** Commercial Usage\n"
+            "**\n"
+            "** Licensees holding valid Qt Commercial licenses may use this file in\n"
+            "** accordance with the Qt Commercial License Agreement provided with the\n"
+            "** Software or, alternatively, in accordance with the terms contained in\n"
+            "** a written agreement between you and Nokia.\n"
+            "**\n"
+            "** GNU Lesser General Public License Usage\n"
+            "**\n"
+            "** Alternatively, this file may be used under the terms of the GNU Lesser\n"
+            "** General Public License version 2.1 as published by the Free Software\n"
+            "** Foundation and appearing in the file LICENSE.LGPL included in the\n"
+            "** packaging of this file.  Please review the following information to\n"
+            "** ensure the GNU Lesser General Public License version 2.1 requirements\n"
+            "** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\n"
+            "**\n"
+            "** If you are unsure which license is appropriate for your use, please\n"
+            "** contact the sales department at qt-sales@nokia.com.\n"
+            "**\n"
+            "**************************************************************************/\n"
+            "\n"
+            "#include \"AST.h\"\n"
+            "\n"
+            "CPLUSPLUS_BEGIN_NAMESPACE\n" << std::endl;
+
+        accept(ast);
+
+        std::cout << "CPLUSPLUS_END_NAMESPACE" << std::endl;
+    }
+
+protected:
+    using ASTVisitor::visit;
+
+    QMap<QByteArray, ClassSpecifierAST *> classMap;
+
+    QByteArray id_cast(NameAST *name)
+    {
+        if (! name)
+            return QByteArray();
+
+        Identifier *id = identifier(name->asSimpleName()->identifier_token);
+
+        return QByteArray::fromRawData(id->chars(), id->size());
+    }
+
+    void copyMembers(Class *klass)
+    {
+        for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
+            const QByteArray baseClassName = klass->baseClassAt(i)->identifier()->chars();
+            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0)) {
+                copyMembers(baseClassSpec->symbol);
+            }
+        }
+
+        const QByteArray className = klass->name()->identifier()->chars();
+
+        std::cout << "    // copy " << className.constData() << std::endl;
+        for (unsigned i = 0; i < klass->memberCount(); ++i) {
+            Symbol *member = klass->memberAt(i);
+            Identifier *id = member->name()->identifier();
+
+            if (! id)
+                continue;
+
+            const QByteArray memberName = QByteArray::fromRawData(id->chars(), id->size());
+            if (member->type().isUnsigned() && memberName.endsWith("_token")) {
+                std::cout << "    ast->" << id->chars() << " = " << id->chars() << ";" << std::endl;
+            } else if (PointerType *ptrTy = member->type()->asPointerType()) {
+                if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
+                    QByteArray typeName = namedTy->name()->identifier()->chars();
+                    if (typeName.endsWith("AST")) {
+                        std::cout << "    if (" << memberName.constData() << ") ast->" << memberName.constData()
+                                << " = " << memberName.constData() << "->clone(pool);" << std::endl;
+                    }
+                }
+            }
+        }
+    }
+
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        Class *klass = ast->symbol;
+
+        const QByteArray className = id_cast(ast->name);
+        classMap.insert(className, ast);
+
+        Identifier *clone_id = control()->findOrInsertIdentifier("clone");
+        if (! klass->members()->lookat(clone_id))
+            return true;
+
+        std::cout << className.constData() << " *" << className.constData() << "::clone(MemoryPool *pool) const" << std::endl
+                << "{" << std::endl;
+
+        std::cout << "    " << className.constData() << " *ast = new (pool) " << className.constData() << ";" << std::endl;
+
+        copyMembers(klass);
+
+        std::cout << "    return ast;" << std::endl
+                << "}" << std::endl
+                << std::endl;
+
+        return true;
+    }
+};
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
@@ -273,8 +401,11 @@ int main(int argc, char *argv[])
         refactor(&unit, source, &out);
         printf("%s\n", out.constData());
     } else if (test_pretty_printer) {
+        MemoryPool pool2;
+        TranslationUnitAST *other = unit.ast()->clone(&pool2)->asTranslationUnit();
         PrettyPrinter pp(&control, std::cout);
-        pp(unit.ast(), source);
+        pp(other, source);
     }
+
     return EXIT_SUCCESS;
 }
