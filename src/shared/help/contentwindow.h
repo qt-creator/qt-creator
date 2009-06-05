@@ -63,8 +63,6 @@ private slots:
     void itemClicked(const QModelIndex &index);
 
 private:
-    void focusInEvent(QFocusEvent *e);
-    void keyPressEvent(QKeyEvent *e);
     bool eventFilter(QObject *o, QEvent *e);
     bool isPdfFile(QHelpContentItem *item) const;
 

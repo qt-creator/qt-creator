@@ -429,6 +429,8 @@ void BookmarkWidget::setup(bool showButtons)
     vlayout->addWidget(label);
 
     searchField = new QLineEdit(this);
+    setFocusProxy(searchField);
+    searchField->installEventFilter(this);
     vlayout->addWidget(searchField);
     connect(searchField, SIGNAL(textChanged(const QString &)), this,
         SLOT(filterChanged()));
@@ -509,19 +511,6 @@ void BookmarkWidget::expandItems()
     }
 }
 
-void BookmarkWidget::focusInEvent(QFocusEvent *e)
-{
-    if (e->reason() != Qt::MouseFocusReason) {
-        searchField->selectAll();
-        searchField->setFocus();
-
-        QModelIndex index = treeView->indexAt(QPoint(1, 1));
-        if (index.isValid())
-            treeView->setCurrentIndex(index);
-
-    }
-}
-
 bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
 {
     if ((object == this) || (object == treeView->viewport())) {
@@ -575,6 +564,15 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
                             Help::Internal::CentralWidget::instance()->setSourceInNewTab(data);
                 }
             }
+        }
+    } else if (object == searchField && e->type() == QEvent::FocusIn) {
+        if (static_cast<QFocusEvent *>(e)->reason() != Qt::MouseFocusReason) {
+            searchField->selectAll();
+            searchField->setFocus();
+
+            QModelIndex index = treeView->indexAt(QPoint(1, 1));
+            if (index.isValid())
+                treeView->setCurrentIndex(index);
         }
     }
     return QWidget::eventFilter(object, e);

@@ -129,7 +129,6 @@ private slots:
 private:
     void setup(bool showButtons);
     void expandItems();
-    void focusInEvent(QFocusEvent *e);
     bool eventFilter(QObject *object, QEvent *event);
 
 private:

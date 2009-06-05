@@ -54,6 +54,7 @@ IndexWindow::IndexWindow(QHelpEngine *helpEngine, QWidget *parent)
 
     m_searchLineEdit = new QLineEdit();
     l->setBuddy(m_searchLineEdit);
+    setFocusProxy(m_searchLineEdit);
     connect(m_searchLineEdit, SIGNAL(textChanged(QString)), this,
         SLOT(filterIndices(QString)));
     m_searchLineEdit->installEventFilter(this);
@@ -112,6 +113,11 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
             break;
         default: ; // stop complaining
         }
+    } else if (obj == m_searchLineEdit
+            && e->type() == QEvent::FocusIn
+            && static_cast<QFocusEvent *>(e)->reason() != Qt::MouseFocusReason) {
+        m_searchLineEdit->selectAll();
+        m_searchLineEdit->setFocus();
     } else if (obj == m_indexWidget && e->type() == QEvent::ContextMenu) {
         QContextMenuEvent *ctxtEvent = static_cast<QContextMenuEvent*>(e);
         QModelIndex idx = m_indexWidget->indexAt(ctxtEvent->pos());
@@ -147,6 +153,7 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
            m_indexWidget->activateCurrentItem();
     }
 #endif
+
     return QWidget::eventFilter(obj, e);
 }
 
@@ -164,14 +171,6 @@ void IndexWindow::disableSearchLineEdit()
 void IndexWindow::setSearchLineEditText(const QString &text)
 {
     m_searchLineEdit->setText(text);
-}
-
-void IndexWindow::focusInEvent(QFocusEvent *e)
-{
-    if (e->reason() != Qt::MouseFocusReason) {
-        m_searchLineEdit->selectAll();
-        m_searchLineEdit->setFocus();
-    }
 }
 
 void IndexWindow::open(QHelpIndexWidget* indexWidget, const QModelIndex &index)
