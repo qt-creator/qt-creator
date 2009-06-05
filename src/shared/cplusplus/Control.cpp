@@ -522,6 +522,24 @@ Control::IdentifierIterator Control::firstIdentifier() const
 Control::IdentifierIterator Control::lastIdentifier() const
 { return d->identifiers.end(); }
 
+Control::StringLiteralIterator Control::firstStringLiteral() const
+{ return d->stringLiterals.begin(); }
+
+Control::StringLiteralIterator Control::lastStringLiteral() const
+{ return d->stringLiterals.end(); }
+
+Control::NumericLiteralIterator Control::firstNumericLiteral() const
+{ return d->numericLiterals.begin(); }
+
+Control::NumericLiteralIterator Control::lastNumericLiteral() const
+{ return d->numericLiterals.end(); }
+
+Control::FileNameIterator Control::firstFileName() const
+{ return d->fileNames.begin(); }
+
+Control::FileNameIterator Control::lastFileName() const
+{ return d->fileNames.end(); }
+
 StringLiteral *Control::findOrInsertStringLiteral(const char *chars, unsigned size)
 { return d->stringLiterals.findOrInsertLiteral(chars, size); }
 
