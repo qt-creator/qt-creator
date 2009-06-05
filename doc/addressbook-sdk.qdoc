@@ -542,3 +542,58 @@
     Again, we display the contents of the current object in \c contacts.
 
 */
+
+/*!
+    \page tutorials-addressbook-sdk-part4.html
+    \previouspage Address Book 3 - Navigating between Entries
+    \contentspage {Address Book Tutorial}{Contents}
+    \nextpage \l{examples/addressbook-sdk/part5}{Chapter 5}
+    \example examples/addressbook-sdk/part4
+    \title Address Book 4 - Editing and Removing Addresses}
+
+    In this chapter, we look at ways to modify the contents of contacts stored
+    in the address book application.
+
+    #screenshot
+
+    We now have an address book that not only holds contacts in an organized
+    manner, but also allows navigation. It would be convenient to include edit
+    and remove functions so that a contact's details can be changed when
+    needed. However, this requires a little improvement, in the form of enums.
+
+    In our previous chapters, we had two modes: \c AddingMode and
+    \c NavigationMode - but they were not defined as enums. Instead, we enabled
+    and disabled the corresponding buttons manually, resulting in multiple
+    lines of repeated code.
+
+    In this chapter, we define the \c Mode enum with three different values:
+    \list
+        \o \c{NavigationMode},
+        \o \c{AddingMode}, and
+        \o \c{EditingMode}.
+    \endlist
+
+    \section1 Placing Widgets on the Form
+
+    \section1 The AddressBook Class
+
+    We update the header file to contain the \c Mode enum:
+
+    \snippet examples/addressbook-sdk/part4/addressbook.h enum
+
+    We also add two new slots, \c editContact() and \c removeContact(), to our
+    current list of public slots.
+
+    \snippet examples/addressbook-sdk/part4/addressbook.h slot definition
+
+*/
+
+/*!
+    \page tutorials-addressbook-sdk-part5.html
+    \previouspage Address Book 4 - Editing and Removing Addresses
+    \contentspage {Address Book Tutorial}{Contents}
+    \nextpage \l{examples/addressbook-sdk/part6}{Chapter 6}
+    \example examples/addressbook-sdk/part5
+    \title Address Book 5 - Adding a Find Function}
+
+*/
