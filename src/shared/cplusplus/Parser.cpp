@@ -450,7 +450,7 @@ bool Parser::parseLinkageSpecification(DeclarationAST *&node)
     if (LA() == T_EXTERN && LA(2) == T_STRING_LITERAL) {
         LinkageSpecificationAST *ast = new (_pool) LinkageSpecificationAST;
         ast->extern_token = consumeToken();
-        ast->extern_type = consumeToken();
+        ast->extern_type_token = consumeToken();
 
         if (LA() == T_LBRACE)
             parseLinkageBody(ast->declaration);
@@ -503,7 +503,7 @@ bool Parser::parseNamespace(DeclarationAST *&node)
         NamespaceAliasDefinitionAST *ast =
                 new (_pool) NamespaceAliasDefinitionAST;
         ast->namespace_token = namespace_token;
-        ast->namespace_name = consumeToken();
+        ast->namespace_name_token = consumeToken();
         ast->equal_token = consumeToken();
         parseName(ast->name);
         match(T_SEMICOLON, &ast->semicolon_token);
@@ -1694,18 +1694,18 @@ bool Parser::parseBaseSpecifier(BaseSpecifierAST *&node)
     BaseSpecifierAST *ast = new (_pool) BaseSpecifierAST;
 
     if (LA() == T_VIRTUAL) {
-        ast->token_virtual = consumeToken();
+        ast->virtual_token = consumeToken();
 
         int tk = LA();
         if (tk == T_PUBLIC || tk == T_PROTECTED || tk == T_PRIVATE)
-            ast->token_access_specifier = consumeToken();
+            ast->access_specifier_token = consumeToken();
     } else {
         int tk = LA();
         if (tk == T_PUBLIC || tk == T_PROTECTED || tk == T_PRIVATE)
-            ast->token_access_specifier = consumeToken();
+            ast->access_specifier_token = consumeToken();
 
         if (LA() == T_VIRTUAL)
-            ast->token_virtual = consumeToken();
+            ast->virtual_token = consumeToken();
     }
 
     parseName(ast->name);
@@ -1794,7 +1794,7 @@ bool Parser::parseStringLiteral(ExpressionAST *&node)
 
     while (LA() == T_STRING_LITERAL || LA() == T_WIDE_STRING_LITERAL) {
         *ast = new (_pool) StringLiteralAST;
-        (*ast)->token = consumeToken();
+        (*ast)->literal_token = consumeToken();
         ast = &(*ast)->next;
     }
     return true;
@@ -2215,7 +2215,7 @@ bool Parser::parseNamespaceAliasDefinition(DeclarationAST *&node)
     if (LA() == T_NAMESPACE && LA(2) == T_IDENTIFIER && LA(3) == T_EQUAL) {
         NamespaceAliasDefinitionAST *ast = new (_pool) NamespaceAliasDefinitionAST;
         ast->namespace_token = consumeToken();
-        ast->namespace_name = consumeToken();
+        ast->namespace_name_token = consumeToken();
         ast->equal_token = consumeToken();
         parseName(ast->name);
         match(T_SEMICOLON, &ast->semicolon_token);
@@ -2622,7 +2622,7 @@ bool Parser::parseBoolLiteral(ExpressionAST *&node)
 {
     if (LA() == T_TRUE || LA() == T_FALSE) {
         BoolLiteralAST *ast = new (_pool) BoolLiteralAST;
-        ast->token = consumeToken();
+        ast->literal_token = consumeToken();
         node = ast;
         return true;
     }
@@ -2634,7 +2634,7 @@ bool Parser::parseNumericLiteral(ExpressionAST *&node)
     if (LA() == T_INT_LITERAL || LA() == T_FLOAT_LITERAL ||
         LA() == T_CHAR_LITERAL || LA() == T_WIDE_CHAR_LITERAL) {
         NumericLiteralAST *ast = new (_pool) NumericLiteralAST;
-        ast->token = consumeToken();
+        ast->literal_token = consumeToken();
         node = ast;
         return true;
     }
@@ -2733,7 +2733,7 @@ bool Parser::parseObjCStringLiteral(ExpressionAST *&node)
 
     while (LA() == T_AT_STRING_LITERAL) {
         *ast = new (_pool) StringLiteralAST;
-        (*ast)->token = consumeToken();
+        (*ast)->literal_token = consumeToken();
         ast = &(*ast)->next;
     }
     return true;

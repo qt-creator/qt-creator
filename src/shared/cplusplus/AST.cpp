@@ -333,8 +333,8 @@ BaseSpecifierAST *BaseSpecifierAST::clone(MemoryPool *pool) const
 {
     BaseSpecifierAST *ast = new (pool) BaseSpecifierAST;
     ast->comma_token = comma_token;
-    ast->token_virtual = token_virtual;
-    ast->token_access_specifier = token_access_specifier;
+    ast->virtual_token = virtual_token;
+    ast->access_specifier_token = access_specifier_token;
     if (name)
         ast->name = name->clone(pool);
     if (next)
@@ -352,8 +352,8 @@ void BaseSpecifierAST::accept0(ASTVisitor *visitor)
 
 unsigned BaseSpecifierAST::firstToken() const
 {
-    if (token_virtual && token_access_specifier)
-        return std::min(token_virtual, token_access_specifier);
+    if (virtual_token && access_specifier_token)
+        return std::min(virtual_token, access_specifier_token);
     return name->firstToken();
 }
 
@@ -361,12 +361,12 @@ unsigned BaseSpecifierAST::lastToken() const
 {
     if (name)
         return name->lastToken();
-    else if (token_virtual && token_access_specifier)
-        return std::min(token_virtual, token_access_specifier) + 1;
-    else if (token_virtual)
-        return token_virtual + 1;
-    else if (token_access_specifier)
-        return token_access_specifier + 1;
+    else if (virtual_token && access_specifier_token)
+        return std::min(virtual_token, access_specifier_token) + 1;
+    else if (virtual_token)
+        return virtual_token + 1;
+    else if (access_specifier_token)
+        return access_specifier_token + 1;
     // assert?
     return 0;
 }
@@ -441,7 +441,7 @@ unsigned BinaryExpressionAST::lastToken() const
 BoolLiteralAST *BoolLiteralAST::clone(MemoryPool *pool) const
 {
     BoolLiteralAST *ast = new (pool) BoolLiteralAST;
-    ast->token = token;
+    ast->literal_token = literal_token;
     return ast;
 }
 
@@ -454,12 +454,12 @@ void BoolLiteralAST::accept0(ASTVisitor *visitor)
 
 unsigned BoolLiteralAST::firstToken() const
 {
-    return token;
+    return literal_token;
 }
 
 unsigned BoolLiteralAST::lastToken() const
 {
-    return token + 1;
+    return literal_token + 1;
 }
 
 CompoundLiteralAST *CompoundLiteralAST::clone(MemoryPool *pool) const
@@ -1928,7 +1928,7 @@ LinkageSpecificationAST *LinkageSpecificationAST::clone(MemoryPool *pool) const
 {
     LinkageSpecificationAST *ast = new (pool) LinkageSpecificationAST;
     ast->extern_token = extern_token;
-    ast->extern_type = extern_type;
+    ast->extern_type_token = extern_type_token;
     if (declaration)
         ast->declaration = declaration->clone(pool);
     return ast;
@@ -1951,8 +1951,8 @@ unsigned LinkageSpecificationAST::lastToken() const
 {
     if (declaration)
         return declaration->lastToken();
-    else if (extern_type)
-        return extern_type + 1;
+    else if (extern_type_token)
+        return extern_type_token + 1;
     return extern_token + 1;
 }
 
@@ -2101,7 +2101,7 @@ NamespaceAliasDefinitionAST *NamespaceAliasDefinitionAST::clone(MemoryPool *pool
 {
     NamespaceAliasDefinitionAST *ast = new (pool) NamespaceAliasDefinitionAST;
     ast->namespace_token = namespace_token;
-    ast->namespace_name = namespace_name;
+    ast->namespace_name_token = namespace_name_token;
     ast->equal_token = equal_token;
     if (name)
         ast->name = name->clone(pool);
@@ -2130,8 +2130,8 @@ unsigned NamespaceAliasDefinitionAST::lastToken() const
         return name->lastToken();
     else if (equal_token)
         return equal_token + 1;
-    else if (namespace_name)
-        return namespace_name + 1;
+    else if (namespace_name_token)
+        return namespace_name_token + 1;
     return namespace_token + 1;
 }
 
@@ -2438,7 +2438,7 @@ unsigned NewTypeIdAST::lastToken() const
 NumericLiteralAST *NumericLiteralAST::clone(MemoryPool *pool) const
 {
     NumericLiteralAST *ast = new (pool) NumericLiteralAST;
-    ast->token = token;
+    ast->literal_token = literal_token;
     return ast;
 }
 
@@ -2451,12 +2451,12 @@ void NumericLiteralAST::accept0(ASTVisitor *visitor)
 
 unsigned NumericLiteralAST::firstToken() const
 {
-    return token;
+    return literal_token;
 }
 
 unsigned NumericLiteralAST::lastToken() const
 {
-    return token + 1;
+    return literal_token + 1;
 }
 
 OperatorAST *OperatorAST::clone(MemoryPool *pool) const
@@ -3005,7 +3005,7 @@ unsigned SizeofExpressionAST::lastToken() const
 StringLiteralAST *StringLiteralAST::clone(MemoryPool *pool) const
 {
     StringLiteralAST *ast = new (pool) StringLiteralAST;
-    ast->token = token;
+    ast->literal_token = literal_token;
     if (next)
         ast->next = next->clone(pool);
     return ast;
@@ -3021,14 +3021,14 @@ void StringLiteralAST::accept0(ASTVisitor *visitor)
 
 unsigned StringLiteralAST::firstToken() const
 {
-    return token;
+    return literal_token;
 }
 
 unsigned StringLiteralAST::lastToken() const
 {
     if (next)
         return next->lastToken();
-    return token + 1;
+    return literal_token + 1;
 }
 
 SwitchStatementAST *SwitchStatementAST::clone(MemoryPool *pool) const

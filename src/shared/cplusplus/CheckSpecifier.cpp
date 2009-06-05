@@ -321,10 +321,10 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
         Name *baseClassName = semantic()->check(base->name, _scope);
         BaseClass *baseClass = control()->newBaseClass(ast->firstToken(), baseClassName);
         base->symbol = baseClass;
-        if (base->token_virtual)
+        if (base->virtual_token)
             baseClass->setVirtual(true);
-        if (base->token_access_specifier) {
-            int accessSpecifier = tokenKind(base->token_access_specifier);
+        if (base->access_specifier_token) {
+            int accessSpecifier = tokenKind(base->access_specifier_token);
             int visibility = semantic()->visibilityForAccessSpecifier(accessSpecifier);
             baseClass->setVisibility(visibility);
         }

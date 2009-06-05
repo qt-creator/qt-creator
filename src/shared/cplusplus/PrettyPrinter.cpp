@@ -192,8 +192,8 @@ bool PrettyPrinter::visit(AttributeAST *ast)
 
 bool PrettyPrinter::visit(BaseSpecifierAST *ast)
 {
-    outToken(ast->token_virtual);
-    outToken(ast->token_access_specifier);
+    outToken(ast->virtual_token);
+    outToken(ast->access_specifier_token);
     accept(ast->name);
     return false;
 }
@@ -208,7 +208,7 @@ bool PrettyPrinter::visit(BinaryExpressionAST *ast)
 
 bool PrettyPrinter::visit(BoolLiteralAST *ast)
 {
-    outToken(ast->token);
+    outToken(ast->literal_token);
     return false;
 }
 
@@ -636,8 +636,8 @@ bool PrettyPrinter::visit(LinkageBodyAST *ast)
 bool PrettyPrinter::visit(LinkageSpecificationAST *ast)
 {
     outToken(ast->extern_token);
-    if (ast->extern_type) {
-        outToken(ast->extern_type);
+    if (ast->extern_type_token) {
+        outToken(ast->extern_type_token);
     }
 
     accept(ast->declaration);
@@ -681,7 +681,7 @@ bool PrettyPrinter::visit(NamespaceAST *ast)
 bool PrettyPrinter::visit(NamespaceAliasDefinitionAST *ast)
 {
     outToken(ast->namespace_token);
-    outToken(ast->namespace_name);
+    outToken(ast->namespace_name_token);
     outToken(ast->equal_token);
     accept(ast->name);
     outToken(ast->semicolon_token);
@@ -770,7 +770,7 @@ bool PrettyPrinter::visit(NewTypeIdAST *ast)
 
 bool PrettyPrinter::visit(NumericLiteralAST *ast)
 {
-    outToken(ast->token);
+    outToken(ast->literal_token);
     return false;
 }
 
@@ -913,7 +913,7 @@ bool PrettyPrinter::visit(SizeofExpressionAST *ast)
 bool PrettyPrinter::visit(StringLiteralAST *ast)
 {
     for (StringLiteralAST *it = ast; it; it = it->next) {
-        outToken(it->token);
+        outToken(it->literal_token);
     }
     return false;
 }

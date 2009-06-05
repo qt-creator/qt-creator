@@ -488,8 +488,8 @@ class CPLUSPLUS_EXPORT BaseSpecifierAST: public AST
 {
 public:
     unsigned comma_token;
-    unsigned token_virtual;
-    unsigned token_access_specifier;
+    unsigned virtual_token;
+    unsigned access_specifier_token;
     NameAST *name;
     BaseSpecifierAST *next;
 
@@ -1218,7 +1218,7 @@ class CPLUSPLUS_EXPORT LinkageSpecificationAST: public DeclarationAST
 {
 public:
     unsigned extern_token;
-    unsigned extern_type;
+    unsigned extern_type_token;
     DeclarationAST *declaration;
 
 public:
@@ -1431,7 +1431,7 @@ class CPLUSPLUS_EXPORT NamespaceAliasDefinitionAST: public DeclarationAST
 {
 public:
     unsigned namespace_token;
-    unsigned namespace_name;
+    unsigned namespace_name_token;
     unsigned equal_token;
     NameAST *name;
     unsigned semicolon_token;
@@ -1964,7 +1964,7 @@ protected:
 class CPLUSPLUS_EXPORT NumericLiteralAST: public ExpressionAST
 {
 public:
-    unsigned token;
+    unsigned literal_token;
 
 public:
     virtual NumericLiteralAST *asNumericLiteral()
@@ -1982,7 +1982,7 @@ protected:
 class CPLUSPLUS_EXPORT BoolLiteralAST: public ExpressionAST
 {
 public:
-    unsigned token;
+    unsigned literal_token;
 
 public:
     virtual BoolLiteralAST *asBoolLiteral()
@@ -2038,7 +2038,7 @@ protected:
 class CPLUSPLUS_EXPORT StringLiteralAST: public ExpressionAST
 {
 public:
-    unsigned token;
+    unsigned literal_token;
     StringLiteralAST *next;
 
 public:
