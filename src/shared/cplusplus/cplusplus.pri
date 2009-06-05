@@ -41,6 +41,7 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/AST.cpp \
+    $$PWD/ASTClone.cpp \
     $$PWD/ASTVisitor.cpp \
     $$PWD/Array.cpp \
     $$PWD/CheckDeclaration.cpp \
