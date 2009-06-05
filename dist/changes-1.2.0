@@ -22,8 +22,12 @@ Editing
    * Further improvements to FakeVim mode
    * Make it possible to disable Ctrl+Click navigation
    * Added optional XCode-style tab indentation
+   * Ui changes are added immediately to the code model
 
 Building and Running
+   * New options: Auto-Save before Build
+   * and Run without building
+   * Environment settings
 
 Debugging
    * Added Windows Console Debugger support (x86 and AMD64)
