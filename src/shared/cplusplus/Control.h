@@ -150,13 +150,6 @@ public:
     Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
     Identifier *findOrInsertIdentifier(const char *chars);
 
-    /*
-    LiteralTable<Identifier> identifiers;
-    LiteralTable<StringLiteral> stringLiterals;
-    LiteralTable<NumericLiteral> numericLiterals;
-    LiteralTable<StringLiteral> fileNames;
-    */
-
     typedef const Identifier *const *IdentifierIterator;
     typedef const StringLiteral *const *StringLiteralIterator;
     typedef const NumericLiteral *const *NumericLiteralIterator;
