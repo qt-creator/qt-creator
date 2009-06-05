@@ -102,6 +102,7 @@ class VCSBaseDiffEditorEditable : public VCSBaseEditorEditable
 {
 public:
     VCSBaseDiffEditorEditable(VCSBaseEditor *, const VCSBaseEditorParameters *type);
+    ~VCSBaseDiffEditorEditable();
 
     virtual QToolBar *toolBar()                { return m_toolBar; }
     QComboBox *diffFileBrowseComboBox() const  { return m_diffFileBrowseComboBox; }
@@ -109,14 +110,14 @@ public:
     bool isTemporary() const { return true; }
 
 private:
-    QComboBox *m_diffFileBrowseComboBox;
     QToolBar *m_toolBar;
+    QComboBox *m_diffFileBrowseComboBox;
 };
 
 VCSBaseDiffEditorEditable::VCSBaseDiffEditorEditable(VCSBaseEditor *e, const VCSBaseEditorParameters *type) :
     VCSBaseEditorEditable(e, type),
-    m_diffFileBrowseComboBox(new QComboBox),
-    m_toolBar(new QToolBar)
+    m_toolBar(new QToolBar),
+    m_diffFileBrowseComboBox(new QComboBox(m_toolBar))
 {
     m_diffFileBrowseComboBox->setMinimumContentsLength(20);
     m_diffFileBrowseComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -125,6 +126,11 @@ VCSBaseDiffEditorEditable::VCSBaseDiffEditorEditable(VCSBaseEditor *e, const VCS
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_diffFileBrowseComboBox->setSizePolicy(policy);
     m_toolBar->addWidget(m_diffFileBrowseComboBox);
+}
+
+VCSBaseDiffEditorEditable::~VCSBaseDiffEditorEditable()
+{
+    delete m_toolBar;
 }
 
 // ----------- VCSBaseEditorPrivate
