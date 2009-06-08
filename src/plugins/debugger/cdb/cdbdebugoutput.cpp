@@ -135,8 +135,10 @@ CdbDebugOutput::CdbDebugOutput()
 {
 }
 
-void CdbDebugOutput::output(ULONG mask, const QString &msg)
+void CdbDebugOutput::output(ULONG mask, const QString &_msg)
 {
+    QString msg = _msg + '\n';
+
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << "\n    " << msg;
 
