@@ -613,7 +613,88 @@
     disabled by default, as the address book starts up with zero contacts in
     memory.
 
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp extract objects
 
+    These buttons are then connected to their respective slots,
+    \c editContact() and \c removeContact.
+
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp signal slot
+
+    Now we look at the \c editContact() and \c removeContact() functions in
+    detail.
+
+
+    \section2 The \c{editContact()} Function
+
+    This function stores the contact's old details in \c oldName and
+    \c oldAddress, before switching the mode to \c EditingMode. In this mode,
+    the \c submitButton and \c cancelButton are both enabled. Hence, the user
+    can change the contact's details and click either button.
+
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp editContact
+
+    Since we will reuse the \c submitButton for both: adding a new contact and
+    editing an existing contact, we need to modify our existing
+    \c submitContact() function. So, we divide it in two with an \c{if-else}
+    statement.
+
+    First, we check \c currentMode to see if it is in \c AddingMode. If it is,
+    we proceed with our adding process.
+
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp submitContact part1
+    \dots
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp submitContact part2
+
+    Otherwise, we check to see if \c currentMode is in \c EditingMode. If it
+    is, we compare \c oldName with \c name. If the name has changed, we remove
+    the old contact from \c contacts and insert the newly updated contact.
+
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp submitContact part3
+
+    If only the contact's address changed, i.e., \c oldAddress is not the same
+    as \c address, we update the contact's address. Lastly, we set
+    \c currentMode to \c NavigationMode. This is an important step as it
+    re-enables all the disabled push buttons.
+
+    To remove a contact from the address book, we implement the
+    \c removeContact() function.
+
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp removeContact
+
+    This function first checks to see if the contact exists in \c contacts. If
+    it does, we display a QMessageBox, to confirm the removal with the user.
+    Once the user has confirmed, we call \c previous() to ensure that the
+    user interface shows another contact, and we remove the contact using
+    \l{QMap}'s \l{QMap::}{remove()} function. As a courtesy, we display a
+    QMessageBox to inform the user. Both the message boxes used in this
+    function are shown below:
+
+    # image
+
+
+    \section2 The \c{updateInterface()} Function
+
+    We mentioned this function earlier as a means to enable and disable the
+    push buttons, depending on the current mode. The function updates the
+    current mode according to the \c mode argument passed to it, assigning it
+    to \c currentMode, before checking its value.\
+
+    Each of the push buttons is then enabled or disabled, depending on the
+    current mode. The code for \c AddingMode and \c EditingMode is shown below:
+
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp updateInterface part1
+
+    For \c NavigationMode, however, we include conditions within the parameters
+    of the QPushButton::setEnabled() function. This is to ensure that
+    \c editButton and \c removeButton are enabled when there is at least one
+    contact in the address book; \c nextButton and \c previousButton are only
+    enabled when there is more than one contact in the address book.
+
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp updateInterface part2
+
+    By performing the task of setting the mode and updating the user interface
+    in the same function, we avoid the possibility of the user interface
+    getting "out of sync" with the internal state of the application.
 
 */
 
@@ -624,5 +705,24 @@
     \nextpage \l{examples/addressbook-sdk/part6}{Chapter 6}
     \example examples/addressbook-sdk/part5
     \title Address Book 5 - Adding a Find Function}
+
+*/
+
+/*!
+    \page tutorials-addressbook-sdk-part6.html
+    \previouspage Address Book 5 - Adding a Find Function
+    \contentspage {Address Book Tutorial}{Contents}
+    \nextpage \l{examples/addressbook-sdk/part7}{Chapter 7}
+    \example examples/addressbook-sdk/part6
+    \title Address Book 6 - Loading and Saving}
+
+*/
+
+/*!
+    \page tutorials-addressbook-sdk-part7.html
+    \previouspage Address Book 6 - Loading and Saving
+    \contentspage {Address Book Tutorial}{Contents}
+    \example examples/addressbook-sdk/part7
+    \title Address Book 7 - Additional Features}
 
 */
