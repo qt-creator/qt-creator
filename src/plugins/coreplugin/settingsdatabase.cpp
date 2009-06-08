@@ -208,7 +208,7 @@ void SettingsDatabase::remove(const QString &key)
     QSqlQuery query(d->m_db);
     query.prepare(QLatin1String("DELETE FROM settings WHERE key = ? OR key LIKE ?"));
     query.addBindValue(effectiveKey);
-    query.addBindValue(effectiveKey + QLatin1String("/%"));
+    query.addBindValue(QString(effectiveKey + QLatin1String("/%")));
     query.exec();
 }
 

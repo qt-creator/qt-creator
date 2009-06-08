@@ -187,7 +187,8 @@ QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) con
         result = QColor(qRgb(245, 245, 245));
         break;
     case Qt::DisplayRole:
-        result = file->fileName() + " (" + QString::number(file->childrenCount()) + ")";
+        result = QString(file->fileName()
+            + " (" + QString::number(file->childrenCount()) + ")");
         break;
     case ItemDataRoles::FileNameRole:
     case Qt::ToolTipRole:
