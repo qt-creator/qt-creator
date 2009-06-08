@@ -68,6 +68,7 @@ AddressBook::~AddressBook()
     delete ui;
 }
 
+//! [addContact]
 void AddressBook::addContact()
 {
     oldName = nameLine->text();
@@ -76,16 +77,9 @@ void AddressBook::addContact()
     nameLine->clear();
     addressText->clear();
 
-    nameLine->setReadOnly(false);
-    nameLine->setFocus(Qt::OtherFocusReason);
-    addressText->setReadOnly(false);
-
-    addButton->setEnabled(false);
-    nextButton->setEnabled(false);
-    previousButton->setEnabled(false);
-    submitButton->show();
-    cancelButton->show();
+    updateInterface(AddingMode);
 }
+//! [addContact]
 
 //! [submitContact part1]
 void AddressBook::submitContact()
@@ -130,28 +124,20 @@ void AddressBook::submitContact()
                 tr("\"%1\" has been edited in your address book.").arg(name));
             contacts[name] = address;
         }
-
-        updateInterface(NavigationMode);
     }
+    updateInterface(NavigationMode);
 }
 //! [submitContact part3]
 
+//! [cancel]
 void AddressBook::cancel()
 {
     nameLine->setText(oldName);
     nameLine->setReadOnly(true);
 
-    addressText->setText(oldAddress);
-    addressText->setReadOnly(true);
-    addButton->setEnabled(true);
-
-    int number = contacts.size();
-    nextButton->setEnabled(number > 1);
-    previousButton->setEnabled(number > 1);
-
-    submitButton->hide();
-    cancelButton->hide();
+    updateInterface(NavigationMode);
 }
+//! [cancel]
 
 void AddressBook::next()
 {
@@ -233,7 +219,7 @@ void AddressBook::updateInterface(Mode mode)
 
         nameLine->setReadOnly(false);
         nameLine->setFocus(Qt::OtherFocusReason);
-        addressTExt->setReadOnly(false);
+        addressText->setReadOnly(false);
 
         addButton->setEnabled(false);
         editButton->setEnabled(false);
