@@ -37,7 +37,7 @@
 
 QT_BEGIN_NAMESPACE
 class QRadioButton;
-QT_END_INCLUDE_NAMESPACE
+QT_END_NAMESPACE
 
 namespace CMakeProjectManager {
 namespace Internal {
