@@ -712,6 +712,37 @@
     \example examples/addressbook-sdk/part5
     \title Address Book 5 - Adding a Find Function}
 
+    In this chapter, we look at ways to locate contacts and addresses in the
+    address book application.
+
+    # image
+
+    As we keep adding contacts to our address book, it becomes tedious to
+    navigate them with the \gui Next and \gui Previous buttons. In this case,
+    a \gui Find function would be more efficient in looking up contacts. The
+    screenshot above shows the \gui Find button and its position on the panel
+    of buttons.
+
+    When the user clicks on the \gui Find button, it is useful to display a
+    dialog that can prompt the user for a contact's name. Qt provides QDialog,
+    which we subclass in this chapter, to implement a FindDialog class.
+
+    \section1 Designing FindDialog
+
+    #image
+
+    We begin by adding a new \c{.ui} file to our project. Right click on your
+    project and select \gui{Add New...}. In the \gui{New File} dialog, select
+    \gui{Qt Designer Form}. In the \gui{Qt Designer Form| dialog, select
+    \e{Dialog without buttons}. Name it \c{finddialog.ui} and add it to your
+    project. The \QD plugin within Qt Creator will now display your new form.
+
+    To replicate the screenshot above, we need a label, a line edit, and a push
+    button. Drag these onto your form. Set their text accordingly and name them
+    \c label, \c lineEdit, and \c findButton, respectively. Place these widgets
+    in a horizontal layout. Then set a top level layout - either horizontal or
+    vertical.
+
 */
 
 /*!
