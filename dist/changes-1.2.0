@@ -23,11 +23,14 @@ Editing
    * Make it possible to disable Ctrl+Click navigation
    * Added optional XCode-style tab indentation
    * Ui changes are added immediately to the code model
+   * Fixed possibly missing code completion with mingw toolchain
+   * Added option for turning antialiasing of text editor fonts off
+   * Added searching with regular expressions in text editors
 
 Building and Running
-   * New options: Auto-Save before Build
-   * and Run without building
+   * New options: Auto-Save before Build and Run without building
    * Environment settings
+   * Fixed bug that prevented use of Qt 4 with version < 4.2
 
 Debugging
    * Added Windows Console Debugger support (x86 and AMD64)
@@ -36,6 +39,7 @@ Debugging
      avoid crashes for speedup
    * Changed method of dumper loading on Windows, enabling it for MinGW 64
    * Make it possible to disable breakpoints
+   * Make it possible to float the debugger views
    
 Wizards
 
@@ -70,7 +74,8 @@ Other Unixes
    
 Additional credits go to:
    * axasia <axasia@gmail.com> (japanese translation)
-   * Christian Hoenig <christian@hoenig.cc> ("Build Project Only" submenu and build project dependencies, various patches)
+   * Christian Hoenig <christian@hoenig.cc> ("Build Project Only" submenu and
+     build project dependencies, various patches)
    * Enrico Ros <enrico.ros@gmail.com> (italian translation)
    * Joel Nordell <joel.nordell@chloridepower.com> (XCode-style tab behavior, various patches)
    * Serge Ratke <dev.serge.ratke@gmx.de> (copy lines up/down by Ctrl+Alt+Up/Down)
