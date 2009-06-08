@@ -124,7 +124,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     p.setPen(QColor(255, 255, 255, 70));
     p.drawLine(0, 1, size().width(), 1);
 
-    QRect textRect = rect();
+    QRect textRect = rect().adjusted(0, 0, -1, 0);
     textRect.setHeight(h+5);
 
     p.setPen(QColor(30, 30, 30, 80));
@@ -149,9 +149,8 @@ void ProgressBar::paintEvent(QPaintEvent *)
     QRect inner = rect.adjusted(2, 2, -1, -1);
     inner.adjust(0, 0, qRound((percent - 1) * inner.width()), 0);
     if (m_error) {
-        // TODO this is not fancy enough
-        QColor red(255, 0, 0, 180);
-        p.setBrush(red);
+        QColor red(255, 60, 0, 210);
+        c = red;
         // avoid too small red bar
         if (inner.width() < 10)
             inner.adjust(0, 0, 10 - inner.width(), 0);

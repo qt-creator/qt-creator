@@ -385,8 +385,7 @@ QtVersion::QtVersion(const QString &name, const QString &path)
 
 QtVersion::~QtVersion()
 {
-    delete m_toolChain;
-    m_toolChain = 0;
+
 }
 
 QString QtVersion::name() const
@@ -853,7 +852,7 @@ void QtVersion::updateQMakeCXX() const
 ProjectExplorer::ToolChain *QtVersion::toolChain() const
 {
     updateToolChain();
-    return m_toolChain;
+    return m_toolChain.data();
 }
 
 void QtVersion::updateToolChain() const
@@ -893,11 +892,10 @@ void QtVersion::updateToolChain() const
         qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
     }
 
-    if (ProjectExplorer::ToolChain::equals(m_test, m_toolChain)) {
+    if (ProjectExplorer::ToolChain::equals(m_test, m_toolChain.data())) {
         delete m_test;
     } else {
-        delete m_toolChain;
-        m_toolChain = m_test;
+        m_toolChain =  QSharedPointer<ProjectExplorer::ToolChain>(m_test);
     }
 
     m_toolChainUpToDate = true;

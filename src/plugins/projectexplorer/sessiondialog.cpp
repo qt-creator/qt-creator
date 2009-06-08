@@ -139,15 +139,13 @@ void SessionDialog::updateActions()
 
     if (m_ui.sessionList->currentItem())
         enableDelete = (m_ui.sessionList->currentItem()->text() != m_sessionManager->activeSession()
-                        && m_ui.sessionList->currentItem()->text() != "default");
+                        && (m_ui.sessionList->currentItem()->text() != QLatin1String("default")));
     m_ui.btDelete->setEnabled(enableDelete);
 }
 
 void SessionDialog::accept()
 {
-    if (m_ui.sessionList->currentItem()) {
-        m_sessionManager->loadSession(m_ui.sessionList->currentItem()->text());
-    }
+    // do nothing
     QDialog::accept();
 }
 

@@ -854,6 +854,13 @@ void ProjectExplorerPlugin::showSessionManager()
     sessionDialog.exec();
 
     updateActions();
+
+    Core::ModeManager *modeManager = Core::ModeManager::instance();
+    Core::IMode *welcomeMode = modeManager->mode(Core::Constants::MODE_WELCOME);
+    if (modeManager->currentMode() == welcomeMode)
+    {
+        updateWelcomePage(qobject_cast<Core::Internal::WelcomeMode*>(welcomeMode));
+    }
 }
 
 void ProjectExplorerPlugin::setStartupProject(Project *project)

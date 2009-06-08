@@ -43,8 +43,10 @@ ContentWindow::ContentWindow(QHelpEngine *helpEngine)
     , m_expandDepth(-2)
 {
     m_contentWidget = m_helpEngine->contentWidget();
+    m_contentWidget->installEventFilter(this);
     m_contentWidget->viewport()->installEventFilter(this);
     m_contentWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    setFocusProxy(m_contentWidget);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(4);
@@ -90,18 +92,6 @@ void ContentWindow::expandToDepth(int depth)
         m_contentWidget->expandToDepth(depth);
 }
 
-void ContentWindow::focusInEvent(QFocusEvent *e)
-{
-    if (e->reason() != Qt::MouseFocusReason)
-        m_contentWidget->setFocus();
-}
-
-void ContentWindow::keyPressEvent(QKeyEvent *e)
-{
-    if (e->key() == Qt::Key_Escape)
-        emit escapePressed();
-}
-
 bool ContentWindow::eventFilter(QObject *o, QEvent *e)
 {
     if (m_contentWidget && o == m_contentWidget->viewport()
@@ -125,6 +115,9 @@ bool ContentWindow::eventFilter(QObject *o, QEvent *e)
                 itemClicked(index);
             }
         }
+    } else if (o == m_contentWidget && e->type() == QEvent::KeyPress) {
+        if (static_cast<QKeyEvent *>(e)->key() == Qt::Key_Escape)
+            emit escapePressed();
     }
     return QWidget::eventFilter(o, e);
 }

@@ -33,6 +33,7 @@
 #include <projectexplorer/environment.h>
 #include <projectexplorer/toolchain.h>
 
+#include <QtCore/QSharedPointer>
 #include <QtCore/QHash>
 
 namespace Qt4ProjectManager {
@@ -154,7 +155,7 @@ private:
     mutable QString m_qmakeCXX;
 
     mutable bool m_toolChainUpToDate;
-    mutable ProjectExplorer::ToolChain *m_toolChain;
+    mutable QSharedPointer<ProjectExplorer::ToolChain> m_toolChain;
 };
 
 class QtVersionManager : public QObject

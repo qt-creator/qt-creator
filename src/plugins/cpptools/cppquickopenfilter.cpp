@@ -104,9 +104,14 @@ QList<QuickOpen::FilterEntry> CppQuickOpenFilter::matchesFor(const QString &orig
         foreach (ModelItemInfo info, items) {
             if ((hasWildcard && regexp.exactMatch(info.symbolName))
                     || (!hasWildcard && matcher.indexIn(info.symbolName) != -1)) {
+
                 QVariant id = qVariantFromValue(info);
                 QuickOpen::FilterEntry filterEntry(this, info.symbolName, id, info.icon);
-                filterEntry.extraInfo = info.symbolType;
+                if (! info.symbolType.isEmpty())
+                    filterEntry.extraInfo = info.symbolType;
+                else
+                    filterEntry.extraInfo = info.fileName;
+
                 if (info.symbolName.startsWith(entry))
                     betterEntries.append(filterEntry);
                 else

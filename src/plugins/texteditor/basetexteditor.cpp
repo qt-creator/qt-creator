@@ -42,6 +42,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
+#include <coreplugin/stylehelper.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <texteditor/fontsettings.h>
@@ -231,6 +232,12 @@ void BaseTextEditor::print(QPrinter *printer)
     }
     printer->setFullPage(oldFullPage);
     delete dlg;
+}
+
+static int collapseBoxWidth(const QFontMetrics &fm)
+{
+    const int lineSpacing = fm.lineSpacing();
+    return lineSpacing + lineSpacing%2 + 1;
 }
 
 static void printPage(int index, QPainter *painter, const QTextDocument *doc,
@@ -1566,10 +1573,10 @@ QRect BaseTextEditor::collapseBox()
         return QRect();
     QRectF br = blockBoundingGeometry(begin).translated(contentOffset());
     QRectF er = blockBoundingGeometry(end).translated(contentOffset());
-    int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
-    return QRect(d->m_extraArea->width() - collapseBoxWidth,
+
+    return QRect(d->m_extraArea->width() - collapseBoxWidth(fontMetrics()),
                  int(br.top()),
-                 collapseBoxWidth,
+                 collapseBoxWidth(fontMetrics()),
                  er.bottom() - br.top());
 }
 
@@ -2240,7 +2247,7 @@ int BaseTextEditor::extraAreaWidth(int *markWidthPtr) const
     space += 4;
 
     if (d->m_codeFoldingVisible)
-        space += fm.lineSpacing();
+        space += collapseBoxWidth(fm);
     return space;
 }
 
@@ -2260,13 +2267,11 @@ static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool e
 
     QRgb b = pal.base().color().rgb();
     QRgb h = pal.highlight().color().rgb();
-    QColor c = QColor((qRed(b)*2+qRed(h))/3,
-                      (qGreen(b)*2+qGreen(h))/3,
-                      (qBlue(b)*2+qBlue(h))/3);
+    QColor c = StyleHelper::mergedColors(b,h, 50);
 
     QLinearGradient grad(rect.topLeft(), rect.topRight());
     grad.setColorAt(0, c.lighter(110));
-    grad.setColorAt(1, c.lighter(160));
+    grad.setColorAt(1, c.lighter(130));
     QColor outline = c;
     QRect r = rect;
 
@@ -2305,8 +2310,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 //     if (documentLayout->doubleMarkCount)
 //         markWidth += fm.lineSpacing() / 3;
 
-    const int collapseBoxWidth = d->m_codeFoldingVisible ? fmLineSpacing + 1: 0;
-    const int extraAreaWidth = d->m_extraArea->width() - collapseBoxWidth;
+    const int extraAreaWidth = d->m_extraArea->width() - collapseBoxWidth(fm);
 
     painter.fillRect(e->rect(), pal.color(QPalette::Base));
     painter.fillRect(e->rect().intersected(QRect(0, 0, extraAreaWidth, INT_MAX)),
@@ -2414,15 +2418,18 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                 bool hovered = blockNumber >= extraAreaHighlightCollapseBlockNumber
                                && blockNumber <= extraAreaHighlightCollapseEndBlockNumber;
 
+                int boxWidth = collapseBoxWidth(fm);
                 if (hovered) {
-                    QRect box = QRect(extraAreaWidth + 1, top, collapseBoxWidth - 2, collapseBoxWidth);
+                    QRect box = QRect(extraAreaWidth + 1, top, boxWidth - 2, fmLineSpacing + 2);
                     drawRectBox(&painter, box, drawStart, drawEnd, pal);
                 }
 
                 if (drawBox) {
                     bool expanded = nextBlock.isVisible();
-                    QRect box(extraAreaWidth + collapseBoxWidth/4, top + collapseBoxWidth/4,
-                              2 * (collapseBoxWidth/4) + 1, 2 * (collapseBoxWidth/4) + 1);
+                    int margin = 2;
+                    int size = boxWidth/4;
+                    QRect box(extraAreaWidth + size, top + size,
+                              2 * (size) + 1, 2 * (size) + 1);
                     drawFoldingMarker(&painter, pal, box, expanded, active, hovered);
                 }
             }
@@ -2473,32 +2480,38 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QPalette &pal,
                                        bool active,
                                        bool hovered) const
 {
-    QStyleOptionViewItemV2 opt;
-    opt.rect = rect;
-    opt.state = QStyle::State_Active | QStyle::State_Item | QStyle::State_Children;
+    Q_UNUSED(active);
+    Q_UNUSED(hovered);
 
-    if (expanded)
-        opt.state |= QStyle::State_Open;
+    painter->save();
+    painter->setPen(Qt::NoPen);
 
-    if (active)
-        opt.state |= QStyle::State_MouseOver | QStyle::State_Enabled | QStyle::State_Selected;
+    int size = rect.size().width();
+    int sqsize = 2*(size/2);
 
-    if (hovered)
-        opt.palette.setBrush(QPalette::Window, pal.highlight());
+    QColor textColor = pal.buttonText().color();
+    QColor brushColor = textColor;
 
-    QStyle *s = style();
+    textColor.setAlpha(100);
+    brushColor.setAlpha(40);
 
-    if (ManhattanStyle *ms = qobject_cast<ManhattanStyle*>(s))
-        s = ms->systemStyle();
+    QPolygon a;
+    if (expanded) {
+        // down arrow
+        a.setPoints(3, 0, sqsize/3,  sqsize/2, sqsize  - sqsize/3,  sqsize, sqsize/3);
+    } else {
+        // right arrow
+        a.setPoints(3, sqsize - sqsize/3, sqsize/2,  sqsize/2 - sqsize/3, 0,  sqsize/2 - sqsize/3, sqsize);
+        painter->setBrush(brushColor);
+    }
+    painter->translate(0.5, 0.5);
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->translate(rect.topLeft());
 
-    // QGtkStyle needs a small correction to draw the marker in the right place
-    if (qstrcmp(s->metaObject()->className(), "QGtkStyle") == 0)
-       opt.rect.translate(-2, 0);
-    else if (qstrcmp(s->metaObject()->className(), "QMacStyle") == 0)
-        opt.rect.translate(-1, 0);
+    painter->setPen(textColor);
 
-    s->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
-
+    painter->drawPolygon(a);
+    painter->restore();
 }
 
 void BaseTextEditor::slotModificationChanged(bool m)
@@ -2712,8 +2725,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
         d->extraAreaHighlightCollapseBlockNumber = -1;
         d->extraAreaHighlightCollapseColumn = -1;
 
-        int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
-        if (e->pos().x() > extraArea()->width() - collapseBoxWidth) {
+        if (e->pos().x() > extraArea()->width() - collapseBoxWidth(fontMetrics())) {
             d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
             if (TextBlockUserData::canCollapse(cursor.block())
                 || !TextBlockUserData::hasClosingCollapse(cursor.block()))
@@ -2739,8 +2751,8 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
         if (e->button() == Qt::LeftButton) {
-            int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
-            if (d->m_codeFoldingVisible && e->pos().x() > extraArea()->width() - collapseBoxWidth) {
+            int boxWidth = collapseBoxWidth(fontMetrics());
+            if (d->m_codeFoldingVisible && e->pos().x() > extraArea()->width() - boxWidth) {
                 if (!cursor.block().next().isVisible()) {
                     toggleBlockVisible(cursor.block());
                     d->moveCursorVisible(false);
