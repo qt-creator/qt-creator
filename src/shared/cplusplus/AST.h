@@ -1262,6 +1262,8 @@ class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
 public: // annotations
     Name *name;
 
+    virtual NameAST *asName() { return this; }
+
 public:
     virtual NameAST *clone(MemoryPool *pool) const = 0;
 };
