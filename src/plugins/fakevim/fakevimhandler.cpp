@@ -638,6 +638,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         int endLine = lineForPosition(position());
         setPosition(qMin(anchor(), position()));
         enterExMode();
+        m_currentMessage.clear();
         m_commandBuffer = QString(".,+%1!").arg(qAbs(endLine - beginLine));
         m_commandHistory.append(QString());
         m_commandHistoryIndex = m_commandHistory.size() - 1;
@@ -766,7 +767,6 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = "-- PASSING --  ";
     } else if (!m_currentMessage.isEmpty()) {
         msg = m_currentMessage;
-        m_currentMessage.clear();
     } else if (m_mode == CommandMode && m_visualMode != NoVisualMode) {
         if (m_visualMode == VisualCharMode) {
             msg = "-- VISUAL --";
@@ -991,6 +991,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == ':') {
         enterExMode();
+        m_currentMessage.clear();
         m_commandBuffer.clear();
         if (m_visualMode != NoVisualMode)
             m_commandBuffer = "'<,'>";
@@ -1005,6 +1006,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             // FIXME: make core find dialog sufficiently flexible to
             // produce the "default vi" behaviour too. For now, roll our own.
             enterExMode(); // to get the cursor disabled
+            m_currentMessage.clear();
             m_mode = (key == '/') ? SearchForwardMode : SearchBackwardMode;
             m_commandBuffer.clear();
             m_searchHistory.append(QString());
@@ -1033,6 +1035,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_submode = FilterSubMode;
     } else if (key == '!' && m_visualMode != NoVisualMode) {
         enterExMode();
+        m_currentMessage.clear();
         m_commandBuffer = "'<,'>!";
         m_commandHistory.append(QString());
         m_commandHistoryIndex = m_commandHistory.size() - 1;
@@ -1971,6 +1974,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         enterCommandMode();
         updateMiniBuffer();
     } else {
+        enterCommandMode();
         showRedMessage(tr("E492: Not an editor command: ") + cmd0);
     }
 }
