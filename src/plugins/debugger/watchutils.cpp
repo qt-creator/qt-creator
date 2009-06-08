@@ -1270,6 +1270,8 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     inBuffer->append('\0');
     inBuffer->append(inner.toUtf8());
     inBuffer->append('\0');
+    inBuffer->append(data.iname.toUtf8());
+    inBuffer->append('\0');
 
     if (debug)
         qDebug() << '\n' << Q_FUNC_INFO << '\n' << data.toString() << "\n-->" << outertype << td.type << extraArgs;

@@ -2915,6 +2915,7 @@ void *qDumpObjectData440(
         d.iname     = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
         d.exp       = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
         d.innertype = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
+        d.iname     = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
 
         handleProtocolVersion2and3(d);
     }
