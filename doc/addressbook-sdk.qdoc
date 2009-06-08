@@ -696,6 +696,12 @@
     in the same function, we avoid the possibility of the user interface
     getting "out of sync" with the internal state of the application.
 
+    To maintain consistency, we need to modify our \c addContact() and
+    \c cancel() functions respectively. Below is the code:
+
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp addContact
+    \dots
+    \snippet examples/addressbook-sdk/part4/addressbook.cpp cancel
 */
 
 /*!
