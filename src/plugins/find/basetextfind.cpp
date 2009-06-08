@@ -142,14 +142,53 @@ bool BaseTextFind::findStep(const QString &txt, IFindSupport::FindFlags findFlag
     return found;
 }
 
+namespace {
+    QString expandRegExpReplacement(const QString &replaceText, const QRegExp &regexp)
+    {
+        QString result;
+        for (int i = 0; i < replaceText.length(); ++i) {
+            QChar c = replaceText.at(i);
+            if (c == QLatin1Char('\\') && i < replaceText.length() - 1) {
+                c = replaceText.at(++i);
+                if (c == QLatin1Char('\\')) {
+                    result += QLatin1Char('\\');
+                } else if (c == QLatin1Char('&')) {
+                    result += QLatin1Char('&');
+                } else if (c.isDigit()) {
+                    int index = c.unicode()-'1';
+                    if (index < regexp.numCaptures()) {
+                        result += regexp.cap(index+1);
+                    } else {
+                        result += QLatin1Char('\\');
+                        result += c;
+                    }
+                } else {
+                    result += QLatin1Char('\\');
+                    result += c;
+                }
+            } else if (c == QLatin1Char('&')) {
+                result += regexp.cap(0);
+            } else {
+                result += c;
+            }
+        }
+        return result;
+    }
+}
+
 bool BaseTextFind::replaceStep(const QString &before, const QString &after,
     IFindSupport::FindFlags findFlags)
 {
     QTextCursor cursor = textCursor();
-    if (cursor.selectedText().compare(before,
-            ((findFlags&IFindSupport::FindCaseSensitively)!=0) ? Qt::CaseSensitive : Qt::CaseInsensitive) == 0) {
+    bool usesRegExp = (findFlags & IFindSupport::FindRegularExpression);
+    QRegExp regexp(before,
+                   (findFlags & IFindSupport::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive,
+                   usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
+
+    if (regexp.exactMatch(cursor.selectedText())) {
+        QString realAfter = usesRegExp ? expandRegExpReplacement(after, regexp) : after;
         int start = cursor.selectionStart();
-        cursor.insertText(after);
+        cursor.insertText(realAfter);
         if ((findFlags&IFindSupport::FindBackward) != 0)
             cursor.setPosition(start);
     }
@@ -166,15 +205,18 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
         editCursor.movePosition(QTextCursor::Start);
     editCursor.beginEditBlock();
     int count = 0;
+    bool usesRegExp = (findFlags & IFindSupport::FindRegularExpression);
     QRegExp regexp(before);
-    regexp.setPatternSyntax((findFlags&IFindSupport::FindRegularExpression) ? QRegExp::RegExp : QRegExp::FixedString);
-    regexp.setCaseSensitivity((findFlags&IFindSupport::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    regexp.setPatternSyntax(usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
+    regexp.setCaseSensitivity((findFlags & IFindSupport::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
     QTextCursor found = document()->find(regexp, editCursor, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
     while (!found.isNull() && inScope(found.selectionStart(), found.selectionEnd())) {
         ++count;
         editCursor.setPosition(found.selectionStart());
         editCursor.setPosition(found.selectionEnd(), QTextCursor::KeepAnchor);
-        editCursor.insertText(after);
+        regexp.exactMatch(found.selectedText());
+        QString realAfter = usesRegExp ? expandRegExpReplacement(after, regexp) : after;
+        editCursor.insertText(realAfter);
         found = document()->find(regexp, editCursor, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
     }
     editCursor.endEditBlock();

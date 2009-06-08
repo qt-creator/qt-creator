@@ -708,12 +708,15 @@
         \row
             \i  \bold{git}
             \i  \l{http://git-scm.com/}
+            \i
         \row
             \i  \bold{Subversion}
             \i  \l{http://subversion.tigris.org/}
+            \i
         \row
             \i  \bold{Perforce}
             \i  \l{http://www.perforce.com}
+            \i  Server version 2006.1 and later
     \endtable
 
 

@@ -2431,7 +2431,6 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
                 if (drawBox) {
                     bool expanded = nextBlock.isVisible();
-                    int margin = 2;
                     int size = boxWidth/4;
                     QRect box(extraAreaWidth + size, top + size,
                               2 * (size) + 1, 2 * (size) + 1);
@@ -2487,36 +2486,57 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QPalette &pal,
 {
     Q_UNUSED(active);
     Q_UNUSED(hovered);
+    QStyle *s = style();
+    if (ManhattanStyle *ms = qobject_cast<ManhattanStyle*>(s))
+        s = ms->systemStyle();
 
-    painter->save();
-    painter->setPen(Qt::NoPen);
+    if (!qstrcmp(s->metaObject()->className(), "OxygenStyle")) {
+        painter->save();
+        painter->setPen(Qt::NoPen);
+        int size = rect.size().width();
+        int sqsize = 2*(size/2);
 
-    int size = rect.size().width();
-    int sqsize = 2*(size/2);
+        QColor textColor = pal.buttonText().color();
+        QColor brushColor = textColor;
 
-    QColor textColor = pal.buttonText().color();
-    QColor brushColor = textColor;
+        textColor.setAlpha(100);
+        brushColor.setAlpha(100);
 
-    textColor.setAlpha(100);
-    brushColor.setAlpha(40);
-
-    QPolygon a;
-    if (expanded) {
-        // down arrow
-        a.setPoints(3, 0, sqsize/3,  sqsize/2, sqsize  - sqsize/3,  sqsize, sqsize/3);
+        QPolygon a;
+        if (expanded) {
+            // down arrow
+            a.setPoints(3, 0, sqsize/3,  sqsize/2, sqsize  - sqsize/3,  sqsize, sqsize/3);
+        } else {
+            // right arrow
+            a.setPoints(3, sqsize - sqsize/3, sqsize/2,  sqsize/2 - sqsize/3, 0,  sqsize/2 - sqsize/3, sqsize);
+            painter->setBrush(brushColor);
+        }
+        painter->translate(0.5, 0.5);
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->translate(rect.topLeft());
+        painter->setPen(textColor);
+        painter->setBrush(textColor);
+        painter->drawPolygon(a);
+        painter->restore();
     } else {
-        // right arrow
-        a.setPoints(3, sqsize - sqsize/3, sqsize/2,  sqsize/2 - sqsize/3, 0,  sqsize/2 - sqsize/3, sqsize);
-        painter->setBrush(brushColor);
+        QStyleOptionViewItemV2 opt;
+        opt.rect = rect;
+        opt.state = QStyle::State_Active | QStyle::State_Item | QStyle::State_Children;
+        if (expanded)
+            opt.state |= QStyle::State_Open;
+        if (active)
+            opt.state |= QStyle::State_MouseOver | QStyle::State_Enabled | QStyle::State_Selected;
+        if (hovered)
+            opt.palette.setBrush(QPalette::Window, pal.highlight());
+
+         // QGtkStyle needs a small correction to draw the marker in the right place
+        if (!qstrcmp(s->metaObject()->className(), "QGtkStyle"))
+           opt.rect.translate(-2, 0);
+        else if (!qstrcmp(s->metaObject()->className(), "QMacStyle"))
+            opt.rect.translate(-1, 0);
+
+        s->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
-    painter->translate(0.5, 0.5);
-    painter->setRenderHint(QPainter::Antialiasing);
-    painter->translate(rect.topLeft());
-
-    painter->setPen(textColor);
-
-    painter->drawPolygon(a);
-    painter->restore();
 }
 
 void BaseTextEditor::slotModificationChanged(bool m)
