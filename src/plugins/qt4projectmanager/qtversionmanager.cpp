@@ -107,7 +107,6 @@ QtVersionManager::QtVersionManager()
         connect(this, SIGNAL(updatedExamples(QString,QString,QString)),
                 welcomeMode, SIGNAL(updatedExamples(QString,QString, QString)));
     }
-    else
     updateDocumentation();
     updateExamples();
 }
