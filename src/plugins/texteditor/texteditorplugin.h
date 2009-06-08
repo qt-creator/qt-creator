@@ -69,6 +69,7 @@ public:
 
 private slots:
     void invokeCompletion();
+    void invokeQuickFix();
     void updateSearchResultsFont(const TextEditor::FontSettings &);
 
 private:

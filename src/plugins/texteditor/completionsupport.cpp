@@ -91,10 +91,27 @@ void CompletionSupport::cleanupCompletions()
 
 void CompletionSupport::autoComplete(ITextEditable *editor, bool forced)
 {
+    autoComplete_helper(editor, forced, /*quickFix = */ false);
+}
+
+void CompletionSupport::quickFix(ITextEditable *editor)
+{
+    qDebug() << Q_FUNC_INFO;
+    autoComplete_helper(editor,
+                        /*forced = */ true,
+                        /*quickFix = */ true);
+}
+
+void CompletionSupport::autoComplete_helper(ITextEditable *editor, bool forced,
+                                            bool quickFix)
+{
     m_completionCollector = 0;
 
     foreach (ICompletionCollector *collector, m_completionCollectors) {
-        if (collector->supportsEditor(editor)) {
+        if (quickFix)
+            collector = qobject_cast<IQuickFixCollector *>(collector);
+
+        if (collector && collector->supportsEditor(editor)) {
             m_completionCollector = collector;
             break;
         }
@@ -121,6 +138,7 @@ void CompletionSupport::autoComplete(ITextEditable *editor, bool forced)
         }
 
         m_completionList = new CompletionWidget(this, editor);
+        m_completionList->setQuickFix(quickFix);
 
         connect(m_completionList, SIGNAL(itemSelected(TextEditor::CompletionItem)),
                 this, SLOT(performCompletion(TextEditor::CompletionItem)));

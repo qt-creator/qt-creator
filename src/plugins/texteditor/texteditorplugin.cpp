@@ -131,6 +131,13 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 #endif
     connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
 
+    // Add shortcut for invoking automatic completion
+    QShortcut *quickFixShortcut = new QShortcut(core->mainWindow());
+    quickFixShortcut->setWhatsThis(tr("Triggers a quick fix in this scope"));
+    // Make sure the shortcut still works when the quick fix widget is active
+    quickFixShortcut->setContext(Qt::ApplicationShortcut);
+    Core::Command *quickFixCommand = am->registerShortcut(quickFixShortcut, Constants::QUICKFIX_THIS, context);
+    connect(quickFixShortcut, SIGNAL(activated()), this, SLOT(invokeQuickFix()));
 
     return true;
 }
@@ -166,6 +173,14 @@ void TextEditorPlugin::invokeCompletion()
     ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
     if (editor)
         editor->triggerCompletions();
+}
+
+void TextEditorPlugin::invokeQuickFix()
+{
+    Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
+    ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
+    if (editor)
+        editor->triggerQuickFix();
 }
 
 void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)

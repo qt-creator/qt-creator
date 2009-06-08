@@ -100,6 +100,7 @@ QVariant AutoCompletionModel::data(const QModelIndex &index, int role) const
 CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *editor)
     : QListView(),
       m_blockFocusOut(false),
+      m_quickFix(false),
       m_editor(editor),
       m_editorWidget(editor->widget()),
       m_model(0),
@@ -165,7 +166,7 @@ bool CompletionWidget::event(QEvent *e)
             break;
         }
 
-        if (forwardKeys) {
+        if (forwardKeys && ! m_quickFix) {
             m_blockFocusOut = true;
             QApplication::sendEvent(m_editorWidget, e);
             m_blockFocusOut = false;
@@ -199,6 +200,11 @@ void CompletionWidget::closeList(const QModelIndex &index)
     emit completionListClosed();
 
     m_blockFocusOut = false;
+}
+
+void CompletionWidget::setQuickFix(bool quickFix)
+{
+    m_quickFix = quickFix;
 }
 
 void CompletionWidget::setCompletionItems(const QList<TextEditor::CompletionItem> &completionItems)

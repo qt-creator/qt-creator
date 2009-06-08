@@ -57,6 +57,7 @@ public:
     static CompletionSupport *instance();
 public slots:
     void autoComplete(ITextEditable *editor, bool forced);
+    void quickFix(ITextEditable *editor);
 
 private slots:
     void performCompletion(const TextEditor::CompletionItem &item);
@@ -64,6 +65,7 @@ private slots:
 
 private:
     QList<CompletionItem> getCompletions() const;
+    void autoComplete_helper(ITextEditable *editor, bool forced, bool quickFix);
 
     CompletionWidget *m_completionList;
     int m_startPosition;

@@ -113,6 +113,19 @@ public:
     virtual void cleanup() = 0;
 };
 
+class TEXTEDITOR_EXPORT IQuickFixCollector : public ICompletionCollector
+{
+    Q_OBJECT
+
+public:
+    IQuickFixCollector(QObject *parent = 0) : ICompletionCollector(parent) {}
+    virtual ~IQuickFixCollector() {}
+
+    virtual bool partiallyComplete(const QList<TextEditor::CompletionItem> &)
+    { return false; }
+};
+
+
 } // namespace TextEditor
 
 #endif // COMPLETIONCOLLECTORINTERFACE_H

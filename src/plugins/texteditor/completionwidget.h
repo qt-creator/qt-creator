@@ -54,6 +54,7 @@ class CompletionWidget : public QListView
 public:
     CompletionWidget(CompletionSupport *support, ITextEditable *editor);
 
+    void setQuickFix(bool quickFix);
     void setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems);
     void showCompletions(int startPos);
     void keyboardSearch(const QString &search);
@@ -74,6 +75,7 @@ private:
 
     QPointer<QFrame> m_popupFrame;
     bool m_blockFocusOut;
+    bool m_quickFix;
     ITextEditable *m_editor;
     QWidget *m_editorWidget;
     AutoCompletionModel *m_model;

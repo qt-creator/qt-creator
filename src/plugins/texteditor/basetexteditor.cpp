@@ -561,6 +561,11 @@ void BaseTextEditor::triggerCompletions()
     emit requestAutoCompletion(editableInterface(), true);
 }
 
+void BaseTextEditor::triggerQuickFix()
+{
+    emit requestQuickFix(editableInterface());
+}
+
 bool BaseTextEditor::createNew(const QString &contents)
 {
     setPlainText(contents);

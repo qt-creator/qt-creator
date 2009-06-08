@@ -109,6 +109,7 @@ public:
     virtual QChar characterAt(int pos) const = 0;
 
     virtual void triggerCompletions() = 0;
+    virtual void triggerQuickFix() = 0;
 
     virtual ITextMarkable *markableInterface() = 0;
 

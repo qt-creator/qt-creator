@@ -310,6 +310,7 @@ public:
     ITextMarkable *markableInterface() const;
 
     virtual void triggerCompletions();
+    virtual void triggerQuickFix();
 
     QChar characterAt(int pos) const;
 
@@ -512,6 +513,7 @@ protected slots:
 signals:
     void requestBlockUpdate(const QTextBlock &);
     void requestAutoCompletion(ITextEditable *editor, bool forced);
+    void requestQuickFix(ITextEditable *editor);
 
 private:
     void indentOrUnindent(bool doIndent);
@@ -586,6 +588,8 @@ public:
     inline QChar characterAt(int pos) const { return e->characterAt(pos); }
 
     inline void triggerCompletions() { e->triggerCompletions(); } // slot?
+    inline void triggerQuickFix() { e->triggerQuickFix(); } // slot?
+
     inline ITextMarkable *markableInterface() { return e->markableInterface(); }
 
     void setContextHelpId(const QString &id) { m_contextHelpId = id; }
