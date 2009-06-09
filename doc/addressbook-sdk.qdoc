@@ -43,7 +43,7 @@
     \page tutorials-addressbook-sdk.html
 
     \startpage {index.html}{Qt Reference Documentation}
-    \nextpage {Designing the User Interface}{Chapter 1}
+    \nextpage {examples/addressbook-sdk/part1}{Chapter 1}
 
     \title Address Book Tutorial
     \ingroup howto
