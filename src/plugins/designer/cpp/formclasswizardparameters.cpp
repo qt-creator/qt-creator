@@ -114,7 +114,6 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
         headerStr << ", private " << uiClassName;
     }
     headerStr << " {\n" << namespaceIndent << indent << "Q_OBJECT\n"
-              << namespaceIndent << indent << "Q_DISABLE_COPY(" << unqualifiedClassName << ")\n"
               << namespaceIndent << "public:\n"
               << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QWidget *parent = 0);\n";
     if (embedding == PointerAggregatedUiClass)
