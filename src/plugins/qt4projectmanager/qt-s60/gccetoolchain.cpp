@@ -1,4 +1,5 @@
 #include "gccetoolchain.h"
+#include "qt4project.h"
 
 #include <coreplugin/icore.h>
 
@@ -46,8 +47,16 @@ QString GCCEToolChain::makeCommand() const
     return "make";
 }
 
-QString GCCEToolChain::defaultMakeTarget() const
+QString GCCEToolChain::defaultMakeTarget(const Project *project) const
 {
+    const Qt4Project *qt4project = qobject_cast<const Qt4Project *>(project);
+    if (qt4project) {
+        if (!(QtVersion::QmakeBuildConfig(qt4project->qmakeStep()->value(
+                project->activeBuildConfiguration(),
+                "buildConfiguration").toInt()) & QtVersion::DebugBuild)) {
+            return "release-gcce";
+        }
+    }
     return "debug-gcce";
 }
 

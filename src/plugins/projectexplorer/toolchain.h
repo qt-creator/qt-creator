@@ -31,6 +31,7 @@
 #define TOOLCHAIN_H
 
 #include "environment.h"
+#include "project.h"
 #include <QtCore/QString>
 #include <QtCore/QPair>
 
@@ -87,7 +88,7 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env) = 0;
     virtual ToolChainType type() const = 0;
     virtual QString makeCommand() const = 0;
-    virtual QString defaultMakeTarget() const = 0;
+    virtual QString defaultMakeTarget(const Project *project) const = 0;
 
     ToolChain();
     virtual ~ToolChain();
@@ -117,7 +118,7 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
-    virtual QString defaultMakeTarget() const { return ""; }
+    virtual QString defaultMakeTarget(const Project *) const { return ""; }
 
 protected:
     virtual bool equals(ToolChain *other) const;
@@ -151,7 +152,7 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
-    virtual QString defaultMakeTarget() const { return ""; }
+    virtual QString defaultMakeTarget(const Project *) const { return ""; }
 protected:
     virtual bool equals(ToolChain *other) const;
     QString m_name;

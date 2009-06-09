@@ -61,7 +61,7 @@ QString WINSCWToolChain::makeCommand() const
     return "make";
 }
 
-QString WINSCWToolChain::defaultMakeTarget() const
+QString WINSCWToolChain::defaultMakeTarget(const Project *) const
 {
     return "debug-winscw";
 }

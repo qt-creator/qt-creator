@@ -925,7 +925,7 @@ void QtVersion::updateToolChain() const
         //qDebug()<<"GCC ToolChain ("<<qmake_cxx<<")";
 #ifdef QTCREATOR_WITH_S60
     } else if (t == ProjectExplorer::ToolChain::WINSCW) {
-        m_test = S60Manager::instance()->createWINSCWToolChain(this);
+        m_test = S60Manager::instance()->createGCCEToolChain(this);
 #endif
     } else {
         qDebug()<<"Could not detect ToolChain for"<<mkspec();

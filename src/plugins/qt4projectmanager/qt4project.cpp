@@ -382,7 +382,7 @@ QString Qt4Project::makeCommand(const QString &buildConfiguration) const
 
 QString Qt4Project::defaultMakeTarget(const QString &buildConfiguration) const
 {
-    return qtVersion(buildConfiguration)->toolChain()->defaultMakeTarget();
+    return qtVersion(buildConfiguration)->toolChain()->defaultMakeTarget(this);
 }
 
 void Qt4Project::updateCodeModel()

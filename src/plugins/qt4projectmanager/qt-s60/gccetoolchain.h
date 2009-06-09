@@ -3,6 +3,7 @@
 
 #include "s60devices.h"
 
+#include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
 
 namespace Qt4ProjectManager {
@@ -17,7 +18,7 @@ public:
     void addToEnvironment(ProjectExplorer::Environment &env);
     ProjectExplorer::ToolChain::ToolChainType type() const;
     QString makeCommand() const;
-    QString defaultMakeTarget() const;
+    QString defaultMakeTarget(const ProjectExplorer::Project *project) const;
 
 protected:
     bool equals(ToolChain *other) const;
