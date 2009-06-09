@@ -111,6 +111,47 @@ public:
     }
 };
 
+class RewriteConditional: public QuickFixOperation
+{
+    QString _source;
+    BinaryExpressionAST *_binaryExpression;
+
+public:
+    RewriteConditional(const QString &source, BinaryExpressionAST *node,
+                       Document::Ptr doc, const Snapshot &snapshot)
+        : QuickFixOperation(doc, snapshot),
+          _source(source),
+          _binaryExpression(node)
+    { }
+
+    virtual QString description() const
+    { return QString::fromUtf8("Rewrite conditional (%1)").arg(_source.simplified()); }
+
+    virtual void apply(QTextCursor tc)
+    {
+        setTextCursor(tc);
+
+        tc.beginEditBlock();
+
+        UnaryExpressionAST *left_unary_expr = _binaryExpression->left_expression->asUnaryExpression();
+        UnaryExpressionAST *right_unary_expr = _binaryExpression->right_expression->asUnaryExpression();
+
+        QTextCursor left_not_op = cursor(left_unary_expr->unary_op_token);
+        QTextCursor right_not_op = cursor(right_unary_expr->unary_op_token);
+        QTextCursor log_and_op = cursor(_binaryExpression->binary_op_token);
+
+        QTextCursor begin_of_expr = moveAtStartOfToken(_binaryExpression->firstToken());
+        QTextCursor end_of_expr = moveAtEndOfToken(_binaryExpression->lastToken() - 1);
+
+        left_not_op.removeSelectedText();
+        right_not_op.removeSelectedText();
+        log_and_op.insertText(QLatin1String("||"));
+        begin_of_expr.insertText(QLatin1String("!("));
+        end_of_expr.insertText(QLatin1String(")"));
+
+        tc.endEditBlock();
+    }
+};
 class CheckDocument: protected ASTVisitor
 {
     QTextCursor _textCursor;
@@ -154,23 +195,48 @@ protected:
         return true;
     }
 
-    /*
-    virtual bool visit(ForStatementAST *ast)
+    QTextCursor moveAtStartOfToken(unsigned index) const
     {
-        if (! checkPosition(ast))
-            return true;
+        unsigned line, col;
+        getTokenStartPosition(index, &line, &col);
+        QTextCursor tc = _textCursor;
+        tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col - 1);
+        return tc;
+    }
 
-        if (ast->initializer && ast->initializer->asDeclarationStatement() != 0) {
-            if (checkPosition(ast->initializer)) {
-                // move initializer
-                _nodes.append(ast);
+    QTextCursor moveAtEndOfToken(unsigned index) const
+    {
+        const Token &tk = tokenAt(index);
+
+        unsigned line, col;
+        getTokenStartPosition(index, &line, &col);
+        QTextCursor tc = _textCursor;
+        tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col + tk.length - 1);
+        return tc;
+    }
+
+    virtual bool visit(BinaryExpressionAST *ast)
+    {
+        if (ast->left_expression && ast->right_expression && tokenKind(ast->binary_op_token) == T_AMPER_AMPER &&
+                checkPosition(ast)) {
+            UnaryExpressionAST *left_unary_expr = ast->left_expression->asUnaryExpression();
+            UnaryExpressionAST *right_unary_expr = ast->right_expression->asUnaryExpression();
+            if (left_unary_expr && left_unary_expr->expression && tokenKind(left_unary_expr->unary_op_token) == T_NOT &&
+                right_unary_expr && right_unary_expr->expression && tokenKind(right_unary_expr->unary_op_token) == T_NOT) {
+                // replace !a && !b with !(a || b)
+                QTextCursor beg = moveAtStartOfToken(ast->firstToken());
+                QTextCursor end = moveAtEndOfToken(ast->lastToken() - 1);
+                beg.setPosition(end.position(), QTextCursor::KeepAnchor);
+                QString source = beg.selectedText();
+
+                QuickFixOperationPtr op(new RewriteConditional(source, ast, _doc, _snapshot));
+                _quickFixes.append(op);
+                return true;
             }
         }
 
         return true;
     }
-    */
-
 
     virtual bool visit(CastExpressionAST *ast)
     {
