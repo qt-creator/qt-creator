@@ -34,7 +34,7 @@
 #include <QPointer>
 #include <QFuture>
 #include <QSharedPointer>
-#include <QTextCursor.h>
+#include <QTextCursor>
 #include <cplusplus/CppDocument.h>
 
 QT_BEGIN_NAMESPACE
