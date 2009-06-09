@@ -171,14 +171,11 @@ static QStringList readLines(const QString &absoluteFileName)
 
 void GenericProject::parseProject(RefreshOptions options)
 {
-    if (options & Files) {
+    if (options & Files)
         m_files = convertToAbsoluteFiles(readLines(filesFileName()));
-        m_files.removeDuplicates();
-    }
 
     if (options & Configuration) {
-        m_projectIncludePaths = readLines(includesFileName());
-        m_projectIncludePaths.removeDuplicates();
+        m_projectIncludePaths = convertToAbsoluteFiles(readLines(includesFileName()));
 
         QSettings projectInfo(m_fileName, QSettings::IniFormat);
         m_generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());

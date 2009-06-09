@@ -129,7 +129,7 @@ public:
     QList<IEditor*> openedEditors() const;
 
     Internal::EditorModel *openedEditorsModel() const;
-    void activateEditor(const QModelIndex &index, Internal::EditorView *view = 0);
+    void activateEditor(const QModelIndex &index, Internal::EditorView *view = 0, OpenEditorFlags = 0);
     void closeEditor(const QModelIndex &index);
 
 
@@ -235,9 +235,10 @@ private:
     Core::IEditor *duplicateEditor(IEditor *editor);
     void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     void setCurrentView(Core::Internal::SplitterOrView *view);
-    Core::Internal::SplitterOrView *currentView() const;
     void activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
+    Core::Internal::SplitterOrView *currentView() const;
     void closeEditor(Core::IEditor *editor);
+    void closeDuplicate(Core::IEditor *editor);
     void closeView(Core::Internal::EditorView *view);
     void emptyView(Core::Internal::EditorView *view);
     Core::Internal::EditorView *currentEditorView();

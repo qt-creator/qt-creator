@@ -37,9 +37,8 @@ DATA_DIRS = \
         FILES += $$files
     }
 
-    copy2build.target = $$IDE_DATA_PATH
     copy2build.input = FILES
-    copy2build.output = ${QMAKE_FUNC_FILE_IN_stripSrcDir}
+    copy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcDir}
     isEmpty(vcproj):copy2build.variable_out = PRE_TARGETDEPS
     copy2build.commands = $$QMAKE_COPY \"${QMAKE_FILE_IN}\" \"${QMAKE_FILE_OUT}\"
     copy2build.name = COPY ${QMAKE_FILE_IN}

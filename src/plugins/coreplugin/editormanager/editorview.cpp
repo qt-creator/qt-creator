@@ -571,12 +571,9 @@ bool EditorView::hasEditor(IEditor *editor) const
 void EditorView::closeView()
 {
     EditorManager *em = CoreImpl::instance()->editorManager();
-#if 1
-    if (IEditor *editor = currentEditor())
-        em->closeEditor(editor);
-#else
-    em->closeView(this);
-#endif
+    if (IEditor *editor = currentEditor()) {
+            em->closeDuplicate(editor);
+    }
 }
 
 void EditorView::removeEditor(IEditor *editor)
@@ -943,7 +940,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
 
         m_view->removeEditor(e);
         m_splitter->addWidget(new SplitterOrView(e));
-#if 0
+#if 1
         if (e->duplicateSupported()) {
             Core::IEditor *duplicate = em->duplicateEditor(e);
             m_splitter->addWidget(new SplitterOrView(duplicate));
@@ -967,7 +964,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
     }
 
     em->setCurrentView(view);
-#if 0
+#if 1
     if (e)
         em->activateEditor(e);
 #endif

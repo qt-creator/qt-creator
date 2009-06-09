@@ -349,7 +349,10 @@ QString FindToolBar::getReplaceText()
 void FindToolBar::setFindText(const QString &text)
 {
     disconnect(m_ui.findEdit, SIGNAL(textChanged(const QString&)), this, SLOT(invokeFindIncremental()));
-    m_ui.findEdit->setText(text);
+    if (hasFindFlag(IFindSupport::FindRegularExpression))
+        m_ui.findEdit->setText(QRegExp::escape(text));
+    else
+        m_ui.findEdit->setText(text);
     connect(m_ui.findEdit, SIGNAL(textChanged(const QString&)), this, SLOT(invokeFindIncremental()));
 }
 

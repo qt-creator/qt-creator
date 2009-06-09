@@ -113,12 +113,11 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
     // Is this a QObject (plugin)
     const bool inheritsQObject = t == QtProjectParameters::Qt4Plugin;
     if (inheritsQObject) {
-        headerStr << namespaceIndent << indent << "Q_OBJECT\n"
-            << namespaceIndent << indent << "Q_DISABLE_COPY(" << unqualifiedClassName << ")\n";
+        headerStr << namespaceIndent << indent << "Q_OBJECT\n";
     }
     headerStr << namespaceIndent << "public:\n";
     if (inheritsQObject) {
-        headerStr << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QObject *parent = 0);\n";
+        headerStr << namespaceIndent << indent << unqualifiedClassName << "(QObject *parent = 0);\n";
     } else {
         headerStr << namespaceIndent << indent << unqualifiedClassName << "();\n";
     }
