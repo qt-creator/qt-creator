@@ -33,9 +33,214 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
-#include <QTimer>
+#include <AST.h>
+#include <ASTVisitor.h>
+#include <TranslationUnit.h>
+
+#include <QtCore/QTimer>
 
 using namespace CppTools::Internal;
+using namespace CPlusPlus;
+
+namespace {
+
+enum {
+    DEFAULT_QUICKFIX_INTERVAL = 500
+};
+
+class QuickFixMark: public TextEditor::ITextMark
+{
+    QIcon _icon;
+
+public:
+    QuickFixMark(QObject *parent)
+        : TextEditor::ITextMark(parent),
+          _icon(QLatin1String(":/core/images/redo.png")) // ### FIXME
+    { }
+
+    virtual ~QuickFixMark()
+    { }
+
+    virtual QIcon icon() const
+    { return _icon; }
+
+    virtual void updateLineNumber(int)
+    { }
+
+    virtual void updateBlock(const QTextBlock &)
+    { }
+
+    virtual void removedFromEditor()
+    { }
+
+    virtual void documentClosing()
+    { }
+};
+
+class ReplaceCast: public QuickFixOperation
+{
+    CastExpressionAST *_castExpression;
+
+public:
+    ReplaceCast(CastExpressionAST *node, Document::Ptr doc, const Snapshot &snapshot)
+        : QuickFixOperation(doc, snapshot),
+          _castExpression(node)
+    { }
+
+    virtual QString description() const
+    { return QLatin1String("Rewrite old C-style cast"); }
+
+    virtual void apply(QTextCursor tc)
+    {
+        setTextCursor(tc);
+
+        tc.beginEditBlock();
+
+        QTextCursor beginOfCast = cursor(_castExpression->lparen_token);
+        QTextCursor endOfCast = cursor(_castExpression->rparen_token);
+        QTextCursor beginOfExpr = moveAtStartOfToken(_castExpression->expression->firstToken());
+        QTextCursor endOfExpr = moveAtEndOfToken(_castExpression->expression->lastToken() - 1);
+
+        beginOfCast.insertText(QLatin1String("reinterpret_cast<"));
+        endOfCast.insertText(QLatin1String(">"));
+
+        beginOfExpr.insertText(QLatin1String("("));
+        endOfExpr.insertText(QLatin1String(")"));
+
+        tc.endEditBlock();
+    }
+};
+
+class CheckDocument: protected ASTVisitor
+{
+    QTextCursor _textCursor;
+    Document::Ptr _doc;
+    Snapshot _snapshot;
+    unsigned _line;
+    unsigned _column;
+    QList<QuickFixOperationPtr> _quickFixes;
+
+public:
+    CheckDocument(Document::Ptr doc, Snapshot snapshot)
+        : ASTVisitor(doc->control()), _doc(doc), _snapshot(snapshot)
+    { }
+
+    QList<QuickFixOperationPtr> operator()(QTextCursor tc)
+    {
+        _quickFixes.clear();
+        _textCursor = tc;
+        _line = tc.blockNumber() + 1;
+        _column = tc.columnNumber() + 1;
+        accept(_doc->translationUnit()->ast());
+        return _quickFixes;
+    }
+
+protected:
+    using ASTVisitor::visit;
+
+    bool checkPosition(AST *ast) const
+    {
+        unsigned startLine, startColumn;
+        unsigned endLine, endColumn;
+
+        getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
+        getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
+
+        if (_line < startLine || (_line == startLine && _column < startColumn))
+            return false;
+        else if (_line > endLine || (_line == endLine && _column >= endColumn))
+            return false;
+
+        return true;
+    }
+
+    /*
+    virtual bool visit(ForStatementAST *ast)
+    {
+        if (! checkPosition(ast))
+            return true;
+
+        if (ast->initializer && ast->initializer->asDeclarationStatement() != 0) {
+            if (checkPosition(ast->initializer)) {
+                // move initializer
+                _nodes.append(ast);
+            }
+        }
+
+        return true;
+    }
+    */
+
+
+    virtual bool visit(CastExpressionAST *ast)
+    {
+        if (! checkPosition(ast))
+            return true;
+
+        if (ast->type_id && ast->lparen_token && ast->rparen_token && ast->expression) {
+            QuickFixOperationPtr op(new ReplaceCast(ast, _doc, _snapshot));
+            _quickFixes.append(op);
+        }
+
+        return true;
+    }
+};
+
+} // end of anonymous namespace
+
+QuickFixOperation::QuickFixOperation(CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot)
+    : _doc(doc), _snapshot(snapshot)
+{ }
+
+QuickFixOperation::~QuickFixOperation()
+{ }
+
+QTextCursor QuickFixOperation::textCursor() const
+{ return _textCursor; }
+
+void QuickFixOperation::setTextCursor(const QTextCursor &tc)
+{ _textCursor = tc; }
+
+const CPlusPlus::Token &QuickFixOperation::tokenAt(unsigned index) const
+{ return _doc->translationUnit()->tokenAt(index); }
+
+void QuickFixOperation::getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const
+{ _doc->translationUnit()->getPosition(tokenAt(index).begin(), line, column); }
+
+void QuickFixOperation::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const
+{ _doc->translationUnit()->getPosition(tokenAt(index).end(), line, column); }
+
+QTextCursor QuickFixOperation::cursor(unsigned index) const
+{
+    const Token &tk = tokenAt(index);
+
+    unsigned line, col;
+    getTokenStartPosition(index, &line, &col);
+    QTextCursor tc = _textCursor;
+    tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col - 1);
+    tc.setPosition(tc.position() + tk.length, QTextCursor::KeepAnchor);
+    return tc;
+}
+
+QTextCursor QuickFixOperation::moveAtStartOfToken(unsigned index) const
+{
+    unsigned line, col;
+    getTokenStartPosition(index, &line, &col);
+    QTextCursor tc = _textCursor;
+    tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col - 1);
+    return tc;
+}
+
+QTextCursor QuickFixOperation::moveAtEndOfToken(unsigned index) const
+{
+    const Token &tk = tokenAt(index);
+
+    unsigned line, col;
+    getTokenStartPosition(index, &line, &col);
+    QTextCursor tc = _textCursor;
+    tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col + tk.length - 1);
+    return tc;
+}
 
 CppEditorSupport::CppEditorSupport(CppModelManager *modelManager)
     : QObject(modelManager),
@@ -46,6 +251,13 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager)
     _updateDocumentTimer->setSingleShot(true);
     _updateDocumentTimer->setInterval(_updateDocumentInterval);
     connect(_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(updateDocumentNow()));
+
+    _quickFixMark = new QuickFixMark(this);
+
+    _quickFixTimer = new QTimer(this);
+    _quickFixTimer->setSingleShot(true);
+    _quickFixTimer->setInterval(DEFAULT_QUICKFIX_INTERVAL);
+    connect(_quickFixTimer, SIGNAL(timeout()), this, SLOT(checkDocumentNow()));
 }
 
 CppEditorSupport::~CppEditorSupport()
@@ -62,7 +274,11 @@ void CppEditorSupport::setTextEditor(TextEditor::ITextEditor *textEditor)
         return;
 
     connect(_textEditor, SIGNAL(contentsChanged()), this, SIGNAL(contentsChanged()));
+    connect(qobject_cast<TextEditor::BaseTextEditor *>(_textEditor->widget()), SIGNAL(cursorPositionChanged()),
+            this, SLOT(checkDocument()));
+
     connect(this, SIGNAL(contentsChanged()), this, SLOT(updateDocument()));
+
     updateDocument();
 }
 
@@ -107,5 +323,35 @@ void CppEditorSupport::updateDocumentNow()
     }
 }
 
+void CppEditorSupport::checkDocument()
+{
+    _quickFixTimer->start(DEFAULT_QUICKFIX_INTERVAL);
+}
+
+void CppEditorSupport::checkDocumentNow()
+{
+    _textEditor->markableInterface()->removeMark(_quickFixMark);
+    _quickFixes.clear();
+
+    TextEditor::BaseTextEditor *ed =
+            qobject_cast<TextEditor::BaseTextEditor *>(_textEditor->widget());
+
+    Snapshot snapshot = _modelManager->snapshot();
+    const QByteArray plainText = contents();
+    const QString fileName = _textEditor->file()->fileName();
+    const QByteArray preprocessedCode = snapshot.preprocessedCode(plainText, fileName);
+
+    if (Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, fileName)) {
+        CheckDocument checkDocument(doc, snapshot);
+        QList<QuickFixOperationPtr> quickFixes = checkDocument(ed->textCursor());
+        if (! quickFixes.isEmpty()) {
+            int line, col;
+            ed->convertPosition(ed->position(), &line, &col);
+
+            _textEditor->markableInterface()->addMark(_quickFixMark, line);
+            _quickFixes = quickFixes;
+        }
+    }
+}
 
 

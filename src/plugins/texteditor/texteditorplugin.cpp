@@ -137,6 +137,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     // Make sure the shortcut still works when the quick fix widget is active
     quickFixShortcut->setContext(Qt::ApplicationShortcut);
     Core::Command *quickFixCommand = am->registerShortcut(quickFixShortcut, Constants::QUICKFIX_THIS, context);
+    quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
     connect(quickFixShortcut, SIGNAL(activated()), this, SLOT(invokeQuickFix()));
 
     return true;

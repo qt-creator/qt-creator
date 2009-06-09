@@ -134,6 +134,11 @@ void CppPlugin::initializeEditor(CPPEditor *editor)
     // auto completion
     connect(editor, SIGNAL(requestAutoCompletion(ITextEditable*, bool)),
             TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(ITextEditable*, bool)));
+
+    // quick fix
+    connect(editor, SIGNAL(requestQuickFix(ITextEditable*)),
+            TextEditor::Internal::CompletionSupport::instance(), SLOT(quickFix(ITextEditable*)));
+
     // method combo box sorting
     connect(this, SIGNAL(methodOverviewSortingChanged(bool)),
             editor, SLOT(setSortedMethodOverview(bool)));

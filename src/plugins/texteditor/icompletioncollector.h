@@ -121,6 +121,9 @@ public:
     IQuickFixCollector(QObject *parent = 0) : ICompletionCollector(parent) {}
     virtual ~IQuickFixCollector() {}
 
+    virtual bool triggersCompletion(TextEditor::ITextEditable *)
+    { return false; }
+
     virtual bool partiallyComplete(const QList<TextEditor::CompletionItem> &)
     { return false; }
 };

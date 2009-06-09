@@ -86,6 +86,9 @@ public:
 
     bool isCppEditor(Core::IEditor *editor) const; // ### private
 
+    CppEditorSupport *editorSupport(TextEditor::ITextEditor *editor) const
+    { return m_editorSupport.value(editor); }
+
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
 
     void stopEditorSelectionsUpdate()

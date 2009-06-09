@@ -33,19 +33,67 @@
 #include <QObject>
 #include <QPointer>
 #include <QFuture>
+#include <QSharedPointer>
+#include <QTextCursor.h>
+#include <cplusplus/CppDocument.h>
 
 QT_BEGIN_NAMESPACE
 class QTimer;
 QT_END_NAMESPACE
 
+namespace CPlusPlus {
+    class AST;
+}
+
 namespace TextEditor {
     class ITextEditor;
+    class ITextMark;
 } // end of namespace TextEditor
 
 namespace CppTools {
 namespace Internal {
 
 class CppModelManager;
+
+class QuickFixOperation;
+typedef QSharedPointer<QuickFixOperation> QuickFixOperationPtr;
+
+class QuickFixOperation
+{
+    Q_DISABLE_COPY(QuickFixOperation)
+
+public:
+    QuickFixOperation(CPlusPlus::Document::Ptr doc,
+                      const CPlusPlus::Snapshot &snapshot);
+
+    virtual ~QuickFixOperation();
+
+    virtual QString description() const = 0;
+    virtual void apply(QTextCursor cursor) = 0;
+
+    CPlusPlus::Document::Ptr document() const { return _doc; }
+    CPlusPlus::Snapshot snapshot() const { return _snapshot; }
+
+    QTextCursor textCursor() const;
+    void setTextCursor(const QTextCursor &tc);
+
+protected:
+    const CPlusPlus::Token &tokenAt(unsigned index) const;
+    void getTokenStartPosition(unsigned index, unsigned *line,
+                               unsigned *column) const;
+    void getTokenEndPosition(unsigned index, unsigned *line,
+                             unsigned *column) const;
+
+    QTextCursor cursor(unsigned index) const;
+    QTextCursor moveAtStartOfToken(unsigned index) const;
+    QTextCursor moveAtEndOfToken(unsigned index) const;
+
+private:
+    CPlusPlus::AST *_node;
+    CPlusPlus::Document::Ptr _doc;
+    CPlusPlus::Snapshot _snapshot;
+    QTextCursor _textCursor;
+};
 
 class CppEditorSupport: public QObject
 {
@@ -54,6 +102,9 @@ class CppEditorSupport: public QObject
 public:
     CppEditorSupport(CppModelManager *modelManager);
     virtual ~CppEditorSupport();
+
+    QList<QuickFixOperationPtr> quickFixes() const
+    { return _quickFixes; }
 
     TextEditor::ITextEditor *textEditor() const;
     void setTextEditor(TextEditor::ITextEditor *textEditor);
@@ -70,6 +121,9 @@ private Q_SLOTS:
     void updateDocument();
     void updateDocumentNow();
 
+    void checkDocument();
+    void checkDocumentNow();
+
 private:
     enum { UPDATE_DOCUMENT_DEFAULT_INTERVAL = 150 };
 
@@ -79,6 +133,10 @@ private:
     int _updateDocumentInterval;
     QFuture<void> _documentParser;
     QByteArray _cachedContents;
+
+    QTimer *_quickFixTimer;
+    TextEditor::ITextMark *_quickFixMark;
+    QList<QuickFixOperationPtr> _quickFixes;
 };
 
 } // namespace Internal

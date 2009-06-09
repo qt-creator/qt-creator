@@ -96,7 +96,6 @@ void CompletionSupport::autoComplete(ITextEditable *editor, bool forced)
 
 void CompletionSupport::quickFix(ITextEditable *editor)
 {
-    qDebug() << Q_FUNC_INFO;
     autoComplete_helper(editor,
                         /*forced = */ true,
                         /*quickFix = */ true);
