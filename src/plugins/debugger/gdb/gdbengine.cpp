@@ -1494,8 +1494,7 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 
     QString scriptFileName = theDebuggerStringSetting(GdbScriptFile);
     if (!scriptFileName.isEmpty()) {
-        QFile scriptFile(scriptFileName);
-        if (scriptFile.open(QIODevice::ReadOnly)) {
+        if (QFileInfo(scriptFileName).isReadable()) {
             postCommand(_("source ") + scriptFileName);
         } else {
             QMessageBox::warning(q->mainWindow(),

@@ -57,7 +57,8 @@ namespace {
 bool debug = false;
 }
 
-ProjectWindow::ProjectWindow(QWidget *parent) : QWidget(parent)
+ProjectWindow::ProjectWindow(QWidget *parent)
+    : QWidget(parent), m_currentItemChanged(false)
 {
     setWindowTitle(tr("Project Explorer"));
     setWindowIcon(QIcon(":/projectexplorer/images/projectexplorer.png"));
@@ -253,16 +254,20 @@ Project *ProjectWindow::findProject(const QString &path) const
 
 void ProjectWindow::handleCurrentItemChanged(QTreeWidgetItem *current)
 {
+    if (m_currentItemChanged)
+        return;
+    m_currentItemChanged = true;
     if (current) {
         QString path = current->data(2, Qt::UserRole).toString();
         if (Project *project = findProject(path)) {
             m_projectExplorer->setCurrentFile(project, path);
             showProperties(project, QModelIndex());
+            m_currentItemChanged = false;
             return;
         }
-    } else {
-        showProperties(0, QModelIndex());
     }
+    showProperties(0, QModelIndex());
+    m_currentItemChanged = false;
 }
 
 

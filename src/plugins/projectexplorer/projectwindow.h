@@ -79,6 +79,7 @@ private:
     QList<PropertiesPanel*> m_panels;
 
     Project *findProject(const QString &path) const;
+    bool m_currentItemChanged;
 };
 
 } // namespace Internal

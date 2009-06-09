@@ -97,6 +97,8 @@ using namespace TextEditor;
 namespace Debugger {
 namespace Constants {
 
+const char * const M_DEBUG_START_DEBUGGING = "QtCreator.Menu.Debug.StartDebugging";
+
 const char * const STARTEXTERNAL        = "Debugger.StartExternal";
 const char * const ATTACHEXTERNAL       = "Debugger.AttachExternal";
 const char * const ATTACHCORE           = "Debugger.AttachCore";
@@ -597,22 +599,25 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     Core::ActionContainer *mdebug =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
 
+    Core::ActionContainer *mstart =
+        am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
+
     Core::Command *cmd = 0;
     cmd = am->registerAction(m_manager->m_continueAction,
         ProjectExplorer::Constants::DEBUG, QList<int>() << m_gdbRunningContext);
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_startExternalAction,
         Constants::STARTEXTERNAL, globalcontext);
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_attachExternalAction,
         Constants::ATTACHEXTERNAL, globalcontext);
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_attachCoreAction,
         Constants::ATTACHCORE, globalcontext);
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 /*
     cmd = am->registerAction(m_attachTcfAction,
         Constants::ATTACHTCF, globalcontext);
@@ -621,7 +626,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     cmd = am->registerAction(m_startRemoteAction,
         Constants::ATTACHREMOTE, globalcontext);
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_detachAction,
         Constants::DETACH, globalcontext);

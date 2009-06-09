@@ -279,6 +279,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mdebug->menu()->setTitle(tr("&Debug"));
     menubar->addMenu(mdebug, Core::Constants::G_VIEW);
 
+    Core::ActionContainer *mstartdebugging =
+        am->createMenu(Constants::M_DEBUG_STARTDEBUGGING);
+    mstartdebugging->menu()->setTitle(tr("&Start Debugging"));
+    mdebug->addMenu(mstartdebugging, Core::Constants::G_DEFAULT_ONE);
 
     //
     // Groups
@@ -600,7 +604,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setAttribute(Core::Command::CA_UpdateIcon);
     cmd->setDefaultText(tr("Start Debugging"));
     cmd->setDefaultKeySequence(QKeySequence(tr("F5")));
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    mstartdebugging->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
     modeManager->addAction(cmd, Constants::P_ACTION_DEBUG, m_runConfigurationMenu);
 
     // add new file action

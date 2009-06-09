@@ -90,6 +90,7 @@ const char * const LANG_CXX             = "CXX";
 const char * const M_RECENTPROJECTS     = "ProjectExplorer.Menu.Recent";
 const char * const M_BUILDPROJECT       = "ProjectExplorer.Menu.Build";
 const char * const M_DEBUG              = "ProjectExplorer.Menu.Debug";
+const char * const M_DEBUG_STARTDEBUGGING = "ProjectExplorer.Menu.Debug.StartDebugging";
 const char * const M_SESSION            = "ProjectExplorer.Menu.Session";
 
 // toolbars
