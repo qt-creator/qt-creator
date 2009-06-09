@@ -115,13 +115,13 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
     }
     headerStr << " {\n" << namespaceIndent << indent << "Q_OBJECT\n"
               << namespaceIndent << "public:\n"
-              << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QWidget *parent = 0);\n";
+              << namespaceIndent << indent << unqualifiedClassName << "(QWidget *parent = 0);\n";
     if (embedding == PointerAggregatedUiClass)
-        headerStr << namespaceIndent << indent << "virtual ~" << unqualifiedClassName << "();\n";
+        headerStr << namespaceIndent << indent << "~" << unqualifiedClassName << "();\n";
     // retranslation
     if (languageChange)
         headerStr << '\n' << namespaceIndent << "protected:\n"
-                  << namespaceIndent << indent << "virtual void changeEvent(QEvent *e);\n";
+                  << namespaceIndent << indent << "void changeEvent(QEvent *e);\n";
     // Member variable
     if (embedding != InheritedUiClass) {
         headerStr << '\n' << namespaceIndent << "private:\n"

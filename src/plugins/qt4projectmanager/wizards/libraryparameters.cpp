@@ -117,7 +117,7 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
     }
     headerStr << namespaceIndent << "public:\n";
     if (inheritsQObject) {
-        headerStr << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QObject *parent = 0);\n";
+        headerStr << namespaceIndent << indent << unqualifiedClassName << "(QObject *parent = 0);\n";
     } else {
         headerStr << namespaceIndent << indent << unqualifiedClassName << "();\n";
     }
