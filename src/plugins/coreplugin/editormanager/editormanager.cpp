@@ -499,7 +499,9 @@ void EditorManager::handleContextChange(Core::IContext *context)
 
 void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory)
 {
-    setCurrentView(0);
+    if (editor)
+        setCurrentView(0);
+
     if (m_d->m_currentEditor == editor)
         return;
     if (m_d->m_currentEditor && !ignoreNavigationHistory)
@@ -535,7 +537,10 @@ void EditorManager::setCurrentView(Core::Internal::SplitterOrView *view)
 
 Core::Internal::SplitterOrView *EditorManager::currentView() const
 {
-    return m_d->m_currentView;
+    SplitterOrView *view = m_d->m_currentView;
+    if (!view)
+        view = m_d->m_splitter->findView(m_d->m_currentEditor);
+    return view;
 }
 
 QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) const
@@ -554,14 +559,6 @@ IEditor *EditorManager::currentEditor() const
     return m_d->m_currentEditor;
 }
 
-
-// SLOT connected to action
-// since this is potentially called in the event handler of the editor
-// we simply postpone it with a single shot timer
-void EditorManager::closeEditor()
-{
-    closeEditor(m_d->m_currentEditor);
-}
 
 void EditorManager::emptyView(Core::Internal::EditorView *view)
 {
@@ -619,13 +616,6 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
     updateEditorHistory();
 }
 
-void EditorManager::closeEditor(Core::IEditor *editor)
-{
-    if (!editor)
-        return;
-    closeEditors(QList<IEditor *>() << editor);
-}
-
 QList<IEditor*>
     EditorManager::editorsForFiles(QList<IFile*> files) const
 {
@@ -674,10 +664,39 @@ void EditorManager::closeOtherEditors()
     closeEditors(editors, true);
 }
 
+
+// SLOT connected to action
+// since this is potentially called in the event handler of the editor
+// we simply postpone it with a single shot timer
+void EditorManager::closeEditor()
+{
+    closeEditor(m_d->m_currentEditor);
+}
+
+void EditorManager::closeEditor(Core::IEditor *editor)
+{
+    if (!editor)
+        return;
+    closeEditors(QList<IEditor *>() << editor);
+}
+
+void EditorManager::closeEditor(const QModelIndex &index)
+{
+    IEditor *editor = index.data(Qt::UserRole).value<Core::IEditor*>();
+    if (editor)
+        closeEditor(editor);
+    else
+        m_d->m_editorModel->removeEditor(index);
+}
+
+
 bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askAboutModifiedEditors)
 {
     if (editorsToClose.isEmpty())
         return true;
+
+    SplitterOrView *currentSplitterOrView = currentView();
+
     bool closingFailed = false;
     QList<IEditor*> acceptedEditors;
     //ask all core listeners to check whether the editor can be closed
@@ -719,8 +738,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     foreach(IEditor *editor, acceptedEditors)
         acceptedEditors += m_d->m_editorModel->duplicatesFor(editor);
 
-    QList<EditorView*> currentViews;
-    EditorView *currentView = 0;
+    QList<EditorView*> closedViews;
 
     // remove the editors
     foreach (IEditor *editor, acceptedEditors) {
@@ -733,39 +751,22 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
 
         removeEditor(editor);
         if (SplitterOrView *view = m_d->m_splitter->findView(editor)) {
-            if (editor == view->view()->currentEditor()) {
-                currentViews += view->view();
-                if (editor == m_d->m_currentEditor)
-                    currentView = view->view();
-            }
+            if (editor == view->view()->currentEditor())
+                closedViews += view->view();
             view->view()->removeEditor(editor);
         }
     }
 
-    foreach (EditorView *view, currentViews) {
+    foreach (EditorView *view, closedViews) {
         IEditor *newCurrent = view->currentEditor();
-#if 0
         if (!newCurrent)
             newCurrent = pickUnusedEditor();
-        if (!newCurrent) {
-            // pick the first one that can be duplicated
-            foreach (IEditor *e, m_d->m_editorHistory) {
-                if (e->duplicateSupported()) {
-                    newCurrent = e;
-                    break;
-                }
-            }
-        }
-#else
-    if (!newCurrent && view == m_d->m_view)
-        newCurrent = pickUnusedEditor();
-#endif
         if (newCurrent) {
             activateEditor(view, newCurrent, NoActivate);
         } else {
             QModelIndex idx = m_d->m_editorModel->firstRestoredEditor();
             if (idx.isValid())
-                activateEditor(idx, view);
+                activateEditor(idx, view, NoActivate);
         }
     }
 
@@ -775,15 +776,58 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
         delete editor;
     }
 
-    if (currentView) {
-        setCurrentView(m_d->m_splitter->findView(currentView));
-        if (IEditor *e = currentView->currentEditor())
-            activateEditor(currentView, e);
-        else
-            emit currentEditorChanged(0);
+    if (currentSplitterOrView) {
+        if (IEditor *editor = currentSplitterOrView->editor())
+            activateEditor(currentSplitterOrView->view(), editor);
     }
 
+    if (!currentEditor())
+        emit currentEditorChanged(0);
+
     return !closingFailed;
+}
+
+void EditorManager::closeDuplicate(Core::IEditor *editor)
+{
+
+    IEditor *original = editor;
+    if (m_d->m_editorModel->isDuplicate(editor))
+        original= m_d->m_editorModel->originalForDuplicate(editor);
+    QList<IEditor *> duplicates = m_d->m_editorModel->duplicatesFor(original);
+
+    if (duplicates.isEmpty()) {
+        closeEditor(editor);
+        return;
+    }
+
+    if (original== editor)
+        m_d->m_editorModel->makeOriginal(duplicates.first());
+
+    SplitterOrView *currentSplitterOrView = currentView();
+
+    emit editorAboutToClose(editor);
+
+    EditorView *view = m_d->m_splitter->findView(editor)->view();
+    removeEditor(editor);
+    view->removeEditor(editor);
+
+    IEditor *newCurrent = view->currentEditor();
+    if (!newCurrent)
+        newCurrent = pickUnusedEditor();
+    if (newCurrent) {
+        activateEditor(view, newCurrent, NoActivate);
+    } else {
+        QModelIndex idx = m_d->m_editorModel->firstRestoredEditor();
+        if (idx.isValid())
+            activateEditor(idx, view, NoActivate);
+    }
+
+    emit editorsClosed(QList<IEditor*>() << editor);
+    delete editor;
+    if (currentSplitterOrView) {
+        if (IEditor *currentEditor = currentSplitterOrView->editor())
+            activateEditor(currentSplitterOrView->view(), currentEditor);
+    }
 }
 
 IEditor *EditorManager::pickUnusedEditor() const
@@ -797,65 +841,19 @@ IEditor *EditorManager::pickUnusedEditor() const
 }
 
 
-void EditorManager::closeEditor(const QModelIndex &index)
-{
-    IEditor *editor = index.data(Qt::UserRole).value<Core::IEditor*>();
-    if (editor)
-        closeEditor(editor);
-    else
-        m_d->m_editorModel->removeEditor(index);
-}
-
-void EditorManager::activateEditor(const QModelIndex &index, Internal::EditorView *view)
+void EditorManager::activateEditor(const QModelIndex &index, Internal::EditorView *view, OpenEditorFlags flags)
 {
     IEditor *editor = index.data(Qt::UserRole).value<IEditor*>();
     if (editor)  {
-        if (view)
-            activateEditor(view, editor);
-        else
-            activateEditor(editor);
+        activateEditor(view, editor, flags);
         return;
     }
-
     if (view)
         setCurrentView(m_d->m_splitter->findView(view));
 
     QString fileName = index.data(Qt::UserRole + 1).toString();
     QByteArray kind = index.data(Qt::UserRole + 2).toByteArray();
-    openEditor(fileName, kind);
-}
-
-void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
-{
-    SplitterOrView *splitterOrView = m_d->m_currentView;
-    if (splitterOrView && splitterOrView->splitter())
-        splitterOrView = 0; // safety if currentView gets out of sync
-    setCurrentView(0);
-    if (!editor)
-        return;
-
-    SplitterOrView *place = m_d->m_splitter->findView(editor);
-    if (place && !place->isSplitter()) {
-        splitterOrView = place;
-    }
-
-
-    if (!splitterOrView)
-        splitterOrView = m_d->m_splitter->findEmptyView();
-
-    if (!splitterOrView && m_d->m_currentEditor) {
-        splitterOrView = m_d->m_splitter->findView(m_d->m_currentEditor);
-        if (splitterOrView && !splitterOrView->isVisible()) // safety if currentEditor gets out of sync
-            splitterOrView = 0;
-    }
-
-    if (!splitterOrView)
-        splitterOrView = m_d->m_splitter->findFirstView();
-    if (!splitterOrView) {
-        splitterOrView = m_d->m_splitter;
-    }
-
-    activateEditor(splitterOrView->view(), editor, flags);
+    openEditor(fileName, kind, flags);
 }
 
 Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core::IEditor *editor)
@@ -868,13 +866,11 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
                 sourceView->view()->removeEditor(editor);
                 view->addEditor(editor);
                 view->setCurrentEditor(editor);
-#if 0
                 if (!sourceView->editor()) {
                     if (IEditor *replacement = pickUnusedEditor()) {
                         sourceView->view()->addEditor(replacement);
                     }
                 }
-#endif
                 return editor;
             } else if (duplicateSupported) {
                 editor = duplicateEditor(editor);
@@ -887,9 +883,17 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
     return editor;
 }
 
+void EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
+{
+    activateEditor(0, editor, flags);
+}
+
 void EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags)
 {
-    Q_ASSERT(view)            ;
+    if (!view)
+        view = currentView()->view();
+
+    Q_ASSERT(view);
 
     if (!editor && !m_d->m_currentEditor) {
         setCurrentEditor(0, (flags & IgnoreNavigationHistory));
