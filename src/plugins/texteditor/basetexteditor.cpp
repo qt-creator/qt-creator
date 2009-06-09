@@ -2315,7 +2315,8 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 //     if (documentLayout->doubleMarkCount)
 //         markWidth += fm.lineSpacing() / 3;
 
-    const int extraAreaWidth = d->m_extraArea->width() - collapseBoxWidth(fm);
+    const int collapseColumnWidth = d->m_codeFoldingVisible ? collapseBoxWidth(fm): 0;
+    const int extraAreaWidth = d->m_extraArea->width() - collapseColumnWidth;
 
     painter.fillRect(e->rect(), pal.color(QPalette::Base));
     painter.fillRect(e->rect().intersected(QRect(0, 0, extraAreaWidth, INT_MAX)),

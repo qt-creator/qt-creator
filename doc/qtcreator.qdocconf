@@ -13,7 +13,7 @@ exampledirs = $SRCDIR
 extraimages.HTML        = qt-logo \
                           trolltech-logo
 
-sources.fileextensions  = "qtcreator.qdoc"
+sources.fileextensions  = "qtcreator.qdoc addressbook-sdk.qdoc"
 
 
 qhp.projects            = QtCreator

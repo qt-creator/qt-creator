@@ -178,7 +178,7 @@ WelcomeMode::WelcomeMode() :
     m_d->ui.tutorialTreeWidget->addItem(tr("<b>Qt Creator - A quick tour</b>"),
                                         QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
     m_d->ui.tutorialTreeWidget->addItem(tr("Creating an address book"),
-                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/tutorials-addressbook.html"));
+                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/tutorials-addressbook-sdk.html"));
     m_d->ui.tutorialTreeWidget->addItem(tr("Understanding widgets"),
                                         QLatin1String("qthelp://com.trolltech.qt/qdoc/widgets-tutorial.html"));
     m_d->ui.tutorialTreeWidget->addItem(tr("Building with qmake"),
