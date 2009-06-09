@@ -68,7 +68,7 @@ public:
 
 protected:
     QString matchingLine(const CPlusPlus::Token &tk) const;
-    void reportResult(unsigned tokenIndex);
+    void reportResult(unsigned tokenIndex, int offset, int len);
 };
 
 class SemanticSearchFactory

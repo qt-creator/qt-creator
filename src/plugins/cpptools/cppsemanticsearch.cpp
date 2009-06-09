@@ -31,6 +31,7 @@
 #include "cppmodelmanager.h"
 
 #include <AST.h>
+#include <Literals.h>
 #include <TranslationUnit.h>
 
 #include <QtCore/QDir>
@@ -44,13 +45,14 @@ using namespace CPlusPlus;
 
 namespace {
 
-class FindClass: public SemanticSearch
+class SearchClass: public SemanticSearch
 {
     QString _text;
     QTextDocument::FindFlags _findFlags;
 
 public:
-    FindClass(QFutureInterface<Core::Utils::FileSearchResult> &future, Document::Ptr doc, Snapshot snapshot)
+    SearchClass(QFutureInterface<Core::Utils::FileSearchResult> &future,
+                Document::Ptr doc, Snapshot snapshot)
         : SemanticSearch(future, doc, snapshot)
     { }
 
@@ -66,23 +68,46 @@ public:
 protected:
     using ASTVisitor::visit;
 
-    virtual bool visit(ClassSpecifierAST *ast)
+    bool match(NameAST *name)
     {
-        if (ast->name) {
-            Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+        if (! name)
+            return false;
 
-            if (_findFlags & QTextDocument::FindCaseSensitively)
-                cs = Qt::CaseSensitive;
+        else if (SimpleNameAST *simpleName = name->asSimpleName()) {
+            if (Identifier *id = identifier(simpleName->identifier_token)) {
+                Qt::CaseSensitivity cs = Qt::CaseInsensitive;
 
-            Token start = tokenAt(ast->name->firstToken());
-            Token end = tokenAt(ast->name->lastToken() - 1);
-            const QString className = QString::fromUtf8(source().constData() + start.begin(),
-                                                        end.end() - start.begin());
+                if (_findFlags & QTextDocument::FindCaseSensitively)
+                    cs = Qt::CaseSensitive;
 
-            if (className.contains(_text, cs))
-                reportResult(ast->name->firstToken());
+                QString s = QString::fromUtf8(id->chars(), id->size());
+                int index = s.indexOf(_text, 0, cs);
+                if (index != -1) {
+                    reportResult(simpleName->identifier_token, index, _text.length());
+                    return true;
+                }
+            }
         }
 
+        else if (QualifiedNameAST *q = name->asQualifiedName()) {
+            return match(q->unqualified_name);
+        }
+
+        return false;
+    }
+
+    virtual bool visit(ElaboratedTypeSpecifierAST *ast)
+    {
+        if (tokenKind(ast->classkey_token) != T_ENUM) {
+            match(ast->name);
+        }
+
+        return true;
+    }
+
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        match(ast->name);
         return true;
     }
 };
@@ -130,7 +155,7 @@ QString SemanticSearch::matchingLine(const Token &tk) const
     return matchingLine;
 }
 
-void SemanticSearch::reportResult(unsigned tokenIndex)
+void SemanticSearch::reportResult(unsigned tokenIndex, int offset, int len)
 {
     const Token &tk = tokenAt(tokenIndex);
     const QString lineText = matchingLine(tk);
@@ -142,14 +167,14 @@ void SemanticSearch::reportResult(unsigned tokenIndex)
         --col;  // adjust the column position.
 
     _future.reportResult(Core::Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
-                                                       line, lineText, col, tk.length));
+                                                       line, lineText, col + offset, len));
 }
 
 SemanticSearch *SearchClassDeclarationsFactory::create(QFutureInterface<Core::Utils::FileSearchResult> &future,
                                                        Document::Ptr doc,
                                                        Snapshot snapshot)
 {
-    FindClass *findClass = new FindClass(future, doc, snapshot);
+    SearchClass *findClass = new SearchClass(future, doc, snapshot);
     findClass->setText(_text);
     findClass->setFindFlags(_findFlags);
     return findClass;
