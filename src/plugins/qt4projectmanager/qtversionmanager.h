@@ -65,14 +65,16 @@ public:
     QString name() const;
     QString path() const;
     QString sourcePath() const;
-    QString mkspec() const;
     QString mkspecPath() const;
     QString qmakeCommand() const;
     QString uicCommand() const;
     QString designerCommand() const;
     QString linguistCommand() const;
-    QString qmakeCXX() const;
-    ProjectExplorer::ToolChain *toolChain() const;
+
+    QList<ProjectExplorer::ToolChain::ToolChainType> possibleToolChainTypes() const;
+    QString mkspec() const;
+    ProjectExplorer::ToolChain::ToolChainType defaultToolchainType() const;
+    ProjectExplorer::ToolChain *toolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
 
     void setName(const QString &name);
     void setPath(const QString &path);
@@ -80,8 +82,6 @@ public:
     QString qtVersionString() const;
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
-
-    ProjectExplorer::ToolChain::ToolChainType toolchainType() const;
 
 #ifdef QTCREATOR_WITH_S60
     QString mwcDirectory() const;
@@ -128,7 +128,8 @@ private:
     void updateMkSpec() const;
     void updateVersionInfo() const;
     void updateQMakeCXX() const;
-    void updateToolChain() const;
+    void updateToolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
+    QString qmakeCXX() const;
     QString findQtBinary(const QStringList &possibleName) const;
     QString m_name;
     QString m_path;

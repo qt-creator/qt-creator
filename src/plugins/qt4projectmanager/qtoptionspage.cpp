@@ -301,7 +301,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             return;
         }
         m_ui->errorLabel->setText("");
-        ProjectExplorer::ToolChain::ToolChainType t = m_versions.at(index)->toolchainType();
+        ProjectExplorer::ToolChain::ToolChainType t = m_versions.at(index)->defaultToolchainType();
         if (t == ProjectExplorer::ToolChain::MinGW) {
             makeMSVCVisible(false);
             makeMingwVisible(true);

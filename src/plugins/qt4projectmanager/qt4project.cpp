@@ -375,14 +375,19 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
     m_proFilesForCodeModelUpdate.append(pro);
 }
 
+ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
+{
+    return qtVersion(buildConfiguration)->toolChain(qtVersion(buildConfiguration)->defaultToolchainType());
+}
+
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
 {
-    return qtVersion(buildConfiguration)->toolChain()->makeCommand();
+    return toolChain(buildConfiguration)->makeCommand();
 }
 
 QString Qt4Project::defaultMakeTarget(const QString &buildConfiguration) const
 {
-    return qtVersion(buildConfiguration)->toolChain()->defaultMakeTarget(this);
+    return toolChain(buildConfiguration)->defaultMakeTarget(this);
 }
 
 void Qt4Project::updateCodeModel()
@@ -401,7 +406,7 @@ void Qt4Project::updateCodeModel()
     QStringList predefinedFrameworkPaths;
     QByteArray predefinedMacros;
 
-    ToolChain *tc = qtVersion(activeBuildConfiguration())->toolChain();
+    ToolChain *tc = toolChain(activeBuildConfiguration());
     QList<HeaderPath> allHeaderPaths;
     if (tc) {
         predefinedMacros = tc->predefinedMacros();

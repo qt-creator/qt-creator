@@ -162,6 +162,7 @@ public:
     //returns the name of the qt version, might be QString::Null, which means default qt version
     // qtVersion is in general the better method to use
     QString qtVersionName(const QString &buildConfiguration) const;
+    ProjectExplorer::ToolChain *toolChain(const QString &buildConfiguration) const;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildStepConfigWidget*> subConfigWidgets();
