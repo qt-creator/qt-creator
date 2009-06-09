@@ -63,6 +63,7 @@ private slots:
     void manageQtVersions();
 
 private:
+    void updateToolChainCombo();
     void updateImportLabel();
     Ui::Qt4ProjectConfigWidget *m_ui;
     Qt4Project *m_pro;

@@ -271,5 +271,40 @@ void Qt4ProjectConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString 
     if (newQtVersion != m_pro->qtVersionId(m_buildConfiguration)) {
         m_pro->setQtVersion(m_buildConfiguration, newQtVersion);
         m_pro->update();
+        updateToolChainCombo();
     }
+}
+
+void Qt4ProjectConfigWidget::updateToolChainCombo()
+{
+    m_ui->toolChainComboBox->clear();
+    QList<ProjectExplorer::ToolChain::ToolChainType> toolchains = m_pro->qtVersion(m_buildConfiguration)->possibleToolChainTypes();
+    foreach (ProjectExplorer::ToolChain::ToolChainType toolchain, toolchains) {
+        switch (toolchain) {
+        case ProjectExplorer::ToolChain::GCC:
+            m_ui->toolChainComboBox->addItem(tr("gcc"), ProjectExplorer::ToolChain::GCC);
+            break;
+        case ProjectExplorer::ToolChain::LinuxICC:
+            m_ui->toolChainComboBox->addItem(tr("icc"), ProjectExplorer::ToolChain::LinuxICC);
+            break;
+        case ProjectExplorer::ToolChain::MinGW:
+            m_ui->toolChainComboBox->addItem(tr("mingw"), ProjectExplorer::ToolChain::MinGW);
+            break;
+        case ProjectExplorer::ToolChain::MSVC:
+            m_ui->toolChainComboBox->addItem(tr("msvc"), ProjectExplorer::ToolChain::MSVC);
+            break;
+        case ProjectExplorer::ToolChain::WINCE:
+            m_ui->toolChainComboBox->addItem(tr("wince"), ProjectExplorer::ToolChain::WINCE);
+            break;
+#ifdef QTCREATOR_WITH_S60
+        case ProjectExplorer::ToolChain::WINSCW:
+            m_ui->toolChainComboBox->addItem(tr("winscw"), ProjectExplorer::ToolChain::WINSCW);
+            break;
+        case ProjectExplorer::ToolChain::GCCE:
+            m_ui->toolChainComboBox->addItem(tr("gcce"), ProjectExplorer::ToolChain::GCCE);
+            break;
+#endif
+        }
+    }
+    m_ui->toolChainComboBox->setEnabled(toolchains.size() > 1);
 }
