@@ -101,6 +101,20 @@ public:
                                    CPlusPlus::Snapshot snapshot);
 };
 
+class SearchFunctionCallFactory: public SemanticSearchFactory
+{
+    QString _text;
+    QTextDocument::FindFlags _findFlags;
+
+public:
+    SearchFunctionCallFactory(const QString &text, QTextDocument::FindFlags findFlags)
+        : _text(text), _findFlags(findFlags)
+    { }
+
+    virtual SemanticSearch *create(QFutureInterface<Core::Utils::FileSearchResult> &future,
+                                   CPlusPlus::Document::Ptr doc,
+                                   CPlusPlus::Snapshot snapshot);
+};
 
 QFuture<Core::Utils::FileSearchResult> semanticSearch(QPointer<CppModelManager> modelManager,
                                                       SemanticSearchFactory::Ptr factory);

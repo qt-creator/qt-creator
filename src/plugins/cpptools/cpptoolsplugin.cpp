@@ -127,6 +127,61 @@ void FindClassDeclarations::openEditor(const QString &fileName, int line, int co
     TextEditor::BaseTextEditor::openEditorAt(fileName, line, column);
 }
 
+//////
+FindFunctionCalls::FindFunctionCalls(CppModelManager *modelManager)
+    : _modelManager(modelManager),
+      _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
+{
+    m_watcher.setPendingResultsLimit(1);
+    connect(&m_watcher, SIGNAL(resultReadyAt(int)), this, SLOT(displayResult(int)));
+    connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
+}
+
+void FindFunctionCalls::findAll(const QString &text, QTextDocument::FindFlags findFlags)
+{
+    _resultWindow->clearContents();
+    _resultWindow->popup(true);
+
+    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+
+    SemanticSearchFactory::Ptr factory(new SearchFunctionCallFactory(text, findFlags));
+
+    QFuture<Core::Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
+
+    m_watcher.setFuture(result);
+
+    Core::FutureProgress *progress = progressManager->addTask(result, tr("Search functions"),
+                                                              CppTools::Constants::TASK_INDEX,
+                                                              Core::ProgressManager::CloseOnSuccess);
+
+    connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
+}
+
+void FindFunctionCalls::displayResult(int index)
+{
+    Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
+    Find::ResultWindowItem *item = _resultWindow->addResult(result.fileName,
+                                                            result.lineNumber,
+                                                            result.matchingLine,
+                                                            result.matchStart,
+                                                            result.matchLength);
+    if (item)
+        connect(item, SIGNAL(activated(const QString&,int,int)),
+                this, SLOT(openEditor(const QString&,int,int)));
+}
+
+void FindFunctionCalls::searchFinished()
+{
+    emit changed();
+}
+
+void FindFunctionCalls::openEditor(const QString &fileName, int line, int column)
+{
+    TextEditor::BaseTextEditor::openEditorAt(fileName, line, column);
+}
+
+
+
 CppToolsPlugin::CppToolsPlugin() :
     m_context(-1),
     m_modelManager(0),
@@ -167,6 +222,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
 
     addAutoReleasedObject(new FindClassDeclarations(m_modelManager));
+    addAutoReleasedObject(new FindFunctionCalls(m_modelManager));
 
     // Menus
     Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);

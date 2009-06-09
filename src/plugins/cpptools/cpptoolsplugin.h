@@ -86,6 +86,30 @@ private:
     QFutureWatcher<Core::Utils::FileSearchResult> m_watcher;
 };
 
+class FindFunctionCalls: public Find::IFindFilter // ### share code with FindClassDeclarations
+{
+    Q_OBJECT
+
+public:
+    FindFunctionCalls(CppModelManager *modelManager);
+
+    // Find::IFindFilter
+    virtual QString id() const { return QLatin1String("CppTools.Find.FunctionCalls"); }
+    virtual QString name() const { return tr("Function calls"); }
+    virtual bool isEnabled() const { return true; }
+    virtual QKeySequence defaultShortcut() const { return QKeySequence(); }
+    virtual void findAll(const QString &txt, QTextDocument::FindFlags findFlags);
+
+protected Q_SLOTS:
+    void displayResult(int);
+    void searchFinished();
+    void openEditor(const QString&, int, int);
+
+private:
+    QPointer<CppModelManager> _modelManager;
+    Find::SearchResultWindow *_resultWindow;
+    QFutureWatcher<Core::Utils::FileSearchResult> m_watcher;
+};
 
 class CppToolsPlugin : public ExtensionSystem::IPlugin
 {
