@@ -321,42 +321,6 @@ void EditorModel::itemChanged()
 }
 
 
-class EditorProxyModel : public QSortFilterProxyModel
-{
-    EditorView *m_view;
-    EditorModel *m_model;
-public:
-    EditorProxyModel(EditorModel *source, EditorView *view)
-        : QSortFilterProxyModel(view), m_view(view), m_model(source) {
-        setSourceModel(source);
-
-    }
-
-    QVariant data(const QModelIndex &proxyIndex, int role = Qt::DisplayRole) const
-    {
-        QVariant variant = QSortFilterProxyModel::data(proxyIndex, role);
-        if (role == Qt::FontRole) {
-            if (IEditor *editor = m_model->editorAt(proxyIndex.row()) ) {
-                if (m_view->hasEditor(editor)) {
-                    QFont font = m_view->font();
-                    font.setBold(true);
-                    return font;
-                }
-                foreach (IEditor *duplicate, m_model->duplicatesFor(editor)) {
-                    if (duplicate&& m_view->hasEditor(duplicate)) {
-                        QFont font = m_view->font();
-                        font.setBold(true);
-                        return font;
-                    }
-                }
-            }
-        }
-        return QSortFilterProxyModel::data(proxyIndex, role);
-    }
-
-};
-
-
 
 //================EditorView====================
 
@@ -378,15 +342,13 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
     tl->setSpacing(0);
     tl->setMargin(0);
     {
-        QAbstractItemModel *itemModel = m_model;
-        if (!itemModel) {
+        if (!m_model) {
             m_model = CoreImpl::instance()->editorManager()->openedEditorsModel();
-            itemModel = new EditorProxyModel(m_model, this);
         }
 
         m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         m_editorList->setMinimumContentsLength(20);
-        m_editorList->setModel(itemModel);
+        m_editorList->setModel(m_model);
         m_editorList->setMaxVisibleItems(40);
 
         QToolBar *editorListToolBar = new QToolBar;
@@ -601,8 +563,8 @@ void EditorView::removeEditor(IEditor *editor)
         toolBar->setVisible(false);
         toolBar->setParent(0);
     }
-    if (wasCurrent && m_editors.count())
-        setCurrentEditor(m_editors.last());
+    if (wasCurrent)
+        setCurrentEditor(m_editors.count() ? m_editors.last() : 0);
 }
 
 IEditor *EditorView::currentEditor() const
@@ -615,9 +577,10 @@ IEditor *EditorView::currentEditor() const
 void EditorView::setCurrentEditor(IEditor *editor)
 {
     if (!editor || m_container->count() <= 0
-        || m_container->indexOf(editor->widget()) == -1)
+        || m_container->indexOf(editor->widget()) == -1) {
         // ### TODO the combo box m_editorList should show an empty item
         return;
+    }
 
     m_editors.removeAll(editor);
     m_editors.append(editor);
