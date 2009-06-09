@@ -260,6 +260,7 @@ void CMakeRunPage::initWidgets()
     fl->addRow(m_descriptionLabel);
 
     m_argumentsLineEdit = new QLineEdit(this);
+    connect(m_argumentsLineEdit,SIGNAL(returnPressed()), this, SLOT(runCMake()));
 
     m_runCMake = new QPushButton(this);
     m_runCMake->setText(tr("Run CMake"));
