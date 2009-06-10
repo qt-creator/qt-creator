@@ -274,8 +274,8 @@ void Qt4ProjectConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString 
     m_ui->invalidQtWarningLabel->setVisible(!isValid);
     if (newQtVersion != m_pro->qtVersionId(m_buildConfiguration)) {
         m_pro->setQtVersion(m_buildConfiguration, newQtVersion);
-        m_pro->update();
         updateToolChainCombo();
+        m_pro->update();
     }
 }
 
@@ -311,13 +311,22 @@ void Qt4ProjectConfigWidget::updateToolChainCombo()
         }
     }
     m_ui->toolChainComboBox->setEnabled(toolchains.size() > 1);
-    selectToolChain(toolchains.indexOf(m_pro->toolChainType(m_buildConfiguration)));
+    setToolChain(toolchains.indexOf(m_pro->toolChainType(m_buildConfiguration)));
 }
 
 void Qt4ProjectConfigWidget::selectToolChain(int index)
 {
+    setToolChain(index);
+    m_pro->update();
+}
+
+void Qt4ProjectConfigWidget::setToolChain(int index)
+{
+    ProjectExplorer::ToolChain::ToolChainType selectedToolChainType =
+        m_ui->toolChainComboBox->itemData(index,
+            Qt::UserRole).value<ProjectExplorer::ToolChain::ToolChainType>();
     m_pro->setToolChainType(m_buildConfiguration, m_ui->toolChainComboBox->itemData(index,
-        Qt::UserRole).value<ProjectExplorer::ToolChain::ToolChainType>());
+            Qt::UserRole).value<ProjectExplorer::ToolChain::ToolChainType>());
     if (m_ui->toolChainComboBox->currentIndex() != index)
         m_ui->toolChainComboBox->setCurrentIndex(index);
 }

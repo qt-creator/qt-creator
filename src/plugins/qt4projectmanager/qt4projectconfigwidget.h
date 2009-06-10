@@ -66,6 +66,7 @@ private slots:
 private:
     void updateToolChainCombo();
     void updateImportLabel();
+    void setToolChain(int index);
     Ui::Qt4ProjectConfigWidget *m_ui;
     Qt4Project *m_pro;
     QString m_buildConfiguration;
