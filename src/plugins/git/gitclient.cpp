@@ -783,7 +783,8 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
                              const GitSubmitEditorPanelData &data,
                              const QString &messageFile,
                              const QStringList &checkedFiles,
-                             const QStringList &origCommitFiles)
+                             const QStringList &origCommitFiles,
+                             const QStringList &origDeletedFiles)
 {
     if (Git::Constants::debug)
         qDebug() << "GitClient::addAndCommit:" << repositoryDirectory << checkedFiles << origCommitFiles;
@@ -795,9 +796,12 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
         if (!synchronousReset(repositoryDirectory, resetFiles.toList()))
             return false;
 
-    // Re-add all to make sure we have the latest changes
-    if (!synchronousAdd(repositoryDirectory, checkedFiles))
-        return false;
+    // Re-add all to make sure we have the latest changes, but only add those that aren't marked
+    // for deletion
+    QStringList addFiles = checkedFiles.toSet().subtract(origDeletedFiles.toSet()).toList();
+    if (!addFiles.isEmpty())
+        if (!synchronousAdd(repositoryDirectory, addFiles))
+            return false;
 
     // Do the final commit
     QStringList args;
