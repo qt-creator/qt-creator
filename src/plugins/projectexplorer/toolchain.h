@@ -181,4 +181,6 @@ private:
 }
 }
 
+Q_DECLARE_METATYPE(ProjectExplorer::ToolChain::ToolChainType);
+
 #endif // TOOLCHAIN_H

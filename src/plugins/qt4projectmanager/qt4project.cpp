@@ -288,10 +288,12 @@ void Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
 
     addDefaultBuild();
 
-    // Ensure that the qt version in each build configuration is valid
+    // Ensure that the qt version and tool chain in each build configuration is valid
     // or if not, is reset to the default
-    foreach (const QString &bc, buildConfigurations())
+    foreach (const QString &bc, buildConfigurations()) {
         qtVersionId(bc);
+        toolChainType(bc);
+    }
 
     m_rootProjectNode = new Qt4ProFileNode(this, m_fileInfo->fileName(), this);
     m_rootProjectNode->registerWatcher(m_nodesWatcher);
@@ -377,7 +379,7 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
 
 ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
 {
-    return qtVersion(buildConfiguration)->toolChain(qtVersion(buildConfiguration)->defaultToolchainType());
+    return qtVersion(buildConfiguration)->toolChain(toolChainType(buildConfiguration));
 }
 
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
@@ -815,6 +817,22 @@ int Qt4Project::qtVersionId(const QString &buildConfiguration) const
 void Qt4Project::setQtVersion(const QString &buildConfiguration, int id)
 {
     setValue(buildConfiguration, "QtVersionId", id);
+}
+
+void Qt4Project::setToolChainType(const QString &buildConfiguration, ProjectExplorer::ToolChain::ToolChainType type)
+{
+    setValue(buildConfiguration, "ToolChain", (int)type);
+}
+
+ProjectExplorer::ToolChain::ToolChainType Qt4Project::toolChainType(const QString &buildConfiguration) const
+{
+    ProjectExplorer::ToolChain::ToolChainType type =
+        (ProjectExplorer::ToolChain::ToolChainType)value(buildConfiguration, "ToolChain").toInt();
+    const QtVersion *version = qtVersion(buildConfiguration);
+    if (!version->possibleToolChainTypes().contains(type)) // use default tool chain
+        type = version->defaultToolchainType();
+    const_cast<Qt4Project *>(this)->setToolChainType(buildConfiguration, type);
+    return type;
 }
 
 BuildStepConfigWidget *Qt4Project::createConfigWidget()

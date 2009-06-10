@@ -163,6 +163,8 @@ public:
     // qtVersion is in general the better method to use
     QString qtVersionName(const QString &buildConfiguration) const;
     ProjectExplorer::ToolChain *toolChain(const QString &buildConfiguration) const;
+    void setToolChainType(const QString &buildConfiguration, ProjectExplorer::ToolChain::ToolChainType type);
+    ProjectExplorer::ToolChain::ToolChainType toolChainType(const QString &buildConfiguration) const;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildStepConfigWidget*> subConfigWidgets();

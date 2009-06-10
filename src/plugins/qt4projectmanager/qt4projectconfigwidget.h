@@ -61,6 +61,7 @@ private slots:
     void importLabelClicked();
     void qtVersionComboBoxCurrentIndexChanged(const QString &);
     void manageQtVersions();
+    void selectToolChain(int index);
 
 private:
     void updateToolChainCombo();
