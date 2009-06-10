@@ -597,7 +597,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // debug action
     QIcon debuggerIcon(":/projectexplorer/images/debugger_start_small.png");
-    debuggerIcon.addFile(":/gdbdebugger/images/debugger_start.png");
+    debuggerIcon.addFile(":/projectexplorer/images/debugger_start.png");
     m_debugAction = new QAction(debuggerIcon, tr("Start Debugging"), this);
     cmd = am->registerAction(m_debugAction, Constants::DEBUG, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
