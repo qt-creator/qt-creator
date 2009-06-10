@@ -19,9 +19,6 @@
     * predefined macros
     * system includes
 
-* GCCE tool chain:
-    * predefined macros
-    * system includes
-
 * Run WINSCW executables
 * Deploy gcce executables
+
