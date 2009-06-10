@@ -301,13 +301,13 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             return;
         }
         m_ui->errorLabel->setText("");
-        ProjectExplorer::ToolChain::ToolChainType t = m_versions.at(index)->defaultToolchainType();
-        if (t == ProjectExplorer::ToolChain::MinGW) {
+        QList<ProjectExplorer::ToolChain::ToolChainType> types = m_versions.at(index)->possibleToolChainTypes();
+        if (types.contains(ProjectExplorer::ToolChain::MinGW)) {
             makeMSVCVisible(false);
             makeMingwVisible(true);
             makeMWCVisible(false);
             m_ui->mingwPath->setPath(m_versions.at(index)->mingwDirectory());
-        } else if (t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE){
+        } else if (types.contains(ProjectExplorer::ToolChain::MSVC) || types.contains(ProjectExplorer::ToolChain::WINCE)){
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeMWCVisible(false);
@@ -328,13 +328,13 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
                  m_ui->msvcComboBox->blockSignals(block);
             }
 #ifdef QTCREATOR_WITH_S60
-        } else if (t == ProjectExplorer::ToolChain::WINSCW) {
+        } else if (types.contains(ProjectExplorer::ToolChain::WINSCW)) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeMWCVisible(true);
             m_ui->mwcPath->setPath(m_versions.at(index)->mwcDirectory());
 #endif
-        } else if (t == ProjectExplorer::ToolChain::INVALID) {
+        } else if (types.contains(ProjectExplorer::ToolChain::INVALID)) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeMWCVisible(false);
