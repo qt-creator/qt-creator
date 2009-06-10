@@ -1210,17 +1210,12 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
                 if (c.isUpper() && !first) {
                     keyRegExp += QLatin1String("[a-z0-9_]*");
                     keyRegExp += c;
-                } else if (m_caseSensitivity == Qt::CaseInsensitive && c.isLower()) {
-                    keyRegExp += QLatin1Char('[');
-                    keyRegExp += c;
-                    keyRegExp += c.toUpper();
-                    keyRegExp += QLatin1Char(']');
                 } else {
                     keyRegExp += QRegExp::escape(c);
                 }
                 first = false;
             }
-            const QRegExp regExp(keyRegExp, Qt::CaseSensitive);
+            const QRegExp regExp(keyRegExp, m_caseSensitivity);
 
             foreach (TextEditor::CompletionItem item, m_completions) {
                 if (regExp.indexIn(item.m_text) == 0) {
