@@ -312,8 +312,11 @@ int BreakHandler::findBreakpoint(const QString &fileName, int lineNumber)
 
 int BreakHandler::findBreakpoint(int bpNumber)
 {
+    if (!size())
+        return -1;
+    QString numStr = QString::number(bpNumber);
     for (int index = 0; index != size(); ++index)
-        if (at(index)->bpNumber == QString::number(bpNumber))
+        if (at(index)->bpNumber == numStr)
             return index;
     return -1;
 }
