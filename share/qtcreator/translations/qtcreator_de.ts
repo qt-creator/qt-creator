@@ -11709,7 +11709,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location/>
         <source>Never</source>
-        <translation>NiemalsZahl</translation>
+        <translation>Niemals</translation>
     </message>
     <message>
         <location/>
