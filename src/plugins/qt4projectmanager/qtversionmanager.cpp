@@ -1083,12 +1083,6 @@ void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
     env.set("QTDIR", m_path);
     QString qtdirbin = versionInfo().value("QT_INSTALL_BINS");
     env.prependOrSetPath(qtdirbin);
-    // add libdir, includedir and bindir
-    // or add Mingw dirs
-    // or do nothing on other
-    ProjectExplorer::ToolChain *tc = toolChain(defaultToolchainType());
-    if (tc)
-        tc->addToEnvironment(env);
 }
 
 int QtVersion::uniqueId() const
@@ -1195,7 +1189,9 @@ QString QtVersion::buildDebuggingHelperLibrary()
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     addToEnvironment(env);
 
+    // TODO: the debugging helper doesn't comply to actual tool chain yet
     ProjectExplorer::ToolChain *tc = toolChain(defaultToolchainType());
+    tc->addToEnvironment(env);
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, path());
     QString output = DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), mkspec(), env);
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();

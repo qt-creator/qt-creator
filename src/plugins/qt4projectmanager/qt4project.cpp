@@ -724,6 +724,7 @@ ProjectExplorer::Environment Qt4Project::baseEnvironment(const QString &buildCon
 {
     Environment env = useSystemEnvironment(buildConfiguration) ? Environment::systemEnvironment() : Environment();
     qtVersion(buildConfiguration)->addToEnvironment(env);
+    toolChain(buildConfiguration)->addToEnvironment(env);
     return env;
 }
 

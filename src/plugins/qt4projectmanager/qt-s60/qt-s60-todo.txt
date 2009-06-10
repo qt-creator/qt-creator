@@ -1,6 +1,8 @@
-* When the refresh button in the SDK option page is pressed
-  the qtoptionspage is not updated to reflect the new versions
-  though we update them in S60Manager
+* SDK overview page:
+    * When the refresh button is pressed
+      the qtoptionspage is not updated to reflect the new versions
+      though we update them in S60Manager
+    * Qt auto-detection fails if no winscw-udeb Qt libs are installed
 
 * QtVersion:
     * support the different tool chains
