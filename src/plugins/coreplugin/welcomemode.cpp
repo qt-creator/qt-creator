@@ -427,6 +427,9 @@ QStringList WelcomeMode::tipsOfTheDay()
         tips.append(tr("If you add <a href=\"qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html\""
                        ">external libraries</a>, Qt Creator will automatically offer syntax highlighting "
                         "and code completion."));
+        tips.append(tr("The code completion is CamelCase-aware. For example, to complete <tt>namespaceUri</tt> "
+                       "you can just type <tt>nU</tt> and hit <tt>Ctrl+Space</tt>."));
+        tips.append(tr("You can force code completion at any time using <tt>Ctrl+Space</tt>."));
     }
     return tips;
 }
