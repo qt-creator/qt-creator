@@ -628,26 +628,37 @@ ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
                 ty = refTy->elementType();
 
             if (NamedType *namedTy = ty->asNamedType()) {
-                const QList<Symbol *> classObjectCandidates =
-                        resolveClass(namedTy, p, _context);
+                resolveClass.setPointerAccess(true);
+                QList<Symbol *> classObjectCandidates = resolveClass(namedTy, p, _context);
 
                 foreach (Symbol *classObject, classObjectCandidates) {
-                    const QList<Result> overloads = resolveArrowOperator(p, namedTy,
-                                                                         classObject->asClass());
-                    foreach (Result r, overloads) {
-                        FullySpecifiedType ty = r.first;
-                        Function *funTy = ty->asFunctionType();
-                        if (! funTy)
-                            continue;
+                    results += resolveMember(p, memberName,
+                                             control()->namedType(classObject->name()), // ### remove the call to namedType
+                                             classObject->asClass());
+                }
 
-                        ty = funTy->returnType();
+                if (classObjectCandidates.isEmpty()) {
+                    resolveClass.setPointerAccess(false);
+                    classObjectCandidates = resolveClass(namedTy, p, _context);
 
-                        if (ReferenceType *refTy = ty->asReferenceType())
-                            ty = refTy->elementType();
+                    foreach (Symbol *classObject, classObjectCandidates) {
+                        const QList<Result> overloads = resolveArrowOperator(p, namedTy,
+                                                                             classObject->asClass());
+                        foreach (Result r, overloads) {
+                            FullySpecifiedType ty = r.first;
+                            Function *funTy = ty->asFunctionType();
+                            if (! funTy)
+                                continue;
 
-                        if (PointerType *ptrTy = ty->asPointerType()) {
-                            if (NamedType *namedTy = ptrTy->elementType()->asNamedType())
-                                results += resolveMember(r, memberName, namedTy);
+                            ty = funTy->returnType();
+
+                            if (ReferenceType *refTy = ty->asReferenceType())
+                                ty = refTy->elementType();
+
+                            if (PointerType *ptrTy = ty->asPointerType()) {
+                                if (NamedType *namedTy = ptrTy->elementType()->asNamedType())
+                                    results += resolveMember(r, memberName, namedTy);
+                            }
                         }
                     }
                 }
@@ -822,7 +833,14 @@ bool ResolveExpression::visit(PostIncrDecrAST *)
 
 ////////////////////////////////////////////////////////////////////////////////
 ResolveClass::ResolveClass()
+    : _pointerAccess(false)
 { }
+
+bool ResolveClass::pointerAccess() const
+{ return _pointerAccess; }
+
+void ResolveClass::setPointerAccess(bool pointerAccess)
+{ _pointerAccess = pointerAccess; }
 
 QList<Symbol *> ResolveClass::operator()(NamedType *namedTy,
                                          ResolveExpression::Result p,
@@ -864,7 +882,13 @@ QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
             resolvedSymbols.append(klass);
         } else if (candidate->isTypedef()) {
             if (Declaration *decl = candidate->asDeclaration()) {
-                if (Class *asClass = decl->type()->asClassType()) {
+                if (_pointerAccess && decl->type()->isPointerType()) {
+                    PointerType *ptrTy = decl->type()->asPointerType();
+                    _pointerAccess = false;
+                    const ResolveExpression::Result r(ptrTy->elementType(), decl);
+                    resolvedSymbols += resolveClass(r, context);
+                    _pointerAccess = true;
+                } else if (Class *asClass = decl->type()->asClassType()) {
                     // typedef struct { } Point;
                     // Point pt;
                     // pt.
