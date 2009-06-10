@@ -141,9 +141,16 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     QString locale = qApp->property("qtc_locale").toString();
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
-        qtr->load(QLatin1String("assistant_") + locale,
-            QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-        qApp->installTranslator(qtr);
+        QTranslator *qhelptr = new QTranslator(this);
+        const QString &creatorTrPath =
+                Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
+        const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+        const QString &trFile = QLatin1String("assistant_") + locale;
+        const QString &helpTrFile = QLatin1String("qt_help_") + locale;
+        if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
+            qApp->installTranslator(qtr);
+        if (qhelptr->load(helpTrFile, qtTrPath) || qhelptr->load(helpTrFile, creatorTrPath))
+            qApp->installTranslator(qhelptr);
     }
 
 #ifndef QT_NO_WEBKIT
