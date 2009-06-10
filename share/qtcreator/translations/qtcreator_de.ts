@@ -1359,7 +1359,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+11"/>
         <source>&amp;Tools</source>
-        <translation>&amp;Werkzeuge</translation>
+        <translation>E&amp;xtras</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -10283,7 +10283,7 @@ p, li { white-space: pre-wrap; }
 &lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Tools/Options &lt;/b&gt;&lt;/font&gt;
 </source>
         <translation>
-&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Es ist keine gültige Qt-Version gesetzt. Setzen Sie sie unter Werkzeuge/Einstellungen&lt;/b&gt;&lt;/font&gt;
+&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Es ist keine gültige Qt-Version gesetzt. Setzen Sie sie unter Extras/Einstellungen&lt;/b&gt;&lt;/font&gt;
 </translation>
     </message>
     <message>
