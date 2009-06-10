@@ -93,7 +93,8 @@ bool MakeStep::init(const QString &name)
         }
     } else {
         args = value(name, "makeargs").toStringList();
-        args << qt4project->defaultMakeTarget(name);
+        if (!qt4project->defaultMakeTarget(name).isEmpty())
+            args << qt4project->defaultMakeTarget(name);
     }
 
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
