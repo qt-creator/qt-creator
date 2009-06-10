@@ -6,6 +6,7 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QTextEdit>
 #include <QtGui/QMessageBox>
+#include "finddialog.h"
 
 
 namespace Ui
@@ -30,6 +31,7 @@ public slots:
     void removeContact();
     void next();
     void previous();
+    void findContact();
 
 private:
     Ui::AddressBook *ui;
@@ -42,6 +44,7 @@ private:
     QPushButton *removeButton;
     QPushButton *nextButton;
     QPushButton *previousButton;
+    QPushButton *findButton;
     QLineEdit *nameLine;
     QTextEdit *addressText;
 
@@ -49,6 +52,7 @@ private:
     QString oldName;
     QString oldAddress;
     Mode currentMode;
+    FindDialog *dialog;
 };
 
 #endif // ADDRESSBOOK_H
