@@ -1799,6 +1799,7 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
         return;
     data->pending = false;
     data->bpMultiple = false;
+    data->bpEnabled = true;
     data->bpCondition.clear();
     QStringList files;
     foreach (const GdbMi &child, bkpt.children()) {
@@ -1830,6 +1831,8 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             // gdb 6.3 likes to "rewrite" conditions. Just accept that fact.
             if (data->bpCondition != data->condition && data->conditionsMatch())
                 data->condition = data->bpCondition;
+        } else if (child.hasName("enabled")) {
+            data->bpEnabled = (child.data() == "y");
         }
         else if (child.hasName("pending")) {
             data->pending = true;
@@ -2146,14 +2149,18 @@ void GdbEngine::attemptBreakpointSynchronization()
 
     foreach (BreakpointData *data, handler->takeDisabledBreakpoints()) {
         QString bpNumber = data->bpNumber;
-        if (!bpNumber.trimmed().isEmpty())
+        if (!bpNumber.trimmed().isEmpty()) {
             postCommand(_("-break-disable ") + bpNumber, NeedsStop);
+            data->bpEnabled = false;
+        }
     }
 
     foreach (BreakpointData *data, handler->takeEnabledBreakpoints()) {
         QString bpNumber = data->bpNumber;
-        if (!bpNumber.trimmed().isEmpty())
+        if (!bpNumber.trimmed().isEmpty()) {
             postCommand(_("-break-enable ") + bpNumber, NeedsStop);
+            data->bpEnabled = true;
+        }
     }
 
     foreach (BreakpointData *data, handler->takeRemovedBreakpoints()) {
@@ -2207,6 +2214,12 @@ void GdbEngine::attemptBreakpointSynchronization()
             if (data->bpNumber.toInt() && data->ignoreCount != data->bpIgnoreCount) {
                 postCommand(_("ignore %1 %2").arg(data->bpNumber).arg(data->ignoreCount),
                             CB(handleBreakIgnore), index);
+                updateNeeded = true;
+                break;
+            }
+            if (data->bpNumber.toInt() && !data->enabled && data->bpEnabled) {
+                postCommand(_("-break-disable ") + data->bpNumber, NeedsStop);
+                data->bpEnabled = false;
                 updateNeeded = true;
                 break;
             }

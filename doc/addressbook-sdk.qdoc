@@ -733,7 +733,7 @@
 
     We begin by adding a new \c{.ui} file to our project. Right click on your
     project and select \gui{Add New...}. In the \gui{New File} dialog, select
-    \gui{Qt Designer Form}. In the \gui{Qt Designer Form| dialog, select
+    \gui{Qt Designer Form}. In the \gui{Qt Designer Form} dialog, select
     \e{Dialog without buttons}. Name it \c{finddialog.ui} and add it to your
     project. The \QD plugin within Qt Creator will now display your new form.
 

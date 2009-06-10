@@ -443,9 +443,11 @@ void QtOptionsPageWidget::updateCurrentQtPath()
             m_ui->debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
         }
         m_ui->showLogButton->setEnabled(hasLog);
+        m_ui->rebuildButton->setEnabled(true);
     } else {
         currentItem->setData(2, Qt::DecorationRole, QIcon());
         m_ui->debuggingHelperStateLabel->setPixmap(QPixmap());
+        m_ui->rebuildButton->setEnabled(true);
     }
 }
 

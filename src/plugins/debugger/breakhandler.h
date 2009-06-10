@@ -89,6 +89,7 @@ public:
     QString bpFuncName;     // function name acknowledged by the debugger engine
     QString bpAddress;      // address acknowledged by the debugger engine
     bool    bpMultiple;     // happens in constructors/gdb
+    bool    bpEnabled;      // enable/disable command sent
 
     // taken from either user input or gdb responses
     QString markerFileName; // used to locate the marker
