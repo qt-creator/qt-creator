@@ -367,7 +367,7 @@ void LookupContext::expandNamespace(Namespace *ns,
         Symbol *symbol = ns->memberAt(i);
         if (Namespace *otherNs = symbol->asNamespace()) {
             if (! otherNs->name()) {
-                expand(ns->members(), visibleScopes, expandedScopes);
+                expand(otherNs->members(), visibleScopes, expandedScopes);
             }
         } else if (UsingNamespaceDirective *u = symbol->asUsingNamespaceDirective()) {
             const QList<Symbol *> candidates = resolveNamespace(u->name(), visibleScopes);
