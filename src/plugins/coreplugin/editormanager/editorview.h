@@ -114,7 +114,6 @@ private:
 };
 
 
-
 class EditorView : public QWidget
 {
     Q_OBJECT
@@ -175,7 +174,6 @@ private:
     QFrame *m_statusWidget;
     QLabel *m_statusWidgetLabel;
     QToolButton *m_statusWidgetButton;
-    QSortFilterProxyModel m_proxyModel;
     QList<IEditor *> m_editors;
     QMap<QWidget *, IEditor *> m_widgetEditorMap;
 };
@@ -232,8 +230,6 @@ private:
     EditorView *m_view;
     QSplitter *m_splitter;
 };
-
-
 
 }
 }

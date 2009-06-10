@@ -1,6 +1,6 @@
 include(../../../qtcreator.pri)
 
-TRANSLATIONS = de it ja ru
+LANGUAGES = de it ja ru
 
 # var, prepend, append
 defineReplace(prependAll) {
@@ -11,10 +11,10 @@ defineReplace(prependAll) {
 LUPDATE = $$targetPath($$[QT_INSTALL_BINS]/lupdate) -locations relative -no-ui-lines
 LRELEASE = $$targetPath($$[QT_INSTALL_BINS]/lrelease)
 
-TS_FILES = $$prependAll(TRANSLATIONS, $$PWD/qtcreator_,.ts)
+TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/qtcreator_,.ts)
 
 contains(QT_VERSION, ^4\.[0-5]\..*):ts.commands = @echo This Qt version is too old for the ts target. Need Qt 4.6+.
-else:ts.commands = (cd $$IDE_SOURCE_TREE && $$LUPDATE src -ts $$TS_FILES)
+else:ts.commands = (cd $$IDE_SOURCE_TREE && $$LUPDATE src -ts $$TRANSLATIONS)
 QMAKE_EXTRA_TARGETS += ts
 
 TEMPLATE = app
@@ -23,7 +23,7 @@ CONFIG -= qt
 QT =
 LIBS =
 
-updateqm.input = TS_FILES
+updateqm.input = TRANSLATIONS
 updateqm.output = $$IDE_DATA_PATH/translations/${QMAKE_FILE_BASE}.qm
 isEmpty(vcproj):updateqm.variable_out = PRE_TARGETDEPS
 updateqm.commands = $$LRELEASE ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_OUT}
@@ -47,6 +47,6 @@ isEmpty(vcproj) {
     QMAKE_EXTRA_COMPILERS += phony_src
 }
 
-qmfiles.files = $$prependAll(TRANSLATIONS, $$OUT_PWD/qtcreator_,.qm)
+qmfiles.files = $$prependAll(LANGUAGES, $$OUT_PWD/qtcreator_,.qm)
 qmfiles.path = /share/qtcreator/translations
 INSTALLS += qmfiles

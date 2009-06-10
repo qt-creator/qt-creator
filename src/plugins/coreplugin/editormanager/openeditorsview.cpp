@@ -62,7 +62,6 @@ OpenEditorsDelegate::OpenEditorsDelegate(QObject *parent)
 void OpenEditorsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
            const QModelIndex &index) const
 {
-
     if (option.state & QStyle::State_MouseOver) {
         if ((QApplication::mouseButtons() & Qt::LeftButton) == 0)
             pressedIndex = QModelIndex();
@@ -71,6 +70,7 @@ void OpenEditorsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
             brush = option.palette.dark();
         painter->fillRect(option.rect, brush);
     }
+
 
     QStyledItemDelegate::paint(painter, option, index);
 
