@@ -560,7 +560,7 @@ public:
 
     LookupContext lookupContext(Symbol *symbol) const
     {
-        LookupContext context(symbol, Document::create("<none>"), _doc, _snapshot);
+        LookupContext context(symbol, Document::create(QLatin1String("<none>")), _doc, _snapshot);
         return context;
     }
 

@@ -262,6 +262,7 @@ SemanticSearch *SearchFunctionCallFactory::create(QFutureInterface<Core::Utils::
 
 static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
                                   QPointer<CppModelManager> modelManager,
+                                  QMap<QString, QByteArray> wl,
                                   SemanticSearchFactory::Ptr factory)
 {
     const Snapshot snapshot = modelManager->snapshot();
@@ -273,14 +274,20 @@ static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult
     foreach (Document::Ptr doc, snapshot) {
         const QString fileName = doc->fileName();
 
-        QFile file(fileName);
-        if (! file.open(QFile::ReadOnly))
-            continue;
+        QByteArray source;
 
-        const QString contents = QTextStream(&file).readAll(); // ### FIXME
-        const QByteArray source = snapshot.preprocessedCode(contents.toUtf8(), fileName);
+        if (wl.contains(fileName))
+            source = wl.value(fileName);
+        else {
+            QFile file(fileName);
+            if (! file.open(QFile::ReadOnly))
+                continue;
+
+            const QString contents = QTextStream(&file).readAll(); // ### FIXME
+            source = snapshot.preprocessedCode(contents.toUtf8(), fileName);
+        }
+
         Document::Ptr newDoc = snapshot.documentFromSource(source, fileName);
-        newDoc->parse();
 
         if (SemanticSearch *search = factory->create(future, newDoc, snapshot)) {
             search->setSource(source);
@@ -295,5 +302,6 @@ static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult
 QFuture<Core::Utils::FileSearchResult> CppTools::Internal::semanticSearch(QPointer<CppModelManager> modelManager,
                                                                           SemanticSearchFactory::Ptr factory)
 {
-    return QtConcurrent::run(&semanticSearch_helper, modelManager, factory);
+    return QtConcurrent::run(&semanticSearch_helper, modelManager,
+                             modelManager->buildWorkingCopyList(), factory);
 }

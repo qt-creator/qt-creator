@@ -89,6 +89,8 @@ public:
     CppEditorSupport *editorSupport(TextEditor::ITextEditor *editor) const
     { return m_editorSupport.value(editor); }
 
+    QMap<QString, QByteArray> buildWorkingCopyList();
+
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
 
     void stopEditorSelectionsUpdate()
@@ -117,8 +119,6 @@ private Q_SLOTS:
     void updateEditorSelections();
 
 private:
-    QMap<QString, QByteArray> buildWorkingCopyList();
-
     QStringList projectFiles()
     {
         ensureUpdated();
