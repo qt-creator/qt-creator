@@ -5,10 +5,8 @@ TARGET = part5
 TEMPLATE = app
 SOURCES += main.cpp \
     addressbook.cpp \
-    finddialog.cpp \
     finddialog.cpp
 HEADERS += addressbook.h \
-    finddialog.h \
     finddialog.h
 FORMS += addressbook.ui \
     finddialog.ui
