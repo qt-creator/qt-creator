@@ -573,7 +573,7 @@ private:
 BaseMimeTypeParser:: BaseMimeTypeParser() :
     // RE to match a suffix glob pattern: "*.ext" (and not sth like "Makefile" or
     // "*.log[1-9]"
-    m_suffixPattern(QLatin1String("^\\*\\.[\\w]+$"))
+    m_suffixPattern(QLatin1String("^\\*\\.[\\w+]+$"))
 {
     QTC_ASSERT(m_suffixPattern.isValid(), /**/);
 }
