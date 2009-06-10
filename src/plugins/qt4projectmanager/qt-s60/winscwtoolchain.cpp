@@ -25,11 +25,15 @@ QByteArray WINSCWToolChain::predefinedMacros()
 
 QList<HeaderPath> WINSCWToolChain::systemHeaderPaths()
 {
-    // TODO
+    if (m_systemHeaderPaths.isEmpty()) {
+        foreach (const QString &value, systemIncludes()) {
+            m_systemHeaderPaths.append(HeaderPath(value, HeaderPath::GlobalHeaderPath));
+        }
+    }
     return m_systemHeaderPaths;
 }
 
-void WINSCWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+QStringList WINSCWToolChain::systemIncludes() const
 {
     QStringList symIncludes = QStringList()
         << "\\MSL\\MSL_C\\MSL_Common\\Include"
@@ -41,7 +45,12 @@ void WINSCWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         << "\\Win32-x86 Support\\Headers\\Win32 SDK";
     for (int i = 0; i < symIncludes.size(); ++i)
         symIncludes[i].prepend(QString("%1\\x86Build\\Symbian_Support").arg(m_carbidePath));
-    env.set("MWCSYM2INCLUDES", symIncludes.join(";"));
+    return symIncludes;
+}
+
+void WINSCWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+{
+    env.set("MWCSYM2INCLUDES", systemIncludes().join(";"));
     QStringList symLibraries = QStringList()
         << "\\Win32-x86 Support\\Libraries\\Win32 SDK"
         << "\\Runtime\\Runtime_x86\\Runtime_Win32\\Libs";

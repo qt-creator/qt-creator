@@ -24,6 +24,7 @@ protected:
     bool equals(ToolChain *other) const;
 
 private:
+    QStringList systemIncludes() const;
     QString m_carbidePath;
     QString m_deviceId;
     QString m_deviceName;

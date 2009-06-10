@@ -15,9 +15,11 @@
       of ToolChain::defaultMakeTarget then as well
     * build parser should be defined/created by toolchain, not make step
 
+* Tool chains:
+    * changing tool chain does not reindex (changed includes+defines)
+
 * WINSCW tool chain:
     * predefined macros
-    * system includes
 
 * Run WINSCW executables
 * Deploy gcce executables
