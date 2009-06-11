@@ -63,11 +63,10 @@ GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
 
 // Utility to add a list of state/file pairs to the model
 // setting a file type.
-static void addStateFileListToModel(const QList<CommitData::StateFilePair> &l,                               
+static void addStateFileListToModel(const QList<CommitData::StateFilePair> &l,
                                     bool checked, FileType ft,
                                     VCSBase::SubmitFileModel *model)
 {
-
     typedef QList<CommitData::StateFilePair>::const_iterator ConstIterator;
     if (!l.empty()) {
         const ConstIterator cend = l.constEnd();

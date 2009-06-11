@@ -427,7 +427,7 @@
     \contentspage {Address Book Tutorial}{Contents}
     \nextpage {examples/addressbook-sdk/part4}{Chapter 4}
     \example examples/addressbook-sdk/part3
-    \title Address Book 3 - Navigating between Entries}
+    \title Address Book 3 - Navigating between Entries
 
     The address book application is now half complete. We need to add some
     functions to navigate between contacts. But first, we have to decide what
@@ -549,7 +549,7 @@
     \contentspage {Address Book Tutorial}{Contents}
     \nextpage {examples/addressbook-sdk/part5}{Chapter 5}
     \example examples/addressbook-sdk/part4
-    \title Address Book 4 - Editing and Removing Addresses}
+    \title Address Book 4 - Editing and Removing Addresses
 
     In this chapter, we look at ways to modify the contents of contacts stored
     in the address book application.
@@ -710,7 +710,7 @@
     \contentspage {Address Book Tutorial}{Contents}
     \nextpage {examples/addressbook-sdk/part6}{Chapter 6}
     \example examples/addressbook-sdk/part5
-    \title Address Book 5 - Adding a Find Function}
+    \title Address Book 5 - Adding a Find Function
 
     In this chapter, we look at ways to locate contacts and addresses in the
     address book application.
@@ -751,7 +751,7 @@
     \contentspage {Address Book Tutorial}{Contents}
     \nextpage {examples/addressbook-sdk/part7}{Chapter 7}
     \example examples/addressbook-sdk/part6
-    \title Address Book 6 - Loading and Saving}
+    \title Address Book 6 - Loading and Saving
 
 */
 
@@ -760,6 +760,6 @@
     \previouspage Address Book 6 - Loading and Saving
     \contentspage {Address Book Tutorial}{Contents}
     \example examples/addressbook-sdk/part7
-    \title Address Book 7 - Additional Features}
+    \title Address Book 7 - Additional Features
 
 */

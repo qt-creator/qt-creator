@@ -173,6 +173,7 @@ private:
     Core::IVersionControl       *m_versionControl;
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;
+    QStringList                 m_submitOrigDeleteFiles;
     QTemporaryFile              *m_changeTmpFile;
     bool                        m_submitActionTriggered;
 };

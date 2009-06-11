@@ -141,9 +141,16 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     QString locale = qApp->property("qtc_locale").toString();
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
-        qtr->load(QLatin1String("assistant_") + locale,
-            QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-        qApp->installTranslator(qtr);
+        QTranslator *qhelptr = new QTranslator(this);
+        const QString &creatorTrPath =
+                Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
+        const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+        const QString &trFile = QLatin1String("assistant_") + locale;
+        const QString &helpTrFile = QLatin1String("qt_help_") + locale;
+        if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
+            qApp->installTranslator(qtr);
+        if (qhelptr->load(helpTrFile, qtTrPath) || qhelptr->load(helpTrFile, creatorTrPath))
+            qApp->installTranslator(qhelptr);
     }
 
 #ifndef QT_NO_WEBKIT
@@ -762,12 +769,19 @@ void HelpPlugin::openHelpPage(const QUrl& url)
 
 void HelpPlugin::openHelpPage(const QString& url)
 {
-    activateHelpMode();
-    if (m_helpEngine->findFile(url).isValid())
+    if (m_helpEngine->findFile(url).isValid()) {
+        activateHelpMode();
         m_centralWidget->setSource(url);
-    else {
-        QDesktopServices::openUrl(QLatin1String("http://doc.trolltech.com/latest/")
-            + url.mid(url.lastIndexOf('/') + 1));
+    } else {
+        // local help not installed, resort to external web help
+        QString urlPrefix;
+        if (url.startsWith("qthelp://com.nokia.qtcreator")) {
+            urlPrefix = QString::fromLatin1("http://doc.trolltech.com/qtcreator-%1.%2/")
+                        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR);
+        } else {
+            urlPrefix = QLatin1String("http://doc.trolltech.com/latest/");
+        }
+        QDesktopServices::openUrl(urlPrefix + url.mid(url.lastIndexOf('/') + 1));
     }
 }
 

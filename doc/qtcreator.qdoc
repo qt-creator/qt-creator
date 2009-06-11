@@ -1536,8 +1536,9 @@
     \bold{Display Low Level Data}
 
     If special debugging of Qt objects fails due to data corruption within the
-    debugged objects, you can switch the special debugging off in the
-    \gui{Debug} menu. This will make the low-level structures visible again.
+    debugged objects, you can switch the debugging helpers off in the
+    \gui{Debugger -> Debugging Helper} options dialog.
+    This will make the low-level structures visible again.
 */
 
 
@@ -1640,7 +1641,7 @@
         \row
             \o
                 \raw HTML
-                System&nbsp;Qt
+                Auto-detected&nbsp;Qt
                 \endraw
                 \target glossary-system-qt
             \o  The version of Qt installed on your system. This is the Qt
@@ -1654,7 +1655,7 @@
                 \target glossary-default-qt
             \o  The version of Qt configured in \gui{Tools -> Options -> Qt 4
                 -> Default Qt Version}. This is the Qt version used by your
-                new projects. It defaults to System Qt.
+                new projects. It defaults to the Auto-detected&nbsp;Qt.
 
         \row
             \o

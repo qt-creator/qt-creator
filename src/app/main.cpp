@@ -217,11 +217,13 @@ int main(int argc, char **argv)
     QTranslator translator;
     QTranslator qtTranslator;
     const QString &locale = QLocale::system().name();
-    if (translator.load(QLatin1String("qtcreator_") + locale,
-                        QCoreApplication::applicationDirPath()
-                        + QLatin1String(SHARE_PATH "/translations"))) {
-        if (qtTranslator.load(QLatin1String("qt_") + locale,
-                              QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
+    const QString &creatorTrPath = QCoreApplication::applicationDirPath()
+                        + QLatin1String(SHARE_PATH "/translations");
+    if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {
+        const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+        const QString &qtTrFile = QLatin1String("qt_") + locale;
+        // Binary installer puts Qt tr files into creatorTrPath
+        if (qtTranslator.load(qtTrFile, qtTrPath) || qtTranslator.load(qtTrFile, creatorTrPath)) {
             app.installTranslator(&translator);
             app.installTranslator(&qtTranslator);
             app.setProperty("qtc_locale", locale);

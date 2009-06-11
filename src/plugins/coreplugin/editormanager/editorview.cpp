@@ -162,6 +162,8 @@ int EditorModel::findEditor(IEditor *editor) const
 
 int EditorModel::findFileName(const QString &filename) const
 {
+    if (filename.isEmpty())
+        return -1;
     for (int i = 0; i < m_editors.count(); ++i) {
         if (m_editors.at(i).fileName() == filename)
             return i;
@@ -300,20 +302,9 @@ QVariant EditorModel::data(const QModelIndex &index, int role) const
 
 QModelIndex EditorModel::indexOf(IEditor *editor) const
 {
-    int idx = findEditor(editor);
-    if (idx < 0)
-        return indexOf(editor->file()->fileName());
+    int idx = findEditor(originalForDuplicate(editor));
     return createIndex(idx, 0);
 }
-
-QModelIndex EditorModel::indexOf(const QString &fileName) const
-{
-    int idx = findFileName(fileName);
-    if (idx >= 0)
-        return createIndex(idx, 0);
-    return QModelIndex();
-}
-
 
 void EditorModel::itemChanged()
 {
@@ -588,7 +579,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
     const int idx = m_container->indexOf(editor->widget());
     QTC_ASSERT(idx >= 0, return);
     m_container->setCurrentIndex(idx);
-    m_editorList->setCurrentIndex(m_model->indexOf(editor->file()->fileName()).row());
+    m_editorList->setCurrentIndex(m_model->indexOf(editor).row());
     updateEditorStatus(editor);
     updateToolBar(editor);
 

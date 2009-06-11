@@ -77,7 +77,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 
     setStartId(startid);
     setOption(QWizard::NoCancelButton);
-    setOption(QWizard::NoBackButtonOnStartPage);
+    init();
 }
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
@@ -93,7 +93,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     else
         addPage(new CMakeRunPage(this, CMakeRunPage::Update, buildDirectory));
     setOption(QWizard::NoCancelButton);
-    setOption(QWizard::NoBackButtonOnStartPage);
+    init();
 }
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
@@ -107,7 +107,13 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     m_buildDirectory = oldBuildDirectory;
     addPage(new ShadowBuildPage(this, true));
     addPage(new CMakeRunPage(this, CMakeRunPage::Change));
+    init();
+}
+
+void CMakeOpenProjectWizard::init()
+{
     setOption(QWizard::NoBackButtonOnStartPage);
+    setWindowTitle(tr("CMake Wizard"));
 }
 
 CMakeManager *CMakeOpenProjectWizard::cmakeManager() const

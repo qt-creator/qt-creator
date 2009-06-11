@@ -614,6 +614,7 @@ void GitPlugin::startCommit()
     // files to be able to unstage files the user unchecks
     m_submitRepository = data.panelInfo.repository;
     m_submitOrigCommitFiles = data.stagedFileNames();
+    m_submitOrigDeleteFiles = data.stagedFileNames("deleted");
 
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << data << commitTemplate;
@@ -709,7 +710,8 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
                                                 editor->panelData(),
                                                 m_changeTmpFile->fileName(),
                                                 fileList,
-                                                m_submitOrigCommitFiles);
+                                                m_submitOrigCommitFiles,
+                                                m_submitOrigDeleteFiles);
     }
     if (closeEditor)
         cleanChangeTmpFile();

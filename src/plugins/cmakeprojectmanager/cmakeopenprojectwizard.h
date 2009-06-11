@@ -83,6 +83,7 @@ public:
     void setArguments(const QStringList &args);
     ProjectExplorer::Environment environment() const;
 private:
+    void init();
     bool existsUpToDateXmlFile() const;
     bool hasInSourceBuild() const;
     CMakeManager *m_cmakeManager;

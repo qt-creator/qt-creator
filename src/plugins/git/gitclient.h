@@ -123,7 +123,8 @@ public:
                       const GitSubmitEditorPanelData &data,
                       const QString &messageFile,
                       const QStringList &checkedFiles,
-                      const QStringList &origCommitFiles);
+                      const QStringList &origCommitFiles,
+                      const QStringList &origDeletedFiles);
 
     enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
     StatusResult gitStatus(const QString &workingDirectory,

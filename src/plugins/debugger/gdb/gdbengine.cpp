@@ -928,8 +928,8 @@ void GdbEngine::handleAqcuiredInferior()
         reloadSourceFiles();
 
     // Reverse debugging. FIXME: Should only be used when available.
-    if (theDebuggerBoolSetting(EnableReverseDebugging))
-        postCommand(_("target record"));
+    //if (theDebuggerBoolSetting(EnableReverseDebugging))
+    //    postCommand(_("target record"));
 
     tryLoadDebuggingHelpers();
 
