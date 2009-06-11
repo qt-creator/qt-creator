@@ -186,6 +186,7 @@ NavigationSubWidget *NavigationWidget::insertSubItem(int position)
 
 void NavigationWidget::activateSubWidget()
 {
+    setShown(true);
     QShortcut *original = qobject_cast<QShortcut *>(sender());
     QString title = m_shortcutMap[original];
 
