@@ -539,7 +539,9 @@ Core::Internal::SplitterOrView *EditorManager::currentView() const
 {
     SplitterOrView *view = m_d->m_currentView;
     if (!view)
-        view = m_d->m_splitter->findView(m_d->m_currentEditor);
+        view = m_d->m_currentEditor?
+               m_d->m_splitter->findView(m_d->m_currentEditor):
+               m_d->m_splitter->findFirstView();
     return view;
 }
 
