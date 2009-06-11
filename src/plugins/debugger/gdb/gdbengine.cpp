@@ -1433,6 +1433,7 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
     postCommand(_("show version"), CB(handleShowVersion));
     //postCommand(_("-enable-timings");
     postCommand(_("set print static-members off")); // Seemingly doesn't work.
+    //postCommand(_("set debug infrun 1"));
     //postCommand(_("define hook-stop\n-thread-list-ids\n-stack-list-frames\nend"));
     //postCommand(_("define hook-stop\nprint 4\nend"));
     //postCommand(_("define hookpost-stop\nprint 5\nend"));

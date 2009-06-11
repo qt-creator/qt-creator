@@ -1116,6 +1116,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'A') {
         enterInsertMode();
         moveToEndOfLine();
+        setDotCommand("A");
         m_lastInsertion.clear();
     } else if (key == control('a')) {
         // FIXME: eat it to prevent the global "select all" shortcut to trigger
