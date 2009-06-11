@@ -60,6 +60,7 @@ private slots:
     void command_dd();
     void command_dollar();
     void command_down();
+    void command_dfx_down();
     void command_e();
     void command_i();
     void command_left();
@@ -294,6 +295,18 @@ void tst_FakeVim::command_down()
     move("j",  "@" + l[1]);
     move("3j", "@int main");
     move("4j", "@    return app.exec()");
+}
+
+void tst_FakeVim::command_dfx_down()
+{
+    setup();
+    check("j4l",  l[0] + "\n#inc@lude <QtCore>\n" + lmid(2));
+    check("df ",  l[0] + "\n#inc@<QtCore>\n" + lmid(2));
+    check("j",    l[0] + "\n#inc<QtCore>\n#inc@lude <QtGui>\n" + lmid(3));
+    check(".",    l[0] + "\n#inc<QtCore>\n#inc@<QtGui>\n" + lmid(3));
+return;
+    check("u",    l[0] + "\n#inc<QtCore>\n#inc@lude <QtGui>\n" + lmid(3));
+    check("u",    l[0] + "\n#inc@lude <QtCore>\n" + lmid(2));
 }
 
 void tst_FakeVim::command_e()
