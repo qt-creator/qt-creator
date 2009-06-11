@@ -32,6 +32,8 @@
 #include "debuggeractions.h"
 #include "ui_breakcondition.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -42,6 +44,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
+#include <QtGui/QItemSelectionModel>
 #include <QtGui/QToolButton>
 #include <QtGui/QTreeView>
 
@@ -57,6 +60,7 @@ BreakWindow::BreakWindow(QWidget *parent)
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     connect(this, SIGNAL(activated(QModelIndex)),
         this, SLOT(rowActivated(QModelIndex)));
@@ -64,10 +68,25 @@ BreakWindow::BreakWindow(QWidget *parent)
         this, SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
+static QModelIndexList normalizeIndexes(const QModelIndexList &list)
+{
+    QModelIndexList res;
+    foreach (const QModelIndex &idx, list)
+        if (idx.column() == 0)
+            res.append(idx);
+    return res;
+}
+
 void BreakWindow::keyPressEvent(QKeyEvent *ev)
 {
-    if (ev->key() == Qt::Key_Delete)
-        deleteBreakpoint(currentIndex());
+    if (ev->key() == Qt::Key_Delete) {
+        QItemSelectionModel *sm = selectionModel();
+        QTC_ASSERT(sm, return);
+        QModelIndexList si = sm->selectedIndexes();
+        if (si.isEmpty())
+            si.append(currentIndex().sibling(currentIndex().row(), 0));
+        deleteBreakpoints(normalizeIndexes(si));
+    }
     QTreeView::keyPressEvent(ev);
 }
 
@@ -79,25 +98,39 @@ void BreakWindow::resizeEvent(QResizeEvent *ev)
 void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    const QModelIndex index = indexAt(ev->pos());
-    const bool indexIsValid = index.isValid();
-    const QModelIndex index0 = index.sibling(index.row(), 0);
-    const QModelIndex index2 = index.sibling(index.row(), 2);
-    QAction *act0 = new QAction(tr("Delete breakpoint"), &menu);
-    act0->setEnabled(indexIsValid);
+    QItemSelectionModel *sm = selectionModel();
+    QTC_ASSERT(sm, return);
+    QModelIndexList si = sm->selectedIndexes();
+    QModelIndex indexUnderMouse = indexAt(ev->pos());
+    if (si.isEmpty() && indexUnderMouse.isValid())
+        si.append(indexUnderMouse.sibling(indexUnderMouse.row(), 0));
+    si = normalizeIndexes(si);
+
+    QAction *act0 = new QAction(tr("Delete breakpoint", 0, si.size()), &menu);
+    act0->setEnabled(si.size() > 0);
+
     QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
+
     QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
-    QAction *act3 = new QAction(tr("Edit condition..."), &menu);
-    act3->setEnabled(indexIsValid);    
+
+    QAction *act3 = new QAction(tr("Edit condition...", 0, si.size()), &menu);
+    act3->setEnabled(si.size() > 0);
+
     QAction *act4 = new QAction(tr("Synchronize breakpoints"), &menu);
-    bool enabled = indexIsValid && model()->data(index0, Qt::UserRole).toBool();
-    QString str = enabled ? tr("Disable breakpoint") : tr("Enable breakpoint");
-    QAction *act5 = new QAction(str, &menu);
-    bool fullpath = indexIsValid && model()->data(index2, Qt::UserRole).toBool();
-    QString str1 = fullpath ? tr("Use short path") : tr("Use full path");
-    QAction *act6 = new QAction(str1, &menu);
+
+    QModelIndex idx0 = si.front();
+    QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
+    bool enabled = si.isEmpty() || model()->data(idx0, Qt::UserRole).toBool();
+    QString str5 = enabled ? tr("Disable breakpoint") : tr("Enable breakpoint");
+    QAction *act5 = new QAction(str5, &menu);
+    act5->setEnabled(si.size() > 0);
+
+    bool fullpath = si.isEmpty() || model()->data(idx2, Qt::UserRole).toBool();
+    QString str6 = fullpath ? tr("Use short path") : tr("Use full path");
+    QAction *act6 = new QAction(str6, &menu);
+    act6->setEnabled(si.size() > 0);
 
     menu.addAction(act0);
     menu.addAction(act3);
@@ -113,39 +146,61 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == act0)
-        deleteBreakpoint(index);
+        deleteBreakpoints(si);
     else if (act == act1)
         resizeColumnsToContents();
     else if (act == act2)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == act3)
-        editCondition(index);
+        editConditions(si);
     else if (act == act4)
         emit breakpointSynchronizationRequested();
-    else if (act == act5) {
-        model()->setData(index0, !enabled);
-        emit breakpointSynchronizationRequested();
-    } else if (act == act6) {
-        model()->setData(index2, !fullpath);
-        emit breakpointSynchronizationRequested();
-    }
+    else if (act == act5)
+        setBreakpointsEnabled(si, !enabled);
+    else if (act == act6)
+        setBreakpointsFullPath(si, !enabled);
 }
 
-void BreakWindow::deleteBreakpoint(const QModelIndex &idx)
+void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)
 {
-    int row = idx.row();
-    if (row == model()->rowCount() - 1)
-        --row;
-    setCurrentIndex(idx.sibling(row, 0));
-    emit breakpointDeleted(idx.row());
+    foreach (const QModelIndex &idx, list)
+        model()->setData(idx, enabled);
+    emit breakpointSynchronizationRequested();
 }
 
-void BreakWindow::editCondition(const QModelIndex &idx)
+void BreakWindow::setBreakpointsFullPath(const QModelIndexList &list, bool fullpath)
+{
+    foreach (const QModelIndex &idx, list) {
+        QModelIndex idx2 = idx.sibling(idx.row(), 2);
+        model()->setData(idx2, fullpath);
+    }
+    emit breakpointSynchronizationRequested();
+}
+
+void BreakWindow::deleteBreakpoints(const QModelIndexList &indexes)
+{
+    QTC_ASSERT(!indexes.isEmpty(), return);
+    QList<int> list;
+    foreach (const QModelIndex &idx, indexes)
+        list.append(idx.row());
+
+    qSort(list.begin(), list.end());
+    for (int i = list.size(); --i >= 0; )
+        emit breakpointDeleted(i);
+
+    QModelIndex idx = indexes.front();
+    int row = qMax(idx.row(), model()->rowCount() - list.size() - 1);
+    setCurrentIndex(idx.sibling(row, 0));
+}
+
+void BreakWindow::editConditions(const QModelIndexList &list)
 {
     QDialog dlg(this);
     Ui::BreakCondition ui;
     ui.setupUi(&dlg);
 
+    QTC_ASSERT(!list.isEmpty(), return);
+    QModelIndex idx = list.front();
     int row = idx.row();
     dlg.setWindowTitle(tr("Conditions on Breakpoint %1").arg(row));
     ui.lineEditCondition->setText(model()->data(idx.sibling(row, 4)).toString());
@@ -154,8 +209,10 @@ void BreakWindow::editCondition(const QModelIndex &idx)
     if (dlg.exec() == QDialog::Rejected)
         return;
 
-    model()->setData(idx.sibling(row, 4), ui.lineEditCondition->text());
-    model()->setData(idx.sibling(row, 5), ui.spinBoxIgnoreCount->value());
+    foreach (const QModelIndex &idx, list) {
+        model()->setData(idx.sibling(idx.row(), 4), ui.lineEditCondition->text());
+        model()->setData(idx.sibling(idx.row(), 5), ui.spinBoxIgnoreCount->value());
+    }
 }
 
 void BreakWindow::resizeColumnsToContents()
@@ -177,8 +234,8 @@ void BreakWindow::setAlwaysResizeColumnsToContents(bool on)
     header()->setResizeMode(3, mode);
 }
 
-void BreakWindow::rowActivated(const QModelIndex &index)
+void BreakWindow::rowActivated(const QModelIndex &idx)
 {
-    emit breakpointActivated(index.row());
+    emit breakpointActivated(idx.row());
 }
 

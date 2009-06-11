@@ -61,8 +61,10 @@ protected:
     void keyPressEvent(QKeyEvent *ev);
 
 private:
-    void deleteBreakpoint(const QModelIndex &idx);
-    void editCondition(const QModelIndex &idx);
+    void deleteBreakpoints(const QModelIndexList &list);
+    void editConditions(const QModelIndexList &list);
+    void setBreakpointsEnabled(const QModelIndexList &list, bool enabled);
+    void setBreakpointsFullPath(const QModelIndexList &list, bool fullpath);
 
     bool m_alwaysResizeColumnsToContents;
 };

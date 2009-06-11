@@ -579,7 +579,7 @@ void BreakHandler::removeBreakpoint(int index)
 {
     if (index < 0 || index >= size())
         return;
-    BreakHandler::removeBreakpointHelper(index);
+    removeBreakpointHelper(index);
     emit layoutChanged();
     saveBreakpoints();
 }
