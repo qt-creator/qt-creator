@@ -35,9 +35,9 @@
 
 #include "rewriter_p.h"
 
-#include "javascriptastvisitor_p.h"
-#include "javascriptast_p.h"
-#include "javascriptengine_p.h"
+#include "qmljsastvisitor_p.h"
+#include "qmljsast_p.h"
+#include "qmljsengine_p.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -61,8 +61,8 @@ enum {
 	UPDATE_DOCUMENT_DEFAULT_INTERVAL = 250
 };
 
-using namespace JavaScript;
-using namespace JavaScript::AST;
+using namespace QmlJS;
+using namespace QmlJS::AST;
 
 
 namespace DuiEditor {

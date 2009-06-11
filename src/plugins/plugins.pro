@@ -30,24 +30,9 @@ SUBDIRS   = plugin_coreplugin \
             plugin_designer \
             plugin_resourceeditor \
 	    plugin_genericprojectmanager \
+            plugin_duieditor \
+            plugin_qmlprojectmanager \
             debugger/dumper.pro
-
-DUI=$$(QTDIR_DUI)
-isEmpty(DUI):DUI=$$fromfile($$(QTDIR)/.qmake.cache,QT_SOURCE_TREE)
-
-!isEmpty(DUI):exists($$DUI/src/declarative/qml/parser) {
-    SUBDIRS += plugin_duieditor \
-	       plugin_qmlprojectmanager
-
-    plugin_duieditor.subdir = duieditor
-    plugin_duieditor.depends = plugin_texteditor
-    plugin_duieditor.depends += plugin_coreplugin
-
-    plugin_qmlprojectmanager.subdir = qmlprojectmanager
-    plugin_qmlprojectmanager.depends = plugin_texteditor
-    plugin_qmlprojectmanager.depends += plugin_projectexplorer
-    plugin_qmlprojectmanager.depends += plugin_help
-}
 
 plugin_coreplugin.subdir = coreplugin
 
@@ -173,3 +158,12 @@ plugin_genericprojectmanager.depends = plugin_texteditor
 plugin_genericprojectmanager.depends += plugin_projectexplorer
 plugin_genericprojectmanager.depends += plugin_cpptools
 plugin_genericprojectmanager.depends += plugin_cppeditor
+
+plugin_duieditor.subdir = duieditor
+plugin_duieditor.depends = plugin_texteditor
+plugin_duieditor.depends += plugin_coreplugin
+
+plugin_qmlprojectmanager.subdir = qmlprojectmanager
+plugin_qmlprojectmanager.depends = plugin_texteditor
+plugin_qmlprojectmanager.depends += plugin_projectexplorer
+plugin_qmlprojectmanager.depends += plugin_help

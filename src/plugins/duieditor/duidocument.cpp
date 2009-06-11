@@ -28,15 +28,15 @@
 **************************************************************************/
 
 #include "duidocument.h"
-#include "javascriptast_p.h"
-#include "javascriptlexer_p.h"
-#include "javascriptparser_p.h"
-#include "javascriptengine_p.h"
-#include "javascriptnodepool_p.h"
+#include "qmljsast_p.h"
+#include "qmljslexer_p.h"
+#include "qmljsparser_p.h"
+#include "qmljsengine_p.h"
+#include "qmljsnodepool_p.h"
 
 using namespace DuiEditor;
 using namespace DuiEditor::Internal;
-using namespace JavaScript;
+using namespace QmlJS;
 
 DuiDocument::DuiDocument(const QString &fileName)
 	: _engine(0), _pool(0), _program(0), _fileName(fileName)

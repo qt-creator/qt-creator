@@ -33,8 +33,8 @@
 #include <QtCore/QMap>
 #include <QtCore/QString>
 
-#include "javascriptengine_p.h"
-#include "javascriptastfwd_p.h"
+#include "qmljsengine_p.h"
+#include "qmljsastfwd_p.h"
 
 namespace DuiEditor {
 namespace Internal {
@@ -52,17 +52,17 @@ public:
 
 	static DuiDocument::Ptr create(const QString &fileName);
 
-	JavaScript::AST::UiProgram *program() const;
-	QList<JavaScript::DiagnosticMessage> diagnosticMessages() const;
+	QmlJS::AST::UiProgram *program() const;
+	QList<QmlJS::DiagnosticMessage> diagnosticMessages() const;
 
 	void setSource(const QString &source);
 	bool parse();
 
 private:
-	JavaScript::Engine *_engine;
-	JavaScript::NodePool *_pool;
-	JavaScript::AST::UiProgram *_program;
-	QList<JavaScript::DiagnosticMessage> _diagnosticMessages;
+	QmlJS::Engine *_engine;
+	QmlJS::NodePool *_pool;
+	QmlJS::AST::UiProgram *_program;
+	QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
 	QString _fileName;
 	QString _source;
 };

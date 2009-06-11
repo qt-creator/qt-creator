@@ -7,15 +7,10 @@ include(../../plugins/texteditor/texteditor.pri)
 include(../../shared/qscripthighlighter/qscripthighlighter.pri)
 include(../../shared/indenter/indenter.pri)
 
-DUI=$$(QTDIR_DUI)
-isEmpty(DUI):DUI=$$fromfile($$(QTDIR)/.qmake.cache,QT_SOURCE_TREE)
+include(parser/parser.pri)
+include(rewriter/rewriter.pri)
 
-!isEmpty(DUI):exists($$DUI/src/declarative/qml/parser) {
-	include($$DUI/src/declarative/qml/parser/parser.pri)
-	include($$DUI/src/declarative/qml/rewriter/rewriter.pri)
-} else {
-	error(run with export QTDIR_DUI=<path to kinetic/qt>)
-}
+INCLUDEPATH += parser rewriter
 
 HEADERS += duieditor.h \
 duieditorfactory.h \

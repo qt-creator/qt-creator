@@ -92,7 +92,7 @@ void DuiHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     tc.setPosition(pos);
     const unsigned line = tc.block().blockNumber() + 1;
 
-    foreach (const JavaScript::DiagnosticMessage &m, ed->diagnosticMessages()) {
+    foreach (const QmlJS::DiagnosticMessage &m, ed->diagnosticMessages()) {
         if (m.loc.startLine == line) {
             m_toolTip.append(m.message);
             break;

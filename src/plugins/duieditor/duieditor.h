@@ -32,8 +32,8 @@
 
 #include <texteditor/basetexteditor.h>
 
-#include "javascriptastfwd_p.h"
-#include "javascriptengine_p.h"
+#include "qmljsastfwd_p.h"
+#include "qmljsengine_p.h"
 #include "duidocument.h"
 
 QT_BEGIN_NAMESPACE
@@ -101,7 +101,7 @@ public:
 	QStringList words() const;
 	QStringList keywords() const;
 
-	QList<JavaScript::DiagnosticMessage> diagnosticMessages() const
+	QList<QmlJS::DiagnosticMessage> diagnosticMessages() const
 	{ return m_diagnosticMessages; }
 
 	virtual void unCommentSelection();
@@ -137,8 +137,8 @@ private:
 	QComboBox *m_methodCombo;
 	QList<Declaration> m_declarations;
 	QStringList m_words;
-	QMap<QString, QList<JavaScript::AST::SourceLocation> > m_ids; // ### use QMultiMap
-	QList<JavaScript::DiagnosticMessage> m_diagnosticMessages;
+	QMap<QString, QList<QmlJS::AST::SourceLocation> > m_ids; // ### use QMultiMap
+	QList<QmlJS::DiagnosticMessage> m_diagnosticMessages;
 	DuiDocument::Ptr m_document;
 };
 
