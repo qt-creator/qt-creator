@@ -253,7 +253,6 @@ private:
     QAction *m_removeFileAction;
     QAction *m_renameFileAction;
 
-    QMenu *m_buildProjectOnlyMenu;
     QMenu *m_buildConfigurationMenu;
     QActionGroup *m_buildConfigurationActionGroup;
     QMenu *m_runConfigurationMenu;

@@ -525,33 +525,17 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
     mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
 
-    // build project only menu
-    Core::ActionContainer *mpo = am->createMenu(Constants::BUILDPROJECTONLYMENU);
-    m_buildProjectOnlyMenu = mpo->menu();
-    m_buildProjectOnlyMenu->setTitle(tr("Project Only"));
-    mbuild->addMenu(mpo, Constants::G_BUILD_PROJECT);
-    mproject->addMenu(mpo, Constants::G_PROJECT_BUILD);
-
-    // build action
-    m_buildProjectOnlyAction = new QAction(tr("Build"), this);
+    // build without dependencies action
+    m_buildProjectOnlyAction = new QAction(tr("Build Without Dependencies"), this);
     cmd = am->registerAction(m_buildProjectOnlyAction, Constants::BUILDPROJECTONLY, globalcontext);
-    cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(m_buildProjectOnlyAction->text());
-    mpo->addAction(cmd);
 
-    // rebuild action
-    m_rebuildProjectOnlyAction = new QAction(tr("Rebuild"), this);
+    // rebuild without dependencies action
+    m_rebuildProjectOnlyAction = new QAction(tr("Rebuild Without Dependencies"), this);
     cmd = am->registerAction(m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY, globalcontext);
-    cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(m_rebuildProjectOnlyAction->text());
-    mpo->addAction(cmd);
 
-    // clean action
-    m_cleanProjectOnlyAction = new QAction(tr("Clean"), this);
+    // clean without dependencies action
+    m_cleanProjectOnlyAction = new QAction(tr("Clean Without Dependencies"), this);
     cmd = am->registerAction(m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
-    cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(m_cleanProjectOnlyAction->text());
-    mpo->addAction(cmd);
 
     // Add Set Build Configuration to menu
     mbuild->addMenu(mbc, Constants::G_BUILD_PROJECT);
@@ -1287,23 +1271,17 @@ void ProjectExplorerPlugin::updateActions()
     bool enableBuildActions = m_currentProject && ! (m_buildManager->isBuilding(m_currentProject));
     bool hasProjects = !m_session->projects().isEmpty();
     bool building = m_buildManager->isBuilding();
+    QString projectName = m_currentProject ? m_currentProject->name() : QString();
 
     if (debug)
-        qDebug()<<"BuildManager::isBuilding()"<<building;
+        qDebug() << "BuildManager::isBuilding()" << building;
 
-    if (m_currentProject == 0) {
-        m_unloadAction->setParameter(QString());
-        m_buildProjectOnlyMenu->setTitle(tr("Current Project"));
-    } else {
-	m_unloadAction->setParameter(m_currentProject->name());
-        m_buildProjectOnlyMenu->setTitle(tr("Project \"%1\"").arg(m_currentProject->name()));
-    }
+    m_unloadAction->setParameter(projectName);
 
     m_buildAction->setEnabled(enableBuildActions);
     m_rebuildAction->setEnabled(enableBuildActions);
     m_cleanAction->setEnabled(enableBuildActions);
 
-    m_buildProjectOnlyMenu->setEnabled(enableBuildActions);
     m_buildProjectOnlyAction->setEnabled(enableBuildActions);
     m_rebuildProjectOnlyAction->setEnabled(enableBuildActions);
     m_cleanProjectOnlyAction->setEnabled(enableBuildActions);
@@ -1349,13 +1327,15 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
         } else {
             bool cancelled = false;
             bool alwaysSave = false;
-            Core::ICore::instance()->fileManager()->saveModifiedFiles(filesToSave, &cancelled, QString::null, "Always save files before build", &alwaysSave);
-            if (cancelled) {
+
+            Core::FileManager *fm = Core::ICore::instance()->fileManager();
+            fm->saveModifiedFiles(filesToSave, &cancelled, QString::null,
+                                  "Always save files before build", &alwaysSave);
+
+            if (cancelled)
                 return false;
-            }
-            if (alwaysSave) {
+            if (alwaysSave)
                 m_projectExplorerSettings.saveBeforeBuild = true;
-            }
         }
     }
     return true;
