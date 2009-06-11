@@ -179,10 +179,17 @@ QDebug &operator<<(QDebug &ts, const QList<QTextEdit::ExtraSelection> &sels)
     return ts;
 }
 
-int lineCount(const QString &text)
+QString quoteUnprintable(const QString &ba)
 {
-    //return text.count(QChar(ParagraphSeparator));
-    return text.count(QChar('\n'));
+    QString res;
+    for (int i = 0, n = ba.size(); i != n; ++i) {
+        QChar c = ba.at(i);
+        if (c.isPrint())
+            res += c;
+        else
+            res += QString("\\x%1").arg(c.unicode(), 2, 16);
+    }
+    return res;
 }
 
 enum EventResult
@@ -1075,7 +1082,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_passing = !m_passing;
         updateMiniBuffer();
     } else if (key == '.') {
-        qDebug() << "REPEATING" << m_dotCommand;
+        qDebug() << "REPEATING" << quoteUnprintable(m_dotCommand);
         QString savedCommand = m_dotCommand;
         m_dotCommand.clear();
         replay(savedCommand, count());
@@ -1132,6 +1139,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToEndOfLine();
         m_registers[m_register] = removeSelectedText();
         enterInsertMode();
+        setDotCommand("C");
         finishMovement();
     } else if (key == control('c')) {
         showBlackMessage("Type Alt-v,Alt-v  to quit FakeVim mode");
@@ -1318,7 +1326,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
     } else if (key == 'p' || key == 'P') {
         QString text = m_registers[m_register];
-        int n = lineCount(text);
+        int n = text.count(QChar('\n'));
         //qDebug() << "REGISTERS: " << m_registers << "MOVE: " << m_moveType;
         //qDebug() << "LINES: " << n << text << m_register;
         if (n > 0) {
