@@ -397,7 +397,7 @@
     The screenshot below shows the QMessageBox object we use to display
     information messages to the user.
 
-    # image
+    \image addressbook-tutorial-part2-add-successful.png
 
     \section2 The \c{cancel()} Function
 
@@ -493,6 +493,8 @@
 
     The screenshot below is our expected graphical user interface. Notice that
     it is getting closer to our final application.
+
+    \image addressbook-tutorial-part3-screenshot.png
 
     Within our \c addContact() function, we have to disable the \gui Next and
     \gui Previous buttons so that the user does not attempt to navigate while
