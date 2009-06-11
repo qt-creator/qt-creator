@@ -49,7 +49,7 @@ const char * const CPPTOOLS_SETTINGSGROUP = "CppTools";
 const char * const LOWERCASE_CPPFILES_KEY = "LowerCaseFiles";
 enum { lowerCaseFilesDefault = 1 };
 
-const char * const CPP_SETTINGS_ID = QT_TRANSLATE_NOOP("CppTools", "File naming conventions");
+const char * const CPP_SETTINGS_ID = QT_TRANSLATE_NOOP("CppTools", "File Naming Conventions");
 const char * const CPP_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("CppTools", "C++");
 
 } // namespace Constants

@@ -327,8 +327,8 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             FullySpecifiedType firstType = result.first; // result of `type of expression'.
             Symbol *lookupSymbol = result.second;        // lookup symbol
 
-            Symbol *resolvedSymbol = 0;
-            Name *resolvedName = 0;
+            Symbol *resolvedSymbol = lookupSymbol;
+            Name *resolvedName = lookupSymbol->name();
             firstType = resolve(firstType, typeOfExpression.lookupContext(),
                                 &resolvedSymbol, &resolvedName);
 
@@ -343,9 +343,8 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             overview.setShowReturnTypes(true);
             overview.setShowFullyQualifiedNamed(true);
 
-            if (lookupSymbol && lookupSymbol->isDeclaration()) {
-                Declaration *decl = lookupSymbol->asDeclaration();
-                m_toolTip = overview.prettyType(firstType, decl->name());
+            if (lookupSymbol && (lookupSymbol->isDeclaration() || lookupSymbol->isArgument())) {
+                m_toolTip = overview.prettyType(firstType, buildHelpId(lookupSymbol, lookupSymbol->name()));
 
             } else if (firstType->isClassType() || firstType->isEnumType() ||
                        firstType->isForwardClassDeclarationType()) {

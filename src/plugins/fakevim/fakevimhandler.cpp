@@ -253,7 +253,10 @@ public:
 
     void moveToFirstNonBlankOnLine();
     void moveToTargetColumn();
-    void setTargetColumn() { m_targetColumn = leftDist(); }
+    void setTargetColumn() {
+        m_targetColumn = leftDist();
+        //qDebug() << "TARGET: " << m_targetColumn;
+    }
     void moveToNextWord(bool simple);
     void moveToMatchingParanthesis();
     void moveToWordBoundary(bool simple, bool forward);
@@ -672,6 +675,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_submode = NoSubMode;
         if (atEndOfLine())
             moveLeft();
+        else
+            setTargetColumn();
     } else if (m_submode == YankSubMode) {
         m_registers[m_register] = selectedText();
         setPosition(m_savedYankPosition);
@@ -2507,9 +2512,12 @@ void FakeVimHandler::Private::replay(const QString &command, int n)
 {
     //qDebug() << "REPLAY: " << command;
     m_inReplay = true;
-    for (int i = n; --i >= 0; )
-        foreach (QChar c, command)
+    for (int i = n; --i >= 0; ) {
+        foreach (QChar c, command) {
+            //qDebug() << "  REPLAY: " << QString(c);
             handleKey(c.unicode(), c.unicode(), QString(c));
+        }
+    }
     m_inReplay = false;
 }
 

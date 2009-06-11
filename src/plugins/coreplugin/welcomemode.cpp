@@ -418,10 +418,16 @@ QStringList WelcomeMode::tipsOfTheDay()
 {
     static QStringList tips;
     if (tips.isEmpty()) {
+        QString sideBarShortcut =
+#ifdef Q_WS_MAC
+            tr("Cmd+0");
+#else
+            tr("Alt+0");
+#endif
         tips.append(tr("You can switch between Qt Creator's modes using <tt>Ctrl+number</tt>:"
                        "<ol><li> - Welcome</li><li> - Edit</li><li>- Debug</li><li>- Projects</li><li>- Help</li>"
                        "<li></li><li>- Output</li></ol>"));
-        tips.append(tr("You can show and hide the side bar using <tt>Alt+0<tt>."));
+        tips.append(tr("You can show and hide the side bar using <tt>%1<tt>.").arg(sideBarShortcut));
         tips.append(tr("You can fine tune the <tt>Find</tt> function by selecting &quot;Whole Words&quot; "
                        "or &quot;Case Sensitive&quot;. Simply click on the icons on the right end of the line edit."));                       
         tips.append(tr("If you add <a href=\"qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html\""

@@ -592,7 +592,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
 
     m_detachAction = new QAction(this);
-    m_detachAction->setText(tr("Detach debugger"));
+    m_detachAction->setText(tr("Detach Debugger"));
     connect(m_detachAction, SIGNAL(triggered()),
         m_manager, SLOT(detachDebugger()));
 

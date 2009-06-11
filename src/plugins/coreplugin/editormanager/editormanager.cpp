@@ -197,8 +197,8 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_closeOtherEditorsAction(new QAction(EditorManager::tr("Close Others"), parent)),
     m_gotoNextDocHistoryAction(new QAction(EditorManager::tr("Next Document in History"), parent)),
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Document in History"), parent)),
-    m_goBackAction(new QAction(EditorManager::tr("Go back"), parent)),
-    m_goForwardAction(new QAction(EditorManager::tr("Go forward"), parent)),
+    m_goBackAction(new QAction(EditorManager::tr("Go Back"), parent)),
+    m_goForwardAction(new QAction(EditorManager::tr("Go Forward"), parent)),
     m_openInExternalEditorAction(new QAction(EditorManager::tr("Open in External Editor"), parent)),
     currentNavigationHistoryPosition(0),
     m_windowPopup(0),
@@ -539,7 +539,9 @@ Core::Internal::SplitterOrView *EditorManager::currentView() const
 {
     SplitterOrView *view = m_d->m_currentView;
     if (!view)
-        view = m_d->m_splitter->findView(m_d->m_currentEditor);
+        view = m_d->m_currentEditor?
+               m_d->m_splitter->findView(m_d->m_currentEditor):
+               m_d->m_splitter->findFirstView();
     return view;
 }
 

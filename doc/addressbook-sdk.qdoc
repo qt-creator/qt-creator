@@ -54,7 +54,7 @@
 
     This tutorial gives an introduction to GUI programming using the Qt SDK.
 
-    ### Screenshot
+    \image addressbook-tutorial-screenshot.png
 
     In the process, we will learn about some basic technologies provided by
     Qt, such as:
