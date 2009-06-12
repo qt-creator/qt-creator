@@ -1993,7 +1993,6 @@ void GdbEngine::handleBreakIgnore(const GdbResultRecord &record, const QVariant 
         //}
         // FIXME: this assumes it is doing the right thing...
         data->bpIgnoreCount = data->ignoreCount;
-        attemptBreakpointSynchronization();
         handler->updateMarkers();
     }
 }
@@ -2008,9 +2007,7 @@ void GdbEngine::handleBreakCondition(const GdbResultRecord &record, const QVaria
         BreakpointData *data = handler->at(index);
         //qDebug() << "HANDLE BREAK CONDITION" << index << data->condition;
         data->bpCondition = data->condition;
-        attemptBreakpointSynchronization();
-        handler->updateMarkers();
-    } else if (record.resultClass == GdbResultError) {
+    } else { // GdbResultError
         QByteArray msg = record.data.findChild("msg").data();
         // happens on Mac
         if (1 || msg.startsWith("Error parsing breakpoint condition. "
@@ -2018,10 +2015,9 @@ void GdbEngine::handleBreakCondition(const GdbResultRecord &record, const QVaria
             BreakpointData *data = handler->at(index);
             //qDebug() << "ERROR BREAK CONDITION" << index << data->condition;
             data->bpCondition = data->condition;
-            attemptBreakpointSynchronization();
-            handler->updateMarkers();
         }
     }
+    handler->updateMarkers();
 }
 
 void GdbEngine::handleBreakInsert(const GdbResultRecord &record, const QVariant &cookie)
@@ -2039,7 +2035,7 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, const QVariant 
 //#endif
         attemptBreakpointSynchronization();
         handler->updateMarkers();
-    } else if (record.resultClass == GdbResultError) {
+    } else { // GdbResultError
         const BreakpointData *data = handler->at(index);
         // Note that it is perfectly correct that the file name is put
         // in quotes but not escaped. GDB simply is like that.
@@ -2135,15 +2131,13 @@ void GdbEngine::handleBreakInsert1(const GdbResultRecord &record, const QVariant
         BreakpointData *data = handler->at(index);
         GdbMi bkpt = record.data.findChild("bkpt");
         breakpointDataFromOutput(data, bkpt);
-        attemptBreakpointSynchronization(); // trigger "ready"
-        handler->updateMarkers();
-    } else if (record.resultClass == GdbResultError) {
+    } else { // GdbResultError
         qDebug() << "INSERTING BREAKPOINT WITH BASE NAME FAILED. GIVING UP";
         BreakpointData *data = handler->at(index);
         data->bpNumber = _("<unavailable>");
-        attemptBreakpointSynchronization(); // trigger "ready"
-        handler->updateMarkers();
     }
+    attemptBreakpointSynchronization(); // trigger "ready"
+    handler->updateMarkers();
 }
 
 void GdbEngine::attemptBreakpointSynchronization()
@@ -2180,56 +2174,28 @@ void GdbEngine::attemptBreakpointSynchronization()
         delete data;
     }
 
-    bool updateNeeded = false;
-
     for (int index = 0; index != handler->size(); ++index) {
         BreakpointData *data = handler->at(index);
-        // multiple breakpoints?
-        if (data->bpMultiple && data->bpFileName.isEmpty()) {
-            postCommand(_("info break %1").arg(data->bpNumber),
-                CB(handleBreakInfo), data->bpNumber.toInt());
-            updateNeeded = true;
-            break;
-        }
-    }
-
-    for (int index = 0; index != handler->size(); ++index) {
-        BreakpointData *data = handler->at(index);
-        // unset breakpoints?
-        if (data->bpNumber.isEmpty()) {
-            data->bpNumber = _(" ");
+        if (data->bpNumber.isEmpty()) { // unset breakpoint?
+            data->bpNumber = _(" "); // Sent, but no feedback yet
             sendInsertBreakpoint(index);
-            //qDebug() << "UPDATE NEEDED BECAUSE OF UNKNOWN BREAKPOINT";
-            updateNeeded = true;
-            break;
-        }
-    }
-
-    if (!updateNeeded) {
-        for (int index = 0; index != handler->size(); ++index) {
-            BreakpointData *data = handler->at(index);
+        } else if (data->bpNumber.toInt()) {
+            if (data->bpMultiple && data->bpFileName.isEmpty()) {
+                postCommand(_("info break %1").arg(data->bpNumber),
+                    CB(handleBreakInfo), data->bpNumber.toInt());
+                continue;
+            }
             // update conditions if needed
-            if (data->bpNumber.toInt() && data->condition != data->bpCondition
-                   && !data->conditionsMatch()) {
+            if (data->condition != data->bpCondition && !data->conditionsMatch())
                 postCommand(_("condition %1 %2").arg(data->bpNumber).arg(data->condition),
                             CB(handleBreakCondition), index);
-                //qDebug() << "UPDATE NEEDED BECAUSE OF CONDITION"
-                //    << data->condition << data->bpCondition;
-                updateNeeded = true;
-                break;
-            }
             // update ignorecount if needed
-            if (data->bpNumber.toInt() && data->ignoreCount != data->bpIgnoreCount) {
+            if (data->ignoreCount != data->bpIgnoreCount)
                 postCommand(_("ignore %1 %2").arg(data->bpNumber).arg(data->ignoreCount),
                             CB(handleBreakIgnore), index);
-                updateNeeded = true;
-                break;
-            }
-            if (data->bpNumber.toInt() && !data->enabled && data->bpEnabled) {
+            if (!data->enabled && data->bpEnabled) {
                 postCommand(_("-break-disable ") + data->bpNumber, NeedsStop);
                 data->bpEnabled = false;
-                updateNeeded = true;
-                break;
             }
         }
     }
