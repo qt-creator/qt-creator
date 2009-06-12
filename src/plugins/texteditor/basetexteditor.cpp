@@ -838,6 +838,9 @@ void BaseTextEditor::cleanWhitespace()
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
+    viewport()->setCursor(Qt::BlankCursor);
+    QToolTip::hideText();
+
     d->m_moveLineUndoHack = false;
     d->clearVisibleCollapsedBlock();
 
@@ -2728,6 +2731,8 @@ void BaseTextEditor::mouseMoveEvent(QMouseEvent *e)
             d->m_blockSelectionExtraX = 0;
         }
     }
+    if (viewport()->cursor().shape() == Qt::BlankCursor)
+        viewport()->setCursor(Qt::IBeamCursor);
 }
 
 void BaseTextEditor::mousePressEvent(QMouseEvent *e)
