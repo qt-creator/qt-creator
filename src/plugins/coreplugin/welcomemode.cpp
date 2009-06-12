@@ -123,8 +123,8 @@ WelcomeMode::WelcomeMode() :
     m_d->rssFetcher = new RSSFetcher(7, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
-    m_d->ui.projTitleLabel->setText(titleLabel(tr("Projects")));
-    m_d->ui.recentSessionsTitleLabel->setText(titleLabel(tr("Sessions")));
+    m_d->ui.projTitleLabel->setText(titleLabel(tr("Open Recent Project")));
+    m_d->ui.recentSessionsTitleLabel->setText(titleLabel(tr("Resume Session")));
     m_d->ui.tutorialsTitleLabel->setText(titleLabel(tr("Tutorials")));
     m_d->ui.demoTitleLabel->setText(titleLabel(tr("Explore Qt Examples")));
     m_d->ui.didYouKnowTitleLabel->setText(titleLabel(tr("Did you know?")));
@@ -252,37 +252,33 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
     m_d->lastData = welcomePageData;
 
     m_d->m_widget->setUpdatesEnabled(false);
-    if (!welcomePageData.previousSession.isEmpty() || !welcomePageData.projectList.isEmpty()) {
-        m_d->ui.sessTreeWidget->clear();
-        m_d->ui.projTreeWidget->clear();
+    m_d->ui.sessTreeWidget->clear();
+    m_d->ui.projTreeWidget->clear();
 
-        if (welcomePageData.sessionList.count() > 1) {
-            foreach (const QString &s, welcomePageData.sessionList) {
-                QString str = s;
-                if (s == welcomePageData.previousSession)
-                    str = tr("%1 (last session)").arg(s);
-                m_d->ui.sessTreeWidget->addItem(str, s);
-            }
-            m_d->ui.sessTreeWidget->updateGeometry();
-            m_d->ui.sessTreeWidget->show();
-        } else {
-            m_d->ui.sessTreeWidget->hide();
+    if (welcomePageData.sessionList.count() > 0) {
+        foreach (const QString &s, welcomePageData.sessionList) {
+            QString str = s;
+            if (s == welcomePageData.previousSession)
+                str = tr("%1 (last session)").arg(s);
+            m_d->ui.sessTreeWidget->addItem(str, s);
         }
+        m_d->ui.sessTreeWidget->updateGeometry();
+        m_d->ui.sessTreeWidget->show();
+    } else {
+        m_d->ui.sessTreeWidget->hide();
+    }
 
-        typedef QPair<QString, QString> QStringPair;
+    typedef QPair<QString, QString> QStringPair;
+    if (welcomePageData.projectList.count() > 0) {
         foreach (const QStringPair &it, welcomePageData.projectList) {
             QTreeWidgetItem *item = m_d->ui.projTreeWidget->addItem(it.second, it.first);
             const QFileInfo fi(it.first);
             item->setToolTip(1, QDir::toNativeSeparators(fi.absolutePath()));
         }
-        m_d->ui.projTreeWidget->updateGeometry();
-
-        m_d->ui.recentSessionsFrame->show();
-        m_d->ui.recentProjectsFrame->show();
     } else {
-        m_d->ui.recentSessionsFrame->hide();
-        m_d->ui.recentProjectsFrame->hide();
+        m_d->ui.projTreeWidget->hide();
     }
+    m_d->ui.projTreeWidget->updateGeometry();
     m_d->m_widget->setUpdatesEnabled(true);
 }
 
@@ -495,6 +491,11 @@ WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
 {
     connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
             SLOT(slotItemClicked(QTreeWidgetItem *)));
+}
+
+QSize WelcomeModeTreeWidget::minimumSizeHint() const
+{
+    return QSize();
 }
 
 QSize WelcomeModeTreeWidget::sizeHint() const

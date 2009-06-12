@@ -75,6 +75,7 @@ signals:
     void activated(const QString &data);
 
 protected:
+    virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
 
 private slots:
