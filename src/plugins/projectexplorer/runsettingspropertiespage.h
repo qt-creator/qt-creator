@@ -72,16 +72,18 @@ public:
     ~RunSettingsWidget();
 
 private slots:
-    void activateRunConfiguration(int index);
+    void showRunConfigurationWidget(int index);
     void aboutToShowAddMenu();
     void addRunConfiguration();
     void removeRunConfiguration();
     void nameChanged();
     void initRunConfigurationComboBox();
+    void activateRunConfiguration(int index);
     void activeRunConfigurationChanged();
 private:
     Project *m_project;
     RunConfigurationsModel *m_runConfigurationsModel;
+    RunConfigurationsModel *m_enabledRunConfigurationsModel;
     Ui::RunSettingsPropertiesPage *m_ui;
     QWidget *m_runConfigurationWidget;
     QMenu *m_addMenu;

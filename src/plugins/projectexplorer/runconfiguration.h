@@ -75,6 +75,8 @@ public:
     QString name() const;
     void setName(const QString &name);
 
+    virtual bool isEnabled() const { return true; }
+
     // Returns the widget used to configure this run configuration. Ownership is transferred to the caller
     // rename to createConfigurationWidget
     virtual QWidget *configurationWidget() = 0;
