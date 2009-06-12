@@ -12,7 +12,7 @@
     the Linux, Mac OS X and Windows platforms.
 
     \note Please report bugs and suggestions to the Qt Software task tracker at
-    http://www.qtsoftware.com/developer/task-tracker. You can also join the
+    http://qt.nokia.com/developer/task-tracker. You can also join the
     qt-creator@trolltech.com mailing list. To subscribe, send a message with
     the word \e subscribe to qt-creator-request@trolltech.com. For more
     information on Qt mailing lists, visit http://lists.trolltech.com
@@ -1461,7 +1461,7 @@
 
     Open your project file (\c{.pro}) from the \gui{Projects} pane. Then,
     follow the guidelines in the
-    \l{http://doc.qtsoftware.com/latest/make-project-files.html#declaring-other-libraries}
+    \l{http://doc.trolltech.com/latest/make-project-files.html#declaring-other-libraries}
     {Declaring other Libraries} section of the Qt documentation.
 
     If your project successfully builds and links against the external library,

@@ -169,7 +169,7 @@ WelcomeMode::WelcomeMode() :
     //: Add localized feed here only if one exists
     m_d->rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
 
-    m_d->ui.sitesTreeWidget->addItem(tr("Qt Software"), QLatin1String("http://www.trolltech.com"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Software"), QLatin1String("http://qt.nokia.com"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Labs"), QLatin1String("http://labs.trolltech.com"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Git Hosting"), QLatin1String("http://qt.gitorious.org"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Centre"), QLatin1String("http://www.qtcentre.org"));
@@ -391,7 +391,7 @@ void WelcomeMode::slotOpenExample()
 void WelcomeMode::slotFeedback()
 {
     QDesktopServices::openUrl(QUrl(QLatin1String(
-            "http://www.trolltech.com/forms/feedback-forms/qt-creator-user-feedback/view")));
+            "http://qt.nokia.com/forms/feedback-forms/qt-creator-user-feedback/view")));
 }
 
 void WelcomeMode::slotCreateNewProject()
