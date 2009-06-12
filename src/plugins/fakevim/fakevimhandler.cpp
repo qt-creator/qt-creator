@@ -1167,6 +1167,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveDown(qMax(count() - 1, 0));
         m_moveType = MoveExclusive;
         moveToEndOfLine();
+        setDotCommand("D");
         finishMovement();
     } else if (key == control('d')) {
         int sline = cursorLineOnScreen();
