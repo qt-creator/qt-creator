@@ -86,7 +86,11 @@ bool CdbOptions::autoDetectPath(QString *outPath, QStringList *checkedDirectorie
     // Look for $ProgramFiles/"Debugging Tools For Windows <bit-idy>" and its
     // " (x86)", " (x64)" variations. Qt Creator needs 64/32 bit depending
     // on how it was built.
-    static const char *postFixes[] = { " (x86)", " (x32)", " (x64)" };
+#ifdef Q_OS_WIN64
+    static const char *postFixes[] = {" (x64)", " 64-bit" };
+#else
+    static const char *postFixes[] = { " (x86)", " (x32)" };
+#endif
 
     outPath->clear();
     const QByteArray programDirB = qgetenv("ProgramFiles");
@@ -94,11 +98,7 @@ bool CdbOptions::autoDetectPath(QString *outPath, QStringList *checkedDirectorie
         return false;
 
     const QString programDir = QString::fromLocal8Bit(programDirB) + QDir::separator();
-#ifdef Q_OS_WIN64
-    const QString installDir = QLatin1String("Debugging Tools For Windows (x64)");
-#else
     const QString installDir = QLatin1String("Debugging Tools For Windows");
-#endif
 
     QString path = programDir + installDir;
     if (checkedDirectories)

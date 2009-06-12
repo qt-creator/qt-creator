@@ -14,6 +14,10 @@ CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
   CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x64)/sdk"
 }
 
+!exists ($$CDB_PATH) {
+  CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows 64-bit/sdk"
+}
+
 exists ($$CDB_PATH) {
 message("Experimental: Adding support for $$CDB_PATH")
 
