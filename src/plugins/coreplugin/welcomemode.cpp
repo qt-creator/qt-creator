@@ -160,8 +160,8 @@ WelcomeMode::WelcomeMode() :
     connect(m_d->ui.openExampleButton, SIGNAL(clicked()), SLOT(slotOpenExample()));
     connect(m_d->ui.examplesComboBox, SIGNAL(currentIndexChanged(int)), SLOT(slotEnableExampleButton(int)));
 
-    connect(this, SIGNAL(updatedExamples(QString, QString, QString)),
-            this, SLOT(slotUpdateExamples(QString, QString, QString)));
+    connect(this, SIGNAL(updatedExamples(QString, QString)),
+            this, SLOT(slotUpdateExamples(QString, QString)));
 
     connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString, QString)),
         m_d->ui.newsTreeWidget, SLOT(slotAddNewsItem(QString, QString, QString)));
@@ -310,7 +310,7 @@ void WelcomeMode::slotUrlClicked(const QString &data)
     QDesktopServices::openUrl(QUrl(data));
 }
 
-void WelcomeMode::slotUpdateExamples(const QString& examplePath, const QString& demosPath, const QString& docPath)
+void WelcomeMode::slotUpdateExamples(const QString& examplePath, const QString& demosPath)
 {
     QString demoxml = demosPath + "/qtdemo/xml/examples.xml";
     if (!QFile::exists(demoxml))

@@ -81,14 +81,14 @@ signals:
     void openHelpPage(const QString& url);
     void openContextHelpPage(const QString& url);
     void manageSessions();
-    void updatedExamples(const QString& examplePath, const QString& demosPath, const QString& docPath);
+    void updatedExamples(const QString& examplePath, const QString& demosPath);
 
 private slots:
     void slotFeedback();
     void slotSessionClicked(const QString &data);
     void slotProjectClicked(const QString &data);
     void slotUrlClicked(const QString &data);
-    void slotUpdateExamples(const QString& examplePath, const QString& demosPath, const QString& docPath);
+    void slotUpdateExamples(const QString& examplePath, const QString& demosPath);
     void slotEnableExampleButton(int);
     void slotOpenExample();
     void slotCreateNewProject();
