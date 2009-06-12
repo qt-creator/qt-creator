@@ -1332,8 +1332,7 @@ void GdbEngine::exitDebugger()
             postCommand(_("kill"));
         postCommand(_("-gdb-exit"), CB(handleExit));
         // 20s can easily happen when loading webkit debug information
-        m_gdbProc.waitForFinished(20000);
-        if (m_gdbProc.state() != QProcess::Running) {
+        if (!m_gdbProc.waitForFinished(20000)) {
             debugMessage(_("FORCING TERMINATION: %1")
                 .arg(m_gdbProc.state()));
             m_gdbProc.terminate();
