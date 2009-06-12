@@ -61,6 +61,7 @@ private slots:
     void command_dollar();
     void command_down();
     void command_dfx_down();
+    void command_Cxx_down_dot();
     void command_e();
     void command_i();
     void command_left();
@@ -307,6 +308,15 @@ void tst_FakeVim::command_dfx_down()
 return;
     check("u",    l[0] + "\n#inc<QtCore>\n#inc@lude <QtGui>\n" + lmid(3));
     check("u",    l[0] + "\n#inc@lude <QtCore>\n" + lmid(2));
+}
+
+void tst_FakeVim::command_Cxx_down_dot()
+{
+    setup();
+    check("j4l",          l[0] + "\n#inc@lude <QtCore>\n" + lmid(2));
+    check("Cxx" + escape, l[0] + "\n#incx@x\n" + lmid(2));
+    check("j",            l[0] + "\n#incxx\n#incl@ude <QtGui>\n" + lmid(3));
+    check(".",            l[0] + "\n#incxx\n#inclx@x\n" + lmid(3));
 }
 
 void tst_FakeVim::command_e()

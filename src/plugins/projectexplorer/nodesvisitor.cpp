@@ -72,7 +72,7 @@ using namespace ProjectExplorer;
 /*!
   \class FindNodeForFileVisitor
 
-  Searches the first node that has the given file as it's path.
+  Searches the first node that has the given file as its path.
  */
 
 FindNodesForFileVisitor::FindNodesForFileVisitor(const QString &fileToSearch)

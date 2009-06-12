@@ -104,8 +104,8 @@ QtVersionManager::QtVersionManager()
 
     if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>
         (Core::ICore::instance()->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
-        connect(this, SIGNAL(updatedExamples(QString,QString,QString)),
-                welcomeMode, SIGNAL(updatedExamples(QString,QString, QString)));
+        connect(this, SIGNAL(updatedExamples(QString, QString)),
+                welcomeMode, SIGNAL(updatedExamples(QString, QString)));
     }
     updateDocumentation();
     updateExamples();
@@ -156,16 +156,14 @@ void QtVersionManager::updateExamples()
     QString docPath;
     QString demosPath;
     QtVersion *version = 0;
-    // try to find a version which has both, examples and docs, starting with default Qt
+    // try to find a version which has both, demos and examples, starting with default Qt
     foreach (version, versions) {
         if (version->hasExamples())
             examplesPath = version->examplesPath();
         if (version->hasDemos())
             demosPath = version->demosPath();
-        if (version->hasDocumentation())
-            docPath = version->documentationPath();
-        if (!examplesPath.isEmpty() && !demosPath.isEmpty() && !docPath.isEmpty()) {
-            emit updatedExamples(examplesPath, demosPath, docPath);
+        if (!examplesPath.isEmpty() && !demosPath.isEmpty()) {
+            emit updatedExamples(examplesPath, demosPath);
             return;
         }
     }

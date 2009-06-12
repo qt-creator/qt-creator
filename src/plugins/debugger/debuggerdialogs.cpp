@@ -389,12 +389,12 @@ void AttachTcfDialog::updateState()
     m_ui->serverStartScript->setEnabled(enabled);
 }
 
+
 ///////////////////////////////////////////////////////////////////////
 //
 // StartExternalDialog
 //
 ///////////////////////////////////////////////////////////////////////
-
 
 StartExternalDialog::StartExternalDialog(QWidget *parent)
   : QDialog(parent), m_ui(new Ui::StartExternalDialog)
@@ -439,6 +439,12 @@ QString StartExternalDialog::executableArguments() const
 {
     return m_ui->argsEdit->text();
 }
+
+bool StartExternalDialog::breakAtMain() const
+{
+    return m_ui->checkBoxBreakAtMain->isChecked();
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////

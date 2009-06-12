@@ -269,7 +269,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     const Snapshot documents = m_modelManager->snapshot();
     const QString fileName = editor->file()->fileName();
     Document::Ptr doc = documents.value(fileName);
-    if (! doc)
+    if (!doc)
         return; // nothing to do
 
     QTextCursor tc(edit->document());
@@ -328,7 +328,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             Symbol *lookupSymbol = result.second;        // lookup symbol
 
             Symbol *resolvedSymbol = lookupSymbol;
-            Name *resolvedName = lookupSymbol->name();
+            Name *resolvedName = lookupSymbol ? lookupSymbol->name() : 0;
             firstType = resolve(firstType, typeOfExpression.lookupContext(),
                                 &resolvedSymbol, &resolvedName);
 

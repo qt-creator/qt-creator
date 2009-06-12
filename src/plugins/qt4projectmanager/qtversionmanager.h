@@ -184,7 +184,7 @@ public:
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();
-    void updatedExamples(const QString& examplesPath, const QString& demosPath, const QString& docPath);
+    void updatedExamples(const QString& examplesPath, const QString& demosPath);
 private:
     // Used by QtOptionsPage
     void setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion);

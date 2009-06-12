@@ -140,6 +140,7 @@ public:
 
     QString executableFile() const;
     QString executableArguments() const;
+    bool breakAtMain() const;
 
 private:
     Ui::StartExternalDialog *m_ui;

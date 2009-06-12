@@ -36,14 +36,15 @@
 
 namespace ProjectExplorer {
 namespace Internal {
+
 class BuildConfiguration
 {
 public:
     BuildConfiguration(const QString &name);
     BuildConfiguration(const QString &name, BuildConfiguration *source);
     QString name() const;
-    QVariant getValue(const QString & key) const;
-    void setValue(const QString & key, QVariant value);
+    QVariant getValue(const QString &key) const;
+    void setValue(const QString &key, QVariant value);
 
     QString displayName();
     void setDisplayName(const QString &name);
@@ -55,6 +56,7 @@ private:
     QHash<QString, QVariant> m_values;
     QString m_name;
 };
+
 }
 } // namespace ProjectExplorer
 

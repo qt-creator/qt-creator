@@ -123,12 +123,12 @@ WelcomeMode::WelcomeMode() :
     m_d->rssFetcher = new RSSFetcher(7, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
-    m_d->ui.projTitleLabel->setText(titleLabel(tr("Projects")));
-    m_d->ui.recentSessionsTitleLabel->setText(titleLabel(tr("Sessions")));
+    m_d->ui.projTitleLabel->setText(titleLabel(tr("Open Recent Project")));
+    m_d->ui.recentSessionsTitleLabel->setText(titleLabel(tr("Resume Session")));
     m_d->ui.tutorialsTitleLabel->setText(titleLabel(tr("Tutorials")));
     m_d->ui.demoTitleLabel->setText(titleLabel(tr("Explore Qt Examples")));
-    m_d->ui.didYouKnowTitleLabel->setText(titleLabel(tr("Did you know?")));
-    m_d->ui.labsTitleLabel->setText(titleLabel(tr("News from the Qt Labs")));
+    m_d->ui.didYouKnowTitleLabel->setText(titleLabel(tr("Did You Know?")));
+    m_d->ui.labsTitleLabel->setText(titleLabel(tr("News From the Qt Labs")));
     m_d->ui.sitesTitleLabel->setText(titleLabel(tr("Qt Websites")));
     m_d->ui.sessTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.projTreeWidget->viewport()->setAutoFillBackground(false);
@@ -160,8 +160,8 @@ WelcomeMode::WelcomeMode() :
     connect(m_d->ui.openExampleButton, SIGNAL(clicked()), SLOT(slotOpenExample()));
     connect(m_d->ui.examplesComboBox, SIGNAL(currentIndexChanged(int)), SLOT(slotEnableExampleButton(int)));
 
-    connect(this, SIGNAL(updatedExamples(QString, QString, QString)),
-            this, SLOT(slotUpdateExamples(QString, QString, QString)));
+    connect(this, SIGNAL(updatedExamples(QString, QString)),
+            this, SLOT(slotUpdateExamples(QString, QString)));
 
     connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString, QString)),
         m_d->ui.newsTreeWidget, SLOT(slotAddNewsItem(QString, QString, QString)));
@@ -169,7 +169,7 @@ WelcomeMode::WelcomeMode() :
     //: Add localized feed here only if one exists
     m_d->rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
 
-    m_d->ui.sitesTreeWidget->addItem(tr("Qt Software"), QLatin1String("http://www.trolltech.com"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Software"), QLatin1String("http://qt.nokia.com"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Labs"), QLatin1String("http://labs.trolltech.com"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Git Hosting"), QLatin1String("http://qt.gitorious.org"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Centre"), QLatin1String("http://www.qtcentre.org"));
@@ -252,37 +252,33 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
     m_d->lastData = welcomePageData;
 
     m_d->m_widget->setUpdatesEnabled(false);
-    if (!welcomePageData.previousSession.isEmpty() || !welcomePageData.projectList.isEmpty()) {
-        m_d->ui.sessTreeWidget->clear();
-        m_d->ui.projTreeWidget->clear();
+    m_d->ui.sessTreeWidget->clear();
+    m_d->ui.projTreeWidget->clear();
 
-        if (welcomePageData.sessionList.count() > 1) {
-            foreach (const QString &s, welcomePageData.sessionList) {
-                QString str = s;
-                if (s == welcomePageData.previousSession)
-                    str = tr("%1 (last session)").arg(s);
-                m_d->ui.sessTreeWidget->addItem(str, s);
-            }
-            m_d->ui.sessTreeWidget->updateGeometry();
-            m_d->ui.sessTreeWidget->show();
-        } else {
-            m_d->ui.sessTreeWidget->hide();
+    if (welcomePageData.sessionList.count() > 0) {
+        foreach (const QString &s, welcomePageData.sessionList) {
+            QString str = s;
+            if (s == welcomePageData.previousSession)
+                str = tr("%1 (last session)").arg(s);
+            m_d->ui.sessTreeWidget->addItem(str, s);
         }
+        m_d->ui.sessTreeWidget->updateGeometry();
+        m_d->ui.sessTreeWidget->show();
+    } else {
+        m_d->ui.sessTreeWidget->hide();
+    }
 
-        typedef QPair<QString, QString> QStringPair;
+    typedef QPair<QString, QString> QStringPair;
+    if (welcomePageData.projectList.count() > 0) {
         foreach (const QStringPair &it, welcomePageData.projectList) {
             QTreeWidgetItem *item = m_d->ui.projTreeWidget->addItem(it.second, it.first);
             const QFileInfo fi(it.first);
             item->setToolTip(1, QDir::toNativeSeparators(fi.absolutePath()));
         }
-        m_d->ui.projTreeWidget->updateGeometry();
-
-        m_d->ui.recentSessionsFrame->show();
-        m_d->ui.recentProjectsFrame->show();
     } else {
-        m_d->ui.recentSessionsFrame->hide();
-        m_d->ui.recentProjectsFrame->hide();
+        m_d->ui.projTreeWidget->hide();
     }
+    m_d->ui.projTreeWidget->updateGeometry();
     m_d->m_widget->setUpdatesEnabled(true);
 }
 
@@ -310,7 +306,7 @@ void WelcomeMode::slotUrlClicked(const QString &data)
     QDesktopServices::openUrl(QUrl(data));
 }
 
-void WelcomeMode::slotUpdateExamples(const QString& examplePath, const QString& demosPath, const QString& docPath)
+void WelcomeMode::slotUpdateExamples(const QString& examplePath, const QString& demosPath)
 {
     QString demoxml = demosPath + "/qtdemo/xml/examples.xml";
     if (!QFile::exists(demoxml))
@@ -391,7 +387,7 @@ void WelcomeMode::slotOpenExample()
 void WelcomeMode::slotFeedback()
 {
     QDesktopServices::openUrl(QUrl(QLatin1String(
-            "http://www.trolltech.com/forms/feedback-forms/qt-creator-user-feedback/view")));
+            "http://qt.nokia.com/forms/feedback-forms/qt-creator-user-feedback/view")));
 }
 
 void WelcomeMode::slotCreateNewProject()
@@ -495,6 +491,11 @@ WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
 {
     connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
             SLOT(slotItemClicked(QTreeWidgetItem *)));
+}
+
+QSize WelcomeModeTreeWidget::minimumSizeHint() const
+{
+    return QSize();
 }
 
 QSize WelcomeModeTreeWidget::sizeHint() const

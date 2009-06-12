@@ -1311,7 +1311,7 @@ void GdbEngine::detachDebugger()
 
 void GdbEngine::exitDebugger()
 {
-    debugMessage(_("GDBENGINE EXITDEBUFFER: %1").arg(m_gdbProc.state()));
+    debugMessage(_("GDBENGINE EXITDEBUGGER: %1").arg(m_gdbProc.state()));
     if (m_gdbProc.state() == QProcess::Starting) {
         debugMessage(_("WAITING FOR GDB STARTUP TO SHUTDOWN: %1")
             .arg(m_gdbProc.state()));
@@ -1340,8 +1340,11 @@ void GdbEngine::exitDebugger()
             m_gdbProc.waitForFinished(20000);
         }
     }
-    if (m_gdbProc.state() != QProcess::NotRunning)
-        debugMessage(_("PROBLEM STOPPING DEBUGGER"));
+    if (m_gdbProc.state() != QProcess::NotRunning) {
+        debugMessage(_("PROBLEM STOPPING DEBUGGER: STATE %1")
+            .arg(m_gdbProc.state()));
+        m_gdbProc.kill();
+    }
 
     m_outputCollector.shutdown();
     initializeVariables();
@@ -1360,7 +1363,8 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
     QStringList gdbArgs;
 
     if (m_gdbProc.state() != QProcess::NotRunning) {
-        debugMessage(_("GDB IS ALREADY RUNNING!"));
+        debugMessage(_("GDB IS ALREADY RUNNING, STATE: %1").arg(m_gdbProc.state()));
+        m_gdbProc.kill();
         return false;
     }
 
@@ -1433,6 +1437,7 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
     postCommand(_("show version"), CB(handleShowVersion));
     //postCommand(_("-enable-timings");
     postCommand(_("set print static-members off")); // Seemingly doesn't work.
+    //postCommand(_("set debug infrun 1"));
     //postCommand(_("define hook-stop\n-thread-list-ids\n-stack-list-frames\nend"));
     //postCommand(_("define hook-stop\nprint 4\nend"));
     //postCommand(_("define hookpost-stop\nprint 5\nend"));

@@ -29,6 +29,7 @@
 
 #include "settingsdatabase.h"
 
+#include <QtCore/QDir>
 #include <QtCore/QMap>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
@@ -94,6 +95,10 @@ SettingsDatabase::SettingsDatabase(const QString &path,
     const QLatin1Char slash('/');
 
     // TODO: Don't rely on a path, but determine automatically
+    QDir pathDir(path);
+    if (!pathDir.exists())
+        pathDir.mkpath(pathDir.absolutePath());
+
     QString fileName = path;
     if (!fileName.endsWith(slash))
         fileName += slash;

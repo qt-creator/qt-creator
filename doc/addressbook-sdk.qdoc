@@ -260,7 +260,7 @@
     The next step to creating our basic address book application is to allow a
     little bit of user interaction.
 
-    ### \image addressbook-tutorial-part2-add-contact.png
+    \image addressbook-tutorial-part2-add-contact.png
 
     We will provide a push button that the user can click to add a new contact.
     Also, some form of data structure is needed to store these contacts in an
@@ -286,7 +286,7 @@
     of the widget. The figure below shows the difference between using the
     spacer and not using it.
 
-    ## image
+    \image addressbook-tutorial-part2-stretch-effects.png
 
     Select all the objects on the form (use \key{Ctrl+A}) and lay them out in a
     grid. Lastly, set the top level widget's layout by right-clicking anywhere
@@ -350,7 +350,7 @@
     We connect the push buttons' \l{QAbstractButton::}{clicked()} signal to
     their respective slots. The figure below illustrates this.
 
-    #image
+    \image addressbook-tutorial-part2-signals-and-slots.png
 
     Finally, we set the window title to "Simple Address Book" using the
     \l{QWidget::}{setWindowTitle()} function.
@@ -397,7 +397,7 @@
     The screenshot below shows the QMessageBox object we use to display
     information messages to the user.
 
-    # image
+    \image addressbook-tutorial-part2-add-successful.png
 
     \section2 The \c{cancel()} Function
 
@@ -493,6 +493,8 @@
 
     The screenshot below is our expected graphical user interface. Notice that
     it is getting closer to our final application.
+
+    \image addressbook-tutorial-part3-screenshot.png
 
     Within our \c addContact() function, we have to disable the \gui Next and
     \gui Previous buttons so that the user does not attempt to navigate while

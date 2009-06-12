@@ -122,7 +122,7 @@
     A plugin with given \c name, \c version and \c compatVersion matches
     the dependency if
     \list
-        \o it's \c name matches \c dependencyName, and
+        \o its \c name matches \c dependencyName, and
         \o \c {compatVersion <= dependencyVersion <= version}.
     \endlist
 
@@ -211,7 +211,7 @@
     that depend on that plugin also fail.
 
     Plugins have access to the plugin manager
-    (and it's object pool) via the PluginManager::instance()
+    (and its object pool) via the PluginManager::instance()
     method.
 */
 

@@ -201,6 +201,8 @@ bool FontSettings::fromSettings(const QString &category,
         if (fmt.isEmpty()) {
             m_formats[name].setForeground(desc.foreground());
             m_formats[name].setBackground(desc.background());
+            m_formats[name].setBold(desc.format().bold());
+            m_formats[name].setItalic(desc.format().italic());
         } else {
             m_formats[name].fromString(fmt);
         }

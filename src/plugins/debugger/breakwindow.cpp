@@ -31,6 +31,7 @@
 
 #include "debuggeractions.h"
 #include "ui_breakcondition.h"
+#include "ui_breakbyfunction.h"
 
 #include <utils/qtcassert.h>
 
@@ -50,6 +51,32 @@
 
 using Debugger::Internal::BreakWindow;
 
+
+///////////////////////////////////////////////////////////////////////
+//
+// BreakByFunctionDialog
+//
+///////////////////////////////////////////////////////////////////////
+
+class BreakByFunctionDialog : public QDialog, Ui::BreakByFunctionDialog
+{
+public:
+    explicit BreakByFunctionDialog(QWidget *parent)
+      : QDialog(parent)
+    {
+        setupUi(this);
+        connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+        connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    }
+    QString functionName() const { return functionLineEdit->text(); }
+};
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// BreakWindow
+//
+///////////////////////////////////////////////////////////////////////
 
 BreakWindow::BreakWindow(QWidget *parent)
   : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
@@ -132,6 +159,11 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act6 = new QAction(str6, &menu);
     act6->setEnabled(si.size() > 0);
 
+    QAction *act7 = new QAction(this);
+    act7->setText(tr("Set Breakpoint at Function..."));
+    QAction *act8 = new QAction(this);
+    act8->setText(tr("Set Breakpoint at Function \"main\""));
+
     menu.addAction(act0);
     menu.addAction(act3);
     menu.addAction(act5);
@@ -140,6 +172,9 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(act1);
     menu.addAction(act2);
     menu.addAction(act4);
+    menu.addSeparator();
+    menu.addAction(act7);
+    menu.addAction(act8);
     menu.addSeparator();
     menu.addAction(theDebuggerAction(SettingsDialog));
 
@@ -159,6 +194,12 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         setBreakpointsEnabled(si, !enabled);
     else if (act == act6)
         setBreakpointsFullPath(si, !enabled);
+    else if (act == act7) {
+        BreakByFunctionDialog dlg(this);
+        if (dlg.exec())
+            emit breakByFunctionRequested(dlg.functionName());
+    } else if (act == act8)
+        emit breakByFunctionMainRequested();
 }
 
 void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)

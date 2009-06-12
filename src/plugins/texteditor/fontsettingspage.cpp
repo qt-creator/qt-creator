@@ -101,10 +101,16 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
     if (!settingsFound) { // Apply defaults
         foreach (const FormatDescription &f, m_descriptions) {
             const QString name = f.name();
+
             m_lastValue.formatFor(name).setForeground(f.foreground());
             m_lastValue.formatFor(name).setBackground(f.background());
+            m_lastValue.formatFor(name).setBold(f.format().bold());
+            m_lastValue.formatFor(name).setItalic(f.format().italic());
+
             m_value.formatFor(name).setForeground(f.foreground());
             m_value.formatFor(name).setBackground(f.background());
+            m_value.formatFor(name).setBold(f.format().bold());
+            m_value.formatFor(name).setItalic(f.format().italic());
         }
     }
 
@@ -142,11 +148,6 @@ QColor FormatDescription::foreground() const
     if (m_name == QLatin1String(Constants::C_PARENTHESES))
         return QColor(Qt::red);
     return m_format.foreground();
-}
-
-void FormatDescription::setForeground(const QColor &foreground)
-{
-    m_format.setForeground(foreground);
 }
 
 QColor FormatDescription::background() const
