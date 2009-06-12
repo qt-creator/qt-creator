@@ -60,13 +60,12 @@ public:
                       const QColor &foreground = Qt::black);
 
     QString name() const;
-
     QString trName() const;
-
     QColor foreground() const;
-    void setForeground(const QColor &foreground);
-
     QColor background() const;
+
+    const Format &format() const { return m_format; }
+    Format &format() { return m_format; }
 
 private:
     QString m_name;             // Name of the category

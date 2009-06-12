@@ -72,7 +72,10 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_SEARCH_SCOPE), tr("Search Scope")));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_PARENTHESES), tr("Parentheses")));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_CURRENT_LINE), tr("Current Line")));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_CURRENT_LINE_NUMBER), tr("Current Line Number"), Qt::darkGray));
+
+    FormatDescription currentLineNumber = FormatDescription(QLatin1String(C_CURRENT_LINE_NUMBER), tr("Current Line Number"), Qt::darkGray);
+    currentLineNumber.format().setBold(true);
+    formatDescriptions.push_back(currentLineNumber);
 
     // Standard categories
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_NUMBER), tr("Number"), Qt::darkBlue));
