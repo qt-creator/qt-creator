@@ -328,7 +328,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             Symbol *lookupSymbol = result.second;        // lookup symbol
 
             Symbol *resolvedSymbol = lookupSymbol;
-            Name *resolvedName = lookupSymbol->name();
+            Name *resolvedName = lookupSymbol ? lookupSymbol->name() : 0;
             firstType = resolve(firstType, typeOfExpression.lookupContext(),
                                 &resolvedSymbol, &resolvedName);
 
