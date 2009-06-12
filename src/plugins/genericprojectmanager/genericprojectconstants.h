@@ -49,7 +49,7 @@ const char *const FILES_MIMETYPE     = "application/vnd.nokia.qt.generic.files";
 const char *const INCLUDES_EDITOR    = ".includes Editor";
 const char *const INCLUDES_MIMETYPE  = "application/vnd.nokia.qt.generic.includes";
 
-const char *const CONFIG_EDITOR      = ".includes Editor";
+const char *const CONFIG_EDITOR      = ".config Editor";
 const char *const CONFIG_MIMETYPE    = "application/vnd.nokia.qt.generic.config";
 
 } // namespace Constants

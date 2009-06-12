@@ -269,7 +269,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     const Snapshot documents = m_modelManager->snapshot();
     const QString fileName = editor->file()->fileName();
     Document::Ptr doc = documents.value(fileName);
-    if (! doc)
+    if (!doc)
         return; // nothing to do
 
     QTextCursor tc(edit->document());

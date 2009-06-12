@@ -192,7 +192,7 @@ QList<CompletionItem> CompletionSupport::getCompletions() const
     QString lastKey;
     QList<CompletionItem> uniquelist;
 
-    foreach (const CompletionItem item, completionItems) {
+    foreach (const CompletionItem &item, completionItems) {
         if (item.m_text != lastKey) {
             uniquelist.append(item);
             lastKey = item.m_text;
