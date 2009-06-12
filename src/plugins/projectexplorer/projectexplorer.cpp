@@ -703,6 +703,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     updateActions();
 
+    connect(Core::ICore::instance(), SIGNAL(coreAboutToOpen()),
+            this, SLOT(determineSessionToRestoreAtStartup()));
     connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(restoreSession()));
 
     return true;
@@ -1041,6 +1043,24 @@ void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode)
         updateWelcomePage(welcomeMode);
 }
 
+void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
+{
+    QStringList sessions = m_session->sessions();
+    // We have command line arguments, try to find a session in them
+    QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
+    // Default to no session loading
+    m_sessionToRestoreAtStartup = QString::null;
+    foreach (const QString &arg, arguments) {
+        if (sessions.contains(arg)) {
+            // Session argument
+            m_sessionToRestoreAtStartup = arg;
+            break;
+        }
+    }
+    if (!m_sessionToRestoreAtStartup.isNull())
+        Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_EDIT);
+}
+
 /*!
     \fn void ProjectExplorerPlugin::restoreSession()
 
@@ -1049,37 +1069,20 @@ void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode)
     default session and puts the list of recent projects and sessions
     onto the welcome page.
 */
-
 void ProjectExplorerPlugin::restoreSession()
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::restoreSession";
 
-    QStringList sessions = m_session->sessions();
-
     // We have command line arguments, try to find a session in them
     QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
-
-    // Default to no session loading
-    QString sessionToLoad = QString::null;
-    if (!arguments.isEmpty()) {
-        foreach (const QString &arg, arguments) {
-            if (sessions.contains(arg)) {
-                // Session argument
-                sessionToLoad = arg;
-                arguments.removeOne(arg);
-                if (debug)
-                    qDebug() << "Found session argument, restoring session" << sessionToLoad;
-                break;
-            }
-        }
-    }
+    arguments.removeOne(m_sessionToRestoreAtStartup);
 
     // Restore latest session or what was passed on the command line
-    if (sessionToLoad == QString::null) {
+    if (m_sessionToRestoreAtStartup == QString::null) {
         m_session->createAndLoadNewDefaultSession();
     } else {
-        m_session->loadSession(sessionToLoad);
+        m_session->loadSession(m_sessionToRestoreAtStartup);
     }
 
     // update welcome page

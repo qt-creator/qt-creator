@@ -161,6 +161,7 @@ private slots:
     void updateSessionMenu();
     void setSession(QAction *action);
 
+    void determineSessionToRestoreAtStartup();
     void restoreSession();
     void loadSession(const QString &session);
     void runProject();
@@ -260,6 +261,7 @@ private:
 
     Internal::ProjectWindow *m_proWindow;
     SessionManager *m_session;
+    QString m_sessionToRestoreAtStartup;
 
     Project *m_currentProject;
     Node *m_currentNode;
