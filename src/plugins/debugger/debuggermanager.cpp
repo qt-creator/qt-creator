@@ -44,8 +44,6 @@
 #include "threadswindow.h"
 #include "watchwindow.h"
 
-#include "ui_breakbyfunction.h"
-
 #include "disassemblerhandler.h"
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -127,27 +125,6 @@ static const char *stateName(int s)
     }
     return "<unknown>";
 }
-
-///////////////////////////////////////////////////////////////////////
-//
-// BreakByFunctionDialog
-//
-///////////////////////////////////////////////////////////////////////
-
-class BreakByFunctionDialog : public QDialog, Ui::BreakByFunctionDialog
-{
-    Q_OBJECT
-
-public:
-    explicit BreakByFunctionDialog(QWidget *parent)
-      : QDialog(parent)
-    {
-        setupUi(this);
-        connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-        connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    }
-    QString functionName() const { return functionLineEdit->text(); }
-};
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -300,6 +277,8 @@ void DebuggerManager::init()
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_breakHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
         this, SIGNAL(setSessionValueRequested(QString,QVariant)));
+    connect(breakView, SIGNAL(breakByFunctionRequested(QString)),
+        this, SLOT(breakByFunction(QString)), Qt::QueuedConnection);
 
     // Modules
     QAbstractItemView *modulesView =
@@ -403,12 +382,6 @@ void DebuggerManager::init()
     m_breakAction = new QAction(this);
     m_breakAction->setText(tr("Toggle Breakpoint"));
 
-    m_breakByFunctionAction = new QAction(this);
-    m_breakByFunctionAction->setText(tr("Set Breakpoint at Function..."));
-
-    m_breakAtMainAction = new QAction(this);
-    m_breakAtMainAction->setText(tr("Set Breakpoint at Function \"main\""));
-
     m_watchAction = new QAction(this);
     m_watchAction->setText(tr("Add to Watch Window"));
 
@@ -446,10 +419,6 @@ void DebuggerManager::init()
         this, SLOT(addToWatchWindow()));
     connect(m_breakAction, SIGNAL(triggered()),
         this, SLOT(toggleBreakpoint()));
-    connect(m_breakByFunctionAction, SIGNAL(triggered()),
-        this, SLOT(breakByFunction()));
-    connect(m_breakAtMainAction, SIGNAL(triggered()),
-        this, SLOT(breakAtMain()));
 
     connect(m_statusTimer, SIGNAL(timeout()),
         this, SLOT(clearStatusMessage()));
@@ -1144,22 +1113,6 @@ void DebuggerManager::breakByFunction(const QString &functionName)
     attemptBreakpointSynchronization();
 }
 
-void DebuggerManager::breakByFunction()
-{
-    BreakByFunctionDialog dlg(m_mainWindow);
-    if (dlg.exec())
-        breakByFunction(dlg.functionName());
-}
-
-void DebuggerManager::breakAtMain()
-{
-#ifdef Q_OS_WIN
-    breakByFunction("qMain");
-#else
-    breakByFunction("main");
-#endif
-}
-
 static bool isAllowedTransition(int from, int to)
 {
     return (from == -1)
@@ -1531,5 +1484,3 @@ void DebuggerManager::runTest(const QString &fileName)
     m_startParameters->workingDir.clear();
     //startNewDebugger(StartInternal);
 }
-
-#include "debuggermanager.moc"

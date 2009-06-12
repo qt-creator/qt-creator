@@ -31,6 +31,7 @@
 
 #include "debuggeractions.h"
 #include "ui_breakcondition.h"
+#include "ui_breakbyfunction.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -47,6 +48,32 @@
 
 using Debugger::Internal::BreakWindow;
 
+
+///////////////////////////////////////////////////////////////////////
+//
+// BreakByFunctionDialog
+//
+///////////////////////////////////////////////////////////////////////
+
+class BreakByFunctionDialog : public QDialog, Ui::BreakByFunctionDialog
+{
+public:
+    explicit BreakByFunctionDialog(QWidget *parent)
+      : QDialog(parent)
+    {
+        setupUi(this);
+        connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+        connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    }
+    QString functionName() const { return functionLineEdit->text(); }
+};
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// BreakWindow
+//
+///////////////////////////////////////////////////////////////////////
 
 BreakWindow::BreakWindow(QWidget *parent)
   : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
@@ -96,8 +123,14 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QString str = enabled ? tr("Disable breakpoint") : tr("Enable breakpoint");
     QAction *act5 = new QAction(str, &menu);
     bool fullpath = indexIsValid && model()->data(index2, Qt::UserRole).toBool();
-    QString str1 = fullpath ? tr("Use short path") : tr("Use full path");
-    QAction *act6 = new QAction(str1, &menu);
+    QString str6 = fullpath ? tr("Use short path") : tr("Use full path");
+    QAction *act6 = new QAction(str6, &menu);
+
+    QAction *act7 = new QAction(this);
+    act7->setText(tr("Set Breakpoint at Function..."));
+    QAction *act8 = new QAction(this);
+    act8->setText(tr("Set Breakpoint at Function \"main\""));
+
 
     menu.addAction(act0);
     menu.addAction(act3);
@@ -107,6 +140,9 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(act1);
     menu.addAction(act2);
     menu.addAction(act4);
+    menu.addSeparator();
+    menu.addAction(act7);
+    menu.addAction(act8);
     menu.addSeparator();
     menu.addAction(theDebuggerAction(SettingsDialog));
 
@@ -128,6 +164,16 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == act6) {
         model()->setData(index2, !fullpath);
         emit breakpointSynchronizationRequested();
+    } else if (act == act7) {
+        BreakByFunctionDialog dlg(this);
+        if (dlg.exec())
+            emit breakByFunctionRequested(dlg.functionName());
+    } else if (act == act8) {
+#ifdef Q_OS_WIN
+        emit breakByFunctionRequested("qMain");
+#else
+        emit breakByFunctionRequested("main");
+#endif
     }
 }
 

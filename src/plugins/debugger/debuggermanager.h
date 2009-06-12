@@ -277,10 +277,8 @@ public slots:
     void runToLineExec();
     void runToFunctionExec();
     void toggleBreakpoint();
-    void breakByFunction();
     void breakByFunction(const QString &functionName);
     void setBreakpoint(const QString &fileName, int lineNumber);
-    void breakAtMain();
     void activateFrame(int index);
     void selectThread(int index);
 
@@ -460,8 +458,6 @@ private:
     QAction *m_nextAction;
     QAction *m_watchAction;
     QAction *m_breakAction;
-    QAction *m_breakByFunctionAction;
-    QAction *m_breakAtMainAction;
     QAction *m_sepAction;
     QAction *m_stepIAction;
     QAction *m_nextIAction;
