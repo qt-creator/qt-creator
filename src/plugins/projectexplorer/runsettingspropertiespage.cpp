@@ -226,9 +226,9 @@ void RunSettingsWidget::aboutToShowAddMenu()
     QList<IRunConfigurationFactory *> factories =
         ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
     foreach (IRunConfigurationFactory *factory, factories) {
-        QStringList types = factory->canCreate(m_project);
+        QStringList types = factory->availableCreationTypes(m_project);
         foreach (const QString &type, types) {
-            QAction *action = m_addMenu->addAction(factory->nameForType(type));;
+            QAction *action = m_addMenu->addAction(factory->displayNameForType(type));;
             FactoryAndType fat;
             fat.factory = factory;
             fat.type = type;

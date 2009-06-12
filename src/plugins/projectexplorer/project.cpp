@@ -361,7 +361,7 @@ void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
             break;
         const QString &type = typeVariant.toString();
         foreach (IRunConfigurationFactory *factory, factories) {
-            if (factory->canCreate(type)) {
+            if (factory->canRestore(type)) {
                 QSharedPointer<RunConfiguration> rc = factory->create(this, type);
                 rc->restore(reader);
                 addRunConfiguration(rc);

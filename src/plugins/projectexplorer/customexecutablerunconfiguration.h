@@ -128,10 +128,10 @@ public:
     CustomExecutableRunConfigurationFactory();
     virtual ~CustomExecutableRunConfigurationFactory();
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canCreate(const QString &type) const;
+    virtual bool canRestore(const QString &type) const;
     virtual QSharedPointer<RunConfiguration> create(Project *project, const QString &type);
-    QStringList canCreate(Project *pro) const;
-    QString nameForType(const QString &type) const;
+    QStringList availableCreationTypes(Project *pro) const;
+    QString displayNameForType(const QString &type) const;
 };
 
 namespace Internal {

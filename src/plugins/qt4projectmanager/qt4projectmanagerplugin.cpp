@@ -130,7 +130,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new MakeStepFactory);
 
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
-    addAutoReleasedObject(new Qt4RunConfigurationFactoryUser);
 
 #ifdef Q_OS_MAC
     addAutoReleasedObject(new MacDesignerExternalEditor);

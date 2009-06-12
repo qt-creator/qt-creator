@@ -185,22 +185,10 @@ class Qt4RunConfigurationFactory : public ProjectExplorer::IRunConfigurationFact
 public:
     Qt4RunConfigurationFactory();
     virtual ~Qt4RunConfigurationFactory();
-    virtual bool canCreate(const QString &type) const;
+    virtual bool canRestore(const QString &type) const;
     virtual QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project, const QString &type);
-    QStringList canCreate(ProjectExplorer::Project *pro) const;
-    QString nameForType(const QString &type) const;
-};
-
-class Qt4RunConfigurationFactoryUser : public ProjectExplorer::IRunConfigurationFactory
-{
-    Q_OBJECT
-public:
-    Qt4RunConfigurationFactoryUser();
-    virtual ~Qt4RunConfigurationFactoryUser();
-    virtual bool canCreate(const QString &type) const;
-    virtual QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project, const QString &type);
-    QStringList canCreate(ProjectExplorer::Project *pro) const;
-    QString nameForType(const QString &type) const;
+    QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
+    QString displayNameForType(const QString &type) const;
 };
 
 } // namespace Internal

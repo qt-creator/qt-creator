@@ -313,7 +313,7 @@ CMakeRunConfigurationFactory::~CMakeRunConfigurationFactory()
 }
 
 // used to recreate the runConfigurations when restoring settings
-bool CMakeRunConfigurationFactory::canCreate(const QString &type) const
+bool CMakeRunConfigurationFactory::canRestore(const QString &type) const
 {
     if (type.startsWith(Constants::CMAKERUNCONFIGURATION))
         return true;
@@ -321,7 +321,7 @@ bool CMakeRunConfigurationFactory::canCreate(const QString &type) const
 }
 
 // used to show the list of possible additons to a project, returns a list of types
-QStringList CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Project *project) const
+QStringList CMakeRunConfigurationFactory::availableCreationTypes(ProjectExplorer::Project *project) const
 {
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
     if (!pro)
@@ -334,7 +334,7 @@ QStringList CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Project *pr
 }
 
 // used to translate the types to names to display to the user
-QString CMakeRunConfigurationFactory::nameForType(const QString &type) const
+QString CMakeRunConfigurationFactory::displayNameForType(const QString &type) const
 {
     Q_ASSERT(type.startsWith(Constants::CMAKERUNCONFIGURATION));
 

@@ -472,7 +472,7 @@ CustomExecutableRunConfigurationFactory::~CustomExecutableRunConfigurationFactor
 }
 
 // used to recreate the runConfigurations when restoring settings
-bool CustomExecutableRunConfigurationFactory::canCreate(const QString &type) const
+bool CustomExecutableRunConfigurationFactory::canRestore(const QString &type) const
 {
     return type == "ProjectExplorer.CustomExecutableRunConfiguration";
 }
@@ -488,13 +488,13 @@ QSharedPointer<RunConfiguration> CustomExecutableRunConfigurationFactory::create
     }
 }
 
-QStringList CustomExecutableRunConfigurationFactory::canCreate(Project *pro) const
+QStringList CustomExecutableRunConfigurationFactory::availableCreationTypes(Project *pro) const
 {
     Q_UNUSED(pro)
     return QStringList()<< "ProjectExplorer.CustomExecutableRunConfiguration";
 }
 
-QString CustomExecutableRunConfigurationFactory::nameForType(const QString &type) const
+QString CustomExecutableRunConfigurationFactory::displayNameForType(const QString &type) const
 {
     if (type == "ProjectExplorer.CustomExecutableRunConfiguration")
         return tr("Custom Executable");

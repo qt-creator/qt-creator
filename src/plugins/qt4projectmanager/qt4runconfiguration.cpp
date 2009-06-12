@@ -653,7 +653,7 @@ Qt4RunConfigurationFactory::~Qt4RunConfigurationFactory()
 }
 
 // used to recreate the runConfigurations when restoring settings
-bool Qt4RunConfigurationFactory::canCreate(const QString &type) const
+bool Qt4RunConfigurationFactory::canRestore(const QString &type) const
 {
     return type == "Qt4ProjectManager.Qt4RunConfiguration";
 }
@@ -663,56 +663,17 @@ QSharedPointer<ProjectExplorer::RunConfiguration> Qt4RunConfigurationFactory::cr
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
+    if (type.startsWith("Qt4RunConfiguration.")) {
+        QString fileName = type.mid(QString("Qt4RunConfiguration.").size());
+        return QSharedPointer<ProjectExplorer::RunConfiguration>(new Qt4RunConfiguration(p, fileName));
+    }
     Q_ASSERT(type == "Qt4ProjectManager.Qt4RunConfiguration");
     // The right path is set in restoreSettings
     QSharedPointer<ProjectExplorer::RunConfiguration> rc(new Qt4RunConfiguration(p, QString::null));
     return rc;
 }
 
-QStringList Qt4RunConfigurationFactory::canCreate(ProjectExplorer::Project *pro) const
-{
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
-    if (qt4project)
-        return QStringList();
-    else
-        return QStringList();
-}
-
-QString Qt4RunConfigurationFactory::nameForType(const QString &type) const
-{
-    Q_UNUSED(type);
-    return "Run Qt4 application";
-}
-
-///
-/// Qt4RunConfigurationFactoryUser
-/// This class is used to create new RunConfiguration from the runsettings page
-///
-
-Qt4RunConfigurationFactoryUser::Qt4RunConfigurationFactoryUser()
-{
-}
-
-Qt4RunConfigurationFactoryUser::~Qt4RunConfigurationFactoryUser()
-{
-}
-
-bool Qt4RunConfigurationFactoryUser::canCreate(const QString &type) const
-{
-    Q_UNUSED(type);
-    return false;
-}
-
-QSharedPointer<ProjectExplorer::RunConfiguration> Qt4RunConfigurationFactoryUser::create(ProjectExplorer::Project *project, const QString &type)
-{
-    Qt4Project *p = qobject_cast<Qt4Project *>(project);
-    Q_ASSERT(p);
-
-    QString fileName = type.mid(QString("Qt4RunConfiguration.").size());
-    return QSharedPointer<ProjectExplorer::RunConfiguration>(new Qt4RunConfiguration(p, fileName));
-}
-
-QStringList Qt4RunConfigurationFactoryUser::canCreate(ProjectExplorer::Project *pro) const
+QStringList Qt4RunConfigurationFactory::availableCreationTypes(ProjectExplorer::Project *pro) const
 {
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
     if (qt4project) {
@@ -727,7 +688,7 @@ QStringList Qt4RunConfigurationFactoryUser::canCreate(ProjectExplorer::Project *
     }
 }
 
-QString Qt4RunConfigurationFactoryUser::nameForType(const QString &type) const
+QString Qt4RunConfigurationFactory::displayNameForType(const QString &type) const
 {
     QString fileName = type.mid(QString("Qt4RunConfiguration.").size());
     return QFileInfo(fileName).completeBaseName();

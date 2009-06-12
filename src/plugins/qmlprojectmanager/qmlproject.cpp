@@ -478,7 +478,7 @@ QmlRunConfigurationFactory::~QmlRunConfigurationFactory()
 {
 }
 
-bool QmlRunConfigurationFactory::canCreate(const QString &type) const
+bool QmlRunConfigurationFactory::canRestore(const QString &type) const
 {
     if (type.startsWith(m_type))
         return true;
@@ -486,12 +486,12 @@ bool QmlRunConfigurationFactory::canCreate(const QString &type) const
     return false;
 }
 
-QStringList QmlRunConfigurationFactory::canCreate(ProjectExplorer::Project *) const
+QStringList QmlRunConfigurationFactory::availableCreationTypes(ProjectExplorer::Project *) const
 {
     return QStringList();
 }
 
-QString QmlRunConfigurationFactory::nameForType(const QString &type) const
+QString QmlRunConfigurationFactory::displayNameForType(const QString &type) const
 {
     return type;
 }

@@ -90,10 +90,10 @@ private:
 
 /* The run configuration factory is used for restoring run configurations from
  * settings. And used to create new runconfigurations in the "Run Settings" Dialog.
- * For the first case bool canCreate(const QString &type) and 
+ * For the first case bool canRestore(const QString &type) and
  * QSharedPointer<RunConfiguration> create(Project *project, QString type) are used.
- * For the second type the functions QStringList canCreate(Project *pro) and
- * QString nameForType(const QString&) are used to generate a list of creatable
+ * For the second type the functions QStringList availableCreationTypes(Project *pro) and
+ * QString displayNameForType(const QString&) are used to generate a list of creatable
  * RunConfigurations, and create(..) is used to create it.
  */
 class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
@@ -103,11 +103,12 @@ public:
     IRunConfigurationFactory();
     virtual ~IRunConfigurationFactory();
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canCreate(const QString &type) const = 0;
+    virtual bool canRestore(const QString &type) const = 0;
     // used to show the list of possible additons to a project, returns a list of types
-    virtual QStringList canCreate(Project *pro) const = 0;
+    virtual QStringList availableCreationTypes(Project *pro) const = 0;
     // used to translate the types to names to display to the user
-    virtual QString nameForType(const QString &type) const = 0;
+    virtual QString displayNameForType(const QString &type) const = 0;
+    // used to create a run configuration from scratch
     virtual QSharedPointer<RunConfiguration> create(Project *project, const QString &type) = 0;
 };
 

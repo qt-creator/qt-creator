@@ -179,13 +179,13 @@ public:
     virtual ~QmlRunConfigurationFactory();
 
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canCreate(const QString &type) const;
+    virtual bool canRestore(const QString &type) const;
 
     // used to show the list of possible additons to a project, returns a list of types
-    virtual QStringList canCreate(ProjectExplorer::Project *pro) const;
+    virtual QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
 
     // used to translate the types to names to display to the user
-    virtual QString nameForType(const QString &type) const;
+    virtual QString displayNameForType(const QString &type) const;
 
     virtual QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project,
                                                                      const QString &type);
