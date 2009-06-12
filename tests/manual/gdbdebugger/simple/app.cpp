@@ -644,6 +644,9 @@ void testStdMap()
     gg[44] = 4;
     gg[55] = 5;
 
+#endif
+
+#if 0
     std::map<uint, QStringList> ggl;
     ggl[11] = QStringList() << "11";
     ggl[22] = QStringList() << "22";

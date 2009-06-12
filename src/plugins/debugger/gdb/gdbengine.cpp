@@ -1311,7 +1311,7 @@ void GdbEngine::detachDebugger()
 
 void GdbEngine::exitDebugger()
 {
-    debugMessage(_("GDBENGINE EXITDEBUFFER: %1").arg(m_gdbProc.state()));
+    debugMessage(_("GDBENGINE EXITDEBUGGER: %1").arg(m_gdbProc.state()));
     if (m_gdbProc.state() == QProcess::Starting) {
         debugMessage(_("WAITING FOR GDB STARTUP TO SHUTDOWN: %1")
             .arg(m_gdbProc.state()));
@@ -1340,8 +1340,11 @@ void GdbEngine::exitDebugger()
             m_gdbProc.waitForFinished(20000);
         }
     }
-    if (m_gdbProc.state() != QProcess::NotRunning)
-        debugMessage(_("PROBLEM STOPPING DEBUGGER"));
+    if (m_gdbProc.state() != QProcess::NotRunning) {
+        debugMessage(_("PROBLEM STOPPING DEBUGGER: STATE %1")
+            .arg(m_gdbProc.state()));
+        m_gdbProc.kill();
+    }
 
     m_outputCollector.shutdown();
     initializeVariables();
@@ -1360,7 +1363,8 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
     QStringList gdbArgs;
 
     if (m_gdbProc.state() != QProcess::NotRunning) {
-        debugMessage(_("GDB IS ALREADY RUNNING!"));
+        debugMessage(_("GDB IS ALREADY RUNNING, STATE: %1").arg(m_gdbProc.state()));
+        m_gdbProc.kill();
         return false;
     }
 
