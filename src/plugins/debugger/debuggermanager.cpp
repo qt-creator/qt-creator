@@ -279,6 +279,8 @@ void DebuggerManager::init()
         this, SIGNAL(setSessionValueRequested(QString,QVariant)));
     connect(breakView, SIGNAL(breakByFunctionRequested(QString)),
         this, SLOT(breakByFunction(QString)), Qt::QueuedConnection);
+    connect(breakView, SIGNAL(breakByFunctionMainRequested()),
+        this, SLOT(breakByFunctionMain()), Qt::QueuedConnection);
 
     // Modules
     QAbstractItemView *modulesView =
@@ -1104,6 +1106,16 @@ void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)
     QTC_ASSERT(m_breakHandler, return);
     m_breakHandler->setBreakpoint(fileName, lineNumber);
     attemptBreakpointSynchronization();
+}
+
+void DebuggerManager::breakByFunctionMain()
+{
+#ifdef Q_OS_WIN
+    // FIXME: wrong on non-Qt based binaries
+    emit breakByFunction("qMain");
+#else
+    emit breakByFunction("main");
+#endif
 }
 
 void DebuggerManager::breakByFunction(const QString &functionName)

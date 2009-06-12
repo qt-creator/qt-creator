@@ -168,13 +168,8 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         BreakByFunctionDialog dlg(this);
         if (dlg.exec())
             emit breakByFunctionRequested(dlg.functionName());
-    } else if (act == act8) {
-#ifdef Q_OS_WIN
-        emit breakByFunctionRequested("qMain");
-#else
-        emit breakByFunctionRequested("main");
-#endif
-    }
+    } else if (act == act8)
+        emit breakByFunctionMainRequested();
 }
 
 void BreakWindow::deleteBreakpoint(const QModelIndex &idx)

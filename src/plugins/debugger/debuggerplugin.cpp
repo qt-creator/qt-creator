@@ -1202,15 +1202,17 @@ void DebuggerPlugin::startExternalApplication()
             configValue(_("LastExternalExecutableFile")).toString());
     dlg.setExecutableArguments(
             configValue(_("LastExternalExecutableArguments")).toString());
-    if (dlg.exec() != QDialog::Accepted) {
+    if (dlg.exec() != QDialog::Accepted)
         return;
-    }
+
     setConfigValue(_("LastExternalExecutableFile"),
                    dlg.executableFile());
     setConfigValue(_("LastExternalExecutableArguments"),
                    dlg.executableArguments());
     sp->executable = dlg.executableFile();
     sp->processArgs = dlg.executableArguments().split(QLatin1Char(' '));
+    if (dlg.breakAtMain())
+        m_manager->breakByFunctionMain();
 
     QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner

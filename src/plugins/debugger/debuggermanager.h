@@ -127,7 +127,8 @@ enum DebuggerStartMode
     StartRemote            // Start and attach to a remote process
 };
 
-struct DebuggerStartParameters {
+struct DebuggerStartParameters
+{
     DebuggerStartParameters();
     void clear();
 
@@ -278,6 +279,7 @@ public slots:
     void runToFunctionExec();
     void toggleBreakpoint();
     void breakByFunction(const QString &functionName);
+    void breakByFunctionMain();
     void setBreakpoint(const QString &fileName, int lineNumber);
     void activateFrame(int index);
     void selectThread(int index);

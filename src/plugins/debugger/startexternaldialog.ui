@@ -21,6 +21,19 @@
     <number>9</number>
    </property>
    <item>
+    <spacer>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>407</width>
+       <height>16</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <layout class="QGridLayout">
      <property name="margin">
       <number>0</number>
@@ -48,20 +61,21 @@
      <item row="0" column="1">
       <widget class="Core::Utils::PathChooser" name="execFile" native="true"/>
      </item>
+     <item row="2" column="1">
+      <widget class="QCheckBox" name="checkBoxBreakAtMain">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelBreakAtMain">
+       <property name="text">
+        <string>Break at 'main':</string>
+       </property>
+      </widget>
+     </item>
     </layout>
-   </item>
-   <item>
-    <spacer>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>407</width>
-       <height>16</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item>
     <widget class="Line" name="line">
