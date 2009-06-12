@@ -12,9 +12,10 @@ API, so if you created your own custom plugins these need to be adapted.
 
 General:
    * Reworked Welcome Screen
-   * Speed improvement: Store large amounts of persistent data
-     (e.g. locator cache) in an SQLite database.
-   
+   * Speed improvement: store large amounts of persistent data
+     (e.g. locator cache) in an SQLite database
+   * Show current file name in the window title
+
 Editing
    * Added option to allow alphabetical method combo box
    * Introduced Block highlighting
@@ -26,6 +27,8 @@ Editing
    * Fixed possibly missing code completion with mingw toolchain
    * Added option for turning antialiasing of text editor fonts off
    * Added searching with regular expressions in text editors
+   * Added an action that deletes a line without copying it
+   * Added copy line up/down actions (Ctrl+Alt+Up/Down)
 
 Building and Running
    * New options: Auto-Save before Build and Run without building
@@ -40,7 +43,7 @@ Debugging
    * Changed method of dumper loading on Windows, enabling it for MinGW 64
    * Make it possible to disable breakpoints
    * Make it possible to float the debugger views
-   
+
 Wizards
 
 Designer
@@ -62,7 +65,7 @@ Platform Specific
 
 Windows
   * Show native path separators
-  * Experimental support for the Microsoft C++ compilers from Windows SDKs 
+  * Experimental support for the Microsoft C++ compilers from Windows SDKs
     or VS 2005/2008 (x86 and AMD64)
 
 Mac
@@ -71,11 +74,12 @@ Linux
 
 Other Unixes
    * Made Qt Creator less dependant on Linux specific defines
-   
+
 Additional credits go to:
-   * axasia <axasia@gmail.com> (japanese translation)
+   * axasia <axasia@gmail.com> (japanese translation, compile fixes)
    * Christian Hoenig <christian@hoenig.cc> ("Build Project Only" submenu and
      build project dependencies, various patches)
    * Enrico Ros <enrico.ros@gmail.com> (italian translation)
-   * Joel Nordell <joel.nordell@chloridepower.com> (XCode-style tab behavior, various patches)
-   * Serge Ratke <dev.serge.ratke@gmx.de> (copy lines up/down by Ctrl+Alt+Up/Down)
+   * Joel Nordell <joel.nordell@chloridepower.com> (XCode-style tab behavior,
+     various patches)
+   * Serge Ratke <dev.serge.ratke@gmx.de> (copy lines up/down)

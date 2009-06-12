@@ -103,7 +103,7 @@ void PluginErrorView::update(PluginSpec *spec)
         tooltip = tr("Plugin was shut down");
     case PluginSpec::Deleted:
         text = tr("Deleted");
-        tooltip = tr("Plugin ended it's life cycle and was deleted");
+        tooltip = tr("Plugin ended its life cycle and was deleted");
     }
     m_ui->state->setText(text);
     m_ui->state->setToolTip(tooltip);

@@ -88,7 +88,7 @@
     information about the plugin's current state.
 
     The plugin spec is also filled with more information as the plugin
-    goes through it's loading process (see PluginSpec::State).
+    goes through its loading process (see PluginSpec::State).
     If an error occurs, the plugin spec is the place to look for the
     error details.
 */
@@ -102,7 +102,7 @@
     \value  Invalid
             Starting point: Even the xml description file was not read.
     \value  Read
-            The xml description file has been successfully read, and it's
+            The xml description file has been successfully read, and its
             information is available via the PluginSpec.
     \value  Resolved
             The dependencies given in the description file have been
