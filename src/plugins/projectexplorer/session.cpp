@@ -890,7 +890,9 @@ void SessionManager::updateWindowTitle()
     }
     if (m_core->editorManager()->currentEditor()) {
         QFileInfo fi(m_core->editorManager()->currentEditor()->file()->fileName());
-        windowTitle.prepend(fi.fileName() + " - ");
+        QString fileName = fi.fileName();
+        if (!fileName.isEmpty())
+            windowTitle.prepend(fileName + " - ");
         m_core->mainWindow()->setWindowFilePath(fi.absoluteFilePath());
     } else {
         m_core->mainWindow()->setWindowFilePath(QString());
