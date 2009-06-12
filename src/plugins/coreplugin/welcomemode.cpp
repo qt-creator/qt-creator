@@ -127,8 +127,8 @@ WelcomeMode::WelcomeMode() :
     m_d->ui.recentSessionsTitleLabel->setText(titleLabel(tr("Resume Session")));
     m_d->ui.tutorialsTitleLabel->setText(titleLabel(tr("Tutorials")));
     m_d->ui.demoTitleLabel->setText(titleLabel(tr("Explore Qt Examples")));
-    m_d->ui.didYouKnowTitleLabel->setText(titleLabel(tr("Did you know?")));
-    m_d->ui.labsTitleLabel->setText(titleLabel(tr("News from the Qt Labs")));
+    m_d->ui.didYouKnowTitleLabel->setText(titleLabel(tr("Did You Know?")));
+    m_d->ui.labsTitleLabel->setText(titleLabel(tr("News From the Qt Labs")));
     m_d->ui.sitesTitleLabel->setText(titleLabel(tr("Qt Websites")));
     m_d->ui.sessTreeWidget->viewport()->setAutoFillBackground(false);
     m_d->ui.projTreeWidget->viewport()->setAutoFillBackground(false);
