@@ -369,7 +369,7 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+116"/>
         <source>CMake Wizard</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake Assistent</translation>
     </message>
 </context>
 <context>
@@ -1103,12 +1103,12 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="-1251"/>
         <source>Go Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorheriges</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Go Forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes</translation>
     </message>
     <message>
         <location line="+1264"/>
@@ -1759,12 +1759,12 @@ Sollen sie überschrieben werden?</translation>
         <location line="+11"/>
         <source>From revision %1&lt;br/&gt;</source>
         <extracomment>This gets conditionally inserted as argument %8 into the description string.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Revision:</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Basiered auf Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Erstellt am %4 um %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. Alle Rechte vorbehalten.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</translation>
     </message>
 </context>
 <context>
@@ -1803,7 +1803,7 @@ Sollen sie überschrieben werden?</translation>
         <location line="+38"/>
         <source>http://labs.trolltech.com/blogs/feed</source>
         <extracomment>Add localized feed here only if one exists</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1828,7 +1828,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+1"/>
         <source>Qt for S60 at Forum Nokia</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt für S60 im Forum Nokia</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1856,27 +1856,27 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="-54"/>
         <source>Open Recent Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte  Projekte</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Resume Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzng fortführen</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Explore Qt Examples</source>
-        <translation type="unfinished">Qt Beispiele öffnen</translation>
+        <translation>Qt Beispiele öffnen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Did You Know?</source>
-        <translation type="unfinished"></translation>
+        <translation>Schon gewusst?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>News From the Qt Labs</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuigkeiten aus den Qt Labs</translation>
     </message>
     <message>
         <location line="+53"/>
@@ -1912,85 +1912,85 @@ Sollen sie überschrieben werden?</translation>
         <location line="+24"/>
         <source>Cmd</source>
         <comment>Shortcut key</comment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Alt</source>
         <comment>Shortcut key</comment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können ywischen den Modi von Qt Crator umschalten, indem Sie &lt;tt&gt;Ctrl+Nummber&lt;/tt&gt; verwenden: &lt;ul&gt;&lt;li&gt;1 - Willkommen&lt;/li&gt;&lt;li&gt;2 - Editieren&lt;/li&gt;&lt;li&gt;3 - Debuggen&lt;/li&gt;&lt;li&gt;4 - Projekte&lt;/li&gt;&lt;li&gt;5 - Hilfe&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Ausgabe&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>You can show and hide the side bar using &lt;tt&gt;%1+0&lt;tt&gt;.</source>
         <extracomment>%1 gets replaced by Alt (Win/Unix) or Cmd (Mac)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sie können die Seitenleiste mit &lt;tt&gt;%1+0&lt;tt&gt; anzeigen oder zuklappen.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>The code completion is CamelCase-aware. For example, to complete &lt;tt&gt;namespaceUri&lt;/tt&gt; you can just type &lt;tt&gt;nU&lt;/tt&gt; and hit &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Code-Vervollständigung versteht CamelCase. Sie können zum Beipiel statt &lt;tt&gt;namespaceUri&lt;/tt&gt; einfach &lt;tt&gt;nU&lt;/tt&gt; schreiben und danach &lt;tt&gt;Strg+Leertaste&lt;/tt&gt; drucken.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>You can force code completion at any time using &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sie können die Code-Vervollständigung jederzeit mittels &lt;tt&gt;Strg+Leertaste&lt;/tt&gt; erzwingen.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>You can start Qt Creator with a session by calling &lt;tt&gt;qtcreator &amp;lt;sessionname&amp;gt;&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können Qt Creator jederzeit mit einer Sitzung starten, in dem Sie &lt;tt&gt;qtcreator &amp;lt;Sitzungsname&amp;gt;&lt;/tt&gt; aufrufen.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>You can return to edit mode from any other mode at any time by hitting &lt;tt&gt;Escape&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können stets mittels &lt;tt&gt;Escape&lt;/tt&gt;-Taste aus jedem anderen Modus in den Editier-Modus zurückkehren.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>You can switch between the output pane by hitting &lt;tt&gt;%1+n&lt;/tt&gt; where n is the number denoted on the buttons at the window bottom:&lt;ul&gt;&lt;li&gt;1 - Build Issues&lt;/li&gt;&lt;li&gt;2 - Search Results&lt;/li&gt;&lt;li&gt;3 - Application Output&lt;/li&gt;&lt;li&gt;4 - Compile Output&lt;/li&gt;&lt;/ul&gt;</source>
         <extracomment>%1 gets replaced by Alt (Win/Unix) or Cmd (Mac)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sie können ywischen den Ausgabepanelen umschalten, in dem Sie &lt;tt&gt;%1+n&lt;/tt&gt; drücken, wobei n die Zahl ist, die auf den Schaltflächen am unteren Fensterrand befindet: &lt;ul&gt;&lt;li&gt;1 - Build-Probleme&lt;/li&gt;&lt;li&gt;2 - Suchergebnisse&lt;/li&gt;&lt;li&gt;3 - Ausgabe der Anwendung&lt;/li&gt;&lt;li&gt;4 - Kompilierung&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit der &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;) können Sie schnell nach Klassen, Methoden oder Hilfe suchen.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können eigene Erstellungsschritte in den &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;&apos;Build&apos;-Einstellungen&lt;/a&gt; hinzufügen.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation type="unfinished"></translation>
+        <translation>In einer Sitzung können Sie &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;Abhängigkeiten&lt;/a&gt; zwischen Projekten herstellen.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>You can set the preferred editor encoding for every project in &lt;tt&gt;Projects -&gt; Editor Settings -&gt; Default Encoding&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können ihre Encoding-Vorgabe für den Editor für jedes Projekt in &lt;tt&gt;Projekte -&gt; Editoreinstellungen -&gt; Encoding-Vorgabe&lt;/tt&gt; einstellen.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>You can modify the binary that is being executed when you press the &lt;tt&gt;Run&lt;/tt&gt; button: Add a &lt;tt&gt;Custom Executable&lt;/tt&gt; by clicking the &lt;tt&gt;+&lt;/tt&gt; button in &lt;tt&gt;Projects -&gt; Run Settings -&gt; Run Configuration&lt;/tt&gt; and then select the new target in the combo box.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sie können die auszuführende Datei bestimmen die ausgeführt wird, wenn Sie auf die &lt;tt&gt;Ausführen&lt;/tt&gt;-Schaltlfläche klicken: Fügen Sie dazu eine &lt;tt&gt;Benutzerdefinierte ausführbare Datei&lt;/tt&gt; unter  &lt;tt&gt;Projekte -&gt;Ausführung -&gt; Ausführungskonfiguration&lt;/tt&gt; hinzu, indem Sie auf die &lt;tt&gt;+&lt;/tt&gt;-Schaltfläche klicken und wählen Sie die neue Konfiguration aus der Auswahl.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce and Git.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können Qt Creator mit einer Reihe von  &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;Revisionskontrollsystemen&lt;/a&gt; wie Subversion, Perforce oder Git verwenden.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Editor können Sie &lt;tt&gt;F2&lt;/tt&gt; verwenden, um zwischen Deklaration und Definition umzuschalten. &lt;tt&gt;F4&lt;/tt&gt; schaltet zwischen Header- und Quelldatei um.</translation>
     </message>
     <message>
         <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ol&gt;&lt;li&gt; - Welcome&lt;/li&gt;&lt;li&gt; - Edit&lt;/li&gt;&lt;li&gt;- Debug&lt;/li&gt;&lt;li&gt;- Projects&lt;/li&gt;&lt;li&gt;- Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;- Output&lt;/li&gt;&lt;/ol&gt;</source>
@@ -2089,7 +2089,7 @@ p {
         <source>#gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
 }</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
@@ -2098,7 +2098,7 @@ p {
     border-width: 0;
 }
 </source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
@@ -2138,7 +2138,8 @@ p {
     <message>
         <location/>
         <source>Feedback</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Sollte nicht übersetzt werden.</translatorcomment>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2155,7 +2156,7 @@ p {
         <location filename="../../../src/plugins/coreplugin/scriptmanager/scriptmanager.cpp" line="+237"/>
         <source>Exception at line %1: %2
 %3</source>
-        <translation type="unfinished">Ausnahme in Zeile%1: %2
+        <translation>Ausnahme in Zeile%1: %2
 %3</translation>
     </message>
     <message>
@@ -2670,7 +2671,7 @@ p {
     <message>
         <location/>
         <source>File Naming Conventions</source>
-        <translation type="unfinished"></translation>
+        <translation>Konventionen für die Bildung von Dateinamen</translation>
     </message>
 </context>
 <context>
@@ -2690,7 +2691,7 @@ p {
     <message>
         <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+52"/>
         <source>File Naming Conventions</source>
-        <translation type="unfinished"></translation>
+        <translation>Konventionen für die Bildung von Dateinamen</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2989,12 +2990,12 @@ p {
     <message>
         <location line="+4"/>
         <source>Set Breakpoint at Function...</source>
-        <translation type="unfinished">Haltepunkt bei Funktion</translation>
+        <translation>Haltepunkt bei Funktion</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Set Breakpoint at Function &quot;main&quot;</source>
-        <translation type="unfinished">Haltepunkt bei Funktion main() setzen</translation>
+        <translation>Haltepunkt bei Funktion main() setzen</translation>
     </message>
     <message>
         <location line="+59"/>
@@ -3441,7 +3442,7 @@ p {
     <message>
         <location line="+6"/>
         <source>Detach Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger abhängen</translation>
     </message>
     <message>
         <location line="+45"/>
@@ -4894,7 +4895,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+1"/>
         <source>F3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -4904,7 +4905,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+1"/>
         <source>F4</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -4919,47 +4920,47 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+5"/>
         <source>Meta+H</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+H</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Meta+L</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+L</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Meta+G</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Meta+J</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+J</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+22"/>
         <source>Ctrl+Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+15"/>
@@ -5599,7 +5600,7 @@ Grund: %3</translation>
     <message>
         <location/>
         <source>Incremental search:</source>
-        <translation type="unfinished"></translation>
+        <translation>Inkrimentelle Suche:</translation>
     </message>
 </context>
 <context>
@@ -5700,7 +5701,7 @@ Grund: %3</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+Shift+F</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -5718,7 +5719,7 @@ Grund: %3</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+E</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+6"/>
@@ -5738,7 +5739,7 @@ Grund: %3</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+=</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+5"/>
@@ -5763,7 +5764,7 @@ Grund: %3</translation>
     <message>
         <location line="+9"/>
         <source>Use Regular Expressions</source>
-        <translation type="unfinished"></translation>
+        <translation>Reguläre Ausdrücke verwenden</translation>
     </message>
 </context>
 <context>
@@ -5906,12 +5907,12 @@ Grund: %3</translation>
     <message>
         <location line="+7"/>
         <source>Toolchain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Werkzeugkette:</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Generic Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Generische Verwaltung</translation>
     </message>
 </context>
 <context>
@@ -5978,7 +5979,7 @@ Grund: %3</translation>
     <message>
         <location filename="../../../src/plugins/git/branchdialog.cpp" line="+75"/>
         <source>Checkout</source>
-        <translation type="unfinished"></translation>
+        <translation>Auschecken</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6033,7 +6034,7 @@ Grund: %3</translation>
     <message>
         <location filename="../../../src/plugins/git/branchdialog.ui"/>
         <source>Branches</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
@@ -6043,12 +6044,12 @@ Grund: %3</translation>
     <message>
         <location/>
         <source>Repository:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
         <source>Remote branches</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Branches</translation>
     </message>
 </context>
 <context>
@@ -7226,7 +7227,7 @@ Make sure you use something like
 SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
 
 in your .pro file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">g</translation>
     </message>
     <message>
         <location filename="../../../src/tools/texteditor/mainwindow.cpp" line="+62"/>
