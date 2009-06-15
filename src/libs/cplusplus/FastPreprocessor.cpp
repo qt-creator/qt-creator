@@ -36,7 +36,7 @@ FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
       _preproc(this, &_env)
 { }
 
-QByteArray FastPreprocessor::run(QString fileName, const QByteArray &source)
+QByteArray FastPreprocessor::run(QString fileName, const QString &source)
 {
     const QByteArray preprocessed = _preproc(fileName, source);
     return preprocessed;

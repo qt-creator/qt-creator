@@ -356,7 +356,7 @@ void Snapshot::insert(Document::Ptr doc)
         insert(doc->fileName(), doc);
 }
 
-QByteArray Snapshot::preprocessedCode(const QByteArray &source, const QString &fileName) const
+QByteArray Snapshot::preprocessedCode(const QString &source, const QString &fileName) const
 {
     FastPreprocessor pp(*this);
     return pp.run(fileName, source);

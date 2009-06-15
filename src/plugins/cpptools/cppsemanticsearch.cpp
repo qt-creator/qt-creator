@@ -262,7 +262,7 @@ SemanticSearch *SearchFunctionCallFactory::create(QFutureInterface<Core::Utils::
 
 static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
                                   QPointer<CppModelManager> modelManager,
-                                  QMap<QString, QByteArray> wl,
+                                  QMap<QString, QString> wl,
                                   SemanticSearchFactory::Ptr factory)
 {
     const Snapshot snapshot = modelManager->snapshot();
@@ -277,14 +277,14 @@ static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult
         QByteArray source;
 
         if (wl.contains(fileName))
-            source = wl.value(fileName);
+            source = snapshot.preprocessedCode(wl.value(fileName), fileName);
         else {
             QFile file(fileName);
             if (! file.open(QFile::ReadOnly))
                 continue;
 
             const QString contents = QTextStream(&file).readAll(); // ### FIXME
-            source = snapshot.preprocessedCode(contents.toUtf8(), fileName);
+            source = snapshot.preprocessedCode(contents, fileName);
         }
 
         Document::Ptr newDoc = snapshot.documentFromSource(source, fileName);

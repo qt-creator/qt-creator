@@ -89,7 +89,7 @@ public:
     CppEditorSupport *editorSupport(TextEditor::ITextEditor *editor) const
     { return m_editorSupport.value(editor); }
 
-    QMap<QString, QByteArray> buildWorkingCopyList();
+    QMap<QString, QString> buildWorkingCopyList();
 
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
 

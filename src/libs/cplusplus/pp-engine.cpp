@@ -564,11 +564,21 @@ void Preprocessor::popState()
     _savedStates.removeLast();
 }
 
-QByteArray Preprocessor::operator()(const QString &filename,
+QByteArray Preprocessor::operator()(const QString &fileName, const QString &source)
+{
+    const QString previousOriginalSource = _originalSource;
+    _originalSource = source;
+    const QByteArray bytes = source.toLatin1();
+    const QByteArray preprocessedCode = operator()(fileName, bytes);
+    _originalSource = previousOriginalSource;
+    return preprocessedCode;
+}
+
+QByteArray Preprocessor::operator()(const QString &fileName,
                                     const QByteArray &source)
 {
     QByteArray preprocessed;
-    preprocess(filename, source, &preprocessed);
+    preprocess(fileName, source, &preprocessed);
     return preprocessed;
 }
 
@@ -1098,7 +1108,7 @@ void Preprocessor::processInclude(bool, TokenIterator firstToken,
         const char *beginOfPath = endOfToken(*start);
         const char *endOfPath = startOfToken(*tk);
 
-        QString fn = QString::fromUtf8(beginOfPath, endOfPath - beginOfPath);
+        QString fn = string(beginOfPath, endOfPath - beginOfPath);
         client->sourceNeeded(fn, Client::IncludeGlobal, firstToken->lineno);
 
     } else if (tk->is(T_ANGLE_STRING_LITERAL) || tk->is(T_STRING_LITERAL)) {
@@ -1111,7 +1121,7 @@ void Preprocessor::processInclude(bool, TokenIterator firstToken,
         if (beginOfPath + 1 != endOfPath && ((quote == '"' && endOfPath[-1] == '"') ||
                                               (quote == '<' && endOfPath[-1] == '>'))) {
 
-            QString fn = QString::fromUtf8(beginOfPath + 1, spell.length() - 2);
+            QString fn = string(beginOfPath + 1, spell.length() - 2);
             client->sourceNeeded(fn, Client::IncludeLocal, firstToken->lineno);
         }
     }
@@ -1421,4 +1431,13 @@ bool Preprocessor::isQtReservedWord(const QByteArray &macroId) const
     else if (size == 5 && macroId.at(0) == 's' && macroId == "slots")
         return true;
     return false;
+}
+
+QString Preprocessor::string(const char *first, int length) const
+{
+    if (_originalSource.isEmpty())
+        return QString::fromUtf8(first, length);
+
+    const int position = first - _source.constData();
+    return _originalSource.mid(position, length);
 }

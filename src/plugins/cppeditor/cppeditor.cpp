@@ -495,7 +495,7 @@ void CPPEditor::reformatDocument()
     QByteArray source = toPlainText().toUtf8();
 
     Control control;
-    StringLiteral *fileId = control.findOrInsertFileName("<file>");
+    StringLiteral *fileId = control.findOrInsertStringLiteral("<file>");
     TranslationUnit unit(&control, fileId);
     unit.setQtMocRunEnabled(true);
     unit.setSource(source.constData(), source.length());

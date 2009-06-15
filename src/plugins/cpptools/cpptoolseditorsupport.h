@@ -112,7 +112,7 @@ public:
     int updateDocumentInterval() const;
     void setUpdateDocumentInterval(int updateDocumentInterval);
 
-    QByteArray contents(); // UTF-8 encoded
+    QString contents();
 
 Q_SIGNALS:
     void contentsChanged();
@@ -132,7 +132,7 @@ private:
     QTimer *_updateDocumentTimer;
     int _updateDocumentInterval;
     QFuture<void> _documentParser;
-    QByteArray _cachedContents;
+    QString _cachedContents;
 
     QTimer *_quickFixTimer;
     TextEditor::ITextMark *_quickFixMark;

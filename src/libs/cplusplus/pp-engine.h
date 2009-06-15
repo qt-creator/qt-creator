@@ -50,25 +50,23 @@
 #define CPLUSPLUS_PP_ENGINE_H
 
 #include "PreprocessorClient.h"
+#include "pp-macro-expander.h"
 
 #include <Token.h>
 #include <QVector>
 
 namespace CPlusPlus {
-    class Token;
-}
-
-namespace CPlusPlus {
 
 struct Value;
+class Environment;
 
 class CPLUSPLUS_EXPORT Preprocessor
 {
 public:
     Preprocessor(Client *client, Environment *env);
 
-    QByteArray operator()(const QString &filename,
-                          const QByteArray &source);
+    QByteArray operator()(const QString &filename, const QString &source);
+    QByteArray operator()(const QString &filename, const QByteArray &source);
 
     void preprocess(const QString &filename,
                     const QByteArray &source,
@@ -169,6 +167,8 @@ private:
     void out(char ch);
     void out(const char *s);
 
+    QString string(const char *first, int len) const;
+
 private:
     Client *client;
     Environment *env;
@@ -186,6 +186,8 @@ private:
 
     QByteArray *_result;
     bool _markGeneratedTokens;
+
+    QString _originalSource;
 };
 
 } // namespace CPlusPlus

@@ -171,7 +171,7 @@ public:
     CppPreprocessor(QPointer<CppModelManager> modelManager);
     virtual ~CppPreprocessor();
 
-    void setWorkingCopy(const QMap<QString, QByteArray> &workingCopy);
+    void setWorkingCopy(const QMap<QString, QString> &workingCopy);
     void setIncludePaths(const QStringList &includePaths);
     void setFrameworkPaths(const QStringList &frameworkPaths);
     void setProjectFiles(const QStringList &files);
@@ -190,8 +190,8 @@ public: // attributes
 protected:
     CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
 
-    bool includeFile(const QString &absoluteFilePath, QByteArray *result);
-    QByteArray tryIncludeFile(QString &fileName, IncludeType type);
+    bool includeFile(const QString &absoluteFilePath, QString *result);
+    QString tryIncludeFile(QString &fileName, IncludeType type);
 
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
@@ -212,7 +212,7 @@ private:
     Preprocessor preprocess;
     QStringList m_includePaths;
     QStringList m_systemIncludePaths;
-    QMap<QString, QByteArray> m_workingCopy;
+    QMap<QString, QString> m_workingCopy;
     QStringList m_projectFiles;
     QStringList m_frameworkPaths;
     QSet<QString> m_included;
@@ -233,7 +233,7 @@ CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
 CppPreprocessor::~CppPreprocessor()
 { }
 
-void CppPreprocessor::setWorkingCopy(const QMap<QString, QByteArray> &workingCopy)
+void CppPreprocessor::setWorkingCopy(const QMap<QString, QString> &workingCopy)
 { m_workingCopy = workingCopy; }
 
 void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
@@ -543,13 +543,13 @@ class Process: public std::unary_function<Document::Ptr, void>
 {
     QPointer<CppModelManager> _modelManager;
     Snapshot _snapshot;
-    QMap<QString, QByteArray> _workingCopy;
+    QMap<QString, QString> _workingCopy;
     Document::Ptr _doc;
 
 public:
     Process(QPointer<CppModelManager> modelManager,
             Snapshot snapshot,
-            const QMap<QString, QByteArray> &workingCopy)
+            const QMap<QString, QString> &workingCopy)
         : _modelManager(modelManager),
           _snapshot(snapshot),
           _workingCopy(workingCopy)
@@ -605,7 +605,7 @@ void CppPreprocessor::resetEnvironment()
     m_processed.clear();
 }
 
-bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *result)
+bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QString *result)
 {
     if (absoluteFilePath.isEmpty() || m_included.contains(absoluteFilePath)) {
         return true;
@@ -634,11 +634,11 @@ bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *r
     return false;
 }
 
-QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
+QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
 {
     QFileInfo fileInfo(fileName);
     if (fileName == QLatin1String(pp_configuration_file) || fileInfo.isAbsolute()) {
-        QByteArray contents;
+        QString contents;
         includeFile(fileName, &contents);
         return contents;
     }
@@ -649,7 +649,7 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
         path += QLatin1Char('/');
         path += fileName;
         path = QDir::cleanPath(path);
-        QByteArray contents;
+        QString contents;
         if (includeFile(path, &contents)) {
             fileName = path;
             return contents;
@@ -661,7 +661,7 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
         path += QLatin1Char('/');
         path += fileName;
         path = QDir::cleanPath(path);
-        QByteArray contents;
+        QString contents;
         if (includeFile(path, &contents)) {
             fileName = path;
             return contents;
@@ -674,7 +674,7 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
         path += QLatin1Char('/');
         path += fileName;
         path = QDir::cleanPath(path);
-        QByteArray contents;
+        QString contents;
         if (includeFile(path, &contents)) {
             fileName = path;
             return contents;
@@ -693,7 +693,7 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
             path += QLatin1String(".framework/Headers/");
             path += name;
             path = QDir::cleanPath(path);
-            QByteArray contents;
+            QString contents;
             if (includeFile(path, &contents)) {
                 fileName = path;
                 return contents;
@@ -708,14 +708,14 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
     foreach (const QString &projectFile, m_projectFiles) {
         if (projectFile.endsWith(path)) {
             fileName = projectFile;
-            QByteArray contents;
+            QString contents;
             includeFile(fileName, &contents);
             return contents;
         }
     }
 
     //qDebug() << "**** file" << fileName << "not found!";
-    return QByteArray();
+    return QString();
 }
 
 void CppPreprocessor::macroAdded(const Macro &macro)
@@ -790,7 +790,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     if (fileName.isEmpty())
         return;
 
-    QByteArray contents = tryIncludeFile(fileName, type);
+    QString contents = tryIncludeFile(fileName, type);
 
     if (m_currentDoc) {
         m_currentDoc->addIncludeFile(fileName, line);
@@ -822,7 +822,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
 
     Document::Ptr previousDoc = switchDocument(doc);
 
-    const QByteArray preprocessedCode = preprocess(fileName.toUtf8(), contents);
+    const QByteArray preprocessedCode = preprocess(fileName, contents);
 
     doc->setSource(preprocessedCode);
     doc->tokenize();
@@ -984,9 +984,9 @@ void CppModelManager::removeEditorSupport(AbstractEditorSupport *editorSupport)
     m_addtionalEditorSupport.remove(editorSupport);
 }
 
-QMap<QString, QByteArray> CppModelManager::buildWorkingCopyList()
+QMap<QString, QString> CppModelManager::buildWorkingCopyList()
 {
-    QMap<QString, QByteArray> workingCopy;
+    QMap<QString, QString> workingCopy;
     QMapIterator<TextEditor::ITextEditor *, CppEditorSupport *> it(m_editorSupport);
     while (it.hasNext()) {
         it.next();
@@ -1041,7 +1041,7 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 {
     if (! sourceFiles.isEmpty() && qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
-        const QMap<QString, QByteArray> workingCopy = buildWorkingCopyList();
+        const QMap<QString, QString> workingCopy = buildWorkingCopyList();
 
         CppPreprocessor *preproc = new CppPreprocessor(this);
         preproc->setProjectFiles(projectFiles());

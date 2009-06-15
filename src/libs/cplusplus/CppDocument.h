@@ -272,7 +272,7 @@ public:
     Snapshot();
     ~Snapshot();
 
-    QByteArray preprocessedCode(const QByteArray &source,
+    QByteArray preprocessedCode(const QString &source,
                                 const QString &fileName) const;
 
     Document::Ptr documentFromSource(const QByteArray &preprocessedCode,

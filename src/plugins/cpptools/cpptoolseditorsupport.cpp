@@ -348,12 +348,12 @@ void CppEditorSupport::setTextEditor(TextEditor::ITextEditor *textEditor)
     updateDocument();
 }
 
-QByteArray CppEditorSupport::contents()
+QString CppEditorSupport::contents()
 {
     if (! _textEditor)
-        return QByteArray();
+        return QString();
     else if (! _cachedContents.isEmpty())
-        _cachedContents = _textEditor->contents().toUtf8();
+        _cachedContents = _textEditor->contents();
 
     return _cachedContents;
 }
@@ -403,7 +403,7 @@ void CppEditorSupport::checkDocumentNow()
             qobject_cast<TextEditor::BaseTextEditor *>(_textEditor->widget());
 
     Snapshot snapshot = _modelManager->snapshot();
-    const QByteArray plainText = contents();
+    const QString plainText = contents();
     const QString fileName = _textEditor->file()->fileName();
     const QByteArray preprocessedCode = snapshot.preprocessedCode(plainText, fileName);
 

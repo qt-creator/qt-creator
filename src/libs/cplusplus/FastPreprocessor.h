@@ -51,7 +51,7 @@ class CPLUSPLUS_EXPORT FastPreprocessor: public Client
 public:
     FastPreprocessor(const Snapshot &snapshot);
 
-    QByteArray run(QString fileName, const QByteArray &source);
+    QByteArray run(QString fileName, const QString &source);
 
     // CPlusPlus::Client
     virtual void sourceNeeded(QString &fileName, IncludeType, unsigned)
