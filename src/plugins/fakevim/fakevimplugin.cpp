@@ -248,10 +248,16 @@ private slots:
     void showExtraInformation(const QString &msg);
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void writeFile(bool *handled, const QString &fileName, const QString &contents);
-    void quitFile(bool forced);
-    void quitAllFiles(bool forced);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void indentRegion(int *amount, int beginLine, int endLine,  QChar typedChar);
+    void handleExCommand(const QString &cmd);
+
+    void handleDelayedQuitAll(bool forced);
+    void handleDelayedQuit(bool forced, Core::IEditor *editor);
+
+signals:
+    void delayedQuitRequested(bool forced, Core::IEditor *editor);
+    void delayedQuitAllRequested(bool forced);
 
 private:
     FakeVimPlugin *q;
@@ -315,6 +321,12 @@ bool FakeVimPluginPrivate::initialize()
         this, SLOT(showSettingsDialog()));
     connect(theFakeVimSetting(ConfigUseFakeVim), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setUseFakeVim(QVariant)));
+
+    // Delayed operatiosn
+    connect(this, SIGNAL(delayedQuitRequested(bool,Core::IEditor*)),
+        this, SLOT(handleDelayedQuit(bool,Core::IEditor*)), Qt::QueuedConnection);
+    connect(this, SIGNAL(delayedQuitAllRequested(bool)),
+        this, SLOT(handleDelayedQuitAll(bool)), Qt::QueuedConnection);
 
     return true;
 }
@@ -406,10 +418,6 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(showExtraInformation(QString)));
     connect(handler, SIGNAL(commandBufferChanged(QString)),
         this, SLOT(showCommandBuffer(QString)));
-    connect(handler, SIGNAL(quitRequested(bool)),
-        this, SLOT(quitFile(bool)), Qt::QueuedConnection);
-    connect(handler, SIGNAL(quitAllRequested(bool)),
-        this, SLOT(quitAllFiles(bool)), Qt::QueuedConnection);
     connect(handler, SIGNAL(writeFileRequested(bool*,QString,QString)),
         this, SLOT(writeFile(bool*,QString,QString)));
     connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
@@ -426,6 +434,9 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(find(bool)));
     connect(handler, SIGNAL(findNextRequested(bool)),
         this, SLOT(findNext(bool)));
+
+    connect(handler, SIGNAL(handleExCommandRequested(QString)),
+        this, SLOT(handleExCommand(QString)));
 
     handler->setCurrentFileName(editor->file()->fileName());
     handler->installEventFilter();
@@ -471,21 +482,6 @@ void FakeVimPluginPrivate::triggerCompletions()
    //     bt->triggerCompletions();
 }
 
-void FakeVimPluginPrivate::quitFile(bool forced)
-{
-    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
-    if (!handler)
-        return;
-    QList<Core::IEditor *> editors;
-    editors.append(m_editorToHandler.key(handler));
-    Core::EditorManager::instance()->closeEditors(editors, !forced);
-}
-
-void FakeVimPluginPrivate::quitAllFiles(bool forced)
-{
-    Core::EditorManager::instance()->closeAllEditors(!forced);
-}
-
 void FakeVimPluginPrivate::writeFile(bool *handled,
     const QString &fileName, const QString &contents)
 {
@@ -506,6 +502,63 @@ void FakeVimPluginPrivate::writeFile(bool *handled,
     } 
 }
 
+void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
+{
+    static QRegExp reNextFile("^n(ext)?!?( (.*))?$");
+    static QRegExp rePreviousFile("^(N(ext)?|prev(ious)?)!?( (.*))?$");
+    static QRegExp reWriteAll("^wa(ll)?!?$");
+    static QRegExp reQuit("^q!?$");
+    static QRegExp reQuitAll("^qa!?$");
+
+    using namespace Core;
+
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+
+    EditorManager *editorManager = EditorManager::instance();
+    QTC_ASSERT(editorManager, return);
+
+    if (reNextFile.indexIn(cmd) != -1) {
+        // :n
+        editorManager->goForwardInNavigationHistory();
+    } else if (rePreviousFile.indexIn(cmd) != -1) {
+        // :N, :prev
+        editorManager->goBackInNavigationHistory();
+    } else if (reWriteAll.indexIn(cmd) != -1) {
+        // :wa
+        FileManager *fm = ICore::instance()->fileManager();
+        QList<IFile *> toSave = fm->modifiedFiles();
+        QList<IFile *> failed = fm->saveModifiedFilesSilently(toSave);
+        if (failed.isEmpty())
+            handler->showBlackMessage(tr("Saving succeeded"));
+        else
+            handler->showRedMessage(tr("%1 files not saaved").arg(failed.size()));
+    } else if (reQuit.indexIn(cmd) != -1) {
+        // :q
+        bool forced = cmd.contains(QChar('!'));
+        emit delayedQuitRequested(forced, m_editorToHandler.key(handler));
+    } else if (reQuitAll.indexIn(cmd) != -1) {
+        // :qa
+        bool forced = cmd.contains(QChar('!'));
+        emit delayedQuitAllRequested(forced);
+    } else {
+        handler->showRedMessage(tr("Not an editor command: ") + cmd);
+    }
+}
+
+void FakeVimPluginPrivate::handleDelayedQuit(bool forced, Core::IEditor *editor)
+{
+    QList<Core::IEditor *> editors;
+    editors.append(editor);
+    Core::EditorManager::instance()->closeEditors(editors, !forced);
+}
+
+void FakeVimPluginPrivate::handleDelayedQuitAll(bool forced)
+{
+    Core::EditorManager::instance()->closeAllEditors(!forced);
+}
+
 void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
         QTextCursor *cursor)
 {
@@ -521,7 +574,7 @@ void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
     if (match == TextEditor::TextBlockUserData::Match) {
         *moved = true;
         *forward = true;
-   } else {
+    } else {
         if (undoFakeEOL)
             cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
         if (match == TextEditor::TextBlockUserData::NoMatch) {

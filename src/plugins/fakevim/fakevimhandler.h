@@ -50,6 +50,8 @@ public:
 
 public slots:
     void setCurrentFileName(const QString &fileName);
+    void showBlackMessage(const QString &msg);
+    void showRedMessage(const QString &msg);
 
     // This executes an "ex" style command taking context
     // information from widget;
@@ -65,17 +67,17 @@ signals:
     void commandBufferChanged(const QString &msg);
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
-    void quitRequested(bool force);
-    void quitAllRequested(bool force);
     void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
     void writeFileRequested(bool *handled,
         const QString &fileName, const QString &contents);
+    void writeAllRequested(QString *error);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void indentRegion(int *amount, int beginLine, int endLine, QChar typedChar);
     void completionRequested();
     void windowCommandRequested(int key);
     void findRequested(bool reverse);
     void findNextRequested(bool reverse);
+    void handleExCommandRequested(const QString &cmd);
 
 public:
     class Private;

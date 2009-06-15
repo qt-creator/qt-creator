@@ -210,11 +210,11 @@ private slots:
     void updateEditorHistory();
     void updateActions();
     void revertToSaved();
-    void goBackInNavigationHistory();
-    void goForwardInNavigationHistory();
     void makeCurrentEditorWritable();
 
 public slots:
+    void goBackInNavigationHistory();
+    void goForwardInNavigationHistory();
     void split(Qt::Orientation orientation);
     void split();
     void splitSideBySide();
