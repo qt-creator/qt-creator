@@ -546,7 +546,13 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
         environment.set(QLatin1String("PATH"), m_settings.path);
     process.setEnvironment(environment.toStringList());
 
-    process.start(m_binaryPath, arguments);
+#ifdef Q_OS_WIN
+        QStringList args;
+        args << "/c" << m_binaryPath << arguments;
+        process.start(QLatin1String("cmd.exe"), args);
+#else
+        process.start(m_binaryPath, arguments);
+#endif
     process.closeWriteChannel();
 
     if (!process.waitForFinished()) {
