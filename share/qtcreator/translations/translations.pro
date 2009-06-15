@@ -1,6 +1,6 @@
 include(../../../qtcreator.pri)
 
-LANGUAGES = de it ja ru
+LANGUAGES = de es it ja ru
 
 # var, prepend, append
 defineReplace(prependAll) {
