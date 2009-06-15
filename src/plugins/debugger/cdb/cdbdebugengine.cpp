@@ -760,6 +760,12 @@ void CdbDebugEnginePrivate::endDebugging(EndDebuggingMode em)
     }
     setDebuggeeHandles(0, 0);
     m_engine->killWatchTimer();
+
+    // Clean up resources (open files, etc.)
+    hr = m_cif.debugClient->EndSession(DEBUG_END_PASSIVE);
+    if (FAILED(hr))
+        errorMessage += msgComFailed("EndSession", hr);
+
     if (!errorMessage.isEmpty()) {
         errorMessage = QString::fromLatin1("There were errors trying to end debugging: %1").arg(errorMessage);
         m_debuggerManagerAccess->showDebuggerOutput(QLatin1String("error"), errorMessage);
