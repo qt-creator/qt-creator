@@ -54,13 +54,13 @@ static inline QString msgPathConfigNote()
     const bool is64bit = false;
 #endif
     const QString link = is64bit ? QLatin1String(dgbToolsDownloadLink64C) : QLatin1String(dgbToolsDownloadLink32C);
-    //: Label text for path configuration. Singular form is not very likely to occur ;-)
+    //: Label text for path configuration. %2 is "x-bit version".
     return CdbOptionsPageWidget::tr(
     "<html><body><p>Specify the path to the "
     "<a href=\"%1\">Debugging Tools for Windows</a>"
-    " (%n bit-version) here.</p>"
+    " (%2) here.</p>"
     "<p><b>Note:</b> Restarting Qt Creator is required for these settings to take effect.</p></p>"
-    "</body></html>", 0, (is64bit ? 64 : 32)).arg(link);
+    "</body></html>", 0, ).arg(link, (is64bit ? tr("64-bit version") : tr("32-bit version")));
 }
 
 CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
