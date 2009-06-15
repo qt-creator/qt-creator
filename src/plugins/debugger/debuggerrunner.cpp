@@ -65,7 +65,7 @@ DebuggerRunner::DebuggerRunner(DebuggerManager *manager) :
 bool DebuggerRunner::canRun(RunConfigurationPtr runConfiguration, const QString &mode)
 {
     return mode == ProjectExplorer::Constants::DEBUGMODE
-       && !qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration).isNull();
+       && !runConfiguration.dynamicCast<ApplicationRunConfiguration>().isNull();
 }
 
 QString DebuggerRunner::displayName() const
@@ -80,8 +80,8 @@ RunControl* DebuggerRunner::run(RunConfigurationPtr runConfiguration,
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     ApplicationRunConfigurationPtr rc =
-        qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration);
-    //QTC_ASSERT(rc, return 0);
+        runConfiguration.dynamicCast<ApplicationRunConfiguration>();
+    Q_ASSERT(!rc.isNull());
     //qDebug() << "***** Debugging" << rc->name() << rc->executable();
     DebuggerRunControl *runControl = new DebuggerRunControl(m_manager, startMode, sp, rc);
     return runControl;
@@ -137,7 +137,7 @@ void DebuggerRunControl::start()
 {
     m_running = true;
     ApplicationRunConfigurationPtr rc =
-        qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration());
+        runConfiguration().dynamicCast<ApplicationRunConfiguration>();
     if (rc) {
         // Enhance parameters by info from the project, but do not clobber
         // arguments given in the dialogs
