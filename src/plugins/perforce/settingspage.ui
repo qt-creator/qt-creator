@@ -129,7 +129,7 @@
    <item>
     <widget class="QLabel" name="errorLabel">
      <property name="text">
-      <string>TextLabel</string>
+      <string extracomment="Placeholder" notr="true">errorLabel: blah blubb</string>
      </property>
     </widget>
    </item>

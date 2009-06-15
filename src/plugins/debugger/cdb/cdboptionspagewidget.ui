@@ -38,7 +38,7 @@
         <item row="0" column="0" colspan="2">
          <widget class="QLabel" name="noteLabel">
           <property name="text">
-           <string extracomment="Placeholder">ote: bla, blah</string>
+           <string extracomment="Placeholder" notr="true">Note: bla, blah</string>
           </property>
          </widget>
         </item>
