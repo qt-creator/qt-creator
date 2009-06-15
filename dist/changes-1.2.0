@@ -1,28 +1,30 @@
 The QtCreator 1.2 release contains bug fixes and new features.
 
-A more detailed list of changes follows below. If you want to know the exact
-and complete list of changes, you can check out the QtCreator sources from the
-public git repository and check the logs, e.g.
+Below is a list of relevant changes. You can find a complete list of changes
+within the logs of QtCreator's sources. Simply check it out from the public git
+repository e.g.,
 
 git clone git://gitorious.org/qt-creator/qt-creator.git
 git log --pretty=oneline v1.1.0..v1.2.0
 
 This release introduces source and binary incompatible changes to the plugin
-API, so if you created your own custom plugins these need to be adapted.
+API, so if you have created your own custom plugins, they will need to be
+adapted accordingly.
 
 General:
-   * Reworked Welcome Screen
-   * Speed improvement: store large amounts of persistent data
-     (e.g. locator cache) in an SQLite database
-   * Show current file name in the window title
+   * The Welcome Screen has been redesigned.
+   * There has been some speed improvements: large amounts of persistent data
+     (e.g., Qt Locator's cache) is now stored in an SQLite database.
+   * The window title now displays the current file's name.
 
 Editing
-   * Added option to allow alphabetical method combo box
-   * Introduced Block highlighting
-   * Improved code folding markers
-   * Further improvements to FakeVim mode
-   * Make it possible to disable Ctrl+Click navigation
-   * Added optional XCode-style tab indentation
+   * There is now an option for listing methods alphabetically in the combo box
+     above the editor.
+   * A block highlighting feature has been added.
+   * Code folding markers have been improved on.
+   * FakeVim mode has received further improvements.
+   * It is now possible to disable Ctrl+Click navigation.
+   * An optional XCode-style tab indentation has been added.
    * Ui changes are added immediately to the code model
    * Fixed possibly missing code completion with mingw toolchain
    * Added option for turning antialiasing of text editor fonts off
