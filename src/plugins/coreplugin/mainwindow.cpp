@@ -348,8 +348,9 @@ void MainWindow::extensionsInitialized()
     m_actionManager->initialize();
     readSettings();
     updateContext();
-    show();
 
+    emit m_coreImpl->coreAboutToOpen();
+    show();
     emit m_coreImpl->coreOpened();
 }
 

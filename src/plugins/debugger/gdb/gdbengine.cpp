@@ -205,14 +205,17 @@ void GdbEngine::initializeVariables()
 void GdbEngine::gdbProcError(QProcess::ProcessError error)
 {
     QString msg;
+    bool kill = true;
     switch (error) {
         case QProcess::FailedToStart:
+            kill = false;
             msg = tr("The Gdb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program.")
                 .arg(theDebuggerStringSetting(GdbLocation));
             break;
         case QProcess::Crashed:
+            kill = false;
             msg = tr("The Gdb process crashed some time after starting "
                 "successfully.");
             break;
@@ -238,7 +241,8 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
     q->showStatusMessage(msg);
     QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
     // act as if it was closed by the core
-    q->exitDebugger();
+    if (kill)
+        q->exitDebugger();
 }
 
 void GdbEngine::uploadProcError(QProcess::ProcessError error)
@@ -1332,8 +1336,7 @@ void GdbEngine::exitDebugger()
             postCommand(_("kill"));
         postCommand(_("-gdb-exit"), CB(handleExit));
         // 20s can easily happen when loading webkit debug information
-        m_gdbProc.waitForFinished(20000);
-        if (m_gdbProc.state() != QProcess::Running) {
+        if (!m_gdbProc.waitForFinished(20000)) {
             debugMessage(_("FORCING TERMINATION: %1")
                 .arg(m_gdbProc.state()));
             m_gdbProc.terminate();

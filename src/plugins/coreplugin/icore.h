@@ -109,6 +109,7 @@ public:
     virtual void openFiles(const QStringList &fileNames) = 0;
 
 signals:
+    void coreAboutToOpen();
     void coreOpened();
     void saveSettingsRequested();
     void optionsDialogRequested();
