@@ -153,7 +153,6 @@ public:
     typedef const Identifier *const *IdentifierIterator;
     typedef const StringLiteral *const *StringLiteralIterator;
     typedef const NumericLiteral *const *NumericLiteralIterator;
-    typedef const StringLiteral *const *FileNameIterator;
 
     IdentifierIterator firstIdentifier() const;
     IdentifierIterator lastIdentifier() const;
@@ -164,20 +163,11 @@ public:
     NumericLiteralIterator firstNumericLiteral() const;
     NumericLiteralIterator lastNumericLiteral() const;
 
-    FileNameIterator firstFileName() const;
-    FileNameIterator lastFileName() const;
-
     StringLiteral *findOrInsertStringLiteral(const char *chars, unsigned size);
     StringLiteral *findOrInsertStringLiteral(const char *chars);
 
     NumericLiteral *findOrInsertNumericLiteral(const char *chars, unsigned size);
     NumericLiteral *findOrInsertNumericLiteral(const char *chars);
-
-    StringLiteral *findOrInsertFileName(const char *chars, unsigned size);
-    StringLiteral *findOrInsertFileName(const char *chars);
-
-    unsigned fileNameCount() const;
-    StringLiteral *fileNameAt(unsigned index) const;
 
 private:
     class Data;

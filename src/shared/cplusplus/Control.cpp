@@ -449,7 +449,6 @@ public:
     LiteralTable<Identifier> identifiers;
     LiteralTable<StringLiteral> stringLiterals;
     LiteralTable<NumericLiteral> numericLiterals;
-    LiteralTable<StringLiteral> fileNames;
 
     // ### replace std::map with lookup tables. ASAP!
 
@@ -534,12 +533,6 @@ Control::NumericLiteralIterator Control::firstNumericLiteral() const
 Control::NumericLiteralIterator Control::lastNumericLiteral() const
 { return d->numericLiterals.end(); }
 
-Control::FileNameIterator Control::firstFileName() const
-{ return d->fileNames.begin(); }
-
-Control::FileNameIterator Control::lastFileName() const
-{ return d->fileNames.end(); }
-
 StringLiteral *Control::findOrInsertStringLiteral(const char *chars, unsigned size)
 { return d->stringLiterals.findOrInsertLiteral(chars, size); }
 
@@ -556,21 +549,6 @@ NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars)
 {
     unsigned length = std::char_traits<char>::length(chars);
     return findOrInsertNumericLiteral(chars, length);
-}
-
-unsigned Control::fileNameCount() const
-{ return d->fileNames.size(); }
-
-StringLiteral *Control::fileNameAt(unsigned index) const
-{ return d->fileNames.at(index); }
-
-StringLiteral *Control::findOrInsertFileName(const char *chars, unsigned size)
-{ return d->fileNames.findOrInsertLiteral(chars, size); }
-
-StringLiteral *Control::findOrInsertFileName(const char *chars)
-{
-    unsigned length = std::char_traits<char>::length(chars);
-    return findOrInsertFileName(chars, length);
 }
 
 NameId *Control::nameId(Identifier *id)

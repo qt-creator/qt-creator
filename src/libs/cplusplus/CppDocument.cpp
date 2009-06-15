@@ -110,8 +110,8 @@ Document::Document(const QString &fileName)
     _control->setDiagnosticClient(new DocumentDiagnosticClient(this, &_diagnosticMessages));
 
     const QByteArray localFileName = fileName.toUtf8();
-    StringLiteral *fileId = _control->findOrInsertFileName(localFileName.constData(),
-                                                           localFileName.size());
+    StringLiteral *fileId = _control->findOrInsertStringLiteral(localFileName.constData(),
+                                                                localFileName.size());
     _translationUnit = new TranslationUnit(_control, fileId);
     _translationUnit->setQtMocRunEnabled(true);
     _translationUnit->setObjCEnabled(true);
