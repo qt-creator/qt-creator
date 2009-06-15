@@ -143,10 +143,23 @@ QString FormatDescription::trName() const
 
 QColor FormatDescription::foreground() const
 {
-    if (m_name == QLatin1String(Constants::C_LINE_NUMBER))
-        return QApplication::palette().dark().color();
-    if (m_name == QLatin1String(Constants::C_PARENTHESES))
+    if (m_name == QLatin1String(Constants::C_LINE_NUMBER)) {
+        const QColor bg = QApplication::palette().background().color();
+        if (bg.value() < 128) {
+            return QApplication::palette().foreground().color();
+        } else {
+            return QApplication::palette().dark().color();
+        }
+    } else if (m_name == QLatin1String(Constants::C_CURRENT_LINE_NUMBER)) {
+        const QColor bg = QApplication::palette().background().color();
+        if (bg.value() < 128) {
+            return QApplication::palette().foreground().color();
+        } else {
+            return m_format.foreground();
+        }
+    } else if (m_name == QLatin1String(Constants::C_PARENTHESES)) {
         return QColor(Qt::red);
+    }
     return m_format.foreground();
 }
 
