@@ -30,7 +30,6 @@
 #ifndef PROITEMS_H
 #define PROITEMS_H
 
-#include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QList>
 
@@ -210,10 +209,8 @@ private:
     OperatorKind m_operatorKind;
 };
 
-class ProFile : public QObject, public ProBlock
+class ProFile : public ProBlock
 {
-    Q_OBJECT
-
 public:
     explicit ProFile(const QString &fileName);
     ~ProFile();
