@@ -89,7 +89,7 @@ bool OutputCollector::listen()
         {
             QTemporaryFile tf;
             if (!tf.open()) {
-                m_errorString = tr("Cannot create temporary file: %2").arg(tf.errorString());
+                m_errorString = tr("Cannot create temporary file: %1").arg(tf.errorString());
                 m_serverPath.clear();
                 return false;
             }

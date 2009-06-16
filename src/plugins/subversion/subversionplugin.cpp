@@ -697,7 +697,7 @@ void SubversionPlugin::startCommitAll()
         startCommit(files);
         break;
     default: {
-        const QString msg = tr("The commit list spans several respositories (%1). Please commit them one by one.").
+        const QString msg = tr("The commit list spans several repositories (%1). Please commit them one by one.").
             arg(files.join(QString(QLatin1Char(' '))));
         QMessageBox::warning(0, QLatin1String("svn commit"), msg, QMessageBox::Ok);
     }
