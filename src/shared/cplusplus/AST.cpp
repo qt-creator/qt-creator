@@ -843,15 +843,23 @@ void DeclaratorListAST::accept0(ASTVisitor *visitor)
 
 unsigned DeclaratorListAST::firstToken() const
 {
+    if (comma_token)
+        return comma_token;
+
     return declarator->firstToken();
 }
 
 unsigned DeclaratorListAST::lastToken() const
 {
     for (const DeclaratorListAST *it = this; it; it = it->next) {
-        if (! it->next)
-            return it->declarator->lastToken();
+        if (! it->next) {
+            if (it->declarator)
+                return it->declarator->lastToken();
+            else if (it->comma_token)
+                return it->comma_token + 1;
+        }
     }
+
     return 0;
 }
 
@@ -2033,10 +2041,8 @@ unsigned SimpleDeclarationAST::lastToken() const
     if (semicolon_token)
         return semicolon_token + 1;
 
-    for (DeclaratorListAST *it = declarators; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (declarators)
+        return declarators->lastToken();
 
     for (SpecifierAST *it = decl_specifier_seq; it; it = it->next) {
         if (! it->next)

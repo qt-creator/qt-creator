@@ -2775,6 +2775,13 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
         }
     }
 
+    // Set whether the mouse cursor is a hand or normal arrow
+    if (e->type() == QEvent::MouseMove) {
+        bool hand = (e->pos().x() <= markWidth);
+        if (hand != (d->m_extraArea->cursor().shape() == Qt::PointingHandCursor))
+            d->m_extraArea->setCursor(hand ? Qt::PointingHandCursor : Qt::ArrowCursor);
+    }
+
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
         if (e->button() == Qt::LeftButton) {
             int boxWidth = collapseBoxWidth(fontMetrics());
@@ -4094,6 +4101,7 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     QWidget *w = new QWidget;
     l->setMargin(0);
     l->setContentsMargins(5, 0, 5, 0);
+    l->addStretch(0);
     l->addWidget(m_cursorPositionLabel);
     w->setLayout(l);
 

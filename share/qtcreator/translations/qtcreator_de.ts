@@ -1861,7 +1861,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+1"/>
         <source>Resume Session</source>
-        <translation>Sitzng fortführen</translation>
+        <translation>Sitzung fortführen</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1939,7 +1939,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+2"/>
         <source>You can force code completion at any time using &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
-        <translation type="unfinished">Sie können die Code-Vervollständigung jederzeit mittels &lt;tt&gt;Strg+Leertaste&lt;/tt&gt; erzwingen.</translation>
+        <translation>Sie können die Code-Vervollständigung jederzeit mittels &lt;tt&gt;Strg+Leertaste&lt;/tt&gt; erzwingen.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1980,7 +1980,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+1"/>
         <source>You can modify the binary that is being executed when you press the &lt;tt&gt;Run&lt;/tt&gt; button: Add a &lt;tt&gt;Custom Executable&lt;/tt&gt; by clicking the &lt;tt&gt;+&lt;/tt&gt; button in &lt;tt&gt;Projects -&gt; Run Settings -&gt; Run Configuration&lt;/tt&gt; and then select the new target in the combo box.</source>
-        <translation type="unfinished">Sie können die auszuführende Datei bestimmen die ausgeführt wird, wenn Sie auf die &lt;tt&gt;Ausführen&lt;/tt&gt;-Schaltlfläche klicken: Fügen Sie dazu eine &lt;tt&gt;Benutzerdefinierte ausführbare Datei&lt;/tt&gt; unter  &lt;tt&gt;Projekte -&gt;Ausführung -&gt; Ausführungskonfiguration&lt;/tt&gt; hinzu, indem Sie auf die &lt;tt&gt;+&lt;/tt&gt;-Schaltfläche klicken und wählen Sie die neue Konfiguration aus der Auswahl.</translation>
+        <translation>Sie können die auszuführende Datei bestimmen die ausgeführt wird, wenn Sie auf die &lt;tt&gt;Ausführen&lt;/tt&gt;-Schaltlfläche klicken: Fügen Sie dazu eine &lt;tt&gt;Benutzerdefinierte ausführbare Datei&lt;/tt&gt; unter  &lt;tt&gt;Projekte -&gt;Ausführung -&gt; Ausführungskonfiguration&lt;/tt&gt; hinzu, indem Sie auf die &lt;tt&gt;+&lt;/tt&gt;-Schaltfläche klicken und wählen Sie die neue Konfiguration aus der Auswahl.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -3064,7 +3064,7 @@ p {
         <translation type="obsolete">Der Debugger konnte sich nicht an den Prozess %1 anhängen: %2</translation>
     </message>
     <message>
-        <location line="+494"/>
+        <location line="+500"/>
         <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos;: %3</source>
         <translation>Der Wert &apos;%1&apos; konnte nicht an &apos;%2&apos; zugewiesen werden: %3</translation>
     </message>
@@ -3718,23 +3718,23 @@ p {
 <context>
     <name>Debugger::Internal::GdbEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+210"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+212"/>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Der Start des Gdb-Prozesses schlug fehl. Entweder fehlt die ausführbare Datei &apos;%1&apos; oder die Berechtigungen sind nicht ausreichend.</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>The Gdb process crashed some time after starting successfully.</source>
         <translation>Der Gdb-Prozess ist einige Zeit nach dem Start abgestürzt.</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+39"/>
+        <location line="+40"/>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
         <translation>Zeitüberschreitung bei der letzten waitFor...()-Funktion. Der Status des QProcess ist unverändert, und waitFor...() kann nocheinmal gerufen.</translation>
     </message>
     <message>
-        <location line="-34"/>
+        <location line="-35"/>
         <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
         <translation>Ein Fehler trat beim Versuch des Schreibens zum Gdb-Prozess auf. Wahrscheinlich läuft der Prozess nicht, oder hat seinen Eingabekanal geschlossen.</translation>
     </message>
@@ -3750,15 +3750,15 @@ p {
     </message>
     <message>
         <location line="+5"/>
-        <location line="+39"/>
+        <location line="+40"/>
         <location line="+959"/>
         <location line="+19"/>
-        <location line="+402"/>
+        <location line="+401"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location line="-1256"/>
+        <location line="-1255"/>
         <source>Library %1 loaded.</source>
         <translation>Bibliothek %1 geladen.</translation>
     </message>
@@ -3920,7 +3920,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Angehalten.</translation>
     </message>
     <message>
-        <location line="+293"/>
+        <location line="+292"/>
         <location line="+27"/>
         <source>Debugger Startup Failure</source>
         <translation>Fehler beim Starten des Debuggers</translation>
@@ -5329,7 +5329,7 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location line="+1"/>
         <source>Plugin ended its life cycle and was deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin wurde nach Ablauf seiner Nutzungsdauer gelöscht</translation>
     </message>
     <message>
         <source>Plugin ended it&apos;s life cycle and was deleted</source>
@@ -6169,7 +6169,7 @@ Grund: %3</translation>
         <translation>Das Kommando &apos;show&apos; konnte nicht ausgeführt werden: %1: %2</translation>
     </message>
     <message>
-        <location line="+143"/>
+        <location line="+149"/>
         <source>Changes</source>
         <translation>Änderungen</translation>
     </message>
@@ -7227,7 +7227,7 @@ Make sure you use something like
 SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
 
 in your .pro file.</source>
-        <translation type="unfinished">g</translation>
+        <translation>g</translation>
     </message>
     <message>
         <location filename="../../../src/tools/texteditor/mainwindow.cpp" line="+62"/>
@@ -8087,6 +8087,10 @@ Basisname der Bibliothek: %1</translation>
 <context>
     <name>ProjectExplorer::EnvironmentModel</name>
     <message>
+        <source>&lt;UNSET&gt;</source>
+        <translation type="obsolete">&lt;NICHT GESETZT&gt;</translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/projectexplorer/environmenteditmodel.cpp" line="+169"/>
         <source>Variable</source>
         <translation>Variable</translation>
@@ -8095,6 +8099,37 @@ Basisname der Bibliothek: %1</translation>
         <location line="+0"/>
         <source>Value</source>
         <translation>Wert</translation>
+    </message>
+    <message>
+        <source>&lt;VARIABLE&gt;</source>
+        <translation type="obsolete">&lt;VARIABLE&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;VALUE&gt;</source>
+        <translation type="obsolete">&lt;WERT&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::EnvironmentWidget</name>
+    <message>
+        <location line="+276"/>
+        <source>&amp;Edit</source>
+        <translation>&amp;Bearbeiten</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&amp;Add</source>
+        <translation>Hinzu&amp;fügen</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&amp;Reset</source>
+        <translation>&amp;Rücksetzen</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&amp;Unset</source>
+        <translation>&amp;Leeren</translation>
     </message>
 </context>
 <context>
@@ -8845,7 +8880,7 @@ Basisname der Bibliothek: %1</translation>
     <message>
         <location line="+5"/>
         <source>&amp;Start Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Debuggen</translation>
     </message>
     <message>
         <location line="+44"/>
@@ -9064,32 +9099,32 @@ Basisname der Bibliothek: %1</translation>
     <message>
         <location line="+61"/>
         <source>Build Project &quot;%1&quot;</source>
-        <translation type="unfinished">Projekt &apos;%1&quot; erstellen</translation>
+        <translation>Projekt &apos;%1&quot; erstellen</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Rebuild Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt &quot;%1&quot; neu erstellen</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Clean Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt &quot;%1&quot; bereinigen</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Build Without Dependencies</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen unter Ausschluss der Abhängigkeiten</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Rebuild Without Dependencies</source>
-        <translation type="unfinished"></translation>
+        <translation>Neu erstellen unter Ausschluss der Abhängigkeiten</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Clean Without Dependencies</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereinigen unter Ausschluss der Abhängigkeiten</translation>
     </message>
     <message>
         <location line="+1150"/>
@@ -9259,7 +9294,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+42"/>
         <source>Unknown error</source>
-        <translation type="unfinished">Unbekannter Fehler</translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
     <message>
         <location line="+171"/>
@@ -11369,7 +11404,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location/>
         <source>Break at &apos;main&apos;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Haltepunkt bei &apos;main&apos;:</translation>
     </message>
 </context>
 <context>
@@ -11914,7 +11949,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::FontSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+199"/>
+        <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+212"/>
         <source>Font &amp; Colors</source>
         <translation>Zeichensatz und Farben</translation>
     </message>
@@ -11961,7 +11996,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/plugins/texteditor/findincurrentfile.cpp" line="+57"/>
         <source>Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle Datei</translation>
     </message>
 </context>
 <context>

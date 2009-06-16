@@ -41,6 +41,11 @@ AddressBook::AddressBook(QWidget *parent)
     removeButton = ui->removeButton;
     removeButton->setEnabled(false);
 
+    findButton = new QPushButton;
+    findButton = ui->findButton;
+
+    dialog = new FindDialog;
+
     connect(addButton, SIGNAL(clicked()), this,
                 SLOT(addContact()));
     connect(submitButton, SIGNAL(clicked()), this,
@@ -55,6 +60,8 @@ AddressBook::AddressBook(QWidget *parent)
                 SLOT(editContact()));
     connect(removeButton, SIGNAL(clicked()), this,
                 SLOT(removeContact()));
+    connect(findButton, SIGNAL(clicked()), this,
+                SLOT(findContact()));
 
     setWindowTitle(tr("Simple Address Book"));
 }
@@ -234,4 +241,24 @@ void AddressBook::updateInterface(Mode mode)
         cancelButton->hide();
         break;
     }
+}
+
+void AddressBook::findContact()
+{
+    dialog->show();
+
+    if (dialog->exec() == QDialog::Accepted) {
+        QString contactName = dialog->getFindText();
+
+        if (contacts.contains(contactName)) {
+            nameLine->setText(contactName);
+            addressText->setText(contacts.value(contactName));
+        } else {
+            QMessageBox::information(this, tr("Contact Not Found"),
+                tr("Sorry, \"%1\" is not in your address book.").arg(contactName));
+            return;
+        }
+    }
+
+    updateInterface(NavigationMode);
 }

@@ -52,8 +52,9 @@
 #include <QtCore/QTimer>
 #include <QtCore/QtDebug>
 
-#include <QtGui/QMenu>
 #include <QtGui/QComboBox>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QMenu>
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100
@@ -386,7 +387,8 @@ void ScriptEditor::createToolBar(ScriptEditorEditable *editable)
     QToolBar *toolBar = editable->toolBar();
 
     QList<QAction*> actions = toolBar->actions();
-    toolBar->insertWidget(actions.first(), m_methodCombo);
+    QWidget *w = toolBar->widgetForAction(actions.first());
+    static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_methodCombo, 1);
 }
 
 void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
