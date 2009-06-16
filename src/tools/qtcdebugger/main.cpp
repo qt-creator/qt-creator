@@ -51,6 +51,7 @@ enum { debug = 0 };
 
 static const char *titleC = "Qt Creator Debugger";
 static const char *organizationC = "Nokia";
+static const char *applicationFileC = "qtcdebugger";
 
 static const WCHAR *debuggerRegistryKeyC = L"Software\\Microsoft\\Windows NT\\CurrentVersion\\AeDebug";
 // Optional
@@ -67,7 +68,7 @@ static inline QString wCharToQString(const WCHAR *w) { return QString::fromUtf16
 #endif
 
 
-enum Mode { HelpMode, PromptMode, ForceCreatorMode, ForceDefaultMode };
+enum Mode { HelpMode, InstallMode, UninstallMode, PromptMode, ForceCreatorMode, ForceDefaultMode };
 
 Mode optMode = PromptMode;
 bool optIsWow = false;
@@ -112,6 +113,10 @@ static bool parseArguments(const QStringList &args, QString *errorMessage)
                 optMode = ForceCreatorMode;
             } else if (arg == QLatin1String("default")) {
                 optMode = ForceDefaultMode;
+            } else if (arg == QLatin1String("install")) {
+                optMode = InstallMode;
+            } else if (arg == QLatin1String("uninstall")) {
+                optMode = UninstallMode;
             } else if (arg == QLatin1String("wow")) {
                 optIsWow = true;
             } else {
@@ -134,9 +139,16 @@ static bool parseArguments(const QStringList &args, QString *errorMessage)
                 }
             }
         }
-    if (optMode != HelpMode && argProcessId == 0) {
-        *errorMessage = QString::fromLatin1("Please specify the process-id.");
-        return false;
+    switch (optMode) {
+    case HelpMode:
+    case InstallMode:
+    case UninstallMode:
+        break;
+    default:
+        if (argProcessId == 0) {
+            *errorMessage = QString::fromLatin1("Please specify the process-id.");
+            return false;
+        }
     }
     return true;
 }
@@ -154,10 +166,12 @@ static void usage(const QString &binary, const QString &message = QString())
         str << "<b>" << message << "</b>";
     }
     str << "<pre>"
-        << "Usage: " << QFileInfo(binary).baseName() << "[-wow] [-help|-?|qtcreator|default] &lt;process-id> &lt;event-id>\n"
+        << "Usage: " << QFileInfo(binary).baseName() << "[-wow] [-help|-?|qtcreator|default|install|uninstall] &lt;process-id> &lt;event-id>\n"
         << "Options: -help, -?   Display this help\n"
         << "         -qtcreator  Launch Qt Creator without prompting\n"
         << "         -default    Launch Default handler without prompting\n"
+        << "         -install    Install itself (requires administrative privileges)\n"
+        << "         -uninstall  Uninstall itself (requires administrative privileges)\n"
         << "         -wow        Indicates Wow32 call\n"
         << "</pre>"
         << "<p>To install, modify the registry key <i>HKEY_LOCAL_MACHINE\\" << wCharToQString(debuggerRegistryKeyC)
@@ -169,6 +183,8 @@ static void usage(const QString &binary, const QString &message = QString())
         << "</ul>"
         << "<p>On 64-bit systems, do the same for the key <i>HKEY_LOCAL_MACHINE\\" << wCharToQString(debuggerWow32RegistryKeyC) << "</i>, "
         << "setting the new value to <pre>\"" << QDir::toNativeSeparators(binary) << "\" -wow %ld %ld</pre></p>"
+        << "<p>How to run a command with administrative privileges:</p>"
+        << "<pre>runas /env /noprofile /user:Administrator \"command arguments\"</pre>"
         << "</body></html>";
 
     QMessageBox msgBox(QMessageBox::Information, QLatin1String(titleC), msg, QMessageBox::Ok);
@@ -296,6 +312,18 @@ static inline bool registryReplaceStringKey(HKEY rootHandle, // HKEY_LOCAL_MACHI
     return rc;
 }
 
+static inline bool registryDeleteValue(HKEY handle,
+                                       const WCHAR *valueName,
+                                       QString *errorMessage)
+{
+    const LONG rc = RegDeleteValue(handle, valueName);
+    if (rc != ERROR_SUCCESS) {
+        *errorMessage = msgFunctionFailed("RegDeleteValue", rc);
+        return false;
+    }
+    return true;
+}
+
 static QString getProcessBaseName(DWORD pid)
 {
     QString rc;
@@ -331,7 +359,7 @@ bool startCreatorAsDebugger(const QApplication &a, QString *errorMessage)
     return true;
 }
 
-bool startDefaultDebugger(const QApplication &a, QString *errorMessage)
+bool startDefaultDebugger(const QApplication & /*a*/, QString *errorMessage)
 {
     // Read out default value
     HKEY handle;
@@ -385,6 +413,99 @@ bool chooseDebugger(const QApplication &a, QString *errorMessage)
     return true;
 }
 
+// Installation helpers: Format the debugger call with placeholders for PID and event
+// '"[path]\qtcdebugger" [-wow] %ld %ld'.
+
+static QString debuggerCall(const QApplication &a, const QString &additionalOption = QString())
+{
+    QString rc;
+    QTextStream str(&rc);
+    str << '"' << QDir::toNativeSeparators(a.applicationFilePath()) << '"';
+    if (!additionalOption.isEmpty())
+        str << ' ' << additionalOption;
+    str << " %ld %ld";
+    return rc;
+}
+
+// Installation helper: Register ourselves in a debugger registry key.
+// Make a copy of the old value as "Debugger.Default" and have the
+// "Debug" key point to us.
+
+static bool registerDebuggerKey(const WCHAR *key,
+                                const QString &call,
+                                QString *errorMessage)
+{
+    HKEY handle = 0;
+    bool success = false;
+    do {
+        if (!openRegistryKey(HKEY_LOCAL_MACHINE, key, true, &handle, errorMessage))
+            break;
+        QString oldDebugger;
+        if (!registryReadStringKey(handle, debuggerRegistryValueNameC, &oldDebugger, errorMessage))
+            break;
+        if (oldDebugger.contains(QLatin1String(applicationFileC), Qt::CaseInsensitive)) {
+            *errorMessage = QLatin1String("The program is already installed.");
+            return false;
+        }
+        if (!registryWriteStringKey(handle, debuggerRegistryDefaultValueNameC, oldDebugger, errorMessage))
+            break;
+        if (debug)
+            qDebug() << "registering self as " << call;
+        if (!registryWriteStringKey(handle, debuggerRegistryValueNameC, call, errorMessage))
+            break;
+        success = true;
+    } while (false);
+    if (handle)
+        RegCloseKey(handle);
+    return success;
+}
+
+bool install(const QApplication &a, QString *errorMessage)
+{
+    if (!registerDebuggerKey(debuggerRegistryKeyC, debuggerCall(a), errorMessage))
+        return false;
+#ifdef Q_OS_WIN64
+    if (!registerDebuggerKey(debuggerWow32RegistryKeyC, debuggerCall(a, QLatin1String("-wow")), errorMessage))
+        return false;
+#endif
+    return true;
+}
+
+// Uninstall helper: Restore the original debugger key
+static bool unregisterDebuggerKey(const WCHAR *key, QString *errorMessage)
+{
+    HKEY handle = 0;
+    bool success = false;
+    do {
+        if (!openRegistryKey(HKEY_LOCAL_MACHINE, key, true, &handle, errorMessage))
+            break;
+        QString oldDebugger;
+        if (!registryReadStringKey(handle, debuggerRegistryDefaultValueNameC, &oldDebugger, errorMessage))
+            break;
+        if (!registryWriteStringKey(handle, debuggerRegistryValueNameC, oldDebugger, errorMessage))
+            break;
+        if (!registryDeleteValue(handle, debuggerRegistryDefaultValueNameC, errorMessage))
+            break;
+        success = true;
+    } while (false);
+    if (handle)
+        RegCloseKey(handle);
+    return success;
+}
+
+
+bool uninstall(const QApplication & /*a*/, QString *errorMessage)
+{
+    if (!unregisterDebuggerKey(debuggerRegistryKeyC, errorMessage))
+        return false;
+#ifdef Q_OS_WIN64
+    if (!unregisterDebuggerKey(debuggerWow32RegistryKeyC, errorMessage))
+        return false;
+#endif
+    return true;
+}
+
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -412,6 +533,12 @@ int main(int argc, char *argv[])
         break;
     case PromptMode:
         ex = chooseDebugger(a, &errorMessage) ? 0 : -1;
+        break;
+    case InstallMode:
+        ex = install(a, &errorMessage) ? 0 : -1;
+        break;
+    case UninstallMode:
+        ex = uninstall(a, &errorMessage) ? 0 : -1;
         break;
     }
     if (ex && !errorMessage.isEmpty()) {
