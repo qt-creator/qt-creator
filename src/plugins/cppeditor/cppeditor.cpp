@@ -275,7 +275,8 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
 
     QToolBar *toolBar = editable->toolBar();
     QList<QAction*> actions = toolBar->actions();
-    toolBar->insertWidget(actions.first(), m_methodCombo);
+    QWidget *w = toolBar->widgetForAction(actions.first());
+    static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_methodCombo, 1);
 }
 
 int CPPEditor::previousBlockState(QTextBlock block) const

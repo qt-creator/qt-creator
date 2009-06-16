@@ -4096,6 +4096,7 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     QWidget *w = new QWidget;
     l->setMargin(0);
     l->setContentsMargins(5, 0, 5, 0);
+    l->addStretch(0);
     l->addWidget(m_cursorPositionLabel);
     w->setLayout(l);
 
