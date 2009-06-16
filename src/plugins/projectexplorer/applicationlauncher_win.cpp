@@ -33,6 +33,7 @@
 
 #include <QDebug>
 
+using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace Core::Utils;
 

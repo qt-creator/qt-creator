@@ -30,6 +30,8 @@
 #ifndef APPLICATIONLAUNCHER_H
 #define APPLICATIONLAUNCHER_H
 
+#include "projectexplorer_export.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
@@ -44,11 +46,12 @@ class ConsoleProcess;
 }
 
 namespace ProjectExplorer {
+
 namespace Internal {
+    class WinGuiProcess;
+}
 
-class WinGuiProcess;
-
-class ApplicationLauncher : public QObject
+class PROJECTEXPLORER_EXPORT ApplicationLauncher : public QObject
 {
     Q_OBJECT
 
@@ -93,14 +96,13 @@ private:
     Mode m_currentMode;
 
 #ifdef Q_OS_WIN
-    WinGuiProcess *m_winGuiProcess;
+    Internal::WinGuiProcess *m_winGuiProcess;
 #else
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;
 #endif
 };
 
-} // namespace Internal
 } // namespace ProjectExplorer
 
 #endif // APPLICATIONLAUNCHER_H

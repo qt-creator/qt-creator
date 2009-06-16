@@ -38,11 +38,12 @@
 #include <QtCore/QObject>
 
 namespace Qt4ProjectManager {
-
 namespace Internal {
 
 class S60Devices;
 class S60DevicesPreferencePane;
+class S60EmulatorRunConfigurationFactory;
+class S60EmulatorRunConfigurationRunner;
 
 class S60Manager : public QObject
 {
@@ -55,6 +56,9 @@ public:
     ProjectExplorer::ToolChain *createWINSCWToolChain(const Qt4ProjectManager::QtVersion *version) const;
     ProjectExplorer::ToolChain *createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const;
 
+    S60Devices *devices() const { return m_devices; }
+    QString deviceIdFromDetectionSource(const QString &autoDetectionSource) const;
+
 private slots:
     void updateQtVersions();
 
@@ -62,6 +66,8 @@ private:
     static S60Manager *m_instance;
     S60Devices *m_devices;
     S60DevicesPreferencePane *m_devicesPreferencePane;
+    S60EmulatorRunConfigurationFactory *m_s60EmulatorRunConfigurationFactory;
+    S60EmulatorRunConfigurationRunner *m_s60EmulatorRunConfigurationRunner;
 };
 
 } // namespace Internal

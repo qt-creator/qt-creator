@@ -33,6 +33,7 @@
 #include "s60devicespreferencepane.h"
 #include "winscwtoolchain.h"
 #include "gccetoolchain.h"
+#include "s60emulatorrunconfiguration.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -49,12 +50,18 @@ S60Manager *S60Manager::instance() { return m_instance; }
 S60Manager::S60Manager(QObject *parent)
         : QObject(parent),
         m_devices(new S60Devices(this)),
-        m_devicesPreferencePane(new S60DevicesPreferencePane(m_devices, this))
+        m_devicesPreferencePane(new S60DevicesPreferencePane(m_devices, this)),
+        m_s60EmulatorRunConfigurationFactory(new S60EmulatorRunConfigurationFactory(this)),
+        m_s60EmulatorRunConfigurationRunner(new S60EmulatorRunConfigurationRunner(this))
 {
     m_instance = this;
     m_devices->detectQtForDevices();
     ExtensionSystem::PluginManager::instance()
             ->addObject(m_devicesPreferencePane);
+    ExtensionSystem::PluginManager::instance()
+            ->addObject(m_s60EmulatorRunConfigurationFactory);
+    ExtensionSystem::PluginManager::instance()
+            ->addObject(m_s60EmulatorRunConfigurationRunner);
     updateQtVersions();
     connect(m_devices, SIGNAL(qtVersionsChanged()),
             this, SLOT(updateQtVersions()));
@@ -63,7 +70,18 @@ S60Manager::S60Manager(QObject *parent)
 S60Manager::~S60Manager()
 {
     ExtensionSystem::PluginManager::instance()
+            ->removeObject(m_s60EmulatorRunConfigurationRunner);
+    ExtensionSystem::PluginManager::instance()
+            ->removeObject(m_s60EmulatorRunConfigurationFactory);
+    ExtensionSystem::PluginManager::instance()
             ->removeObject(m_devicesPreferencePane);
+}
+
+QString S60Manager::deviceIdFromDetectionSource(const QString &autoDetectionSource) const
+{
+    if (autoDetectionSource.startsWith(S60_AUTODETECTION_SOURCE))
+        return autoDetectionSource.mid(QString(S60_AUTODETECTION_SOURCE).length()+1);
+    return "";
 }
 
 void S60Manager::updateQtVersions()
@@ -81,8 +99,7 @@ void S60Manager::updateQtVersions()
         // look if we have a respective Qt version already
         foreach (QtVersion *version, versions) {
             if (version->isAutodetected()
-                    && version->autodetectionSource().startsWith(S60_AUTODETECTION_SOURCE)
-                    && version->autodetectionSource().mid(QString(S60_AUTODETECTION_SOURCE).length()+1) == device.id) {
+                    && deviceIdFromDetectionSource(version->autodetectionSource()) == device.id) {
                 deviceVersion = version;
                 break;
             }

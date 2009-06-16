@@ -17,9 +17,15 @@
 * Debugging helpers
     * must probably be compiled for different toolchains
 
+* Run Configurations
+    * enabled property doesn't update correctly
+        * missing signals qtVersionChanged + toolChainChanged
+    * handling of active run config getting disabled
+
+* Add compile output parser winscw at least!
+
 * WINSCW tool chain:
     * predefined macros
 
-* Run WINSCW executables
 * Deploy gcce executables
 
