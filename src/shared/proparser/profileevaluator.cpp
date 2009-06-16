@@ -838,7 +838,9 @@ void ProFileEvaluator::Private::visitProValue(ProValue *value)
             || varName == QLatin1String("INTERFACES")
             || varName == QLatin1String("FORMS")
             || varName == QLatin1String("FORMS3")
-            || varName == QLatin1String("RESOURCES")) {
+            || varName == QLatin1String("RESOURCES")
+            || varName == QLatin1String("LEXSOURCES")
+            || varName == QLatin1String("YACCSOURCES")){
         // matches only existent files, expand certain(?) patterns
         QStringList vv;
         for (int i = v.count(); --i >= 0; )

@@ -487,6 +487,8 @@ QStringList Qt4PriFileNode::varNames(FileType type)
     case ProjectExplorer::SourceType:
         vars << QLatin1String("SOURCES");
         vars << QLatin1String("OBJECTIVE_SOURCES");
+        vars << QLatin1String("LEXSOURCES");
+        vars << QLatin1String("YACCSOURCES");
         break;
     case ProjectExplorer::ResourceType:
         vars << QLatin1String("RESOURCES");
