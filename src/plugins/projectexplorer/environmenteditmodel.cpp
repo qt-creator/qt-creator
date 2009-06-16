@@ -55,7 +55,7 @@ void EnvironmentModel::updateResultEnvironment()
     m_resultEnvironment.modify(m_items);
     foreach (const EnvironmentItem &item, m_items) {
         if (item.unset) {
-            m_resultEnvironment.set(item.name, "<UNSET>");
+            m_resultEnvironment.set(item.name, QLatin1String("<UNSET>"));
         }
     }
 }
@@ -127,7 +127,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
                 return m_resultEnvironment.value(m_resultEnvironment.constBegin() + index.row());
             } else {
                 if (m_items.at(index.row()).unset)
-                    return "<UNSET>";
+                    return QLatin1String("<UNSET>");
                 else
                     return m_items.at(index.row()).value;
             }
@@ -285,7 +285,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 
 QModelIndex EnvironmentModel::addVariable()
 {
-    const QString &name = "<VARIABLE>";
+    const QString &name = QLatin1String("<VARIABLE>");
     if (m_mergedEnvironments) {
         int i = findInResult(name);
         if (i != -1)
@@ -296,7 +296,7 @@ QModelIndex EnvironmentModel::addVariable()
             return index(i, 0, QModelIndex());
     }
     // Don't exist, really add them
-    return addVariable(EnvironmentItem(name, "<VALUE>"));
+    return addVariable(EnvironmentItem(name, QLatin1String("<VALUE>")));
 }
 
 QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
@@ -442,21 +442,21 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent)
     QVBoxLayout *verticalLayout_2 = new QVBoxLayout();
 
     m_editButton = new QPushButton(this);
-    m_editButton->setText("&Edit");
+    m_editButton->setText(tr("&Edit"));
     verticalLayout_2->addWidget(m_editButton);
 
     m_addButton = new QPushButton(this);
-    m_addButton->setText("&Add");
+    m_addButton->setText(tr("&Add"));
     verticalLayout_2->addWidget(m_addButton);
 
     m_removeButton = new QPushButton(this);
     m_removeButton->setEnabled(false);
-    m_removeButton->setText("&Reset");
+    m_removeButton->setText(tr("&Reset"));
     verticalLayout_2->addWidget(m_removeButton);
 
     m_unsetButton = new QPushButton(this);
     m_unsetButton->setEnabled(false);
-    m_unsetButton->setText("&Unset");
+    m_unsetButton->setText(tr("&Unset"));
     verticalLayout_2->addWidget(m_unsetButton);
 
     QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);

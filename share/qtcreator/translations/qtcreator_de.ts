@@ -3064,7 +3064,7 @@ p {
         <translation type="obsolete">Der Debugger konnte sich nicht an den Prozess %1 anhängen: %2</translation>
     </message>
     <message>
-        <location line="+494"/>
+        <location line="+500"/>
         <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos;: %3</source>
         <translation>Der Wert &apos;%1&apos; konnte nicht an &apos;%2&apos; zugewiesen werden: %3</translation>
     </message>
@@ -6169,7 +6169,7 @@ Grund: %3</translation>
         <translation>Das Kommando &apos;show&apos; konnte nicht ausgeführt werden: %1: %2</translation>
     </message>
     <message>
-        <location line="+143"/>
+        <location line="+149"/>
         <source>Changes</source>
         <translation>Änderungen</translation>
     </message>
@@ -7227,7 +7227,7 @@ Make sure you use something like
 SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
 
 in your .pro file.</source>
-        <translation type="unfinished">g</translation>
+        <translation>g</translation>
     </message>
     <message>
         <location filename="../../../src/tools/texteditor/mainwindow.cpp" line="+62"/>
@@ -8087,6 +8087,10 @@ Basisname der Bibliothek: %1</translation>
 <context>
     <name>ProjectExplorer::EnvironmentModel</name>
     <message>
+        <source>&lt;UNSET&gt;</source>
+        <translation type="obsolete">&lt;NICHT GESETZT&gt;</translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/projectexplorer/environmenteditmodel.cpp" line="+169"/>
         <source>Variable</source>
         <translation>Variable</translation>
@@ -8095,6 +8099,37 @@ Basisname der Bibliothek: %1</translation>
         <location line="+0"/>
         <source>Value</source>
         <translation>Wert</translation>
+    </message>
+    <message>
+        <source>&lt;VARIABLE&gt;</source>
+        <translation type="obsolete">&lt;VARIABLE&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;VALUE&gt;</source>
+        <translation type="obsolete">&lt;WERT&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::EnvironmentWidget</name>
+    <message>
+        <location line="+276"/>
+        <source>&amp;Edit</source>
+        <translation>&amp;Bearbeiten</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&amp;Add</source>
+        <translation>Hinzu&amp;fügen</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&amp;Reset</source>
+        <translation>&amp;Rücksetzen</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&amp;Unset</source>
+        <translation>&amp;Leeren</translation>
     </message>
 </context>
 <context>
@@ -9064,7 +9099,7 @@ Basisname der Bibliothek: %1</translation>
     <message>
         <location line="+61"/>
         <source>Build Project &quot;%1&quot;</source>
-        <translation type="unfinished">Projekt &apos;%1&quot; erstellen</translation>
+        <translation>Projekt &apos;%1&quot; erstellen</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -9259,7 +9294,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+42"/>
         <source>Unknown error</source>
-        <translation type="unfinished">Unbekannter Fehler</translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
     <message>
         <location line="+171"/>
@@ -11914,7 +11949,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::FontSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+199"/>
+        <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+212"/>
         <source>Font &amp; Colors</source>
         <translation>Zeichensatz und Farben</translation>
     </message>
