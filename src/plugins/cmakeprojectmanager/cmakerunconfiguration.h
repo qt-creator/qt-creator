@@ -34,6 +34,7 @@
 #include <projectexplorer/environment.h>
 #include <projectexplorer/persistentsettings.h>
 #include <projectexplorer/environmenteditmodel.h>
+#include <utils/pathchooser.h>
 
 QT_BEGIN_NAMESPACE
 class QRadioButton;
@@ -62,6 +63,8 @@ public:
     void setExecutable(const QString &executable);
     void setWorkingDirectory(const QString &workingDirectory);
 
+    void setUserWorkingDirectory(const QString &workingDirectory);
+
     QString title() const;
 
     virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
@@ -71,6 +74,7 @@ public:
 signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    void workingDirectoryChanged(const QString&);
 
 private slots:
     void setArguments(const QString &newText);
@@ -85,6 +89,7 @@ private:
     RunMode m_runMode;
     QString m_target;
     QString m_workingDirectory;
+    QString m_userWorkingDirectory;
     QString m_title;
     QString m_arguments;
     QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
@@ -101,11 +106,15 @@ private slots:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged();
     void userChangesUpdated();
+    void setWorkingDirectory();
+    void resetWorkingDirectory();
 private slots:
     void baseEnvironmentRadioButtonChanged();
+    void workingDirectoryChanged(const QString &workingDirectory);
 private:
     bool m_ignoreChange;
     CMakeRunConfiguration *m_cmakeRunConfiguration;
+    Core::Utils::PathChooser *m_workingDirectoryEdit;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     QRadioButton *m_cleanEnvironmentRadioButton;
     QRadioButton *m_systemEnvironmentRadioButton;

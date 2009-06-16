@@ -40,6 +40,7 @@
 #include <QtGui/QGroupBox>
 #include <QtGui/QLabel>
 #include <QtGui/QRadioButton>
+#include <QtGui/QToolButton>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -82,6 +83,8 @@ ProjectExplorer::ApplicationRunConfiguration::RunMode CMakeRunConfiguration::run
 
 QString CMakeRunConfiguration::workingDirectory() const
 {
+    if (!m_userWorkingDirectory.isEmpty())
+        return m_userWorkingDirectory;
     return m_workingDirectory;
 }
 
@@ -100,9 +103,26 @@ void CMakeRunConfiguration::setExecutable(const QString &executable)
     m_target = executable;
 }
 
-void CMakeRunConfiguration::setWorkingDirectory(const QString &workingDirectory)
+void CMakeRunConfiguration::setWorkingDirectory(const QString &wd)
 {
-    m_workingDirectory = workingDirectory;
+    const QString & oldWorkingDirectory = workingDirectory();
+
+    m_workingDirectory = wd;
+
+    const QString &newWorkingDirectory = workingDirectory();
+    if (oldWorkingDirectory != newWorkingDirectory)
+        emit workingDirectoryChanged(newWorkingDirectory);
+}
+
+void CMakeRunConfiguration::setUserWorkingDirectory(const QString &wd)
+{
+    const QString & oldWorkingDirectory = workingDirectory();
+
+    m_userWorkingDirectory = wd;
+
+    const QString &newWorkingDirectory = workingDirectory();
+    if (oldWorkingDirectory != newWorkingDirectory)
+        emit workingDirectoryChanged(newWorkingDirectory);
 }
 
 void CMakeRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
@@ -110,11 +130,13 @@ void CMakeRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writ
     ProjectExplorer::ApplicationRunConfiguration::save(writer);
     writer.saveValue("CMakeRunConfiguration.Target", m_target);
     writer.saveValue("CMakeRunConfiguration.WorkingDirectory", m_workingDirectory);
+    writer.saveValue("CMakeRunConfiguration.UserWorkingDirectory", m_userWorkingDirectory);
     writer.saveValue("CMakeRunConfiguration.UseTerminal", m_runMode == Console);
     writer.saveValue("CMakeRunConfiguation.Title", m_title);
     writer.saveValue("CMakeRunConfiguration.Arguments", m_arguments);
     writer.saveValue("CMakeRunConfiguration.UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     writer.saveValue("BaseEnvironmentBase", m_baseEnvironmentBase);
+
 }
 
 void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
@@ -122,6 +144,7 @@ void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsRea
     ProjectExplorer::ApplicationRunConfiguration::restore(reader);
     m_target = reader.restoreValue("CMakeRunConfiguration.Target").toString();
     m_workingDirectory = reader.restoreValue("CMakeRunConfiguration.WorkingDirectory").toString();
+    m_userWorkingDirectory = reader.restoreValue("CMakeRunConfiguration.UserWorkingDirectory").toString();
     m_runMode = reader.restoreValue("CMakeRunConfiguration.UseTerminal").toBool() ? Console : Gui;
     m_title = reader.restoreValue("CMakeRunConfiguation.Title").toString();
     m_arguments = reader.restoreValue("CMakeRunConfiguration.Arguments").toString();
@@ -208,6 +231,21 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
             this, SLOT(setArguments(QString)));
     fl->addRow(tr("Arguments:"), argumentsLineEdit);
 
+    m_workingDirectoryEdit = new Core::Utils::PathChooser();
+    m_workingDirectoryEdit->setPath(m_cmakeRunConfiguration->workingDirectory());
+    m_workingDirectoryEdit->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_workingDirectoryEdit->setPromptDialogTitle(tr("Select the working directory"));
+
+    QToolButton *resetButton = new QToolButton();
+    resetButton->setToolTip(tr("Reset to default"));
+    resetButton->setIcon(QIcon(":/core/images/reset.png"));
+
+    QHBoxLayout *boxlayout = new QHBoxLayout();
+    boxlayout->addWidget(m_workingDirectoryEdit);
+    boxlayout->addWidget(resetButton);
+
+    fl->addRow(tr("Working Directory:"), boxlayout);
+
     QGroupBox *box = new QGroupBox(tr("Environment"),this);
     QVBoxLayout *boxLayout = new QVBoxLayout();
     box->setLayout(boxLayout);
@@ -222,6 +260,13 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     boxLayout->addWidget(m_cleanEnvironmentRadioButton);
     boxLayout->addWidget(m_systemEnvironmentRadioButton);
     boxLayout->addWidget(m_buildEnvironmentRadioButton);
+
+    connect(m_workingDirectoryEdit, SIGNAL(changed()),
+            this, SLOT(setWorkingDirectory()));
+
+    connect(resetButton, SIGNAL(clicked()),
+            this, SLOT(resetWorkingDirectory()));
+
 
     if (cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::CleanEnvironmentBase)
         m_cleanEnvironmentRadioButton->setChecked(true);
@@ -250,10 +295,35 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(userChangesUpdated()));
 
+    connect(m_cmakeRunConfiguration, SIGNAL(workingDirectoryChanged(QString)),
+            this, SLOT(workingDirectoryChanged(QString)));
     connect(m_cmakeRunConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
     connect(m_cmakeRunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
             this, SLOT(userEnvironmentChangesChanged()));
+
+}
+
+void CMakeRunConfigurationWidget::setWorkingDirectory()
+{
+    if (m_ignoreChange)
+        return;
+    m_ignoreChange = true;
+    m_cmakeRunConfiguration->setUserWorkingDirectory(m_workingDirectoryEdit->path());
+    m_ignoreChange = false;
+}
+
+void CMakeRunConfigurationWidget::workingDirectoryChanged(const QString &workingDirectory)
+{
+    if (!m_ignoreChange)
+        m_workingDirectoryEdit->setPath(workingDirectory);
+}
+
+void CMakeRunConfigurationWidget::resetWorkingDirectory()
+{
+    // This emits a signal connected to workingDirectoryChanged()
+    // that sets the m_workingDirectoryEdit
+    m_cmakeRunConfiguration->setUserWorkingDirectory("");
 }
 
 void CMakeRunConfigurationWidget::userChangesUpdated()
