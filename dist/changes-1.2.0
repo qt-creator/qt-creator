@@ -25,15 +25,16 @@ Editing
    * FakeVim mode has received further improvements.
    * It is now possible to disable Ctrl+Click navigation.
    * An optional XCode-style tab indentation has been added.
-   * Ui changes are added immediately to the code model
-   * Fixed possibly missing code completion with mingw toolchain
-   * Added option for turning antialiasing of text editor fonts off
-   * Added searching with regular expressions in text editors
-   * Added an action that deletes a line without copying it
-   * Added copy line up/down actions (Ctrl+Alt+Up/Down)
+   * Ui changes now propagate immediately to the code model.
+   * Fixed possibly missing code completion with MinGW toolchain.
+   * Added option for turning off antialiasing of text editor fonts.
+   * It is now possible to search within the text editor using regular
+     expressions.
+   * Added an action to delete a line without copying it.
+   * Added actions to copy a line up/down (Ctrl+Alt+Up/Down).
 
 Building and Running
-   * New options: Auto-Save before Build and Run without building
+   * A new option Auto-Save before Build and Run has been added.
    * Environment settings
    * Fixed bug that prevented use of Qt 4 with version < 4.2
 
