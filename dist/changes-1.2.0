@@ -12,26 +12,26 @@ API, so if you have created your own custom plugins, they will need to be
 adapted accordingly.
 
 General:
-   * The Welcome Screen has been redesigned.
+   * The Welcome Screen has been redesigned
    * There has been some speed improvements: large amounts of persistent data
-     (e.g., Qt Locator's cache) is now stored in an SQLite database.
-   * The window title now displays the current file's name.
+     (e.g., Qt Locator's cache) is now stored in an SQLite database
+   * The window title now displays the current file's name
 
 Editing
    * There is now an option for listing methods alphabetically in the combo box
-     above the editor.
-   * A block highlighting feature has been added.
-   * Code folding markers have been improved on.
-   * FakeVim mode has received further improvements.
-   * It is now possible to disable Ctrl+Click navigation.
-   * An optional XCode-style tab indentation has been added.
-   * Ui changes now propagate immediately to the code model.
-   * Fixed possibly missing code completion with MinGW toolchain.
-   * Added option for turning off antialiasing of text editor fonts.
+     above the editor
+   * A block highlighting feature has been added
+   * Code folding markers have been improved on
+   * FakeVim mode has received further improvements
+   * It is now possible to disable Ctrl+Click navigation
+   * An optional XCode-style tab indentation has been added
+   * Ui changes now propagate immediately to the code model
+   * Fixed possibly missing code completion with MinGW toolchain
+   * Added option for turning off antialiasing of text editor fonts
    * It is now possible to search within the text editor using regular
-     expressions.
-   * Added an action to delete a line without copying it.
-   * Added actions to copy a line up/down (Ctrl+Alt+Up/Down).
+     expressions
+   * Added an action to delete a line without copying it
+   * Added actions to copy a line up/down (Ctrl+Alt+Up/Down)
 
 Building and Running
    * Added option to auto-save before build
