@@ -65,7 +65,8 @@ HEADERS += utils_global.h \
     uncommentselection.h \
     parameteraction.h \
     treewidgetcolumnstretcher.h \
-    checkablemessagebox.h
+    checkablemessagebox.h \
+    qtcassert.h
 FORMS += filewizardpage.ui \
     projectintropage.ui \
     newclasswidget.ui \
