@@ -34,8 +34,9 @@ Editing
    * Added actions to copy a line up/down (Ctrl+Alt+Up/Down).
 
 Building and Running
-   * A new option Auto-Save before Build and Run has been added.
-   * Added option to set environment variables for running
+   * Added option to auto-save before build
+   * Added option to run without building
+   * Added ability to set environment variables specific for running
    * Fixed bug that prevented use of Qt 4 with version < 4.2
 
 Debugging
