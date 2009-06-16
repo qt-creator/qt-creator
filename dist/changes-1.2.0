@@ -12,32 +12,31 @@ API, so if you have created your own custom plugins, they will need to be
 adapted accordingly.
 
 General:
-   * The Welcome Screen has been redesigned
-   * There has been some speed improvements: large amounts of persistent data
-     (e.g., Qt Locator's cache) is now stored in an SQLite database
-   * The window title now displays the current file's name
+   * The Welcome Screen has been redesigned.
+   * There has been some speed improvements: large amounts of persistent data.
+     (e.g., Qt Locator's cache) is now stored in an SQLite database.
+   * The window title now displays the current file's name.
 
 Editing
-   * There is now an option for listing methods alphabetically in the combo box
-     above the editor
-   * A block highlighting feature has been added
-   * Code folding markers have been improved on
-   * FakeVim mode has received further improvements
-   * It is now possible to disable Ctrl+Click navigation
-   * An optional XCode-style tab indentation has been added
-   * Ui changes now propagate immediately to the code model
-   * Fixed possibly missing code completion with MinGW toolchain
-   * Added option for turning off antialiasing of text editor fonts
+   * Added an option for listing methods alphabetically in the combo box above
+     the editor.
+   * Added a block highlighting feature.
+   * Improved the code folding markers.
+   * FakeVim mode has received further improvements.
+   * It is now possible to disable Ctrl+Click navigation.
+   * Optional XCode-style tab indentation has been added.
+   * Ui changes now propagate immediately to the code model.
+   * Fixed possibly missing code completion with MinGW toolchain.
+   * Added an option for turning off antialiasing of text editor fonts.
    * It is now possible to search within the text editor using regular
-     expressions
-   * Added an action to delete a line without copying it
-   * Added actions to copy a line up/down (Ctrl+Alt+Up/Down)
+     expressions.
+   * Added an action to delete a line without copying it.
+   * Added actions to copy a line up/down (Ctrl+Alt+Up/Down).
 
 Building and Running
-   * Added a new option "Auto-Save before Build and Run".
-   * Added an option to run an application that was built earlier.
-   * Added a new option to set environment variables necessary for running
-     applications.
+   * Added the option to auto-save before building.
+   * Made auto-build before run optional.
+   * Added the ability to set environment variables specific for running.
    * Fixed a bug that prevented the use of Qt versions < 4.2.
 
 Debugging
@@ -49,9 +48,10 @@ Debugging
    * Made it possible to float the debugger views.
 
 Wizards
+   * Added a wizard that creates an empty Qt4 project.
 
 Designer
-   * Added an external Qt Designer editor to the "Open With" menus.
+   * Added the external Qt Designer editor to the "Open With" menus.
 
 Version control plugins
    * Made the submit action raise existing submit editors.
@@ -64,8 +64,8 @@ Documentation
      Creator.
 
 I18N
-   * Added infrastructure for translations
-   * Added German translation
+   * Added infrastructure for translations.
+   * Added German translation.
 
 Platform Specific
 
