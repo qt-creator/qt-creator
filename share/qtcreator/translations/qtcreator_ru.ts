@@ -1458,7 +1458,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location filename="../../../src/plugins/coreplugin/welcomemode.cpp" line="162"/>
-        <source>Qt Software</source>
+        <source>Qt Home</source>
         <translation></translation>
     </message>
     <message>

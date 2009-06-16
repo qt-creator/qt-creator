@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://www.qtsoftware.com/contact.
 **
 **************************************************************************/
 
@@ -169,7 +169,7 @@ WelcomeMode::WelcomeMode() :
     //: Add localized feed here only if one exists
     m_d->rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
 
-    m_d->ui.sitesTreeWidget->addItem(tr("Qt Software"), QLatin1String("http://qt.nokia.com"));
+    m_d->ui.sitesTreeWidget->addItem(tr("Qt Home"), QLatin1String("http://qtsoftware.com"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Labs"), QLatin1String("http://labs.trolltech.com"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Git Hosting"), QLatin1String("http://qt.gitorious.org"));
     m_d->ui.sitesTreeWidget->addItem(tr("Qt Centre"), QLatin1String("http://www.qtcentre.org"));
@@ -387,7 +387,7 @@ void WelcomeMode::slotOpenExample()
 void WelcomeMode::slotFeedback()
 {
     QDesktopServices::openUrl(QUrl(QLatin1String(
-            "http://qt.nokia.com/forms/feedback-forms/qt-creator-user-feedback/view")));
+            "http://qtsoftware.com/forms/feedback-forms/qt-creator-user-feedback/view")));
 }
 
 void WelcomeMode::slotCreateNewProject()

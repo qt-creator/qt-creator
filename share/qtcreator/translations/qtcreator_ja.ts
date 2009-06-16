@@ -1754,8 +1754,8 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+2"/>
-        <source>Qt Software</source>
-        <translation>Qt Software</translation>
+        <source>Qt Home</source>
+        <translation>Qt Home</translation>
     </message>
     <message>
         <location line="+1"/>

@@ -1773,7 +1773,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+2"/>
-        <source>Qt Software</source>
+        <source>Qt Home</source>
         <translation></translation>
     </message>
     <message>
