@@ -2770,6 +2770,13 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
         }
     }
 
+    // Set whether the mouse cursor is a hand or normal arrow
+    if (e->type() == QEvent::MouseMove) {
+        bool hand = (e->pos().x() <= markWidth);
+        if (hand != (d->m_extraArea->cursor().shape() == Qt::PointingHandCursor))
+            d->m_extraArea->setCursor(hand ? Qt::PointingHandCursor : Qt::ArrowCursor);
+    }
+
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
         if (e->button() == Qt::LeftButton) {
             int boxWidth = collapseBoxWidth(fontMetrics());
