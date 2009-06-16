@@ -35,7 +35,7 @@ Editing
 
 Building and Running
    * A new option Auto-Save before Build and Run has been added.
-   * Environment settings
+   * Added option to set environment variables for running
    * Fixed bug that prevented use of Qt 4 with version < 4.2
 
 Debugging
