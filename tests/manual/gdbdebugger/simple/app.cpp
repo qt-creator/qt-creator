@@ -1109,6 +1109,13 @@ int main(int argc, char *argv[])
     QStringList list;
     list << "aaa" << "bbb" << "cc";
 
+    QList<const char *> list2;
+    list2 << "foo";
+    list2 << "bar";
+    list2 << 0;
+    list2 << "baz";
+    list2 << 0;
+
     testQStandardItemModel();
     testQImage();
     testNoArgumentName(1, 2, 3);
