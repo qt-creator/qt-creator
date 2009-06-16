@@ -578,14 +578,13 @@ void Qt4RunConfiguration::updateTarget()
     } else {
         //qDebug()<<"reader didn't contain DESTDIR, setting to "<<baseDir;
         m_workingDir = baseDir;
-
-#if defined(Q_OS_WIN)
-        QString qmakeBuildConfig = "release";
-        if (projectBuildConfiguration & QtVersion::DebugBuild)
-            qmakeBuildConfig = "debug";
-        if (!reader->contains("DESTDIR"))
-            m_workingDir += QLatin1Char('/') + qmakeBuildConfig;
-#endif
+        if (reader->values("CONFIG").contains("debug_and_release")) {
+            QString qmakeBuildConfig = "release";
+            if (projectBuildConfiguration & QtVersion::DebugBuild)
+                qmakeBuildConfig = "debug";
+            if (!reader->contains("DESTDIR"))
+                m_workingDir += QLatin1Char('/') + qmakeBuildConfig;
+        }
     }
 
 #if defined (Q_OS_MAC)
