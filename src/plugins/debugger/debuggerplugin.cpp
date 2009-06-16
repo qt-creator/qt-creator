@@ -1210,7 +1210,9 @@ void DebuggerPlugin::startExternalApplication()
     setConfigValue(_("LastExternalExecutableArguments"),
                    dlg.executableArguments());
     sp->executable = dlg.executableFile();
-    sp->processArgs = dlg.executableArguments().split(QLatin1Char(' '));
+    if (!dlg.executableArguments().isEmpty())
+        sp->processArgs = dlg.executableArguments().split(QLatin1Char(' '));
+
     if (dlg.breakAtMain())
         m_manager->breakByFunctionMain();
 
