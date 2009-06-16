@@ -60,7 +60,8 @@ static inline QString msgPathConfigNote()
     "<a href=\"%1\">Debugging Tools for Windows</a>"
     " (%2) here.</p>"
     "<p><b>Note:</b> Restarting Qt Creator is required for these settings to take effect.</p></p>"
-    "</body></html>").arg(link, (is64bit ? tr("64-bit version") : tr("32-bit version")));
+    "</body></html>").arg(link, (is64bit ? CdbOptionsPageWidget::tr("64-bit version")
+                                         : CdbOptionsPageWidget::tr("32-bit version")));
 }
 
 CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
