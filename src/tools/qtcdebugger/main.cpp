@@ -68,10 +68,11 @@ static inline QString wCharToQString(const WCHAR *w) { return QString::fromUtf16
 #endif
 
 
-enum Mode { HelpMode, InstallMode, UninstallMode, PromptMode, ForceCreatorMode, ForceDefaultMode };
+enum Mode { HelpMode, RegisterMode, UnregisterMode, PromptMode, ForceCreatorMode, ForceDefaultMode };
 
 Mode optMode = PromptMode;
 bool optIsWow = false;
+bool noguiMode = false;
 unsigned long argProcessId = 0;
 quint64 argWinCrashEvent = 0;
 
@@ -113,12 +114,14 @@ static bool parseArguments(const QStringList &args, QString *errorMessage)
                 optMode = ForceCreatorMode;
             } else if (arg == QLatin1String("default")) {
                 optMode = ForceDefaultMode;
-            } else if (arg == QLatin1String("install")) {
-                optMode = InstallMode;
-            } else if (arg == QLatin1String("uninstall")) {
-                optMode = UninstallMode;
+            } else if (arg == QLatin1String("register")) {
+                optMode = RegisterMode;
+            } else if (arg == QLatin1String("unregister")) {
+                optMode = UnregisterMode;
             } else if (arg == QLatin1String("wow")) {
                 optIsWow = true;
+            } else if (arg == QLatin1String("nogui")) {
+                noguiMode = true;
             } else {
                 *errorMessage = QString::fromLatin1("Unexpected option: %1").arg(arg);
                 return false;
@@ -141,8 +144,8 @@ static bool parseArguments(const QStringList &args, QString *errorMessage)
         }
     switch (optMode) {
     case HelpMode:
-    case InstallMode:
-    case UninstallMode:
+    case RegisterMode:
+    case UnregisterMode:
         break;
     default:
         if (argProcessId == 0) {
@@ -166,13 +169,14 @@ static void usage(const QString &binary, const QString &message = QString())
         str << "<b>" << message << "</b>";
     }
     str << "<pre>"
-        << "Usage: " << QFileInfo(binary).baseName() << "[-wow] [-help|-?|qtcreator|default|install|uninstall] &lt;process-id> &lt;event-id>\n"
+        << "Usage: " << QFileInfo(binary).baseName() << "[-wow] [-help|-?|qtcreator|default|register|unregister] &lt;process-id> &lt;event-id>\n"
         << "Options: -help, -?   Display this help\n"
         << "         -qtcreator  Launch Qt Creator without prompting\n"
         << "         -default    Launch Default handler without prompting\n"
-        << "         -install    Install itself (requires administrative privileges)\n"
-        << "         -uninstall  Uninstall itself (requires administrative privileges)\n"
+        << "         -register   Register as post mortem debugger (requires administrative privileges)\n"
+        << "         -unregister Unregister as post mortem debugger (requires administrative privileges)\n"
         << "         -wow        Indicates Wow32 call\n"
+        << "         -nogui      Do not show error messages in popup windows\n"
         << "</pre>"
         << "<p>To install, modify the registry key <i>HKEY_LOCAL_MACHINE\\" << wCharToQString(debuggerRegistryKeyC)
         << "</i>:</p><ul>"
@@ -339,9 +343,9 @@ static QString getProcessBaseName(DWORD pid)
 
 // ------- main modes
 
-bool startCreatorAsDebugger(const QApplication &a, QString *errorMessage)
+bool startCreatorAsDebugger(QString *errorMessage)
 {
-    const QString dir = a.applicationDirPath();
+    const QString dir = QApplication::applicationDirPath();
     const QString binary = dir + QLatin1String("/qtcreator.exe");
     QStringList args;
     args << QLatin1String("-debug") << QString::number(argProcessId)
@@ -359,7 +363,7 @@ bool startCreatorAsDebugger(const QApplication &a, QString *errorMessage)
     return true;
 }
 
-bool startDefaultDebugger(const QApplication & /*a*/, QString *errorMessage)
+bool startDefaultDebugger(QString *errorMessage)
 {
     // Read out default value
     HKEY handle;
@@ -395,7 +399,7 @@ bool startDefaultDebugger(const QApplication & /*a*/, QString *errorMessage)
     return true;
 }
 
-bool chooseDebugger(const QApplication &a, QString *errorMessage)
+bool chooseDebugger(QString *errorMessage)
 {
     const QString msg = QString::fromLatin1("The application \"%1\" (process id %2)  crashed. Would you like to debug it?").arg(getProcessBaseName(argProcessId)).arg(argProcessId);
     QMessageBox msgBox(QMessageBox::Information, QLatin1String(titleC), msg, QMessageBox::Cancel);
@@ -404,30 +408,30 @@ bool chooseDebugger(const QApplication &a, QString *errorMessage)
     msgBox.exec();
     if (msgBox.clickedButton() == creatorButton) {
         // Just in case, default to standard
-        if (startCreatorAsDebugger(a, errorMessage))
+        if (startCreatorAsDebugger(errorMessage))
             return true;
-        return startDefaultDebugger(a, errorMessage);
+        return startDefaultDebugger(errorMessage);
     }
     if (msgBox.clickedButton() == defaultButton)
-        return startDefaultDebugger(a, errorMessage);
+        return startDefaultDebugger(errorMessage);
     return true;
 }
 
 // Installation helpers: Format the debugger call with placeholders for PID and event
 // '"[path]\qtcdebugger" [-wow] %ld %ld'.
 
-static QString debuggerCall(const QApplication &a, const QString &additionalOption = QString())
+static QString debuggerCall(const QString &additionalOption = QString())
 {
     QString rc;
     QTextStream str(&rc);
-    str << '"' << QDir::toNativeSeparators(a.applicationFilePath()) << '"';
+    str << '"' << QDir::toNativeSeparators(QApplication::applicationFilePath()) << '"';
     if (!additionalOption.isEmpty())
         str << ' ' << additionalOption;
     str << " %ld %ld";
     return rc;
 }
 
-// Installation helper: Register ourselves in a debugger registry key.
+// registration helper: Register ourselves in a debugger registry key.
 // Make a copy of the old value as "Debugger.Default" and have the
 // "Debug" key point to us.
 
@@ -444,7 +448,7 @@ static bool registerDebuggerKey(const WCHAR *key,
         if (!registryReadStringKey(handle, debuggerRegistryValueNameC, &oldDebugger, errorMessage))
             break;
         if (oldDebugger.contains(QLatin1String(applicationFileC), Qt::CaseInsensitive)) {
-            *errorMessage = QLatin1String("The program is already installed.");
+            *errorMessage = QLatin1String("The program is already registered as post mortem debugger.");
             return false;
         }
         if (!registryWriteStringKey(handle, debuggerRegistryDefaultValueNameC, oldDebugger, errorMessage))
@@ -460,18 +464,18 @@ static bool registerDebuggerKey(const WCHAR *key,
     return success;
 }
 
-bool install(const QApplication &a, QString *errorMessage)
+bool install(QString *errorMessage)
 {
-    if (!registerDebuggerKey(debuggerRegistryKeyC, debuggerCall(a), errorMessage))
+    if (!registerDebuggerKey(debuggerRegistryKeyC, debuggerCall(), errorMessage))
         return false;
 #ifdef Q_OS_WIN64
-    if (!registerDebuggerKey(debuggerWow32RegistryKeyC, debuggerCall(a, QLatin1String("-wow")), errorMessage))
+    if (!registerDebuggerKey(debuggerWow32RegistryKeyC, debuggerCall(QLatin1String("-wow")), errorMessage))
         return false;
 #endif
     return true;
 }
 
-// Uninstall helper: Restore the original debugger key
+// Unregister helper: Restore the original debugger key
 static bool unregisterDebuggerKey(const WCHAR *key, QString *errorMessage)
 {
     HKEY handle = 0;
@@ -494,7 +498,7 @@ static bool unregisterDebuggerKey(const WCHAR *key, QString *errorMessage)
 }
 
 
-bool uninstall(const QApplication & /*a*/, QString *errorMessage)
+bool uninstall(QString *errorMessage)
 {
     if (!unregisterDebuggerKey(debuggerRegistryKeyC, errorMessage))
         return false;
@@ -509,11 +513,11 @@ bool uninstall(const QApplication & /*a*/, QString *errorMessage)
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName(QLatin1String(titleC));
-    a.setOrganizationName(QLatin1String(organizationC));
+    QApplication::setApplicationName(QLatin1String(titleC));
+    QApplication::setOrganizationName(QLatin1String(organizationC));
     QString errorMessage;
 
-    if (!parseArguments(a.arguments(), &errorMessage)) {
+    if (!parseArguments(QApplication::arguments(), &errorMessage)) {
         qWarning("%s\n", qPrintable(errorMessage));
         usage(QCoreApplication::applicationFilePath(), errorMessage);
         return -1;
@@ -526,24 +530,26 @@ int main(int argc, char *argv[])
         usage(QCoreApplication::applicationFilePath(), errorMessage);
         break;
     case ForceCreatorMode:
-        ex = startCreatorAsDebugger(a, &errorMessage) ? 0 : -1;
+        ex = startCreatorAsDebugger(&errorMessage) ? 0 : -1;
         break;
     case ForceDefaultMode:
-        ex = startDefaultDebugger(a, &errorMessage) ? 0 : -1;
+        ex = startDefaultDebugger(&errorMessage) ? 0 : -1;
         break;
     case PromptMode:
-        ex = chooseDebugger(a, &errorMessage) ? 0 : -1;
+        ex = chooseDebugger(&errorMessage) ? 0 : -1;
         break;
-    case InstallMode:
-        ex = install(a, &errorMessage) ? 0 : -1;
+    case RegisterMode:
+        ex = install(&errorMessage) ? 0 : -1;
         break;
-    case UninstallMode:
-        ex = uninstall(a, &errorMessage) ? 0 : -1;
+    case UnregisterMode:
+        ex = uninstall(&errorMessage) ? 0 : -1;
         break;
     }
     if (ex && !errorMessage.isEmpty()) {
-        qWarning("%s\n", qPrintable(errorMessage));
-        QMessageBox::warning(0, QLatin1String(titleC), errorMessage, QMessageBox::Ok);
+        if (noguiMode)
+            qWarning("%s\n", qPrintable(errorMessage));
+        else
+            QMessageBox::warning(0, QLatin1String(titleC), errorMessage, QMessageBox::Ok);
     }
     return ex;
 }
