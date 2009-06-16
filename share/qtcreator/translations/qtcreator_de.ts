@@ -1807,7 +1807,7 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Qt Software</source>
+        <source>Qt Home</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
