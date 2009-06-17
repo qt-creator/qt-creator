@@ -67,6 +67,7 @@ public:
     ~BookmarkManager();
     void updateBookmark(Bookmark *bookmark);
     void removeBookmark(Bookmark *bookmark); // Does not remove the mark
+    void removeAllBookmarks();
     Bookmark *bookmarkForIndex(QModelIndex index);
 
     enum State { NoBookMarks, HasBookMarks, HasBookmarksInDocument };

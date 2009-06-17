@@ -415,8 +415,34 @@ void BookmarkManager::updateBookmark(Bookmark *bookmark)
     saveBookmarks();
 }
 
+void BookmarkManager::removeAllBookmarks()
+{
+    if (m_bookmarksList.isEmpty())
+        return;
+    beginRemoveRows(QModelIndex(), 0, m_bookmarksList.size() - 1);
+
+    DirectoryFileBookmarksMap::const_iterator it, end;
+    end = m_bookmarksMap.constEnd();
+    for (it = m_bookmarksMap.constBegin(); it != end; ++it) {
+        FileNameBookmarksMap *files = it.value();
+        FileNameBookmarksMap::const_iterator jt, jend;
+        jend = files->constEnd();
+        for (jt = files->constBegin(); jt != jend; ++jt) {
+            delete jt.value();
+        }
+        files->clear();
+        delete files;
+    }
+    m_bookmarksMap.clear();
+    m_bookmarksList.clear();
+    endRemoveRows();
+}
+
 void BookmarkManager::removeBookmark(Bookmark *bookmark)
 {
+    int idx = m_bookmarksList.indexOf(bookmark);
+    beginRemoveRows(QModelIndex(), idx, idx);
+
     const QFileInfo fi(bookmark->filePath() );
     FileNameBookmarksMap *files = m_bookmarksMap.value(fi.path());
 
@@ -434,8 +460,7 @@ void BookmarkManager::removeBookmark(Bookmark *bookmark)
         delete files;
     }
 
-    int idx = m_bookmarksList.indexOf(bookmark);
-    beginRemoveRows(QModelIndex(), idx, idx);
+
     m_bookmarksList.removeAt(idx);
     endRemoveRows();
 
@@ -700,6 +725,7 @@ void BookmarkManager::saveBookmarks()
 /* Loads the bookmarks from the session settings. */
 void BookmarkManager::loadBookmarks()
 {
+    removeAllBookmarks();
     SessionManager *s = sessionManager();
     if (!s)
         return;
