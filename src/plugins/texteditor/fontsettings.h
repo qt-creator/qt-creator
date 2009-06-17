@@ -88,8 +88,9 @@ class TEXTEDITOR_EXPORT FontSettings
 public:
     typedef QList<FormatDescription> FormatDescriptions;
 
-    FontSettings(const FormatDescriptions &fd);
+    FontSettings();
     void clear();
+    inline bool isEmpty() const { return m_formats.isEmpty(); }
 
     void toSettings(const QString &category,
                     const FormatDescriptions &descriptions,

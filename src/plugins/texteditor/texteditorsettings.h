@@ -73,6 +73,9 @@ signals:
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
 
+private slots:
+    void fontSizeRequested(int pointSize);
+
 private:
     FontSettingsPage *m_fontSettingsPage;
     BehaviorSettingsPage *m_behaviorSettingsPage;

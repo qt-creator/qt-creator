@@ -152,7 +152,7 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
 {
     // Connect to settings change signals
     connect(this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            editor, SLOT(setFontSettings(TextEditor::FontSettings)));
+	    editor, SLOT(setFontSettingsIfVisible(TextEditor::FontSettings)));
     connect(this, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
             editor, SLOT(setTabSettings(TextEditor::TabSettings)));
     connect(this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
@@ -160,11 +160,22 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
     connect(this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
 
+    connect(editor, SIGNAL(requestFontSize(int)),
+	    this, SLOT(fontSizeRequested(int)));
+
     // Apply current settings (tab settings depend on font settings)
     editor->setFontSettings(fontSettings());
     editor->setTabSettings(tabSettings());
     editor->setStorageSettings(storageSettings());
     editor->setDisplaySettings(displaySettings());
+}
+
+
+void TextEditorSettings::fontSizeRequested(int pointSize)
+{
+    FontSettings &fs = const_cast<FontSettings&>(m_fontSettingsPage->fontSettings());
+    fs.setFontSize(pointSize);
+    emit fontSettingsChanged(m_fontSettingsPage->fontSettings());
 }
 
 FontSettings TextEditorSettings::fontSettings() const

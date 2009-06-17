@@ -31,6 +31,7 @@
 #define BASETEXTEDITOR_P_H
 
 #include "basetexteditor.h"
+#include <texteditor/fontsettings.h>
 
 #include <QtCore/QBasicTimer>
 #include <QtCore/QSharedData>
@@ -174,6 +175,7 @@ public:
 
     QWidget *m_extraArea;
     DisplaySettings m_displaySettings;
+    TextEditor::FontSettings m_fontSettings;
 
     int extraAreaSelectionAnchorBlockNumber;
     int extraAreaToggleMarkBlockNumber;

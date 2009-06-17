@@ -45,7 +45,7 @@
 #include <coreplugin/stylehelper.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
-#include <texteditor/fontsettings.h>
+
 #include <utils/reloadpromptutils.h>
 #include <aggregation/aggregate.h>
 #endif
@@ -3114,8 +3114,9 @@ void BaseTextEditor::zoomIn(int range)
     const int newSize = f.pointSize() + range;
     if (newSize <= 0)
         return;
-    f.setPointSize(newSize);
-    setFont(f);
+    emit requestFontSize(newSize);
+//    f.setPointSize(newSize);
+//    setFont(f);
 }
 
 void BaseTextEditor::zoomOut(int range)
@@ -3837,6 +3838,24 @@ void BaseTextEditor::unCommentSelection()
 {
 }
 
+void BaseTextEditor::showEvent(QShowEvent* e)
+{
+    if (!d->m_fontSettings.isEmpty()) {
+	setFontSettings(d->m_fontSettings);
+	d->m_fontSettings.clear();
+    }
+    QPlainTextEdit::showEvent(e);
+}
+
+
+void BaseTextEditor::setFontSettingsIfVisible(const TextEditor::FontSettings &fs)
+{
+    if (!isVisible()) {
+	d->m_fontSettings = fs;
+	return;
+    }
+    setFontSettings(fs);
+}
 void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
     const QTextCharFormat textFormat = fs.toTextCharFormat(QLatin1String(Constants::C_TEXT));

@@ -91,8 +91,6 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
     m_category(category),
     m_trCategory(trCategory),
     m_descriptions(fd),
-    m_value(fd),
-    m_lastValue(fd),
     m_curItem(-1)
 {
     bool settingsFound = false;

@@ -408,6 +408,8 @@ protected:
     void wheelEvent(QWheelEvent *e);
     void changeEvent(QEvent *e);
 
+    void showEvent(QShowEvent *);
+
     // reimplemented to support block selection
     QMimeData *createMimeDataFromSelection() const;
     bool canInsertFromMimeData(const QMimeData *source) const;
@@ -483,6 +485,7 @@ public slots:
     virtual void format();
     virtual void unCommentSelection();
     virtual void setFontSettings(const TextEditor::FontSettings &);
+    void setFontSettingsIfVisible(const TextEditor::FontSettings &);
     virtual void setTabSettings(const TextEditor::TabSettings &);
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     virtual void setStorageSettings(const TextEditor::StorageSettings &);
@@ -511,6 +514,7 @@ protected slots:
     virtual void slotUpdateBlockNotify(const QTextBlock &);
 
 signals:
+    void requestFontSize(int pointSize);
     void requestBlockUpdate(const QTextBlock &);
     void requestAutoCompletion(ITextEditable *editor, bool forced);
     void requestQuickFix(ITextEditable *editor);
@@ -533,6 +537,7 @@ private:
     QRect collapseBox();
 
     QTextBlock collapsedBlockAt(const QPoint &pos, QRect *box = 0) const;
+
 
     // parentheses matcher
 private slots:

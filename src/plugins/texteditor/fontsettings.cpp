@@ -136,12 +136,11 @@ bool Format::equals(const Format &f) const
 }
 
 // -- FontSettings
-FontSettings::FontSettings(const FormatDescriptions &fd) :
+FontSettings::FontSettings() :
     m_family(defaultFixedFontFamily()),
     m_fontSize(DEFAULT_FONT_SIZE),
     m_antialias(DEFAULT_ANTIALIAS)
 {
-    Q_UNUSED(fd);
 }
 
 void FontSettings::clear()
@@ -149,7 +148,8 @@ void FontSettings::clear()
     m_family = defaultFixedFontFamily();
     m_fontSize = DEFAULT_FONT_SIZE;
     m_antialias = DEFAULT_ANTIALIAS;
-    qFill(m_formats.begin(), m_formats.end(), Format());
+    m_formats.clear();
+    //qFill(m_formats.begin(), m_formats.end(), Format());
 }
 
 void FontSettings::toSettings(const QString &category,
