@@ -273,6 +273,15 @@ S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runCon
             this, SLOT(makesisProcessFailed()));
     connect(m_makesis, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(makesisProcessFinished()));
+    m_signsis = new QProcess(this);
+    connect(m_signsis, SIGNAL(readyReadStandardError()),
+            this, SLOT(readStandardError()));
+    connect(m_signsis, SIGNAL(readyReadStandardOutput()),
+            this, SLOT(readStandardOutput()));
+    connect(m_signsis, SIGNAL(error(QProcess::ProcessError)),
+            this, SLOT(signsisProcessFailed()));
+    connect(m_signsis, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(signsisProcessFinished()));
 }
 
 void S60DeviceRunControl::start()
@@ -280,14 +289,16 @@ void S60DeviceRunControl::start()
     QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration().dynamicCast<S60DeviceRunConfiguration>();
     Q_ASSERT(!rc.isNull());
 
+    Qt4Project *project = qobject_cast<Qt4Project *>(runConfiguration()->project());
+
     m_baseFileName = rc->basePackageFilePath();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
+    m_qtDir = project->qtVersion(project->activeBuildConfiguration())->path();
 
     emit started();
 
     emit addToOutputWindow(this, tr("Creating %1.sisx ...").arg(QDir::toNativeSeparators(m_baseFileName)));
 
-    Qt4Project *project = qobject_cast<Qt4Project *>(runConfiguration()->project());
     Q_ASSERT(project);
     m_toolsDirectory = S60Manager::instance()->devices()->deviceForId(
             S60Manager::instance()->deviceIdFromDetectionSource(
@@ -329,22 +340,44 @@ void S60DeviceRunControl::readStandardOutput()
 
 void S60DeviceRunControl::makesisProcessFailed()
 {
-    QString errorString;
-    switch (m_makesis->error()) {
-    case QProcess::FailedToStart:
-        errorString = tr("Failed to start makesis.exe.");
-        break;
-    case QProcess::Crashed:
-        errorString = tr("makesis.exe has unexpectedly finished.");
-        break;
-    default:
-        errorString = tr("Some error has occurred while running makesis.exe.");
-    }
-    error(this, errorString);
+    processFailed("makesis.exe", m_makesis->error());
 }
 
 void S60DeviceRunControl::makesisProcessFinished()
 {
+    QString signsisTool = m_toolsDirectory + "/signsis.exe";
+    QString sisFile = QFileInfo(m_baseFileName + ".sis").fileName();
+    QString sisxFile = QFileInfo(m_baseFileName + ".sisx").fileName();
+    QStringList arguments;
+    arguments << sisFile << sisxFile << (m_qtDir + "/selfsigned.cer") << (m_qtDir + "/selfsigned.key");
+    m_signsis->setWorkingDirectory(m_workingDirectory);
+    emit addToOutputWindow(this, QString::fromLatin1("%1 %2").arg(signsisTool, arguments.join(tr(" "))));
+    m_signsis->start(signsisTool, arguments, QIODevice::ReadOnly);
+}
+
+void S60DeviceRunControl::signsisProcessFailed()
+{
+    processFailed("signsis.exe", m_signsis->error());
+}
+
+void S60DeviceRunControl::signsisProcessFinished()
+{
     emit addToOutputWindow(this, tr("Finished."));
     emit finished();
+}
+
+void S60DeviceRunControl::processFailed(const QString &program, QProcess::ProcessError errorCode)
+{
+    QString errorString;
+    switch (errorCode) {
+    case QProcess::FailedToStart:
+        errorString = tr("Failed to start %1.");
+        break;
+    case QProcess::Crashed:
+        errorString = tr("%1 has unexpectedly finished.");
+        break;
+    default:
+        errorString = tr("Some error has occurred while running %1.");
+    }
+    error(this, errorString.arg(program));
 }

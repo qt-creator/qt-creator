@@ -96,11 +96,16 @@ private slots:
     void readStandardOutput();
     void makesisProcessFailed();
     void makesisProcessFinished();
+    void signsisProcessFailed();
+    void signsisProcessFinished();
 
 private:
+    void processFailed(const QString &program, QProcess::ProcessError errorCode);
+
     QString m_baseFileName;
     QString m_workingDirectory;
     QString m_toolsDirectory;
+    QString m_qtDir;
     QProcess *m_makesis;
     QProcess *m_signsis;
     QProcess *m_install;
