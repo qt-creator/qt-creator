@@ -350,6 +350,7 @@ bool CdbDumperHelper::ensureInitialized(QString *errorMessage)
                 *errorMessage = msgLoadFailed(m_library, false, *errorMessage);
                 m_access->showDebuggerOutput(m_messagePrefix, *errorMessage);
                 m_access->showQtDumperLibraryWarning(*errorMessage);
+                m_state = Disabled; // No message here, no point in retrying
                 return false;
             case CallLoadNoQtApp:
                 m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The debuggee does not appear to be Qt application."));
