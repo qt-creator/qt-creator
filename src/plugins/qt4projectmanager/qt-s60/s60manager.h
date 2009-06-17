@@ -44,6 +44,8 @@ class S60Devices;
 class S60DevicesPreferencePane;
 class S60EmulatorRunConfigurationFactory;
 class S60EmulatorRunConfigurationRunner;
+class S60DeviceRunConfigurationFactory;
+class S60DeviceRunConfigurationRunner;
 
 class S60Manager : public QObject
 {
@@ -68,6 +70,8 @@ private:
     S60DevicesPreferencePane *m_devicesPreferencePane;
     S60EmulatorRunConfigurationFactory *m_s60EmulatorRunConfigurationFactory;
     S60EmulatorRunConfigurationRunner *m_s60EmulatorRunConfigurationRunner;
+    S60DeviceRunConfigurationFactory *m_s60DeviceRunConfigurationFactory;
+    S60DeviceRunConfigurationRunner *m_s60DeviceRunConfigurationRunner;
 };
 
 } // namespace Internal
