@@ -2140,11 +2140,6 @@ void GdbEngine::handleBreakInsert1(const GdbResultRecord &record, const QVariant
 
 void GdbEngine::attemptBreakpointSynchronization()
 {
-    // Non-lethal check for nested calls
-    static bool inBreakpointSychronization = false;
-    QTC_ASSERT(!inBreakpointSychronization, /**/);
-    inBreakpointSychronization = true;
-
     BreakHandler *handler = qq->breakHandler();
 
     foreach (BreakpointData *data, handler->takeDisabledBreakpoints()) {
@@ -2206,8 +2201,6 @@ void GdbEngine::attemptBreakpointSynchronization()
             handler->updateMarkers();
         }
     }
-
-    inBreakpointSychronization = false;
 }
 
 
