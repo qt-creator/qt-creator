@@ -1894,18 +1894,16 @@ void GdbEngine::sendInsertBreakpoint(int index)
     QString cmd = _("-break-insert ");
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + " ";
-    cmd += where;
 #elif defined(Q_OS_MAC)
     QString cmd = _("-break-insert -l -1 ");
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + " ";
-    cmd += where;
 #else
     QString cmd = _("-break-insert -f ");
     //if (!data->condition.isEmpty())
     //    cmd += _("-c ") + data->condition + ' ';
-    cmd += where;
 #endif
+    cmd += where;
     emit gdbOutputAvailable(LogStatus, _("Current state: %1").arg(q->status()));
     postCommand(cmd, NeedsStop, CB(handleBreakInsert), index);
 }
