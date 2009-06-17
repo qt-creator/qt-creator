@@ -92,6 +92,12 @@ void GuiAppWizardDialog::setSuffixes(const QString &header, const QString &sourc
     m_filesPage->setSuffixes(header, source, form);
 }
 
+void GuiAppWizardDialog::setLowerCaseFiles(bool l)
+{
+    m_filesPage->setLowerCaseFiles(l);
+}
+
+
 void GuiAppWizardDialog::setPath(const QString &path)
 {
     m_introPage->setPath(path);

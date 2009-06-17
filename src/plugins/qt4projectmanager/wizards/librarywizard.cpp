@@ -58,8 +58,9 @@ QWizard *LibraryWizard::createWizardDialog(QWidget *parent,
                                           const WizardPageList &extensionPages) const
 {
     LibraryWizardDialog *dialog = new  LibraryWizardDialog(name(), icon(), extensionPages, parent);
+    dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
     dialog->setPath(defaultPath.isEmpty() ? Core::Utils::PathChooser::homePath() : defaultPath);
-    dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());
+    dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());    
     return dialog;
 }
 

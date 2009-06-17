@@ -175,5 +175,15 @@ void FilesPage::setFormInputChecked(bool checked)
     m_newClassWidget->setFormInputChecked(checked);
 }
 
+bool FilesPage::lowerCaseFiles() const
+{
+    return m_newClassWidget->lowerCaseFiles();
+}
+
+void FilesPage::setLowerCaseFiles(bool l)
+{
+    m_newClassWidget->setLowerCaseFiles(l);
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager

@@ -61,6 +61,9 @@ protected:
     QString formSuffix()    const;
     QString profileSuffix() const;
 
+    // Query CppTools settings for the class wizard settings
+    static bool lowerCaseFiles();
+
 private:
     bool postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMessage);
 };

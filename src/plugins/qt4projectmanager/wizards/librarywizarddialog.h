@@ -53,6 +53,7 @@ public:
                                  QWidget *parent = 0);
 
     void setSuffixes(const QString &header, const QString &source,  const QString &form= QString());
+    void setLowerCaseFiles(bool);
 
     QtProjectParameters parameters() const;
     LibraryParameters libraryParameters() const;

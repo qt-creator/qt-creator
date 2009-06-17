@@ -33,12 +33,15 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
+#include <cpptools/cpptoolsconstants.h>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
+#include <QtCore/QSettings>
+#include <QtCore/QVariant>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -100,3 +103,18 @@ QString QtWizard::templateDir() const
     rc += QLatin1String("/templates/qt4project");
     return rc;
 }
+
+bool QtWizard::lowerCaseFiles()
+{
+    QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
+    lowerCaseSettingsKey += QLatin1Char('/');
+    lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
+    const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
+    return Core::ICore::instance()->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
+}
+
+
+
+
+
+

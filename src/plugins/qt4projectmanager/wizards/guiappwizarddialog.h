@@ -71,6 +71,7 @@ public:
 
     void setBaseClasses(const QStringList &baseClasses);
     void setSuffixes(const QString &header, const QString &source,  const QString &form);
+    void setLowerCaseFiles(bool l);
 
     QtProjectParameters projectParameters() const;
     GuiAppParameters parameters() const;

@@ -82,8 +82,9 @@ QWizard *GuiAppWizard::createWizardDialog(QWidget *parent,
     GuiAppWizardDialog *dialog = new GuiAppWizardDialog(name(), icon(), extensionPages, parent);
     dialog->setPath(defaultPath.isEmpty() ? Core::Utils::PathChooser::homePath() : defaultPath);
     // Order! suffixes first to generate files correctly
+    dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());
-    dialog->setBaseClasses(baseClasses());
+    dialog->setBaseClasses(baseClasses());    
     return dialog;
 }
 

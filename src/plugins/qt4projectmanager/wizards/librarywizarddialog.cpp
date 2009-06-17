@@ -182,6 +182,11 @@ void LibraryWizardDialog::setSuffixes(const QString &header, const QString &sour
     m_filesPage->setSuffixes(header, source, form);
 }
 
+void LibraryWizardDialog::setLowerCaseFiles(bool l)
+{
+    m_filesPage->setLowerCaseFiles(l);
+}
+
 void LibraryWizardDialog::setPath(const QString &path)
 {
     m_introPage->setPath(path);
