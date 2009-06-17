@@ -30,6 +30,8 @@
 #ifndef DEBUGGER_BREAKHANDLER_H
 #define DEBUGGER_BREAKHANDLER_H
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QAbstractItemModel>
 
@@ -121,7 +123,7 @@ public:
 
     QAbstractItemModel *model() { return this; }
 
-    BreakpointData *at(int index) const { return index < size() ? m_bp.at(index) : 0; }
+    BreakpointData *at(int index) const { QTC_ASSERT(index < size(), return 0); return m_bp.at(index); }
     int size() const { return m_bp.size(); }
     bool hasPendingBreakpoints() const;
     void append(BreakpointData *data);

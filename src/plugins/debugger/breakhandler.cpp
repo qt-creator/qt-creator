@@ -31,8 +31,6 @@
 
 #include "imports.h" // TextEditor::BaseTextMark
 
-#include <utils/qtcassert.h>
-
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
