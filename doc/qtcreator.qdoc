@@ -1723,7 +1723,16 @@
     \list
         \o Gdb on Windows may not work if the 'Embassy \reg Security Center' software
            by 'Wave \reg Systems' is installed and active (causing crashes in \c{vxvault.dll)}).
+
         \o Only simple data types (POD) work in the Watch Window of CDB.
+
+        \o Qt Creator uses SQLite for storing some of its settings. SQLite is
+           known to have problems with certain NFS servers (most notably the
+           nfs-user-server 2.2beta), since they can lock up the application
+           when it tries to lock the database. If your home directory is on an
+           NFS share and you encounter this issue, one option would be to
+           switch to the nfs-kernel-server, or create a symlink so that the
+           settings are stored locally.
     \endlist
 
     \section1 Known Issues of Version 1.1.0
