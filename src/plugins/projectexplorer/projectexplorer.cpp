@@ -1000,6 +1000,11 @@ void ProjectExplorerPlugin::setCurrentFile(Project *project, const QString &file
 void ProjectExplorerPlugin::setCurrentFile(const QString &filePath)
 {
     Project *project = m_session->projectForFile(filePath);
+    // If the file is not in any project, stay with the current project
+    // e.g. on opening a git diff buffer, git log buffer, we don't change the project
+    // I'm not 100% sure this is correct
+    if (!project)
+        project = m_currentProject;
     setCurrent(project, filePath, 0);
 }
 
