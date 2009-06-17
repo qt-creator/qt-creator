@@ -72,12 +72,6 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
       m_insideFileChanged(false)
 {
     m_file = new CMakeFile(this, fileName);
-    m_watcher = new ProjectExplorer::FileWatcher(this);
-    connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
-    m_watcher->addFile(fileName);
-
-    connect(this, SIGNAL(activeBuildConfigurationChanged()),
-            this, SLOT(slotActiveBuildConfiguration()));
 }
 
 CMakeProject::~CMakeProject()
@@ -567,7 +561,6 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         insertBuildStep(0, makeStep);
 
         addBuildConfiguration("all");
-        setActiveBuildConfiguration("all");
         makeStep->setBuildTarget("all", "all", true);
         if (!copw.buildDirectory().isEmpty())
             setValue("all", "buildDirectory", copw.buildDirectory());
@@ -576,6 +569,8 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         MakeStep *cleanMakeStep = new MakeStep(this);
         insertCleanStep(0, cleanMakeStep);
         cleanMakeStep->setValue("clean", true);
+        setActiveBuildConfiguration("all");
+
     } else {
         // We have a user file, but we could still be missing the cbp file
         // or simply run createXml with the saved settings
@@ -600,8 +595,14 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
             copw.exec();
         }
     }
-
     parseCMakeLists(); // Gets the directory from the active buildconfiguration
+
+    m_watcher = new ProjectExplorer::FileWatcher(this);
+    connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
+    m_watcher->addFile(m_fileName);
+
+    connect(this, SIGNAL(activeBuildConfigurationChanged()),
+            this, SLOT(slotActiveBuildConfiguration()));
 }
 
 CMakeTarget CMakeProject::targetForTitle(const QString &title)
