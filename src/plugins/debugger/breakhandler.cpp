@@ -374,18 +374,25 @@ void BreakHandler::resetBreakpoints()
     for (int index = size(); --index >= 0;) {
         BreakpointData *data = at(index);
         data->pending = true;
+        data->bpMultiple = false;
+        data->bpEnabled = true;
         data->bpNumber.clear();
         data->bpFuncName.clear();
         data->bpFileName.clear();
         data->bpLineNumber.clear();
         data->bpCondition.clear();
         data->bpIgnoreCount.clear();
+        data->bpAddress.clear();
         // keep marker data if it was primary
         if (data->markerFileName != data->fileName)
             data->markerFileName.clear();
         if (data->markerLineNumber != data->lineNumber.toInt())
             data->markerLineNumber = 0;
     }
+    m_enabled.clear();
+    m_disabled.clear();
+    m_removed.clear();
+    m_inserted.clear();
 }
 
 void BreakHandler::updateMarkers()
