@@ -217,6 +217,12 @@ void CMakeRunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplore
     }
 }
 
+ProjectExplorer::ToolChain::ToolChainType CMakeRunConfiguration::toolChainType() const
+{
+    CMakeProject *pro = static_cast<CMakeProject *>(project());
+    return pro->toolChainType();
+}
+
 // Configuration widget
 
 

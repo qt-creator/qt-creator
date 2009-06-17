@@ -459,6 +459,10 @@ QString CustomExecutableRunConfiguration::dumperLibrary() const
     return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibrary(qmakePath);
 }
 
+ProjectExplorer::ToolChain::ToolChainType CustomExecutableRunConfiguration::toolChainType() const
+{
+    return ProjectExplorer::ToolChain::UNKNOWN;
+}
 
 // Factory
 

@@ -74,6 +74,7 @@ public:
         MSVC,
         WINCE,
         OTHER,
+        UNKNOWN,
         INVALID
     };
 

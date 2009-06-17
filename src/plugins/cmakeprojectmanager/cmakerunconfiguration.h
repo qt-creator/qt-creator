@@ -70,6 +70,7 @@ public:
     virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
     virtual QString dumperLibrary() const;
+    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 
 signals:
     void baseEnvironmentChanged();

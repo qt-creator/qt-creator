@@ -30,6 +30,8 @@
 #ifndef APPLICATIONRUNCONFIGURATION_H
 #define APPLICATIONRUNCONFIGURATION_H
 
+#include <projectexplorer/toolchain.h>
+
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
 
@@ -55,6 +57,7 @@ public:
     virtual QStringList commandLineArguments() const = 0;
     virtual Environment environment() const = 0;
     virtual QString dumperLibrary() const = 0;
+    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const = 0;
 
     virtual void save(PersistentSettingsWriter &writer) const;
     virtual void restore(const PersistentSettingsReader &reader);

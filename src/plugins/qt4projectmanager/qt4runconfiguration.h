@@ -73,6 +73,7 @@ public:
     virtual QStringList commandLineArguments() const;
     virtual ProjectExplorer::Environment environment() const;
     virtual QString dumperLibrary() const;
+    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);

@@ -612,6 +612,15 @@ CMakeTarget CMakeProject::targetForTitle(const QString &title)
     return CMakeTarget();
 }
 
+ProjectExplorer::ToolChain::ToolChainType CMakeProject::toolChainType() const
+{
+    if (m_toolChain)
+        return m_toolChain->type();
+    return ProjectExplorer::ToolChain::UNKNOWN;
+}
+
+// CMakeFile
+
 CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
     : Core::IFile(parent), m_project(parent), m_fileName(fileName)
 {

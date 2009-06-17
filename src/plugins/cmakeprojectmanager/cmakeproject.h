@@ -105,6 +105,7 @@ public:
     CMakeTarget targetForTitle(const QString &title);
 
     QString sourceDirectory() const;
+    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);

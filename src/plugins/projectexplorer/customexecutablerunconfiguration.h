@@ -90,6 +90,8 @@ public:
     virtual QWidget *configurationWidget();
     virtual QString dumperLibrary() const;
 
+    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+
 signals:
     void changed();
 

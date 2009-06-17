@@ -635,6 +635,11 @@ Qt4RunConfiguration::BaseEnvironmentBase Qt4RunConfiguration::baseEnvironmentBas
 {
     return m_baseEnvironmentBase;
 }
+ProjectExplorer::ToolChain::ToolChainType Qt4RunConfiguration::toolChainType() const
+{
+    Qt4Project *pro = qobject_cast<Qt4Project *>(project());
+    return pro->qtVersion(pro->activeBuildConfiguration())->toolchainType();
+}
 
 ///
 /// Qt4RunConfigurationFactory
