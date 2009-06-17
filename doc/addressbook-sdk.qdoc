@@ -207,9 +207,9 @@
 
     \snippet examples/addressbook-sdk/part1/main.cpp main function
 
-    The code constructs a new \c AddressBook widget on the heap using the
-    \c new keyword and invokes its \l{QWidget::}{show()} function to display
-    it. However, the widget will not be shown until the application's event
+    The code constructs a new \c AddressBook widget on the stack and 
+    invokes its \l{QWidget::}{show()} function to display it. 
+    However, the widget will not be shown until the application's event
     loop is started. This is done by calling the application's
     \l{QApplication::}{exec()} function. Finally, the result returned by
     \l{QApplication::}{exec()} is used as the \c main() function's return
@@ -532,7 +532,7 @@
     \c contacts and then:
 
     \list
-        \o  If the iterator is at teh end of \c contacts, we clear the display
+        \o  If the iterator is at the end of \c contacts, we clear the display
             and return.
         \o  If the iterator is at the beginning of \c contacts, we move it to
             the end.
