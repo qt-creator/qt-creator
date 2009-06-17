@@ -66,10 +66,10 @@ void S60DeviceRunConfiguration::restore(const PersistentSettingsReader &reader)
     m_proFilePath = projectDir.filePath(reader.restoreValue("ProFile").toString());
 }
 
-QString S60DeviceRunConfiguration::executable() const
+QString S60DeviceRunConfiguration::basePackageFilePath() const
 {
     const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
-    return m_executable;
+    return m_baseFileName;
 }
 
 void S60DeviceRunConfiguration::updateTarget()
@@ -79,7 +79,7 @@ void S60DeviceRunConfiguration::updateTarget()
     Qt4Project *pro = static_cast<Qt4Project *>(project());
     Qt4PriFileNode * priFileNode = static_cast<Qt4Project *>(project())->rootProjectNode()->findProFileFor(m_proFilePath);
     if (!priFileNode) {
-        m_executable = QString::null;
+        m_baseFileName = QString::null;
         m_cachedTargetInformationValid = true;
         emit targetInformationChanged();
         return;
@@ -111,16 +111,33 @@ void S60DeviceRunConfiguration::updateTarget()
         return;
     }
 
-    QString baseDir = S60Manager::instance()->devices()->deviceForId(
-            S60Manager::instance()->deviceIdFromDetectionSource(qtVersion->autodetectionSource())).epocRoot;
-    QString qmakeBuildConfig = "urel";
-    if (projectBuildConfiguration & QtVersion::DebugBuild)
-        qmakeBuildConfig = "udeb";
-    baseDir += "/epoc32/release/winscw/" + qmakeBuildConfig;
+    // Extract data
+    const QDir baseProjectDirectory = QFileInfo(project()->file()->fileName()).absoluteDir();
+    const QString relSubDir = baseProjectDirectory.relativeFilePath(QFileInfo(m_proFilePath).path());
+    const QDir baseBuildDirectory = project()->buildDirectory(project()->activeBuildConfiguration());
+    const QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
 
-    m_executable = QDir::toNativeSeparators(
-            QDir::cleanPath(baseDir + QLatin1Char('/') + reader->value("TARGET")));
-    m_executable += QLatin1String(".exe");
+    // Directory
+    QString m_workingDir;
+    if (reader->contains("DESTDIR")) {
+        m_workingDir = reader->value("DESTDIR");
+        if (QDir::isRelativePath(m_workingDir)) {
+            m_workingDir = baseDir + QLatin1Char('/') + m_workingDir;
+        }
+    } else {
+        m_workingDir = baseDir;
+    }
+
+    m_baseFileName = QDir::cleanPath(m_workingDir + QLatin1Char('/') + reader->value("TARGET"));
+
+    if (pro->toolChainType(pro->activeBuildConfiguration()) == ToolChain::GCCE)
+        m_baseFileName += "_gcce";
+    else
+        m_baseFileName += "_armv5";
+    if (projectBuildConfiguration & QtVersion::DebugBuild)
+        m_baseFileName += "_udeb";
+    else
+        m_baseFileName += "_rel";
 
     delete reader;
     m_cachedTargetInformationValid = true;
@@ -149,8 +166,8 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(S60DeviceRunCon
     nameLabel->setBuddy(m_nameLineEdit);
     toplayout->addRow(nameLabel, m_nameLineEdit);
 
-    m_executableLabel = new QLabel(m_runConfiguration->executable());
-    toplayout->addRow(tr("Executable:"), m_executableLabel);
+    m_sisxFileLabel = new QLabel(m_runConfiguration->basePackageFilePath() + ".sisx");
+    toplayout->addRow(tr("Install File:"), m_sisxFileLabel);
 
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
         this, SLOT(nameEdited(QString)));
@@ -165,7 +182,7 @@ void S60DeviceRunConfigurationWidget::nameEdited(const QString &text)
 
 void S60DeviceRunConfigurationWidget::updateTargetInformation()
 {
-    m_executableLabel->setText(m_runConfiguration->executable());
+    m_sisxFileLabel->setText(m_runConfiguration->basePackageFilePath() + ".sisx");
 }
 
 // ======== S60DeviceRunConfigurationFactory
@@ -247,14 +264,15 @@ RunControl* S60DeviceRunConfigurationRunner::run(QSharedPointer<RunConfiguration
 S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runConfiguration)
     : RunControl(runConfiguration)
 {
-    connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
-            this, SLOT(slotError(QString)));
-    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString)),
-            this, SLOT(slotAddToOutputWindow(QString)));
-    connect(&m_applicationLauncher, SIGNAL(processExited(int)),
-            this, SLOT(processExited(int)));
-    connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
-            this, SLOT(bringApplicationToForeground(qint64)));
+    m_makesis = new QProcess(this);
+    connect(m_makesis, SIGNAL(readyReadStandardError()),
+            this, SLOT(readStandardError()));
+    connect(m_makesis, SIGNAL(readyReadStandardOutput()),
+            this, SLOT(readStandardOutput()));
+    connect(m_makesis, SIGNAL(error(QProcess::ProcessError)),
+            this, SLOT(makesisProcessFailed()));
+    connect(m_makesis, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(makesisProcessFinished()));
 }
 
 void S60DeviceRunControl::start()
@@ -262,44 +280,71 @@ void S60DeviceRunControl::start()
     QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration().dynamicCast<S60DeviceRunConfiguration>();
     Q_ASSERT(!rc.isNull());
 
-    // stuff like the EPOCROOT and EPOCDEVICE env variable
-    Environment env = Environment::systemEnvironment();
-    static_cast<Qt4Project *>(rc->project())->toolChain(rc->project()->activeBuildConfiguration())->addToEnvironment(env);
-    m_applicationLauncher.setEnvironment(env.toStringList());
+    m_baseFileName = rc->basePackageFilePath();
+    m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
 
-    m_executable = rc->executable();
-
-    m_applicationLauncher.start(ApplicationLauncher::Gui,
-                                m_executable, QStringList());
     emit started();
 
-    emit addToOutputWindow(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)));
+    emit addToOutputWindow(this, tr("Creating %1.sisx ...").arg(QDir::toNativeSeparators(m_baseFileName)));
+
+    Qt4Project *project = qobject_cast<Qt4Project *>(runConfiguration()->project());
+    Q_ASSERT(project);
+    m_toolsDirectory = S60Manager::instance()->devices()->deviceForId(
+            S60Manager::instance()->deviceIdFromDetectionSource(
+            project->qtVersion(project->activeBuildConfiguration())
+            ->autodetectionSource())).epocRoot
+            + "/epoc32/tools";
+    QString makesisTool = m_toolsDirectory + "/makesis.exe";
+    QString packageFile = QFileInfo(m_baseFileName + ".pkg").fileName();
+    m_makesis->setWorkingDirectory(m_workingDirectory);
+    emit addToOutputWindow(this, QString::fromLatin1("%1 %2").arg(makesisTool, packageFile));
+    m_makesis->start(makesisTool, QStringList()
+        << packageFile,
+        QIODevice::ReadOnly);
 }
 
 void S60DeviceRunControl::stop()
 {
-    m_applicationLauncher.stop();
+    // TODO
 }
 
 bool S60DeviceRunControl::isRunning() const
 {
-    return m_applicationLauncher.isRunning();
+    return m_makesis->state() != QProcess::NotRunning;
 }
 
-void S60DeviceRunControl::slotError(const QString & err)
+void S60DeviceRunControl::readStandardError()
 {
-    emit error(this, err);
-    emit finished();
+    QProcess *process = static_cast<QProcess *>(sender());
+    QByteArray data = process->readAllStandardError();
+    emit addToOutputWindowInline(this, QString::fromLocal8Bit(data.constData(), data.length()));
 }
 
-void S60DeviceRunControl::slotAddToOutputWindow(const QString &line)
+void S60DeviceRunControl::readStandardOutput()
 {
-    if (line.contains("Qt"))
-        emit addToOutputWindowInline(this, line);
+    QProcess *process = static_cast<QProcess *>(sender());
+    QByteArray data = process->readAllStandardOutput();
+    emit addToOutputWindowInline(this, QString::fromLocal8Bit(data.constData(), data.length()));
 }
 
-void S60DeviceRunControl::processExited(int exitCode)
+void S60DeviceRunControl::makesisProcessFailed()
 {
-    emit addToOutputWindow(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode));
+    QString errorString;
+    switch (m_makesis->error()) {
+    case QProcess::FailedToStart:
+        errorString = tr("Failed to start makesis.exe.");
+        break;
+    case QProcess::Crashed:
+        errorString = tr("makesis.exe has unexpectedly finished.");
+        break;
+    default:
+        errorString = tr("Some error has occurred while running makesis.exe.");
+    }
+    error(this, errorString);
+}
+
+void S60DeviceRunControl::makesisProcessFinished()
+{
+    emit addToOutputWindow(this, tr("Finished."));
     emit finished();
 }

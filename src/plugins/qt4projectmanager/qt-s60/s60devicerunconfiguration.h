@@ -2,8 +2,8 @@
 #define S60DEVICERUNCONFIGURATION_H
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/applicationlauncher.h>
 
+#include <QtCore/QProcess>
 #include <QtGui/QWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
@@ -24,7 +24,7 @@ public:
     void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 
-    QString executable() const;
+    QString basePackageFilePath() const;
 
 signals:
     void targetInformationChanged();
@@ -36,7 +36,7 @@ private:
     void updateTarget();
 
     QString m_proFilePath;
-    QString m_executable;
+    QString m_baseFileName;
     bool m_cachedTargetInformationValid;
 };
 
@@ -54,7 +54,7 @@ private slots:
 private:
     S60DeviceRunConfiguration *m_runConfiguration;
     QLineEdit *m_nameLineEdit;
-    QLabel *m_executableLabel;
+    QLabel *m_sisxFileLabel;
 };
 
 class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
@@ -92,13 +92,18 @@ public:
     bool isRunning() const;
 
 private slots:
-    void processExited(int exitCode);
-    void slotAddToOutputWindow(const QString &line);
-    void slotError(const QString & error);
+    void readStandardError();
+    void readStandardOutput();
+    void makesisProcessFailed();
+    void makesisProcessFinished();
 
 private:
-    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
-    QString m_executable;
+    QString m_baseFileName;
+    QString m_workingDirectory;
+    QString m_toolsDirectory;
+    QProcess *m_makesis;
+    QProcess *m_signsis;
+    QProcess *m_install;
 };
 
 } // namespace Internal
