@@ -152,6 +152,8 @@ public:
     virtual QString dumperLibrary() const;
     virtual QWidget *configurationWidget();
 
+    ProjectExplorer::ToolChain::ToolChainType toolChainType() const { return ProjectExplorer::ToolChain::OTHER; }
+
     virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 
