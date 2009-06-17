@@ -329,6 +329,8 @@ void Document::check()
         for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
             semantic.check(decl, globals);
         }
+    } else if (ExpressionAST *ast = _translationUnit->ast()->asExpression()) {
+        semantic.check(ast, globals);
     }
 }
 

@@ -259,8 +259,7 @@ bool ResolveExpression::visit(BinaryExpressionAST *ast)
 
 bool ResolveExpression::visit(CastExpressionAST *ast)
 {
-    Scope dummy;
-    addResult(sem.check(ast->type_id, &dummy));
+    addResult(sem.check(ast->type_id, _context.expressionDocument()->globalSymbols()));
     return false;
 }
 
@@ -278,8 +277,7 @@ bool ResolveExpression::visit(ConditionalExpressionAST *)
 
 bool ResolveExpression::visit(CppCastExpressionAST *ast)
 {
-    Scope dummy;
-    addResult(sem.check(ast->type_id, &dummy));
+    addResult(sem.check(ast->type_id, _context.expressionDocument()->globalSymbols()));
     return false;
 }
 
@@ -450,8 +448,7 @@ bool ResolveExpression::visit(CompoundLiteralAST *ast)
 bool ResolveExpression::visit(QualifiedNameAST *ast)
 {
     ResolveClass resolveClass;
-    Scope dummy;
-    Name *name = sem.check(ast, &dummy);
+    Name *name = ast->name;
 
     QList<Symbol *> symbols = _context.resolve(name);
     foreach (Symbol *symbol, symbols) {
@@ -485,10 +482,7 @@ bool ResolveExpression::visit(ConversionFunctionIdAST *)
 
 bool ResolveExpression::visit(SimpleNameAST *ast)
 {
-    Scope dummy;
-    Name *name = sem.check(ast, &dummy);
-
-    QList<Symbol *> symbols = _context.resolve(name);
+    QList<Symbol *> symbols = _context.resolve(ast->name);
     foreach (Symbol *symbol, symbols)
         addResult(symbol->type(), symbol);
 
@@ -504,10 +498,7 @@ bool ResolveExpression::visit(DestructorNameAST *)
 
 bool ResolveExpression::visit(TemplateIdAST *ast)
 {
-    Scope dummy;
-    Name *name = sem.check(ast, &dummy);
-
-    QList<Symbol *> symbols = _context.resolve(name);
+    QList<Symbol *> symbols = _context.resolve(ast->name);
     foreach (Symbol *symbol, symbols)
         addResult(symbol->type(), symbol);
 
@@ -601,8 +592,9 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
     QList<Result> baseResults = _results;
 
     // Evaluate the expression-id that follows the access operator.
-    Scope dummy;
-    Name *memberName = sem.check(ast->member_name, &dummy);
+    Name *memberName = 0;
+    if (ast->member_name)
+        memberName = ast->member_name->name;
 
     // Remember the access operator.
     const unsigned accessOp = tokenKind(ast->access_token);

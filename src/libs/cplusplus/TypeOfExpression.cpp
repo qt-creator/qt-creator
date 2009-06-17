@@ -63,6 +63,7 @@ QList<TypeOfExpression::Result> TypeOfExpression::operator()(const QString &expr
     if (mode == Preprocess)
         code = preprocessedExpression(expression, m_snapshot, document);
     Document::Ptr expressionDoc = documentForExpression(code);
+    expressionDoc->check();
     m_ast = extractExpressionAST(expressionDoc);
 
     m_lookupContext = LookupContext(lastVisibleSymbol, expressionDoc,
