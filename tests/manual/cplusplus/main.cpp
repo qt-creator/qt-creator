@@ -258,6 +258,7 @@ public:
             "**************************************************************************/\n"
             "\n"
             "#include \"AST.h\"\n"
+            "#include \"ASTVisitor.h\"\n"
             "\n"
             "CPLUSPLUS_BEGIN_NAMESPACE\n" << std::endl;
 
@@ -341,6 +342,130 @@ protected:
     }
 };
 
+class VisitCG: protected ASTVisitor
+{
+public:
+    VisitCG(Control *control)
+        : ASTVisitor(control)
+    { }
+
+    void operator()(AST *ast)
+    {
+        std::cout <<
+            "/**************************************************************************\n"
+            "**\n"
+            "** This file is part of Qt Creator\n"
+            "**\n"
+            "** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).\n"
+            "**\n"
+            "** Contact: Nokia Corporation (qt-info@nokia.com)\n"
+            "**\n"
+            "** Commercial Usage\n"
+            "**\n"
+            "** Licensees holding valid Qt Commercial licenses may use this file in\n"
+            "** accordance with the Qt Commercial License Agreement provided with the\n"
+            "** Software or, alternatively, in accordance with the terms contained in\n"
+            "** a written agreement between you and Nokia.\n"
+            "**\n"
+            "** GNU Lesser General Public License Usage\n"
+            "**\n"
+            "** Alternatively, this file may be used under the terms of the GNU Lesser\n"
+            "** General Public License version 2.1 as published by the Free Software\n"
+            "** Foundation and appearing in the file LICENSE.LGPL included in the\n"
+            "** packaging of this file.  Please review the following information to\n"
+            "** ensure the GNU Lesser General Public License version 2.1 requirements\n"
+            "** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\n"
+            "**\n"
+            "** If you are unsure which license is appropriate for your use, please\n"
+            "** contact the sales department at http://www.qtsoftware.com/contact.\n"
+            "**\n"
+            "**************************************************************************/\n"
+            "\n"
+            "#include \"AST.h\"\n"
+            "\n"
+            "CPLUSPLUS_BEGIN_NAMESPACE\n" << std::endl;
+
+        accept(ast);
+
+        std::cout << "CPLUSPLUS_END_NAMESPACE" << std::endl;
+    }
+
+protected:
+    using ASTVisitor::visit;
+
+    QMap<QByteArray, ClassSpecifierAST *> classMap;
+
+    QByteArray id_cast(NameAST *name)
+    {
+        if (! name)
+            return QByteArray();
+
+        Identifier *id = identifier(name->asSimpleName()->identifier_token);
+
+        return QByteArray::fromRawData(id->chars(), id->size());
+    }
+
+    void visitMembers(Class *klass)
+    {
+        const QByteArray className = klass->name()->identifier()->chars();
+
+        std::cout << "        // visit " << className.constData() << std::endl;
+        for (unsigned i = 0; i < klass->memberCount(); ++i) {
+            Symbol *member = klass->memberAt(i);
+            Identifier *id = member->name()->identifier();
+
+            if (! id)
+                continue;
+
+            const QByteArray memberName = QByteArray::fromRawData(id->chars(), id->size());
+            if (member->type().isUnsigned() && memberName.endsWith("_token")) {
+                // nothing to do. The member is a token.
+            } else if (PointerType *ptrTy = member->type()->asPointerType()) {
+                if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
+                    QByteArray typeName = namedTy->name()->identifier()->chars();
+                    if (typeName.endsWith("AST")) {
+                        std::cout << "        accept(" << memberName.constData() << ", visitor);" << std::endl;
+                    }
+                }
+            }
+        }
+
+        for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
+            const QByteArray baseClassName = klass->baseClassAt(i)->identifier()->chars();
+            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0)) {
+                visitMembers(baseClassSpec->symbol);
+            }
+        }
+    }
+
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        Class *klass = ast->symbol;
+
+        const QByteArray className = id_cast(ast->name);
+        classMap.insert(className, ast);
+
+        Identifier *visit_id = control()->findOrInsertIdentifier("accept0");
+        if (! klass->members()->lookat(visit_id))
+            return true;
+
+        std::cout
+                << "void " << className.constData() << "::accept0(ASTVisitor *visitor)" << std::endl
+                << "{" << std::endl
+                << "    if (visitor->visit(this)) {" << std::endl;
+
+        visitMembers(klass);
+
+        std::cout
+                << "    }" << std::endl
+                << "    visitor->endVisit(this);" << std::endl
+                << "}" << std::endl
+                << std::endl;
+
+        return true;
+    }
+};
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
@@ -377,7 +502,7 @@ int main(int argc, char *argv[])
     const QByteArray source = in.readAll();
 
     Control control;
-    StringLiteral *fileId = control.findOrInsertFileName("<stdin>");
+    StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
     TranslationUnit unit(&control, fileId);
     unit.setObjCEnabled(true);
     unit.setSource(source.constData(), source.size());
