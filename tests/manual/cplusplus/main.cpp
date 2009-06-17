@@ -196,8 +196,8 @@ protected:
         if (ast->lbrace_token)
             insertTextAfter(ast->lbrace_token, " Q_OBJECT\n");
 
-        for (DeclarationAST *it = ast->member_specifiers; it; it = it->next) {
-            accept(it);
+        for (DeclarationListAST *it = ast->member_specifiers; it; it = it->next) {
+            accept(it->declaration);
         }
 
         return false;
@@ -342,8 +342,40 @@ protected:
     }
 };
 
+class SearchListNodes: protected ASTVisitor
+{
+    QList<QByteArray> _listNodes;
+
+public:
+    SearchListNodes(Control *control)
+        : ASTVisitor(control)
+    { }
+
+    QList<QByteArray> operator()(AST *ast)
+    {
+        _listNodes.clear();
+        accept(ast);
+        return _listNodes;
+    }
+
+protected:
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        for (unsigned i = 0; i < ast->symbol->memberCount(); ++i) {
+            Symbol *member = ast->symbol->memberAt(i);
+            if (! qstrcmp("next", member->name()->identifier()->chars())) {
+                _listNodes.append(ast->symbol->name()->identifier()->chars());
+                break;
+            }
+        }
+        return true;
+    }
+};
+
 class VisitCG: protected ASTVisitor
 {
+    QList<QByteArray> _listNodes;
+
 public:
     VisitCG(Control *control)
         : ASTVisitor(control)
@@ -385,6 +417,9 @@ public:
             "\n"
             "CPLUSPLUS_BEGIN_NAMESPACE\n" << std::endl;
 
+        SearchListNodes listNodes(control());
+        _listNodes = listNodes(ast);
+
         accept(ast);
 
         std::cout << "CPLUSPLUS_END_NAMESPACE" << std::endl;
@@ -423,7 +458,11 @@ protected:
             } else if (PointerType *ptrTy = member->type()->asPointerType()) {
                 if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                     QByteArray typeName = namedTy->name()->identifier()->chars();
-                    if (typeName.endsWith("AST")) {
+                    if (_listNodes.contains(typeName) && memberName != "next") {
+                        std::cout
+                                << "        for (" << typeName.constData() << " *it = " << memberName.constData() << "; it; it = it->next)" << std::endl
+                                << "            accept(it, visitor);" << std::endl;
+                    } else if (typeName.endsWith("AST") && memberName != "next") {
                         std::cout << "        accept(" << memberName.constData() << ", visitor);" << std::endl;
                     }
                 }
@@ -515,8 +554,8 @@ int main(int argc, char *argv[])
 
     Scope globalScope;
     Semantic sem(&control);
-    for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
-        sem.check(decl, &globalScope);
+    for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
+        sem.check(decl->declaration, &globalScope);
     }
 
     // test the rewriter
