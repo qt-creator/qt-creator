@@ -119,7 +119,6 @@ private:
     bool executeDebuggerCommand(const QString &command, QString *errorMessage);
     bool evaluateExpression(const QString &expression, QString *value, QString *type, QString *errorMessage);
     void evaluateWatcher(WatchData *wd);
-    void filterEvaluateWatchers(QList<WatchData> *wd, WatchHandler *wh);
     QString editorToolTip(const QString &exp, const QString &function);
 
     CdbDebugEnginePrivate *m_d;

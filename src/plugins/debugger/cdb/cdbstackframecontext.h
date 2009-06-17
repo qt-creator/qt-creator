@@ -59,9 +59,9 @@ public:
 
     bool populateModelInitially(WatchHandler *wh, QString *errorMessage);
 
-    bool completeModel(const QList<WatchData> &incompleteLocals,
-                       WatchHandler *wh,
-                       QString *errorMessage);
+    bool completeData(const WatchData &incompleteLocal,
+                      WatchHandler *wh,
+                      QString *errorMessage);
 
 private:
     const bool m_useDumpers;

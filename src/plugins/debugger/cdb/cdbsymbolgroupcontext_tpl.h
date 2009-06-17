@@ -192,27 +192,23 @@ bool CdbSymbolGroupContext::populateModelInitially(CdbSymbolGroupContext *sg,
 }
 
 template <class OutputIterator>
-bool CdbSymbolGroupContext::completeModel(CdbSymbolGroupContext *sg,
-                                          const QList<WatchData> &incompleteLocals,
-                                          OutputIterator it,
-                                          QString *errorMessage)
+bool CdbSymbolGroupContext::completeData(CdbSymbolGroupContext *sg,
+                                         WatchData incompleteLocal,
+                                         OutputIterator it,
+                                         QString *errorMessage)
 {
     if (debugSgRecursion)
-        qDebug().nospace() << "###>" << Q_FUNC_INFO << ' ' << incompleteLocals.size() << '\n';
-    // The view reinserts any node being expanded with flag 'ChildrenNeeded'.
-    // Recurse down one level in context unless this is already the case.
-    foreach(WatchData wd, incompleteLocals) {
-        const bool contextExpanded = sg->isExpanded(wd.iname);
-        if (debugSgRecursion)
-            qDebug() << "  " << wd.iname << "CE=" << contextExpanded;
-        if (contextExpanded) { // You know that already.
-            wd.setChildrenUnneeded();            
-            *it = wd;
-            ++it;
-        } else {
-            if (!insertSymbolRecursion(wd, sg, it, 1, 0, errorMessage))
-                return false;
-        }
+        qDebug().nospace() << "###>" << Q_FUNC_INFO << ' ' << incompleteLocal.iname << '\n';
+    const bool contextExpanded = sg->isExpanded(incompleteLocal.iname);
+    if (debugSgRecursion)
+        qDebug() << "  " << incompleteLocal.iname << "CE=" << contextExpanded;
+    if (contextExpanded) { // TODO: Legacy, should not be required any more
+        incompleteLocal.setChildrenUnneeded();
+        *it = incompleteLocal;
+        ++it;
+    } else {
+        if (!insertSymbolRecursion(incompleteLocal, sg, it, 1, 0, errorMessage))
+            return false;
     }
     return true;
 }

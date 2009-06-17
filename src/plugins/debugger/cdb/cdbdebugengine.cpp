@@ -813,23 +813,15 @@ bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
                                          WatchHandler *wh,
                                          QString *errorMessage)
 {
-    wh->reinitializeWatchers();
-
-    QList<WatchData> incompletes = wh->takeCurrentIncompletes();
+    wh->beginCycle();
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << "\n    " << frameIndex << formatWatchList(incompletes);
-
-    m_engine->filterEvaluateWatchers(&incompletes, wh);
-    if (!incompletes.empty()) {
-        const QString msg = QLatin1String("Warning: Locals left in incomplete list: ") + formatWatchList(incompletes);
-        m_engine->warning(msg);
-    }
+        qDebug() << Q_FUNC_INFO << "\n    " << frameIndex;
 
     bool success = false;
     if (CdbStackFrameContext *sgc = getStackFrameContext(frameIndex, errorMessage))
         success = sgc->populateModelInitially(wh, errorMessage);
 
-    wh->rebuildModel();
+    wh->endCycle();
     return success;
 }
 
@@ -850,69 +842,36 @@ void CdbDebugEngine::evaluateWatcher(WatchData *wd)
     wd->setChildCount(0);
 }
 
-void CdbDebugEngine::filterEvaluateWatchers(QList<WatchData> *wd, WatchHandler *wh)
-{
-    typedef QList<WatchData> WatchList;
-    if (wd->empty())
-        return;
-
-    // Filter out actual watchers. Ignore the "<Edit>" top level place holders
-    SyntaxSetter syntaxSetter(m_d->m_cif.debugControl, DEBUG_EXPR_CPLUSPLUS);
-    const QString watcherPrefix = QLatin1String("watch.");
-    const QChar lessThan = QLatin1Char('<');
-    const QChar greaterThan = QLatin1Char('>');
-    bool placeHolderSeen = false;
-    for (WatchList::iterator it = wd->begin(); it != wd->end(); ) {
-        if (it->iname.startsWith(watcherPrefix)) {
-            const bool isPlaceHolder = it->exp.startsWith(lessThan) && it->exp.endsWith(greaterThan);
-            if (isPlaceHolder) {
-                if (!placeHolderSeen) { // Max one place holder
-                    it->setChildCount(0);
-                    it->setAllUnneeded();
-                    wh->insertData(*it);
-                    placeHolderSeen = true;
-                }
-            } else {
-                evaluateWatcher(&(*it));
-                wh->insertData(*it);
-            }
-            it = wd->erase(it);
-        } else {
-            ++it;
-        }
-    }
-}
-
-void CdbDebugEngine::updateWatchModel()
+void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
 {
     // Stack trace exists and evaluation funcs can only be called
     // when running
     if (m_d->isDebuggeeRunning()) {
         qWarning("updateWatchModel() called while debuggee is running.");
+        return;    
+    }
+
+    WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
+    if (incomplete.iname.startsWith(QLatin1String("watch."))) {
+        WatchData watchData = incomplete;
+        evaluateWatcher(&watchData);
+        watchHandler->insertData(watchData);
         return;
     }
 
     const int frameIndex = m_d->m_debuggerManagerAccess->stackHandler()->currentIndex();
 
-    WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
-    WatchList incomplete = watchHandler->takeCurrentIncompletes();
-    if (incomplete.empty())
-        return;
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << "\n    fi=" << frameIndex << formatWatchList(incomplete);
+        qDebug() << Q_FUNC_INFO << "\n    fi=" << frameIndex << incomplete.iname;
 
     bool success = false;
     QString errorMessage;
     do {
-        // Filter out actual watchers
-        filterEvaluateWatchers(&incomplete, watchHandler);
-        // Do locals. We might get called while running when someone enters watchers
-        if (!incomplete.empty()) {
-            CdbStackFrameContext *sg = m_d->m_currentStackTrace->frameContextAt(frameIndex, &errorMessage);
-            if (!sg || !sg->completeModel(incomplete, watchHandler, &errorMessage))
-                break;
-        }
-        watchHandler->rebuildModel();
+        CdbStackFrameContext *sg = m_d->m_currentStackTrace->frameContextAt(frameIndex, &errorMessage);
+        if (!sg)
+            break;
+        if (!sg->completeData(incomplete, watchHandler, &errorMessage))
+            break;
         success = true;
     } while (false);
     if (!success)
@@ -1132,10 +1091,10 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
             break;
         // Update view
         WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
-        if (WatchData *fwd = watchHandler->findData(expr)) {
+        if (WatchData *fwd = watchHandler->findItem(expr)) {
             fwd->setValue(newValue);
             watchHandler->insertData(*fwd);
-            watchHandler->rebuildModel();
+            watchHandler->updateWatchers();
         }
         success = true;
     } while (false);
@@ -1233,8 +1192,8 @@ void CdbDebugEngine::activateFrame(int frameIndex)
         const StackFrame &frame = stackHandler->currentFrame();
         if (!frame.isUsable()) {
             // Clean out model
-            watchHandler->reinitializeWatchers();
-            watchHandler->rebuildModel();
+            watchHandler->beginCycle();
+            watchHandler->endCycle();
             errorMessage = QString::fromLatin1("%1: file %2 unusable.").
                            arg(QLatin1String(Q_FUNC_INFO), frame.file);
             break;

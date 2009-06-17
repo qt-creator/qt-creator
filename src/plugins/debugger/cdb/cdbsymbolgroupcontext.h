@@ -80,8 +80,8 @@ public:
                                        OutputIterator it, QString *errorMessage);
 
     template <class OutputIterator>
-    static bool completeModel(CdbSymbolGroupContext *sg,
-                              const QList<WatchData> &incompleteLocals,
+    static bool completeData (CdbSymbolGroupContext *sg,
+                              WatchData incompleteLocal,
                               OutputIterator it,
                               QString *errorMessage);
 

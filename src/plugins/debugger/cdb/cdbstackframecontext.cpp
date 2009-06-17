@@ -145,40 +145,31 @@ bool CdbStackFrameContext::populateModelInitially(WatchHandler *wh, QString *err
     return rc;
 }
 
-bool CdbStackFrameContext::completeModel(const QList<WatchData> &incompleteLocals,
-                                         WatchHandler *wh,
-                                         QString *errorMessage)
+bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
+                                        WatchHandler *wh,
+                                        QString *errorMessage)
 {
-    if (debug) {
-        QDebug nsp = qDebug().nospace();
-        nsp << ">completeModel ";
-        foreach (const WatchData &wd, incompleteLocals)
-            nsp << wd.iname << ' ';
-        nsp << '\n';
-    }
+    if (debug)
+        qDebug() << ">completeData " << incompleteLocal.iname;
 
     if (!m_useDumpers) {
-        return CdbSymbolGroupContext::completeModel(m_symbolContext, incompleteLocals,
-                                                    WatchHandlerModelInserter(wh),
-                                                    errorMessage);
+        return CdbSymbolGroupContext::completeData(m_symbolContext, incompleteLocal,
+                                                   WatchHandlerModelInserter(wh),
+                                                   errorMessage);
     }
 
-    // Expand dumper items
-    int handledDumpers = 0;
-    foreach (const WatchData &cwd, incompleteLocals) {
-        if (cwd.source == OwnerDumper) { // You already know that.
-            WatchData wd = cwd;
-            wd.setAllUnneeded();
-            wh->insertData(wd);
-            handledDumpers++;
-        }
-    }
-    if (handledDumpers == incompleteLocals.size())
+    // Expand dumper items (not implemented)
+    if (incompleteLocal.source == OwnerDumper) {
+        WatchData wd = incompleteLocal;
+        wd.setAllUnneeded();
+        wh->insertData(wd);
         return true;
+    }
+
     // Expand symbol group items
-    return CdbSymbolGroupContext::completeModel(m_symbolContext, incompleteLocals,
-                                                WatchHandlerSorterInserter(wh, m_dumper),
-                                                errorMessage);
+    return CdbSymbolGroupContext::completeData(m_symbolContext, incompleteLocal,
+                                               WatchHandlerSorterInserter(wh, m_dumper),
+                                               errorMessage);
 }
 
 CdbStackFrameContext::~CdbStackFrameContext()
