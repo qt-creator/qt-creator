@@ -304,9 +304,6 @@ protected:
 class CPLUSPLUS_EXPORT StatementAST: public AST
 {
 public:
-    StatementAST *next;
-
-public:
     virtual StatementAST *asStatement()
     { return this; }
 
@@ -325,13 +322,29 @@ public:
 class CPLUSPLUS_EXPORT DeclarationAST: public AST
 {
 public:
-    DeclarationAST *next;
-
-public:
     virtual DeclarationAST *asDeclaration()
     { return this; }
 
     virtual DeclarationAST *clone(MemoryPool *pool) const = 0;
+};
+
+class CPLUSPLUS_EXPORT DeclarationListAST: public AST
+{
+public:
+    DeclarationAST *declaration;
+    DeclarationListAST *next;
+
+public:
+    virtual DeclarationListAST *asDeclarationList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual DeclarationListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
 };
 
 class CPLUSPLUS_EXPORT CoreDeclaratorAST: public AST
@@ -378,7 +391,7 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ExpressionListAST: public ExpressionAST
+class CPLUSPLUS_EXPORT ExpressionListAST: public AST
 {
 public:
     unsigned comma_token;
@@ -601,7 +614,7 @@ public:
     unsigned colon_token;
     BaseSpecifierAST *base_clause;
     unsigned lbrace_token;
-    DeclarationAST *member_specifiers;
+    DeclarationListAST *member_specifiers;
     unsigned rbrace_token;
 
 public: // annotations
@@ -641,11 +654,30 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
+class CPLUSPLUS_EXPORT StatementListAST: public AST
+{
+public:
+    StatementAST *statement;
+    StatementListAST *next;
+
+public:
+    virtual StatementListAST *asStatementList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual StatementListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
 class CPLUSPLUS_EXPORT CompoundStatementAST: public StatementAST
 {
 public:
     unsigned lbrace_token;
-    StatementAST *statements;
+    StatementListAST *statements;
     unsigned rbrace_token;
 
 public: // annotations
@@ -1201,7 +1233,7 @@ class CPLUSPLUS_EXPORT LinkageBodyAST: public DeclarationAST
 {
 public:
     unsigned lbrace_token;
-    DeclarationAST *declarations;
+    DeclarationListAST *declarations;
     unsigned rbrace_token;
 
 public:
@@ -1607,7 +1639,7 @@ protected:
 class CPLUSPLUS_EXPORT ParameterDeclarationClauseAST: public AST
 {
 public:
-    DeclarationAST *parameter_declarations;
+    DeclarationListAST *parameter_declarations;
     unsigned dot_dot_dot_token;
 
 public:
@@ -2107,7 +2139,7 @@ public:
     unsigned export_token;
     unsigned template_token;
     unsigned less_token;
-    DeclarationAST *template_parameters;
+    DeclarationListAST *template_parameters;
     unsigned greater_token;
     DeclarationAST *declaration;
 
@@ -2146,7 +2178,7 @@ protected:
 class CPLUSPLUS_EXPORT TranslationUnitAST: public AST
 {
 public:
-    DeclarationAST *declarations;
+    DeclarationListAST *declarations;
 
 public:
     virtual TranslationUnitAST *asTranslationUnit()
@@ -2255,7 +2287,7 @@ class CPLUSPLUS_EXPORT TemplateTypeParameterAST: public DeclarationAST
 public:
     unsigned template_token;
     unsigned less_token;
-    DeclarationAST *template_parameters;
+    DeclarationListAST *template_parameters;
     unsigned greater_token;
     unsigned class_token;
     NameAST *name;

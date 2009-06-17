@@ -171,6 +171,7 @@ public:
     virtual bool visit(SimpleNameAST *) { return true; }
     virtual bool visit(SimpleSpecifierAST *) { return true; }
     virtual bool visit(SizeofExpressionAST *) { return true; }
+    virtual bool visit(StatementListAST *) { return true; }
     virtual bool visit(StringLiteralAST *) { return true; }
     virtual bool visit(SwitchStatementAST *) { return true; }
     virtual bool visit(TemplateArgumentListAST *) { return true; }
@@ -197,6 +198,8 @@ public:
     virtual bool visit(IdentifierListAST *) { return true; }
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
 
+    virtual bool visit(DeclarationListAST *) { return true; }
+    virtual void endVisit(DeclarationListAST *) { }
 
 
     virtual void endVisit(AccessDeclarationAST *) { }
@@ -276,6 +279,7 @@ public:
     virtual void endVisit(SimpleNameAST *) { }
     virtual void endVisit(SimpleSpecifierAST *) { }
     virtual void endVisit(SizeofExpressionAST *) { }
+    virtual void endVisit(StatementListAST *) { }
     virtual void endVisit(StringLiteralAST *) { }
     virtual void endVisit(SwitchStatementAST *) { }
     virtual void endVisit(TemplateArgumentListAST *) { }

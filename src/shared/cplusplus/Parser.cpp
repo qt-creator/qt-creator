@@ -353,14 +353,17 @@ bool Parser::parseName(NameAST *&node, bool acceptTemplateId)
 bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
 {
     TranslationUnitAST *ast = new (_pool) TranslationUnitAST;
-    DeclarationAST **decl = &ast->declarations;
+    DeclarationListAST **decl = &ast->declarations;
 
     while (LA()) {
         unsigned start_declaration = cursor();
 
-        if (parseDeclaration(*decl)) {
-            if (*decl)
-                decl = &(*decl)->next;
+        DeclarationAST *declaration = 0;
+
+        if (parseDeclaration(declaration)) {
+            *decl = new (_pool) DeclarationListAST;
+            (*decl)->declaration = declaration;
+            decl = &(*decl)->next;
         } else {
             rewind(start_declaration + 1);
             skipUntilDeclaration();
@@ -469,16 +472,18 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
     if (LA() == T_LBRACE) {
         LinkageBodyAST *ast = new (_pool) LinkageBodyAST;
         ast->lbrace_token = consumeToken();
-        DeclarationAST **declaration_ptr = &ast->declarations;
+        DeclarationListAST **declaration_ptr = &ast->declarations;
 
         while (int tk = LA()) {
             if (tk == T_RBRACE)
                 break;
 
             unsigned start_declaration = cursor();
-            if (parseDeclaration(*declaration_ptr)) {
-                if (*declaration_ptr) // ### remove me
-                    declaration_ptr = &(*declaration_ptr)->next;
+            DeclarationAST *declaration = 0;
+            if (parseDeclaration(declaration)) {
+                *declaration_ptr = new (_pool) DeclarationListAST;
+                (*declaration_ptr)->declaration = declaration;
+                declaration_ptr = &(*declaration_ptr)->next;
             } else {
                 rewind(start_declaration + 1);
                 skipUntilDeclaration();
@@ -1179,16 +1184,24 @@ bool Parser::parseEnumSpecifier(SpecifierAST *&node)
     return false;
 }
 
-bool Parser::parseTemplateParameterList(DeclarationAST *&node)
+bool Parser::parseTemplateParameterList(DeclarationListAST *&node)
 {
-    DeclarationAST **template_parameter_ptr = &node;
-    if (parseTemplateParameter(*template_parameter_ptr)) {
+    DeclarationListAST **template_parameter_ptr = &node;
+    DeclarationAST *declaration = 0;
+    if (parseTemplateParameter(declaration)) {
+        *template_parameter_ptr = new (_pool) DeclarationListAST;
+        (*template_parameter_ptr)->declaration = declaration;
         template_parameter_ptr = &(*template_parameter_ptr)->next;
+
         while (LA() == T_COMMA) {
             consumeToken(); // XXX Store this token somewhere
 
-            if (parseTemplateParameter(*template_parameter_ptr))
+            declaration = 0;
+            if (parseTemplateParameter(declaration)) {
+                *template_parameter_ptr = new (_pool) DeclarationListAST;
+                (*template_parameter_ptr)->declaration = declaration;
                 template_parameter_ptr = &(*template_parameter_ptr)->next;
+            }
         }
         return true;
     }
@@ -1272,7 +1285,7 @@ bool Parser::parseTypeId(ExpressionAST *&node)
 
 bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&node)
 {
-    DeclarationAST *parameter_declarations = 0;
+    DeclarationListAST *parameter_declarations = 0;
     if (LA() != T_DOT_DOT_DOT)
         parseParameterDeclarationList(parameter_declarations);
     unsigned dot_dot_dot_token = 0;
@@ -1288,10 +1301,13 @@ bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&nod
     return true;
 }
 
-bool Parser::parseParameterDeclarationList(DeclarationAST *&node)
+bool Parser::parseParameterDeclarationList(DeclarationListAST *&node)
 {
-    DeclarationAST **parameter_declaration_ptr = &node;
-    if (parseParameterDeclaration(*parameter_declaration_ptr)) {
+    DeclarationListAST **parameter_declaration_ptr = &node;
+    DeclarationAST *declaration = 0;
+    if (parseParameterDeclaration(declaration)) {
+        *parameter_declaration_ptr = new (_pool) DeclarationListAST;
+        (*parameter_declaration_ptr)->declaration = declaration;
         parameter_declaration_ptr = &(*parameter_declaration_ptr)->next;
         while (LA() == T_COMMA) {
             consumeToken();
@@ -1299,8 +1315,12 @@ bool Parser::parseParameterDeclarationList(DeclarationAST *&node)
             if (LA() == T_DOT_DOT_DOT)
                 break;
 
-            if (parseParameterDeclaration(*parameter_declaration_ptr))
+            declaration = 0;
+            if (parseParameterDeclaration(declaration)) {
+                *parameter_declaration_ptr = new (_pool) DeclarationListAST;
+                (*parameter_declaration_ptr)->declaration = declaration;
                 parameter_declaration_ptr = &(*parameter_declaration_ptr)->next;
+            }
         }
         return true;
     }
@@ -1381,7 +1401,7 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
         if (LA() == T_LBRACE)
             ast->lbrace_token = consumeToken();
 
-        DeclarationAST **declaration_ptr = &ast->member_specifiers;
+        DeclarationListAST **declaration_ptr = &ast->member_specifiers;
         while (int tk = LA()) {
             if (tk == T_RBRACE) {
                 ast->rbrace_token = consumeToken();
@@ -1389,9 +1409,11 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
             }
 
             unsigned start_declaration = cursor();
-            if (parseMemberSpecification(*declaration_ptr)) {
-                if (*declaration_ptr)
-                    declaration_ptr = &(*declaration_ptr)->next;
+            DeclarationAST *declaration = 0;
+            if (parseMemberSpecification(declaration)) {
+                *declaration_ptr = new (_pool) DeclarationListAST;
+                (*declaration_ptr)->declaration = declaration;
+                declaration_ptr = &(*declaration_ptr)->next;
             } else {
                 rewind(start_declaration + 1);
                 skipUntilDeclaration();
@@ -2097,16 +2119,19 @@ bool Parser::parseCompoundStatement(StatementAST *&node)
     if (LA() == T_LBRACE) {
         CompoundStatementAST *ast = new (_pool) CompoundStatementAST;
         ast->lbrace_token = consumeToken();
-        StatementAST **statement_ptr = &ast->statements;
+        StatementListAST **statement_ptr = &ast->statements;
         while (int tk = LA()) {
             if (tk == T_RBRACE)
                 break;
 
             unsigned start_statement = cursor();
-            if (! parseStatement(*statement_ptr)) {
+            StatementAST *statement = 0;
+            if (! parseStatement(statement)) {
                 rewind(start_statement + 1);
                 skipUntilStatement();
             } else {
+                *statement_ptr = new (_pool) StatementListAST;
+                (*statement_ptr)->statement = statement;
                 statement_ptr = &(*statement_ptr)->next;
             }
         }

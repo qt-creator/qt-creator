@@ -311,27 +311,20 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     semantic()->switchMethodKey(previousMethodKey);
     semantic()->switchVisibility(previousVisibility);
 
-    if (ast->next && ast->next->asEmptyDeclaration()) {
-        translationUnit()->warning(ast->next->firstToken(),
-                                   "unnecessary semicolon after function block");
-    }
-
     return false;
 }
 
 bool CheckDeclaration::visit(LinkageBodyAST *ast)
 {
-    for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
-       semantic()->check(decl, _scope);
+    for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
+       semantic()->check(decl->declaration, _scope);
     }
     return false;
 }
 
 bool CheckDeclaration::visit(LinkageSpecificationAST *ast)
 {
-    for (DeclarationAST *decl = ast->declaration; decl; decl = decl->next) {
-        semantic()->check(decl, _scope);
-    }
+    semantic()->check(ast->declaration, _scope);
     return false;
 }
 
@@ -351,11 +344,6 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
     ast->symbol = ns;
     _scope->enterSymbol(ns);
     semantic()->check(ast->linkage_body, ns->members()); // ### we'll do the merge later.
-
-    if (ast->next && ast->next->asEmptyDeclaration()) {
-        translationUnit()->warning(ast->next->firstToken(),
-                                   "unnecessary semicolon after namespace");
-    }
 
     return false;
 }
@@ -389,9 +377,8 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
 bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
 {
     Scope *previousScope = switchScope(new Scope(_scope->owner()));
-    for (DeclarationAST *param = ast->template_parameters; param;
-            param = param->next) {
-       semantic()->check(param, _scope);
+    for (DeclarationListAST *param = ast->template_parameters; param; param = param->next) {
+       semantic()->check(param->declaration, _scope);
     }
 
     Scope *templateParameters = switchScope(previousScope);

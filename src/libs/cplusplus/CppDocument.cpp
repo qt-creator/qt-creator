@@ -326,8 +326,8 @@ void Document::check()
         return; // nothing to do.
 
     if (TranslationUnitAST *ast = _translationUnit->ast()->asTranslationUnit()) {
-        for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
-            semantic.check(decl, globals);
+        for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
+            semantic.check(decl->declaration, globals);
         }
     } else if (ExpressionAST *ast = _translationUnit->ast()->asExpression()) {
         semantic.check(ast, globals);

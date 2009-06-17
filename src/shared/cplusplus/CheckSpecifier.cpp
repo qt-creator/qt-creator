@@ -335,9 +335,8 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     int previousVisibility = semantic()->switchVisibility(visibility);
     int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
 
-    for (DeclarationAST *member = ast->member_specifiers;
-            member; member = member->next) {
-        semantic()->check(member, klass->members());
+    for (DeclarationListAST *member = ast->member_specifiers; member; member = member->next) {
+        semantic()->check(member->declaration, klass->members());
     }
 
     (void) semantic()->switchMethodKey(previousMethodKey);

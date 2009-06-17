@@ -356,10 +356,8 @@ unsigned CatchClauseAST::lastToken() const
         return statement->lastToken();
     else if (rparen_token)
         return rparen_token + 1;
-    for (DeclarationAST *it = exception_declaration; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (exception_declaration)
+        return exception_declaration->lastToken();
     if (lparen_token)
         return lparen_token + 1;
 
@@ -377,7 +375,7 @@ unsigned ClassSpecifierAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    for (DeclarationAST *it = member_specifiers; it; it = it->next) {
+    for (DeclarationListAST *it = member_specifiers; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
@@ -405,6 +403,21 @@ unsigned ClassSpecifierAST::lastToken() const
 }
 
 
+unsigned StatementListAST::firstToken() const
+{
+    return statement->firstToken();
+}
+
+unsigned StatementListAST::lastToken() const
+{
+    for (const StatementListAST *it = this; it; it = it->next) {
+        if (! it->next)
+            return it->statement->lastToken();
+    }
+
+    return 0;
+}
+
 unsigned CompoundStatementAST::firstToken() const
 {
     return lbrace_token;
@@ -415,9 +428,9 @@ unsigned CompoundStatementAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    for (StatementAST *it = statements; it ; it = it->next) {
+    for (StatementListAST *it = statements; it; it = it->next) {
         if (! it->next)
-            return it->lastToken();
+            return it->statement->lastToken();
     }
 
     return lbrace_token + 1;
@@ -540,6 +553,20 @@ unsigned CtorInitializerAST::lastToken() const
     return colon_token + 1;
 }
 
+unsigned DeclarationListAST::firstToken() const
+{
+    return declaration->firstToken();
+}
+
+unsigned DeclarationListAST::lastToken() const
+{
+    for (const DeclarationListAST *it = this; it; it = it->next) {
+        if (! it->next)
+            return it->declaration->lastToken();
+    }
+
+    return 0;
+}
 
 unsigned DeclaratorAST::firstToken() const
 {
@@ -986,7 +1013,7 @@ unsigned LinkageBodyAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    for (DeclarationAST *it = declarations; it; it = it->next) {
+    for (DeclarationListAST *it = declarations; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
@@ -1006,6 +1033,7 @@ unsigned LinkageSpecificationAST::lastToken() const
         return declaration->lastToken();
     else if (extern_type_token)
         return extern_type_token + 1;
+
     return extern_token + 1;
 }
 
@@ -1553,7 +1581,7 @@ unsigned TemplateDeclarationAST::lastToken() const
     else if (greater_token)
         return greater_token + 1;
 
-    for (DeclarationAST *it = template_parameters; it; it = it->next) {
+    for (DeclarationListAST *it = template_parameters; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
@@ -1609,9 +1637,9 @@ unsigned TemplateTypeParameterAST::lastToken() const
     else if (greater_token)
         return greater_token + 1;
 
-    for (DeclarationAST *it = template_parameters; it; it = it->next) {
+    for (DeclarationListAST *it = template_parameters; it; it = it->next) {
         if (! it->next)
-            return it->lastToken();
+            return it->declaration->lastToken();
     }
 
     if (less_token)
@@ -1652,7 +1680,7 @@ unsigned TranslationUnitAST::firstToken() const
 
 unsigned TranslationUnitAST::lastToken() const
 {
-    for (DeclarationAST *it = declarations; it; it = it->next) {
+    for (DeclarationListAST *it = declarations; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }

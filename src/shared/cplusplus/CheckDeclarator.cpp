@@ -162,9 +162,9 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
     fun->setReturnType(_fullySpecifiedType);
 
     if (ast->parameters) {
-        DeclarationAST *parameter_declarations = ast->parameters->parameter_declarations;
-        for (DeclarationAST *decl = parameter_declarations; decl; decl = decl->next) {
-            semantic()->check(decl, fun->arguments());
+        DeclarationListAST *parameter_declarations = ast->parameters->parameter_declarations;
+        for (DeclarationListAST *decl = parameter_declarations; decl; decl = decl->next) {
+            semantic()->check(decl->declaration, fun->arguments());
         }
 
         if (ast->parameters->dot_dot_dot_token)

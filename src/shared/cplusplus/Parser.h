@@ -156,7 +156,7 @@ public:
     bool parseOperatorFunctionId(NameAST *&node);
     bool parseParameterDeclaration(DeclarationAST *&node);
     bool parseParameterDeclarationClause(ParameterDeclarationClauseAST *&node);
-    bool parseParameterDeclarationList(DeclarationAST *&node);
+    bool parseParameterDeclarationList(DeclarationListAST *&node);
     bool parsePmExpression(ExpressionAST *&node);
     bool parseTypeidExpression(ExpressionAST *&node);
     bool parseTypenameCallExpression(ExpressionAST *&node);
@@ -178,7 +178,7 @@ public:
     bool parseTemplateArgumentList(TemplateArgumentListAST *&node);
     bool parseTemplateDeclaration(DeclarationAST *&node);
     bool parseTemplateParameter(DeclarationAST *&node);
-    bool parseTemplateParameterList(DeclarationAST *&node);
+    bool parseTemplateParameterList(DeclarationListAST *&node);
     bool parseThrowExpression(ExpressionAST *&node);
     bool parseTryBlockStatement(StatementAST *&node);
     bool parseCatchClause(CatchClauseAST *&node);

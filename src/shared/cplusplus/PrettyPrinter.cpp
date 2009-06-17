@@ -286,10 +286,8 @@ bool PrettyPrinter::visit(ClassSpecifierAST *ast)
     outToken(ast->lbrace_token);
     if (ast->member_specifiers) {
         indent();
-        if (ast->member_specifiers) {
-            for (DeclarationAST *it = ast->member_specifiers; it; it = it->next) {
-                accept(it);
-            }
+        for (DeclarationListAST *it = ast->member_specifiers; it; it = it->next) {
+            accept(it->declaration);
         }
         deindent();
     }
@@ -302,7 +300,7 @@ bool PrettyPrinter::visit(CompoundStatementAST *ast)
     outToken(ast->lbrace_token);
     if (ast->statements) {
         indent();
-        for (StatementAST *it = ast->statements; it; it = it->next) {
+        for (StatementListAST *it = ast->statements; it; it = it->next) {
             accept(it);
         }
         deindent();
@@ -624,8 +622,8 @@ bool PrettyPrinter::visit(LinkageBodyAST *ast)
     outToken(ast->lbrace_token);
     if (ast->declarations) {
         indent();
-        for (DeclarationAST *it = ast->declarations; it; it = it->next) {
-            accept(it);
+        for (DeclarationListAST *it = ast->declarations; it; it = it->next) {
+            accept(it->declaration);
         }
         deindent();
     }
@@ -806,9 +804,9 @@ bool PrettyPrinter::visit(ParameterDeclarationAST *ast)
 
 bool PrettyPrinter::visit(ParameterDeclarationClauseAST *ast)
 {
-    for (DeclarationAST *it = ast->parameter_declarations; it; it = it->next) {
+    for (DeclarationListAST *it = ast->parameter_declarations; it; it = it->next) {
         // XXX handle the comma tokens correctly
-        accept(it);
+        accept(it->declaration);
     }
     return false;
 }
@@ -943,9 +941,9 @@ bool PrettyPrinter::visit(TemplateDeclarationAST *ast)
     outToken(ast->template_token);
     outToken(ast->less_token);
     if (ast->template_parameters) {
-        for (DeclarationAST *it = ast->template_parameters; it; it = it->next) {
+        for (DeclarationListAST *it = ast->template_parameters; it; it = it->next) {
             // XXX handle the comma tokens correctly
-            accept(it);
+            accept(it->declaration);
         }
     }
     outToken(ast->greater_token);
@@ -972,9 +970,9 @@ bool PrettyPrinter::visit(TemplateTypeParameterAST *ast)
     outToken(ast->template_token);
     outToken(ast->less_token);
     if (ast->template_parameters) {
-        for (DeclarationAST *it = ast->template_parameters; it; it = it->next) {
+        for (DeclarationListAST *it = ast->template_parameters; it; it = it->next) {
             // XXX handle the comma tokens correctly
-            accept(it);
+            accept(it->declaration);
         }
     }
     outToken(ast->greater_token);
@@ -1002,8 +1000,8 @@ bool PrettyPrinter::visit(ThrowExpressionAST *ast)
 
 bool PrettyPrinter::visit(TranslationUnitAST *ast)
 {
-    for (DeclarationAST *it = ast->declarations; it; it = it->next) {
-        accept(it);
+    for (DeclarationListAST *it = ast->declarations; it; it = it->next) {
+        accept(it->declaration);
     }
     return false;
 }

@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "AST.h"
+#include "ASTVisitor.h"
 
 CPLUSPLUS_BEGIN_NAMESPACE
 
@@ -83,6 +84,15 @@ TypeofSpecifierAST *TypeofSpecifierAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+DeclarationListAST *DeclarationListAST::clone(MemoryPool *pool) const
+{
+    DeclarationListAST *ast = new (pool) DeclarationListAST;
+    // copy DeclarationListAST
+    if (declaration) ast->declaration = declaration->clone(pool);
+    if (next) ast->next = next->clone(pool);
+    return ast;
+}
+
 DeclaratorAST *DeclaratorAST::clone(MemoryPool *pool) const
 {
     DeclaratorAST *ast = new (pool) DeclaratorAST;
@@ -99,7 +109,6 @@ DeclaratorAST *DeclaratorAST::clone(MemoryPool *pool) const
 ExpressionListAST *ExpressionListAST::clone(MemoryPool *pool) const
 {
     ExpressionListAST *ast = new (pool) ExpressionListAST;
-    // copy ExpressionAST
     // copy ExpressionListAST
     ast->comma_token = comma_token;
     if (expression) ast->expression = expression->clone(pool);
@@ -111,7 +120,6 @@ SimpleDeclarationAST *SimpleDeclarationAST::clone(MemoryPool *pool) const
 {
     SimpleDeclarationAST *ast = new (pool) SimpleDeclarationAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy SimpleDeclarationAST
     ast->qt_invokable_token = qt_invokable_token;
     if (decl_specifier_seq) ast->decl_specifier_seq = decl_specifier_seq->clone(pool);
@@ -124,7 +132,6 @@ EmptyDeclarationAST *EmptyDeclarationAST::clone(MemoryPool *pool) const
 {
     EmptyDeclarationAST *ast = new (pool) EmptyDeclarationAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy EmptyDeclarationAST
     ast->semicolon_token = semicolon_token;
     return ast;
@@ -134,7 +141,6 @@ AccessDeclarationAST *AccessDeclarationAST::clone(MemoryPool *pool) const
 {
     AccessDeclarationAST *ast = new (pool) AccessDeclarationAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy AccessDeclarationAST
     ast->access_specifier_token = access_specifier_token;
     ast->slots_token = slots_token;
@@ -146,7 +152,6 @@ AsmDefinitionAST *AsmDefinitionAST::clone(MemoryPool *pool) const
 {
     AsmDefinitionAST *ast = new (pool) AsmDefinitionAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy AsmDefinitionAST
     ast->asm_token = asm_token;
     ast->volatile_token = volatile_token;
@@ -236,7 +241,6 @@ CaseStatementAST *CaseStatementAST::clone(MemoryPool *pool) const
 {
     CaseStatementAST *ast = new (pool) CaseStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy CaseStatementAST
     ast->case_token = case_token;
     if (expression) ast->expression = expression->clone(pool);
@@ -245,11 +249,19 @@ CaseStatementAST *CaseStatementAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+StatementListAST *StatementListAST::clone(MemoryPool *pool) const
+{
+    StatementListAST *ast = new (pool) StatementListAST;
+    // copy StatementListAST
+    if (statement) ast->statement = statement->clone(pool);
+    if (next) ast->next = next->clone(pool);
+    return ast;
+}
+
 CompoundStatementAST *CompoundStatementAST::clone(MemoryPool *pool) const
 {
     CompoundStatementAST *ast = new (pool) CompoundStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy CompoundStatementAST
     ast->lbrace_token = lbrace_token;
     if (statements) ast->statements = statements->clone(pool);
@@ -308,7 +320,6 @@ DeclarationStatementAST *DeclarationStatementAST::clone(MemoryPool *pool) const
 {
     DeclarationStatementAST *ast = new (pool) DeclarationStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy DeclarationStatementAST
     if (declaration) ast->declaration = declaration->clone(pool);
     return ast;
@@ -388,7 +399,6 @@ DoStatementAST *DoStatementAST::clone(MemoryPool *pool) const
 {
     DoStatementAST *ast = new (pool) DoStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy DoStatementAST
     ast->do_token = do_token;
     if (statement) ast->statement = statement->clone(pool);
@@ -451,7 +461,6 @@ ExceptionDeclarationAST *ExceptionDeclarationAST::clone(MemoryPool *pool) const
 {
     ExceptionDeclarationAST *ast = new (pool) ExceptionDeclarationAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy ExceptionDeclarationAST
     if (type_specifier) ast->type_specifier = type_specifier->clone(pool);
     if (declarator) ast->declarator = declarator->clone(pool);
@@ -475,7 +484,6 @@ ExpressionOrDeclarationStatementAST *ExpressionOrDeclarationStatementAST::clone(
 {
     ExpressionOrDeclarationStatementAST *ast = new (pool) ExpressionOrDeclarationStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy ExpressionOrDeclarationStatementAST
     if (expression) ast->expression = expression->clone(pool);
     if (declaration) ast->declaration = declaration->clone(pool);
@@ -486,7 +494,6 @@ ExpressionStatementAST *ExpressionStatementAST::clone(MemoryPool *pool) const
 {
     ExpressionStatementAST *ast = new (pool) ExpressionStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy ExpressionStatementAST
     if (expression) ast->expression = expression->clone(pool);
     ast->semicolon_token = semicolon_token;
@@ -497,7 +504,6 @@ FunctionDefinitionAST *FunctionDefinitionAST::clone(MemoryPool *pool) const
 {
     FunctionDefinitionAST *ast = new (pool) FunctionDefinitionAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy FunctionDefinitionAST
     ast->qt_invokable_token = qt_invokable_token;
     if (decl_specifier_seq) ast->decl_specifier_seq = decl_specifier_seq->clone(pool);
@@ -511,7 +517,6 @@ ForStatementAST *ForStatementAST::clone(MemoryPool *pool) const
 {
     ForStatementAST *ast = new (pool) ForStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy ForStatementAST
     ast->for_token = for_token;
     ast->lparen_token = lparen_token;
@@ -528,7 +533,6 @@ IfStatementAST *IfStatementAST::clone(MemoryPool *pool) const
 {
     IfStatementAST *ast = new (pool) IfStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy IfStatementAST
     ast->if_token = if_token;
     ast->lparen_token = lparen_token;
@@ -555,7 +559,6 @@ LabeledStatementAST *LabeledStatementAST::clone(MemoryPool *pool) const
 {
     LabeledStatementAST *ast = new (pool) LabeledStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy LabeledStatementAST
     ast->label_token = label_token;
     ast->colon_token = colon_token;
@@ -567,7 +570,6 @@ LinkageBodyAST *LinkageBodyAST::clone(MemoryPool *pool) const
 {
     LinkageBodyAST *ast = new (pool) LinkageBodyAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy LinkageBodyAST
     ast->lbrace_token = lbrace_token;
     if (declarations) ast->declarations = declarations->clone(pool);
@@ -579,7 +581,6 @@ LinkageSpecificationAST *LinkageSpecificationAST::clone(MemoryPool *pool) const
 {
     LinkageSpecificationAST *ast = new (pool) LinkageSpecificationAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy LinkageSpecificationAST
     ast->extern_token = extern_token;
     ast->extern_type_token = extern_type_token;
@@ -683,7 +684,6 @@ NamespaceAST *NamespaceAST::clone(MemoryPool *pool) const
 {
     NamespaceAST *ast = new (pool) NamespaceAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy NamespaceAST
     ast->namespace_token = namespace_token;
     ast->identifier_token = identifier_token;
@@ -696,7 +696,6 @@ NamespaceAliasDefinitionAST *NamespaceAliasDefinitionAST::clone(MemoryPool *pool
 {
     NamespaceAliasDefinitionAST *ast = new (pool) NamespaceAliasDefinitionAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy NamespaceAliasDefinitionAST
     ast->namespace_token = namespace_token;
     ast->namespace_name_token = namespace_name_token;
@@ -777,7 +776,6 @@ ParameterDeclarationAST *ParameterDeclarationAST::clone(MemoryPool *pool) const
 {
     ParameterDeclarationAST *ast = new (pool) ParameterDeclarationAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy ParameterDeclarationAST
     if (type_specifier) ast->type_specifier = type_specifier->clone(pool);
     if (declarator) ast->declarator = declarator->clone(pool);
@@ -926,7 +924,6 @@ BreakStatementAST *BreakStatementAST::clone(MemoryPool *pool) const
 {
     BreakStatementAST *ast = new (pool) BreakStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy BreakStatementAST
     ast->break_token = break_token;
     ast->semicolon_token = semicolon_token;
@@ -937,7 +934,6 @@ ContinueStatementAST *ContinueStatementAST::clone(MemoryPool *pool) const
 {
     ContinueStatementAST *ast = new (pool) ContinueStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy ContinueStatementAST
     ast->continue_token = continue_token;
     ast->semicolon_token = semicolon_token;
@@ -948,7 +944,6 @@ GotoStatementAST *GotoStatementAST::clone(MemoryPool *pool) const
 {
     GotoStatementAST *ast = new (pool) GotoStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy GotoStatementAST
     ast->goto_token = goto_token;
     ast->identifier_token = identifier_token;
@@ -960,7 +955,6 @@ ReturnStatementAST *ReturnStatementAST::clone(MemoryPool *pool) const
 {
     ReturnStatementAST *ast = new (pool) ReturnStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy ReturnStatementAST
     ast->return_token = return_token;
     if (expression) ast->expression = expression->clone(pool);
@@ -1030,7 +1024,6 @@ SwitchStatementAST *SwitchStatementAST::clone(MemoryPool *pool) const
 {
     SwitchStatementAST *ast = new (pool) SwitchStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy SwitchStatementAST
     ast->switch_token = switch_token;
     ast->lparen_token = lparen_token;
@@ -1054,7 +1047,6 @@ TemplateDeclarationAST *TemplateDeclarationAST::clone(MemoryPool *pool) const
 {
     TemplateDeclarationAST *ast = new (pool) TemplateDeclarationAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy TemplateDeclarationAST
     ast->export_token = export_token;
     ast->template_token = template_token;
@@ -1087,7 +1079,6 @@ TryBlockStatementAST *TryBlockStatementAST::clone(MemoryPool *pool) const
 {
     TryBlockStatementAST *ast = new (pool) TryBlockStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy TryBlockStatementAST
     ast->try_token = try_token;
     if (statement) ast->statement = statement->clone(pool);
@@ -1099,7 +1090,6 @@ CatchClauseAST *CatchClauseAST::clone(MemoryPool *pool) const
 {
     CatchClauseAST *ast = new (pool) CatchClauseAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy CatchClauseAST
     ast->catch_token = catch_token;
     ast->lparen_token = lparen_token;
@@ -1124,7 +1114,6 @@ TypenameTypeParameterAST *TypenameTypeParameterAST::clone(MemoryPool *pool) cons
 {
     TypenameTypeParameterAST *ast = new (pool) TypenameTypeParameterAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy TypenameTypeParameterAST
     ast->classkey_token = classkey_token;
     if (name) ast->name = name->clone(pool);
@@ -1137,7 +1126,6 @@ TemplateTypeParameterAST *TemplateTypeParameterAST::clone(MemoryPool *pool) cons
 {
     TemplateTypeParameterAST *ast = new (pool) TemplateTypeParameterAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy TemplateTypeParameterAST
     ast->template_token = template_token;
     ast->less_token = less_token;
@@ -1164,7 +1152,6 @@ UsingAST *UsingAST::clone(MemoryPool *pool) const
 {
     UsingAST *ast = new (pool) UsingAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy UsingAST
     ast->using_token = using_token;
     ast->typename_token = typename_token;
@@ -1177,7 +1164,6 @@ UsingDirectiveAST *UsingDirectiveAST::clone(MemoryPool *pool) const
 {
     UsingDirectiveAST *ast = new (pool) UsingDirectiveAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy UsingDirectiveAST
     ast->using_token = using_token;
     ast->namespace_token = namespace_token;
@@ -1190,7 +1176,6 @@ WhileStatementAST *WhileStatementAST::clone(MemoryPool *pool) const
 {
     WhileStatementAST *ast = new (pool) WhileStatementAST;
     // copy StatementAST
-    if (next) ast->next = next->clone(pool);
     // copy WhileStatementAST
     ast->while_token = while_token;
     ast->lparen_token = lparen_token;
@@ -1213,7 +1198,6 @@ ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
 {
     ObjCClassDeclarationAST *ast = new (pool) ObjCClassDeclarationAST;
     // copy DeclarationAST
-    if (next) ast->next = next->clone(pool);
     // copy ObjCClassDeclarationAST
     if (attributes) ast->attributes = attributes->clone(pool);
     ast->class_token = class_token;
