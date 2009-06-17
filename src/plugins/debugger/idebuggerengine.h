@@ -40,13 +40,14 @@ class QString;
 QT_END_NAMESPACE
 
 namespace TextEditor {
-    class ITextEditor;
+class ITextEditor;
 }
 
 namespace Debugger {
 namespace Internal {
 
 class Symbol;
+class WatchData;
 struct DebuggerStartParameters;
 
 class IDebuggerEngine : public QObject
@@ -59,7 +60,7 @@ public:
     virtual bool startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters) = 0;
     virtual void exitDebugger() = 0;
     virtual void detachDebugger() {}
-    virtual void updateWatchModel() = 0;
+    virtual void updateWatchData(const WatchData &data) = 0;
 
     virtual void stepExec() = 0;
     virtual void stepOutExec() = 0;

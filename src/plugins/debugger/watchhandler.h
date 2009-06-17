@@ -42,6 +42,10 @@
 namespace Debugger {
 namespace Internal {
 
+class WatchItem;
+class WatchHandler;
+enum WatchType { LocalsWatch, WatchersWatch, TooltipsWatch };
+
 class WatchData
 {
 public:
@@ -120,6 +124,7 @@ public:
     QString framekey;     // key for type cache
     QScriptValue scriptValue; // if needed...
     int childCount;
+    int generation;       // when updated?
     bool valuedisabled;   // value will be greyed out
 
 private:
@@ -127,29 +132,18 @@ private:
 public:
     int source;  // Used by some debuggers (CDB) to tell where it originates from (dumper or symbol evaluation)
     int state;
-
-    // Model
-    int parentIndex;
-    int row;
-    int level;
-    QList<int> childIndex;
     bool changed;
 };
 
 enum { INameRole = Qt::UserRole, ExpressionRole, ExpandedRole };
 
-
-class WatchHandler : public QAbstractItemModel
+class WatchModel : public QAbstractItemModel
 {
     Q_OBJECT
 
-public:
-    WatchHandler();
-    QAbstractItemModel *model() { return this; }
+private:
+    explicit WatchModel(WatchHandler *handler, WatchType type);
 
-    //
-    //  QAbstractItemModel
-    //
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     QModelIndex index(int, int, const QModelIndex &idx) const;
@@ -160,23 +154,54 @@ public:
     Qt::ItemFlags flags(const QModelIndex &idx) const;
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
-    bool checkIndex(int id) const;
-    
+    bool canFetchMore(const QModelIndex &parent) const;
+    void fetchMore(const QModelIndex &parent);
+
+    friend class WatchHandler;
+    WatchItem *watchItem(const QModelIndex &) const;
+    QModelIndex watchIndex(const WatchItem *needle) const;
+    QModelIndex watchIndexHelper(const WatchItem *needle,
+        const WatchItem *parentItem, const QModelIndex &parentIndex) const;
+
+    void insertData(const WatchData &data);
+    WatchItem *findItem(const QString &iname, WatchItem *root) const;
+    void reinitialize();
+    void removeOutdated();
+    void removeOutdatedHelper(WatchItem *item);
+    WatchItem *dummyRoot() const;
+    void removeItem(WatchItem *item);
+
+private:
+    WatchHandler *m_handler;
+    WatchType m_type;
+    WatchItem *m_root;
+};
+
+class WatchHandler : public QObject
+{
+    Q_OBJECT
+
+public:
+    WatchHandler();
+    WatchModel *model(WatchType type) const;
+    WatchModel *modelForIName(const QString &data) const;
+
 //public slots:
     void cleanup();
     Q_SLOT void watchExpression(); // data in action->data().toString()
     Q_SLOT void watchExpression(const QString &exp);
     Q_SLOT void removeWatchExpression();
     Q_SLOT void removeWatchExpression(const QString &exp);
-    void reinitializeWatchers();
-
-    Q_SLOT void collapseChildren();
-    Q_SLOT void expandChildren();
-    Q_SLOT void collapseChildren(const QString &iname);
-    Q_SLOT void expandChildren(const QString &iname);
-
-    void rebuildModel(); // unconditionally version of above
+    void beginCycle(); // called at begin of updateLocals() cycle
+    void updateWatchers(); // called after locals are fetched
+    void endCycle(); // called after all results have been received
     void showEditValue(const WatchData &data);
+
+    void insertData(const WatchData &data);
+    WatchData *findItem(const QString &iname) const;
+
+    void loadSessionData();
+    void saveSessionData();
 
     bool isDisplayedIName(const QString &iname) const
         { return m_displayedINames.contains(iname); }
@@ -185,27 +210,13 @@ public:
     QSet<QString> expandedINames() const
         { return m_expandedINames; }
 
-    void insertData(const WatchData &data);
-    QList<WatchData> takeCurrentIncompletes();
-
-    bool canFetchMore(const QModelIndex &parent) const;
-    void fetchMore(const QModelIndex &parent);
-
-    WatchData *findData(const QString &iname);
-
-    void loadSessionData();
-    void saveSessionData();
-
 signals:
-    void watchModelUpdateRequested();
-
+    void watchDataUpdateNeeded(const WatchData &data);
     void sessionValueRequested(const QString &name, QVariant *value);
     void setSessionValueRequested(const QString &name, const QVariant &value);
 
 private:
-    void reinitializeWatchersHelper();
-    WatchData takeData(const QString &iname);
-    QString toString() const;
+    friend class WatchModel;
 
     void loadWatchers();
     void saveWatchers();
@@ -216,18 +227,16 @@ private:
     typedef QMap<QString, QPointer<QWidget> > EditWindows;
     EditWindows m_editWindows;
 
-    QList<WatchData> m_incompleteSet;
-    QList<WatchData> m_completeSet;
-    QList<WatchData> m_oldSet;
-    QList<WatchData> m_displaySet;
-    QHash<QString, int> m_watchers;
+    QHash<QString, int> m_watcherNames;
     QString watcherName(const QString &exp);
 
     void setDisplayedIName(const QString &iname, bool on);
     QSet<QString> m_expandedINames;  // those expanded in the treeview
     QSet<QString> m_displayedINames; // those with "external" viewers
 
-    bool m_inFetchMore;
+    WatchModel *m_locals;
+    WatchModel *m_watchers;
+    WatchModel *m_tooltips;
 };
 
 } // namespace Internal

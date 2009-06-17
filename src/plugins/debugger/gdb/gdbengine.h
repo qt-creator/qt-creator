@@ -320,8 +320,8 @@ private:
     // FIXME: BaseClass. called to improve situation for a watch item
     void updateSubItem(const WatchData &data);
 
-    void updateWatchModel();
-    Q_SLOT void updateWatchModel2();
+    void updateWatchData(const WatchData &data);
+    void rebuildModel();
 
     void insertData(const WatchData &data);
     void sendWatchParameters(const QByteArray &params0);

@@ -127,26 +127,28 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
     setAcceptDrops(true);
     setDropIndicatorShown(true);
 
-    connect(this, SIGNAL(expanded(QModelIndex)),
-        this, SLOT(expandNode(QModelIndex)));
-    connect(this, SIGNAL(collapsed(QModelIndex)),
-        this, SLOT(collapseNode(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
         this, SLOT(setAlternatingRowColorsHelper(bool)));
+    connect(this, SIGNAL(expanded(QModelIndex)), 
+        this, SLOT(expandNode(QModelIndex))); 
+    connect(this, SIGNAL(collapsed(QModelIndex)), 
+        this, SLOT(collapseNode(QModelIndex))); 
+} 
+ 
+void WatchWindow::expandNode(const QModelIndex &idx) 
+{ 
+    model()->setData(idx, true, ExpandedRole);
+} 
+ 
+void WatchWindow::collapseNode(const QModelIndex &idx) 
+{ 
+    model()->setData(idx, false, ExpandedRole);
 }
 
-void WatchWindow::expandNode(const QModelIndex &idx)
+void WatchWindow::reset()
 {
-    QModelIndex mi0 = idx.sibling(idx.row(), 0);
-    QVariant iname = model()->data(mi0, INameRole);
-    theDebuggerAction(ExpandItem)->trigger(iname);
-}
-
-void WatchWindow::collapseNode(const QModelIndex &idx)
-{
-    QModelIndex mi0 = idx.sibling(idx.row(), 0);
-    QVariant iname = model()->data(mi0, INameRole);
-    theDebuggerAction(CollapseItem)->trigger(iname);
+    QTreeView::reset(); 
+    setRootIndex(model()->index(0, 0, QModelIndex()));
 }
 
 void WatchWindow::keyPressEvent(QKeyEvent *ev)
@@ -257,17 +259,6 @@ void WatchWindow::setAlwaysResizeColumnsToContents(bool on)
 void WatchWindow::editItem(const QModelIndex &idx)
 {
     Q_UNUSED(idx); // FIXME
-}
-
-void WatchWindow::reset()
-{
-    QTreeView::reset(); 
-    int row = 0;
-    if (m_type == TooltipType)
-        row = 1;
-    else if (m_type == WatchersType)
-        row = 2;
-    setRootIndex(model()->index(row, 0, model()->index(0, 0)));
 }
 
 void WatchWindow::setModel(QAbstractItemModel *model)

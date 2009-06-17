@@ -317,11 +317,11 @@ void DebuggerManager::init()
     // Locals
     m_watchHandler = new WatchHandler;
     QTreeView *localsView = qobject_cast<QTreeView *>(m_localsWindow);
-    localsView->setModel(m_watchHandler->model());
+    localsView->setModel(m_watchHandler->model(LocalsWatch));
 
     // Watchers
     QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
-    watchersView->setModel(m_watchHandler->model());
+    watchersView->setModel(m_watchHandler->model(WatchersWatch));
     connect(m_watchHandler, SIGNAL(sessionValueRequested(QString,QVariant*)),
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
@@ -331,10 +331,10 @@ void DebuggerManager::init()
 
     // Tooltip
     QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);
-    tooltipView->setModel(m_watchHandler->model());
+    tooltipView->setModel(m_watchHandler->model(TooltipsWatch));
 
-    connect(m_watchHandler, SIGNAL(watchModelUpdateRequested()),
-        this, SLOT(updateWatchModel()));
+    connect(m_watchHandler, SIGNAL(watchDataUpdateNeeded(WatchData)),
+        this, SLOT(updateWatchData(WatchData)));
 
     m_continueAction = new QAction(this);
     m_continueAction->setText(tr("Continue"));
@@ -792,10 +792,10 @@ void DebuggerManager::setToolTipExpression(const QPoint &mousePos, TextEditor::I
         m_engine->setToolTipExpression(mousePos, editor, cursorPos);
 }
 
-void DebuggerManager::updateWatchModel()
+void DebuggerManager::updateWatchData(const WatchData &data)
 {
     if (m_engine)
-        m_engine->updateWatchModel();
+        m_engine->updateWatchData(data);
 }
 
 QVariant DebuggerManager::sessionValue(const QString &name)

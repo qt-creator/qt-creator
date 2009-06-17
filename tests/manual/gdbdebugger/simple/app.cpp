@@ -122,8 +122,23 @@ private:
     QHash<QObject *, Map::iterator> h;
 };
 
+class X : virtual public Foo
+{
+public:
+    X() {
+    }
+};
+
+class Y : virtual public Foo
+{
+public:
+    Y() {
+    }
+};
+
 void testArray()
 {
+    X xxx;
     char c[20];
     c[0] = 'a';
     c[1] = 'b';

@@ -572,7 +572,7 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
 void ScriptEngine::updateLocals()
 {
     QScriptContext *context = m_scriptEngine->currentContext();
-    qq->watchHandler()->reinitializeWatchers();
+    qq->watchHandler()->beginCycle();
     //SDEBUG("UPDATE LOCALS");
 
     //
@@ -605,7 +605,6 @@ void ScriptEngine::updateLocals()
     data.name = "local";
     data.scriptValue = context->activationObject();
     qq->watchHandler()->insertData(data);
-    updateWatchModel();
 
     // FIXME: Use an extra thread. This here is evil
     m_stopped = true;
@@ -616,16 +615,10 @@ void ScriptEngine::updateLocals()
     //SDEBUG("RUNNING AGAIN");
 }
 
-void ScriptEngine::updateWatchModel()
+void ScriptEngine::updateWatchData(const WatchData &data)
 {
-    while (true) {
-        QList<WatchData> list = qq->watchHandler()->takeCurrentIncompletes();
-        if (list.isEmpty())
-            break;
-        foreach (const WatchData &data, list)
-            updateSubItem(data);
-    }
-    qq->watchHandler()->rebuildModel();
+    updateSubItem(data);
+    //qq->watchHandler()->rebuildModel();
     q->showStatusMessage(tr("Stopped."), 5000);
 }
 

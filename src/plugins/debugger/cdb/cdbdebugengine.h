@@ -64,7 +64,7 @@ public:
     virtual bool startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters);
     virtual void exitDebugger();
     virtual void detachDebugger();
-    virtual void updateWatchModel();
+    virtual void updateWatchData(const WatchData &data);
 
     virtual void stepExec();
     virtual void stepOutExec();

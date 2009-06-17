@@ -293,7 +293,7 @@ public slots:
     void detachDebugger();
 
     void addToWatchWindow();
-    void updateWatchModel();
+    void updateWatchData(const WatchData &data);
 
     void sessionLoaded();
     void sessionUnloaded();

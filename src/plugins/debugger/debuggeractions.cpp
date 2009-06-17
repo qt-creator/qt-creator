@@ -151,14 +151,6 @@ DebuggerSettings *DebuggerSettings::instance()
     item = new SavedAction(instance);
     instance->insertItem(AssignType, item);
 
-    item = new SavedAction(instance);
-    item->setText(tr("Expand item"));
-    instance->insertItem(ExpandItem, item);
-
-    item = new SavedAction(instance);
-    item->setText(tr("Collapse item"));
-    instance->insertItem(CollapseItem, item);
-
     //
     // DebuggingHelper
     //

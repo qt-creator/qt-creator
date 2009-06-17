@@ -107,9 +107,9 @@ private:
 
     bool supportsThreads() const { return true; }
     void maybeBreakNow(bool byFunction);
-    void updateWatchModel();
+    void updateWatchData(const WatchData &data);
     void updateLocals();
-    void updateSubItem(const WatchData &data0);
+    void updateSubItem(const WatchData &data);
 
 private:
     friend class ScriptAgent;

@@ -147,7 +147,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act4 = new QAction(tr("Synchronize breakpoints"), &menu);
 
-    QModelIndex idx0 = si.front();
+    QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
     QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
     bool enabled = si.isEmpty() || model()->data(idx0, Qt::UserRole).toBool();
     QString str5 = enabled ? tr("Disable breakpoint") : tr("Enable breakpoint");

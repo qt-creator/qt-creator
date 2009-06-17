@@ -715,7 +715,7 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 
 #if 0
     qDebug() << "# handleOutput,"
-        << "cmd type:" << cmd.type
+        << "cmd name:" << cmd.callbackName
         << " cmd synchronized:" << cmd.synchronized
         << "\n record: " << record.toString();
 #endif
@@ -727,14 +727,14 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 
     if (cmd.flags & RebuildModel) {
         --m_pendingRequests;
-        PENDING_DEBUG("   TYPE " << cmd.type << " DECREMENTS PENDING TO: "
+        PENDING_DEBUG("   TYPE " << cmd.callbackName << " DECREMENTS PENDING TO: "
             << m_pendingRequests << cmd.command);
         if (m_pendingRequests <= 0) {
-            PENDING_DEBUG(" ....  AND TRIGGERS MODEL UPDATE");
-            updateWatchModel2();
+            PENDING_DEBUG("\n\n ....  AND TRIGGERS MODEL UPDATE\n");
+            rebuildModel();
         }
     } else {
-        PENDING_DEBUG("   UNKNOWN TYPE " << cmd.type << " LEAVES PENDING AT: "
+        PENDING_DEBUG("   UNKNOWN TYPE " << cmd.callbackName << " LEAVES PENDING AT: "
             << m_pendingRequests << cmd.command);
     }
 
@@ -1968,7 +1968,6 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     handler->updateMarkers();
 }
 
-
 void GdbEngine::handleBreakIgnore(const GdbResultRecord &record, const QVariant &cookie)
 {
     int index = cookie.toInt();
@@ -2724,7 +2723,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
     m_toolTip.name = exp;
     m_toolTip.iname = tooltipIName;
     insertData(m_toolTip);
-    updateWatchModel2();
+    //updateWatchModel2();
 }
 
 
@@ -3062,55 +3061,40 @@ void GdbEngine::updateSubItem(const WatchData &data0)
     QTC_ASSERT(false, return);
 }
 
-void GdbEngine::updateWatchModel()
+void GdbEngine::updateWatchData(const WatchData &data)
 {
-    m_pendingRequests = 0;
-    PENDING_DEBUG("EXTERNAL TRIGGERING UPDATE WATCH MODEL");
-    updateWatchModel2();
+    //m_pendingRequests = 0;
+    PENDING_DEBUG("UPDATE WATCH DATA");
+    #if DEBUG_PENDING
+    //qDebug() << "##############################################";
+    //qDebug() << "UPDATE MODEL, FOUND INCOMPLETE:";
+    //qDebug() << data.toString();
+    #endif
+
+    // Bump requests to avoid model rebuilding during the nested
+    // updateWatchModel runs.
+    ++m_pendingRequests;
+    updateSubItem(data);
+    //PENDING_DEBUG("INTERNAL TRIGGERING UPDATE WATCH MODEL");
+    --m_pendingRequests;
+    if (m_pendingRequests <= 0)
+        rebuildModel();
 }
 
-void GdbEngine::updateWatchModel2()
+void GdbEngine::rebuildModel()
 {
-    PENDING_DEBUG("UPDATE WATCH MODEL");
-    QList<WatchData> incomplete = qq->watchHandler()->takeCurrentIncompletes();
-    //QTC_ASSERT(incomplete.isEmpty(), /**/);
-    if (!incomplete.isEmpty()) {
-        #if DEBUG_PENDING
-        qDebug() << "##############################################";
-        qDebug() << "UPDATE MODEL, FOUND INCOMPLETES:";
-        foreach (const WatchData &data, incomplete)
-            qDebug() << data.toString();
-        #endif
-
-        // Bump requests to avoid model rebuilding during the nested
-        // updateWatchModel runs.
-        ++m_pendingRequests;
-        foreach (const WatchData &data, incomplete)
-            updateSubItem(data);
-        PENDING_DEBUG("INTERNAL TRIGGERING UPDATE WATCH MODEL");
-        updateWatchModel2();
-        --m_pendingRequests;
-
-        return;
-    }
-
-    if (m_pendingRequests > 0) {
-        PENDING_DEBUG("UPDATE MODEL, PENDING: " << m_pendingRequests);
-        return;
-    }
-
     PENDING_DEBUG("REBUILDING MODEL");
     emit gdbInputAvailable(QString(),
         _c('[') + currentTime() + _("]    <Rebuild Watchmodel>"));
     q->showStatusMessage(tr("Finished retrieving data."), 400);
-    qq->watchHandler()->rebuildModel();
+    qq->watchHandler()->endCycle();
 
     if (!m_toolTipExpression.isEmpty()) {
-        WatchData *data = qq->watchHandler()->findData(tooltipIName);
-        if (data) {
+        WatchData *item = qq->watchHandler()->findItem(tooltipIName);
+        if (item) {
             //m_toolTipCache[data->exp] = *data;
             QToolTip::showText(m_toolTipPos,
-                    _c('(') + data->type + _(") ") + data->exp + _(" = ") + data->value);
+               _c('(') + item->type + _(") ") + item->exp + _(" = ") + item->value);
         } else {
             QToolTip::showText(m_toolTipPos,
                 tr("Cannot evaluate expression: %1").arg(m_toolTipExpression));
@@ -3498,7 +3482,7 @@ void GdbEngine::updateLocals()
     PENDING_DEBUG("\nRESET PENDING");
     m_toolTipCache.clear();
     m_toolTipExpression.clear();
-    qq->watchHandler()->reinitializeWatchers();
+    qq->watchHandler()->beginCycle();
 
     QString level = QString::number(currentFrame());
     // '2' is 'list with type and value'
@@ -3552,6 +3536,7 @@ void GdbEngine::handleStackListLocals(const GdbResultRecord &record, const QVari
     locals += m_currentFunctionArgs;
 
     setLocals(locals);
+    qq->watchHandler()->updateWatchers();
 }
 
 void GdbEngine::setLocals(const QList<GdbMi> &locals)

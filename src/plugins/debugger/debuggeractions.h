@@ -97,8 +97,6 @@ enum DebuggerActionCode
     UseToolTips,
     AssignValue,
     AssignType,
-    ExpandItem,
-    CollapseItem,
 
     RecheckDebuggingHelpers,
     UseDebuggingHelpers,
