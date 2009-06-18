@@ -444,18 +444,9 @@ void PerforcePlugin::revertCurrentFile()
             return;
     }
 
-    Core::FileManager *fm = Core::ICore::instance()->fileManager();
-    QList<Core::IFile *> files = fm->managedFiles(fileName);
-    foreach (Core::IFile *file, files) {
-        fm->blockFileChange(file);
-    }
+    Core::FileChangeBlocker fcb(fileName);
+    fcb.setModifiedReload(true);
     PerforceResponse result2 = runP4Cmd(QStringList() << QLatin1String("revert") << fileName, QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
-    Core::IFile::ReloadBehavior tempBehavior =
-            Core::IFile::ReloadAll;
-    foreach (Core::IFile *file, files) {
-        file->modified(&tempBehavior);
-        fm->unblockFileChange(file);
-    }
 }
 
 void PerforcePlugin::diffCurrentFile()

@@ -602,3 +602,33 @@ QList<IFile *> FileManager::managedFiles(const QString &fileName) const
     }
     return result;
 }
+
+FileChangeBlocker::FileChangeBlocker(const QString &fileName)
+    : m_reload(false)
+{
+    Core::FileManager *fm = Core::ICore::instance()->fileManager();
+    m_files = fm->managedFiles(fileName);
+    foreach (Core::IFile *file, m_files)
+        fm->blockFileChange(file);
+}
+
+FileChangeBlocker::~FileChangeBlocker()
+{
+    Core::IFile::ReloadBehavior tempBehavior = Core::IFile::ReloadAll;
+    Core::FileManager *fm = Core::ICore::instance()->fileManager();
+    foreach (Core::IFile *file, m_files) {
+        if (m_reload)
+            file->modified(&tempBehavior);
+        fm->unblockFileChange(file);
+    }
+}
+
+void FileChangeBlocker::setModifiedReload(bool b)
+{
+    m_reload = b;
+}
+
+bool FileChangeBlocker::modifiedReload() const
+{
+    return m_reload;
+}

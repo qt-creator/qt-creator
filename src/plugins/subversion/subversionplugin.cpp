@@ -611,10 +611,8 @@ void SubversionPlugin::revertCurrentFile()
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
-    Core::FileManager *fm = Core::ICore::instance()->fileManager();
-    QList<Core::IFile *> files = fm->managedFiles(file);
-    foreach (Core::IFile *file, files)
-        fm->blockFileChange(file);
+
+    Core::FileChangeBlocker fcb(file);
 
     // revert
     args.clear();
@@ -622,16 +620,8 @@ void SubversionPlugin::revertCurrentFile()
     args.append(file);
 
     const SubversionResponse revertResponse = runSvn(args, subversionShortTimeOut, true);
-    if (revertResponse.error) {
-        foreach (Core::IFile *file, files)
-            fm->unblockFileChange(file);
-        return;
-    }
-
-    Core::IFile::ReloadBehavior tempBehavior = Core::IFile::ReloadAll;
-    foreach (Core::IFile *file, files) {
-        file->modified(&tempBehavior);
-        fm->unblockFileChange(file);
+    if (!revertResponse.error) {
+        fcb.setModifiedReload(true);
     }
 }
 

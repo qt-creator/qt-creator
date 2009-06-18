@@ -136,6 +136,25 @@ private:
     bool m_blockActivated;
 };
 
+/*! The FileChangeBlocker blocks all change notifications to all IFile * that
+    match the given filename. And unblocks in the destructor.
+
+    To also reload the IFile in the destructor class set modifiedReload to true
+
+  */
+class CORE_EXPORT FileChangeBlocker
+{
+public:
+    FileChangeBlocker(const QString &fileName);
+    ~FileChangeBlocker();
+    void setModifiedReload(bool reload);
+    bool modifiedReload() const;
+private:
+    QList<IFile *> m_files;
+    bool m_reload;
+    Q_DISABLE_COPY(FileChangeBlocker);
+};
+
 } // namespace Core
 
 #endif // FILEMANAGER_H
