@@ -46,8 +46,6 @@
     \nextpage {examples/addressbook-sdk/part1}{Chapter 1}
 
     \title Address Book Tutorial
-    \ingroup howto
-    \ingroup tutorials
     \brief An introduction to GUI programming with Qt and Qt Creator,
     describing in detail how to put together a simple yet fully-
     functioning application.
@@ -549,6 +547,13 @@
 
     Again, we display the contents of the current object in \c contacts.
 
+    \table
+        \o  \bold{Note}: This tutorial is work in progress and currently ends here. 
+            You can read the remaining four chapters of the Address Book Tutorial from 
+            \l{http://doc.trolltech.com/latest/tutorials-addressbook.html}{the Qt library documentation} 
+            instead. Note that this version is IDE agnostic and does not
+            consider Qt Creator. It might contain subtle differences.
+    \endtable
 */
 
 /*!
