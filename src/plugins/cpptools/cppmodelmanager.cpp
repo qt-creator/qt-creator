@@ -529,6 +529,34 @@ protected:
         return true;
     }
 
+    virtual bool visit(BinaryExpressionAST *ast)
+    {
+        if (ast->right_expression) {
+            if (CastExpressionAST *right_cast_expr = ast->right_expression->asCastExpression()) {
+                if (right_cast_expr->type_id) {
+                    if (TypeIdAST *right_cast_type_id = right_cast_expr->type_id->asTypeId()) {
+                        SpecifierAST *type_specifier = right_cast_type_id->type_specifier;
+                        if (! right_cast_type_id->declarator && type_specifier && ! type_specifier->next &&
+                                type_specifier->asNamedTypeSpecifier() && right_cast_expr->expression &&
+                                right_cast_expr->expression->asUnaryExpression()) {
+                            // this ast node is ambigious, e.g.
+                            //   1 + (a) + b
+                            // it can be parsed as
+                            //   1 + ((a) + b)
+                            // or
+                            //   1 + (a) (+b)
+                            accept(ast->left_expression);
+                            accept(right_cast_expr->expression);
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     LookupContext lookupContext(unsigned line, unsigned column) const;
 
 private:
