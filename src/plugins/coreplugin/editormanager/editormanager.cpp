@@ -992,11 +992,11 @@ IEditor *EditorManager::createEditor(const QString &editorKind,
     EditorFactoryList factories;
     if (editorKind.isEmpty()) {
         // Find by mime type
-        const MimeType mimeType = m_d->m_core->mimeDatabase()->findByFile(QFileInfo(fileName));
+        MimeType mimeType = m_d->m_core->mimeDatabase()->findByFile(QFileInfo(fileName));
         if (!mimeType) {
-            qWarning("%s unable to determine mime type of %s/%s.",
+            qWarning("%s unable to determine mime type of %s/%s. Falling back to text/plain",
                      Q_FUNC_INFO, fileName.toUtf8().constData(), editorKind.toUtf8().constData());
-            return 0;
+            mimeType = m_d->m_core->mimeDatabase()->findByType(QLatin1String("text/plain"));
         }
         factories = editorFactories(mimeType, true);
     } else {
