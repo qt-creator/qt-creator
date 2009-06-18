@@ -145,6 +145,7 @@ struct DebuggerStartParameters
     QString remoteChannel;
     QString remoteArchitecture;
     QString serverStartScript;
+    int toolChainType;
 };
 
 QDebug operator<<(QDebug str, const DebuggerStartParameters &);

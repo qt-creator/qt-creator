@@ -37,6 +37,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QString>
+#include <QtCore/QCoreApplication>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -100,6 +101,29 @@ QStringList ToolChain::supportedToolChains()
                          << QLatin1String("mingw")
                          << QLatin1String("msvc")
                          << QLatin1String("wince");
+}
+
+QString ToolChain::toolChainName(ToolChainType tc)
+{
+    switch (tc) {
+    case GCC:
+        return QLatin1String("gcc");
+    case LinuxICC:
+        return QLatin1String("Linux icc");
+    case MinGW:
+        return QLatin1String("MinGW");
+    case MSVC:
+        return QLatin1String("MS VC");
+    case WINCE:
+        return QLatin1String("Windows CE");
+    case OTHER:
+        return QCoreApplication::translate("ToolChain", "Other");
+    case INVALID:
+        return QCoreApplication::translate("ToolChain", "<Invalid>");
+    case UNKNOWN:
+        break;
+    };
+    return QCoreApplication::translate("ToolChain", "<Unknown>");
 }
 
 GccToolChain::GccToolChain(const QString &gcc)

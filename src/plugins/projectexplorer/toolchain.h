@@ -96,6 +96,8 @@ public:
     static QStringList availableMSVCVersions();
     static QStringList supportedToolChains();
 
+    static QString toolChainName(ToolChainType tc);
+
 protected:
     virtual bool equals(ToolChain *other) const = 0;
 };
