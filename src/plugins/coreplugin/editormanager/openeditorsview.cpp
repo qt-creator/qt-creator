@@ -35,6 +35,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QTimer>
@@ -88,6 +89,10 @@ void OpenEditorsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
 }
 
+////
+// OpenEditorsWidget
+////
+
 OpenEditorsWidget::OpenEditorsWidget()
 {
     m_ui.setupUi(this);
@@ -110,12 +115,17 @@ OpenEditorsWidget::OpenEditorsWidget()
     m_ui.editorList->header()->setResizeMode(0, QHeaderView::Stretch);
     m_ui.editorList->header()->setResizeMode(1, QHeaderView::Fixed);
     m_ui.editorList->header()->resizeSection(1, 16);
+    m_ui.editorList->setContextMenuPolicy(Qt::CustomContextMenu);
+
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateCurrentItem(Core::IEditor*)));
     connect(m_ui.editorList, SIGNAL(clicked(QModelIndex)),
             this, SLOT(handleClicked(QModelIndex)));
     connect(m_ui.editorList, SIGNAL(pressed(QModelIndex)),
             this, SLOT(handlePressed(QModelIndex)));
+
+    connect(m_ui.editorList, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(contextMenuRequested(QPoint)));
 }
 
 OpenEditorsWidget::~OpenEditorsWidget()
@@ -158,6 +168,40 @@ void OpenEditorsWidget::handleClicked(const QModelIndex &index)
     }
 }
 
+void OpenEditorsWidget::contextMenuRequested(QPoint pos)
+{
+    const QModelIndex index = m_ui.editorList->indexAt(pos);
+    QMenu contextMenu;
+    QAction *closeEditor = contextMenu.addAction(
+            index.isValid() ?  tr("Close %1").arg(index.data().toString())
+                            :  tr("Close Editor"));
+    QAction *closeOtherEditors = contextMenu.addAction(
+            index.isValid() ? tr("Close All Except %1").arg(index.data().toString())
+                            : tr("Close Other Editors"));
+    QAction *closeAllEditors = contextMenu.addAction(tr("Close All Editors"));
+
+    if (!index.isValid()) {
+        closeEditor->setEnabled(false);
+        closeOtherEditors->setEnabled(false);
+    }
+
+    if (EditorManager::instance()->openedEditors().isEmpty())
+        closeAllEditors->setEnabled(false);
+
+    QAction *action = contextMenu.exec(m_ui.editorList->mapToGlobal(pos));
+    if (action == 0)
+        return;
+    if (action == closeEditor)
+        EditorManager::instance()->closeEditor(index);
+    else if (action == closeAllEditors)
+        EditorManager::instance()->closeAllEditors();
+    else if (action == closeOtherEditors)
+        EditorManager::instance()->closeOtherEditors(index.data(Qt::UserRole).value<Core::IEditor*>());
+}
+
+///
+// OpenEditorsViewFactory
+///
 
 NavigationView OpenEditorsViewFactory::createWidget()
 {

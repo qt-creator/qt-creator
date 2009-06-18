@@ -656,14 +656,20 @@ bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
     return false;
 }
 
+void EditorManager::closeOtherEditors(IEditor *editor)
+{
+    m_d->m_editorModel->removeAllRestoredEditors();
+    QList<IEditor*> editors = openedEditors();
+    editors.removeAll(editor);
+    closeEditors(editors, true);
+}
+
+
 void EditorManager::closeOtherEditors()
 {
     IEditor *current = currentEditor();
     QTC_ASSERT(current, return);
-    m_d->m_editorModel->removeAllRestoredEditors();
-    QList<IEditor*> editors = openedEditors();
-    editors.removeAll(current);
-    closeEditors(editors, true);
+    closeOtherEditors(current);
 }
 
 
@@ -690,7 +696,6 @@ void EditorManager::closeEditor(const QModelIndex &index)
     else
         m_d->m_editorModel->removeEditor(index);
 }
-
 
 bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askAboutModifiedEditors)
 {

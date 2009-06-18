@@ -71,6 +71,7 @@ private slots:
     void handleClicked(const QModelIndex &);
     void handlePressed(const QModelIndex &);
     void updateCurrentItem(Core::IEditor*);
+    void contextMenuRequested(QPoint pos);
 
 private:
     Ui::OpenEditorsView m_ui;
