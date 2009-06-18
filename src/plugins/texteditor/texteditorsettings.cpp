@@ -175,7 +175,7 @@ void TextEditorSettings::fontSizeRequested(int pointSize)
 {
     FontSettings &fs = const_cast<FontSettings&>(m_fontSettingsPage->fontSettings());
     fs.setFontSize(pointSize);
-    emit fontSettingsChanged(m_fontSettingsPage->fontSettings());
+    m_fontSettingsPage->saveSettings();
 }
 
 FontSettings TextEditorSettings::fontSettings() const

@@ -150,6 +150,8 @@ static const char pp_configuration[] =
     "#define __imag__\n"
     "#define __real__\n"
 
+    "#define __builtin_va_arg(a,b) ((b)0)\n"
+
     // ### add macros for win32
     "#define __cdecl\n"
     "#define QT_WA(x) x\n"

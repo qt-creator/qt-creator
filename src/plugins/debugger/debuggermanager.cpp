@@ -57,6 +57,7 @@
 #endif
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -95,7 +96,8 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
             << " attachPID=" << p.attachPID << " useTerminal=" << p.useTerminal
             << " remoteChannel=" << p.remoteChannel
             << " remoteArchitecture=" << p.remoteArchitecture
-            << " serverStartScript=" << p.serverStartScript << '\n';
+            << " serverStartScript=" << p.serverStartScript
+            << " toolchain=" << p.toolChainType << '\n';
     return str;
 }
 } // namespace Internal
@@ -155,7 +157,8 @@ IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPa
 
 DebuggerStartParameters::DebuggerStartParameters() :
     attachPID(-1),
-    useTerminal(false)
+    useTerminal(false),
+    toolChainType(ProjectExplorer::ToolChain::UNKNOWN)
 {
 }
 
@@ -173,6 +176,7 @@ void DebuggerStartParameters::clear()
     remoteChannel.clear();
     remoteArchitecture.clear();
     serverStartScript.clear();
+    toolChainType = ProjectExplorer::ToolChain::UNKNOWN;
 }
 
 // --------- DebuggerManager
@@ -806,17 +810,59 @@ QVariant DebuggerManager::sessionValue(const QString &name)
     return value;
 }
 
-// Figure out the debugger type of an executable
-static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
-                                  QString *errorMessage,
-                                  QString *settingsIdHint)
+static inline QString msgEngineNotAvailable(const char *engine)
 {
-    if (executable.endsWith(_(".js")))
-        return scriptEngine;
+    return DebuggerManager::tr("The application requires the debugger engine '%1', which is disabled.").arg(QLatin1String(engine));
+}
 
-#ifndef Q_OS_WIN
-    Q_UNUSED(errorMessage)
+static IDebuggerEngine *debuggerEngineForToolChain(ProjectExplorer::ToolChain::ToolChainType tc)
+{
+    IDebuggerEngine *rc = 0;
+    switch (tc) {
+    case ProjectExplorer::ToolChain::LinuxICC:
+    case ProjectExplorer::ToolChain::MinGW:
+    case ProjectExplorer::ToolChain::GCC:
+        rc = gdbEngine;
+        break;
+    case ProjectExplorer::ToolChain::MSVC:
+    case ProjectExplorer::ToolChain::WINCE:
+        rc = winEngine;
+        break;
+    case ProjectExplorer::ToolChain::OTHER:
+    case ProjectExplorer::ToolChain::UNKNOWN:
+    case ProjectExplorer::ToolChain::INVALID:
+        break;
+    }
+    if (Debugger::Constants::Internal::debug)
+        qDebug()  << "Toolchain" << tc << rc;
+    return rc;
+}
+
+// Figure out the debugger type of an executable. Analyze executable
+// unless the toolchain provides a hint.
+static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
+                                                int toolChainType,
+                                                QString *errorMessage,
+                                                QString *settingsIdHint)
+{
+    if (IDebuggerEngine *tce = debuggerEngineForToolChain(static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
+        return tce;
+
+    if (executable.endsWith(_(".js"))) {
+        if (!scriptEngine) {
+            *errorMessage = msgEngineNotAvailable("Script Engine");
+            return 0;
+        }
+        return scriptEngine;
+    }
+
+#ifndef Q_OS_WIN    
     Q_UNUSED(settingsIdHint)
+    if (!gdbEngine) {
+        *errorMessage = msgEngineNotAvailable("Gdb Engine");
+        return 0;
+    }
+
     return gdbEngine;
 #else
     // If a file has PDB files, it has been compiled by VS.
@@ -839,12 +885,25 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
 
 // Figure out the debugger type of a PID
 static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
-                                  QString * /*errorMessage*/)
+                                                int toolChainType,
+                                                QString *errorMessage)
 {
+    if (IDebuggerEngine *tce = debuggerEngineForToolChain(static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
+        return tce;
 #ifdef Q_OS_WIN
     // Preferably Windows debugger
-    return winEngine ? winEngine : gdbEngine;
+    if (winEngine)
+        return winEngine;
+    if (gdbEngine)
+        return gdbEngine;
+    *errorMessage = msgEngineNotAvailable("Gdb Engine");
+    return 0;
 #else
+    if (!gdbEngine) {
+        *errorMessage = msgEngineNotAvailable("Gdb Engine");
+        return 0;
+    }
+
     return gdbEngine;
 #endif
 }
@@ -857,21 +916,23 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl, const QSh
     m_startParameters  = startParameters;
     m_inferiorPid = startParameters->attachPID > 0 ? startParameters->attachPID : 0;
     m_runControl = runControl;
+    const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChain::ToolChainType>(m_startParameters->toolChainType));
 
     emit debugModeRequested();
+    showDebuggerOutput(QLatin1String("status:"), tr("Starting debugger for tool chain '%1'...").arg(toolChainName));
 
     QString errorMessage;
     QString settingsIdHint;
     switch (startMode()) {
     case AttachExternal:
     case AttachCrashedExternal:
-        m_engine = determineDebuggerEngine(m_startParameters->attachPID, &errorMessage);
+        m_engine = determineDebuggerEngine(m_startParameters->attachPID, m_startParameters->toolChainType, &errorMessage);
         break;
     case AttachTcf:
         m_engine = tcfEngine;
         break;
     default:
-        m_engine = determineDebuggerEngine(m_startParameters->executable, &errorMessage, &settingsIdHint);
+        m_engine = determineDebuggerEngine(m_startParameters->executable, m_startParameters->toolChainType, &errorMessage, &settingsIdHint);
         break;
     }
 
@@ -879,7 +940,8 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl, const QSh
         debuggingFinished();
         // Create Message box with possibility to go to settings
         QAbstractButton *settingsButton = 0;
-        QMessageBox msgBox(QMessageBox::Warning, tr("Warning"), tr("Cannot debug '%1': %2").arg(m_startParameters->executable, errorMessage), QMessageBox::Ok);
+        QMessageBox msgBox(QMessageBox::Warning, tr("Warning"), tr("Cannot debug '%1' (tool chain: '%2'): %3").
+                           arg(m_startParameters->executable, toolChainName, errorMessage), QMessageBox::Ok);
         if (!settingsIdHint.isEmpty())
             settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
         msgBox.exec();
@@ -887,6 +949,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl, const QSh
             Core::ICore::instance()->showOptionsDialog(_(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
         return;
     }
+
     if (Debugger::Constants::Internal::debug)
         qDebug() << m_startParameters->executable << m_engine;
 

@@ -96,6 +96,8 @@ public:
     void apply();
     void finish();
 
+    void saveSettings();
+
     const FontSettings &fontSettings() const;
 
 signals:

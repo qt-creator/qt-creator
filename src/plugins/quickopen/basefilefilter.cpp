@@ -43,6 +43,7 @@ BaseFileFilter::BaseFileFilter()
 
 QList<FilterEntry> BaseFileFilter::matchesFor(const QString &origEntry)
 {
+    updateFiles();
     QList<FilterEntry> matches;
     QList<FilterEntry> badMatches;
     QString needle = trimWildcards(origEntry);
@@ -103,4 +104,8 @@ void BaseFileFilter::generateFileNames()
         m_fileNames.append(fi.fileName());
     }
     m_forceNewSearchList = true;
+}
+
+void BaseFileFilter::updateFiles()
+{
 }

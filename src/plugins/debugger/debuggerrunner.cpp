@@ -82,6 +82,14 @@ RunControl* DebuggerRunner::run(RunConfigurationPtr runConfiguration,
     ApplicationRunConfigurationPtr rc =
         runConfiguration.dynamicCast<ApplicationRunConfiguration>();
     Q_ASSERT(!rc.isNull());
+    switch (sp->toolChainType) {
+    case ProjectExplorer::ToolChain::UNKNOWN:
+    case ProjectExplorer::ToolChain::INVALID:
+        sp->toolChainType = rc->toolChainType();
+        break;
+    default:        
+        break;
+    }
     //qDebug() << "***** Debugging" << rc->name() << rc->executable();
     DebuggerRunControl *runControl = new DebuggerRunControl(m_manager, startMode, sp, rc);
     return runControl;

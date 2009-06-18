@@ -48,6 +48,7 @@ public:
     void accept(QuickOpen::FilterEntry selection) const;
 
 protected:
+    virtual void updateFiles();
     void generateFileNames();
 
     QStringList m_files;
