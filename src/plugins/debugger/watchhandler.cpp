@@ -81,16 +81,16 @@ static int generationCounter = 0;
 class WatchItem : public WatchData
 {
 public:
-    WatchItem() { parent = 0; fetched = 0; }
+    WatchItem() { parent = 0; fetchedTriggered = 0; }
 
     WatchItem(const WatchData &data) : WatchData(data)
-        { parent = 0; fetched = 0; }
+        { parent = 0; fetchedTriggered = 0; }
 
     void setData(const WatchData &data)
         { static_cast<WatchData &>(*this) = data; }
 
     WatchItem *parent;
-    bool fetched;      // children fetch has been triggered
+    bool fetchedTriggered;      // children fetch has been triggered
     QList<WatchItem *> children;  // fetched children
 };
 
@@ -309,7 +309,7 @@ WatchModel::WatchModel(WatchHandler *handler, WatchType type)
     item->childCount = 1;
     item->state = 0;
     item->parent = m_root;
-    item->fetched = true;
+    item->fetchedTriggered = true;
 
     m_root->children.append(item);
 }
@@ -501,14 +501,15 @@ static QString niceType(QString type)
 
 bool WatchModel::canFetchMore(const QModelIndex &index) const
 {
-    return index.isValid() && !watchItem(index)->fetched;
+    return index.isValid() && !watchItem(index)->fetchedTriggered;
 }
 
 void WatchModel::fetchMore(const QModelIndex &index)
 {
     QTC_ASSERT(index.isValid(), return);
-    QTC_ASSERT(!watchItem(index)->fetched, return);
+    QTC_ASSERT(!watchItem(index)->fetchedTriggered, return);
     if (WatchItem *item = watchItem(index)) {
+        item->fetchedTriggered = true;
         WatchData data = *item;
         data.setChildrenNeeded();
         emit m_handler->watchDataUpdateNeeded(data);
