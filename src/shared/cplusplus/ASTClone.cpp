@@ -97,10 +97,11 @@ DeclaratorAST *DeclaratorAST::clone(MemoryPool *pool) const
 {
     DeclaratorAST *ast = new (pool) DeclaratorAST;
     // copy DeclaratorAST
+    if (attributes) ast->attributes = attributes->clone(pool);
     if (ptr_operators) ast->ptr_operators = ptr_operators->clone(pool);
     if (core_declarator) ast->core_declarator = core_declarator->clone(pool);
     if (postfix_declarators) ast->postfix_declarators = postfix_declarators->clone(pool);
-    if (attributes) ast->attributes = attributes->clone(pool);
+    if (post_attributes) ast->post_attributes = post_attributes->clone(pool);
     ast->equals_token = equals_token;
     if (initializer) ast->initializer = initializer->clone(pool);
     return ast;

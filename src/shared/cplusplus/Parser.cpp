@@ -671,6 +671,9 @@ bool Parser::parseAsmDefinition(DeclarationAST *&node)
 
 bool Parser::parseAsmOperandList()
 {
+    if (LA() != T_STRING_LITERAL)
+        return true;
+
     if (parseAsmOperand()) {
         while (LA() == T_COMMA) {
             consumeToken();
@@ -678,6 +681,7 @@ bool Parser::parseAsmOperandList()
         }
         return true;
     }
+
     return false;
 }
 
@@ -949,6 +953,14 @@ bool Parser::parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node)
 
 bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
 {
+    unsigned start = cursor();
+    SpecifierAST *attributes = 0;
+    SpecifierAST **attribute_ptr = &attributes;
+    while (LA() == T___ATTRIBUTE__) {
+        parseAttributeSpecifier(*attribute_ptr);
+        attribute_ptr = &(*attribute_ptr)->next;
+    }
+
     PtrOperatorAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
     while (parsePtrOperator(*ptr_operators_tail))
         ptr_operators_tail = &(*ptr_operators_tail)->next;
@@ -960,12 +972,16 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
             DeclaratorIdAST *declarator_id = new (_pool) DeclaratorIdAST;
             declarator_id->name = name;
             DeclaratorAST *ast = new (_pool) DeclaratorAST;
+            ast->attributes = attributes;
             ast->ptr_operators = ptr_operators;
             ast->core_declarator = declarator_id;
             node = ast;
             return true;
         }
     } else if (LA() == T_LPAREN) {
+        if (attributes)
+            _translationUnit->warning(attributes->firstToken(), "unexpected attribtues");
+
         unsigned lparen_token = consumeToken();
         DeclaratorAST *declarator = 0;
         if (parseDeclarator(declarator) && LA() == T_RPAREN) {
@@ -980,6 +996,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
             return true;
         }
     }
+    rewind(start);
     return false;
 }
 
@@ -1060,7 +1077,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
             break;
     }
 
-    SpecifierAST **spec_ptr = &node->attributes;
+    SpecifierAST **spec_ptr = &node->post_attributes;
     while (LA() == T___ATTRIBUTE__) {
         parseAttributeSpecifier(*spec_ptr);
         spec_ptr = &(*spec_ptr)->next;

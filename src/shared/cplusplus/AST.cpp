@@ -570,6 +570,8 @@ unsigned DeclarationListAST::lastToken() const
 
 unsigned DeclaratorAST::firstToken() const
 {
+    if (attributes)
+        return attributes->firstToken();
     if (ptr_operators)
         return ptr_operators->firstToken();
     else if (core_declarator)
@@ -589,7 +591,7 @@ unsigned DeclaratorAST::lastToken() const
     if (initializer)
         return initializer->lastToken();
 
-    for (SpecifierAST *it = attributes; it; it = it->next) {
+    for (SpecifierAST *it = post_attributes; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
@@ -603,6 +605,11 @@ unsigned DeclaratorAST::lastToken() const
         return core_declarator->lastToken();
 
     for (PtrOperatorAST *it = ptr_operators; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    for (SpecifierAST *it = attributes; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }

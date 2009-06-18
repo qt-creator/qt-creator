@@ -85,12 +85,14 @@ void DeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         // visit DeclaratorAST
+        for (SpecifierAST *it = attributes; it; it = it->next)
+            accept(it, visitor);
         for (PtrOperatorAST *it = ptr_operators; it; it = it->next)
             accept(it, visitor);
         accept(core_declarator, visitor);
         for (PostfixDeclaratorAST *it = postfix_declarators; it; it = it->next)
             accept(it, visitor);
-        for (SpecifierAST *it = attributes; it; it = it->next)
+        for (SpecifierAST *it = post_attributes; it; it = it->next)
             accept(it, visitor);
         accept(initializer, visitor);
     }

@@ -371,10 +371,11 @@ public:
 class CPLUSPLUS_EXPORT DeclaratorAST: public AST
 {
 public:
+    SpecifierAST *attributes;
     PtrOperatorAST *ptr_operators;
     CoreDeclaratorAST *core_declarator;
     PostfixDeclaratorAST *postfix_declarators;
-    SpecifierAST *attributes;
+    SpecifierAST *post_attributes;
     unsigned equals_token;
     ExpressionAST *initializer;
 
