@@ -43,7 +43,7 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 CurrentProjectFilter::CurrentProjectFilter(ProjectExplorerPlugin *pe)
-  : BaseFileFilter(), m_project(0)
+  : BaseFileFilter(), m_projectExplorer(pe), m_project(0), m_filesUpToDate(false)
 {
     m_projectExplorer = pe;
 
@@ -53,8 +53,16 @@ CurrentProjectFilter::CurrentProjectFilter(ProjectExplorerPlugin *pe)
     setIncludedByDefault(false);
 }
 
-void CurrentProjectFilter::refreshInternally()
+void CurrentProjectFilter::markFilesAsOutOfDate()
 {
+    m_filesUpToDate = false;
+}
+
+void CurrentProjectFilter::updateFiles()
+{
+    if (m_filesUpToDate)
+        return;
+    m_filesUpToDate = true;
     m_files.clear();
     if (!m_project)
         return;
@@ -68,20 +76,20 @@ void CurrentProjectFilter::currentProjectChanged(ProjectExplorer::Project *proje
     if (project == m_project)
         return;
     if (m_project)
-        disconnect(m_project, SIGNAL(fileListChanged()), this, SLOT(refreshInternally()));
+        disconnect(m_project, SIGNAL(fileListChanged()), this, SLOT(markFilesAsOutOfDate()));
 
     if (project)
-        connect(project, SIGNAL(fileListChanged()), this, SLOT(refreshInternally()));
+        connect(project, SIGNAL(fileListChanged()), this, SLOT(markFilesAsOutOfDate()));
 
     m_project = project;
-    refreshInternally();
+    markFilesAsOutOfDate();
 }
 
 void CurrentProjectFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future);
     // invokeAsyncronouslyOnGuiThread
-    connect(this, SIGNAL(invokeRefresh()), this, SLOT(refreshInternally()));
+    connect(this, SIGNAL(invokeRefresh()), this, SLOT(markFilesAsOutOfDate()));
     emit invokeRefresh();
-    disconnect(this, SIGNAL(invokeRefresh()), this, SLOT(refreshInternally()));
+    disconnect(this, SIGNAL(invokeRefresh()), this, SLOT(markFilesAsOutOfDate()));
 }
