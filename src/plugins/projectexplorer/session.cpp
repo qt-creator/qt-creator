@@ -991,18 +991,23 @@ QString SessionManager::activeSession() const
 
 QStringList SessionManager::sessions() const
 {
-    QStringList result = m_core->settings()->value("Sessions").toStringList();
-
-    if (!result.contains("default"))
-        result.prepend("default");
-
-    return result;
+    if (m_sessions.isEmpty()) {
+        // We aren't yet initalized, so do that now
+        QDirIterator dirIter(QFileInfo(m_core->settings()->fileName()).path() + "/qtcreator/");
+        while (dirIter.hasNext()) {
+            dirIter.next();
+            const QFileInfo &fileInfo = dirIter.fileInfo();
+            if (fileInfo.suffix() == "qws" && fileInfo.completeBaseName() != "default")
+                m_sessions << fileInfo.completeBaseName();
+        }
+        m_sessions.prepend("default");
+    }
+    return m_sessions;
 }
 
 QString SessionManager::sessionNameToFileName(const QString &session)
 {
-    QString sn = session;
-    return QFileInfo(m_core->settings()->fileName()).path() + "/qtcreator/" + sn + ".qws";
+    return QFileInfo(m_core->settings()->fileName()).path() + "/qtcreator/" + session + ".qws";
 }
 
 void SessionManager::createAndLoadNewDefaultSession()
@@ -1015,19 +1020,15 @@ bool SessionManager::createSession(const QString &session)
 {
     if (sessions().contains(session))
         return false;
-    QStringList list = m_core->settings()->value("Sessions").toStringList();
-    list.append(session);
-    m_core->settings()->setValue("Sessions", list);
+    m_sessions.append(session);
     return true;
 }
 
 bool SessionManager::deleteSession(const QString &session)
 {
-    QStringList list = m_core->settings()->value("Sessions").toStringList();
-    if (!list.contains(session))
+    if (!m_sessions.contains(session))
         return false;
-    list.removeOne(session);
-    m_core->settings()->setValue("Sessions", list);
+    m_sessions.removeOne(session);
     QFile fi(sessionNameToFileName(session));
     if (fi.exists())
         return fi.remove();
@@ -1036,17 +1037,13 @@ bool SessionManager::deleteSession(const QString &session)
 
 bool SessionManager::cloneSession(const QString &original, const QString &clone)
 {
-    QStringList list = m_core->settings()->value("Sessions").toStringList();
-    list.append(clone);
-
-    if (!sessions().contains(original))
+    if (!m_sessions.contains(original))
         return false;
 
     QFile fi(sessionNameToFileName(original));
-
     // If the file does not exist, we can still clone
     if (!fi.exists() || fi.copy(sessionNameToFileName(clone))) {
-        m_core->settings()->setValue("Sessions", list);
+        m_sessions.append(clone);
         return true;
     }
     return false;

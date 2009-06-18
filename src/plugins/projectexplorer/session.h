@@ -189,8 +189,9 @@ private:
     QString m_displayName;
     QString m_sessionName;
 
-    mutable
-    QHash<Project *, QStringList> m_projectFileCache;
+    mutable QStringList m_sessions;
+
+    mutable QHash<Project *, QStringList> m_projectFileCache;
 };
 
 } // namespace ProjectExplorer
