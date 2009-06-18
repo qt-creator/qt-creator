@@ -552,6 +552,24 @@ protected:
         return true;
     }
 
+    virtual bool visit(SizeofExpressionAST *ast)
+    {
+        if (ast->lparen_token && ast->expression && ast->rparen_token) {
+            if (TypeIdAST *type_id = ast->expression->asTypeId()) {
+                SpecifierAST *type_specifier = type_id->type_specifier;
+                if (! type_id->declarator && type_specifier && ! type_specifier->next &&
+                    type_specifier->asNamedTypeSpecifier()) {
+                    // this sizeof expression is ambiguos, e.g.
+                    // sizeof (a)
+                    //   `a' can be a typeid or a nested-expression.
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     LookupContext lookupContext(unsigned line, unsigned column) const;
 
 private:
