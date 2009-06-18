@@ -129,16 +129,6 @@ FormatDescription::FormatDescription(const QString &name, const QString &trName,
     m_format.setForeground(color);
 }
 
-QString FormatDescription::name() const
-{
-    return m_name;
-}
-
-QString FormatDescription::trName() const
-{
-    return m_trName;
-}
-
 QColor FormatDescription::foreground() const
 {
     if (m_name == QLatin1String(Constants::C_LINE_NUMBER)) {

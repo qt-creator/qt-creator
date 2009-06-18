@@ -26,7 +26,8 @@ SOURCES += texteditorplugin.cpp \
     basefilefind.cpp \
     texteditorsettings.cpp \
     codecselector.cpp \
-    findincurrentfile.cpp
+    findincurrentfile.cpp \
+    colorscheme.cpp
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
     plaintexteditor.h \
@@ -56,7 +57,8 @@ HEADERS += texteditorplugin.h \
     basefilefind.h \
     texteditorsettings.h \
     codecselector.h \
-    findincurrentfile.h
+    findincurrentfile.h \
+    colorscheme.h
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \
     fontsettingspage.ui

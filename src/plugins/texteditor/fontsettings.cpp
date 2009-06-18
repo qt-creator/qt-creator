@@ -38,8 +38,6 @@
 static const char *fontFamilyKey = "FontFamily";
 static const char *fontSizeKey = "FontSize";
 static const char *antialiasKey = "FontAntialias";
-static const char *trueString = "true";
-static const char *falseString = "false";
 
 namespace {
 static const bool DEFAULT_ANTIALIAS = true;
@@ -60,81 +58,6 @@ static const bool DEFAULT_ANTIALIAS = true;
 
 namespace TextEditor {
 
-// Format --
-Format::Format() :
-    m_foreground(Qt::black),
-    m_background(Qt::white),
-    m_bold(false),
-    m_italic(false)
-{
-}
-
-void Format::setForeground(const QColor &foreground)
-{
-    m_foreground = foreground;
-}
-
-void Format::setBackground(const QColor &background)
-{
-    m_background = background;
-}
-
-void Format::setBold(bool bold)
-{
-    m_bold = bold;
-}
-
-void Format::setItalic(bool italic)
-{
-    m_italic = italic;
-}
-
-static QString colorToString(const QColor &color) {
-    if (color.isValid())
-        return color.name();
-    return QLatin1String("invalid");
-}
-
-static QColor stringToColor(const QString &string) {
-    if (string == QLatin1String("invalid"))
-        return QColor();
-    return QColor(string);
-}
-
-QString Format::toString() const
-{
-    const QChar delimiter = QLatin1Char(';');
-    QString s =  colorToString(m_foreground);
-    s += delimiter;
-    s += colorToString(m_background);
-    s += delimiter;
-    s += m_bold   ? QLatin1String(trueString) : QLatin1String(falseString);
-    s += delimiter;
-    s += m_italic ? QLatin1String(trueString) : QLatin1String(falseString);
-    return s;
-}
-
-bool Format::fromString(const QString &str)
-{
-    *this = Format();
-
-    const QStringList lst = str.split(QLatin1Char(';'));
-    if (lst.count() != 4)
-        return false;
-
-    m_foreground = stringToColor(lst.at(0));
-    m_background = stringToColor(lst.at(1));
-    m_bold = lst.at(2) == QLatin1String(trueString);
-    m_italic = lst.at(3) == QLatin1String(trueString);
-    return true;
-}
-
-bool Format::equals(const Format &f) const
-{
-    return m_foreground ==  f.m_foreground && m_background == f.m_background &&
-           m_bold == f.m_bold && m_italic == f.m_italic;
-}
-
 // -- FontSettings
 FontSettings::FontSettings() :
     m_family(defaultFixedFontFamily()),
@@ -148,16 +71,13 @@ void FontSettings::clear()
     m_family = defaultFixedFontFamily();
     m_fontSize = DEFAULT_FONT_SIZE;
     m_antialias = DEFAULT_ANTIALIAS;
-    m_formats.clear();
-    //qFill(m_formats.begin(), m_formats.end(), Format());
+    m_scheme.clear();
 }
 
 void FontSettings::toSettings(const QString &category,
                               const FormatDescriptions &descriptions,
                               QSettings *s) const
 {
-    const int numFormats = m_formats.size();
-    QTC_ASSERT(descriptions.size() == numFormats, /**/);
     s->beginGroup(category);
     if (m_family != defaultFixedFontFamily() || s->contains(QLatin1String(fontFamilyKey)))
         s->setValue(QLatin1String(fontFamilyKey), m_family);
@@ -171,9 +91,11 @@ void FontSettings::toSettings(const QString &category,
     const Format defaultFormat;
 
     foreach (const FormatDescription &desc, descriptions) {
-        QMap<QString, Format>::const_iterator i = m_formats.find(desc.name());
-        if (i != m_formats.end() && ((*i) != defaultFormat || s->contains(desc.name()))) {
-            s->setValue(desc.name(), (*i).toString());
+        const QString name = desc.name();
+        if (m_scheme.contains(name)) {
+            const Format &f = m_scheme.formatFor(name);
+            if (f != defaultFormat || s->contains(name))
+                s->setValue(name, f.toString());
         }
     }
     s->endGroup();
@@ -198,14 +120,16 @@ bool FontSettings::fromSettings(const QString &category,
     foreach (const FormatDescription &desc, descriptions) {
         const QString name = desc.name();
         const QString fmt = s->value(group + name, QString()).toString();
+        Format format;
         if (fmt.isEmpty()) {
-            m_formats[name].setForeground(desc.foreground());
-            m_formats[name].setBackground(desc.background());
-            m_formats[name].setBold(desc.format().bold());
-            m_formats[name].setItalic(desc.format().italic());
+            format.setForeground(desc.foreground());
+            format.setBackground(desc.background());
+            format.setBold(desc.format().bold());
+            format.setItalic(desc.format().italic());
         } else {
-            m_formats[name].fromString(fmt);
+            format.fromString(fmt);
         }
+        m_scheme.setFormatFor(name, format);
     }
     return true;
 }
@@ -215,14 +139,17 @@ bool FontSettings::equals(const FontSettings &f) const
     return m_family == f.m_family
             && m_fontSize == f.m_fontSize
             && m_antialias == f.m_antialias
-            && m_formats == f.m_formats;
+            && m_scheme == f.m_scheme;
 }
 
 QTextCharFormat FontSettings::toTextCharFormat(const QString &category) const
 {
-    const Format f = m_formats.value(category);
+    const Format &f = m_scheme.formatFor(category);
+    const QLatin1String textCategory("Text");
+
     QTextCharFormat tf;
-    if (category == QLatin1String("Text")) {
+
+    if (category == textCategory) {
         tf.setFontFamily(m_family);
         tf.setFontPointSize(m_fontSize);
         tf.setFontStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
@@ -230,7 +157,7 @@ QTextCharFormat FontSettings::toTextCharFormat(const QString &category) const
 
     if (f.foreground().isValid())
         tf.setForeground(f.foreground());
-    if (f.background().isValid() && (category == QLatin1String("Text") || f.background() != m_formats.value(QLatin1String("Text")).background()))
+    if (f.background().isValid() && (category == textCategory || f.background() != m_scheme.formatFor(textCategory).background()))
         tf.setBackground(f.background());
     tf.setFontWeight(f.bold() ? QFont::Bold : QFont::Normal);
     tf.setFontItalic(f.italic());
@@ -280,7 +207,7 @@ void FontSettings::setAntialias(bool antialias)
 
 Format &FontSettings::formatFor(const QString &category)
 {
-    return m_formats[category];
+    return m_scheme.formatFor(category);
 }
 
 QString FontSettings::defaultFixedFontFamily()

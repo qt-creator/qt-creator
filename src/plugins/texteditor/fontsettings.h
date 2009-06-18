@@ -32,6 +32,8 @@
 
 #include "texteditor_global.h"
 
+#include "colorscheme.h"
+
 #include <QtCore/QString>
 #include <QtCore/QList>
 #include <QtCore/QMap>
@@ -46,39 +48,6 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class FormatDescription;
-
-// Format for a particular piece of text (text/comment, etc).
-class TEXTEDITOR_EXPORT Format
-{
-public:
-    Format();
-
-    QColor foreground() const { return m_foreground; }
-    void setForeground(const QColor &foreground);
-
-    QColor background() const { return m_background; }
-    void setBackground(const QColor &background);
-
-    bool bold() const { return m_bold; }
-    void setBold(bool bold);
-
-    bool italic() const { return m_italic; }
-    void setItalic(bool italic);
-
-    bool equals(const Format &f) const;
-
-    QString toString() const;
-    bool fromString(const QString &str);
-
-private:
-    QColor m_foreground;
-    QColor m_background;
-    bool m_bold;
-    bool m_italic;
-};
-
-inline bool operator==(const Format &f1, const Format &f2) { return f1.equals(f2); }
-inline bool operator!=(const Format &f1, const Format &f2) { return !f1.equals(f2); }
 
 /**
  * Font settings (default font and enumerated list of formats).
@@ -143,7 +112,7 @@ private:
     QString m_family;
     int m_fontSize;
     bool m_antialias;
-    QMap<QString, Format> m_formats;
+    ColorScheme m_scheme;
 };
 
 inline bool operator==(const FontSettings &f1, const FontSettings &f2) { return f1.equals(f2); }

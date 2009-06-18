@@ -59,8 +59,12 @@ public:
     FormatDescription(const QString &name, const QString &trName,
                       const QColor &foreground = Qt::black);
 
-    QString name() const;
-    QString trName() const;
+    QString name() const
+    { return m_name; }
+
+    QString trName() const
+    { return m_trName; }
+
     QColor foreground() const;
     QColor background() const;
 
