@@ -3158,7 +3158,8 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
         if (LA() == T_LPAREN) {
             unsigned lparen_token = consumeToken();
             if (parseTypeId(ast->expression) && LA() == T_RPAREN) {
-                consumeToken();
+                ast->lparen_token = lparen_token;
+                ast->rparen_token = consumeToken();
                 node = ast;
                 return true;
             } else {
