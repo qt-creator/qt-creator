@@ -879,6 +879,8 @@ void WatchHandler::watchExpression(const QString &exp)
     WatchData data;
     data.exp = exp;
     data.name = exp;
+    if (exp == watcherEditPlaceHolder())
+        data.setAllUnneeded();
     data.iname = watcherName(exp);
     insertData(data);
     saveWatchers();
@@ -1063,5 +1065,10 @@ WatchData *WatchHandler::findItem(const QString &iname) const
     return model->findItem(iname, model->m_root);
 }
 
+QString WatchHandler::watcherEditPlaceHolder()
+{
+    static const QString rc = tr("<Edit>");
+    return rc;
+}
 } // namespace Internal
 } // namespace Debugger

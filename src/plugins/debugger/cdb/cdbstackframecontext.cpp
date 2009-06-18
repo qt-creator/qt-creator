@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "cdbstackframecontext.h"
+#include "cdbdebugengine_p.h"
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdumperhelper.h"
 #include "debuggeractions.h"
@@ -131,7 +132,7 @@ bool CdbStackFrameContext::assignValue(const QString &iname, const QString &valu
 
 bool CdbStackFrameContext::populateModelInitially(WatchHandler *wh, QString *errorMessage)
 {
-    if (debug)
+    if (debugCDBWatchHandling)
         qDebug() << "populateModelInitially";
     const bool rc = m_useDumpers ?
         CdbSymbolGroupContext::populateModelInitially(m_symbolContext,
@@ -149,8 +150,8 @@ bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
                                         WatchHandler *wh,
                                         QString *errorMessage)
 {
-    if (debug)
-        qDebug() << ">completeData " << incompleteLocal.iname;
+    if (debugCDBWatchHandling)
+        qDebug() << ">completeData " << incompleteLocal.iname << " src=" << incompleteLocal.source;
 
     if (!m_useDumpers) {
         return CdbSymbolGroupContext::completeData(m_symbolContext, incompleteLocal,

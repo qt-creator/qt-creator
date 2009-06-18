@@ -37,6 +37,7 @@ HEADERS += \
     $$PWD/cdbdebugeventcallback.h \
     $$PWD/cdbdebugoutput.h \
     $$PWD/cdbsymbolgroupcontext.h \
+    $$PWD/cdbsymbolgroupcontext_tpl.h \
     $$PWD/cdbstacktracecontext.h \
     $$PWD/cdbstackframecontext.h \
     $$PWD/cdbbreakpoint.h \

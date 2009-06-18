@@ -650,23 +650,6 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
     return true;
 }
 
-// check for a breakpoint at 'main()'
-static inline bool hasBreakPointAtMain(const BreakHandler *bp)
-{
-    if (const int count = bp->size()) {
-        // check all variations, resolved or not
-        const QString main = QLatin1String("main");
-        const QString qMain = QLatin1String("qMain");
-        const QString moduleMainPattern = QLatin1String("!main");
-        for (int i = 0; i < count ; i++) {
-            const QString &function = bp->at(i)->funcName;
-            if (function == main || function == qMain || function.endsWith(moduleMainPattern))
-                return true;
-        }
-    }
-    return false;
-}
-
 void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG64 initialThreadHandle)
 {
     setDebuggeeHandles(reinterpret_cast<HANDLE>(processHandle), reinterpret_cast<HANDLE>(initialThreadHandle));
@@ -794,40 +777,9 @@ CdbStackFrameContext *CdbDebugEnginePrivate::getStackFrameContext(int frameIndex
     return 0;
 }
 
-static inline QString formatWatchList(const WatchList &wl)
-{
-    const int count = wl.size();
-    QString rc;
-    for (int i = 0; i < count; i++) {
-        if (i)
-            rc += QLatin1String(", ");
-        rc += wl.at(i).iname;
-        rc += QLatin1String(" (");
-        rc += wl.at(i).exp;
-        rc += QLatin1Char(')');
-    }
-    return rc;
-}
-
-bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
-                                         WatchHandler *wh,
-                                         QString *errorMessage)
-{
-    wh->beginCycle();
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO << "\n    " << frameIndex;
-
-    bool success = false;
-    if (CdbStackFrameContext *sgc = getStackFrameContext(frameIndex, errorMessage))
-        success = sgc->populateModelInitially(wh, errorMessage);
-
-    wh->endCycle();
-    return success;
-}
-
 void CdbDebugEngine::evaluateWatcher(WatchData *wd)
 {
-    if (debugCDB > 1)
+    if (debugCDBWatchHandling)
         qDebug() << Q_FUNC_INFO << wd->exp;
     QString errorMessage;
     QString value;
@@ -844,12 +796,12 @@ void CdbDebugEngine::evaluateWatcher(WatchData *wd)
 
 void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
 {
-    // Stack trace exists and evaluation funcs can only be called
-    // when running
-    if (m_d->isDebuggeeRunning()) {
-        qWarning("updateWatchModel() called while debuggee is running.");
-        return;    
-    }
+    // Watch item was edited while running
+    if (m_d->isDebuggeeRunning())
+        return;
+
+    if (debugCDBWatchHandling)
+        qDebug() << Q_FUNC_INFO << "\n    " << incomplete.toString();
 
     WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
     if (incomplete.iname.startsWith(QLatin1String("watch."))) {
@@ -860,9 +812,6 @@ void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
     }
 
     const int frameIndex = m_d->m_debuggerManagerAccess->stackHandler()->currentIndex();
-
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO << "\n    fi=" << frameIndex << incomplete.iname;
 
     bool success = false;
     QString errorMessage;
@@ -1199,12 +1148,14 @@ void CdbDebugEngine::activateFrame(int frameIndex)
             break;
         }
 
-        if (oldIndex != frameIndex || m_d->m_firstActivatedFrame)
-            if (!m_d->updateLocals(frameIndex, watchHandler, &errorMessage))
-                break;
-
         m_d->m_debuggerManager->gotoLocation(frame.file, frame.line, true);
-        success =true;
+
+        if (oldIndex != frameIndex || m_d->m_firstActivatedFrame) {
+            watchHandler->beginCycle();
+            if (CdbStackFrameContext *sgc = m_d->getStackFrameContext(frameIndex, &errorMessage))
+                success = sgc->populateModelInitially(watchHandler, &errorMessage);
+            watchHandler->endCycle();
+        }
     } while (false);
     if (!success)
         warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
@@ -1545,6 +1496,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
         m_debuggerManagerAccess->stackHandler()->setCurrentIndex(current);
         m_engine->activateFrame(current);
     }
+    m_debuggerManagerAccess->watchHandler()->updateWatchers();
 }
 
 void CdbDebugEnginePrivate::updateModules()

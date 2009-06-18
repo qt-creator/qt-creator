@@ -210,6 +210,8 @@ public:
     QSet<QString> expandedINames() const
         { return m_expandedINames; }
 
+    static QString watcherEditPlaceHolder();
+
 signals:
     void watchDataUpdateNeeded(const WatchData &data);
     void sessionValueRequested(const QString &name, QVariant *value);

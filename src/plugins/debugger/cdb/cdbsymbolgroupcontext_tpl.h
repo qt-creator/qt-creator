@@ -202,7 +202,9 @@ bool CdbSymbolGroupContext::completeData(CdbSymbolGroupContext *sg,
     const bool contextExpanded = sg->isExpanded(incompleteLocal.iname);
     if (debugSgRecursion)
         qDebug() << "  " << incompleteLocal.iname << "CE=" << contextExpanded;
-    if (contextExpanded) { // TODO: Legacy, should not be required any more
+    // The view reinserts any node being expanded with flag 'ChildrenNeeded'.
+    // Recurse down one level in context unless this is already the case.
+    if (contextExpanded) {
         incompleteLocal.setChildrenUnneeded();
         *it = incompleteLocal;
         ++it;

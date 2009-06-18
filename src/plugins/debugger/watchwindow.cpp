@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "watchwindow.h"
+#include "watchhandler.h"
 
 #include "debuggeractions.h"
 
@@ -54,8 +55,6 @@ using namespace Debugger::Internal;
 //
 /////////////////////////////////////////////////////////////////////
 
-enum { INameRole = Qt::UserRole, ExpressionRole, ExpandedRole };
-
 class WatchDelegate : public QItemDelegate
 {
 public:
@@ -64,7 +63,6 @@ public:
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
         const QModelIndex &) const
     {
-        qDebug() << "CREATE EDITOR";
         return new QLineEdit(parent);
     }
 
@@ -236,7 +234,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == act2)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == act3)
-        theDebuggerAction(WatchExpression)->trigger(tr("<Edit>"));
+        theDebuggerAction(WatchExpression)->trigger(WatchHandler::watcherEditPlaceHolder());
 }
 
 void WatchWindow::resizeColumnsToContents()

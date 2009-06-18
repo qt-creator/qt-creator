@@ -117,7 +117,6 @@ struct CdbDebugEnginePrivate
     void handleDebugEvent();
     void updateThreadList();    
     void updateStackTrace();
-    bool updateLocals(int frameIndex, WatchHandler *wh, QString *errorMessage);
     void updateModules();
 
     void handleBreakpointEvent(PDEBUG_BREAKPOINT2 pBP);
@@ -182,6 +181,7 @@ QString msgDebugEngineComResult(HRESULT hr);
 QString msgComFailed(const char *func, HRESULT hr);
 
 enum { debugCDB = 0 };
+enum { debugCDBWatchHandling = 0 };
 
 } // namespace Internal
 } // namespace Debugger
