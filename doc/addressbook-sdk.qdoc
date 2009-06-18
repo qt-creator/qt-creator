@@ -93,6 +93,12 @@
     recommend checking out the \l{mainwindows/application}{Application}
     example, which presents a small GUI application, with menus, toolbars, a
     status bar, and so on.
+
+    \table
+        \o  \bold{Disclaimer}: Development of this tutorial is on-going.
+            Currently, we have three parts complete. The remaining four parts
+            will be available in the coming release.
+    \endtable
 */
 
 
@@ -546,6 +552,7 @@
 */
 
 /*!
+\omit
     \page tutorials-addressbook-sdk-part4.html
     \previouspage Address Book 3 - Navigating between Entries
     \contentspage {Address Book Tutorial}{Contents}
@@ -704,9 +711,7 @@
     \snippet examples/addressbook-sdk/part4/addressbook.cpp addContact
     \dots
     \snippet examples/addressbook-sdk/part4/addressbook.cpp cancel
-*/
 
-/*!
     \page tutorials-addressbook-sdk-part5.html
     \previouspage Address Book 4 - Editing and Removing Addresses
     \contentspage {Address Book Tutorial}{Contents}
@@ -745,9 +750,7 @@
     in a horizontal layout. Then set a top level layout - either horizontal or
     vertical.
 
-*/
 
-/*!
     \page tutorials-addressbook-sdk-part6.html
     \previouspage Address Book 5 - Adding a Find Function
     \contentspage {Address Book Tutorial}{Contents}
@@ -755,13 +758,12 @@
     \example examples/addressbook-sdk/part6
     \title Address Book 6 - Loading and Saving
 
-*/
 
-/*!
     \page tutorials-addressbook-sdk-part7.html
     \previouspage Address Book 6 - Loading and Saving
     \contentspage {Address Book Tutorial}{Contents}
     \example examples/addressbook-sdk/part7
     \title Address Book 7 - Additional Features
 
+\endomit
 */
