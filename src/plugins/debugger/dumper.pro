@@ -14,5 +14,13 @@ CONFIG += debug
 QMAKE_CXXFLAGS *= -O2
 }
 
+true {
+    DEFINES += USE_QT_GUI=0
+    QT = core
+} else {
+    DEFINES += USE_QT_GUI=1
+    QT = core gui
+}
+
 SOURCES += ../../../share/qtcreator/gdbmacros/gdbmacros.cpp
 

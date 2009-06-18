@@ -52,7 +52,13 @@
 
 int qtGhVersion = QT_VERSION;
 
-#ifdef QT_GUI_LIB
+#ifndef USE_QT_GUI
+#   ifdef QT_GUI_LIB
+#        define USE_QT_GUI 1
+#   endif
+#endif
+
+#if USE_QT_GUI
 #   include <QtGui/QWidget>
 #   include <QtGui/QPixmap>
 #   include <QtGui/QImage>
@@ -1296,9 +1302,9 @@ static void qDumpQHashNode(QDumper &d)
     d.disarm();
 }
 
+#if USE_QT_GUI
 static void qDumpQImage(QDumper &d)
 {
-#ifdef QT_GUI_LIB
     const QImage &im = *reinterpret_cast<const QImage *>(d.data);
     P(d, "value", "(" << im.width() << "x" << im.height() << ")");
     P(d, "type", NS"QImage");
@@ -1312,14 +1318,12 @@ static void qDumpQImage(QDumper &d)
         d.endHash();
     }
     d.disarm();
-#else
-    Q_UNUSED(d);
-#endif
 }
+#endif
 
+#if USE_QT_GUI
 static void qDumpQImageData(QDumper &d)
 {
-#ifdef QT_GUI_LIB
     const QImage &im = *reinterpret_cast<const QImage *>(d.data);
     const QByteArray ba(QByteArray::fromRawData((const char*)im.bits(), im.numBytes()));
     P(d, "type", NS"QImageData");
@@ -1334,10 +1338,8 @@ static void qDumpQImageData(QDumper &d)
     P(d, "value", ba);
 #endif
     d.disarm();
-#else
-    Q_UNUSED(d);
-#endif
 }
+#endif
 
 static void qDumpQList(QDumper &d)
 {
@@ -2020,18 +2022,16 @@ static void qDumpQObjectSlotList(QDumper &d)
 }
 
 
+#if USE_QT_GUI
 static void qDumpQPixmap(QDumper &d)
 {
-#ifdef QT_GUI_LIB
     const QPixmap &im = *reinterpret_cast<const QPixmap *>(d.data);
     P(d, "value", "(" << im.width() << "x" << im.height() << ")");
     P(d, "type", NS"QPixmap");
     P(d, "numchild", "0");
     d.disarm();
-#else
-    Q_UNUSED(d);
-#endif
 }
+#endif
 
 static void qDumpQSet(QDumper &d)
 {
@@ -2691,10 +2691,12 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpStdList(d);
             break;
         case 'I':
+            #if USE_QT_GUI
             if (isEqual(type, "QImage"))
                 qDumpQImage(d);
             else if (isEqual(type, "QImageData"))
                 qDumpQImageData(d);
+            #endif
             break;
         case 'L':
             if (isEqual(type, "QList"))
@@ -2731,8 +2733,10 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQObjectSlotList(d);
             break;
         case 'P':
+            #if USE_QT_GUI
             if (isEqual(type, "QPixmap"))
                 qDumpQPixmap(d);
+            #endif
             break;
         case 'S':
             if (isEqual(type, "QSet"))
@@ -2854,7 +2858,9 @@ void *qDumpObjectData440(
             "\""NS"QVariant\","
             "\""NS"QVector\","
             "\""NS"QWeakPointer\","
+#if USE_QT_GUI
             "\""NS"QWidget\","
+#endif
 #ifdef Q_OS_WIN            
             "\"basic_string\","
             "\"list\","
@@ -2884,7 +2890,7 @@ void *qDumpObjectData440(
           << ""NS"QString=\"" << sizeof(QString) << "\","
           << ""NS"QStringList=\"" << sizeof(QStringList) << "\","
           << ""NS"QObject=\"" << sizeof(QObject) << "\","
-#ifdef QT_GUI_LIB
+#if USE_QT_GUI
           << ""NS"QWidget=\"" << sizeof(QWidget)<< "\","
 #endif
 #ifdef Q_OS_WIN
