@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "fontsettingspage.h"
+
+#include "editcolorschemedialog.h"
 #include "fontsettings.h"
 #include "texteditorconstants.h"
 #include "ui_fontsettingspage.h"
@@ -38,7 +40,6 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
 #include <QtGui/QCheckBox>
-#include <QtGui/QColorDialog>
 #include <QtGui/QComboBox>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QListWidget>
@@ -47,16 +48,6 @@
 #include <QtGui/QTextCharFormat>
 #include <QtGui/QTextEdit>
 #include <QtGui/QToolButton>
-
-static inline QString colorButtonStyleSheet(const QColor &bgColor)
-{
-    if (bgColor.isValid()) {
-        QString rc = QLatin1String("border: 2px solid black; border-radius: 2px; background:");
-        rc += bgColor.name();
-        return rc;
-    }
-    return QLatin1String("border: 2px dotted black; border-radius: 2px;");
-}
 
 namespace TextEditor {
 namespace Internal {
@@ -78,7 +69,6 @@ public:
     TextEditor::FormatDescriptions m_descriptions;
     FontSettings m_value;
     FontSettings m_lastValue;
-    int m_curItem;
     Ui::FontSettingsPage ui;
 };
 
@@ -90,8 +80,7 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
     m_settingsGroup(Core::Utils::settingsKey(category)),
     m_category(category),
     m_trCategory(trCategory),
-    m_descriptions(fd),
-    m_curItem(-1)
+    m_descriptions(fd)
 {
     bool settingsFound = false;
     if (const QSettings *settings = Core::ICore::instance()->settings())
@@ -231,10 +220,9 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     d_ptr->ui.setupUi(w);
 
-    d_ptr->ui.itemListWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
-    foreach (const FormatDescription &d, d_ptr->m_descriptions)
-        d_ptr->ui.itemListWidget->addItem(d.trName());
+    d_ptr->ui.schemeListWidget->addItem(tr("Default"));
+    d_ptr->ui.schemeListWidget->setCurrentIndex(d_ptr->ui.schemeListWidget->model()->index(0, 0));
+    d_ptr->ui.editButton->setEnabled(true);
 
     QFontDatabase db;
     const QStringList families = db.families();
@@ -245,168 +233,11 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
     d_ptr->ui.antialias->setChecked(d_ptr->m_value.antialias());
 
     connect(d_ptr->ui.familyComboBox, SIGNAL(activated(int)), this, SLOT(updatePointSizes()));
-    connect(d_ptr->ui.sizeComboBox, SIGNAL(activated(int)), this, SLOT(updatePreview()));
-    connect(d_ptr->ui.antialias, SIGNAL(toggled(bool)), this, SLOT(updatePreview()));
-    connect(d_ptr->ui.itemListWidget, SIGNAL(itemSelectionChanged()),
-        this, SLOT(itemChanged()));
-    connect(d_ptr->ui.foregroundToolButton, SIGNAL(clicked()),
-        this, SLOT(changeForeColor()));
-    connect(d_ptr->ui.backgroundToolButton, SIGNAL(clicked()),
-        this, SLOT(changeBackColor()));
-    connect(d_ptr->ui.eraseBackgroundToolButton, SIGNAL(clicked()),
-        this, SLOT(eraseBackColor()));
-    connect(d_ptr->ui.boldCheckBox, SIGNAL(toggled(bool)), this, SLOT(checkCheckBoxes()));
-    connect(d_ptr->ui.italicCheckBox, SIGNAL(toggled(bool)), this, SLOT(checkCheckBoxes()));
-
-    if (!d_ptr->m_descriptions.empty())
-        d_ptr->ui.itemListWidget->setCurrentRow(0);
+    connect(d_ptr->ui.editButton, SIGNAL(clicked()), this, SLOT(editColorScheme()));
 
     updatePointSizes();
     d_ptr->m_lastValue = d_ptr->m_value;
     return w;
-}
-
-void FontSettingsPage::itemChanged()
-{
-    QListWidgetItem *item = d_ptr->ui.itemListWidget->currentItem();
-    if (!item)
-        return;
-
-    const int numFormats = d_ptr->m_descriptions.size();
-    for (int i = 0; i < numFormats; i++) {
-        if (d_ptr->m_descriptions[i].trName() == item->text()) {
-            d_ptr->m_curItem = i;
-            const Format &format = d_ptr->m_value.formatFor(d_ptr->m_descriptions[i].name());
-            d_ptr->ui.foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
-            d_ptr->ui.backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
-
-            d_ptr->ui.eraseBackgroundToolButton->setEnabled(i > 0 && format.background().isValid());
-
-            const bool boldBlocked = d_ptr->ui.boldCheckBox->blockSignals(true);
-            d_ptr->ui.boldCheckBox->setChecked(format.bold());
-            d_ptr->ui.boldCheckBox->blockSignals(boldBlocked);
-            const bool italicBlocked = d_ptr->ui.italicCheckBox->blockSignals(true);
-            d_ptr->ui.italicCheckBox->setChecked(format.italic());
-            d_ptr->ui.italicCheckBox->blockSignals(italicBlocked);
-            updatePreview();
-            break;
-        }
-    }
-}
-
-void FontSettingsPage::changeForeColor()
-{
-    if (d_ptr->m_curItem == -1)
-        return;
-    QColor color = d_ptr->m_value.formatFor(d_ptr->m_descriptions[d_ptr->m_curItem].name()).foreground();
-    const QColor newColor = QColorDialog::getColor(color, d_ptr->ui.boldCheckBox->window());
-    if (!newColor.isValid())
-        return;
-    QPalette p = d_ptr->ui.foregroundToolButton->palette();
-    p.setColor(QPalette::Active, QPalette::Button, newColor);
-    d_ptr->ui.foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
-
-    const int numFormats = d_ptr->m_descriptions.size();
-    for (int i = 0; i < numFormats; i++) {
-        QList<QListWidgetItem*> items = d_ptr->ui.itemListWidget->findItems(d_ptr->m_descriptions[i].trName(), Qt::MatchExactly);
-        if (!items.isEmpty() && items.first()->isSelected())
-            d_ptr->m_value.formatFor(d_ptr->m_descriptions[i].name()).setForeground(newColor);
-    }
-
-    updatePreview();
-}
-
-void FontSettingsPage::changeBackColor()
-{
-    if (d_ptr->m_curItem == -1)
-        return;
-    QColor color = d_ptr->m_value.formatFor(d_ptr->m_descriptions[d_ptr->m_curItem].name()).background();
-    const QColor newColor = QColorDialog::getColor(color, d_ptr->ui.boldCheckBox->window());
-    if (!newColor.isValid())
-        return;
-    d_ptr->ui.backgroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
-    d_ptr->ui.eraseBackgroundToolButton->setEnabled(true);
-
-    const int numFormats = d_ptr->m_descriptions.size();
-    for (int i = 0; i < numFormats; i++) {
-        QList<QListWidgetItem*> items = d_ptr->ui.itemListWidget->findItems(d_ptr->m_descriptions[i].trName(), Qt::MatchExactly);
-        if (!items.isEmpty() && items.first()->isSelected())
-            d_ptr->m_value.formatFor(d_ptr->m_descriptions[i].name()).setBackground(newColor);
-    }
-
-    updatePreview();
-}
-
-void FontSettingsPage::eraseBackColor()
-{
-    if (d_ptr->m_curItem == -1)
-        return;
-    QColor newColor;
-    d_ptr->ui.backgroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
-
-    const int numFormats = d_ptr->m_descriptions.size();
-    for (int i = 0; i < numFormats; i++) {
-        QList<QListWidgetItem*> items = d_ptr->ui.itemListWidget->findItems(d_ptr->m_descriptions[i].trName(), Qt::MatchExactly);
-        if (!items.isEmpty() && items.first()->isSelected())
-            d_ptr->m_value.formatFor(d_ptr->m_descriptions[i].name()).setBackground(newColor);
-    }
-    d_ptr->ui.eraseBackgroundToolButton->setEnabled(false);
-
-    updatePreview();
-}
-
-void FontSettingsPage::checkCheckBoxes()
-{
-    if (d_ptr->m_curItem == -1)
-        return;
-    const int numFormats = d_ptr->m_descriptions.size();
-    for (int i = 0; i < numFormats; i++) {
-        QList<QListWidgetItem*> items = d_ptr->ui.itemListWidget->findItems(d_ptr->m_descriptions[i].trName(), Qt::MatchExactly);
-        if (!items.isEmpty() && items.first()->isSelected()) {
-            d_ptr->m_value.formatFor(d_ptr->m_descriptions[i].name()).setBold(d_ptr->ui.boldCheckBox->isChecked());
-            d_ptr->m_value.formatFor(d_ptr->m_descriptions[i].name()).setItalic(d_ptr->ui.italicCheckBox->isChecked());
-        }
-    }
-    updatePreview();
-}
-
-void FontSettingsPage::updatePreview()
-{
-    if (d_ptr->m_curItem == -1)
-        return;
-
-    const Format &currentFormat = d_ptr->m_value.formatFor(d_ptr->m_descriptions[d_ptr->m_curItem].name());
-    const Format &baseFormat = d_ptr->m_value.formatFor(QLatin1String("Text"));
-
-    QPalette pal = QApplication::palette();
-    if (baseFormat.foreground().isValid()) {
-        pal.setColor(QPalette::Text, baseFormat.foreground());
-        pal.setColor(QPalette::Foreground, baseFormat.foreground());
-    }
-    if (baseFormat.background().isValid())
-        pal.setColor(QPalette::Base, baseFormat.background());
-
-    d_ptr->ui.previewTextEdit->setPalette(pal);
-
-    QTextCharFormat format;
-    if (currentFormat.foreground().isValid())
-        format.setForeground(QBrush(currentFormat.foreground()));
-    if (currentFormat.background().isValid())
-        format.setBackground(QBrush(currentFormat.background()));
-    format.setFontFamily(d_ptr->ui.familyComboBox->currentText());
-    format.setFontStyleStrategy(d_ptr->ui.antialias->isChecked() ? QFont::PreferAntialias : QFont::NoAntialias);
-    bool ok;
-    int size = d_ptr->ui.sizeComboBox->currentText().toInt(&ok);
-    if (!ok) {
-        size = QFont().pointSize();
-    }
-    format.setFontPointSize(size);
-    format.setFontItalic(currentFormat.italic());
-    if (currentFormat.bold())
-        format.setFontWeight(QFont::Bold);
-    d_ptr->ui.previewTextEdit->setCurrentCharFormat(format);
-
-    d_ptr->ui.previewTextEdit->setPlainText(tr("\n\tThis is only an example."));
 }
 
 void FontSettingsPage::updatePointSizes()
@@ -424,14 +255,32 @@ void FontSettingsPage::updatePointSizes()
     const QList<int> sizeLst = db.pointSizes(d_ptr->ui.familyComboBox->currentText());
     int idx = 0;
     int i = 0;
-    for (; i<sizeLst.count(); ++i) {
+    for (; i < sizeLst.count(); ++i) {
         if (idx == 0 && sizeLst.at(i) >= oldSize)
             idx = i;
         d_ptr->ui.sizeComboBox->addItem(QString::number(sizeLst.at(i)));
     }
     if (d_ptr->ui.sizeComboBox->count())
         d_ptr->ui.sizeComboBox->setCurrentIndex(idx);
-    updatePreview();
+}
+
+void FontSettingsPage::editColorScheme()
+{
+    d_ptr->m_value.setFamily(d_ptr->ui.familyComboBox->currentText());
+    d_ptr->m_value.setAntialias(d_ptr->ui.antialias->isChecked());
+
+    bool ok = true;
+    const int size = d_ptr->ui.sizeComboBox->currentText().toInt(&ok);
+    if (ok)
+        d_ptr->m_value.setFontSize(size);
+
+    EditColorSchemeDialog dialog(d_ptr->m_descriptions,
+                                 d_ptr->m_value,
+                                 d_ptr->m_value.colorScheme(),
+                                 d_ptr->ui.editButton->window());
+
+    if (dialog.exec() == QDialog::Accepted)
+        d_ptr->m_value.setColorScheme(dialog.colorScheme());
 }
 
 void FontSettingsPage::delayedChange()

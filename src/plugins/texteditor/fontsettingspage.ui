@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>572</width>
-    <height>471</height>
+    <width>391</width>
+    <height>344</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Font</string>
      </property>
-     <layout class="QHBoxLayout">
-      <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
        <widget class="QLabel" name="label_5">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -30,7 +30,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="0" column="1">
        <widget class="QComboBox" name="familyComboBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -40,7 +40,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="0" column="2">
        <spacer>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -56,7 +56,7 @@
         </property>
        </spacer>
       </item>
-      <item>
+      <item row="0" column="3">
        <widget class="QLabel" name="label_6">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -69,7 +69,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="0" column="4">
        <widget class="QComboBox" name="sizeComboBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -79,14 +79,7 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QCheckBox" name="antialias">
-        <property name="text">
-         <string>Antialias</string>
-        </property>
-       </widget>
-      </item>
-      <item>
+      <item row="0" column="5">
        <spacer>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -99,146 +92,69 @@
         </property>
        </spacer>
       </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="antialias">
+        <property name="text">
+         <string>Antialias</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_2">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
      <property name="title">
       <string>Color Scheme</string>
      </property>
-     <layout class="QHBoxLayout">
-      <item>
-       <widget class="QListWidget" name="itemListWidget">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="1">
+       <widget class="QPushButton" name="importButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Import</string>
         </property>
        </widget>
       </item>
-      <item>
-       <layout class="QGridLayout">
-        <item row="2" column="0">
-         <widget class="QCheckBox" name="boldCheckBox">
-          <property name="text">
-           <string>Bold</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QCheckBox" name="italicCheckBox">
-          <property name="text">
-           <string>Italic</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QToolButton" name="foregroundToolButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Background:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Foreground:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <spacer>
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="1" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QToolButton" name="backgroundToolButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="eraseBackgroundToolButton">
-            <property name="toolTip">
-             <string>Erase background</string>
-            </property>
-            <property name="text">
-             <string>x</string>
-            </property>
-            <property name="arrowType">
-             <enum>Qt::LeftArrow</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="exportButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Export</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QPushButton" name="editButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Edit</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>87</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="0" rowspan="4">
+       <widget class="QListWidget" name="schemeListWidget"/>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Preview:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QTextEdit" name="previewTextEdit">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
     </widget>
    </item>
   </layout>

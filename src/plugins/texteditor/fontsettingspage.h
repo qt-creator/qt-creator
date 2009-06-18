@@ -109,13 +109,8 @@ signals:
 
 private slots:
     void delayedChange();
-    void itemChanged();
-    void changeForeColor();
-    void changeBackColor();
-    void eraseBackColor();
-    void checkCheckBoxes();
     void updatePointSizes();
-    void updatePreview();
+    void editColorScheme();
 
 private:
     Internal::FontSettingsPagePrivate *d_ptr;

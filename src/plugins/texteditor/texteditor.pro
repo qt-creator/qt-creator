@@ -27,7 +27,8 @@ SOURCES += texteditorplugin.cpp \
     texteditorsettings.cpp \
     codecselector.cpp \
     findincurrentfile.cpp \
-    colorscheme.cpp
+    colorscheme.cpp \
+    editcolorschemedialog.cpp
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
     plaintexteditor.h \
@@ -58,9 +59,11 @@ HEADERS += texteditorplugin.h \
     texteditorsettings.h \
     codecselector.h \
     findincurrentfile.h \
-    colorscheme.h
+    colorscheme.h \
+    editcolorschemedialog.h
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \
-    fontsettingspage.ui
+    fontsettingspage.ui \
+    editcolorschemedialog.ui
 RESOURCES += texteditor.qrc
 OTHER_FILES += TextEditor.pluginspec

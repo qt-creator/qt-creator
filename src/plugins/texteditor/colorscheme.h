@@ -81,6 +81,9 @@ class ColorScheme
 public:
     ColorScheme();
 
+    inline bool isEmpty() const
+    { return m_formats.isEmpty(); }
+
     bool contains(const QString &category) const;
 
     Format &formatFor(const QString &category);

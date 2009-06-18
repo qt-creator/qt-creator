@@ -59,7 +59,7 @@ public:
 
     FontSettings();
     void clear();
-    inline bool isEmpty() const { return m_formats.isEmpty(); }
+    inline bool isEmpty() const { return m_scheme.isEmpty(); }
 
     void toSettings(const QString &category,
                     const FormatDescriptions &descriptions,
@@ -102,6 +102,12 @@ public:
      * Returns the format for the given font category.
      */
     Format &formatFor(const QString &category);
+
+    ColorScheme colorScheme() const
+    { return m_scheme; }
+
+    void setColorScheme(const ColorScheme &scheme)
+    { m_scheme = scheme; }
 
     bool equals(const FontSettings &f) const;
 
