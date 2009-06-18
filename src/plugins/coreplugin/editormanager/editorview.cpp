@@ -50,6 +50,9 @@
 #include <QtGui/QStyleOption>
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
+#include <QtGui/QMenu>
+#include <QtGui/QClipboard>
+
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
 #endif
@@ -341,6 +344,7 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
         m_editorList->setMinimumContentsLength(20);
         m_editorList->setModel(m_model);
         m_editorList->setMaxVisibleItems(40);
+        m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
 
         QToolBar *editorListToolBar = new QToolBar;
 
@@ -383,6 +387,7 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
         tl->addWidget(top);
 
         connect(m_editorList, SIGNAL(activated(int)), this, SLOT(listSelectionActivated(int)));
+        connect(m_editorList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(listContextMenu(QPoint)));
         connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
         connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()), Qt::QueuedConnection);
     }
@@ -659,7 +664,18 @@ void EditorView::listSelectionActivated(int index)
     }
 }
 
-
+void EditorView::listContextMenu(QPoint pos)
+{
+    QModelIndex index = m_model->index(m_editorList->currentIndex(), 0);
+    QString fileName = m_model->data(index, Qt::UserRole + 1).toString();
+    if (fileName.isEmpty())
+        return;
+    QMenu menu;
+    menu.addAction(tr("Copy full path to clipboard"));
+    if (menu.exec(m_editorList->mapToGlobal(pos))) {
+        QApplication::clipboard()->setText(fileName);
+    }
+}
 
 SplitterOrView::SplitterOrView(Internal::EditorModel *model)
 {

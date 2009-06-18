@@ -149,6 +149,7 @@ private slots:
     void checkEditorStatus();
     void makeEditorWritable();
     void listSelectionActivated(int index);
+    void listContextMenu(QPoint);
 
 private:
     void updateToolBar(IEditor *editor);
