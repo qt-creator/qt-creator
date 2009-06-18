@@ -40,16 +40,24 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 AllProjectsFilter::AllProjectsFilter(ProjectExplorerPlugin *pe)
+    : m_projectExplorer(pe), m_filesUpToDate(false)
 {
-    m_projectExplorer = pe;
     connect(m_projectExplorer, SIGNAL(fileListChanged()),
-            this, SLOT(refreshInternally()));
+            this, SLOT(markFilesAsOutOfDate()));
     setShortcutString("a");
     setIncludedByDefault(true);
 }
 
-void AllProjectsFilter::refreshInternally()
+void AllProjectsFilter::markFilesAsOutOfDate()
 {
+    m_filesUpToDate = false;
+}
+
+void AllProjectsFilter::updateFiles()
+{
+    if (m_filesUpToDate)
+        return;
+    m_filesUpToDate = true;
     m_files.clear();
     SessionManager *session = m_projectExplorer->session();
     if (!session)
@@ -64,7 +72,7 @@ void AllProjectsFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future);
     // invokeAsyncronouslyOnGuiThread
-    connect(this, SIGNAL(invokeRefresh()), this, SLOT(refreshInternally()));
+    connect(this, SIGNAL(invokeRefresh()), this, SLOT(markFilesAsOutOfDate()));
     emit invokeRefresh();
-    disconnect(this, SIGNAL(invokeRefresh()), this, SLOT(refreshInternally()));
+    disconnect(this, SIGNAL(invokeRefresh()), this, SLOT(markFilesAsOutOfDate()));
 }

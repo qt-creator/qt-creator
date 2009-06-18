@@ -53,12 +53,16 @@ public:
     QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Low; }
     void refresh(QFutureInterface<void> &future);
 
+protected:
+    void updateFiles();
+
 private slots:
-    void refreshInternally();
+    void markFilesAsOutOfDate();
 signals:
     void invokeRefresh();
 private:
     ProjectExplorerPlugin *m_projectExplorer;
+    bool m_filesUpToDate;
 };
 
 } // namespace Internal
