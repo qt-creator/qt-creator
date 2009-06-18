@@ -282,6 +282,15 @@ S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runCon
             this, SLOT(signsisProcessFailed()));
     connect(m_signsis, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(signsisProcessFinished()));
+    m_install = new QProcess(this);
+    connect(m_install, SIGNAL(readyReadStandardError()),
+            this, SLOT(readStandardError()));
+    connect(m_install, SIGNAL(readyReadStandardOutput()),
+            this, SLOT(readStandardOutput()));
+    connect(m_install, SIGNAL(error(QProcess::ProcessError)),
+            this, SLOT(installProcessFailed()));
+    connect(m_install, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(installProcessFinished()));
 }
 
 void S60DeviceRunControl::start()
@@ -308,7 +317,7 @@ void S60DeviceRunControl::start()
     QString makesisTool = m_toolsDirectory + "/makesis.exe";
     QString packageFile = QFileInfo(m_baseFileName + ".pkg").fileName();
     m_makesis->setWorkingDirectory(m_workingDirectory);
-    emit addToOutputWindow(this, QString::fromLatin1("%1 %2").arg(makesisTool, packageFile));
+    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(makesisTool), packageFile));
     m_makesis->start(makesisTool, QStringList()
         << packageFile,
         QIODevice::ReadOnly);
@@ -345,13 +354,20 @@ void S60DeviceRunControl::makesisProcessFailed()
 
 void S60DeviceRunControl::makesisProcessFinished()
 {
+    if (m_makesis->exitStatus() != 0) {
+        error(this, tr("An error occurred while creating the package."));
+        emit finished();
+        return;
+    }
     QString signsisTool = m_toolsDirectory + "/signsis.exe";
     QString sisFile = QFileInfo(m_baseFileName + ".sis").fileName();
     QString sisxFile = QFileInfo(m_baseFileName + ".sisx").fileName();
     QStringList arguments;
-    arguments << sisFile << sisxFile << (m_qtDir + "/selfsigned.cer") << (m_qtDir + "/selfsigned.key");
+    arguments << sisFile
+            << sisxFile << QDir::toNativeSeparators(m_qtDir + "/selfsigned.cer")
+            << QDir::toNativeSeparators(m_qtDir + "/selfsigned.key");
     m_signsis->setWorkingDirectory(m_workingDirectory);
-    emit addToOutputWindow(this, QString::fromLatin1("%1 %2").arg(signsisTool, arguments.join(tr(" "))));
+    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(signsisTool), arguments.join(tr(" "))));
     m_signsis->start(signsisTool, arguments, QIODevice::ReadOnly);
 }
 
@@ -361,6 +377,26 @@ void S60DeviceRunControl::signsisProcessFailed()
 }
 
 void S60DeviceRunControl::signsisProcessFinished()
+{
+    if (m_signsis->exitStatus() != 0) {
+        error(this, tr("An error occurred while creating the package."));
+        emit finished();
+        return;
+    }
+    QString applicationInstaller = "cmd.exe";
+    QStringList arguments;
+    arguments << "/C" << QDir::toNativeSeparators(m_baseFileName + ".sisx");
+    m_install->setWorkingDirectory(m_workingDirectory);
+    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(applicationInstaller), arguments.join(tr(" "))));
+    m_install->start(applicationInstaller, arguments, QIODevice::ReadOnly);
+}
+
+void S60DeviceRunControl::installProcessFailed()
+{
+    processFailed("ApplicationInstaller", m_install->error());
+}
+
+void S60DeviceRunControl::installProcessFinished()
 {
     emit addToOutputWindow(this, tr("Finished."));
     emit finished();

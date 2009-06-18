@@ -98,6 +98,8 @@ private slots:
     void makesisProcessFinished();
     void signsisProcessFailed();
     void signsisProcessFinished();
+    void installProcessFailed();
+    void installProcessFinished();
 
 private:
     void processFailed(const QString &program, QProcess::ProcessError errorCode);
