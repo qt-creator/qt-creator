@@ -458,14 +458,17 @@ void FontSettingsPage::apply()
     const int size = d_ptr->ui.sizeComboBox->currentText().toInt(&ok);
     if (ok)
         d_ptr->m_value.setFontSize(size);
+    saveSettings();
+}
 
-
+void FontSettingsPage::saveSettings()
+{
     if (d_ptr->m_value != d_ptr->m_lastValue) {
-        d_ptr->m_lastValue = d_ptr->m_value;
-        if (QSettings *settings = Core::ICore::instance()->settings())
-            d_ptr->m_value.toSettings(d_ptr->m_settingsGroup, d_ptr->m_descriptions, settings);
+	d_ptr->m_lastValue = d_ptr->m_value;
+	if (QSettings *settings = Core::ICore::instance()->settings())
+	    d_ptr->m_value.toSettings(d_ptr->m_settingsGroup, d_ptr->m_descriptions, settings);
 
-        QTimer::singleShot(0, this, SLOT(delayedChange()));
+	QTimer::singleShot(0, this, SLOT(delayedChange()));
     }
 }
 
