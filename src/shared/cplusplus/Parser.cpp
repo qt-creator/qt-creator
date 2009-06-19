@@ -2924,6 +2924,31 @@ bool Parser::parseNameId(NameAST *&name)
     if (! parseName(name))
         return false;
 
+    TemplateIdAST *template_id = name->asTemplateId();
+    if (LA() == T_LPAREN && template_id) {
+        if (TemplateArgumentListAST *template_arguments = template_id->template_arguments) {
+            if (! template_arguments->next && template_arguments->template_argument && template_arguments->template_argument->asBinaryExpression()) {
+                unsigned saved = cursor();
+                ExpressionAST *expr = 0;
+                bool blocked = blockErrors(true);
+                if (parseCastExpression(expr)) {
+                    (void) blockErrors(blocked);
+
+                    if (CastExpressionAST *cast_expression = expr->asCastExpression()) {
+                        if (cast_expression->lparen_token && cast_expression->rparen_token
+                                && cast_expression->type_id && cast_expression->expression) {
+                            rewind(start);
+
+                            name = 0;
+                            return parseName(name, false);
+                        }
+                    }
+                }
+                rewind(saved);
+            }
+        }
+    }
+
     if (LA() == T_IDENTIFIER ||
         LA() == T_STATIC_CAST ||
         LA() == T_DYNAMIC_CAST ||
