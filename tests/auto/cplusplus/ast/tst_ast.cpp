@@ -18,7 +18,7 @@ public:
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode)
     {
-        StringLiteral *fileId = control.findOrInsertFileName("<stdin>");
+        StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setObjCEnabled(true);
         unit->setSource(source.constData(), source.length());
@@ -88,7 +88,7 @@ void tst_AST::template_id()
     QVERIFY(ast->asTemplateId()->template_arguments != 0);
     QVERIFY(ast->asTemplateId()->template_arguments->template_argument != 0);
     QVERIFY(ast->asTemplateId()->template_arguments->template_argument->asNumericLiteral() != 0);
-    QCOMPARE(ast->asTemplateId()->template_arguments->template_argument->asNumericLiteral()->token, 3U);
+    QCOMPARE(ast->asTemplateId()->template_arguments->template_argument->asNumericLiteral()->literal_token, 3U);
     QVERIFY(ast->asTemplateId()->template_arguments->next == 0);
     QCOMPARE(ast->asTemplateId()->greater_token, 4U);
 }
@@ -358,7 +358,13 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QCOMPARE(param_clause->dot_dot_dot_token, 0U);
 
     // check the parameter
-    ParameterDeclarationAST *param = param_clause->parameter_declarations->asParameterDeclaration();
+    DeclarationListAST *declarations = param_clause->parameter_declarations->asDeclarationList();
+    QVERIFY(declarations);
+    QVERIFY(declarations->declaration);
+    QVERIFY(! declarations->next);
+
+    ParameterDeclarationAST *param = declarations->declaration->asParameterDeclaration();
+    QVERIFY(param);
     QVERIFY(param->type_specifier != 0);
     QVERIFY(param->type_specifier->next == 0);
     QVERIFY(param->type_specifier->asNamedTypeSpecifier() != 0);

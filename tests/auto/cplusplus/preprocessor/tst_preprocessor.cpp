@@ -19,9 +19,9 @@ void tst_Preprocessor::pp_with_no_client()
     Environment env;
 
     Preprocessor preprocess(client, &env);
-    QByteArray preprocessed = preprocess("<stdin>",
-                                         "\n#define foo(a,b) a + b"
-                                         "\nfoo(1, 2)\n");
+    QByteArray preprocessed = preprocess(QLatin1String("<stdin>"),
+                                         QByteArray("\n#define foo(a,b) a + b"
+                                         "\nfoo(1, 2)\n"));
     QByteArray expected = "1 + 2";
     QCOMPARE(preprocessed.trimmed(), expected);
 }
@@ -32,9 +32,9 @@ void tst_Preprocessor::unfinished_function_like_macro_call()
     Environment env;
 
     Preprocessor preprocess(client, &env);
-    QByteArray preprocessed = preprocess("<stdin>",
-                                         "\n#define foo(a,b) a + b"
-                                         "\nfoo(1, 2\n");
+    QByteArray preprocessed = preprocess(QLatin1String("<stdin>"),
+                                         QByteArray("\n#define foo(a,b) a + b"
+                                         "\nfoo(1, 2\n"));
     QByteArray expected = "foo";
     QCOMPARE(preprocessed.trimmed(), expected);
 }

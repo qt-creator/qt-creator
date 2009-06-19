@@ -28,7 +28,7 @@ public:
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode)
     {
-        StringLiteral *fileId = control.findOrInsertFileName("<stdin>");
+        StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setSource(source.constData(), source.length());
         unit->parse(mode);
@@ -53,8 +53,8 @@ public:
             Semantic sem(unit->control());
             TranslationUnitAST *ast = unit->ast()->asTranslationUnit();
             QVERIFY(ast);
-            for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
-                sem.check(decl, globals);
+            for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
+                sem.check(decl->declaration, globals);
             }
         }
 
