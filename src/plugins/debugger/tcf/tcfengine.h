@@ -68,8 +68,8 @@ public:
     ~TcfEngine();
 
 signals:
-    void tcfInputAvailable(const QString &prefix, const QString &msg);
-    void tcfOutputAvailable(const QString &prefix, const QString &msg);
+    void tcfInputAvailable(int channel, const QString &msg);
+    void tcfOutputAvailable(int channel, const QString &msg);
     void applicationOutputAvailable(const QString &output);
 
 private:

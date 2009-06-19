@@ -81,8 +81,8 @@ public:
     ~GdbEngine();
 
 signals:
-    void gdbInputAvailable(const QString &prefix, const QString &msg);
-    void gdbOutputAvailable(const QString &prefix, const QString &msg);
+    void gdbInputAvailable(int channel, const QString &msg);
+    void gdbOutputAvailable(int channel, const QString &msg);
     void applicationOutputAvailable(const QString &output);
 
 private:

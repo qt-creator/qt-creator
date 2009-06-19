@@ -78,6 +78,7 @@ enum DebuggerActionCode
     UseAlternatingRowColors,
     AutoQuit,
     LockView,
+    LogTimeStamps,
 
     // Gdb
     GdbLocation,

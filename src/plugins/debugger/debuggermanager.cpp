@@ -627,7 +627,7 @@ void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
     Q_UNUSED(timeout)
     if (Debugger::Constants::Internal::debug)
         qDebug() << "STATUS MSG: " << msg;
-    showDebuggerOutput("status:", msg);
+    showDebuggerOutput(LogStatus, msg);
     m_statusLabel->setText(QLatin1String("   ") + msg);
     if (timeout > 0) {
         m_statusTimer->setSingleShot(true);
@@ -908,7 +908,8 @@ static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
 #endif
 }
 
-void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl, const QSharedPointer<DebuggerStartParameters> &startParameters)
+void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl,
+    const QSharedPointer<DebuggerStartParameters> &startParameters)
 {
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << '\n' << *startParameters;
@@ -919,7 +920,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl, const QSh
     const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChain::ToolChainType>(m_startParameters->toolChainType));
 
     emit debugModeRequested();
-    showDebuggerOutput(QLatin1String("status:"), tr("Starting debugger for tool chain '%1'...").arg(toolChainName));
+    showDebuggerOutput(LogStatus, tr("Starting debugger for tool chain '%1'...").arg(toolChainName));
 
     QString errorMessage;
     QString settingsIdHint;
@@ -1452,16 +1453,16 @@ void DebuggerManager::modulesDockToggled(bool on)
 //
 //////////////////////////////////////////////////////////////////////
 
-void DebuggerManager::showDebuggerOutput(const QString &prefix, const QString &msg)
+void DebuggerManager::showDebuggerOutput(int channel, const QString &msg)
 {
     QTC_ASSERT(m_outputWindow, return);
-    m_outputWindow->showOutput(prefix, msg);
+    m_outputWindow->showOutput(channel, msg);
 }
 
-void DebuggerManager::showDebuggerInput(const QString &prefix, const QString &msg)
+void DebuggerManager::showDebuggerInput(int channel, const QString &msg)
 {
     QTC_ASSERT(m_outputWindow, return);
-    m_outputWindow->showInput(prefix, msg);
+    m_outputWindow->showInput(channel, msg);
 }
 
 

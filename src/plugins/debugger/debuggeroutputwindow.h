@@ -59,8 +59,8 @@ public:
 
 public slots:
     void clearContents();
-    void showOutput(const QString &prefix, const QString &output);
-    void showInput(const QString &prefix, const QString &input);
+    void showOutput(int channel, const QString &output);
+    void showInput(int channel, const QString &input);
 
 signals:
     void showPage();

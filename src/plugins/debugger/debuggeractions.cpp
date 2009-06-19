@@ -130,6 +130,13 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setDefaultValue(false);
     instance->insertItem(UseAlternatingRowColors, item);
 
+    item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("LogTimeStamps"));
+    item->setText(tr("Log time stamps"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    instance->insertItem(LogTimeStamps, item);
+
     //
     // Locals & Watchers
     //
@@ -155,7 +162,6 @@ DebuggerSettings *DebuggerSettings::instance()
     // DebuggingHelper
     //
     item = new SavedAction(instance);
-    item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseDebuggingHelper"));
     item->setText(tr("Use debugging helper"));
     item->setCheckable(true);

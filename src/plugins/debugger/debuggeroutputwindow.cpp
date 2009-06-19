@@ -29,6 +29,7 @@
 
 #include "debuggeroutputwindow.h"
 #include "debuggeractions.h"
+#include "debuggermanager.h"
 
 #include <QtCore/QDebug>
 
@@ -41,6 +42,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QSplitter>
+#include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextBlock>
 
 #ifndef GDBDEBUGGERLEAN
@@ -53,6 +55,73 @@ using namespace Find;
 #endif // GDBDEBUGGERLEAN
 
 using namespace Debugger::Internal;
+
+static QChar charForChannel(int channel)
+{
+    switch (channel) {
+        case LogDebug: return 'd';
+        case LogError: return 'e';
+        case LogInput: return '<';
+        case LogOutput: return '>';
+        case LogStatus: return 's';
+        case LogMisc:
+        default: return ' ';
+    }
+}
+
+static LogChannel channelForChar(QChar c)
+{
+    switch (c.unicode()) {
+        case 'd': return LogDebug;
+        case 'e': return LogError;
+        case '<': return LogInput;
+        case '>': return LogOutput;
+        case 's': return LogStatus;
+        default: return LogMisc;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////
+//
+// OutputHighlighter
+//
+/////////////////////////////////////////////////////////////////////
+
+class OutputHighlighter : public QSyntaxHighlighter
+{
+public:
+    OutputHighlighter(QPlainTextEdit *parent)
+        : QSyntaxHighlighter(parent->document()), m_parent(parent)
+    {}
+
+private:
+    void highlightBlock(const QString &text)
+    {
+        QTextCharFormat format;
+        switch (channelForChar(text.isEmpty() ? QChar() : text.at(0))) {
+            case LogInput:
+                format.setForeground(Qt::blue);
+                setFormat(1, text.size(), format);
+                break;
+            case LogStatus:
+                format.setForeground(Qt::darkGreen);
+                setFormat(1, text.size(), format);
+                break;
+            case LogError:
+                format.setForeground(Qt::red);
+                setFormat(1, text.size(), format);
+                break;
+            default:
+                break;
+        }
+        QColor base = m_parent->palette().color(QPalette::Base);
+        format.setForeground(base);
+        format.setFontPointSize(1);
+        setFormat(0, 1, format);
+    }
+
+    QPlainTextEdit *m_parent;
+};
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -89,6 +158,7 @@ public:
         addContextActions(menu);
         theDebuggerAction(ExecuteCommand)->setData(textCursor().block().text());
         menu->addAction(theDebuggerAction(ExecuteCommand));
+        menu->addAction(theDebuggerAction(LogTimeStamps));
         menu->addSeparator();
         menu->addAction(theDebuggerAction(SettingsDialog));
         menu->exec(ev->globalPos());
@@ -176,13 +246,15 @@ class CombinedPane : public DebuggerPane
 public:
     CombinedPane(QWidget *parent)
         : DebuggerPane(parent)
-    {}
+    {
+        (void)new OutputHighlighter(this);
+    }
 
 public slots:
     void gotoResult(int i)
     {   
         QString needle = QString::number(i) + '^';
-        QString needle2 = QLatin1String("stdout:") + needle;
+        QString needle2 = QLatin1String(">:") + needle;
         QTextCursor cursor(document());
         do {
             const QString line = cursor.block().text();
@@ -246,16 +318,17 @@ DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
        m_combinedText, SLOT(gotoResult(int)));
 };
 
-void DebuggerOutputWindow::showOutput(const QString &prefix, const QString &output)
+void DebuggerOutputWindow::showOutput(int channel, const QString &output)
 {
     if (output.isEmpty())
         return;
-    foreach (QString line, output.split("\n")) {
+    foreach (QString line, output.split('\n')) {
         // FIXME: QTextEdit asserts on really long lines...
-        const int n = 3000;
+        const int n = 30000;
         if (line.size() > n)
             line = line.left(n) + " [...] <cut off>";
-        m_combinedText->appendPlainText(prefix + line);
+        if (line != QLatin1String("(gdb) "))
+            m_combinedText->appendPlainText(charForChannel(channel) + line);
     }
     QTextCursor cursor = m_combinedText->textCursor();
     cursor.movePosition(QTextCursor::End);
@@ -263,15 +336,15 @@ void DebuggerOutputWindow::showOutput(const QString &prefix, const QString &outp
     m_combinedText->ensureCursorVisible();
 }
 
-void DebuggerOutputWindow::showInput(const QString &prefix, const QString &input)
+void DebuggerOutputWindow::showInput(int channel, const QString &input)
 {
-    Q_UNUSED(prefix);
+    Q_UNUSED(channel);
     m_inputText->appendPlainText(input);
     QTextCursor cursor = m_inputText->textCursor();
     cursor.movePosition(QTextCursor::End);
     m_inputText->setTextCursor(cursor);
     m_inputText->ensureCursorVisible();
-    showOutput("input:", input);
+    showOutput(LogInput, input);
 }
 
 void DebuggerOutputWindow::clearContents()

@@ -164,11 +164,11 @@ void GdbEngine::initializeConnections()
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
         this, SLOT(readDebugeeOutput(QByteArray)));
 
-    connect(this, SIGNAL(gdbOutputAvailable(QString,QString)),
-        q, SLOT(showDebuggerOutput(QString,QString)),
+    connect(this, SIGNAL(gdbOutputAvailable(int,QString)),
+        q, SLOT(showDebuggerOutput(int,QString)),
         Qt::QueuedConnection);
-    connect(this, SIGNAL(gdbInputAvailable(QString,QString)),
-        q, SLOT(showDebuggerInput(QString,QString)),
+    connect(this, SIGNAL(gdbInputAvailable(int,QString)),
+        q, SLOT(showDebuggerInput(int,QString)),
         Qt::QueuedConnection);
     connect(this, SIGNAL(applicationOutputAvailable(QString)),
         q, SLOT(showApplicationOutput(QString)),
@@ -285,13 +285,13 @@ void GdbEngine::uploadProcError(QProcess::ProcessError error)
 void GdbEngine::readUploadStandardOutput()
 {
     QByteArray ba = m_uploadProc.readAllStandardOutput();
-    gdbOutputAvailable(_("upload-out:"), QString::fromLocal8Bit(ba, ba.length()));
+    gdbOutputAvailable(LogOutput, QString::fromLocal8Bit(ba, ba.length()));
 }
 
 void GdbEngine::readUploadStandardError()
 {
     QByteArray ba = m_uploadProc.readAllStandardError();
-    gdbOutputAvailable(_("upload-err:"), QString::fromLocal8Bit(ba, ba.length()));
+    gdbOutputAvailable(LogError, QString::fromLocal8Bit(ba, ba.length()));
 }
 
 #if 0
@@ -318,15 +318,16 @@ void GdbEngine::readDebugeeOutput(const QByteArray &data)
 
 void GdbEngine::debugMessage(const QString &msg)
 {
-    emit gdbOutputAvailable(_("debug:"), msg);
+    emit gdbOutputAvailable(LogDebug, msg);
 }
 
 void GdbEngine::handleResponse(const QByteArray &buff)
 {
     static QTime lastTime;
 
-    emit gdbOutputAvailable(_("            "), currentTime());
-    emit gdbOutputAvailable(_("stdout:"), QString::fromLocal8Bit(buff, buff.length()));
+    if (theDebuggerBoolSetting(LogTimeStamps))
+        emit gdbOutputAvailable(LogDebug, currentTime());
+    emit gdbOutputAvailable(LogOutput, QString::fromLocal8Bit(buff, buff.length()));
 
 #if 0
     qDebug() // << "#### start response handling #### "
@@ -691,7 +692,7 @@ void GdbEngine::flushCommand(GdbCommand &cmd)
     m_gdbProc.write(cmd.command.toLatin1() + "\r\n");
     //emit gdbInputAvailable(QString(), "         " +  currentTime());
     //emit gdbInputAvailable(QString(), "[" + currentTime() + "]    " + cmd.command);
-    emit gdbInputAvailable(QString(), cmd.command);
+    emit gdbInputAvailable(LogInput, cmd.command);
 }
 
 void GdbEngine::handleResultRecord(const GdbResultRecord &record)
@@ -990,7 +991,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         m_waitingForFirstBreakpointToBeHit = false;
 
         // If the executable dies already that early we might get something
-        // like stdout:49*stopped,reason="exited",exit-code="0177"
+        // like >49*stopped,reason="exited",exit-code="0177"
         // This is handled now above.
 
         qq->notifyInferiorStopped();
@@ -1032,7 +1033,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     }
 
     // seen on XP after removing a breakpoint while running
-    //  stdout:945*stopped,reason="signal-received",signal-name="SIGTRAP",
+    //  >945*stopped,reason="signal-received",signal-name="SIGTRAP",
     //  signal-meaning="Trace/breakpoint trap",thread-id="2",
     //  frame={addr="0x7c91120f",func="ntdll!DbgUiConnectToDbg",
     //  args=[],from="C:\\WINDOWS\\system32\\ntdll.dll"}
@@ -1127,7 +1128,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
     //
     // MAC yields sometimes:
-    // stdout:3661*stopped,time={wallclock="0.00658",user="0.00142",
+    // >3661*stopped,time={wallclock="0.00658",user="0.00142",
     // system="0.00136",start="1218810678.805432",end="1218810678.812011"}
     q->resetLocation();
     qq->notifyInferiorStopped();
@@ -1579,7 +1580,7 @@ void GdbEngine::handleStart(const GdbResultRecord &response, const QVariant &)
 #else
     if (response.resultClass == GdbResultDone) {
         // [some leading stdout here]
-        // stdout:&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
+        // >&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
         // [some trailing stdout here]
         QString msg = _(response.data.findChild("consolestreamoutput").data());
         QRegExp needle(_("\\bEntry point: (0x[0-9a-f]+)\\b"));
@@ -1775,7 +1776,7 @@ void GdbEngine::setTokenBarrier()
         );
     }
     PENDING_DEBUG("\n--- token barrier ---\n");
-    emit gdbInputAvailable(QString(), _("--- token barrier ---"));
+    emit gdbInputAvailable(LogMisc, _("--- token barrier ---"));
     m_oldestAcceptableToken = currentToken();
 }
 
@@ -1905,7 +1906,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     //    cmd += _("-c ") + data->condition + ' ';
     cmd += where;
 #endif
-    debugMessage(_("Current state: %1").arg(q->status()));
+    emit gdbOutputAvailable(LogStatus, _("Current state: %1").arg(q->status()));
     postCommand(cmd, NeedsStop, CB(handleBreakInsert), index);
 }
 
@@ -3084,8 +3085,7 @@ void GdbEngine::updateWatchData(const WatchData &data)
 void GdbEngine::rebuildModel()
 {
     PENDING_DEBUG("REBUILDING MODEL");
-    emit gdbInputAvailable(QString(),
-        _c('[') + currentTime() + _("]    <Rebuild Watchmodel>"));
+    emit gdbInputAvailable(LogStatus, _("<Rebuild Watchmodel>"));
     q->showStatusMessage(tr("Finished retrieving data."), 400);
     qq->watchHandler()->endCycle();
 
@@ -3171,7 +3171,7 @@ void GdbEngine::sendWatchParameters(const QByteArray &params0)
     encoded[encoded.size() - 1] = '}';
 
     params.replace('\0','!');
-    emit gdbInputAvailable(QString(), QString::fromUtf8(params));
+    emit gdbInputAvailable(LogMisc, QString::fromUtf8(params));
 
     postCommand(_(encoded));
 }

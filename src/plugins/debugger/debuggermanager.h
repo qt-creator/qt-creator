@@ -53,7 +53,7 @@ class IOptionsPage;
 } // namespace Core
 
 namespace TextEditor {
-    class ITextEditor;
+class ITextEditor;
 }
 
 namespace Debugger {
@@ -125,6 +125,16 @@ enum DebuggerStartMode
     AttachTcf,             // Attach to a running Target Communication Framework agent
     AttachCore,            // Attach to a core file
     StartRemote            // Start and attach to a remote process
+};
+
+enum LogChannel
+{
+    LogInput,   // Used for user input
+    LogOutput,
+    LogError,
+    LogStatus,  // Used for status changed messages
+    LogDebug,
+    LogMisc    
 };
 
 struct DebuggerStartParameters
@@ -213,8 +223,8 @@ private:
     virtual SourceFilesWindow *sourceFileWindow() = 0;
 
     virtual void showApplicationOutput(const QString &data) = 0;
-    virtual void showDebuggerOutput(const QString &prefix, const QString &msg) = 0;
-    virtual void showDebuggerInput(const QString &prefix, const QString &msg) = 0;
+    virtual void showDebuggerOutput(int channel, const QString &msg) = 0;
+    virtual void showDebuggerInput(int channel, const QString &msg) = 0;
 
     virtual void reloadDisassembler() = 0;
     virtual void reloadModules() = 0;
@@ -309,8 +319,8 @@ public slots:
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
 private slots:
-    void showDebuggerOutput(const QString &prefix, const QString &msg);
-    void showDebuggerInput(const QString &prefix, const QString &msg);
+    void showDebuggerOutput(int channel, const QString &msg);
+    void showDebuggerInput(int channel, const QString &msg);
     void showApplicationOutput(const QString &data);
 
     void reloadDisassembler();

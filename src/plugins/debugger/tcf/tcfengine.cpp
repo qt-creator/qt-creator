@@ -140,11 +140,11 @@ TcfEngine::TcfEngine(DebuggerManager *parent)
     //connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
     //    thism SLOT(socketStateChanged(QAbstractSocket::SocketState)));
 
-    connect(this, SIGNAL(tcfOutputAvailable(QString,QString)),
-        q, SLOT(showDebuggerOutput(QString,QString)),
+    connect(this, SIGNAL(tcfOutputAvailable(int,QString)),
+        q, SLOT(showDebuggerOutput(int,QString)),
         Qt::QueuedConnection);
-    connect(this, SIGNAL(tcfInputAvailable(QString,QString)),
-        q, SLOT(showDebuggerInput(QString,QString)),
+    connect(this, SIGNAL(tcfInputAvailable(int,QString)),
+        q, SLOT(showDebuggerInput(int,QString)),
         Qt::QueuedConnection);
     connect(this, SIGNAL(applicationOutputAvailable(QString)),
         q, SLOT(showApplicationOutput(QString)),
@@ -347,7 +347,7 @@ void TcfEngine::handleResponse(const QByteArray &response)
         int token = parts.at(1).toInt();
         TcfCommand tcf = m_cookieForToken[token];
         SDEBUG("COMMAND NOT RECOGNIZED FOR TOKEN" << token << tcf.toString());
-        emit tcfOutputAvailable("", QString::number(token) + "^"
+        emit tcfOutputAvailable(LogOutput, QString::number(token) + "^"
                + "NOT RECOQNIZED: " + quoteUnprintableLatin1(response));
         acknowledgeResult();
     } else if (n == 2 && tag == "F") { // flow control
@@ -358,7 +358,7 @@ void TcfEngine::handleResponse(const QByteArray &response)
         int token = parts.at(1).toInt();
         QByteArray message = parts.at(2);
         JsonValue data(parts.at(3));
-        emit tcfOutputAvailable("", QString("%1^%2%3").arg(token)
+        emit tcfOutputAvailable(LogOutput, QString("%1^%2%3").arg(token)
             .arg(quoteUnprintableLatin1(response))
             .arg(QString::fromUtf8(data.toString())));
         TcfCommand tcf = m_cookieForToken[token];
@@ -500,7 +500,7 @@ void TcfEngine::sendCommandNow(const TcfCommand &cmd)
     int result = m_socket->write(cmd.command);
     Q_UNUSED(result);
     m_socket->flush();
-    emit tcfInputAvailable("send", QString::number(cmd.token) + " " + cmd.toString());
+    emit tcfInputAvailable(LogInput, QString::number(cmd.token) + " " + cmd.toString());
     SDEBUG("SEND " <<  cmd.toString()); //<< " " << QString::number(result));
 }
 
