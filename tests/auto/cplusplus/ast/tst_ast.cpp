@@ -44,6 +44,7 @@ private slots:
     void template_id();
     void new_expression_1();
     void new_expression_2();
+    void condition_1();
 
     // statements
     void if_statement();
@@ -144,6 +145,16 @@ void tst_AST::new_expression_2()
     QCOMPARE(expr->rparen_token, 0U);
     QVERIFY(expr->new_type_id != 0);
     QVERIFY(expr->new_initializer != 0);
+}
+
+void tst_AST::condition_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseExpression("\n"
+"(x < 0 && y > (int) a"
+    ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
 }
 
 void tst_AST::if_statement()
