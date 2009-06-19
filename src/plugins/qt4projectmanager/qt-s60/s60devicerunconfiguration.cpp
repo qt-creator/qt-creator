@@ -9,8 +9,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
+#include <utils/pathchooser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
+
+#include <QtGui/QRadioButton>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
@@ -19,7 +22,8 @@ using namespace Qt4ProjectManager::Internal;
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QString &proFilePath)
     : RunConfiguration(project),
     m_proFilePath(proFilePath),
-    m_cachedTargetInformationValid(false)
+    m_cachedTargetInformationValid(false),
+    m_signingMode(SignSelf)
 {
     if (!m_proFilePath.isEmpty())
         setName(tr("%1 on Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
@@ -56,6 +60,9 @@ void S60DeviceRunConfiguration::save(PersistentSettingsWriter &writer) const
 {
     const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
     writer.saveValue("ProFile", projectDir.relativeFilePath(m_proFilePath));
+    writer.saveValue("SigningMode", (int)m_signingMode);
+    writer.saveValue("CustomSignaturePath", m_customSignaturePath);
+    writer.saveValue("CustomKeyPath", m_customKeyPath);
     RunConfiguration::save(writer);
 }
 
@@ -64,12 +71,45 @@ void S60DeviceRunConfiguration::restore(const PersistentSettingsReader &reader)
     RunConfiguration::restore(reader);
     const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
     m_proFilePath = projectDir.filePath(reader.restoreValue("ProFile").toString());
+    m_signingMode = (SigningMode)reader.restoreValue("SigningMode").toInt();
+    m_customSignaturePath = reader.restoreValue("CustomSignaturePath").toString();
+    m_customKeyPath = reader.restoreValue("CustomKeyPath").toString();
 }
 
 QString S60DeviceRunConfiguration::basePackageFilePath() const
 {
     const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
     return m_baseFileName;
+}
+
+S60DeviceRunConfiguration::SigningMode S60DeviceRunConfiguration::signingMode() const
+{
+    return m_signingMode;
+}
+
+void S60DeviceRunConfiguration::setSigningMode(SigningMode mode)
+{
+    m_signingMode = mode;
+}
+
+QString S60DeviceRunConfiguration::customSignaturePath() const
+{
+    return m_customSignaturePath;
+}
+
+void S60DeviceRunConfiguration::setCustomSignaturePath(const QString &path)
+{
+    m_customSignaturePath = path;
+}
+
+QString S60DeviceRunConfiguration::customKeyPath() const
+{
+    return m_customKeyPath;
+}
+
+void S60DeviceRunConfiguration::setCustomKeyPath(const QString &path)
+{
+    m_customKeyPath = path;
 }
 
 void S60DeviceRunConfiguration::updateTarget()
@@ -157,22 +197,70 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(S60DeviceRunCon
     : QWidget(parent),
     m_runConfiguration(runConfiguration)
 {
-    QFormLayout *toplayout = new QFormLayout();
-    toplayout->setMargin(0);
-    setLayout(toplayout);
+    QVBoxLayout *mainBoxLayout = new QVBoxLayout();
+    mainBoxLayout->setMargin(0);
+    setLayout(mainBoxLayout);
+    QFormLayout *formLayout = new QFormLayout();
+    formLayout->setMargin(0);
+    mainBoxLayout->addLayout(formLayout);
 
     QLabel *nameLabel = new QLabel(tr("Name:"));
     m_nameLineEdit = new QLineEdit(m_runConfiguration->name());
     nameLabel->setBuddy(m_nameLineEdit);
-    toplayout->addRow(nameLabel, m_nameLineEdit);
+    formLayout->addRow(nameLabel, m_nameLineEdit);
 
     m_sisxFileLabel = new QLabel(m_runConfiguration->basePackageFilePath() + ".sisx");
-    toplayout->addRow(tr("Install File:"), m_sisxFileLabel);
+    formLayout->addRow(tr("Install File:"), m_sisxFileLabel);
+
+    QWidget *signatureWidget = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout();
+    signatureWidget->setLayout(layout);
+    mainBoxLayout->addWidget(signatureWidget);
+    QRadioButton *selfSign = new QRadioButton(tr("Self-sign"));
+    QHBoxLayout *customHBox = new QHBoxLayout();
+    customHBox->setMargin(0);
+    QVBoxLayout *radioLayout = new QVBoxLayout();
+    QRadioButton *customSignature = new QRadioButton();
+    radioLayout->addWidget(customSignature);
+    radioLayout->addStretch(10);
+    customHBox->addLayout(radioLayout);
+    QFormLayout *customLayout = new QFormLayout();
+    customLayout->setMargin(0);
+    customLayout->setLabelAlignment(Qt::AlignRight);
+    Core::Utils::PathChooser *signaturePath = new Core::Utils::PathChooser();
+    signaturePath->setExpectedKind(Core::Utils::PathChooser::File);
+    signaturePath->setPromptDialogTitle(tr("Choose certificate file (.cer)"));
+    customLayout->addRow(new QLabel(tr("Custom signature:")), signaturePath);
+    Core::Utils::PathChooser *keyPath = new Core::Utils::PathChooser();
+    keyPath->setExpectedKind(Core::Utils::PathChooser::File);
+    keyPath->setPromptDialogTitle(tr("Choose key file (.key / .pem)"));
+    customLayout->addRow(new QLabel(tr("Key file:")), keyPath);
+    customHBox->addLayout(customLayout);
+    customHBox->addStretch(10);
+    layout->addWidget(selfSign);
+    layout->addLayout(customHBox);
+    layout->addStretch(10);
+
+    switch (m_runConfiguration->signingMode()) {
+    case S60DeviceRunConfiguration::SignSelf:
+        selfSign->setChecked(true);
+        break;
+    case S60DeviceRunConfiguration::SignCustom:
+        customSignature->setChecked(true);
+        break;
+    }
+
+    signaturePath->setPath(m_runConfiguration->customSignaturePath());
+    keyPath->setPath(m_runConfiguration->customKeyPath());
 
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
         this, SLOT(nameEdited(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
+    connect(selfSign, SIGNAL(toggled(bool)), this, SLOT(selfSignToggled(bool)));
+    connect(customSignature, SIGNAL(toggled(bool)), this, SLOT(customSignatureToggled(bool)));
+    connect(signaturePath, SIGNAL(changed(QString)), this, SLOT(signaturePathChanged(QString)));
+    connect(keyPath, SIGNAL(changed(QString)), this, SLOT(keyPathChanged(QString)));
 }
 
 void S60DeviceRunConfigurationWidget::nameEdited(const QString &text)
@@ -183,6 +271,28 @@ void S60DeviceRunConfigurationWidget::nameEdited(const QString &text)
 void S60DeviceRunConfigurationWidget::updateTargetInformation()
 {
     m_sisxFileLabel->setText(m_runConfiguration->basePackageFilePath() + ".sisx");
+}
+
+void S60DeviceRunConfigurationWidget::selfSignToggled(bool toggle)
+{
+    if (toggle)
+        m_runConfiguration->setSigningMode(S60DeviceRunConfiguration::SignSelf);
+}
+
+void S60DeviceRunConfigurationWidget::customSignatureToggled(bool toggle)
+{
+    if (toggle)
+        m_runConfiguration->setSigningMode(S60DeviceRunConfiguration::SignCustom);
+}
+
+void S60DeviceRunConfigurationWidget::signaturePathChanged(const QString &path)
+{
+    m_runConfiguration->setCustomSignaturePath(path);
+}
+
+void S60DeviceRunConfigurationWidget::keyPathChanged(const QString &path)
+{
+    m_runConfiguration->setCustomKeyPath(path);
 }
 
 // ======== S60DeviceRunConfigurationFactory
@@ -298,11 +408,14 @@ void S60DeviceRunControl::start()
     QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration().dynamicCast<S60DeviceRunConfiguration>();
     Q_ASSERT(!rc.isNull());
 
-    Qt4Project *project = qobject_cast<Qt4Project *>(runConfiguration()->project());
+    Qt4Project *project = qobject_cast<Qt4Project *>(rc->project());
 
     m_baseFileName = rc->basePackageFilePath();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
     m_qtDir = project->qtVersion(project->activeBuildConfiguration())->path();
+    m_useCustomSignature = (rc->signingMode() == S60DeviceRunConfiguration::SignCustom);
+    m_customSignaturePath = rc->customSignaturePath();
+    m_customKeyPath = rc->customKeyPath();
 
     emit started();
 
@@ -362,10 +475,14 @@ void S60DeviceRunControl::makesisProcessFinished()
     QString signsisTool = m_toolsDirectory + "/signsis.exe";
     QString sisFile = QFileInfo(m_baseFileName + ".sis").fileName();
     QString sisxFile = QFileInfo(m_baseFileName + ".sisx").fileName();
+    QString signature = (m_useCustomSignature ? m_customSignaturePath
+                         : m_qtDir + "/selfsigned.cer");
+    QString key = (m_useCustomSignature ? m_customKeyPath
+                         : m_qtDir + "/selfsigned.key");
     QStringList arguments;
     arguments << sisFile
-            << sisxFile << QDir::toNativeSeparators(m_qtDir + "/selfsigned.cer")
-            << QDir::toNativeSeparators(m_qtDir + "/selfsigned.key");
+            << sisxFile << QDir::toNativeSeparators(signature)
+            << QDir::toNativeSeparators(key);
     m_signsis->setWorkingDirectory(m_workingDirectory);
     emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(signsisTool), arguments.join(tr(" "))));
     m_signsis->start(signsisTool, arguments, QIODevice::ReadOnly);
@@ -398,6 +515,9 @@ void S60DeviceRunControl::installProcessFailed()
 
 void S60DeviceRunControl::installProcessFinished()
 {
+    if (m_install->exitStatus() != 0) {
+        error(this, tr("An error occurred while creating the package."));
+    }
     emit addToOutputWindow(this, tr("Finished."));
     emit finished();
 }

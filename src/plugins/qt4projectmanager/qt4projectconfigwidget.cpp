@@ -69,7 +69,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     connect(m_ui->shadowBuildDirEdit, SIGNAL(beforeBrowsing()),
             this, SLOT(onBeforeBeforeShadowBuildDirBrowsed()));
 
-    connect(m_ui->shadowBuildDirEdit, SIGNAL(changed()),
+    connect(m_ui->shadowBuildDirEdit, SIGNAL(changed(QString)),
             this, SLOT(shadowBuildLineEditTextChanged()));
 
     connect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(QString)),
@@ -325,8 +325,7 @@ void Qt4ProjectConfigWidget::setToolChain(int index)
     ProjectExplorer::ToolChain::ToolChainType selectedToolChainType =
         m_ui->toolChainComboBox->itemData(index,
             Qt::UserRole).value<ProjectExplorer::ToolChain::ToolChainType>();
-    m_pro->setToolChainType(m_buildConfiguration, m_ui->toolChainComboBox->itemData(index,
-            Qt::UserRole).value<ProjectExplorer::ToolChain::ToolChainType>());
+    m_pro->setToolChainType(m_buildConfiguration, selectedToolChainType);
     if (m_ui->toolChainComboBox->currentIndex() != index)
         m_ui->toolChainComboBox->setCurrentIndex(index);
 }

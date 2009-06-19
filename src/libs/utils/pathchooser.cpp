@@ -106,7 +106,7 @@ PathChooser::PathChooser(QWidget *parent) :
     m_d->m_hLayout->setContentsMargins(0, 0, 0, 0);
 
     connect(m_d->m_lineEdit, SIGNAL(validReturnPressed()), this, SIGNAL(returnPressed()));
-    connect(m_d->m_lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(changed()));
+    connect(m_d->m_lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(changed(QString)));
     connect(m_d->m_lineEdit, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
     connect(m_d->m_lineEdit, SIGNAL(editingFinished()), this, SIGNAL(editingFinished()));
 

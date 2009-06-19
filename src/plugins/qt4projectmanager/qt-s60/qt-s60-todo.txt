@@ -22,10 +22,11 @@
         * missing signals qtVersionChanged + toolChainChanged
     * handling of active run config getting disabled
 
+* Run on device
+    * makesis, signsis and applicationinstaller don't report errors back
+      via exit code :-(
+
 * Add compile output parser winscw at least!
 
 * WINSCW tool chain:
     * predefined macros
-
-* Deploy gcce executables
-

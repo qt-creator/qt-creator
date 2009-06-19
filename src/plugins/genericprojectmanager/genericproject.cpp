@@ -486,7 +486,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     m_pathChooser = new Core::Utils::PathChooser(this);
     m_pathChooser->setEnabled(true);
     fl->addRow(tr("Build directory:"), m_pathChooser);
-    connect(m_pathChooser, SIGNAL(changed()), this, SLOT(buildDirectoryChanged()));
+    connect(m_pathChooser, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
 
     // tool chain
     QComboBox *toolChainChooser = new QComboBox;

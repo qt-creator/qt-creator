@@ -15,6 +15,11 @@ class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 public:
+    enum SigningMode {
+        SignSelf,
+        SignCustom
+    };
+
     S60DeviceRunConfiguration(ProjectExplorer::Project *project, const QString &proFilePath);
     ~S60DeviceRunConfiguration();
 
@@ -25,6 +30,12 @@ public:
     void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 
     QString basePackageFilePath() const;
+    SigningMode signingMode() const;
+    void setSigningMode(SigningMode mode);
+    QString customSignaturePath() const;
+    void setCustomSignaturePath(const QString &path);
+    QString customKeyPath() const;
+    void setCustomKeyPath(const QString &path);
 
 signals:
     void targetInformationChanged();
@@ -38,6 +49,9 @@ private:
     QString m_proFilePath;
     QString m_baseFileName;
     bool m_cachedTargetInformationValid;
+    SigningMode m_signingMode;
+    QString m_customSignaturePath;
+    QString m_customKeyPath;
 };
 
 class S60DeviceRunConfigurationWidget : public QWidget
@@ -50,6 +64,10 @@ public:
 private slots:
     void nameEdited(const QString &text);
     void updateTargetInformation();
+    void selfSignToggled(bool toggle);
+    void customSignatureToggled(bool toggle);
+    void signaturePathChanged(const QString &path);
+    void keyPathChanged(const QString &path);
 
 private:
     S60DeviceRunConfiguration *m_runConfiguration;
@@ -108,6 +126,9 @@ private:
     QString m_workingDirectory;
     QString m_toolsDirectory;
     QString m_qtDir;
+    bool m_useCustomSignature;
+    QString m_customSignaturePath;
+    QString m_customKeyPath;
     QProcess *m_makesis;
     QProcess *m_signsis;
     QProcess *m_install;

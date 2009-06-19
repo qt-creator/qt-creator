@@ -197,7 +197,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     vbox->addLayout(toplayout);
     vbox->addWidget(box);
 
-    connect(m_workingDirectoryEdit, SIGNAL(changed()),
+    connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
 
     connect(resetButton, SIGNAL(clicked()),

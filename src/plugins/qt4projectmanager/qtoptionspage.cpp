@@ -124,12 +124,12 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
             this, SLOT(updateCurrentQtName()));
 
 
-    connect(m_ui->qtPath, SIGNAL(changed()),
+    connect(m_ui->qtPath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentQtPath()));
-    connect(m_ui->mingwPath, SIGNAL(changed()),
+    connect(m_ui->mingwPath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentMingwDirectory()));
 #ifdef QTCREATOR_WITH_S60
-    connect(m_ui->mwcPath, SIGNAL(changed()),
+    connect(m_ui->mwcPath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentMwcDirectory()));
 #endif
 
