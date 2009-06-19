@@ -63,9 +63,6 @@ private slots:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void markFilesAsOutOfDate();
 
-signals:
-    void invokeRefresh();
-
 private:
 
     ProjectExplorerPlugin *m_projectExplorer;

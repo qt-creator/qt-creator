@@ -58,8 +58,6 @@ protected:
 
 private slots:
     void markFilesAsOutOfDate();
-signals:
-    void invokeRefresh();
 private:
     ProjectExplorerPlugin *m_projectExplorer;
     bool m_filesUpToDate;

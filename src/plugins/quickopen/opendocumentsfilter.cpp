@@ -83,10 +83,7 @@ void OpenDocumentsFilter::refreshInternally()
 void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future);
-    // invokeAsyncronouslyOnGuiThread
-    connect(this, SIGNAL(invokeRefresh()), this, SLOT(refreshInternally()));
-    emit invokeRefresh();
-    disconnect(this, SIGNAL(invokeRefresh()), this, SLOT(refreshInternally()));
+    QMetaObject::invokeMethod(this, "refreshInternally", Qt::BlockingQueuedConnection);
 }
 
 void OpenDocumentsFilter::accept(FilterEntry selection) const

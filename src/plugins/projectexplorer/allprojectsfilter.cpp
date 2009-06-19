@@ -71,8 +71,5 @@ void AllProjectsFilter::updateFiles()
 void AllProjectsFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future);
-    // invokeAsyncronouslyOnGuiThread
-    connect(this, SIGNAL(invokeRefresh()), this, SLOT(markFilesAsOutOfDate()));
-    emit invokeRefresh();
-    disconnect(this, SIGNAL(invokeRefresh()), this, SLOT(markFilesAsOutOfDate()));
+    QMetaObject::invokeMethod(this, "markFilesAsOutOfDate", Qt::BlockingQueuedConnection);
 }

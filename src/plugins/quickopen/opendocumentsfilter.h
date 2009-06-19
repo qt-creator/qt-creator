@@ -59,8 +59,7 @@ public:
 
 public slots:
     void refreshInternally();
-signals:
-    void invokeRefresh();
+
 private:
     Core::EditorManager *m_editorManager;
 
