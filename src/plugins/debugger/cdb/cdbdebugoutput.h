@@ -82,8 +82,8 @@ protected:
     virtual void output(ULONG mask, const QString &message);
 
 signals:
-    void debuggerOutput(const QString &prefix, const QString &message);
-    void debuggerInputPrompt(const QString &prefix, const QString &message);
+    void debuggerOutput(int channel, const QString &message);
+    void debuggerInputPrompt(int channel, const QString &message);
     void debuggeeOutput(const QString &message);
     void debuggeeInputPrompt(const QString &message);
 };

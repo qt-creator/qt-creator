@@ -241,7 +241,7 @@ private:
 class CdbExceptionLoggerEventCallback : public CdbDebugEventCallbackBase
 {
 public:
-    explicit CdbExceptionLoggerEventCallback(const QString &logPrefix,
+    explicit CdbExceptionLoggerEventCallback(int logChannel,
                                              IDebuggerManagerAccessForEngines *access);
 
     STDMETHOD(GetInterestMask)(
@@ -260,7 +260,7 @@ public:
     QList<ULONG> exceptionCodes()  const { return m_exceptionCodes; }
 
 private:
-    const QString m_logPrefix;
+    const int m_logChannel;
     IDebuggerManagerAccessForEngines *m_access;
     QList<ULONG> m_exceptionCodes;
     QStringList m_exceptionMessages;

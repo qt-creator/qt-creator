@@ -131,6 +131,7 @@ enum LogChannel
 {
     LogInput,   // Used for user input
     LogOutput,
+    LogWarning,
     LogError,
     LogStatus,  // Used for status changed messages
     LogDebug,

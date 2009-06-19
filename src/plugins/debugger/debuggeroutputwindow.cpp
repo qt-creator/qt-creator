@@ -60,6 +60,7 @@ static QChar charForChannel(int channel)
 {
     switch (channel) {
         case LogDebug: return 'd';
+        case LogWarning: return 'w';
         case LogError: return 'e';
         case LogInput: return '<';
         case LogOutput: return '>';
@@ -73,6 +74,7 @@ static LogChannel channelForChar(QChar c)
 {
     switch (c.unicode()) {
         case 'd': return LogDebug;
+        case 'w': return LogWarning;
         case 'e': return LogError;
         case '<': return LogInput;
         case '>': return LogOutput;
@@ -105,6 +107,10 @@ private:
                 break;
             case LogStatus:
                 format.setForeground(Qt::darkGreen);
+                setFormat(1, text.size(), format);
+                break;
+            case LogWarning:
+                format.setForeground(Qt::darkYellow);
                 setFormat(1, text.size(), format);
                 break;
             case LogError:

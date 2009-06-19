@@ -372,9 +372,9 @@ STDMETHODIMP CdbDebugEventCallback::SystemError(
 }
 
 // -----------ExceptionLoggerEventCallback
-CdbExceptionLoggerEventCallback::CdbExceptionLoggerEventCallback(const QString &logPrefix,
+CdbExceptionLoggerEventCallback::CdbExceptionLoggerEventCallback(int logChannel,
                                                            IDebuggerManagerAccessForEngines *access) :
-    m_logPrefix(logPrefix),
+    m_logChannel(logChannel),
     m_access(access)
 {
 }
@@ -399,7 +399,7 @@ STDMETHODIMP CdbExceptionLoggerEventCallback::Exception(
     }
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << '\n' << m_exceptionMessages.back();
-    m_access->showDebuggerOutput(m_logPrefix, m_exceptionMessages.back());
+    m_access->showDebuggerOutput(m_logChannel, m_exceptionMessages.back());
     return S_OK;
 }
 

@@ -417,10 +417,10 @@ CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent, const QSharedPointer<Cdb
     connect(&m_d->m_consoleStubProc, SIGNAL(processError(QString)), this, SLOT(slotConsoleStubError(QString)));
     connect(&m_d->m_consoleStubProc, SIGNAL(processStarted()), this, SLOT(slotConsoleStubStarted()));
     connect(&m_d->m_consoleStubProc, SIGNAL(wrapperStopped()), this, SLOT(slotConsoleStubTerminated()));
-    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerOutput(QString,QString)),
-            m_d->m_debuggerManager, SLOT(showDebuggerOutput(QString,QString)));
-    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerInputPrompt(QString,QString)),
-            m_d->m_debuggerManager, SLOT(showDebuggerInput(QString,QString)));
+    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerOutput(int,QString)),
+            m_d->m_debuggerManager, SLOT(showDebuggerOutput(int,QString)));
+    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerInputPrompt(int,QString)),
+            m_d->m_debuggerManager, SLOT(showDebuggerInput(int,QString)));
     connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggeeOutput(QString)),
             m_d->m_debuggerManager, SLOT(showApplicationOutput(QString)));
     connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggeeInputPrompt(QString)),
@@ -755,7 +755,7 @@ void CdbDebugEnginePrivate::endDebugging(EndDebuggingMode em)
 
     if (!errorMessage.isEmpty()) {
         errorMessage = QString::fromLatin1("There were errors trying to end debugging: %1").arg(errorMessage);
-        m_debuggerManagerAccess->showDebuggerOutput(QLatin1String("error"), errorMessage);
+        m_debuggerManagerAccess->showDebuggerOutput(LogError, errorMessage);
         m_engine->warning(errorMessage);
     }
 }
@@ -1370,16 +1370,9 @@ void CdbDebugEngine::slotConsoleStubTerminated()
     exitDebugger();
 }
 
-void CdbDebugEngine::slotAttachedCrashed()
-{
- m_d->m_debuggerManagerAccess->showDebuggerOutput("A","A");
-    m_d->handleDebugEvent();
-}
-
 void CdbDebugEngine::warning(const QString &w)
 {
-    static const QString prefix = QLatin1String("warning:");
-    m_d->m_debuggerManagerAccess->showDebuggerOutput(prefix, w);
+    m_d->m_debuggerManagerAccess->showDebuggerOutput(LogWarning, w);
     qWarning("%s\n", qPrintable(w));
 }
 

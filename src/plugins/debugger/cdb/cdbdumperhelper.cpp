@@ -148,7 +148,7 @@ static bool debuggeeLoadLibrary(IDebuggerManagerAccessForEngines *access,
     if (loadDebug > 1)
         qDebug() << Q_FUNC_INFO << moduleName;
     // Try to ignore the breakpoints
-    CdbExceptionLoggerEventCallback exLogger(QLatin1String(dumperPrefixC), access);
+    CdbExceptionLoggerEventCallback exLogger(LogWarning, access);
     EventCallbackRedirector eventRedir(cif->debugClient, &exLogger);
     // Make a call to LoadLibraryA. First, reserve memory in debugger
     // and copy name over.
@@ -219,7 +219,6 @@ static QString msgLoadSucceeded(const QString &library, bool injectOrCall)
 CdbDumperHelper::CdbDumperHelper(DebuggerManager *manager,
                                  CdbComInterfaces *cif) :
     m_tryInjectLoad(true),
-    m_messagePrefix(QLatin1String(dumperPrefixC)),
     m_state(NotLoaded),
     m_manager(manager),
     m_access(manager),
@@ -241,7 +240,7 @@ void CdbDumperHelper::disable()
 {
     if (loadDebug)
         qDebug() << Q_FUNC_INFO;
-    m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Disabling dumpers due to debuggee crash..."));
+    m_access->showDebuggerOutput(LogMisc, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Disabling dumpers due to debuggee crash..."));
     m_state = Disabled;
 }
 
@@ -288,7 +287,7 @@ void CdbDumperHelper::moduleLoadHook(const QString &module, HANDLE debuggeeHandl
             } else {
                 m_state = InjectLoadFailed;
                 // Ok, try call loading...
-                m_access->showDebuggerOutput(m_messagePrefix, msgLoadFailed(m_library, true, errorMessage));
+                m_access->showDebuggerOutput(LogMisc, msgLoadFailed(m_library, true, errorMessage));
             }
         }
         break;
@@ -296,7 +295,7 @@ void CdbDumperHelper::moduleLoadHook(const QString &module, HANDLE debuggeeHandl
         // check if gdbmacros.dll loaded
         if (module.contains(QLatin1String(dumperModuleNameC), Qt::CaseInsensitive)) {
             m_state = Loaded;
-            m_access->showDebuggerOutput(m_messagePrefix, msgLoadSucceeded(m_library, true));
+            m_access->showDebuggerOutput(LogMisc, msgLoadSucceeded(m_library, true));
         }
         break;
     }
@@ -343,17 +342,17 @@ bool CdbDumperHelper::ensureInitialized(QString *errorMessage)
         switch (initCallLoad(errorMessage)) {
             case CallLoadOk:
             case CallLoadAlreadyLoaded:
-                m_access->showDebuggerOutput(m_messagePrefix, msgLoadSucceeded(m_library, false));
+                m_access->showDebuggerOutput(LogMisc, msgLoadSucceeded(m_library, false));
                 m_state = Loaded;
                 break;
             case CallLoadError:
                 *errorMessage = msgLoadFailed(m_library, false, *errorMessage);
-                m_access->showDebuggerOutput(m_messagePrefix, *errorMessage);
+                m_access->showDebuggerOutput(LogError, *errorMessage);
                 m_access->showQtDumperLibraryWarning(*errorMessage);
                 m_state = Disabled; // No message here, no point in retrying
                 return false;
             case CallLoadNoQtApp:
-                m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The debuggee does not appear to be Qt application."));
+                m_access->showDebuggerOutput(LogMisc, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The debuggee does not appear to be Qt application."));
                 m_state = Disabled; // No message here
                 return true;
             }
@@ -365,13 +364,13 @@ bool CdbDumperHelper::ensureInitialized(QString *errorMessage)
     m_manager->showStatusMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Initializing dumpers..."), 10000);
     const bool ok = initResolveSymbols(errorMessage) && initKnownTypes(errorMessage);
     if (ok) {
-        m_access->showDebuggerOutput(m_messagePrefix, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Custom dumper library initialized."));
-        m_access->showDebuggerOutput(m_messagePrefix, m_helper.toString());
+        m_access->showDebuggerOutput(LogMisc, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Custom dumper library initialized."));
+        m_access->showDebuggerOutput(LogMisc, m_helper.toString());
         m_state = Initialized;
     } else {
         m_state = Disabled; // No message here
         *errorMessage = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The custom dumper library could not be initialized: %1").arg(*errorMessage);
-        m_access->showDebuggerOutput(m_messagePrefix, *errorMessage);
+        m_access->showDebuggerOutput(LogMisc, *errorMessage);
         m_access->showQtDumperLibraryWarning(*errorMessage);
     }
     return ok;
@@ -475,7 +474,7 @@ bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuf
                                  bool ignoreAccessViolation, QString *errorMessage)
 {
     *outDataPtr = 0;
-    CdbExceptionLoggerEventCallback exLogger(m_messagePrefix, m_access);
+    CdbExceptionLoggerEventCallback exLogger(LogWarning, m_access);
     EventCallbackRedirector eventRedir(m_cif->debugClient, &exLogger);
     // write input buffer
     if (!inBuffer.isEmpty()) {
@@ -555,7 +554,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
     // Ensure types are parsed and known.
     if (!ensureInitialized(errorMessage)) {
         *errorMessage = msgDumpFailed(wd, errorMessage);
-        m_access->showDebuggerOutput(m_messagePrefix, *errorMessage);
+        m_access->showDebuggerOutput(LogError, *errorMessage);
         return DumpError;
     }
 
@@ -570,7 +569,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
     const QString message = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper",
                                                         "Querying dumpers for '%1'/'%2' (%3)").
                                                         arg(wd.name, wd.exp, wd.type);
-    m_access->showDebuggerOutput(m_messagePrefix, message);
+    m_access->showDebuggerOutput(LogMisc, message);
 
     const DumpExecuteResult der = executeDump(wd, td, dumpChildren, source, result, errorMessage);
     if (der == DumpExecuteOk)
@@ -582,7 +581,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
         m_failedTypes.push_back(wd.type);    
     // log error
     *errorMessage = msgDumpFailed(wd, errorMessage);
-    m_access->showDebuggerOutput(m_messagePrefix, *errorMessage);
+    m_access->showDebuggerOutput(LogWarning, *errorMessage);
     return DumpError;
 }
 

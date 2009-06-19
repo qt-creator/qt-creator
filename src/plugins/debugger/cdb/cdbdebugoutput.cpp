@@ -96,26 +96,15 @@ IDebugOutputCallbacksWide *CdbDebugOutputBase::getOutputCallback(CIDebugClient *
 // ------------------------- CdbDebugOutput
 
 // Return a prefix for debugger messages
-static QString prefix(ULONG mask)
+static int logChannel(ULONG mask)
 {
-    if (mask & (DEBUG_OUTPUT_PROMPT_REGISTERS)) {
-        static const QString p = QLatin1String("registers:");
-        return p;
-    }
-    if (mask & (DEBUG_OUTPUT_EXTENSION_WARNING|DEBUG_OUTPUT_WARNING)) {
-        static const QString p = QLatin1String("warning:");
-        return p;
-    }
-    if (mask & (DEBUG_OUTPUT_ERROR)) {
-        static const QString p = QLatin1String("error:");
-        return p;
-    }
-    if (mask & DEBUG_OUTPUT_SYMBOLS) {
-        static const QString p = QLatin1String("symbols:");
-        return p;
-    }
-    static const QString commonPrefix = QLatin1String("cdb:");
-    return commonPrefix;
+    if (mask & (DEBUG_OUTPUT_PROMPT_REGISTERS))
+        return LogMisc;
+    if (mask & (DEBUG_OUTPUT_EXTENSION_WARNING|DEBUG_OUTPUT_WARNING))
+        return LogError;
+    if (mask & (DEBUG_OUTPUT_ERROR))
+        return LogError;
+    return LogMisc;
 }
 
 enum OutputKind { DebuggerOutput, DebuggerPromptOutput, DebuggeeOutput, DebuggeePromptOutput };
@@ -144,10 +133,10 @@ void CdbDebugOutput::output(ULONG mask, const QString &_msg)
 
     switch (outputKind(mask)) {
     case DebuggerOutput:
-        debuggerOutput(prefix(mask), msg);
+        debuggerOutput(logChannel(mask), msg);
         break;
     case DebuggerPromptOutput:
-        emit debuggerInputPrompt(prefix(mask), msg);
+        emit debuggerInputPrompt(logChannel(mask), msg);
         break;
     case DebuggeeOutput:
         emit debuggeeOutput(msg);
