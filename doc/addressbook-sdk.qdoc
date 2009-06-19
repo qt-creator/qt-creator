@@ -46,8 +46,6 @@
     \nextpage {examples/addressbook-sdk/part1}{Chapter 1}
 
     \title Address Book Tutorial
-    \ingroup howto
-    \ingroup tutorials
     \brief An introduction to GUI programming with Qt and Qt Creator,
     describing in detail how to put together a simple yet fully-
     functioning application.
@@ -93,6 +91,12 @@
     recommend checking out the \l{mainwindows/application}{Application}
     example, which presents a small GUI application, with menus, toolbars, a
     status bar, and so on.
+
+    \table
+        \o  \bold{Disclaimer}: Development of this tutorial is on-going.
+            Currently, we have three parts complete. The remaining four parts
+            will be available in the coming release.
+    \endtable
 */
 
 
@@ -207,9 +211,9 @@
 
     \snippet examples/addressbook-sdk/part1/main.cpp main function
 
-    The code constructs a new \c AddressBook widget on the heap using the
-    \c new keyword and invokes its \l{QWidget::}{show()} function to display
-    it. However, the widget will not be shown until the application's event
+    The code constructs a new \c AddressBook widget on the stack and 
+    invokes its \l{QWidget::}{show()} function to display it. 
+    However, the widget will not be shown until the application's event
     loop is started. This is done by calling the application's
     \l{QApplication::}{exec()} function. Finally, the result returned by
     \l{QApplication::}{exec()} is used as the \c main() function's return
@@ -532,7 +536,7 @@
     \c contacts and then:
 
     \list
-        \o  If the iterator is at teh end of \c contacts, we clear the display
+        \o  If the iterator is at the end of \c contacts, we clear the display
             and return.
         \o  If the iterator is at the beginning of \c contacts, we move it to
             the end.
@@ -543,9 +547,17 @@
 
     Again, we display the contents of the current object in \c contacts.
 
+    \table
+        \o  \bold{Note}: This tutorial is work in progress and currently ends here. 
+            You can read the remaining four chapters of the Address Book Tutorial from 
+            \l{http://doc.trolltech.com/latest/tutorials-addressbook.html}{the Qt library documentation} 
+            instead. Note that this version is IDE agnostic and does not
+            consider Qt Creator. It might contain subtle differences.
+    \endtable
 */
 
 /*!
+\omit
     \page tutorials-addressbook-sdk-part4.html
     \previouspage Address Book 3 - Navigating between Entries
     \contentspage {Address Book Tutorial}{Contents}
@@ -704,9 +716,7 @@
     \snippet examples/addressbook-sdk/part4/addressbook.cpp addContact
     \dots
     \snippet examples/addressbook-sdk/part4/addressbook.cpp cancel
-*/
 
-/*!
     \page tutorials-addressbook-sdk-part5.html
     \previouspage Address Book 4 - Editing and Removing Addresses
     \contentspage {Address Book Tutorial}{Contents}
@@ -745,9 +755,7 @@
     in a horizontal layout. Then set a top level layout - either horizontal or
     vertical.
 
-*/
 
-/*!
     \page tutorials-addressbook-sdk-part6.html
     \previouspage Address Book 5 - Adding a Find Function
     \contentspage {Address Book Tutorial}{Contents}
@@ -755,13 +763,12 @@
     \example examples/addressbook-sdk/part6
     \title Address Book 6 - Loading and Saving
 
-*/
 
-/*!
     \page tutorials-addressbook-sdk-part7.html
     \previouspage Address Book 6 - Loading and Saving
     \contentspage {Address Book Tutorial}{Contents}
     \example examples/addressbook-sdk/part7
     \title Address Book 7 - Additional Features
 
+\endomit
 */

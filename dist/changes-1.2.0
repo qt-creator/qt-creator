@@ -13,70 +13,73 @@ adapted accordingly.
 
 General:
    * The Welcome Screen has been redesigned.
-   * There has been some speed improvements: large amounts of persistent data
+   * There has been some speed improvements: large amounts of persistent data.
      (e.g., Qt Locator's cache) is now stored in an SQLite database.
    * The window title now displays the current file's name.
 
 Editing
-   * There is now an option for listing methods alphabetically in the combo box
-     above the editor.
-   * A block highlighting feature has been added.
-   * Code folding markers have been improved on.
+   * Added an option for listing methods alphabetically in the combo box above
+     the editor.
+   * Added a block highlighting feature.
+   * Improved the code folding markers.
    * FakeVim mode has received further improvements.
    * It is now possible to disable Ctrl+Click navigation.
-   * An optional XCode-style tab indentation has been added.
+   * Optional XCode-style tab indentation has been added.
    * Ui changes now propagate immediately to the code model.
    * Fixed possibly missing code completion with MinGW toolchain.
-   * Added option for turning off antialiasing of text editor fonts.
+   * Added an option for turning off antialiasing of text editor fonts.
    * It is now possible to search within the text editor using regular
      expressions.
    * Added an action to delete a line without copying it.
    * Added actions to copy a line up/down (Ctrl+Alt+Up/Down).
 
 Building and Running
-   * A new option Auto-Save before Build and Run has been added.
-   * Added option to set environment variables for running
-   * Fixed bug that prevented use of Qt 4 with version < 4.2
+   * Added the option to auto-save before building.
+   * Made auto-build before run optional.
+   * Added the ability to set environment variables specific for running.
+   * Fixed a bug that prevented the use of Qt versions < 4.2.
 
 Debugging
-   * Added Windows Console Debugger support (x86 and AMD64)
-   * Added command line options to attach to process ids
-   * Further improved dumpers; do additional memory checking on Windows to
-     avoid crashes for speedup
-   * Changed method of dumper loading on Windows, enabling it for MinGW 64
-   * Make it possible to disable breakpoints
-   * Make it possible to float the debugger views
+   * Added support for Windows Console Debugger (x86 and AMD64).
+   * Added command line options to attach the debugger to process ids.
+   * Further improved dumpers.
+   * Changed the way dumpers are loaded on Windows, enabling it for MinGW 64.
+   * Made it possible to disable breakpoints.
+   * Made it possible to float the debugger views.
 
 Wizards
+   * Added a wizard that creates an empty Qt4 project.
 
 Designer
-   * Added "Qt Designer" (external editor) to "Open With" menus
+   * Added the external Qt Designer editor to the "Open With" menus.
 
 Version control plugins
-   * Made submit action raise existing submit editors
-   * Made svn detection recognize TortoiseSVN using "_svn" as directory
-   * Fixed perforce configuration checking, made it use the settings correctly
+   * Made the submit action raise existing submit editors.
+   * Made SVN detection recognize TortoiseSVN using "_svn" as directory.
+   * Fixed Perforce configuration checking, ensuring that it used the settings
+     correctly.
 
 Documentation
-   * Added tutorial on how to create an application from scratch using Creator
+   * Added a tutorial on how to create an application from scratch using Qt
+     Creator.
 
 I18N
-   * Added infrastructure for translations
-   * Added German translation
+   * Added infrastructure for translations.
+   * Added German translation.
 
 Platform Specific
 
 Windows
-  * Show native path separators
-  * Experimental support for the Microsoft C++ compilers from Windows SDKs
-    or VS 2005/2008 (x86 and AMD64)
+  * Qt Creator now displays native path separators.
+  * Added experimental support for the Microsoft C++ compilers from Windows
+    SDKs or VS 2005/2008 (x86 and AMD64).
 
 Mac
 
 Linux
 
 Other Unixes
-   * Made Qt Creator less dependant on Linux specific defines
+   * Made Qt Creator less dependant on Linux specific defines.
 
 Additional credits go to:
    * axasia <axasia@gmail.com> (japanese translation, compile fixes)

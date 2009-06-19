@@ -40,7 +40,8 @@ enum { debugExc = 0 };
 
 // Special exception codes.
 enum { cppExceptionCode = 0xe06d7363, startupCompleteTrap = 0x406d1388,
-       rpcServerUnavailableExceptionCode = 0x6ba };
+       rpcServerUnavailableExceptionCode = 0x6ba,
+       dllNotFoundExceptionCode = 0xc0000135 };
 
 namespace Debugger {
 namespace Internal {
@@ -168,6 +169,9 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
     case startupCompleteTrap:
         str << "Startup complete";
         break;
+    case dllNotFoundExceptionCode:
+        str << "DLL not found";
+        break;
     case EXCEPTION_ACCESS_VIOLATION: {
             const bool writeOperation = e->ExceptionInformation[0];
             str << (writeOperation ? "write" : "read")
@@ -266,6 +270,7 @@ bool isFatalException(LONG code)
     case EXCEPTION_SINGLE_STEP:
     case startupCompleteTrap: // Mysterious exception at start of application
     case rpcServerUnavailableExceptionCode:
+    case dllNotFoundExceptionCode:
         return false;
     default:
         break;
