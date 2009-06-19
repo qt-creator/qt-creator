@@ -65,14 +65,31 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLabel>
+#include <QtGui/QStyleOption>
+#include <QtGui/QStylePainter>
+#include <QtGui/QTextDocument> // Qt::escape()
 #include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QTextDocument> // Qt::escape()
 
 using namespace CPlusPlus;
 
 namespace CppTools {
 namespace Internal {
+
+class FakeToolTipFrame : public QWidget
+{
+public:
+    FakeToolTipFrame(QWidget *parent = 0) :
+        QWidget(parent, Qt::ToolTip | Qt::WindowStaysOnTopHint)
+    {
+        setFocusPolicy(Qt::NoFocus);
+        setAttribute(Qt::WA_DeleteOnClose);
+    }
+
+protected:
+    void paintEvent(QPaintEvent *e);
+    void resizeEvent(QResizeEvent *e);
+};
 
 class FunctionArgumentWidget : public QLabel
 {
@@ -107,7 +124,7 @@ private:
 
     QWidget *m_pager;
     QLabel *m_numberLabel;
-    QFrame *m_popupFrame;
+    FakeToolTipFrame *m_popupFrame;
     QList<Function *> m_items;
     LookupContext m_context;
 };
@@ -198,6 +215,26 @@ protected:
 
 using namespace CppTools::Internal;
 
+
+void FakeToolTipFrame::paintEvent(QPaintEvent *ev)
+{
+    QStylePainter p(this);
+    QStyleOptionFrame opt;
+    opt.init(this);
+    p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
+    p.end();
+}
+
+void FakeToolTipFrame::resizeEvent(QResizeEvent *e)
+{
+    QStyleHintReturnMask frameMask;
+    QStyleOption option;
+    option.init(this);
+    if (style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))
+        setMask(frameMask.region);
+}
+
+
 FunctionArgumentWidget::FunctionArgumentWidget():
     m_startpos(-1),
     m_current(0),
@@ -206,9 +243,7 @@ FunctionArgumentWidget::FunctionArgumentWidget():
     QObject *editorObject = Core::EditorManager::instance()->currentEditor();
     m_editor = qobject_cast<TextEditor::ITextEditor *>(editorObject);
 
-    m_popupFrame = new QFrame(m_editor->widget(), Qt::ToolTip | Qt::WindowStaysOnTopHint);
-    m_popupFrame->setFocusPolicy(Qt::NoFocus);
-    m_popupFrame->setAttribute(Qt::WA_DeleteOnClose);
+    m_popupFrame = new FakeToolTipFrame(m_editor->widget());
 
     QToolButton *downArrow = new QToolButton;
     downArrow->setArrowType(Qt::DownArrow);
@@ -219,9 +254,6 @@ FunctionArgumentWidget::FunctionArgumentWidget():
     upArrow->setArrowType(Qt::UpArrow);
     upArrow->setFixedSize(16, 16);
     upArrow->setAutoRaise(true);
-
-    m_popupFrame->setFrameStyle(QFrame::Box);
-    m_popupFrame->setFrameShadow(QFrame::Plain);
 
     setParent(m_popupFrame);
     setFocusPolicy(Qt::NoFocus);
@@ -244,11 +276,6 @@ FunctionArgumentWidget::FunctionArgumentWidget():
 
     connect(upArrow, SIGNAL(clicked()), SLOT(previousPage()));
     connect(downArrow, SIGNAL(clicked()), SLOT(nextPage()));
-
-    QPalette pal = m_popupFrame->palette();
-    setAutoFillBackground(true);
-    pal.setColor(QPalette::Background, QColor(255, 255, 220));
-    m_popupFrame->setPalette(pal);
 
     setTextFormat(Qt::RichText);
     setMargin(1);
