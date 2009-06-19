@@ -118,6 +118,7 @@ enum DebuggerStatus
 
 enum DebuggerStartMode
 {
+    NoStartMode,
     StartInternal,         // Start current start project's binary
     StartExternal,         // Start binary found in file system
     AttachExternal,        // Attach to running process by process id

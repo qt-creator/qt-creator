@@ -1468,7 +1468,7 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
 
 DebuggerStartMode DebuggerManager::startMode() const
 {
-    return m_runControl->startMode();
+    return m_runControl ? m_runControl->startMode() : NoStartMode;
 }
 
 void DebuggerManager::reloadFullStack()
