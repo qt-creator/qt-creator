@@ -2927,7 +2927,8 @@ bool Parser::parseNameId(NameAST *&name)
     TemplateIdAST *template_id = name->asTemplateId();
     if (LA() == T_LPAREN && template_id) {
         if (TemplateArgumentListAST *template_arguments = template_id->template_arguments) {
-            if (! template_arguments->next && template_arguments->template_argument && template_arguments->template_argument->asBinaryExpression()) {
+            if (! template_arguments->next && template_arguments->template_argument &&
+                    template_arguments->template_argument->asBinaryExpression()) {
                 unsigned saved = cursor();
                 ExpressionAST *expr = 0;
                 bool blocked = blockErrors(true);
@@ -2949,13 +2950,16 @@ bool Parser::parseNameId(NameAST *&name)
         }
     }
 
-    if (LA() == T_IDENTIFIER ||
+    if (LA() == T_COMMA || LA() == T_SEMICOLON ||
+        LA() == T_LBRACKET || LA() == T_LPAREN)
+        return true;
+    else if (LA() == T_IDENTIFIER ||
         LA() == T_STATIC_CAST ||
         LA() == T_DYNAMIC_CAST ||
         LA() == T_REINTERPRET_CAST ||
         LA() == T_CONST_CAST ||
         tok().isLiteral()    ||
-        (tok().isOperator() && LA() != T_LPAREN && LA() != T_LBRACKET))
+        tok().isOperator())
     {
         rewind(start);
         return parseName(name, false);

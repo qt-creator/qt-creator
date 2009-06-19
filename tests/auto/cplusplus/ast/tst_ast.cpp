@@ -45,6 +45,7 @@ private slots:
     void new_expression_1();
     void new_expression_2();
     void condition_1();
+    void init_1();
 
     // statements
     void if_statement();
@@ -151,6 +152,16 @@ void tst_AST::condition_1()
 {
     QSharedPointer<TranslationUnit> unit(parseExpression("\n"
 "(x < 0 && y > (int) a"
+    ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+}
+
+void tst_AST::init_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "x y[] = { X<10>, y };"
     ));
 
     AST *ast = unit->ast();

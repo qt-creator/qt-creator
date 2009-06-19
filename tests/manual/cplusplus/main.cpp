@@ -552,10 +552,10 @@ int main(int argc, char *argv[])
     TranslationUnitAST *ast = unit.ast()->asTranslationUnit();
     Q_ASSERT(ast != 0);
 
-    Scope globalScope;
+    Namespace *globalNamespace = control.newNamespace(0, 0);
     Semantic sem(&control);
     for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
-        sem.check(decl->declaration, &globalScope);
+        sem.check(decl->declaration, globalNamespace->members());
     }
 
     // test the rewriter
