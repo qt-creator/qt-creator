@@ -528,6 +528,10 @@ void CdbDebugEnginePrivate::clearDisplay()
 
 bool CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
+    if (m_d->m_hDebuggeeProcess) {
+        warning(QLatin1String("Internal error: Attempt to start debugger while another process is being debugged."));
+        return false;
+    }
     m_d->clearDisplay();
 
     const DebuggerStartMode mode = m_d->m_debuggerManager->startMode();
