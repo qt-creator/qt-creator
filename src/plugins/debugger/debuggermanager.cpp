@@ -1513,12 +1513,13 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
     dialog.setDefaultButton(justContinue);
     dialog.setWindowTitle(tr("Debugging helper missing"));
     dialog.setText(tr("The debugger did not find the debugging helper library."));
-    dialog.setInformativeText(tr("The debugging helper is used to nicely format the values of Qt "
-                                 "data types and some STL data types. "
-                                 "It must be compiled for each Qt version which "
-                                 "you can do in the Qt preferences page by selecting "
-                                 "a Qt installation and clicking on 'Rebuild' for the debugging "
-                                 "helper."));
+    dialog.setInformativeText(tr(
+        "The debugging helper is used to nicely format the values of some Qt "
+        "and Standard Library data types. "
+        "It must be compiled for each Qt version which "
+        "you can do in the Qt preferences page by selecting "
+        "a Qt installation and clicking on 'Rebuild' for the debugging "
+        "helper."));
     if (!details.isEmpty())
         dialog.setDetailedText(details);
     dialog.exec();
