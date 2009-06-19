@@ -112,9 +112,12 @@ public:
     // Runs checks on the message and prompts according to configuration.
     // Force prompt should be true if it is invoked by closing an editor
     // as opposed to invoking the "Submit" button.
+    // 'promptSetting' points to a bool variable containing the plugin's
+    // prompt setting. The user can uncheck it from the message box.
     enum PromptSubmitResult { SubmitConfirmed, SubmitCanceled, SubmitDiscarded };
     PromptSubmitResult promptSubmit(const QString &title, const QString &question,
                                     const QString &checkFailureQuestion,
+                                    bool *promptSetting,
                                     bool forcePrompt = false) const;
 
     int fileNameColumn() const;

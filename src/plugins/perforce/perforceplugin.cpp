@@ -930,20 +930,26 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
     if (!perforceEditor)
         return true;
     QFileInfo editorFile(fileIFace->fileName());
-    QFileInfo changeFile(m_changeTmpFile->fileName());
+    QFileInfo changeFile(m_changeTmpFile->fileName());    
     if (editorFile.absoluteFilePath() == changeFile.absoluteFilePath()) {
         // Prompt the user. Force a prompt unless submit was actually invoked (that
         // is, the editor was closed or shutdown).
+        bool wantsPrompt = m_settings.promptToSubmit();
          const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
             perforceEditor->promptSubmit(tr("Closing p4 Editor"),
                                          tr("Do you want to submit this change list?"),
                                          tr("The commit message check failed. Do you want to submit this change list"),
-                                         !m_submitActionTriggered);
+                                         &wantsPrompt, !m_submitActionTriggered);
          m_submitActionTriggered = false;
 
         if (answer == VCSBase::VCSBaseSubmitEditor::SubmitCanceled)
             return false;
 
+        // Set without triggering the checking mechanism
+        if (wantsPrompt != m_settings.promptToSubmit()) {
+            m_settings.setPromptToSubmit(wantsPrompt);
+            m_settings.toSettings(Core::ICore::instance()->settings());
+        }
         core->fileManager()->blockFileChange(fileIFace);
         fileIFace->save();
         core->fileManager()->unblockFileChange(fileIFace);

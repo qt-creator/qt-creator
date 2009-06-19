@@ -35,7 +35,6 @@
 static const char *settingsGroupC = "VCS";
 static const char *nickNameMailMapKeyC = "NickNameMailMap";
 static const char *nickNameFieldListFileKeyC = "NickNameFieldListFile";
-static const char *promptForSubmitKeyC = "PromptForSubmit";
 static const char *submitMessageCheckScriptKeyC = "SubmitMessageCheckScript";
 static const char *lineWrapKeyC = "LineWrap";
 static const char *lineWrapWidthKeyC = "LineWrapWidth";
@@ -47,7 +46,6 @@ namespace VCSBase {
 namespace Internal {
 
 VCSBaseSettings::VCSBaseSettings() :
-    promptForSubmit(true),
     lineWrap(lineWrapDefault),
     lineWrapWidth(lineWrapWidthDefault)
 {
@@ -59,7 +57,6 @@ void VCSBaseSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(nickNameMailMapKeyC), nickNameMailMap);
     s->setValue(QLatin1String(nickNameFieldListFileKeyC), nickNameFieldListFile);
     s->setValue(QLatin1String(submitMessageCheckScriptKeyC), submitMessageCheckScript);
-    s->setValue(QLatin1String(promptForSubmitKeyC), promptForSubmit);
     s->setValue(QLatin1String(lineWrapKeyC), lineWrap);
     s->setValue(QLatin1String(lineWrapWidthKeyC), lineWrapWidth);
     s->endGroup();
@@ -71,7 +68,6 @@ void VCSBaseSettings::fromSettings(QSettings *s)
     nickNameMailMap = s->value(QLatin1String(nickNameMailMapKeyC), QString()).toString();
     nickNameFieldListFile = s->value(QLatin1String(nickNameFieldListFileKeyC), QString()).toString();
     submitMessageCheckScript = s->value(QLatin1String(submitMessageCheckScriptKeyC), QString()).toString();
-    promptForSubmit = s->value(QLatin1String(promptForSubmitKeyC), QVariant(true)).toBool();
     lineWrap = s->value(QLatin1String(lineWrapKeyC), lineWrapDefault).toBool();
     lineWrapWidth = s->value(QLatin1String(lineWrapWidthKeyC), lineWrapWidthDefault).toInt();
     s->endGroup();
@@ -79,8 +75,7 @@ void VCSBaseSettings::fromSettings(QSettings *s)
 
 bool VCSBaseSettings::equals(const VCSBaseSettings &rhs) const
 {
-    return promptForSubmit == rhs.promptForSubmit
-           && lineWrap == rhs.lineWrap
+    return lineWrap == rhs.lineWrap
            && lineWrapWidth == rhs.lineWrapWidth
            && nickNameMailMap == rhs.nickNameMailMap
            && nickNameFieldListFile == rhs.nickNameFieldListFile
@@ -89,8 +84,7 @@ bool VCSBaseSettings::equals(const VCSBaseSettings &rhs) const
 
 QDebug operator<<(QDebug d,const VCSBaseSettings& s)
 {
-    d.nospace() << "promptForSubmit=" << s.promptForSubmit
-            << " lineWrap=" << s.lineWrap
+    d.nospace() << " lineWrap=" << s.lineWrap
             << " lineWrapWidth=" <<  s.lineWrapWidth
             << " nickNameMailMap='" <<  s.nickNameMailMap
             << "' nickNameFieldListFile='" << s.nickNameFieldListFile

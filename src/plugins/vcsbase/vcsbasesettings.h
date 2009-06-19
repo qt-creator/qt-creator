@@ -45,8 +45,6 @@ namespace Internal {
 struct VCSBaseSettings {
     VCSBaseSettings();
 
-    bool promptForSubmit;
-
     QString nickNameMailMap;
     QString nickNameFieldListFile;
 

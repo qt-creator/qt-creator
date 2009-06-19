@@ -6,37 +6,61 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>408</width>
+    <width>423</width>
     <height>463</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout">
-     <property name="spacing">
-      <number>6</number>
+    <layout class="QFormLayout" name="formLayout_2">
+     <item row="0" column="0" colspan="2">
+      <widget class="QCheckBox" name="promptToSubmitCheckBox">
+       <property name="text">
+        <string>Prompt to submit</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="margin">
-      <number>0</number>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
      </property>
-     <item>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
+     <item row="0" column="0">
       <widget class="QLabel" name="commandLabel">
        <property name="text">
         <string>P4 Command:</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="Core::Utils::PathChooser" name="pathChooser" native="true"/>
+     <item row="0" column="1">
+      <widget class="Core::Utils::PathChooser" name="pathChooser"/>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QCheckBox" name="defaultCheckBox">
+       <property name="text">
+        <string>Use default P4 environment variables</string>
+       </property>
+      </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="defaultCheckBox">
-     <property name="text">
-      <string>Use default P4 environment variables</string>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox">
@@ -129,7 +153,7 @@
    <item>
     <widget class="QLabel" name="errorLabel">
      <property name="text">
-      <string extracomment="Placeholder" notr="true">errorLabel: blah blubb</string>
+      <string notr="true" extracomment="Placeholder">errorLabel: blah blubb</string>
      </property>
     </widget>
    </item>

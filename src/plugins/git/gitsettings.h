@@ -55,6 +55,7 @@ struct GitSettings
     QString path;
     int logCount;
     int timeout;
+    bool promptToSubmit;
 };
 
 inline bool operator==(const GitSettings &p1, const GitSettings &p2)

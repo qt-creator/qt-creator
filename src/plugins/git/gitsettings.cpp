@@ -41,6 +41,7 @@ static const char *sysEnvKeyC = "SysEnv";
 static const char *pathKeyC = "Path";
 static const char *logCountKeyC = "LogCount";
 static const char *timeoutKeyC = "TimeOut";
+static const char *promptToSubmitKeyC = "PromptForSubmit";
 
 enum { defaultLogCount =  10 , defaultTimeOut = 30};
 
@@ -50,7 +51,8 @@ namespace Internal {
 GitSettings::GitSettings() :
     adoptPath(false),
     logCount(defaultLogCount),
-    timeout(defaultTimeOut)
+    timeout(defaultTimeOut),
+    promptToSubmit(true)
 {
 }
 
@@ -61,6 +63,7 @@ void GitSettings::fromSettings(QSettings *settings)
     path = settings->value(QLatin1String(pathKeyC), QString()).toString();
     logCount = settings->value(QLatin1String(logCountKeyC), defaultLogCount).toInt();
     timeout = settings->value(QLatin1String(timeoutKeyC), defaultTimeOut).toInt();
+    promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     settings->endGroup();
 }
 
@@ -71,12 +74,14 @@ void GitSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(pathKeyC), path);
     settings->setValue(QLatin1String(logCountKeyC), logCount);
     settings->setValue(QLatin1String(timeoutKeyC), timeout);
+    settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
     settings->endGroup();
 }
 
 bool GitSettings::equals(const GitSettings &s) const
 {
-    return adoptPath == s.adoptPath && path == s.path && logCount == s.logCount && timeout == s.timeout;
+    return adoptPath == s.adoptPath && path == s.path && logCount == s.logCount
+           && timeout == s.timeout && promptToSubmit == s.promptToSubmit;
 }
 
 QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const

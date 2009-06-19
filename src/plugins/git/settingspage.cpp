@@ -54,6 +54,7 @@ GitSettings SettingsPageWidget::settings() const
     rc.adoptPath = m_ui.environmentGroupBox->isChecked() && !rc.path.isEmpty();
     rc.logCount = m_ui.logCountSpinBox->value();
     rc.timeout = m_ui.timeoutSpinBox->value();
+    rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();    
     return rc;
 }
 
@@ -63,6 +64,7 @@ void SettingsPageWidget::setSettings(const GitSettings &s)
     m_ui.pathLineEdit->setText(s.path);
     m_ui.logCountSpinBox->setValue(s.logCount);
     m_ui.timeoutSpinBox->setValue(s.timeout);
+    m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
 }
 
 void SettingsPageWidget::setSystemPath()

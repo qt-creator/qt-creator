@@ -44,6 +44,7 @@ static const char *defaultKeyC = "Default";
 static const char *portKeyC = "Port";
 static const char *clientKeyC = "Client";
 static const char *userKeyC = "User";
+static const char *promptToSubmitKeyC = "PromptForSubmit";
 
 static QString defaultCommand()
 {
@@ -59,7 +60,8 @@ namespace Perforce {
 namespace Internal {
 
 Settings::Settings() :
-    defaultEnv(true)
+    defaultEnv(true),
+    promptToSubmit(true)
 {
 }
 
@@ -67,7 +69,8 @@ bool Settings::equals(const Settings &rhs) const
 {
     return defaultEnv == rhs.defaultEnv
             && p4Command == rhs.p4Command && p4Port == rhs.p4Port
-            && p4Client == rhs.p4Client && p4User == rhs.p4User;
+            && p4Client == rhs.p4Client && p4User == rhs.p4User
+            && promptToSubmit == rhs.promptToSubmit;
 };
 
 QStringList Settings::basicP4Args() const
@@ -188,6 +191,7 @@ void PerforceSettings::fromSettings(QSettings *settings)
     m_settings.p4Port = settings->value(QLatin1String(portKeyC), QString()).toString();
     m_settings.p4Client = settings->value(QLatin1String(clientKeyC), QString()).toString();
     m_settings.p4User = settings->value(QLatin1String(userKeyC), QString()).toString();
+    m_settings.promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     settings->endGroup();
     m_mutex.unlock();
 
@@ -198,11 +202,12 @@ void PerforceSettings::toSettings(QSettings *settings) const
 {
     m_mutex.lock();
     settings->beginGroup(QLatin1String(groupC));
-    settings->setValue(commandKeyC, m_settings.p4Command);
-    settings->setValue(defaultKeyC, m_settings.defaultEnv);
-    settings->setValue(portKeyC, m_settings.p4Port);
-    settings->setValue(clientKeyC, m_settings.p4Client);
-    settings->setValue(userKeyC, m_settings.p4User);
+    settings->setValue(QLatin1String(commandKeyC), m_settings.p4Command);
+    settings->setValue(QLatin1String(defaultKeyC), m_settings.defaultEnv);
+    settings->setValue(QLatin1String(portKeyC), m_settings.p4Port);
+    settings->setValue(QLatin1String(clientKeyC), m_settings.p4Client);
+    settings->setValue(QLatin1String(userKeyC), m_settings.p4User);
+    settings->setValue(QLatin1String(promptToSubmitKeyC), m_settings.promptToSubmit);
     settings->endGroup();
     m_mutex.unlock();
 }
@@ -247,6 +252,16 @@ QString PerforceSettings::p4User() const
 bool PerforceSettings::defaultEnv() const
 {
     return m_settings.defaultEnv;
+}
+
+bool PerforceSettings::promptToSubmit() const
+{
+    return m_settings.promptToSubmit;
+}
+
+void PerforceSettings::setPromptToSubmit(bool p)
+{
+    m_settings.promptToSubmit = p;
 }
 
 QString PerforceSettings::errorString() const

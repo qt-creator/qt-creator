@@ -28,7 +28,8 @@ SOURCES += reloadpromptutils.cpp \
     consoleprocess.cpp \
     uncommentselection.cpp \
     parameteraction.cpp \
-    treewidgetcolumnstretcher.cpp
+    treewidgetcolumnstretcher.cpp \
+    checkablemessagebox.cpp
 win32 { 
     SOURCES += abstractprocess_win.cpp \
         consoleprocess_win.cpp \
@@ -63,9 +64,11 @@ HEADERS += utils_global.h \
     submitfieldwidget.h \
     uncommentselection.h \
     parameteraction.h \
-    treewidgetcolumnstretcher.h
+    treewidgetcolumnstretcher.h \
+    checkablemessagebox.h
 FORMS += filewizardpage.ui \
     projectintropage.ui \
     newclasswidget.ui \
-    submiteditorwidget.ui
+    submiteditorwidget.ui \
+    checkablemessagebox.ui
 RESOURCES += utils.qrc

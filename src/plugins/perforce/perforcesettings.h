@@ -54,6 +54,7 @@ struct Settings {
     QString p4User;
     QString errorString;
     bool defaultEnv;
+    bool promptToSubmit;
 };
 
 inline bool operator==(const Settings &s1, const Settings &s2) { return s1.equals(s2); }
@@ -81,6 +82,9 @@ public:
     QString p4Client() const;
     QString p4User() const;
     bool defaultEnv() const;
+    bool promptToSubmit() const;
+    void setPromptToSubmit(bool p);
+
     QStringList basicP4Args() const;
 
     // Error code of last check

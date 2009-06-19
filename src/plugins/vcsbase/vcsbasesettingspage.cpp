@@ -66,7 +66,6 @@ VCSBaseSettings VCSBaseSettingsWidget::settings() const
     rc.nickNameMailMap = m_ui->nickNameMailMapChooser->path();
     rc.nickNameFieldListFile = m_ui->nickNameFieldsFileChooser->path();
     rc.submitMessageCheckScript = m_ui->submitMessageCheckScriptChooser->path();
-    rc.promptForSubmit = m_ui->promptForSubmitCheckBox->isChecked();
     rc.lineWrap= m_ui->lineWrapCheckBox->isChecked();
     rc.lineWrapWidth = m_ui->lineWrapSpinBox->value();
     return rc;
@@ -77,7 +76,6 @@ void VCSBaseSettingsWidget::setSettings(const VCSBaseSettings &s)
     m_ui->nickNameMailMapChooser->setPath(s.nickNameMailMap);
     m_ui->nickNameFieldsFileChooser->setPath(s.nickNameFieldListFile);
     m_ui->submitMessageCheckScriptChooser->setPath(s.submitMessageCheckScript);
-    m_ui->promptForSubmitCheckBox->setChecked(s.promptForSubmit);
     m_ui->lineWrapCheckBox->setChecked(s.lineWrap);
     m_ui->lineWrapSpinBox->setValue(s.lineWrapWidth);
 }

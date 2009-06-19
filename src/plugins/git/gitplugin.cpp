@@ -690,12 +690,14 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
         return true;
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
+    GitSettings settings = m_gitClient->settings();
+    const bool wantedPrompt = settings.promptToSubmit;
     const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
             editor->promptSubmit(tr("Closing git editor"),
                                  tr("Do you want to commit the change?"),
                                  tr("The commit message check failed. Do you want to commit the change?"),
-                                 !m_submitActionTriggered);
-    m_submitActionTriggered = false;
+                                 &settings.promptToSubmit, !m_submitActionTriggered);
+    m_submitActionTriggered = false;    
     switch (answer) {
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
@@ -705,6 +707,8 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
     default:
         break;
     }
+    if (wantedPrompt != settings.promptToSubmit)
+        m_gitClient->setSettings(settings);
     // Go ahead!
     const QStringList fileList = editor->checkedFiles();
     if (Git::Constants::debug)

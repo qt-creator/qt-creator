@@ -40,6 +40,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/submiteditorwidget.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/submitfieldwidget.h>
 #include <find/basetextfind.h>
 #include <texteditor/fontsettings.h>
@@ -433,12 +434,13 @@ VCSBaseSubmitEditor::PromptSubmitResult
         VCSBaseSubmitEditor::promptSubmit(const QString &title,
                                           const QString &question,
                                           const QString &checkFailureQuestion,
+                                          bool *promptSetting,
                                           bool forcePrompt) const
 {
     QString errorMessage;
     QMessageBox::StandardButton answer = QMessageBox::Yes;
 
-    const bool prompt = forcePrompt || Internal::VCSBasePlugin::instance()->settings().promptForSubmit;
+    const bool prompt = forcePrompt || *promptSetting;
 
     QWidget *parent = Core::ICore::instance()->mainWindow();
     // Pop up a message depending on whether the check succeeded and the
@@ -446,9 +448,19 @@ VCSBaseSubmitEditor::PromptSubmitResult
     if (checkSubmitMessage(&errorMessage)) {
         // Check ok, do prompt?
         if (prompt) {
-            answer = QMessageBox::question(parent, title, question,
-                                  QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
-                                  QMessageBox::Yes);
+            // Provide check box to turn off prompt ONLY if it was not forced
+            if (*promptSetting && !forcePrompt) {
+                const QDialogButtonBox::StandardButton danswer =
+                        Core::Utils::CheckableMessageBox::question(parent, title, question,
+                                                                   tr("Prompt to submit"), promptSetting,
+                                                                   QDialogButtonBox::Yes|QDialogButtonBox::No|QDialogButtonBox::Cancel,
+                                                                   QDialogButtonBox::Yes);
+                answer = Core::Utils::CheckableMessageBox::dialogButtonBoxToMessageBoxButton(danswer);
+            } else {
+                answer = QMessageBox::question(parent, title, question,
+                                               QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
+                                               QMessageBox::Yes);
+            }
         }
     } else {
         // Check failed.

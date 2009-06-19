@@ -40,6 +40,7 @@ static const char *authenticationKeyC = "Authentication";
 
 static const char *userNameOptionC = "--username";
 static const char *passwordOptionC = "--password";
+static const char *promptToSubmitKeyC = "PromptForSubmit";
 
 static QString defaultCommand()
 {
@@ -55,7 +56,8 @@ using namespace Subversion::Internal;
 
 SubversionSettings::SubversionSettings() :
     svnCommand(defaultCommand()),
-    useAuthentication(false)
+    useAuthentication(false),
+    promptToSubmit(true)
 {
 }
 
@@ -66,6 +68,7 @@ void SubversionSettings::fromSettings(QSettings *settings)
     useAuthentication = settings->value(QLatin1String(authenticationKeyC), QVariant(false)).toBool();
     user = settings->value(QLatin1String(userKeyC), QString()).toString();
     password =  settings->value(QLatin1String(passwordKeyC), QString()).toString();
+    promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     settings->endGroup();
 }
 
@@ -76,6 +79,7 @@ void SubversionSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(authenticationKeyC), QVariant(useAuthentication));
     settings->setValue(QLatin1String(userKeyC), user);
     settings->setValue(QLatin1String(passwordKeyC), password);
+    settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
     settings->endGroup();
 }
 
@@ -84,7 +88,8 @@ bool SubversionSettings::equals(const SubversionSettings &s) const
     return svnCommand        == s.svnCommand
         && useAuthentication == s.useAuthentication
         && user              == s.user
-        && password          == s.password;
+        && password          == s.password
+        && promptToSubmit   == s.promptToSubmit;
 }
 
 QStringList SubversionSettings::addOptions(const QStringList &args) const

@@ -70,6 +70,7 @@ Settings SettingsPageWidget::settings() const
     settings.p4Port = m_ui.portLineEdit->text();
     settings.p4User = m_ui.userLineEdit->text();
     settings.p4Client=  m_ui.clientLineEdit->text();
+    settings.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
     return settings;
 }
 
@@ -80,6 +81,7 @@ void SettingsPageWidget::setSettings(const PerforceSettings &s)
     m_ui.portLineEdit->setText(s.p4Port());
     m_ui.clientLineEdit->setText(s.p4Client());
     m_ui.userLineEdit->setText(s.p4User());
+    m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit());
     const QString errorString = s.errorString();
     setStatusText(errorString.isEmpty(), errorString);
 }

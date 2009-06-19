@@ -59,6 +59,7 @@ struct SubversionSettings
     bool useAuthentication;
     QString user;
     QString password;
+    bool promptToSubmit;
 };
 
 inline bool operator==(const SubversionSettings &p1, const SubversionSettings &p2)
