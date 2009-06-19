@@ -2932,9 +2932,9 @@ bool Parser::parseNameId(NameAST *&name)
                 unsigned saved = cursor();
                 ExpressionAST *expr = 0;
                 bool blocked = blockErrors(true);
-                if (parseCastExpression(expr)) {
-                    (void) blockErrors(blocked);
-
+                bool lookAtCastExpression = parseCastExpression(expr);
+                (void) blockErrors(blocked);
+                if (lookAtCastExpression) {
                     if (CastExpressionAST *cast_expression = expr->asCastExpression()) {
                         if (cast_expression->lparen_token && cast_expression->rparen_token
                                 && cast_expression->type_id && cast_expression->expression) {
