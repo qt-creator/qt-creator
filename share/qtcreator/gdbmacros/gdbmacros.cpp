@@ -1390,7 +1390,7 @@ static void qDumpQList(QDumper &d)
             if (innerTypeIsPointer) {
                 void *p = ldata.d->array + i + pdata->begin;
                 P(d, "saddr", p);
-                if (p) {
+                if (*(void**)p) {
                     //P(d, "value","@" << p);
                     qDumpInnerValue(d, strippedInnerType.data(), deref(p));
                 } else {
