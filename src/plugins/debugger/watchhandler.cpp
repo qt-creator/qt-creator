@@ -39,6 +39,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QEvent>
+#include <QtCore/QtAlgorithms>
 #include <QtCore/QTextStream>
 #include <QtCore/QTimer>
 
@@ -246,9 +247,7 @@ QString WatchData::toString() const
 
 // Format a tooltip fow with aligned colon
 template <class Streamable>
-        inline void formatToolTipRow(QTextStream &str,
-                                     const QString &category,
-                                     const Streamable &value)
+void formatToolTipRow(QTextStream &str, const QString &category, const Streamable &value)
 {
     str << "<tr><td>" << category << "</td><td> : </td><td>" << value  << "</td></tr>";
 }
@@ -274,7 +273,6 @@ QString WatchData::toToolTip() const
     str << "</table></body></html>";
     return res;
 }
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -367,26 +365,6 @@ void WatchModel::removeItem(WatchItem *item)
     parent->children.removeAt(n);
     endRemoveRows();
 }
-
-/*
-static bool iNameSorter(const WatchData &d1, const WatchData &d2)
-{
-    if (d1.level != d2.level)
-        return d1.level < d2.level;
-
-    for (int level = 0; level != d1.level; ++level) {
-        QString name1 = d1.iname.section('.', level, level);
-        QString name2 = d2.iname.section('.', level, level);
-        //MODEL_DEBUG(" SORT: " << name1 << name2 << (name1 < name2));
-        if (name1 != name2 && !name1.isEmpty() && !name2.isEmpty()) {
-            if (name1.at(0).isDigit() && name2.at(0).isDigit())
-                return name1.toInt() < name2.toInt();
-            return name1 < name2;
-        }
-    }
-    return false; 
-}
-*/
 
 static QString parentName(const QString &iname)
 {
@@ -697,6 +675,24 @@ QVariant WatchModel::headerData(int section, Qt::Orientation orientation, int ro
     return QVariant(); 
 }
 
+static bool iNameSorter(const WatchItem *item1, const WatchItem *item2)
+{
+    QString name1 = item1->iname.section('.', -1);
+    QString name2 = item2->iname.section('.', -1);
+    if (!name1.isEmpty() && !name2.isEmpty()) {
+        if (name1.at(0).isDigit() && name2.at(0).isDigit())
+            return name1.toInt() < name2.toInt();
+    }
+    return name1 < name2; 
+}
+
+static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *item)
+{
+    QList<WatchItem *>::const_iterator it =
+        qLowerBound(list.begin(), list.end(), item, iNameSorter);
+    return it - list.begin(); 
+}
+
 void WatchModel::insertData(const WatchData &data)
 {
     QTC_ASSERT(!data.iname.isEmpty(), return);
@@ -727,9 +723,9 @@ void WatchModel::insertData(const WatchData &data)
         item->parent = parent;
         item->generation = generationCounter;
         item->changed = true;
-        int n = parent->children.size();
+        int n = findInsertPosition(parent->children, item);
         beginInsertRows(index, n, n);
-        parent->children.append(item);
+        parent->children.insert(n, item);
         endInsertRows();
     }
 }
