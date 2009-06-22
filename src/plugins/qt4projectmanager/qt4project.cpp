@@ -230,7 +230,8 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_nodesWatcher(new Internal::Qt4NodesWatcher(this)),
     m_fileInfo(new Qt4ProjectFile(this, fileName, this)),
     m_isApplication(true),
-    m_projectFiles(new Qt4ProjectFiles)
+    m_projectFiles(new Qt4ProjectFiles),
+    m_toolChain(0)
 {
     m_manager->registerProject(this);
 
@@ -250,6 +251,7 @@ Qt4Project::~Qt4Project()
 {
     m_manager->unregisterProject(this);
     delete m_projectFiles;
+    delete m_toolChain;
 }
 
 void Qt4Project::defaultQtVersionChanged()
@@ -268,6 +270,8 @@ void Qt4Project::qtVersionsChanged()
                 m_rootProjectNode->update();
         }
     }
+    delete m_toolChain;
+    m_toolChain = 0;
 }
 
 void Qt4Project::updateFileList()
@@ -379,7 +383,10 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
 
 ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
 {
-    return qtVersion(buildConfiguration)->toolChain(toolChainType(buildConfiguration));
+    if (!m_toolChain) {
+        m_toolChain = qtVersion(buildConfiguration)->createToolChain(toolChainType(buildConfiguration));
+    }
+    return m_toolChain;
 }
 
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
@@ -823,6 +830,8 @@ void Qt4Project::setQtVersion(const QString &buildConfiguration, int id)
 void Qt4Project::setToolChainType(const QString &buildConfiguration, ProjectExplorer::ToolChain::ToolChainType type)
 {
     setValue(buildConfiguration, "ToolChain", (int)type);
+    delete m_toolChain;
+    m_toolChain = 0;
 }
 
 ProjectExplorer::ToolChain::ToolChainType Qt4Project::toolChainType(const QString &buildConfiguration) const

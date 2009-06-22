@@ -25,6 +25,7 @@
 * Run on device
     * makesis, signsis and applicationinstaller don't report errors back
       via exit code :-(
+    * passphrase for signing
 
 * Add compile output parser winscw at least!
 

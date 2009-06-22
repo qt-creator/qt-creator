@@ -395,8 +395,7 @@ QtVersion::QtVersion(const QString &name, const QString &path, int id,
     m_defaultConfigIsDebugAndRelease(true),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false),
-    m_toolChain(0)
+    m_hasDocumentation(false)
 {
     if (id == -1)
         m_id = getUniqueId();
@@ -412,8 +411,7 @@ QtVersion::QtVersion(const QString &name, const QString &path,
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_mkspecUpToDate(false),
-    m_versionInfoUpToDate(false),
-    m_toolChain(0)
+    m_versionInfoUpToDate(false)
 {
     m_id = getUniqueId();
     setPath(path);
@@ -486,7 +484,6 @@ void QtVersion::setPath(const QString &path)
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     m_qmakeCXX = QString::null;
     m_qmakeCXXUpToDate = false;
-    m_toolChainUpToDate = false;
 }
 
 void QtVersion::updateSourcePath()
@@ -885,18 +882,9 @@ void QtVersion::updateQMakeCXX() const
     m_qmakeCXXUpToDate = true;
 }
 
-ProjectExplorer::ToolChain *QtVersion::toolChain(ProjectExplorer::ToolChain::ToolChainType type) const
+ProjectExplorer::ToolChain *QtVersion::createToolChain(ProjectExplorer::ToolChain::ToolChainType type) const
 {
-    updateToolChain(type);
-    return m_toolChain.data();
-}
-
-void QtVersion::updateToolChain(ProjectExplorer::ToolChain::ToolChainType type) const
-{
-    if (m_toolChainUpToDate && m_toolChain
-            && m_toolChain.data() && m_toolChain->type() == type)
-        return;
-    ProjectExplorer::ToolChain *tempToolchain= 0;
+    ProjectExplorer::ToolChain *tempToolchain = 0;
     if (type == ProjectExplorer::ToolChain::MinGW) {
         QString qmake_cxx = qmakeCXX();
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
@@ -933,14 +921,7 @@ void QtVersion::updateToolChain(ProjectExplorer::ToolChain::ToolChainType type) 
         qDebug()<<"Could not create ToolChain for"<<mkspec();
         qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
     }
-
-    if (ProjectExplorer::ToolChain::equals(tempToolchain, m_toolChain.data())) {
-        delete tempToolchain;
-    } else {
-        m_toolChain =  QSharedPointer<ProjectExplorer::ToolChain>(tempToolchain);
-    }
-
-    m_toolChainUpToDate = true;
+    return tempToolchain;
 }
 
 
@@ -1046,7 +1027,6 @@ QString QtVersion::mwcDirectory() const
 void QtVersion::setMwcDirectory(const QString &directory)
 {
     m_mwcDirectory = directory;
-    m_toolChainUpToDate = false;
 }
 #endif
 
@@ -1058,7 +1038,6 @@ QString QtVersion::mingwDirectory() const
 void QtVersion::setMingwDirectory(const QString &directory)
 {
     m_mingwDirectory = directory;
-    m_toolChainUpToDate = false;
 }
 
 QString QtVersion::msvcVersion() const
@@ -1075,7 +1054,6 @@ QString QtVersion::wincePlatform() const
 void QtVersion::setMsvcVersion(const QString &version)
 {
     m_msvcVersion = version;
-    m_toolChainUpToDate = false;
 }
 
 void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
@@ -1190,11 +1168,12 @@ QString QtVersion::buildDebuggingHelperLibrary()
     addToEnvironment(env);
 
     // TODO: the debugging helper doesn't comply to actual tool chain yet
-    ProjectExplorer::ToolChain *tc = toolChain(defaultToolchainType());
+    ProjectExplorer::ToolChain *tc = createToolChain(defaultToolchainType());
     tc->addToEnvironment(env);
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, path());
     QString output = DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), mkspec(), env);
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
+    delete tc;
     return output;
 }
 

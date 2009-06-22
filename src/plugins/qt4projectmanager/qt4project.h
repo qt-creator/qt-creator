@@ -249,6 +249,7 @@ private:
     QList<Qt4ProjectManager::Internal::Qt4ProFileNode *> m_proFilesForCodeModelUpdate;
 
     QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;
+    mutable ProjectExplorer::ToolChain *m_toolChain;
 
     friend class Qt4ProjectFile;
 };

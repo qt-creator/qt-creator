@@ -53,7 +53,7 @@ public:
     QtVersion(const QString &name, const QString &path, int id,
               bool isAutodetected = false, const QString &autodetectionSource = QString());
     QtVersion()
-        :m_name(QString::null), m_id(-1), m_toolChain(0)
+        :m_name(QString::null), m_id(-1)
     { setPath(QString::null); }
     ~QtVersion();
 
@@ -74,7 +74,7 @@ public:
     QList<ProjectExplorer::ToolChain::ToolChainType> possibleToolChainTypes() const;
     QString mkspec() const;
     ProjectExplorer::ToolChain::ToolChainType defaultToolchainType() const;
-    ProjectExplorer::ToolChain *toolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
+    ProjectExplorer::ToolChain *createToolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
 
     void setName(const QString &name);
     void setPath(const QString &path);
@@ -128,7 +128,6 @@ private:
     void updateMkSpec() const;
     void updateVersionInfo() const;
     void updateQMakeCXX() const;
-    void updateToolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
     QString qmakeCXX() const;
     QString findQtBinary(const QStringList &possibleName) const;
     QString m_name;
@@ -165,9 +164,6 @@ private:
 
     mutable bool m_qmakeCXXUpToDate;
     mutable QString m_qmakeCXX;
-
-    mutable bool m_toolChainUpToDate;
-    mutable QSharedPointer<ProjectExplorer::ToolChain> m_toolChain;
 };
 
 class QtVersionManager : public QObject
