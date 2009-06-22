@@ -43,6 +43,10 @@
 #include "projectloadwizard.h"
 #include "qtversionmanager.h"
 
+#ifdef QTCREATOR_WITH_S60
+#include "qt-s60/gccetoolchain.h"
+#endif
+
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
@@ -385,6 +389,11 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
 {
     if (!m_toolChain) {
         m_toolChain = qtVersion(buildConfiguration)->createToolChain(toolChainType(buildConfiguration));
+#ifdef QTCREATOR_WITH_S60
+        if (m_toolChain->type() == ToolChain::GCCE) {
+            static_cast<GCCEToolChain *>(m_toolChain)->setProject(this);
+        }
+#endif
     }
     return m_toolChain;
 }
@@ -396,7 +405,7 @@ QString Qt4Project::makeCommand(const QString &buildConfiguration) const
 
 QString Qt4Project::defaultMakeTarget(const QString &buildConfiguration) const
 {
-    return toolChain(buildConfiguration)->defaultMakeTarget(this);
+    return toolChain(buildConfiguration)->defaultMakeTarget();
 }
 
 void Qt4Project::updateCodeModel()

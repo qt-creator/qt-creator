@@ -121,12 +121,12 @@ QString GCCEToolChain::makeCommand() const
     return "make";
 }
 
-QString GCCEToolChain::defaultMakeTarget(const Project *project) const
+QString GCCEToolChain::defaultMakeTarget() const
 {
-    const Qt4Project *qt4project = qobject_cast<const Qt4Project *>(project);
+    const Qt4Project *qt4project = qobject_cast<const Qt4Project *>(m_project);
     if (qt4project) {
         if (!(QtVersion::QmakeBuildConfig(qt4project->qmakeStep()->value(
-                project->activeBuildConfiguration(),
+                qt4project->activeBuildConfiguration(),
                 "buildConfiguration").toInt()) & QtVersion::DebugBuild)) {
             return "release-gcce";
         }
@@ -139,4 +139,9 @@ bool GCCEToolChain::equals(ToolChain *other) const
     return (other->type() == type()
             && m_deviceId == static_cast<GCCEToolChain *>(other)->m_deviceId
             && m_deviceName == static_cast<GCCEToolChain *>(other)->m_deviceName);
+}
+
+void GCCEToolChain::setProject(const ProjectExplorer::Project *project)
+{
+    m_project = project;
 }

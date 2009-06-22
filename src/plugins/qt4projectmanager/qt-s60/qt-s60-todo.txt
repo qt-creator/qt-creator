@@ -8,10 +8,6 @@
     * gui for overriding the default make target if necessary,
       make arguments --> make options
     * more general "debug / release" configuration to be used in toolchain???
-    * tool chain instance should move to qt4project again, qt version defines
-      the possible tool chains, and possibly the tool chain creation, but not
-      the currently used one; we can probably get rid of the project parameter
-      of ToolChain::defaultMakeTarget then as well
     * build parser should be defined/created by toolchain, not make step
 
 * Debugging helpers

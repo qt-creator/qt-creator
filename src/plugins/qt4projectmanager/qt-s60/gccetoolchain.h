@@ -18,7 +18,9 @@ public:
     void addToEnvironment(ProjectExplorer::Environment &env);
     ProjectExplorer::ToolChain::ToolChainType type() const;
     QString makeCommand() const;
-    QString defaultMakeTarget(const ProjectExplorer::Project *project) const;
+    QString defaultMakeTarget() const;
+
+    void setProject(const ProjectExplorer::Project *project);
 
 protected:
     bool equals(ToolChain *other) const;
@@ -29,6 +31,7 @@ private:
     QString m_deviceRoot;
     QByteArray m_predefinedMacros;
     QList<ProjectExplorer::HeaderPath> m_systemHeaderPaths;
+    const ProjectExplorer::Project *m_project;
 };
 
 } // namespace Internal

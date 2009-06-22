@@ -18,7 +18,7 @@ public:
     void addToEnvironment(ProjectExplorer::Environment &env);
     ProjectExplorer::ToolChain::ToolChainType type() const;
     QString makeCommand() const;
-    QString defaultMakeTarget(const ProjectExplorer::Project *) const;
+    QString defaultMakeTarget() const;
 
 protected:
     bool equals(ToolChain *other) const;
