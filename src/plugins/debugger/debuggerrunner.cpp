@@ -82,14 +82,6 @@ RunControl* DebuggerRunner::run(RunConfigurationPtr runConfiguration,
     ApplicationRunConfigurationPtr rc =
         runConfiguration.dynamicCast<ApplicationRunConfiguration>();
     Q_ASSERT(!rc.isNull());
-    switch (sp->toolChainType) {
-    case ProjectExplorer::ToolChain::UNKNOWN:
-    case ProjectExplorer::ToolChain::INVALID:
-        sp->toolChainType = rc->toolChainType();
-        break;
-    default:        
-        break;
-    }
     //qDebug() << "***** Debugging" << rc->name() << rc->executable();
     DebuggerRunControl *runControl = new DebuggerRunControl(m_manager, startMode, sp, rc);
     return runControl;
@@ -157,6 +149,14 @@ void DebuggerRunControl::start()
             m_startParameters->workingDir = rc->workingDirectory();
         if (m_mode != StartExternal)
             m_startParameters->processArgs = rc->commandLineArguments();
+        switch (m_startParameters->toolChainType) {
+        case ProjectExplorer::ToolChain::UNKNOWN:
+        case ProjectExplorer::ToolChain::INVALID:
+            m_startParameters->toolChainType = rc->toolChainType();
+            break;
+        default:
+            break;
+        }
         m_manager->setQtDumperLibraryName(rc->dumperLibrary());
         if (const ProjectExplorer::Project *project = rc->project()) {
             m_startParameters->buildDir = project->buildDirectory(project->activeBuildConfiguration());
