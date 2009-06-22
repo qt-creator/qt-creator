@@ -264,7 +264,7 @@ void CppFileSettingsWidget::slotEdit()
     if (path.isEmpty())
         return;
     QFile file(path);
-    if (!file.open(QIODevice::ReadWrite|QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadWrite|QIODevice::Text|QIODevice::Truncate)) {
         QMessageBox::warning(this, tr("Template write error"),
                              tr("Cannot write to %1: %2").arg(path, file.errorString()));
         return;
