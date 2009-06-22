@@ -2763,14 +2763,8 @@ static void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
 
 static void setWatchDataChildCount(WatchData &data, const GdbMi &mi)
 {
-    if (mi.isValid()) {
-        data.childCount = mi.data().toInt();
-        data.setChildCountUnneeded();
-        if (data.childCount == 0)
-            data.setChildrenUnneeded();
-    } else {
-        data.childCount = -1;
-    }
+    if (mi.isValid())
+        data.setHasChildren(mi.data().toInt() > 0);
 }
 
 static void setWatchDataValueDisabled(WatchData &data, const GdbMi &mi)
@@ -2932,7 +2926,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
             #else
             data.setType(strNotInScope);
             data.setValue(strNotInScope);
-            data.setChildCount(0);
+            data.setHasChildren(false);
             insertData(data);
             return;
             #endif
@@ -3033,7 +3027,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         return;
     }
 
-    if (data.isChildCountNeeded() && hasDebuggingHelperForType(data.type)) {
+    if (data.isHasChildrenNeeded() && hasDebuggingHelperForType(data.type)) {
         #if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: CUSTOMVALUE WITH CHILDREN";
         #endif
@@ -3041,7 +3035,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         return;
     }
 
-    if (data.isChildCountNeeded() && data.variable.isEmpty()) {
+    if (data.isHasChildrenNeeded() && data.variable.isEmpty()) {
         #if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR CHILDCOUNT";
         #endif
@@ -3051,7 +3045,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         return;
     }
 
-    if (data.isChildCountNeeded()) {
+    if (data.isHasChildrenNeeded()) {
         QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
         QString cmd = _("-var-list-children --all-values \"") + data.variable + _c('"');
         postCommand(cmd, Discardable, CB(handleVarListChildren), QVariant::fromValue(data));
@@ -3231,7 +3225,7 @@ void GdbEngine::handleVarCreate(const GdbResultRecord &record,
             data.value = strNotInScope;
             data.type = _(" ");
             data.setAllUnneeded();
-            data.setChildCount(0);
+            data.setHasChildren(false);
             data.valuedisabled = true;
             insertData(data);
         }
@@ -3424,21 +3418,21 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
             for (int i = 0; i < l; ++i)
                  str.append(list.at(i).toInt());
             data.setValue(_c('"') + str + _c('"'));
-            data.setChildCount(0);
+            data.setHasChildren(false);
             data.setAllUnneeded();
             insertData(data);
         } else if (data.type == __("QStringList")
                 || data.type.endsWith(__("::QStringList"))) {
             if (out.isEmpty()) {
                 data.setValue(tr("<0 items>"));
-                data.setChildCount(0);
+                data.setHasChildren(false);
                 data.setAllUnneeded();
                 insertData(data);
             } else {
                 int l = list.size();
                 //: In string list
                 data.setValue(tr("<%n items>", 0, l));
-                data.setChildCount(list.size());
+                data.setHasChildren(!list.empty());
                 data.setAllUnneeded();
                 insertData(data);
                 for (int i = 0; i < l; ++i) {
@@ -3448,7 +3442,7 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
                     data1.iname = data.iname + _(".%1").arg(i);
                     data1.addr = _(list.at(i));
                     data1.exp = _("((") + gdbQuoteTypes(data1.type) + _("*)") + data1.addr + _c(')');
-                    data1.setChildCount(0);
+                    data1.setHasChildren(false);
                     data1.setValueNeeded();
                     QString cmd = _("qdumpqstring (") + data1.exp + _c(')');
                     QVariant var;
@@ -3572,7 +3566,7 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
             setWatchDataValue(data, item.findChild("value"));
             //: Type of variable <FIXME: what? bug Andre about it>
             data.setType(tr("<shadowed>"));
-            data.setChildCount(0);
+            data.setHasChildren(false);
             insertData(data);
         } else {
             seen[name] = 1;
@@ -3590,7 +3584,7 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
             if (!qq->watchHandler()->isExpandedIName(data.iname))
                 data.setChildrenUnneeded();
             if (isPointerType(data.type) || data.name == __("this"))
-                data.setChildCount(1);
+                data.setHasChildren(true);
             if (0 && m_varToType.contains(data.framekey)) {
                 qDebug() << "RE-USING" << m_varToType.value(data.framekey);
                 data.setType(m_varToType.value(data.framekey));
@@ -3665,7 +3659,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         data.exp = parent.exp;
         data.setTypeUnneeded();
         data.setValueUnneeded();
-        data.setChildCountUnneeded();
+        data.setHasChildrenUnneeded();
         data.setChildrenUnneeded();
         //qDebug() << "DATA" << data.toString();
         QString cmd = _("-var-list-children --all-values \"") + data.variable + _c('"');
@@ -3681,7 +3675,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         setWatchDataValue(data, item.findChild("value"));
         setWatchDataAddress(data, item.findChild("addr"));
         setWatchDataSAddress(data, item.findChild("saddr"));
-        data.setChildCount(0);
+        data.setHasChildren(false);
         insertData(data);
     } else if (parent.iname.endsWith(_c('.'))) {
         // Happens with anonymous unions
@@ -3741,7 +3735,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         if (hasDebuggingHelperForType(data.type)) {
             // we do not trust gdb if we have a custom dumper
             data.setValueNeeded();
-            data.setChildCountNeeded();
+            data.setHasChildrenNeeded();
         }
 
         //qDebug() <<  "VAR_LIST_CHILDREN: PARENT 3" << parent.toString();
@@ -3771,7 +3765,7 @@ void GdbEngine::handleVarListChildren(const GdbResultRecord &record,
             data1.iname = data.iname + _(".child");
             //: About variable's value
             data1.value = tr("<no information>");
-            data1.childCount = 0;
+            data1.hasChildren = false;
             data1.setAllUnneeded();
             insertData(data1);
             data.setAllUnneeded();
@@ -3835,7 +3829,7 @@ void GdbEngine::handleToolTip(const GdbResultRecord &record,
 
     m_toolTip.iname = tooltipIName;
     m_toolTip.setChildrenUnneeded();
-    m_toolTip.setChildCountUnneeded();
+    m_toolTip.setHasChildrenUnneeded();
     insertData(m_toolTip);
     qDebug() << "DATA INSERTED";
     QTimer::singleShot(0, this, SLOT(updateWatchModel2()));

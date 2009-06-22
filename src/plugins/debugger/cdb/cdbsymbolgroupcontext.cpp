@@ -340,25 +340,6 @@ void CdbSymbolGroupContext::clear()
     m_inameIndexMap.clear();
 }
 
-int CdbSymbolGroupContext::getDisplayableChildCount(unsigned long index) const
-{
-    if (!isExpanded(index))
-        return 0;
-    int rc = 0;
-    // Skip over expanded children, count displayable ones
-    const unsigned long childCount = m_symbolParameters.at(index).SubElements;
-    unsigned long seenChildren = 0;
-    for (unsigned long c = index + 1; seenChildren < childCount; c++) {
-        const DEBUG_SYMBOL_PARAMETERS &params = m_symbolParameters.at(c);
-        if (params.ParentSymbol == index) {
-            seenChildren++;
-            if (isSymbolDisplayable(params))
-                rc++;
-        }
-    }
-    return rc;
-}
-
 QString CdbSymbolGroupContext::symbolINameAt(unsigned long index) const
 {
     return m_inameIndexMap.key(index);
@@ -383,18 +364,11 @@ WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
     wd.setType(getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index));
     wd.setValue(getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index).toUtf8());
     wd.setChildrenNeeded(); // compensate side effects of above setters
-    wd.setChildCountNeeded();
     // Figure out children. The SubElement is only a guess unless the symbol,
     // is expanded, so, we leave this as a guess for later updates.
     // If the symbol has children (expanded or not), we leave the 'Children' flag
     // in 'needed' state.
-    const DEBUG_SYMBOL_PARAMETERS &params = m_symbolParameters.at(index);
-    if (params.SubElements) {
-        if (getSymbolState(params) == ExpandedSymbol)
-            wd.setChildCount(getDisplayableChildCount(index));
-    } else {
-        wd.setChildCount(0);
-    }
+    wd.setHasChildren(m_symbolParameters.at(index).SubElements);
     if (debug > 1)
         qDebug() << Q_FUNC_INFO << index << '\n' << wd.toString();
     return wd;

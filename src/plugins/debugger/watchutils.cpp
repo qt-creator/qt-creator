@@ -488,7 +488,7 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
     root.valuedisabled = valuedisabled;
     root.setAddress(address);
     root.source = source;
-    root.setChildCount(childCount);
+    root.setHasChildren(childCount > 0);
     // Children
     if (childCount > 0) {
         if (children.size() == childCount) {
@@ -506,7 +506,7 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
                 wchild.setType(dchild.type.isEmpty() ? childType : dchild.type);
                 wchild.setAddress(dchild.address);
                 wchild.setValue(decodeData(dchild.value, dchild.valueEncoded));
-                wchild.setChildCount(0);
+                wchild.setHasChildren(false);
             }
             root.setChildrenUnneeded();
         } else {

@@ -54,7 +54,7 @@ public:
     enum State
     {
         Complete = 0,
-        ChildCountNeeded = 1,
+        HasChildrenNeeded = 1,
         ValueNeeded = 2,
         TypeNeeded = 4,
         ChildrenNeeded = 8,
@@ -62,12 +62,12 @@ public:
         NeededMask = ValueNeeded
             | TypeNeeded
             | ChildrenNeeded
-            | ChildCountNeeded,
+            | HasChildrenNeeded,
 
         InitialState = ValueNeeded
             | TypeNeeded
             | ChildrenNeeded
-            | ChildCountNeeded
+            | HasChildrenNeeded
     };
 
     void setValue(const QString &);
@@ -95,12 +95,12 @@ public:
     void setChildrenNeeded() { state = State(state | ChildrenNeeded); }
     void setChildrenUnneeded() { state = State(state & ~ChildrenNeeded); }
 
-    bool isChildCountNeeded() const { return state & ChildCountNeeded; }
-    bool isChildCountKnown() const { return !(state & ChildCountNeeded); }
-    void setChildCountNeeded() { state = State(state | ChildCountNeeded); }
-    void setChildCountUnneeded() { state = State(state & ~ChildCountNeeded); }
-    void setChildCount(int n) { childCount = n; setChildCountUnneeded();
-        if (n == 0) setChildrenUnneeded(); }
+    bool isHasChildrenNeeded() const { return state & HasChildrenNeeded; }
+    bool isHasChildrenKnown() const { return !(state & HasChildrenNeeded); }
+    void setHasChildrenNeeded() { state = State(state | HasChildrenNeeded); }
+    void setHasChildrenUnneeded() { state = State(state & ~HasChildrenNeeded); }
+    void setHasChildren(bool c) { hasChildren = c; setHasChildrenUnneeded();
+        if (!c) setChildrenUnneeded(); }
 
     WatchData pointerChildPlaceHolder() const;
 
@@ -123,7 +123,7 @@ public:
     QString saddr;        // stored address (pointer in container)
     QString framekey;     // key for type cache
     QScriptValue scriptValue; // if needed...
-    int childCount;
+    bool hasChildren;
     int generation;       // when updated?
     bool valuedisabled;   // value will be greyed out
 

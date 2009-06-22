@@ -636,11 +636,11 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
         } else if (ob.isBool()) {
             data.setType("Bool");
             data.setValue(ob.toBool() ? "true" : "false");
-            data.setChildCount(0);
+            data.setHasChildren(false);
         } else if (ob.isDate()) {
             data.setType("Date");
             data.setValue(ob.toDateTime().toString().toUtf8());
-            data.setChildCount(0);
+            data.setHasChildren(false);
         } else if (ob.isError()) {
             data.setType("Error");
             data.setValue(" ");
@@ -653,7 +653,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
         } else if (ob.isNumber()) {
             data.setType("Number");
             data.setValue(QString::number(ob.toNumber()).toUtf8());
-            data.setChildCount(0);
+            data.setHasChildren(false);
         } else if (ob.isObject()) {
             data.setType("Object");
             data.setValue(" ");
@@ -701,20 +701,20 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             ++numChild;
         }
         //SDEBUG("  ... CHILDREN: " << numChild);
-        data.setChildCount(numChild);
+        data.setHasChildren(numChild > 0);
         data.setChildrenUnneeded();
         qq->watchHandler()->insertData(data);
         return;
     }
 
-    if (data.isChildCountNeeded()) {
+    if (data.isHasChildrenNeeded()) {
         int numChild = 0;
         QScriptValueIterator it(data.scriptValue);
         while (it.hasNext()) {
             it.next();
             ++numChild;
         }
-        data.setChildCount(numChild);
+        data.setHasChildren(numChild > 0);
         //SDEBUG("  ... CHILDCOUNT: " << numChild);
         qq->watchHandler()->insertData(data);
         return;

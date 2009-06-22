@@ -95,28 +95,27 @@ public:
     QList<WatchItem *> children;  // fetched children
 };
 
-
 ////////////////////////////////////////////////////////////////////
 //
 // WatchData
 //
 ////////////////////////////////////////////////////////////////////
-
-WatchData::WatchData()
+   
+WatchData::WatchData() :
+    hasChildren(false),
+    generation(-1),
+    valuedisabled(false),
+    source(0),
+    state(InitialState),
+    changed(false)
 {
-    childCount = -1;
-    valuedisabled = false;
-    source = 0;
-    state = InitialState;
-    changed = false;
-    generation = -1; 
 }
 
 void WatchData::setError(const QString &msg)
 {
     setAllUnneeded();
     value = msg;
-    setChildCount(0);
+    setHasChildren(false);
     valuedisabled = true;
 }
 
@@ -125,7 +124,7 @@ void WatchData::setValue(const QString &value0)
     value = value0;
     if (value == "{...}") {
         value.clear();
-        childCount = 1; // at least one...
+        hasChildren = true; // at least one...
     }
 
     // avoid duplicated information
@@ -137,13 +136,13 @@ void WatchData::setValue(const QString &value0)
     if (/*isIntOrFloatType(type) && */ value.startsWith("@0x")
          && value.contains(':')) {
         value = value.mid(value.indexOf(':') + 2);
-        setChildCount(0);
+        setHasChildren(false);
     }
 
     // "numchild" is sometimes lying
     //MODEL_DEBUG("\n\n\nPOINTER: " << type << value);
     if (isPointerType(type))
-        setChildCount(value != "0x0" && value != "<null>");
+        setHasChildren(value != "0x0" && value != "<null>");
 
     // pointer type information is available in the 'type'
     // column. No need to duplicate it here.
@@ -184,7 +183,7 @@ void WatchData::setType(const QString &str)
     }
     setTypeUnneeded();
     if (isIntOrFloatType(type))
-        setChildCount(0);
+        setHasChildren(false);
 }
 
 void WatchData::setAddress(const QString & str)
@@ -197,7 +196,8 @@ WatchData WatchData::pointerChildPlaceHolder() const
     WatchData data1;
     data1.iname = iname + QLatin1String(".*");
     data1.name = QLatin1Char('*') + name;
-    data1.exp = QLatin1String("(*(") + exp + QLatin1String("))");
+    data1
+.exp = QLatin1String("(*(") + exp + QLatin1String("))");
     data1.type = stripPointerType(type);
     data1.setValueNeeded();
     return data1;
@@ -208,9 +208,6 @@ QString WatchData::toString() const
     const char *doubleQuoteComma = "\",";
     QString res;
     QTextStream str(&res);
-    if (childCount)
-         str << "childCount=\"" << childCount << doubleQuoteComma;
-
     if (!iname.isEmpty())
         str << "iname=\"" << iname << doubleQuoteComma;
     if (!exp.isEmpty())
@@ -232,10 +229,10 @@ QString WatchData::toString() const
     if (isTypeKnown() && !type.isEmpty())
         str << "type=\"" << type << doubleQuoteComma;
 
-    if (isChildCountNeeded())
-        str << "numchild=<needed>,";
-    if (isChildCountKnown() && childCount == -1)
-        str << "numchild=\"" << childCount << doubleQuoteComma;
+    if (isHasChildrenNeeded())
+        str << "hasChildren=<needed>,";
+    if (isHasChildrenKnown())
+        str << "hasChildren=\"" << (hasChildren ? "true" : "false") << doubleQuoteComma;
 
     if (isChildrenNeeded())
         str << "children=<needed>,";
@@ -284,7 +281,7 @@ WatchModel::WatchModel(WatchHandler *handler, WatchType type)
     : QAbstractItemModel(handler), m_handler(handler), m_type(type)
 {
     m_root = new WatchItem;
-    m_root->childCount = 1;
+    m_root->hasChildren = 1;
     m_root->state = 0;
     m_root->name = WatchHandler::tr("Root");
 
@@ -304,7 +301,7 @@ WatchModel::WatchModel(WatchHandler *handler, WatchType type)
             item->name = WatchHandler::tr("Tooltip");
             break;
     }
-    item->childCount = 1;
+    item->hasChildren = true;
     item->state = 0;
     item->parent = m_root;
     item->fetchedTriggered = true;
@@ -542,7 +539,7 @@ int WatchModel::columnCount(const QModelIndex &idx) const
 bool WatchModel::hasChildren(const QModelIndex &parent) const
 {
     WatchItem *item = watchItem(parent);
-    return !item || item->childCount > 0;
+    return !item || item->hasChildren;
 }
 
 WatchItem *WatchModel::watchItem(const QModelIndex &idx) const

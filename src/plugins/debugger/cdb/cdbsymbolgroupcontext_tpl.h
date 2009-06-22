@@ -87,22 +87,23 @@ bool insertSymbolRecursion(WatchData wd,
     // Find out whether to recurse (has children or at least knows it has children)
     // Open next level if specified by recursion depth or child is already expanded
     // (Sometimes, some root children are already expanded after creating the context).
-    const bool hasChildren = wd.childCount > 0 || wd.isChildrenNeeded();
+    const bool hasChildren = wd.hasChildren || wd.isChildrenNeeded();
     const bool recurse = hasChildren && (level < maxRecursionLevel || sg->isExpanded(wd.iname));
     if (debugSgRecursion)
-        qDebug() << Q_FUNC_INFO << '\n' << wd.iname << "level=" << level <<  "recurse=" << recurse;
+        qDebug() << "insertSymbolRecursion" << '\n' << wd.iname << "level=" << level <<  "recurse=" << recurse;
     bool rc = true;
     if (recurse) { // Determine number of children and indicate in model
         int childCount;
         rc = insertChildrenRecursion(wd.iname, sg, it, maxRecursionLevel, level, errorMessage, &childCount);
         if (rc) {
-            wd.setChildCount(childCount);
+            wd.setHasChildren(childCount > 0);
             wd.setChildrenUnneeded();
         }
     } else {
         // No further recursion at this level, pretend entry is complete
+        // to the watchmodel
         if (wd.isChildrenNeeded()) {
-            wd.setChildCount(1);
+            wd.setHasChildren(true);
             wd.setChildrenUnneeded();
         }
     }
@@ -124,7 +125,7 @@ template <class OutputIterator>
                                      int *childCountPtr)
 {
     if (debugSgRecursion > 1)
-        qDebug() << Q_FUNC_INFO << '\n' << iname << level;
+        qDebug() << "insertChildrenRecursion" << '\n' << iname << level;
 
     QList<WatchData> watchList;
     // This implicitly enforces expansion
@@ -159,7 +160,7 @@ bool CdbSymbolGroupContext::populateModelInitially(CdbSymbolGroupContext *sg,
                                                    QString *errorMessage)
 {
     if (debugSgRecursion)
-        qDebug() << "###" << Q_FUNC_INFO;
+        qDebug() << "### CdbSymbolGroupContext::populateModelInitially";
 
     // Insert root items
     QList<WatchData> watchList;
@@ -198,7 +199,7 @@ bool CdbSymbolGroupContext::completeData(CdbSymbolGroupContext *sg,
                                          QString *errorMessage)
 {
     if (debugSgRecursion)
-        qDebug().nospace() << "###>" << Q_FUNC_INFO << ' ' << incompleteLocal.iname << '\n';
+        qDebug().nospace() << "###>CdbSymbolGroupContext::completeData" << ' ' << incompleteLocal.iname << '\n';
     const bool contextExpanded = sg->isExpanded(incompleteLocal.iname);
     if (debugSgRecursion)
         qDebug() << "  " << incompleteLocal.iname << "CE=" << contextExpanded;

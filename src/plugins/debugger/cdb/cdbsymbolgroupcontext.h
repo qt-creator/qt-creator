@@ -121,7 +121,6 @@ private:
     bool expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage);
     void populateINameIndexMap(const QString &prefix, unsigned long parentId, unsigned long start, unsigned long count);    
     QString symbolINameAt(unsigned long index) const;  
-    int getDisplayableChildCount(unsigned long index) const;
 
     inline DEBUG_SYMBOL_PARAMETERS *symbolParameters() { return &(*m_symbolParameters.begin()); }
     inline const DEBUG_SYMBOL_PARAMETERS *symbolParameters() const { return &(*m_symbolParameters.constBegin()); }

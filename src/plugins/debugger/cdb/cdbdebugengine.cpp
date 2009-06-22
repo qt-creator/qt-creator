@@ -795,7 +795,7 @@ void CdbDebugEngine::evaluateWatcher(WatchData *wd)
         wd->setValue(errorMessage);
         wd->setTypeUnneeded();
     }
-    wd->setChildCount(0);
+    wd->setHasChildren(false);
 }
 
 void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
