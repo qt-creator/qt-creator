@@ -31,6 +31,7 @@
 #include "cppeditor.h"
 #include "cppeditorconstants.h"
 
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <utils/codegeneration.h>
 
 #include <QtCore/QTextStream>
@@ -70,6 +71,7 @@ QString CppFileWizard::fileContents(FileType type, const QString &fileName) cons
     const QString baseName = QFileInfo(fileName).completeBaseName();
     QString contents;
     QTextStream str(&contents);
+    str << CppTools::AbstractEditorSupport::licenseTemplate();
     switch (type) {
     case Header: {
             const QString guard = Core::Utils::headerGuard(fileName);

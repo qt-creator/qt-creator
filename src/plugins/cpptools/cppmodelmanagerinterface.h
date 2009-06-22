@@ -110,6 +110,8 @@ public:
                               const QString &fileName,
                               int line, int column);
 
+    static QString licenseTemplate();
+
 private:
     CppModelManagerInterface *m_modelmanager;
 };

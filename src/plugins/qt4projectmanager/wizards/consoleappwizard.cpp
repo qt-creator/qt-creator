@@ -34,6 +34,7 @@
 #include "qt4projectmanagerconstants.h"
 
 #include <utils/pathchooser.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
@@ -77,12 +78,13 @@ Core::GeneratedFiles
     const ConsoleAppWizardDialog *wizard = qobject_cast< const ConsoleAppWizardDialog *>(w);
     const QtProjectParameters params = wizard->parameters();
     const QString projectPath = params.projectPath();
+    const QString license = CppTools::AbstractEditorSupport::licenseTemplate();
 
     // Create files: Source
 
     const QString sourceFileName = Core::BaseFileWizard::buildFileName(projectPath, QLatin1String(mainSourceFileC), sourceSuffix());
     Core::GeneratedFile source(sourceFileName);
-    source.setContents(QLatin1String(mainCppC));
+    source.setContents(license + QLatin1String(mainCppC));
     // Create files: Profile
     const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.name,profileSuffix());
 

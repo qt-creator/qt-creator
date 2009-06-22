@@ -34,6 +34,7 @@
 
 #include <utils/codegeneration.h>
 #include <utils/pathchooser.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -73,6 +74,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     const QtProjectParameters projectParams = dialog->parameters();
     const QString projectPath = projectParams.projectPath();
     const LibraryParameters params = dialog->libraryParameters();
+    const QString license = CppTools::AbstractEditorSupport::licenseTemplate();
 
     const QString sharedLibExportMacro = QtProjectParameters::exportMacro(projectParams.name);
 
@@ -91,7 +93,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
         const QString globalHeaderName = buildFileName(projectPath, projectParams.name + QLatin1String(sharedHeaderPostfixC), headerSuffix());
         Core::GeneratedFile globalHeader(globalHeaderName);
         globalHeaderFileName = QFileInfo(globalHeader.path()).fileName();
-        globalHeader.setContents(LibraryParameters::generateSharedHeader(globalHeaderFileName, projectParams.name, sharedLibExportMacro));
+        globalHeader.setContents(license + LibraryParameters::generateSharedHeader(globalHeaderFileName, projectParams.name, sharedLibExportMacro));
         rc.push_back(globalHeader);
     }
 
@@ -101,8 +103,8 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
                         globalHeaderFileName, sharedLibExportMacro,
                         /* indentation*/ 4, &headerContents, &sourceContents);
 
-    source.setContents(sourceContents);
-    header.setContents(headerContents);
+    source.setContents(license + sourceContents);
+    header.setContents(license + headerContents);
     rc.push_back(source);
     rc.push_back(header);
     // Create files: profile

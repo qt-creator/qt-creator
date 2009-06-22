@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "cppmodelmanagerinterface.h"
+#include "cpptoolsconstants.h"
+#include "cppfilesettingspage.h"
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/CppDocument.h>
@@ -36,6 +38,8 @@
 #include <Names.h>
 #include <Symbols.h>
 #include <Scope.h>
+
+#include <coreplugin/icore.h>
 
 namespace CppTools {
 
@@ -71,4 +75,9 @@ QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelM
     return QString();
 }
 
+QString AbstractEditorSupport::licenseTemplate()
+{
+    return Internal::CppFileSettings::licenseTemplate();
 }
+}
+

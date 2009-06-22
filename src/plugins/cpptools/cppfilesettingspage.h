@@ -51,10 +51,16 @@ struct CppFileSettings {
     QString headerSuffix;
     QString sourceSuffix;
     bool lowerCaseFiles;
+    QString licenseTemplatePath;
 
     void toSettings(QSettings *) const;
     void fromSettings(QSettings *);
-    bool applySuffixesToMimeDB();
+    bool applySuffixesToMimeDB();  
+
+    // Convenience to return a license template completely formatted.
+    // Currently made public in
+    static QString licenseTemplate();
+
 
     bool equals(const CppFileSettings &rhs) const;
 };
@@ -71,7 +77,13 @@ public:
     CppFileSettings settings() const;
     void setSettings(const CppFileSettings &s);
 
+private slots:    
+    void slotEdit();
+
 private:
+    inline QString licenseTemplatePath() const;
+    inline void setLicenseTemplatePath(const QString &);
+
     Ui::CppFileSettingsPage *m_ui;
 };
 

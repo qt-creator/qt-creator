@@ -31,6 +31,7 @@
 #include "formtemplatewizardpage.h"
 
 #include <utils/codegeneration.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
@@ -50,7 +51,7 @@ FormClassWizardParameters::FormClassWizardParameters() :
 
 bool FormClassWizardParameters::generateCpp(QString *header, QString *source, int indentation) const
 {
-    const QString indent = QString(indentation, QLatin1Char(' '));
+    const QString indent = QString(indentation, QLatin1Char(' '));        
     QString formBaseClass;
     QString uiClassName;
     if (!FormTemplateWizardPage::getUIXmlData(uiTemplate, &formBaseClass, &uiClassName)) {
@@ -72,6 +73,7 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
 
     const QString unqualifiedClassName = namespaceList.takeLast();
 
+    const QString license = CppTools::AbstractEditorSupport::licenseTemplate();
     // Include guards
     const QString guard = Core::Utils::headerGuard(headerFile);
 
@@ -81,7 +83,7 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
 
     // 1) Header file
     QTextStream headerStr(header);
-    headerStr << "#ifndef " << guard
+    headerStr << license << "#ifndef " << guard
               << "\n#define " <<  guard << '\n' << '\n';
 
     // Include 'ui_'
@@ -136,6 +138,7 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
 
     // 2) Source file
     QTextStream sourceStr(source);
+    sourceStr << license;
     Core::Utils::writeIncludeFileDirective(headerFile, false, sourceStr);
     if (embedding == PointerAggregatedUiClass)
         Core::Utils::writeIncludeFileDirective(uiInclude, false, sourceStr);

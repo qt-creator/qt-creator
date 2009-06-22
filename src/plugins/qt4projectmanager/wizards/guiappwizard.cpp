@@ -36,6 +36,7 @@
 
 #include <utils/pathchooser.h>
 #include <projectexplorer/projectnodes.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -95,6 +96,7 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
     const QtProjectParameters projectParams = dialog->projectParameters();
     const QString projectPath = projectParams.projectPath();
     const GuiAppParameters params = dialog->parameters();
+    const QString license = CppTools::AbstractEditorSupport::licenseTemplate();
 
     // Generate file names. Note that the path for the project files is the
     // newly generated project directory.
@@ -105,21 +107,21 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
     Core::GeneratedFile mainSource(mainSourceFileName);
     if (!parametrizeTemplate(templatePath, QLatin1String("main.cpp"), params, &contents, errorMessage))
         return Core::GeneratedFiles();
-    mainSource.setContents(contents);
+    mainSource.setContents(license + contents);
     // Create files: form source
     const QString formSourceTemplate = params.designerForm ? QLatin1String("mywidget_form.cpp") : QLatin1String("mywidget.cpp");
     const QString formSourceFileName = buildFileName(projectPath, params.sourceFileName, sourceSuffix());
     Core::GeneratedFile formSource(formSourceFileName);
     if (!parametrizeTemplate(templatePath, formSourceTemplate, params, &contents, errorMessage))
         return Core::GeneratedFiles();
-    formSource.setContents(contents);
+    formSource.setContents(license + contents);
     // Create files: form header
     const QString formHeaderName = buildFileName(projectPath, params.headerFileName, headerSuffix());
     const QString formHeaderTemplate = params.designerForm ? QLatin1String("mywidget_form.h") : QLatin1String("mywidget.h");
     Core::GeneratedFile formHeader(formHeaderName);
     if (!parametrizeTemplate(templatePath, formHeaderTemplate, params, &contents, errorMessage))
         return Core::GeneratedFiles();
-    formHeader.setContents(contents);
+    formHeader.setContents(license + contents);
     // Create files: form
     QSharedPointer<Core::GeneratedFile> form;
     if (params.designerForm) {

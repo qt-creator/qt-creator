@@ -53,6 +53,16 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="licenseTemplateLabel">
+        <property name="text">
+         <string>License Template:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="Core::Utils::PathChooser" name="licenseTemplatePathChooser" native="true"/>
+      </item>
      </layout>
     </widget>
    </item>
@@ -71,6 +81,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Core::Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

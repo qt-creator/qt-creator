@@ -31,6 +31,7 @@
 #include "cppeditorconstants.h"
 
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
@@ -224,12 +225,14 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     if (namespaceList.empty()) // Paranoia!
         return false;
 
+    const QString license = CppTools::AbstractEditorSupport::licenseTemplate();
+
     const QString unqualifiedClassName = namespaceList.takeLast();
     const QString guard = Core::Utils::headerGuard(params.headerFile);
 
     // == Header file ==
     QTextStream headerStr(header);
-    headerStr << "#ifndef " << guard
+    headerStr << license << "#ifndef " << guard
               << "\n#define " <<  guard << '\n';
 
     const QRegExp qtClassExpr(QLatin1String("^Q[A-Z3].+"));
@@ -262,6 +265,7 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
 
     // == Source file ==
     QTextStream sourceStr(source);
+    sourceStr << license;
     Core::Utils::writeIncludeFileDirective(params.headerFile, false, sourceStr);
     Core::Utils::writeOpeningNameSpaces(namespaceList, QString(), sourceStr);
 
