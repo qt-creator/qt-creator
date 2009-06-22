@@ -55,7 +55,7 @@ bool ToolChain::equals(ToolChain *a, ToolChain *b)
     if (a == 0 || b == 0)
         return false;
     if (a->type() == b->type())
-        a->equals(b);
+        return a->equals(b);
     return false;
 }
 
