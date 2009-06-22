@@ -1044,12 +1044,7 @@ void Qt4Project::notifyChanged(const QString &name)
 
 void Qt4Project::invalidateCachedTargetInformation()
 {
-    foreach(QSharedPointer<RunConfiguration> rc, runConfigurations()) {
-        QSharedPointer<Qt4RunConfiguration> qt4rc = rc.dynamicCast<Qt4RunConfiguration>();
-        if (qt4rc) {
-            qt4rc->invalidateCachedTargetInformation();
-        }
-    }
+    emit targetInformationChanged();
 }
 
 

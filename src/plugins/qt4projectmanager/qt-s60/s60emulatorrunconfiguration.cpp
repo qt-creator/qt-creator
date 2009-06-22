@@ -28,6 +28,9 @@ S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Project *project, const
 
     connect(project, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
+
+    connect(project, SIGNAL(targetInformationChanged()),
+            this, SLOT(invalidateCachedTargetInformation()));
 }
 
 S60EmulatorRunConfiguration::~S60EmulatorRunConfiguration()

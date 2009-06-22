@@ -196,6 +196,9 @@ public:
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
 
+signals:
+    void targetInformationChanged();
+
 public slots:
     void update();
     void proFileParseError(const QString &errorMessage);

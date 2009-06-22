@@ -32,6 +32,9 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
 
     connect(project, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
+
+    connect(project, SIGNAL(targetInformationChanged()),
+            this, SLOT(invalidateCachedTargetInformation()));
 }
 
 S60DeviceRunConfiguration::~S60DeviceRunConfiguration()

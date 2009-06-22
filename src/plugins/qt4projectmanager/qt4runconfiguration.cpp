@@ -75,6 +75,9 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
 
+    connect(pro, SIGNAL(targetInformationChanged()),
+            this, SLOT(invalidateCachedTargetInformation()));
+
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
 
