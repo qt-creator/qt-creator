@@ -187,11 +187,13 @@ void BuildSettingsWidget::updateBuildSettings()
     // Add pages
     QWidget *dummyWidget = new QWidget(this);
     QWidget *buildStepsWidget = new BuildStepsPage(m_project);
+    QWidget *cleanStepsWidget = new BuildStepsPage(m_project, true);
     BuildStepConfigWidget *generalConfigWidget = m_project->createConfigWidget();
     QList<BuildStepConfigWidget *> subConfigWidgets = m_project->subConfigWidgets();
 
     m_ui.buildSettingsWidgets->addWidget(dummyWidget);
     m_ui.buildSettingsWidgets->addWidget(buildStepsWidget);
+    m_ui.buildSettingsWidgets->addWidget(cleanStepsWidget);
     m_ui.buildSettingsWidgets->addWidget(generalConfigWidget);
     foreach (BuildStepConfigWidget *subConfigWidget, subConfigWidgets)
         m_ui.buildSettingsWidgets->addWidget(subConfigWidget);
@@ -232,6 +234,11 @@ void BuildSettingsWidget::updateBuildSettings()
         m_itemToWidget.insert(buildStepsItem, buildStepsWidget);
         buildStepsItem->setText(0, tr("Build Steps"));
         buildConfigItem->addChild(buildStepsItem);
+
+        QTreeWidgetItem *cleanStepsItem = new QTreeWidgetItem();
+        m_itemToWidget.insert(cleanStepsItem, cleanStepsWidget);
+        cleanStepsItem->setText(0, tr("Clean Steps"));
+        buildConfigItem->addChild(cleanStepsItem);
     }
 
     m_ui.buildSettingsList->expandAll();

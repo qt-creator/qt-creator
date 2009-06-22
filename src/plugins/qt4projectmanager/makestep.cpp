@@ -83,16 +83,17 @@ bool MakeStep::init(const QString &name)
     }
     setCommand(name, makeCmd);
 
-    bool skipMakeClean = false;
-    QStringList args;
-    if (value("clean").isValid() && value("clean").toBool())  {
-        args = QStringList() << "clean";
-        if (!QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
-            skipMakeClean = true;
-        }
-    } else {
-        args = value(name, "makeargs").toStringList();
+    if (!value(name, "cleanConfig").isValid() && value("clean").isValid() && value("clean").toBool()) {
+        // Import old settings
+        setValue(name, "cleanConfig", true);
+        setValue(name, "makeargs", QStringList() << "clean");
     }
+
+    // If we are cleaning, then make can fail with a error code, but that doesn't mean
+    // we should stop the clean queue
+    // That is mostly so that rebuild works on a alrady clean project
+    setIgnoreReturnValue(name, value(name, "cleanConfig").isValid());
+    QStringList args = value(name, "makeargs").toStringList();
 
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
@@ -105,7 +106,7 @@ bool MakeStep::init(const QString &name)
             args << "-w";
     }
 
-    setEnabled(name, !skipMakeClean);
+    setEnabled(name, true);
     setArguments(name, args);
 
     ProjectExplorer::ToolChain::ToolChainType type = qobject_cast<Qt4Project *>(project())->qtVersion(name)->toolchainType();
@@ -171,21 +172,26 @@ QString MakeStepConfigWidget::displayName() const
 void MakeStepConfigWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
-    bool showPage0 = buildConfiguration.isNull();
-    m_ui.stackedWidget->setCurrentIndex(showPage0 ? 0 : 1);
 
-    if (!showPage0) {
-        Qt4Project *pro = qobject_cast<Qt4Project *>(m_makeStep->project());
-        Q_ASSERT(pro);
-        m_ui.makeLabel->setText(tr("Override %1:").arg(pro->makeCommand(buildConfiguration)));
+    Qt4Project *pro = qobject_cast<Qt4Project *>(m_makeStep->project());
+    Q_ASSERT(pro);
 
-        const QString &makeCmd = m_makeStep->value(buildConfiguration, "makeCmd").toString();
-        m_ui.makeLineEdit->setText(makeCmd);
-
-        const QStringList &makeArguments =
-            m_makeStep->value(buildConfiguration, "makeargs").toStringList();
-        m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
+    if (!m_makeStep->value(buildConfiguration, "cleanConfig").isValid() && m_makeStep->value("clean").isValid() && m_makeStep->value("clean").toBool()) {
+        // Import old settings
+        m_makeStep->setValue(buildConfiguration, "cleanConfig", true);
+        m_makeStep->setValue(buildConfiguration, "makeargs", QStringList() << "clean");
     }
+
+    m_ui.stackedWidget->setCurrentIndex(1);
+
+    m_ui.makeLabel->setText(tr("Override %1:").arg(pro->makeCommand(buildConfiguration)));
+
+    const QString &makeCmd = m_makeStep->value(buildConfiguration, "makeCmd").toString();
+    m_ui.makeLineEdit->setText(makeCmd);
+
+    const QStringList &makeArguments =
+            m_makeStep->value(buildConfiguration, "makeargs").toStringList();
+    m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
 }
 
 void MakeStepConfigWidget::makeLineEditTextEdited()

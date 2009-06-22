@@ -39,10 +39,11 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-BuildStepsPage::BuildStepsPage(Project *project) :
+BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
     BuildStepConfigWidget(),
     m_ui(new Ui::BuildStepsPage),
-    m_pro(project)
+    m_pro(project),
+    m_clean(clean)
 {
     m_ui->setupUi(this);
 
@@ -74,8 +75,8 @@ BuildStepsPage::BuildStepsPage(Project *project) :
     }
 
     // Add buildsteps
-    foreach (BuildStep *bs, m_pro->buildSteps()) {
-
+    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+    foreach (BuildStep *bs, steps) {
         connect(bs, SIGNAL(displayNameChanged(BuildStep *, QString)),
                 this, SLOT(displayNameChanged(BuildStep *,QString)));
 
@@ -94,13 +95,13 @@ BuildStepsPage::~BuildStepsPage()
 
 void BuildStepsPage::displayNameChanged(BuildStep *bs, const QString & /* displayName */)
 {
-    int index = m_pro->buildSteps().indexOf(bs);
+    int index = m_clean ?  m_pro->cleanSteps().indexOf(bs) : m_pro->buildSteps().indexOf(bs);
     m_ui->buildSettingsList->invisibleRootItem()->child(index)->setText(0, bs->displayName());
 }
 
 QString BuildStepsPage::displayName() const
 {
-    return tr("Build Steps");
+    return m_clean ? tr("Clean Steps") : tr("Build Steps");
 }
 
 void BuildStepsPage::init(const QString &buildConfiguration)
@@ -168,19 +169,23 @@ void BuildStepsPage::addBuildStep()
     if (QAction *action = qobject_cast<QAction *>(sender())) {
         QPair<QString, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
         BuildStep *newStep = pair.second->create(m_pro, pair.first);
-        m_pro->insertBuildStep(0, newStep);
+        m_clean ? m_pro->insertCleanStep(0, newStep) : m_pro->insertBuildStep(0, newStep);
         QTreeWidgetItem *buildStepItem = new QTreeWidgetItem();
         buildStepItem->setText(0, newStep->displayName());
         m_ui->buildSettingsList->invisibleRootItem()->insertChild(0, buildStepItem);
         m_ui->buildSettingsWidget->insertWidget(0, newStep->createConfigWidget());
         m_ui->buildSettingsList->setCurrentItem(buildStepItem);
+
+        connect(newStep, SIGNAL(displayNameChanged(BuildStep *, QString)),
+                this, SLOT(displayNameChanged(BuildStep *,QString)));
     }
 }
 
 void BuildStepsPage::removeBuildStep()
 {
     int pos = m_ui->buildSettingsList->currentIndex().row();
-    if (m_pro->buildSteps().at(pos)->immutable())
+    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+    if (steps.at(pos)->immutable())
         return;
     bool blockSignals = m_ui->buildSettingsList->blockSignals(true);
     delete m_ui->buildSettingsList->invisibleRootItem()->takeChild(pos);
@@ -192,7 +197,7 @@ void BuildStepsPage::removeBuildStep()
         m_ui->buildSettingsList->setCurrentItem(m_ui->buildSettingsList->invisibleRootItem()->child(pos));
     else
         m_ui->buildSettingsList->setCurrentItem(m_ui->buildSettingsList->invisibleRootItem()->child(pos - 1));
-    m_pro->removeBuildStep(pos);
+    m_clean ? m_pro->removeCleanStep(pos) : m_pro->removeBuildStep(pos);
     updateBuildStepButtonsState();
 }
 
@@ -203,12 +208,13 @@ void BuildStepsPage::upBuildStep()
         return;
     if (pos > m_ui->buildSettingsList->invisibleRootItem()->childCount()-1)
         return;
-    if (m_pro->buildSteps().at(pos)->immutable() && m_pro->buildSteps().at(pos-1)->immutable())
+    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+    if (steps.at(pos)->immutable() && steps.at(pos-1)->immutable())
         return;
 
     bool blockSignals = m_ui->buildSettingsList->blockSignals(true);
-    m_pro->moveBuildStepUp(pos);
-    buildStepMoveUp(pos);
+    m_clean ?  m_pro->moveCleanStepUp(pos) : m_pro->moveBuildStepUp(pos);
+    stepMoveUp(pos);
     QTreeWidgetItem *item = m_ui->buildSettingsList->invisibleRootItem()->child(pos - 1);
     m_ui->buildSettingsList->blockSignals(blockSignals);
     m_ui->buildSettingsList->setCurrentItem(item);
@@ -222,12 +228,13 @@ void BuildStepsPage::downBuildStep()
         return;
     if (pos > m_ui->buildSettingsList->invisibleRootItem()->childCount() - 1)
         return;
-    if (m_pro->buildSteps().at(pos)->immutable() && m_pro->buildSteps().at(pos - 1)->immutable())
+    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+    if (steps.at(pos)->immutable() && steps.at(pos - 1)->immutable())
         return;
 
     bool blockSignals = m_ui->buildSettingsList->blockSignals(true);
-    m_pro->moveBuildStepUp(pos);
-    buildStepMoveUp(pos);
+    m_clean ? m_pro->moveCleanStepUp(pos) : m_pro->moveBuildStepUp(pos);
+    stepMoveUp(pos);
     QTreeWidgetItem *item = m_ui->buildSettingsList->invisibleRootItem()->child(pos);
     m_ui->buildSettingsList->blockSignals(blockSignals);
     m_ui->buildSettingsList->setCurrentItem(item);
@@ -246,7 +253,7 @@ void BuildStepsPage::changeEvent(QEvent *e)
     }
 }
 
-void BuildStepsPage::buildStepMoveUp(int pos)
+void BuildStepsPage::stepMoveUp(int pos)
 {
     QWidget *widget = m_ui->buildSettingsWidget->widget(pos);
     m_ui->buildSettingsWidget->removeWidget(widget);
@@ -259,10 +266,11 @@ void BuildStepsPage::updateBuildStepButtonsState()
 {
     int pos = m_ui->buildSettingsList->currentIndex().row();
 
-    m_ui->buildStepRemoveToolButton->setEnabled(!m_pro->buildSteps().at(pos)->immutable());
-    bool enableUp = pos>0 && !(m_pro->buildSteps().at(pos)->immutable() && m_pro->buildSteps().at(pos-1)->immutable());
+    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+    m_ui->buildStepRemoveToolButton->setEnabled(!steps.at(pos)->immutable());
+    bool enableUp = pos>0 && !(steps.at(pos)->immutable() && steps.at(pos-1)->immutable());
     m_ui->buildStepUpToolButton->setEnabled(enableUp);
     bool enableDown = pos < (m_ui->buildSettingsList->invisibleRootItem()->childCount() - 1) &&
-                      !(m_pro->buildSteps().at(pos)->immutable() && m_pro->buildSteps().at(pos+1)->immutable());
+                      !(steps.at(pos)->immutable() && steps.at(pos+1)->immutable());
     m_ui->buildStepDownToolButton->setEnabled(enableDown);
 }

@@ -63,14 +63,18 @@ bool MakeStep::init(const QString &buildConfiguration)
     setCommand(buildConfiguration, "make"); // TODO give full path here?
 #endif // Q_OS_WIN
 
-    if (value("clean").isValid() && value("clean").toBool())  {
-       setArguments(buildConfiguration, QStringList() << "clean");
-   } else {
-        QStringList arguments = value(buildConfiguration, "buildTargets").toStringList();
-        arguments << additionalArguments(buildConfiguration);
-        setArguments(buildConfiguration, arguments); // TODO
-        setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
+    if (!value(buildConfiguration, "cleanConfig").isValid() &&value("clean").isValid() && value("clean").toBool()) {
+        // Import old settings
+        setValue(buildConfiguration, "cleanConfig", true);
+        setAdditionalArguments(buildConfiguration, QStringList() << "clean");
     }
+
+    QStringList arguments = value(buildConfiguration, "buildTargets").toStringList();
+    arguments << additionalArguments(buildConfiguration);
+    setArguments(buildConfiguration, arguments); // TODO
+    setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
+    setIgnoreReturnValue(buildConfiguration, value(buildConfiguration, "cleanConfig").isValid());
+
     return AbstractMakeStep::init(buildConfiguration);
 }
 
@@ -190,6 +194,12 @@ QString MakeStepConfigWidget::displayName() const
 
 void MakeStepConfigWidget::init(const QString &buildConfiguration)
 {
+    if (!m_makeStep->value(buildConfiguration, "cleanConfig").isValid() && m_makeStep->value("clean").isValid() && m_makeStep->value("clean").toBool()) {
+        // Import old settings
+        m_makeStep->setValue(buildConfiguration, "cleanConfig", true);
+        m_makeStep->setAdditionalArguments(buildConfiguration, QStringList() << "clean");
+    }
+
     // disconnect to make the changes to the items
     disconnect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     m_buildConfiguration = buildConfiguration;

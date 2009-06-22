@@ -91,6 +91,7 @@ public:
     QList<BuildStep *> cleanSteps() const;
     void insertCleanStep(int position, BuildStep *step);
     void removeCleanStep(int position);
+    void moveCleanStepUp(int position);
 
     // Build configuration
     void addBuildConfiguration(const QString &name);

@@ -94,6 +94,12 @@ void Project::removeCleanStep(int position)
     m_cleanSteps.removeAt(position);
 }
 
+void Project::moveCleanStepUp(int position)
+{
+    BuildStep *bs = m_cleanSteps.takeAt(position);
+    m_cleanSteps.insert(position - 1, bs);
+}
+
 void Project::addBuildConfiguration(const QString &name)
 {
     if (buildConfigurations().contains(name) )
@@ -165,8 +171,6 @@ QList<BuildStep *> Project::cleanSteps() const
 {
     return m_cleanSteps;
 }
-
-
 
 void Project::saveSettings()
 {

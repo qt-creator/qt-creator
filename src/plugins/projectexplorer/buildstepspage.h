@@ -50,7 +50,7 @@ class BuildStepsPage : public BuildStepConfigWidget {
     Q_OBJECT
     Q_DISABLE_COPY(BuildStepsPage)
 public:
-    explicit BuildStepsPage(Project *project);
+    explicit BuildStepsPage(Project *project, bool clean = false);
     virtual ~BuildStepsPage();
 
     QString displayName() const;
@@ -69,13 +69,14 @@ private slots:
     void downBuildStep();
 
 private:
-    void buildStepMoveUp(int pos);
+    void stepMoveUp(int pos);
     void updateBuildStepButtonsState();
 
     Ui::BuildStepsPage *m_ui;
     Project *m_pro;
     QString m_configuration;
     QHash<QAction *, QPair<QString, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
+    bool m_clean;
 };
 
 } // Internal

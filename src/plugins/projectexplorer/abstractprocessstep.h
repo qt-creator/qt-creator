@@ -66,11 +66,11 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
     Q_OBJECT
 public:
     AbstractProcessStep(Project *pro);
-    // reimplemented from BuildStep::init()
-    // You need to call this from YourBuildStep::init()
+    /// reimplemented from BuildStep::init()
+    /// You need to call this from YourBuildStep::init()
     virtual bool init(const QString & name);
-    // reimplemented from BuildStep::init()
-    // You need to call this from YourBuildStep::run()
+    /// reimplemented from BuildStep::init()
+    /// You need to call this from YourBuildStep::run()
     virtual void run(QFutureInterface<bool> &);
 
     // pure virtual functions inheritated from BuildStep
@@ -79,40 +79,48 @@ public:
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
     virtual bool immutable() const = 0;
 
-    // setCommand() sets the executable to run in the \p buildConfiguration
+    /// setCommand() sets the executable to run in the \p buildConfiguration
     void setCommand(const QString &buildConfiguration, const QString &cmd);
-    // returns the executable that is run for the \p buildConfiguration
+    /// returns the executable that is run for the \p buildConfiguration
     QString command(const QString &buildConfiguration) const;
 
-    // sets the workingDirectory for the process for a buildConfiguration
-    // if no workingDirectory is set, it falls back to the projects workingDirectory TODO remove that magic, thats bad
+    /// sets the workingDirectory for the process for a buildConfiguration
+    /// if no workingDirectory is set, it falls back to the projects workingDirectory TODO remove that magic, thats bad
     void setWorkingDirectory(const QString &buildConfiguration, const QString &workingDirectory);
-    //returns the workingDirectory for a \p buildConfiguration
+    /// returns the workingDirectory for a \p buildConfiguration
     QString workingDirectory(const QString &buildConfiguration) const;
 
-    // sets the command line arguments used by the process for a \p buildConfiguration
+    /// sets the command line arguments used by the process for a \p buildConfiguration
     void setArguments(const QString &buildConfiguration, const QStringList &arguments);
-    // returns the arguments used in the \p buildCOnfiguration
+    /// returns the arguments used in the \p buildCOnfiguration
     QStringList arguments(const QString &buildConfiguration) const;
 
-    // enables or disables a BuildStep
-    // Disabled BuildSteps immediately return true from their run method
+    /// enables or disables a BuildStep
+    /// Disabled BuildSteps immediately return true from their run method
     void setEnabled(const QString &buildConfiguration, bool b);
-    // returns wheter the BuildStep is disabled
+    /// returns wheter the BuildStep is disabled
     bool enabled(const QString &buildConfiguration) const;
+
+    /*! If ignoreReturnValue is set to true, then the abstractprocess step will
+        return sucess even if the return value indicates otherwise
+    */
+    void setIgnoreReturnValue(const QString &buildConfiguration,bool b);
+    /*! returns ignoreReturnValue
+    */
+    bool ignoreReturnValue(const QString &buildConfiguration) const;
 
     void setEnvironment(const QString &buildConfiguration, Environment env);
     Environment environment(const QString &buildConfiguration) const;
 
 protected:
-    // Called after the process is started
-    // the default implementation adds a process started message to the output message
+    /// Called after the process is started
+    /// the default implementation adds a process started message to the output message
     virtual void processStarted();
-    // Called after the process Finished
-    // the default implementation adds a line to the output window
+    /// Called after the process Finished
+    /// the default implementation adds a line to the output window
     virtual bool processFinished(int exitCode, QProcess::ExitStatus status);
-    // Called if the process could not be started,
-    // by default adds a message to the output window
+    /// Called if the process could not be started,
+    /// by default adds a message to the output window
     virtual void processStartupFailed();
     virtual void stdOut(const QString &line);
     virtual void stdError(const QString &line);
@@ -129,6 +137,7 @@ private:
     QString m_command;
     QStringList m_arguments;
     bool m_enabled;
+    bool m_ignoreReturnValue;
     QProcess *m_process;
     QEventLoop *m_eventLoop;
     ProjectExplorer::Environment m_environment;

@@ -44,6 +44,7 @@ static const char * const PROCESS_WORKINGDIRECTORY = "abstractProcess.workingDir
 static const char * const PROCESS_ARGUMENTS        = "abstractProcess.arguments";
 static const char * const PROCESS_ENABLED          = "abstractProcess.enabled";
 static const char * const PROCESS_ENVIRONMENT      = "abstractProcess.Environment";
+static const char * const PROCESS_IGNORE_RETURN_VALUE = "abstractProcess.IgnoreReturnValue";
 
 AbstractProcessStep::AbstractProcessStep(Project *pro)
   : BuildStep(pro)
@@ -90,6 +91,16 @@ bool AbstractProcessStep::enabled(const QString &buildConfiguration) const
     return value(buildConfiguration, PROCESS_ENABLED).toBool();
 }
 
+void AbstractProcessStep::setIgnoreReturnValue(const QString &buildConfiguration, bool b)
+{
+    setValue(buildConfiguration, PROCESS_IGNORE_RETURN_VALUE, b);
+}
+
+bool AbstractProcessStep::ignoreReturnValue(const QString &buildConfiguration) const
+{
+    return value(buildConfiguration, PROCESS_IGNORE_RETURN_VALUE).toBool();
+}
+
 void AbstractProcessStep::setEnvironment(const QString &buildConfiguration, Environment env)
 {
     setValue(buildConfiguration, PROCESS_ENVIRONMENT, env.toStringList());
@@ -107,6 +118,7 @@ bool AbstractProcessStep::init(const QString &name)
     m_enabled = enabled(name);
     m_workingDirectory = workingDirectory(name);
     m_environment = environment(name);
+    m_ignoreReturnValue = ignoreReturnValue(name);
     return true;
 }
 
@@ -172,7 +184,7 @@ void AbstractProcessStep::processStarted()
 
 bool AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    const bool ok = (status == QProcess::NormalExit && exitCode == 0);
+    const bool ok = status == QProcess::NormalExit && (exitCode == 0 || m_ignoreReturnValue);
     if (ok) {
         emit addToOutputWindow(tr("<font color=\"#0000ff\">Exited with code %1.</font>").arg(m_process->exitCode()));
     } else {
