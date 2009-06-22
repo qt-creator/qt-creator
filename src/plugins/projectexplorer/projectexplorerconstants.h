@@ -62,7 +62,6 @@ const char * const STOP                 = "ProjectExplorer.Stop";
 const char * const DEBUG                = "ProjectExplorer.Debug";
 const char * const DEPENDENCIES         = "ProjectExplorer.Dependencies";
 const char * const FINDINALLPROJECTS    = "ProjectExplorer.FindInAllProjects";
-const char * const GOTOTASKWINDOW       = "ProjectExplorer.GoToTaskWindow";
 const char * const SHOWPROPERTIES       = "ProjectExplorer.ShowProperties";
 const char * const ADDNEWFILE           = "ProjectExplorer.AddNewFile";
 const char * const ADDEXISTINGFILES     = "ProjectExplorer.AddExistingFiles";
@@ -101,7 +100,6 @@ const char * const G_BUILD_SESSION      = "ProjectExplorer.Group.BuildSession";
 const char * const G_BUILD_PROJECT      = "ProjectExplorer.Group.Build";
 const char * const G_BUILD_OTHER        = "ProjectExplorer.Group.Other";
 const char * const G_BUILD_RUN          = "ProjectExplorer.Group.Run";
-const char * const G_BUILD_TASK         = "ProjectExplorer.Group.BuildTask";
 const char * const G_BUILD_CANCEL       = "ProjectExplorer.Group.BuildCancel";
 
 // toolbar groups

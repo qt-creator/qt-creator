@@ -195,7 +195,6 @@ private slots:
     void addToApplicationOutputWindow(RunControl *, const QString &line);
     void addToApplicationOutputWindowInline(RunControl *, const QString &line);
     void addErrorToApplicationOutputWindow(RunControl *, const QString &error);
-    void updateTaskActions();
 
     void loadProject(const QString &project) { openProject(project); }
     void currentModeChanged(Core::IMode *mode);
@@ -244,7 +243,6 @@ private:
     QAction *m_runActionContextMenu;
     QAction *m_cancelBuildAction;
     QAction *m_debugAction;
-    QAction *m_taskAction;
     QAction *m_addNewFileAction;
     QAction *m_addExistingFilesAction;
     QAction *m_openFileAction;

@@ -196,8 +196,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             this, SLOT(buildStateChanged(ProjectExplorer::Project *)));
     connect(m_buildManager, SIGNAL(buildQueueFinished(bool)),
             this, SLOT(buildQueueFinished(bool)));
-    connect(m_buildManager, SIGNAL(tasksChanged()),
-            this, SLOT(updateTaskActions()));
 
     addAutoReleasedObject(new CoreListenerCheckingForRunningBuild(m_buildManager));
 
@@ -292,7 +290,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->appendGroup(Constants::G_BUILD_PROJECT);
     mbuild->appendGroup(Constants::G_BUILD_OTHER);
     mbuild->appendGroup(Constants::G_BUILD_RUN);
-    mbuild->appendGroup(Constants::G_BUILD_TASK);
     mbuild->appendGroup(Constants::G_BUILD_CANCEL);
 
     msessionContextMenu->appendGroup(Constants::G_SESSION_BUILD);
@@ -385,11 +382,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.Run.Sep"), globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
     mproject->addAction(cmd, Constants::G_PROJECT_RUN);
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.Task.Sep"), globalcontext);
-    mbuild->addAction(cmd, Constants::G_BUILD_TASK);
 
     sep = new QAction(this);
     sep->setSeparator(true);
@@ -576,13 +568,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(m_runActionContextMenu, Constants::RUNCONTEXTMENU, globalcontext);
     mproject->addAction(cmd, Constants::G_PROJECT_RUN);
 
-    // jump to next task
-    m_taskAction = new QAction(tr("Go to Task Window"), this);
-    m_taskAction->setIcon(QIcon(Core::Constants::ICON_NEXT));
-    cmd = am->registerAction(m_taskAction, Constants::GOTOTASKWINDOW, globalcontext);
-    // FIXME: Eike, look here! cmd->setDefaultKeySequence(QKeySequence(tr("F9")));
-    mbuild->addAction(cmd, Constants::G_BUILD_TASK);
-
     // cancel build action
     m_cancelBuildAction = new QAction(tr("Cancel Build"), this);
     cmd = am->registerAction(m_cancelBuildAction, Constants::CANCELBUILD, globalcontext);
@@ -691,7 +676,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(m_debugAction, SIGNAL(triggered()), this, SLOT(debugProject()));
     connect(m_unloadAction, SIGNAL(triggered()), this, SLOT(unloadProject()));
     connect(m_clearSession, SIGNAL(triggered()), this, SLOT(clearSession()));
-    connect(m_taskAction, SIGNAL(triggered()), this, SLOT(goToTaskWindow()));
     connect(m_addNewFileAction, SIGNAL(triggered()), this, SLOT(addNewFile()));
     connect(m_addExistingFilesAction, SIGNAL(triggered()), this, SLOT(addExistingFiles()));
     connect(m_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
@@ -1214,11 +1198,6 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
     m_runMode = QString::null;
 }
 
-void ProjectExplorerPlugin::updateTaskActions()
-{
-    m_taskAction->setEnabled(m_buildManager->tasksAvailable());
-}
-
 void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node *node)
 {
     if (debug)
@@ -1310,10 +1289,7 @@ void ProjectExplorerPlugin::updateActions()
     m_cancelBuildAction->setEnabled(building);
 
     updateRunAction();
-
-    updateTaskActions();
 }
-
 
 // NBS TODO check projectOrder()
 // what we want here is all the projects pro depends on
