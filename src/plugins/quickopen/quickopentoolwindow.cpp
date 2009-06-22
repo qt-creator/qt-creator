@@ -438,7 +438,8 @@ void QuickOpenToolWindow::acceptCurrentEntry()
 void QuickOpenToolWindow::show(const QString &text, int selectionStart, int selectionLength)
 {
     m_fileLineEdit->hideHintText();
-    m_fileLineEdit->setText(text);
+    if (!text.isEmpty())
+        m_fileLineEdit->setText(text);
     if (!m_fileLineEdit->hasFocus())
         m_fileLineEdit->setFocus();
     else
@@ -447,7 +448,7 @@ void QuickOpenToolWindow::show(const QString &text, int selectionStart, int sele
     if (selectionStart >= 0)
         m_fileLineEdit->setSelection(selectionStart, selectionLength);
     else
-        m_fileLineEdit->deselect();
+        m_fileLineEdit->selectAll();
 }
 
 void QuickOpenToolWindow::filterSelected()

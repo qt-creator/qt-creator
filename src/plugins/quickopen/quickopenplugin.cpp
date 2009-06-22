@@ -129,7 +129,7 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
 
 void QuickOpenPlugin::openQuickOpen()
 {
-    m_quickOpenToolWindow->setFocus();
+    m_quickOpenToolWindow->show("");
 }
 
 void QuickOpenPlugin::extensionsInitialized()
