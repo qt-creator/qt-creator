@@ -834,6 +834,7 @@ int Qt4Project::qtVersionId(const QString &buildConfiguration) const
 void Qt4Project::setQtVersion(const QString &buildConfiguration, int id)
 {
     setValue(buildConfiguration, "QtVersionId", id);
+    updateActiveRunConfiguration();
 }
 
 void Qt4Project::setToolChainType(const QString &buildConfiguration, ProjectExplorer::ToolChain::ToolChainType type)
@@ -841,16 +842,32 @@ void Qt4Project::setToolChainType(const QString &buildConfiguration, ProjectExpl
     setValue(buildConfiguration, "ToolChain", (int)type);
     delete m_toolChain;
     m_toolChain = 0;
+    updateActiveRunConfiguration();
+}
+
+void Qt4Project::updateActiveRunConfiguration()
+{
+    if (!activeRunConfiguration()->isEnabled()) {
+        foreach (QSharedPointer<RunConfiguration> runConfiguration, runConfigurations()) {
+            if (runConfiguration->isEnabled()) {
+                setActiveRunConfiguration(runConfiguration);
+            }
+        }
+    }
+    emit runConfigurationsEnabledStateChanged();
+    emit invalidateCachedTargetInformation();
 }
 
 ProjectExplorer::ToolChain::ToolChainType Qt4Project::toolChainType(const QString &buildConfiguration) const
 {
-    ProjectExplorer::ToolChain::ToolChainType type =
+    const ProjectExplorer::ToolChain::ToolChainType originalType =
         (ProjectExplorer::ToolChain::ToolChainType)value(buildConfiguration, "ToolChain").toInt();
+    ProjectExplorer::ToolChain::ToolChainType type = originalType;
     const QtVersion *version = qtVersion(buildConfiguration);
     if (!version->possibleToolChainTypes().contains(type)) // use default tool chain
         type = version->defaultToolchainType();
-    const_cast<Qt4Project *>(this)->setToolChainType(buildConfiguration, type);
+    if (type != originalType)
+        const_cast<Qt4Project *>(this)->setToolChainType(buildConfiguration, type);
     return type;
 }
 

@@ -233,6 +233,7 @@ private:
     void addDefaultBuild();
 
     static QString qmakeVarName(ProjectExplorer::FileType type);
+    void updateActiveRunConfiguration();
 
     Qt4Manager *m_manager;
     Internal::Qt4ProFileNode *m_rootProjectNode;

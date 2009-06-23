@@ -196,6 +196,8 @@ RunSettingsWidget::RunSettingsWidget(Project *project)
 
     connect(m_project, SIGNAL(activeRunConfigurationChanged()),
             this, SLOT(activeRunConfigurationChanged()));
+    connect(m_project, SIGNAL(runConfigurationsEnabledStateChanged()),
+            this, SLOT(initRunConfigurationComboBox()));
 
     initRunConfigurationComboBox();
     const QList<QSharedPointer<RunConfiguration> > runConfigurations = m_project->runConfigurations();

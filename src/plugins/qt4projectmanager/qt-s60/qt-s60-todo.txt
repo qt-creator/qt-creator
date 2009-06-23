@@ -7,16 +7,13 @@
 * QtVersion:
     * gui for overriding the default make target if necessary,
       make arguments --> make options
-    * more general "debug / release" configuration to be used in toolchain???
     * build parser should be defined/created by toolchain, not make step
 
 * Debugging helpers
     * must probably be compiled for different toolchains
 
 * Run Configurations
-    * enabled property doesn't update correctly
-        * missing signals qtVersionChanged + toolChainChanged
-    * handling of active run config getting disabled
+    * handling of active run config getting disabled not optimal yet
 
 * Run on device
     * makesis, signsis and applicationinstaller don't report errors back
