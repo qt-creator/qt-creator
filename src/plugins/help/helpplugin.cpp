@@ -52,6 +52,8 @@
 #include <coreplugin/sidebar.h>
 #include <coreplugin/welcomemode.h>
 
+#include <texteditor/texteditorconstants.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/qplugin.h>
 #include <QtCore/QFileInfo>
@@ -385,6 +387,24 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     createRightPaneSideBar();
 
     QDesktopServices::setUrlHandler("qthelp", this, "openHelpPage");
+
+    if (Core::ActionContainer *advancedMenu =
+        am->actionContainer(Core::Constants::M_EDIT_ADVANCED)) {
+        // reuse TextEditor constants to avoid a second pair of menu actions
+        QAction *a = new QAction(tr("Increase Font Size"), this);
+        cmd = am->registerAction(a, TextEditor::Constants::INCREASE_FONT_SIZE,
+            modecontext);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl++")));
+        connect(a, SIGNAL(triggered()), m_centralWidget, SLOT(zoomIn()));
+        advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
+        
+        a = new QAction(tr("Decrease Font Size"), this);
+        cmd = am->registerAction(a, TextEditor::Constants::DECREASE_FONT_SIZE,
+            modecontext);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
+        connect(a, SIGNAL(triggered()), m_centralWidget, SLOT(zoomOut()));
+        advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
+    }
 
     return true;
 }
