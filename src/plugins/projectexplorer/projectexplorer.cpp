@@ -289,8 +289,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->appendGroup(Constants::G_BUILD_SESSION);
     mbuild->appendGroup(Constants::G_BUILD_PROJECT);
     mbuild->appendGroup(Constants::G_BUILD_OTHER);
-    mbuild->appendGroup(Constants::G_BUILD_RUN);
     mbuild->appendGroup(Constants::G_BUILD_CANCEL);
+    mbuild->appendGroup(Constants::G_BUILD_RUN);
 
     msessionContextMenu->appendGroup(Constants::G_SESSION_BUILD);
     msessionContextMenu->appendGroup(Constants::G_SESSION_FILES);
@@ -539,9 +539,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
 
     // Add Set Build Configuration to menu
-    mbuild->addMenu(mbc, Constants::G_BUILD_PROJECT);
+    mbuild->addMenu(mbc, Constants::G_BUILD_OTHER);
     mproject->addMenu(mbc, Constants::G_PROJECT_CONFIG);
-
 
     // run action
     QIcon runIcon(Constants::ICON_RUN);

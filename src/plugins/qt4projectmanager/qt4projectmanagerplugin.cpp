@@ -158,14 +158,13 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     qmakeIcon.addFile(QLatin1String(":/qt4projectmanager/images/run_qmake_small.png"));
     m_runQMakeAction = new QAction(qmakeIcon, tr("Run qmake"), this);
     command = am->registerAction(m_runQMakeAction, Constants::RUNQMAKE, context);
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_RUN);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PROJECT);
     connect(m_runQMakeAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(runQMake()));
 
     m_runQMakeActionContextMenu = new QAction(qmakeIcon, tr("Run qmake"), this);
     command = am->registerAction(m_runQMakeActionContextMenu, Constants::RUNQMAKECONTEXTMENU, context);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_runQMakeActionContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(runQMakeContextMenu()));
-
 
     connect(m_projectExplorer,
             SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)),
