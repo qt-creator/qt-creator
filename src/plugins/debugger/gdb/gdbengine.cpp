@@ -3560,11 +3560,11 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
             WatchData data;
             QString nam = _(name);
             data.iname = _("local.") + nam + QString::number(n + 1);
-            //: Variable %1 <FIXME: does something - bug Andre about it>
-            data.name = tr("%1 <shadowed %2>").arg(nam, n);
-            //data.setValue("<shadowed>");
+            //: Variable %1 is the variable name, %2 is a simple count
+            data.name = tr("%1 <shadowed %2>").arg(name).arg(n);
             setWatchDataValue(data, item.findChild("value"));
-            //: Type of variable <FIXME: what? bug Andre about it>
+            //: Type of local variable or parameter shadowed by another 
+            //variable of the same name in a nested block
             data.setType(tr("<shadowed>"));
             data.setHasChildren(false);
             insertData(data);
