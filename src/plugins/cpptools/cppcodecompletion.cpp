@@ -216,7 +216,7 @@ protected:
 using namespace CppTools::Internal;
 
 
-void FakeToolTipFrame::paintEvent(QPaintEvent *ev)
+void FakeToolTipFrame::paintEvent(QPaintEvent *)
 {
     QStylePainter p(this);
     QStyleOptionFrame opt;
@@ -225,7 +225,7 @@ void FakeToolTipFrame::paintEvent(QPaintEvent *ev)
     p.end();
 }
 
-void FakeToolTipFrame::resizeEvent(QResizeEvent *e)
+void FakeToolTipFrame::resizeEvent(QResizeEvent *)
 {
     QStyleHintReturnMask frameMask;
     QStyleOption option;
