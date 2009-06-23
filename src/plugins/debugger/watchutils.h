@@ -225,6 +225,9 @@ private:
 
 QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d);
 
+// remove the default template argument in std:: containers
+QString removeDefaultTemplateArguments(QString type);
+
 } // namespace Internal
 } // namespace Debugger
 

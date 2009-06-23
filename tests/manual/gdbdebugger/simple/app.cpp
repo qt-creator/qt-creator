@@ -818,7 +818,7 @@ void testQStandardItemModel()
          << (i11 = new QStandardItem("11")) << (new QStandardItem("aa")));
     int i = 1;
     ++i;
-    ++i;
+    +i;
 }
 
 void testQString()
@@ -1118,8 +1118,41 @@ void testHidden()
     ++n;
 }
 
+void testObject1()
+{
+    QObject parent;
+    parent.setObjectName("A Parent");
+    QObject child(&parent);
+    child.setObjectName("A Child");
+    child.setObjectName("A renamed Child");
+}
+
+void testVector1()
+{
+    std::vector<std::list<int> *> vector;
+    std::list<int> list;
+    vector.push_back(new std::list<int>(list));
+    vector.push_back(0);
+    list.push_back(45);
+    vector.push_back(new std::list<int>(list));
+    vector.push_back(0);
+}
+
+void testQHash1()
+{
+    QHash<QString, QList<int> > hash;
+    hash.insert("Hallo", QList<int>());
+    hash.insert("Welt", QList<int>() << 1);
+    hash.insert("!", QList<int>() << 1 << 2);
+    hash.insert("!", QList<int>() << 1 << 2);
+}
+
 int main(int argc, char *argv[])
 {
+    testObject1();
+    testVector1();
+    testQHash1();
+
     QString hallo = "hallo";
     QStringList list;
     list << "aaa" << "bbb" << "cc";

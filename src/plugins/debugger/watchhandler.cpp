@@ -389,88 +389,92 @@ static QString chopConst(QString type)
     return type;
 }
 
-static QString niceType(QString type)
+QString niceType(QString type)
 {
-    if (type.contains(QLatin1String("std::"))) {
-        // std::string
-        type.replace(QLatin1String("basic_string<char, std::char_traits<char>, "
-                                   "std::allocator<char> >"), QLatin1String("string"));
+    type.replace('*', '@');
 
-        // std::wstring
-        type.replace(QLatin1String("basic_string<wchar_t, std::char_traits<wchar_t>, "
-                                   "std::allocator<wchar_t> >"), QLatin1String("wstring"));
-
-        // std::vector
-        static QRegExp re1(QLatin1String("vector<(.*), std::allocator<(.*)>\\s*>"));
-        re1.setMinimal(true);
-        for (int i = 0; i != 10; ++i) {
-            if (re1.indexIn(type) == -1 || re1.cap(1) != re1.cap(2)) 
-                break;
-            type.replace(re1.cap(0), QLatin1String("vector<") + re1.cap(1) + QLatin1Char('>'));
-        }
-
-        // std::deque
-        static QRegExp re5(QLatin1String("deque<(.*), std::allocator<(.*)>\\s*>"));
-        re5.setMinimal(true);
-        for (int i = 0; i != 10; ++i) {
-            if (re5.indexIn(type) == -1 || re5.cap(1) != re5.cap(2)) 
-                break;
-            type.replace(re5.cap(0), QLatin1String("deque<") + re5.cap(1) + QLatin1Char('>'));
-        }
-
-        // std::stack
-        static QRegExp re6(QLatin1String("stack<(.*), std::deque<(.*), std::allocator<(.*)>\\s*> >"));
-        re6.setMinimal(true);
-        for (int i = 0; i != 10; ++i) {
-            if (re6.indexIn(type) == -1 || re6.cap(1) != re6.cap(2)
-                    || re6.cap(1) != re6.cap(2)) 
-                break;
-            type.replace(re6.cap(0), QLatin1String("stack<") + re6.cap(1) + QLatin1Char('>'));
-        }
-
-        // std::list
-        static QRegExp re2(QLatin1String("list<(.*), std::allocator<(.*)>\\s*>"));
-        re2.setMinimal(true);
-        for (int i = 0; i != 10; ++i) {
-            if (re2.indexIn(type) == -1 || re2.cap(1) != re2.cap(2)) 
-                break;
-            type.replace(re2.cap(0), QLatin1String("list<") + re2.cap(1) + QLatin1Char('>'));
-        }
-
-        // std::map
-        {
-            static QRegExp re(QLatin1String("map<(.*), (.*), std::less<(.*)>, "
-                "std::allocator<std::pair<(.*), (.*)> > >"));
-            re.setMinimal(true);
-            for (int i = 0; i != 10; ++i) {
-                if (re.indexIn(type) == -1)
+    for (int i = 0; i < 10; ++i) {
+        int start = type.indexOf("std::allocator<");
+        if (start == -1)
+            break; 
+        // search for matching '>'
+        int pos;
+        int level = 0;
+        for (pos = start + 12; pos < type.size(); ++pos) {
+            int c = type.at(pos).unicode();
+            if (c == '<') {
+                ++level;
+            } else if (c == '>') {
+                --level;
+                if (level == 0)
                     break;
-                QString key = chopConst(re.cap(1));
-                QString value = chopConst(re.cap(2));
-                QString key1 = chopConst(re.cap(3));
-                QString key2 = chopConst(re.cap(4));
-                QString value2 = chopConst(re.cap(5));
-                if (value != value2 || key != key1 || key != key2) {
-                    qDebug() << key << key1 << key2 << value << value2
-                        << (key == key1) << (key == key2) << (value == value2);
-                    break;
-                }
-                type.replace(re.cap(0), QString("map<%1, %2>").arg(key).arg(value));
             }
         }
+        QString alloc = type.mid(start, pos + 1 - start).trimmed();
+        QString inner = alloc.mid(15, alloc.size() - 16).trimmed();
+
+        if (inner == QLatin1String("char"))
+            // std::string
+            type.replace(QLatin1String("basic_string<char, std::char_traits<char>, "
+                "std::allocator<char> >"), QLatin1String("string"));
+        else if (inner == QLatin1String("wchar_t"))
+            // std::wstring
+            type.replace(QLatin1String("basic_string<wchar_t, std::char_traits<wchar_t>, "
+                "std::allocator<wchar_t> >"), QLatin1String("wstring"));
+
+        // std::vector, std::deque, std::list
+        QRegExp re1(QString("(vector|list|deque)<%1, %2\\s*>").arg(inner, alloc));
+        if (re1.indexIn(type) != -1)
+            type.replace(re1.cap(0), QString("%1<%2>").arg(re1.cap(1), inner));
+
+
+        // std::stack
+        QRegExp re6(QString("stack<%1, std::deque<%2> >").arg(inner, inner));
+        re6.setMinimal(true);
+        if (re6.indexIn(type) != -1)
+            type.replace(re6.cap(0), QString("stack<%1>").arg(inner));
 
         // std::set
-        static QRegExp re4(QLatin1String("set<(.*), std::less<(.*)>, std::allocator<(.*)>\\s*>"));
-        re1.setMinimal(true);
-        for (int i = 0; i != 10; ++i) {
-            if (re4.indexIn(type) == -1 || re4.cap(1) != re4.cap(2)
-                || re4.cap(1) != re4.cap(3)) 
-                break;
-            type.replace(re4.cap(0), QLatin1String("set<") + re4.cap(1) + QLatin1Char('>'));
-        }
+        QRegExp re4(QString("set<%1, std::less<%2>, %3\\s*>").arg(inner, inner, alloc));
+        re4.setMinimal(true);
+        if (re4.indexIn(type) != -1)
+            type.replace(re4.cap(0), QString("set<%1>").arg(inner));
 
-        type.replace(QLatin1String(" >"), QString(QLatin1Char('>')));
+
+        // std::map
+        if (inner.startsWith("std::pair<")) {
+            // search for outermost ','
+            int pos;
+            int level = 0;
+            for (pos = 10; pos < inner.size(); ++pos) {
+                int c = inner.at(pos).unicode();
+                if (c == '<')
+                    ++level;
+                else if (c == '>')
+                    --level;
+                else if (c == ',' && level == 0)
+                    break;
+            }
+            QString ckey = inner.mid(10, pos - 10);
+            QString key = chopConst(ckey);
+            QString value = inner.mid(pos + 2, inner.size() - 3 - pos);
+
+            QRegExp re5(QString("map<%1, %2, std::less<%3>, %4\\s*>")
+                .arg(key, value, key, alloc));
+            re5.setMinimal(true);
+            if (re5.indexIn(type) != -1)
+                type.replace(re5.cap(0), QString("map<%1, %2>").arg(key, value));
+            else {
+                QRegExp re7(QString("map<const %1, %2, std::less<const %3>, %4\\s*>")
+                    .arg(key, value, key, alloc));
+                re7.setMinimal(true);
+                if (re7.indexIn(type) != -1)
+                    type.replace(re7.cap(0), QString("map<const %1, %2>").arg(key, value));
+            }
+        }
     }
+    type.replace('@', '*');
+    type.replace(QLatin1String(" >"), QString(QLatin1Char('>')));
     return type;
 }
 

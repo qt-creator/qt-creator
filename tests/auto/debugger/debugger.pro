@@ -5,8 +5,8 @@ DEBUGGERDIR = ../../../src/plugins/debugger
 UTILSDIR = ../../../src/libs
 
 SOURCES += \
-    $$DEBUGGERDIR/gdbmi.cpp \
-    $$DEBUGGERDIR/json.cpp \
+    $$DEBUGGERDIR/gdb/gdbmi.cpp \
+    $$DEBUGGERDIR/tcf/json.cpp \
     main.cpp \
 
 INCLUDEPATH += $$DEBUGGERDIR $$UTILSDIR

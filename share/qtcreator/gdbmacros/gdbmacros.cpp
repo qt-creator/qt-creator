@@ -896,6 +896,7 @@ static void qDumpQAbstractItem(QDumper &d)
                 d.endHash();
             }
         }
+/*
         d.beginHash();
         P(d, "name", "DisplayRole");
         P(d, "numchild", 0); 
@@ -903,6 +904,7 @@ static void qDumpQAbstractItem(QDumper &d)
         P(d, "valueencoded", 2);
         P(d, "type", NS"QString");
         d.endHash();
+*/
         d << "]";
     }
     d.disarm();
