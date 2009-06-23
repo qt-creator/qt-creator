@@ -1081,6 +1081,13 @@ void MainWindow::resetContext()
     updateContextObject(0);
 }
 
+void MainWindow::shutdown()
+{
+    disconnect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
+               this, SLOT(updateFocusWidget(QWidget*,QWidget*)));
+    m_activeContext = 0;
+}
+
 static const char *settingsGroup = "MainWindow";
 static const char *geometryKey = "Geometry";
 static const char *colorKey = "Color";

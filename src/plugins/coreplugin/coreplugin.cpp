@@ -96,4 +96,9 @@ void CorePlugin::remoteArgument(const QString& arg)
     }
 }
 
+void CorePlugin::shutdown()
+{
+    m_mainWindow->shutdown();
+}
+
 Q_EXPORT_PLUGIN(CorePlugin)

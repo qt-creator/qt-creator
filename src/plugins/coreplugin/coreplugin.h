@@ -47,8 +47,9 @@ public:
     CorePlugin();
     ~CorePlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+    virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
+    virtual void extensionsInitialized();
+    virtual void shutdown();
 
 public slots:
     void remoteArgument(const QString&);
