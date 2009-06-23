@@ -1,15 +1,16 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>DocSettingsPage</class>
- <widget class="QWidget" name="DocSettingsPage" >
-  <property name="geometry" >
+ <widget class="QWidget" name="DocSettingsPage">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>364</width>
-    <height>240</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" >
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -17,36 +18,36 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-      <widget class="QListWidget" name="docsListWidget" />
+       <widget class="QListWidget" name="docsListWidget"/>
       </item>
       <item>
-      <layout class="QVBoxLayout" name="_4" >
-       <property name="spacing" >
+       <layout class="QVBoxLayout" name="_4">
+        <property name="spacing">
          <number>6</number>
         </property>
-       <property name="margin" >
+        <property name="margin">
          <number>0</number>
         </property>
         <item>
-        <widget class="QPushButton" name="addButton" >
-         <property name="text" >
+         <widget class="QPushButton" name="addButton">
+          <property name="text">
            <string>Add...</string>
           </property>
          </widget>
         </item>
         <item>
-        <widget class="QPushButton" name="removeButton" >
-         <property name="text" >
+         <widget class="QPushButton" name="removeButton">
+          <property name="text">
            <string>Remove</string>
           </property>
          </widget>
         </item>
         <item>
          <spacer>
-         <property name="orientation" >
+          <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-         <property name="sizeHint" stdset="0" >
+          <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
             <height>40</height>
