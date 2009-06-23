@@ -877,7 +877,7 @@ void WatchHandler::watchExpression(const QString &exp)
     WatchData data;
     data.exp = exp;
     data.name = exp;
-    if (exp == watcherEditPlaceHolder())
+    if (exp.isEmpty() || exp == watcherEditPlaceHolder())
         data.setAllUnneeded();
     data.iname = watcherName(exp);
     insertData(data);
@@ -1012,7 +1012,15 @@ void WatchHandler::loadWatchers()
 void WatchHandler::saveWatchers()
 {
     //qDebug() << "SAVE WATCHERS: " << m_watchers.keys();
-    setSessionValueRequested("Watchers", QVariant(m_watcherNames.keys()));
+    // Filter out valid watchers.
+    QStringList watcherNames;
+    const QHash<QString, int>::const_iterator cend = m_watcherNames.constEnd();
+    for (QHash<QString, int>::const_iterator it = m_watcherNames.constBegin(); it != cend; ++it) {
+        const QString &watcherName = it.key();
+        if (!watcherName.isEmpty() && watcherName != watcherEditPlaceHolder())
+            watcherNames.push_back(watcherName);
+    }
+    setSessionValueRequested("Watchers", QVariant(watcherNames));
 }
 
 void WatchHandler::saveSessionData()

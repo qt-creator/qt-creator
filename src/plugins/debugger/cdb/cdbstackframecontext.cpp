@@ -36,8 +36,6 @@
 
 #include <QtCore/QDebug>
 
-enum { debug = 0 };
-
 namespace Debugger {
 namespace Internal {
 
@@ -46,7 +44,31 @@ enum { OwnerNewItem, OwnerSymbolGroup, OwnerDumper };
 typedef QSharedPointer<CdbDumperHelper> SharedPointerCdbDumperHelper;
 typedef QList<WatchData> WatchDataList;
 
-// Put a sequence of  WatchData into the model
+// Predicates for parametrizing the symbol group
+inline bool truePredicate(const WatchData & /* whatever */) { return true; }
+inline bool falsePredicate(const WatchData & /* whatever */) { return false; }
+inline bool isDumperPredicate(const WatchData &wd)
+{ return wd.source == OwnerDumper; }
+
+// Match an item that is expanded in the watchhandler.
+class WatchHandlerExpandedPredicate {
+public:
+    explicit inline WatchHandlerExpandedPredicate(const WatchHandler *wh) : m_wh(wh) {}
+    inline bool operator()(const WatchData &wd) { return m_wh->isExpandedIName(wd.iname); }
+private:
+    const WatchHandler *m_wh;
+};
+
+// Match an item by iname
+class MatchINamePredicate {
+public:
+    explicit inline MatchINamePredicate(const QString &iname) : m_iname(iname) {}
+    inline bool operator()(const WatchData &wd) { return wd.iname == m_iname; }
+private:
+    const QString &m_iname;
+};
+
+// Put a sequence of  WatchData into the model for the non-dumper case
 class WatchHandlerModelInserter {
 public:
     explicit WatchHandlerModelInserter(WatchHandler *wh) : m_wh(wh) {}
@@ -62,49 +84,106 @@ private:
     WatchHandler *m_wh;
 };
 
-// Helper to sort apart a sequence of  WatchData using the Dumpers.
+// Put a sequence of  WatchData into the model for the dumper case.
+// Sorts apart a sequence of  WatchData using the Dumpers.
 // Puts the stuff for which there is no dumper in the model
 // as is and sets ownership to symbol group. The rest goes
-// to the dumpers.
-class WatchHandlerSorterInserter {
+// to the dumpers. Additionally, checks for items pointing to a
+// dumpeable type and inserts a fake dereferenced item and value.
+class WatchHandleDumperInserter {
 public:
-    explicit WatchHandlerSorterInserter(WatchHandler *wh,
+    explicit WatchHandleDumperInserter(WatchHandler *wh,
                                         const SharedPointerCdbDumperHelper &dumper);
 
-    inline WatchHandlerSorterInserter & operator*() { return *this; }
-    inline WatchHandlerSorterInserter &operator=(WatchData wd);
-    inline WatchHandlerSorterInserter &operator++() { return *this; }
+    inline WatchHandleDumperInserter & operator*() { return *this; }
+    inline WatchHandleDumperInserter &operator=(WatchData &wd);
+    inline WatchHandleDumperInserter &operator++() { return *this; }
 
 private:
+    bool expandPointerToDumpable(const WatchData &wd, QString *errorMessage);
+
+    const QRegExp m_hexNullPattern;
     WatchHandler *m_wh;
     const SharedPointerCdbDumperHelper m_dumper;
     QList<WatchData> m_dumperResult;
-    QStringList m_dumperINames;
 };
 
-WatchHandlerSorterInserter::WatchHandlerSorterInserter(WatchHandler *wh,
+WatchHandleDumperInserter::WatchHandleDumperInserter(WatchHandler *wh,
                                                        const SharedPointerCdbDumperHelper &dumper) :
+    m_hexNullPattern(QLatin1String("0x0+")),
     m_wh(wh),
-    m_dumper(dumper)
+    m_dumper(dumper)    
 {
+    Q_ASSERT(m_hexNullPattern.isValid());
 }
 
-WatchHandlerSorterInserter &WatchHandlerSorterInserter::operator=(WatchData wd)
+// Is this a non-null pointer to a dumpeable item with a value
+// "0x4343 class QString *" ? - Insert a fake '*' dereferenced item
+// and run dumpers on it. If that succeeds, insert the fake items owned by dumpers,
+// which will trigger the ignore predicate.
+// Note that the symbol context does not create '*' dereferenced items for
+// classes (see note in its header documentation).
+bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QString *errorMessage)
 {
-    // Is this a child belonging to some item handled by dumpers,
-    // such as d-elements of QStrings -> just ignore it.
-    if (const int dumperINamesCount = m_dumperINames.size()) {
-        for (int i = 0; i < dumperINamesCount; i++)
-            if (wd.iname.startsWith(m_dumperINames.at(i)))
-                return *this;
-    }
-    QString errorMessage;
-    switch (m_dumper->dumpType(wd, true, OwnerDumper, &m_dumperResult, &errorMessage)) {
-    case CdbDumperHelper::DumpOk:
-        // Discard the original item and insert the dumper results
-        m_dumperINames.push_back(wd.iname + QLatin1Char('.'));
+    if (debugCDBWatchHandling)
+        qDebug() << ">expandPointerToDumpable" << wd.iname;
+
+    bool handled = false;
+    do {
+        if (!isPointerType(wd.type))
+            break;
+        const int classPos = wd.value.indexOf(" class ");
+        if (classPos == -1)
+            break;
+        const QString hexAddrS = wd.value.mid(0, classPos);
+        if (m_hexNullPattern.exactMatch(hexAddrS))
+            break;
+        const QString type = stripPointerType(wd.value.mid(classPos + 7));
+        WatchData derefedWd;
+        derefedWd.setType(type);
+        derefedWd.setAddress(hexAddrS);
+        derefedWd.name = QString(QLatin1Char('*'));
+        derefedWd.iname = wd.iname + QLatin1String(".*");
+        derefedWd.source = OwnerDumper;
+        const CdbDumperHelper::DumpResult dr = m_dumper->dumpType(derefedWd, true, OwnerDumper, &m_dumperResult, errorMessage);
+        if (dr != CdbDumperHelper::DumpOk)
+            break;
+        // Insert the pointer item with 1 additional child + its dumper results
+        // Note: formal arguments might already be expanded in the symbol group.
+        WatchData ptrWd = wd;
+        ptrWd.source = OwnerDumper;
+        ptrWd.setHasChildren(true);
+        ptrWd.setChildrenUnneeded();
+        m_wh->insertData(ptrWd);
         foreach(const WatchData &dwd, m_dumperResult)
             m_wh->insertData(dwd);
+        handled = true;
+    } while (false);
+    if (debugCDBWatchHandling)
+        qDebug() << "<expandPointerToDumpable returns " << handled << *errorMessage;
+    return handled;
+}
+
+WatchHandleDumperInserter &WatchHandleDumperInserter::operator=(WatchData &wd)
+{
+    if (debugCDBWatchHandling)
+        qDebug() << "WatchHandleDumperInserter::operator=" << wd.toString();
+    // Check pointer to dumpeable, dumpeable, insert accordingly.
+    QString errorMessage;
+    if (expandPointerToDumpable(wd, &errorMessage)) {
+        // Nasty side effect: Modify owner for the ignore predicate
+        wd.source = OwnerDumper;
+        return *this;
+    }
+    switch (m_dumper->dumpType(wd, true, OwnerDumper, &m_dumperResult, &errorMessage)) {
+    case CdbDumperHelper::DumpOk:
+        if (debugCDBWatchHandling)
+            qDebug() << "dumper triggered";
+        // Discard the original item and insert the dumper results
+        foreach(const WatchData &dwd, m_dumperResult)
+            m_wh->insertData(dwd);
+        // Nasty side effect: Modify owner for the ignore predicate
+        wd.source = OwnerDumper;
         break;
     case CdbDumperHelper::DumpNotHandled:
     case CdbDumperHelper::DumpError:
@@ -133,15 +212,19 @@ bool CdbStackFrameContext::assignValue(const QString &iname, const QString &valu
 bool CdbStackFrameContext::populateModelInitially(WatchHandler *wh, QString *errorMessage)
 {
     if (debugCDBWatchHandling)
-        qDebug() << "populateModelInitially";
+        qDebug() << "populateModelInitially dumpers=" << m_useDumpers;
+    // Recurse down items that are initially expanded in the view, stop processing for
+    // dumper items.
     const bool rc = m_useDumpers ?
         CdbSymbolGroupContext::populateModelInitially(m_symbolContext,
-                                                      wh->expandedINames(),
-                                                      WatchHandlerSorterInserter(wh, m_dumper),                                                      
+                                                      WatchHandleDumperInserter(wh, m_dumper),
+                                                      WatchHandlerExpandedPredicate(wh),
+                                                      isDumperPredicate,
                                                       errorMessage) :
         CdbSymbolGroupContext::populateModelInitially(m_symbolContext,
-                                                      wh->expandedINames(),
                                                       WatchHandlerModelInserter(wh),
+                                                      WatchHandlerExpandedPredicate(wh),
+                                                      falsePredicate,
                                                       errorMessage);
     return rc;
 }
@@ -151,25 +234,32 @@ bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
                                         QString *errorMessage)
 {
     if (debugCDBWatchHandling)
-        qDebug() << ">completeData " << incompleteLocal.iname << " src=" << incompleteLocal.source;
+        qDebug() << ">completeData src=" << incompleteLocal.source << incompleteLocal.toString();
 
+    // Expand symbol group items, recurse one level from desired item
     if (!m_useDumpers) {
         return CdbSymbolGroupContext::completeData(m_symbolContext, incompleteLocal,
                                                    WatchHandlerModelInserter(wh),
+                                                   MatchINamePredicate(incompleteLocal.iname),
+                                                   falsePredicate,
                                                    errorMessage);
     }
 
     // Expand dumper items (not implemented)
     if (incompleteLocal.source == OwnerDumper) {
+        if (debugCDBWatchHandling)
+            qDebug() << "ignored dumper item";
         WatchData wd = incompleteLocal;
         wd.setAllUnneeded();
         wh->insertData(wd);
         return true;
     }
 
-    // Expand symbol group items
+    // Expand symbol group items, recurse one level from desired item
     return CdbSymbolGroupContext::completeData(m_symbolContext, incompleteLocal,
-                                               WatchHandlerSorterInserter(wh, m_dumper),
+                                               WatchHandleDumperInserter(wh, m_dumper),
+                                               MatchINamePredicate(incompleteLocal.iname),
+                                               isDumperPredicate,
                                                errorMessage);
 }
 

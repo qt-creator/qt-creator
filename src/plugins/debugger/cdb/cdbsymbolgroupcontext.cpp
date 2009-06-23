@@ -33,6 +33,7 @@
 #include "watchutils.h"
 
 #include <QtCore/QTextStream>
+#include <QtCore/QRegExp>
 
 enum { debug = 0 };
 
@@ -353,6 +354,20 @@ static inline QString hexSymbolOffset(CIDebugSymbolGroup *sg, unsigned long inde
     return QLatin1String("0x") + QString::number(rc, 16);
 }
 
+// check for "0x000", "0x000 class X"
+static inline bool isNullPointer(const WatchData &wd)
+{
+    if (!isPointerType(wd.type))
+        return false;
+    static const QRegExp hexNullPattern(QLatin1String("0x0+"));
+    Q_ASSERT(hexNullPattern.isValid());
+    const int blankPos = wd.value.indexOf(QLatin1Char(' '));
+    if (blankPos == -1)
+        return hexNullPattern.exactMatch(wd.value);
+    const QString addr = wd.value.mid(0, blankPos);
+    return hexNullPattern.exactMatch(addr);
+}
+
 WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
 {
     WatchData wd;
@@ -367,8 +382,10 @@ WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
     // Figure out children. The SubElement is only a guess unless the symbol,
     // is expanded, so, we leave this as a guess for later updates.
     // If the symbol has children (expanded or not), we leave the 'Children' flag
-    // in 'needed' state.
-    wd.setHasChildren(m_symbolParameters.at(index).SubElements);
+    // in 'needed' state. Suppress 0-pointers right ("0x000 class X")
+    // here as they only lead to children with memory access errors.
+    const bool hasChildren = m_symbolParameters.at(index).SubElements && !isNullPointer(wd);
+    wd.setHasChildren(hasChildren);
     if (debug > 1)
         qDebug() << Q_FUNC_INFO << index << '\n' << wd.toString();
     return wd;
