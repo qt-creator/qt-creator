@@ -45,32 +45,6 @@
 namespace Debugger {
 namespace Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// TooltipTreeView
-//
-///////////////////////////////////////////////////////////////////////
-
-class ToolTipTreeView : public QTreeView
-{
-public:
-    ToolTipTreeView(QWidget *parent = 0) : QTreeView(parent) {}
-
-/*   
-    QSize sizeHint() const {
-        qDebug() << viewport()->size()
-            << viewport()->size().boundedTo(QSize(500, 300));
-        return viewport()->size().boundedTo(QSize(100, 100));
-    }
-*/
-};
-
-///////////////////////////////////////////////////////////////////////
-//
-// TooltipWidget
-//
-///////////////////////////////////////////////////////////////////////
-
 class ToolTipWidget : public QTreeView
 {
     Q_OBJECT
@@ -78,33 +52,15 @@ class ToolTipWidget : public QTreeView
 public:
     ToolTipWidget(QWidget *parent);
 
+    bool eventFilter(QObject *ob, QEvent *ev);
+    QSize sizeHint() const { return m_size; }
+
     void done();
     void run(const QPoint &point, QAbstractItemModel *model,
         const QModelIndex &index, const QString &msg);
-    bool eventFilter(QObject *ob, QEvent *ev);
+    int computeHeight(const QModelIndex &index) const;
+    Q_SLOT void computeSize();
 
-    QSize sizeHint() const { return m_size; }
-
-    int computeHeight(const QModelIndex &index)
-    {
-        int s = rowHeight(index);
-        for (int i = 0; i < model()->rowCount(index); ++i)
-            s += computeHeight(model()->index(i, 0, index));
-        return s;
-    }
-
-    Q_SLOT void computeSize() 
-    {
-        int columns = 0;
-        for (int i = 0; i < 3; ++i) {
-            resizeColumnToContents(i);
-            columns += sizeHintForColumn(i);
-        }
-        int rows = computeHeight(QModelIndex());
-        m_size = QSize(columns + 5, rows + 5);
-        setMinimumSize(m_size);
-        setMaximumSize(m_size);
-    }
 private:
     QSize m_size;
 };
@@ -161,6 +117,26 @@ bool ToolTipWidget::eventFilter(QObject *ob, QEvent *ev)
     return false;
 }
 
+int ToolTipWidget::computeHeight(const QModelIndex &index) const
+{
+    int s = rowHeight(index);
+    for (int i = 0; i < model()->rowCount(index); ++i)
+        s += computeHeight(model()->index(i, 0, index));
+    return s;
+}
+
+Q_SLOT void ToolTipWidget::computeSize() 
+{
+    int columns = 0;
+    for (int i = 0; i < 3; ++i) {
+        resizeColumnToContents(i);
+        columns += sizeHintForColumn(i);
+    }
+    int rows = computeHeight(QModelIndex());
+    m_size = QSize(columns + 5, rows + 5);
+    setMinimumSize(m_size);
+    setMaximumSize(m_size);
+}
 void ToolTipWidget::done()
 {
     qApp->removeEventFilter(this);
