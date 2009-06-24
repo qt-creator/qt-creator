@@ -334,8 +334,8 @@ static bool isSimpleType(const char *type)
         case 'l':
             return isEqual(type, "long") || startsWith(type, "long ");
         case 's':
-            return isEqual(type, "short") || isEqual(type, "signed")
-                || startsWith(type, "signed ");
+            return isEqual(type, "short") || startsWith(type, "short ")
+                || isEqual(type, "signed") || startsWith(type, "signed ");
         case 'u':
             return isEqual(type, "unsigned") || startsWith(type, "unsigned ");
     }
@@ -369,7 +369,8 @@ static bool isMovableType(const char *type)
                 || isEqual(type, "QBitArray")
                 || isEqual(type, "QByteArray") ;
         case 'C':
-            return isEqual(type, "QCustomTypeInfo");
+            return isEqual(type, "QCustomTypeInfo")
+                || isEqual(type, "QChar");
         case 'D':
             return isEqual(type, "QDate")
                 || isEqual(type, "QDateTime");
@@ -386,6 +387,7 @@ static bool isMovableType(const char *type)
         case 'L':
             return isEqual(type, "QLine")
                 || isEqual(type, "QLineF")
+                || isEqual(type, "QLatin1Char")
                 || isEqual(type, "QLocal");
         case 'M':
             return isEqual(type, "QMatrix")
@@ -786,6 +788,17 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
                 P(d, field, *(QByteArray*)addr);
             }
             return;
+        case 'C':
+            if (isEqual(type, "QChar")) {
+                d.addCommaIfNeeded();
+                QChar c = *(QChar *)addr;
+                char str[] = "'?', usc=\0";
+                if (c.isPrint() && c.unicode() < 127)
+                    str[1] = char(c.unicode());
+                P(d, field, str << c.unicode());
+                P(d, "numchild", 0);
+            }
+            return;
         case 'L':
             if (startsWith(type, "QList<")) {
                 const QListData *ldata = reinterpret_cast<const QListData*>(addr);
@@ -987,6 +1000,18 @@ static void qDumpQByteArray(QDumper &d)
         }
         d << "]";
     }
+    d.disarm();
+}
+
+static void qDumpQChar(QDumper &d)
+{
+    d.addCommaIfNeeded();
+    QChar c = *(QChar *)d.data;
+    char str[] = "'?', usc=\0";
+    if (c.isPrint() && c.unicode() < 127)
+        str[1] = char(c.unicode());
+    P(d, "value", str << c.unicode());
+    P(d, "numchild", 0);
     d.disarm();
 }
 
@@ -2663,6 +2688,10 @@ static void handleProtocolVersion2and3(QDumper & d)
         case 'B':
             if (isEqual(type, "QByteArray"))
                 qDumpQByteArray(d);
+            break;
+        case 'C':
+            if (isEqual(type, "QChar"))
+                qDumpQChar(d);
             break;
         case 'D':
             if (isEqual(type, "QDateTime"))
