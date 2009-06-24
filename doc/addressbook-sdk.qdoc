@@ -92,11 +92,6 @@
     example, which presents a small GUI application, with menus, toolbars, a
     status bar, and so on.
 
-    \table
-        \o  \bold{Disclaimer}: Development of this tutorial is on-going.
-            Currently, we have three parts complete. The remaining four parts
-            will be available in the coming release.
-    \endtable
 */
 
 
@@ -547,17 +542,10 @@
 
     Again, we display the contents of the current object in \c contacts.
 
-    \table
-        \o  \bold{Note}: This tutorial is work in progress and currently ends here. 
-            You can read the remaining four chapters of the Address Book Tutorial from 
-            \l{http://doc.trolltech.com/latest/tutorials-addressbook.html}{the Qt library documentation} 
-            instead. Note that this version is IDE agnostic and does not
-            consider Qt Creator. It might contain subtle differences.
-    \endtable
 */
 
+
 /*!
-\omit
     \page tutorials-addressbook-sdk-part4.html
     \previouspage Address Book 3 - Navigating between Entries
     \contentspage {Address Book Tutorial}{Contents}
@@ -755,7 +743,10 @@
     in a horizontal layout. Then set a top level layout - either horizontal or
     vertical.
 
+*/
 
+
+/*!
     \page tutorials-addressbook-sdk-part6.html
     \previouspage Address Book 5 - Adding a Find Function
     \contentspage {Address Book Tutorial}{Contents}
@@ -763,12 +754,14 @@
     \example examples/addressbook-sdk/part6
     \title Address Book 6 - Loading and Saving
 
+*/
 
+
+/*!
     \page tutorials-addressbook-sdk-part7.html
     \previouspage Address Book 6 - Loading and Saving
     \contentspage {Address Book Tutorial}{Contents}
     \example examples/addressbook-sdk/part7
     \title Address Book 7 - Additional Features
 
-\endomit
 */
