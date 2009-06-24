@@ -367,19 +367,17 @@ QByteArray Snapshot::preprocessedCode(const QString &source, const QString &file
 Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
                                            const QString &fileName) const
 {
-    if (Document::Ptr thisDocument = value(fileName)) {
-        FastPreprocessor pp(*this);
-        Document::Ptr newDoc = Document::create(fileName);
+    FastPreprocessor pp(*this);
+    Document::Ptr newDoc = Document::create(fileName);
 
+    if (Document::Ptr thisDocument = value(fileName)) {
         newDoc->_includes = thisDocument->_includes;
         newDoc->_definedMacros = thisDocument->_definedMacros;
-
-        newDoc->setSource(preprocessedCode);
-        newDoc->parse();
-        return newDoc;
     }
 
-    return Document::Ptr();
+    newDoc->setSource(preprocessedCode);
+    newDoc->parse();
+    return newDoc;
 }
 
 QSharedPointer<NamespaceBinding> Snapshot::globalNamespaceBinding(Document::Ptr doc) const

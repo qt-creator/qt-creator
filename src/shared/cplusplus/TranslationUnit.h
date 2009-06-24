@@ -127,6 +127,14 @@ public:
     void resetAST();
     void release();
 
+    void getTokenStartPosition(unsigned index, unsigned *line,
+                               unsigned *column = 0,
+                               StringLiteral **fileName = 0) const;
+
+    void getTokenEndPosition(unsigned index, unsigned *line,
+                             unsigned *column = 0,
+                             StringLiteral **fileName = 0) const;
+
     void getPosition(unsigned offset,
                      unsigned *line,
                      unsigned *column = 0,

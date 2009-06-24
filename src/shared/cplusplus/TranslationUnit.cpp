@@ -341,6 +341,16 @@ void TranslationUnit::getTokenPosition(unsigned index,
                                        StringLiteral **fileName) const
 { return getPosition(tokenAt(index).offset, line, column, fileName); }
 
+void TranslationUnit::getTokenStartPosition(unsigned index, unsigned *line,
+                                            unsigned *column,
+                                            StringLiteral **fileName) const
+{ return getPosition(tokenAt(index).begin(), line, column, fileName); }
+
+void TranslationUnit::getTokenEndPosition(unsigned index, unsigned *line,
+                                          unsigned *column,
+                                          StringLiteral **fileName) const
+{ return getPosition(tokenAt(index).end(), line, column, fileName); }
+
 void TranslationUnit::getPosition(unsigned tokenOffset,
                                   unsigned *line,
                                   unsigned *column,

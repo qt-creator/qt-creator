@@ -118,6 +118,7 @@ private slots:
     void updateFileName();
     void jumpToMethod(int index);
     void updateMethodBoxIndex();
+    void updateMethodBoxIndexNow();
     void updateMethodBoxToolTip();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
     void reformatDocument();
@@ -175,6 +176,7 @@ private:
     CPlusPlus::OverviewModel *m_overviewModel;
     QSortFilterProxyModel *m_proxyModel;
     QAction *m_sortAction;
+    QTimer *m_updateMethodBoxTimer;
 };
 
 } // namespace Internal

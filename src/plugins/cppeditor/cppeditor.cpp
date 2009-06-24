@@ -86,6 +86,10 @@
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
 
+enum {
+    UPDATE_METHOD_BOX_INTERVAL = 150
+};
+
 namespace {
 
 class OverviewTreeView : public QTreeView
@@ -102,6 +106,93 @@ public:
     {
         expandAll();
         setMinimumWidth(qMax(sizeHintForColumn(0), minimumSizeHint().width()));
+    }
+};
+
+class FunctionDefinitionUnderCursor: protected ASTVisitor
+{
+    QTextCursor _textCursor;
+    unsigned _line;
+    unsigned _column;
+    FunctionDefinitionAST *_functionDefinition;
+
+public:
+    FunctionDefinitionUnderCursor(Control *control)
+        : ASTVisitor(control)
+    { }
+
+    FunctionDefinitionAST *operator()(AST *ast, const QTextCursor &tc)
+    {
+        _functionDefinition = 0;
+        _textCursor = tc;
+        _line = tc.blockNumber() + 1;
+        _column = tc.columnNumber() + 1;
+        accept(ast);
+        return _functionDefinition;
+    }
+
+protected:
+    virtual bool preVisit(AST *ast)
+    {
+        if (_functionDefinition)
+            return false;
+
+        else if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
+            unsigned startLine, startColumn;
+            unsigned endLine, endColumn;
+            getTokenStartPosition(def->firstToken(), &startLine, &startColumn);
+            getTokenEndPosition(def->lastToken() - 1, &endLine, &endColumn);
+
+            if (_line > startLine || (_line == startLine && _column >= startColumn)) {
+                if (_line < endLine || (_line == endLine && _column < endColumn)) {
+                    _functionDefinition = def;
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+};
+
+class ProcessDeclarators: protected ASTVisitor
+{
+    QList<DeclaratorIdAST *> _declarators;
+    bool _visitFunctionDeclarator;
+
+public:
+    ProcessDeclarators(Control *control)
+            : ASTVisitor(control), _visitFunctionDeclarator(true)
+    { }
+
+    QList<DeclaratorIdAST *> operator()(FunctionDefinitionAST *ast)
+    {
+        _declarators.clear();
+
+        if (ast) {
+            if (ast->declarator) {
+                _visitFunctionDeclarator = true;
+                accept(ast->declarator->postfix_declarators);
+            }
+
+            _visitFunctionDeclarator = false;
+            accept(ast->function_body);
+        }
+
+        return _declarators;
+    }
+
+protected:
+    using ASTVisitor::visit;
+
+    virtual bool visit(FunctionDeclaratorAST *)
+    { return _visitFunctionDeclarator; }
+
+    virtual bool visit(DeclaratorIdAST *ast)
+    {
+        _declarators.append(ast);
+        return true;
     }
 };
 
@@ -372,6 +463,11 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     connect(m_sortAction, SIGNAL(toggled(bool)), CppPlugin::instance(), SLOT(setSortedMethodOverview(bool)));
     m_methodCombo->addAction(m_sortAction);
 
+    m_updateMethodBoxTimer = new QTimer(this);
+    m_updateMethodBoxTimer->setSingleShot(true);
+    m_updateMethodBoxTimer->setInterval(UPDATE_METHOD_BOX_INTERVAL);
+    connect(m_updateMethodBoxTimer, SIGNAL(timeout()), this, SLOT(updateMethodBoxIndexNow()));
+
     connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
     connect(m_methodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMethodBoxToolTip()));
@@ -486,7 +582,7 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
     m_overviewModel->rebuild(doc);
     OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
     treeView->sync();
-    updateMethodBoxIndex();
+    updateMethodBoxIndexNow();
 }
 
 void CPPEditor::reformatDocument()
@@ -552,7 +648,7 @@ void CPPEditor::setSortedMethodOverview(bool sort)
         bool block = m_sortAction->blockSignals(true);
         m_sortAction->setChecked(m_proxyModel->sortColumn() == 0);
         m_sortAction->blockSignals(block);
-        updateMethodBoxIndex();
+        updateMethodBoxIndexNow();
     }
 }
 
@@ -563,6 +659,13 @@ bool CPPEditor::sortedMethodOverview() const
 
 void CPPEditor::updateMethodBoxIndex()
 {
+    m_updateMethodBoxTimer->start(UPDATE_METHOD_BOX_INTERVAL);
+}
+
+void CPPEditor::updateMethodBoxIndexNow()
+{
+    m_updateMethodBoxTimer->stop();
+
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
 
@@ -585,6 +688,45 @@ void CPPEditor::updateMethodBoxIndex()
         updateMethodBoxToolTip();
         (void) m_methodCombo->blockSignals(blocked);
     }
+
+    const Snapshot snapshot = m_modelManager->snapshot();
+    const QByteArray preprocessedCode = snapshot.preprocessedCode(toPlainText(), file()->fileName());
+    Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, file()->fileName());
+    Control *control = doc->control();
+    TranslationUnit *translationUnit = doc->translationUnit();
+    AST *ast = translationUnit->ast();
+
+    FunctionDefinitionUnderCursor functionDefinitionUnderCursor(control);
+    FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, textCursor());
+
+    QTextCharFormat format;
+    format.setUnderlineColor(Qt::darkGray);
+    format.setUnderlineStyle(QTextCharFormat::DashUnderline);
+    ProcessDeclarators processDeclarators(control);
+    const QList<DeclaratorIdAST *> declarators = processDeclarators(currentFunctionDefinition);
+    foreach (DeclaratorIdAST *declarator, declarators) {
+        bool generated = false;
+        for (unsigned tk = declarator->firstToken(), end = declarator->lastToken(); tk != end; ++tk) {
+            if (translationUnit->tokenAt(tk).generated) {
+                generated = true;
+                break;
+            }
+        }
+        if (generated)
+            continue;
+        unsigned startLine, startColumn;
+        unsigned endLine, endColumn;
+        translationUnit->getTokenStartPosition(declarator->firstToken(), &startLine, &startColumn);
+        translationUnit->getTokenEndPosition(declarator->lastToken() - 1, &endLine, &endColumn);
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = textCursor();
+        sel.cursor.setPosition(document()->findBlockByNumber(startLine - 1).position() + startColumn - 1);
+        sel.cursor.setPosition(document()->findBlockByLineNumber(endLine - 1).position() + endColumn - 1,
+                               QTextCursor::KeepAnchor);
+        sel.format = format;
+        selections.append(sel);
+    }
+    setExtraSelections(CodeSemanticsSelection, selections);
 
 #ifdef QTCREATOR_WITH_ADVANCED_HIGHLIGHTER
     Snapshot snapshot = m_modelManager->snapshot();
