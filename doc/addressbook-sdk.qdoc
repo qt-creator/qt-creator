@@ -727,7 +727,7 @@
     dialog that can prompt the user for a contact's name. Qt provides QDialog,
     which we subclass in this chapter, to implement a FindDialog class.
 
-    \section1 Designing FindDialog
+    \section1 Designing \c FindDialog
 
     #image
 
@@ -742,6 +742,16 @@
     \c label, \c lineEdit, and \c findButton, respectively. Place these widgets
     in a horizontal layout. Then set a top level layout - either horizontal or
     vertical.
+
+    \section1 Implementing \c FindDialog
+
+    Let's look at \c{FindDialog}'s header file. Here, we need to provide
+    private members for the class so that we can access the widgets freely
+    throughout the class.
+
+    \snippet examples/addressbook-sdk/part5/finddialog.h private members
+
+
 
 */
 
