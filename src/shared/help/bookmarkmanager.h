@@ -76,7 +76,7 @@ private slots:
     void textChanged(const QString& string);
     void selectBookmarkFolder(const QString &folderName);
     void customContextMenuRequested(const QPoint &point);
-    void currentChanged(const QModelIndex& current, const QModelIndex& previous);
+    void currentChanged(const QModelIndex& current);
     
 private:
     bool eventFilter(QObject *object, QEvent *e);
@@ -184,7 +184,8 @@ private:
 private:
     QString oldText;
     QIcon folderIcon;
-    
+    QIcon bookmarkIcon;
+
     BookmarkModel *treeModel;
     BookmarkModel *listModel;
     QStandardItem *renameItem;
