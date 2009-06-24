@@ -69,18 +69,18 @@ class PROJECTEXPLORER_EXPORT ToolChain
 public:
     enum ToolChainType
     {
-        GCC,
-        LinuxICC,
-        MinGW,
-        MSVC,
-        WINCE,
+        GCC = 0,
+        LinuxICC = 1,
+        MinGW = 2,
+        MSVC = 3,
+        WINCE = 4,
 #ifdef QTCREATOR_WITH_S60
-        WINSCW,
-        GCCE,
+        WINSCW = 5,
+        GCCE = 6,
 #endif
-        OTHER,
-        UNKNOWN,
-        INVALID
+        OTHER = 200,
+        UNKNOWN = 201,
+        INVALID = 202
     };
 
     virtual QByteArray predefinedMacros() = 0;
