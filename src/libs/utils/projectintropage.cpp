@@ -65,7 +65,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     hideStatusLabel();
     m_d->m_ui.nameLineEdit->setInitialText(tr("<Enter_Name>"));
     m_d->m_ui.nameLineEdit->setFocus(Qt::TabFocusReason);
-    connect(m_d->m_ui.pathChooser, SIGNAL(changed()), this, SLOT(slotChanged()));
+    connect(m_d->m_ui.pathChooser, SIGNAL(changed(QString)), this, SLOT(slotChanged()));
     connect(m_d->m_ui.nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
     connect(m_d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
     connect(m_d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));

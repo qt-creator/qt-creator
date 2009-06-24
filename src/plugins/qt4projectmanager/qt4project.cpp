@@ -43,6 +43,10 @@
 #include "projectloadwizard.h"
 #include "qtversionmanager.h"
 
+#ifdef QTCREATOR_WITH_S60
+#include "qt-s60/gccetoolchain.h"
+#endif
+
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
@@ -230,7 +234,8 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_nodesWatcher(new Internal::Qt4NodesWatcher(this)),
     m_fileInfo(new Qt4ProjectFile(this, fileName, this)),
     m_isApplication(true),
-    m_projectFiles(new Qt4ProjectFiles)
+    m_projectFiles(new Qt4ProjectFiles),
+    m_toolChain(0)
 {
     m_manager->registerProject(this);
 
@@ -250,6 +255,7 @@ Qt4Project::~Qt4Project()
 {
     m_manager->unregisterProject(this);
     delete m_projectFiles;
+    delete m_toolChain;
 }
 
 void Qt4Project::defaultQtVersionChanged()
@@ -268,6 +274,8 @@ void Qt4Project::qtVersionsChanged()
                 m_rootProjectNode->update();
         }
     }
+    delete m_toolChain;
+    m_toolChain = 0;
 }
 
 void Qt4Project::updateFileList()
@@ -288,10 +296,12 @@ void Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
 
     addDefaultBuild();
 
-    // Ensure that the qt version in each build configuration is valid
+    // Ensure that the qt version and tool chain in each build configuration is valid
     // or if not, is reset to the default
-    foreach (const QString &bc, buildConfigurations())
+    foreach (const QString &bc, buildConfigurations()) {
         qtVersionId(bc);
+        toolChainType(bc);
+    }
 
     m_rootProjectNode = new Qt4ProFileNode(this, m_fileInfo->fileName(), this);
     m_rootProjectNode->registerWatcher(m_nodesWatcher);
@@ -375,9 +385,27 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
     m_proFilesForCodeModelUpdate.append(pro);
 }
 
+ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
+{
+    if (!m_toolChain) {
+        m_toolChain = qtVersion(buildConfiguration)->createToolChain(toolChainType(buildConfiguration));
+#ifdef QTCREATOR_WITH_S60
+        if (m_toolChain->type() == ToolChain::GCCE) {
+            static_cast<GCCEToolChain *>(m_toolChain)->setProject(this);
+        }
+#endif
+    }
+    return m_toolChain;
+}
+
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
 {
-    return qtVersion(buildConfiguration)->toolChain()->makeCommand();
+    return toolChain(buildConfiguration)->makeCommand();
+}
+
+QString Qt4Project::defaultMakeTarget(const QString &buildConfiguration) const
+{
+    return toolChain(buildConfiguration)->defaultMakeTarget();
 }
 
 void Qt4Project::updateCodeModel()
@@ -396,7 +424,7 @@ void Qt4Project::updateCodeModel()
     QStringList predefinedFrameworkPaths;
     QByteArray predefinedMacros;
 
-    ToolChain *tc = qtVersion(activeBuildConfiguration())->toolChain();
+    ToolChain *tc = toolChain(activeBuildConfiguration());
     QList<HeaderPath> allHeaderPaths;
     if (tc) {
         predefinedMacros = tc->predefinedMacros();
@@ -712,6 +740,7 @@ ProjectExplorer::Environment Qt4Project::baseEnvironment(const QString &buildCon
 {
     Environment env = useSystemEnvironment(buildConfiguration) ? Environment::systemEnvironment() : Environment();
     qtVersion(buildConfiguration)->addToEnvironment(env);
+    toolChain(buildConfiguration)->addToEnvironment(env);
     return env;
 }
 
@@ -805,6 +834,41 @@ int Qt4Project::qtVersionId(const QString &buildConfiguration) const
 void Qt4Project::setQtVersion(const QString &buildConfiguration, int id)
 {
     setValue(buildConfiguration, "QtVersionId", id);
+    updateActiveRunConfiguration();
+}
+
+void Qt4Project::setToolChainType(const QString &buildConfiguration, ProjectExplorer::ToolChain::ToolChainType type)
+{
+    setValue(buildConfiguration, "ToolChain", (int)type);
+    delete m_toolChain;
+    m_toolChain = 0;
+    updateActiveRunConfiguration();
+}
+
+void Qt4Project::updateActiveRunConfiguration()
+{
+    if (!activeRunConfiguration()->isEnabled()) {
+        foreach (QSharedPointer<RunConfiguration> runConfiguration, runConfigurations()) {
+            if (runConfiguration->isEnabled()) {
+                setActiveRunConfiguration(runConfiguration);
+            }
+        }
+    }
+    emit runConfigurationsEnabledStateChanged();
+    emit invalidateCachedTargetInformation();
+}
+
+ProjectExplorer::ToolChain::ToolChainType Qt4Project::toolChainType(const QString &buildConfiguration) const
+{
+    const ProjectExplorer::ToolChain::ToolChainType originalType =
+        (ProjectExplorer::ToolChain::ToolChainType)value(buildConfiguration, "ToolChain").toInt();
+    ProjectExplorer::ToolChain::ToolChainType type = originalType;
+    const QtVersion *version = qtVersion(buildConfiguration);
+    if (!version->possibleToolChainTypes().contains(type)) // use default tool chain
+        type = version->defaultToolchainType();
+    if (type != originalType)
+        const_cast<Qt4Project *>(this)->setToolChainType(buildConfiguration, type);
+    return type;
 }
 
 BuildStepConfigWidget *Qt4Project::createConfigWidget()
@@ -997,12 +1061,7 @@ void Qt4Project::notifyChanged(const QString &name)
 
 void Qt4Project::invalidateCachedTargetInformation()
 {
-    foreach(QSharedPointer<RunConfiguration> rc, runConfigurations()) {
-        QSharedPointer<Qt4RunConfiguration> qt4rc = rc.dynamicCast<Qt4RunConfiguration>();
-        if (qt4rc) {
-            qt4rc->invalidateCachedTargetInformation();
-        }
-    }
+    emit targetInformationChanged();
 }
 
 

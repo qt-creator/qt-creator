@@ -79,7 +79,8 @@ void RunConfiguration::restore(const PersistentSettingsReader &reader)
 }
 
 
-IRunConfigurationFactory::IRunConfigurationFactory()
+IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent)
+    : QObject(parent)
 {
 }
 
@@ -87,7 +88,8 @@ IRunConfigurationFactory::~IRunConfigurationFactory()
 {
 }
 
-IRunConfigurationRunner::IRunConfigurationRunner()
+IRunConfigurationRunner::IRunConfigurationRunner(QObject *parent)
+    : QObject(parent)
 {
 }
 

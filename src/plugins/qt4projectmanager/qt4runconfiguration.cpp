@@ -75,6 +75,9 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
 
+    connect(pro, SIGNAL(targetInformationChanged()),
+            this, SLOT(invalidateCachedTargetInformation()));
+
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
 
@@ -91,6 +94,17 @@ QString Qt4RunConfiguration::type() const
     return "Qt4ProjectManager.Qt4RunConfiguration";
 }
 
+bool Qt4RunConfiguration::isEnabled() const
+{
+#ifdef QTCREATOR_WITH_S60
+    Qt4Project *pro = qobject_cast<Qt4Project*>(project());
+    QTC_ASSERT(pro, return false);
+    ProjectExplorer::ToolChain::ToolChainType type = pro->toolChainType(pro->activeBuildConfiguration());
+    return type != ProjectExplorer::ToolChain::WINSCW && type != ProjectExplorer::ToolChain::GCCE;
+#else
+    return true;
+#endif
+}
 
 //////
 /// Qt4RunConfigurationWidget
@@ -186,7 +200,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     vbox->addLayout(toplayout);
     vbox->addWidget(box);
 
-    connect(m_workingDirectoryEdit, SIGNAL(changed()),
+    connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
 
     connect(resetButton, SIGNAL(clicked()),
@@ -638,7 +652,7 @@ Qt4RunConfiguration::BaseEnvironmentBase Qt4RunConfiguration::baseEnvironmentBas
 ProjectExplorer::ToolChain::ToolChainType Qt4RunConfiguration::toolChainType() const
 {
     Qt4Project *pro = qobject_cast<Qt4Project *>(project());
-    return pro->qtVersion(pro->activeBuildConfiguration())->toolchainType();
+    return pro->toolChainType(pro->activeBuildConfiguration());
 }
 
 ///

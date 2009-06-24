@@ -1,0 +1,40 @@
+* SDK overview page:
+    * When the refresh button is pressed
+      the qtoptionspage is not updated to reflect the new versions
+      though we update them in S60Manager
+    * Qt auto-detection fails if no winscw-udeb Qt libs are installed
+
+* QtVersion:
+    * gui for overriding the default make target if necessary,
+      make arguments --> make options
+    * build parser should be defined/created by toolchain, not make step
+
+* Debugging helpers
+    * must probably be compiled for different toolchains
+
+* Tool chains
+    * derive GCCE tool chain from GCC toolchain to get the includes/defines
+      implementation
+    * delete toolchain in more intelligent way (create a new one and
+      check if it's the same as the old one, has the advantage that
+      cached data doesn't need to be retrieved again)
+    * Qt4Project::setQtVersion should think about tool chains,
+      might be better to remove the magic in toolChainType method
+    * should the default make target be defined by the project
+      instead of tool chain, or perhaps by the QtVersion dependent on a
+      tool chain?
+
+* Run Configurations
+    * handling of active run config getting disabled not optimal yet
+    * might be better from a user perspective if the run configuration
+      defines possible tool chains
+
+* Run on device
+    * makesis, signsis and applicationinstaller don't report errors back
+      via exit code :-(
+    * passphrase for signing
+
+* Add compile output parser winscw at least
+
+* WINSCW tool chain:
+    * predefined macros

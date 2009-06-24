@@ -32,6 +32,10 @@
 #include "qt4projectmanagerconstants.h"
 #include "profilereader.h"
 
+#ifdef QTCREATOR_WITH_S60
+#include "qt-s60/s60manager.h"
+#endif
+
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/cesdkhandler.h>
@@ -62,6 +66,7 @@ using ProjectExplorer::DebuggingHelperLibrary;
 static const char *QtVersionsSectionName = "QtVersions";
 static const char *defaultQtVersionKey = "DefaultQtVersion";
 static const char *newQtVersionsKey = "NewQtVersions";
+static const char *PATH_AUTODETECTION_SOURCE = "PATH";
 
 QtVersionManager *QtVersionManager::m_self = 0;
 
@@ -85,12 +90,26 @@ QtVersionManager::QtVersionManager()
             id = getUniqueId();
         else if (id > m_idcount)
             m_idcount = id;
+        bool isAutodetected;
+        QString autodetectionSource;
+        if (s->contains("isAutodetected")) {
+            isAutodetected = s->value("isAutodetected", false).toBool();
+            autodetectionSource = s->value("autodetectionSource", QString()).toString();
+        } else {// compatibility
+            isAutodetected = s->value("IsSystemVersion", false).toBool();
+            if (isAutodetected)
+                autodetectionSource = QLatin1String(PATH_AUTODETECTION_SOURCE);
+        }
         QtVersion *version = new QtVersion(s->value("Name").toString(),
                                            s->value("Path").toString(),
                                            id,
-                                           s->value("IsSystemVersion", false).toBool());
+                                           isAutodetected,
+                                           autodetectionSource);
         version->setMingwDirectory(s->value("MingwDirectory").toString());
         version->setMsvcVersion(s->value("msvcVersion").toString());
+#ifdef QTCREATOR_WITH_S60
+        version->setMwcDirectory(s->value("MwcDirectory").toString());
+#endif
         m_versions.append(version);
     }
     s->endArray();
@@ -129,6 +148,14 @@ void QtVersionManager::addVersion(QtVersion *version)
     m_versions.append(version);
     emit qtVersionsChanged();
     writeVersionsIntoSettings();
+}
+
+void QtVersionManager::removeVersion(QtVersion *version)
+{
+    m_versions.removeAll(version);
+    emit qtVersionsChanged();
+    writeVersionsIntoSettings();
+    delete version;
 }
 
 void QtVersionManager::updateDocumentation()
@@ -187,13 +214,19 @@ void QtVersionManager::writeVersionsIntoSettings()
     s->setValue(defaultQtVersionKey, m_defaultVersion);
     s->beginWriteArray(QtVersionsSectionName);
     for (int i = 0; i < m_versions.size(); ++i) {
+        const QtVersion *version = m_versions.at(i);
         s->setArrayIndex(i);
-        s->setValue("Name", m_versions.at(i)->name());
-        s->setValue("Path", m_versions.at(i)->path());
-        s->setValue("Id", m_versions.at(i)->uniqueId());
-        s->setValue("MingwDirectory", m_versions.at(i)->mingwDirectory());
-        s->setValue("msvcVersion", m_versions.at(i)->msvcVersion());
-        s->setValue("IsSystemVersion", m_versions.at(i)->isSystemVersion());
+        s->setValue("Name", version->name());
+        s->setValue("Path", version->path());
+        s->setValue("Id", version->uniqueId());
+        s->setValue("MingwDirectory", version->mingwDirectory());
+        s->setValue("msvcVersion", version->msvcVersion());
+        s->setValue("isAutodetected", version->isAutodetected());
+        if (version->isAutodetected())
+            s->setValue("autodetectionSource", version->autodetectionSource());
+#ifdef QTCREATOR_WITH_S60
+        s->setValue("MwcDirectory", version->mwcDirectory());
+#endif
     }
     s->endArray();
 }
@@ -283,18 +316,20 @@ void QtVersionManager::updateSystemVersion()
     }
 
     foreach (QtVersion *version, m_versions) {
-        if (version->isSystemVersion()) {
+        if (version->isAutodetected()
+            && version->autodetectionSource() == PATH_AUTODETECTION_SOURCE) {
             version->setPath(systemQtPath);
-            version->setName(tr("Auto-detected Qt"));
+            version->setName(tr("Qt in PATH"));
             haveSystemVersion = true;
         }
     }
     if (haveSystemVersion)
         return;
-    QtVersion *version = new QtVersion(tr("Auto-detected Qt"),
+    QtVersion *version = new QtVersion(tr("Qt in PATH"),
                                        systemQtPath,
                                        getUniqueId(),
-                                       true);
+                                       true,
+                                       PATH_AUTODETECTION_SOURCE);
     m_versions.prepend(version);
     updateUniqueIdToIndexMap();
     if (m_versions.size() > 1) // we had other versions before adding system version
@@ -349,17 +384,18 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
 /// QtVersion
 ///
 
-QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isSystemVersion)
+QtVersion::QtVersion(const QString &name, const QString &path, int id,
+                     bool isAutodetected, const QString &autodetectionSource)
     : m_name(name),
-    m_isSystemVersion(isSystemVersion),
+    m_isAutodetected(isAutodetected),
+    m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
     m_defaultConfigIsDebugAndRelease(true),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false),
-    m_toolChain(0)
+    m_hasDocumentation(false)
 {
     if (id == -1)
         m_id = getUniqueId();
@@ -368,13 +404,14 @@ QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isSy
     setPath(path);
 }
 
-QtVersion::QtVersion(const QString &name, const QString &path)
+QtVersion::QtVersion(const QString &name, const QString &path,
+                     bool isAutodetected, const QString &autodetectionSource)
     : m_name(name),
-    m_isSystemVersion(false),
+    m_isAutodetected(isAutodetected),
+    m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_mkspecUpToDate(false),
-    m_versionInfoUpToDate(false),
-    m_toolChain(0)
+    m_versionInfoUpToDate(false)
 {
     m_id = getUniqueId();
     setPath(path);
@@ -447,7 +484,6 @@ void QtVersion::setPath(const QString &path)
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     m_qmakeCXX = QString::null;
     m_qmakeCXXUpToDate = false;
-    m_toolChainUpToDate = false;
 }
 
 void QtVersion::updateSourcePath()
@@ -846,33 +882,24 @@ void QtVersion::updateQMakeCXX() const
     m_qmakeCXXUpToDate = true;
 }
 
-ProjectExplorer::ToolChain *QtVersion::toolChain() const
+ProjectExplorer::ToolChain *QtVersion::createToolChain(ProjectExplorer::ToolChain::ToolChainType type) const
 {
-    updateToolChain();
-    return m_toolChain.data();
-}
-
-void QtVersion::updateToolChain() const
-{
-    if (m_toolChainUpToDate)
-        return;
-    ProjectExplorer::ToolChain *m_test= 0;
-    ProjectExplorer::ToolChain::ToolChainType t = toolchainType();
-    if (t == ProjectExplorer::ToolChain::MinGW) {
+    ProjectExplorer::ToolChain *tempToolchain = 0;
+    if (type == ProjectExplorer::ToolChain::MinGW) {
         QString qmake_cxx = qmakeCXX();
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
         env.prependOrSetPath(mingwDirectory()+"/bin");
         qmake_cxx = env.searchInPath(qmake_cxx);
-        m_test = ProjectExplorer::ToolChain::createMinGWToolChain(qmake_cxx, mingwDirectory());
+        tempToolchain = ProjectExplorer::ToolChain::createMinGWToolChain(qmake_cxx, mingwDirectory());
         //qDebug()<<"Mingw ToolChain";
-    } else if(t == ProjectExplorer::ToolChain::MSVC) {
-        m_test = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isMSVC64Bit());
+    } else if(type == ProjectExplorer::ToolChain::MSVC) {
+        tempToolchain = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isMSVC64Bit());
         //qDebug()<<"MSVC ToolChain ("<<version->msvcVersion()<<")";
-    } else if(t == ProjectExplorer::ToolChain::WINCE) {
-        m_test = ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatform());
+    } else if(type == ProjectExplorer::ToolChain::WINCE) {
+        tempToolchain = ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatform());
         //qDebug()<<"WinCE ToolChain ("<<version->msvcVersion()<<","<<version->wincePlatform()<<")";
-    } else if(t == ProjectExplorer::ToolChain::GCC || t == ProjectExplorer::ToolChain::LinuxICC) {
+    } else if(type == ProjectExplorer::ToolChain::GCC || type == ProjectExplorer::ToolChain::LinuxICC) {
         QString qmake_cxx = qmakeCXX();
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
@@ -882,20 +909,19 @@ void QtVersion::updateToolChain() const
             // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
             qmake_cxx = QLatin1String("cc");
         }
-        m_test = ProjectExplorer::ToolChain::createGccToolChain(qmake_cxx);
+        tempToolchain = ProjectExplorer::ToolChain::createGccToolChain(qmake_cxx);
         //qDebug()<<"GCC ToolChain ("<<qmake_cxx<<")";
+#ifdef QTCREATOR_WITH_S60
+    } else if (type == ProjectExplorer::ToolChain::WINSCW) {
+        tempToolchain = S60Manager::instance()->createWINSCWToolChain(this);
+    } else if (type == ProjectExplorer::ToolChain::GCCE) {
+        tempToolchain = S60Manager::instance()->createGCCEToolChain(this);
+#endif
     } else {
-        qDebug()<<"Could not detect ToolChain for"<<mkspec();
+        qDebug()<<"Could not create ToolChain for"<<mkspec();
         qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
     }
-
-    if (ProjectExplorer::ToolChain::equals(m_test, m_toolChain.data())) {
-        delete m_test;
-    } else {
-        m_toolChain =  QSharedPointer<ProjectExplorer::ToolChain>(m_test);
-    }
-
-    m_toolChainUpToDate = true;
+    return tempToolchain;
 }
 
 
@@ -962,25 +988,47 @@ QString QtVersion::linguistCommand() const
     return m_linguistCommand;
 }
 
-ProjectExplorer::ToolChain::ToolChainType QtVersion::toolchainType() const
+QList<ProjectExplorer::ToolChain::ToolChainType> QtVersion::possibleToolChainTypes() const
 {
+    QList<ProjectExplorer::ToolChain::ToolChainType> toolChains;
     if (!isValid())
-        return ProjectExplorer::ToolChain::INVALID;
+        return toolChains << ProjectExplorer::ToolChain::INVALID;
     const QString &spec = mkspec();
-//    qDebug()<<"spec="<<spec;
     if (spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
-        return ProjectExplorer::ToolChain::MSVC;
+        toolChains << ProjectExplorer::ToolChain::MSVC;
     else if (spec.contains("win32-g++"))
-        return ProjectExplorer::ToolChain::MinGW;
+        toolChains << ProjectExplorer::ToolChain::MinGW;
     else if (spec == QString::null)
-        return ProjectExplorer::ToolChain::INVALID;
+        toolChains << ProjectExplorer::ToolChain::INVALID;
     else if (spec.contains("wince"))
-        return ProjectExplorer::ToolChain::WINCE;
+        toolChains << ProjectExplorer::ToolChain::WINCE;
     else if (spec.contains("linux-icc"))
-        return ProjectExplorer::ToolChain::LinuxICC;
+        toolChains << ProjectExplorer::ToolChain::LinuxICC;
+#ifdef QTCREATOR_WITH_S60
+    else if (spec.contains("symbian-abld"))
+        toolChains << ProjectExplorer::ToolChain::GCCE << ProjectExplorer::ToolChain::WINSCW;
+#endif
     else
-        return ProjectExplorer::ToolChain::GCC;
+        toolChains << ProjectExplorer::ToolChain::GCC;
+    return toolChains;
 }
+
+ProjectExplorer::ToolChain::ToolChainType QtVersion::defaultToolchainType() const
+{
+    return possibleToolChainTypes().at(0);
+}
+
+#ifdef QTCREATOR_WITH_S60
+QString QtVersion::mwcDirectory() const
+{
+    return m_mwcDirectory;
+}
+
+void QtVersion::setMwcDirectory(const QString &directory)
+{
+    m_mwcDirectory = directory;
+}
+#endif
 
 QString QtVersion::mingwDirectory() const
 {
@@ -990,7 +1038,6 @@ QString QtVersion::mingwDirectory() const
 void QtVersion::setMingwDirectory(const QString &directory)
 {
     m_mingwDirectory = directory;
-    m_toolChainUpToDate = false;
 }
 
 QString QtVersion::msvcVersion() const
@@ -1007,7 +1054,6 @@ QString QtVersion::wincePlatform() const
 void QtVersion::setMsvcVersion(const QString &version)
 {
     m_msvcVersion = version;
-    m_toolChainUpToDate = false;
 }
 
 void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
@@ -1015,12 +1061,6 @@ void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
     env.set("QTDIR", m_path);
     QString qtdirbin = versionInfo().value("QT_INSTALL_BINS");
     env.prependOrSetPath(qtdirbin);
-    // add libdir, includedir and bindir
-    // or add Mingw dirs
-    // or do nothing on other
-    ProjectExplorer::ToolChain *tc = toolChain();
-    if (tc)
-        tc->addToEnvironment(env);
 }
 
 int QtVersion::uniqueId() const
@@ -1127,10 +1167,13 @@ QString QtVersion::buildDebuggingHelperLibrary()
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     addToEnvironment(env);
 
-    ProjectExplorer::ToolChain *tc = toolChain();
+    // TODO: the debugging helper doesn't comply to actual tool chain yet
+    ProjectExplorer::ToolChain *tc = createToolChain(defaultToolchainType());
+    tc->addToEnvironment(env);
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, path());
     QString output = DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), mkspec(), env);
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
+    delete tc;
     return output;
 }
 

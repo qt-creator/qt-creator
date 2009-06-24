@@ -46,38 +46,47 @@ class Qt4ProjectManagerPlugin;
 
 class QtVersion
 {
-    friend class Internal::QtOptionsPageWidget; //for changing name and path
     friend class QtVersionManager;
 public:
-    QtVersion(const QString &name, const QString &path);
-    QtVersion(const QString &name, const QString &path, int id, bool isSystemVersion = false);
+    QtVersion(const QString &name, const QString &path,
+              bool isAutodetected = false, const QString &autodetectionSource = QString());
+    QtVersion(const QString &name, const QString &path, int id,
+              bool isAutodetected = false, const QString &autodetectionSource = QString());
     QtVersion()
-        :m_name(QString::null), m_id(-1), m_toolChain(0)
+        :m_name(QString::null), m_id(-1)
     { setPath(QString::null); }
     ~QtVersion();
 
     bool isValid() const; //TOOD check that the dir exists and the name is non empty
     bool isInstalled() const;
-    bool isSystemVersion() const { return m_isSystemVersion; }
+    bool isAutodetected() const { return m_isAutodetected; }
+    QString autodetectionSource() const { return m_autodetectionSource; }
 
     QString name() const;
     QString path() const;
     QString sourcePath() const;
-    QString mkspec() const;
     QString mkspecPath() const;
     QString qmakeCommand() const;
     QString uicCommand() const;
     QString designerCommand() const;
     QString linguistCommand() const;
-    QString qmakeCXX() const;
-    ProjectExplorer::ToolChain *toolChain() const;
+
+    QList<ProjectExplorer::ToolChain::ToolChainType> possibleToolChainTypes() const;
+    QString mkspec() const;
+    ProjectExplorer::ToolChain::ToolChainType defaultToolchainType() const;
+    ProjectExplorer::ToolChain *createToolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
+
+    void setName(const QString &name);
+    void setPath(const QString &path);
 
     QString qtVersionString() const;
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
 
-    ProjectExplorer::ToolChain::ToolChainType toolchainType() const;
-
+#ifdef QTCREATOR_WITH_S60
+    QString mwcDirectory() const;
+    void setMwcDirectory(const QString &directory);
+#endif
     QString mingwDirectory() const;
     void setMingwDirectory(const QString &directory);
     QString msvcVersion() const;
@@ -115,13 +124,11 @@ public:
 private:
     static int getUniqueId();
     // Also used by QtOptionsPageWidget
-    void setName(const QString &name);
-    void setPath(const QString &path);
     void updateSourcePath();
     void updateMkSpec() const;
     void updateVersionInfo() const;
     void updateQMakeCXX() const;
-    void updateToolChain() const;
+    QString qmakeCXX() const;
     QString findQtBinary(const QStringList &possibleName) const;
     QString m_name;
     QString m_path;
@@ -129,8 +136,12 @@ private:
     QString m_mingwDirectory;
     QString m_msvcVersion;
     int m_id;
-    bool m_isSystemVersion;
+    bool m_isAutodetected;
+    QString m_autodetectionSource;
     bool m_hasDebuggingHelper;
+#ifdef QTCREATOR_WITH_S60
+    QString m_mwcDirectory;
+#endif
 
     mutable bool m_mkspecUpToDate;
     mutable QString m_mkspec; // updated lazily
@@ -153,9 +164,6 @@ private:
 
     mutable bool m_qmakeCXXUpToDate;
     mutable QString m_qmakeCXX;
-
-    mutable bool m_toolChainUpToDate;
-    mutable QSharedPointer<ProjectExplorer::ToolChain> m_toolChain;
 };
 
 class QtVersionManager : public QObject
@@ -177,6 +185,7 @@ public:
     QtVersion *qtVersionForDirectory(const QString &directory);
     // Used by the projectloadwizard
     void addVersion(QtVersion *version);
+    void removeVersion(QtVersion *version);
 
     // Static Methods
     static QtVersion::QmakeBuildConfig scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);

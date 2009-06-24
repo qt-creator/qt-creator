@@ -31,6 +31,7 @@
 #define TOOLCHAIN_H
 
 #include "environment.h"
+#include "project.h"
 #include <QtCore/QString>
 #include <QtCore/QPair>
 
@@ -68,14 +69,18 @@ class PROJECTEXPLORER_EXPORT ToolChain
 public:
     enum ToolChainType
     {
-        GCC,
-        LinuxICC,
-        MinGW,
-        MSVC,
-        WINCE,
-        OTHER,
-        UNKNOWN,
-        INVALID
+        GCC = 0,
+        LinuxICC = 1,
+        MinGW = 2,
+        MSVC = 3,
+        WINCE = 4,
+#ifdef QTCREATOR_WITH_S60
+        WINSCW = 5,
+        GCCE = 6,
+#endif
+        OTHER = 200,
+        UNKNOWN = 201,
+        INVALID = 202
     };
 
     virtual QByteArray predefinedMacros() = 0;
@@ -83,6 +88,7 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env) = 0;
     virtual ToolChainType type() const = 0;
     virtual QString makeCommand() const = 0;
+    virtual QString defaultMakeTarget() const = 0;
 
     ToolChain();
     virtual ~ToolChain();
@@ -112,6 +118,7 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
+    virtual QString defaultMakeTarget() const { return ""; }
 
 protected:
     virtual bool equals(ToolChain *other) const;
@@ -145,6 +152,7 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
+    virtual QString defaultMakeTarget() const { return ""; }
 protected:
     virtual bool equals(ToolChain *other) const;
     QString m_name;
@@ -172,5 +180,7 @@ private:
 
 }
 }
+
+Q_DECLARE_METATYPE(ProjectExplorer::ToolChain::ToolChainType);
 
 #endif // TOOLCHAIN_H

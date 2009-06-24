@@ -44,7 +44,7 @@ class PROJECTEXPLORER_EXPORT ApplicationRunConfiguration : public RunConfigurati
     Q_OBJECT
 public:
     enum RunMode {
-        Console = Internal::ApplicationLauncher::Console,
+        Console = ApplicationLauncher::Console,
         Gui
     };
 

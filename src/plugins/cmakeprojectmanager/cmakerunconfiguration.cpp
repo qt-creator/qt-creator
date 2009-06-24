@@ -267,7 +267,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     boxLayout->addWidget(m_systemEnvironmentRadioButton);
     boxLayout->addWidget(m_buildEnvironmentRadioButton);
 
-    connect(m_workingDirectoryEdit, SIGNAL(changed()),
+    connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
 
     connect(resetButton, SIGNAL(clicked()),

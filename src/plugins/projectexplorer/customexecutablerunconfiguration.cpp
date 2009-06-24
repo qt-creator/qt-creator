@@ -130,11 +130,11 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     
     connect(m_userName, SIGNAL(textEdited(QString)),
             this, SLOT(setUserName(QString)));
-    connect(m_executableChooser, SIGNAL(changed()),
+    connect(m_executableChooser, SIGNAL(changed(QString)),
             this, SLOT(setExecutable()));
     connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(setCommandLineArguments(const QString&)));
-    connect(m_workingDirectory, SIGNAL(changed()),
+    connect(m_workingDirectory, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));

@@ -75,6 +75,8 @@ public:
     QString name() const;
     void setName(const QString &name);
 
+    virtual bool isEnabled() const { return true; }
+
     // Returns the widget used to configure this run configuration. Ownership is transferred to the caller
     // rename to createConfigurationWidget
     virtual QWidget *configurationWidget() = 0;
@@ -100,7 +102,7 @@ class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
 {
     Q_OBJECT
 public:
-    IRunConfigurationFactory();
+    IRunConfigurationFactory(QObject *parent = 0);
     virtual ~IRunConfigurationFactory();
     // used to recreate the runConfigurations when restoring settings
     virtual bool canRestore(const QString &type) const = 0;
@@ -116,7 +118,7 @@ class PROJECTEXPLORER_EXPORT IRunConfigurationRunner : public QObject
 {
     Q_OBJECT
 public:
-    IRunConfigurationRunner();
+    IRunConfigurationRunner(QObject *parent = 0);
     virtual ~IRunConfigurationRunner();
     virtual bool canRun(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode) = 0;
     virtual RunControl* run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode) = 0;

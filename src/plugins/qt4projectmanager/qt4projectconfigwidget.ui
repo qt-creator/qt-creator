@@ -87,21 +87,21 @@
        </item>
       </layout>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Shadow Build:</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QCheckBox" name="shadowBuildCheckBox">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="buildDirLabel">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -114,7 +114,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="5" column="1">
       <widget class="QLabel" name="importLabel">
        <property name="text">
         <string>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</string>
@@ -124,13 +124,23 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="4" column="1">
       <widget class="Core::Utils::PathChooser" name="shadowBuildDirEdit" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="toolChainComboBox"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Tool Chain:</string>
        </property>
       </widget>
      </item>

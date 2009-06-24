@@ -69,11 +69,14 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     connect(m_ui->shadowBuildDirEdit, SIGNAL(beforeBrowsing()),
             this, SLOT(onBeforeBeforeShadowBuildDirBrowsed()));
 
-    connect(m_ui->shadowBuildDirEdit, SIGNAL(changed()),
+    connect(m_ui->shadowBuildDirEdit, SIGNAL(changed(QString)),
             this, SLOT(shadowBuildLineEditTextChanged()));
 
     connect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(QString)),
             this, SLOT(qtVersionComboBoxCurrentIndexChanged(QString)));
+
+    connect(m_ui->toolChainComboBox, SIGNAL(activated(int)),
+            this, SLOT(selectToolChain(int)));
 
     connect(m_ui->importLabel, SIGNAL(linkActivated(QString)),
             this, SLOT(importLabelClicked()));
@@ -120,6 +123,7 @@ void Qt4ProjectConfigWidget::init(const QString &buildConfiguration)
     m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
     m_ui->shadowBuildDirEdit->setPath(m_pro->buildDirectory(buildConfiguration));
     updateImportLabel();
+    updateToolChainCombo();
 }
 
 void Qt4ProjectConfigWidget::changeConfigName(const QString &newName)
@@ -270,6 +274,58 @@ void Qt4ProjectConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString 
     m_ui->invalidQtWarningLabel->setVisible(!isValid);
     if (newQtVersion != m_pro->qtVersionId(m_buildConfiguration)) {
         m_pro->setQtVersion(m_buildConfiguration, newQtVersion);
+        updateToolChainCombo();
         m_pro->update();
     }
+}
+
+void Qt4ProjectConfigWidget::updateToolChainCombo()
+{
+    m_ui->toolChainComboBox->clear();
+    QList<ProjectExplorer::ToolChain::ToolChainType> toolchains = m_pro->qtVersion(m_buildConfiguration)->possibleToolChainTypes();
+    foreach (ProjectExplorer::ToolChain::ToolChainType toolchain, toolchains) {
+        switch (toolchain) {
+        case ProjectExplorer::ToolChain::GCC:
+            m_ui->toolChainComboBox->addItem(tr("gcc"), qVariantFromValue(ProjectExplorer::ToolChain::GCC));
+            break;
+        case ProjectExplorer::ToolChain::LinuxICC:
+            m_ui->toolChainComboBox->addItem(tr("icc"), qVariantFromValue(ProjectExplorer::ToolChain::LinuxICC));
+            break;
+        case ProjectExplorer::ToolChain::MinGW:
+            m_ui->toolChainComboBox->addItem(tr("mingw"), qVariantFromValue(ProjectExplorer::ToolChain::MinGW));
+            break;
+        case ProjectExplorer::ToolChain::MSVC:
+            m_ui->toolChainComboBox->addItem(tr("msvc"), qVariantFromValue(ProjectExplorer::ToolChain::MSVC));
+            break;
+        case ProjectExplorer::ToolChain::WINCE:
+            m_ui->toolChainComboBox->addItem(tr("wince"), qVariantFromValue(ProjectExplorer::ToolChain::WINCE));
+            break;
+#ifdef QTCREATOR_WITH_S60
+        case ProjectExplorer::ToolChain::WINSCW:
+            m_ui->toolChainComboBox->addItem(tr("winscw"), qVariantFromValue(ProjectExplorer::ToolChain::WINSCW));
+            break;
+        case ProjectExplorer::ToolChain::GCCE:
+            m_ui->toolChainComboBox->addItem(tr("gcce"), qVariantFromValue(ProjectExplorer::ToolChain::GCCE));
+            break;
+#endif
+        }
+    }
+    m_ui->toolChainComboBox->setEnabled(toolchains.size() > 1);
+    setToolChain(toolchains.indexOf(m_pro->toolChainType(m_buildConfiguration)));
+}
+
+void Qt4ProjectConfigWidget::selectToolChain(int index)
+{
+    setToolChain(index);
+    m_pro->update();
+}
+
+void Qt4ProjectConfigWidget::setToolChain(int index)
+{
+    ProjectExplorer::ToolChain::ToolChainType selectedToolChainType =
+        m_ui->toolChainComboBox->itemData(index,
+            Qt::UserRole).value<ProjectExplorer::ToolChain::ToolChainType>();
+    m_pro->setToolChainType(m_buildConfiguration, selectedToolChainType);
+    if (m_ui->toolChainComboBox->currentIndex() != index)
+        m_ui->toolChainComboBox->setCurrentIndex(index);
 }

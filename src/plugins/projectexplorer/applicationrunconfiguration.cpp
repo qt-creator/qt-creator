@@ -134,7 +134,7 @@ void ApplicationRunControl::start()
 
     m_executable = rc->executable();
 
-    m_applicationLauncher.start(static_cast<Internal::ApplicationLauncher::Mode>(rc->runMode()),
+    m_applicationLauncher.start(static_cast<ApplicationLauncher::Mode>(rc->runMode()),
                                 m_executable, rc->commandLineArguments());
     emit started();
 

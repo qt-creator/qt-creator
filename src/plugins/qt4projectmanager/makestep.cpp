@@ -68,7 +68,8 @@ bool MakeStep::init(const QString &name)
         workingDirectory = QFileInfo(project()->file()->fileName()).absolutePath();
     setWorkingDirectory(name, workingDirectory);
 
-    QString makeCmd = qobject_cast<Qt4Project *>(project())->makeCommand(name);
+    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
+    QString makeCmd = qt4project->makeCommand(name);
     if (!value(name, "makeCmd").toString().isEmpty())
         makeCmd = value(name, "makeCmd").toString();
     if (!QFileInfo(makeCmd).isAbsolute()) {
@@ -88,19 +89,21 @@ bool MakeStep::init(const QString &name)
         setValue(name, "cleanConfig", true);
         setValue(name, "makeargs", QStringList() << "clean");
     }
-
     // If we are cleaning, then make can fail with a error code, but that doesn't mean
     // we should stop the clean queue
     // That is mostly so that rebuild works on a alrady clean project
     setIgnoreReturnValue(name, value(name, "cleanConfig").isValid());
     QStringList args = value(name, "makeargs").toStringList();
-
+    if (!value(name, "cleanConfig").isValid()) {
+        if (!qt4project->defaultMakeTarget(name).isEmpty())
+            args << qt4project->defaultMakeTarget(name);
+    }
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    ProjectExplorer::ToolChain::ToolChainType t =  qobject_cast<Qt4Project *>(project())->qtVersion(name)->toolchainType();
+    ProjectExplorer::ToolChain::ToolChainType t = qobject_cast<Qt4Project *>(project())->toolChain(name)->type();
     if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {
         if (value(name, "makeCmd").toString().isEmpty())
             args << "-w";
@@ -109,7 +112,7 @@ bool MakeStep::init(const QString &name)
     setEnabled(name, true);
     setArguments(name, args);
 
-    ProjectExplorer::ToolChain::ToolChainType type = qobject_cast<Qt4Project *>(project())->qtVersion(name)->toolchainType();
+    ProjectExplorer::ToolChain::ToolChainType type = qobject_cast<Qt4Project *>(project())->toolChain(name)->type();
     if ( type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
         setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_MSVC);
     else

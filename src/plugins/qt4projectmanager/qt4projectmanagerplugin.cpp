@@ -44,6 +44,10 @@
 #include "qtoptionspage.h"
 #include "externaleditors.h"
 
+#ifdef QTCREATOR_WITH_S60
+#include "qt-s60/s60manager.h"
+#endif
+
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
@@ -137,6 +141,10 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new DesignerExternalEditor);
 #endif
     addAutoReleasedObject(new LinguistExternalEditor);
+
+#ifdef QTCREATOR_WITH_S60
+    addAutoReleasedObject(new S60Manager);
+#endif
 
     // TODO reenable
     //m_embeddedPropertiesPage = new EmbeddedPropertiesPage;

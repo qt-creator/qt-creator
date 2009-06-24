@@ -162,6 +162,9 @@ public:
     //returns the name of the qt version, might be QString::Null, which means default qt version
     // qtVersion is in general the better method to use
     QString qtVersionName(const QString &buildConfiguration) const;
+    ProjectExplorer::ToolChain *toolChain(const QString &buildConfiguration) const;
+    void setToolChainType(const QString &buildConfiguration, ProjectExplorer::ToolChain::ToolChainType type);
+    ProjectExplorer::ToolChain::ToolChainType toolChainType(const QString &buildConfiguration) const;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildStepConfigWidget*> subConfigWidgets();
@@ -182,6 +185,7 @@ public:
     void notifyChanged(const QString &name);
 
     QString makeCommand(const QString &buildConfiguration) const;
+    QString defaultMakeTarget(const QString &buildConfiguration) const;
 
     // Is called by qmakestep qt4configurationwidget if the settings change
     // Informs all Qt4RunConfigurations that their cached values are now invalid
@@ -191,6 +195,9 @@ public:
     virtual QByteArray predefinedMacros(const QString &fileName) const;
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
+
+signals:
+    void targetInformationChanged();
 
 public slots:
     void update();
@@ -226,6 +233,7 @@ private:
     void addDefaultBuild();
 
     static QString qmakeVarName(ProjectExplorer::FileType type);
+    void updateActiveRunConfiguration();
 
     Qt4Manager *m_manager;
     Internal::Qt4ProFileNode *m_rootProjectNode;
@@ -245,6 +253,7 @@ private:
     QList<Qt4ProjectManager::Internal::Qt4ProFileNode *> m_proFilesForCodeModelUpdate;
 
     QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;
+    mutable ProjectExplorer::ToolChain *m_toolChain;
 
     friend class Qt4ProjectFile;
 };

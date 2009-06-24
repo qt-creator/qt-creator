@@ -61,9 +61,12 @@ private slots:
     void importLabelClicked();
     void qtVersionComboBoxCurrentIndexChanged(const QString &);
     void manageQtVersions();
+    void selectToolChain(int index);
 
 private:
+    void updateToolChainCombo();
     void updateImportLabel();
+    void setToolChain(int index);
     Ui::Qt4ProjectConfigWidget *m_ui;
     Qt4Project *m_pro;
     QString m_buildConfiguration;

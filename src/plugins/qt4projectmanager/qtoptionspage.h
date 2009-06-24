@@ -60,6 +60,8 @@ private:
     void showEnvironmentPage(QTreeWidgetItem * item);
     void fixQtVersionName(int index);
     int indexForWidget(QWidget *debuggingHelperWidget) const;
+    int indexForTreeItem(QTreeWidgetItem *item) const;
+
     Internal::Ui::QtVersionManager *m_ui;
     QList<QtVersion *> m_versions;
     int m_defaultVersion;
@@ -73,12 +75,16 @@ private slots:
     void updateState();
     void makeMingwVisible(bool visible);
     void makeMSVCVisible(bool visible);
+    void makeMWCVisible(bool visible);
     void onQtBrowsed();
     void onMingwBrowsed();
     void defaultChanged(int index);
     void updateCurrentQtName();
     void updateCurrentQtPath();
     void updateCurrentMingwDirectory();
+#ifdef QTCREATOR_WITH_S60
+    void updateCurrentMwcDirectory();
+#endif
     void msvcVersionChanged();
     void buildDebuggingHelper();
     void showDebuggingBuildLog();
