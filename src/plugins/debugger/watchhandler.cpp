@@ -54,8 +54,8 @@
 
 // creates debug output regarding pending watch data results
 //#define DEBUG_PENDING 1
-//// creates debug output for accesses to the itemmodel
-#define DEBUG_MODEL 1
+// creates debug output for accesses to the model
+//#define DEBUG_MODEL 1
 
 #if DEBUG_MODEL
 #   define MODEL_DEBUG(s) qDebug() << s
@@ -611,6 +611,10 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case ExpandedRole:
             return m_handler->m_expandedINames.contains(data.iname);
             //FIXME return node < 4 || m_expandedINames.contains(data.iname);
+
+        case ActiveDataRole:
+            qDebug() << "ASK FOR" << data.iname;
+            return true;
     
         default:
             break; 
@@ -848,7 +852,7 @@ void WatchHandler::cleanup()
 
 void WatchHandler::insertData(const WatchData &data)
 {
-    //MODEL_DEBUG("INSERTDATA: " << data.toString());
+    MODEL_DEBUG("INSERTDATA: " << data.toString());
     QTC_ASSERT(data.isValid(), return);
     if (data.isSomethingNeeded()) {
         emit watchDataUpdateNeeded(data);
@@ -857,6 +861,16 @@ void WatchHandler::insertData(const WatchData &data)
         QTC_ASSERT(model, return);
         model->insertData(data);
     }
+}
+
+void WatchHandler::removeData(const QString &iname)
+{
+    WatchModel *model = modelForIName(iname);
+    if (!model)
+        return;
+    WatchItem *item = model->findItem(iname, model->m_root);
+    if (item)
+        model->removeItem(item);
 }
 
 void WatchHandler::watchExpression()
@@ -1058,7 +1072,7 @@ WatchModel *WatchHandler::modelForIName(const QString &iname) const
         return m_locals;
     if (iname.startsWith(QLatin1String("watch.")))
         return m_watchers;
-    if (iname.startsWith(QLatin1String("tooltip.")))
+    if (iname.startsWith(QLatin1String("tooltip")))
         return m_tooltips;
     QTC_ASSERT(false, /**/);
     return 0;
@@ -1076,5 +1090,6 @@ QString WatchHandler::watcherEditPlaceHolder()
     static const QString rc = tr("<Edit>");
     return rc;
 }
+
 } // namespace Internal
 } // namespace Debugger

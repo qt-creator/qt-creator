@@ -42,6 +42,7 @@ class QAbstractItemModel;
 class QDockWidget;
 class QLabel;
 class QMainWindow;
+class QModelIndex;
 class QPoint;
 class QTimer;
 class QWidget;
@@ -70,16 +71,16 @@ class DebuggerPlugin;
 class DebugMode;
 
 class BreakHandler;
+class BreakpointData;
 class DisassemblerHandler;
 class ModulesHandler;
 class RegisterHandler;
-class StackHandler;
-class ThreadsHandler;
-class WatchHandler;
 class SourceFilesWindow;
-class WatchData;
-class BreakpointData;
+class StackHandler;
 class Symbol;
+class ThreadsHandler;
+class WatchData;
+class WatchHandler;
 
 // Note: the Debugger process itself is referred to as 'Debugger',
 // whereas the debugged process is referred to as 'Inferior' or 'Debuggee'.
@@ -102,7 +103,6 @@ class Symbol;
 //    [R] :  Run
 //    [C] :  Continue
 //    [N] :  Step, Next
-
 
 
 enum DebuggerStatus
@@ -483,7 +483,7 @@ private:
     QWidget *m_localsWindow;
     QWidget *m_registerWindow;
     QWidget *m_modulesWindow;
-    QWidget *m_tooltipWindow;
+    //QWidget *m_tooltipWindow;
     QWidget *m_stackWindow;
     QWidget *m_threadsWindow;
     QWidget *m_watchersWindow;

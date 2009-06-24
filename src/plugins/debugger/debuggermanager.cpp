@@ -66,6 +66,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 
+#include <QtGui/QApplication>
 #include <QtGui/QAction>
 #include <QtGui/QComboBox>
 #include <QtGui/QDockWidget>
@@ -75,16 +76,34 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QPushButton>
 #include <QtGui/QStatusBar>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
-#include <QtGui/QPushButton>
 #include <QtGui/QToolTip>
 
+
+// The creation functions take a list of options pages they can add to.
+// This allows for having a "enabled" toggle on the page indepently
+// of the engine.
+using namespace Debugger::Internal;
+
+IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineEnabled */, QList<Core::IOptionsPage*> *)
+#ifdef CDB_ENABLED
+;
+#else
+{ return 0; }
+#endif
+IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+
+
 namespace Debugger {
-    namespace Internal {
+namespace Internal {
+
 QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
 {
     QDebug nospace = str.nospace();
@@ -100,12 +119,8 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
             << " toolchain=" << p.toolChainType << '\n';
     return str;
 }
-} // namespace Internal
-} // namespace Debugger
 
-using namespace Debugger;
-using namespace Debugger::Internal;
-using namespace Debugger::Constants;
+using namespace Constants;
 
 static const QString tooltipIName = "tooltip";
 
@@ -131,36 +146,15 @@ static const char *stateName(int s)
 
 ///////////////////////////////////////////////////////////////////////
 //
-// DebuggerManager
+// DebuggerStartParameters
 //
 ///////////////////////////////////////////////////////////////////////
 
-static IDebuggerEngine *gdbEngine = 0;
-static IDebuggerEngine *winEngine = 0;
-static IDebuggerEngine *scriptEngine = 0;
-static IDebuggerEngine *tcfEngine = 0;
-
-// The creation functions take a list of options pages they can add to.
-// This allows for having a "enabled" toggle on the page indepently
-// of the engine.
-IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
-IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineEnabled */, QList<Core::IOptionsPage*> *)
-#ifdef CDB_ENABLED
-;
-#else
-{ return 0; }
-#endif
-IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
-IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
-
-// ---------------- DebuggerStartParameters
-
-DebuggerStartParameters::DebuggerStartParameters() :
-    attachPID(-1),
+DebuggerStartParameters::DebuggerStartParameters()
+  : attachPID(-1),
     useTerminal(false),
     toolChainType(ProjectExplorer::ToolChain::UNKNOWN)
-{
-}
+{}
 
 void DebuggerStartParameters::clear()
 {
@@ -179,9 +173,20 @@ void DebuggerStartParameters::clear()
     toolChainType = ProjectExplorer::ToolChain::UNKNOWN;
 }
 
-// --------- DebuggerManager
-DebuggerManager::DebuggerManager() :
-    m_startParameters(new DebuggerStartParameters),
+
+///////////////////////////////////////////////////////////////////////
+//
+// DebuggerManager
+//
+///////////////////////////////////////////////////////////////////////
+
+static IDebuggerEngine *gdbEngine = 0;
+static IDebuggerEngine *winEngine = 0;
+static IDebuggerEngine *scriptEngine = 0;
+static IDebuggerEngine *tcfEngine = 0;
+
+DebuggerManager::DebuggerManager()
+  : m_startParameters(new DebuggerStartParameters),
     m_inferiorPid(0)
 {
     init();
@@ -228,8 +233,6 @@ void DebuggerManager::init()
     m_localsWindow = new WatchWindow(WatchWindow::LocalsType);
     m_watchersWindow = new WatchWindow(WatchWindow::WatchersType);
     //m_tooltipWindow = new WatchWindow(WatchWindow::TooltipType);
-    //m_watchersWindow = new QTreeView;
-    m_tooltipWindow = new QTreeView;
     m_statusTimer = new QTimer(this);
 
     m_mainWindow = new QMainWindow;
@@ -334,8 +337,8 @@ void DebuggerManager::init()
         this, SLOT(assignValueInDebugger()), Qt::QueuedConnection);
 
     // Tooltip
-    QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);
-    tooltipView->setModel(m_watchHandler->model(TooltipsWatch));
+    //QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);
+    //tooltipView->setModel(m_watchHandler->model(TooltipsWatch));
 
     connect(m_watchHandler, SIGNAL(watchDataUpdateNeeded(WatchData)),
         this, SLOT(updateWatchData(WatchData)));
@@ -461,8 +464,10 @@ void DebuggerManager::init()
     localsAndWatchers->setWindowTitle(m_localsWindow->windowTitle());
     localsAndWatchers->addWidget(m_localsWindow);
     localsAndWatchers->addWidget(m_watchersWindow);
+    //localsAndWatchers->addWidget(m_tooltipWindow);
     localsAndWatchers->setStretchFactor(0, 3);
     localsAndWatchers->setStretchFactor(1, 1);
+    localsAndWatchers->setStretchFactor(2, 1);
     m_watchDock = createDockForWidget(localsAndWatchers);
 
     setStatus(DebuggerProcessNotReady);
@@ -710,7 +715,7 @@ void DebuggerManager::shutdown()
     doDelete(m_stackWindow);
     doDelete(m_sourceFilesWindow);
     doDelete(m_threadsWindow);
-    doDelete(m_tooltipWindow);
+    //doDelete(m_tooltipWindow);
     doDelete(m_watchersWindow);
     doDelete(m_localsWindow);
 
@@ -1275,7 +1280,7 @@ void DebuggerManager::setBusyCursor(bool busy)
     m_stackWindow->setCursor(cursor);
     m_sourceFilesWindow->setCursor(cursor);
     m_threadsWindow->setCursor(cursor);
-    m_tooltipWindow->setCursor(cursor);
+    //m_tooltipWindow->setCursor(cursor);
     m_watchersWindow->setCursor(cursor);
 }
 
@@ -1561,3 +1566,7 @@ void DebuggerManager::runTest(const QString &fileName)
     m_startParameters->workingDir.clear();
     //startNewDebugger(StartInternal);
 }
+
+} // namespace Internal
+} // namespace Debugger
+

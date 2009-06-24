@@ -44,7 +44,6 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
-#include <QtGui/QSplitter>
 
 using namespace Debugger::Internal;
 

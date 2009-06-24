@@ -27,6 +27,7 @@ HEADERS += \
     debuggeroutputwindow.h \
     debuggerplugin.h \
     debuggerrunner.h \
+    debuggertooltip.h \
     disassemblerhandler.h \
     disassemblerwindow.h \
     watchutils.h \
@@ -55,6 +56,7 @@ SOURCES += \
     debuggeroutputwindow.cpp \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
+    debuggertooltip.cpp \
     disassemblerhandler.cpp \
     disassemblerwindow.cpp \
     watchutils.cpp \

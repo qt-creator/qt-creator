@@ -335,17 +335,24 @@ void testQList()
     lu.append(102);
     lu.append(102);
     lu.append(102);
-    lu.append(102);
-    lu.append(102);
-    lu.append(102);
-    lu.append(102);
-    lu.append(102);
 
     QList<uint> i;
     i.append(42);
     i.append(43);
     i.append(44);
     i.append(45);
+
+    QList<ushort> ls;
+    ls.append(42);
+    ls.append(43);
+    ls.append(44);
+    ls.append(45);
+
+    QList<QChar> lc;
+    lc.append(QChar('a'));
+    lc.append(QChar('b'));
+    lc.append(QChar('c'));
+    lc.append(QChar('d'));
 
     QList<qulonglong> l;
     l.append(42);

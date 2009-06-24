@@ -135,7 +135,13 @@ public:
     bool changed;
 };
 
-enum { INameRole = Qt::UserRole, ExpressionRole, ExpandedRole };
+enum WatchRoles
+{
+    INameRole = Qt::UserRole,
+    ExpressionRole,
+    ExpandedRole,
+    ActiveDataRole,  // used for tooltip
+};
 
 class WatchModel : public QAbstractItemModel
 {
@@ -158,6 +164,8 @@ private:
     void fetchMore(const QModelIndex &parent);
 
     friend class WatchHandler;
+    friend class GdbEngine;
+
     WatchItem *watchItem(const QModelIndex &) const;
     QModelIndex watchIndex(const WatchItem *needle) const;
     QModelIndex watchIndexHelper(const WatchItem *needle,
@@ -170,11 +178,13 @@ private:
     void removeOutdatedHelper(WatchItem *item);
     WatchItem *dummyRoot() const;
     void removeItem(WatchItem *item);
+    void setActiveData(const QString &data) { m_activeData = data; }
 
 private:
     WatchHandler *m_handler;
     WatchType m_type;
     WatchItem *m_root;
+    QString m_activeData;
 };
 
 class WatchHandler : public QObject
@@ -198,6 +208,7 @@ public:
     void showEditValue(const WatchData &data);
 
     void insertData(const WatchData &data);
+    void removeData(const QString &iname);
     WatchData *findItem(const QString &iname) const;
 
     void loadSessionData();

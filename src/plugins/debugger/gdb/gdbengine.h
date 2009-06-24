@@ -221,6 +221,7 @@ private:
     void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
     void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void debugMessage(const QString &msg);
+    bool showToolTip();
 
     const bool m_dumperInjectionLoad;
 
@@ -327,7 +328,6 @@ private:
     void sendWatchParameters(const QByteArray &params0);
     void createGdbVariable(const WatchData &data);
 
-    void handleTypeContents(const QString &output);
     void maybeHandleInferiorPidChanged(const QString &pid);
 
     void tryLoadDebuggingHelpers();
@@ -344,8 +344,8 @@ private:
     void handleVarAssign(const GdbResultRecord &, const QVariant &);
     void handleEvaluateExpression(const GdbResultRecord &record,
         const QVariant &cookie);
-    void handleToolTip(const GdbResultRecord &record,
-        const QVariant &cookie);
+    //void handleToolTip(const GdbResultRecord &record,
+    //    const QVariant &cookie);
     void handleQueryDebuggingHelper(const GdbResultRecord &record, const QVariant &);
     void handleDebuggingHelperValue1(const GdbResultRecord &record,
         const QVariant &cookie);

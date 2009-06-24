@@ -36,6 +36,7 @@
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
+#include "debuggertooltip.h"
 #include "gdbmi.h"
 #include "procinterrupt.h"
 
@@ -65,7 +66,6 @@
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
-#include <QtGui/QToolTip>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
 #ifdef Q_OS_WIN
@@ -102,8 +102,6 @@ static int &currentToken()
     static int token = 0;
     return token;
 }
-
-static const QString tooltipIName = _("tooltip");
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -2610,18 +2608,42 @@ bool GdbEngine::supportsThreads() const
     return m_gdbVersion > 60500;
 }
 
+
 //////////////////////////////////////////////////////////////////////
 //
 // Tooltip specific stuff
 //
 //////////////////////////////////////////////////////////////////////
 
-static WatchData m_toolTip;
 static QString m_toolTipExpression;
 static QPoint m_toolTipPos;
-static QMap<QString, WatchData> m_toolTipCache;
 
-void GdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
+static QString tooltipINameForExpression(const QString &exp)
+{
+    // FIXME: 'exp' can contain illegal characters
+    //return QLatin1String("tooltip.") + exp;
+    Q_UNUSED(exp);
+    return QLatin1String("tooltip.x");
+}
+
+bool GdbEngine::showToolTip()
+{
+    WatchHandler *handler = qq->watchHandler();
+    WatchModel *model = handler->model(TooltipsWatch);
+    QString iname = tooltipINameForExpression(m_toolTipExpression);
+    model->setActiveData(iname);
+    WatchItem *item = model->findItem(iname, model->dummyRoot());
+    if (!item) {
+        hideDebuggerToolTip();
+        return false;
+    }
+    QModelIndex index = model->watchIndex(item);
+    showDebuggerToolTip(m_toolTipPos, model, index, m_toolTipExpression);
+    return true;
+}
+
+void GdbEngine::setToolTipExpression(const QPoint &mousePos,
+    TextEditor::ITextEditor *editor, int cursorPos)
 {
     if (q->status() != DebuggerInferiorStopped || !isCppEditor(editor)) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED/Non Cpp editor";
@@ -2635,30 +2657,21 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
 
     m_toolTipPos = mousePos;
     int line, column;
-    m_toolTipExpression = cppExpressionAt(editor, cursorPos, &line, &column);
-    QString exp = m_toolTipExpression;
-/*
-    if (m_toolTip.isTypePending()) {
-        qDebug() << "suppressing duplicated tooltip creation";
-        return;
-    }
-*/
-    if (m_toolTipCache.contains(exp)) {
-        const WatchData & data = m_toolTipCache[exp];
-        // FIXME: qq->watchHandler()->collapseChildren(data.iname);
-        insertData(data);
-        return;
-    }
+    QString exp = cppExpressionAt(editor, cursorPos, &line, &column);
+    m_toolTipExpression = exp;
 
-    QToolTip::hideText();
+    // FIXME: enable caching
+    //if (showToolTip())
+    //    return;
+
     if (exp.isEmpty() || exp.startsWith(_c('#')))  {
-        QToolTip::hideText();
+        //QToolTip::hideText();
         return;
     }
 
     if (!hasLetterOrNumber(exp)) {
-        QToolTip::showText(m_toolTipPos,
-            tr("'%1' contains no identifier").arg(exp));
+        //QToolTip::showText(m_toolTipPos,
+        //    tr("'%1' contains no identifier").arg(exp));
         return;
     }
 
@@ -2666,7 +2679,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
         return;
 
     if (exp.startsWith(_c('"')) && exp.endsWith(_c('"')))  {
-        QToolTip::showText(m_toolTipPos, tr("String literal %1").arg(exp));
+        //QToolTip::showText(m_toolTipPos, tr("String literal %1").arg(exp));
         return;
     }
 
@@ -2680,9 +2693,9 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
         return;
 
     if (hasSideEffects(exp)) {
-        QToolTip::showText(m_toolTipPos,
-            tr("Cowardly refusing to evaluate expression '%1' "
-               "with potential side effects").arg(exp));
+        //QToolTip::showText(m_toolTipPos,
+        //    tr("Cowardly refusing to evaluate expression '%1' "
+        //       "with potential side effects").arg(exp));
         return;
     }
 
@@ -2703,19 +2716,12 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
     }
 */
 
-    //if (m_manager->status() != DebuggerInferiorStopped)
-    //    return;
-
-    // FIXME: 'exp' can contain illegal characters
-    m_toolTip = WatchData();
-    //m_toolTip.level = 0;
-   // m_toolTip.row = 0;
-   // m_toolTip.parentIndex = 2;
-    m_toolTip.exp = exp;
-    m_toolTip.name = exp;
-    m_toolTip.iname = tooltipIName;
-    insertData(m_toolTip);
-    //updateWatchModel2();
+    WatchData toolTip;
+    toolTip.exp = exp;
+    toolTip.name = exp;
+    toolTip.iname = tooltipINameForExpression(exp);
+    qq->watchHandler()->removeData(toolTip.iname);
+    qq->watchHandler()->insertData(toolTip);
 }
 
 
@@ -3073,18 +3079,7 @@ void GdbEngine::rebuildModel()
     emit gdbInputAvailable(LogStatus, _("<Rebuild Watchmodel>"));
     q->showStatusMessage(tr("Finished retrieving data."), 400);
     qq->watchHandler()->endCycle();
-
-    if (!m_toolTipExpression.isEmpty()) {
-        WatchData *item = qq->watchHandler()->findItem(tooltipIName);
-        if (item) {
-            //m_toolTipCache[data->exp] = *data;
-            QToolTip::showText(m_toolTipPos,
-               _c('(') + item->type + _(") ") + item->exp + _(" = ") + item->value);
-        } else {
-            QToolTip::showText(m_toolTipPos,
-                tr("Cannot evaluate expression: %1").arg(m_toolTipExpression));
-        }
-    }
+    showToolTip();
 }
 
 void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const QVariant &)
@@ -3465,7 +3460,7 @@ void GdbEngine::updateLocals()
     m_pendingRequests = 0;
 
     PENDING_DEBUG("\nRESET PENDING");
-    m_toolTipCache.clear();
+    //m_toolTipCache.clear();
     m_toolTipExpression.clear();
     qq->watchHandler()->beginCycle();
 
@@ -3594,44 +3589,6 @@ void GdbEngine::insertData(const WatchData &data0)
         return;
     }
     qq->watchHandler()->insertData(data);
-}
-
-void GdbEngine::handleTypeContents(const QString &output)
-{
-    // output.startsWith("type = ") == true
-    // "type = int"
-    // "type = class QString {"
-    // "type = class QStringList : public QList<QString> {"
-    QString tip;
-    QString className;
-    if (output.startsWith(__("type = class"))) {
-        int posBrace = output.indexOf(_c('{'));
-        QString head = output.mid(13, posBrace - 13 - 1);
-        int posColon = head.indexOf(__(": public"));
-        if (posColon == -1)
-            posColon = head.indexOf(__(": protected"));
-        if (posColon == -1)
-            posColon = head.indexOf(__(": private"));
-        if (posColon == -1) {
-            className = head;
-            tip = _("class ") + className + _(" { ... }");
-        } else {
-            className = head.left(posColon - 1);
-            tip = _("class ") + head + _(" { ... }");
-        }
-        //qDebug() << "posColon:" << posColon;
-        //qDebug() << "posBrace:" << posBrace;
-        //qDebug() << "head:" << head;
-    } else {
-        className = output.mid(7);
-        tip = className;
-    }
-    //qDebug() << "output:" << output.left(100) + "...";
-    //qDebug() << "className:" << className;
-    //qDebug() << "tip:" << tip;
-    //m_toolTip.type = className;
-    m_toolTip.type.clear();
-    m_toolTip.value = tip;
 }
 
 void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
@@ -3775,6 +3732,7 @@ void GdbEngine::handleVarListChildren(const GdbResultRecord &record,
     }
 }
 
+/*
 void GdbEngine::handleToolTip(const GdbResultRecord &record,
         const QVariant &cookie)
 {
@@ -3826,6 +3784,7 @@ void GdbEngine::handleToolTip(const GdbResultRecord &record,
     QTimer::singleShot(0, this, SLOT(updateWatchModel2()));
     qDebug() << "HANDLE TOOLTIP END";
 }
+*/
 
 #if 0
 void GdbEngine::handleChangedItem(QStandardItem *item)
