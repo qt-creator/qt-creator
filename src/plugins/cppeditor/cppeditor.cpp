@@ -219,7 +219,7 @@ protected:
             for (Symbol *member = scope->lookat(id); member; member = member->next()) {
                 if (member->identifier() != id)
                     continue;
-                else if (member->line() < line || (member->line() == line && (member->isGenerated() || member->column() >= column))) {
+                else if (member->line() < line || (member->line() == line && member->column() <= column)) {
                     //qDebug() << "*** found member:" << member->line() << member->column() << member->name()->identifier()->chars();
                     uses[member].append(Use(ast, line, column, id->size()));
                     return true;
