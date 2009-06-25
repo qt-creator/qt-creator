@@ -72,6 +72,8 @@ protected:
 
     using ASTVisitor::visit;
 
+    unsigned locationOfDeclaratorId(DeclaratorAST *declarator) const;
+
     virtual bool visit(SimpleDeclarationAST *ast);
     virtual bool visit(EmptyDeclarationAST *ast);
     virtual bool visit(AccessDeclarationAST *ast);

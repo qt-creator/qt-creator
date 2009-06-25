@@ -144,6 +144,8 @@ bool CheckStatement::visit(ExpressionStatementAST *ast)
 bool CheckStatement::visit(ForStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->for_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -158,6 +160,8 @@ bool CheckStatement::visit(ForStatementAST *ast)
 bool CheckStatement::visit(IfStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->if_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -198,6 +202,8 @@ bool CheckStatement::visit(ReturnStatementAST *ast)
 bool CheckStatement::visit(SwitchStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->switch_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -219,6 +225,8 @@ bool CheckStatement::visit(TryBlockStatementAST *ast)
 bool CheckStatement::visit(CatchClauseAST *ast)
 {
     Block *block = control()->newBlock(ast->catch_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -231,6 +239,8 @@ bool CheckStatement::visit(CatchClauseAST *ast)
 bool CheckStatement::visit(WhileStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->while_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());

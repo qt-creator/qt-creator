@@ -122,6 +122,18 @@ void CheckDeclaration::checkFunctionArguments(Function *fun)
     }
 }
 
+unsigned CheckDeclaration::locationOfDeclaratorId(DeclaratorAST *declarator) const
+{
+    if (declarator && declarator->core_declarator) {
+        if (DeclaratorIdAST *declaratorId = declarator->core_declarator->asDeclaratorId())
+            return declaratorId->firstToken();
+        else if (NestedDeclaratorAST *nested = declarator->core_declarator->asNestedDeclarator())
+            return locationOfDeclaratorId(nested->declarator);
+    }
+
+    return 0;
+}
+
 bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 {
     FullySpecifiedType ty = semantic()->check(ast->decl_specifier_seq, _scope);
@@ -164,11 +176,13 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         FullySpecifiedType declTy = semantic()->check(it->declarator, qualTy,
                                                       _scope, &name);
 
-        unsigned location = 0;
-        if (it->declarator)
-            location = it->declarator->firstToken();
-        else
-            location = ast->firstToken();
+        unsigned location = locationOfDeclaratorId(it->declarator);
+        if (! location) {
+            if (it->declarator)
+                location = it->declarator->firstToken();
+            else
+                location = ast->firstToken();
+        }
 
         Function *fun = 0;
         if (declTy && 0 != (fun = declTy->asFunctionType())) {
@@ -355,10 +369,13 @@ bool CheckDeclaration::visit(NamespaceAliasDefinitionAST *)
 
 bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
 {
-    unsigned sourceLocation = 0;
-
-    if (ast->declarator)
-        sourceLocation = ast->declarator->firstToken();
+    unsigned sourceLocation = locationOfDeclaratorId(ast->declarator);
+    if (! sourceLocation) {
+        if (ast->declarator)
+            sourceLocation = ast->declarator->firstToken();
+        else
+            sourceLocation = ast->firstToken();
+    }
 
     Name *argName = 0;
     FullySpecifiedType ty = semantic()->check(ast->type_specifier, _scope);

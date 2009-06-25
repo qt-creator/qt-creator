@@ -71,6 +71,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
+#include <QtCore/QStack>
 #include <QtGui/QAction>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLayout>
@@ -108,6 +109,217 @@ public:
         setMinimumWidth(qMax(sizeHintForColumn(0), minimumSizeHint().width()));
     }
 };
+
+class FindLocals: protected ASTVisitor
+{
+    Scope *_functionScope;
+
+    class FindScope: protected SymbolVisitor
+    {
+        TranslationUnit *_unit;
+        Scope *_scope;
+        unsigned _line;
+        unsigned _column;
+
+    public:
+        Scope *operator()(unsigned line, unsigned column,
+                          Symbol *root, TranslationUnit *unit)
+        {
+            _unit = unit;
+            _scope = 0;
+            _line = line;
+            _column = column;
+            accept(root);
+            return _scope;
+        }
+
+    private:
+        using SymbolVisitor::visit;
+
+        virtual bool preVisit(Symbol *)
+        { return ! _scope; }
+
+        virtual bool visit(Block *block)
+        { return processScope(block->members()); }
+
+        virtual bool visit(Function *function)
+        { return processScope(function->members()); }
+
+        bool processScope(Scope *scope)
+        {
+            if (_scope || ! scope)
+                return false;
+
+            for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+                accept(scope->symbolAt(i));
+
+                if (_scope)
+                    return false;
+            }
+
+            unsigned startOffset = scope->owner()->startOffset();
+            unsigned endOffset = scope->owner()->endOffset();
+
+            unsigned startLine, startColumn;
+            unsigned endLine, endColumn;
+
+            _unit->getPosition(startOffset, &startLine, &startColumn);
+            _unit->getPosition(endOffset, &endLine, &endColumn);
+
+            if (_line > startLine || (_line == startLine && _column >= startColumn)) {
+                if (_line < endLine || (_line == endLine && _column < endColumn)) {
+                    _scope = scope;
+                }
+            }
+
+            return false;
+        }
+    };
+
+public:
+    FindLocals(Control *control)
+        : ASTVisitor(control)
+    { }
+
+    struct Use {
+        SimpleNameAST *name;
+        unsigned line;
+        unsigned column;
+        unsigned length;
+
+        Use(){}
+
+        Use(SimpleNameAST *name, unsigned line, unsigned column, unsigned length)
+                : name(name), line(line), column(column), length(length) {}
+    };
+
+    typedef QHash<Symbol *, QList<Use> > UseMap;
+    typedef QHashIterator<Symbol *, QList<Use> > UseIterator;
+
+    UseMap uses; // ### private
+
+    UseMap operator()(FunctionDefinitionAST *ast)
+    {
+        uses.clear();
+        if (ast && ast->symbol) {
+            _functionScope = ast->symbol->members();
+            accept(ast);
+        }
+        return uses;
+    }
+
+protected:
+    using ASTVisitor::visit;
+
+    bool findMember(Scope *scope, SimpleNameAST *ast, unsigned line, unsigned column)
+    {
+        Identifier *id = identifier(ast->identifier_token);
+
+        if (scope) {
+            for (Symbol *member = scope->lookat(id); member; member = member->next()) {
+                if (member->identifier() != id)
+                    continue;
+                else if (member->line() < line || (member->line() == line && (member->isGenerated() || member->column() >= column))) {
+                    //qDebug() << "*** found member:" << member->line() << member->column() << member->name()->identifier()->chars();
+                    uses[member].append(Use(ast, line, column, id->size()));
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    virtual bool visit(SimpleNameAST *ast)
+    {
+        unsigned line, column;
+        getTokenStartPosition(ast->firstToken(), &line, &column);
+
+        FindScope findScope;
+
+        Scope *scope = findScope(line, column,
+                                 _functionScope->owner(),
+                                 translationUnit());
+
+        while (scope) {
+            if (scope->isFunctionScope()) {
+                Function *fun = scope->owner()->asFunction();
+                if (findMember(fun->members(), ast, line, column))
+                    return false;
+                else if (findMember(fun->arguments(), ast, line, column))
+                    return false;
+            } else if (scope->isBlockScope()) {
+                if (findMember(scope, ast, line, column))
+                    return false;
+            } else {
+                break;
+            }
+
+            scope = scope->enclosingScope();
+        }
+
+#if 0
+        qDebug() << "symbol:" << id->chars() << "at pos:" << line << column
+                << "is not defined";
+#endif
+
+        return false;
+    }
+
+    virtual bool visit(QualifiedNameAST *)
+    {
+        // ### visit the template arguments.
+        return false;
+    }
+
+    virtual bool visit(PostfixExpressionAST *ast)
+    {
+        accept(ast->base_expression);
+        for (PostfixAST *it = ast->postfix_expressions; it; it = it->next) {
+            if (it->asMemberAccess() != 0)
+                continue; // skip members
+            accept(it);
+        }
+        return false;
+    }
+
+    virtual bool visit(NewExpressionAST *ast)
+    {
+        accept(ast->new_placement);
+        accept(ast->new_initializer);
+        return false;
+    }
+
+    virtual bool visit(ElaboratedTypeSpecifierAST *)
+    {
+        // ### template args
+        return false;
+    }
+
+    virtual bool visit(ClassSpecifierAST *)
+    {
+        // ### template args
+        return false;
+    }
+
+    virtual bool visit(EnumSpecifierAST *)
+    {
+        // ### template args
+        return false;
+    }
+
+    virtual bool visit(UsingDirectiveAST *)
+    {
+        return false;
+    }
+
+    virtual bool visit(UsingAST *ast)
+    {
+        accept(ast->name);
+        return false;
+    }
+};
+
 
 class FunctionDefinitionUnderCursor: protected ASTVisitor
 {
@@ -620,6 +832,7 @@ void CPPEditor::simplifyDeclarations()
     const QString fileName = file()->fileName();
     const QByteArray preprocessedCode = snapshot.preprocessedCode(plainText, fileName);
     Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, fileName);
+    doc->check();
 
     SimplifyDeclarations simplify(this, doc);
     simplify(textCursor());
@@ -692,6 +905,7 @@ void CPPEditor::updateMethodBoxIndexNow()
     const Snapshot snapshot = m_modelManager->snapshot();
     const QByteArray preprocessedCode = snapshot.preprocessedCode(toPlainText(), file()->fileName());
     Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, file()->fileName());
+    doc->check();
     Control *control = doc->control();
     TranslationUnit *translationUnit = doc->translationUnit();
     AST *ast = translationUnit->ast();
@@ -699,33 +913,56 @@ void CPPEditor::updateMethodBoxIndexNow()
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(control);
     FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, textCursor());
 
+
     QTextCharFormat format;
     format.setUnderlineColor(Qt::darkGray);
     format.setUnderlineStyle(QTextCharFormat::DashUnderline);
-    ProcessDeclarators processDeclarators(control);
-    const QList<DeclaratorIdAST *> declarators = processDeclarators(currentFunctionDefinition);
-    foreach (DeclaratorIdAST *declarator, declarators) {
-        bool generated = false;
-        for (unsigned tk = declarator->firstToken(), end = declarator->lastToken(); tk != end; ++tk) {
-            if (translationUnit->tokenAt(tk).generated) {
-                generated = true;
+    FindLocals findLocals(control);
+    const FindLocals::UseMap useMap = findLocals(currentFunctionDefinition);
+    FindLocals::UseIterator it(useMap);
+    while (it.hasNext()) {
+        it.next();
+        const QList<FindLocals::Use> &uses = it.value();
+
+        bool good = false;
+        foreach (const FindLocals::Use &use, uses) {
+            unsigned l = line;
+            unsigned c = column + 1; // convertCursorPosition() returns a 0-based column number.
+            if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
+                good = true;
                 break;
             }
         }
-        if (generated)
+
+        if (! good)
             continue;
-        unsigned startLine, startColumn;
-        unsigned endLine, endColumn;
-        translationUnit->getTokenStartPosition(declarator->firstToken(), &startLine, &startColumn);
-        translationUnit->getTokenEndPosition(declarator->lastToken() - 1, &endLine, &endColumn);
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = textCursor();
-        sel.cursor.setPosition(document()->findBlockByNumber(startLine - 1).position() + startColumn - 1);
-        sel.cursor.setPosition(document()->findBlockByLineNumber(endLine - 1).position() + endColumn - 1,
-                               QTextCursor::KeepAnchor);
-        sel.format = format;
-        selections.append(sel);
+
+        foreach (const FindLocals::Use &use, uses) {
+            SimpleNameAST *name = use.name;
+            bool generated = false;
+            for (unsigned tk = name->firstToken(), end = name->lastToken(); tk != end; ++tk) {
+                if (translationUnit->tokenAt(tk).generated) {
+                    generated = true;
+                    break;
+                }
+            }
+            if (generated)
+                continue;
+            unsigned startLine, startColumn;
+            unsigned endLine, endColumn;
+            translationUnit->getTokenStartPosition(name->firstToken(), &startLine, &startColumn);
+            translationUnit->getTokenEndPosition(name->lastToken() - 1, &endLine, &endColumn);
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = textCursor();
+            sel.cursor.setPosition(document()->findBlockByNumber(startLine - 1).position() + startColumn - 1);
+            sel.cursor.setPosition(document()->findBlockByLineNumber(endLine - 1).position() + endColumn - 1,
+                                   QTextCursor::KeepAnchor);
+            sel.format = format;
+            selections.append(sel);
+        }
+        break; // done.
     }
+
     setExtraSelections(CodeSemanticsSelection, selections);
 
 #ifdef QTCREATOR_WITH_ADVANCED_HIGHLIGHTER

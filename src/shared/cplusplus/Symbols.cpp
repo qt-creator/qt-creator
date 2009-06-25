@@ -328,7 +328,13 @@ FullySpecifiedType Block::type() const
 { return FullySpecifiedType(); }
 
 void Block::visitSymbol0(SymbolVisitor *visitor)
-{ visitor->visit(this); }
+{
+    if (visitor->visit(this)) {
+        for (unsigned i = 0; i < memberCount(); ++i) {
+            visitSymbol(memberAt(i), visitor);
+        }
+    }
+}
 
 Enum::Enum(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name)
