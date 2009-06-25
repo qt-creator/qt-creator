@@ -73,6 +73,7 @@
 
 #ifndef QT_NO_WEBKIT
 #include <QtGui/QApplication>
+#else
 #include <QtWebKit/QWebSettings>
 #endif
 
