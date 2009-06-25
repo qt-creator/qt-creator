@@ -915,8 +915,7 @@ void CPPEditor::updateMethodBoxIndexNow()
 
 
     QTextCharFormat format;
-    format.setUnderlineColor(Qt::darkGray);
-    format.setUnderlineStyle(QTextCharFormat::DashUnderline);
+    format.setBackground(Qt::lightGray);
     FindLocals findLocals(control);
     const FindLocals::UseMap useMap = findLocals(currentFunctionDefinition);
     FindLocals::UseIterator it(useMap);
