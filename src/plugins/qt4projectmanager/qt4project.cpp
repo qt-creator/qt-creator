@@ -847,10 +847,12 @@ void Qt4Project::setToolChainType(const QString &buildConfiguration, ProjectExpl
 
 void Qt4Project::updateActiveRunConfiguration()
 {
-    if (!activeRunConfiguration()->isEnabled()) {
-        foreach (QSharedPointer<RunConfiguration> runConfiguration, runConfigurations()) {
+    const QSharedPointer<RunConfiguration> activeRunConfig = activeRunConfiguration();
+    if (!activeRunConfig.isNull() && !activeRunConfig->isEnabled()) {
+        foreach (const QSharedPointer<RunConfiguration> &runConfiguration, runConfigurations()) {
             if (runConfiguration->isEnabled()) {
                 setActiveRunConfiguration(runConfiguration);
+                break;
             }
         }
     }
