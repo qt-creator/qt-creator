@@ -90,7 +90,7 @@ public slots:
     void pageSetup();
     void printPreview();
     void setSource(const QUrl &url);
-    void setSourceInNewTab(const QUrl &url);
+    void setSourceInNewTab(const QUrl &url, int zoom = 0);
     HelpViewer *newEmptyTab();
     void home();
     void forward();

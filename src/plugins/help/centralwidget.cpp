@@ -131,14 +131,18 @@ CentralWidget::~CentralWidget()
     if (!engine.setupData())
         return;
 
+    QString zoomCount;
     QString currentPages;
     for (int i = 0; i < tabWidget->count(); ++i) {
         HelpViewer *viewer = qobject_cast<HelpViewer*>(tabWidget->widget(i));
-        if (viewer && viewer->source().isValid())
+        if (viewer && viewer->source().isValid()) {
             currentPages += (viewer->source().toString() + QLatin1Char('|'));
+            zoomCount += QString::number(viewer->zoom()) + QLatin1Char('|');
+        }
     }
     engine.setCustomValue(QLatin1String("LastTabPage"), lastTabPage);
     engine.setCustomValue(QLatin1String("LastShownPages"), currentPages);
+    engine.setCustomValue(QLatin1String("LastShownPagesZoom"), zoomCount);
 }
 
 CentralWidget *CentralWidget::instance()
@@ -250,9 +254,21 @@ void CentralWidget::setLastShownPages()
         return;
     }
 
+    value = helpEngine->customValue(QLatin1String("LastShownPagesZoom"),
+        QString()).toString();
+    QVector<QString> zoomVector = value.split(QLatin1Char('|'),
+        QString::SkipEmptyParts).toVector();
+
+    const int zoomCount = zoomVector.count();
+    zoomVector.insert(zoomCount, pageCount - zoomCount, QLatin1String("0"));
+
+    QVector<QString>::const_iterator zIt = zoomVector.constBegin();
     QStringList::const_iterator it = lastShownPageList.constBegin();
-    for (; it != lastShownPageList.constEnd(); ++it)
-        setSourceInNewTab((*it));
+    for (; it != lastShownPageList.constEnd(); ++it, ++zIt)
+        setSourceInNewTab((*it), (*zIt).toInt());
+
+    int tab = helpEngine->customValue(QLatin1String("LastTabPage"), 0).toInt();
+    tabWidget->setCurrentIndex(tab);
 }
 
 bool CentralWidget::hasSelection() const
@@ -404,12 +420,20 @@ void CentralWidget::setGlobalActions(const QList<QAction*> &actions)
     globalActionList = actions;
 }
 
-void CentralWidget::setSourceInNewTab(const QUrl &url)
+void CentralWidget::setSourceInNewTab(const QUrl &url, int zoom)
 {
     HelpViewer* viewer = new HelpViewer(helpEngine, this);
     viewer->installEventFilter(this);
+    viewer->setZoom(zoom);
     viewer->setSource(url);
     viewer->setFocus(Qt::OtherFocusReason);
+    
+#if defined(QT_NO_WEBKIT)
+    QFont font = viewer->font();
+    font.setPointSize(font.pointSize() + int(zoom));
+    viewer->setFont(font);
+#endif
+
     tabWidget->setCurrentIndex(tabWidget->addTab(viewer,
         quoteTabTitle(viewer->documentTitle())));
 

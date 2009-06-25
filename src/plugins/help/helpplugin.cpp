@@ -404,6 +404,13 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
         connect(a, SIGNAL(triggered()), m_centralWidget, SLOT(zoomOut()));
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
+
+        a = new QAction(tr("Reset Font Size"), this);
+        cmd = am->registerAction(a, QLatin1String("Help.ResetFontSize"),
+            modecontext);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+0")));
+        connect(a, SIGNAL(triggered()), m_centralWidget, SLOT(resetZoom()));
+        advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
 
     return true;

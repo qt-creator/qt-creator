@@ -76,9 +76,12 @@ public:
     inline bool hasSelection() const
     { return !selectedText().isEmpty(); } // ### this is suboptimal
 
+    void zoomIn(int range = 1);
+    void zoomOut(int range = 1);
+
     void resetZoom();
-    void zoomIn(qreal range = 1);
-    void zoomOut(qreal range = 1);
+    int zoom() const;
+    void setZoom(int zoom) { zoomIn(zoom); }
 
     inline void copy()
     { return triggerPageAction(QWebPage::Copy); }
@@ -124,9 +127,10 @@ public:
     HelpViewer(QHelpEngine *helpEngine, Help::Internal::CentralWidget *parent);
     void setSource(const QUrl &url);
 
-    void resetZoom();
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
+
+    void resetZoom();
     int zoom() const { return zoomCount; }
     void setZoom(int zoom) { zoomCount = zoom; }
 

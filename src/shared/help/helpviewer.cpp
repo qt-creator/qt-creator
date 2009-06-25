@@ -277,14 +277,20 @@ void HelpViewer::resetZoom()
     setTextSizeMultiplier(1.0);
 }
 
-void HelpViewer::zoomIn(qreal range)
+void HelpViewer::zoomIn(int range)
 {
-    setTextSizeMultiplier(textSizeMultiplier() + range / 10.0);
+    setTextSizeMultiplier(qMin(2.0, textSizeMultiplier() + range / 10.0));
 }
 
-void HelpViewer::zoomOut(qreal range)
+void HelpViewer::zoomOut(int range)
 {
-    setTextSizeMultiplier(qMax(0.0, textSizeMultiplier() - range / 10.0));
+    setTextSizeMultiplier(qMax(0.5, textSizeMultiplier() - range / 10.0));
+}
+
+int HelpViewer::zoom() const
+{
+    qreal zoom = textSizeMultiplier() * 10.0;
+    return (zoom < 10.0 ? zoom * -1.0 : zoom - 10.0);
 }
 
 void HelpViewer::home()
