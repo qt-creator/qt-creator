@@ -44,11 +44,14 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QSharedDataPointer>
 #include <QtCore/QTextCodec>
 #include <QtCore/QVector>
+
+#if QT_VERSION >= 0x040500
+#include <QtCore/QSharedPointer>
+#include <QtCore/QSharedDataPointer>
 #include <QtCore/QWeakPointer>
+#endif
 
 int qtGhVersion = QT_VERSION;
 
@@ -180,6 +183,9 @@ struct Sender { QObject *sender; int signal; int ref; };
         int method;
         uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
         QBasicAtomicPointer<int> argumentTypes;
+        //senders linked list
+        //Connection *next;
+        //Connection **prev;
     };
 
     typedef QList<Connection *> ConnectionList;
@@ -191,11 +197,11 @@ struct Sender { QObject *sender; int signal; int ref; };
     int signalAt(const SenderList &l, int i) { return l.at(i)->method; }
 #endif
 
-class QObjectPrivate : public QObjectData
+class ObjectPrivate : public QObjectData
 {
 public:
-    QObjectPrivate() {}
-    virtual ~QObjectPrivate() {}
+    ObjectPrivate() {}
+    virtual ~ObjectPrivate() {}
 
     QList<QObject *> pendingChildInsertedEvents;
     void *threadData;
@@ -222,10 +228,18 @@ QT_END_NAMESPACE
 
 // This can be mangled typenames of nested templates, each char-by-char
 // comma-separated integer list...
-Q_DECL_EXPORT char qDumpInBuffer[10000];
-
 // The output buffer.
-Q_DECL_EXPORT char qDumpOutBuffer[1000000];
+#ifdef MACROSDEBUG
+    Q_DECL_EXPORT char xDumpInBuffer[10000];
+    Q_DECL_EXPORT char xDumpOutBuffer[1000000];
+    #define inBuffer xDumpInBuffer
+    #define outBuffer xDumpOutBuffer
+#else
+    Q_DECL_EXPORT char qDumpInBuffer[10000];
+    Q_DECL_EXPORT char qDumpOutBuffer[1000000];
+    #define inBuffer qDumpInBuffer
+    #define outBuffer qDumpOutBuffer
+#endif
 
 namespace {
 
@@ -476,15 +490,15 @@ QDumper::QDumper()
 {
     success = false;
     full = false;
-    qDumpOutBuffer[0] = 'f'; // marks output as 'wrong' 
+    outBuffer[0] = 'f'; // marks output as 'wrong' 
     pos = 1;
 }
 
 QDumper::~QDumper()
 {
-    qDumpOutBuffer[pos++] = '\0';
+    outBuffer[pos++] = '\0';
     if (success)
-        qDumpOutBuffer[0] = (full ? '+' : 't');
+        outBuffer[0] = (full ? '+' : 't');
 }
 
 void QDumper::setupTemplateParameters()
@@ -510,49 +524,49 @@ void QDumper::setupTemplateParameters()
 QDumper &QDumper::operator<<(unsigned long long c)
 {
     checkFill();
-    pos += sprintf(qDumpOutBuffer + pos, "%llu", c);
+    pos += sprintf(outBuffer + pos, "%llu", c);
     return *this;
 }
 
 QDumper &QDumper::operator<<(unsigned long c)
 {
     checkFill();
-    pos += sprintf(qDumpOutBuffer + pos, "%lu", c);
+    pos += sprintf(outBuffer + pos, "%lu", c);
     return *this;
 }
 
 QDumper &QDumper::operator<<(float d)
 {
     checkFill();
-    pos += sprintf(qDumpOutBuffer + pos, "%f", d);
+    pos += sprintf(outBuffer + pos, "%f", d);
     return *this;
 }
 
 QDumper &QDumper::operator<<(double d)
 {
     checkFill();
-    pos += sprintf(qDumpOutBuffer + pos, "%f", d);
+    pos += sprintf(outBuffer + pos, "%f", d);
     return *this;
 }
 
 QDumper &QDumper::operator<<(unsigned int i)
 {
     checkFill();
-    pos += sprintf(qDumpOutBuffer + pos, "%u", i);
+    pos += sprintf(outBuffer + pos, "%u", i);
     return *this;
 }
 
 QDumper &QDumper::operator<<(long c)
 {
     checkFill();
-    pos += sprintf(qDumpOutBuffer + pos, "%ld", c);
+    pos += sprintf(outBuffer + pos, "%ld", c);
     return *this;
 }
 
 QDumper &QDumper::operator<<(int i)
 {
     checkFill();
-    pos += sprintf(qDumpOutBuffer + pos, "%d", i);
+    pos += sprintf(outBuffer + pos, "%d", i);
     return *this;
 }
 
@@ -576,7 +590,7 @@ QDumper &QDumper::operator<<(const void *p)
 
 void QDumper::checkFill()
 {
-    if (pos >= int(sizeof(qDumpOutBuffer)) - 100)
+    if (pos >= int(sizeof(outBuffer)) - 100)
         full = true;
 }
 
@@ -584,14 +598,14 @@ void QDumper::put(char c)
 {
     checkFill();
     if (!full)
-        qDumpOutBuffer[pos++] = c;
+        outBuffer[pos++] = c;
 }
 
 void QDumper::addCommaIfNeeded()
 {
     if (pos == 0)
         return;
-    char c = qDumpOutBuffer[pos - 1];
+    char c = outBuffer[pos - 1];
     if (c == '}' || c == '"' || c == ']')
         put(',');
 }
@@ -736,8 +750,8 @@ void QDumper::putEllipsis()
 #define DUMPUNKNOWN_MESSAGE "<internal error>"
 static void qDumpUnknown(QDumper &d, const char *why = 0)
 {
-    P(d, "iname", d.iname);
-    P(d, "addr", d.data);
+    //P(d, "iname", d.iname);
+    //P(d, "addr", d.data);
     if (!why)
         why = DUMPUNKNOWN_MESSAGE;
     P(d, "value", why);
@@ -792,7 +806,7 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
             if (isEqual(type, "QChar")) {
                 d.addCommaIfNeeded();
                 QChar c = *(QChar *)addr;
-                char str[] = "'?', usc=\0";
+                char str[] = "'?', ucs=\0";
                 if (c.isPrint() && c.unicode() < 127)
                     str[1] = char(c.unicode());
                 P(d, field, str << c.unicode());
@@ -1007,7 +1021,7 @@ static void qDumpQChar(QDumper &d)
 {
     d.addCommaIfNeeded();
     QChar c = *(QChar *)d.data;
-    char str[] = "'?', usc=\0";
+    char str[] = "'?', ucs=\0";
     if (c.isPrint() && c.unicode() < 127)
         str[1] = char(c.unicode());
     P(d, "value", str << c.unicode());
@@ -1740,7 +1754,7 @@ static void qDumpQObject(QDumper &d)
 #if 0
         d.beginHash();
             P(d, "name", "senders");
-            P(d, "exp", "(*(class '"NS"QObjectPrivate'*)" << dfunc(ob) << ")->senders");
+            P(d, "exp", "(*(class '"NS"ObjectPrivate'*)" << dfunc(ob) << ")->senders");
             P(d, "type", NS"QList<"NS"QObjectPrivateSender>");
         d.endHash();
 #endif
@@ -1862,7 +1876,7 @@ const char * qConnectionTypes[] ={
 static const ConnectionList &qConnectionList(const QObject *ob, int signalNumber)
 {
     static const ConnectionList emptyList;
-    const QObjectPrivate *p = reinterpret_cast<const QObjectPrivate *>(dfunc(ob));
+    const ObjectPrivate *p = reinterpret_cast<const ObjectPrivate *>(dfunc(ob));
     if (!p->connectionLists)
         return emptyList;
     typedef QVector<ConnectionList> ConnLists;
@@ -1963,7 +1977,7 @@ static void qDumpQObjectSlot(QDumper &d)
         d << ",children=[";
         int numchild = 0;
         const QObject *ob = reinterpret_cast<const QObject *>(d.data);
-        const QObjectPrivate *p = reinterpret_cast<const QObjectPrivate *>(dfunc(ob));
+        const ObjectPrivate *p = reinterpret_cast<const ObjectPrivate *>(dfunc(ob));
         for (int s = 0; s != p->senders.size(); ++s) {
             const QObject *sender = senderAt(p->senders, s);
             int signal = signalAt(p->senders, s);
@@ -2003,7 +2017,7 @@ static void qDumpQObjectSlotList(QDumper &d)
 {
     const QObject *ob = reinterpret_cast<const QObject *>(d.data);
 #if QT_VERSION >= 0x040400
-    const QObjectPrivate *p = reinterpret_cast<const QObjectPrivate *>(dfunc(ob));
+    const ObjectPrivate *p = reinterpret_cast<const ObjectPrivate *>(dfunc(ob));
 #endif
     const QMetaObject *mo = ob->metaObject();
 
@@ -2011,11 +2025,10 @@ static void qDumpQObjectSlotList(QDumper &d)
     for (int i = mo->methodCount(); --i >= 0; )
         count += (mo->method(i).methodType() == QMetaMethod::Slot);
 
-    P(d, "addr", d.data);
     P(d, "numchild", count);
-#if QT_VERSION >= 0x040400
     if (d.dumpChildren) {
         d << ",children=[";
+#if QT_VERSION >= 0x040400
         for (int i = 0; i != mo->methodCount(); ++i) {
             const QMetaMethod & method = mo->method(i);
             if (method.methodType() == QMetaMethod::Slot) {
@@ -2042,9 +2055,9 @@ static void qDumpQObjectSlotList(QDumper &d)
                 d.endHash();
             }
         }
+#endif
         d << "]";
     }
-#endif
     d.disarm();
 }
 
@@ -2105,6 +2118,7 @@ static void qDumpQSet(QDumper &d)
     d.disarm();
 }
 
+#if QT_VERSION >= 0x040500
 static void qDumpQSharedPointer(QDumper &d)
 {
     const QSharedPointer<int> &ptr =
@@ -2143,6 +2157,7 @@ static void qDumpQSharedPointer(QDumper &d)
     }
     d.disarm();
 }
+#endif // QT_VERSION >= 0x040500
 
 static void qDumpQString(QDumper &d)
 {
@@ -2342,6 +2357,7 @@ static void qDumpQVector(QDumper &d)
     d.disarm();
 }
 
+#if QT_VERSION >= 0x040500
 static void qDumpQWeakPointer(QDumper &d)
 {
     const int v = sizeof(void *);
@@ -2379,6 +2395,7 @@ static void qDumpQWeakPointer(QDumper &d)
     }
     d.disarm();
 }
+#endif // QT_VERSION >= 0x040500
 
 static void qDumpStdList(QDumper &d)
 {
@@ -2645,7 +2662,6 @@ static void qDumpStdVectorBool(QDumper &d)
 
 static void handleProtocolVersion2and3(QDumper & d)
 {
-
     if (!d.outertype[0]) {
         qDumpUnknown(d);
         return;
@@ -2772,8 +2788,10 @@ static void handleProtocolVersion2and3(QDumper & d)
         case 'S':
             if (isEqual(type, "QSet"))
                 qDumpQSet(d);
+            #if QT_VERSION >= 0x040500
             else if (isEqual(type, "QSharedPointer"))
                 qDumpQSharedPointer(d);
+            #endif
             else if (isEqual(type, "QString"))
                 qDumpQString(d);
             else if (isEqual(type, "QStringList"))
@@ -2810,8 +2828,11 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQVector(d);
             break;
         case 'W':
+            #if QT_VERSION >= 0x040500
             if (isEqual(type, "QWeakPointer"))
                 qDumpQWeakPointer(d);
+            #endif
+            break;
     }
 
     if (!d.success)
@@ -2832,11 +2853,7 @@ void *qDumpObjectData440(
     int protocolVersion,
     int token,
     void *data,
-#ifdef Q_CC_MSVC // CDB cannot handle boolean parameters
     int dumpChildren,
-#else
-    bool dumpChildren,
-#endif
     int extraInt0,
     int extraInt1,
     int extraInt2,
@@ -2856,6 +2873,7 @@ void *qDumpObjectData440(
             "\""NS"QAbstractItem\","
             "\""NS"QAbstractItemModel\","
             "\""NS"QByteArray\","
+            "\""NS"QChar\","
             "\""NS"QDateTime\","
             "\""NS"QDir\","
             "\""NS"QFile\","
@@ -2870,9 +2888,6 @@ void *qDumpObjectData440(
             "\""NS"QMap\","
             "\""NS"QMapNode\","
             "\""NS"QModelIndex\","
-#if QT_VERSION >= 0x040500
-            "\""NS"QMultiMap\","
-#endif
             "\""NS"QObject\","
             "\""NS"QObjectMethodList\","   // hack to get nested properties display
             "\""NS"QObjectPropertyList\","
@@ -2882,13 +2897,16 @@ void *qDumpObjectData440(
             "\""NS"QObjectSlotList\","
             // << "\""NS"QRegion\","
             "\""NS"QSet\","
-            "\""NS"QSharedPointer\","
             "\""NS"QString\","
             "\""NS"QStringList\","
             "\""NS"QTextCodec\","
             "\""NS"QVariant\","
             "\""NS"QVector\","
+#if QT_VERSION >= 0x040500
+            "\""NS"QMultiMap\","
+            "\""NS"QSharedPointer\","
             "\""NS"QWeakPointer\","
+#endif
 #if USE_QT_GUI
             "\""NS"QWidget\","
 #endif
@@ -2947,7 +2965,7 @@ void *qDumpObjectData440(
         d.extraInt[2]     = extraInt2;
         d.extraInt[3]     = extraInt3;
 
-        const char *inbuffer = qDumpInBuffer;
+        const char *inbuffer = inBuffer;
         d.outertype = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
         d.iname     = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
         d.exp       = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
@@ -2960,5 +2978,5 @@ void *qDumpObjectData440(
     else {
         qDebug() << "Unsupported protocol version" << protocolVersion;
     }
-    return qDumpOutBuffer;
+    return outBuffer;
 }

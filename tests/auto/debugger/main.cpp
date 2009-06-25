@@ -1,12 +1,26 @@
 
-#include "gdb/gdbmi.h"
-#include "tcf/json.h"
-
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QFileInfo>
 #include <QtTest/QtTest>
+
+#include <QtCore/private/qobject_p.h>
+
 //#include <QtTest/qtest_gui.h>
+
+#include "gdb/gdbmi.h"
+#include "tcf/json.h"
+#include "gdbmacros.h"
+
+
+#undef NS
+#ifdef QT_NAMESPACE
+#   define STRINGIFY0(s) #s
+#   define STRINGIFY1(s) STRINGIFY0(s)
+#   define NS STRINGIFY1(QT_NAMESPACE) "::"
+#else
+#   define NS ""
+#endif
 
 using namespace Debugger;
 using namespace Debugger::Internal;
@@ -98,6 +112,12 @@ private slots:
     void niceType();
     void niceType_data();
 
+    void dumperCompatibility();
+    void dumpQHash();
+    void dumpQObject();
+    void dumpQString();
+    void dumpStdVector();
+
 public slots:
     void runQtc();
 
@@ -154,6 +174,10 @@ void tst_Debugger::infoBreak()
     QCOMPARE(re.cap(4), QString("124"));
 }
 
+//
+// type simplification
+//
+
 static QString chopConst(QString type)
 {
    while (1) {
@@ -175,7 +199,6 @@ QString niceType(QString type)
 {
     type.replace('*', '@');
 
-    int pos;
     for (int i = 0; i < 10; ++i) {
         int start = type.indexOf("std::allocator<");
         if (start == -1)
@@ -299,6 +322,166 @@ void tst_Debugger::niceType_data()
         << "std::map<const char*, Foo>";
 }
 
+//
+// Dumpers
+//
+
+static void testDumper(QByteArray expected0, void *data, QByteArray outertype,
+    bool dumpChildren, QByteArray innertype = "", QByteArray exp = "",
+    int extraInt0 = 0, int extraInt1 = 0, int extraInt2 = 0, int extraInt3 = 0)
+{ 
+    sprintf(xDumpInBuffer, "%s%c%s%c%s%c%s%c%s%c", 
+        outertype.data(), 0, "iname", 0, exp.data(), 0,
+        innertype.data(), 0, "iname", 0);
+    void *res = qDumpObjectData440(2, 42, data, dumpChildren,
+        extraInt0, extraInt1, extraInt2, extraInt3);
+    QString expected(expected0);
+    char buf[100];
+    sprintf(buf, "%p", data);
+    if (!expected.startsWith('t') && !expected.startsWith('f'))
+        expected = "tiname='$I',addr='$A'," + expected;
+    expected.replace("$I", "iname");
+    expected.replace("$T", QByteArray(outertype));
+    expected.replace("$A", QByteArray(buf));
+    expected.replace('\'', '"');
+    QString actual____ = QString::fromLatin1(xDumpOutBuffer);
+    actual____.replace('\'', '"');
+    QCOMPARE(res, xDumpOutBuffer);
+    if (actual____ != expected) {
+        QStringList l1 = actual____.split(",");
+        QStringList l2 = expected.split(",");
+        for (int i = 0; i < l1.size() && i < l2.size(); ++i) {
+            if (l1.at(i) == l2.at(i))
+                qDebug() << "== " << l1.at(i);
+            else
+                qDebug() << "!= " << l1.at(i) << l2.at(i);
+        }
+        if (l1.size() != l2.size())
+            qDebug() << "!= size: " << l1.size() << l2.size();
+    }
+    QCOMPARE(actual____, expected);
+}
+
+QByteArray str(const void *p)
+{
+    char buf[100];
+    sprintf(buf, "%p", p);
+    return buf;
+}
+
+static const void *deref(const void *p)
+{
+    return *reinterpret_cast<const char* const*>(p);
+}
+
+void tst_Debugger::dumperCompatibility()
+{
+}
+
+void tst_Debugger::dumpQHash()
+{
+    QHash<QString, QList<int> > hash;
+    hash.insert("Hallo", QList<int>());
+    hash.insert("Welt", QList<int>() << 1);
+    hash.insert("!", QList<int>() << 1 << 2);
+    hash.insert("!", QList<int>() << 1 << 2);
+}
+
+void tst_Debugger::dumpQObject()
+{
+    QObject parent;
+    testDumper("value='',valueencoded='2',type='$T',displayedtype='QObject',"
+        "numchild='4'",
+        &parent, NS"QObject", false);
+    testDumper("value='',valueencoded='2',type='$T',displayedtype='QObject',"
+        "numchild='4',children=["
+        "{name='properties',exp='*(class '$T'*)$A',type='$TPropertyList',"
+            "value='<1 items>',numchild='1'},"
+        "{name='signals',exp='*(class '$T'*)$A',type='$TSignalList',"
+            "value='<2 items>',numchild='2'},"
+        "{name='slots',exp='*(class '$T'*)$A',type='$TSlotList',"
+            "value='<2 items>',numchild='2'},"
+        "{name='parent',value='0x0',type='$T *'},"
+        "{name='className',value='QObject',type='',numchild='0'}]",
+        &parent, NS"QObject", true);
+
+    testDumper("numchild='2',children=[{name='2',value='deleteLater()',"
+            "numchild='0',exp='*(class 'QObject'*)$A',type='QObjectSlot'},"
+        "{name='3',value='_q_reregisterTimers(void*)',"
+            "numchild='0',exp='*(class 'QObject'*)$A',type='QObjectSlot'}]",
+        &parent, NS"QObjectSlotList", true);
+
+    parent.setObjectName("A Parent");
+    testDumper("value='QQAgAFAAYQByAGUAbgB0AA==',valueencoded='2',type='$T',"
+        "displayedtype='QObject',numchild='4'",
+        &parent, NS"QObject", false);
+    QObject child(&parent);
+    testDumper("value='',valueencoded='2',type='$T',"
+        "displayedtype='QObject',numchild='4'",
+        &child, NS"QObject", false);
+    child.setObjectName("A Child");
+    QByteArray ba ="value='QQAgAEMAaABpAGwAZAA=',valueencoded='2',type='$T',"
+        "displayedtype='QObject',numchild='4',children=["
+        "{name='properties',exp='*(class '$T'*)$A',type='$TPropertyList',"
+            "value='<1 items>',numchild='1'},"
+        "{name='signals',exp='*(class '$T'*)$A',type='$TSignalList',"
+            "value='<2 items>',numchild='2'},"
+        "{name='slots',exp='*(class '$T'*)$A',type='$TSlotList',"
+            "value='<2 items>',numchild='2'},"
+        "{name='parent',addr='" + str(&parent) + "',"
+            "value='QQAgAFAAYQByAGUAbgB0AA==',valueencoded='2',type='$T',"
+            "displayedtype='QObject'},"
+        "{name='className',value='QObject',type='',numchild='0'}]";
+    testDumper(ba, &child, NS"QObject", true);
+    QObject::connect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
+    testDumper(ba, &child, NS"QObject", true);
+    QObject::disconnect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
+    testDumper(ba, &child, NS"QObject", true);
+    child.setObjectName("A renamed Child");
+    testDumper("value='QQAgAHIAZQBuAGEAbQBlAGQAIABDAGgAaQBsAGQA',valueencoded='2',"
+        "type='$T',displayedtype='QObject',numchild='4'",
+        &child, NS"QObject", false);
+}
+
+void tst_Debugger::dumpQString()
+{ 
+    QString s;
+    testDumper("value='',valueencoded='2',type='$T',numchild='0'",
+        &s, NS"QString", false);
+    s = "abc";
+    testDumper("value='YQBiAGMA',valueencoded='2',type='$T',numchild='0'",
+        &s, NS"QString", false);
+}
+
+void tst_Debugger::dumpStdVector()
+{
+    std::vector<std::list<int> *> vector;
+    QByteArray inner = "std::list<int> *";
+    QByteArray innerp = "std::list<int>";
+    testDumper("value='<0 items>',valuedisabled='true',numchild='0'",
+        &vector, "std::vector", false, inner, "", sizeof(std::list<int> *));
+    std::list<int> list;
+    vector.push_back(new std::list<int>(list));
+    testDumper("value='<1 items>',valuedisabled='true',numchild='1',"
+        "children=[{name='0',addr='" + str(deref(&vector[0])) + "',"
+            "saddr='" + str(deref(&vector[0])) + "',type='" + innerp + "'}]",
+        &vector, "std::vector", true, inner, "", sizeof(std::list<int> *));
+    vector.push_back(0);
+    list.push_back(45);
+    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+        "children=[{name='0',addr='" + str(deref(&vector[0])) + "',"
+            "saddr='" + str(deref(&vector[0])) + "',type='" + innerp + "'},"
+          "{name='1',addr='" + str(&vector[1]) + "',"
+            "type='" + innerp + "',value='<null>',numchild='0'}]",
+        &vector, "std::vector", true, inner, "", sizeof(std::list<int> *));
+    vector.push_back(new std::list<int>(list));
+    vector.push_back(0);
+}
+
+//
+// Creator
+//
+
 void tst_Debugger::readStandardOutput()
 {
     qDebug() << "qtcreator-out: " << stripped(m_proc.readAllStandardOutput());
@@ -337,7 +520,6 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
     QStringList args = app.arguments();
-
 
     if (args.size() == 2 && args.at(1) == "--run-debuggee") {
         runDebuggee();

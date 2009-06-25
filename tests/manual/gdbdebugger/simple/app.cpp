@@ -39,7 +39,9 @@
 #include <QtCore/QThread>
 #include <QtCore/QVariant>
 #include <QtCore/QVector>
+#if QT_VERSION >= 0x040500
 #include <QtCore/QSharedPointer>
+#endif
 
 #include <QtGui/QApplication>
 #include <QtGui/QAction>
@@ -523,6 +525,7 @@ void testQSet()
     //hash.insert(ptr);
 }
 
+#if QT_VERSION >= 0x040500
 class EmployeeData : public QSharedData
 {
 public:
@@ -580,6 +583,7 @@ void testQSharedPointer()
     QWeakPointer<QString> wptr2 = wptr;
     QWeakPointer<QString> wptr3 = wptr;
 }
+#endif
 
 void stringRefTest(const QString &refstring)
 {
@@ -1131,6 +1135,8 @@ void testObject1()
     parent.setObjectName("A Parent");
     QObject child(&parent);
     child.setObjectName("A Child");
+    QObject::connect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
+    QObject::disconnect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
     child.setObjectName("A renamed Child");
 }
 
@@ -1198,7 +1204,9 @@ int main(int argc, char *argv[])
     testQMultiMap();
     testQString();
     testQSet();
+    #if QT_VERSION >= 0x040500
     testQSharedPointer();
+    #endif
     testQStringList();
     testStruct();
     //testThreads();

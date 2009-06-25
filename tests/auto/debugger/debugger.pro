@@ -2,12 +2,16 @@
 QT = core testlib
 
 DEBUGGERDIR = ../../../src/plugins/debugger
-UTILSDIR = ../../../src/libs
+UTILSDIR    = ../../../src/libs
+MACROSDIR   = ../../../share/qtcreator/gdbmacros
 
 SOURCES += \
     $$DEBUGGERDIR/gdb/gdbmi.cpp \
     $$DEBUGGERDIR/tcf/json.cpp \
+    $$MACROSDIR/gdbmacros.cpp \
     main.cpp \
 
-INCLUDEPATH += $$DEBUGGERDIR $$UTILSDIR
+DEFINES += MACROSDEBUG
+
+INCLUDEPATH += $$DEBUGGERDIR $$UTILSDIR $$MACROSDIR
 
