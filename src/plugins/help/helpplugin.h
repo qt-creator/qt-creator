@@ -135,6 +135,8 @@ private slots:
     void updateSideBarSource();
     void updateSideBarSource(const QUrl &newUrl);
 
+    void fontChanged();
+
 private:
     QToolBar *createToolBar();
     void createRightPaneSideBar();

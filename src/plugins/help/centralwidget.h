@@ -76,6 +76,7 @@ public:
     void activateTab(bool onlyHelpViewer = false);
     bool find(const QString &txt, QTextDocument::FindFlags findFlags, bool incremental);
     void setLastShownPages();
+    HelpViewer *helpViewerAtIndex(int index) const;
 
     static CentralWidget *instance();
 
@@ -124,7 +125,6 @@ private:
     void connectSignals();
     bool eventFilter(QObject *object, QEvent *e);
     void initPrinter();
-    HelpViewer *helpViewerAtIndex(int index) const;
     QString quoteTabTitle(const QString &title) const;
 
 private:

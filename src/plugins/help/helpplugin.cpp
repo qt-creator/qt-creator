@@ -28,16 +28,18 @@
 **************************************************************************/
 
 #include "helpplugin.h"
+
+#include "bookmarkmanager.h"
+#include "centralwidget.h"
+#include "contentwindow.h"
 #include "docsettingspage.h"
 #include "filtersettingspage.h"
+#include "generalsettingspage.h"
+#include "helpfindsupport.h"
 #include "helpindexfilter.h"
 #include "helpmode.h"
 #include "helpviewer.h"
-#include "contentwindow.h"
 #include "indexwindow.h"
-#include "bookmarkmanager.h"
-#include "centralwidget.h"
-#include "helpfindsupport.h"
 #include "searchwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -175,15 +177,20 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     addAutoReleasedObject(new HelpManager(m_helpEngine));
 
+    m_filterSettingsPage = new FilterSettingsPage(m_helpEngine);
+    addAutoReleasedObject(m_filterSettingsPage);
+
     m_docSettingsPage = new DocSettingsPage(m_helpEngine);
     addAutoReleasedObject(m_docSettingsPage);
 
-    m_filterSettingsPage = new FilterSettingsPage(m_helpEngine);
-    addAutoReleasedObject(m_filterSettingsPage);
     connect(m_docSettingsPage, SIGNAL(documentationAdded()),
         m_filterSettingsPage, SLOT(updateFilterPage()));
     connect(m_docSettingsPage, SIGNAL(dialogAccepted()), this,
         SLOT(checkForHelpChanges()));
+
+    GeneralSettingsPage *generalSettings = new GeneralSettingsPage(m_helpEngine);
+    addAutoReleasedObject(generalSettings);
+    connect(generalSettings, SIGNAL(fontChanged()), this, SLOT(fontChanged()));
 
     m_contentWidget = new ContentWindow(m_helpEngine);
     m_contentWidget->setWindowTitle(tr("Contents"));
@@ -464,6 +471,12 @@ void HelpPlugin::createRightPaneSideBar()
     agg->add(m_helpViewerForSideBar);
     agg->add(new HelpViewerFindSupport(m_helpViewerForSideBar));
     rightPaneLayout->addWidget(m_helpViewerForSideBar);
+#if defined(QT_NO_WEBKIT)
+    QFont font = m_helpViewerForSideBar->font();
+    font = qVariantValue<QFont>(m_helpEngine->customValue(QLatin1String("font"),
+        font));
+    m_helpViewerForSideBar->setFont(font);
+#endif
     m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar, QList<int>()
         << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR),
         this));
@@ -603,6 +616,18 @@ void HelpPlugin::extensionsInitialized()
         connect(welcomeMode, SIGNAL(openContextHelpPage(QString)), this,
             SLOT(openContextHelpPage(QString)));
     }
+
+#if !defined(QT_NO_WEBKIT)
+    QWebSettings* webSettings = QWebSettings::globalSettings();
+    QFont font(webSettings->fontFamily(QWebSettings::StandardFont),
+        webSettings->fontSize(QWebSettings::DefaultFontSize));
+
+    font = qVariantValue<QFont>(m_helpEngine->customValue(QLatin1String("font"),
+        font));
+    
+    webSettings->setFontFamily(QWebSettings::StandardFont, font.family());
+    webSettings->setFontSize(QWebSettings::DefaultFontSize, font.pointSize());
+#endif
 }
 
 void HelpPlugin::shutdown()
@@ -650,6 +675,26 @@ void HelpPlugin::updateSideBarSource(const QUrl &newUrl)
 {
     if (m_helpViewerForSideBar)
         m_helpViewerForSideBar->setSource(newUrl);
+}
+
+void HelpPlugin::fontChanged()
+{
+#if defined(QT_NO_WEBKIT)
+    QFont font = qApp->font();
+    font = qVariantValue<QFont>(m_helpEngine->customValue(QLatin1String("font"),
+        font));
+
+    if (m_helpViewerForSideBar)
+        m_helpViewerForSideBar->setFont(font);
+
+    if (m_centralWidget) {
+        int i = 0;
+        while (HelpViewer* viewer = m_centralWidget->helpViewerAtIndex(i++)) {
+            if (viewer->font() != font)
+                viewer->setFont(font);
+        }
+    }
+#endif
 }
 
 void HelpPlugin::activateContext()
