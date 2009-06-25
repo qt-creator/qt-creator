@@ -287,13 +287,6 @@ protected:
         return false;
     }
 
-    virtual bool visit(NewExpressionAST *ast)
-    {
-        accept(ast->new_placement);
-        accept(ast->new_initializer);
-        return false;
-    }
-
     virtual bool visit(ElaboratedTypeSpecifierAST *)
     {
         // ### template args
