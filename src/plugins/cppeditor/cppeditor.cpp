@@ -110,7 +110,7 @@ public:
     }
 };
 
-class FindLocals: protected ASTVisitor
+class FindUses: protected ASTVisitor
 {
     Scope *_functionScope;
 
@@ -177,7 +177,7 @@ class FindLocals: protected ASTVisitor
     };
 
 public:
-    FindLocals(Control *control)
+    FindUses(Control *control)
         : ASTVisitor(control)
     { }
 
@@ -193,19 +193,25 @@ public:
                 : name(name), line(line), column(column), length(length) {}
     };
 
-    typedef QHash<Symbol *, QList<Use> > UseMap;
-    typedef QHashIterator<Symbol *, QList<Use> > UseIterator;
+    typedef QHash<Symbol *, QList<Use> > LocalUseMap;
+    typedef QHashIterator<Symbol *, QList<Use> > LocalUseIterator;
 
-    UseMap uses; // ### private
+    typedef QHash<Identifier *, QList<Use> > ExternalUseMap;
+    typedef QHashIterator<Identifier *, QList<Use> > ExternalUseIterator;
 
-    UseMap operator()(FunctionDefinitionAST *ast)
+    // local and external uses.
+    LocalUseMap localUses;
+    ExternalUseMap externalUses;
+
+    void operator()(FunctionDefinitionAST *ast)
     {
-        uses.clear();
+        localUses.clear();
+        externalUses.clear();
+
         if (ast && ast->symbol) {
             _functionScope = ast->symbol->members();
             accept(ast);
         }
-        return uses;
     }
 
 protected:
@@ -221,7 +227,7 @@ protected:
                     continue;
                 else if (member->line() < line || (member->line() == line && member->column() <= column)) {
                     //qDebug() << "*** found member:" << member->line() << member->column() << member->name()->identifier()->chars();
-                    uses[member].append(Use(ast, line, column, id->size()));
+                    localUses[member].append(Use(ast, line, column, id->size()));
                     return true;
                 }
             }
@@ -258,10 +264,8 @@ protected:
             scope = scope->enclosingScope();
         }
 
-#if 0
-        qDebug() << "symbol:" << id->chars() << "at pos:" << line << column
-                << "is not defined";
-#endif
+        Identifier *id = identifier(ast->identifier_token);
+        externalUses[id].append(Use(ast, line, column, id->size()));
 
         return false;
     }
@@ -875,6 +879,41 @@ void CPPEditor::updateMethodBoxIndex()
     m_updateMethodBoxTimer->start(UPDATE_METHOD_BOX_INTERVAL);
 }
 
+static void highlightUses(QTextDocument *doc,
+                          const QTextCharFormat &format,
+                          TranslationUnit *translationUnit,
+                          const QList<FindUses::Use> &uses,
+                          QList<QTextEdit::ExtraSelection> *selections)
+{
+    foreach (const FindUses::Use &use, uses) {
+        SimpleNameAST *name = use.name;
+        bool generated = false;
+
+        for (unsigned tk = name->firstToken(), end = name->lastToken(); tk != end; ++tk) {
+            if (translationUnit->tokenAt(tk).generated) {
+                generated = true;
+                break;
+            }
+        }
+
+        if (! generated) {
+            unsigned startLine, startColumn;
+            unsigned endLine, endColumn;
+            translationUnit->getTokenStartPosition(name->firstToken(), &startLine, &startColumn);
+            translationUnit->getTokenEndPosition(name->lastToken() - 1, &endLine, &endColumn);
+
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = QTextCursor(doc);
+            sel.cursor.setPosition(doc->findBlockByNumber(startLine - 1).position() + startColumn - 1);
+            sel.cursor.setPosition(doc->findBlockByLineNumber(endLine - 1).position() + endColumn - 1,
+                                   QTextCursor::KeepAnchor);
+            sel.format = format;
+
+            selections->append(sel);
+        }
+    }
+}
+
 void CPPEditor::updateMethodBoxIndexNow()
 {
     m_updateMethodBoxTimer->stop();
@@ -913,18 +952,19 @@ void CPPEditor::updateMethodBoxIndexNow()
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(control);
     FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, textCursor());
 
-
     QTextCharFormat format;
     format.setBackground(Qt::lightGray);
-    FindLocals findLocals(control);
-    const FindLocals::UseMap useMap = findLocals(currentFunctionDefinition);
-    FindLocals::UseIterator it(useMap);
+
+    FindUses useTable(control);
+    useTable(currentFunctionDefinition);
+
+    FindUses::LocalUseIterator it(useTable.localUses);
     while (it.hasNext()) {
         it.next();
-        const QList<FindLocals::Use> &uses = it.value();
+        const QList<FindUses::Use> &uses = it.value();
 
         bool good = false;
-        foreach (const FindLocals::Use &use, uses) {
+        foreach (const FindUses::Use &use, uses) {
             unsigned l = line;
             unsigned c = column + 1; // convertCursorPosition() returns a 0-based column number.
             if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
@@ -936,111 +976,33 @@ void CPPEditor::updateMethodBoxIndexNow()
         if (! good)
             continue;
 
-        foreach (const FindLocals::Use &use, uses) {
-            SimpleNameAST *name = use.name;
-            bool generated = false;
-            for (unsigned tk = name->firstToken(), end = name->lastToken(); tk != end; ++tk) {
-                if (translationUnit->tokenAt(tk).generated) {
-                    generated = true;
-                    break;
-                }
+        highlightUses(document(), format, translationUnit, uses, &selections);
+        break; // done
+    }
+
+    FindUses::ExternalUseIterator it2(useTable.externalUses);
+    while (it2.hasNext()) {
+        it2.next();
+        const QList<FindUses::Use> &uses = it2.value();
+
+        bool good = false;
+        foreach (const FindUses::Use &use, uses) {
+            unsigned l = line;
+            unsigned c = column + 1; // convertCursorPosition() returns a 0-based column number.
+            if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
+                good = true;
+                break;
             }
-            if (generated)
-                continue;
-            unsigned startLine, startColumn;
-            unsigned endLine, endColumn;
-            translationUnit->getTokenStartPosition(name->firstToken(), &startLine, &startColumn);
-            translationUnit->getTokenEndPosition(name->lastToken() - 1, &endLine, &endColumn);
-            QTextEdit::ExtraSelection sel;
-            sel.cursor = textCursor();
-            sel.cursor.setPosition(document()->findBlockByNumber(startLine - 1).position() + startColumn - 1);
-            sel.cursor.setPosition(document()->findBlockByLineNumber(endLine - 1).position() + endColumn - 1,
-                                   QTextCursor::KeepAnchor);
-            sel.format = format;
-            selections.append(sel);
         }
-        break; // done.
+
+        if (! good)
+            continue;
+
+        highlightUses(document(), format, translationUnit, uses, &selections);
+        break; // done
     }
 
     setExtraSelections(CodeSemanticsSelection, selections);
-
-#ifdef QTCREATOR_WITH_ADVANCED_HIGHLIGHTER
-    Snapshot snapshot = m_modelManager->snapshot();
-    Document::Ptr thisDocument = snapshot.value(file()->fileName());
-    if (! thisDocument)
-        return;
-
-    if (Symbol *symbol = thisDocument->findSymbolAt(line, column)) {
-        QTextCursor tc = textCursor();
-        tc.movePosition(QTextCursor::EndOfWord);
-
-        ExpressionUnderCursor expressionUnderCursor;
-
-        const QString expression = expressionUnderCursor(tc);
-        //qDebug() << "expression:" << expression;
-
-        Snapshot snapshot;
-        snapshot.insert(thisDocument->fileName(), thisDocument);
-
-        TypeOfExpression typeOfExpression;
-        typeOfExpression.setSnapshot(snapshot);
-
-        const QList<TypeOfExpression::Result> results =
-                typeOfExpression(expression, thisDocument, symbol, TypeOfExpression::Preprocess);
-
-        LookupContext context = typeOfExpression.lookupContext();
-
-        foreach (const TypeOfExpression::Result &result, results) {
-            FullySpecifiedType ty = result.first;
-            Symbol *symbol = result.second;
-
-            if (file()->fileName() != symbol->fileName())
-                continue;
-
-            else if (symbol->isGenerated())
-                continue;
-
-            else if (symbol->isBlock())
-                continue;
-
-            if (symbol) {
-                int column = symbol->column();
-
-                if (column != 0)
-                    --column;
-
-                if (symbol->isGenerated())
-                    column = 0;
-
-                QTextCursor c(document()->findBlockByNumber(symbol->line() - 1));
-                c.setPosition(c.position() + column);
-
-                const QString text = c.block().text();
-
-                int i = column;
-                for (; i < text.length(); ++i) {
-                    const QChar &ch = text.at(i);
-
-                    if (ch == QLatin1Char('*') || ch == QLatin1Char('&'))
-                        c.movePosition(QTextCursor::NextCharacter);
-                    else
-                        break;
-                }
-
-                c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-
-                QTextEdit::ExtraSelection sel;
-                sel.cursor = c;
-                sel.format.setBackground(Qt::darkYellow);
-
-                selections.append(sel);
-                //break;
-            }
-        }
-    }
-
-    setExtraSelections(CodeSemanticsSelection, selections);
-#endif // QTCREATOR_WITH_ADVANCED_HIGHLIGHTER
 }
 
 void CPPEditor::updateMethodBoxToolTip()
