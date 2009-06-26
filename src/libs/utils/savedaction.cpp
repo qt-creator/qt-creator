@@ -243,8 +243,13 @@ void SavedAction::readSettings(QSettings *settings)
     if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
         return;
     settings->beginGroup(m_settingsGroup);
-    setValue(settings->value(m_settingsKey, m_defaultValue), false);
-    //qDebug() << "READING: " << m_settingsKey << " -> " << m_value;
+    QVariant var = settings->value(m_settingsKey, m_defaultValue);
+    // work around old ini files containing @Invalid() entries
+    if (isCheckable() && !var.isValid())
+        var = false;
+    setValue(var);
+    //qDebug() << "READING: " << var.isValid() << m_settingsKey << " -> " << m_value
+    //    << " (default: " << m_defaultValue << ")" << var;
     settings->endGroup();
 }
 
