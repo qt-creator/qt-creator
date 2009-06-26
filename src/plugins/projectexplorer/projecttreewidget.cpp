@@ -178,7 +178,11 @@ void ProjectTreeWidget::foldersAboutToBeRemoved(FolderNode *, const QList<Folder
     while(n) {
         if (FolderNode *fn = qobject_cast<FolderNode *>(n)) {
             if (list.contains(fn)) {
-                m_explorer->setCurrentNode(n->projectNode());
+                ProjectNode *pn = n->projectNode();
+                // Make sure the node we are switching too isn't going to be removed also
+                while (list.contains(pn))
+                    pn = pn->parentFolderNode()->projectNode();
+                m_explorer->setCurrentNode(pn);
                 break;
             }
         }
