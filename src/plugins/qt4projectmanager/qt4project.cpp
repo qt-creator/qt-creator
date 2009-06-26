@@ -452,9 +452,12 @@ void Qt4Project::updateCodeModel()
     predefinedIncludePaths.append(newQtIncludePath);
     QDir dir(newQtIncludePath);
     foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs)) {
-        if (! info.fileName().startsWith(QLatin1String("Qt")))
-            continue;
-        predefinedIncludePaths.append(info.absoluteFilePath());
+        const QString path = info.fileName();
+
+        if (path == QLatin1String("Qt"))
+            continue; // skip $QT_INSTALL_HEADERS/Qt. There's no need to include it.
+        else if (path.startsWith(QLatin1String("Qt")) || path == QLatin1String("phonon"))
+            predefinedIncludePaths.append(info.absoluteFilePath());
     }
 
     FindQt4ProFiles findQt4ProFiles;
