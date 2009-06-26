@@ -1101,7 +1101,6 @@ void testNamespace()
     bar.doit(1);
 }
 
-
 void testHidden()
 {
     int  n = 1;

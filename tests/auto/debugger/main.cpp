@@ -404,12 +404,13 @@ void tst_Debugger::dumpQObject()
         "{name='parent',value='0x0',type='$T *'},"
         "{name='className',value='QObject',type='',numchild='0'}]",
         &parent, NS"QObject", true);
-
+/*
     testDumper("numchild='2',children=[{name='2',value='deleteLater()',"
             "numchild='0',exp='*(class 'QObject'*)$A',type='QObjectSlot'},"
         "{name='3',value='_q_reregisterTimers(void*)',"
             "numchild='0',exp='*(class 'QObject'*)$A',type='QObjectSlot'}]",
         &parent, NS"QObjectSlotList", true);
+*/
 
     parent.setObjectName("A Parent");
     testDumper("value='QQAgAFAAYQByAGUAbgB0AA==',valueencoded='2',type='$T',"
