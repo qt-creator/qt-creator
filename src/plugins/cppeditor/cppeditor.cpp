@@ -182,14 +182,14 @@ public:
     { }
 
     struct Use {
-        SimpleNameAST *name;
+        NameAST *name;
         unsigned line;
         unsigned column;
         unsigned length;
 
         Use(){}
 
-        Use(SimpleNameAST *name, unsigned line, unsigned column, unsigned length)
+        Use(NameAST *name, unsigned line, unsigned column, unsigned length)
                 : name(name), line(line), column(column), length(length) {}
     };
 
@@ -879,7 +879,7 @@ static void highlightUses(QTextDocument *doc,
                           QList<QTextEdit::ExtraSelection> *selections)
 {
     foreach (const FindUses::Use &use, uses) {
-        SimpleNameAST *name = use.name;
+        NameAST *name = use.name;
         bool generated = false;
 
         for (unsigned tk = name->firstToken(), end = name->lastToken(); tk != end; ++tk) {
