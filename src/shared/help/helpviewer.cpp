@@ -295,8 +295,15 @@ int HelpViewer::zoom() const
 
 void HelpViewer::home()
 {
-    if (homeUrl.isValid())
-        setSource(homeUrl);
+    QString homepage = helpEngine->customValue(QLatin1String("HomePage"),
+        QLatin1String("")).toString();
+
+    if (homepage.isEmpty()) {
+        homepage = helpEngine->customValue(QLatin1String("DefaultHomePage"),
+            QLatin1String("about:blank")).toString();
+    }
+
+    setSource(homepage);
 }
 
 void HelpViewer::wheelEvent(QWheelEvent *e)
@@ -552,8 +559,15 @@ void HelpViewer::keyPressEvent(QKeyEvent *e)
 
 void HelpViewer::home()
 {
-    if (homeUrl.isValid())
-        setSource(homeUrl);
+    QString homepage = helpEngine->customValue(QLatin1String("HomePage"),
+        QLatin1String("")).toString();
+
+    if (homepage.isEmpty()) {
+        homepage = helpEngine->customValue(QLatin1String("DefaultHomePage"),
+            QLatin1String("about:blank")).toString();
+    }
+
+    setSource(homepage);
 }
 
 void HelpViewer::wheelEvent(QWheelEvent *e)

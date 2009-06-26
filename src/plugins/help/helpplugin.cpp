@@ -188,10 +188,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(m_docSettingsPage, SIGNAL(dialogAccepted()), this,
         SLOT(checkForHelpChanges()));
 
-    GeneralSettingsPage *generalSettings = new GeneralSettingsPage(m_helpEngine);
-    addAutoReleasedObject(generalSettings);
-    connect(generalSettings, SIGNAL(fontChanged()), this, SLOT(fontChanged()));
-
     m_contentWidget = new ContentWindow(m_helpEngine);
     m_contentWidget->setWindowTitle(tr("Contents"));
     m_indexWidget = new IndexWindow(m_helpEngine);
@@ -421,6 +417,11 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
 
+    GeneralSettingsPage *generalSettings =
+        new GeneralSettingsPage(m_helpEngine, m_centralWidget);
+    addAutoReleasedObject(generalSettings);
+    connect(generalSettings, SIGNAL(fontChanged()), this, SLOT(fontChanged()));
+
     return true;
 }
 
@@ -628,6 +629,14 @@ void HelpPlugin::extensionsInitialized()
     webSettings->setFontFamily(QWebSettings::StandardFont, font.family());
     webSettings->setFontSize(QWebSettings::DefaultFontSize, font.pointSize());
 #endif
+
+    QUrl url = m_helpEngine->findFile(QString::fromLatin1("qthelp://com."
+        "trolltech.qt.440/qdoc/index.html"));
+    if (!url.isValid()) {
+        url.setUrl(QString::fromLatin1("qthelp://com.nokia.qtcreator.%1%2/doc/"
+            "index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
+    }
+    m_helpEngine->setCustomValue(QLatin1String("DefaultHomePage"), url.toString());
 }
 
 void HelpPlugin::shutdown()

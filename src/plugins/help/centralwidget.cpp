@@ -239,18 +239,20 @@ void CentralWidget::setLastShownPages()
         QString()).toString();
     const QStringList lastShownPageList = value.split(QLatin1Char('|'),
         QString::SkipEmptyParts);
-
     const int pageCount = lastShownPageList.count();
-    if (pageCount <= 0) {
-        QUrl url = helpEngine->findFile(QString::fromLatin1("qthelp://com."
-            "trolltech.qt.440/qdoc/index.html"));
-        if (!url.isValid()) {
-            url.setUrl(QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").
-                arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
-            url.setUrl(QString::fromLatin1("qthelp://com.nokia.qtcreator.%1%2/"
-                "doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
+
+    QString homePage = helpEngine->customValue(QLatin1String("DefaultHomePage"),
+        QLatin1String("about:blank")).toString();
+
+    int option = helpEngine->customValue(QLatin1String("StartOption"), 2).toInt();
+    if (option == 0 || option == 1 || pageCount <= 0) {
+        if (option == 0) {
+            homePage = helpEngine->customValue(QLatin1String("HomePage"),
+                homePage).toString();
+        } else if (option == 1) {
+            homePage = QLatin1String("about:blank");
         }
-        setSource(url);
+        setSource(homePage);
         return;
     }
 

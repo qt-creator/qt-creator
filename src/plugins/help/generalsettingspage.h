@@ -43,12 +43,14 @@ QT_FORWARD_DECLARE_CLASS(QHelpEngine)
 namespace Help {
 namespace Internal {
 
+class CentralWidget;
+
 class GeneralSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    GeneralSettingsPage(QHelpEngine *helpEngine);
+    GeneralSettingsPage(QHelpEngine *helpEngine, CentralWidget *centralWidget);
 
     QString id() const;
     virtual QString trName() const;
@@ -62,6 +64,11 @@ public:
 signals:
     void fontChanged();
 
+private slots:
+    void setCurrentPage();
+    void setBlankPage();
+    void setDefaultPage();
+
 private:
     void updateFontSize();
     void updateFontStyle();
@@ -71,6 +78,7 @@ private:
 private:
     QWidget *m_currentPage;
     QHelpEngine *m_helpEngine;
+    CentralWidget *m_centralWidget;
 
     QFont font;
     QFontDatabase fontDatabase;
