@@ -217,9 +217,12 @@ public:
 protected:
     using ASTVisitor::visit;
 
-    bool findMember(Scope *scope, SimpleNameAST *ast, unsigned line, unsigned column)
+    bool findMember(Scope *scope, NameAST *ast, unsigned line, unsigned column)
     {
-        Identifier *id = identifier(ast->identifier_token);
+        if (! (ast && ast->name))
+            return false;
+
+        Identifier *id = ast->name->identifier();
 
         if (scope) {
             for (Symbol *member = scope->lookat(id); member; member = member->next()) {
@@ -270,9 +273,62 @@ protected:
         return false;
     }
 
-    virtual bool visit(QualifiedNameAST *)
+    virtual bool visit(TemplateIdAST *ast)
     {
-        // ### visit the template arguments.
+        unsigned line, column;
+        getTokenStartPosition(ast->firstToken(), &line, &column);
+
+        FindScope findScope;
+
+        Scope *scope = findScope(line, column,
+                                 _functionScope->owner(),
+                                 translationUnit());
+
+        while (scope) {
+            if (scope->isFunctionScope()) {
+                Function *fun = scope->owner()->asFunction();
+                if (findMember(fun->members(), ast, line, column))
+                    return false;
+                else if (findMember(fun->arguments(), ast, line, column))
+                    return false;
+            } else if (scope->isBlockScope()) {
+                if (findMember(scope, ast, line, column))
+                    return false;
+            } else {
+                break;
+            }
+
+            scope = scope->enclosingScope();
+        }
+
+        Identifier *id = identifier(ast->identifier_token);
+        externalUses[id].append(Use(ast, line, column, id->size()));
+
+        for (TemplateArgumentListAST *arg = ast->template_arguments; arg; arg = arg->next)
+            accept(arg);
+
+        return false;
+    }
+
+    virtual bool visit(QualifiedNameAST *ast)
+    {
+        if (! ast->global_scope_token) {
+            if (ast->nested_name_specifier) {
+                accept(ast->nested_name_specifier->class_or_namespace_name);
+
+                for (NestedNameSpecifierAST *it = ast->nested_name_specifier->next; it; it = it->next) {
+                    if (NameAST *class_or_namespace_name = it->class_or_namespace_name) {
+                        if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId()) {
+                            for (TemplateArgumentListAST *arg = template_id->template_arguments; arg; arg = arg->next)
+                                accept(arg);
+                        }
+                    }
+                }
+            }
+
+            accept(ast->unqualified_name);
+        }
+
         return false;
     }
 
@@ -878,6 +934,9 @@ static void highlightUses(QTextDocument *doc,
                           const QList<FindUses::Use> &uses,
                           QList<QTextEdit::ExtraSelection> *selections)
 {
+    if (uses.size() <= 1)
+        return;
+
     foreach (const FindUses::Use &use, uses) {
         NameAST *name = use.name;
         bool generated = false;
@@ -892,8 +951,11 @@ static void highlightUses(QTextDocument *doc,
         if (! generated) {
             unsigned startLine, startColumn;
             unsigned endLine, endColumn;
-            translationUnit->getTokenStartPosition(name->firstToken(), &startLine, &startColumn);
-            translationUnit->getTokenEndPosition(name->lastToken() - 1, &endLine, &endColumn);
+
+            unsigned identifier_token = name->firstToken();
+
+            translationUnit->getTokenStartPosition(identifier_token, &startLine, &startColumn);
+            translationUnit->getTokenEndPosition(identifier_token, &endLine, &endColumn);
 
             QTextEdit::ExtraSelection sel;
             sel.cursor = QTextCursor(doc);
