@@ -304,26 +304,28 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     ast->symbol = fun;
     _scope->enterSymbol(fun);
 
-    if (ast->ctor_initializer) {
-        bool looksLikeCtor = false;
-        if (ty.isValid() || ! fun->identity())
-            looksLikeCtor = false;
-        else if (fun->identity()->isNameId() || fun->identity()->isTemplateNameId())
-            looksLikeCtor = true;
+    if (! semantic()->skipFunctionBodies()) {
+        if (ast->ctor_initializer) {
+            bool looksLikeCtor = false;
+            if (ty.isValid() || ! fun->identity())
+                looksLikeCtor = false;
+            else if (fun->identity()->isNameId() || fun->identity()->isTemplateNameId())
+                looksLikeCtor = true;
 
-        if (! looksLikeCtor) {
-            translationUnit()->error(ast->ctor_initializer->firstToken(),
-                                     "only constructors take base initializers");
+            if (! looksLikeCtor) {
+                translationUnit()->error(ast->ctor_initializer->firstToken(),
+                                         "only constructors take base initializers");
+            }
         }
+
+        const int previousVisibility = semantic()->switchVisibility(Symbol::Public);
+        const int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
+
+        semantic()->check(ast->function_body, fun->members());
+
+        semantic()->switchMethodKey(previousMethodKey);
+        semantic()->switchVisibility(previousVisibility);
     }
-
-    const int previousVisibility = semantic()->switchVisibility(Symbol::Public);
-    const int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
-
-    semantic()->check(ast->function_body, fun->members());
-
-    semantic()->switchMethodKey(previousMethodKey);
-    semantic()->switchVisibility(previousVisibility);
 
     return false;
 }

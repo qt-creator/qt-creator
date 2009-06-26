@@ -67,6 +67,7 @@ public:
     Data(Semantic *semantic, Control *control)
         : semantic(semantic),
           control(control),
+          skipFunctionBodies(false),
           visibility(Symbol::Public),
           methodKey(Function::NormalMethod),
           checkSpecifier(0),
@@ -89,6 +90,7 @@ public:
 
     Semantic *semantic;
     Control *control;
+    bool skipFunctionBodies;
     int visibility;
     int methodKey;
     CheckSpecifier *checkSpecifier;
@@ -141,6 +143,12 @@ Name *Semantic::check(NameAST *name, Scope *scope)
 
 Name *Semantic::check(NestedNameSpecifierAST *name, Scope *scope)
 { return d->checkName->check(name, scope); }
+
+bool Semantic::skipFunctionBodies() const
+{ return d->skipFunctionBodies; }
+
+void Semantic::setSkipFunctionBodies(bool skipFunctionBodies)
+{ d->skipFunctionBodies = skipFunctionBodies; }
 
 int Semantic::currentVisibility() const
 { return d->visibility; }

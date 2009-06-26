@@ -84,6 +84,9 @@ public:
 
     Name *check(NestedNameSpecifierAST *name, Scope *scope);
 
+    bool skipFunctionBodies() const;
+    void setSkipFunctionBodies(bool skipFunctionBodies);
+
     int currentVisibility() const;
     int switchVisibility(int visibility);
 

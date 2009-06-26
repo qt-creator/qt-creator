@@ -610,10 +610,16 @@ public:
     void operator()(Document::Ptr doc)
     {
         _doc = doc;
-        doc->parse();
-        doc->check();
 
-        if (_workingCopy.contains(doc->fileName())) {
+        Document::CheckMode mode = Document::FastCheck;
+
+        if (_workingCopy.contains(doc->fileName()))
+            mode = Document::FullCheck;
+
+        doc->parse();
+        doc->check(mode);
+
+        if (mode == Document::FullCheck) {
             // run the binding pass
             NamespaceBindingPtr ns = bind(doc, _snapshot);
 

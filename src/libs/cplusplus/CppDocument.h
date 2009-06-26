@@ -105,7 +105,12 @@ public:
     bool isParsed() const;
     bool parse(ParseMode mode = ParseTranlationUnit);
 
-    void check();
+    enum CheckMode {
+        FullCheck,
+        FastCheck
+    };
+
+    void check(CheckMode mode = FullCheck);
 
     void releaseSource();
     void releaseTranslationUnit();

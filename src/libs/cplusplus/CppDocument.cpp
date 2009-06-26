@@ -314,11 +314,13 @@ bool Document::parse(ParseMode mode)
     return _translationUnit->parse(m);
 }
 
-void Document::check()
+void Document::check(CheckMode mode)
 {
     Q_ASSERT(!_globalNamespace);
 
     Semantic semantic(_control);
+    if (mode == FastCheck)
+        semantic.setSkipFunctionBodies(true);
 
     _globalNamespace = _control->newNamespace(0);
     Scope *globals = _globalNamespace->members();
