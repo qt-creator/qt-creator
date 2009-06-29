@@ -39,7 +39,7 @@ using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 
 GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IFile *projectFile)
-    : ProjectExplorer::ProjectNode(QFileInfo(projectFile->fileName()).absolutePath()),
+    : ProjectExplorer::ProjectNode(projectFile->fileName()),
       m_project(project),
       m_projectFile(projectFile)
 {
@@ -95,10 +95,11 @@ void GenericProjectNode::refresh()
         QFileInfo fileInfo(absoluteFileName);
         const QString absoluteFilePath = fileInfo.path();
 
-        if (! absoluteFilePath.startsWith(path()))
+        QString baseDir(QFileInfo(path()).absolutePath());
+        if (! absoluteFilePath.startsWith(baseDir))
             continue; // `file' is not part of the project.
 
-        const QString relativeFilePath = absoluteFilePath.mid(path().length() + 1);
+        const QString relativeFilePath = absoluteFilePath.mid(baseDir.length() + 1);
 
         if (! filePaths.contains(relativeFilePath))
             filePaths.append(relativeFilePath);
