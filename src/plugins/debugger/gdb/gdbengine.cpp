@@ -198,6 +198,7 @@ void GdbEngine::initializeVariables()
     m_autoContinue = false;
     m_waitingForFirstBreakpointToBeHit = false;
     m_commandsToRunOnTemporaryBreak.clear();
+    m_cookieForToken.clear();
 }
 
 void GdbEngine::gdbProcError(QProcess::ProcessError error)
@@ -1361,6 +1362,10 @@ int GdbEngine::currentFrame() const
 
 bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
+    // This should be set by the constructor or in exitDebugger().
+    QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized,
+        initializeVariables());
+
     debugMessage(DebuggerSettings::instance()->dump());
     QStringList gdbArgs;
 
