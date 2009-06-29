@@ -29,7 +29,8 @@
 
 #include "generalsettingspage.h"
 
-#include <QtHelp/QHelpEngine>
+#include "centralwidget.h"
+#include "helpviewer.h"
 
 #if defined(QT_NO_WEBKIT)
 #include <QtGui/QApplication>
@@ -37,11 +38,17 @@
 #include <QtWebKit/QWebSettings>
 #endif
 
+#include <QtHelp/QHelpEngine>
+
+#include <coreplugin/coreconstants.h>
+
 using namespace Help::Internal;
 
-GeneralSettingsPage::GeneralSettingsPage(QHelpEngine *helpEngine)
+GeneralSettingsPage::GeneralSettingsPage(QHelpEngine *helpEngine,
+        CentralWidget *centralWidget)
     : m_currentPage(0)
     , m_helpEngine(helpEngine)
+    , m_centralWidget(centralWidget)
 {
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();
@@ -87,6 +94,26 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     updateFontStyle();
     updateFontFamily();
 
+    QString homePage = m_helpEngine->customValue(QLatin1String("HomePage"),
+        QString()).toString();
+    
+    if (homePage.isEmpty()) {
+        homePage = m_helpEngine->customValue(QLatin1String("DefaultHomePage"),
+            QLatin1String("about:blank")).toString();
+    }
+    m_ui.homePageLineEdit->setText(homePage);
+
+    int index = m_helpEngine->customValue(QLatin1String("StartOption"), 2).toInt();
+    m_ui.helpStartComboBox->setCurrentIndex(index);
+    
+    connect(m_ui.currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
+    connect(m_ui.blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
+    connect(m_ui.defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
+
+    HelpViewer *viewer = m_centralWidget->currentHelpViewer();
+    if (viewer == 0)
+        m_ui.currentPageButton->setEnabled(false);
+
     return m_currentPage;
 }
 
@@ -121,11 +148,39 @@ void GeneralSettingsPage::apply()
 #else
     emit fontChanged();
 #endif
+
+    QString homePage = m_ui.homePageLineEdit->text();
+    if (homePage.isEmpty())
+        homePage = QLatin1String("about:blank");
+    m_helpEngine->setCustomValue(QLatin1String("HomePage"), homePage);
+
+    int startOption = m_ui.helpStartComboBox->currentIndex();
+    m_helpEngine->setCustomValue(QLatin1String("StartOption"), startOption);
 }
 
 void GeneralSettingsPage::finish()
 {
     // Hmm, what to do here?
+}
+
+void GeneralSettingsPage::setCurrentPage()
+{
+    HelpViewer *viewer = m_centralWidget->currentHelpViewer();
+    if (viewer)
+        m_ui.homePageLineEdit->setText(viewer->source().toString());
+}
+
+void GeneralSettingsPage::setBlankPage()
+{
+    m_ui.homePageLineEdit->setText(QLatin1String("about:blank"));
+}
+
+void GeneralSettingsPage::setDefaultPage()
+{
+    const QString &homePage =
+        m_helpEngine->customValue(QLatin1String("DefaultHomePage"),
+        QString()).toString();
+    m_ui.homePageLineEdit->setText(homePage);
 }
 
 void GeneralSettingsPage::updateFontSize()

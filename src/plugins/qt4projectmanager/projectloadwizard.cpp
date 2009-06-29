@@ -122,7 +122,6 @@ void ProjectLoadWizard::addBuildConfiguration(QString name, QtVersion *qtversion
         m_project->setQtVersion(name, 0);
     else
         m_project->setQtVersion(name, qtversion->uniqueId());
-
 }
 
 void ProjectLoadWizard::done(int result)

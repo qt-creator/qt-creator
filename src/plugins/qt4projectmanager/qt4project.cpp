@@ -400,12 +400,14 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
 
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
 {
-    return toolChain(buildConfiguration)->makeCommand();
+    ToolChain *tc = toolChain(buildConfiguration);
+    return tc ? tc->makeCommand() : "make";
 }
 
 QString Qt4Project::defaultMakeTarget(const QString &buildConfiguration) const
 {
-    return toolChain(buildConfiguration)->defaultMakeTarget();
+    ToolChain *tc = toolChain(buildConfiguration);
+    return tc ? toolChain(buildConfiguration)->defaultMakeTarget() : "";
 }
 
 void Qt4Project::updateCodeModel()
@@ -450,9 +452,12 @@ void Qt4Project::updateCodeModel()
     predefinedIncludePaths.append(newQtIncludePath);
     QDir dir(newQtIncludePath);
     foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs)) {
-        if (! info.fileName().startsWith(QLatin1String("Qt")))
-            continue;
-        predefinedIncludePaths.append(info.absoluteFilePath());
+        const QString path = info.fileName();
+
+        if (path == QLatin1String("Qt"))
+            continue; // skip $QT_INSTALL_HEADERS/Qt. There's no need to include it.
+        else if (path.startsWith(QLatin1String("Qt")) || path == QLatin1String("phonon"))
+            predefinedIncludePaths.append(info.absoluteFilePath());
     }
 
     FindQt4ProFiles findQt4ProFiles;
@@ -740,7 +745,9 @@ ProjectExplorer::Environment Qt4Project::baseEnvironment(const QString &buildCon
 {
     Environment env = useSystemEnvironment(buildConfiguration) ? Environment::systemEnvironment() : Environment();
     qtVersion(buildConfiguration)->addToEnvironment(env);
-    toolChain(buildConfiguration)->addToEnvironment(env);
+    ToolChain *tc = toolChain(buildConfiguration);
+    if (tc)
+        tc->addToEnvironment(env);
     return env;
 }
 

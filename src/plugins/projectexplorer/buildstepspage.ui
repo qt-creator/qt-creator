@@ -64,6 +64,9 @@
        </item>
        <item>
         <widget class="QToolButton" name="buildStepRemoveToolButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>-</string>
          </property>
@@ -74,6 +77,9 @@
        </item>
        <item>
         <widget class="QToolButton" name="buildStepUpToolButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>^</string>
          </property>
@@ -81,6 +87,9 @@
        </item>
        <item>
         <widget class="QToolButton" name="buildStepDownToolButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>v</string>
          </property>

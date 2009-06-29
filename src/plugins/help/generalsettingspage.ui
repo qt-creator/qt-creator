@@ -133,7 +133,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="title">
       <string>Startup</string>
@@ -155,7 +155,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="comboBox">
+         <widget class="QComboBox" name="helpStartComboBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -209,7 +209,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
@@ -224,22 +224,25 @@
          </spacer>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QPushButton" name="currentPageButton">
-            <property name="text">
-             <string>Current Page</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="restoreDefaultHomePageButton">
-            <property name="text">
-             <string>Restore to default</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QPushButton" name="currentPageButton">
+          <property name="text">
+           <string>Use &amp;Current Page</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="blankPageButton">
+          <property name="text">
+           <string>Use &amp;Blank Page</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="defaultPageButton">
+          <property name="text">
+           <string>Restore to Default</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
