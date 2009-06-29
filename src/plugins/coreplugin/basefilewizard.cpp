@@ -58,15 +58,17 @@ namespace Core {
 class GeneratedFilePrivate : public QSharedData
 {
 public:
-    GeneratedFilePrivate() {}
+    GeneratedFilePrivate() : binary(false) {}
     explicit GeneratedFilePrivate(const QString &p);
     QString path;
-    QString contents;
+    QByteArray contents;
     QString editorKind;
+    bool binary;
 };
 
 GeneratedFilePrivate::GeneratedFilePrivate(const QString &p) :
-    path(p)
+    path(p),
+    binary(false)
 {
 }
 
@@ -108,12 +110,32 @@ void GeneratedFile::setPath(const QString &p)
 
 QString GeneratedFile::contents() const
 {
-    return m_d->contents;
+    return QString::fromUtf8(m_d->contents);
 }
 
 void GeneratedFile::setContents(const QString &c)
 {
+    m_d->contents = c.toUtf8();
+}
+
+QByteArray GeneratedFile::binaryContents() const
+{
+    return m_d->contents;
+}
+
+void GeneratedFile::setBinaryContents(const QByteArray &c)
+{
     m_d->contents = c;
+}
+
+bool GeneratedFile::isBinary() const
+{
+    return m_d->binary;
+}
+
+void GeneratedFile::setBinary(bool b)
+{
+    m_d->binary = b;
 }
 
 QString GeneratedFile::editorKind() const
@@ -139,11 +161,16 @@ bool GeneratedFile::write(QString *errorMessage) const
     }
     // Write out
     QFile file(m_d->path);
-    if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {
+
+    QIODevice::OpenMode flags = QIODevice::WriteOnly|QIODevice::Truncate;
+    if (!isBinary())
+        flags |= QIODevice::Text;
+
+    if (!file.open(flags)) {
         *errorMessage = BaseFileWizard::tr("Unable to open %1 for writing: %2").arg(m_d->path, file.errorString());
         return false;
     }
-    if (file.write(m_d->contents.toUtf8()) == -1) {
+    if (file.write(m_d->contents) == -1) {
         *errorMessage =  BaseFileWizard::tr("Error while writing to %1: %2").arg(m_d->path, file.errorString());
         return false;
     }

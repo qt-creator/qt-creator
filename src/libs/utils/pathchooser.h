@@ -47,7 +47,10 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
 {
     Q_DISABLE_COPY(PathChooser)
     Q_OBJECT
+    Q_ENUMS(Kind)
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
+    Q_PROPERTY(QString promptDialogTitle READ promptDialogTitle WRITE setPromptDialogTitle DESIGNABLE true)
+    Q_PROPERTY(Kind expectedKind READ expectedKind WRITE setExpectedKind DESIGNABLE true)
 
 public:
     static const char * const browseButtonLabel;
@@ -64,8 +67,13 @@ public:
 
     // Default is <Directory>
     void setExpectedKind(Kind expected);
+    Kind expectedKind() const;
 
     void setPromptDialogTitle(const QString &title);
+    QString promptDialogTitle() const;
+
+    void setPromptDialogFilter(const QString &filter);
+    QString promptDialogFilter() const;
 
     void setInitialBrowsePathBackup(const QString &path);
 

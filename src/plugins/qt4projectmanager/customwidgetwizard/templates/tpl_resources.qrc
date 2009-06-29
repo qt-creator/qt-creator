@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/" >
+@ICON_FILES@
+    </qresource>
+</RCC>

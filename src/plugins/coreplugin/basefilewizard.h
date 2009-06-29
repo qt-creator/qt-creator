@@ -71,9 +71,16 @@ public:
     QString path() const;
     void setPath(const QString &p);
 
-    // Contents of the file
+    // Contents of the file (UTF8)
     QString contents() const;
     void setContents(const QString &c);
+
+    QByteArray binaryContents() const;
+    void setBinaryContents(const QByteArray &c);
+
+    // Defaults to false (Text file).
+    bool isBinary() const;
+    void setBinary(bool b);
 
     // Kind of editor to open the file with
     QString editorKind() const;

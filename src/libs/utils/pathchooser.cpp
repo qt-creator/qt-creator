@@ -88,6 +88,7 @@ struct PathChooserPrivate
     PathValidatingLineEdit *m_lineEdit;
     PathChooser::Kind m_acceptingKind;
     QString m_dialogTitleOverride;
+    QString m_dialogFilter;
     QString m_initialBrowsePathOverride;
 };
 
@@ -171,7 +172,8 @@ void PathChooser::slotBrowse()
     case PathChooser::File: // fall through
     case PathChooser::Command:
         newPath = QFileDialog::getOpenFileName(this,
-                makeDialogTitle(tr("Choose a file")), predefined);
+                makeDialogTitle(tr("Choose a file")), predefined,
+                m_d->m_dialogFilter);
         break;
 
     default:
@@ -278,9 +280,29 @@ void PathChooser::setExpectedKind(Kind expected)
     m_d->m_acceptingKind = expected;
 }
 
+PathChooser::Kind PathChooser::expectedKind() const
+{
+    return m_d->m_acceptingKind;
+}
+
 void PathChooser::setPromptDialogTitle(const QString &title)
 {
     m_d->m_dialogTitleOverride = title;
+}
+
+QString PathChooser::promptDialogTitle() const
+{
+    return m_d->m_dialogTitleOverride;
+}
+
+void PathChooser::setPromptDialogFilter(const QString &filter)
+{
+    m_d->m_dialogFilter = filter;
+}
+
+QString PathChooser::promptDialogFilter() const
+{
+    return m_d->m_dialogFilter;
 }
 
 void PathChooser::setInitialBrowsePathBackup(const QString &path)
