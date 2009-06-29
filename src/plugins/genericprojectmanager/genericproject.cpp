@@ -170,18 +170,22 @@ static QStringList readLines(const QString &absoluteFileName)
 
 bool GenericProject::addFiles(const QStringList &filePaths)
 {
+    // Make sure we can open the file for writing
     QFile file(filesFileName());
-    if (file.open(QFile::Append)) {
-        QTextStream stream(&file);
-        QDir baseDir(QFileInfo(m_fileName).dir());
-        foreach (const QString &filePath, filePaths) {
-            stream << baseDir.relativeFilePath(filePath) << "\n";
-        }
-        file.close();
-        refresh(GenericProject::Files);
-        return true;
-    }
-    return false;
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+
+    QStringList newFileList = m_files;
+    newFileList.append(filePaths);
+
+    QTextStream stream(&file);
+    QDir baseDir(QFileInfo(m_fileName).dir());
+    foreach (const QString &filePath, newFileList)
+        stream << baseDir.relativeFilePath(filePath) << QLatin1Char('\n');
+
+    file.close();
+    refresh(GenericProject::Files);
+    return true;
 }
 
 void GenericProject::parseProject(RefreshOptions options)
