@@ -1380,6 +1380,7 @@ void CppModelManager::parse(QFutureInterface<void> &future,
     QStringList headers, sources;
     Core::MimeType cSourceTy = db->findByType(QLatin1String("text/x-csrc"));
     Core::MimeType cppSourceTy = db->findByType(QLatin1String("text/x-c++src"));
+    Core::MimeType mSourceTy = db->findByType(QLatin1String("text/x-objcsrc"));
 
     Core::MimeType cHeaderTy = db->findByType(QLatin1String("text/x-hdr"));
     Core::MimeType cppHeaderTy = db->findByType(QLatin1String("text/x-c++hdr"));
@@ -1387,7 +1388,7 @@ void CppModelManager::parse(QFutureInterface<void> &future,
     foreach (const QString &file, files) {
         const QFileInfo fileInfo(file);
 
-        if (cSourceTy.matchesFile(fileInfo) || cppSourceTy.matchesFile(fileInfo))
+        if (cSourceTy.matchesFile(fileInfo) || cppSourceTy.matchesFile(fileInfo) || mSourceTy.matchesFile(fileInfo))
             sources.append(file);
 
         else if (cHeaderTy.matchesFile(fileInfo) || cppHeaderTy.matchesFile(fileInfo))
