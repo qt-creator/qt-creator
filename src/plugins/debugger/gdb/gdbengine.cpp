@@ -111,13 +111,13 @@ static int &currentToken()
 
 GdbEngine::GdbEngine(DebuggerManager *parent) :
 #ifdef Q_OS_WIN // Do injection loading with MinGW (call loading does not work with 64bit)
-    m_dumperInjectionLoad(true)
+    m_dumperInjectionLoad(true),
 #else
-    m_dumperInjectionLoad(false)
+    m_dumperInjectionLoad(false),
 #endif
+    q(parent),
+    qq(parent->engineInterface())
 {
-    q = parent;
-    qq = parent->engineInterface();
     m_stubProc.setMode(Core::Utils::ConsoleProcess::Debug);
 #ifdef Q_OS_UNIX
     m_stubProc.setSettings(Core::ICore::instance()->settings());
@@ -199,6 +199,25 @@ void GdbEngine::initializeVariables()
     m_waitingForFirstBreakpointToBeHit = false;
     m_commandsToRunOnTemporaryBreak.clear();
     m_cookieForToken.clear();
+    m_customOutputForToken.clear();
+
+    m_pendingConsoleStreamOutput.clear();
+    m_pendingTargetStreamOutput.clear();
+    m_pendingLogStreamOutput.clear();
+
+    m_inbuffer.clear();
+
+    m_address.clear();
+    m_currentFunctionArgs.clear();
+    m_currentFrame.clear();
+    m_dumperHelper = QtDumperHelper();
+
+    // FIXME: unhandled:
+    //m_outputCodecState = QTextCodec::ConverterState();
+    //OutputCollector m_outputCollector;
+    //QProcess m_gdbProc;
+    //QProcess m_uploadProc;
+    //Core::Utils::ConsoleProcess m_stubProc;
 }
 
 void GdbEngine::gdbProcError(QProcess::ProcessError error)
@@ -3458,7 +3477,8 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
 void GdbEngine::updateLocals()
 {
     // Asynchronous load of injected library, initialize in first stop
-    if (m_dumperInjectionLoad && m_debuggingHelperState == DebuggingHelperLoadTried && m_dumperHelper.typeCount() == 0
+    if (m_dumperInjectionLoad && m_debuggingHelperState == DebuggingHelperLoadTried
+        && m_dumperHelper.typeCount() == 0
         && q->inferiorPid() > 0)
         tryQueryDebuggingHelpers();
 

@@ -557,8 +557,9 @@ void QtDumperHelper::TypeData::clear()
 }
 
 // ----------------- QtDumperHelper
+const QString stdAllocatorPrefix = QLatin1String("std::allocator");
+
 QtDumperHelper::QtDumperHelper() :
-    m_stdAllocatorPrefix(QLatin1String("std::allocator")),
     m_intSize(0),
     m_pointerSize(0),
     m_stdAllocatorSize(0),
@@ -1053,7 +1054,7 @@ void QtDumperHelper::addSize(const QString &name, int size)
             m_intSize = size;
             break;
         }
-        if (name.startsWith(m_stdAllocatorPrefix)) {
+        if (name.startsWith(stdAllocatorPrefix)) {
             m_stdAllocatorSize = size;
             break;
         }
@@ -1103,7 +1104,7 @@ QString QtDumperHelper::evaluationSizeofTypeExpression(const QString &typeName,
     // Look up fixed types
     if (m_pointerSize && isPointerType(typeName))
         return QString::number(m_pointerSize);
-    if (m_stdAllocatorSize && typeName.startsWith(m_stdAllocatorPrefix))
+    if (m_stdAllocatorSize && typeName.startsWith(stdAllocatorPrefix))
         return QString::number(m_stdAllocatorSize);
     const SizeCache::const_iterator sit = m_sizeCache.constFind(typeName);
     if (sit != m_sizeCache.constEnd())

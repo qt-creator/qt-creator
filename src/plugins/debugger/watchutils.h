@@ -212,8 +212,6 @@ private:
     static Type specialType(QString s);
     QString evaluationSizeofTypeExpression(const QString &typeName, Debugger d) const;
 
-    const QString m_stdAllocatorPrefix;
-
     NameTypeMap m_nameTypeMap;
     SizeCache m_sizeCache;
     int m_intSize;
