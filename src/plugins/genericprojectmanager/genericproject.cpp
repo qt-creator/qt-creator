@@ -168,6 +168,21 @@ static QStringList readLines(const QString &absoluteFileName)
     return lines;
 }
 
+bool GenericProject::addFiles(const QStringList &filePaths)
+{
+    QFile file(filesFileName());
+    if (file.open(QFile::Append)) {
+        QTextStream stream(&file);
+        QDir baseDir(QFileInfo(m_fileName).dir());
+        foreach (const QString &filePath, filePaths) {
+            stream << baseDir.relativeFilePath(filePath) << "\n";
+        }
+        file.close();
+        refresh(GenericProject::Files);
+        return true;
+    }
+    return false;
+}
 
 void GenericProject::parseProject(RefreshOptions options)
 {
