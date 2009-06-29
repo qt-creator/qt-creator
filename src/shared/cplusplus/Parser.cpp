@@ -1626,7 +1626,7 @@ bool Parser::parseBaseClause(BaseSpecifierAST *&node)
 
                 if (parseBaseSpecifier(*ast)) {
                     (*ast)->comma_token = comma_token;
-                    ast = &(*ast)->next;\
+                    ast = &(*ast)->next;
                 }
             }
         }

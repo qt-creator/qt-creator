@@ -39,10 +39,9 @@ public:
     void addInclude(const QString &absoluteFilePath)
     { included.append(absoluteFilePath); }
 
-    virtual void sourceNeeded(QString &fileName, IncludeType mode, unsigned line)
+    virtual void sourceNeeded(QString &fileName, IncludeType mode, unsigned)
     {
-        // ### cache
-        const QString currentFile = QFile::decodeName(env->currentFile);
+        const QString currentFile = env->currentFile;
 
         if (mode == IncludeLocal) {
             const QFileInfo currentFileInfo(currentFile);
@@ -115,7 +114,7 @@ int main(int argc, char *argv[])
             client.addSystemDir(qgetenv("QTDIR") + "/include");
 
             Preprocessor preproc(&client, &env);
-            preproc.preprocess(QFile::encodeName(fn), code, /*result = */ 0);
+            preproc.preprocess(fn, code, /*result = */ 0);
             deps = client.includedFiles();
             todo += deps;
         }

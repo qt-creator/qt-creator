@@ -739,6 +739,10 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     env->currentLine = 0;
 
     while (true) {
+
+        if (_dot->joined)
+            out("\\");
+
         processNewline();
 
         if (_dot->is(T_EOF_SYMBOL)) {
@@ -766,10 +770,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
 
         } else {
 
-            if (_dot->joined)
-                out("\\\n");
-
-            else if (_dot->whitespace) {
+            if (_dot->whitespace) {
                 const unsigned endOfPreviousToken = (_dot - 1)->end();
                 const unsigned beginOfToken = _dot->begin();
 
