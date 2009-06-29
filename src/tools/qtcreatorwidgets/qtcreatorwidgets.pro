@@ -9,16 +9,17 @@ SOURCES     = customwidgets.cpp
 
 # Link against the qtcreator utils lib
 
+isEmpty(IDE_LIBRARY_BASENAME) {
+    IDE_LIBRARY_BASENAME = lib
+}
+
 linux-* {
   # form abs path to qtcreator lib dir
   QTC_LIBS=$$dirname(PWD)
   QTC_LIBS=$$dirname(QTC_LIBS)
   QTC_LIBS=$$dirname(QTC_LIBS)
-  linux-*64 {
-    QTC_LIBS=$$QTC_LIBS/lib64/qtcreator
-  } else {
-    QTC_LIBS=$$QTC_LIBS/lib/qtcreator
-  }
+  QTC_LIBS=$$QTC_LIBS/$$IDE_LIBRARY_BASENAME/qtcreator
+  QTC_LIBS=$$QTC_LIBS/$$IDE_LIBRARY_BASENAME/qtcreator
   QMAKE_RPATHDIR *= $$QTC_LIBS
 }
 
