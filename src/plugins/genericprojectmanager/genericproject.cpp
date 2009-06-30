@@ -195,10 +195,13 @@ bool GenericProject::addFiles(const QStringList &filePaths)
 
 bool GenericProject::removeFiles(const QStringList &filePaths)
 {
-    // Removing using set allows O(n.log(n)) behavior
-    QSet<QString> newFileSet = m_files.toSet();
-    newFileSet.subtract(filePaths.toSet());
-    QStringList newFileList = newFileSet.toList();
+    QStringList newFileList;
+    QSet<QString> filesToRemove = filePaths.toSet();
+
+    foreach (const QString &file, m_files) {
+        if (!filesToRemove.contains(file))
+            newFileList.append(file);
+    }
 
     return setFiles(newFileList);
 }
