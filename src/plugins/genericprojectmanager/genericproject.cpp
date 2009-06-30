@@ -168,24 +168,42 @@ static QStringList readLines(const QString &absoluteFileName)
     return lines;
 }
 
-bool GenericProject::addFiles(const QStringList &filePaths)
+bool GenericProject::setFiles(const QStringList &filePaths)
 {
     // Make sure we can open the file for writing
     QFile file(filesFileName());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;
 
-    QStringList newFileList = m_files;
-    newFileList.append(filePaths);
-
     QTextStream stream(&file);
     QDir baseDir(QFileInfo(m_fileName).dir());
-    foreach (const QString &filePath, newFileList)
+    foreach (const QString &filePath, filePaths)
         stream << baseDir.relativeFilePath(filePath) << QLatin1Char('\n');
 
     file.close();
     refresh(GenericProject::Files);
     return true;
+}
+
+bool GenericProject::addFiles(const QStringList &filePaths)
+{
+    QStringList newFileList = m_files;
+    newFileList.append(filePaths);
+
+    return setFiles(newFileList);
+}
+
+bool GenericProject::removeFiles(const QStringList &filePaths)
+{
+    QStringList newFileList;
+    QSet<QString> filesToRemove = filePaths.toSet();
+
+    foreach (const QString &file, m_files) {
+        if (!filesToRemove.contains(file))
+            newFileList.append(file);
+    }
+
+    return setFiles(newFileList);
 }
 
 void GenericProject::parseProject(RefreshOptions options)

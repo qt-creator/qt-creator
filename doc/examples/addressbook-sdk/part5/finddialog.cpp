@@ -1,6 +1,7 @@
 #include "finddialog.h"
 #include "ui_finddialog.h"
 
+//! [constructor]
 FindDialog::FindDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::FindDialog)
@@ -18,12 +19,14 @@ FindDialog::FindDialog(QWidget *parent) :
 
     setWindowTItle(tr("Find a Contact"));
 }
+//! [constructor]
 
 FindDialog::~FindDialog()
 {
     delete m_ui;
 }
 
+//! [findClicked]
 void FindDialog::findClicked()
 {
     QString text = lineEdit->text();
@@ -38,6 +41,7 @@ void FindDialog::findClicked()
         hide();
     }
 }
+//! [findClicked]
 
 QString FindDialog::getFindText()
 {

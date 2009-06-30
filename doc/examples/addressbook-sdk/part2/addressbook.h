@@ -1,13 +1,13 @@
-//! [class definition]
 #ifndef ADDRESSBOOK_H
 #define ADDRESSBOOK_H
 
+//! [include]
 #include <QtGui/QWidget>
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
 #include <QtGui/QTextEdit>
 #include <QtGui/QMessageBox>
-
+//! [include]
 
 namespace Ui
 {
@@ -48,4 +48,3 @@ private:
 };
 
 #endif // ADDRESSBOOK_H
-//! [class definition]

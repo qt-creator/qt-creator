@@ -1182,6 +1182,8 @@ void CdbDebugEngine::selectThread(int index)
 
 void CdbDebugEngine::attemptBreakpointSynchronization()
 {
+    if (!m_d->m_hDebuggeeProcess) // Sometimes called from the breakpoint Window
+        return;
     QString errorMessage;
     if (!m_d->attemptBreakpointSynchronization(&errorMessage))
         warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
@@ -1215,10 +1217,15 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
         return true;
     }
 
-    return CDBBreakPoint::synchronizeBreakPoints(m_cif.debugControl,
+    QStringList warnings;
+    const bool ok = CDBBreakPoint::synchronizeBreakPoints(m_cif.debugControl,
                                                  m_cif.debugSymbols,
                                                  m_debuggerManagerAccess->breakHandler(),
-                                                 errorMessage);
+                                                 errorMessage, &warnings);
+    if (const int warningsCount = warnings.size())        
+        for (int w = 0; w < warningsCount; w++)
+            m_engine->warning(warnings.at(w));
+    return ok;
 }
 
 void CdbDebugEngine::reloadDisassembler()
