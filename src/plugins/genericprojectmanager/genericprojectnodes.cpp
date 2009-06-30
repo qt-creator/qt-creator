@@ -167,7 +167,8 @@ bool GenericProjectNode::hasTargets() const
 QList<ProjectExplorer::ProjectNode::ProjectAction> GenericProjectNode::supportedActions() const
 {
     return QList<ProjectAction>()
-        << AddFile;
+        << AddFile
+        << RemoveFile;
 }
 
 bool GenericProjectNode::addSubProjects(const QStringList &proFilePaths)
@@ -195,9 +196,9 @@ bool GenericProjectNode::removeFiles(const ProjectExplorer::FileType fileType,
                                      const QStringList &filePaths, QStringList *notRemoved)
 {
     Q_UNUSED(fileType);
-    Q_UNUSED(filePaths);
     Q_UNUSED(notRemoved);
-    return false;
+
+    return m_project->removeFiles(filePaths);
 }
 
 bool GenericProjectNode::renameFile(const ProjectExplorer::FileType fileType,

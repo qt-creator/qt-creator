@@ -94,7 +94,9 @@ public:
     QString buildParser(const QString &buildConfiguration) const;
     ProjectExplorer::ToolChain *toolChain() const;
 
+    bool setFiles(const QStringList &filePaths);
     bool addFiles(const QStringList &filePaths);
+    bool removeFiles(const QStringList &filePaths);
 
     enum RefreshOptions {
         Files         = 0x01,
