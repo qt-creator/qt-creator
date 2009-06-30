@@ -407,12 +407,19 @@ static bool setBreakPointEnabledById(CIDebugControl *ctl, unsigned long id, bool
     return true;
 }
 
+static inline QString msgCannotSetBreakAtFunction(const QString &func, const QString &why)
+{
+    return QString::fromLatin1("Cannot set a breakpoint at '%1': %2").arg(func, why);
+}
+
 // Synchronize (halted) engine breakpoints with those of the BreakHandler.
 bool CDBBreakPoint::synchronizeBreakPoints(CIDebugControl* debugControl,
                                            CIDebugSymbols *syms,
                                            BreakHandler *handler,
-                                           QString *errorMessage)
+                                           QString *errorMessage, QStringList *warnings)
 {    
+    errorMessage->clear();
+    warnings->clear();
     // Do an initial check whether we are in a state that allows
     // for modifying  breakPoints
     ULONG engineCount;
@@ -420,25 +427,29 @@ bool CDBBreakPoint::synchronizeBreakPoints(CIDebugControl* debugControl,
         *errorMessage = QString::fromLatin1("Cannot modify breakpoints: %1").arg(*errorMessage);
         return false;
     }
+    QString warning;
     // Insert new ones
     bool updateMarkers = false;
     foreach (BreakpointData *nbd, handler->insertedBreakpoints()) {
+        warning.clear();
         // Function breakpoints: Are the module names specified?
         bool breakPointOk = false;
         if (nbd->funcName.isEmpty()) {
             breakPointOk = true;
         } else {
-            switch (resolveSymbol(syms, &nbd->funcName, errorMessage)) {
+            switch (resolveSymbol(syms, &nbd->funcName, &warning)) {
             case ResolveSymbolOk:
                 breakPointOk = true;
                 break;
             case ResolveSymbolAmbiguous:
-                qWarning("Warning: %s\n", qPrintable(*errorMessage));
+                warnings->push_back(msgCannotSetBreakAtFunction(nbd->funcName, warning));
+                warning.clear();
                 breakPointOk = true;
                 break;
             case ResolveSymbolNotFound:
             case ResolveSymbolError:
-                qWarning("Warning: %s\n", qPrintable(*errorMessage));
+                warnings->push_back(msgCannotSetBreakAtFunction(nbd->funcName, warning));
+                warning.clear();
                 break;
             };
         } // function breakpoint
@@ -447,7 +458,7 @@ bool CDBBreakPoint::synchronizeBreakPoints(CIDebugControl* debugControl,
             quint64 address;
             unsigned long id;
             CDBBreakPoint ncdbbp(*nbd);
-            breakPointOk = ncdbbp.add(debugControl, &address, &id, errorMessage);            
+            breakPointOk = ncdbbp.add(debugControl, &address, &id, &warning);
             if (breakPointOk) {
                 if (debugBP)
                     qDebug() << "Added " << id << " at " << address << ncdbbp;
@@ -464,22 +475,21 @@ bool CDBBreakPoint::synchronizeBreakPoints(CIDebugControl* debugControl,
                 nbd->bpFuncName = nbd->funcName;
             }
         } // had symbol
-        if (!breakPointOk)
-            qWarning("%s\n", qPrintable(*errorMessage));
-    }
+        if (!breakPointOk && !warning.isEmpty())
+            warnings->push_back(warning);    }
     // Delete
     foreach (BreakpointData *rbd, handler->takeRemovedBreakpoints()) {
-        if (!removeBreakPointById(debugControl, rbd->bpNumber.toUInt(), errorMessage))
-            qWarning("%s\n", qPrintable(*errorMessage));
+        if (!removeBreakPointById(debugControl, rbd->bpNumber.toUInt(), &warning))
+            warnings->push_back(warning);
         delete rbd;
     }
     // Enable/Disable
     foreach (BreakpointData *ebd, handler->takeEnabledBreakpoints())
-        if (!setBreakPointEnabledById(debugControl, ebd->bpNumber.toUInt(), true, errorMessage))
-            qWarning("%s\n", qPrintable(*errorMessage));
+        if (!setBreakPointEnabledById(debugControl, ebd->bpNumber.toUInt(), true, &warning))
+            warnings->push_back(warning);
     foreach (BreakpointData *dbd, handler->takeDisabledBreakpoints())
-        if (!setBreakPointEnabledById(debugControl, dbd->bpNumber.toUInt(), false, errorMessage))
-            qWarning("%s\n", qPrintable(*errorMessage));
+        if (!setBreakPointEnabledById(debugControl, dbd->bpNumber.toUInt(), false, &warning))
+            warnings->push_back(warning);
 
     if (updateMarkers)
         handler->updateMarkers();

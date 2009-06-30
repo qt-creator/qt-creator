@@ -138,6 +138,7 @@ static ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
                                          QStringList *matches,
                                          QString *errorMessage)
 {
+    errorMessage->clear();
     // Is it an incomplete symbol?
     if (symbol->contains(QLatin1Char('!')))
         return ResolveSymbolOk;

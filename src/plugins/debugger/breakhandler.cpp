@@ -281,8 +281,12 @@ void BreakHandler::removeAt(int index)
 
 void BreakHandler::clear()
 {
-    for (int index = size(); --index >= 0; )
-        removeAt(index);
+    qDeleteAll(m_bp);
+    m_bp.clear();
+    m_enabled.clear();
+    m_disabled.clear();
+    m_removed.clear();
+    m_inserted.clear();
 }
 
 int BreakHandler::findBreakpoint(const BreakpointData &needle)
@@ -328,19 +332,19 @@ void BreakHandler::saveBreakpoints()
         const BreakpointData *data = at(index);
         QMap<QString, QVariant> map;
         if (!data->fileName.isEmpty())
-            map["filename"] = data->fileName;
+            map.insert(QLatin1String("filename"), data->fileName);
         if (!data->lineNumber.isEmpty())
-            map["linenumber"] = data->lineNumber;
+            map.insert(QLatin1String("linenumber"), data->lineNumber);
         if (!data->funcName.isEmpty())
-            map["funcname"] = data->funcName;
+            map.insert(QLatin1String("funcname"), data->funcName);
         if (!data->condition.isEmpty())
-            map["condition"] = data->condition;
+            map.insert(QLatin1String("condition"), data->condition);
         if (!data->ignoreCount.isEmpty())
-            map["ignorecount"] = data->ignoreCount;
+            map.insert(QLatin1String("ignorecount"), data->ignoreCount);
         if (!data->enabled)
-            map["disabled"] = "1";
+            map.insert(QLatin1String("disabled"), QLatin1String("1"));
         if (data->useFullPath)
-            map["usefullpath"] = "1";
+            map.insert(QLatin1String("usefullpath"), QLatin1String("1"));
         list.append(map);
     }
     setSessionValueRequested("Breakpoints", list);
@@ -351,18 +355,31 @@ void BreakHandler::loadBreakpoints()
     QVariant value;
     sessionValueRequested("Breakpoints", &value);
     QList<QVariant> list = value.toList();
-
     clear();
     foreach (const QVariant &var, list) {
         const QMap<QString, QVariant> map = var.toMap();
         BreakpointData *data = new BreakpointData(this);
-        data->fileName = map["filename"].toString();
-        data->lineNumber = map["linenumber"].toString();
-        data->condition = map["condition"].toString();
-        data->ignoreCount = map["ignorecount"].toString();
-        data->funcName = map["funcname"].toString();
-        data->enabled = !map["disabled"].toInt();
-        data->useFullPath = bool(map["usefullpath"].toInt());
+        QVariant v = map.value(QLatin1String("filename"));
+        if (v.isValid())
+            data->fileName = v.toString();
+        v = map.value(QLatin1String("linenumber"));
+        if (v.isValid())
+            data->lineNumber = v.toString();
+        v = map.value(QLatin1String("condition"));
+        if (v.isValid())
+            data->condition = v.toString();
+        v = map.value(QLatin1String("ignorecount"));
+        if (v.isValid())
+            data->ignoreCount = v.toInt();
+        v = map.value(QLatin1String("funcname"));
+        if (v.isValid())
+            data->funcName = v.toString();
+        v = map.value(QLatin1String("disabled"));
+        if (v.isValid())
+            data->enabled = !v.toInt();
+        v = map.value(QLatin1String("usefullpath"));
+        if (v.isValid())
+            data->useFullPath = bool(v.toInt());
         data->markerFileName = data->fileName;
         data->markerLineNumber = data->lineNumber.toInt();
         append(data);
