@@ -43,7 +43,9 @@ void FindDialog::findClicked()
 }
 //! [findClicked]
 
+//! [getFindText]
 QString FindDialog::getFindText()
 {
     return findText;
 }
+//! [getFindText]

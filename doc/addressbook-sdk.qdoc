@@ -734,7 +734,7 @@
     which we subclass in this chapter, to implement a FindDialog class.
 
 
-    \section1 Designing \c FindDialog
+    \section1 Designing The FindDialog
 
     #image
 
@@ -751,7 +751,7 @@
     vertical.
 
 
-    \section1 Implementing \c FindDialog
+    \section1 Implementing The FindDialog Class
 
     Let's look at \c{FindDialog}'s header file. Here, we need to provide
     private members for the class so that we can access the widgets freely
@@ -791,6 +791,18 @@
     we clear the contents of \c lineEdit and hide the dialog.
 
     \snippet examples/addressbook-sdk/part5/finddialog.cpp findClicked
+
+    The \c findText variable has a public getter function, \c getFindText(),
+    associated with it. Since we only ever set \c findText directly in both
+    the constructor and in hte \c findClicked() function, we do not create a
+    setter function to accompany \c getFindText(). Because \c getFindText() is
+    public, classes instantiating and using \c FindDialog can always access the
+    search string that the user has entered and accepted.
+
+    \snippet examples/addressbook-sdk/part5/finddialog.cpp getFindText
+
+
+    \section1 The AddressBook Class
 */
 
 
