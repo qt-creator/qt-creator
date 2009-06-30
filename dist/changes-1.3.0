@@ -1,0 +1,14 @@
+The QtCreator 1.3 release contains bug fixes and new features.
+
+Below is a list of relevant changes. You can find a complete list of changes
+within the logs of QtCreator's sources. Simply check it out from the public git
+repository e.g.,
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --pretty=oneline v1.2.0..master
+
+This release introduces source and binary incompatible changes to the plugin
+API, so if you have created your own custom plugins, they will need to be
+adapted accordingly.
+
+...
