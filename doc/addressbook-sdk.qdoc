@@ -803,6 +803,22 @@
 
 
     \section1 The AddressBook Class
+
+
+    To ensure that we can use \c FindDialog from within our \c AddressBook
+    class, we include \c finddialog.h in the \c addressbook.h file.
+
+    \snippet examples/addressbook-sdk/part5/addressbook.cpp include
+
+    So far, all our address book features have a QPushButton and a
+    corresponding slot. Similarly, for the \gui Find feature, we have
+    \c findButton and \c findContact().
+
+    Within the \c AddressBook class's constructor, we instantiate our private
+    objects, \c findButton and \c findDialog:
+
+    \snippet examples/addressbook-sdk/part5/addressbook.cpp
+
 */
 
 
