@@ -145,10 +145,12 @@ class CMakeCbpParser : public QXmlStreamReader
 public:
     bool parseCbpFile(const QString &fileName);
     QList<ProjectExplorer::FileNode *> fileList();
+    QList<ProjectExplorer::FileNode *> cmakeFileList();
     QStringList includeFiles();
     QList<CMakeTarget> targets();
     QString projectName() const;
     QString compilerName() const;
+    bool hasCMakeFiles();
 private:
     void parseCodeBlocks_project_file();
     void parseProject();
@@ -162,9 +164,13 @@ private:
     void parseCompiler();
     void parseAdd();
     void parseUnit();
+    void parseUnitOption();
     void parseUnknownElement();
 
     QList<ProjectExplorer::FileNode *> m_fileList;
+    QList<ProjectExplorer::FileNode *> m_cmakeFileList;
+    QSet<QString> m_processedUnits;
+    bool m_parsingCmakeUnit;
     QStringList m_includeFiles;
 
     CMakeTarget m_target;

@@ -175,9 +175,15 @@ void CMakeProject::parseCMakeLists()
 
         //qDebug()<<"Building Tree";
 
+
         QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
-        // Manually add the CMakeLists.txt file
-        fileList.append(new ProjectExplorer::FileNode(sourceDirectory() + "/CMakeLists.txt", ProjectExplorer::ProjectFileType, false));
+
+        if (cbpparser.hasCMakeFiles()) {
+            fileList.append(cbpparser.cmakeFileList());
+        } else {
+            // Manually add the CMakeLists.txt file
+            fileList.append(new ProjectExplorer::FileNode(sourceDirectory() + "/CMakeLists.txt", ProjectExplorer::ProjectFileType, false));
+        }
 
         m_files.clear();
         foreach (ProjectExplorer::FileNode *fn, fileList)
@@ -941,15 +947,40 @@ void CMakeCbpParser::parseUnit()
 {
     //qDebug()<<stream.attributes().value("filename");
     QString fileName = attributes().value("filename").toString();
-    if (!fileName.endsWith(".rule"))
-        m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, false));
+    m_parsingCmakeUnit = false;
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
+            if (!fileName.endsWith(".rule") && !m_processedUnits.contains(fileName)) {
+                // Now check whether we found a virtual element beneath
+                if (m_parsingCmakeUnit)
+                    m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, false));
+                else
+                    m_cmakeFileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ProjectFileType, false));
+                m_processedUnits.insert(fileName);
+            }
             return;
+        } else if (name() == "Option") {
+            parseUnitOption();
         } else if (isStartElement()) {
             parseUnknownElement();
         }
+    }
+}
+
+void CMakeCbpParser::parseUnitOption()
+{
+    if (attributes().hasAttribute("virtualFolder"))
+        m_parsingCmakeUnit = true;
+
+    while (!atEnd()) {
+        readNext();
+
+        if (isEndElement())
+            break;
+
+        if (isStartElement())
+            parseUnknownElement();
     }
 }
 
@@ -971,6 +1002,16 @@ void CMakeCbpParser::parseUnknownElement()
 QList<ProjectExplorer::FileNode *> CMakeCbpParser::fileList()
 {
     return m_fileList;
+}
+
+QList<ProjectExplorer::FileNode *> CMakeCbpParser::cmakeFileList()
+{
+    return m_cmakeFileList;
+}
+
+bool CMakeCbpParser::hasCMakeFiles()
+{
+    return !m_cmakeFileList.isEmpty();
 }
 
 QStringList CMakeCbpParser::includeFiles()
