@@ -3143,7 +3143,8 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
     m_dumperHelper.parseQueryTypes(availableSimpleDebuggingHelpers, QtDumperHelper::GdbDebugger);
 
     if (availableSimpleDebuggingHelpers.isEmpty()) {
-        m_debuggingHelperState = DebuggingHelperUnavailable;
+        if (!m_dumperInjectionLoad) // Retry if thread has not terminated yet.
+            m_debuggingHelperState = DebuggingHelperUnavailable;
         q->showStatusMessage(tr("Debugging helpers not found."));
         //QMessageBox::warning(q->mainWindow(),
         //    tr("Cannot find special data dumpers"),
