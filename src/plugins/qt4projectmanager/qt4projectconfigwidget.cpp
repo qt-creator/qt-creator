@@ -308,6 +308,10 @@ void Qt4ProjectConfigWidget::updateToolChainCombo()
             m_ui->toolChainComboBox->addItem(tr("gcce"), qVariantFromValue(ProjectExplorer::ToolChain::GCCE));
             break;
 #endif
+        case ProjectExplorer::ToolChain::OTHER:
+        case ProjectExplorer::ToolChain::INVALID:
+        case ProjectExplorer::ToolChain::UNKNOWN:
+            break;
         }
     }
     m_ui->toolChainComboBox->setEnabled(toolchains.size() > 1);

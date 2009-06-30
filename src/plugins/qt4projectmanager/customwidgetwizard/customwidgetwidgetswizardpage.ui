@@ -7,14 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>668</width>
-    <height>430</height>
+    <height>454</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Custom Qt Widget Wizard</string>
   </property>
+  <property name="title">
+   <string>Custom Widget List</string>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+   <item row="2" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Widget &amp;Classes:</string>
@@ -24,7 +27,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1" rowspan="2">
+   <item row="2" column="1" rowspan="2">
     <widget class="QWidget" name="tabStackWidget" native="true">
      <property name="minimumSize">
       <size>
@@ -34,7 +37,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="3" column="0">
     <widget class="Qt4ProjectManager::Internal::ClassList" name="classList">
      <property name="minimumSize">
       <size>
@@ -43,6 +46,29 @@
       </size>
      </property>
     </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="subTitleLabel">
+     <property name="text">
+      <string>Specify the list of custom widgets and their properties.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <spacer name="titleSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
