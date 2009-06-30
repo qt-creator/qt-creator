@@ -377,7 +377,11 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
 
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
 {
-    return qtVersion(buildConfiguration)->toolChain()->makeCommand();
+    ProjectExplorer::ToolChain *tc = qtVersion(buildConfiguration)->toolChain();
+    if (tc)
+        return tc->makeCommand();
+    else
+        return QString();
 }
 
 void Qt4Project::updateCodeModel()
