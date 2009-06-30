@@ -251,7 +251,7 @@ void Qt4ProjectConfigWidget::importLabelClicked()
                         makeCmdArguments.append(debug ? "debug" : "release");
                 } else {
                     makeCmdArguments.removeAll("debug");
-                    makeCmdArguments.removeAll("remove");
+                    makeCmdArguments.removeAll("release");
                 }
                 makeStep->setValue(m_buildConfiguration, "makeargs", makeCmdArguments);
             }
