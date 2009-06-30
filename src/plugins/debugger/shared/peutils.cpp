@@ -32,7 +32,7 @@
 #include <utils/winutils.h>
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
-#include <limits.h>
+#include <climits>
 #include <windows.h>
 
 using Core::Utils::winErrorMessage;
