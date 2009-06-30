@@ -2820,7 +2820,7 @@ static void setWatchDataSAddress(WatchData &data, const GdbMi &mi)
 
 void GdbEngine::setUseDebuggingHelpers(const QVariant &on)
 {
-    qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
+    //qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
     //m_expandedINames.clear();
     setTokenBarrier();
