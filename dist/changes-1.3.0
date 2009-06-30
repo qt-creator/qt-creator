@@ -11,4 +11,11 @@ This release introduces source and binary incompatible changes to the plugin
 API, so if you have created your own custom plugins, they will need to be
 adapted accordingly.
 
+General:
+
+
+Project support:
+   * Added support for adding and removing files from a generic Makefile-based
+     project (contributed by Kevin Michel)
+
 ...
