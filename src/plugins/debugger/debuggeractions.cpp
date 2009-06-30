@@ -173,18 +173,21 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setText(tr("Use debugging helper"));
     item->setCheckable(true);
     item->setDefaultValue(true);
+    item->setValue(true);
     instance->insertItem(UseDebuggingHelpers, item);
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseCustomDebuggingHelperLocation"));
     item->setCheckable(true);
     item->setDefaultValue(false);
+    item->setValue(false);
     instance->insertItem(UseCustomDebuggingHelperLocation, item);
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("CustomDebuggingHelperLocation"));
     item->setCheckable(true);
     item->setDefaultValue(QString());
+    item->setValue(QString());
     instance->insertItem(CustomDebuggingHelperLocation, item);
 
     item = new SavedAction(instance);
@@ -192,6 +195,7 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setText(tr("Debug debugging helper"));
     item->setCheckable(true);
     item->setDefaultValue(false);
+    item->setValue(false);
     instance->insertItem(DebugDebuggingHelpers, item);
 
 
