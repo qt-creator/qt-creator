@@ -315,6 +315,12 @@
 
     \snippet examples/addressbook-sdk/part2/addressbook.h members1
 
+    The Qt types used for our private members, e.g., QPushButton, QLineEdit,
+    QTextEdit, etc., need to be included with the \c include directive, as
+    shown below:
+
+    \snippet examples/addressbook-sdk/part2/addressbook.h include
+
     \note The names, e.g., \c addButton etc., correspond to the name of the
     actual object. You can modify them by double-clicking on their names within
     \QD's \gui{Object Inspector}.
@@ -727,6 +733,7 @@
     dialog that can prompt the user for a contact's name. Qt provides QDialog,
     which we subclass in this chapter, to implement a FindDialog class.
 
+
     \section1 Designing \c FindDialog
 
     #image
@@ -743,6 +750,7 @@
     in a horizontal layout. Then set a top level layout - either horizontal or
     vertical.
 
+
     \section1 Implementing \c FindDialog
 
     Let's look at \c{FindDialog}'s header file. Here, we need to provide
@@ -751,8 +759,38 @@
 
     \snippet examples/addressbook-sdk/part5/finddialog.h private members
 
+    We define a public function, \c getFindText(), to be used by classes that
+    instantiate \c FindDialog. This function allows the these classes to obtain
+    the search string entered by the user. A public slot, \c findClicked(), is
+    also defined to handle the search string when the user clicks the \gui Find
+    button.
 
+    \snippet examples/addressbook-sdk/part5/finddialog.h getFindText
+    \dots
+    \snippet examples/addressbook-sdk/part5/finddialog.h findClicked
 
+    Now, lets look at our constructor in the \c{finddialog.cpp} file. Here, we
+    set up the private variables, \c lineEdit, \c findButton, and \c findText.
+
+    \snippet examples/addressbook-sdk/part5/finddialog.cpp constructor
+
+    We connect our signals to their respective slots. Notice that
+    \c{findButton}'s \l{QPushButton:}{clicked()} signal is connected to
+    \c findClicked() and \l{QDialog::}{accept()}. The \l{QDialog::}{accept()}
+    slot provided by QDialog hides the dialog and sets the result code to
+    \l{QDialog::}{Accepted}. We use this function to help \c{AddressBook}'s
+    \c findContact() function know when the \c FindDialog object has been
+    closed. We will explain this logic in further detail when discussing the
+    \c findContact() function.
+
+    \image addressbook-tutorial-part5-signals-and-slots.png
+
+    In \c findClicked(), we validate to ensure that the user did not click the
+    \gui Find button without entering a contact's name. Then, we set
+    \c findText to the search string, extracted from \c lineEdit. After that,
+    we clear the contents of \c lineEdit and hide the dialog.
+
+    \snippet examples/addressbook-sdk/part5/finddialog.cpp findClicked
 */
 
 

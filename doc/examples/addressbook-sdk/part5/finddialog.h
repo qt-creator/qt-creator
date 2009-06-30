@@ -2,8 +2,8 @@
 #define FINDDIALOG_H
 
 #include <QtGui/QDialog>
-#include <QLineEdit>
-#include <QPushButton>
+#include <QtGui/QLineEdit>
+#include <QtGui/QPushButton>
 
 namespace Ui {
     class FindDialog;
@@ -14,10 +14,14 @@ class FindDialog : public QDialog {
 public:
     FindDialog(QWidget *parent = 0);
     ~FindDialog();
+//! [getFindText]
     QString getFindText();
+//! [getFindText]
 
+//! [findClicked]
 public slots:
     void findClicked();
+//! [findClicked]
 
 //! [private members]
 private:
