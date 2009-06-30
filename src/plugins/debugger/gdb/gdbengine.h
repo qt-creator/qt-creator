@@ -241,7 +241,6 @@ private:
     QByteArray m_pendingConsoleStreamOutput;
     QByteArray m_pendingTargetStreamOutput;
     QByteArray m_pendingLogStreamOutput;
-    //QString m_pwd;
 
     // contains the first token number for the current round
     // of evaluation. Responses with older tokens are considers
@@ -364,7 +363,6 @@ private:
    
     bool startModeAllowsDumpers() const;
 
-    QString m_editedData;
     int m_pendingRequests;
 
     QtDumperHelper m_dumperHelper;
@@ -380,8 +378,9 @@ private:
 
     QList<GdbCommand> m_commandsToRunOnTemporaryBreak;
 
-    DebuggerManager *q;
-    IDebuggerManagerAccessForEngines *qq;
+    DebuggerManager * const q;
+    IDebuggerManagerAccessForEngines * const qq;
+    // make sure to re-initialize new members in initializeVariables();
 };
 
 } // namespace Internal
