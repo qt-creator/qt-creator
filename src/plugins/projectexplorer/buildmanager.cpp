@@ -148,6 +148,7 @@ void BuildManager::clearBuildQueue()
 
     m_progressFutureInterface->reportCanceled();
     m_progressFutureInterface->reportFinished();
+    m_progressWatcher.setFuture(QFuture<void>());
     delete m_progressFutureInterface;
     m_progressFutureInterface = 0;
     m_maxProgress = 0;
