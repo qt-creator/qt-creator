@@ -1539,7 +1539,8 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 
     if (q->startMode() == AttachExternal || q->startMode() == AttachCrashedExternal) {
         postCommand(_("attach %1").arg(sp->attachPID), CB(handleAttach));
-        qq->breakHandler()->removeAllBreakpoints();
+        // Task 254674 does not want to remove them
+        //qq->breakHandler()->removeAllBreakpoints();
     } else if (q->startMode() == AttachCore) {
         QFileInfo fi(sp->executable);
         QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
