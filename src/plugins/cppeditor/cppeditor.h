@@ -103,11 +103,13 @@ public slots:
     void deleteEndOfToken();
 
 protected:
+    bool event(QEvent *e);
     void contextMenuEvent(QContextMenuEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
     void leaveEvent(QEvent *);
     void keyReleaseEvent(QKeyEvent *);
+    void keyPressEvent(QKeyEvent *);
 
     TextEditor::BaseTextEditorEditable *createEditableInterface();
 
@@ -120,9 +122,12 @@ private slots:
     void updateMethodBoxIndex();
     void updateMethodBoxIndexNow();
     void updateMethodBoxToolTip();
+    void updateUses();
+    void updateUsesNow();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
     void reformatDocument();
     void simplifyDeclarations();
+    void renameInPlace();
 
 private:
     bool sortedMethodOverview() const;
@@ -177,6 +182,10 @@ private:
     QSortFilterProxyModel *m_proxyModel;
     QAction *m_sortAction;
     QTimer *m_updateMethodBoxTimer;
+    QTimer *m_updateUsesTimer;
+
+    QList<QTextEdit::ExtraSelection> m_renameSelections;
+    int m_currentRenameSelection;
 };
 
 } // namespace Internal
