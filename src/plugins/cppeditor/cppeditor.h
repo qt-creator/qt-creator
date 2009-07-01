@@ -128,6 +128,7 @@ private slots:
     void reformatDocument();
     void simplifyDeclarations();
     void renameInPlace();
+    void onContentsChanged(int position, int charsRemoved, int charsAdded);
 
 private:
     bool sortedMethodOverview() const;
@@ -142,6 +143,8 @@ private:
     QTextCursor moveToNextToken(QTextCursor::MoveMode mode) const;
 
     void createToolBar(CPPEditorEditable *editable);
+
+    void abortRename();
 
     struct Link
     {
@@ -186,6 +189,7 @@ private:
 
     QList<QTextEdit::ExtraSelection> m_renameSelections;
     int m_currentRenameSelection;
+    bool m_inRename;
 };
 
 } // namespace Internal
