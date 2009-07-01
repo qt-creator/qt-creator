@@ -376,6 +376,9 @@ QString decodeData(const QByteArray &ba, int encoding)
             const QByteArray decodedBa = QByteArray::fromBase64(ba);
             return QString::fromUtf16(reinterpret_cast<const ushort *>(decodedBa.data()), decodedBa.size() / 2);
         }
+        case 5: { //  base64 encoded 8 bit data, without quotes (see 1)
+            return quoteUnprintableLatin1(QByteArray::fromBase64(ba));
+        }
     }
     return QCoreApplication::translate("Debugger", "<Encoding error>");
 }

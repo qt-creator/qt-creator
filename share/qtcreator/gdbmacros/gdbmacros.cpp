@@ -2248,7 +2248,7 @@ static void qDumpQVariant(QDumper &d)
     if (isInvalid) {
         P(d, "value", "(invalid)");
     } else if (value.isEmpty()) {
-        P(d, "value", "(" << v.typeName() << ") " << qPrintable(value));
+        P(d, "value", "(" << v.typeName() << ") ");
     } else {
         QByteArray ba;
         ba += '(';
@@ -2256,7 +2256,7 @@ static void qDumpQVariant(QDumper &d)
         ba += ") ";
         ba += qPrintable(value);
         P(d, "value", ba);
-        P(d, "valueencoded", "4");
+        P(d, "valueencoded", "5");
     }
     P(d, "type", NS"QVariant");
     P(d, "numchild", (isInvalid ? "0" : "1"));
