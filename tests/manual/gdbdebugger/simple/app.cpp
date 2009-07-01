@@ -468,6 +468,7 @@ void testQObject(int &argc, char *argv[])
 #endif
     QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
     QLabel l(str);
+    l.setObjectName("Some Label");
     l.show();
     app.exec();
 }
@@ -915,7 +916,13 @@ void testQVariant1()
 
 void testQVariant2()
 {
+    QVariant value;
+    QVariant::Type t = QVariant::String;
+    value = QVariant(t, (void*)0);
+    *(QString*)value.data() = QString("XXX");
+
     int i = 1;
+#if 0
     QVariant var;
     var.setValue(1);
     var.setValue(2);
@@ -927,6 +934,7 @@ void testQVariant2()
     var.setValue(QStringList() << "World" << "Hello");
     var.setValue(QStringList() << "Hello" << "Hello");
     var.setValue(QStringList() << "World" << "Hello" << "Hello");
+#endif
 #if 0
     QVariant var3;
     QHostAddress ha("127.0.0.1");

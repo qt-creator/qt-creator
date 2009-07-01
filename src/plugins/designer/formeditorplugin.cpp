@@ -35,6 +35,7 @@
 #ifdef CPP_ENABLED
 #  include "formclasswizard.h"
 #  include <cppeditor/cppeditorconstants.h>
+#  include "cppsettingspage.h"
 #endif
 
 #include "designerconstants.h"
@@ -60,24 +61,12 @@
 using namespace Designer::Internal;
 using namespace Designer::Constants;
 
-FormEditorPlugin::FormEditorPlugin() :
-    m_factory(0),
-    m_formWizard(0),
-    m_formClassWizard(0)
+FormEditorPlugin::FormEditorPlugin()
 {
 }
 
 FormEditorPlugin::~FormEditorPlugin()
 {
-    if (m_factory)
-        removeObject(m_factory);
-    if (m_formWizard)
-        removeObject(m_formWizard);
-    if (m_formClassWizard)
-        removeObject(m_formClassWizard);
-    delete m_factory;
-    delete m_formWizard;
-    delete m_formClassWizard;
     FormEditorW::deleteInstance();
 }
 
@@ -95,30 +84,28 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/formeditor/Designer.mimetypes.xml"), error))
         return false;
 
-    if (!initializeTemplates(error))
-        return false;
+    initializeTemplates();
 
     const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR));
     const QList<int> context = QList<int>() << uid;
 
-    m_factory = new FormEditorFactory;
-    addObject(m_factory);
+    addAutoReleasedObject(new FormEditorFactory);
 
     if (qgetenv("KDE_SESSION_VERSION") == QByteArray("4")) {
         // KDE 4, possibly dangerous...
         // KDE 4.2.0 had a nasty bug, which resulted in the File/Open Dialog crashing
         // so check for that an fully load the plugins
         QProcess proc;
-        proc.start("kde4-config", QStringList() << "--version");
+        proc.start(QLatin1String("kde4-config"), QStringList(QLatin1String("--version")));
         proc.waitForFinished();
-        QString output = proc.readAll();
+        const QByteArray output = proc.readAll();
         if (output.contains("KDE: 4.2.0"))
             FormEditorW::ensureInitStage(FormEditorW::FullyInitialized);
     } else {
         FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
     }
 
-    QString locale = qApp->property("qtc_locale").toString();
+    const QString locale = qApp->property("qtc_locale").toString();
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
         const QString &creatorTrPath =
@@ -143,26 +130,23 @@ void FormEditorPlugin::extensionsInitialized()
 //
 ////////////////////////////////////////////////////
 
-bool FormEditorPlugin::initializeTemplates(QString *error)
+void FormEditorPlugin::initializeTemplates()
 {
-    Q_UNUSED(error);
     FormWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setCategory(QLatin1String("Qt"));
     wizardParameters.setTrCategory(tr("Qt"));
     const QString formFileType = QLatin1String(Constants::FORM_FILE_TYPE);
     wizardParameters.setName(tr("Qt Designer Form"));
     wizardParameters.setDescription(tr("Creates a Qt Designer form file (.ui)."));
-    m_formWizard = new FormWizard(wizardParameters, this);
-    addObject(m_formWizard);
+    addAutoReleasedObject(new FormWizard(wizardParameters, this));
 
 #ifdef CPP_ENABLED
     wizardParameters.setKind(Core::IWizard::ClassWizard);
     wizardParameters.setName(tr("Qt Designer Form Class"));
     wizardParameters.setDescription(tr("Creates a Qt Designer form file (.ui) with a matching class."));
-    m_formClassWizard = new FormClassWizard(wizardParameters, this);
-    addObject(m_formClassWizard);
+    addAutoReleasedObject(new FormClassWizard(wizardParameters, this));
+    addAutoReleasedObject(new CppSettingsPage);
 #endif
-    return true;
 }
 
 Q_EXPORT_PLUGIN(FormEditorPlugin)

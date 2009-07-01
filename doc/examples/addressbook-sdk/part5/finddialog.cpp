@@ -1,5 +1,6 @@
 #include "finddialog.h"
 #include "ui_finddialog.h"
+#include <QMessageBox>
 
 //! [constructor]
 FindDialog::FindDialog(QWidget *parent) :
@@ -17,7 +18,7 @@ FindDialog::FindDialog(QWidget *parent) :
 
     connect(findButton, SIGNAL(clicked()), this, SLOT(findClicked()));
 
-    setWindowTItle(tr("Find a Contact"));
+    setWindowTitle(tr("Find a Contact"));
 }
 //! [constructor]
 

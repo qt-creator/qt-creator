@@ -58,8 +58,8 @@ using ProjectExplorer::ApplicationRunConfiguration;
 ////////////////////////////////////////////////////////////////////////
 
 // A factory to create DebuggerRunControls
-DebuggerRunner::DebuggerRunner(DebuggerManager *manager) :
-        m_manager(manager)
+DebuggerRunner::DebuggerRunner(DebuggerManager *manager)
+    : m_manager(manager)
 {}
 
 bool DebuggerRunner::canRun(RunConfigurationPtr runConfiguration, const QString &mode)
@@ -73,7 +73,7 @@ QString DebuggerRunner::displayName() const
     return tr("Debug");
 }
 
-RunControl* DebuggerRunner::run(RunConfigurationPtr runConfiguration,
+RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
                                 const QString &mode,
                                 const QSharedPointer<DebuggerStartParameters> &sp,
                                 DebuggerStartMode startMode)
@@ -81,13 +81,13 @@ RunControl* DebuggerRunner::run(RunConfigurationPtr runConfiguration,
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     ApplicationRunConfigurationPtr rc =
         runConfiguration.dynamicCast<ApplicationRunConfiguration>();
-    Q_ASSERT(!rc.isNull());
+    QTC_ASSERT(!rc.isNull(), return 0);
     //qDebug() << "***** Debugging" << rc->name() << rc->executable();
     DebuggerRunControl *runControl = new DebuggerRunControl(m_manager, startMode, sp, rc);
     return runControl;
 }
 
-RunControl* DebuggerRunner::run(RunConfigurationPtr runConfiguration,
+RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
     const QString &mode)
 {
     const QSharedPointer<DebuggerStartParameters> sp(new DebuggerStartParameters);

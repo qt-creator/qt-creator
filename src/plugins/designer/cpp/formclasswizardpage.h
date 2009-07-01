@@ -33,13 +33,16 @@
 #include <QtGui/QWizardPage>
 
 namespace Designer {
+
+struct FormClassWizardParameters;
+struct FormClassWizardGenerationParameters;
+
 namespace Internal {
 
 namespace Ui {
     class FormClassWizardPage;
 }
 
-struct FormClassWizardParameters;
 
 class FormClassWizardPage : public QWizardPage
 {
@@ -52,18 +55,17 @@ public:
     virtual bool isComplete () const;
     virtual bool validatePage();
 
-    int uiClassEmbedding() const;
-    bool hasRetranslationSupport() const;
     QString path() const;
 
     // Fill out applicable parameters
-    void getParameters(FormClassWizardParameters *) const;       
+    void getParameters(FormClassWizardParameters *) const;
+
+    FormClassWizardGenerationParameters generationParameters() const;
+    void setGenerationParameters(const FormClassWizardGenerationParameters &gp);
 
 public slots:
     void setClassName(const QString &suggestedClassName);
     void setPath(const QString &);
-    void setRetranslationSupport(bool);
-    void setUiClassEmbedding(int v);
     void slotSettings();
 
 private slots:
@@ -71,8 +73,6 @@ private slots:
 
 private:
     void initParameters();
-    void saveSettings();
-    void restoreSettings();
 
     Ui::FormClassWizardPage *m_ui;
     bool m_isValid;

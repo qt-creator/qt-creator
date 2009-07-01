@@ -318,6 +318,8 @@ public slots:
     void executeDebuggerCommand();
     void executeDebuggerCommand(const QString &command);
 
+    void watchPoint();
+
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
 private slots:

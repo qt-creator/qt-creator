@@ -87,17 +87,17 @@ QWizard *FormClassWizard::createWizardDialog(QWidget *parent,
 Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *errorMessage) const
 {
     const FormClassWizardDialog *wizardDialog = qobject_cast<const FormClassWizardDialog *>(w);
-    const FormClassWizardParameters params = wizardDialog->parameters();
+    const Designer::FormClassWizardParameters params = wizardDialog->parameters();
 
-    if (params.uiTemplate.isEmpty()) {
+    if (params.uiTemplate().isEmpty()) {
         *errorMessage = QLatin1String("Internal error: FormClassWizard::generateFiles: empty template contents");
         return Core::GeneratedFiles();
     }
 
     // header
-    const QString formFileName = buildFileName(params.path, params.uiFile, formSuffix());
-    const QString headerFileName = buildFileName(params.path, params.headerFile, headerSuffix());
-    const QString sourceFileName = buildFileName(params.path, params.sourceFile, sourceSuffix());
+    const QString formFileName = buildFileName(params.path(), params.uiFile(), formSuffix());
+    const QString headerFileName = buildFileName(params.path(), params.headerFile(), headerSuffix());
+    const QString sourceFileName = buildFileName(params.path(), params.sourceFile(), sourceSuffix());
 
     Core::GeneratedFile headerFile(headerFileName);
     headerFile.setEditorKind(QLatin1String(CppEditor::Constants::CPPEDITOR_KIND));
@@ -108,11 +108,13 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
 
     // UI
     Core::GeneratedFile uiFile(formFileName);
-    uiFile.setContents(params.uiTemplate);
+    uiFile.setContents(params.uiTemplate());
     uiFile.setEditorKind(QLatin1String(Constants::C_FORMEDITOR));
 
     QString source, header;
-    params.generateCpp(&header, &source);
+    Designer::FormClassWizardGenerationParameters generationParameters;
+    generationParameters.fromSettings(Core::ICore::instance()->settings());
+    params.generateCpp(generationParameters, &header, &source);
     sourceFile.setContents(source);
     headerFile.setContents(header);
 

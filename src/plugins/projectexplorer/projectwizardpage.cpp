@@ -53,8 +53,11 @@ ProjectWizardPage::~ProjectWizardPage()
 
 void ProjectWizardPage::setProjects(const QStringList &l)
 {
+    QStringList list = l;
+    list.removeDuplicates();
+    list.sort();
     m_ui->projectComboBox->clear();
-    m_ui->projectComboBox->addItems(l);
+    m_ui->projectComboBox->addItems(list);
 }
 
 void ProjectWizardPage::setAddToProjectEnabled(bool b)

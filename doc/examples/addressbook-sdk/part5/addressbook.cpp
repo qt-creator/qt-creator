@@ -41,10 +41,12 @@ AddressBook::AddressBook(QWidget *parent)
     removeButton = ui->removeButton;
     removeButton->setEnabled(false);
 
+//! [private members]
     findButton = new QPushButton;
     findButton = ui->findButton;
 
     dialog = new FindDialog;
+//! [private members]
 
     connect(addButton, SIGNAL(clicked()), this,
                 SLOT(addContact()));
@@ -60,8 +62,10 @@ AddressBook::AddressBook(QWidget *parent)
                 SLOT(editContact()));
     connect(removeButton, SIGNAL(clicked()), this,
                 SLOT(removeContact()));
+//! [signal slot]
     connect(findButton, SIGNAL(clicked()), this,
                 SLOT(findContact()));
+//! [signal slot]
 
     setWindowTitle(tr("Simple Address Book"));
 }
@@ -234,6 +238,9 @@ void AddressBook::updateInterface(Mode mode)
         int number = contacts.size();
         editButton->setEnabled(number >= 1);
         removeButton->setEnabled(number >= 1);
+//! [enable]
+        findButton->setEnabled(number > 2);
+//! [enable]
         nextButton->setEnabled(number > 1);
         previousButton->setEnabled(number >1);
 

@@ -27,55 +27,55 @@
 **
 **************************************************************************/
 
-#include "settingspage.h"
-#include "designerconstants.h"
+#ifndef CPPSETTINGSPAGE_H
+#define CPPSETTINGSPAGE_H
 
-#include <extensionsystem/pluginmanager.h>
-#include <qt_private/abstractoptionspage_p.h>
-#include <QtCore/QCoreApplication>
+#include "formclasswizardparameters.h"
+#include "ui_cppsettingspagewidget.h"
 
-using namespace Designer::Internal;
+#include <coreplugin/dialogs/ioptionspage.h>
 
-SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
-    m_designerPage(designerPage)
+#include <QtCore/QPointer>
+
+namespace Designer {
+namespace Internal {
+
+class CppSettingsPageWidget : public QWidget
 {
-}
+    Q_OBJECT
+public:
+    explicit CppSettingsPageWidget(QWidget *parent = 0);
 
-SettingsPage::~SettingsPage()
-{
-}
+    FormClassWizardGenerationParameters parameters() const;
+    void setParameters(const FormClassWizardGenerationParameters &p);
 
-QString SettingsPage::id() const
-{
-    return m_designerPage->name();
-}
+private:
+    int uiEmbedding() const;
+    void setUiEmbedding(int);
 
-QString SettingsPage::trName() const
-{
-    return m_designerPage->name();
-}
+    Ui::CppSettingsPageWidget m_ui;
+};
 
-QString SettingsPage::category() const
+class CppSettingsPage : public Core::IOptionsPage
 {
-    return QLatin1String(Designer::Constants::SETTINGS_CATEGORY);
-}
+public:
+    explicit CppSettingsPage(QObject *parent = 0);
 
-QString SettingsPage::trCategory() const
-{
-    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_CATEGORY);
-}
+    virtual QString id() const;
+    virtual QString trName() const;
+    virtual QString category() const;
+    virtual QString trCategory() const;
 
-QWidget *SettingsPage::createPage(QWidget *parent)
-{
-    return m_designerPage->createPage(parent);
-}
+    virtual QWidget *createPage(QWidget *parent);
+    virtual void apply();
+    virtual void finish();
 
-void SettingsPage::apply()
-{
-    m_designerPage->apply();
-}
+private:
+    QPointer<CppSettingsPageWidget> m_widget;
+    FormClassWizardGenerationParameters m_parameters;
+};
 
-void SettingsPage::finish()
-{
-    m_designerPage->finish();
-}
+} // namespace Internal
+} // namespace Designer
+
+#endif // CPPSETTINGSPAGE_H

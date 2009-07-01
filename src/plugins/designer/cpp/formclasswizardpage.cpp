@@ -43,10 +43,6 @@
 #include <QtGui/QAbstractButton>
 #include <QtGui/QMessageBox>
 
-static const char *formClassWizardPageGroupC = "FormClassWizardPage";
-static const char *translationKeyC = "RetranslationSupport";
-static const char *embeddingModeKeyC = "Embedding";
-
 namespace Designer {
 namespace Internal {
 
@@ -64,13 +60,7 @@ FormClassWizardPage::FormClassWizardPage(QWidget * parent) :
     m_ui->newClassWidget->setAllowDirectories(true);
 
     connect(m_ui->newClassWidget, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
-
-    m_ui->extensionWidget->setVisible(false);
-    connect(m_ui->moreButton, SIGNAL(clicked(bool)), m_ui->extensionWidget, SLOT(setVisible(bool)));
-
     connect(m_ui->settingsToolButton, SIGNAL(clicked()), this, SLOT(slotSettings()));
-
-    restoreSettings();
 }
 
 FormClassWizardPage::~FormClassWizardPage()
@@ -79,13 +69,13 @@ FormClassWizardPage::~FormClassWizardPage()
 }
 
 // Retrieve settings of CppTools plugin.
-static inline bool lowerCaseFiles(const Core::ICore *core)
+static  bool inline lowerCaseFiles(const Core::ICore *core)
 {
-    QString camelCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
-    camelCaseSettingsKey += QLatin1Char('/');
-    camelCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
+    QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
+    lowerCaseSettingsKey += QLatin1Char('/');
+    lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
 
-    return core->settings()->value(camelCaseSettingsKey, QVariant(false)).toBool();
+    return core->settings()->value(lowerCaseSettingsKey, QVariant(false)).toBool();
 }
 
 // Set up new class widget from settings
@@ -115,40 +105,6 @@ void FormClassWizardPage::setClassName(const QString &suggestedClassName)
     slotValidChanged();
 }
 
-int FormClassWizardPage::uiClassEmbedding() const
-{
-    if (m_ui->ptrAggregationRadioButton->isChecked())
-        return PointerAggregatedUiClass;
-    if (m_ui->aggregationButton->isChecked())
-        return AggregatedUiClass;
-    return InheritedUiClass;
-}
-
-void FormClassWizardPage::setUiClassEmbedding(int v)
-{
-    switch (v) {
-    case PointerAggregatedUiClass:
-        m_ui->ptrAggregationRadioButton->setChecked(true);
-        break;
-    case AggregatedUiClass:
-        m_ui->aggregationButton->setChecked(true);
-        break;
-    case InheritedUiClass:
-        m_ui->multipleInheritanceButton->setChecked(true);
-        break;
-    }
-}
-
-bool FormClassWizardPage::hasRetranslationSupport() const
-{
-    return m_ui->retranslateCheckBox->isChecked();
-}
-
-void FormClassWizardPage::setRetranslationSupport(bool v)
-{
-    m_ui->retranslateCheckBox->setChecked(v);
-}
-
 QString FormClassWizardPage::path() const
 {
     return m_ui->newClassWidget->path();
@@ -161,13 +117,11 @@ void FormClassWizardPage::setPath(const QString &p)
 
 void FormClassWizardPage::getParameters(FormClassWizardParameters *p) const
 {
-    p->embedding = static_cast<UiClassEmbedding>(uiClassEmbedding());
-    p->languageChange = m_ui->retranslateCheckBox->isChecked();
-    p->className = m_ui->newClassWidget->className();
-    p->path = path();
-    p->sourceFile = m_ui->newClassWidget->sourceFileName();
-    p->headerFile = m_ui->newClassWidget->headerFileName();
-    p->uiFile = m_ui->newClassWidget-> formFileName();
+    p->setClassName(m_ui->newClassWidget->className());
+    p->setPath(path());
+    p->setSourceFile(m_ui->newClassWidget->sourceFileName());
+    p->setHeaderFile(m_ui->newClassWidget->headerFileName());
+    p->setUiFile(m_ui->newClassWidget-> formFileName());
 }
 
 void FormClassWizardPage::slotValidChanged()
@@ -188,46 +142,10 @@ bool FormClassWizardPage::validatePage()
 {
     QString errorMessage;
     const bool rc = m_ui->newClassWidget->isValid(&errorMessage);
-    if (rc) {
-        saveSettings();
-    }  else {
+    if (!rc) {
         QMessageBox::critical(this, tr("%1 - Error").arg(title()), errorMessage);
     }
     return rc;
-}
-
-void FormClassWizardPage::saveSettings()
-{
-    Core::ICore *core = Core::ICore::instance();
-    if (QSettings *settings = core->settings()) {
-        settings->beginGroup(QLatin1String(formClassWizardPageGroupC));
-        settings->setValue(QLatin1String(translationKeyC), hasRetranslationSupport());
-        settings->setValue(QLatin1String(embeddingModeKeyC), uiClassEmbedding());
-        settings->endGroup();
-    }
-}
-
-void FormClassWizardPage::restoreSettings()
-{
-    bool retranslationSupport = true;
-    int embedding =  PointerAggregatedUiClass;
-
-    Core::ICore *core = Core::ICore::instance();
-    if (QSettings *settings = core->settings()) {
-
-        QString key = QLatin1String(formClassWizardPageGroupC);
-        key += QLatin1Char('/');
-        const int groupLength = key.size();
-
-        key += QLatin1String(translationKeyC);
-        retranslationSupport = settings->value(key, retranslationSupport).toBool();
-
-        key.truncate(groupLength);
-        key += QLatin1String(embeddingModeKeyC);
-        embedding =  settings->value(key, embedding).toInt();
-    }
-    setUiClassEmbedding(embedding);
-    setRetranslationSupport(retranslationSupport);
 }
 
 } // namespace Internal
