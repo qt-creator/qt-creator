@@ -1,5 +1,5 @@
 
-#include <QApplication>
+#include <QCoreApplication>
 
 extern "C"
 void qDumpObjectData440(
@@ -14,6 +14,6 @@ void qDumpObjectData440(
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
     return 0;
 }
