@@ -164,14 +164,16 @@ QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &direc
     output += "\n";
 
     QString makeFullPath = env.searchInPath(makeCommand);
-    if (!makeFullPath.isEmpty()) {
-        output += QString("Running %1 clean...\n").arg(makeFullPath);
-        proc.start(makeFullPath, QStringList() << "clean");
-        proc.waitForFinished();
-        output += proc.readAll();
-    } else {
-        output += QString("%1 not found in PATH\n").arg(makeCommand);
-        return output;
+    if (QFileInfo(directory + "/Makefile").exists()) {
+        if (!makeFullPath.isEmpty()) {
+            output += QString("Running %1 clean...\n").arg(makeFullPath);
+            proc.start(makeFullPath, QStringList() << "clean");
+            proc.waitForFinished();
+            output += proc.readAll();
+        } else {
+            output += QString("%1 not found in PATH\n").arg(makeCommand);
+            return output;
+        }
     }
 
     output += QString("\nRunning %1 ...\n").arg(qmakeCommand);
