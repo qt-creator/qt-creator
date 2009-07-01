@@ -107,6 +107,14 @@ SideBarWidget *SideBar::insertSideBarWidget(int position, const QString &title)
     return item;
 }
 
+void SideBar::removeSideBarWidget(SideBarWidget *widget)
+{
+    widget->removeCurrentItem();
+    m_widgets.removeOne(widget);
+    widget->hide();
+    widget->deleteLater();
+}
+
 void SideBar::split()
 {
     SideBarWidget *original = qobject_cast<SideBarWidget*>(sender());
@@ -121,10 +129,7 @@ void SideBar::close()
         SideBarWidget *widget = qobject_cast<SideBarWidget*>(sender());
         if (!widget)
             return;
-        widget->removeCurrentItem();
-        m_widgets.removeOne(widget);
-        widget->hide();
-        widget->deleteLater();
+        removeSideBarWidget(widget);
         updateWidgets();
     }
 }
@@ -148,6 +153,9 @@ void SideBar::saveSettings(QSettings *settings)
 
 void SideBar::readSettings(QSettings *settings)
 {
+    foreach (SideBarWidget *widget, m_widgets)
+        removeSideBarWidget(widget);
+
     if (settings->contains("HelpSideBar/Views")) {
         QStringList views = settings->value("HelpSideBar/Views").toStringList();
         if (views.count()) {
