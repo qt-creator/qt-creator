@@ -864,53 +864,53 @@ Voulez vous les écraser?</translation>
         <location filename="../../../src/plugins/coreplugin/editormanager/editormanager.cpp" line="+192"/>
         <location line="+1565"/>
         <source>Revert to Saved</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Revenir à la version sauvegardée</translation>
     </message>
     <message>
         <location line="-1562"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Close All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer Tout</translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+1282"/>
         <source>Close Others</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer les Autres Éditeurs</translation>
     </message>
     <message>
         <location line="-1281"/>
         <source>Next Document in History</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Document Suivant dans l&apos;Historique</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Previous Document in History</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Document Précédent dans l&apos;Historique</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Go Back</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Précédent</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Go Forward</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Suivant</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Open in External Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir dans l&apos;Éditeur Externe</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>Revert File to Saved</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Restaurer le fichier sauvegardé</translation>
     </message>
     <message>
         <location line="+43"/>
@@ -965,7 +965,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+5"/>
         <source>Split</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Scinder</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -975,7 +975,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+5"/>
         <source>Split Side by Side</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Scinder Verticalement</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -985,7 +985,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+5"/>
         <source>Remove Current Split</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer la Vue Courante</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -995,7 +995,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+5"/>
         <source>Remove All Splits</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer toutes les vues</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1005,7 +1005,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+5"/>
         <source>Goto Other Split</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Changer de vue</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1015,7 +1015,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+9"/>
         <source>&amp;Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Avancé</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -1026,104 +1026,104 @@ Voulez vous les écraser?</translation>
         <location line="+732"/>
         <location line="+23"/>
         <source>Opening File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouverture du Fichier</translation>
     </message>
     <message>
         <location line="-23"/>
         <source>Cannot open file %1!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir le fichier %1!</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>Open File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir le Fichier</translation>
     </message>
     <message>
         <location line="+140"/>
         <source>File is Read Only</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le Fichier est en Lecture Seule</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The file %1 is read only.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le fichier %1 est en lecture seule.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Open with VCS (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir avec VCS (%1)</translation>
     </message>
     <message>
         <location line="+2"/>
         <location line="+130"/>
         <source>Make writable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rendre Inscriptible</translation>
     </message>
     <message>
         <location line="-126"/>
         <source>Save as ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enregistrer sous...</translation>
     </message>
     <message>
         <location line="+27"/>
         <location line="+8"/>
         <source>Failed!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Échec!</translation>
     </message>
     <message>
         <location line="-8"/>
         <source>Could not open the file for editing with SCC.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir le fichier pour écrire avec SCC.</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Could not set permissions to writable.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;attribuer les droits en écriture.</translation>
     </message>
     <message>
         <location line="+90"/>
         <source>&lt;b&gt;Warning:&lt;/b&gt; You are changing a read-only file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;b&gt;Attention:&lt;/b&gt; Vous apportez des modifications à un fichier en lecture seule.</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Save %1 As...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enregistrer %1 sous...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Save %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enregi&amp;strer %1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Revert %1 to Saved</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Restaurer %1</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Close %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer %1</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Close All Except %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer tout sauf %1</translation>
     </message>
     <message>
         <location line="+279"/>
         <source>You will lose your current changes if you proceed reverting %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vous perdrez tous les changements en cours si vous restaurez %1.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Proceed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Continuer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annuler</translation>
     </message>
     <message>
         <location line="+54"/>
@@ -1136,27 +1136,27 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/filemanager.cpp" line="+305"/>
         <source>Can&apos;t save file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de sauver le fichier</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Can&apos;t save changes to &apos;%1&apos;. Do you want to continue and loose your changes?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de sauvegarder les modifications dans &apos;%1&apos;. Voulez vous continuer et perdre vos modifications?</translation>
     </message>
     <message>
         <location line="+113"/>
         <source>Overwrite?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Écraser?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>An item named &apos;%1&apos; already exists at this location. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Un élément nommé &apos;%1&apos; existe déjà. Voulez-vous l&apos;écraser?</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>Save File As</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enregistrer sous</translation>
     </message>
 </context>
 <context>
@@ -1164,7 +1164,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="+362"/>
         <source>Activate %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Activer %1</translation>
     </message>
 </context>
 <context>
@@ -1172,7 +1172,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/editmode.cpp" line="+94"/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier</translation>
     </message>
 </context>
 <context>
@@ -1180,32 +1180,32 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/editormanager/editorsplitter.cpp" line="+75"/>
         <source>Split Left/Right</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Scinder Gauche/Droite</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Split Top/Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Scinder Haut/Bas</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Unsplit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer la vue courante</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Default Splitter Layout</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Arrangement par Défaut</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Save Current as Default</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sauvegarder comme Arrangement par Défaut</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Restore Default Layout</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Restaurer l&apos;Arrangement par Défaut</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -1220,7 +1220,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+5"/>
         <source>Next Document</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Document Suivant</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1230,22 +1230,22 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+6"/>
         <source>Previous Group</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Groupe Précédent</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Next Group</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Groupe Suivant</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Move Document to Previous Group</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Déplacer le Document vers le Groupe Précédent</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Move Document to Next Group</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Déplacer le Document vers le Groupe Suivant</translation>
     </message>
 </context>
 <context>
@@ -1259,22 +1259,22 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="-29"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer</translation>
     </message>
     <message>
         <location line="+198"/>
         <source>Make writable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rendre Inscriptible</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>File is writable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le Fichier est Inscriptible</translation>
     </message>
     <message>
         <location line="+57"/>
         <source>Copy full path to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copier le chemin complet vers le presse-papier</translation>
     </message>
 </context>
 <context>
@@ -1335,7 +1335,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/mainwindow.cpp" line="+155"/>
         <source>Qt Creator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt Creator</translation>
     </message>
     <message>
         <location line="+144"/>
@@ -1345,59 +1345,59 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+162"/>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Fichier</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Édition</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>&amp;Tools</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">O&amp;utils</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>&amp;Window</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">F&amp;enêtre</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Aide</translation>
     </message>
     <message>
         <location line="+62"/>
         <source>&amp;New...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Nouveau...</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&amp;Open...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Ouvrir...</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&amp;Open With...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ou&amp;vrir avec...</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Recent Files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichiers récents</translation>
     </message>
     <message>
         <location line="+3"/>
         <location line="+4"/>
         <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Enregistrer</translation>
     </message>
     <message>
         <location line="+4"/>
         <location line="+6"/>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enregistrer &amp;sous...</translation>
     </message>
     <message>
         <location line="-3"/>
@@ -1408,17 +1408,17 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="-3"/>
         <source>Save A&amp;ll</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Tout enregistrer</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>&amp;Print...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Im&amp;primer...</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>E&amp;xit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Quitter</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1429,38 +1429,38 @@ Voulez vous les écraser?</translation>
         <location line="+5"/>
         <location line="+4"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annu&amp;ler</translation>
     </message>
     <message>
         <location line="+5"/>
         <location line="+4"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Re&amp;faire</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Co&amp;uper</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cop&amp;ier</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">C&amp;oller</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&amp;Select All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tout &amp;sélectionner</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&amp;Go To Line...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Aller à la ligne...</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1470,7 +1470,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+5"/>
         <source>&amp;Options...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Options...</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -1519,7 +1519,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/messageoutputwindow.cpp" line="+76"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Général</translation>
     </message>
 </context>
 <context>
@@ -1527,7 +1527,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/navigationwidget.cpp" line="+525"/>
         <source>Activate %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Activer %1</translation>
     </message>
 </context>
 <context>
@@ -1535,12 +1535,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="-149"/>
         <source>Split</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Scinder</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer</translation>
     </message>
 </context>
 <context>
@@ -1548,7 +1548,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="-35"/>
         <source>Activate %1 Pane</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Activer le Panneau %1</translation>
     </message>
 </context>
 <context>
@@ -1556,7 +1556,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/newdialog.ui"/>
         <source>New Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nouveau Projet</translation>
     </message>
     <message>
         <location/>
@@ -1569,32 +1569,33 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/editormanager/openeditorsview.cpp" line="+99"/>
         <source>Open Documents</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>NB:il ne s&apos;agit pas ici d&apos;une action mais du panneau affichant les documents ouverts</translatorcomment>
+        <translation type="unfinished">Documents Ouverts</translation>
     </message>
     <message>
         <location line="+77"/>
         <source>Close %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer %1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Close Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer l&apos;Éditeur</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Close All Except %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer Tout Sauf %1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Close Other Editors</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer les Autres Éditeurs</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Close All Editors</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer Tous les Éditeurs</translation>
     </message>
 </context>
 <context>
@@ -1602,7 +1603,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/editormanager/openeditorswindow.cpp" line="+211"/>
         <source>*</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">*</translation>
     </message>
 </context>
 <context>
@@ -1610,7 +1611,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/openwithdialog.cpp" line="+43"/>
         <source>Open file &apos;%1&apos; with:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir le fichier %1 avec:</translation>
     </message>
 </context>
 <context>
