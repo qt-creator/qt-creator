@@ -27,43 +27,55 @@
 **
 **************************************************************************/
 
-#include "FastPreprocessor.h"
+#ifndef CPPSETTINGSPAGE_H
+#define CPPSETTINGSPAGE_H
 
-using namespace CPlusPlus;
+#include "formclasswizardparameters.h"
+#include "ui_cppsettingspagewidget.h"
 
-FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
-    : _snapshot(snapshot),
-      _preproc(this, &_env)
-{ }
+#include <coreplugin/dialogs/ioptionspage.h>
 
-QByteArray FastPreprocessor::run(QString fileName, const QString &source)
+#include <QtCore/QPointer>
+
+namespace Designer {
+namespace Internal {
+
+class CppSettingsPageWidget : public QWidget
 {
-#ifdef QTCREATOR_WITH_MERGED_ENVIRONMENT
-    if (Document::Ptr doc = _snapshot.value(fileName)) {
-        _merged.insert(fileName);
+    Q_OBJECT
+public:
+    explicit CppSettingsPageWidget(QWidget *parent = 0);
 
-        foreach (const Document::Include &i, doc->includes())
-            mergeEnvironment(i.fileName());
-    }
-#endif
+    FormClassWizardGenerationParameters parameters() const;
+    void setParameters(const FormClassWizardGenerationParameters &p);
 
-    const QByteArray preprocessed = _preproc(fileName, source);
-    return preprocessed;
-}
+private:
+    int uiEmbedding() const;
+    void setUiEmbedding(int);
 
-void FastPreprocessor::sourceNeeded(QString &fileName, IncludeType, unsigned)
-{ mergeEnvironment(fileName); }
+    Ui::CppSettingsPageWidget m_ui;
+};
 
-void FastPreprocessor::mergeEnvironment(const QString &fileName)
+class CppSettingsPage : public Core::IOptionsPage
 {
-    if (! _merged.contains(fileName)) {
-        _merged.insert(fileName);
+public:
+    explicit CppSettingsPage(QObject *parent = 0);
 
-        if (Document::Ptr doc = _snapshot.value(fileName)) {
-            foreach (const Document::Include &i, doc->includes())
-                mergeEnvironment(i.fileName());
+    virtual QString id() const;
+    virtual QString trName() const;
+    virtual QString category() const;
+    virtual QString trCategory() const;
 
-            _env.addMacros(doc->definedMacros());
-        }
-    }
-}
+    virtual QWidget *createPage(QWidget *parent);
+    virtual void apply();
+    virtual void finish();
+
+private:
+    QPointer<CppSettingsPageWidget> m_widget;
+    FormClassWizardGenerationParameters m_parameters;
+};
+
+} // namespace Internal
+} // namespace Designer
+
+#endif // CPPSETTINGSPAGE_H

@@ -115,6 +115,7 @@ private:
 
     void assignValueInDebugger(const QString &expr, const QString &value);
     void executeDebuggerCommand(const QString & command);
+    void watchPoint(const QPoint &);
 
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
@@ -220,6 +221,7 @@ private:
     void handleExit(const GdbResultRecord &, const QVariant &);
     void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
     void handleTargetRemote(const GdbResultRecord &, const QVariant &);
+    void handleWatchPoint(const GdbResultRecord &, const QVariant &);
     void debugMessage(const QString &msg);
     bool showToolTip();
 

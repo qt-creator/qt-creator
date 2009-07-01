@@ -103,6 +103,42 @@ static int &currentToken()
     return token;
 }
 
+// reads a MI-encoded item frome the consolestream
+static bool parseConsoleStream(const GdbResultRecord &record, GdbMi *contents)
+{
+    GdbMi output = record.data.findChild("consolestreamoutput");
+    QByteArray out = output.data();
+
+    int markerPos = out.indexOf('"') + 1; // position of 'success marker'
+    if (markerPos == 0 || out.at(markerPos) == 'f') {  // 't' or 'f'
+        // custom dumper produced no output
+        return false;
+    }
+
+    out = out.mid(markerPos +  1);
+    out = out.left(out.lastIndexOf('"'));
+    // optimization: dumper output never needs real C unquoting
+    out.replace('\\', "");
+    out = "dummy={" + out + "}";
+
+    contents->fromString(out);
+    //qDebug() << "CONTENTS" << contents->toString(true);
+    return contents->isValid();
+}
+
+static QByteArray parsePlainConsoleStream(const GdbResultRecord &record)
+{
+    GdbMi output = record.data.findChild("consolestreamoutput");
+    QByteArray out = output.data();
+    // FIXME: proper decoding needed
+    if (out.endsWith("\\n"))
+        out.chop(2);
+    while (out.endsWith('\n') || out.endsWith(' '))
+        out.chop(1);
+    int pos = out.indexOf(" = ");
+    return out.mid(pos + 3);
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // GdbEngine
@@ -2820,9 +2856,10 @@ static void setWatchDataSAddress(WatchData &data, const GdbMi &mi)
 
 void GdbEngine::setUseDebuggingHelpers(const QVariant &on)
 {
-    qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
+    //qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
     //m_expandedINames.clear();
+    Q_UNUSED(on);
     setTokenBarrier();
     updateLocals();
 }
@@ -3111,16 +3148,9 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
 {
     m_dumperHelper.clear();
     //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
-    GdbMi output = record.data.findChild("consolestreamoutput");
-    QByteArray out = output.data();
-    out = out.mid(out.indexOf('"') + 2); // + 1 is success marker
-    out = out.left(out.lastIndexOf('"'));
-    out.replace('\\', ""); // optimization: dumper output never needs real C unquoting
-    out = "dummy={" + out + "}";
-    //qDebug() << "OUTPUT:" << out;
 
     GdbMi contents;
-    contents.fromString(out);
+    QTC_ASSERT(parseConsoleStream(record, &contents), /**/);
     GdbMi simple = contents.findChild("dumpers");
 
     m_dumperHelper.setQtNamespace(_(contents.findChild("namespace").data()));
@@ -3281,11 +3311,7 @@ void GdbEngine::handleDebuggingHelperValue1(const GdbResultRecord &record,
     if (record.resultClass == GdbResultDone) {
         // ignore this case, data will follow
     } else if (record.resultClass == GdbResultError) {
-        // Record an extra result, as the socket result will be lost
-        // in transmission
-        //--m_pendingRequests;
         QString msg = QString::fromLocal8Bit(record.data.findChild("msg").data());
-        //qDebug() << "CUSTOM DUMPER ERROR MESSAGE:" << msg;
 #ifdef QT_DEBUG
         // Make debugging of dumpers easier
         if (theDebuggerBoolSetting(DebugDebuggingHelpers)
@@ -3296,12 +3322,6 @@ void GdbEngine::handleDebuggingHelperValue1(const GdbResultRecord &record,
             return;
         }
 #endif
-        //if (msg.startsWith("The program being debugged was sig"))
-        //    msg = strNotInScope;
-        //if (msg.startsWith("The program being debugged stopped while"))
-        //    msg = strNotInScope;
-        //data.setError(msg);
-        //insertData(data);
     }
 }
 
@@ -3310,6 +3330,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
 {
     WatchData data = cookie.value<WatchData>();
     QTC_ASSERT(data.isValid(), return);
+
     //qDebug() << "CUSTOM VALUE RESULT:" << record.toString();
     //qDebug() << "FOR DATA:" << data.toString() << record.resultClass;
     if (record.resultClass != GdbResultDone) {
@@ -3317,26 +3338,8 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
         return;
     }
 
-    GdbMi output = record.data.findChild("consolestreamoutput");
-    QByteArray out = output.data();
-
-    int markerPos = out.indexOf('"') + 1; // position of 'success marker'
-    if (markerPos == 0 || out.at(markerPos) == 'f') {  // 't' or 'f'
-        // custom dumper produced no output
-        data.setError(strNotInScope);
-        insertData(data);
-        return;
-    }
-
-    out = out.mid(markerPos +  1);
-    out = out.left(out.lastIndexOf('"'));
-    out.replace('\\', ""); // optimization: dumper output never needs real C unquoting
-    out = "dummy={" + out + "}";
-
     GdbMi contents;
-    contents.fromString(out);
-    //qDebug() << "CONTENTS" << contents.toString(true);
-    if (!contents.isValid()) {
+    if (!parseConsoleStream(record, &contents)) {
         data.setError(strNotInScope);
         insertData(data);
         return;
@@ -3759,60 +3762,6 @@ void GdbEngine::handleVarListChildren(const GdbResultRecord &record,
     }
 }
 
-/*
-void GdbEngine::handleToolTip(const GdbResultRecord &record,
-        const QVariant &cookie)
-{
-    const QByteArray &what = cookie.toByteArray();
-    //qDebug() << "HANDLE TOOLTIP:" << what << m_toolTip.toString();
-    //    << "record: " << record.toString();
-    if (record.resultClass == GdbResultError) {
-        if (what == "create") {
-            postCommand(_("ptype ") + m_toolTip.exp,
-                Discardable, CB(handleToolTip), QByteArray("ptype"));
-            return;
-        }
-        if (what == "evaluate") {
-            QByteArray msg = record.data.findChild("msg").data();
-            if (msg.startsWith("Cannot look up value of a typedef")) {
-                m_toolTip.value = tr("%1 is a typedef.").arg(m_toolTip.exp);
-                //return;
-            }
-        }
-    } else if (record.resultClass == GdbResultDone) {
-        if (what == "create") {
-            setWatchDataType(m_toolTip, record.data.findChild("type"));
-            setWatchDataChildCount(m_toolTip, record.data.findChild("numchild"));
-            if (hasDebuggingHelperForType(m_toolTip.type))
-                runDebuggingHelper(m_toolTip, false);
-            else
-                q->showStatusMessage(tr("Retrieving data for tooltip..."), 10000);
-                postCommand(_("-data-evaluate-expression ") + m_toolTip.exp,
-                    Discardable, CB(handleToolTip), QByteArray("evaluate"));
-            return;
-        }
-        if (what == "evaluate") {
-            m_toolTip.value = m_toolTip.type + _c(' ') + m_toolTip.exp
-                   + _(" = " + record.data.findChild("value").data());
-            //return;
-        }
-        if (what == "ptype") {
-            GdbMi mi = record.data.findChild("consolestreamoutput");
-            m_toolTip.value = extractTypeFromPTypeOutput(_(mi.data()));
-            //return;
-        }
-    }
-
-    m_toolTip.iname = tooltipIName;
-    m_toolTip.setChildrenUnneeded();
-    m_toolTip.setHasChildrenUnneeded();
-    insertData(m_toolTip);
-    qDebug() << "DATA INSERTED";
-    QTimer::singleShot(0, this, SLOT(updateWatchModel2()));
-    qDebug() << "HANDLE TOOLTIP END";
-}
-*/
-
 #if 0
 void GdbEngine::handleChangedItem(QStandardItem *item)
 {
@@ -3931,6 +3880,29 @@ bool GdbEngine::startModeAllowsDumpers() const
     return q->startMode() == StartInternal
         || q->startMode() == StartExternal
         || q->startMode() == AttachExternal;
+}
+
+void GdbEngine::watchPoint(const QPoint &pnt)
+{
+    //qDebug() << "WATCH " << pnt;
+    postCommand(_("call (void*)watchPoint(%1,%2)").arg(pnt.x()).arg(pnt.y()),
+        NeedsStop, CB(handleWatchPoint));
+}
+
+void GdbEngine::handleWatchPoint(const GdbResultRecord &record, const QVariant &)
+{
+    //qDebug() << "HANDLE WATCH POINT:" << record.toString();
+    if (record.resultClass == GdbResultDone) {
+        GdbMi contents = record.data.findChild("consolestreamoutput");
+        // "$5 = (void *) 0xbfa7ebfc\n"
+        QString str = _(parsePlainConsoleStream(record));
+        // "(void *) 0xbfa7ebfc"
+        QString addr = str.mid(9);
+        QString ns = m_dumperHelper.qtNamespace();
+        QString type = ns.isEmpty() ? _("QWidget*") : _("'%1QWidget'*").arg(ns);
+        QString exp = _("(*(%1)%2)").arg(type).arg(addr);
+        theDebuggerAction(WatchExpression)->trigger(exp);
+    }
 }
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *opts)

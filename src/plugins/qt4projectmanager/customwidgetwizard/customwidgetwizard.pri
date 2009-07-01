@@ -22,4 +22,4 @@ FORMS += \
  $$PWD/classdefinition.ui \
  $$PWD/customwidgetwidgetswizardpage.ui \
  $$PWD/customwidgetpluginwizardpage.ui
-RESOURCES +=  $$PWD/templates/templates.qrc
+ 

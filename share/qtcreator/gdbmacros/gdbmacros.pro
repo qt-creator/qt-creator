@@ -1,13 +1,12 @@
 TEMPLATE = lib
 CONFIG += shared
-QT = core
 linux-* {
 CONFIG -= release
 CONFIG += debug
 }
 SOURCES=gdbmacros.cpp
 
-true {
+false {
     DEFINES += USE_QT_GUI=0
     QT = core
 } else {

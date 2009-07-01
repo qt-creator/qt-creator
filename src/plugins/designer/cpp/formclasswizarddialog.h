@@ -37,9 +37,12 @@ namespace Core {
 }
 
 namespace Designer {
-namespace Internal {
 
 struct FormClassWizardParameters;
+
+namespace Internal {
+
+
 class FormClassWizardPage;
 class FormTemplateWizardPage;
 
@@ -56,7 +59,7 @@ public:
 
     QString path() const;
 
-    FormClassWizardParameters parameters() const;
+    Designer::FormClassWizardParameters parameters() const;
 
     bool validateCurrentPage();
 

@@ -28,9 +28,11 @@
 **************************************************************************/
 
 #include "settingspage.h"
+#include "designerconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <qt_private/abstractoptionspage_p.h>
+#include <QtCore/QCoreApplication>
 
 using namespace Designer::Internal;
 
@@ -55,12 +57,12 @@ QString SettingsPage::trName() const
 
 QString SettingsPage::category() const
 {
-    return QLatin1String("Designer");
+    return QLatin1String(Designer::Constants::SETTINGS_CATEGORY);
 }
 
 QString SettingsPage::trCategory() const
 {
-    return tr("Designer");
+    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_CATEGORY);
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

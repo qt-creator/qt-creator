@@ -82,16 +82,16 @@ static int generationCounter = 0;
 class WatchItem : public WatchData
 {
 public:
-    WatchItem() { parent = 0; fetchedTriggered = 0; }
+    WatchItem() { parent = 0; fetchTriggered = false; }
 
     WatchItem(const WatchData &data) : WatchData(data)
-        { parent = 0; fetchedTriggered = 0; }
+        { parent = 0; fetchTriggered = false; }
 
     void setData(const WatchData &data)
         { static_cast<WatchData &>(*this) = data; }
 
     WatchItem *parent;
-    bool fetchedTriggered;      // children fetch has been triggered
+    bool fetchTriggered;      // children fetch has been triggered
     QList<WatchItem *> children;  // fetched children
 };
 
@@ -303,7 +303,7 @@ WatchModel::WatchModel(WatchHandler *handler, WatchType type)
     item->hasChildren = true;
     item->state = 0;
     item->parent = m_root;
-    item->fetchedTriggered = true;
+    item->fetchTriggered = true;
 
     m_root->children.append(item);
 }
@@ -346,9 +346,11 @@ void WatchModel::removeOutdatedHelper(WatchItem *item)
 {
     if (item->generation < generationCounter)
         removeItem(item);
-    else
+    else {
         foreach (WatchItem *child, item->children)
             removeOutdatedHelper(child);
+        item->fetchTriggered = false;
+    }
 }
 
 void WatchModel::removeItem(WatchItem *item)
@@ -479,15 +481,15 @@ QString niceType(QString type)
 
 bool WatchModel::canFetchMore(const QModelIndex &index) const
 {
-    return index.isValid() && !watchItem(index)->fetchedTriggered;
+    return index.isValid() && !watchItem(index)->fetchTriggered;
 }
 
 void WatchModel::fetchMore(const QModelIndex &index)
 {
     QTC_ASSERT(index.isValid(), return);
-    QTC_ASSERT(!watchItem(index)->fetchedTriggered, return);
+    QTC_ASSERT(!watchItem(index)->fetchTriggered, return);
     if (WatchItem *item = watchItem(index)) {
-        item->fetchedTriggered = true;
+        item->fetchTriggered = true;
         WatchData data = *item;
         data.setChildrenNeeded();
         emit m_handler->watchDataUpdateNeeded(data);

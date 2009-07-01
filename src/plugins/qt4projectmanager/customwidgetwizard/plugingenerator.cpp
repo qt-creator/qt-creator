@@ -97,7 +97,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         sm.clear();
         sm.insert(QLatin1String("SINGLE_INCLUDE_GUARD"), headerGuard(wo.pluginHeaderFile));
         sm.insert(QLatin1String("PLUGIN_CLASS"), wo.pluginClassName);
-        const QString pluginHeaderContents = processTemplate(QLatin1String(":/tpl_single.h"), sm, errorMessage);
+        const QString pluginHeaderContents = processTemplate(p.templatePath + QLatin1String("/tpl_single.h"), sm, errorMessage);
         if (pluginHeaderContents.isEmpty())
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile pluginHeader(baseDir + wo.pluginHeaderFile);
@@ -128,7 +128,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
                     wo.pluginClassName +
                     QLatin1Char(')') :
                 QLatin1String(""));
-        const QString pluginSourceContents = processTemplate(QLatin1String(":/tpl_single.cpp"), sm, errorMessage);
+        const QString pluginSourceContents = processTemplate(p.templatePath + QLatin1String("/tpl_single.cpp"), sm, errorMessage);
         if (pluginSourceContents.isEmpty())
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile pluginSource(baseDir + wo.pluginSourceFile);
@@ -152,9 +152,9 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             if (pc.headers.isEmpty()) {
                 if (wo.sourceType == PluginOptions::WidgetOptions::LinkLibrary) {
                     pc.library = wo.widgetLibrary;
-                    pc.tmpl = QLatin1String(":/tpl_widget_lib.pro");
+                    pc.tmpl = p.templatePath + QLatin1String("/tpl_widget_lib.pro");
                 } else {
-                    pc.tmpl = QLatin1String(":/tpl_widget_include.pri");
+                    pc.tmpl = p.templatePath + QLatin1String("/tpl_widget_include.pri");
                 }
                 widgetProjectContents.insert(wo.widgetProjectFile, pc);
             } else {
@@ -171,7 +171,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             sm.insert(QLatin1String("WIDGET_INCLUDE_GUARD"), headerGuard(wo.widgetHeaderFile));
             sm.insert(QLatin1String("WIDGET_BASE_CLASS"), wo.widgetBaseClassName);
             sm.insert(QLatin1String("WIDGET_CLASS"), wo.widgetClassName);
-            const QString widgetHeaderContents = processTemplate(QLatin1String(":/tpl_widget.h"), sm, errorMessage);
+            const QString widgetHeaderContents = processTemplate(p.templatePath + QLatin1String("/tpl_widget.h"), sm, errorMessage);
             if (widgetHeaderContents.isEmpty())
                 return QList<Core::GeneratedFile>();
             Core::GeneratedFile widgetHeader(baseDir + wo.widgetHeaderFile);
@@ -180,7 +180,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
 
             sm.remove(QLatin1String("WIDGET_INCLUDE_GUARD"));
             sm.insert(QLatin1String("WIDGET_HEADER"), wo.widgetHeaderFile);
-            const QString widgetSourceContents = processTemplate(QLatin1String(":/tpl_widget.cpp"), sm, errorMessage);
+            const QString widgetSourceContents = processTemplate(p.templatePath + QLatin1String("/tpl_widget.cpp"), sm, errorMessage);
             if (widgetSourceContents.isEmpty())
                 return QList<Core::GeneratedFile>();
             Core::GeneratedFile widgetSource(baseDir + wo.widgetSourceFile);
@@ -213,7 +213,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         sm.clear();
         sm.insert(QLatin1String("COLLECTION_INCLUDE_GUARD"), headerGuard(options.collectionHeaderFile));
         sm.insert(QLatin1String("COLLECTION_PLUGIN_CLASS"), options.collectionClassName);
-        const QString collectionHeaderContents = processTemplate(QLatin1String(":/tpl_collection.h"), sm, errorMessage);
+        const QString collectionHeaderContents = processTemplate(p.templatePath + QLatin1String("/tpl_collection.h"), sm, errorMessage);
         if (collectionHeaderContents.isEmpty())
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile collectionHeader(baseDir + options.collectionHeaderFile);
@@ -233,7 +233,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
                 QLatin1String(", ") +
                 options.collectionClassName +
                 QLatin1Char(')'));
-        const QString collectionSourceFileContents = processTemplate(QLatin1String(":/tpl_collection.cpp"), sm, errorMessage);
+        const QString collectionSourceFileContents = processTemplate(p.templatePath + QLatin1String("/tpl_collection.cpp"), sm, errorMessage);
         if (collectionSourceFileContents.isEmpty())
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile collectionSource(baseDir + options.collectionSourceFile);
@@ -262,7 +262,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
     // Create the resource file with the icons.
     sm.clear();
     sm.insert(QLatin1String("ICON_FILES"), iconFiles);
-    const QString resourceFileContents = processTemplate(QLatin1String(":/tpl_resources.qrc"), sm, errorMessage);
+    const QString resourceFileContents = processTemplate(p.templatePath + QLatin1String("/tpl_resources.qrc"), sm, errorMessage);
     if (resourceFileContents.isEmpty())
         return QList<Core::GeneratedFile>();
     Core::GeneratedFile resourceFile(baseDir + options.resourceFile);
@@ -277,7 +277,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
     sm.insert(QLatin1String("PLUGIN_RESOURCES"), options.resourceFile);
     sm.insert(QLatin1String("WIDGET_LIBS"), QStringList(widgetLibraries.toList()).join(QString(blank)));
     sm.insert(QLatin1String("INCLUSIONS"), QStringList(widgetProjects.toList()).join(QLatin1String("\n")));
-    const QString proFileContents = processTemplate(QLatin1String(":/tpl_plugin.pro"), sm, errorMessage);
+    const QString proFileContents = processTemplate(p.templatePath + QLatin1String("/tpl_plugin.pro"), sm, errorMessage);
     if (proFileContents.isEmpty())
         return QList<Core::GeneratedFile>();
     Core::GeneratedFile proFile(baseDir + p.name + QLatin1String(".pro"));

@@ -54,7 +54,11 @@ public:
 
     QString templateContents() const { return  m_templateContents; }
 
+    // Parse UI XML forms to determine:
+    // 1) The ui class name from "<class>Designer::Internal::FormClassWizardPage</class>"
+    // 2) the base class from: widget class="QWizardPage"...
     static bool getUIXmlData(const QString &uiXml, QString *formBaseClass, QString *uiClassName);
+    // Change the class name in a UI XML form
     static QString changeUiClassName(const QString &uiXml, const QString &newUiClassName);
     static QString stripNamespaces(const QString &className);
 

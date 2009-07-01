@@ -94,7 +94,7 @@ enum DebuggerActionCode
     WatchExpression,
     WatchExpressionInWindow,
     RemoveWatchExpression,
-    WatchModelUpdate,
+    WatchPoint,
     UseToolTips,
     AssignValue,
     AssignType,

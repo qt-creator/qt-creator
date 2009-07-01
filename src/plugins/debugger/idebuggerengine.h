@@ -93,6 +93,8 @@ public:
 
     virtual void reloadSourceFiles() = 0;
     virtual void reloadFullStack() = 0;
+
+    virtual void watchPoint(const QPoint &) {}
 };
 
 } // namespace Internal

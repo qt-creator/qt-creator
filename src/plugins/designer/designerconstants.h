@@ -30,8 +30,13 @@
 #ifndef DESIGNERPLUGIN_CONSTANTS_H
 #define DESIGNERPLUGIN_CONSTANTS_H
 
+#include <QtCore/QtGlobal>
+
 namespace Designer {
 namespace Constants {
+
+const char * const SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("Designer", "Designer");
+const char * const SETTINGS_CPP_SETTINGS = QT_TRANSLATE_NOOP("Designer", "Class Generation");
 
 // context
 const char * const C_FORMEDITOR         = "FormEditor";

@@ -69,13 +69,14 @@ private:
     void dragEnterEvent(QDragEnterEvent *ev);
     void dropEvent(QDropEvent *ev);
     void dragMoveEvent(QDragMoveEvent *ev);
+    bool event(QEvent *ev);
 
     void editItem(const QModelIndex &idx);
-
     void resetHelper(const QModelIndex &idx);
 
     bool m_alwaysResizeColumnsToContents;
     Type m_type;
+    bool m_grabbing;
 };
 
 

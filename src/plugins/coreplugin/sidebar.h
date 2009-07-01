@@ -31,6 +31,7 @@
 #define SIDEBAR_H
 
 #include <QtCore/QMap>
+#include <QtCore/QPointer>
 #include <QtGui/QWidget>
 #include <QtGui/QComboBox>
 
@@ -117,6 +118,8 @@ private slots:
 private:
     Internal::SideBarWidget *insertSideBarWidget(int position,
                                                  const QString &title = QString());
+    void removeSideBarWidget(Internal::SideBarWidget *widget);
+
     QList<Internal::SideBarWidget*> m_widgets;
 
     QMap<QString, SideBarItem*> m_itemMap;
