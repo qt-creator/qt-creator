@@ -37,9 +37,12 @@
 #include <utils/pathchooser.h>
 #include <projectexplorer/projectnodes.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <designer/cpp/formclasswizardparameters.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include <QtCore/QSettings>
 #include <QtCore/QByteArray>
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -89,6 +92,33 @@ QWizard *GuiAppWizard::createWizardDialog(QWidget *parent,
     return dialog;
 }
 
+// Use the class generation utils provided by the designer plugin
+static inline bool generateFormClass(const GuiAppParameters &params,
+                                     const Core::GeneratedFile &uiFile,
+                                     Core::GeneratedFile *formSource,
+                                     Core::GeneratedFile *formHeader,
+                                     QString *errorMessage)
+{
+    // Retrieve parameters from settings
+    Designer::FormClassWizardGenerationParameters fgp;
+    fgp.fromSettings(Core::ICore::instance()->settings());
+    Designer::FormClassWizardParameters fp;
+    fp.setUiTemplate(uiFile.contents());
+    fp.setUiFile(uiFile.path());
+    fp.setClassName(params.className);
+    fp.setSourceFile(params.sourceFileName);
+    fp.setHeaderFile(params.headerFileName);
+    QString headerContents;
+    QString sourceContents;
+    if (!fp.generateCpp(fgp, &headerContents, &sourceContents, 4)) {
+        *errorMessage = QLatin1String("Internal error: Unable to generate the form classes.");
+        return false;
+    }
+    formHeader->setContents(headerContents);
+    formSource->setContents(sourceContents);
+    return true;
+}
+
 Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
                                                  QString *errorMessage) const
 {
@@ -108,28 +138,32 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
     if (!parametrizeTemplate(templatePath, QLatin1String("main.cpp"), params, &contents, errorMessage))
         return Core::GeneratedFiles();
     mainSource.setContents(license + contents);
-    // Create files: form source
-    const QString formSourceTemplate = params.designerForm ? QLatin1String("mywidget_form.cpp") : QLatin1String("mywidget.cpp");
+    // Create files: form source with or without form
     const QString formSourceFileName = buildFileName(projectPath, params.sourceFileName, sourceSuffix());
-    Core::GeneratedFile formSource(formSourceFileName);
-    if (!parametrizeTemplate(templatePath, formSourceTemplate, params, &contents, errorMessage))
-        return Core::GeneratedFiles();
-    formSource.setContents(license + contents);
-    // Create files: form header
     const QString formHeaderName = buildFileName(projectPath, params.headerFileName, headerSuffix());
-    const QString formHeaderTemplate = params.designerForm ? QLatin1String("mywidget_form.h") : QLatin1String("mywidget.h");
+    Core::GeneratedFile formSource(formSourceFileName);
     Core::GeneratedFile formHeader(formHeaderName);
-    if (!parametrizeTemplate(templatePath, formHeaderTemplate, params, &contents, errorMessage))
-        return Core::GeneratedFiles();
-    formHeader.setContents(license + contents);
-    // Create files: form
+
     QSharedPointer<Core::GeneratedFile> form;
     if (params.designerForm) {
+        // Create files: form
         const QString formName = buildFileName(projectPath, params.formFileName, formSuffix());
         form = QSharedPointer<Core::GeneratedFile>(new Core::GeneratedFile(formName));
         if (!parametrizeTemplate(templatePath, QLatin1String("widget.ui"), params, &contents, errorMessage))
             return Core::GeneratedFiles();
-        form->setContents(contents);
+        form->setContents(contents);        
+        if (!generateFormClass(params, *form, &formSource, &formHeader, errorMessage))
+            return Core::GeneratedFiles();
+    } else {
+        const QString formSourceTemplate = QLatin1String("mywidget.cpp");
+        if (!parametrizeTemplate(templatePath, formSourceTemplate, params, &contents, errorMessage))
+            return Core::GeneratedFiles();
+        formSource.setContents(license + contents);
+        // Create files: form header
+        const QString formHeaderTemplate = QLatin1String("mywidget.h");
+        if (!parametrizeTemplate(templatePath, formHeaderTemplate, params, &contents, errorMessage))
+            return Core::GeneratedFiles();
+        formHeader.setContents(license + contents);
     }
     // Create files: profile
     const QString profileName = buildFileName(projectPath, projectParams.name, profileSuffix());

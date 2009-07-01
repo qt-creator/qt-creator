@@ -32,17 +32,8 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Core {
-    class IWizard;
-    class ICore;
-}
-
 namespace Designer {
 namespace Internal {
-
-class FormEditorFactory;
-class FormWizard;
-class FormEditorW;
 
 class FormEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -57,12 +48,7 @@ public:
     void extensionsInitialized();
 
 private:
-    bool initializeTemplates(QString *error_message);
-
-    FormEditorFactory *m_factory;
-
-    Core::IWizard *m_formWizard;
-    Core::IWizard *m_formClassWizard;
+    void initializeTemplates();
 };
 
 } // namespace Internal
