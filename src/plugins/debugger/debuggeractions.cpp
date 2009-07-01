@@ -165,6 +165,9 @@ DebuggerSettings *DebuggerSettings::instance()
     item = new SavedAction(instance);
     instance->insertItem(AssignType, item);
 
+    item = new SavedAction(instance);
+    instance->insertItem(WatchPoint, item);
+
     //
     // DebuggingHelper
     //

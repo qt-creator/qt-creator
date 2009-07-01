@@ -62,9 +62,10 @@ int qtGhVersion = QT_VERSION;
 #endif
 
 #if USE_QT_GUI
-#   include <QtGui/QWidget>
-#   include <QtGui/QPixmap>
+#   include <QtGui/QApplication>
 #   include <QtGui/QImage>
+#   include <QtGui/QPixmap>
+#   include <QtGui/QWidget>
 #endif
 
 #ifdef Q_OS_WIN
@@ -1457,7 +1458,9 @@ static void qDumpQHashNode(QDumper &d)
 static void qDumpQImage(QDumper &d)
 {
     const QImage &im = *reinterpret_cast<const QImage *>(d.data);
-    d.putItem("value", "(").put(im.width()).put("x").put(im.height()).put(")");
+    d.beginItem("value");
+        d.put("(").put(im.width()).put("x").put(im.height()).put(")");
+    d.endItem();
     d.putItem("type", NS"QImage");
     d.putItem("numchild", "1");
     if (d.dumpChildren) {
@@ -2234,7 +2237,9 @@ static void qDumpQObjectSlotList(QDumper &d)
 static void qDumpQPixmap(QDumper &d)
 {
     const QPixmap &im = *reinterpret_cast<const QPixmap *>(d.data);
-    d.putItem("value", "(").put(im.width()).put("x").put(im.height()).put(")");
+    d.beginItem("value");
+        d.put("(").put(im.width()).put("x").put(im.height()).put(")");
+    d.endItem();
     d.putItem("type", NS"QPixmap");
     d.putItem("numchild", "0");
     d.disarm();
@@ -3023,6 +3028,14 @@ static void handleProtocolVersion2and3(QDumper & d)
 } // anonymous namespace
 
 
+#if USE_QT_GUI
+extern "C" Q_DECL_EXPORT
+void *watchPoint(int x, int y)
+{
+    return QApplication::widgetAt(x, y);
+}
+#endif
+
 extern "C" Q_DECL_EXPORT
 void *qDumpObjectData440(
     int protocolVersion,
@@ -3115,7 +3128,7 @@ void *qDumpObjectData440(
          .put(""NS"QStringList=\"").put(sizeof(QStringList)).put("\",")
          .put(""NS"QObject=\"").put(sizeof(QObject)).put("\",")
 #if USE_QT_GUI
-         .put(""NS"QWidget=\"").put(sizeof(QWidget)<< "\",")
+         .put(""NS"QWidget=\"").put(sizeof(QWidget)).put("\",")
 #endif
 #ifdef Q_OS_WIN
          .put("string=\"").put(sizeof(std::string)).put("\",")

@@ -114,6 +114,8 @@ public:
 WatchWindow::WatchWindow(Type type, QWidget *parent)
     : QTreeView(parent), m_alwaysResizeColumnsToContents(true), m_type(type)
 {
+    m_grabbing = false;
+
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Locals and Watchers"));
     setAlternatingRowColors(act->isChecked());
@@ -219,6 +221,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act3 = new QAction(tr("Insert new watch item"), &menu); 
     menu.addAction(act3);
+    QAction *act4 = new QAction(tr("Select widget to watch"), &menu);
+    menu.addAction(act4);
 
     menu.addSeparator();
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
@@ -233,7 +237,12 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == act2)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == act3)
-        theDebuggerAction(WatchExpression)->trigger(WatchHandler::watcherEditPlaceHolder());
+        theDebuggerAction(WatchExpression)
+            ->trigger(WatchHandler::watcherEditPlaceHolder());
+    else if (act == act4) {
+        grabMouse(Qt::CrossCursor);
+        m_grabbing = true;
+    }
 }
 
 void WatchWindow::resizeColumnsToContents()
@@ -251,6 +260,17 @@ void WatchWindow::setAlwaysResizeColumnsToContents(bool on)
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
     header()->setResizeMode(1, mode);
+}
+
+bool WatchWindow::event(QEvent *ev)
+{
+    if (m_grabbing && ev->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
+        m_grabbing = false;
+        releaseMouse();
+        theDebuggerAction(WatchPoint)->trigger(mapToGlobal(mev->pos()));
+    }
+    return QTreeView::event(ev);
 }
 
 void WatchWindow::editItem(const QModelIndex &idx)

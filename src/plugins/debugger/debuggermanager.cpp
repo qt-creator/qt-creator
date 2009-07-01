@@ -434,7 +434,8 @@ void DebuggerManager::init()
 
     connect(theDebuggerAction(ExecuteCommand), SIGNAL(triggered()),
         this, SLOT(executeDebuggerCommand()));
-
+    connect(theDebuggerAction(WatchPoint), SIGNAL(triggered()),
+        this, SLOT(watchPoint()));
 
     m_breakDock = createDockForWidget(m_breakWindow);
 
@@ -1087,6 +1088,13 @@ void DebuggerManager::nextIExec()
     QTC_ASSERT(m_engine, return);
     resetLocation();
     m_engine->nextIExec();
+}
+
+void DebuggerManager::watchPoint()
+{
+    if (QAction *action = qobject_cast<QAction *>(sender()))
+        if (m_engine)
+            m_engine->watchPoint(action->data().toPoint());
 }
 
 void DebuggerManager::executeDebuggerCommand()
