@@ -2460,7 +2460,7 @@ static void qDumpQVariant(QDumper &d)
         d.putItem("value", "(invalid)");
     } else if (value.isEmpty()) {
         d.beginItem("value");
-            d.put("(").put(v.typeName()).put(") ").put(qPrintable(value));
+            d.put("(").put(v.typeName()).put(") ");
         d.endItem();
     } else {
         QByteArray ba;
@@ -2469,7 +2469,7 @@ static void qDumpQVariant(QDumper &d)
         ba += ") ";
         ba += qPrintable(value);
         d.putItem("value", ba);
-        d.putItem("valueencoded", "4");
+        d.putItem("valueencoded", "5");
     }
     d.putItem("type", NS"QVariant");
     d.putItem("numchild", (isInvalid ? "0" : "1"));
