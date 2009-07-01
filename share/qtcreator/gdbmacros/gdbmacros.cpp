@@ -44,11 +44,14 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QSharedDataPointer>
 #include <QtCore/QTextCodec>
 #include <QtCore/QVector>
+
+#if QT_VERSION >= 0x040500
+#include <QtCore/QSharedPointer>
+#include <QtCore/QSharedDataPointer>
 #include <QtCore/QWeakPointer>
+#endif
 
 int qtGhVersion = QT_VERSION;
 
@@ -2078,6 +2081,7 @@ static void qDumpQSet(QDumper &d)
     d.disarm();
 }
 
+#if QT_VERSION >= 0x040500
 static void qDumpQSharedPointer(QDumper &d)
 {
     const QSharedPointer<int> &ptr =
@@ -2116,6 +2120,7 @@ static void qDumpQSharedPointer(QDumper &d)
     }
     d.disarm();
 }
+#endif
 
 static void qDumpQString(QDumper &d)
 {
@@ -2315,6 +2320,7 @@ static void qDumpQVector(QDumper &d)
     d.disarm();
 }
 
+#if QT_VERSION >= 0x040500
 static void qDumpQWeakPointer(QDumper &d)
 {
     const int v = sizeof(void *);
@@ -2352,6 +2358,7 @@ static void qDumpQWeakPointer(QDumper &d)
     }
     d.disarm();
 }
+#endif
 
 static void qDumpStdList(QDumper &d)
 {
@@ -2737,8 +2744,10 @@ static void handleProtocolVersion2and3(QDumper & d)
         case 'S':
             if (isEqual(type, "QSet"))
                 qDumpQSet(d);
+            #if QT_VERSION >= 0x040500
             else if (isEqual(type, "QSharedPointer"))
                 qDumpQSharedPointer(d);
+            #endif
             else if (isEqual(type, "QString"))
                 qDumpQString(d);
             else if (isEqual(type, "QStringList"))
@@ -2775,8 +2784,11 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQVector(d);
             break;
         case 'W':
+            #if QT_VERSION >= 0x040500
             if (isEqual(type, "QWeakPointer"))
                 qDumpQWeakPointer(d);
+            #endif
+            break;
     }
 
     if (!d.success)
@@ -2835,9 +2847,6 @@ void *qDumpObjectData440(
             "\""NS"QMap\","
             "\""NS"QMapNode\","
             "\""NS"QModelIndex\","
-#if QT_VERSION >= 0x040500
-            "\""NS"QMultiMap\","
-#endif
             "\""NS"QObject\","
             "\""NS"QObjectMethodList\","   // hack to get nested properties display
             "\""NS"QObjectPropertyList\","
@@ -2847,14 +2856,17 @@ void *qDumpObjectData440(
             "\""NS"QObjectSlotList\","
             // << "\""NS"QRegion\","
             "\""NS"QSet\","
-            "\""NS"QSharedPointer\","
             "\""NS"QString\","
             "\""NS"QStringList\","
             "\""NS"QTextCodec\","
             "\""NS"QVariant\","
             "\""NS"QVector\","
-            "\""NS"QWeakPointer\","
             "\""NS"QWidget\","
+#if QT_VERSION >= 0x040500
+            "\""NS"QMultiMap\","
+            "\""NS"QSharedPointer\","
+            "\""NS"QWeakPointer\","
+#endif
 #ifdef Q_OS_WIN            
             "\"basic_string\","
             "\"list\","
