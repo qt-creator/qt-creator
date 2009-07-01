@@ -38,9 +38,21 @@ FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
 
 QByteArray FastPreprocessor::run(QString fileName, const QString &source)
 {
+#ifdef QTCREATOR_WITH_MERGED_ENVIRONMENT
+    if (Document::Ptr doc = _snapshot.value(fileName)) {
+        _merged.insert(fileName);
+
+        foreach (const Document::Include &i, doc->includes())
+            mergeEnvironment(i.fileName());
+    }
+#endif
+
     const QByteArray preprocessed = _preproc(fileName, source);
     return preprocessed;
 }
+
+void FastPreprocessor::sourceNeeded(QString &fileName, IncludeType, unsigned)
+{ mergeEnvironment(fileName); }
 
 void FastPreprocessor::mergeEnvironment(const QString &fileName)
 {

@@ -65,6 +65,8 @@ Core::GeneratedFiles CustomWidgetWizard::generateFiles(const QWizard *w,
     p.name = cw->name();
     p.path = cw->path();
     p.license = CppTools::AbstractEditorSupport::licenseTemplate();
+    p.templatePath = QtWizard::templateDir();
+    p.templatePath += QLatin1String("/customwidgetwizard");
     return PluginGenerator::generatePlugin(p, *(cw->pluginOptions()), errorMessage);
 }
 

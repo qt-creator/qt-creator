@@ -771,7 +771,11 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
         } else {
 
             if (_dot->whitespace) {
-                const unsigned endOfPreviousToken = (_dot - 1)->end();
+                unsigned endOfPreviousToken = 0;
+
+                if (_dot != _tokens.constBegin())
+                    endOfPreviousToken = (_dot - 1)->end();
+
                 const unsigned beginOfToken = _dot->begin();
 
                 const char *start = _source.constBegin() + endOfPreviousToken;

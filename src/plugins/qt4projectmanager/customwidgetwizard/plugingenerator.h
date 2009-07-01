@@ -52,6 +52,7 @@ struct GenerationParameters {
     QString path;
     QString name;
     QString license;
+    QString templatePath;
 };
 
 class PluginGenerator : public QObject

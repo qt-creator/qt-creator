@@ -6,8 +6,9 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QTextEdit>
 #include <QtGui/QMessageBox>
+//! [include]
 #include "finddialog.h"
-
+//! [include]
 
 namespace Ui
 {

@@ -243,6 +243,7 @@ void AddressBook::updateInterface(Mode mode)
     }
 }
 
+//! [findContact]
 void AddressBook::findContact()
 {
     dialog->show();
@@ -262,3 +263,4 @@ void AddressBook::findContact()
 
     updateInterface(NavigationMode);
 }
+//! [findContact]

@@ -54,8 +54,7 @@ public:
     QByteArray run(QString fileName, const QString &source);
 
     // CPlusPlus::Client
-    virtual void sourceNeeded(QString &fileName, IncludeType, unsigned)
-    { mergeEnvironment(fileName); }
+    virtual void sourceNeeded(QString &fileName, IncludeType, unsigned);
 
     virtual void macroAdded(const Macro &) {}
 
