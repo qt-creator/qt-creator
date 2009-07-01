@@ -232,4 +232,60 @@
     <source>*</source>
     <target>*</target>
 </phrase>
+<phrase>
+    <source>&amp;Undo</source>
+    <target>Annu&amp;ler</target>
+</phrase>
+<phrase>
+    <source>Bookmarks</source>
+    <target>Signets</target>
+</phrase>
+<phrase>
+    <source>New Folder</source>
+    <target>Nouveau dossier</target>
+</phrase>
+<phrase>
+    <source>Bookmark</source>
+    <target>Signet</target>
+</phrase>
+<phrase>
+    <source>Bookmarks</source>
+    <target>Signets</target>
+</phrase>
+<phrase>
+    <source>New Folder</source>
+    <target>Nouveau dossier</target>
+</phrase>
+<phrase>
+    <source>Add</source>
+    <target>Ajouter</target>
+</phrase>
+<phrase>
+    <source>&amp;Change</source>
+    <target>&amp;Modifier</target>
+</phrase>
+<phrase>
+    <source>Close</source>
+    <target>Fermer</target>
+</phrase>
+<phrase>
+    <source>General</source>
+    <target>Général</target>
+</phrase>
+<phrase>
+    <source>Close %1</source>
+    <target>Fermer %1</target>
+</phrase>
+<phrase>
+    <source>Close Other Editors</source>
+    <target>Fermer les autres éditeurs</target>
+</phrase>
+<phrase>
+    <source>Close All Except %1</source>
+    <target>Fermer tout sauf %1</target>
+</phrase>
+<phrase>
+    <source>C++</source>
+    <target></target>
+</phrase>
 </QPH>

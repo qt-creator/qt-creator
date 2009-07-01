@@ -17,7 +17,7 @@
     <message>
         <location line="+134"/>
         <source>Couldn&apos;t find &apos;Core.pluginspec&apos; in %1</source>
-        <translation type="unfinished">&apos;Core.pluginspec&apos; introuvable dans %1</translation>
+        <translation>&apos;Core.pluginspec&apos; introuvable dans %1</translation>
     </message>
 </context>
 <context>
@@ -43,7 +43,7 @@
     <message>
         <location filename="../../../src/plugins/debugger/attachexternaldialog.ui"/>
         <source>Start Debugger</source>
-        <translation type="unfinished">Lancer le débogueur</translation>
+        <translation>Lancer le débogueur</translation>
     </message>
     <message>
         <location/>
@@ -72,12 +72,12 @@
     <message>
         <location/>
         <source>Host and port:</source>
-        <translation type="unfinished">Hôte et port:</translation>
+        <translation>Hôte et port :</translation>
     </message>
     <message>
         <location/>
         <source>Architecture:</source>
-        <translation>Architecture:</translation>
+        <translation>Architecture :</translation>
     </message>
     <message>
         <location/>
@@ -95,12 +95,12 @@
     <message>
         <location filename="../../../src/plugins/bineditor/bineditorplugin.cpp" line="+379"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished">Annu&amp;ler</translation>
+        <translation>Annu&amp;ler</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished">&amp;Refaire</translation>
+        <translation>&amp;Refaire</translation>
     </message>
 </context>
 <context>
@@ -108,7 +108,7 @@
     <message>
         <location filename="../../../src/shared/help/bookmarkdialog.ui"/>
         <source>Add Bookmark</source>
-        <translation type="unfinished">Ajouter un signet</translation>
+        <translation>Ajouter un signet</translation>
     </message>
     <message>
         <location/>
@@ -123,12 +123,12 @@
     <message>
         <location/>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
         <source>New Folder</source>
-        <translation type="unfinished">Nouveau Dossier</translation>
+        <translation>Nouveau dossier</translation>
     </message>
     <message>
         <location filename="../../../src/shared/help/bookmarkmanager.cpp" line="+172"/>
@@ -137,17 +137,17 @@
         <location line="+24"/>
         <location line="+32"/>
         <source>Bookmarks</source>
-        <translation type="unfinished">Signets</translation>
+        <translation>Signets</translation>
     </message>
     <message>
         <location line="-69"/>
         <source>Delete Folder</source>
-        <translation type="unfinished">Supprimer le dossier</translation>
+        <translation>Supprimer le dossier</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Rename Folder</source>
-        <translation type="unfinished">Renommer le Dossier</translation>
+        <translation>Renommer le dossier</translation>
     </message>
 </context>
 <context>
@@ -156,12 +156,12 @@
         <location line="+402"/>
         <location line="+1"/>
         <source>Bookmark</source>
-        <translation type="unfinished">Signet</translation>
+        <translation>Signet</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>Bookmarks</source>
-        <translation type="unfinished">Signets</translation>
+        <translation>Signets</translation>
     </message>
     <message>
         <location line="+36"/>
@@ -177,7 +177,7 @@
         <location line="+109"/>
         <location line="+9"/>
         <source>New Folder</source>
-        <translation type="unfinished">Nouveau Dossier</translation>
+        <translation>Nouveau dossier</translation>
     </message>
 </context>
 <context>
@@ -220,7 +220,7 @@
     <message>
         <location line="+26"/>
         <source>Add</source>
-        <translation type="unfinished">Ajouter</translation>
+        <translation>Ajouter</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -233,7 +233,7 @@
     <message>
         <location filename="../../../src/plugins/bookmarks/bookmarkmanager.cpp" line="+206"/>
         <source>Bookmarks</source>
-        <translation type="unfinished">Signets</translation>
+        <translation>Signets</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -351,7 +351,7 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakebuildenvironmentwidget.cpp" line="+61"/>
         <source>Build Environment</source>
-        <translation type="unfinished">Environnement de compilation</translation>
+        <translation>Environnement de compilation</translation>
     </message>
 </context>
 <context>
@@ -359,7 +359,7 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakeproject.cpp" line="+696"/>
         <source>&amp;Change</source>
-        <translation type="unfinished">&amp;Changer</translation>
+        <translation>&amp;Modifier</translation>
     </message>
 </context>
 <context>
@@ -367,7 +367,7 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+116"/>
         <source>CMake Wizard</source>
-        <translation type="unfinished">Assistant CMake</translation>
+        <translation>Assistant CMake</translation>
     </message>
 </context>
 <context>
@@ -385,7 +385,7 @@
     <message>
         <location line="+3"/>
         <source>Reset to default</source>
-        <translation type="unfinished">Restaurer les paramètres par défaut</translation>
+        <translation>Restaurer les paramètres par défaut</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -395,7 +395,7 @@
     <message>
         <location line="+2"/>
         <source>Environment</source>
-        <translation type="unfinished">Environnement</translation>
+        <translation>Environnement</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -476,7 +476,7 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+28"/>
         <source>Please enter the directory in which you want to build your project. </source>
-        <translation type="unfinished">Veuillez spécifier le répertoire où vous voulez compiler votre projet.</translation>
+        <translation>Veuillez spécifier le répertoire où vous voulez compiler votre projet. </translation>
     </message>
     <message>
         <location line="+2"/>
@@ -494,7 +494,7 @@
     <message>
         <location line="-25"/>
         <source>Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. You can change the command line arguments used to create this file in the project mode. Click finish to load the project.</source>
-        <translation type="unfinished">Qt Creator a trouvé un fichier cbp récent, Qt Creator va maintenant l&apos;analyser pour rassembler des informations sur le projet. Vous pouvez changer les arguments de ligne de commande utilisés pour la création de ce fichier depuis le mode &quot;projet&quot;. Cliquer sur Terminer pour charger le projet.</translation>
+        <translation>Qt Creator a trouvé un fichier cbp récent, Qt Creator va maintenant l&apos;analyser pour rassembler des informations sur le projet. Vous pouvez changer les arguments de ligne de commande utilisés pour la création de ce fichier depuis le mode &quot;projet&quot;. Cliquer sur Terminer pour charger le projet.</translation>
     </message>
 </context>
 <context>
@@ -502,12 +502,12 @@
     <message>
         <location filename="../../../src/libs/cplusplus/OverviewModel.cpp" line="+153"/>
         <source>&lt;Select Symbol&gt;</source>
-        <translation type="unfinished">&lt;Selectionner un Symbole&gt;</translation>
+        <translation>&lt;Selectionner un symbole&gt;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&lt;No Symbols&gt;</source>
-        <translation type="unfinished">&lt;Aucun Symbole&gt;&gt;</translation>
+        <translation>&lt;Aucun symbole&gt;</translation>
     </message>
 </context>
 <context>
@@ -1164,7 +1164,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="+362"/>
         <source>Activate %1</source>
-        <translation type="unfinished">Activer %1</translation>
+        <translation>Activer %1</translation>
     </message>
 </context>
 <context>
@@ -1259,7 +1259,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="-29"/>
         <source>Close</source>
-        <translation type="unfinished">Fermer</translation>
+        <translation>Fermer</translation>
     </message>
     <message>
         <location line="+198"/>
@@ -1519,7 +1519,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/messageoutputwindow.cpp" line="+76"/>
         <source>General</source>
-        <translation type="unfinished">Général</translation>
+        <translation>Général</translation>
     </message>
 </context>
 <context>
@@ -1527,7 +1527,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/navigationwidget.cpp" line="+525"/>
         <source>Activate %1</source>
-        <translation type="unfinished">Activer %1</translation>
+        <translation>Activer %1</translation>
     </message>
 </context>
 <context>
@@ -1540,7 +1540,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+1"/>
         <source>Close</source>
-        <translation type="unfinished">Fermer</translation>
+        <translation>Fermer</translation>
     </message>
 </context>
 <context>
@@ -1556,12 +1556,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/newdialog.ui"/>
         <source>New Project</source>
-        <translation type="unfinished">Nouveau Projet</translation>
+        <translation>Nouveau projet</translation>
     </message>
     <message>
         <location/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1570,32 +1570,32 @@ Voulez vous les écraser?</translation>
         <location filename="../../../src/plugins/coreplugin/editormanager/openeditorsview.cpp" line="+99"/>
         <source>Open Documents</source>
         <translatorcomment>NB:il ne s&apos;agit pas ici d&apos;une action mais du panneau affichant les documents ouverts</translatorcomment>
-        <translation type="unfinished">Documents Ouverts</translation>
+        <translation>Documents ouverts</translation>
     </message>
     <message>
         <location line="+77"/>
         <source>Close %1</source>
-        <translation type="unfinished">Fermer %1</translation>
+        <translation>Fermer %1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Close Editor</source>
-        <translation type="unfinished">Fermer l&apos;Éditeur</translation>
+        <translation>Fermer l&apos;éditeur</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Close All Except %1</source>
-        <translation type="unfinished">Fermer Tout Sauf %1</translation>
+        <translation>Fermer tout sauf %1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Close Other Editors</source>
-        <translation type="unfinished">Fermer les Autres Éditeurs</translation>
+        <translation>Fermer les autres éditeurs</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Close All Editors</source>
-        <translation type="unfinished">Fermer Tous les Éditeurs</translation>
+        <translation>Fermer tous les éditeurs</translation>
     </message>
 </context>
 <context>
@@ -1603,7 +1603,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/editormanager/openeditorswindow.cpp" line="+211"/>
         <source>*</source>
-        <translation type="unfinished">*</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1611,7 +1611,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/openwithdialog.cpp" line="+43"/>
         <source>Open file &apos;%1&apos; with:</source>
-        <translation type="unfinished">Ouvrir le fichier %1 avec:</translation>
+        <translation>Ouvrir le fichier %1 avec :</translation>
     </message>
 </context>
 <context>
@@ -2502,12 +2502,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+172"/>
         <source>C++</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a C++ header file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Créer un fichier header C++.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2550,22 +2550,22 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
         <source>File Naming Conventions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Convention de nommage des fichiers</translation>
     </message>
     <message>
         <location/>
         <source>Header suffix:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Suffixe des header :</translation>
     </message>
     <message>
         <location/>
         <source>Source suffix:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Suffixe des fichiers source</translation>
     </message>
     <message>
         <location/>
         <source>Lower case file names</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom des fichiers en minuscule</translation>
     </message>
     <message>
         <location/>
@@ -2578,7 +2578,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+842"/>
         <source>%1: No such file or directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 : Aucun fichier ou répertoire de ce type</translation>
     </message>
 </context>
 <context>
@@ -2586,12 +2586,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+52"/>
         <source>File Naming Conventions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conventions de nommage des fichiers</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>C++</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -11262,17 +11262,17 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+114"/>
         <location line="+20"/>
         <source>%1 found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 éléments trouvés</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>List of comma separated wildcard filters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Liste de filtres séparée par des virgules</translation>
     </message>
     <message>
         <location line="+27"/>
         <source>Use Regular E&amp;xpressions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utiliser des e&amp;xpressions régulières</translation>
     </message>
 </context>
 <context>
@@ -11280,12 +11280,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/basetextdocument.cpp" line="+158"/>
         <source>untitled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">document sans titre</translation>
     </message>
     <message>
         <location line="+68"/>
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;em&gt;Données binaire&lt;/em&gt;</translation>
     </message>
 </context>
 <context>
@@ -11293,17 +11293,17 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+229"/>
         <source>Print Document</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Imprimer le document</translation>
     </message>
     <message>
         <location line="+290"/>
         <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;b&gt;Error :&lt;/b&gt; Impossible de décoder &quot;%1&quot; avec l&apos;encodage &quot;%2&quot;. L&apos;édition est impossible.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Select Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir l&apos;encodage</translation>
     </message>
 </context>
 <context>
@@ -11311,12 +11311,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+3718"/>
         <source>Line: %1, Col: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ligne : %1, Col : %2</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line: %1, Col: 999</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ligne : %1, Col: 999</translation>
     </message>
 </context>
 <context>
@@ -11324,52 +11324,52 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/behaviorsettingspage.ui"/>
         <source>Tabs and Indentation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tabulation et indentation</translation>
     </message>
     <message>
         <location/>
         <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Insérer des e&amp;spaces au lieu de tabulations</translation>
     </message>
     <message>
         <location/>
         <source>Enable automatic &amp;indentation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Activer l&apos;&amp;indentation automatique</translation>
     </message>
     <message>
         <location/>
         <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La touche retour reviendra un niveau d&apos;indentation en arrière au lieux d&apos;un caractère espace.</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Backspace follows indentation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La touche &amp;retour arrière suit l&apos;indentation</translation>
     </message>
     <message>
         <location/>
         <source>Ta&amp;b size:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Taille de &amp;tabulation :</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Indent size:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Taille de l&apos;in&amp;dentation :</translation>
     </message>
     <message>
         <location/>
         <source>Tab key performs auto-indent:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La touche tabulation active l&apos;identation automatique :</translation>
     </message>
     <message>
         <location/>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Jamais</translation>
     </message>
     <message>
         <location/>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Toujours</translation>
     </message>
     <message>
         <location/>
@@ -11379,42 +11379,42 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location/>
         <source>Storage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sauvegarde</translation>
     </message>
     <message>
         <location/>
         <source>Removes trailing whitespace on saving.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprime les charactères d&apos;espacement à la fin des lignes lors de la sauvegarde.</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Clean whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Nettoyer les espaces</translation>
     </message>
     <message>
         <location/>
         <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nettoyer les espaces dans tout le document au lieu de limiter le nettoyage aux parties modifiées.</translation>
     </message>
     <message>
         <location/>
         <source>In entire &amp;document</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dans tout le &amp;document</translation>
     </message>
     <message>
         <location/>
         <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Corriger les espaces à l&apos;avant des lignes pour respecter la configuration des tabulations.</translation>
     </message>
     <message>
         <location/>
         <source>Clean indentation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nettoyer l&apos;indentation</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Ensure newline at end of file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Forcer un retour de ligne à la fin du fichier</translation>
     </message>
 </context>
 <context>
@@ -11422,12 +11422,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/displaysettingspage.ui"/>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Affichage</translation>
     </message>
     <message>
         <location/>
         <source>Display line &amp;numbers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher les &amp;numéros de ligne</translation>
     </message>
     <message>
         <location/>
@@ -11437,52 +11437,52 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location/>
         <source>Show tabs and spaces.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher les tabulations et espaces.</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Visualize whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Visualiser les espaces</translation>
     </message>
     <message>
         <location/>
         <source>Highlight current &amp;line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Surligner la &amp;ligne courante</translation>
     </message>
     <message>
         <location/>
         <source>Highlight &amp;blocks</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Surligner les &amp;blocs</translation>
     </message>
     <message>
         <location/>
         <source>Animate matching parentheses</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Animer les parenthèses correspondantes</translation>
     </message>
     <message>
         <location/>
         <source>Text Wrapping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Retour à la ligne dynamique</translation>
     </message>
     <message>
         <location/>
         <source>Enable text &amp;wrapping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Activer le &amp;retour à la ligne automatique</translation>
     </message>
     <message>
         <location/>
         <source>Display right &amp;margin at column:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher une &amp;marge à la colonne :</translation>
     </message>
     <message>
         <location/>
         <source>Navigation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Navigation</translation>
     </message>
     <message>
         <location/>
         <source>Enable &amp;mouse navigation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Activer la navigation à la &amp;souris</translation>
     </message>
 </context>
 <context>
@@ -11490,13 +11490,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+210"/>
         <source>Font &amp; Colors</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Polices et couleurs</translation>
     </message>
     <message>
         <location line="+209"/>
         <source>
 	This is only an example.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">\n\tCeci est seulement un exemple.</translation>
     </message>
 </context>
 <context>
@@ -11504,28 +11504,28 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/codecselector.cpp" line="+72"/>
         <source>Text Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encodage du texte</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>
 The following encodings are likely to fit:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">\nLes encodages suivant pourrait fonctionner:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Select encoding for &quot;%1&quot;.%2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selectionner l&apos;encodage pour &quot;%1&quot;.%2</translation>
     </message>
     <message>
         <location line="+44"/>
         <source>Reload with Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recharger avec l&apos;encodage</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Save with Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sauver avec l&apos;encodage</translation>
     </message>
 </context>
 <context>
@@ -11533,7 +11533,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/findincurrentfile.cpp" line="+57"/>
         <source>Current File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier courrant</translation>
     </message>
 </context>
 <context>
@@ -11541,27 +11541,27 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/findinfiles.cpp" line="+55"/>
         <source>Files on Disk</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichiers sur le disque</translation>
     </message>
     <message>
         <location line="+37"/>
         <source>&amp;Directory:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Dossier :</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>&amp;Browse</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Parcourir</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>File &amp;pattern:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Motif de fichier :</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Directory to search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dossier sur lequel effectuer la recherche</translation>
     </message>
 </context>
 <context>
@@ -11569,22 +11569,22 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/fontsettingspage.ui"/>
         <source>Font</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Police</translation>
     </message>
     <message>
         <location/>
         <source>Family:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Famille :</translation>
     </message>
     <message>
         <location/>
         <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Taille :</translation>
     </message>
     <message>
         <location/>
         <source>Antialias</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anticrénelage</translation>
     </message>
     <message>
         <location/>
@@ -11594,37 +11594,37 @@ The following encodings are likely to fit:</source>
     <message>
         <location/>
         <source>Bold</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gras</translation>
     </message>
     <message>
         <location/>
         <source>Italic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Italique</translation>
     </message>
     <message>
         <location/>
         <source>Background:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Arrière plan :</translation>
     </message>
     <message>
         <location/>
         <source>Foreground:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Premier plan :</translation>
     </message>
     <message>
         <location/>
         <source>Erase background</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Effacer l&apos;arrière plan</translation>
     </message>
     <message>
         <location/>
         <source>x</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
         <source>Preview:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aperçu :</translation>
     </message>
 </context>
 <context>
@@ -11632,12 +11632,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/linenumberfilter.cpp" line="+55"/>
         <source>Line %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ligne %1</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/texteditor/linenumberfilter.h" line="+52"/>
         <source>Line in current document</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ligne du document courrant</translation>
     </message>
 </context>
 <context>
@@ -11645,17 +11645,17 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/texteditorplugin.cpp" line="+94"/>
         <source>Creates a text file (.txt).</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Créer un fichier texte (.txt).</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Text File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier texte</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Général</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -11665,12 +11665,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+5"/>
         <source>Ctrl+Space</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Espace</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Meta+Space</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Meta+Espace</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -11713,12 +11713,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+5"/>
         <source>&amp;Visualize Whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Ctrl+E, Ctrl+V</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+5"/>
@@ -11916,17 +11916,17 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/texteditorsettings.cpp" line="+64"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Texte</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Lien</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélection</translation>
     </message>
     <message>
         <location line="+1"/>
