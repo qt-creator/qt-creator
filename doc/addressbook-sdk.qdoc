@@ -136,7 +136,7 @@
     interface.
 
 
-    \section1 Placing Widgets on the Form
+    \section1 Placing Widgets on The Form
 
     In the \gui{Project Sidebar}, double-click on the \c{addressbook.ui} file.
     The \QD plugin will be launched, allowing you to design your program's user
@@ -266,7 +266,7 @@
     organized way.
 
 
-    \section1 Placing Widgets on the Form
+    \section1 Placing Widgets on The Form
 
     We shall continue with the form we had from the last chapter; we have the
     labels and input fields set up, but we need to add push buttons to complete
@@ -451,7 +451,7 @@
     \image addressbook-tutorial-part3-linkedlist.png
 
 
-    \section1 Placing Widgets on the Form
+    \section1 Placing Widgets on The Form
 
     So far, our application allows us to add new contacts. However, we also
     need to traverse the existing contacts. To do so, we add two push buttons
@@ -581,7 +581,7 @@
         \o \c{EditingMode}.
     \endlist
 
-    \section1 Placing Widgets on the Form
+    \section1 Placing Widgets on The Form
 
     To edit and remove contacts, we need two push buttons. Drag them and name
     them accordingly. Their \c objectName properties should be \c editButton
@@ -711,6 +711,10 @@
     \dots
     \snippet examples/addressbook-sdk/part4/addressbook.cpp cancel
 
+*/
+
+
+/*!
     \page tutorials-addressbook-sdk-part5.html
     \previouspage Address Book 4 - Editing and Removing Addresses
     \contentspage {Address Book Tutorial}{Contents}
@@ -869,6 +873,51 @@
     \nextpage {examples/addressbook-sdk/part7}{Chapter 7}
     \example examples/addressbook-sdk/part6
     \title Address Book 6 - Loading and Saving
+
+    This chapter covers the file handling features of Qt that we used to write
+    loading and saving routines for the address book application.
+
+    # screenshot
+
+    Although browsing and searching for contacts are useful features, our
+    address book is not really ready for use until we can save existing
+    contacts and load them again at a later time. Qt provides a number of
+    classes for \l{Input/Output and Networking}{input and output}, but we have
+    chosen to use two which are simple to use in combination: QFile and
+    QDataStream.
+
+    A QFile object represents a file on disk that can be read from and written
+    to. QFile isa subclass of the more general QIODevice class which represents
+    many different kinds of devices.
+
+    A QDataStream object is used to serialize binary data so that it can be
+    stored in a QIODevice and retrieved again later. Reading from a QIODevice
+    and writing to it is as simple as opening the stream - with the respective
+    device as a parameter - and reading from or writing to it.
+
+    \section1 Placing Widgets on The Form
+
+
+
+
+    \section1 The AddressBook Class
+
+    We declare two public slots, \c saveToFile() and \c loadFromFile(), as well
+    as two QPushButton objects, \c loadButton and \c saveButton.
+
+    # code
+
+    In our constructor, we instantiate \c loadButton and \c saveButton.
+    Ideally, it would be more user-friendly to set the push buttons' labels to
+    "Load contacts from a file" and "Save contacts to a file". However, due to
+    the size of our push buttons, we set the labels to \gui{Load...} and
+    \gui{Save...}. Fortunately, Qt provides a simple way to set tooltips with
+    \l{QWidget::}{setToolTip()} and we use it in the following way for our push
+    buttons:
+
+    # code
+
+
 
 */
 
