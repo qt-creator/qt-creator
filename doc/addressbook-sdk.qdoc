@@ -804,20 +804,60 @@
 
     \section1 The AddressBook Class
 
-
     To ensure that we can use \c FindDialog from within our \c AddressBook
     class, we include \c finddialog.h in the \c addressbook.h file.
 
-    \snippet examples/addressbook-sdk/part5/addressbook.cpp include
+    \snippet examples/addressbook-sdk/part5/addressbook.h include
 
     So far, all our address book features have a QPushButton and a
     corresponding slot. Similarly, for the \gui Find feature, we have
     \c findButton and \c findContact().
 
-    Within the \c AddressBook class's constructor, we instantiate our private
-    objects, \c findButton and \c findDialog:
+    \snippet examples/addressbook-sdk/part5/addressbook.h findContact
+    \dots
+    \snippet examples/addressbook-sdk/part5/addressbook.h findButton
 
-    \snippet examples/addressbook-sdk/part5/addressbook.cpp
+    Lastly, we declare the private variable, \c dialog, which we will use to
+    refer to an instance of \c FindDialog.
+
+    Once we have instantiated a dialog, we might want to use it more than once;
+    using a private variable allows us to refer to it from more than one place
+    in the class.
+
+    Within the \c AddressBook class's constructor, we insantiate our private
+    objects, \c findButton and \c dialog:
+
+    \snippet examples/addressbook-sdk/part5/addressbook.cpp private members
+
+    Next, we connect the \c{findButton}'s \l{QPushButton::}{clicked()} signal
+    to \c findContact().
+
+    \snippet examples/addressbook-sdk/part5/addressbook.cpp signal slot
+
+    Now, all that is left is the code for our \c findContact() function:
+
+    \snippet examples/addressbook-sdk/part5/addressbook.cpp findContact
+
+    We start out by displaying the \c FindDialog instance, \c dialog. This is
+    when the user enters a contact name to look up. Once the user clicks the
+    dialog's \c findButton, the dialog is hidden and the result code is set to
+    QDialog::Accepted. THis ensures that our \c if statement is always true.
+
+    We then proceed to extract the search string, which in this case is
+    \c contactName, using \c{FindDialog}'s \c getFindText() function. If the
+    contact exists in our address book, we display it immediately. Otherwise,
+    we display the QMessageBox shown below to indicate that their search
+    failed.
+
+    # image
+
+    The concept behind finding a contact only applies for cases where we have
+    more than two contacts in our address book. Hence, we implement this
+    behavior by modifying our \c{Navigation Mode} within our
+    \c updateInterface() function, by only enabling the \gui Find button when
+    we have more than two contacts.
+
+    \snippet examples/addressbook-sdk/part5/addressbook.cpp enable
 
 */
 
