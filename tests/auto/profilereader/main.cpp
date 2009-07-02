@@ -45,22 +45,31 @@ class tst_ProFileReader : public QObject
 private slots:
     void readProFile();
     void includeFiles();
+    void conditionalScopes();
 };
 
 void tst_ProFileReader::readProFile()
 {
-    ProFileCache cache;
-    ProFileReader reader(&cache);
+    ProFileReader reader;
     QCOMPARE(reader.readProFile("nonexistant"), false);
     QCOMPARE(reader.readProFile("data/includefiles/test.pro"), true);
 }
 
 void tst_ProFileReader::includeFiles()
 {
-    ProFileCache cache;
-    ProFileReader reader(&cache);
+    ProFileReader reader;
     QCOMPARE(reader.readProFile("data/includefiles/test.pro"), true);
     QCOMPARE(reader.includeFiles().size(), 2);
+}
+
+void tst_ProFileReader::conditionalScopes()
+{
+    ProFileReader reader;
+    QCOMPARE(reader.readProFile("data/includefiles/test.pro"), true);
+
+    QStringList scopedVariable = reader.values("SCOPED_VARIABLE");
+    QCOMPARE(scopedVariable.count(), 1);
+    QCOMPARE(scopedVariable.first(), QLatin1String("1"));
 }
 
 QTEST_MAIN(tst_ProFileReader)

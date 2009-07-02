@@ -1297,10 +1297,28 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
     if (Option::target_mode == Option::TARG_WIN_MODE && config == QLatin1String("win32"))
         return true;
 
-    QRegExp re(config, Qt::CaseSensitive, QRegExp::Wildcard);
-    QString spec = Option::qmakespec;
-    if ((regex && re.exactMatch(spec)) || (!regex && spec == config))
-        return true;
+    if (regex) {
+        QRegExp re(config, Qt::CaseSensitive, QRegExp::Wildcard);
+
+        if (re.exactMatch(Option::qmakespec))
+            return true;
+
+        // CONFIG variable
+        foreach (const QString &configValue, m_valuemap.value(QLatin1String("CONFIG"))) {
+            if (re.exactMatch(configValue))
+                return true;
+        }
+    } else {
+        // mkspecs
+        if (Option::qmakespec == config)
+            return true;
+
+        // CONFIG variable
+        foreach (const QString &configValue, m_valuemap.value(QLatin1String("CONFIG"))) {
+            if (configValue == config)
+                return true;
+        }
+    }
 
     return false;
 }
