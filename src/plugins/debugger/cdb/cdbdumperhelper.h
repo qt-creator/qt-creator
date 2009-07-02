@@ -109,7 +109,9 @@ private:
     bool callDumper(const QString &call, const QByteArray &inBuffer, const char **outputPtr,
                     bool ignoreAccessViolation, QString *errorMessage);
 
-    enum DumpExecuteResult { DumpExecuteOk, DumpExecuteSizeFailed, DumpExecuteCallFailed };
+    enum DumpExecuteResult { DumpExecuteOk, DumpExecuteSizeFailed,
+                             DumpComplexExpressionEncountered,
+                             DumpExecuteCallFailed };
     DumpExecuteResult executeDump(const WatchData &wd,
                                   const QtDumperHelper::TypeData& td, bool dumpChildren, int source,
                                   QList<WatchData> *result, QString *errorMessage);

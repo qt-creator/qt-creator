@@ -29,12 +29,15 @@
 
 #include <QtCore/QStringList>
 #include <QtCore/QVector>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QTimer>
+#include <QtCore/QMap>
 
 #include <string>
 #include <list>
 #include <vector>
 #include <set>
+#include <map>
 
 #include <stdio.h>
 #include <string.h>
@@ -102,6 +105,17 @@ static int dumpQString()
     return 0;
 }
 
+static int dumpQSharedPointerQString()
+{
+    QSharedPointer<QString> test(new QString(QLatin1String("hallo")));
+    prepareInBuffer("QSharedPointer", "local.sharedpointerqstring", "local.local.sharedpointerqstring", "QString");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(QString), 0, 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    QString uninitialized;
+    return 0;
+}
+
 static int dumpQStringList()
 {
     QStringList test = QStringList() << QLatin1String("item1") << QLatin1String("item2");
@@ -127,6 +141,34 @@ static int dumpQIntVector()
     QVector<int> test = QVector<int>() << 1 << 2;
     prepareInBuffer("QVector", "local.qintvector", "local.qintvector", "int");
     qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), 0, 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
+static int dumpQMapIntInt()
+{
+    QMap<int,int> test;
+    QMapNode<int,int> mapNode;
+    const int valueOffset = (char*)&(mapNode.value) - (char*)&mapNode;
+    test.insert(42, 43);
+    test.insert(43, 44);
+    prepareInBuffer("QMap", "local.qmapintint", "local.qmapintint", "int@int");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), sizeof(int), sizeof(mapNode), valueOffset);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
+static int dumpQMapIntString()
+{
+    QMap<int,QString> test;
+    QMapNode<int,QString> mapNode;
+    const int valueOffset = (char*)&(mapNode.value) - (char*)&mapNode;
+    test.insert(42, QLatin1String("fortytwo"));
+    test.insert(43, QLatin1String("fortytree"));
+    prepareInBuffer("QMap", "local.qmapintqstring", "local.qmapintqstring", "int@QString");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), sizeof(QString), sizeof(mapNode), valueOffset);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -238,6 +280,20 @@ static int dumpStdStringSet()
     return 0;
 }
 
+static int dumpStdMapIntString()
+{
+    std::map<int,std::string> test;
+    std::map<int,std::string>::value_type entry(42, std::string("fortytwo"));
+    test.insert(entry);
+    const int valueOffset = (char*)&(entry.second) - (char*)&entry;
+    prepareInBuffer("std::map", "local.stdmapintstring", "local.stdmapintstring",
+                    "int@std::basic_string<char,std::char_traits<char>,std::allocator<char> >@std::less<int>@std::allocator<std::pair<const int,std::basic_string<char,std::char_traits<char>,std::allocator<char> > > >");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), sizeof(std::string), valueOffset, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
 static int dumpQObject()
 {
     // Requires the childOffset to be know, but that is not critical
@@ -247,6 +303,47 @@ static int dumpQObject()
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
+}
+
+static bool dumpType(const char *arg)
+{
+    if (!qstrcmp(arg, "QString"))
+        { dumpQString(); return true; }
+    if (!qstrcmp(arg, "QSharedPointer<QString>"))
+        { dumpQSharedPointerQString(); return true; }
+    if (!qstrcmp(arg, "QStringList"))
+        { dumpQStringList(); return true; }
+    if (!qstrcmp(arg, "QList<int>"))
+        { dumpQIntList(); return true; }
+    if (!qstrcmp(arg, "QList<std::string>"))
+        { dumpStdStringQList(); return true; }
+    if (!qstrcmp(arg, "QVector<int>"))
+        { dumpQIntVector(); return true; }
+    if (!qstrcmp(arg, "QMap<int,QString>"))
+        { dumpQMapIntString(); return true; }
+    if (!qstrcmp(arg, "QMap<int,int>"))
+        { dumpQMapIntInt(); return true; }
+    if (!qstrcmp(arg, "string"))
+        { dumpStdString(); return true; }
+    if (!qstrcmp(arg, "wstring"))
+        { dumpStdWString(); return true; }
+    if (!qstrcmp(arg, "list<int>"))
+        { dumpStdIntList(); return true; }
+    if (!qstrcmp(arg, "list<string>"))
+        { dumpStdStringList(); return true; }
+    if (!qstrcmp(arg, "vector<int>"))
+        { dumpStdIntVector(); return true; }
+    if (!qstrcmp(arg, "vector<string>"))
+        { dumpStdStringVector(); return true; }
+    if (!qstrcmp(arg, "set<int>"))
+        { dumpStdIntSet(); return true; }
+    if (!qstrcmp(arg, "set<string>"))
+        { dumpStdStringSet(); return true; }
+    if (!qstrcmp(arg, "map<int,string>"))
+        { dumpStdMapIntString(); return true; }
+    if (!qstrcmp(arg, "QObject"))
+        { dumpQObject(); return true; }
+    return false;
 }
 
 int main(int argc, char *argv[])
@@ -266,34 +363,8 @@ int main(int argc, char *argv[])
             continue;
         }
         printf("\nTesting %s\n", arg);
-        if (!qstrcmp(arg, "QString"))
-            dumpQString();
-        if (!qstrcmp(arg, "QStringList"))
-            dumpQStringList();
-        if (!qstrcmp(arg, "QList<int>"))
-            dumpQIntList();
-        if (!qstrcmp(arg, "QList<std::string>"))
-            dumpStdStringQList();
-        if (!qstrcmp(arg, "QVector<int>"))
-            dumpQIntVector();
-        if (!qstrcmp(arg, "string"))
-            dumpStdString();
-        if (!qstrcmp(arg, "wstring"))
-            dumpStdWString();
-        if (!qstrcmp(arg, "list<int>"))
-            dumpStdIntList();
-        if (!qstrcmp(arg, "list<string>"))
-            dumpStdStringList();
-        if (!qstrcmp(arg, "vector<int>"))
-            dumpStdIntVector();
-        if (!qstrcmp(arg, "vector<string>"))
-            dumpStdStringVector();
-        if (!qstrcmp(arg, "set<int>"))
-            dumpStdIntSet();
-        if (!qstrcmp(arg, "set<string>"))
-            dumpStdStringSet();
-        if (!qstrcmp(arg, "QObject"))
-            dumpQObject();
+        if (!dumpType(arg))
+            printf("\nUnhandled type: %s\n", arg);
     }
     return 0;
 }

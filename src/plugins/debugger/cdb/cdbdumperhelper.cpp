@@ -576,8 +576,9 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
         return DumpOk;
     // Cache types that fail due to complicated template size expressions.
     // Exceptions OTOH might occur when accessing variables that are not
-    // yet initialized in a particular breakpoint. That should be ignored
-    if (der == DumpExecuteSizeFailed)
+    // yet initialized in a particular breakpoint. That should be ignored.
+    // Also fail for complex expression that were not cached/replaced by the helper.
+    if (der == DumpExecuteSizeFailed || der == DumpComplexExpressionEncountered)
         m_failedTypes.push_back(wd.type);    
     // log error
     *errorMessage = msgDumpFailed(wd, errorMessage);
@@ -611,6 +612,12 @@ CdbDumperHelper::DumpExecuteResult
             if (!sizeOk)
                 return DumpExecuteSizeFailed;
             ep = QString::number(size);
+            continue;
+        }
+        // We cannot evaluate any other expressions than 'sizeof()' ;-(
+        if (!ep.isEmpty() && !ep.at(0).isDigit()) {
+            *errorMessage = QString::fromLatin1("Unable to evaluate: '%1'").arg(ep);
+            return DumpComplexExpressionEncountered;
         }
     }
     // Execute call

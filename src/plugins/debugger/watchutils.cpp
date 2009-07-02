@@ -560,14 +560,10 @@ void QtDumperHelper::TypeData::clear()
 }
 
 // ----------------- QtDumperHelper
-const QString stdAllocatorPrefix = QLatin1String("std::allocator");
-
 QtDumperHelper::QtDumperHelper() :
-    m_intSize(0),
-    m_pointerSize(0),
-    m_stdAllocatorSize(0),
     m_qtVersion(0)
 {
+    qFill(m_specialSizes, m_specialSizes + SpecialSizeCount, 0);
 }
 
 void QtDumperHelper::clear()
@@ -576,9 +572,8 @@ void QtDumperHelper::clear()
     m_qtVersion = 0;
     m_qtNamespace.clear();
     m_sizeCache.clear();
-    m_intSize = 0;
-    m_pointerSize = 0;
-    m_stdAllocatorSize = 0;
+    qFill(m_specialSizes, m_specialSizes + SpecialSizeCount, 0);
+    m_expressionCache.clear();
 }
 
 static inline void formatQtVersion(int v, QTextStream &str)
@@ -593,13 +588,15 @@ QString QtDumperHelper::toString(bool debug) const
         QTextStream str(&rc);
         str << "version=";
         formatQtVersion(m_qtVersion, str);
-        str << " namespace='" << m_qtNamespace << "'," << m_nameTypeMap.size() << " known types: ";
+        str << " namespace='" << m_qtNamespace << "'," << m_nameTypeMap.size() << " known types <type enum>: ";
         const NameTypeMap::const_iterator cend = m_nameTypeMap.constEnd();
         for (NameTypeMap::const_iterator it = m_nameTypeMap.constBegin(); it != cend; ++it) {
             str <<",[" << it.key() << ',' << it.value() << ']';
         }
-        str << "Sizes: intsize=" << m_intSize << " pointer size=" << m_pointerSize
-                << " allocatorsize=" << m_stdAllocatorSize;
+        str << "\nSpecial size: ";
+        for (int i = 0; i < SpecialSizeCount; i++)
+            str << ' ' << m_specialSizes[i];
+        str << "\nSize cache: ";
         const SizeCache::const_iterator scend = m_sizeCache.constEnd();
         for (SizeCache::const_iterator it = m_sizeCache.constBegin(); it != scend; ++it) {
             str << ' ' << it.key() << '=' << it.value();
@@ -693,22 +690,23 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
     return UnknownType;
 }
 
-bool QtDumperHelper::needsExpressionSyntax(Type t)
+QtDumperHelper::ExpressionRequirement QtDumperHelper::expressionRequirements(Type t)
 {
     switch (t) {
-        case QAbstractItemType:
-        case QObjectSlotType:
-        case QObjectSignalType:
-        case QMapType:
-        case QVectorType:
-        case QMultiMapType:
-        case QMapNodeType:
-        case StdMapType:
-            return true;
-        default:
-            break;
+    case QAbstractItemType:
+    case QObjectSlotType:
+    case QObjectSignalType:
+    case QVectorType:
+    case StdMapType:
+        return NeedsComplexExpression;
+    case QMapType:
+    case QMultiMapType:
+    case QMapNodeType:
+        return NeedsCachedExpression;
+    default:
+        break;
     }
-    return false;
+    return NeedsNoExpression;
 }
 
 QString QtDumperHelper::qtVersionString() const
@@ -745,7 +743,7 @@ void QtDumperHelper::parseQueryTypes(const QStringList &l, Debugger debugger)
         const Type t = specialType(l.at(i));
         if (t != UnknownType) {
             // Exclude types that require expression syntax for CDB
-            if (debugger == GdbDebugger || !needsExpressionSyntax(t))
+            if (debugger == GdbDebugger || expressionRequirements(t) != NeedsComplexExpression)
                 m_nameTypeMap.insert(l.at(i), t);
         } else {
             m_nameTypeMap.insert(l.at(i), SupportedType);
@@ -940,6 +938,7 @@ public:
         QString qtVersion;
         QStringList types;
         QList<SizeEntry> sizes;
+        QMap<QString, QString> expressionCache;
     };
 
     inline Data data() const { return m_data; }
@@ -952,10 +951,12 @@ protected:
     virtual bool handleValue(const char *k, int size);
 
 private:
-    enum Mode { None, ExpectingDumpers, ExpectingVersion, ExpectingNameSpace, ExpectingSizes };
+    enum Mode { None, ExpectingDumpers, ExpectingVersion,
+                ExpectingNameSpace, ExpectingSizes, ExpectingExpressionCache };
     Mode m_mode;
     Data m_data;
     QString m_lastSizeType;
+    QString m_lastExpression;
 };
 
 QueryDumperParser::QueryDumperParser(const char *s) :
@@ -965,10 +966,16 @@ QueryDumperParser::QueryDumperParser(const char *s) :
 }
 
 bool QueryDumperParser::handleKeyword(const char *k, int size)        
-{    
-    if (m_mode == ExpectingSizes) {
+{
+    switch (m_mode) {
+    case ExpectingSizes:
         m_lastSizeType = QString::fromLatin1(k, size);
         return true;
+    case ExpectingExpressionCache:
+        m_lastExpression = QString::fromLatin1(k, size);
+        return true;
+    default:
+       break;
     }
     if (!qstrncmp(k, "dumpers", size)) {
         m_mode = ExpectingDumpers;
@@ -984,6 +991,10 @@ bool QueryDumperParser::handleKeyword(const char *k, int size)
     }
     if (!qstrncmp(k, "sizes", size)) {
         m_mode = ExpectingSizes;
+        return true;
+    }
+    if (!qstrncmp(k, "expressions", size)) {
+        m_mode = ExpectingExpressionCache;
         return true;
     }
     qWarning("%s Unexpected keyword %s.\n", Q_FUNC_INFO, QByteArray(k, size).constData());
@@ -1026,6 +1037,9 @@ bool QueryDumperParser::handleValue(const char *k, int size)
     case ExpectingSizes:
         m_data.sizes.push_back(SizeEntry(m_lastSizeType, QString::fromLatin1(k, size).toInt()));
         break;
+    case ExpectingExpressionCache:
+        m_data.expressionCache.insert(m_lastExpression, QString::fromLatin1(k, size));
+        break;
     }
     return true;
 }
@@ -1042,25 +1056,24 @@ bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
     parseQueryTypes(parser.data().types, debugger);
     foreach (const QueryDumperParser::SizeEntry &se, parser.data().sizes)
         addSize(se.first, se.second);
+    m_expressionCache = parser.data().expressionCache;
+    qDebug() << m_expressionCache;
     return true;
 }
 
 void QtDumperHelper::addSize(const QString &name, int size)
 {
     // Special interest cases
+    if (name == QLatin1String("char*")) {
+        m_specialSizes[PointerSize] = size;
+        return;
+    }
+    const SpecialSizeType st = specialSizeType(name);
+    if (st != SpecialSizeCount) {
+        m_specialSizes[st] = size;
+        return;
+    }
     do {
-        if (name == QLatin1String("char*")) {
-            m_pointerSize = size;
-            break;
-        }
-        if (name == QLatin1String("int")) {
-            m_intSize = size;
-            break;
-        }
-        if (name.startsWith(stdAllocatorPrefix)) {
-            m_stdAllocatorSize = size;
-            break;
-        }
         if (name == QLatin1String("std::string")) {
             m_sizeCache.insert(QLatin1String("std::basic_string<char,std::char_traits<char>,std::allocator<char>>"), size);
             break;
@@ -1104,16 +1117,54 @@ QtDumperHelper::TypeData QtDumperHelper::typeData(const QString &typeName) const
 QString QtDumperHelper::evaluationSizeofTypeExpression(const QString &typeName,
                                                        Debugger /* debugger */) const
 {
-    // Look up fixed types
-    if (m_pointerSize && isPointerType(typeName))
-        return QString::number(m_pointerSize);
-    if (m_stdAllocatorSize && typeName.startsWith(stdAllocatorPrefix))
-        return QString::number(m_stdAllocatorSize);
+    // Look up special size types
+    const SpecialSizeType st = specialSizeType(typeName);
+    if (st != SpecialSizeCount) {
+        if (const int size = m_specialSizes[st])
+            return QString::number(size);
+    }
+    // Look up size cache
     const SizeCache::const_iterator sit = m_sizeCache.constFind(typeName);
     if (sit != m_sizeCache.constEnd())
         return QString::number(sit.value());
     // Finally have the debugger evaluate
     return sizeofTypeExpression(typeName);
+}
+
+QtDumperHelper::SpecialSizeType QtDumperHelper::specialSizeType(const QString &typeName)
+{
+    if (isPointerType(typeName))
+        return PointerSize;
+    static const QString intType = QLatin1String("int");
+    static const QString stdAllocatorPrefix = QLatin1String("std::allocator");
+    static const QString qPointerPrefix = QLatin1String("QPointer");
+    static const QString qSharedPointerPrefix = QLatin1String("QSharedPointer");
+    static const QString qSharedDataPointerPrefix = QLatin1String("QSharedDataPointer");
+    static const QString qWeakPointerPrefix = QLatin1String("QWeakPointer");
+    if (typeName == intType)
+        return IntSize;
+    if (typeName.startsWith(stdAllocatorPrefix))
+        return StdAllocatorSize;
+    if (typeName.startsWith(qPointerPrefix))
+        return QPointerSize;
+    if (typeName.startsWith(qSharedPointerPrefix))
+        return QSharedPointerSize;
+    if (typeName.startsWith(qSharedDataPointerPrefix))
+        return QSharedDataPointerSize;
+    if (typeName.startsWith(qWeakPointerPrefix))
+        return QWeakPointerSize;
+    return SpecialSizeCount;
+}
+
+static inline bool isInteger(const QString &n)
+{
+    const int size = n.size();
+    if (!size)
+        return false;
+    for (int i = 0; i < size; i++)
+        if (!n.at(i).isDigit())
+            return false;
+    return true;
 }
 
 void QtDumperHelper::evaluationParameters(const WatchData &data,
@@ -1263,6 +1314,20 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         break;
     case SupportedType:
         break;
+    }
+
+    // Look up expressions in the cache
+    if (!m_expressionCache.empty()) {
+        const QMap<QString, QString>::const_iterator excCend = m_expressionCache.constEnd();
+        const QStringList::iterator eend = extraArgs.end();
+        for (QStringList::iterator it = extraArgs.begin(); it != eend; ++it) {
+            QString &e = *it;
+            if (!e.isEmpty() && e != zero && !isInteger(e)) {
+                const QMap<QString, QString>::const_iterator eit = m_expressionCache.constFind(e);
+                if (eit != excCend)
+                    e = eit.value();
+            }
+        }
     }
 
     inBuffer->clear();

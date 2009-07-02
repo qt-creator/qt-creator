@@ -50,6 +50,7 @@
 #if QT_VERSION >= 0x040500
 #include <QtCore/QSharedPointer>
 #include <QtCore/QSharedDataPointer>
+#include <QtCore/QSharedData>
 #include <QtCore/QWeakPointer>
 #endif
 
@@ -1345,6 +1346,11 @@ int hashOffset(bool optimizedIntKey, bool forKey, unsigned keySize, unsigned val
     }
 }
 
+#ifdef Q_CC_MSVC
+#  define MAP_NODE_TYPE_END ">"
+#else
+#  define MAP_NODE_TYPE_END " >"
+#endif
 
 static void qDumpQHash(QDumper &d)
 {
@@ -1407,7 +1413,7 @@ static void qDumpQHash(QDumper &d)
                     d.endItem();
                     d.beginItem("type");
                         d.put("'"NS"QHashNode<").put(keyType).put(",")
-                            .put(valueType).put(" >'");
+                            .put(valueType).put(MAP_NODE_TYPE_END"'");
                     d.endItem();
                 }
             d.endHash();
@@ -1763,7 +1769,7 @@ static void qDumpQMap(QDumper &d)
                     // actually, any type (even 'char') will do...
                     d.beginItem("type");
                         d.put(NS"QMapNode<").put(keyType).put(",");
-                        d.put(valueType).put(" >");
+                        d.put(valueType).put(MAP_NODE_TYPE_END);
                     d.endItem();
                     d.beginItem("exp");
                         d.put("*('"NS"QMapNode<").put(keyType).put(",");
@@ -1776,7 +1782,7 @@ static void qDumpQMap(QDumper &d)
 #else
                     d.beginItem("type");
                         d.put(NS"QMapData::Node<").put(keyType).put(",");
-                        d.put(valueType).put(" >");
+                        d.put(valueType).put(MAP_NODE_TYPE_END);
                     d.endItem();
                     d.beginItem("exp");
                         d.put("*('"NS"QMapData::Node<").put(keyType).put(",");
@@ -3036,6 +3042,27 @@ void *watchPoint(int x, int y)
 }
 #endif
 
+// Helper to write out common expression values for CDB:
+// Offsets of a map node value which looks like
+// "(size_t)&(('QMapNode<QString,QString >'*)0)->value")" in gdb syntax
+
+template <class Key, class Value>
+        inline QDumper & putQMapNodeOffsetExpression(const char *keyType,
+                                                     const char *valueType,
+                                                     QDumper &d)
+{
+    QMapNode<Key, Value> *mn = 0;
+    const int valueOffset = (char *)&(mn->value) - (char*)mn;
+    d.put("(size_t)&(('"NS"QMapNode<");
+    d.put(keyType);
+    d.put(',');
+    d.put(valueType);
+    d.put(">'*)0)->value=\"");
+    d.put(valueOffset);
+    d.put('"');
+    return d;
+}
+
 extern "C" Q_DECL_EXPORT
 void *qDumpObjectData440(
     int protocolVersion,
@@ -3136,8 +3163,30 @@ void *qDumpObjectData440(
 #endif
          .put("std::string=\"").put(sizeof(std::string)).put("\",")
          .put("std::wstring=\"").put(sizeof(std::wstring)).put("\",")
-         .put("std::allocator=\"").put(sizeof(std::allocator<int>))
+         .put("std::allocator=\"").put(sizeof(std::allocator<int>)).put("\",")
+#if QT_VERSION >= 0x040500
+         .put(NS"QSharedPointer=\"").put(sizeof(QSharedPointer<int>)).put("\",")
+         .put(NS"QSharedDataPointer=\"").put(sizeof(QSharedDataPointer<QSharedData>)).put("\",")
+         .put(NS"QWeakPointer=\"").put(sizeof(QWeakPointer<int>)).put("\",")
+#endif
+         .put("QPointer=\"").put(sizeof(QPointer<QObject>)).put("\",")
+         // Common map node types
+         .put(NS"QMapNode<int,int>=\"").put(sizeof(QMapNode<int,int >)).put("\",")
+         .put(NS"QMapNode<int,"NS"QString>=\"").put(sizeof(QMapNode<int, QString>)).put("\",")
+         .put(NS"QMapNode<int,"NS"QVariant>=\"").put(sizeof(QMapNode<int, QVariant>)).put("\",")
+         .put(NS"QMapNode<"NS"QString,int>=\"").put(sizeof(QMapNode<QString, int>)).put("\",")
+         .put(NS"QMapNode<"NS"QString,"NS"QString>=\"").put(sizeof(QMapNode<QString, QString>)).put("\",")
+         .put(NS"QMapNode<"NS"QString,"NS"QVariant>=\"").put(sizeof(QMapNode<QString, QVariant>))
          .put("\"}");
+        // Write out common expression values for CDB
+        d.put(",expressions={");
+        putQMapNodeOffsetExpression<int,int>("int", "int", d).put(',');
+        putQMapNodeOffsetExpression<int,QString>("int", NS"QString", d).put(',');
+        putQMapNodeOffsetExpression<int,QVariant>("int", NS"QVariant", d).put(',');
+        putQMapNodeOffsetExpression<QString,int>(NS"QString", "int", d).put(',');
+        putQMapNodeOffsetExpression<QString,QString>(NS"QString", NS"QString", d).put(',');
+        putQMapNodeOffsetExpression<QString,QVariant>(NS"QString", NS"QVariant", d);
+        d.put('}');
         d.disarm();
     }
 
