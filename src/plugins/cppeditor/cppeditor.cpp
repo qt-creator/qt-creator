@@ -861,6 +861,9 @@ void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded
     Q_UNUSED(position)
     Q_UNUSED(charsAdded)
 
+    if (m_currentRenameSelection == -1)
+        return;
+
     if (!m_inRename)
         abortRename();
 
