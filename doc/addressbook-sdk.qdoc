@@ -817,9 +817,9 @@
     corresponding slot. Similarly, for the \gui Find feature, we have
     \c findButton and \c findContact().
 
-    \snippet examples/addressbook-sdk/part5/addressbook.h findContact
+    \snippet examples/addressbook-sdk/part5/addressbook.h slot definition
     \dots
-    \snippet examples/addressbook-sdk/part5/addressbook.h findButton
+    \snippet examples/addressbook-sdk/part5/addressbook.h private members
 
     Lastly, we declare the private variable, \c dialog, which we will use to
     refer to an instance of \c FindDialog.

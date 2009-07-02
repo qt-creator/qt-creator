@@ -32,9 +32,9 @@ public slots:
     void removeContact();
     void next();
     void previous();
-//! [findContact]
+//! [slot definition]
     void findContact();
-//! [findContact]
+//! [slot definition]
 
 private:
     Ui::AddressBook *ui;
@@ -47,9 +47,9 @@ private:
     QPushButton *removeButton;
     QPushButton *nextButton;
     QPushButton *previousButton;
-//! [findButton]
+//! [private members]
     QPushButton *findButton;
-//! [findButton]
+//! [private members]
     QLineEdit *nameLine;
     QTextEdit *addressText;
 
