@@ -73,6 +73,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QStack>
 #include <QtGui/QAction>
+#include <QtGui/QApplication>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLayout>
 #include <QtGui/QMenu>
@@ -88,7 +89,8 @@ using namespace CPlusPlus;
 using namespace CppEditor::Internal;
 
 enum {
-    UPDATE_METHOD_BOX_INTERVAL = 150
+    UPDATE_METHOD_BOX_INTERVAL = 150,
+    UPDATE_USES_INTERVAL = 300
 };
 
 namespace {
@@ -499,111 +501,6 @@ protected:
     }
 };
 
-class SimplifyDeclarations: protected ASTVisitor
-{
-    CPPEditor *_editor;
-    Document::Ptr _doc;
-    QByteArray _source;
-    QTextCursor _textCursor;
-    unsigned _line;
-    unsigned _column;
-
-public:
-    SimplifyDeclarations(CPPEditor *ed, Document::Ptr doc)
-        : ASTVisitor(doc->control()), _editor(ed),
-          _doc(doc), _source(doc->source())
-    { }
-
-    void operator()(QTextCursor tc)
-    {
-        _textCursor = tc;
-
-        _line = _textCursor.blockNumber() + 1;
-        _column = _textCursor.columnNumber() + 1;
-
-        accept(_doc->translationUnit()->ast());
-    }
-
-protected:
-    QByteArray text(unsigned firstToken, unsigned lastToken) const
-    {
-        const unsigned begin = tokenAt(firstToken).begin();
-        const unsigned end = tokenAt(lastToken - 1).end();
-        return _source.mid(begin, end - begin);
-    }
-
-    virtual bool visit(SimpleDeclarationAST *ast)
-    {
-        if (! ast->decl_specifier_seq) {
-            // e.g a ctor/dtor or a cast-function-id.
-            return true;
-        } if (! ast->declarators) {
-            // e.g.
-            // struct foo { int a; };
-            return true;
-        } else if (! ast->declarators->next) {
-            // e.g.
-            // int a;
-            return true;
-        }
-
-        unsigned startLine, startColumn;
-        unsigned endLine, endColumn;
-
-        getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
-        getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
-
-        if (_line < startLine || (_line == startLine && _column < startColumn))
-            return true;
-        else if (_line > endLine || (_line == endLine && _column >= endColumn))
-            return true;
-
-        unsigned beginOfDeclSpecifiers = ast->decl_specifier_seq->firstToken();
-        unsigned endOfDeclSpecifiers = 0;
-
-        for (SpecifierAST *spec = ast->decl_specifier_seq; spec; spec = spec->next) {
-            if (spec->asClassSpecifier() != 0) {
-                // e.g.
-                // struct foo { int a; } x, y, z;
-                return true;
-            } else if (! spec->next)
-                endOfDeclSpecifiers = spec->lastToken();
-        }
-
-        const QByteArray declSpecifiers =
-                text(beginOfDeclSpecifiers, endOfDeclSpecifiers);
-
-        QByteArray code;
-        for (DeclaratorListAST *it = ast->declarators; it; it = it->next) {
-            DeclaratorAST *decl = it->declarator;
-
-            const QByteArray declaratorText = text(decl->firstToken(), decl->lastToken());
-            code += declSpecifiers;
-            code += ' ';
-            code += declaratorText;
-            code += ';';
-            code += '\n';
-        }
-
-        const QString refactoredCode = QString::fromUtf8(code);
-
-        QTextCursor tc = _textCursor;
-        tc.beginEditBlock();
-        tc.setPosition(tc.document()->findBlockByNumber(startLine - 1).position() + startColumn - 1);
-        int startPos = tc.position();
-        tc.setPosition(tc.document()->findBlockByNumber(endLine - 1).position() + endColumn - 1,
-                       QTextCursor::KeepAnchor);
-        tc.removeSelectedText();
-        tc.insertText(refactoredCode);
-        tc.setPosition(startPos);
-        tc.setPosition(tc.position() + refactoredCode.length(), QTextCursor::KeepAnchor);
-        _editor->indentInsertedText(tc);
-        tc.endEditBlock();
-
-        return true;
-    }
-};
-
 } // end of anonymous namespace
 
 static QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
@@ -653,12 +550,17 @@ CPPEditor::CPPEditor(QWidget *parent)
     : TextEditor::BaseTextEditor(parent)
     , m_mouseNavigationEnabled(true)
     , m_showingLink(false)
+    , m_currentRenameSelection(-1)
+    , m_inRename(false)
 {
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
+
+    new QShortcut(QKeySequence(tr("CTRL+SHIFT+r")), this, SLOT(renameInPlace()),
+                  /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
 
 #ifdef WITH_TOKEN_MOVE_POSITION
     new QShortcut(QKeySequence::MoveToPreviousWord, this, SLOT(moveToPreviousToken()),
@@ -733,9 +635,16 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     m_updateMethodBoxTimer->setInterval(UPDATE_METHOD_BOX_INTERVAL);
     connect(m_updateMethodBoxTimer, SIGNAL(timeout()), this, SLOT(updateMethodBoxIndexNow()));
 
+    m_updateUsesTimer = new QTimer(this);
+    m_updateUsesTimer->setSingleShot(true);
+    m_updateUsesTimer->setInterval(UPDATE_USES_INTERVAL);
+    connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
+
     connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
     connect(m_methodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMethodBoxToolTip()));
+    connect(document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(onContentsChanged(int,int,int)));
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
@@ -743,6 +652,13 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     QList<QAction*> actions = toolBar->actions();
     QWidget *w = toolBar->widgetForAction(actions.first());
     static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_methodCombo, 1);
+}
+
+void CPPEditor::abortRename()
+{
+    m_currentRenameSelection = -1;
+    m_renameSelections.clear();
+    setExtraSelections(CodeSemanticsSelection, m_renameSelections);
 }
 
 int CPPEditor::previousBlockState(QTextBlock block) const
@@ -878,17 +794,33 @@ void CPPEditor::reformatDocument()
     c.insertText(QString::fromUtf8(str.c_str(), str.length()));
 }
 
-void CPPEditor::simplifyDeclarations()
+void CPPEditor::renameInPlace()
 {
-    Snapshot snapshot = m_modelManager->snapshot();
-    const QByteArray plainText = toPlainText().toUtf8();
-    const QString fileName = file()->fileName();
-    const QByteArray preprocessedCode = snapshot.preprocessedCode(plainText, fileName);
-    Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, fileName);
-    doc->check();
+    updateUsesNow();
 
-    SimplifyDeclarations simplify(this, doc);
-    simplify(textCursor());
+    QTextCursor c = textCursor();
+    m_currentRenameSelection = -1;
+
+    m_renameSelections = extraSelections(CodeSemanticsSelection);
+    for (int i = 0; i < m_renameSelections.size(); ++i) {
+        QTextEdit::ExtraSelection s = m_renameSelections.at(i);
+        if (c.position() >= s.cursor.anchor()
+                && c.position() < s.cursor.position()) {
+            m_currentRenameSelection = i;
+            m_renameSelections[i].format.setBackground(QColor(255, 200, 200));
+            setExtraSelections(CodeSemanticsSelection, m_renameSelections);
+            break;
+        }
+    }
+}
+
+void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded)
+{
+    if (!m_inRename)
+        abortRename();
+
+    if (charsRemoved > 0)
+        updateUses();
 }
 
 void CPPEditor::updateFileName()
@@ -987,14 +919,33 @@ void CPPEditor::updateMethodBoxIndexNow()
         lastIndex = index;
     }
 
-    QList<QTextEdit::ExtraSelection> selections;
-
     if (lastIndex.isValid()) {
         bool blocked = m_methodCombo->blockSignals(true);
         m_methodCombo->setCurrentIndex(m_proxyModel->mapFromSource(lastIndex).row());
         updateMethodBoxToolTip();
         (void) m_methodCombo->blockSignals(blocked);
     }
+}
+
+void CPPEditor::updateMethodBoxToolTip()
+{
+    m_methodCombo->setToolTip(m_methodCombo->currentText());
+}
+
+void CPPEditor::updateUses()
+{
+    m_updateUsesTimer->start(UPDATE_USES_INTERVAL);
+}
+
+void CPPEditor::updateUsesNow()
+{
+    m_updateUsesTimer->stop();
+
+    if (m_currentRenameSelection != -1)
+        return;
+
+    int line = 0, column = 0;
+    convertPosition(position(), &line, &column);
 
     const Snapshot snapshot = m_modelManager->snapshot();
     const QByteArray preprocessedCode = snapshot.preprocessedCode(toPlainText(), file()->fileName());
@@ -1008,10 +959,12 @@ void CPPEditor::updateMethodBoxIndexNow()
     FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, textCursor());
 
     QTextCharFormat format;
-    format.setBackground(Qt::lightGray);
+    format.setBackground(QColor(220, 220, 220));
 
     FindUses useTable(control);
     useTable(currentFunctionDefinition);
+
+    QList<QTextEdit::ExtraSelection> selections;
 
     FindUses::LocalUseIterator it(useTable.localUses);
     while (it.hasNext()) {
@@ -1034,7 +987,7 @@ void CPPEditor::updateMethodBoxIndexNow()
         highlightUses(document(), format, translationUnit, uses, &selections);
         break; // done
     }
-
+#if 0
     FindUses::ExternalUseIterator it2(useTable.externalUses);
     while (it2.hasNext()) {
         it2.next();
@@ -1056,13 +1009,8 @@ void CPPEditor::updateMethodBoxIndexNow()
         highlightUses(document(), format, translationUnit, uses, &selections);
         break; // done
     }
-
+#endif
     setExtraSelections(CodeSemanticsSelection, selections);
-}
-
-void CPPEditor::updateMethodBoxToolTip()
-{
-    m_methodCombo->setToolTip(m_methodCombo->currentText());
 }
 
 static bool isCompatible(Name *name, Name *otherName)
@@ -1392,6 +1340,22 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
     indentCPPBlock(tabSettings(), block, begin, end, typedChar);
 }
 
+bool CPPEditor::event(QEvent *e)
+{
+    switch (e->type()) {
+    case QEvent::ShortcutOverride:
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_currentRenameSelection != -1) {
+            e->accept();
+            return true;
+        }
+        break;
+    default:
+        break;
+    }
+
+    return BaseTextEditor::event(e);
+}
+
 void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = createStandardContextMenu();
@@ -1411,6 +1375,16 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     QAction *simplifyDeclarations = new QAction(tr("Simplify Declarations"), menu);
     connect(simplifyDeclarations, SIGNAL(triggered()), this, SLOT(simplifyDeclarations()));
     menu->addAction(simplifyDeclarations);
+
+    const QList<QTextEdit::ExtraSelection> selections =
+            extraSelections(BaseTextEditor::CodeSemanticsSelection);
+
+    if (! selections.isEmpty()) {
+        const QString name = selections.first().cursor.selectedText();
+        QAction *renameAction = new QAction(tr("Rename '%1'").arg(name), menu);
+        connect(renameAction, SIGNAL(triggered()), this, SLOT(renameInPlace()));
+        menu->addAction(renameAction);
+    }
 
     menu->exec(e->globalPos());
     delete menu;
@@ -1475,6 +1449,151 @@ void CPPEditor::keyReleaseEvent(QKeyEvent *e)
         clearLink();
 
     TextEditor::BaseTextEditor::keyReleaseEvent(e);
+}
+
+void CPPEditor::keyPressEvent(QKeyEvent *e)
+{
+    if (m_currentRenameSelection == -1) {
+        TextEditor::BaseTextEditor::keyPressEvent(e);
+        return;
+    }
+
+    QTextEdit::ExtraSelection currentRenameSelection = m_renameSelections.at(m_currentRenameSelection);
+
+    QTextCursor::MoveMode moveMode = (e->modifiers() & Qt::ShiftModifier) ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor;
+
+    switch (e->key()) {
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+    case Qt::Key_Escape:
+        abortRename();
+        e->accept();
+        return;
+    case Qt::Key_Home: {
+        QTextCursor c = textCursor();
+        c.setPosition(currentRenameSelection.cursor.anchor(), moveMode);
+        setTextCursor(c);
+        e->accept();
+        return;
+    }
+    case Qt::Key_End: {
+        QTextCursor c = textCursor();
+        c.setPosition(currentRenameSelection.cursor.position(), moveMode);
+        setTextCursor(c);
+        e->accept();
+        return;
+    }
+    case Qt::Key_Backspace: {
+        QTextCursor c = textCursor();
+
+        if (c.position() == currentRenameSelection.cursor.anchor()) {
+            // Eat
+            e->accept();
+            return;
+        } else if (c.position() > currentRenameSelection.cursor.anchor()
+                && c.position() <= currentRenameSelection.cursor.position()) {
+
+            int offset = c.position() - currentRenameSelection.cursor.anchor();
+
+            m_inRename = true;
+
+            c.beginEditBlock();
+            for (int i = 0; i < m_renameSelections.size(); ++i) {
+                QTextEdit::ExtraSelection &s = m_renameSelections[i];
+                int pos = s.cursor.anchor();
+                int endPos = s.cursor.position();
+                s.cursor.setPosition(s.cursor.anchor() + offset);
+                s.cursor.deletePreviousChar();
+                s.cursor.setPosition(pos);
+                s.cursor.setPosition(endPos - 1, QTextCursor::KeepAnchor);
+            }
+            c.endEditBlock();
+
+            m_inRename = false;
+
+            setTextCursor(c);
+            setExtraSelections(CodeSemanticsSelection, m_renameSelections);
+
+            e->accept();
+            return;
+        }
+        break;
+    }
+    case Qt::Key_Delete: {
+        QTextCursor c = textCursor();
+
+        if (c.position() == currentRenameSelection.cursor.position()) {
+            // Eat
+            e->accept();
+            return;
+        } else if (c.position() >= currentRenameSelection.cursor.anchor()
+                && c.position() < currentRenameSelection.cursor.position()) {
+
+            int offset = c.position() - currentRenameSelection.cursor.anchor();
+
+            m_inRename = true;
+
+            c.beginEditBlock();
+            for (int i = 0; i < m_renameSelections.size(); ++i) {
+                QTextEdit::ExtraSelection &s = m_renameSelections[i];
+                int pos = s.cursor.anchor();
+                int endPos = s.cursor.position();
+                s.cursor.setPosition(s.cursor.anchor() + offset);
+                s.cursor.deleteChar();
+                s.cursor.setPosition(pos);
+                s.cursor.setPosition(endPos - 1, QTextCursor::KeepAnchor);
+            }
+            c.endEditBlock();
+
+            m_inRename = false;
+
+            setTextCursor(c);
+            setExtraSelections(CodeSemanticsSelection, m_renameSelections);
+
+            e->accept();
+            return;
+        }
+        break;
+    }
+    default: {
+        QString text = e->text();
+
+        if (! text.isEmpty() && text.at(0).isPrint()) {
+            QTextCursor c = textCursor();
+
+            if (c.position() >= currentRenameSelection.cursor.anchor()
+                    && c.position() <= currentRenameSelection.cursor.position()) {
+
+                int offset = c.position() - currentRenameSelection.cursor.anchor();
+
+                m_inRename = true;
+
+                c.beginEditBlock();
+                for (int i = 0; i < m_renameSelections.size(); ++i) {
+                    QTextEdit::ExtraSelection &s = m_renameSelections[i];
+                    int pos = s.cursor.anchor();
+                    int endPos = s.cursor.position();
+                    s.cursor.setPosition(s.cursor.anchor() + offset);
+                    s.cursor.insertText(text);
+                    s.cursor.setPosition(pos);
+                    s.cursor.setPosition(endPos + text.length(), QTextCursor::KeepAnchor);
+                }
+                c.endEditBlock();
+
+                m_inRename = false;
+
+                setTextCursor(c);
+                setExtraSelections(CodeSemanticsSelection, m_renameSelections);
+
+                e->accept();
+                return;
+            }
+        }
+        break;
+    }
+    }
+
+    TextEditor::BaseTextEditor::keyPressEvent(e);
 }
 
 void CPPEditor::showLink(const Link &link)

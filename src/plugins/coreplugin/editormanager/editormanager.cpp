@@ -1107,7 +1107,7 @@ static QString formatFileFilters(const Core::ICore *core, QString *selectedFilte
     if (hasAllFilter) {
         // prepend all files filter
         // prepending instead of appending to work around a but in Qt/Mac
-        QString allFilesFilter = QLatin1String("All Files (*)");
+        QString allFilesFilter = EditorManager::tr("All Files (*)");
         if (!rc.isEmpty())
             allFilesFilter += filterSeparator;
         rc.prepend(allFilesFilter);
