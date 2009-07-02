@@ -212,7 +212,7 @@ NavigationView OpenEditorsViewFactory::createWidget()
 
 QString OpenEditorsViewFactory::displayName()
 {
-    return "Open Documents";
+    return OpenEditorsWidget::tr("Open Documents");
 }
 
 QKeySequence OpenEditorsViewFactory::activationSequence()

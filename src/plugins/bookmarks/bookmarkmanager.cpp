@@ -747,7 +747,7 @@ BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
 
 QString BookmarkViewFactory::displayName()
 {
-    return "Bookmarks";
+    return BookmarkView::tr("Bookmarks");
 }
 
 QKeySequence BookmarkViewFactory::activationSequence()
