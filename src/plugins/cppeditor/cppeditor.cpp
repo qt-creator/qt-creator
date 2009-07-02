@@ -805,7 +805,7 @@ void CPPEditor::renameInPlace()
     for (int i = 0; i < m_renameSelections.size(); ++i) {
         QTextEdit::ExtraSelection s = m_renameSelections.at(i);
         if (c.position() >= s.cursor.anchor()
-                && c.position() < s.cursor.position()) {
+                && c.position() <= s.cursor.position()) {
             m_currentRenameSelection = i;
             m_renameSelections[i].format.setBackground(QColor(255, 200, 200));
             setExtraSelections(CodeSemanticsSelection, m_renameSelections);
@@ -1471,17 +1471,25 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
         return;
     case Qt::Key_Home: {
         QTextCursor c = textCursor();
-        c.setPosition(currentRenameSelection.cursor.anchor(), moveMode);
-        setTextCursor(c);
-        e->accept();
-        return;
+        if (c.position() > currentRenameSelection.cursor.anchor()
+               && c.position() <= currentRenameSelection.cursor.position()) {
+            c.setPosition(currentRenameSelection.cursor.anchor(), moveMode);
+            setTextCursor(c);
+            e->accept();
+            return;
+        }
+        break;
     }
     case Qt::Key_End: {
         QTextCursor c = textCursor();
-        c.setPosition(currentRenameSelection.cursor.position(), moveMode);
-        setTextCursor(c);
-        e->accept();
-        return;
+        if (c.position() >= currentRenameSelection.cursor.anchor()
+               && c.position() < currentRenameSelection.cursor.position()) {
+            c.setPosition(currentRenameSelection.cursor.position(), moveMode);
+            setTextCursor(c);
+            e->accept();
+            return;
+        }
+        break;
     }
     case Qt::Key_Backspace: {
         QTextCursor c = textCursor();
