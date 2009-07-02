@@ -92,11 +92,16 @@ QString CMakeManager::cmakeExecutable() const
     return m_settingsPage->cmakeExecutable();
 }
 
+bool CMakeManager::hasCodeBlocksMsvcGenerator() const
+{
+    return m_settingsPage->hasCodeBlocksMsvcGenerator();
+}
+
 // TODO need to refactor this out
 // we probably want the process instead of this function
 // cmakeproject then could even run the cmake process in the background, adding the files afterwards
 // sounds like a plan
-QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory, const ProjectExplorer::Environment &env)
+QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory, const ProjectExplorer::Environment &env, const QString &generator)
 {
     // We create a cbp file, only if we didn't find a cbp file in the base directory
     // Yet that can still override cbp files in subdirectories
@@ -115,11 +120,6 @@ QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QStrin
     cmake->setProcessChannelMode(QProcess::MergedChannels);
     cmake->setEnvironment(env.toStringList());
 
-#ifdef Q_OS_WIN
-    const QString generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
-#else // Q_OS_WIN
-    const QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
-#endif // Q_OS_WIN
     const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ? QString(QLatin1Char('.')) : sourceDirectory;
     qDebug()<<cmakeExecutable()<<srcdir<<arguments<<generator;
     cmake->start(cmakeExecutable(), QStringList() << srcdir << arguments << generator);
@@ -185,6 +185,7 @@ void CMakeRunner::run(QFutureInterface<void> &fi)
 
     m_mutex.lock();
     m_supportsQtCreator = response.contains(QLatin1String("QtCreator"));
+    m_hasCodeBlocksMsvcGenerator = response.contains(QLatin1String("CodeBlocks - NMake Makefiles"));
     m_version = versionRegexp.cap(1);
     if (!(versionRegexp.capturedTexts().size() > 3))
         m_version += QLatin1Char('.') + versionRegexp.cap(3);
@@ -226,6 +227,15 @@ bool CMakeRunner::supportsQtCreator() const
     waitForUpToDate();
     m_mutex.lock();
     bool result = m_supportsQtCreator;
+    m_mutex.unlock();
+    return result;
+}
+
+bool CMakeRunner::hasCodeBlocksMsvcGenerator() const
+{
+    waitForUpToDate();
+    m_mutex.lock();
+    bool result = m_hasCodeBlocksMsvcGenerator;
     m_mutex.unlock();
     return result;
 }
@@ -316,6 +326,12 @@ QString CMakeSettingsPage::cmakeExecutable() const
     }
     return m_cmakeRunner.executable();
 }
+
+bool CMakeSettingsPage::hasCodeBlocksMsvcGenerator() const
+{
+    return m_cmakeRunner.hasCodeBlocksMsvcGenerator();
+}
+
 
 void CMakeSettingsPage::askUserForCMakeExecutable()
 {

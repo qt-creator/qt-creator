@@ -27,6 +27,15 @@
 **
 **************************************************************************/
 
+
+/// TODO
+/// To check
+/// a) with an old cmake
+/// => should not show combobox always use mingw generator
+/// b) with an new cmake
+/// always show combo box, defaulting if there's already a existing build
+
+
 #include "cmakeopenprojectwizard.h"
 #include "cmakeprojectmanager.h"
 
@@ -268,12 +277,15 @@ void CMakeRunPage::initWidgets()
     m_argumentsLineEdit = new QLineEdit(this);
     connect(m_argumentsLineEdit,SIGNAL(returnPressed()), this, SLOT(runCMake()));
 
+    m_generatorComboBox = new QComboBox(this);
+    m_generatorComboBox->addItems(QStringList() << tr("NMake Generator") << tr("MinGW Generator"));
     m_runCMake = new QPushButton(this);
     m_runCMake->setText(tr("Run CMake"));
     connect(m_runCMake, SIGNAL(clicked()), this, SLOT(runCMake()));
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->addWidget(m_argumentsLineEdit);
+    hbox->addWidget(m_generatorComboBox);
     hbox->addWidget(m_runCMake);
 
     fl->addRow(tr("Arguments"), hbox);
@@ -313,6 +325,33 @@ void CMakeRunPage::initializePage()
                                        "Some projects require command line arguments to the "
                                        "initial cmake call."));
     }
+    if (m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator()) {
+        m_generatorComboBox->setVisible(true);
+        QString generator;
+        // Try to find out generator from CMakeCachhe file, if it exists
+        QFile fi(m_buildDirectory + "/CMakeCache.txt");
+        if (fi.exists()) {
+            // Cache exists, then read it...
+            if (fi.open(QIODevice::ReadOnly)) {
+                while (fi.canReadLine()) {
+                    QString line = fi.readLine();
+                    if (line.startsWith("CMAKE_GENERATOR:INTERNAL=")) {
+                        int splitpos = line.indexOf('=');
+                        if (splitpos != -1) {
+                            generator = line.mid(splitpos).trimmed();
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        if (!generator.isEmpty()) {
+            m_generatorComboBox->setCurrentIndex((generator == "NMake Makefiles" ? 0 : 1));
+        }
+    } else {
+        // No new enough cmake, simply hide the combo box
+        m_generatorComboBox->setVisible(false);
+    }
 }
 
 void CMakeRunPage::runCMake()
@@ -321,7 +360,13 @@ void CMakeRunPage::runCMake()
     m_argumentsLineEdit->setEnabled(false);
     QStringList arguments = ProjectExplorer::Environment::parseCombinedArgString(m_argumentsLineEdit->text());
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
-    m_cmakeProcess = cmakeManager->createXmlFile(arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory, m_cmakeWizard->environment());
+
+#ifdef Q_OS_WIN
+    const QString generator = m_generatorComboBox->currentIndex() == 0 ? QLatin1String("-GCodeBlocks - NMake Makefiles") : QLatin1String("-GCodeBlocks - MinGW Makefiles");
+#else // Q_OS_WIN
+    const QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
+#endif
+    m_cmakeProcess = cmakeManager->createXmlFile(arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory, m_cmakeWizard->environment(), generator);
     connect(m_cmakeProcess, SIGNAL(readyRead()), this, SLOT(cmakeReadyRead()));
     connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
 }

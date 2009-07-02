@@ -62,7 +62,9 @@ public:
     QProcess* createXmlFile(const QStringList &arguments,
                             const QString &sourceDirectory,
                             const QDir &buildDirectory,
-                            const ProjectExplorer::Environment &env);
+                            const ProjectExplorer::Environment &env,
+                            const QString &generator);
+    bool hasCodeBlocksMsvcGenerator() const;
     static QString findCbpFile(const QDir &);
 
     static QString findDumperLibrary(const ProjectExplorer::Environment &env);
@@ -82,6 +84,7 @@ public:
     QString executable() const;
     QString version() const;
     bool supportsQtCreator() const;
+    bool hasCodeBlocksMsvcGenerator() const;
 
 private:
     void run(QFutureInterface<void> &fi);
@@ -89,6 +92,7 @@ private:
     QString m_executable;
     QString m_version;
     bool m_supportsQtCreator;
+    bool m_hasCodeBlocksMsvcGenerator;
     bool m_cacheUpToDate;
     mutable QFuture<void> m_future;
     mutable QMutex m_mutex;
@@ -111,6 +115,7 @@ public:
 
     QString cmakeExecutable() const;
     void askUserForCMakeExecutable();
+    bool hasCodeBlocksMsvcGenerator() const;
 private:
     void updateCachedInformation() const;
     void saveSettings() const;

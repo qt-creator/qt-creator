@@ -34,6 +34,7 @@
 
 #include <QtCore/QProcess>
 #include <QtGui/QPushButton>
+#include <QtGui/QComboBox>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
 #include <QtGui/QWizard>
@@ -147,6 +148,7 @@ private:
     QPushButton *m_runCMake;
     QProcess *m_cmakeProcess;
     QLineEdit *m_argumentsLineEdit;
+    QComboBox *m_generatorComboBox;
     QLabel *m_descriptionLabel;
     bool m_complete;
     Mode m_mode;
