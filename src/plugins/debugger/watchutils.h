@@ -198,7 +198,16 @@ public:
     // 'data' excludes the leading indicator character.
     static bool parseValue(const char *data, QtDumperResult *r);
 
-    static bool needsExpressionSyntax(Type t);
+    // What kind of debugger expressions are required to dump that type.
+    // A debugger with restricted expression syntax can handle
+    // 'NeedsNoExpression' and 'NeedsCachedExpression' if it is found in
+    // the cache.
+    enum ExpressionRequirement {
+        NeedsNoExpression,     // None, easy.
+        NeedsCachedExpression, // Common values might be found in expression cache.
+        NeedsComplexExpression // Totally arbitrary, adress-dependent expressions
+    };
+    static ExpressionRequirement expressionRequirements(Type t);
 
     QString toString(bool debug = false) const;
 
@@ -214,9 +223,20 @@ private:
 
     NameTypeMap m_nameTypeMap;
     SizeCache m_sizeCache;
-    int m_intSize;
-    int m_pointerSize;
-    int m_stdAllocatorSize;
+
+    // The initial dumper query function returns sizes of some special
+    // types to aid CDB since it cannot determine the size of classes.
+    // They are not complete (std::allocator<X>).
+    enum SpecialSizeType { IntSize, PointerSize, StdAllocatorSize,
+                           QSharedPointerSize, QSharedDataPointerSize,
+                           QWeakPointerSize, QPointerSize, SpecialSizeCount };
+
+    // Resolve name to enumeration or SpecialSizeCount (invalid)
+    static SpecialSizeType specialSizeType(const QString &t);
+
+    int m_specialSizes[SpecialSizeCount];
+
+    QMap<QString, QString> m_expressionCache;
     int m_qtVersion;
     QString m_qtNamespace;
 };

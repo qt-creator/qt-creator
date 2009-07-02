@@ -112,7 +112,7 @@ WatchHandleDumperInserter::WatchHandleDumperInserter(WatchHandler *wh,
                                                        const SharedPointerCdbDumperHelper &dumper) :
     m_hexNullPattern(QLatin1String("0x0+")),
     m_wh(wh),
-    m_dumper(dumper)    
+    m_dumper(dumper)
 {
     Q_ASSERT(m_hexNullPattern.isValid());
 }
@@ -179,6 +179,10 @@ WatchHandleDumperInserter &WatchHandleDumperInserter::operator=(WatchData &wd)
     case CdbDumperHelper::DumpOk:
         if (debugCDBWatchHandling)
             qDebug() << "dumper triggered";
+        // Dumpers omit types for complicated templates
+        if (!m_dumperResult.isEmpty() && m_dumperResult.front().type.isEmpty()
+            && m_dumperResult.front().iname == wd.iname)
+            m_dumperResult.front().setType(wd.type);
         // Discard the original item and insert the dumper results
         foreach(const WatchData &dwd, m_dumperResult)
             m_wh->insertData(dwd);
@@ -245,13 +249,20 @@ bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
                                                    errorMessage);
     }
 
-    // Expand dumper items (not implemented)
+    // Expand artifical dumper items
     if (incompleteLocal.source == OwnerDumper) {
-        if (debugCDBWatchHandling)
-            qDebug() << "ignored dumper item";
-        WatchData wd = incompleteLocal;
-        wd.setAllUnneeded();
-        wh->insertData(wd);
+        QList<WatchData> dumperResult;
+        const CdbDumperHelper::DumpResult dr = m_dumper->dumpType(incompleteLocal, true, OwnerDumper, &dumperResult, errorMessage);
+        if (dr == CdbDumperHelper::DumpOk) {
+            foreach(const WatchData &dwd, dumperResult)
+                wh->insertData(dwd);
+        } else {
+            const QString msg = QString::fromLatin1("Unable to further expand dumper watch data: %1 (%2): %3/%4").arg(incompleteLocal.name, incompleteLocal.type).arg(int(dr)).arg(*errorMessage);
+            qWarning("%s", qPrintable(msg));
+            WatchData wd = incompleteLocal;
+            wd.setAllUnneeded();
+            wh->insertData(wd);
+        }
         return true;
     }
 
