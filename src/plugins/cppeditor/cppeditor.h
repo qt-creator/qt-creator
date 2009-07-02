@@ -126,7 +126,6 @@ private slots:
     void updateUsesNow();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
     void reformatDocument();
-    void simplifyDeclarations();
     void renameInPlace();
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
 
