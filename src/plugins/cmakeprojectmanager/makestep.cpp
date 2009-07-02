@@ -57,11 +57,8 @@ bool MakeStep::init(const QString &buildConfiguration)
 
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
-#ifdef Q_OS_WIN
-    setCommand(buildConfiguration, "mingw32-make");
-#else // Q_OS_WIN
-    setCommand(buildConfiguration, "make"); // TODO give full path here?
-#endif // Q_OS_WIN
+
+    setCommand(buildConfiguration, m_pro->toolChain(buildConfiguration)->makeCommand());
 
     if (!value(buildConfiguration, "cleanConfig").isValid() &&value("clean").isValid() && value("clean").toBool()) {
         // Import old settings

@@ -45,7 +45,7 @@ using namespace ProjectExplorer::Internal;
 #ifdef Q_OS_WIN64
 static const char * MSVC_RegKey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VC7";
 #else
-static const char * MSVC_RegKey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7";
+static const char * MSVC_RegKey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
 #endif
 
 bool ToolChain::equals(ToolChain *a, ToolChain *b)

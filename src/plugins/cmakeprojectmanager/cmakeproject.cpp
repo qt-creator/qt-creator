@@ -104,6 +104,7 @@ void CMakeProject::slotActiveBuildConfiguration()
                                     mode,
                                     environment(activeBuildConfiguration()));
         copw.exec();
+        setValue(activeBuildConfiguration(), "msvcVersion", copw.msvcVersion());
     }
     // reparse
     parseCMakeLists();
@@ -129,8 +130,7 @@ void CMakeProject::updateToolChain(const QString &compiler)
         newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
     } else if (compiler == "msvc8") {
         // TODO MSVC toolchain
-        //newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain("//TODO");
-        Q_ASSERT(false);
+        newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain(value(activeBuildConfiguration(), "msvcVersion").toString(), false);
     } else {
         // TODO other toolchains
         qDebug()<<"Not implemented yet!!! Qt Creator doesn't know which toolchain to use for"<<compiler;
@@ -143,6 +143,13 @@ void CMakeProject::updateToolChain(const QString &compiler)
         delete m_toolChain;
         m_toolChain = newToolChain;
     }
+}
+
+ProjectExplorer::ToolChain *CMakeProject::toolChain(const QString &buildConfiguration) const
+{
+    if (buildConfiguration != activeBuildConfiguration())
+        qWarning()<<"CMakeProject asked for toolchain of a not active buildconfiguration";
+    return m_toolChain;
 }
 
 void CMakeProject::changeBuildDirectory(const QString &buildConfiguration, const QString &newBuildDirectory)
@@ -515,6 +522,7 @@ QList<ProjectExplorer::BuildStepConfigWidget*> CMakeProject::subConfigWidgets()
     CMakeOpenProjectWizard copw(projectManager(), sourceDirectory(), buildDirectory(buildConfiguration), environment(buildConfiguration));
     if (copw.exec() == QDialog::Accepted) {
         setValue(buildConfiguration, "buildDirectory", copw.buildDirectory());
+        setValue(buildConfiguration, "msvcVersion", copw.msvcVersion());
         parseCMakeLists();
     }
  }
@@ -567,6 +575,7 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         insertBuildStep(0, makeStep);
 
         addBuildConfiguration("all");
+        setValue("all", "msvcVersion", copw.msvcVersion());
         makeStep->setBuildTarget("all", "all", true);
         if (!copw.buildDirectory().isEmpty())
             setValue("all", "buildDirectory", copw.buildDirectory());
@@ -576,6 +585,7 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         insertCleanStep(0, cleanMakeStep);
         cleanMakeStep->setValue("clean", true);
         setActiveBuildConfiguration("all");
+
 
     } else {
         // We have a user file, but we could still be missing the cbp file
@@ -599,6 +609,7 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
                                         mode,
                                         environment(activeBuildConfiguration()));
             copw.exec();
+            setValue(activeBuildConfiguration(), "msvcVersion", copw.msvcVersion());
         }
     }
     parseCMakeLists(); // Gets the directory from the active buildconfiguration

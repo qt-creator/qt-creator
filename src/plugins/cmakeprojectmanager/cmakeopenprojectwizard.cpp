@@ -41,6 +41,7 @@
 
 #include <utils/pathchooser.h>
 #include <projectexplorer/environment.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QFormLayout>
@@ -187,6 +188,16 @@ void CMakeOpenProjectWizard::setBuildDirectory(const QString &directory)
     m_buildDirectory = directory;
 }
 
+QString CMakeOpenProjectWizard::msvcVersion() const
+{
+    return m_msvcVersion;
+}
+
+void CMakeOpenProjectWizard::setMsvcVersion(const QString &version)
+{
+    m_msvcVersion = version;
+}
+
 QStringList CMakeOpenProjectWizard::arguments() const
 {
     return m_arguments;
@@ -278,7 +289,7 @@ void CMakeRunPage::initWidgets()
     connect(m_argumentsLineEdit,SIGNAL(returnPressed()), this, SLOT(runCMake()));
 
     m_generatorComboBox = new QComboBox(this);
-    m_generatorComboBox->addItems(QStringList() << tr("NMake Generator") << tr("MinGW Generator"));
+
     m_runCMake = new QPushButton(this);
     m_runCMake->setText(tr("Run CMake"));
     connect(m_runCMake, SIGNAL(clicked()), this, SLOT(runCMake()));
@@ -327,7 +338,7 @@ void CMakeRunPage::initializePage()
     }
     if (m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator()) {
         m_generatorComboBox->setVisible(true);
-        QString generator;
+        QString cachedGenerator;
         // Try to find out generator from CMakeCachhe file, if it exists
         QFile fi(m_buildDirectory + "/CMakeCache.txt");
         if (fi.exists()) {
@@ -338,16 +349,32 @@ void CMakeRunPage::initializePage()
                     if (line.startsWith("CMAKE_GENERATOR:INTERNAL=")) {
                         int splitpos = line.indexOf('=');
                         if (splitpos != -1) {
-                            generator = line.mid(splitpos).trimmed();
+                            cachedGenerator = line.mid(splitpos).trimmed();
                         }
                         break;
                     }
                 }
             }
+        }        
+        m_generatorComboBox->clear();
+        // Find out whether we have multiple mvc versions
+        QStringList msvcVersions = ProjectExplorer::ToolChain::availableMSVCVersions();
+        qDebug()<<"msvcVersions:"<<msvcVersions;
+        if (msvcVersions.isEmpty()) {
+
+        } else if (msvcVersions.count() == 1) {
+            m_generatorComboBox->addItem(tr("NMake Generator"), msvcVersions.first());
+        } else {
+            foreach (const QString &msvcVersion, msvcVersions)
+                m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(msvcVersion), msvcVersion);
         }
-        if (!generator.isEmpty()) {
-            m_generatorComboBox->setCurrentIndex((generator == "NMake Makefiles" ? 0 : 1));
-        }
+
+        if (cachedGenerator == "NMake Makefiles" && !msvcVersions.isEmpty())
+            m_generatorComboBox->setCurrentIndex(0);
+
+        m_generatorComboBox->addItem(tr("MinGW Generator"), "mingw");
+        if (cachedGenerator == "MinGW Makefiles")
+            m_generatorComboBox->setCurrentIndex(m_generatorComboBox->count() - 1);
     } else {
         // No new enough cmake, simply hide the combo box
         m_generatorComboBox->setVisible(false);
@@ -362,11 +389,31 @@ void CMakeRunPage::runCMake()
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
 
 #ifdef Q_OS_WIN
-    const QString generator = m_generatorComboBox->currentIndex() == 0 ? QLatin1String("-GCodeBlocks - NMake Makefiles") : QLatin1String("-GCodeBlocks - MinGW Makefiles");
+    m_cmakeWizard->setMsvcVersion(QString());
+    QString generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
+    if (m_generatorComboBox->isVisible()) {
+         // the combobox is shown, check which generator is selected
+        int index = m_generatorComboBox->currentIndex();
+        if (index != -1) {
+            QString version = m_generatorComboBox->itemData(index).toString();
+            if (version != "mingw") {
+                generator = "-GCodeBlocks - NMake Makefiles";
+                m_cmakeWizard->setMsvcVersion(version);
+            }
+        }   
+    }
 #else // Q_OS_WIN
-    const QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
+    QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
 #endif
-    m_cmakeProcess = cmakeManager->createXmlFile(arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory, m_cmakeWizard->environment(), generator);
+    ProjectExplorer::Environment env = m_cmakeWizard->environment();
+    if (!m_cmakeWizard->msvcVersion().isEmpty()) {
+        // Add the environment of that msvc version to environment
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChain::createMSVCToolChain(m_cmakeWizard->msvcVersion(), false);
+        tc->addToEnvironment(env);
+        delete tc;
+    }
+
+    m_cmakeProcess = cmakeManager->createXmlFile(arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory, env, generator);
     connect(m_cmakeProcess, SIGNAL(readyRead()), this, SLOT(cmakeReadyRead()));
     connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
 }

@@ -106,6 +106,7 @@ public:
 
     QString sourceDirectory() const;
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    ProjectExplorer::ToolChain *toolChain(const QString &buildConfiguration) const;
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);

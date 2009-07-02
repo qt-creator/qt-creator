@@ -83,6 +83,8 @@ public:
     QStringList arguments() const;
     void setArguments(const QStringList &args);
     ProjectExplorer::Environment environment() const;
+    QString msvcVersion() const;
+    void setMsvcVersion(const QString &version);
 private:
     void init();
     bool existsUpToDateXmlFile() const;
@@ -91,6 +93,7 @@ private:
     QString m_buildDirectory;
     QString m_sourceDirectory;
     QStringList m_arguments;
+    QString m_msvcVersion;
     bool m_creatingCbpFiles;
     ProjectExplorer::Environment m_environment;
 };
