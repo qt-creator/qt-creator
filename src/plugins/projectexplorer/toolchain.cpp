@@ -245,6 +245,8 @@ bool MinGWToolChain::equals(ToolChain *other) const
 void MinGWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
     //qDebug()<<"MinGWToolChain::addToEnvironment";
+    if (m_mingwPath.isEmpty())
+        return;
     QString binDir = m_mingwPath + "/bin";
     if (QFileInfo(binDir).exists())
         env.prependOrSetPath(binDir);

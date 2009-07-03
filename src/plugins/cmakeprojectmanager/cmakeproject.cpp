@@ -127,7 +127,11 @@ void CMakeProject::updateToolChain(const QString &compiler)
     //qDebug()<<"CodeBlocks Compilername"<<compiler
     ProjectExplorer::ToolChain *newToolChain = 0;
     if (compiler == "gcc") {
+#ifdef Q_OS_WIN
+        newToolChain = ProjectExplorer::ToolChain::createMinGWToolChain("gcc", QString());
+#else
         newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
+#endif
     } else if (compiler == "msvc8") {
         // TODO MSVC toolchain
         newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain(value(activeBuildConfiguration(), "msvcVersion").toString(), false);
