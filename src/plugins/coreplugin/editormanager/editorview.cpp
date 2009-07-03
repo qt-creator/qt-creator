@@ -296,7 +296,7 @@ void EditorView::removeEditor(IEditor *editor)
     m_container->removeWidget(editor->widget());
     m_widgetEditorMap.remove(editor->widget());
     editor->widget()->setParent(0);
-    disconnect(editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
+    disconnect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
     QToolBar *toolBar = editor->toolBar();
     if (toolBar != 0) {
         if (m_activeToolBar == toolBar) {
