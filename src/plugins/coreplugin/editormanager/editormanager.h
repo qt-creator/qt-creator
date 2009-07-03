@@ -63,10 +63,10 @@ enum MakeWritableResult {
 };
 
 struct EditorManagerPrivate;
+class OpenEditorsModel;
 
 namespace Internal {
 class OpenEditorsWindow;
-class EditorModel;
 class EditorView;
 class SplitterOrView;
 
@@ -128,7 +128,7 @@ public:
 
     QList<IEditor*> openedEditors() const;
 
-    Internal::EditorModel *openedEditorsModel() const;
+    OpenEditorsModel *openedEditorsModel() const;
     void activateEditor(const QModelIndex &index, Internal::EditorView *view = 0, OpenEditorFlags = 0);
     void closeEditor(const QModelIndex &index);
     void closeOtherEditors(IEditor *editor);

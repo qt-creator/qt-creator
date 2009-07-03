@@ -31,6 +31,7 @@
 #include "editorview.h"
 #include "openeditorswindow.h"
 #include "openeditorsview.h"
+#include "openeditorsmodel.h"
 #include "openwithdialog.h"
 #include "filemanager.h"
 #include "icore.h"
@@ -96,6 +97,8 @@ EditorManagerPlaceHolder::EditorManagerPlaceHolder(Core::IMode *mode, QWidget *p
     layout()->setMargin(0);
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode *)),
             this, SLOT(currentModeChanged(Core::IMode *)));
+
+    currentModeChanged(Core::ModeManager::instance()->currentMode());
 }
 
 EditorManagerPlaceHolder::~EditorManagerPlaceHolder()
@@ -180,7 +183,7 @@ struct EditorManagerPrivate {
     QString fileFilters;
     QString selectedFilter;
 
-    EditorModel *m_editorModel;
+    OpenEditorsModel *m_editorModel;
     QString m_externalEditor;
 };
 }
@@ -204,7 +207,7 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_windowPopup(0),
     m_coreListener(0)
 {
-    m_editorModel = new EditorModel(parent);
+    m_editorModel = new OpenEditorsModel(parent);
 }
 
 EditorManagerPrivate::~EditorManagerPrivate()
@@ -1496,7 +1499,7 @@ QList<IEditor*> EditorManager::openedEditors() const
     return m_d->m_editorModel->editors();
 }
 
-Internal::EditorModel *EditorManager::openedEditorsModel() const
+OpenEditorsModel *EditorManager::openedEditorsModel() const
 {
     return m_d->m_editorModel;
 }
@@ -1651,12 +1654,12 @@ QByteArray EditorManager::saveState() const
 
     stream << m_d->m_editorStates;
 
-    QList<EditorModel::Entry> entries = m_d->m_editorModel->entries();
+    QList<OpenEditorsModel::Entry> entries = m_d->m_editorModel->entries();
     stream << entries.count();
 
     if (IEditor *current = m_d->m_currentEditor) // current first
         stream << current->file()->fileName() << current->displayName() << QByteArray(current->kind());
-    foreach (EditorModel::Entry entry, entries) {
+    foreach (OpenEditorsModel::Entry entry, entries) {
         if (entry.editor && entry.editor == m_d->m_currentEditor) // all but current
             continue;
         stream << entry.fileName() << entry.displayName() << entry.kind();

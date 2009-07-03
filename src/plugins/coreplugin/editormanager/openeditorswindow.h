@@ -40,10 +40,9 @@
 namespace Core {
 
 class IEditor;
+class OpenEditorsModel;
 
 namespace Internal {
-
-class EditorModel;
 
 class OpenEditorsWindow : public QWidget
 {
@@ -55,7 +54,7 @@ public:
     OpenEditorsWindow(QWidget *parent = 0);
     ~OpenEditorsWindow() {}
 
-    void setEditors(const QList<IEditor *>&editors, IEditor *current, EditorModel *model);
+    void setEditors(const QList<IEditor *>&editors, IEditor *current, OpenEditorsModel *model);
 
     bool event(QEvent *e);
     bool eventFilter(QObject *src, QEvent *e);

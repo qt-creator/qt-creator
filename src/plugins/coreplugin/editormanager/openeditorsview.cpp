@@ -30,6 +30,7 @@
 #include "openeditorsview.h"
 #include "editormanager.h"
 #include "editorview.h"
+#include "openeditorsmodel.h"
 #include "icore.h"
 
 #include <coreplugin/coreconstants.h>
