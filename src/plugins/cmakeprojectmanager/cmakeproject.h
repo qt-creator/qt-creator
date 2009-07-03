@@ -110,7 +110,7 @@ public:
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
-    virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
+    virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
 
     // called by CMakeBuildSettingsWidget
     void changeBuildDirectory(const QString &buildConfiguration, const QString &newBuildDirectory);
@@ -120,7 +120,7 @@ private slots:
     void slotActiveBuildConfiguration();
 
 private:
-    void parseCMakeLists();
+    bool parseCMakeLists();
     void updateToolChain(const QString &compiler);
 
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);

@@ -290,7 +290,7 @@ void Qt4Project::updateFileList()
     }
 }
 
-void Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
+bool Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
 {
     Project::restoreSettingsImpl(settingsReader);
 
@@ -350,7 +350,7 @@ void Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
 
     connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
             this, SLOT(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)));
-
+    return true;
 }
 
 void Qt4Project::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)

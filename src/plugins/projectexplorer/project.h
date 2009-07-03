@@ -124,7 +124,7 @@ public:
     virtual QString buildDirectory(const QString &buildConfiguration) const = 0;
 
     void saveSettings();
-    void restoreSettings();
+    bool restoreSettings();
 
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
     virtual QList<BuildStepConfigWidget*> subConfigWidgets();
@@ -173,7 +173,7 @@ protected:
      * probably add some default build and run settings to the project so that
      * it can be build and run.
      */
-    virtual void restoreSettingsImpl(PersistentSettingsReader &reader);
+    virtual bool restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
     Internal::BuildConfiguration *getBuildConfiguration(const QString & name) const;

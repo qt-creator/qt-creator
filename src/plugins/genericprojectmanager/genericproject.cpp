@@ -468,7 +468,7 @@ GenericMakeStep *GenericProject::makeStep() const
     return 0;
 }
 
-void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
+bool GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     Project::restoreSettingsImpl(reader);
 
@@ -500,6 +500,7 @@ void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
     setIncludePaths(allIncludePaths());
 
     refresh(Everything);
+    return true;
 }
 
 void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)

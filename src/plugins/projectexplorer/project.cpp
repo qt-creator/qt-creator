@@ -179,17 +179,19 @@ void Project::saveSettings()
     writer.save(file()->fileName() + QLatin1String(".user"), "QtCreatorProject");
 }
 
-void Project::restoreSettings()
+bool Project::restoreSettings()
 {
     PersistentSettingsReader reader;
     reader.load(file()->fileName() + QLatin1String(".user"));
-    restoreSettingsImpl(reader);
+    if (!restoreSettingsImpl(reader))
+        return false;
 
     if (m_activeBuildConfiguration.isEmpty() && !m_buildConfigurations.isEmpty())
         setActiveBuildConfiguration(m_buildConfigurations.at(0));
 
     if (!m_activeRunConfiguration && !m_runConfigurations.isEmpty())
         setActiveRunConfiguration(m_runConfigurations.at(0));
+    return true;
 }
 
 QList<BuildStepConfigWidget*> Project::subConfigWidgets()
@@ -276,7 +278,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     writer.saveValue("defaultFileEncoding", m_editorConfiguration->defaultTextCodec()->name());
 }
 
-void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
+bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 {
     m_activeBuildConfiguration = reader.restoreValue("activebuildconfiguration").toString();
 
@@ -383,6 +385,7 @@ void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 
     if (!m_activeRunConfiguration && !m_runConfigurations.isEmpty())
         setActiveRunConfiguration(m_runConfigurations.at(0));
+    return true;
 }
 
 void Project::setValue(const QString &name, const QVariant & value)

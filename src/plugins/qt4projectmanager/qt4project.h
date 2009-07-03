@@ -219,7 +219,7 @@ private slots:
     void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
 
 protected:
-    virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &settingsReader);
+    virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &settingsReader);
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
 
 private:

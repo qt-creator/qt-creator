@@ -93,7 +93,7 @@ public:
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
-    virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
+    virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
 
 private:
     void parseProject(RefreshOptions options);

@@ -163,7 +163,7 @@ QString CMakeProject::sourceDirectory() const
     return QFileInfo(m_fileName).absolutePath();
 }
 
-void CMakeProject::parseCMakeLists()
+bool CMakeProject::parseCMakeLists()
 {
     // Find cbp file
     QString cbpFile = CMakeManager::findCbpFile(buildDirectory(activeBuildConfiguration()));
@@ -289,7 +289,9 @@ void CMakeProject::parseCMakeLists()
         qDebug()<<"Parsing failed";
         delete m_toolChain;
         m_toolChain = 0;
+        return false;
     }
+    return true;
 }
 
 QString CMakeProject::buildParser(const QString &buildConfiguration) const
@@ -555,7 +557,7 @@ MakeStep *CMakeProject::makeStep() const
 }
 
 
-void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
+bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     Project::restoreSettingsImpl(reader);
     bool hasUserFile = !buildConfigurations().isEmpty();
@@ -612,7 +614,9 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
             setValue(activeBuildConfiguration(), "msvcVersion", copw.msvcVersion());
         }
     }
-    parseCMakeLists(); // Gets the directory from the active buildconfiguration
+    bool result = parseCMakeLists(); // Gets the directory from the active buildconfiguration
+    if (!result)
+        return false;
 
     m_watcher = new ProjectExplorer::FileWatcher(this);
     connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
@@ -620,6 +624,7 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
 
     connect(this, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(slotActiveBuildConfiguration()));
+    return true;
 }
 
 CMakeTarget CMakeProject::targetForTitle(const QString &title)

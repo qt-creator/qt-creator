@@ -939,16 +939,24 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
         return QList<Project *>();
     }
 
-    foreach (Project *pro, openedPro) {
+    QList<Project *>::iterator it, end;
+    end = openedPro.end();
+    for (it = openedPro.begin(); it != end; ) {
         if (debug)
-            qDebug()<<"restoring settings for "<<pro->file()->fileName();
-        pro->restoreSettings();
-        connect(pro, SIGNAL(fileListChanged()), this, SIGNAL(fileListChanged()));
+            qDebug()<<"restoring settings for "<<(*it)->file()->fileName();
+        if ((*it)->restoreSettings()) {
+            connect(*it, SIGNAL(fileListChanged()), this, SIGNAL(fileListChanged()));
+            ++it;
+        } else {
+            delete  *it;
+            it = openedPro.erase(it);
+        }
     }
+
     m_session->addProjects(openedPro);
 
     // Make sure we always have a current project / node
-    if (!m_currentProject)
+    if (!m_currentProject && !openedPro.isEmpty())
         setCurrentNode(openedPro.first()->rootProjectNode());
 
     updateActions();

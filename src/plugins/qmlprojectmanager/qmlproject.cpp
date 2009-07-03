@@ -239,7 +239,7 @@ QmlMakeStep *QmlProject::makeStep() const
     return 0;
 }
 
-void QmlProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
+bool QmlProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     Project::restoreSettingsImpl(reader);
 
@@ -254,6 +254,7 @@ void QmlProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &
     }
 
     refresh(Everything);
+    return true;
 }
 
 void QmlProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
