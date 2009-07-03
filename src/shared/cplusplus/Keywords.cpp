@@ -620,6 +620,21 @@ static inline int classify7(const char *s, bool q) {
       }
     }
   }
+  else if (q && s[0] == 'f') {
+    if (s[1] == 'o') {
+      if (s[2] == 'r') {
+        if (s[3] == 'e') {
+          if (s[4] == 'a') {
+            if (s[5] == 'c') {
+              if (s[6] == 'h') {
+                return T_Q_FOREACH;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (q && s[0] == 's') {
     if (s[1] == 'i') {
       if (s[2] == 'g') {

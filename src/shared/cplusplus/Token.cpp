@@ -90,7 +90,7 @@ static const char *token_names[] = {
     ("@protected"), ("@protocol"), ("@public"), ("@required"), ("@selector"),
     ("@synchronized"), ("@synthesize"), ("@throw"), ("@try"),
 
-    ("SIGNAL"), ("SLOT"), ("Q_SIGNAL"), ("Q_SLOT"), ("signals"), ("slots")
+    ("SIGNAL"), ("SLOT"), ("Q_SIGNAL"), ("Q_SLOT"), ("signals"), ("slots"), ("Q_FOREACH")
 };
 
 Token::Token() :
