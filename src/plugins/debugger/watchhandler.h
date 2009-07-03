@@ -139,8 +139,11 @@ enum WatchRoles
 {
     INameRole = Qt::UserRole,
     ExpressionRole,
-    ExpandedRole,
+    ExpandedRole,    // used to communicate prefered expanded state to the view
     ActiveDataRole,  // used for tooltip
+    TypeFormatListRole,
+    TypeFormatRole,  // used to communicate alternative formats to the view
+    IndividualFormatRole
 };
 
 class WatchModel : public QAbstractItemModel
@@ -179,6 +182,9 @@ private:
     WatchItem *dummyRoot() const;
     void removeItem(WatchItem *item);
     void setActiveData(const QString &data) { m_activeData = data; }
+
+    void emitDataChanged(int column,
+        const QModelIndex &parentIndex = QModelIndex());
 
 private:
     WatchHandler *m_handler;
@@ -234,6 +240,10 @@ private:
     void loadWatchers();
     void saveWatchers();
 
+    void loadTypeFormats();
+    void saveTypeFormats();
+    void setFormat(const QString &type, int format);
+
     bool m_expandPointers;
     bool m_inChange;
 
@@ -242,6 +252,8 @@ private:
 
     QHash<QString, int> m_watcherNames;
     QString watcherName(const QString &exp);
+    QHash<QString, int> m_typeFormats;
+    QHash<QString, int> m_individualFormats;
 
     void setDisplayedIName(const QString &iname, bool on);
     QSet<QString> m_expandedINames;  // those expanded in the treeview

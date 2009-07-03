@@ -199,30 +199,65 @@ void WatchWindow::dropEvent(QDropEvent *ev)
 
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
+    QModelIndex idx = indexAt(ev->pos());
+    QModelIndex mi0 = idx.sibling(idx.row(), 0);
+    QModelIndex mi1 = idx.sibling(idx.row(), 1);
+    QModelIndex mi2 = idx.sibling(idx.row(), 2);
+    QString exp = model()->data(mi0).toString();
+    QString type = model()->data(mi2).toString();
+
+    QStringList alternativeFormats = 
+        model()->data(mi0, TypeFormatListRole).toStringList();
+    int typeFormat = 
+        model()->data(mi0, TypeFormatRole).toInt();
+    int individualFormat = 
+        model()->data(mi0, IndividualFormatRole).toInt();
+
+    QMenu typeFormatMenu(tr("Change format for type '%1'").arg(type));
+    QMenu individualFormatMenu(tr("Change format for expression '%1'").arg(exp));
+    QList<QAction *> typeFormatActions;
+    QList<QAction *> individualFormatActions;
+    for (int i = 0; i != alternativeFormats.size(); ++i) {
+        const QString format = alternativeFormats.at(i);
+        QAction *act = new QAction(format, &typeFormatMenu);
+        act->setCheckable(true);
+        if (i == typeFormat)
+            act->setChecked(true);
+        typeFormatMenu.addAction(act);
+        typeFormatActions.append(act);
+        act = new QAction(format, &individualFormatMenu);
+        act->setCheckable(true);
+        if (i == individualFormat)
+            act->setChecked(true);
+        individualFormatMenu.addAction(act);
+        individualFormatActions.append(act);
+    }
+    //typeFormatMenu.setActive(!alternativeFormats.isEmpty());
+    //individualFormatMenu.setActive(!alternativeFormats.isEmpty());
+
     QMenu menu;
     QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
     QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
+
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
-
-    menu.addAction(act1);
-    menu.addAction(act2);
-
-    QModelIndex idx = indexAt(ev->pos());
-    QModelIndex mi0 = idx.sibling(idx.row(), 0);
-    QString exp = model()->data(mi0).toString();
-
-    menu.addSeparator();
-    int type = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
-    menu.addAction(theDebuggerAction(type)->updatedAction(exp));
 
     //QAction *act4 = theDebuggerAction(WatchExpressionInWindow);
     //menu.addAction(act4);
 
     QAction *act3 = new QAction(tr("Insert new watch item"), &menu); 
-    menu.addAction(act3);
     QAction *act4 = new QAction(tr("Select widget to watch"), &menu);
+
+    menu.addAction(act1);
+    menu.addAction(act2);
+    menu.addSeparator();
+    int atype = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
+    menu.addAction(theDebuggerAction(atype)->updatedAction(exp));
+
+    menu.addAction(act3);
     menu.addAction(act4);
+    menu.addMenu(&typeFormatMenu);
+    menu.addMenu(&individualFormatMenu);
 
     menu.addSeparator();
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
@@ -232,16 +267,23 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == act1)
+    if (act == act1) {
         resizeColumnsToContents();
-    else if (act == act2)
+    } else if (act == act2) {
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    else if (act == act3)
+    } else if (act == act3) {
         theDebuggerAction(WatchExpression)
             ->trigger(WatchHandler::watcherEditPlaceHolder());
-    else if (act == act4) {
+    } else if (act == act4) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
+    } else { 
+        for (int i = 0; i != alternativeFormats.size(); ++i) {
+            if (act == typeFormatActions.at(i))
+                model()->setData(mi1, i, TypeFormatRole);
+            else if (act == individualFormatActions.at(i))
+                model()->setData(mi1, i, IndividualFormatRole);
+        }
     }
 }
 

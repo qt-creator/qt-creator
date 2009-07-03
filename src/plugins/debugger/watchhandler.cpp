@@ -479,6 +479,23 @@ QString niceType(QString type)
     return type;
 }
 
+static QString formattedValue(const WatchData &data,
+    int individualFormat, int typeFormat)
+{
+    if (data.type == "int") {
+        int format = individualFormat == -1 ? typeFormat : individualFormat;
+        int value = data.value.toInt();
+        if (format == 1)
+            return ("(hex) ") + QString::number(value, 16);
+        if (format == 2)
+            return ("(bin) ") + QString::number(value, 2);
+        if (format == 3)
+            return ("(oct) ") + QString::number(value, 8);
+    }
+
+    return data.value;
+}
+
 bool WatchModel::canFetchMore(const QModelIndex &index) const
 {
     return index.isValid() && !watchItem(index)->fetchTriggered;
@@ -573,6 +590,18 @@ QModelIndex WatchModel::watchIndexHelper(const WatchItem *needle,
     return QModelIndex();
 }
 
+void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex) 
+{
+    QModelIndex idx1 = index(0, column, parentIndex);
+    QModelIndex idx2 = index(rowCount(parentIndex) - 1, column, parentIndex);
+    if (idx1.isValid() && idx2.isValid())
+        emit dataChanged(idx1, idx2);
+    //qDebug() << "CHANGING:\n" << idx1 << "\n" << idx2 << "\n"
+    //    << data(parentIndex, INameRole).toString();
+    for (int i = rowCount(parentIndex); --i >= 0; )
+        emitDataChanged(column, index(i, 0, parentIndex));
+}
+
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
     const WatchItem &data = *watchItem(idx);
@@ -581,7 +610,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case Qt::DisplayRole: {
             switch (idx.column()) {
                 case 0: return data.name;
-                case 1: return data.value;
+                case 1: return formattedValue(data,
+                    m_handler->m_individualFormats[data.iname],
+                    m_handler->m_typeFormats[data.type]);
                 case 2: return niceType(data.type);
                 default: break;
             }
@@ -616,7 +647,23 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case ActiveDataRole:
             qDebug() << "ASK FOR" << data.iname;
             return true;
-    
+   
+        case TypeFormatListRole:
+            if (data.type == "int")
+                return QStringList() << tr("decimal") << tr("hexadecimal")
+                    << tr("binary") << tr("octal");
+            break;
+
+        case TypeFormatRole:
+            return m_handler->m_typeFormats[data.type];
+
+        case IndividualFormatRole: {
+            int format = m_handler->m_individualFormats[data.iname];
+            if (format == -1)
+                return m_handler->m_typeFormats[data.type];
+            return format;
+        }
+
         default:
             break; 
     }
@@ -625,12 +672,16 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
 bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    WatchItem &data = *watchItem(index);
     if (role == ExpandedRole) {
-        QString iname = data(index, INameRole).toString();
         if (value.toBool())
-            m_handler->m_expandedINames.insert(iname);
+            m_handler->m_expandedINames.insert(data.iname);
         else
-            m_handler->m_expandedINames.remove(iname);
+            m_handler->m_expandedINames.remove(data.iname);
+    } else if (role == TypeFormatRole) {
+        m_handler->setFormat(data.type, value.toInt());
+    } else if (role == IndividualFormatRole) {
+        m_handler->m_individualFormats[data.iname] = value.toInt();
     }
     emit dataChanged(index, index);
     return true;
@@ -773,66 +824,6 @@ void WatchHandler::endCycle()
     m_locals->removeOutdated();
     m_watchers->removeOutdated();
     m_tooltips->removeOutdated();
-
-/*
-    if (m_inChange) {
-        MODEL_DEBUG("RECREATE MODEL IGNORED, CURRENT SET:\n" << toString());
-        return;
-    }
-
-    #ifdef DEBUG_PENDING
-    MODEL_DEBUG("RECREATE MODEL, CURRENT SET:\n" << toString());
-    #endif
-
-    QHash<QString, int> oldTopINames;
-    QHash<QString, QString> oldValues;
-    for (int i = 0, n = m_oldSet.size(); i != n; ++i) {
-        WatchData &data = m_oldSet[i];
-        oldValues[data.iname] = data.value;
-        if (data.level == 2)
-            ++oldTopINames[data.iname];
-    }
-    #ifdef DEBUG_PENDING
-    MODEL_DEBUG("OLD VALUES: " << oldValues);
-    #endif
-
-    for (int i = m_completeSet.size(); --i >= 0; ) {
-        WatchData &data = m_completeSet[i];
-        data.level = data.iname.isEmpty() ? 0 : data.iname.count('.') + 1;
-        data.childIndex.clear();
-    }
-
-    qSort(m_completeSet.begin(), m_completeSet.end(), &iNameSorter);
-
-    // Possibly append dummy items to prevent empty views
-    bool ok = true;
-
-    if (ok) {
-        for (int i = 1; i <= 3; ++i) {
-            WatchData &data = m_displaySet[i];
-            if (data.childIndex.size() == 0) {
-                WatchData dummy;
-                dummy.state = 0;
-                dummy.row = 0;
-                if (i == 1) {
-                    dummy.iname = QLatin1String("local.dummy");
-                    dummy.name  = tr("<No Locals>");
-                } else if (i == 2) {
-                    dummy.iname = QLatin1String("tooltip.dummy");
-                    dummy.name  = tr("<No Tooltip>");
-                } else {
-                    dummy.iname = QLatin1String("watch.dummy");
-                    dummy.name  = tr("<No Watchers>");
-                }
-                dummy.level = 2;
-                dummy.parentIndex = i;
-                dummy.childCount = 0;
-                data.childIndex.append(m_displaySet.size());
-                m_displaySet.append(dummy); 
-            }
-        }
-    }
-*/
 }
 
 void WatchHandler::cleanup()
@@ -1020,17 +1011,19 @@ void WatchHandler::loadWatchers()
     sessionValueRequested("Watchers", &value);
     foreach (const QString &exp, value.toStringList())
         m_watcherNames[exp] = watcherCounter++;
+
     //qDebug() << "LOAD WATCHERS: " << m_watchers;
     //reinitializeWatchersHelper();
 }
 
 void WatchHandler::saveWatchers()
 {
-    //qDebug() << "SAVE WATCHERS: " << m_watchers.keys();
+    //qDebug() << "SAVE WATCHERS: " << m_watchers;
     // Filter out valid watchers.
     QStringList watcherNames;
-    const QHash<QString, int>::const_iterator cend = m_watcherNames.constEnd();
-    for (QHash<QString, int>::const_iterator it = m_watcherNames.constBegin(); it != cend; ++it) {
+    QHashIterator<QString, int> it(m_watcherNames);
+    while (it.hasNext()) {
+        it.next();
         const QString &watcherName = it.key();
         if (!watcherName.isEmpty() && watcherName != watcherEditPlaceHolder())
             watcherNames.push_back(watcherName);
@@ -1038,14 +1031,42 @@ void WatchHandler::saveWatchers()
     setSessionValueRequested("Watchers", QVariant(watcherNames));
 }
 
+void WatchHandler::loadTypeFormats()
+{
+    QVariant value;
+    sessionValueRequested("DefaultFormats", &value);
+    QMap<QString, QVariant> typeFormats = value.toMap();
+    QMapIterator<QString, QVariant> it(typeFormats);
+    while (it.hasNext()) {
+        it.next();
+        if (!it.key().isEmpty())
+            m_typeFormats.insert(it.key(), it.value().toInt());
+    }
+}
+
+void WatchHandler::saveTypeFormats()
+{
+    QMap<QString, QVariant> typeFormats;
+    QHashIterator<QString, int> it(m_typeFormats);
+    while (it.hasNext()) {
+        it.next();
+        QString key = it.key().trimmed();
+        if (!key.isEmpty())
+            typeFormats.insert(key, it.value());
+    }
+    setSessionValueRequested("DefaultFormats", QVariant(typeFormats));
+}
+
 void WatchHandler::saveSessionData()
 {
     saveWatchers();
+    saveTypeFormats();
 }
 
 void WatchHandler::loadSessionData()
 {
     loadWatchers();
+    loadTypeFormats();
     foreach (const QString &exp, m_watcherNames.keys()) {
         WatchData data;
         data.iname = watcherName(exp);
@@ -1090,6 +1111,15 @@ QString WatchHandler::watcherEditPlaceHolder()
 {
     static const QString rc = tr("<Edit>");
     return rc;
+}
+
+void WatchHandler::setFormat(const QString &type, int format)
+{
+    m_typeFormats[type] = format;
+    saveTypeFormats();
+    m_locals->emitDataChanged(1);
+    m_watchers->emitDataChanged(1);
+    m_tooltips->emitDataChanged(1);
 }
 
 } // namespace Internal
