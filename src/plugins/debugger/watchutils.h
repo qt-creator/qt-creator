@@ -90,13 +90,15 @@ struct QtDumperResult
     struct Child {
         Child();
 
-        int valueEncoded;
+        int keyEncoded;
+        int valueEncoded;        
         int childCount;
         bool valuedisabled;
         QString name;
         QString address;
         QString exp;
         QString type;
+        QByteArray key;
         QByteArray value;
     };
 
@@ -107,6 +109,7 @@ struct QtDumperResult
     QString iname;
     QString address;
     QString type;
+    QString extra;
     QString displayedType;
     QByteArray value;
     int valueEncoded;

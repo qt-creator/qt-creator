@@ -257,7 +257,7 @@ bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
             foreach(const WatchData &dwd, dumperResult)
                 wh->insertData(dwd);
         } else {
-            const QString msg = QString::fromLatin1("Unable to further expand dumper watch data: %1 (%2): %3/%4").arg(incompleteLocal.name, incompleteLocal.type).arg(int(dr)).arg(*errorMessage);
+            const QString msg = QString::fromLatin1("Unable to further expand dumper watch data: '%1' (%2): %3/%4").arg(incompleteLocal.name, incompleteLocal.type).arg(int(dr)).arg(*errorMessage);
             qWarning("%s", qPrintable(msg));
             WatchData wd = incompleteLocal;
             wd.setAllUnneeded();

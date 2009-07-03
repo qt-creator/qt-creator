@@ -844,6 +844,26 @@ static void qDumpUnknown(QDumper &d, const char *why = 0)
     d.disarm();
 }
 
+static inline void dumpStdStringValue(QDumper &d, const std::string &str)
+{
+    d.beginItem("value");
+    d.putBase64Encoded(str.c_str(), str.size());
+    d.endItem();
+    d.putItem("valueencoded", "1");
+    d.putItem("type", "std::string");
+    d.putItem("numchild", "0");
+}
+
+static inline void dumpStdWStringValue(QDumper &d, const std::wstring &str)
+{
+    d.beginItem("value");
+    d.putBase64Encoded((const char *)str.c_str(), str.size() * sizeof(wchar_t));
+    d.endItem();
+    d.putItem("valueencoded", (sizeof(wchar_t) == 2 ? "2" : "3"));
+    d.putItem("type", "std::wstring");
+    d.putItem("numchild", "0");
+}
+
 static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
     const char *field = "value")
 {
@@ -928,6 +948,16 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
                 d.putItem(field, *(QString*)addr);
             }
             return;
+        case 't':
+            if (isEqual(type, "std::string")
+                || isEqual(type, "std::basic_string<char,std::char_traits<char>,std::allocator<char> >")) {
+                d.putCommaIfNeeded();
+                dumpStdStringValue(d, *reinterpret_cast<const std::string*>(addr));
+            } else if (isEqual(type, "std::wstring")
+                       || isEqual(type, "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >")) {
+                dumpStdWStringValue(d, *reinterpret_cast<const std::wstring*>(addr));
+            }
+            return;
         default:
             return;
     }
@@ -943,7 +973,6 @@ static void qDumpInnerValue(QDumper &d, const char *type, const void *addr)
 
     qDumpInnerValueHelper(d, type, addr);
 }
-
 
 static void qDumpInnerValueOrPointer(QDumper &d,
     const char *type, const char *strippedtype, const void *addr)
@@ -2753,37 +2782,28 @@ static void qDumpStdString(QDumper &d)
 {
     const std::string &str = *reinterpret_cast<const std::string *>(d.data);
 
-    if (!str.empty()) {
+    const std::string::size_type size = str.size();
+    if (int(size) < 0)
+        return;
+    if (size) {
         qCheckAccess(str.c_str());
-        qCheckAccess(str.c_str() + str.size() - 1);
+        qCheckAccess(str.c_str() + size - 1);
     }
-
-    d.beginItem("value");
-    d.putBase64Encoded(str.c_str(), str.size());
-    d.endItem();
-    d.putItem("valueencoded", "1");
-    d.putItem("type", "std::string");
-    d.putItem("numchild", "0");
-
+    dumpStdStringValue(d, str);
     d.disarm();
 }
 
 static void qDumpStdWString(QDumper &d)
 {
     const std::wstring &str = *reinterpret_cast<const std::wstring *>(d.data);
-
-    if (!str.empty()) {
+    const std::wstring::size_type size = str.size();
+    if (int(size) < 0)
+        return;
+    if (size) {
         qCheckAccess(str.c_str());
-        qCheckAccess(str.c_str() + str.size() - 1);
+        qCheckAccess(str.c_str() + size - 1);
     }
-
-    d.beginItem("value");
-    d.putBase64Encoded((const char *)str.c_str(), str.size() * sizeof(wchar_t));
-    d.endItem();
-    d.putItem("valueencoded", (sizeof(wchar_t) == 2 ? "2" : "3"));
-    d.putItem("type", "std::wstring");
-    d.putItem("numchild", "0");
-
+    dumpStdWStringValue(d, str);
     d.disarm();
 }
 
@@ -3164,6 +3184,8 @@ void *qDumpObjectData440(
          .put("std::string=\"").put(sizeof(std::string)).put("\",")
          .put("std::wstring=\"").put(sizeof(std::wstring)).put("\",")
          .put("std::allocator=\"").put(sizeof(std::allocator<int>)).put("\",")
+         .put("std::char_traits<char>=\"").put(sizeof(std::char_traits<char>)).put("\",")
+         .put("std::char_traits<unsigned short>=\"").put(sizeof(std::char_traits<unsigned short>)).put("\",")
 #if QT_VERSION >= 0x040500
          .put(NS"QSharedPointer=\"").put(sizeof(QSharedPointer<int>)).put("\",")
          .put(NS"QSharedDataPointer=\"").put(sizeof(QSharedDataPointer<QSharedData>)).put("\",")
