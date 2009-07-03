@@ -1001,8 +1001,10 @@ void testQVectorOfQList()
 
 void testNoArgumentName(int i, int, int k)
 {
-    i = 1;
-    k = 2;
+    i = 1000;
+    k = 2000;
+    ++k;
+    ++k;
 }
 
 void foo() {}
