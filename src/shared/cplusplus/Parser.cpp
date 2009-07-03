@@ -2130,7 +2130,7 @@ bool Parser::parseForeachStatement(StatementAST *&node)
 
             blockErrors(blocked);
             rewind(startOfTypeSpecifier);
-            parseExpression(ast->expression);
+            parseAssignmentExpression(ast->expression);
         }
 
         blockErrors(blocked);
