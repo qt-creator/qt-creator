@@ -482,7 +482,7 @@ QString niceType(QString type)
 static QString formattedValue(const WatchData &data,
     int individualFormat, int typeFormat)
 {
-    if (data.type == "int") {
+    if (isIntType(data.type)) {
         int format = individualFormat == -1 ? typeFormat : individualFormat;
         int value = data.value.toInt();
         if (format == 1)
@@ -649,7 +649,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return true;
    
         case TypeFormatListRole:
-            if (data.type == "int")
+            if (isIntType(data.type))
                 return QStringList() << tr("decimal") << tr("hexadecimal")
                     << tr("binary") << tr("octal");
             break;

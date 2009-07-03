@@ -305,16 +305,23 @@ QString extractTypeFromPTypeOutput(const QString &str)
     return res.simplified();
 }
 
-bool isIntOrFloatType(const QString &type)
+bool isIntType(const QString &type)
 {
     static const QStringList types = QStringList()
         << QLatin1String("char") << QLatin1String("int") << QLatin1String("short")
-        << QLatin1String("float") << QLatin1String("double") << QLatin1String("long")
-        << QLatin1String("bool") << QLatin1String("signed char") << QLatin1String("unsigned")
+        << QLatin1String("long") << QLatin1String("bool")
+        << QLatin1String("signed char") << QLatin1String("unsigned")
         << QLatin1String("unsigned char")
         << QLatin1String("unsigned int") << QLatin1String("unsigned long")
         << QLatin1String("long long")  << QLatin1String("unsigned long long");
     return types.contains(type);
+}
+
+bool isIntOrFloatType(const QString &type)
+{
+    static const QStringList types = QStringList()
+        << QLatin1String("float") << QLatin1String("double");
+    return isIntType(type) || types.contains(type);
 }
 
 QString sizeofTypeExpression(const QString &type)
