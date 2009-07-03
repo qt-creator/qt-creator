@@ -228,12 +228,18 @@ bool CMakeProject::parseCMakeLists()
         CppTools::CppModelManagerInterface *modelmanager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
         if (modelmanager) {
             CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
-            pinfo.includePaths = allIncludePaths;
-            // TODO we only want C++ files, not all other stuff that might be in the project
-            pinfo.sourceFiles = m_files;
-            pinfo.defines = m_toolChain->predefinedMacros(); // TODO this is to simplistic
-            pinfo.frameworkPaths = allFrameworkPaths;
-            modelmanager->updateProjectInfo(pinfo);
+            if (pinfo.includePaths != allIncludePaths
+                || pinfo.sourceFiles != m_files
+                || pinfo.defines != m_toolChain->predefinedMacros()
+                || pinfo.frameworkPaths != allFrameworkPaths)  {
+                pinfo.includePaths = allIncludePaths;
+                // TODO we only want C++ files, not all other stuff that might be in the project
+                pinfo.sourceFiles = m_files;
+                pinfo.defines = m_toolChain->predefinedMacros(); // TODO this is to simplistic
+                pinfo.frameworkPaths = allFrameworkPaths;
+                modelmanager->updateProjectInfo(pinfo);
+                modelmanager->updateSourceFiles(pinfo.sourceFiles);
+            }
         }
 
         // Create run configurations for m_targets
