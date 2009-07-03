@@ -131,6 +131,7 @@ public:
     virtual ExpressionListAST *asExpressionList() { return 0; }
     virtual ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement() { return 0; }
     virtual ExpressionStatementAST *asExpressionStatement() { return 0; }
+    virtual ForeachStatementAST *asForeachStatement() { return 0; }
     virtual ForStatementAST *asForStatement() { return 0; }
     virtual FunctionDeclaratorAST *asFunctionDeclarator() { return 0; }
     virtual FunctionDefinitionAST *asFunctionDefinition() { return 0; }
@@ -1130,6 +1131,37 @@ public:
     virtual unsigned lastToken() const;
 
     virtual FunctionDefinitionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ForeachStatementAST: public StatementAST
+{
+public:
+    unsigned foreach_token;
+    unsigned lparen_token;
+    // declaration
+    SpecifierAST *type_specifiers;
+    DeclaratorAST *declarator;
+    // or an expression
+    ExpressionAST *initializer;
+    unsigned comma_token;
+    ExpressionAST *expression;
+    unsigned rparen_token;
+    StatementAST *statement;
+
+public: // annotations
+    Block *symbol;
+
+public:
+    virtual ForeachStatementAST *asForeachStatement()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ForeachStatementAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

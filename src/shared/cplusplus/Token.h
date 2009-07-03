@@ -234,10 +234,11 @@ enum Kind {
     T_SLOT,
     T_Q_SIGNAL,
     T_Q_SLOT,
-    T_SIGNALS,
-    T_SLOTS,
+    T_Q_SIGNALS,
+    T_Q_SLOTS,
+    T_Q_FOREACH,
 
-    T_LAST_KEYWORD = T_SLOTS,
+    T_LAST_KEYWORD = T_Q_FOREACH,
 
     // aliases
     T_OR = T_PIPE_PIPE,

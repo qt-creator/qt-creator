@@ -134,6 +134,7 @@ public:
     virtual bool visit(ExpressionListAST *) { return true; }
     virtual bool visit(ExpressionOrDeclarationStatementAST *) { return true; }
     virtual bool visit(ExpressionStatementAST *) { return true; }
+    virtual bool visit(ForeachStatementAST *) { return true; }
     virtual bool visit(ForStatementAST *) { return true; }
     virtual bool visit(FunctionDeclaratorAST *) { return true; }
     virtual bool visit(FunctionDefinitionAST *) { return true; }
@@ -242,6 +243,7 @@ public:
     virtual void endVisit(ExpressionListAST *) { }
     virtual void endVisit(ExpressionOrDeclarationStatementAST *) { }
     virtual void endVisit(ExpressionStatementAST *) { }
+    virtual void endVisit(ForeachStatementAST *) { }
     virtual void endVisit(ForStatementAST *) { }
     virtual void endVisit(FunctionDeclaratorAST *) { }
     virtual void endVisit(FunctionDefinitionAST *) { }

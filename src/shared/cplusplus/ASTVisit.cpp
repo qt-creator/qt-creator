@@ -474,6 +474,21 @@ void FunctionDefinitionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void ForeachStatementAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ForeachStatementAST
+        for (SpecifierAST *it = type_specifiers; it; it = it->next)
+            accept(it, visitor);
+        accept(declarator, visitor);
+        accept(initializer, visitor);
+        accept(expression, visitor);
+        accept(statement, visitor);
+        // visit StatementAST
+    }
+    visitor->endVisit(this);
+}
+
 void ForStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

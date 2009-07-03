@@ -115,7 +115,7 @@ public:
     NamedType *namedType(Name *name);
 
     /// Creates a new Declaration symbol.
-    Declaration *newDeclaration(unsigned sourceLocation, Name *name = 0);
+    Declaration *newDeclaration(unsigned sourceLocation, Name *name);
 
     /// Creates a new Argument symbol.
     Argument *newArgument(unsigned sourceLocation, Name *name = 0);

@@ -514,6 +514,23 @@ FunctionDefinitionAST *FunctionDefinitionAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+ForeachStatementAST *ForeachStatementAST::clone(MemoryPool *pool) const
+{
+    ForeachStatementAST *ast = new (pool) ForeachStatementAST;
+    // copy StatementAST
+    // copy ForeachStatementAST
+    ast->foreach_token = foreach_token;
+    ast->lparen_token = lparen_token;
+    if (type_specifiers) ast->type_specifiers = type_specifiers->clone(pool);
+    if (declarator) ast->declarator = declarator->clone(pool);
+    if (initializer) ast->initializer = initializer->clone(pool);
+    ast->comma_token = comma_token;
+    if (expression) ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (statement) ast->statement = statement->clone(pool);
+    return ast;
+}
+
 ForStatementAST *ForStatementAST::clone(MemoryPool *pool) const
 {
     ForStatementAST *ast = new (pool) ForStatementAST;

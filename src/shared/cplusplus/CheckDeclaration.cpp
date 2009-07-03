@@ -251,7 +251,7 @@ bool CheckDeclaration::visit(AccessDeclarationAST *ast)
     semantic()->switchVisibility(visibility);
     if (ast->slots_token)
         semantic()->switchMethodKey(Function::SlotMethod);
-    else if (accessSpecifier == T_SIGNALS)
+    else if (accessSpecifier == T_Q_SIGNALS)
         semantic()->switchMethodKey(Function::SignalMethod);
     else
         semantic()->switchMethodKey(Function::NormalMethod);

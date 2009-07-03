@@ -75,6 +75,7 @@ protected:
     virtual bool visit(DoStatementAST *ast);
     virtual bool visit(ExpressionOrDeclarationStatementAST *ast);
     virtual bool visit(ExpressionStatementAST *ast);
+    virtual bool visit(ForeachStatementAST *ast);
     virtual bool visit(ForStatementAST *ast);
     virtual bool visit(IfStatementAST *ast);
     virtual bool visit(LabeledStatementAST *ast);
