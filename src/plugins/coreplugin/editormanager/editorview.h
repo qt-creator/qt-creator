@@ -55,61 +55,9 @@ QT_END_NAMESPACE
 namespace Core {
 
 class IEditor;
+class OpenEditorsModel;
 
 namespace Internal {
-
-class EditorModel : public QAbstractItemModel
-{
-    Q_OBJECT
-public:
-    EditorModel(QObject *parent) : QAbstractItemModel(parent) {}
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QModelIndex parent(const QModelIndex &/*index*/) const { return QModelIndex(); }
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
-
-    void addEditor(IEditor *editor, bool isDuplicate = false);
-    void addRestoredEditor(const QString &fileName, const QString &displayName, const QByteArray &kind);
-    QModelIndex firstRestoredEditor() const;
-
-    struct Entry {
-        Entry():editor(0){}
-        IEditor *editor;
-        QString fileName() const;
-        QString displayName() const;
-        QByteArray kind() const;
-        QString m_fileName;
-        QString m_displayName;
-        QByteArray m_kind;
-    };
-    QList<Entry> entries() const { return m_editors; }
-
-    inline IEditor *editorAt(int row) const { return m_editors.at(row).editor; }
-
-    void removeEditor(IEditor *editor);
-    void removeEditor(const QModelIndex &index);
-
-    void removeAllRestoredEditors();
-    int restoredEditorCount() const;
-    void emitDataChanged(IEditor *editor);
-
-    QList<IEditor *> editors() const;
-    bool isDuplicate(IEditor *editor) const;
-    QList<IEditor *> duplicatesFor(IEditor *editor) const;
-    IEditor *originalForDuplicate(IEditor *duplicate) const;
-    void makeOriginal(IEditor *duplicate);
-    QModelIndex indexOf(IEditor *editor) const;
-private slots:
-    void itemChanged();
-
-private:
-    void addEntry(const Entry &entry);
-    int findEditor(IEditor *editor) const;
-    int findFileName(const QString &filename) const;
-    QList<Entry> m_editors;
-    QList<IEditor *>m_duplicateEditors;
-};
 
 
 class EditorView : public QWidget
@@ -117,7 +65,7 @@ class EditorView : public QWidget
     Q_OBJECT
 
 public:
-    EditorView(EditorModel *model = 0, QWidget *parent = 0);
+    EditorView(OpenEditorsModel *model = 0, QWidget *parent = 0);
     virtual ~EditorView();
 
     int editorCount() const;
@@ -155,7 +103,7 @@ private:
     void updateToolBar(IEditor *editor);
     void checkProjectLoaded(IEditor *editor);
 
-    EditorModel *m_model;
+    OpenEditorsModel *m_model;
     QWidget *m_toolBar;
     QToolBar *m_activeToolBar;
     QStackedWidget *m_container;
@@ -181,7 +129,7 @@ class SplitterOrView  : public QWidget
 {
     Q_OBJECT
 public:
-    SplitterOrView(Internal::EditorModel *model); // creates a root splitter
+    SplitterOrView(OpenEditorsModel *model); // creates a root splitter
     SplitterOrView(Core::IEditor *editor = 0);
     ~SplitterOrView();
 

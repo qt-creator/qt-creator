@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "openeditorswindow.h"
+#include "openeditorsmodel.h"
 #include "editormanager.h"
 #include "editorview.h"
 
@@ -187,7 +188,7 @@ void OpenEditorsWindow::centerOnItem(int selectedIndex)
     }
 }
 
-void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *current, EditorModel *model)
+void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *current, OpenEditorsModel *model)
 {
     static const QIcon lockedIcon(QLatin1String(":/core/images/locked.png"));
     static const QIcon emptyIcon(QLatin1String(":/core/images/empty14.png"));
@@ -223,7 +224,7 @@ void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *curr
     }
 
     // add purely restored editors which are not initialised yet
-    foreach (EditorModel::Entry entry, model->entries()) {
+    foreach (OpenEditorsModel::Entry entry, model->entries()) {
         if (entry.editor)
             continue;
         QTreeWidgetItem *item = new QTreeWidgetItem();
