@@ -116,6 +116,7 @@ private slots:
     void dumpQHash();
     void dumpQObject();
     void dumpQString();
+    void dumpQVariant();
     void dumpStdVector();
 
 public slots:
@@ -452,6 +453,25 @@ void tst_Debugger::dumpQString()
     s = "abc";
     testDumper("value='YQBiAGMA',valueencoded='2',type='$T',numchild='0'",
         &s, NS"QString", false);
+}
+
+void tst_Debugger::dumpQVariant()
+{ 
+    QVariant v;
+    testDumper("value='(invalid)',type='$T',numchild='0'",
+        &v, NS"QVariant", false);
+    v = "abc";
+    testDumper("value='KFFTdHJpbmcpICJhYmMi',valueencoded='5',type='$T',"
+        "numchild='1',children=[{name='value',value='IgBhAGIAYwAiAA==',"
+        "valueencoded='4',type='QString',numchild='0'}]",
+        &v, NS"QVariant", true);
+    v = QStringList() << "Hi";
+return; // FIXME
+    testDumper("value='(QStringList) ',type='$T',"
+        "numchild='1',children=[{name='value',"
+        "exp='(*('myns::QStringList'*)3215364300)',"
+        "type='QStringList',numchild='1'}]",
+        &v, NS"QVariant", true);
 }
 
 void tst_Debugger::dumpStdVector()

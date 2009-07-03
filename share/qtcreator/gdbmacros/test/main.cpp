@@ -256,6 +256,18 @@ static int dumpStdStringVector()
     return 0;
 }
 
+static int dumpStdWStringVector()
+{
+    std::vector<std::wstring> test;
+    test.push_back(L"item1");
+    test.push_back(L"item2");
+    prepareInBuffer("std::vector", "local.wstringvector", "local.wstringvector", "std::wstring");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(std::wstring), sizeof(std::list<int>::allocator_type), 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
 static int dumpStdIntSet()
 {
     std::set<int> test;
@@ -335,6 +347,8 @@ static bool dumpType(const char *arg)
         { dumpStdIntVector(); return true; }
     if (!qstrcmp(arg, "vector<string>"))
         { dumpStdStringVector(); return true; }
+    if (!qstrcmp(arg, "vector<wstring>"))
+        { dumpStdWStringVector(); return true; }
     if (!qstrcmp(arg, "set<int>"))
         { dumpStdIntSet(); return true; }
     if (!qstrcmp(arg, "set<string>"))

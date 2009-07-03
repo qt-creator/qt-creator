@@ -266,30 +266,43 @@ bool extractTemplate(const QString &type, QString *tmplate, QString *inner)
     // Input "Template<Inner1,Inner2,...>::Foo" will return "Template::Foo" in
     // 'tmplate' and "Inner1@Inner2@..." etc in 'inner'. Result indicates
     // whether parsing was successful
+    // Gdb inserts a blank after each comma which we would like to avoid
+    tmplate->clear();
+    inner->clear();
+    if (!type.contains(QLatin1Char('<')))
+        return  false;
     int level = 0;
     bool skipSpace = false;
+    const int size = type.size();
 
-    for (int i = 0; i != type.size(); ++i) {
+    for (int i = 0; i != size; ++i) {
         const QChar c = type.at(i);
-        if (c == QLatin1Char(' ') && skipSpace) {
-            skipSpace = false;
-        } else if (c == QLatin1Char('<')) {
+        const char asciiChar = c.toAscii();
+        switch (asciiChar) {
+        case '<':
             *(level == 0 ? tmplate : inner) += c;
             ++level;
-        } else if (c == QLatin1Char('>')) {
+            break;
+        case '>':
             --level;
             *(level == 0 ? tmplate : inner) += c;
-        } else if (c == QLatin1Char(',')) {
+            break;
+        case ',':
             *inner += (level == 1) ? QLatin1Char('@') : QLatin1Char(',');
             skipSpace = true;
-        } else {
-            *(level == 0 ? tmplate : inner) += c;
+            break;
+        default:
+            if (!skipSpace || asciiChar != ' ') {
+                *(level == 0 ? tmplate : inner) += c;
+                skipSpace = false;
+            }
+            break;
         }
     }
     *tmplate = tmplate->trimmed();
     *tmplate = tmplate->remove(QLatin1String("<>"));
     *inner = inner->trimmed();
-    //qDebug() << "EXTRACT TEMPLATE: " << *tmplate << *inner << " FROM " << type;
+    // qDebug() << "EXTRACT TEMPLATE: " << *tmplate << *inner << " FROM " << type;
     return !inner->isEmpty();
 }
 
@@ -305,16 +318,23 @@ QString extractTypeFromPTypeOutput(const QString &str)
     return res.simplified();
 }
 
-bool isIntOrFloatType(const QString &type)
+bool isIntType(const QString &type)
 {
     static const QStringList types = QStringList()
         << QLatin1String("char") << QLatin1String("int") << QLatin1String("short")
-        << QLatin1String("float") << QLatin1String("double") << QLatin1String("long")
-        << QLatin1String("bool") << QLatin1String("signed char") << QLatin1String("unsigned")
+        << QLatin1String("long") << QLatin1String("bool")
+        << QLatin1String("signed char") << QLatin1String("unsigned")
         << QLatin1String("unsigned char")
         << QLatin1String("unsigned int") << QLatin1String("unsigned long")
         << QLatin1String("long long")  << QLatin1String("unsigned long long");
     return types.contains(type);
+}
+
+bool isIntOrFloatType(const QString &type)
+{
+    static const QStringList types = QStringList()
+        << QLatin1String("float") << QLatin1String("double");
+    return isIntType(type) || types.contains(type);
 }
 
 QString sizeofTypeExpression(const QString &type)
@@ -401,7 +421,7 @@ bool isCppEditor(Core::IEditor *editor)
 // Find the function the cursor is in to use a scope.
 
 
-    
+
 
 
 // Return the Cpp expression, and, if desired, the function
@@ -435,7 +455,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
         const QTextCursor tc = plaintext->textCursor();
         *column = tc.columnNumber();
         *line = tc.blockNumber();
-    }    
+    }
 
     if (function && !expr.isEmpty())
         if (const Core::IFile *file = editor->file())
@@ -448,6 +468,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
 // --------------- QtDumperResult
 
 QtDumperResult::Child::Child() :
+   keyEncoded(0),
    valueEncoded(0),
    childCount(0),
    valuedisabled(false)
@@ -468,6 +489,7 @@ void QtDumperResult::clear()
     value.clear();
     address.clear();
     type.clear();
+    extra.clear();
     displayedType.clear();
     valueEncoded = 0;
     valuedisabled = false;
@@ -502,8 +524,17 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
                 wchild.source = source;
                 wchild.iname = iname;
                 wchild.iname += dot;
-                wchild.iname += dchild.name;                
-                wchild.name = dchild.name;
+                wchild.iname += dchild.name;
+                // Use key entry as name (which is used for map nodes)
+                if (dchild.key.isEmpty()) {
+                    wchild.name = dchild.name;
+                } else {
+                    wchild.name = decodeData(dchild.key, dchild.keyEncoded);
+                    if (wchild.name.size() > 13) {
+                        wchild.name.truncate(12);
+                        wchild.name += QLatin1String("...");
+                    }
+                }
                 wchild.exp = dchild.exp;
                 wchild.valuedisabled = dchild.valuedisabled;
                 wchild.setType(dchild.type.isEmpty() ? childType : dchild.type);
@@ -526,18 +557,21 @@ QDebug operator<<(QDebug in, const QtDumperResult &d)
             << " address=" << d.address
             << " value="  << d.value
             << " disabled=" << d.valuedisabled
-            << " encoded=" << d.valueEncoded << " internal=" << d.internal;
+            << " encoded=" << d.valueEncoded << " internal=" << d.internal
+            << " extra='" << d.extra << "'\n";
     const int realChildCount = d.children.size();
     if (d.childCount || realChildCount) {
-        nospace << " childCount=" << d.childCount << '/' << realChildCount
+        nospace << "childCount=" << d.childCount << '/' << realChildCount
                 << " childType=" << d.childType << '\n';
         for (int i = 0; i < realChildCount; i++) {
             const QtDumperResult::Child &c = d.children.at(i);
             nospace << "   #" << i << " addr=" << c.address
                     << " disabled=" << c.valuedisabled
                     << " type=" << c.type << " exp=" << c.exp
-                    << " name=" << c.name << " encoded=" << c.valueEncoded
-                    << " value=" << c.value
+                    << " name=" << c.name;
+            if (!c.key.isEmpty())
+                nospace << " keyencoded=" << c.keyEncoded << " key=" << c.key;
+            nospace << " valueencoded=" << c.valueEncoded << " value=" << c.value
                     << "childcount=" << c.childCount << '\n';
         }
     }
@@ -763,6 +797,7 @@ class DumperParser
 public:
     explicit DumperParser(const char *s) : m_s(s) {}
     bool run();
+    virtual ~DumperParser() {}
 
 protected:
     // handle 'key="value"'
@@ -826,9 +861,9 @@ bool DumperParser::parseHash(int level, const char *&pos)
             return false;
         pos = equalsPtr + 1;
         if (!*pos)
-            return false;        
+            return false;
         if (!parseValue(level + 1, pos))
-            return false;    
+            return false;
         if (*pos == ',')
             pos++;
     }
@@ -864,7 +899,7 @@ bool DumperParser::parseValue(int level, const char *&pos)
                 if (*pos == ',')
                     pos++;
             }
-        }        
+        }
         return false;
         // A hash '{a="b",b="c"}'
     case '{': {
@@ -872,7 +907,7 @@ bool DumperParser::parseValue(int level, const char *&pos)
                 return false;
             pos++;
             if (!parseHash(level + 1, pos))
-                return false;            
+                return false;
             return handleHashEnd();
         }
         return false;
@@ -945,7 +980,7 @@ public:
 
 protected:
     virtual bool handleKeyword(const char *k, int size);
-    virtual bool handleListStart();    
+    virtual bool handleListStart();
     virtual bool handleListEnd();
     virtual bool handleHashEnd();
     virtual bool handleValue(const char *k, int size);
@@ -965,7 +1000,7 @@ QueryDumperParser::QueryDumperParser(const char *s) :
 {
 }
 
-bool QueryDumperParser::handleKeyword(const char *k, int size)        
+bool QueryDumperParser::handleKeyword(const char *k, int size)
 {
     switch (m_mode) {
     case ExpectingSizes:
@@ -1057,7 +1092,6 @@ bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
     foreach (const QueryDumperParser::SizeEntry &se, parser.data().sizes)
         addSize(se.first, se.second);
     m_expressionCache = parser.data().expressionCache;
-    qDebug() << m_expressionCache;
     return true;
 }
 
@@ -1074,13 +1108,15 @@ void QtDumperHelper::addSize(const QString &name, int size)
         return;
     }
     do {
+        // CDB helpers
         if (name == QLatin1String("std::string")) {
-            m_sizeCache.insert(QLatin1String("std::basic_string<char,std::char_traits<char>,std::allocator<char>>"), size);
+            m_sizeCache.insert(QLatin1String("std::basic_string<char,std::char_traits<char>,std::allocator<char> >"), size);
+            m_sizeCache.insert(QLatin1String("basic_string<char,char_traits<char>,allocator<char> >"), size);
             break;
         }
         if (name == QLatin1String("std::wstring")) {
-            // FIXME: check space between > > below?
-            m_sizeCache.insert(QLatin1String("std::basic_string<unsigned short,std::char_traits<unsignedshort>,std::allocator<unsignedshort> >"), size);
+            m_sizeCache.insert(QLatin1String("basic_string<unsigned short,char_traits<unsignedshort>,allocator<unsignedshort> >"), size);
+            m_sizeCache.insert(QLatin1String("std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >"), size);
             break;
         }
     } while (false);
@@ -1290,10 +1326,16 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
             // But we need the offset of the second item in the value pair.
             // We read the type of the pair from the allocator argument because
             // that gets the constness "right" (in the sense that gdb can
-            // read it back;
+            // read it back: "std::allocator<std::pair<Key,Value> >"
+            // -> "std::pair<Key,Value>". Different debuggers have varying
+            // amounts of terminating blanks...
             QString pairType = inners.at(3);
-            // remove 'std::allocator<...>':
-            pairType = pairType.mid(15, pairType.size() - 15 - 2);
+            int bracketPos = pairType.indexOf(QLatin1Char('<'));
+            if (bracketPos != -1)
+                pairType.remove(0, bracketPos + 1);
+            bracketPos = pairType.indexOf(QLatin1Char('>'));
+            if (bracketPos != -1)
+                pairType.truncate(bracketPos + 1);
             extraArgs[2] = QLatin1String("(size_t)&(('");
             extraArgs[2] += pairType;
             extraArgs[2] += QLatin1String("'*)0)->second");
@@ -1370,12 +1412,15 @@ private:
                 ExpectingType, ExpectingDisplayedType, ExpectingInternal,
                 ExpectingValueDisabled,  ExpectingValueEncoded,
                 ExpectingCommonChildType, ExpectingChildCount,
+                ExpectingExtra,
                 IgnoreNext,
                 ChildModeStart,
                 ExpectingChildren,ExpectingChildName, ExpectingChildAddress,
                 ExpectingChildExpression, ExpectingChildType,
+                ExpectingChildKey, ExpectingChildKeyEncoded,
                 ExpectingChildValue, ExpectingChildValueEncoded,
-                ExpectingChildValueDisabled, ExpectingChildChildCount
+                ExpectingChildValueDisabled, ExpectingChildChildCount,
+                IgnoreNextChildMode
               };
 
     static inline Mode nextMode(Mode in, const char *keyword, int size);
@@ -1398,6 +1443,8 @@ ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword
     case 3:
         if (!qstrncmp(keyword, "exp", size))
             return ExpectingChildExpression;
+        if (!qstrncmp(keyword, "key", size))
+            return ExpectingChildKey;
         break;
     case 4:
         if (!qstrncmp(keyword, "addr", size))
@@ -1412,6 +1459,8 @@ ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword
             return ExpectingIName;
         if (!qstrncmp(keyword, "value", size))
             return in > ChildModeStart ? ExpectingChildValue : ExpectingValue;
+        if (!qstrncmp(keyword, "extra", size))
+            return ExpectingExtra;
         break;
     case 8:
         if (!qstrncmp(keyword, "children", size))
@@ -1424,7 +1473,11 @@ ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword
     case 9:
         if (!qstrncmp(keyword, "childtype", size))
             return ExpectingCommonChildType;
-        break;    
+        break;
+    case 10:
+        if (!qstrncmp(keyword, "keyencoded", size))
+            return ExpectingChildKeyEncoded;
+        break;
     case 12:
         if (!qstrncmp(keyword, "valueencoded", size))
             return in > ChildModeStart ? ExpectingChildValueEncoded : ExpectingValueEncoded;
@@ -1435,10 +1488,10 @@ ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword
         if (!qstrncmp(keyword, "displayedtype", size))
             return ExpectingDisplayedType;
         if (!qstrncmp(keyword, "childnumchild", size))
-            return IgnoreNext;
+            return IgnoreNextChildMode;
         break;
     }
-    return IgnoreNext;
+    return in > ChildModeStart ? IgnoreNextChildMode : IgnoreNext;
 }
 
 bool ValueDumperParser::handleKeyword(const char *k, int size)
@@ -1484,6 +1537,9 @@ bool ValueDumperParser::handleValue(const char *k, int size)
     case ExpectingDisplayedType:
         m_result.displayedType = QString::fromLatin1(valueBA);
         break;
+    case ExpectingExtra:
+        m_result.extra = valueBA;
+        break;
     case ExpectingInternal:
         m_result.internal = valueBA == "true";
         break;
@@ -1494,6 +1550,7 @@ bool ValueDumperParser::handleValue(const char *k, int size)
         m_result.childCount = QString::fromLatin1(valueBA).toInt();
         break;
     case ExpectingChildren:
+    case IgnoreNextChildMode:
     case IgnoreNext:
         break;
     case ExpectingChildName:
@@ -1501,6 +1558,12 @@ bool ValueDumperParser::handleValue(const char *k, int size)
         break;
     case ExpectingChildAddress:
         m_result.children.back().address = QString::fromLatin1(valueBA);
+        break;
+    case ExpectingChildKeyEncoded:
+        m_result.children.back().keyEncoded = QString::fromLatin1(valueBA).toInt();
+        break;
+    case ExpectingChildKey:
+        m_result.children.back().key = valueBA;
         break;
     case ExpectingChildValue:
         m_result.children.back().value = valueBA;
@@ -1525,7 +1588,7 @@ bool ValueDumperParser::handleValue(const char *k, int size)
 }
 
 bool QtDumperHelper::parseValue(const char *data, QtDumperResult *r)
-{    
+{
     ValueDumperParser parser(data);
     if (!parser.run())
         return false;
@@ -1534,7 +1597,7 @@ bool QtDumperHelper::parseValue(const char *data, QtDumperResult *r)
     if (r->childCount < r->children.size())
         r->childCount  = r->children.size();
     if (debug)
-        qDebug() << '\n' << data << *r;
+        qDebug() << '\n' << data << '\n' << *r;
     return true;
 }
 

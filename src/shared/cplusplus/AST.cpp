@@ -874,6 +874,24 @@ unsigned ExpressionStatementAST::lastToken() const
     return 0;
 }
 
+unsigned ForeachStatementAST::firstToken() const
+{
+    return foreach_token;
+}
+
+unsigned ForeachStatementAST::lastToken() const
+{
+    if (statement)
+        return statement->lastToken();
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    else if (comma_token)
+        return comma_token + 1;
+
+    return foreach_token + 1;
+}
 
 unsigned ForStatementAST::firstToken() const
 {

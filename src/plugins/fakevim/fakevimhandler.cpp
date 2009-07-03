@@ -235,7 +235,7 @@ public:
     bool atEndOfLine() const
         { return m_tc.atBlockEnd() && m_tc.block().length() > 1; }
 
-    int lastPositionInDocument() const;
+    int lastPositionInDocument() const; // last valid pos in doc
     int firstPositionInLine(int line) const; // 1 based line, 0 based pos
     int lastPositionInLine(int line) const; // 1 based line, 0 based pos
     int lineForPosition(int pos) const;  // 1 based line, 0 based pos
@@ -272,6 +272,7 @@ public:
     void moveToEndOfDocument() { m_tc.movePosition(EndOfDocument, MoveAnchor); }
     void moveToStartOfLine();
     void moveToEndOfLine();
+    void moveBehindEndOfLine();
     void moveUp(int n = 1) { moveDown(-n); }
     void moveDown(int n = 1); // { m_tc.movePosition(Down, MoveAnchor, n); }
     void moveRight(int n = 1) { m_tc.movePosition(Right, MoveAnchor, n); }
@@ -633,6 +634,13 @@ void FakeVimHandler::Private::moveToEndOfLine()
 #endif
 }
 
+void FakeVimHandler::Private::moveBehindEndOfLine()
+{
+    const QTextBlock &block = m_tc.block();
+    int pos = qMin(block.position() + block.length(), lastPositionInDocument());
+    setPosition(pos);
+}
+
 void FakeVimHandler::Private::moveToStartOfLine()
 {
 #if 0
@@ -887,9 +895,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (m_submode == YankSubMode && key == 'y') {
         moveToStartOfLine();
         setAnchor();
-        moveDown(count());
+        moveDown(count() - 1);
+        moveBehindEndOfLine();
         m_moveType = MoveLineWise;
-        finishMovement("y");
+        finishMovement();
     } else if (m_submode == ShiftLeftSubMode && key == '<') {
         setAnchor();
         moveDown(count() - 1);
@@ -1086,7 +1095,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_passing = !m_passing;
         updateMiniBuffer();
     } else if (key == '.') {
-        qDebug() << "REPEATING" << quoteUnprintable(m_dotCommand);
+        //qDebug() << "REPEATING" << quoteUnprintable(m_dotCommand);
         QString savedCommand = m_dotCommand;
         m_dotCommand.clear();
         replay(savedCommand, count());
@@ -2024,7 +2033,7 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
             scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
         highlightMatches(needle);
     } else {
-        m_tc.setPosition(forward ? 0 : lastPositionInDocument() - 1);
+        m_tc.setPosition(forward ? 0 : lastPositionInDocument());
         EDITOR(setTextCursor(m_tc));
         if (EDITOR(find(needle, flags))) {
             m_tc = EDITOR(textCursor());
@@ -2199,7 +2208,7 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
 {
     int repeat = count();
     QTextDocument *doc = m_tc.document();
-    int n = forward ? lastPositionInDocument() - 1 : 0;
+    int n = forward ? lastPositionInDocument() : 0;
     int lastClass = -1;
     while (true) {
         QChar c = doc->characterAt(m_tc.position() + (forward ? 1 : -1));
@@ -2257,7 +2266,7 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
 {
     // FIXME: 'w' should stop on empty lines, too
     int repeat = count();
-    int n = lastPositionInDocument() - 1;
+    int n = lastPositionInDocument();
     int lastClass = charClass(characterAtCursor(), simple);
     while (true) {
         QChar c = characterAtCursor();
@@ -2344,7 +2353,7 @@ void FakeVimHandler::Private::scrollUp(int count)
 int FakeVimHandler::Private::lastPositionInDocument() const
 {
     QTextBlock block = m_tc.document()->lastBlock();
-    return block.position() + block.length();
+    return block.position() + block.length() - 1;
 }
 
 QString FakeVimHandler::Private::lastSearchString() const

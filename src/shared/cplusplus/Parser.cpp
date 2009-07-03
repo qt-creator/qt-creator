@@ -1464,11 +1464,11 @@ bool Parser::parseAccessSpecifier(SpecifierAST *&node)
 
 bool Parser::parseAccessDeclaration(DeclarationAST *&node)
 {
-    if (LA() == T_PUBLIC || LA() == T_PROTECTED || LA() == T_PRIVATE || LA() == T_SIGNALS) {
-        bool isSignals = LA() == T_SIGNALS;
+    if (LA() == T_PUBLIC || LA() == T_PROTECTED || LA() == T_PRIVATE || LA() == T_Q_SIGNALS) {
+        bool isSignals = LA() == T_Q_SIGNALS;
         AccessDeclarationAST *ast = new (_pool) AccessDeclarationAST;
         ast->access_specifier_token = consumeToken();
-        if (! isSignals && LA() == T_SLOTS)
+        if (! isSignals && LA() == T_Q_SLOTS)
             ast->slots_token = consumeToken();
         match(T_COLON, &ast->colon_token);
         node = ast;
@@ -1489,7 +1489,7 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
     case T_TEMPLATE:
         return parseTemplateDeclaration(node);
 
-    case T_SIGNALS:
+    case T_Q_SIGNALS:
     case T_PUBLIC:
     case T_PROTECTED:
     case T_PRIVATE:
@@ -1861,6 +1861,9 @@ bool Parser::parseStatement(StatementAST *&node)
     case T_DO:
         return parseDoStatement(node);
 
+    case T_Q_FOREACH:
+        return parseForeachStatement(node);
+
     case T_FOR:
         return parseForStatement(node);
 
@@ -2102,6 +2105,41 @@ bool Parser::parseDoStatement(StatementAST *&node)
         parseExpression(ast->expression);
         match(T_RPAREN, &ast->rparen_token);
         match(T_SEMICOLON, &ast->semicolon_token);
+        node = ast;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::parseForeachStatement(StatementAST *&node)
+{
+    if (LA() == T_Q_FOREACH) {
+        ForeachStatementAST *ast = new (_pool) ForeachStatementAST;
+        ast->foreach_token = consumeToken();
+        match(T_LPAREN, &ast->lparen_token);
+
+        unsigned startOfTypeSpecifier = cursor();
+        bool blocked = blockErrors(true);
+
+        if (parseTypeSpecifier(ast->type_specifiers))
+            parseDeclarator(ast->declarator);
+
+        if (! ast->type_specifiers || ! ast->declarator) {
+            ast->type_specifiers = 0;
+            ast->declarator = 0;
+
+            blockErrors(blocked);
+            rewind(startOfTypeSpecifier);
+            parseAssignmentExpression(ast->expression);
+        }
+
+        blockErrors(blocked);
+
+        match(T_COMMA, &ast->comma_token);
+        parseExpression(ast->expression);
+        match(T_RPAREN, &ast->rparen_token);
+        parseStatement(ast->statement);
+
         node = ast;
         return true;
     }

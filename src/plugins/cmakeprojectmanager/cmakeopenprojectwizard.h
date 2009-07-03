@@ -58,7 +58,6 @@ public:
     enum PageId {
         InSourcePageId,
         ShadowBuildPageId,
-        XmlFileUpToDatePageId,
         CMakeRunPageId
     };
 
@@ -85,9 +84,9 @@ public:
     ProjectExplorer::Environment environment() const;
     QString msvcVersion() const;
     void setMsvcVersion(const QString &version);
+    bool existsUpToDateXmlFile() const;
 private:
     void init();
-    bool existsUpToDateXmlFile() const;
     bool hasInSourceBuild() const;
     CMakeManager *m_cmakeManager;
     QString m_buildDirectory;
@@ -106,17 +105,6 @@ public:
 private:
     CMakeOpenProjectWizard *m_cmakeWizard;
 };
-
-
-class XmlFileUpToDatePage : public QWizardPage
-{
-    Q_OBJECT
-public:
-    XmlFileUpToDatePage(CMakeOpenProjectWizard *cmakeWizard);
-private:
-    CMakeOpenProjectWizard *m_cmakeWizard;
-};
-
 
 class ShadowBuildPage : public QWizardPage
 {

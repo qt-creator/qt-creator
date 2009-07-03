@@ -82,7 +82,6 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 
     setPage(InSourcePageId, new InSourceBuildPage(this));
     setPage(ShadowBuildPageId, new ShadowBuildPage(this));
-    setPage(XmlFileUpToDatePageId, new XmlFileUpToDatePage(this));
     setPage(CMakeRunPageId, new CMakeRunPage(this));
 
     setStartId(startid);
@@ -137,15 +136,9 @@ int CMakeOpenProjectWizard::nextId() const
         return QWizard::nextId();
     int cid = currentId();
     if (cid == InSourcePageId) {
-        if (existsUpToDateXmlFile())
-            return XmlFileUpToDatePageId;
-        else
-            return CMakeRunPageId;
+        return CMakeRunPageId;
     } else if (cid == ShadowBuildPageId) {
-        if (existsUpToDateXmlFile())
-            return XmlFileUpToDatePageId;
-        else
-            return CMakeRunPageId;
+        return CMakeRunPageId;
     }
     return -1;
 }
@@ -227,18 +220,6 @@ InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
 }
 
 
-XmlFileUpToDatePage::XmlFileUpToDatePage(CMakeOpenProjectWizard *cmakeWizard)
-    : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
-{
-    setLayout(new QVBoxLayout);
-    QLabel *label = new QLabel(this);
-    label->setWordWrap(true);
-    label->setText(tr("Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. "
-                   "You can change the command line arguments used to create this file in the project mode. "
-                   "Click finish to load the project."));
-    layout()->addWidget(label);
-}
-
 ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool change)
     : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
 {
@@ -313,10 +294,19 @@ void CMakeRunPage::initWidgets()
 void CMakeRunPage::initializePage()
 {
     if (m_mode == Initial) {
+        m_complete = m_cmakeWizard->existsUpToDateXmlFile();
         m_buildDirectory = m_cmakeWizard->buildDirectory();
-        m_descriptionLabel->setText(
-                tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running cmake. "
-                   "Some projects require command line arguments to the initial cmake call.").arg(m_buildDirectory));
+
+        if (m_cmakeWizard->existsUpToDateXmlFile()) {
+            m_descriptionLabel->setText(
+                    tr("The directoyr %1 already contains a cbp file, which is recent enough. "
+                       "You can pass special arguments or change the used toolchain here and rerun cmake. "
+                       "Or simply finish the wizard directly").arg(m_buildDirectory));
+        } else {
+            m_descriptionLabel->setText(
+                    tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running cmake. "
+                       "Some projects require command line arguments to the initial cmake call.").arg(m_buildDirectory));
+        }
     } else if (m_mode == CMakeRunPage::Update) {
         m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
                                        "Creator needs to update this file by running cmake. "

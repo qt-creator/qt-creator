@@ -121,6 +121,7 @@ public:
     bool parseExpressionOrDeclarationStatement(StatementAST *&node);
     bool parseExpressionStatement(StatementAST *&node);
     bool parseForInitStatement(StatementAST *&node);
+    bool parseForeachStatement(StatementAST *&node);
     bool parseForStatement(StatementAST *&node);
     bool parseFunctionBody(StatementAST *&node);
     bool parseIfStatement(StatementAST *&node);

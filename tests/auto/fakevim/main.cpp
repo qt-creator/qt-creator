@@ -69,6 +69,8 @@ private slots:
     void command_right();
     void command_up();
     void command_w();
+    void command_yyp();
+    void command_Gyyp();
 
     // special tests
     void test_i_cw_i();
@@ -305,6 +307,7 @@ void tst_FakeVim::command_dfx_down()
     check("df ",  l[0] + "\n#inc@<QtCore>\n" + lmid(2));
     check("j",    l[0] + "\n#inc<QtCore>\n#inc@lude <QtGui>\n" + lmid(3));
     check(".",    l[0] + "\n#inc<QtCore>\n#inc@<QtGui>\n" + lmid(3));
+    qWarning("FIXME");
 return;
     check("u",    l[0] + "\n#inc<QtCore>\n#inc@lude <QtGui>\n" + lmid(3));
     check("u",    l[0] + "\n#inc@lude <QtCore>\n" + lmid(2));
@@ -396,6 +399,7 @@ void tst_FakeVim::command_r()
     check("rx",  lmid(0, 4) + "\nint main(int argc, char *argv[]x@\n" + lmid(5)); 
     check("2h",  lmid(0, 4) + "\nint main(int argc, char *argv[@]x\n" + lmid(5));
     check("4ra", lmid(0, 4) + "\nint main(int argc, char *argv[@]x\n" + lmid(5));
+    qWarning("FIXME");
 return; // FIXME
     check("3rb", lmid(0, 4) + "\nint main(int argc, char *argv[bb@b\n" + lmid(5));
     check("2rc", lmid(0, 4) + "\nint main(int argc, char *argv[bb@b\n" + lmid(5));
@@ -440,7 +444,23 @@ void tst_FakeVim::command_w()
     move("w",   "@{");
 }
 
+void tst_FakeVim::command_yyp()
+{
+    setup();
+    move("4j",   "@int main");
+    check("yyp", lmid(0, 4) + "\n" + lmid(4, 1) + "\n@" + lmid(4));
+}
+
+void tst_FakeVim::command_Gyyp()
+{
+    qWarning("FIXME");
+return; // FIXME
+    setup();
+    check("G",   lmid(0) + "@");
+    check("yyp", lmid(0) + "@" + lmid(9, 1));
+}
 /*
+
 #include <QtCore>
 #include <QtGui>
 
@@ -458,6 +478,7 @@ void tst_FakeVim::test_i_cw_i()
     setup();
     move("j",                "@" + l[1]);
     check("ixx" + escape,    l[0] + "\nx@x" + lmid(1));
+    qWarning("FIXME");
 return; // FIXME: not in sync with Gui behaviour?
     check("cwyy" + escape,   l[0] + "\nxy@y" + lmid(1));
     check("iaa" + escape,    l[0] + "\nxya@ay" + lmid(1));

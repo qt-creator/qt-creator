@@ -144,7 +144,7 @@ void ToolTipWidget::done()
 }
 
 void ToolTipWidget::run(const QPoint &point, QAbstractItemModel *model,
-    const QModelIndex &index, const QString &msg)
+    const QModelIndex &index, const QString & /* msg */)
 {
     move(point);
     setModel(model);

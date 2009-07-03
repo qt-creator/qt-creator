@@ -101,6 +101,7 @@ class ExpressionAST;
 class ExpressionListAST;
 class ExpressionOrDeclarationStatementAST;
 class ExpressionStatementAST;
+class ForeachStatementAST;
 class ForStatementAST;
 class FunctionDeclaratorAST;
 class FunctionDefinitionAST;

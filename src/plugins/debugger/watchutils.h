@@ -72,6 +72,7 @@ QString gdbQuoteTypes(const QString &type);
 bool extractTemplate(const QString &type, QString *tmplate, QString *inner);
 QString extractTypeFromPTypeOutput(const QString &str);
 bool isIntOrFloatType(const QString &type);
+bool isIntType(const QString &type);
 QString sizeofTypeExpression(const QString &type);
 QString quoteUnprintableLatin1(const QByteArray &ba);
 
@@ -89,13 +90,15 @@ struct QtDumperResult
     struct Child {
         Child();
 
-        int valueEncoded;
+        int keyEncoded;
+        int valueEncoded;        
         int childCount;
         bool valuedisabled;
         QString name;
         QString address;
         QString exp;
         QString type;
+        QByteArray key;
         QByteArray value;
     };
 
@@ -106,6 +109,7 @@ struct QtDumperResult
     QString iname;
     QString address;
     QString type;
+    QString extra;
     QString displayedType;
     QByteArray value;
     int valueEncoded;

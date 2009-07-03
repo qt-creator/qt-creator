@@ -544,12 +544,23 @@ static inline QString msgDumpFailed(const WatchData &wd, const QString *why)
     return QString::fromLatin1("Unable to dump '%1' (%2): %3").arg(wd.name, wd.type, *why);
 }
 
+static inline QString msgNotHandled(const QString &type)
+{
+    return QString::fromLatin1("The type '%1' is not handled.").arg(type);
+}
+
 CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool dumpChildren, int source,
                                                       QList<WatchData> *result, QString *errorMessage)
 {
     // Check failure cache and supported types
-    if (m_state == Disabled || m_failedTypes.contains(wd.type))
+    if (m_state == Disabled) {
+        *errorMessage = QLatin1String("Dumpers are disabled");
         return DumpNotHandled;
+    }
+    if (m_failedTypes.contains(wd.type)) {
+        *errorMessage = msgNotHandled(wd.type);
+        return DumpNotHandled;
+    }
 
     // Ensure types are parsed and known.
     if (!ensureInitialized(errorMessage)) {
@@ -562,8 +573,10 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
     const QtDumperHelper::TypeData td = m_helper.typeData(wd.type);    
     if (loadDebug)
         qDebug() << "dumpType" << wd.type << td;
-    if (td.type == QtDumperHelper::UnknownType)
+    if (td.type == QtDumperHelper::UnknownType) {
+        *errorMessage = msgNotHandled(wd.type);
         return DumpNotHandled;
+    }
 
     // Now evaluate
     const QString message = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper",

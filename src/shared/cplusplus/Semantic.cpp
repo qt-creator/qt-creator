@@ -179,7 +179,7 @@ int Semantic::visibilityForAccessSpecifier(int tokenKind) const
         return Symbol::Protected;
     case T_PRIVATE:
         return Symbol::Private;
-    case T_SIGNALS:
+    case T_Q_SIGNALS:
         return Symbol::Protected;
     default:
         return Symbol::Public;
