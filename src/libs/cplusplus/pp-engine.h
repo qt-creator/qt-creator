@@ -72,6 +72,9 @@ public:
                     const QByteArray &source,
                     QByteArray *result);
 
+    bool expandMacros() const;
+    void setExpandMacros(bool expandMacros);
+
 private:
     enum { MAX_LEVEL = 512 };
 
@@ -188,6 +191,7 @@ private:
     bool _markGeneratedTokens;
 
     QString _originalSource;
+    bool _expandMacros;
 };
 
 } // namespace CPlusPlus

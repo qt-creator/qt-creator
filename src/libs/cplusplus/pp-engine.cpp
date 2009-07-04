@@ -533,7 +533,8 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
       env(env),
       _expand(env),
       _result(0),
-      _markGeneratedTokens(false)
+      _markGeneratedTokens(false),
+      _expandMacros(true)
 {
     resetIfLevel ();
 }
@@ -618,6 +619,16 @@ void Preprocessor::out(const char *s)
 {
     if (_result)
         _result->append(s);
+}
+
+bool Preprocessor::expandMacros() const
+{
+    return _expandMacros;
+}
+
+void Preprocessor::setExpandMacros(bool expandMacros)
+{
+    _expandMacros = expandMacros;
 }
 
 Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source) const
@@ -806,8 +817,12 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                 ++_dot; // skip T_IDENTIFIER
 
                 const QByteArray spell = tokenSpell(*identifierToken);
+                if (! _expandMacros) {
+                    out(spell);
+                    continue;
+                }
 
-                if (env->isBuiltinMacro(spell))
+                else if (env->isBuiltinMacro(spell))
                     expandBuiltinMacro(identifierToken, spell);
 
                 else {
