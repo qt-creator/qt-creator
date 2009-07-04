@@ -140,6 +140,10 @@ bool Parser::skipUntilDeclaration()
             case T_PUBLIC:
             case T_PROTECTED:
             case T_PRIVATE:
+            case T_CLASS:
+            case T_STRUCT:
+            case T_UNION:
+            case T_TYPENAME:
                 return true;
 
             default:
