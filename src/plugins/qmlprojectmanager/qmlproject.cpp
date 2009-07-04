@@ -416,7 +416,7 @@ QWidget *QmlRunConfiguration::configurationWidget()
     Core::Utils::PathChooser *qmlViewer = new Core::Utils::PathChooser;
     qmlViewer->setExpectedKind(Core::Utils::PathChooser::Command);
     qmlViewer->setPath(executable());
-    connect(qmlViewer, SIGNAL(changed()), this, SLOT(onQmlViewerChanged()));
+    connect(qmlViewer, SIGNAL(changed(QString)), this, SLOT(onQmlViewerChanged()));
 
     form->addRow(tr("QML Viewer"), qmlViewer);
     form->addRow(tr("Main QML File:"), combo);
