@@ -573,6 +573,14 @@ protected:
                     // sizeof (a)
                     //   `a' can be a typeid or a nested-expression.
                     return false;
+                } else if (type_id->declarator
+                           &&   type_id->declarator->postfix_declarators
+                           && ! type_id->declarator->postfix_declarators->next
+                           &&   type_id->declarator->postfix_declarators->asArrayDeclarator() != 0) {
+                    // this sizeof expression is ambiguos, e.g.
+                    // sizeof(a[10])
+                    //   `a' can be a typeid or an expression.
+                    return false;
                 }
             }
         }
