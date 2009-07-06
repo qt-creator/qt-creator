@@ -380,7 +380,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
     static QTime lastTime;
 
     if (theDebuggerBoolSetting(LogTimeStamps))
-        emit gdbOutputAvailable(LogDebug, currentTime());
+        emit gdbOutputAvailable(LogTime, currentTime());
     emit gdbOutputAvailable(LogOutput, QString::fromLocal8Bit(buff, buff.length()));
 
 #if 0

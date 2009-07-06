@@ -65,6 +65,7 @@ static QChar charForChannel(int channel)
         case LogInput: return '<';
         case LogOutput: return '>';
         case LogStatus: return 's';
+        case LogTime: return 't';
         case LogMisc:
         default: return ' ';
     }
@@ -79,6 +80,7 @@ static LogChannel channelForChar(QChar c)
         case '<': return LogInput;
         case '>': return LogOutput;
         case 's': return LogStatus;
+        case 't': return LogTime;
         default: return LogMisc;
     }
 }
@@ -115,6 +117,10 @@ private:
                 break;
             case LogError:
                 format.setForeground(Qt::red);
+                setFormat(1, text.size(), format);
+                break;
+            case LogTime:
+                format.setForeground(Qt::darkRed);
                 setFormat(1, text.size(), format);
                 break;
             default:

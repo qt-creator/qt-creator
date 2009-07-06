@@ -135,6 +135,7 @@ enum LogChannel
     LogWarning,
     LogError,
     LogStatus,  // Used for status changed messages
+    LogTime,  // Used for time stamp messages
     LogDebug,
     LogMisc    
 };
