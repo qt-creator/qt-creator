@@ -46,6 +46,14 @@ AddressBook::AddressBook(QWidget *parent)
 
     dialog = new FindDialog;
 
+//! [private members]
+    loadButton = new QPushButton;
+    loadButton = ui->loadButton;
+
+    saveButton = new QPushButton;
+    saveButton = ui->saveButton;
+//! [private members]
+
     connect(addButton, SIGNAL(clicked()), this,
                 SLOT(addContact()));
     connect(submitButton, SIGNAL(clicked()), this,
@@ -263,3 +271,73 @@ void AddressBook::findContact()
 
     updateInterface(NavigationMode);
 }
+
+//! [saveToFile part1]
+void AddressBook::saveToFile()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save Address Book"), "",
+        tr("Address book (*.abk);; AllFiles (*)"));
+//! [saveToFile part1]
+
+//! [saveToFile part2]
+    if (fileName.isEmpty())
+        return;
+    else {
+        QFile file(fileName);
+
+        if (!file.open(QIODevice::WriteOnly)) {
+            QMessageBox::information(this, tr("Unable to open file"),
+                file.errorString());
+            return;
+        }
+//! [saveToFile part2]
+
+//! [saveToFile part3]
+        QDataStream out(&file);
+        out.setVersion(QDataStream::Qt_4_5);
+        out << contacts;
+    }
+}
+//! [saveToFile part3]
+
+//! [loadFromFile part1]
+void AddressBook::loadFromFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Open Address Book"), "",
+        tr("Address Book(*.abk);; All Files(*)"));
+//! [loadFromFile part1]
+
+//! [loadFromFile part2]
+    if (fileName.isEmpty())
+        return;
+    else {
+        QFile file(fileName);
+
+        if (!file.open(QIODevice::ReadOnly)) {
+            QMessageBox::information(this, tr("Unable to open file"),
+                file.errorString());
+            return;
+        }
+
+        QDataStream in(&file);
+        in.setVersion(QDataStream::Qt_4_5);
+        contacts.empty();   // empty existing contacts
+        in >> contacts;
+//! [loadFromFile part2]
+
+//! [loadFromFile part3]
+        if (contacts.isEmpty()) {
+            QMessagebox::information(this, tr("No contacts in file"),
+                tr("The file you are attempting to open contains no contacts."));
+        } else {
+            QMap<QString, QString>::iterator i = contacts.begin();
+            nameLine->setText(i.key());
+            addressText->setText(i.value());
+        }
+    }
+
+    updateInterface(NavigationMode);
+}
+//! [loadFromFile part3]

@@ -362,7 +362,7 @@
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp window title
 
-    \section2 The \c{addContact()} Function
+    \section2 The \c addContact() Function
 
     In this function, we begin by storing the last displayed contact details
     in \c oldName and \c oldAddress. Then we clear these input fields and turn
@@ -371,7 +371,7 @@
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp addContact
 
-    \section2 The \c{submitContact()} Function
+    \section2 The \c submitContact() Function
 
     This function can be divided into three parts:
 
@@ -404,7 +404,7 @@
 
     \image addressbook-tutorial-part2-add-successful.png
 
-    \section2 The \c{cancel()} Function
+    \section2 The \c cancel() Function
 
     This function restores the last displayed contact details and enables
     \c addButton, as well as hides \c submitButton and \c cancelButton.
@@ -632,7 +632,7 @@
     detail.
 
 
-    \section2 The \c{editContact()} Function
+    \section2 The \c editContact() Function
 
     This function stores the contact's old details in \c oldName and
     \c oldAddress, before switching the mode to \c EditingMode. In this mode,
@@ -680,7 +680,7 @@
     # image
 
 
-    \section2 The \c{updateInterface()} Function
+    \section2 The \c updateInterface() Function
 
     We mentioned this function earlier as a means to enable and disable the
     push buttons, depending on the current mode. The function updates the
@@ -911,13 +911,70 @@
     Ideally, it would be more user-friendly to set the push buttons' labels to
     "Load contacts from a file" and "Save contacts to a file". However, due to
     the size of our push buttons, we set the labels to \gui{Load...} and
-    \gui{Save...}. Fortunately, Qt provides a simple way to set tooltips with
-    \l{QWidget::}{setToolTip()} and we use it in the following way for our push
-    buttons:
+    \gui{Save...}. Fortunately, Qt Creator's \QD plugin provides a simple way
+    to set tooltips with the \gui{Property Editor}. Simply fill in your tool
+    tips in the \gui{toolTip} property. To test your tooltip, use
+    \key{Ctrl+Alt+R} and hover your mouse cursor on the \gui{Load...} and
+    \gui{Save...} push buttons.
 
-    # code
+    # screenshot of property editor
+
+    Now lets look at the \c saveToFile() and \c loadFromFile() functions in
+    detail.
 
 
+    \section2 The \c saveToFile() Function
+
+    To save a contact, we first obtain \c fileName using
+    QFileDialog::getSaveFileName(). This is a convenience function provided by
+    QFileDialog, which pops up a modal file dialog and allows the user to enter
+    a file name or select any existing \c{.abk} file. The \c{.abk} file is our
+    Address Book extension that we create when we save contacts.
+
+    \snippet examples/addressbook-sdk/part6/addressbook.cpp saveToFile part1
+
+    The file dialog that pops up is displayed in the screenshto below:
+
+    #screenshot
+
+    If \c fileName is not empty, we create a QFile object, \c file, with
+    \c fileName. The QFile object works with QDataStream as QFile is a
+    QIODevice.
+
+    Next, we attempt to open the file in \l{QIODevice::}{WriteOnly} mode. If
+    this is unsuccessful, we display a QMessageBox to inform the user.
+
+    \snippet examples/addressbook-sdk/part6/addressbook.cpp saveToFile part2
+
+    Otherwise, we instantiate a QDataStream object, \c out, to write the open
+    file. QDataStream requires that the same version of the stream is used for
+    reading and writing. We ensure that this is the case by setting the version
+    used to the version introduced with Qt 4.5 before serializing the data into
+    \c file.
+    \snippet examples/addressbook-sdk/part6/addressbook.cpp saveToFile part3
+
+
+    \section2 The \c loadFromFile() Function
+
+    To load a contact, we also obtain \c fileName using
+    QFileDialog::getOpenFileName(). This function, the counterpart to
+    QFileDialog::getSaveFileName(), also pops up the modal file dialog and
+    allows the user to enter a file name or select any existing \c{.abk} file
+    to load it into the address book.
+
+    \snippet examples/addressbook-sdk/part6/addressbook.cpp loadFromFile part1
+
+    On Windows, for example, this function pops up a native file dialog, as
+    shown in the following screenshot.
+
+    # screenshot
+
+    If \c fileName is not empty, again, we use a QFile object, \c file, and
+    attempt to open it in \l{QIODevice::}{ReadOnly} mode. Similar to our
+    implementation
+
+    \snippet examples/addressbook-sdk/part6/addressbook.cpp loadFromFile part2
+    \snippet examples/addressbook-sdk/part6/addressbook.cpp loadFromFile part3
 
 */
 
