@@ -44,6 +44,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QPoint>
 #include <QtCore/QTextCodec>
+#include <QtCore/QTime>
 #include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
@@ -164,6 +165,7 @@ private:
         const char *callbackName;
         QString command;
         QVariant cookie;
+        QTime postTime;
     };
 
     // type and cookie are sender-internal data, opaque for the "event

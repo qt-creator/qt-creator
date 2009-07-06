@@ -738,6 +738,7 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
 void GdbEngine::flushCommand(GdbCommand &cmd)
 {
     ++currentToken();
+    cmd.postTime = QTime::currentTime();
     m_cookieForToken[currentToken()] = cmd;
     cmd.command = QString::number(currentToken()) + cmd.command;
     if (cmd.flags & EmbedToken)
@@ -761,6 +762,11 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
         return;
 
     GdbCommand cmd = m_cookieForToken.take(token);
+    if (theDebuggerBoolSetting(LogTimeStamps)) {
+        emit gdbOutputAvailable(LogTime, _("Response time: %1: %2 s")
+            .arg(cmd.command)
+            .arg(cmd.postTime.msecsTo(QTime::currentTime()) / 1000.));
+    }
 
     if (record.token < m_oldestAcceptableToken && (cmd.flags & Discardable)) {
         //qDebug() << "### SKIPPING OLD RESULT" << record.toString();
