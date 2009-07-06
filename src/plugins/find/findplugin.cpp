@@ -163,7 +163,7 @@ void FindPlugin::setupMenu()
     cmd = am->registerAction(separator, QLatin1String("Find.Sep.Actions"), globalcontext);
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
 
-    m_openFindDialog = new QAction(tr("Find Dialog"), this);
+    m_openFindDialog = new QAction(tr("Find..."), this);
     cmd = am->registerAction(m_openFindDialog, QLatin1String("Find.Dialog"), globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
     mfind->addAction(cmd, Constants::G_FIND_FILTERS);
