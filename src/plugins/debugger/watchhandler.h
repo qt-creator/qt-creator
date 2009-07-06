@@ -146,6 +146,20 @@ enum WatchRoles
     IndividualFormatRole
 };
 
+enum IntegerFormat
+{
+    DecimalFormat = 0, // keep that at 0 as default
+    HexadecimalFormat,
+    BinaryFormat,
+    OctalFormat,
+};
+
+enum DumpableFormat
+{
+    PrettyFormat = 0, // keep that at 0 as default
+    PlainFomat, 
+};
+
 class WatchModel : public QAbstractItemModel
 {
     Q_OBJECT

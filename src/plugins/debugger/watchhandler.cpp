@@ -515,12 +515,13 @@ static QString formattedValue(const WatchData &data,
     if (isIntType(data.type)) {
         int format = individualFormat == -1 ? typeFormat : individualFormat;
         int value = data.value.toInt();
-        if (format == 1)
+        if (format == HexadecimalFormat)
             return ("(hex) ") + QString::number(value, 16);
-        if (format == 2)
+        if (format == BinaryFormat)
             return ("(bin) ") + QString::number(value, 2);
-        if (format == 3)
+        if (format == OctalFormat)
             return ("(oct) ") + QString::number(value, 8);
+        return data.value;
     }
 
     return data.value;
