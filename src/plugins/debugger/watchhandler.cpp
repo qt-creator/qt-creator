@@ -244,10 +244,10 @@ QString WatchData::toString() const
 }
 
 // Format a tooltip fow with aligned colon
-template <class Streamable>
-void formatToolTipRow(QTextStream &str, const QString &category, const Streamable &value)
+static void formatToolTipRow(QTextStream &str, const QString &category, const QString &value)
 {
-    str << "<tr><td>" << category << "</td><td> : </td><td>" << value  << "</td></tr>";
+    str << "<tr><td>" << category << "</td><td> : </td><td>"
+        << Qt::escape(value) << "</td></tr>";
 }
 
 QString WatchData::toToolTip() const
@@ -257,17 +257,17 @@ QString WatchData::toToolTip() const
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>";
-    formatToolTipRow(str, WatchHandler::tr("Expression"), Qt::escape(exp));
-    formatToolTipRow(str, WatchHandler::tr("Type"), Qt::escape(type));
+    formatToolTipRow(str, WatchHandler::tr("Expression"), exp);
+    formatToolTipRow(str, WatchHandler::tr("Type"), type);
     QString val = value;
     if (value.size() > 1000) {
         val.truncate(1000);
         val +=  WatchHandler::tr(" ... <cut off>");
     }
-    formatToolTipRow(str, WatchHandler::tr("Value"), Qt::escape(val));
-    formatToolTipRow(str, WatchHandler::tr("Object Address"), Qt::escape(addr));
-    formatToolTipRow(str, WatchHandler::tr("Stored Address"), Qt::escape(saddr));
-    formatToolTipRow(str, WatchHandler::tr("iname"), Qt::escape(iname));
+    formatToolTipRow(str, WatchHandler::tr("Value"), val);
+    formatToolTipRow(str, WatchHandler::tr("Object Address"), addr);
+    formatToolTipRow(str, WatchHandler::tr("Stored Address"), saddr);
+    formatToolTipRow(str, WatchHandler::tr("Internal ID"), iname);
     str << "</table></body></html>";
     return res;
 }
