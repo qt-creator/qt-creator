@@ -20,7 +20,8 @@ duieditoractionhandler.h \
 duicodecompletion.h \
 duieditorconstants.h \
 duihoverhandler.h \
-duidocument.h
+duidocument.h \
+duicompletionvisitor.h
 
 SOURCES += duieditor.cpp \
 duieditorfactory.cpp \
@@ -29,6 +30,7 @@ duihighlighter.cpp \
 duieditoractionhandler.cpp \
 duicodecompletion.cpp \
 duihoverhandler.cpp \
-duidocument.cpp
+duidocument.cpp \
+duicompletionvisitor.cpp
 
 RESOURCES += duieditor.qrc

@@ -106,6 +106,8 @@ public:
 
 	virtual void unCommentSelection();
 
+    DuiDocument::Ptr duiDocument() const { return m_document; }
+
 public slots:
 	virtual void setFontSettings(const TextEditor::FontSettings &);
 

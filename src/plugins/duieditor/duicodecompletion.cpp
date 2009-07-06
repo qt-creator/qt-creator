@@ -1,4 +1,4 @@
-
+#include "duicompletionvisitor.h"
 #include "duicodecompletion.h"
 #include "duieditor.h"
 #include <texteditor/basetexteditor.h>
@@ -59,6 +59,21 @@ int DuiCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         TextEditor::CompletionItem item(this);
         item.m_text = word;
         m_completions.append(item);
+    }
+
+    DuiDocument::Ptr duiDocument = edit->duiDocument();
+    if (!duiDocument.isNull()) {
+        QmlJS::AST::UiProgram *program = duiDocument->program();
+
+        if (program) {
+            DuiCompletionVisitor visitor;
+
+            foreach (const QString &word, visitor(program, m_startPosition)) {
+                TextEditor::CompletionItem item(this);
+                item.m_text = word;
+                m_completions.append(item);
+            }
+        }
     }
 
     return pos;
