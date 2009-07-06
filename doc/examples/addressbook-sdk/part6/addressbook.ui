@@ -85,6 +85,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="loadButton">
+         <property name="toolTip">
+          <string>Load contacts from a file</string>
+         </property>
          <property name="text">
           <string>Load...</string>
          </property>
@@ -92,6 +95,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="saveButton">
+         <property name="toolTip">
+          <string>Save contacts to a file</string>
+         </property>
          <property name="text">
           <string>Save...</string>
          </property>

@@ -1917,7 +1917,7 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
             // Add all suitable editors
             foreach (Core::IEditorFactory *editorFactory, factories) {
                 // Add action to open with this very editor factory
-                QString const actionTitle(editorFactory->kind());
+                QString const actionTitle = qApp->translate("OpenWith::Editors", editorFactory->kind().toAscii());
                 QAction * const action = m_openWithMenu->addAction(actionTitle);
                 action->setData(qVariantFromValue(editorFactory));
                 // File already open in an editor -> only enable that entry since
@@ -1934,7 +1934,7 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
             } // for editor factories
             // Add all suitable external editors
             foreach (Core::IExternalEditor *externalEditor, externalEditors) {
-                QAction * const action = m_openWithMenu->addAction(externalEditor->kind());
+                QAction * const action = m_openWithMenu->addAction(qApp->translate("OpenWith::Editors", externalEditor->kind().toAscii()));
                 action->setData(qVariantFromValue(externalEditor));
             }
         } // matches

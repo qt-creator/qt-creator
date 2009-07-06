@@ -91,8 +91,8 @@ const char * const C_NAVIGATION_PANE     = "Core.NavigationPane";
 const char * const C_PROBLEM_PANE        = "Core.ProblemPane";
 
 //default editor kind
-const char * const K_DEFAULT_TEXT_EDITOR = "Plain Text Editor";
-const char * const K_DEFAULT_BINARY_EDITOR = "Binary Editor";
+const char * const K_DEFAULT_TEXT_EDITOR = QT_TRANSLATE_NOOP("OpenWith::Editors", "Plain Text Editor");
+const char * const K_DEFAULT_BINARY_EDITOR = QT_TRANSLATE_NOOP("OpenWith::Editors", "Binary Editor");
 
 //actions
 const char * const UNDO                  = "QtCreator.Undo";

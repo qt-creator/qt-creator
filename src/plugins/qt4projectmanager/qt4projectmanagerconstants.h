@@ -39,7 +39,7 @@ const char * const C_PROFILEEDITOR_PANEL  = ".pro File Editor (embedded)";
 
 // kinds
 const char * const PROJECT_KIND      = "Qt4";
-const char * const PROFILE_EDITOR    = ".pro File Editor";
+const char * const PROFILE_EDITOR    = QT_TRANSLATE_NOOP("OpenWith::Editors", ".pro File Editor");
 const char * const PROFILE_MIMETYPE  = "application/vnd.nokia.qt.qmakeprofile";
 const char * const PROINCLUDEFILE_MIMETYPE  = "application/vnd.nokia.qt.qmakeproincludefile";
 const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";

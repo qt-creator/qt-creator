@@ -373,6 +373,14 @@ protected:
 
     virtual bool visit(TypenameTypeParameterAST *ast)
     {
+        if (NameAST *nameAst = ast->name)
+            addType(nameAst->name);
+
+        return true;
+    }
+
+    virtual bool visit(TemplateTypeParameterAST *ast)
+    {
         if (ast->name)
             addType(ast->name->name);
 
