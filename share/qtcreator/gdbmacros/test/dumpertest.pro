@@ -4,8 +4,6 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
-
 TARGET = dumpertest
 CONFIG   += console
 CONFIG   -= app_bundle

@@ -561,6 +561,10 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
         *errorMessage = msgNotHandled(wd.type);
         return DumpNotHandled;
     }
+    if (wd.addr.isEmpty()) {
+        *errorMessage = QString::fromLatin1("Adress is missing for '%1' (%2).").arg(wd.exp, wd.type);
+        return DumpNotHandled;
+    }
 
     // Ensure types are parsed and known.
     if (!ensureInitialized(errorMessage)) {

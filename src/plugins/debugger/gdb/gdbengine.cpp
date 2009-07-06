@@ -3192,24 +3192,36 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
     //qDebug() << m_availableSimpleDebuggingHelpers << "DATA DUMPERS AVAILABLE";
 }
 
-void GdbEngine::sendWatchParameters(const QByteArray &params0)
+static inline QString arrayFillCommand(const char *array, const QByteArray &params)
 {
-    QByteArray params = params0;
-    params.append('\0');
     char buf[50];
-    sprintf(buf, "set {char[%d]} &qDumpInBuffer = {", params.size());
+    sprintf(buf, "set {char[%d]} &%s = {", params.size(), array);
     QByteArray encoded;
     encoded.append(buf);
-    for (int i = 0; i != params.size(); ++i) {
+    const int size = params.size();
+    for (int i = 0; i != size; ++i) {
         sprintf(buf, "%d,", int(params[i]));
         encoded.append(buf);
     }
     encoded[encoded.size() - 1] = '}';
+    return _(encoded);
+}
+
+void GdbEngine::sendWatchParameters(const QByteArray &params0)
+{
+    QByteArray params = params0;
+    params.append('\0');
+    const QString inBufferCmd = arrayFillCommand("qDumpInBuffer", params);
 
     params.replace('\0','!');
     emit gdbInputAvailable(LogMisc, QString::fromUtf8(params));
 
-    postCommand(_(encoded));
+    params.clear();
+    params.append('\0');
+    const QString outBufferCmd = arrayFillCommand("qDumpOutBuffer", params);
+
+    postCommand(inBufferCmd);
+    postCommand(outBufferCmd);
 }
 
 void GdbEngine::handleVarAssign(const GdbResultRecord &, const QVariant &)

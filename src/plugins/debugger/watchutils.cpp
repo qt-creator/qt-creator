@@ -470,16 +470,19 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
 QtDumperResult::Child::Child() :
    keyEncoded(0),
    valueEncoded(0),
-   childCount(0),
-   valuedisabled(false)
+   childCount(-1),
+   valuedisabled(false),
+   valueEncountered(false)
 {
 }
 
 QtDumperResult::QtDumperResult() :
+    valueEncountered(false),
     valueEncoded(0),
     valuedisabled(false),
-    childCount(0),
-    internal(false)
+    childCount(-1),
+    internal(false),
+    childChildCount(-1)
 {
 }
 
@@ -488,15 +491,17 @@ void QtDumperResult::clear()
     iname.clear();
     value.clear();
     address.clear();
+    addressInfo.clear();
     type.clear();
     extra.clear();
     displayedType.clear();
     valueEncoded = 0;
-    valuedisabled = false;
-    childCount = 0;
+    valueEncountered = valuedisabled = false;
+    childCount = -1;
     internal = false;
     childType.clear();
     children.clear();
+    childChildCount = -1;
 }
 
 QList<WatchData> QtDumperResult::toWatchData(int source) const
@@ -508,45 +513,70 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
     const QChar dot = QLatin1Char('.');
     const int lastDotIndex = root.iname.lastIndexOf(dot);
     root.exp = root.name = lastDotIndex == -1 ? iname : iname.mid(lastDotIndex + 1);
-    root.setValue(decodeData(value, valueEncoded));
+    if (valueEncountered) {
+        root.setValue(decodeData(value, valueEncoded));
+        root.valuedisabled = valuedisabled;
+    }
     root.setType(displayedType.isEmpty() ? type : displayedType);
-    root.valuedisabled = valuedisabled;
     root.setAddress(address);
     root.source = source;
-    root.setHasChildren(childCount > 0);
-    // Children
-    if (childCount > 0) {
-        if (children.size() == childCount) {
-            for (int c = 0; c < childCount; c++) {
-                const Child &dchild = children.at(c);
-                rc.push_back(WatchData());
-                WatchData &wchild = rc.back();
-                wchild.source = source;
-                wchild.iname = iname;
-                wchild.iname += dot;
-                wchild.iname += dchild.name;
-                // Use key entry as name (which is used for map nodes)
-                if (dchild.key.isEmpty()) {
-                    wchild.name = dchild.name;
-                } else {
-                    wchild.name = decodeData(dchild.key, dchild.keyEncoded);
-                    if (wchild.name.size() > 13) {
-                        wchild.name.truncate(12);
-                        wchild.name += QLatin1String("...");
-                    }
-                }
-                wchild.exp = dchild.exp;
-                wchild.valuedisabled = dchild.valuedisabled;
-                wchild.setType(dchild.type.isEmpty() ? childType : dchild.type);
-                wchild.setAddress(dchild.address);
-                wchild.setValue(decodeData(dchild.value, dchild.valueEncoded));
-                wchild.setHasChildren(false);
-            }
-            root.setChildrenUnneeded();
-        } else {
+    if (childCount >= 0)
+        root.setHasChildren(childCount > 0);
+    // Children. Sanity check after parsing sets childcount to list size
+    // if list is not empty
+    if (children.empty()) {
+        if (childCount > 0)
             root.setChildrenNeeded();
+    } else {
+        root.setChildrenUnneeded();
+        for (int c = 0; c < childCount; c++) {
+            const Child &dchild = children.at(c);
+            rc.push_back(WatchData());
+            WatchData &wchild = rc.back();
+            wchild.source = source;
+            wchild.iname = iname;
+            wchild.iname += dot;
+            wchild.iname += dchild.name;
+            // Use key entry as name (which is used for map nodes)
+            if (dchild.key.isEmpty()) {
+                wchild.name = dchild.name;
+            } else {
+                wchild.name = decodeData(dchild.key, dchild.keyEncoded);
+                if (wchild.name.size() > 13) {
+                    wchild.name.truncate(12);
+                    wchild.name += QLatin1String("...");
+                }
+            }
+            wchild.exp = dchild.exp;
+            if (dchild.valueEncountered) {
+                wchild.valuedisabled = dchild.valuedisabled;
+                wchild.setValue(decodeData(dchild.value, dchild.valueEncoded));
+            }
+            wchild.setType(dchild.type.isEmpty() ? childType : dchild.type);
+            wchild.setAddress(dchild.address);
+            // Child overrides.
+            const int effectiveChildChildCount = dchild.childCount == -1 ?  childChildCount : dchild.childCount;
+            switch (effectiveChildChildCount) {
+                case -1:
+                wchild.setChildrenNeeded();
+                wchild.setHasChildrenNeeded();
+                break;
+                case 0:
+                wchild.setHasChildren(false);
+                break;
+                default:
+                wchild.setHasChildren(true);
+                break;
+            }
         }
     }
+    if (debug) {
+        QDebug nospace = qDebug().nospace();
+        nospace << "QtDumperResult::toWatchData" << *this << '\n';
+        foreach(const WatchData &wd, rc)
+            nospace << "  " << wd.toString() << '\n';
+    }
+
     return rc;
 }
 
@@ -554,11 +584,20 @@ QDebug operator<<(QDebug in, const QtDumperResult &d)
 {
     QDebug nospace = in.nospace();
     nospace << " iname=" << d.iname << " type=" << d.type << " displayed=" << d.displayedType
-            << " address=" << d.address
-            << " value="  << d.value
-            << " disabled=" << d.valuedisabled
-            << " encoded=" << d.valueEncoded << " internal=" << d.internal
+            << " address=" << d.address;
+    if (!d.addressInfo.isEmpty())
+        nospace << " addressInfo=" << d.addressInfo;
+    if (d.valueEncountered) {
+        nospace << " encoded=" << d.valueEncoded
+                << " value="  << d.value
+                << " disabled=" << d.valuedisabled;
+    } else {
+        nospace  << " <no value>";
+    }
+    nospace << " childnumchild=" << d.childChildCount
+            << " internal=" << d.internal
             << " extra='" << d.extra << "'\n";
+
     const int realChildCount = d.children.size();
     if (d.childCount || realChildCount) {
         nospace << "childCount=" << d.childCount << '/' << realChildCount
@@ -571,8 +610,12 @@ QDebug operator<<(QDebug in, const QtDumperResult &d)
                     << " name=" << c.name;
             if (!c.key.isEmpty())
                 nospace << " keyencoded=" << c.keyEncoded << " key=" << c.key;
-            nospace << " valueencoded=" << c.valueEncoded << " value=" << c.value
-                    << "childcount=" << c.childCount << '\n';
+            if (c.valueEncountered) {
+                nospace << " valueencoded=" << c.valueEncoded << " value=" << c.value;
+            } else {
+                nospace  << " <no value>";
+            }
+            nospace  << "childcount=" << c.childCount << '\n';
         }
     }
     return in;
@@ -608,6 +651,7 @@ void QtDumperHelper::clear()
     m_sizeCache.clear();
     qFill(m_specialSizes, m_specialSizes + SpecialSizeCount, 0);
     m_expressionCache.clear();
+    m_dumperVersion.clear();
 }
 
 static inline void formatQtVersion(int v, QTextStream &str)
@@ -622,7 +666,7 @@ QString QtDumperHelper::toString(bool debug) const
         QTextStream str(&rc);
         str << "version=";
         formatQtVersion(m_qtVersion, str);
-        str << " namespace='" << m_qtNamespace << "'," << m_nameTypeMap.size() << " known types <type enum>: ";
+        str << "dumperversion='" << m_dumperVersion <<  "' namespace='" << m_qtNamespace << "'," << m_nameTypeMap.size() << " known types <type enum>: ";
         const NameTypeMap::const_iterator cend = m_nameTypeMap.constEnd();
         for (NameTypeMap::const_iterator it = m_nameTypeMap.constBegin(); it != cend; ++it) {
             str <<",[" << it.key() << ',' << it.value() << ']';
@@ -639,9 +683,9 @@ QString QtDumperHelper::toString(bool debug) const
     }
     const QString nameSpace = m_qtNamespace.isEmpty() ? QCoreApplication::translate("QtDumperHelper", "<none>") : m_qtNamespace;
     return QCoreApplication::translate("QtDumperHelper",
-                                       "%n known types, Qt version: %1, Qt namespace: %2",
+                                       "%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3",
                                        0, QCoreApplication::CodecForTr,
-                                       m_nameTypeMap.size()).arg(qtVersionString(), nameSpace);
+                                       m_nameTypeMap.size()).arg(qtVersionString(), nameSpace, m_dumperVersion);
 }
 
 QtDumperHelper::Type QtDumperHelper::simpleType(const QString &simpleType) const
@@ -726,10 +770,9 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
 
 QtDumperHelper::ExpressionRequirement QtDumperHelper::expressionRequirements(Type t)
 {
+
     switch (t) {
     case QAbstractItemType:
-    case QObjectSlotType:
-    case QObjectSignalType:
     case QVectorType:
     case StdMapType:
         return NeedsComplexExpression;
@@ -738,6 +781,7 @@ QtDumperHelper::ExpressionRequirement QtDumperHelper::expressionRequirements(Typ
     case QMapNodeType:
         return NeedsCachedExpression;
     default:
+        // QObjectSlotType, QObjectSignalType need the signal number, which is numeric
         break;
     }
     return NeedsNoExpression;
@@ -968,9 +1012,9 @@ public:
     explicit QueryDumperParser(const char *s);
 
     struct Data {
-        Data() : qtVersion(0) {}
         QString qtNameSpace;
         QString qtVersion;
+        QString dumperVersion;
         QStringList types;
         QList<SizeEntry> sizes;
         QMap<QString, QString> expressionCache;
@@ -986,7 +1030,7 @@ protected:
     virtual bool handleValue(const char *k, int size);
 
 private:
-    enum Mode { None, ExpectingDumpers, ExpectingVersion,
+    enum Mode { None, ExpectingDumpers, ExpectingQtVersion, ExpectingDumperVersion,
                 ExpectingNameSpace, ExpectingSizes, ExpectingExpressionCache };
     Mode m_mode;
     Data m_data;
@@ -1017,7 +1061,11 @@ bool QueryDumperParser::handleKeyword(const char *k, int size)
         return true;
     }
     if (!qstrncmp(k, "qtversion", size)) {
-        m_mode = ExpectingVersion;
+        m_mode = ExpectingQtVersion;
+        return true;
+    }
+    if (!qstrncmp(k, "dumperversion", size)) {
+        m_mode = ExpectingDumperVersion;
         return true;
     }
     if (!qstrncmp(k, "namespace", size)) {
@@ -1038,7 +1086,7 @@ bool QueryDumperParser::handleKeyword(const char *k, int size)
 
 bool QueryDumperParser::handleListStart()
 {
-    return m_mode == ExpectingDumpers || m_mode == ExpectingVersion;
+    return m_mode == ExpectingDumpers || m_mode == ExpectingQtVersion;
 }
 
 bool QueryDumperParser::handleListEnd()
@@ -1064,7 +1112,10 @@ bool QueryDumperParser::handleValue(const char *k, int size)
     case ExpectingNameSpace:
         m_data.qtNameSpace = QString::fromLatin1(k, size);
         break;
-    case ExpectingVersion: // ["4","1","5"]
+    case ExpectingDumperVersion:
+        m_data.dumperVersion = QString::fromLatin1(k, size);
+        break;
+    case ExpectingQtVersion: // ["4","1","5"]
         if (!m_data.qtVersion.isEmpty())
             m_data.qtVersion += QLatin1Char('.');
         m_data.qtVersion += QString::fromLatin1(k, size);
@@ -1092,6 +1143,7 @@ bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
     foreach (const QueryDumperParser::SizeEntry &se, parser.data().sizes)
         addSize(se.first, se.second);
     m_expressionCache = parser.data().expressionCache;
+    m_dumperVersion = parser.data().dumperVersion;
     return true;
 }
 
@@ -1248,17 +1300,6 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     case QAbstractItemType:
         inner = data.addr.mid(1);
         break;
-    case QObjectType:
-    case QWidgetType:
-        if (debugger == GdbDebugger) {
-            extraArgs[0] = QLatin1String("(char*)&((('");
-            extraArgs[0] += m_qtNamespace;
-            extraArgs[0] += QLatin1String("QObjectPrivate'*)&");
-            extraArgs[0] += data.exp;
-            extraArgs[0] += QLatin1String(")->children)-(char*)&");
-            extraArgs[0] += data.exp;
-        }
-        break;
     case QVectorType:
         extraArgs[1] = QLatin1String("(char*)&((");
         extraArgs[1] += data.exp;
@@ -1355,6 +1396,8 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         qWarning("Unknown type encountered in %s.\n", Q_FUNC_INFO);
         break;
     case SupportedType:
+    case QObjectType:
+    case QWidgetType:
         break;
     }
 
@@ -1412,6 +1455,7 @@ private:
                 ExpectingType, ExpectingDisplayedType, ExpectingInternal,
                 ExpectingValueDisabled,  ExpectingValueEncoded,
                 ExpectingCommonChildType, ExpectingChildCount,
+                ExpectingChildChildOverrideCount,
                 ExpectingExtra,
                 IgnoreNext,
                 ChildModeStart,
@@ -1488,7 +1532,7 @@ ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword
         if (!qstrncmp(keyword, "displayedtype", size))
             return ExpectingDisplayedType;
         if (!qstrncmp(keyword, "childnumchild", size))
-            return IgnoreNextChildMode;
+            return ExpectingChildChildOverrideCount;
         break;
     }
     return in > ChildModeStart ? IgnoreNextChildMode : IgnoreNext;
@@ -1519,10 +1563,17 @@ bool ValueDumperParser::handleValue(const char *k, int size)
     case ExpectingIName:
         m_result.iname = QString::fromLatin1(valueBA);
         break;
-    case ExpectingAddress:
-        m_result.address = QString::fromLatin1(valueBA);
-        break;
+        case ExpectingAddress: {
+                const QString address = QString::fromLatin1(valueBA);
+                if (address.startsWith(QLatin1String("0x"))) {
+                    m_result.address = address;
+                } else {
+                    m_result.addressInfo = address;
+                }
+            }
+            break;
     case ExpectingValue:
+        m_result.valueEncountered = true;
         m_result.value = valueBA;
         break;
     case ExpectingValueDisabled:
@@ -1549,6 +1600,9 @@ bool ValueDumperParser::handleValue(const char *k, int size)
     case ExpectingChildCount:
         m_result.childCount = QString::fromLatin1(valueBA).toInt();
         break;
+    case ExpectingChildChildOverrideCount:
+        m_result.childChildCount = QString::fromLatin1(valueBA).toInt();
+        break;
     case ExpectingChildren:
     case IgnoreNextChildMode:
     case IgnoreNext:
@@ -1566,6 +1620,7 @@ bool ValueDumperParser::handleValue(const char *k, int size)
         m_result.children.back().key = valueBA;
         break;
     case ExpectingChildValue:
+        m_result.children.back().valueEncountered = true;
         m_result.children.back().value = valueBA;
         break;
     case ExpectingChildExpression:
@@ -1590,12 +1645,13 @@ bool ValueDumperParser::handleValue(const char *k, int size)
 bool QtDumperHelper::parseValue(const char *data, QtDumperResult *r)
 {
     ValueDumperParser parser(data);
+
     if (!parser.run())
         return false;
     *r = parser.result();
     // Sanity
-    if (r->childCount < r->children.size())
-        r->childCount  = r->children.size();
+    if (!r->children.empty() && r->childCount != r->children.size())
+        r->childCount = r->children.size();
     if (debug)
         qDebug() << '\n' << data << '\n' << *r;
     return true;

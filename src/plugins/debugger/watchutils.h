@@ -99,6 +99,7 @@ struct QtDumperResult
         QString exp;
         QString type;
         QByteArray key;
+        bool valueEncountered;
         QByteArray value;
     };
 
@@ -108,15 +109,18 @@ struct QtDumperResult
 
     QString iname;
     QString address;
+    QString addressInfo; // "<synthetic>" or such, in the 2nd adress field.
     QString type;
     QString extra;
     QString displayedType;
+    bool valueEncountered;
     QByteArray value;
     int valueEncoded;
     bool valuedisabled;
     int childCount;
     bool internal;
     QString childType;
+    int childChildCount;
     QList <Child> children;
 };
 
@@ -242,6 +246,7 @@ private:
 
     QMap<QString, QString> m_expressionCache;
     int m_qtVersion;
+    QString m_dumperVersion;
     QString m_qtNamespace;
 };
 

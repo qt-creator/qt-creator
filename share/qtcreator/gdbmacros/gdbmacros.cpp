@@ -46,6 +46,13 @@
 #include <QtCore/QString>
 #include <QtCore/QTextCodec>
 #include <QtCore/QVector>
+#include <QtCore/QTextStream>
+#include <QtCore/QPoint>
+#include <QtCore/QSize>
+#include <QtCore/QRect>
+#include <QtCore/QPointF>
+#include <QtCore/QSizeF>
+#include <QtCore/QRectF>
 
 #if QT_VERSION >= 0x040500
 #include <QtCore/QSharedPointer>
@@ -67,6 +74,10 @@ int qtGhVersion = QT_VERSION;
 #   include <QtGui/QImage>
 #   include <QtGui/QPixmap>
 #   include <QtGui/QWidget>
+#   include <QtGui/QFont>
+#   include <QtGui/QColor>
+#   include <QtGui/QKeySequence>
+#   include <QtGui/QSizePolicy>
 #endif
 
 #ifdef Q_OS_WIN
@@ -445,7 +456,7 @@ struct QDumper
     explicit QDumper();
     ~QDumper();
 
-    // direct write to the output 
+    // direct write to the output
     QDumper &put(long c);
     QDumper &put(int i);
     QDumper &put(double d);
@@ -454,6 +465,7 @@ struct QDumper
     QDumper &put(unsigned int i);
     QDumper &put(const void *p);
     QDumper &put(qulonglong c);
+    QDumper &put(long long c);
     QDumper &put(const char *str);
     QDumper &put(const QByteArray &ba);
     QDumper &put(const QString &str);
@@ -575,6 +587,13 @@ QDumper &QDumper::put(unsigned long long c)
 {
     checkFill();
     pos += sprintf(outBuffer + pos, "%llu", c);
+    return *this;
+}
+
+QDumper &QDumper::put(long long c)
+{
+    checkFill();
+    pos += sprintf(outBuffer + pos, "%lld", c);
     return *this;
 }
 
@@ -864,7 +883,28 @@ static inline void dumpStdWStringValue(QDumper &d, const std::wstring &str)
     d.putItem("numchild", "0");
 }
 
-static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
+// Tell the calling routine whether a global "childnumchild" attribute makes sense
+enum  InnerValueResult { InnerValueNotHandled,
+                         InnerValueChildrenSpecified,
+                         InnerValueNoFurtherChildren,
+                         InnerValueFurtherChildren  };
+
+static inline void dumpChildNumChildren(QDumper &d, InnerValueResult innerValueResult)
+{
+    switch (innerValueResult) {
+    case InnerValueChildrenSpecified:
+    case InnerValueNotHandled:
+        break;
+    case InnerValueNoFurtherChildren:
+        d.putItem("childnumchild", "0");
+        break;
+    case InnerValueFurtherChildren:
+        d.putItem("childnumchild", "1");
+        break;
+    }
+}
+
+static InnerValueResult qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
     const char *field = "value")
 {
     char buf[30];
@@ -872,41 +912,60 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
     switch (type[1]) {
         case 'l':
             if (isEqual(type, "float"))
-                d.putItem(field, *(float*)addr);
-            return;
+                { d.putItem(field, *(float*)addr); return InnerValueNoFurtherChildren; }
+            return InnerValueNotHandled;
         case 'n':
-            if (isEqual(type, "int"))
+            if (isEqual(type, "int")) {
                 d.putItem(field, *(int*)addr);
-            else if (isEqual(type, "unsigned"))
+                return InnerValueNoFurtherChildren;
+            }
+            if (isEqual(type, "unsigned")) {
                 d.putItem(field, *(unsigned int*)addr);
-            else if (isEqual(type, "unsigned int"))
+                return InnerValueNoFurtherChildren;
+            }
+            if (isEqual(type, "unsigned int")) {
                 d.putItem(field, *(unsigned int*)addr);
-            else if (isEqual(type, "unsigned long"))
+                return InnerValueNoFurtherChildren;
+            }
+            if (isEqual(type, "unsigned long")) {
                 d.putItem(field, *(unsigned long*)addr);
-            else if (isEqual(type, "unsigned long long"))
+                return InnerValueNoFurtherChildren;
+            }
+            if (isEqual(type, "unsigned long long")) {
                 d.putItem(field, *(qulonglong*)addr);
-            return;
+                return InnerValueNoFurtherChildren;
+            }
+            return InnerValueNotHandled;
         case 'o':
-            if (isEqual(type, "bool"))
+            if (isEqual(type, "bool")) {
                 switch (*(bool*)addr) {
-                    case 0: d.putItem(field, "false"); break;
-                    case 1: d.putItem(field, "true"); break;
-                    default: d.putItem(field, *(bool*)addr); break;
+                case 0: d.putItem(field, "false"); break;
+                case 1: d.putItem(field, "true"); break;
+                default: d.putItem(field, *(bool*)addr); break;
                 }
-            else if (isEqual(type, "double"))
+                return InnerValueNoFurtherChildren;
+            }
+            if (isEqual(type, "double")) {
                 d.putItem(field, *(double*)addr);
-            else if (isEqual(type, "long"))
+                return InnerValueNoFurtherChildren;
+            }
+            if (isEqual(type, "long")) {
                 d.putItem(field, *(long*)addr);
-            else if (isEqual(type, "long long"))
+                return InnerValueNoFurtherChildren;
+            }
+            else if (isEqual(type, "long long")) {
                 d.putItem(field, *(qulonglong*)addr);
-            return;
+                return InnerValueNoFurtherChildren;
+            }
+            return InnerValueNotHandled;
         case 'B':
             if (isEqual(type, "QByteArray")) {
                 d.putCommaIfNeeded();
                 d.put(field).put("encoded=\"1\",");
                 d.putItem(field, *(QByteArray*)addr);
+                return InnerValueFurtherChildren;
             }
-            return;
+            return InnerValueNotHandled;
         case 'C':
             if (isEqual(type, "QChar")) {
                 d.putCommaIfNeeded();
@@ -916,16 +975,18 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
                     buf[1] = char(c.unicode());
                 d.putItem(field, buf);
                 d.putItem("numchild", 0);
+                return InnerValueNoFurtherChildren;
             }
-            return;
+            return InnerValueNotHandled;
         case 'L':
             if (startsWith(type, "QList<")) {
                 const QListData *ldata = reinterpret_cast<const QListData*>(addr);
                 d.putItemCount("value", ldata->size());
                 d.putItem("valuedisabled", "true");
                 d.putItem("numchild", ldata->size());
+                return InnerValueChildrenSpecified;
             }
-            return;
+            return InnerValueNotHandled;
         case 'O':
             if (isEqual(type, "QObject *")) {
                 if (addr) {
@@ -935,46 +996,55 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
                     d.putItem("valueencoded", "2");
                     d.putItem("type", NS"QObject");
                     d.putItem("displayedtype", ob->metaObject()->className());
+                    d.putItem("numchild", 1);
+                    return InnerValueChildrenSpecified;
                 } else {
                     d.putItem("value", "0x0");
                     d.putItem("type", NS"QObject *");
+                    d.putItem("numchild", 0);
+                    return InnerValueNoFurtherChildren;
                 }
             }
-            return;
+            return InnerValueNotHandled;
         case 'S':
             if (isEqual(type, "QString")) {
                 d.putCommaIfNeeded();
                 d.put(field).put("encoded=\"2\"");
                 d.putItem(field, *(QString*)addr);
+                return InnerValueNoFurtherChildren;
             }
-            return;
+            return InnerValueNotHandled;
         case 't':
             if (isEqual(type, "std::string")
                 || isEqual(type, "std::basic_string<char,std::char_traits<char>,std::allocator<char> >")) {
                 d.putCommaIfNeeded();
                 dumpStdStringValue(d, *reinterpret_cast<const std::string*>(addr));
-            } else if (isEqual(type, "std::wstring")
-                       || isEqual(type, "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >")) {
-                dumpStdWStringValue(d, *reinterpret_cast<const std::wstring*>(addr));
+                return InnerValueNoFurtherChildren;
             }
-            return;
+            if (isEqual(type, "std::wstring")
+                || isEqual(type, "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >")) {
+                dumpStdWStringValue(d, *reinterpret_cast<const std::wstring*>(addr));
+                return InnerValueNoFurtherChildren;
+            }
+            return InnerValueNotHandled;
         default:
-            return;
+            break;
     }
+    return InnerValueNotHandled;
 }
 
-static void qDumpInnerValue(QDumper &d, const char *type, const void *addr)
+static InnerValueResult qDumpInnerValue(QDumper &d, const char *type, const void *addr)
 {
     d.putItem("addr", addr);
     d.putItem("type", type);
 
     if (!type[0])
-        return;
+        return InnerValueNotHandled;
 
-    qDumpInnerValueHelper(d, type, addr);
+    return qDumpInnerValueHelper(d, type, addr);
 }
 
-static void qDumpInnerValueOrPointer(QDumper &d,
+static InnerValueResult qDumpInnerValueOrPointer(QDumper &d,
     const char *type, const char *strippedtype, const void *addr)
 {
     if (strippedtype) {
@@ -982,18 +1052,17 @@ static void qDumpInnerValueOrPointer(QDumper &d,
             d.putItem("addr", deref(addr));
             d.putItem("saddr", deref(addr));
             d.putItem("type", strippedtype);
-            qDumpInnerValueHelper(d, strippedtype, deref(addr));
-        } else {
-            d.putItem("addr", addr);
-            d.putItem("type", strippedtype);
-            d.putItem("value", "<null>");
-            d.putItem("numchild", "0");
+            return qDumpInnerValueHelper(d, strippedtype, deref(addr));
         }
-    } else {
         d.putItem("addr", addr);
-        d.putItem("type", type);
-        qDumpInnerValueHelper(d, type, addr);
+        d.putItem("type", strippedtype);
+        d.putItem("value", "<null>");
+        d.putItem("numchild", "0");
+        return InnerValueChildrenSpecified;
     }
+    d.putItem("addr", addr);
+    d.putItem("type", type);
+    return qDumpInnerValueHelper(d, type, addr);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1404,14 +1473,15 @@ static void qDumpQHash(QDumper &d)
 
     d.putItemCount("value", n);
     d.putItem("numchild", n);
+
     if (d.dumpChildren) {
         if (n > 1000)
             n = 1000;
-        bool isSimpleKey = isSimpleType(keyType);
-        bool isSimpleValue = isSimpleType(valueType);
-        bool opt = isOptimizedIntKey(keyType);
-        int keyOffset = hashOffset(opt, true, keySize, valueSize);
-        int valueOffset = hashOffset(opt, false, keySize, valueSize);
+        const bool isSimpleKey = isSimpleType(keyType);
+        const bool isSimpleValue = isSimpleType(valueType);
+        const bool opt = isOptimizedIntKey(keyType);
+        const int keyOffset = hashOffset(opt, true, keySize, valueSize);
+        const int valueOffset = hashOffset(opt, false, keySize, valueSize);
 
         d.beginItem("extra");
         d.put("isSimpleKey: ").put(isSimpleKey);
@@ -1436,10 +1506,7 @@ static void qDumpQHash(QDumper &d)
                     d.putItem("type", valueType);
                     d.putItem("addr", addOffset(node, valueOffset));
                 } else {
-                    d.beginItem("exp");
-                        d.put("*('"NS"QHashNode<").put(keyType).put(","
-                           ).put(valueType).put(" >'*)").put(node);
-                    d.endItem();
+                    d.putItem("addr", node);
                     d.beginItem("type");
                         d.put("'"NS"QHashNode<").put(keyType).put(",")
                             .put(valueType).put(MAP_NODE_TYPE_END"'");
@@ -1557,6 +1624,7 @@ static void qDumpQList(QDumper &d)
     d.putItem("valuedisabled", "true");
     d.putItem("numchild", n);
     d.putItem("childtype", d.innertype);
+    InnerValueResult innerValueResult = InnerValueChildrenSpecified;
     if (d.dumpChildren) {
         unsigned innerSize = d.extraInt[0];
         bool innerTypeIsPointer = isPointerType(d.innertype);
@@ -1583,7 +1651,7 @@ static void qDumpQList(QDumper &d)
                 d.putItem("saddr", p);
                 if (*(void**)p) {
                     //d.putItem("value","@").put(p);
-                    qDumpInnerValue(d, strippedInnerType.data(), deref(p));
+                    innerValueResult = qDumpInnerValue(d, strippedInnerType.data(), deref(p));
                 } else {
                     d.putItem("value", "<null>");
                     d.putItem("numchild", "0");
@@ -1593,11 +1661,11 @@ static void qDumpQList(QDumper &d)
                 if (isInternal) {
                     //qDumpInnerValue(d, d.innertype, p);
                     d.putItem("addr", p);
-                    qDumpInnerValueHelper(d, d.innertype, p);
+                    innerValueResult = qDumpInnerValueHelper(d, d.innertype, p);
                 } else {
                     //qDumpInnerValue(d, d.innertype, deref(p));
                     d.putItem("addr", deref(p));
-                    qDumpInnerValueHelper(d, d.innertype, deref(p));
+                    innerValueResult = qDumpInnerValueHelper(d, d.innertype, deref(p));
                 }
             }
             d.endHash();
@@ -1606,6 +1674,7 @@ static void qDumpQList(QDumper &d)
             d.putEllipsis();
         d.endChildren();
     }
+    dumpChildNumChildren(d, innerValueResult);
     d.disarm();
 }
 
@@ -1624,6 +1693,7 @@ static void qDumpQLinkedList(QDumper &d)
     d.putItem("valuedisabled", "true");
     d.putItem("numchild", n);
     d.putItem("childtype", d.innertype);
+    InnerValueResult innerValueResult = InnerValueChildrenSpecified;
     if (d.dumpChildren) {
         //unsigned innerSize = d.extraInt[0];
         //bool innerTypeIsPointer = isPointerType(d.innertype);
@@ -1640,7 +1710,7 @@ static void qDumpQLinkedList(QDumper &d)
             d.beginHash();
             d.putItem("name", i);
             const void *addr = addOffset(p, 2 * sizeof(void*));
-            qDumpInnerValueOrPointer(d, d.innertype, stripped, addr);
+            innerValueResult = qDumpInnerValueOrPointer(d, d.innertype, stripped, addr);
             p = deref(p);
             d.endHash();
         }
@@ -1648,6 +1718,7 @@ static void qDumpQLinkedList(QDumper &d)
             d.putEllipsis();
         d.endChildren();
     }
+    dumpChildNumChildren(d, innerValueResult);
     d.disarm();
 }
 
@@ -1795,19 +1866,12 @@ static void qDumpQMap(QDumper &d)
                     d.putItem("addr", addOffset(node, valueOffset));
                 } else {
 #if QT_VERSION >= 0x040500
+                    d.putItem("addr", node);
                     // actually, any type (even 'char') will do...
                     d.beginItem("type");
                         d.put(NS"QMapNode<").put(keyType).put(",");
                         d.put(valueType).put(MAP_NODE_TYPE_END);
                     d.endItem();
-                    d.beginItem("exp");
-                        d.put("*('"NS"QMapNode<").put(keyType).put(",");
-                        d.put(valueType).put(" >'*)").put(node);
-                    d.endItem();
-
-                    //d.putItem("exp", "*('"NS"QMapData'*)").put((void*)node);
-                    //d.putItem("exp", "*(char*)").put((void*)node);
-                    // d.putItem("addr", node);  does not work as gdb fails to parse
 #else
                     d.beginItem("type");
                         d.put(NS"QMapData::Node<").put(keyType).put(",");
@@ -1889,14 +1953,12 @@ static void qDumpQObject(QDumper &d)
 {
     const QObject *ob = reinterpret_cast<const QObject *>(d.data);
     const QMetaObject *mo = ob->metaObject();
-    unsigned childrenOffset = d.extraInt[0];
     d.putItem("value", ob->objectName());
     d.putItem("valueencoded", "2");
     d.putItem("type", NS"QObject");
     d.putItem("displayedtype", mo->className());
     d.putItem("numchild", 4);
     if (d.dumpChildren) {
-        const QObjectList &children = ob->children();
         int slotCount = 0;
         int signalCount = 0;
         for (int i = mo->methodCount(); --i >= 0; ) {
@@ -1907,61 +1969,33 @@ static void qDumpQObject(QDumper &d)
         d.beginChildren();
         d.beginHash();
             d.putItem("name", "properties");
-            // FIXME: Note that when simply using '(QObject*)'
-            // in the cast below, Gdb/MI _sometimes_ misparses
-            // expressions further down in the tree.
-            d.beginItem("exp");
-                d.put("*(class '"NS"QObject'*)").put(d.data);
-            d.endItem();
+            d.putItem("addr", d.data);
             d.putItem("type", NS"QObjectPropertyList");
             d.putItemCount("value", mo->propertyCount());
             d.putItem("numchild", mo->propertyCount());
         d.endHash();
-#if 0
-        d.beginHash();
-            d.putItem("name", "methods");
-            d.putItem("exp", "*(class '"NS"QObject'*)").put(d.data);
-            d.putItemCount("value", mo->methodCount());
-            d.putItem("numchild", mo->methodCount());
-        d.endHash();
-#endif
-#if 0
-        d.beginHash();
-            d.putItem("name", "senders");
-            d.putItem("exp", "(*(class '"NS"ObjectPrivate'*)").put(dfunc(ob)).put(")->senders");
-            d.putItem("type", NS"QList<"NS"QObjectPrivateSender>");
-        d.endHash();
-#endif
         d.beginHash();
             d.putItem("name", "signals");
-            d.beginItem("exp");
-                d.put("*(class '"NS"QObject'*)").put(d.data);
-            d.endItem();
+            d.putItem("addr", d.data);
             d.putItem("type", NS"QObjectSignalList");
             d.putItemCount("value", signalCount);
             d.putItem("numchild", signalCount);
         d.endHash();
         d.beginHash();
             d.putItem("name", "slots");
-            d.beginItem("exp");
-                d.put("*(class '"NS"QObject'*)").put(d.data);
-            d.endItem();
+            d.putItem("addr", d.data);
             d.putItem("type", NS"QObjectSlotList");
             d.putItemCount("value", slotCount);
             d.putItem("numchild", slotCount);
         d.endHash();
-        if (childrenOffset) {
+        const QObjectList objectChildren = ob->children();
+        if (!objectChildren.empty()) {
             d.beginHash();
             d.putItem("name", "children");
-            // works always, but causes additional traffic on the list
-            //d.putItem("exp", "((class '"NS"QObject'*)").put(d.data).put(")->children()");
-            //
-            //d.putItem("addr", addOffset(dfunc(ob), childrenOffset));
-            //d.putItem("type", NS"QList<QObject *>");
-            //d.putItemCount("value", children.size());
-            qDumpInnerValue(d, NS"QList<"NS"QObject *>",
-                            addOffset(dfunc(ob), childrenOffset));
-            d.putItem("numchild", children.size());
+            d.putItem("addr", d.data);
+            d.putItem("type", NS"QObjectChildList");
+            d.putItemCount("value", objectChildren.size());
+            d.putItem("numchild", objectChildren.size());
             d.endHash();
         }
         d.beginHash();
@@ -1981,37 +2015,229 @@ static void qDumpQObject(QDumper &d)
     d.disarm();
 }
 
+#if USE_QT_GUI
+static const char *sizePolicyEnumValue(QSizePolicy::Policy p)
+{
+    switch (p) {
+    case QSizePolicy::Fixed:
+        return "Fixed";
+    case QSizePolicy::Minimum:
+        return "Minimum";
+    case QSizePolicy::Maximum:
+        return "Maximum";
+    case QSizePolicy::Preferred:
+        return "Preferred";
+    case QSizePolicy::Expanding:
+        return "Expanding";
+    case QSizePolicy::MinimumExpanding:
+        return "MinimumExpanding";
+    case QSizePolicy::Ignored:
+        break;
+    }
+    return "Ignored";
+}
+
+static QString sizePolicyValue(const QSizePolicy &sp)
+{
+    QString rc;
+    QTextStream str(&rc);
+    // Display as in Designer
+    str << '[' << sizePolicyEnumValue(sp.horizontalPolicy())
+        << ", " << sizePolicyEnumValue(sp.verticalPolicy())
+        << ", " << sp.horizontalStretch() << ", " << sp.verticalStretch() << ']';
+    return rc;
+}
+#endif
+
+static void qDumpQVariantHelper(const QVariant *v, QString *value,
+    QString *exp, int *numchild)
+{
+    switch (v->type()) {
+    case QVariant::Invalid:
+        *value = QLatin1String("<invalid>");
+        *numchild = 0;
+        break;
+    case QVariant::String:
+        *value = QLatin1Char('"') + v->toString() + QLatin1Char('"');
+        *numchild = 0;
+        break;
+    #if QT_VERSION >= 0x040500
+    case QVariant::StringList:
+        *exp = QString(QLatin1String("(*('"NS"QStringList'*)%1)"))
+                    .arg((quintptr)v);
+        *numchild = v->toStringList().size();
+        break;
+    #endif
+    case QVariant::Int:
+        *value = QString::number(v->toInt());
+        *numchild= 0;
+        break;
+    case QVariant::Double:
+        *value = QString::number(v->toDouble());
+        *numchild = 0;
+        break;
+    case QVariant::Point: {
+            const QPoint p = v->toPoint();
+            *value = QString::fromLatin1("%1, %2").arg(p.x()).arg(p.y());
+        }
+        *numchild = 0;
+        break;
+    case QVariant::Size: {
+            const QSize size = v->toSize();
+            *value = QString::fromLatin1("%1x%2").arg(size.width()).arg(size.height());
+        }
+        *numchild = 0;
+        break;
+    case QVariant::Rect: {
+            const QRect rect = v->toRect();
+            *value = QString::fromLatin1("%1x%2+%3+%4").arg(rect.width()).arg(rect.height()).arg(rect.x()).arg(rect.y());
+        }
+        *numchild = 0;
+        break;
+    case QVariant::PointF: {
+            const QPointF p = v->toPointF();
+            *value = QString::fromLatin1("%1, %2").arg(p.x()).arg(p.y());
+        }
+        *numchild = 0;
+        break;
+
+    case QVariant::SizeF: {
+            const QSizeF size = v->toSizeF();
+            *value = QString::fromLatin1("%1x%2").arg(size.width()).arg(size.height());
+        }
+        *numchild = 0;
+        break;
+    case QVariant::RectF: {
+            const QRectF rect = v->toRectF();
+            *value = QString::fromLatin1("%1x%2+%3+%4").arg(rect.width()).arg(rect.height()).arg(rect.x()).arg(rect.y());
+        }
+        *numchild = 0;
+        break;
+#if USE_QT_GUI
+    case QVariant::Font:
+        *value = qvariant_cast<QFont>(*v).toString();
+        break;
+    case QVariant::Color:
+        *value = qvariant_cast<QColor>(*v).name();
+        break;
+    case QVariant::KeySequence:
+        *value = qvariant_cast<QKeySequence>(*v).toString();
+        break;
+    case QVariant::SizePolicy:
+        *value = sizePolicyValue(qvariant_cast<QSizePolicy>(*v));
+        break;
+#endif
+    default: {
+        char buf[1000];
+        const char *format = (v->typeName()[0] == 'Q')
+            ?  "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)%p)"
+            :  "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)%p)";
+        qsnprintf(buf, sizeof(buf) - 1, format, v->typeName(), v->typeName(), v);
+        *exp = QLatin1String(buf);
+        *numchild = 1;
+        break;
+        }
+    }
+}
+
+static void qDumpQVariant(QDumper &d, const QVariant *v)
+{
+    QString value;
+    QString exp;
+    int numchild = 0;
+    qDumpQVariantHelper(v, &value, &exp, &numchild);
+    bool isInvalid = (v->typeName() == 0);
+    if (isInvalid) {
+        d.putItem("value", "(invalid)");
+    } else if (value.isEmpty()) {
+        d.beginItem("value");
+            d.put("(").put(v->typeName()).put(") ");
+        d.endItem();
+    } else {
+        QByteArray ba;
+        ba += '(';
+        ba += v->typeName();
+        ba += ") ";
+        ba += qPrintable(value);
+        d.putItem("value", ba);
+        d.putItem("valueencoded", "5");
+    }
+    d.putItem("type", NS"QVariant");
+    d.putItem("numchild", (isInvalid ? "0" : "1"));
+    if (d.dumpChildren) {
+        d.beginChildren();
+        d.beginHash();
+        d.putItem("name", "value");
+        if (!exp.isEmpty())
+            d.putItem("exp", qPrintable(exp));
+        if (!value.isEmpty()) {
+            d.putItem("value", value);
+            d.putItem("valueencoded", "4");
+        }
+        d.putItem("type", v->typeName());
+        d.putItem("numchild", numchild);
+        d.endHash();
+        d.endChildren();
+    }
+    d.disarm();
+}
+
+static inline void qDumpQVariant(QDumper &d)
+{
+    qDumpQVariant(d, reinterpret_cast<const QVariant *>(d.data));
+}
+
+static void qDumpQObjectProperty(QDumper &d)
+{
+    const QObject *ob = (const QObject *)d.data;
+    // extract "local.Object.property"
+    QString iname = d.iname;
+    const int dotPos = iname.lastIndexOf(QLatin1Char('.'));
+    if (dotPos == -1)
+        return;
+    iname.remove(0, dotPos + 1);
+    const QVariant v = ob->property(iname.toAscii().constData());
+    qDumpQVariant(d, &v);
+    d.disarm();
+}
+
 static void qDumpQObjectPropertyList(QDumper &d)
 {
     const QObject *ob = (const QObject *)d.data;
     const QMetaObject *mo = ob->metaObject();
+    const int propertyCount = mo->propertyCount();
     d.putItem("addr", "<synthetic>");
     d.putItem("type", NS"QObjectPropertyList");
-    d.putItem("numchild", mo->propertyCount());
+    d.putItem("numchild", propertyCount);
+    d.putItemCount("value", propertyCount);
     if (d.dumpChildren) {
         d.beginChildren();
-        for (int i = mo->propertyCount(); --i >= 0; ) {
+        for (int i = propertyCount; --i >= 0; ) {
             const QMetaProperty & prop = mo->property(i);
             d.beginHash();
             d.putItem("name", prop.name());
-            d.beginItem("exp");
-                d.put("((").put(mo->className()).put("*)");
-                d.put(ob).put(")->").put(prop.name()).put("()");
-            d.endItem();
-            if (isEqual(prop.typeName(), "QString")) {
+            switch (prop.type()) {
+            case QVariant::String:
+                d.putItem("type", prop.typeName());
                 d.putItem("value", prop.read(ob).toString());
                 d.putItem("valueencoded", "2");
-                d.putItem("type", NS"QString");
                 d.putItem("numchild", "0");
-            } else if (isEqual(prop.typeName(), "bool")) {
+                break;
+            case QVariant::Bool:
+                d.putItem("type", prop.typeName());
                 d.putItem("value", (prop.read(ob).toBool() ? "true" : "false"));
                 d.putItem("numchild", "0");
-            } else if (isEqual(prop.typeName(), "int")) {
+                break;
+            case QVariant::Int:
                 d.putItem("value", prop.read(ob).toInt());
                 d.putItem("numchild", "0");
+                break;
+            default:
+                d.putItem("addr", d.data);
+                d.putItem("type", NS"QObjectProperty");
+                d.putItem("numchild", "1");
+                break;
             }
-            d.putItem("type", prop.typeName());
-            d.putItem("numchild", "1");
             d.endHash();
         }
         d.endChildren();
@@ -2074,6 +2300,29 @@ static const ConnectionList &qConnectionList(const QObject *ob, int signalNumber
 }
 #endif
 
+// Write party involved in a slot/signal element,
+// avoid to recursion to self.
+static inline void qDumpQObjectConnectionPart(QDumper &d,
+                                              const QObject *owner,
+                                              const QObject *partner,
+                                              int number, const char *namePostfix)
+{
+    d.beginHash();
+    d.beginItem("name");
+    d.put(number).put(namePostfix);
+    d.endItem();
+    if (partner == owner) {
+        d.putItem("value", "<this>");
+        d.putItem("valueencoded", "2");
+        d.putItem("type", owner->metaObject()->className());
+        d.putItem("numchild", 0);
+        d.putItem("addr", owner);
+    } else {
+        qDumpInnerValueHelper(d, NS"QObject *", partner);
+    }
+    d.endHash();
+}
+
 static void qDumpQObjectSignal(QDumper &d)
 {
     unsigned signalNumber = d.extraInt[0];
@@ -2089,12 +2338,7 @@ static void qDumpQObjectSignal(QDumper &d)
         const ConnectionList &connList = qConnectionList(ob, signalNumber);
         for (int i = 0; i != connList.size(); ++i) {
             const Connection &conn = connectionAt(connList, i);
-            d.beginHash();
-                d.beginItem("name");
-                    d.put(i).put(" receiver");
-                d.endItem();
-                qDumpInnerValueHelper(d, NS"QObject *", conn.receiver);
-            d.endHash();
+            qDumpQObjectConnectionPart(d, ob, conn.receiver, i, " receiver");
             d.beginHash();
                 d.beginItem("name");
                     d.put(i).put(" slot");
@@ -2129,14 +2373,17 @@ static void qDumpQObjectSignalList(QDumper &d)
     const QObject *ob = reinterpret_cast<const QObject *>(d.data);
     const QMetaObject *mo = ob->metaObject();
     int count = 0;
-    for (int i = mo->methodCount(); --i >= 0; )
+    const int methodCount = mo->methodCount();
+    for (int i = methodCount; --i >= 0; )
         count += (mo->method(i).methodType() == QMetaMethod::Signal);
+    d.putItem("type", "QObjectSignalList");
+    d.putItemCount("value", count);
     d.putItem("addr", d.data);
     d.putItem("numchild", count);
 #if QT_VERSION >= 0x040400
     if (d.dumpChildren) {
         d.beginChildren();
-        for (int i = 0; i != mo->methodCount(); ++i) {
+        for (int i = 0; i != methodCount; ++i) {
             const QMetaMethod & method = mo->method(i);
             if (method.methodType() == QMetaMethod::Signal) {
                 int k = mo->indexOfSignal(method.signature());
@@ -2145,10 +2392,7 @@ static void qDumpQObjectSignalList(QDumper &d)
                 d.putItem("name", k);
                 d.putItem("value", method.signature());
                 d.putItem("numchild", connList.size());
-                //d.putItem("numchild", "1");
-                d.beginItem("exp");
-                    d.put("*(class '"NS"QObject'*)").put(d.data);
-                d.endItem();
+                d.putItem("addr", d.data);
                 d.putItem("type", NS"QObjectSignal");
                 d.endHash();
             }
@@ -2182,12 +2426,7 @@ static void qDumpQObjectSlot(QDumper &d)
                 if (conn.receiver == ob && conn.method == slotNumber) {
                     ++numchild;
                     const QMetaMethod &method = sender->metaObject()->method(signal);
-                    d.beginHash();
-                        d.beginItem("name");
-                            d.put(s).put(" sender");
-                        d.endItem();
-                        qDumpInnerValueHelper(d, NS"QObject *", sender);
-                    d.endHash();
+                    qDumpQObjectConnectionPart(d, ob, sender, s, " sender");
                     d.beginHash();
                         d.beginItem("name");
                             d.put(s).put(" signal");
@@ -2226,14 +2465,17 @@ static void qDumpQObjectSlotList(QDumper &d)
     const QMetaObject *mo = ob->metaObject();
 
     int count = 0;
-    for (int i = mo->methodCount(); --i >= 0; )
+    const int methodCount = mo->methodCount();
+    for (int i = methodCount; --i >= 0; )
         count += (mo->method(i).methodType() == QMetaMethod::Slot);
 
     d.putItem("numchild", count);
+    d.putItemCount("value", count);
+    d.putItem("type", NS"QObjectSlotList");
     if (d.dumpChildren) {
         d.beginChildren();
 #if QT_VERSION >= 0x040400
-        for (int i = 0; i != mo->methodCount(); ++i) {
+        for (int i = 0; i != methodCount; ++i) {
             const QMetaMethod & method = mo->method(i);
             if (method.methodType() == QMetaMethod::Slot) {
                 d.beginHash();
@@ -2254,9 +2496,7 @@ static void qDumpQObjectSlotList(QDumper &d)
                     }
                 }
                 d.putItem("numchild", numchild);
-                d.beginItem("exp");
-                    d.put("*(class '"NS"QObject'*)").put(d.data);
-                d.endItem();
+                d.putItem("addr", d.data);
                 d.putItem("type", NS"QObjectSlot");
                 d.endHash();
             }
@@ -2267,6 +2507,27 @@ static void qDumpQObjectSlotList(QDumper &d)
     d.disarm();
 }
 
+static void qDumpQObjectChildList(QDumper &d)
+{
+    const QObject *ob = reinterpret_cast<const QObject *>(d.data);
+    const QObjectList children = ob->children();
+    const int size = children.size();
+
+    d.putItem("numchild", size);
+    d.putItemCount("value", size);
+    d.putItem("type", NS"QObjectChildList");
+    if (d.dumpChildren) {
+        d.beginChildren();
+        for (int i = 0; i != size; ++i) {
+            d.beginHash();
+            d.putItem("name", i);
+            qDumpInnerValueHelper(d, NS"QObject *", children.at(i));
+            d.endHash();
+        }
+        d.endChildren();
+    }
+    d.disarm();
+}
 
 #if USE_QT_GUI
 static void qDumpQPixmap(QDumper &d)
@@ -2442,89 +2703,6 @@ static void qDumpQTextCodec(QDumper &d)
     d.disarm();
 }
 
-static void qDumpQVariantHelper(const void *data, QString *value,
-    QString *exp, int *numchild)
-{
-    const QVariant &v = *reinterpret_cast<const QVariant *>(data);
-    switch (v.type()) {
-    case QVariant::Invalid:
-        *value = QLatin1String("<invalid>");
-        *numchild = 0;
-        break;
-    case QVariant::String:
-        *value = QLatin1Char('"') + v.toString() + QLatin1Char('"');
-        *numchild = 0;
-        break;
-    #if QT_VERSION >= 0x040500
-    case QVariant::StringList:
-        *exp = QString(QLatin1String("(*('"NS"QStringList'*)%1)"))
-                    .arg((quintptr)data);
-        *numchild = v.toStringList().size();
-        break;
-    #endif
-    case QVariant::Int:
-        *value = QString::number(v.toInt());
-        *numchild= 0;
-        break;
-    case QVariant::Double:
-        *value = QString::number(v.toDouble());
-        *numchild = 0;
-        break;
-    default: {
-        char buf[1000];
-        const char *format = (v.typeName()[0] == 'Q')
-            ?  "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)%p)"
-            :  "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)%p)";
-        qsnprintf(buf, sizeof(buf) - 1, format, v.typeName(), v.typeName(), data);
-        *exp = QLatin1String(buf);
-        *numchild = 1;
-        break;
-        }
-    }
-}
-
-static void qDumpQVariant(QDumper &d)
-{
-    const QVariant &v = *reinterpret_cast<const QVariant *>(d.data);
-    QString value;
-    QString exp;
-    int numchild = 0;
-    qDumpQVariantHelper(d.data, &value, &exp, &numchild);
-    bool isInvalid = (v.typeName() == 0);
-    if (isInvalid) {
-        d.putItem("value", "(invalid)");
-    } else if (value.isEmpty()) {
-        d.beginItem("value");
-            d.put("(").put(v.typeName()).put(") ");
-        d.endItem();
-    } else {
-        QByteArray ba;
-        ba += '(';
-        ba += v.typeName();
-        ba += ") ";
-        ba += qPrintable(value);
-        d.putItem("value", ba);
-        d.putItem("valueencoded", "5");
-    }
-    d.putItem("type", NS"QVariant");
-    d.putItem("numchild", (isInvalid ? "0" : "1"));
-    if (d.dumpChildren) {
-        d.beginChildren();
-        d.beginHash();
-        d.putItem("name", "value");
-        if (!exp.isEmpty())
-            d.putItem("exp", qPrintable(exp));
-        if (!value.isEmpty()) {
-            d.putItem("value", value);
-            d.putItem("valueencoded", "4");
-        }
-        d.putItem("type", v.typeName());
-        d.putItem("numchild", numchild);
-        d.endHash();
-        d.endChildren();
-    }
-    d.disarm();
-}
 
 static void qDumpQVector(QDumper &d)
 {
@@ -2547,6 +2725,7 @@ static void qDumpQVector(QDumper &d)
     d.putItemCount("value", n);
     d.putItem("valuedisabled", "true");
     d.putItem("numchild", n);
+    InnerValueResult innerValueResult = InnerValueChildrenSpecified;
     if (d.dumpChildren) {
         QByteArray strippedInnerType = stripPointerType(d.innertype);
         const char *stripped =
@@ -2557,7 +2736,7 @@ static void qDumpQVector(QDumper &d)
         for (int i = 0; i != n; ++i) {
             d.beginHash();
             d.putItem("name", i);
-            qDumpInnerValueOrPointer(d, d.innertype, stripped,
+            innerValueResult = qDumpInnerValueOrPointer(d, d.innertype, stripped,
                 addOffset(v, i * innersize + typeddatasize));
             d.endHash();
         }
@@ -2565,6 +2744,7 @@ static void qDumpQVector(QDumper &d)
             d.putEllipsis();
         d.endChildren();
     }
+    dumpChildNumChildren(d, innerValueResult);
     d.disarm();
 }
 
@@ -2633,7 +2813,8 @@ static void qDumpStdList(QDumper &d)
 #endif
     int nn = 0;
     std::list<int>::const_iterator it = list.begin();
-    for (; nn < 101 && it != list.end(); ++nn, ++it)
+    const std::list<int>::const_iterator cend = list.end();
+    for (; nn < 101 && it != cend; ++nn, ++it)
         qCheckAccess(it.operator->());
 
     if (nn > 100)
@@ -2643,22 +2824,24 @@ static void qDumpStdList(QDumper &d)
     d.putItem("numchild", nn);
 
     d.putItem("valuedisabled", "true");
+    InnerValueResult innerValueResult = InnerValueChildrenSpecified;
     if (d.dumpChildren) {
         QByteArray strippedInnerType = stripPointerType(d.innertype);
         const char *stripped =
             isPointerType(d.innertype) ? strippedInnerType.data() : 0;
         d.beginChildren();
         it = list.begin();
-        for (int i = 0; i < 1000 && it != list.end(); ++i, ++it) {
+        for (int i = 0; i < 1000 && it != cend; ++i, ++it) {
             d.beginHash();
             d.putItem("name", i);
-            qDumpInnerValueOrPointer(d, d.innertype, stripped, it.operator->());
+            innerValueResult = qDumpInnerValueOrPointer(d, d.innertype, stripped, it.operator->());
             d.endHash();
         }
         if (it != list.end())
             d.putEllipsis();
         d.endChildren();
     }
+    dumpChildNumChildren(d, innerValueResult);
     d.disarm();
 }
 
@@ -2744,7 +2927,8 @@ static void qDumpStdSet(QDumper &d)
     if (nn < 0)
         return;
     DummyType::const_iterator it = set.begin();
-    for (int i = 0; i < nn && i < 10 && it != set.end(); ++i, ++it)
+    const DummyType::const_iterator cend = set.end();
+    for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)
         qCheckAccess(it.operator->());
 
     d.putItemCount("value", nn);
@@ -2752,6 +2936,7 @@ static void qDumpStdSet(QDumper &d)
     d.putItem("numchild", nn);
     d.putItem("valueoffset", d.extraInt[0]);
 
+    InnerValueResult innerValueResult = InnerValueChildrenSpecified;
     if (d.dumpChildren) {
         int valueOffset = 0; // d.extraInt[0];
         QByteArray strippedInnerType = stripPointerType(d.innertype);
@@ -2764,17 +2949,18 @@ static void qDumpStdSet(QDumper &d)
 
         d.beginChildren();
         it = set.begin();
-        for (int i = 0; i < 1000 && it != set.end(); ++i, ++it) {
+        for (int i = 0; i < 1000 && it != cend; ++i, ++it) {
             const void *node = it.operator->();
             d.beginHash();
             d.putItem("name", i);
-            qDumpInnerValueOrPointer(d, d.innertype, stripped, node);
+            innerValueResult = qDumpInnerValueOrPointer(d, d.innertype, stripped, node);
             d.endHash();
         }
         if (it != set.end())
             d.putEllipsis();
         d.endChildren();
     }
+    dumpChildNumChildren(d, innerValueResult);
     d.disarm();
 }
 
@@ -2838,6 +3024,7 @@ static void qDumpStdVector(QDumper &d)
     d.putItemCount("value", n);
     d.putItem("valuedisabled", "true");
     d.putItem("numchild", n);
+    InnerValueResult innerValueResult = InnerValueChildrenSpecified;
     if (d.dumpChildren) {
         unsigned innersize = d.extraInt[0];
         QByteArray strippedInnerType = stripPointerType(d.innertype);
@@ -2857,6 +3044,7 @@ static void qDumpStdVector(QDumper &d)
             d.putEllipsis();
         d.endChildren();
     }
+    dumpChildNumChildren(d, innerValueResult);
     d.disarm();
 }
 
@@ -2974,6 +3162,8 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQObject(d);
             else if (isEqual(type, "QObjectPropertyList"))
                 qDumpQObjectPropertyList(d);
+            else if (isEqual(type, "QObjectProperty"))
+                qDumpQObjectProperty(d);
             else if (isEqual(type, "QObjectMethodList"))
                 qDumpQObjectMethodList(d);
             else if (isEqual(type, "QObjectSignal"))
@@ -2984,6 +3174,8 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQObjectSlot(d);
             else if (isEqual(type, "QObjectSlotList"))
                 qDumpQObjectSlotList(d);
+            else if (isEqual(type, "QObjectChildList"))
+                qDumpQObjectChildList(d);
             break;
         case 'P':
             #if USE_QT_GUI
@@ -3125,11 +3317,13 @@ void *qDumpObjectData440(
             "\""NS"QModelIndex\","
             "\""NS"QObject\","
             "\""NS"QObjectMethodList\","   // hack to get nested properties display
+            "\""NS"QObjectProperty\","
             "\""NS"QObjectPropertyList\","
             "\""NS"QObjectSignal\","
             "\""NS"QObjectSignalList\","
             "\""NS"QObjectSlot\","
             "\""NS"QObjectSlotList\","
+            "\""NS"QObjectChildList\","
             //"\""NS"QRegion\","
             "\""NS"QSet\","
             "\""NS"QString\","
@@ -3166,7 +3360,7 @@ void *qDumpObjectData440(
             "\"").put(((QT_VERSION >> 16) & 255)).put("\","
             "\"").put(((QT_VERSION >> 8)  & 255)).put("\","
             "\"").put(((QT_VERSION)       & 255)).put("\"]");
-        d.put(",namespace=\""NS"\",");
+        d.put(",dumperversion=\"1.3\",");
 //      Dump out size information
         d.put("sizes={");
         d.put("int=\"").put(sizeof(int)).put("\",")

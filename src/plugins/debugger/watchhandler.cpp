@@ -209,6 +209,8 @@ QString WatchData::toString() const
     QTextStream str(&res);
     if (!iname.isEmpty())
         str << "iname=\"" << iname << doubleQuoteComma;
+    if (!addr.isEmpty())
+        str << "addr=\"" << addr << doubleQuoteComma;
     if (!exp.isEmpty())
         str << "exp=\"" << exp << doubleQuoteComma;
 
@@ -780,6 +782,7 @@ static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *i
 
 void WatchModel::insertData(const WatchData &data)
 {
+    // qDebug() << "WMI:" << data.toString();
     QTC_ASSERT(!data.iname.isEmpty(), return);
     WatchItem *parent = findItem(parentName(data.iname), m_root);
     if (!parent) {
