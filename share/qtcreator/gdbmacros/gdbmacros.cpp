@@ -40,6 +40,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
+#include <QtCore/QMetaEnum>
 #include <QtCore/QModelIndex>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
@@ -1786,9 +1787,8 @@ static void qDumpQMapNode(QDumper &d)
 
     d.putItem("value", "");
     d.putItem("numchild", 2);
+    InnerValueResult innerValueResult = InnerValueChildrenSpecified;
     if (d.dumpChildren) {
-        //unsigned keySize = d.extraInt[0];
-        //unsigned valueSize = d.extraInt[1];
         unsigned mapnodesize = d.extraInt[2];
         unsigned valueOff = d.extraInt[3];
 
@@ -1803,11 +1803,11 @@ static void qDumpQMapNode(QDumper &d)
         d.endHash();
         d.beginHash();
         d.putItem("name", "value");
-        qDumpInnerValue(d, valueType, addOffset(h, valueOffset));
+        innerValueResult = qDumpInnerValue(d, valueType, addOffset(h, valueOffset));
         d.endHash();
         d.endChildren();
     }
-
+    dumpChildNumChildren(d, innerValueResult);
     d.disarm();
 }
 
@@ -2163,21 +2163,25 @@ static void qDumpQVariant(QDumper &d, const QVariant *v)
         d.putItem("valueencoded", "5");
     }
     d.putItem("type", NS"QVariant");
-    d.putItem("numchild", (isInvalid ? "0" : "1"));
-    if (d.dumpChildren) {
-        d.beginChildren();
-        d.beginHash();
-        d.putItem("name", "value");
-        if (!exp.isEmpty())
-            d.putItem("exp", qPrintable(exp));
-        if (!value.isEmpty()) {
-            d.putItem("value", value);
-            d.putItem("valueencoded", "4");
+    if (isInvalid || !numchild) {
+        d.putItem("numchild", "0");
+    } else {
+        d.putItem("numchild", "1");
+        if (d.dumpChildren) {
+            d.beginChildren();
+            d.beginHash();
+            d.putItem("name", "value");
+            if (!exp.isEmpty())
+                d.putItem("exp", qPrintable(exp));
+            if (!value.isEmpty()) {
+                d.putItem("value", value);
+                d.putItem("valueencoded", "4");
+            }
+            d.putItem("type", v->typeName());
+            d.putItem("numchild", numchild);
+            d.endHash();
+            d.endChildren();
         }
-        d.putItem("type", v->typeName());
-        d.putItem("numchild", numchild);
-        d.endHash();
-        d.endChildren();
     }
     d.disarm();
 }
@@ -2187,17 +2191,67 @@ static inline void qDumpQVariant(QDumper &d)
     qDumpQVariant(d, reinterpret_cast<const QVariant *>(d.data));
 }
 
+// Meta enumeration helpers
+static inline void dumpMetaEnumType(QDumper &d, const QMetaEnum &me)
+{
+    QByteArray type = me.scope();
+    if (!type.isEmpty())
+        type += "::";
+    type += me.name();
+    d.putItem("type", type.constData());
+}
+
+static inline void dumpMetaEnumValue(QDumper &d, const QMetaProperty &mop,
+                                     int value)
+{
+
+    const QMetaEnum me = mop.enumerator();
+    dumpMetaEnumType(d, me);
+    if (const char *enumValue = me.valueToKey(value)) {
+        d.putItem("value", enumValue);
+    } else {
+        d.putItem("value", value);
+    }
+    d.putItem("numchild", 0);
+}
+
+static inline void dumpMetaFlagValue(QDumper &d, const QMetaProperty &mop,
+                                     int value)
+{
+    const QMetaEnum me = mop.enumerator();
+    dumpMetaEnumType(d, me);
+    const QByteArray flagsValue = me.valueToKeys(value);
+    if (flagsValue.isEmpty()) {
+        d.putItem("value", value);
+    } else {
+        d.putItem("value", flagsValue.constData());
+    }
+    d.putItem("numchild", 0);
+}
+
 static void qDumpQObjectProperty(QDumper &d)
 {
     const QObject *ob = (const QObject *)d.data;
+    const QMetaObject *mob = ob->metaObject();
     // extract "local.Object.property"
     QString iname = d.iname;
     const int dotPos = iname.lastIndexOf(QLatin1Char('.'));
     if (dotPos == -1)
         return;
     iname.remove(0, dotPos + 1);
-    const QVariant v = ob->property(iname.toAscii().constData());
-    qDumpQVariant(d, &v);
+    const int index = mob->indexOfProperty(iname.toAscii());
+    if (index == -1)
+        return;
+    const QMetaProperty mop = mob->property(index);
+    const QVariant value = mop.read(ob);
+    const bool isInteger = value.type() == QVariant::Int;
+    if (isInteger && mop.isEnumType()) {
+        dumpMetaEnumValue(d, mop, value.toInt());
+    } else if (isInteger && mop.isFlagType()) {
+        dumpMetaFlagValue(d, mop, value.toInt());
+    } else {
+        qDumpQVariant(d, &value);
+    }
     d.disarm();
 }
 
@@ -2229,8 +2283,14 @@ static void qDumpQObjectPropertyList(QDumper &d)
                 d.putItem("numchild", "0");
                 break;
             case QVariant::Int:
-                d.putItem("value", prop.read(ob).toInt());
-                d.putItem("numchild", "0");
+                if (prop.isEnumType()) {
+                    dumpMetaEnumValue(d, prop, prop.read(ob).toInt());
+                } else if (prop.isFlagType()) {
+                    dumpMetaFlagValue(d, prop, prop.read(ob).toInt());
+                } else {
+                    d.putItem("value", prop.read(ob).toInt());
+                    d.putItem("numchild", "0");
+                }
                 break;
             default:
                 d.putItem("addr", d.data);
@@ -2312,7 +2372,7 @@ static inline void qDumpQObjectConnectionPart(QDumper &d,
     d.put(number).put(namePostfix);
     d.endItem();
     if (partner == owner) {
-        d.putItem("value", "<this>");
+        d.putItem("value", QLatin1String("<this>"));
         d.putItem("valueencoded", "2");
         d.putItem("type", owner->metaObject()->className());
         d.putItem("numchild", 0);

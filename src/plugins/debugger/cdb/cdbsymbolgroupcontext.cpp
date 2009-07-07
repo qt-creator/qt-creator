@@ -368,16 +368,42 @@ static inline bool isNullPointer(const WatchData &wd)
     return hexNullPattern.exactMatch(addr);
 }
 
+// Fix a symbol group value. It is set to the class type for
+// expandable classes (type="class std::foo<..>[*]",
+// value="std::foo<...>[*]". This is not desired
+// as it widens the value column for complex std::template types.
+// Remove the inner template type.
+
+static inline QString removeInnerTemplateType(QString value)
+{
+    const int firstBracketPos = value.indexOf(QLatin1Char('<'));
+    const int lastBracketPos = firstBracketPos != -1 ? value.lastIndexOf(QLatin1Char('>')) : -1;
+    if (lastBracketPos != -1)
+        value.replace(firstBracketPos + 1, lastBracketPos - firstBracketPos -1, QLatin1String("..."));
+    return value;
+}
+
+static inline QString fixValue(const QString &value)
+{
+    if (value.size() < 20 || value.endsWith(QLatin1Char('"')))
+        return value;
+    return removeInnerTemplateType(value);
+}
+
 WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
 {
     WatchData wd;
     wd.iname = symbolINameAt(index);
     wd.exp = wd.iname;
     const int lastDelimiterPos = wd.iname.lastIndexOf(m_nameDelimiter);
-    wd.name = lastDelimiterPos == -1 ? wd.iname : wd.iname.mid(lastDelimiterPos + 1);
+    // For class hierarchies, we get sometimes complicated std::template types here.
+    // Remove them for display
+    wd.name = removeInnerTemplateType(lastDelimiterPos == -1 ? wd.iname : wd.iname.mid(lastDelimiterPos + 1));
     wd.addr = hexSymbolOffset(m_symbolGroup, index);
-    wd.setType(getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index));
-    wd.setValue(getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index).toUtf8());
+    const QString type = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);
+    const QString value = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
+    wd.setType(type);
+    wd.setValue(fixValue(value));
     wd.setChildrenNeeded(); // compensate side effects of above setters
     // Figure out children. The SubElement is only a guess unless the symbol,
     // is expanded, so, we leave this as a guess for later updates.
