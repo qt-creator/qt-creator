@@ -55,8 +55,10 @@ FileWatcher::FileWatcher(QObject *parent) :
 
 FileWatcher::~FileWatcher()
 {
-    foreach (const QString &file, m_files)
+    QStringList keys = m_files.keys();
+    foreach(const QString &file, keys)
         removeFile(file);
+
     if (--m_objectCount == 0) {
         delete m_watcher;
         m_watcher = 0;
@@ -65,29 +67,41 @@ FileWatcher::~FileWatcher()
 
 void FileWatcher::slotFileChanged(const QString &file)
 {
-    if (m_files.contains(file))
-        emit fileChanged(file);
-}
-
-QStringList FileWatcher::files()
-{
-    return m_files;
+    if (m_files.contains(file)) {
+        QDateTime lastModified = QFileInfo(file).lastModified();
+        if (lastModified != m_files.value(file)) {
+            m_files[file] = lastModified;
+            qDebug() << "slotFileChanged" << file << lastModified;
+            emit fileChanged(file);
+        } else {
+            qDebug() << "WTF:" << file<<lastModified.toString();
+        }
+    }
 }
 
 void FileWatcher::addFile(const QString &file)
 {
-    if (m_files.contains(file))
-        return;
-    m_files += file;
-    if (m_fileCount[file] == 0)
+    const int count = ++m_fileCount[file];
+    Q_ASSERT(count > 0);
+
+    m_files.insert(file, QDateTime());
+
+    if (count == 1)
         m_watcher->addPath(file);
-    m_fileCount[file] += 1;
 }
 
 void FileWatcher::removeFile(const QString &file)
 {
-    m_files.removeOne(file);
-    m_fileCount[file] -= 1;
-    if (m_fileCount[file] == 0)
-      m_watcher->removePath(file);
+    if (!m_files.contains(file))
+        return;
+
+    const int count = --m_fileCount[file];
+    Q_ASSERT(count >= 0);
+
+    m_files.remove(file);
+
+    if (!count) {
+        m_watcher->removePath(file);
+        m_fileCount.remove(file);
+    }
 }

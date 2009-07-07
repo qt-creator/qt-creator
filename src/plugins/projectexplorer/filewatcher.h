@@ -36,6 +36,8 @@
 #include <QtCore/QHash>
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
+#include <QtCore/QDateTime>
+#include <QtCore/QMap>
 
 QT_BEGIN_NAMESPACE
 class QTimer;
@@ -52,7 +54,6 @@ public:
     explicit FileWatcher(QObject *parent = 0);
     virtual ~FileWatcher();
 
-    QStringList files();
     void addFile(const QString &file);
     void removeFile(const QString &file);
 signals:
@@ -66,7 +67,7 @@ private:
     static int m_objectCount;
     static QHash<QString, int> m_fileCount;
     static QFileSystemWatcher *m_watcher;
-    QStringList m_files;
+    QMap<QString, QDateTime> m_files;
 };
 
 } // namespace ProjectExplorer
