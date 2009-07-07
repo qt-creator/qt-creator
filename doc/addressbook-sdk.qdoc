@@ -971,10 +971,26 @@
 
     If \c fileName is not empty, again, we use a QFile object, \c file, and
     attempt to open it in \l{QIODevice::}{ReadOnly} mode. Similar to our
-    implementation
+    implementation of \c saveToFile(), if this attempt is unsuccessful, we
+    display a QMessageBox to inform the user.
 
     \snippet examples/addressbook-sdk/part6/addressbook.cpp loadFromFile part2
+
+    Otherwise, we instantiate a QDataStream object, \c in, set its version as
+    above and read the serialized data into hte \c contacts data structure. The
+    \c contacs object is emptied before data is read into it to simplify the
+    file reading process. A more advanced method would be to read the contacts
+    into a temporary QMap object, and copy over non-duplicate contacts into
+    \c contacts.
+
     \snippet examples/addressbook-sdk/part6/addressbook.cpp loadFromFile part3
+
+    To display the contacts that have been read from the file, we must first
+    validate the data obtained to ensure that the file we read from actually
+    contains address book contacts. If it does, we display the first contact;
+    otherwise, we display a QMessageBox to inform the user about the problem.
+    Lastly, we update the interface to enable and disable the push buttons
+    accordingly.
 
 */
 
