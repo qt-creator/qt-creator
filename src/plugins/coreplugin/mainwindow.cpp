@@ -302,9 +302,9 @@ bool MainWindow::init(QString *errorMessage)
     m_outputMode->setPriority(Constants::P_MODE_OUTPUT);
     m_outputMode->setWidget(outputModeWidget);
     OutputPanePlaceHolder *oph = new OutputPanePlaceHolder(m_outputMode);
-    oph->setVisible(true);
     oph->setCloseable(false);
     outputModeWidget->layout()->addWidget(oph);
+    oph->setVisible(true);
     outputModeWidget->layout()->addWidget(new Core::FindToolBarPlaceHolder(m_outputMode));
     outputModeWidget->setFocusProxy(oph);
 
