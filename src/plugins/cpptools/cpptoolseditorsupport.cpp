@@ -317,13 +317,14 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager)
     _updateDocumentTimer->setSingleShot(true);
     _updateDocumentTimer->setInterval(_updateDocumentInterval);
     connect(_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(updateDocumentNow()));
-
     _quickFixMark = new QuickFixMark(this);
 
     _quickFixTimer = new QTimer(this);
     _quickFixTimer->setSingleShot(true);
     _quickFixTimer->setInterval(DEFAULT_QUICKFIX_INTERVAL);
+#ifdef QTCREATOR_WITH_QUICKFIX
     connect(_quickFixTimer, SIGNAL(timeout()), this, SLOT(checkDocumentNow()));
+#endif
 }
 
 CppEditorSupport::~CppEditorSupport()
@@ -340,8 +341,11 @@ void CppEditorSupport::setTextEditor(TextEditor::ITextEditor *textEditor)
         return;
 
     connect(_textEditor, SIGNAL(contentsChanged()), this, SIGNAL(contentsChanged()));
+
+#ifdef QTCREATOR_WITH_QUICKFIX
     connect(qobject_cast<TextEditor::BaseTextEditor *>(_textEditor->widget()), SIGNAL(cursorPositionChanged()),
             this, SLOT(checkDocument()));
+#endif
 
     connect(this, SIGNAL(contentsChanged()), this, SLOT(updateDocument()));
 
