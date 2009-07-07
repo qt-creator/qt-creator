@@ -235,6 +235,8 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
     d_ptr->ui.antialias->setChecked(d_ptr->m_value.antialias());
 
     connect(d_ptr->ui.familyComboBox, SIGNAL(activated(int)), this, SLOT(updatePointSizes()));
+    connect(d_ptr->ui.schemeListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
+            this, SLOT(colorSchemeSelected(QListWidgetItem*)));
     connect(d_ptr->ui.exportButton, SIGNAL(clicked()), this, SLOT(exportColorScheme()));
     connect(d_ptr->ui.editButton, SIGNAL(clicked()), this, SLOT(editColorScheme()));
 
@@ -266,6 +268,11 @@ void FontSettingsPage::updatePointSizes()
     }
     if (d_ptr->ui.sizeComboBox->count())
         d_ptr->ui.sizeComboBox->setCurrentIndex(idx);
+}
+
+void FontSettingsPage::colorSchemeSelected(QListWidgetItem *item)
+{
+    // TODO: Enable the appropriate actions
 }
 
 void FontSettingsPage::importColorScheme()
@@ -318,12 +325,22 @@ void FontSettingsPage::refreshColorSchemeList()
     styleDir.setNameFilters(QStringList() << QLatin1String("*.xml"));
     styleDir.setFilter(QDir::Files);
 
+    int selected = 0;
+    int count = 0;
+
     foreach (const QString &file, styleDir.entryList()) {
         // TODO: Read the name of the style
         QListWidgetItem *item = new QListWidgetItem(file);
-        item->setData(Qt::UserRole, styleDir.absoluteFilePath(file));
+        const QString absFileName = styleDir.absoluteFilePath(file);
+        item->setData(Qt::UserRole, absFileName );
         d_ptr->ui.schemeListWidget->addItem(item);
+        if (d_ptr->m_value.colorSchemeFileName() == absFileName)
+            selected = count;
+        ++count;
     }
+
+    const QModelIndex s = d_ptr->ui.schemeListWidget->model()->index(selected, 0);
+    d_ptr->ui.schemeListWidget->setCurrentIndex(s);
 }
 
 void FontSettingsPage::delayedChange()
@@ -335,6 +352,12 @@ void FontSettingsPage::apply()
 {
     d_ptr->m_value.setFamily(d_ptr->ui.familyComboBox->currentText());
     d_ptr->m_value.setAntialias(d_ptr->ui.antialias->isChecked());
+
+    if (QListWidgetItem *item = d_ptr->ui.schemeListWidget->currentItem()) {
+        QString file = item->data(Qt::UserRole).toString();
+        if (file != d_ptr->m_value.colorSchemeFileName())
+            d_ptr->m_value.loadColorScheme(file, d_ptr->m_descriptions);
+    }
 
     bool ok = true;
     const int size = d_ptr->ui.sizeComboBox->currentText().toInt(&ok);

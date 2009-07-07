@@ -92,18 +92,7 @@ void FontSettings::toSettings(const QString &category,
 
     if (m_schemeFileName != defaultSchemeFileName() || s->contains(QLatin1String(schemeFileNameKey)))
         s->setValue(QLatin1String(schemeFileNameKey), m_schemeFileName);
-#if 0
-    const Format defaultFormat;
 
-    foreach (const FormatDescription &desc, descriptions) {
-        const QString name = desc.name();
-        if (m_scheme.contains(name)) {
-            const Format &f = m_scheme.formatFor(name);
-            if (f != defaultFormat || s->contains(name))
-                s->setValue(name, f.toString());
-        }
-    }
-#endif
     s->endGroup();
 }
 
@@ -122,25 +111,9 @@ bool FontSettings::fromSettings(const QString &category,
     m_family = s->value(group + QLatin1String(fontFamilyKey), defaultFixedFontFamily()).toString();
     m_fontSize = s->value(group + QLatin1String(fontSizeKey), m_fontSize).toInt();
     m_antialias = s->value(group + QLatin1String(antialiasKey), DEFAULT_ANTIALIAS).toBool();
-    m_schemeFileName = s->value(group + QLatin1String(schemeFileNameKey), defaultSchemeFileName()).toString();
+    loadColorScheme(s->value(group + QLatin1String(schemeFileNameKey), defaultSchemeFileName()).toString(),
+                    descriptions);
 
-    m_scheme.load(m_schemeFileName);
-#if 0
-    foreach (const FormatDescription &desc, descriptions) {
-        const QString name = desc.name();
-        const QString fmt = s->value(group + name, QString()).toString();
-        Format format;
-        if (fmt.isEmpty()) {
-            format.setForeground(desc.foreground());
-            format.setBackground(desc.background());
-            format.setBold(desc.format().bold());
-            format.setItalic(desc.format().italic());
-        } else {
-            format.fromString(fmt);
-        }
-        m_scheme.setFormatFor(name, format);
-    }
-#endif
     return true;
 }
 
@@ -247,9 +220,24 @@ QString FontSettings::colorSchemeFileName() const
     return m_schemeFileName;
 }
 
-void FontSettings::setColorSchemeFileName(const QString &fileName)
+void FontSettings::loadColorScheme(const QString &fileName,
+                                   const FormatDescriptions &descriptions)
 {
     m_schemeFileName = fileName;
+    m_scheme.load(m_schemeFileName);
+
+    // Apply default formats to undefined categories
+    foreach (const FormatDescription &desc, descriptions) {
+        const QString name = desc.name();
+        if (!m_scheme.contains(name)) {
+            Format format;
+            format.setForeground(desc.foreground());
+            format.setBackground(desc.background());
+            format.setBold(desc.format().bold());
+            format.setItalic(desc.format().italic());
+            m_scheme.setFormatFor(name, format);
+        }
+    }
 }
 
 /**

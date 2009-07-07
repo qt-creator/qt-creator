@@ -84,7 +84,7 @@ public:
     Format &formatFor(const QString &category);
 
     QString colorSchemeFileName() const;
-    void setColorSchemeFileName(const QString &fileName);
+    void loadColorScheme(const QString &fileName, const FormatDescriptions &descriptions);
 
     ColorScheme colorScheme() const;
     void setColorScheme(const ColorScheme &scheme);
