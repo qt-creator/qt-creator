@@ -308,6 +308,18 @@ static int dumpStdStringSet()
     return 0;
 }
 
+static int dumpStdQStringSet()
+{
+    std::set<QString> test;
+    test.insert(QLatin1String("item1"));
+    test.insert(QLatin1String("item2"));
+    prepareInBuffer("std::set", "local.stringset", "local.stringset", "QString");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(QString), sizeof(std::list<int>::allocator_type), 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
 static int dumpStdMapIntString()
 {
     std::map<int,std::string> test;
@@ -321,6 +333,22 @@ static int dumpStdMapIntString()
     fputc('\n', stdout);
     return 0;
 }
+
+static int dumpStdMapStringString()
+{
+    typedef std::map<std::string,std::string> TestType;
+    TestType test;
+    const TestType::value_type entry("K", "V");
+    test.insert(entry);
+    const int valueOffset = (char*)&(entry.second) - (char*)&entry;
+    prepareInBuffer("std::map", "local.stdmapstringstring", "local.stdmapstringstring",
+                    "std::basic_string<char,std::char_traits<char>,std::allocator<char> >@std::basic_string<char,std::char_traits<char>,std::allocator<char> >@std::less<int>@std::allocator<std::pair<const std::basic_string<char,std::char_traits<char>,std::allocator<char> >,std::basic_string<char,std::char_traits<char>,std::allocator<char> > > >");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(std::string), sizeof(std::string), valueOffset, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
 
 static int dumpQObject()
 {
@@ -398,7 +426,9 @@ static TypeDumpFunctionMap registerTypes()
     rc.insert("vector<wstring>", dumpStdWStringVector);
     rc.insert("set<int>", dumpStdIntSet);
     rc.insert("set<string>", dumpStdStringSet);
+    rc.insert("set<QString>", dumpStdQStringSet);
     rc.insert("map<int,string>", dumpStdMapIntString);
+    rc.insert("map<string,string>", dumpStdMapStringString);
     rc.insert("QObject", dumpQObject);
     rc.insert("QObjectList", dumpQObjectList);
     rc.insert("QVariant", dumpQVariant);

@@ -638,20 +638,30 @@ void QtDumperHelper::TypeData::clear()
 
 // ----------------- QtDumperHelper
 QtDumperHelper::QtDumperHelper() :
-    m_qtVersion(0)
+    m_qtVersion(0),
+    m_dumperVersion(1.0)
 {
     qFill(m_specialSizes, m_specialSizes + SpecialSizeCount, 0);
+    setQClassPrefixes(QString());
 }
 
 void QtDumperHelper::clear()
 {
     m_nameTypeMap.clear();
     m_qtVersion = 0;
+    m_dumperVersion = 1.0;
     m_qtNamespace.clear();
     m_sizeCache.clear();
     qFill(m_specialSizes, m_specialSizes + SpecialSizeCount, 0);
     m_expressionCache.clear();
-    m_dumperVersion.clear();
+    setQClassPrefixes(QString());
+}
+
+QString QtDumperHelper::msgDumperOutdated(double requiredVersion, double currentVersion)
+{
+    return QCoreApplication::translate("QtDumperHelper",
+                                       "Found a too-old version of the debugging helper library (%1); version %2 is required.").
+                                       arg(currentVersion).arg(requiredVersion);
 }
 
 static inline void formatQtVersion(int v, QTextStream &str)
@@ -685,7 +695,7 @@ QString QtDumperHelper::toString(bool debug) const
     return QCoreApplication::translate("QtDumperHelper",
                                        "%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3",
                                        0, QCoreApplication::CodecForTr,
-                                       m_nameTypeMap.size()).arg(qtVersionString(), nameSpace, m_dumperVersion);
+                                       m_nameTypeMap.size()).arg(qtVersionString(), nameSpace).arg(m_dumperVersion);
 }
 
 QtDumperHelper::Type QtDumperHelper::simpleType(const QString &simpleType) const
@@ -774,11 +784,11 @@ QtDumperHelper::ExpressionRequirement QtDumperHelper::expressionRequirements(Typ
     switch (t) {
     case QAbstractItemType:
     case QVectorType:
-    case StdMapType:
         return NeedsComplexExpression;
     case QMapType:
     case QMultiMapType:
     case QMapNodeType:
+    case StdMapType:
         return NeedsCachedExpression;
     default:
         // QObjectSlotType, QObjectSignalType need the signal number, which is numeric
@@ -1130,6 +1140,25 @@ bool QueryDumperParser::handleValue(const char *k, int size)
     return true;
 }
 
+static inline QString qClassName(const QString &qtNamespace, const char *className)
+{
+    if (qtNamespace.isEmpty())
+        return QString::fromAscii(className);
+    QString rc = qtNamespace;
+    rc += QLatin1String("::");
+    rc += QString::fromAscii(className);
+    return rc;
+}
+
+void QtDumperHelper::setQClassPrefixes(const QString &qNamespace)
+{
+    // Prefixes with namespaces
+    m_qPointerPrefix = qClassName(qNamespace, "QPointer");
+    m_qSharedPointerPrefix = qClassName(qNamespace, "QSharedPointer");
+    m_qSharedDataPointerPrefix = qClassName(qNamespace, "QSharedDataPointer");
+    m_qWeakPointerPrefix = qClassName(qNamespace, "QWeakPointer");
+}
+
 // parse a query
 bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
 {
@@ -1139,12 +1168,25 @@ bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
     clear();
     m_qtNamespace = parser.data().qtNameSpace;
     setQtVersion(parser.data().qtVersion);
+    setQClassPrefixes(m_qtNamespace);
     parseQueryTypes(parser.data().types, debugger);
     foreach (const QueryDumperParser::SizeEntry &se, parser.data().sizes)
         addSize(se.first, se.second);
     m_expressionCache = parser.data().expressionCache;
-    m_dumperVersion = parser.data().dumperVersion;
+    // Version
+    if (!parser.data().dumperVersion.isEmpty()) {
+        double dumperVersion;
+        bool ok;
+        dumperVersion = parser.data().dumperVersion.toDouble(&ok);
+        if (ok)
+            m_dumperVersion = dumperVersion;
+    }
     return true;
+}
+
+void QtDumperHelper::addExpression(const QString &expression, const QString &value)
+{
+    m_expressionCache.insert(expression, value);
 }
 
 void QtDumperHelper::addSize(const QString &name, int size)
@@ -1219,27 +1261,23 @@ QString QtDumperHelper::evaluationSizeofTypeExpression(const QString &typeName,
     return sizeofTypeExpression(typeName);
 }
 
-QtDumperHelper::SpecialSizeType QtDumperHelper::specialSizeType(const QString &typeName)
+QtDumperHelper::SpecialSizeType QtDumperHelper::specialSizeType(const QString &typeName) const
 {
     if (isPointerType(typeName))
         return PointerSize;
     static const QString intType = QLatin1String("int");
     static const QString stdAllocatorPrefix = QLatin1String("std::allocator");
-    static const QString qPointerPrefix = QLatin1String("QPointer");
-    static const QString qSharedPointerPrefix = QLatin1String("QSharedPointer");
-    static const QString qSharedDataPointerPrefix = QLatin1String("QSharedDataPointer");
-    static const QString qWeakPointerPrefix = QLatin1String("QWeakPointer");
     if (typeName == intType)
         return IntSize;
     if (typeName.startsWith(stdAllocatorPrefix))
         return StdAllocatorSize;
-    if (typeName.startsWith(qPointerPrefix))
+    if (typeName.startsWith(m_qPointerPrefix))
         return QPointerSize;
-    if (typeName.startsWith(qSharedPointerPrefix))
+    if (typeName.startsWith(m_qSharedPointerPrefix))
         return QSharedPointerSize;
-    if (typeName.startsWith(qSharedDataPointerPrefix))
+    if (typeName.startsWith(m_qSharedDataPointerPrefix))
         return QSharedDataPointerSize;
-    if (typeName.startsWith(qWeakPointerPrefix))
+    if (typeName.startsWith(m_qWeakPointerPrefix))
         return QWeakPointerSize;
     return SpecialSizeCount;
 }
@@ -1374,7 +1412,10 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
             int bracketPos = pairType.indexOf(QLatin1Char('<'));
             if (bracketPos != -1)
                 pairType.remove(0, bracketPos + 1);
-            bracketPos = pairType.indexOf(QLatin1Char('>'));
+            const QChar closingBracket = QLatin1Char('>');
+            bracketPos = pairType.lastIndexOf(closingBracket);
+            if (bracketPos != -1)
+                bracketPos = pairType.lastIndexOf(closingBracket, bracketPos - pairType.size() - 1);
             if (bracketPos != -1)
                 pairType.truncate(bracketPos + 1);
             extraArgs[2] = QLatin1String("(size_t)&(('");

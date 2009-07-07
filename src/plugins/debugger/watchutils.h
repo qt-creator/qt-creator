@@ -91,7 +91,7 @@ struct QtDumperResult
         Child();
 
         int keyEncoded;
-        int valueEncoded;        
+        int valueEncoded;
         int childCount;
         bool valuedisabled;
         QString name;
@@ -174,6 +174,9 @@ public:
     QtDumperHelper();
     void clear();
 
+    double dumperVersion() const { return m_dumperVersion; }
+    void setDumperVersion(double v)  { m_dumperVersion = v; }
+
     int typeCount() const;
     // Look up a simple, non-template  type
     Type simpleType(const QString &simpleType) const;
@@ -219,9 +222,13 @@ public:
 
     QString toString(bool debug = false) const;
 
+    // Helpers for debuggers that use a different dumper parser.
     void addSize(const QString &name, int size);
+    void addExpression(const QString &expression, const QString &value);
 
-private:        
+    static QString msgDumperOutdated(double requiredVersion, double currentVersion);
+
+private:
     typedef QMap<QString, Type> NameTypeMap;
     typedef QMap<QString, int> SizeCache;
 
@@ -240,14 +247,21 @@ private:
                            QWeakPointerSize, QPointerSize, SpecialSizeCount };
 
     // Resolve name to enumeration or SpecialSizeCount (invalid)
-    static SpecialSizeType specialSizeType(const QString &t);
+    SpecialSizeType specialSizeType(const QString &t) const;
 
     int m_specialSizes[SpecialSizeCount];
 
     QMap<QString, QString> m_expressionCache;
     int m_qtVersion;
-    QString m_dumperVersion;
+    double m_dumperVersion;
     QString m_qtNamespace;
+
+    void setQClassPrefixes(const QString &qNamespace);
+
+    QString m_qPointerPrefix;
+    QString m_qSharedPointerPrefix;
+    QString m_qSharedDataPointerPrefix;
+    QString m_qWeakPointerPrefix;
 };
 
 QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d);
