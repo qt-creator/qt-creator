@@ -174,6 +174,9 @@ QT_BEGIN_NAMESPACE
 
 struct Sender { QObject *sender; int signal; int ref; };
 
+const char *stdStringTypeC = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
+const char *stdWideStringTypeUShortC = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
+
 #if QT_VERSION < 0x040600
     struct Connection
     {
@@ -905,7 +908,8 @@ static inline void dumpChildNumChildren(QDumper &d, InnerValueResult innerValueR
     }
 }
 
-static InnerValueResult qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
+// Called by templates, so, not static.
+InnerValueResult qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
     const char *field = "value")
 {
     char buf[30];
@@ -1017,13 +1021,13 @@ static InnerValueResult qDumpInnerValueHelper(QDumper &d, const char *type, cons
             return InnerValueNotHandled;
         case 't':
             if (isEqual(type, "std::string")
-                || isEqual(type, "std::basic_string<char,std::char_traits<char>,std::allocator<char> >")) {
+                || isEqual(type, stdStringTypeC)) {
                 d.putCommaIfNeeded();
                 dumpStdStringValue(d, *reinterpret_cast<const std::string*>(addr));
                 return InnerValueNoFurtherChildren;
             }
             if (isEqual(type, "std::wstring")
-                || isEqual(type, "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >")) {
+                || isEqual(type, stdWideStringTypeUShortC)) {
                 dumpStdWStringValue(d, *reinterpret_cast<const std::wstring*>(addr));
                 return InnerValueNoFurtherChildren;
             }
@@ -2905,9 +2909,16 @@ static void qDumpStdList(QDumper &d)
     d.disarm();
 }
 
-static void qDumpStdMap(QDumper &d)
+/* Dump out an arbitrary map. To iterate the map,
+ * it is cast to a map of <KeyType,Value>. 'int' can be used for both
+ * for all types if the implementation does not depend on the types
+ * which is the case for GNU STL. The implementation used by MS VC, however,
+ * does depend on the key/value type, so, special cases need to be hardcoded. */
+
+template <class KeyType, class ValueType>
+static void qDumpStdMapHelper(QDumper &d)
 {
-    typedef std::map<int, int> DummyType;
+    typedef std::map<KeyType, ValueType> DummyType;
     const DummyType &map = *reinterpret_cast<const DummyType*>(d.data);
     const char *keyType   = d.templateParameters[0];
     const char *valueType = d.templateParameters[1];
@@ -2915,14 +2926,15 @@ static void qDumpStdMap(QDumper &d)
     qCheckAccess(p);
     p = deref(p);
 
-    int nn = map.size();
+    const int nn = map.size();
     if (nn < 0)
         return;
-    DummyType::const_iterator it = map.begin();
-    for (int i = 0; i < nn && i < 10 && it != map.end(); ++i, ++it)
+    Q_TYPENAME DummyType::const_iterator it = map.begin();
+    const Q_TYPENAME DummyType::const_iterator cend = map.end();
+    for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)
         qCheckAccess(it.operator->());
 
-    QByteArray strippedInnerType = stripPointerType(d.innertype);
+    const QByteArray strippedInnerType = stripPointerType(d.innertype);
     d.putItem("numchild", nn);
     d.putItemCount("value", nn);
     d.putItem("valuedisabled", "true");
@@ -2937,6 +2949,7 @@ static void qDumpStdMap(QDumper &d)
     pairType[strlen(pairType) - 2] = 0;
     d.putItem("pairtype", pairType);
 
+    InnerValueResult innerValueResult = InnerValueChildrenSpecified;
     if (d.dumpChildren) {
         bool isSimpleKey = isSimpleType(keyType);
         bool isSimpleValue = isSimpleType(valueType);
@@ -2951,12 +2964,12 @@ static void qDumpStdMap(QDumper &d)
 
         d.beginChildren();
         it = map.begin();
-        for (int i = 0; i < 1000 && it != map.end(); ++i, ++it) {
+        for (int i = 0; i < 1000 && it != cend; ++i, ++it) {
             d.beginHash();
                 const void *node = it.operator->();
                 d.putItem("name", i);
                 qDumpInnerValueHelper(d, keyType, node, "key");
-                qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
+                innerValueResult = qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
                 if (isSimpleKey && isSimpleValue) {
                     d.putItem("type", valueType);
                     d.putItem("addr", addOffset(node, valueOffset));
@@ -2972,22 +2985,61 @@ static void qDumpStdMap(QDumper &d)
             d.putEllipsis();
         d.endChildren();
     }
+    dumpChildNumChildren(d, innerValueResult);
     d.disarm();
 }
 
-static void qDumpStdSet(QDumper &d)
+static void qDumpStdMap(QDumper &d)
 {
-    typedef std::set<int> DummyType;
+#ifdef Q_CC_MSVC
+    // As the map implementation inherits from a base class
+    // depending on the key, use something equivalent to iterate it.
+    const int keySize = d.extraInt[0];
+    const int valueSize = d.extraInt[1];
+    if (keySize == valueSize) {
+        if (keySize == sizeof(int)) {
+            qDumpStdMapHelper<int,int>(d);
+            return;
+        }
+        if (keySize == sizeof(std::string)) {
+            qDumpStdMapHelper<std::string,std::string>(d);
+            return;
+        }
+        return;
+    }
+    if (keySize == sizeof(int) && valueSize == sizeof(std::string)) {
+        qDumpStdMapHelper<int,std::string>(d);
+        return;
+    }
+    if (keySize == sizeof(std::string) && valueSize == sizeof(int)) {
+        qDumpStdMapHelper<std::string,int>(d);
+        return;
+    }
+#else
+    qDumpStdMapHelper<int,int>(d);
+#endif
+}
+
+/* Dump out an arbitrary set. To iterate the set,
+ * it is cast to a set of <KeyType>. 'int' can be used
+ * for all types if the implementation does not depend on the key type
+ * which is the case for GNU STL. The implementation used by MS VC, however,
+ * does depend on the key type, so, special cases need to be hardcoded. */
+
+template <class KeyType>
+static void qDumpStdSetHelper(QDumper &d)
+{
+    typedef std::set<KeyType> DummyType;
     const DummyType &set = *reinterpret_cast<const DummyType*>(d.data);
     const void *p = d.data;
     qCheckAccess(p);
     p = deref(p);
 
-    int nn = set.size();
+    const int nn = set.size();
     if (nn < 0)
         return;
-    DummyType::const_iterator it = set.begin();
-    const DummyType::const_iterator cend = set.end();
+    Q_TYPENAME DummyType::const_iterator it = set.begin();
+    const Q_TYPENAME DummyType::const_iterator cend = set.end();
     for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)
         qCheckAccess(it.operator->());
 
@@ -3022,6 +3074,29 @@ static void qDumpStdSet(QDumper &d)
     }
     dumpChildNumChildren(d, innerValueResult);
     d.disarm();
+}
+
+static void qDumpStdSet(QDumper &d)
+{
+#ifdef Q_CC_MSVC
+    // As the set implementation inherits from a base class
+    // depending on the key, use something equivalent to iterate it.
+    const int innerSize = d.extraInt[0];
+    if (innerSize == sizeof(int)) {
+        qDumpStdSetHelper<int>(d);
+        return;
+    }
+    if (innerSize == sizeof(std::string)) {
+        qDumpStdSetHelper<std::string>(d);
+        return;
+    }
+    if (innerSize == sizeof(std::wstring)) {
+        qDumpStdSetHelper<std::wstring>(d);
+        return;
+    }
+#else
+    qDumpStdSetHelper<int>(d);
+#endif
 }
 
 static void qDumpStdString(QDumper &d)
@@ -3329,10 +3404,35 @@ template <class Key, class Value>
     d.put(keyType);
     d.put(',');
     d.put(valueType);
+    if (valueType[qstrlen(valueType) - 1] == '>')
+        d.put(' ');
     d.put(">'*)0)->value=\"");
     d.put(valueOffset);
     d.put('"');
     return d;
+}
+
+// Helper to write out common expression values for CDB:
+// Offsets of a std::pair for dumping std::map node value which look like
+// "(size_t)&(('std::pair<int const ,unsigned int>'*)0)->second"
+
+template <class Key, class Value>
+        inline QDumper & putStdPairValueOffsetExpression(const char *keyType,
+                                                         const char *valueType,
+                                                         QDumper &d)
+{
+    std::pair<Key, Value> *p = 0;
+    const int valueOffset = (char *)&(p->second) - (char*)p;
+    d.put("(size_t)&(('std::pair<");
+    d.put(keyType);
+    d.put(" const ,");
+    d.put(valueType);
+    if (valueType[qstrlen(valueType) - 1] == '>')
+        d.put(' ');
+    d.put(">'*)0)->second=\"");
+    d.put(valueOffset);
+    d.put('"');
+    return  d;
 }
 
 extern "C" Q_DECL_EXPORT
@@ -3461,7 +3561,18 @@ void *qDumpObjectData440(
         putQMapNodeOffsetExpression<int,QVariant>("int", NS"QVariant", d).put(',');
         putQMapNodeOffsetExpression<QString,int>(NS"QString", "int", d).put(',');
         putQMapNodeOffsetExpression<QString,QString>(NS"QString", NS"QString", d).put(',');
-        putQMapNodeOffsetExpression<QString,QVariant>(NS"QString", NS"QVariant", d);
+        putQMapNodeOffsetExpression<QString,QVariant>(NS"QString", NS"QVariant", d).put(',');
+        // Std Pairs
+        putStdPairValueOffsetExpression<int,int>("int","int", d).put(',');
+        putStdPairValueOffsetExpression<QString,QString>(NS"QString",NS"QString", d).put(',');
+        putStdPairValueOffsetExpression<int,QString>("int",NS"QString", d).put(',');
+        putStdPairValueOffsetExpression<QString,int>(NS"QString", "int", d).put(',');
+        putStdPairValueOffsetExpression<std::string,std::string>(stdStringTypeC, stdStringTypeC, d).put(',');
+        putStdPairValueOffsetExpression<int,std::string>("int", stdStringTypeC, d).put(',');
+        putStdPairValueOffsetExpression<std::string,int>(stdStringTypeC, "int", d.put(','));
+        putStdPairValueOffsetExpression<std::wstring,std::wstring>(stdWideStringTypeUShortC, stdWideStringTypeUShortC, d).put(',');
+        putStdPairValueOffsetExpression<int,std::wstring>("int", stdWideStringTypeUShortC, d).put(',');
+        putStdPairValueOffsetExpression<std::wstring,int>(stdWideStringTypeUShortC, "int", d);
         d.put('}');
         d.disarm();
     }

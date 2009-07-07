@@ -100,7 +100,7 @@ static bool allocDebuggeeMemory(CdbComInterfaces *cif,
     OutputRedirector redir(cif->debugClient, &stringHandler);
     if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, allocCmd, errorMessage))
         return false;
-   // "Allocated 1000 bytes starting at 003a0000" .. hopefully never localized    
+   // "Allocated 1000 bytes starting at 003a0000" .. hopefully never localized
     bool ok = false;
     const QString output = stringHandler.result();
     const int lastBlank = output.lastIndexOf(QLatin1Char(' '));
@@ -176,7 +176,7 @@ static bool debuggeeLoadLibrary(IDebuggerManagerAccessForEngines *access,
         return false;
     // This will hit a breakpoint.
     if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, QString(QLatin1Char('g')), errorMessage))
-        return false;    
+        return false;
     const HRESULT hr = cif->debugControl->WaitForEvent(0, waitTimeOutMS);
     if (FAILED(hr)) {
         *errorMessage = msgComFailed("WaitForEvent", hr);
@@ -280,7 +280,7 @@ void CdbDumperHelper::moduleLoadHook(const QString &module, HANDLE debuggeeHandl
         if (m_tryInjectLoad && module.contains(QLatin1String("Qt"), Qt::CaseInsensitive)) {
             // Also shows up in the log window.
             m_manager->showStatusMessage(msgLoading(m_library, true), 10000);
-            QString errorMessage;            
+            QString errorMessage;
             SharedLibraryInjector sh(GetProcessId(debuggeeHandle));
             if (sh.remoteInject(m_library, false, &errorMessage)) {
                 m_state = InjectLoading;
@@ -408,7 +408,7 @@ static inline bool getSymbolAddress(CIDebugSymbols *sg,
 }
 
 bool CdbDumperHelper::initResolveSymbols(QString *errorMessage)
-{    
+{
     // Resolve the symbols we need (potentially namespaced).
     // There is a 'qDumpInBuffer' in QtCore as well.
     m_dumpObjectSymbol = QLatin1String("*qDumpObjectData440");
@@ -437,6 +437,7 @@ bool CdbDumperHelper::initResolveSymbols(QString *errorMessage)
 // Call query protocol to retrieve known types and sizes
 bool CdbDumperHelper::initKnownTypes(QString *errorMessage)
 {
+    const double dumperVersionRequired = 1.3;
     QByteArray output;
     QString callCmd;
     QTextStream(&callCmd) << ".call " << m_dumpObjectSymbol << "(1,0,0,0,0,0,0,0)";
@@ -446,6 +447,10 @@ bool CdbDumperHelper::initKnownTypes(QString *errorMessage)
     }
     if (!m_helper.parseQuery(outData, QtDumperHelper::CdbDebugger)) {
      *errorMessage = QString::fromLatin1("Unable to parse the dumper output: '%1'").arg(QString::fromAscii(output));
+    }
+    if (m_helper.dumperVersion() < dumperVersionRequired) {
+        *errorMessage = QtDumperHelper::msgDumperOutdated(dumperVersionRequired, m_helper.dumperVersion());
+        return false;
     }
     if (loadDebug)
         qDebug() << Q_FUNC_INFO << m_helper.toString(true);
@@ -521,7 +526,7 @@ bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuf
         return false;
     }
     // see QDumper implementation
-    const char result = m_buffer[0];    
+    const char result = m_buffer[0];
     switch (result) {
     case 't':
         break;
@@ -574,7 +579,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
     }
 
     // Known type?
-    const QtDumperHelper::TypeData td = m_helper.typeData(wd.type);    
+    const QtDumperHelper::TypeData td = m_helper.typeData(wd.type);
     if (loadDebug)
         qDebug() << "dumpType" << wd.type << td;
     if (td.type == QtDumperHelper::UnknownType) {
@@ -596,7 +601,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
     // yet initialized in a particular breakpoint. That should be ignored.
     // Also fail for complex expression that were not cached/replaced by the helper.
     if (der == DumpExecuteSizeFailed || der == DumpComplexExpressionEncountered)
-        m_failedTypes.push_back(wd.type);    
+        m_failedTypes.push_back(wd.type);
     // log error
     *errorMessage = msgDumpFailed(wd, errorMessage);
     m_access->showDebuggerOutput(LogWarning, *errorMessage);
@@ -609,7 +614,7 @@ CdbDumperHelper::DumpExecuteResult
                                 QList<WatchData> *result, QString *errorMessage)
 {
     QByteArray inBuffer;
-    QStringList extraParameters;    
+    QStringList extraParameters;
     // Build parameter list.
     m_helper.evaluationParameters(wd, td, QtDumperHelper::CdbDebugger, &inBuffer, &extraParameters);
     // If the parameter list contains sizeof-expressions, execute them separately

@@ -86,10 +86,12 @@ static inline QString getSymbolString(IDebugSymbolGroup2 *sg,
                                       WideStringRetrievalFunction wsf,
                                       unsigned long index)
 {
-    static WCHAR nameBuffer[MAX_PATH + 1];
+    // Template type names can get quite long....
+    enum { BufSize = 1024 };
+    static WCHAR nameBuffer[BufSize + 1];
     // Name
     ULONG nameLength;
-    const HRESULT hr = (sg->*wsf)(index, nameBuffer, MAX_PATH, &nameLength);
+    const HRESULT hr = (sg->*wsf)(index, nameBuffer, BufSize, &nameLength);
     if (SUCCEEDED(hr)) {
         nameBuffer[nameLength] = 0;
         return QString::fromUtf16(reinterpret_cast<const ushort *>(nameBuffer));

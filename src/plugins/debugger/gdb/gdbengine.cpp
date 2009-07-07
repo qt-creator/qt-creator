@@ -246,7 +246,7 @@ void GdbEngine::initializeVariables()
     m_address.clear();
     m_currentFunctionArgs.clear();
     m_currentFrame.clear();
-    m_dumperHelper = QtDumperHelper();
+    m_dumperHelper.clear();
 
     // FIXME: unhandled:
     //m_outputCodecState = QTextCodec::ConverterState();
@@ -3144,8 +3144,33 @@ void GdbEngine::rebuildModel()
     showToolTip();
 }
 
+static inline double getDumperVersion(const GdbMi &contents)
+{
+    const GdbMi dumperVersionG = contents.findChild("dumperversion");
+    if (dumperVersionG.type() != GdbMi::Invalid) {
+        bool ok;
+        const double v = QString::fromAscii(dumperVersionG.data()).toDouble(&ok);
+        if (ok)
+            return v;
+    }
+    return 1.0;
+}
+
+static void parseSizeCache(const GdbMi &contents, QtDumperHelper *dumperHelper)
+{
+    const GdbMi sizesList = contents.findChild("sizes");
+    if (sizesList.type() == GdbMi::Invalid)
+        return;
+    foreach(const GdbMi &c, sizesList.children()) {
+        const QString name = QString::fromAscii(c.name());
+        if (const int size = QString::fromAscii(c.data()).toInt())
+            dumperHelper->addSize(name, size);
+    }
+}
+
 void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const QVariant &)
 {
+    const double dumperVersionRequired = 1.0;
     m_dumperHelper.clear();
     //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
 
@@ -3163,7 +3188,6 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
         //qDebug() << "FOUND QT VERSION:" << qtversion.toString() << m_qtVersion;
     }
     m_dumperHelper.setQtVersion(qtv);
-
     //qDebug() << "CONTENTS:" << contents.toString();
     //qDebug() << "SIMPLE DUMPERS:" << simple.toString();
 
@@ -3176,17 +3200,19 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
         if (!m_dumperInjectionLoad) // Retry if thread has not terminated yet.
             m_debuggingHelperState = DebuggingHelperUnavailable;
         q->showStatusMessage(tr("Debugging helpers not found."));
-        //QMessageBox::warning(q->mainWindow(),
-        //    tr("Cannot find special data dumpers"),
-        //    tr("The debugged binary does not contain information needed for "
-        //            "nice display of Qt data types.\n\n"
-        //            "You might want to try including the file\n\n"
-        //            ".../share/qtcreator/gdbmacros/gdbmacros.cpp\n\n"
-        //            "into your project directly.")
-        //        );
     } else {
+        // Get version and sizes from dumpers. Expression cache
+        // currently causes errors.
+        const double dumperVersion = getDumperVersion(contents);
+        if (dumperVersion < dumperVersionRequired) {
+            qq->showQtDumperLibraryWarning(QtDumperHelper::msgDumperOutdated(dumperVersionRequired, dumperVersion));
+            m_debuggingHelperState = DebuggingHelperUnavailable;
+            return;
+        }
+        parseSizeCache(contents, &m_dumperHelper);
         m_debuggingHelperState = DebuggingHelperAvailable;
-        q->showStatusMessage(tr("%n custom dumpers found.", 0, m_dumperHelper.typeCount()));
+        const QString successMsg = tr("Dumper version %1, %n custom dumpers found.", 0, m_dumperHelper.typeCount()).arg(dumperVersion);
+        q->showStatusMessage(successMsg);
     }
     //qDebug() << m_dumperHelper.toString(true);
     //qDebug() << m_availableSimpleDebuggingHelpers << "DATA DUMPERS AVAILABLE";
