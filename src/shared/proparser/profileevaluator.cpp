@@ -134,6 +134,8 @@ public:
     /////////////// Reading pro file
 
     bool read(ProFile *pro);
+    bool read(ProFile *pro, const QString &content);
+    bool read(ProFile *pro, QTextStream *ts);
 
     ProBlock *currentBlock();
     void updateItem();
@@ -284,6 +286,19 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
         return false;
     }
 
+    QTextStream ts(&file);
+    return read(pro, &ts);
+}
+
+bool ProFileEvaluator::Private::read(ProFile *pro, const QString &content)
+{
+    QString str(content);
+    QTextStream ts(&str, QIODevice::ReadOnly | QIODevice::Text);
+    return read(pro, &ts);
+}
+
+bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
+{
     // Parser state
     m_block = 0;
     m_commentItem = 0;
@@ -295,9 +310,8 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
     m_blockstack.clear();
     m_blockstack.push(pro);
 
-    QTextStream ts(&file);
-    while (!ts.atEnd()) {
-        QString line = ts.readLine();
+    while (!ts->atEnd()) {
+        QString line = ts->readLine();
         if (!parseLine(line)) {
             q->errorMessage(format(".pro parse failure."));
             return false;
@@ -2627,6 +2641,11 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType()
 bool ProFileEvaluator::queryProFile(ProFile *pro)
 {
     return d->read(pro);
+}
+
+bool ProFileEvaluator::queryProFile(ProFile *pro, const QString &content)
+{
+    return d->read(pro, content);
 }
 
 bool ProFileEvaluator::accept(ProFile *pro)

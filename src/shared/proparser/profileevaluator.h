@@ -69,6 +69,7 @@ public:
     void setParsePreAndPostFiles(bool on); // Default is true
 
     bool queryProFile(ProFile *pro);
+    bool queryProFile(ProFile *pro, const QString &content); // the same as above but the content is read from "content" string, not from filesystem
     bool accept(ProFile *pro);
 
     void addVariables(const QHash<QString, QStringList> &variables);
