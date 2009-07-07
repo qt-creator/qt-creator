@@ -1002,4 +1002,14 @@
     \example examples/addressbook-sdk/part7
     \title Address Book 7 - Additional Features
 
+    Although our address book application is useful in its own right, it would
+    be useful it we could exchange contact data with other applications. The
+    vCard format is a popular file format that can be used for this purpose. In
+    this chapter, we extend our address book client to allow contacts to be
+    exported to vCard \c{.vcf} files.
+
+    \section1 Placing Widgets on The Form
+
+    \section1 The AddressBook Class
+
 */
