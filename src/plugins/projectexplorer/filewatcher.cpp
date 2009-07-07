@@ -74,7 +74,7 @@ void FileWatcher::slotFileChanged(const QString &file)
             qDebug() << "slotFileChanged" << file << lastModified;
             emit fileChanged(file);
         } else {
-            qDebug() << "WTF:" << file<<lastModified.toString();
+            qDebug() << "WTF:" << file<<lastModified.toString()<<lastModified.toTime_t();
         }
     }
 }
