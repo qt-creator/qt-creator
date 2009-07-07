@@ -27,6 +27,7 @@ HEADERS += \
     $$PWD/ResolveExpression.h \
     $$PWD/LookupContext.h \
     $$PWD/CppBindings.h \
+    $$PWD/ASTParent.h \
     $$PWD/PreprocessorClient.h \
     $$PWD/PreprocessorEnvironment.h \
     $$PWD/Macro.h \
@@ -47,6 +48,7 @@ SOURCES += \
     $$PWD/ResolveExpression.cpp \
     $$PWD/LookupContext.cpp \
     $$PWD/CppBindings.cpp \
+    $$PWD/ASTParent.cpp \
     $$PWD/PreprocessorClient.cpp \
     $$PWD/PreprocessorEnvironment.cpp \
     $$PWD/FastPreprocessor.cpp \
