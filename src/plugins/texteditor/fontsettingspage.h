@@ -110,9 +110,13 @@ signals:
 private slots:
     void delayedChange();
     void updatePointSizes();
+    void importColorScheme();
+    void exportColorScheme();
     void editColorScheme();
 
 private:
+    void refreshColorSchemeList();
+
     Internal::FontSettingsPagePrivate *d_ptr;
 };
 

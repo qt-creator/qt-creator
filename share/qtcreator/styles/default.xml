@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<style-scheme version="1.0">
+  <style name="AddedLine" foreground="#00aa00"/>
+  <style name="Comment" foreground="#008000"/>
+  <style name="CurrentLine" background="#fef2da"/>
+  <style name="CurrentLineNumber" foreground="#808080" bold="true"/>
+  <style name="DiffFile" foreground="#000080"/>
+  <style name="DiffLocation" foreground="#0000ff"/>
+  <style name="DisabledCode" foreground="#a0a0a4"/>
+  <style name="Doxygen.Comment" foreground="#000080"/>
+  <style name="Doxygen.Tag" foreground="#0000ff"/>
+  <style name="Keyword" foreground="#808000"/>
+  <style name="Label" foreground="#800000"/>
+  <style name="LineNumber" foreground="#c7c4c1" background="#efebe7"/>
+  <style name="Link" foreground="#0000ff"/>
+  <style name="Number" foreground="#000080"/>
+  <style name="Operator" foreground="#000000"/>
+  <style name="Parentheses" foreground="#ff0000" background="#b4eeb4"/>
+  <style name="Preprocessor" foreground="#000080"/>
+  <style name="RemovedLine" foreground="#ff0000"/>
+  <style name="SearchResult" background="#ffef0b"/>
+  <style name="SearchScope" background="#fdedce"/>
+  <style name="Selection" background="#fad184"/>
+  <style name="String" foreground="#008000"/>
+  <style name="Text" foreground="#000000" background="#ffffff"/>
+  <style name="Type" foreground="#800080"/>
+</style-scheme>

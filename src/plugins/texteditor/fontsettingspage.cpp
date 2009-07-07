@@ -41,6 +41,7 @@
 #include <QtCore/QTimer>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
+#include <QtGui/QFileDialog>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QListWidget>
 #include <QtGui/QPalette>
@@ -222,6 +223,7 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
 
     d_ptr->ui.schemeListWidget->addItem(tr("Default"));
     d_ptr->ui.schemeListWidget->setCurrentIndex(d_ptr->ui.schemeListWidget->model()->index(0, 0));
+    d_ptr->ui.exportButton->setEnabled(true);
     d_ptr->ui.editButton->setEnabled(true);
 
     QFontDatabase db;
@@ -233,9 +235,11 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
     d_ptr->ui.antialias->setChecked(d_ptr->m_value.antialias());
 
     connect(d_ptr->ui.familyComboBox, SIGNAL(activated(int)), this, SLOT(updatePointSizes()));
+    connect(d_ptr->ui.exportButton, SIGNAL(clicked()), this, SLOT(exportColorScheme()));
     connect(d_ptr->ui.editButton, SIGNAL(clicked()), this, SLOT(editColorScheme()));
 
     updatePointSizes();
+    refreshColorSchemeList();
     d_ptr->m_lastValue = d_ptr->m_value;
     return w;
 }
@@ -264,6 +268,28 @@ void FontSettingsPage::updatePointSizes()
         d_ptr->ui.sizeComboBox->setCurrentIndex(idx);
 }
 
+void FontSettingsPage::importColorScheme()
+{
+    QString fn = QFileDialog::getOpenFileName(d_ptr->ui.importButton->window(),
+                                              tr("Import Color Scheme"),
+                                              QString(),
+                                              tr("Color Schemes (*.xml)"));
+    if (fn.isEmpty())
+        return;
+
+    // Open color scheme and save it in the schemes directory
+}
+
+void FontSettingsPage::exportColorScheme()
+{
+    QString fn = QFileDialog::getSaveFileName(d_ptr->ui.exportButton->window(),
+                                              tr("Export Color Scheme"),
+                                              QString(),
+                                              tr("Color Schemes (*.xml)"));
+    if (!fn.isEmpty())
+        d_ptr->m_value.colorScheme().save(fn);
+}
+
 void FontSettingsPage::editColorScheme()
 {
     d_ptr->m_value.setFamily(d_ptr->ui.familyComboBox->currentText());
@@ -281,6 +307,23 @@ void FontSettingsPage::editColorScheme()
 
     if (dialog.exec() == QDialog::Accepted)
         d_ptr->m_value.setColorScheme(dialog.colorScheme());
+}
+
+void FontSettingsPage::refreshColorSchemeList()
+{
+    d_ptr->ui.schemeListWidget->clear();
+
+    QString resourcePath = Core::ICore::instance()->resourcePath();
+    QDir styleDir(resourcePath + QLatin1String("/styles"));
+    styleDir.setNameFilters(QStringList() << QLatin1String("*.xml"));
+    styleDir.setFilter(QDir::Files);
+
+    foreach (const QString &file, styleDir.entryList()) {
+        // TODO: Read the name of the style
+        QListWidgetItem *item = new QListWidgetItem(file);
+        item->setData(Qt::UserRole, styleDir.absoluteFilePath(file));
+        d_ptr->ui.schemeListWidget->addItem(item);
+    }
 }
 
 void FontSettingsPage::delayedChange()

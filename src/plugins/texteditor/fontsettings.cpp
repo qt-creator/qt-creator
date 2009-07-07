@@ -31,6 +31,7 @@
 #include "fontsettingspage.h"
 
 #include <utils/qtcassert.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
 #include <QtGui/QTextCharFormat>
@@ -38,6 +39,7 @@
 static const char *fontFamilyKey = "FontFamily";
 static const char *fontSizeKey = "FontSize";
 static const char *antialiasKey = "FontAntialias";
+static const char *schemeFileNameKey = "ColorScheme";
 
 namespace {
 static const bool DEFAULT_ANTIALIAS = true;
@@ -88,6 +90,9 @@ void FontSettings::toSettings(const QString &category,
     if (m_antialias != DEFAULT_ANTIALIAS || s->contains(QLatin1String(antialiasKey)))
         s->setValue(QLatin1String(antialiasKey), m_antialias);
 
+    if (m_schemeFileName != defaultSchemeFileName() || s->contains(QLatin1String(schemeFileNameKey)))
+        s->setValue(QLatin1String(schemeFileNameKey), m_schemeFileName);
+#if 0
     const Format defaultFormat;
 
     foreach (const FormatDescription &desc, descriptions) {
@@ -98,6 +103,7 @@ void FontSettings::toSettings(const QString &category,
                 s->setValue(name, f.toString());
         }
     }
+#endif
     s->endGroup();
 }
 
@@ -116,7 +122,10 @@ bool FontSettings::fromSettings(const QString &category,
     m_family = s->value(group + QLatin1String(fontFamilyKey), defaultFixedFontFamily()).toString();
     m_fontSize = s->value(group + QLatin1String(fontSizeKey), m_fontSize).toInt();
     m_antialias = s->value(group + QLatin1String(antialiasKey), DEFAULT_ANTIALIAS).toBool();
+    m_schemeFileName = s->value(group + QLatin1String(schemeFileNameKey), defaultSchemeFileName()).toString();
 
+    m_scheme.load(m_schemeFileName);
+#if 0
     foreach (const FormatDescription &desc, descriptions) {
         const QString name = desc.name();
         const QString fmt = s->value(group + name, QString()).toString();
@@ -131,17 +140,22 @@ bool FontSettings::fromSettings(const QString &category,
         }
         m_scheme.setFormatFor(name, format);
     }
+#endif
     return true;
 }
 
 bool FontSettings::equals(const FontSettings &f) const
 {
     return m_family == f.m_family
+            && m_schemeFileName == f.m_schemeFileName
             && m_fontSize == f.m_fontSize
             && m_antialias == f.m_antialias
             && m_scheme == f.m_scheme;
 }
 
+/**
+ * Returns the QTextCharFormat of the given format category.
+ */
 QTextCharFormat FontSettings::toTextCharFormat(const QString &category) const
 {
     const Format &f = m_scheme.formatFor(category);
@@ -164,6 +178,10 @@ QTextCharFormat FontSettings::toTextCharFormat(const QString &category) const
     return tf;
 }
 
+/**
+ * Returns the list of QTextCharFormats that corresponds to the list of
+ * requested format categories.
+ */
 QVector<QTextCharFormat> FontSettings::toTextCharFormats(const QVector<QString> &categories) const
 {
     QVector<QTextCharFormat> rc;
@@ -174,6 +192,9 @@ QVector<QTextCharFormat> FontSettings::toTextCharFormats(const QVector<QString> 
     return rc;
 }
 
+/**
+ * Returns the configured font family.
+ */
 QString FontSettings::family() const
 {
     return m_family;
@@ -184,6 +205,9 @@ void FontSettings::setFamily(const QString &family)
     m_family = family;
 }
 
+/**
+ * Returns the configured font size.
+ */
 int FontSettings::fontSize() const
 {
     return m_fontSize;
@@ -194,6 +218,9 @@ void FontSettings::setFontSize(int size)
     m_fontSize = size;
 }
 
+/**
+ * Returns the configured antialiasing behavior.
+ */
 bool FontSettings::antialias() const
 {
     return m_antialias;
@@ -204,10 +231,38 @@ void FontSettings::setAntialias(bool antialias)
     m_antialias = antialias;
 }
 
-
+/**
+ * Returns the format for the given font category.
+ */
 Format &FontSettings::formatFor(const QString &category)
 {
     return m_scheme.formatFor(category);
+}
+
+/**
+ * Returns the file name of the currently selected color scheme.
+ */
+QString FontSettings::colorSchemeFileName() const
+{
+    return m_schemeFileName;
+}
+
+void FontSettings::setColorSchemeFileName(const QString &fileName)
+{
+    m_schemeFileName = fileName;
+}
+
+/**
+ * Returns the currently active color scheme.
+ */
+ColorScheme FontSettings::colorScheme() const
+{
+    return m_scheme;
+}
+
+void FontSettings::setColorScheme(const ColorScheme &scheme)
+{
+    m_scheme = scheme;
 }
 
 QString FontSettings::defaultFixedFontFamily()
@@ -224,6 +279,13 @@ QString FontSettings::defaultFixedFontFamily()
 int FontSettings::defaultFontSize()
 {
     return DEFAULT_FONT_SIZE;
+}
+
+QString FontSettings::defaultSchemeFileName()
+{
+    QString fileName = Core::ICore::instance()->resourcePath();
+    fileName += QLatin1String("/styles/default.xml");
+    return fileName;
 }
 
 } // namespace TextEditor

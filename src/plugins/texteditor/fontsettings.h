@@ -69,45 +69,25 @@ public:
                       const FormatDescriptions &descriptions,
                       const QSettings *s);
 
-    /**
-     * Returns the list of QTextCharFormats that corresponds to the list of
-     * requested format categories.
-     */
     QVector<QTextCharFormat> toTextCharFormats(const QVector<QString> &categories) const;
-
-    /**
-     * Returns the QTextCharFormat of the given format category.
-     */
     QTextCharFormat toTextCharFormat(const QString &category) const;
 
-    /**
-     * Returns the configured font family.
-     */
     QString family() const;
     void setFamily(const QString &family);
 
-    /**
-     * Returns the configured font size.
-     */
     int fontSize() const;
     void setFontSize(int size);
 
-    /**
-     * Returns the configured antialiasing behavior.
-     */
     bool antialias() const;
     void setAntialias(bool antialias);
 
-    /**
-     * Returns the format for the given font category.
-     */
     Format &formatFor(const QString &category);
 
-    ColorScheme colorScheme() const
-    { return m_scheme; }
+    QString colorSchemeFileName() const;
+    void setColorSchemeFileName(const QString &fileName);
 
-    void setColorScheme(const ColorScheme &scheme)
-    { m_scheme = scheme; }
+    ColorScheme colorScheme() const;
+    void setColorScheme(const ColorScheme &scheme);
 
     bool equals(const FontSettings &f) const;
 
@@ -115,7 +95,10 @@ public:
     static int defaultFontSize();
 
 private:
+    static QString defaultSchemeFileName();
+
     QString m_family;
+    QString m_schemeFileName;
     int m_fontSize;
     bool m_antialias;
     ColorScheme m_scheme;

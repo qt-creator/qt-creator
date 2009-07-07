@@ -29,6 +29,8 @@
 
 #include "colorscheme.h"
 
+#include "texteditorconstants.h"
+
 #include <QtCore/QFile>
 #include <QtXml/QXmlStreamWriter>
 
@@ -161,12 +163,15 @@ bool ColorScheme::save(const QString &fileName)
     w.writeStartElement(QLatin1String("style-scheme"));
     w.writeAttribute(QLatin1String("version"), QLatin1String("1.0"));
 
+    Format textFormat = formatFor(QLatin1String(Constants::C_TEXT));
+
     QMapIterator<QString, Format> i(m_formats);
     while (i.hasNext()) {
         const Format &format = i.next().value();
         w.writeStartElement(QLatin1String("style"));
         w.writeAttribute(QLatin1String("name"), i.key());
-        w.writeAttribute(QLatin1String("foreground"), format.foreground().name().toLower());
+        if (i.key() == QLatin1String(Constants::C_TEXT) || format.foreground() != textFormat.foreground())
+            w.writeAttribute(QLatin1String("foreground"), format.foreground().name().toLower());
         if (format.background().isValid())
             w.writeAttribute(QLatin1String("background"), format.background().name().toLower());
         if (format.bold())
@@ -182,8 +187,108 @@ bool ColorScheme::save(const QString &fileName)
     return true;
 }
 
+namespace {
+
+class ColorSchemeReader : public QXmlStreamReader
+{
+public:
+    ColorSchemeReader(ColorScheme *scheme) :
+        m_scheme(scheme)
+    {}
+
+    bool read(const QString &fileName);
+
+private:
+    void readUnknownElement();
+    void readStyleScheme();
+    void readStyle();
+
+    ColorScheme *m_scheme;
+};
+
+bool ColorSchemeReader::read(const QString &fileName)
+{
+    m_scheme->clear();
+
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+        return false;
+
+    setDevice(&file);
+
+    while (readNext() != Invalid) {
+        if (isStartElement()) {
+            if (name() == QLatin1String("style-scheme"))
+                readStyleScheme();
+            else
+                raiseError(QObject::tr("Not a color scheme file."));
+        }
+    }
+
+    return true;
+}
+
+void ColorSchemeReader::readUnknownElement()
+{
+    Q_ASSERT(isStartElement());
+
+    while (!atEnd()) {
+        readNext();
+        if (isEndElement())
+            break;
+        else if (isStartElement())
+            readUnknownElement();
+    }
+}
+
+void ColorSchemeReader::readStyleScheme()
+{
+    Q_ASSERT(isStartElement() && name() == QLatin1String("style-scheme"));
+
+    while (readNext() != Invalid) {
+        if (isEndElement()) {
+            break;
+        } else if (isStartElement()) {
+            if (name() == QLatin1String("style"))
+                readStyle();
+            else
+                readUnknownElement();
+        }
+    }
+}
+
+void ColorSchemeReader::readStyle()
+{
+    Q_ASSERT(isStartElement() && name() == QLatin1String("style"));
+
+    const QXmlStreamAttributes attr = attributes();
+    QString name = attr.value(QLatin1String("name")).toString();
+    QString foreground = attr.value(QLatin1String("foreground")).toString();
+    QString background = attr.value(QLatin1String("background")).toString();
+    bool bold = attr.value(QLatin1String("bold")) == QLatin1String(trueString);
+    bool italic = attr.value(QLatin1String("italic")) == QLatin1String(trueString);
+
+    Format format;
+    format.setForeground(stringToColor(foreground));
+    format.setBackground(stringToColor(background));
+    format.setBold(bold);
+    format.setItalic(italic);
+
+    m_scheme->setFormatFor(name, format);
+
+    while (readNext() != Invalid) {
+        if (isEndElement())
+            break;
+        else if (isStartElement())
+            readUnknownElement();
+    }
+}
+
+} // anonymous namespace
+
+
 bool ColorScheme::load(const QString &fileName)
 {
-    Q_UNUSED(fileName)
-    return false;
+    ColorSchemeReader reader(this);
+    return reader.read(fileName) && !reader.hasError();
 }
