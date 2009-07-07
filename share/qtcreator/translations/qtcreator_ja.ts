@@ -1914,7 +1914,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+2"/>
         <source>You can force code completion at any time using &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
-        <translation>&lt;tt&gt;Ctrl+Space&lt;/tt&gt;を押せば任意のタイミングでコード補間を開始することができます。</translation>
+        <translation>&lt;tt&gt;Ctrl+Space&lt;/tt&gt;を押せば任意のタイミングでコード補完を開始することができます。</translation>
     </message>
 </context>
 <context>
@@ -1974,7 +1974,7 @@ Would you like to overwrite them?</source>
     <message>
         <location/>
         <source>Create New Project...</source>
-        <translation>新しいセッションの作成...</translation>
+        <translation>新しいプロジェクトの作成...</translation>
     </message>
     <message>
         <location/>
@@ -11070,7 +11070,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+114"/>
         <location line="+20"/>
         <source>%1 found</source>
-        <translation>%1 件 見つかりました</translation>
+        <translation>一致 %1 件</translation>
     </message>
     <message>
         <location line="+12"/>
