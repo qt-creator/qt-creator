@@ -84,7 +84,7 @@ void FileWatcher::addFile(const QString &file)
     const int count = ++m_fileCount[file];
     Q_ASSERT(count > 0);
 
-    m_files.insert(file, QDateTime());
+    m_files.insert(file, QFileInfo(file).lastModified());
 
     if (count == 1)
         m_watcher->addPath(file);
