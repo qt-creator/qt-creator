@@ -178,6 +178,8 @@ class FindUses: protected ASTVisitor
         }
     };
 
+    FindScope findScope;
+
 public:
     FindUses(Control *control)
         : ASTVisitor(control)
@@ -246,8 +248,6 @@ protected:
         unsigned line, column;
         getTokenStartPosition(ast->firstToken(), &line, &column);
 
-        FindScope findScope;
-
         Scope *scope = findScope(line, column,
                                  _functionScope->owner(),
                                  translationUnit());
@@ -279,8 +279,6 @@ protected:
     {
         unsigned line, column;
         getTokenStartPosition(ast->firstToken(), &line, &column);
-
-        FindScope findScope;
 
         Scope *scope = findScope(line, column,
                                  _functionScope->owner(),
