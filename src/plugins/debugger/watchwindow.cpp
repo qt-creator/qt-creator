@@ -213,27 +213,34 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     int individualFormat = 
         model()->data(mi0, IndividualFormatRole).toInt();
 
-    QMenu typeFormatMenu(tr("Change format for type '%1'").arg(type));
-    QMenu individualFormatMenu(tr("Change format for expression '%1'").arg(exp));
+    QMenu typeFormatMenu;
+    QMenu individualFormatMenu;
     QList<QAction *> typeFormatActions;
     QList<QAction *> individualFormatActions;
-    for (int i = 0; i != alternativeFormats.size(); ++i) {
-        const QString format = alternativeFormats.at(i);
-        QAction *act = new QAction(format, &typeFormatMenu);
-        act->setCheckable(true);
-        if (i == typeFormat)
-            act->setChecked(true);
-        typeFormatMenu.addAction(act);
-        typeFormatActions.append(act);
-        act = new QAction(format, &individualFormatMenu);
-        act->setCheckable(true);
-        if (i == individualFormat)
-            act->setChecked(true);
-        individualFormatMenu.addAction(act);
-        individualFormatActions.append(act);
+    if (idx.isValid()) {
+        typeFormatMenu.setTitle(tr("Change format for type '%1'").arg(type));
+        individualFormatMenu.setTitle(tr("Change format for expression '%1'").arg(exp));
+        for (int i = 0; i != alternativeFormats.size(); ++i) {
+            const QString format = alternativeFormats.at(i);
+            QAction *act = new QAction(format, &typeFormatMenu);
+            act->setCheckable(true);
+            if (i == typeFormat)
+                act->setChecked(true);
+            typeFormatMenu.addAction(act);
+            typeFormatActions.append(act);
+            act = new QAction(format, &individualFormatMenu);
+            act->setCheckable(true);
+            if (i == individualFormat)
+                act->setChecked(true);
+            individualFormatMenu.addAction(act);
+            individualFormatActions.append(act);
+        }
+    } else {
+        typeFormatMenu.setTitle(tr("Change format for type"));
+        typeFormatMenu.setEnabled(false);
+        individualFormatMenu.setTitle(tr("Change format for expression"));
+        individualFormatMenu.setEnabled(false);
     }
-    //typeFormatMenu.setActive(!alternativeFormats.isEmpty());
-    //individualFormatMenu.setActive(!alternativeFormats.isEmpty());
 
     QMenu menu;
     QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
