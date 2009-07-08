@@ -11688,7 +11688,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/texteditoractionhandler.cpp" line="+117"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Annu&amp;ler</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -11698,17 +11698,17 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+13"/>
         <source>Select Encoding...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir l&apos;encodage...</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Auto-&amp;indent Selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Indenter automatiquement la sélection</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+I</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+I</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -11723,7 +11723,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+5"/>
         <source>Clean Whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nettoyer les espaces</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -11931,12 +11931,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+1"/>
         <source>Line Number</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Numéro de ligne</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Search Result</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Résultat de la recherche</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11946,109 +11946,109 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+1"/>
         <source>Parentheses</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parenthèses</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Current Line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ligne courrante</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Current Line Number</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Numéro de la ligne courrante</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Number</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>String</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Chaîne de caractères</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Type</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Keyword</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mot clé</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Operator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Opérateur</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Preprocessor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Préprocesseur</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Label</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Label</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Comment</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commentaire</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Doxygen Comment</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commentaire Doxygen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Doxygen Tag</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tag Doxygen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Disabled Code</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Code désactivé</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Added Line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ligne ajouté</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Removed Line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ligne supprimée</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Diff File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier Diff</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Diff Location</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Emplacement du Diff</translation>
     </message>
     <message>
         <location line="+4"/>
         <location line="+8"/>
         <location line="+8"/>
         <source>Text Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Éditeur de texte</translation>
     </message>
     <message>
         <location line="-10"/>
         <source>Behavior</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comportement</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Affichage</translation>
     </message>
 </context>
 <context>
@@ -12056,17 +12056,17 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/projectexplorer/toolchain.cpp" line="+120"/>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Autre</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&lt;Invalid&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Invalide&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>&lt;Unknown&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Inconnu&gt;</translation>
     </message>
 </context>
 <context>
@@ -12074,27 +12074,27 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/shared/help/topicchooser.ui"/>
         <source>Choose Topic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisissez le thème</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Topics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Thèmes</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Display</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Afficher</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Fermer</translation>
     </message>
     <message>
         <location filename="../../../src/shared/help/topicchooser.cpp" line="+42"/>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisissez un thème pour &lt;b&gt;%1&lt;/b&gt; :</translation>
     </message>
 </context>
 <context>
@@ -12102,12 +12102,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseconstants.h" line="+38"/>
         <source>Version Control</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestion de versions</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Common</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commun</translation>
     </message>
 </context>
 <context>
@@ -12115,27 +12115,27 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/nicknamedialog.cpp" line="+217"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>E-mail</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Email</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Alias</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alias</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Alias e-mail</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alias de l&apos;email</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Cannot open &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
     </message>
 </context>
 <context>
@@ -12143,12 +12143,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/submitfilemodel.cpp" line="+43"/>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">État</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier</translation>
     </message>
 </context>
 <context>
@@ -12156,7 +12156,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseeditor.cpp" line="+325"/>
         <source>Describe change %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Decrivez le changement %1</translation>
     </message>
 </context>
 <context>
@@ -12164,12 +12164,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbasesubmiteditor.cpp" line="+136"/>
         <source>Check message</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Message</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Insert name...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Inserez nom...</translation>
     </message>
     <message>
         <location line="+313"/>
@@ -12184,22 +12184,22 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+28"/>
         <source>Unable to open &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The check script &apos;%1&apos; could not be started: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le script de vérification &apos;%1&apos; ne peut pas être démarré: %2</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The check script &apos;%1&apos; could not be run: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le script de vérification &apos;%1&apos; ne peut pas être exécuté: %2</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>The check script returned exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le script de vérification a retourné le code %1.</translation>
     </message>
 </context>
 <context>
@@ -12207,43 +12207,44 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbasesettingspage.ui"/>
         <source>Common</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commun</translation>
     </message>
     <message>
         <location/>
         <source>Wrap submit message at:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Limiter la largeur du message à :</translation>
     </message>
     <message>
         <location/>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Un fichier exécutable qui est appelé avec comme premier argument le message dans un fichier temporaire. Pour indiquer une erreur, il doit se terminer avec un code != 0 et un message sur la sortie d&apos;erreur standard.</translation>
     </message>
     <message>
         <location/>
         <source>Submit message check script:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Script de vérification du message :</translation>
     </message>
     <message>
         <location/>
         <source>A file listing user names and email addresses in a 4-column mailmap format:
 name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Un fichier listant les noms d&apos;utilisateur et leur adresse email dans le format 4 colonnes de mailmap :
+nom &lt;email&gt; alias &lt;/email&gt;</translation>
     </message>
     <message>
         <location/>
         <source>User/alias configuration file:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier de configuration des alias utilisateur :</translation>
     </message>
     <message>
         <location/>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Un fichier texte contenant des lignes contenant des champs tels que &quot;Reviewed-By:&quot;, qui sont ajouté à la fin dans l&apos;éditeur de message.</translation>
     </message>
     <message>
         <location/>
         <source>User fields configuration file:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier de configuration des champs utilisateurs :</translation>
     </message>
 </context>
 <context>
@@ -12251,13 +12252,14 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location filename="../../../src/plugins/coreplugin/vcsmanager.cpp" line="+132"/>
         <source>Version Control</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestion de versions</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Would you like to remove this file from the version control system (%1)?
 Note: This might remove the local file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Voulez-vous retirer ce fichier du système de gestion de versions (%1)?
+Note: Ceci peut supprimer le fichier sur le disque</translation>
     </message>
 </context>
 <context>
@@ -12265,13 +12267,13 @@ Note: This might remove the local file.</source>
     <message>
         <location filename="../../../src/shared/cpaster/view.cpp" line="+89"/>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Coller</translation>
     </message>
     <message>
         <location line="+11"/>
         <location line="+41"/>
         <source>&lt;Username&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Utilisateur&gt;</translation>
     </message>
     <message>
         <location line="-33"/>
@@ -12283,7 +12285,7 @@ Note: This might remove the local file.</source>
         <location line="-30"/>
         <location line="+35"/>
         <source>&lt;Comment&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Commentaire&gt;</translation>
     </message>
 </context>
 <context>
@@ -12291,17 +12293,17 @@ Note: This might remove the local file.</source>
     <message>
         <location filename="../../../src/shared/cpaster/view.ui"/>
         <source>Send to Codepaster</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Envoyer sur Codepaster</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Username:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Utilisateur:</translation>
     </message>
     <message>
         <location/>
         <source>&lt;Username&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Utilisateur&gt;</translation>
     </message>
     <message>
         <location/>
@@ -12324,7 +12326,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Parts to send to codepaster</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fragments envoyés sur codepaster</translation>
     </message>
     <message>
         <location/>
