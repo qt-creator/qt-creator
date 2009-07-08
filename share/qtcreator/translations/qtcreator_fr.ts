@@ -7,7 +7,7 @@
         <location filename="../../../src/app/main.cpp" line="+133"/>
         <source>Failed to load core: %1</source>
         <translatorcomment>traduire core ?</translatorcomment>
-        <translation type="unfinished">Échec dans le chargement de core: %1</translation>
+        <translation type="unfinished">Échec dans le chargement de core : %1</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -759,7 +759,7 @@
     <message>
         <location/>
         <source>Automatically insert (, ) and ; when appropriate.</source>
-        <translation type="unfinished">Insérer (, ) et ; si approprié.</translation>
+        <translation type="unfinished">Insérer (, ) et; si approprié.</translation>
     </message>
     <message>
         <location/>
@@ -800,12 +800,12 @@
     <message>
         <location line="+7"/>
         <source>Unable to open %1 for writing: %2</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir %1 pour écrire : %2</translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir %1 pour écrire : %2</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Error while writing to %1: %2</source>
-        <translation type="unfinished">Erreur pendant l&apos;écriture de %1: %2</translation>
+        <translation type="unfinished">Erreur pendant l&apos;écriture de %1 : %2</translation>
     </message>
     <message>
         <location line="+296"/>
@@ -2578,7 +2578,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+842"/>
         <source>%1: No such file or directory</source>
-        <translation type="unfinished">%1 : Aucun fichier ou répertoire de ce type</translation>
+        <translation type="unfinished">%1 : Aucun fichier ou répertoire de ce type</translation>
     </message>
 </context>
 <context>
@@ -11311,12 +11311,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+3718"/>
         <source>Line: %1, Col: %2</source>
-        <translation type="unfinished">Ligne : %1, Col : %2</translation>
+        <translation type="unfinished">Ligne : %1, Col : %2</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line: %1, Col: 999</source>
-        <translation type="unfinished">Ligne : %1, Col: 999</translation>
+        <translation type="unfinished">Ligne : %1, Col : 999</translation>
     </message>
 </context>
 <context>
@@ -12135,7 +12135,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+15"/>
         <source>Cannot open &apos;%1&apos;: %2</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
     </message>
 </context>
 <context>
@@ -12184,17 +12184,17 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+28"/>
         <source>Unable to open &apos;%1&apos;: %2</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir &apos;%1&apos;: %2</translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The check script &apos;%1&apos; could not be started: %2</source>
-        <translation type="unfinished">Le script de vérification &apos;%1&apos; ne peut pas être démarré: %2</translation>
+        <translation type="unfinished">Le script de vérification &apos;%1&apos; ne peut pas être démarré : %2</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The check script &apos;%1&apos; could not be run: %2</source>
-        <translation type="unfinished">Le script de vérification &apos;%1&apos; ne peut pas être exécuté: %2</translation>
+        <translation type="unfinished">Le script de vérification &apos;%1&apos; ne peut pas être exécuté : %2</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -12217,7 +12217,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location/>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="unfinished">Un fichier exécutable qui est appelé avec comme premier argument le message dans un fichier temporaire. Pour indiquer une erreur, il doit se terminer avec un code != 0 et un message sur la sortie d&apos;erreur standard.</translation>
+        <translation type="unfinished">Un fichier exécutable qui est appelé avec comme premier argument le message dans un fichier temporaire. Pour indiquer une erreur, il doit se terminer avec un code != 0 et un message sur la sortie d&apos;erreur standard.</translation>
     </message>
     <message>
         <location/>
