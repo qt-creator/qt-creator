@@ -938,7 +938,7 @@ static void highlightUses(QTextDocument *doc,
             QTextEdit::ExtraSelection sel;
             sel.cursor = QTextCursor(doc);
             sel.cursor.setPosition(doc->findBlockByNumber(startLine - 1).position() + startColumn - 1);
-            sel.cursor.setPosition(doc->findBlockByLineNumber(endLine - 1).position() + endColumn - 1,
+            sel.cursor.setPosition(doc->findBlockByNumber(endLine - 1).position() + endColumn - 1,
                                    QTextCursor::KeepAnchor);
             sel.format = format;
 
