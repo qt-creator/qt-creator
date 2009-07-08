@@ -999,12 +999,35 @@ void testQVectorOfQList()
 }
 
 
+class Goo
+{
+public:
+   Goo(const QString& str, const int n) :
+           str_(str), n_(n)
+   {
+   }
+private:
+   QString str_;
+   int n_;
+};
+
+typedef QList<Goo> GooList;
+
 void testNoArgumentName(int i, int, int k)
 {
+    GooList list;
+    list.append(Goo("Hello", 1));
+    list.append(Goo("World", 2));
+
+    QList<Goo> list2;
+    list2.append(Goo("Hello", 1));
+    list2.append(Goo("World", 2));
+
     i = 1000;
     k = 2000;
     ++k;
     ++k;
+
 }
 
 void foo() {}

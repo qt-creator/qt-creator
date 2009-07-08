@@ -75,6 +75,16 @@ static const char jsont1[] =
     "{\"Size\":100564,\"UID\":0,\"GID\":0,\"Permissions\":33261,"
      "\"ATime\":1242370878000,\"MTime\":1239154689000}";
 
+struct Int3 {
+    Int3() { i1 = 42; i2 = 43; i3 = 44; }
+    int i1, i2, i3;
+};
+
+struct QString3 {
+    QString3() { s1 = "a"; s2 = "b"; s3 = "c"; }
+    QString s1, s2, s3;
+};
+
 class tst_Debugger : public QObject
 {
     Q_OBJECT
@@ -114,6 +124,7 @@ private slots:
 
     void dumperCompatibility();
     void dumpQHash();
+    void dumpQList();
     void dumpQObject();
     void dumpQString();
     void dumpQVariant();
@@ -388,6 +399,76 @@ void tst_Debugger::dumpQHash()
     hash.insert("!", QList<int>() << 1 << 2);
 }
 
+void tst_Debugger::dumpQList()
+{
+    QList<int> ilist;
+    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+        "internal='1',childtype='int',children=[]",
+        &ilist, NS"QList", true, "int");
+    ilist.append(1);
+    ilist.append(2);
+    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+        "internal='1',childtype='int',children=["
+        "{name='0',addr='" + str(&ilist.at(0)) + "',value='1'},"
+        "{name='1',addr='" + str(&ilist.at(1)) + "',value='2'}],"
+        "childnumchild='0'",
+        &ilist, NS"QList", true, "int");
+
+    QList<char> clist;
+    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+        "internal='1',childtype='char',children=[]",
+        &clist, NS"QList", true, "char");
+    clist.append('a');
+    clist.append('b');
+    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+        "internal='1',childtype='char',children=["
+        "{name='0',addr='" + str(&clist.at(0)) + "',"
+            "value=''a', ascii=97',numchild='0'},"
+        "{name='1',addr='" + str(&clist.at(1)) + "',"
+            "value=''b', ascii=98',numchild='0'}],"
+        "childnumchild='0'",
+        &clist, NS"QList", true, "char");
+
+    QList<QString> slist;
+    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+        "internal='1',childtype='QString',children=[]",
+        &slist, NS"QList", true, "QString");
+    slist.append("a");
+    slist.append("b");
+    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+        "internal='1',childtype='QString',children=["
+        "{name='0',addr='" + str(&slist.at(0)) + "',"
+            "value='YQA=',valueencoded='2'},"
+        "{name='1',addr='" + str(&slist.at(1)) + "',"
+            "value='YgA=',valueencoded='2'}],"
+        "childnumchild='0'",
+        &slist, NS"QList", true, "QString");
+
+    QList<Int3> i3list;
+    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+        "internal='0',childtype='Int3',children=[]",
+        &i3list, NS"QList", true, "Int3");
+    i3list.append(Int3());
+    i3list.append(Int3());
+    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+        "internal='0',childtype='Int3',children=["
+        "{name='0',addr='" + str(&i3list.at(0)) + "'},"
+        "{name='1',addr='" + str(&i3list.at(1)) + "'}]",
+        &i3list, NS"QList", true, "Int3");
+
+    QList<QString3> s3list;
+    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+        "internal='0',childtype='QString3',children=[]",
+        &s3list, NS"QList", true, "QString3");
+    s3list.append(QString3());
+    s3list.append(QString3());
+    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+        "internal='0',childtype='QString3',children=["
+        "{name='0',addr='" + str(&s3list.at(0)) + "'},"
+        "{name='1',addr='" + str(&s3list.at(1)) + "'}]",
+        &s3list, NS"QList", true, "QString3");
+}
+
 void tst_Debugger::dumpQObject()
 {
     QObject parent;
@@ -402,7 +483,7 @@ void tst_Debugger::dumpQObject()
             "value='<2 items>',numchild='2'},"
         "{name='slots',exp='*(class '$T'*)$A',type='$TSlotList',"
             "value='<2 items>',numchild='2'},"
-        "{name='parent',value='0x0',type='$T *'},"
+        "{name='parent',value='0x0',type='$T *',numchild='0'},"
         "{name='className',value='QObject',type='',numchild='0'}]",
         &parent, NS"QObject", true);
 /*
@@ -432,7 +513,7 @@ void tst_Debugger::dumpQObject()
             "value='<2 items>',numchild='2'},"
         "{name='parent',addr='" + str(&parent) + "',"
             "value='QQAgAFAAYQByAGUAbgB0AA==',valueencoded='2',type='$T',"
-            "displayedtype='QObject'},"
+            "displayedtype='QObject',numchild='1'},"
         "{name='className',value='QObject',type='',numchild='0'}]";
     testDumper(ba, &child, NS"QObject", true);
     QObject::connect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
