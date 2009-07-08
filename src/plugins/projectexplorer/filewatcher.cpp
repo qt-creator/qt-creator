@@ -71,10 +71,7 @@ void FileWatcher::slotFileChanged(const QString &file)
         QDateTime lastModified = QFileInfo(file).lastModified();
         if (lastModified != m_files.value(file)) {
             m_files[file] = lastModified;
-            qDebug() << "slotFileChanged" << file << lastModified;
             emit fileChanged(file);
-        } else {
-            qDebug() << "WTF:" << file<<lastModified.toString()<<lastModified.toTime_t();
         }
     }
 }
