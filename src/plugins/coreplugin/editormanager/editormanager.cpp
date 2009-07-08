@@ -840,7 +840,7 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
     }
 }
 
-IEditor *EditorManager::pickUnusedEditor() const
+Core::IEditor *EditorManager::pickUnusedEditor() const
 {
     foreach (IEditor *editor, m_d->m_editorHistory) {
         SplitterOrView *view = m_d->m_splitter->findView(editor);
@@ -851,19 +851,18 @@ IEditor *EditorManager::pickUnusedEditor() const
 }
 
 
-void EditorManager::activateEditor(const QModelIndex &index, Internal::EditorView *view, OpenEditorFlags flags)
+Core::IEditor *EditorManager::activateEditor(const QModelIndex &index, Internal::EditorView *view, OpenEditorFlags flags)
 {
     IEditor *editor = index.data(Qt::UserRole).value<IEditor*>();
     if (editor)  {
-        activateEditor(view, editor, flags);
-        return;
+        return activateEditor(view, editor, flags);
     }
     if (view)
         setCurrentView(m_d->m_splitter->findView(view));
 
     QString fileName = index.data(Qt::UserRole + 1).toString();
     QByteArray kind = index.data(Qt::UserRole + 2).toByteArray();
-    openEditor(fileName, kind, flags);
+    return openEditor(fileName, kind, flags);
 }
 
 Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core::IEditor *editor)
@@ -893,21 +892,22 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
     return editor;
 }
 
-void EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
+Core::IEditor *EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
 {
-    activateEditor(0, editor, flags);
+    return activateEditor(0, editor, flags);
 }
 
-void EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags)
+Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags)
 {
     if (!view)
         view = currentView()->view();
 
     Q_ASSERT(view);
 
-    if (!editor && !m_d->m_currentEditor) {
-        setCurrentEditor(0, (flags & IgnoreNavigationHistory));
-        return;
+    if (!editor) {
+        if (!m_d->m_currentEditor)
+            setCurrentEditor(0, (flags & IgnoreNavigationHistory));
+        return 0;
     }
 
     editor = placeEditor(view, editor);
@@ -917,6 +917,7 @@ void EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEdit
         ensureEditorManagerVisible();
         editor->widget()->setFocus();
     }
+    return editor;
 }
 
 /* For something that has a 'QStringList mimeTypes' (IEditorFactory
@@ -1132,8 +1133,7 @@ IEditor *EditorManager::openEditor(const QString &fileName, const QString &edito
 
     const QList<IEditor *> editors = editorsForFileName(fileName);
     if (!editors.isEmpty()) {
-        activateEditor(editors.first(), flags);
-        return editors.first();
+        return activateEditor(editors.first(), flags);
     }
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     IEditor *editor = createEditor(editorKind, fileName);
@@ -1148,8 +1148,7 @@ IEditor *EditorManager::openEditor(const QString &fileName, const QString &edito
     restoreEditorState(editor);
     QApplication::restoreOverrideCursor();
 
-    activateEditor(editor, flags);
-    return editor;
+    return activateEditor(editor, flags);
 }
 
 bool EditorManager::openExternalEditor(const QString &fileName, const QString &editorKind)
@@ -1641,7 +1640,7 @@ QByteArray EditorManager::saveState() const
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::WriteOnly);
 
-    stream << QByteArray("EditorManagerV2");
+    stream << QByteArray("EditorManagerV4");
 
     QList<IEditor *> editors = openedEditors();
     foreach (IEditor *editor, editors) {
@@ -1657,13 +1656,12 @@ QByteArray EditorManager::saveState() const
     QList<OpenEditorsModel::Entry> entries = m_d->m_editorModel->entries();
     stream << entries.count();
 
-    if (IEditor *current = m_d->m_currentEditor) // current first
-        stream << current->file()->fileName() << current->displayName() << QByteArray(current->kind());
     foreach (OpenEditorsModel::Entry entry, entries) {
-        if (entry.editor && entry.editor == m_d->m_currentEditor) // all but current
-            continue;
         stream << entry.fileName() << entry.displayName() << entry.kind();
     }
+
+    stream << m_d->m_splitter->saveState();
+
     return bytes;
 }
 
@@ -1676,7 +1674,7 @@ bool EditorManager::restoreState(const QByteArray &state)
     QByteArray version;
     stream >> version;
 
-    if (version != "EditorManagerV2")
+    if (version != "EditorManagerV4")
         return false;
 
     QMap<QString, QVariant> editorstates;
@@ -1684,6 +1682,7 @@ bool EditorManager::restoreState(const QByteArray &state)
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     stream >> editorstates;
+
     QMapIterator<QString, QVariant> i(editorstates);
     while (i.hasNext()) {
         i.next();
@@ -1691,7 +1690,6 @@ bool EditorManager::restoreState(const QByteArray &state)
     }
 
     int editorCount = 0;
-    IEditor *toActivate = 0;
     stream >> editorCount;
     while (--editorCount >= 0) {
         QString fileName;
@@ -1701,15 +1699,26 @@ bool EditorManager::restoreState(const QByteArray &state)
         QByteArray kind;
         stream >> kind;
 
-        if (!toActivate) {
-            toActivate = openEditor(fileName, kind, IgnoreNavigationHistory | NoActivate);
-        } else if (!fileName.isEmpty() && !displayName.isEmpty()){
+        if (!fileName.isEmpty() && !displayName.isEmpty()){
             m_d->m_editorModel->addRestoredEditor(fileName, displayName, kind);
         }
     }
 
-    if (toActivate)
-        activateEditor(toActivate);
+    QByteArray splitterstates;
+    stream >> splitterstates;
+    m_d->m_splitter->restoreState(splitterstates);
+
+    // splitting and stuff results in focus trouble, that's why we set the focus again after restoration
+    ensureEditorManagerVisible();
+    if (m_d->m_currentEditor) {
+        m_d->m_currentEditor->widget()->setFocus();
+    } else if (Core::Internal::SplitterOrView *view = currentView()) {
+        if (IEditor *e = view->editor())
+            e->widget()->setFocus();
+        else if (view->view())
+            view->view()->setFocus();
+    }
+
     QApplication::restoreOverrideCursor();
 
     return true;

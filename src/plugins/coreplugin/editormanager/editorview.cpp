@@ -682,10 +682,8 @@ void SplitterOrView::split(Qt::Orientation orientation)
     }
 
     em->setCurrentView(view);
-#if 1
     if (e)
         em->activateEditor(e);
-#endif
 }
 
 void SplitterOrView::unsplitAll()
@@ -744,4 +742,71 @@ void SplitterOrView::unsplit()
     }
     delete oldSplitter;
     em->setCurrentView(findFirstView());
+}
+
+
+QByteArray SplitterOrView::saveState() const
+{
+    QByteArray bytes;
+    QDataStream stream(&bytes, QIODevice::WriteOnly);
+
+    if (m_splitter) {
+        stream << QByteArray("splitter")
+                << (qint32)m_splitter->orientation()
+                << m_splitter->saveState()
+                << static_cast<SplitterOrView*>(m_splitter->widget(0))->saveState()
+                << static_cast<SplitterOrView*>(m_splitter->widget(1))->saveState();
+    } else {
+        IEditor* e = editor();
+        EditorManager *em = CoreImpl::instance()->editorManager();
+
+        if (e && e == em->currentEditor()) {
+            stream << QByteArray("currenteditor")
+                    << e->file()->fileName() << e->kind() << e->saveState();
+        } else if (e) {
+            stream << QByteArray("editor")
+                    << e->file()->fileName() << e->kind() << e->saveState();
+        } else {
+            stream << QByteArray("empty");
+        }
+    }
+    return bytes;
+}
+
+void SplitterOrView::restoreState(const QByteArray &state)
+{
+    QDataStream stream(state);
+    QByteArray mode;
+    stream >> mode;
+    if (mode == "splitter") {
+        qint32 orientation;
+        QByteArray splitter, first, second;
+        stream >> orientation >> splitter >> first >> second;
+        split((Qt::Orientation)orientation);
+        m_splitter->restoreState(splitter);
+        static_cast<SplitterOrView*>(m_splitter->widget(0))->restoreState(first);
+        static_cast<SplitterOrView*>(m_splitter->widget(1))->restoreState(second);
+    } else if (mode == "editor" || mode == "currenteditor") {
+        EditorManager *em = CoreImpl::instance()->editorManager();
+        QString fileName;
+        QByteArray kind;
+        QByteArray editorState;
+        stream >> fileName >> kind >> editorState;
+        em->setCurrentView(this);
+        IEditor *e = em->openEditor(fileName, kind, Core::EditorManager::IgnoreNavigationHistory
+                                    | Core::EditorManager::NoActivate);
+
+        if (!e) {
+            QModelIndex idx = em->openedEditorsModel()->firstRestoredEditor();
+            if (idx.isValid())
+                em->activateEditor(idx, view(), Core::EditorManager::IgnoreNavigationHistory
+                                    | Core::EditorManager::NoActivate);
+        }
+
+        if (e) {
+            e->restoreState(editorState);
+            if (mode == "currenteditor")
+                em->setCurrentEditor(e);
+        }
+    }
 }

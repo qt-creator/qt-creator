@@ -149,6 +149,8 @@ public:
     QSplitter *takeSplitter();
     EditorView *takeView();
 
+    QByteArray saveState() const;
+    void restoreState(const QByteArray &);
 
     SplitterOrView *findView(Core::IEditor *editor);
     SplitterOrView *findView(EditorView *view);

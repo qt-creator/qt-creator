@@ -124,12 +124,12 @@ public:
     QList<IEditor *> editorsForFileName(const QString &filename) const;
 
     IEditor *currentEditor() const;
-    void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
+    IEditor *activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
 
     QList<IEditor*> openedEditors() const;
 
     OpenEditorsModel *openedEditorsModel() const;
-    void activateEditor(const QModelIndex &index, Internal::EditorView *view = 0, OpenEditorFlags = 0);
+    IEditor *activateEditor(const QModelIndex &index, Internal::EditorView *view = 0, OpenEditorFlags = 0);
     void closeEditor(const QModelIndex &index);
     void closeOtherEditors(IEditor *editor);
 
@@ -235,7 +235,7 @@ private:
     Core::IEditor *duplicateEditor(IEditor *editor);
     void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     void setCurrentView(Core::Internal::SplitterOrView *view);
-    void activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
+    IEditor *activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
     Core::Internal::SplitterOrView *currentView() const;
     void closeEditor(Core::IEditor *editor);
     void closeDuplicate(Core::IEditor *editor);
