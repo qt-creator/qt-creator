@@ -162,6 +162,8 @@ bool ColorScheme::save(const QString &fileName)
     w.writeStartDocument();
     w.writeStartElement(QLatin1String("style-scheme"));
     w.writeAttribute(QLatin1String("version"), QLatin1String("1.0"));
+    if (!m_name.isEmpty())
+        w.writeAttribute(QLatin1String("name"), m_name);
 
     Format textFormat = formatFor(QLatin1String(Constants::C_TEXT));
 
@@ -192,11 +194,12 @@ namespace {
 class ColorSchemeReader : public QXmlStreamReader
 {
 public:
-    ColorSchemeReader(ColorScheme *scheme) :
-        m_scheme(scheme)
+    ColorSchemeReader() :
+        m_scheme(0)
     {}
 
-    bool read(const QString &fileName);
+    bool read(const QString &fileName, ColorScheme *scheme);
+    QString readName(const QString &fileName);
 
 private:
     void readUnknownElement();
@@ -204,11 +207,15 @@ private:
     void readStyle();
 
     ColorScheme *m_scheme;
+    QString m_name;
 };
 
-bool ColorSchemeReader::read(const QString &fileName)
+bool ColorSchemeReader::read(const QString &fileName, ColorScheme *scheme)
 {
-    m_scheme->clear();
+    m_scheme = scheme;
+
+    if (m_scheme)
+        m_scheme->clear();
 
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text))
@@ -228,6 +235,12 @@ bool ColorSchemeReader::read(const QString &fileName)
     return true;
 }
 
+QString ColorSchemeReader::readName(const QString &fileName)
+{
+    read(fileName, 0);
+    return m_name;
+}
+
 void ColorSchemeReader::readUnknownElement()
 {
     Q_ASSERT(isStartElement());
@@ -244,6 +257,14 @@ void ColorSchemeReader::readUnknownElement()
 void ColorSchemeReader::readStyleScheme()
 {
     Q_ASSERT(isStartElement() && name() == QLatin1String("style-scheme"));
+
+    const QXmlStreamAttributes attr = attributes();
+    m_name = attr.value(QLatin1String("name")).toString();
+    if (!m_scheme)
+        // We're done
+        raiseError(QLatin1String("name loaded"));
+    else
+        m_scheme->setName(m_name);
 
     while (readNext() != Invalid) {
         if (isEndElement()) {
@@ -289,6 +310,11 @@ void ColorSchemeReader::readStyle()
 
 bool ColorScheme::load(const QString &fileName)
 {
-    ColorSchemeReader reader(this);
-    return reader.read(fileName) && !reader.hasError();
+    ColorSchemeReader reader;
+    return reader.read(fileName, this) && !reader.hasError();
+}
+
+QString ColorScheme::readNameOfScheme(const QString &fileName)
+{
+    return ColorSchemeReader().readName(fileName);
 }

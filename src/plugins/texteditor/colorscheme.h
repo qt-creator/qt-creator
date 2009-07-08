@@ -81,6 +81,12 @@ class ColorScheme
 public:
     ColorScheme();
 
+    void setName(const QString &name)
+    { m_name = name; }
+
+    QString name() const
+    { return m_name; }
+
     inline bool isEmpty() const
     { return m_formats.isEmpty(); }
 
@@ -97,10 +103,16 @@ public:
     bool load(const QString &fileName);
 
     inline bool equals(const ColorScheme &cs) const
-    { return m_formats == cs.m_formats; }
+    {
+        return m_formats == cs.m_formats
+                && m_name == cs.m_name;
+    }
+
+    static QString readNameOfScheme(const QString &fileName);
 
 private:
     QMap<QString, Format> m_formats;
+    QString m_name;
 };
 
 inline bool operator==(const ColorScheme &cs1, const ColorScheme &cs2) { return cs1.equals(cs2); }

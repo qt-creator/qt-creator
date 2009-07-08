@@ -329,10 +329,9 @@ void FontSettingsPage::refreshColorSchemeList()
     int count = 0;
 
     foreach (const QString &file, styleDir.entryList()) {
-        // TODO: Read the name of the style
-        QListWidgetItem *item = new QListWidgetItem(file);
         const QString absFileName = styleDir.absoluteFilePath(file);
-        item->setData(Qt::UserRole, absFileName );
+        QListWidgetItem *item = new QListWidgetItem(ColorScheme::readNameOfScheme(absFileName));
+        item->setData(Qt::UserRole, absFileName);
         d_ptr->ui.schemeListWidget->addItem(item);
         if (d_ptr->m_value.colorSchemeFileName() == absFileName)
             selected = count;
