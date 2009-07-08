@@ -417,8 +417,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
 
-    GeneralSettingsPage *generalSettings =
-        new GeneralSettingsPage(m_helpEngine, m_centralWidget);
+    GeneralSettingsPage *generalSettings = new GeneralSettingsPage(m_helpEngine,
+        m_centralWidget, m_bookmarkManager);
     addAutoReleasedObject(generalSettings);
     connect(generalSettings, SIGNAL(fontChanged()), this, SLOT(fontChanged()));
 

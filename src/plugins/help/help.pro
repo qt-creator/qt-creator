@@ -17,7 +17,8 @@ HEADERS += helpplugin.h \
     helpfindsupport.h \
     help_global.h \
     helpindexfilter.h \
-    generalsettingspage.h
+    generalsettingspage.h \
+    xbelsupport.h
 
 SOURCES += helpplugin.cpp \
     docsettingspage.cpp \
@@ -27,7 +28,8 @@ SOURCES += helpplugin.cpp \
     searchwidget.cpp \
     helpfindsupport.cpp \
     helpindexfilter.cpp \
-    generalsettingspage.cpp
+    generalsettingspage.cpp \
+    xbelsupport.cpp
 
 FORMS += docsettingspage.ui \
     filtersettingspage.ui \

@@ -29,8 +29,10 @@
 
 #include "generalsettingspage.h"
 
+#include "bookmarkmanager.h"
 #include "centralwidget.h"
 #include "helpviewer.h"
+#include "xbelsupport.h"
 
 #if defined(QT_NO_WEBKIT)
 #include <QtGui/QApplication>
@@ -38,6 +40,8 @@
 #include <QtWebKit/QWebSettings>
 #endif
 
+#include <QtCore/QDebug>
+#include <QtGui/QFileDialog>
 #include <QtHelp/QHelpEngine>
 
 #include <coreplugin/coreconstants.h>
@@ -45,10 +49,11 @@
 using namespace Help::Internal;
 
 GeneralSettingsPage::GeneralSettingsPage(QHelpEngine *helpEngine,
-        CentralWidget *centralWidget)
+        CentralWidget *centralWidget, BookmarkManager *bookmarkManager)
     : m_currentPage(0)
     , m_helpEngine(helpEngine)
     , m_centralWidget(centralWidget)
+    , m_bookmarkManager(bookmarkManager)
 {
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();
@@ -113,6 +118,10 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     HelpViewer *viewer = m_centralWidget->currentHelpViewer();
     if (viewer == 0)
         m_ui.currentPageButton->setEnabled(false);
+
+    m_ui.errorLabel->setVisible(false);
+    connect(m_ui.importButton, SIGNAL(clicked()), this, SLOT(importBookmarks()));
+    connect(m_ui.exportButton, SIGNAL(clicked()), this, SLOT(exportBookmarks()));
 
     return m_currentPage;
 }
@@ -181,6 +190,46 @@ void GeneralSettingsPage::setDefaultPage()
         m_helpEngine->customValue(QLatin1String("DefaultHomePage"),
         QString()).toString();
     m_ui.homePageLineEdit->setText(homePage);
+}
+
+void GeneralSettingsPage::importBookmarks()
+{
+    m_ui.errorLabel->setVisible(false);
+
+    QString fileName = QFileDialog::getOpenFileName(0, tr("Open Image"),
+        QDir::currentPath(), tr("Files (*.xbel)"));
+
+    if (fileName.isEmpty())
+        return;
+
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadOnly)) {
+        XbelReader reader(m_bookmarkManager->treeBookmarkModel(),
+            m_bookmarkManager->listBookmarkModel());
+        if (reader.readFromFile(&file))
+            return;
+    }
+
+    m_ui.errorLabel->setVisible(true);
+    m_ui.errorLabel->setText(tr("There was an error while importing bookmarks!"));
+}
+
+void GeneralSettingsPage::exportBookmarks()
+{
+    m_ui.errorLabel->setVisible(false);
+
+    QString fileName = QFileDialog::getSaveFileName(0, tr("Save File"),
+        "untitled.xbel", tr("Files (*.xbel)"));
+
+    QLatin1String suffix(".xbel");
+    if (!fileName.endsWith(suffix))
+        fileName.append(suffix);
+
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly)) {
+        XbelWriter writer(m_bookmarkManager->treeBookmarkModel());
+        writer.writeToFile(&file);
+    }
 }
 
 void GeneralSettingsPage::updateFontSize()

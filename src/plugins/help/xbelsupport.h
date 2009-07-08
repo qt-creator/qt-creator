@@ -27,72 +27,55 @@
 **
 **************************************************************************/
 
-#ifndef GENERALSETTINGSPAGE_H
-#define GENERALSETTINGSPAGE_H
+#ifndef XBELSUPPORT_H
+#define XBELSUPPORT_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QFontDatabase>
+#include <QtGui/QIcon>
+#include <QtXml/QXmlStreamReader>
 
-#include <coreplugin/dialogs/ioptionspage.h>
+QT_FORWARD_DECLARE_CLASS(QIODevice)
+QT_FORWARD_DECLARE_CLASS(QStandardItem)
 
-#include "ui_generalsettingspage.h"
-
-class BookmarkManager;
-
-QT_FORWARD_DECLARE_CLASS(QFont)
-QT_FORWARD_DECLARE_CLASS(QHelpEngine)
+class BookmarkModel;
 
 namespace Help {
 namespace Internal {
 
-class CentralWidget;
-
-class GeneralSettingsPage : public Core::IOptionsPage
+class XbelWriter : public QXmlStreamWriter
 {
-    Q_OBJECT
-
 public:
-    GeneralSettingsPage(QHelpEngine *helpEngine, CentralWidget *centralWidget,
-        BookmarkManager *bookmarkManager);
-
-    QString id() const;
-    virtual QString trName() const;
-    QString category() const;
-    QString trCategory() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish();
-
-signals:
-    void fontChanged();
-
-private slots:
-    void setCurrentPage();
-    void setBlankPage();
-    void setDefaultPage();
-    void importBookmarks();
-    void exportBookmarks();
+    XbelWriter(BookmarkModel *model);
+    void writeToFile(QIODevice *device);
 
 private:
-    void updateFontSize();
-    void updateFontStyle();
-    void updateFontFamily();
-    int closestPointSizeIndex(int desiredPointSize) const;
+    void writeData(QStandardItem *item);
 
 private:
-    QWidget *m_currentPage;
-    QHelpEngine *m_helpEngine;
-    CentralWidget *m_centralWidget;
-    BookmarkManager *m_bookmarkManager;
+    BookmarkModel *treeModel;
+};
 
-    QFont font;
-    QFontDatabase fontDatabase;
+class XbelReader : public QXmlStreamReader
+{
+public:
+    XbelReader(BookmarkModel *tree, BookmarkModel *list);
+    bool readFromFile(QIODevice *device);
 
-    Ui::GeneralSettingsPage m_ui;
+private:
+    void readXBEL();
+    void readUnknownElement();
+    void readFolder(QStandardItem *item);
+    void readBookmark(QStandardItem *item);
+    QStandardItem* createChildItem(QStandardItem *item);
+
+private:
+    QIcon folderIcon;
+    QIcon bookmarkIcon;
+
+    BookmarkModel *treeModel;
+    BookmarkModel *listModel;
 };
 
     }   // Internal
 }   // Help
 
-#endif  // GENERALSETTINGSPAGE_H
+#endif  // XBELSUPPORT_H
