@@ -1992,39 +1992,21 @@ static void qDumpQObject(QDumper &d)
             // using 'addr' does not work in gdb as 'exp' is recreated as
             // (type *)addr, and here we have different 'types':
             // QObject vs QObjectPropertyList!
-#ifdef Q_CC_MSVC
             d.putItem("addr", d.data);
-#else
-            d.beginItem("exp");
-                d.put("*(class "NSX"QObject"NSY"*)").put(d.data);
-            d.endItem();
-#endif
             d.putItem("type", NS"QObjectPropertyList");
             d.putItemCount("value", mo->propertyCount());
             d.putItem("numchild", mo->propertyCount());
         d.endHash();
         d.beginHash();
             d.putItem("name", "signals");
-#ifdef Q_CC_MSVC
             d.putItem("addr", d.data);
-#else
-            d.beginItem("exp");
-                d.put("*(class "NSX"QObject"NSY"*)").put(d.data);
-            d.endItem();
-#endif
             d.putItem("type", NS"QObjectSignalList");
             d.putItemCount("value", signalCount);
             d.putItem("numchild", signalCount);
         d.endHash();
         d.beginHash();
             d.putItem("name", "slots");
-#ifdef Q_CC_MSVC
             d.putItem("addr", d.data);
-#else
-            d.beginItem("exp");
-                d.put("*(class "NSX"QObject"NSY"*)").put(d.data);
-            d.endItem();
-#endif
             d.putItem("type", NS"QObjectSlotList");
             d.putItemCount("value", slotCount);
             d.putItem("numchild", slotCount);
@@ -2033,13 +2015,7 @@ static void qDumpQObject(QDumper &d)
         if (!objectChildren.empty()) {
             d.beginHash();
             d.putItem("name", "children");
-#ifdef Q_CC_MSVC
             d.putItem("addr", d.data);
-#else
-            d.beginItem("exp");
-                d.put("*(class "NSX"QObject"NSY"*)").put(d.data);
-            d.endItem();
-#endif
             d.putItem("type", NS"QObjectChildList");
             d.putItemCount("value", objectChildren.size());
             d.putItem("numchild", objectChildren.size());
@@ -2052,7 +2028,7 @@ static void qDumpQObject(QDumper &d)
 #if 1
         d.beginHash();
             d.putItem("name", "className");
-            d.putItem("value",ob->metaObject()->className());
+            d.putItem("value", ob->metaObject()->className());
             d.putItem("type", "");
             d.putItem("numchild", "0");
         d.endHash();
@@ -2131,13 +2107,16 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
         break;
     case QVariant::Size: {
             const QSize size = v->toSize();
-            *value = QString::fromLatin1("%1x%2").arg(size.width()).arg(size.height());
+            *value = QString::fromLatin1("%1x%2")
+                .arg(size.width()).arg(size.height());
         }
         *numchild = 0;
         break;
     case QVariant::Rect: {
             const QRect rect = v->toRect();
-            *value = QString::fromLatin1("%1x%2+%3+%4").arg(rect.width()).arg(rect.height()).arg(rect.x()).arg(rect.y());
+            *value = QString::fromLatin1("%1x%2+%3+%4")
+                .arg(rect.width()).arg(rect.height())
+                .arg(rect.x()).arg(rect.y());
         }
         *numchild = 0;
         break;
@@ -2150,13 +2129,16 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
 
     case QVariant::SizeF: {
             const QSizeF size = v->toSizeF();
-            *value = QString::fromLatin1("%1x%2").arg(size.width()).arg(size.height());
+            *value = QString::fromLatin1("%1x%2")
+                .arg(size.width()).arg(size.height());
         }
         *numchild = 0;
         break;
     case QVariant::RectF: {
             const QRectF rect = v->toRectF();
-            *value = QString::fromLatin1("%1x%2+%3+%4").arg(rect.width()).arg(rect.height()).arg(rect.x()).arg(rect.y());
+            *value = QString::fromLatin1("%1x%2+%3+%4")
+                .arg(rect.width()).arg(rect.height())
+                .arg(rect.x()).arg(rect.y());
         }
         *numchild = 0;
         break;

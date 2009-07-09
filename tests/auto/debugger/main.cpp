@@ -18,12 +18,8 @@
 #   define STRINGIFY0(s) #s
 #   define STRINGIFY1(s) STRINGIFY0(s)
 #   define NS STRINGIFY1(QT_NAMESPACE) "::"
-#   define NSX "'" 
-#   define NSY "'"
 #else
 #   define NS ""
-#   define NSX ""
-#   define NSY ""
 #endif
 
 using namespace Debugger;
@@ -135,7 +131,9 @@ private slots:
     void dumpQList_Int3();
     void dumpQObject();
     void dumpQString();
-    void dumpQVariant();
+    void dumpQVariant_invalid();
+    void dumpQVariant_QString();
+    void dumpQVariant_QStringList();
     void dumpStdVector();
 
 public slots:
@@ -497,11 +495,11 @@ void tst_Debugger::dumpQObject()
         &parent, NS"QObject", false);
     testDumper("value='',valueencoded='2',type='$T',displayedtype='QObject',"
         "numchild='4',children=["
-        "{name='properties',exp='*(class "NSX"$T"NSY"*)$A',type='$TPropertyList',"
+        "{name='properties',addr='$A',type='$TPropertyList',"
             "value='<1 items>',numchild='1'},"
-        "{name='signals',exp='*(class "NSX"$T"NSY"*)$A',type='$TSignalList',"
+        "{name='signals',addr='$A',type='$TSignalList',"
             "value='<2 items>',numchild='2'},"
-        "{name='slots',exp='*(class "NSX"$T"NSY"*)$A',type='$TSlotList',"
+        "{name='slots',addr='$A',type='$TSlotList',"
             "value='<2 items>',numchild='2'},"
         "{name='parent',value='0x0',type='$T *',numchild='0'},"
         "{name='className',value='QObject',type='',numchild='0'}]",
@@ -510,9 +508,9 @@ void tst_Debugger::dumpQObject()
 #if 0
     testDumper("numchild='2',value='<2 items>',type='QObjectSlotList',"
             "children=[{name='2',value='deleteLater()',"
-            "numchild='0',exp='*(class "NSX"QObject"NSY"*)$A',type='QObjectSlot'},"
+            "numchild='0',addr='$A',type='QObjectSlot'},"
         "{name='3',value='_q_reregisterTimers(void*)',"
-            "numchild='0',exp='*(class 'QObject'*)$A',type='QObjectSlot'}]",
+            "numchild='0',addr='$A',type='QObjectSlot'}]",
         &parent, NS"QObjectSlotList", true);
 #endif
 
@@ -527,11 +525,11 @@ void tst_Debugger::dumpQObject()
     child.setObjectName("A Child");
     QByteArray ba ="value='QQAgAEMAaABpAGwAZAA=',valueencoded='2',type='$T',"
         "displayedtype='QObject',numchild='4',children=["
-        "{name='properties',exp='*(class "NSX"$T"NSY"*)$A',type='$TPropertyList',"
+        "{name='properties',addr='$A',type='$TPropertyList',"
             "value='<1 items>',numchild='1'},"
-        "{name='signals',exp='*(class "NSX"$T"NSY"*)$A',type='$TSignalList',"
+        "{name='signals',addr='$A',type='$TSignalList',"
             "value='<2 items>',numchild='2'},"
-        "{name='slots',exp='*(class "NSX"$T"NSY"*)$A',type='$TSlotList',"
+        "{name='slots',addr='$A',type='$TSlotList',"
             "value='<2 items>',numchild='2'},"
         "{name='parent',addr='" + str(&parent) + "',"
             "value='QQAgAFAAYQByAGUAbgB0AA==',valueencoded='2',type='$T',"
@@ -558,17 +556,31 @@ void tst_Debugger::dumpQString()
         &s, NS"QString", false);
 }
 
-void tst_Debugger::dumpQVariant()
+void tst_Debugger::dumpQVariant_invalid()
 { 
     QVariant v;
     testDumper("value='(invalid)',type='$T',numchild='0'",
         &v, NS"QVariant", false);
-    v = "abc";
+}
+
+void tst_Debugger::dumpQVariant_QString()
+{ 
+    QVariant v = "abc";
+    testDumper("value='KFFTdHJpbmcpICJhYmMi',valueencoded='5',type='$T',"
+        "numchild='0'",
+        &v, NS"QVariant", true);
+/*
+    FIXME: the QString version should have a child:
     testDumper("value='KFFTdHJpbmcpICJhYmMi',valueencoded='5',type='$T',"
         "numchild='1',children=[{name='value',value='IgBhAGIAYwAiAA==',"
         "valueencoded='4',type='QString',numchild='0'}]",
         &v, NS"QVariant", true);
-    v = QStringList() << "Hi";
+*/
+}
+
+void tst_Debugger::dumpQVariant_QStringList()
+{
+   QVariant v = QStringList() << "Hi";
 return; // FIXME
     testDumper("value='(QStringList) ',type='$T',"
         "numchild='1',children=[{name='value',"
