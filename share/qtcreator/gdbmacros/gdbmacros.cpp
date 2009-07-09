@@ -893,7 +893,7 @@ enum  InnerValueResult
     InnerValueNotHandled,
     InnerValueChildrenSpecified,
     InnerValueNoFurtherChildren,
-    InnerValueFurtherChildren 
+    InnerValueFurtherChildren
 };
 
 static inline void dumpChildNumChildren(QDumper &d, InnerValueResult innerValueResult)
@@ -1989,33 +1989,42 @@ static void qDumpQObject(QDumper &d)
         d.beginChildren();
         d.beginHash();
             d.putItem("name", "properties");
-            // using 'addr' does not work as 'exp' is recreated as
+            // using 'addr' does not work in gdb as 'exp' is recreated as
             // (type *)addr, and here we have different 'types':
             // QObject vs QObjectPropertyList!
-            //d.putItem("addr", d.data);
+#ifdef Q_CC_MSVC
+            d.putItem("addr", d.data);
+#else
             d.beginItem("exp");
                 d.put("*(class "NSX"QObject"NSY"*)").put(d.data);
             d.endItem();
+#endif
             d.putItem("type", NS"QObjectPropertyList");
             d.putItemCount("value", mo->propertyCount());
             d.putItem("numchild", mo->propertyCount());
         d.endHash();
         d.beginHash();
             d.putItem("name", "signals");
-            //d.putItem("addr", d.data);
+#ifdef Q_CC_MSVC
+            d.putItem("addr", d.data);
+#else
             d.beginItem("exp");
                 d.put("*(class "NSX"QObject"NSY"*)").put(d.data);
             d.endItem();
+#endif
             d.putItem("type", NS"QObjectSignalList");
             d.putItemCount("value", signalCount);
             d.putItem("numchild", signalCount);
         d.endHash();
         d.beginHash();
             d.putItem("name", "slots");
-            //d.putItem("addr", d.data);
+#ifdef Q_CC_MSVC
+            d.putItem("addr", d.data);
+#else
             d.beginItem("exp");
                 d.put("*(class "NSX"QObject"NSY"*)").put(d.data);
             d.endItem();
+#endif
             d.putItem("type", NS"QObjectSlotList");
             d.putItemCount("value", slotCount);
             d.putItem("numchild", slotCount);
@@ -2024,10 +2033,13 @@ static void qDumpQObject(QDumper &d)
         if (!objectChildren.empty()) {
             d.beginHash();
             d.putItem("name", "children");
-            //d.putItem("addr", d.data);
+#ifdef Q_CC_MSVC
+            d.putItem("addr", d.data);
+#else
             d.beginItem("exp");
                 d.put("*(class "NSX"QObject"NSY"*)").put(d.data);
             d.endItem();
+#endif
             d.putItem("type", NS"QObjectChildList");
             d.putItemCount("value", objectChildren.size());
             d.putItem("numchild", objectChildren.size());
