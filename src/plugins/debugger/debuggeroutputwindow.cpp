@@ -208,22 +208,22 @@ private:
             QPlainTextEdit::keyPressEvent(ev);
     }
 
-    void mouseDoubleClickEvent(QMouseEvent *ev) 
+    void mouseDoubleClickEvent(QMouseEvent *ev)
     {
         QString line = cursorForPosition(ev->pos()).block().text();
         int n = 0;
-       
-        // cut time string 
+
+        // cut time string
         if (line.size() > 18 && line.at(0) == '[')
             line = line.mid(18);
         //qDebug() << line;
-        
+
         for (int i = 0; i != line.size(); ++i) {
             QChar c = line.at(i);
             if (!c.isDigit())
                 break;
             n = 10 * n + c.unicode() - '0';
-        }        
+        }
         emit commandSelected(n);
     }
 
@@ -231,14 +231,14 @@ private:
     {
        menu->addAction(theDebuggerAction(ExecuteCommand));
     }
-    
-    void focusInEvent(QFocusEvent *ev)  
+
+    void focusInEvent(QFocusEvent *ev)
     {
         emit statusMessageRequested(tr("Type Ctrl-<Return> to execute a line."), -1);
         QPlainTextEdit::focusInEvent(ev);
     }
 
-    void focusOutEvent(QFocusEvent *ev)  
+    void focusOutEvent(QFocusEvent *ev)
     {
         emit statusMessageRequested(QString(), -1);
         QPlainTextEdit::focusOutEvent(ev);
@@ -264,9 +264,9 @@ public:
 
 public slots:
     void gotoResult(int i)
-    {   
+    {
         QString needle = QString::number(i) + '^';
-        QString needle2 = QLatin1String(">:") + needle;
+        QString needle2 = QLatin1String(">") + needle;
         QTextCursor cursor(document());
         do {
             const QString line = cursor.block().text();
