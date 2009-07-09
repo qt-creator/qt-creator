@@ -384,7 +384,8 @@ QList<CommandLocation> Action::locations() const
 
 void Action::setDefaultKeySequence(const QKeySequence &key)
 {
-    setKeySequence(key);
+    if(m_action->shortcut().isEmpty())
+        setKeySequence(key);
     CommandPrivate::setDefaultKeySequence(key);
 }
 
