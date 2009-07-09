@@ -18,8 +18,12 @@
 #   define STRINGIFY0(s) #s
 #   define STRINGIFY1(s) STRINGIFY0(s)
 #   define NS STRINGIFY1(QT_NAMESPACE) "::"
+#   define NSX "'" 
+#   define NSY "'"
 #else
 #   define NS ""
+#   define NSX ""
+#   define NSY ""
 #endif
 
 using namespace Debugger;
@@ -124,7 +128,11 @@ private slots:
 
     void dumperCompatibility();
     void dumpQHash();
-    void dumpQList();
+    void dumpQList_int();
+    void dumpQList_char();
+    void dumpQList_QString();
+    void dumpQList_QString3();
+    void dumpQList_Int3();
     void dumpQObject();
     void dumpQString();
     void dumpQVariant();
@@ -399,7 +407,7 @@ void tst_Debugger::dumpQHash()
     hash.insert("!", QList<int>() << 1 << 2);
 }
 
-void tst_Debugger::dumpQList()
+void tst_Debugger::dumpQList_int()
 {
     QList<int> ilist;
     testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
@@ -413,7 +421,10 @@ void tst_Debugger::dumpQList()
         "{name='1',addr='" + str(&ilist.at(1)) + "',value='2'}],"
         "childnumchild='0'",
         &ilist, NS"QList", true, "int");
+}
 
+void tst_Debugger::dumpQList_char()
+{
     QList<char> clist;
     testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
         "internal='1',childtype='char',children=[]",
@@ -428,7 +439,10 @@ void tst_Debugger::dumpQList()
             "value=''b', ascii=98',numchild='0'}],"
         "childnumchild='0'",
         &clist, NS"QList", true, "char");
+}
 
+void tst_Debugger::dumpQList_QString()
+{
     QList<QString> slist;
     testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
         "internal='1',childtype='QString',children=[]",
@@ -443,7 +457,10 @@ void tst_Debugger::dumpQList()
             "value='YgA=',valueencoded='2'}],"
         "childnumchild='0'",
         &slist, NS"QList", true, "QString");
+}
 
+void tst_Debugger::dumpQList_Int3()
+{
     QList<Int3> i3list;
     testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
         "internal='0',childtype='Int3',children=[]",
@@ -455,7 +472,10 @@ void tst_Debugger::dumpQList()
         "{name='0',addr='" + str(&i3list.at(0)) + "'},"
         "{name='1',addr='" + str(&i3list.at(1)) + "'}]",
         &i3list, NS"QList", true, "Int3");
+}
 
+void tst_Debugger::dumpQList_QString3()
+{
     QList<QString3> s3list;
     testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
         "internal='0',childtype='QString3',children=[]",
@@ -477,22 +497,24 @@ void tst_Debugger::dumpQObject()
         &parent, NS"QObject", false);
     testDumper("value='',valueencoded='2',type='$T',displayedtype='QObject',"
         "numchild='4',children=["
-        "{name='properties',exp='*(class '$T'*)$A',type='$TPropertyList',"
+        "{name='properties',exp='*(class "NSX"$T"NSY"*)$A',type='$TPropertyList',"
             "value='<1 items>',numchild='1'},"
-        "{name='signals',exp='*(class '$T'*)$A',type='$TSignalList',"
+        "{name='signals',exp='*(class "NSX"$T"NSY"*)$A',type='$TSignalList',"
             "value='<2 items>',numchild='2'},"
-        "{name='slots',exp='*(class '$T'*)$A',type='$TSlotList',"
+        "{name='slots',exp='*(class "NSX"$T"NSY"*)$A',type='$TSlotList',"
             "value='<2 items>',numchild='2'},"
         "{name='parent',value='0x0',type='$T *',numchild='0'},"
         "{name='className',value='QObject',type='',numchild='0'}]",
         &parent, NS"QObject", true);
-/*
-    testDumper("numchild='2',children=[{name='2',value='deleteLater()',"
-            "numchild='0',exp='*(class 'QObject'*)$A',type='QObjectSlot'},"
+
+#if 0
+    testDumper("numchild='2',value='<2 items>',type='QObjectSlotList',"
+            "children=[{name='2',value='deleteLater()',"
+            "numchild='0',exp='*(class "NSX"QObject"NSY"*)$A',type='QObjectSlot'},"
         "{name='3',value='_q_reregisterTimers(void*)',"
             "numchild='0',exp='*(class 'QObject'*)$A',type='QObjectSlot'}]",
         &parent, NS"QObjectSlotList", true);
-*/
+#endif
 
     parent.setObjectName("A Parent");
     testDumper("value='QQAgAFAAYQByAGUAbgB0AA==',valueencoded='2',type='$T',"
@@ -505,11 +527,11 @@ void tst_Debugger::dumpQObject()
     child.setObjectName("A Child");
     QByteArray ba ="value='QQAgAEMAaABpAGwAZAA=',valueencoded='2',type='$T',"
         "displayedtype='QObject',numchild='4',children=["
-        "{name='properties',exp='*(class '$T'*)$A',type='$TPropertyList',"
+        "{name='properties',exp='*(class "NSX"$T"NSY"*)$A',type='$TPropertyList',"
             "value='<1 items>',numchild='1'},"
-        "{name='signals',exp='*(class '$T'*)$A',type='$TSignalList',"
+        "{name='signals',exp='*(class "NSX"$T"NSY"*)$A',type='$TSignalList',"
             "value='<2 items>',numchild='2'},"
-        "{name='slots',exp='*(class '$T'*)$A',type='$TSlotList',"
+        "{name='slots',exp='*(class "NSX"$T"NSY"*)$A',type='$TSlotList',"
             "value='<2 items>',numchild='2'},"
         "{name='parent',addr='" + str(&parent) + "',"
             "value='QQAgAFAAYQByAGUAbgB0AA==',valueencoded='2',type='$T',"
