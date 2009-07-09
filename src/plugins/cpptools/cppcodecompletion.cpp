@@ -932,7 +932,7 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
             namedTy = ty->asNamedType();
             if (! namedTy) {
                 Function *fun = ty->asFunctionType();
-                if (fun && (fun->scope()->isBlockScope() || fun->scope()->isNamespaceScope()))
+                if (fun && fun->scope() && (fun->scope()->isBlockScope() || fun->scope()->isNamespaceScope()))
                     namedTy = fun->returnType()->asNamedType();
             }
         }
