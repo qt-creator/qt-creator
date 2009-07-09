@@ -358,6 +358,11 @@ void FormEditorW::setupActions()
     m_actionGroupEditMode->setExclusive(true);
     connect(m_actionGroupEditMode, SIGNAL(triggered(QAction*)), this, SLOT(activateEditMode(QAction*)));
 
+    m_modeActionSeparator = new QAction(this);
+    m_modeActionSeparator->setSeparator(true);
+    command = am->registerAction(m_modeActionSeparator, QLatin1String("FormEditor.Sep.ModeActions"), globalcontext);
+    medit->addAction(command, Core::Constants::G_EDIT_OTHER);
+
     m_toolActionIds.push_back(QLatin1String("FormEditor.WidgetEditor"));
     createEditModeAction(m_actionGroupEditMode, globalcontext, am, medit,
                          tr("Edit widgets"), m_toolActionIds.back(),
@@ -582,8 +587,10 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
         fw->activate();
         m_fwm->setActiveFormWindow(fw->formWindow());
         m_actionGroupEditMode->setVisible(true);
+        m_modeActionSeparator->setVisible(true);
     } else {
         m_actionGroupEditMode->setVisible(false);
+        m_modeActionSeparator->setVisible(false);
         m_fwm->setActiveFormWindow(0);
     }
 }

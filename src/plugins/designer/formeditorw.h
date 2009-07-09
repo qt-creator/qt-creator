@@ -158,6 +158,7 @@ private:
     QAction *m_actionPreview;
     QActionGroup *m_actionGroupPreviewInStyle;
     QAction *m_actionAboutPlugins;
+    QAction *m_modeActionSeparator;
 
     QList<int> m_context;
 

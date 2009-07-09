@@ -491,11 +491,8 @@ void MainWindow::registerDefaultContainers()
     mwindow->appendGroup(Constants::G_WINDOW_SIZE);
     mwindow->appendGroup(Constants::G_WINDOW_PANES);
     mwindow->appendGroup(Constants::G_WINDOW_SPLIT);
-    mwindow->appendGroup(Constants::G_WINDOW_CLOSE);
     mwindow->appendGroup(Constants::G_WINDOW_NAVIGATE);
-    mwindow->appendGroup(Constants::G_WINDOW_NAVIGATE_GROUPS);
     mwindow->appendGroup(Constants::G_WINDOW_OTHER);
-    mwindow->appendGroup(Constants::G_WINDOW_LIST);
 
     // Help Menu
     ac = am->createMenu(Constants::M_HELP);
@@ -757,10 +754,12 @@ void MainWindow::registerDefaultActions()
 //    tmpaction->setEnabled(true);
 //    connect(tmpaction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     // About sep
+#ifndef Q_WS_MAC // doesn't have the "About" actions in the Help menu
     tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
     cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Help.Sep.About"), m_globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
+#endif
 }
 
 void MainWindow::newFile()

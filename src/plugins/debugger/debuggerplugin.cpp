@@ -649,7 +649,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep1"), globalcontext);
+    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Step"), globalcontext);
     mdebug->addAction(cmd);
 
     cmd = am->registerAction(m_manager->m_nextAction,
@@ -700,7 +700,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep3"), globalcontext);
+    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Break"), globalcontext);
     mdebug->addAction(cmd);
 
     cmd = am->registerAction(m_manager->m_breakAction,
@@ -711,12 +711,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep2"), globalcontext);
-    mdebug->addAction(cmd);
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep4"), globalcontext);
+    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Watch"), globalcontext);
     mdebug->addAction(cmd);
 
     cmd = am->registerAction(m_manager->m_watchAction,
@@ -725,7 +720,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     mdebug->addAction(cmd);
 
     // Views menu
-    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep5"), globalcontext);
+    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Views"), globalcontext);
     mdebug->addAction(cmd);
     ActionContainer *viewsMenu = am->createMenu(Constants::M_DEBUG_VIEWS);
     QMenu *m = viewsMenu->menu();

@@ -361,11 +361,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.Close.Sep"), globalcontext);
-    mfile->addAction(cmd, Core::Constants::G_FILE_CLOSE);
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
     cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.Projects.Sep"), globalcontext);
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
 

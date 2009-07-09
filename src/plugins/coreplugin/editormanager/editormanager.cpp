@@ -270,23 +270,8 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
     tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
-    cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Window.Sep.Close"), editManagerContext);
-    mwindow->addAction(cmd, Constants::G_WINDOW_CLOSE);
-
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
     cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Window.Sep.Navigate"), editManagerContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
-
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Window.Sep.Navigate.Groups"), editManagerContext);
-    mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE_GROUPS);
-
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Window.Sep.Bottom"), editManagerContext);
-    mwindow->addAction(cmd, Constants::G_WINDOW_LIST);
 
     //Close Action
     cmd = am->registerAction(m_d->m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext);
