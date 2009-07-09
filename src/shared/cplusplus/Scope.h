@@ -160,8 +160,6 @@ public:
     Symbol *lookat(Identifier *id) const;
     Symbol *lookat(int operatorId) const;
 
-    unsigned useCount() const;
-    Use *useAt(unsigned index) const;
     void addUse(unsigned sourceOffset, Name *name);
 
 private:
@@ -182,10 +180,6 @@ private:
 
     Symbol **_hash;
     int _hashSize;
-
-    Use *_uses;
-    int _allocatedUses;
-    int _useCount;
 };
 
 CPLUSPLUS_END_NAMESPACE

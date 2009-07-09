@@ -85,13 +85,13 @@
 
 #include <sstream>
 
-using namespace CPlusPlus;
-using namespace CppEditor::Internal;
-
 enum {
     UPDATE_METHOD_BOX_INTERVAL = 150,
     UPDATE_USES_INTERVAL = 300
 };
+
+using namespace CPlusPlus;
+using namespace CppEditor::Internal;
 
 namespace {
 
@@ -112,71 +112,71 @@ public:
     }
 };
 
+class FindScope: protected SymbolVisitor
+{
+    TranslationUnit *_unit;
+    Scope *_scope;
+    unsigned _line;
+    unsigned _column;
+
+public:
+    Scope *operator()(unsigned line, unsigned column,
+                      Symbol *root, TranslationUnit *unit)
+    {
+        _unit = unit;
+        _scope = 0;
+        _line = line;
+        _column = column;
+        accept(root);
+        return _scope;
+    }
+
+private:
+    using SymbolVisitor::visit;
+
+    virtual bool preVisit(Symbol *)
+    { return ! _scope; }
+
+    virtual bool visit(Block *block)
+    { return processScope(block->members()); }
+
+    virtual bool visit(Function *function)
+    { return processScope(function->members()); }
+
+    bool processScope(Scope *scope)
+    {
+        if (_scope || ! scope)
+            return false;
+
+        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+            accept(scope->symbolAt(i));
+
+            if (_scope)
+                return false;
+        }
+
+        unsigned startOffset = scope->owner()->startOffset();
+        unsigned endOffset = scope->owner()->endOffset();
+
+        unsigned startLine, startColumn;
+        unsigned endLine, endColumn;
+
+        _unit->getPosition(startOffset, &startLine, &startColumn);
+        _unit->getPosition(endOffset, &endLine, &endColumn);
+
+        if (_line > startLine || (_line == startLine && _column >= startColumn)) {
+            if (_line < endLine || (_line == endLine && _column < endColumn)) {
+                _scope = scope;
+            }
+        }
+
+        return false;
+    }
+};
+
 class FindUses: protected ASTVisitor
 {
     Scope *_functionScope;
-
-    class FindScope: protected SymbolVisitor
-    {
-        TranslationUnit *_unit;
-        Scope *_scope;
-        unsigned _line;
-        unsigned _column;
-
-    public:
-        Scope *operator()(unsigned line, unsigned column,
-                          Symbol *root, TranslationUnit *unit)
-        {
-            _unit = unit;
-            _scope = 0;
-            _line = line;
-            _column = column;
-            accept(root);
-            return _scope;
-        }
-
-    private:
-        using SymbolVisitor::visit;
-
-        virtual bool preVisit(Symbol *)
-        { return ! _scope; }
-
-        virtual bool visit(Block *block)
-        { return processScope(block->members()); }
-
-        virtual bool visit(Function *function)
-        { return processScope(function->members()); }
-
-        bool processScope(Scope *scope)
-        {
-            if (_scope || ! scope)
-                return false;
-
-            for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-                accept(scope->symbolAt(i));
-
-                if (_scope)
-                    return false;
-            }
-
-            unsigned startOffset = scope->owner()->startOffset();
-            unsigned endOffset = scope->owner()->endOffset();
-
-            unsigned startLine, startColumn;
-            unsigned endLine, endColumn;
-
-            _unit->getPosition(startOffset, &startLine, &startColumn);
-            _unit->getPosition(endOffset, &endLine, &endColumn);
-
-            if (_line > startLine || (_line == startLine && _column >= startColumn)) {
-                if (_line < endLine || (_line == endLine && _column < endColumn)) {
-                    _scope = scope;
-                }
-            }
-
-            return false;
-        }
-    };
 
     FindScope findScope;
 
@@ -185,27 +185,9 @@ public:
         : ASTVisitor(control)
     { }
 
-    struct Use {
-        NameAST *name;
-        unsigned line;
-        unsigned column;
-        unsigned length;
-
-        Use(){}
-
-        Use(NameAST *name, unsigned line, unsigned column, unsigned length)
-                : name(name), line(line), column(column), length(length) {}
-    };
-
-    typedef QHash<Symbol *, QList<Use> > LocalUseMap;
-    typedef QHashIterator<Symbol *, QList<Use> > LocalUseIterator;
-
-    typedef QHash<Identifier *, QList<Use> > ExternalUseMap;
-    typedef QHashIterator<Identifier *, QList<Use> > ExternalUseIterator;
-
     // local and external uses.
-    LocalUseMap localUses;
-    ExternalUseMap externalUses;
+    SemanticInfo::LocalUseMap localUses;
+    SemanticInfo::ExternalUseMap externalUses;
 
     void operator()(FunctionDefinitionAST *ast)
     {
@@ -233,8 +215,7 @@ protected:
                 if (member->identifier() != id)
                     continue;
                 else if (member->line() < line || (member->line() == line && member->column() <= column)) {
-                    //qDebug() << "*** found member:" << member->line() << member->column() << member->name()->identifier()->chars();
-                    localUses[member].append(Use(ast, line, column, id->size()));
+                    localUses[member].append(SemanticInfo::Use(ast, line, column, id->size()));
                     return true;
                 }
             }
@@ -270,7 +251,7 @@ protected:
         }
 
         Identifier *id = identifier(ast->identifier_token);
-        externalUses[id].append(Use(ast, line, column, id->size()));
+        externalUses[id].append(SemanticInfo::Use(ast, line, column, id->size()));
 
         return false;
     }
@@ -302,7 +283,7 @@ protected:
         }
 
         Identifier *id = identifier(ast->identifier_token);
-        externalUses[id].append(Use(ast, line, column, id->size()));
+        externalUses[id].append(SemanticInfo::Use(ast, line, column, id->size()));
 
         for (TemplateArgumentListAST *arg = ast->template_arguments; arg; arg = arg->next)
             accept(arg);
@@ -376,22 +357,21 @@ protected:
 
 class FunctionDefinitionUnderCursor: protected ASTVisitor
 {
-    QTextCursor _textCursor;
     unsigned _line;
     unsigned _column;
     FunctionDefinitionAST *_functionDefinition;
 
 public:
     FunctionDefinitionUnderCursor(Control *control)
-        : ASTVisitor(control)
+        : ASTVisitor(control),
+          _line(0), _column(0)
     { }
 
-    FunctionDefinitionAST *operator()(AST *ast, const QTextCursor &tc)
+    FunctionDefinitionAST *operator()(AST *ast, unsigned line, unsigned column)
     {
         _functionDefinition = 0;
-        _textCursor = tc;
-        _line = tc.blockNumber() + 1;
-        _column = tc.columnNumber() + 1;
+        _line = line;
+        _column = column;
         accept(ast);
         return _functionDefinition;
     }
@@ -551,6 +531,11 @@ CPPEditor::CPPEditor(QWidget *parent)
     , m_currentRenameSelection(-1)
     , m_inRename(false)
 {
+    qRegisterMetaType<SemanticInfo>("SemanticInfo");
+
+    m_semanticHighlighter = new SemanticHighlighter(this);
+    m_semanticHighlighter->start();
+
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
@@ -585,6 +570,8 @@ CPPEditor::CPPEditor(QWidget *parent)
 
 CPPEditor::~CPPEditor()
 {
+    m_semanticHighlighter->abort();
+    m_semanticHighlighter->wait();
 }
 
 TextEditor::BaseTextEditorEditable *CPPEditor::createEditableInterface()
@@ -640,11 +627,18 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
 
     connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
     connect(m_methodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMethodBoxToolTip()));
     connect(document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(onContentsChanged(int,int,int)));
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
+
+
+    // set up the semantic highlighter
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
+    connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
+
+    connect(m_semanticHighlighter, SIGNAL(changed(SemanticInfo)),
+            this, SLOT(updateSemanticInfo(SemanticInfo)));
 
     QToolBar *toolBar = editable->toolBar();
     QList<QAction*> actions = toolBar->actions();
@@ -836,7 +830,7 @@ void CPPEditor::reformatDocument()
 
 void CPPEditor::renameInPlace()
 {
-    updateUsesNow();
+    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
     QTextCursor c = textCursor();
     m_currentRenameSelection = -1;
@@ -909,13 +903,13 @@ void CPPEditor::updateMethodBoxIndex()
 static void highlightUses(QTextDocument *doc,
                           const QTextCharFormat &format,
                           TranslationUnit *translationUnit,
-                          const QList<FindUses::Use> &uses,
+                          const QList<SemanticInfo::Use> &uses,
                           QList<QTextEdit::ExtraSelection> *selections)
 {
     if (uses.size() <= 1)
         return;
 
-    foreach (const FindUses::Use &use, uses) {
+    foreach (const SemanticInfo::Use &use, uses) {
         NameAST *name = use.name;
         bool generated = false;
 
@@ -990,73 +984,7 @@ void CPPEditor::updateUsesNow()
     if (m_currentRenameSelection != -1)
         return;
 
-    int line = 0, column = 0;
-    convertPosition(position(), &line, &column);
-
-    const Snapshot snapshot = m_modelManager->snapshot();
-    const QByteArray preprocessedCode = snapshot.preprocessedCode(toPlainText(), file()->fileName());
-    Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, file()->fileName());
-    doc->check();
-    Control *control = doc->control();
-    TranslationUnit *translationUnit = doc->translationUnit();
-    AST *ast = translationUnit->ast();
-
-    FunctionDefinitionUnderCursor functionDefinitionUnderCursor(control);
-    FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, textCursor());
-
-    QTextCharFormat format;
-    format.setBackground(QColor(220, 220, 220));
-
-    FindUses useTable(control);
-    useTable(currentFunctionDefinition);
-
-    QList<QTextEdit::ExtraSelection> selections;
-
-    FindUses::LocalUseIterator it(useTable.localUses);
-    while (it.hasNext()) {
-        it.next();
-        const QList<FindUses::Use> &uses = it.value();
-
-        bool good = false;
-        foreach (const FindUses::Use &use, uses) {
-            unsigned l = line;
-            unsigned c = column + 1; // convertCursorPosition() returns a 0-based column number.
-            if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
-                good = true;
-                break;
-            }
-        }
-
-        if (! good)
-            continue;
-
-        highlightUses(document(), format, translationUnit, uses, &selections);
-        break; // done
-    }
-#if 0
-    FindUses::ExternalUseIterator it2(useTable.externalUses);
-    while (it2.hasNext()) {
-        it2.next();
-        const QList<FindUses::Use> &uses = it2.value();
-
-        bool good = false;
-        foreach (const FindUses::Use &use, uses) {
-            unsigned l = line;
-            unsigned c = column + 1; // convertCursorPosition() returns a 0-based column number.
-            if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
-                good = true;
-                break;
-            }
-        }
-
-        if (! good)
-            continue;
-
-        highlightUses(document(), format, translationUnit, uses, &selections);
-        break; // done
-    }
-#endif
-    setExtraSelections(CodeSemanticsSelection, selections);
+    semanticRehighlight();
 }
 
 static bool isCompatible(Name *name, Name *otherName)
@@ -1404,6 +1332,9 @@ bool CPPEditor::event(QEvent *e)
 
 void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
 {
+    // ### enable
+    // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
+
     QMenu *menu = createStandardContextMenu();
 
     // Remove insert unicode control character
@@ -1694,3 +1625,171 @@ bool CPPEditor::openCppEditorAt(const Link &link)
                                                     link.column,
                                                     Constants::C_CPPEDITOR);
 }
+
+void CPPEditor::semanticRehighlight()
+{
+    m_semanticHighlighter->rehighlight(currentSource());
+}
+
+void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
+{
+    int line = 0, column = 0;
+    convertPosition(position(), &line, &column);
+
+    QTextCharFormat format;
+    format.setBackground(QColor(220, 220, 220));
+
+    QList<QTextEdit::ExtraSelection> selections;
+
+    TranslationUnit *translationUnit = semanticInfo.doc->translationUnit();
+
+    SemanticInfo::LocalUseIterator it(semanticInfo.localUses);
+    while (it.hasNext()) {
+        it.next();
+        const QList<SemanticInfo::Use> &uses = it.value();
+
+        bool good = false;
+        foreach (const SemanticInfo::Use &use, uses) {
+            unsigned l = line;
+            unsigned c = column + 1; // convertCursorPosition() returns a 0-based column number.
+            if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
+                good = true;
+                break;
+            }
+        }
+
+        if (! good)
+            continue;
+
+        highlightUses(document(), format, translationUnit, uses, &selections);
+        break; // done
+    }
+
+#if 0
+    SemanticInfo::ExternalUseIterator it2(semanticInfo.externalUses);
+    while (it2.hasNext()) {
+        it2.next();
+        const QList<Use> &uses = it2.value();
+
+        bool good = false;
+        foreach (const Use &use, uses) {
+            unsigned l = line;
+            unsigned c = column + 1; // convertCursorPosition() returns a 0-based column number.
+            if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
+                good = true;
+                break;
+            }
+        }
+
+        if (! good)
+            continue;
+
+        highlightUses(document(), format, translationUnit, uses, &selections);
+        break; // done
+    }
+#endif
+
+    setExtraSelections(CodeSemanticsSelection, selections);
+
+}
+
+SemanticHighlighter::Source CPPEditor::currentSource()
+{
+    int line = 0, column = 0;
+    convertPosition(position(), &line, &column);
+
+    const Snapshot snapshot = m_modelManager->snapshot();
+    const QString fileName = file()->fileName();
+    const QString code = toPlainText();
+    const int revision = document()->revision();
+    const SemanticHighlighter::Source source(snapshot, fileName, code,
+                                             line, column, revision);
+    return source;
+}
+
+SemanticHighlighter::SemanticHighlighter(QObject *parent)
+        : QThread(parent),
+          m_done(false)
+{
+}
+
+SemanticHighlighter::~SemanticHighlighter()
+{
+}
+
+void SemanticHighlighter::abort()
+{
+    QMutexLocker locker(&m_mutex);
+    m_done = true;
+    m_condition.wakeOne();
+}
+
+void SemanticHighlighter::rehighlight(const Source &source)
+{
+    QMutexLocker locker(&m_mutex);
+    m_source = source;
+    m_condition.wakeOne();
+}
+
+void SemanticHighlighter::run()
+{
+    setPriority(QThread::IdlePriority);
+
+    forever {
+        m_mutex.lock();
+
+        forever {
+            if (m_done)
+                break;
+            else if (! m_source.fileName.isEmpty())
+                break;
+
+            m_condition.wait(&m_mutex);
+        }
+
+        const bool done = m_done;
+        const Source source = m_source;
+        m_source.clear();
+
+        m_mutex.unlock();
+
+        if (done)
+            break;
+
+        const SemanticInfo info = semanticInfo(source);
+
+        m_mutex.lock();
+        const bool outdated = ! m_source.fileName.isEmpty() || m_done;
+        m_mutex.unlock();
+
+        if (! outdated)
+            emit changed(info);
+    }
+}
+
+SemanticInfo SemanticHighlighter::semanticInfo(const Source &source) const
+{
+    const QByteArray preprocessedCode = source.snapshot.preprocessedCode(source.code, source.fileName);
+    Document::Ptr doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
+    doc->check();
+
+    Control *control = doc->control();
+    TranslationUnit *translationUnit = doc->translationUnit();
+    AST *ast = translationUnit->ast();
+
+    FunctionDefinitionUnderCursor functionDefinitionUnderCursor(control);
+    FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
+
+    FindUses useTable(control);
+    useTable(currentFunctionDefinition);
+
+    SemanticInfo semanticInfo;
+    semanticInfo.revision = source.revision;
+    semanticInfo.doc = doc;
+    semanticInfo.localUses = useTable.localUses;
+    semanticInfo.externalUses = useTable.externalUses;
+
+    return semanticInfo;
+}
+
+

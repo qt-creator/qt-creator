@@ -63,10 +63,7 @@ Scope::Scope(ScopedSymbol *owner)
       _allocatedSymbols(0),
       _symbolCount(-1),
       _hash(0),
-      _hashSize(0),
-      _uses(0),
-      _allocatedUses(0),
-      _useCount(-1)
+      _hashSize(0)
 { }
 
 Scope::~Scope()
@@ -75,8 +72,6 @@ Scope::~Scope()
         free(_symbols);
     if (_hash)
         free(_hash);
-    if (_uses)
-        free(_uses);
 }
 
 ScopedSymbol *Scope::owner() const
@@ -300,30 +295,7 @@ Scope::iterator Scope::firstSymbol() const
 Scope::iterator Scope::lastSymbol() const
 { return _symbols + _symbolCount + 1; }
 
-unsigned Scope::useCount() const
-{ return _useCount + 1; }
-
-Use *Scope::useAt(unsigned index) const
-{ return &_uses[index]; }
-
-void Scope::addUse(unsigned sourceOffset, Name *name)
-{
-#ifdef CPLUSPLUS_WITH_USES
-    if (++_useCount == _allocatedUses) {
-        _allocatedUses += 4;
-        _uses = reinterpret_cast<Use *>(realloc(_uses, _allocatedUses * sizeof(Use)));
-    }
-
-    Symbol *lastVisibleSymbol;
-    if (_symbolCount == -1)
-        lastVisibleSymbol = owner();
-    else
-        lastVisibleSymbol = _symbols[_symbolCount];
-    _uses[_useCount].init(sourceOffset, name, lastVisibleSymbol);
-#else
-    (void) sourceOffset;
-    (void) name;
-#endif
-}
+void Scope::addUse(unsigned, Name *)
+{ }
 
 CPLUSPLUS_END_NAMESPACE

@@ -31,9 +31,13 @@
 #define CPPEDITOR_H
 
 #include "cppeditorenums.h"
-
+#include <ASTfwd.h>
 #include <cplusplus/CppDocument.h>
 #include <texteditor/basetexteditor.h>
+
+#include <QtCore/QThread>
+#include <QtCore/QMutex>
+#include <QtCore/QWaitCondition>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -57,6 +61,99 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditor;
+class SemanticHighlighter;
+
+class SemanticInfo
+{
+public:
+    struct Use {
+        CPlusPlus::NameAST *name;
+        unsigned line;
+        unsigned column;
+        unsigned length;
+
+        Use() {}
+
+        Use(CPlusPlus::NameAST *name, unsigned line, unsigned column, unsigned length)
+                : name(name), line(line), column(column), length(length) {}
+    };
+
+    typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;
+    typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
+
+    typedef QHash<CPlusPlus::Identifier *, QList<Use> > ExternalUseMap;
+    typedef QHashIterator<CPlusPlus::Identifier *, QList<Use> > ExternalUseIterator;
+
+    SemanticInfo()
+            : revision(0)
+    { }
+
+    int revision;
+    CPlusPlus::Document::Ptr doc;
+    LocalUseMap localUses;
+    ExternalUseMap externalUses;
+};
+
+class SemanticHighlighter: public QThread
+{
+    Q_OBJECT
+
+public:
+    SemanticHighlighter(QObject *parent = 0);
+    virtual ~SemanticHighlighter();
+
+    void abort();
+
+    struct Source
+    {
+        CPlusPlus::Snapshot snapshot;
+        QString fileName;
+        QString code;
+        int line;
+        int column;
+        int revision;
+
+        Source()
+                : line(0), column(0), revision(0)
+        { }
+
+        Source(const CPlusPlus::Snapshot &snapshot,
+               const QString &fileName,
+               const QString &code,
+               int line, int column,
+               int revision)
+            : snapshot(snapshot), fileName(fileName),
+              code(code), line(line), column(column),
+              revision(revision)
+        { }
+
+        void clear()
+        {
+            snapshot.clear();
+            fileName.clear();
+            code.clear();
+            line = 0;
+            column = 0;
+            revision = 0;
+        }
+    };
+
+    SemanticInfo semanticInfo(const Source &source) const;
+
+    void rehighlight(const Source &source);
+
+Q_SIGNALS:
+    void changed(const SemanticInfo &semanticInfo);
+
+protected:
+    virtual void run();
+
+private:
+    QMutex m_mutex;
+    QWaitCondition m_condition;
+    bool m_done;
+    Source m_source;
+};
 
 class CPPEditorEditable : public TextEditor::BaseTextEditorEditable
 {
@@ -89,7 +186,7 @@ public:
 
     void indentInsertedText(const QTextCursor &tc);
 
-public slots:
+public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     void setSortedMethodOverview(bool sort);
@@ -116,7 +213,7 @@ protected:
     // Rertuns true if key triggers anindent.
     virtual bool isElectricCharacter(const QChar &ch) const;
 
-private slots:
+private Q_SLOTS:
     void updateFileName();
     void jumpToMethod(int index);
     void updateMethodBoxIndex();
@@ -129,6 +226,9 @@ private slots:
     void renameInPlace();
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
 
+    void semanticRehighlight();
+    void updateSemanticInfo(const SemanticInfo &semanticInfo);
+
 private:
     bool sortedMethodOverview() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol);
@@ -140,6 +240,8 @@ private:
     int previousBlockState(QTextBlock block) const;
     QTextCursor moveToPreviousToken(QTextCursor::MoveMode mode) const;
     QTextCursor moveToNextToken(QTextCursor::MoveMode mode) const;
+
+    SemanticHighlighter::Source currentSource();
 
     void createToolBar(CPPEditorEditable *editable);
 
@@ -198,7 +300,10 @@ private:
     QList<QTextEdit::ExtraSelection> m_renameSelections;
     int m_currentRenameSelection;
     bool m_inRename;
+
+    SemanticHighlighter *m_semanticHighlighter;
 };
+
 
 } // namespace Internal
 } // namespace CppEditor
