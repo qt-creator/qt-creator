@@ -391,7 +391,10 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
         }
         const QModelIndex varIndex = root.child(row, 0);
 
+        const QString &proFilePath = includeFile->fileName();
         foreach (const QString &filePath, filePaths) {
+            if (filePath == proFilePath)
+                continue;
             const QString &relativeFilePath = priFileDir.relativeFilePath(filePath);
             proModel.insertItem(new ProValue(relativeFilePath, proVar),
                                 proModel.rowCount(varIndex), varIndex);
