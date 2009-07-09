@@ -296,7 +296,8 @@ QList<int> Shortcut::context() const
 
 void Shortcut::setDefaultKeySequence(const QKeySequence &key)
 {
-    setKeySequence(key);
+    if (m_shortcut->key().isEmpty())
+        setKeySequence(key);
     CommandPrivate::setDefaultKeySequence(key);
 }
 
@@ -384,7 +385,7 @@ QList<CommandLocation> Action::locations() const
 
 void Action::setDefaultKeySequence(const QKeySequence &key)
 {
-    if(m_action->shortcut().isEmpty())
+    if (m_action->shortcut().isEmpty())
         setKeySequence(key);
     CommandPrivate::setDefaultKeySequence(key);
 }
