@@ -215,7 +215,7 @@ protected:
                 if (member->identifier() != id)
                     continue;
                 else if (member->line() < line || (member->line() == line && member->column() <= column)) {
-                    localUses[member].append(SemanticInfo::Use(ast, line, column, id->size()));
+                    localUses[member].append(SemanticInfo::Use(line, column, id->size()));
                     return true;
                 }
             }
@@ -251,7 +251,7 @@ protected:
         }
 
         Identifier *id = identifier(ast->identifier_token);
-        externalUses[id].append(SemanticInfo::Use(ast, line, column, id->size()));
+        externalUses[id].append(SemanticInfo::Use(line, column, id->size()));
 
         return false;
     }
@@ -283,7 +283,7 @@ protected:
         }
 
         Identifier *id = identifier(ast->identifier_token);
-        externalUses[id].append(SemanticInfo::Use(ast, line, column, id->size()));
+        externalUses[id].append(SemanticInfo::Use(line, column, id->size()));
 
         for (TemplateArgumentListAST *arg = ast->template_arguments; arg; arg = arg->next)
             accept(arg);
@@ -902,7 +902,6 @@ void CPPEditor::updateMethodBoxIndex()
 
 static void highlightUses(QTextDocument *doc,
                           const QTextCharFormat &format,
-                          TranslationUnit *translationUnit,
                           const QList<SemanticInfo::Use> &uses,
                           QList<QTextEdit::ExtraSelection> *selections)
 {
@@ -910,34 +909,18 @@ static void highlightUses(QTextDocument *doc,
         return;
 
     foreach (const SemanticInfo::Use &use, uses) {
-        NameAST *name = use.name;
-        bool generated = false;
+        QTextEdit::ExtraSelection sel;
 
-        for (unsigned tk = name->firstToken(), end = name->lastToken(); tk != end; ++tk) {
-            if (translationUnit->tokenAt(tk).generated) {
-                generated = true;
-                break;
-            }
-        }
+        sel.format = format;
+        sel.cursor = QTextCursor(doc);
 
-        if (! generated) {
-            unsigned startLine, startColumn;
-            unsigned endLine, endColumn;
+        const int anchor = doc->findBlockByNumber(use.line - 1).position() + use.column - 1;
+        const int position = anchor + use.length;
 
-            unsigned identifier_token = name->firstToken();
+        sel.cursor.setPosition(anchor);
+        sel.cursor.setPosition(position, QTextCursor::KeepAnchor);
 
-            translationUnit->getTokenStartPosition(identifier_token, &startLine, &startColumn);
-            translationUnit->getTokenEndPosition(identifier_token, &endLine, &endColumn);
-
-            QTextEdit::ExtraSelection sel;
-            sel.cursor = QTextCursor(doc);
-            sel.cursor.setPosition(doc->findBlockByNumber(startLine - 1).position() + startColumn - 1);
-            sel.cursor.setPosition(doc->findBlockByNumber(endLine - 1).position() + endColumn - 1,
-                                   QTextCursor::KeepAnchor);
-            sel.format = format;
-
-            selections->append(sel);
-        }
+        selections->append(sel);
     }
 }
 
@@ -1641,8 +1624,6 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
     QList<QTextEdit::ExtraSelection> selections;
 
-    TranslationUnit *translationUnit = semanticInfo.doc->translationUnit();
-
     SemanticInfo::LocalUseIterator it(semanticInfo.localUses);
     while (it.hasNext()) {
         it.next();
@@ -1661,36 +1642,11 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         if (! good)
             continue;
 
-        highlightUses(document(), format, translationUnit, uses, &selections);
+        highlightUses(document(), format, uses, &selections);
         break; // done
     }
-
-#if 0
-    SemanticInfo::ExternalUseIterator it2(semanticInfo.externalUses);
-    while (it2.hasNext()) {
-        it2.next();
-        const QList<Use> &uses = it2.value();
-
-        bool good = false;
-        foreach (const Use &use, uses) {
-            unsigned l = line;
-            unsigned c = column + 1; // convertCursorPosition() returns a 0-based column number.
-            if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
-                good = true;
-                break;
-            }
-        }
-
-        if (! good)
-            continue;
-
-        highlightUses(document(), format, translationUnit, uses, &selections);
-        break; // done
-    }
-#endif
 
     setExtraSelections(CodeSemanticsSelection, selections);
-
 }
 
 SemanticHighlighter::Source CPPEditor::currentSource()

@@ -31,7 +31,6 @@
 #define CPPEDITOR_H
 
 #include "cppeditorenums.h"
-#include <ASTfwd.h>
 #include <cplusplus/CppDocument.h>
 #include <texteditor/basetexteditor.h>
 
@@ -67,15 +66,15 @@ class SemanticInfo
 {
 public:
     struct Use {
-        CPlusPlus::NameAST *name;
         unsigned line;
         unsigned column;
         unsigned length;
 
-        Use() {}
+        Use()
+                : line(0), column(0), length(0) {}
 
-        Use(CPlusPlus::NameAST *name, unsigned line, unsigned column, unsigned length)
-                : name(name), line(line), column(column), length(length) {}
+        Use(unsigned line, unsigned column, unsigned length)
+                : line(line), column(column), length(length) {}
     };
 
     typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;
