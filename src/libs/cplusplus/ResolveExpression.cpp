@@ -670,7 +670,7 @@ ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
             if (NamedType *namedTy = ty->asNamedType())
                 results += resolveMember(p, memberName, namedTy);
             else if (Function *fun = ty->asFunctionType()) {
-                if (fun->scope()->isBlockScope() || fun->scope()->isNamespaceScope()) {
+                if (fun->scope() && (fun->scope()->isBlockScope() || fun->scope()->isNamespaceScope())) {
                     ty = fun->returnType();
 
                     if (ReferenceType *refTy = ty->asReferenceType())
@@ -897,7 +897,7 @@ QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
             if (Function *funTy = decl->type()->asFunctionType()) {
                 // QString foo("ciao");
                 // foo.
-                if (funTy->scope()->isBlockScope() || funTy->scope()->isNamespaceScope()) {
+                if (funTy->scope() && (funTy->scope()->isBlockScope() || funTy->scope()->isNamespaceScope())) {
                     const ResolveExpression::Result r(funTy->returnType(), decl);
                     resolvedSymbols += resolveClass(r, context);
                 }
