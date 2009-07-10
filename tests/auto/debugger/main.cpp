@@ -124,6 +124,7 @@ private slots:
 
     void dumperCompatibility();
     void dumpQChar();
+    void dumpQDateTime();
     void dumpQFile();
     void dumpQHash();
     void dumpQList_int();
@@ -148,8 +149,9 @@ public slots:
 private:
     QProcess m_proc; // the Qt Creator process
 
-    void dumpQFileHelper(const QString &name, bool exists);
     void dumpQCharHelper(QChar &c);
+    void dumpQDateTimeHelper(QDateTime &d);
+    void dumpQFileHelper(const QString &name, bool exists);
 };
 
 static QByteArray stripped(QByteArray ba)
@@ -433,18 +435,65 @@ void tst_Debugger::dumpQChar()
     dumpQCharHelper(c);
 }
 
+
+static const QByteArray utfToBase64(const QString &string)
+{
+    return QByteArray(reinterpret_cast<const char *>(string.utf16()), 2 * string.size()).toBase64();
+}
+
+static const char *boolToVal(bool b)
+{
+    return b ? "'true'" : "'false'";
+}
+
+static const QByteArray generateQStringSpec(const QString& str)
+{
+    return QByteArray("value='").append(utfToBase64(str)).
+        append("',type='"NS"QString',numchild='0',valueencoded='2'");
+}
+
+void tst_Debugger::dumpQDateTimeHelper(QDateTime &d)
+{
+    QByteArray expected("value='");
+    if (d.isNull())
+        expected.append("(null)',");
+    else
+      expected.append(utfToBase64(d.toString())).append("',valueencoded='2',");
+    expected.append("type='$T',numchild='3',children=[");
+    expected.append("{name='isNull',value=").append(boolToVal(d.isNull())).append(",type='bool',numchild='0'},");
+    expected.append("{name='toTime_t',value='").append(QString::number((long) d.toTime_t())).
+            append("',type='long',numchild='0'},");
+    expected.append("{name='toString',").append(generateQStringSpec(d.toString())).append("},");
+    expected.append("{name='toString_(ISO)',").append(generateQStringSpec(d.toString(Qt::ISODate))).append("},");
+    expected.append("{name='toString_(SystemLocale)',").
+            append(generateQStringSpec(d.toString(Qt::SystemLocaleDate))).append("},");
+    expected.append("{name='toString_(Locale)',").
+            append(generateQStringSpec(d.toString(Qt::LocaleDate))).append("}]");
+    testDumper(expected, &d, NS"QDateTime", true);
+
+}
+
+void tst_Debugger::dumpQDateTime()
+{
+    // Case 1: Null object.
+    QDateTime d;
+    dumpQDateTimeHelper(d);
+
+    // Case 2: Non-null object.
+    d = QDateTime::currentDateTime();
+    dumpQDateTimeHelper(d);
+}
+
 void tst_Debugger::dumpQFileHelper(const QString &name, bool exists)
 {
     QFile file(name);
-    QByteArray filenameAsBase64(reinterpret_cast<const char *>(name.utf16()), 2 * name.size());
-    filenameAsBase64 = filenameAsBase64.toBase64();
-    const char *existsString = exists ? "'true'" : "'false'";
+    QByteArray filenameAsBase64 = utfToBase64(name);
     testDumper(
             QByteArray("value='") + filenameAsBase64 +
             QByteArray("',valueencoded='2',type='$T',numchild='2',children=[{name='fileName',value='") +
             filenameAsBase64 +
             QByteArray("',type='"NS"QString',numchild='0',valueencoded='2'},{name='exists',value=") +
-            QByteArray(existsString) + QByteArray(",type='bool',numchild='0'}]"),
+            QByteArray(boolToVal(exists)) + QByteArray(",type='bool',numchild='0'}]"),
             &file, NS"QFile", true);
 
 }
