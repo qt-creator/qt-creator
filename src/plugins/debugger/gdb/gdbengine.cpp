@@ -3423,9 +3423,14 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
     setWatchDataChildCount(childtemplate, contents.findChild("childnumchild"));
     //qDebug() << "DATA:" << data.toString();
     insertData(data);
+    int i = 0;
     foreach (GdbMi item, children.children()) {
         WatchData data1 = childtemplate;
-        data1.name = _(item.findChild("name").data());
+        GdbMi name = item.findChild("name");
+        if (name.isValid())
+            data1.name = _(name.data());
+        else
+            data1.name = QString::number(i);
         data1.iname = data.iname + _c('.') + data1.name;
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
             data1.name = _c('[') + data1.name + _c(']');
@@ -3454,6 +3459,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
             data1.setChildrenUnneeded();
         //qDebug() << "HANDLE CUSTOM SUBCONTENTS:" << data1.toString();
         insertData(data1);
+        ++i;
     }
 }
 
