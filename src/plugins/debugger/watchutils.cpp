@@ -1338,12 +1338,13 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     case QAbstractItemType:
         inner = data.addr.mid(1);
         break;
-    case QVectorType:
-        extraArgs[1] = QLatin1String("(char*)&((");
-        extraArgs[1] += data.exp;
-        extraArgs[1] += QLatin1String(").d->array)-(char*)");
-        extraArgs[1] += data.exp;
-        extraArgs[1] +=  QLatin1String(".d");
+    case QVectorType: 
+        if (m_qtVersion >= 0x040600)
+            extraArgs[1] = QString("(char*)&((%1).p->array)-(char*)((%2).p)")
+                .arg(data.exp).arg(data.exp);
+        else
+            extraArgs[1] = QString("(char*)&((%1).d->array)-(char*)((%2).d)")
+                .arg(data.exp).arg(data.exp);
         break;
     case QObjectSlotType:
     case QObjectSignalType: {

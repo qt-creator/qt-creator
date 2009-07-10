@@ -616,6 +616,10 @@ void testStdDeque()
 
 void testStdList()
 {
+    std::list<int> big;
+    for (int i = 0; i < 10000; ++i)
+        big.push_back(i);
+
     std::list<int *> plist1;
     plist1.push_back(new int(1));
     plist1.push_back(0);
@@ -977,7 +981,6 @@ void testQVector()
 
     QVector<Foo> flist;
     flist.append(1);
-
     flist.append(2);
     flist.append(3);
     flist.append(4);
