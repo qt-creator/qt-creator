@@ -30,6 +30,7 @@
 #include "cmakeprojectplugin.h"
 #include "cmakeprojectmanager.h"
 #include "cmakerunconfiguration.h"
+#include "cmakeprojectwizard.h"
 #include "makestep.h"
 
 #include <coreplugin/icore.h>
@@ -59,6 +60,8 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     addAutoReleasedObject(new CMakeManager(cmp));
     addAutoReleasedObject(new MakeStepFactory());
     addAutoReleasedObject(new CMakeRunConfigurationFactory());
+    addAutoReleasedObject(new CMakeProjectWizard);
+
     return true;
 }
 

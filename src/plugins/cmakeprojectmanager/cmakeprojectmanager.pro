@@ -10,7 +10,9 @@ HEADERS = cmakeproject.h \
     makestep.h \
     cmakerunconfiguration.h \
     cmakeopenprojectwizard.h \
-    cmakebuildenvironmentwidget.h
+    cmakebuildenvironmentwidget.h \
+    cmakeprojectwizard.h
+
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
@@ -18,7 +20,9 @@ SOURCES = cmakeproject.cpp \
     makestep.cpp \
     cmakerunconfiguration.cpp \
     cmakeopenprojectwizard.cpp \
-    cmakebuildenvironmentwidget.cpp
+    cmakebuildenvironmentwidget.cpp \
+    cmakeprojectwizard.cpp
+
 RESOURCES += cmakeproject.qrc
 FORMS += 
 
