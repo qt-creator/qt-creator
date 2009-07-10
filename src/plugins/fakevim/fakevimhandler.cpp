@@ -321,7 +321,7 @@ public:
     QTextCursor m_tc;
     QTextCursor m_oldTc; // copy from last event to check for external changes
     int m_anchor;
-    QHash<int, QString> m_registers;
+    static QHash<int, QString> m_registers;
     int m_register;
     QString m_mvcount;
     QString m_opcount;
@@ -409,6 +409,7 @@ public:
 
 QStringList FakeVimHandler::Private::m_searchHistory;
 QStringList FakeVimHandler::Private::m_commandHistory;
+QHash<int, QString> FakeVimHandler::Private::m_registers;
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
 {
