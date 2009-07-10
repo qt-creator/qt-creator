@@ -1707,14 +1707,8 @@ void SemanticHighlighter::run()
     forever {
         m_mutex.lock();
 
-        forever {
-            if (m_done)
-                break;
-            else if (! m_source.fileName.isEmpty())
-                break;
-
+        while (! (m_done || ! m_source.fileName.isEmpty()))
             m_condition.wait(&m_mutex);
-        }
 
         const bool done = m_done;
         const Source source = m_source;
