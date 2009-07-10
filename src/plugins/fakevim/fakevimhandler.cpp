@@ -1585,6 +1585,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
     } else if (key >= control('a') && key <= control('z')) {
         // ignore these
     } else if (!text.isEmpty()) {
+        m_justAutoIndented = false;
         m_lastInsertion.append(text);
         if (m_submode == ReplaceSubMode) {
             if (atEndOfLine())

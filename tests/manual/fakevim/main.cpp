@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
     theFakeVimSetting(ConfigUseFakeVim)->setValue(true);
     theFakeVimSetting(ConfigShiftWidth)->setValue(8);
     theFakeVimSetting(ConfigTabStop)->setValue(8);
+    theFakeVimSetting(ConfigAutoIndent)->setValue(true);
 
     handler.installEventFilter();
     handler.setupWidget();
