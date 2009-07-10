@@ -253,7 +253,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     fl->addRow(tr("Working Directory:"), boxlayout);
 
     QGroupBox *box = new QGroupBox(tr("Environment"),this);
-    QVBoxLayout *boxLayout = new QVBoxLayout();
+    QVBoxLayout *boxLayout = new QVBoxLayout;
     box->setLayout(boxLayout);
     box->setFlat(true);
 

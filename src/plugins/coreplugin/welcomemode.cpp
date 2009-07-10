@@ -39,6 +39,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QScrollArea>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
@@ -58,6 +59,7 @@ struct WelcomeModePrivate
 {
     WelcomeModePrivate();
 
+    QScrollArea *m_scrollArea;
     QWidget *m_widget;
     QWidget *m_welcomePage;
     QButtonGroup *btnGrp;
@@ -139,6 +141,11 @@ WelcomeMode::WelcomeMode() :
     m_d->ui.helpUsLabel->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     m_d->ui.feedbackButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     l->addWidget(m_d->m_welcomePage);
+
+    m_d->m_scrollArea = new QScrollArea;
+    m_d->m_scrollArea->setFrameStyle(QFrame::NoFrame);
+    m_d->m_scrollArea->setWidget(m_d->m_widget);
+    m_d->m_scrollArea->setWidgetResizable(true);
 
     updateWelcomePage(WelcomePageData());
 
@@ -229,7 +236,7 @@ int WelcomeMode::priority() const
 
 QWidget* WelcomeMode::widget()
 {
-    return m_d->m_widget;
+    return m_d->m_scrollArea;
 }
 
 const char* WelcomeMode::uniqueModeName() const
