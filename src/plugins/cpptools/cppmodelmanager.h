@@ -176,6 +176,9 @@ private:
     mutable QMutex protectSnapshot;
 
     struct Editor {
+        Editor()
+                : revision(-1) {}
+        int revision;
         QPointer<TextEditor::ITextEditor> textEditor;
         QList<QTextEdit::ExtraSelection> selections;
         QList<TextEditor::BaseTextEditor::BlockRange> ifdefedOutBlocks;
