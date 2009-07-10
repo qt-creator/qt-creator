@@ -181,10 +181,11 @@ public:
 
     CPPEditor(QWidget *parent);
     ~CPPEditor();
-
     void unCommentSelection();
 
     void indentInsertedText(const QTextCursor &tc);
+
+    SemanticInfo semanticInfo() const;
 
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -302,6 +303,7 @@ private:
     bool m_inRename;
 
     SemanticHighlighter *m_semanticHighlighter;
+    SemanticInfo m_lastSemanticInfo;
 };
 
 

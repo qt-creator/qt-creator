@@ -1256,6 +1256,11 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
     return 0;
 }
 
+SemanticInfo CPPEditor::semanticInfo() const
+{
+    return m_lastSemanticInfo;
+}
+
 bool CPPEditor::isElectricCharacter(const QChar &ch) const
 {
     if (ch == QLatin1Char('{') ||
@@ -1616,6 +1621,14 @@ void CPPEditor::semanticRehighlight()
 
 void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 {
+    if (semanticInfo.revision != document()->revision()) {
+        // got outdated semantic info
+        semanticRehighlight();
+        return;
+    }
+
+    m_lastSemanticInfo = semanticInfo;
+
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
 
