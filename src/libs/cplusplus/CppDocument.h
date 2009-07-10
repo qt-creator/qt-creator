@@ -277,6 +277,8 @@ public:
     Snapshot();
     ~Snapshot();
 
+    Snapshot simplified(Document::Ptr doc) const;
+
     QByteArray preprocessedCode(const QString &source,
                                 const QString &fileName) const;
 
@@ -288,6 +290,9 @@ public:
     void insert(Document::Ptr doc);
 
     using _Base::insert;
+
+private:
+    void simplified_helper(Document::Ptr doc, Snapshot *snapshot) const;
 };
 
 } // end of namespace CPlusPlus

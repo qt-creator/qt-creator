@@ -1727,6 +1727,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source) const
 {
     const QByteArray preprocessedCode = source.snapshot.preprocessedCode(source.code, source.fileName);
     Document::Ptr doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
+    const Snapshot snapshot = source.snapshot.simplified(doc);
     doc->check();
 
     Control *control = doc->control();
@@ -1741,6 +1742,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source) const
 
     SemanticInfo semanticInfo;
     semanticInfo.revision = source.revision;
+    semanticInfo.snapshot = snapshot;
     semanticInfo.doc = doc;
     semanticInfo.localUses = useTable.localUses;
     semanticInfo.externalUses = useTable.externalUses;

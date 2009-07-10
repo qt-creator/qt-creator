@@ -386,3 +386,25 @@ QSharedPointer<NamespaceBinding> Snapshot::globalNamespaceBinding(Document::Ptr 
 {
     return CPlusPlus::bind(doc, *this);
 }
+
+Snapshot Snapshot::simplified(Document::Ptr doc) const
+{
+    Snapshot snapshot;
+    simplified_helper(doc, &snapshot);
+    return snapshot;
+}
+
+void Snapshot::simplified_helper(Document::Ptr doc, Snapshot *snapshot) const
+{
+    if (! doc)
+        return;
+
+    if (! snapshot->contains(doc->fileName())) {
+        snapshot->insert(doc);
+
+        foreach (const Document::Include &incl, doc->includes()) {
+            Document::Ptr includedDoc = value(incl.fileName());
+            simplified_helper(includedDoc, snapshot);
+        }
+    }
+}

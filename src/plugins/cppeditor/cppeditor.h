@@ -88,6 +88,7 @@ public:
     { }
 
     int revision;
+    CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;
     LocalUseMap localUses;
     ExternalUseMap externalUses;
