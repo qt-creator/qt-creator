@@ -46,6 +46,7 @@ class QModelIndex;
 class QPoint;
 class QTimer;
 class QWidget;
+class QTreeView;
 class QDebug;
 QT_END_NAMESPACE
 
@@ -307,7 +308,6 @@ public slots:
     void detachDebugger();
 
     void addToWatchWindow();
-    void updateWatchData(const WatchData &data);
 
     void sessionLoaded();
     void sessionUnloaded();
@@ -418,6 +418,7 @@ public:
 private:
     void init();
     void runTest(const QString &fileName);
+    void initializeWatchModels(IDebuggerEngine *engine);
     QDockWidget *createDockForWidget(QWidget *widget);
     Q_SLOT void createNewDock(QWidget *widget);
     void updateDockWidget(QDockWidget *dockWidget);
@@ -483,13 +484,12 @@ private:
 
     QWidget *m_breakWindow;
     QWidget *m_disassemblerWindow;
-    QWidget *m_localsWindow;
+    QTreeView *m_localsWindow;
     QWidget *m_registerWindow;
     QWidget *m_modulesWindow;
-    //QWidget *m_tooltipWindow;
     QWidget *m_stackWindow;
     QWidget *m_threadsWindow;
-    QWidget *m_watchersWindow;
+    QTreeView *m_watchersWindow;
     DebuggerOutputWindow *m_outputWindow;
 
     int m_status;

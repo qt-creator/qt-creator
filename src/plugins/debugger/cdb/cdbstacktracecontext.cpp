@@ -28,11 +28,11 @@
 **************************************************************************/
 
 #include "cdbstacktracecontext.h"
-#include "cdbstackframecontext.h"
 #include "cdbbreakpoint.h"
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdebugengine_p.h"
 #include "cdbdumperhelper.h"
+#include "debuggeractions.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
@@ -90,7 +90,7 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
         qDebug() << Q_FUNC_INFO << frameCount;
 
     m_frameContexts.resize(frameCount);
-    qFill(m_frameContexts, static_cast<CdbStackFrameContext*>(0));
+    qFill(m_frameContexts, static_cast<CdbSymbolGroupContext*>(0));
 
     // Convert the DEBUG_STACK_FRAMEs to our StackFrame structure and populate the frames
     WCHAR wszBuf[MAX_PATH];
@@ -145,7 +145,7 @@ static inline QString msgFrameContextFailed(int index, const StackFrame &f, cons
             arg(index).arg(f.function).arg(f.line).arg(f.file, why);
 }
 
-CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *errorMessage)
+CdbSymbolGroupContext *CdbStackTraceContext::symbolGroupAt(int index, QString *errorMessage)
 {
     // Create a frame on demand
     if (debugCDB)
@@ -158,6 +158,7 @@ CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *e
     }
     if (m_frameContexts.at(index))
         return m_frameContexts.at(index);
+    // Create COM and wrap
     CIDebugSymbolGroup *sg  = createSymbolGroup(index, errorMessage);
     if (!sg) {
         *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
@@ -168,9 +169,8 @@ CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *e
         *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
         return 0;
     }
-    CdbStackFrameContext *fr = new CdbStackFrameContext(m_dumper, sc);
-    m_frameContexts[index] = fr;
-    return fr;
+    m_frameContexts[index] = sc;
+    return sc;
 }
 
 CIDebugSymbolGroup *CdbStackTraceContext::createSymbolGroup(int index, QString *errorMessage)
@@ -197,6 +197,49 @@ CIDebugSymbolGroup *CdbStackTraceContext::createSymbolGroup(int index, QString *
     }
     return sg;
 }
+
+bool CdbStackTraceContext::editorToolTip(int frameIndex,
+                                         const QString &iname,
+                                         QString *value,
+                                         QString *errorMessage)
+{
+    value->clear();
+    // Look up iname in the frame's symbol group.
+    CdbSymbolGroupContext *m_symbolContext = symbolGroupAt(frameIndex, errorMessage);
+    if (!m_symbolContext)
+        return false;
+    unsigned long index;
+    if (!m_symbolContext->lookupPrefix(iname, &index)) {
+        *errorMessage = QString::fromLatin1("%1 not found.").arg(iname);
+        return false;
+    }
+    const WatchData wd = m_symbolContext->symbolAt(index);
+    // Check dumpers. Should actually be just one item.
+    if (theDebuggerBoolSetting(UseDebuggingHelpers) && m_dumper->isEnabled()) {
+        QList<WatchData> result;
+        if (CdbDumperHelper::DumpOk == m_dumper->dumpType(wd, false, 1, &result, errorMessage))  {
+            foreach (const WatchData &dwd, result) {
+                if (!value->isEmpty())
+                    value->append(QLatin1Char('\n'));
+                value->append(dwd.toToolTip());
+            }
+            return true;
+        } // Dumped ok
+    }     // has Dumpers
+    *value = wd.toToolTip();
+    return true;
+}
+
+bool CdbStackTraceContext::assignValue(int frameIndex,
+                                       const QString &iname,
+                                       const QString &value,
+                                       QString *newValue /* = 0 */, QString *errorMessage)
+{
+    if (CdbSymbolGroupContext *symbolContext = symbolGroupAt(frameIndex, errorMessage))
+        return symbolContext->assignValue(iname, value, newValue, errorMessage);
+    return  false;
+}
+
 
 QString CdbStackTraceContext::toString() const
 {

@@ -327,9 +327,11 @@ void WatchWindow::editItem(const QModelIndex &idx)
     Q_UNUSED(idx); // FIXME
 }
 
-void WatchWindow::setModel(QAbstractItemModel *model)
+void WatchWindow::setModel(QAbstractItemModel *newModel)
 {
-    QTreeView::setModel(model);
+    if (model() == newModel)
+        return;
+    QTreeView::setModel(newModel);
 
     setRootIsDecorated(true);
     header()->setDefaultAlignment(Qt::AlignLeft);
@@ -337,7 +339,7 @@ void WatchWindow::setModel(QAbstractItemModel *model)
     if (m_type != LocalsType)
         header()->hide();
 
-    connect(model, SIGNAL(layoutChanged()), this, SLOT(resetHelper()));
+    connect(newModel, SIGNAL(layoutChanged()), this, SLOT(resetHelper()));
 }
 
 void WatchWindow::resetHelper()

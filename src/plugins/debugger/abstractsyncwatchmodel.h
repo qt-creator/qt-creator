@@ -27,49 +27,49 @@
 **
 **************************************************************************/
 
-#ifndef CDBSTACKFRAMECONTEXT_H
-#define CDBSTACKFRAMECONTEXT_H
+#ifndef ABSTRACTSYNCWATCHMODEL_H
+#define ABSTRACTSYNCWATCHMODEL_H
 
+#include "watchhandler.h"
+#include <QtCore/QPointer>
 #include <QtCore/QList>
-#include <QtCore/QSharedPointer>
+
+QT_BEGIN_NAMESPACE
+class QDebug;
+QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
 
-class WatchData;
-class WatchHandler;
-class CdbSymbolGroupContext;
-class CdbDumperHelper;
+/* AbstractSyncWatchModel: To be used by synchonous debuggers.
+ * Implements all of WatchModel and provides new virtuals for
+ * the debugger to complete items. */
 
-/* CdbStackFrameContext manages a symbol group context and
- * a dumper context. It dispatches calls between the local items
- * that are handled by the symbol group and those that are handled by the dumpers. */
-
-class CdbStackFrameContext
+class AbstractSyncWatchModel : public WatchModel
 {
-    Q_DISABLE_COPY(CdbStackFrameContext)
+    Q_OBJECT
 public:
-    explicit CdbStackFrameContext(const QSharedPointer<CdbDumperHelper> &dumper,
-                                  CdbSymbolGroupContext *symbolContext);
-    ~CdbStackFrameContext();   
+    explicit AbstractSyncWatchModel(WatchHandler *handler, WatchType type, QObject *parent = 0);
 
-    bool assignValue(const QString &iname, const QString &value,
-                     QString *newValue /* = 0 */, QString *errorMessage);
-    bool editorToolTip(const QString &iname, QString *value, QString *errorMessage);
+    virtual QVariant data(const QModelIndex &index, int role) const;
 
-    bool populateModelInitially(WatchHandler *wh, QString *errorMessage);
+    virtual void fetchMore(const QModelIndex &parent);
+    virtual bool canFetchMore(const QModelIndex &parent) const;
 
-    bool completeData(const WatchData &incompleteLocal,
-                      WatchHandler *wh,
-                      QString *errorMessage);
+signals:
+    // Emitted if one of fetchChildren/complete fails.
+    void error(const QString &);
+
+protected:
+    // Overwrite these virtuals to fetch children of an item and to complete it
+    virtual bool fetchChildren(WatchItem *wd, QString *errorMessage) = 0;
+    virtual bool complete(WatchItem *wd, QString *errorMessage) = 0;
 
 private:
-    const bool m_useDumpers;
-    const QSharedPointer<CdbDumperHelper> m_dumper;
-    CdbSymbolGroupContext *m_symbolContext;
+    mutable QString m_errorMessage;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // CDBSTACKFRAMECONTEXT_H
+#endif // ABSTRACTSYNCWATCHMODEL_H

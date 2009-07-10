@@ -187,7 +187,8 @@ static IDebuggerEngine *tcfEngine = 0;
 
 DebuggerManager::DebuggerManager()
   : m_startParameters(new DebuggerStartParameters),
-    m_inferiorPid(0)
+    m_inferiorPid(0),
+    m_watchHandler(new WatchHandler)
 {
     init();
 }
@@ -231,6 +232,8 @@ void DebuggerManager::init()
     m_sourceFilesWindow = new SourceFilesWindow;
     m_threadsWindow = new ThreadsWindow;
     m_localsWindow = new WatchWindow(WatchWindow::LocalsType);
+    m_watchHandler->init(m_localsWindow);
+
     m_watchersWindow = new WatchWindow(WatchWindow::WatchersType);
     //m_tooltipWindow = new WatchWindow(WatchWindow::TooltipType);
     m_statusTimer = new QTimer(this);
@@ -321,14 +324,7 @@ void DebuggerManager::init()
     m_registerHandler = new RegisterHandler;
     registerView->setModel(m_registerHandler->model());
 
-    // Locals
-    m_watchHandler = new WatchHandler;
-    QTreeView *localsView = qobject_cast<QTreeView *>(m_localsWindow);
-    localsView->setModel(m_watchHandler->model(LocalsWatch));
-
-    // Watchers
-    QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
-    watchersView->setModel(m_watchHandler->model(WatchersWatch));
+    // Locals/Watchers
     connect(m_watchHandler, SIGNAL(sessionValueRequested(QString,QVariant*)),
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
@@ -337,12 +333,6 @@ void DebuggerManager::init()
         this, SLOT(assignValueInDebugger()), Qt::QueuedConnection);
 
     // Tooltip
-    //QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);
-    //tooltipView->setModel(m_watchHandler->model(TooltipsWatch));
-
-    connect(m_watchHandler, SIGNAL(watchDataUpdateNeeded(WatchData)),
-        this, SLOT(updateWatchData(WatchData)));
-
     m_continueAction = new QAction(this);
     m_continueAction->setText(tr("Continue"));
     m_continueAction->setIcon(QIcon(":/debugger/images/debugger_continue_small.png"));
@@ -471,12 +461,34 @@ void DebuggerManager::init()
     localsAndWatchers->setStretchFactor(2, 1);
     m_watchDock = createDockForWidget(localsAndWatchers);
 
+    initializeWatchModels(gdbEngine);
+
     setStatus(DebuggerProcessNotReady);
+}
+
+void DebuggerManager::initializeWatchModels(IDebuggerEngine *engine)
+{
+    if (engine == 0)
+        return;
+    WatchModel *localsModel = engine->watchModel(LocalsWatch);
+    m_watchHandler->setModel(LocalsWatch, localsModel);
+    m_localsWindow->setModel(localsModel);
+
+    WatchModel *watchModel = engine->watchModel(WatchersWatch);
+    m_watchHandler->setModel(WatchersWatch, watchModel);
+    m_watchersWindow->setModel(watchModel);
+
+    if (WatchModel *toolTipModel = engine->watchModel(TooltipsWatch)) {
+        m_watchHandler->setModel(TooltipsWatch, toolTipModel);
+    } else {
+        m_watchHandler->setModel(TooltipsWatch, 0);
+    }
 }
 
 QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTypeFlags)
 {
     QList<Core::IOptionsPage*> rc;
+    // Initialize watch models so columns show up initially.
     if (enabledTypeFlags & GdbEngineType)
         gdbEngine = createGdbEngine(this, &rc);
     winEngine = createWinEngine(this, (enabledTypeFlags & CdbEngineType), &rc);
@@ -487,6 +499,12 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
     m_engine = 0;
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine << rc.size();
+    if (gdbEngine) {
+        initializeWatchModels(gdbEngine);
+    } else {
+        if (winEngine)
+            initializeWatchModels(winEngine);
+    }
     return rc;
 }
 
@@ -802,12 +820,6 @@ void DebuggerManager::setToolTipExpression(const QPoint &mousePos, TextEditor::I
         m_engine->setToolTipExpression(mousePos, editor, cursorPos);
 }
 
-void DebuggerManager::updateWatchData(const WatchData &data)
-{
-    if (m_engine)
-        m_engine->updateWatchData(data);
-}
-
 QVariant DebuggerManager::sessionValue(const QString &name)
 {
     // this is answered by the plugin
@@ -862,7 +874,7 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
         return scriptEngine;
     }
 
-#ifndef Q_OS_WIN    
+#ifndef Q_OS_WIN
     Q_UNUSED(settingsIdHint)
     if (!gdbEngine) {
         *errorMessage = msgEngineNotAvailable("Gdb Engine");
@@ -943,6 +955,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl,
         break;
     }
 
+
     if (!m_engine) {
         debuggingFinished();
         // Create Message box with possibility to go to settings
@@ -956,6 +969,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl,
             Core::ICore::instance()->showOptionsDialog(_(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
         return;
     }
+    initializeWatchModels(m_engine);
 
     if (Debugger::Constants::Internal::debug)
         qDebug() << m_startParameters->executable << m_engine;

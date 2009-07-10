@@ -34,6 +34,7 @@
 #include "gdbmi.h"
 #include "outputcollector.h"
 #include "watchutils.h"
+#include "asyncwatchmodel.h"
 
 #include <consoleprocess.h>
 
@@ -122,6 +123,8 @@ private:
     void loadAllSymbols();
     virtual QList<Symbol> moduleSymbols(const QString &moduleName);
 
+    WatchModel *watchModel(int type) const { return m_models.model(type); }
+
     Q_SLOT void setDebugDebuggingHelpers(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 
@@ -197,6 +200,7 @@ private slots:
     void stubStarted();
     void stubError(const QString &msg);
     void uploadProcError(QProcess::ProcessError error);
+    void updateWatchData(const WatchData &data);
 
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
@@ -324,7 +328,6 @@ private:
     // FIXME: BaseClass. called to improve situation for a watch item
     void updateSubItem(const WatchData &data);
 
-    void updateWatchData(const WatchData &data);
     void rebuildModel();
 
     void insertData(const WatchData &data);
@@ -384,6 +387,7 @@ private:
 
     DebuggerManager * const q;
     IDebuggerManagerAccessForEngines * const qq;
+    AsyncWatchModelMixin m_models;
     // make sure to re-initialize new members in initializeVariables();
 };
 

@@ -44,6 +44,8 @@ HEADERS += \
     sourcefileswindow.h \
     threadswindow.h \
     watchhandler.h \
+    asyncwatchmodel.h \
+    abstractsyncwatchmodel.h \
     watchwindow.h \
 
 SOURCES += \
@@ -71,6 +73,8 @@ SOURCES += \
     sourcefileswindow.cpp \
     threadswindow.cpp \
     watchhandler.cpp \
+    asyncwatchmodel.cpp \
+    abstractsyncwatchmodel.cpp \
     watchwindow.cpp \
 
 FORMS += attachexternaldialog.ui \

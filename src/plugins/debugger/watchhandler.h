@@ -32,19 +32,21 @@
 
 #include <QtCore/QPointer>
 #include <QtCore/QObject>
+#include <QtCore/QStringList>
 #include <QtCore/QHash>
 #include <QtCore/QSet>
-#include <QtGui/QStandardItem>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QTreeView>
+#include <QtCore/QAbstractItemModel>
 #include <QtScript/QScriptValue>
+
+QT_BEGIN_NAMESPACE
+class QTreeView;
+QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
 
-class WatchItem;
 class WatchHandler;
-enum WatchType { LocalsWatch, WatchersWatch, TooltipsWatch };
+enum WatchType { LocalsWatch, WatchersWatch, TooltipsWatch, WatchModelCount };
 
 class WatchData
 {
@@ -160,51 +162,95 @@ enum DumpableFormat
     PlainFomat, 
 };
 
+class WatchHandler;
+
+// Item used by the model.
+class WatchItem : public WatchData
+{
+    Q_DISABLE_COPY(WatchItem)
+public:
+    WatchItem();
+    explicit WatchItem(const WatchData &data);
+
+    ~WatchItem();
+
+    void setData(const WatchData &data);
+    void addChild(WatchItem *child);
+    void removeChildren();
+
+    WatchItem *parent;
+    bool fetchTriggered;
+    QList<WatchItem*> children;
+};
+
+/* WatchModel: To be used by synchonous debuggers.
+ * Implements all of WatchModel and provides new virtuals for
+ * the debugger to complete items. */
+
 class WatchModel : public QAbstractItemModel
 {
     Q_OBJECT
+public:
+    explicit WatchModel(WatchHandler *handler, WatchType type, QObject *parent = 0);
+    virtual ~WatchModel();
 
-private:
-    explicit WatchModel(WatchHandler *handler, WatchType type);
+    virtual QModelIndex index(int, int, const QModelIndex &idx = QModelIndex()) const;
 
-    QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
-    QModelIndex index(int, int, const QModelIndex &idx) const;
-    QModelIndex parent(const QModelIndex &idx) const;
-    int rowCount(const QModelIndex &idx) const;
-    int columnCount(const QModelIndex &idx) const;
-    bool hasChildren(const QModelIndex &idx) const;
-    Qt::ItemFlags flags(const QModelIndex &idx) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
-        int role = Qt::DisplayRole) const;
-    bool canFetchMore(const QModelIndex &parent) const;
-    void fetchMore(const QModelIndex &parent);
+    virtual int columnCount(const QModelIndex &idx= QModelIndex()) const;
+    virtual int rowCount(const QModelIndex &idx) const;
+    virtual bool hasChildren(const QModelIndex &idx) const;
+    virtual QVariant data(const QModelIndex &index, int role) const;
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
 
-    friend class WatchHandler;
-    friend class GdbEngine;
+    virtual Qt::ItemFlags flags(const QModelIndex &idx) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation,
+                                int role = Qt::DisplayRole) const;
+
+    virtual QModelIndex parent(const QModelIndex &idx) const;
 
     WatchItem *watchItem(const QModelIndex &) const;
     QModelIndex watchIndex(const WatchItem *needle) const;
     QModelIndex watchIndexHelper(const WatchItem *needle,
         const WatchItem *parentItem, const QModelIndex &parentIndex) const;
 
-    void insertData(const WatchData &data);
-    WatchItem *findItem(const QString &iname, WatchItem *root) const;
+    WatchItem *findItemByIName(const QString &iname, WatchItem *root) const;
+    WatchItem *findItemByExpression(const QString &iname, WatchItem *root) const;
     void reinitialize();
-    void removeOutdated();
-    void removeOutdatedHelper(WatchItem *item);
-    WatchItem *dummyRoot() const;
-    void removeItem(WatchItem *item);
-    void setActiveData(const QString &data) { m_activeData = data; }
 
-    void emitDataChanged(int column,
-        const QModelIndex &parentIndex = QModelIndex());
+    void removeItem(WatchItem *item);
+    WatchItem *root() const;
+
+    WatchItem *dummyRoot() const;
+
+    void setValueByIName(const QString &iname, const QString &value);
+    void setValueByExpression(const QString &iname, const QString &value);
+
+    void emitDataChanged(int column, const QModelIndex &parentIndex = QModelIndex());
+
+protected:
+    WatchHandler *handler() const { return m_handler; }
+    QVariant data(const WatchData &data, int column, int role) const;
+
+    static QString parentName(const QString &iname);
 
 private:
-    WatchHandler *m_handler;
-    WatchType m_type;
     WatchItem *m_root;
-    QString m_activeData;
+    WatchHandler *m_handler;
+    const WatchType m_type;
+};
+
+QDebug operator<<(QDebug d, const WatchModel &wm);
+
+/* A helper predicate for implementing model find routines */
+class WatchPredicate {
+public:
+    enum Mode { INameMatch, ExpressionMatch };
+    explicit WatchPredicate(Mode m, const QString &pattern);
+    bool operator()(const WatchData &w) const;
+
+private:
+    const QString &m_pattern;
+    const Mode m_mode;
 };
 
 class WatchHandler : public QObject
@@ -213,8 +259,16 @@ class WatchHandler : public QObject
 
 public:
     WatchHandler();
+    void init(QTreeView *localsView);
+
     WatchModel *model(WatchType type) const;
+    static WatchType watchTypeOfIName(const QString &iname);
     WatchModel *modelForIName(const QString &data) const;
+
+    QStringList watcherExpressions() const;
+    QString watcherName(const QString &exp);
+
+    void setModel(WatchType type, WatchModel *model);
 
 //public slots:
     void cleanup();
@@ -222,12 +276,8 @@ public:
     Q_SLOT void watchExpression(const QString &exp);
     Q_SLOT void removeWatchExpression();
     Q_SLOT void removeWatchExpression(const QString &exp);
-    void beginCycle(); // called at begin of updateLocals() cycle
-    void updateWatchers(); // called after locals are fetched
-    void endCycle(); // called after all results have been received
     void showEditValue(const WatchData &data);
 
-    void insertData(const WatchData &data);
     void removeData(const QString &iname);
     WatchData *findItem(const QString &iname) const;
 
@@ -241,18 +291,32 @@ public:
     QSet<QString> expandedINames() const
         { return m_expandedINames; }
 
+    // For debuggers that clean out the locals models between frames:
+    // save/restore the expansion state.
+    Q_SLOT void restoreLocalsViewState(int frame = 0);
+    Q_SLOT void saveLocalsViewState(int frame = 0);
+
     static QString watcherEditPlaceHolder();
 
 signals:
-    void watchDataUpdateNeeded(const WatchData &data);
+    void watcherInserted(const WatchData &data);
     void sessionValueRequested(const QString &name, QVariant *value);
     void setSessionValueRequested(const QString &name, const QVariant &value);
 
 private:
-    friend class WatchModel;
+    friend class WatchModel; // needs formats, expanded inames
+
+    // Per stack-frame locals state
+    struct LocalsViewState {
+        LocalsViewState() : firstVisibleRow(0) {}
+        int firstVisibleRow;
+        QSet<QString> expandedINames;
+    };
+    typedef QMap<int, LocalsViewState> LocalsViewStateMap;
 
     void loadWatchers();
     void saveWatchers();
+    void initWatchModel();
 
     void loadTypeFormats();
     void saveTypeFormats();
@@ -265,17 +329,16 @@ private:
     EditWindows m_editWindows;
 
     QHash<QString, int> m_watcherNames;
-    QString watcherName(const QString &exp);
     QHash<QString, int> m_typeFormats;
     QHash<QString, int> m_individualFormats;
 
     void setDisplayedIName(const QString &iname, bool on);
     QSet<QString> m_expandedINames;  // those expanded in the treeview
     QSet<QString> m_displayedINames; // those with "external" viewers
+    LocalsViewStateMap m_localsViewState;
 
-    WatchModel *m_locals;
-    WatchModel *m_watchers;
-    WatchModel *m_tooltips;
+    WatchModel *m_models[WatchModelCount];
+    QPointer<QTreeView> m_localsView;
 };
 
 } // namespace Internal

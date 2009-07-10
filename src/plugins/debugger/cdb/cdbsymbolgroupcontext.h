@@ -81,31 +81,6 @@ public:
     bool assignValue(const QString &iname, const QString &value,
                      QString *newValue /* = 0 */, QString *errorMessage);
 
-    // Initially populate the locals model for a new stackframe.
-    // Write a sequence of WatchData to it, recurse down if the
-    // recursionPredicate agrees. The ignorePredicate can be used
-    // to terminate processing after insertion of an item (if the calling
-    // routine wants to insert another subtree).
-    template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-    static bool populateModelInitially(CdbSymbolGroupContext *sg,
-                                       OutputIterator it,
-                                       RecursionPredicate recursionPredicate,
-                                       IgnorePredicate ignorePredicate,
-                                       QString *errorMessage);
-
-    // Complete children of a WatchData item.
-    // Write a sequence of WatchData to it, recurse if the
-    // recursionPredicate agrees. The ignorePredicate can be used
-    // to terminate processing after insertion of an item (if the calling
-    // routine wants to insert another subtree).
-    template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-    static bool completeData (CdbSymbolGroupContext *sg,
-                              WatchData incompleteLocal,
-                              OutputIterator it,
-                              RecursionPredicate recursionPredicate,
-                              IgnorePredicate ignorePredicate,
-                              QString *errorMessage);
-
     // Retrieve child symbols of prefix as a sequence of WatchData.
     template <class OutputIterator>
             bool getChildSymbols(const QString &prefix, OutputIterator it, QString *errorMessage);

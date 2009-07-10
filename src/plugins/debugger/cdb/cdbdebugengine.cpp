@@ -30,7 +30,6 @@
 #include "cdbdebugengine.h"
 #include "cdbdebugengine_p.h"
 #include "cdbstacktracecontext.h"
-#include "cdbstackframecontext.h"
 #include "cdbsymbolgroupcontext.h"
 #include "cdbbreakpoint.h"
 #include "cdbmodules.h"
@@ -47,6 +46,7 @@
 #include "moduleshandler.h"
 #include "disassemblerhandler.h"
 #include "watchutils.h"
+#include "cdbwatchmodels.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -301,7 +301,9 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent,
     m_debuggerManagerAccess(parent->engineInterface()),
     m_currentStackTrace(0),
     m_firstActivatedFrame(true),
-    m_mode(AttachCore)
+    m_mode(AttachCore),
+    m_localsModel(0),
+    m_watchModel(0)
 {
 }
 
@@ -390,6 +392,15 @@ CdbDebugEnginePrivate::~CdbDebugEnginePrivate()
         m_cif.debugDataSpaces->Release();
 }
 
+void CdbDebugEnginePrivate::saveLocalsViewState()
+{
+    if (m_localsModel && m_localsModel->symbolGroupContext()) {
+        const int oldFrame = m_debuggerManagerAccess->stackHandler()->currentIndex();
+        if (oldFrame != -1)
+            m_debuggerManagerAccess->watchHandler()->saveLocalsViewState(oldFrame);
+    }
+}
+
 void CdbDebugEnginePrivate::clearForRun()
 {
     if (debugCDB)
@@ -403,6 +414,10 @@ void CdbDebugEnginePrivate::clearForRun()
 
 void CdbDebugEnginePrivate::cleanStackTrace()
 {
+    if (m_localsModel) {
+        saveLocalsViewState();
+        m_localsModel->setSymbolGroupContext(0);
+    }
     if (m_currentStackTrace) {
         delete m_currentStackTrace;
         m_currentStackTrace = 0;
@@ -465,14 +480,19 @@ QString CdbDebugEngine::editorToolTip(const QString &exp, const QString &functio
     QString errorMessage;
     QString rc;
     // Find the frame of the function if there is any
-    CdbStackFrameContext *frame = 0;
+    const QString iname = QLatin1String("local.") + exp;
     if (m_d->m_currentStackTrace &&  !function.isEmpty()) {
         const int frameIndex = m_d->m_currentStackTrace->indexOf(function);
-        if (frameIndex != -1)
-            frame = m_d->m_currentStackTrace->frameContextAt(frameIndex, &errorMessage);
+        if (frameIndex != -1) {
+            // Are we at the current frame?
+            if (frameIndex == m_d->m_debuggerManagerAccess->stackHandler()->currentIndex()) {
+                if (const WatchData *wd = m_d->m_localsModel->findItemByIName(iname, m_d->m_localsModel->root()))
+                    return wd->toToolTip();                            }
+            // Nope, try to retrieve via another symbol group
+            if (m_d->m_currentStackTrace->editorToolTip(frameIndex, iname, &rc, &errorMessage))
+                return rc;
+        }
     }
-    if (frame && frame->editorToolTip(QLatin1String("local.") + exp, &rc, &errorMessage))
-        return rc;
     // No function/symbol context found, try to evaluate in current context.
     // Do not append type as this will mostly be 'long long' for integers, etc.
     QString type;
@@ -770,67 +790,6 @@ void CdbDebugEngine::detachDebugger()
     m_d->endDebugging(CdbDebugEnginePrivate::EndDebuggingDetach);
 }
 
-CdbStackFrameContext *CdbDebugEnginePrivate::getStackFrameContext(int frameIndex, QString *errorMessage) const
-{
-    if (!m_currentStackTrace) {
-        *errorMessage = QLatin1String(msgNoStackTraceC);
-        return 0;
-    }
-    if (CdbStackFrameContext *sg = m_currentStackTrace->frameContextAt(frameIndex, errorMessage))
-        return sg;
-    return 0;
-}
-
-void CdbDebugEngine::evaluateWatcher(WatchData *wd)
-{
-    if (debugCDBWatchHandling)
-        qDebug() << Q_FUNC_INFO << wd->exp;
-    QString errorMessage;
-    QString value;
-    QString type;
-    if (evaluateExpression(wd->exp, &value, &type, &errorMessage)) {
-        wd->setValue(value);
-        wd->setType(type);
-    } else {
-        wd->setValue(errorMessage);
-        wd->setTypeUnneeded();
-    }
-    wd->setHasChildren(false);
-}
-
-void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
-{
-    // Watch item was edited while running
-    if (m_d->isDebuggeeRunning())
-        return;
-
-    if (debugCDBWatchHandling)
-        qDebug() << Q_FUNC_INFO << "\n    " << incomplete.toString();
-
-    WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
-    if (incomplete.iname.startsWith(QLatin1String("watch."))) {
-        WatchData watchData = incomplete;
-        evaluateWatcher(&watchData);
-        watchHandler->insertData(watchData);
-        return;
-    }
-
-    const int frameIndex = m_d->m_debuggerManagerAccess->stackHandler()->currentIndex();
-
-    bool success = false;
-    QString errorMessage;
-    do {
-        CdbStackFrameContext *sg = m_d->m_currentStackTrace->frameContextAt(frameIndex, &errorMessage);
-        if (!sg)
-            break;
-        if (!sg->completeData(incomplete, watchHandler, &errorMessage))
-            break;
-        success = true;
-    } while (false);
-    if (!success)
-        warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
-}
-
 void CdbDebugEngine::stepExec()
 {
     if (debugCDB)
@@ -1037,18 +996,14 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
     bool success = false;
     do {
         QString newValue;
-        CdbStackFrameContext *sg = m_d->getStackFrameContext(frameIndex, &errorMessage);
-        if (!sg)
+        if (frameIndex < 0 || !m_d->m_currentStackTrace) {
+            errorMessage = tr("No current stack trace.");
             break;
-        if (!sg->assignValue(expr, value, &newValue, &errorMessage))
-            break;
-        // Update view
-        WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
-        if (WatchData *fwd = watchHandler->findItem(expr)) {
-            fwd->setValue(newValue);
-            watchHandler->insertData(*fwd);
-            watchHandler->updateWatchers();
         }
+        // Assign in stack and update view
+        if (!m_d->m_currentStackTrace->assignValue(frameIndex, expr, value, &newValue, &errorMessage))
+            break;
+        m_d->m_localsModel->setValueByExpression(expr, newValue);
         success = true;
     } while (false);
     if (!success) {
@@ -1076,6 +1031,11 @@ bool CdbDebugEnginePrivate::executeDebuggerCommand(CIDebugControl *ctrl, const Q
         return false;
     }
     return true;
+}
+
+bool CdbDebugEngine::isDebuggeeHalted() const
+{
+    return m_d->m_hDebuggeeProcess && !m_d->isDebuggeeRunning();
 }
 
 bool CdbDebugEngine::evaluateExpression(const QString &expression,
@@ -1132,21 +1092,21 @@ void CdbDebugEngine::activateFrame(int frameIndex)
     bool success = false;
     do {
         StackHandler *stackHandler = m_d->m_debuggerManagerAccess->stackHandler();
-        WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
         const int oldIndex = stackHandler->currentIndex();
         if (frameIndex >= stackHandler->stackSize()) {
             errorMessage = msgStackIndexOutOfRange(frameIndex, stackHandler->stackSize());
             break;
         }
 
-        if (oldIndex != frameIndex)
+        if (oldIndex != frameIndex) {
+            m_d->saveLocalsViewState();
             stackHandler->setCurrentIndex(frameIndex);
+        }
 
         const StackFrame &frame = stackHandler->currentFrame();
         if (!frame.isUsable()) {
+            m_d->m_localsModel->setSymbolGroupContext(0);
             // Clean out model
-            watchHandler->beginCycle();
-            watchHandler->endCycle();
             errorMessage = QString::fromLatin1("%1: file %2 unusable.").
                            arg(QLatin1String(Q_FUNC_INFO), frame.file);
             break;
@@ -1155,10 +1115,18 @@ void CdbDebugEngine::activateFrame(int frameIndex)
         m_d->m_debuggerManager->gotoLocation(frame.file, frame.line, true);
 
         if (oldIndex != frameIndex || m_d->m_firstActivatedFrame) {
-            watchHandler->beginCycle();
-            if (CdbStackFrameContext *sgc = m_d->getStackFrameContext(frameIndex, &errorMessage))
-                success = sgc->populateModelInitially(watchHandler, &errorMessage);
-            watchHandler->endCycle();
+            m_d->m_localsModel->setUseDumpers(m_d->m_dumper->isEnabled() && theDebuggerBoolSetting(UseDebuggingHelpers));
+            CdbSymbolGroupContext *ctx = 0;
+            if (m_d->m_currentStackTrace) {
+                ctx = m_d->m_currentStackTrace->symbolGroupAt(frameIndex, &errorMessage);
+                success = ctx != 0;
+            } else {
+                errorMessage = QLatin1String(msgNoStackTraceC);
+            }
+            m_d->m_localsModel->setSymbolGroupContext(ctx);
+            m_d->m_debuggerManagerAccess->watchHandler()->restoreLocalsViewState(frameIndex);
+        } else {
+            success = true;
         }
     } while (false);
     if (!success)
@@ -1222,7 +1190,7 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
                                                  m_cif.debugSymbols,
                                                  m_debuggerManagerAccess->breakHandler(),
                                                  errorMessage, &warnings);
-    if (const int warningsCount = warnings.size())        
+    if (const int warningsCount = warnings.size())
         for (int w = 0; w < warningsCount; w++)
             m_engine->warning(warnings.at(w));
     return ok;
@@ -1500,7 +1468,8 @@ void CdbDebugEnginePrivate::updateStackTrace()
         m_debuggerManagerAccess->stackHandler()->setCurrentIndex(current);
         m_engine->activateFrame(current);
     }
-    m_debuggerManagerAccess->watchHandler()->updateWatchers();
+    // Update watchers
+    m_watchModel->refresh();
 }
 
 void CdbDebugEnginePrivate::updateModules()
@@ -1511,8 +1480,6 @@ void CdbDebugEnginePrivate::updateModules()
         m_engine->warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
     m_debuggerManagerAccess->modulesHandler()->setModules(modules);
 }
-
-static const char *dumperPrefixC = "dumper";
 
 void CdbDebugEnginePrivate::handleModuleLoad(const QString &name)
 {
@@ -1584,6 +1551,37 @@ bool CdbDebugEnginePrivate::setSymbolPaths(const QStringList &s, QString *errorM
         return false;
     }
     return true;
+}
+
+void CdbDebugEngine::insertWatcher(const WatchData &wd)
+{
+    // Make sure engine is active
+    if (m_d->m_watchModel && m_d->m_watchModel == m_d->m_debuggerManagerAccess->watchHandler()->model(WatchersWatch))
+        m_d->m_watchModel->addWatcher(wd);
+}
+
+WatchModel *CdbDebugEngine::watchModel(int type) const
+{
+    switch (type) {
+    case LocalsWatch:
+        if (!m_d->m_localsModel) {
+            m_d->m_localsModel = new CdbLocalsModel(m_d->m_dumper, m_d->m_debuggerManagerAccess->watchHandler(), LocalsWatch, const_cast<CdbDebugEngine*>(this));
+            connect(m_d->m_localsModel, SIGNAL(error(QString)), this, SLOT(warning(QString)));
+        }
+        return m_d->m_localsModel;
+    case WatchersWatch:
+        if (!m_d->m_watchModel) {
+            CdbDebugEngine* nonConstThis = const_cast<CdbDebugEngine*>(this);
+            WatchHandler *wh = m_d->m_debuggerManagerAccess->watchHandler();
+            m_d->m_watchModel = new CdbWatchModel(nonConstThis, m_d->m_dumper, wh, WatchersWatch, nonConstThis);
+            connect(m_d->m_watchModel, SIGNAL(error(QString)), this, SLOT(warning(QString)));
+            connect(wh, SIGNAL(watcherInserted(WatchData)), this, SLOT(insertWatcher(WatchData)));
+        }
+        return m_d->m_watchModel;
+    default:
+        break;
+    }
+    return 0;
 }
 
 } // namespace Internal

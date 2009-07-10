@@ -39,6 +39,7 @@
 
 #include <utils/consoleprocess.h>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QPointer>
 #include <QtCore/QMap>
 
 namespace Debugger {
@@ -49,6 +50,8 @@ class IDebuggerManagerAccessForEngines;
 class WatchHandler;
 class CdbStackFrameContext;
 class CdbStackTraceContext;
+class CdbLocalsModel;
+class CdbWatchModel;
 
 // Thin wrapper around the 'DBEng' debugger engine shared library
 // which is loaded at runtime.
@@ -115,7 +118,7 @@ struct CdbDebugEnginePrivate
 
     bool isDebuggeeRunning() const { return m_watchTimer != -1; }
     void handleDebugEvent();
-    void updateThreadList();    
+    void updateThreadList();
     void updateStackTrace();
     void updateModules();
 
@@ -123,7 +126,6 @@ struct CdbDebugEnginePrivate
     void cleanStackTrace();
     void clearForRun();
     void handleModuleLoad(const QString &);
-    CdbStackFrameContext *getStackFrameContext(int frameIndex, QString *errorMessage) const;
     void clearDisplay();
 
     bool interruptInterferiorProcess(QString *errorMessage);
@@ -136,6 +138,8 @@ struct CdbDebugEnginePrivate
 
     enum EndDebuggingMode { EndDebuggingDetach, EndDebuggingTerminate, EndDebuggingAuto };
     void endDebugging(EndDebuggingMode em = EndDebuggingAuto);
+
+    void saveLocalsViewState();
 
     static bool executeDebuggerCommand(CIDebugControl *ctrl, const QString &command, QString *errorMessage);
     static bool evaluateExpression(CIDebugControl *ctrl, const QString &expression, DEBUG_VALUE *v, QString *errorMessage);
@@ -155,7 +159,7 @@ struct CdbDebugEnginePrivate
     int                     m_watchTimer;
     CdbComInterfaces        m_cif;
     CdbDebugEventCallback   m_debugEventCallBack;
-    CdbDebugOutput          m_debugOutputCallBack;    
+    CdbDebugOutput          m_debugOutputCallBack;
     QSharedPointer<CdbDumperHelper> m_dumper;
 
     CdbDebugEngine* m_engine;
@@ -168,6 +172,9 @@ struct CdbDebugEnginePrivate
 
     DebuggerStartMode m_mode;
     Core::Utils::ConsoleProcess m_consoleStubProc;
+
+    QPointer<CdbLocalsModel> m_localsModel;
+    QPointer<CdbWatchModel> m_watchModel;
 };
 
 // helper functions

@@ -406,7 +406,6 @@ WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
     const QString value = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
     wd.setType(type);
     wd.setValue(fixValue(value));
-    wd.setChildrenNeeded(); // compensate side effects of above setters
     // Figure out children. The SubElement is only a guess unless the symbol,
     // is expanded, so, we leave this as a guess for later updates.
     // If the symbol has children (expanded or not), we leave the 'Children' flag
