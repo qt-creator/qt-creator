@@ -1473,6 +1473,7 @@ static void qDumpQHash(QDumper &d)
         const int keyOffset = hashOffset(opt, true, keySize, valueSize);
         const int valueOffset = hashOffset(opt, false, keySize, valueSize);
 
+#if 0
         d.beginItem("extra");
         d.put("isSimpleKey: ").put(isSimpleKey);
         d.put(" isSimpleValue: ").put(isSimpleValue);
@@ -1481,7 +1482,7 @@ static void qDumpQHash(QDumper &d)
         d.put(" valueOffset: ").put(valueOffset);
         d.put(" opt: ").put(opt);
         d.endItem();
-
+#endif
         QHashData::Node *node = h->firstNode();
         QHashData::Node *end = reinterpret_cast<QHashData::Node *>(h);
         int i = 0;

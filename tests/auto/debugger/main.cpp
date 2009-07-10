@@ -123,6 +123,8 @@ private slots:
     void niceType_data();
 
     void dumperCompatibility();
+    void dumpQChar();
+    void dumpQFile();
     void dumpQHash();
     void dumpQList_int();
     void dumpQList_char();
@@ -145,6 +147,9 @@ public slots:
 
 private:
     QProcess m_proc; // the Qt Creator process
+
+    void dumpQFileHelper(const QString &name, bool exists);
+    void dumpQCharHelper(QChar &c);
 };
 
 static QByteArray stripped(QByteArray ba)
@@ -160,7 +165,7 @@ static QByteArray stripped(QByteArray ba)
 
 void tst_Debugger::infoBreak()
 {
-    // This tests the regular expression used in GdbEngine::extractDataFromInfoBreak 
+    // This tests the regular expression used in GdbEngine::extractDataFromInfoBreak
     // to discover breakpoints in constructors.
 
     // Copied from gdbengine.cpp:
@@ -220,7 +225,7 @@ QString niceType(QString type)
     for (int i = 0; i < 10; ++i) {
         int start = type.indexOf("std::allocator<");
         if (start == -1)
-            break; 
+            break;
         // search for matching '>'
         int pos;
         int level = 0;
@@ -328,7 +333,7 @@ void tst_Debugger::niceType_data()
     QTest::newRow("stack")
         << "std::stack<int, std::deque<int, std::allocator<int> > >"
         << "std::stack<int>";
-    
+
     QTest::newRow("map")
         << "std::map<myns::QString, Foo, std::less<myns::QString>, "
            "std::allocator<std::pair<const myns::QString, Foo> > >"
@@ -347,8 +352,8 @@ void tst_Debugger::niceType_data()
 static void testDumper(QByteArray expected0, void *data, QByteArray outertype,
     bool dumpChildren, QByteArray innertype = "", QByteArray exp = "",
     int extraInt0 = 0, int extraInt1 = 0, int extraInt2 = 0, int extraInt3 = 0)
-{ 
-    sprintf(xDumpInBuffer, "%s%c%s%c%s%c%s%c%s%c", 
+{
+    sprintf(xDumpInBuffer, "%s%c%s%c%s%c%s%c%s%c",
         outertype.data(), 0, "iname", 0, exp.data(), 0,
         innertype.data(), 0, "iname", 0);
     void *res = qDumpObjectData440(2, 42, data, dumpChildren,
@@ -394,6 +399,68 @@ static const void *deref(const void *p)
 
 void tst_Debugger::dumperCompatibility()
 {
+}
+
+void tst_Debugger::dumpQCharHelper(QChar &c)
+{
+    char ch = c.isPrint() && c.unicode() < 127 ? c.toAscii() : '?';
+    testDumper(QByteArray("value=''") + QByteArray(1, ch) + QByteArray("', ucs=")
+        + QByteArray(QString::number(c.unicode()).toAscii())
+        + QByteArray("',numchild='0'"), &c, NS"QChar", false);
+}
+
+
+void tst_Debugger::dumpQChar()
+{
+    // Case 1: Printable ASCII character.
+    QChar c('X');
+    dumpQCharHelper(c);
+
+    // Case 2: Printable non-ASCII character.
+    c = QChar(0x600);
+    dumpQCharHelper(c);
+
+    // Case 3: Non-printable ASCII character.
+    c = QChar::fromAscii('\a');
+    dumpQCharHelper(c);
+
+    // Case 4: Non-printable non-ASCII character.
+    c = QChar(0x9f);
+    dumpQCharHelper(c);
+
+    // Case 5: Printable ASCII Character that looks like the replacement character.
+    c = QChar::fromAscii('?');
+    dumpQCharHelper(c);
+}
+
+void tst_Debugger::dumpQFileHelper(const QString &name, bool exists)
+{
+    QFile file(name);
+    QByteArray filenameAsBase64(reinterpret_cast<const char *>(name.utf16()), 2 * name.size());
+    filenameAsBase64 = filenameAsBase64.toBase64();
+    const char *existsString = exists ? "'true'" : "'false'";
+    testDumper(
+            QByteArray("value='") + filenameAsBase64 +
+            QByteArray("',valueencoded='2',type='$T',numchild='2',children=[{name='fileName',value='") +
+            filenameAsBase64 +
+            QByteArray("',type='"NS"QString',numchild='0',valueencoded='2'},{name='exists',value=") +
+            QByteArray(existsString) + QByteArray(",type='bool',numchild='0'}]"),
+            &file, NS"QFile", true);
+
+}
+
+void tst_Debugger::dumpQFile()
+{
+    // Case 1: Empty file name => Does not exist.
+    dumpQFileHelper("", false);
+
+    // Case 2: File that is known to exist.
+    QTemporaryFile file;
+    file.open();
+    dumpQFileHelper(file.fileName(), true);
+
+    // Case 3: File with a name that most likely does not exist.
+    dumpQFileHelper("jfjfdskjdflsdfjfdls", false);
 }
 
 void tst_Debugger::dumpQHash()
@@ -540,7 +607,7 @@ void tst_Debugger::dumpQObject()
 }
 
 void tst_Debugger::dumpQString()
-{ 
+{
     QString s;
     testDumper("value='',valueencoded='2',type='$T',numchild='0'",
         &s, NS"QString", false);
@@ -550,14 +617,14 @@ void tst_Debugger::dumpQString()
 }
 
 void tst_Debugger::dumpQVariant_invalid()
-{ 
+{
     QVariant v;
     testDumper("value='(invalid)',type='$T',numchild='0'",
         &v, NS"QVariant", false);
 }
 
 void tst_Debugger::dumpQVariant_QString()
-{ 
+{
     QVariant v = "abc";
     testDumper("value='KFFTdHJpbmcpICJhYmMi',valueencoded='5',type='$T',"
         "numchild='0'",
