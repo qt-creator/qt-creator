@@ -1316,6 +1316,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             }
 
             Editor e;
+            e.revision = ed->document()->revision();
             e.textEditor = textEditor;
             e.selections = selections;
             e.ifdefedOutBlocks = blockRanges;
@@ -1340,8 +1341,11 @@ void CppModelManager::updateEditorSelections()
 
         TextEditor::ITextEditor *textEditor = ed.textEditor;
         TextEditor::BaseTextEditor *editor = qobject_cast<TextEditor::BaseTextEditor *>(textEditor->widget());
+
         if (! editor)
             continue;
+        else if (editor->document()->revision() != ed.revision)
+            continue; // outdated
 
         editor->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection,
                                    ed.selections);

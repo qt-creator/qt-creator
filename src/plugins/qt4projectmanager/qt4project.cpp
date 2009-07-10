@@ -407,7 +407,7 @@ QString Qt4Project::makeCommand(const QString &buildConfiguration) const
 QString Qt4Project::defaultMakeTarget(const QString &buildConfiguration) const
 {
     ToolChain *tc = toolChain(buildConfiguration);
-    return tc ? toolChain(buildConfiguration)->defaultMakeTarget() : "";
+    return tc ? tc->defaultMakeTarget() : "";
 }
 
 void Qt4Project::updateCodeModel()
