@@ -105,12 +105,104 @@ StringLiteral::~StringLiteral()
 { }
 
 ////////////////////////////////////////////////////////////////////////////////
+enum {
+    NumericLiteralIsChar,
+    NumericLiteralIsWideChar,
+    NumericLiteralIsInt,
+    NumericLiteralIsFloat,
+    NumericLiteralIsDouble,
+    NumericLiteralIsLongDouble,
+    NumericLiteralIsLong,
+    NumericLiteralIsLongLong,
+};
+
 NumericLiteral::NumericLiteral(const char *chars, unsigned size)
-    : Literal(chars, size)
-{ }
+    : Literal(chars, size), _flags(0)
+{
+    _type = NumericLiteralIsInt;
+
+    if (chars[0] == '\'') {
+        _type = NumericLiteralIsChar;
+    } else if (size > 1 && chars[0] == 'L' && chars[1] == '\'') {
+        _type = NumericLiteralIsWideChar;
+    } else if (size > 1 && chars[0] == '0' && (chars[1] == 'x' || chars[1] == 'X')) {
+        _isHex = true;
+    } else {
+        const char *begin = chars;
+        const char *end = begin + size;
+
+        bool done = false;
+        const char *it = end - 1;
+
+        for (; it != begin - 1 && ! done; --it) {
+            switch (*it) {
+            case 'l': case 'L': // long suffix
+            case 'u': case 'U': // unsigned suffix
+            case 'f': case 'F': // floating suffix
+                break;
+
+            default:
+                done = true;
+                break;
+            } // switch
+        }
+
+        for (const char *dot = it; it != begin - 1; --it) {
+            if (*dot == '.')
+                _type = NumericLiteralIsDouble;
+        }
+
+        for (++it; it != end; ++it) {
+            if (*it == 'l' || *it == 'L') {
+                if (_type == NumericLiteralIsDouble) {
+                    _type = NumericLiteralIsLongDouble;
+                } else if (it + 1 != end && (it[1] == 'l' || it[1] == 'L')) {
+                    ++it;
+                    _type = NumericLiteralIsLongLong;
+                } else {
+                    _type = NumericLiteralIsLong;
+                }
+            } else if (*it == 'f' || *it == 'F') {
+                _type = NumericLiteralIsFloat;
+            } else if (*it == 'u' || *it == 'U') {
+                _isUnsigned = true;
+            }
+        }
+    }
+}
 
 NumericLiteral::~NumericLiteral()
 { }
+
+bool NumericLiteral::isHex() const
+{ return _isHex; }
+
+bool NumericLiteral::isUnsigned() const
+{ return _isUnsigned; }
+
+bool NumericLiteral::isChar() const
+{ return _type == NumericLiteralIsChar; }
+
+bool NumericLiteral::isWideChar() const
+{ return _type == NumericLiteralIsWideChar; }
+
+bool NumericLiteral::isInt() const
+{ return _type == NumericLiteralIsInt; }
+
+bool NumericLiteral::isFloat() const
+{ return _type == NumericLiteralIsFloat; }
+
+bool NumericLiteral::isDouble() const
+{ return _type == NumericLiteralIsDouble; }
+
+bool NumericLiteral::isLongDouble() const
+{ return _type == NumericLiteralIsLongDouble; }
+
+bool NumericLiteral::isLong() const
+{ return _type == NumericLiteralIsLong; }
+
+bool NumericLiteral::isLongLong() const
+{ return _type == NumericLiteralIsLongLong; }
 
 ////////////////////////////////////////////////////////////////////////////////
 Identifier::Identifier(const char *chars, unsigned size)

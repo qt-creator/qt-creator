@@ -101,6 +101,29 @@ class CPLUSPLUS_EXPORT NumericLiteral: public Literal
 public:
     NumericLiteral(const char *chars, unsigned size);
     virtual ~NumericLiteral();
+
+    bool isChar() const;
+    bool isWideChar() const;
+    bool isInt() const;
+    bool isFloat() const;
+    bool isDouble() const;
+    bool isLongDouble() const;
+    bool isLong() const;
+    bool isLongLong() const;
+
+    bool isUnsigned() const;
+    bool isHex() const;
+
+private:
+    union {
+        unsigned _flags;
+
+        struct {
+            unsigned _type      : 8;
+            unsigned _isHex     : 1;
+            unsigned _isUnsigned: 1;
+        };
+    };
 };
 
 class CPLUSPLUS_EXPORT Identifier: public Literal
