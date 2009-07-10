@@ -415,8 +415,8 @@ void tst_Debugger::dumpQList_int()
     ilist.append(2);
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
         "internal='1',childtype='int',childnumchild='0',children=["
-        "{name='0',addr='" + str(&ilist.at(0)) + "',value='1'},"
-        "{name='1',addr='" + str(&ilist.at(1)) + "',value='2'}]",
+        "{addr='" + str(&ilist.at(0)) + "',value='1'},"
+        "{addr='" + str(&ilist.at(1)) + "',value='2'}]",
         &ilist, NS"QList", true, "int");
 }
 
@@ -430,10 +430,8 @@ void tst_Debugger::dumpQList_char()
     clist.append('b');
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
         "internal='1',childtype='char',childnumchild='0',children=["
-        "{name='0',addr='" + str(&clist.at(0)) + "',"
-            "value=''a', ascii=97'},"
-        "{name='1',addr='" + str(&clist.at(1)) + "',"
-            "value=''b', ascii=98'}]",
+        "{addr='" + str(&clist.at(0)) + "',value=''a', ascii=97'},"
+        "{addr='" + str(&clist.at(1)) + "',value=''b', ascii=98'}]",
         &clist, NS"QList", true, "char");
 }
 
@@ -447,10 +445,8 @@ void tst_Debugger::dumpQList_QString()
     slist.append("b");
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
         "internal='1',childtype='"NS"QString',childnumchild='0',children=["
-        "{name='0',addr='" + str(&slist.at(0)) + "',"
-            "value='YQA=',valueencoded='2'},"
-        "{name='1',addr='" + str(&slist.at(1)) + "',"
-            "value='YgA=',valueencoded='2'}]",
+        "{addr='" + str(&slist.at(0)) + "',value='YQA=',valueencoded='2'},"
+        "{addr='" + str(&slist.at(1)) + "',value='YgA=',valueencoded='2'}]",
         &slist, NS"QList", true, NS"QString");
 }
 
@@ -464,8 +460,8 @@ void tst_Debugger::dumpQList_Int3()
     i3list.append(Int3());
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
         "internal='0',childtype='Int3',children=["
-        "{name='0',addr='" + str(&i3list.at(0)) + "'},"
-        "{name='1',addr='" + str(&i3list.at(1)) + "'}]",
+        "{addr='" + str(&i3list.at(0)) + "'},"
+        "{addr='" + str(&i3list.at(1)) + "'}]",
         &i3list, NS"QList", true, "Int3");
 }
 
@@ -479,8 +475,8 @@ void tst_Debugger::dumpQList_QString3()
     s3list.append(QString3());
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
         "internal='0',childtype='QString3',children=["
-        "{name='0',addr='" + str(&s3list.at(0)) + "'},"
-        "{name='1',addr='" + str(&s3list.at(1)) + "'}]",
+        "{addr='" + str(&s3list.at(0)) + "'},"
+        "{addr='" + str(&s3list.at(1)) + "'}]",
         &s3list, NS"QList", true, "QString3");
 }
 
@@ -597,16 +593,16 @@ void tst_Debugger::dumpStdVector()
     vector.push_back(new std::list<int>(list));
     testDumper("value='<1 items>',valuedisabled='true',numchild='1',"
         "childtype='" + inner + "',childnumchild='1',"
-        "children=[{name='0',addr='" + str(deref(&vector[0])) + "',"
+        "children=[{addr='" + str(deref(&vector[0])) + "',"
             "saddr='" + str(deref(&vector[0])) + "',type='" + innerp + "'}]",
         &vector, "std::vector", true, inner, "", sizeof(std::list<int> *));
     vector.push_back(0);
     list.push_back(45);
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
         "childtype='" + inner + "',childnumchild='1',"
-        "children=[{name='0',addr='" + str(deref(&vector[0])) + "',"
+        "children=[{addr='" + str(deref(&vector[0])) + "',"
             "saddr='" + str(deref(&vector[0])) + "',type='" + innerp + "'},"
-          "{name='1',addr='" + str(&vector[1]) + "',"
+          "{addr='" + str(&vector[1]) + "',"
             "type='" + innerp + "',value='<null>',numchild='0'}]",
         &vector, "std::vector", true, inner, "", sizeof(std::list<int> *));
     vector.push_back(new std::list<int>(list));

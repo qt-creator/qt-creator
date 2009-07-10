@@ -1202,7 +1202,6 @@ static void qDumpQByteArray(QDumper &d)
             unsigned char u = (isprint(c) && c != '\'' && c != '"') ? c : '?';
             sprintf(buf, "%02x  (%u '%c')", c, c, u);
             d.beginHash();
-            d.putItem("name", i);
             d.putItem("value", buf);
             d.endHash();
         }
@@ -1490,7 +1489,6 @@ static void qDumpQHash(QDumper &d)
         d.beginChildren();
         while (node != end) {
             d.beginHash();
-                d.putItem("name", i);
                 qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
                 qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
                 if (isSimpleKey && isSimpleValue) {
@@ -1632,7 +1630,6 @@ static void qDumpQList(QDumper &d)
         d.beginChildren(n ? d.innertype : 0);
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            d.putItem("name", i);
             if (innerTypeIsPointer) {
                 void *p = ldata.d->array + i + pdata->begin;
                 d.putItem("saddr", p);
@@ -1691,7 +1688,6 @@ static void qDumpQLinkedList(QDumper &d)
         const void *p = deref(ldata);
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            d.putItem("name", i);
             const void *addr = addOffset(p, 2 * sizeof(void*));
             qDumpInnerValueOrPointer(d, d.innertype, stripped, addr);
             p = deref(p);
@@ -1837,7 +1833,6 @@ static void qDumpQMap(QDumper &d)
 
         while (node != end) {
             d.beginHash();
-                d.putItem("name", i);
                 qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
                 qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
                 if (isSimpleKey && isSimpleValue) {
@@ -2568,7 +2563,6 @@ static void qDumpQObjectChildList(QDumper &d)
         d.beginChildren();
         for (int i = 0; i != size; ++i) {
             d.beginHash();
-            d.putItem("name", i);
             qDumpInnerValueHelper(d, NS"QObject *", children.at(i));
             d.endHash();
         }
@@ -2616,7 +2610,6 @@ static void qDumpQSet(QDumper &d)
         for (int bucket = 0; bucket != hd->numBuckets && i <= 10000; ++bucket) {
             for (node = hd->buckets[bucket]; node->next; node = node->next) {
                 d.beginHash();
-                d.putItem("name", i);
                 d.putItem("type", d.innertype);
                 d.beginItem("exp");
                     d.put("(('"NS"QHashNode<").put(d.innertype
@@ -2721,7 +2714,6 @@ static void qDumpQStringList(QDumper &d)
         d.beginChildren(n ? NS"QString" : 0);
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            d.putItem("name", i);
             d.putItem("value", list[i]);
             d.putItem("valueencoded", "2");
             d.endHash();
@@ -2780,7 +2772,6 @@ static void qDumpQVector(QDumper &d)
         d.beginChildren(d.innertype);
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            d.putItem("name", i);
             qDumpInnerValueOrPointer(d, d.innertype, stripped,
                 addOffset(v, i * innersize + typeddatasize));
             d.endHash();
@@ -2876,7 +2867,6 @@ static void qDumpStdList(QDumper &d)
         it = list.begin();
         for (int i = 0; i < 1000 && it != cend; ++i, ++it) {
             d.beginHash();
-            d.putItem("name", i);
             qDumpInnerValueOrPointer(d, d.innertype, stripped, it.operator->());
             d.endHash();
         }
@@ -2944,7 +2934,6 @@ static void qDumpStdMapHelper(QDumper &d)
         for (int i = 0; i < 1000 && it != cend; ++i, ++it) {
             d.beginHash();
                 const void *node = it.operator->();
-                d.putItem("name", i);
                 qDumpInnerValueHelper(d, keyType, node, "key");
                 qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
                 if (isSimpleKey && isSimpleValue) {
@@ -3039,7 +3028,6 @@ static void qDumpStdSetHelper(QDumper &d)
         for (int i = 0; i < 1000 && it != cend; ++i, ++it) {
             const void *node = it.operator->();
             d.beginHash();
-            d.putItem("name", i);
             qDumpInnerValueOrPointer(d, d.innertype, stripped, node);
             d.endHash();
         }
@@ -3143,7 +3131,6 @@ static void qDumpStdVector(QDumper &d)
         d.beginChildren(n ? d.innertype : 0);
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            d.putItem("name", i);
             qDumpInnerValueOrPointer(d, d.innertype, stripped,
                 addOffset(v->start, i * innersize));
             d.endHash();
