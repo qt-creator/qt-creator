@@ -409,15 +409,14 @@ void tst_Debugger::dumpQList_int()
 {
     QList<int> ilist;
     testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-        "internal='1',childtype='int',children=[]",
+        "internal='1',children=[]",
         &ilist, NS"QList", true, "int");
     ilist.append(1);
     ilist.append(2);
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
-        "internal='1',childtype='int',children=["
+        "internal='1',childtype='int',childnumchild='0',children=["
         "{name='0',addr='" + str(&ilist.at(0)) + "',value='1'},"
-        "{name='1',addr='" + str(&ilist.at(1)) + "',value='2'}],"
-        "childnumchild='0'",
+        "{name='1',addr='" + str(&ilist.at(1)) + "',value='2'}]",
         &ilist, NS"QList", true, "int");
 }
 
@@ -425,17 +424,16 @@ void tst_Debugger::dumpQList_char()
 {
     QList<char> clist;
     testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-        "internal='1',childtype='char',children=[]",
+        "internal='1',children=[]",
         &clist, NS"QList", true, "char");
     clist.append('a');
     clist.append('b');
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
-        "internal='1',childtype='char',children=["
+        "internal='1',childtype='char',childnumchild='0',children=["
         "{name='0',addr='" + str(&clist.at(0)) + "',"
             "value=''a', ascii=97',numchild='0'},"
         "{name='1',addr='" + str(&clist.at(1)) + "',"
-            "value=''b', ascii=98',numchild='0'}],"
-        "childnumchild='0'",
+            "value=''b', ascii=98',numchild='0'}]",
         &clist, NS"QList", true, "char");
 }
 
@@ -443,25 +441,24 @@ void tst_Debugger::dumpQList_QString()
 {
     QList<QString> slist;
     testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-        "internal='1',childtype='QString',children=[]",
-        &slist, NS"QList", true, "QString");
+        "internal='1',children=[]",
+        &slist, NS"QList", true, NS"QString");
     slist.append("a");
     slist.append("b");
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
-        "internal='1',childtype='QString',children=["
+        "internal='1',childtype='"NS"QString',childnumchild='0',children=["
         "{name='0',addr='" + str(&slist.at(0)) + "',"
             "value='YQA=',valueencoded='2'},"
         "{name='1',addr='" + str(&slist.at(1)) + "',"
-            "value='YgA=',valueencoded='2'}],"
-        "childnumchild='0'",
-        &slist, NS"QList", true, "QString");
+            "value='YgA=',valueencoded='2'}]",
+        &slist, NS"QList", true, NS"QString");
 }
 
 void tst_Debugger::dumpQList_Int3()
 {
     QList<Int3> i3list;
     testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-        "internal='0',childtype='Int3',children=[]",
+        "internal='0',children=[]",
         &i3list, NS"QList", true, "Int3");
     i3list.append(Int3());
     i3list.append(Int3());
@@ -476,7 +473,7 @@ void tst_Debugger::dumpQList_QString3()
 {
     QList<QString3> s3list;
     testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-        "internal='0',childtype='QString3',children=[]",
+        "internal='0',children=[]",
         &s3list, NS"QList", true, "QString3");
     s3list.append(QString3());
     s3list.append(QString3());
@@ -599,12 +596,14 @@ void tst_Debugger::dumpStdVector()
     std::list<int> list;
     vector.push_back(new std::list<int>(list));
     testDumper("value='<1 items>',valuedisabled='true',numchild='1',"
+        "childtype='" + inner + "',childnumchild='1',"
         "children=[{name='0',addr='" + str(deref(&vector[0])) + "',"
             "saddr='" + str(deref(&vector[0])) + "',type='" + innerp + "'}]",
         &vector, "std::vector", true, inner, "", sizeof(std::list<int> *));
     vector.push_back(0);
     list.push_back(45);
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+        "childtype='" + inner + "',childnumchild='1',"
         "children=[{name='0',addr='" + str(deref(&vector[0])) + "',"
             "saddr='" + str(deref(&vector[0])) + "',type='" + innerp + "'},"
           "{name='1',addr='" + str(&vector[1]) + "',"
