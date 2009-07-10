@@ -202,7 +202,8 @@ public:
     QString readName(const QString &fileName);
 
 private:
-    void readUnknownElement();
+    bool readNextStartElement();
+    void skipCurrentElement();
     void readStyleScheme();
     void readStyle();
 
@@ -223,14 +224,10 @@ bool ColorSchemeReader::read(const QString &fileName, ColorScheme *scheme)
 
     setDevice(&file);
 
-    while (readNext() != Invalid) {
-        if (isStartElement()) {
-            if (name() == QLatin1String("style-scheme"))
-                readStyleScheme();
-            else
-                raiseError(QObject::tr("Not a color scheme file."));
-        }
-    }
+    if (readNextStartElement() && name() == QLatin1String("style-scheme"))
+        readStyleScheme();
+    else
+        raiseError(QObject::tr("Not a color scheme file."));
 
     return true;
 }
@@ -241,17 +238,21 @@ QString ColorSchemeReader::readName(const QString &fileName)
     return m_name;
 }
 
-void ColorSchemeReader::readUnknownElement()
+bool ColorSchemeReader::readNextStartElement()
 {
-    Q_ASSERT(isStartElement());
-
-    while (!atEnd()) {
-        readNext();
-        if (isEndElement())
-            break;
-        else if (isStartElement())
-            readUnknownElement();
+    while (readNext() != Invalid) {
+        if (isStartElement())
+            return true;
+        else if (isEndElement())
+            return false;
     }
+    return false;
+}
+
+void ColorSchemeReader::skipCurrentElement()
+{
+    while (readNextStartElement())
+        skipCurrentElement();
 }
 
 void ColorSchemeReader::readStyleScheme()
@@ -266,15 +267,11 @@ void ColorSchemeReader::readStyleScheme()
     else
         m_scheme->setName(m_name);
 
-    while (readNext() != Invalid) {
-        if (isEndElement()) {
-            break;
-        } else if (isStartElement()) {
-            if (name() == QLatin1String("style"))
-                readStyle();
-            else
-                readUnknownElement();
-        }
+    while (readNextStartElement()) {
+        if (name() == QLatin1String("style"))
+            readStyle();
+        else
+            skipCurrentElement();
     }
 }
 
@@ -297,12 +294,7 @@ void ColorSchemeReader::readStyle()
 
     m_scheme->setFormatFor(name, format);
 
-    while (readNext() != Invalid) {
-        if (isEndElement())
-            break;
-        else if (isStartElement())
-            readUnknownElement();
-    }
+    skipCurrentElement();
 }
 
 } // anonymous namespace
