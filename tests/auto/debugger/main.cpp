@@ -431,9 +431,9 @@ void tst_Debugger::dumpQList_char()
     testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
         "internal='1',childtype='char',childnumchild='0',children=["
         "{name='0',addr='" + str(&clist.at(0)) + "',"
-            "value=''a', ascii=97',numchild='0'},"
+            "value=''a', ascii=97'},"
         "{name='1',addr='" + str(&clist.at(1)) + "',"
-            "value=''b', ascii=98',numchild='0'}]",
+            "value=''b', ascii=98'}]",
         &clist, NS"QList", true, "char");
 }
 

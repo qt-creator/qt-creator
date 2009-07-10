@@ -481,6 +481,11 @@ struct QDumper
         put(name).put('=').put('"').put(value).put('"');
     }
 
+    void putItem(const char *name, const char *value, const char *setvalue)
+    {
+        if (!isEqual(value, setvalue))
+            putItem(name, value);
+    }
     // convienience functions for writing typical properties.
     // roughly equivalent to
     //   beginHash();
@@ -537,6 +542,9 @@ struct QDumper
     bool success;          // are we finished?
     bool full;
     int pos;
+
+    const char *currentChildType;
+    const char *currentChildNumChild;
 };
 
 
@@ -546,6 +554,8 @@ QDumper::QDumper()
     full = false;
     outBuffer[0] = 'f'; // marks output as 'wrong'
     pos = 1;
+    currentChildType = 0;
+    currentChildNumChild = 0;
 }
 
 QDumper::~QDumper()
@@ -777,10 +787,14 @@ void QDumper::beginChildren(const char *mainInnerType)
 {
     if (mainInnerType) {
         putItem("childtype", mainInnerType);
-        if (isSimpleType(mainInnerType) || isStringType(mainInnerType))
+        currentChildType = mainInnerType;
+        if (isSimpleType(mainInnerType) || isStringType(mainInnerType)) {
             putItem("childnumchild", "0");
-        else if (isPointerType(mainInnerType))
+            currentChildNumChild = "0";
+        } else if (isPointerType(mainInnerType)) {
             putItem("childnumchild", "1");
+            currentChildNumChild = "1";
+        }
     }
 
     putCommaIfNeeded();
@@ -790,6 +804,8 @@ void QDumper::beginChildren(const char *mainInnerType)
 void QDumper::endChildren()
 {
     put(']');
+    currentChildType = 0;
+    currentChildNumChild = 0;
 }
 
 // simple string property
@@ -869,7 +885,7 @@ static void qDumpUnknown(QDumper &d, const char *why = 0)
         why = DUMPUNKNOWN_MESSAGE;
     d.putItem("value", why);
     d.putItem("type", d.outertype);
-    d.putItem("numchild", "0");
+    d.putItem("numchild", "0", d.currentChildNumChild);
     d.disarm();
 }
 
@@ -880,7 +896,7 @@ static void qDumpStdStringValue(QDumper &d, const std::string &str)
     d.endItem();
     d.putItem("valueencoded", "1");
     d.putItem("type", "std::string");
-    d.putItem("numchild", "0");
+    d.putItem("numchild", "0", d.currentChildNumChild);
 }
 
 static void qDumpStdWStringValue(QDumper &d, const std::wstring &str)
@@ -889,8 +905,8 @@ static void qDumpStdWStringValue(QDumper &d, const std::wstring &str)
     d.putBase64Encoded((const char *)str.c_str(), str.size() * sizeof(wchar_t));
     d.endItem();
     d.putItem("valueencoded", (sizeof(wchar_t) == 2 ? "2" : "3"));
-    d.putItem("type", "std::wstring");
-    d.putItem("numchild", "0");
+    d.putItem("type", "std::wstring", d.currentChildType);
+    d.putItem("numchild", "0", d.currentChildNumChild);
 }
 
 // Called by templates, so, not static.
@@ -902,7 +918,7 @@ static void qDumpInnerQCharValue(QDumper &d, QChar c, const char *field)
         buf[1] = char(c.unicode());
     d.putCommaIfNeeded();
     d.putItem(field, buf);
-    d.putItem("numchild", 0);
+    d.putItem("numchild", "0", d.currentChildNumChild);
 }
 
 static void qDumpInnerCharValue(QDumper &d, char c, const char *field)
@@ -913,7 +929,7 @@ static void qDumpInnerCharValue(QDumper &d, char c, const char *field)
         buf[1] = c;
     d.putCommaIfNeeded();
     d.putItem(field, buf);
-    d.putItem("numchild", 0);
+    d.putItem("numchild", "0", d.currentChildNumChild);
 }
 
 void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
@@ -1016,7 +1032,7 @@ void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
 static void qDumpInnerValue(QDumper &d, const char *type, const void *addr)
 {
     d.putItem("addr", addr);
-    d.putItem("type", type);
+    d.putItem("type", type, d.currentChildType);
 
     if (!type[0])
         return;
@@ -1031,7 +1047,7 @@ static void qDumpInnerValueOrPointer(QDumper &d,
         if (deref(addr)) {
             d.putItem("addr", deref(addr));
             d.putItem("saddr", deref(addr));
-            d.putItem("type", strippedtype);
+            d.putItem("type", strippedtype, d.currentChildType);
             qDumpInnerValueHelper(d, strippedtype, deref(addr));
         } else {
             d.putItem("addr", addr);
@@ -1041,7 +1057,7 @@ static void qDumpInnerValueOrPointer(QDumper &d,
         }
     } else {
         d.putItem("addr", addr);
-        d.putItem("type", type);
+        d.putItem("type", type, d.currentChildType);
         qDumpInnerValueHelper(d, type, addr);
     }
 }
