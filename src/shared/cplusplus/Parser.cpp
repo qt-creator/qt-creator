@@ -2715,8 +2715,9 @@ bool Parser::parseBoolLiteral(ExpressionAST *&node)
 
 bool Parser::parseNumericLiteral(ExpressionAST *&node)
 {
-    if (LA() == T_INT_LITERAL || LA() == T_FLOAT_LITERAL ||
-        LA() == T_CHAR_LITERAL || LA() == T_WIDE_CHAR_LITERAL) {
+    if (LA() == T_NUMERIC_LITERAL  ||
+        LA() == T_CHAR_LITERAL     ||
+        LA() == T_WIDE_CHAR_LITERAL) {
         NumericLiteralAST *ast = new (_pool) NumericLiteralAST;
         ast->literal_token = consumeToken();
         node = ast;
@@ -2743,10 +2744,9 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_WIDE_STRING_LITERAL:
         return parseStringLiteral(node);
 
-    case T_INT_LITERAL:
-    case T_FLOAT_LITERAL:
-    case T_CHAR_LITERAL:
+    case T_CHAR_LITERAL: // ### FIXME don't use NumericLiteral for chars
     case T_WIDE_CHAR_LITERAL:
+    case T_NUMERIC_LITERAL:
         return parseNumericLiteral(node);
 
     case T_TRUE:

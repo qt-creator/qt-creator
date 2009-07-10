@@ -240,7 +240,7 @@ protected:
 
     bool process_primary()
     {
-        if ((*_lex)->is(T_INT_LITERAL)) {
+        if ((*_lex)->is(T_NUMERIC_LITERAL)) {
             int base = 10;
             const QByteArray spell = tokenSpell();
             if (spell.at(0) == '0') {

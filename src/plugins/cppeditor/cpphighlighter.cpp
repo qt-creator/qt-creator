@@ -125,7 +125,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                    (tk.isKeyword() || tk.is(T_IDENTIFIER)) && isPPKeyword(tk.text()))
             setFormat(tk.position(), tk.length(), m_formats[CppPreprocessorFormat]);
 
-        else if (tk.is(T_INT_LITERAL) || tk.is(T_FLOAT_LITERAL))
+        else if (tk.is(T_NUMERIC_LITERAL))
             setFormat(tk.position(), tk.length(), m_formats[CppNumberFormat]);
 
         else if (tk.is(T_STRING_LITERAL) || tk.is(T_CHAR_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL) ||

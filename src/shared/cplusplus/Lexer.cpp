@@ -348,7 +348,7 @@ void Lexer::scan_helper(Token *tok)
                 }
             } while (_yychar);
             int yylen = _currentChar - yytext;
-            tok->kind = T_INT_LITERAL;
+            tok->kind = T_NUMERIC_LITERAL;
             if (control())
                 tok->number = control()->findOrInsertNumericLiteral(yytext, yylen);
         } else {
@@ -702,7 +702,7 @@ void Lexer::scan_helper(Token *tok)
                 }
             }
             int yylen = _currentChar - yytext;
-            tok->kind = T_INT_LITERAL;
+            tok->kind = T_NUMERIC_LITERAL;
             if (control())
                 tok->number = control()->findOrInsertNumericLiteral(yytext, yylen);
             break;
