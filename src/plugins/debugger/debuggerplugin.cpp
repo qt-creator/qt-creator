@@ -355,17 +355,19 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
         this, SLOT(updateState()));
 
     m_group.clear();
-#ifdef QT_DEBUG
     m_group.insert(theDebuggerAction(UseDebuggingHelpers),
         m_ui.checkBoxUseDebuggingHelpers);
-#endif
     m_group.insert(theDebuggerAction(UseCustomDebuggingHelperLocation),
         m_ui.checkBoxUseCustomDebuggingHelperLocation);
     m_group.insert(theDebuggerAction(CustomDebuggingHelperLocation),
         m_ui.dumperLocationChooser);
 
+#ifdef QT_DEBUG
     m_group.insert(theDebuggerAction(DebugDebuggingHelpers),
         m_ui.checkBoxDebugDebuggingHelpers);
+#else
+    m_ui.checkBoxDebugDebuggingHelpers->hide();
+#endif
 
     m_ui.dumperLocationChooser->
         setEnabled(theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool());
