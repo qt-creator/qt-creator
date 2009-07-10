@@ -45,6 +45,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QComboBox>
+#include <QtGui/QScrollArea>
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolBar>
 #include <QtGui/QTreeWidget>
@@ -88,9 +89,18 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     m_panelsTabWidget->setDocumentMode(true);
     QVBoxLayout *panelsLayout = new QVBoxLayout(panelsWidget);
 
+    QWidget *marginWidget = new QWidget;
+    QVBoxLayout *marginLayout = new QVBoxLayout(marginWidget);
+    marginLayout->setContentsMargins(0, panelsLayout->margin(), 0, 0);
+    marginLayout->addWidget(m_panelsTabWidget);
+
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameStyle(QFrame::NoFrame);
+    scrollArea->setWidget(marginWidget);
     panelsLayout->setSpacing(0);
-    panelsLayout->setContentsMargins(0, panelsLayout->margin(), 0, 0);
-    panelsLayout->addWidget(m_panelsTabWidget);
+    panelsLayout->setMargin(0);
+    panelsLayout->addWidget(scrollArea);
 
     QWidget *dummy = new QWidget;
     QVBoxLayout *dummyLayout = new QVBoxLayout(dummy);
