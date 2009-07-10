@@ -1721,7 +1721,7 @@ Would you like to overwrite them?</source>
         <location line="+11"/>
         <source>From revision %1&lt;br/&gt;</source>
         <extracomment>This gets conditionally inserted as argument %8 into the description string.</extracomment>
-        <translation>Revisión %1&lt;br/&gt;</translation>
+        <translation>Revisión %1</translation>
     </message>
     <message>
         <location line="+3"/>

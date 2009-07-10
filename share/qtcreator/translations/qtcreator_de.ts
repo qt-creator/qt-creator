@@ -1759,7 +1759,7 @@ Sollen sie überschrieben werden?</translation>
         <location line="+11"/>
         <source>From revision %1&lt;br/&gt;</source>
         <extracomment>This gets conditionally inserted as argument %8 into the description string.</extracomment>
-        <translation>Revision %1&lt;br/&gt;</translation>
+        <translation>Revision:</translation>
     </message>
     <message>
         <location line="+3"/>
