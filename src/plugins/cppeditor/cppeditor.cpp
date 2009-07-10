@@ -1669,7 +1669,11 @@ SemanticHighlighter::Source CPPEditor::currentSource()
 
     const Snapshot snapshot = m_modelManager->snapshot();
     const QString fileName = file()->fileName();
-    const QString code = toPlainText();
+
+    QString code;
+    if (m_lastSemanticInfo.revision != document()->revision())
+        code = toPlainText(); // get the source code only when needed.
+
     const int revision = document()->revision();
     const SemanticHighlighter::Source source(snapshot, fileName, code,
                                              line, column, revision);
@@ -1700,6 +1704,13 @@ void SemanticHighlighter::rehighlight(const Source &source)
     m_condition.wakeOne();
 }
 
+bool SemanticHighlighter::isOutdated()
+{
+    QMutexLocker locker(&m_mutex);
+    const bool outdated = ! m_source.fileName.isEmpty() || m_done;
+    return outdated;
+}
+
 void SemanticHighlighter::run()
 {
     setPriority(QThread::IdlePriority);
@@ -1721,21 +1732,38 @@ void SemanticHighlighter::run()
 
         const SemanticInfo info = semanticInfo(source);
 
-        m_mutex.lock();
-        const bool outdated = ! m_source.fileName.isEmpty() || m_done;
-        m_mutex.unlock();
+        if (! isOutdated()) {
+            m_mutex.lock();
+            m_lastSemanticInfo = info;
+            m_mutex.unlock();
 
-        if (! outdated)
             emit changed(info);
+        }
     }
 }
 
-SemanticInfo SemanticHighlighter::semanticInfo(const Source &source) const
+SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
 {
-    const QByteArray preprocessedCode = source.snapshot.preprocessedCode(source.code, source.fileName);
-    Document::Ptr doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
-    const Snapshot snapshot = source.snapshot.simplified(doc);
-    doc->check();
+    m_mutex.lock();
+    const int revision = m_lastSemanticInfo.revision;
+    m_mutex.unlock();
+
+    Snapshot snapshot;
+    Document::Ptr doc;
+
+    if (revision == source.revision) {
+        m_mutex.lock();
+        snapshot = m_lastSemanticInfo.snapshot;
+        doc = m_lastSemanticInfo.doc;
+        m_mutex.unlock();
+    } else {
+        const QByteArray preprocessedCode = source.snapshot.preprocessedCode(source.code, source.fileName);
+
+        doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
+        doc->check();
+
+        snapshot = source.snapshot.simplified(doc);
+    }
 
     Control *control = doc->control();
     TranslationUnit *translationUnit = doc->translationUnit();

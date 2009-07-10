@@ -84,7 +84,7 @@ public:
     typedef QHashIterator<CPlusPlus::Identifier *, QList<Use> > ExternalUseIterator;
 
     SemanticInfo()
-            : revision(0)
+            : revision(-1)
     { }
 
     int revision;
@@ -138,7 +138,7 @@ public:
         }
     };
 
-    SemanticInfo semanticInfo(const Source &source) const;
+    SemanticInfo semanticInfo(const Source &source);
 
     void rehighlight(const Source &source);
 
@@ -149,10 +149,14 @@ protected:
     virtual void run();
 
 private:
+    bool isOutdated();
+
+private:
     QMutex m_mutex;
     QWaitCondition m_condition;
     bool m_done;
     Source m_source;
+    SemanticInfo m_lastSemanticInfo;
 };
 
 class CPPEditorEditable : public TextEditor::BaseTextEditorEditable
