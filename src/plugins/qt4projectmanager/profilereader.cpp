@@ -107,54 +107,6 @@ QString ProFileReader::value(const QString &variable) const
 }
 
 
-// Construct QFileInfo from path value and base directory
-// Truncate trailing slashs and make absolute
-static inline QFileInfo infoFromPath(QString path,
-                              const QString &baseDirectory)
-{
-    if (path.size() > 1 && path.endsWith(QLatin1Char('/')))
-        path.truncate(path.size() - 1);
-    QFileInfo info(path);
-    if (info.isAbsolute())
-        return info;
-    return QFileInfo(baseDirectory, path);
-}
-
-/*!
-  Returns a list of absolute paths
-  */
-QStringList ProFileReader::absolutePathValues(const QString &variable,
-                                              const QString &baseDirectory,
-                                              PathValuesMode mode,
-                                              const ProFile *pro) const
-{
-    QStringList rawList;
-    if (!pro)
-        rawList = values(variable);
-    else
-        rawList = values(variable, pro);
-
-    if (rawList.isEmpty())
-        return QStringList();
-
-    // Normalize list of paths, kill trailing slashes,
-    // remove duplicates while maintaining order
-    const QChar slash = QLatin1Char('/');
-    QStringList result;
-    const QStringList::const_iterator rcend = rawList.constEnd();
-    for (QStringList::const_iterator it = rawList.constBegin(); it != rcend; ++it) {
-        const QFileInfo info = infoFromPath(*it, baseDirectory);
-        if (mode == AllPaths || info.exists()) {
-            if (mode != ExistingFilePaths || info.isFile()) {
-                const QString absPath = info.absoluteFilePath();
-                if (!result.contains(absPath))
-                    result.push_back(absPath);
-            }
-        }
-    }
-    return result;
-}
-
 void ProFileReader::fileMessage(const QString &message)
 {
     Q_UNUSED(message);

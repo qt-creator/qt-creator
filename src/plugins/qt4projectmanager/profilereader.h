@@ -53,11 +53,6 @@ public:
 
     QString value(const QString &variable) const;
 
-    enum PathValuesMode { AllPaths, ExistingPaths, ExistingFilePaths };
-    QStringList absolutePathValues(const QString &variable,
-                                   const QString &baseDirectory,
-                                   PathValuesMode mode,
-                                   const ProFile *pro = 0) const;
     ProFile *proFileFor(const QString &name);
 signals:
     void errorFound(const QString &error);

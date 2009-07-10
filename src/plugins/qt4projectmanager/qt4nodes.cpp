@@ -132,14 +132,30 @@ void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
                                   << ProjectExplorer::ResourceType
                                   << ProjectExplorer::UnknownFileType);
 
+    const QString &projectDir = m_qt4ProFileNode->m_projectDir;
+
+    QStringList baseVPaths;
+    baseVPaths += reader->absolutePathValues("VPATH", projectDir);
+    baseVPaths << projectDir; // QMAKE_ABSOLUTE_SOURCE_PATH
+    baseVPaths += reader->absolutePathValues("DEPENDPATH", projectDir);
+    baseVPaths.removeDuplicates();
+
     // update files
-    const QDir projectDir = QFileInfo(m_projectFilePath).dir();
     foreach (FileType type, fileTypes) {
         const QStringList qmakeVariables = varNames(type);
 
         QStringList newFilePaths;
-        foreach (const QString &qmakeVariable, qmakeVariables)
-            newFilePaths += reader->absolutePathValues(qmakeVariable, projectDir.path(), ProFileReader::ExistingFilePaths, includeFile);
+        foreach (const QString &qmakeVariable, qmakeVariables) {
+            QStringList vPaths;
+            if (type == ProjectExplorer::SourceType)
+                vPaths = reader->absolutePathValues("VPATH_" + qmakeVariable, projectDir);
+            vPaths += baseVPaths;
+            if (type == ProjectExplorer::HeaderType)
+                vPaths += reader->absolutePathValues("INCLUDEPATH", projectDir);
+            vPaths.removeDuplicates();
+            newFilePaths += reader->absoluteFileValues(qmakeVariable, projectDir, vPaths, includeFile);
+        }
+        newFilePaths.removeDuplicates();
 
         QList<FileNode*> existingFileNodes;
         foreach (FileNode *fileNode, fileNodes()) {
@@ -896,16 +912,16 @@ Qt4ProFileNode *Qt4ProFileNode::createSubProFileNode(const QString &path)
 QStringList Qt4ProFileNode::uiDirPaths(ProFileReader *reader) const
 {
     QStringList candidates = reader->absolutePathValues(QLatin1String("UI_DIR"),
-                                                        buildDir(),
-                                                        ProFileReader::ExistingPaths);
+                                                        buildDir());
+    candidates.removeDuplicates();
     return candidates;
 }
 
 QStringList Qt4ProFileNode::mocDirPaths(ProFileReader *reader) const
 {
     QStringList candidates = reader->absolutePathValues(QLatin1String("MOC_DIR"),
-                                                        buildDir(),
-                                                        ProFileReader::ExistingPaths);
+                                                        buildDir());
+    candidates.removeDuplicates();
     return candidates;
 }
 
@@ -913,8 +929,7 @@ QStringList Qt4ProFileNode::includePaths(ProFileReader *reader) const
 {
     QStringList paths;
     paths = reader->absolutePathValues(QLatin1String("INCLUDEPATH"),
-                                       m_projectDir,
-                                       ProFileReader::ExistingPaths);
+                                       m_projectDir);
     paths << uiDirPaths(reader) << mocDirPaths(reader);
     paths.removeDuplicates();
     return paths;
