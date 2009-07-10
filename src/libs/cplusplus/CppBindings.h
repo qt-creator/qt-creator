@@ -80,8 +80,12 @@ public:
     Binding() {}
     virtual ~Binding() {}
 
+    virtual QByteArray qualifiedId() const = 0;
     virtual NamespaceBinding *asNamespaceBinding() { return 0; }
     virtual ClassBinding *asClassBinding() { return 0; }
+
+    virtual ClassBinding *findClassBinding(Name *name) = 0;
+    virtual Binding *findClassOrNamespaceBinding(Identifier *id) = 0;
 };
 
 class CPLUSPLUS_EXPORT NamespaceBinding: public Binding
@@ -112,16 +116,25 @@ public:
                                        Name *name,
                                        bool lookAtParent = true);
 
+    virtual ClassBinding *findClassBinding(Name *name);
+    virtual Binding *findClassOrNamespaceBinding(Identifier *id);
+
     /// Helpers.
-    QByteArray qualifiedId() const;
+    virtual QByteArray qualifiedId() const;
     void dump();
 
     virtual NamespaceBinding *asNamespaceBinding() { return this; }
 
     static NamespaceBinding *find(Namespace *symbol, NamespaceBinding *binding);
+    static ClassBinding *find(Class *symbol, NamespaceBinding *binding);
 
 private:
-    NamespaceBinding *findNamespaceBindingForNameId(NameId *name);
+    NamespaceBinding *findNamespaceBindingForNameId(NameId *name,
+                                                    bool lookAtParentNamespace);
+
+    NamespaceBinding *findNamespaceBindingForNameId_helper(NameId *name,
+                                                           bool lookAtParentNamespace,
+                                                           QSet<NamespaceBinding *> *processed);
 
 public: // attributes
     /// This binding's parent.
@@ -152,17 +165,19 @@ public:
     virtual ClassBinding *asClassBinding() { return this; }
 
     /// Returns this binding's name.
-    NameId *name() const;
+    Name *name() const;
 
     /// Returns this binding's identifier.
     Identifier *identifier() const;
+    virtual QByteArray qualifiedId() const;
 
-    QByteArray qualifiedId() const;
+    virtual ClassBinding *findClassBinding(Name *name);
+    virtual Binding *findClassOrNamespaceBinding(Identifier *id);
 
     void dump();
 
 public: // attributes
-    NamespaceBinding *parent;
+    Binding *parent;
 
     QList<ClassBinding *> children;
 

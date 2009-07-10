@@ -1,0 +1,28 @@
+The QtCreator 1.2.1 release is a bug fix release and updates translations.
+
+Below is a list of relevant changes. You can find a complete list of changes
+within the logs of Qt Creator's sources. Simply check it out from the public git
+repository e.g.,
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --pretty=oneline v1.2.0..v1.2.1
+
+Building and Running
+   * Fixed crash when clicking on the Build Settings tab with an invalid Qt version.
+   * Fixed crash when removing an active .pro file outside Qt Creator.
+
+Editor
+   * Fixed crash when completing function-like arguments
+
+Debugging
+   * Fixed problem with GDB debugging after first debugging run
+   * Fixed display of debugging helper status in some cases
+   * Disallow starting CDB debugger more than once
+   * Additional debug output for the CDB debugger
+   * Make loading debugging helpers more reliable with GDB
+   * Fixed regression in QVariant dumper
+   * Removed QtGui dependency from debugging helpers
+   * Made it possible to build the debugging helpers for Qt 4.4 again
+
+I18N:
+   * Fixed Russian translation

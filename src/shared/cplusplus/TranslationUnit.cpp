@@ -208,7 +208,7 @@ void TranslationUnit::tokenize()
             } else {
                 if (! tk.newline && tk.is(T_IDENTIFIER) && tk.identifier == lineId)
                     lex(&tk);
-                if (! tk.newline && tk.is(T_INT_LITERAL)) {
+                if (! tk.newline && tk.is(T_NUMERIC_LITERAL)) {
                     unsigned line = (unsigned) strtoul(tk.spell(), 0, 0);
                     lex(&tk);
                     if (! tk.newline && tk.is(T_STRING_LITERAL)) {

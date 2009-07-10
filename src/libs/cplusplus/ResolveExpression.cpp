@@ -343,9 +343,34 @@ bool ResolveExpression::visit(SizeofExpressionAST *)
     return false;
 }
 
-bool ResolveExpression::visit(NumericLiteralAST *)
+bool ResolveExpression::visit(NumericLiteralAST *ast)
 {
-    FullySpecifiedType ty(control()->integerType(IntegerType::Int));
+    Type *type = 0;
+    NumericLiteral *literal = numericLiteral(ast->literal_token);
+
+    if (literal->isChar())
+        type = control()->integerType(IntegerType::Char);
+    else if (literal->isWideChar())
+        type = control()->integerType(IntegerType::WideChar);
+    else if (literal->isInt())
+        type = control()->integerType(IntegerType::Int);
+    else if (literal->isLong())
+        type = control()->integerType(IntegerType::Long);
+    else if (literal->isLongLong())
+        type = control()->integerType(IntegerType::LongLong);
+    else if (literal->isFloat())
+        type = control()->floatType(FloatType::Float);
+    else if (literal->isDouble())
+        type = control()->floatType(FloatType::Double);
+    else if (literal->isLongDouble())
+        type = control()->floatType(FloatType::LongDouble);
+    else
+        type = control()->integerType(IntegerType::Int);
+
+    FullySpecifiedType ty(type);
+    if (literal->isUnsigned())
+        ty.setUnsigned(true);
+
     addResult(ty);
     return false;
 }

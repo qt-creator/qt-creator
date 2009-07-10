@@ -118,8 +118,7 @@ const char *Token::spell() const
     case T_IDENTIFIER:
         return identifier->chars();
 
-    case T_INT_LITERAL:
-    case T_FLOAT_LITERAL:
+    case T_NUMERIC_LITERAL:
     case T_CHAR_LITERAL:
     case T_STRING_LITERAL:
     case T_AT_STRING_LITERAL:
