@@ -122,7 +122,9 @@ Identifier::~Identifier()
 
 bool Identifier::isEqualTo(const Identifier *other) const
 {
-    if (this == other)
+    if (! other)
+        return false;
+    else if (this == other)
         return true;
     else if (hashCode() != other->hashCode())
         return false;
