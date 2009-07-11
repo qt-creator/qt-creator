@@ -88,7 +88,7 @@ private:
     QFutureWatcher<void> m_loadWatcher;
 
     template <typename S>
-    friend void loadSettingsHelper(QuickOpenPlugin *p, S *settings);
+    friend static void loadSettingsHelper(QuickOpenPlugin *p, S *settings);
 };
 
 } // namespace Internal
