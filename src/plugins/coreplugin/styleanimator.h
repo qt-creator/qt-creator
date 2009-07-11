@@ -83,7 +83,7 @@ public :
 
 class StyleAnimator : public QObject
 {
-    Q_OBJECT;
+    Q_OBJECT
 
 public:
     StyleAnimator(QObject *parent = 0) : QObject(parent) {}

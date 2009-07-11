@@ -120,7 +120,7 @@ public:
 public slots:
     void describe(const QString &source, const QString &n);
 
-private slots:;
+private slots:
     void openCurrentFile();
     void addCurrentFile();
     void deleteCurrentFile();

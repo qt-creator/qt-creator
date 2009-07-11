@@ -124,7 +124,7 @@ private:
 
 class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     CMakeRunConfigurationFactory();
     virtual ~CMakeRunConfigurationFactory();

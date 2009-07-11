@@ -70,7 +70,7 @@ public:
 public slots:
      void append(const QString &txt, bool doPopup = false);
 
-private slots:;
+private slots:
     void diff();
     void openFiles();
 

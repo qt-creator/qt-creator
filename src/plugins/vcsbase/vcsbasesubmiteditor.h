@@ -90,8 +90,8 @@ class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
     Q_OBJECT
     Q_PROPERTY(int fileNameColumn READ fileNameColumn WRITE setFileNameColumn DESIGNABLE false)
     Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
-    Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true);
-    Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true);
+    Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true)
+    Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true)
 public:
     typedef QList<int> Context;
 

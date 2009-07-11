@@ -82,8 +82,8 @@ struct VCSBASE_EXPORT VCSBaseEditorParameters {
 // This is for VCS that need a current directory.
 class VCSBASE_EXPORT VCSBaseEditor : public TextEditor::BaseTextEditor
 {
-    Q_PROPERTY(QString source READ source WRITE setSource);
-    Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec);
+    Q_PROPERTY(QString source READ source WRITE setSource)
+    Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec)
     Q_OBJECT
 protected:
     // Initialization requires calling init() (which in turns calls
