@@ -305,12 +305,12 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     bar->setFixedHeight(StyleHelper::navigationWidgetHeight());
     selectionLayout->addWidget(bar);
 
-    selectionLayout->addWidget(m_tabBar);
+    selectionLayout->addWidget(m_tabBar, 1);
     m_selectionWidget->setLayout(selectionLayout);
     m_selectionWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
     m_cornerWidgetContainer = new QWidget(this);
-    m_cornerWidgetContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+    m_cornerWidgetContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     m_cornerWidgetContainer->setAutoFillBackground(false);
 
     QVBoxLayout *cornerWidgetLayout = new QVBoxLayout;

@@ -48,6 +48,7 @@ public:
 
     void paintEvent(QPaintEvent *event);
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
 private:
     const QMap<QString, QPicture> &m_buttonElements;

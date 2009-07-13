@@ -77,27 +77,47 @@ FancyToolButton::FancyToolButton(QWidget *parent)
     , m_buttonElements(buttonElementsMap())
 {
     setAttribute(Qt::WA_Hover, true);
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
 
 void FancyToolButton::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
     QPainter p(this);
+    QSize sh(sizeHint());
+    double scale = (double)height() / sh.height();
+    if (scale < 1) {
+        p.save();
+        p.scale(1, scale);
+    }
     p.drawPicture(0, 0, m_buttonElements.value(svgIdButtonBase));
     p.drawPicture(0, 0, m_buttonElements.value(isDown() ? svgIdButtonPressedBase : svgIdButtonNormalBase));
 #ifndef Q_WS_MAC // Mac UIs usually don't hover
     if (underMouse() && isEnabled())
         p.drawPicture(0, 0, m_buttonElements.value(svgIdButtonHoverOverlay));
 #endif
+
+    if (scale < 1)
+        p.restore();
+
     if (!icon().isNull()) {
         icon().paint(&p, rect());
     } else {
         const int margin = 4;
         p.drawText(rect().adjusted(margin, margin, -margin, -margin), Qt::AlignCenter | Qt::TextWordWrap, text());
+
     }
-    if (!isEnabled())
+
+    if (scale < 1) {
+        p.scale(1, scale);
+    }
+
+    if (isEnabled()) {
+        p.drawPicture(0, 0, m_buttonElements.value(isDown() ?
+                                                   svgIdButtonPressedOverlay : svgIdButtonNormalOverlay));
+    } else {
         p.drawPicture(0, 0, m_buttonElements.value(svgIdButtonDisabledOverlay));
-    p.drawPicture(0, 0, m_buttonElements.value(isDown() ? svgIdButtonPressedOverlay : svgIdButtonNormalOverlay));
+    }
 }
 
 void FancyActionBar::paintEvent(QPaintEvent *event)
@@ -108,6 +128,11 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
 QSize FancyToolButton::sizeHint() const
 {
     return m_buttonElements.value(svgIdButtonBase).boundingRect().size();
+}
+
+QSize FancyToolButton::minimumSizeHint() const
+{
+    return QSize(8, 8);
 }
 
 FancyActionBar::FancyActionBar(QWidget *parent)
