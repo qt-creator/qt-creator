@@ -32,7 +32,9 @@
 #include "ui_pasteselect.h"
 
 #include "splitter.h"
-#include "view.h"
+#include "pasteview.h"
+#include "codepasterprotocol.h"
+#include "pastebindotcomprotocol.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -59,7 +61,7 @@ using namespace Core;
 using namespace TextEditor;
 
 CodepasterPlugin::CodepasterPlugin()
-    : m_settingsPage(0), m_fetcher(0), m_poster(0)
+    : m_settingsPage(0)
 {
 }
 
@@ -70,6 +72,8 @@ CodepasterPlugin::~CodepasterPlugin()
         delete m_settingsPage;
         m_settingsPage = 0;
     }
+    foreach(Protocol* item, m_protocols)
+        removeObject(item->settingsPage());
 }
 
 bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_message)
@@ -84,6 +88,18 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     // Create the settings Page
     m_settingsPage = new SettingsPage();
     addObject(m_settingsPage);
+
+    // Create the protocols and append them to the Settings
+    Protocol *protos[] =  { new CodePasterProtocol(),
+                            new PasteBinDotComProtocol(),
+                            0};
+    for(int i=0; protos[i] != 0; ++i) {
+        connect(protos[i], SIGNAL(pasteDone(QString)), this, SLOT(finishPost(QString)));
+        m_settingsPage->addProtocol(protos[i]->name());
+        if (protos[i]->hasSettings())
+            addObject(protos[i]->settingsPage());
+        m_protocols.append(protos[i]);
+    }
 
     //register actions
     Core::ActionManager *actionManager = ICore::instance()->actionManager();
@@ -121,23 +137,8 @@ void CodepasterPlugin::extensionsInitialized()
 {
 }
 
-QString CodepasterPlugin::serverUrl() const
-{
-    QString url = m_settingsPage->serverUrl().toString();
-    if (url.startsWith("http://"))
-        url = url.mid(7);
-    if (url.endsWith('/'))
-        url.chop(1);
-    return url;
-}
-
 void CodepasterPlugin::post()
 {
-    // FIXME: The whole m_poster thing is de facto a simple function call.
-    if (m_poster) {
-        delete m_poster;
-        m_poster = 0; 
-    }
     IEditor* editor = EditorManager::instance()->currentEditor();
     ITextEditor* textEditor = qobject_cast<ITextEditor*>(editor);
     if (!textEditor)
@@ -170,8 +171,13 @@ void CodepasterPlugin::post()
     QString username = m_settingsPage->username();
     QString description;
     QString comment;
+    QString protocolName;
 
-    View view(0);
+    PasteView view(0);
+    foreach (Protocol *p, m_protocols) {
+        view.addProtocol(p->name(), p->name() == m_settingsPage->defaultProtocol());
+    }
+
     if (!view.show(username, description, comment, lst))
         return; // User canceled post
 
@@ -179,12 +185,7 @@ void CodepasterPlugin::post()
     description = view.getDescription();
     comment = view.getComment();
     data = view.getContent();
-
-    // Submit to codepaster
-
-    m_poster = new CustomPoster(serverUrl(),
-                                m_settingsPage->copyToClipBoard(),
-                                m_settingsPage->displayOutput());
+    protocolName = view.getProtocol();
 
     // Copied from cpaster. Otherwise lineendings will screw up
     if (!data.contains("\r\n")) {
@@ -193,118 +194,61 @@ void CodepasterPlugin::post()
         else if (data.contains('\r'))
             data.replace('\r', "\r\n");
     }
-    m_poster->post(description, comment, data, username);
+
+    foreach(Protocol *protocol, m_protocols) {
+        if (protocol->name() == protocolName) {
+            protocol->paste(data, username, comment, description);
+            break;
+        }
+    }
+
 }
 
 void CodepasterPlugin::fetch()
 {
-    if (m_fetcher) {
-        delete m_fetcher;
-        m_fetcher = 0;
-    }
-    m_fetcher = new CustomFetcher(serverUrl());
-
     QDialog dialog(ICore::instance()->mainWindow());
     Ui_PasteSelectDialog ui;
     ui.setupUi(&dialog);
+    foreach(const Protocol *protocol, m_protocols)
+        ui.protocolBox->addItem(protocol->name());
+    ui.protocolBox->setCurrentIndex(ui.protocolBox->findText(m_settingsPage->defaultProtocol()));
 
-    ui.listWidget->addItems(QStringList() << tr("Waiting for items"));
+    ui.listWidget->addItems(QStringList() << tr("This protocol supports no listing"));
     ui.listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui.listWidget->setFrameStyle(QFrame::NoFrame);
-    m_fetcher->list(ui.listWidget);
+    // ### TODO2: when we change the protocol, we need to relist
+    foreach(Protocol *protocol, m_protocols) {
+        if (protocol->name() == ui.protocolBox->currentText() && protocol->canList()) {
+            ui.listWidget->clear();
+            ui.listWidget->addItems(QStringList() << tr("Waiting for items"));
+            protocol->list(ui.listWidget);
+            break;
+        }
+    }
 
     int result = dialog.exec();
     if (!result)
         return;
-    bool ok;
     QStringList list = ui.pasteEdit->text().split(QLatin1Char(' '));
-    int pasteID = !list.isEmpty() ? list.first().toInt(&ok) : -1;
-    if (!ok || pasteID <= 0)
+    if (list.isEmpty())
         return;
+    QString pasteID = list.first();
 
-    delete m_fetcher;
-    m_fetcher = new CustomFetcher(serverUrl());
-    m_fetcher->fetch(pasteID);
-}
-
-CustomFetcher::CustomFetcher(const QString &host)
-        : Fetcher(host)
-        , m_host(host)
-        , m_listWidget(0)
-        , m_id(-1)
-        , m_customError(false)
-{
-    // cpaster calls QCoreApplication::exit which we want to avoid here
-    disconnect(this, SIGNAL(requestFinished(int,bool))
-              ,this, SLOT(gotRequestFinished(int,bool)));
-    connect(this, SIGNAL(requestFinished(int,bool))
-                    , SLOT(customRequestFinished(int,bool)));
-}
-
-void CustomFetcher::customRequestFinished(int, bool error)
-{
-    m_customError = error;
-    if (m_customError || hadError()) {
-        QMessageBox::warning(0, tr("CodePaster Error")
-                             , tr("Could not fetch code")
-                             , QMessageBox::Ok);
-        return;
-    }
-
-    QByteArray data = body();
-    if (!m_listWidget) {
-        QString title = QString::fromLatin1("CodePaster: %1").arg(m_id);
-        EditorManager::instance()->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR, &title, data);
-    } else {
-        m_listWidget->clear();
-        QStringList lines = QString(data).split(QLatin1Char('\n'));
-        m_listWidget->addItems(lines);
-        m_listWidget = 0;
+    // Get Protocol
+    foreach(Protocol *protocol, m_protocols) {
+        if (protocol->name() == ui.protocolBox->currentText()) {
+            protocol->fetch(pasteID);
+            break;
+        }
     }
 }
 
-int CustomFetcher::fetch(int pasteID)
+void CodepasterPlugin::finishPost(const QString &link)
 {
-    m_id = pasteID;
-    return Fetcher::fetch(pasteID);
-}
-
-void CustomFetcher::list(QListWidget* list)
-{
-    m_listWidget = list;
-    QString url = QLatin1String("http://");
-    url += m_host;
-    url += QLatin1String("/?command=browse&format=raw");
-    Fetcher::fetch(url);
-}
-
-CustomPoster::CustomPoster(const QString &host, bool copyToClipboard, bool displayOutput)
-    : Poster(host), m_copy(copyToClipboard), m_output(displayOutput)
-{
-    // cpaster calls QCoreApplication::exit which we want to avoid here
-    disconnect(this, SIGNAL(requestFinished(int,bool)),
-              this, SLOT(gotRequestFinished(int,bool)));
-    connect(this, SIGNAL(requestFinished(int,bool)),
-                  SLOT(customRequestFinished(int,bool)));
-}
-
-void CustomPoster::customRequestFinished(int, bool error)
-{
-    if (!error) {
-        if (m_copy)
-            QApplication::clipboard()->setText(pastedUrl());
-        ICore::instance()->messageManager()->printToOutputPane(pastedUrl(), m_output);
-    } else
-        QMessageBox::warning(0, tr("CodePaster Error"), tr("Some error occured while posting"), QMessageBox::Ok);
-#if 0 // Figure out how to access
-    Core::Internal::MessageOutputWindow* messageWindow =
-            ExtensionSystem::PluginManager::instance()->getObject<Core::Internal::MessageOutputWindow>();
-    if (!messageWindow)
-        qDebug() << "Pasted at:" << pastedUrl();
-
-    messageWindow->append(pastedUrl());
-    messageWindow->setFocus();
-#endif
+    if (m_settingsPage->copyToClipBoard())
+        QApplication::clipboard()->setText(link);
+    ICore::instance()->messageManager()->printToOutputPane(link,
+                                                           m_settingsPage->displayOutput());
 }
 
 Q_EXPORT_PLUGIN(CodepasterPlugin)

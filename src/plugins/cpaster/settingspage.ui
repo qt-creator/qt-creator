@@ -1,58 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0" >
+<ui version="4.0">
  <class>CodePaster::SettingsPage</class>
- <widget class="QWidget" name="CodePaster::SettingsPage" >
-  <property name="geometry" >
+ <widget class="QWidget" name="CodePaster::SettingsPage">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>341</width>
-    <height>258</height>
+    <width>362</width>
+    <height>320</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" >
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox" >
-     <property name="sizePolicy" >
-      <sizepolicy vsizetype="Maximum" hsizetype="Preferred" >
+    <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="title" >
+     <property name="title">
       <string>General</string>
      </property>
-     <layout class="QFormLayout" name="formLayout" >
-      <item row="0" column="0" >
-       <widget class="QLabel" name="label" >
-        <property name="text" >
-         <string>CodePaster Server:</string>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Default Protocol:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1" >
-       <widget class="QLineEdit" name="serverEdit" />
+      <item row="0" column="1">
+       <widget class="QComboBox" name="defaultProtocol">
+        <item>
+         <property name="text">
+          <string>CodePaster</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pastebin.ca</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pastebin.com</string>
+         </property>
+        </item>
+       </widget>
       </item>
-      <item row="1" column="0" >
-       <widget class="QLabel" name="label_2" >
-        <property name="text" >
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
          <string>Username:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1" >
-       <widget class="QLineEdit" name="userEdit" />
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="userEdit"/>
       </item>
-      <item row="2" column="1" >
-       <widget class="QCheckBox" name="clipboardBox" >
-        <property name="text" >
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="clipboardBox">
+        <property name="text">
          <string>Copy Paste URL to clipboard</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1" >
-       <widget class="QCheckBox" name="displayBox" >
-        <property name="text" >
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="displayBox">
+        <property name="text">
          <string>Display Output Pane after sending a post</string>
         </property>
        </widget>
@@ -61,11 +77,11 @@
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer" >
-     <property name="orientation" >
+    <spacer name="verticalSpacer">
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>223</width>
        <height>100</height>

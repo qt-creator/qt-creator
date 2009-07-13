@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "view.h"
+#include "pasteview.h"
 
 #include <QFontMetrics>
 #include <QPainter>
@@ -77,12 +77,12 @@ void ColumnIndicatorTextEdit::paintEvent(QPaintEvent *event)
 // -------------------------------------------------------------------------------------------------
 
 
-View::View(QWidget *parent)
+PasteView::PasteView(QWidget *parent)
     : QDialog(parent)
 {
     m_ui.setupUi(this);
 
-    // Swap out the Patch View widget with a ColumnIndicatorTextEdit, which will indicate column 100
+    // Swap out the Patch PasteView widget with a ColumnIndicatorTextEdit, which will indicate column 100
     delete m_ui.uiPatchView;
     m_ui.uiPatchView = new ColumnIndicatorTextEdit(m_ui.groupBox);
     m_ui.vboxLayout1->addWidget(m_ui.uiPatchView);
@@ -90,11 +90,11 @@ View::View(QWidget *parent)
     connect(m_ui.uiPatchList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(contentChanged()));
 }
 
-View::~View()
+PasteView::~PasteView()
 {
 }
 
-QString View::getUser()
+QString PasteView::getUser()
 {
     const QString username = m_ui.uiUsername->text();
     if (username.isEmpty() || username == tr("<Username>"))
@@ -102,7 +102,7 @@ QString View::getUser()
     return username;
 }
 
-QString View::getDescription()
+QString PasteView::getDescription()
 {
     const QString description = m_ui.uiDescription->text();
     if (description == tr("<Description>"))
@@ -110,7 +110,7 @@ QString View::getDescription()
     return description;
 }
 
-QString View::getComment()
+QString PasteView::getComment()
 {
     const QString comment = m_ui.uiComment->toPlainText();
     if (comment == tr("<Comment>"))
@@ -118,7 +118,7 @@ QString View::getComment()
     return comment;
 }
 
-QByteArray View::getContent()
+QByteArray PasteView::getContent()
 {
     QByteArray newContent;
     for (int i = 0; i < m_ui.uiPatchList->count(); ++i) {
@@ -129,12 +129,17 @@ QByteArray View::getContent()
     return newContent;
 }
 
-void View::contentChanged()
+QString PasteView::getProtocol()
+{
+    return m_ui.protocolBox->currentText();
+}
+
+void PasteView::contentChanged()
 {
     m_ui.uiPatchView->setPlainText(getContent());
 }
 
-int View::show(const QString &user, const QString &description, const QString &comment,
+int PasteView::show(const QString &user, const QString &description, const QString &comment,
                const FileDataList &parts)
 {
     if (user.isEmpty())
@@ -178,4 +183,11 @@ int View::show(const QString &user, const QString &description, const QString &c
     settings.setValue("/gui/width", width());
 
     return ret;
+}
+
+void PasteView::addProtocol(const QString &protocol, bool defaultProtocol)
+{
+    m_ui.protocolBox->addItem(protocol);
+    if (defaultProtocol)
+        m_ui.protocolBox->setCurrentIndex(m_ui.protocolBox->findText(protocol));
 }

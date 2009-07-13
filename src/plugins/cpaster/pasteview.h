@@ -27,49 +27,39 @@
 **
 **************************************************************************/
 
-#include "fetcher.h"
-#include "cgi.h"
+#ifndef PASTEVIEW_H
+#define PASTEVIEW_H
 
-#include <QCoreApplication>
+#include <QDialog>
 #include <QByteArray>
-#include <QDebug>
 
-Fetcher::Fetcher(const QString &host)
-    : QHttp(host)
+#include "splitter.h"
+#include "ui_pasteview.h"
+
+class PasteView : public QDialog
 {
-    m_host = host;
-    m_status = 0;
-    m_hadError = false;
-    connect(this, SIGNAL(requestFinished(int,bool)), SLOT(gotRequestFinished(int,bool)));
-    connect(this, SIGNAL(readyRead(QHttpResponseHeader)), SLOT(gotReadyRead(QHttpResponseHeader)));
-}
+    Q_OBJECT
+public:
+    PasteView(QWidget *parent);
+    ~PasteView();
 
-int Fetcher::fetch(const QString &url)
-{
-//    qDebug("Fetcher::fetch(%s)", qPrintable(url));
-    return QHttp::get(url);
-}
+    int show(const QString &user, const QString &description, const QString &comment,
+             const FileDataList &parts);
 
-int Fetcher::fetch(int pasteID)
-{
-    return fetch("http://" + m_host + "/?format=raw&id=" + QString::number(pasteID));
-}
+    void addProtocol(const QString &protocol, bool defaultProtocol = false);
 
-void Fetcher::gotRequestFinished(int, bool error)
-{
-    m_hadError = error;
-    QCoreApplication::exit(error ? -1 : 0); // ends event-loop
-}
+    QString getUser();
+    QString getDescription();
+    QString getComment();
+    QByteArray getContent();
+    QString getProtocol();
 
-void Fetcher::gotReadyRead(const QHttpResponseHeader & /* resp */)
-{
-    m_body += QHttp::readAll();
+private slots:
+    void contentChanged();
 
-    // Hackish check for No Such Paste, as codepaster doesn't send a HTTP code indicating such, or
-    // sends a redirect to an url indicating failure...
-    if (m_body.contains("<B>No such paste!</B>")) {
-        m_body.clear();
-        m_status = -1;
-        m_hadError = true;
-    }
-}
+private:
+    Ui::ViewDialog m_ui;
+    FileDataList m_parts;
+};
+
+#endif // VIEW_H

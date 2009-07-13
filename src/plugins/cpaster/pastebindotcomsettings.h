@@ -27,34 +27,42 @@
 **
 **************************************************************************/
 
-#ifndef POSTER_H
-#define POSTER_H
+#ifndef PASTEBINDOTCOMSETTINGS_H
+#define PASTEBINDOTCOMSETTINGS_H
 
-#include <QHttp>
-#include <QHttpResponseHeader>
-#include <QString>
+#include <coreplugin/dialogs/ioptionspage.h>
 
-class Poster : public QHttp
+#include <QtCore/QStringList>
+#include <QtCore/QUrl>
+#include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
+
+class PasteBinDotComSettings : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
-    Poster(const QString &host);
+    PasteBinDotComSettings();
 
-    void post(const QString &description, const QString &comment,
-              const QString &text, const QString &user);
+    QString id() const;
+    QString trName() const;
+    QString category() const;
+    QString trCategory() const;
 
-    QString pastedUrl() { return m_url; }
-    int status()        { return m_status; }
-    bool hadError()     { return m_hadError; }
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() { }
 
-private slots:
-    void gotRequestFinished(int id, bool error);
-    void gotResponseHeaderReceived(const QHttpResponseHeader &resp);
+    QString hostPrefix() const;
+public slots:
+    void serverChanged(const QString &host);
 
 private:
-    QString m_url;
-    int m_status;
-    bool m_hadError;
+    QSettings *m_settings;
+    QString m_hostPrefix;
 };
 
-#endif // POSTER_H
+#endif

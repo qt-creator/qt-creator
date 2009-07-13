@@ -27,36 +27,48 @@
 **
 **************************************************************************/
 
-#ifndef VIEW_H
-#define VIEW_H
+#ifndef CODEPASTERSETTINGSPAGE_H
+#define CODEPASTERSETTINGSPAGE_H
 
-#include <QDialog>
-#include <QByteArray>
+#include "ui_settingspage.h"
 
-#include "splitter.h"
-#include "ui_view.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-class View : public QDialog
+#include <QtCore/QStringList>
+#include <QtCore/QUrl>
+#include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
+
+namespace CodePaster {
+
+class CodePasterSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
-    View(QWidget *parent);
-    ~View();
-    
-    int show(const QString &user, const QString &description, const QString &comment,
-             const FileDataList &parts);
+    CodePasterSettingsPage();
 
-    QString getUser();
-    QString getDescription();
-    QString getComment();
-    QByteArray getContent();
+    QString id() const;
+    QString trName() const;
+    QString category() const;
+    QString trCategory() const;
 
-private slots:
-    void contentChanged();
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() { }
+
+    QString hostName() const;
+public slots:
+    void serverChanged(const QString &host);
 
 private:
-    Ui::ViewDialog m_ui;
-    FileDataList m_parts;
+    QSettings *m_settings;
+    QString m_host;
 };
 
-#endif // VIEW_H
+} // namespace CodePaster
+
+#endif // SETTINGSPAGE_H

@@ -27,51 +27,47 @@
 **
 **************************************************************************/
 
-#ifndef CODEPASTERPLUGIN_H
-#define CODEPASTERPLUGIN_H
-
-#include "settingspage.h"
+#ifndef PASTEBINDOTCOMPROTOCOL_H
+#define PASTEBINDOTCOMPROTOCOL_H
 #include "protocol.h"
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QHttp>
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icorelistener.h>
-#include <extensionsystem/iplugin.h>
+class PasteBinDotComSettings;
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-
-QT_BEGIN_NAMESPACE
-class QListWidget;
-QT_END_NAMESPACE
-
-namespace CodePaster {
-
-class CustomFetcher;
-class CustomPoster;
-
-class CodepasterPlugin : public ExtensionSystem::IPlugin
+class PasteBinDotComProtocol : public Protocol
 {
     Q_OBJECT
-
 public:
-    CodepasterPlugin();
-    ~CodepasterPlugin();
+    PasteBinDotComProtocol();
 
-    bool initialize(const QStringList &arguments, QString *error_message);
-    void extensionsInitialized();
+    QString name() const { return QLatin1String("Pastebin.Com"); }
 
+    bool hasSettings() const { return true; }
+    Core::IOptionsPage* settingsPage();
+
+    bool canList() const { return false; }
+
+    void fetch(const QString &id);
+    void paste(const QString &text,
+               const QString &username = "",
+               const QString &comment = "",
+               const QString &description = "");
 public slots:
-    void post();
-    void fetch();
-    void finishPost(const QString &link);
+    void fetchFinished();
+
+    void postRequestFinished(int id, bool error);
+    void readPostResponseHeader(const QHttpResponseHeader&);
 
 private:
-    QAction *m_postAction;
-    QAction *m_fetchAction;
-    SettingsPage *m_settingsPage;
-    QList<Protocol*> m_protocols;
+    PasteBinDotComSettings *settings;
+    QNetworkAccessManager manager;
+    QNetworkReply *reply;
+    QString fetchId;
+
+    QHttp http;
+    int postId;
 };
 
-} // namespace CodePaster
-
-#endif // CODEPASTERPLUGIN_H
+#endif // PASTEBINDOTCOMPROTOCOL_H

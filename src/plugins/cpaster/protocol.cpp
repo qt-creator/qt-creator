@@ -26,37 +26,40 @@
 ** contact the sales department at http://www.qtsoftware.com/contact.
 **
 **************************************************************************/
+#include "protocol.h"
 
-#ifndef FETCHER_H
-#define FETCHER_H
+#include <QtCore/qglobal.h>
 
-#include <QHttp>
-#include <QHttpResponseHeader>
-#include <QString>
-
-class Fetcher : public QHttp
+Protocol::Protocol()
+        : QObject()
 {
-    Q_OBJECT
-public:
-    Fetcher(const QString &host);
+}
 
-    int fetch(const QString &url);
-    int fetch(int pasteID);
+Protocol::~Protocol()
+{
+}
 
-    QByteArray &body() { return m_body; }
+bool Protocol::canFetch() const
+{
+    return true;
+}
 
-    int status()        { return m_status; }
-    bool hadError()     { return m_hadError; }
+bool Protocol::canPost() const
+{
+    return true;
+}
 
-private slots:
-    void gotRequestFinished(int id, bool error);
-    void gotReadyRead(const QHttpResponseHeader &resp);
+bool Protocol::hasSettings() const
+{
+    return false;
+}
 
-private:
-    QString m_host;
-    int m_status;
-    bool m_hadError;
-    QByteArray m_body;
-};
+Core::IOptionsPage* Protocol::settingsPage()
+{
+    return 0;
+}
 
-#endif // FETCHER_H
+void Protocol::list(QListWidget*)
+{
+    qFatal("Base Protocol list() called");
+}

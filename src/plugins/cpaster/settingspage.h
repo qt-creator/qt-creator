@@ -34,6 +34,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QtCore/QStringList>
 #include <QtCore/QUrl>
 #include <QtGui/QWidget>
 
@@ -59,8 +60,9 @@ public:
     void apply();
     void finish() { }
 
+    void addProtocol(const QString& name);
     QString username() const;
-    QUrl serverUrl() const;
+    QString defaultProtocol() const;
 
     inline bool copyToClipBoard() const { return m_copy; }
     inline bool displayOutput() const { return m_output; }
@@ -69,8 +71,9 @@ private:
     Ui_SettingsPage m_ui;
     QSettings *m_settings;
 
+    QStringList m_protocols;
     QString m_username;
-    QUrl m_server;
+    QString m_protocol;
     bool m_copy;
     bool m_output;
 };

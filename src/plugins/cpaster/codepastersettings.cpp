@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "settingspage.h"
+#include "codepastersettings.h"
 
 #include <coreplugin/icore.h>
 
@@ -39,80 +39,66 @@
 
 using namespace CodePaster;
 
-SettingsPage::SettingsPage()
+CodePasterSettingsPage::CodePasterSettingsPage()
 {
     m_settings = Core::ICore::instance()->settings();
     if (m_settings) {
-        m_settings->beginGroup("CodePaster");
-        m_username = m_settings->value("UserName", qgetenv("USER")).toString();
-        m_protocol = m_settings->value("DefaultProtocol", "CodePaster").toString();
-        m_copy = m_settings->value("CopyToClipboard", true).toBool();
-        m_output = m_settings->value("DisplayOutput", true).toBool();
+        m_settings->beginGroup("CodePasterSettings");
+        m_host = m_settings->value("Server", "").toString();
         m_settings->endGroup();
     }
 }
 
-QString SettingsPage::id() const
-{
-    return QLatin1String("General");
-}
-
-QString SettingsPage::trName() const
-{
-    return tr("General");
-}
-
-QString SettingsPage::category() const
+QString CodePasterSettingsPage::id() const
 {
     return QLatin1String("CodePaster");
 }
 
-QString SettingsPage::trCategory() const
+QString CodePasterSettingsPage::trName() const
 {
     return tr("CodePaster");
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QString CodePasterSettingsPage::category() const
+{
+    return QLatin1String("CodePaster");
+}
+
+QString CodePasterSettingsPage::trCategory() const
+{
+    return tr("CodePaster");
+}
+
+QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
-    m_ui.setupUi(w);
-    m_ui.defaultProtocol->clear();
-    m_ui.defaultProtocol->insertItems(0, m_protocols);
-    m_ui.userEdit->setText(m_username);
-    m_ui.clipboardBox->setChecked(m_copy);
-    m_ui.displayBox->setChecked(m_output);
+    QLabel *label = new QLabel(tr("Server:"));
+    QLineEdit *lineedit = new QLineEdit;
+    lineedit->setText(m_host);
+    connect(lineedit, SIGNAL(textChanged(QString)), this, SLOT(serverChanged(QString)));
+    QGridLayout* layout = new QGridLayout();
+    layout->addWidget(label, 0, 0);
+    layout->addWidget(lineedit, 0, 1);
+    w->setLayout(layout);
     return w;
 }
 
-void SettingsPage::apply()
+void CodePasterSettingsPage::apply()
 {
-    m_username = m_ui.userEdit->text();
-    m_protocol = m_ui.defaultProtocol->currentText();
-    m_copy = m_ui.clipboardBox->isChecked();
-    m_output = m_ui.displayBox->isChecked();
-
     if (!m_settings)
         return;
 
-    m_settings->beginGroup("CodePaster");
-    m_settings->setValue("UserName", m_username);
-    m_settings->setValue("DefaultProtocol", m_protocol);
-    m_settings->setValue("CopyToClipboard", m_copy);
-    m_settings->setValue("DisplayOutput", m_output);
+    m_settings->beginGroup("CodePasterSettings");
+    m_settings->setValue("Server", m_host);
     m_settings->endGroup();
 }
 
-void SettingsPage::addProtocol(const QString &name)
+void CodePasterSettingsPage::serverChanged(const QString &host)
 {
-    m_protocols.append(name);
+    m_host = host;
 }
 
-QString SettingsPage::username() const
+QString CodePasterSettingsPage::hostName() const
 {
-    return m_username;
-}
-
-QString SettingsPage::defaultProtocol() const
-{
-    return m_protocol;
+    return m_host;
 }

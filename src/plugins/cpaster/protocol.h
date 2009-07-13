@@ -26,47 +26,41 @@
 ** contact the sales department at http://www.qtsoftware.com/contact.
 **
 **************************************************************************/
+#ifndef PROTOCOL_H
+#define PROTOCOL_H
+#include "settingspage.h"
 
-#include "poster.h"
-#include "cgi.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QCoreApplication>
-#include <QByteArray>
-#include <QDebug>
+#include <QtCore/QObject>
+#include <QtCore/QString>
 
-Poster::Poster(const QString &host)
-    : QHttp(host)
+class QListWidget;
+
+class Protocol : public QObject
 {
-    m_status = 0;
-    m_hadError = false;
-    connect(this, SIGNAL(requestFinished(int,bool)), SLOT(gotRequestFinished(int,bool)));
-    connect(this, SIGNAL(responseHeaderReceived(QHttpResponseHeader)), SLOT(gotResponseHeaderReceived(QHttpResponseHeader)));
-}
+    Q_OBJECT
+public:
+    Protocol();
+    virtual ~Protocol();
 
-void Poster::post(const QString &description, const QString &comment,
-                  const QString &text, const QString &user)
-{
+    virtual QString name() const = 0;
 
-    QByteArray data = "command=processcreate&submit=submit&highlight_type=0&description=";
-    data += CGI::encodeURL(description).toLatin1();
-    data += "&comment=";
-    data += CGI::encodeURL(comment).toLatin1();
-    data += "&code=";
-    data += CGI::encodeURL(text).toLatin1();
-    data += "&poster=";
-    data += CGI::encodeURL(user).toLatin1();
-//    qDebug("POST [%s]", data.constData());
+    bool canFetch() const;
+    bool canPost() const;
+    virtual bool canList() const = 0;
+    virtual bool hasSettings() const;
+    virtual Core::IOptionsPage* settingsPage();
 
-    QHttp::post("/", data);
-}
+    virtual void fetch(const QString &id) = 0;
+    virtual void list(QListWidget *listWidget);
+    virtual void paste(const QString &text,
+                       const QString &username = "",
+                       const QString &comment = "",
+                       const QString &description = "") = 0;
 
-void Poster::gotRequestFinished(int, bool error)
-{
-    m_hadError = error;
-    QCoreApplication::exit(error ? -1 : 0); // ends event-loop
-}
+signals:
+    void pasteDone(const QString &link);
+};
 
-void Poster::gotResponseHeaderReceived(const QHttpResponseHeader &resp)
-{
-    m_url = resp.value("location");
-}
+#endif // PROTOCOL_H

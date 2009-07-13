@@ -27,51 +27,52 @@
 **
 **************************************************************************/
 
-#ifndef CODEPASTERPLUGIN_H
-#define CODEPASTERPLUGIN_H
-
-#include "settingspage.h"
+#ifndef CODEPASTERPROTOCOL_H
+#define CODEPASTERPROTOCOL_H
 #include "protocol.h"
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icorelistener.h>
-#include <extensionsystem/iplugin.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QList>
-
-QT_BEGIN_NAMESPACE
-class QListWidget;
-QT_END_NAMESPACE
+#include <QtGui/QListWidget>
+#include <QtNetwork/QHttp>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
 
 namespace CodePaster {
 
-class CustomFetcher;
-class CustomPoster;
+    class CodePasterSettingsPage;
 
-class CodepasterPlugin : public ExtensionSystem::IPlugin
+class CodePasterProtocol : public Protocol
 {
     Q_OBJECT
-
 public:
-    CodepasterPlugin();
-    ~CodepasterPlugin();
+    CodePasterProtocol();
+    ~CodePasterProtocol();
 
-    bool initialize(const QStringList &arguments, QString *error_message);
-    void extensionsInitialized();
+    QString name() const;
 
+    bool canList() const;
+    bool hasSettings() const;
+    Core::IOptionsPage* settingsPage();
+
+    void fetch(const QString &id);
+    void list(QListWidget *listWidget);
+    void paste(const QString &text,
+               const QString &username = "",
+               const QString &comment = "",
+               const QString &description = "");
 public slots:
-    void post();
-    void fetch();
-    void finishPost(const QString &link);
+    void fetchFinished();
+    void listFinished();
+    void readPostResponseHeader(const QHttpResponseHeader&);
 
 private:
-    QAction *m_postAction;
-    QAction *m_fetchAction;
-    SettingsPage *m_settingsPage;
-    QList<Protocol*> m_protocols;
+    CodePasterSettingsPage *m_page;
+    QHttp http;
+    QNetworkAccessManager manager;
+    QNetworkReply* reply;
+    QNetworkReply* listReply;
+    QListWidget* listWidget;
+    QString fetchId;
 };
 
-} // namespace CodePaster
-
-#endif // CODEPASTERPLUGIN_H
+}
+#endif // CODEPASTERPROTOCOL_H
