@@ -199,6 +199,14 @@ enum EventResult
     EventPassedToCore
 };
 
+struct CursorPosition
+{
+    CursorPosition() : position(-1), scrollLine(-1) {}
+    CursorPosition(int pos, int line) : position(pos), scrollLine(line) {}
+    int position; // Position in document
+    int scrollLine; // First visible line
+};
+
 class FakeVimHandler::Private
 {
 public:
@@ -247,9 +255,15 @@ public:
     int cursorLineInDocument() const;
     int cursorColumnInDocument() const;
     int linesInDocument() const;
+    int firstVisibleLineInDocument() const;
     void scrollToLineInDocument(int line);
     void scrollUp(int count);
     void scrollDown(int count) { scrollUp(-count); }
+
+    CursorPosition cursorPosition() const
+        { return CursorPosition(position(), firstVisibleLineInDocument()); }
+    void setCursorPosition(const CursorPosition &p)
+        { setPosition(p.position); scrollToLineInDocument(p.scrollLine); }
 
     // helper functions for indenting
     bool isElectricCharacter(QChar c) const
@@ -401,8 +415,8 @@ public:
 
     void recordJump();
     void recordNewUndo();
-    QList<int> m_jumpListUndo;
-    QList<int> m_jumpListRedo;
+    QVector<CursorPosition> m_jumpListUndo;
+    QVector<CursorPosition> m_jumpListRedo;
 
     QList<QTextEdit::ExtraSelection> m_searchSelections;
 };
@@ -1255,8 +1269,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_tc.clearSelection();
     } else if (key == control('i')) {
         if (!m_jumpListRedo.isEmpty()) {
-            m_jumpListUndo.append(position());
-            setPosition(m_jumpListRedo.takeLast());
+            m_jumpListUndo.append(cursorPosition());
+            setCursorPosition(m_jumpListRedo.last());
+            m_jumpListRedo.pop_back();
         }
     } else if (key == 'j' || key == Key_Down) {
         if (m_submode == NoSubMode || m_submode == ZSubMode
@@ -1337,8 +1352,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         insertAutomaticIndentation(key == 'o');
     } else if (key == control('o')) {
         if (!m_jumpListUndo.isEmpty()) {
-            m_jumpListRedo.append(position());
-            setPosition(m_jumpListUndo.takeLast());
+            m_jumpListRedo.append(cursorPosition());
+            setCursorPosition(m_jumpListUndo.last());
+            m_jumpListUndo.pop_back();
         }
     } else if (key == 'p' || key == 'P') {
         QString text = m_registers[m_register];
@@ -2013,7 +2029,7 @@ static void vimPatternToQtPattern(QString *needle, QTextDocument::FindFlags *fla
 void FakeVimHandler::Private::search(const QString &needle0, bool forward)
 {
     showBlackMessage((forward ? '/' : '?') + needle0);
-    QTextCursor orig = m_tc;
+    CursorPosition origPosition = cursorPosition();
     QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
     if (!forward)
         flags |= QTextDocument::FindBackward;
@@ -2048,9 +2064,9 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
                 showRedMessage(tr("search hit TOP, continuing at BOTTOM"));
             highlightMatches(needle);
         } else {
-            m_tc = orig;
-            showRedMessage(tr("Pattern not found: ") + needle);
             highlightMatches(QString());
+            setCursorPosition(origPosition);
+            showRedMessage(tr("Pattern not found: ") + needle);
         }
     }
 }
@@ -2345,6 +2361,19 @@ void FakeVimHandler::Private::scrollToLineInDocument(int line)
     QScrollBar *scrollBar = EDITOR(verticalScrollBar());
     //qDebug() << "SCROLL: " << scrollBar->value() << line;
     scrollBar->setValue(line);
+    //QTC_ASSERT(firstVisibleLineInDocument() == line, /**/);
+}
+
+int FakeVimHandler::Private::firstVisibleLineInDocument() const
+{
+    QScrollBar *scrollBar = EDITOR(verticalScrollBar());
+    if (0 && scrollBar->value() != cursorLineInDocument() - cursorLineOnScreen()) {
+        qDebug() << "SCROLLBAR: " << scrollBar->value()
+            << "CURSORLINE IN DOC" << cursorLineInDocument()
+            << "CURSORLINE ON SCREEN" << cursorLineOnScreen();
+    }
+    //return scrollBar->value();
+    return cursorLineInDocument() - cursorLineOnScreen();
 }
 
 void FakeVimHandler::Private::scrollUp(int count)
@@ -2480,7 +2509,7 @@ void FakeVimHandler::Private::enterExMode()
 
 void FakeVimHandler::Private::recordJump()
 {
-    m_jumpListUndo.append(position());
+    m_jumpListUndo.append(cursorPosition());
     m_jumpListRedo.clear();
     UNDO_DEBUG("jumps: " << m_jumpListUndo);
 }
