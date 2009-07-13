@@ -50,6 +50,8 @@ public:
 
     bool isEnabled() const;
     bool supportsReplace() const { return false; }
+    IFindSupport::FindFlags supportedFindFlags() const;
+
     void resetIncrementalSearch() {}
     void clearResults() {}
     QString currentFindString() const;
@@ -76,6 +78,7 @@ public:
 
     bool isEnabled() const { return true; }
     bool supportsReplace() const { return false; }
+    IFindSupport::FindFlags supportedFindFlags() const;
     void resetIncrementalSearch() {}
     void clearResults() {}
     QString currentFindString() const;

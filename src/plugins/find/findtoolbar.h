@@ -88,6 +88,7 @@ private:
     bool setFocusToCurrentFindSupport();
     void setFindFlag(IFindSupport::FindFlag flag, bool enabled);
     bool hasFindFlag(IFindSupport::FindFlag flag);
+    IFindSupport::FindFlags effectiveFindFlags();
 
     bool eventFilter(QObject *obj, QEvent *event);
     void setFindText(const QString &text);

@@ -63,6 +63,11 @@ public:
     ~BinEditorFind() {}
 
     bool supportsReplace() const { return false; }
+    IFindSupport::FindFlags supportedFindFlags() const
+    {
+        return IFindSupport::FindBackward | IFindSupport::FindCaseSensitively;
+    }
+
     void resetIncrementalSearch() { m_incrementalStartPos = -1; }
     void clearResults() { m_editor->highlightSearchResults(QByteArray()); }
     QString currentFindString() const { return QString(); }

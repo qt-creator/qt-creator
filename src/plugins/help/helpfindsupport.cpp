@@ -48,6 +48,12 @@ bool HelpFindSupport::isEnabled() const
     return true;
 }
 
+Find::IFindSupport::FindFlags HelpFindSupport::supportedFindFlags() const
+{
+    return Find::IFindSupport::FindBackward | Find::IFindSupport::FindCaseSensitively
+            | Find::IFindSupport::FindWholeWords;
+}
+
 QString HelpFindSupport::currentFindString() const
 {
     QTC_ASSERT(m_centralWidget, return QString());
@@ -82,6 +88,12 @@ bool HelpFindSupport::findStep(const QString &txt, Find::IFindSupport::FindFlags
 HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
         : m_viewer(viewer)
 {
+}
+
+Find::IFindSupport::FindFlags HelpViewerFindSupport::supportedFindFlags() const
+{
+    return Find::IFindSupport::FindBackward | Find::IFindSupport::FindCaseSensitively
+            | Find::IFindSupport::FindWholeWords;
 }
 
 QString HelpViewerFindSupport::currentFindString() const

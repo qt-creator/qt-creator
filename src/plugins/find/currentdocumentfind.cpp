@@ -77,6 +77,12 @@ bool CurrentDocumentFind::supportsReplace() const
     return m_currentFind->supportsReplace();
 }
 
+IFindSupport::FindFlags CurrentDocumentFind::supportedFindFlags() const
+{
+    QTC_ASSERT(m_currentFind, return 0);
+    return m_currentFind->supportedFindFlags();
+}
+
 QString CurrentDocumentFind::currentFindString() const
 {
     QTC_ASSERT(m_currentFind, return QString());

@@ -228,7 +228,6 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     connect(m_currentDocumentFind, SIGNAL(changed()), this, SLOT(updateActions()));
     updateActions();
-    updateIcons();
 }
 
 FindToolBar::~FindToolBar()
@@ -300,6 +299,8 @@ void FindToolBar::updateActions()
     m_ui.replaceLabel->setEnabled(replaceEnabled);
     if (!replaceEnabled && enabled && replaceFocus)
         m_ui.findEdit->setFocus();
+    updateIcons();
+    updateFlagMenus();
 }
 
 void FindToolBar::invokeFindEnter()
@@ -365,7 +366,7 @@ void FindToolBar::invokeFindStep()
 {
     if (m_currentDocumentFind->isEnabled()) {
         m_plugin->updateFindCompletion(getFindText());
-        m_currentDocumentFind->findStep(getFindText(), m_findFlags);
+        m_currentDocumentFind->findStep(getFindText(), effectiveFindFlags());
     }
 }
 
@@ -373,7 +374,7 @@ void FindToolBar::invokeFindIncremental()
 {
     if (m_currentDocumentFind->isEnabled()) {
         QString text = getFindText();
-        m_currentDocumentFind->findIncremental(text, m_findFlags);
+        m_currentDocumentFind->findIncremental(text, effectiveFindFlags());
         if (text.isEmpty())
             m_currentDocumentFind->clearResults();
     }
@@ -396,7 +397,7 @@ void FindToolBar::invokeReplaceStep()
     if (m_currentDocumentFind->isEnabled() && m_currentDocumentFind->supportsReplace()) {
         m_plugin->updateFindCompletion(getFindText());
         m_plugin->updateReplaceCompletion(getReplaceText());
-        m_currentDocumentFind->replaceStep(getFindText(), getReplaceText(), m_findFlags);
+        m_currentDocumentFind->replaceStep(getFindText(), getReplaceText(), effectiveFindFlags());
     }
 }
 
@@ -405,7 +406,7 @@ void FindToolBar::invokeReplaceAll()
     m_plugin->updateFindCompletion(getFindText());
     m_plugin->updateReplaceCompletion(getReplaceText());
     if (m_currentDocumentFind->isEnabled() && m_currentDocumentFind->supportsReplace()) {
-        m_currentDocumentFind->replaceAll(getFindText(), getReplaceText(), m_findFlags);
+        m_currentDocumentFind->replaceAll(getFindText(), getReplaceText(), effectiveFindFlags());
     }
 }
 
@@ -442,9 +443,10 @@ void FindToolBar::findFlagsChanged()
 
 void FindToolBar::updateIcons()
 {
-    bool casesensitive = m_findFlags & IFindSupport::FindCaseSensitively;
-    bool wholewords = m_findFlags & IFindSupport::FindWholeWords;
-    bool regexp = m_findFlags & IFindSupport::FindRegularExpression;
+    IFindSupport::FindFlags effectiveFlags = effectiveFindFlags();
+    bool casesensitive = effectiveFlags & IFindSupport::FindCaseSensitively;
+    bool wholewords = effectiveFlags & IFindSupport::FindWholeWords;
+    bool regexp = effectiveFlags & IFindSupport::FindRegularExpression;
     QPixmap pixmap(17, 17);
     QPainter painter(&pixmap);
     painter.eraseRect(0, 0, 17, 17);
@@ -468,6 +470,16 @@ void FindToolBar::updateIcons()
     m_ui.findEdit->setPixmap(pixmap);
 }
 
+IFindSupport::FindFlags FindToolBar::effectiveFindFlags()
+{
+    IFindSupport::FindFlags supportedFlags;
+    if (m_currentDocumentFind->isEnabled())
+        supportedFlags = m_currentDocumentFind->supportedFindFlags();
+    else
+        supportedFlags = (IFindSupport::FindFlags)0xFFFFFF;
+    return supportedFlags & m_findFlags;
+}
+
 void FindToolBar::updateFlagMenus()
 {
     bool wholeOnly = ((m_findFlags & IFindSupport::FindWholeWords));
@@ -479,6 +491,12 @@ void FindToolBar::updateFlagMenus()
         m_caseSensitiveAction->setChecked(sensitive);
     if (m_regularExpressionAction->isChecked() != regexp)
         m_regularExpressionAction->setChecked(regexp);
+    IFindSupport::FindFlags supportedFlags;
+    if (m_currentDocumentFind->isEnabled())
+        supportedFlags = m_currentDocumentFind->supportedFindFlags();
+    m_wholeWordAction->setEnabled(supportedFlags & IFindSupport::FindWholeWords);
+    m_caseSensitiveAction->setEnabled(supportedFlags & IFindSupport::FindCaseSensitively);
+    m_regularExpressionAction->setEnabled(supportedFlags & IFindSupport::FindRegularExpression);
 }
 
 bool FindToolBar::setFocusToCurrentFindSupport()
@@ -509,7 +527,7 @@ void FindToolBar::openFind()
     if (!text.isEmpty())
         setFindText(text);
     m_currentDocumentFind->defineFindScope();
-    m_currentDocumentFind->highlightAll(getFindText(), m_findFlags);
+    m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
     selectFindText();
 }
 

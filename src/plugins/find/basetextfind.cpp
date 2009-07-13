@@ -75,6 +75,12 @@ bool BaseTextFind::supportsReplace() const
     return !isReadOnly();
 }
 
+IFindSupport::FindFlags BaseTextFind::supportedFindFlags() const
+{
+    return IFindSupport::FindBackward | IFindSupport::FindCaseSensitively
+            | IFindSupport::FindRegularExpression | IFindSupport::FindWholeWords;
+}
+
 void BaseTextFind::resetIncrementalSearch()
 {
     m_incrementalStartPos = -1;

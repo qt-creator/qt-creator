@@ -48,6 +48,7 @@ public:
     void resetIncrementalSearch();
     void clearResults();
     bool supportsReplace() const;
+    IFindSupport::FindFlags supportedFindFlags() const;
     QString currentFindString() const;
     QString completedFindString() const;
 

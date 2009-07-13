@@ -54,6 +54,7 @@ public:
     virtual ~IFindSupport() {}
 
     virtual bool supportsReplace() const = 0;
+    virtual FindFlags supportedFindFlags() const = 0;
     virtual void resetIncrementalSearch() = 0;
     virtual void clearResults() = 0;
     virtual QString currentFindString() const = 0;

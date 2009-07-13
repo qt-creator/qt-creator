@@ -47,6 +47,7 @@ public:
     BaseTextFind(QTextEdit *editor);
 
     bool supportsReplace() const;
+    IFindSupport::FindFlags supportedFindFlags() const;
     void resetIncrementalSearch();
     void clearResults();
     QString currentFindString() const;
