@@ -84,8 +84,8 @@ public:
     virtual NamespaceBinding *asNamespaceBinding() { return 0; }
     virtual ClassBinding *asClassBinding() { return 0; }
 
-    virtual ClassBinding *findClassBinding(Name *name) = 0;
-    virtual Binding *findClassOrNamespaceBinding(Identifier *id) = 0;
+    virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed) = 0;
+    virtual Binding *findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed) = 0;
 };
 
 class CPLUSPLUS_EXPORT NamespaceBinding: public Binding
@@ -116,8 +116,8 @@ public:
                                        Name *name,
                                        bool lookAtParent = true);
 
-    virtual ClassBinding *findClassBinding(Name *name);
-    virtual Binding *findClassOrNamespaceBinding(Identifier *id);
+    virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed);
+    virtual Binding *findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed);
 
     /// Helpers.
     virtual QByteArray qualifiedId() const;
@@ -171,8 +171,8 @@ public:
     Identifier *identifier() const;
     virtual QByteArray qualifiedId() const;
 
-    virtual ClassBinding *findClassBinding(Name *name);
-    virtual Binding *findClassOrNamespaceBinding(Identifier *id);
+    virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed);
+    virtual Binding *findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed);
 
     void dump();
 

@@ -113,8 +113,13 @@ NamespaceBinding *NamespaceBinding::globalNamespaceBinding()
     return it;
 }
 
-Binding *NamespaceBinding::findClassOrNamespaceBinding(Identifier *id)
+Binding *NamespaceBinding::findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed)
 {
+    if (processed->contains(this))
+        return 0;
+
+    processed->insert(this);
+
     if (id->isEqualTo(identifier()))
         return const_cast<NamespaceBinding *>(this);
 
@@ -129,20 +134,25 @@ Binding *NamespaceBinding::findClassOrNamespaceBinding(Identifier *id)
     }
 
     foreach (NamespaceBinding *u, usings) {
-        if (Binding *b = u->findClassOrNamespaceBinding(id))
+        if (Binding *b = u->findClassOrNamespaceBinding(id, processed))
             return b;
     }
 
     if (parent)
-        return parent->findClassOrNamespaceBinding(id);
+        return parent->findClassOrNamespaceBinding(id, processed);
 
     return 0;
 }
 
-ClassBinding *NamespaceBinding::findClassBinding(Name *name)
+ClassBinding *NamespaceBinding::findClassBinding(Name *name, QSet<Binding *> *processed)
 {
     if (! name)
         return 0;
+
+    if (processed->contains(this))
+        return 0;
+
+    processed->insert(this);
 
     Identifier *id = name->identifier();
 
@@ -152,7 +162,12 @@ ClassBinding *NamespaceBinding::findClassBinding(Name *name)
     }
 
     if (parent)
-        return parent->findClassBinding(name);
+        return parent->findClassBinding(name, processed);
+
+    foreach (NamespaceBinding *u, usings) {
+        if (ClassBinding *classBinding = u->findClassBinding(name, processed))
+            return classBinding;
+    }
 
     return 0;
 }
@@ -384,7 +399,7 @@ QByteArray ClassBinding::qualifiedId() const
     return s;
 }
 
-Binding *ClassBinding::findClassOrNamespaceBinding(Identifier *id)
+Binding *ClassBinding::findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed)
 {
     if (id->isEqualTo(identifier()))
         return this;
@@ -397,20 +412,25 @@ Binding *ClassBinding::findClassOrNamespaceBinding(Identifier *id)
     foreach (ClassBinding *baseClassBinding, baseClassBindings) {
         if (! baseClassBinding)
             continue;
-        else if (Binding *b = baseClassBinding->findClassOrNamespaceBinding(id))
+        else if (Binding *b = baseClassBinding->findClassOrNamespaceBinding(id, processed))
             return b;
     }
 
     if (parent)
-        return parent->findClassOrNamespaceBinding(id);
+        return parent->findClassOrNamespaceBinding(id, processed);
 
     return 0;
 }
 
-ClassBinding *ClassBinding::findClassBinding(Name *name)
+ClassBinding *ClassBinding::findClassBinding(Name *name, QSet<Binding *> *processed)
 {
     if (! name)
         return 0;
+
+    if (processed->contains(this))
+        return 0;
+
+    processed->insert(this);
 
     if (const QualifiedNameId *q = name->asQualifiedNameId()) {
         Binding *currentBinding = this;
@@ -420,7 +440,7 @@ ClassBinding *ClassBinding::findClassBinding(Name *name)
             if (! id)
                 return 0;
 
-            Binding *classOrNamespaceBinding = currentBinding->findClassOrNamespaceBinding(id);
+            Binding *classOrNamespaceBinding = currentBinding->findClassOrNamespaceBinding(id, processed);
 
             if (! classOrNamespaceBinding)
                 return 0;
@@ -429,7 +449,7 @@ ClassBinding *ClassBinding::findClassBinding(Name *name)
         }
 
         if (currentBinding)
-            return currentBinding->findClassBinding(q->unqualifiedNameId());
+            return currentBinding->findClassBinding(q->unqualifiedNameId(), processed);
 
         return 0;
     }
@@ -446,7 +466,7 @@ ClassBinding *ClassBinding::findClassBinding(Name *name)
         }
 
         if (parent)
-            return parent->findClassBinding(name);
+            return parent->findClassBinding(name, processed);
     }
 
     return 0;
@@ -637,6 +657,7 @@ NamespaceBinding *Binder::switchNamespaceBinding(NamespaceBinding *binding)
 
 ClassBinding *Binder::findOrCreateClassBinding(Class *classSymbol)
 {
+    // ### FINISH ME
     ClassBinding *binding = 0;
 
     if (classBinding)
@@ -650,13 +671,15 @@ ClassBinding *Binder::findOrCreateClassBinding(Class *classSymbol)
 
 ClassBinding *Binder::findClassBinding(Name *name)
 {
+    QSet<Binding *> processed;
+
     if (classBinding) {
-        if (ClassBinding *k = classBinding->findClassBinding(name))
+        if (ClassBinding *k = classBinding->findClassBinding(name, &processed))
             return k;
     }
 
     if (namespaceBinding)
-        return namespaceBinding->findClassBinding(name);
+        return namespaceBinding->findClassBinding(name, &processed);
 
     return 0;
 }
