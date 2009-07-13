@@ -1,0 +1,372 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://www.qtsoftware.com/contact.
+**
+**************************************************************************/
+
+#include "CheckUndefinedSymbols.h"
+#include "Overview.h"
+
+#include <Names.h>
+#include <Literals.h>
+#include <Symbols.h>
+#include <TranslationUnit.h>
+#include <Scope.h>
+#include <AST.h>
+
+using namespace CPlusPlus;
+
+
+CheckUndefinedSymbols::CheckUndefinedSymbols(Document::Ptr doc)
+    : ASTVisitor(doc->control()), _doc(doc)
+{ }
+
+CheckUndefinedSymbols::~CheckUndefinedSymbols()
+{ }
+
+void CheckUndefinedSymbols::setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding)
+{
+    _globalNamespaceBinding = globalNamespaceBinding;
+    _types.clear();
+
+    if (_globalNamespaceBinding) {
+        QSet<NamespaceBinding *> processed;
+        buildTypeMap(_globalNamespaceBinding.data(), &processed);
+    }
+}
+
+void CheckUndefinedSymbols::operator()(AST *ast)
+{ accept(ast); }
+
+void CheckUndefinedSymbols::addType(Name *name)
+{
+    if (! name)
+        return;
+
+    if (Identifier *id = name->identifier())
+        _types.insert(QByteArray(id->chars(), id->size()));
+}
+
+void CheckUndefinedSymbols::buildTypeMap(Class *klass)
+{
+    addType(klass->name());
+
+    for (unsigned i = 0; i < klass->memberCount(); ++i) {
+        Symbol *member = klass->memberAt(i);
+
+        if (Class *klass = member->asClass()) {
+            buildTypeMap(klass);
+        } else if (Enum *e = member->asEnum()) {
+            addType(e->name());
+        } else if (ForwardClassDeclaration *fwd = member->asForwardClassDeclaration()) {
+            addType(fwd->name());
+        } else if (Declaration *decl = member->asDeclaration()) {
+            if (decl->isTypedef())
+                addType(decl->name());
+        }
+    }
+}
+
+void CheckUndefinedSymbols::buildTypeMap(NamespaceBinding *binding, QSet<NamespaceBinding *> *processed)
+{
+    if (! processed->contains(binding)) {
+        processed->insert(binding);
+
+        if (Identifier *id = binding->identifier()) {
+            _namespaceNames.insert(QByteArray(id->chars(), id->size()));
+        }
+
+        foreach (Namespace *ns, binding->symbols) {
+            for (unsigned i = 0; i < ns->memberCount(); ++i) {
+                Symbol *member = ns->memberAt(i);
+
+                if (Class *klass = member->asClass()) {
+                    buildTypeMap(klass);
+                } else if (Enum *e = member->asEnum()) {
+                    addType(e->name());
+                } else if (ForwardClassDeclaration *fwd = member->asForwardClassDeclaration()) {
+                    addType(fwd->name());
+                } else if (Declaration *decl = member->asDeclaration()) {
+                    if (decl->isTypedef())
+                        addType(decl->name());
+                }
+            }
+        }
+
+        foreach (NamespaceBinding *childBinding, binding->children) {
+            buildTypeMap(childBinding, processed);
+        }
+    }
+}
+
+FunctionDeclaratorAST *CheckUndefinedSymbols::currentFunctionDeclarator() const
+{
+    if (functionDeclarationStack.isEmpty())
+        return 0;
+
+    return functionDeclarationStack.last();
+}
+
+bool CheckUndefinedSymbols::visit(FunctionDeclaratorAST *ast)
+{
+    functionDeclarationStack.append(ast);
+
+    return true;
+}
+
+void CheckUndefinedSymbols::endVisit(FunctionDeclaratorAST *)
+{
+    functionDeclarationStack.removeLast();
+}
+
+bool CheckUndefinedSymbols::visit(TypeofSpecifierAST *ast)
+{
+    accept(ast->next);
+    return false;
+}
+
+bool CheckUndefinedSymbols::visit(TypenameTypeParameterAST *ast)
+{
+    if (NameAST *nameAst = ast->name)
+        addType(nameAst->name);
+
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(TemplateTypeParameterAST *ast)
+{
+    if (ast->name)
+        addType(ast->name->name);
+
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(NamedTypeSpecifierAST *ast)
+{
+    if (ast->name) {
+        if (! ast->name->name) {
+            unsigned line, col;
+            getTokenStartPosition(ast->firstToken(), &line, &col);
+            // qWarning() << _doc->fileName() << line << col;
+        } else if (Identifier *id = ast->name->name->identifier()) {
+            if (! _types.contains(QByteArray::fromRawData(id->chars(), id->size()))) {
+                if (FunctionDeclaratorAST *functionDeclarator = currentFunctionDeclarator()) {
+                    if (functionDeclarator->as_cpp_initializer)
+                        return true;
+                }
+
+                Overview oo;
+                translationUnit()->warning(ast->firstToken(), "`%s' is not a type name",
+                                           qPrintable(oo(ast->name->name)));
+            }
+        }
+    }
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(ClassSpecifierAST *ast)
+{
+    if (ast->base_clause) {
+        unsigned line, col;
+        getTokenStartPosition(ast->firstToken(), &line, &col);
+    }
+
+    bool hasQ_OBJECT_CHECK = false;
+
+    if (ast->symbol) {
+        Class *klass = ast->symbol->asClass();
+
+        for (unsigned i = 0; i < klass->memberCount(); ++i) {
+            Symbol *symbol = klass->memberAt(i);
+
+            if (symbol->name() && symbol->name()->isNameId()) {
+                NameId *nameId = symbol->name()->asNameId();
+
+                if (! qstrcmp(nameId->identifier()->chars(), "qt_check_for_QOBJECT_macro")) {
+                    hasQ_OBJECT_CHECK = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    _qobjectStack.append(hasQ_OBJECT_CHECK);
+
+    return true;
+}
+
+void CheckUndefinedSymbols::endVisit(ClassSpecifierAST *)
+{ _qobjectStack.removeLast(); }
+
+bool CheckUndefinedSymbols::qobjectCheck() const
+{
+    if (_qobjectStack.isEmpty())
+        return false;
+
+    return _qobjectStack.last();
+}
+
+bool CheckUndefinedSymbols::visit(FunctionDefinitionAST *ast)
+{
+    if (ast->symbol) {
+        Function *fun = ast->symbol->asFunction();
+        if ((fun->isSignal() || fun->isSlot()) && ! qobjectCheck()) {
+            translationUnit()->warning(ast->firstToken(),
+                                       "you forgot the Q_OBJECT macro");
+        }
+    }
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(SimpleDeclarationAST *ast)
+{
+    const bool check = qobjectCheck();
+    for (List<Declaration *> *it = ast->symbols; it; it = it->next) {
+        Declaration *decl = it->value;
+
+        if (Function *fun = decl->type()->asFunctionType()) {
+            if ((fun->isSignal() || fun->isSlot()) && ! check) {
+                translationUnit()->warning(ast->firstToken(),
+                                           "you forgot the Q_OBJECT macro");
+            }
+        }
+    }
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(BaseSpecifierAST *base)
+{
+    if (NameAST *nameAST = base->name) {
+        bool resolvedBaseClassName = false;
+
+        if (Name *name = nameAST->name) {
+            Identifier *id = name->identifier();
+            const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
+            if (_types.contains(spell))
+                resolvedBaseClassName = true;
+        }
+
+        if (! resolvedBaseClassName) {
+            const char *token = "after `:'";
+
+            if (base->comma_token)
+                token = "after `,'";
+
+            translationUnit()->warning(nameAST->firstToken(),
+                                       "expected class-name %s token", token);
+        }
+    }
+
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(UsingDirectiveAST *ast)
+{
+    if (ast->symbol && ast->symbol->name() && _globalNamespaceBinding) {
+        const Location loc = Location(ast->symbol);
+
+        NamespaceBinding *binding = _globalNamespaceBinding.data();
+
+        if (Scope *enclosingNamespaceScope = ast->symbol->enclosingNamespaceScope())
+            binding = NamespaceBinding::find(enclosingNamespaceScope->owner()->asNamespace(), binding);
+
+        if (! binding || ! binding->resolveNamespace(loc, ast->symbol->name())) {
+            translationUnit()->warning(ast->name->firstToken(),
+                                       "expected a namespace");
+        }
+    }
+
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
+{
+    if (ast->name) {
+        QualifiedNameId *q = ast->name->asQualifiedNameId();
+        for (unsigned i = 0; i < q->nameCount() - 1; ++i) {
+            Name *name = q->nameAt(i);
+            if (Identifier *id = name->identifier()) {
+                const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
+                if (! (_namespaceNames.contains(spell) || _types.contains(spell))) {
+                    translationUnit()->warning(ast->firstToken(),
+                                               "`%s' is not a namespace or class name",
+                                               spell.constData());
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(CastExpressionAST *ast)
+{
+    if (ast->lparen_token && ast->type_id && ast->rparen_token && ast->expression) {
+        if (TypeIdAST *cast_type_id = ast->type_id->asTypeId()) {
+            SpecifierAST *type_specifier = cast_type_id->type_specifier;
+            if (! cast_type_id->declarator && type_specifier && ! type_specifier->next &&
+                type_specifier->asNamedTypeSpecifier() && ast->expression &&
+                ast->expression->asUnaryExpression()) {
+                // this ast node is ambigious, e.g.
+                //   (a) + b
+                // it can be parsed as
+                //   ((a) + b)
+                // or
+                //   (a) (+b)
+                accept(ast->expression);
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(SizeofExpressionAST *ast)
+{
+    if (ast->lparen_token && ast->expression && ast->rparen_token) {
+        if (TypeIdAST *type_id = ast->expression->asTypeId()) {
+            SpecifierAST *type_specifier = type_id->type_specifier;
+            if (! type_id->declarator && type_specifier && ! type_specifier->next &&
+                type_specifier->asNamedTypeSpecifier()) {
+                // this sizeof expression is ambiguos, e.g.
+                // sizeof (a)
+                //   `a' can be a typeid or a nested-expression.
+                return false;
+            } else if (type_id->declarator
+                       &&   type_id->declarator->postfix_declarators
+                       && ! type_id->declarator->postfix_declarators->next
+                       &&   type_id->declarator->postfix_declarators->asArrayDeclarator() != 0) {
+                // this sizeof expression is ambiguos, e.g.
+                // sizeof(a[10])
+                //   `a' can be a typeid or an expression.
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
