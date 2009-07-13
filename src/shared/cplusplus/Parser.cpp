@@ -1306,24 +1306,40 @@ bool Parser::parseTypeId(ExpressionAST *&node)
 
 bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&node)
 {
+    if (LA() == T_RPAREN)
+        return true; // nothing to do
+
     DeclarationListAST *parameter_declarations = 0;
-    if (LA() != T_DOT_DOT_DOT)
-        parseParameterDeclarationList(parameter_declarations);
+
     unsigned dot_dot_dot_token = 0;
-    if (LA() == T_DOT_DOT_DOT || (LA() == T_COMMA && LA(2) == T_DOT_DOT_DOT)) {
-        if (LA() == T_COMMA)
-            consumeToken();
+    if (LA() == T_DOT_DOT_DOT)
         dot_dot_dot_token = consumeToken();
+    else {
+        parseParameterDeclarationList(parameter_declarations);
+
+        if (LA() == T_DOT_DOT_DOT) {
+            dot_dot_dot_token = consumeToken();
+        } else if (LA() == T_COMMA && LA(2) == T_DOT_DOT_DOT) {
+            consumeToken(); // skip comma
+            dot_dot_dot_token = consumeToken();
+        }
     }
-    ParameterDeclarationClauseAST *ast = new (_pool) ParameterDeclarationClauseAST;
-    ast->parameter_declarations = parameter_declarations;
-    ast->dot_dot_dot_token = dot_dot_dot_token;
-    node = ast;
+
+    if (parameter_declarations || dot_dot_dot_token) {
+        ParameterDeclarationClauseAST *ast = new (_pool) ParameterDeclarationClauseAST;
+        ast->parameter_declarations = parameter_declarations;
+        ast->dot_dot_dot_token = dot_dot_dot_token;
+        node = ast;
+    }
+
     return true;
 }
 
 bool Parser::parseParameterDeclarationList(DeclarationListAST *&node)
 {
+    if (LA() == T_DOT_DOT_DOT || (LA() == T_COMMA && LA(2) == T_DOT_DOT_DOT))
+        return false; // nothing to do.
+
     DeclarationListAST **parameter_declaration_ptr = &node;
     DeclarationAST *declaration = 0;
     if (parseParameterDeclaration(declaration)) {

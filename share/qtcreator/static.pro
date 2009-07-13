@@ -27,6 +27,7 @@ DATA_DIRS = \
     templates \
     designer \
     schemes \
+    styles \
     gdbmacros
 
 !isEmpty(copydata) {
