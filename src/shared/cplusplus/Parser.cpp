@@ -4061,6 +4061,39 @@ bool Parser::parseObjCMethodDefinitionList()
             consumeToken();
             break;
 
+        case T_AT_SYNTHESIZE: {
+            consumeToken();
+            unsigned identifier_token = 0;
+            match(T_IDENTIFIER, &identifier_token);
+
+            if (LA() == T_EQUAL) {
+                consumeToken();
+
+                unsigned aliassed_identifier_token = 0;
+                match(T_IDENTIFIER, &aliassed_identifier_token);
+            }
+
+            while (LA() == T_COMMA) {
+                consumeToken();
+
+                match(T_IDENTIFIER, &identifier_token);
+
+                if (LA() == T_EQUAL) {
+                    consumeToken();
+
+                    unsigned aliassed_identifier_token = 0;
+                    match(T_IDENTIFIER, &aliassed_identifier_token);
+                }
+            }
+
+            unsigned semicolon_token = 0;
+            match(T_SEMICOLON, &semicolon_token);
+
+            break;
+        }
+
+        // TODO: @dynamic
+
         default:
             if (LA() == T_EXTERN && LA(2) == T_STRING_LITERAL) {
                 DeclarationAST *declaration = 0;
@@ -4235,7 +4268,11 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&, SpecifierAST *)
     if (LA() == T_LPAREN) {
         unsigned lparen_token = 0, rparen_token = 0;
         match(T_LPAREN, &lparen_token);
-        while (parseObjCPropertyAttribute()) {
+        if (parseObjCPropertyAttribute()) {
+            while (LA() == T_COMMA) {
+                consumeToken();
+                parseObjCPropertyAttribute();
+            }
         }
         match(T_RPAREN, &rparen_token);
     }
