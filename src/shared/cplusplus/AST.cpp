@@ -1946,6 +1946,122 @@ unsigned ObjCClassDeclarationAST::lastToken() const
     return class_token + 1;
 }
 
+unsigned ObjCProtocolDeclarationAST::firstToken() const
+{
+    if (attributes)
+        return attributes->firstToken();
+    return protocol_token;
+}
 
+unsigned ObjCProtocolDeclarationAST::lastToken() const
+{
+    if (semicolon_token)
+        return semicolon_token + 1;
+
+    for (IdentifierListAST *it = identifier_list; it; it = it->next) {
+        if (! it->next && it->identifier_token)
+            return it->identifier_token + 1;
+    }
+
+    for (SpecifierAST *it = attributes; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    return protocol_token + 1;
+}
+
+unsigned ObjCClassInterfaceDeclarationAST::firstToken() const
+{
+    if (attributes)
+        return attributes->firstToken();
+    return interface_token;
+}
+
+unsigned ObjCClassInterfaceDeclarationAST::lastToken() const
+{
+    if (end_token)                   return end_token + 1;
+    if (superclass_identifier_token) return superclass_identifier_token + 1;
+    if (colon_token)                 return colon_token + 1;
+    if (class_identifier_token)      return class_identifier_token + 1;
+
+    for (SpecifierAST *it = attributes; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    return interface_token + 1;
+}
+
+unsigned ObjCCategoryInterfaceDeclarationAST::firstToken() const
+{
+    return interface_token;
+}
+
+unsigned ObjCCategoryInterfaceDeclarationAST::lastToken() const
+{
+    if (end_token)
+        return end_token + 1;
+
+    if (rparen_token)              return rparen_token + 1;
+    if (category_identifier_token) return category_identifier_token + 1;
+    if (lparen_token)              return lparen_token + 1;
+    if (class_identifier_token)    return class_identifier_token + 1;
+    return interface_token + 1;
+}
+
+unsigned ObjCProtocolDefinitionAST::firstToken() const
+{
+    if (attributes)
+        return attributes->firstToken();
+    return protocol_token;
+}
+
+unsigned ObjCProtocolDefinitionAST::lastToken() const
+{
+    if (end_token)
+        return end_token + 1;
+
+    if (identifier_token)
+        return identifier_token + 1;
+
+    for (SpecifierAST *it = attributes; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    return protocol_token + 1;
+}
+
+unsigned ObjCProtocolRefsAST::firstToken() const
+{
+    return less_token;
+}
+
+unsigned ObjCProtocolRefsAST::lastToken() const
+{
+    if (greater_token) return greater_token + 1;
+
+    for (IdentifierListAST *it = identifier_list; it; it = it->next) {
+        if (! it->next && it->identifier_token)
+            return it->identifier_token + 1;
+    }
+
+    return less_token + 1;
+}
+
+unsigned ObjCMessageExpressionAST::firstToken() const
+{
+    return lbracket_token;
+}
+
+unsigned ObjCMessageExpressionAST::lastToken() const
+{
+    if (rbracket_token) return rbracket_token + 1;
+
+    // FIXME: TODO
+
+    return lbracket_token + 1;
+}
 
 CPLUSPLUS_END_NAMESPACE

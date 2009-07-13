@@ -2890,18 +2890,19 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&)
     return true;
 }
 
-bool Parser::parseObjCMessageExpression(ExpressionAST *&)
+bool Parser::parseObjCMessageExpression(ExpressionAST *&node)
 {
     if (LA() != T_LBRACKET)
         return false;
 
-    /*unsigned lbracket_token = */ consumeToken();
+    ObjCMessageExpressionAST *ast = new (_pool) ObjCMessageExpressionAST;
+    ast->lbracket_token = consumeToken();
 
     parseObjCMessageReceiver();
     parseObjCMessageArguments();
 
-    unsigned rbracket_token = 0;
-    match(T_RBRACKET, &rbracket_token);
+    match(T_RBRACKET, &(ast->rbracket_token));
+    node = ast;
     return true;
 }
 
@@ -3838,21 +3839,33 @@ bool Parser::lookAtObjCSelector() const
 
 // objc-class-declaraton ::= T_AT_CLASS (T_IDENTIFIER @ T_COMMA) T_SEMICOLON
 //
-bool Parser::parseObjCClassDeclaration(DeclarationAST *&)
+bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
 {
     if (LA() != T_AT_CLASS)
         return false;
 
-    /*unsigned objc_class_token = */ consumeToken();
+    ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
+
+    ast->class_token = consumeToken();
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
+
+    ast->identifier_list = new (_pool) IdentifierListAST;
+    ast->identifier_list->identifier_token = identifier_token;
+    IdentifierListAST **nextId = &(ast->identifier_list->next);
+
     while (LA() == T_COMMA) {
-        consumeToken(); // skip T_COMMA
+        unsigned comma_token = consumeToken();
         match(T_IDENTIFIER, &identifier_token);
+
+        *nextId = new (_pool) IdentifierListAST;
+        (*nextId)->comma_token = comma_token;
+        (*nextId)->identifier_token = identifier_token;
+        nextId = &((*nextId)->next);
     }
 
-    unsigned semicolon_token = 0;
-    match(T_SEMICOLON, &semicolon_token);
+    match(T_SEMICOLON, &(ast->semicolon_token));
+    node = ast;
     return true;
 }
 
@@ -3871,7 +3884,7 @@ bool Parser::parseObjCClassDeclaration(DeclarationAST *&)
 //                             objc-interface-declaration-list
 //                             T_AT_END
 //
-bool Parser::parseObjCInterface(DeclarationAST *&,
+bool Parser::parseObjCInterface(DeclarationAST *&node,
                                 SpecifierAST *attributes)
 {
     if (! attributes && LA() == T___ATTRIBUTE__) {
@@ -3883,7 +3896,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&,
     if (LA() != T_AT_INTERFACE)
         return false;
 
-    /*unsigned objc_interface_token = */ consumeToken();
+    unsigned objc_interface_token = consumeToken();
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
 
@@ -3894,40 +3907,49 @@ bool Parser::parseObjCInterface(DeclarationAST *&,
             _translationUnit->error(attributes->firstToken(),
                                     "invalid attributes for category interface declaration");
 
-        unsigned lparen_token = 0, rparen_token = 0;
-        match(T_LPAREN, &lparen_token);
+        ObjCCategoryInterfaceDeclarationAST *ast = new (_pool) ObjCCategoryInterfaceDeclarationAST;
+        // XXX: Should the attributes get stored anyway? (for fixing/refactoring purposes maybe...)
+        ast->interface_token = objc_interface_token;
+        ast->class_identifier_token = identifier_token;
+
+        match(T_LPAREN, &(ast->lparen_token));
         if (LA() == T_IDENTIFIER)
-            consumeToken();
+            ast->category_identifier_token = consumeToken();
 
-        match(T_RPAREN, &rparen_token);
+        match(T_RPAREN, &(ast->rparen_token));
 
-        parseObjCProtocolRefs();
+        parseObjCProtocolRefs(ast->protocol_refs);
         while (parseObjCInterfaceMemberDeclaration()) {
         }
-        unsigned objc_end_token = 0;
-        match(T_AT_END, &objc_end_token);
+        match(T_AT_END, &(ast->end_token));
+
+        node = ast;
+        return true;
+    } else {
+        // a class interface declaration
+        ObjCClassInterfaceDeclarationAST *ast = new (_pool) ObjCClassInterfaceDeclarationAST;
+        ast->attributes = attributes;
+        ast->interface_token = objc_interface_token;
+        ast->class_identifier_token = identifier_token;
+
+        if (LA() == T_COLON) {
+            ast->colon_token = consumeToken();
+            match(T_IDENTIFIER, &(ast->superclass_identifier_token));
+        }
+
+        parseObjCProtocolRefs(ast->protocol_refs);
+        parseObjClassInstanceVariables();
+        while (parseObjCInterfaceMemberDeclaration()) {
+        }
+        match(T_AT_END, &(ast->end_token));
+        node = ast;
         return true;
     }
-
-    // a class interface declaration
-    if (LA() == T_COLON) {
-        consumeToken();
-        unsigned identifier_token = 0;
-        match(T_IDENTIFIER, &identifier_token);
-    }
-
-    parseObjCProtocolRefs();
-    parseObjClassInstanceVariables();
-    while (parseObjCInterfaceMemberDeclaration()) {
-    }
-    unsigned objc_end_token = 0;
-    match(T_AT_END, &objc_end_token);
-    return true;
 }
 
 // objc-protocol ::= T_AT_PROTOCOL (T_IDENTIFIER @ T_COMMA) T_SEMICOLON
 //
-bool Parser::parseObjCProtocol(DeclarationAST *&,
+bool Parser::parseObjCProtocol(DeclarationAST *&node,
                                SpecifierAST *attributes)
 {
     if (! attributes && LA() == T___ATTRIBUTE__) {
@@ -3939,32 +3961,50 @@ bool Parser::parseObjCProtocol(DeclarationAST *&,
     if (LA() != T_AT_PROTOCOL)
         return false;
 
-    /*unsigned objc_protocol_token = */ consumeToken();
+    unsigned protocol_token = consumeToken();
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
 
     if (LA() == T_COMMA || LA() == T_SEMICOLON) {
         // a protocol forward declaration
 
+        ObjCProtocolDeclarationAST *ast = new (_pool) ObjCProtocolDeclarationAST;
+        ast->attributes = attributes;
+        ast->protocol_token = protocol_token;
+        ast->identifier_list = new (_pool) IdentifierListAST;
+        ast->identifier_list->identifier_token = identifier_token;
+        IdentifierListAST **nextId = &(ast->identifier_list->next);
+
         while (LA() == T_COMMA) {
-            consumeToken();
+            unsigned comma_token = consumeToken();
             match(T_IDENTIFIER, &identifier_token);
+
+            *nextId = new (_pool) IdentifierListAST;
+            (*nextId)->comma_token = comma_token;
+            (*nextId)->identifier_token = identifier_token;
+            nextId = &((*nextId)->next);
         }
-        unsigned semicolon_token = 0;
-        match(T_SEMICOLON, &semicolon_token);
+
+        match(T_SEMICOLON, &ast->semicolon_token);
+        node = ast;
+        return true;
+    } else {
+        // a protocol definition
+        ObjCProtocolDefinitionAST *ast = new (_pool) ObjCProtocolDefinitionAST;
+        ast->attributes = attributes;
+        ast->protocol_token = protocol_token;
+        ast->identifier_token = identifier_token;
+
+        parseObjCProtocolRefs(ast->protocol_refs);
+
+        while (parseObjCInterfaceMemberDeclaration()) {
+        }
+
+        match(T_AT_END, &(ast->end_token));
+
+        node = ast;
         return true;
     }
-
-    // a protocol definition
-    parseObjCProtocolRefs();
-
-    while (parseObjCInterfaceMemberDeclaration()) {
-    }
-
-    unsigned objc_end_token = 0;
-    match(T_AT_END, &objc_end_token);
-
-    return true;
 }
 
 // objc-implementation ::= T_AT_IMPLEMENTAION T_IDENTIFIER (T_COLON T_IDENTIFIER)?
@@ -4057,19 +4097,33 @@ bool Parser::parseObjCMethodDefinition()
 
 // objc-protocol-refs ::= T_LESS (T_IDENTIFIER @ T_COMMA) T_GREATER
 //
-bool Parser::parseObjCProtocolRefs()
+bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
 {
     if (LA() != T_LESS)
         return false;
-    unsigned less_token = 0, greater_token = 0;
+
+    ObjCProtocolRefsAST *ast = new (_pool) ObjCProtocolRefsAST;
+
+    match(T_LESS, &(ast->less_token));
+
     unsigned identifier_token = 0;
-    match(T_LESS, &less_token);
     match(T_IDENTIFIER, &identifier_token);
+    ast->identifier_list = new (_pool) IdentifierListAST;
+    ast->identifier_list->identifier_token = identifier_token;
+    IdentifierListAST **nextId = &(ast->identifier_list->next);
+
     while (LA() == T_COMMA) {
-        consumeToken();
+        unsigned comma_token = consumeToken();
         match(T_IDENTIFIER, &identifier_token);
+
+        *nextId = new (_pool) IdentifierListAST;
+        (*nextId)->comma_token = comma_token;
+        (*nextId)->identifier_token = identifier_token;
+        nextId = &((*nextId)->next);
     }
-    match(T_GREATER, &greater_token);
+
+    match(T_GREATER, &(ast->greater_token));
+    node = ast;
     return true;
 }
 

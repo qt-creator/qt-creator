@@ -1224,4 +1224,73 @@ ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+ObjCClassInterfaceDeclarationAST *ObjCClassInterfaceDeclarationAST::clone(MemoryPool *pool) const
+{
+    ObjCClassInterfaceDeclarationAST *ast = new (pool) ObjCClassInterfaceDeclarationAST;
+    // copy DeclarationAST
+    // copy ObjCClassInterfaceDeclarationAST
+    if (attributes) ast->attributes = attributes->clone(pool);
+    ast->interface_token = interface_token;
+    ast->class_identifier_token = class_identifier_token;
+    ast->colon_token = colon_token;
+    ast->superclass_identifier_token = superclass_identifier_token;
+    if (protocol_refs) ast->protocol_refs = protocol_refs->clone(pool);
+    ast->end_token = end_token;
+    return ast;
+}
+
+ObjCCategoryInterfaceDeclarationAST *ObjCCategoryInterfaceDeclarationAST::clone(MemoryPool *pool) const
+{
+    ObjCCategoryInterfaceDeclarationAST *ast = new (pool) ObjCCategoryInterfaceDeclarationAST;
+    // copy DeclarationAST
+    // copy ObjCCategoryInterfaceDeclarationAST
+    ast->interface_token = interface_token;
+    ast->class_identifier_token = class_identifier_token;
+    if (protocol_refs) ast->protocol_refs = protocol_refs->clone(pool);
+    ast->lparen_token = lparen_token;
+    ast->category_identifier_token = category_identifier_token;
+    ast->rparen_token = rparen_token;
+    ast->end_token = end_token;
+    return ast;
+}
+
+ObjCProtocolDeclarationAST *ObjCProtocolDeclarationAST::clone(MemoryPool *pool) const
+{
+    ObjCProtocolDeclarationAST *ast = new (pool) ObjCProtocolDeclarationAST;
+    if (attributes) ast->attributes = attributes->clone(pool);
+    ast->protocol_token = protocol_token;
+    if (identifier_list) ast->identifier_list = identifier_list;
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
+ObjCProtocolDefinitionAST *ObjCProtocolDefinitionAST::clone(MemoryPool *pool) const
+{
+    ObjCProtocolDefinitionAST *ast = new (pool) ObjCProtocolDefinitionAST;
+    if (attributes) ast->attributes = attributes->clone(pool);
+    ast->protocol_token = protocol_token;
+    ast->identifier_token = identifier_token;
+    if (protocol_refs) ast->protocol_refs = protocol_refs->clone(pool);
+    ast->end_token = end_token;
+    return ast;
+}
+
+ObjCProtocolRefsAST *ObjCProtocolRefsAST::clone(MemoryPool *pool) const
+{
+    ObjCProtocolRefsAST *ast = new (pool) ObjCProtocolRefsAST;
+    ast->less_token = less_token;
+    if (ast->identifier_list) ast->identifier_list = identifier_list->clone(pool);
+    ast->greater_token = greater_token;
+    return ast;
+}
+
+ObjCMessageExpressionAST *ObjCMessageExpressionAST::clone(MemoryPool *pool) const
+{
+    ObjCMessageExpressionAST *ast = new (pool) ObjCMessageExpressionAST;
+    ast->lbracket_token = lbracket_token;
+    // FIXME: TODO
+    ast->rbracket_token = rbracket_token;
+    return ast;
+}
+
 CPLUSPLUS_END_NAMESPACE

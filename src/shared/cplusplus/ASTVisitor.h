@@ -198,6 +198,12 @@ public:
     // ObjC++
     virtual bool visit(IdentifierListAST *) { return true; }
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
+    virtual bool visit(ObjCClassInterfaceDeclarationAST *) { return true; }
+    virtual bool visit(ObjCCategoryInterfaceDeclarationAST *) { return true; }
+    virtual bool visit(ObjCProtocolDeclarationAST *) { return true; }
+    virtual bool visit(ObjCProtocolDefinitionAST *) { return true; }
+    virtual bool visit(ObjCProtocolRefsAST *) { return true; }
+    virtual bool visit(ObjCMessageExpressionAST *) { return true; }
 
     virtual bool visit(DeclarationListAST *) { return true; }
     virtual void endVisit(DeclarationListAST *) { }
@@ -307,6 +313,12 @@ public:
     // ObjC++
     virtual void endVisit(IdentifierListAST *) { }
     virtual void endVisit(ObjCClassDeclarationAST *) { }
+    virtual void endVisit(ObjCClassInterfaceDeclarationAST *) { }
+    virtual void endVisit(ObjCCategoryInterfaceDeclarationAST *) { }
+    virtual void endVisit(ObjCProtocolDeclarationAST *) { }
+    virtual void endVisit(ObjCProtocolDefinitionAST *) { }
+    virtual void endVisit(ObjCProtocolRefsAST *) { }
+    virtual void endVisit(ObjCMessageExpressionAST *) { }
 
 private:
     Control *_control;

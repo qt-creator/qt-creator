@@ -231,7 +231,7 @@ public:
     bool parseObjCMethodDefinitionList();
     bool parseObjCMethodDefinition();
 
-    bool parseObjCProtocolRefs();
+    bool parseObjCProtocolRefs(ObjCProtocolRefsAST *&node);
     bool parseObjClassInstanceVariables();
     bool parseObjCInterfaceMemberDeclaration();
     bool parseObjCInstanceVariableDeclaration(DeclarationAST *&node);

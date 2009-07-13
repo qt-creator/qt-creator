@@ -171,6 +171,12 @@ class QtMethodAST;
 // ObjC++
 class IdentifierListAST;
 class ObjCClassDeclarationAST;
+class ObjCProtocolDeclarationAST;
+class ObjCProtocolDefinitionAST;
+class ObjCClassInterfaceDeclarationAST;
+class ObjCCategoryInterfaceDeclarationAST;
+class ObjCProtocolRefsAST;
+class ObjCMessageExpressionAST;
 
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER

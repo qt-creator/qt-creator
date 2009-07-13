@@ -1139,4 +1139,70 @@ void ObjCClassDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void ObjCClassInterfaceDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCClassInterfaceDeclarationAST
+        for (SpecifierAST *it = attributes; it; it = it->next)
+            accept(it, visitor);
+        accept(protocol_refs, visitor);
+        // visit DeclarationAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCCategoryInterfaceDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCCategoryInterfaceDeclarationAST
+        accept(protocol_refs, visitor);
+        // visit DeclarationAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCProtocolDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCProtocolDeclarationAST
+        for (SpecifierAST *it = attributes; it; it = it->next)
+            accept(it, visitor);
+        for (IdentifierListAST *it = identifier_list; it; it = it->next)
+            accept(it, visitor);
+        // visit DeclarationAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCProtocolDefinitionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCProtocolDefinitionAST
+        for (SpecifierAST *it = attributes; it; it = it->next)
+            accept(it, visitor);
+        accept(protocol_refs, visitor);
+        // visit DeclarationAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCProtocolRefsAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCProtocolRefsAST
+        for (IdentifierListAST *it = identifier_list; it; it = it->next)
+            accept(it, visitor);
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCMessageExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // FIXME: TODO
+    }
+    visitor->endVisit(this);
+}
+
 CPLUSPLUS_END_NAMESPACE

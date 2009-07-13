@@ -197,6 +197,8 @@ public:
     virtual WhileStatementAST *asWhileStatement() { return 0; }
     virtual IdentifierListAST *asIdentifierList() { return 0; }
     virtual ObjCClassDeclarationAST *asObjCClassDeclaration() { return 0; }
+    virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration() { return 0; }
+    virtual ObjCProtocolDefinitionAST *asObjCProtocolDefinition() { return 0; }
 
     virtual AST *clone(MemoryPool *pool) const = 0;
 
@@ -2443,6 +2445,7 @@ class CPLUSPLUS_EXPORT IdentifierListAST: public AST
 {
 public:
     unsigned identifier_token;
+    unsigned comma_token;
     IdentifierListAST *next;
 
 public:
@@ -2474,6 +2477,137 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ObjCClassDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCClassInterfaceDeclarationAST: public DeclarationAST
+{
+public:
+    SpecifierAST *attributes;
+    unsigned interface_token;
+    unsigned class_identifier_token;
+    unsigned colon_token;
+    unsigned superclass_identifier_token;
+    ObjCProtocolRefsAST *protocol_refs;
+    unsigned end_token;
+
+public:
+    virtual ObjCClassInterfaceDeclarationAST *asObjCClassInterfaceDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCClassInterfaceDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCCategoryInterfaceDeclarationAST: public DeclarationAST
+{
+public:
+    unsigned interface_token;
+    unsigned class_identifier_token;
+    unsigned lparen_token;
+    unsigned category_identifier_token;
+    unsigned rparen_token;
+    ObjCProtocolRefsAST *protocol_refs;
+    unsigned end_token;
+
+public:
+    virtual ObjCCategoryInterfaceDeclarationAST *asObjCCategoryInterfaceDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCCategoryInterfaceDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCProtocolDeclarationAST: public DeclarationAST
+{
+public:
+    SpecifierAST *attributes;
+    unsigned protocol_token;
+    IdentifierListAST *identifier_list;
+    unsigned semicolon_token;
+
+public:
+    virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCProtocolDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCProtocolDefinitionAST: public DeclarationAST
+{
+public:
+    SpecifierAST *attributes;
+    unsigned protocol_token;
+    unsigned identifier_token;
+    ObjCProtocolRefsAST *protocol_refs;
+    unsigned end_token;
+
+public:
+    virtual ObjCProtocolDefinitionAST *asObjCProtocolDefinition()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCProtocolDefinitionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCProtocolRefsAST: public AST
+{
+public:
+    unsigned less_token;
+    IdentifierListAST *identifier_list;
+    unsigned greater_token;
+
+public:
+    virtual ObjCProtocolRefsAST *asObjCProtocolRefs()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCProtocolRefsAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMessageExpressionAST: public ExpressionAST
+{
+public:
+    unsigned lbracket_token;
+    // ..
+    unsigned rbracket_token;
+
+public:
+    virtual ObjCMessageExpressionAST *asObjCMessageExpression()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMessageExpressionAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
