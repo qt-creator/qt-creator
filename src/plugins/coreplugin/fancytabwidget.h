@@ -44,7 +44,13 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Internal {
 
-class FancyTabBar : public QTabBar
+    struct FancyTab {
+        QIcon icon;
+        QString text;
+        QString toolTip;
+    };
+
+class FancyTabBar : public QWidget
 {
     Q_OBJECT
 
@@ -52,14 +58,41 @@ public:
     FancyTabBar(QWidget *parent = 0);
     ~FancyTabBar();
 
-    QSize tabSizeHint(int index) const;
+    bool event(QEvent *event);
+
     void paintEvent(QPaintEvent *event);
     void paintTab(QPainter *painter, int tabIndex) const;
+    void mousePressEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void enterEvent(QEvent *);
     void leaveEvent(QEvent *);
-    void tabInserted(int index);
-    void tabRemoved(int index);
+
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
+
+    void insertTab(int index, const QIcon &icon, const QString &label) {
+        FancyTab tab;
+        tab.icon = icon;
+        tab.text = label;
+        m_tabs.insert(index, tab);
+    }
+    void removeTab(int index) {
+        m_tabs.removeAt(index);
+    }
+    void setCurrentIndex(int index);
+    int currentIndex() const { return m_currentIndex; }
+
+    void setTabToolTip(int index, QString toolTip) { m_tabs[index].toolTip = toolTip; }
+    QString tabToolTip(int index) const { return m_tabs.at(index).toolTip; }
+
+    QIcon tabIcon(int index) const {return m_tabs.at(index).icon; }
+    QString tabText(int index) const { return m_tabs.at(index).text; }
+    int count() const {return m_tabs.count(); }
+    QRect tabRect(int index) const;
+
+
+signals:
+    void currentChanged(int);
 
 public slots:
     void updateHover();
@@ -69,6 +102,12 @@ private:
     static const int m_textPadding;
     QTimeLine m_hoverControl;
     QRect m_hoverRect;
+    int m_hoverIndex;
+    int m_currentIndex;
+    QList<FancyTab> m_tabs;
+
+    QSize tabSizeHint(bool minimum = false) const;
+
 };
 
 class FancyTabWidget : public QWidget

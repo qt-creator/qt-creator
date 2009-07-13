@@ -43,6 +43,7 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
+#include <QtGui/QToolTip>
 
 using namespace Core;
 using namespace Internal;
@@ -51,11 +52,12 @@ const int FancyTabBar::m_rounding = 22;
 const int FancyTabBar::m_textPadding = 4;
 
 FancyTabBar::FancyTabBar(QWidget *parent)
-    : QTabBar(parent)
+    : QWidget(parent)
 {
+    m_hoverIndex = -1;
+    m_currentIndex = 0;
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     setStyle(new QWindowsStyle);
-    setDrawBase(false);
-    setElideMode(Qt::ElideNone);
     setMinimumWidth(qMax(2 * m_rounding, 40));
     setAttribute(Qt::WA_Hover, true);
     setFocusPolicy(Qt::NoFocus);
@@ -64,7 +66,6 @@ FancyTabBar::FancyTabBar(QWidget *parent)
     m_hoverControl.setCurveShape(QTimeLine::EaseInCurve);
     connect(&m_hoverControl, SIGNAL(frameChanged(int)), this, SLOT(updateHover()));
     setMouseTracking(true); // Needed for hover events
-    setExpanding(false);
 }
 
 FancyTabBar::~FancyTabBar()
@@ -72,7 +73,7 @@ FancyTabBar::~FancyTabBar()
     delete style();
 }
 
-QSize FancyTabBar::tabSizeHint(int index) const
+QSize FancyTabBar::tabSizeHint(bool minimum) const
 {
     QFont boldFont(font());
     boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
@@ -80,7 +81,11 @@ QSize FancyTabBar::tabSizeHint(int index) const
     QFontMetrics fm(boldFont);
     int spacing = 6;
     int width = 60 + spacing + 2;
-    return QSize(width, tabIcon(index).actualSize(QSize(64, 64)).height() + spacing + fm.height());
+
+    int iconHeight = 48;
+    if (minimum)
+        iconHeight = 0; // hide icons
+    return QSize(width, iconHeight + spacing + fm.height());
 }
 
 void FancyTabBar::paintEvent(QPaintEvent *event)
@@ -103,6 +108,7 @@ void FancyTabBar::mouseMoveEvent(QMouseEvent *e)
         for (int i = 0; i < count(); ++i) {
             QRect area = tabRect(i);
             if (area.contains(e->pos())) {
+                m_hoverIndex = i;
                 QRect oldHoverRect = m_hoverRect;
                 m_hoverRect = area;
                 update(oldHoverRect);
@@ -112,6 +118,20 @@ void FancyTabBar::mouseMoveEvent(QMouseEvent *e)
             }
         }
     }
+}
+
+bool FancyTabBar::event(QEvent *event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        if (m_hoverIndex >= 0 && m_hoverIndex < m_tabs.count()) {
+            QString tt = tabToolTip(m_hoverIndex);
+            if (!tt.isEmpty()) {
+                QToolTip::showText(static_cast<QHelpEvent*>(event)->globalPos(), tt, this);
+                return true;
+            }
+        }
+    }
+    return QWidget::event(event);
 }
 
 void FancyTabBar::updateHover()
@@ -124,27 +144,62 @@ void FancyTabBar::enterEvent(QEvent *e)
 {
     Q_UNUSED(e);
     m_hoverRect = QRect();
+    m_hoverIndex = -1;
 }
 
 // Resets hover animation on mouse enter
 void FancyTabBar::leaveEvent(QEvent *e)
 {
     Q_UNUSED(e);
+    if (m_hoverIndex >= 0) {
+        m_hoverIndex = -1;
+        update(m_hoverRect);
+        m_hoverRect = QRect();
+    }
+}
 
-    m_hoverControl.stop();
-    m_hoverControl.start();
+QSize FancyTabBar::sizeHint() const
+{
+    QSize sh = tabSizeHint();
+    return QSize(sh.width(), sh.height() * m_tabs.count());
+}
+
+QSize FancyTabBar::minimumSizeHint() const
+{
+    QSize sh = tabSizeHint(true);
+    return QSize(sh.width(), sh.height() * m_tabs.count());
+}
+
+QRect FancyTabBar::tabRect(int index) const
+{
+    QSize sh = tabSizeHint();
+
+    if (sh.height() * m_tabs.count() > height())
+        sh.setHeight(height() / m_tabs.count());
+
+    return QRect(0, index * sh.height(), sh.width(), sh.height());
+
+}
+
+void FancyTabBar::mousePressEvent(QMouseEvent *e)
+{
+    e->accept();
+    for (int i = 0; i < m_tabs.count(); ++i) {
+        if (tabRect(i).contains(e->pos())) {
+            setCurrentIndex(i);
+            break;
+        }
+    }
 }
 
 void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
 {
-    QStyleOptionTabV2 tab;
-    initStyleOption(&tab, tabIndex);
-    QRect rect = tab.rect;
     painter->save();
 
+    QRect rect = tabRect(tabIndex);
 
-    bool selected = tab.state & QStyle::State_Selected;
-    bool hover = tab.state & QStyle::State_MouseOver;
+    bool selected = (tabIndex == m_currentIndex);
+    bool hover = (tabIndex == m_hoverIndex);
 
 #ifdef Q_WS_MAC
     hover = false; // Dont hover on Mac
@@ -172,18 +227,18 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->setPen(QColor(150, 160, 200));
         painter->drawLine(rect.bottomLeft(), rect.bottomRight());
     } else {
-        painter->fillRect(tab.rect, background);
+        painter->fillRect(rect, background);
         if (hover)
-            painter->fillRect(tab.rect, hoverColor);
+            painter->fillRect(rect, hoverColor);
         painter->setPen(QPen(light, 0));
         painter->drawLine(rect.topLeft(), rect.topRight());
         painter->setPen(QPen(dark, 0));
         painter->drawLine(rect.bottomLeft(), rect.bottomRight());
     }
 
-    QString tabText(tab.text);
-    QRect tabTextRect(tab.rect);
-    QRect tabIconRect(tab.rect);
+    QString tabText(this->tabText(tabIndex));
+    QRect tabTextRect(tabRect(tabIndex));
+    QRect tabIconRect(tabTextRect);
     QFont boldFont(painter->font());
     boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
     boldFont.setBold(true);
@@ -194,21 +249,19 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     painter->setPen(selected ? QColor(60, 60, 60) : StyleHelper::panelTextColor());
     int textHeight = painter->fontMetrics().boundingRect(QRect(0, 0, width(), height()), Qt::TextWordWrap, tabText).height();
     tabIconRect.adjust(0, 4, 0, -textHeight);
-    style()->drawItemPixmap(painter, tabIconRect, Qt::AlignCenter | Qt::AlignVCenter,
-                            tab.icon.pixmap(QSize(64, 64)));
+    int iconSize = qMin(tabIconRect.width(), tabIconRect.height());
+    if (iconSize > 4)
+        style()->drawItemPixmap(painter, tabIconRect, Qt::AlignCenter | Qt::AlignVCenter,
+                                tabIcon(tabIndex).pixmap(QSize(iconSize, iconSize)));
     painter->translate(0, -1);
     painter->drawText(tabTextRect, textFlags, tabText);
     painter->restore();
 }
 
-void FancyTabBar::tabInserted(int index)
-{
-    Q_UNUSED(index)
-}
-
-void FancyTabBar::tabRemoved(int index)
-{
-    Q_UNUSED(index)
+void FancyTabBar::setCurrentIndex(int index) {
+    m_currentIndex = index;
+    update();
+    emit currentChanged(index);
 }
 
 //////
@@ -241,9 +294,6 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     : QWidget(parent)
 {
     m_tabBar = new FancyTabBar(this);
-    m_tabBar->setShape(QTabBar::RoundedEast);
-    m_tabBar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-    m_tabBar->setUsesScrollButtons(false);
 
     m_selectionWidget = new QWidget(this);
     QVBoxLayout *selectionLayout = new QVBoxLayout;
@@ -255,9 +305,9 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     bar->setFixedHeight(StyleHelper::navigationWidgetHeight());
     selectionLayout->addWidget(bar);
 
-    selectionLayout->addWidget(m_tabBar, 1);
+    selectionLayout->addWidget(m_tabBar);
     m_selectionWidget->setLayout(selectionLayout);
-    m_selectionWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+    m_selectionWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
     m_cornerWidgetContainer = new QWidget(this);
     m_cornerWidgetContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
