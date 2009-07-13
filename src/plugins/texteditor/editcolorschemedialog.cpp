@@ -47,18 +47,17 @@ static inline QString colorButtonStyleSheet(const QColor &bgColor)
 
 EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
                                              const FontSettings &fontSettings,
-                                             const ColorScheme &scheme,
                                              QWidget *parent) :
     QDialog(parent),
     m_descriptions(fd),
     m_fontSettings(fontSettings),
-    m_scheme(scheme),
+    m_scheme(fontSettings.colorScheme()),
     m_curItem(-1),
     m_ui(new Ui::EditColorSchemeDialog)
 {
     m_ui->setupUi(this);
 
-    m_ui->nameEdit->setText(scheme.name());
+    m_ui->nameEdit->setText(m_scheme.name());
 
     foreach (const FormatDescription &d, fd)
         m_ui->itemListWidget->addItem(d.trName());

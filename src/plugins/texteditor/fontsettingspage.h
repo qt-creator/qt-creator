@@ -112,12 +112,14 @@ private slots:
     void delayedChange();
     void updatePointSizes();
     void colorSchemeSelected(QListWidgetItem *item);
-    void importColorScheme();
-    void exportColorScheme();
+    void cloneColorScheme();
+    void deleteColorScheme();
     void editColorScheme();
 
 private:
+    void addColorSchemeEntry(const QString &fileName, bool readOnly);
     void refreshColorSchemeList();
+    static QString customStylesPath();
 
     Internal::FontSettingsPagePrivate *d_ptr;
 };

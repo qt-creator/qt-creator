@@ -49,7 +49,6 @@ class EditColorSchemeDialog : public QDialog
 public:
     EditColorSchemeDialog(const FormatDescriptions &fd,
                           const FontSettings &fontSettings,
-                          const ColorScheme &scheme,
                           QWidget *parent = 0);
     ~EditColorSchemeDialog();
 

@@ -37,6 +37,7 @@
 #include <coreplugin/icore.h>
 #include <utils/settingsutils.h>
 
+#include <QtCore/QDebug>
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
 #include <QtGui/QCheckBox>
@@ -44,6 +45,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QListWidget>
+#include <QtGui/QMessageBox>
 #include <QtGui/QPalette>
 #include <QtGui/QPalette>
 #include <QtGui/QTextCharFormat>
@@ -73,6 +75,23 @@ public:
     Ui::FontSettingsPage ui;
 };
 
+struct ColorSchemeEntry
+{
+    QString fileName;
+    QString name;
+    bool readOnly;
+};
+
+} // namespace Internal
+} // namespace TextEditor
+
+Q_DECLARE_METATYPE(TextEditor::Internal::ColorSchemeEntry)
+
+using namespace TextEditor;
+using namespace TextEditor::Internal;
+
+
+// ------- FontSettingsPagePrivate
 FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
                                                  const QString &name,
                                                  const QString &category,
@@ -105,11 +124,6 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
     m_lastValue = m_value;
 }
 
-} // namespace Internal
-} // namespace TextEditor
-
-using namespace TextEditor;
-using namespace TextEditor::Internal;
 
 // ------- FormatDescription
 FormatDescription::FormatDescription(const QString &name, const QString &trName, const QColor &color) :
@@ -223,7 +237,6 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
 
     d_ptr->ui.schemeListWidget->addItem(tr("Default"));
     d_ptr->ui.schemeListWidget->setCurrentIndex(d_ptr->ui.schemeListWidget->model()->index(0, 0));
-    d_ptr->ui.exportButton->setEnabled(true);
     d_ptr->ui.editButton->setEnabled(true);
 
     QFontDatabase db;
@@ -237,8 +250,9 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
     connect(d_ptr->ui.familyComboBox, SIGNAL(activated(int)), this, SLOT(updatePointSizes()));
     connect(d_ptr->ui.schemeListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
             this, SLOT(colorSchemeSelected(QListWidgetItem*)));
-    connect(d_ptr->ui.exportButton, SIGNAL(clicked()), this, SLOT(exportColorScheme()));
+    connect(d_ptr->ui.cloneButton, SIGNAL(clicked()), this, SLOT(cloneColorScheme()));
     connect(d_ptr->ui.editButton, SIGNAL(clicked()), this, SLOT(editColorScheme()));
+    connect(d_ptr->ui.deleteButton, SIGNAL(clicked()), this, SLOT(deleteColorScheme()));
 
     updatePointSizes();
     refreshColorSchemeList();
@@ -272,33 +286,83 @@ void FontSettingsPage::updatePointSizes()
 
 void FontSettingsPage::colorSchemeSelected(QListWidgetItem *item)
 {
-    // TODO: Enable the appropriate actions
+    bool modifiable = false;
+    if (item) {
+        const ColorSchemeEntry entry = item->data(Qt::UserRole).value<ColorSchemeEntry>();
+        modifiable = !entry.readOnly;
+    }
+    d_ptr->ui.cloneButton->setEnabled(item != 0);
+    d_ptr->ui.deleteButton->setEnabled(modifiable);
+    d_ptr->ui.editButton->setEnabled(modifiable);
 }
 
-void FontSettingsPage::importColorScheme()
+void FontSettingsPage::cloneColorScheme()
 {
-    QString fn = QFileDialog::getOpenFileName(d_ptr->ui.importButton->window(),
-                                              tr("Import Color Scheme"),
-                                              QString(),
-                                              tr("Color Schemes (*.xml)"));
-    if (fn.isEmpty())
+    QListWidgetItem *item = d_ptr->ui.schemeListWidget->currentItem();
+    if (!item)
         return;
 
-    // Open color scheme and save it in the schemes directory
+    const ColorSchemeEntry entry = item->data(Qt::UserRole).value<ColorSchemeEntry>();
+
+    // Load the currently selected color scheme
+    if (!d_ptr->m_value.loadColorScheme(entry.fileName, d_ptr->m_descriptions))
+        return;
+
+    QString baseDir = customStylesPath();
+    QString baseFileName = baseDir;
+    baseFileName.append(QFileInfo(entry.fileName).completeBaseName());
+
+    // Find an available file name
+    int i = 1;
+    QString fileName;
+    do {
+        fileName = baseFileName;
+        fileName.append(QString("_copy%1.xml").arg((i == 1) ? QString() : QString::number(i)));
+        ++i;
+    } while (QFile::exists(fileName));
+
+    // Create the base directory when it doesn't exist
+    if (!QFile::exists(baseDir) && !QDir().mkpath(baseDir)) {
+        qWarning() << "Failed to create color scheme directory:" << baseDir;
+        return;
+    }
+
+    ColorScheme scheme = d_ptr->m_value.colorScheme();
+    scheme.setName(tr("%1 (copy)").arg(scheme.name()));
+    scheme.save(fileName);
+    d_ptr->m_value.setColorSchemeFileName(fileName);
+
+    refreshColorSchemeList();
 }
 
-void FontSettingsPage::exportColorScheme()
+void FontSettingsPage::deleteColorScheme()
 {
-    QString fn = QFileDialog::getSaveFileName(d_ptr->ui.exportButton->window(),
-                                              tr("Export Color Scheme"),
-                                              QString(),
-                                              tr("Color Schemes (*.xml)"));
-    if (!fn.isEmpty())
-        d_ptr->m_value.colorScheme().save(fn);
+    QListWidgetItem *item = d_ptr->ui.schemeListWidget->currentItem();
+    if (!item)
+        return;
+
+    const ColorSchemeEntry entry = item->data(Qt::UserRole).value<ColorSchemeEntry>();
+    if (!entry.readOnly) {
+        int ret = QMessageBox::warning(d_ptr->ui.deleteButton->window(),
+                                       tr("Delete Color Scheme"),
+                                       tr("Are you sure you want to delete this color scheme permanently?"),
+                                       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+        if (ret == QMessageBox::Yes && QFile::remove(entry.fileName))
+            refreshColorSchemeList();
+    }
 }
 
 void FontSettingsPage::editColorScheme()
 {
+    QListWidgetItem *item = d_ptr->ui.schemeListWidget->currentItem();
+    if (!item)
+        return;
+
+    const ColorSchemeEntry entry = item->data(Qt::UserRole).value<ColorSchemeEntry>();
+    if (entry.readOnly)
+        return;
+
     d_ptr->m_value.setFamily(d_ptr->ui.familyComboBox->currentText());
     d_ptr->m_value.setAntialias(d_ptr->ui.antialias->isChecked());
 
@@ -307,13 +371,31 @@ void FontSettingsPage::editColorScheme()
     if (ok)
         d_ptr->m_value.setFontSize(size);
 
+    if (!d_ptr->m_value.loadColorScheme(entry.fileName, d_ptr->m_descriptions))
+        return;
+
     EditColorSchemeDialog dialog(d_ptr->m_descriptions,
                                  d_ptr->m_value,
-                                 d_ptr->m_value.colorScheme(),
                                  d_ptr->ui.editButton->window());
 
-    if (dialog.exec() == QDialog::Accepted)
-        d_ptr->m_value.setColorScheme(dialog.colorScheme());
+    if (dialog.exec() == QDialog::Accepted) {
+        ColorScheme newColorScheme = dialog.colorScheme();
+        newColorScheme.save(entry.fileName);
+        d_ptr->m_value.setColorScheme(newColorScheme);
+        refreshColorSchemeList();
+    }
+}
+
+void FontSettingsPage::addColorSchemeEntry(const QString &fileName, bool readOnly)
+{
+    ColorSchemeEntry entry;
+    entry.fileName = fileName;
+    entry.name = ColorScheme::readNameOfScheme(fileName);
+    entry.readOnly = readOnly;
+
+    QListWidgetItem *item = new QListWidgetItem(entry.name);
+    item->setData(Qt::UserRole, QVariant::fromValue<ColorSchemeEntry>(entry));
+    d_ptr->ui.schemeListWidget->addItem(item);
 }
 
 void FontSettingsPage::refreshColorSchemeList()
@@ -329,17 +411,32 @@ void FontSettingsPage::refreshColorSchemeList()
     int count = 0;
 
     foreach (const QString &file, styleDir.entryList()) {
-        const QString absFileName = styleDir.absoluteFilePath(file);
-        QListWidgetItem *item = new QListWidgetItem(ColorScheme::readNameOfScheme(absFileName));
-        item->setData(Qt::UserRole, absFileName);
-        d_ptr->ui.schemeListWidget->addItem(item);
-        if (d_ptr->m_value.colorSchemeFileName() == absFileName)
+        const QString fileName = styleDir.absoluteFilePath(file);
+        addColorSchemeEntry(fileName, true);
+        if (d_ptr->m_value.colorSchemeFileName() == fileName)
+            selected = count;
+        ++count;
+    }
+
+    styleDir.setPath(customStylesPath());
+
+    foreach (const QString &file, styleDir.entryList()) {
+        const QString fileName = styleDir.absoluteFilePath(file);
+        addColorSchemeEntry(fileName, false);
+        if (d_ptr->m_value.colorSchemeFileName() == fileName)
             selected = count;
         ++count;
     }
 
     const QModelIndex s = d_ptr->ui.schemeListWidget->model()->index(selected, 0);
     d_ptr->ui.schemeListWidget->setCurrentIndex(s);
+}
+
+QString FontSettingsPage::customStylesPath()
+{
+    QString path = QFileInfo(Core::ICore::instance()->settings()->fileName()).path();
+    path.append(QLatin1String("/qtcreator/styles/"));
+    return path;
 }
 
 void FontSettingsPage::delayedChange()
@@ -353,9 +450,9 @@ void FontSettingsPage::apply()
     d_ptr->m_value.setAntialias(d_ptr->ui.antialias->isChecked());
 
     if (QListWidgetItem *item = d_ptr->ui.schemeListWidget->currentItem()) {
-        QString file = item->data(Qt::UserRole).toString();
-        if (file != d_ptr->m_value.colorSchemeFileName())
-            d_ptr->m_value.loadColorScheme(file, d_ptr->m_descriptions);
+        const ColorSchemeEntry entry = item->data(Qt::UserRole).value<ColorSchemeEntry>();
+        if (entry.fileName != d_ptr->m_value.colorSchemeFileName())
+            d_ptr->m_value.loadColorScheme(entry.fileName, d_ptr->m_descriptions);
     }
 
     bool ok = true;

@@ -220,11 +220,25 @@ QString FontSettings::colorSchemeFileName() const
     return m_schemeFileName;
 }
 
-void FontSettings::loadColorScheme(const QString &fileName,
-                                   const FormatDescriptions &descriptions)
+/**
+ * Sets the file name of the color scheme. Does not load the scheme from the
+ * given file. If you want to load a scheme, use loadColorScheme() instead.
+ */
+void FontSettings::setColorSchemeFileName(const QString &fileName)
 {
     m_schemeFileName = fileName;
-    m_scheme.load(m_schemeFileName);
+}
+
+bool FontSettings::loadColorScheme(const QString &fileName,
+                                   const FormatDescriptions &descriptions)
+{
+    bool loaded = true;
+    m_schemeFileName = fileName;
+
+    if (!m_scheme.load(m_schemeFileName)) {
+        loaded = false;
+        qWarning() << "Failed to load color scheme:" << fileName;
+    }
 
     // Apply default formats to undefined categories
     foreach (const FormatDescription &desc, descriptions) {
@@ -238,6 +252,8 @@ void FontSettings::loadColorScheme(const QString &fileName,
             m_scheme.setFormatFor(name, format);
         }
     }
+
+    return loaded;
 }
 
 /**
