@@ -370,6 +370,21 @@ int QtOptionsPageWidget::indexForTreeItem(QTreeWidgetItem *item) const
     return -1;
 }
 
+QTreeWidgetItem *QtOptionsPageWidget::treeItemForIndex(int index) const
+{
+    int uniqueId = m_versions.at(index)->uniqueId();
+    for (int i = 0; i < m_ui->qtdirList->topLevelItemCount(); ++i) {
+        QTreeWidgetItem *toplevelItem = m_ui->qtdirList->topLevelItem(i);
+        for (int j = 0; j < toplevelItem->childCount(); ++j) {
+            QTreeWidgetItem *item = toplevelItem->child(j);
+            if (item->data(0, Qt::UserRole).toInt() == uniqueId) {
+                return item;
+            }
+        }
+    }
+    return 0;
+}
+
 void QtOptionsPageWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old)
 {
     if (old) {
@@ -454,11 +469,11 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
     if (index < 0)
         return;
     int count = m_versions.count();
+    QString name = m_versions.at(index)->name();
     for (int i = 0; i < count; ++i) {
         if (i != index) {
             if (m_versions.at(i)->name() == m_versions.at(index)->name()) {
                 // Same name, find new name
-                QString name = m_versions.at(index)->name();
                 QRegExp regexp("^(.*)\\((\\d)\\)$");
                 if (regexp.exactMatch(name)) {
                     // Alreay in Name (#) format
@@ -468,7 +483,7 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
                 }
                 // set new name
                 m_versions[index]->setName(name);
-                m_ui->qtdirList->topLevelItem(index)->setText(0, name);
+                treeItemForIndex(index)->setText(0, name);
                 m_ui->defaultCombo->setItemText(index, name);
 
                 // Now check again...
