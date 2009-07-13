@@ -112,13 +112,11 @@ QString TcfEngine::TcfCommand::toString() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-TcfEngine::TcfEngine(DebuggerManager *parent) :
-    q(parent),
-    qq(parent->engineInterface()),
-    m_models(qq->watchHandler())
+TcfEngine::TcfEngine(DebuggerManager *parent)
 {
-    connect(qq->watchHandler(), SIGNAL(watcherInserted(WatchData)), &m_models, SLOT(insertWatcher(WatchData)));
-    connect(&m_models, SIGNAL(watchDataUpdateNeeded(WatchData)), this, SLOT(updateWatchData(WatchData)));
+    q = parent;
+    qq = parent->engineInterface();
+
     m_congestion = 0;
     m_inAir = 0;
 

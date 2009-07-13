@@ -46,8 +46,6 @@ class ITextEditor;
 namespace Debugger {
 namespace Internal {
 
-class WatchModel;
-
 class Symbol;
 class WatchData;
 struct DebuggerStartParameters;
@@ -62,13 +60,14 @@ public:
     virtual bool startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters) = 0;
     virtual void exitDebugger() = 0;
     virtual void detachDebugger() {}
+    virtual void updateWatchData(const WatchData &data) = 0;
 
     virtual void stepExec() = 0;
     virtual void stepOutExec() = 0;
     virtual void nextExec() = 0;
     virtual void stepIExec() = 0;
     virtual void nextIExec() = 0;
-
+    
     virtual void continueInferior() = 0;
     virtual void interruptInferior() = 0;
 
@@ -96,8 +95,6 @@ public:
     virtual void reloadFullStack() = 0;
 
     virtual void watchPoint(const QPoint &) {}
-
-    virtual WatchModel *watchModel(int type) const = 0;
 };
 
 } // namespace Internal

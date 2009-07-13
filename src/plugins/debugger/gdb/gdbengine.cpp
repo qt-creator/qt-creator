@@ -46,7 +46,6 @@
 #include "registerhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
-#include "asyncwatchmodel.h"
 #include "sourcefileswindow.h"
 
 #include "debuggerdialogs.h"
@@ -153,8 +152,7 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
     m_dumperInjectionLoad(false),
 #endif
     q(parent),
-    qq(parent->engineInterface()),
-    m_models(qq->watchHandler())
+    qq(parent->engineInterface())
 {
     m_stubProc.setMode(Core::Utils::ConsoleProcess::Debug);
 #ifdef Q_OS_UNIX
@@ -172,8 +170,6 @@ GdbEngine::~GdbEngine()
 
 void GdbEngine::initializeConnections()
 {
-    connect(qq->watchHandler(), SIGNAL(watcherInserted(WatchData)), &m_models, SLOT(insertWatcher(WatchData)));
-    connect(&m_models, SIGNAL(watchDataUpdateNeeded(WatchData)), this, SLOT(updateWatchData(WatchData)));
     // Gdb Process interaction
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(gdbProcError(QProcess::ProcessError)));
@@ -2700,10 +2696,10 @@ static QString tooltipINameForExpression(const QString &exp)
 bool GdbEngine::showToolTip()
 {
     WatchHandler *handler = qq->watchHandler();
-    AsyncWatchModel *model = static_cast<AsyncWatchModel *>(handler->model(TooltipsWatch));
+    WatchModel *model = handler->model(TooltipsWatch);
     QString iname = tooltipINameForExpression(m_toolTipExpression);
     model->setActiveData(iname);
-    WatchItem *item = model->findItemByIName(iname, model->dummyRoot());
+    WatchItem *item = model->findItem(iname, model->dummyRoot());
     if (!item) {
         hideDebuggerToolTip();
         return false;
@@ -2792,7 +2788,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     toolTip.name = exp;
     toolTip.iname = tooltipINameForExpression(exp);
     qq->watchHandler()->removeData(toolTip.iname);
-    m_models.insertData(toolTip);
+    qq->watchHandler()->insertData(toolTip);
 }
 
 
@@ -3150,7 +3146,7 @@ void GdbEngine::rebuildModel()
     PENDING_DEBUG("REBUILDING MODEL");
     emit gdbInputAvailable(LogStatus, _("<Rebuild Watchmodel>"));
     q->showStatusMessage(tr("Finished retrieving data."), 400);
-    m_models.endCycle();
+    qq->watchHandler()->endCycle();
     showToolTip();
 }
 
@@ -3546,7 +3542,7 @@ void GdbEngine::updateLocals()
     PENDING_DEBUG("\nRESET PENDING");
     //m_toolTipCache.clear();
     m_toolTipExpression.clear();
-    m_models.beginCycle();
+    qq->watchHandler()->beginCycle();
 
     QString level = QString::number(currentFrame());
     // '2' is 'list with type and value'
@@ -3600,7 +3596,7 @@ void GdbEngine::handleStackListLocals(const GdbResultRecord &record, const QVari
     locals += m_currentFunctionArgs;
 
     setLocals(locals);
-    m_models.updateWatchers();
+    qq->watchHandler()->updateWatchers();
 }
 
 void GdbEngine::setLocals(const QList<GdbMi> &locals)
@@ -3672,7 +3668,7 @@ void GdbEngine::insertData(const WatchData &data0)
         qDebug() << "BOGUS VALUE:" << data.toString();
         return;
     }
-    m_models.insertData(data);
+    qq->watchHandler()->insertData(data);
 }
 
 void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,

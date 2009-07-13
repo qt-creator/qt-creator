@@ -64,14 +64,15 @@ public:
     virtual bool startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters);
     virtual void exitDebugger();
     virtual void detachDebugger();
+    virtual void updateWatchData(const WatchData &data);
 
     virtual void stepExec();
     virtual void stepOutExec();
     virtual void nextExec();
     virtual void stepIExec();
     virtual void nextIExec();
-
-    virtual void continueInferior();
+    
+    virtual void continueInferior();    
     virtual void interruptInferior();
 
     virtual void runToLineExec(const QString &fileName, int lineNumber);
@@ -96,11 +97,6 @@ public:
     virtual void reloadSourceFiles();
     virtual void reloadFullStack() {}
 
-    WatchModel *watchModel(int type) const;
-
-    bool isDebuggeeHalted() const;
-    bool evaluateExpression(const QString &expression, QString *value, QString *type, QString *errorMessage);
-
 public slots:
     void syncDebuggerPaths();
 
@@ -110,9 +106,8 @@ protected:
 private slots:
     void slotConsoleStubStarted();
     void slotConsoleStubError(const QString &msg);
-    void slotConsoleStubTerminated();
+    void slotConsoleStubTerminated();    
     void warning(const QString &w);
-    void insertWatcher(const WatchData &);
 
 private:
     bool startAttachDebugger(qint64 pid, DebuggerStartMode sm, QString *errorMessage);
@@ -121,7 +116,8 @@ private:
     void killWatchTimer();
     void processTerminated(unsigned long exitCode);
     bool executeDebuggerCommand(const QString &command, QString *errorMessage);
-
+    bool evaluateExpression(const QString &expression, QString *value, QString *type, QString *errorMessage);
+    void evaluateWatcher(WatchData *wd);
     QString editorToolTip(const QString &exp, const QString &function);
 
     CdbDebugEnginePrivate *m_d;

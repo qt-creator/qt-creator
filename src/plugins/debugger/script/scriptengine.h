@@ -49,7 +49,6 @@ class QScriptValue;
 QT_END_NAMESPACE
 
 #include "idebuggerengine.h"
-#include "asyncwatchmodel.h"
 
 namespace Debugger {
 namespace Internal {
@@ -108,20 +107,14 @@ private:
 
     bool supportsThreads() const { return true; }
     void maybeBreakNow(bool byFunction);
-
+    void updateWatchData(const WatchData &data);
     void updateLocals();
     void updateSubItem(const WatchData &data);
-
-    WatchModel *watchModel(int type) const { return m_models.model(type); }
-
-private slots:
-    void updateWatchData(const WatchData &data);
 
 private:
     friend class ScriptAgent;
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;
-    AsyncWatchModelMixin m_models;
 
     QScriptEngine *m_scriptEngine;
     QString m_scriptContents;

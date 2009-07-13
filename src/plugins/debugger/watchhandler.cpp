@@ -48,7 +48,6 @@
 #include <QtGui/QLabel>
 #include <QtGui/QToolTip>
 #include <QtGui/QTextEdit>
-#include <QtGui/QTreeView>
 
 #include <ctype.h>
 
@@ -68,13 +67,40 @@
 namespace Debugger {
 namespace Internal {
 
+static const QString strNotInScope =
+        QCoreApplication::translate("Debugger::Internal::WatchData", "<not in scope>");
+
 static int watcherCounter = 0;
+static int generationCounter = 0;
+
+////////////////////////////////////////////////////////////////////
+//
+// WatchItem
+//
+////////////////////////////////////////////////////////////////////
+
+class WatchItem : public WatchData
+{
+public:
+    WatchItem() { parent = 0; fetchTriggered = false; }
+
+    WatchItem(const WatchData &data) : WatchData(data)
+        { parent = 0; fetchTriggered = false; }
+
+    void setData(const WatchData &data)
+        { static_cast<WatchData &>(*this) = data; }
+
+    WatchItem *parent;
+    bool fetchTriggered;      // children fetch has been triggered
+    QList<WatchItem *> children;  // fetched children
+};
+
 ////////////////////////////////////////////////////////////////////
 //
 // WatchData
 //
 ////////////////////////////////////////////////////////////////////
-
+   
 WatchData::WatchData() :
     hasChildren(false),
     generation(-1),
@@ -122,7 +148,7 @@ void WatchData::setValue(const QString &value0)
     // column. No need to duplicate it here.
     if (value.startsWith("(" + type + ") 0x"))
         value = value.section(" ", -1, -1);
-
+    
     setValueUnneeded();
 }
 
@@ -246,124 +272,108 @@ QString WatchData::toToolTip() const
     return res;
 }
 
-////////////////////////////////////////////////////////////////////
-//
-// WatchItem
-//
-////////////////////////////////////////////////////////////////////
-
-WatchItem::WatchItem() :
-    parent(0),
-    fetchTriggered(false)
-{
-}
-
-WatchItem::WatchItem(const WatchData &data) :
-    WatchData(data),
-    parent(0),
-    fetchTriggered(false)
-{
-}
-
-void WatchItem::setData(const WatchData &data)
-{
-    static_cast<WatchData &>(*this) = data;
-}
-
-WatchItem::~WatchItem()
-{
-    qDeleteAll(children);
-}
-
-void WatchItem::removeChildren()
-{
-    if (!children.empty()) {
-        qDeleteAll(children);
-        children.clear();
-    }
-}
-
-void WatchItem::addChild(WatchItem *child)
-{
-    children.push_back(child);
-    child->parent = this;
-}
-
-///////////////////////////////////////////////////////////////////////
-//
-// WatchPredicate
-//
-///////////////////////////////////////////////////////////////////////
-
-WatchPredicate::WatchPredicate(Mode mode, const QString &pattern) :
-    m_pattern(pattern),
-    m_mode(mode)
-{
-}
-
-bool WatchPredicate::operator()(const WatchData &w) const
-{
-    switch (m_mode) {
-        case INameMatch:
-        return m_pattern == w.iname;
-        case ExpressionMatch:
-        return m_pattern == w.exp;
-    }
-    return false;
-}
-
 ///////////////////////////////////////////////////////////////////////
 //
 // WatchModel
 //
 ///////////////////////////////////////////////////////////////////////
 
-WatchModel::WatchModel(WatchHandler *handler, WatchType type, QObject *parent) :
-    QAbstractItemModel(parent),
-    m_root(new WatchItem),
-    m_handler(handler),
-    m_type(type)
+WatchModel::WatchModel(WatchHandler *handler, WatchType type)
+    : QAbstractItemModel(handler), m_handler(handler), m_type(type)
 {
-    WatchItem *dummyRoot = new WatchItem;
-
-    switch (type) {
-        case LocalsWatch:
-            dummyRoot->iname = QLatin1String("local");
-            dummyRoot->name = WatchHandler::tr("Locals");
-            break;
-        case WatchersWatch:
-            dummyRoot->iname = QLatin1String("watch");
-            dummyRoot->name = WatchHandler::tr("Watchers");
-            break;
-        case TooltipsWatch:
-            dummyRoot->iname = QLatin1String("tooltip");
-            dummyRoot->name = WatchHandler::tr("Tooltip");
-            break;
-        case WatchModelCount:
-            break;
-        }
-    dummyRoot->hasChildren = true;
-    dummyRoot->state = 0;
-
-    m_root->addChild(dummyRoot);
-
+    m_root = new WatchItem;
     m_root->hasChildren = 1;
     m_root->state = 0;
     m_root->name = WatchHandler::tr("Root");
+
+    WatchItem *item = new WatchItem;
+
+    switch (m_type) {
+        case LocalsWatch:
+            item->iname = QLatin1String("local");
+            item->name = WatchHandler::tr("Locals");
+            break;
+        case WatchersWatch:
+            item->iname = QLatin1String("watch");
+            item->name = WatchHandler::tr("Watchers");
+            break;
+        case TooltipsWatch:
+            item->iname = QLatin1String("tooltip");
+            item->name = WatchHandler::tr("Tooltip");
+            break;
+    }
+    item->hasChildren = true;
+    item->state = 0;
+    item->parent = m_root;
+    item->fetchTriggered = true;
+
+    m_root->children.append(item);
 }
 
-WatchModel::~WatchModel()
+WatchItem *WatchModel::dummyRoot() const
 {
-    delete m_root;
+    QTC_ASSERT(!m_root->children.isEmpty(), return 0);
+    return m_root->children.front();
 }
 
-QString WatchModel::parentName(const QString &iname)
+void WatchModel::reinitialize()
 {
-    const int pos = iname.lastIndexOf(QLatin1Char('.'));
+    WatchItem *item = dummyRoot();
+    QTC_ASSERT(item, return);
+    QModelIndex index = watchIndex(item);
+    int n = item->children.size();
+    if (n == 0)
+        return;
+    //MODEL_DEBUG("REMOVING " << n << " CHILDREN OF " << item->iname);
+    beginRemoveRows(index, 0, n - 1);
+    qDeleteAll(item->children);
+    item->children.clear();
+    endRemoveRows();
+}
+
+void WatchModel::removeOutdated()
+{
+    WatchItem *item = dummyRoot();
+    QTC_ASSERT(item, return);
+    foreach (WatchItem *child, item->children)
+        removeOutdatedHelper(child);
+#if DEBUG_MODEL
+#if USE_MODEL_TEST
+    //(void) new ModelTest(this, this);
+#endif
+#endif
+}
+
+void WatchModel::removeOutdatedHelper(WatchItem *item)
+{
+    if (item->generation < generationCounter)
+        removeItem(item);
+    else {
+        foreach (WatchItem *child, item->children)
+            removeOutdatedHelper(child);
+        item->fetchTriggered = false;
+    }
+}
+
+void WatchModel::removeItem(WatchItem *item)
+{
+    WatchItem *parent = item->parent;
+    QModelIndex index = watchIndex(parent);
+    int n = parent->children.indexOf(item);
+    //MODEL_DEBUG("NEED TO REMOVE: " << item->iname << "AT" << n);
+    beginRemoveRows(index, n, n);
+    parent->children.removeAt(n);
+    endRemoveRows();
+}
+
+static QString parentName(const QString &iname)
+{
+    int pos = iname.lastIndexOf(QLatin1Char('.'));
     if (pos == -1)
         return QString();
     return iname.left(pos);
 }
+
 
 static QString chopConst(QString type)
 {
@@ -409,7 +419,7 @@ QString niceType(const QString typeIn)
     for (int i = 0; i < 10; ++i) {
         int start = type.indexOf("std::allocator<");
         if (start == -1)
-            break;
+            break; 
         // search for matching '>'
         int pos;
         int level = 0;
@@ -517,10 +527,51 @@ static QString formattedValue(const WatchData &data,
     return data.value;
 }
 
-int WatchModel::columnCount(const QModelIndex &idx) const
+bool WatchModel::canFetchMore(const QModelIndex &index) const
 {
-    Q_UNUSED(idx);
-    return 3;
+    return index.isValid() && !watchItem(index)->fetchTriggered;
+}
+
+void WatchModel::fetchMore(const QModelIndex &index)
+{
+    QTC_ASSERT(index.isValid(), return);
+    QTC_ASSERT(!watchItem(index)->fetchTriggered, return);
+    if (WatchItem *item = watchItem(index)) {
+        item->fetchTriggered = true;
+        WatchData data = *item;
+        data.setChildrenNeeded();
+        emit m_handler->watchDataUpdateNeeded(data);
+    }
+}
+
+QModelIndex WatchModel::index(int row, int column, const QModelIndex &parent) const
+{
+    if (!hasIndex(row, column, parent))
+        return QModelIndex();
+
+    const WatchItem *item = watchItem(parent);
+    QTC_ASSERT(item, return QModelIndex());
+    return createIndex(row, column, (void*)(item->children.at(row)));
+}
+
+QModelIndex WatchModel::parent(const QModelIndex &idx) const
+{
+    if (!idx.isValid())
+        return QModelIndex();
+
+    const WatchItem *item = watchItem(idx);
+    if (!item->parent || item->parent == m_root)
+        return QModelIndex();
+
+    const WatchItem *grandparent = item->parent->parent;
+    if (!grandparent)
+        return QModelIndex();
+
+    for (int i = 0; i < grandparent->children.size(); ++i)
+        if (grandparent->children.at(i) == item->parent)
+            return createIndex(i, 0, (void*) item->parent);
+
+    return QModelIndex();
 }
 
 int WatchModel::rowCount(const QModelIndex &idx) const
@@ -532,18 +583,45 @@ int WatchModel::rowCount(const QModelIndex &idx) const
     return watchItem(idx)->children.size();
 }
 
-bool WatchModel::hasChildren(const QModelIndex &idx) const
+int WatchModel::columnCount(const QModelIndex &idx) const
 {
-    if (const WatchItem *item = watchItem(idx)) {
-        if (!item->children.empty())
-            return true;
-        QTC_ASSERT(item->isHasChildrenKnown(), return false);
-        return item->hasChildren;
-    }
-    return false;
+    Q_UNUSED(idx);
+    return 3;
 }
 
-void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex)
+bool WatchModel::hasChildren(const QModelIndex &parent) const
+{
+    WatchItem *item = watchItem(parent);
+    return !item || item->hasChildren;
+}
+
+WatchItem *WatchModel::watchItem(const QModelIndex &idx) const
+{
+    return idx.isValid() 
+        ? static_cast<WatchItem*>(idx.internalPointer()) : m_root;
+}
+
+QModelIndex WatchModel::watchIndex(const WatchItem *item) const
+{
+    return watchIndexHelper(item, m_root, QModelIndex());
+}
+
+QModelIndex WatchModel::watchIndexHelper(const WatchItem *needle, 
+    const WatchItem *parentItem, const QModelIndex &parentIndex) const
+{
+    if (needle == parentItem)
+        return parentIndex;
+    for (int i = parentItem->children.size(); --i >= 0; ) {
+        const WatchItem *childItem = parentItem->children.at(i);
+        QModelIndex childIndex = index(i, 0, parentIndex);
+        QModelIndex idx = watchIndexHelper(needle, childItem, childIndex);
+        if (idx.isValid())
+            return idx;
+    }
+    return QModelIndex();
+}
+
+void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex) 
 {
     QModelIndex idx1 = index(0, column, parentIndex);
     QModelIndex idx2 = index(rowCount(parentIndex) - 1, column, parentIndex);
@@ -557,16 +635,11 @@ void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex)
 
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
-    if (const WatchData *wdata = watchItem(idx))
-        return data(*wdata, idx.column(), role);
-    return QVariant();
-}
+    const WatchItem &data = *watchItem(idx);
 
-QVariant WatchModel::data(const WatchData &data, int column, int role) const
-{
     switch (role) {
         case Qt::DisplayRole: {
-            switch (column) {
+            switch (idx.column()) {
                 case 0: return data.name;
                 case 1: return formattedValue(data,
                     m_handler->m_individualFormats[data.iname],
@@ -584,7 +657,7 @@ QVariant WatchModel::data(const WatchData &data, int column, int role) const
             static const QVariant red(QColor(200, 0, 0));
             static const QVariant black(QColor(0, 0, 0));
             static const QVariant gray(QColor(140, 140, 140));
-            switch (column) {
+            switch (idx.column()) {
                 case 0: return black;
                 case 1: return data.valuedisabled ? gray : data.changed ? red : black;
                 case 2: return black;
@@ -605,7 +678,7 @@ QVariant WatchModel::data(const WatchData &data, int column, int role) const
         case ActiveDataRole:
             qDebug() << "ASK FOR" << data.iname;
             return true;
-
+   
         case TypeFormatListRole:
             if (isIntType(data.type))
                 return QStringList() << tr("decimal") << tr("hexadecimal")
@@ -623,14 +696,14 @@ QVariant WatchModel::data(const WatchData &data, int column, int role) const
         }
 
         default:
-            break;
+            break; 
     }
     return QVariant();
 }
 
 bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    WatchData &data = *watchItem(index);
+    WatchItem &data = *watchItem(index);
     if (role == ExpandedRole) {
         if (value.toBool())
             m_handler->m_expandedINames.insert(data.iname);
@@ -687,162 +760,75 @@ QVariant WatchModel::headerData(int section, Qt::Orientation orientation, int ro
             case 2: return QString(tr("Type")  + QLatin1String("     "));
         }
     }
-    return QVariant();
+    return QVariant(); 
 }
 
-void WatchModel::setValueByIName(const QString &iname, const QString &value)
+static bool iNameSorter(const WatchItem *item1, const WatchItem *item2)
 {
-    if (WatchItem *wd = findItemByIName(iname, dummyRoot())) {
-        if (wd->value != value) {
-            wd->setValue(value);
-            const QModelIndex index = watchIndex(wd);
-            emit dataChanged(index.sibling(0, 1), index.sibling(0, 2));
-        }
+    QString name1 = item1->iname.section('.', -1);
+    QString name2 = item2->iname.section('.', -1);
+    if (!name1.isEmpty() && !name2.isEmpty()) {
+        if (name1.at(0).isDigit() && name2.at(0).isDigit())
+            return name1.toInt() < name2.toInt();
     }
+    return name1 < name2; 
 }
 
-void WatchModel::setValueByExpression(const QString &exp, const QString &value)
+static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *item)
 {
-    if (WatchItem *wd = findItemByExpression(exp, dummyRoot())) {
-        if (wd->value != value) {
-            wd->setValue(value);
-            const QModelIndex index = watchIndex(wd);
-            emit dataChanged(index.sibling(0, 1), index.sibling(0, 2));
-        }
-    }
+    QList<WatchItem *>::const_iterator it =
+        qLowerBound(list.begin(), list.end(), item, iNameSorter);
+    return it - list.begin(); 
 }
 
-WatchItem *WatchModel::root() const
+void WatchModel::insertData(const WatchData &data)
 {
-    return m_root;
-}
-
-WatchItem *WatchModel::dummyRoot() const
-{
-    if (!m_root->children.isEmpty())
-        return m_root->children.front();
-    return 0;
-}
-
-void WatchModel::reinitialize()
-{
-    WatchItem *item = dummyRoot();
-    QTC_ASSERT(item, return);
-    const QModelIndex index = watchIndex(item);
-    const int n = item->children.size();
-    if (n == 0)
+    // qDebug() << "WMI:" << data.toString();
+    QTC_ASSERT(!data.iname.isEmpty(), return);
+    WatchItem *parent = findItem(parentName(data.iname), m_root);
+    if (!parent) {
+        WatchData parent;
+        parent.iname = parentName(data.iname);
+        insertData(parent);
+        //MODEL_DEBUG("\nFIXING MISSING PARENT FOR\n" << data.iname);
         return;
-    //MODEL_DEBUG("REMOVING " << n << " CHILDREN OF " << item->iname);
-    beginRemoveRows(index, 0, n - 1);
-    item->removeChildren();
-    endRemoveRows();
-}
-
-void WatchModel::removeItem(WatchItem *itemIn)
-{
-    WatchItem *item = static_cast<WatchItem *>(itemIn);
-    WatchItem *parent = item->parent;
-    const QModelIndex index = watchIndex(parent);
-    const int n = parent->children.indexOf(item);
-    //MODEL_DEBUG("NEED TO REMOVE: " << item->iname << "AT" << n);
-    beginRemoveRows(index, n, n);
-    parent->children.removeAt(n);
-    endRemoveRows();
-}
-
-QModelIndex WatchModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!hasIndex(row, column, parent))
-        return QModelIndex();
-
-    const WatchItem *item = watchItem(parent);
-    QTC_ASSERT(item, return QModelIndex());
-    return createIndex(row, column, (void*)(item->children.at(row)));
-}
-
-QModelIndex WatchModel::parent(const QModelIndex &idx) const
-{
-    if (!idx.isValid())
-        return QModelIndex();
-
-    const WatchItem *item = static_cast<WatchItem *>(watchItem(idx));
-    if (!item->parent || item->parent == m_root)
-        return QModelIndex();
-
-    const WatchItem *grandparent = item->parent->parent;
-    if (!grandparent)
-        return QModelIndex();
-
-    for (int i = 0; i < grandparent->children.size(); ++i)
-        if (grandparent->children.at(i) == item->parent)
-            return createIndex(i, 0, (void*) item->parent);
-
-    return QModelIndex();
-}
-
-WatchItem *WatchModel::watchItem(const QModelIndex &idx) const
-
-{
-    return idx.isValid()
-            ? static_cast<WatchItem*>(idx.internalPointer()) : m_root;
-}
-
-QModelIndex WatchModel::watchIndex(const WatchItem *item) const
-{
-    return watchIndexHelper(item, m_root, QModelIndex());
-}
-
-QModelIndex WatchModel::watchIndexHelper(const WatchItem *needle,
-    const WatchItem *parentItem, const QModelIndex &parentIndex) const
-{
-    if (needle == parentItem)
-        return parentIndex;
-    for (int i = parentItem->children.size(); --i >= 0; ) {
-        const WatchItem *childItem = parentItem->children.at(i);
-        QModelIndex childIndex = index(i, 0, parentIndex);
-        QModelIndex idx = watchIndexHelper(needle, childItem, childIndex);
-        if (idx.isValid())
-            return idx;
     }
-    return QModelIndex();
+    QModelIndex index = watchIndex(parent);
+    if (WatchItem *oldItem = findItem(data.iname, parent)) {
+        // overwrite old entry
+        //MODEL_DEBUG("OVERWRITE : " << data.iname << data.value);
+        bool changed = !data.value.isEmpty()
+            && data.value != oldItem->value
+            && data.value != strNotInScope;
+        oldItem->setData(data);
+        oldItem->changed = changed;
+        oldItem->generation = generationCounter;
+        QModelIndex idx = watchIndex(oldItem);
+        emit dataChanged(idx, idx.sibling(idx.row(), 2));
+    } else {
+        // add new entry
+        //MODEL_DEBUG("INSERT : " << data.iname << data.value);
+        WatchItem *item = new WatchItem(data);
+        item->parent = parent;
+        item->generation = generationCounter;
+        item->changed = true;
+        int n = findInsertPosition(parent->children, item);
+        beginInsertRows(index, n, n);
+        parent->children.insert(n, item);
+        endInsertRows();
+    }
 }
 
-static WatchItem *findRecursion(WatchItem *root, const WatchPredicate &p)
+WatchItem *WatchModel::findItem(const QString &iname, WatchItem *root) const
 {
-    if (p(*root))
+    if (root->iname == iname)
         return root;
     for (int i = root->children.size(); --i >= 0; )
-        if (WatchItem *item = findRecursion(root->children.at(i), p))
+        if (WatchItem *item = findItem(iname, root->children.at(i)))
             return item;
     return 0;
 }
 
-WatchItem *WatchModel::findItemByExpression(const QString &exp, WatchItem *root) const
-{
-    return findRecursion(root, WatchPredicate(WatchPredicate::ExpressionMatch, exp));
-}
-
-WatchItem *WatchModel::findItemByIName(const QString &iname, WatchItem *root) const
-{
-    return findRecursion(root, WatchPredicate(WatchPredicate::INameMatch, iname));
-}
-
-static void debugItemRecursion(QDebug d, WatchItem *item, QString indent = QString())
-{
-    qDebug() << (indent + item->toString());
-    if (!item->children.isEmpty()) {
-        indent += QLatin1String("   ");
-        foreach(WatchItem *c, item->children)
-            debugItemRecursion(d, c, indent);
-    }
-}
-
-QDebug operator<<(QDebug d, const WatchModel &wm)
-{
-    if (WatchItem *root = wm.dummyRoot())
-        debugItemRecursion(d.nospace(), root);
-    return d;
-}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -850,25 +836,34 @@ QDebug operator<<(QDebug d, const WatchModel &wm)
 //
 ///////////////////////////////////////////////////////////////////////
 
-WatchHandler::WatchHandler() :
-    m_expandPointers(true),
-    m_inChange(false)
+WatchHandler::WatchHandler()
 {
+    m_expandPointers = true;
+    m_inChange = false;
+
+    m_locals = new WatchModel(this, LocalsWatch);
+    m_watchers = new WatchModel(this, WatchersWatch);
+    m_tooltips = new WatchModel(this, TooltipsWatch);
+
     connect(theDebuggerAction(WatchExpression),
         SIGNAL(triggered()), this, SLOT(watchExpression()));
     connect(theDebuggerAction(RemoveWatchExpression),
         SIGNAL(triggered()), this, SLOT(removeWatchExpression()));
-    qFill(m_models, m_models + WatchModelCount, static_cast<WatchModel*>(0));
+}
+
+void WatchHandler::endCycle()
+{
+    m_locals->removeOutdated();
+    m_watchers->removeOutdated();
+    m_tooltips->removeOutdated();
 }
 
 void WatchHandler::cleanup()
 {
     m_expandedINames.clear();
     m_displayedINames.clear();
-    if (m_models[LocalsWatch])
-        m_models[LocalsWatch]->reinitialize();
-    if (m_models[TooltipsWatch])
-        m_models[TooltipsWatch]->reinitialize();
+    m_locals->reinitialize();
+    m_tooltips->reinitialize();
 #if 0
     for (EditWindows::ConstIterator it = m_editWindows.begin();
             it != m_editWindows.end(); ++it) {
@@ -879,12 +874,26 @@ void WatchHandler::cleanup()
 #endif
 }
 
+void WatchHandler::insertData(const WatchData &data)
+{
+    MODEL_DEBUG("INSERTDATA: " << data.toString());
+    QTC_ASSERT(data.isValid(), return);
+    if (data.isSomethingNeeded()) {
+        emit watchDataUpdateNeeded(data);
+    } else {
+        WatchModel *model = modelForIName(data.iname);
+        QTC_ASSERT(model, return);
+        model->insertData(data);
+    }
+}
+
 void WatchHandler::removeData(const QString &iname)
 {
     WatchModel *model = modelForIName(iname);
     if (!model)
         return;
-    if (WatchItem *item = model->findItemByIName(iname, model->root()))
+    WatchItem *item = model->findItem(iname, model->m_root);
+    if (item)
         model->removeItem(item);
 }
 
@@ -909,7 +918,7 @@ void WatchHandler::watchExpression(const QString &exp)
     if (exp.isEmpty() || exp == watcherEditPlaceHolder())
         data.setAllUnneeded();
     data.iname = watcherName(exp);
-    emit watcherInserted(data);
+    insertData(data);
     saveWatchers();
     //emit watchModelUpdateRequested();
 }
@@ -999,11 +1008,33 @@ void WatchHandler::removeWatchExpression(const QString &exp)
 {
     MODEL_DEBUG("REMOVE WATCH: " << exp);
     m_watcherNames.remove(exp);
-    if (WatchModel *model = m_models[WatchersWatch])
-        if (WatchItem *item = model->findItemByExpression(exp, model->root())) {
-            model->removeItem(item);
+    foreach (WatchItem *item, m_watchers->dummyRoot()->children) {
+        if (item->exp == exp) {
+            m_watchers->removeItem(item);
             saveWatchers();
+            break;
         }
+    }
+}
+
+void WatchHandler::beginCycle()
+{
+    ++generationCounter;
+    //m_locals->beginCycle();
+}
+
+void WatchHandler::updateWatchers()
+{
+    //qDebug() << "UPDATE WATCHERS";
+    // copy over all watchers and mark all watchers as incomplete
+    foreach (const QString &exp, m_watcherNames.keys()) {
+        WatchData data;
+        data.iname = watcherName(exp);
+        data.setAllNeeded();
+        data.name = exp;
+        data.exp = exp;
+        insertData(data);
+    }
 }
 
 void WatchHandler::loadWatchers()
@@ -1045,11 +1076,6 @@ void WatchHandler::loadTypeFormats()
     }
 }
 
-QStringList WatchHandler::watcherExpressions() const
-{
-    return m_watcherNames.keys();
-}
-
 void WatchHandler::saveTypeFormats()
 {
     QMap<QString, QVariant> typeFormats;
@@ -1073,61 +1099,44 @@ void WatchHandler::loadSessionData()
 {
     loadWatchers();
     loadTypeFormats();
-    initWatchModel();
-}
-
-void WatchHandler::initWatchModel()
-{
     foreach (const QString &exp, m_watcherNames.keys()) {
         WatchData data;
         data.iname = watcherName(exp);
         data.setAllUnneeded();
         data.name = exp;
         data.exp = exp;
-        emit watcherInserted(data);
+        insertData(data);
     }
 }
 
 WatchModel *WatchHandler::model(WatchType type) const
 {
-    return m_models[type];
+    switch (type) {
+        case LocalsWatch: return m_locals;
+        case WatchersWatch: return m_watchers;
+        case TooltipsWatch: return m_tooltips;
+    }
+    QTC_ASSERT(false, /**/);
+    return 0;
 }
-
-void WatchHandler::setModel(WatchType type, WatchModel *model)
-{
-    if (m_models[type] == model)
-        return;
-    if (type == WatchersWatch && m_models[type])
-        saveWatchers();
-    m_models[type] = model;
-    if (type == WatchersWatch)
-        initWatchModel();
-}
-
-WatchType WatchHandler::watchTypeOfIName(const QString &iname)
-{
-    if (iname.startsWith(QLatin1String("local.")))
-        return LocalsWatch;
-    if (iname.startsWith(QLatin1String("watch.")))
-        return WatchersWatch;
-    if (iname.startsWith(QLatin1String("tooltip")))
-        return TooltipsWatch;
-    return WatchModelCount;
-}
-
+    
 WatchModel *WatchHandler::modelForIName(const QString &iname) const
 {
-    const WatchType t = watchTypeOfIName(iname);
-    if (t == WatchModelCount)
-        return 0;
-    return m_models[t];
+    if (iname.startsWith(QLatin1String("local.")))
+        return m_locals;
+    if (iname.startsWith(QLatin1String("watch.")))
+        return m_watchers;
+    if (iname.startsWith(QLatin1String("tooltip")))
+        return m_tooltips;
+    QTC_ASSERT(false, /**/);
+    return 0;
 }
 
 WatchData *WatchHandler::findItem(const QString &iname) const
 {
     const WatchModel *model = modelForIName(iname);
     QTC_ASSERT(model, return 0);
-    return model->findItemByIName(iname, model->root());
+    return model->findItem(iname, model->m_root);
 }
 
 QString WatchHandler::watcherEditPlaceHolder()
@@ -1140,55 +1149,9 @@ void WatchHandler::setFormat(const QString &type, int format)
 {
     m_typeFormats[type] = format;
     saveTypeFormats();
-    for (int m = 0; m < WatchModelCount; m++)
-        m_models[m]->emitDataChanged(1);
-}
-
-void WatchHandler::init(QTreeView *localsView)
-{
-    m_localsView = localsView;
-}
-
-void WatchHandler::saveLocalsViewState(int frame)
-{
-    WatchModel *model = m_models[LocalsWatch];
-    if (!model || !m_localsView)
-        return;
-    LocalsViewStateMap::iterator it = m_localsViewState.find(frame);
-    if (it == m_localsViewState.end())
-        it = m_localsViewState.insert(frame, LocalsViewState());
-
-    const QModelIndex topIndex = m_localsView->indexAt(QPoint(0, 0));
-    it.value().firstVisibleRow = topIndex.isValid() ? topIndex.row() : 0;
-    it.value().expandedINames = m_expandedINames;
-}
-
-void WatchHandler::restoreLocalsViewState(int frame)
-{
-    WatchModel *model = m_models[LocalsWatch];
-    if (!model || !m_localsView)
-        return;
-    int firstVisibleRow = 0;
-    const LocalsViewStateMap::const_iterator it = m_localsViewState.constFind(frame);
-    if (it !=  m_localsViewState.constEnd()) {
-        firstVisibleRow = it.value().firstVisibleRow;
-        m_expandedINames = it.value().expandedINames;
-    }
-    // Loop over and expand valid inames, purge out invalid.
-    WatchItem *root = model->root();
-    for (QSet<QString>::iterator it = m_expandedINames.begin(); it != m_expandedINames.end(); ) {
-        if (const WatchItem *wd = model->findItemByIName(*it, root)) {
-            m_localsView->expand(model->watchIndex(wd));
-            ++it;
-        } else {
-            it = m_expandedINames.erase(it);
-        }
-    }
-    if (firstVisibleRow) {
-        const QModelIndex index = model->index(0, 0).child(firstVisibleRow, 0);
-        if (index.isValid())
-            m_localsView->scrollTo(index, QAbstractItemView::PositionAtTop);
-    }
+    m_locals->emitDataChanged(1);
+    m_watchers->emitDataChanged(1);
+    m_tooltips->emitDataChanged(1);
 }
 
 } // namespace Internal

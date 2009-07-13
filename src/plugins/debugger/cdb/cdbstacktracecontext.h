@@ -47,10 +47,11 @@ namespace Internal {
 
 struct CdbComInterfaces;
 class CdbSymbolGroupContext;
+class CdbStackFrameContext;
 class CdbDumperHelper;
 
 /* Context representing a break point stack consisting of several frames.
- * Maintains an on-demand constructed list of CdbSymbolGroupContext
+ * Maintains an on-demand constructed list of CdbStackFrameContext
  * containining the local variables of the stack. */
 
 class CdbStackTraceContext        
@@ -74,17 +75,7 @@ public:
     // Top-Level instruction offset for disassembler
     ULONG64 instructionOffset() const { return m_instructionOffset; }
 
-    CdbSymbolGroupContext *symbolGroupAt(int index, QString *errorMessage);
-
-    // Helper to retrieve an editor tooltip for a frame. Note that
-    // for the current frame, the LocalsModel should be consulted first.
-    bool editorToolTip(int frameIndex,const QString &iname,  QString *value, QString *errorMessage);
-
-    // Assign value in Debugger
-    bool assignValue(int frameIndex,
-                     const QString &iname,
-                     const QString &value,
-                     QString *newValue /* = 0 */, QString *errorMessage);
+    CdbStackFrameContext *frameContextAt(int index, QString *errorMessage);
 
     // Format for logging
     void format(QTextStream &str) const;
@@ -98,7 +89,7 @@ private:
     CdbComInterfaces *m_cif;
 
     DEBUG_STACK_FRAME m_cdbFrames[maxFrames];
-    QVector <CdbSymbolGroupContext*> m_frameContexts;
+    QVector <CdbStackFrameContext*> m_frameContexts;
     QList<StackFrame> m_frames;
     ULONG64 m_instructionOffset;
 };

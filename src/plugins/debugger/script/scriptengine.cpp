@@ -185,13 +185,10 @@ void ScriptAgent::scriptUnload(qint64 scriptId)
 //
 ///////////////////////////////////////////////////////////////////////
 
-ScriptEngine::ScriptEngine(DebuggerManager *parent) :
-    q(parent),
-    qq(parent->engineInterface()),
-    m_models(qq->watchHandler())
+ScriptEngine::ScriptEngine(DebuggerManager *parent)
 {
-    connect(qq->watchHandler(), SIGNAL(watcherInserted(WatchData)), &m_models, SLOT(insertWatcher(WatchData)));
-    connect(&m_models, SIGNAL(watchDataUpdateNeeded(WatchData)), this, SLOT(updateWatchData(WatchData)));
+    q = parent;
+    qq = parent->engineInterface();
     m_scriptEngine = new QScriptEngine(this);
     m_scriptAgent = new ScriptAgent(this, m_scriptEngine);
     m_scriptEngine->setAgent(m_scriptAgent);
@@ -575,7 +572,7 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
 void ScriptEngine::updateLocals()
 {
     QScriptContext *context = m_scriptEngine->currentContext();
-    m_models.beginCycle();
+    qq->watchHandler()->beginCycle();
     //SDEBUG("UPDATE LOCALS");
 
     //
@@ -607,7 +604,7 @@ void ScriptEngine::updateLocals()
     data.iname = "local";
     data.name = "local";
     data.scriptValue = context->activationObject();
-    m_models.insertData(data);
+    qq->watchHandler()->insertData(data);
 
     // FIXME: Use an extra thread. This here is evil
     m_stopped = true;
@@ -682,7 +679,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             data.setType("<unknown>");
             data.setValue("<unknown>");
         }
-        m_models.insertData(data);
+        qq->watchHandler()->insertData(data);
         return;
     }
 
@@ -700,13 +697,13 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
                 data1.setChildrenNeeded();
             else
                 data1.setChildrenUnneeded();
-            m_models.insertData(data1);
+            qq->watchHandler()->insertData(data1);
             ++numChild;
         }
         //SDEBUG("  ... CHILDREN: " << numChild);
         data.setHasChildren(numChild > 0);
         data.setChildrenUnneeded();
-        m_models.insertData(data);
+        qq->watchHandler()->insertData(data);
         return;
     }
 
@@ -719,7 +716,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
         }
         data.setHasChildren(numChild > 0);
         //SDEBUG("  ... CHILDCOUNT: " << numChild);
-        m_models.insertData(data);
+        qq->watchHandler()->insertData(data);
         return;
     }
 

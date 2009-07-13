@@ -39,6 +39,7 @@ HEADERS += \
     $$PWD/cdbsymbolgroupcontext.h \
     $$PWD/cdbsymbolgroupcontext_tpl.h \
     $$PWD/cdbstacktracecontext.h \
+    $$PWD/cdbstackframecontext.h \
     $$PWD/cdbbreakpoint.h \
     $$PWD/cdbmodules.h \
     $$PWD/cdbassembler.h \
@@ -46,14 +47,14 @@ HEADERS += \
     $$PWD/cdboptionspage.h \
     $$PWD/cdbdumperhelper.h \
     $$PWD/cdbsymbolpathlisteditor.h \
-    $$PWD/cdbexceptionutils.h \
-    $$PWD/cdbwatchmodels.h
+    $$PWD/cdbexceptionutils.h
 
 SOURCES += \
     $$PWD/cdbdebugengine.cpp \
     $$PWD/cdbdebugeventcallback.cpp \
     $$PWD/cdbdebugoutput.cpp \
     $$PWD/cdbsymbolgroupcontext.cpp \
+    $$PWD/cdbstackframecontext.cpp \
     $$PWD/cdbstacktracecontext.cpp \
     $$PWD/cdbbreakpoint.cpp \
     $$PWD/cdbmodules.cpp \
@@ -62,8 +63,7 @@ SOURCES += \
     $$PWD/cdboptionspage.cpp \
     $$PWD/cdbdumperhelper.cpp \
     $$PWD/cdbsymbolpathlisteditor.cpp \
-    $$PWD/cdbexceptionutils.cpp \
-    $$PWD/cdbwatchmodels.cpp
+    $$PWD/cdbexceptionutils.cpp
 
 FORMS += $$PWD/cdboptionspagewidget.ui
 

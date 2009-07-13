@@ -554,22 +554,19 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
             }
             wchild.setType(dchild.type.isEmpty() ? childType : dchild.type);
             wchild.setAddress(dchild.address);
-            // Child overrides. Note that WatchData::setType sets
-            // childcount = 0 for some known types.
-            if (wchild.isHasChildrenNeeded()) {
-                const int effectiveChildChildCount = dchild.childCount == -1 ?  childChildCount : dchild.childCount;
-                switch (effectiveChildChildCount) {
+            // Child overrides.
+            const int effectiveChildChildCount = dchild.childCount == -1 ?  childChildCount : dchild.childCount;
+            switch (effectiveChildChildCount) {
                 case -1:
-                    wchild.setChildrenNeeded();
-                    wchild.setHasChildrenNeeded();
-                    break;
+                wchild.setChildrenNeeded();
+                wchild.setHasChildrenNeeded();
+                break;
                 case 0:
-                    wchild.setHasChildren(false);
-                    break;
+                wchild.setHasChildren(false);
+                break;
                 default:
-                    wchild.setHasChildren(true);
-                    break;
-                }
+                wchild.setHasChildren(true);
+                break;
             }
         }
     }

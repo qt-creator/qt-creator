@@ -30,8 +30,6 @@
 #ifndef DEBUGGER_TCFENGINE_H
 #define DEBUGGER_TCFENGINE_H
 
-#include "asyncwatchmodel.h"
-
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
 #include <QtCore/QMap>
@@ -114,10 +112,9 @@ private:
 
     bool supportsThreads() const { return true; }
     void maybeBreakNow(bool byFunction);
+    void updateWatchData(const WatchData &data);
     void updateLocals();
     void updateSubItem(const WatchData &data);
-
-    WatchModel *watchModel(int type) const { return m_models.model(type); }
 
     Q_SLOT void socketConnected();
     Q_SLOT void socketDisconnected();
@@ -131,7 +128,6 @@ private:
 
 private:
     Q_SLOT void startDebugging();
-    Q_SLOT void updateWatchData(const WatchData &data);
 
     typedef void (TcfEngine::*TcfCommandCallback)
         (const JsonValue &record, const QVariant &cookie);
@@ -157,7 +153,7 @@ private:
     QHash<int, TcfCommand> m_cookieForToken;
 
     QQueue<TcfCommand> m_sendQueue;
-
+    
     // timer based congestion control. does not seem to work well.
     void enqueueCommand(const TcfCommand &command);
     Q_SLOT void handleSendTimer();
@@ -170,7 +166,6 @@ private:
 
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;
-    AsyncWatchModelMixin m_models;
     QTcpSocket *m_socket;
     QByteArray m_inbuffer;
     QList<QByteArray> m_services;
