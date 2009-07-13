@@ -12,7 +12,12 @@ API, so if you have created your own custom plugins, they will need to be
 adapted accordingly.
 
 General:
+   * Added the option to automatically reload files when externally modified,
+     or to ignore external modifications (contributed by Henrik Abelsson)
 
+Editing:
+   * Added support for text editor color schemes
+   * Added highlighting of uses of the symbol under the cursor
 
 Project support:
    * Added support for adding and removing files from a generic Makefile-based
