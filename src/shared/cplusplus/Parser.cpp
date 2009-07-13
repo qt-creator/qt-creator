@@ -4092,7 +4092,21 @@ bool Parser::parseObjCMethodDefinitionList()
             break;
         }
 
-        // TODO: @dynamic
+        case T_AT_DYNAMIC: {
+            consumeToken();
+            unsigned identifier_token = 0;
+            match(T_IDENTIFIER, &identifier_token);
+
+            while (LA() == T_COMMA) {
+                consumeToken();
+                match(T_IDENTIFIER, &identifier_token);
+            }
+
+            unsigned semicolon_token = 0;
+            match(T_SEMICOLON, &semicolon_token);
+
+            break;
+        }
 
         default:
             if (LA() == T_EXTERN && LA(2) == T_STRING_LITERAL) {
