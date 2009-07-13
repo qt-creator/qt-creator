@@ -61,6 +61,48 @@ void CheckUndefinedSymbols::setGlobalNamespaceBinding(NamespaceBindingPtr global
 void CheckUndefinedSymbols::operator()(AST *ast)
 { accept(ast); }
 
+QByteArray CheckUndefinedSymbols::templateParameterName(NameAST *ast) const
+{
+    if (ast && ast->name) {
+        if (Identifier *id = ast->name->identifier())
+            return QByteArray::fromRawData(id->chars(), id->size());
+    }
+
+    return QByteArray();
+}
+
+QByteArray CheckUndefinedSymbols::templateParameterName(DeclarationAST *ast) const
+{
+    if (ast) {
+        if (TypenameTypeParameterAST *d = ast->asTypenameTypeParameter())
+            return templateParameterName(d->name);
+        else if (TemplateTypeParameterAST *d = ast->asTemplateTypeParameter())
+            return templateParameterName(d->name);
+    }
+    return QByteArray();
+}
+
+bool CheckUndefinedSymbols::isType(const QByteArray &name) const
+{
+    for (int i = _templateDeclarationStack.size() - 1; i != - 1; --i) {
+        TemplateDeclarationAST *templateDeclaration = _templateDeclarationStack.at(i);
+        for (DeclarationListAST *it = templateDeclaration->template_parameters; it; it = it->next) {
+            DeclarationAST *templateParameter = it->declaration;
+            if (templateParameterName(templateParameter) == name)
+                return true;
+        }
+    }
+    return _types.contains(name);
+}
+
+bool CheckUndefinedSymbols::isType(Identifier *id) const
+{
+    if (! id)
+        return false;
+
+    return isType(QByteArray::fromRawData(id->chars(), id->size()));
+}
+
 void CheckUndefinedSymbols::addType(Name *name)
 {
     if (! name)
@@ -124,44 +166,28 @@ void CheckUndefinedSymbols::buildTypeMap(NamespaceBinding *binding, QSet<Namespa
 
 FunctionDeclaratorAST *CheckUndefinedSymbols::currentFunctionDeclarator() const
 {
-    if (functionDeclarationStack.isEmpty())
+    if (_functionDeclaratorStack.isEmpty())
         return 0;
 
-    return functionDeclarationStack.last();
+    return _functionDeclaratorStack.last();
 }
 
 bool CheckUndefinedSymbols::visit(FunctionDeclaratorAST *ast)
 {
-    functionDeclarationStack.append(ast);
+    _functionDeclaratorStack.append(ast);
 
     return true;
 }
 
 void CheckUndefinedSymbols::endVisit(FunctionDeclaratorAST *)
 {
-    functionDeclarationStack.removeLast();
+    _functionDeclaratorStack.removeLast();
 }
 
 bool CheckUndefinedSymbols::visit(TypeofSpecifierAST *ast)
 {
     accept(ast->next);
     return false;
-}
-
-bool CheckUndefinedSymbols::visit(TypenameTypeParameterAST *ast)
-{
-    if (NameAST *nameAst = ast->name)
-        addType(nameAst->name);
-
-    return true;
-}
-
-bool CheckUndefinedSymbols::visit(TemplateTypeParameterAST *ast)
-{
-    if (ast->name)
-        addType(ast->name->name);
-
-    return true;
 }
 
 bool CheckUndefinedSymbols::visit(NamedTypeSpecifierAST *ast)
@@ -172,7 +198,7 @@ bool CheckUndefinedSymbols::visit(NamedTypeSpecifierAST *ast)
             getTokenStartPosition(ast->firstToken(), &line, &col);
             // qWarning() << _doc->fileName() << line << col;
         } else if (Identifier *id = ast->name->name->identifier()) {
-            if (! _types.contains(QByteArray::fromRawData(id->chars(), id->size()))) {
+            if (! isType(id)) {
                 if (FunctionDeclaratorAST *functionDeclarator = currentFunctionDeclarator()) {
                     if (functionDeclarator->as_cpp_initializer)
                         return true;
@@ -185,6 +211,17 @@ bool CheckUndefinedSymbols::visit(NamedTypeSpecifierAST *ast)
         }
     }
     return true;
+}
+
+bool CheckUndefinedSymbols::visit(TemplateDeclarationAST *ast)
+{
+    _templateDeclarationStack.append(ast);
+    return true;
+}
+
+void CheckUndefinedSymbols::endVisit(TemplateDeclarationAST *)
+{
+    _templateDeclarationStack.removeLast();
 }
 
 bool CheckUndefinedSymbols::visit(ClassSpecifierAST *ast)
@@ -241,6 +278,9 @@ bool CheckUndefinedSymbols::visit(FunctionDefinitionAST *ast)
     return true;
 }
 
+void CheckUndefinedSymbols::endVisit(FunctionDefinitionAST *)
+{ }
+
 bool CheckUndefinedSymbols::visit(SimpleDeclarationAST *ast)
 {
     const bool check = qobjectCheck();
@@ -265,7 +305,7 @@ bool CheckUndefinedSymbols::visit(BaseSpecifierAST *base)
         if (Name *name = nameAST->name) {
             Identifier *id = name->identifier();
             const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
-            if (_types.contains(spell))
+            if (isType(spell))
                 resolvedBaseClassName = true;
         }
 
@@ -310,7 +350,7 @@ bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
             Name *name = q->nameAt(i);
             if (Identifier *id = name->identifier()) {
                 const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
-                if (! (_namespaceNames.contains(spell) || _types.contains(spell))) {
+                if (! (_namespaceNames.contains(spell) || isType(id))) {
                     translationUnit()->warning(ast->firstToken(),
                                                "`%s' is not a namespace or class name",
                                                spell.constData());

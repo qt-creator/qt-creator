@@ -52,24 +52,33 @@ public:
 protected:
     using ASTVisitor::visit;
 
+    bool isType(Identifier *id) const;
+    bool isType(const QByteArray &name) const;
+
     void addType(Name *name);
     void buildTypeMap(Class *klass);
     void buildTypeMap(NamespaceBinding *binding, QSet<NamespaceBinding *> *processed);
     FunctionDeclaratorAST *currentFunctionDeclarator() const;
     bool qobjectCheck() const;
 
+    QByteArray templateParameterName(NameAST *ast) const;
+    QByteArray templateParameterName(DeclarationAST *ast) const;
+
     virtual bool visit(FunctionDeclaratorAST *ast);
     virtual void endVisit(FunctionDeclaratorAST *ast);
 
     virtual bool visit(TypeofSpecifierAST *ast);
-    virtual bool visit(TypenameTypeParameterAST *ast);
-    virtual bool visit(TemplateTypeParameterAST *ast);
     virtual bool visit(NamedTypeSpecifierAST *ast);
+
+    virtual bool visit(TemplateDeclarationAST *ast);
+    virtual void endVisit(TemplateDeclarationAST *);
 
     virtual bool visit(ClassSpecifierAST *ast);
     virtual void endVisit(ClassSpecifierAST *);
 
     virtual bool visit(FunctionDefinitionAST *ast);
+    virtual void endVisit(FunctionDefinitionAST *ast);
+
     virtual bool visit(SimpleDeclarationAST *ast);
     virtual bool visit(BaseSpecifierAST *base);
     virtual bool visit(UsingDirectiveAST *ast);
@@ -81,7 +90,8 @@ private:
     Document::Ptr _doc;
     NamespaceBindingPtr _globalNamespaceBinding;
     QList<bool> _qobjectStack;
-    QList<FunctionDeclaratorAST *> functionDeclarationStack;
+    QList<FunctionDeclaratorAST *> _functionDeclaratorStack;
+    QList<TemplateDeclarationAST *> _templateDeclarationStack;
     QSet<QByteArray> _types;
     QSet<QByteArray> _namespaceNames;
 };
