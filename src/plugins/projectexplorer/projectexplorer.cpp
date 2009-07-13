@@ -151,8 +151,8 @@ ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
 
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(error);
+    Q_UNUSED(arguments)
+    Q_UNUSED(error)
 
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
@@ -1149,7 +1149,7 @@ void ProjectExplorerPlugin::buildStateChanged(Project * pro)
         qDebug() << "buildStateChanged";
         qDebug() << pro->file()->fileName() << "isBuilding()" << m_buildManager->isBuilding(pro);
     }
-    Q_UNUSED(pro);
+    Q_UNUSED(pro)
     updateActions();
 }
 

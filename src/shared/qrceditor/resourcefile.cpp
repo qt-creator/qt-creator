@@ -787,7 +787,7 @@ QModelIndex ResourceModel::addFiles(const QModelIndex &model_idx, const QStringL
 void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile,
         int &firstFile, int &lastFile)
 {
-    Q_UNUSED(cursorFile);
+    Q_UNUSED(cursorFile)
     const QModelIndex prefix_model_idx = index(prefixIndex, 0, QModelIndex());
     const QStringList &file_list = fileNames;
     firstFile = -1;

@@ -54,8 +54,8 @@ public:
     virtual void findAll(const QString &txt, QTextDocument::FindFlags findFlags) = 0;
 
     virtual QWidget *createConfigWidget() { return 0; }
-    virtual void writeSettings(QSettings *settings) { Q_UNUSED(settings); }
-    virtual void readSettings(QSettings *settings) { Q_UNUSED(settings); }
+    virtual void writeSettings(QSettings *settings) { Q_UNUSED(settings) }
+    virtual void readSettings(QSettings *settings) { Q_UNUSED(settings) }
 
 signals:
     void changed();

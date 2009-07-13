@@ -110,7 +110,7 @@ TaskView::~TaskView()
 
 void TaskView::resizeEvent(QResizeEvent *e)
 {
-    Q_UNUSED(e);
+    Q_UNUSED(e)
     static_cast<TaskDelegate *>(itemDelegate())->emitSizeHintChanged(selectionModel()->currentIndex());
 }
 
@@ -179,7 +179,7 @@ QModelIndex TaskModel::index(int row, int column, const QModelIndex &parent) con
 
 QModelIndex TaskModel::parent(const QModelIndex &child) const
 {
-    Q_UNUSED(child);
+    Q_UNUSED(child)
     return QModelIndex();
 }
 

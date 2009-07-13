@@ -112,7 +112,7 @@ void SnippetsWindow::activateSnippet(QTreeWidgetItem *item, int column)
         insertSnippet(editor, spec);
     }
 
-    Q_UNUSED(column);
+    Q_UNUSED(column)
 }
 
 const QList<SnippetSpec *> &SnippetsWindow::snippets() const

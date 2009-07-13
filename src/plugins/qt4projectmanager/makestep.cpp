@@ -229,7 +229,7 @@ bool MakeStepFactory::canCreate(const QString & name) const
 
 ProjectExplorer::BuildStep * MakeStepFactory::create(ProjectExplorer::Project * pro, const QString & name) const
 {
-    Q_UNUSED(name);
+    Q_UNUSED(name)
     return new MakeStep(static_cast<Qt4Project *>(pro));
 }
 
@@ -241,6 +241,6 @@ QStringList MakeStepFactory::canCreateForProject(ProjectExplorer::Project *pro) 
 
 QString MakeStepFactory::displayNameForName(const QString &name) const
 {
-    Q_UNUSED(name);
+    Q_UNUSED(name)
     return QString();
 }

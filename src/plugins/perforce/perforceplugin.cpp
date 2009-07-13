@@ -206,8 +206,8 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
 
 bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
 
     typedef VCSBase::VCSEditorFactory<PerforceEditor> PerforceEditorFactory;
     typedef VCSBase::VCSSubmitEditorFactory<PerforceSubmitEditor> PerforceSubmitEditorFactory;

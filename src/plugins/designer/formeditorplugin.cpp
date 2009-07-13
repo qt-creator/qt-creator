@@ -77,8 +77,8 @@ FormEditorPlugin::~FormEditorPlugin()
 ////////////////////////////////////////////////////
 bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(error);
+    Q_UNUSED(arguments)
+    Q_UNUSED(error)
 
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/formeditor/Designer.mimetypes.xml"), error))

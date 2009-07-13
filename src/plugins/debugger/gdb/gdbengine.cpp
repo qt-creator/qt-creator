@@ -352,7 +352,7 @@ void GdbEngine::readUploadStandardError()
 static void dump(const char *first, const char *middle, const QString & to)
 {
     QByteArray ba(first, middle - first);
-    Q_UNUSED(to);
+    Q_UNUSED(to)
     // note that qDebug cuts off output after a certain size... (bug?)
     qDebug("\n>>>>> %s\n%s\n====\n%s\n<<<<<\n",
         qPrintable(currentTime()),
@@ -1641,7 +1641,7 @@ void GdbEngine::continueInferior()
 void GdbEngine::handleStart(const GdbResultRecord &response, const QVariant &)
 {
 #if defined(Q_OS_MAC)
-    Q_UNUSED(response);
+    Q_UNUSED(response)
 #else
     if (response.resultClass == GdbResultDone) {
         // [some leading stdout here]
@@ -2689,7 +2689,7 @@ static QString tooltipINameForExpression(const QString &exp)
 {
     // FIXME: 'exp' can contain illegal characters
     //return QLatin1String("tooltip.") + exp;
-    Q_UNUSED(exp);
+    Q_UNUSED(exp)
     return QLatin1String("tooltip.x");
 }
 
@@ -2865,7 +2865,7 @@ void GdbEngine::setUseDebuggingHelpers(const QVariant &on)
     //qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
     //m_expandedINames.clear();
-    Q_UNUSED(on);
+    Q_UNUSED(on)
     setTokenBarrier();
     updateLocals();
 }
@@ -2899,7 +2899,7 @@ static inline QString msgRetrievingWatchData(int pending)
 
 void GdbEngine::runDirectDebuggingHelper(const WatchData &data, bool dumpChildren)
 {
-    Q_UNUSED(dumpChildren);
+    Q_UNUSED(dumpChildren)
     QString type = data.type;
     QString cmd;
 

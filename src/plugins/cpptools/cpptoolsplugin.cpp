@@ -198,8 +198,8 @@ CppToolsPlugin::~CppToolsPlugin()
 
 bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(error);
+    Q_UNUSED(arguments)
+    Q_UNUSED(error)
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 

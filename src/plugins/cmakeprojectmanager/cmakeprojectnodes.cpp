@@ -50,37 +50,37 @@ QList<ProjectExplorer::ProjectNode::ProjectAction> CMakeProjectNode::supportedAc
 
 bool CMakeProjectNode::addSubProjects(const QStringList &proFilePaths)
 {
-    Q_UNUSED(proFilePaths);
+    Q_UNUSED(proFilePaths)
     return false;
 }
 
 bool CMakeProjectNode::removeSubProjects(const QStringList &proFilePaths)
 {
-    Q_UNUSED(proFilePaths);
+    Q_UNUSED(proFilePaths)
     return false;
 }
 
 bool CMakeProjectNode::addFiles(const ProjectExplorer::FileType fileType, const QStringList &filePaths, QStringList *notAdded)
 {
-    Q_UNUSED(fileType);
-    Q_UNUSED(filePaths);
-    Q_UNUSED(notAdded);
+    Q_UNUSED(fileType)
+    Q_UNUSED(filePaths)
+    Q_UNUSED(notAdded)
     return false;
 }
 
 // TODO: Maybe remove fileType, can be detected by project
 bool CMakeProjectNode::removeFiles(const ProjectExplorer::FileType fileType, const QStringList &filePaths,  QStringList *notRemoved)
 {
-    Q_UNUSED(fileType);
-    Q_UNUSED(filePaths);
-    Q_UNUSED(notRemoved);
+    Q_UNUSED(fileType)
+    Q_UNUSED(filePaths)
+    Q_UNUSED(notRemoved)
     return false;
 }
 
 bool CMakeProjectNode::renameFile(const ProjectExplorer::FileType fileType, const QString &filePath, const QString &newFilePath)
 {
-    Q_UNUSED(fileType);
-    Q_UNUSED(filePath);
-    Q_UNUSED(newFilePath);
+    Q_UNUSED(fileType)
+    Q_UNUSED(filePath)
+    Q_UNUSED(newFilePath)
     return false;
 }

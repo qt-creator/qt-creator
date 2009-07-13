@@ -50,7 +50,7 @@ QByteArray OpenEditorsModel::Entry::kind() const
 
 int OpenEditorsModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return 2;
 }
 
@@ -239,7 +239,7 @@ void OpenEditorsModel::emitDataChanged(IEditor *editor)
 
 QModelIndex OpenEditorsModel::index(int row, int column, const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     if (column < 0 || column > 1 || row < 0 || row >= m_editors.count())
         return QModelIndex();
     return createIndex(row, column);

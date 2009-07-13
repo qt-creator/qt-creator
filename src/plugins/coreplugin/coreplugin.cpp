@@ -65,7 +65,7 @@ CorePlugin::~CorePlugin()
 
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
+    Q_UNUSED(arguments)
     const bool success = m_mainWindow->init(errorMessage);
     if (success) {
         m_welcomeMode = new WelcomeMode;

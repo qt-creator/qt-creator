@@ -56,7 +56,7 @@ void RegExpPlugin::extensionsInitialized()
 
 bool RegExpPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
+    Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
     Core::ICore *core = Core::ICore::instance();
     m_regexpWindow = new RegExpWindow;

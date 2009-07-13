@@ -90,7 +90,7 @@ ToolTipWidget::ToolTipWidget(QWidget *parent)
 
 bool ToolTipWidget::eventFilter(QObject *ob, QEvent *ev)
 {
-    Q_UNUSED(ob);
+    Q_UNUSED(ob)
     switch (ev->type()) {
     case QEvent::ShortcutOverride:
         if (static_cast<QKeyEvent *>(ev)->key() == Qt::Key_Escape)

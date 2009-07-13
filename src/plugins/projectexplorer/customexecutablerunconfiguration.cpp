@@ -58,8 +58,8 @@ public:
     }
     virtual bool validatePath(const QString &path, QString *errorMessage = 0)
     {
-        Q_UNUSED(path);
-        Q_UNUSED(errorMessage);
+        Q_UNUSED(path)
+        Q_UNUSED(errorMessage)
         return true;
     }
 };

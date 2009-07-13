@@ -65,7 +65,7 @@ ResourceEditorPlugin::~ResourceEditorPlugin()
 
 bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
+    Q_UNUSED(arguments)
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/resourceeditor/ResourceEditor.mimetypes.xml"), errorMessage))
         return false;

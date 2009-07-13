@@ -273,32 +273,32 @@ void TcfEngine::nextIExec()
 
 void TcfEngine::runToLineExec(const QString &fileName, int lineNumber)
 {
-    Q_UNUSED(fileName);
-    Q_UNUSED(lineNumber);
+    Q_UNUSED(fileName)
+    Q_UNUSED(lineNumber)
     SDEBUG("FIXME:  TcfEngine::runToLineExec()");
 }
 
 void TcfEngine::runToFunctionExec(const QString &functionName)
 {
-    Q_UNUSED(functionName);
+    Q_UNUSED(functionName)
     XSDEBUG("FIXME:  TcfEngine::runToFunctionExec()");
 }
 
 void TcfEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 {
-    Q_UNUSED(fileName);
-    Q_UNUSED(lineNumber);
+    Q_UNUSED(fileName)
+    Q_UNUSED(lineNumber)
     XSDEBUG("FIXME:  TcfEngine::jumpToLineExec()");
 }
 
 void TcfEngine::activateFrame(int index)
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
 }
 
 void TcfEngine::selectThread(int index)
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
 }
 
 void TcfEngine::attemptBreakpointSynchronization()
@@ -311,7 +311,7 @@ void TcfEngine::reloadDisassembler()
 
 void TcfEngine::loadSymbols(const QString &moduleName)
 {
-    Q_UNUSED(moduleName);
+    Q_UNUSED(moduleName)
 }
 
 void TcfEngine::loadAllSymbols()
@@ -498,7 +498,7 @@ void TcfEngine::sendCommandNow(const TcfCommand &cmd)
 {
     ++m_inAir;
     int result = m_socket->write(cmd.command);
-    Q_UNUSED(result);
+    Q_UNUSED(result)
     m_socket->flush();
     emit tcfInputAvailable(LogInput, QString::number(cmd.token) + " " + cmd.toString());
     SDEBUG("SEND " <<  cmd.toString()); //<< " " << QString::number(result));
@@ -572,7 +572,7 @@ void TcfEngine::updateWatchData(const WatchData &)
 
 void TcfEngine::updateSubItem(const WatchData &data0)
 {
-    Q_UNUSED(data0);
+    Q_UNUSED(data0)
     QTC_ASSERT(false, return);
 }
 

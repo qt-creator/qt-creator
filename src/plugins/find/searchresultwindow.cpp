@@ -145,7 +145,7 @@ void SearchResultWindow::setTextEditorFont(const QFont &font)
 void SearchResultWindow::handleJumpToSearchResult(int index, const QString &fileName, int lineNumber,
     int searchTermStart, int searchTermLength)
 {
-    Q_UNUSED(searchTermLength);
+    Q_UNUSED(searchTermLength)
     ResultWindowItem *item = m_items.at(index);
     emit item->activated(fileName, lineNumber, searchTermStart);
 }

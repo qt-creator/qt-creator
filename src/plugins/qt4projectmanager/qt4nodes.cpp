@@ -226,13 +226,13 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions() const
 
 bool Qt4PriFileNode::addSubProjects(const QStringList &proFilePaths)
 {
-    Q_UNUSED(proFilePaths);
+    Q_UNUSED(proFilePaths)
     return false; //changeIncludes(m_includeFile, proFilePaths, AddToProFile);
 }
 
 bool Qt4PriFileNode::removeSubProjects(const QStringList &proFilePaths)
 {
-    Q_UNUSED(proFilePaths);
+    Q_UNUSED(proFilePaths)
     return false; //changeIncludes(m_includeFile, proFilePaths, RemoveFromProFile);
 }
 
@@ -279,9 +279,9 @@ bool Qt4PriFileNode::renameFile(const FileType fileType, const QString &filePath
 bool Qt4PriFileNode::changeIncludes(ProFile *includeFile, const QStringList &proFilePaths,
                                     ChangeType change)
 {
-    Q_UNUSED(includeFile);
-    Q_UNUSED(proFilePaths);
-    Q_UNUSED(change);
+    Q_UNUSED(includeFile)
+    Q_UNUSED(proFilePaths)
+    Q_UNUSED(change)
     // TODO
     return false;
 }

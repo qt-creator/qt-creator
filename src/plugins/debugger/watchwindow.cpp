@@ -318,7 +318,7 @@ bool WatchWindow::event(QEvent *ev)
 
 void WatchWindow::editItem(const QModelIndex &idx)
 {
-    Q_UNUSED(idx); // FIXME
+    Q_UNUSED(idx) // FIXME
 }
 
 void WatchWindow::setModel(QAbstractItemModel *model)

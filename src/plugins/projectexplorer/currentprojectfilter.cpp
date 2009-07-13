@@ -87,6 +87,6 @@ void CurrentProjectFilter::currentProjectChanged(ProjectExplorer::Project *proje
 
 void CurrentProjectFilter::refresh(QFutureInterface<void> &future)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
     QMetaObject::invokeMethod(this, "markFilesAsOutOfDate", Qt::BlockingQueuedConnection);
 }

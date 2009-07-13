@@ -104,7 +104,7 @@ void FileSystemFilter::accept(FilterEntry selection) const
 
 bool FileSystemFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
-    Q_UNUSED(needsRefresh);
+    Q_UNUSED(needsRefresh)
     Ui::FileSystemFilterOptions ui;
     QDialog dialog(parent);
     ui.setupUi(&dialog);

@@ -46,7 +46,7 @@ bool GccParserFactory::canCreate(const QString & name) const
 
 ProjectExplorer::BuildParserInterface * GccParserFactory::create(const QString & name) const
 {
-    Q_UNUSED(name);
+    Q_UNUSED(name)
     return new GccParser();
 }
 
@@ -61,6 +61,6 @@ bool MsvcParserFactory::canCreate(const QString & name) const
 
 ProjectExplorer::BuildParserInterface * MsvcParserFactory::create(const QString & name) const
 {
-    Q_UNUSED(name);
+    Q_UNUSED(name)
     return new MsvcParser();
 }

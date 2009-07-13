@@ -170,14 +170,14 @@ void PrettyPretty::accept(AST::Node *node)
 
 bool PrettyPretty::visit(AST::ThisExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "this";
     return true;
 }
 
 void PrettyPretty::endVisit(AST::ThisExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::IdentifierExpression *node)
@@ -188,43 +188,43 @@ bool PrettyPretty::visit(AST::IdentifierExpression *node)
 
 void PrettyPretty::endVisit(AST::IdentifierExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::NullExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "null";
     return false;
 }
 
 void PrettyPretty::endVisit(AST::NullExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::TrueLiteral *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "true";
     return false;
 }
 
 void PrettyPretty::endVisit(AST::TrueLiteral *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::FalseLiteral *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "false";
     return false;
 }
 
 void PrettyPretty::endVisit(AST::FalseLiteral *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::StringLiteral *node)
@@ -237,7 +237,7 @@ bool PrettyPretty::visit(AST::StringLiteral *node)
 
 void PrettyPretty::endVisit(AST::StringLiteral *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::NumericLiteral *node)
@@ -248,7 +248,7 @@ bool PrettyPretty::visit(AST::NumericLiteral *node)
 
 void PrettyPretty::endVisit(AST::NumericLiteral *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::RegExpLiteral *node)
@@ -262,7 +262,7 @@ bool PrettyPretty::visit(AST::RegExpLiteral *node)
 
 void PrettyPretty::endVisit(AST::RegExpLiteral *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ArrayLiteral *node)
@@ -276,7 +276,7 @@ bool PrettyPretty::visit(AST::ArrayLiteral *node)
 
 void PrettyPretty::endVisit(AST::ArrayLiteral *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ObjectLiteral *node)
@@ -300,7 +300,7 @@ bool PrettyPretty::visit(AST::ObjectLiteral *node)
 
 void PrettyPretty::endVisit(AST::ObjectLiteral *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ElementList *node)
@@ -317,7 +317,7 @@ bool PrettyPretty::visit(AST::ElementList *node)
 
 void PrettyPretty::endVisit(AST::ElementList *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::Elision *node)
@@ -330,7 +330,7 @@ bool PrettyPretty::visit(AST::Elision *node)
 
 void PrettyPretty::endVisit(AST::Elision *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::PropertyNameAndValueList *node)
@@ -343,7 +343,7 @@ bool PrettyPretty::visit(AST::PropertyNameAndValueList *node)
 
 void PrettyPretty::endVisit(AST::PropertyNameAndValueList *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::IdentifierPropertyName *node)
@@ -354,7 +354,7 @@ bool PrettyPretty::visit(AST::IdentifierPropertyName *node)
 
 void PrettyPretty::endVisit(AST::IdentifierPropertyName *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::StringLiteralPropertyName *node)
@@ -367,7 +367,7 @@ bool PrettyPretty::visit(AST::StringLiteralPropertyName *node)
 
 void PrettyPretty::endVisit(AST::StringLiteralPropertyName *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::NumericLiteralPropertyName *node)
@@ -378,7 +378,7 @@ bool PrettyPretty::visit(AST::NumericLiteralPropertyName *node)
 
 void PrettyPretty::endVisit(AST::NumericLiteralPropertyName *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ArrayMemberExpression *node)
@@ -392,7 +392,7 @@ bool PrettyPretty::visit(AST::ArrayMemberExpression *node)
 
 void PrettyPretty::endVisit(AST::ArrayMemberExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::FieldMemberExpression *node)
@@ -404,7 +404,7 @@ bool PrettyPretty::visit(AST::FieldMemberExpression *node)
 
 void PrettyPretty::endVisit(AST::FieldMemberExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::NewMemberExpression *node)
@@ -419,19 +419,19 @@ bool PrettyPretty::visit(AST::NewMemberExpression *node)
 
 void PrettyPretty::endVisit(AST::NewMemberExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::NewExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "new ";
     return true;
 }
 
 void PrettyPretty::endVisit(AST::NewExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::CallExpression *node)
@@ -445,7 +445,7 @@ bool PrettyPretty::visit(AST::CallExpression *node)
 
 void PrettyPretty::endVisit(AST::CallExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ArgumentList *node)
@@ -460,91 +460,91 @@ bool PrettyPretty::visit(AST::ArgumentList *node)
 
 void PrettyPretty::endVisit(AST::ArgumentList *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::PostIncrementExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 
 void PrettyPretty::endVisit(AST::PostIncrementExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "++";
 }
 
 bool PrettyPretty::visit(AST::PostDecrementExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 
 void PrettyPretty::endVisit(AST::PostDecrementExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "--";
 }
 
 bool PrettyPretty::visit(AST::DeleteExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "delete ";
     return true;
 }
 
 void PrettyPretty::endVisit(AST::DeleteExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::VoidExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "void ";
     return true;
 }
 
 void PrettyPretty::endVisit(AST::VoidExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::TypeOfExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "typeof ";
     return true;
 }
 
 void PrettyPretty::endVisit(AST::TypeOfExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::PreIncrementExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "++";
     return true;
 }
 
 void PrettyPretty::endVisit(AST::PreIncrementExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::PreDecrementExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "--";
     return true;
 }
 
 void PrettyPretty::endVisit(AST::PreDecrementExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::UnaryPlusExpression *node)
@@ -561,7 +561,7 @@ bool PrettyPretty::visit(AST::UnaryPlusExpression *node)
 
 void PrettyPretty::endVisit(AST::UnaryPlusExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::UnaryMinusExpression *node)
@@ -578,7 +578,7 @@ bool PrettyPretty::visit(AST::UnaryMinusExpression *node)
 
 void PrettyPretty::endVisit(AST::UnaryMinusExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::TildeExpression *node)
@@ -595,7 +595,7 @@ bool PrettyPretty::visit(AST::TildeExpression *node)
 
 void PrettyPretty::endVisit(AST::TildeExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::NotExpression *node)
@@ -612,7 +612,7 @@ bool PrettyPretty::visit(AST::NotExpression *node)
 
 void PrettyPretty::endVisit(AST::NotExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::BinaryExpression *node)
@@ -712,7 +712,7 @@ bool PrettyPretty::visit(AST::BinaryExpression *node)
 
 void PrettyPretty::endVisit(AST::BinaryExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ConditionalExpression *node)
@@ -727,7 +727,7 @@ bool PrettyPretty::visit(AST::ConditionalExpression *node)
 
 void PrettyPretty::endVisit(AST::ConditionalExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::Expression *node)
@@ -740,18 +740,18 @@ bool PrettyPretty::visit(AST::Expression *node)
 
 void PrettyPretty::endVisit(AST::Expression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::Block *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 
 void PrettyPretty::endVisit(AST::Block *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::StatementList *node)
@@ -766,7 +766,7 @@ bool PrettyPretty::visit(AST::StatementList *node)
 
 void PrettyPretty::endVisit(AST::StatementList *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::VariableDeclarationList *node)
@@ -785,19 +785,19 @@ bool PrettyPretty::visit(AST::VariableDeclarationList *node)
 
 void PrettyPretty::endVisit(AST::VariableDeclarationList *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::VariableStatement *node)
 {
     out << "var ";
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 
 void PrettyPretty::endVisit(AST::VariableStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << ";";
 }
 
@@ -813,19 +813,19 @@ bool PrettyPretty::visit(AST::VariableDeclaration *node)
 
 void PrettyPretty::endVisit(AST::VariableDeclaration *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::EmptyStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << ";";
     return true;
 }
 
 void PrettyPretty::endVisit(AST::EmptyStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ExpressionStatement *node)
@@ -837,7 +837,7 @@ bool PrettyPretty::visit(AST::ExpressionStatement *node)
 
 void PrettyPretty::endVisit(AST::ExpressionStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::IfStatement *node)
@@ -855,7 +855,7 @@ bool PrettyPretty::visit(AST::IfStatement *node)
 
 void PrettyPretty::endVisit(AST::IfStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::DoWhileStatement *node)
@@ -870,7 +870,7 @@ bool PrettyPretty::visit(AST::DoWhileStatement *node)
 
 void PrettyPretty::endVisit(AST::DoWhileStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::WhileStatement *node)
@@ -884,7 +884,7 @@ bool PrettyPretty::visit(AST::WhileStatement *node)
 
 void PrettyPretty::endVisit(AST::WhileStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ForStatement *node)
@@ -902,7 +902,7 @@ bool PrettyPretty::visit(AST::ForStatement *node)
 
 void PrettyPretty::endVisit(AST::ForStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::LocalForStatement *node)
@@ -920,7 +920,7 @@ bool PrettyPretty::visit(AST::LocalForStatement *node)
 
 void PrettyPretty::endVisit(AST::LocalForStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ForEachStatement *node)
@@ -936,7 +936,7 @@ bool PrettyPretty::visit(AST::ForEachStatement *node)
 
 void PrettyPretty::endVisit(AST::ForEachStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::LocalForEachStatement *node)
@@ -952,7 +952,7 @@ bool PrettyPretty::visit(AST::LocalForEachStatement *node)
 
 void PrettyPretty::endVisit(AST::LocalForEachStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ContinueStatement *node)
@@ -967,7 +967,7 @@ bool PrettyPretty::visit(AST::ContinueStatement *node)
 
 void PrettyPretty::endVisit(AST::ContinueStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::BreakStatement *node)
@@ -982,7 +982,7 @@ bool PrettyPretty::visit(AST::BreakStatement *node)
 
 void PrettyPretty::endVisit(AST::BreakStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ReturnStatement *node)
@@ -998,7 +998,7 @@ bool PrettyPretty::visit(AST::ReturnStatement *node)
 
 void PrettyPretty::endVisit(AST::ReturnStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::WithStatement *node)
@@ -1012,7 +1012,7 @@ bool PrettyPretty::visit(AST::WithStatement *node)
 
 void PrettyPretty::endVisit(AST::WithStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::SwitchStatement *node)
@@ -1026,7 +1026,7 @@ bool PrettyPretty::visit(AST::SwitchStatement *node)
 
 void PrettyPretty::endVisit(AST::SwitchStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::CaseBlock *node)
@@ -1045,7 +1045,7 @@ bool PrettyPretty::visit(AST::CaseBlock *node)
 
 void PrettyPretty::endVisit(AST::CaseBlock *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::CaseClauses *node)
@@ -1060,7 +1060,7 @@ bool PrettyPretty::visit(AST::CaseClauses *node)
 
 void PrettyPretty::endVisit(AST::CaseClauses *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::CaseClause *node)
@@ -1077,12 +1077,12 @@ bool PrettyPretty::visit(AST::CaseClause *node)
 
 void PrettyPretty::endVisit(AST::CaseClause *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::DefaultClause *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "default:";
     newlineAndIndent();
     return true;
@@ -1090,7 +1090,7 @@ bool PrettyPretty::visit(AST::DefaultClause *node)
 
 void PrettyPretty::endVisit(AST::DefaultClause *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::LabelledStatement *node)
@@ -1101,12 +1101,12 @@ bool PrettyPretty::visit(AST::LabelledStatement *node)
 
 void PrettyPretty::endVisit(AST::LabelledStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::ThrowStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "throw ";
     accept(node->expression);
     out << ";";
@@ -1115,7 +1115,7 @@ bool PrettyPretty::visit(AST::ThrowStatement *node)
 
 void PrettyPretty::endVisit(AST::ThrowStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::TryStatement *node)
@@ -1135,30 +1135,30 @@ bool PrettyPretty::visit(AST::TryStatement *node)
 
 void PrettyPretty::endVisit(AST::TryStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::Catch *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 
 void PrettyPretty::endVisit(AST::Catch *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::Finally *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "finally ";
     return true;
 }
 
 void PrettyPretty::endVisit(AST::Finally *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::FunctionDeclaration *node)
@@ -1197,7 +1197,7 @@ bool PrettyPretty::visit(AST::FunctionDeclaration *node)
 
 void PrettyPretty::endVisit(AST::FunctionDeclaration *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::FunctionExpression *node)
@@ -1236,45 +1236,45 @@ bool PrettyPretty::visit(AST::FunctionExpression *node)
 
 void PrettyPretty::endVisit(AST::FunctionExpression *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::FormalParameterList *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 
 void PrettyPretty::endVisit(AST::FormalParameterList *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::FunctionBody *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 
 void PrettyPretty::endVisit(AST::FunctionBody *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::Program *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 
 void PrettyPretty::endVisit(AST::Program *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::SourceElements *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     accept(node->element);
     for (node = node->next; node != 0; node = node->next) {
         newlineAndIndent();
@@ -1285,47 +1285,47 @@ bool PrettyPretty::visit(AST::SourceElements *node)
 
 void PrettyPretty::endVisit(AST::SourceElements *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::FunctionSourceElement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 
 void PrettyPretty::endVisit(AST::FunctionSourceElement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::StatementSourceElement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 
 void PrettyPretty::endVisit(AST::StatementSourceElement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
 }
 
 bool PrettyPretty::visit(AST::DebuggerStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << "debugger";
     return true;
 }
 
 void PrettyPretty::endVisit(AST::DebuggerStatement *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     out << ";";
 }
 
 bool PrettyPretty::preVisit(AST::Node *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return true;
 }
 

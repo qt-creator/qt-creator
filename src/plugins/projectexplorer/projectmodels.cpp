@@ -296,7 +296,7 @@ int DetailedModel::rowCount(const QModelIndex & parent) const
 
 int DetailedModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return 1;
 }
 
@@ -363,7 +363,7 @@ void DetailedModel::reset()
 void DetailedModel::foldersAboutToBeAdded(FolderNode *parentFolder,
                            const QList<FolderNode*> &newFolders)
 {
-    Q_UNUSED(newFolders);
+    Q_UNUSED(newFolders)
     Q_ASSERT(parentFolder);
 
     if (m_childNodes.contains(parentFolder))
@@ -411,7 +411,7 @@ void DetailedModel::foldersAboutToBeRemoved(FolderNode *parentFolder,
 void DetailedModel::filesAboutToBeAdded(FolderNode *parentFolder,
                            const QList<FileNode*> &newFiles)
 {
-    Q_UNUSED(newFiles);
+    Q_UNUSED(newFiles)
     Q_ASSERT(parentFolder);
 
     if (m_childNodes.contains(parentFolder))

@@ -126,20 +126,20 @@ protected:
 
     void setProgressRange(int min, int max)
     {
-        Q_UNUSED(min);
-        Q_UNUSED(max);
+        Q_UNUSED(min)
+        Q_UNUSED(max)
         updateProgress();
     }
 
     void setProgressValue(int value)
     {
-        Q_UNUSED(value);
+        Q_UNUSED(value)
         updateProgress();
     }
 
     void setProgressText(QString value)
     {
-        Q_UNUSED(value);
+        Q_UNUSED(value)
         updateProgressText();
     }
 private:

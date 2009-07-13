@@ -109,13 +109,13 @@ QString ProFileReader::value(const QString &variable) const
 
 void ProFileReader::fileMessage(const QString &message)
 {
-    Q_UNUSED(message);
+    Q_UNUSED(message)
     // we ignore these...
 }
 
 void ProFileReader::logMessage(const QString &message)
 {
-    Q_UNUSED(message);
+    Q_UNUSED(message)
     // we ignore these...
 }
 

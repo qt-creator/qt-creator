@@ -97,7 +97,7 @@ static Core::Command *createSeparator(Core::ActionManager *am,
 
 bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
+    Q_UNUSED(arguments)
  
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))

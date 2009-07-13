@@ -43,7 +43,7 @@ MyPlugin2::MyPlugin2()
 
 bool MyPlugin2::initialize(const QStringList & /*arguments*/, QString *errorString)
 {
-    Q_UNUSED(errorString);
+    Q_UNUSED(errorString)
     initializeCalled = true;
     QObject *obj = new QObject(this);
     obj->setObjectName("MyPlugin2");

@@ -49,7 +49,7 @@ bool EmbeddedPropertiesPanelFactory::supports(Project *project)
         return true;
     }
 #else
-    Q_UNUSED(project);
+    Q_UNUSED(project)
 #endif
     return false;
 }

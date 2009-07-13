@@ -350,7 +350,7 @@ void DebuggerOutputWindow::showOutput(int channel, const QString &output)
 
 void DebuggerOutputWindow::showInput(int channel, const QString &input)
 {
-    Q_UNUSED(channel);
+    Q_UNUSED(channel)
     m_inputText->appendPlainText(input);
     QTextCursor cursor = m_inputText->textCursor();
     cursor.movePosition(QTextCursor::End);

@@ -44,7 +44,7 @@ ResourceWizard::generateFilesFromPath(const QString &path,
                                       const QString &name,
                                       QString *errorMessage) const
 {
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(errorMessage)
     const QString suffix = preferredSuffix(QLatin1String(Constants::C_RESOURCE_MIMETYPE));
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, suffix);
     Core::GeneratedFile file(fileName);

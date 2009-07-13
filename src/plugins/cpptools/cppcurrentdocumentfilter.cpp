@@ -108,7 +108,7 @@ void CppCurrentDocumentFilter::accept(QuickOpen::FilterEntry selection) const
 
 void CppCurrentDocumentFilter::refresh(QFutureInterface<void> &future)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
 }
 
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)

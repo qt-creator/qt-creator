@@ -91,7 +91,7 @@ void QuickOpenFiltersFilter::accept(FilterEntry selection) const
 
 void QuickOpenFiltersFilter::refresh(QFutureInterface<void> &future)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
     // Nothing to refresh
 }
 

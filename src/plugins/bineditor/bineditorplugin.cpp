@@ -415,8 +415,8 @@ void BinEditorPlugin::initializeEditor(BinEditor *editor)
 
 bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
 
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/bineditor/BinEditor.mimetypes.xml"), errorMessage))

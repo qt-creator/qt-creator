@@ -142,7 +142,7 @@ void FancyTabBar::updateHover()
 // Resets hover animation on mouse enter
 void FancyTabBar::enterEvent(QEvent *e)
 {
-    Q_UNUSED(e);
+    Q_UNUSED(e)
     m_hoverRect = QRect();
     m_hoverIndex = -1;
 }
@@ -150,7 +150,7 @@ void FancyTabBar::enterEvent(QEvent *e)
 // Resets hover animation on mouse enter
 void FancyTabBar::leaveEvent(QEvent *e)
 {
-    Q_UNUSED(e);
+    Q_UNUSED(e)
     if (m_hoverIndex >= 0) {
         m_hoverIndex = -1;
         update(m_hoverRect);

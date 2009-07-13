@@ -136,7 +136,7 @@ void ShortcutSettings::finish()
 
 bool ShortcutSettings::eventFilter(QObject *o, QEvent *e)
 {
-    Q_UNUSED(o);
+    Q_UNUSED(o)
 
     if ( e->type() == QEvent::KeyPress ) {
         QKeyEvent *k = static_cast<QKeyEvent*>(e);

@@ -49,7 +49,7 @@ QString MsvcParser::name() const
 
 void MsvcParser::stdError(const QString & line)
 {
-    Q_UNUSED(line);
+    Q_UNUSED(line)
     //do nothing
 }
 

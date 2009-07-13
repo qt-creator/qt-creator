@@ -109,7 +109,7 @@ bool ProcessStepFactory::canCreate(const QString &name) const
 
 BuildStep *ProcessStepFactory::create(Project *pro, const QString &name) const
 {
-    Q_UNUSED(name);
+    Q_UNUSED(name)
     return new ProcessStep(pro);
 }
 
@@ -120,7 +120,7 @@ QStringList ProcessStepFactory::canCreateForProject(Project *pro) const
 }
 QString ProcessStepFactory::displayNameForName(const QString &name) const
 {
-    Q_UNUSED(name);
+    Q_UNUSED(name)
     return "Custom Process Step";
 }
 

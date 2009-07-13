@@ -125,8 +125,8 @@ QTestLibPlugin::~QTestLibPlugin()
 
 bool QTestLibPlugin::init(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     connect(m_projectExplorer, SIGNAL(aboutToExecuteProject(ProjectExplorer::Project *)),
             this, SLOT(projectRunHook(ProjectExplorer::Project *)));

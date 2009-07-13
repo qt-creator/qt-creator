@@ -82,7 +82,7 @@ void OpenDocumentsFilter::refreshInternally()
 
 void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
     QMetaObject::invokeMethod(this, "refreshInternally", Qt::BlockingQueuedConnection);
 }
 

@@ -68,7 +68,7 @@ void CppQuickOpenFilter::onAboutToRemoveFiles(const QStringList &files)
 
 void CppQuickOpenFilter::refresh(QFutureInterface<void> &future)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
 }
 
 static bool compareLexigraphically(const QuickOpen::FilterEntry &a,

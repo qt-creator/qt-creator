@@ -354,7 +354,7 @@ void CentralWidget::printPreview(QPrinter *p)
     if (viewer)
         viewer->print(p);
 #else
-    Q_UNUSED(p);
+    Q_UNUSED(p)
 #endif
 }
 
@@ -513,7 +513,7 @@ void CentralWidget::setTabTitle(const QUrl& url)
         }
     }
 #else
-    Q_UNUSED(url);
+    Q_UNUSED(url)
 #endif
 
     if (viewer) {
@@ -643,7 +643,7 @@ bool CentralWidget::find(const QString &txt, QTextDocument::FindFlags findFlags,
     HelpViewer* viewer = currentHelpViewer();
 
 #if !defined(QT_NO_WEBKIT)
-    Q_UNUSED(incremental);
+    Q_UNUSED(incremental)
     if (viewer) {
         QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;
         if (findFlags & QTextDocument::FindBackward)

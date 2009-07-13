@@ -69,7 +69,7 @@ QWizard *LibraryWizard::createWizardDialog(QWidget *parent,
 Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
                                                  QString *errorMessage) const
 {
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(errorMessage)
     const LibraryWizardDialog *dialog = qobject_cast<const LibraryWizardDialog *>(w);
     const QtProjectParameters projectParams = dialog->parameters();
     const QString projectPath = projectParams.projectPath();

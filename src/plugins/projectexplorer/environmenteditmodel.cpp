@@ -91,7 +91,7 @@ int EnvironmentModel::rowCount(const QModelIndex &parent) const
 }
 int EnvironmentModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return 2;
 }
 
@@ -150,7 +150,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags EnvironmentModel::flags(const QModelIndex &index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
 }
 
@@ -178,7 +178,7 @@ QModelIndex EnvironmentModel::index(int row, int column, const QModelIndex &pare
 
 QModelIndex EnvironmentModel::parent(const QModelIndex &index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return QModelIndex();
 }
 

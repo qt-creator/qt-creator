@@ -274,7 +274,7 @@ static inline Core::Command *createSeparator(QObject *parent,
 
 bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
+    Q_UNUSED(arguments)
 
     typedef VCSBase::VCSSubmitEditorFactory<SubversionSubmitEditor> SubversionSubmitEditorFactory;
     typedef VCSBase::VCSEditorFactory<SubversionEditor> SubversionEditorFactory;

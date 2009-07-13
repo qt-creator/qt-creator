@@ -69,7 +69,7 @@ void SnippetsPlugin::extensionsInitialized()
 
 bool SnippetsPlugin::initialize(const QStringList &arguments, QString *)
 {
-    Q_UNUSED(arguments);
+    Q_UNUSED(arguments)
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 

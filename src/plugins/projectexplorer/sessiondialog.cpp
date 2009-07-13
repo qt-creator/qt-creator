@@ -56,7 +56,7 @@ SessionValidator::SessionValidator(QObject *parent, QStringList sessions)
 
 QValidator::State SessionValidator::validate(QString &input, int &pos) const
 {
-    Q_UNUSED(pos);
+    Q_UNUSED(pos)
     if (m_sessions.contains(input))
         return QValidator::Intermediate;
     else

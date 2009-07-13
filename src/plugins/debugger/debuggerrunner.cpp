@@ -97,7 +97,7 @@ RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
 QWidget *DebuggerRunner::configurationWidget(RunConfigurationPtr runConfiguration)
 {
     // NBS TODO: Add GDB-specific configuration widget
-    Q_UNUSED(runConfiguration);
+    Q_UNUSED(runConfiguration)
     return 0;
 }
 

@@ -162,13 +162,13 @@ QList<ProjectExplorer::ProjectNode::ProjectAction> QmlProjectNode::supportedActi
 
 bool QmlProjectNode::addSubProjects(const QStringList &proFilePaths)
 {
-    Q_UNUSED(proFilePaths);
+    Q_UNUSED(proFilePaths)
     return false;
 }
 
 bool QmlProjectNode::removeSubProjects(const QStringList &proFilePaths)
 {
-    Q_UNUSED(proFilePaths);
+    Q_UNUSED(proFilePaths)
     return false;
 }
 
@@ -212,17 +212,17 @@ bool QmlProjectNode::addFiles(const ProjectExplorer::FileType,
 bool QmlProjectNode::removeFiles(const ProjectExplorer::FileType fileType,
                                  const QStringList &filePaths, QStringList *notRemoved)
 {
-    Q_UNUSED(fileType);
-    Q_UNUSED(filePaths);
-    Q_UNUSED(notRemoved);
+    Q_UNUSED(fileType)
+    Q_UNUSED(filePaths)
+    Q_UNUSED(notRemoved)
     return false;
 }
 
 bool QmlProjectNode::renameFile(const ProjectExplorer::FileType fileType,
                                     const QString &filePath, const QString &newFilePath)
 {
-    Q_UNUSED(fileType);
-    Q_UNUSED(filePath);
-    Q_UNUSED(newFilePath);
+    Q_UNUSED(fileType)
+    Q_UNUSED(filePath)
+    Q_UNUSED(newFilePath)
     return false;
 }

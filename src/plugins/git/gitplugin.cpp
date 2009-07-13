@@ -226,8 +226,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     typedef VCSBase::VCSEditorFactory<GitEditor> GitEditorFactory;
     typedef VCSBase::VCSSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
 
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
 
     m_core = Core::ICore::instance();
     m_gitClient = new GitClient(this);

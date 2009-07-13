@@ -105,7 +105,7 @@ int SearchResultTreeModel::rowCount(const QModelIndex &parent) const
 
 int SearchResultTreeModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return 1;
 }
 
@@ -211,9 +211,9 @@ QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) con
 QVariant SearchResultTreeModel::headerData(int section, Qt::Orientation orientation,
                                int role) const
 {
-    Q_UNUSED(section);
-    Q_UNUSED(orientation);
-    Q_UNUSED(role);
+    Q_UNUSED(section)
+    Q_UNUSED(orientation)
+    Q_UNUSED(role)
     return QVariant();
 }
 

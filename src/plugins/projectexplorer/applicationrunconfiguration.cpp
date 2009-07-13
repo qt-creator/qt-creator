@@ -101,7 +101,7 @@ RunControl *ApplicationRunConfigurationRunner::run(QSharedPointer<RunConfigurati
 
 QWidget *ApplicationRunConfigurationRunner::configurationWidget(QSharedPointer<RunConfiguration> runConfiguration)
 {
-    Q_UNUSED(runConfiguration);
+    Q_UNUSED(runConfiguration)
     return new QLabel("TODO add Configuration widget");
 }
 

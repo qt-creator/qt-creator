@@ -431,7 +431,7 @@ void MainWindow::resetLocation()
 void MainWindow::gotoLocation(const QString &fileName, int line, bool setMarker)
 {
     //qDebug() << "GOTO " << fileName << line << setMarker;
-    Q_UNUSED(setMarker);
+    Q_UNUSED(setMarker)
     TextViewer *textViewer = findOrCreateTextViewer(fileName);
     m_textViewers->setCurrentWidget(textViewer);
     

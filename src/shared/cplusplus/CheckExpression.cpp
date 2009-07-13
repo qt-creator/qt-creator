@@ -213,7 +213,7 @@ bool CheckExpression::visit(NewExpressionAST *ast)
     if (ast->new_placement) {
         for (ExpressionListAST *it = ast->new_placement->expression_list; it; it = it->next) {
             FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
-            Q_UNUSED(exprTy);
+            Q_UNUSED(exprTy)
         }
     }
 
@@ -221,18 +221,18 @@ bool CheckExpression::visit(NewExpressionAST *ast)
 
     if (ast->new_type_id) {
         FullySpecifiedType ty = semantic()->check(ast->new_type_id->type_specifier, _scope);
-        Q_UNUSED(ty);
+        Q_UNUSED(ty)
 
         for (NewArrayDeclaratorAST *it = ast->new_type_id->new_array_declarators; it; it = it->next) {
             FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
-            Q_UNUSED(exprTy);
+            Q_UNUSED(exprTy)
         }
     }
 
     // ### process new-initializer
     if (ast->new_initializer) {
         FullySpecifiedType exprTy = semantic()->check(ast->new_initializer->expression, _scope);
-        Q_UNUSED(exprTy);
+        Q_UNUSED(exprTy)
     }
 
     return false;

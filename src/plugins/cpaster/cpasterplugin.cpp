@@ -74,8 +74,8 @@ CodepasterPlugin::~CodepasterPlugin()
 
 bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_message)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(error_message);
+    Q_UNUSED(arguments)
+    Q_UNUSED(error_message)
 
     // Create the globalcontext list to register actions accordingly
     QList<int> globalcontext;

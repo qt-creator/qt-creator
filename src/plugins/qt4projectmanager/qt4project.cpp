@@ -718,7 +718,7 @@ void Qt4Project::addDefaultBuild()
 
 void Qt4Project::newBuildConfiguration(const QString &buildConfiguration)
 {
-    Q_UNUSED(buildConfiguration);
+    Q_UNUSED(buildConfiguration)
 }
 
 void Qt4Project::proFileParseError(const QString &errorMessage)

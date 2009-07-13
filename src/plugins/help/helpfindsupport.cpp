@@ -123,7 +123,7 @@ bool HelpViewerFindSupport::find(const QString &txt, Find::IFindSupport::FindFla
 {
     QTC_ASSERT(m_viewer, return false);
 #if !defined(QT_NO_WEBKIT)
-    Q_UNUSED(incremental);
+    Q_UNUSED(incremental)
     QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;
     if (findFlags & Find::IFindSupport::FindBackward)
         options |= QWebPage::FindBackward;

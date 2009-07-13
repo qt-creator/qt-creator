@@ -572,7 +572,7 @@ int WatchModel::rowCount(const QModelIndex &idx) const
 
 int WatchModel::columnCount(const QModelIndex &idx) const
 {
-    Q_UNUSED(idx);
+    Q_UNUSED(idx)
     return 3;
 }
 
@@ -997,8 +997,8 @@ void WatchHandler::watchExpression(const QString &exp)
 
 void WatchHandler::setDisplayedIName(const QString &iname, bool on)
 {
-    Q_UNUSED(iname);
-    Q_UNUSED(on);
+    Q_UNUSED(iname)
+    Q_UNUSED(on)
 /*
     WatchData *d = findData(iname);
     if (!on || !d) {

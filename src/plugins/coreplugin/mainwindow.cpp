@@ -92,7 +92,7 @@
 #include <signal.h>
 extern "C" void handleSigInt(int sig)
 {
-    Q_UNUSED(sig);
+    Q_UNUSED(sig)
     Core::ICore::instance()->exit();
     qDebug() << "SIGINT caught. Shutting down.";
 }
@@ -284,7 +284,7 @@ MainWindow::~MainWindow()
 
 bool MainWindow::init(QString *errorMessage)
 {
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(errorMessage)
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     pm->addObject(m_coreImpl);

@@ -548,7 +548,7 @@ void BaseTextEditor::selectEncoding()
 
 void DocumentMarker::updateMark(ITextMark *mark)
 {
-    Q_UNUSED(mark);
+    Q_UNUSED(mark)
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
     QTC_ASSERT(documentLayout, return);
     documentLayout->requestUpdate();
@@ -2484,8 +2484,8 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QPalette &pal,
                                        bool active,
                                        bool hovered) const
 {
-    Q_UNUSED(active);
-    Q_UNUSED(hovered);
+    Q_UNUSED(active)
+    Q_UNUSED(hovered)
     QStyle *s = style();
     if (ManhattanStyle *ms = qobject_cast<ManhattanStyle*>(s))
         s = ms->systemStyle();

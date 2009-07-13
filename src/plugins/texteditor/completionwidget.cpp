@@ -182,7 +182,7 @@ bool CompletionWidget::event(QEvent *e)
 
 void CompletionWidget::keyboardSearch(const QString &search)
 {
-    Q_UNUSED(search);
+    Q_UNUSED(search)
 }
 
 void CompletionWidget::closeList(const QModelIndex &index)

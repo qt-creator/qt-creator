@@ -80,7 +80,7 @@ bool IQuickOpenFilter::restoreState(const QByteArray &state)
 
 bool IQuickOpenFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
-    Q_UNUSED(needsRefresh);
+    Q_UNUSED(needsRefresh)
 
     QDialog dialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
     dialog.setWindowTitle(tr("Filter Configuration"));

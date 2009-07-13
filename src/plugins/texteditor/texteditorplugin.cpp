@@ -85,7 +85,7 @@ TextEditorPlugin *TextEditorPlugin::instance()
 // ExtensionSystem::PluginInterface
 bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
+    Q_UNUSED(arguments)
 
     if (!Core::ICore::instance()->mimeDatabase()->addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
         return false;

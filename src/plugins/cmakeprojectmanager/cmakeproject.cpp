@@ -306,7 +306,7 @@ bool CMakeProject::parseCMakeLists()
 
 QString CMakeProject::buildParser(const QString &buildConfiguration) const
 {
-    Q_UNUSED(buildConfiguration);
+    Q_UNUSED(buildConfiguration)
     // TODO this is actually slightly wrong, but do i care?
     // this should call toolchain(buildConfiguration)
     if (!m_toolChain)
@@ -547,7 +547,7 @@ ProjectExplorer::ProjectNode *CMakeProject::rootProjectNode() const
 
 QStringList CMakeProject::files(FilesMode fileMode) const
 {
-    Q_UNUSED(fileMode);
+    Q_UNUSED(fileMode)
     return m_files;
 }
 
@@ -664,7 +664,7 @@ bool CMakeFile::save(const QString &fileName)
 {
     // Once we have an texteditor open for this file, we probably do
     // need to implement this, don't we.
-    Q_UNUSED(fileName);
+    Q_UNUSED(fileName)
     return false;
 }
 
@@ -706,7 +706,7 @@ bool CMakeFile::isSaveAsAllowed() const
 
 void CMakeFile::modified(ReloadBehavior *behavior)
 {
-    Q_UNUSED(behavior);
+    Q_UNUSED(behavior)
 }
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeProject *project)

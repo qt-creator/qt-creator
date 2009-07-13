@@ -141,7 +141,7 @@ void CurrentDocumentFind::clearFindScope()
 
 void CurrentDocumentFind::updateCurrentFindFilter(QWidget *old, QWidget *now)
 {
-    Q_UNUSED(old);
+    Q_UNUSED(old)
     QWidget *candidate = now;
     QPointer<IFindSupport> impl = 0;
     while (!impl && candidate) {

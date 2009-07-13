@@ -91,13 +91,13 @@ DisassemblerModel::DisassemblerModel(QObject *parent)
 
 int DisassemblerModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return m_lines.size();
 }
 
 int DisassemblerModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return 3;
 }
 

@@ -686,7 +686,7 @@ void ProFileEvaluator::Private::visitBeginProVariable(ProVariable *variable)
 
 void ProFileEvaluator::Private::visitEndProVariable(ProVariable *variable)
 {
-    Q_UNUSED(variable);
+    Q_UNUSED(variable)
     m_valuemap = m_tempValuemap;
     m_filevaluemap = m_tempFilevaluemap;
     m_lastVarName.clear();

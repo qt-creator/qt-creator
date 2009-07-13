@@ -106,6 +106,6 @@ void HelpIndexFilter::accept(FilterEntry selection) const
 
 void HelpIndexFilter::refresh(QFutureInterface<void> &future)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
     // Nothing to refresh
 }

@@ -422,7 +422,7 @@ PatchedLibraryPrivate::~PatchedLibraryPrivate()
     if (map) {
         PatchedLibraryPrivate *that = map->take(fileName);
         Q_ASSERT(this == that);
-	Q_UNUSED(that);
+	Q_UNUSED(that)
     }
 }
 
@@ -720,7 +720,7 @@ bool PatchedLibraryPrivate::isPlugin(QSettings *settings)
 
     return pluginState == IsAPlugin;
 #else
-    Q_UNUSED(settings);
+    Q_UNUSED(settings)
     return pluginState == MightBeAPlugin;
 #endif
 }
@@ -813,7 +813,7 @@ void PatchedPluginLoader::setFileName(const QString &fileName)
         qWarning("Cannot load %s into a statically linked Qt library.",
             (const char*)QFile::encodeName(fileName));
     }
-    Q_UNUSED(fileName);
+    Q_UNUSED(fileName)
 #endif
 }
 

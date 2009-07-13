@@ -124,57 +124,57 @@ void ScriptAgent::contextPush()
 
 void ScriptAgent::exceptionCatch(qint64 scriptId, const QScriptValue & exception)
 {
-    Q_UNUSED(scriptId);
-    Q_UNUSED(exception);
+    Q_UNUSED(scriptId)
+    Q_UNUSED(exception)
     SDEBUG("ScriptAgent::exceptionCatch: " << scriptId << &exception);
 }
 
 void ScriptAgent::exceptionThrow(qint64 scriptId, const QScriptValue &exception,
     bool hasHandler)
 {
-    Q_UNUSED(scriptId);
-    Q_UNUSED(exception);
-    Q_UNUSED(hasHandler);
+    Q_UNUSED(scriptId)
+    Q_UNUSED(exception)
+    Q_UNUSED(hasHandler)
     SDEBUG("ScriptAgent::exceptionThrow: " << scriptId << &exception
         << hasHandler);
 }
 
 void ScriptAgent::functionEntry(qint64 scriptId)
 {
-    Q_UNUSED(scriptId);
+    Q_UNUSED(scriptId)
     q->maybeBreakNow(true);
 }
 
 void ScriptAgent::functionExit(qint64 scriptId, const QScriptValue &returnValue)
 {
-    Q_UNUSED(scriptId);
-    Q_UNUSED(returnValue);
+    Q_UNUSED(scriptId)
+    Q_UNUSED(returnValue)
     SDEBUG("ScriptAgent::functionExit: " << scriptId << &returnValue);
 }
 
 void ScriptAgent::positionChange(qint64 scriptId, int lineNumber, int columnNumber)
 {
     SDEBUG("ScriptAgent::position: " << lineNumber);
-    Q_UNUSED(scriptId);
-    Q_UNUSED(lineNumber);
-    Q_UNUSED(columnNumber);
+    Q_UNUSED(scriptId)
+    Q_UNUSED(lineNumber)
+    Q_UNUSED(columnNumber)
     q->maybeBreakNow(false);
 }
 
 void ScriptAgent::scriptLoad(qint64 scriptId, const QString &program,
     const QString &fileName, int baseLineNumber)
 {
-    Q_UNUSED(scriptId);
-    Q_UNUSED(program);
-    Q_UNUSED(fileName);
-    Q_UNUSED(baseLineNumber);
+    Q_UNUSED(scriptId)
+    Q_UNUSED(program)
+    Q_UNUSED(fileName)
+    Q_UNUSED(baseLineNumber)
     SDEBUG("ScriptAgent::scriptLoad: " << program << fileName
       << baseLineNumber);
 }
 
 void ScriptAgent::scriptUnload(qint64 scriptId)
 {
-    Q_UNUSED(scriptId);
+    Q_UNUSED(scriptId)
     SDEBUG("ScriptAgent::scriptUnload: " << scriptId);
 }
 
@@ -201,7 +201,7 @@ ScriptEngine::~ScriptEngine()
 
 void ScriptEngine::executeDebuggerCommand(const QString &command)
 {
-    Q_UNUSED(command);
+    Q_UNUSED(command)
     XSDEBUG("FIXME:  ScriptEngine::executeDebuggerCommand()");
 }
 
@@ -344,32 +344,32 @@ void ScriptEngine::nextIExec()
 
 void ScriptEngine::runToLineExec(const QString &fileName, int lineNumber)
 {
-    Q_UNUSED(fileName);
-    Q_UNUSED(lineNumber);
+    Q_UNUSED(fileName)
+    Q_UNUSED(lineNumber)
     SDEBUG("FIXME:  ScriptEngine::runToLineExec()");
 }
 
 void ScriptEngine::runToFunctionExec(const QString &functionName)
 {
-    Q_UNUSED(functionName);
+    Q_UNUSED(functionName)
     XSDEBUG("FIXME:  ScriptEngine::runToFunctionExec()");
 }
 
 void ScriptEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 {
-    Q_UNUSED(fileName);
-    Q_UNUSED(lineNumber);
+    Q_UNUSED(fileName)
+    Q_UNUSED(lineNumber)
     XSDEBUG("FIXME:  ScriptEngine::jumpToLineExec()");
 }
 
 void ScriptEngine::activateFrame(int index)
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
 }
 
 void ScriptEngine::selectThread(int index)
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
 }
 
 void ScriptEngine::attemptBreakpointSynchronization()
@@ -402,7 +402,7 @@ void ScriptEngine::reloadDisassembler()
 
 void ScriptEngine::loadSymbols(const QString &moduleName)
 {
-    Q_UNUSED(moduleName);
+    Q_UNUSED(moduleName)
 }
 
 void ScriptEngine::loadAllSymbols()
@@ -431,9 +431,9 @@ static QHash<QString, WatchData> m_toolTipCache;
 
 void ScriptEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
 {
-    Q_UNUSED(mousePos);
-    Q_UNUSED(editor);
-    Q_UNUSED(cursorPos);
+    Q_UNUSED(mousePos)
+    Q_UNUSED(editor)
+    Q_UNUSED(cursorPos)
 
     if (q->status() != DebuggerInferiorStopped) {
         //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");

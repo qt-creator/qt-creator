@@ -227,7 +227,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
         if (it->declarator && it->declarator->initializer) {
             FullySpecifiedType initTy = semantic()->check(it->declarator->initializer, _scope);
-            Q_UNUSED(initTy);
+            Q_UNUSED(initTy)
         }
 
         *decl_it = new (translationUnit()->memoryPool()) List<Declaration *>();
