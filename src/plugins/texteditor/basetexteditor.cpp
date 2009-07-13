@@ -46,7 +46,6 @@
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 
-#include <utils/reloadpromptutils.h>
 #include <aggregation/aggregate.h>
 #endif
 #include <utils/linecolumnlabel.h>

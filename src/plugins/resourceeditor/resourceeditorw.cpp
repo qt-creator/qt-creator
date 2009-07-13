@@ -34,6 +34,7 @@
 #include <qrceditor.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/reloadpromptutils.h>
 
 #include <QtCore/QTemporaryFile>
@@ -189,8 +190,14 @@ void ResourceEditorFile::modified(Core::IFile::ReloadBehavior *behavior)
     const QString fileName = m_parent->m_resourceEditor->fileName();
 
     switch (*behavior) {
-    case  Core::IFile::ReloadNone:
+    case Core::IFile::ReloadNone:
         return;
+    case Core::IFile::ReloadUnmodified:
+        if (!isModified()) {
+            m_parent->open(fileName);
+            return;
+        }
+        break;
     case Core::IFile::ReloadAll:
         m_parent->open(fileName);
         return;
@@ -201,7 +208,7 @@ void ResourceEditorFile::modified(Core::IFile::ReloadBehavior *behavior)
         break;
     }
 
-    switch (Core::Utils::reloadPrompt(fileName, Core::ICore::instance()->mainWindow())) {
+    switch (Core::Utils::reloadPrompt(fileName, isModified(), Core::ICore::instance()->mainWindow())) {
     case Core::Utils::ReloadCurrent:
         m_parent->open(fileName);
         break;

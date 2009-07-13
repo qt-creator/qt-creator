@@ -186,6 +186,8 @@ struct EditorManagerPrivate {
 
     OpenEditorsModel *m_editorModel;
     QString m_externalEditor;
+
+    IFile::ReloadBehavior m_reloadBehavior;
 };
 }
 
@@ -206,7 +208,8 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_openInExternalEditorAction(new QAction(EditorManager::tr("Open in External Editor"), parent)),
     currentNavigationHistoryPosition(0),
     m_windowPopup(0),
-    m_coreListener(0)
+    m_coreListener(0),
+    m_reloadBehavior(IFile::AskForReload)
 {
     m_editorModel = new OpenEditorsModel(parent);
 }
@@ -1717,12 +1720,14 @@ bool EditorManager::restoreState(const QByteArray &state)
 
 static const char * const documentStatesKey = "EditorManager/DocumentStates";
 static const char * const externalEditorKey = "EditorManager/ExternalEditorCommand";
+static const char * const reloadBehaviorKey = "EditorManager/ReloadBehavior";
 
 void EditorManager::saveSettings()
 {
     SettingsDatabase *settings = m_d->m_core->settingsDatabase();
     settings->setValue(QLatin1String(documentStatesKey), m_d->m_editorStates);
     settings->setValue(QLatin1String(externalEditorKey), m_d->m_externalEditor);
+    settings->setValue(QLatin1String(reloadBehaviorKey), m_d->m_reloadBehavior);
 }
 
 void EditorManager::readSettings()
@@ -1745,6 +1750,9 @@ void EditorManager::readSettings()
             .value<QMap<QString, QVariant> >();
     if (settings->contains(QLatin1String(externalEditorKey)))
         m_d->m_externalEditor = settings->value(QLatin1String(externalEditorKey)).toString();
+
+    if (settings->contains(QLatin1String(reloadBehaviorKey)))
+        m_d->m_reloadBehavior = (IFile::ReloadBehavior)settings->value(QLatin1String(reloadBehaviorKey)).toInt();
 }
 
 
@@ -1913,6 +1921,15 @@ QString EditorManager::externalEditor() const
     return m_d->m_externalEditor;
 }
 
+void EditorManager::setReloadBehavior(IFile::ReloadBehavior behavior)
+{
+    m_d->m_reloadBehavior = behavior;
+}
+
+IFile::ReloadBehavior EditorManager::reloadBehavior() const
+{
+    return m_d->m_reloadBehavior;
+}
 
 Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
 {

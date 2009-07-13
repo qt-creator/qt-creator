@@ -196,6 +196,12 @@ public:
         switch (*behavior) {
         case  Core::IFile::ReloadNone:
             return;
+        case Core::IFile::ReloadUnmodified:
+            if (!isModified()) {
+                open(fileName);
+                return;
+            }
+            break;
         case Core::IFile::ReloadAll:
             open(fileName);
             return;
@@ -206,7 +212,7 @@ public:
             break;
         }
 
-        switch (Core::Utils::reloadPrompt(fileName, Core::ICore::instance()->mainWindow())) {
+        switch (Core::Utils::reloadPrompt(fileName, isModified(), Core::ICore::instance()->mainWindow())) {
         case Core::Utils::ReloadCurrent:
             open(fileName);
             break;

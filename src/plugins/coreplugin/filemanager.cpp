@@ -484,8 +484,7 @@ void FileManager::checkForReload()
         m_blockActivated = true;
         const QList<QPointer<IFile> > changed = m_changedFiles;
         m_changedFiles.clear();
-        IFile::ReloadBehavior behavior =
-            IFile::AskForReload;
+        IFile::ReloadBehavior behavior = EditorManager::instance()->reloadBehavior();
         foreach (IFile *f, changed) {
             if (!f)
                 continue;

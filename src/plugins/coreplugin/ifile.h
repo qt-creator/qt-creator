@@ -42,7 +42,15 @@ class CORE_EXPORT IFile : public QObject
     Q_OBJECT
 
 public:
-    enum ReloadBehavior { AskForReload, ReloadAll, ReloadPermissions, ReloadNone };
+    // This enum must match the indexes of the reloadBehavior widget
+    // in generalsettings.ui
+    enum ReloadBehavior {
+        AskForReload = 0,
+        ReloadUnmodified = 1,
+        ReloadNone = 2,
+        ReloadAll,
+        ReloadPermissions
+    };
 
     IFile(QObject *parent = 0) : QObject(parent) {}
     virtual ~IFile() {}

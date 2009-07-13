@@ -74,6 +74,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
 
     m_page->colorButton->setColor(StyleHelper::baseColor());
     m_page->externalEditorEdit->setText(EditorManager::instance()->externalEditor());
+    m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadBehavior());
 #ifdef Q_OS_UNIX
     m_page->terminalEdit->setText(ConsoleProcess::terminalEmulator(Core::ICore::instance()->settings()));
 #else
@@ -101,6 +102,7 @@ void GeneralSettings::apply()
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
     EditorManager::instance()->setExternalEditor(m_page->externalEditorEdit->text());
+    EditorManager::instance()->setReloadBehavior(IFile::ReloadBehavior(m_page->reloadBehavior->currentIndex()));
 #ifdef Q_OS_UNIX
 	ConsoleProcess::setTerminalEmulator(Core::ICore::instance()->settings(),
                                         m_page->terminalEdit->text());

@@ -31,6 +31,7 @@
 #include "basetexteditor.h"
 #include "storagesettings.h"
 
+
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
@@ -42,6 +43,7 @@
 #ifndef TEXTEDITOR_STANDALONE
 #include <utils/reloadpromptutils.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #endif
 #include <utils/qtcassert.h>
 
@@ -256,6 +258,12 @@ void BaseTextDocument::modified(Core::IFile::ReloadBehavior *behavior)
     switch (*behavior) {
     case Core::IFile::ReloadNone:
         return;
+    case Core::IFile::ReloadUnmodified:
+        if (!isModified()) {
+            reload();
+            return;
+        }
+        break;
     case Core::IFile::ReloadAll:
         reload();
         return;
@@ -267,7 +275,8 @@ void BaseTextDocument::modified(Core::IFile::ReloadBehavior *behavior)
     }
 
 #ifndef TEXTEDITOR_STANDALONE
-    switch (Core::Utils::reloadPrompt(m_fileName, QApplication::activeWindow())) {
+
+    switch (Core::Utils::reloadPrompt(m_fileName, isModified(), QApplication::activeWindow())) {
     case Core::Utils::ReloadCurrent:
         reload();
         break;

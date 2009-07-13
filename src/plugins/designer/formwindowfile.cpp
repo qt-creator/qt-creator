@@ -31,6 +31,7 @@
 #include "designerconstants.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/reloadpromptutils.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -117,6 +118,12 @@ void FormWindowFile::modified(Core::IFile::ReloadBehavior *behavior)
     switch (*behavior) {
     case  Core::IFile::ReloadNone:
         return;
+    case Core::IFile::ReloadUnmodified:
+        if (!isModified()) {
+            reload(m_fileName);
+            return;
+        }
+        break;
     case Core::IFile::ReloadAll:
         emit reload(m_fileName);
         return;
@@ -127,7 +134,7 @@ void FormWindowFile::modified(Core::IFile::ReloadBehavior *behavior)
         break;
     }
 
-    switch (Core::Utils::reloadPrompt(m_fileName, Core::ICore::instance()->mainWindow())) {
+    switch (Core::Utils::reloadPrompt(m_fileName, isModified(), Core::ICore::instance()->mainWindow())) {
     case Core::Utils::ReloadCurrent:
         emit reload(m_fileName);
         break;

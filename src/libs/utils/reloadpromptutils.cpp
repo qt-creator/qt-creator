@@ -36,11 +36,18 @@ using namespace Core;
 using namespace Core::Utils;
 
 QTCREATOR_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
-    Core::Utils::reloadPrompt(const QString &fileName, QWidget *parent)
+    Core::Utils::reloadPrompt(const QString &fileName, bool modified, QWidget *parent)
 {
+
     const QString title = QCoreApplication::translate("Core::Utils::reloadPrompt", "File Changed");
-    const QString msg = QCoreApplication::translate("Core::Utils::reloadPrompt",
-                                                    "The file %1 has changed outside Qt Creator. Do you want to reload it?").arg(fileName);
+    QString msg;
+
+    if (modified)
+        msg = QCoreApplication::translate("Core::Utils::reloadPrompt",
+                                          "The unsaved file %1 has been changed outside Qt Creator. Do you want to reload it and discard your changes?").arg(fileName);
+    else
+        msg = QCoreApplication::translate("Core::Utils::reloadPrompt",
+                                          "The file %1 has changed outside Qt Creator. Do you want to reload it?").arg(fileName);
     return reloadPrompt(title, msg, parent);
 }
 
