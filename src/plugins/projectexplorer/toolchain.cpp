@@ -318,9 +318,9 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         QString desc;
         QString varsbat;
         if (m_amd64)
-            varsbat = path + "VC\\bin\\amd64\\vcvarsamd64.bat";
+            varsbat = path + "bin\\amd64\\vcvarsamd64.bat";
         else
-            varsbat = path + "Common7\\Tools\\vsvars32.bat";
+            varsbat = path + "bin\\vcvars32.bat";
         //        qDebug() << varsbat;
         if (QFileInfo(varsbat).exists()) {
             QTemporaryFile tf(QDir::tempPath() + "\\XXXXXX.bat");
