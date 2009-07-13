@@ -96,7 +96,7 @@ const char *PlainTextEditorEditable::kind() const
 
 void PlainTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
-    Q_UNUSED(typedChar);
+    Q_UNUSED(typedChar)
 
     // At beginning: Leave as is.
     if (block == doc->begin())

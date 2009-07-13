@@ -383,7 +383,7 @@ void FakeVimPluginPrivate::windowCommand(int key)
 
 void FakeVimPluginPrivate::find(bool reverse)
 {
-    Q_UNUSED(reverse);  // TODO: Creator needs an action for find in reverse.
+    Q_UNUSED(reverse)  // TODO: Creator needs an action for find in reverse.
     triggerAction(Find::Constants::FIND_IN_DOCUMENT);
 }
 
@@ -485,7 +485,7 @@ void FakeVimPluginPrivate::triggerCompletions()
 void FakeVimPluginPrivate::writeFile(bool *handled,
     const QString &fileName, const QString &contents)
 {
-    Q_UNUSED(contents);
+    Q_UNUSED(contents)
 
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
@@ -684,8 +684,8 @@ FakeVimPlugin::~FakeVimPlugin()
 
 bool FakeVimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
     return d->initialize();
 }
 

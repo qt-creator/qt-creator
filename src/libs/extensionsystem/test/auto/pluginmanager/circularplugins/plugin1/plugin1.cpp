@@ -39,8 +39,8 @@ MyPlugin1::MyPlugin1()
 
 bool MyPlugin1::initialize(const QStringList &arguments, QString *errorString)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorString);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
     return true;
 }
 

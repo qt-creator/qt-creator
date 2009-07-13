@@ -80,7 +80,7 @@ static void registerQObjectInterface(QScriptEngine &engine)
         qObjectInterfaceToScriptValue<QObjectInterface>,
         scriptValueToQObjectInterface<QObjectInterface>,
         scriptProtoType);
-    Q_UNUSED(metaTypeId);
+    Q_UNUSED(metaTypeId)
 }
 
 } // namespace SharedTools
