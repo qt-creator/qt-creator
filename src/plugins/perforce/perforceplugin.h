@@ -128,6 +128,8 @@ private slots:;
     void printOpenedFileList();
     void diffCurrentFile();
     void diffCurrentProject();
+    void updateCurrentProject();
+    void updateAll();
     void diffAllOpened();
     void submit();
     void describeChange();
@@ -167,6 +169,7 @@ private:
     void annotate(const QString &fileName);
     void filelog(const QString &fileName);
     void cleanChangeTmpFile();
+    void updateCheckout(const QStringList &dirs = QStringList());
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     PerforceOutputWindow *m_perforceOutputWindow;
@@ -180,6 +183,7 @@ private:
     Core::Utils::ParameterAction *m_revertAction;
     Core::Utils::ParameterAction *m_diffCurrentAction;
     Core::Utils::ParameterAction *m_diffProjectAction;
+    Core::Utils::ParameterAction *m_updateProjectAction;
     QAction *m_diffAllAction;
     QAction *m_resolveAction;
     QAction *m_submitAction;
@@ -190,6 +194,7 @@ private:
     Core::Utils::ParameterAction *m_filelogCurrentAction;
     QAction *m_filelogAction;
     QAction *m_submitCurrentLogAction;
+    QAction *m_updateAllAction;
     bool m_submitActionTriggered;
     QAction *m_diffSelectedFiles;
 
@@ -197,27 +202,6 @@ private:
     QAction *m_redoAction;
 
     QTemporaryFile *m_changeTmpFile;
-
-    static const char * const PERFORCE_MENU;
-    static const char * const EDIT;
-    static const char * const ADD;
-    static const char * const DELETE_FILE;
-    static const char * const OPENED;
-    static const char * const REVERT;
-    static const char * const DIFF_ALL;
-    static const char * const DIFF_PROJECT;
-    static const char * const DIFF_CURRENT;
-    static const char * const RESOLVE;
-    static const char * const SUBMIT;
-    static const char * const PENDING_CHANGES;
-    static const char * const DESCRIBE;
-    static const char * const ANNOTATE_CURRENT;
-    static const char * const ANNOTATE;
-    static const char * const FILELOG_CURRENT;
-    static const char * const FILELOG;
-    static const char * const SEPARATOR1;
-    static const char * const SEPARATOR2;
-    static const char * const SEPARATOR3;
 
     static PerforcePlugin *m_perforcePluginInstance;
     QString pendingChangesData();
