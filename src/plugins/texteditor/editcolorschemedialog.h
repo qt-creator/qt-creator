@@ -56,6 +56,8 @@ public:
     ColorScheme colorScheme() const
     { return m_scheme; }
 
+    void accept();
+
 private slots:
     void itemChanged();
     void changeForeColor();

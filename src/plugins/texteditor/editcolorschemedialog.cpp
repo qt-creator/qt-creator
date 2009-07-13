@@ -32,6 +32,7 @@
 
 #include <QtGui/QColorDialog>
 
+using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 static inline QString colorButtonStyleSheet(const QColor &bgColor)
@@ -57,6 +58,8 @@ EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
 {
     m_ui->setupUi(this);
 
+    m_ui->nameEdit->setText(scheme.name());
+
     foreach (const FormatDescription &d, fd)
         m_ui->itemListWidget->addItem(d.trName());
 
@@ -74,6 +77,12 @@ EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
 EditColorSchemeDialog::~EditColorSchemeDialog()
 {
     delete m_ui;
+}
+
+void EditColorSchemeDialog::accept()
+{
+    m_scheme.setName(m_ui->nameEdit->text());
+    QDialog::accept();
 }
 
 void EditColorSchemeDialog::itemChanged()
