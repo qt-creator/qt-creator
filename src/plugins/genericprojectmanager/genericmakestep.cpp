@@ -35,6 +35,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
+#include <coreplugin/variablemanager.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QGroupBox>
@@ -61,7 +62,10 @@ bool GenericMakeStep::init(const QString &buildConfiguration)
     qDebug() << "*** build parser:" << buildParser;
 
     setEnabled(buildConfiguration, true);
-    setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
+    Core::VariableManager *vm = Core::VariableManager::instance();
+    const QString rawBuildDir = m_pro->buildDirectory(buildConfiguration);
+    const QString buildDir = vm->resolve(rawBuildDir);
+    setWorkingDirectory(buildConfiguration, buildDir);
 
     QString command = value(buildConfiguration, "makeCommand").toString();
     if (command.isEmpty()) {
@@ -74,8 +78,14 @@ bool GenericMakeStep::init(const QString &buildConfiguration)
 
     const QStringList targets = value(buildConfiguration, "buildTargets").toStringList();
     QStringList arguments = value(buildConfiguration, "makeArguments").toStringList();
-    arguments.append(targets);
-    setArguments(buildConfiguration, arguments);
+    QStringList replacedArguments;
+    foreach (const QString &arg, arguments) {
+      replacedArguments.append(vm->resolve(arg));
+    }
+    foreach (const QString &arg, targets) {
+      replacedArguments.append(vm->resolve(arg));
+    }
+    setArguments(buildConfiguration, replacedArguments);
 
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractMakeStep::init(buildConfiguration);

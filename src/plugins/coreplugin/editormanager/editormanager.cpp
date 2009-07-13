@@ -49,6 +49,7 @@
 #include <coreplugin/baseview.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/settingsdatabase.h>
+#include <coreplugin/variablemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -395,6 +396,11 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,Alt+I")));
     advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
     connect(m_d->m_openInExternalEditorAction, SIGNAL(triggered()), this, SLOT(openInExternalEditor()));
+    
+    // Connect to VariableManager for CURRENT_DOCUMENT variable setting
+    VariableManager *vm = VariableManager::instance();
+    connect(this, SIGNAL(currentEditorChanged(Core::IEditor *)),
+            vm, SLOT(updateCurrentDocument(Core::IEditor *)));
 
 
     // other setup

@@ -48,6 +48,46 @@ void VariableManager::insert(const QString &variable, const QString &value)
     m_map.insert(variable, value);
 }
 
+void VariableManager::insertFileInfo(const QString &tag, const QFileInfo &file)
+{
+    insert(tag, file.filePath());
+    insert(tag+":absoluteFilePath", file.absoluteFilePath());
+    insert(tag+":absolutePath", file.absolutePath());
+    insert(tag+":baseName", file.baseName());
+    insert(tag+":canonicalPath", file.canonicalPath());
+    insert(tag+":canonicalFilePath", file.canonicalFilePath());
+    insert(tag+":completeBaseName", file.completeBaseName());
+    insert(tag+":completeSuffix", file.completeSuffix());
+    insert(tag+":fileName", file.fileName());
+    insert(tag+":filePath", file.filePath());
+    insert(tag+":path", file.path());
+    insert(tag+":suffix", file.suffix());
+}
+
+void VariableManager::removeFileInfo(const QString &tag)
+{
+    remove(tag);
+    remove(tag+":absoluteFilePath");
+    remove(tag+":absolutePath");
+    remove(tag+":baseName");
+    remove(tag+":canonicalPath");
+    remove(tag+":canonicalFilePath");
+    remove(tag+":completeBaseName");
+    remove(tag+":completeSuffix");
+    remove(tag+":fileName");
+    remove(tag+":filePath");
+    remove(tag+":path");
+    remove(tag+":suffix");
+}
+
+void VariableManager::updateCurrentDocument(Core::IEditor *editor)
+{
+    removeFileInfo("CURRENT_DOCUMENT");
+    if (editor==NULL || editor->file()==NULL)
+        return;
+    insertFileInfo("CURRENT_DOCUMENT", editor->file()->fileName());
+}
+
 QString VariableManager::value(const QString &variable)
 {
     return m_map.value(variable);

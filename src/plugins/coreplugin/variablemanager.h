@@ -31,10 +31,12 @@
 #define VARIABLEMANAGER_H
 
 #include "core_global.h"
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 #include <QtCore/QString>
+#include <QtCore/QFileInfo>
 
 namespace Core {
 
@@ -49,10 +51,15 @@ public:
     static VariableManager* instance() { return m_instance; }
 
     void insert(const QString &variable, const QString &value);
+    void insertFileInfo(const QString &tag, const QFileInfo &file);
+    void removeFileInfo(const QString &tag);
     QString value(const QString &variable);
     QString value(const QString &variable, const QString &defaultValue);
     void remove(const QString &variable);
     QString resolve(const QString &stringWithVariables);
+
+private slots:
+    void updateCurrentDocument(Core::IEditor *editor);
 
 private:
     QMap<QString, QString> m_map;
