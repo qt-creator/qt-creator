@@ -157,7 +157,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 initialState = 0;
             }
 
-        } else if (tk.isKeyword() || isQtKeyword(tk.text()))
+        } else if (tk.isKeyword() || isQtKeyword(tk.text()) || tk.isObjCAtKeyword())
             setFormat(tk.position(), tk.length(), m_formats[CppKeywordFormat]);
 
         else if (tk.isOperator())

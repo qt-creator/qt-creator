@@ -79,6 +79,7 @@ public:
     bool isOperator() const;
     bool isKeyword() const;
     bool isComment() const;
+    bool isObjCAtKeyword() const;
 
 public:
     int _kind;

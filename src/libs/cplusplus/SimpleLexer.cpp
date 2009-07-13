@@ -55,6 +55,11 @@ bool SimpleToken::isComment() const
     return _kind == T_COMMENT || _kind == T_DOXY_COMMENT;
 }
 
+bool SimpleToken::isObjCAtKeyword() const
+{
+    return _kind >= T_FIRST_LITERAL && _kind <= T_LAST_OBJC_AT_KEYWORD;
+}
+
 SimpleLexer::SimpleLexer()
     : _lastState(0),
       _skipComments(false),

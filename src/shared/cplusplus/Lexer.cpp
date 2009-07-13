@@ -598,7 +598,7 @@ void Lexer::scan_helper(Token *tok)
 
                 do {
                     yyinp();
-                    if (! isalnum(_yychar))
+                    if (! (isalnum(_yychar) || _yychar == '_'))
                         break;
                 } while (_yychar);
 

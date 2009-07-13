@@ -224,9 +224,9 @@ enum Kind {
     T_AT_THROW,
     T_AT_TRY,
 
-    T_LAST_OBJC_AT_KEYWORD,
+    T_LAST_OBJC_AT_KEYWORD = T_AT_TRY,
 
-    T_FIRST_QT_KEYWORD = T_LAST_OBJC_AT_KEYWORD,
+    T_FIRST_QT_KEYWORD,
 
     // Qt keywords
     T_SIGNAL = T_FIRST_QT_KEYWORD,
@@ -300,7 +300,7 @@ public:
     { return kind == T_COMMENT || kind == T_DOXY_COMMENT; }
 
     inline bool isObjCAtKeyword() const
-    { return kind >= T_FIRST_OBJC_AT_KEYWORD && kind < T_LAST_OBJC_AT_KEYWORD; }
+    { return kind >= T_FIRST_OBJC_AT_KEYWORD && kind <= T_LAST_OBJC_AT_KEYWORD; }
 
     static const char *name(int kind);
 

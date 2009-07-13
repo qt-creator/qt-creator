@@ -56,7 +56,7 @@ static const char *token_names[] = {
 
     ("<comment>"), ("<doxy comment>"),
 
-    ("<identifier>"), ("<int literal>"), ("<float literal>"), ("<char literal>"),
+    ("<identifier>"), ("<numeric literal>"), ("<char literal>"),
     ("<wide char literal>"), ("<string literal>"), ("<wide char literal>"),
     ("<@string literal>"), ("<angle string literal>"),
 
