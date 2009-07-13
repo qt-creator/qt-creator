@@ -642,12 +642,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case Qt::ForegroundRole: {
             static const QVariant red(QColor(200, 0, 0));
-            static const QVariant black(QColor(0, 0, 0));
             static const QVariant gray(QColor(140, 140, 140));
             switch (idx.column()) {
-                case 0: return black;
-                case 1: return data.valuedisabled ? gray : data.changed ? red : black;
-                case 2: return black;
+                case 1: return data.valuedisabled ? gray : data.changed ? red : QVariant();
             }
             break;
         }
