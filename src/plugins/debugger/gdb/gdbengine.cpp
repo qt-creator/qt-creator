@@ -3418,8 +3418,10 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
     setWatchDataType(childtemplate, contents.findChild("childtype"));
     setWatchDataChildCount(childtemplate, contents.findChild("childnumchild"));
     //qDebug() << "DATA:" << data.toString();
-    insertData(data);
+
+    qq->watchHandler()->insertData(data); 
     int i = 0;
+    QList<WatchData> list;
     foreach (GdbMi item, children.children()) {
         WatchData data1 = childtemplate;
         GdbMi name = item.findChild("name");
@@ -3454,9 +3456,10 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
         if (!qq->watchHandler()->isExpandedIName(data1.iname))
             data1.setChildrenUnneeded();
         //qDebug() << "HANDLE CUSTOM SUBCONTENTS:" << data1.toString();
-        insertData(data1);
+        list.append(data1);
         ++i;
     }
+    qq->watchHandler()->insertBulkData(list); 
 }
 
 void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,

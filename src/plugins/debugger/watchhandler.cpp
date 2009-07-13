@@ -750,15 +750,26 @@ QVariant WatchModel::headerData(int section, Qt::Orientation orientation, int ro
     return QVariant(); 
 }
 
-static bool iNameSorter(const WatchItem *item1, const WatchItem *item2)
+struct IName : public QString
 {
-    QString name1 = item1->iname.section('.', -1);
-    QString name2 = item2->iname.section('.', -1);
+    IName(const QString &iname) : QString(iname) {}
+};
+
+bool operator<(const IName &iname1, const IName &iname2)
+{
+    QString name1 = iname1.section('.', -1);
+    QString name2 = iname2.section('.', -1);
     if (!name1.isEmpty() && !name2.isEmpty()) {
         if (name1.at(0).isDigit() && name2.at(0).isDigit())
             return name1.toInt() < name2.toInt();
     }
     return name1 < name2; 
+}
+
+
+static bool iNameSorter(const WatchItem *item1, const WatchItem *item2)
+{
+    return IName(item1->iname) < IName(item2->iname);
 }
 
 static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *item)
@@ -802,6 +813,63 @@ void WatchModel::insertData(const WatchData &data)
         int n = findInsertPosition(parent->children, item);
         beginInsertRows(index, n, n);
         parent->children.insert(n, item);
+        endInsertRows();
+    }
+}
+
+void WatchModel::insertBulkData(const QList<WatchData> &list)
+{
+    // qDebug() << "WMI:" << list.toString();
+    QTC_ASSERT(!list.isEmpty(), return);
+    QString parentIName = parentName(list.at(0).iname);
+    WatchItem *parent = findItem(parentIName, m_root);
+    if (!parent) {
+        WatchData parent;
+        parent.iname = parentIName;
+        insertData(parent);
+        MODEL_DEBUG("\nFIXING MISSING PARENT FOR\n" << list.at(0).iname);
+        return;
+    }
+    QModelIndex index = watchIndex(parent);
+
+    QMap<IName, WatchData> newList;
+    typedef QMap<IName, WatchData>::iterator Iterator;
+    foreach (const WatchItem &data, list)
+        newList[data.iname] = data;
+
+    foreach (WatchItem *oldItem, parent->children) {
+        Iterator it = newList.find(oldItem->iname);
+        if (it == newList.end()) {
+            newList[oldItem->iname] = *oldItem;
+        } else {
+            bool changed = !it->value.isEmpty()
+                && it->value != oldItem->value
+                && it->value != strNotInScope;
+            it->changed = changed;
+            it->generation = generationCounter;
+        }
+    }
+
+    // overwrite existing items
+    Iterator it = newList.begin();
+    int oldCount = newList.size() - list.size();
+    QTC_ASSERT(oldCount == parent->children.size(), return);
+    for (int i = 0; i < oldCount; ++i, ++it)
+        parent->children[i]->setData(*it);
+    QModelIndex idx = watchIndex(parent);
+    emit dataChanged(idx.sibling(0, 0), idx.sibling(oldCount - 1, 2));
+
+    // add new items
+    if (oldCount < newList.size()) {
+        beginInsertRows(index, oldCount, newList.size() - 1);
+        //MODEL_DEBUG("INSERT : " << data.iname << data.value);
+        for (int i = oldCount; i < newList.size(); ++i, ++it) {
+            WatchItem *item = new WatchItem(*it);
+            item->parent = parent;
+            item->generation = generationCounter;
+            item->changed = true;
+            parent->children.append(item);
+        }
         endInsertRows();
     }
 }
@@ -871,6 +939,26 @@ void WatchHandler::insertData(const WatchData &data)
         WatchModel *model = modelForIName(data.iname);
         QTC_ASSERT(model, return);
         model->insertData(data);
+    }
+}
+
+// bulk-insertion
+void WatchHandler::insertBulkData(const QList<WatchData> &list)
+{
+    if (list.isEmpty())
+        return;
+    QHash<QString, QList<WatchData> > hash;
+
+    foreach (const WatchData &data, list) {
+        if (data.isSomethingNeeded())
+            emit watchDataUpdateNeeded(data);
+        else
+            hash[parentName(data.iname)].append(data);
+    }
+    foreach (const QString &parentIName, hash.keys()) {
+        WatchModel *model = modelForIName(parentIName);
+        QTC_ASSERT(model, return);
+        model->insertBulkData(hash[parentIName]);
     }
 }
 
@@ -1109,9 +1197,9 @@ WatchModel *WatchHandler::model(WatchType type) const
     
 WatchModel *WatchHandler::modelForIName(const QString &iname) const
 {
-    if (iname.startsWith(QLatin1String("local.")))
+    if (iname.startsWith(QLatin1String("local")))
         return m_locals;
-    if (iname.startsWith(QLatin1String("watch.")))
+    if (iname.startsWith(QLatin1String("watch")))
         return m_watchers;
     if (iname.startsWith(QLatin1String("tooltip")))
         return m_tooltips;

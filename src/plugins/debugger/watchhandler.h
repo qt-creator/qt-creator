@@ -189,6 +189,7 @@ private:
         const WatchItem *parentItem, const QModelIndex &parentIndex) const;
 
     void insertData(const WatchData &data);
+    void insertBulkData(const QList<WatchData> &data);
     WatchItem *findItem(const QString &iname, WatchItem *root) const;
     void reinitialize();
     void removeOutdated();
@@ -228,6 +229,7 @@ public:
     void showEditValue(const WatchData &data);
 
     void insertData(const WatchData &data);
+    void insertBulkData(const QList<WatchData> &data);
     void removeData(const QString &iname);
     WatchData *findItem(const QString &iname) const;
 
