@@ -895,9 +895,26 @@
     and writing to it is as simple as opening the stream - with the respective
     device as a parameter - and reading from or writing to it.
 
+
     \section1 Placing Widgets on The Form
 
+    To load and save files containing contact details, we need two push
+    buttons. Drag them and name them accordingly. Their \c objectName
+    properties should be \c loadButton and \c saveButton, respectively. Then,
+    similar to \l{Address Book 5 - Adding a Find Function}{Chapter 5}, we place
+    these buttons in our layout simply by dragging and dropping them.
 
+    The \c text property of our push buttons are \gui{Load...} and
+    \gui{Save...} respectively. Ideally, it would be more user-friendly to set
+    the push buttons' labels to \gui{Load contacts from file} and
+    \gui{Save contacts to file}. However, due to the size of our push buttons,
+    we set the labels to \gui{Load...} and \gui{Save...} instead. Fortunately,
+    Qt Creator's \QD plugin provides a simple way to set tooltips with the
+    \c toolTip property. To test your tooltip, use \key{Ctrl+Alt+R} and hover
+    your mouse cursor on the push buttons.
+
+
+    # screenshot of property editor
 
 
     \section1 The AddressBook Class
@@ -908,16 +925,7 @@
     # code
 
     In our constructor, we instantiate \c loadButton and \c saveButton.
-    Ideally, it would be more user-friendly to set the push buttons' labels to
-    "Load contacts from a file" and "Save contacts to a file". However, due to
-    the size of our push buttons, we set the labels to \gui{Load...} and
-    \gui{Save...}. Fortunately, Qt Creator's \QD plugin provides a simple way
-    to set tooltips with the \gui{Property Editor}. Simply fill in your tool
-    tips in the \gui{toolTip} property. To test your tooltip, use
-    \key{Ctrl+Alt+R} and hover your mouse cursor on the \gui{Load...} and
-    \gui{Save...} push buttons.
 
-    # screenshot of property editor
 
     Now lets look at the \c saveToFile() and \c loadFromFile() functions in
     detail.
@@ -1009,6 +1017,8 @@
     exported to vCard \c{.vcf} files.
 
     \section1 Placing Widgets on The Form
+
+    We add
 
     \section1 The AddressBook Class
 
