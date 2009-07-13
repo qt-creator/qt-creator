@@ -3464,10 +3464,10 @@ void *qDumpObjectData440(
             "\"list\","
             "\"map\","
             "\"set\","
-            "\"string\","
             "\"vector\","
-            "\"wstring\","
 #endif
+            "\"string\","
+            "\"wstring\","
             "\"std::basic_string\","
             "\"std::list\","
             "\"std::map\","
