@@ -123,7 +123,9 @@ void FileIconProvider::registerIconOverlayForSuffix(const QIcon &icon, const QSt
 QIcon FileIconProvider::iconForSuffix(const QString &suffix) const
 {
     QIcon icon;
-#ifndef Q_WS_WIN // On windows we use the file system icons
+#ifdef Q_WS_WIN // On windows we use the file system icons
+    Q_UNUSED(suffix)
+#else
     if (suffix.isEmpty())
         return icon;
 
