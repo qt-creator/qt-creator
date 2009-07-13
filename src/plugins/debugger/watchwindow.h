@@ -59,7 +59,6 @@ public slots:
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
-    void reset();
     Q_SLOT void resetHelper();
     Q_SLOT void expandNode(const QModelIndex &idx);
     Q_SLOT void collapseNode(const QModelIndex &idx);

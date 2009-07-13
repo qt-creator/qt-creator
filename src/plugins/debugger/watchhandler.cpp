@@ -52,8 +52,6 @@
 #include <ctype.h>
 
 
-// creates debug output regarding pending watch data results
-//#define DEBUG_PENDING 1
 // creates debug output for accesses to the model
 //#define DEBUG_MODEL 1
 
@@ -285,57 +283,46 @@ WatchModel::WatchModel(WatchHandler *handler, WatchType type)
     m_root->hasChildren = 1;
     m_root->state = 0;
     m_root->name = WatchHandler::tr("Root");
-
-    WatchItem *item = new WatchItem;
+    m_root->parent = 0;
+    m_root->fetchTriggered = true;
 
     switch (m_type) {
         case LocalsWatch:
-            item->iname = QLatin1String("local");
-            item->name = WatchHandler::tr("Locals");
+            m_root->iname = QLatin1String("local");
+            m_root->name = WatchHandler::tr("Locals");
             break;
         case WatchersWatch:
-            item->iname = QLatin1String("watch");
-            item->name = WatchHandler::tr("Watchers");
+            m_root->iname = QLatin1String("watch");
+            m_root->name = WatchHandler::tr("Watchers");
             break;
         case TooltipsWatch:
-            item->iname = QLatin1String("tooltip");
-            item->name = WatchHandler::tr("Tooltip");
+            m_root->iname = QLatin1String("tooltip");
+            m_root->name = WatchHandler::tr("Tooltip");
             break;
     }
-    item->hasChildren = true;
-    item->state = 0;
-    item->parent = m_root;
-    item->fetchTriggered = true;
-
-    m_root->children.append(item);
 }
 
-WatchItem *WatchModel::dummyRoot() const
+WatchItem *WatchModel::rootItem() const
 {
-    QTC_ASSERT(!m_root->children.isEmpty(), return 0);
-    return m_root->children.front();
+    return m_root;
 }
 
 void WatchModel::reinitialize()
 {
-    WatchItem *item = dummyRoot();
-    QTC_ASSERT(item, return);
-    QModelIndex index = watchIndex(item);
-    int n = item->children.size();
+    int n = m_root->children.size();
     if (n == 0)
         return;
-    //MODEL_DEBUG("REMOVING " << n << " CHILDREN OF " << item->iname);
+    //MODEL_DEBUG("REMOVING " << n << " CHILDREN OF " << m_root->iname);
+    QModelIndex index = watchIndex(m_root);
     beginRemoveRows(index, 0, n - 1);
-    qDeleteAll(item->children);
-    item->children.clear();
+    qDeleteAll(m_root->children);
+    m_root->children.clear();
     endRemoveRows();
 }
 
 void WatchModel::removeOutdated()
 {
-    WatchItem *item = dummyRoot();
-    QTC_ASSERT(item, return);
-    foreach (WatchItem *child, item->children)
+    foreach (WatchItem *child, m_root->children)
         removeOutdatedHelper(child);
 #if DEBUG_MODEL
 #if USE_MODEL_TEST
@@ -551,6 +538,8 @@ QModelIndex WatchModel::index(int row, int column, const QModelIndex &parent) co
 
     const WatchItem *item = watchItem(parent);
     QTC_ASSERT(item, return QModelIndex());
+    if (row >= item->children.size())
+        return QModelIndex();
     return createIndex(row, column, (void*)(item->children.at(row)));
 }
 
@@ -576,8 +565,6 @@ QModelIndex WatchModel::parent(const QModelIndex &idx) const
 
 int WatchModel::rowCount(const QModelIndex &idx) const
 {
-    if (!idx.isValid())
-        return 1;
     if (idx.column() > 0)
         return 0;
     return watchItem(idx)->children.size();
@@ -807,7 +794,7 @@ void WatchModel::insertData(const WatchData &data)
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
     } else {
         // add new entry
-        //MODEL_DEBUG("INSERT : " << data.iname << data.value);
+        //MODEL_DEBUG("ADD : " << data.iname << data.value);
         WatchItem *item = new WatchItem(data);
         item->parent = parent;
         item->generation = generationCounter;
@@ -1008,7 +995,7 @@ void WatchHandler::removeWatchExpression(const QString &exp)
 {
     MODEL_DEBUG("REMOVE WATCH: " << exp);
     m_watcherNames.remove(exp);
-    foreach (WatchItem *item, m_watchers->dummyRoot()->children) {
+    foreach (WatchItem *item, m_watchers->rootItem()->children) {
         if (item->exp == exp) {
             m_watchers->removeItem(item);
             saveWatchers();

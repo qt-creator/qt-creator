@@ -193,7 +193,7 @@ private:
     void reinitialize();
     void removeOutdated();
     void removeOutdatedHelper(WatchItem *item);
-    WatchItem *dummyRoot() const;
+    WatchItem *rootItem() const;
     void removeItem(WatchItem *item);
     void setActiveData(const QString &data) { m_activeData = data; }
 

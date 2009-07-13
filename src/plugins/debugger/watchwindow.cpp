@@ -144,12 +144,6 @@ void WatchWindow::collapseNode(const QModelIndex &idx)
     model()->setData(idx, false, ExpandedRole);
 }
 
-void WatchWindow::reset()
-{
-    QTreeView::reset(); 
-    setRootIndex(model()->index(0, 0, QModelIndex()));
-}
-
 void WatchWindow::keyPressEvent(QKeyEvent *ev)
 {
     if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {

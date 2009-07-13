@@ -2699,7 +2699,7 @@ bool GdbEngine::showToolTip()
     WatchModel *model = handler->model(TooltipsWatch);
     QString iname = tooltipINameForExpression(m_toolTipExpression);
     model->setActiveData(iname);
-    WatchItem *item = model->findItem(iname, model->dummyRoot());
+    WatchItem *item = model->findItem(iname, model->rootItem());
     if (!item) {
         hideDebuggerToolTip();
         return false;
