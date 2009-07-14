@@ -32,17 +32,10 @@
 
 #include "subversionsettings.h"
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/icorelistener.h>
 #include <coreplugin/icorelistener.h>
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QProcess>
-
 QT_BEGIN_NAMESPACE
-class QFile;
 class QDir;
 class QAction;
 class QTemporaryFile;
@@ -50,7 +43,6 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Core {
-    class IEditorFactory;
     class IVersionControl;
     namespace Utils {
         class ParameterAction;
@@ -64,8 +56,6 @@ namespace ProjectExplorer {
 namespace Subversion {
 namespace Internal {
 
-class CoreListener;
-class SettingsPage;
 class SubversionOutputWindow;
 class SubversionSubmitEditor;
 
@@ -144,12 +134,7 @@ private:
 
     SubversionSettings m_settings;
     Core::IVersionControl *m_versionControl;
-    CoreListener *m_coreListener;
-    SettingsPage *m_settingsPage;
     QTemporaryFile *m_changeTmpFile;
-
-    Core::IEditorFactory *m_submitEditorFactory;
-    QList<Core::IEditorFactory*> m_editorFactories;
 
     SubversionOutputWindow *m_subversionOutputWindow;
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
@@ -172,24 +157,6 @@ private:
     QAction *m_submitUndoAction;
     QAction *m_submitRedoAction;
     bool    m_submitActionTriggered;
-
-    static const char * const SUBVERSION_MENU;
-    static const char * const ADD;
-    static const char * const DELETE_FILE;
-    static const char * const REVERT;
-    static const char * const SEPARATOR0;
-    static const char * const DIFF_PROJECT;
-    static const char * const DIFF_CURRENT;
-    static const char * const SEPARATOR1;
-    static const char * const COMMIT_ALL;
-    static const char * const COMMIT_CURRENT;
-    static const char * const SEPARATOR2;
-    static const char * const FILELOG_CURRENT;
-    static const char * const ANNOTATE_CURRENT;
-    static const char * const SEPARATOR3;
-    static const char * const STATUS;
-    static const char * const UPDATE;
-    static const char * const DESCRIBE;
 
     static SubversionPlugin *m_subversionPluginInstance;
 

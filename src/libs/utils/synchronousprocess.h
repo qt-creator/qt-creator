@@ -99,6 +99,9 @@ public:
     void setStdOutCodec(QTextCodec *c);
     QTextCodec *stdOutCodec() const;
 
+    QProcess::ProcessChannelMode processChannelMode () const;
+    void setProcessChannelMode(QProcess::ProcessChannelMode m);
+
     bool stdOutBufferedSignalsEnabled() const;
     void setStdOutBufferedSignalsEnabled(bool);
 
@@ -107,6 +110,9 @@ public:
 
     QStringList environment() const;
     void setEnvironment(const QStringList &);
+
+    void setWorkingDirectory(const QString &workingDirectory);
+    QString workingDirectory() const;
 
     SynchronousProcessResponse run(const QString &binary, const QStringList &args);
 

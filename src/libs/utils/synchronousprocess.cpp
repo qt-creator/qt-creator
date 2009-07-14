@@ -215,6 +215,26 @@ void SynchronousProcess::setEnvironment(const QStringList &e)
     m_d->m_process.setEnvironment(e);
 }
 
+void SynchronousProcess::setWorkingDirectory(const QString &workingDirectory)
+{
+    m_d->m_process.setWorkingDirectory(workingDirectory);
+}
+
+QString SynchronousProcess::workingDirectory() const
+{
+    return m_d->m_process.workingDirectory();
+}
+
+QProcess::ProcessChannelMode SynchronousProcess::processChannelMode () const
+{
+    return m_d->m_process.processChannelMode();
+}
+
+void SynchronousProcess::setProcessChannelMode(QProcess::ProcessChannelMode m)
+{
+    m_d->m_process.setProcessChannelMode(m);
+}
+
 SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
                                                  const QStringList &args)
 {

@@ -76,25 +76,23 @@ enum { subversionShortTimeOut = 10000 };
 // Timeout for submit, update
 enum { subversionLongTimeOut = 120000 };
 
-// #pragma mark -- SubversionPlugin
-
-const char * const SubversionPlugin::SUBVERSION_MENU    = "Subversion.Menu";
-const char * const SubversionPlugin::ADD                = "Subversion.Add";
-const char * const SubversionPlugin::DELETE_FILE        = "Subversion.Delete";
-const char * const SubversionPlugin::REVERT             = "Subversion.Revert";
-const char * const SubversionPlugin::SEPARATOR0         = "Subversion.Separator0";
-const char * const SubversionPlugin::DIFF_PROJECT       = "Subversion.DiffAll";
-const char * const SubversionPlugin::DIFF_CURRENT       = "Subversion.DiffCurrent";
-const char * const SubversionPlugin::SEPARATOR1         = "Subversion.Separator1";
-const char * const SubversionPlugin::COMMIT_ALL         = "Subversion.CommitAll";
-const char * const SubversionPlugin::COMMIT_CURRENT     = "Subversion.CommitCurrent";
-const char * const SubversionPlugin::SEPARATOR2         = "Subversion.Separator2";
-const char * const SubversionPlugin::FILELOG_CURRENT    = "Subversion.FilelogCurrent";
-const char * const SubversionPlugin::ANNOTATE_CURRENT   = "Subversion.AnnotateCurrent";
-const char * const SubversionPlugin::SEPARATOR3         = "Subversion.Separator3";
-const char * const SubversionPlugin::STATUS             = "Subversion.Status";
-const char * const SubversionPlugin::UPDATE             = "Subversion.Update";
-const char * const SubversionPlugin::DESCRIBE           = "Subversion.Describe";
+static const char * const CMD_ID_SUBVERSION_MENU    = "Subversion.Menu";
+static const char * const CMD_ID_ADD                = "Subversion.Add";
+static const char * const CMD_ID_DELETE_FILE        = "Subversion.Delete";
+static const char * const CMD_ID_REVERT             = "Subversion.Revert";
+static const char * const CMD_ID_SEPARATOR0         = "Subversion.Separator0";
+static const char * const CMD_ID_DIFF_PROJECT       = "Subversion.DiffAll";
+static const char * const CMD_ID_DIFF_CURRENT       = "Subversion.DiffCurrent";
+static const char * const CMD_ID_SEPARATOR1         = "Subversion.Separator1";
+static const char * const CMD_ID_COMMIT_ALL         = "Subversion.CommitAll";
+static const char * const CMD_ID_COMMIT_CURRENT     = "Subversion.CommitCurrent";
+static const char * const CMD_ID_SEPARATOR2         = "Subversion.Separator2";
+static const char * const CMD_ID_FILELOG_CURRENT    = "Subversion.FilelogCurrent";
+static const char * const CMD_ID_ANNOTATE_CURRENT   = "Subversion.AnnotateCurrent";
+static const char * const CMD_ID_SEPARATOR3         = "Subversion.Separator3";
+static const char * const CMD_ID_STATUS             = "Subversion.Status";
+static const char * const CMD_ID_UPDATE             = "Subversion.Update";
+static const char * const CMD_ID_DESCRIBE           = "Subversion.Describe";
 
 static const char *nonInteractiveOptionC = "--non-interactive";
 
@@ -181,10 +179,7 @@ SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 SubversionPlugin::SubversionPlugin() :
     m_svnDirectories(svnDirectories()),
     m_versionControl(0),
-    m_coreListener(0),
-    m_settingsPage(0),
     m_changeTmpFile(0),
-    m_submitEditorFactory(0),
     m_subversionOutputWindow(0),
     m_projectExplorer(0),
     m_addAction(0),
@@ -209,40 +204,6 @@ SubversionPlugin::SubversionPlugin() :
 
 SubversionPlugin::~SubversionPlugin()
 {
-    if (m_versionControl) {
-        removeObject(m_versionControl);
-        delete m_versionControl;
-        m_versionControl = 0;
-    }
-
-    if (m_settingsPage) {
-        removeObject(m_settingsPage);
-        delete m_settingsPage;
-        m_settingsPage = 0;
-    }
-    if (m_subversionOutputWindow) {
-        removeObject(m_subversionOutputWindow);
-        delete m_subversionOutputWindow;
-        m_subversionOutputWindow = 0;
-    }
-    if (m_submitEditorFactory) {
-        removeObject(m_submitEditorFactory);
-        delete m_submitEditorFactory;
-        m_submitEditorFactory = 0;
-    }
-
-    if (!m_editorFactories.empty()) {
-        foreach (Core::IEditorFactory* pf, m_editorFactories)
-            removeObject(pf);
-        qDeleteAll(m_editorFactories);
-        m_editorFactories.clear();
-    }
-
-    if (m_coreListener) {
-        removeObject(m_coreListener);
-        delete m_coreListener;
-        m_coreListener = 0;
-    }
     cleanChangeTmpFile();
 }
 
@@ -290,37 +251,30 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
         return false;
 
     m_versionControl = new SubversionControl(this);
-    addObject(m_versionControl);
+    addAutoReleasedObject(m_versionControl);
 
     if (QSettings *settings = core->settings())
         m_settings.fromSettings(settings);
 
-    m_coreListener = new CoreListener(this);
-    addObject(m_coreListener);
+    addAutoReleasedObject(new CoreListener(this));
+    addAutoReleasedObject(new SettingsPage);
 
-    m_settingsPage = new SettingsPage;
-    addObject(m_settingsPage);
-
-    m_submitEditorFactory = new SubversionSubmitEditorFactory(&submitParameters);
-    addObject(m_submitEditorFactory);
+    addAutoReleasedObject(new SubversionSubmitEditorFactory(&submitParameters));
 
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
-    for (int i = 0; i < editorCount; i++) {
-        m_editorFactories.push_back(
-            new SubversionEditorFactory(editorParameters + i, this, describeSlot));
-        addObject(m_editorFactories.back());
-    }
+    for (int i = 0; i < editorCount; i++)
+        addAutoReleasedObject(new SubversionEditorFactory(editorParameters + i, this, describeSlot));
 
     m_subversionOutputWindow = new SubversionOutputWindow(this);
-    addObject(m_subversionOutputWindow);
+    addAutoReleasedObject(m_subversionOutputWindow);
 
     //register actions
     Core::ActionManager *ami = core->actionManager();
     Core::ActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
 
     Core::ActionContainer *subversionMenu =
-        ami->createMenu(QLatin1String(SUBVERSION_MENU));
+        ami->createMenu(QLatin1String(CMD_ID_SUBVERSION_MENU));
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);
     if (QAction *ma = subversionMenu->menu()->menuAction()) {
@@ -333,7 +287,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     Core::Command *command;
     m_addAction = new Core::Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_addAction, SubversionPlugin::ADD,
+    command = ami->registerAction(m_addAction, CMD_ID_ADD,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
 #ifndef Q_WS_MAC
@@ -343,30 +297,30 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     subversionMenu->addAction(command);
 
     m_deleteAction = new Core::Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_deleteAction, SubversionPlugin::DELETE_FILE,
+    command = ami->registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
     subversionMenu->addAction(command);
 
     m_revertAction = new Core::Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_revertAction, SubversionPlugin::REVERT,
+    command = ami->registerAction(m_revertAction, CMD_ID_REVERT,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     subversionMenu->addAction(command);
 
-    subversionMenu->addAction(createSeparator(this, ami, SubversionPlugin::SEPARATOR0, globalcontext));
+    subversionMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR0, globalcontext));
 
     m_diffProjectAction = new QAction(tr("Diff Project"), this);
-    command = ami->registerAction(m_diffProjectAction, SubversionPlugin::DIFF_PROJECT,
+    command = ami->registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
         globalcontext);
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffProject()));
     subversionMenu->addAction(command);
 
     m_diffCurrentAction = new Core::Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_diffCurrentAction,
-        SubversionPlugin::DIFF_CURRENT, globalcontext);
+        CMD_ID_DIFF_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
 #ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+D")));
@@ -374,17 +328,17 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     subversionMenu->addAction(command);
 
-    subversionMenu->addAction(createSeparator(this, ami, SubversionPlugin::SEPARATOR1, globalcontext));
+    subversionMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR1, globalcontext));
 
     m_commitAllAction = new QAction(tr("Commit All Files"), this);
-    command = ami->registerAction(m_commitAllAction, SubversionPlugin::COMMIT_ALL,
+    command = ami->registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
         globalcontext);
     connect(m_commitAllAction, SIGNAL(triggered()), this, SLOT(startCommitAll()));
     subversionMenu->addAction(command);
 
     m_commitCurrentAction = new Core::Utils::ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_commitCurrentAction,
-        SubversionPlugin::COMMIT_CURRENT, globalcontext);
+        CMD_ID_COMMIT_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
 #ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+C")));
@@ -392,11 +346,11 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_commitCurrentAction, SIGNAL(triggered()), this, SLOT(startCommitCurrentFile()));
     subversionMenu->addAction(command);
 
-    subversionMenu->addAction(createSeparator(this, ami, SubversionPlugin::SEPARATOR2, globalcontext));
+    subversionMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR2, globalcontext));
 
     m_filelogCurrentAction = new Core::Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_filelogCurrentAction,
-        SubversionPlugin::FILELOG_CURRENT, globalcontext);
+        CMD_ID_FILELOG_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_filelogCurrentAction, SIGNAL(triggered()), this,
         SLOT(filelogCurrentFile()));
@@ -404,27 +358,27 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     m_annotateCurrentAction = new Core::Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_annotateCurrentAction,
-        SubversionPlugin::ANNOTATE_CURRENT, globalcontext);
+        CMD_ID_ANNOTATE_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_annotateCurrentAction, SIGNAL(triggered()), this,
         SLOT(annotateCurrentFile()));
     subversionMenu->addAction(command);
 
     m_describeAction = new QAction(tr("Describe..."), this);
-    command = ami->registerAction(m_describeAction, SubversionPlugin::DESCRIBE, globalcontext);
+    command = ami->registerAction(m_describeAction, CMD_ID_DESCRIBE, globalcontext);
     connect(m_describeAction, SIGNAL(triggered()), this, SLOT(slotDescribe()));
     subversionMenu->addAction(command);
 
-    subversionMenu->addAction(createSeparator(this, ami, SubversionPlugin::SEPARATOR3, globalcontext));
+    subversionMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR3, globalcontext));
 
     m_statusAction = new QAction(tr("Project Status"), this);
-    command = ami->registerAction(m_statusAction, SubversionPlugin::STATUS,
+    command = ami->registerAction(m_statusAction, CMD_ID_STATUS,
         globalcontext);
     connect(m_statusAction, SIGNAL(triggered()), this, SLOT(projectStatus()));
     subversionMenu->addAction(command);
 
     m_updateProjectAction = new QAction(tr("Update Project"), this);
-    command = ami->registerAction(m_updateProjectAction, SubversionPlugin::UPDATE, globalcontext);
+    command = ami->registerAction(m_updateProjectAction, CMD_ID_UPDATE, globalcontext);
     connect(m_updateProjectAction, SIGNAL(triggered()), this, SLOT(updateProject()));
     subversionMenu->addAction(command);
 
