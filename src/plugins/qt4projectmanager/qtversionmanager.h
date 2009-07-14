@@ -111,7 +111,7 @@ public:
     QString demosPath() const;
 
     int uniqueId() const;
-    bool isMSVC64Bit() const;
+    bool isQt64Bit() const;
 
     enum QmakeBuildConfig
     {

@@ -894,7 +894,7 @@ ProjectExplorer::ToolChain *QtVersion::createToolChain(ProjectExplorer::ToolChai
         tempToolchain = ProjectExplorer::ToolChain::createMinGWToolChain(qmake_cxx, mingwDirectory());
         //qDebug()<<"Mingw ToolChain";
     } else if(type == ProjectExplorer::ToolChain::MSVC) {
-        tempToolchain = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isMSVC64Bit());
+        tempToolchain = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isQt64Bit());
         //qDebug()<<"MSVC ToolChain ("<<version->msvcVersion()<<")";
     } else if(type == ProjectExplorer::ToolChain::WINCE) {
         tempToolchain = ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatform());
@@ -1138,7 +1138,7 @@ QString QtVersion::examplesPath() const
     return m_versionInfo["QT_INSTALL_EXAMPLES"];
 }
 
-bool QtVersion::isMSVC64Bit() const
+bool QtVersion::isQt64Bit() const
 {
         const QString make = qmakeCommand();
 //        qDebug() << make;
