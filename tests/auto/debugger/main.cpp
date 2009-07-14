@@ -1,3 +1,4 @@
+#include <ctype.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
@@ -126,7 +127,8 @@ private slots:
     void niceType_data();
 
     void dumperCompatibility();
-    void dumpAbstractItemModel();
+    void dumpQAbstractItemModel();
+    void dumpQByteArray();
     void dumpQChar();
     void dumpQDateTime();
     void dumpQDir();
@@ -155,7 +157,8 @@ public slots:
 private:
     QProcess m_proc; // the Qt Creator process
 
-    void dumpAbstractItemModelHelper(QAbstractItemModel &m);
+    void dumpQAbstractItemModelHelper(QAbstractItemModel &m);
+    void dumpQByteArrayHelper(QByteArray &ba);
     void dumpQCharHelper(QChar &c);
     void dumpQDateTimeHelper(QDateTime &d);
     void dumpQDirHelper(QDir &d);
@@ -444,7 +447,7 @@ static const QByteArray generateLongSpec(long n)
     return QByteArray("value='").append(QString::number(n)).append("',type='long',numchild='0'");
 }
 
-void tst_Debugger::dumpAbstractItemModelHelper(QAbstractItemModel &m)
+void tst_Debugger::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
 {
     QByteArray expected("tiname='iname',addr='");
     QString address = ptrToBa(&m);
@@ -471,38 +474,87 @@ void tst_Debugger::dumpAbstractItemModelHelper(QAbstractItemModel &m)
     testDumper(expected, &m, NS"QAbstractItemModel", true);
 }
 
-void tst_Debugger::dumpAbstractItemModel()
+void tst_Debugger::dumpQAbstractItemModel()
 {
     // Case 1: No rows, one column.
     QStringList strList;
     QStringListModel model(strList);
-    dumpAbstractItemModelHelper(model);
+    dumpQAbstractItemModelHelper(model);
 
     // Case 2: One row, one column.
     strList << "String 1";
     model.setStringList(strList);
-    dumpAbstractItemModelHelper(model);
+    dumpQAbstractItemModelHelper(model);
 
     // Case 3: Two rows, one column.
     strList << "String 2";
     model.setStringList(strList);
-    dumpAbstractItemModelHelper(model);
+    dumpQAbstractItemModelHelper(model);
 
     // Case 4: No rows, two columns.
     QStandardItemModel model2(0, 2);
-    dumpAbstractItemModelHelper(model2);
+    dumpQAbstractItemModelHelper(model2);
 
     // Case 5: One row, two columns.
     QStandardItem item1("Item (0,0)");
     QStandardItem item2("(Item (0,1)");
     model2.appendRow(QList<QStandardItem *>() << &item1 << &item2);
-    dumpAbstractItemModelHelper(model2);
+    dumpQAbstractItemModelHelper(model2);
 
     // Case 6: Two rows, two columns
     QStandardItem item3("Item (1,0");
     QStandardItem item4("Item (1,1)");
     model2.appendRow(QList<QStandardItem *>() << &item3 << &item4);
-    dumpAbstractItemModelHelper(model);
+    dumpQAbstractItemModelHelper(model);
+}
+
+void tst_Debugger::dumpQByteArrayHelper(QByteArray &ba)
+{
+    QString size = QString::number(ba.size());
+    QByteArray value;
+    if (ba.size() <= 100)
+        value = ba;
+    else
+        value.append(ba.left(100).toBase64()).append(" <size: ").append(size).
+            append(", cut...>");
+    QByteArray expected("value='");
+    expected.append(value.toBase64()).append("',valueencoded='1',type='"NS"QByteArray',numchild='").
+        append(size).append("',childtype='char',childnumchild='0',children=[");
+    for (int i = 0; i < ba.size(); ++i) {
+        char c = ba.at(i);
+        char printedVal = isprint(c) && c != '\'' && c != '"' ? c : '?';
+        QString hexNumber = QString::number(c, 16);
+        if (hexNumber.size() < 2)
+            hexNumber.prepend("0");
+        expected.append("{value='").append(hexNumber).append("  (").
+            append(QString::number(c)).append(" '").append(printedVal).append("')'}");
+        if (i != ba.size() - 1)
+            expected.append(",");
+    }
+    expected.append("]");
+    testDumper(expected, &ba, NS"QByteArray", true);
+}
+
+void tst_Debugger::dumpQByteArray()
+{
+    // Case 1: Empty object.
+    QByteArray ba;
+    dumpQByteArrayHelper(ba);
+
+    // Case 2: One element.
+    ba.append('a');
+    dumpQByteArrayHelper(ba);
+
+    // Case 3: Two elements.
+    ba.append('b');
+    dumpQByteArrayHelper(ba);
+
+    // Case 4: > 100 elements.
+    ba = QByteArray(101, 'a');
+
+    // Case 5: Regular and special characters and the replacement character.
+    ba = QByteArray("abc\a\n\r\e\'\"?");
+    dumpQByteArrayHelper(ba);
 }
 
 void tst_Debugger::dumpQCharHelper(QChar &c)
