@@ -242,8 +242,6 @@ public:
     QStack<QHash<QString, QStringList> > m_valuemapStack;
     QStack<QHash<const ProFile*, QHash<QString, QStringList> > > m_filevaluemapStack;
 
-    int m_prevLineNo;                               // Checking whether we're assigning the same TARGET
-    ProFile *m_prevProFile;                         // See m_prevLineNo
     QStringList m_addUserConfigCmdArgs;
     QStringList m_removeUserConfigCmdArgs;
     bool m_parsePreAndPostFiles;
@@ -257,10 +255,6 @@ Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::ProLoop, Q_MOVABLE_TYPE);
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
   : q(q_)
 {
-    // Global parser state
-    m_prevLineNo = 0;
-    m_prevProFile = 0;
-
     // Configuration, more or less
     m_verbose = true;
     m_cumulative = true;
@@ -823,23 +817,6 @@ void ProFileEvaluator::Private::visitProValue(ProValue *value)
     QString varName = m_lastVarName;
 
     QStringList v = expandVariableReferences(val);
-
-    // Since qmake combines different values for the TARGET variable, we join
-    // TARGET values that are on the same line. We can't do this later with all
-    // values because this parser isn't scope-aware, so we'd risk joining
-    // scope-specific targets together.
-    if (varName == QLatin1String("TARGET")
-            && m_lineNo == m_prevLineNo
-            && currentProFile() == m_prevProFile) {
-        QStringList targets = m_tempValuemap.value(QLatin1String("TARGET"));
-        m_tempValuemap.remove(QLatin1String("TARGET"));
-        QStringList lastTarget(targets.takeLast());
-        lastTarget << v.join(QLatin1String(" "));
-        targets.push_back(lastTarget.join(QLatin1String(" ")));
-        v = targets;
-    }
-    m_prevLineNo = m_lineNo;
-    m_prevProFile = currentProFile();
 
     switch (m_variableOperator) {
         case ProVariable::SetOperator:          // =
