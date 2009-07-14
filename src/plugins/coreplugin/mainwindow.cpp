@@ -304,6 +304,7 @@ bool MainWindow::init(QString *errorMessage)
     OutputPanePlaceHolder *oph = new OutputPanePlaceHolder(m_outputMode);
     oph->setCloseable(false);
     outputModeWidget->layout()->addWidget(oph);
+    oph->setVisible(true); // since the output pane placeholder is invisible at startup by default (which makes sense in most cases)
     outputModeWidget->layout()->addWidget(new Core::FindToolBarPlaceHolder(m_outputMode));
     outputModeWidget->setFocusProxy(oph);
 
