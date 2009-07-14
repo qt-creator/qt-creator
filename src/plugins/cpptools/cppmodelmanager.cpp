@@ -174,6 +174,7 @@ public:
     CppPreprocessor(QPointer<CppModelManager> modelManager);
     virtual ~CppPreprocessor();
 
+    void setRevision(unsigned revision);
     void setWorkingCopy(const QMap<QString, QString> &workingCopy);
     void setIncludePaths(const QStringList &includePaths);
     void setFrameworkPaths(const QStringList &frameworkPaths);
@@ -222,6 +223,7 @@ private:
     Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
     QSet<QString> m_processed;
+    unsigned m_revision;
 };
 
 } // namespace Internal
@@ -230,11 +232,15 @@ private:
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
     : snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
-      preprocess(this, &env)
+      preprocess(this, &env),
+      m_revision(0)
 { }
 
 CppPreprocessor::~CppPreprocessor()
 { }
+
+void CppPreprocessor::setRevision(unsigned revision)
+{ m_revision = revision; }
 
 void CppPreprocessor::setWorkingCopy(const QMap<QString, QString> &workingCopy)
 { m_workingCopy = workingCopy; }
@@ -537,6 +543,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     }
 
     doc = Document::create(fileName);
+    doc->setRevision(m_revision);
 
     Document::Ptr previousDoc = switchDocument(doc);
 
@@ -577,6 +584,7 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
 CppModelManager::CppModelManager(QObject *parent)
     : CppModelManagerInterface(parent)
 {
+    m_revision = 0;
     m_synchronizer.setCancelOnWait(true);
 
     m_core = Core::ICore::instance(); // FIXME
@@ -762,6 +770,7 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
         const QMap<QString, QString> workingCopy = buildWorkingCopyList();
 
         CppPreprocessor *preproc = new CppPreprocessor(this);
+        preproc->setRevision(++m_revision);
         preproc->setProjectFiles(projectFiles());
         preproc->setIncludePaths(includePaths());
         preproc->setFrameworkPaths(frameworkPaths());
@@ -839,9 +848,21 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 {
     const QString fileName = doc->fileName();
 
+    bool outdated = false;
+
     protectSnapshot.lock();
-    m_snapshot.insert(doc);
+
+    Document::Ptr previous = m_snapshot.value(fileName);
+
+    if (previous && (doc->revision() != 0 && doc->revision() < previous->revision()))
+        outdated = true;
+    else
+        m_snapshot.insert(doc);
+
     protectSnapshot.unlock();
+
+    if (outdated)
+        return;
 
     QList<Core::IEditor *> openedEditors = m_core->editorManager()->openedEditors();
     foreach (Core::IEditor *editor, openedEditors) {

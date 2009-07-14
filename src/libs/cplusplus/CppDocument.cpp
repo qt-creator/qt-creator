@@ -103,7 +103,8 @@ private:
 
 Document::Document(const QString &fileName)
     : _fileName(fileName),
-      _globalNamespace(0)
+      _globalNamespace(0),
+      _revision(0)
 {
     _control = new Control();
 
@@ -128,6 +129,16 @@ Document::~Document()
 Control *Document::control() const
 {
     return _control;
+}
+
+unsigned Document::revision() const
+{
+    return _revision;
+}
+
+void Document::setRevision(unsigned revision)
+{
+    _revision = revision;
 }
 
 QString Document::fileName() const

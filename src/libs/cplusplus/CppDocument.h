@@ -60,6 +60,9 @@ public:
 public:
     ~Document();
 
+    unsigned revision() const;
+    void setRevision(unsigned revision);
+
     QString fileName() const;
 
     QStringList includedFiles() const;
@@ -265,6 +268,7 @@ private:
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;
     QByteArray _source;
+    unsigned _revision;
 
     friend class Snapshot;
 };

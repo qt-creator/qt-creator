@@ -189,6 +189,7 @@ private:
     QTimer *m_updateEditorSelectionsTimer;
 
     QFutureSynchronizer<void> m_synchronizer;
+    unsigned m_revision;
 };
 
 } // namespace Internal
