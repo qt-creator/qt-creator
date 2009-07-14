@@ -69,14 +69,26 @@ CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
         << QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
         << QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE);
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(":/cppeditor/images/qt_cpp.png"),
-                                        QLatin1String("cpp"));
-    iconProvider->registerIconOverlayForSuffix(QIcon(":/cppeditor/images/qt_cpp.png"),
-                                        QLatin1String("hpp"));
-    iconProvider->registerIconOverlayForSuffix(QIcon(":/cppeditor/images/qt_h.png"),
-                                        QLatin1String("h"));
+#ifndef Q_WS_MAC
+    // ### It would be really cool if we could get the stuff from the XML file here and not play "catch up" all the time.
+    QIcon cppIcon(":/cppeditor/images/qt_cpp.png");
+    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("cpp"));
+    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("cp"));
+    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("cc"));
+    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("cxx"));
+    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("C"));
+    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("c++"));
     iconProvider->registerIconOverlayForSuffix(QIcon(":/cppeditor/images/qt_c.png"),
                                         QLatin1String("c"));
+    QIcon headerIcon(":/cppeditor/images/qt_h.png");
+    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("hpp"));
+    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("hh"));
+    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("h"));
+    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("hxx"));
+    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("H"));
+    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("hp"));
+    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("h++"));
+#endif
 }
 
 QString CppEditorFactory::kind() const

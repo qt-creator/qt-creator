@@ -70,7 +70,7 @@ QIcon FileIconProvider::icon(const QFileInfo &fileInfo)
 
         // Disabled since for now we'll make sure that all icons fit with our
         // own custom icons by returning an empty one if we don't know it.
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
         // This is incorrect if the OS does not always return the same icon for the
         // same suffix (Mac OS X), but should speed up the retrieval a lot ...
         icon = m_systemIconProvider.icon(fileInfo);
@@ -123,7 +123,7 @@ void FileIconProvider::registerIconOverlayForSuffix(const QIcon &icon, const QSt
 QIcon FileIconProvider::iconForSuffix(const QString &suffix) const
 {
     QIcon icon;
-#ifdef Q_WS_WIN // On windows we use the file system icons
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC) // On windows we use the file system icons
     Q_UNUSED(suffix)
 #else
     if (suffix.isEmpty())
