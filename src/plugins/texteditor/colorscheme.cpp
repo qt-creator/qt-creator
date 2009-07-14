@@ -151,7 +151,8 @@ bool ColorScheme::save(const QString &fileName)
         const Format &format = i.next().value();
         w.writeStartElement(QLatin1String("style"));
         w.writeAttribute(QLatin1String("name"), i.key());
-        if (i.key() == QLatin1String(Constants::C_TEXT) || format.foreground() != textFormat.foreground())
+        if (format.foreground().isValid() &&
+            (i.key() == QLatin1String(Constants::C_TEXT) || format.foreground() != textFormat.foreground()))
             w.writeAttribute(QLatin1String("foreground"), format.foreground().name().toLower());
         if (format.background().isValid())
             w.writeAttribute(QLatin1String("background"), format.background().name().toLower());
