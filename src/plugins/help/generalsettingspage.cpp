@@ -110,6 +110,10 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
 
     int index = m_helpEngine->customValue(QLatin1String("StartOption"), 2).toInt();
     m_ui.helpStartComboBox->setCurrentIndex(index);
+
+    index = m_helpEngine->customValue(QLatin1String("ContextHelpOption"), 0).toInt();
+    m_ui.contextHelpComboBox->setCurrentIndex(index);
+
     
     connect(m_ui.currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
     connect(m_ui.blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
@@ -165,6 +169,9 @@ void GeneralSettingsPage::apply()
 
     int startOption = m_ui.helpStartComboBox->currentIndex();
     m_helpEngine->setCustomValue(QLatin1String("StartOption"), startOption);
+
+    int contextHelpOption = m_ui.contextHelpComboBox->currentIndex();
+    m_helpEngine->setCustomValue(QLatin1String("ContextHelpOption"), contextHelpOption);
 }
 
 void GeneralSettingsPage::finish()

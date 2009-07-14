@@ -53,6 +53,7 @@
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
 #include <coreplugin/welcomemode.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <texteditor/texteditorconstants.h>
 
@@ -732,12 +733,35 @@ void HelpPlugin::activateContext()
     }
 
     HelpViewer *viewer = 0;
-    if (placeHolder && !Core::RightPaneWidget::instance()->hasFocus()) {
+
+
+
+    bool showSideBySide = false;
+
+    switch (m_helpEngine->customValue(QLatin1String("ContextHelpOption"), 0).toInt())
+    {
+    case 0: // side by side if possible
+        {
+            if (Core::IEditor *editor = Core::EditorManager::instance()->currentEditor()) {
+                if (editor->widget() && editor->widget()->isVisible() && editor->widget()->width() < 800 )
+                    break;
+            }
+        }
+        // fall through
+    case 1: // side by side
+        showSideBySide = true;
+        break;
+    default: // help mode
+        break;
+    }
+
+    if (placeHolder && showSideBySide && !Core::RightPaneWidget::instance()->hasFocus()) {
         Core::RightPaneWidget::instance()->setShown(true);
         viewer = m_helpViewerForSideBar;
     } else {
+        if (!m_centralWidget->currentHelpViewer())
+            activateHelpMode();
         viewer = m_centralWidget->currentHelpViewer();
-        activateHelpMode();
     }
 
     if (viewer) {
@@ -753,6 +777,8 @@ void HelpPlugin::activateContext()
                 viewer->setSource(source);
             viewer->setFocus();
         }
+        if (viewer != m_helpViewerForSideBar)
+            activateHelpMode();
     }
 }
 
