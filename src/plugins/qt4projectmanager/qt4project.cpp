@@ -274,8 +274,7 @@ void Qt4Project::qtVersionsChanged()
                 m_rootProjectNode->update();
         }
     }
-    delete m_toolChain;
-    m_toolChain = 0;
+    updateToolChain(activeBuildConfiguration());
 }
 
 void Qt4Project::updateFileList()
@@ -388,14 +387,27 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
 ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
 {
     if (!m_toolChain) {
-        m_toolChain = qtVersion(buildConfiguration)->createToolChain(toolChainType(buildConfiguration));
-#ifdef QTCREATOR_WITH_S60
-        if (m_toolChain->type() == ToolChain::GCCE) {
-            static_cast<GCCEToolChain *>(m_toolChain)->setProject(this);
-        }
-#endif
+        updateToolChain(buildConfiguration);
     }
     return m_toolChain;
+}
+
+void Qt4Project::updateToolChain(const QString &buildConfiguration) const
+{
+    ProjectExplorer::ToolChain *tempToolChain;
+    tempToolChain = qtVersion(buildConfiguration)->createToolChain(toolChainType(buildConfiguration));
+    if (!ProjectExplorer::ToolChain::equals(m_toolChain, tempToolChain)) {
+        if (m_toolChain)
+            delete m_toolChain;
+        m_toolChain = tempToolChain;
+    } else {
+        delete tempToolChain;
+    }
+#ifdef QTCREATOR_WITH_S60
+    if (m_toolChain && m_toolChain->type() == ToolChain::GCCE) {
+        static_cast<GCCEToolChain *>(m_toolChain)->setProject(this);
+    }
+#endif
 }
 
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
@@ -847,8 +859,7 @@ void Qt4Project::setQtVersion(const QString &buildConfiguration, int id)
 void Qt4Project::setToolChainType(const QString &buildConfiguration, ProjectExplorer::ToolChain::ToolChainType type)
 {
     setValue(buildConfiguration, "ToolChain", (int)type);
-    delete m_toolChain;
-    m_toolChain = 0;
+    updateToolChain(buildConfiguration);
     updateActiveRunConfiguration();
 }
 
