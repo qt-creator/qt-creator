@@ -61,40 +61,40 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
     // Add font preference page
     FormatDescriptions formatDescriptions;
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_TEXT), tr("Text")));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_TEXT), tr("Text")));
 
     // Special categories
     const QPalette p = QApplication::palette();
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_LINK), tr("Link"), Qt::blue));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_SELECTION), tr("Selection"), p.color(QPalette::HighlightedText)));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_LINE_NUMBER), tr("Line Number")));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_SEARCH_RESULT), tr("Search Result")));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_SEARCH_SCOPE), tr("Search Scope")));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_PARENTHESES), tr("Parentheses")));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_CURRENT_LINE), tr("Current Line")));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_LINK), tr("Link"), Qt::blue));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_SELECTION), tr("Selection"), p.color(QPalette::HighlightedText)));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_LINE_NUMBER), tr("Line Number")));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_SEARCH_RESULT), tr("Search Result")));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_SEARCH_SCOPE), tr("Search Scope")));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_PARENTHESES), tr("Parentheses")));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_CURRENT_LINE), tr("Current Line")));
 
     FormatDescription currentLineNumber = FormatDescription(QLatin1String(C_CURRENT_LINE_NUMBER), tr("Current Line Number"), Qt::darkGray);
     currentLineNumber.format().setBold(true);
-    formatDescriptions.push_back(currentLineNumber);
+    formatDescriptions.append(currentLineNumber);
 
     // Standard categories
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_NUMBER), tr("Number"), Qt::darkBlue));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_STRING), tr("String"), Qt::darkGreen));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_TYPE), tr("Type"), Qt::darkMagenta));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_KEYWORD), tr("Keyword"), Qt::darkYellow));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_OPERATOR), tr("Operator")));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_PREPROCESSOR), tr("Preprocessor"), Qt::darkBlue));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_LABEL), tr("Label"), Qt::darkRed));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_COMMENT), tr("Comment"), Qt::darkGreen));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DOXYGEN_COMMENT), tr("Doxygen Comment"), Qt::darkBlue));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DOXYGEN_TAG), tr("Doxygen Tag"), Qt::blue));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DISABLED_CODE), tr("Disabled Code"), Qt::gray));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_NUMBER), tr("Number"), Qt::darkBlue));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_STRING), tr("String"), Qt::darkGreen));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_TYPE), tr("Type"), Qt::darkMagenta));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_KEYWORD), tr("Keyword"), Qt::darkYellow));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_OPERATOR), tr("Operator")));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_PREPROCESSOR), tr("Preprocessor"), Qt::darkBlue));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_LABEL), tr("Label"), Qt::darkRed));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_COMMENT), tr("Comment"), Qt::darkGreen));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_DOXYGEN_COMMENT), tr("Doxygen Comment"), Qt::darkBlue));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_DOXYGEN_TAG), tr("Doxygen Tag"), Qt::blue));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_DISABLED_CODE), tr("Disabled Code"), Qt::gray));
 
     // Diff categories
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_ADDED_LINE), tr("Added Line"), QColor(0, 170, 0)));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_REMOVED_LINE), tr("Removed Line"), Qt::red));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DIFF_FILE), tr("Diff File"), Qt::darkBlue));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DIFF_LOCATION), tr("Diff Location"), Qt::blue));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_ADDED_LINE), tr("Added Line"), QColor(0, 170, 0)));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_REMOVED_LINE), tr("Removed Line"), Qt::red));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_DIFF_FILE), tr("Diff File"), Qt::darkBlue));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_DIFF_LOCATION), tr("Diff Location"), Qt::blue));
 
     m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
                                               QLatin1String("TextEditor"),

@@ -161,7 +161,7 @@ QVector<QTextCharFormat> FontSettings::toTextCharFormats(const QVector<QString> 
     const int size = categories.size();
     rc.reserve(size);
     for (int i = 0; i < size; i++)
-         rc.push_back(toTextCharFormat(categories.at(i)));
+         rc.append(toTextCharFormat(categories.at(i)));
     return rc;
 }
 
