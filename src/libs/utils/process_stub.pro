@@ -14,6 +14,7 @@ build_all:!build_pass {
 
 unix {
     SOURCES += process_stub_unix.c
+    solaris-.*: LIBS += -lsocket
 } else {
     SOURCES += process_stub_win.c
     LIBS += -lshell32

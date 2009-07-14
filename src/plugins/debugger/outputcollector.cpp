@@ -47,6 +47,9 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifdef Q_OS_SOLARIS
+# include <sys/filio.h> // FIONREAD
+#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
