@@ -2,6 +2,9 @@
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QFileInfo>
+#include <QtCore/QStringList>
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QStringListModel>
 #include <QtTest/QtTest>
 
 #include <QtCore/private/qobject_p.h>
@@ -123,9 +126,12 @@ private slots:
     void niceType_data();
 
     void dumperCompatibility();
+    void dumpAbstractItemModel();
     void dumpQChar();
     void dumpQDateTime();
+    void dumpQDir();
     void dumpQFile();
+    void dumpQFileInfo();
     void dumpQHash();
     void dumpQList_int();
     void dumpQList_char();
@@ -149,8 +155,10 @@ public slots:
 private:
     QProcess m_proc; // the Qt Creator process
 
+    void dumpAbstractItemModelHelper(QAbstractItemModel &m);
     void dumpQCharHelper(QChar &c);
     void dumpQDateTimeHelper(QDateTime &d);
+    void dumpQDirHelper(QDir &d);
     void dumpQFileHelper(const QString &name, bool exists);
 };
 
@@ -403,6 +411,100 @@ void tst_Debugger::dumperCompatibility()
 {
 }
 
+static const QByteArray utfToBase64(const QString &string)
+{
+    return QByteArray(reinterpret_cast<const char *>(string.utf16()), 2 * string.size()).toBase64();
+}
+
+static const char *boolToVal(bool b)
+{
+    return b ? "'true'" : "'false'";
+}
+
+static const QByteArray ptrToBa(const void *p)
+{
+    return QByteArray().append(p == 0 ?
+        "<null>" :
+        QString("0x") + QString::number((quintptr) p, 16));
+}
+
+static const QByteArray generateQStringSpec(const QString& str)
+{
+    return QByteArray("value='").append(utfToBase64(str)).
+        append("',type='"NS"QString',numchild='0',valueencoded='2'");
+}
+
+static const QByteArray generateBoolSpec(bool b)
+{
+    return QByteArray("value=").append(boolToVal(b)).append(",type='bool',numchild='0'");
+}
+
+static const QByteArray generateLongSpec(long n)
+{
+    return QByteArray("value='").append(QString::number(n)).append("',type='long',numchild='0'");
+}
+
+void tst_Debugger::dumpAbstractItemModelHelper(QAbstractItemModel &m)
+{
+    QByteArray expected("tiname='iname',addr='");
+    QString address = ptrToBa(&m);
+    expected.append(address).append("',type='"NS"QAbstractItemModel',value='(").
+        append(QString::number(m.rowCount())).append(",").
+        append(QString::number(m.columnCount())).append(")',numchild='1',").
+        append("children=[{numchild='1',name='"NS"QObject',addr='").append(address).
+        append("',value='").append(utfToBase64(m.objectName())).
+        append("',valueencoded='2',type='"NS"QObject',displayedtype='").
+        append(m.metaObject()->className()).append("'}");
+    for (int row = 0; row < m.rowCount(); ++row) {
+        for (int column = 0; column < m.columnCount(); ++column) {
+            QModelIndex mi = m.index(row, column);
+            expected.append(",{name='[").append(QString::number(row)).append(",").
+                append(QString::number(column)).append("]',value='").
+                append(utfToBase64(m.data(mi).toString())).
+                append("',valueencoded='2',numchild='1',addr='$").
+                append(QString::number(mi.row())).append(",").append(QString::number(mi.column())).
+                append(",").append(ptrToBa(mi.internalPointer())).append(",").
+                append(ptrToBa(mi.model())).append("',type='"NS"QAbstractItem'}");
+        }
+    }
+    expected.append("]");
+    testDumper(expected, &m, NS"QAbstractItemModel", true);
+}
+
+void tst_Debugger::dumpAbstractItemModel()
+{
+    // Case 1: No rows, one column.
+    QStringList strList;
+    QStringListModel model(strList);
+    dumpAbstractItemModelHelper(model);
+
+    // Case 2: One row, one column.
+    strList << "String 1";
+    model.setStringList(strList);
+    dumpAbstractItemModelHelper(model);
+
+    // Case 3: Two rows, one column.
+    strList << "String 2";
+    model.setStringList(strList);
+    dumpAbstractItemModelHelper(model);
+
+    // Case 4: No rows, two columns.
+    QStandardItemModel model2(0, 2);
+    dumpAbstractItemModelHelper(model2);
+
+    // Case 5: One row, two columns.
+    QStandardItem item1("Item (0,0)");
+    QStandardItem item2("(Item (0,1)");
+    model2.appendRow(QList<QStandardItem *>() << &item1 << &item2);
+    dumpAbstractItemModelHelper(model2);
+
+    // Case 6: Two rows, two columns
+    QStandardItem item3("Item (1,0");
+    QStandardItem item4("Item (1,1)");
+    model2.appendRow(QList<QStandardItem *>() << &item3 << &item4);
+    dumpAbstractItemModelHelper(model);
+}
+
 void tst_Debugger::dumpQCharHelper(QChar &c)
 {
     char ch = c.isPrint() && c.unicode() < 127 ? c.toAscii() : '?';
@@ -435,23 +537,6 @@ void tst_Debugger::dumpQChar()
     dumpQCharHelper(c);
 }
 
-
-static const QByteArray utfToBase64(const QString &string)
-{
-    return QByteArray(reinterpret_cast<const char *>(string.utf16()), 2 * string.size()).toBase64();
-}
-
-static const char *boolToVal(bool b)
-{
-    return b ? "'true'" : "'false'";
-}
-
-static const QByteArray generateQStringSpec(const QString& str)
-{
-    return QByteArray("value='").append(utfToBase64(str)).
-        append("',type='"NS"QString',numchild='0',valueencoded='2'");
-}
-
 void tst_Debugger::dumpQDateTimeHelper(QDateTime &d)
 {
     QByteArray expected("value='");
@@ -460,9 +545,8 @@ void tst_Debugger::dumpQDateTimeHelper(QDateTime &d)
     else
       expected.append(utfToBase64(d.toString())).append("',valueencoded='2',");
     expected.append("type='$T',numchild='3',children=[");
-    expected.append("{name='isNull',value=").append(boolToVal(d.isNull())).append(",type='bool',numchild='0'},");
-    expected.append("{name='toTime_t',value='").append(QString::number((long) d.toTime_t())).
-            append("',type='long',numchild='0'},");
+    expected.append("{name='isNull',").append(generateBoolSpec(d.isNull())).append("},");
+    expected.append("{name='toTime_t',").append(generateLongSpec(d.toTime_t())).append("},");
     expected.append("{name='toString',").append(generateQStringSpec(d.toString())).append("},");
     expected.append("{name='toString_(ISO)',").append(generateQStringSpec(d.toString(Qt::ISODate))).append("},");
     expected.append("{name='toString_(SystemLocale)',").
@@ -482,6 +566,25 @@ void tst_Debugger::dumpQDateTime()
     // Case 2: Non-null object.
     d = QDateTime::currentDateTime();
     dumpQDateTimeHelper(d);
+}
+
+void tst_Debugger::dumpQDirHelper(QDir &d)
+{
+    testDumper(QByteArray("value='") + utfToBase64(d.absolutePath())
+               + QByteArray("',valueencoded='2',type='"NS"QDir',numchild='3',children=[{name='absolutePath',")
+               + generateQStringSpec(d.absolutePath()) + QByteArray("},{name='canonicalPath',")
+               + generateQStringSpec(d.canonicalPath()) + QByteArray("}]"), &d, NS"QDir", true);
+}
+
+void tst_Debugger::dumpQDir()
+{
+    // Case 1: Current working directory.
+    QDir dir = QDir::current();
+    dumpQDirHelper(dir);
+
+    // Case 2: Root directory.
+    dir = QDir::root();
+    dumpQDirHelper(dir);
 }
 
 void tst_Debugger::dumpQFileHelper(const QString &name, bool exists)
@@ -510,6 +613,68 @@ void tst_Debugger::dumpQFile()
 
     // Case 3: File with a name that most likely does not exist.
     dumpQFileHelper("jfjfdskjdflsdfjfdls", false);
+}
+
+void tst_Debugger::dumpQFileInfo()
+{
+    QFileInfo fi(".");
+    QByteArray expected("value='");
+    expected.append(utfToBase64(fi.filePath())).
+        append("',valueencoded='2',type='"NS"QFileInfo',numchild='3',").
+        append("children=[").
+        append("{name='absolutePath',").append(generateQStringSpec(fi.absolutePath())).append("},").
+        append("{name='absoluteFilePath',").append(generateQStringSpec(fi.absoluteFilePath())).append("},").
+        append("{name='canonicalPath',").append(generateQStringSpec(fi.canonicalPath())).append("},").
+        append("{name='canonicalFilePath',").append(generateQStringSpec(fi.canonicalFilePath())).append("},").
+        append("{name='completeBaseName',").append(generateQStringSpec(fi.completeBaseName())).append("},").
+        append("{name='completeSuffix',").append(generateQStringSpec(fi.completeSuffix())).append("},").
+        append("{name='baseName',").append(generateQStringSpec(fi.baseName())).append("},").
+#ifdef Q_OS_MACX
+        append("{name='isBundle',").append(generateBoolSpec(fi.isBundle()).append("},").
+        append("{name='bundleName',").append(generateQStringSpec(fi.bundleName())).append("'},").
+#endif
+        append("{name='completeSuffix',").append(generateQStringSpec(fi.completeSuffix())).append("},").
+        append("{name='fileName',").append(generateQStringSpec(fi.fileName())).append("},").
+        append("{name='filePath',").append(generateQStringSpec(fi.filePath())).append("},").
+        append("{name='group',").append(generateQStringSpec(fi.group())).append("},").
+        append("{name='owner',").append(generateQStringSpec(fi.owner())).append("},").
+        append("{name='path',").append(generateQStringSpec(fi.path())).append("},").
+        append("{name='groupid',").append(generateLongSpec(fi.groupId())).append("},").
+        append("{name='ownerid',").append(generateLongSpec(fi.ownerId())).append("},").
+        append("{name='permissions',").append(generateLongSpec(fi.permissions())).append("},").
+        append("{name='caching',").append(generateBoolSpec(fi.caching())).append("},").
+        append("{name='exists',").append(generateBoolSpec(fi.exists())).append("},").
+        append("{name='isAbsolute',").append(generateBoolSpec(fi.isAbsolute())).append("},").
+        append("{name='isDir',").append(generateBoolSpec(fi.isDir())).append("},").
+        append("{name='isExecutable',").append(generateBoolSpec(fi.isExecutable())).append("},").
+        append("{name='isFile',").append(generateBoolSpec(fi.isFile())).append("},").
+        append("{name='isHidden',").append(generateBoolSpec(fi.isHidden())).append("},").
+        append("{name='isReadable',").append(generateBoolSpec(fi.isReadable())).append("},").
+        append("{name='isRelative',").append(generateBoolSpec(fi.isRelative())).append("},").
+        append("{name='isRoot',").append(generateBoolSpec(fi.isRoot())).append("},").
+        append("{name='isSymLink',").append(generateBoolSpec(fi.isSymLink())).append("},").
+        append("{name='isWritable',").append(generateBoolSpec(fi.isWritable())).append("},").
+        append("{name='created',value='").append(utfToBase64(fi.created().toString())).
+        append("',valueencoded='2',type='"NS"QDateTime',numchild='1'},").
+
+#if 0
+        ???
+     d.beginHash();
+        d.putItem("name", "created");
+        d.putItem("value", info.created().toString());
+        d.putItem("valueencoded", "2");
+        d.beginItem("exp");
+            d.put("(("NSX"QFileInfo"NSY"*)").put(d.data).put(")->created()");
+        d.endItem();
+        d.putItem("type", NS"QDateTime");
+        d.putItem("numchild", "1");
+        d.endHash();
+#endif
+
+        append("]");
+
+
+   // testDumper(expected, &fi, NS"QFileInfo", true);
 }
 
 void tst_Debugger::dumpQHash()
