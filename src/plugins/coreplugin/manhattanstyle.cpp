@@ -86,6 +86,8 @@ bool panelWidget(const QWidget *widget)
             return true;
         else if (qobject_cast<const QMenuBar *>(p) && styleEnabled(p))
             return true;
+        else if (p->property("panelwidget").toBool())
+            return true;
         p = p->parentWidget();
     }
     return false;

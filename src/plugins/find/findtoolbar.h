@@ -44,13 +44,14 @@ namespace Internal {
 
 class FindPlugin;
 
-class FindToolBar : public QToolBar
+class FindToolBar : public QWidget
 {
     Q_OBJECT
 
 public:
     FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumentFind);
     ~FindToolBar();
+    void paintEvent(QPaintEvent *event);
 
     void readSettings();
     void writeSettings();
@@ -113,7 +114,6 @@ private:
     QAction *m_caseSensitiveAction;
     QAction *m_wholeWordAction;
     QAction *m_regularExpressionAction;
-    QWidget *m_widget;
     IFindSupport::FindFlags m_findFlags;
 
     QPixmap m_casesensitiveIcon;
