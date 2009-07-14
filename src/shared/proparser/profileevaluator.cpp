@@ -205,13 +205,11 @@ public:
     struct State {
         bool condition;
         bool prevCondition;
+        QStringList varVal;
     } m_sts;
     bool m_invertNext; // Short-lived, so not in State
     int m_skipLevel;
     bool m_cumulative;
-    bool m_isFirstVariableValue;
-    QString m_lastVarName;
-    ProVariable::VariableOperator m_variableOperator;
     QString m_origfile;
     QString m_oldPath;                              // To restore the current path to the path
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
@@ -223,11 +221,6 @@ public:
         bool infinite;
     };
     QStack<ProLoop> m_loopStack;
-
-    // we need the following two variables for handling
-    // CONFIG = foo bar $$CONFIG
-    QHash<QString, QStringList> m_tempValuemap;         // used while evaluating (variable operator value1 value2 ...)
-    QHash<const ProFile*, QHash<QString, QStringList> > m_tempFilevaluemap; // used while evaluating (variable operator value1 value2 ...)
 
     QHash<QString, QStringList> m_valuemap;         // VariableName must be us-ascii, the content however can be non-us-ascii.
     QHash<const ProFile*, QHash<QString, QStringList> > m_filevaluemap; // Variables per include file
@@ -265,7 +258,6 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
     m_sts.prevCondition = false;
     m_invertNext = false;
     m_skipLevel = 0;
-    m_isFirstVariableValue = true;
     m_definingFunc.clear();
 }
 
@@ -669,21 +661,90 @@ void ProFileEvaluator::Private::visitProLoopCleanup()
     m_loopStack.pop_back();
 }
 
-void ProFileEvaluator::Private::visitBeginProVariable(ProVariable *variable)
+void ProFileEvaluator::Private::visitBeginProVariable(ProVariable *)
 {
-    m_lastVarName = variable->variable();
-    m_variableOperator = variable->variableOperator();
-    m_isFirstVariableValue = true;
-    m_tempValuemap = m_valuemap;
-    m_tempFilevaluemap = m_filevaluemap;
+    m_sts.varVal.clear();
 }
 
 void ProFileEvaluator::Private::visitEndProVariable(ProVariable *variable)
 {
-    Q_UNUSED(variable)
-    m_valuemap = m_tempValuemap;
-    m_filevaluemap = m_tempFilevaluemap;
-    m_lastVarName.clear();
+    QString varName = variable->variable();
+
+    switch (variable->variableOperator()) {
+        case ProVariable::SetOperator:          // =
+            if (!m_cumulative) {
+                if (!m_skipLevel) {
+                    m_valuemap[varName] = m_sts.varVal;
+                    m_filevaluemap[currentProFile()][varName] = m_sts.varVal;
+                }
+            } else {
+                // We are greedy for values.
+                m_valuemap[varName] += m_sts.varVal;
+                m_filevaluemap[currentProFile()][varName] += m_sts.varVal;
+            }
+            break;
+        case ProVariable::UniqueAddOperator:    // *=
+            if (!m_skipLevel || m_cumulative) {
+                insertUnique(&m_valuemap, varName, m_sts.varVal);
+                insertUnique(&m_filevaluemap[currentProFile()], varName, m_sts.varVal);
+            }
+            break;
+        case ProVariable::AddOperator:          // +=
+            if (!m_skipLevel || m_cumulative) {
+                m_valuemap[varName] += m_sts.varVal;
+                m_filevaluemap[currentProFile()][varName] += m_sts.varVal;
+            }
+            break;
+        case ProVariable::RemoveOperator:       // -=
+            if (!m_cumulative) {
+                if (!m_skipLevel) {
+                    removeEach(&m_valuemap, varName, m_sts.varVal);
+                    removeEach(&m_filevaluemap[currentProFile()], varName, m_sts.varVal);
+                }
+            } else {
+                // We are stingy with our values, too.
+            }
+            break;
+        case ProVariable::ReplaceOperator:      // ~=
+            {
+                // DEFINES ~= s/a/b/?[gqi]
+
+                QString val = m_sts.varVal.first();
+                doVariableReplace(&val);
+                if (val.length() < 4 || val[0] != QLatin1Char('s')) {
+                    q->logMessage(format("the ~= operator can handle only the s/// function."));
+                    break;
+                }
+                QChar sep = val.at(1);
+                QStringList func = val.split(sep);
+                if (func.count() < 3 || func.count() > 4) {
+                    q->logMessage(format("the s/// function expects 3 or 4 arguments."));
+                    break;
+                }
+
+                bool global = false, quote = false, case_sense = false;
+                if (func.count() == 4) {
+                    global = func[3].indexOf(QLatin1Char('g')) != -1;
+                    case_sense = func[3].indexOf(QLatin1Char('i')) == -1;
+                    quote = func[3].indexOf(QLatin1Char('q')) != -1;
+                }
+                QString pattern = func[1];
+                QString replace = func[2];
+                if (quote)
+                    pattern = QRegExp::escape(pattern);
+
+                QRegExp regexp(pattern, case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
+
+                if (!m_skipLevel || m_cumulative) {
+                    // We could make a union of modified and unmodified values,
+                    // but this will break just as much as it fixes, so leave it as is.
+                    replaceInList(&m_valuemap[varName], regexp, replace, global);
+                    replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global);
+
+                }
+            }
+            break;
+    }
 }
 
 void ProFileEvaluator::Private::visitProOperator(ProOperator *oper)
@@ -794,93 +855,7 @@ void ProFileEvaluator::Private::visitProValue(ProValue *value)
 {
     PRE(value);
     m_lineNo = value->lineNumber();
-    QString val = value->value();
-
-    QString varName = m_lastVarName;
-
-    QStringList v = expandVariableReferences(val);
-
-    switch (m_variableOperator) {
-        case ProVariable::SetOperator:          // =
-            if (!m_cumulative) {
-                if (!m_skipLevel) {
-                    if (m_isFirstVariableValue) {
-                        m_tempValuemap[varName] = v;
-                        m_tempFilevaluemap[currentProFile()][varName] = v;
-                    } else { // handle lines "CONFIG = foo bar"
-                        m_tempValuemap[varName] += v;
-                        m_tempFilevaluemap[currentProFile()][varName] += v;
-                    }
-                }
-            } else {
-                // We are greedy for values.
-                m_tempValuemap[varName] += v;
-                m_tempFilevaluemap[currentProFile()][varName] += v;
-            }
-            break;
-        case ProVariable::UniqueAddOperator:    // *=
-            if (!m_skipLevel || m_cumulative) {
-                insertUnique(&m_tempValuemap, varName, v);
-                insertUnique(&m_tempFilevaluemap[currentProFile()], varName, v);
-            }
-            break;
-        case ProVariable::AddOperator:          // +=
-            if (!m_skipLevel || m_cumulative) {
-                m_tempValuemap[varName] += v;
-                m_tempFilevaluemap[currentProFile()][varName] += v;
-            }
-            break;
-        case ProVariable::RemoveOperator:       // -=
-            if (!m_cumulative) {
-                if (!m_skipLevel) {
-                    removeEach(&m_tempValuemap, varName, v);
-                    removeEach(&m_tempFilevaluemap[currentProFile()], varName, v);
-                }
-            } else {
-                // We are stingy with our values, too.
-            }
-            break;
-        case ProVariable::ReplaceOperator:      // ~=
-            {
-                // DEFINES ~= s/a/b/?[gqi]
-
-                doVariableReplace(&val);
-                if (val.length() < 4 || val[0] != QLatin1Char('s')) {
-                    q->logMessage(format("the ~= operator can handle only the s/// function."));
-                    break;
-                }
-                QChar sep = val.at(1);
-                QStringList func = val.split(sep);
-                if (func.count() < 3 || func.count() > 4) {
-                    q->logMessage(format("the s/// function expects 3 or 4 arguments."));
-                    break;
-                }
-
-                bool global = false, quote = false, case_sense = false;
-                if (func.count() == 4) {
-                    global = func[3].indexOf(QLatin1Char('g')) != -1;
-                    case_sense = func[3].indexOf(QLatin1Char('i')) == -1;
-                    quote = func[3].indexOf(QLatin1Char('q')) != -1;
-                }
-                QString pattern = func[1];
-                QString replace = func[2];
-                if (quote)
-                    pattern = QRegExp::escape(pattern);
-
-                QRegExp regexp(pattern, case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
-
-                if (!m_skipLevel || m_cumulative) {
-                    // We could make a union of modified and unmodified values,
-                    // but this will break just as much as it fixes, so leave it as is.
-                    replaceInList(&m_tempValuemap[varName], regexp, replace, global);
-                    replaceInList(&m_tempFilevaluemap[currentProFile()][varName], regexp, replace, global);
-
-                }
-            }
-            break;
-
-    }
-    m_isFirstVariableValue = false;
+    m_sts.varVal += expandVariableReferences(value->value());
 }
 
 ProItem::ProItemReturn ProFileEvaluator::Private::visitProFunction(ProFunction *func)
