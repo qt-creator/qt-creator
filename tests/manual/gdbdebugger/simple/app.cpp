@@ -302,7 +302,17 @@ void testQLinkedList()
 
 void testQList()
 {
-#if 1
+    QList<int> big;
+    for (int i = 0; i < 10000; ++i)
+        big.push_back(i);
+
+    QList<Foo> flist;
+    for (int i = 0; i < 100; ++i)
+        flist.push_back(i + 15);
+    flist.push_back(1000);
+    flist.push_back(1001);
+    flist.push_back(1002);
+#if 0
     QList<int> li;
     QList<uint> lu;
 
@@ -365,13 +375,13 @@ void testQList()
     QList<Foo> f;
     f.append(Foo(1));
     f.append(Foo(2));
-#endif
-    QList<std::string> v;
 
+    QList<std::string> v;
     v.push_back("aa");
     v.push_back("bb");
     v.push_back("cc");
     v.push_back("dd");
+#endif
  }
 
 void testQMap()
@@ -620,6 +630,11 @@ void testStdList()
     for (int i = 0; i < 10000; ++i)
         big.push_back(i);
 
+    std::list<Foo> flist;
+    for (int i = 0; i < 100; ++i)
+        flist.push_back(i + 15);
+
+#if 0
     std::list<int *> plist1;
     plist1.push_back(new int(1));
     plist1.push_back(0);
@@ -641,11 +656,6 @@ void testStdList()
     plist.push_back(0);
     plist.push_back(new Foo(2));
 
-    std::list<Foo> flist;
-    flist.push_back(1);
-    flist.push_back(2);
-    flist.push_back(3);
-    flist.push_back(4);
 
     foreach (Foo f, flist)
     {}
@@ -653,6 +663,7 @@ void testStdList()
     std::list<bool> vec;
     vec.push_back(true);
     vec.push_back(false);
+#endif
 }
 
 void testStdMap()

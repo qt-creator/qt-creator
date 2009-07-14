@@ -3480,6 +3480,7 @@ void *qDumpObjectData440(
             "\"").put(((QT_VERSION >> 16) & 255)).put("\","
             "\"").put(((QT_VERSION >> 8)  & 255)).put("\","
             "\"").put(((QT_VERSION)       & 255)).put("\"]");
+        d.put(",namespace=\""NS"\",");
         d.put(",dumperversion=\"1.3\",");
 //      Dump out size information
         d.put("sizes={");

@@ -1359,7 +1359,7 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     case QMapType:
     case QMultiMapType: {
             QString nodetype;
-            if (m_qtVersion >= (4 << 16) + (5 << 8) + 0) {
+            if (m_qtVersion >= 0x040500) {
                 nodetype = m_qtNamespace + QLatin1String("QMapNode");
                 nodetype += data.type.mid(outertype.size());
             } else {
@@ -1374,7 +1374,7 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
             extraArgs[3] += QLatin1String("'*)0)->value");
         }
         break;
-            case QMapNodeType:
+    case QMapNodeType:
         extraArgs[2] = evaluationSizeofTypeExpression(data.type, debugger);
         extraArgs[3] = QLatin1String("(size_t)&(('");
         extraArgs[3] += data.type;
