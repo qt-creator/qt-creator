@@ -94,8 +94,8 @@ void FileSystemFilter::accept(FilterEntry selection) const
 {
     QFileInfo info(selection.internalData.toString());
     if (info.isDir()) {
-        m_toolWindow->show(shortcutString()+" "
-                              +QDir::toNativeSeparators(info.absoluteFilePath()+"/"));
+        QString value = shortcutString() + " " + QDir::toNativeSeparators(info.absoluteFilePath()+"/");
+        m_toolWindow->show(value, value.length());
         return;
     }
     m_editorManager->openEditor(selection.internalData.toString());

@@ -345,8 +345,6 @@ bool QuickOpenToolWindow::eventFilter(QObject *obj, QEvent *event)
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
         m_completionList->hide();
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
-        if (static_cast<QFocusEvent*>(event)->reason() != Qt::MouseFocusReason)
-            m_fileLineEdit->selectAll();
         showPopup();
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
@@ -445,10 +443,13 @@ void QuickOpenToolWindow::show(const QString &text, int selectionStart, int sele
     else
         showPopup();
 
-    if (selectionStart >= 0)
+    if (selectionStart >= 0) {
         m_fileLineEdit->setSelection(selectionStart, selectionLength);
-    else
+        if (selectionLength == 0) // make sure the cursor is at the right position (Mac-vs.-rest difference)
+            m_fileLineEdit->setCursorPosition(selectionStart);
+    } else {
         m_fileLineEdit->selectAll();
+    }
 }
 
 void QuickOpenToolWindow::filterSelected()
