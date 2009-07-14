@@ -1319,7 +1319,6 @@ static void qDumpQFileInfo(QDumper &d)
         d.putHash("isBundle", info.isBundle());
         d.putHash("bundleName", info.bundleName());
 #endif
-        d.putHash("completeSuffix", info.completeSuffix());
         d.putHash("fileName", info.fileName());
         d.putHash("filePath", info.filePath());
         d.putHash("group", info.group());

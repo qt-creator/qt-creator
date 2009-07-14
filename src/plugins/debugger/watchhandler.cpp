@@ -859,6 +859,13 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
     // overwrite existing items
     Iterator it = newList.begin();
     int oldCount = newList.size() - list.size();
+    if (oldCount != parent->children.size())
+        qDebug() //<< "LIST:" << list.keys()
+            << "NEWLIST: " << newList.keys()
+            << "OLD COUNT: " << oldCount 
+            << "P->CHILDREN.SIZE: " << parent->children.size()
+            << "NEWLIST SIZE: " << newList.size()
+            << "LIST SIZE: " << list.size();
     QTC_ASSERT(oldCount == parent->children.size(), return);
     for (int i = 0; i < oldCount; ++i, ++it)
         parent->children[i]->setData(*it);

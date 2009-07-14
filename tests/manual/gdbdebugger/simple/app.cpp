@@ -179,6 +179,13 @@ void testQByteArray()
     ba += 2;
 }
 
+void testQFileInfo()
+{
+    QFileInfo fi("/tmp/t");
+    QString s = fi.absoluteFilePath();
+    QString t = fi.bundleName();
+}
+
 void testQHash()
 {
 #if 1
@@ -1208,6 +1215,7 @@ void testQHash1()
 
 int main(int argc, char *argv[])
 {
+    testQFileInfo();
     testObject1();
     testVector1();
     testQHash1();
