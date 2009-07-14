@@ -77,6 +77,9 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     currentLineNumber.format().setBold(true);
     formatDescriptions.append(currentLineNumber);
 
+    formatDescriptions.append(FormatDescription(QLatin1String(C_OCCURRENCES), tr("Occurrences")));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_OCCURRENCES_RENAME), tr("Renaming Occurrence")));
+
     // Standard categories
     formatDescriptions.append(FormatDescription(QLatin1String(C_NUMBER), tr("Number"), Qt::darkBlue));
     formatDescriptions.append(FormatDescription(QLatin1String(C_STRING), tr("String"), Qt::darkGreen));

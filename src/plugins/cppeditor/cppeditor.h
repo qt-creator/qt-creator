@@ -301,6 +301,8 @@ private:
     QAction *m_sortAction;
     QTimer *m_updateMethodBoxTimer;
     QTimer *m_updateUsesTimer;
+    QTextCharFormat m_occurrencesFormat;
+    QTextCharFormat m_occurrenceRenameFormat;
 
     QList<QTextEdit::ExtraSelection> m_renameSelections;
     int m_currentRenameSelection;

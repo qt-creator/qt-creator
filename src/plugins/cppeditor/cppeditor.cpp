@@ -841,7 +841,7 @@ void CPPEditor::renameInPlace()
         if (c.position() >= s.cursor.anchor()
                 && c.position() <= s.cursor.position()) {
             m_currentRenameSelection = i;
-            m_renameSelections[i].format.setBackground(QColor(255, 200, 200));
+            m_renameSelections[i].format = m_occurrenceRenameFormat;
             setExtraSelections(CodeSemanticsSelection, m_renameSelections);
             break;
         }
@@ -1566,6 +1566,8 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->rehighlight();
 
     m_linkFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LINK));
+    m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
+    m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
 }
 
 void CPPEditor::setDisplaySettings(const TextEditor::DisplaySettings &ds)
@@ -1632,9 +1634,6 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
 
-    QTextCharFormat format;
-    format.setBackground(QColor(220, 220, 220));
-
     QList<QTextEdit::ExtraSelection> selections;
 
     SemanticInfo::LocalUseIterator it(semanticInfo.localUses);
@@ -1655,7 +1654,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         if (! good)
             continue;
 
-        highlightUses(document(), format, uses, &selections);
+        highlightUses(document(), m_occurrencesFormat, uses, &selections);
         break; // done
     }
 
