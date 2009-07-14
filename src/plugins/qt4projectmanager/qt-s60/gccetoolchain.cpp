@@ -14,7 +14,8 @@ namespace {
 }
 
 GCCEToolChain::GCCEToolChain(S60Devices::Device device)
-    : m_deviceId(device.id),
+    : GccToolChain(QLatin1String(GCCE_COMMAND)),
+    m_deviceId(device.id),
     m_deviceName(device.name),
     m_deviceRoot(device.epocRoot)
 {
@@ -26,80 +27,9 @@ ToolChain::ToolChainType GCCEToolChain::type() const
     return ToolChain::GCCE;
 }
 
-QByteArray GCCEToolChain::predefinedMacros()
-{
-    if (m_predefinedMacros.isEmpty()) {
-        QStringList arguments;
-        arguments << QLatin1String("-xc++")
-                  << QLatin1String("-E")
-                  << QLatin1String("-dM")
-                  << QLatin1String("-");
-
-        QProcess cpp;
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-        addToEnvironment(env);
-        cpp.setEnvironment(env.toStringList());
-        cpp.start(QLatin1String(GCCE_COMMAND), arguments);
-        cpp.closeWriteChannel();
-        cpp.waitForFinished();
-        m_predefinedMacros = cpp.readAllStandardOutput();
-    }
-    return m_predefinedMacros;
-}
-
 QList<HeaderPath> GCCEToolChain::systemHeaderPaths()
 {
-    if (m_systemHeaderPaths.isEmpty()) {
-        QStringList arguments;
-        arguments << QLatin1String("-xc++")
-                  << QLatin1String("-E")
-                  << QLatin1String("-v")
-                  << QLatin1String("-");
-
-        QProcess cpp;
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-        addToEnvironment(env);
-        cpp.setEnvironment(env.toStringList());
-        cpp.setReadChannelMode(QProcess::MergedChannels);
-        cpp.start(QLatin1String(GCCE_COMMAND), arguments);
-        cpp.closeWriteChannel();
-        cpp.waitForFinished();
-
-        QByteArray line;
-        while (cpp.canReadLine()) {
-            line = cpp.readLine();
-            if (line.startsWith("#include"))
-                break;
-        }
-
-        if (! line.isEmpty() && line.startsWith("#include")) {
-            HeaderPath::Kind kind = HeaderPath::UserHeaderPath;
-            while (cpp.canReadLine()) {
-                line = cpp.readLine();
-                if (line.startsWith("#include")) {
-                    kind = HeaderPath::GlobalHeaderPath;
-                } else if (! line.isEmpty() && QChar(line.at(0)).isSpace()) {
-                    HeaderPath::Kind thisHeaderKind = kind;
-
-                    line = line.trimmed();
-                    if (line.endsWith('\n'))
-                        line.chop(1);
-
-                    int index = line.indexOf(" (framework directory)");
-                    if (index != -1) {
-                        line = line.left(index);
-                        thisHeaderKind = HeaderPath::FrameworkHeaderPath;
-                    }
-
-                    m_systemHeaderPaths.append(HeaderPath(QFile::decodeName(line), thisHeaderKind));
-                } else if (line.startsWith("End of search list.")) {
-                    break;
-                } else {
-                    qWarning() << "ignore line:" << line;
-                }
-            }
-        }
-    }
+    GccToolChain::systemHeaderPaths();
     m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
     m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\stdapis").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
     m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\stdapis\\sys").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));

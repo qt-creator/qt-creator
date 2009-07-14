@@ -108,8 +108,7 @@ protected:
     virtual bool equals(ToolChain *other) const = 0;
 };
 
-namespace Internal {
-class GccToolChain : public ToolChain
+class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
     GccToolChain(const QString &gcc);
@@ -122,14 +121,14 @@ public:
 
 protected:
     virtual bool equals(ToolChain *other) const;
-private:
-    QString m_gcc;
     QByteArray m_predefinedMacros;
     QList<HeaderPath> m_systemHeaderPaths;
+private:
+    QString m_gcc;
 };
 
 // TODO this class needs to fleshed out more
-class MinGWToolChain : public GccToolChain
+class PROJECTEXPLORER_EXPORT MinGWToolChain : public GccToolChain
 {
 public:
     MinGWToolChain(const QString &gcc, const QString &mingwPath);
@@ -143,7 +142,7 @@ private:
 };
 
 // TODO some stuff needs to be moved into this
-class MSVCToolChain : public ToolChain
+class PROJECTEXPLORER_EXPORT MSVCToolChain : public ToolChain
 {
 public:
     MSVCToolChain(const QString &name, bool amd64 = false);
@@ -164,7 +163,7 @@ private:
 };
 
 // TODO some stuff needs to be moved into here
-class WinCEToolChain : public MSVCToolChain
+class PROJECTEXPLORER_EXPORT WinCEToolChain : public MSVCToolChain
 {
 public:
     WinCEToolChain(const QString &name, const QString &platform);
@@ -178,7 +177,6 @@ private:
     QString m_platform;
 };
 
-}
 }
 
 Q_DECLARE_METATYPE(ProjectExplorer::ToolChain::ToolChainType);

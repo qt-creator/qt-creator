@@ -13,8 +13,6 @@
     * must probably be compiled for different toolchains
 
 * Tool chains
-    * derive GCCE tool chain from GCC toolchain to get the includes/defines
-      implementation
     * delete toolchain in more intelligent way (create a new one and
       check if it's the same as the old one, has the advantage that
       cached data doesn't need to be retrieved again)

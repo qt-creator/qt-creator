@@ -149,6 +149,9 @@ QByteArray GccToolChain::predefinedMacros()
                   << QLatin1String("-");
 
         QProcess cpp;
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        addToEnvironment(env);
+        cpp.setEnvironment(env.toStringList());
         cpp.start(m_gcc, arguments);
         cpp.closeWriteChannel();
         cpp.waitForFinished();
@@ -167,6 +170,9 @@ QList<HeaderPath> GccToolChain::systemHeaderPaths()
                   << QLatin1String("-");
 
         QProcess cpp;
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        addToEnvironment(env);
+        cpp.setEnvironment(env.toStringList());
         cpp.setReadChannelMode(QProcess::MergedChannels);
         cpp.start(m_gcc, arguments);
         cpp.closeWriteChannel();
