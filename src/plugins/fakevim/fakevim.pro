@@ -2,8 +2,8 @@ TEMPLATE = lib
 TARGET = FakeVim
 
 # CONFIG += single
-include(../../libs/cplusplus/cplusplus.pri)
 include(../../qtcreatorplugin.pri)
+include(../../libs/cplusplus/cplusplus.pri)
 include(../../plugins/projectexplorer/projectexplorer.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)

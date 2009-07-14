@@ -2,9 +2,9 @@ TEMPLATE = lib
 TARGET = CppEditor
 DEFINES += CPPEDITOR_LIBRARY
 CONFIG += help
+include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../shared/indenter/indenter.pri)
-include(../../qtcreatorplugin.pri)
 include(cppeditor_dependencies.pri)
 HEADERS += cppplugin.h \
     cppeditor.h \
