@@ -34,7 +34,6 @@
 #include "quickopentoolwindow.h"
 #include "opendocumentsfilter.h"
 #include "filesystemfilter.h"
-#include "directoryfilter.h"
 #include "settingspage.h"
 
 #include <QtCore/QSettings>
@@ -144,39 +143,6 @@ void QuickOpenPlugin::startSettingsLoad()
     connect(&m_loadWatcher, SIGNAL(finished()), this, SLOT(settingsLoaded()));
 }
 
-namespace QuickOpen {
-namespace Internal {
-
-template <typename S>
-static void loadSettingsHelper(QuickOpenPlugin *p, S *settings)
-{
-    settings->beginGroup("QuickOpen");
-    p->m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
-
-    foreach (IQuickOpenFilter *filter, p->m_filters) {
-        if (settings->contains(filter->name())) {
-            const QByteArray state = settings->value(filter->name()).toByteArray();
-            if (!state.isEmpty())
-                filter->restoreState(state);
-        }
-    }
-    settings->beginGroup("CustomFilters");
-    QList<IQuickOpenFilter *> customFilters;
-    const QStringList keys = settings->childKeys();
-    foreach (const QString &key, keys) {
-        IQuickOpenFilter *filter = new DirectoryFilter;
-        filter->restoreState(settings->value(key).toByteArray());
-        p->m_filters.append(filter);
-        customFilters.append(filter);
-    }
-    p->setCustomFilters(customFilters);
-    settings->endGroup();
-    settings->endGroup();
-}
-
-} // namespace Internal
-} // namespace QuickOpen
-
 void QuickOpenPlugin::loadSettings()
 {
     Core::ICore *core = Core::ICore::instance();
@@ -184,10 +150,10 @@ void QuickOpenPlugin::loadSettings()
 
     // Backwards compatibility to old settings location
     if (qs->contains("QuickOpen/FiltersFilter")) {
-        loadSettingsHelper(this, qs);
+        loadSettingsHelper(qs);
     } else {
         Core::SettingsDatabase *settings = core->settingsDatabase();
-        loadSettingsHelper(this, settings);
+        loadSettingsHelper(settings);
     }
 
     qs->remove("QuickOpen");

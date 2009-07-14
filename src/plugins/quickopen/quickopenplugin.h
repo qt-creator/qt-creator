@@ -31,6 +31,7 @@
 #define QUICKOPENPLUGIN_H
 
 #include "iquickopenfilter.h"
+#include "directoryfilter.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -45,6 +46,7 @@ class QuickOpenToolWindow;
 class OpenDocumentsFilter;
 class FileSystemFilter;
 class SettingsPage;
+class QuickOpenPlugin;
 
 class QuickOpenPlugin : public ExtensionSystem::IPlugin
 {
@@ -76,6 +78,9 @@ private slots:
 private:
     void loadSettings();
 
+    template <typename S>
+    void loadSettingsHelper(S *settings);
+
     QuickOpenToolWindow *m_quickOpenToolWindow;
     SettingsPage *m_settingsPage;
 
@@ -86,10 +91,34 @@ private:
     OpenDocumentsFilter *m_openDocumentsFilter;
     FileSystemFilter *m_fileSystemFilter;
     QFutureWatcher<void> m_loadWatcher;
-
-    template <typename S>
-    friend static void loadSettingsHelper(QuickOpenPlugin *p, S *settings);
 };
+
+template <typename S>
+void QuickOpenPlugin::loadSettingsHelper(S *settings)
+{
+    settings->beginGroup("QuickOpen");
+    m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
+
+    foreach (IQuickOpenFilter *filter, m_filters) {
+        if (settings->contains(filter->name())) {
+            const QByteArray state = settings->value(filter->name()).toByteArray();
+            if (!state.isEmpty())
+                filter->restoreState(state);
+        }
+    }
+    settings->beginGroup("CustomFilters");
+    QList<IQuickOpenFilter *> customFilters;
+    const QStringList keys = settings->childKeys();
+    foreach (const QString &key, keys) {
+        IQuickOpenFilter *filter = new DirectoryFilter;
+        filter->restoreState(settings->value(key).toByteArray());
+        m_filters.append(filter);
+        customFilters.append(filter);
+    }
+    setCustomFilters(customFilters);
+    settings->endGroup();
+    settings->endGroup();
+}
 
 } // namespace Internal
 } // namespace QuickOpen
