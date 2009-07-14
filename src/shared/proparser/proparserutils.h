@@ -133,19 +133,14 @@ static void removeEach(QHash<QString, QStringList> *map,
         sl.removeAll(str);
 }
 
-/*
-  See ProFileEvaluator::Private::visitProValue(...)
-
-static QStringList replaceInList(const QStringList &varList, const QRegExp &regexp,
-                           const QString &replace, bool global)
+static void replaceInList(QStringList *varlist,
+        const QRegExp &regexp, const QString &replace, bool global)
 {
-    QStringList resultList = varList;
-
-    for (QStringList::Iterator varit = resultList.begin(); varit != resultList.end();) {
-        if (varit->contains(regexp)) {
-            *varit = varit->replace(regexp, replace);
-            if (varit->isEmpty())
-                varit = resultList.erase(varit);
+    for (QStringList::Iterator varit = varlist->begin(); varit != varlist->end(); ) {
+        if ((*varit).contains(regexp)) {
+            (*varit).replace(regexp, replace);
+            if ((*varit).isEmpty())
+                varit = varlist->erase(varit);
             else
                 ++varit;
             if (!global)
@@ -154,9 +149,7 @@ static QStringList replaceInList(const QStringList &varList, const QRegExp &rege
             ++varit;
         }
     }
-    return resultList;
 }
-*/
 
 inline QString fixEnvVariables(const QString &x)
 {

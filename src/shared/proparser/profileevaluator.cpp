@@ -790,24 +790,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
     return ProItem::ReturnTrue;
 }
 
-static void replaceInList(QStringList *varlist,
-        const QRegExp &regexp, const QString &replace, bool global)
-{
-    for (QStringList::Iterator varit = varlist->begin(); varit != varlist->end(); ) {
-        if ((*varit).contains(regexp)) {
-            (*varit).replace(regexp, replace);
-            if ((*varit).isEmpty())
-                varit = varlist->erase(varit);
-            else
-                ++varit;
-            if(!global)
-                break;
-        } else {
-            ++varit;
-        }
-    }
-}
-
 void ProFileEvaluator::Private::visitProValue(ProValue *value)
 {
     PRE(value);
