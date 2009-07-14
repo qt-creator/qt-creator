@@ -37,7 +37,6 @@
 using namespace TextEditor;
 
 static const char *trueString = "true";
-static const char *falseString = "false";
 
 // Format
 
@@ -69,13 +68,6 @@ void Format::setItalic(bool italic)
     m_italic = italic;
 }
 
-static QString colorToString(const QColor &color)
-{
-    if (color.isValid())
-        return color.name();
-    return QLatin1String("invalid");
-}
-
 static QColor stringToColor(const QString &string)
 {
     if (string == QLatin1String("invalid"))
@@ -87,19 +79,6 @@ bool Format::equals(const Format &f) const
 {
     return m_foreground ==  f.m_foreground && m_background == f.m_background &&
            m_bold == f.m_bold && m_italic == f.m_italic;
-}
-
-QString Format::toString() const
-{
-    const QChar delimiter = QLatin1Char(';');
-    QString s =  colorToString(m_foreground);
-    s += delimiter;
-    s += colorToString(m_background);
-    s += delimiter;
-    s += m_bold   ? QLatin1String(trueString) : QLatin1String(falseString);
-    s += delimiter;
-    s += m_italic ? QLatin1String(trueString) : QLatin1String(falseString);
-    return s;
 }
 
 bool Format::fromString(const QString &str)
@@ -287,8 +266,8 @@ void ColorSchemeReader::readStyle()
     bool italic = attr.value(QLatin1String("italic")) == QLatin1String(trueString);
 
     Format format;
-    format.setForeground(stringToColor(foreground));
-    format.setBackground(stringToColor(background));
+    format.setForeground(QColor(foreground));
+    format.setBackground(QColor(background));
     format.setBold(bold);
     format.setItalic(italic);
 

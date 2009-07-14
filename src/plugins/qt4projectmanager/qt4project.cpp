@@ -223,7 +223,7 @@ void Qt4ProjectFile::modified(Core::IFile::ReloadBehavior *)
 }
 
 /*!
-  /class Qt4Project
+  \class Qt4Project
 
   Qt4Project manages information about an individual Qt 4 (.pro) project file.
   */

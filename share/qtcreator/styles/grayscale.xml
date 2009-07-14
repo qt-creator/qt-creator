@@ -28,6 +28,8 @@
   SearchResult
   SearchScope
   Selection
+  Occurrences
+  Occurrences.Rename
 
   -->
 </style-scheme>
