@@ -337,6 +337,17 @@ bool isIntOrFloatType(const QString &type)
     return isIntType(type) || types.contains(type);
 }
 
+GuessChildrenResult guessChildren(const QString &type)
+{
+    if (isIntOrFloatType(type))
+        return HasNoChildren;
+    if (isPointerType(type))
+        return HasChildren;
+    if (type.endsWith(QLatin1String("QString")))
+        return HasNoChildren;
+    return HasPossiblyChildren;
+}
+
 QString sizeofTypeExpression(const QString &type)
 {
     if (type.endsWith(QLatin1Char('*')))

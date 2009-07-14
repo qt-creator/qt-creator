@@ -73,6 +73,10 @@ bool extractTemplate(const QString &type, QString *tmplate, QString *inner);
 QString extractTypeFromPTypeOutput(const QString &str);
 bool isIntOrFloatType(const QString &type);
 bool isIntType(const QString &type);
+
+enum GuessChildrenResult { HasChildren, HasNoChildren, HasPossiblyChildren };
+GuessChildrenResult guessChildren(const QString &type);
+
 QString sizeofTypeExpression(const QString &type);
 QString quoteUnprintableLatin1(const QByteArray &ba);
 

@@ -180,8 +180,17 @@ void WatchData::setType(const QString &str)
             changed = false;
     }
     setTypeUnneeded();
-    if (isIntOrFloatType(type))
-        setHasChildren(false);
+    switch (guessChildren(type)) {
+        case HasChildren:
+            setHasChildren(true);
+            break;
+        case HasNoChildren:
+            setHasChildren(false);
+            break;
+        case HasPossiblyChildren:
+            setHasChildren(true); // FIXME: bold assumption
+            break;
+    }
 }
 
 void WatchData::setAddress(const QString &str)
