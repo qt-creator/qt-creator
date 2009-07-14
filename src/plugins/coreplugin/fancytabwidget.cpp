@@ -82,9 +82,7 @@ QSize FancyTabBar::tabSizeHint(bool minimum) const
     int spacing = 6;
     int width = 60 + spacing + 2;
 
-    int iconHeight = 48;
-    if (minimum)
-        iconHeight = 0; // hide icons
+    int iconHeight = minimum ? 0 : 32;
     return QSize(width, iconHeight + spacing + fm.height());
 }
 
@@ -252,7 +250,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     int iconSize = qMin(tabIconRect.width(), tabIconRect.height());
     if (iconSize > 4)
         style()->drawItemPixmap(painter, tabIconRect, Qt::AlignCenter | Qt::AlignVCenter,
-                                tabIcon(tabIndex).pixmap(QSize(iconSize, iconSize)));
+                                tabIcon(tabIndex).pixmap(tabIconRect.size()));
     painter->translate(0, -1);
     painter->drawText(tabTextRect, textFlags, tabText);
     painter->restore();
