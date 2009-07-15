@@ -1,9 +1,9 @@
 /****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Qt Software Information (qt-info@nokia.com)
 **
-** This file is part of the QtScript module of the Qt Toolkit.
+** This file is part of the QtDeclarative module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
@@ -34,7 +34,7 @@
 ** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at http://www.qtsoftware.com/contact.
+** contact the sales department at qt-sales@nokia.com.
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
@@ -209,6 +209,7 @@ public:
         Kind_UiObjectMemberList,
         Kind_UiArrayMemberList,
         Kind_UiProgram,
+        Kind_UiParameterList,
         Kind_UiPublicMember,
         Kind_UiQualifiedId,
         Kind_UiScriptBinding,
@@ -2220,15 +2221,24 @@ public:
     QMLJS_DECLARE_AST_NODE(UiImport)
 
     UiImport(NameId *fileName)
-        : fileName(fileName)
+        : fileName(fileName), importUri(0), importId(0)
+    { kind = K; }
+
+    UiImport(UiQualifiedId *uri)
+        : fileName(0), importUri(uri), importId(0)
     { kind = K; }
 
     virtual void accept0(Visitor *visitor);
 
 // attributes
     NameId *fileName;
+    UiQualifiedId *importUri;
+    NameId *importId;
     SourceLocation importToken;
     SourceLocation fileNameToken;
+    SourceLocation versionToken;
+    SourceLocation asToken;
+    SourceLocation importIdToken;
     SourceLocation semicolonToken;
 };
 
@@ -2351,6 +2361,42 @@ public:
     SourceLocation rbraceToken;
 };
 
+class UiParameterList: public Node
+{
+public:
+    QMLJS_DECLARE_AST_NODE(UiParameterList)
+
+    UiParameterList(NameId *t, NameId *n):
+        type (t), name (n), next (this)
+        { kind = K; }
+
+    UiParameterList(UiParameterList *previous, NameId *t, NameId *n):
+        type (t), name (n)
+    {
+        kind = K;
+        next = previous->next;
+        previous->next = this;
+    }
+
+    virtual ~UiParameterList() {}
+
+    virtual void accept0(Visitor *) {}
+
+    inline UiParameterList *finish ()
+    {
+        UiParameterList *front = next;
+        next = 0;
+        return front;
+    }
+
+// attributes
+    NameId *type;
+    NameId *name;
+    UiParameterList *next;
+    SourceLocation commaToken;
+    SourceLocation identifierToken;
+};
+
 class UiPublicMember: public UiObjectMember
 {
 public:
@@ -2358,13 +2404,13 @@ public:
 
     UiPublicMember(NameId *memberType,
                    NameId *name)
-        : type(Property), memberType(memberType), name(name), expression(0), isDefaultMember(false)
+        : type(Property), memberType(memberType), name(name), expression(0), isDefaultMember(false), parameters(0)
     { kind = K; }
 
     UiPublicMember(NameId *memberType,
                    NameId *name,
                    ExpressionNode *expression)
-        : type(Property), memberType(memberType), name(name), expression(expression), isDefaultMember(false)
+        : type(Property), memberType(memberType), name(name), expression(expression), isDefaultMember(false), parameters(0)
     { kind = K; }
 
     virtual SourceLocation firstSourceLocation() const
@@ -2388,6 +2434,7 @@ public:
     NameId *name;
     ExpressionNode *expression;
     bool isDefaultMember;
+    UiParameterList *parameters;
     SourceLocation defaultToken;
     SourceLocation propertyToken;
     SourceLocation typeToken;

@@ -1,9 +1,9 @@
 ----------------------------------------------------------------------------
 --
 -- Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
--- Contact: Nokia Corporation (qt-info@nokia.com)
+-- Contact: Qt Software Information (qt-info@nokia.com)
 --
--- This file is part of the QtScript module of the Qt Toolkit.
+-- This file is part of the QtDeclarative module of the Qt Toolkit.
 --
 -- $QT_BEGIN_LICENSE:LGPL$
 -- No Commercial Usage
@@ -34,7 +34,7 @@
 -- met: http://www.gnu.org/copyleft/gpl.html.
 --
 -- If you are unsure which license is appropriate for your use, please
--- contact the sales department at http://www.qtsoftware.com/contact.
+-- contact the sales department at qt-sales@nokia.com.
 -- $QT_END_LICENSE$
 --
 -- This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
@@ -84,18 +84,24 @@
 --- context keywords.
 %token T_PUBLIC "public"
 %token T_IMPORT "import"
+%token T_AS "as"
+
+--- feed tokens
+%token T_FEED_UI_PROGRAM
+%token T_FEED_JS_STATEMENT
+%token T_FEED_JS_EXPRESSION
 
 %nonassoc SHIFT_THERE
 %nonassoc T_IDENTIFIER T_COLON T_SIGNAL T_PROPERTY
 %nonassoc REDUCE_HERE
 
-%start UiProgram
+%start TopLevel
 
 /.
 /****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Qt Software Information (qt-info@nokia.com)
 **
 ** This file is part of the QtScript module of the Qt Toolkit.
 **
@@ -128,7 +134,7 @@
 ** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at http://www.qtsoftware.com/contact.
+** contact the sales department at qt-sales@nokia.com.
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
@@ -148,7 +154,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Qt Software Information (qt-info@nokia.com)
 **
 ** This file is part of the QtScript module of the Qt Toolkit.
 **
@@ -181,7 +187,7 @@
 ** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at http://www.qtsoftware.com/contact.
+** contact the sales department at qt-sales@nokia.com.
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
@@ -254,6 +260,7 @@ public:
       AST::UiProgram *UiProgram;
       AST::UiImportList *UiImportList;
       AST::UiImport *UiImport;
+      AST::UiParameterList *UiParameterList;
       AST::UiPublicMember *UiPublicMember;
       AST::UiObjectDefinition *UiObjectDefinition;
       AST::UiObjectInitializer *UiObjectInitializer;
@@ -270,10 +277,29 @@ public:
     Parser(Engine *engine);
     ~Parser();
 
-    bool parse();
+    // parse a UI program
+    bool parse() { return parse(T_FEED_UI_PROGRAM); }
+    bool parseStatement() { return parse(T_FEED_JS_STATEMENT); }
+    bool parseExpression() { return parse(T_FEED_JS_EXPRESSION); }
 
-    AST::UiProgram *ast()
-    { return program; }
+    AST::UiProgram *ast() const
+    { return AST::cast<AST::UiProgram *>(program); }
+
+    AST::Statement *statement() const
+    {
+        if (! program)
+            return 0;
+
+        return program->statementCast();
+    }
+
+    AST::ExpressionNode *expression() const
+    {
+        if (! program)
+            return 0;
+
+        return program->expressionCast();
+    }
 
     QList<DiagnosticMessage> diagnosticMessages() const
     { return diagnostic_messages; }
@@ -298,6 +324,8 @@ public:
     { return diagnosticMessage().loc.startColumn; }
 
 protected:
+    bool parse(int startToken);
+
     void reallocateStack();
 
     inline Value &sym(int index)
@@ -316,7 +344,7 @@ protected:
     int *state_stack;
     AST::SourceLocation *location_stack;
 
-    AST::UiProgram *program;
+    AST::Node *program;
 
     // error recovery
     enum { TOKEN_BUFFER_SIZE = 3 };
@@ -437,14 +465,16 @@ AST::UiQualifiedId *Parser::reparseAsQualifiedId(AST::ExpressionNode *expr)
     return 0;
 }
 
-bool Parser::parse()
+bool Parser::parse(int startToken)
 {
     Lexer *lexer = driver->lexer();
     bool hadErrors = false;
     int yytoken = -1;
     int action = 0;
 
-    first_token = last_token = 0;
+    token_buffer[0].token = startToken;
+    first_token = &token_buffer[0];
+    last_token = &token_buffer[1];
 
     tos = -1;
     program = 0;
@@ -492,12 +522,35 @@ bool Parser::parse()
 -- Declarative UI
 --------------------------------------------------------------------------------------------------------
 
+TopLevel: T_FEED_UI_PROGRAM UiProgram ;
+/.
+case $rule_number: {
+  sym(1).Node = sym(2).Node;
+  program = sym(1).Node;
+} break;
+./
+
+TopLevel: T_FEED_JS_STATEMENT Statement ;
+/.
+case $rule_number: {
+  sym(1).Node = sym(2).Node;
+  program = sym(1).Node;
+} break;
+./
+
+TopLevel: T_FEED_JS_EXPRESSION Expression ;
+/.
+case $rule_number: {
+  sym(1).Node = sym(2).Node;
+  program = sym(1).Node;
+} break;
+./
+
 UiProgram: UiImportListOpt UiRootMember ;
 /.
 case $rule_number: {
-  program = makeAstNode<AST::UiProgram> (driver->nodePool(), sym(1).UiImportList,
+  sym(1).UiProgram = makeAstNode<AST::UiProgram> (driver->nodePool(), sym(1).UiImportList,
         sym(2).UiObjectMemberList->finish());
-  sym(1).UiProgram = program;
 } break;
 ./
 
@@ -532,6 +585,77 @@ case $rule_number: {
     node->importToken = loc(1);
     node->fileNameToken = loc(2);
     node->semicolonToken = loc(3);
+    sym(1).Node = node;
+} break;
+./
+
+UiImport: T_IMPORT T_STRING_LITERAL T_AS JsIdentifier T_AUTOMATIC_SEMICOLON;
+UiImport: T_IMPORT T_STRING_LITERAL T_AS JsIdentifier T_SEMICOLON;
+/.
+case $rule_number: {
+    AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).sval);
+    node->importId = sym(4).sval;
+    node->importToken = loc(1);
+    node->fileNameToken = loc(2);
+    node->asToken = loc(3);
+    node->importIdToken = loc(4);
+    node->semicolonToken = loc(5);
+    sym(1).Node = node;
+} break;
+./
+
+UiImport: T_IMPORT UiQualifiedId T_AUTOMATIC_SEMICOLON;
+UiImport: T_IMPORT UiQualifiedId T_SEMICOLON;
+/.
+case $rule_number: {
+    AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).UiQualifiedId->finish());
+    node->importToken = loc(1);
+    node->fileNameToken = loc(2);
+    node->semicolonToken = loc(3);
+    sym(1).Node = node;
+} break;
+./
+
+UiImport: T_IMPORT UiQualifiedId T_NUMERIC_LITERAL T_AUTOMATIC_SEMICOLON;
+UiImport: T_IMPORT UiQualifiedId T_NUMERIC_LITERAL T_SEMICOLON;
+/.
+case $rule_number: {
+    AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).UiQualifiedId->finish());
+    node->importToken = loc(1);
+    node->fileNameToken = loc(2);
+    node->versionToken = loc(3);
+    node->semicolonToken = loc(4);
+    sym(1).Node = node;
+} break;
+./
+
+UiImport: T_IMPORT UiQualifiedId T_NUMERIC_LITERAL T_AS JsIdentifier T_AUTOMATIC_SEMICOLON;
+UiImport: T_IMPORT UiQualifiedId T_NUMERIC_LITERAL T_AS JsIdentifier T_SEMICOLON;
+/.
+case $rule_number: {
+    AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).UiQualifiedId->finish());
+    node->importId = sym(5).sval;
+    node->importToken = loc(1);
+    node->fileNameToken = loc(2);
+    node->versionToken = loc(3);
+    node->asToken = loc(4);
+    node->importIdToken = loc(5);
+    node->semicolonToken = loc(6);
+    sym(1).Node = node;
+} break;
+./
+
+UiImport: T_IMPORT UiQualifiedId T_AS JsIdentifier T_AUTOMATIC_SEMICOLON;
+UiImport: T_IMPORT UiQualifiedId T_AS JsIdentifier T_SEMICOLON;
+/.
+case $rule_number: {
+    AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).UiQualifiedId->finish());
+    node->importId = sym(4).sval;
+    node->importToken = loc(1);
+    node->fileNameToken = loc(2);
+    node->asToken = loc(3);
+    node->importIdToken = loc(4);
+    node->semicolonToken = loc(5);
     sym(1).Node = node;
 } break;
 ./
@@ -705,6 +829,52 @@ case $rule_number: {
 ./
 
 UiPropertyType: T_IDENTIFIER ;
+
+UiParameterListOpt: ;
+/.
+case $rule_number: {
+  sym(1).Node = 0;
+} break;
+./
+
+UiParameterListOpt: UiParameterList ;
+/.
+case $rule_number: {
+  sym(1).Node = sym(1).UiParameterList->finish ();
+} break;
+./
+
+UiParameterList: UiPropertyType JsIdentifier ;
+/.
+case $rule_number: {
+  AST::UiParameterList *node = makeAstNode<AST::UiParameterList> (driver->nodePool(), sym(1).sval, sym(2).sval);
+  node->identifierToken = loc(2);
+  sym(1).Node = node;
+} break;
+./
+
+UiParameterList: UiParameterList T_COMMA UiPropertyType JsIdentifier ;
+/.
+case $rule_number: {
+  AST::UiParameterList *node = makeAstNode<AST::UiParameterList> (driver->nodePool(), sym(1).UiParameterList, sym(3).sval, sym(4).sval);
+  node->commaToken = loc(2);
+  node->identifierToken = loc(4);
+  sym(1).Node = node;
+} break;
+./
+
+UiObjectMember: T_SIGNAL T_IDENTIFIER T_LPAREN UiParameterListOpt T_RPAREN ;
+/.
+case $rule_number: {
+    AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), (NameId *)0, sym(2).sval);
+    node->type = AST::UiPublicMember::Signal;
+    node->propertyToken = loc(1);
+    node->typeToken = loc(2);
+    node->identifierToken = loc(3);
+    node->parameters = sym(4).UiParameterList;
+    sym(1).Node = node;
+}   break;
+./
 
 UiObjectMember: T_SIGNAL T_IDENTIFIER ;
 /.
@@ -2843,7 +3013,8 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
         }
 
         for (int tk = 1; tk < TERMINAL_COUNT; ++tk) {
-            if (tk == T_AUTOMATIC_SEMICOLON)
+            if (tk == T_AUTOMATIC_SEMICOLON || tk == T_FEED_UI_PROGRAM    ||
+                tk == T_FEED_JS_STATEMENT   || tk == T_FEED_JS_EXPRESSION)
                continue;
 
             int a = t_action(errorState, tk);
