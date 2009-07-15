@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CVS::Internal::SettingsPage</class>
+ <widget class="QWidget" name="CVS::Internal::SettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>575</width>
+    <height>437</height>
+   </rect>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QFormLayout" name="formLayout_3">
+       <item row="0" column="0" colspan="2">
+        <widget class="QCheckBox" name="promptToSubmitCheckBox">
+         <property name="text">
+          <string>Prompt to submit</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="describeByCommitIdCheckBox">
+       <property name="toolTip">
+        <string>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</string>
+       </property>
+       <property name="text">
+        <string>Describe by commit id</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="topverticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QFormLayout" name="formLayout_2">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="commandLabel">
+         <property name="text">
+          <string>CVS Command:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="Core::Utils::PathChooser" name="commandPathChooser"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="rootLabel">
+         <property name="text">
+          <string>CVS Root:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="rootLineEdit"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="diffOptionsLabel">
+         <property name="text">
+          <string>Diff Options:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="diffOptionsLineEdit"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>105</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Core::Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
