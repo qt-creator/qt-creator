@@ -2057,11 +2057,51 @@ unsigned ObjCMessageExpressionAST::firstToken() const
 
 unsigned ObjCMessageExpressionAST::lastToken() const
 {
-    if (rbracket_token) return rbracket_token + 1;
+    if (rbracket_token)
+        return rbracket_token + 1;
 
-    // FIXME: TODO
+    if (receiver_expression)
+        return receiver_expression->lastToken();
+
+    if (argument_list)
+        return argument_list->lastToken();
 
     return lbracket_token + 1;
+}
+
+unsigned ObjCMessageArgumentListAST::firstToken() const
+{
+    if (arg)
+        return arg->firstToken();
+    // ### assert?
+    return 0;
+}
+
+unsigned ObjCMessageArgumentListAST::lastToken() const
+{
+    for (const ObjCMessageArgumentListAST *it = this; it; it = it->next) {
+        if (! it->next && it->arg) {
+            return it->arg->lastToken();
+        }
+    }
+    // ### assert?
+    return 0;
+}
+
+unsigned ObjCMessageArgumentAST::firstToken() const
+{
+    return parameter_key_identifier;
+}
+
+unsigned ObjCMessageArgumentAST::lastToken() const
+{
+    if (parameter_value_expression)
+        return parameter_value_expression->lastToken();
+
+    if (colon_token)
+        return colon_token + 1;
+
+    return parameter_key_identifier + 1;
 }
 
 CPLUSPLUS_END_NAMESPACE

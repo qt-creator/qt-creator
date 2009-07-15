@@ -2914,21 +2914,20 @@ bool Parser::parseObjCMessageExpression(ExpressionAST *&node)
     ObjCMessageExpressionAST *ast = new (_pool) ObjCMessageExpressionAST;
     ast->lbracket_token = consumeToken();
 
-    parseObjCMessageReceiver();
-    parseObjCMessageArguments();
+    parseObjCMessageReceiver(ast->receiver_expression);
+    parseObjCMessageArguments(ast->argument_list);
 
     match(T_RBRACKET, &(ast->rbracket_token));
     node = ast;
     return true;
 }
 
-bool Parser::parseObjCMessageReceiver()
+bool Parser::parseObjCMessageReceiver(ExpressionAST *&node)
 {
-    ExpressionAST *expression = 0;
-    return parseExpression(expression);
+    return parseExpression(node);
 }
 
-bool Parser::parseObjCMessageArguments()
+bool Parser::parseObjCMessageArguments(ObjCMessageArgumentListAST *& /*node*/)
 {
     if (LA() == T_RBRACKET)
         return false; // nothing to do.

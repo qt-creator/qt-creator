@@ -1288,8 +1288,26 @@ ObjCMessageExpressionAST *ObjCMessageExpressionAST::clone(MemoryPool *pool) cons
 {
     ObjCMessageExpressionAST *ast = new (pool) ObjCMessageExpressionAST;
     ast->lbracket_token = lbracket_token;
-    // FIXME: TODO
+    if (receiver_expression) ast->receiver_expression = receiver_expression->clone(pool);
+    if (argument_list) ast->argument_list = argument_list->clone(pool);
     ast->rbracket_token = rbracket_token;
+    return ast;
+}
+
+ObjCMessageArgumentListAST *ObjCMessageArgumentListAST::clone(MemoryPool *pool) const
+{
+    ObjCMessageArgumentListAST *ast = new (pool) ObjCMessageArgumentListAST;
+    if (arg) ast->arg = arg->clone(pool);
+    if (next) ast->next = next->clone(pool);
+    return ast;
+}
+
+ObjCMessageArgumentAST *ObjCMessageArgumentAST::clone(MemoryPool *pool) const
+{
+    ObjCMessageArgumentAST *ast = new (pool) ObjCMessageArgumentAST;
+    ast->parameter_key_identifier = parameter_key_identifier;
+    ast->colon_token = colon_token;
+    if (parameter_value_expression) ast->parameter_value_expression = parameter_value_expression->clone(pool);
     return ast;
 }
 

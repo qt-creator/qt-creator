@@ -2593,11 +2593,51 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
+class CPLUSPLUS_EXPORT ObjCMessageArgumentAST: public AST
+{
+public:
+    unsigned parameter_key_identifier;
+    unsigned colon_token;
+    ExpressionAST *parameter_value_expression;
+
+public:
+    virtual ObjCMessageArgumentAST *asObjCMessageArgument()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMessageArgumentAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMessageArgumentListAST: public AST
+{
+public:
+    ObjCMessageArgumentAST *arg;
+    ObjCMessageArgumentListAST *next;
+
+public:
+    virtual ObjCMessageArgumentListAST *asObjCMessageArgumentList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMessageArgumentListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
 class CPLUSPLUS_EXPORT ObjCMessageExpressionAST: public ExpressionAST
 {
 public:
     unsigned lbracket_token;
-    // ..
+    ExpressionAST *receiver_expression;
+    ObjCMessageArgumentListAST *argument_list;
     unsigned rbracket_token;
 
 public:

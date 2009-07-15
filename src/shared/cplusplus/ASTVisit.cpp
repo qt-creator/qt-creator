@@ -1200,7 +1200,36 @@ void ObjCProtocolRefsAST::accept0(ASTVisitor *visitor)
 void ObjCMessageExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        // FIXME: TODO
+        // visit ObjCMessageExpressionAST
+        if (receiver_expression)
+            accept(receiver_expression, visitor);
+        if (argument_list)
+            accept(argument_list, visitor);
+        // visit ExpressionAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCMessageArgumentListAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCMessageArgumentListAST
+        if (arg)
+            accept(arg, visitor);
+        if (next)
+            accept(next, visitor);
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCMessageArgumentAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCMessageArgumentAST
+        if (parameter_value_expression)
+            accept(parameter_value_expression, visitor);
+        // visit AST
     }
     visitor->endVisit(this);
 }
