@@ -31,7 +31,6 @@
 #include <cctype>
 
 #include <QtCore/QFile>
-#include <QtCore/QDir>
 #include <QtCore/QFutureInterface>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QRegExp>
@@ -158,7 +157,7 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
                             int n = 0;
                             while (startOfLastLine[i] != '\n' && startOfLastLine[i] != '\r' && i < textLength && n++ < 256)
                                 res.append(startOfLastLine[i++]);
-                            future.reportResult(FileSearchResult(QDir::toNativeSeparators(s), lineNr, QString(res),
+                            future.reportResult(FileSearchResult(s, lineNr, QString(res),
                                                           regionPtr - startOfLastLine, sa.length()));
                             ++numMatches;
                         }
@@ -204,7 +203,7 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
             line = stream.readLine();
             int pos = 0;
             while ((pos = expression.indexIn(line, pos)) != -1) {
-                future.reportResult(FileSearchResult(QDir::toNativeSeparators(s), lineNr, line,
+                future.reportResult(FileSearchResult(s, lineNr, line,
                                               pos, expression.matchedLength()));
                 pos += expression.matchedLength();
             }

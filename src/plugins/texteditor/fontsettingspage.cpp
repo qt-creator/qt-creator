@@ -97,6 +97,28 @@ static QString customStylesPath()
     return path;
 }
 
+static QString createColorSchemeFileName(const QString &pattern)
+{
+    const QString stylesPath = customStylesPath();
+    QString baseFileName = stylesPath;
+    baseFileName += pattern;
+
+    // Find an available file name
+    int i = 1;
+    QString fileName;
+    do {
+        fileName = baseFileName.arg((i == 1) ? QString() : QString::number(i));
+        ++i;
+    } while (QFile::exists(fileName));
+
+    // Create the base directory when it doesn't exist
+    if (!QFile::exists(stylesPath) && !QDir().mkpath(stylesPath)) {
+        qWarning() << "Failed to create color scheme directory:" << stylesPath;
+        return QString();
+    }
+
+    return fileName;
+}
 
 // ------- FontSettingsPagePrivate
 FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
@@ -135,9 +157,8 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
         }
         if (m_value.colorScheme() != defaultScheme) {
             // Save it as a color scheme file
-            QString stylesPath = customStylesPath();
-            if (QFile::exists(stylesPath) || QDir().mkpath(stylesPath)) {
-                QString schemeFileName = stylesPath + QLatin1String("customized.xml");
+            QString schemeFileName = createColorSchemeFileName(QLatin1String("customized%1.xml"));
+            if (!schemeFileName.isEmpty()) {
                 if (m_value.saveColorScheme(schemeFileName) && settings)
                     m_value.toSettings(m_category, settings);
             }
@@ -335,31 +356,18 @@ void FontSettingsPage::cloneColorScheme()
     if (!d_ptr->m_value.loadColorScheme(entry.fileName, d_ptr->m_descriptions))
         return;
 
-    QString baseDir = customStylesPath();
-    QString baseFileName = baseDir;
-    baseFileName.append(QFileInfo(entry.fileName).completeBaseName());
+    QString baseFileName = QFileInfo(entry.fileName).completeBaseName();
+    baseFileName += QLatin1String("_copy%1.xml");
+    QString fileName = createColorSchemeFileName(baseFileName);
 
-    // Find an available file name
-    int i = 1;
-    QString fileName;
-    do {
-        fileName = baseFileName;
-        fileName.append(QString("_copy%1.xml").arg((i == 1) ? QString() : QString::number(i)));
-        ++i;
-    } while (QFile::exists(fileName));
+    if (!fileName.isEmpty()) {
+        ColorScheme scheme = d_ptr->m_value.colorScheme();
+        scheme.setName(tr("%1 (copy)").arg(scheme.name()));
+        scheme.save(fileName);
+        d_ptr->m_value.setColorSchemeFileName(fileName);
 
-    // Create the base directory when it doesn't exist
-    if (!QFile::exists(baseDir) && !QDir().mkpath(baseDir)) {
-        qWarning() << "Failed to create color scheme directory:" << baseDir;
-        return;
+        refreshColorSchemeList();
     }
-
-    ColorScheme scheme = d_ptr->m_value.colorScheme();
-    scheme.setName(tr("%1 (copy)").arg(scheme.name()));
-    scheme.save(fileName);
-    d_ptr->m_value.setColorSchemeFileName(fileName);
-
-    refreshColorSchemeList();
 }
 
 void FontSettingsPage::deleteColorScheme()

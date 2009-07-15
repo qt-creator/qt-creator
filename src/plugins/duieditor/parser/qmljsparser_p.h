@@ -3,7 +3,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Qt Software Information (qt-info@nokia.com)
 **
 ** This file is part of the QtScript module of the Qt Toolkit.
 **
@@ -36,7 +36,7 @@
 ** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at http://www.qtsoftware.com/contact.
+** contact the sales department at qt-sales@nokia.com.
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
@@ -109,6 +109,7 @@ public:
       AST::UiProgram *UiProgram;
       AST::UiImportList *UiImportList;
       AST::UiImport *UiImport;
+      AST::UiParameterList *UiParameterList;
       AST::UiPublicMember *UiPublicMember;
       AST::UiObjectDefinition *UiObjectDefinition;
       AST::UiObjectInitializer *UiObjectInitializer;
@@ -125,10 +126,29 @@ public:
     Parser(Engine *engine);
     ~Parser();
 
-    bool parse();
+    // parse a UI program
+    bool parse() { return parse(T_FEED_UI_PROGRAM); }
+    bool parseStatement() { return parse(T_FEED_JS_STATEMENT); }
+    bool parseExpression() { return parse(T_FEED_JS_EXPRESSION); }
 
-    AST::UiProgram *ast()
-    { return program; }
+    AST::UiProgram *ast() const
+    { return AST::cast<AST::UiProgram *>(program); }
+
+    AST::Statement *statement() const
+    {
+        if (! program)
+            return 0;
+
+        return program->statementCast();
+    }
+
+    AST::ExpressionNode *expression() const
+    {
+        if (! program)
+            return 0;
+
+        return program->expressionCast();
+    }
 
     QList<DiagnosticMessage> diagnosticMessages() const
     { return diagnostic_messages; }
@@ -153,6 +173,8 @@ public:
     { return diagnosticMessage().loc.startColumn; }
 
 protected:
+    bool parse(int startToken);
+
     void reallocateStack();
 
     inline Value &sym(int index)
@@ -171,7 +193,7 @@ protected:
     int *state_stack;
     AST::SourceLocation *location_stack;
 
-    AST::UiProgram *program;
+    AST::Node *program;
 
     // error recovery
     enum { TOKEN_BUFFER_SIZE = 3 };
@@ -197,9 +219,9 @@ protected:
 
 
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 54
+#define J_SCRIPT_REGEXPLITERAL_RULE1 72
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 55
+#define J_SCRIPT_REGEXPLITERAL_RULE2 73
 
 QT_END_NAMESPACE
 
