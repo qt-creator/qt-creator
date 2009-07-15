@@ -34,6 +34,8 @@
 #include "ifindfilter.h"
 #include "currentdocumentfind.h"
 
+#include <utils/styledbar.h>
+
 #include <QtGui/QStringListModel>
 #include <QtGui/QWidget>
 #include <QtGui/QToolBar>
@@ -44,14 +46,13 @@ namespace Internal {
 
 class FindPlugin;
 
-class FindToolBar : public QWidget
+class FindToolBar : public Core::Utils::StyledBar
 {
     Q_OBJECT
 
 public:
     FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumentFind);
     ~FindToolBar();
-    void paintEvent(QPaintEvent *event);
 
     void readSettings();
     void writeSettings();

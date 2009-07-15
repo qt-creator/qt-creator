@@ -30,7 +30,8 @@ SOURCES += reloadpromptutils.cpp \
     parameteraction.cpp \
     treewidgetcolumnstretcher.cpp \
     checkablemessagebox.cpp \
-    styledbar.cpp
+    styledbar.cpp \
+    stylehelper.cpp
 
 win32 { 
     SOURCES += abstractprocess_win.cpp \
@@ -69,7 +70,8 @@ HEADERS += utils_global.h \
     treewidgetcolumnstretcher.h \
     checkablemessagebox.h \
     qtcassert.h \
-    styledbar.h
+    styledbar.h \
+    stylehelper.h
 
 FORMS += filewizardpage.ui \
     projectintropage.ui \

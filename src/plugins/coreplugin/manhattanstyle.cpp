@@ -29,11 +29,13 @@
 
 #include "manhattanstyle.h"
 
-#include "stylehelper.h"
 #include "styleanimator.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QLibrary>
+
+#include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QtGui/QApplication>
 #include <QtGui/QComboBox>
@@ -55,8 +57,6 @@
 #include <QtGui/QStyleOption>
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
-
-#include <utils/qtcassert.h>
 
 // We define a currently unused state for indicating animations
 #define State_Animating 0x00000040

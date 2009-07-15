@@ -28,7 +28,8 @@
 **************************************************************************/
 
 #include "progresspie.h"
-#include "stylehelper.h"
+
+#include <utils/stylehelper.h>
 
 #include <QtGui/QPainter>
 #include <QtGui/QFont>

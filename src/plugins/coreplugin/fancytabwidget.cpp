@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "fancytabwidget.h"
-#include "stylehelper.h"
+#include <utils/stylehelper.h>
 
 #include <QDebug>
 

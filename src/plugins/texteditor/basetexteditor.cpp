@@ -39,14 +39,14 @@
 #include "codecselector.h"
 
 #ifndef TEXTEDITOR_STANDALONE
+#include <aggregation/aggregate.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
-#include <coreplugin/stylehelper.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
+#include <utils/stylehelper.h>
 
-#include <aggregation/aggregate.h>
 #endif
 #include <utils/linecolumnlabel.h>
 #include <utils/qtcassert.h>

@@ -32,15 +32,13 @@
 #include "textfindconstants.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/stylehelper.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/stylehelper.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-
 #include <extensionsystem/pluginmanager.h>
+#include <utils/stylehelper.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
@@ -76,7 +74,6 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 {
     //setup ui
     m_ui.setupUi(this);
-    setProperty("panelwidget", true);
     setFocusProxy(m_ui.findEdit);
     setProperty("topBorder", true);
     m_ui.findEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -230,56 +227,6 @@ FindToolBar::~FindToolBar()
 {
 }
 
-void FindToolBar::paintEvent(QPaintEvent *event)
-{
-    // Currently from the style
-    // Goal should be to migrate that into a Utils::StyledWidget class
-    Q_UNUSED(event)
-    QPainter painter(this);
-
-    QRect selfRect = rect();
-    QString key;
-    key.sprintf("mh_toolbar %d %d %d", selfRect.width(), selfRect.height(), StyleHelper::baseColor().rgb());;
-
-    QPixmap pixmap;
-    QPainter *p = &painter;
-    if (StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(selfRect.size());
-        p = new QPainter(&pixmap);
-        selfRect = QRect(0, 0, selfRect.width(), selfRect.height());
-    }
-
-    // Map offset for global window gradient
-    QPoint offset = window()->mapToGlobal(selfRect.topLeft()) -
-                                                  mapToGlobal(selfRect.topLeft());
-    QRect gradientSpan;
-    gradientSpan = QRect(offset, window()->size());
-    StyleHelper::horizontalGradient(p, gradientSpan, selfRect);
-
-    p->setPen(StyleHelper::borderColor());
-
-    // Note: This is a hack to determine if the
-    // toolbar should draw the top or bottom outline
-    // (needed for the find toolbar for instance)
-    QColor lighter(255, 255, 255, 40);
-    if (property("topBorder").toBool()) {
-        p->drawLine(selfRect.topLeft(), selfRect.topRight());
-        p->setPen(lighter);
-        p->drawLine(selfRect.topLeft() + QPoint(0, 1), selfRect.topRight() + QPoint(0, 1));
-    } else {
-        p->drawLine(selfRect.bottomLeft(), selfRect.bottomRight());
-        p->setPen(lighter);
-        p->drawLine(selfRect.topLeft(), selfRect.topRight());
-    }
-
-    if (StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-        painter.drawPixmap(selfRect.topLeft(), pixmap);
-        p->end();
-        delete p;
-        QPixmapCache::insert(key, pixmap);
-    }
-}
-
 bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
 {
     if ((obj == m_ui.findEdit || obj == m_findCompleter->popup())
@@ -320,7 +267,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
             m_currentDocumentFind->clearFindScope();
         }
     }
-    return QWidget::eventFilter(obj, event);
+    return Core::Utils::StyledBar::eventFilter(obj, event);
 }
 
 void FindToolBar::updateActions()
@@ -596,7 +543,7 @@ bool FindToolBar::focusNextPrevChild(bool next)
     else if (!next && m_ui.findEdit->hasFocus())
         m_ui.replaceAllButton->setFocus(Qt::TabFocusReason);
     else
-        return QWidget::focusNextPrevChild(next);
+        return Core::Utils::StyledBar::focusNextPrevChild(next);
     return true;
 }
 

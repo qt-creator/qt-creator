@@ -29,8 +29,8 @@
 
 #include "generalsettings.h"
 
-#include "stylehelper.h"
-#include "utils/qtcolorbutton.h"
+#include <utils/stylehelper.h>
+#include <utils/qtcolorbutton.h>
 #include <utils/consoleprocess.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
