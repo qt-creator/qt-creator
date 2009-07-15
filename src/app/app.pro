@@ -20,6 +20,9 @@ win32 {
 
     ICON = qtcreator.icns
     QMAKE_INFO_PLIST = Info.plist
+    FILETYPES.files = profile.icns prifile.icns
+    FILETYPES.path = Contents/Resources
+    QMAKE_BUNDLE_DATA += FILETYPES
 } else {
     LIBS *= -lExtensionSystem -lAggregation
 
