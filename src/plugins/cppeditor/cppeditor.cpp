@@ -640,7 +640,7 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     connect(m_semanticHighlighter, SIGNAL(changed(SemanticInfo)),
             this, SLOT(updateSemanticInfo(SemanticInfo)));
 
-    QToolBar *toolBar = editable->toolBar();
+    QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
     QList<QAction*> actions = toolBar->actions();
     QWidget *w = toolBar->widgetForAction(actions.first());
     static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_methodCombo, 1);

@@ -12,6 +12,17 @@ StyledBar::StyledBar(QWidget *parent)
     : QWidget(parent)
 {
     setProperty("panelwidget", true);
+    setProperty("panelwidget_singlerow", true);
+}
+
+void StyledBar::setSingleRow(bool singleRow)
+{
+    setProperty("panelwidget_singlerow", singleRow);
+}
+
+bool StyledBar::isSingleRow() const
+{
+    return property("panelwidget_singlerow").toBool();
 }
 
 void StyledBar::paintEvent(QPaintEvent *event)

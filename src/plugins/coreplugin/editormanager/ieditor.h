@@ -65,7 +65,7 @@ public:
 
     virtual bool isTemporary() const = 0;
 
-    virtual QToolBar *toolBar() = 0;
+    virtual QWidget *toolBar() = 0;
 
 signals:
     void changed();

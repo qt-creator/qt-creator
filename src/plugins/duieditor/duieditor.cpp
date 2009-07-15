@@ -677,7 +677,7 @@ void ScriptEditor::createToolBar(ScriptEditorEditable *editable)
 
 	connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
-	QToolBar *toolBar = editable->toolBar();
+        QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
 
 	QList<QAction*> actions = toolBar->actions();
 	toolBar->insertWidget(actions.first(), m_methodCombo);

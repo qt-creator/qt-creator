@@ -287,7 +287,7 @@ public:
     QByteArray saveState() const { return QByteArray(); } // TODO
     bool restoreState(const QByteArray & /* state */) { return false; } // TODO
 
-    QToolBar *toolBar() { return m_toolBar; }
+    QWidget *toolBar() { return m_toolBar; }
 
     bool isTemporary() const { return false; }
 

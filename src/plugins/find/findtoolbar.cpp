@@ -76,6 +76,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.setupUi(this);
     setFocusProxy(m_ui.findEdit);
     setProperty("topBorder", true);
+    setSingleRow(false);
     m_ui.findEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_ui.replaceEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 

@@ -343,7 +343,7 @@ static QToolBar *createToolBar(const QWidget *someWidget, QAction *submitAction,
     return toolBar;
 }
 
-QToolBar *VCSBaseSubmitEditor::toolBar()
+QWidget *VCSBaseSubmitEditor::toolBar()
 {
     if (!wantToolBar)
         return 0;

@@ -76,7 +76,7 @@ public:
     const char *kind() const;
     QString displayName() const;
     void setDisplayName(const QString &title);
-    QToolBar *toolBar();
+    QWidget *toolBar();
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     virtual bool isTemporary() const { return false; }

@@ -4143,7 +4143,7 @@ BaseTextEditorEditable::~BaseTextEditorEditable()
     delete e;
 }
 
-QToolBar *BaseTextEditorEditable::toolBar()
+QWidget *BaseTextEditorEditable::toolBar()
 {
     return m_toolBar;
 }
