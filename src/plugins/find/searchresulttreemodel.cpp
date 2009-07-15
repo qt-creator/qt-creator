@@ -33,6 +33,7 @@
 
 #include <QtGui/QFont>
 #include <QtGui/QColor>
+#include <QtCore/QDir>
 
 using namespace Find::Internal;
 
@@ -187,7 +188,7 @@ QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) con
         result = QColor(qRgb(245, 245, 245));
         break;
     case Qt::DisplayRole:
-        result = QString(file->fileName()
+        result = QString(QDir::toNativeSeparators(file->fileName())
             + " (" + QString::number(file->childrenCount()) + ")");
         break;
     case ItemDataRoles::FileNameRole:
