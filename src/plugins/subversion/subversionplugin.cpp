@@ -754,7 +754,7 @@ void SubversionPlugin::updateProject()
     QStringList args(QLatin1String("update"));
     args.push_back(QLatin1String(nonInteractiveOptionC));
     args.append(topLevels);
-    runSvn(args, subversionLongTimeOut, false);
+    runSvn(args, subversionLongTimeOut, true);
 }
 
 void SubversionPlugin::annotateCurrentFile()
