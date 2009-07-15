@@ -459,6 +459,12 @@ QString CustomExecutableRunConfiguration::dumperLibrary() const
     return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibrary(qmakePath);
 }
 
+QStringList CustomExecutableRunConfiguration::dumperLibraryLocations() const
+{
+    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
+    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryLocations(qmakePath);
+}
+
 ProjectExplorer::ToolChain::ToolChainType CustomExecutableRunConfiguration::toolChainType() const
 {
     return ProjectExplorer::ToolChain::UNKNOWN;

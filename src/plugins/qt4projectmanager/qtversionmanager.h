@@ -96,6 +96,7 @@ public:
 
     bool hasDebuggingHelper() const;
     QString debuggingHelperLibrary() const;
+    QStringList debuggingHelperLibraryLocations() const;
 
     // Builds a debugging library
     // returns the output of the commands

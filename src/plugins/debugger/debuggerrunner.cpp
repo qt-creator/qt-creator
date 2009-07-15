@@ -158,6 +158,7 @@ void DebuggerRunControl::start()
             break;
         }
         m_manager->setQtDumperLibraryName(rc->dumperLibrary());
+        m_manager->setQtDumperLibraryLocations(rc->dumperLibraryLocations());
         if (const ProjectExplorer::Project *project = rc->project()) {
             m_startParameters->buildDir = project->buildDirectory(project->activeBuildConfiguration());
         }

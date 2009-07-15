@@ -1004,6 +1004,11 @@ void DebuggerManager::setQtDumperLibraryName(const QString &dl)
     m_dumperLib = dl;
 }
 
+void DebuggerManager::setQtDumperLibraryLocations(const QStringList &dl)
+{
+    m_dumperLibLocations = dl;
+}
+
 qint64 DebuggerManager::inferiorPid() const
 {
     return m_inferiorPid;
@@ -1516,6 +1521,15 @@ QString DebuggerManager::qtDumperLibraryName() const
     if (theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool())
         return theDebuggerAction(CustomDebuggingHelperLocation)->value().toString();
     return m_dumperLib;
+}
+
+QStringList DebuggerManager::qtDumperLibraryLocations() const
+{
+    if (theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool())
+        return QStringList() <<
+                ( theDebuggerAction(CustomDebuggingHelperLocation)->value().toString()
+                  + tr(" (explicitly set in the Debugger Options)"));
+    return m_dumperLibLocations;
 }
 
 void DebuggerManager::showQtDumperLibraryWarning(const QString &details)

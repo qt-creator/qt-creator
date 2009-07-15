@@ -539,12 +539,13 @@ bool CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     const QString dumperLibName = QDir::toNativeSeparators(m_d->m_debuggerManagerAccess->qtDumperLibraryName());
     bool dumperEnabled = mode != AttachCore
                          && mode != AttachCrashedExternal
-                         && !dumperLibName.isEmpty()
                          && m_d->m_debuggerManagerAccess->qtDumperLibraryEnabled();
     if (dumperEnabled) {
         const QFileInfo fi(dumperLibName);
         if (!fi.isFile()) {
-            const QString msg = tr("The dumper library '%1' does not exist.").arg(dumperLibName);
+            const QStringList &locations = m_d->m_debuggerManagerAccess->qtDumperLibraryLocations();
+            const QString loc = locations.join(QLatin1String(", "));
+            const QString msg = tr("The dumper library was not found at %1.").arg(loc);
             m_d->m_debuggerManagerAccess->showQtDumperLibraryWarning(msg);
             dumperEnabled = false;
         }

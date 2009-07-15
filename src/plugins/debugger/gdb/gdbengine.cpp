@@ -3855,11 +3855,13 @@ void GdbEngine::tryLoadDebuggingHelpers()
     if (!qq->qtDumperLibraryEnabled())
         return;
     const QString lib = qq->qtDumperLibraryName();
+    const QStringList &locations = qq->qtDumperLibraryLocations();
     //qDebug() << "DUMPERLIB:" << lib;
     // @TODO: same in CDB engine...
     const QFileInfo fi(lib);
     if (!fi.exists()) {
-        const QString msg = tr("The dumper library '%1' does not exist.").arg(lib);
+        const QString loc = locations.join(QLatin1String(", "));
+        const QString msg = tr("The dumper library was not found at %1.").arg(loc);
         debugMessage(msg);
         qq->showQtDumperLibraryWarning(msg);
         return;

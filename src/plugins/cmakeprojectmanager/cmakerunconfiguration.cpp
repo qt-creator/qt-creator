@@ -170,6 +170,12 @@ QString CMakeRunConfiguration::dumperLibrary() const
     return dhl;
 }
 
+QStringList CMakeRunConfiguration::dumperLibraryLocations() const
+{
+    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
+    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryLocations(qmakePath);
+}
+
 ProjectExplorer::Environment CMakeRunConfiguration::baseEnvironment() const
 {
     ProjectExplorer::Environment env;

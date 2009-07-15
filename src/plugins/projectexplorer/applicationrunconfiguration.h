@@ -57,6 +57,7 @@ public:
     virtual QStringList commandLineArguments() const = 0;
     virtual Environment environment() const = 0;
     virtual QString dumperLibrary() const = 0;
+    virtual QStringList dumperLibraryLocations() const = 0;
     virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const = 0;
 
     virtual void save(PersistentSettingsWriter &writer) const;

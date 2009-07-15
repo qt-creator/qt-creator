@@ -66,9 +66,14 @@ QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QStr
     QStringList directories;
     directories
             << (qtInstallData + "/qtc-debugging-helper/")
-            << (QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)) + "/"
+            << QDir::cleanPath((QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash))) + "/"
             << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash)) + "/";
     return directories;
+}
+
+QStringList DebuggingHelperLibrary::debuggingHelperLibraryLocations(const QString &qmakePath)
+{
+    return debuggingHelperLibraryLocations(qtInstallDataDir(qmakePath), qtDir(qmakePath));
 }
 
 QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qmakePath)
@@ -93,6 +98,22 @@ QString DebuggingHelperLibrary::qtDir(const QString &qmakePath)
 }
 
 // Debugging Helper Library
+
+QStringList DebuggingHelperLibrary::debuggingHelperLibraryLocations(const QString &qtInstallData, const QString &qtpath)
+{
+    QStringList result;
+    foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData, qtpath)) {
+#if defined(Q_OS_WIN)
+        QFileInfo fi(directory + "debug/gdbmacros.dll");
+#elif defined(Q_OS_MAC)
+        QFileInfo fi(directory + "libgdbmacros.dylib");
+#else // generic UNIX
+        QFileInfo fi(directory + "libgdbmacros.so");
+#endif
+        result << fi.filePath();
+    }
+    return result;
+}
 
 QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qtInstallData, const QString &qtpath)
 {
