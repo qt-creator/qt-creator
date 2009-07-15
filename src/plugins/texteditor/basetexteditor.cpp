@@ -1245,7 +1245,7 @@ bool BaseTextEditor::isParenthesesMatchingEnabled() const
 void BaseTextEditor::setHighlightCurrentLine(bool b)
 {
     d->m_highlightCurrentLine = b;
-    slotCursorPositionChanged();
+    updateCurrentLineHighlight();
 }
 
 bool BaseTextEditor::highlightCurrentLine() const
@@ -2582,6 +2582,22 @@ void BaseTextEditor::saveCurrentCursorPositionForNavigation()
     d->m_tempNavigationState = saveState();
 }
 
+void BaseTextEditor::updateCurrentLineHighlight()
+{
+    QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if (d->m_highlightCurrentLine) {
+        QTextEdit::ExtraSelection sel;
+        sel.format.setBackground(d->m_currentLineFormat.background());
+        sel.format.setProperty(QTextFormat::FullWidthSelection, true);
+        sel.cursor = textCursor();
+        sel.cursor.clearSelection();
+        extraSelections.append(sel);
+    }
+
+    setExtraSelections(CurrentLineSelection, extraSelections);
+}
+
 void BaseTextEditor::slotCursorPositionChanged()
 {
     if (!d->m_contentsChanged && d->m_lastCursorChangeWasInteresting) {
@@ -2602,18 +2618,7 @@ void BaseTextEditor::slotCursorPositionChanged()
         }
     }
 
-    QList<QTextEdit::ExtraSelection> extraSelections;
-
-    if (d->m_highlightCurrentLine) {
-        QTextEdit::ExtraSelection sel;
-        sel.format.setBackground(d->m_currentLineFormat.background());
-        sel.format.setProperty(QTextFormat::FullWidthSelection, true);
-        sel.cursor = textCursor();
-        sel.cursor.clearSelection();
-        extraSelections.append(sel);
-    }
-
-    setExtraSelections(CurrentLineSelection, extraSelections);
+    updateCurrentLineHighlight();
 
     if (d->m_displaySettings.m_highlightBlocks) {
         QTextCursor cursor = textCursor();
@@ -3898,7 +3903,8 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
     d->m_matchFormat.setForeground(parenthesesFormat.foreground());
     d->m_rangeFormat.setBackground(parenthesesFormat.background());
 
-    slotUpdateExtraAreaWidth();
+    slotUpdateExtraAreaWidth();   // Adjust to new font width
+    updateCurrentLineHighlight(); // Make sure it takes the new color
 }
 
 void BaseTextEditor::setTabSettings(const TabSettings &ts)
