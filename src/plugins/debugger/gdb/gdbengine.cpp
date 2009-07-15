@@ -1301,7 +1301,8 @@ void GdbEngine::handleFileExecAndSymbols(const GdbResultRecord &response, const 
         QMessageBox::critical(q->mainWindow(), tr("Error"),
             tr("Starting executable failed:\n") + msg);
         QTC_ASSERT(q->status() == DebuggerInferiorRunning, /**/);
-        interruptInferior();
+        //interruptInferior();
+        qq->notifyInferiorExited();
     }
 }
 
@@ -1320,7 +1321,8 @@ void GdbEngine::handleExecRun(const GdbResultRecord &response, const QVariant &)
             QMessageBox::critical(q->mainWindow(), tr("Error"),
                 tr("Starting executable failed:\n") + QString::fromLocal8Bit(msg));
             QTC_ASSERT(q->status() == DebuggerInferiorRunning, /**/);
-            interruptInferior();
+            //interruptInferior();
+            qq->notifyInferiorExited();
         }
     }
 }
@@ -1588,7 +1590,7 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         QFileInfo fi2(sp->coreFile);
         // quoting core name below fails in gdb 6.8-debian
         QString coreName = fi2.absoluteFilePath();
-        postCommand(_("-file-exec-and-symbols ") + fileName);
+        postCommand(_("-file-exec-and-symbols ") + fileName, CB(handleFileExecAndSymbols));
         postCommand(_("target core ") + coreName, CB(handleTargetCore));
         qq->breakHandler()->removeAllBreakpoints();
     } else if (q->startMode() == StartRemote) {
@@ -1597,7 +1599,7 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         //QFileInfo fi(sp->executable);
         //QString fileName = fi.absoluteFileName();
         QString fileName = sp->executable;
-        postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName));
+        postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName), CB(handleFileExecAndSymbols));
         // works only for > 6.8
         postCommand(_("set target-async on"), CB(handleSetTargetAsync));
     } else if (sp->useTerminal) {
