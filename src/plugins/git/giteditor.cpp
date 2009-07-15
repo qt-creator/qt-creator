@@ -33,6 +33,7 @@
 #include "gitclient.h"
 #include "gitconstants.h"
 #include "gitplugin.h"
+#include <QtCore/QTextCodec>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
@@ -139,6 +140,48 @@ QString GitEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) cons
         }
     }
     return QString();
+}
+
+/* Remove the date specification from annotation, which is tabular:
+\code
+8ca887aa (author               YYYY-MM-DD HH:MM:SS <offset>  <line>)<content>
+\endcode */
+
+static void removeAnnotationDate(QString *s)
+{
+    if (s->isEmpty())
+        return;
+    // Get position of date (including blank) and the ')'
+    const QRegExp isoDatePattern(QLatin1String(" \\d{4}-\\d{2}-\\d{2}"));
+    Q_ASSERT(isoDatePattern.isValid());
+    const int datePos = s->indexOf(isoDatePattern);
+    const int parenPos = datePos == -1 ? -1 : s->indexOf(QLatin1Char(')'));
+    if (parenPos == -1)
+        return;
+    // In all lines, remove the bit from datePos .. parenPos;
+    const int dateLength = parenPos - datePos;
+    const QChar newLine = QLatin1Char('\n');
+    for (int pos = 0; pos < s->size(); ) {
+        if (pos + parenPos >s->size()) // Should not happen
+            break;
+        s->remove(pos + datePos, dateLength);
+        const int nextLinePos = s->indexOf(newLine, pos + datePos);
+        pos = nextLinePos == -1 ? s->size() : nextLinePos  + 1;
+    }
+}
+
+void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
+{
+    // If desired, filter out the date from annotation
+    const bool omitAnnotationDate = contentType() == VCSBase::AnnotateOutput
+                                    && GitPlugin::instance()->settings().omitAnnotationDate;
+    if (omitAnnotationDate) {
+        QString text = codec()->toUnicode(a);
+        removeAnnotationDate(&text);
+        setPlainText(text);
+    } else {
+        setPlainTextData(a);
+    }
 }
 
 } // namespace Internal

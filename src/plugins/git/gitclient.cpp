@@ -493,7 +493,7 @@ GitCommand *GitClient::createCommand(const QString &workingDirectory,
         }
     } else {
         QTC_ASSERT(editor, /**/);
-        connect(command, SIGNAL(outputData(QByteArray)), editor, SLOT(setPlainTextData(QByteArray)));
+        connect(command, SIGNAL(outputData(QByteArray)), editor, SLOT(setPlainTextDataFiltered(QByteArray)));
     }
 
     if (outputWindow)
