@@ -4,6 +4,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QFileInfo>
 #include <QtCore/QStringList>
+#include <QtCore/QTextCodec>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QStringListModel>
 #include <QtTest/QtTest>
@@ -142,6 +143,7 @@ private slots:
     void dumpQList_Int3();
     void dumpQObject();
     void dumpQString();
+    void dumpQTextCodec();
     void dumpQVariant_invalid();
     void dumpQVariant_QString();
     void dumpQVariant_QStringList();
@@ -163,6 +165,7 @@ private:
     void dumpQDateTimeHelper(QDateTime &d);
     void dumpQDirHelper(QDir &d);
     void dumpQFileHelper(const QString &name, bool exists);
+    void dumpQTextCodecHelper(QTextCodec *codec);
 };
 
 static QByteArray stripped(QByteArray ba)
@@ -442,9 +445,21 @@ static const QByteArray generateBoolSpec(bool b)
     return QByteArray("value=").append(boolToVal(b)).append(",type='bool',numchild='0'");
 }
 
+template <typename T>
+static const QByteArray generateIntegerSpec(T n, QString type)
+{
+    return QByteArray("value='").append(QString::number(n)).append("',type='").
+        append(type).append("',numchild='0'");
+}
+
 static const QByteArray generateLongSpec(long n)
 {
-    return QByteArray("value='").append(QString::number(n)).append("',type='long',numchild='0'");
+    return generateIntegerSpec(n, "long");
+}
+
+static const QByteArray generateIntSpec(int n)
+{
+    return generateIntegerSpec(n, "int");
 }
 
 void tst_Debugger::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
@@ -598,7 +613,7 @@ void tst_Debugger::dumpQDateTimeHelper(QDateTime &d)
       expected.append(utfToBase64(d.toString())).append("',valueencoded='2',");
     expected.append("type='$T',numchild='3',children=[");
     expected.append("{name='isNull',").append(generateBoolSpec(d.isNull())).append("},");
-    expected.append("{name='toTime_t',").append(generateLongSpec(d.toTime_t())).append("},");
+    expected.append("{name='toTime_t',").append(generateLongSpec((d.toTime_t()))).append("},");
     expected.append("{name='toString',").append(generateQStringSpec(d.toString())).append("},");
     expected.append("{name='toString_(ISO)',").append(generateQStringSpec(d.toString(Qt::ISODate))).append("},");
     expected.append("{name='toString_(SystemLocale)',").
@@ -940,6 +955,25 @@ void tst_Debugger::dumpStdVector()
         &vector, "std::vector", true, inner, "", sizeof(std::list<int> *));
     vector.push_back(new std::list<int>(list));
     vector.push_back(0);
+}
+
+void tst_Debugger::dumpQTextCodecHelper(QTextCodec *codec)
+{
+    const QByteArray &name = codec->name().toBase64();
+    QByteArray expected = QByteArray("value='").append(name).
+        append("',valueencoded='1',type='"NS"QTextCodec',numchild='2',children=[").
+        append("{name='name',value='").append(name).append("',type='"NS"QByteArray'").
+        append(",numchild='0',valueencoded='1'},").append("{name='mibEnum',").
+        append(generateIntSpec(codec->mibEnum())).append("}");
+    expected.append("]");
+    testDumper(expected, codec, NS"QTextCodec", true);
+}
+
+void tst_Debugger::dumpQTextCodec()
+{
+    const QList<QByteArray> &codecNames = QTextCodec::availableCodecs();
+    foreach (const QByteArray &codecName, codecNames)
+        dumpQTextCodecHelper(QTextCodec::codecForName(codecName));
 }
 
 //
