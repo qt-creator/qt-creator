@@ -62,7 +62,7 @@
 #include <QtCore/QTextStream>
 
 #include <QtGui/QAction>
-#include <QtGui/QApplication>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
@@ -1146,7 +1146,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             m_currentFrame = _(frame.findChild("addr").data() + '%' +
                  frame.findChild("func").data() + '%');
 
-            QApplication::alert(q->mainWindow(), 3000);
             if (theDebuggerAction(ListSourceFiles)->value().toBool())
                 reloadSourceFiles();
             postCommand(_("-break-list"), CB(handleBreakList));
@@ -2800,7 +2799,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
 
 //: Variable
 static const QString strNotInScope =
-        QApplication::translate("Debugger::Internal::GdbEngine", "<not in scope>");
+        QCoreApplication::translate("Debugger::Internal::GdbEngine", "<not in scope>");
 
 
 static void setWatchDataValue(WatchData &data, const GdbMi &mi,
