@@ -29,7 +29,9 @@ SOURCES += reloadpromptutils.cpp \
     uncommentselection.cpp \
     parameteraction.cpp \
     treewidgetcolumnstretcher.cpp \
-    checkablemessagebox.cpp
+    checkablemessagebox.cpp \
+    styledbar.cpp
+
 win32 { 
     SOURCES += abstractprocess_win.cpp \
         consoleprocess_win.cpp \
@@ -66,7 +68,9 @@ HEADERS += utils_global.h \
     parameteraction.h \
     treewidgetcolumnstretcher.h \
     checkablemessagebox.h \
-    qtcassert.h
+    qtcassert.h \
+    styledbar.h
+
 FORMS += filewizardpage.ui \
     projectintropage.ui \
     newclasswidget.ui \
