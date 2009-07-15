@@ -1241,11 +1241,12 @@ void DebuggerManager::setStatus(int status)
         || status == DebuggerInferiorStopRequested
         || status == DebuggerInferiorStopped;
 
-    //const bool starting = status == DebuggerProcessStartingUp;
     const bool running = status == DebuggerInferiorRunning;
 
     const bool ready = status == DebuggerInferiorStopped
             && startMode() != AttachCore;
+    if (ready)
+        QApplication::alert(mainWindow(), 3000);
 
     m_watchAction->setEnabled(ready);
     m_breakAction->setEnabled(true);

@@ -140,7 +140,7 @@ public:
     ProBlock *currentBlock();
     void updateItem();
     bool parseLine(const QString &line);
-    void insertVariable(const QString &line, int *i);
+    void insertVariable(const ushort **pCur, const ushort *end);
     void insertOperator(const char op);
     void insertComment(const QString &comment);
     void enterScope(bool multiLine);
@@ -153,10 +153,13 @@ public:
     ProItem *m_commentItem;
     QString m_proitem;
     QString m_pendingComment;
+    ushort *m_proitemPtr;
     bool m_syntaxError;
     bool m_contNextLine;
     bool m_inQuote;
     int m_parens;
+
+    enum StrState { NotStarted, Started, PutSpace };
 
     /////////////// Evaluating pro file contents
 
@@ -304,32 +307,36 @@ bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
     return true;
 }
 
-bool ProFileEvaluator::Private::parseLine(const QString &line0)
+bool ProFileEvaluator::Private::parseLine(const QString &line)
 {
     if (m_blockstack.isEmpty())
         return false;
 
+    const ushort *cur = (const ushort *)line.unicode(),
+                 *end = cur + line.length();
     int parens = m_parens;
     bool inQuote = m_inQuote;
     bool escaped = false;
-    QString line = line0.simplified();
 
-    for (int i = 0; !m_syntaxError && i < line.length(); ++i) {
-        ushort c = line.at(i).unicode();
+    m_proitem.reserve(line.length());
+    m_proitemPtr = (ushort *)m_proitem.unicode();
+  nextItem:
+    ushort *ptr = m_proitemPtr;
+    StrState sts = NotStarted;
+    while (cur < end) {
+        ushort c = *cur++;
         if (c == '#') { // Yep - no escaping possible
-            insertComment(line.mid(i + 1));
-            escaped = m_contNextLine;
-            break;
+            m_proitemPtr = ptr;
+            insertComment(line.right(end - cur).simplified());
+            goto done;
         }
         if (!escaped) {
             if (c == '\\') {
                 escaped = true;
-                m_proitem += c;
-                continue;
+                goto putch;
             } else if (c == '"') {
                 inQuote = !inQuote;
-                m_proitem += c;
-                continue;
+                goto putch;
             }
         } else {
             escaped = false;
@@ -341,52 +348,70 @@ bool ProFileEvaluator::Private::parseLine(const QString &line0)
                 --parens;
             } else if (!parens) {
                 if (m_block && (m_block->blockKind() & ProBlock::VariableKind)) {
-                    if (c == ' ')
+                    if (c == ' ' || c == '\t') {
+                        m_proitemPtr = ptr;
                         updateItem();
-                    else
-                        m_proitem += c;
-                    continue;
-                }
-                if (c == ':') {
-                    enterScope(false);
-                    continue;
-                }
-                if (c == '{') {
-                    enterScope(true);
-                    continue;
-                }
-                if (c == '}') {
-                    leaveScope();
-                    continue;
-                }
-                if (c == '=') {
-                    insertVariable(line, &i);
-                    continue;
-                }
-                if (c == '|' || c == '!') {
-                    insertOperator(c);
-                    continue;
+                        goto nextItem;
+                    }
+                } else {
+                    if (c == ':') {
+                        m_proitemPtr = ptr;
+                        enterScope(false);
+                        goto nextItem;
+                    }
+                    if (c == '{') {
+                        m_proitemPtr = ptr;
+                        enterScope(true);
+                        goto nextItem;
+                    }
+                    if (c == '}') {
+                        m_proitemPtr = ptr;
+                        leaveScope();
+                        if (m_syntaxError)
+                            goto done1;
+                        goto nextItem;
+                    }
+                    if (c == '=') {
+                        m_proitemPtr = ptr;
+                        insertVariable(&cur, end);
+                        goto nextItem;
+                    }
+                    if (c == '|' || c == '!') {
+                        m_proitemPtr = ptr;
+                        insertOperator(c);
+                        goto nextItem;
+                    }
                 }
             }
         }
 
-        m_proitem += c;
+        if (c == ' ' || c == '\t') {
+            if (sts == Started)
+                sts = PutSpace;
+        } else {
+          putch:
+            if (sts == PutSpace)
+                *ptr++ = ' ';
+            *ptr++ = c;
+            sts = Started;
+        }
     }
+    m_proitemPtr = ptr;
+  done1:
+    m_contNextLine = escaped;
+  done:
     m_inQuote = inQuote;
     m_parens = parens;
-    m_contNextLine = escaped;
-    if (escaped) {
-        m_proitem.chop(1);
-        updateItem();
-        return true;
-    } else {
-        if (!m_syntaxError) {
-            updateItem();
-            finalizeBlock();
-            return true;
-        }
+    if (m_syntaxError)
         return false;
+    if (escaped) {
+        --m_proitemPtr;
+        updateItem();
+    } else {
+        updateItem();
+        finalizeBlock();
     }
+    return true;
 }
 
 void ProFileEvaluator::Private::finalizeBlock()
@@ -401,37 +426,44 @@ void ProFileEvaluator::Private::finalizeBlock()
     }
 }
 
-void ProFileEvaluator::Private::insertVariable(const QString &line, int *i)
+void ProFileEvaluator::Private::insertVariable(const ushort **pCur, const ushort *end)
 {
     ProVariable::VariableOperator opkind;
+    ushort *uc = (ushort *)m_proitem.unicode();
+    ushort *ptr = m_proitemPtr;
 
-    if (m_proitem.isEmpty()) // Line starting with '=', like a conflict marker
+    if (ptr == uc) // Line starting with '=', like a conflict marker
         return;
 
-    switch (m_proitem.at(m_proitem.length() - 1).unicode()) {
+    switch (*(ptr - 1)) {
         case '+':
-            m_proitem.chop(1);
+            --ptr;
             opkind = ProVariable::AddOperator;
             break;
         case '-':
-            m_proitem.chop(1);
+            --ptr;
             opkind = ProVariable::RemoveOperator;
             break;
         case '*':
-            m_proitem.chop(1);
+            --ptr;
             opkind = ProVariable::UniqueAddOperator;
             break;
         case '~':
-            m_proitem.chop(1);
+            --ptr;
             opkind = ProVariable::ReplaceOperator;
             break;
         default:
             opkind = ProVariable::SetOperator;
     }
 
+    while (ptr != uc && *(ptr - 1) == ' ')
+        --ptr;
+    m_proitem.resize(ptr - uc);
+    QString proVar = m_proitem;
+    proVar.detach();
+
     ProBlock *block = m_blockstack.top();
-    m_proitem = m_proitem.trimmed();
-    ProVariable *variable = new ProVariable(m_proitem, block);
+    ProVariable *variable = new ProVariable(proVar, block);
     variable->setLineNumber(m_lineNo);
     variable->setVariableOperator(opkind);
     block->appendItem(variable);
@@ -443,26 +475,31 @@ void ProFileEvaluator::Private::insertVariable(const QString &line, int *i)
     }
     m_commentItem = variable;
 
-    m_proitem.clear();
-
     if (opkind == ProVariable::ReplaceOperator) {
         // skip util end of line or comment
-        while (1) {
-            ++(*i);
-
-            // end of line?
-            if (*i >= line.count())
+        StrState sts = NotStarted;
+        ptr = uc;
+        const ushort *cur = *pCur;
+        while (cur < end) {
+            ushort c = *cur;
+            if (c == '#') // comment?
                 break;
+            ++cur;
 
-            // comment?
-            if (line.at(*i).unicode() == '#') {
-                --(*i);
-                break;
+            if (c == ' ' || c == '\t') {
+                if (sts == Started)
+                    sts = PutSpace;
+            } else {
+                if (sts == PutSpace)
+                    *ptr++ = ' ';
+                *ptr++ = c;
+                sts = Started;
             }
-
-            m_proitem += line.at(*i);
         }
-        m_proitem = m_proitem.trimmed();
+        *pCur = cur;
+        m_proitemPtr = ptr;
+    } else {
+        m_proitemPtr = uc;
     }
 }
 
@@ -563,22 +600,27 @@ ProBlock *ProFileEvaluator::Private::currentBlock()
 
 void ProFileEvaluator::Private::updateItem()
 {
-    m_proitem = m_proitem.trimmed();
-    if (m_proitem.isEmpty())
+    ushort *uc = (ushort *)m_proitem.unicode();
+    ushort *ptr = m_proitemPtr;
+
+    if (ptr == uc)
         return;
+
+    m_proitem.resize(ptr - uc);
+    m_proitemPtr = uc;
+    QString proItem = m_proitem;
+    proItem.detach();
 
     ProBlock *block = currentBlock();
     if (block->blockKind() & ProBlock::VariableKind) {
-        m_commentItem = new ProValue(m_proitem, static_cast<ProVariable*>(block));
-    } else if (m_proitem.endsWith(QLatin1Char(')'))) {
-        m_commentItem = new ProFunction(m_proitem);
+        m_commentItem = new ProValue(proItem, static_cast<ProVariable*>(block));
+    } else if (proItem.endsWith(QLatin1Char(')'))) {
+        m_commentItem = new ProFunction(proItem);
     } else {
-        m_commentItem = new ProCondition(m_proitem);
+        m_commentItem = new ProCondition(proItem);
     }
     m_commentItem->setLineNumber(m_lineNo);
     block->appendItem(m_commentItem);
-
-    m_proitem.clear();
 }
 
 
