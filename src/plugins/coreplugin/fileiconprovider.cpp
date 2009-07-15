@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "fileiconprovider.h"
+#include "mimedatabase.h"
+
 #include <QtGui/QApplication>
 #include <QtGui/QStyle>
 #include <QtGui/QPainter>
@@ -88,7 +90,9 @@ QIcon FileIconProvider::icon(const QFileInfo &fileInfo)
     return icon;
 }
 
-// Creates a pixmap with baseicon at size and overlayous overlayIcon over it.
+/*!
+  Creates a pixmap with baseicon at size and overlays overlayIcon over it.
+  */
 QPixmap FileIconProvider::overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size) const
 {
     QPixmap iconPixmap = qApp->style()->standardIcon(baseIcon).pixmap(size);
@@ -99,7 +103,7 @@ QPixmap FileIconProvider::overlayIcon(QStyle::StandardPixmap baseIcon, const QIc
 }
 
 /*!
-  Registers an icon for a given suffix, overlaying the system file icon
+  Registers an icon for a given suffix, overlaying the system file icon.
   */
 void FileIconProvider::registerIconOverlayForSuffix(const QIcon &icon, const QString &suffix)
 {
@@ -118,12 +122,21 @@ void FileIconProvider::registerIconOverlayForSuffix(const QIcon &icon, const QSt
 }
 
 /*!
+  Registers an icon for all the suffixes of a given mime type, overlaying the system file icon.
+  */
+void FileIconProvider::registerIconOverlayForMimeType(const QIcon &icon, const MimeType &mimeType)
+{
+    foreach (const QString &suffix, mimeType.suffixes())
+        registerIconOverlayForSuffix(icon, suffix);
+}
+
+/*!
   Returns an icon for the given suffix, or an empty one if none registered.
   */
 QIcon FileIconProvider::iconForSuffix(const QString &suffix) const
 {
     QIcon icon;
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC) // On windows we use the file system icons
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC) // On Windows and Mac we use the file system icons
     Q_UNUSED(suffix)
 #else
     if (suffix.isEmpty())

@@ -44,7 +44,6 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditor;
-class CppEditorFactory;
 
 class CppPlugin : public ExtensionSystem::IPlugin
 {
@@ -76,7 +75,6 @@ private slots:
     void jumpToDefinition();
 
 private:
-    friend class CppEditorFactory;
     Core::IEditor *createEditor(QWidget *parent);
     void writeSettings();
     void readSettings();
@@ -84,7 +82,6 @@ private:
     static CppPlugin *m_instance;
 
     TextEditor::TextEditorActionHandler *m_actionHandler;
-    CppEditorFactory *m_factory;
     bool m_sortedMethodOverview;
 };
 
