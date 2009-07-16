@@ -72,6 +72,7 @@ QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
     ProjectExplorerSettings pes = ProjectExplorerPlugin::instance()->projectExplorerSettings();
     m_ui.buildProjectBeforeRunCheckBox->setChecked(pes.buildBeforeRun);
     m_ui.saveAllFilesCheckBox->setChecked(pes.saveBeforeBuild);
+    m_ui.showCompileOutputCheckBox->setChecked(pes.showCompilerOutput);
     return w;
 }
 
@@ -80,6 +81,7 @@ void ProjectExplorerSettingsPage::apply()
     ProjectExplorerSettings pes;
     pes.buildBeforeRun = m_ui.buildProjectBeforeRunCheckBox->isChecked();
     pes.saveBeforeBuild = m_ui.saveAllFilesCheckBox->isChecked();
+    pes.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
     ProjectExplorerPlugin::instance()->setProjectExplorerSettings(pes);
 }
 

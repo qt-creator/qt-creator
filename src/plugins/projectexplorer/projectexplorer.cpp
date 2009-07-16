@@ -644,6 +644,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     if (QSettings *s = core->settings()) {
         m_projectExplorerSettings.buildBeforeRun = s->value("ProjectExplorer/Settings/BuildBeforeRun", true).toBool();
         m_projectExplorerSettings.saveBeforeBuild = s->value("ProjectExplorer/Settings/SaveBeforeBuild", false).toBool();
+        m_projectExplorerSettings.showCompilerOutput = s->value("ProjectExplorer/Settings/ShowCompilerOutput", false).toBool();
     }
 
     if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>
@@ -887,6 +888,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
 
         s->setValue("ProjectExplorer/Settings/BuildBeforeRun", m_projectExplorerSettings.buildBeforeRun);
         s->setValue("ProjectExplorer/Settings/SaveBeforeBuild", m_projectExplorerSettings.saveBeforeBuild);
+        s->setValue("ProjectExplorer/Settings/ShowCompilerOutput", m_projectExplorerSettings.showCompilerOutput);
     }
 }
 
