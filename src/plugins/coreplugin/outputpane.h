@@ -125,15 +125,15 @@ private:
 
     QAction *m_nextAction;
     QAction *m_prevAction;
-    QAction *m_closeAction;
-    QToolBar *m_toolBar;
+    QToolButton *m_prevToolButton;
+    QToolButton *m_nextToolButton;
+    QWidget *m_toolBar;
 
     QMap<int, Core::IOutputPane*> m_pageMap;
     int m_lastIndex;
 
     QStackedWidget *m_outputWidgetPane;
     QStackedWidget *m_opToolBarWidgets;
-    QAction *m_opToolBarAction;
     QWidget *m_buttonsWidget;
     QMap<int, QPushButton *> m_buttons;
     QMap<QAction *, int> m_actions;
