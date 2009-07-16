@@ -2449,7 +2449,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                 painter.setPen(QPen(Qt::darkGreen, 2));
             else
                 painter.setPen(QPen(Qt::red, 2));
-            painter.drawLine(extraAreaWidth-1, top, extraAreaWidth-1, bottom-1);
+            painter.drawLine(extraAreaWidth - 1, top, extraAreaWidth - 1, bottom - 1);
             painter.restore();
         }
 
@@ -3921,6 +3921,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     setVisibleWrapColumn(ds.m_showWrapColumn ? ds.m_wrapColumn : 0);
     setCodeFoldingVisible(ds.m_displayFoldingMarkers);
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
+    setRevisionsVisible(ds.m_markTextChanges);
 
     if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
         if (QSyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())

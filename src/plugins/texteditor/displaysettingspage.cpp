@@ -125,6 +125,7 @@ void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings) const
     displaySettings.m_highlightBlocks = m_d->m_page.highlightBlocks->isChecked();
     displaySettings.m_animateMatchingParentheses = m_d->m_page.animateMatchingParentheses->isChecked();
     displaySettings.m_mouseNavigation = m_d->m_page.mouseNavigation->isChecked();
+    displaySettings.m_markTextChanges = m_d->m_page.markTextChanges->isChecked();
 }
 
 void DisplaySettingsPage::settingsToUI()
@@ -140,6 +141,7 @@ void DisplaySettingsPage::settingsToUI()
     m_d->m_page.highlightBlocks->setChecked(displaySettings.m_highlightBlocks);
     m_d->m_page.animateMatchingParentheses->setChecked(displaySettings.m_animateMatchingParentheses);
     m_d->m_page.mouseNavigation->setChecked(displaySettings.m_mouseNavigation);
+    m_d->m_page.markTextChanges->setChecked(displaySettings.m_markTextChanges);
 }
 
 DisplaySettings DisplaySettingsPage::displaySettings() const

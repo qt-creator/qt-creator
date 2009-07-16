@@ -18,6 +18,7 @@ General:
 Editing:
    * Added support for text editor color schemes
    * Added highlighting of uses of the symbol under the cursor
+   * Added the option to turn off marking of text changes
 
 Project support:
    * Added support for adding and removing files from a generic Makefile-based

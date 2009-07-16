@@ -44,6 +44,7 @@ static const char * const highlightCurrentLineKey = "HighlightCurrentLineKeyV2";
 static const char * const highlightBlocksKey = "HighlightBlocksKey";
 static const char * const animateMatchingParenthesesKey= "AnimateMatchingParenthesesKey";
 static const char * const mouseNavigationKey = "MouseNavigation";
+static const char * const markTextChangesKey = "MarkTextChanges";
 static const char * const groupPostfix = "DisplaySettings";
 
 namespace TextEditor {
@@ -58,7 +59,8 @@ DisplaySettings::DisplaySettings() :
     m_highlightCurrentLine(false),
     m_highlightBlocks(false),
     m_animateMatchingParentheses(true),
-    m_mouseNavigation(true)
+    m_mouseNavigation(true),
+    m_markTextChanges(true)
 {
 }
 
@@ -78,6 +80,7 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(highlightBlocksKey), m_highlightBlocks);
     s->setValue(QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses);
     s->setValue(QLatin1String(mouseNavigationKey), m_mouseNavigation);
+    s->setValue(QLatin1String(markTextChangesKey), m_markTextChanges);
     s->endGroup();
 }
 
@@ -100,6 +103,7 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_highlightBlocks = s->value(group + QLatin1String(highlightBlocksKey), m_highlightBlocks).toBool();
     m_animateMatchingParentheses = s->value(group + QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses).toBool();
     m_mouseNavigation = s->value(group + QLatin1String(mouseNavigationKey), m_mouseNavigation).toBool();
+    m_markTextChanges = s->value(group + QLatin1String(markTextChangesKey), m_markTextChanges).toBool();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const
@@ -114,6 +118,7 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_highlightBlocks == ds.m_highlightBlocks
         && m_animateMatchingParentheses == ds.m_animateMatchingParentheses
         && m_mouseNavigation == ds.m_mouseNavigation
+        && m_markTextChanges == ds.m_markTextChanges
         ;
 }
 
