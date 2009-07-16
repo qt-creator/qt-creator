@@ -617,8 +617,10 @@ void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedCha
 {
 	TextEditor::TabSettings ts = tabSettings();
 
-	if (typedChar == QLatin1Char('}')) {
-		QTextCursor tc = textCursor();
+	if (typedChar == QLatin1Char('}')
+		|| ((typedChar == QChar::Null) && block.text().trimmed() == "}")) {
+
+		QTextCursor tc(block);
 		if (TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tc)) {
 			const QString text = tc.block().text();
 			int indent = ts.columnAt(text, ts.firstNonSpace(text));
