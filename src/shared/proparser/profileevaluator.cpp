@@ -139,7 +139,7 @@ public:
 
     ProBlock *currentBlock();
     void updateItem();
-    bool parseLine(const QString &line);
+    void parseLine(const QString &line);
     void insertVariable(const ushort **pCur, const ushort *end);
     void insertOperator(const char op);
     void insertComment(const QString &comment);
@@ -154,7 +154,6 @@ public:
     QString m_proitem;
     QString m_pendingComment;
     ushort *m_proitemPtr;
-    bool m_syntaxError;
     bool m_contNextLine;
     bool m_inQuote;
     int m_parens;
@@ -291,27 +290,20 @@ bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
     m_inQuote = false;
     m_parens = 0;
     m_contNextLine = false;
-    m_syntaxError = false;
     m_lineNo = 1;
     m_blockstack.clear();
     m_blockstack.push(pro);
 
     while (!ts->atEnd()) {
         QString line = ts->readLine();
-        if (!parseLine(line)) {
-            q->errorMessage(format(".pro parse failure."));
-            return false;
-        }
+        parseLine(line);
         ++m_lineNo;
     }
     return true;
 }
 
-bool ProFileEvaluator::Private::parseLine(const QString &line)
+void ProFileEvaluator::Private::parseLine(const QString &line)
 {
-    if (m_blockstack.isEmpty())
-        return false;
-
     const ushort *cur = (const ushort *)line.unicode(),
                  *end = cur + line.length();
     int parens = m_parens;
@@ -367,8 +359,6 @@ bool ProFileEvaluator::Private::parseLine(const QString &line)
                     if (c == '}') {
                         m_proitemPtr = ptr;
                         leaveScope();
-                        if (m_syntaxError)
-                            goto done1;
                         goto nextItem;
                     }
                     if (c == '=') {
@@ -397,13 +387,10 @@ bool ProFileEvaluator::Private::parseLine(const QString &line)
         }
     }
     m_proitemPtr = ptr;
-  done1:
     m_contNextLine = escaped;
   done:
     m_inQuote = inQuote;
     m_parens = parens;
-    if (m_syntaxError)
-        return false;
     if (m_contNextLine) {
         --m_proitemPtr;
         updateItem();
@@ -411,19 +398,14 @@ bool ProFileEvaluator::Private::parseLine(const QString &line)
         updateItem();
         finalizeBlock();
     }
-    return true;
 }
 
 void ProFileEvaluator::Private::finalizeBlock()
 {
-    if (m_blockstack.isEmpty()) {
-        m_syntaxError = true;
-    } else {
-        if (m_blockstack.top()->blockKind() & ProBlock::SingleLine)
-            leaveScope();
-        m_block = 0;
-        m_commentItem = 0;
-    }
+    if (m_blockstack.top()->blockKind() & ProBlock::SingleLine)
+        leaveScope();
+    m_block = 0;
+    m_commentItem = 0;
 }
 
 void ProFileEvaluator::Private::insertVariable(const ushort **pCur, const ushort *end)
@@ -574,7 +556,10 @@ void ProFileEvaluator::Private::enterScope(bool multiLine)
 void ProFileEvaluator::Private::leaveScope()
 {
     updateItem();
-    m_blockstack.pop();
+    if (m_blockstack.count() == 1)
+        q->errorMessage(format("Excess closing brace."));
+    else
+        m_blockstack.pop();
     finalizeBlock();
 }
 
