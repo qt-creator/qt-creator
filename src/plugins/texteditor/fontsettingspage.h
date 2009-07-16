@@ -42,7 +42,6 @@
 #include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE
-class QListWidgetItem;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -111,13 +110,12 @@ signals:
 private slots:
     void delayedChange();
     void updatePointSizes();
-    void colorSchemeSelected(QListWidgetItem *item);
+    void colorSchemeSelected(int index);
     void cloneColorScheme();
     void deleteColorScheme();
     void editColorScheme();
 
 private:
-    void addColorSchemeEntry(const QString &fileName, bool readOnly);
     void refreshColorSchemeList();
 
     Internal::FontSettingsPagePrivate *d_ptr;
