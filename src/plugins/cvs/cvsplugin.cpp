@@ -653,7 +653,7 @@ void CVSPlugin::startCommit(const QString &source)
     }
     // We need the "Examining <subdir>" stderr output to tell
     // where we are, so, have stdout/stderr channels merged.
-    QStringList args(QStringList(QLatin1String("status")));
+    QStringList args = QStringList(QLatin1String("status"));
     if (sourceDir == topLevel) {
         args.push_back(QString(QLatin1Char('.')));
     } else {
@@ -794,6 +794,12 @@ static QString previousRevision(const QString &rev)
     return rev.left(dotPos + 1) + QString::number(minor - 1);
 }
 
+// Is "[1.2...].1"?
+static inline bool isFirstRevision(const QString &r)
+{
+    return r.endsWith(QLatin1Char('1'));
+}
+
 void CVSPlugin::slotDescribe(const QString &source, const QString &changeNr)
 {
     QString errorMessage;
@@ -817,7 +823,7 @@ bool CVSPlugin::describe(const QString &file, const QString &changeNr, QString *
         return false;
     }
     // Number must be > 1
-    if (changeNr.endsWith(QLatin1Char('1'))) {
+    if (isFirstRevision(changeNr)) {
         *errorMessage = tr("The initial revision %1 cannot be described.").arg(changeNr);
         return false;
     }
@@ -891,25 +897,28 @@ bool CVSPlugin::describe(const QString &repositoryPath, QList<CVS_LogEntry> entr
     }
     // Collect diffs relative to repository
     for (QList<CVS_LogEntry>::iterator it = entries.begin(); it != lend; ++it) {
-        const QString previousRev = previousRevision(it->revisions.front().revision);
-        QStringList args(QLatin1String("diff"));
-        args << m_settings.cvsDiffOptions << QLatin1String("-r") << previousRev
-              << QLatin1String("-r") << it->revisions.front().revision
-              << it->file;
-        const CVSResponse diffResponse = runCVS(repositoryPath, args, cvsShortTimeOut, false, codec);
-        switch (diffResponse.result) {
-        case CVSResponse::Ok:
-        case CVSResponse::NonNullExitCode: // Diff exit code != 0
-            if (diffResponse.stdOut.isEmpty()) {
+        const QString &revision = it->revisions.front().revision;
+        if (!isFirstRevision(revision)) {
+            const QString previousRev = previousRevision(revision);
+            QStringList args(QLatin1String("diff"));
+            args << m_settings.cvsDiffOptions << QLatin1String("-r") << previousRev
+                    << QLatin1String("-r") << it->revisions.front().revision
+                    << it->file;
+            const CVSResponse diffResponse = runCVS(repositoryPath, args, cvsShortTimeOut, false, codec);
+            switch (diffResponse.result) {
+            case CVSResponse::Ok:
+            case CVSResponse::NonNullExitCode: // Diff exit code != 0
+                if (diffResponse.stdOut.isEmpty()) {
+                    *errorMessage = diffResponse.message;
+                    return false; // Something else failed.
+                }
+                break;
+            case CVSResponse::OtherError:
                 *errorMessage = diffResponse.message;
-                return false; // Something else failed.
+                return false;
             }
-            break;
-        case CVSResponse::OtherError:
-            *errorMessage = diffResponse.message;
-            return false;
+            output += fixDiffOutput(diffResponse.stdOut);
         }
-        output += fixDiffOutput(diffResponse.stdOut);
     }
 
     // Re-use an existing view if possible to support
