@@ -1309,8 +1309,6 @@ void ObjcPropertyAttributeListAST::accept0(ASTVisitor *visitor)
         // visit ObjcPropertyAttributeListAST
         if (attr)
             accept(attr, visitor);
-        if (next)
-            accept(next, visitor);
         // visit AST
     }
     visitor->endVisit(this);
@@ -1320,11 +1318,50 @@ void ObjCPropertyDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         // visit ObjCPropertyDeclarationAST:
-        if (property_attributes)
-            accept(property_attributes, visitor);
+        for (ObjcPropertyAttributeListAST *it = property_attributes; it; it = it->next)
+            accept(it, visitor);
         if (simple_declaration)
             accept(simple_declaration, visitor);
         // visit DeclarationAST:
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCMessageArgumentDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCMessageArgumentDeclarationAST
+        if (type_name)
+            accept(type_name, visitor);
+        if (attributes)
+            accept(attributes, visitor);
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCMessageArgumentDeclarationListAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCMessageArgumentDeclarationListAST
+        if (argument_declaration)
+            accept(argument_declaration, visitor);
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCMethodPrototypeAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCMethodPrototypeAST
+        if (type_name)
+            accept(type_name, visitor);
+        for (ObjCMessageArgumentDeclarationListAST *it = arguments; it; it = it->next)
+            accept(it, visitor);
+        if (attributes)
+            accept(attributes, visitor);
+        // visit AST
     }
     visitor->endVisit(this);
 }

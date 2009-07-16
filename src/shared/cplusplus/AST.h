@@ -2820,6 +2820,68 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
+class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public AST
+{
+public:
+    unsigned param_selector_token;
+    unsigned colon_token;
+    ObjCTypeNameAST* type_name;
+    SpecifierAST *attributes;
+    unsigned param_name_token;
+
+public:
+    virtual ObjCMessageArgumentDeclarationAST *asObjCMessageArgumentDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMessageArgumentDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationListAST: public AST
+{
+public:
+    ObjCMessageArgumentDeclarationAST *argument_declaration;
+    ObjCMessageArgumentDeclarationListAST *next;
+
+public:
+    virtual ObjCMessageArgumentDeclarationListAST *asObjCMessageArgumentDeclarationList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMessageArgumentDeclarationListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMethodPrototypeAST: public DeclarationAST
+{
+public:
+    unsigned method_type_token;
+    ObjCTypeNameAST *type_name;
+    ObjCMessageArgumentDeclarationListAST *arguments;
+    SpecifierAST *attributes;
+
+public:
+    virtual ObjCMethodPrototypeAST *asObjCMethodPrototype()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMethodPrototypeAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER
 

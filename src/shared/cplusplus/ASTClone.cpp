@@ -1390,4 +1390,33 @@ ObjCPropertyDeclarationAST *ObjCPropertyDeclarationAST::clone(MemoryPool *pool) 
     return ast;
 }
 
+ObjCMessageArgumentDeclarationAST *ObjCMessageArgumentDeclarationAST::clone(MemoryPool *pool) const
+{
+    ObjCMessageArgumentDeclarationAST *ast = new (pool) ObjCMessageArgumentDeclarationAST;
+    ast->param_selector_token = param_selector_token;
+    ast->colon_token = colon_token;
+    if (type_name) ast->type_name = type_name->clone(pool);
+    if (attributes) ast->attributes = attributes->clone(pool);
+    ast->param_name_token = param_name_token;
+    return ast;
+}
+
+ObjCMessageArgumentDeclarationListAST *ObjCMessageArgumentDeclarationListAST::clone(MemoryPool *pool) const
+{
+    ObjCMessageArgumentDeclarationListAST *ast = new (pool) ObjCMessageArgumentDeclarationListAST;
+    if (argument_declaration) ast->argument_declaration = argument_declaration->clone(pool);
+    if (next) ast->next = next->clone(pool);
+    return ast;
+}
+
+ObjCMethodPrototypeAST *ObjCMethodPrototypeAST::clone(MemoryPool *pool) const
+{
+    ObjCMethodPrototypeAST *ast = new (pool) ObjCMethodPrototypeAST;
+    ast->method_type_token = method_type_token;
+    if (type_name) ast->type_name = type_name->clone(pool);
+    if (arguments) ast->arguments = arguments->clone(pool);
+    if (attributes) ast->attributes = attributes->clone(pool);
+    return ast;
+}
+
 CPLUSPLUS_END_NAMESPACE

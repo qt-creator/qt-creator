@@ -214,6 +214,9 @@ public:
     virtual bool visit(ObjcPropertyAttributeAST *) { return true; }
     virtual bool visit(ObjcPropertyAttributeListAST *) { return true; }
     virtual bool visit(ObjCPropertyDeclarationAST *) { return true; }
+    virtual bool visit(ObjCMethodPrototypeAST *) { return true; }
+    virtual bool visit(ObjCMessageArgumentDeclarationListAST *) { return true; }
+    virtual bool visit(ObjCMessageArgumentDeclarationAST *) { return true; }
 
     virtual bool visit(DeclarationListAST *) { return true; }
     virtual void endVisit(DeclarationListAST *) { }
@@ -339,6 +342,9 @@ public:
     virtual void endVisit(ObjcPropertyAttributeAST *) { }
     virtual void endVisit(ObjcPropertyAttributeListAST *) { }
     virtual void endVisit(ObjCPropertyDeclarationAST *) { }
+    virtual void endVisit(ObjCMethodPrototypeAST *) { }
+    virtual void endVisit(ObjCMessageArgumentDeclarationListAST *) { }
+    virtual void endVisit(ObjCMessageArgumentDeclarationAST *) { }
 
 private:
     Control *_control;

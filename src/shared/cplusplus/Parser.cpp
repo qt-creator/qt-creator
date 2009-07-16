@@ -4195,7 +4195,8 @@ bool Parser::parseObjCMethodDefinitionList()
 
 bool Parser::parseObjCMethodDefinition()
 {
-    if (! parseObjCMethodPrototype())
+    DeclarationAST *ast = 0;
+    if (! parseObjCMethodPrototype(ast))
         return false;
 
     if (LA() == T_SEMICOLON)
@@ -4298,7 +4299,7 @@ bool Parser::parseObjCInterfaceMemberDeclaration(DeclarationAST *&node)
 
     case T_PLUS:
     case T_MINUS:
-        return parseObjCMethodPrototype();
+        return parseObjCMethodPrototype(node);
 
     case T_ENUM:
     case T_CLASS:
@@ -4377,22 +4378,31 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *)
 // objc-method-decl ::= objc-type-name? objc-selector
 // objc-method-decl ::= objc-type-name? objc-keyword-decl-list objc-parmlist-opt
 //
-bool Parser::parseObjCMethodPrototype()
+bool Parser::parseObjCMethodPrototype(DeclarationAST *&node)
 {
     if (LA() != T_PLUS && LA() != T_MINUS)
         return false;
 
-    /*unsigned method_type_token = */ consumeToken();
+    ObjCMethodPrototypeAST *ast = new (_pool) ObjCMethodPrototypeAST;
+    ast->method_type_token = consumeToken();
 
-    ObjCTypeNameAST *type_name = 0;
-    parseObjCTypeName(type_name);
-
-    unsigned selector_token = 0;
+    parseObjCTypeName(ast->type_name);
 
     if ((lookAtObjCSelector() && LA(2) == T_COLON) || LA() == T_COLON) {
-        while (parseObjCKeywordDeclaration()) {
+        ObjCMessageArgumentDeclarationAST *declaration = 0;
+        parseObjCKeywordDeclaration(declaration);
+
+        ast->arguments = new (_pool) ObjCMessageArgumentDeclarationListAST;
+        ast->arguments->argument_declaration = declaration;
+        ObjCMessageArgumentDeclarationListAST **last = &(ast->arguments);
+
+        while (parseObjCKeywordDeclaration(declaration)) {
+            (*last)->next = new (_pool) ObjCMessageArgumentDeclarationListAST;
+            last = &((*last)->next);
+            (*last)->argument_declaration = declaration;
         }
 
+        // TODO: err, what does this parse?
         while (LA() == T_COMMA) {
             consumeToken();
 
@@ -4405,15 +4415,18 @@ bool Parser::parseObjCMethodPrototype()
             parseParameterDeclaration(parameter_declaration);
         }
     } else if (lookAtObjCSelector()) {
-        parseObjCSelector(selector_token);
+        ast->arguments = new (_pool) ObjCMessageArgumentDeclarationListAST;
+        ast->arguments->argument_declaration = new (_pool) ObjCMessageArgumentDeclarationAST;
+        parseObjCSelector(ast->arguments->argument_declaration->param_selector_token);
     } else {
         _translationUnit->error(cursor(), "expected a selector");
     }
 
-    SpecifierAST *attributes = 0, **attr = &attributes;
+    SpecifierAST **attr = &(ast->attributes);
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
+    node = ast;
     return true;
 }
 
@@ -4471,27 +4484,24 @@ bool Parser::parseObjCSelector(unsigned &selector_token)
 
 // objc-keyword-decl ::= objc-selector? T_COLON objc-type-name? objc-keyword-attributes-opt T_IDENTIFIER
 //
-bool Parser::parseObjCKeywordDeclaration()
+bool Parser::parseObjCKeywordDeclaration(ObjCMessageArgumentDeclarationAST *&node)
 {
     if (! (LA() == T_COLON || (lookAtObjCSelector() && LA(2) == T_COLON)))
         return false;
 
-    unsigned selector_token = 0;
-    parseObjCSelector(selector_token);
+    ObjCMessageArgumentDeclarationAST *ast = new (_pool) ObjCMessageArgumentDeclarationAST;
 
-    unsigned colon_token = 0;
-    match(T_COLON, &colon_token);
+    parseObjCSelector(ast->param_selector_token);
+    match(T_COLON, &(ast->colon_token));
+    parseObjCTypeName(ast->type_name);
 
-    ObjCTypeNameAST *type_name = 0;
-    parseObjCTypeName(type_name);
-
-    SpecifierAST *attributes = 0, **attr = &attributes;
+    SpecifierAST **attr = &(ast->attributes);
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
-    unsigned identifier_token = 0;
-    match(T_IDENTIFIER, &identifier_token);
+    match(T_IDENTIFIER, &(ast->param_name_token));
 
+    node = ast;
     return true;
 }
 

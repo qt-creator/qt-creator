@@ -187,6 +187,9 @@ class ObjCVisibilityDeclarationAST;
 class ObjCPropertyDeclarationAST;
 class ObjcPropertyAttributeListAST;
 class ObjcPropertyAttributeAST;
+class ObjCMethodPrototypeAST;
+class ObjCMessageArgumentDeclarationListAST;
+class ObjCMessageArgumentDeclarationAST;
 
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER

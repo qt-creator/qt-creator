@@ -238,11 +238,11 @@ public:
     bool parseObjCPropertyDeclaration(DeclarationAST *&node,
                                       SpecifierAST *attributes = 0);
     bool parseObjCImplementation(DeclarationAST *&node);
-    bool parseObjCMethodPrototype();
+    bool parseObjCMethodPrototype(DeclarationAST *&node);
     bool parseObjCPropertyAttribute(ObjcPropertyAttributeAST *&node);
     bool parseObjCTypeName(ObjCTypeNameAST *&node);
     bool parseObjCSelector(unsigned &selector_token);
-    bool parseObjCKeywordDeclaration();
+    bool parseObjCKeywordDeclaration(ObjCMessageArgumentDeclarationAST *&node);
     bool parseObjCTypeQualifiers(unsigned &type_qualifier);
     bool parseObjCEnd(DeclarationAST *&node);
 

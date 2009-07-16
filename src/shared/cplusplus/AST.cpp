@@ -2258,4 +2258,62 @@ unsigned ObjCPropertyDeclarationAST::lastToken() const
         return property_token + 1;
 }
 
+unsigned ObjCMessageArgumentDeclarationAST::firstToken() const
+{
+    return param_selector_token;
+}
+
+unsigned ObjCMessageArgumentDeclarationAST::lastToken() const
+{
+    if (param_name_token)
+        return param_name_token + 1;
+    else if (colon_token)
+        return colon_token + 1;
+    else if (type_name)
+        return type_name->lastToken();
+    else if (attributes)
+        return attributes->lastToken();
+    else
+        return param_name_token + 1;
+}
+
+unsigned ObjCMessageArgumentDeclarationListAST::firstToken() const
+{
+    if (argument_declaration)
+        return argument_declaration->firstToken();
+    else if (next)
+        return next->firstToken();
+    else
+        // ### Assert?
+        return 0;
+}
+
+unsigned ObjCMessageArgumentDeclarationListAST::lastToken() const
+{
+    for (const ObjCMessageArgumentDeclarationListAST *it = this; it; it = it->next) {
+        if (! it->next && it->argument_declaration) {
+            return it->argument_declaration->lastToken();
+        }
+    }
+    // ### assert?
+    return 0;
+}
+
+unsigned ObjCMethodPrototypeAST::firstToken() const
+{
+    return method_type_token;
+}
+
+unsigned ObjCMethodPrototypeAST::lastToken() const
+{
+    if (attributes)
+        return attributes->lastToken();
+    else if (arguments)
+        return arguments->lastToken();
+    else if (type_name)
+        return type_name->lastToken();
+    else
+        return method_type_token + 1;
+}
+
 CPLUSPLUS_END_NAMESPACE
