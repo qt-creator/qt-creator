@@ -56,8 +56,11 @@ SideBar::SideBar(QList<SideBarItem*> itemList,
     foreach (SideBarItem *item, itemList) {
         const QString title = item->widget()->windowTitle();
         m_itemMap.insert(title, item);
-        if (defaultVisible.contains(item))
-            m_defaultVisible.append(title);
+    }
+    foreach (SideBarItem *item, defaultVisible) {
+        if (!itemList.contains(item))
+            continue;
+        m_defaultVisible.append(item->widget()->windowTitle());
     }
 
     m_availableItems = m_itemMap.keys();
@@ -166,7 +169,7 @@ void SideBar::readSettings(QSettings *settings)
         }
     } else {
         foreach (const QString &title, m_defaultVisible)
-            insertSideBarWidget(0, title);
+            insertSideBarWidget(m_widgets.count(), title);
     }
 
     if (settings->contains("HelpSideBar/Visible"))
