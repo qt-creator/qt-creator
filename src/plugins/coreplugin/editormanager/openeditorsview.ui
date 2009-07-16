@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>OpenEditorsView</class>
- <widget class="QWidget" name="OpenEditorsView" >
-  <property name="geometry" >
+ <widget class="QWidget" name="OpenEditorsView">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,22 +10,16 @@
     <height>217</height>
    </rect>
   </property>
-  <property name="minimumSize" >
-   <size>
-    <width>200</width>
-    <height>100</height>
-   </size>
-  </property>
-  <layout class="QGridLayout" >
-   <property name="margin" >
+  <layout class="QGridLayout">
+   <property name="margin">
     <number>0</number>
    </property>
-   <property name="spacing" >
+   <property name="spacing">
     <number>0</number>
    </property>
-   <item row="0" column="0" >
-    <widget class="QTreeView" name="editorList" >
-     <property name="uniformRowHeights" >
+   <item row="0" column="0">
+    <widget class="QTreeView" name="editorList">
+     <property name="uniformRowHeights">
       <bool>true</bool>
      </property>
     </widget>
