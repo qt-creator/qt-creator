@@ -2849,16 +2849,17 @@ bool Parser::parseObjCEncodeExpression(ExpressionAST *&)
     return true;
 }
 
-bool Parser::parseObjCProtocolExpression(ExpressionAST *&)
+bool Parser::parseObjCProtocolExpression(ExpressionAST *&node)
 {
     if (LA() != T_AT_PROTOCOL)
         return false;
 
-    /*unsigned protocol_token = */ consumeToken();
-    unsigned lparen_token = 0, identifier_token = 0, rparen_token = 0;
-    match(T_LPAREN, &lparen_token);
-    match(T_IDENTIFIER, &identifier_token);
-    match(T_RPAREN, &rparen_token);
+    ObjCProtocolExpressionAST *ast = new (_pool) ObjCProtocolExpressionAST;
+    ast->protocol_token = consumeToken();
+    match(T_LPAREN, &(ast->lparen_token));
+    match(T_IDENTIFIER, &(ast->identifier_token));
+    match(T_RPAREN, &(ast->rparen_token));
+    node = ast;
     return true;
 }
 

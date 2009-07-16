@@ -1311,4 +1311,14 @@ ObjCMessageArgumentAST *ObjCMessageArgumentAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+ObjCProtocolExpressionAST *ObjCProtocolExpressionAST::clone(MemoryPool *pool) const
+{
+    ObjCProtocolExpressionAST *ast = new (pool) ObjCProtocolExpressionAST;
+    ast->protocol_token = protocol_token;
+    ast->lparen_token = lparen_token;
+    ast->identifier_token = identifier_token;
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 CPLUSPLUS_END_NAMESPACE

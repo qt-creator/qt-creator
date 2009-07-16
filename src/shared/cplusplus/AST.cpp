@@ -2104,4 +2104,23 @@ unsigned ObjCMessageArgumentAST::lastToken() const
     return parameter_key_identifier + 1;
 }
 
+unsigned ObjCProtocolExpressionAST::firstToken() const
+{
+    return protocol_token;
+}
+
+unsigned ObjCProtocolExpressionAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+
+    if (identifier_token)
+        return identifier_token + 1;
+
+    if (lparen_token)
+        return lparen_token + 1;
+
+    return protocol_token + 1;
+}
+
 CPLUSPLUS_END_NAMESPACE

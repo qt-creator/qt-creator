@@ -2653,6 +2653,27 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
+class CPLUSPLUS_EXPORT ObjCProtocolExpressionAST: public ExpressionAST
+{
+public:
+    unsigned protocol_token;
+    unsigned lparen_token;
+    unsigned identifier_token;
+    unsigned rparen_token;
+
+public:
+    virtual ObjCProtocolExpressionAST *asObjCProtocolExpression()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCProtocolExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER
 

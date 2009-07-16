@@ -1234,4 +1234,13 @@ void ObjCMessageArgumentAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void ObjCProtocolExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCProtocolExpressionAST
+        // visit ExpressionAST
+    }
+    visitor->endVisit(this);
+}
+
 CPLUSPLUS_END_NAMESPACE
