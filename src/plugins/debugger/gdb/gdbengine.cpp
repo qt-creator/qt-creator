@@ -62,7 +62,7 @@
 #include <QtCore/QTextStream>
 
 #include <QtGui/QAction>
-#include <QtGui/QApplication>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
@@ -1146,7 +1146,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             m_currentFrame = _(frame.findChild("addr").data() + '%' +
                  frame.findChild("func").data() + '%');
 
-            QApplication::alert(q->mainWindow(), 3000);
             if (theDebuggerAction(ListSourceFiles)->value().toBool())
                 reloadSourceFiles();
             postCommand(_("-break-list"), CB(handleBreakList));
@@ -1302,7 +1301,8 @@ void GdbEngine::handleFileExecAndSymbols(const GdbResultRecord &response, const 
         QMessageBox::critical(q->mainWindow(), tr("Error"),
             tr("Starting executable failed:\n") + msg);
         QTC_ASSERT(q->status() == DebuggerInferiorRunning, /**/);
-        interruptInferior();
+        //interruptInferior();
+        qq->notifyInferiorExited();
     }
 }
 
@@ -1321,7 +1321,8 @@ void GdbEngine::handleExecRun(const GdbResultRecord &response, const QVariant &)
             QMessageBox::critical(q->mainWindow(), tr("Error"),
                 tr("Starting executable failed:\n") + QString::fromLocal8Bit(msg));
             QTC_ASSERT(q->status() == DebuggerInferiorRunning, /**/);
-            interruptInferior();
+            //interruptInferior();
+            qq->notifyInferiorExited();
         }
     }
 }
@@ -1589,7 +1590,7 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         QFileInfo fi2(sp->coreFile);
         // quoting core name below fails in gdb 6.8-debian
         QString coreName = fi2.absoluteFilePath();
-        postCommand(_("-file-exec-and-symbols ") + fileName);
+        postCommand(_("-file-exec-and-symbols ") + fileName, CB(handleFileExecAndSymbols));
         postCommand(_("target core ") + coreName, CB(handleTargetCore));
         qq->breakHandler()->removeAllBreakpoints();
     } else if (q->startMode() == StartRemote) {
@@ -1598,7 +1599,7 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         //QFileInfo fi(sp->executable);
         //QString fileName = fi.absoluteFileName();
         QString fileName = sp->executable;
-        postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName));
+        postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName), CB(handleFileExecAndSymbols));
         // works only for > 6.8
         postCommand(_("set target-async on"), CB(handleSetTargetAsync));
     } else if (sp->useTerminal) {
@@ -2800,7 +2801,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
 
 //: Variable
 static const QString strNotInScope =
-        QApplication::translate("Debugger::Internal::GdbEngine", "<not in scope>");
+        QCoreApplication::translate("Debugger::Internal::GdbEngine", "<not in scope>");
 
 
 static void setWatchDataValue(WatchData &data, const GdbMi &mi,
@@ -3855,11 +3856,13 @@ void GdbEngine::tryLoadDebuggingHelpers()
     if (!qq->qtDumperLibraryEnabled())
         return;
     const QString lib = qq->qtDumperLibraryName();
+    const QStringList &locations = qq->qtDumperLibraryLocations();
     //qDebug() << "DUMPERLIB:" << lib;
     // @TODO: same in CDB engine...
     const QFileInfo fi(lib);
     if (!fi.exists()) {
-        const QString msg = tr("The dumper library '%1' does not exist.").arg(lib);
+        const QString loc = locations.join(QLatin1String(", "));
+        const QString msg = tr("The dumper library was not found at %1.").arg(loc);
         debugMessage(msg);
         qq->showQtDumperLibraryWarning(msg);
         return;

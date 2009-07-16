@@ -546,18 +546,22 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
             WatchData &wchild = rc.back();
             wchild.source = source;
             wchild.iname = iname;
-            wchild.iname += dot;
-            wchild.iname += dchild.name;
+            // Name can be empty for array-like things
+            const QString iname = dchild.name.isEmpty() ? QString::number(c) : dchild.name;
             // Use key entry as name (which is used for map nodes)
             if (dchild.key.isEmpty()) {
-                wchild.name = dchild.name;
+                wchild.name = iname;
             } else {
+                // Do not use map keys as iname since they might contain quotes.
                 wchild.name = decodeData(dchild.key, dchild.keyEncoded);
                 if (wchild.name.size() > 13) {
                     wchild.name.truncate(12);
                     wchild.name += QLatin1String("...");
                 }
             }
+            // Append iname to total iname.
+            wchild.iname += dot;
+            wchild.iname += iname;
             wchild.exp = dchild.exp;
             if (dchild.valueEncountered) {
                 wchild.valuedisabled = dchild.valuedisabled;
@@ -1349,7 +1353,7 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     case QAbstractItemType:
         inner = data.addr.mid(1);
         break;
-    case QVectorType: 
+    case QVectorType:
         if (m_qtVersion >= 0x040600)
             extraArgs[1] = QString("(char*)&((%1).p->array)-(char*)((%2).p)")
                 .arg(data.exp).arg(data.exp);

@@ -65,7 +65,6 @@ SOURCES += mainwindow.cpp \
     coreimpl.cpp \
     basefilewizard.cpp \
     plugindialog.cpp \
-    stylehelper.cpp \
     inavigationwidgetfactory.cpp \
     navigationwidget.cpp \
     manhattanstyle.cpp \
@@ -150,7 +149,6 @@ HEADERS += mainwindow.h \
     coreimpl.h \
     basefilewizard.h \
     plugindialog.h \
-    stylehelper.h \
     inavigationwidgetfactory.h \
     navigationwidget.h \
     manhattanstyle.h \

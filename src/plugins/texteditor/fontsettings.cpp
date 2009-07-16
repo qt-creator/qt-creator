@@ -77,7 +77,6 @@ void FontSettings::clear()
 }
 
 void FontSettings::toSettings(const QString &category,
-                              const FormatDescriptions &descriptions,
                               QSettings *s) const
 {
     s->beginGroup(category);
@@ -111,8 +110,30 @@ bool FontSettings::fromSettings(const QString &category,
     m_family = s->value(group + QLatin1String(fontFamilyKey), defaultFixedFontFamily()).toString();
     m_fontSize = s->value(group + QLatin1String(fontSizeKey), m_fontSize).toInt();
     m_antialias = s->value(group + QLatin1String(antialiasKey), DEFAULT_ANTIALIAS).toBool();
-    loadColorScheme(s->value(group + QLatin1String(schemeFileNameKey), defaultSchemeFileName()).toString(),
-                    descriptions);
+
+    if (s->contains(group + QLatin1String(schemeFileNameKey))) {
+        // Load the selected color scheme
+        loadColorScheme(s->value(group + QLatin1String(schemeFileNameKey), defaultSchemeFileName()).toString(),
+                        descriptions);
+    } else {
+        // Load color scheme from ini file
+        foreach (const FormatDescription &desc, descriptions) {
+            const QString name = desc.name();
+            const QString fmt = s->value(group + name, QString()).toString();
+            Format format;
+            if (fmt.isEmpty()) {
+                format.setForeground(desc.foreground());
+                format.setBackground(desc.background());
+                format.setBold(desc.format().bold());
+                format.setItalic(desc.format().italic());
+            } else {
+                format.fromString(fmt);
+            }
+            m_scheme.setFormatFor(name, format);
+        }
+
+        m_scheme.setName(QObject::tr("Customized"));
+    }
 
     return true;
 }
@@ -256,10 +277,18 @@ bool FontSettings::loadColorScheme(const QString &fileName,
     return loaded;
 }
 
+bool FontSettings::saveColorScheme(const QString &fileName)
+{
+    const bool saved = m_scheme.save(fileName);
+    if (saved)
+        m_schemeFileName = fileName;
+    return saved;
+}
+
 /**
  * Returns the currently active color scheme.
  */
-ColorScheme FontSettings::colorScheme() const
+const ColorScheme &FontSettings::colorScheme() const
 {
     return m_scheme;
 }

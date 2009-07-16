@@ -29,7 +29,7 @@
 
 #include "buildprogress.h"
 
-#include <coreplugin/stylehelper.h>
+#include <utils/stylehelper.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>

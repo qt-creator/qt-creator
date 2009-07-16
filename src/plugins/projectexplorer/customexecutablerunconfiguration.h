@@ -89,6 +89,7 @@ public:
 
     virtual QWidget *configurationWidget();
     virtual QString dumperLibrary() const;
+    virtual QStringList dumperLibraryLocations() const;
 
     virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 

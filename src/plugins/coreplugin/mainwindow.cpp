@@ -51,7 +51,6 @@
 
 #include "scriptmanager_p.h"
 #include "settingsdialog.h"
-#include "stylehelper.h"
 #include "variablemanager.h"
 #include "versiondialog.h"
 #include "viewmanager.h"
@@ -68,6 +67,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/settingsdatabase.h>
 #include <utils/pathchooser.h>
+#include <utils/stylehelper.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>

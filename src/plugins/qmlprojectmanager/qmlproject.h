@@ -150,6 +150,7 @@ public:
     virtual QStringList commandLineArguments() const;
     virtual ProjectExplorer::Environment environment() const;
     virtual QString dumperLibrary() const;
+    virtual QStringList dumperLibraryLocations() const;
     virtual QWidget *configurationWidget();
 
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const { return ProjectExplorer::ToolChain::OTHER; }

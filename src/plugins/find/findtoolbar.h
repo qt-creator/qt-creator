@@ -34,6 +34,8 @@
 #include "ifindfilter.h"
 #include "currentdocumentfind.h"
 
+#include <utils/styledbar.h>
+
 #include <QtGui/QStringListModel>
 #include <QtGui/QWidget>
 #include <QtGui/QToolBar>
@@ -44,7 +46,7 @@ namespace Internal {
 
 class FindPlugin;
 
-class FindToolBar : public QToolBar
+class FindToolBar : public Core::Utils::StyledBar
 {
     Q_OBJECT
 
@@ -113,7 +115,6 @@ private:
     QAction *m_caseSensitiveAction;
     QAction *m_wholeWordAction;
     QAction *m_regularExpressionAction;
-    QWidget *m_widget;
     IFindSupport::FindFlags m_findFlags;
 
     QPixmap m_casesensitiveIcon;

@@ -119,7 +119,6 @@ private slots:
 private:
     void addColorSchemeEntry(const QString &fileName, bool readOnly);
     void refreshColorSchemeList();
-    static QString customStylesPath();
 
     Internal::FontSettingsPagePrivate *d_ptr;
 };

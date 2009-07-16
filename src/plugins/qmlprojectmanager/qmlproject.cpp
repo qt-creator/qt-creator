@@ -381,6 +381,11 @@ QString QmlRunConfiguration::dumperLibrary() const
     return QString();
 }
 
+QStringList QmlRunConfiguration::dumperLibraryLocations() const
+{
+    return QStringList();
+}
+
 QWidget *QmlRunConfiguration::configurationWidget()
 {
     QWidget *config = new QWidget;

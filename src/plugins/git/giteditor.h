@@ -47,6 +47,9 @@ public:
     explicit GitEditor(const VCSBase::VCSBaseEditorParameters *type,
                             QWidget *parent);
 
+public slots:
+    void setPlainTextDataFiltered(const QByteArray &a);
+
 private:
     virtual QSet<QString> annotationChanges() const;
     virtual QString changeUnderCursor(const QTextCursor &) const;

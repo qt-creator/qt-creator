@@ -236,6 +236,7 @@ private:
 
     virtual bool qtDumperLibraryEnabled() const = 0;
     virtual QString qtDumperLibraryName() const = 0;
+    virtual QStringList qtDumperLibraryLocations() const = 0;
     virtual void showQtDumperLibraryWarning(const QString &details = QString()) = 0;
     virtual bool isReverseDebugging() const = 0;
 
@@ -272,6 +273,7 @@ public slots:
     virtual qint64 inferiorPid() const;
 
     void setQtDumperLibraryName(const QString &dl); // Run Control
+    void setQtDumperLibraryLocations(const QStringList &dl);
 
     void setSimpleDockWidgetArrangement();
     void setLocked(bool locked);
@@ -376,6 +378,7 @@ private:
 
     virtual bool qtDumperLibraryEnabled() const;
     virtual QString qtDumperLibraryName() const;
+    virtual QStringList qtDumperLibraryLocations() const;
     virtual void showQtDumperLibraryWarning(const QString &details = QString());
     virtual bool isReverseDebugging() const;
 
@@ -434,6 +437,7 @@ private:
     QSharedPointer<DebuggerStartParameters> m_startParameters;
     DebuggerRunControl *m_runControl;
     QString m_dumperLib;
+    QStringList m_dumperLibLocations;
     qint64 m_inferiorPid;
 
 

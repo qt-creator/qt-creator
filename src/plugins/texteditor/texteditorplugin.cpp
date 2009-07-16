@@ -131,7 +131,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 #endif
     connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
 
-    // Add shortcut for invoking automatic completion
+    // Add shortcut for invoking quick fix options
     QShortcut *quickFixShortcut = new QShortcut(core->mainWindow());
     quickFixShortcut->setWhatsThis(tr("Triggers a quick fix in this scope"));
     // Make sure the shortcut still works when the quick fix widget is active

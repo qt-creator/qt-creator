@@ -40,13 +40,17 @@
 
 namespace Core {
 
-class CORE_EXPORT FileIconProvider {
+class MimeType;
+
+class CORE_EXPORT FileIconProvider
+{
 public:
     ~FileIconProvider(); // used to clear the cache
     QIcon icon(const QFileInfo &fileInfo);
 
     QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size) const;
     void registerIconOverlayForSuffix(const QIcon &icon, const QString &suffix);
+    void registerIconOverlayForMimeType(const QIcon &icon, const MimeType &mimeType);
 
     static FileIconProvider *instance();
 

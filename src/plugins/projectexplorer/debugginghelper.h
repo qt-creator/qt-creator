@@ -49,11 +49,18 @@ public:
     static QString qtVersionForQMake(const QString &qmakePath);
 
     static bool hasDebuggingHelperLibrary(const QString &qmakePath);
+
     static QString debuggingHelperLibrary(const QString &qmakePath);
-    static QString buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env);
     static QString debuggingHelperLibrary(const QString &qtInstallData, const QString &qtpath);
-    static QString copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir);
+
+    static QString buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env);
     static QString buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env);
+
+    static QStringList debuggingHelperLibraryLocations(const QString &qmakePath);
+    static QStringList debuggingHelperLibraryLocations(const QString &qtInstallData, const QString &qtpath);
+
+    static QString copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir);
+
 private:
     static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData, const QString &qtpath);
     static QString qtInstallDataDir(const QString &qmakePath);

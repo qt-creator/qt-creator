@@ -62,7 +62,6 @@ public:
     inline bool isEmpty() const { return m_scheme.isEmpty(); }
 
     void toSettings(const QString &category,
-                    const FormatDescriptions &descriptions,
                     QSettings *s) const;
 
     bool fromSettings(const QString &category,
@@ -86,8 +85,9 @@ public:
     QString colorSchemeFileName() const;
     void setColorSchemeFileName(const QString &fileName);
     bool loadColorScheme(const QString &fileName, const FormatDescriptions &descriptions);
+    bool saveColorScheme(const QString &fileName);
 
-    ColorScheme colorScheme() const;
+    const ColorScheme &colorScheme() const;
     void setColorScheme(const ColorScheme &scheme);
 
     bool equals(const FontSettings &f) const;

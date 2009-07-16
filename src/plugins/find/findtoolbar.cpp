@@ -34,12 +34,11 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/stylehelper.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-
 #include <extensionsystem/pluginmanager.h>
+#include <utils/stylehelper.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
@@ -49,9 +48,10 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
-#include <QtGui/QPainter>
 #include <QtGui/QPushButton>
 #include <QtGui/QToolButton>
+#include <QtGui/QPainter>
+#include <QtGui/QPixmapCache>
 
 Q_DECLARE_METATYPE(QStringList)
 Q_DECLARE_METATYPE(Find::IFindFilter*)
@@ -68,14 +68,12 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
       m_findNextAction(0),
       m_findPreviousAction(0),
       m_replaceNextAction(0),
-      m_widget(new QWidget),
       m_casesensitiveIcon(":/find/images/casesensitively.png"),
       m_regexpIcon(":/find/images/regexp.png"),
       m_wholewordsIcon(":/find/images/wholewords.png")
 {
     //setup ui
-    m_ui.setupUi(m_widget);
-    addWidget(m_widget);
+    m_ui.setupUi(this);
     setFocusProxy(m_ui.findEdit);
     setProperty("topBorder", true);
     m_ui.findEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -83,14 +81,9 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     connect(m_ui.findEdit, SIGNAL(editingFinished()), this, SLOT(invokeResetIncrementalSearch()));
 
-    QWidget *spacerItem = new QWidget;
-    spacerItem->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    addWidget(spacerItem);
-    QToolButton *close = new QToolButton;
-    close->setProperty("type", QLatin1String("dockbutton"));
-    close->setIcon(QIcon(":/core/images/closebutton.png"));
-    connect(close, SIGNAL(clicked()), this, SLOT(hideAndResetFocus()));
-    addWidget(close);
+    m_ui.close->setProperty("type", QLatin1String("dockbutton"));
+    m_ui.close->setIcon(QIcon(":/core/images/closebutton.png"));
+    connect(m_ui.close, SIGNAL(clicked()), this, SLOT(hideAndResetFocus()));
 
     m_ui.findPreviousButton->setProperty("type", QLatin1String("dockbutton"));
     m_ui.findNextButton->setProperty("type", QLatin1String("dockbutton"));
@@ -110,7 +103,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     m_ui.findEdit->installEventFilter(this);
     m_ui.replaceEdit->installEventFilter(this);
-    m_widget->installEventFilter(this);
+    this->installEventFilter(this);
 
     connect(m_ui.findEdit, SIGNAL(textChanged(const QString&)), this, SLOT(invokeFindIncremental()));
     connect(m_ui.findEdit, SIGNAL(returnPressed()), this, SLOT(invokeFindEnter()));
@@ -251,7 +244,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
                 return true;
             }
         }
-    } else if (obj == m_widget && event->type() == QEvent::ShortcutOverride) {
+    } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Escape && !ke->modifiers()
                 && !m_findCompleter->popup()->isVisible()
@@ -268,13 +261,13 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
             event->accept();
             return true;
         }
-    } else if (obj == m_widget && event->type() == QEvent::Hide) {
+    } else if (obj == this && event->type() == QEvent::Hide) {
         invokeClearResults();
         if (m_currentDocumentFind->isEnabled()) {
             m_currentDocumentFind->clearFindScope();
         }
     }
-    return QToolBar::eventFilter(obj, event);
+    return Core::Utils::StyledBar::eventFilter(obj, event);
 }
 
 void FindToolBar::updateActions()
@@ -284,9 +277,11 @@ void FindToolBar::updateActions()
     m_findInDocumentAction->setEnabled(enabled);
     m_findNextAction->setEnabled(enabled);
     m_findPreviousAction->setEnabled(enabled);
+
     m_replaceNextAction->setEnabled(replaceEnabled);
     m_replacePreviousAction->setEnabled(replaceEnabled);
     m_replaceAllAction->setEnabled(replaceEnabled);
+
     m_caseSensitiveAction->setEnabled(enabled);
     m_wholeWordAction->setEnabled(enabled);
     m_regularExpressionAction->setEnabled(enabled);
@@ -295,8 +290,16 @@ void FindToolBar::updateActions()
     bool replaceFocus = m_ui.replaceEdit->hasFocus();
     m_ui.findEdit->setEnabled(enabled);
     m_ui.findLabel->setEnabled(enabled);
+
     m_ui.replaceEdit->setEnabled(replaceEnabled);
     m_ui.replaceLabel->setEnabled(replaceEnabled);
+    m_ui.replaceEdit->setVisible(replaceEnabled);
+    m_ui.replaceLabel->setVisible(replaceEnabled);
+    m_ui.replacePreviousButton->setVisible(replaceEnabled);
+    m_ui.replaceNextButton->setVisible(replaceEnabled);
+    m_ui.replaceAllButton->setVisible(replaceEnabled);
+    layout()->invalidate();
+
     if (!replaceEnabled && enabled && replaceFocus)
         m_ui.findEdit->setFocus();
     updateIcons();
@@ -540,7 +543,7 @@ bool FindToolBar::focusNextPrevChild(bool next)
     else if (!next && m_ui.findEdit->hasFocus())
         m_ui.replaceAllButton->setFocus(Qt::TabFocusReason);
     else
-        return QToolBar::focusNextPrevChild(next);
+        return Core::Utils::StyledBar::focusNextPrevChild(next);
     return true;
 }
 

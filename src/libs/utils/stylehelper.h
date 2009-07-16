@@ -30,7 +30,7 @@
 #ifndef STYLEHELPER_H
 #define STYLEHELPER_H
 
-#include "core_global.h"
+#include "utils_global.h"
 
 #include <QtCore/QRect>
 #include <QtGui/QPainter>
@@ -40,7 +40,7 @@
 
 // Helper class holding all custom color values
 
-class CORE_EXPORT StyleHelper
+class QTCREATOR_UTILS_EXPORT StyleHelper
 {
 public:
     // Height of the project explorer navigation bar

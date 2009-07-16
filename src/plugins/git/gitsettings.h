@@ -56,6 +56,7 @@ struct GitSettings
     int logCount;
     int timeout;
     bool promptToSubmit;
+    bool omitAnnotationDate;
 };
 
 inline bool operator==(const GitSettings &p1, const GitSettings &p2)

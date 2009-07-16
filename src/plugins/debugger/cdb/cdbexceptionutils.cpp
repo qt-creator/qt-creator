@@ -271,6 +271,7 @@ bool isFatalException(LONG code)
     case startupCompleteTrap: // Mysterious exception at start of application
     case rpcServerUnavailableExceptionCode:
     case dllNotFoundExceptionCode:
+    case cppExceptionCode:
         return false;
     default:
         break;

@@ -39,7 +39,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSharedData>
 
-static const char *uiMemberC = "m_ui";
+static const char *uiMemberC = "ui";
 static const char *uiNamespaceC = "Ui";
 
 static const char *formClassWizardPageGroupC = "FormClassWizardPage";

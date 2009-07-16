@@ -65,29 +65,19 @@ CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
     m_owner(owner)
 {
     m_mimeTypes << QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)
-        << QLatin1String(CppEditor::Constants::C_HEADER_MIMETYPE)
-        << QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
-        << QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE);
-    Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
+            << QLatin1String(CppEditor::Constants::C_HEADER_MIMETYPE)
+            << QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
+            << QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE);
+
 #ifndef Q_WS_MAC
-    // ### It would be really cool if we could get the stuff from the XML file here and not play "catch up" all the time.
-    QIcon cppIcon(":/cppeditor/images/qt_cpp.png");
-    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("cpp"));
-    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("cp"));
-    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("cc"));
-    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("cxx"));
-    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("C"));
-    iconProvider->registerIconOverlayForSuffix(cppIcon, QLatin1String("c++"));
-    iconProvider->registerIconOverlayForSuffix(QIcon(":/cppeditor/images/qt_c.png"),
-                                        QLatin1String("c"));
-    QIcon headerIcon(":/cppeditor/images/qt_h.png");
-    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("hpp"));
-    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("hh"));
-    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("h"));
-    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("hxx"));
-    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("H"));
-    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("hp"));
-    iconProvider->registerIconOverlayForSuffix(headerIcon, QLatin1String("h++"));
+    Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
+    Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    iconProvider->registerIconOverlayForMimeType(QIcon(":/cppeditor/images/qt_cpp.png"),
+                                                 mimeDatabase->findByType(QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)));
+    iconProvider->registerIconOverlayForMimeType(QIcon(":/cppeditor/images/qt_c.png"),
+                                                 mimeDatabase->findByType(QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)));
+    iconProvider->registerIconOverlayForMimeType(QIcon(":/cppeditor/images/qt_h.png"),
+                                                 mimeDatabase->findByType(QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE)));
 #endif
 }
 
@@ -122,7 +112,6 @@ CppPlugin *CppPlugin::m_instance = 0;
 
 CppPlugin::CppPlugin() :
     m_actionHandler(0),
-    m_factory(0),
     m_sortedMethodOverview(false)
 {
     m_instance = this;
@@ -130,8 +119,6 @@ CppPlugin::CppPlugin() :
 
 CppPlugin::~CppPlugin()
 {
-    removeObject(m_factory);
-    delete m_factory;
     delete m_actionHandler;
     m_instance = 0;
 }
@@ -174,12 +161,11 @@ bool CppPlugin::sortedMethodOverview() const
 bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Core::ICore *core = Core::ICore::instance();
+
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
         return false;
 
-    m_factory = new CppEditorFactory(this);
-    addObject(m_factory);
-
+    addAutoReleasedObject(new CppEditorFactory(this));
     addAutoReleasedObject(new CppHoverHandler);
 
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);

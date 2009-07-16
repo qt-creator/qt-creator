@@ -3,7 +3,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Qt Software Information (qt-info@nokia.com)
 **
 ** This file is part of the QtScript module of the Qt Toolkit.
 **
@@ -36,7 +36,7 @@
 ** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at http://www.qtsoftware.com/contact.
+** contact the sales department at qt-sales@nokia.com.
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
@@ -143,14 +143,16 @@ AST::UiQualifiedId *Parser::reparseAsQualifiedId(AST::ExpressionNode *expr)
     return 0;
 }
 
-bool Parser::parse()
+bool Parser::parse(int startToken)
 {
     Lexer *lexer = driver->lexer();
     bool hadErrors = false;
     int yytoken = -1;
     int action = 0;
 
-    first_token = last_token = 0;
+    token_buffer[0].token = startToken;
+    first_token = &token_buffer[0];
+    last_token = &token_buffer[1];
 
     tos = -1;
     program = 0;
@@ -194,25 +196,39 @@ bool Parser::parse()
           switch (r) {
 
 case 0: {
-  program = makeAstNode<AST::UiProgram> (driver->nodePool(), sym(1).UiImportList,
-        sym(2).UiObjectMemberList->finish());
-  sym(1).UiProgram = program;
+  sym(1).Node = sym(2).Node;
+  program = sym(1).Node;
+} break;
+
+case 1: {
+  sym(1).Node = sym(2).Node;
+  program = sym(1).Node;
 } break;
 
 case 2: {
-    sym(1).Node = sym(1).UiImportList->finish();
+  sym(1).Node = sym(2).Node;
+  program = sym(1).Node;
 } break;
 
 case 3: {
+  sym(1).UiProgram = makeAstNode<AST::UiProgram> (driver->nodePool(), sym(1).UiImportList,
+        sym(2).UiObjectMemberList->finish());
+} break;
+
+case 5: {
+    sym(1).Node = sym(1).UiImportList->finish();
+} break;
+
+case 6: {
     sym(1).Node = makeAstNode<AST::UiImportList> (driver->nodePool(), sym(1).UiImport);
 } break;
 
-case 4: {
+case 7: {
     sym(1).Node = makeAstNode<AST::UiImportList> (driver->nodePool(),
         sym(1).UiImportList, sym(2).UiImport);
 } break;
 
-case 6: {
+case 9: {
     AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).sval);
     node->importToken = loc(1);
     node->fileNameToken = loc(2);
@@ -220,56 +236,107 @@ case 6: {
     sym(1).Node = node;
 } break;
 
-case 7: {
+case 11: {
+    AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).sval);
+    node->importId = sym(4).sval;
+    node->importToken = loc(1);
+    node->fileNameToken = loc(2);
+    node->asToken = loc(3);
+    node->importIdToken = loc(4);
+    node->semicolonToken = loc(5);
+    sym(1).Node = node;
+} break;
+
+case 13: {
+    AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).UiQualifiedId->finish());
+    node->importToken = loc(1);
+    node->fileNameToken = loc(2);
+    node->semicolonToken = loc(3);
+    sym(1).Node = node;
+} break;
+
+case 15: {
+    AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).UiQualifiedId->finish());
+    node->importToken = loc(1);
+    node->fileNameToken = loc(2);
+    node->versionToken = loc(3);
+    node->semicolonToken = loc(4);
+    sym(1).Node = node;
+} break;
+
+case 17: {
+    AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).UiQualifiedId->finish());
+    node->importId = sym(5).sval;
+    node->importToken = loc(1);
+    node->fileNameToken = loc(2);
+    node->versionToken = loc(3);
+    node->asToken = loc(4);
+    node->importIdToken = loc(5);
+    node->semicolonToken = loc(6);
+    sym(1).Node = node;
+} break;
+
+case 19: {
+    AST::UiImport *node = makeAstNode<AST::UiImport>(driver->nodePool(), sym(2).UiQualifiedId->finish());
+    node->importId = sym(4).sval;
+    node->importToken = loc(1);
+    node->fileNameToken = loc(2);
+    node->asToken = loc(3);
+    node->importIdToken = loc(4);
+    node->semicolonToken = loc(5);
+    sym(1).Node = node;
+} break;
+
+case 20: {
     sym(1).Node = 0;
 } break;
 
-case 8: {
+case 21: {
     sym(1).Node = makeAstNode<AST::UiObjectMemberList> (driver->nodePool(), sym(1).UiObjectMember);
 } break;
 
-case 9: {
+case 22: {
     sym(1).Node = makeAstNode<AST::UiObjectMemberList> (driver->nodePool(), sym(1).UiObjectMember);
 } break;
 
-case 10: {
+case 23: {
     AST::UiObjectMemberList *node = makeAstNode<AST:: UiObjectMemberList> (driver->nodePool(),
         sym(1).UiObjectMemberList, sym(2).UiObjectMember);
     sym(1).Node = node;
 } break;
 
-case 11: {
+case 24: {
     sym(1).Node = makeAstNode<AST::UiArrayMemberList> (driver->nodePool(), sym(1).UiObjectMember);
 } break;
 
-case 12: {
+case 25: {
     AST::UiArrayMemberList *node = makeAstNode<AST::UiArrayMemberList> (driver->nodePool(),
         sym(1).UiArrayMemberList, sym(3).UiObjectMember);
     node->commaToken = loc(2);
     sym(1).Node = node;
 } break;
 
-case 13: {
+case 26: {
     AST::UiObjectInitializer *node = makeAstNode<AST::UiObjectInitializer> (driver->nodePool(), (AST::UiObjectMemberList*)0);
     node->lbraceToken = loc(1);
     node->rbraceToken = loc(2);
     sym(1).Node = node;
 }   break;
 
-case 14: {
+case 27: {
     AST::UiObjectInitializer *node = makeAstNode<AST::UiObjectInitializer> (driver->nodePool(), sym(2).UiObjectMemberList->finish());
     node->lbraceToken = loc(1);
     node->rbraceToken = loc(3);
     sym(1).Node = node;
 }   break;
 
-case 15: {
+case 28: {
     AST::UiObjectDefinition *node = makeAstNode<AST::UiObjectDefinition> (driver->nodePool(), sym(1).UiQualifiedId->finish(),
         sym(2).UiObjectInitializer);
     sym(1).Node = node;
 }   break;
 
-case 17: {
+case 30: {
     AST::UiArrayBinding *node = makeAstNode<AST::UiArrayBinding> (driver->nodePool(), sym(1).UiQualifiedId->finish(),
         sym(4).UiArrayMemberList->finish());
     node->colonToken = loc(2);
@@ -278,19 +345,19 @@ case 17: {
     sym(1).Node = node;
 }   break;
 
-case 18: {
+case 31: {
   AST::StringLiteral *node = makeAstNode<AST::StringLiteral> (driver->nodePool(), sym(1).sval);
   node->literalToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 20: {
+case 33: {
   AST::ExpressionStatement *node = makeAstNode<AST::ExpressionStatement> (driver->nodePool(), sym(1).Expression);
   node->semicolonToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 21: {
+case 34: {
   if (AST::UiQualifiedId *qualifiedId = reparseAsQualifiedId(sym(3).Expression)) {
     AST::UiObjectBinding *node = makeAstNode<AST::UiObjectBinding> (driver->nodePool(),
       sym(1).UiQualifiedId->finish(), qualifiedId, sym(4).UiObjectInitializer);
@@ -305,7 +372,7 @@ case 21: {
     return false; // ### recover
   }
 } break;
-case 22:case 23:case 24:case 25:case 26:case 27:
+case 35:case 36:case 37:case 38:case 39:case 40:
 {
     AST::UiScriptBinding *node = makeAstNode<AST::UiScriptBinding> (driver->nodePool(), sym(1).UiQualifiedId->finish(),
         sym(3).Statement);
@@ -313,14 +380,45 @@ case 22:case 23:case 24:case 25:case 26:case 27:
     sym(1).Node = node;
 }   break;
 
-case 28:
+case 41:
 
-case 29: {
+case 42: {
     sym(1).sval = driver->intern(lexer->characterBuffer(), lexer->characterCount());
     break;
 }
 
-case 31: {
+case 44: {
+  sym(1).Node = 0;
+} break;
+
+case 45: {
+  sym(1).Node = sym(1).UiParameterList->finish ();
+} break;
+
+case 46: {
+  AST::UiParameterList *node = makeAstNode<AST::UiParameterList> (driver->nodePool(), sym(1).sval, sym(2).sval);
+  node->identifierToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 47: {
+  AST::UiParameterList *node = makeAstNode<AST::UiParameterList> (driver->nodePool(), sym(1).UiParameterList, sym(3).sval, sym(4).sval);
+  node->commaToken = loc(2);
+  node->identifierToken = loc(4);
+  sym(1).Node = node;
+} break;
+
+case 48: {
+    AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), (NameId *)0, sym(2).sval);
+    node->type = AST::UiPublicMember::Signal;
+    node->propertyToken = loc(1);
+    node->typeToken = loc(2);
+    node->identifierToken = loc(3);
+    node->parameters = sym(4).UiParameterList;
+    sym(1).Node = node;
+}   break;
+
+case 49: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), (NameId *)0, sym(2).sval);
     node->type = AST::UiPublicMember::Signal;
     node->propertyToken = loc(1);
@@ -329,7 +427,7 @@ case 31: {
     sym(1).Node = node;
 }   break;
 
-case 33: {
+case 51: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(2).sval, sym(3).sval);
     node->propertyToken = loc(1);
     node->typeToken = loc(2);
@@ -338,7 +436,7 @@ case 33: {
     sym(1).Node = node;
 }   break;
 
-case 35: {
+case 53: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(3).sval, sym(4).sval);
     node->isDefaultMember = true;
     node->defaultToken = loc(1);
@@ -349,7 +447,7 @@ case 35: {
     sym(1).Node = node;
 }   break;
 
-case 37: {
+case 55: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(2).sval, sym(3).sval,
         sym(5).Expression);
     node->propertyToken = loc(1);
@@ -360,7 +458,7 @@ case 37: {
     sym(1).Node = node;
 }   break;
 
-case 39: {
+case 57: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(3).sval, sym(4).sval,
         sym(6).Expression);
     node->isDefaultMember = true;
@@ -373,76 +471,76 @@ case 39: {
     sym(1).Node = node;
 }   break;
 
-case 40: {
+case 58: {
     sym(1).Node = makeAstNode<AST::UiSourceElement>(driver->nodePool(), sym(1).Node);
 }   break;
 
-case 41: {
+case 59: {
     sym(1).Node = makeAstNode<AST::UiSourceElement>(driver->nodePool(), sym(1).Node);
 }   break;
-case 42: 
-case 43:
+case 60: 
+case 61:
 {
     AST::UiQualifiedId *node = makeAstNode<AST::UiQualifiedId> (driver->nodePool(), driver->intern(lexer->characterBuffer(), lexer->characterCount()));
     node->identifierToken = loc(1);
     sym(1).Node = node;
 }   break;
 
-case 45: {
+case 63: {
     QString s = QLatin1String(QmlJSGrammar::spell[T_PROPERTY]);
     sym(1).sval = driver->intern(s.constData(), s.length());
     break;
 }
 
-case 46: {
+case 64: {
     QString s = QLatin1String(QmlJSGrammar::spell[T_SIGNAL]);
     sym(1).sval = driver->intern(s.constData(), s.length());
     break;
 }
 
-case 47: {
+case 65: {
   AST::ThisExpression *node = makeAstNode<AST::ThisExpression> (driver->nodePool());
   node->thisToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 48: {
+case 66: {
   AST::IdentifierExpression *node = makeAstNode<AST::IdentifierExpression> (driver->nodePool(), sym(1).sval);
   node->identifierToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 49: {
+case 67: {
   AST::NullExpression *node = makeAstNode<AST::NullExpression> (driver->nodePool());
   node->nullToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 50: {
+case 68: {
   AST::TrueLiteral *node = makeAstNode<AST::TrueLiteral> (driver->nodePool());
   node->trueToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 51: {
+case 69: {
   AST::FalseLiteral *node = makeAstNode<AST::FalseLiteral> (driver->nodePool());
   node->falseToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 52: {
+case 70: {
   AST::NumericLiteral *node = makeAstNode<AST::NumericLiteral> (driver->nodePool(), sym(1).dval, lexer->flags);
   node->literalToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 53: {
+case 71: {
   AST::StringLiteral *node = makeAstNode<AST::StringLiteral> (driver->nodePool(), sym(1).sval);
   node->literalToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 54: {
+case 72: {
   bool rx = lexer->scanRegExp(Lexer::NoPrefix);
   if (!rx) {
     diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, location(lexer), lexer->errorMessage()));
@@ -453,7 +551,7 @@ case 54: {
   sym(1).Node = node;
 } break;
 
-case 55: {
+case 73: {
   bool rx = lexer->scanRegExp(Lexer::EqualPrefix);
   if (!rx) {
     diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, location(lexer), lexer->errorMessage()));
@@ -464,28 +562,28 @@ case 55: {
   sym(1).Node = node;
 } break;
 
-case 56: {
+case 74: {
   AST::ArrayLiteral *node = makeAstNode<AST::ArrayLiteral> (driver->nodePool(), (AST::Elision *) 0);
   node->lbracketToken = loc(1);
   node->rbracketToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 57: {
+case 75: {
   AST::ArrayLiteral *node = makeAstNode<AST::ArrayLiteral> (driver->nodePool(), sym(2).Elision->finish());
   node->lbracketToken = loc(1);
   node->rbracketToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 58: {
+case 76: {
   AST::ArrayLiteral *node = makeAstNode<AST::ArrayLiteral> (driver->nodePool(), sym(2).ElementList->finish ());
   node->lbracketToken = loc(1);
   node->rbracketToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 59: {
+case 77: {
   AST::ArrayLiteral *node = makeAstNode<AST::ArrayLiteral> (driver->nodePool(), sym(2).ElementList->finish (),
     (AST::Elision *) 0);
   node->lbracketToken = loc(1);
@@ -494,7 +592,7 @@ case 59: {
   sym(1).Node = node;
 } break;
 
-case 60: {
+case 78: {
   AST::ArrayLiteral *node = makeAstNode<AST::ArrayLiteral> (driver->nodePool(), sym(2).ElementList->finish (),
     sym(4).Elision->finish());
   node->lbracketToken = loc(1);
@@ -503,7 +601,7 @@ case 60: {
   sym(1).Node = node;
 } break;
 
-case 61: {
+case 79: {
   AST::ObjectLiteral *node = 0;
   if (sym(2).Node)
     node = makeAstNode<AST::ObjectLiteral> (driver->nodePool(),
@@ -515,7 +613,7 @@ case 61: {
   sym(1).Node = node;
 } break;
 
-case 62: {
+case 80: {
   AST::ObjectLiteral *node = makeAstNode<AST::ObjectLiteral> (driver->nodePool(),
     sym(2).PropertyNameAndValueList->finish ());
   node->lbraceToken = loc(1);
@@ -523,67 +621,67 @@ case 62: {
   sym(1).Node = node;
 } break;
 
-case 63: {
+case 81: {
   AST::NestedExpression *node = makeAstNode<AST::NestedExpression>(driver->nodePool(), sym(2).Expression);
   node->lparenToken = loc(1);
   node->rparenToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 64: {
+case 82: {
     AST::UiQualifiedId *node = makeAstNode<AST::UiQualifiedId> (driver->nodePool(), sym(1).sval);
     node->identifierToken = loc(1);
     sym(1).Node = node;
 }   break;
 
-case 65: {
+case 83: {
     AST::UiQualifiedId *node = makeAstNode<AST::UiQualifiedId> (driver->nodePool(), sym(1).UiQualifiedId, sym(3).sval);
     node->identifierToken = loc(3);
     sym(1).Node = node;
 }   break;
 
-case 66: {
+case 84: {
   sym(1).Node = makeAstNode<AST::ElementList> (driver->nodePool(), (AST::Elision *) 0, sym(1).Expression);
 } break;
 
-case 67: {
+case 85: {
   sym(1).Node = makeAstNode<AST::ElementList> (driver->nodePool(), sym(1).Elision->finish(), sym(2).Expression);
 } break;
 
-case 68: {
+case 86: {
   AST::ElementList *node = makeAstNode<AST::ElementList> (driver->nodePool(), sym(1).ElementList,
     (AST::Elision *) 0, sym(3).Expression);
   node->commaToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 69: {
+case 87: {
   AST::ElementList *node = makeAstNode<AST::ElementList> (driver->nodePool(), sym(1).ElementList, sym(3).Elision->finish(),
     sym(4).Expression);
   node->commaToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 70: {
+case 88: {
   AST::Elision *node = makeAstNode<AST::Elision> (driver->nodePool());
   node->commaToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 71: {
+case 89: {
   AST::Elision *node = makeAstNode<AST::Elision> (driver->nodePool(), sym(1).Elision);
   node->commaToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 72: {
+case 90: {
   AST::PropertyNameAndValueList *node = makeAstNode<AST::PropertyNameAndValueList> (driver->nodePool(),
       sym(1).PropertyName, sym(3).Expression);
   node->colonToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 73: {
+case 91: {
   AST::PropertyNameAndValueList *node = makeAstNode<AST::PropertyNameAndValueList> (driver->nodePool(),
       sym(1).PropertyNameAndValueList, sym(3).PropertyName, sym(5).Expression);
   node->commaToken = loc(2);
@@ -591,71 +689,35 @@ case 73: {
   sym(1).Node = node;
 } break;
 
-case 74: {
+case 92: {
   AST::IdentifierPropertyName *node = makeAstNode<AST::IdentifierPropertyName> (driver->nodePool(), sym(1).sval);
   node->propertyNameToken = loc(1);
   sym(1).Node = node;
 } break;
-case 75:
-case 76: {
+case 93:
+case 94: {
   AST::IdentifierPropertyName *node = makeAstNode<AST::IdentifierPropertyName> (driver->nodePool(), driver->intern(lexer->characterBuffer(), lexer->characterCount()));
   node->propertyNameToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 77: {
+case 95: {
   AST::StringLiteralPropertyName *node = makeAstNode<AST::StringLiteralPropertyName> (driver->nodePool(), sym(1).sval);
   node->propertyNameToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 78: {
+case 96: {
   AST::NumericLiteralPropertyName *node = makeAstNode<AST::NumericLiteralPropertyName> (driver->nodePool(), sym(1).dval);
   node->propertyNameToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 79: {
+case 97: {
   AST::IdentifierPropertyName *node = makeAstNode<AST::IdentifierPropertyName> (driver->nodePool(), sym(1).sval);
   node->propertyNameToken = loc(1);
   sym(1).Node = node;
 } break;
-
-case 80:
-
-case 81:
-
-case 82:
-
-case 83:
-
-case 84:
-
-case 85:
-
-case 86:
-
-case 87:
-
-case 88:
-
-case 89:
-
-case 90:
-
-case 91:
-
-case 92:
-
-case 93:
-
-case 94:
-
-case 95:
-
-case 96:
-
-case 97:
 
 case 98:
 
@@ -682,25 +744,61 @@ case 108:
 case 109:
 
 case 110:
+
+case 111:
+
+case 112:
+
+case 113:
+
+case 114:
+
+case 115:
+
+case 116:
+
+case 117:
+
+case 118:
+
+case 119:
+
+case 120:
+
+case 121:
+
+case 122:
+
+case 123:
+
+case 124:
+
+case 125:
+
+case 126:
+
+case 127:
+
+case 128:
 {
   sym(1).sval = driver->intern(lexer->characterBuffer(), lexer->characterCount());
 } break;
 
-case 115: {
+case 133: {
   AST::ArrayMemberExpression *node = makeAstNode<AST::ArrayMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
   node->lbracketToken = loc(2);
   node->rbracketToken = loc(4);
   sym(1).Node = node;
 } break;
 
-case 116: {
+case 134: {
   AST::FieldMemberExpression *node = makeAstNode<AST::FieldMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).sval);
   node->dotToken = loc(2);
   node->identifierToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 117: {
+case 135: {
   AST::NewMemberExpression *node = makeAstNode<AST::NewMemberExpression> (driver->nodePool(), sym(2).Expression, sym(4).ArgumentList);
   node->newToken = loc(1);
   node->lparenToken = loc(3);
@@ -708,505 +806,505 @@ case 117: {
   sym(1).Node = node;
 } break;
 
-case 119: {
+case 137: {
   AST::NewExpression *node = makeAstNode<AST::NewExpression> (driver->nodePool(), sym(2).Expression);
   node->newToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 120: {
+case 138: {
   AST::CallExpression *node = makeAstNode<AST::CallExpression> (driver->nodePool(), sym(1).Expression, sym(3).ArgumentList);
   node->lparenToken = loc(2);
   node->rparenToken = loc(4);
   sym(1).Node = node;
 } break;
 
-case 121: {
+case 139: {
   AST::CallExpression *node = makeAstNode<AST::CallExpression> (driver->nodePool(), sym(1).Expression, sym(3).ArgumentList);
   node->lparenToken = loc(2);
   node->rparenToken = loc(4);
   sym(1).Node = node;
 } break;
 
-case 122: {
+case 140: {
   AST::ArrayMemberExpression *node = makeAstNode<AST::ArrayMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
   node->lbracketToken = loc(2);
   node->rbracketToken = loc(4);
   sym(1).Node = node;
 } break;
 
-case 123: {
+case 141: {
   AST::FieldMemberExpression *node = makeAstNode<AST::FieldMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).sval);
   node->dotToken = loc(2);
   node->identifierToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 124: {
+case 142: {
   sym(1).Node = 0;
 } break;
 
-case 125: {
+case 143: {
   sym(1).Node = sym(1).ArgumentList->finish();
 } break;
 
-case 126: {
+case 144: {
   sym(1).Node = makeAstNode<AST::ArgumentList> (driver->nodePool(), sym(1).Expression);
 } break;
 
-case 127: {
+case 145: {
   AST::ArgumentList *node = makeAstNode<AST::ArgumentList> (driver->nodePool(), sym(1).ArgumentList, sym(3).Expression);
   node->commaToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 131: {
+case 149: {
   AST::PostIncrementExpression *node = makeAstNode<AST::PostIncrementExpression> (driver->nodePool(), sym(1).Expression);
   node->incrementToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 132: {
+case 150: {
   AST::PostDecrementExpression *node = makeAstNode<AST::PostDecrementExpression> (driver->nodePool(), sym(1).Expression);
   node->decrementToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 134: {
+case 152: {
   AST::DeleteExpression *node = makeAstNode<AST::DeleteExpression> (driver->nodePool(), sym(2).Expression);
   node->deleteToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 135: {
+case 153: {
   AST::VoidExpression *node = makeAstNode<AST::VoidExpression> (driver->nodePool(), sym(2).Expression);
   node->voidToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 136: {
+case 154: {
   AST::TypeOfExpression *node = makeAstNode<AST::TypeOfExpression> (driver->nodePool(), sym(2).Expression);
   node->typeofToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 137: {
+case 155: {
   AST::PreIncrementExpression *node = makeAstNode<AST::PreIncrementExpression> (driver->nodePool(), sym(2).Expression);
   node->incrementToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 138: {
+case 156: {
   AST::PreDecrementExpression *node = makeAstNode<AST::PreDecrementExpression> (driver->nodePool(), sym(2).Expression);
   node->decrementToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 139: {
+case 157: {
   AST::UnaryPlusExpression *node = makeAstNode<AST::UnaryPlusExpression> (driver->nodePool(), sym(2).Expression);
   node->plusToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 140: {
+case 158: {
   AST::UnaryMinusExpression *node = makeAstNode<AST::UnaryMinusExpression> (driver->nodePool(), sym(2).Expression);
   node->minusToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 141: {
+case 159: {
   AST::TildeExpression *node = makeAstNode<AST::TildeExpression> (driver->nodePool(), sym(2).Expression);
   node->tildeToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 142: {
+case 160: {
   AST::NotExpression *node = makeAstNode<AST::NotExpression> (driver->nodePool(), sym(2).Expression);
   node->notToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 144: {
+case 162: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
     QSOperator::Mul, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 145: {
+case 163: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
     QSOperator::Div, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 146: {
+case 164: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
     QSOperator::Mod, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 148: {
+case 166: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
     QSOperator::Add, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 149: {
+case 167: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
     QSOperator::Sub, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 151: {
+case 169: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
     QSOperator::LShift, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 152: {
+case 170: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
     QSOperator::RShift, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 153: {
+case 171: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
     QSOperator::URShift, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 155: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Lt, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 156: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Gt, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 157: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Le, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 158: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Ge, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 159: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::InstanceOf, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 160: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::In, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 162: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Lt, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 163: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Gt, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 164: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Le, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 165: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-   QSOperator::Ge, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 166: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::InstanceOf, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 168: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Equal, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 169: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::NotEqual, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 170: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::StrictEqual, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 171: {
-  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::StrictNotEqual, sym(3).Expression);
-  node->operatorToken = loc(2);
-  sym(1).Node = node;
-} break;
-
 case 173: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Equal, sym(3).Expression);
+    QSOperator::Lt, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 174: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::NotEqual, sym(3).Expression);
+    QSOperator::Gt, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 175: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::StrictEqual, sym(3).Expression);
+    QSOperator::Le, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 176: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::StrictNotEqual, sym(3).Expression);
+    QSOperator::Ge, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 177: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::InstanceOf, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 178: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::BitAnd, sym(3).Expression);
+    QSOperator::In, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 180: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::BitAnd, sym(3).Expression);
+    QSOperator::Lt, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 181: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::Gt, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 182: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::BitXor, sym(3).Expression);
+    QSOperator::Le, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 183: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+   QSOperator::Ge, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 184: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::BitXor, sym(3).Expression);
+    QSOperator::InstanceOf, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 186: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::BitOr, sym(3).Expression);
+    QSOperator::Equal, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 187: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::NotEqual, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 188: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::BitOr, sym(3).Expression);
+    QSOperator::StrictEqual, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 190: {
+case 189: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::And, sym(3).Expression);
+    QSOperator::StrictNotEqual, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 191: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::Equal, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 192: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::And, sym(3).Expression);
+    QSOperator::NotEqual, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 193: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::StrictEqual, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 194: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Or, sym(3).Expression);
+    QSOperator::StrictNotEqual, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 196: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    QSOperator::Or, sym(3).Expression);
+    QSOperator::BitAnd, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 198: {
-  AST::ConditionalExpression *node = makeAstNode<AST::ConditionalExpression> (driver->nodePool(), sym(1).Expression,
-    sym(3).Expression, sym(5).Expression);
-  node->questionToken = loc(2);
-  node->colonToken = loc(4);
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::BitAnd, sym(3).Expression);
+  node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 200: {
-  AST::ConditionalExpression *node = makeAstNode<AST::ConditionalExpression> (driver->nodePool(), sym(1).Expression,
-    sym(3).Expression, sym(5).Expression);
-  node->questionToken = loc(2);
-  node->colonToken = loc(4);
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::BitXor, sym(3).Expression);
+  node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 202: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
-    sym(2).ival, sym(3).Expression);
+    QSOperator::BitXor, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 204: {
   AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::BitOr, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 206: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::BitOr, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 208: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::And, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 210: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::And, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 212: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::Or, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 214: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    QSOperator::Or, sym(3).Expression);
+  node->operatorToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 216: {
+  AST::ConditionalExpression *node = makeAstNode<AST::ConditionalExpression> (driver->nodePool(), sym(1).Expression,
+    sym(3).Expression, sym(5).Expression);
+  node->questionToken = loc(2);
+  node->colonToken = loc(4);
+  sym(1).Node = node;
+} break;
+
+case 218: {
+  AST::ConditionalExpression *node = makeAstNode<AST::ConditionalExpression> (driver->nodePool(), sym(1).Expression,
+    sym(3).Expression, sym(5).Expression);
+  node->questionToken = loc(2);
+  node->colonToken = loc(4);
+  sym(1).Node = node;
+} break;
+
+case 220: {
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
     sym(2).ival, sym(3).Expression);
   node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 205: {
-  sym(1).ival = QSOperator::Assign;
-} break;
-
-case 206: {
-  sym(1).ival = QSOperator::InplaceMul;
-} break;
-
-case 207: {
-  sym(1).ival = QSOperator::InplaceDiv;
-} break;
-
-case 208: {
-  sym(1).ival = QSOperator::InplaceMod;
-} break;
-
-case 209: {
-  sym(1).ival = QSOperator::InplaceAdd;
-} break;
-
-case 210: {
-  sym(1).ival = QSOperator::InplaceSub;
-} break;
-
-case 211: {
-  sym(1).ival = QSOperator::InplaceLeftShift;
-} break;
-
-case 212: {
-  sym(1).ival = QSOperator::InplaceRightShift;
-} break;
-
-case 213: {
-  sym(1).ival = QSOperator::InplaceURightShift;
-} break;
-
-case 214: {
-  sym(1).ival = QSOperator::InplaceAnd;
-} break;
-
-case 215: {
-  sym(1).ival = QSOperator::InplaceXor;
-} break;
-
-case 216: {
-  sym(1).ival = QSOperator::InplaceOr;
-} break;
-
-case 218: {
-  AST::Expression *node = makeAstNode<AST::Expression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
-  node->commaToken = loc(2);
-  sym(1).Node = node;
-} break;
-
-case 219: {
-  sym(1).Node = 0;
-} break;
-
 case 222: {
-  AST::Expression *node = makeAstNode<AST::Expression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
-  node->commaToken = loc(2);
+  AST::BinaryExpression *node = makeAstNode<AST::BinaryExpression> (driver->nodePool(), sym(1).Expression,
+    sym(2).ival, sym(3).Expression);
+  node->operatorToken = loc(2);
   sym(1).Node = node;
 } break;
 
 case 223: {
+  sym(1).ival = QSOperator::Assign;
+} break;
+
+case 224: {
+  sym(1).ival = QSOperator::InplaceMul;
+} break;
+
+case 225: {
+  sym(1).ival = QSOperator::InplaceDiv;
+} break;
+
+case 226: {
+  sym(1).ival = QSOperator::InplaceMod;
+} break;
+
+case 227: {
+  sym(1).ival = QSOperator::InplaceAdd;
+} break;
+
+case 228: {
+  sym(1).ival = QSOperator::InplaceSub;
+} break;
+
+case 229: {
+  sym(1).ival = QSOperator::InplaceLeftShift;
+} break;
+
+case 230: {
+  sym(1).ival = QSOperator::InplaceRightShift;
+} break;
+
+case 231: {
+  sym(1).ival = QSOperator::InplaceURightShift;
+} break;
+
+case 232: {
+  sym(1).ival = QSOperator::InplaceAnd;
+} break;
+
+case 233: {
+  sym(1).ival = QSOperator::InplaceXor;
+} break;
+
+case 234: {
+  sym(1).ival = QSOperator::InplaceOr;
+} break;
+
+case 236: {
+  AST::Expression *node = makeAstNode<AST::Expression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
+  node->commaToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 237: {
   sym(1).Node = 0;
 } break;
 
 case 240: {
+  AST::Expression *node = makeAstNode<AST::Expression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
+  node->commaToken = loc(2);
+  sym(1).Node = node;
+} break;
+
+case 241: {
+  sym(1).Node = 0;
+} break;
+
+case 258: {
   AST::Block *node = makeAstNode<AST::Block> (driver->nodePool(), sym(2).StatementList);
   node->lbraceToken = loc(1);
   node->rbraceToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 241: {
+case 259: {
   sym(1).Node = makeAstNode<AST::StatementList> (driver->nodePool(), sym(1).Statement);
 } break;
 
-case 242: {
+case 260: {
   sym(1).Node = makeAstNode<AST::StatementList> (driver->nodePool(), sym(1).StatementList, sym(2).Statement);
 } break;
 
-case 243: {
+case 261: {
   sym(1).Node = 0;
 } break;
 
-case 244: {
+case 262: {
   sym(1).Node = sym(1).StatementList->finish ();
 } break;
 
-case 246: {
+case 264: {
   AST::VariableStatement *node = makeAstNode<AST::VariableStatement> (driver->nodePool(),
      sym(2).VariableDeclarationList->finish (/*readOnly=*/sym(1).ival == T_CONST));
   node->declarationKindToken = loc(1);
@@ -1214,76 +1312,76 @@ case 246: {
   sym(1).Node = node;
 } break;
 
-case 247: {
+case 265: {
   sym(1).ival = T_CONST;
 } break;
 
-case 248: {
+case 266: {
   sym(1).ival = T_VAR;
 } break;
 
-case 249: {
+case 267: {
   sym(1).Node = makeAstNode<AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclaration);
 } break;
 
-case 250: {
+case 268: {
   AST::VariableDeclarationList *node = makeAstNode<AST::VariableDeclarationList> (driver->nodePool(),
     sym(1).VariableDeclarationList, sym(3).VariableDeclaration);
   node->commaToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 251: {
+case 269: {
   sym(1).Node = makeAstNode<AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclaration);
 } break;
 
-case 252: {
+case 270: {
   sym(1).Node = makeAstNode<AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclarationList, sym(3).VariableDeclaration);
 } break;
 
-case 253: {
+case 271: {
   AST::VariableDeclaration *node = makeAstNode<AST::VariableDeclaration> (driver->nodePool(), sym(1).sval, sym(2).Expression);
   node->identifierToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 254: {
+case 272: {
   AST::VariableDeclaration *node = makeAstNode<AST::VariableDeclaration> (driver->nodePool(), sym(1).sval, sym(2).Expression);
   node->identifierToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 255: {
+case 273: {
   // ### TODO: AST for initializer
   sym(1) = sym(2);
 } break;
 
-case 256: {
+case 274: {
   sym(1).Node = 0;
 } break;
 
-case 258: {
+case 276: {
   // ### TODO: AST for initializer
   sym(1) = sym(2);
 } break;
 
-case 259: {
+case 277: {
   sym(1).Node = 0;
 } break;
 
-case 261: {
+case 279: {
   AST::EmptyStatement *node = makeAstNode<AST::EmptyStatement> (driver->nodePool());
   node->semicolonToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 263: {
+case 281: {
   AST::ExpressionStatement *node = makeAstNode<AST::ExpressionStatement> (driver->nodePool(), sym(1).Expression);
   node->semicolonToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 264: {
+case 282: {
   AST::IfStatement *node = makeAstNode<AST::IfStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement, sym(7).Statement);
   node->ifToken = loc(1);
   node->lparenToken = loc(2);
@@ -1292,7 +1390,7 @@ case 264: {
   sym(1).Node = node;
 } break;
 
-case 265: {
+case 283: {
   AST::IfStatement *node = makeAstNode<AST::IfStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement);
   node->ifToken = loc(1);
   node->lparenToken = loc(2);
@@ -1300,7 +1398,7 @@ case 265: {
   sym(1).Node = node;
 } break;
 
-case 267: {
+case 285: {
   AST::DoWhileStatement *node = makeAstNode<AST::DoWhileStatement> (driver->nodePool(), sym(2).Statement, sym(5).Expression);
   node->doToken = loc(1);
   node->whileToken = loc(3);
@@ -1310,7 +1408,7 @@ case 267: {
   sym(1).Node = node;
 } break;
 
-case 268: {
+case 286: {
   AST::WhileStatement *node = makeAstNode<AST::WhileStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement);
   node->whileToken = loc(1);
   node->lparenToken = loc(2);
@@ -1318,7 +1416,7 @@ case 268: {
   sym(1).Node = node;
 } break;
 
-case 269: {
+case 287: {
   AST::ForStatement *node = makeAstNode<AST::ForStatement> (driver->nodePool(), sym(3).Expression,
     sym(5).Expression, sym(7).Expression, sym(9).Statement);
   node->forToken = loc(1);
@@ -1329,7 +1427,7 @@ case 269: {
   sym(1).Node = node;
 } break;
 
-case 270: {
+case 288: {
   AST::LocalForStatement *node = makeAstNode<AST::LocalForStatement> (driver->nodePool(),
      sym(4).VariableDeclarationList->finish (/*readOnly=*/false), sym(6).Expression,
      sym(8).Expression, sym(10).Statement);
@@ -1342,7 +1440,7 @@ case 270: {
   sym(1).Node = node;
 } break;
 
-case 271: {
+case 289: {
   AST:: ForEachStatement *node = makeAstNode<AST::ForEachStatement> (driver->nodePool(), sym(3).Expression,
     sym(5).Expression, sym(7).Statement);
   node->forToken = loc(1);
@@ -1352,7 +1450,7 @@ case 271: {
   sym(1).Node = node;
 } break;
 
-case 272: {
+case 290: {
   AST::LocalForEachStatement *node = makeAstNode<AST::LocalForEachStatement> (driver->nodePool(),
     sym(4).VariableDeclaration, sym(6).Expression, sym(8).Statement);
   node->forToken = loc(1);
@@ -1363,14 +1461,14 @@ case 272: {
   sym(1).Node = node;
 } break;
 
-case 274: {
+case 292: {
   AST::ContinueStatement *node = makeAstNode<AST::ContinueStatement> (driver->nodePool());
   node->continueToken = loc(1);
   node->semicolonToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 276: {
+case 294: {
   AST::ContinueStatement *node = makeAstNode<AST::ContinueStatement> (driver->nodePool(), sym(2).sval);
   node->continueToken = loc(1);
   node->identifierToken = loc(2);
@@ -1378,14 +1476,14 @@ case 276: {
   sym(1).Node = node;
 } break;
 
-case 278: {
+case 296: {
   AST::BreakStatement *node = makeAstNode<AST::BreakStatement> (driver->nodePool());
   node->breakToken = loc(1);
   node->semicolonToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 280: {
+case 298: {
   AST::BreakStatement *node = makeAstNode<AST::BreakStatement> (driver->nodePool(), sym(2).sval);
   node->breakToken = loc(1);
   node->identifierToken = loc(2);
@@ -1393,14 +1491,14 @@ case 280: {
   sym(1).Node = node;
 } break;
 
-case 282: {
+case 300: {
   AST::ReturnStatement *node = makeAstNode<AST::ReturnStatement> (driver->nodePool(), sym(2).Expression);
   node->returnToken = loc(1);
   node->semicolonToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 283: {
+case 301: {
   AST::WithStatement *node = makeAstNode<AST::WithStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement);
   node->withToken = loc(1);
   node->lparenToken = loc(2);
@@ -1408,7 +1506,7 @@ case 283: {
   sym(1).Node = node;
 } break;
 
-case 284: {
+case 302: {
   AST::SwitchStatement *node = makeAstNode<AST::SwitchStatement> (driver->nodePool(), sym(3).Expression, sym(5).CaseBlock);
   node->switchToken = loc(1);
   node->lparenToken = loc(2);
@@ -1416,90 +1514,90 @@ case 284: {
   sym(1).Node = node;
 } break;
 
-case 285: {
+case 303: {
   AST::CaseBlock *node = makeAstNode<AST::CaseBlock> (driver->nodePool(), sym(2).CaseClauses);
   node->lbraceToken = loc(1);
   node->rbraceToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 286: {
+case 304: {
   AST::CaseBlock *node = makeAstNode<AST::CaseBlock> (driver->nodePool(), sym(2).CaseClauses, sym(3).DefaultClause, sym(4).CaseClauses);
   node->lbraceToken = loc(1);
   node->rbraceToken = loc(5);
   sym(1).Node = node;
 } break;
 
-case 287: {
+case 305: {
   sym(1).Node = makeAstNode<AST::CaseClauses> (driver->nodePool(), sym(1).CaseClause);
 } break;
 
-case 288: {
+case 306: {
   sym(1).Node = makeAstNode<AST::CaseClauses> (driver->nodePool(), sym(1).CaseClauses, sym(2).CaseClause);
 } break;
 
-case 289: {
+case 307: {
   sym(1).Node = 0;
 } break;
 
-case 290: {
+case 308: {
   sym(1).Node = sym(1).CaseClauses->finish ();
 } break;
 
-case 291: {
+case 309: {
   AST::CaseClause *node = makeAstNode<AST::CaseClause> (driver->nodePool(), sym(2).Expression, sym(4).StatementList);
   node->caseToken = loc(1);
   node->colonToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 292: {
+case 310: {
   AST::DefaultClause *node = makeAstNode<AST::DefaultClause> (driver->nodePool(), sym(3).StatementList);
   node->defaultToken = loc(1);
   node->colonToken = loc(2);
   sym(1).Node = node;
 } break;
-case 293:
-case 294: {
+case 311:
+case 312: {
   AST::LabelledStatement *node = makeAstNode<AST::LabelledStatement> (driver->nodePool(), driver->intern(lexer->characterBuffer(), lexer->characterCount()), sym(3).Statement);
   node->identifierToken = loc(1);
   node->colonToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 295: {
+case 313: {
   AST::LabelledStatement *node = makeAstNode<AST::LabelledStatement> (driver->nodePool(), sym(1).sval, sym(3).Statement);
   node->identifierToken = loc(1);
   node->colonToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 297: {
+case 315: {
   AST::ThrowStatement *node = makeAstNode<AST::ThrowStatement> (driver->nodePool(), sym(2).Expression);
   node->throwToken = loc(1);
   node->semicolonToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 298: {
+case 316: {
   AST::TryStatement *node = makeAstNode<AST::TryStatement> (driver->nodePool(), sym(2).Statement, sym(3).Catch);
   node->tryToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 299: {
+case 317: {
   AST::TryStatement *node = makeAstNode<AST::TryStatement> (driver->nodePool(), sym(2).Statement, sym(3).Finally);
   node->tryToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 300: {
+case 318: {
   AST::TryStatement *node = makeAstNode<AST::TryStatement> (driver->nodePool(), sym(2).Statement, sym(3).Catch, sym(4).Finally);
   node->tryToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 301: {
+case 319: {
   AST::Catch *node = makeAstNode<AST::Catch> (driver->nodePool(), sym(3).sval, sym(5).Block);
   node->catchToken = loc(1);
   node->lparenToken = loc(2);
@@ -1508,20 +1606,20 @@ case 301: {
   sym(1).Node = node;
 } break;
 
-case 302: {
+case 320: {
   AST::Finally *node = makeAstNode<AST::Finally> (driver->nodePool(), sym(2).Block);
   node->finallyToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 304: {
+case 322: {
   AST::DebuggerStatement *node = makeAstNode<AST::DebuggerStatement> (driver->nodePool());
   node->debuggerToken = loc(1);
   node->semicolonToken = loc(2);
   sym(1).Node = node;
 } break;
 
-case 305: {
+case 323: {
   AST::FunctionDeclaration *node = makeAstNode<AST::FunctionDeclaration> (driver->nodePool(), sym(2).sval, sym(4).FormalParameterList, sym(7).FunctionBody);
   node->functionToken = loc(1);
   node->identifierToken = loc(2);
@@ -1532,7 +1630,7 @@ case 305: {
   sym(1).Node = node;
 } break;
 
-case 306: {
+case 324: {
   AST::FunctionExpression *node = makeAstNode<AST::FunctionExpression> (driver->nodePool(), sym(2).sval, sym(4).FormalParameterList, sym(7).FunctionBody);
   node->functionToken = loc(1);
   if (sym(2).sval)
@@ -1544,56 +1642,56 @@ case 306: {
   sym(1).Node = node;
 } break;
 
-case 307: {
+case 325: {
   AST::FormalParameterList *node = makeAstNode<AST::FormalParameterList> (driver->nodePool(), sym(1).sval);
   node->identifierToken = loc(1);
   sym(1).Node = node;
 } break;
 
-case 308: {
+case 326: {
   AST::FormalParameterList *node = makeAstNode<AST::FormalParameterList> (driver->nodePool(), sym(1).FormalParameterList, sym(3).sval);
   node->commaToken = loc(2);
   node->identifierToken = loc(3);
   sym(1).Node = node;
 } break;
 
-case 309: {
+case 327: {
   sym(1).Node = 0;
 } break;
 
-case 310: {
+case 328: {
   sym(1).Node = sym(1).FormalParameterList->finish ();
 } break;
 
-case 311: {
+case 329: {
   sym(1).Node = 0;
 } break;
 
-case 313: {
+case 331: {
   sym(1).Node = makeAstNode<AST::FunctionBody> (driver->nodePool(), sym(1).SourceElements->finish ());
 } break;
 
-case 314: {
+case 332: {
   sym(1).Node = makeAstNode<AST::SourceElements> (driver->nodePool(), sym(1).SourceElement);
 } break;
 
-case 315: {
+case 333: {
   sym(1).Node = makeAstNode<AST::SourceElements> (driver->nodePool(), sym(1).SourceElements, sym(2).SourceElement);
 } break;
 
-case 316: {
+case 334: {
   sym(1).Node = makeAstNode<AST::StatementSourceElement> (driver->nodePool(), sym(1).Statement);
 } break;
 
-case 317: {
+case 335: {
   sym(1).Node = makeAstNode<AST::FunctionSourceElement> (driver->nodePool(), sym(1).FunctionDeclaration);
 } break;
 
-case 318: {
+case 336: {
   sym(1).sval = 0;
 } break;
 
-case 320: {
+case 338: {
   sym(1).Node = 0;
 } break;
 
@@ -1687,7 +1785,8 @@ case 320: {
         }
 
         for (int tk = 1; tk < TERMINAL_COUNT; ++tk) {
-            if (tk == T_AUTOMATIC_SEMICOLON)
+            if (tk == T_AUTOMATIC_SEMICOLON || tk == T_FEED_UI_PROGRAM    ||
+                tk == T_FEED_JS_STATEMENT   || tk == T_FEED_JS_EXPRESSION)
                continue;
 
             int a = t_action(errorState, tk);

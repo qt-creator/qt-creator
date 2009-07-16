@@ -14,6 +14,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_perforce \
             plugin_subversion \
             plugin_git \
+            plugin_cvs \
             plugin_cpptools \
             plugin_qt4projectmanager \
 #            plugin_snippets \ # buggy and annoying
@@ -72,6 +73,12 @@ plugin_git.depends = plugin_texteditor
 plugin_git.depends = plugin_vcsbase
 plugin_git.depends += plugin_projectexplorer
 plugin_git.depends += plugin_coreplugin
+
+plugin_cvs.subdir = cvs
+plugin_cvs.depends = plugin_texteditor
+plugin_cvs.depends = plugin_vcsbase
+plugin_cvs.depends += plugin_projectexplorer
+plugin_cvs.depends += plugin_coreplugin
 
 plugin_subversion.subdir = subversion
 plugin_subversion.depends = plugin_vcsbase

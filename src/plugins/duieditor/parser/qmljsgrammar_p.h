@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Qt Software Information (qt-info@nokia.com)
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
@@ -35,7 +35,7 @@
 ** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at http://www.qtsoftware.com/contact.
+** contact the sales department at qt-sales@nokia.com.
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
@@ -59,11 +59,12 @@ class QmlJSGrammar
 public:
   enum {
     EOF_SYMBOL = 0,
-    REDUCE_HERE = 90,
-    SHIFT_THERE = 89,
+    REDUCE_HERE = 94,
+    SHIFT_THERE = 93,
     T_AND = 1,
     T_AND_AND = 2,
     T_AND_EQ = 3,
+    T_AS = 89,
     T_AUTOMATIC_SEMICOLON = 62,
     T_BREAK = 4,
     T_CASE = 5,
@@ -84,6 +85,9 @@ public:
     T_EQ_EQ = 18,
     T_EQ_EQ_EQ = 19,
     T_FALSE = 82,
+    T_FEED_JS_EXPRESSION = 92,
+    T_FEED_JS_STATEMENT = 91,
+    T_FEED_UI_PROGRAM = 90,
     T_FINALLY = 20,
     T_FOR = 21,
     T_FUNCTION = 22,
@@ -150,15 +154,15 @@ public:
     T_XOR = 78,
     T_XOR_EQ = 79,
 
-    ACCEPT_STATE = 588,
-    RULE_COUNT = 323,
-    STATE_COUNT = 589,
-    TERMINAL_COUNT = 91,
-    NON_TERMINAL_COUNT = 102,
+    ACCEPT_STATE = 621,
+    RULE_COUNT = 341,
+    STATE_COUNT = 622,
+    TERMINAL_COUNT = 95,
+    NON_TERMINAL_COUNT = 105,
 
-    GOTO_INDEX_OFFSET = 589,
-    GOTO_INFO_OFFSET = 2092,
-    GOTO_CHECK_OFFSET = 2092
+    GOTO_INDEX_OFFSET = 622,
+    GOTO_INFO_OFFSET = 2247,
+    GOTO_CHECK_OFFSET = 2247
   };
 
   static const char  *const spell [];
