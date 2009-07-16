@@ -404,7 +404,7 @@ bool ProFileEvaluator::Private::parseLine(const QString &line)
     m_parens = parens;
     if (m_syntaxError)
         return false;
-    if (escaped) {
+    if (m_contNextLine) {
         --m_proitemPtr;
         updateItem();
     } else {
