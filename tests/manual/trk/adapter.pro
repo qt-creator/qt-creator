@@ -3,4 +3,8 @@ TEMPLATE = app
 
 QT = core network
 
-SOURCES += adapter.cpp
+HEADERS += trkutils.h
+
+SOURCES += \
+    adapter.cpp \
+    trkutils.cpp

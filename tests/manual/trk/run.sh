@@ -5,11 +5,12 @@ make || exit 1
 killall -s USR1 adapter trkserver > /dev/null 2>&1
 killall adapter trkserver > /dev/null 2>&1
 
-trkservername="TRKSERVER-2";
+trkservername="TRKSERVER-3";
 gdbserverip=127.0.0.1
 gdbserverport=2225
+replaysource=dump.txt
 
-./trkserver ${trkservername} &
+./trkserver ${trkservername} ${replaysource} &
 trkserverpid=$!
 
 sleep 1
@@ -18,8 +19,9 @@ sleep 1
 adapterpid=$!
 
 echo "
-file filebrowseapp.sym
+set remote noack-packet on
 target remote ${gdbserverip}:${gdbserverport}
+file filebrowseapp.sym
 quit
 " > gdb.txt
 

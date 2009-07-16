@@ -27,6 +27,8 @@
 **
 **************************************************************************/
 
+#include "trkutils.h"
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 
@@ -45,81 +47,155 @@ void signalHandler(int)
 
 #endif
 
+using namespace trk;
+
+// Format of the replay source is something like
+// ---IDE------------------------------------------------------
+//  Command: 0x05 Support Mask
+// [05 02]
+//---TRK------------------------------------------------------
+//  Command: 0x80 Acknowledge
+//    Error: 0x00
+// [80 02 00 7E 00 4F 5F 01 00 00 00 0F 1F 00 00 00
+//  00 00 00 01 00 11 00 03 00 00 00 00 00 03 00 00...]
 
 class TrkServer : public QObject
 {
     Q_OBJECT
 
 public:
-    TrkServer(const QString &serverName);
+    TrkServer();
     ~TrkServer();
+
+    void setServerName(const QString &name) { m_serverName = name; }
+    void setReplaySource(const QString &source) { m_replaySource = source; }
+    void startServer();
 
 private slots:
     void handleConnection();
+    void readFromAdapter();
+    void writeToAdapter(byte command, byte token, const QByteArray &data);
+
+    void handleAdapterMessage(const TrkResult &result);
 
 private:
     void logMessage(const QString &msg);
 
-    QList<QByteArray> m_data;
-    QLocalServer *m_server;
+    QString m_serverName;
+    QString m_replaySource;
+
+    QByteArray m_adapterReadBuffer;
+
+    QList<QByteArray> m_replayData;
+    QLocalServer m_server;
     int m_lastSent;
+    QLocalSocket *m_adapterConnection;
 };
 
-TrkServer::TrkServer(const QString &serverName)
+TrkServer::TrkServer()
 {
-    QFile file("dump.pro");
-    m_data = file.readAll().split('\n');
-    logMessage(QString("Read %1 lines of data").arg(m_data.size()));
-    
-    m_server = new QLocalServer(this);
-    m_lastSent = 0;
-    if (!m_server->listen(serverName)) {
-        logMessage(QString("Error: Unable to start the TRK server %1: %2.")
-                    .arg(serverName).arg(m_server->errorString()));
-        return;
-    }
-
-    logMessage("The TRK server is running. Run the adapter now.");
-    connect(m_server, SIGNAL(newConnection()), this, SLOT(handleConnection()));
+    m_adapterConnection = 0;
 }
 
 TrkServer::~TrkServer()
 {
-    logMessage("Shutting down");
-    m_server->close();
+    logMessage("Shutting down.\n");
+    m_server.close();
+}
+
+void TrkServer::startServer()
+{
+    QFile file(m_replaySource);
+    file.open(QIODevice::ReadOnly);
+    m_replayData = file.readAll().split('\n');
+    file.close();
+
+    logMessage(QString("Read %1 lines of data from %2")
+        .arg(m_replayData.size()).arg(m_replaySource));
+
+    m_lastSent = 0;
+    if (!m_server.listen(m_serverName)) {
+        logMessage(QString("Error: Unable to start the TRK server %1: %2.")
+            .arg(m_serverName).arg(m_server.errorString()));
+        return;
+    }
+
+    logMessage("The TRK server is running. Run the adapter now.");
+    connect(&m_server, SIGNAL(newConnection()), this, SLOT(handleConnection()));
 }
 
 void TrkServer::logMessage(const QString &msg)
 {
-    qDebug() << "TRKSERV: " << qPrintable(msg);
+    qDebug() << "TRKSERVER: " << qPrintable(msg);
 }
 
 void TrkServer::handleConnection()
 {
-    QByteArray block;
+    //QByteArray block;
 
-    QByteArray msg = m_data[m_lastSent ++];
+    //QByteArray msg = m_replayData[m_lastSent ++];
 
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
-    out << (quint16)0;
-    out << m_data;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
+    //QDataStream out(&block, QIODevice::WriteOnly);
+    //out.setVersion(QDataStream::Qt_4_0);
+    //out << (quint16)0;
+    //out << m_replayData;
+    //out.device()->seek(0);
+    //out << (quint16)(block.size() - sizeof(quint16));
 
-    QLocalSocket *clientConnection = m_server->nextPendingConnection();
-    connect(clientConnection, SIGNAL(disconnected()),
-            clientConnection, SLOT(deleteLater()));
+    m_adapterConnection = m_server.nextPendingConnection();
+    connect(m_adapterConnection, SIGNAL(disconnected()),
+            m_adapterConnection, SLOT(deleteLater()));
+    connect(m_adapterConnection, SIGNAL(readyRead()),
+            this, SLOT(readFromAdapter()));
 
-    clientConnection->write(block);
-    clientConnection->flush();
-    //clientConnection->disconnectFromHost();
+    //m_adapterConnection->write(block);
+    //m_adapterConnection->flush();
+    //m_adapterConnection->disconnectFromHost();
+}
+
+void TrkServer::readFromAdapter()
+{
+    QByteArray packet = m_adapterConnection->readAll();
+    m_adapterReadBuffer.append(packet);
+
+    logMessage("trk: -> " + stringFromArray(packet));
+
+    if (packet != m_adapterReadBuffer)
+        logMessage("buffer: " + stringFromArray(m_adapterReadBuffer));
+
+    while (!m_adapterReadBuffer.isEmpty())
+        handleAdapterMessage(extractResult(&m_adapterReadBuffer));
+}
+
+void TrkServer::writeToAdapter(byte command, byte token, const QByteArray &data)
+{
+    QByteArray msg = frameMessage(command, token, data);
+    logMessage("trk: <- " + stringFromArray(msg));
+    m_adapterConnection->write(msg);
+}
+
+void TrkServer::handleAdapterMessage(const TrkResult &result)
+{
+    QByteArray data;
+    switch (result.code) {
+        case 0x00: { // Ping
+            data.append(char(0x00));  // No error
+            writeToAdapter(0x80, 0x00, data);
+            break;
+        }
+        default:
+            data.append(char(0x10)); // Command not supported
+            writeToAdapter(0xff, result.token, data);
+            break;
+    }
+
 }
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2) {
-        qDebug() << "Usage: " << argv[0] << " <trkservername>";
+    if (argc < 3) {
+        qDebug() << "Usage: " << argv[0] << " <trkservername>"
+            << " <replaysource>";
         return 1;
     }
 
@@ -128,8 +204,12 @@ int main(int argc, char *argv[])
 #endif
 
     QCoreApplication app(argc, argv);
-    QString serverName = argv[1];
-    TrkServer server(serverName);
+
+    TrkServer server;
+    server.setServerName(argv[1]);
+    server.setReplaySource(argv[2]);
+    server.startServer();
+
     return app.exec();
 }
 
