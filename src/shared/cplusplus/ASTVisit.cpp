@@ -1307,8 +1307,10 @@ void ObjcPropertyAttributeListAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         // visit ObjcPropertyAttributeListAST
-        for (ObjcPropertyAttributeListAST *it = this; it; it = it->next)
-            accept(it, visitor);
+        if (attr)
+            accept(attr, visitor);
+        if (next)
+            accept(next, visitor);
         // visit AST
     }
     visitor->endVisit(this);
