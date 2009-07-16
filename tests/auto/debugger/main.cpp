@@ -415,6 +415,10 @@ static const void *deref(const void *p)
 
 void tst_Debugger::dumperCompatibility()
 {
+    // Ensure that no arbitrary padding is introduced by QVectorTypedData.
+    const size_t qVectorDataSize = 16;
+    QCOMPARE(sizeof(QVectorData), qVectorDataSize);
+    QCOMPARE( ((size_t)&(((QVectorTypedData<int> *)(0))->array)), qVectorDataSize);
 }
 
 static const QByteArray utfToBase64(const QString &string)
