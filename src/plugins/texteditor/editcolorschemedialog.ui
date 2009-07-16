@@ -39,7 +39,7 @@
      </property>
      <layout class="QHBoxLayout">
       <item>
-       <widget class="QListWidget" name="itemListWidget">
+       <widget class="QListView" name="itemList">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>1</horstretch>
@@ -48,6 +48,9 @@
         </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+        <property name="uniformItemSizes">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -199,7 +202,7 @@
  </widget>
  <tabstops>
   <tabstop>nameEdit</tabstop>
-  <tabstop>itemListWidget</tabstop>
+  <tabstop>itemList</tabstop>
   <tabstop>foregroundToolButton</tabstop>
   <tabstop>backgroundToolButton</tabstop>
   <tabstop>eraseBackgroundToolButton</tabstop>

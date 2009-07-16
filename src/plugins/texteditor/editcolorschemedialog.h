@@ -35,6 +35,10 @@
 
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+class QModelIndex;
+QT_END_NAMESPACE
+
 namespace TextEditor {
 namespace Internal {
 
@@ -58,7 +62,7 @@ public:
     void accept();
 
 private slots:
-    void itemChanged();
+    void itemChanged(const QModelIndex &index);
     void changeForeColor();
     void changeBackColor();
     void eraseBackColor();

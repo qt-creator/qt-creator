@@ -30,6 +30,7 @@
 #include "editcolorschemedialog.h"
 #include "ui_editcolorschemedialog.h"
 
+#include <QtCore/QAbstractListModel>
 #include <QtGui/QColorDialog>
 
 using namespace TextEditor;
@@ -45,6 +46,31 @@ static inline QString colorButtonStyleSheet(const QColor &bgColor)
     return QLatin1String("border: 2px dotted black; border-radius: 2px;");
 }
 
+namespace {
+
+class FormatsModel : public QAbstractListModel
+{
+public:
+    FormatsModel(const FormatDescriptions &fd): m_fd(fd)
+    { }
+
+    int rowCount(const QModelIndex &parent) const
+    { return parent.isValid() ? 0 : m_fd.size(); }
+
+    QVariant data(const QModelIndex &index, int role) const
+    {
+        if (role == Qt::DisplayRole)
+            return m_fd.at(index.row()).trName();
+
+        return QVariant();
+    }
+
+private:
+    const FormatDescriptions &m_fd;
+};
+
+} // anonymous namespace
+
 EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
                                              const FontSettings &fontSettings,
                                              QWidget *parent) :
@@ -59,10 +85,11 @@ EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
 
     m_ui->nameEdit->setText(m_scheme.name());
 
-    foreach (const FormatDescription &d, fd)
-        m_ui->itemListWidget->addItem(d.trName());
+    FormatsModel *model = new FormatsModel(m_descriptions);
+    m_ui->itemList->setModel(model);
 
-    connect(m_ui->itemListWidget, SIGNAL(itemSelectionChanged()), SLOT(itemChanged()));
+    connect(m_ui->itemList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            SLOT(itemChanged(QModelIndex)));
     connect(m_ui->foregroundToolButton, SIGNAL(clicked()), SLOT(changeForeColor()));
     connect(m_ui->backgroundToolButton, SIGNAL(clicked()), SLOT(changeBackColor()));
     connect(m_ui->eraseBackgroundToolButton, SIGNAL(clicked()), SLOT(eraseBackColor()));
@@ -70,7 +97,7 @@ EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
     connect(m_ui->italicCheckBox, SIGNAL(toggled(bool)), SLOT(checkCheckBoxes()));
 
     if (!m_descriptions.empty())
-        m_ui->itemListWidget->setCurrentRow(0);
+        m_ui->itemList->setCurrentIndex(model->index(0));
 }
 
 EditColorSchemeDialog::~EditColorSchemeDialog()
@@ -84,32 +111,26 @@ void EditColorSchemeDialog::accept()
     QDialog::accept();
 }
 
-void EditColorSchemeDialog::itemChanged()
+void EditColorSchemeDialog::itemChanged(const QModelIndex &index)
 {
-    QListWidgetItem *item = m_ui->itemListWidget->currentItem();
-    if (!item)
+    if (!index.isValid())
         return;
 
-    const int numFormats = m_descriptions.size();
-    for (int i = 0; i < numFormats; i++) {
-        if (m_descriptions[i].trName() == item->text()) {
-            m_curItem = i;
-            const Format &format = m_scheme.formatFor(m_descriptions[i].name());
-            m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
-            m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
+    m_curItem = index.row();
 
-            m_ui->eraseBackgroundToolButton->setEnabled(i > 0 && format.background().isValid());
+    const Format &format = m_scheme.formatFor(m_descriptions[m_curItem].name());
+    m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
+    m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
 
-            const bool boldBlocked = m_ui->boldCheckBox->blockSignals(true);
-            m_ui->boldCheckBox->setChecked(format.bold());
-            m_ui->boldCheckBox->blockSignals(boldBlocked);
-            const bool italicBlocked = m_ui->italicCheckBox->blockSignals(true);
-            m_ui->italicCheckBox->setChecked(format.italic());
-            m_ui->italicCheckBox->blockSignals(italicBlocked);
-            updatePreview();
-            break;
-        }
-    }
+    m_ui->eraseBackgroundToolButton->setEnabled(m_curItem > 0 && format.background().isValid());
+
+    const bool boldBlocked = m_ui->boldCheckBox->blockSignals(true);
+    m_ui->boldCheckBox->setChecked(format.bold());
+    m_ui->boldCheckBox->blockSignals(boldBlocked);
+    const bool italicBlocked = m_ui->italicCheckBox->blockSignals(true);
+    m_ui->italicCheckBox->setChecked(format.italic());
+    m_ui->italicCheckBox->blockSignals(italicBlocked);
+    updatePreview();
 }
 
 void EditColorSchemeDialog::changeForeColor()
@@ -124,11 +145,9 @@ void EditColorSchemeDialog::changeForeColor()
     p.setColor(QPalette::Active, QPalette::Button, newColor);
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
 
-    const int numFormats = m_descriptions.size();
-    for (int i = 0; i < numFormats; i++) {
-        QList<QListWidgetItem*> items = m_ui->itemListWidget->findItems(m_descriptions[i].trName(), Qt::MatchExactly);
-        if (!items.isEmpty() && items.first()->isSelected())
-            m_scheme.formatFor(m_descriptions[i].name()).setForeground(newColor);
+    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+        const QString category = m_descriptions[index.row()].name();
+        m_scheme.formatFor(category).setForeground(newColor);
     }
 
     updatePreview();
@@ -145,11 +164,9 @@ void EditColorSchemeDialog::changeBackColor()
     m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
     m_ui->eraseBackgroundToolButton->setEnabled(true);
 
-    const int numFormats = m_descriptions.size();
-    for (int i = 0; i < numFormats; i++) {
-        QList<QListWidgetItem*> items = m_ui->itemListWidget->findItems(m_descriptions[i].trName(), Qt::MatchExactly);
-        if (!items.isEmpty() && items.first()->isSelected())
-            m_scheme.formatFor(m_descriptions[i].name()).setBackground(newColor);
+    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+        const QString category = m_descriptions[index.row()].name();
+        m_scheme.formatFor(category).setBackground(newColor);
     }
 
     updatePreview();
@@ -161,14 +178,12 @@ void EditColorSchemeDialog::eraseBackColor()
         return;
     QColor newColor;
     m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
-
-    const int numFormats = m_descriptions.size();
-    for (int i = 0; i < numFormats; i++) {
-        QList<QListWidgetItem*> items = m_ui->itemListWidget->findItems(m_descriptions[i].trName(), Qt::MatchExactly);
-        if (!items.isEmpty() && items.first()->isSelected())
-            m_scheme.formatFor(m_descriptions[i].name()).setBackground(newColor);
-    }
     m_ui->eraseBackgroundToolButton->setEnabled(false);
+
+    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+        const QString category = m_descriptions[index.row()].name();
+        m_scheme.formatFor(category).setBackground(newColor);
+    }
 
     updatePreview();
 }
@@ -177,14 +192,13 @@ void EditColorSchemeDialog::checkCheckBoxes()
 {
     if (m_curItem == -1)
         return;
-    const int numFormats = m_descriptions.size();
-    for (int i = 0; i < numFormats; i++) {
-        QList<QListWidgetItem*> items = m_ui->itemListWidget->findItems(m_descriptions[i].trName(), Qt::MatchExactly);
-        if (!items.isEmpty() && items.first()->isSelected()) {
-            m_scheme.formatFor(m_descriptions[i].name()).setBold(m_ui->boldCheckBox->isChecked());
-            m_scheme.formatFor(m_descriptions[i].name()).setItalic(m_ui->italicCheckBox->isChecked());
-        }
+
+    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+        const QString category = m_descriptions[index.row()].name();
+        m_scheme.formatFor(category).setBold(m_ui->boldCheckBox->isChecked());
+        m_scheme.formatFor(category).setItalic(m_ui->italicCheckBox->isChecked());
     }
+
     updatePreview();
 }
 
