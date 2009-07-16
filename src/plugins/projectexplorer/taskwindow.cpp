@@ -46,6 +46,7 @@
 #include <QtGui/QListView>
 #include <QtGui/QPainter>
 #include <QtCore/QAbstractItemModel>
+#include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
 #include <QtGui/QFont>
@@ -91,6 +92,32 @@ private:
     QIcon m_errorIcon;
     QIcon m_warningIcon;
     QIcon m_unspecifiedIcon;
+};
+
+class ProjectExplorer::Internal::TaskFilterModel : public QSortFilterProxyModel
+{
+public:
+    TaskFilterModel(TaskModel *sourceModel, QObject *parent = 0);
+
+    TaskModel *taskModel() const;
+
+    bool filterIncludesUnknowns() const { return m_includeUnknowns; }
+    void setFilterIncludesUnknowns(bool b) { m_includeUnknowns = b; invalidateFilter(); }
+
+    bool filterIncludesWarnings() const { return m_includeWarnings; }
+    void setFilterIncludesWarnings(bool b) { m_includeWarnings = b; invalidateFilter(); }
+
+    bool filterIncludesErrors() const { return m_includeErrors; }
+    void setFilterIncludesErrors(bool b) { m_includeErrors = b; invalidateFilter(); }
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
+private:
+    // These correspond to ProjectExplorer::BuildParserInterface::PatternType.
+    bool m_includeUnknowns;
+    bool m_includeWarnings;
+    bool m_includeErrors;
 };
 
 ////
@@ -242,17 +269,70 @@ void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
 }
 
 /////
+// TaskFilterModel
+/////
+
+TaskFilterModel::TaskFilterModel(TaskModel *sourceModel, QObject *parent)
+    : QSortFilterProxyModel(parent)
+{
+    setSourceModel(sourceModel);
+    setDynamicSortFilter(true);
+    m_includeUnknowns = m_includeWarnings = m_includeErrors = true;
+}
+
+TaskModel *TaskFilterModel::taskModel() const
+{
+    return static_cast<TaskModel*>(sourceModel());
+}
+
+bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+{
+    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+    ProjectExplorer::BuildParserInterface::PatternType type = ProjectExplorer::BuildParserInterface::PatternType(index.data(TaskModel::Type).toInt());
+    switch (type) {
+    case ProjectExplorer::BuildParserInterface::Unknown:
+        return m_includeUnknowns;
+
+    case ProjectExplorer::BuildParserInterface::Warning:
+        return m_includeWarnings;
+
+    case ProjectExplorer::BuildParserInterface::Error:
+        return m_includeErrors;
+    }
+
+    // Not one of the three supported types -- shouldn't happen, but we'll let it slide.
+    return true;
+}
+
+/////
 // TaskWindow
 /////
+
+static QToolButton *createFilterButton(ProjectExplorer::BuildParserInterface::PatternType type,
+                                       const QString &toolTip, TaskModel *model,
+                                       QObject *receiver, const char *slot)
+{
+    QToolButton *button = new QToolButton;
+    button->setIcon(model->iconFor(type));
+    button->setProperty("type", "dockbutton");
+    button->setToolTip(toolTip);
+    button->setCheckable(true);
+    button->setChecked(true);
+    button->setAutoRaise(true);
+    button->setEnabled(true);
+    QObject::connect(button, SIGNAL(toggled(bool)), receiver, slot);
+    return button;
+}
 
 TaskWindow::TaskWindow()
 {
     Core::ICore *core = Core::ICore::instance();
 
     m_model = new TaskModel;
+    m_filter = new TaskFilterModel(m_model);
     m_listview = new TaskView;
 
-    m_listview->setModel(m_model);
+    m_listview->setModel(m_filter);
     m_listview->setFrameStyle(QFrame::NoFrame);
     m_listview->setWindowTitle(tr("Build Issues"));
     m_listview->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -280,6 +360,10 @@ TaskWindow::TaskWindow()
 
     connect(m_copyAction, SIGNAL(triggered()), SLOT(copy()));
 
+    m_filterWarningsButton = createFilterButton(ProjectExplorer::BuildParserInterface::Warning,
+                                                tr("Show Warnings"), m_model,
+                                                this, SLOT(setShowWarnings(bool)));
+
     m_errorCount = 0;
     m_currentTask = -1;
 }
@@ -287,13 +371,15 @@ TaskWindow::TaskWindow()
 TaskWindow::~TaskWindow()
 {
     Core::ICore::instance()->removeContextObject(m_taskWindowContext);
+    delete m_filterWarningsButton;
     delete m_listview;
+    delete m_filter;
     delete m_model;
 }
 
 QList<QWidget*> TaskWindow::toolBarWidgets() const
 {
-    return QList<QWidget*>();
+    return QList<QWidget*>() << m_filterWarningsButton;
 }
 
 QWidget *TaskWindow::outputWidget(QWidget *)
@@ -366,6 +452,12 @@ void TaskWindow::copy()
     QApplication::clipboard()->setText(file + ':' + line + ": " + type + description);
 }
 
+void TaskWindow::setShowWarnings(bool show)
+{
+    m_filter->setFilterIncludesWarnings(show);
+    m_filter->setFilterIncludesUnknowns(show); // "Unknowns" are often associated with warnings
+}
+
 int TaskWindow::numberOfTasks() const
 {
     return m_model->rowCount(QModelIndex());
@@ -388,41 +480,41 @@ bool TaskWindow::hasFocus()
 
 bool TaskWindow::canFocus()
 {
-    return m_model->rowCount();
+    return m_filter->rowCount();
 }
 
 void TaskWindow::setFocus()
 {
-    if (m_model->rowCount()) {
+    if (m_filter->rowCount()) {
         m_listview->setFocus();
         if (m_listview->currentIndex() == QModelIndex()) {
-            m_listview->setCurrentIndex(m_model->index(0,0, QModelIndex()));
+            m_listview->setCurrentIndex(m_filter->index(0,0, QModelIndex()));
         }
     }
 }
 
 bool TaskWindow::canNext()
 {
-    return m_model->rowCount();
+    return m_filter->rowCount();
 }
 
 bool TaskWindow::canPrevious()
 {
-    return m_model->rowCount();
+    return m_filter->rowCount();
 }
 
 void TaskWindow::goToNext()
 {
-    if (!m_model->rowCount())
+    if (!m_filter->rowCount())
         return;
     QModelIndex currentIndex = m_listview->currentIndex();
     if (currentIndex.isValid()) {
         int row = currentIndex.row() + 1;
-        if (row == m_model->rowCount())
+        if (row == m_filter->rowCount())
             row = 0;
-        currentIndex = m_model->index(row, 0);
+        currentIndex = m_filter->index(row, 0);
     } else {
-        currentIndex = m_model->index(0, 0);
+        currentIndex = m_filter->index(0, 0);
     }
     m_listview->setCurrentIndex(currentIndex);
     showTaskInFile(currentIndex);
@@ -430,16 +522,16 @@ void TaskWindow::goToNext()
 
 void TaskWindow::goToPrev()
 {
-    if (!m_model->rowCount())
+    if (!m_filter->rowCount())
         return;
     QModelIndex currentIndex = m_listview->currentIndex();
     if (currentIndex.isValid()) {
         int row = currentIndex.row() -1;
         if (row < 0)
-            row = m_model->rowCount() - 1;
-        currentIndex = m_model->index(row, 0);
+            row = m_filter->rowCount() - 1;
+        currentIndex = m_filter->index(row, 0);
     } else {
-        currentIndex = m_model->index(m_model->rowCount()-1, 0);
+        currentIndex = m_filter->index(m_filter->rowCount()-1, 0);
     }
     m_listview->setCurrentIndex(currentIndex);
     showTaskInFile(currentIndex);
@@ -475,7 +567,7 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     QSize s;
     s.setWidth(option.rect.width());
     const QAbstractItemView * view = qobject_cast<const QAbstractItemView *>(opt.widget);
-    TaskModel *model = static_cast<TaskModel *>(view->model());
+    TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
     int width = opt.rect.width() - model->sizeOfFile() - model->sizeOfLineNumber() - 12 - 22;
     if (view->selectionModel()->currentIndex() == index) {
         QString description = index.data(TaskModel::Description).toString();
@@ -544,7 +636,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 
     painter->setPen(textColor);
 
-    TaskModel *model = static_cast<TaskModel *>(view->model());
+    TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
     ProjectExplorer::BuildParserInterface::PatternType type = ProjectExplorer::BuildParserInterface::PatternType(index.data(TaskModel::Type).toInt());
     QIcon icon = model->iconFor(type);
     painter->drawPixmap(2, opt.rect.top() + 2, icon.pixmap(16, 16));
