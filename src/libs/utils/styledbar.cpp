@@ -5,6 +5,7 @@
 #include <QtCore/QVariant>
 #include <QtGui/QPainter>
 #include <QtGui/QPixmapCache>
+#include <QtGui/QStyle>
 
 using namespace Core::Utils;
 
@@ -27,8 +28,6 @@ bool StyledBar::isSingleRow() const
 
 void StyledBar::paintEvent(QPaintEvent *event)
 {
-    // Currently from the style
-    // Goal should be to migrate that into a Utils::StyledWidget class
     Q_UNUSED(event)
     QPainter painter(this);
 
@@ -73,4 +72,27 @@ void StyledBar::paintEvent(QPaintEvent *event)
         delete p;
         QPixmapCache::insert(key, pixmap);
     }
+}
+
+StyledSeparator::StyledSeparator(QWidget *parent)
+    : QWidget(parent)
+{
+    setFixedWidth(10);
+}
+
+void StyledSeparator::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event)
+    QPainter painter(this);
+    QRect selfRect = rect();
+
+    QColor separatorColor = StyleHelper::borderColor();
+    separatorColor.setAlpha(100);
+    painter.setPen(separatorColor);
+    const int margin = 6;
+    const int offset = selfRect.width()/2;
+    painter.drawLine(selfRect.bottomLeft().x() + offset,
+                selfRect.bottomLeft().y() - margin,
+                selfRect.topLeft().x() + offset,
+                selfRect.topLeft().y() + margin);
 }

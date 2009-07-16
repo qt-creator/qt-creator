@@ -18,6 +18,14 @@ protected:
     void paintEvent(QPaintEvent *event);
 };
 
+class QTCREATOR_UTILS_EXPORT StyledSeparator : public QWidget
+{
+public:
+    StyledSeparator(QWidget *parent = 0);
+protected:
+    void paintEvent(QPaintEvent *event);
+};
+
 } // Utils
 } // Core
 
