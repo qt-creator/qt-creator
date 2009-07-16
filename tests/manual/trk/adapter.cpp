@@ -27,6 +27,8 @@
 **
 **************************************************************************/
 
+#include "trkutils.h"
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTimer>
 
@@ -46,6 +48,7 @@ void signalHandler(int)
 
 #endif
 
+using namespace trk;
 
 class Adapter : public QObject
 {
@@ -58,38 +61,51 @@ public:
     void setTrkServerName(const QString &name) { m_trkServerName = name; }
     void startServer();
 
-public slots:
-    void handleGdbConnection();
-    void readFromGdb();
-    void readFromTrk();
 
 private:
+    //
+    // TRK
+    //
+    Q_SLOT void readFromTrk();
+
+    trk::TrkClient m_trkClient;
+    QString m_trkServerName;
+    QByteArray m_trkReadBuffer;
+
+    //
+    // Gdb
+    //
+    Q_SLOT void handleGdbConnection();
+    Q_SLOT void readFromGdb();
     void handleGdbResponse(const QByteArray &ba);
-    void writeToGdb(const QByteArray &msg);
+    void writeToGdb(const QByteArray &msg, bool addAck = true);
     void writeAckToGdb();
+
+    //
     void logMessage(const QString &msg);
 
-    QLocalSocket *m_trkClient;
-    QTcpServer *m_gdbServer;
+    QTcpServer m_gdbServer;
     QTcpSocket *m_gdbConnection;
-    QString m_trkServerName;
     QString m_gdbServerName;
     quint16 m_gdbServerPort;
     QByteArray m_gdbReadBuffer;
-    QByteArray m_trkReadBuffer;
+    bool m_ackMode;
+
+    uint m_registers[100];
 };
 
 Adapter::Adapter()
 {
-    m_trkClient = new QLocalSocket(this);
-    m_gdbServer = new QTcpServer(this);
     m_gdbConnection = 0;
+    m_ackMode = true;
 }
 
 Adapter::~Adapter()
 {
-    m_gdbServer->close();
-    logMessage("Shutting down");
+    m_gdbServer.close();
+    //m_trkClient->disconnectFromServer();
+    m_trkClient.abort();
+    logMessage("Shutting down.\n");
 }
 
 void Adapter::setGdbServerName(const QString &name)
@@ -106,17 +122,43 @@ void Adapter::setGdbServerName(const QString &name)
 
 void Adapter::startServer()
 {
-    if (!m_gdbServer->listen(QHostAddress(m_gdbServerName), m_gdbServerPort)) {
-        logMessage(QString("Unable to start the gdb server at %1:%2: %3.")
-            .arg(m_gdbServerName).arg(m_gdbServerPort)
-            .arg(m_gdbServer->errorString()));
+    if (!m_trkClient.openPort(m_trkServerName)) {
+        logMessage("Unable to connect to TRK server");
         return;
     }
 
-    logMessage(QString("Gdb server runnung on port %1. Run the Gdb Client now.")
-           .arg(m_gdbServer->serverPort()));
+    m_trkClient.sendInitialPing();
+    m_trkClient.sendMessage(0x01); // Connect
+    //m_trkClient.sendMessage(0x05, CB(handleSupportMask));
+    //m_trkClient.sendMessage(0x06, CB(handleCpuType));
+    m_trkClient.sendMessage(0x04); // Versions
+    //sendMessage(0x09); Unrecognized command
+    m_trkClient.sendMessage(0x4a, 0,
+        "10 " + formatString("C:\\data\\usingdlls.sisx")); // Open File
+    m_trkClient.sendMessage(0x4B, 0, "00 00 00 01 73 1C 3A C8"); // Close File
 
-    connect(m_gdbServer, SIGNAL(newConnection()), this, SLOT(handleGdbConnection()));
+    QByteArray exe = "C:\\sys\\bin\\UsingDLLs.exe";
+    exe.append('\0');
+    exe.append('\0');
+    //m_trkClient.sendMessage(0x40, CB(handleCreateProcess),
+    //    "00 00 00 " + formatString(exe)); // Create Item
+
+    logMessage("Connected to TRK server");
+
+return;
+
+    if (!m_gdbServer.listen(QHostAddress(m_gdbServerName), m_gdbServerPort)) {
+        logMessage(QString("Unable to start the gdb server at %1:%2: %3.")
+            .arg(m_gdbServerName).arg(m_gdbServerPort)
+            .arg(m_gdbServer.errorString()));
+        return;
+    }
+
+    logMessage(QString("Gdb server running on port %1. Run arm-gdb now.")
+        .arg(m_gdbServer.serverPort()));
+
+    connect(&m_gdbServer, SIGNAL(newConnection()),
+        this, SLOT(handleGdbConnection()));
 }
 
 void Adapter::logMessage(const QString &msg)
@@ -124,11 +166,14 @@ void Adapter::logMessage(const QString &msg)
     qDebug() << "ADAPTER: " << qPrintable(msg);
 }
 
+//
+// Gdb
+//
 void Adapter::handleGdbConnection()
 {
     logMessage("HANDLING GDB CONNECTION");
 
-    m_gdbConnection = m_gdbServer->nextPendingConnection();
+    m_gdbConnection = m_gdbServer.nextPendingConnection();
     connect(m_gdbConnection, SIGNAL(disconnected()),
             m_gdbConnection, SLOT(deleteLater()));
     connect(m_gdbConnection, SIGNAL(readyRead()),
@@ -141,7 +186,7 @@ void Adapter::readFromGdb()
     m_gdbReadBuffer.append(packet);
 
     logMessage("gdb: -> " + packet);
-    if (packet != m_gdbReadBuffer) 
+    if (packet != m_gdbReadBuffer)
         logMessage("buffer: " + m_gdbReadBuffer);
 
     QByteArray &ba = m_gdbReadBuffer;
@@ -150,10 +195,10 @@ void Adapter::readFromGdb()
         ba = ba.mid(1);
 
         if (code == '+') {
-            logMessage("ACK");
+            //logMessage("ACK");
             continue;
         }
-        
+
         if (code == '-') {
             logMessage("NAK: Retransmission requested");
             continue;
@@ -177,13 +222,13 @@ void Adapter::readFromGdb()
             return;
         }
 
-        logMessage(QString("Packet checksum: %1").arg(checkSum));
+        //logMessage(QString("Packet checksum: %1").arg(checkSum));
         uint sum = 0;
         for (int i = 0; i < pos; ++i)
             sum += ba.at(i);
 
         if (sum % 256 != checkSum) {
-            logMessage(QString("Packet checksum wrong: %1 %2 in " + ba)
+            logMessage(QString("ERROR: Packet checksum wrong: %1 %2 in " + ba)
                 .arg(checkSum).arg(sum % 256));
         }
 
@@ -195,21 +240,25 @@ void Adapter::readFromGdb()
 
 void Adapter::writeAckToGdb()
 {
+    if (!m_ackMode)
+        return;
     QByteArray packet = "+";
     logMessage("gdb: <- " + packet);
     m_gdbConnection->write(packet);
 }
 
-void Adapter::writeToGdb(const QByteArray &msg)
+void Adapter::writeToGdb(const QByteArray &msg, bool addAck)
 {
     uint sum = 0;
-    for (int i = 0; i != msg.size(); ++i) 
+    for (int i = 0; i != msg.size(); ++i)
         sum += msg.at(i);
     QByteArray checkSum = QByteArray::number(sum % 256, 16);
     //logMessage(QString("Packet checksum: %1").arg(sum));
 
     QByteArray packet;
-    packet.append("+$");
+    if (addAck)
+        packet.append("+");
+    packet.append("$");
     packet.append(msg);
     packet.append('#');
     if (checkSum.size() < 2)
@@ -223,39 +272,66 @@ void Adapter::handleGdbResponse(const QByteArray &response)
 {
     // http://sourceware.org/gdb/current/onlinedocs/gdb_34.html
     if (response == "qSupported") {
-        //$qSupported#37 
-        logMessage("Handling 'qSupported'");
-        writeAckToGdb();
+        //$qSupported#37
+        //logMessage("Handling 'qSupported'");
         writeToGdb(QByteArray());
+    }
+
+    else if (response == "qAttached") {
+        //$qAttached#8f
+        // 1: attached to an existing process
+        // 0: created a new process
+        writeToGdb("0");
+    }
+
+    else if (response == "QStartNoAckMode") {
+        //$qSupported#37
+        //logMessage("Handling 'QStartNoAckMode'");
+        writeToGdb(QByteArray("OK"));
+        m_ackMode = false;
+    }
+
+    else if (response == "g") {
+        // Read general registers.
+        writeToGdb("00000000");
     }
 
     else if (response.startsWith("Hc")) {
         // Set thread for subsequent operations (`m', `M', `g', `G', et.al.).
         // for step and continue operations
-        writeAckToGdb();
+        //$Hc-1#09
+        writeToGdb("OK");
     }
 
     else if (response.startsWith("Hg")) {
         // Set thread for subsequent operations (`m', `M', `g', `G', et.al.).
-        // for 'other operations
-        //$Hg0#df 
-        writeAckToGdb();
+        // for 'other operations.  0 - any thread
+        //$Hg0#df
+        writeToGdb("OK");
     }
 
+    else if (response == "pf") {
+        // current instruction pointer?
+        writeToGdb("0000");
+    }
+
+    else if (response.startsWith("qC")) {
+        // Return the current thread ID
+        //$qC#b4
+        writeToGdb("QC-1");
+    }
 
     else if (response.startsWith("?")) {
         // Indicate the reason the target halted.
         // The reply is the same as for step and continue.
+        writeToGdb("S0b");
+        //$?#3f
+        //$qAttached#8f
+        //$qOffsets#4b
+        //$qOffsets#4b
 
-        //$?#3f 
-        //$Hc-1#09 
-        //$qC#b4 
-        //$qAttached#8f 
-        //$qOffsets#4b 
-        //$qOffsets#4b 
-
-    else {
-        logMessage("FIXME unknown" + response); 
+    } else {
+        logMessage("FIXME unknown: " + response);
     }
 }
 

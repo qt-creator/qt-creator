@@ -35,12 +35,18 @@
 
 #include <QtGui/QDialog>
 
+QT_BEGIN_NAMESPACE
+class QModelIndex;
+QT_END_NAMESPACE
+
 namespace TextEditor {
 namespace Internal {
 
 namespace Ui {
 class EditColorSchemeDialog;
 }
+
+class FormatsModel;
 
 class EditColorSchemeDialog : public QDialog
 {
@@ -58,7 +64,7 @@ public:
     void accept();
 
 private slots:
-    void itemChanged();
+    void itemChanged(const QModelIndex &index);
     void changeForeColor();
     void changeBackColor();
     void eraseBackColor();
@@ -73,6 +79,7 @@ private:
     int m_curItem;
 
     Ui::EditColorSchemeDialog *m_ui;
+    FormatsModel *m_formatsModel;
 };
 
 

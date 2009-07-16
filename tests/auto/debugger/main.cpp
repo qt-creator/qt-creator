@@ -3,8 +3,12 @@
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QFileInfo>
+#if QT_VERSION >= 0x040500
+#include <QtCore/QSharedPointer>
+#endif
 #include <QtCore/QStringList>
 #include <QtCore/QTextCodec>
+#include <QtGui/QImage>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QStringListModel>
 #include <QtTest/QtTest>
@@ -136,12 +140,17 @@ private slots:
     void dumpQFile();
     void dumpQFileInfo();
     void dumpQHash();
+    void dumpQImage();
+    void dumpQImageData();
     void dumpQList_int();
     void dumpQList_char();
     void dumpQList_QString();
     void dumpQList_QString3();
     void dumpQList_Int3();
     void dumpQObject();
+#if QT_VERSION >= 0x040500
+    void dumpQSharedPointer();
+#endif
     void dumpQString();
     void dumpQTextCodec();
     void dumpQVariant_invalid();
@@ -165,6 +174,12 @@ private:
     void dumpQDateTimeHelper(QDateTime &d);
     void dumpQDirHelper(QDir &d);
     void dumpQFileHelper(const QString &name, bool exists);
+    void dumpQImageHelper(QImage &img);
+    void dumpQImageDataHelper(QImage &img);
+#if QT_VERSION >= 0x040500
+    template <typename T>
+    void dumpQSharedPointerHelper(QSharedPointer<T> &ptr, bool isSimple);
+#endif
     void dumpQTextCodecHelper(QTextCodec *codec);
 };
 
@@ -415,6 +430,10 @@ static const void *deref(const void *p)
 
 void tst_Debugger::dumperCompatibility()
 {
+    // Ensure that no arbitrary padding is introduced by QVectorTypedData.
+    const size_t qVectorDataSize = 16;
+    QCOMPARE(sizeof(QVectorData), qVectorDataSize);
+    QCOMPARE( ((size_t)&(((QVectorTypedData<int> *)(0))->array)), qVectorDataSize);
 }
 
 static const QByteArray utfToBase64(const QString &string)
@@ -753,6 +772,56 @@ void tst_Debugger::dumpQHash()
     hash.insert("!", QList<int>() << 1 << 2);
 }
 
+void tst_Debugger::dumpQImageHelper(QImage &img)
+{
+    QByteArray expected = QByteArray("value='(").
+        append(QString::number(img.width())).append("x").
+        append(QString::number(img.height())).append(")',type='"NS"QImage',").
+        append("numchild='1',children=[{name='data',type='"NS"QImageData',").
+        append("addr='").append(ptrToBa(&img)).append("'}]");
+    testDumper(expected, &img, NS"QImage", true);
+}
+
+void tst_Debugger::dumpQImage()
+{
+    // Case 1: Null image.
+    QImage img;
+    dumpQImageHelper(img);
+
+    // Case 2: Normal image.
+    img = QImage(3, 700, QImage::Format_RGB555);
+    dumpQImageHelper(img);
+
+    // Case 3: Invalid image.
+    img = QImage(100, 0, QImage::Format_Invalid);
+    dumpQImageHelper(img);
+}
+
+void tst_Debugger::dumpQImageDataHelper(QImage &img)
+{
+    const QByteArray ba(QByteArray::fromRawData((const char*) img.bits(), img.numBytes()));
+    QByteArray expected = QByteArray("tiname='$I',addr='$A',type='"NS"QImageData',").
+        append("numchild='0',value='<hover here>',valuetooltipencoded='1',").
+        append("valuetooltipsize='").append(QString::number(ba.size())).append("',").
+        append("valuetooltip='").append(ba.toBase64()).append("'");
+    testDumper(expected, &img, NS"QImageData", false);
+}
+
+void tst_Debugger::dumpQImageData()
+{
+    // Case 1: Null image.
+    QImage img;
+    dumpQImageDataHelper(img);
+
+    // Case 2: Normal image.
+    img = QImage(3, 700, QImage::Format_RGB555);
+    dumpQImageDataHelper(img);
+
+    // Case 3: Invalid image.
+    img = QImage(100, 0, QImage::Format_Invalid);
+    dumpQImageDataHelper(img);
+}
+
 void tst_Debugger::dumpQList_int()
 {
     QList<int> ilist;
@@ -886,6 +955,48 @@ void tst_Debugger::dumpQObject()
         "type='$T',displayedtype='QObject',numchild='4'",
         &child, NS"QObject", false);
 }
+
+#if QT_VERSION >= 0x040500
+template<typename T>
+void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr, bool isSimple)
+{
+    // TODO: This works only for integer types at the moment.
+    QByteArray expected("value = '");
+    QString val;
+    if (isSimple) {
+        val = QString::number(*ptr.data());
+        expected.append(val);
+    }
+    QAtomicInt *weakAddr;
+    QAtomicInt *strongAddr;
+    int weakValue;
+    int strongValue;
+    if (!ptr.isNull()) {
+        weakAddr = &ptr.d->weakref;
+        strongAddr = &ptr.d->strongref;
+        weakValue = *weakAddr;
+        strongValue = *strongAddr;
+    } else {
+        weakAddr = strongAddr = 0;
+        weakValue = strongValue = 0;
+    }
+    expected.append("',valuedisabled='true',numchild='1',children=[").
+        append("{name='data',addr='").append(ptrToBa(ptr.data())).
+        append("',type='int',value='").append(val).append("'},").
+        append("{name='weakref',value='").append(QString::number(weakValue)).
+        append("',type='int',addr='").append(ptrToBa(weakAddr)).append("',numchild='0'},").
+        append("{name='data',value='").append(val).append("'},").
+        append("{name='strongref',value='").append(QString::number(strongValue)).
+        append("',type='int',addr='").append(ptrToBa(strongAddr)).append("',numchild='0'}]");
+    testDumper(expected, &ptr, NS"QSharedPointer", true);
+}
+
+void tst_Debugger::dumpQSharedPointer()
+{
+    QSharedPointer<int> ptr(new int(99));
+    // dumpQSharedPointerHelper(ptr, 1, 0, true);
+}
+#endif
 
 void tst_Debugger::dumpQString()
 {

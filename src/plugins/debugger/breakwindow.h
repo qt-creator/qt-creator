@@ -64,6 +64,7 @@ protected:
 
 private:
     void deleteBreakpoints(const QModelIndexList &list);
+    void deleteBreakpoints(QList<int> rows);
     void editConditions(const QModelIndexList &list);
     void setBreakpointsEnabled(const QModelIndexList &list, bool enabled);
     void setBreakpointsFullPath(const QModelIndexList &list, bool fullpath);

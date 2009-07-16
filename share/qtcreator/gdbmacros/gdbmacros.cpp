@@ -1561,6 +1561,7 @@ static void qDumpQImage(QDumper &d)
             d.putItem("type", NS "QImageData");
             d.putItem("addr", d.data);
         d.endHash();
+        d.endChildren();
     }
     d.disarm();
 }
