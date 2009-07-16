@@ -85,8 +85,6 @@ public:
             QColor background = m_scheme.formatFor(description.name()).background();
             if (background.isValid())
                 return background;
-            else
-                return m_scheme.formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).background();
         }
         case Qt::FontRole: {
             QFont font = m_baseFont;
@@ -141,6 +139,8 @@ EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
 
     if (!m_descriptions.empty())
         m_ui->itemList->setCurrentIndex(m_formatsModel->index(0));
+
+    setItemListBackground(m_scheme.formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).background());
 }
 
 EditColorSchemeDialog::~EditColorSchemeDialog()
@@ -173,7 +173,6 @@ void EditColorSchemeDialog::itemChanged(const QModelIndex &index)
     const bool italicBlocked = m_ui->italicCheckBox->blockSignals(true);
     m_ui->italicCheckBox->setChecked(format.italic());
     m_ui->italicCheckBox->blockSignals(italicBlocked);
-    updatePreview();
 }
 
 void EditColorSchemeDialog::changeForeColor()
@@ -193,8 +192,6 @@ void EditColorSchemeDialog::changeForeColor()
         m_scheme.formatFor(category).setForeground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
-
-    updatePreview();
 }
 
 void EditColorSchemeDialog::changeBackColor()
@@ -212,9 +209,10 @@ void EditColorSchemeDialog::changeBackColor()
         const QString category = m_descriptions[index.row()].name();
         m_scheme.formatFor(category).setBackground(newColor);
         m_formatsModel->emitDataChanged(index);
+        // Synchronize item list background with text background
+        if (index.row() == 0)
+            setItemListBackground(newColor);
     }
-
-    updatePreview();
 }
 
 void EditColorSchemeDialog::eraseBackColor()
@@ -230,8 +228,6 @@ void EditColorSchemeDialog::eraseBackColor()
         m_scheme.formatFor(category).setBackground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
-
-    updatePreview();
 }
 
 void EditColorSchemeDialog::checkCheckBoxes()
@@ -245,40 +241,11 @@ void EditColorSchemeDialog::checkCheckBoxes()
         m_scheme.formatFor(category).setItalic(m_ui->italicCheckBox->isChecked());
         m_formatsModel->emitDataChanged(index);
     }
-
-    updatePreview();
 }
 
-void EditColorSchemeDialog::updatePreview()
+void EditColorSchemeDialog::setItemListBackground(const QColor &color)
 {
-    if (m_curItem == -1)
-        return;
-
-    const Format &currentFormat = m_scheme.formatFor(m_descriptions[m_curItem].name());
-    const Format &baseFormat = m_scheme.formatFor(QLatin1String("Text"));
-
-    QPalette pal = QApplication::palette();
-    if (baseFormat.foreground().isValid()) {
-        pal.setColor(QPalette::Text, baseFormat.foreground());
-        pal.setColor(QPalette::Foreground, baseFormat.foreground());
-    }
-    if (baseFormat.background().isValid())
-        pal.setColor(QPalette::Base, baseFormat.background());
-
-    m_ui->previewTextEdit->setPalette(pal);
-
-    QTextCharFormat format;
-    if (currentFormat.foreground().isValid())
-        format.setForeground(QBrush(currentFormat.foreground()));
-    if (currentFormat.background().isValid())
-        format.setBackground(QBrush(currentFormat.background()));
-    format.setFontFamily(m_fontSettings.family());
-    format.setFontStyleStrategy(m_fontSettings.antialias() ? QFont::PreferAntialias : QFont::NoAntialias);
-    format.setFontPointSize(m_fontSettings.fontSize());
-    format.setFontItalic(currentFormat.italic());
-    if (currentFormat.bold())
-        format.setFontWeight(QFont::Bold);
-    m_ui->previewTextEdit->setCurrentCharFormat(format);
-
-    m_ui->previewTextEdit->setPlainText(tr("\n\tThis is only an example."));
+    QPalette pal = m_ui->itemList->palette();
+    pal.setColor(QPalette::Base, color);
+    m_ui->itemList->setPalette(pal);
 }

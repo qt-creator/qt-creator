@@ -69,9 +69,10 @@ private slots:
     void changeBackColor();
     void eraseBackColor();
     void checkCheckBoxes();
-    void updatePreview();
 
 private:
+    void setItemListBackground(const QColor &color);
+
     const TextEditor::FormatDescriptions m_descriptions;
     const FontSettings m_fontSettings;
 
