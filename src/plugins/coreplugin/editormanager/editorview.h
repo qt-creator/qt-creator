@@ -46,7 +46,6 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
-class QToolBar;
 class QToolButton;
 class QLabel;
 class QStackedWidget;

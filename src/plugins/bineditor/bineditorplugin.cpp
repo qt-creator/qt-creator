@@ -37,6 +37,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QToolBar>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>

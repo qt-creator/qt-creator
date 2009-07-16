@@ -36,7 +36,6 @@
 #include <QtGui/QWidget>
 #include <QtGui/QComboBox>
 #include <QtGui/QSplitter>
-#include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE

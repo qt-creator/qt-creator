@@ -52,7 +52,6 @@
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QPushButton>
-#include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 #include <QtGui/QStackedWidget>
 

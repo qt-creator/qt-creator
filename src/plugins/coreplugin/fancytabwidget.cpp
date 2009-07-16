@@ -29,6 +29,7 @@
 
 #include "fancytabwidget.h"
 #include <utils/stylehelper.h>
+#include <utils/styledbar.h>
 
 #include <QDebug>
 
@@ -41,7 +42,6 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QStackedLayout>
 #include <QtGui/QStatusBar>
-#include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 #include <QtGui/QToolTip>
 
@@ -298,9 +298,11 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     selectionLayout->setSpacing(0);
     selectionLayout->setMargin(0);
 
-    QToolBar *bar = new QToolBar;
-    bar->addWidget(new FancyColorButton(this));
-    bar->setFixedHeight(StyleHelper::navigationWidgetHeight());
+    Core::Utils::StyledBar *bar = new Core::Utils::StyledBar;
+    QHBoxLayout *layout = new QHBoxLayout(bar);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(new FancyColorButton(this));
     selectionLayout->addWidget(bar);
 
     selectionLayout->addWidget(m_tabBar, 1);
@@ -329,12 +331,12 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     vlayout->addLayout(m_modesStack);
     vlayout->addWidget(m_statusBar);
 
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->setMargin(0);
-    layout->setSpacing(1);
-    layout->addWidget(m_selectionWidget);
-    layout->addLayout(vlayout);
-    setLayout(layout);
+    QHBoxLayout *mainLayout = new QHBoxLayout;
+    mainLayout->setMargin(0);
+    mainLayout->setSpacing(1);
+    mainLayout->addWidget(m_selectionWidget);
+    mainLayout->addLayout(vlayout);
+    setLayout(mainLayout);
 
     connect(m_tabBar, SIGNAL(currentChanged(int)), this, SLOT(showWidget(int)));
 }

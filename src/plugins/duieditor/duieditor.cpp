@@ -56,6 +56,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMainWindow>
+#include <QtGui/QToolBar>
 
 enum {
 	UPDATE_DOCUMENT_DEFAULT_INTERVAL = 250

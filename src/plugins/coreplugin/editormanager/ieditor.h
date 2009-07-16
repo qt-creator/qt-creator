@@ -34,10 +34,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/ifile.h>
 
-QT_BEGIN_NAMESPACE
-class QToolBar;
-QT_END_NAMESPACE
-
 namespace Core {
 
 class CORE_EXPORT IEditor : public IContext

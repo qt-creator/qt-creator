@@ -40,6 +40,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/styledbar.h>
 
 #include <QtCore/QDebug>
 #include <QtGui/QApplication>
@@ -47,7 +48,6 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QScrollArea>
 #include <QtGui/QTabWidget>
-#include <QtGui/QToolBar>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QHeaderView>
 
@@ -106,7 +106,7 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     QVBoxLayout *dummyLayout = new QVBoxLayout(dummy);
     dummyLayout->setMargin(0);
     dummyLayout->setSpacing(0);
-    dummyLayout->addWidget(new QToolBar(dummy));
+    dummyLayout->addWidget(new Core::Utils::StyledBar(dummy));
     dummyLayout->addWidget(m_treeWidget);
 
     QSplitter *splitter = new Core::MiniSplitter;

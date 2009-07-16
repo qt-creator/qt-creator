@@ -41,6 +41,7 @@ QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 class QDesignerFormWindowManagerInterface;
 class QFile;
+class QToolBar;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {

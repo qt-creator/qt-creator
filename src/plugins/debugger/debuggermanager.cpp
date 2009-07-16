@@ -80,7 +80,6 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
-#include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 #include <QtGui/QToolTip>
 

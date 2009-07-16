@@ -43,7 +43,6 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QAbstractItemModel;
 class QSplitter;
-class QToolBar;
 class QScriptEngine;
 class QScriptValue;
 QT_END_NAMESPACE

@@ -37,7 +37,6 @@
 
 #include <QtCore/QDebug>
 #include <QtGui/QAction>
-#include <QtGui/QToolBar>
 #include <QtGui/QMenuBar>
 
 Q_DECLARE_METATYPE(Core::Internal::MenuActionContainer*)

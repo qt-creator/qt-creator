@@ -36,7 +36,8 @@
 #include "newdialog.h"
 #include "rssfetcher.h"
 
-#include <QtGui/QToolBar>
+#include <utils/styledbar.h>
+
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QScrollArea>
@@ -121,7 +122,7 @@ WelcomeMode::WelcomeMode() :
     QVBoxLayout *l = new QVBoxLayout(m_d->m_widget);
     l->setMargin(0);
     l->setSpacing(0);
-    l->addWidget(new QToolBar(m_d->m_widget));
+    l->addWidget(new Core::Utils::StyledBar(m_d->m_widget));
     m_d->rssFetcher = new RSSFetcher(7, this);
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);

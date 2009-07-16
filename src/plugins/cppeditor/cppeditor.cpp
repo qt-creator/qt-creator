@@ -80,6 +80,7 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QTextEdit>
 #include <QtGui/QComboBox>
+#include <QtGui/QToolBar>
 #include <QtGui/QTreeView>
 #include <QtGui/QSortFilterProxyModel>
 

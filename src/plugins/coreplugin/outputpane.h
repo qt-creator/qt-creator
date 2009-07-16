@@ -39,7 +39,6 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
 class QToolButton;
-class QToolBar;
 class QStackedWidget;
 class QPushButton;
 QT_END_NAMESPACE
