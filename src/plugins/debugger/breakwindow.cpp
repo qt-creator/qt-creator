@@ -125,6 +125,7 @@ void BreakWindow::resizeEvent(QResizeEvent *ev)
 void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
+    const QAbstractItemModel *itemModel = model();
     QItemSelectionModel *sm = selectionModel();
     QTC_ASSERT(sm, return);
     QModelIndexList si = sm->selectedIndexes();
@@ -133,72 +134,105 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         si.append(indexUnderMouse.sibling(indexUnderMouse.row(), 0));
     si = normalizeIndexes(si);
 
-    QAction *act0 = new QAction(tr("Delete breakpoint", 0, si.size()), &menu);
-    act0->setEnabled(si.size() > 0);
+    const int rowCount = itemModel->rowCount();
 
-    QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
+    QAction *deleteAction = new QAction(tr("Delete breakpoint", 0, si.size()), &menu);
+    deleteAction->setEnabled(si.size() > 0);
 
-    QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
-    act2->setCheckable(true);
-    act2->setChecked(m_alwaysResizeColumnsToContents);
+    QAction *deleteAllAction = new QAction(tr("Delete all breakpoints", 0, si.size()), &menu);
+    deleteAllAction->setEnabled(si.size() > 0);
 
-    QAction *act3 = new QAction(tr("Edit condition...", 0, si.size()), &menu);
-    act3->setEnabled(si.size() > 0);
+    // Delete by file: Find indexes of breakpoints of the same file
+    QAction *deleteByFileAction = 0;
+    QList<int> breakPointsOfFile;
+    if (indexUnderMouse.isValid()) {
+        const QString file = itemModel->data(indexUnderMouse.sibling(indexUnderMouse.row(), 2)).toString();
+        if (!file.isEmpty()) {
+            for (int i = 0; i < rowCount; i++)
+                if (itemModel->data(itemModel->index(i, 2)).toString() == file)
+                    breakPointsOfFile.push_back(i);
+            if (breakPointsOfFile.size() > 1) {
+                deleteByFileAction = new QAction(tr("Delete breakpoints of \"%1\"").arg(file), &menu);
+                deleteByFileAction->setEnabled(true);
+            }
+        }
+    }
+    if (!deleteByFileAction) {
+        deleteByFileAction = new QAction(tr("Delete breakpoints of file"), &menu);
+        deleteByFileAction->setEnabled(false);
+    }
 
-    QAction *act4 = new QAction(tr("Synchronize breakpoints"), &menu);
+    QAction *adjustColumnAction = new QAction(tr("Adjust column widths to contents"), &menu);
+
+    QAction *alwaysAdjustAction = new QAction(tr("Always adjust column widths to contents"), &menu);
+    alwaysAdjustAction->setCheckable(true);
+    alwaysAdjustAction->setChecked(m_alwaysResizeColumnsToContents);
+
+    QAction *editConditionAction = new QAction(tr("Edit condition...", 0, si.size()), &menu);
+    editConditionAction->setEnabled(si.size() > 0);
+
+    QAction *synchronizeAction = new QAction(tr("Synchronize breakpoints"), &menu);
 
     QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
     QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
-    bool enabled = si.isEmpty() || model()->data(idx0, Qt::UserRole).toBool();
-    QString str5 = enabled ? tr("Disable breakpoint") : tr("Enable breakpoint");
-    QAction *act5 = new QAction(str5, &menu);
-    act5->setEnabled(si.size() > 0);
+    bool enabled = si.isEmpty() || itemModel->data(idx0, Qt::UserRole).toBool();
+    const QString str5 = enabled ? tr("Disable breakpoint") : tr("Enable breakpoint");
+    QAction *toggleEnabledAction = new QAction(str5, &menu);
+    toggleEnabledAction->setEnabled(si.size() > 0);
 
-    bool fullpath = si.isEmpty() || model()->data(idx2, Qt::UserRole).toBool();
-    QString str6 = fullpath ? tr("Use short path") : tr("Use full path");
-    QAction *act6 = new QAction(str6, &menu);
-    act6->setEnabled(si.size() > 0);
+    const bool fullpath = si.isEmpty() || itemModel->data(idx2, Qt::UserRole).toBool();
+    const QString str6 = fullpath ? tr("Use short path") : tr("Use full path");
+    QAction *pathAction = new QAction(str6, &menu);
+    pathAction->setEnabled(si.size() > 0);
 
-    QAction *act7 = new QAction(this);
-    act7->setText(tr("Set Breakpoint at Function..."));
-    QAction *act8 = new QAction(this);
-    act8->setText(tr("Set Breakpoint at Function \"main\""));
+    QAction *breakAtFunctionAction = new QAction(tr("Set Breakpoint at Function..."), this);
+    QAction *breakAtMainAction = new QAction(tr("Set Breakpoint at Function \"main\""), this);
 
-    menu.addAction(act0);
-    menu.addAction(act3);
-    menu.addAction(act5);
-    menu.addAction(act6);
+    menu.addAction(deleteAction);
+    menu.addAction(editConditionAction);
+    menu.addAction(toggleEnabledAction);
+    menu.addAction(pathAction);
     menu.addSeparator();
-    menu.addAction(act1);
-    menu.addAction(act2);
-    menu.addAction(act4);
+    menu.addAction(deleteAllAction);
+    menu.addAction(deleteByFileAction);
     menu.addSeparator();
-    menu.addAction(act7);
-    menu.addAction(act8);
+    menu.addAction(adjustColumnAction);
+    menu.addAction(alwaysAdjustAction);
+    menu.addAction(synchronizeAction);
+    menu.addSeparator();
+    menu.addAction(breakAtFunctionAction);
+    menu.addAction(breakAtMainAction);
     menu.addSeparator();
     menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == act0)
+    if (act == deleteAction) {
         deleteBreakpoints(si);
-    else if (act == act1)
+    } else if (act == deleteAllAction) {
+        QList<int> allRows;
+        for (int i = 0; i < rowCount; i++)
+            allRows.push_back(i);
+        deleteBreakpoints(allRows);
+    }  else if (act == deleteByFileAction)
+        deleteBreakpoints(breakPointsOfFile);
+    else if (act == adjustColumnAction)
         resizeColumnsToContents();
-    else if (act == act2)
+    else if (act == alwaysAdjustAction)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    else if (act == act3)
+    else if (act == editConditionAction)
         editConditions(si);
-    else if (act == act4)
+    else if (act == synchronizeAction)
         emit breakpointSynchronizationRequested();
-    else if (act == act5)
+    else if (act == toggleEnabledAction)
         setBreakpointsEnabled(si, !enabled);
-    else if (act == act6)
+    else if (act == pathAction)
         setBreakpointsFullPath(si, !enabled);
-    else if (act == act7) {
+    else if (act == breakAtFunctionAction) {
         BreakByFunctionDialog dlg(this);
         if (dlg.exec())
             emit breakByFunctionRequested(dlg.functionName());
-    } else if (act == act8)
+    } else if (act == breakAtMainAction)
         emit breakByFunctionMainRequested();
 }
 
@@ -224,14 +258,21 @@ void BreakWindow::deleteBreakpoints(const QModelIndexList &indexes)
     QList<int> list;
     foreach (const QModelIndex &idx, indexes)
         list.append(idx.row());
+    deleteBreakpoints(list);
+}
 
+void BreakWindow::deleteBreakpoints(QList<int> list)
+{
+    if (list.empty())
+        return;
+    const int firstRow = list.front();
     qSort(list.begin(), list.end());
     for (int i = list.size(); --i >= 0; )
         emit breakpointDeleted(i);
 
-    QModelIndex idx = indexes.front();
-    int row = qMax(idx.row(), model()->rowCount() - list.size() - 1);
-    setCurrentIndex(idx.sibling(row, 0));
+    const int row = qMax(firstRow, model()->rowCount() - list.size() - 1);
+    if (row >= 0)
+        setCurrentIndex(model()->index(row, 0));
 }
 
 void BreakWindow::editConditions(const QModelIndexList &list)
