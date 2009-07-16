@@ -2491,6 +2491,7 @@ public:
     unsigned colon_token;
     unsigned superclass_identifier_token;
     ObjCProtocolRefsAST *protocol_refs;
+    ObjCInstanceVariablesDeclarationAST *inst_vars_decl;
     unsigned end_token;
 
 public:
@@ -2709,6 +2710,63 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ObjCEncodeExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCInstanceVariableListAST: public AST
+{
+public:
+    DeclarationAST *declaration;
+    ObjCInstanceVariableListAST *next;
+
+public:
+    virtual ObjCInstanceVariableListAST *asObjCInstanceVariableList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCInstanceVariableListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCInstanceVariablesDeclarationAST: public AST
+{
+public:
+    unsigned lbrace_token;
+    ObjCInstanceVariableListAST *instance_variables;
+    unsigned rbrace_token;
+
+public:
+    virtual ObjCInstanceVariablesDeclarationAST *asObjCInstanceVariablesDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCInstanceVariablesDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCVisibilityDeclarationAST: public DeclarationAST
+{
+public:
+    unsigned visibility_token;
+
+public:
+    virtual ObjCVisibilityDeclarationAST *asObjCVisibilityDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCVisibilityDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

@@ -1235,6 +1235,7 @@ ObjCClassInterfaceDeclarationAST *ObjCClassInterfaceDeclarationAST::clone(Memory
     ast->colon_token = colon_token;
     ast->superclass_identifier_token = superclass_identifier_token;
     if (protocol_refs) ast->protocol_refs = protocol_refs->clone(pool);
+    if (inst_vars_decl) ast->inst_vars_decl = inst_vars_decl->clone(pool);
     ast->end_token = end_token;
     return ast;
 }
@@ -1336,6 +1337,30 @@ ObjCEncodeExpressionAST *ObjCEncodeExpressionAST::clone(MemoryPool *pool) const
     ObjCEncodeExpressionAST *ast = new (pool) ObjCEncodeExpressionAST;
     ast->encode_token = encode_token;
     if (type_name) ast->type_name = type_name->clone(pool);
+    return ast;
+}
+
+ObjCInstanceVariableListAST *ObjCInstanceVariableListAST::clone(MemoryPool *pool) const
+{
+    ObjCInstanceVariableListAST *ast = new (pool) ObjCInstanceVariableListAST;
+    if (declaration) ast->declaration = declaration->clone(pool);
+    if (next) ast->next = next->clone(pool);
+    return ast;
+}
+
+ObjCInstanceVariablesDeclarationAST *ObjCInstanceVariablesDeclarationAST::clone(MemoryPool *pool) const
+{
+    ObjCInstanceVariablesDeclarationAST *ast = new (pool) ObjCInstanceVariablesDeclarationAST;
+    ast->lbrace_token = lbrace_token;
+    if (instance_variables) ast->instance_variables = instance_variables->clone(pool);
+    ast->rbrace_token = rbrace_token;
+    return ast;
+}
+
+ObjCVisibilityDeclarationAST *ObjCVisibilityDeclarationAST::clone(MemoryPool *pool) const
+{
+    ObjCVisibilityDeclarationAST *ast = new (pool) ObjCVisibilityDeclarationAST;
+    ast->visibility_token = visibility_token;
     return ast;
 }
 

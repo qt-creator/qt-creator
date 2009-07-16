@@ -3981,7 +3981,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         }
 
         parseObjCProtocolRefs(ast->protocol_refs);
-        parseObjClassInstanceVariables();
+        parseObjClassInstanceVariables(ast->inst_vars_decl);
         while (parseObjCInterfaceMemberDeclaration()) {
         }
         match(T_AT_END, &(ast->end_token));
@@ -4081,7 +4081,8 @@ bool Parser::parseObjCImplementation(DeclarationAST *&)
         match(T_IDENTIFIER, &super_class_name_token);
     }
 
-    parseObjClassInstanceVariables();
+    ObjCInstanceVariablesDeclarationAST *inst_vars_decl;
+    parseObjClassInstanceVariables(inst_vars_decl);
     parseObjCMethodDefinitionList();
     return true;
 }
@@ -4221,22 +4222,22 @@ bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
 //                                   objc-instance-variable-decl-list-opt
 //                                   T_RBRACE
 //
-bool Parser::parseObjClassInstanceVariables()
+bool Parser::parseObjClassInstanceVariables(ObjCInstanceVariablesDeclarationAST *&node)
 {
     if (LA() != T_LBRACE)
         return false;
 
-    unsigned lbrace_token =  0, rbrace_token = 0;
+    ObjCInstanceVariablesDeclarationAST *ast = new (_pool) ObjCInstanceVariablesDeclarationAST;
+    match(T_LBRACE, &(ast->lbrace_token));
 
-    match(T_LBRACE, &lbrace_token);
-    while (LA()) {
+    for (ObjCInstanceVariableListAST **next = &(ast->instance_variables); LA(); next = &((*next)->next)) {
         if (LA() == T_RBRACE)
             break;
 
         const unsigned start = cursor();
 
-        DeclarationAST *declaration = 0;
-        parseObjCInstanceVariableDeclaration(declaration);
+        *next = new (_pool) ObjCInstanceVariableListAST;
+        parseObjCInstanceVariableDeclaration((*next)->declaration);
 
         if (start == cursor()) {
             // skip stray token.
@@ -4245,7 +4246,9 @@ bool Parser::parseObjClassInstanceVariables()
         }
     }
 
-    match(T_RBRACE, &rbrace_token);
+    match(T_RBRACE, &(ast->rbrace_token));
+
+    node = ast;
     return true;
 }
 
@@ -4300,15 +4303,18 @@ bool Parser::parseObjCInterfaceMemberDeclaration()
 bool Parser::parseObjCInstanceVariableDeclaration(DeclarationAST *&node)
 {
     switch (LA()) {
-    case T_AT_PRIVATE:
-    case T_AT_PROTECTED:
-    case T_AT_PUBLIC:
-    case T_AT_PACKAGE:
-        consumeToken();
-        return true;
+        case T_AT_PRIVATE:
+        case T_AT_PROTECTED:
+        case T_AT_PUBLIC:
+        case T_AT_PACKAGE: {
+            ObjCVisibilityDeclarationAST *ast = new (_pool) ObjCVisibilityDeclarationAST;
+            ast->visibility_token = consumeToken();
+            node = ast;
+            return true;
+        }
 
-    default:
-        return parseSimpleDeclaration(node, true);
+        default:
+            return parseSimpleDeclaration(node, true);
     }
 }
 

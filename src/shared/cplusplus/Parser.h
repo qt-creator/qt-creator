@@ -232,7 +232,7 @@ public:
     bool parseObjCMethodDefinition();
 
     bool parseObjCProtocolRefs(ObjCProtocolRefsAST *&node);
-    bool parseObjClassInstanceVariables();
+    bool parseObjClassInstanceVariables(ObjCInstanceVariablesDeclarationAST *&node);
     bool parseObjCInterfaceMemberDeclaration();
     bool parseObjCInstanceVariableDeclaration(DeclarationAST *&node);
     bool parseObjCPropertyDeclaration(DeclarationAST *&node,

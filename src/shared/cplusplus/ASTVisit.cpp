@@ -1146,6 +1146,8 @@ void ObjCClassInterfaceDeclarationAST::accept0(ASTVisitor *visitor)
         for (SpecifierAST *it = attributes; it; it = it->next)
             accept(it, visitor);
         accept(protocol_refs, visitor);
+        if (inst_vars_decl)
+            accept(inst_vars_decl, visitor);
         // visit DeclarationAST
     }
     visitor->endVisit(this);
@@ -1261,6 +1263,39 @@ void ObjCEncodeExpressionAST::accept0(ASTVisitor *visitor)
         if (type_name)
             accept(type_name, visitor);
         // visit ExpressionAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCInstanceVariableListAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCInstanceVariableListAST
+        if (declaration)
+            accept(declaration, visitor);
+        if (next)
+            accept(next, visitor);
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCInstanceVariablesDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCInstanceVariablesDeclarationAST
+        if (instance_variables)
+            accept(instance_variables, visitor);
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCVisibilityDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCVisibilityDeclarationAST
+        // visit DeclarationAST
     }
     visitor->endVisit(this);
 }
