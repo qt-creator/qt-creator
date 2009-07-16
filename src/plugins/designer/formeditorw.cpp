@@ -468,7 +468,6 @@ void FormEditorW::setupActions()
 QToolBar *FormEditorW::createEditorToolBar() const
 {
     QToolBar *toolBar = new QToolBar;
-    toolBar->addSeparator();
     Core::ActionManager *am = m_core->actionManager();
     const QStringList::const_iterator cend = m_toolActionIds.constEnd();
     for (QStringList::const_iterator it = m_toolActionIds.constBegin(); it != cend; ++it) {
