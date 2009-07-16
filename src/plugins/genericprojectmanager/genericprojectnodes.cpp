@@ -95,7 +95,7 @@ void GenericProjectNode::refresh()
         QFileInfo fileInfo(absoluteFileName);
         const QString absoluteFilePath = fileInfo.path();
 
-        QString baseDir(QFileInfo(path()).absolutePath());
+        QString baseDir = QFileInfo(path()).absolutePath();
         if (! absoluteFilePath.startsWith(baseDir))
             continue; // `file' is not part of the project.
 

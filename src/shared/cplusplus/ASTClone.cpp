@@ -1311,4 +1311,32 @@ ObjCMessageArgumentAST *ObjCMessageArgumentAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+ObjCProtocolExpressionAST *ObjCProtocolExpressionAST::clone(MemoryPool *pool) const
+{
+    ObjCProtocolExpressionAST *ast = new (pool) ObjCProtocolExpressionAST;
+    ast->protocol_token = protocol_token;
+    ast->lparen_token = lparen_token;
+    ast->identifier_token = identifier_token;
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
+ObjCTypeNameAST *ObjCTypeNameAST::clone(MemoryPool *pool) const
+{
+    ObjCTypeNameAST *ast = new (pool) ObjCTypeNameAST;
+    ast->lparen_token = lparen_token;
+    ast->type_qualifier = type_qualifier;
+    if (type_id) ast->type_id = type_id->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
+ObjCEncodeExpressionAST *ObjCEncodeExpressionAST::clone(MemoryPool *pool) const
+{
+    ObjCEncodeExpressionAST *ast = new (pool) ObjCEncodeExpressionAST;
+    ast->encode_token = encode_token;
+    if (type_name) ast->type_name = type_name->clone(pool);
+    return ast;
+}
+
 CPLUSPLUS_END_NAMESPACE

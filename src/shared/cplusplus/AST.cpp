@@ -2104,4 +2104,55 @@ unsigned ObjCMessageArgumentAST::lastToken() const
     return parameter_key_identifier + 1;
 }
 
+unsigned ObjCProtocolExpressionAST::firstToken() const
+{
+    return protocol_token;
+}
+
+unsigned ObjCProtocolExpressionAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+
+    if (identifier_token)
+        return identifier_token + 1;
+
+    if (lparen_token)
+        return lparen_token + 1;
+
+    return protocol_token + 1;
+}
+
+unsigned ObjCTypeNameAST::firstToken() const
+{
+    return lparen_token;
+}
+
+unsigned ObjCTypeNameAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+
+    if (type_id)
+        return type_id->lastToken();
+
+    if (type_qualifier)
+        return type_qualifier + 1;
+
+    return lparen_token + 1;
+}
+
+unsigned ObjCEncodeExpressionAST::firstToken() const
+{
+    return encode_token;
+}
+
+unsigned ObjCEncodeExpressionAST::lastToken() const
+{
+    if (type_name)
+        return type_name->lastToken();
+
+    return encode_token + 1;
+}
+
 CPLUSPLUS_END_NAMESPACE

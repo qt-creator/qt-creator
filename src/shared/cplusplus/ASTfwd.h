@@ -179,6 +179,9 @@ class ObjCProtocolRefsAST;
 class ObjCMessageExpressionAST;
 class ObjCMessageArgumentListAST;
 class ObjCMessageArgumentAST;
+class ObjCProtocolExpressionAST;
+class ObjCTypeNameAST;
+class ObjCEncodeExpressionAST;
 
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER

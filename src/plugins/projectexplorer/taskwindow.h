@@ -44,6 +44,7 @@ namespace ProjectExplorer {
 namespace Internal {
 
 class TaskModel;
+class TaskFilterModel;
 class TaskView;
 class TaskWindowContext;
 
@@ -85,6 +86,7 @@ signals:
 private slots:
     void showTaskInFile(const QModelIndex &index);
     void copy();
+    void setShowWarnings(bool);
 
 private:
     int sizeHintForColumn(int column) const;
@@ -93,9 +95,11 @@ private:
     int m_currentTask;
 
     TaskModel *m_model;
+    TaskFilterModel *m_filter;
     TaskView *m_listview;
     TaskWindowContext *m_taskWindowContext;
     QAction *m_copyAction;
+    QToolButton *m_filterWarningsButton;
 };
 
 class TaskView : public QListView
