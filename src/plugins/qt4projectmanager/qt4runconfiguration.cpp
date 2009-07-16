@@ -142,12 +142,12 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     boxlayout->addWidget(resetButton);
     toplayout->addRow(tr("Working Directory:"), boxlayout);
 
-    QLabel *argumentsLabel = new QLabel(tr("&Arguments:"));
+    QLabel *argumentsLabel = new QLabel(tr("Arguments:"));
     m_argumentsLineEdit = new QLineEdit(ProjectExplorer::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()));
     argumentsLabel->setBuddy(m_argumentsLineEdit);
     toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
-    m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"));
+    m_useTerminalCheck = new QCheckBox(tr("Run in Terminal"));
     m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::ApplicationRunConfiguration::Console);
     toplayout->addRow(QString(), m_useTerminalCheck);
 

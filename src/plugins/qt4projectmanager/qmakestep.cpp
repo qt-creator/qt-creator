@@ -256,16 +256,11 @@ QString QMakeStepConfigWidget::displayName() const
 void QMakeStepConfigWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
-    if (buildConfiguration.isEmpty()){
-        m_ui.stackedWidget->setCurrentWidget(m_ui.page_2);
-    } else {
-        m_ui.stackedWidget->setCurrentWidget(m_ui.page_1);
-        QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->value(buildConfiguration, "qmakeArgs").toStringList());
-        m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
-        m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(buildConfiguration)));
-        bool debug = QtVersion::QmakeBuildConfig(m_step->value(buildConfiguration, "buildConfiguration").toInt()) & QtVersion::DebugBuild;
-        m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
-    }
+    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->value(buildConfiguration, "qmakeArgs").toStringList());
+    m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
+    m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(buildConfiguration)));
+    bool debug = QtVersion::QmakeBuildConfig(m_step->value(buildConfiguration, "buildConfiguration").toInt()) & QtVersion::DebugBuild;
+    m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
 }
 
 ////

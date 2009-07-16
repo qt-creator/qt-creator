@@ -31,8 +31,11 @@
 #define PROJECTWINDOW_H
 
 #include <QtGui/QWidget>
+#include <QtGui/QScrollArea>
 
 QT_BEGIN_NAMESPACE
+class QLabel;
+class QVBoxLayout;
 class QModelIndex;
 class QTabWidget;
 class QTreeWidget;
@@ -47,6 +50,29 @@ class ProjectExplorerPlugin;
 class SessionManager;
 
 namespace Internal {
+
+class PanelsWidget : public QScrollArea
+{
+    Q_OBJECT
+public:
+    PanelsWidget(QWidget *parent);
+    ~PanelsWidget();
+    // Adds a widget
+    void addWidget(const QString &name, QWidget *widget);
+
+    // Removes all widgets and deletes them
+    void clear();
+private:
+
+    struct Panel
+    {
+        QLabel *nameLabel;
+        QWidget *panelWidget;
+    };
+    QWidget *m_widget;
+    QVBoxLayout *m_layout;
+    QList<Panel> m_panels;
+};
 
 class ProjectWindow : public QWidget
 {
@@ -74,9 +100,7 @@ private:
     ProjectExplorerPlugin *m_projectExplorer;
 
     QTreeWidget* m_treeWidget;
-    QTabWidget *m_panelsTabWidget;
-
-    QList<PropertiesPanel*> m_panels;
+    PanelsWidget *m_panelsWidget;
 
     Project *findProject(const QString &path) const;
     bool m_currentItemChanged;

@@ -31,13 +31,32 @@
 #define BUILDSETTINGSPROPERTIESPAGE_H
 
 #include "iprojectproperties.h"
-#include "ui_buildsettingspropertiespage.h"
+
+#include <QtCore/QHash>
+#include <QtGui/QComboBox>
+#include <QtGui/QPushButton>
+#include <QtGui/QLabel>
+#include <QtGui/QGroupBox>
 
 namespace ProjectExplorer {
 
 class IBuildStepFactory;
 
 namespace Internal {
+
+class BuildSettingsSubWidgets : public QGroupBox
+{
+    Q_OBJECT
+public:
+    BuildSettingsSubWidgets(QWidget *parent);
+    ~BuildSettingsSubWidgets();
+    void clear();
+    void addWidget(const QString &name, QWidget *widget);
+    QList<QWidget *> widgets() const;
+private:
+    QList<QWidget *> m_widgets;
+    QList<QLabel *> m_labels;
+};
 
 class BuildSettingsPanelFactory : public IPanelFactory
 {
@@ -73,24 +92,24 @@ public:
 private slots:
     void buildConfigurationDisplayNameChanged(const QString &buildConfiguration);
     void updateBuildSettings();
-    void updateSettingsWidget(QTreeWidgetItem *newItem, QTreeWidgetItem *oldItem);
-    void showContextMenu(const QPoint & pos);
+    void currentIndexChanged(int index);
+    void activeBuildConfigurationChanged();
 
-    void setActiveConfiguration();
     void createConfiguration();
     void cloneConfiguration();
     void deleteConfiguration();
 
-    void itemChanged(QTreeWidgetItem *item);
 
 private:
     void setActiveConfiguration(const QString &configuration);
     void cloneConfiguration(const QString &toClone);
     void deleteConfiguration(const QString &toDelete);
 
-    Ui::BuildSettingsPropertiesPage m_ui;
     Project *m_project;
-    QHash<QTreeWidgetItem*, QWidget*> m_itemToWidget;
+    QPushButton *m_addButton;
+    QPushButton *m_removeButton;
+    QComboBox *m_buildConfigurationComboBox;
+    BuildSettingsSubWidgets *m_subWidgets;
 };
 
 } // namespace Internal

@@ -148,7 +148,6 @@ public:
                        QWidget *parent = 0);
 
 private:
-    Ui::DependenciesWidget m_ui;
     SessionManager *m_session;
     DependenciesModel *m_model;
 };
@@ -160,9 +159,13 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
     , m_session(session)
     , m_model(new DependenciesModel(session, project, this))
 {
-    m_ui.setupUi(this);
-    m_ui.dependenciesView->setModel(m_model);
-    m_ui.dependenciesView->setHeaderHidden(true);
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    QTreeView *treeView = new QTreeView(this);
+    treeView->setModel(m_model);
+    treeView->setHeaderHidden(true);
+    treeView->setMinimumHeight(250);
+    layout->addWidget(treeView);
+    layout->addSpacerItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed));
 }
 
 //
