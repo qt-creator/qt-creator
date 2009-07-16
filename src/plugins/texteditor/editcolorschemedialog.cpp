@@ -30,6 +30,8 @@
 #include "editcolorschemedialog.h"
 #include "ui_editcolorschemedialog.h"
 
+#include "texteditorconstants.h"
+
 #include <QtCore/QAbstractListModel>
 #include <QtGui/QColorDialog>
 
@@ -46,30 +48,73 @@ static inline QString colorButtonStyleSheet(const QColor &bgColor)
     return QLatin1String("border: 2px dotted black; border-radius: 2px;");
 }
 
-namespace {
+namespace TextEditor {
+namespace Internal {
 
 class FormatsModel : public QAbstractListModel
 {
 public:
-    FormatsModel(const FormatDescriptions &fd): m_fd(fd)
-    { }
+    FormatsModel(const FormatDescriptions &fd,
+                 const FontSettings &fontSettings,
+                 const ColorScheme &scheme,
+                 QObject *parent = 0):
+        QAbstractListModel(parent),
+        m_fd(fd),
+        m_scheme(scheme),
+        m_baseFont(fontSettings.family(), fontSettings.fontSize())
+    {
+    }
 
     int rowCount(const QModelIndex &parent) const
     { return parent.isValid() ? 0 : m_fd.size(); }
 
     QVariant data(const QModelIndex &index, int role) const
     {
-        if (role == Qt::DisplayRole)
-            return m_fd.at(index.row()).trName();
-
+        const FormatDescription &description = m_fd.at(index.row());
+        switch (role) {
+        case Qt::DisplayRole:
+            return description.trName();
+        case Qt::ForegroundRole: {
+            QColor foreground = m_scheme.formatFor(description.name()).foreground();
+            if (foreground.isValid())
+                return foreground;
+            else
+                return m_scheme.formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).foreground();
+        }
+        case Qt::BackgroundRole: {
+            QColor background = m_scheme.formatFor(description.name()).background();
+            if (background.isValid())
+                return background;
+            else
+                return m_scheme.formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).background();
+        }
+        case Qt::FontRole: {
+            QFont font = m_baseFont;
+            font.setBold(m_scheme.formatFor(description.name()).bold());
+            font.setItalic(m_scheme.formatFor(description.name()).italic());
+            return font;
+        }
+        }
         return QVariant();
+    }
+
+    void emitDataChanged(const QModelIndex &i)
+    {
+        // If the text category changes, all indexes might have changed
+        if (i.row() == 0)
+            emit dataChanged(i, index(m_fd.size() - 1));
+        else
+            emit dataChanged(i, i);
     }
 
 private:
     const FormatDescriptions &m_fd;
+    const ColorScheme &m_scheme;
+    const QFont m_baseFont;
 };
 
-} // anonymous namespace
+} // namespace Internal
+} // namespace TextEditor
 
 EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
                                              const FontSettings &fontSettings,
@@ -79,14 +124,12 @@ EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
     m_fontSettings(fontSettings),
     m_scheme(fontSettings.colorScheme()),
     m_curItem(-1),
-    m_ui(new Ui::EditColorSchemeDialog)
+    m_ui(new Ui::EditColorSchemeDialog),
+    m_formatsModel(new FormatsModel(m_descriptions, m_fontSettings, m_scheme, this))
 {
     m_ui->setupUi(this);
-
     m_ui->nameEdit->setText(m_scheme.name());
-
-    FormatsModel *model = new FormatsModel(m_descriptions);
-    m_ui->itemList->setModel(model);
+    m_ui->itemList->setModel(m_formatsModel);
 
     connect(m_ui->itemList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             SLOT(itemChanged(QModelIndex)));
@@ -97,7 +140,7 @@ EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
     connect(m_ui->italicCheckBox, SIGNAL(toggled(bool)), SLOT(checkCheckBoxes()));
 
     if (!m_descriptions.empty())
-        m_ui->itemList->setCurrentIndex(model->index(0));
+        m_ui->itemList->setCurrentIndex(m_formatsModel->index(0));
 }
 
 EditColorSchemeDialog::~EditColorSchemeDialog()
@@ -148,6 +191,7 @@ void EditColorSchemeDialog::changeForeColor()
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
         const QString category = m_descriptions[index.row()].name();
         m_scheme.formatFor(category).setForeground(newColor);
+        m_formatsModel->emitDataChanged(index);
     }
 
     updatePreview();
@@ -167,6 +211,7 @@ void EditColorSchemeDialog::changeBackColor()
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
         const QString category = m_descriptions[index.row()].name();
         m_scheme.formatFor(category).setBackground(newColor);
+        m_formatsModel->emitDataChanged(index);
     }
 
     updatePreview();
@@ -183,6 +228,7 @@ void EditColorSchemeDialog::eraseBackColor()
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
         const QString category = m_descriptions[index.row()].name();
         m_scheme.formatFor(category).setBackground(newColor);
+        m_formatsModel->emitDataChanged(index);
     }
 
     updatePreview();
@@ -197,6 +243,7 @@ void EditColorSchemeDialog::checkCheckBoxes()
         const QString category = m_descriptions[index.row()].name();
         m_scheme.formatFor(category).setBold(m_ui->boldCheckBox->isChecked());
         m_scheme.formatFor(category).setItalic(m_ui->italicCheckBox->isChecked());
+        m_formatsModel->emitDataChanged(index);
     }
 
     updatePreview();

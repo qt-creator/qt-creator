@@ -46,6 +46,8 @@ namespace Ui {
 class EditColorSchemeDialog;
 }
 
+class FormatsModel;
+
 class EditColorSchemeDialog : public QDialog
 {
     Q_OBJECT
@@ -77,6 +79,7 @@ private:
     int m_curItem;
 
     Ui::EditColorSchemeDialog *m_ui;
+    FormatsModel *m_formatsModel;
 };
 
 
