@@ -182,9 +182,11 @@ class ObjCMessageArgumentAST;
 class ObjCProtocolExpressionAST;
 class ObjCTypeNameAST;
 class ObjCEncodeExpressionAST;
-class ObjCInstanceVariableListAST;
 class ObjCInstanceVariablesDeclarationAST;
 class ObjCVisibilityDeclarationAST;
+class ObjCPropertyDeclarationAST;
+class ObjcPropertyAttributeListAST;
+class ObjcPropertyAttributeAST;
 
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER

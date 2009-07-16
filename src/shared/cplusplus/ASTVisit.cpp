@@ -1148,6 +1148,8 @@ void ObjCClassInterfaceDeclarationAST::accept0(ASTVisitor *visitor)
         accept(protocol_refs, visitor);
         if (inst_vars_decl)
             accept(inst_vars_decl, visitor);
+        if (member_declarations)
+            accept(member_declarations, visitor);
         // visit DeclarationAST
     }
     visitor->endVisit(this);
@@ -1182,7 +1184,10 @@ void ObjCProtocolDefinitionAST::accept0(ASTVisitor *visitor)
         // visit ObjCProtocolDefinitionAST
         for (SpecifierAST *it = attributes; it; it = it->next)
             accept(it, visitor);
-        accept(protocol_refs, visitor);
+        if (protocol_refs)
+            accept(protocol_refs, visitor);
+        if (member_declarations)
+            accept(member_declarations, visitor);
         // visit DeclarationAST
     }
     visitor->endVisit(this);
@@ -1267,25 +1272,14 @@ void ObjCEncodeExpressionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void ObjCInstanceVariableListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        // visit ObjCInstanceVariableListAST
-        if (declaration)
-            accept(declaration, visitor);
-        if (next)
-            accept(next, visitor);
-        // visit AST
-    }
-    visitor->endVisit(this);
-}
-
 void ObjCInstanceVariablesDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         // visit ObjCInstanceVariablesDeclarationAST
         if (instance_variables)
             accept(instance_variables, visitor);
+        if (member_declarations)
+            accept(member_declarations, visitor);
         // visit AST
     }
     visitor->endVisit(this);
@@ -1296,6 +1290,39 @@ void ObjCVisibilityDeclarationAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         // visit ObjCVisibilityDeclarationAST
         // visit DeclarationAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjcPropertyAttributeAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjcPropertyAttributeAST
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjcPropertyAttributeListAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjcPropertyAttributeListAST
+        for (ObjcPropertyAttributeListAST *it = this; it; it = it->next)
+            accept(it, visitor);
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCPropertyDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCPropertyDeclarationAST:
+        if (property_attributes)
+            accept(property_attributes, visitor);
+        if (simple_declaration)
+            accept(simple_declaration, visitor);
+        // visit DeclarationAST:
     }
     visitor->endVisit(this);
 }

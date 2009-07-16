@@ -209,9 +209,11 @@ public:
     virtual bool visit(ObjCProtocolExpressionAST *) { return true; }
     virtual bool visit(ObjCTypeNameAST *) { return true; }
     virtual bool visit(ObjCEncodeExpressionAST *) { return true; }
-    virtual bool visit(ObjCInstanceVariableListAST *) { return true; }
     virtual bool visit(ObjCInstanceVariablesDeclarationAST *) { return true; }
     virtual bool visit(ObjCVisibilityDeclarationAST *) { return true; }
+    virtual bool visit(ObjcPropertyAttributeAST *) { return true; }
+    virtual bool visit(ObjcPropertyAttributeListAST *) { return true; }
+    virtual bool visit(ObjCPropertyDeclarationAST *) { return true; }
 
     virtual bool visit(DeclarationListAST *) { return true; }
     virtual void endVisit(DeclarationListAST *) { }
@@ -332,9 +334,11 @@ public:
     virtual void endVisit(ObjCProtocolExpressionAST *) { }
     virtual void endVisit(ObjCTypeNameAST *) { }
     virtual void endVisit(ObjCEncodeExpressionAST *) { }
-    virtual void endVisit(ObjCInstanceVariableListAST *) { }
     virtual void endVisit(ObjCInstanceVariablesDeclarationAST *) { }
     virtual void endVisit(ObjCVisibilityDeclarationAST *) { }
+    virtual void endVisit(ObjcPropertyAttributeAST *) { }
+    virtual void endVisit(ObjcPropertyAttributeListAST *) { }
+    virtual void endVisit(ObjCPropertyDeclarationAST *) { }
 
 private:
     Control *_control;

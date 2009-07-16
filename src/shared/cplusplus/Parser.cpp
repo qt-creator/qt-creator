@@ -3962,8 +3962,15 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         match(T_RPAREN, &(ast->rparen_token));
 
         parseObjCProtocolRefs(ast->protocol_refs);
-        while (parseObjCInterfaceMemberDeclaration()) {
+        
+        DeclarationListAST **nextMembers = &(ast->member_declarations);
+        DeclarationAST *declaration = 0;
+        while (parseObjCInterfaceMemberDeclaration(declaration)) {
+            *nextMembers = new (_pool) DeclarationListAST;
+            (*nextMembers)->declaration = declaration;
+            nextMembers = &((*nextMembers)->next);
         }
+
         match(T_AT_END, &(ast->end_token));
 
         node = ast;
@@ -3982,9 +3989,17 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
 
         parseObjCProtocolRefs(ast->protocol_refs);
         parseObjClassInstanceVariables(ast->inst_vars_decl);
-        while (parseObjCInterfaceMemberDeclaration()) {
+
+        DeclarationListAST **nextMembers = &(ast->member_declarations);
+        DeclarationAST *declaration = 0;
+        while (parseObjCInterfaceMemberDeclaration(declaration)) {
+            *nextMembers = new (_pool) DeclarationListAST;
+            (*nextMembers)->declaration = declaration;
+            nextMembers = &((*nextMembers)->next);
         }
+
         match(T_AT_END, &(ast->end_token));
+
         node = ast;
         return true;
     }
@@ -4040,7 +4055,12 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
 
         parseObjCProtocolRefs(ast->protocol_refs);
 
-        while (parseObjCInterfaceMemberDeclaration()) {
+        DeclarationListAST **nextMembers = &(ast->member_declarations);
+        DeclarationAST *declaration = 0;
+        while (parseObjCInterfaceMemberDeclaration(declaration)) {
+            *nextMembers = new (_pool) DeclarationListAST;
+            (*nextMembers)->declaration = declaration;
+            nextMembers = &((*nextMembers)->next);
         }
 
         match(T_AT_END, &(ast->end_token));
@@ -4230,13 +4250,13 @@ bool Parser::parseObjClassInstanceVariables(ObjCInstanceVariablesDeclarationAST 
     ObjCInstanceVariablesDeclarationAST *ast = new (_pool) ObjCInstanceVariablesDeclarationAST;
     match(T_LBRACE, &(ast->lbrace_token));
 
-    for (ObjCInstanceVariableListAST **next = &(ast->instance_variables); LA(); next = &((*next)->next)) {
+    for (DeclarationListAST **next = &(ast->instance_variables); LA(); next = &((*next)->next)) {
         if (LA() == T_RBRACE)
             break;
 
         const unsigned start = cursor();
 
-        *next = new (_pool) ObjCInstanceVariableListAST;
+        *next = new (_pool) DeclarationListAST;
         parseObjCInstanceVariableDeclaration((*next)->declaration);
 
         if (start == cursor()) {
@@ -4257,7 +4277,7 @@ bool Parser::parseObjClassInstanceVariables(ObjCInstanceVariablesDeclarationAST 
 // objc-interface-declaration ::= T_SEMICOLON
 // objc-interface-declaration ::= objc-property-declaration
 // objc-interface-declaration ::= objc-method-prototype
-bool Parser::parseObjCInterfaceMemberDeclaration()
+bool Parser::parseObjCInterfaceMemberDeclaration(DeclarationAST *&node)
 {
     switch (LA()) {
     case T_AT_END:
@@ -4273,8 +4293,7 @@ bool Parser::parseObjCInterfaceMemberDeclaration()
         return true;
 
     case T_AT_PROPERTY: {
-        DeclarationAST *declaration = 0;
-        return parseObjCPropertyDeclaration(declaration);
+        return parseObjCPropertyDeclaration(node);
     }
 
     case T_PLUS:
@@ -4285,13 +4304,11 @@ bool Parser::parseObjCInterfaceMemberDeclaration()
     case T_CLASS:
     case T_STRUCT:
     case T_UNION: {
-        DeclarationAST *declaration = 0;
-        return parseSimpleDeclaration(declaration, /*accept struct declarators */ true);
+        return parseSimpleDeclaration(node, /*accept struct declarators */ true);
     }
 
     default: {
-        DeclarationAST *declaration = 0;
-        return parseSimpleDeclaration(declaration, /*accept struct declarators */ true);
+        return parseSimpleDeclaration(node, /*accept struct declarators */ true);
     } // default
 
     } // switch
@@ -4321,27 +4338,37 @@ bool Parser::parseObjCInstanceVariableDeclaration(DeclarationAST *&node)
 // objc-property-declaration ::=
 //    T_AT_PROPERTY T_LPAREN (property-attribute @ T_COMMA) T_RPAREN simple-declaration
 //
-bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&, SpecifierAST *)
+bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *)
 {
     if (LA() != T_AT_PROPERTY)
         return false;
 
-    /*unsigned objc_property_token = */ consumeToken();
+    ObjCPropertyDeclarationAST *ast = new (_pool) ObjCPropertyDeclarationAST;
+    ast->property_token = consumeToken();
 
     if (LA() == T_LPAREN) {
-        unsigned lparen_token = 0, rparen_token = 0;
-        match(T_LPAREN, &lparen_token);
-        if (parseObjCPropertyAttribute()) {
+        match(T_LPAREN, &(ast->lparen_token));
+
+        ObjcPropertyAttributeAST *property_attribute = 0;
+        if (parseObjCPropertyAttribute(property_attribute)) {
+            ast->property_attributes = new (_pool) ObjcPropertyAttributeListAST;
+            ast->property_attributes->attr = property_attribute;
+            ObjcPropertyAttributeListAST *last = ast->property_attributes;
+
             while (LA() == T_COMMA) {
-                consumeToken();
-                parseObjCPropertyAttribute();
+                last->comma_token = consumeToken();
+                last->next = new (_pool) ObjcPropertyAttributeListAST;
+                last = last->next;
+                parseObjCPropertyAttribute(last->attr);
             }
         }
-        match(T_RPAREN, &rparen_token);
+
+        match(T_RPAREN, &(ast->rparen_token));
     }
 
-    DeclarationAST *simple_declaration = 0;
-    parseSimpleDeclaration(simple_declaration, /*accept-struct-declarators = */ true);
+    parseSimpleDeclaration(ast->simple_declaration, /*accept-struct-declarators = */ true);
+
+    node = ast;
     return true;
 }
 
@@ -4398,18 +4425,18 @@ bool Parser::parseObjCMethodPrototype()
 // objc-property-attribute ::= retain
 // objc-property-attribute ::= copy
 // objc-property-attribute ::= nonatomic
-bool Parser::parseObjCPropertyAttribute()
+bool Parser::parseObjCPropertyAttribute(ObjcPropertyAttributeAST *&node)
 {
     if (LA() != T_IDENTIFIER)
         return false;
 
-    unsigned identifier_token = 0;
-    match(T_IDENTIFIER, &identifier_token);
+    node = new (_pool) ObjcPropertyAttributeAST;
+    match(T_IDENTIFIER, &(node->attribute_identifier_token));
     if (LA() == T_EQUAL) {
-        consumeToken();
-        match(T_IDENTIFIER, &identifier_token);
+        node->equals_token = consumeToken();
+        match(T_IDENTIFIER, &(node->method_selector_identifier_token));
         if (LA() == T_COLON)
-            consumeToken();
+            node->colon_token = consumeToken();
     }
 
     return true;

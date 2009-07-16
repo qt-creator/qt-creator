@@ -233,13 +233,13 @@ public:
 
     bool parseObjCProtocolRefs(ObjCProtocolRefsAST *&node);
     bool parseObjClassInstanceVariables(ObjCInstanceVariablesDeclarationAST *&node);
-    bool parseObjCInterfaceMemberDeclaration();
+    bool parseObjCInterfaceMemberDeclaration(DeclarationAST *&node);
     bool parseObjCInstanceVariableDeclaration(DeclarationAST *&node);
     bool parseObjCPropertyDeclaration(DeclarationAST *&node,
                                       SpecifierAST *attributes = 0);
     bool parseObjCImplementation(DeclarationAST *&node);
     bool parseObjCMethodPrototype();
-    bool parseObjCPropertyAttribute();
+    bool parseObjCPropertyAttribute(ObjcPropertyAttributeAST *&node);
     bool parseObjCTypeName(ObjCTypeNameAST *&node);
     bool parseObjCSelector(unsigned &selector_token);
     bool parseObjCKeywordDeclaration();

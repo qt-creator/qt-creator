@@ -1981,6 +1981,7 @@ unsigned ObjCClassInterfaceDeclarationAST::firstToken() const
 unsigned ObjCClassInterfaceDeclarationAST::lastToken() const
 {
     if (end_token)                   return end_token + 1;
+    if (member_declarations)         return member_declarations->lastToken();
     if (inst_vars_decl)              return inst_vars_decl->lastToken();
     if (superclass_identifier_token) return superclass_identifier_token + 1;
     if (colon_token)                 return colon_token + 1;
@@ -2004,6 +2005,9 @@ unsigned ObjCCategoryInterfaceDeclarationAST::lastToken() const
     if (end_token)
         return end_token + 1;
 
+    if (member_declarations)
+        return member_declarations->lastToken();
+
     if (rparen_token)              return rparen_token + 1;
     if (category_identifier_token) return category_identifier_token + 1;
     if (lparen_token)              return lparen_token + 1;
@@ -2022,6 +2026,12 @@ unsigned ObjCProtocolDefinitionAST::lastToken() const
 {
     if (end_token)
         return end_token + 1;
+
+    if (member_declarations)
+        return member_declarations->lastToken();
+
+    if (protocol_refs)
+        return protocol_refs->lastToken();
 
     if (identifier_token)
         return identifier_token + 1;
@@ -2156,29 +2166,6 @@ unsigned ObjCEncodeExpressionAST::lastToken() const
     return encode_token + 1;
 }
 
-unsigned ObjCInstanceVariableListAST::firstToken() const
-{
-    if (declaration)
-        return declaration->firstToken();
-
-    if (next)
-        return next->firstToken();
-
-    // ### assert?
-    return 0;
-}
-
-unsigned ObjCInstanceVariableListAST::lastToken() const
-{
-    for (const ObjCInstanceVariableListAST *it = this; it; it = it->next) {
-        if (! it->next && it->declaration) {
-            return it->declaration->lastToken();
-        }
-    }
-    // ### assert?
-    return 0;
-}
-
 unsigned ObjCInstanceVariablesDeclarationAST::firstToken() const
 {
     return lbrace_token;
@@ -2188,6 +2175,9 @@ unsigned ObjCInstanceVariablesDeclarationAST::lastToken() const
 {
     if (rbrace_token)
         return rbrace_token + 1;
+
+    if (member_declarations)
+        return member_declarations->lastToken();
 
     if (instance_variables)
         return instance_variables->lastToken();
@@ -2203,6 +2193,69 @@ unsigned ObjCVisibilityDeclarationAST::firstToken() const
 unsigned ObjCVisibilityDeclarationAST::lastToken() const
 {
     return visibility_token + 1;
+}
+
+unsigned ObjcPropertyAttributeAST::firstToken() const
+{
+    return attribute_identifier_token;
+}
+
+unsigned ObjcPropertyAttributeAST::lastToken() const
+{
+    if (colon_token)
+        return colon_token + 1;
+    if (method_selector_identifier_token)
+        return method_selector_identifier_token + 1;
+    if (equals_token)
+        return equals_token + 1;
+
+    return attribute_identifier_token + 1;
+}
+
+unsigned ObjcPropertyAttributeListAST::firstToken() const
+{
+    if (attr)
+        return attr->firstToken();
+    else if (comma_token)
+        return comma_token;
+    else if (next)
+        return next->lastToken();
+    else
+        // ### Assert?
+        return 0;
+}
+
+unsigned ObjcPropertyAttributeListAST::lastToken() const
+{
+    for (const ObjcPropertyAttributeListAST *it = this; it; it = it->next) {
+        if (! it->next && (comma_token || it->attr)) {
+            if (comma_token)
+                return comma_token + 1;
+            else
+                return it->attr->lastToken();
+        }
+    }
+    // ### assert?
+    return 0;
+}
+
+unsigned ObjCPropertyDeclarationAST::firstToken() const
+{
+    return property_token;
+}
+
+unsigned ObjCPropertyDeclarationAST::lastToken() const
+{
+    if (simple_declaration)
+        return simple_declaration->lastToken();
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (property_attributes)
+        return property_attributes->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    else
+        return property_token + 1;
 }
 
 CPLUSPLUS_END_NAMESPACE
