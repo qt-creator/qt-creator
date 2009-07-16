@@ -227,7 +227,7 @@ public:
     bool parseObjCMessageExpression(ExpressionAST *&node);
     bool parseObjCMessageReceiver(ExpressionAST *&node);
     bool parseObjCMessageArguments(ObjCMessageArgumentListAST *&node);
-    bool parseObjCSelectorArgs();
+    bool parseObjCSelectorArg(ObjCMessageArgumentAST *&node);
     bool parseObjCMethodDefinitionList();
     bool parseObjCMethodDefinition();
 
@@ -241,7 +241,7 @@ public:
     bool parseObjCMethodPrototype();
     bool parseObjCPropertyAttribute();
     bool parseObjCTypeName();
-    bool parseObjCSelector();
+    bool parseObjCSelector(unsigned &selector_token);
     bool parseObjCKeywordDeclaration();
     bool parseObjCTypeQualifiers();
     bool parseObjCEnd(DeclarationAST *&node);

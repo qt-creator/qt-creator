@@ -2892,7 +2892,8 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&)
     }
 
     while (lookAtObjCSelector()) {
-        parseObjCSelector();
+        unsigned selector_token = 0;
+        parseObjCSelector(selector_token);
         if (LA() == T_COLON)
             consumeToken();
         else {
@@ -2927,49 +2928,73 @@ bool Parser::parseObjCMessageReceiver(ExpressionAST *&node)
     return parseExpression(node);
 }
 
-bool Parser::parseObjCMessageArguments(ObjCMessageArgumentListAST *& /*node*/)
+bool Parser::parseObjCMessageArguments(ObjCMessageArgumentListAST *& node)
 {
     if (LA() == T_RBRACKET)
         return false; // nothing to do.
 
     unsigned start = cursor();
 
-    if (parseObjCSelectorArgs()) {
-        while (parseObjCSelectorArgs()) {
+    ObjCMessageArgumentListAST *ast = new (_pool) ObjCMessageArgumentListAST;
+    ObjCMessageArgumentAST *argument = 0;
+
+    if (parseObjCSelectorArg(argument)) {
+        ast->arg = argument;
+        ObjCMessageArgumentListAST *lastArgument = ast;
+
+        while (parseObjCSelectorArg(argument)) {
             // accept the selector args.
+            lastArgument->next = new (_pool) ObjCMessageArgumentListAST;
+            lastArgument = lastArgument->next;
+            lastArgument->arg = argument;
+        }
+
+        if (LA() == T_COMMA) {
+            ExpressionAST **lastExpression = &(lastArgument->arg->parameter_value_expression);
+
+            while (LA() == T_COMMA) {
+                BinaryExpressionAST *binaryExpression = new (_pool) BinaryExpressionAST;
+                binaryExpression->left_expression = *lastExpression;
+                binaryExpression->binary_op_token = consumeToken(); // T_COMMA
+                parseAssignmentExpression(binaryExpression->right_expression);
+                lastExpression = &(binaryExpression->right_expression);
+            }
         }
     } else {
         rewind(start);
-        parseObjCSelector();
+        ast->arg = new (_pool) ObjCMessageArgumentAST;
+        parseObjCSelector(ast->arg->parameter_key_identifier);
     }
 
-    while (LA() == T_COMMA) {
-        consumeToken(); // skip T_COMMA
-        ExpressionAST *expression = 0;
-        parseAssignmentExpression(expression);
-    }
+    node = ast;
     return true;
 }
 
-bool Parser::parseObjCSelectorArgs()
+bool Parser::parseObjCSelectorArg(ObjCMessageArgumentAST *&node)
 {
-    parseObjCSelector();
+    unsigned selector_token = 0;
+    if (!parseObjCSelector(selector_token))
+        return false;
+
     if (LA() != T_COLON)
         return false;
 
-    /*unsigned colon_token = */consumeToken();
+    ObjCMessageArgumentAST *argument = new (_pool) ObjCMessageArgumentAST;
+    argument->parameter_key_identifier = selector_token;
+    argument->colon_token = consumeToken();
 
-    ExpressionAST *expression = 0;
-    parseAssignmentExpression(expression);
+    parseAssignmentExpression(argument->parameter_value_expression);
+    node = argument;
     return true;
 }
 
 bool Parser::parseObjCMethodSignature()
 {
-    if (parseObjCSelector()) {
+    unsigned selector_token = 0;
+    if (parseObjCSelector(selector_token)) {
         while (LA() == T_COMMA) {
             consumeToken(); // skip T_COMMA
-            parseObjCSelector();
+            parseObjCSelector(selector_token);
         }
         return true;
     }
@@ -4325,6 +4350,8 @@ bool Parser::parseObjCMethodPrototype()
 
     parseObjCTypeName();
 
+    unsigned selector_token = 0;
+
     if ((lookAtObjCSelector() && LA(2) == T_COLON) || LA() == T_COLON) {
         while (parseObjCKeywordDeclaration()) {
         }
@@ -4341,7 +4368,7 @@ bool Parser::parseObjCMethodPrototype()
             parseParameterDeclaration(parameter_declaration);
         }
     } else if (lookAtObjCSelector()) {
-        parseObjCSelector();
+        parseObjCSelector(selector_token);
     } else {
         _translationUnit->error(cursor(), "expected a selector");
     }
@@ -4396,12 +4423,12 @@ bool Parser::parseObjCTypeName()
 
 // objc-selector ::= T_IDENTIFIER | keyword
 //
-bool Parser::parseObjCSelector()
+bool Parser::parseObjCSelector(unsigned &selector_token)
 {
     if (! lookAtObjCSelector())
         return false;
 
-    consumeToken();
+    selector_token = consumeToken();
     return true;
 }
 
@@ -4412,7 +4439,8 @@ bool Parser::parseObjCKeywordDeclaration()
     if (! (LA() == T_COLON || (lookAtObjCSelector() && LA(2) == T_COLON)))
         return false;
 
-    parseObjCSelector();
+    unsigned selector_token = 0;
+    parseObjCSelector(selector_token);
 
     unsigned colon_token = 0;
     match(T_COLON, &colon_token);
