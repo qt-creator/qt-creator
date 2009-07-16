@@ -140,7 +140,7 @@ static int dumpQIntList()
 
 static int dumpQIntVector()
 {
-    QVector<int> test = QVector<int>() << 1 << 2;
+    QVector<int> test = QVector<int>() << 42 << 43;
     prepareInBuffer("QVector", "local.qintvector", "local.qintvector", "int");
     qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
