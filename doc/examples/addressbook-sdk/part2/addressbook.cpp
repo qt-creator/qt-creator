@@ -6,33 +6,19 @@ AddressBook::AddressBook(QWidget *parent)
 {
     ui->setupUi(this);
 
-    //! [extract objects]
-    nameLine = new QLineEdit;
-    nameLine = ui->nameLine;
-    nameLine->setReadOnly(true);
-
-    addressText = new QTextEdit;
-    addressText = ui->addressText;
-    addressText->setReadOnly(true);
-
-    addButton = new QPushButton;
-    addButton = ui->addButton;
-
-    submitButton = new QPushButton;
-    submitButton = ui->submitButton;
-    submitButton->hide();
-
-    cancelButton = new QPushButton;
-    cancelButton = ui->cancelButton;
-    cancelButton->hide();
-    //! [extract objects]
+    //! [setup fields]
+    ui->nameLine->setReadOnly(true);
+    ui->addressText->setReadOnly(true);
+    ui->submitButton->hide();
+    ui->cancelButton->hide();
+    //! [setup fields]
 
     //! [signal slot]
-    connect(addButton, SIGNAL(clicked()), this,
+    connect(ui->addButton, SIGNAL(clicked()), this,
                 SLOT(addContact()));
-    connect(submitButton, SIGNAL(clicked()), this,
+    connect(ui->submitButton, SIGNAL(clicked()), this,
                 SLOT(submitContact()));
-    connect(cancelButton, SIGNAL(clicked()), this,
+    connect(ui->cancelButton, SIGNAL(clicked()), this,
                 SLOT(cancel()));
     //! [signal slot]
 
@@ -49,27 +35,27 @@ AddressBook::~AddressBook()
 //! [addContact]
 void AddressBook::addContact()
 {
-    oldName = nameLine->text();
-    oldAddress = addressText->toPlainText();
+    oldName = ui->nameLine->text();
+    oldAddress = ui->addressText->toPlainText();
 
-    nameLine->clear();
-    addressText->clear();
+    ui->nameLine->clear();
+    ui->addressText->clear();
 
-    nameLine->setReadOnly(false);
-    nameLine->setFocus(Qt::OtherFocusReason);
-    addressText->setReadOnly(false);
+    ui->nameLine->setReadOnly(false);
+    ui->nameLine->setFocus(Qt::OtherFocusReason);
+    ui->addressText->setReadOnly(false);
 
-    addButton->setEnabled(false);
-    submitButton->show();
-    cancelButton->show();
+    ui->addButton->setEnabled(false);
+    ui->submitButton->show();
+    ui->cancelButton->show();
 }
 //! [addContact]
 
 //! [submitContact part1]
 void AddressBook::submitContact()
 {
-    QString name = nameLine->text();
-    QString address = addressText->toPlainText();
+    QString name = ui->nameLine->text();
+    QString address = ui->addressText->toPlainText();
 
     if (name == "" || address == "") {
         QMessageBox::information(this, tr("Empty Field"),
@@ -93,29 +79,29 @@ void AddressBook::submitContact()
 
 //! [submitContact part3]
     if (contacts.isEmpty()) {
-        nameLine->clear();
-        addressText->clear();
+        ui->nameLine->clear();
+        ui->addressText->clear();
     }
 
-    nameLine->setReadOnly(true);
-    addressText->setReadOnly(true);
-    addButton->setEnabled(true);
-    submitButton->hide();
-    cancelButton->hide();
+    ui->nameLine->setReadOnly(true);
+    ui->addressText->setReadOnly(true);
+    ui->addButton->setEnabled(true);
+    ui->submitButton->hide();
+    ui->cancelButton->hide();
 }
 //! [submitContact part3]
 
 //! [cancel]
 void AddressBook::cancel()
 {
-    nameLine->setText(oldName);
-    nameLine->setReadOnly(true);
+    ui->nameLine->setText(oldName);
+    ui->nameLine->setReadOnly(true);
 
-    addressText->setText(oldAddress);
-    addressText->setReadOnly(true);
+    ui->addressText->setText(oldAddress);
+    ui->addressText->setReadOnly(true);
 
-    addButton->setEnabled(true);
-    submitButton->hide();
-    cancelButton->hide();
+    ui->addButton->setEnabled(true);
+    ui->submitButton->hide();
+    ui->cancelButton->hide();
 }
 //! [cancel]
