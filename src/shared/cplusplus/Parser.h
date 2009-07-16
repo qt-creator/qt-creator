@@ -240,10 +240,10 @@ public:
     bool parseObjCImplementation(DeclarationAST *&node);
     bool parseObjCMethodPrototype();
     bool parseObjCPropertyAttribute();
-    bool parseObjCTypeName();
+    bool parseObjCTypeName(ObjCTypeNameAST *&node);
     bool parseObjCSelector(unsigned &selector_token);
     bool parseObjCKeywordDeclaration();
-    bool parseObjCTypeQualifiers();
+    bool parseObjCTypeQualifiers(unsigned &type_qualifier);
     bool parseObjCEnd(DeclarationAST *&node);
 
     bool lookAtObjCSelector() const;

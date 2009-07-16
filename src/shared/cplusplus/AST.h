@@ -2674,6 +2674,46 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
+class CPLUSPLUS_EXPORT ObjCTypeNameAST: public AST
+{
+public:
+    unsigned lparen_token;
+    unsigned type_qualifier;
+    ExpressionAST *type_id;
+    unsigned rparen_token;
+
+public:
+    virtual ObjCTypeNameAST *asObjCTypeName()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCTypeNameAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCEncodeExpressionAST: public ExpressionAST
+{
+public:
+    unsigned encode_token;
+    ObjCTypeNameAST *type_name;
+
+public:
+    virtual ObjCEncodeExpressionAST *asObjCEncodeExpression()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCEncodeExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER
 

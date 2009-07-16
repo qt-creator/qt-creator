@@ -1243,4 +1243,26 @@ void ObjCProtocolExpressionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void ObjCTypeNameAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCTypeNameAST
+        if (type_id)
+            accept(type_id, visitor);
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCEncodeExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCEncodeExpressionAST
+        if (type_name)
+            accept(type_name, visitor);
+        // visit ExpressionAST
+    }
+    visitor->endVisit(this);
+}
+
 CPLUSPLUS_END_NAMESPACE

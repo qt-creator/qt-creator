@@ -2839,13 +2839,15 @@ bool Parser::parseObjCStringLiteral(ExpressionAST *&node)
     return true;
 }
 
-bool Parser::parseObjCEncodeExpression(ExpressionAST *&)
+bool Parser::parseObjCEncodeExpression(ExpressionAST *&node)
 {
     if (LA() != T_AT_ENCODE)
         return false;
 
-    /*unsigned encode_token = */ consumeToken();
-    parseObjCTypeName();
+    ObjCEncodeExpressionAST *ast = new (_pool) ObjCEncodeExpressionAST;
+    ast->encode_token = consumeToken();
+    parseObjCTypeName(ast->type_name);
+    node = ast;
     return true;
 }
 
@@ -4349,7 +4351,8 @@ bool Parser::parseObjCMethodPrototype()
 
     /*unsigned method_type_token = */ consumeToken();
 
-    parseObjCTypeName();
+    ObjCTypeNameAST *type_name = 0;
+    parseObjCTypeName(type_name);
 
     unsigned selector_token = 0;
 
@@ -4408,17 +4411,17 @@ bool Parser::parseObjCPropertyAttribute()
 
 // objc-type-name ::= T_LPAREN objc-type-qualifiers-opt type-id T_RPAREN
 //
-bool Parser::parseObjCTypeName()
+bool Parser::parseObjCTypeName(ObjCTypeNameAST *&node)
 {
     if (LA() != T_LPAREN)
         return false;
 
-    unsigned lparen_token = 0, rparen_token = 0;
-    match(T_LPAREN, &lparen_token);
-    parseObjCTypeQualifiers();
-    ExpressionAST *type_id = 0;
-    parseTypeId(type_id);
-    match(T_RPAREN, &rparen_token);
+    ObjCTypeNameAST *ast = new (_pool) ObjCTypeNameAST;
+    match(T_LPAREN, &(ast->lparen_token));
+    parseObjCTypeQualifiers(ast->type_qualifier);
+    parseTypeId(ast->type_id);
+    match(T_RPAREN, &(ast->rparen_token));
+    node = ast;
     return true;
 }
 
@@ -4446,7 +4449,8 @@ bool Parser::parseObjCKeywordDeclaration()
     unsigned colon_token = 0;
     match(T_COLON, &colon_token);
 
-    parseObjCTypeName();
+    ObjCTypeNameAST *type_name = 0;
+    parseObjCTypeName(type_name);
 
     SpecifierAST *attributes = 0, **attr = &attributes;
     while (parseAttributeSpecifier(*attr))
@@ -4458,7 +4462,7 @@ bool Parser::parseObjCKeywordDeclaration()
     return true;
 }
 
-bool Parser::parseObjCTypeQualifiers()
+bool Parser::parseObjCTypeQualifiers(unsigned &type_qualifier)
 {
     if (LA() != T_IDENTIFIER)
         return false;
@@ -4467,7 +4471,7 @@ bool Parser::parseObjCTypeQualifiers()
     const int k = classifyObjectiveCTypeQualifiers(id->chars(), id->size());
     if (k == Token_identifier)
         return false;
-    consumeToken();
+    type_qualifier = consumeToken();
     return true;
 }
 

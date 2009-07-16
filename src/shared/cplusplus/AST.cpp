@@ -2123,4 +2123,36 @@ unsigned ObjCProtocolExpressionAST::lastToken() const
     return protocol_token + 1;
 }
 
+unsigned ObjCTypeNameAST::firstToken() const
+{
+    return lparen_token;
+}
+
+unsigned ObjCTypeNameAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+
+    if (type_id)
+        return type_id->lastToken();
+
+    if (type_qualifier)
+        return type_qualifier + 1;
+
+    return lparen_token + 1;
+}
+
+unsigned ObjCEncodeExpressionAST::firstToken() const
+{
+    return encode_token;
+}
+
+unsigned ObjCEncodeExpressionAST::lastToken() const
+{
+    if (type_name)
+        return type_name->lastToken();
+
+    return encode_token + 1;
+}
+
 CPLUSPLUS_END_NAMESPACE

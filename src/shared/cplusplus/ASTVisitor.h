@@ -207,6 +207,8 @@ public:
     virtual bool visit(ObjCMessageArgumentListAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentAST *) { return true; }
     virtual bool visit(ObjCProtocolExpressionAST *) { return true; }
+    virtual bool visit(ObjCTypeNameAST *) { return true; }
+    virtual bool visit(ObjCEncodeExpressionAST *) { return true; }
 
     virtual bool visit(DeclarationListAST *) { return true; }
     virtual void endVisit(DeclarationListAST *) { }
@@ -325,6 +327,8 @@ public:
     virtual void endVisit(ObjCMessageArgumentListAST *) { }
     virtual void endVisit(ObjCMessageArgumentAST *) { }
     virtual void endVisit(ObjCProtocolExpressionAST *) { }
+    virtual void endVisit(ObjCTypeNameAST *) { }
+    virtual void endVisit(ObjCEncodeExpressionAST *) { }
 
 private:
     Control *_control;
