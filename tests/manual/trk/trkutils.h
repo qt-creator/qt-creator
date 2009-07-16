@@ -32,11 +32,7 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
-#include <QtCore/QObject>
-#include <QtCore/QQueue>
 #include <QtCore/QString>
-
-#include <QtNetwork/QLocalSocket>
 
 namespace trk {
 
@@ -111,7 +107,7 @@ struct Breakpoint
 
 struct TrkResult
 {
-    TrkResult() {}
+    TrkResult() { code = token = 0; }
     QString toString() const;
 
     byte code;
@@ -119,89 +115,10 @@ struct TrkResult
     QByteArray data;
 };
 
-class TrkClient : public QObject
-{
-    Q_OBJECT
-
-public:
-    TrkClient();
-    ~TrkClient();
-    struct Message;
-    typedef void (TrkClient::*CallBack)(const TrkResult &);
-
-public slots:
-    void abort() { m_device->abort(); }
-    bool openPort(const QString &port); // or server name for local server
-    void sendMessage(byte command, CallBack callBack = 0,
-        const QByteArray &lit = QByteArray());
-    // adds message to 'send' queue
-    void queueMessage(const Message &msg);
-    void tryWrite();
-    void tryRead();
-    // actually writes a message to the device
-    void doWrite(const Message &msg);
-    // convienience messages
-    void sendInitialPing();
-    void waitForFinished();
-    void sendAck(byte token);
-
-    // kill process and breakpoints
-    void cleanUp();
-
-public:
-    struct Message
-    {
-        Message() { token = 0; callBack = 0; }
-        byte command;
-        byte token;
-        QByteArray data;
-        CallBack callBack;
-    };
-
-private:
-    void timerEvent(QTimerEvent *ev);
-    byte nextWriteToken();
-
-    void handleCpuType(const TrkResult &result);
-    void handleCreateProcess(const TrkResult &result);
-    void handleDeleteProcess(const TrkResult &result);
-    void handleSetBreakpoint(const TrkResult &result);
-    void handleClearBreakpoint(const TrkResult &result);
-    void handleContinue(const TrkResult &result);
-    void handleReadInfo(const TrkResult &result);
-    void handleWaitForFinished(const TrkResult &result);
-    void handleStep(const TrkResult &result);
-    void handleStop(const TrkResult &result);
-    void handleReadRegisters(const TrkResult &result);
-    void handleWriteRegisters(const TrkResult &result);
-    void handleReadMemory(const TrkResult &result);
-    void handleWriteMemory(const TrkResult &result);
-    void handleSupportMask(const TrkResult &result);
-    void handleDisconnect(const TrkResult &result);
-
-
-    void setBreakpoint(const Breakpoint &bp);
-    void clearBreakpoint(const Breakpoint &bp);
-    void onStopped(const TrkResult &result);
-    void handleResult(const TrkResult &data);
-
-    QLocalSocket *m_device;
-
-    unsigned char m_writeToken;
-    QQueue<Message> m_writeQueue;
-    QHash<byte, Message> m_written;
-    unsigned char m_readToken;
-    QByteArray m_readQueue;
-    bool m_writeBusy;
-
-    QList<Breakpoint> m_breakpoints;
-    Session m_session;
-};
-
 // returns a QByteArray containing 0x01 0x90 <len> 0x7e encoded7d(ba) 0x7e
 QByteArray frameMessage(byte command, byte token, const QByteArray &data);
 TrkResult extractResult(QByteArray *buffer);
-
+QByteArray errorMessage(byte code);
 
 } // namespace trk
 

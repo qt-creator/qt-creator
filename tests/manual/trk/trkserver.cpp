@@ -177,14 +177,18 @@ void TrkServer::writeToAdapter(byte command, byte token, const QByteArray &data)
 void TrkServer::handleAdapterMessage(const TrkResult &result)
 {
     QByteArray data;
+    data.append(char(0x00));  // No error
     switch (result.code) {
         case 0x00: { // Ping
-            data.append(char(0x00));  // No error
             writeToAdapter(0x80, 0x00, data);
             break;
         }
+        case 0x01: { // Connect
+            writeToAdapter(0x80, result.token, data);
+            break;
+        }
         default:
-            data.append(char(0x10)); // Command not supported
+            data[0] = 0x10; // Command not supported
             writeToAdapter(0xff, result.token, data);
             break;
     }
