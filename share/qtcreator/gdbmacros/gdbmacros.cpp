@@ -2744,6 +2744,9 @@ static void qDumpQTextCodec(QDumper &d)
 
 static void qDumpQVector(QDumper &d)
 {
+    QVectorTypedData<int> *dummy = 0;
+    const unsigned typeddatasize = (char*)(&dummy->array) - (char*)dummy;
+
     QVectorData *v = *reinterpret_cast<QVectorData *const*>(d.data);
 
     // Try to provoke segfaults early to prevent the frontend
@@ -2756,8 +2759,7 @@ static void qDumpQVector(QDumper &d)
         //qCheckAccess(&vec.back());
     }
 
-    unsigned innersize = d.extraInt[0];
-    unsigned typeddatasize = d.extraInt[1];
+    const unsigned innersize = d.extraInt[0];
 
     int n = nn;
     d.putItemCount("value", n);
@@ -3348,7 +3350,8 @@ void *watchPoint(int x, int y)
 }
 #endif
 
-// Helper to write out common expression values for CDB:
+// Helpers to write out common expression values for CDB
+#ifdef Q_CC_MSVC
 // Offsets of a map node value which looks like
 // "(size_t)&(('QMapNode<QString,QString >'*)0)->value")" in gdb syntax
 
@@ -3393,6 +3396,8 @@ template <class Key, class Value>
     d.put('"');
     return  d;
 }
+
+#endif // Q_CC_MSVC
 
 extern "C" Q_DECL_EXPORT
 void *qDumpObjectData440(
@@ -3515,6 +3520,7 @@ void *qDumpObjectData440(
          .put(NS"QMapNode<"NS"QString,"NS"QVariant>=\"").put(sizeof(QMapNode<QString, QVariant>))
          .put("\"}");
         // Write out common expression values for CDB
+#ifdef Q_CC_MSVC
         d.put(",expressions={");
         putQMapNodeOffsetExpression<int,int>("int", "int", d).put(',');
         putQMapNodeOffsetExpression<int,QString>("int", NS"QString", d).put(',');
@@ -3534,6 +3540,7 @@ void *qDumpObjectData440(
         putStdPairValueOffsetExpression<int,std::wstring>("int", stdWideStringTypeUShortC, d).put(',');
         putStdPairValueOffsetExpression<std::wstring,int>(stdWideStringTypeUShortC, "int", d);
         d.put('}');
+#endif // Q_CC_MSVC
         d.disarm();
     }
 

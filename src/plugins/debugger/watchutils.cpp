@@ -798,7 +798,6 @@ QtDumperHelper::ExpressionRequirement QtDumperHelper::expressionRequirements(Typ
 
     switch (t) {
     case QAbstractItemType:
-    case QVectorType:
         return NeedsComplexExpression;
     case QMapType:
     case QMultiMapType:
@@ -1353,14 +1352,6 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     case QAbstractItemType:
         inner = data.addr.mid(1);
         break;
-    case QVectorType:
-        if (m_qtVersion >= 0x040600)
-            extraArgs[1] = QString("(char*)&((%1).p->array)-(char*)((%2).p)")
-                .arg(data.exp).arg(data.exp);
-        else
-            extraArgs[1] = QString("(char*)&((%1).d->array)-(char*)((%2).d)")
-                .arg(data.exp).arg(data.exp);
-        break;
     case QObjectSlotType:
     case QObjectSignalType: {
             // we need the number out of something like
@@ -1453,6 +1444,7 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         qWarning("Unknown type encountered in %s.\n", Q_FUNC_INFO);
         break;
     case SupportedType:
+    case QVectorType:
     case QObjectType:
     case QWidgetType:
         break;
