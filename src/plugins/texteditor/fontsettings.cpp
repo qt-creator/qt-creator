@@ -258,6 +258,7 @@ bool FontSettings::loadColorScheme(const QString &fileName,
 
     if (!m_scheme.load(m_schemeFileName)) {
         loaded = false;
+        m_schemeFileName.clear();
         qWarning() << "Failed to load color scheme:" << fileName;
     }
 

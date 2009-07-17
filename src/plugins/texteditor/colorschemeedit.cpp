@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#include "editcolorschemedialog.h"
-#include "ui_editcolorschemedialog.h"
+#include "colorschemeedit.h"
+#include "ui_colorschemeedit.h"
 
 #include "texteditorconstants.h"
 
@@ -54,42 +54,64 @@ namespace Internal {
 class FormatsModel : public QAbstractListModel
 {
 public:
-    FormatsModel(const FormatDescriptions &fd,
-                 const FontSettings &fontSettings,
-                 const ColorScheme &scheme,
-                 QObject *parent = 0):
+    FormatsModel(QObject *parent = 0):
         QAbstractListModel(parent),
-        m_fd(fd),
-        m_scheme(scheme),
-        m_baseFont(fontSettings.family(), fontSettings.fontSize())
+        m_descriptions(0),
+        m_scheme(0)
     {
     }
 
+    void setFormatDescriptions(const FormatDescriptions *descriptions)
+    {
+        m_descriptions = descriptions;
+        reset();
+    }
+
+    void setBaseFont(const QFont &font)
+    {
+        emit layoutAboutToBeChanged(); // So the view adjust to new item height
+        m_baseFont = font;
+        emit layoutChanged();
+        emitDataChanged(index(0));
+    }
+
+    void setColorScheme(const ColorScheme *scheme)
+    {
+        m_scheme = scheme;
+        emitDataChanged(index(0));
+    }
+
     int rowCount(const QModelIndex &parent) const
-    { return parent.isValid() ? 0 : m_fd.size(); }
+    {
+        return (parent.isValid() || !m_descriptions) ? 0 : m_descriptions->size();
+    }
 
     QVariant data(const QModelIndex &index, int role) const
     {
-        const FormatDescription &description = m_fd.at(index.row());
+        if (!m_descriptions || !m_scheme)
+            return QVariant();
+
+        const FormatDescription &description = m_descriptions->at(index.row());
+
         switch (role) {
         case Qt::DisplayRole:
             return description.trName();
         case Qt::ForegroundRole: {
-            QColor foreground = m_scheme.formatFor(description.name()).foreground();
+            QColor foreground = m_scheme->formatFor(description.name()).foreground();
             if (foreground.isValid())
                 return foreground;
             else
-                return m_scheme.formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).foreground();
+                return m_scheme->formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).foreground();
         }
         case Qt::BackgroundRole: {
-            QColor background = m_scheme.formatFor(description.name()).background();
+            QColor background = m_scheme->formatFor(description.name()).background();
             if (background.isValid())
                 return background;
         }
         case Qt::FontRole: {
             QFont font = m_baseFont;
-            font.setBold(m_scheme.formatFor(description.name()).bold());
-            font.setItalic(m_scheme.formatFor(description.name()).italic());
+            font.setBold(m_scheme->formatFor(description.name()).bold());
+            font.setItalic(m_scheme->formatFor(description.name()).italic());
             return font;
         }
         }
@@ -98,69 +120,98 @@ public:
 
     void emitDataChanged(const QModelIndex &i)
     {
+        if (!m_descriptions)
+            return;
+
         // If the text category changes, all indexes might have changed
         if (i.row() == 0)
-            emit dataChanged(i, index(m_fd.size() - 1));
+            emit dataChanged(i, index(m_descriptions->size() - 1));
         else
             emit dataChanged(i, i);
     }
 
 private:
-    const FormatDescriptions &m_fd;
-    const ColorScheme &m_scheme;
-    const QFont m_baseFont;
+    const FormatDescriptions *m_descriptions;
+    const ColorScheme *m_scheme;
+    QFont m_baseFont;
 };
 
 } // namespace Internal
 } // namespace TextEditor
 
-EditColorSchemeDialog::EditColorSchemeDialog(const FormatDescriptions &fd,
-                                             const FontSettings &fontSettings,
-                                             QWidget *parent) :
-    QDialog(parent),
-    m_descriptions(fd),
-    m_fontSettings(fontSettings),
-    m_scheme(fontSettings.colorScheme()),
+ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
+    QWidget(parent),
     m_curItem(-1),
-    m_ui(new Ui::EditColorSchemeDialog),
-    m_formatsModel(new FormatsModel(m_descriptions, m_fontSettings, m_scheme, this))
+    m_ui(new Ui::ColorSchemeEdit),
+    m_formatsModel(new FormatsModel(this))
 {
     m_ui->setupUi(this);
-    m_ui->nameEdit->setText(m_scheme.name());
     m_ui->itemList->setModel(m_formatsModel);
 
     connect(m_ui->itemList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            SLOT(itemChanged(QModelIndex)));
+            SLOT(currentItemChanged(QModelIndex)));
     connect(m_ui->foregroundToolButton, SIGNAL(clicked()), SLOT(changeForeColor()));
     connect(m_ui->backgroundToolButton, SIGNAL(clicked()), SLOT(changeBackColor()));
     connect(m_ui->eraseBackgroundToolButton, SIGNAL(clicked()), SLOT(eraseBackColor()));
     connect(m_ui->boldCheckBox, SIGNAL(toggled(bool)), SLOT(checkCheckBoxes()));
     connect(m_ui->italicCheckBox, SIGNAL(toggled(bool)), SLOT(checkCheckBoxes()));
-
-    if (!m_descriptions.empty())
-        m_ui->itemList->setCurrentIndex(m_formatsModel->index(0));
-
-    setItemListBackground(m_scheme.formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).background());
 }
 
-EditColorSchemeDialog::~EditColorSchemeDialog()
+ColorSchemeEdit::~ColorSchemeEdit()
 {
     delete m_ui;
 }
 
-void EditColorSchemeDialog::accept()
+void ColorSchemeEdit::setFormatDescriptions(const FormatDescriptions &descriptions)
 {
-    m_scheme.setName(m_ui->nameEdit->text());
-    QDialog::accept();
+    m_descriptions = descriptions;
+    m_formatsModel->setFormatDescriptions(&m_descriptions);
+
+    if (!m_descriptions.empty())
+        m_ui->itemList->setCurrentIndex(m_formatsModel->index(0));
 }
 
-void EditColorSchemeDialog::itemChanged(const QModelIndex &index)
+void ColorSchemeEdit::setBaseFont(const QFont &font)
+{
+    m_formatsModel->setBaseFont(font);
+}
+
+void ColorSchemeEdit::setReadOnly(bool readOnly)
+{
+    const bool enabled = !readOnly;
+    m_ui->foregroundLabel->setEnabled(enabled);
+    m_ui->foregroundToolButton->setEnabled(enabled);
+    m_ui->backgroundLabel->setEnabled(enabled);
+    m_ui->backgroundToolButton->setEnabled(enabled);
+    m_ui->eraseBackgroundToolButton->setEnabled(enabled);
+    m_ui->boldCheckBox->setEnabled(enabled);
+    m_ui->italicCheckBox->setEnabled(enabled);
+}
+
+void ColorSchemeEdit::setColorScheme(const ColorScheme &colorScheme)
+{
+    m_scheme = colorScheme;
+    m_formatsModel->setColorScheme(&m_scheme);
+    setItemListBackground(m_scheme.formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).background());
+    updateControls();
+}
+
+const ColorScheme &ColorSchemeEdit::colorScheme() const
+{
+    return m_scheme;
+}
+
+void ColorSchemeEdit::currentItemChanged(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
 
     m_curItem = index.row();
+    updateControls();
+}
 
+void ColorSchemeEdit::updateControls()
+{
     const Format &format = m_scheme.formatFor(m_descriptions[m_curItem].name());
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
     m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
@@ -175,7 +226,7 @@ void EditColorSchemeDialog::itemChanged(const QModelIndex &index)
     m_ui->italicCheckBox->blockSignals(italicBlocked);
 }
 
-void EditColorSchemeDialog::changeForeColor()
+void ColorSchemeEdit::changeForeColor()
 {
     if (m_curItem == -1)
         return;
@@ -194,7 +245,7 @@ void EditColorSchemeDialog::changeForeColor()
     }
 }
 
-void EditColorSchemeDialog::changeBackColor()
+void ColorSchemeEdit::changeBackColor()
 {
     if (m_curItem == -1)
         return;
@@ -215,7 +266,7 @@ void EditColorSchemeDialog::changeBackColor()
     }
 }
 
-void EditColorSchemeDialog::eraseBackColor()
+void ColorSchemeEdit::eraseBackColor()
 {
     if (m_curItem == -1)
         return;
@@ -230,7 +281,7 @@ void EditColorSchemeDialog::eraseBackColor()
     }
 }
 
-void EditColorSchemeDialog::checkCheckBoxes()
+void ColorSchemeEdit::checkCheckBoxes()
 {
     if (m_curItem == -1)
         return;
@@ -243,7 +294,7 @@ void EditColorSchemeDialog::checkCheckBoxes()
     }
 }
 
-void EditColorSchemeDialog::setItemListBackground(const QColor &color)
+void ColorSchemeEdit::setItemListBackground(const QColor &color)
 {
     QPalette pal = m_ui->itemList->palette();
     pal.setColor(QPalette::Base, color);

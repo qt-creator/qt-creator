@@ -99,7 +99,7 @@ public:
 
     void clear();
 
-    bool save(const QString &fileName);
+    bool save(const QString &fileName) const;
     bool load(const QString &fileName);
 
     inline bool equals(const ColorScheme &cs) const

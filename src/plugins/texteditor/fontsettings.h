@@ -77,6 +77,9 @@ public:
     int fontSize() const;
     void setFontSize(int size);
 
+    QFont font() const
+    { return QFont(family(), fontSize()); }
+
     bool antialias() const;
     void setAntialias(bool antialias);
 

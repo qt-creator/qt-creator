@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef EDITCOLORSCHEMEDIALOG_H
-#define EDITCOLORSCHEMEDIALOG_H
+#ifndef COLORSCHEMEEDIT_H
+#define COLORSCHEMEEDIT_H
 
 #include "colorscheme.h"
 #include "fontsettingspage.h"
@@ -43,43 +43,44 @@ namespace TextEditor {
 namespace Internal {
 
 namespace Ui {
-class EditColorSchemeDialog;
+class ColorSchemeEdit;
 }
 
 class FormatsModel;
 
-class EditColorSchemeDialog : public QDialog
+/*!
+  A widget for editing a color scheme. Used in the FontSettingsPage.
+  */
+class ColorSchemeEdit : public QWidget
 {
     Q_OBJECT
 
 public:
-    EditColorSchemeDialog(const FormatDescriptions &fd,
-                          const FontSettings &fontSettings,
-                          QWidget *parent = 0);
-    ~EditColorSchemeDialog();
+    ColorSchemeEdit(QWidget *parent = 0);
+    ~ColorSchemeEdit();
 
-    ColorScheme colorScheme() const
-    { return m_scheme; }
+    void setFormatDescriptions(const FormatDescriptions &descriptions);
+    void setBaseFont(const QFont &font);
+    void setReadOnly(bool readOnly);
 
-    void accept();
+    void setColorScheme(const ColorScheme &colorScheme);
+    const ColorScheme &colorScheme() const;
 
 private slots:
-    void itemChanged(const QModelIndex &index);
+    void currentItemChanged(const QModelIndex &index);
     void changeForeColor();
     void changeBackColor();
     void eraseBackColor();
     void checkCheckBoxes();
 
 private:
+    void updateControls();
     void setItemListBackground(const QColor &color);
 
-    const TextEditor::FormatDescriptions m_descriptions;
-    const FontSettings m_fontSettings;
-
+    TextEditor::FormatDescriptions m_descriptions;
     ColorScheme m_scheme;
     int m_curItem;
-
-    Ui::EditColorSchemeDialog *m_ui;
+    Ui::ColorSchemeEdit *m_ui;
     FormatsModel *m_formatsModel;
 };
 
@@ -87,4 +88,4 @@ private:
 } // namespace Internal
 } // namespace TextEditor
 
-#endif // EDITCOLORSCHEMEDIALOG_H
+#endif // COLORSCHEMEEDIT_H

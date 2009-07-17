@@ -128,7 +128,7 @@ void ColorScheme::clear()
     m_formats.clear();
 }
 
-bool ColorScheme::save(const QString &fileName)
+bool ColorScheme::save(const QString &fileName) const
 {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly))

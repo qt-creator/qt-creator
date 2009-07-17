@@ -109,13 +109,15 @@ signals:
 
 private slots:
     void delayedChange();
-    void updatePointSizes();
+    void fontFamilySelected(const QString &family);
+    void fontSizeSelected(const QString &sizeString);
     void colorSchemeSelected(int index);
-    void cloneColorScheme();
+    void copyColorScheme();
     void deleteColorScheme();
-    void editColorScheme();
 
 private:
+    void maybeSaveColorScheme();
+    void updatePointSizes();
     void refreshColorSchemeList();
 
     Internal::FontSettingsPagePrivate *d_ptr;
