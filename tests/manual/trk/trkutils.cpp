@@ -117,7 +117,7 @@ TrkResult extractResult(QByteArray *buffer)
 
     result.code = data.at(0);
     result.token = data.at(1);
-    result.data = data.mid(2);
+    result.data = data.mid(2, data.size() - 3);
     //logMessage("   REST BUF: " << stringFromArray(*buffer));
     //logMessage("   CURR DATA: " << stringFromArray(data));
     //QByteArray prefix = "READ BUF:                                       ";
@@ -127,15 +127,15 @@ TrkResult extractResult(QByteArray *buffer)
 
 ushort extractShort(const char *data)
 {
-    return data[0] * 256 + data[1];
+    return byte(data[0]) * 256 + byte(data[1]);
 }
 
 uint extractInt(const char *data)
 {
-    uint res = data[0];
-    res *= 256; res += data[1];
-    res *= 256; res += data[2];
-    res *= 256; res += data[3];
+    uint res = byte(data[0]);
+    res *= 256; res += byte(data[1]);
+    res *= 256; res += byte(data[2]);
+    res *= 256; res += byte(data[3]);
     return res;
 }
 
@@ -213,38 +213,47 @@ QString stringFromArray(const QByteArray &ba)
     return str + "  " + ascii;
 }
 
-
-QByteArray formatByte(byte b)
+void appendByte(QByteArray *ba, byte b)
 {
-    char buf[30];
-    qsnprintf(buf, sizeof(buf) - 1, "%x ", b);
-    return buf;
+    ba->append(b);
 }
 
-QByteArray formatShort(ushort s)
+void appendShort(QByteArray *ba, ushort s, Endianness endian)
 {
-    char buf[30];
-    qsnprintf(buf, sizeof(buf) - 1, "%x %x ", s / 256, s % 256);
-    return buf;
+    if (endian == BigEndian) {
+        ba->append(s / 256);
+        ba->append(s % 256);
+    } else {
+        ba->append(s % 256);
+        ba->append(s / 256);
+    }
 }
 
-QByteArray formatInt(uint i)
+void appendInt(QByteArray *ba, uint i, Endianness endian)
 {
-    char buf[30];
     int b3 = i % 256; i -= b3; i /= 256;
     int b2 = i % 256; i -= b2; i /= 256;
     int b1 = i % 256; i -= b1; i /= 256;
     int b0 = i % 256; i -= b0; i /= 256;
-    qsnprintf(buf, sizeof(buf) - 1, "%x %x %x %x ", b0, b1, b2, b3);
-    return buf;
+    if (endian == BigEndian) {
+        ba->append(b3);
+        ba->append(b2);
+        ba->append(b1);
+        ba->append(b0);
+    } else {
+        ba->append(b0);
+        ba->append(b1);
+        ba->append(b2);
+        ba->append(b3);
+    }
 }
 
-QByteArray formatString(const QByteArray &str)
+void appendString(QByteArray *ba, const QByteArray &str, Endianness endian)
 {
-    QByteArray ba = formatShort(str.size());
-    foreach (byte b, str)
-        ba.append(formatByte(b));
-    return ba;
+    const int n = str.size();
+    appendShort(ba, n, endian);
+    for (int i = 0; i != n; ++i)
+        ba->append(str.at(i));
 }
 
 QByteArray errorMessage(byte code)

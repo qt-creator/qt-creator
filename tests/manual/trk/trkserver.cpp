@@ -59,6 +59,23 @@ using namespace trk;
 // [80 02 00 7E 00 4F 5F 01 00 00 00 0F 1F 00 00 00
 //  00 00 00 01 00 11 00 03 00 00 00 00 00 03 00 00...]
 
+struct Inferior
+{
+    Inferior();
+    uint pid;
+    uint tid;
+    uint codeseg;
+    uint dataseg;
+};
+
+Inferior::Inferior()
+{
+    pid = 0x000008F5;
+    tid = 0x000008F6;
+    codeseg = 0x78674000;
+    dataseg = 0x00400000;
+}
+
 class TrkServer : public QObject
 {
     Q_OBJECT
@@ -90,6 +107,7 @@ private:
     QLocalServer m_server;
     int m_lastSent;
     QLocalSocket *m_adapterConnection;
+    Inferior m_inferior;
 };
 
 TrkServer::TrkServer()
@@ -184,6 +202,39 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             break;
         }
         case 0x01: { // Connect
+            writeToAdapter(0x80, result.token, data);
+            break;
+        }
+        case 0x10: { // Read Memory
+            const char *p = result.data.data();
+            byte option = p[0];
+            Q_UNUSED(option);
+            ushort len = extractShort(p + 1);
+            uint addr = extractInt(p + 3); 
+            qDebug() << "ADDR: " << QByteArray::number(addr, 16) << " "
+                << QByteArray::number(len, 16);
+            for (int i = 0; i != len; ++i)
+                appendByte(&data, i);
+            writeToAdapter(0x80, result.token, data);
+            break;
+        }
+        case 0x12: { // Read Registers
+            appendInt(&data, 0x00000000, BigEndian);
+            appendInt(&data, 0xC924FFBC, BigEndian);
+            appendInt(&data, 0x00000000, BigEndian);
+            appendInt(&data, 0x00600000, BigEndian);
+            appendInt(&data, 0x78677970, BigEndian);
+            for (int i = 5; i < registerCount - 1; ++i)
+                appendInt(&data, i + (i << 16), BigEndian);
+            appendInt(&data, 0x78676B00, BigEndian);
+            writeToAdapter(0x80, result.token, data);
+            break;
+        }
+        case 0x40: { // Create Item
+            appendInt(&data, m_inferior.pid, BigEndian);
+            appendInt(&data, m_inferior.tid, BigEndian);
+            appendInt(&data, m_inferior.codeseg, BigEndian);
+            appendInt(&data, m_inferior.dataseg, BigEndian);
             writeToAdapter(0x80, result.token, data);
             break;
         }

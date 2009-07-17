@@ -5,10 +5,13 @@ make || exit 1
 killall -s USR1 adapter trkserver > /dev/null 2>&1
 killall adapter trkserver > /dev/null 2>&1
 
-trkservername="TRKSERVER-3";
+trkservername="TRKSERVER-4";
 gdbserverip=127.0.0.1
-gdbserverport=2225
+gdbserverport=2226
 replaysource=dump.txt
+
+fuser -n tcp -k ${gdbserverport} 
+rm /tmp/${trkservername}
 
 ./trkserver ${trkservername} ${replaysource} &
 trkserverpid=$!

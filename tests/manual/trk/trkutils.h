@@ -33,6 +33,7 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
 #include <QtCore/QString>
+#include <QtCore/QVariant>
 
 namespace trk {
 
@@ -51,15 +52,28 @@ QString stringFromByte(byte c);
 // produces "xx xx xx "
 QString stringFromArray(const QByteArray &ba);
 
-QByteArray formatByte(byte b);
-QByteArray formatShort(ushort s);
-QByteArray formatInt(uint i);
-QByteArray formatString(const QByteArray &str);
+enum Endianness
+{
+    LittleEndian,
+    BigEndian,
+    TargetByteOrder = BigEndian,
+};
+
+void appendByte(QByteArray *ba, byte b);
+void appendShort(QByteArray *ba, ushort s, Endianness = TargetByteOrder);
+void appendInt(QByteArray *ba, uint i, Endianness = TargetByteOrder);
+void appendString(QByteArray *ba, const QByteArray &str, Endianness = TargetByteOrder);
 
 enum CodeMode
 {
     ArmMode = 0,
     ThumbMode,
+};
+
+enum TargetConstants
+{
+    registerCount = 16,
+    memoryChunkSize = 256
 };
 
 struct Session
@@ -76,8 +90,11 @@ struct Session
         tid = 0;
         codeseg = 0;
         dataseg = 0;
+
+        currentThread = 0;
     }
 
+    // Trk feedback
     byte cpuMajor;
     byte cpuMinor;
     byte bigEndian;
@@ -90,6 +107,16 @@ struct Session
     uint codeseg;
     uint dataseg;
     QHash<uint, uint> tokenToBreakpointIndex;
+
+    // Gdb request
+    uint currentThread;
+};
+
+struct SnapShot
+{
+    uint registers[registerCount];
+    typedef QHash<uint, QByteArray> Memory;
+    Memory memory;
 };
 
 struct Breakpoint
@@ -113,6 +140,7 @@ struct TrkResult
     byte code;
     byte token;
     QByteArray data;
+    QVariant cookie;
 };
 
 // returns a QByteArray containing 0x01 0x90 <len> 0x7e encoded7d(ba) 0x7e
