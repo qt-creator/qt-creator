@@ -132,13 +132,13 @@ EditorManagerPlaceHolder* EditorManagerPlaceHolder::current()
 // ---------------- EditorManager
 
 namespace Core {
+
+//struct EditorHistoryItem {
+//    IFile *file;
+//    QPointer<Internal::EditorView> view;
+//};
+
 struct EditorManagerPrivate {
-    struct EditLocation {
-        QPointer<IEditor> editor;
-        QString fileName;
-        QString kind;
-        QVariant state;
-    };
     explicit EditorManagerPrivate(ICore *core, QWidget *parent);
     ~EditorManagerPrivate();
     Internal::EditorView *m_view;
@@ -168,12 +168,7 @@ struct EditorManagerPrivate {
     QAction *m_gotoOtherSplitAction;
 
     QList<IEditor *> m_editorHistory;
-    QList<EditLocation *> m_navigationHistory;
-    void clearNavigationHistory() {
-        qDeleteAll(m_navigationHistory);
-        m_navigationHistory.clear();
-    }
-    int currentNavigationHistoryPosition;
+
     Internal::OpenEditorsWindow *m_windowPopup;
     Core::BaseView *m_openEditorsView;
     Internal::EditorClosingCoreListener *m_coreListener;
@@ -203,10 +198,9 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_closeOtherEditorsAction(new QAction(EditorManager::tr("Close Others"), parent)),
     m_gotoNextDocHistoryAction(new QAction(EditorManager::tr("Next Document in History"), parent)),
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Document in History"), parent)),
-    m_goBackAction(new QAction(EditorManager::tr("Go Back"), parent)),
-    m_goForwardAction(new QAction(EditorManager::tr("Go Forward"), parent)),
+    m_goBackAction(new QAction(QIcon(QLatin1String(":/help/images/previous.png")), EditorManager::tr("Go Back"), parent)),
+    m_goForwardAction(new QAction(QIcon(QLatin1String(":/help/images/next.png")), EditorManager::tr("Go Forward"), parent)),
     m_openInExternalEditorAction(new QAction(EditorManager::tr("Open in External Editor"), parent)),
-    currentNavigationHistoryPosition(0),
     m_windowPopup(0),
     m_coreListener(0),
     m_reloadBehavior(IFile::AskForReload)
@@ -216,7 +210,7 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
 
 EditorManagerPrivate::~EditorManagerPrivate()
 {
-    clearNavigationHistory();
+//    clearNavigationHistory();
 }
 
 EditorManager *EditorManager::m_instance = 0;
@@ -553,6 +547,16 @@ QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) cons
     return found;
 }
 
+QList<IEditor *> EditorManager::editorsForFile(IFile *file) const
+{
+    QList<IEditor *> found;
+    foreach (IEditor *editor, openedEditors()) {
+        if (editor->file() == file)
+            found << editor;
+    }
+    return found;
+}
+
 IEditor *EditorManager::currentEditor() const
 {
     return m_d->m_currentEditor;
@@ -647,7 +651,7 @@ bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
     m_d->m_editorModel->removeAllRestoredEditors();
     if (closeEditors(openedEditors(), askAboutModifiedEditors)) {
-        m_d->clearNavigationHistory();
+//        m_d->clearNavigationHistory();
         return true;
     }
     return false;
@@ -851,12 +855,10 @@ Core::IEditor *EditorManager::activateEditor(const QModelIndex &index, Internal:
     if (editor)  {
         return activateEditor(view, editor, flags);
     }
-    if (view)
-        setCurrentView(m_d->m_splitter->findView(view));
 
     QString fileName = index.data(Qt::UserRole + 1).toString();
     QByteArray kind = index.data(Qt::UserRole + 2).toByteArray();
-    return openEditor(fileName, kind, flags);
+    return openEditor(view, fileName, kind, flags);
 }
 
 Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core::IEditor *editor)
@@ -912,6 +914,13 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
         editor->widget()->setFocus();
     }
     return editor;
+}
+
+Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IFile *file, OpenEditorFlags flags)
+{
+    QList<IEditor*> editors = editorsForFile(file);
+    Q_ASSERT(!editors.isEmpty());
+    return activateEditor(view, editors.first(), flags);
 }
 
 /* For something that has a 'QStringList mimeTypes' (IEditorFactory
@@ -1119,6 +1128,12 @@ static QString formatFileFilters(const Core::ICore *core, QString *selectedFilte
 IEditor *EditorManager::openEditor(const QString &fileName, const QString &editorKind,
                                    EditorManager::OpenEditorFlags flags)
 {
+    return openEditor(0, fileName, editorKind, flags);
+}
+
+IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QString &fileName,
+                        const QString &editorKind, EditorManager::OpenEditorFlags flags)
+{
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << fileName << editorKind;
 
@@ -1142,7 +1157,7 @@ IEditor *EditorManager::openEditor(const QString &fileName, const QString &edito
     restoreEditorState(editor);
     QApplication::restoreOverrideCursor();
 
-    return activateEditor(editor, flags);
+    return activateEditor(view, editor, flags);
 }
 
 bool EditorManager::openExternalEditor(const QString &fileName, const QString &editorKind)
@@ -1476,8 +1491,9 @@ void EditorManager::updateActions()
 
     m_d->m_gotoNextDocHistoryAction->setEnabled(m_d->m_editorHistory.count() > 0);
     m_d->m_gotoPreviousDocHistoryAction->setEnabled(m_d->m_editorHistory.count() > 0);
-    m_d->m_goBackAction->setEnabled(m_d->currentNavigationHistoryPosition > 0);
-    m_d->m_goForwardAction->setEnabled(m_d->currentNavigationHistoryPosition < m_d->m_navigationHistory.size()-1);
+    EditorView *view  = currentEditorView();
+    m_d->m_goBackAction->setEnabled(view->canGoBack());
+    m_d->m_goForwardAction->setEnabled(view->canGoForward());
 
     bool hasSplitter = m_d->m_splitter->isSplitter();
     m_d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
@@ -1497,121 +1513,28 @@ OpenEditorsModel *EditorManager::openedEditorsModel() const
     return m_d->m_editorModel;
 }
 
-
 QList<IEditor*> EditorManager::editorHistory() const
 {
     return m_d->m_editorHistory;
 }
 
-void EditorManager::addCurrentPositionToNavigationHistory(const QByteArray &saveState, bool compress)
+void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
 {
-    IEditor *editor = currentEditor();
-    if (!editor)
-        return;
-    if (!editor->file())
-        return;
-
-    QString fileName = editor->file()->fileName();
-    QByteArray state;
-    if (saveState.isNull()) {
-        state = editor->saveState();
-    } else {
-        state = saveState;
-    }
-    // cut existing
-    int firstIndexToRemove;
-    if (compress && m_d->currentNavigationHistoryPosition > 0) {
-        EditorManagerPrivate::EditLocation *previousLocation =
-                m_d->m_navigationHistory.at(m_d->currentNavigationHistoryPosition-1);
-        if ((previousLocation->editor && editor == previousLocation->editor)
-                || (!fileName.isEmpty() && previousLocation->fileName == fileName)) {
-            firstIndexToRemove = m_d->currentNavigationHistoryPosition-1;
-        } else {
-            firstIndexToRemove = m_d->currentNavigationHistoryPosition;
-        }
-    } else {
-        firstIndexToRemove = m_d->currentNavigationHistoryPosition;
-    }
-    if (firstIndexToRemove >= 0) {
-        for (int i = m_d->m_navigationHistory.size()-1; i >= firstIndexToRemove; --i) {
-            delete m_d->m_navigationHistory.takeLast();
-        }
-    }
-    while (m_d->m_navigationHistory.size() >= 30) {
-        delete m_d->m_navigationHistory.takeFirst();
-    }
-    EditorManagerPrivate::EditLocation *location = new EditorManagerPrivate::EditLocation;
-    location->editor = editor;
-    location->fileName = editor->file()->fileName();
-    location->kind = editor->kind();
-    location->state = QVariant(state);
-    m_d->m_navigationHistory.append(location);
-    m_d->currentNavigationHistoryPosition = m_d->m_navigationHistory.size();
+    currentView()->view()->addCurrentPositionToNavigationHistory(editor, saveState);
     updateActions();
-}
-
-void EditorManager::updateCurrentPositionInNavigationHistory()
-{
-    if (!m_d->m_currentEditor || !m_d->m_currentEditor->file())
-        return;
-
-    EditorManagerPrivate::EditLocation *location;
-    if (m_d->currentNavigationHistoryPosition < m_d->m_navigationHistory.size()) {
-        location = m_d->m_navigationHistory[m_d->currentNavigationHistoryPosition];
-    } else {
-        location = new EditorManagerPrivate::EditLocation;
-        m_d->m_navigationHistory.append(location);
-    }
-    location->editor = m_d->m_currentEditor;
-    location->fileName = m_d->m_currentEditor->file()->fileName();
-    location->kind = m_d->m_currentEditor->kind();
-    location->state = QVariant(m_d->m_currentEditor->saveState());
 }
 
 void EditorManager::goBackInNavigationHistory()
 {
-    updateCurrentPositionInNavigationHistory();
-    while (m_d->currentNavigationHistoryPosition > 0) {
-        --m_d->currentNavigationHistoryPosition;
-        EditorManagerPrivate::EditLocation *location = m_d->m_navigationHistory.at(m_d->currentNavigationHistoryPosition);
-        IEditor *editor;
-        if (location->editor) {
-            editor = location->editor;
-            activateEditor(location->editor, IgnoreNavigationHistory);
-        } else {
-            editor = openEditor(location->fileName, location->kind, IgnoreNavigationHistory);
-            if (!editor) {
-                delete m_d->m_navigationHistory.takeAt(m_d->currentNavigationHistoryPosition);
-                continue;
-            }
-        }
-        editor->restoreState(location->state.toByteArray());
-        updateActions();
-        ensureEditorManagerVisible();
-        return;
-    }
+    currentView()->view()->goBackInNavigationHistory();
+    updateActions();
+    ensureEditorManagerVisible();
+    return;
 }
 
 void EditorManager::goForwardInNavigationHistory()
 {
-    updateCurrentPositionInNavigationHistory();
-    if (m_d->currentNavigationHistoryPosition >= m_d->m_navigationHistory.size()-1)
-        return;
-    ++m_d->currentNavigationHistoryPosition;
-    EditorManagerPrivate::EditLocation *location = m_d->m_navigationHistory.at(m_d->currentNavigationHistoryPosition);
-    IEditor *editor;
-    if (location->editor) {
-        editor = location->editor;
-        activateEditor(location->editor, IgnoreNavigationHistory);
-    } else {
-        editor = openEditor(location->fileName, location->kind, IgnoreNavigationHistory);
-        if (!editor) {
-            //TODO
-            qDebug() << Q_FUNC_INFO << "can't open file" << location->fileName;
-            return;
-        }
-    }
-    editor->restoreState(location->state.toByteArray());
+    currentView()->view()->goForwardInNavigationHistory();
     updateActions();
     ensureEditorManagerVisible();
 }
@@ -2006,7 +1929,7 @@ void EditorManager::gotoOtherSplit()
             view = m_d->m_splitter->findFirstView();
         if (view) {
             if (IEditor *editor = view->editor()) {
-                setCurrentEditor(editor);
+                setCurrentEditor(editor, true);
                 editor->widget()->setFocus();
             } else {
                 setCurrentView(view);

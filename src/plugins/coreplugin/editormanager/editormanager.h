@@ -122,6 +122,7 @@ public:
                      const QString &contents = QString());
     bool hasEditor(const QString &fileName) const;
     QList<IEditor *> editorsForFileName(const QString &filename) const;
+    QList<IEditor *> editorsForFile(IFile *file) const;
 
     IEditor *currentEditor() const;
     IEditor *activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
@@ -136,7 +137,7 @@ public:
     QList<IEditor*> editorsForFiles(QList<IFile*> files) const;
     //QList<EditorGroup *> editorGroups() const;
     QList<IEditor*> editorHistory() const;
-    void addCurrentPositionToNavigationHistory(const QByteArray &saveState = QByteArray(), bool compress = false);
+    void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
 
     bool saveEditor(IEditor *editor);
 
@@ -238,6 +239,10 @@ private:
     void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     void setCurrentView(Core::Internal::SplitterOrView *view);
     IEditor *activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
+    IEditor *activateEditor(Core::Internal::EditorView *view, Core::IFile*file, OpenEditorFlags flags = 0);
+    IEditor *openEditor(Core::Internal::EditorView *view, const QString &fileName,
+                        const QString &editorKind = QString(),
+                        OpenEditorFlags flags = 0);
     Core::Internal::SplitterOrView *currentView() const;
     void closeEditor(Core::IEditor *editor);
     void closeDuplicate(Core::IEditor *editor);
@@ -246,7 +251,6 @@ private:
     Core::Internal::EditorView *currentEditorView();
     IEditor *pickUnusedEditor() const;
 
-    void updateCurrentPositionInNavigationHistory();
 
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;

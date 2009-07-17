@@ -2601,7 +2601,7 @@ void BaseTextEditor::updateCurrentLineHighlight()
 void BaseTextEditor::slotCursorPositionChanged()
 {
     if (!d->m_contentsChanged && d->m_lastCursorChangeWasInteresting) {
-        Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(d->m_tempNavigationState);
+        Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(editableInterface(), d->m_tempNavigationState);
         d->m_lastCursorChangeWasInteresting = false;
     } else if (d->m_contentsChanged) {
         saveCurrentCursorPositionForNavigation();
