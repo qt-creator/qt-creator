@@ -392,8 +392,8 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget)
     setLayout(lay);
     lay->addWidget(m_toolBar);
 
-    connect(splitAction, SIGNAL(triggered(QAction*)), this, SIGNAL(split()));
-    connect(close, SIGNAL(triggered(QAction*)), this, SIGNAL(close()));
+    connect(splitAction, SIGNAL(clicked()), this, SIGNAL(split()));
+    connect(close, SIGNAL(clicked()), this, SIGNAL(close()));
     connect(m_navigationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setCurrentIndex(int)));
 
