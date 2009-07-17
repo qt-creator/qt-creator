@@ -797,7 +797,7 @@ static QString previousRevision(const QString &rev)
 // Is "[1.2...].1"?
 static inline bool isFirstRevision(const QString &r)
 {
-    return r.endsWith(QLatin1String("1.1"));
+    return r.endsWith(QLatin1String(".1"));
 }
 
 void CVSPlugin::slotDescribe(const QString &source, const QString &changeNr)
