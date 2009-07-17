@@ -105,11 +105,9 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
         m_lockButton->setAutoRaise(true);
-        m_lockButton->setProperty("type", QLatin1String("dockbutton"));
 
         m_closeButton->setAutoRaise(true);
         m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
-        m_closeButton->setProperty("type", QLatin1String("dockbutton"));
 
         QHBoxLayout *toplayout = new QHBoxLayout;
         toplayout->setSpacing(0);

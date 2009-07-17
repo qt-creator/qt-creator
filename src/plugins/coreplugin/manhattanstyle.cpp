@@ -31,7 +31,6 @@
 
 #include "styleanimator.h"
 
-#include <QtCore/QDebug>
 #include <QtCore/QLibrary>
 
 #include <utils/qtcassert.h>
@@ -100,8 +99,6 @@ public:
     {
         style = QStyleFactory::create(baseStyleName);
         QTC_ASSERT(style, /**/);
-        buttonImage_pressed = QImage(":/core/images/pushbutton_pressed.png");
-        buttonImage = QImage(":/core/images/pushbutton.png");
 
         lineeditImage = QImage(":/core/images/inputfield.png");
         lineeditImage_disabled = QImage(":/core/images/inputfield_disabled.png");
@@ -117,8 +114,6 @@ public:
 
 public:
     QStyle *style;
-    QImage buttonImage;
-    QImage buttonImage_pressed;
     QImage lineeditImage;
     QImage lineeditImage_disabled;
 
@@ -907,7 +902,6 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
     switch (control) {
     case CC_ToolButton:
         if (const QStyleOptionToolButton *toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option)) {
-            QString buttonType = widget->property("type").toString();
             QRect button, menuarea;
             button = subControlRect(control, toolbutton, SC_ToolButton, widget);
             menuarea = subControlRect(control, toolbutton, SC_ToolButtonMenu, widget);
@@ -930,24 +924,9 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             QStyleOption tool(0);
             tool.palette = toolbutton->palette;
             if (toolbutton->subControls & SC_ToolButton) {
-                if (buttonType == "dockbutton") {
-                    tool.rect = button;
-                    tool.state = bflags;
-                    drawPrimitive(PE_PanelButtonTool, &tool, painter, widget);
-                } else {  // paint status bar button style
-                    if (bflags & State_Sunken || bflags & State_On)
-                        drawCornerImage(d->buttonImage_pressed, painter, option->rect, 2, 2, 2, 2);
-                    else if (bflags & State_Enabled) {
-#ifndef Q_WS_MAC
-                        if (bflags & State_MouseOver) {
-                            drawCornerImage(d->buttonImage, painter, option->rect, 2, 2, 2, 2);
-                            QColor shade(255, 255, 255, 50);
-                            painter->fillRect(button.adjusted(1, 1, -1, -1), shade);
-                        }
-#endif
-                    }
-
-                }
+                tool.rect = button;
+                tool.state = bflags;
+                drawPrimitive(PE_PanelButtonTool, &tool, painter, widget);
             }
 
             if (toolbutton->state & State_HasFocus) {

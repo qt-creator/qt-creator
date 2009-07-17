@@ -196,7 +196,6 @@ MainWindow::MainWindow() :
     connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
             this, SLOT(updateFocusWidget(QWidget*,QWidget*)));
     // Add a small Toolbutton for toggling the navigation widget
-    m_toggleSideBarButton->setProperty("type", QLatin1String("dockbutton"));
     statusBar()->insertPermanentWidget(0, m_toggleSideBarButton);
 
 //    setUnifiedTitleAndToolBarOnMac(true);

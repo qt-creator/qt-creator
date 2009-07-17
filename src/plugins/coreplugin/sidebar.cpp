@@ -237,13 +237,11 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &title)
     m_toolbar->addWidget(m_comboBox);
 
     m_splitButton = new QToolButton;
-    m_splitButton->setProperty("type", QLatin1String("dockbutton"));
     m_splitButton->setIcon(QIcon(":/core/images/splitbutton_horizontal.png"));
     m_splitButton->setToolTip(tr("Split"));
     connect(m_splitButton, SIGNAL(clicked(bool)), this, SIGNAL(split()));
 
     m_closeButton = new QToolButton;
-    m_closeButton->setProperty("type", QLatin1String("dockbutton"));
     m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
     m_closeButton->setToolTip(tr("Close"));
 

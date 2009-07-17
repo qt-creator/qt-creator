@@ -383,9 +383,6 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget)
     toolBarLayout->addWidget(splitAction);
     toolBarLayout->addWidget(close);
 
-    splitAction->setProperty("type", QLatin1String("dockbutton"));
-    close->setProperty("type", QLatin1String("dockbutton"));
-
     QVBoxLayout *lay = new QVBoxLayout();
     lay->setMargin(0);
     lay->setSpacing(0);

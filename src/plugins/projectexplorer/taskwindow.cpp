@@ -314,7 +314,6 @@ static QToolButton *createFilterButton(ProjectExplorer::BuildParserInterface::Pa
 {
     QToolButton *button = new QToolButton;
     button->setIcon(model->iconFor(type));
-    button->setProperty("type", "dockbutton");
     button->setToolTip(toolTip);
     button->setCheckable(true);
     button->setChecked(true);

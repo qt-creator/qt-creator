@@ -177,18 +177,15 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     m_nextAction = new QAction(this);
     m_nextAction->setIcon(QIcon(":/core/images/next.png"));
-    m_nextAction->setProperty("type", QLatin1String("dockbutton"));
     m_nextAction->setText(tr("Next Item"));
     connect(m_nextAction, SIGNAL(triggered()), this, SLOT(slotNext()));
 
     m_prevAction = new QAction(this);
     m_prevAction->setIcon(QIcon(":/core/images/prev.png"));
-    m_prevAction->setProperty("type", QLatin1String("dockbutton"));
     m_prevAction->setText(tr("Previous Item"));
     connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
 
     m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
-    m_closeButton->setProperty("type", QLatin1String("dockbutton"));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
 
     QVBoxLayout *mainlayout = new QVBoxLayout;
@@ -201,10 +198,8 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     toolLayout->addWidget(m_widgetComboBox);
     toolLayout->addWidget(m_clearButton);
     m_prevToolButton = new QToolButton;
-    m_prevToolButton->setProperty("type", QLatin1String("dockbutton"));
     toolLayout->addWidget(m_prevToolButton);
     m_nextToolButton = new QToolButton;
-    m_nextToolButton->setProperty("type", QLatin1String("dockbutton"));
     toolLayout->addWidget(m_nextToolButton);
     toolLayout->addWidget(m_opToolBarWidgets);
     toolLayout->addWidget(m_closeButton);
