@@ -146,6 +146,7 @@ static const char pp_configuration[] =
     "#define __asm__(a...)\n"
     "#define   restrict\n"
     "#define __restrict\n"
+    "#define __restrict__\n"
 
     "#define __complex__\n"
     "#define __imag__\n"
