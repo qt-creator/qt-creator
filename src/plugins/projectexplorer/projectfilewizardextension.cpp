@@ -141,20 +141,8 @@ QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const Core::IWiz
     // Disable "add project to project"
     const bool hasProjects = !m_context->projects.empty();
     if (hasProjects) {
-        // Compile list of names and find current project if there is one
-        QStringList projectNames;
-        ProjectNode *current = currentProject();
-        int currentIndex = -1;
-        const int count = m_context->projects.size();
-        for (int i = 0; i < count; i++) {
-            ProjectNode *pn = m_context->projects.at(i);
-            projectNames.push_back(QFileInfo(pn->path()).fileName());
-            if (current == pn)
-                currentIndex = i;
-        }
-        m_context->page->setProjects(projectNames);
-        if (currentIndex != -1)
-            m_context->page->setCurrentProjectIndex(currentIndex);
+        m_context->page->setProjects(m_context->projects);
+        m_context->page->setCurrentProject(currentProject());
     }
     m_context->page->setAddToProjectEnabled(hasProjects && wizard->kind() != Core::IWizard::ProjectWizard);
 
@@ -166,7 +154,7 @@ bool ProjectFileWizardExtension::process(const QList<Core::GeneratedFile> &files
     typedef QMultiMap<FileType, QString> TypeFileMap;
     // Add files to project && version control
     if (m_context->page->addToProject()) {
-        ProjectNode *project = m_context->projects.at(m_context->page->currentProjectIndex());
+        ProjectNode *project = m_context->page->currentProject();
         // Split into lists by file type and add
         TypeFileMap typeFileMap;
         foreach (const Core::GeneratedFile &generatedFile, files) {
