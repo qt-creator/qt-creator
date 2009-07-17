@@ -27,24 +27,58 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#ifndef CHECKOUTPROGRESSWIZARDPAGE_H
+#define CHECKOUTPROGRESSWIZARDPAGE_H
 
-#include <QtCore/QtGlobal>
+#include <QtCore/QSharedPointer>
+#include <QtGui/QWizardPage>
 
 namespace VCSBase {
-namespace Constants {
-
-const char * const VCS_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const VCS_COMMON_SETTINGS_ID = QT_TRANSLATE_NOOP("VCSBase", "Common");
-
-const char * const VCS_WIZARD_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
+class AbstractCheckoutJob;
 
 namespace Internal {
-    enum { debug = 0 };
+
+namespace Ui {
+    class CheckoutProgressWizardPage;
+}
+
+/* Page showing the progress of an initial project
+ * checkout. Turns complete when the job succeeds. */
+
+class CheckoutProgressWizardPage : public QWizardPage {
+    Q_OBJECT
+    Q_DISABLE_COPY(CheckoutProgressWizardPage)
+
+public:
+    enum State { Idle, Running, Failed, Succeeded };
+
+    explicit CheckoutProgressWizardPage(QWidget *parent = 0);
+    ~CheckoutProgressWizardPage();
+
+    void start(const QSharedPointer<AbstractCheckoutJob> &job);
+
+    virtual bool isComplete() const;
+    bool isRunning() const{ return m_state == Running; }
+
+    void terminate();
+
+signals:
+    void terminated(bool success);
+
+private slots:
+    void slotFailed(const QString &);
+    void slotSucceeded();
+
+protected:
+    void changeEvent(QEvent *e);
+
+private:
+    Ui::CheckoutProgressWizardPage *ui;
+    QSharedPointer<AbstractCheckoutJob> m_job;
+
+    State m_state;
+};
+
 } // namespace Internal
-
-} // namespace Constants
-} // VCSBase
-
-#endif // VCSBASE_CONSTANTS_H
+} // namespace VCSBase
+#endif // CHECKOUTPROGRESSWIZARDPAGE_H

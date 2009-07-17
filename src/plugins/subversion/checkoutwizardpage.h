@@ -27,24 +27,23 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#ifndef CHECKOUTWIZARDPAGE_H
+#define CHECKOUTWIZARDPAGE_H
 
-#include <QtCore/QtGlobal>
+#include <vcsbase/basecheckoutwizardpage.h>
 
-namespace VCSBase {
-namespace Constants {
-
-const char * const VCS_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const VCS_COMMON_SETTINGS_ID = QT_TRANSLATE_NOOP("VCSBase", "Common");
-
-const char * const VCS_WIZARD_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-
+namespace Subversion {
 namespace Internal {
-    enum { debug = 0 };
+
+class CheckoutWizardPage : public VCSBase::BaseCheckoutWizardPage {
+    Q_OBJECT
+public:
+    CheckoutWizardPage(QWidget *parent = 0);
+
+protected:
+    virtual QString directoryFromRepository(const QString &r) const;
+};
+
 } // namespace Internal
-
-} // namespace Constants
-} // VCSBase
-
-#endif // VCSBASE_CONSTANTS_H
+} // namespace Subversion
+#endif // CHECKOUTWIZARDPAGE_H

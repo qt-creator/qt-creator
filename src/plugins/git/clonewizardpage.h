@@ -27,24 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#ifndef CLONEWIZARDPAGE_H
+#define CLONEWIZARDPAGE_H
 
-#include <QtCore/QtGlobal>
+#include <vcsbase/basecheckoutwizardpage.h>
 
-namespace VCSBase {
-namespace Constants {
-
-const char * const VCS_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const VCS_COMMON_SETTINGS_ID = QT_TRANSLATE_NOOP("VCSBase", "Common");
-
-const char * const VCS_WIZARD_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-
+namespace Git {
 namespace Internal {
-    enum { debug = 0 };
+
+class CloneWizardPage : public VCSBase::BaseCheckoutWizardPage
+{
+    Q_OBJECT
+public:
+    CloneWizardPage(QWidget *parent = 0);
+
+protected:
+    virtual QString directoryFromRepository(const QString &r) const;
+
+private:
+    const QString m_mainLinePostfix;
+    const QString m_gitPostFix;
+    const QString m_protocolDelimiter;
+};
+
 } // namespace Internal
+} // namespace Git
+#endif // CLONEWIZARDPAGE_H
 
-} // namespace Constants
-} // VCSBase
-
-#endif // VCSBASE_CONSTANTS_H

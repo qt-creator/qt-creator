@@ -27,24 +27,32 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#ifndef CLONEWIZARD_H
+#define CLONEWIZARD_H
 
-#include <QtCore/QtGlobal>
+#include <vcsbase/basecheckoutwizard.h>
 
-namespace VCSBase {
-namespace Constants {
-
-const char * const VCS_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const VCS_COMMON_SETTINGS_ID = QT_TRANSLATE_NOOP("VCSBase", "Common");
-
-const char * const VCS_WIZARD_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-
+namespace Git {
 namespace Internal {
-    enum { debug = 0 };
+
+class CloneWizard : public VCSBase::BaseCheckoutWizard
+{
+public:
+    explicit CloneWizard(QObject *parent = 0);
+
+    // IWizard
+    virtual QIcon icon() const;
+    virtual QString description() const;
+    virtual QString name() const;
+
+protected:
+    // BaseCheckoutWizard
+    virtual QWizardPage *createParameterPage(const QString &path);
+    virtual QSharedPointer<VCSBase::AbstractCheckoutJob> createJob(const QWizardPage *parameterPage,
+                                                                   QString *checkoutPath);
+};
+
 } // namespace Internal
+} // namespace Git
 
-} // namespace Constants
-} // VCSBase
-
-#endif // VCSBASE_CONSTANTS_H
+#endif // CLONEWIZARD_H

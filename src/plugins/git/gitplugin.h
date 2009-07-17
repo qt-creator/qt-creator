@@ -96,9 +96,10 @@ public:
 
     GitOutputWindow *outputWindow() const;
 
-
     GitSettings settings() const;
     void setSettings(const GitSettings &s);
+
+    GitClient *gitClient() const;
 
 public slots:
     void updateActions();
@@ -166,11 +167,6 @@ private:
     GitClient                   *m_gitClient;
     GitOutputWindow             *m_outputWindow;
     ChangeSelectionDialog       *m_changeSelectionDialog;
-    SettingsPage                *m_settingsPage;
-    QList<Core::IEditorFactory*> m_editorFactories;
-    CoreListener                *m_coreListener;
-    Core::IEditorFactory        *m_submitEditorFactory;
-    Core::IVersionControl       *m_versionControl;
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;
     QStringList                 m_submitOrigDeleteFiles;

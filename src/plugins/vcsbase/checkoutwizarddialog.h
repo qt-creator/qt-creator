@@ -27,24 +27,43 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#ifndef CHECKOUTWIZARDDIALOG_H
+#define CHECKOUTWIZARDDIALOG_H
 
-#include <QtCore/QtGlobal>
+#include <QtCore/QSharedPointer>
+#include <QtGui/QWizard>
 
 namespace VCSBase {
-namespace Constants {
-
-const char * const VCS_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const VCS_COMMON_SETTINGS_ID = QT_TRANSLATE_NOOP("VCSBase", "Common");
-
-const char * const VCS_WIZARD_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
+class AbstractCheckoutJob;
 
 namespace Internal {
-    enum { debug = 0 };
+class CheckoutProgressWizardPage;
+
+/* See BaseCheckoutWizard.
+ * Overwrites reject() to first kill the checkout
+ * and then close. */
+
+class CheckoutWizardDialog : public QWizard {
+    Q_OBJECT
+public:
+    CheckoutWizardDialog(QWizardPage *parameterPage,
+                         QWidget *parent = 0);
+
+    void start(const QSharedPointer<AbstractCheckoutJob> &job);
+    const QWizardPage *parameterPage() const;
+
+signals:
+    void progressPageShown();
+
+private slots:
+    void slotPageChanged(int id);
+    void slotTerminated(bool success);
+    virtual void reject();
+
+private:
+    CheckoutProgressWizardPage *m_progressPage;
+};
+
 } // namespace Internal
-
-} // namespace Constants
-} // VCSBase
-
-#endif // VCSBASE_CONSTANTS_H
+} // namespace VCSBase
+#endif // CHECKOUTWIZARDDIALOG_H

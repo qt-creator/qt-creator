@@ -17,7 +17,12 @@ HEADERS += vcsbase_global.h \
     submitfilemodel.h \
     vcsbasesettings.h \
     vcsbasesettingspage.h \
-    nicknamedialog.h
+    nicknamedialog.h \
+    basecheckoutwizard.h \
+    checkoutwizarddialog.h \
+    checkoutprogresswizardpage.h \
+    checkoutjobs.h \
+    basecheckoutwizardpage.h
 
 SOURCES += vcsbaseplugin.cpp \
     baseannotationhighlighter.cpp \
@@ -31,11 +36,18 @@ SOURCES += vcsbaseplugin.cpp \
     submitfilemodel.cpp \
     vcsbasesettings.cpp \
     vcsbasesettingspage.cpp \
-    nicknamedialog.cpp
+    nicknamedialog.cpp \
+    basecheckoutwizard.cpp \
+    checkoutwizarddialog.cpp \
+    checkoutprogresswizardpage.cpp \
+    checkoutjobs.cpp \
+    basecheckoutwizardpage.cpp
 
 RESOURCES += vcsbase.qrc
 
 FORMS += vcsbasesettingspage.ui \
-    nicknamedialog.ui
+    nicknamedialog.ui \
+    checkoutprogresswizardpage.ui \
+    basecheckoutwizardpage.ui
 
 OTHER_FILES += VCSBase.pluginspec

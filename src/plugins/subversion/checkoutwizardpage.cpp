@@ -27,24 +27,34 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#include "checkoutwizardpage.h"
 
-#include <QtCore/QtGlobal>
-
-namespace VCSBase {
-namespace Constants {
-
-const char * const VCS_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const VCS_COMMON_SETTINGS_ID = QT_TRANSLATE_NOOP("VCSBase", "Common");
-
-const char * const VCS_WIZARD_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-
+namespace Subversion {
 namespace Internal {
-    enum { debug = 0 };
+
+CheckoutWizardPage::CheckoutWizardPage(QWidget *parent) :
+    VCSBase::BaseCheckoutWizardPage(parent)
+{
+    setSubTitle(tr("Specify repository, checkout directory and path."));
+    setRepositoryLabel(tr("Repository:"));
+}
+
+QString CheckoutWizardPage::directoryFromRepository(const QString &repoIn) const
+{
+    /* Try to figure out a good directory name from something like:
+     * "svn://<server>/path1/project" -> project */
+
+    QString repo = repoIn.trimmed();
+    const QChar slash = QLatin1Char('/');
+    // remove host
+    const int slashPos = repo.lastIndexOf(slash);
+    if (slashPos != -1)
+        repo.remove(0, slashPos + 1);
+    // fix invalid characters
+    const QChar dash = QLatin1Char('-');
+    repo.replace(QLatin1Char('.'), QLatin1Char('-'));
+    return repo;
+}
+
 } // namespace Internal
-
-} // namespace Constants
-} // VCSBase
-
-#endif // VCSBASE_CONSTANTS_H
+} // namespace Subversion

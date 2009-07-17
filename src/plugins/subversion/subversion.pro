@@ -15,7 +15,9 @@ HEADERS += annotationhighlighter.h \
     settingspage.h \
     subversioneditor.h \
     subversionsubmiteditor.h \
-    subversionsettings.h
+    subversionsettings.h \
+    checkoutwizard.h \
+    checkoutwizardpage.h
 
 SOURCES += annotationhighlighter.cpp \
     subversionplugin.cpp \
@@ -24,9 +26,12 @@ SOURCES += annotationhighlighter.cpp \
     settingspage.cpp \
     subversioneditor.cpp \
     subversionsubmiteditor.cpp \
-    subversionsettings.cpp
+    subversionsettings.cpp \
+    checkoutwizard.cpp \
+    checkoutwizardpage.cpp
 
-FORMS += settingspage.ui
+FORMS += settingspage.ui \
+     checkoutwizardpage.ui
 
 RESOURCES += subversion.qrc
 

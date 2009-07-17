@@ -21,7 +21,9 @@ HEADERS += gitplugin.h \
     gitsettings.h \
     branchdialog.h \
     branchmodel.h \
-    gitcommand.h
+    gitcommand.h \
+    clonewizard.h \
+    clonewizardpage.h
 SOURCES += gitplugin.cpp \
     gitoutputwindow.cpp \
     gitclient.cpp \
@@ -36,7 +38,9 @@ SOURCES += gitplugin.cpp \
     gitsettings.cpp \
     branchdialog.cpp \
     branchmodel.cpp \
-    gitcommand.cpp
+    gitcommand.cpp \
+    clonewizard.cpp \
+    clonewizardpage.cpp
 FORMS += changeselectiondialog.ui \
     settingspage.ui \
     gitsubmitpanel.ui \
