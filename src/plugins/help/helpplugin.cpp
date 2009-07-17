@@ -57,6 +57,8 @@
 
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/styledbar.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/qplugin.h>
 #include <QtCore/QFileInfo>
@@ -454,18 +456,17 @@ void HelpPlugin::createRightPaneSideBar()
     QHBoxLayout *hboxLayout = new QHBoxLayout();
     hboxLayout->setSpacing(0);
     hboxLayout->setMargin(0);
+    hboxLayout->addWidget(rightPaneToolBar);
     hboxLayout->addStretch(5);
     hboxLayout->addWidget(closeButton);
-
-    QWidget *w = new QWidget(rightPaneToolBar);
+    Core::Utils::StyledBar *w = new Core::Utils::StyledBar;
     w->setLayout(hboxLayout);
-    rightPaneToolBar->addWidget(w);
     connect(closeButton, SIGNAL(clicked()), this, SLOT(slotHideRightPane()));
 
     QVBoxLayout *rightPaneLayout = new QVBoxLayout;
     rightPaneLayout->setMargin(0);
     rightPaneLayout->setSpacing(0);
-    rightPaneLayout->addWidget(rightPaneToolBar);
+    rightPaneLayout->addWidget(w);
 
     m_helpViewerForSideBar = new HelpViewer(m_helpEngine, 0);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate();
