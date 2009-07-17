@@ -8,6 +8,7 @@
 #endif
 #include <QtCore/QStringList>
 #include <QtCore/QTextCodec>
+#include <QtGui/QDialog>
 #include <QtGui/QImage>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QStringListModel>
@@ -148,6 +149,8 @@ private slots:
     void dumpQList_QString3();
     void dumpQList_Int3();
     void dumpQObject();
+    void dumpQObjectMethodList();
+    void dumpQObjectPropertyList();
 #if QT_VERSION >= 0x040500
     void dumpQSharedPointer();
 #endif
@@ -176,6 +179,8 @@ private:
     void dumpQFileHelper(const QString &name, bool exists);
     void dumpQImageHelper(QImage &img);
     void dumpQImageDataHelper(QImage &img);
+    void dumpQObjectMethodListHelper(QObject &obj);
+    void dumpQObjectPropertyListHelper(QObject &obj);
 #if QT_VERSION >= 0x040500
     template <typename T>
     void dumpQSharedPointerHelper(QSharedPointer<T> &ptr, bool isSimple);
@@ -954,6 +959,103 @@ void tst_Debugger::dumpQObject()
     testDumper("value='QQAgAHIAZQBuAGEAbQBlAGQAIABDAGgAaQBsAGQA',valueencoded='2',"
         "type='$T',displayedtype='QObject',numchild='4'",
         &child, NS"QObject", false);
+}
+
+void tst_Debugger::dumpQObjectMethodListHelper(QObject &obj)
+{
+    const QMetaObject *mo = obj.metaObject();
+    const int methodCount = mo->methodCount();
+    QByteArray expected = QByteArray("addr='<synthetic>',type='"NS"QObjectMethodList',").
+        append("numchild='").append(QString::number(methodCount)).
+        append("',childtype='QMetaMethod::Method',childnumchild='0',children=[");
+    for (int i = 0; i != methodCount; ++i) {
+        const QMetaMethod & method = mo->method(i);
+        int mt = method.methodType();
+        expected.append("{name='").append(QString::number(i)).append(" ").
+            append(QString::number(mo->indexOfMethod(method.signature()))).
+            append(" ").append(method.signature()).append("',value='").
+            append(mt == QMetaMethod::Signal ? "<Signal>" : "<Slot>").
+            append(" (").append(QString::number(mt)).append(")'}");
+        if (i != methodCount - 1)
+            expected.append(",");
+    }
+    expected.append("]");
+    testDumper(expected, &obj, NS"QObjectMethodList", true);
+}
+
+void tst_Debugger::dumpQObjectMethodList()
+{
+    QStringListModel m;
+    dumpQObjectMethodListHelper(m);
+}
+
+void tst_Debugger::dumpQObjectPropertyListHelper(QObject &obj)
+{
+    const QMetaObject *mo = obj.metaObject();
+    const QString propertyCount = QString::number(mo->propertyCount());
+    QByteArray expected = QByteArray("addr='<synthetic>',type='"NS"QObjectPropertyList',").
+        append("numchild='").append(propertyCount).append("',value='<").
+        append(propertyCount).append(" items>',children=[");
+    for (int i = mo->propertyCount() - 1; i >= 0; --i) {
+        const QMetaProperty & prop = mo->property(i);
+        expected.append("{name='").append(prop.name()).append("',");
+        switch (prop.type()) {
+        case QVariant::String:
+            expected.append("type='").append(prop.typeName()).append("',value='").
+                append(utfToBase64(prop.read(&obj).toString())).
+                append("',valueencoded='2',numchild='0'");
+            break;
+        case QVariant::Bool:
+            expected.append("type='").append(prop.typeName()).append("',value=").
+                append(boolToVal(prop.read(&obj).toBool())).append("numchild='0'");
+            break;
+        case QVariant::Int: {
+            const int value = prop.read(&obj).toInt();
+            const QString valueString = QString::number(value);
+            if (prop.isEnumType() || prop.isFlagType()) {
+                const QMetaEnum &me = prop.enumerator();
+                QByteArray type = me.scope();
+                if (!type.isEmpty())
+                    type += "::";
+                type += me.name();
+                expected.append("type='").append(type.constData()).append("',value='");
+                if (prop.isEnumType()) {
+                    if (const char *enumValue = me.valueToKey(value))
+                        expected.append(enumValue);
+                    else
+                        expected.append(valueString);
+                } else {
+                    const QByteArray &flagsValue = me.valueToKeys(value);
+                    expected.append(flagsValue.isEmpty() ? valueString : flagsValue.constData());
+                }
+            } else {
+                expected.append("value='").append(valueString);
+            }
+            expected.append("',numchild='0'");
+            break;
+        }
+        default:
+            expected.append("addr='").append(ptrToBa(&obj)).
+                append("',type'"NS"QObjectPropertyList',numchild='1'");
+            break;
+        }
+        expected.append("}");
+        if (i > 0)
+            expected.append(",");
+    }
+    expected.append("]");
+    testDumper(expected, &obj, NS"QObjectPropertyList", true);
+}
+
+void tst_Debugger::dumpQObjectPropertyList()
+{
+    // Case 1: Model without a parent.
+    QStringListModel m(QStringList() << "Test1" << "Test2");
+    dumpQObjectPropertyListHelper(m);
+
+    // Case 2: Model with a parent.
+    QStringListModel m2(&m);
+    dumpQObjectPropertyListHelper(m2);
 }
 
 #if QT_VERSION >= 0x040500
