@@ -113,6 +113,7 @@ private slots:
     void fontSizeSelected(const QString &sizeString);
     void colorSchemeSelected(int index);
     void copyColorScheme();
+    void copyColorScheme(const QString &name);
     void deleteColorScheme();
 
 private:

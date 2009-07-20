@@ -123,7 +123,7 @@
         <item>
          <widget class="QPushButton" name="copyButton">
           <property name="text">
-           <string>Copy</string>
+           <string>Copy...</string>
           </property>
          </widget>
         </item>

@@ -44,6 +44,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QFileDialog>
 #include <QtGui/QFontDatabase>
+#include <QtGui/QInputDialog>
 #include <QtGui/QListWidget>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPalette>
@@ -426,6 +427,19 @@ void FontSettingsPage::colorSchemeSelected(int index)
 
 void FontSettingsPage::copyColorScheme()
 {
+    QInputDialog *dialog = new QInputDialog(d_ptr->ui.copyButton->window());
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setInputMode(QInputDialog::TextInput);
+    dialog->setWindowTitle(tr("Copy Color Scheme"));
+    dialog->setLabelText(tr("Color Scheme name:"));
+    dialog->setTextValue(tr("%1 (copy)").arg(d_ptr->m_value.colorScheme().name()));
+
+    connect(dialog, SIGNAL(textValueSelected(QString)), this, SLOT(copyColorScheme(QString)));
+    dialog->open();
+}
+
+void FontSettingsPage::copyColorScheme(const QString &name)
+{
     int index = d_ptr->ui.schemeComboBox->currentIndex();
     if (index == -1)
         return;
@@ -444,7 +458,7 @@ void FontSettingsPage::copyColorScheme()
         d_ptr->m_value.setColorScheme(d_ptr->ui.schemeEdit->colorScheme());
 
         ColorScheme scheme = d_ptr->m_value.colorScheme();
-        scheme.setName(tr("%1 (copy)").arg(scheme.name()));
+        scheme.setName(name);
         scheme.save(fileName);
         d_ptr->m_value.setColorSchemeFileName(fileName);
 
