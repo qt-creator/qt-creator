@@ -471,13 +471,9 @@
 
     \snippet examples/addressbook-sdk/part3/addressbook.h slot definition
 
-    We also define two more QPushButton objects:
-
-    \snippet examples/addressbook-sdk/part3/addressbook.h members
-
-    In the \c AddressBook constructor, we extract the push buttons from the
-    \c ui object and disable them by default. This is because navigation is
-    only enabled when there is more than one contact in the address book.
+    In the \c AddressBook constructor, we setup our fields and disable them by
+    default. This is because navigation is only enabled when there is more than
+    one contact in the address book.
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp extract objects
 

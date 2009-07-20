@@ -36,6 +36,9 @@
 #include <QtCore/QVector>
 #include <QtCore/QDebug>
 #include <QtCore/QAbstractListModel>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QTreeView>
+#include <QtGui/QSpacerItem>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
