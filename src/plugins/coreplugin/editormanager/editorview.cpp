@@ -410,7 +410,7 @@ void EditorView::listContextMenu(QPoint pos)
     QMenu menu;
     menu.addAction(tr("Copy full path to clipboard"));
     if (menu.exec(m_editorList->mapToGlobal(pos))) {
-        QApplication::clipboard()->setText(fileName);
+        QApplication::clipboard()->setText(QDir::toNativeSeparators(fileName));
     }
 }
 
