@@ -32,6 +32,8 @@
 #include "coreimpl.h"
 #include "minisplitter.h"
 #include "openeditorsmodel.h"
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -81,6 +83,12 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
     m_statusWidget(new QFrame(this)),
     m_currentNavigationHistoryPosition(0)
 {
+
+    m_goBackAction = new QAction(QIcon(QLatin1String(":/help/images/previous.png")), tr("Go Back"), this);
+    connect(m_goBackAction, SIGNAL(triggered()), this, SLOT(goBackInNavigationHistory()));
+    m_goForwardAction = new QAction(QIcon(QLatin1String(":/help/images/next.png")), tr("Go Forward"), this);
+    connect(m_goForwardAction, SIGNAL(triggered()), this, SLOT(goForwardInNavigationHistory()));
+
     QVBoxLayout *tl = new QVBoxLayout(this);
     tl->setSpacing(0);
     tl->setMargin(0);
@@ -88,6 +96,12 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         if (!m_model) {
             m_model = CoreImpl::instance()->editorManager()->openedEditorsModel();
         }
+
+        QToolButton *backButton = new QToolButton;
+        backButton->setDefaultAction(m_goBackAction);
+
+        QToolButton *forwardButton= new QToolButton;
+        forwardButton->setDefaultAction(m_goForwardAction);
 
         m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         m_editorList->setMinimumContentsLength(20);
@@ -110,9 +124,12 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         m_closeButton->setAutoRaise(true);
         m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
 
+
         QHBoxLayout *toplayout = new QHBoxLayout;
         toplayout->setSpacing(0);
         toplayout->setMargin(0);
+        toplayout->addWidget(backButton);
+        toplayout->addWidget(forwardButton);
         toplayout->addWidget(m_editorList);
         toplayout->addWidget(m_toolBar, 1); // Custom toolbar stretches
         toplayout->addWidget(m_lockButton);
@@ -185,6 +202,18 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         tl->addWidget(m_statusHLine);
         tl->addWidget(m_statusWidget);
     }
+
+
+    ActionManager *am = ICore::instance()->actionManager();
+    connect(am->command(Constants::CLOSE), SIGNAL(keySequenceChanged()),
+            this, SLOT(updateActionShortcuts()));
+    connect(am->command(Constants::GO_BACK), SIGNAL(keySequenceChanged()),
+            this, SLOT(updateActionShortcuts()));
+    connect(am->command(Constants::GO_FORWARD), SIGNAL(keySequenceChanged()),
+            this, SLOT(updateActionShortcuts()));
+
+    updateActionShortcuts();
+    updateActions();
 }
 
 EditorView::~EditorView()
@@ -483,6 +512,21 @@ void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QB
             m_navigationHistory.takeLast();
         }
     }
+    updateActions();
+}
+
+void EditorView::updateActions()
+{
+    m_goBackAction->setEnabled(canGoBack());
+    m_goForwardAction->setEnabled(canGoForward());
+}
+
+void EditorView::updateActionShortcuts()
+{
+    ActionManager *am = ICore::instance()->actionManager();
+    m_closeButton->setToolTip(am->command(Constants::CLOSE)->stringWithAppendedShortcut(EditorManager::tr("Close")));
+    m_goBackAction->setToolTip(am->command(Constants::GO_BACK)->action()->toolTip());
+    m_goForwardAction->setToolTip(am->command(Constants::GO_FORWARD)->action()->toolTip());
 }
 
 void EditorView::copyNavigationHistoryFrom(EditorView* other)
@@ -492,6 +536,7 @@ void EditorView::copyNavigationHistoryFrom(EditorView* other)
     m_currentNavigationHistoryPosition = other->m_currentNavigationHistoryPosition;
     m_navigationHistory = other->m_navigationHistory;
     m_editorHistory = other->m_editorHistory;
+    updateActions();
 }
 
 void EditorView::updateCurrentPositionInNavigationHistory()
@@ -534,6 +579,7 @@ void EditorView::goBackInNavigationHistory()
         editor->restoreState(location.state.toByteArray());
         break;
     }
+    updateActions();
 }
 
 void EditorView::goForwardInNavigationHistory()
@@ -556,6 +602,7 @@ void EditorView::goForwardInNavigationHistory()
         }
     }
     editor->restoreState(location.state.toByteArray());
+    updateActions();
 }
 
 

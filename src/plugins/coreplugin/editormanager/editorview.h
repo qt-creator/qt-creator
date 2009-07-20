@@ -135,13 +135,21 @@ private:
     QList<EditLocation> m_editorHistory;
     int m_currentNavigationHistoryPosition;
     void updateCurrentPositionInNavigationHistory();
+    QAction *m_goBackAction;
+    QAction *m_goForwardAction;
+    void updateActions();
 
 
 public:
     inline bool canGoForward() const { return m_currentNavigationHistoryPosition < m_navigationHistory.size()-1; }
     inline bool canGoBack() const { return m_currentNavigationHistoryPosition > 0; }
+
+public slots:
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
+    void updateActionShortcuts();
+
+public:
     void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
     inline QList<EditLocation> editorHistory() const { return m_editorHistory; }
 
