@@ -44,6 +44,9 @@ class OpenEditorsModel;
 
 namespace Internal {
 
+class EditorHistoryItem;
+class EditorView;
+
 class OpenEditorsWindow : public QWidget
 {
     Q_OBJECT
@@ -54,7 +57,7 @@ public:
     OpenEditorsWindow(QWidget *parent = 0);
     ~OpenEditorsWindow() {}
 
-    void setEditors(const QList<IEditor *>&editors, IEditor *current, OpenEditorsModel *model);
+    void setEditors(EditorView *mainView, EditorView *view, OpenEditorsModel *model);
 
     bool event(QEvent *e);
     bool eventFilter(QObject *src, QEvent *e);

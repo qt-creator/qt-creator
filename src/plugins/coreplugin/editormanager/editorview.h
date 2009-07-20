@@ -38,8 +38,10 @@
 #include <QtGui/QAction>
 #include <QtGui/QSplitter>
 #include <QtGui/QStackedLayout>
+#include <QtCore/QPointer>
 
 #include <coreplugin/icontext.h>
+#include <coreplugin/ifile.h>
 
 #include <QtCore/QMap>
 #include <QtGui/QSortFilterProxyModel>
@@ -58,6 +60,12 @@ class OpenEditorsModel;
 
 namespace Internal {
 
+    struct EditLocation {
+        QPointer<IFile> file;
+        QString fileName;
+        QString kind;
+        QVariant state;
+    };
 
 class EditorView : public QWidget
 {
@@ -122,6 +130,23 @@ private:
     QToolButton *m_statusWidgetButton;
     QList<IEditor *> m_editors;
     QMap<QWidget *, IEditor *> m_widgetEditorMap;
+
+    QList<EditLocation> m_navigationHistory;
+    QList<EditLocation> m_editorHistory;
+    int m_currentNavigationHistoryPosition;
+    void updateCurrentPositionInNavigationHistory();
+
+
+public:
+    inline bool canGoForward() const { return m_currentNavigationHistoryPosition < m_navigationHistory.size()-1; }
+    inline bool canGoBack() const { return m_currentNavigationHistoryPosition > 0; }
+    void goBackInNavigationHistory();
+    void goForwardInNavigationHistory();
+    void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
+    inline QList<EditLocation> editorHistory() const { return m_editorHistory; }
+
+    void copyNavigationHistoryFrom(EditorView* other);
+    void updateEditorHistory(IEditor *editor);
 };
 
 class SplitterOrView  : public QWidget

@@ -372,9 +372,9 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
     emit qtVersionsChanged();
     if (emitDefaultChanged) {
         emit defaultQtVersionChanged();
-        updateExamples();
     }
 
+    updateExamples();
     writeVersionsIntoSettings();
 }
 

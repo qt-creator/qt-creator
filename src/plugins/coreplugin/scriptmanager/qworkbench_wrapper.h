@@ -165,7 +165,6 @@ class EditorManagerPrototype : public QObject, public QScriptable
     Q_OBJECT
     Q_PROPERTY(Core::IEditor* currentEditor READ currentEditor WRITE activateEditor DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(QList<Core::IEditor*> openedEditors READ openedEditors DESIGNABLE false SCRIPTABLE true STORED false)
-    Q_PROPERTY(QList<Core::IEditor*> editorHistory  READ editorHistory DESIGNABLE false SCRIPTABLE true STORED false)
 public:
     typedef  Core::EditorManager EditorManager;
 

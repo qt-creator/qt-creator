@@ -256,11 +256,6 @@ QList<Core::IEditor*> EditorManagerPrototype::openedEditors() const
     return callee()->openedEditors();
 }
 
-QList<Core::IEditor*> EditorManagerPrototype::editorHistory() const
-{
-    return callee()->editorHistory();
-}
-
 QList<Core::IEditor*> EditorManagerPrototype::editorsForFiles(QList<Core::IFile*> files) const
 {
     return callee()->editorsForFiles(files);

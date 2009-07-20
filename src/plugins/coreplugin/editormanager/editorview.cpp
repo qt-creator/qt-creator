@@ -78,7 +78,8 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
     m_infoWidget(new QFrame(this)),
     m_editorForInfoWidget(0),
     m_statusHLine(new QFrame(this)),
-    m_statusWidget(new QFrame(this))
+    m_statusWidget(new QFrame(this)),
+    m_currentNavigationHistoryPosition(0)
 {
     QVBoxLayout *tl = new QVBoxLayout(this);
     tl->setSpacing(0);
@@ -322,6 +323,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
     m_editorList->setCurrentIndex(m_model->indexOf(editor).row());
     updateEditorStatus(editor);
     updateToolBar(editor);
+    updateEditorHistory(editor);
 
     // FIXME: this keeps the editor hidden if switching from A to B and back
     if (editor != m_editorForInfoWidget) {
@@ -408,9 +410,154 @@ void EditorView::listContextMenu(QPoint pos)
     QMenu menu;
     menu.addAction(tr("Copy full path to clipboard"));
     if (menu.exec(m_editorList->mapToGlobal(pos))) {
-        QApplication::clipboard()->setText(fileName);
+        QApplication::clipboard()->setText(QDir::toNativeSeparators(fileName));
     }
 }
+
+void EditorView::updateEditorHistory(IEditor *editor)
+{
+    if (!editor)
+        return;
+    IFile *file = editor->file();
+
+    if (!file)
+        return;
+
+    QString fileName = file->fileName();
+    QByteArray state = editor->saveState();
+
+    EditLocation location;
+    location.file = file;
+    location.fileName = file->fileName();
+    location.kind = editor->kind();
+    location.state = QVariant(state);
+
+    for(int i = 0; i < m_editorHistory.size(); ++i) {
+        if (m_editorHistory.at(i).file == 0
+            || m_editorHistory.at(i).file == file
+            ){
+            m_editorHistory.removeAt(i--);
+            continue;
+        }
+    }
+    m_editorHistory.prepend(location);
+}
+
+void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
+{
+    if (editor && editor != currentEditor()) {
+        qDebug() << Q_FUNC_INFO << "this should not happen!";
+        return;
+    }
+    if (!editor)
+        editor = currentEditor();
+    if (!editor)
+        return;
+    IFile *file = editor->file();
+
+    if (!file)
+        return;
+
+    QString fileName = file->fileName();
+    QByteArray state;
+    if (saveState.isNull()) {
+        state = editor->saveState();
+    } else {
+        state = saveState;
+    }
+
+    EditLocation location;
+    location.file = file;
+    location.fileName = file->fileName();
+    location.kind = editor->kind();
+    location.state = QVariant(state);
+    m_currentNavigationHistoryPosition = qMin(m_currentNavigationHistoryPosition, m_navigationHistory.size()); // paranoia
+    m_navigationHistory.insert(m_currentNavigationHistoryPosition, location);
+    ++m_currentNavigationHistoryPosition;
+
+    while (m_navigationHistory.size() >= 30) {
+        if (m_currentNavigationHistoryPosition > 15) {
+            m_navigationHistory.takeFirst();
+            --m_currentNavigationHistoryPosition;
+        } else {
+            m_navigationHistory.takeLast();
+        }
+    }
+}
+
+void EditorView::copyNavigationHistoryFrom(EditorView* other)
+{
+    if (!other)
+        return;
+    m_currentNavigationHistoryPosition = other->m_currentNavigationHistoryPosition;
+    m_navigationHistory = other->m_navigationHistory;
+    m_editorHistory = other->m_editorHistory;
+}
+
+void EditorView::updateCurrentPositionInNavigationHistory()
+{
+    IEditor *editor = currentEditor();
+    if (!editor || !editor->file())
+        return;
+
+    IFile *file = editor->file();
+    EditLocation *location;
+    if (m_currentNavigationHistoryPosition < m_navigationHistory.size()) {
+        location = &m_navigationHistory[m_currentNavigationHistoryPosition];
+    } else {
+        m_navigationHistory.append(EditLocation());
+        location = &m_navigationHistory[m_navigationHistory.size()-1];
+    }
+    location->file = file;
+    location->fileName = file->fileName();
+    location->kind = editor->kind();
+    location->state = QVariant(editor->saveState());
+}
+
+void EditorView::goBackInNavigationHistory()
+{
+    EditorManager *em = CoreImpl::instance()->editorManager();
+    updateCurrentPositionInNavigationHistory();
+    while (m_currentNavigationHistoryPosition > 0) {
+        --m_currentNavigationHistoryPosition;
+        EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
+        IEditor *editor;
+        if (location.file) {
+            editor = em->activateEditor(this, location.file, EditorManager::IgnoreNavigationHistory);
+        } else {
+            editor = em->openEditor(this, location.fileName, location.kind, EditorManager::IgnoreNavigationHistory);
+            if (!editor) {
+                m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
+                continue;
+            }
+        }
+        editor->restoreState(location.state.toByteArray());
+        break;
+    }
+}
+
+void EditorView::goForwardInNavigationHistory()
+{
+    EditorManager *em = CoreImpl::instance()->editorManager();
+    updateCurrentPositionInNavigationHistory();
+    if (m_currentNavigationHistoryPosition >= m_navigationHistory.size()-1)
+        return;
+    ++m_currentNavigationHistoryPosition;
+    EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
+    IEditor *editor;
+    if (location.file) {
+        editor = em->activateEditor(this, location.file, EditorManager::IgnoreNavigationHistory);
+    } else {
+        editor = em->openEditor(this, location.fileName, location.kind, EditorManager::IgnoreNavigationHistory);
+        if (!editor) {
+            //TODO
+            qDebug() << Q_FUNC_INFO << "can't open file" << location.fileName;
+            return;
+        }
+    }
+    editor->restoreState(location.state.toByteArray());
+}
+
 
 SplitterOrView::SplitterOrView(OpenEditorsModel *model)
 {
@@ -641,26 +788,26 @@ void SplitterOrView::split(Qt::Orientation orientation)
     Core::IEditor *e = m_view->currentEditor();
 
     SplitterOrView *view = 0;
+    SplitterOrView *otherView = 0;
     if (e) {
 
         m_view->removeEditor(e);
-        m_splitter->addWidget(new SplitterOrView(e));
-#if 1
+        m_splitter->addWidget((view = new SplitterOrView(e)));
         if (e->duplicateSupported()) {
             Core::IEditor *duplicate = em->duplicateEditor(e);
-            m_splitter->addWidget(new SplitterOrView(duplicate));
+            m_splitter->addWidget((otherView = new SplitterOrView(duplicate)));
         } else {
-            m_splitter->addWidget(new SplitterOrView());
+            m_splitter->addWidget((otherView = new SplitterOrView()));
         }
-#else
-        m_splitter->addWidget((view = new SplitterOrView()));
-#endif
     } else {
-        m_splitter->addWidget(new SplitterOrView());
+        m_splitter->addWidget((otherView = new SplitterOrView()));
         m_splitter->addWidget((view = new SplitterOrView()));
     }
 
     m_layout->setCurrentWidget(m_splitter);
+
+    view->view()->copyNavigationHistoryFrom(m_view);
+    otherView->view()->copyNavigationHistoryFrom(m_view);
 
     if (m_view && !m_isRoot) {
         em->emptyView(m_view);
@@ -668,9 +815,10 @@ void SplitterOrView::split(Qt::Orientation orientation)
         m_view = 0;
     }
 
-    em->setCurrentView(view);
     if (e)
-        em->activateEditor(e);
+        em->activateEditor(view->view(), e);
+    else
+        em->setCurrentView(view);
 }
 
 void SplitterOrView::unsplitAll()
@@ -715,6 +863,7 @@ void SplitterOrView::unsplit()
         EditorView *childView = childSplitterOrView->view();
         Q_ASSERT(childView);
         if (m_view) {
+            m_view->copyNavigationHistoryFrom(childView);
             if (IEditor *e = childView->currentEditor()) {
                 childView->removeEditor(e);
                 m_view->addEditor(e);
@@ -779,8 +928,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
         QByteArray kind;
         QByteArray editorState;
         stream >> fileName >> kind >> editorState;
-        em->setCurrentView(this);
-        IEditor *e = em->openEditor(fileName, kind, Core::EditorManager::IgnoreNavigationHistory
+        IEditor *e = em->openEditor(view(), fileName, kind, Core::EditorManager::IgnoreNavigationHistory
                                     | Core::EditorManager::NoActivate);
 
         if (!e) {
