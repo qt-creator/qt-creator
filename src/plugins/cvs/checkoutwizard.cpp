@@ -27,65 +27,63 @@
 **
 **************************************************************************/
 
-#include "clonewizard.h"
-#include "clonewizardpage.h"
-#include "gitplugin.h"
-#include "gitclient.h"
+#include "checkoutwizard.h"
+#include "checkoutwizardpage.h"
+#include "cvsplugin.h"
 
 #include <vcsbase/checkoutjobs.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QIcon>
 
-namespace Git {
+namespace CVS {
 namespace Internal {
 
-CloneWizard::CloneWizard(QObject *parent) :
+CheckoutWizard::CheckoutWizard(QObject *parent) :
         VCSBase::BaseCheckoutWizard(parent)
 {
 }
 
-QIcon CloneWizard::icon() const
+QIcon CheckoutWizard::icon() const
 {
     return QIcon();
 }
 
-QString CloneWizard::description() const
+QString CheckoutWizard::description() const
 {
-    return tr("Clones a project from a git repository.");
+    return tr("Check-out a project from a CVS repository.");
 }
 
-QString CloneWizard::name() const
+QString CheckoutWizard::name() const
 {
-    return tr("Git Repository Clone");
+    return tr("CVS Checkout");
 }
 
-QWizardPage *CloneWizard::createParameterPage(const QString &path)
+QWizardPage *CheckoutWizard::createParameterPage(const QString &path)
 {
-    CloneWizardPage *cwp = new CloneWizardPage;
+    CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path);
     return cwp;
 }
 
-QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizard::createJob(const QWizardPage *parameterPage,
+QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QWizardPage *parameterPage,
                                                                     QString *checkoutPath)
 {
-    // Collect parameters for the clone command.
-    const CloneWizardPage *cwp = qobject_cast<const CloneWizardPage *>(parameterPage);
+    // Collect parameters for the checkout command.
+    // CVS does not allow for checking out into a different directory.
+    const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPage);
     QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
-    const GitClient *client = GitPlugin::instance()->gitClient();
-    QStringList args = client->binary();
+    const CVSSettings settings = CVSPlugin::cvsPluginInstance()->settings();
+    const QString binary = settings.cvsCommand;
+    QStringList args;
+    const QString repository = cwp->repository();
+    args << QLatin1String("checkout") << repository;
     const QString workingDirectory = cwp->path();
-    const QString directory = cwp->directory();
-    *checkoutPath = workingDirectory + QLatin1Char('/') + directory;
-    args << QLatin1String("clone") << cwp->repository() << directory;
-    const QString binary = args.front();
-    args.pop_front();
-
-    VCSBase::AbstractCheckoutJob *job = new VCSBase::ProcessCheckoutJob(binary, args, workingDirectory,
-                                                                        client->processEnvironment());
+    *checkoutPath = workingDirectory + QLatin1Char('/') + repository;
+    VCSBase::AbstractCheckoutJob *job = new VCSBase::ProcessCheckoutJob(binary, settings.addOptions(args),
+                                                                        workingDirectory);
     return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
 }
 
 } // namespace Internal
-} // namespace Git
+} // namespace CVS

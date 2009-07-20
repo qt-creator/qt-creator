@@ -34,6 +34,7 @@
 #include "cvssubmiteditor.h"
 #include "cvsconstants.h"
 #include "cvscontrol.h"
+#include "checkoutwizard.h"
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -240,6 +241,8 @@ bool CVSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_cvsOutputWindow = new CVSOutputWindow(this);
     addAutoReleasedObject(m_cvsOutputWindow);
+
+    addAutoReleasedObject(new CheckoutWizard);
 
     //register actions
     Core::ActionManager *ami = core->actionManager();

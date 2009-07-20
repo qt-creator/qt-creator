@@ -68,10 +68,11 @@ protected:
     void changeEvent(QEvent *e);
 
     void setRepositoryLabel(const QString &l);
+    void setDirectoryVisible(bool v);
 
     /* Determine a checkout directory name from
      * repository URL, that is, "protocol:/project" -> "project". */
-    virtual QString directoryFromRepository(const QString &r) const = 0;
+    virtual QString directoryFromRepository(const QString &r) const;
 
 private slots:
     void slotRepositoryChanged(const QString &url);

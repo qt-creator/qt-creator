@@ -27,43 +27,32 @@
 **
 **************************************************************************/
 
-#ifndef CVSSETTINGS_H
-#define CVSSETTINGS_H
+#ifndef CHECKOUTWIZARD_H
+#define CHECKOUTWIZARD_H
 
-#include <QtCore/QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <vcsbase/basecheckoutwizard.h>
 
 namespace CVS {
 namespace Internal {
 
-struct CVSSettings
+class CheckoutWizard : public VCSBase::BaseCheckoutWizard
 {
-    CVSSettings();
+public:
+    explicit CheckoutWizard(QObject *parent = 0);
 
-    void fromSettings(QSettings *);
-    void toSettings(QSettings *) const;
+    // IWizard
+    virtual QIcon icon() const;
+    virtual QString description() const;
+    virtual QString name() const;
 
-    // Add common options to the command line
-    QStringList addOptions(const QStringList &args) const;
-
-    bool equals(const CVSSettings &s) const;
-
-    QString cvsCommand;
-    QString cvsRoot;
-    QString cvsDiffOptions;
-    bool promptToSubmit;
-    bool describeByCommitId;
+protected:
+    // BaseCheckoutWizard
+    virtual QWizardPage *createParameterPage(const QString &path);
+    virtual QSharedPointer<VCSBase::AbstractCheckoutJob> createJob(const QWizardPage *parameterPage,
+                                                                   QString *checkoutPath);
 };
-
-inline bool operator==(const CVSSettings &p1, const CVSSettings &p2)
-    { return p1.equals(p2); }
-inline bool operator!=(const CVSSettings &p1, const CVSSettings &p2)
-    { return !p1.equals(p2); }
 
 } // namespace Internal
 } // namespace CVS
 
-#endif // CVSSETTINGS_H
+#endif // CHECKOUTWIZARD_H

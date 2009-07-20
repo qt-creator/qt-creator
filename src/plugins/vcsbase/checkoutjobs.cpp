@@ -87,7 +87,8 @@ ProcessCheckoutJob::~ProcessCheckoutJob()
 
 void ProcessCheckoutJob::slotOutput()
 {
-    const QString s = QString::fromLocal8Bit(d->process.readAllStandardOutput());
+    const QByteArray data = d->process.readAllStandardOutput();
+    const QString s = QString::fromLocal8Bit(data, data.endsWith('\n') ? data.size() - 1: data.size());
     if (debug)
         qDebug() << s;
     emit output(s);

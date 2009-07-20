@@ -83,6 +83,12 @@ void BaseCheckoutWizardPage::setDirectory(const QString &dir)
     d->ui.checkoutDirectoryLineEdit->setText(dir);
 }
 
+void BaseCheckoutWizardPage::setDirectoryVisible(bool v)
+{
+    d->ui.checkoutDirectoryLabel->setVisible(v);
+    d->ui.checkoutDirectoryLineEdit->setVisible(v);
+}
+
 QString BaseCheckoutWizardPage::repository() const
 {
     return d->ui.repositoryLineEdit->text().trimmed();
@@ -95,11 +101,14 @@ void BaseCheckoutWizardPage::setRepository(const QString &r)
 
 void BaseCheckoutWizardPage::slotRepositoryChanged(const QString &repo)
 {
-    /* Try to figure out a good directory name from something like:
-     * "svn://<server>/path1/project" -> project */
     if (d->m_directoryEdited)
         return;
     d->ui.checkoutDirectoryLineEdit->setText(directoryFromRepository(repo));
+}
+
+QString BaseCheckoutWizardPage::directoryFromRepository(const QString &r) const
+{
+    return r;
 }
 
 void BaseCheckoutWizardPage::slotDirectoryEdited()

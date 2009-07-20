@@ -27,43 +27,18 @@
 **
 **************************************************************************/
 
-#ifndef CVSSETTINGS_H
-#define CVSSETTINGS_H
-
-#include <QtCore/QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include "checkoutwizardpage.h"
 
 namespace CVS {
 namespace Internal {
 
-struct CVSSettings
+CheckoutWizardPage::CheckoutWizardPage(QWidget *parent) :
+    VCSBase::BaseCheckoutWizardPage(parent)
 {
-    CVSSettings();
-
-    void fromSettings(QSettings *);
-    void toSettings(QSettings *) const;
-
-    // Add common options to the command line
-    QStringList addOptions(const QStringList &args) const;
-
-    bool equals(const CVSSettings &s) const;
-
-    QString cvsCommand;
-    QString cvsRoot;
-    QString cvsDiffOptions;
-    bool promptToSubmit;
-    bool describeByCommitId;
-};
-
-inline bool operator==(const CVSSettings &p1, const CVSSettings &p2)
-    { return p1.equals(p2); }
-inline bool operator!=(const CVSSettings &p1, const CVSSettings &p2)
-    { return !p1.equals(p2); }
+    setSubTitle(tr("Specify repository and path."));
+    setRepositoryLabel(tr("Repository:"));
+    setDirectoryVisible(false);
+}
 
 } // namespace Internal
 } // namespace CVS
-
-#endif // CVSSETTINGS_H

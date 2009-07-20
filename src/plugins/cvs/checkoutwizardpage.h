@@ -27,43 +27,20 @@
 **
 **************************************************************************/
 
-#ifndef CVSSETTINGS_H
-#define CVSSETTINGS_H
+#ifndef CHECKOUTWIZARDPAGE_H
+#define CHECKOUTWIZARDPAGE_H
 
-#include <QtCore/QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <vcsbase/basecheckoutwizardpage.h>
 
 namespace CVS {
 namespace Internal {
 
-struct CVSSettings
-{
-    CVSSettings();
-
-    void fromSettings(QSettings *);
-    void toSettings(QSettings *) const;
-
-    // Add common options to the command line
-    QStringList addOptions(const QStringList &args) const;
-
-    bool equals(const CVSSettings &s) const;
-
-    QString cvsCommand;
-    QString cvsRoot;
-    QString cvsDiffOptions;
-    bool promptToSubmit;
-    bool describeByCommitId;
+class CheckoutWizardPage : public VCSBase::BaseCheckoutWizardPage {
+    Q_OBJECT
+public:
+    CheckoutWizardPage(QWidget *parent = 0);
 };
-
-inline bool operator==(const CVSSettings &p1, const CVSSettings &p2)
-    { return p1.equals(p2); }
-inline bool operator!=(const CVSSettings &p1, const CVSSettings &p2)
-    { return !p1.equals(p2); }
 
 } // namespace Internal
 } // namespace CVS
-
-#endif // CVSSETTINGS_H
+#endif // CHECKOUTWIZARDPAGE_H
