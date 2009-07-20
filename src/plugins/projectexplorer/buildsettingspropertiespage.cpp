@@ -112,6 +112,8 @@ void BuildSettingsSubWidgets::clear()
 {
     qDeleteAll(m_widgets);
     qDeleteAll(m_labels);
+    m_widgets.clear();
+    m_labels.clear();
 }
 
 QList<QWidget *> BuildSettingsSubWidgets::widgets() const
