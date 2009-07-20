@@ -462,7 +462,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             QPainter endPainter(&endImage);
             drawPrimitive(element, &endOpt, &endPainter, widget);
             t->setEndImage(endImage);
-            t->setDuration(130);
+            if (oldState & State_MouseOver)
+                t->setDuration(150);
+            else
+                t->setDuration(75);
             t->setStartTime(QTime::currentTime());
         }
     }
