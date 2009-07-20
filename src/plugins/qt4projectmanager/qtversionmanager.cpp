@@ -42,7 +42,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/welcomemode.h>
+#include <welcome/welcomemode.h>
 #include <extensionsystem/pluginmanager.h>
 #include <help/helpplugin.h>
 #include <utils/qtcassert.h>
@@ -121,7 +121,7 @@ QtVersionManager::QtVersionManager()
 
     writeVersionsIntoSettings();
 
-    if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>
+    if (Welcome::WelcomeMode *welcomeMode = qobject_cast<Welcome::WelcomeMode*>
         (Core::ICore::instance()->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
         connect(this, SIGNAL(updatedExamples(QString, QString)),
                 welcomeMode, SIGNAL(updatedExamples(QString, QString)));

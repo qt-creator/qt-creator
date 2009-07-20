@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Core::Internal::WelcomePage</class>
- <widget class="QWidget" name="Core::Internal::WelcomePage">
+ <class>Welcome::WelcomePage</class>
+ <widget class="QWidget" name="Welcome::WelcomePage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,12 +11,12 @@
    </rect>
   </property>
   <property name="styleSheet">
-   <string notr="true">#Core--Internal--WelcomePage {
+   <string notr="true">#Welcome--WelcomePage {
 background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
 }
 
 QToolButton, QPushButton, QComboBox {
-    border-image: url(:/core/images/welcomemode/btn_26.png) 4;
+    border-image: url(:/welcome/images/btn_26.png) 4;
     border-width: 4;
     padding: 0px 6px;
     font-size: 12px;
@@ -31,7 +31,7 @@ QToolButton, QPushButton, QComboBox {
 }
 
  QComboBox::down-arrow {
-     image: url(:/core/images/welcomemode/combobox_arrow.png);
+     image: url(:/welcome/images/combobox_arrow.png);
  }
 
 QComboBox:drop-down
@@ -44,7 +44,7 @@ QComboBox:drop-down
 }
 
 QToolButton:hover, QPushButton:hover, QComboBox:hover {
-    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 4;
+    border-image: url(:/welcome/images/btn_26_hover.png) 4;
 }
 
 QToolButton:disabled, QPushButton:disabled, QComboBox::disabled {
@@ -52,7 +52,7 @@ QToolButton:disabled, QPushButton:disabled, QComboBox::disabled {
 }
 
 QToolButton:pressed, QPushButton:pressed{
-    border-image: url(:/core/images/welcomemode/btn_26_pressed.png) 4;
+    border-image: url(:/welcome/images/btn_26_pressed.png) 4;
 }
 </string>
   </property>
@@ -102,7 +102,7 @@ QToolButton:pressed, QPushButton:pressed{
         </property>
         <property name="styleSheet">
          <string notr="true">#mainFrame {
-    border-image: url(:/core/images/welcomemode/background_center_frame.png) 4;
+    border-image: url(:/welcome/images/background_center_frame.png) 4;
     border-width: 4;
 }
 </string>
@@ -151,7 +151,7 @@ QToolButton:pressed, QPushButton:pressed{
            </property>
            <property name="styleSheet">
             <string>#headerFrame {
-    border-image: url(:/core/images/welcomemode/center_frame_header.png) 0;
+    border-image: url(:/welcome/images/center_frame_header.png) 0;
     border-width: 0;
 }
 </string>
@@ -417,7 +417,7 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item row="1" column="0">
-                 <widget class="Core::Internal::WelcomeModeTreeWidget" name="tutorialTreeWidget">
+                 <widget class="Welcome::WelcomeModeTreeWidget" name="tutorialTreeWidget">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -651,7 +651,7 @@ QToolButton:pressed {
                     </property>
                     <property name="icon">
                      <iconset resource="core.qrc">
-                      <normaloff>:/core/images/welcomemode/arrow-left.png</normaloff>:/core/images/welcomemode/arrow-left.png</iconset>
+                      <normaloff>:/welcome/images/arrow-left.png</normaloff>:/welcome/images/arrow-left.png</iconset>
                     </property>
                     <property name="arrowType">
                      <enum>Qt::NoArrow</enum>
@@ -673,7 +673,7 @@ QToolButton:pressed {
                     </property>
                     <property name="icon">
                      <iconset resource="core.qrc">
-                      <normaloff>:/core/images/welcomemode/arrow-right.png</normaloff>:/core/images/welcomemode/arrow-right.png</iconset>
+                      <normaloff>:/welcome/images/arrow-right.png</normaloff>:/welcome/images/arrow-right.png</iconset>
                     </property>
                     <property name="arrowType">
                      <enum>Qt::NoArrow</enum>
@@ -746,7 +746,7 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item row="1" column="0" colspan="3">
-                 <widget class="Core::Internal::WelcomeModeTreeWidget" name="sessTreeWidget">
+                 <widget class="Welcome::WelcomeModeTreeWidget" name="sessTreeWidget">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -853,7 +853,7 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item row="1" column="0" colspan="3">
-                 <widget class="Core::Internal::WelcomeModeTreeWidget" name="projTreeWidget">
+                 <widget class="Welcome::WelcomeModeTreeWidget" name="projTreeWidget">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -967,7 +967,7 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item>
-                 <widget class="Core::Internal::WelcomeModeTreeWidget" name="newsTreeWidget">
+                 <widget class="Welcome::WelcomeModeTreeWidget" name="newsTreeWidget">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -1051,7 +1051,7 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item>
-                 <widget class="Core::Internal::WelcomeModeTreeWidget" name="sitesTreeWidget">
+                 <widget class="Welcome::WelcomeModeTreeWidget" name="sitesTreeWidget">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -1167,7 +1167,7 @@ QToolButton:pressed {
              </property>
              <property name="icon">
               <iconset resource="core.qrc">
-               <normaloff>:/core/images/welcomemode/feedback_arrow.png</normaloff>:/core/images/welcomemode/feedback_arrow.png</iconset>
+               <normaloff>:/welcome/images/feedback_arrow.png</normaloff>:/welcome/images/feedback_arrow.png</iconset>
              </property>
             </widget>
            </item>
@@ -1221,7 +1221,7 @@ QToolButton:pressed {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Internal::WelcomeModeTreeWidget</class>
+   <class>Welcome::WelcomeModeTreeWidget</class>
    <extends>QTreeWidget</extends>
    <header>welcomemode_p.h</header>
   </customwidget>

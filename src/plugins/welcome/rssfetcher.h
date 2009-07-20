@@ -34,8 +34,7 @@
 #include <QtCore/QXmlStreamReader>
 #include <QtNetwork/QHttp>
 
-namespace Core {
-namespace Internal {
+namespace Welcome {
 
 class RSSFetcher : public QObject
 {
@@ -69,8 +68,7 @@ private:
     int m_maxItems;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Welcome
 
 #endif // RSSFETCHER_H
 

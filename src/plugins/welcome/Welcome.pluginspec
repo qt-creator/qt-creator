@@ -1,4 +1,4 @@
-<plugin name="Qt4ProjectManager" version="1.2.80" compatVersion="1.2.80">
+<plugin name="Welcome" version="1.2.80" compatVersion="1.2.80">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -16,15 +16,9 @@ General Public License version 2.1 as published by the Free Software
 Foundation.  Please review the following information to
 ensure the GNU Lesser General Public License version 2.1 requirements
 will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
-    <description>Provides project type for Qt 4 pro files and tools.</description>
+    <description>Default Welcome Screen Plugin</description>
     <url>http://www.qtsoftware.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.2.80"/>
-        <dependency name="ProjectExplorer" version="1.2.80"/>
-        <dependency name="CppTools" version="1.2.80"/>
-        <dependency name="CppEditor" version="1.2.80"/>
-        <dependency name="Help" version="1.2.80"/>
-        <dependency name="Designer" version="1.2.80"/>
-        <dependency name="Welcome" version="1.2.80"/>
+        <dependency name="Core" version="1.2.80"/>
     </dependencyList>
 </plugin>

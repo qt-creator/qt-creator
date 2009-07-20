@@ -20,8 +20,6 @@ DEPENDPATH += dialogs \
     editormanager \
     scriptmanager
 SOURCES += mainwindow.cpp \
-    welcomemode.cpp \
-    rssfetcher.cpp \
     editmode.cpp \
     tabpositionindicator.cpp \
     fancyactionbar.cpp \
@@ -81,9 +79,6 @@ SOURCES += mainwindow.cpp \
     dialogs/iwizard.cpp \
     settingsdatabase.cpp
 HEADERS += mainwindow.h \
-    welcomemode.h \
-    welcomemode_p.h \
-    rssfetcher.h \
     editmode.h \
     tabpositionindicator.h \
     fancyactionbar.h \
@@ -166,8 +161,7 @@ FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
     dialogs/openwithdialog.ui \
     editormanager/openeditorsview.ui \
-    generalsettings.ui \
-    welcomemode.ui
+    generalsettings.ui 
 RESOURCES += core.qrc \
     fancyactionbar.qrc
 

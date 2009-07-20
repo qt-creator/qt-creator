@@ -56,6 +56,8 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/welcomemode.h>
 
+#include <welcome/welcomemode.h>
+
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/styledbar.h>
@@ -611,8 +613,8 @@ void HelpPlugin::extensionsInitialized()
 
     using namespace Core::Internal;
     using namespace Core::Constants;
-    WelcomeMode *welcomeMode =
-        qobject_cast<WelcomeMode*>(m_core->modeManager()->mode(MODE_WELCOME));
+    Welcome::WelcomeMode *welcomeMode =
+        qobject_cast<Welcome::WelcomeMode*>(m_core->modeManager()->mode(MODE_WELCOME));
     if (welcomeMode) {
         connect(welcomeMode, SIGNAL(openHelpPage(QString)), this,
             SLOT(openHelpPage(QString)));

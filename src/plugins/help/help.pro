@@ -4,6 +4,7 @@ include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/find/find.pri)
 include(../../plugins/quickopen/quickopen.pri)
+include(../../plugins/welcome/welcome.pri)
 QT += network
 CONFIG += help
 DEFINES += QT_CLUCENE_SUPPORT \

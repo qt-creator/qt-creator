@@ -27,43 +27,63 @@
 **
 **************************************************************************/
 
-#ifndef COREPLUGIN_H
-#define COREPLUGIN_H
+#ifndef WELCOMEMODE_P_H
+#define WELCOMEMODE_P_H
 
-#include <extensionsystem/iplugin.h>
+#include <QtGui/QIcon>
+#include <QtGui/QLabel>
+#include <QtGui/QTreeWidget>
 
-namespace Core {
-    class IMode;
-}
+namespace Welcome {
 
-namespace Core {
-namespace Internal {
-
-class EditMode;
-class MainWindow;
-
-class CorePlugin : public ExtensionSystem::IPlugin
+class WelcomeModeButton : public QLabel
 {
     Q_OBJECT
 
 public:
-    CorePlugin();
-    ~CorePlugin();
+    WelcomeModeButton(QWidget *parent = 0);
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    virtual void extensionsInitialized();
-    virtual void shutdown();
+signals:
+    void clicked();
 
-public slots:
-    void remoteArgument(const QString&);
+protected:
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void enterEvent(QEvent *event);
+    virtual void leaveEvent(QEvent *event);
 
 private:
-    MainWindow *m_mainWindow;
-    Core::IMode *m_welcomeMode;
-    EditMode *m_editMode;
+    bool m_isPressed;
+    bool m_isInited;
+    QString m_text;
+    QString m_hoverText;
 };
 
-} // namespace Internal
-} // namespace Core
+class WelcomeModeTreeWidget : public QTreeWidget
+{
+    Q_OBJECT
 
-#endif // COREPLUGIN_H
+public:
+    WelcomeModeTreeWidget(QWidget *parent = 0);
+    QTreeWidgetItem *addItem(const QString &label, const QString &data);
+
+public slots:
+    void slotAddNewsItem(const QString &title, const QString &description, const QString &link);
+
+signals:
+    void activated(const QString &data);
+
+protected:
+    virtual QSize minimumSizeHint() const;
+    virtual QSize sizeHint() const;
+
+private slots:
+    void slotItemClicked(QTreeWidgetItem *item);
+
+private:
+    QIcon m_bullet;
+};
+
+}
+
+#endif // WELCOMEMODE_P_H

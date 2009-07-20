@@ -4,6 +4,7 @@
 TEMPLATE  = subdirs
 
 SUBDIRS   = plugin_coreplugin \
+            plugin_welcome \
             plugin_find \
             plugin_texteditor \
             plugin_cppeditor \
@@ -30,12 +31,15 @@ SUBDIRS   = plugin_coreplugin \
             plugin_fakevim \
             plugin_designer \
             plugin_resourceeditor \
-	    plugin_genericprojectmanager \
+            plugin_genericprojectmanager \
             plugin_duieditor \
             plugin_qmlprojectmanager \
             debugger/dumper.pro
 
 plugin_coreplugin.subdir = coreplugin
+
+plugin_welcome.subdir = welcome
+plugin_welcome.depends = plugin_coreplugin
 
 plugin_find.subdir = find
 plugin_find.depends += plugin_coreplugin

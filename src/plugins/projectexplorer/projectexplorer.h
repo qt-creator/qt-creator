@@ -46,21 +46,20 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QTreeWidgetItem>
 
-
 namespace Core {
 class IContext;
 class IMode;
 class IFileFactory;
-namespace Internal {
-    class WelcomeMode;
-}
     namespace Utils {
         class ParameterAction;
     }
 }
 
-namespace ProjectExplorer {
+namespace Welcome {
+    class WelcomeMode;
+}
 
+namespace ProjectExplorer {
 class BuildManager;
 class PersistentSettings;
 class RunConfiguration;
@@ -210,7 +209,7 @@ private:
 
     void updateActions();
     void addToRecentProjects(const QString &fileName, const QString &displayName);
-    void updateWelcomePage(Core::Internal::WelcomeMode *welcomeMode);
+    void updateWelcomePage(Welcome::WelcomeMode *welcomeMode);
     Internal::ProjectFileFactory *findProjectFileFactory(const QString &filename) const;
 
     static ProjectExplorerPlugin *m_instance;

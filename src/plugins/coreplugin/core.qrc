@@ -44,24 +44,5 @@
         <file>images/unlocked.png</file>
         <file>images/extension.png</file>
         <file>images/darkclosebutton.png</file>
-        <file>images/welcomemode/btn_26.png</file>
-        <file>images/welcomemode/btn_26_hover.png</file>
-        <file>images/welcomemode/btn_27.png</file>
-        <file>images/welcomemode/btn_27_hover.png</file>
-        <file>images/welcomemode/feedback_arrow.png</file>
-        <file>images/welcomemode/feedback_arrow_hover.png</file>
-        <file>images/welcomemode/feedback-bar-background.png</file>
-        <file>images/welcomemode/list_bullet_arrow.png</file>
-        <file>images/welcomemode/mode_project.png</file>
-        <file>images/welcomemode/nokia_logo.png</file>
-        <file>images/welcomemode/product_logo.png</file>
-        <file>images/welcomemode/qt_logo.png</file>
-        <file>images/welcomemode/rc_combined.png</file>
-        <file>images/welcomemode/background_center_frame.png</file>
-        <file>images/welcomemode/center_frame_header.png</file>
-        <file>images/welcomemode/btn_26_pressed.png</file>
-        <file>images/welcomemode/combobox_arrow.png</file>
-        <file>images/welcomemode/arrow-left.png</file>
-        <file>images/welcomemode/arrow-right.png</file>
     </qresource>
 </RCC>
