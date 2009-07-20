@@ -238,12 +238,13 @@ public:
     bool parseObjCPropertyDeclaration(DeclarationAST *&node,
                                       SpecifierAST *attributes = 0);
     bool parseObjCImplementation(DeclarationAST *&node);
-    bool parseObjCMethodPrototype(DeclarationAST *&node);
+    bool parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node);
     bool parseObjCPropertyAttribute(ObjcPropertyAttributeAST *&node);
     bool parseObjCTypeName(ObjCTypeNameAST *&node);
     bool parseObjCSelector(unsigned &selector_token);
     bool parseObjCKeywordDeclaration(ObjCMessageArgumentDeclarationAST *&node);
     bool parseObjCTypeQualifiers(unsigned &type_qualifier);
+    bool parseObjCContextKeyword(int kind, unsigned &in_token);
 
     bool lookAtObjCSelector() const;
 
@@ -287,7 +288,6 @@ private:
     TranslationUnit *_translationUnit;
     Control *_control;
     MemoryPool *_pool;
-    Identifier *_objcInContextKeyword;
     unsigned _tokenIndex;
     bool _templateArguments: 1;
     bool _qtMocRunEnabled: 1;

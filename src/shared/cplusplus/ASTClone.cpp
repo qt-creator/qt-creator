@@ -1246,6 +1246,7 @@ ObjCCategoryInterfaceDeclarationAST *ObjCCategoryInterfaceDeclarationAST::clone(
     ObjCCategoryInterfaceDeclarationAST *ast = new (pool) ObjCCategoryInterfaceDeclarationAST;
     // copy DeclarationAST
     // copy ObjCCategoryInterfaceDeclarationAST
+    if (attributes) ast->attributes = attributes->clone(pool);
     ast->interface_token = interface_token;
     ast->class_identifier_token = class_identifier_token;
     if (protocol_refs) ast->protocol_refs = protocol_refs->clone(pool);
@@ -1417,6 +1418,22 @@ ObjCMethodPrototypeAST *ObjCMethodPrototypeAST::clone(MemoryPool *pool) const
     if (type_name) ast->type_name = type_name->clone(pool);
     if (arguments) ast->arguments = arguments->clone(pool);
     if (attributes) ast->attributes = attributes->clone(pool);
+    return ast;
+}
+
+ObjCMethodDeclarationAST *ObjCMethodDeclarationAST::clone(MemoryPool *pool) const
+{
+    ObjCMethodDeclarationAST *ast = new (pool) ObjCMethodDeclarationAST;
+    if (method_prototype) ast->method_prototype = method_prototype->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
+ObjCMethodDefinitionAST *ObjCMethodDefinitionAST::clone(MemoryPool *pool) const
+{
+    ObjCMethodDefinitionAST *ast = new (pool) ObjCMethodDefinitionAST;
+    if (method_prototype) ast->method_prototype = method_prototype->clone(pool);
+    if (function_body) ast->function_body = function_body->clone(pool);
     return ast;
 }
 

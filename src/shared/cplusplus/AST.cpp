@@ -1997,7 +1997,10 @@ unsigned ObjCClassInterfaceDeclarationAST::lastToken() const
 
 unsigned ObjCCategoryInterfaceDeclarationAST::firstToken() const
 {
-    return interface_token;
+    if (attributes)
+        return attributes->firstToken();
+    else
+        return interface_token;
 }
 
 unsigned ObjCCategoryInterfaceDeclarationAST::lastToken() const
@@ -2317,6 +2320,32 @@ unsigned ObjCMethodPrototypeAST::lastToken() const
         return type_name->lastToken();
     else
         return method_type_token + 1;
+}
+
+unsigned ObjCMethodDeclarationAST::firstToken() const
+{
+    return method_prototype->firstToken();
+}
+
+unsigned ObjCMethodDeclarationAST::lastToken() const
+{
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else
+        return method_prototype->lastToken();
+}
+
+unsigned ObjCMethodDefinitionAST::firstToken() const
+{
+    return method_prototype->firstToken();
+}
+
+unsigned ObjCMethodDefinitionAST::lastToken() const
+{
+    if (function_body)
+        return function_body->lastToken();
+    else
+        return method_prototype->lastToken();
 }
 
 unsigned ObjCClassImplementationAST::firstToken() const

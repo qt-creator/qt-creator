@@ -2511,6 +2511,7 @@ protected:
 class CPLUSPLUS_EXPORT ObjCCategoryInterfaceDeclarationAST: public DeclarationAST
 {
 public:
+    SpecifierAST *attributes;
     unsigned interface_token;
     unsigned class_identifier_token;
     unsigned lparen_token;
@@ -2862,7 +2863,7 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCMethodPrototypeAST: public DeclarationAST
+class CPLUSPLUS_EXPORT ObjCMethodPrototypeAST: public AST
 {
 public:
     unsigned method_type_token;
@@ -2878,6 +2879,44 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ObjCMethodPrototypeAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMethodDeclarationAST: public DeclarationAST
+{
+public:
+    ObjCMethodPrototypeAST *method_prototype;
+    unsigned semicolon_token;
+
+public:
+    virtual ObjCMethodDeclarationAST *asObjCMethodDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMethodDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMethodDefinitionAST: public DeclarationAST
+{
+public:
+    ObjCMethodPrototypeAST *method_prototype;
+    StatementAST *function_body;
+
+public:
+    virtual ObjCMethodDefinitionAST *asObjCMethodDefinition()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMethodDefinitionAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

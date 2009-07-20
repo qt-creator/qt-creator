@@ -215,6 +215,8 @@ public:
     virtual bool visit(ObjcPropertyAttributeListAST *) { return true; }
     virtual bool visit(ObjCPropertyDeclarationAST *) { return true; }
     virtual bool visit(ObjCMethodPrototypeAST *) { return true; }
+    virtual bool visit(ObjCMethodDeclarationAST *) { return true; }
+    virtual bool visit(ObjCMethodDefinitionAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentDeclarationListAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentDeclarationAST *) { return true; }
     virtual bool visit(ObjCClassImplementationAST *) { return true; }
@@ -350,6 +352,8 @@ public:
     virtual void endVisit(ObjcPropertyAttributeListAST *) { }
     virtual void endVisit(ObjCPropertyDeclarationAST *) { }
     virtual void endVisit(ObjCMethodPrototypeAST *) { }
+    virtual void endVisit(ObjCMethodDeclarationAST *) { }
+    virtual void endVisit(ObjCMethodDefinitionAST *) { }
     virtual void endVisit(ObjCMessageArgumentDeclarationListAST *) { }
     virtual void endVisit(ObjCMessageArgumentDeclarationAST *) { }
     virtual void endVisit(ObjCClassImplementationAST *) { }

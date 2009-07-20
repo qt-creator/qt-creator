@@ -1159,7 +1159,12 @@ void ObjCCategoryInterfaceDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         // visit ObjCCategoryInterfaceDeclarationAST
-        accept(protocol_refs, visitor);
+        if (attributes)
+            accept(attributes, visitor);
+        if (protocol_refs)
+            accept(protocol_refs, visitor);
+        if (member_declarations)
+            accept(member_declarations, visitor);
         // visit DeclarationAST
     }
     visitor->endVisit(this);
@@ -1364,6 +1369,30 @@ void ObjCMethodPrototypeAST::accept0(ASTVisitor *visitor)
         if (attributes)
             accept(attributes, visitor);
         // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCMethodDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCMethodDeclarationAST
+        if (method_prototype)
+            accept(method_prototype, visitor);
+        // visit DeclarationAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCMethodDefinitionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCMethodDefinitionAST
+        if (method_prototype)
+            accept(method_prototype, visitor);
+        if (function_body)
+            accept(function_body, visitor);
+        // visit DeclarationAST
     }
     visitor->endVisit(this);
 }

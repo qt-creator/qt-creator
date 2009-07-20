@@ -63,7 +63,6 @@ Parser::Parser(TranslationUnit *unit)
     : _translationUnit(unit),
       _control(_translationUnit->control()),
       _pool(_translationUnit->memoryPool()),
-      _objcInContextKeyword(_control->findOrInsertIdentifier("in")),
       _tokenIndex(1),
       _templateArguments(0),
       _qtMocRunEnabled(false),
@@ -2178,16 +2177,19 @@ bool Parser::parseForStatement(StatementAST *&node)
     unsigned for_token = consumeToken();
     unsigned lparen_token = 0;
     match(T_LPAREN, &lparen_token);
+
+    // FIXME: for ObjC fast enumeration, this needs a semicolon before the "in" token, which is obviously wrong.
     StatementAST *initializer = 0;
     parseForInitStatement(initializer);
+    unsigned in_token = 0;
 
-    if (LA() == T_IDENTIFIER && tok().identifier == _objcInContextKeyword) {
+    if (parseObjCContextKeyword(Token_in, in_token)) {
         ObjCFastEnumerationAST *ast = new (_pool) ObjCFastEnumerationAST;
 
         ast->for_token = for_token;
         ast->lparen_token = lparen_token;
         ast->initializer = initializer;
-        ast->in_token = consumeToken();
+        ast->in_token = in_token;
         parseExpression(ast->fast_enumeratable_expression);
         match(T_RPAREN, &ast->rparen_token);
         parseStatement(ast->body_statement);
@@ -3978,7 +3980,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
                                     "invalid attributes for category interface declaration");
 
         ObjCCategoryInterfaceDeclarationAST *ast = new (_pool) ObjCCategoryInterfaceDeclarationAST;
-        // TODO: Should the attributes get stored anyway? (for fixing/refactoring purposes maybe...)
+        ast->attributes = attributes;
         ast->interface_token = objc_interface_token;
         ast->class_identifier_token = identifier_token;
 
@@ -4169,27 +4171,28 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
         case T_AT_SYNTHESIZE: {
             ObjCSynthesizedPropertiesDeclarationAST *ast = new (_pool) ObjCSynthesizedPropertiesDeclarationAST;
             ast->synthesized_token = consumeToken();
-            // TODO EV
-            unsigned identifier_token = 0;
-            match(T_IDENTIFIER, &identifier_token);
+            ObjCSynthesizedPropertyListAST *last = new (_pool) ObjCSynthesizedPropertyListAST;
+            ast->property_identifiers = last;
+            last->synthesized_property = new (_pool) ObjCSynthesizedPropertyAST;
+            match(T_IDENTIFIER, &(last->synthesized_property->property_identifier));
 
             if (LA() == T_EQUAL) {
-                consumeToken();
+                last->synthesized_property->equals_token = consumeToken();
 
-                unsigned aliassed_identifier_token = 0;
-                match(T_IDENTIFIER, &aliassed_identifier_token);
+                match(T_IDENTIFIER, &(last->synthesized_property->property_alias_identifier));
             }
 
             while (LA() == T_COMMA) {
-                consumeToken();
+                last->comma_token = consumeToken();
+                last->next = new (_pool) ObjCSynthesizedPropertyListAST;
+                last = last->next;
 
-                match(T_IDENTIFIER, &identifier_token);
+                match(T_IDENTIFIER, &(last->synthesized_property->property_identifier));
 
                 if (LA() == T_EQUAL) {
-                    consumeToken();
+                    last->synthesized_property->equals_token = consumeToken();
 
-                    unsigned aliassed_identifier_token = 0;
-                    match(T_IDENTIFIER, &aliassed_identifier_token);
+                    match(T_IDENTIFIER, &(last->synthesized_property->property_alias_identifier));
                 }
             }
 
@@ -4246,16 +4249,24 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
 
 bool Parser::parseObjCMethodDefinition(DeclarationAST *&node)
 {
-    // TODO EV:
-    DeclarationAST *ast = 0;
-    if (! parseObjCMethodPrototype(ast))
+    ObjCMethodPrototypeAST *method_prototype;
+    if (! parseObjCMethodPrototype(method_prototype))
         return false;
 
-    if (LA() == T_SEMICOLON)
-        consumeToken();
+    if (LA() == T_SEMICOLON) {
+        // method declaration:
+        ObjCMethodDeclarationAST *ast = new (_pool) ObjCMethodDeclarationAST;
+        ast->method_prototype = method_prototype;
+        ast->semicolon_token = consumeToken();
+        node = ast;
+    } else {
+        // method definition:
+        ObjCMethodDefinitionAST *ast = new (_pool) ObjCMethodDefinitionAST;
+        ast->method_prototype = method_prototype;
+        parseFunctionBody(ast->function_body);
+        node = ast;
+    }
 
-    StatementAST *function_body = 0;
-    parseFunctionBody(function_body);
     return true;
 }
 
@@ -4350,8 +4361,16 @@ bool Parser::parseObjCInterfaceMemberDeclaration(DeclarationAST *&node)
     }
 
     case T_PLUS:
-    case T_MINUS:
-        return parseObjCMethodPrototype(node);
+    case T_MINUS: {
+        ObjCMethodDeclarationAST *ast = new (_pool) ObjCMethodDeclarationAST;
+        if (parseObjCMethodPrototype(ast->method_prototype)) {
+            match(T_SEMICOLON, &(ast->semicolon_token));
+            node = ast;
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     case T_ENUM:
     case T_CLASS:
@@ -4431,7 +4450,7 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *a
 // objc-method-decl ::= objc-type-name? objc-selector
 // objc-method-decl ::= objc-type-name? objc-keyword-decl-list objc-parmlist-opt
 //
-bool Parser::parseObjCMethodPrototype(DeclarationAST *&node)
+bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
 {
     if (LA() != T_PLUS && LA() != T_MINUS)
         return false;
@@ -4455,7 +4474,7 @@ bool Parser::parseObjCMethodPrototype(DeclarationAST *&node)
             (*last)->argument_declaration = declaration;
         }
 
-        // TODO: err, what does this parse?
+        // TODO EV: get this in the ast
         while (LA() == T_COMMA) {
             consumeToken();
 
@@ -4568,6 +4587,19 @@ bool Parser::parseObjCTypeQualifiers(unsigned &type_qualifier)
     if (k == Token_identifier)
         return false;
     type_qualifier = consumeToken();
+    return true;
+}
+
+bool Parser::parseObjCContextKeyword(int kind, unsigned &in_token)
+{
+    if (LA() != T_IDENTIFIER)
+        return false;
+
+    Identifier *id = tok().identifier;
+    const int k = classifyObjectiveCTypeQualifiers(id->chars(), id->size());
+    if (k != kind)
+        return false;
+    in_token = consumeToken();
     return true;
 }
 
