@@ -1318,6 +1318,8 @@ void ObjCPropertyDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         // visit ObjCPropertyDeclarationAST:
+        for (SpecifierAST *it = attributes; it; it = it->next)
+            accept(it, visitor);
         for (ObjcPropertyAttributeListAST *it = property_attributes; it; it = it->next)
             accept(it, visitor);
         if (simple_declaration)
@@ -1362,6 +1364,87 @@ void ObjCMethodPrototypeAST::accept0(ASTVisitor *visitor)
         if (attributes)
             accept(attributes, visitor);
         // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCClassImplementationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCClassImplementationAST
+        if (inst_vars_decl)
+            accept(inst_vars_decl, visitor);
+        for (DeclarationListAST *it = declarations; it; it = it->next)
+            accept(it, visitor);
+        // visit DeclarationAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCCategoryImplementationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCCategoryImplementationAST
+        for (DeclarationListAST *it = declarations; it; it = it->next)
+            accept(it, visitor);
+        // visit DeclarationAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCSynthesizedPropertyAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCSynthesizedPropertyAST
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCSynthesizedPropertyListAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCSynthesizedPropertyListAST
+        if (synthesized_property)
+            accept(synthesized_property, visitor);
+        // visit AST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCSynthesizedPropertiesDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCSynthesizedPropertiesDeclarationAST
+        for (ObjCSynthesizedPropertyListAST *it = property_identifiers; it; it = it->next)
+            accept(it, visitor);
+        // visit DeclarationAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCDynamicPropertiesDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCDynamicPropertiesDeclarationAST
+        for (IdentifierListAST *it = property_identifiers; it; it = it->next)
+            accept(it, visitor);
+        // visit DeclarationAST
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCFastEnumerationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCFastEnumerationAST
+        if (initializer)
+            accept(initializer, visitor);
+        if (fast_enumeratable_expression)
+            accept(fast_enumeratable_expression, visitor);
+        if (body_statement)
+            accept(body_statement, visitor);
+        // visit StatementAST
     }
     visitor->endVisit(this);
 }

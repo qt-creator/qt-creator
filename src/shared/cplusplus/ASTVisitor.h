@@ -217,6 +217,13 @@ public:
     virtual bool visit(ObjCMethodPrototypeAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentDeclarationListAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentDeclarationAST *) { return true; }
+    virtual bool visit(ObjCClassImplementationAST *) { return true; }
+    virtual bool visit(ObjCCategoryImplementationAST *) { return true; }
+    virtual bool visit(ObjCSynthesizedPropertyAST *) { return true; }
+    virtual bool visit(ObjCSynthesizedPropertyListAST *) { return true; }
+    virtual bool visit(ObjCSynthesizedPropertiesDeclarationAST *) { return true; }
+    virtual bool visit(ObjCDynamicPropertiesDeclarationAST *) { return true; }
+    virtual bool visit(ObjCFastEnumerationAST *) { return true; }
 
     virtual bool visit(DeclarationListAST *) { return true; }
     virtual void endVisit(DeclarationListAST *) { }
@@ -345,6 +352,13 @@ public:
     virtual void endVisit(ObjCMethodPrototypeAST *) { }
     virtual void endVisit(ObjCMessageArgumentDeclarationListAST *) { }
     virtual void endVisit(ObjCMessageArgumentDeclarationAST *) { }
+    virtual void endVisit(ObjCClassImplementationAST *) { }
+    virtual void endVisit(ObjCCategoryImplementationAST *) { }
+    virtual void endVisit(ObjCSynthesizedPropertyAST *) { }
+    virtual void endVisit(ObjCSynthesizedPropertyListAST *) { }
+    virtual void endVisit(ObjCSynthesizedPropertiesDeclarationAST *) { }
+    virtual void endVisit(ObjCDynamicPropertiesDeclarationAST *) { }
+    virtual void endVisit(ObjCFastEnumerationAST *) { }
 
 private:
     Control *_control;

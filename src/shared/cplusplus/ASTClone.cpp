@@ -1382,6 +1382,7 @@ ObjcPropertyAttributeListAST *ObjcPropertyAttributeListAST::clone(MemoryPool *po
 ObjCPropertyDeclarationAST *ObjCPropertyDeclarationAST::clone(MemoryPool *pool) const
 {
     ObjCPropertyDeclarationAST *ast = new (pool) ObjCPropertyDeclarationAST;
+    if (attributes) ast->attributes = attributes->clone(pool);
     ast->property_token = property_token;
     ast->lparen_token = lparen_token;
     if (property_attributes) ast->property_attributes = property_attributes->clone(pool);
@@ -1416,6 +1417,84 @@ ObjCMethodPrototypeAST *ObjCMethodPrototypeAST::clone(MemoryPool *pool) const
     if (type_name) ast->type_name = type_name->clone(pool);
     if (arguments) ast->arguments = arguments->clone(pool);
     if (attributes) ast->attributes = attributes->clone(pool);
+    return ast;
+}
+
+ObjCClassImplementationAST *ObjCClassImplementationAST::clone(MemoryPool *pool) const
+{
+    ObjCClassImplementationAST *ast = new (pool) ObjCClassImplementationAST;
+    ast->implementation_token = implementation_token;
+    ast->class_identifier = class_identifier;
+    ast->colon_token = colon_token;
+    ast->super_class_identifier = super_class_identifier;
+    if (inst_vars_decl) ast->inst_vars_decl = inst_vars_decl->clone(pool);
+    if (declarations) ast->declarations = declarations->clone(pool);
+    ast->end_token = end_token;
+    return ast;
+}
+
+ObjCCategoryImplementationAST *ObjCCategoryImplementationAST::clone(MemoryPool *pool) const
+{
+    ObjCCategoryImplementationAST *ast = new (pool) ObjCCategoryImplementationAST;
+    ast->implementation_token = implementation_token;
+    ast->class_identifier = class_identifier;
+    ast->lparen_token = lparen_token;
+    ast->category_name_token = category_name_token;
+    ast->rparen_token = rparen_token;
+    if (declarations) ast->declarations = declarations->clone(pool);
+    ast->end_token = end_token;
+    return ast;
+}
+
+ObjCSynthesizedPropertyAST *ObjCSynthesizedPropertyAST::clone(MemoryPool *pool) const
+{
+    ObjCSynthesizedPropertyAST *ast = new (pool) ObjCSynthesizedPropertyAST;
+    ast->property_identifier = property_identifier;
+    ast->equals_token = equals_token;
+    ast->property_alias_identifier = property_alias_identifier;
+    return ast;
+}
+
+ObjCSynthesizedPropertyListAST *ObjCSynthesizedPropertyListAST::clone(MemoryPool *pool) const
+{
+    ObjCSynthesizedPropertyListAST *ast = new (pool) ObjCSynthesizedPropertyListAST;
+    if (synthesized_property) ast->synthesized_property = synthesized_property->clone(pool);
+    ast->comma_token = comma_token;
+    if (next) ast->next = next->clone(pool);
+    return ast;
+}
+
+ObjCSynthesizedPropertiesDeclarationAST *ObjCSynthesizedPropertiesDeclarationAST::clone(MemoryPool *pool) const
+{
+    ObjCSynthesizedPropertiesDeclarationAST *ast = new (pool) ObjCSynthesizedPropertiesDeclarationAST;
+    ast->synthesized_token = synthesized_token;
+    if (property_identifiers) ast->property_identifiers = property_identifiers->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
+ObjCDynamicPropertiesDeclarationAST *ObjCDynamicPropertiesDeclarationAST::clone(MemoryPool *pool) const
+{
+    ObjCDynamicPropertiesDeclarationAST *ast = new (pool) ObjCDynamicPropertiesDeclarationAST;
+    ast->dynamic_token = dynamic_token;
+    if (property_identifiers) ast->property_identifiers = property_identifiers->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
+ObjCFastEnumerationAST *ObjCFastEnumerationAST::clone(MemoryPool *pool) const
+{
+    ObjCFastEnumerationAST *ast = new (pool) ObjCFastEnumerationAST;
+    ast->for_token = for_token;
+    ast->lparen_token = lparen_token;
+    if (initializer)
+        ast->initializer = initializer->clone(pool);
+    ast->in_token = in_token;
+    if (fast_enumeratable_expression)
+        ast->fast_enumeratable_expression = fast_enumeratable_expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (body_statement)
+        ast->body_statement = body_statement->clone(pool);
     return ast;
 }
 

@@ -63,6 +63,7 @@ Parser::Parser(TranslationUnit *unit)
     : _translationUnit(unit),
       _control(_translationUnit->control()),
       _pool(_translationUnit->memoryPool()),
+      _objcInContextKeyword(_control->findOrInsertIdentifier("in")),
       _tokenIndex(1),
       _templateArguments(0),
       _qtMocRunEnabled(false),
@@ -422,7 +423,10 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
         return parseObjCImplementation(node);
 
     case T_AT_END:
-        return parseObjCEnd(node);
+        // TODO: should this be done here, or higher-up?
+        _translationUnit->error(cursor(), "skip stray token `%s'", tok().spell());
+        consumeToken();
+        break;
 
     default: {
         if (_objCEnabled && LA() == T___ATTRIBUTE__) {
@@ -2168,20 +2172,43 @@ bool Parser::parseForeachStatement(StatementAST *&node)
 
 bool Parser::parseForStatement(StatementAST *&node)
 {
-    if (LA() == T_FOR) {
+    if (LA() != T_FOR)
+        return false;
+
+    unsigned for_token = consumeToken();
+    unsigned lparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    StatementAST *initializer = 0;
+    parseForInitStatement(initializer);
+
+    if (LA() == T_IDENTIFIER && tok().identifier == _objcInContextKeyword) {
+        ObjCFastEnumerationAST *ast = new (_pool) ObjCFastEnumerationAST;
+
+        ast->for_token = for_token;
+        ast->lparen_token = lparen_token;
+        ast->initializer = initializer;
+        ast->in_token = consumeToken();
+        parseExpression(ast->fast_enumeratable_expression);
+        match(T_RPAREN, &ast->rparen_token);
+        parseStatement(ast->body_statement);
+
+        node = ast;
+    } else {
         ForStatementAST *ast = new (_pool) ForStatementAST;
-        ast->for_token = consumeToken();
-        match(T_LPAREN, &ast->lparen_token);
-        parseForInitStatement(ast->initializer);
+
+        ast->for_token = for_token;
+        ast->lparen_token = lparen_token;
+        ast->initializer = initializer;
         parseExpression(ast->condition);
         match(T_SEMICOLON, &ast->semicolon_token);
         parseExpression(ast->expression);
         match(T_RPAREN, &ast->rparen_token);
         parseStatement(ast->statement);
+
         node = ast;
-        return true;
     }
-    return false;
+
+    return true;
 }
 
 bool Parser::parseForInitStatement(StatementAST *&node)
@@ -3951,7 +3978,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
                                     "invalid attributes for category interface declaration");
 
         ObjCCategoryInterfaceDeclarationAST *ast = new (_pool) ObjCCategoryInterfaceDeclarationAST;
-        // XXX: Should the attributes get stored anyway? (for fixing/refactoring purposes maybe...)
+        // TODO: Should the attributes get stored anyway? (for fixing/refactoring purposes maybe...)
         ast->interface_token = objc_interface_token;
         ast->class_identifier_token = identifier_token;
 
@@ -4074,48 +4101,62 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
 //                         objc-class-instance-variables-opt
 // objc-implementation ::= T_AT_IMPLEMENTAION T_IDENTIFIER T_LPAREN T_IDENTIFIER T_RPAREN
 //
-bool Parser::parseObjCImplementation(DeclarationAST *&)
+bool Parser::parseObjCImplementation(DeclarationAST *&node)
 {
     if (LA() != T_AT_IMPLEMENTATION)
         return false;
 
-    consumeToken();
-
+    unsigned implementation_token = consumeToken();
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
 
     if (LA() == T_LPAREN) {
         // a category implementation
-        unsigned lparen_token = 0, rparen_token = 0;
-        unsigned category_name_token = 0;
-        match(T_LPAREN, &lparen_token);
-        match(T_IDENTIFIER, &category_name_token);
-        match(T_RPAREN, &rparen_token);
-        return true;
+        ObjCCategoryImplementationAST *ast = new (_pool) ObjCCategoryImplementationAST;
+        ast->implementation_token = implementation_token;
+        ast->class_identifier = identifier_token;
+
+        match(T_LPAREN, &(ast->lparen_token));
+        match(T_IDENTIFIER, &(ast->category_name_token));
+        match(T_RPAREN, &(ast->rparen_token));
+
+        parseObjCMethodDefinitionList(ast->declarations);
+        match(T_AT_END, &(ast->end_token));
+
+        node = ast;
+    } else {
+        // a class implementation
+        ObjCClassImplementationAST *ast = new (_pool) ObjCClassImplementationAST;
+        ast->implementation_token = implementation_token;
+        ast->class_identifier = identifier_token;
+
+        if (LA() == T_COLON) {
+            ast->colon_token = consumeToken();
+            match(T_IDENTIFIER, &(ast->super_class_identifier));
+        }
+
+        parseObjClassInstanceVariables(ast->inst_vars_decl);
+        parseObjCMethodDefinitionList(ast->declarations);
+        match(T_AT_END, &(ast->end_token));
+
+        node = ast;
     }
 
-    // a class implementation
-    if (LA() == T_COLON) {
-        consumeToken();
-        unsigned super_class_name_token = 0;
-        match(T_IDENTIFIER, &super_class_name_token);
-    }
-
-    ObjCInstanceVariablesDeclarationAST *inst_vars_decl;
-    parseObjClassInstanceVariables(inst_vars_decl);
-    parseObjCMethodDefinitionList();
     return true;
 }
 
-bool Parser::parseObjCMethodDefinitionList()
+bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
 {
+    DeclarationListAST **next = &node;
+
     while (LA() && LA() != T_AT_END) {
         unsigned start = cursor();
+        DeclarationAST *declaration = 0;
 
         switch (LA()) {
         case T_PLUS:
         case T_MINUS:
-            parseObjCMethodDefinition();
+            parseObjCMethodDefinition(declaration);
 
             if (start == cursor())
                 consumeToken();
@@ -4126,7 +4167,9 @@ bool Parser::parseObjCMethodDefinitionList()
             break;
 
         case T_AT_SYNTHESIZE: {
-            consumeToken();
+            ObjCSynthesizedPropertiesDeclarationAST *ast = new (_pool) ObjCSynthesizedPropertiesDeclarationAST;
+            ast->synthesized_token = consumeToken();
+            // TODO EV
             unsigned identifier_token = 0;
             match(T_IDENTIFIER, &identifier_token);
 
@@ -4150,34 +4193,36 @@ bool Parser::parseObjCMethodDefinitionList()
                 }
             }
 
-            unsigned semicolon_token = 0;
-            match(T_SEMICOLON, &semicolon_token);
+            match(T_SEMICOLON, &(ast->semicolon_token));
 
+            declaration = ast;
             break;
         }
 
         case T_AT_DYNAMIC: {
-            consumeToken();
-            unsigned identifier_token = 0;
-            match(T_IDENTIFIER, &identifier_token);
+            ObjCDynamicPropertiesDeclarationAST *ast = new (_pool) ObjCDynamicPropertiesDeclarationAST;
+            ast->dynamic_token = consumeToken();
+            ast->property_identifiers = new (_pool) IdentifierListAST;
+            match(T_IDENTIFIER, &(ast->property_identifiers->identifier_token));
 
+            IdentifierListAST *last = ast->property_identifiers;
             while (LA() == T_COMMA) {
-                consumeToken();
-                match(T_IDENTIFIER, &identifier_token);
+                last->comma_token = consumeToken();
+                last->next = new (_pool) IdentifierListAST;
+                last = last->next;
+                match(T_IDENTIFIER, &(last->identifier_token));
             }
 
-            unsigned semicolon_token = 0;
-            match(T_SEMICOLON, &semicolon_token);
+            match(T_SEMICOLON, &(ast->semicolon_token));
 
+            declaration = ast;
             break;
         }
 
         default:
             if (LA() == T_EXTERN && LA(2) == T_STRING_LITERAL) {
-                DeclarationAST *declaration = 0;
                 parseDeclaration(declaration);
             } else {
-                DeclarationAST *declaration = 0;
                 if (! parseBlockDeclaration(declaration)) {
                     rewind(start);
                     _translationUnit->error(cursor(),
@@ -4188,13 +4233,20 @@ bool Parser::parseObjCMethodDefinitionList()
             }
             break;
         } // switch
+
+        if (declaration) {
+            *next = new (_pool) DeclarationListAST;
+            (*next)->declaration = declaration;
+            next = &((*next)->next);
+        }
     }
 
     return true;
 }
 
-bool Parser::parseObjCMethodDefinition()
+bool Parser::parseObjCMethodDefinition(DeclarationAST *&node)
 {
+    // TODO EV:
     DeclarationAST *ast = 0;
     if (! parseObjCMethodPrototype(ast))
         return false;
@@ -4339,12 +4391,13 @@ bool Parser::parseObjCInstanceVariableDeclaration(DeclarationAST *&node)
 // objc-property-declaration ::=
 //    T_AT_PROPERTY T_LPAREN (property-attribute @ T_COMMA) T_RPAREN simple-declaration
 //
-bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *)
+bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *attributes)
 {
     if (LA() != T_AT_PROPERTY)
         return false;
 
     ObjCPropertyDeclarationAST *ast = new (_pool) ObjCPropertyDeclarationAST;
+    ast->attributes = attributes;
     ast->property_token = consumeToken();
 
     if (LA() == T_LPAREN) {
@@ -4517,16 +4570,5 @@ bool Parser::parseObjCTypeQualifiers(unsigned &type_qualifier)
     type_qualifier = consumeToken();
     return true;
 }
-
-// objc-end: T_AT_END
-bool Parser::parseObjCEnd(DeclarationAST *&)
-{
-    if (LA() != T_AT_END)
-        return false;
-
-    consumeToken();
-    return true;
-}
-
 
 CPLUSPLUS_END_NAMESPACE

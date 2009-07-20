@@ -2241,6 +2241,9 @@ unsigned ObjcPropertyAttributeListAST::lastToken() const
 
 unsigned ObjCPropertyDeclarationAST::firstToken() const
 {
+    if (attributes)
+        return attributes->firstToken();
+
     return property_token;
 }
 
@@ -2314,6 +2317,152 @@ unsigned ObjCMethodPrototypeAST::lastToken() const
         return type_name->lastToken();
     else
         return method_type_token + 1;
+}
+
+unsigned ObjCClassImplementationAST::firstToken() const
+{
+    return implementation_token;
+}
+
+unsigned ObjCClassImplementationAST::lastToken() const
+{
+    if (end_token)
+        return end_token + 1;
+
+    for (DeclarationListAST *it = declarations; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (inst_vars_decl)
+        return inst_vars_decl->lastToken();
+    if (super_class_identifier)
+        return super_class_identifier + 1;
+    if (colon_token)
+        return colon_token + 1;
+    if (class_identifier)
+        return class_identifier + 1;
+
+    return implementation_token + 1;
+}
+
+unsigned ObjCCategoryImplementationAST::firstToken() const
+{
+    return implementation_token;
+}
+
+unsigned ObjCCategoryImplementationAST::lastToken() const
+{
+    if (end_token)
+        return end_token + 1;
+
+    for (DeclarationListAST *it = declarations; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (rparen_token)
+        return rparen_token + 1;
+    if (category_name_token)
+        return category_name_token + 1;
+    if (lparen_token)
+        return lparen_token + 1;
+    if (class_identifier)
+        return class_identifier + 1;
+
+    return implementation_token + 1;
+}
+
+unsigned ObjCSynthesizedPropertyAST::firstToken() const
+{
+    if (property_identifier)
+        return property_identifier;
+    else if (equals_token)
+        return equals_token;
+    else
+        return property_alias_identifier;
+}
+
+unsigned ObjCSynthesizedPropertyAST::lastToken() const
+{
+    if (property_alias_identifier)
+        return property_alias_identifier + 1;
+    else if (equals_token)
+        return equals_token + 1;
+    else
+        return property_identifier + 1;
+}
+
+unsigned ObjCSynthesizedPropertyListAST::firstToken() const
+{
+    if (synthesized_property)
+        return synthesized_property->firstToken();
+    else
+        return comma_token;
+}
+
+unsigned ObjCSynthesizedPropertyListAST::lastToken() const
+{
+    for (const ObjCSynthesizedPropertyListAST *it = this; it; it = it->next) {
+        if (! it->next && it->synthesized_property) {
+            return it->synthesized_property->lastToken();
+        }
+    }
+    // ### assert?
+    return 0;
+}
+
+unsigned ObjCSynthesizedPropertiesDeclarationAST::firstToken() const
+{
+    return synthesized_token;
+}
+
+unsigned ObjCSynthesizedPropertiesDeclarationAST::lastToken() const
+{
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (property_identifiers)
+        return property_identifiers->lastToken();
+    else
+        return synthesized_token + 1;
+}
+
+unsigned ObjCDynamicPropertiesDeclarationAST::firstToken() const
+{
+    return dynamic_token;
+}
+
+unsigned ObjCDynamicPropertiesDeclarationAST::lastToken() const
+{
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (property_identifiers)
+        return property_identifiers->lastToken();
+    else
+        return dynamic_token + 1;
+}
+
+unsigned ObjCFastEnumerationAST::firstToken() const
+{
+    return for_token;
+}
+
+unsigned ObjCFastEnumerationAST::lastToken() const
+{
+    if (body_statement)
+        return body_statement->lastToken();
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (fast_enumeratable_expression)
+        return fast_enumeratable_expression->lastToken();
+    else if (in_token)
+        return in_token + 1;
+    else if (initializer)
+        return initializer->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    else
+        return for_token + 1;
 }
 
 CPLUSPLUS_END_NAMESPACE

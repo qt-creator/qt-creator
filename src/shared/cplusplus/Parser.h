@@ -228,8 +228,8 @@ public:
     bool parseObjCMessageReceiver(ExpressionAST *&node);
     bool parseObjCMessageArguments(ObjCMessageArgumentListAST *&node);
     bool parseObjCSelectorArg(ObjCMessageArgumentAST *&node);
-    bool parseObjCMethodDefinitionList();
-    bool parseObjCMethodDefinition();
+    bool parseObjCMethodDefinitionList(DeclarationListAST *&node);
+    bool parseObjCMethodDefinition(DeclarationAST *&node);
 
     bool parseObjCProtocolRefs(ObjCProtocolRefsAST *&node);
     bool parseObjClassInstanceVariables(ObjCInstanceVariablesDeclarationAST *&node);
@@ -244,7 +244,6 @@ public:
     bool parseObjCSelector(unsigned &selector_token);
     bool parseObjCKeywordDeclaration(ObjCMessageArgumentDeclarationAST *&node);
     bool parseObjCTypeQualifiers(unsigned &type_qualifier);
-    bool parseObjCEnd(DeclarationAST *&node);
 
     bool lookAtObjCSelector() const;
 
@@ -288,6 +287,7 @@ private:
     TranslationUnit *_translationUnit;
     Control *_control;
     MemoryPool *_pool;
+    Identifier *_objcInContextKeyword;
     unsigned _tokenIndex;
     bool _templateArguments: 1;
     bool _qtMocRunEnabled: 1;

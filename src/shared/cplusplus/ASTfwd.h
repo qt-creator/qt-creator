@@ -190,6 +190,13 @@ class ObjcPropertyAttributeAST;
 class ObjCMethodPrototypeAST;
 class ObjCMessageArgumentDeclarationListAST;
 class ObjCMessageArgumentDeclarationAST;
+class ObjCCategoryImplementationAST;
+class ObjCClassImplementationAST;
+class ObjCSynthesizedPropertyAST;
+class ObjCSynthesizedPropertyListAST;
+class ObjCSynthesizedPropertiesDeclarationAST;
+class ObjCDynamicPropertiesDeclarationAST;
+class ObjCFastEnumerationAST;
 
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER
