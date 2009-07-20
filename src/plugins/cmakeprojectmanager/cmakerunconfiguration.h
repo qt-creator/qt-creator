@@ -37,7 +37,7 @@
 #include <utils/pathchooser.h>
 
 QT_BEGIN_NAMESPACE
-class QRadioButton;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace CMakeProjectManager {
@@ -81,7 +81,9 @@ signals:
 private slots:
     void setArguments(const QString &newText);
 private:
-    enum BaseEnvironmentBase { CleanEnvironmentBase, SystemEnvironmentBase, BuildEnvironmentBase };
+    enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
+                               SystemEnvironmentBase = 1,
+                               BuildEnvironmentBase = 2};
     void setBaseEnvironmentBase(BaseEnvironmentBase env);
     BaseEnvironmentBase baseEnvironmentBase() const;
     ProjectExplorer::Environment baseEnvironment() const;
@@ -111,16 +113,15 @@ private slots:
     void setWorkingDirectory();
     void resetWorkingDirectory();
 private slots:
-    void baseEnvironmentRadioButtonChanged();
+    void baseEnvironmentComboBoxChanged(int index);
     void workingDirectoryChanged(const QString &workingDirectory);
 private:
     bool m_ignoreChange;
     CMakeRunConfiguration *m_cmakeRunConfiguration;
     Core::Utils::PathChooser *m_workingDirectoryEdit;
+    QComboBox *m_baseEnvironmentComboBox;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
-    QRadioButton *m_cleanEnvironmentRadioButton;
-    QRadioButton *m_systemEnvironmentRadioButton;
-    QRadioButton *m_buildEnvironmentRadioButton;
+
 };
 
 class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

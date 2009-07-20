@@ -39,7 +39,7 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QGroupBox>
 #include <QtGui/QLabel>
-#include <QtGui/QRadioButton>
+#include <QtGui/QComboBox>
 #include <QtGui/QToolButton>
 
 using namespace CMakeProjectManager;
@@ -263,15 +263,24 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     box->setLayout(boxLayout);
     box->setFlat(true);
 
+    QFormLayout *formlayout = new QFormLayout();
     QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
-    boxLayout->addWidget(label);
 
-    m_cleanEnvironmentRadioButton = new QRadioButton("Clean Environment", box);
-    m_systemEnvironmentRadioButton = new QRadioButton("System Environment", box);
-    m_buildEnvironmentRadioButton = new QRadioButton("Build Environment", box);
-    boxLayout->addWidget(m_cleanEnvironmentRadioButton);
-    boxLayout->addWidget(m_systemEnvironmentRadioButton);
-    boxLayout->addWidget(m_buildEnvironmentRadioButton);
+    m_baseEnvironmentComboBox = new QComboBox(box);
+    m_baseEnvironmentComboBox->addItems(QStringList()
+                                        << tr("Clean Environment")
+                                        << tr("System Environment")
+                                        << tr("Build Environment"));
+    formlayout->addRow(label, m_baseEnvironmentComboBox);
+    boxLayout->addLayout(formlayout);
+    label->setVisible(false);
+    m_baseEnvironmentComboBox->setVisible(false);
+
+    m_baseEnvironmentComboBox->setCurrentIndex(m_cmakeRunConfiguration->baseEnvironmentBase());
+
+    connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(baseEnvironmentComboBoxChanged(int)));
+
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
@@ -279,24 +288,19 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(resetButton, SIGNAL(clicked()),
             this, SLOT(resetWorkingDirectory()));
 
-
-    if (cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::CleanEnvironmentBase)
-        m_cleanEnvironmentRadioButton->setChecked(true);
-    else if (cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::SystemEnvironmentBase)
-        m_systemEnvironmentRadioButton->setChecked(true);
-    else if (cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::BuildEnvironmentBase)
-        m_buildEnvironmentRadioButton->setChecked(true);
-
-    connect(m_cleanEnvironmentRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(baseEnvironmentRadioButtonChanged()));
-    connect(m_systemEnvironmentRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(baseEnvironmentRadioButtonChanged()));
-    connect(m_buildEnvironmentRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(baseEnvironmentRadioButtonChanged()));
-
     m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this);
     m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
     m_environmentWidget->setUserChanges(m_cmakeRunConfiguration->userEnvironmentChanges());
+
+    connect(m_environmentWidget, SIGNAL(switchedToSummary()),
+            m_baseEnvironmentComboBox, SLOT(hide()));
+    connect(m_environmentWidget, SIGNAL(switchedToDetails()),
+            m_baseEnvironmentComboBox, SLOT(show()));
+
+    connect(m_environmentWidget, SIGNAL(switchedToSummary()),
+            label, SLOT(hide()));
+    connect(m_environmentWidget, SIGNAL(switchedToDetails()),
+            label, SLOT(show()));
 
     boxLayout->addWidget(m_environmentWidget);
 
@@ -343,15 +347,10 @@ void CMakeRunConfigurationWidget::userChangesUpdated()
     m_cmakeRunConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
 }
 
-void CMakeRunConfigurationWidget::baseEnvironmentRadioButtonChanged()
+void CMakeRunConfigurationWidget::baseEnvironmentComboBoxChanged(int index)
 {
     m_ignoreChange = true;
-    if (m_cleanEnvironmentRadioButton->isChecked())
-        m_cmakeRunConfiguration->setBaseEnvironmentBase(CMakeRunConfiguration::CleanEnvironmentBase);
-    else if (m_systemEnvironmentRadioButton->isChecked())
-        m_cmakeRunConfiguration->setBaseEnvironmentBase(CMakeRunConfiguration::SystemEnvironmentBase);
-    else if (m_buildEnvironmentRadioButton->isChecked())
-        m_cmakeRunConfiguration->setBaseEnvironmentBase(CMakeRunConfiguration::BuildEnvironmentBase);
+    m_cmakeRunConfiguration->setBaseEnvironmentBase(CMakeRunConfiguration::BaseEnvironmentBase(index));
 
     m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
     m_ignoreChange = false;
@@ -362,13 +361,7 @@ void CMakeRunConfigurationWidget::baseEnvironmentChanged()
     if (m_ignoreChange)
         return;
 
-    if (m_cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::CleanEnvironmentBase)
-        m_cleanEnvironmentRadioButton->setChecked(true);
-    else if (m_cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::SystemEnvironmentBase)
-        m_systemEnvironmentRadioButton->setChecked(true);
-    else if (m_cmakeRunConfiguration->baseEnvironmentBase() == CMakeRunConfiguration::BuildEnvironmentBase)
-        m_buildEnvironmentRadioButton->setChecked(true);
-
+    m_baseEnvironmentComboBox->setCurrentIndex(m_cmakeRunConfiguration->baseEnvironmentBase());
     m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
 }
 

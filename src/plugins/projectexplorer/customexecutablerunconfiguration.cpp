@@ -43,7 +43,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QFileDialog>
 #include <QtGui/QGroupBox>
-#include <QtGui/QRadioButton>
+#include <QtGui/QComboBox>
 #include <QDialogButtonBox>
 
 using namespace ProjectExplorer;
@@ -93,34 +93,38 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     box->setLayout(boxLayout);
     box->setFlat(true);
 
+    QFormLayout *formlayout = new QFormLayout();
     QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
-    boxLayout->addWidget(label);
 
-    m_cleanEnvironmentRadioButton = new QRadioButton("Clean Environment", box);
-    m_systemEnvironmentRadioButton = new QRadioButton("System Environment", box);
-    m_buildEnvironmentRadioButton = new QRadioButton("Build Environment", box);
-    boxLayout->addWidget(m_cleanEnvironmentRadioButton);
-    boxLayout->addWidget(m_systemEnvironmentRadioButton);
-    boxLayout->addWidget(m_buildEnvironmentRadioButton);
+    m_baseEnvironmentComboBox = new QComboBox(box);
+    m_baseEnvironmentComboBox->addItems(QStringList()
+                                        << tr("Clean Environment")
+                                        << tr("System Environment")
+                                        << tr("Build Environment"));
+    formlayout->addRow(label, m_baseEnvironmentComboBox);
+    boxLayout->addLayout(formlayout);
+    label->setVisible(false);
+    m_baseEnvironmentComboBox->setVisible(false);
 
-    if (rc->baseEnvironmentBase() == CustomExecutableRunConfiguration::CleanEnvironmentBase)
-        m_cleanEnvironmentRadioButton->setChecked(true);
-    else if (rc->baseEnvironmentBase() == CustomExecutableRunConfiguration::SystemEnvironmentBase)
-        m_systemEnvironmentRadioButton->setChecked(true);
-    else if (rc->baseEnvironmentBase() == CustomExecutableRunConfiguration::BuildEnvironmentBase)
-        m_buildEnvironmentRadioButton->setChecked(true);
+    m_baseEnvironmentComboBox->setCurrentIndex(rc->baseEnvironmentBase());
 
-    connect(m_cleanEnvironmentRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(baseEnvironmentRadioButtonChanged()));
-    connect(m_systemEnvironmentRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(baseEnvironmentRadioButtonChanged()));
-    connect(m_buildEnvironmentRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(baseEnvironmentRadioButtonChanged()));
+    connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(baseEnvironmentComboBoxChanged(int)));
 
     m_environmentWidget = new EnvironmentWidget(this);
     m_environmentWidget->setBaseEnvironment(rc->baseEnvironment());
     m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
     boxLayout->addWidget(m_environmentWidget);
+
+    connect(m_environmentWidget, SIGNAL(switchedToSummary()),
+            m_baseEnvironmentComboBox, SLOT(hide()));
+    connect(m_environmentWidget, SIGNAL(switchedToDetails()),
+            m_baseEnvironmentComboBox, SLOT(show()));
+
+    connect(m_environmentWidget, SIGNAL(switchedToSummary()),
+            label, SLOT(hide()));
+    connect(m_environmentWidget, SIGNAL(switchedToDetails()),
+            label, SLOT(show()));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->addLayout(layout);
@@ -155,15 +159,10 @@ void CustomExecutableConfigurationWidget::userChangesUpdated()
     m_runConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
 }
 
-void CustomExecutableConfigurationWidget::baseEnvironmentRadioButtonChanged()
+void CustomExecutableConfigurationWidget::baseEnvironmentComboBoxChanged(int index)
 {
     m_ignoreChange = true;
-    if (m_cleanEnvironmentRadioButton->isChecked())
-        m_runConfiguration->setBaseEnvironmentBase(CustomExecutableRunConfiguration::CleanEnvironmentBase);
-    else if (m_systemEnvironmentRadioButton->isChecked())
-        m_runConfiguration->setBaseEnvironmentBase(CustomExecutableRunConfiguration::SystemEnvironmentBase);
-    else if (m_buildEnvironmentRadioButton->isChecked())
-        m_runConfiguration->setBaseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase);
+    m_runConfiguration->setBaseEnvironmentBase(CustomExecutableRunConfiguration::BaseEnvironmentBase(index));
 
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
     m_ignoreChange = false;
@@ -174,13 +173,7 @@ void CustomExecutableConfigurationWidget::baseEnvironmentChanged()
     if (m_ignoreChange)
         return;
 
-    if (m_runConfiguration->baseEnvironmentBase() == CustomExecutableRunConfiguration::CleanEnvironmentBase)
-        m_cleanEnvironmentRadioButton->setChecked(true);
-    else if (m_runConfiguration->baseEnvironmentBase() == CustomExecutableRunConfiguration::SystemEnvironmentBase)
-        m_systemEnvironmentRadioButton->setChecked(true);
-    else if (m_runConfiguration->baseEnvironmentBase() == CustomExecutableRunConfiguration::BuildEnvironmentBase)
-        m_buildEnvironmentRadioButton->setChecked(true);
-
+    m_baseEnvironmentComboBox->setCurrentIndex(CustomExecutableRunConfiguration::BaseEnvironmentBase(m_runConfiguration->baseEnvironmentBase()));
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
 }
 

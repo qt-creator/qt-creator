@@ -48,7 +48,7 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QToolButton>
 #include <QtGui/QGroupBox>
-#include <QtGui/QRadioButton>
+#include <QtGui/QComboBox>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
@@ -159,42 +159,44 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(usingDyldImageSuffixToggled(bool)));
 #endif
 
-
-
     QGroupBox *box = new QGroupBox(tr("Environment"),this);
     QVBoxLayout *boxLayout = new QVBoxLayout();
     box->setLayout(boxLayout);
     box->setFlat(true);
 
+    QFormLayout *formlayout = new QFormLayout();
     QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
-    boxLayout->addWidget(label);
 
-    m_cleanEnvironmentRadioButton = new QRadioButton("Clean Environment", box);
-    m_systemEnvironmentRadioButton = new QRadioButton("System Environment", box);
-    m_buildEnvironmentRadioButton = new QRadioButton("Build Environment", box);
-    boxLayout->addWidget(m_cleanEnvironmentRadioButton);
-    boxLayout->addWidget(m_systemEnvironmentRadioButton);
-    boxLayout->addWidget(m_buildEnvironmentRadioButton);
+    m_baseEnvironmentComboBox = new QComboBox(box);
+    m_baseEnvironmentComboBox->addItems(QStringList()
+                                        << tr("Clean Environment")
+                                        << tr("System Environment")
+                                        << tr("Build Environment"));
+    formlayout->addRow(label, m_baseEnvironmentComboBox);
+    boxLayout->addLayout(formlayout);
+    label->setVisible(false);
+    m_baseEnvironmentComboBox->setVisible(false);
 
-    if (qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::CleanEnvironmentBase)
-        m_cleanEnvironmentRadioButton->setChecked(true);
-    else if (qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::SystemEnvironmentBase)
-        m_systemEnvironmentRadioButton->setChecked(true);
-    else if (qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::BuildEnvironmentBase)
-        m_buildEnvironmentRadioButton->setChecked(true);
+    m_baseEnvironmentComboBox->setCurrentIndex(qt4RunConfiguration->baseEnvironmentBase());
 
-    connect(m_cleanEnvironmentRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(baseEnvironmentRadioButtonChanged()));
-    connect(m_systemEnvironmentRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(baseEnvironmentRadioButtonChanged()));
-    connect(m_buildEnvironmentRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(baseEnvironmentRadioButtonChanged()));
+    connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(baseEnvironmentComboBoxChanged(int)));
 
     m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this);
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
     m_environmentWidget->setUserChanges(m_qt4RunConfiguration->userEnvironmentChanges());
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     boxLayout->addWidget(m_environmentWidget);
+
+    connect(m_environmentWidget, SIGNAL(switchedToSummary()),
+            m_baseEnvironmentComboBox, SLOT(hide()));
+    connect(m_environmentWidget, SIGNAL(switchedToDetails()),
+            m_baseEnvironmentComboBox, SLOT(show()));
+
+    connect(m_environmentWidget, SIGNAL(switchedToSummary()),
+            label, SLOT(hide()));
+    connect(m_environmentWidget, SIGNAL(switchedToDetails()),
+            label, SLOT(show()));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->addLayout(toplayout);
@@ -237,15 +239,10 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(baseEnvironmentChanged()));
 }
 
-void Qt4RunConfigurationWidget::baseEnvironmentRadioButtonChanged()
+void Qt4RunConfigurationWidget::baseEnvironmentComboBoxChanged(int index)
 {
     m_ignoreChange = true;
-    if (m_cleanEnvironmentRadioButton->isChecked())
-        m_qt4RunConfiguration->setBaseEnvironmentBase(Qt4RunConfiguration::CleanEnvironmentBase);
-    else if (m_systemEnvironmentRadioButton->isChecked())
-        m_qt4RunConfiguration->setBaseEnvironmentBase(Qt4RunConfiguration::SystemEnvironmentBase);
-    else if (m_buildEnvironmentRadioButton->isChecked())
-        m_qt4RunConfiguration->setBaseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase);
+    m_qt4RunConfiguration->setBaseEnvironmentBase(Qt4RunConfiguration::BaseEnvironmentBase(index));
 
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
     m_ignoreChange = false;
@@ -256,13 +253,7 @@ void Qt4RunConfigurationWidget::baseEnvironmentChanged()
     if (m_ignoreChange)
         return;
 
-    if (m_qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::CleanEnvironmentBase)
-        m_cleanEnvironmentRadioButton->setChecked(true);
-    else if (m_qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::SystemEnvironmentBase)
-        m_systemEnvironmentRadioButton->setChecked(true);
-    else if (m_qt4RunConfiguration->baseEnvironmentBase() == Qt4RunConfiguration::BuildEnvironmentBase)
-        m_buildEnvironmentRadioButton->setChecked(true);
-
+    m_baseEnvironmentComboBox->setCurrentIndex(m_qt4RunConfiguration->baseEnvironmentBase());
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
 }
 

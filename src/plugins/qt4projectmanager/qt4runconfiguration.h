@@ -43,6 +43,7 @@ class QCheckBox;
 class QLabel;
 class QLineEdit;
 class QRadioButton;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
@@ -110,7 +111,9 @@ private slots:
     void setRunMode(RunMode runMode);
 
 private:
-    enum BaseEnvironmentBase { CleanEnvironmentBase, SystemEnvironmentBase, BuildEnvironmentBase };
+    enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
+                               SystemEnvironmentBase = 1,
+                               BuildEnvironmentBase  = 2 };
     void setBaseEnvironmentBase(BaseEnvironmentBase env);
     BaseEnvironmentBase baseEnvironmentBase() const;
 
@@ -163,7 +166,7 @@ private slots:
     void termToggled(bool);
     void usingDyldImageSuffixToggled(bool);
     void usingDyldImageSuffixChanged(bool);
-    void baseEnvironmentRadioButtonChanged();
+    void baseEnvironmentComboBoxChanged(int index);
 private:
     Qt4RunConfiguration *m_qt4RunConfiguration;
     bool m_ignoreChange;
@@ -174,9 +177,7 @@ private:
     QCheckBox *m_useTerminalCheck;
     QCheckBox *m_usingDyldImageSuffix;
 
-    QRadioButton *m_cleanEnvironmentRadioButton;
-    QRadioButton *m_systemEnvironmentRadioButton;
-    QRadioButton *m_buildEnvironmentRadioButton;
+    QComboBox *m_baseEnvironmentComboBox;
 
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     bool m_isShown;

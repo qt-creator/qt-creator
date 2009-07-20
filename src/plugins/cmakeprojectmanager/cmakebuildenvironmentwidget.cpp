@@ -38,7 +38,6 @@ bool debug = false;
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
-using ProjectExplorer::EnvironmentModel;
 
 CMakeBuildEnvironmentWidget::CMakeBuildEnvironmentWidget(CMakeProject *project)
     : BuildStepConfigWidget(), m_pro(project)

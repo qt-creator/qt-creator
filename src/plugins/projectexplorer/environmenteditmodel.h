@@ -39,10 +39,12 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QTreeView>
 #include <QtGui/QPushButton>
+#include <QtGui/QLabel>
+#include <QtGui/QStackedWidget>
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT EnvironmentModel : public QAbstractItemModel
+class EnvironmentModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
@@ -87,8 +89,7 @@ private:
     bool m_mergedEnvironments;
 };
 
-
-class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
+class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QStackedWidget
 {
     Q_OBJECT
 public:
@@ -105,9 +106,13 @@ public:
 
 public slots:
     void updateButtons();
+    void switchToSummary();
+    void switchToDetails();
 
 signals:
     void userChangesUpdated();
+    void switchedToDetails();
+    void switchedToSummary();
 
 private slots:
     void editEnvironmentButtonClicked();
@@ -117,12 +122,18 @@ private slots:
     void environmentCurrentIndexChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
+    void updateSummaryText();
     EnvironmentModel *m_model;
+    QWidget*m_summaryPage;
+    QWidget *m_detailsPage;
+    QLabel *m_summaryText;
     QTreeView *m_environmentTreeView;
     QPushButton *m_editButton;
     QPushButton *m_addButton;
     QPushButton *m_removeButton;
     QPushButton *m_unsetButton;
+
+
 };
 
 } // namespace ProjectExplorer

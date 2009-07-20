@@ -424,19 +424,42 @@ void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
 ////
 
 EnvironmentWidget::EnvironmentWidget(QWidget *parent)
-    : QWidget(parent)
+    : QStackedWidget(parent)
 {
     m_model = new EnvironmentModel();
     m_model->setMergedEnvironments(true);
     connect(m_model, SIGNAL(userChangesUpdated()),
             this, SIGNAL(userChangesUpdated()));
 
-    QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
+    m_summaryPage = new QWidget();
+    addWidget(m_summaryPage);
+    QVBoxLayout *vbox = new QVBoxLayout(m_summaryPage);
+    m_summaryText = new QLabel(this);
+
+    m_summaryText->setText("");
+    vbox->addWidget(m_summaryText);
+    QPushButton *detailsButton = new QPushButton(this);
+    detailsButton->setText(tr("Show Details"));
+
+    QHBoxLayout *hdetailsButtonLayout = new QHBoxLayout();
+    hdetailsButtonLayout->addWidget(detailsButton);
+    hdetailsButtonLayout->addSpacerItem(new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+    vbox->addLayout(hdetailsButtonLayout);
+
+    connect(detailsButton, SIGNAL(clicked()),
+            this, SLOT(switchToDetails()));
+
+    m_detailsPage = new QWidget();
+    //addWidget(m_detailsPage);
+    QVBoxLayout *vbox2 = new QVBoxLayout(m_detailsPage);
+
+    QHBoxLayout *horizontalLayout = new QHBoxLayout();
     m_environmentTreeView = new QTreeView(this);
     m_environmentTreeView->setRootIsDecorated(false);
     m_environmentTreeView->setHeaderHidden(false);
     m_environmentTreeView->setModel(m_model);
     m_environmentTreeView->header()->resizeSection(0, 250);
+    m_environmentTreeView->setMinimumHeight(400);
     horizontalLayout->addWidget(m_environmentTreeView);
 
     QVBoxLayout *verticalLayout_2 = new QVBoxLayout();
@@ -462,6 +485,18 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent)
     QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
     verticalLayout_2->addItem(verticalSpacer);
     horizontalLayout->addLayout(verticalLayout_2);
+    vbox2->addLayout(horizontalLayout);
+    
+    QHBoxLayout *hbox = new QHBoxLayout();
+    QPushButton *summaryButton = new QPushButton(this);
+    summaryButton->setText(tr("Hide Details"));
+    hbox->addWidget(summaryButton);
+
+    connect(summaryButton, SIGNAL(clicked()),
+        this, SLOT(switchToSummary()));
+
+    hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+    vbox2->addLayout(hbox);
 
     connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateButtons()));
@@ -480,8 +515,28 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent)
 
 EnvironmentWidget::~EnvironmentWidget()
 {
+    delete m_summaryPage;
+    delete m_detailsPage;
     delete m_model;
     m_model = 0;
+}
+
+void EnvironmentWidget::switchToDetails()
+{
+    addWidget(m_detailsPage);
+    setCurrentWidget(m_detailsPage);
+    removeWidget(m_summaryPage);
+    emit switchedToDetails();
+}
+
+
+void EnvironmentWidget::switchToSummary()
+{
+    updateSummaryText();
+    addWidget(m_summaryPage);
+    setCurrentWidget(m_summaryPage);
+    removeWidget(m_detailsPage);
+    emit switchedToSummary();
 }
 
 void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)
@@ -507,6 +562,24 @@ QList<EnvironmentItem> EnvironmentWidget::userChanges() const
 void EnvironmentWidget::setUserChanges(QList<EnvironmentItem> list)
 {
     m_model->setUserChanges(list);
+    updateSummaryText();
+}
+
+void EnvironmentWidget::updateSummaryText()
+{
+    QString text;
+    const QList<EnvironmentItem> &list = m_model->userChanges();
+    foreach (const EnvironmentItem &item, list) {
+        if (!text.isEmpty())
+            text.append("<br>");
+        if (item.unset)
+            text.append(tr("Unset <b>%1</b>").arg(item.name));
+        else
+            text.append(tr("Set <b>%1</b> to <b>%2</b>").arg(item.name, item.value));
+    }
+    if (text.isEmpty())
+        text = tr("No changes to Environment");
+    m_summaryText->setText(text);
 }
 
 void EnvironmentWidget::updateButtons()

@@ -40,7 +40,7 @@
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QLineEdit;
-class QRadioButton;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -101,7 +101,9 @@ signals:
 
 
 private:
-    enum BaseEnvironmentBase { CleanEnvironmentBase, SystemEnvironmentBase, BuildEnvironmentBase };
+    enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
+                               SystemEnvironmentBase = 1,
+                               BuildEnvironmentBase = 2};
     void setBaseEnvironmentBase(BaseEnvironmentBase env);
     BaseEnvironmentBase baseEnvironmentBase() const;
     ProjectExplorer::Environment baseEnvironment() const;
@@ -158,7 +160,7 @@ private slots:
     void userChangesUpdated();
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged();
-    void baseEnvironmentRadioButtonChanged();
+    void baseEnvironmentComboBoxChanged(int index);
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
@@ -168,9 +170,7 @@ private:
     Core::Utils::PathChooser *m_workingDirectory;
     QCheckBox *m_useTerminalCheck;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
-    QRadioButton *m_cleanEnvironmentRadioButton;
-    QRadioButton *m_systemEnvironmentRadioButton;
-    QRadioButton *m_buildEnvironmentRadioButton;
+    QComboBox *m_baseEnvironmentComboBox;
 };
 
 } // namespace Internal
