@@ -467,8 +467,7 @@ void FormEditorW::setupActions()
 
 QToolBar *FormEditorW::createEditorToolBar() const
 {
-    QToolBar *rc = new QToolBar;
-    rc->addSeparator();
+    QToolBar *toolBar = new QToolBar;
     Core::ActionManager *am = m_core->actionManager();
     const QStringList::const_iterator cend = m_toolActionIds.constEnd();
     for (QStringList::const_iterator it = m_toolActionIds.constBegin(); it != cend; ++it) {
@@ -476,11 +475,12 @@ QToolBar *FormEditorW::createEditorToolBar() const
         QTC_ASSERT(cmd, continue);
         QAction *action = cmd->action();
         if (!action->icon().isNull()) // Simplify grid has no action yet
-            rc->addAction(action);
+            toolBar->addAction(action);
     }
-    int size = rc->style()->pixelMetric(QStyle::PM_SmallIconSize);
-    rc->setIconSize(QSize(size, size));
-    return rc;
+    int size = toolBar->style()->pixelMetric(QStyle::PM_SmallIconSize);
+    toolBar->setIconSize(QSize(size, size));
+    toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    return toolBar;
 }
 
 Core::ActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager *am,

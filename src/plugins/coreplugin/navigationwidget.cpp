@@ -44,7 +44,6 @@
 #include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QResizeEvent>
-#include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 
 Q_DECLARE_METATYPE(Core::INavigationWidgetFactory *)
@@ -363,27 +362,26 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget)
             this, SLOT(aboutToRemoveObject(QObject*)));
 
     m_navigationComboBox = new NavComboBox(this);
+    m_navigationComboBox->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    m_navigationComboBox->setMinimumContentsLength(0);
     m_navigationWidget = 0;
-#ifdef Q_WS_MAC
-    // this is to avoid ugly tool bar behavior
-    m_navigationComboBox->setMaximumWidth(130);
-#endif
 
-    m_toolBar = new QToolBar(this);
-    m_toolBar->setContentsMargins(0, 0, 0, 0);
-    m_toolBar->addWidget(m_navigationComboBox);
+    m_toolBar = new Core::Utils::StyledBar(this);
+    QHBoxLayout *toolBarLayout = new QHBoxLayout;
+    toolBarLayout->setMargin(0);
+    toolBarLayout->setSpacing(0);
+    m_toolBar->setLayout(toolBarLayout);
+    toolBarLayout->addWidget(m_navigationComboBox);
 
-    m_splitAction = new QAction(QIcon(":/core/images/splitbutton_horizontal.png"), tr("Split"), this);
-    QAction *close = new QAction(QIcon(":/core/images/closebutton.png"), tr("Close"), this);
+    QToolButton *splitAction = new QToolButton();
+    splitAction->setIcon(QIcon(":/core/images/splitbutton_horizontal.png"));
+    splitAction->setToolTip(tr("Split"));
+    QToolButton *close = new QToolButton();
+    close->setIcon(QIcon(":/core/images/closebutton.png"));
+    close->setToolTip(tr("Close"));
 
-    QWidget *spacerItem = new QWidget(this);
-    spacerItem->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_toolBar->addWidget(spacerItem);
-    m_toolBar->addAction(m_splitAction);
-    m_toolBar->addAction(close);
-
-    m_toolBar->widgetForAction(m_splitAction)->setProperty("type", QLatin1String("dockbutton"));
-    m_toolBar->widgetForAction(close)->setProperty("type", QLatin1String("dockbutton"));
+    toolBarLayout->addWidget(splitAction);
+    toolBarLayout->addWidget(close);
 
     QVBoxLayout *lay = new QVBoxLayout();
     lay->setMargin(0);
@@ -391,8 +389,8 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget)
     setLayout(lay);
     lay->addWidget(m_toolBar);
 
-    connect(m_splitAction, SIGNAL(triggered()), this, SIGNAL(split()));
-    connect(close, SIGNAL(triggered()), this, SIGNAL(close()));
+    connect(splitAction, SIGNAL(clicked()), this, SIGNAL(split()));
+    connect(close, SIGNAL(clicked()), this, SIGNAL(close()));
     connect(m_navigationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setCurrentIndex(int)));
 
@@ -426,8 +424,9 @@ void NavigationSubWidget::setCurrentIndex(int index)
 
     // Add Toolbutton
     m_additionalToolBarWidgets = n.doockToolBarWidgets;
+    QHBoxLayout *layout = qobject_cast<QHBoxLayout *>(m_toolBar->layout());
     foreach (QToolButton *w, m_additionalToolBarWidgets) {
-        m_toolBar->insertWidget(m_splitAction, w);
+        layout->insertWidget(layout->count()-2, w);
     }
 }
 

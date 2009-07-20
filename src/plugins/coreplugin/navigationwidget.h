@@ -30,12 +30,13 @@
 #ifndef NAVIGATIONWIDGET_H
 #define NAVIGATIONWIDGET_H
 
+#include <coreplugin/minisplitter.h>
+#include <utils/styledbar.h>
+
 #include <QtGui/QWidget>
 #include <QtGui/QComboBox>
 #include <QtGui/QSplitter>
-#include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
-#include <coreplugin/minisplitter.h>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -147,8 +148,7 @@ private:
     NavigationWidget *m_parentWidget;
     QComboBox *m_navigationComboBox;
     QWidget *m_navigationWidget;
-    QToolBar *m_toolBar;
-    QAction *m_splitAction;
+    Core::Utils::StyledBar *m_toolBar;
     QList<QToolButton *> m_additionalToolBarWidgets;
 };
 

@@ -70,6 +70,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/qtcassert.h>
+#include <utils/styledbar.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QObject>
@@ -160,6 +161,13 @@ static ProjectExplorer::SessionManager *sessionManager()
 static QSettings *settings()
 {
     return ICore::instance()->settings();
+}
+
+static QToolButton *toolButton(QAction *action)
+{
+    QToolButton *button = new QToolButton;
+    button->setDefaultAction(action);
+    return button;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -821,33 +829,32 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     m_debugMode->setWidget(splitter2);
 
-    QToolBar *debugToolBar = new QToolBar;
+    Core::Utils::StyledBar *debugToolBar = new Core::Utils::StyledBar;
     debugToolBar->setProperty("topBorder", true);
-    debugToolBar->addAction(am->command(ProjectExplorer::Constants::DEBUG)->action());
-    debugToolBar->addAction(am->command(Constants::INTERRUPT)->action());
-    debugToolBar->addAction(am->command(Constants::NEXT)->action());
-    debugToolBar->addAction(am->command(Constants::STEP)->action());
-    debugToolBar->addAction(am->command(Constants::STEPOUT)->action());
-    debugToolBar->addSeparator();
-    debugToolBar->addAction(am->command(Constants::STEPI)->action());
-    debugToolBar->addAction(am->command(Constants::NEXTI)->action());
+    QHBoxLayout *debugToolBarLayout = new QHBoxLayout(debugToolBar);
+    debugToolBarLayout->setMargin(0);
+    debugToolBarLayout->setSpacing(0);
+    debugToolBarLayout->addWidget(toolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::INTERRUPT)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::NEXT)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
+    debugToolBarLayout->addWidget(new Core::Utils::StyledSeparator);
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPI)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::NEXTI)->action()));
 #ifdef USE_REVERSE_DEBUGGING
-    debugToolBar->addSeparator();
-    debugToolBar->addAction(am->command(Constants::REVERSE)->action());
+    debugToolBarLayout->addWidget(new Core::Utils::StyledSeparator);
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::REVERSE)->action()));
 #endif
-    debugToolBar->addSeparator();
-    debugToolBar->addWidget(new QLabel(tr("Threads:")));
+    debugToolBarLayout->addWidget(new Core::Utils::StyledSeparator);
+    debugToolBarLayout->addWidget(new QLabel(tr("Threads:")));
 
     QComboBox *threadBox = new QComboBox;
     threadBox->setModel(m_manager->threadsModel());
     connect(threadBox, SIGNAL(activated(int)),
         m_manager->threadsWindow(), SIGNAL(threadSelected(int)));
-    debugToolBar->addWidget(threadBox);
-    debugToolBar->addWidget(m_manager->statusLabel());
-
-    QWidget *stretch = new QWidget;
-    stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    debugToolBar->addWidget(stretch);
+    debugToolBarLayout->addWidget(threadBox);
+    debugToolBarLayout->addWidget(m_manager->statusLabel(), 10);
 
     QBoxLayout *toolBarAddingLayout = new QVBoxLayout(centralWidget);
     toolBarAddingLayout->setMargin(0);

@@ -40,6 +40,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/styledbar.h>
+
 #include <QtCore/QDebug>
 
 #include <QtGui/QAction>
@@ -50,7 +52,6 @@
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QPushButton>
-#include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 #include <QtGui/QStackedWidget>
 
@@ -163,7 +164,6 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_closeButton(new QToolButton),
     m_nextAction(0),
     m_prevAction(0),
-    m_closeAction(0),
     m_lastIndex(-1),
     m_outputWidgetPane(new QStackedWidget),
     m_opToolBarWidgets(new QStackedWidget)
@@ -177,29 +177,32 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     m_nextAction = new QAction(this);
     m_nextAction->setIcon(QIcon(":/core/images/next.png"));
-    m_nextAction->setProperty("type", QLatin1String("dockbutton"));
     m_nextAction->setText(tr("Next Item"));
     connect(m_nextAction, SIGNAL(triggered()), this, SLOT(slotNext()));
 
     m_prevAction = new QAction(this);
     m_prevAction->setIcon(QIcon(":/core/images/prev.png"));
-    m_prevAction->setProperty("type", QLatin1String("dockbutton"));
     m_prevAction->setText(tr("Previous Item"));
     connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
 
     m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
-    m_closeButton->setProperty("type", QLatin1String("dockbutton"));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
 
     QVBoxLayout *mainlayout = new QVBoxLayout;
     mainlayout->setSpacing(0);
     mainlayout->setMargin(0);
-    m_toolBar = new QToolBar;
-    m_toolBar->addWidget(m_widgetComboBox);
-    m_toolBar->addWidget(m_clearButton);
-
-    m_opToolBarAction =  m_toolBar->addWidget(m_opToolBarWidgets);
-    m_closeAction = m_toolBar->addWidget(m_closeButton);
+    m_toolBar = new Core::Utils::StyledBar;
+    QHBoxLayout *toolLayout = new QHBoxLayout(m_toolBar);
+    toolLayout->setMargin(0);
+    toolLayout->setSpacing(0);
+    toolLayout->addWidget(m_widgetComboBox);
+    toolLayout->addWidget(m_clearButton);
+    m_prevToolButton = new QToolButton;
+    toolLayout->addWidget(m_prevToolButton);
+    m_nextToolButton = new QToolButton;
+    toolLayout->addWidget(m_nextToolButton);
+    toolLayout->addWidget(m_opToolBarWidgets);
+    toolLayout->addWidget(m_closeButton);
     mainlayout->addWidget(m_toolBar);
     mainlayout->addWidget(m_outputWidgetPane, 10);
     setLayout(mainlayout);
@@ -248,11 +251,11 @@ void OutputPaneManager::init()
 
     cmd = am->registerAction(m_prevAction, "Coreplugin.OutputPane.previtem", globalcontext);
     cmd->setDefaultKeySequence(QKeySequence("Shift+F6"));
-    m_toolBar->insertAction(m_opToolBarAction ,cmd->action());
+    m_prevToolButton->setDefaultAction(cmd->action());
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = am->registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem", globalcontext);
-    m_toolBar->insertAction(m_opToolBarAction, cmd->action());
+    m_nextToolButton->setDefaultAction(cmd->action());
     cmd->setDefaultKeySequence(QKeySequence("F6"));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
@@ -492,7 +495,7 @@ void OutputPaneManager::togglePage(bool focus)
 
 void OutputPaneManager::setCloseable(bool b)
 {
-    m_closeAction->setVisible(b);
+    m_closeButton->setVisible(b);
 }
 
 bool OutputPaneManager::closeable()

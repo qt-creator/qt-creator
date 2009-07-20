@@ -480,11 +480,7 @@ GitCommand *GitClient::createCommand(const QString &workingDirectory,
 
     GitOutputWindow *outputWindow = m_plugin->outputWindow();
 
-    ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
-    if (m_settings.adoptPath)
-        environment.set(QLatin1String("PATH"), m_settings.path);
-
-    GitCommand* command = new GitCommand(m_binaryPath, workingDirectory, environment);
+    GitCommand* command = new GitCommand(binary(), workingDirectory, processEnvironment());
     if (outputToWindow) {
         if (!editor) { // assume that the commands output is the important thing
             connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(appendDataAndPopup(QByteArray)));
@@ -527,6 +523,26 @@ void GitClient::appendAndPopup(const QString &text)
     m_plugin->outputWindow()->popup(false);
 }
 
+// Return fixed arguments required to run
+QStringList GitClient::binary() const
+{
+#ifdef Q_OS_WIN
+        QStringList args;
+        args << QLatin1String("cmd.exe") << QLatin1String("/c") << m_binaryPath;
+        return args;
+#else
+        return QStringList(m_binaryPath);
+#endif
+}
+
+QStringList GitClient::processEnvironment() const
+{
+    ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
+    if (m_settings.adoptPath)
+        environment.set(QLatin1String("PATH"), m_settings.path);
+    return environment.toStringList();
+}
+
 bool GitClient::synchronousGit(const QString &workingDirectory,
                                const QStringList &arguments,
                                QByteArray* outputText,
@@ -541,19 +557,13 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
 
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
+    process.setEnvironment(processEnvironment());
 
-    ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
-    if (m_settings.adoptPath)
-        environment.set(QLatin1String("PATH"), m_settings.path);
-    process.setEnvironment(environment.toStringList());
-
-#ifdef Q_OS_WIN
-        QStringList args;
-        args << "/c" << m_binaryPath << arguments;
-        process.start(QLatin1String("cmd.exe"), args);
-#else
-        process.start(m_binaryPath, arguments);
-#endif
+    QStringList args = binary();
+    const QString executable = args.front();
+    args.pop_front();
+    args.append(arguments);
+    process.start(executable, arguments);
     process.closeWriteChannel();
 
     if (!process.waitForFinished()) {

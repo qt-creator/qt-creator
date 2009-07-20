@@ -76,20 +76,14 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.setupUi(this);
     setFocusProxy(m_ui.findEdit);
     setProperty("topBorder", true);
+    setSingleRow(false);
     m_ui.findEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_ui.replaceEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(m_ui.findEdit, SIGNAL(editingFinished()), this, SLOT(invokeResetIncrementalSearch()));
 
-    m_ui.close->setProperty("type", QLatin1String("dockbutton"));
     m_ui.close->setIcon(QIcon(":/core/images/closebutton.png"));
     connect(m_ui.close, SIGNAL(clicked()), this, SLOT(hideAndResetFocus()));
-
-    m_ui.findPreviousButton->setProperty("type", QLatin1String("dockbutton"));
-    m_ui.findNextButton->setProperty("type", QLatin1String("dockbutton"));
-    m_ui.replacePreviousButton->setProperty("type", QLatin1String("dockbutton"));
-    m_ui.replaceNextButton->setProperty("type", QLatin1String("dockbutton"));
-    m_ui.replaceAllButton->setProperty("type", QLatin1String("dockbutton"));
 
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_replaceCompleter->setModel(m_plugin->replaceCompletionModel());

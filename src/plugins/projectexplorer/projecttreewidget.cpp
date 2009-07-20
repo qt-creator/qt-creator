@@ -162,7 +162,6 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
             this, SLOT(startupProjectChanged(ProjectExplorer::Project *)));
 
     m_toggleSync = new QToolButton;
-    m_toggleSync->setProperty("type", "dockbutton");
     m_toggleSync->setIcon(QIcon(":/core/images/linkicon.png"));
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(autoSynchronization());
@@ -372,7 +371,6 @@ Core::NavigationView ProjectTreeWidgetFactory::createWidget()
     n.widget = ptw;
 
     QToolButton *filter = new QToolButton;
-    filter->setProperty("type", "dockbutton");
     filter->setIcon(QIcon(":/projectexplorer/images/filtericon.png"));
     filter->setToolTip(tr("Filter tree"));
     filter->setPopupMode(QToolButton::InstantPopup);

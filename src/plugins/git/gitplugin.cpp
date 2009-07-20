@@ -37,6 +37,7 @@
 #include "gitsubmiteditor.h"
 #include "gitversioncontrol.h"
 #include "branchdialog.h"
+#include "clonewizard.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -139,10 +140,6 @@ GitPlugin::GitPlugin() :
     m_gitClient(0),
     m_outputWindow(0),
     m_changeSelectionDialog(0),
-    m_settingsPage(0),
-    m_coreListener(0),
-    m_submitEditorFactory(0),
-    m_versionControl(0),
     m_changeTmpFile(0),
     m_submitActionTriggered(false)
 {
@@ -151,42 +148,6 @@ GitPlugin::GitPlugin() :
 
 GitPlugin::~GitPlugin()
 {
-    if (m_outputWindow) {
-        removeObject(m_outputWindow);
-        delete m_outputWindow;
-        m_outputWindow = 0;
-    }
-
-    if (m_settingsPage) {
-        removeObject(m_settingsPage);
-        delete m_settingsPage;
-        m_settingsPage = 0;
-    }
-
-    if (!m_editorFactories.empty()) {
-        foreach (Core::IEditorFactory* pf, m_editorFactories)
-            removeObject(pf);
-        qDeleteAll(m_editorFactories);
-    }
-
-    if (m_coreListener) {
-        removeObject(m_coreListener);
-        delete m_coreListener;
-        m_coreListener = 0;
-    }
-
-    if (m_submitEditorFactory) {
-        removeObject(m_submitEditorFactory);
-        delete m_submitEditorFactory;
-        m_submitEditorFactory = 0;
-    }
-
-    if (m_versionControl) {
-        removeObject(m_versionControl);
-        delete m_versionControl;
-        m_versionControl = 0;
-    }
-
     cleanChangeTmpFile();
     delete m_gitClient;
     m_instance = 0;
@@ -231,33 +192,30 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_core = Core::ICore::instance();
     m_gitClient = new GitClient(this);
-    // Create the globalcontext list to register actions accordingly
+    // Create the globalco6664324b12a3339d18251df1cd69a1da06d1e2dcntext list to register actions accordingly
     QList<int> globalcontext;
     globalcontext << m_core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_GLOBAL);
 
     // Create the output Window
     m_outputWindow = new GitOutputWindow();
-    addObject(m_outputWindow);
+    addAutoReleasedObject(m_outputWindow);
 
     // Create the settings Page
-    m_settingsPage = new SettingsPage();
-    addObject(m_settingsPage);
+    addAutoReleasedObject(new SettingsPage());
 
     static const char *describeSlot = SLOT(show(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
-    for (int i = 0; i < editorCount; i++) {
-        m_editorFactories.push_back(new GitEditorFactory(editorParameters + i, m_gitClient, describeSlot));
-        addObject(m_editorFactories.back());
-    }
+    for (int i = 0; i < editorCount; i++)
+        addAutoReleasedObject(new GitEditorFactory(editorParameters + i, m_gitClient, describeSlot));
 
-    m_coreListener = new CoreListener(this);
-    addObject(m_coreListener);
+    addAutoReleasedObject(new CoreListener(this));
 
-    m_submitEditorFactory = new GitSubmitEditorFactory(&submitParameters);
-    addObject(m_submitEditorFactory);
+    addAutoReleasedObject(new GitSubmitEditorFactory(&submitParameters));
 
-    m_versionControl = new GitVersionControl(m_gitClient);
-    addObject(m_versionControl);
+    GitVersionControl *versionControl = new GitVersionControl(m_gitClient);
+    addAutoReleasedObject(versionControl);
+
+    addAutoReleasedObject(new CloneWizard);
 
     //register actions
     Core::ActionManager *actionManager = m_core->actionManager();
@@ -270,8 +228,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->menu()->setTitle(tr("&Git"));
     toolsContainer->addMenu(gitContainer);
     if (QAction *ma = gitContainer->menu()->menuAction()) {
-        ma->setEnabled(m_versionControl->isEnabled());
-        connect(m_versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
+        ma->setEnabled(versionControl->isEnabled());
+        connect(versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
     }
 
     Core::Command *command;
@@ -886,6 +844,11 @@ GitSettings GitPlugin::settings() const
 void GitPlugin::setSettings(const GitSettings &s)
 {
     m_gitClient->setSettings(s);
+}
+
+GitClient *GitPlugin::gitClient() const
+{
+    return m_gitClient;
 }
 
 Q_EXPORT_PLUGIN(GitPlugin)

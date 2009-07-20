@@ -3,9 +3,7 @@
 
 //! [include]
 #include <QtGui/QWidget>
-#include <QtGui/QPushButton>
-#include <QtGui/QLineEdit>
-#include <QtGui/QTextEdit>
+#include <QtCore/QMap>
 #include <QtGui/QMessageBox>
 //! [include]
 
@@ -32,19 +30,11 @@ public slots:
 private:
     Ui::AddressBook *ui;
 
-//! [members1]
-    QPushButton *addButton;
-    QPushButton *submitButton;
-    QPushButton *cancelButton;
-    QLineEdit *nameLine;
-    QTextEdit *addressText;
-//! [members1]
-
-//! [members2]
+//! [members]
     QMap<QString, QString> contacts;
     QString oldName;
     QString oldAddress;
-//! [members2]
+//! [members]
 };
 
 #endif // ADDRESSBOOK_H

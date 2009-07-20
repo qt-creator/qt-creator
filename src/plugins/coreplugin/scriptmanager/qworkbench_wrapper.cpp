@@ -39,7 +39,6 @@
 #include <QtCore/QSettings>
 
 #include <QtGui/QMainWindow>
-#include <QtGui/QToolBar>
 
 #include <QtScript/QScriptEngine>
 
@@ -346,7 +345,7 @@ Core::IFile *EditorPrototype::file() const
     return callee()->file();
 }
 
-QToolBar* EditorPrototype::toolBar() const
+QWidget* EditorPrototype::toolBar() const
 {
     return callee()->toolBar();
 }

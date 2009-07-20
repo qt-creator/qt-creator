@@ -181,7 +181,9 @@ RunSettingsWidget::RunSettingsWidget(Project *project)
     m_addMenu = new QMenu(m_ui->addToolButton);
     m_ui->addToolButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui->addToolButton->setMenu(m_addMenu);
+    m_ui->addToolButton->setText(tr("Add"));
     m_ui->removeToolButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
+    m_ui->removeToolButton->setText(tr("Remove"));
     m_ui->runConfigurationCombo->setModel(m_runConfigurationsModel);
     m_ui->activeRunConfigurationCombo->setModel(m_enabledRunConfigurationsModel);
 

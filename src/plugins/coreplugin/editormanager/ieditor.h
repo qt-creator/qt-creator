@@ -34,10 +34,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/ifile.h>
 
-QT_BEGIN_NAMESPACE
-class QToolBar;
-QT_END_NAMESPACE
-
 namespace Core {
 
 class CORE_EXPORT IEditor : public IContext
@@ -65,7 +61,7 @@ public:
 
     virtual bool isTemporary() const = 0;
 
-    virtual QToolBar *toolBar() = 0;
+    virtual QWidget *toolBar() = 0;
 
 signals:
     void changed();

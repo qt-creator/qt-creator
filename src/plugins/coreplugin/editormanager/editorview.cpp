@@ -34,6 +34,7 @@
 #include "openeditorsmodel.h"
 
 #include <utils/qtcassert.h>
+#include <utils/styledbar.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -49,7 +50,6 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
-#include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 #include <QtGui/QMenu>
 #include <QtGui/QClipboard>
@@ -74,7 +74,7 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
     m_editorList(new QComboBox),
     m_closeButton(new QToolButton),
     m_lockButton(new QToolButton),
-    m_defaultToolBar(new QToolBar(this)),
+    m_defaultToolBar(new QWidget(this)),
     m_infoWidget(new QFrame(this)),
     m_editorForInfoWidget(0),
     m_statusHLine(new QFrame(this)),
@@ -94,12 +94,7 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         m_editorList->setMaxVisibleItems(40);
         m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
 
-        QToolBar *editorListToolBar = new QToolBar;
-
-        editorListToolBar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
-        editorListToolBar->addWidget(m_editorList);
-
-        m_defaultToolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+        m_defaultToolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
         m_activeToolBar = m_defaultToolBar;
 
         QHBoxLayout *toolBarLayout = new QHBoxLayout;
@@ -107,31 +102,23 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         toolBarLayout->setSpacing(0);
         toolBarLayout->addWidget(m_defaultToolBar);
         m_toolBar->setLayout(toolBarLayout);
+        m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
         m_lockButton->setAutoRaise(true);
-        m_lockButton->setProperty("type", QLatin1String("dockbutton"));
 
         m_closeButton->setAutoRaise(true);
         m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
-        m_closeButton->setProperty("type", QLatin1String("dockbutton"));
-
-        QToolBar *rightToolBar = new QToolBar;
-        rightToolBar->setLayoutDirection(Qt::RightToLeft);
-        rightToolBar->addWidget(m_closeButton);
-        rightToolBar->addWidget(m_lockButton);
 
         QHBoxLayout *toplayout = new QHBoxLayout;
         toplayout->setSpacing(0);
         toplayout->setMargin(0);
-        toplayout->addWidget(editorListToolBar);
+        toplayout->addWidget(m_editorList);
         toplayout->addWidget(m_toolBar, 1); // Custom toolbar stretches
-        toplayout->addWidget(rightToolBar);
+        toplayout->addWidget(m_lockButton);
+        toplayout->addWidget(m_closeButton);
 
-        QWidget *top = new QWidget;
-        QVBoxLayout *vlayout = new QVBoxLayout(top);
-        vlayout->setSpacing(0);
-        vlayout->setMargin(0);
-        vlayout->addLayout(toplayout);
+        Core::Utils::StyledBar *top = new Core::Utils::StyledBar;
+        top->setLayout(toplayout);
         tl->addWidget(top);
 
         connect(m_editorList, SIGNAL(activated(int)), this, SLOT(listSelectionActivated(int)));
@@ -258,7 +245,7 @@ void EditorView::addEditor(IEditor *editor)
     m_container->addWidget(editor->widget());
     m_widgetEditorMap.insert(editor->widget(), editor);
 
-    QToolBar *toolBar = editor->toolBar();
+    QWidget *toolBar = editor->toolBar();
     if (toolBar) {
         toolBar->setVisible(false); // will be made visible in setCurrentEditor
         m_toolBar->layout()->addWidget(toolBar);
@@ -297,7 +284,7 @@ void EditorView::removeEditor(IEditor *editor)
     m_widgetEditorMap.remove(editor->widget());
     editor->widget()->setParent(0);
     disconnect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
-    QToolBar *toolBar = editor->toolBar();
+    QWidget *toolBar = editor->toolBar();
     if (toolBar != 0) {
         if (m_activeToolBar == toolBar) {
             m_activeToolBar = m_defaultToolBar;
@@ -375,7 +362,7 @@ void EditorView::updateEditorStatus(IEditor *editor)
 
 void EditorView::updateToolBar(IEditor *editor)
 {
-    QToolBar *toolBar = editor->toolBar();
+    QWidget *toolBar = editor->toolBar();
     if (!toolBar)
         toolBar = m_defaultToolBar;
     if (m_activeToolBar == toolBar)

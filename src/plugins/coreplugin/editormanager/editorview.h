@@ -46,7 +46,6 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
-class QToolBar;
 class QToolButton;
 class QLabel;
 class QStackedWidget;
@@ -105,12 +104,12 @@ private:
 
     OpenEditorsModel *m_model;
     QWidget *m_toolBar;
-    QToolBar *m_activeToolBar;
+    QWidget *m_activeToolBar;
     QStackedWidget *m_container;
     QComboBox *m_editorList;
     QToolButton *m_closeButton;
     QToolButton *m_lockButton;
-    QToolBar *m_defaultToolBar;
+    QWidget *m_defaultToolBar;
     QString m_infoWidgetKind;
     QFrame *m_infoWidget;
     QLabel *m_infoWidgetLabel;

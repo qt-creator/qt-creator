@@ -41,6 +41,7 @@ QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 class QDesignerFormWindowManagerInterface;
 class QFile;
+class QToolBar;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -76,7 +77,7 @@ public:
     const char *kind() const;
     QString displayName() const;
     void setDisplayName(const QString &title);
-    QToolBar *toolBar();
+    QWidget *toolBar();
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     virtual bool isTemporary() const { return false; }

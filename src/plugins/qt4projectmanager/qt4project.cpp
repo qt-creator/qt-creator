@@ -239,13 +239,6 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
 {
     m_manager->registerProject(this);
 
-    QtVersionManager *vm = QtVersionManager::instance();
-
-    connect(vm, SIGNAL(defaultQtVersionChanged()),
-            this, SLOT(defaultQtVersionChanged()));
-    connect(vm, SIGNAL(qtVersionsChanged()),
-            this, SLOT(qtVersionsChanged()));
-
     m_updateCodeModelTimer.setSingleShot(true);
     m_updateCodeModelTimer.setInterval(20);
     connect(&m_updateCodeModelTimer, SIGNAL(timeout()), this, SLOT(updateCodeModel()));
@@ -334,6 +327,13 @@ bool Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
     }
 
     // Now connect
+    QtVersionManager *vm = QtVersionManager::instance();
+    connect(vm, SIGNAL(defaultQtVersionChanged()),
+            this, SLOT(defaultQtVersionChanged()));
+    connect(vm, SIGNAL(qtVersionsChanged()),
+            this, SLOT(qtVersionsChanged()));
+
+
     connect(m_nodesWatcher, SIGNAL(foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &)),
             this, SLOT(foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &)));
     connect(m_nodesWatcher, SIGNAL(foldersAdded()), this, SLOT(checkForNewApplicationProjects()));

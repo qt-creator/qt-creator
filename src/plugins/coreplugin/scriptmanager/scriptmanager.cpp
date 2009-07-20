@@ -247,7 +247,6 @@ void ScriptManagerPrivate::ensureEngineInitialized()
     // register QObjects that occur as properties
     SharedTools::registerQObject<QMainWindow>(m_engine);
     SharedTools::registerQObject<QStatusBar>(m_engine);
-    SharedTools::registerQObject<QToolBar>(m_engine);
     SharedTools::registerQObject<QSettings>(m_engine);
     // WB interfaces
 //    SharedTools::registerQObjectInterface<Core::MessageManager, MessageManagerPrototype>(m_engine);

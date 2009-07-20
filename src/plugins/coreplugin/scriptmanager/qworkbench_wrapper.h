@@ -198,7 +198,7 @@ class EditorPrototype :  public QObject, public QScriptable
     Q_PROPERTY(QString kind READ kind DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(bool duplicateSupported READ duplicateSupported DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(Core::IFile* file READ file DESIGNABLE false SCRIPTABLE true STORED false)
-    Q_PROPERTY(QToolBar* toolBar  READ toolBar DESIGNABLE false SCRIPTABLE true STORED false)
+    Q_PROPERTY(QWidget* toolBar  READ toolBar DESIGNABLE false SCRIPTABLE true STORED false)
 
 public:
     EditorPrototype(QObject *parent = 0);
@@ -210,7 +210,7 @@ public:
     bool duplicateSupported() const;
 
     Core::IFile *file() const;
-    QToolBar* toolBar() const;
+    QWidget* toolBar() const;
 
 public slots:
     bool createNew(const QString &contents);

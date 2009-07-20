@@ -142,7 +142,7 @@ public:
     virtual Core::IEditor *duplicate(QWidget * parent);
     virtual const char *kind() const;
 
-    virtual QToolBar *toolBar();
+    virtual QWidget *toolBar();
     virtual QList<int> context() const;
     virtual QWidget *widget();
 

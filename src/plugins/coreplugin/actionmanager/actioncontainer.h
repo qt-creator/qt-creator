@@ -32,7 +32,6 @@
 
 #include <QtCore/QObject>
 #include <QtGui/QMenu>
-#include <QtGui/QToolBar>
 #include <QtGui/QMenuBar>
 #include <QtGui/QAction>
 

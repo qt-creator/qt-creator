@@ -36,6 +36,7 @@
 #include "subversionsubmiteditor.h"
 #include "subversionconstants.h"
 #include "subversioncontrol.h"
+#include "checkoutwizard.h"
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -268,6 +269,8 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     m_subversionOutputWindow = new SubversionOutputWindow(this);
     addAutoReleasedObject(m_subversionOutputWindow);
+
+    addAutoReleasedObject(new CheckoutWizard);
 
     //register actions
     Core::ActionManager *ami = core->actionManager();

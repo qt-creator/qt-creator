@@ -78,6 +78,7 @@ struct ProjectExplorerSettings
 {
     bool buildBeforeRun;
     bool saveBeforeBuild;
+    bool showCompilerOutput;
 };
 
 } // namespace Internal

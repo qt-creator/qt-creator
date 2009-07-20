@@ -36,11 +36,10 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QHash>
 #include <QtCore/QPair>
 #include <QtGui/QInputDialog>
 #include <QtGui/QLabel>
-#include <QtGui/QMenu>
+#include <QtGui/QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -85,6 +84,48 @@ QWidget *BuildSettingsPanel::widget()
 }
 
 ///
+// BuildSettingsSubWidgets
+///
+
+BuildSettingsSubWidgets::~BuildSettingsSubWidgets()
+{
+    clear();
+}
+
+void BuildSettingsSubWidgets::addWidget(const QString &name, QWidget *widget)
+{
+    QLabel *label = new QLabel(this);
+    label->setText(name);
+    QFont f = label->font();
+    f.setBold(true);
+    f.setPointSizeF(f.pointSizeF() *1.2);
+    label->setFont(f);
+
+    layout()->addWidget(label);
+    layout()->addWidget(widget);
+
+    m_labels.append(label);
+    m_widgets.append(widget);
+}
+
+void BuildSettingsSubWidgets::clear()
+{
+    qDeleteAll(m_widgets);
+    qDeleteAll(m_labels);
+}
+
+QList<QWidget *> BuildSettingsSubWidgets::widgets() const
+{
+    return m_widgets;
+}
+
+BuildSettingsSubWidgets::BuildSettingsSubWidgets(QWidget *parent)
+    : QGroupBox(parent)
+{
+    new QVBoxLayout(this);
+}
+
+///
 /// BuildSettingsWidget
 ///
 
@@ -95,62 +136,60 @@ BuildSettingsWidget::~BuildSettingsWidget()
 BuildSettingsWidget::BuildSettingsWidget(Project *project)
     : m_project(project)
 {
-    m_ui.setupUi(this);
-    m_ui.splitter->setStretchFactor(1,10);
-    m_ui.buildSettingsList->setContextMenuPolicy(Qt::CustomContextMenu);
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    QHBoxLayout *hbox = new QHBoxLayout();
+    hbox->addWidget(new QLabel(tr("Build Configuration:"), this));
+    m_buildConfigurationComboBox = new QComboBox(this);
+    hbox->addWidget(m_buildConfigurationComboBox);
 
-    m_ui.addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
-    m_ui.addButton->setText("");
-    m_ui.removeButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
-    m_ui.removeButton->setText("");
+    m_addButton = new QPushButton(this);
+    m_addButton->setText("Add");
+    m_addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
+    m_addButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    hbox->addWidget(m_addButton);
+
+    m_removeButton = new QPushButton(this);
+    m_removeButton->setText("Remove");
+    m_removeButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
+    m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    hbox->addWidget(m_removeButton);
+    hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+    vbox->addLayout(hbox);
+
+    m_subWidgets = new BuildSettingsSubWidgets(this);
+    vbox->addWidget(m_subWidgets);
 
     QMenu *addButtonMenu = new QMenu(this);
     addButtonMenu->addAction(tr("Create &New"),
                              this, SLOT(createConfiguration()));
     addButtonMenu->addAction(tr("&Clone Selected"),
                              this, SLOT(cloneConfiguration()));
-    m_ui.addButton->setMenu(addButtonMenu);
+    m_addButton->setMenu(addButtonMenu);
 
+    connect(m_buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(currentIndexChanged(int)));
 
-    connect(m_ui.buildSettingsList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-            this, SLOT(updateSettingsWidget(QTreeWidgetItem *, QTreeWidgetItem *)));
-    connect(m_ui.buildSettingsList, SIGNAL(customContextMenuRequested (const QPoint &) ),
-            this, SLOT(showContextMenu(const QPoint &)));
-    connect(m_ui.buildSettingsList, SIGNAL(itemChanged(QTreeWidgetItem*,int) ),
-            this, SLOT(itemChanged(QTreeWidgetItem*)), Qt::QueuedConnection);
+    // TODO currentIndexChanged
+    // needs to change active configuration
+    // and set widgets
 
-    connect(m_ui.removeButton, SIGNAL(clicked()),
+    connect(m_removeButton, SIGNAL(clicked()),
             this, SLOT(deleteConfiguration()));
     connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
-            this, SLOT(updateBuildSettings()));
+            this, SLOT(activeBuildConfigurationChanged()));
     connect(m_project, SIGNAL(buildConfigurationDisplayNameChanged(const QString &)),
             this, SLOT(buildConfigurationDisplayNameChanged(const QString &)));
-
-
-    // remove dummy designer widget
-    while (QWidget *widget = m_ui.buildSettingsWidgets->currentWidget()) {
-        m_ui.buildSettingsWidgets->removeWidget(widget);
-        delete widget;
-    }
 
     updateBuildSettings();
 }
 
 void BuildSettingsWidget::buildConfigurationDisplayNameChanged(const QString &buildConfiguration)
 {
-    QTreeWidgetItem *rootItem = m_ui.buildSettingsList->invisibleRootItem();
-    for (int i = 0; i < rootItem->childCount(); ++i) {
-        QTreeWidgetItem *child = rootItem->child(i);
-        if (child->data(0, Qt::UserRole).toString() == buildConfiguration) {
-            child->setText(0, m_project->displayNameFor(buildConfiguration));
-            if (m_ui.buildSettingsList->currentItem() == child) {
-                QWidget *widget = m_itemToWidget.value(child);
-                if (BuildStepConfigWidget *buildStepWidget = qobject_cast<BuildStepConfigWidget*>(widget)) {
-                    QString title;
-                    title = buildStepWidget->displayName();
-                    m_ui.titleLabel->setText(tr("%1 - %2").arg(m_project->displayNameFor(buildConfiguration)).arg(title));
-                }
-            }
+
+    for (int i=0; i<m_buildConfigurationComboBox->count(); ++i) {
+        if (m_buildConfigurationComboBox->itemData(i).toString() == buildConfiguration) {
+            m_buildConfigurationComboBox->setItemText(i, m_project->displayNameFor(buildConfiguration));
+            break;
         }
     }
 }
@@ -158,180 +197,64 @@ void BuildSettingsWidget::buildConfigurationDisplayNameChanged(const QString &bu
 
 void BuildSettingsWidget::updateBuildSettings()
 {
-    QTreeWidgetItem *rootItem = m_ui.buildSettingsList->invisibleRootItem();
 
-    // update buttons
-    m_ui.removeButton->setEnabled(m_project->buildConfigurations().size() > 1);
-
-    // Save current selection
-    QString lastCurrentItem;
-    if (m_ui.buildSettingsList->currentItem())
-        lastCurrentItem = m_ui.buildSettingsList->currentItem()->text(0);
-
-    m_itemToWidget.clear();
+    // TODO save position, entry from combbox
 
     // Delete old tree items
-    while (rootItem->childCount()) {
-        QTreeWidgetItem *configPageItem = rootItem->child(0);
-        rootItem->removeChild(configPageItem);
-        delete configPageItem; // does that delete also subitems?
-    }
+    m_buildConfigurationComboBox->blockSignals(true); // TODO ...
+    m_buildConfigurationComboBox->clear();
+    m_subWidgets->clear();
 
-    // Delete old pages
-    while (m_ui.buildSettingsWidgets->count()) {
-        QWidget *w = m_ui.buildSettingsWidgets->widget(0);
-        m_ui.buildSettingsWidgets->removeWidget(w);
-        delete w;
-    }
+    // update buttons
+    m_removeButton->setEnabled(m_project->buildConfigurations().size() > 1);
 
     // Add pages
-    QWidget *dummyWidget = new QWidget(this);
-    QWidget *buildStepsWidget = new BuildStepsPage(m_project);
-    QWidget *cleanStepsWidget = new BuildStepsPage(m_project, true);
     BuildStepConfigWidget *generalConfigWidget = m_project->createConfigWidget();
-    QList<BuildStepConfigWidget *> subConfigWidgets = m_project->subConfigWidgets();
+    m_subWidgets->addWidget(generalConfigWidget->displayName(), generalConfigWidget);
 
-    m_ui.buildSettingsWidgets->addWidget(dummyWidget);
-    m_ui.buildSettingsWidgets->addWidget(buildStepsWidget);
-    m_ui.buildSettingsWidgets->addWidget(cleanStepsWidget);
-    m_ui.buildSettingsWidgets->addWidget(generalConfigWidget);
+    m_subWidgets->addWidget(tr("Build Steps"), new BuildStepsPage(m_project));
+    m_subWidgets->addWidget(tr("Clean Steps"), new BuildStepsPage(m_project, true));
+
+    QList<BuildStepConfigWidget *> subConfigWidgets = m_project->subConfigWidgets();
     foreach (BuildStepConfigWidget *subConfigWidget, subConfigWidgets)
-        m_ui.buildSettingsWidgets->addWidget(subConfigWidget);
+        m_subWidgets->addWidget(subConfigWidget->displayName(), subConfigWidget);
 
     // Add tree items
-    QTreeWidgetItem *activeConfigurationItem = 0;
     QString activeBuildConfiguration = m_project->activeBuildConfiguration();
     foreach (const QString &buildConfiguration, m_project->buildConfigurations()) {
-        QString displayName = m_project->displayNameFor(buildConfiguration);
-        QTreeWidgetItem *buildConfigItem = new QTreeWidgetItem();
-        m_itemToWidget.insert(buildConfigItem, generalConfigWidget);
-        buildConfigItem->setText(0, displayName);
-        buildConfigItem->setData(0, Qt::UserRole, buildConfiguration);
-        buildConfigItem->setCheckState(0, Qt::Unchecked);
-        if (activeBuildConfiguration == buildConfiguration) {
-            QFont font = buildConfigItem->font(0);
-            font.setBold(true);
-            buildConfigItem->setFont(0, font);
-            buildConfigItem->setCheckState(0, Qt::Checked);
-
-            activeConfigurationItem = buildConfigItem;
-        }
-        rootItem->addChild(buildConfigItem);
-
-        QTreeWidgetItem *generalItem = new QTreeWidgetItem();
-        m_itemToWidget.insert(generalItem, generalConfigWidget);
-        generalItem->setText(0, tr("General"));
-        buildConfigItem->addChild(generalItem);
-
-        foreach (BuildStepConfigWidget *subConfigWidget, subConfigWidgets) {
-            QTreeWidgetItem *subConfigItem = new QTreeWidgetItem();
-            m_itemToWidget.insert(subConfigItem, subConfigWidget);
-            subConfigItem->setText(0, subConfigWidget->displayName());
-            buildConfigItem->addChild(subConfigItem);
-        }
-
-        QTreeWidgetItem *buildStepsItem = new QTreeWidgetItem();
-        m_itemToWidget.insert(buildStepsItem, buildStepsWidget);
-        buildStepsItem->setText(0, tr("Build Steps"));
-        buildConfigItem->addChild(buildStepsItem);
-
-        QTreeWidgetItem *cleanStepsItem = new QTreeWidgetItem();
-        m_itemToWidget.insert(cleanStepsItem, cleanStepsWidget);
-        cleanStepsItem->setText(0, tr("Clean Steps"));
-        buildConfigItem->addChild(cleanStepsItem);
+        m_buildConfigurationComboBox->addItem(m_project->displayNameFor(buildConfiguration), buildConfiguration);
+        if (buildConfiguration == activeBuildConfiguration)
+            m_buildConfigurationComboBox->setCurrentIndex(m_buildConfigurationComboBox->count() - 1);
     }
 
-    m_ui.buildSettingsList->expandAll();
+    // TODO ...
+    m_buildConfigurationComboBox->blockSignals(false);
 
-    // Restore selection
-    if (!lastCurrentItem.isEmpty()) {
-        for (int i = rootItem->childCount() - 1; i >= 0; --i) {
-            if (rootItem->child(i)->text(0) == lastCurrentItem) {
-                m_ui.buildSettingsList->setCurrentItem(rootItem->child(i));
-                break;
-            }
-        }
-    }
-
-    if (!m_ui.buildSettingsList->currentItem()) {
-        if (activeConfigurationItem)
-            m_ui.buildSettingsList->setCurrentItem(activeConfigurationItem);
-        else
-            m_ui.buildSettingsList->setCurrentItem(m_ui.buildSettingsList->invisibleRootItem()->child(0));
-    }
+    // TODO Restore position, entry from combbox
+    // TODO? select entry from combobox ?
+    activeBuildConfigurationChanged();
 }
 
-/* switch from one tree item / build step to another */
-void BuildSettingsWidget::updateSettingsWidget(QTreeWidgetItem *newItem, QTreeWidgetItem *oldItem)
+void BuildSettingsWidget::currentIndexChanged(int index)
 {
-    if (oldItem == newItem)
-        return;
+    QString buildConfiguration = m_buildConfigurationComboBox->itemData(index).toString();
+    m_project->setActiveBuildConfiguration(buildConfiguration);
+}
 
-    if (!newItem) {
-        QWidget *dummyWidget = m_ui.buildSettingsWidgets->widget(0);
-        m_ui.buildSettingsWidgets->setCurrentWidget(dummyWidget);
-        m_ui.titleLabel->clear();
-        return;
-    }
-
-    if (QWidget *widget = m_itemToWidget.value(newItem)) {
-        QString buildConfiguration;
-        {
-            QTreeWidgetItem *configurationItem = newItem;
-            while (configurationItem && configurationItem->parent())
-                configurationItem = configurationItem->parent();
-            if (configurationItem)
-                buildConfiguration = configurationItem->data(0, Qt::UserRole).toString();
+void BuildSettingsWidget::activeBuildConfigurationChanged()
+{
+    const QString &activeBuildConfiguration = m_project->activeBuildConfiguration();
+    for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
+        if (m_buildConfigurationComboBox->itemData(i).toString() == activeBuildConfiguration) {
+            m_buildConfigurationComboBox->setCurrentIndex(i);
+            break;
         }
-
-        QString title;
+    }
+    foreach (QWidget *widget, m_subWidgets->widgets()) {
         if (BuildStepConfigWidget *buildStepWidget = qobject_cast<BuildStepConfigWidget*>(widget)) {
-            title = buildStepWidget->displayName();
-            buildStepWidget->init(buildConfiguration);
-        }
-
-        m_ui.titleLabel->setText(tr("%1 - %2").arg(m_project->displayNameFor(buildConfiguration)).arg(title));
-        m_ui.buildSettingsWidgets->setCurrentWidget(widget);
-    }
-}
-
-
-void BuildSettingsWidget::showContextMenu(const QPoint &point)
-{
-    if (QTreeWidgetItem *item = m_ui.buildSettingsList->itemAt(point)) {
-        if (!item->parent()) {
-            const QString buildConfiguration = item->data(0, Qt::UserRole).toString();
-
-            QMenu menu;
-            QAction *setAsActiveAction = new QAction(tr("Set as Active"), &menu);
-            QAction *cloneAction = new QAction(tr("Clone"), &menu);
-            QAction *deleteAction = new QAction(tr("Delete"), &menu);
-
-            if (m_project->activeBuildConfiguration() == buildConfiguration)
-                setAsActiveAction->setEnabled(false);
-            if (m_project->buildConfigurations().size() < 2)
-                deleteAction->setEnabled(false);
-
-            menu.addActions(QList<QAction*>() << setAsActiveAction << cloneAction << deleteAction);
-            QPoint globalPoint = m_ui.buildSettingsList->mapToGlobal(point);
-            QAction *action = menu.exec(globalPoint);
-            if (action == setAsActiveAction) {
-                setActiveConfiguration(buildConfiguration);
-            } else if (action == cloneAction) {
-                cloneConfiguration(buildConfiguration);
-            } else if (action == deleteAction) {
-                deleteConfiguration(buildConfiguration);
-            }
-
-            updateBuildSettings();
+            buildStepWidget->init(activeBuildConfiguration);
         }
     }
-}
-
-void BuildSettingsWidget::setActiveConfiguration()
-{
-    const QString configuration = m_ui.buildSettingsList->currentItem()->data(0, Qt::UserRole).toString();
-    setActiveConfiguration(configuration);
 }
 
 void BuildSettingsWidget::createConfiguration()
@@ -373,38 +296,14 @@ void BuildSettingsWidget::createConfiguration()
 
 void BuildSettingsWidget::cloneConfiguration()
 {
-    QTreeWidgetItem *configItem = m_ui.buildSettingsList->currentItem();
-    while (configItem->parent())
-        configItem = configItem->parent();
-    const QString configuration = configItem->data(0, Qt::UserRole).toString();
+    const QString configuration = m_buildConfigurationComboBox->itemData(m_buildConfigurationComboBox->currentIndex()).toString();
     cloneConfiguration(configuration);
 }
 
 void BuildSettingsWidget::deleteConfiguration()
 {
-    QTreeWidgetItem *configItem = m_ui.buildSettingsList->currentItem();
-    while (configItem->parent())
-        configItem = configItem->parent();
-    const QString configuration = configItem->data(0, Qt::UserRole).toString();
+    const QString configuration = m_buildConfigurationComboBox->itemData(m_buildConfigurationComboBox->currentIndex()).toString();
     deleteConfiguration(configuration);
-}
-
-void BuildSettingsWidget::itemChanged(QTreeWidgetItem *item)
-{
-    // do not allow unchecking
-    if (item->checkState(0) == Qt::Unchecked)
-        item->setCheckState(0, Qt::Checked);
-    else {
-        setActiveConfiguration(item->data(0, Qt::UserRole).toString());
-    }
-}
-
-void BuildSettingsWidget::setActiveConfiguration(const QString &configuration)
-{
-    if (configuration.isEmpty())
-        return;
-
-    m_project->setActiveBuildConfiguration(configuration);
 }
 
 void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
@@ -440,9 +339,10 @@ void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
 
     m_project->copyBuildConfiguration(sourceConfiguration, newBuildConfiguration);
     m_project->setDisplayNameFor(newBuildConfiguration, newDisplayName);
-    m_project->setActiveBuildConfiguration(newBuildConfiguration);
 
     updateBuildSettings();
+
+    m_project->setActiveBuildConfiguration(newBuildConfiguration);
 }
 
 void BuildSettingsWidget::deleteConfiguration(const QString &deleteConfiguration)

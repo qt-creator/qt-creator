@@ -135,6 +135,9 @@ public:
     GitSettings  settings() const;
     void setSettings(const GitSettings &s);
 
+    QStringList binary() const; // Executable + basic arguments
+    QStringList processEnvironment() const;
+
     static QString msgNoChangedFiles();
 
     static const char *noColorOption;

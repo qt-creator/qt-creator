@@ -30,9 +30,8 @@
 #ifndef GITCOMMAND_H
 #define GITCOMMAND_H
 
-#include <projectexplorer/environment.h>
-
 #include <QtCore/QObject>
+#include <QtCore/QStringList>
 
 namespace Git {
 namespace Internal {
@@ -47,9 +46,9 @@ public:
                                  ReportStdout,  // This assumes UTF8
                                  ReportStderr };
 
-    explicit GitCommand(const QString &binaryPath,
+    explicit GitCommand(const QStringList &binary,
                         const QString &workingDirectory,
-                        ProjectExplorer::Environment &environment);
+                        const QStringList &environment);
 
 
     void addJob(const QStringList &arguments, int timeout);
@@ -79,6 +78,7 @@ private:
     };
 
     const QString m_binaryPath;
+    QStringList m_basicArguments;
     const QString m_workingDirectory;
     const QStringList m_environment;
 

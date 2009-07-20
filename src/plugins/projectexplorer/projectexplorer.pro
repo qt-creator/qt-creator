@@ -112,9 +112,7 @@ SOURCES += projectexplorer.cpp \
     debugginghelper.cpp \
     abstractmakestep.cpp \
     projectexplorersettingspage.cpp
-FORMS += dependenciespanel.ui \
-    buildsettingspropertiespage.ui \
-    processstep.ui \
+FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \
     sessiondialog.ui \

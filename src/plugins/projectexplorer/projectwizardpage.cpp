@@ -29,12 +29,16 @@
 
 #include "projectwizardpage.h"
 #include "ui_projectwizardpage.h"
+#include "projectnodes.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
 using namespace ProjectExplorer;
 using namespace Internal;
+
+Q_DECLARE_METATYPE(ProjectExplorer::ProjectNode*)
 
 ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     QWizardPage(parent),
@@ -51,13 +55,19 @@ ProjectWizardPage::~ProjectWizardPage()
     delete m_ui;
 }
 
-void ProjectWizardPage::setProjects(const QStringList &l)
+void ProjectWizardPage::setProjects(const QList<ProjectNode*> &projectNodes)
 {
-    QStringList list = l;
-    list.removeDuplicates();
-    list.sort();
+    QMap<QString,ProjectNode*> projectMap;
+    foreach (ProjectNode *node, projectNodes) {
+        QString name = QFileInfo(node->path()).fileName();
+        if (!projectMap.contains(name))
+            projectMap.insert(name, node);
+    }
+
     m_ui->projectComboBox->clear();
-    m_ui->projectComboBox->addItems(list);
+    foreach (const QString &name, projectMap.keys()) {
+        m_ui->projectComboBox->addItem(name, qVariantFromValue(projectMap.value(name)));
+    }
 }
 
 void ProjectWizardPage::setAddToProjectEnabled(bool b)
@@ -69,14 +79,22 @@ void ProjectWizardPage::setAddToProjectEnabled(bool b)
     m_ui->projectComboBox->setEnabled(b);
 }
 
-int ProjectWizardPage::currentProjectIndex() const
+ProjectNode *ProjectWizardPage::currentProject() const
 {
-    return m_ui->projectComboBox->currentIndex();
+    QVariant variant = m_ui->projectComboBox->itemData(m_ui->projectComboBox->currentIndex());
+    return qVariantValue<ProjectNode*>(variant);
 }
 
-void ProjectWizardPage::setCurrentProjectIndex(int i)
+void ProjectWizardPage::setCurrentProject(ProjectNode *projectNode)
 {
-    m_ui->projectComboBox->setCurrentIndex(i);
+    if (!projectNode)
+        return;
+    for (int i = 0; i < m_ui->projectComboBox->count(); ++i) {
+        if (qVariantValue<ProjectNode*>(m_ui->projectComboBox->itemData(i)) == projectNode) {
+            m_ui->projectComboBox->setCurrentIndex(i);
+            return;
+        }
+    }
 }
 
 bool ProjectWizardPage::addToProject() const

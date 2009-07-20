@@ -55,9 +55,10 @@ public:
     explicit ProjectWizardPage(QWidget *parent = 0);
     virtual ~ProjectWizardPage();
 
-    void setProjects(const QStringList &);
-    void setCurrentProjectIndex(int);
-    int currentProjectIndex() const;
+    void setProjects(const QList<ProjectNode *> &);
+    void setCurrentProject(ProjectNode *);
+
+    ProjectNode *currentProject() const;
 
     void setAddToProjectEnabled(bool b);
     bool addToProject() const;

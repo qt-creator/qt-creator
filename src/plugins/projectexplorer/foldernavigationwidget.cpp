@@ -204,7 +204,6 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     FolderNavigationWidget *ptw = new FolderNavigationWidget;
     n.widget = ptw;
     QToolButton *toggleSync = new QToolButton;
-    toggleSync->setProperty("type", "dockbutton");
     toggleSync->setIcon(QIcon(":/core/images/linkicon.png"));
     toggleSync->setCheckable(true);
     toggleSync->setChecked(ptw->autoSynchronization());

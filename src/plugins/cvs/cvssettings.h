@@ -39,7 +39,6 @@ QT_END_NAMESPACE
 namespace CVS {
 namespace Internal {
 
-// Todo: Add user name and password?
 struct CVSSettings
 {
     CVSSettings();

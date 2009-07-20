@@ -38,6 +38,8 @@ namespace Constants {
 const char * const VCS_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
 const char * const VCS_COMMON_SETTINGS_ID = QT_TRANSLATE_NOOP("VCSBase", "Common");
 
+const char * const VCS_WIZARD_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
+
 namespace Internal {
     enum { debug = 0 };
 } // namespace Internal

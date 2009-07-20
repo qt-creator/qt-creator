@@ -40,6 +40,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/styledbar.h>
 
 #include <QtCore/QDebug>
 #include <QtGui/QApplication>
@@ -47,15 +48,57 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QScrollArea>
 #include <QtGui/QTabWidget>
-#include <QtGui/QToolBar>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QHeaderView>
+#include <QtGui/QLabel>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 namespace {
 bool debug = false;
+}
+
+PanelsWidget::PanelsWidget(QWidget *parent)
+    : QScrollArea(parent)
+{
+    m_widget = new QWidget;
+    m_layout = new QVBoxLayout(m_widget);
+
+    setWidgetResizable(true);
+    setFrameStyle(QFrame::NoFrame);
+    setWidget(m_widget);
+
+}
+
+PanelsWidget::~PanelsWidget()
+{
+    clear();
+}
+
+void PanelsWidget::addWidget(const QString &name, QWidget *widget)
+{
+    Panel p;
+    p.nameLabel = new QLabel(this);
+    p.nameLabel->setText(name);
+    QFont f = p.nameLabel->font();
+    f.setBold(true);
+    f.setPointSizeF(f.pointSizeF() * 1.4);
+    p.nameLabel->setFont(f);
+    p.panelWidget = widget;
+    m_panels.append(p);
+
+    m_layout->addWidget(p.nameLabel);
+    m_layout->addWidget(p.panelWidget);
+}
+
+void PanelsWidget::clear()
+{
+    foreach(Panel p, m_panels) {
+        delete p.nameLabel;
+        delete p.panelWidget;
+    }
+    m_panels.clear();
 }
 
 ProjectWindow::ProjectWindow(QWidget *parent)
@@ -84,37 +127,19 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     connect(m_treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem *)),
             this, SLOT(handleCurrentItemChanged(QTreeWidgetItem*)));
 
-    QWidget *panelsWidget = new QWidget;
-    m_panelsTabWidget = new QTabWidget;
-    m_panelsTabWidget->setDocumentMode(true);
-    QVBoxLayout *panelsLayout = new QVBoxLayout(panelsWidget);
-
-    QWidget *marginWidget = new QWidget;
-    QVBoxLayout *marginLayout = new QVBoxLayout(marginWidget);
-    marginLayout->setContentsMargins(0, panelsLayout->margin(), 0, 0);
-    marginLayout->addWidget(m_panelsTabWidget);
-
-    QScrollArea *scrollArea = new QScrollArea;
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setFrameStyle(QFrame::NoFrame);
-    scrollArea->setWidget(marginWidget);
-    panelsLayout->setSpacing(0);
-    panelsLayout->setMargin(0);
-    panelsLayout->addWidget(scrollArea);
+    m_panelsWidget = new PanelsWidget(this);
 
     QWidget *dummy = new QWidget;
     QVBoxLayout *dummyLayout = new QVBoxLayout(dummy);
     dummyLayout->setMargin(0);
     dummyLayout->setSpacing(0);
-    dummyLayout->addWidget(new QToolBar(dummy));
+    dummyLayout->addWidget(new Core::Utils::StyledBar(dummy));
     dummyLayout->addWidget(m_treeWidget);
 
     QSplitter *splitter = new Core::MiniSplitter;
     splitter->setOrientation(Qt::Vertical);
     splitter->addWidget(dummy);
-    splitter->addWidget(panelsWidget);
-
-
+    splitter->addWidget(m_panelsWidget);
 
     // make sure that the tree treewidget has same size policy as qtabwidget
     m_treeWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
@@ -146,20 +171,22 @@ void ProjectWindow::restoreStatus()
         m_treeWidget->setCurrentItem(m_treeWidget->topLevelItem(0), 0, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
     }
 
-    const QVariant lastPanel = m_session->value(QLatin1String("ProjectWindow/Panel"));
-    if (lastPanel.isValid()) {
-        const int index = lastPanel.toInt();
-        if (index < m_panelsTabWidget->count())
-            m_panelsTabWidget->setCurrentIndex(index);
-    }
-
-    if ((m_panelsTabWidget->currentIndex() == -1) && m_panelsTabWidget->count())
-        m_panelsTabWidget->setCurrentIndex(0);
+    // TODO
+//    const QVariant lastPanel = m_session->value(QLatin1String("ProjectWindow/Panel"));
+//    if (lastPanel.isValid()) {
+//        const int index = lastPanel.toInt();
+//        if (index < m_panelsTabWidget->count())
+//            m_panelsTabWidget->setCurrentIndex(index);
+//    }
+//
+//    if ((m_panelsTabWidget->currentIndex() == -1) && m_panelsTabWidget->count())
+//        m_panelsTabWidget->setCurrentIndex(0);
 }
 
 void ProjectWindow::saveStatus()
 {
-    m_session->setValue(QLatin1String("ProjectWindow/Panel"), m_panelsTabWidget->currentIndex());
+    // TODO
+//    m_session->setValue(QLatin1String("ProjectWindow/Panel"), m_panelsTabWidget->currentIndex());
 }
 
 void ProjectWindow::showProperties(ProjectExplorer::Project *project, const QModelIndex & /* subIndex */)
@@ -168,14 +195,7 @@ void ProjectWindow::showProperties(ProjectExplorer::Project *project, const QMod
         qDebug() << "ProjectWindow - showProperties called";
 
     // Remove the tabs from the tab widget first
-    while (m_panelsTabWidget->count() > 0)
-        m_panelsTabWidget->removeTab(0);
-
-    while (m_panels.count()) {
-        PropertiesPanel *panel = m_panels.at(0);
-        m_panels.removeOne(panel);
-        delete panel;
-    }
+    m_panelsWidget->clear();
 
     if (project) {
         QList<IPanelFactory *> pages =
@@ -185,9 +205,7 @@ void ProjectWindow::showProperties(ProjectExplorer::Project *project, const QMod
                 PropertiesPanel *panel = panelFactory->createPanel(project);
                 if (debug)
                   qDebug() << "ProjectWindow - setting up project properties tab " << panel->name();
-
-                m_panels.append(panel);
-                m_panelsTabWidget->addTab(panel->widget(), panel->name());
+                m_panelsWidget->addWidget(panel->name(), panel->widget());
             }
         }
     }

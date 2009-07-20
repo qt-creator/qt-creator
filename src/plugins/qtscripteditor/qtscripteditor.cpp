@@ -55,6 +55,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QMenu>
+#include <QtGui/QToolBar>
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100
@@ -384,7 +385,7 @@ void ScriptEditor::createToolBar(ScriptEditorEditable *editable)
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
-    QToolBar *toolBar = editable->toolBar();
+    QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
 
     QList<QAction*> actions = toolBar->actions();
     QWidget *w = toolBar->widgetForAction(actions.first());

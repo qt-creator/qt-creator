@@ -310,27 +310,17 @@
 
     \snippet examples/addressbook-sdk/part2/addressbook.h slot definition
 
-    Next, we have to provide private members for the \c AddressBook class so
-    that we can access these widgets freely throughout the class.
-
-    \snippet examples/addressbook-sdk/part2/addressbook.h members1
-
-    The Qt types used for our private members, e.g., QPushButton, QLineEdit,
-    QTextEdit, etc., need to be included with the \c include directive, as
-    shown below:
+    Since the \c AddressBook class is a subclass of QWidget, Qt Creator
+    includes QWidget in the hedaer file.
 
     \snippet examples/addressbook-sdk/part2/addressbook.h include
-
-    \note The names, e.g., \c addButton etc., correspond to the name of the
-    actual object. You can modify them by double-clicking on their names within
-    \QD's \gui{Object Inspector}.
 
     We need a container to store our address book contacts, so that we can
     traverse and display them. A QMap object, \c contacts, is used for this
     purpose as it holds a key-value pair: the contact's name as the \e key, and
     the contact's address as the \e value.
 
-    \snippet examples/addressbook-sdk/part2/addressbook.h members2
+    \snippet examples/addressbook-sdk/part2/addressbook.h members
 
     We also declare two private QString objects, \c oldName and \c oldAddress.
     These objects are needed to hold the name and address of hte contact that
@@ -339,16 +329,15 @@
     contact.
 
     Let's move on to implementing the slots we defined earlier. Within the
-    constructor of \c AddressBook, we extract the widgets from the form using
-    the \c ui object by pointing our private members to them.
+    constructor of \c AddressBook, we set up our fields by ensuring that
+    \c nameLine and \c addressText are read-only, so that we can only display
+    but not edit existing contact details.
 
-    \snippet examples/addressbook-sdk/part2/addressbook.cpp extract objects
+    \snippet examples/addressbook-sdk/part2/addressbook.cpp setup fields
 
-    Then we set \c nameLine and \c addressText to read-only, so that we can
-    only display but not edit existing contact details. We also hide
-    \c submitButton and \c cancelButton as they will only be be displayed
-    when the user clicks \gui Add, and this is handled by the \c addContact()
-    function discussed below.
+    We also hide both \c submitButton and \c cancelButton as they will only be
+    displayed when the user clicks \gui Add, and this is handled by the
+    \c addContact() function discussed below.
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp signal slot
 

@@ -34,6 +34,7 @@
 #include "cvssubmiteditor.h"
 #include "cvsconstants.h"
 #include "cvscontrol.h"
+#include "checkoutwizard.h"
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -240,6 +241,8 @@ bool CVSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_cvsOutputWindow = new CVSOutputWindow(this);
     addAutoReleasedObject(m_cvsOutputWindow);
+
+    addAutoReleasedObject(new CheckoutWizard);
 
     //register actions
     Core::ActionManager *ami = core->actionManager();
@@ -797,7 +800,7 @@ static QString previousRevision(const QString &rev)
 // Is "[1.2...].1"?
 static inline bool isFirstRevision(const QString &r)
 {
-    return r.endsWith(QLatin1Char('1'));
+    return r.endsWith(QLatin1String(".1"));
 }
 
 void CVSPlugin::slotDescribe(const QString &source, const QString &changeNr)

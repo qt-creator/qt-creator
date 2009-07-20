@@ -38,7 +38,6 @@
 
 #include <QtGui/QStringListModel>
 #include <QtGui/QWidget>
-#include <QtGui/QToolBar>
 #include <QtGui/QLabel>
 
 namespace Find {

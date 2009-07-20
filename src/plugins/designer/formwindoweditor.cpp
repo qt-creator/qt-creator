@@ -274,7 +274,7 @@ void FormWindowEditor::setDisplayName(const QString &title)
     m_displayName = title;
 }
 
-QToolBar *FormWindowEditor::toolBar()
+QWidget *FormWindowEditor::toolBar()
 {
     if (!m_toolBar)
         m_toolBar = FormEditorW::instance()->createEditorToolBar();

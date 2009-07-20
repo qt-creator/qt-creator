@@ -44,15 +44,6 @@
 namespace Git {
 namespace Internal {
 
-// Convert environment to list, default to system one.
-static inline QStringList environmentToList(const ProjectExplorer::Environment &environment)
-{
-    const QStringList list = environment.toStringList();
-    if (!list.empty())
-        return list;
-    return ProjectExplorer::Environment::systemEnvironment().toStringList();
-}
-
 static QString msgTermination(int exitCode, const QString &binaryPath, const QStringList &args)
 {
     QString cmd = QFileInfo(binaryPath).baseName();
@@ -71,14 +62,16 @@ GitCommand::Job::Job(const QStringList &a, int t) :
 {
 }
 
-GitCommand::GitCommand(const QString &binaryPath,
-                       const QString &workingDirectory,
-                        ProjectExplorer::Environment &environment)  :
-    m_binaryPath(binaryPath),
+GitCommand::GitCommand(const QStringList &binary,
+                        const QString &workingDirectory,
+                        const QStringList &environment)  :
+    m_binaryPath(binary.front()),
+    m_basicArguments(binary),
     m_workingDirectory(workingDirectory),
-    m_environment(environmentToList(environment)),
+    m_environment(environment),
     m_reportTerminationMode(NoReport)
 {
+    m_basicArguments.pop_front();
 }
 
 GitCommand::TerminationReportMode GitCommand::reportTerminationMode() const
@@ -132,13 +125,7 @@ void GitCommand::run()
         if (Git::Constants::debug)
             qDebug() << "GitCommand::run" << j << '/' << count << m_jobs.at(j).arguments;
 
-#ifdef Q_OS_WIN
-        QStringList args;
-        args << "/c" << m_binaryPath << m_jobs.at(j).arguments;
-        process.start(QLatin1String("cmd.exe"), args);
-#else
-        process.start(m_binaryPath, m_jobs.at(j).arguments);
-#endif
+        process.start(m_binaryPath, m_basicArguments + m_jobs.at(j).arguments);
         if(!process.waitForStarted()) {
             ok = false;
             error += QString::fromLatin1("Error: \"%1\" could not be started: %2").arg(m_binaryPath, process.errorString());

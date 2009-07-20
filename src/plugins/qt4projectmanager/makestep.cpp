@@ -185,8 +185,6 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
         m_makeStep->setValue(buildConfiguration, "makeargs", QStringList() << "clean");
     }
 
-    m_ui.stackedWidget->setCurrentIndex(1);
-
     m_ui.makeLabel->setText(tr("Override %1:").arg(pro->makeCommand(buildConfiguration)));
 
     const QString &makeCmd = m_makeStep->value(buildConfiguration, "makeCmd").toString();

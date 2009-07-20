@@ -1,6 +1,5 @@
 TEMPLATE = lib
 TARGET = ExtensionSystem
-QT += xml
 DEFINES += EXTENSIONSYSTEM_LIBRARY
 include(../../qtcreatorlibrary.pri)
 include(extensionsystem_dependencies.pri)

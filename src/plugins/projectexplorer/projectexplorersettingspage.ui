@@ -31,6 +31,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="showCompileOutputCheckBox">
+        <property name="text">
+         <string>Show Compiler Output on building</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

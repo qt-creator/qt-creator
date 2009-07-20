@@ -43,7 +43,6 @@
 QT_BEGIN_NAMESPACE
 class QMainWindow;
 class QStatusBar;
-class QToolBar;
 class QSettings;
 QT_END_NAMESPACE
 
@@ -60,7 +59,6 @@ Q_DECLARE_METATYPE(Core::ICore*)
 
 Q_DECLARE_METATYPE(QMainWindow*)
 Q_DECLARE_METATYPE(QStatusBar*)
-Q_DECLARE_METATYPE(QToolBar*)
 Q_DECLARE_METATYPE(QSettings*)
 
 #endif // METATYPEDECLARATIONS_H

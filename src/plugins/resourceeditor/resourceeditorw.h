@@ -96,7 +96,7 @@ public:
     const char *kind() const;
     QString displayName() const { return m_displayName; }
     void setDisplayName(const QString &title) { m_displayName = title; }
-    QToolBar *toolBar() { return 0; }
+    QWidget *toolBar() { return 0; }
     QByteArray saveState() const { return QByteArray(); }
     bool restoreState(const QByteArray &/*state*/) { return true; }
 

@@ -104,7 +104,7 @@ public:
     VCSBaseDiffEditorEditable(VCSBaseEditor *, const VCSBaseEditorParameters *type);
     ~VCSBaseDiffEditorEditable();
 
-    virtual QToolBar *toolBar()                { return m_toolBar; }
+    virtual QWidget *toolBar()                { return m_toolBar; }
     QComboBox *diffFileBrowseComboBox() const  { return m_diffFileBrowseComboBox; }
 
     bool isTemporary() const { return true; }
