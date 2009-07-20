@@ -31,7 +31,6 @@
 #define DEPENDENCIESDIALOG_H
 
 #include "iprojectproperties.h"
-#include "ui_dependenciespanel.h"
 
 #include <QtGui/QWidget>
 
