@@ -161,6 +161,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(m_additionalArguments, SIGNAL(textEdited(const QString &)), this, SLOT(additionalArgumentsEdited()));
 
     m_targetsList = new QListWidget;
+    m_targetsList->setMinimumHeight(200);
     fl->addRow(tr("Targets:"), m_targetsList);
 
     // TODO update this list also on rescans of the CMakeLists.txt
