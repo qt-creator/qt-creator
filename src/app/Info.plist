@@ -22,7 +22,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleTypeIconFile</key>
-			<string>profile.icns</string>
+			<string>prifile.icns</string>
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>pri</string>
