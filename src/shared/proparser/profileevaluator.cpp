@@ -2389,26 +2389,20 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
 
 bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
 {
-    QString fn;
+    QString fn = QLatin1Char('/') + fileName;
+    if (!fn.endsWith(QLatin1String(".prf")))
+        fn += QLatin1String(".prf");
     foreach (const QString &path, qmakeFeaturePaths()) {
-        QString fname = path + QLatin1Char('/') + fileName;
+        QString fname = path + fn;
         if (QFileInfo(fname).exists()) {
-            fn = fname;
-            break;
-        }
-        fname += QLatin1String(".prf");
-        if (QFileInfo(fname).exists()) {
-            fn = fname;
-            break;
+            bool cumulative = m_cumulative;
+            m_cumulative = false;
+            bool ok = evaluateFile(fname);
+            m_cumulative = cumulative;
+            return ok;
         }
     }
-    if (fn.isEmpty())
-        return false;
-    bool cumulative = m_cumulative;
-    m_cumulative = false;
-    bool ok = evaluateFile(fn);
-    m_cumulative = cumulative;
-    return ok;
+    return false;
 }
 
 QString ProFileEvaluator::Private::format(const char *fmt) const
