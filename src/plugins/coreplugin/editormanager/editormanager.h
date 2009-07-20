@@ -36,6 +36,7 @@
 
 #include <QtGui/QWidget>
 #include <QtCore/QList>
+#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -72,6 +73,8 @@ class SplitterOrView;
 
 class EditorClosingCoreListener;
 class OpenEditorsViewFactory;
+
+
 } // namespace Internal
 
 class CORE_EXPORT EditorManagerPlaceHolder : public QWidget
@@ -126,17 +129,17 @@ public:
 
     IEditor *currentEditor() const;
     IEditor *activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
+    IEditor *activateEditor(const QModelIndex &index, Internal::EditorView *view = 0, OpenEditorFlags = 0);
+    IEditor *activateEditor(Core::Internal::EditorView *view, Core::IFile*file, OpenEditorFlags flags = 0);
 
     QList<IEditor*> openedEditors() const;
 
     OpenEditorsModel *openedEditorsModel() const;
-    IEditor *activateEditor(const QModelIndex &index, Internal::EditorView *view = 0, OpenEditorFlags = 0);
     void closeEditor(const QModelIndex &index);
     void closeOtherEditors(IEditor *editor);
 
     QList<IEditor*> editorsForFiles(QList<IFile*> files) const;
     //QList<EditorGroup *> editorGroups() const;
-    QList<IEditor*> editorHistory() const;
     void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
 
     bool saveEditor(IEditor *editor);
@@ -210,7 +213,6 @@ private slots:
     void gotoNextDocHistory();
     void gotoPreviousDocHistory();
     void handleContextChange(Core::IContext *context);
-    void updateEditorHistory();
     void updateActions();
     void revertToSaved();
     void makeCurrentEditorWritable();
@@ -239,11 +241,11 @@ private:
     void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     void setCurrentView(Core::Internal::SplitterOrView *view);
     IEditor *activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
-    IEditor *activateEditor(Core::Internal::EditorView *view, Core::IFile*file, OpenEditorFlags flags = 0);
     IEditor *openEditor(Core::Internal::EditorView *view, const QString &fileName,
                         const QString &editorKind = QString(),
                         OpenEditorFlags flags = 0);
     Core::Internal::SplitterOrView *currentView() const;
+
     void closeEditor(Core::IEditor *editor);
     void closeDuplicate(Core::IEditor *editor);
     void closeView(Core::Internal::EditorView *view);

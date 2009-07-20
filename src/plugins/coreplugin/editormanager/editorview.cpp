@@ -323,6 +323,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
     m_editorList->setCurrentIndex(m_model->indexOf(editor).row());
     updateEditorStatus(editor);
     updateToolBar(editor);
+    updateEditorHistory(editor);
 
     // FIXME: this keeps the editor hidden if switching from A to B and back
     if (editor != m_editorForInfoWidget) {
@@ -413,6 +414,35 @@ void EditorView::listContextMenu(QPoint pos)
     }
 }
 
+void EditorView::updateEditorHistory(IEditor *editor)
+{
+    if (!editor)
+        return;
+    IFile *file = editor->file();
+
+    if (!file)
+        return;
+
+    QString fileName = file->fileName();
+    QByteArray state = editor->saveState();
+
+    EditLocation location;
+    location.file = file;
+    location.fileName = file->fileName();
+    location.kind = editor->kind();
+    location.state = QVariant(state);
+
+    for(int i = 0; i < m_editorHistory.size(); ++i) {
+        if (m_editorHistory.at(i).file == 0
+            || m_editorHistory.at(i).file == file
+            ){
+            m_editorHistory.removeAt(i--);
+            continue;
+        }
+    }
+    m_editorHistory.prepend(location);
+}
+
 void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
 {
     if (editor && editor != currentEditor()) {
@@ -436,29 +466,32 @@ void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QB
         state = saveState;
     }
 
-    EditLocation *location = new EditLocation;
-    location->file = file;
-    location->fileName = file->fileName();
-    location->kind = editor->kind();
-    location->state = QVariant(state);
+    EditLocation location;
+    location.file = file;
+    location.fileName = file->fileName();
+    location.kind = editor->kind();
+    location.state = QVariant(state);
     m_currentNavigationHistoryPosition = qMin(m_currentNavigationHistoryPosition, m_navigationHistory.size()); // paranoia
     m_navigationHistory.insert(m_currentNavigationHistoryPosition, location);
     ++m_currentNavigationHistoryPosition;
 
     while (m_navigationHistory.size() >= 30) {
         if (m_currentNavigationHistoryPosition > 15) {
-            delete m_navigationHistory.takeFirst();
+            m_navigationHistory.takeFirst();
             --m_currentNavigationHistoryPosition;
         } else {
-            delete m_navigationHistory.takeLast();
+            m_navigationHistory.takeLast();
         }
     }
 }
 
 void EditorView::copyNavigationHistoryFrom(EditorView* other)
 {
+    if (!other)
+        return;
     m_currentNavigationHistoryPosition = other->m_currentNavigationHistoryPosition;
     m_navigationHistory = other->m_navigationHistory;
+    m_editorHistory = other->m_editorHistory;
 }
 
 void EditorView::updateCurrentPositionInNavigationHistory()
@@ -470,10 +503,10 @@ void EditorView::updateCurrentPositionInNavigationHistory()
     IFile *file = editor->file();
     EditLocation *location;
     if (m_currentNavigationHistoryPosition < m_navigationHistory.size()) {
-        location = m_navigationHistory[m_currentNavigationHistoryPosition];
+        location = &m_navigationHistory[m_currentNavigationHistoryPosition];
     } else {
-        location = new EditLocation;
-        m_navigationHistory.append(location);
+        m_navigationHistory.append(EditLocation());
+        location = &m_navigationHistory[m_navigationHistory.size()-1];
     }
     location->file = file;
     location->fileName = file->fileName();
@@ -487,18 +520,18 @@ void EditorView::goBackInNavigationHistory()
     updateCurrentPositionInNavigationHistory();
     while (m_currentNavigationHistoryPosition > 0) {
         --m_currentNavigationHistoryPosition;
-        EditLocation *location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
+        EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
         IEditor *editor;
-        if (location->file) {
-            editor = em->activateEditor(this, location->file, EditorManager::IgnoreNavigationHistory);
+        if (location.file) {
+            editor = em->activateEditor(this, location.file, EditorManager::IgnoreNavigationHistory);
         } else {
-            editor = em->openEditor(this, location->fileName, location->kind, EditorManager::IgnoreNavigationHistory);
+            editor = em->openEditor(this, location.fileName, location.kind, EditorManager::IgnoreNavigationHistory);
             if (!editor) {
-                delete m_navigationHistory.takeAt(m_currentNavigationHistoryPosition);
+                m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
                 continue;
             }
         }
-        editor->restoreState(location->state.toByteArray());
+        editor->restoreState(location.state.toByteArray());
         break;
     }
 }
@@ -510,19 +543,19 @@ void EditorView::goForwardInNavigationHistory()
     if (m_currentNavigationHistoryPosition >= m_navigationHistory.size()-1)
         return;
     ++m_currentNavigationHistoryPosition;
-    EditLocation *location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
+    EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
     IEditor *editor;
-    if (location->file) {
-        editor = em->activateEditor(this, location->file, EditorManager::IgnoreNavigationHistory);
+    if (location.file) {
+        editor = em->activateEditor(this, location.file, EditorManager::IgnoreNavigationHistory);
     } else {
-        editor = em->openEditor(this, location->fileName, location->kind, EditorManager::IgnoreNavigationHistory);
+        editor = em->openEditor(this, location.fileName, location.kind, EditorManager::IgnoreNavigationHistory);
         if (!editor) {
             //TODO
-            qDebug() << Q_FUNC_INFO << "can't open file" << location->fileName;
+            qDebug() << Q_FUNC_INFO << "can't open file" << location.fileName;
             return;
         }
     }
-    editor->restoreState(location->state.toByteArray());
+    editor->restoreState(location.state.toByteArray());
 }
 
 

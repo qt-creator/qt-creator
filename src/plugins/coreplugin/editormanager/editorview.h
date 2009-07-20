@@ -131,13 +131,11 @@ private:
     QList<IEditor *> m_editors;
     QMap<QWidget *, IEditor *> m_widgetEditorMap;
 
-    QList<EditLocation *> m_navigationHistory;
-    void clearNavigationHistory() {
-        qDeleteAll(m_navigationHistory);
-        m_navigationHistory.clear();
-    }
+    QList<EditLocation> m_navigationHistory;
+    QList<EditLocation> m_editorHistory;
     int m_currentNavigationHistoryPosition;
     void updateCurrentPositionInNavigationHistory();
+
 
 public:
     inline bool canGoForward() const { return m_currentNavigationHistoryPosition < m_navigationHistory.size()-1; }
@@ -145,8 +143,10 @@ public:
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
     void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
+    inline QList<EditLocation> editorHistory() const { return m_editorHistory; }
 
     void copyNavigationHistoryFrom(EditorView* other);
+    void updateEditorHistory(IEditor *editor);
 };
 
 class SplitterOrView  : public QWidget

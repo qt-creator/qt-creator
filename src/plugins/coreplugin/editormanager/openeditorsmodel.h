@@ -37,6 +37,7 @@
 namespace Core {
 
 class IEditor;
+class IFile;
 
 class CORE_EXPORT OpenEditorsModel : public QAbstractItemModel
 {
@@ -80,6 +81,8 @@ public:
     IEditor *originalForDuplicate(IEditor *duplicate) const;
     void makeOriginal(IEditor *duplicate);
     QModelIndex indexOf(IEditor *editor) const;
+
+    QString displayNameForFile(IFile *file) const;
 
 private slots:
     void itemChanged();

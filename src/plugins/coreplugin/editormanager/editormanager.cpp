@@ -133,10 +133,6 @@ EditorManagerPlaceHolder* EditorManagerPlaceHolder::current()
 
 namespace Core {
 
-//struct EditorHistoryItem {
-//    IFile *file;
-//    QPointer<Internal::EditorView> view;
-//};
 
 struct EditorManagerPrivate {
     explicit EditorManagerPrivate(ICore *core, QWidget *parent);
@@ -167,8 +163,6 @@ struct EditorManagerPrivate {
     QAction *m_removeAllSplitsAction;
     QAction *m_gotoOtherSplitAction;
 
-    QList<IEditor *> m_editorHistory;
-
     Internal::OpenEditorsWindow *m_windowPopup;
     Core::BaseView *m_openEditorsView;
     Internal::EditorClosingCoreListener *m_coreListener;
@@ -196,8 +190,8 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_closeCurrentEditorAction(new QAction(EditorManager::tr("Close"), parent)),
     m_closeAllEditorsAction(new QAction(EditorManager::tr("Close All"), parent)),
     m_closeOtherEditorsAction(new QAction(EditorManager::tr("Close Others"), parent)),
-    m_gotoNextDocHistoryAction(new QAction(EditorManager::tr("Next Document in History"), parent)),
-    m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Document in History"), parent)),
+    m_gotoNextDocHistoryAction(new QAction(EditorManager::tr("Next Open Document in History"), parent)),
+    m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Open Document in History"), parent)),
     m_goBackAction(new QAction(QIcon(QLatin1String(":/help/images/previous.png")), EditorManager::tr("Go Back"), parent)),
     m_goForwardAction(new QAction(QIcon(QLatin1String(":/help/images/next.png")), EditorManager::tr("Go Forward"), parent)),
     m_openInExternalEditorAction(new QAction(EditorManager::tr("Open in External Editor"), parent)),
@@ -455,15 +449,6 @@ QString EditorManager::defaultExternalEditor() const
 #endif
 }
 
-void EditorManager::updateEditorHistory()
-{
-    IEditor *editor = currentEditor();
-    if (!editor)
-        return;
-    m_d->m_editorHistory.removeAll(editor);
-    m_d->m_editorHistory.prepend(editor);
-}
-
 void EditorManager::removeEditor(IEditor *editor)
 {
     bool isDuplicate = m_d->m_editorModel->isDuplicate(editor);
@@ -471,9 +456,7 @@ void EditorManager::removeEditor(IEditor *editor)
     if (!isDuplicate) {
         m_d->m_core->fileManager()->removeFile(editor->file());
     }
-    m_d->m_editorHistory.removeAll(editor);
     m_d->m_core->removeContextObject(editor);
-
 }
 
 void EditorManager::handleContextChange(Core::IContext *context)
@@ -502,9 +485,9 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
     if (editor) {
         if (SplitterOrView *splitterOrView = m_d->m_splitter->findView(editor))
             splitterOrView->view()->setCurrentEditor(editor);
+        m_d->m_view->updateEditorHistory(editor); // the global view should have a complete history
     }
     updateActions();
-    updateEditorHistory();
     emit currentEditorChanged(editor);
 }
 
@@ -533,6 +516,8 @@ Core::Internal::SplitterOrView *EditorManager::currentView() const
         view = m_d->m_currentEditor?
                m_d->m_splitter->findView(m_d->m_currentEditor):
                m_d->m_splitter->findFirstView();
+    if (!view)
+        return m_d->m_splitter;
     return view;
 }
 
@@ -616,7 +601,6 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
         else
             setCurrentView(newCurrent);
     }
-    updateEditorHistory();
 }
 
 QList<IEditor*>
@@ -840,14 +824,13 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
 
 Core::IEditor *EditorManager::pickUnusedEditor() const
 {
-    foreach (IEditor *editor, m_d->m_editorHistory) {
+    foreach (IEditor *editor, openedEditors()) {
         SplitterOrView *view = m_d->m_splitter->findView(editor);
         if (!view || view->editor() != editor)
             return editor;
     }
     return 0;
 }
-
 
 Core::IEditor *EditorManager::activateEditor(const QModelIndex &index, Internal::EditorView *view, OpenEditorFlags flags)
 {
@@ -863,7 +846,11 @@ Core::IEditor *EditorManager::activateEditor(const QModelIndex &index, Internal:
 
 Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core::IEditor *editor)
 {
-    Q_ASSERT(view && editor)            ;
+    Q_ASSERT(view && editor);
+
+    if (view->currentEditor() && view->currentEditor()->file() == editor->file())
+        editor = view->currentEditor();
+
     if (!view->hasEditor(editor)) {
         bool duplicateSupported = editor->duplicateSupported();
         if (SplitterOrView *sourceView = m_d->m_splitter->findView(editor)) {
@@ -1043,10 +1030,6 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
             m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
         }
     }
-
-    m_d->m_editorHistory.removeAll(editor);
-    m_d->m_editorHistory.prepend(editor);
-
     emit editorOpened(editor);
 }
 
@@ -1142,7 +1125,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
 
     const QList<IEditor *> editors = editorsForFileName(fileName);
     if (!editors.isEmpty()) {
-        return activateEditor(editors.first(), flags);
+        return activateEditor(view, editors.first(), flags);
     }
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     IEditor *editor = createEditor(editorKind, fileName);
@@ -1422,7 +1405,8 @@ void EditorManager::gotoNextDocHistory()
     if (dialog->isVisible()) {
         dialog->selectNextEditor();
     } else {
-        dialog->setEditors(m_d->m_editorHistory, m_d->m_currentEditor, m_d->m_editorModel);
+        EditorView *view = currentView()->view();
+        dialog->setEditors(m_d->m_view, view, m_d->m_editorModel);
         dialog->selectNextEditor();
         showWindowPopup();
     }
@@ -1434,7 +1418,8 @@ void EditorManager::gotoPreviousDocHistory()
     if (dialog->isVisible()) {
         dialog->selectPreviousEditor();
     } else {
-        dialog->setEditors(m_d->m_editorHistory, m_d->m_currentEditor, m_d->m_editorModel);
+        EditorView *view = currentView()->view();
+        dialog->setEditors(m_d->m_view, view, m_d->m_editorModel);
         dialog->selectPreviousEditor();
         showWindowPopup();
     }
@@ -1489,8 +1474,8 @@ void EditorManager::updateActions()
     m_d->m_closeOtherEditorsAction->setEnabled(openedCount > 1);
     m_d->m_closeOtherEditorsAction->setText((openedCount > 1 ? tr("Close All Except %1").arg(quotedName) : tr("Close Others")));
 
-    m_d->m_gotoNextDocHistoryAction->setEnabled(m_d->m_editorHistory.count() > 0);
-    m_d->m_gotoPreviousDocHistoryAction->setEnabled(m_d->m_editorHistory.count() > 0);
+    m_d->m_gotoNextDocHistoryAction->setEnabled(m_d->m_editorModel->rowCount() != 0);
+    m_d->m_gotoPreviousDocHistoryAction->setEnabled(m_d->m_editorModel->rowCount() != 0);
     EditorView *view  = currentEditorView();
     m_d->m_goBackAction->setEnabled(view->canGoBack());
     m_d->m_goForwardAction->setEnabled(view->canGoForward());
@@ -1511,11 +1496,6 @@ QList<IEditor*> EditorManager::openedEditors() const
 OpenEditorsModel *EditorManager::openedEditorsModel() const
 {
     return m_d->m_editorModel;
-}
-
-QList<IEditor*> EditorManager::editorHistory() const
-{
-    return m_d->m_editorHistory;
 }
 
 void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
@@ -1874,7 +1854,6 @@ void EditorManager::split(Qt::Orientation orientation)
                        : m_d->m_splitter->findFirstView();
     if (view && !view->splitter()) {
         view->split(orientation);
-        updateEditorHistory();
     }
     updateActions();
 }

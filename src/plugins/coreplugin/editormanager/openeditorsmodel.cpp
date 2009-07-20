@@ -281,6 +281,14 @@ QModelIndex OpenEditorsModel::indexOf(IEditor *editor) const
     return createIndex(idx, 0);
 }
 
+QString OpenEditorsModel::displayNameForFile(IFile *file) const
+{
+    for (int i = 0; i < m_editors.count(); ++i)
+        if (m_editors.at(i).editor && m_editors.at(i).editor->file() == file)
+            return m_editors.at(i).editor->displayName();
+    return QString();
+}
+
 void OpenEditorsModel::itemChanged()
 {
     emitDataChanged(qobject_cast<IEditor*>(sender()));
