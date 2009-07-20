@@ -244,13 +244,13 @@ private:
     IEditor *openEditor(Core::Internal::EditorView *view, const QString &fileName,
                         const QString &editorKind = QString(),
                         OpenEditorFlags flags = 0);
-    Core::Internal::SplitterOrView *currentView() const;
+    Core::Internal::SplitterOrView *currentSplitterOrView() const;
 
     void closeEditor(Core::IEditor *editor);
     void closeDuplicate(Core::IEditor *editor);
     void closeView(Core::Internal::EditorView *view);
     void emptyView(Core::Internal::EditorView *view);
-    Core::Internal::EditorView *currentEditorView();
+    Core::Internal::EditorView *currentEditorView() const;
     IEditor *pickUnusedEditor() const;
 
 

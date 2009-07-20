@@ -648,7 +648,7 @@ void SplitterOrView::focusInEvent(QFocusEvent *)
 
 void SplitterOrView::paintEvent(QPaintEvent *)
 {
-    if  (CoreImpl::instance()->editorManager()->currentView() != this)
+    if  (CoreImpl::instance()->editorManager()->currentSplitterOrView() != this)
         return;
     QPainter painter(this);
 

@@ -509,7 +509,7 @@ void EditorManager::setCurrentView(Core::Internal::SplitterOrView *view)
         view->setFocus();
 }
 
-Core::Internal::SplitterOrView *EditorManager::currentView() const
+Core::Internal::SplitterOrView *EditorManager::currentSplitterOrView() const
 {
     SplitterOrView *view = m_d->m_currentView;
     if (!view)
@@ -520,6 +520,13 @@ Core::Internal::SplitterOrView *EditorManager::currentView() const
         return m_d->m_splitter;
     return view;
 }
+
+Core::Internal::EditorView *EditorManager::currentEditorView() const
+{
+    return currentSplitterOrView()->view();
+}
+
+
 
 QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) const
 {
@@ -687,7 +694,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     if (editorsToClose.isEmpty())
         return true;
 
-    SplitterOrView *currentSplitterOrView = currentView();
+    SplitterOrView *currentSplitterOrView = this->currentSplitterOrView();
 
     bool closingFailed = false;
     QList<IEditor*> acceptedEditors;
@@ -795,7 +802,7 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
     if (original== editor)
         m_d->m_editorModel->makeOriginal(duplicates.first());
 
-    SplitterOrView *currentSplitterOrView = currentView();
+    SplitterOrView *currentSplitterOrView = this->currentSplitterOrView();
 
     emit editorAboutToClose(editor);
 
@@ -883,7 +890,7 @@ Core::IEditor *EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFl
 Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags)
 {
     if (!view)
-        view = currentView()->view();
+        view = currentSplitterOrView()->view();
 
     Q_ASSERT(view);
 
@@ -1405,7 +1412,7 @@ void EditorManager::gotoNextDocHistory()
     if (dialog->isVisible()) {
         dialog->selectNextEditor();
     } else {
-        EditorView *view = currentView()->view();
+        EditorView *view = currentSplitterOrView()->view();
         dialog->setEditors(m_d->m_view, view, m_d->m_editorModel);
         dialog->selectNextEditor();
         showWindowPopup();
@@ -1418,7 +1425,7 @@ void EditorManager::gotoPreviousDocHistory()
     if (dialog->isVisible()) {
         dialog->selectPreviousEditor();
     } else {
-        EditorView *view = currentView()->view();
+        EditorView *view = currentSplitterOrView()->view();
         dialog->setEditors(m_d->m_view, view, m_d->m_editorModel);
         dialog->selectPreviousEditor();
         showWindowPopup();
@@ -1500,13 +1507,13 @@ OpenEditorsModel *EditorManager::openedEditorsModel() const
 
 void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
 {
-    currentView()->view()->addCurrentPositionToNavigationHistory(editor, saveState);
+    currentSplitterOrView()->view()->addCurrentPositionToNavigationHistory(editor, saveState);
     updateActions();
 }
 
 void EditorManager::goBackInNavigationHistory()
 {
-    currentView()->view()->goBackInNavigationHistory();
+    currentSplitterOrView()->view()->goBackInNavigationHistory();
     updateActions();
     ensureEditorManagerVisible();
     return;
@@ -1514,7 +1521,7 @@ void EditorManager::goBackInNavigationHistory()
 
 void EditorManager::goForwardInNavigationHistory()
 {
-    currentView()->view()->goForwardInNavigationHistory();
+    currentSplitterOrView()->view()->goForwardInNavigationHistory();
     updateActions();
     ensureEditorManagerVisible();
 }
@@ -1609,7 +1616,7 @@ bool EditorManager::restoreState(const QByteArray &state)
     ensureEditorManagerVisible();
     if (m_d->m_currentEditor) {
         m_d->m_currentEditor->widget()->setFocus();
-    } else if (Core::Internal::SplitterOrView *view = currentView()) {
+    } else if (Core::Internal::SplitterOrView *view = currentSplitterOrView()) {
         if (IEditor *e = view->editor())
             e->widget()->setFocus();
         else if (view->view())
@@ -1681,16 +1688,6 @@ void EditorManager::revertToSaved()
     }
     IFile::ReloadBehavior temp = IFile::ReloadAll;
     currEditor->file()->modified(&temp);
-}
-
-Core::Internal::EditorView *EditorManager::currentEditorView()
-{
-    if (m_d->m_currentView)
-        return m_d->m_currentView->view();
-    if (m_d->m_currentEditor)
-        if (SplitterOrView *splitterOrView = m_d->m_splitter->findView(m_d->m_currentEditor))
-            return splitterOrView->view();
-    return m_d->m_view;
 }
 
 void EditorManager::showEditorInfoBar(const QString &kind,
