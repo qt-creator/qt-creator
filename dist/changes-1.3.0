@@ -11,6 +11,12 @@ This release introduces source and binary incompatible changes to the plugin
 API, so if you have created your own custom plugins, they will need to be
 adapted accordingly.
 
+Debugging
+   * CDB: Added more types to the dumpers (QSharedPointer, QVector, common
+   * QMap/QSet types), dereference reference parameters
+   * CDB: Simplified display of STL types in the locals window
+   * Improved QObject dumping, print out QRect/QSize, enumerations and flags
+
 General:
    * Added the option to automatically reload files when externally modified,
      or to ignore external modifications (contributed by Henrik Abelsson)
@@ -24,4 +30,12 @@ Project support:
    * Added support for adding and removing files from a generic Makefile-based
      project (contributed by Kevin Michel)
 
-...
+Version control plugins
+   * Added CVS support
+   * Added "sync" menu item to the perforce plugin
+
+Wizards
+   * Fixed GUI project and form class wizards to use the same settings.
+   * Added version control checkout wizards
+   * Added a license header template setting
+   * Added a wizard for Qt Designer custom widgets
