@@ -258,21 +258,28 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     fl->addRow(tr("Working Directory:"), boxlayout);
 
-    QGroupBox *box = new QGroupBox(tr("Environment"),this);
-    QVBoxLayout *boxLayout = new QVBoxLayout;
-    box->setLayout(boxLayout);
-    box->setFlat(true);
+    QVBoxLayout *vbx = new QVBoxLayout(this);
+    vbx->addLayout(fl);
+
+    QLabel *environmentLabel = new QLabel(this);
+    environmentLabel->setText(tr("Run Environment"));
+    QFont f = environmentLabel->font();
+    f.setBold(true);
+    f.setPointSizeF(f.pointSizeF() *1.2);
+    environmentLabel->setFont(f);
+    vbx->addWidget(environmentLabel);
 
     QFormLayout *formlayout = new QFormLayout();
     QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
 
-    m_baseEnvironmentComboBox = new QComboBox(box);
+
+    m_baseEnvironmentComboBox = new QComboBox(this);
     m_baseEnvironmentComboBox->addItems(QStringList()
                                         << tr("Clean Environment")
                                         << tr("System Environment")
                                         << tr("Build Environment"));
     formlayout->addRow(label, m_baseEnvironmentComboBox);
-    boxLayout->addLayout(formlayout);
+    vbx->addLayout(formlayout);
     label->setVisible(false);
     m_baseEnvironmentComboBox->setVisible(false);
 
@@ -302,11 +309,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(m_environmentWidget, SIGNAL(switchedToDetails()),
             label, SLOT(show()));
 
-    boxLayout->addWidget(m_environmentWidget);
-
-    QVBoxLayout *vbx = new QVBoxLayout(this);
-    vbx->addLayout(fl);
-    vbx->addWidget(box);
+    vbx->addWidget(m_environmentWidget);
 
     connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(userChangesUpdated()));

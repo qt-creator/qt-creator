@@ -88,21 +88,27 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);
 
-    QGroupBox *box = new QGroupBox(tr("Environment"),this);
-    QVBoxLayout *boxLayout = new QVBoxLayout();
-    box->setLayout(boxLayout);
-    box->setFlat(true);
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->addLayout(layout);
+
+    QLabel *environmentLabel = new QLabel(this);
+    environmentLabel->setText(tr("Run Environment"));
+    QFont f = environmentLabel->font();
+    f.setBold(true);
+    f.setPointSizeF(f.pointSizeF() *1.2);
+    environmentLabel->setFont(f);
+    vbox->addWidget(environmentLabel);
 
     QFormLayout *formlayout = new QFormLayout();
     QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
 
-    m_baseEnvironmentComboBox = new QComboBox(box);
+    m_baseEnvironmentComboBox = new QComboBox(this);
     m_baseEnvironmentComboBox->addItems(QStringList()
                                         << tr("Clean Environment")
                                         << tr("System Environment")
                                         << tr("Build Environment"));
     formlayout->addRow(label, m_baseEnvironmentComboBox);
-    boxLayout->addLayout(formlayout);
+    vbox->addLayout(formlayout);
     label->setVisible(false);
     m_baseEnvironmentComboBox->setVisible(false);
 
@@ -114,7 +120,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_environmentWidget = new EnvironmentWidget(this);
     m_environmentWidget->setBaseEnvironment(rc->baseEnvironment());
     m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
-    boxLayout->addWidget(m_environmentWidget);
+    vbox->addWidget(m_environmentWidget);
 
     connect(m_environmentWidget, SIGNAL(switchedToSummary()),
             m_baseEnvironmentComboBox, SLOT(hide()));
@@ -126,9 +132,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     connect(m_environmentWidget, SIGNAL(switchedToDetails()),
             label, SLOT(show()));
 
-    QVBoxLayout *vbox = new QVBoxLayout(this);
-    vbox->addLayout(layout);
-    vbox->addWidget(box);
+
 
     changed();
     

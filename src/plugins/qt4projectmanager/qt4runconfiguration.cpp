@@ -159,21 +159,27 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(usingDyldImageSuffixToggled(bool)));
 #endif
 
-    QGroupBox *box = new QGroupBox(tr("Environment"),this);
-    QVBoxLayout *boxLayout = new QVBoxLayout();
-    box->setLayout(boxLayout);
-    box->setFlat(true);
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->addLayout(toplayout);
+
+    QLabel *environmentLabel = new QLabel(this);
+    environmentLabel->setText(tr("Run Environment"));
+    QFont f = environmentLabel->font();
+    f.setBold(true);
+    f.setPointSizeF(f.pointSizeF() *1.2);
+    environmentLabel->setFont(f);
+    vbox->addWidget(environmentLabel);
 
     QFormLayout *formlayout = new QFormLayout();
     QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
 
-    m_baseEnvironmentComboBox = new QComboBox(box);
+    m_baseEnvironmentComboBox = new QComboBox(this);
     m_baseEnvironmentComboBox->addItems(QStringList()
                                         << tr("Clean Environment")
                                         << tr("System Environment")
                                         << tr("Build Environment"));
     formlayout->addRow(label, m_baseEnvironmentComboBox);
-    boxLayout->addLayout(formlayout);
+    vbox->addLayout(formlayout);
     label->setVisible(false);
     m_baseEnvironmentComboBox->setVisible(false);
 
@@ -186,7 +192,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
     m_environmentWidget->setUserChanges(m_qt4RunConfiguration->userEnvironmentChanges());
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    boxLayout->addWidget(m_environmentWidget);
+    vbox->addWidget(m_environmentWidget);
 
     connect(m_environmentWidget, SIGNAL(switchedToSummary()),
             m_baseEnvironmentComboBox, SLOT(hide()));
@@ -197,10 +203,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             label, SLOT(hide()));
     connect(m_environmentWidget, SIGNAL(switchedToDetails()),
             label, SLOT(show()));
-
-    QVBoxLayout *vbox = new QVBoxLayout(this);
-    vbox->addLayout(toplayout);
-    vbox->addWidget(box);
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
