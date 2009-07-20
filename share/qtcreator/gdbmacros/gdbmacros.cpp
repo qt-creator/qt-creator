@@ -2319,12 +2319,19 @@ static void qDumpQObjectMethodList(QDumper &d)
     d.disarm();
 }
 
-const char * qConnectionTypes[] ={
-    "auto",
-    "direct",
-    "queued",
-    "autocompat",
-    "blockingqueued"
+static const char *qConnectionType(uint type)
+{
+    Qt::ConnectionType connType = static_cast<Qt::ConnectionType>(type);
+    const char *output;
+    switch (connType) {
+        case Qt::AutoConnection: output = "auto"; break;
+        case Qt::DirectConnection: output = "direct"; break;
+        case Qt::QueuedConnection: output = "queued"; break;
+        case Qt::BlockingQueuedConnection: output = "blockingqueued"; break;
+        case 3: output = "autocompat"; break;
+        case Qt::UniqueConnection: output = "unique"; break;
+        };
+    return output;
 };
 
 #if QT_VERSION >= 0x040400
@@ -2400,7 +2407,7 @@ static void qDumpQObjectSignal(QDumper &d)
                 d.endItem();
                 d.putItem("type", "");
                 d.beginItem("value");
-                    d.put("<").put(qConnectionTypes[conn.method]).put(" connection>");
+                    d.put("<").put(qConnectionType(conn.connectionType)).put(" connection>");
                 d.endItem();
                 d.putItem("numchild", "0");
             d.endHash();
@@ -2485,7 +2492,7 @@ static void qDumpQObjectSlot(QDumper &d)
                         d.endItem();
                         d.putItem("type", "");
                         d.beginItem("value");
-                            d.put("<").put(qConnectionTypes[conn.method]);
+                            d.put("<").put(qConnectionType(conn.method));
                             d.put(" connection>");
                         d.endItem();
                         d.putItem("numchild", "0");

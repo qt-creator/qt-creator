@@ -3,13 +3,16 @@
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QFileInfo>
+#include <QtCore/QModelIndex>
 #if QT_VERSION >= 0x040500
 #include <QtCore/QSharedPointer>
 #endif
 #include <QtCore/QStringList>
 #include <QtCore/QTextCodec>
+#include <QtGui/QApplication>
 #include <QtGui/QDialog>
 #include <QtGui/QImage>
+#include <QtGui/QPixmap>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QStringListModel>
 #include <QtTest/QtTest>
@@ -151,6 +154,8 @@ private slots:
     void dumpQObject();
     void dumpQObjectMethodList();
     void dumpQObjectPropertyList();
+    void dumpQObjectSignal();
+    void dumpQPixmap();
 #if QT_VERSION >= 0x040500
     void dumpQSharedPointer();
 #endif
@@ -181,6 +186,8 @@ private:
     void dumpQImageDataHelper(QImage &img);
     void dumpQObjectMethodListHelper(QObject &obj);
     void dumpQObjectPropertyListHelper(QObject &obj);
+    void dumpQObjectSignalHelper(QObject &o, int sigNum);
+    void dumpQPixmapHelper(QPixmap &p);
 #if QT_VERSION >= 0x040500
     template <typename T>
     void dumpQSharedPointerHelper(QSharedPointer<T> &ptr, bool isSimple);
@@ -1056,6 +1063,142 @@ void tst_Debugger::dumpQObjectPropertyList()
     // Case 2: Model with a parent.
     QStringListModel m2(&m);
     dumpQObjectPropertyListHelper(m2);
+}
+
+static const char *connectionType(uint type)
+{
+    Qt::ConnectionType connType = static_cast<Qt::ConnectionType>(type);
+    const char *output;
+    switch (connType) {
+        case Qt::AutoConnection: output = "auto"; break;
+        case Qt::DirectConnection: output = "direct"; break;
+        case Qt::QueuedConnection: output = "queued"; break;
+        case Qt::BlockingQueuedConnection: output = "blockingqueued"; break;
+        case 3: output = "autocompat"; break;
+        case Qt::UniqueConnection: output = "unique"; break;
+        };
+    return output;
+};
+
+void tst_Debugger::dumpQObjectSignalHelper(QObject &o, int sigNum)
+{
+    class Cheater : public QObject
+    {
+    public:
+        static QObjectPrivate *getPrivate(QObject &o)
+        {
+            return dynamic_cast<QObjectPrivate *>(static_cast<Cheater&>(o).d_ptr);
+        }
+    };
+    QByteArray expected("addr='<synthetic>',numchild='1',type='"NS"QObjectSignal'");
+#if QT_VERSION >= 0x040400
+    expected.append(",children=[");
+    const QObjectPrivate *p = Cheater::getPrivate(o);
+    Q_ASSERT(p != 0);
+    typedef QVector<QObjectPrivate::ConnectionList> ConnLists;
+    const ConnLists *connLists = reinterpret_cast<const ConnLists *>(p->connectionLists);
+    QObjectPrivate::ConnectionList connList =
+        connLists != 0 && connLists->size() > sigNum ?
+        connLists->at(sigNum) : QObjectPrivate::ConnectionList();
+    for (int i = 0; i < connList.size(); ++i) {
+        const QObjectPrivate::Connection *conn = connList.at(i);
+        const QString iStr = QString::number(i);
+        expected.append("{name='").append(iStr).append(" receiver',");
+        if (conn->receiver == &o)
+            expected.append("value='").append(utfToBase64("<this>")).
+                append("',valueencoded='2',type='").append(o.metaObject()->className()).
+                append("',numchild='0',addr='").append(ptrToBa(&o)).append("'");
+        else if (conn->receiver == 0)
+            expected.append("value='0x0',type='"NS"QObject *',numchild='0'");
+        else
+            expected.append("addr='").append(ptrToBa(conn->receiver)).append("',value='").
+                append(utfToBase64(conn->receiver->objectName())).append("',valueencoded='2',").
+                append("type='"NS"QObject',displayedtype='").
+                append(conn->receiver->metaObject()->className()).append("',numchild='1'");
+        expected.append("},{name='").append(iStr).append(" slot',type='',value='");
+        if (conn->receiver != 0)
+            expected.append(conn->receiver->metaObject()->method(conn->method).signature());
+        else
+            expected.append("<invalid receiver>");
+        expected.append("',numchild='0'},{name='").append(iStr).append(" type',type='',value='<").
+            append(connectionType(conn->connectionType)).append(" connection>',").
+            append("numchild='0'}");
+        if (i < connList.size() - 1)
+            expected.append(",");
+    }
+    expected.append("],numchild='").append(QString::number(connList.size())).append("'");
+#endif
+    testDumper(expected, &o, NS"QObjectSignal", true, "", "", sigNum);
+}
+
+void tst_Debugger::dumpQObjectSignal()
+{
+    // Case 1: Simple QObject.
+    QObject o;
+    o.setObjectName("Test");
+    dumpQObjectSignalHelper(o, 0);
+
+    // Case 2: QAbstractItemModel with no connections.
+    QStringListModel m(QStringList() << "Test1" << "Test2");
+    const QMetaObject *mo = m.metaObject();
+    QList<int> signalIndices;
+    for (int i = 0; i < mo->methodCount(); ++i) {
+        const QMetaMethod &mm = mo->method(i);
+        if (mm.methodType() == QMetaMethod::Signal) {
+            int signalIndex = mo->indexOfSignal(mm.signature());
+            Q_ASSERT(signalIndex != -1);
+            signalIndices.append(signalIndex);
+        }
+    }
+    foreach(const int signalIndex, signalIndices)
+        dumpQObjectSignalHelper(m, signalIndex);
+
+    // Case 3: QAbstractItemModel with connections to itself and to another
+    //         object, using different connection types.
+    qRegisterMetaType<QModelIndex>("QModelIndex");
+    connect(&m, SIGNAL(columnsAboutToBeInserted(const QModelIndex &, int, int)),
+            &o, SLOT(deleteLater()), Qt::DirectConnection);
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)),
+            &m, SLOT(revert()), Qt::QueuedConnection);
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)),
+            &m, SLOT(submit()), Qt::QueuedConnection);
+    connect(&m, SIGNAL(columnsInserted(const QModelIndex &, int, int)),
+            &m, SLOT(submit()), Qt::BlockingQueuedConnection);
+    connect(&m, SIGNAL(columnsRemoved(const QModelIndex &, int, int)),
+            &m, SLOT(deleteLater()), Qt::AutoConnection);
+#if QT_VERSION >= 0x040600
+    connect(&m, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
+            &m, SLOT(revert()), Qt::UniqueConnection);
+#endif
+    foreach(const int signalIndex, signalIndices)
+        dumpQObjectSignalHelper(m, signalIndex);
+}
+
+void tst_Debugger::dumpQPixmapHelper(QPixmap &p)
+{
+
+}
+
+void tst_Debugger::dumpQPixmap()
+{
+#if 0 // Crashes.
+    // Case 1: Null Pixmap.
+    QPixmap p;
+    dumpQPixmapHelper(p);
+
+    // Case 2: Uninitialized non-null pixmap.
+    p = QPixmap(20, 100);
+    dumpQPixmapHelper(p);
+
+    // Case 3: Initialized non-null pixmap.
+    const char * const pixmap[] = {
+        "2 24 3 1", "       c None", ".      c #DBD3CB", "+      c #FCFBFA",
+        "  ", "  ", "  ", ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+",
+        ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+", "  ", "  ", "  "
+    };
+    p = QPixmap(pixmap);
+    dumpQPixmapHelper(p);
+#endif
 }
 
 #if QT_VERSION >= 0x040500
