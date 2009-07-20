@@ -73,6 +73,8 @@ public:
 
     virtual QStringList runWizard(const QString &path, QWidget *parent);
 
+    static QString openProject(const QString &path, QString *errorMessage);
+
 protected:
     virtual QWizardPage *createParameterPage(const QString &path) = 0;
     virtual QSharedPointer<AbstractCheckoutJob> createJob(const QWizardPage *parameterPage,
@@ -82,8 +84,6 @@ private slots:
     void slotProgressPageShown();
 
 private:
-    QString openProject(const QString &path, QString *errorMessage);
-
     BaseCheckoutWizardPrivate *d;
 };
 

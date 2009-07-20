@@ -38,6 +38,8 @@
 
 #include <QtGui/QApplication>
 
+#include <limits.h>
+
 enum { debug = 0 };
 
 enum { defaultMaxHangTimerCount = 10 };
@@ -167,12 +169,16 @@ SynchronousProcess::~SynchronousProcess()
 
 void SynchronousProcess::setTimeout(int timeoutMS)
 {
-    m_d->m_maxHangTimerCount = qMax(2, timeoutMS / 1000);
+    if (timeoutMS >= 0) {
+        m_d->m_maxHangTimerCount = qMax(2, timeoutMS / 1000);
+    } else {
+        m_d->m_maxHangTimerCount = INT_MAX;
+    }
 }
 
 int SynchronousProcess::timeout() const
 {
-    return 1000 * m_d->m_maxHangTimerCount;
+    return m_d->m_maxHangTimerCount == INT_MAX ? -1 : 1000 * m_d->m_maxHangTimerCount;
 }
 
 void SynchronousProcess::setStdOutCodec(QTextCodec *c)
