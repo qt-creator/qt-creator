@@ -6,57 +6,32 @@ AddressBook::AddressBook(QWidget *parent)
 {
     ui->setupUi(this);
 
-    nameLine = new QLineEdit;
-    nameLine = ui->nameLine;
-    nameLine->setReadOnly(true);
-
-    addressText = new QTextEdit;
-    addressText = ui->addressText;
-    addressText->setReadOnly(true);
-
-    addButton = new QPushButton;
-    addButton = ui->addButton;
-
-    submitButton = new QPushButton;
-    submitButton = ui->submitButton;
-    submitButton->hide();
-
-    cancelButton = new QPushButton;
-    cancelButton = ui->cancelButton;
-    cancelButton->hide();
-
-    nextButton = new QPushButton;
-    nextButton = ui->nextButton;
-    nextButton->setEnabled(false);
-
-    previousButton = new QPushButton;
-    previousButton = ui->previousButton;
-    previousButton->setEnabled(false);
+    ui->nameLine->setReadOnly(true);
+    ui->addressText->setReadOnly(true);
+    ui->submitButton->hide();
+    ui->cancelButton->hide();
+    ui->nextButton->setEnabled(false);
+    ui->previousButton->setEnabled(false);
 
 //! [extract objects]
-    editButton = new QPushButton;
-    editButton = ui->editButton;
-    editButton->setEnabled(false);
-
-    removeButton = new QPushButton;
-    removeButton = ui->removeButton;
-    removeButton->setEnabled(false);
+    ui->editButton->setEnabled(false);
+    ui->removeButton->setEnabled(false);
 //! [extract objects]
 
-    connect(addButton, SIGNAL(clicked()), this,
+    connect(ui->addButton, SIGNAL(clicked()), this,
                 SLOT(addContact()));
-    connect(submitButton, SIGNAL(clicked()), this,
+    connect(ui->submitButton, SIGNAL(clicked()), this,
                 SLOT(submitContact()));
-    connect(cancelButton, SIGNAL(clicked()), this,
+    connect(ui->cancelButton, SIGNAL(clicked()), this,
                 SLOT(cancel()));
-    connect(nextButton, SIGNAL(clicked()), this,
+    connect(ui->nextButton, SIGNAL(clicked()), this,
                 SLOT(next()));
-    connect(previousButton, SIGNAL(clicked()), this,
+    connect(ui->previousButton, SIGNAL(clicked()), this,
                 SLOT(previous()));
 //! [signal slot]
-    connect(editButton, SIGNAL(clicked()), this,
+    connect(ui->editButton, SIGNAL(clicked()), this,
                 SLOT(editContact()));
-    connect(removeButton, SIGNAL(clicked()), this,
+    connect(ui->removeButton, SIGNAL(clicked()), this,
                 SLOT(removeContact()));
 //! [signal slot]
 
@@ -71,11 +46,11 @@ AddressBook::~AddressBook()
 //! [addContact]
 void AddressBook::addContact()
 {
-    oldName = nameLine->text();
-    oldAddress = addressText->toPlainText();
+    oldName = ui->nameLine->text();
+    oldAddress = ui->addressText->toPlainText();
 
-    nameLine->clear();
-    addressText->clear();
+    ui->nameLine->clear();
+    ui->addressText->clear();
 
     updateInterface(AddingMode);
 }
@@ -85,8 +60,8 @@ void AddressBook::addContact()
 void AddressBook::submitContact()
 {
 //! [submitContact part1]
-    QString name = nameLine->text();
-    QString address = addressText->toPlainText();
+    QString name = ui->nameLine->text();
+    QString address = ui->addressText->toPlainText();
 
     if (name == "" || address == "") {
         QMessageBox::information(this, tr("Empty Field"),
@@ -103,6 +78,7 @@ void AddressBook::submitContact()
         } else {
             QMessageBox::information(this, tr("Add Unsuccessful"),
                 tr("Sorry, \"%1\" is already in your address book.").arg(name));
+            return;
         }
 //! [submitContact part2]
 
@@ -118,6 +94,7 @@ void AddressBook::submitContact()
             } else  {
                 QMessageBox::information(this, tr("Edit Unsuccessful"),
                     tr("Sorry, \"%1\" is already in your address book.").arg(name));
+                return;
             }
         } else if (oldAddress != address) {
             QMessageBox::information(this, tr("Edit Successful"),
@@ -132,8 +109,8 @@ void AddressBook::submitContact()
 //! [cancel]
 void AddressBook::cancel()
 {
-    nameLine->setText(oldName);
-    nameLine->setReadOnly(true);
+    ui->nameLine->setText(oldName);
+    ui->nameLine->setReadOnly(true);
 
     updateInterface(NavigationMode);
 }
@@ -141,7 +118,7 @@ void AddressBook::cancel()
 
 void AddressBook::next()
 {
-    QString name = nameLine->text();
+    QString name = ui->nameLine->text();
     QMap<QString, QString>::iterator i = contacts.find(name);
 
     if (i != contacts.end())
@@ -149,18 +126,18 @@ void AddressBook::next()
     if (i == contacts.end())
         i = contacts.begin();
 
-    nameLine->setText(i.key());
-    addressText->setText(i.value());
+    ui->nameLine->setText(i.key());
+    ui->addressText->setText(i.value());
 }
 
 void AddressBook::previous()
 {
-    QString name = nameLine->text();
+    QString name = ui->nameLine->text();
     QMap<QString, QString>::iterator i = contacts.find(name);
 
     if (i == contacts.end()) {
-        nameLine->clear();
-        addressText->clear();
+        ui->nameLine->clear();
+        ui->addressText->clear();
         return;
     }
 
@@ -168,15 +145,15 @@ void AddressBook::previous()
         i = contacts.end();
 
     i--;
-    nameLine->setText(i.key());
-    addressText->setText(i.value());
+    ui->nameLine->setText(i.key());
+    ui->addressText->setText(i.value());
 }
 
 //! [editContact]
 void AddressBook::editContact()
 {
-    oldName = nameLine->text();
-    oldAddress = addressText->toPlainText();
+    oldName = ui->nameLine->text();
+    oldAddress = ui->addressText->toPlainText();
 
     updateInterface(EditingMode);
 }
@@ -185,8 +162,8 @@ void AddressBook::editContact()
 //! [removeContact]
 void AddressBook::removeContact()
 {
-    QString name = nameLine->text();
-    QString address = addressText->toPlainText();
+    QString name = ui->nameLine->text();
+    QString address = ui->addressText->toPlainText();
 
     if (contacts.contains(name)) {
         int button = QMessageBox::question(this,
@@ -217,19 +194,19 @@ void AddressBook::updateInterface(Mode mode)
     case AddingMode:
     case EditingMode:
 
-        nameLine->setReadOnly(false);
-        nameLine->setFocus(Qt::OtherFocusReason);
-        addressText->setReadOnly(false);
+        ui->nameLine->setReadOnly(false);
+        ui->nameLine->setFocus(Qt::OtherFocusReason);
+        ui->addressText->setReadOnly(false);
 
-        addButton->setEnabled(false);
-        editButton->setEnabled(false);
-        removeButton->setEnabled(false);
+        ui->addButton->setEnabled(false);
+        ui->editButton->setEnabled(false);
+        ui->removeButton->setEnabled(false);
 
-        nextButton->setEnabled(false);
-        previousButton->setEnabled(false);
+        ui->nextButton->setEnabled(false);
+        ui->previousButton->setEnabled(false);
 
-        submitButton->show();
-        cancelButton->show();
+        ui->submitButton->show();
+        ui->cancelButton->show();
         break;
 //! [updateInterface part1]
 
@@ -237,22 +214,22 @@ void AddressBook::updateInterface(Mode mode)
     case NavigationMode:
 
         if (contacts.isEmpty()) {
-            nameLine->clear();
-            addressText->clear();
+            ui->nameLine->clear();
+            ui->addressText->clear();
         }
 
-        nameLine->setReadOnly(true);
-        addressText->setReadOnly(true);
-        addButton->setEnabled(true);
+        ui->nameLine->setReadOnly(true);
+        ui->addressText->setReadOnly(true);
+        ui->addButton->setEnabled(true);
 
         int number = contacts.size();
-        editButton->setEnabled(number >= 1);
-        removeButton->setEnabled(number >= 1);
-        nextButton->setEnabled(number > 1);
-        previousButton->setEnabled(number >1);
+        ui->editButton->setEnabled(number >= 1);
+        ui->removeButton->setEnabled(number >= 1);
+        ui->nextButton->setEnabled(number > 1);
+        ui->previousButton->setEnabled(number >1);
 
-        submitButton->hide();
-        cancelButton->hide();
+        ui->submitButton->hide();
+        ui->cancelButton->hide();
         break;
     }
 }

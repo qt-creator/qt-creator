@@ -2,10 +2,8 @@
 #define ADDRESSBOOK_H
 
 #include <QtGui/QWidget>
-#include <QtGui/QPushButton>
-#include <QtGui/QLineEdit>
-#include <QtGui/QTextEdit>
 #include <QtGui/QMessageBox>
+#include <QtCore/QMap>
 
 
 namespace Ui
@@ -37,21 +35,9 @@ public slots:
 
 private:
     Ui::AddressBook *ui;
-
 //! [updateInterface]
     void updateInterface(Mode mode);
 //! [updateInterface]
-    QPushButton *addButton;
-    QPushButton *submitButton;
-    QPushButton *cancelButton;
-//! [members]
-    QPushButton *editButton;
-    QPushButton *removeButton;
-//! [members]
-    QPushButton *nextButton;
-    QPushButton *previousButton;
-    QLineEdit *nameLine;
-    QTextEdit *addressText;
 
     QMap<QString, QString> contacts;
     QString oldName;

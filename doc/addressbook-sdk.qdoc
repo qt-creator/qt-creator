@@ -589,22 +589,17 @@
     \snippet examples/addressbook-sdk/part4/addressbook.h slot definition
 
     In order to switch between modes, we introduce the \c updateInterface()
-    function to control the enabling and disabling of all push buttons. We also
-    add two new push buttons, \c editButton and \c removeButton, for the edit
-    and remove functions mentioned earlier.
+    function to control the enabling and disabling of all push buttons.
 
     \snippet examples/addressbook-sdk/part4/adressbook.h updateInterface
-    \dots
-    \snippet examples/addressbook-sdk/part4/addressbook.h members
 
     Lastly, we declare \c currentMode to keep track of the enum's current mode.
 
     \snippet examples/addressbook-sdk/part4/addressbook.h current mode
 
     Let's begin by implementing the mode-changing features of the address book
-    application. The \c editButton and \c removeButton are extracted and
-    disabled by default, as the address book starts up with zero contacts in
-    memory.
+    application. The \c editButton and \c removeButton are disabled by default,
+    as the address book starts up with zero contacts in memory.
 
     \snippet examples/addressbook-sdk/part4/addressbook.cpp extract objects
 
