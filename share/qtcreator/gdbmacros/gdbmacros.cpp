@@ -2329,7 +2329,9 @@ static const char *qConnectionType(uint type)
         case Qt::QueuedConnection: output = "queued"; break;
         case Qt::BlockingQueuedConnection: output = "blockingqueued"; break;
         case 3: output = "autocompat"; break;
+#if QT_VERSION >= 0x040600	
         case Qt::UniqueConnection: output = "unique"; break;
+#endif	
         };
     return output;
 };
