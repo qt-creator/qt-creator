@@ -42,9 +42,6 @@ private:
     QString oldName;
     QString oldAddress;
     Mode currentMode;
-//! [dialog]
-    FindDialog *dialog;
-//! [dialog]
 };
 
 #endif // ADDRESSBOOK_H

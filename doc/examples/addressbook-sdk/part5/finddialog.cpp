@@ -8,7 +8,6 @@ FindDialog::FindDialog(QWidget *parent) :
     m_ui(new Ui::FindDialog)
 {
     m_ui->setupUi(this);
-    findText = "";
 
     connect(m_ui->findButton, SIGNAL(clicked()), this, SLOT(findClicked()));
 
@@ -29,18 +28,16 @@ void FindDialog::findClicked()
     if (text.isEmpty()) {
         QMessageBox::information(this, tr("Empty Field"),
             tr("Please enter a name."));
-        return;
+        reject();
     } else {
-        findText = text;
-        m_ui->lineEdit->clear();
-        hide();
+        accept();
     }
 }
 //! [findClicked]
 
-//! [getFindText]
-QString FindDialog::getFindText()
+//! [findText]
+QString FindDialog::findText()
 {
-    return findText;
+    return m_ui->lineEdit->text();
 }
-//! [getFindText]
+//! [findText]

@@ -15,10 +15,6 @@ AddressBook::AddressBook(QWidget *parent)
     ui->editButton->setEnabled(false);
     ui->removeButton->setEnabled(false);
 
-//! [setup FindDialog]
-    dialog = new FindDialog;
-//! [private members]
-
     connect(ui->addButton, SIGNAL(clicked()), this,
                 SLOT(addContact()));
     connect(ui->submitButton, SIGNAL(clicked()), this,
@@ -65,6 +61,8 @@ void AddressBook::submitContact()
     if (name == "" || address == "") {
         QMessageBox::information(this, tr("Empty Field"),
             tr("Please enter a name and address."));
+        updateInterface(NavigationMode);
+        return;
     }
 
     if (currentMode == AddingMode) {
@@ -224,10 +222,10 @@ void AddressBook::updateInterface(Mode mode)
 //! [findContact]
 void AddressBook::findContact()
 {
-    dialog->show();
+    FindDialog dialog;
 
-    if (dialog->exec() == QDialog::Accepted) {
-        QString contactName = dialog->getFindText();
+    if (dialog.exec() == QDialog::Accepted) {
+        QString contactName = dialog.findText();
 
         if (contacts.contains(contactName)) {
             ui->nameLine->setText(contactName);

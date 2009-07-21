@@ -14,9 +14,9 @@ class FindDialog : public QDialog {
 public:
     FindDialog(QWidget *parent = 0);
     ~FindDialog();
-//! [getFindText]
-    QString getFindText();
-//! [getFindText]
+//! [findText]
+    QString findText();
+//! [findText]
 
 //! [findClicked]
 public slots:
