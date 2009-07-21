@@ -714,8 +714,8 @@
     of buttons.
 
     When the user clicks on the \gui Find button, it is useful to display a
-    dialog that can prompt the user for a contact's name. Qt provides QDialog,
-    which we subclass in this chapter, to implement a FindDialog class.
+    dialog prompting the user for a contact's name. Qt provides QDialog, which
+    we subclass in this chapter, to implement a FindDialog class.
 
 
     \section1 Designing The FindDialog
@@ -737,24 +737,17 @@
 
     \section1 Implementing The FindDialog Class
 
-    Let's look at \c{FindDialog}'s header file. Here, we need to provide
-    private members for the class so that we can access the widgets freely
-    throughout the class.
+    Let's look at \c{FindDialog}'s header file. We define a public function,
+    \c findText(), to be used by classes that instantiate \c FindDialog. This
+    function allows the these classes to obtain the search string entered by
+    the user. A public slot, \c findClicked(), is also defined to handle the
+    search string when the user clicks the \gui Find button.
 
-    \snippet examples/addressbook-sdk/part5/finddialog.h private members
-
-    We define a public function, \c getFindText(), to be used by classes that
-    instantiate \c FindDialog. This function allows the these classes to obtain
-    the search string entered by the user. A public slot, \c findClicked(), is
-    also defined to handle the search string when the user clicks the \gui Find
-    button.
-
-    \snippet examples/addressbook-sdk/part5/finddialog.h getFindText
+    \snippet examples/addressbook-sdk/part5/finddialog.h findText
     \dots
     \snippet examples/addressbook-sdk/part5/finddialog.h findClicked
 
-    Now, lets look at our constructor in the \c{finddialog.cpp} file. Here, we
-    set up the private variables, \c lineEdit, \c findButton, and \c findText.
+    Now, lets look at our constructor in the \c{finddialog.cpp} file.
 
     \snippet examples/addressbook-sdk/part5/finddialog.cpp constructor
 
