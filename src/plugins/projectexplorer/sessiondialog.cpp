@@ -164,8 +164,10 @@ void SessionDialog::createNew()
             return;
 
         m_sessionManager->createSession(newSession);
-        m_ui.sessionList->addItem(newSession);
-        m_ui.sessionList->setCurrentRow(m_ui.sessionList->count() - 1);
+        m_ui.sessionList->clear();
+        QStringList sessions = m_sessionManager->sessions();
+        m_ui.sessionList->addItems(sessions);
+        m_ui.sessionList->setCurrentRow(sessions.indexOf(newSession));
     }
 }
 
@@ -174,8 +176,12 @@ void SessionDialog::clone()
     NewSessionInputDialog newSessionInputDialog(m_sessionManager->sessions());
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         QString newSession = newSessionInputDialog.value();
-        if (m_sessionManager->cloneSession(m_ui.sessionList->currentItem()->text(), newSession))
-            m_ui.sessionList->addItem(newSession);
+        if (m_sessionManager->cloneSession(m_ui.sessionList->currentItem()->text(), newSession)) {
+            m_ui.sessionList->clear();
+            QStringList sessions = m_sessionManager->sessions();
+            m_ui.sessionList->addItems(sessions);
+            m_ui.sessionList->setCurrentRow(sessions.indexOf(newSession));
+        }
     }
 }
 

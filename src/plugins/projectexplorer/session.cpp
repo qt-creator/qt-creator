@@ -989,6 +989,11 @@ QString SessionManager::activeSession() const
     return m_sessionName;
 }
 
+ bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
+ {
+     return s1.toLower() < s2.toLower();
+ }
+
 QStringList SessionManager::sessions() const
 {
     if (m_sessions.isEmpty()) {
@@ -1001,6 +1006,7 @@ QStringList SessionManager::sessions() const
                 m_sessions << fileInfo.completeBaseName();
         }
         m_sessions.prepend("default");
+        qSort(m_sessions.begin(), m_sessions.end(), caseInsensitiveLessThan);
     }
     return m_sessions;
 }
@@ -1021,6 +1027,7 @@ bool SessionManager::createSession(const QString &session)
     if (sessions().contains(session))
         return false;
     m_sessions.append(session);
+    qSort(m_sessions.begin(), m_sessions.end(), caseInsensitiveLessThan);
     return true;
 }
 
@@ -1044,6 +1051,7 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
     // If the file does not exist, we can still clone
     if (!fi.exists() || fi.copy(sessionNameToFileName(clone))) {
         m_sessions.append(clone);
+        qSort(m_sessions.begin(), m_sessions.end(), caseInsensitiveLessThan);
         return true;
     }
     return false;
