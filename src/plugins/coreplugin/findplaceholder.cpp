@@ -40,7 +40,7 @@ using namespace Core;
 FindToolBarPlaceHolder *FindToolBarPlaceHolder::m_current = 0;
 
 FindToolBarPlaceHolder::FindToolBarPlaceHolder(QWidget *owner, QWidget *parent)
-    : QWidget(parent), m_widget(owner)
+    : QWidget(parent), m_owner(owner), m_subWidget(0)
 {
     setLayout(new QVBoxLayout);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
@@ -51,11 +51,28 @@ FindToolBarPlaceHolder::FindToolBarPlaceHolder(QWidget *owner, QWidget *parent)
 FindToolBarPlaceHolder::~FindToolBarPlaceHolder()
 {
     ExtensionSystem::PluginManager::instance()->removeObject(this);
+    if (m_subWidget) {
+        m_subWidget->setVisible(false);
+        m_subWidget->setParent(0);
+    }
+    if (m_current == this)
+        m_current = 0;
 }
 
-QWidget *FindToolBarPlaceHolder::widget() const
+QWidget *FindToolBarPlaceHolder::owner() const
 {
-    return m_widget;
+    return m_owner;
+}
+
+void FindToolBarPlaceHolder::setWidget(QWidget *widget)
+{
+    if (m_subWidget) {
+        m_subWidget->setVisible(false);
+        m_subWidget->setParent(0);
+    }
+    m_subWidget = widget;
+    if (m_subWidget)
+        layout()->addWidget(m_subWidget);
 }
 
 FindToolBarPlaceHolder *FindToolBarPlaceHolder::getCurrent()

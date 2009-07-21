@@ -264,14 +264,6 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
     return Core::Utils::StyledBar::eventFilter(obj, event);
 }
 
-
-void FindToolBar::removeFromParent()
-{
-    setVisible(false);
-    setParent(0);
-    Core::FindToolBarPlaceHolder::setCurrent(0);
-}
-
 void FindToolBar::adaptToCandidate()
 {
     updateFindAction();
@@ -534,7 +526,7 @@ Core::FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const
     QWidget *candidate = QApplication::focusWidget();
     while (candidate) {
         foreach (Core::FindToolBarPlaceHolder *ph, placeholders) {
-            if (ph->widget() == candidate)
+            if (ph->owner() == candidate)
                 return ph;
         }
         candidate = candidate->parentWidget();
@@ -551,11 +543,10 @@ void FindToolBar::openFind()
         return;
     Core::FindToolBarPlaceHolder *previousHolder = Core::FindToolBarPlaceHolder::getCurrent();
     if (previousHolder)
-        disconnect(previousHolder, SIGNAL(destroyed(QObject*)), this, SLOT(removeFromParent()));
+        previousHolder->setWidget(0);
     Core::FindToolBarPlaceHolder::setCurrent(holder);
-    connect(holder, SIGNAL(destroyed(QObject*)), this, SLOT(removeFromParent()));
     m_currentDocumentFind->acceptCandidate();
-    holder->layout()->addWidget(this);
+    holder->setWidget(this);
     holder->setVisible(true);
     setVisible(true);
     setFocus();

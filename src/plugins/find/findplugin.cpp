@@ -107,6 +107,7 @@ void FindPlugin::extensionsInitialized()
 
 void FindPlugin::shutdown()
 {
+    m_findToolBar->setVisible(false);
     m_findToolBar->setParent(0);
     m_currentDocumentFind->removeConnections();
     writeSettings();

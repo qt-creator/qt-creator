@@ -84,7 +84,7 @@ private slots:
     void setRegularExpressions(bool regexp);
 
     void adaptToCandidate();
-    void removeFromParent();
+
 protected:
     bool focusNextPrevChild(bool next);
 
