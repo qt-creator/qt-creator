@@ -3959,7 +3959,7 @@ void BaseTextEditor::rewrapParagraph()
                 }
 
                 result.append(currentWord);
-                result.append(QLatin1String(" "));
+                result.append(QLatin1Char(' '));
                 currentWord.clear();
             }
 

@@ -143,7 +143,7 @@ void TextEditorActionHandler::createActions()
 
     m_rewrapParagraphAction = new QAction(tr("&Rewrap Paragraph"), this);
     command = am->registerAction(m_rewrapParagraphAction, TextEditor::Constants::REWRAP_PARAGRAPH, m_contextId);
-    //command->setDefaultKeySequence(QKeySequence(tr("Alt+Q"))); (No default key sequence for now.)
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, R")));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_rewrapParagraphAction, SIGNAL(triggered(bool)), this, SLOT(rewrapParagraphAction()));
 
