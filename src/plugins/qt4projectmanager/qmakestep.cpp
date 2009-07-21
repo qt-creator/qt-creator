@@ -62,12 +62,7 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
     QStringList arguments;
     arguments << project()->file()->fileName();
     if (!additonalArguments.contains("-spec")) {
-        if (m_pro->value("useVBOX").toBool()) { //NBS TODO don't special case VBOX like this
-            arguments << "-spec" << "linux-i686fb-g++";
-            arguments << "-unix";
-        } else {
-            arguments << "-spec" << m_pro->qtVersion(buildConfiguration)->mkspec();
-        }
+        arguments << "-spec" << m_pro->qtVersion(buildConfiguration)->mkspec();
     }
 
     arguments << "-r";
