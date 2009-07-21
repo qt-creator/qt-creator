@@ -163,7 +163,7 @@ void S60DeviceRunConfiguration::updateTarget()
 
     // Find out what flags we pass on to qmake, this code is duplicated in the qmake step
     QtVersion::QmakeBuildConfig defaultBuildConfiguration = qtVersion->defaultBuildConfig();
-    QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(pro->qmakeStep()->value(pro->activeBuildConfiguration(), "buildConfiguration").toInt());
+    QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(pro->value(pro->activeBuildConfiguration(), "buildConfiguration").toInt());
     QStringList addedUserConfigArguments;
     QStringList removedUserConfigArguments;
     if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))

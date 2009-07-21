@@ -235,10 +235,9 @@ void Qt4ProjectConfigWidget::importLabelClicked()
                 // Combo box will be updated at the end
 
                 // Find qmakestep...
-                QMakeStep *qmakeStep = m_pro->qmakeStep();
                 MakeStep *makeStep = m_pro->makeStep();
 
-                qmakeStep->setValue(m_buildConfiguration, "buildConfiguration", int(qmakeBuildConfig));
+                m_pro->setValue(m_buildConfiguration, "buildConfiguration", int(qmakeBuildConfig));
                 // Adjust command line arguments, this is ugly as hell
                 // If we are switching to BuildAll we want "release" in there and no "debug"
                 // or "debug" in there and no "release"

@@ -93,35 +93,34 @@ ProjectLoadWizard::~ProjectLoadWizard()
 
 }
 
-void ProjectLoadWizard::addBuildConfiguration(QString name, QtVersion *qtversion, QtVersion::QmakeBuildConfig buildConfiguration)
+void ProjectLoadWizard::addBuildConfiguration(QString buildConfigurationName, QtVersion *qtversion, QtVersion::QmakeBuildConfig qmakeBuildConfiguration)
 {
-    QMakeStep *qmakeStep = m_project->qmakeStep();
     MakeStep *makeStep = m_project->makeStep();
 
-    bool debug = buildConfiguration & QtVersion::DebugBuild;
+    bool debug = qmakeBuildConfiguration & QtVersion::DebugBuild;
     // Check that bc.name is not already in use
-    if (m_project->buildConfigurations().contains(name)) {
+    if (m_project->buildConfigurations().contains(buildConfigurationName)) {
         int i =1;
         do {
             ++i;
-        } while (m_project->buildConfigurations().contains(name + " " + QString::number(i)));
-        name.append(" " + QString::number(i));
+        } while (m_project->buildConfigurations().contains(buildConfigurationName + " " + QString::number(i)));
+        buildConfigurationName.append(" " + QString::number(i));
     }
 
     // Add the buildconfiguration
-    m_project->addBuildConfiguration(name);
+    m_project->addBuildConfiguration(buildConfigurationName);
     // set some options for qmake and make
-    if (buildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
-        makeStep->setValue(name, "makeargs", QStringList() << (debug ? "debug" : "release"));
+    if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
+        makeStep->setValue(buildConfigurationName, "makeargs", QStringList() << (debug ? "debug" : "release"));
 
-    qmakeStep->setValue(name, "buildConfiguration", int(buildConfiguration));
+    m_project->setValue(buildConfigurationName, "buildConfiguration", int(qmakeBuildConfiguration));
 
     // Finally set the qt version
     bool defaultQtVersion = (qtversion == 0);
     if (defaultQtVersion)
-        m_project->setQtVersion(name, 0);
+        m_project->setQtVersion(buildConfigurationName, 0);
     else
-        m_project->setQtVersion(name, qtversion->uniqueId());
+        m_project->setQtVersion(buildConfigurationName, qtversion->uniqueId());
 }
 
 void ProjectLoadWizard::done(int result)

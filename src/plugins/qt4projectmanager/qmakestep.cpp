@@ -67,10 +67,10 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
 
     arguments << "-r";
 
-    if (value(buildConfiguration, "buildConfiguration").isValid()) {
+    if (project()->value(buildConfiguration, "buildConfiguration").isValid()) {
         QStringList configarguments;
         QtVersion::QmakeBuildConfig defaultBuildConfiguration = m_pro->qtVersion(buildConfiguration)->defaultBuildConfig();
-        QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(value(buildConfiguration, "buildConfiguration").toInt());
+        QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(project()->value(buildConfiguration, "buildConfiguration").toInt());
         if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
             configarguments << "CONFIG-=debug_and_release";
         if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (projectBuildConfiguration & QtVersion::BuildAll))
@@ -82,7 +82,7 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
         if (!configarguments.isEmpty())
             arguments << configarguments;
     } else {
-        arguments << "CONFIG+=debug_and_release";
+        qWarning()<< "The project should always have a qmake build configuration set";
     }
 
     if (!additonalArguments.isEmpty())
@@ -231,14 +231,14 @@ void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
 
 void QMakeStepConfigWidget::buildConfigurationChanged()
 {
-    QtVersion::QmakeBuildConfig buildConfiguration = QtVersion::QmakeBuildConfig(m_step->value(m_buildConfiguration, "buildConfiguration").toInt());
+    QtVersion::QmakeBuildConfig buildConfiguration = QtVersion::QmakeBuildConfig(m_step->project()->value(m_buildConfiguration, "buildConfiguration").toInt());
     if (m_ui.buildConfigurationComboBox->currentIndex() == 0) {
         // debug
         buildConfiguration = QtVersion::QmakeBuildConfig(buildConfiguration | QtVersion::DebugBuild);
     } else {
         buildConfiguration = QtVersion::QmakeBuildConfig(buildConfiguration & ~QtVersion::DebugBuild);
     }
-    m_step->setValue(m_buildConfiguration, "buildConfiguration", int(buildConfiguration));
+    m_step->project()->setValue(m_buildConfiguration, "buildConfiguration", int(buildConfiguration));
     m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
     static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
 }
@@ -254,7 +254,7 @@ void QMakeStepConfigWidget::init(const QString &buildConfiguration)
     QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->value(buildConfiguration, "qmakeArgs").toStringList());
     m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
     m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(buildConfiguration)));
-    bool debug = QtVersion::QmakeBuildConfig(m_step->value(buildConfiguration, "buildConfiguration").toInt()) & QtVersion::DebugBuild;
+    bool debug = QtVersion::QmakeBuildConfig(m_step->project()->value(buildConfiguration, "buildConfiguration").toInt()) & QtVersion::DebugBuild;
     m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
 }
 

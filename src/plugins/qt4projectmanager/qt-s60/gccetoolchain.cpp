@@ -84,7 +84,7 @@ QString GCCEToolChain::defaultMakeTarget() const
 {
     const Qt4Project *qt4project = qobject_cast<const Qt4Project *>(m_project);
     if (qt4project) {
-        if (!(QtVersion::QmakeBuildConfig(qt4project->qmakeStep()->value(
+        if (!(QtVersion::QmakeBuildConfig(qt4project->value(
                 qt4project->activeBuildConfiguration(),
                 "buildConfiguration").toInt()) & QtVersion::DebugBuild)) {
             return "release-gcce";

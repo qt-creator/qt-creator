@@ -721,6 +721,25 @@ void Qt4Project::addDefaultBuild()
         ProjectLoadWizard wizard(this);
         wizard.execDialog();
     } else {
+        // Migrate settings
+        QMakeStep *qs = 0;
+        foreach(BuildStep *bs, buildSteps())
+            if ( (qs = qobject_cast<QMakeStep *>(bs)) != 0)
+                break;
+
+        foreach (const QString &buildConfiguration, buildConfigurations()) {
+            QVariant v = qs->value(buildConfiguration, "buildConfiguration");
+            if (v.isValid()) {
+                qs->setValue(buildConfiguration, "buildConfiguration", QVariant());
+                setValue(buildConfiguration, "buildConfiguration", v);
+            } else {
+                if (QtVersion *version = qtVersion(buildConfiguration))
+                    setValue(buildConfiguration, "buildConfiguration", version->defaultBuildConfig());
+                else
+                    setValue(buildConfiguration, "buildConfiguration", int(QtVersion::BuildAll & QtVersion::DebugBuild));
+            }
+        }
+
         // Restoring configuration
         foreach(const QString &bc, buildConfigurations()) {
             setValue(bc, "addQDumper", QVariant());
