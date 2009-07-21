@@ -52,6 +52,7 @@ SearchWidget::SearchWidget(QHelpSearchEngine *engine, QWidget *parent)
     , searchEngine(engine)
 {
     QVBoxLayout *vLayout = new QVBoxLayout(this);
+    vLayout->setMargin(4);
 
     resultWidget = searchEngine->resultWidget();
     QHelpSearchQueryWidget *queryWidget = searchEngine->queryWidget();
@@ -76,7 +77,6 @@ SearchWidget::SearchWidget(QHelpSearchEngine *engine, QWidget *parent)
 
 SearchWidget::~SearchWidget()
 {
-    // nothing todo
 }
 
 void SearchWidget::zoomIn()
