@@ -146,9 +146,6 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()), Qt::QueuedConnection);
     }
     {
-        tl->addWidget(new FindToolBarPlaceHolder(this));
-    }
-    {
         m_infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
         m_infoWidget->setLineWidth(1);
         m_infoWidget->setForegroundRole(QPalette::ToolTipText);
@@ -179,6 +176,8 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
     }
 
     tl->addWidget(m_container);
+
+    tl->addWidget(new FindToolBarPlaceHolder(this));
 
     {
         m_statusHLine->setFrameStyle(QFrame::HLine);

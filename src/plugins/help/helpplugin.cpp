@@ -474,12 +474,12 @@ void HelpPlugin::createRightPaneSideBar()
     addAutoReleasedObject(new Core::BaseRightPaneWidget(m_rightPaneSideBar));
 
     rightPaneLayout->addWidget(w);
-    rightPaneLayout->addWidget(new Core::FindToolBarPlaceHolder(m_rightPaneSideBar));
     m_helpViewerForSideBar = new HelpViewer(m_helpEngine, 0);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate();
     agg->add(m_helpViewerForSideBar);
     agg->add(new HelpViewerFindSupport(m_helpViewerForSideBar));
     rightPaneLayout->addWidget(m_helpViewerForSideBar);
+    rightPaneLayout->addWidget(new Core::FindToolBarPlaceHolder(m_rightPaneSideBar));
 #if defined(QT_NO_WEBKIT)
     QFont font = m_helpViewerForSideBar->font();
     font = qVariantValue<QFont>(m_helpEngine->customValue(QLatin1String("font"),

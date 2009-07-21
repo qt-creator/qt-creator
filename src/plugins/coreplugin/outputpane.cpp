@@ -205,8 +205,8 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     toolLayout->addWidget(m_opToolBarWidgets);
     toolLayout->addWidget(m_closeButton);
     mainlayout->addWidget(m_toolBar);
-    mainlayout->addWidget(new Core::FindToolBarPlaceHolder(this));
     mainlayout->addWidget(m_outputWidgetPane, 10);
+    mainlayout->addWidget(new Core::FindToolBarPlaceHolder(this));
     setLayout(mainlayout);
 
     m_buttonsWidget = new QWidget;

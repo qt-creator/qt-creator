@@ -313,10 +313,10 @@ DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
     layout->setSpacing(0);
+    layout->addWidget(m_splitter);
 #ifndef GDBDEBUGGERLEAN
     layout->addWidget(new Core::FindToolBarPlaceHolder(this));
 #endif
-    layout->addWidget(m_splitter);
     setLayout(layout);
 
 #ifndef GDBDEBUGGERLEAN
