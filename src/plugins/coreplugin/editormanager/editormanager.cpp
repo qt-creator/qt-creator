@@ -890,7 +890,7 @@ Core::IEditor *EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFl
 Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags)
 {
     if (!view)
-        view = currentSplitterOrView()->view();
+        view = currentEditorView();
 
     Q_ASSERT(view);
 
@@ -1412,7 +1412,7 @@ void EditorManager::gotoNextDocHistory()
     if (dialog->isVisible()) {
         dialog->selectNextEditor();
     } else {
-        EditorView *view = currentSplitterOrView()->view();
+        EditorView *view = currentEditorView();
         dialog->setEditors(m_d->m_view, view, m_d->m_editorModel);
         dialog->selectNextEditor();
         showWindowPopup();
@@ -1425,7 +1425,7 @@ void EditorManager::gotoPreviousDocHistory()
     if (dialog->isVisible()) {
         dialog->selectPreviousEditor();
     } else {
-        EditorView *view = currentSplitterOrView()->view();
+        EditorView *view = currentEditorView();
         dialog->setEditors(m_d->m_view, view, m_d->m_editorModel);
         dialog->selectPreviousEditor();
         showWindowPopup();
@@ -1507,13 +1507,13 @@ OpenEditorsModel *EditorManager::openedEditorsModel() const
 
 void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
 {
-    currentSplitterOrView()->view()->addCurrentPositionToNavigationHistory(editor, saveState);
+    currentEditorView()->addCurrentPositionToNavigationHistory(editor, saveState);
     updateActions();
 }
 
 void EditorManager::goBackInNavigationHistory()
 {
-    currentSplitterOrView()->view()->goBackInNavigationHistory();
+    currentEditorView()->goBackInNavigationHistory();
     updateActions();
     ensureEditorManagerVisible();
     return;
@@ -1521,7 +1521,7 @@ void EditorManager::goBackInNavigationHistory()
 
 void EditorManager::goForwardInNavigationHistory()
 {
-    currentSplitterOrView()->view()->goForwardInNavigationHistory();
+    currentEditorView()->goForwardInNavigationHistory();
     updateActions();
     ensureEditorManagerVisible();
 }
