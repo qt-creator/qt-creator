@@ -3953,6 +3953,7 @@ void BaseTextEditor::rewrapParagraph()
 
                 if (currentLength > paragraphWidth) {
                     currentLength = currentWord.length() + 1 + indentLevel;
+                    result.chop(1); // remove trailing space
                     result.append(QChar::ParagraphSeparator);
                     result.append(spacing);
                 }
@@ -3967,6 +3968,7 @@ void BaseTextEditor::rewrapParagraph()
 
         currentWord.append(ch);
     }
+    result.chop(1);
     result.append(QChar::ParagraphSeparator);
 
     cursor.insertText(result);
