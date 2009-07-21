@@ -387,6 +387,8 @@ void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue("UseDyldImageSuffix", m_isUsingDyldImageSuffix);
     writer.saveValue("UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     writer.saveValue("BaseEnvironmentBase", m_baseEnvironmentBase);
+    writer.saveValue("UserSetWorkingDirectory", m_userSetWokingDirectory);
+    writer.saveValue("UserWorkingDirectory", m_userWorkingDirectory);
     ApplicationRunConfiguration::save(writer);
 }
 
@@ -399,6 +401,9 @@ void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
     m_userSetName = reader.restoreValue("UserSetName").toBool();
     m_runMode = reader.restoreValue("UseTerminal").toBool() ? Console : Gui;
     m_isUsingDyldImageSuffix = reader.restoreValue("UseDyldImageSuffix").toBool();
+    QVariant v = reader.restoreValue("UserSetWorkingDirectory");
+    m_userSetWokingDirectory = v.isValid() ? v.toBool() : false;
+    m_userWorkingDirectory = reader.restoreValue("UserWorkingDirectory").toString();
     if (!m_proFilePath.isEmpty()) {
         m_cachedTargetInformationValid = false;
         if (!m_userSetName)
