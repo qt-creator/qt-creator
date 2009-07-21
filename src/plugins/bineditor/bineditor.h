@@ -33,6 +33,7 @@
 #include <QtGui/qabstractscrollarea.h>
 #include <QtCore/qbasictimer.h>
 #include <QtCore/qstack.h>
+#include <QtCore/qset.h>
 #include <QtGui/qtextdocument.h>
 #include <QtGui/qtextformat.h>
 
@@ -50,6 +51,7 @@ class BinEditor : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
+    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE false)
 public:
 
     BinEditor(QWidget *parent = 0);
@@ -57,6 +59,12 @@ public:
 
     void setData(const QByteArray &data);
     QByteArray data() const;
+
+    inline bool inLazyMode() const { return m_inLazyMode; }
+    void setLazyData(int cursorPosition, int size, int blockSize = 4096);
+    inline int lazyDataBlockSize() const { return m_blockSize; }
+    void addLazyData(int block, const QByteArray &data);
+    bool applyModifications(QByteArray &data) const;
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
@@ -71,6 +79,9 @@ public:
 
     void setModified(bool);
     bool isModified() const;
+
+    void setReadOnly(bool);
+    bool isReadOnly() const;
 
     int find(const QByteArray &pattern, int from = 0, QTextDocument::FindFlags findFlags = 0);
 
@@ -107,6 +118,8 @@ Q_SIGNALS:
     void copyAvailable(bool);
     void cursorPositionChanged(int position);
 
+    void lazyDataRequested(int block);
+
 protected:
     void scrollContentsBy(int dx, int dy);
     void paintEvent(QPaintEvent *e);
@@ -122,8 +135,21 @@ protected:
     void timerEvent(QTimerEvent *);
 
 private:
+    bool m_inLazyMode;
     QByteArray m_data;
+    QMap <int, QByteArray> m_lazyData;
+    int m_blockSize;
+    mutable QSet<int> m_lazyRequests;
+    QByteArray m_emptyBlock;
+    int m_size;
+
+    bool requestDataAt(int pos) const;
+    char dataAt(int pos) const;
+    void changeDataAt(int pos, char c);
+    QByteArray dataMid(int from, int length) const;
+
     int m_unmodifiedState;
+    int m_readOnly;
     int m_margin;
     int m_descent;
     int m_ascent;

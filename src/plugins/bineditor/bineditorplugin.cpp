@@ -33,6 +33,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
@@ -136,6 +137,7 @@ public:
         m_mimeType(QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE))
     {
         m_editor = parent;
+        connect(m_editor, SIGNAL(lazyDataRequested(int)), this, SLOT(provideData(int)));
     }
     ~BinEditorFile() {}
 
@@ -143,8 +145,21 @@ public:
 
     bool save(const QString &fileName = QString()) {
         QFile file(fileName);
+
+        QByteArray data;
+        if (m_editor->inLazyMode()) {
+            QFile read(m_fileName);
+            if (!read.open(QIODevice::ReadOnly))
+                return false;
+            data = read.readAll();
+            read.close();
+            if (!m_editor->applyModifications(data))
+                return false;
+        } else {
+            data = m_editor->data();
+        }
         if (file.open(QIODevice::WriteOnly)) {
-            file.write(m_editor->data());
+            file.write(data);
             file.close();
             m_editor->setModified(false);
             m_editor->editorInterface()->setDisplayName(QFileInfo(fileName).fileName());
@@ -159,14 +174,32 @@ public:
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
-            m_editor->setData(file.readAll());
-            m_editor->editorInterface()->setDisplayName(QFileInfo(fileName).fileName());
+            if (file.isSequential()) {
+                m_editor->setData(file.readAll());
+            } else {
+                m_editor->setLazyData(0, file.size());
+                m_editor->editorInterface()->setDisplayName(QFileInfo(fileName).fileName());
+            }
             file.close();
             return true;
         }
         return false;
     }
 
+private slots:
+    void provideData(int block) {
+        QFile file(m_fileName);
+        if (file.open(QIODevice::ReadOnly)) {
+            int blockSize = m_editor->lazyDataBlockSize();
+            file.seek(block * blockSize);
+            QByteArray data = file.read(blockSize);
+            if (data.size() != blockSize)
+                data.resize(blockSize);
+            m_editor->addLazyData(block, data);
+            file.close();
+        }
+    }
+public:
 
     void setFilename(const QString &filename) {
         m_fileName = filename;
