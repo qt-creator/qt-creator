@@ -103,7 +103,7 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
     view->setDefaultPosition(Core::IView::First);
     addAutoReleasedObject(view);
 
-    const QString actionId = QLatin1String("QtCreator.QuickOpen");
+    const QString actionId = QLatin1String("QtCreator.Locate");
     QAction *action = new QAction(m_quickOpenToolWindow->windowIcon(), m_quickOpenToolWindow->windowTitle(), this);
     Core::Command *cmd = core->actionManager()->registerAction(action, actionId, QList<int>() << Core::Constants::C_GLOBAL_ID);
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+K"));
