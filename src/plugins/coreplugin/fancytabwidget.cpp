@@ -103,17 +103,24 @@ void FancyTabBar::paintEvent(QPaintEvent *event)
 void FancyTabBar::mouseMoveEvent(QMouseEvent *e)
 {
     if (!m_hoverRect.contains(e->pos())) {
+        int newHover = -1;
         for (int i = 0; i < count(); ++i) {
             QRect area = tabRect(i);
             if (area.contains(e->pos())) {
-                m_hoverIndex = i;
-                QRect oldHoverRect = m_hoverRect;
-                m_hoverRect = area;
-                update(oldHoverRect);
-                m_hoverControl.stop();
-                m_hoverControl.start();
+                newHover = i;
                 break;
             }
+        }
+
+        m_hoverControl.stop();
+        m_hoverIndex = newHover;
+        update(m_hoverRect);
+        m_hoverRect = QRect();
+
+        if (m_hoverIndex >=0) {
+            QRect oldHoverRect = m_hoverRect;
+            m_hoverRect = tabRect(m_hoverIndex);
+            m_hoverControl.start();
         }
     }
 }
