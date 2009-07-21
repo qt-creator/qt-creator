@@ -94,7 +94,7 @@ private:
     void setFindFlag(IFindSupport::FindFlag flag, bool enabled);
     bool hasFindFlag(IFindSupport::FindFlag flag);
     IFindSupport::FindFlags effectiveFindFlags();
-    Core::FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const;
+    Core::FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
 
     bool eventFilter(QObject *obj, QEvent *event);
     void setFindText(const QString &text);

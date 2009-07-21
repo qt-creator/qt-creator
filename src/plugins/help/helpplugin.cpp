@@ -54,7 +54,6 @@
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/welcomemode.h>
 
 #include <welcome/welcomemode.h>
 
