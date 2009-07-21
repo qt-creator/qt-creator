@@ -3951,7 +3951,7 @@ void BaseTextEditor::rewrapParagraph()
             if (!currentWord.isEmpty()) {
                 currentLength += currentWord.length() + 1;
 
-                if (currentLength > paragraphWidth - indentLevel) {
+                if (currentLength > paragraphWidth) {
                     currentLength = currentWord.length() + 1 + indentLevel;
                     result.append(QChar::ParagraphSeparator);
                     result.append(spacing);
