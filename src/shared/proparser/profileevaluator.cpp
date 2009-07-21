@@ -154,7 +154,7 @@ public:
     QString m_pendingComment;
     ushort *m_proitemPtr;
 
-    enum StrState { NotStarted, Started, PutSpace };
+    enum StrState { NeverStarted, NotStarted, Started, PutSpace };
 
     /////////////// Evaluating pro file contents
 
@@ -289,33 +289,36 @@ bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
 
     int parens = 0;
     bool inQuote = false;
-    bool escaped = false;
     while (!ts->atEnd()) {
         QString line = ts->readLine();
         const ushort *cur = (const ushort *)line.unicode(),
-                     *end = cur + line.length();
+                     *end = cur + line.length(),
+                     *cmtptr = 0;
         m_proitem.reserve(line.length());
         m_proitemPtr = (ushort *)m_proitem.unicode();
+        enum { NotEscaped, Escaped, PostEscaped } escaped = NotEscaped;
+        StrState sts = NeverStarted;
+        goto startItem;
       nextItem:
+        escaped = NotEscaped;
+      nextItem1:
+        sts = NotStarted;
+      startItem:
         ushort *ptr = m_proitemPtr;
-        StrState sts = NotStarted;
         while (cur < end) {
             ushort c = *cur++;
             if (c == '#') { // Yep - no escaping possible
-                m_proitemPtr = ptr;
-                insertComment(line.right(end - cur).simplified());
-                goto done;
+                cmtptr = cur;
+                break;
             }
-            if (!escaped) {
+            if (escaped != Escaped) {
                 if (c == '\\') {
-                    escaped = true;
+                    escaped = Escaped;
                     goto putch;
                 } else if (c == '"') {
                     inQuote = !inQuote;
-                    goto putch;
+                    goto putch1;
                 }
-            } else {
-                escaped = false;
             }
             if (!inQuote) {
                 if (c == '(') {
@@ -327,7 +330,9 @@ bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
                         if (c == ' ' || c == '\t') {
                             m_proitemPtr = ptr;
                             updateItem();
-                            goto nextItem;
+                            if (escaped == Escaped)
+                                escaped = PostEscaped;
+                            goto nextItem1;
                         }
                     } else {
                         if (c == ':') {
@@ -360,9 +365,14 @@ bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
             }
 
             if (c == ' ' || c == '\t') {
-                if (sts == Started)
+                if (sts == Started) {
                     sts = PutSpace;
+                    if (escaped == Escaped)
+                        escaped = PostEscaped;
+                }
             } else {
+              putch1:
+                escaped = NotEscaped;
               putch:
                 if (sts == PutSpace)
                     *ptr++ = ' ';
@@ -370,15 +380,17 @@ bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
                 sts = Started;
             }
         }
-        m_proitemPtr = ptr;
-      done:
-        if (escaped) {
-            --m_proitemPtr;
-            updateItem();
-        } else {
-            updateItem();
-            finalizeBlock();
+        if (escaped != NotEscaped) {
+            --ptr;
+            if (ptr != (ushort *)m_proitem.unicode() && *(ptr - 1) == ' ')
+                --ptr;
         }
+        m_proitemPtr = ptr;
+        updateItem();
+        if (cmtptr)
+            insertComment(line.right(end - cmtptr).simplified());
+        if (sts != NeverStarted && escaped == NotEscaped)
+            finalizeBlock();
         ++m_lineNo;
     }
     return true;
@@ -494,8 +506,6 @@ void ProFileEvaluator::Private::insertOperator(const char op)
 
 void ProFileEvaluator::Private::insertComment(const QString &comment)
 {
-    updateItem();
-
     QString strComment;
     if (!m_commentItem)
         strComment = m_pendingComment;
