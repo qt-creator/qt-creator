@@ -189,7 +189,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mode->setWidget(m_proWindow);
     mode->setContext(QList<int>() << pecontext);
     addAutoReleasedObject(mode);
-    m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(mode));
+    m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(m_proWindow));
 
     m_buildManager = new BuildManager(this);
     connect(m_buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project *)),

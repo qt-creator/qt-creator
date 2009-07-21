@@ -30,6 +30,8 @@
 #include "findplaceholder.h"
 #include "modemanager.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QtGui/QVBoxLayout>
 
 
@@ -37,29 +39,31 @@ using namespace Core;
 
 FindToolBarPlaceHolder *FindToolBarPlaceHolder::m_current = 0;
 
-FindToolBarPlaceHolder::FindToolBarPlaceHolder(Core::IMode *mode, QWidget *parent)
-    : QWidget(parent), m_mode(mode)
+FindToolBarPlaceHolder::FindToolBarPlaceHolder(QWidget *owner, QWidget *parent)
+    : QWidget(parent), m_widget(owner)
 {
     setLayout(new QVBoxLayout);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     layout()->setMargin(0);
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode *)),
-            this, SLOT(currentModeChanged(Core::IMode *)));
+    ExtensionSystem::PluginManager::instance()->addObject(this);
 }
 
 FindToolBarPlaceHolder::~FindToolBarPlaceHolder()
 {
+    ExtensionSystem::PluginManager::instance()->removeObject(this);
 }
 
-void FindToolBarPlaceHolder::currentModeChanged(Core::IMode *mode)
+QWidget *FindToolBarPlaceHolder::widget() const
 {
-    if (m_current == this)
-        m_current = 0;
-    if (m_mode == mode)
-        m_current = this;
+    return m_widget;
 }
 
 FindToolBarPlaceHolder *FindToolBarPlaceHolder::getCurrent()
 {
     return m_current;
+}
+
+void FindToolBarPlaceHolder::setCurrent(FindToolBarPlaceHolder *placeHolder)
+{
+    m_current = placeHolder;
 }

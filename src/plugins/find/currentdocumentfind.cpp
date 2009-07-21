@@ -45,7 +45,7 @@ CurrentDocumentFind::CurrentDocumentFind()
   : m_currentFind(0)
 {
     connect(qApp, SIGNAL(focusChanged(QWidget*, QWidget*)),
-            this, SLOT(updateCurrentFindFilter(QWidget*,QWidget*)));
+            this, SLOT(updateCandidateFindFilter(QWidget*,QWidget*)));
 }
 
 void CurrentDocumentFind::removeConnections()
@@ -69,6 +69,11 @@ void CurrentDocumentFind::clearResults()
 bool CurrentDocumentFind::isEnabled() const
 {
     return m_currentFind && (!m_currentWidget || m_currentWidget->isVisible());
+}
+
+bool CurrentDocumentFind::candidateIsEnabled() const
+{
+    return (m_candidateFind != 0);
 }
 
 bool CurrentDocumentFind::supportsReplace() const
@@ -139,7 +144,7 @@ void CurrentDocumentFind::clearFindScope()
     m_currentFind->clearFindScope();
 }
 
-void CurrentDocumentFind::updateCurrentFindFilter(QWidget *old, QWidget *now)
+void CurrentDocumentFind::updateCandidateFindFilter(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old)
     QWidget *candidate = now;
@@ -149,13 +154,20 @@ void CurrentDocumentFind::updateCurrentFindFilter(QWidget *old, QWidget *now)
         if (!impl)
             candidate = candidate->parentWidget();
     }
-    if (!impl || impl == m_currentFind)
+    m_candidateWidget = candidate;
+    m_candidateFind = impl;
+    emit candidateChanged();
+}
+
+void CurrentDocumentFind::acceptCandidate()
+{
+    if (!m_candidateFind || m_candidateFind == m_currentFind)
         return;
     removeFindSupportConnections();
     if (m_currentFind)
         m_currentFind->highlightAll(QString(), 0);
-    m_currentWidget = candidate;
-    m_currentFind = impl;
+    m_currentWidget = m_candidateWidget;
+    m_currentFind = m_candidateFind;
     if (m_currentFind) {
         connect(m_currentFind, SIGNAL(changed()), this, SIGNAL(changed()));
         connect(m_currentFind, SIGNAL(destroyed(QObject*)), SLOT(findSupportDestroyed()));

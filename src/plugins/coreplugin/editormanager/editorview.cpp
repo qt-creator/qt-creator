@@ -35,6 +35,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
+#include <coreplugin/findplaceholder.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 
@@ -143,6 +144,9 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         connect(m_editorList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(listContextMenu(QPoint)));
         connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
         connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()), Qt::QueuedConnection);
+    }
+    {
+        tl->addWidget(new FindToolBarPlaceHolder(this));
     }
     {
         m_infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);

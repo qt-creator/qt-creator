@@ -56,7 +56,6 @@ EditMode::EditMode(EditorManager *editorManager) :
     QWidget *rightSplitWidget = new QWidget;
     rightSplitWidget->setLayout(m_rightSplitWidgetLayout);
     m_rightSplitWidgetLayout->insertWidget(0, new Core::EditorManagerPlaceHolder(this));
-    m_rightSplitWidgetLayout->addWidget(new Core::FindToolBarPlaceHolder(this));
 
     MiniSplitter *rightPaneSplitter = new MiniSplitter;
     rightPaneSplitter->insertWidget(0, rightSplitWidget);

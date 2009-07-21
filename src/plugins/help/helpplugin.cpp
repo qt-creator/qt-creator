@@ -43,17 +43,18 @@
 #include "searchwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/uniqueidmanager.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/welcomemode.h>
-#include <coreplugin/editormanager/editormanager.h>
 
 #include <texteditor/texteditorconstants.h>
 
@@ -463,11 +464,16 @@ void HelpPlugin::createRightPaneSideBar()
     w->setLayout(hboxLayout);
     connect(closeButton, SIGNAL(clicked()), this, SLOT(slotHideRightPane()));
 
+    m_rightPaneSideBar = new QWidget;
     QVBoxLayout *rightPaneLayout = new QVBoxLayout;
     rightPaneLayout->setMargin(0);
     rightPaneLayout->setSpacing(0);
-    rightPaneLayout->addWidget(w);
+    m_rightPaneSideBar->setLayout(rightPaneLayout);
+    m_rightPaneSideBar->setFocusProxy(m_helpViewerForSideBar);
+    addAutoReleasedObject(new Core::BaseRightPaneWidget(m_rightPaneSideBar));
 
+    rightPaneLayout->addWidget(w);
+    rightPaneLayout->addWidget(new Core::FindToolBarPlaceHolder(m_rightPaneSideBar));
     m_helpViewerForSideBar = new HelpViewer(m_helpEngine, 0);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate();
     agg->add(m_helpViewerForSideBar);
@@ -494,11 +500,6 @@ void HelpPlugin::createRightPaneSideBar()
     connect(copyActionSideBar, SIGNAL(triggered()), this, SLOT(copyFromSideBar()));
     copyActionSideBar->setText(cmd->action()->text());
     copyActionSideBar->setIcon(cmd->action()->icon());
-
-    m_rightPaneSideBar = new QWidget;
-    m_rightPaneSideBar->setLayout(rightPaneLayout);
-    m_rightPaneSideBar->setFocusProxy(m_helpViewerForSideBar);
-    addAutoReleasedObject(new Core::BaseRightPaneWidget(m_rightPaneSideBar));
 }
 
 void HelpPlugin::copyFromSideBar()

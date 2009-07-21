@@ -34,6 +34,7 @@
 #include "ifindfilter.h"
 #include "currentdocumentfind.h"
 
+#include <coreplugin/findplaceholder.h>
 #include <utils/styledbar.h>
 
 #include <QtGui/QStringListModel>
@@ -74,13 +75,16 @@ private slots:
 
     void hideAndResetFocus();
     void openFind();
-    void updateActions();
+    void updateFindAction();
+    void updateToolBar();
     void findFlagsChanged();
 
     void setCaseSensitive(bool sensitive);
     void setWholeWord(bool wholeOnly);
     void setRegularExpressions(bool regexp);
 
+    void adaptToCandidate();
+    void removeFromParent();
 protected:
     bool focusNextPrevChild(bool next);
 
@@ -90,6 +94,7 @@ private:
     void setFindFlag(IFindSupport::FindFlag flag, bool enabled);
     bool hasFindFlag(IFindSupport::FindFlag flag);
     IFindSupport::FindFlags effectiveFindFlags();
+    Core::FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const;
 
     bool eventFilter(QObject *obj, QEvent *event);
     void setFindText(const QString &text);
