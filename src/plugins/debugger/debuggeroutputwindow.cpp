@@ -48,6 +48,7 @@
 #ifndef GDBDEBUGGERLEAN
 
 #include <aggregation/aggregate.h>
+#include <coreplugin/findplaceholder.h>
 #include <find/basetextfind.h>
 
 using namespace Find;
@@ -309,8 +310,12 @@ DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
     m_splitter->addWidget(m_inputText);
     m_splitter->addWidget(m_combinedText);
 
-    QGridLayout *layout = new QGridLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
+    layout->setSpacing(0);
+#ifndef GDBDEBUGGERLEAN
+    layout->addWidget(new Core::FindToolBarPlaceHolder(this));
+#endif
     layout->addWidget(m_splitter);
     setLayout(layout);
 
