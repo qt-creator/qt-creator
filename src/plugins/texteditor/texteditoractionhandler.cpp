@@ -141,6 +141,12 @@ void TextEditorActionHandler::createActions()
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_formatAction, SIGNAL(triggered(bool)), this, SLOT(formatAction()));
 
+    m_rewrapParagraphAction = new QAction(tr("&Rewrap Paragraph"), this);
+    command = am->registerAction(m_rewrapParagraphAction, TextEditor::Constants::REWRAP_PARAGRAPH, m_contextId);
+    //command->setDefaultKeySequence(QKeySequence(tr("Alt+Q"))); (No default key sequence for now.)
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
+    connect(m_rewrapParagraphAction, SIGNAL(triggered(bool)), this, SLOT(rewrapParagraphAction()));
+
 
     m_visualizeWhitespaceAction = new QAction(tr("&Visualize Whitespace"), this);
     m_visualizeWhitespaceAction->setCheckable(true);
@@ -398,6 +404,7 @@ FUNCTION2(copyAction, copy)
 FUNCTION2(cutAction, cut)
 FUNCTION2(pasteAction, paste)
 FUNCTION2(formatAction, format)
+FUNCTION2(rewrapParagraphAction, rewrapParagraph)
 FUNCTION2(selectAllAction, selectAll)
 FUNCTION(cleanWhitespace)
 FUNCTION(unCommentSelection)

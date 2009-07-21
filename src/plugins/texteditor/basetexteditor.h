@@ -483,6 +483,7 @@ public:
 
 public slots:
     virtual void format();
+    virtual void rewrapParagraph();
     virtual void unCommentSelection();
     virtual void setFontSettings(const TextEditor::FontSettings &);
     void setFontSettingsIfVisible(const TextEditor::FontSettings &);

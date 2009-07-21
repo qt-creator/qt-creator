@@ -3850,6 +3850,129 @@ void BaseTextEditor::format()
     cursor.endEditBlock();
 }
 
+void BaseTextEditor::rewrapParagraph()
+{
+    const int paragraphWidth = displaySettings().m_wrapColumn;
+    const QRegExp anyLettersOrNumbers = QRegExp("\\w");
+    const int tabSize = tabSettings().m_tabSize;
+
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+
+    // Find start of paragraph.
+
+    while (cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor)) {
+        QTextBlock block = cursor.block();
+        QString text = block.text();
+
+        // If this block is empty, move marker back to previous and terminate.
+        if (!text.contains(anyLettersOrNumbers)) {
+            cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor);
+            break;
+        }
+    }
+
+    cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+
+    // Find indent level of current block.
+
+    int indentLevel = 0;
+    QString text = cursor.block().text();
+
+    for (int i = 0; i < text.length(); i++) {
+        const QChar ch = text.at(i);
+
+        if (ch == QLatin1Char(' '))
+            indentLevel++;
+        else if (ch == QLatin1Char('\t'))
+            indentLevel += tabSize - (indentLevel % tabSize);
+        else
+            break;
+    }
+
+    // If there is a common prefix, it should be kept and expanded to all lines.
+    // this allows nice reflowing of doxygen style comments.
+    QTextCursor nextBlock = cursor;
+    QString commonPrefix;
+
+    if (nextBlock.movePosition(QTextCursor::NextBlock))
+    {
+         QString nText = nextBlock.block().text();
+         int maxLength = qMin(text.length(), nText.length());
+
+         for (int i = 0; i < maxLength; ++i) {
+             const QChar ch = text.at(i);
+
+             if (ch != nText[i] || ch.isLetterOrNumber())
+                 break;
+             commonPrefix.append(ch);
+         }
+    }
+
+
+    // Find end of paragraph.
+    while (cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)) {
+        QString text = cursor.block().text();
+
+        if (!text.contains(anyLettersOrNumbers))
+            break;
+    }
+
+
+    QString selectedText = cursor.selectedText();
+
+    // Preserve initial indent level.or common prefix.
+    QString spacing;
+
+    if (commonPrefix.isEmpty()) {
+        spacing = tabSettings().indentationString(0, indentLevel);
+    } else {
+        spacing = commonPrefix;
+        indentLevel = commonPrefix.length();
+    }
+
+    int currentLength = indentLevel;
+    QString result;
+    result.append(spacing);
+
+    // Remove existing instances of any common prefix from paragraph to
+    // reflow.
+    selectedText.remove(0, commonPrefix.length());
+    commonPrefix.prepend(QChar::ParagraphSeparator);
+    selectedText.replace(commonPrefix, QLatin1String("\n"));
+
+    // remove any repeated spaces, trim lines to PARAGRAPH_WIDTH width and
+    // keep the same indentation level as first line in paragraph.
+    QString currentWord;
+
+    for (int i = 0; i < selectedText.length(); ++i) {
+        QChar ch = selectedText.at(i);
+        if (ch.isSpace()) {
+            if (!currentWord.isEmpty()) {
+                currentLength += currentWord.length() + 1;
+
+                if (currentLength > paragraphWidth - indentLevel) {
+                    currentLength = currentWord.length() + 1 + indentLevel;
+                    result.append(QChar::ParagraphSeparator);
+                    result.append(spacing);
+                }
+
+                result.append(currentWord);
+                result.append(QLatin1String(" "));
+                currentWord.clear();
+            }
+
+            continue;
+        }
+
+        currentWord.append(ch);
+    }
+    result.append(QChar::ParagraphSeparator);
+
+    cursor.insertText(result);
+    cursor.endEditBlock();
+}
+
 void BaseTextEditor::unCommentSelection()
 {
 }

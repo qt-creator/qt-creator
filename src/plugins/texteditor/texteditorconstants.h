@@ -60,8 +60,9 @@ const char * const CUT_LINE              = "TextEditor.CutLine";
 const char * const DELETE_LINE           = "TextEditor.DeleteLine";
 const char * const DELETE_WORD           = "TextEditor.DeleteWord";
 const char * const SELECT_ENCODING       = "TextEditor.SelectEncoding";
+const char * const REWRAP_PARAGRAPH       =  "TextEditor.RewrapParagraph";
 const char * const GOTO_OPENING_PARENTHESIS = "TextEditor.GotoOpeningParenthesis";
-const char * const GOTO_CLOSING_PARENTHESIS = "TextEditor.GotoOpeningParenthesis";
+const char * const GOTO_CLOSING_PARENTHESIS = "TextEditor.GotoClosingParenthesis";
 const char * const C_TEXTEDITOR_MIMETYPE_TEXT = "text/plain";
 const char * const C_TEXTEDITOR_MIMETYPE_XML = "application/xml";
 

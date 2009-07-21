@@ -91,6 +91,7 @@ private slots:
     void gotoAction();
     void printAction();
     void formatAction();
+    void rewrapParagraphAction();
     void setVisualizeWhitespace(bool);
     void cleanWhitespace();
     void setTextWrapping(bool);
@@ -125,6 +126,7 @@ private:
     QAction *m_gotoAction;
     QAction *m_printAction;
     QAction *m_formatAction;
+    QAction *m_rewrapParagraphAction;
     QAction *m_visualizeWhitespaceAction;
     QAction *m_cleanWhitespaceAction;
     QAction *m_textWrappingAction;
