@@ -264,7 +264,7 @@
  <shortcut id="Find.WholeWords" >
   <key value="" />
  </shortcut>
- <shortcut id="QtCreator.QuickOpen" >
+ <shortcut id="QtCreator.Locate" >
   <key value="Ctrl+D" />
  </shortcut>
  <shortcut id="Help.Home" >

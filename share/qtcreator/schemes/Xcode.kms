@@ -150,7 +150,7 @@
  <shortcut id="Find.WholeWords" >
   <key value="" />
  </shortcut>
- <shortcut id="QtCreator.QuickOpen" >
+ <shortcut id="QtCreator.Locate" >
   <key value="Ctrl+Shift+D" />
  </shortcut>
  <shortcut id="TextEditor.CompleteThis" >
