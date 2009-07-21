@@ -26,9 +26,6 @@ public slots:
 //! [private members]
 private:
     Ui::FindDialog *m_ui;
-    QPushButton *findButton;
-    QLineEdit *lineEdit;
-    QString findText;
 //! [private members]
 };
 

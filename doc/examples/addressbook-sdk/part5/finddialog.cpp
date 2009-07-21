@@ -8,15 +8,9 @@ FindDialog::FindDialog(QWidget *parent) :
     m_ui(new Ui::FindDialog)
 {
     m_ui->setupUi(this);
-    lineEdit = new QLineEdit;
-    lineEdit = m_ui->lineEdit;
-
-    findButton = new QPushButton;
-    findButton = m_ui->findButton;
-
     findText = "";
 
-    connect(findButton, SIGNAL(clicked()), this, SLOT(findClicked()));
+    connect(m_ui->findButton, SIGNAL(clicked()), this, SLOT(findClicked()));
 
     setWindowTitle(tr("Find a Contact"));
 }
@@ -30,7 +24,7 @@ FindDialog::~FindDialog()
 //! [findClicked]
 void FindDialog::findClicked()
 {
-    QString text = lineEdit->text();
+    QString text = m_ui->lineEdit->text();
 
     if (text.isEmpty()) {
         QMessageBox::information(this, tr("Empty Field"),
@@ -38,7 +32,7 @@ void FindDialog::findClicked()
         return;
     } else {
         findText = text;
-        lineEdit->clear();
+        m_ui->lineEdit->clear();
         hide();
     }
 }
