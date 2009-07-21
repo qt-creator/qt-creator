@@ -72,7 +72,7 @@ enum CodeMode
 
 enum TargetConstants
 {
-    registerCount = 16,
+    registerCount = 17,
     memoryChunkSize = 256
 };
 
@@ -147,6 +147,7 @@ struct TrkResult
 QByteArray frameMessage(byte command, byte token, const QByteArray &data);
 TrkResult extractResult(QByteArray *buffer);
 QByteArray errorMessage(byte code);
+QByteArray hexNumber(uint n); 
 
 } // namespace trk
 

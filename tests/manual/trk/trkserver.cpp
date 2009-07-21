@@ -72,7 +72,7 @@ Inferior::Inferior()
 {
     pid = 0x000008F5;
     tid = 0x000008F6;
-    codeseg = 0x78674000;
+    codeseg = 0x786A4000;
     dataseg = 0x00400000;
 }
 
@@ -85,7 +85,7 @@ public:
     ~TrkServer();
 
     void setServerName(const QString &name) { m_serverName = name; }
-    void setReplaySource(const QString &source) { m_replaySource = source; }
+    void setMemoryDumpName(const QString &source) { m_memoryDumpName = source; }
     void startServer();
 
 private slots:
@@ -97,22 +97,25 @@ private slots:
 
 private:
     void logMessage(const QString &msg);
+    byte nextNotificationToken();
 
     QString m_serverName;
-    QString m_replaySource;
+    QString m_memoryDumpName;
 
     QByteArray m_adapterReadBuffer;
 
-    QList<QByteArray> m_replayData;
+    QByteArray m_memoryData;
     QLocalServer m_server;
     int m_lastSent;
     QLocalSocket *m_adapterConnection;
     Inferior m_inferior;
+    byte m_notificationToken;
 };
 
 TrkServer::TrkServer()
 {
     m_adapterConnection = 0;
+    m_notificationToken = 0;
 }
 
 TrkServer::~TrkServer()
@@ -123,13 +126,13 @@ TrkServer::~TrkServer()
 
 void TrkServer::startServer()
 {
-    QFile file(m_replaySource);
+    QFile file(m_memoryDumpName);
     file.open(QIODevice::ReadOnly);
-    m_replayData = file.readAll().split('\n');
+    m_memoryData = file.readAll();
     file.close();
 
-    logMessage(QString("Read %1 lines of data from %2")
-        .arg(m_replayData.size()).arg(m_replaySource));
+    logMessage(QString("Read %1 bytes of data from %2")
+        .arg(m_memoryData.size()).arg(m_memoryDumpName));
 
     m_lastSent = 0;
     if (!m_server.listen(m_serverName)) {
@@ -149,26 +152,11 @@ void TrkServer::logMessage(const QString &msg)
 
 void TrkServer::handleConnection()
 {
-    //QByteArray block;
-
-    //QByteArray msg = m_replayData[m_lastSent ++];
-
-    //QDataStream out(&block, QIODevice::WriteOnly);
-    //out.setVersion(QDataStream::Qt_4_0);
-    //out << (quint16)0;
-    //out << m_replayData;
-    //out.device()->seek(0);
-    //out << (quint16)(block.size() - sizeof(quint16));
-
     m_adapterConnection = m_server.nextPendingConnection();
     connect(m_adapterConnection, SIGNAL(disconnected()),
             m_adapterConnection, SLOT(deleteLater()));
     connect(m_adapterConnection, SIGNAL(readyRead()),
             this, SLOT(readFromAdapter()));
-
-    //m_adapterConnection->write(block);
-    //m_adapterConnection->flush();
-    //m_adapterConnection->disconnectFromHost();
 }
 
 void TrkServer::readFromAdapter()
@@ -198,6 +186,7 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
     data.append(char(0x00));  // No error
     switch (result.code) {
         case 0x00: { // Ping
+            m_notificationToken = 0;
             writeToAdapter(0x80, 0x00, data);
             break;
         }
@@ -211,23 +200,56 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             Q_UNUSED(option);
             ushort len = extractShort(p + 1);
             uint addr = extractInt(p + 3); 
-            qDebug() << "ADDR: " << QByteArray::number(addr, 16) << " "
-                << QByteArray::number(len, 16);
+            //qDebug() << "MESSAGE: " << result.data.toHex();
+            qDebug() << "ADDR: " << hexNumber(addr) << " " << hexNumber(len);
+            if (addr < m_inferior.codeseg
+                || addr + len >= m_inferior.codeseg + m_memoryData.size()) {
+                qDebug() << "ADDRESS OUTSIDE CODESEG: " << hexNumber(addr)
+                    << hexNumber(m_inferior.codeseg); 
+                for (int i = 0; i != len / 4; ++i)
+                    appendInt(&data, 0xDEADBEEF);
+            }
             for (int i = 0; i != len; ++i)
-                appendByte(&data, i);
+                appendByte(&data, m_memoryData[addr - m_inferior.codeseg + i]);
             writeToAdapter(0x80, result.token, data);
             break;
         }
         case 0x12: { // Read Registers
-            appendInt(&data, 0x00000000, BigEndian);
-            appendInt(&data, 0xC924FFBC, BigEndian);
+            appendByte(&data, 0x00);
+            appendByte(&data, 0x00);
+            appendByte(&data, 0x00);
+            appendInt(&data, 0xC92D7FBC, BigEndian);
             appendInt(&data, 0x00000000, BigEndian);
             appendInt(&data, 0x00600000, BigEndian);
-            appendInt(&data, 0x78677970, BigEndian);
-            for (int i = 5; i < registerCount - 1; ++i)
-                appendInt(&data, i + (i << 16), BigEndian);
-            appendInt(&data, 0x78676B00, BigEndian);
+            appendInt(&data, 0x00000000, BigEndian);
+            appendInt(&data, 0x786A7970, BigEndian);
+            appendInt(&data, 0x00000000, BigEndian);
+            appendInt(&data, 0x00000000, BigEndian);
+            appendInt(&data, 0x00000012, BigEndian);
+            appendInt(&data, 0x00000040, BigEndian);
+            appendInt(&data, 0xC82AF210, BigEndian);
+            appendInt(&data, 0x00000000, BigEndian);
+            appendInt(&data, 0xC8000548, BigEndian);
+            appendInt(&data, 0x00403ED0, BigEndian);
+            appendInt(&data, 0x786A6BD8, BigEndian);
+            appendInt(&data, 0x786A4CC8, BigEndian);
+            appendInt(&data, 0x68000010, BigEndian);
             writeToAdapter(0x80, result.token, data);
+            break;
+        }
+        case 0x18: { // Continue
+            writeToAdapter(0x80, result.token, data); // ACK Package
+
+            if (0) { // Fake "Stop" 
+                QByteArray note;
+                appendInt(&note, 0); // FIXME: use proper address
+                appendInt(&note, m_inferior.pid);
+                appendInt(&note, m_inferior.tid);
+                appendByte(&note, 0x00);
+                appendByte(&note, 0x00);
+                writeToAdapter(0x90, nextNotificationToken(), note);
+            }
+            
             break;
         }
         case 0x40: { // Create Item
@@ -238,12 +260,34 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             writeToAdapter(0x80, result.token, data);
             break;
         }
+        case 0x41: { // Delete Item
+            writeToAdapter(0x80, result.token, data);
+
+            // A Process?
+            // Command: 0xA1 Notify Deleted
+            //[A1 02 00 00 00 00 00 00 00 00 01 B5]
+            QByteArray note; // FIXME
+            appendByte(&note, 0);
+            appendByte(&note, 0);
+            appendInt(&note, 0);
+            appendInt(&note, m_inferior.pid);
+            writeToAdapter(0xA1, nextNotificationToken(), note);
+            break;
+        }
         default:
             data[0] = 0x10; // Command not supported
             writeToAdapter(0xff, result.token, data);
             break;
     }
 
+}
+
+byte TrkServer::nextNotificationToken()
+{
+    ++m_notificationToken;
+    if (m_notificationToken == 0)
+        ++m_notificationToken;
+    return m_notificationToken;
 }
 
 int main(int argc, char *argv[])
@@ -262,7 +306,7 @@ int main(int argc, char *argv[])
 
     TrkServer server;
     server.setServerName(argv[1]);
-    server.setReplaySource(argv[2]);
+    server.setMemoryDumpName(argv[2]);
     server.startServer();
 
     return app.exec();
