@@ -1044,16 +1044,6 @@ void Qt4Project::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *nod
     }
 }
 
-
-QMakeStep *Qt4Project::qmakeStep() const
-{
-    QMakeStep *qs = 0;
-    foreach(BuildStep *bs, buildSteps())
-        if ( (qs = qobject_cast<QMakeStep *>(bs)) != 0)
-            return qs;
-    return 0;
-}
-
 MakeStep *Qt4Project::makeStep() const
 {
     MakeStep *qs = 0;

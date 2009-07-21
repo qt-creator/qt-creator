@@ -179,7 +179,6 @@ public:
     // That is generally the stuff that is asked should normally be transfered to
     // Qt4Project *
     // So that we can later enable people to build qt4projects the way they would like
-    QMakeStep *qmakeStep() const;
     MakeStep *makeStep() const;
 
     void notifyChanged(const QString &name);

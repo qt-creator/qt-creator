@@ -256,11 +256,16 @@ void Qt4Manager::runQMakeContextMenu()
 
 void Qt4Manager::runQMake(ProjectExplorer::Project *p)
 {
-    QMakeStep *qmakeStep = qobject_cast<Qt4Project *>(p)->qmakeStep();
+    QMakeStep *qs = 0;
+    foreach(BuildStep *bs, p->buildSteps())
+        if ( (qs = qobject_cast<QMakeStep *>(bs)) != 0)
+            break;
+    if (!qs)
+        return;
     //found qmakeStep, now use it
-    qmakeStep->setForced(true);
+    qs->setForced(true);
     const QString &config = p->activeBuildConfiguration();
-    m_projectExplorer->buildManager()->appendStep(qmakeStep, config);
+    m_projectExplorer->buildManager()->appendStep(qs, config);
 }
 
 QString Qt4Manager::fileTypeId(ProjectExplorer::FileType type)
