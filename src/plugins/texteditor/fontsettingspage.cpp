@@ -367,7 +367,7 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
 
 void FontSettingsPage::fontFamilySelected(const QString &family)
 {
-    d_ptr->m_value.setFamily(d_ptr->ui.familyComboBox->currentText());
+    d_ptr->m_value.setFamily(family);
     d_ptr->ui.schemeEdit->setBaseFont(d_ptr->m_value.font());
     updatePointSizes();
 }
