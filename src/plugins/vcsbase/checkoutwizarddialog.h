@@ -31,6 +31,7 @@
 #define CHECKOUTWIZARDDIALOG_H
 
 #include <QtCore/QSharedPointer>
+#include <QtCore/QList>
 #include <QtGui/QWizard>
 
 namespace VCSBase {
@@ -46,11 +47,10 @@ class CheckoutProgressWizardPage;
 class CheckoutWizardDialog : public QWizard {
     Q_OBJECT
 public:
-    CheckoutWizardDialog(QWizardPage *parameterPage,
+    CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
                          QWidget *parent = 0);
 
     void start(const QSharedPointer<AbstractCheckoutJob> &job);
-    const QWizardPage *parameterPage() const;
 
 signals:
     void progressPageShown();
@@ -62,6 +62,7 @@ private slots:
 
 private:
     CheckoutProgressWizardPage *m_progressPage;
+    int m_progressPageId;
 };
 
 } // namespace Internal

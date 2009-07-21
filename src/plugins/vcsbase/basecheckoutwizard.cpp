@@ -43,17 +43,17 @@
 namespace VCSBase {
 
 struct BaseCheckoutWizardPrivate {
-    BaseCheckoutWizardPrivate() : dialog(0), parameterPage(0) {}
+    BaseCheckoutWizardPrivate() : dialog(0) {}
     void clear();
 
     Internal::CheckoutWizardDialog *dialog;
-    QWizardPage *parameterPage;
+    QList<QWizardPage *> parameterPages;
     QString checkoutPath;
 };
 
 void BaseCheckoutWizardPrivate::clear()
 {
-    parameterPage = 0;
+    parameterPages.clear();
     dialog = 0;
     checkoutPath.clear();
 }
@@ -87,8 +87,8 @@ QString BaseCheckoutWizard::trCategory() const
 QStringList BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
 {
     // Create dialog and launch
-    d->parameterPage = createParameterPage(path);
-    Internal::CheckoutWizardDialog dialog(d->parameterPage, parent);
+    d->parameterPages = createParameterPages(path);
+    Internal::CheckoutWizardDialog dialog(d->parameterPages, parent);
     d->dialog = &dialog;
     connect(&dialog, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
     dialog.setWindowTitle(name());
@@ -142,7 +142,7 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
 
 void BaseCheckoutWizard::slotProgressPageShown()
 {
-    const QSharedPointer<AbstractCheckoutJob> job = createJob(d->parameterPage, &(d->checkoutPath));
+    const QSharedPointer<AbstractCheckoutJob> job = createJob(d->parameterPages, &(d->checkoutPath));
     if (!job.isNull())
         d->dialog->start(job);
 }

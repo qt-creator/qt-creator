@@ -34,6 +34,7 @@
 #include <coreplugin/dialogs/iwizard.h>
 
 #include <QtCore/QSharedPointer>
+#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 class QWizardPage;
@@ -76,8 +77,8 @@ public:
     static QString openProject(const QString &path, QString *errorMessage);
 
 protected:
-    virtual QWizardPage *createParameterPage(const QString &path) = 0;
-    virtual QSharedPointer<AbstractCheckoutJob> createJob(const QWizardPage *parameterPage,
+    virtual QList<QWizardPage *> createParameterPages(const QString &path) = 0;
+    virtual QSharedPointer<AbstractCheckoutJob> createJob(const QList<QWizardPage *> &parameterPages,
                                                           QString *checkoutPath) = 0;
 
 private slots:

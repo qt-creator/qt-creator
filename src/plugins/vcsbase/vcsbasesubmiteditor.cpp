@@ -576,6 +576,7 @@ QIcon VCSBaseSubmitEditor::submitIcon()
     return QIcon(QLatin1String(":/vcsbase/images/submit.png"));
 }
 
+// Compile a list if files in the current projects. TODO: Recurse down qrc files?
 QStringList VCSBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QString *name)
 {
     using namespace ProjectExplorer;
@@ -604,6 +605,26 @@ QStringList VCSBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QStr
             *it = QDir::toNativeSeparators(*it);
     }
     return files;
+}
+
+// Reduce a list of untracked files reported by a VCS down to the files
+// that are actually part of the current project(s).
+void VCSBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositoryDirectory, QStringList *untrackedFiles)
+{
+    if (untrackedFiles->empty())
+        return;
+    const QStringList nativeProjectFiles = VCSBase::VCSBaseSubmitEditor::currentProjectFiles(true);
+    if (nativeProjectFiles.empty())
+        return;
+    const QDir repoDir(repositoryDirectory);
+    for (QStringList::iterator it = untrackedFiles->begin(); it != untrackedFiles->end(); ) {
+        const QString path = QDir::toNativeSeparators(repoDir.absoluteFilePath(*it));
+        if (nativeProjectFiles.contains(path)) {
+            ++it;
+        } else {
+            it = untrackedFiles->erase(it);
+        }
+    }
 }
 
 // Helper to raise an already open submit editor to prevent opening twice.

@@ -47,8 +47,8 @@ public:
 
 protected:
     // BaseCheckoutWizard
-    virtual QWizardPage *createParameterPage(const QString &path);
-    virtual QSharedPointer<VCSBase::AbstractCheckoutJob> createJob(const QWizardPage *parameterPage,
+    virtual QList<QWizardPage*> createParameterPages(const QString &path);
+    virtual QSharedPointer<VCSBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPage,
                                                                    QString *checkoutPath);
 };
 

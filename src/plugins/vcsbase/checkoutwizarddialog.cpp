@@ -39,16 +39,17 @@
 namespace VCSBase {
 namespace Internal {
 
-enum PageId { ParameterPageId, ProgressPageId };
-
-CheckoutWizardDialog::CheckoutWizardDialog(QWizardPage *parameterPage,
+CheckoutWizardDialog::CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
                                            QWidget *parent) :
     QWizard(parent),
-    m_progressPage(new CheckoutProgressWizardPage)
+    m_progressPage(new CheckoutProgressWizardPage),
+    m_progressPageId(-1)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setPage(ParameterPageId, parameterPage);
-    setPage(ProgressPageId, m_progressPage);
+    foreach(QWizardPage *wp, parameterPages)
+        addPage(wp);
+    m_progressPageId = parameterPages.size();
+    setPage(m_progressPageId, m_progressPage);
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotPageChanged(int)));
     connect(m_progressPage, SIGNAL(terminated(bool)), this, SLOT(slotTerminated(bool)));
     Core::BaseFileWizard::setupWizard(this);
@@ -56,7 +57,7 @@ CheckoutWizardDialog::CheckoutWizardDialog(QWizardPage *parameterPage,
 
 void CheckoutWizardDialog::slotPageChanged(int id)
 {
-    if (id == ProgressPageId)
+    if (id == m_progressPageId)
         emit progressPageShown();
 }
 
@@ -74,15 +75,10 @@ void CheckoutWizardDialog::start(const QSharedPointer<AbstractCheckoutJob> &job)
     button(QWizard::BackButton)->setEnabled(false);
 }
 
-const QWizardPage *CheckoutWizardDialog::parameterPage() const
-{
-    return page(ParameterPageId);
-}
-
 void CheckoutWizardDialog::reject()
 {
     // First click kills, 2nd closes
-    if (currentId() == ProgressPageId && m_progressPage->isRunning()) {
+    if (currentId() == m_progressPageId && m_progressPage->isRunning()) {
         m_progressPage->terminate();
     } else {
         QWizard::reject();

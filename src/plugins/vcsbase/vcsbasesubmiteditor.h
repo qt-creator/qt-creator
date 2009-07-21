@@ -162,6 +162,10 @@ public:
     // be restricted to them
     static QStringList currentProjectFiles(bool nativeSeparators, QString *name = 0);
 
+    // Reduce a list of untracked files reported by a VCS down to the files
+    // that are actually part of the current project(s).
+    static void filterUntrackedFilesOfProject(const QString &repositoryDirectory, QStringList *untrackedFiles);
+
     virtual bool isTemporary() const { return true; }
 
     // Helper to raise an already open submit editor to prevent opening twice.

@@ -59,18 +59,20 @@ QString CheckoutWizard::name() const
     return tr("Subversion Checkout");
 }
 
-QWizardPage *CheckoutWizard::createParameterPage(const QString &path)
+QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
 {
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path);
-    return cwp;
+    QList<QWizardPage*> rc;
+    rc.push_back(cwp);
+    return rc;
 }
 
-QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QWizardPage *parameterPage,
+QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QList<QWizardPage*> &parameterPages,
                                                                     QString *checkoutPath)
 {
     // Collect parameters for the checkout command.
-    const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPage);
+    const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
     QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
     const SubversionSettings settings = SubversionPlugin::subversionPluginInstance()->settings();
     const QString binary = settings.svnCommand;

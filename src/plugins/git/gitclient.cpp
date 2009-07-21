@@ -684,25 +684,6 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     return StatusChanged;
 }
 
-// Filter out untracked files that are not part of the project
-static void filterUntrackedFilesOfProject(const QString &repoDir, QStringList *l)
-{
-    if (l->empty())
-        return;
-    const QStringList nativeProjectFiles = VCSBase::VCSBaseSubmitEditor::currentProjectFiles(true);
-    if (nativeProjectFiles.empty())
-        return;
-    const QDir repoDirectory(repoDir);
-    for (QStringList::iterator it = l->begin(); it != l->end(); ) {
-        const QString path = QDir::toNativeSeparators(repoDirectory.absoluteFilePath(*it));
-        if (nativeProjectFiles.contains(path)) {
-            ++it;
-        } else {
-            it = l->erase(it);
-        }
-    }
-}
-
 bool GitClient::getCommitData(const QString &workingDirectory,
                               QString *commitTemplate,
                               CommitData *d,
@@ -771,7 +752,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         return false;
     }
     // Filter out untracked files that are not part of the project
-    filterUntrackedFilesOfProject(repoDirectory, &d->untrackedFiles);
+    VCSBase::VCSBaseSubmitEditor::filterUntrackedFilesOfProject(repoDirectory, &d->untrackedFiles);
     if (d->filesEmpty()) {
         *errorMessage = msgNoChangedFiles();
         return false;

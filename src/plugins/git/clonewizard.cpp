@@ -60,18 +60,20 @@ QString CloneWizard::name() const
     return tr("Git Repository Clone");
 }
 
-QWizardPage *CloneWizard::createParameterPage(const QString &path)
+QList<QWizardPage*> CloneWizard::createParameterPages(const QString &path)
 {
     CloneWizardPage *cwp = new CloneWizardPage;
     cwp->setPath(path);
-    return cwp;
+    QList<QWizardPage*> rc;
+    rc.push_back(cwp);
+    return rc;
 }
 
-QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizard::createJob(const QWizardPage *parameterPage,
+QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<QWizardPage*> &parameterPages,
                                                                     QString *checkoutPath)
 {
     // Collect parameters for the clone command.
-    const CloneWizardPage *cwp = qobject_cast<const CloneWizardPage *>(parameterPage);
+    const CloneWizardPage *cwp = qobject_cast<const CloneWizardPage *>(parameterPages.front());
     QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
     const GitClient *client = GitPlugin::instance()->gitClient();
     QStringList args = client->binary();

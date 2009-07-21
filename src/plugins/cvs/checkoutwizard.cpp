@@ -59,19 +59,21 @@ QString CheckoutWizard::name() const
     return tr("CVS Checkout");
 }
 
-QWizardPage *CheckoutWizard::createParameterPage(const QString &path)
+QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
 {
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path);
-    return cwp;
+    QList<QWizardPage*> rc;
+    rc.push_back(cwp);
+    return rc;
 }
 
-QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QWizardPage *parameterPage,
+QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QList<QWizardPage*> &parameterPages,
                                                                     QString *checkoutPath)
 {
     // Collect parameters for the checkout command.
     // CVS does not allow for checking out into a different directory.
-    const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPage);
+    const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
     QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
     const CVSSettings settings = CVSPlugin::cvsPluginInstance()->settings();
     const QString binary = settings.cvsCommand;
