@@ -86,9 +86,6 @@ private:
     // last values
     QString m_buildConfiguration;
     QStringList m_lastEnv;
-    QString m_lastWorkingDirectory;
-    QStringList m_lastArguments;
-    QString m_lastProgram;
     bool m_forced;
 };
 

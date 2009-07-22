@@ -91,6 +91,37 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
     return arguments;
 }
 
+QStringList removeSpecFromArgumentList(const QStringList &old)
+{
+    if (!old.contains("-spec") && !old.contains("-platform"))
+        return old;
+    QStringList newList;
+    bool ignoreNext = false;
+    foreach(const QString &item, old) {
+        if (ignoreNext) {
+            ignoreNext = false;
+        } else if (item == "-spec" || item == "-platform") {
+            ignoreNext = true;
+        } else {
+            newList << item;
+        }
+    }
+    return newList;
+}
+
+QString extractSpecFromArgumentList(const QStringList &list)
+{
+    int index = list.indexOf("-spec");
+    if (index == -1)
+        index = list.indexOf("-platform");
+    if (index == -1)
+        return QString();
+    if (index + 1 < list.length())
+        return list.at(index +1);
+    else
+        return QString();
+}
+
 bool QMakeStep::init(const QString &name)
 {
     m_buildConfiguration = name;
@@ -113,30 +144,42 @@ bool QMakeStep::init(const QString &name)
 
     // Check wheter we need to run qmake
     bool needToRunQMake = true;
-    if (QDir(workingDirectory).exists(QLatin1String("Makefile")))
-        needToRunQMake = false;
+    if (QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
+        QString qtPath = QtVersionManager::findQtVersionFromMakefile(workingDirectory);
+        if (qtVersion->path() == qtPath) {
+            // same qtversion
+            QPair<QtVersion::QmakeBuildConfig, QStringList> result =
+                    QtVersionManager::scanMakeFile(workingDirectory, qtVersion->defaultBuildConfig());
+            if (QtVersion::QmakeBuildConfig(m_pro->value(name, "buildConfiguration").toInt()) == result.first) {
+                // The QMake Build Configuration are the same,
+                // now compare arguments lists
+                // we have to compare without the spec/platform cmd argument
+                // and compare that on its own
+                QString actualSpec = extractSpecFromArgumentList(value(name, "qmakeArgs").toStringList());
+                QString parsedSpec = extractSpecFromArgumentList(result.second);
 
-    Environment environment = m_pro->environment(name);
-    QStringList newEnv = environment.toStringList();
-    newEnv.sort();
+                // Now to convert the actualSpec to a absolute path, we go through a few hops
+                if (QFileInfo(actualSpec).isRelative()) {
+                    QString path = qtVersion->versionInfo().value("QMAKE_MKSPECS") + "/" + actualSpec;
+                    if (QFileInfo(path).exists()) {
+                        actualSpec = QDir::cleanPath(path);
+                    } else {
+                        QString path = workingDirectory + "/" + actualSpec;
+                        if (QFileInfo(path).exists())
+                            actualSpec = QDir::cleanPath(path);
+                    }
+                }
 
-    if (m_lastEnv != newEnv) {
-        m_lastEnv = newEnv;
-        needToRunQMake = true;
-    }
-    if (m_lastWorkingDirectory != workingDirectory) {
-        m_lastWorkingDirectory = workingDirectory;
-        needToRunQMake = true;
-    }
+                if (QFileInfo(parsedSpec).isRelative())
+                    parsedSpec = QDir::cleanPath(workingDirectory + "/" + parsedSpec);
 
-    if (m_lastArguments != args) {
-        m_lastArguments = args;
-        needToRunQMake = true;
-    }
+                QStringList actualArgs = removeSpecFromArgumentList(value(name, "qmakeArgs").toStringList());
+                QStringList parsedArgs = removeSpecFromArgumentList(result.second);
 
-    if (m_lastProgram != program) {
-        m_lastProgram = program;
-        needToRunQMake = true;
+                if (actualArgs == parsedArgs && actualSpec == parsedSpec)
+                    needToRunQMake = false;
+            }
+        }
     }
 
     if (m_forced) {
@@ -148,7 +191,7 @@ bool QMakeStep::init(const QString &name)
     setWorkingDirectory(name, workingDirectory);
     setCommand(name, program);
     setArguments(name, args);
-    setEnvironment(name, environment);
+    setEnvironment(name, m_pro->environment(name));
     return AbstractProcessStep::init(name);
 }
 
