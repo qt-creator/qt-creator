@@ -94,6 +94,7 @@ plugin_projectexplorer.depends = plugin_quickopen
 plugin_projectexplorer.depends += plugin_find
 plugin_projectexplorer.depends += plugin_coreplugin
 plugin_projectexplorer.depends += plugin_texteditor
+plugin_projectexplorer.depends += plugin_welcome
 
 plugin_qt4projectmanager.subdir = qt4projectmanager
 plugin_qt4projectmanager.depends = plugin_texteditor
