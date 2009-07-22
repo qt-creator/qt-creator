@@ -434,6 +434,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent)
     m_summaryPage = new QWidget();
     addWidget(m_summaryPage);
     QVBoxLayout *vbox = new QVBoxLayout(m_summaryPage);
+    vbox->setContentsMargins(0, -1, 0, -1);
     m_summaryText = new QLabel(this);
 
     m_summaryText->setText("");

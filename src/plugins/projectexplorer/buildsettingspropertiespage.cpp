@@ -139,6 +139,7 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
     : m_project(project)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setContentsMargins(0, -1, 0, -1);
     QHBoxLayout *hbox = new QHBoxLayout();
     hbox->addWidget(new QLabel(tr("Build Configuration:"), this));
     m_buildConfigurationComboBox = new QComboBox(this);
