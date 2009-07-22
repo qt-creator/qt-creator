@@ -650,7 +650,7 @@ QToolButton:pressed {
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset resource="core.qrc">
+                     <iconset resource="welcome.qrc">
                       <normaloff>:/welcome/images/arrow-left.png</normaloff>:/welcome/images/arrow-left.png</iconset>
                     </property>
                     <property name="arrowType">
@@ -672,7 +672,7 @@ QToolButton:pressed {
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset resource="core.qrc">
+                     <iconset resource="welcome.qrc">
                       <normaloff>:/welcome/images/arrow-right.png</normaloff>:/welcome/images/arrow-right.png</iconset>
                     </property>
                     <property name="arrowType">
@@ -1166,7 +1166,7 @@ QToolButton:pressed {
               <string>Feedback</string>
              </property>
              <property name="icon">
-              <iconset resource="core.qrc">
+              <iconset resource="welcome.qrc">
                <normaloff>:/welcome/images/feedback_arrow.png</normaloff>:/welcome/images/feedback_arrow.png</iconset>
              </property>
             </widget>
@@ -1227,7 +1227,7 @@ QToolButton:pressed {
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="core.qrc"/>
+  <include location="welcome.qrc"/>
  </resources>
  <connections/>
 </ui>
