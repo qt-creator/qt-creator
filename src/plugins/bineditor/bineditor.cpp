@@ -500,7 +500,8 @@ int BinEditor::dataLastIndexOf(const QByteArray &pattern, int from, bool caseSen
     if (trailing > m_blockSize)
         return -1;
 
-    QByteArray buffer(m_blockSize + trailing, Qt::Uninitialized);
+    QByteArray buffer;
+    buffer.resize(m_blockSize + trailing);
     char *b = buffer.data();
 
     int block = from / m_blockSize;
