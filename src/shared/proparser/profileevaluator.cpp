@@ -790,14 +790,13 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
 {
     PRE(pro);
     m_lineNo = pro->lineNumber();
-    if (m_oldPath.isEmpty()) {
+    m_profileStack.push(pro);
+    if (m_profileStack.count() == 1) {
         // change the working directory for the initial profile we visit, since
         // that is *the* profile. All the other times we reach this function will be due to
         // include(file) or load(file)
 
         m_oldPath = QDir::currentPath();
-
-        m_profileStack.push(pro);
 
         if (m_parsePreAndPostFiles) {
             const QString mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
@@ -830,7 +829,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
 {
     PRE(pro);
     m_lineNo = pro->lineNumber();
-    if (m_profileStack.count() == 1 && !m_oldPath.isEmpty()) {
+    if (m_profileStack.count() == 1) {
         if (m_parsePreAndPostFiles) {
             evaluateFeatureFile(QLatin1String("default_post.prf"));
 
@@ -861,8 +860,11 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
         m_testFunctions.clear();
 
         m_profileStack.pop();
+
         return returnBool(QDir::setCurrent(m_oldPath));
     }
+
+    m_profileStack.pop();
 
     return ProItem::ReturnTrue;
 }
@@ -2380,9 +2382,7 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
 {
     ProFile *pro = q->parsedProFile(fileName);
     if (pro) {
-        m_profileStack.push(pro);
         bool ok = (pro->Accept(this) == ProItem::ReturnTrue);
-        m_profileStack.pop();
         q->releaseParsedProFile(pro);
         return ok;
     } else {
