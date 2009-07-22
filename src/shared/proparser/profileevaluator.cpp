@@ -802,19 +802,21 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
 
         m_profileStack.push(pro);
 
-        const QString mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
-        if (!mkspecDirectory.isEmpty() && m_parsePreAndPostFiles) {
-            bool cumulative = m_cumulative;
-            m_cumulative = false;
-            evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"));
-            evaluateFile(mkspecDirectory + QLatin1String("/features/default_pre.prf"));
+        if (m_parsePreAndPostFiles) {
+            const QString mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
+            if (!mkspecDirectory.isEmpty()) {
+                bool cumulative = m_cumulative;
+                m_cumulative = false;
+                evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"));
+                m_cumulative = cumulative;
+            }
+            evaluateFeatureFile(QLatin1String("default_pre.prf"));
 
             QStringList tmp = m_valuemap.value(QLatin1String("CONFIG"));
             tmp.append(m_addUserConfigCmdArgs);
-            foreach(const QString &remove, m_removeUserConfigCmdArgs)
+            foreach (const QString &remove, m_removeUserConfigCmdArgs)
                 tmp.removeAll(remove);
             m_valuemap.insert(QLatin1String("CONFIG"), tmp);
-            m_cumulative = cumulative;
         }
 
         return returnBool(QDir::setCurrent(pro->directoryName()));
@@ -828,33 +830,25 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
     PRE(pro);
     m_lineNo = pro->lineNumber();
     if (m_profileStack.count() == 1 && !m_oldPath.isEmpty()) {
-        const QString &mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
-        if (!mkspecDirectory.isEmpty()) {
-            if (m_parsePreAndPostFiles) {
-                bool cumulative = m_cumulative;
-                m_cumulative = false;
+        if (m_parsePreAndPostFiles) {
+            evaluateFeatureFile(QLatin1String("default_post.prf"));
 
-                evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"));
-
-                QSet<QString> processed;
-                forever {
-                    bool finished = true;
-                    QStringList configs = valuesDirect(QLatin1String("CONFIG"));
-                    for (int i = configs.size() - 1; i >= 0; --i) {
-                        const QString config = configs[i].toLower();
-                        if (!processed.contains(config)) {
-                            processed.insert(config);
-                            if (evaluateFile(mkspecDirectory + QLatin1String("/features/")
-                                + config + QLatin1String(".prf"))) {
-                                finished = false;
-                                break;
-                            }
+            QSet<QString> processed;
+            forever {
+                bool finished = true;
+                QStringList configs = valuesDirect(QLatin1String("CONFIG"));
+                for (int i = configs.size() - 1; i >= 0; --i) {
+                    const QString config = configs[i].toLower();
+                    if (!processed.contains(config)) {
+                        processed.insert(config);
+                        if (evaluateFeatureFile(config)) {
+                            finished = false;
+                            break;
                         }
                     }
-                    if (finished)
-                        break;
                 }
-                m_cumulative = cumulative;
+                if (finished)
+                    break;
             }
         }
 
