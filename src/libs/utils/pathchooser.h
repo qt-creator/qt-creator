@@ -33,6 +33,7 @@
 #include "utils_global.h"
 
 #include <QtGui/QWidget>
+#include <QtGui/QAbstractButton>
 
 namespace Core {
 namespace Utils {
@@ -91,6 +92,7 @@ public:
     static QString homePath();
 
     void addButton(const QString &text, QObject *receiver, const char *slotFunc);
+    QAbstractButton *buttonAtIndex(int index) const;
 
 private:
     // Returns overridden title or the one from <title>

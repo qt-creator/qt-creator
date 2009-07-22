@@ -56,6 +56,19 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
 {
     m_ui = new Ui::Qt4ProjectConfigWidget();
     m_ui->setupUi(this);
+
+    // fix the layout
+    QAbstractButton *browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
+    m_ui->gridLayout->addWidget(browseButton, 4, 2);
+    int minimumHeight = qMax(m_ui->qtVersionComboBox->sizeHint().height(), m_ui->manageQtVersionPushButtons->sizeHint().height());
+    Qt::Alignment labelAlignment = Qt::Alignment(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+    for (int i = 0; i < m_ui->gridLayout->rowCount(); ++i) {
+        m_ui->gridLayout->setRowMinimumHeight(i, minimumHeight);
+        QLayoutItem *item = m_ui->gridLayout->itemAtPosition(i, 0);
+        if (item)
+            item->setAlignment(labelAlignment);
+    }
+
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Core::Utils::PathChooser::Directory);
     m_ui->invalidQtWarningLabel->setVisible(false);
