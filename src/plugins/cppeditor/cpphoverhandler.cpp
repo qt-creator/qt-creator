@@ -285,12 +285,12 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     typeOfExpression.setSnapshot(documents);
 
     // We only want to show F1 if the tooltip matches the help id
-    bool m_showF1 = true;
+    bool showF1 = true;
 
     foreach (Document::DiagnosticMessage m, doc->diagnosticMessages()) {
         if (m.line() == lineNumber) {
             m_toolTip = m.text();
-            m_showF1 = false;
+            showF1 = false;
             break;
         }
     }
@@ -385,7 +385,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         m_toolTip = Qt::escape(m_toolTip);
 
     if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {
-        if (m_showF1) {
+        if (showF1) {
             m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
                                               "<td><img src=\":/cppeditor/images/f1.svg\"></td></tr></table>"))
                         .arg(m_toolTip);
