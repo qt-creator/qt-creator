@@ -59,6 +59,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
 
     // fix the layout
     QAbstractButton *browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
+    browseButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_ui->gridLayout->addWidget(browseButton, 4, 2);
     int minimumHeight = qMax(m_ui->qtVersionComboBox->sizeHint().height(), m_ui->manageQtVersionPushButtons->sizeHint().height());
     Qt::Alignment labelAlignment = Qt::Alignment(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
