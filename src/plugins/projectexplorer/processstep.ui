@@ -6,11 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>505</width>
+    <width>509</width>
     <height>271</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QGroupBox" name="enabledGroupBox">
      <property name="title">
@@ -86,6 +92,7 @@
    <class>Core::Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

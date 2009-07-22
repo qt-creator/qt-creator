@@ -68,6 +68,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     : m_ignoreChange(false), m_runConfiguration(rc)
 {
     QFormLayout *layout = new QFormLayout;
+    layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     layout->setMargin(0);
 
     m_userName = new QLineEdit(this);

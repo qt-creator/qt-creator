@@ -118,6 +118,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_isShown(false)
 {
     QFormLayout *toplayout = new QFormLayout();
+    toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
     QLabel *nameLabel = new QLabel(tr("Name:"));

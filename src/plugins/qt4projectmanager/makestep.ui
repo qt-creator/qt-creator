@@ -7,10 +7,16 @@
     <x>0</x>
     <y>0</y>
     <width>235</width>
-    <height>64</height>
+    <height>78</height>
    </rect>
   </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item row="0" column="0">
     <widget class="QLabel" name="makeLabel">
      <property name="text">
