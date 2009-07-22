@@ -987,8 +987,15 @@
 
     \section1 Placing Widgets on The Form
 
-    We add
+    We add a push button into our layout by dragging and dropping it in, with
+    \c exportButton as its \c objectName.
+
+    # screenshot
 
     \section1 The AddressBook Class
 
+    We declare a public slot, \c exportAsVCard(), in our header file.
+
+    Within the \c AddressBook constructor, we connect \c{exportButton}'s
+    \l{QPushButton::}{clicked()} signal to \c exportAsVCard().
 */

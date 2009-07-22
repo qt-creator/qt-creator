@@ -2,10 +2,8 @@
 #define ADDRESSBOOK_H
 
 #include <QtGui/QWidget>
-#include <QtGui/QPushButton>
-#include <QtGui/QLineEdit>
-#include <QtGui/QTextEdit>
 #include <QtGui/QMessageBox>
+#include <QtCore/QMap>
 #include "finddialog.h"
 
 namespace Ui
@@ -31,25 +29,14 @@ public slots:
     void next();
     void previous();
     void findContact();
+//! [slot definition]
     void saveToFile();
     void loadFromFile();
+//! [slot definition]
 
 private:
     Ui::AddressBook *ui;
-
     void updateInterface(Mode mode);
-    QPushButton *addButton;
-    QPushButton *submitButton;
-    QPushButton *cancelButton;
-    QPushButton *editButton;
-    QPushButton *removeButton;
-    QPushButton *nextButton;
-    QPushButton *previousButton;
-    QPushButton *findButton;
-    QPushButton *loadButton;
-    QPushButton *saveButton;
-    QLineEdit *nameLine;
-    QTextEdit *addressText;
 
     QMap<QString, QString> contacts;
     QString oldName;
