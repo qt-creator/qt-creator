@@ -32,6 +32,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QStringMatcher>
 
 using namespace Core;
 using namespace QuickOpen;

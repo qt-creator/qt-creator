@@ -74,11 +74,10 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/mainwindow.h>
-#include <coreplugin/welcomemode.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
-#include <coreplugin/welcomemode.h>
+#include <welcome/welcomemode.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
@@ -189,7 +188,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mode->setWidget(m_proWindow);
     mode->setContext(QList<int>() << pecontext);
     addAutoReleasedObject(mode);
-    m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(mode));
+    m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(m_proWindow));
 
     m_buildManager = new BuildManager(this);
     connect(m_buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project *)),
@@ -647,7 +646,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         m_projectExplorerSettings.showCompilerOutput = s->value("ProjectExplorer/Settings/ShowCompilerOutput", false).toBool();
     }
 
-    if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>
+    if (Welcome::WelcomeMode *welcomeMode = qobject_cast<Welcome::WelcomeMode*>
         (Core::ICore::instance()->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
         connect(welcomeMode, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
     }
@@ -837,7 +836,7 @@ void ProjectExplorerPlugin::showSessionManager()
     Core::IMode *welcomeMode = modeManager->mode(Core::Constants::MODE_WELCOME);
     if (modeManager->currentMode() == welcomeMode)
     {
-        updateWelcomePage(qobject_cast<Core::Internal::WelcomeMode*>(welcomeMode));
+        updateWelcomePage(qobject_cast<Welcome::WelcomeMode*>(welcomeMode));
     }
 }
 
@@ -1020,9 +1019,9 @@ Project *ProjectExplorerPlugin::startupProject() const
 }
 
 // update welcome page
-void ProjectExplorerPlugin::updateWelcomePage(Core::Internal::WelcomeMode *welcomeMode)
+void ProjectExplorerPlugin::updateWelcomePage(Welcome::WelcomeMode *welcomeMode)
 {
-    Core::Internal::WelcomeMode::WelcomePageData welcomePageData;
+    Welcome::WelcomeMode::WelcomePageData welcomePageData;
     welcomePageData.sessionList =  m_session->sessions();
     welcomePageData.activeSession = m_session->activeSession();
     welcomePageData.previousSession = m_session->lastSession();
@@ -1032,7 +1031,7 @@ void ProjectExplorerPlugin::updateWelcomePage(Core::Internal::WelcomeMode *welco
 
 void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode)
 {
-    if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>(mode))
+    if (Welcome::WelcomeMode *welcomeMode = qobject_cast<Welcome::WelcomeMode*>(mode))
         updateWelcomePage(welcomeMode);
 }
 
@@ -1081,7 +1080,7 @@ void ProjectExplorerPlugin::restoreSession()
     // update welcome page
     Core::ModeManager *modeManager = Core::ModeManager::instance();
     connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)), this, SLOT(currentModeChanged(Core::IMode*)));
-    if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>(modeManager->mode(Core::Constants::MODE_WELCOME))) {
+    if (Welcome::WelcomeMode *welcomeMode = qobject_cast<Welcome::WelcomeMode*>(modeManager->mode(Core::Constants::MODE_WELCOME))) {
         updateWelcomePage(welcomeMode);
         connect(welcomeMode, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
         connect(welcomeMode, SIGNAL(requestProject(QString)), this, SLOT(loadProject(QString)));

@@ -62,13 +62,22 @@ bool debug = false;
 PanelsWidget::PanelsWidget(QWidget *parent)
     : QScrollArea(parent)
 {
-    m_widget = new QWidget;
-    m_layout = new QVBoxLayout(m_widget);
+    QWidget *topwidget = new QWidget;
+    QHBoxLayout *topwidgetLayout = new QHBoxLayout;
+    topwidgetLayout->setMargin(0);
+    topwidgetLayout->setSpacing(0);
+    topwidget->setLayout(topwidgetLayout);
+
+    QWidget *verticalWidget = new QWidget;
+    verticalWidget->setMaximumWidth(800);
+    m_layout = new QVBoxLayout;
+    verticalWidget->setLayout(m_layout);
+    topwidgetLayout->addWidget(verticalWidget);
+    topwidgetLayout->addStretch(10);
 
     setWidgetResizable(true);
     setFrameStyle(QFrame::NoFrame);
-    setWidget(m_widget);
-
+    setWidget(topwidget);
 }
 
 PanelsWidget::~PanelsWidget()

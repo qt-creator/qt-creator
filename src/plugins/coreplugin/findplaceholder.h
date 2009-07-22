@@ -31,6 +31,8 @@
 #define FINDPLACEHOLDER_H
 
 #include "core_global.h"
+
+#include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
 namespace Core {
@@ -41,14 +43,17 @@ class CORE_EXPORT FindToolBarPlaceHolder : public QWidget
 {
     Q_OBJECT
 public:
-    FindToolBarPlaceHolder(Core::IMode *mode, QWidget *parent = 0);
+    FindToolBarPlaceHolder(QWidget *owner, QWidget *parent = 0);
     ~FindToolBarPlaceHolder();
+    QWidget *owner() const;
+    void setWidget(QWidget *widget);
 
     static FindToolBarPlaceHolder *getCurrent();
-private slots:
-    void currentModeChanged(Core::IMode *);
+    static void setCurrent(FindToolBarPlaceHolder *placeHolder);
+
 private:
-    Core::IMode *m_mode;
+    QWidget *m_owner;
+    QPointer<QWidget> m_subWidget;
     static FindToolBarPlaceHolder *m_current;
 };
 

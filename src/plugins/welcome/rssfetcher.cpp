@@ -43,7 +43,7 @@
 #include <sys/utsname.h>
 #endif
 
-using namespace Core::Internal;
+using namespace Welcome;
 
 static const QString getOsString()
 {

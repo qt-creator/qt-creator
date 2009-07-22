@@ -8,12 +8,12 @@ killall adapter trkserver > /dev/null 2>&1
 trkservername="TRKSERVER-4";
 gdbserverip=127.0.0.1
 gdbserverport=2226
-replaysource=dump.txt
+memorydump=TrkDump-78-6a-40-00.bin
 
 fuser -n tcp -k ${gdbserverport} 
 rm /tmp/${trkservername}
 
-./trkserver ${trkservername} ${replaysource} &
+./trkserver ${trkservername} ${memorydump} &
 trkserverpid=$!
 
 sleep 1
@@ -22,19 +22,13 @@ sleep 1
 adapterpid=$!
 
 echo "
+# This is generated. Changes will be lost.
 set remote noack-packet on
+set endian big
 target remote ${gdbserverip}:${gdbserverport}
 file filebrowseapp.sym
-quit
-" > gdb.txt
+" > .gdbinit
 
-./arm-gdb -x gdb.txt
-
-#sleep 4
-
-kill -s USR1 ${adapterpid}
-kill -s USR1 ${trkserverpid}
-
-echo
-
+#kill -s USR1 ${adapterpid}
+#kill -s USR1 ${trkserverpid}
 #killall arm-gdb

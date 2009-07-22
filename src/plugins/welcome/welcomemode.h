@@ -30,6 +30,8 @@
 #ifndef WELCOMEMODE_H
 #define WELCOMEMODE_H
 
+#include "welcome_global.h"
+
 #include <coreplugin/imode.h>
 
 #include <QtCore/QObject>
@@ -40,12 +42,11 @@ class QWidget;
 class QUrl;
 QT_END_NAMESPACE
 
-namespace Core {
-namespace Internal {
+namespace Welcome {
 
 struct WelcomeModePrivate;
 
-class CORE_EXPORT WelcomeMode : public Core::IMode
+class WELCOME_EXPORT WelcomeMode : public Core::IMode
 {
     Q_OBJECT
 
@@ -102,7 +103,6 @@ private:
     WelcomeModePrivate *m_d;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Welcome
 
 #endif // WELCOMEMODE_H

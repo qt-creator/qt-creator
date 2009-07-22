@@ -16,7 +16,7 @@ General Public License version 2.1 as published by the Free Software
 Foundation.  Please review the following information to
 ensure the GNU Lesser General Public License version 2.1 requirements
 will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
-    <description>Provides the QuickOpen widget and the hooks for QuickOpen filter implementations.</description>
+    <description>Provides the Locator widget and the hooks for QuickOpen filter implementations.</description>
     <url>http://www.qtsoftware.com</url>
     <dependencyList>
         <dependency name="Core" version="1.2.80"/>

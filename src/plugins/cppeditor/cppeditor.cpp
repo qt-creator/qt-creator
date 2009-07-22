@@ -1384,7 +1384,8 @@ void CPPEditor::mouseMoveEvent(QMouseEvent *e)
 
 void CPPEditor::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (e->modifiers() & Qt::ControlModifier && !(e->modifiers() & Qt::ShiftModifier)
+    if (m_mouseNavigationEnabled && e->modifiers() & Qt::ControlModifier
+        && !(e->modifiers() & Qt::ShiftModifier)
         && e->button() == Qt::LeftButton) {
 
         const QTextCursor cursor = cursorForPosition(e->pos());

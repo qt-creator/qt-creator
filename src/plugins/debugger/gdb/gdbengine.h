@@ -210,6 +210,7 @@ private:
     void handleAsyncOutput(const GdbMi &data);
     void handleResultRecord(const GdbResultRecord &response);
     void handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &);
+    void handleExecContinue(const GdbResultRecord &response, const QVariant &);
     void handleExecRun(const GdbResultRecord &response, const QVariant &);
     void handleExecJumpToLine(const GdbResultRecord &response, const QVariant &);
     void handleExecRunToFunction(const GdbResultRecord &response, const QVariant &);

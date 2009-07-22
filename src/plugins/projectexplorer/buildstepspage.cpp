@@ -126,6 +126,7 @@ void BuildStepsPage::updateBuildStepWidget(QTreeWidgetItem *newItem, QTreeWidget
     if (newItem) {
         int row = m_ui->buildSettingsList->indexOfTopLevelItem(newItem);
         m_ui->buildSettingsWidget->setCurrentIndex(row);
+        m_ui->groupBox->setTitle(newItem->text(0));
         BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(m_ui->buildSettingsWidget->currentWidget());
         Q_ASSERT(widget);
         widget->init(m_configuration);

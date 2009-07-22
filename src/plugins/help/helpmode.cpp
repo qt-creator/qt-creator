@@ -46,7 +46,7 @@ HelpMode::HelpMode(QWidget *widget, QWidget *centralWidget, QObject *parent)
     setPriority(Constants::P_MODE_HELP);
     setWidget(widget);
     m_centralWidget->layout()->setSpacing(0);
-    m_centralWidget->layout()->addWidget(new Core::FindToolBarPlaceHolder(this));
+    m_centralWidget->layout()->addWidget(new Core::FindToolBarPlaceHolder(m_centralWidget));
 }
 
 

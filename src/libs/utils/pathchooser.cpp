@@ -138,6 +138,11 @@ void PathChooser::addButton(const QString &text, QObject *receiver, const char *
     m_d->m_hLayout->addWidget(button);
 }
 
+QAbstractButton *PathChooser::buttonAtIndex(int index) const
+{
+    return findChildren<QAbstractButton*>().at(index);
+}
+
 QString PathChooser::path() const
 {
     return m_d->m_lineEdit->text();

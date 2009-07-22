@@ -28,13 +28,15 @@
 **************************************************************************/
 
 #include "welcomemode.h"
-#include "icore.h"
-#include "iwizard.h"
-#include "coreconstants.h"
-#include "uniqueidmanager.h"
-#include "modemanager.h"
-#include "newdialog.h"
 #include "rssfetcher.h"
+
+#include <coreplugin/icore.h>
+#include <coreplugin/dialogs/iwizard.h>
+
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/modemanager.h>
+#include <coreplugin/dialogs/newdialog.h>
 
 #include <utils/styledbar.h>
 
@@ -53,8 +55,7 @@
 
 #include "ui_welcomemode.h"
 
-namespace Core {
-namespace Internal {
+namespace Welcome {
 
 struct WelcomeModePrivate
 {
@@ -206,7 +207,7 @@ WelcomeMode::WelcomeMode() :
     connect(m_d->ui.nextTipBtn, SIGNAL(clicked()), this, SLOT(slotNextTip()));
     connect(m_d->ui.prevTipBtn, SIGNAL(clicked()), this, SLOT(slotPrevTip()));
 
-    QSettings *settings = ICore::instance()->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     int id = settings->value("General/WelcomeTab", 0).toInt();
     m_d->btnGrp->button(id)->setChecked(true);
     m_d->ui.stackedWidget->setCurrentIndex(id);
@@ -214,7 +215,7 @@ WelcomeMode::WelcomeMode() :
 
 WelcomeMode::~WelcomeMode()
 {
-    QSettings *settings = ICore::instance()->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     settings->setValue("General/WelcomeTab", m_d->btnGrp->checkedId());
     delete m_d->m_widget;
     delete m_d;
@@ -232,7 +233,7 @@ QIcon WelcomeMode::icon() const
 
 int WelcomeMode::priority() const
 {
-    return Constants::P_MODE_WELCOME;
+    return Core::Constants::P_MODE_WELCOME;
 }
 
 QWidget* WelcomeMode::widget()
@@ -242,13 +243,13 @@ QWidget* WelcomeMode::widget()
 
 const char* WelcomeMode::uniqueModeName() const
 {
-    return Constants::MODE_WELCOME;
+    return Core::Constants::MODE_WELCOME;
 }
 
 QList<int> WelcomeMode::context() const
 {
     static QList<int> contexts = QList<int>()
-                                 << UniqueIDManager::instance()->uniqueIdentifier(Constants::C_WELCOME_MODE);
+                                 << Core::UniqueIDManager::instance()->uniqueIdentifier(Core::Constants::C_WELCOME_MODE);
     return contexts;
 }
 
@@ -292,7 +293,7 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
 
 void WelcomeMode::activateEditMode()
 {
-    Core::ModeManager *modeManager = ModeManager::instance();
+    Core::ModeManager *modeManager = Core::ModeManager::instance();
     if (modeManager->currentMode() == this)
         modeManager->activateMode(Core::Constants::MODE_EDIT);
 }
@@ -516,7 +517,7 @@ void WelcomeModeButton::leaveEvent(QEvent *)
 
 WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
         QTreeWidget(parent),
-        m_bullet(QLatin1String(":/core/images/welcomemode/list_bullet_arrow.png"))
+        m_bullet(QLatin1String(":/welcome/images/list_bullet_arrow.png"))
 {
     connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
             SLOT(slotItemClicked(QTreeWidgetItem *)));
@@ -567,5 +568,4 @@ void WelcomeModeTreeWidget::slotItemClicked(QTreeWidgetItem *item)
     emit activated(item->data(0, Qt::UserRole).toString());
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Welcome

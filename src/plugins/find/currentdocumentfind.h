@@ -53,6 +53,7 @@ public:
     QString completedFindString() const;
 
     bool isEnabled() const;
+    bool candidateIsEnabled() const;
     void highlightAll(const QString &txt, IFindSupport::FindFlags findFlags);
     bool findIncremental(const QString &txt, IFindSupport::FindFlags findFlags);
     bool findStep(const QString &txt, IFindSupport::FindFlags findFlags);
@@ -62,6 +63,7 @@ public:
         IFindSupport::FindFlags findFlags);
     void defineFindScope();
     void clearFindScope();
+    void acceptCandidate();
 
     void removeConnections();
     bool setFocusToCurrentFindSupport();
@@ -70,9 +72,10 @@ public:
 
 signals:
     void changed();
+    void candidateChanged();
 
 private slots:
-    void updateCurrentFindFilter(QWidget *old, QWidget *now);
+    void updateCandidateFindFilter(QWidget *old, QWidget *now);
     void findSupportDestroyed();
 
 private:
@@ -80,6 +83,8 @@ private:
 
     QPointer<IFindSupport> m_currentFind;
     QPointer<QWidget> m_currentWidget;
+    QPointer<IFindSupport> m_candidateFind;
+    QPointer<QWidget> m_candidateWidget;
 };
 
 } // namespace Internal

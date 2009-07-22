@@ -798,11 +798,11 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     QBoxLayout *editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
     editorHolderLayout->setSpacing(0);
-    editorHolderLayout->addWidget(new EditorManagerPlaceHolder(m_debugMode));
-    editorHolderLayout->addWidget(new FindToolBarPlaceHolder(m_debugMode));
 
     QWidget *editorAndFindWidget = new QWidget;
     editorAndFindWidget->setLayout(editorHolderLayout);
+    editorHolderLayout->addWidget(new EditorManagerPlaceHolder(m_debugMode));
+    editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
 
     MiniSplitter *rightPaneSplitter = new MiniSplitter;
     rightPaneSplitter->addWidget(editorAndFindWidget);

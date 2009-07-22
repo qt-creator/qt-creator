@@ -35,6 +35,8 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
+#include <QtCore/QStringMatcher>
+
 using namespace CppTools::Internal;
 
 CppQuickOpenFilter::CppQuickOpenFilter(CppModelManager *manager, Core::EditorManager *editorManager)

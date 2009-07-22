@@ -14,16 +14,13 @@ class FindDialog : public QDialog {
 public:
     FindDialog(QWidget *parent = 0);
     ~FindDialog();
-    QString getFindText();
+    QString findText();
 
 public slots:
     void findClicked();
 
 private:
     Ui::FindDialog *m_ui;
-    QPushButton *findButton;
-    QLineEdit *lineEdit;
-    QString findText;
 };
 
 #endif // FINDDIALOG_H

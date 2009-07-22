@@ -37,6 +37,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/findplaceholder.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -205,6 +206,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     toolLayout->addWidget(m_closeButton);
     mainlayout->addWidget(m_toolBar);
     mainlayout->addWidget(m_outputWidgetPane, 10);
+    mainlayout->addWidget(new Core::FindToolBarPlaceHolder(this));
     setLayout(mainlayout);
 
     m_buttonsWidget = new QWidget;

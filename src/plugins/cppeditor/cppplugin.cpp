@@ -49,6 +49,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorplugin.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/texteditorconstants.h>
 #include <cpptools/cpptoolsconstants.h>
 
 #include <QtCore/QFileInfo>
@@ -215,6 +216,15 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
+
+    m_actionHandler->initializeActions();
+
+    cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
+    am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
+
+    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
+
 
     readSettings();
     return true;

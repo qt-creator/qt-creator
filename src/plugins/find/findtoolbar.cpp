@@ -32,7 +32,6 @@
 #include "textfindconstants.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -213,8 +212,9 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     connect(m_regularExpressionAction, SIGNAL(triggered(bool)), this, SLOT(setRegularExpressions(bool)));
     lineEditMenu->addAction(m_regularExpressionAction);
 
-    connect(m_currentDocumentFind, SIGNAL(changed()), this, SLOT(updateActions()));
-    updateActions();
+    connect(m_currentDocumentFind, SIGNAL(candidateChanged()), this, SLOT(adaptToCandidate()));
+    connect(m_currentDocumentFind, SIGNAL(changed()), this, SLOT(updateToolBar()));
+    updateToolBar();
 }
 
 FindToolBar::~FindToolBar()
@@ -264,11 +264,23 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
     return Core::Utils::StyledBar::eventFilter(obj, event);
 }
 
-void FindToolBar::updateActions()
+void FindToolBar::adaptToCandidate()
+{
+    updateFindAction();
+    if (findToolBarPlaceHolder() == Core::FindToolBarPlaceHolder::getCurrent()) {
+        m_currentDocumentFind->acceptCandidate();
+    }
+}
+
+void FindToolBar::updateFindAction()
+{
+    m_findInDocumentAction->setEnabled(m_currentDocumentFind->candidateIsEnabled());
+}
+
+void FindToolBar::updateToolBar()
 {
     bool enabled = m_currentDocumentFind->isEnabled();
     bool replaceEnabled = enabled && m_currentDocumentFind->supportsReplace();
-    m_findInDocumentAction->setEnabled(enabled);
     m_findNextAction->setEnabled(enabled);
     m_findPreviousAction->setEnabled(enabled);
 
@@ -507,19 +519,37 @@ void FindToolBar::hideAndResetFocus()
     hide();
 }
 
+Core::FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const
+{
+    QList<Core::FindToolBarPlaceHolder*> placeholders = ExtensionSystem::PluginManager::instance()
+                                                        ->getObjects<Core::FindToolBarPlaceHolder>();
+    QWidget *candidate = QApplication::focusWidget();
+    while (candidate) {
+        foreach (Core::FindToolBarPlaceHolder *ph, placeholders) {
+            if (ph->owner() == candidate)
+                return ph;
+        }
+        candidate = candidate->parentWidget();
+    }
+    return 0;
+}
+
 void FindToolBar::openFind()
 {
-    if (!m_currentDocumentFind->isEnabled())
+    if (!m_currentDocumentFind->candidateIsEnabled())
         return;
-    Core::FindToolBarPlaceHolder *holder = Core::FindToolBarPlaceHolder::getCurrent();
-    QLayout *findContainerLayout = holder ? holder->layout() : 0;
-
-    if (findContainerLayout) {
-        findContainerLayout->addWidget(this);
-        holder->setVisible(true);
-        setVisible(true);
-        setFocus();
-    }
+    Core::FindToolBarPlaceHolder *holder = findToolBarPlaceHolder();
+    if (!holder)
+        return;
+    Core::FindToolBarPlaceHolder *previousHolder = Core::FindToolBarPlaceHolder::getCurrent();
+    if (previousHolder)
+        previousHolder->setWidget(0);
+    Core::FindToolBarPlaceHolder::setCurrent(holder);
+    m_currentDocumentFind->acceptCandidate();
+    holder->setWidget(this);
+    holder->setVisible(true);
+    setVisible(true);
+    setFocus();
     QString text = m_currentDocumentFind->currentFindString();
     if (!text.isEmpty())
         setFindText(text);
@@ -527,7 +557,6 @@ void FindToolBar::openFind()
     m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
     selectFindText();
 }
-
 
 bool FindToolBar::focusNextPrevChild(bool next)
 {

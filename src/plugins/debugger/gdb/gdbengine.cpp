@@ -1310,7 +1310,23 @@ void GdbEngine::handleExecRun(const GdbResultRecord &response, const QVariant &)
 {
     if (response.resultClass == GdbResultRunning) {
         qq->notifyInferiorRunning();
-    } else if (response.resultClass == GdbResultError) {
+    } else {
+        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
+        const QByteArray &msg = response.data.findChild("msg").data();
+        QMessageBox::critical(q->mainWindow(), tr("Error"),
+            tr("Starting executable failed:\n") + QString::fromLocal8Bit(msg));
+        QTC_ASSERT(q->status() == DebuggerInferiorRunning, /**/);
+        //interruptInferior();
+        qq->notifyInferiorExited();
+    }
+}
+
+void GdbEngine::handleExecContinue(const GdbResultRecord &response, const QVariant &)
+{
+    if (response.resultClass == GdbResultRunning) {
+        qq->notifyInferiorRunning();
+    } else {
+        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
         const QByteArray &msg = response.data.findChild("msg").data();
         if (msg == "Cannot find bounds of current function") {
             qq->notifyInferiorStopped();
@@ -1623,7 +1639,7 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         postCommand(_("tbreak main"));
         m_waitingForFirstBreakpointToBeHit = true;
         qq->notifyInferiorRunningRequested();
-        postCommand(_("-exec-run"));
+        postCommand(_("-exec-run"), CB(handleExecRun));
         #endif
         qq->breakHandler()->setAllPending();
     }
@@ -1636,7 +1652,7 @@ void GdbEngine::continueInferior()
     q->resetLocation();
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
-    postCommand(_("-exec-continue"), CB(handleExecRun));
+    postCommand(_("-exec-continue"), CB(handleExecContinue));
 }
 
 void GdbEngine::handleStart(const GdbResultRecord &response, const QVariant &)
@@ -1655,7 +1671,7 @@ void GdbEngine::handleStart(const GdbResultRecord &response, const QVariant &)
             postCommand(_("tbreak *") + needle.cap(1));
             m_waitingForFirstBreakpointToBeHit = true;
             qq->notifyInferiorRunningRequested();
-            postCommand(_("-exec-run"));
+            postCommand(_("-exec-run"), CB(handleExecRun));
         } else {
             debugMessage(_("PARSING START ADDRESS FAILED: ") + msg);
         }
@@ -1717,7 +1733,7 @@ void GdbEngine::handleSetTargetAsync(const GdbResultRecord &record, const QVaria
 void GdbEngine::handleTargetRemote(const GdbResultRecord &record, const QVariant &)
 {
     if (record.resultClass == GdbResultDone) {
-        //postCommand(_("-exec-continue"), CB(handleExecRun));
+        //postCommand(_("-exec-continue"), CB(handleExecContinue));
         handleAqcuiredInferior();
         m_autoContinue = true;
     } else if (record.resultClass == GdbResultError) {
@@ -1740,9 +1756,9 @@ void GdbEngine::stepExec()
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
     if (qq->isReverseDebugging())
-        postCommand(_("reverse-step"), CB(handleExecRun));
+        postCommand(_("reverse-step"), CB(handleExecContinue));
     else
-        postCommand(_("-exec-step"), CB(handleExecRun));
+        postCommand(_("-exec-step"), CB(handleExecContinue));
 }
 
 void GdbEngine::stepIExec()
@@ -1750,16 +1766,16 @@ void GdbEngine::stepIExec()
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
     if (qq->isReverseDebugging())
-        postCommand(_("reverse-stepi"), CB(handleExecRun));
+        postCommand(_("reverse-stepi"), CB(handleExecContinue));
     else
-        postCommand(_("-exec-step-instruction"), CB(handleExecRun));
+        postCommand(_("-exec-step-instruction"), CB(handleExecContinue));
 }
 
 void GdbEngine::stepOutExec()
 {
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
-    postCommand(_("-exec-finish"), CB(handleExecRun));
+    postCommand(_("-exec-finish"), CB(handleExecContinue));
 }
 
 void GdbEngine::nextExec()
@@ -1767,9 +1783,9 @@ void GdbEngine::nextExec()
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
     if (qq->isReverseDebugging())
-        postCommand(_("reverse-next"), CB(handleExecRun));
+        postCommand(_("reverse-next"), CB(handleExecContinue));
     else
-        postCommand(_("-exec-next"), CB(handleExecRun));
+        postCommand(_("-exec-next"), CB(handleExecContinue));
 }
 
 void GdbEngine::nextIExec()
@@ -1777,9 +1793,9 @@ void GdbEngine::nextIExec()
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
     if (qq->isReverseDebugging())
-        postCommand(_("reverse-nexti"), CB(handleExecRun));
+        postCommand(_("reverse-nexti"), CB(handleExecContinue));
     else
-        postCommand(_("exec-next-instruction"), CB(handleExecRun));
+        postCommand(_("exec-next-instruction"), CB(handleExecContinue));
 }
 
 void GdbEngine::runToLineExec(const QString &fileName, int lineNumber)

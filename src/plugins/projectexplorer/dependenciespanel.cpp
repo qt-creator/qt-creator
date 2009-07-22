@@ -163,6 +163,7 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
     , m_model(new DependenciesModel(session, project, this))
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, -1, 0, -1);
     QTreeView *treeView = new QTreeView(this);
     treeView->setModel(m_model);
     treeView->setHeaderHidden(true);

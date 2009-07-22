@@ -69,7 +69,6 @@ private:
         QLabel *nameLabel;
         QWidget *panelWidget;
     };
-    QWidget *m_widget;
     QVBoxLayout *m_layout;
     QList<Panel> m_panels;
 };

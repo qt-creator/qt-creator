@@ -35,6 +35,11 @@
 
 namespace trk {
 
+QByteArray hexNumber(uint n)
+{
+    return QByteArray::number(n, 16);
+}
+
 QString TrkResult::toString() const
 {
     QString res = stringFromByte(code) + "[" + stringFromByte(token);
@@ -236,15 +241,15 @@ void appendInt(QByteArray *ba, uint i, Endianness endian)
     int b1 = i % 256; i -= b1; i /= 256;
     int b0 = i % 256; i -= b0; i /= 256;
     if (endian == BigEndian) {
-        ba->append(b3);
-        ba->append(b2);
-        ba->append(b1);
         ba->append(b0);
+        ba->append(b1);
+        ba->append(b2);
+        ba->append(b3);
     } else {
-        ba->append(b0);
-        ba->append(b1);
-        ba->append(b2);
         ba->append(b3);
+        ba->append(b2);
+        ba->append(b1);
+        ba->append(b0);
     }
 }
 

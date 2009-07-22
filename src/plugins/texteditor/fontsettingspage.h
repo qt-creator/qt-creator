@@ -114,6 +114,7 @@ private slots:
     void colorSchemeSelected(int index);
     void copyColorScheme();
     void copyColorScheme(const QString &name);
+    void confirmDeleteColorScheme();
     void deleteColorScheme();
 
 private:

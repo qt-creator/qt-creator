@@ -35,6 +35,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
+#include <coreplugin/findplaceholder.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 
@@ -175,6 +176,8 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
     }
 
     tl->addWidget(m_container);
+
+    tl->addWidget(new FindToolBarPlaceHolder(this));
 
     {
         m_statusHLine->setFrameStyle(QFrame::HLine);

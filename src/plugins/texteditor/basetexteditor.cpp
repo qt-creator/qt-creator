@@ -838,6 +838,9 @@ void BaseTextEditor::cleanWhitespace()
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
+    viewport()->setCursor(Qt::BlankCursor);
+    QToolTip::hideText();
+
     d->m_moveLineUndoHack = false;
     d->clearVisibleCollapsedBlock();
 
@@ -2728,6 +2731,8 @@ void BaseTextEditor::mouseMoveEvent(QMouseEvent *e)
             d->m_blockSelectionExtraX = 0;
         }
     }
+    if (viewport()->cursor().shape() == Qt::BlankCursor)
+        viewport()->setCursor(Qt::IBeamCursor);
 }
 
 void BaseTextEditor::mousePressEvent(QMouseEvent *e)
@@ -3951,14 +3956,15 @@ void BaseTextEditor::rewrapParagraph()
             if (!currentWord.isEmpty()) {
                 currentLength += currentWord.length() + 1;
 
-                if (currentLength > paragraphWidth - indentLevel) {
+                if (currentLength > paragraphWidth) {
                     currentLength = currentWord.length() + 1 + indentLevel;
+                    result.chop(1); // remove trailing space
                     result.append(QChar::ParagraphSeparator);
                     result.append(spacing);
                 }
 
                 result.append(currentWord);
-                result.append(QLatin1String(" "));
+                result.append(QLatin1Char(' '));
                 currentWord.clear();
             }
 
@@ -3967,6 +3973,7 @@ void BaseTextEditor::rewrapParagraph()
 
         currentWord.append(ch);
     }
+    result.chop(1);
     result.append(QChar::ParagraphSeparator);
 
     cursor.insertText(result);

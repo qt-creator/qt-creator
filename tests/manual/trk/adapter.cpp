@@ -112,6 +112,7 @@ private:
     void handleSetBreakpoint(const TrkResult &result);
     void handleClearBreakpoint(const TrkResult &result);
     void handleContinue(const TrkResult &result);
+    void handleSignalContinue(const TrkResult &result);
     void handleReadInfo(const TrkResult &result);
     void handleWaitForFinished(const TrkResult &result);
     void handleStep(const TrkResult &result);
@@ -359,7 +360,21 @@ void Adapter::writeToGdb(const QByteArray &msg, const QByteArray &logNote)
 void Adapter::handleGdbResponse(const QByteArray &response)
 {
     // http://sourceware.org/gdb/current/onlinedocs/gdb_34.html
-    if (response == "g") {
+
+    if (0) {}
+
+    else if (response.startsWith("C")) {
+        // C sig[;addr] Continue with signal sig (hex signal number)
+        //Reply: See section D.3 Stop Reply Packets, for the reply specifications. 
+        bool ok = false;
+        uint signalNumber = response.mid(1).toInt(&ok, 16);
+        QByteArray ba;
+        appendInt(&ba, m_session.pid);
+        appendInt(&ba, m_session.tid);
+        sendTrkMessage(0x18, CB(handleSignalContinue), ba, signalNumber); // Continue
+    }
+
+    else if (response == "g") {
         // Read general registers.
         //writeToGdb("00000000", "read registers");
         QByteArray ba;
@@ -392,20 +407,68 @@ void Adapter::handleGdbResponse(const QByteArray &response)
             + QByteArray::number(m_session.currentThread));
     }
 
+    else if (response == "k") {
+        // kill
+        QByteArray ba;
+        appendByte(&ba, 0); // Sub-command: Delete Process
+        appendInt(&ba, m_session.pid);
+        sendTrkMessage(0x41, CB(handleDeleteProcess), ba); // Delete Item
+    }
+
     else if (response.startsWith("m")) {
         // m addr,length
         int pos = response.indexOf(',');
         bool ok = false;
         uint addr = response.mid(1, pos - 1).toInt(&ok, 16);
         uint len = response.mid(pos + 1).toInt(&ok, 16);
-        //qDebug() << "ADDR: " << QByteArray::number(addr, 16) << " "
-        //    << QByteArray::number(len, 16);
+        //qDebug() << "GDB ADDR: " << hexNumber(addr) << " " << hexNumber(len);
         readMemory(addr, len);
     }
 
-    else if (response == "pf") {
-        // current instruction pointer?
-        writeToGdb("0000", "current IP");
+    else if (response.startsWith("p")) {
+        // 0xf == current instruction pointer?
+        //writeToGdb("0000", "current IP");
+        #if 0
+          A1 = 0,	 first integer-like argument
+          A4 = 3,	 last integer-like argument
+          AP = 11,
+          IP = 12,
+          SP = 13,	 Contains address of top of stack
+          LR = 14,	 address to return to from a function call
+          PC = 15,	 Contains program counter
+          F0 = 16,	 first floating point register
+          F3 = 19,	 last floating point argument register
+          F7 = 23, 	 last floating point register
+          FPS = 24,	 floating point status register
+          PS = 25,	 Contains processor status
+          WR0,		 WMMX data registers. 
+          WR15 = WR0 + 15,
+          WC0,		 WMMX control registers. 
+          WCSSF = WC0 + 2,
+          WCASF = WC0 + 3,
+          WC7 = WC0 + 7,
+          WCGR0,		WMMX general purpose registers. 
+          WCGR3 = WCGR0 + 3,
+          WCGR7 = WCGR0 + 7,
+          NUM_REGS,
+
+          // Other useful registers. 
+          FP = 11,		Frame register in ARM code, if used. 
+          THUMB_FP = 7,		Frame register in Thumb code, if used. 
+          NUM_ARG_REGS = 4, 
+          LAST_ARG = A4,
+          NUM_FP_ARG_REGS = 4,
+          LAST_FP_ARG = F3
+        #endif
+        bool ok = false;
+        uint registerNumber = response.mid(1).toInt(&ok, 16);
+        if (registerNumber < registerCount) {
+            QByteArray ba;
+            appendInt(&ba, m_snapshot.registers[registerNumber]);
+            writeToGdb(ba.toHex(), "read single known register");
+        } else {
+            writeToGdb("0000", "read single unknown register");
+        }
     }
 
     else if (response == "qAttached") {
@@ -438,12 +501,28 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         writeToGdb(QByteArray());
     }
 
+    else if (response == "qSymbol::") {
+        // Notify the target that GDB is prepared to serve symbol lookup requests.
+        writeToGdb("OK", "no further symbols needed");
+        //writeToGdb("qSymbol:" + QByteArray("_Z7E32Mainv").toHex(), "ask for more");
+    }
+
     else if (response == "QStartNoAckMode") {
         //$qSupported#37
         //logMessage("Handling 'QStartNoAckMode'");
         writeToGdb("OK", "ack no-ack mode");
         m_gdbAckMode = false;
     }
+
+    else if (response == "vCont?") {
+        // actions supported by the vCont packet
+        writeToGdb("");
+        //writeToGdb("vCont;c");
+    }
+
+    //else if (response.startsWith("vCont")) {
+    //    // vCont[;action[:thread-id]]...'
+    //}
 
     else if (response.startsWith("?")) {
         // Indicate the reason the target halted.
@@ -506,7 +585,7 @@ void Adapter::timerEvent(QTimerEvent *)
     tryTrkRead();
 }
 
-unsigned char Adapter::nextTrkWriteToken()
+byte Adapter::nextTrkWriteToken()
 {
     ++m_trkWriteToken;
     if (m_trkWriteToken == 0)
@@ -881,18 +960,7 @@ void Adapter::handleAndReportReadRegisters(const TrkResult &result)
     //logMessage("       RESULT: " + result.toString());
     // [80 0B 00   00 00 00 00   C9 24 FF BC   00 00 00 00   00
     //  60 00 00   00 00 00 00   78 67 79 70   00 00 00 00   00...]
-    QByteArray ba;
-#if 0
-    char buf[30];
-    const char *data = result.data.data();
-    for (int i = 0; i != registerCount; ++i) {
-        uint value = extractInt(data + 4 * i + 1);
-        qsnprintf(buf, sizeof(buf) - 1, "%08x", value);
-        ba.append(buf);
-    }
-#else
-    ba = result.data.toHex();
-#endif
+    QByteArray ba = result.data.toHex();
     writeToGdb(ba, "register contents");
 }
 
@@ -903,7 +971,7 @@ void Adapter::handleReadMemory(const TrkResult &result)
     uint blockaddr = result.cookie.toInt();
     //qDebug() << "READING " << ba.size() << " BYTES: "
     //    << quoteUnprintableLatin1(ba)
-    //    << "ADDR: " << QByteArray::number(blockaddr, 16)
+    //    << "ADDR: " << hexNumber(blockaddr)
     //    << "COOKIE: " << result.cookie;
     m_snapshot.memory[blockaddr] = ba;
 }
@@ -924,7 +992,7 @@ void Adapter::reportReadMemory(const TrkResult &result)
 
     ba = ba.mid(addr % memoryChunkSize, len);
     // qDebug() << "REPORTING MEMORY " << ba.size()
-    //     << " ADDR: " << QByteArray::number(blockaddr, 16) << " LEN: " << len
+    //     << " ADDR: " << hexNumber(blockaddr) << " LEN: " << len
     //     << " BYTES: " << quoteUnprintableLatin1(ba);
 
     writeToGdb(ba.toHex(), "memory contents");
@@ -994,34 +1062,28 @@ void Adapter::handleClearBreakpoint(const TrkResult &result)
     logMessage("CLEAR BREAKPOINT ");
 }
 
+void Adapter::handleSignalContinue(const TrkResult &result)
+{
+    int signalNumber = result.cookie.toInt();
+    logMessage("   HANDLE SIGNAL CONTINUE: " + stringFromArray(result.data));
+    qDebug() << "NUMBER" << signalNumber;
+    writeToGdb("O" + QByteArray("Console output").toHex());
+    writeToGdb("W81"); // "Process exited with result 1
+}
+
 void Adapter::handleContinue(const TrkResult &result)
 {
     logMessage("   HANDLE CONTINUE: " + stringFromArray(result.data));
-    //if (result.result.token)
-        //logMessage("   ERROR: " + byte(result.result.token)
-    //    sendTrkMessage(0x18, CB(handleContinue),
-    //        formatInt(m_session.pid) + formatInt(m_session.tid));
-    //}
 }
 
 void Adapter::handleDisconnect(const TrkResult &result)
 {
     logMessage("   HANDLE DISCONNECT: " + stringFromArray(result.data));
-     //if (result.result.token)
-        //logMessage("   ERROR: " + byte(result.result.token)
-    //    sendTrkMessage(0x18, CB(handleContinue),
-    //        formatInt(m_session.pid) + formatInt(m_session.tid));
-    //}
 }
 
 void Adapter::handleDeleteProcess(const TrkResult &result)
 {
     logMessage("   HANDLE DELETE PROCESS: " + stringFromArray(result.data));
-    //if (result.result.token)
-        //logMessage("   ERROR: " + byte(result.token)
-    //    sendTrkMessage(0x18, CB(handleContinue),
-    //        formatInt(m_session.pid) + formatInt(m_session.tid));
-    //}
 }
 
 void Adapter::handleStep(const TrkResult &result)
