@@ -85,7 +85,7 @@ public:
         int found = m_editor->find(pattern, pos, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
         if (found < 0)
             found = m_editor->find(pattern,
-                                   (findFlags & Find::IFindSupport::FindBackward)?m_editor->data().size()-1:0,
+                                   (findFlags & Find::IFindSupport::FindBackward)?m_editor->dataSize()-1:0,
                                    Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
         return found;
     }
@@ -137,7 +137,7 @@ public:
         m_mimeType(QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE))
     {
         m_editor = parent;
-        connect(m_editor, SIGNAL(lazyDataRequested(int)), this, SLOT(provideData(int)));
+        connect(m_editor, SIGNAL(lazyDataRequested(int, bool)), this, SLOT(provideData(int)));
     }
     ~BinEditorFile() {}
 

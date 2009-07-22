@@ -39,9 +39,21 @@
 #include <QtGui/QWheelEvent>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
-#include <QtCore/QDebug>
+#include <QtCore/QByteArrayMatcher>
 
 using namespace BINEditor;
+
+// QByteArray::toLower() is broken, it stops at the first \0
+static void lower(QByteArray &ba)
+{
+    char *data = ba.data();
+    char *end = data + ba.size();
+    while (data != end) {
+        if (*data >= 0x41 && *data <= 0x5A)
+            *data += 0x20;
+        ++data;
+    }
+}
 
 static QByteArray calculateHexPattern(const QByteArray &pattern)
 {
@@ -75,6 +87,7 @@ BinEditor::BinEditor(QWidget *parent)
     m_anchorPosition = 0;
     m_lowNibble = false;
     m_cursorVisible = false;
+    m_caseSensitiveSearch = false;
     setFocusPolicy(Qt::WheelFocus);
     m_addressString = QString(9, QLatin1Char(':'));
 }
@@ -126,7 +139,7 @@ void BinEditor::addLazyData(int block, const QByteArray &data)
     viewport()->update();
 }
 
-bool BinEditor::requestDataAt(int pos) const
+bool BinEditor::requestDataAt(int pos, bool synchronous) const
 {
     if (!m_inLazyMode)
         return true;
@@ -136,7 +149,7 @@ bool BinEditor::requestDataAt(int pos) const
     if (it == m_lazyData.end()) {
         if (!m_lazyRequests.contains(block)) {
             m_lazyRequests.insert(block);
-            emit const_cast<BinEditor*>(this)->lazyDataRequested(block);
+            emit const_cast<BinEditor*>(this)->lazyDataRequested(block, synchronous);
             if (!m_lazyRequests.contains(block))
                 return true; // synchronous data source
         }
@@ -171,8 +184,29 @@ QByteArray BinEditor::dataMid(int from, int length) const
 {
     if (!m_inLazyMode)
         return m_data.mid(from, length);
-    return QByteArray(length, '\0'); // ### TODO
+
+    int end = from + length;
+    int block = from / m_blockSize;
+
+    QByteArray data;
+    do {
+        data += m_lazyData.value(block++, m_emptyBlock);
+    } while (block * m_blockSize < end);
+
+    return data.mid(from - ((from / m_blockSize) * m_blockSize), length);
 }
+
+QByteArray BinEditor::blockData(int block) const
+{
+    if (!m_inLazyMode) {
+        QByteArray data = m_data.mid(block * m_blockSize, m_blockSize);
+        if (data.size() < m_blockSize)
+            data.resize(m_blockSize);
+        return data;
+    }
+    return m_lazyData.value(block, m_emptyBlock);
+}
+
 
 void BinEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
@@ -301,6 +335,7 @@ void BinEditor::setLazyData(int cursorPosition, int size, int blockSize)
 {
     m_inLazyMode = true;
     m_blockSize = blockSize;
+    Q_ASSERT((blockSize/16) * 16 == blockSize);
     m_emptyBlock = QByteArray(blockSize, '\0');
     m_data.clear();
     m_lazyData.clear();
@@ -421,35 +456,116 @@ void BinEditor::updateLines(int fromPosition, int toPosition)
     viewport()->update(0, y, viewport()->width(), h);
 }
 
-int BinEditor::find(const QByteArray &pattern, int from, QTextDocument::FindFlags findFlags)
+int BinEditor::dataIndexOf(const QByteArray &pattern, int from, bool caseSensitive) const
 {
-    if (pattern.isEmpty())
-        return false;
+    if (!m_inLazyMode && caseSensitive) {
+        return m_data.indexOf(pattern, from);
+    }
+
+    int trailing = pattern.size();
+    if (trailing > m_blockSize)
+        return -1;
+
+    QByteArray buffer(m_blockSize + trailing, Qt::Uninitialized);
+    char *b = buffer.data();
+    QByteArrayMatcher matcher(pattern);
+
+    int block = from / m_blockSize;
+
+    while (from < m_size) {
+        if (!requestDataAt(block * m_blockSize, true))
+            return -1;
+        QByteArray data = blockData(block);
+        ::memcpy(b, b + m_blockSize, trailing);
+        ::memcpy(b + trailing, data.constData(), m_blockSize);
+
+        if (!caseSensitive)
+            ::lower(buffer);
+
+        int pos = matcher.indexIn(buffer, from - (block * m_blockSize) + trailing);
+        if (pos >= 0)
+            return pos + block * m_blockSize - trailing;
+        ++block;
+        from = block * m_blockSize - trailing;
+    }
+    return -1;
+}
+
+int BinEditor::dataLastIndexOf(const QByteArray &pattern, int from, bool caseSensitive) const
+{
+    if (!m_inLazyMode && caseSensitive)
+        return m_data.lastIndexOf(pattern, from);
+
+    int trailing = pattern.size();
+    if (trailing > m_blockSize)
+        return -1;
+
+    QByteArray buffer(m_blockSize + trailing, Qt::Uninitialized);
+    char *b = buffer.data();
+
+    int block = from / m_blockSize;
+
+    while (from > 0) {
+        if (!requestDataAt(block * m_blockSize, true))
+            return -1;
+        QByteArray data = blockData(block);
+        ::memcpy(b + m_blockSize, b, trailing);
+        ::memcpy(b, data.constData(), m_blockSize);
+
+        if (!caseSensitive)
+            ::lower(buffer);
+
+        int pos = buffer.lastIndexOf(pattern, from - (block * m_blockSize));
+        if (pos >= 0)
+            return pos + block * m_blockSize;
+        --block;
+        from = block * m_blockSize + (m_blockSize-1) + trailing;
+    }
+    return -1;
+}
+
+
+int BinEditor::find(const QByteArray &pattern_arg, int from, QTextDocument::FindFlags findFlags)
+{
+    if (pattern_arg.isEmpty())
+        return 0;
+
+    QByteArray pattern = pattern_arg;
+
+    bool caseSensitiveSearch = (findFlags & QTextDocument::FindCaseSensitively);
+
+    if (!caseSensitiveSearch)
+        ::lower(pattern);
+
     bool backwards = (findFlags & QTextDocument::FindBackward);
-    int found = backwards ? m_data.lastIndexOf(pattern, from)
-                : m_data.indexOf(pattern, from);
+    int found = backwards ? dataLastIndexOf(pattern, from, caseSensitiveSearch)
+                : dataIndexOf(pattern, from, caseSensitiveSearch);
+    
     int foundHex = -1;
-    QByteArray hexPattern = calculateHexPattern(pattern);
+    QByteArray hexPattern = calculateHexPattern(pattern_arg);
     if (!hexPattern.isEmpty()) {
-        foundHex = backwards ? m_data.lastIndexOf(hexPattern, from)
-                   : m_data.indexOf(hexPattern, from);
+        foundHex = backwards ? dataLastIndexOf(hexPattern, from)
+                   : dataIndexOf(hexPattern, from);
     }
 
     int pos = (found >= 0 && (foundHex < 0 || found < foundHex)) ? found : foundHex;
+
+    if (pos >= m_size)
+        pos = -1;
+
     if (pos >= 0) {
         setCursorPosition(pos);
         setCursorPosition(pos + (found == pos ? pattern.size() : hexPattern.size()), KeepAnchor);
     }
-
     return pos;
 }
 
-int BinEditor::findPattern(const QByteArray &data, int from, int offset, int *match)
+int BinEditor::findPattern(const QByteArray &data, const QByteArray &dataHex, int from, int offset, int *match)
 {
     if (m_searchPattern.isEmpty())
         return -1;
     int normal = m_searchPattern.isEmpty()? -1 : data.indexOf(m_searchPattern, from - offset);
-    int hex = m_searchPatternHex.isEmpty()? -1 : data.indexOf(m_searchPatternHex, from - offset);
+    int hex = m_searchPatternHex.isEmpty()? -1 : dataHex.indexOf(m_searchPatternHex, from - offset);
 
     if (normal >= 0 && (hex < 0 || normal < hex)) {
         if (match)
@@ -513,12 +629,17 @@ void BinEditor::paintEvent(QPaintEvent *e)
 
     int matchLength = 0;
 
-    QByteArray patternData;
+    QByteArray patternData, patternDataHex;
     int patternOffset = qMax(0, topLine*16 - m_searchPattern.size());
-    if (!m_searchPattern.isEmpty())
+    if (!m_searchPattern.isEmpty()) {
         patternData = dataMid(patternOffset, m_numVisibleLines * 16 + (topLine*16 - patternOffset));
+        patternDataHex = patternData;
+        if (!m_caseSensitiveSearch)
+            ::lower(patternData);
+    }
 
-    int foundPatternAt = findPattern(patternData, patternOffset, patternOffset, &matchLength);
+
+    int foundPatternAt = findPattern(patternData, patternDataHex, patternOffset, patternOffset, &matchLength);
 
     int selStart = qMin(m_cursorPosition, m_anchorPosition);
     int selEnd = qMax(m_cursorPosition, m_anchorPosition);
@@ -581,7 +702,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
                 }
 
                 if (foundPatternAt >= 0 && pos >= foundPatternAt + matchLength)
-                    foundPatternAt = findPattern(patternData, foundPatternAt + matchLength, patternOffset, &matchLength);
+                    foundPatternAt = findPattern(patternData, patternDataHex, foundPatternAt + matchLength, patternOffset, &matchLength);
 
 
                 uchar value = (uchar)dataAt(pos);
@@ -917,11 +1038,14 @@ void BinEditor::copy()
         QApplication::clipboard()->setText(QString::fromLatin1(dataMid(selStart, selEnd - selStart)));
 }
 
-void BinEditor::highlightSearchResults(const QByteArray &pattern, QTextDocument::FindFlags /*findFlags*/)
+void BinEditor::highlightSearchResults(const QByteArray &pattern, QTextDocument::FindFlags findFlags)
 {
     if (m_searchPattern == pattern)
         return;
     m_searchPattern = pattern;
+    m_caseSensitiveSearch = (findFlags & QTextDocument::FindCaseSensitively);
+    if (!m_caseSensitiveSearch)
+        ::lower(m_searchPattern);
     m_searchPatternHex = calculateHexPattern(pattern);
     viewport()->update();
 }

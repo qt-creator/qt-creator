@@ -60,6 +60,8 @@ public:
     void setData(const QByteArray &data);
     QByteArray data() const;
 
+    inline int dataSize() const { return m_size; }
+
     inline bool inLazyMode() const { return m_inLazyMode; }
     void setLazyData(int cursorPosition, int size, int blockSize = 4096);
     inline int lazyDataBlockSize() const { return m_blockSize; }
@@ -118,7 +120,7 @@ Q_SIGNALS:
     void copyAvailable(bool);
     void cursorPositionChanged(int position);
 
-    void lazyDataRequested(int block);
+    void lazyDataRequested(int block, bool syncronous);
 
 protected:
     void scrollContentsBy(int dx, int dy);
@@ -141,12 +143,17 @@ private:
     int m_blockSize;
     mutable QSet<int> m_lazyRequests;
     QByteArray m_emptyBlock;
+    QByteArray m_lowerBlock;
     int m_size;
 
-    bool requestDataAt(int pos) const;
+    int dataIndexOf(const QByteArray &pattern, int from, bool caseSensitive = true) const;
+    int dataLastIndexOf(const QByteArray &pattern, int from, bool caseSensitive = true) const;
+
+    bool requestDataAt(int pos, bool synchronous = false) const;
     char dataAt(int pos) const;
     void changeDataAt(int pos, char c);
     QByteArray dataMid(int from, int length) const;
+    QByteArray blockData(int block) const;
 
     int m_unmodifiedState;
     int m_readOnly;
@@ -171,6 +178,7 @@ private:
 
     QByteArray m_searchPattern;
     QByteArray m_searchPatternHex;
+    bool m_caseSensitiveSearch;
 
     QBasicTimer m_cursorBlinkTimer;
 
@@ -184,7 +192,7 @@ private:
 
     void changeData(int position, uchar character, bool highNibble = false);
 
-    int findPattern(const QByteArray &data, int from, int offset, int *match);
+    int findPattern(const QByteArray &data, const QByteArray &dataHex, int from, int offset, int *match);
     void drawItems(QPainter *painter, int x, int y, const QString &itemString);
 
     struct BinEditorEditCommand {
