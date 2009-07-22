@@ -284,9 +284,13 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     TypeOfExpression typeOfExpression;
     typeOfExpression.setSnapshot(documents);
 
+    // We only want to show F1 if the tooltip matches the help id
+    bool m_showF1 = true;
+
     foreach (Document::DiagnosticMessage m, doc->diagnosticMessages()) {
         if (m.line() == lineNumber) {
             m_toolTip = m.text();
+            m_showF1 = false;
             break;
         }
     }
@@ -295,12 +299,13 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         foreach (const Document::Include &incl, doc->includes()) {
             if (incl.line() == lineNumber) {
                 m_toolTip = QDir::toNativeSeparators(incl.fileName());
+                m_helpId = QFileInfo(incl.fileName()).fileName();
                 break;
             }
         }
     }
 
-    if (m_toolTip.isEmpty()) {
+    if (m_helpId.isEmpty()) {
         // Move to the end of a qualified name
         bool stop = false;
         while (!stop) {
@@ -314,7 +319,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             }
         }
 
-        // Fetch the expression's code.
+        // Fetch the expression's code
         ExpressionUnderCursor expressionUnderCursor;
         const QString expression = expressionUnderCursor(tc);
 
@@ -334,25 +339,27 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
             m_helpId = buildHelpId(resolvedSymbol, resolvedName);
 
-            Symbol *symbol = result.second;
-            if (resolvedSymbol)
-                symbol = resolvedSymbol;
+            if (m_toolTip.isEmpty()) {
+                Symbol *symbol = result.second;
+                if (resolvedSymbol)
+                    symbol = resolvedSymbol;
 
-            Overview overview;
-            overview.setShowArgumentNames(true);
-            overview.setShowReturnTypes(true);
-            overview.setShowFullyQualifiedNamed(true);
+                Overview overview;
+                overview.setShowArgumentNames(true);
+                overview.setShowReturnTypes(true);
+                overview.setShowFullyQualifiedNamed(true);
 
-            if (lookupSymbol && (lookupSymbol->isDeclaration() || lookupSymbol->isArgument())) {
-                m_toolTip = overview.prettyType(firstType, buildHelpId(lookupSymbol, lookupSymbol->name()));
+                if (lookupSymbol && (lookupSymbol->isDeclaration() || lookupSymbol->isArgument())) {
+                    m_toolTip = overview.prettyType(firstType, buildHelpId(lookupSymbol, lookupSymbol->name()));
 
-            } else if (firstType->isClassType() || firstType->isEnumType() ||
-                       firstType->isForwardClassDeclarationType()) {
-                m_toolTip = m_helpId;
+                } else if (firstType->isClassType() || firstType->isEnumType() ||
+                           firstType->isForwardClassDeclarationType()) {
+                    m_toolTip = m_helpId;
 
-            } else {
-                m_toolTip = overview.prettyType(firstType, m_helpId);
+                } else {
+                    m_toolTip = overview.prettyType(firstType, m_helpId);
 
+                }
             }
         }
     }
@@ -378,9 +385,11 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         m_toolTip = Qt::escape(m_toolTip);
 
     if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {
-        m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
-                                          "<td><img src=\":/cppeditor/images/f1.svg\"></td></tr></table>"))
-                    .arg(m_toolTip);
+        if (m_showF1) {
+            m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
+                                              "<td><img src=\":/cppeditor/images/f1.svg\"></td></tr></table>"))
+                        .arg(m_toolTip);
+        }
         editor->setContextHelpId(m_helpId);
     } else if (!m_toolTip.isEmpty()) {
         m_toolTip = QString(QLatin1String("<nobr>%1")).arg(m_toolTip);
