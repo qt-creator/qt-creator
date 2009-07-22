@@ -36,6 +36,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/settingsutils.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
@@ -357,7 +358,7 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
     connect(d_ptr->ui.sizeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(fontSizeSelected(QString)));
     connect(d_ptr->ui.schemeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(colorSchemeSelected(int)));
     connect(d_ptr->ui.copyButton, SIGNAL(clicked()), this, SLOT(copyColorScheme()));
-    connect(d_ptr->ui.deleteButton, SIGNAL(clicked()), this, SLOT(deleteColorScheme()));
+    connect(d_ptr->ui.deleteButton, SIGNAL(clicked()), this, SLOT(confirmDeleteColorScheme()));
 
     updatePointSizes();
     refreshColorSchemeList();
@@ -466,23 +467,44 @@ void FontSettingsPage::copyColorScheme(const QString &name)
     }
 }
 
-void FontSettingsPage::deleteColorScheme()
+void FontSettingsPage::confirmDeleteColorScheme()
 {
-    int index = d_ptr->ui.schemeComboBox->currentIndex();
+    const int index = d_ptr->ui.schemeComboBox->currentIndex();
     if (index == -1)
         return;
 
     const ColorSchemeEntry &entry = d_ptr->m_schemeListModel->colorSchemeAt(index);
+    if (entry.readOnly)
+        return;
 
-    if (!entry.readOnly) {
-        int ret = QMessageBox::warning(d_ptr->ui.deleteButton->window(),
-                                       tr("Delete Color Scheme"),
-                                       tr("Are you sure you want to delete this color scheme permanently?"),
-                                       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
+                                              tr("Delete Color Scheme"),
+                                              tr("Are you sure you want to delete this color scheme permanently?"),
+                                              QMessageBox::Discard | QMessageBox::Cancel,
+                                              d_ptr->ui.deleteButton->window());
 
-        if (ret == QMessageBox::Yes && QFile::remove(entry.fileName))
-            d_ptr->m_schemeListModel->removeColorScheme(index);
-    }
+    // Change the text and role of the discard button
+    QPushButton *deleteButton = static_cast<QPushButton*>(messageBox->button(QMessageBox::Discard));
+    deleteButton->setText(tr("Delete"));
+    messageBox->addButton(deleteButton, QMessageBox::AcceptRole);
+    messageBox->setDefaultButton(deleteButton);
+
+    connect(deleteButton, SIGNAL(clicked()), messageBox, SLOT(accept()));
+    connect(messageBox, SIGNAL(accepted()), this, SLOT(deleteColorScheme()));
+    messageBox->setAttribute(Qt::WA_DeleteOnClose);
+    messageBox->open();
+}
+
+void FontSettingsPage::deleteColorScheme()
+{
+    const int index = d_ptr->ui.schemeComboBox->currentIndex();
+    QTC_ASSERT(index != -1, return)
+
+    const ColorSchemeEntry &entry = d_ptr->m_schemeListModel->colorSchemeAt(index);
+    QTC_ASSERT(!entry.readOnly, return)
+
+    if (QFile::remove(entry.fileName))
+        d_ptr->m_schemeListModel->removeColorScheme(index);
 }
 
 void FontSettingsPage::maybeSaveColorScheme()
