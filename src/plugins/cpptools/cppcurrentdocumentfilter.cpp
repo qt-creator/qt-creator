@@ -32,6 +32,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <cplusplus/CppDocument.h>
 
+#include <QtCore/QStringMatcher>
+
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
