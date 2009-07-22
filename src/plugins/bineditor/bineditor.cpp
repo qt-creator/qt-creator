@@ -466,7 +466,8 @@ int BinEditor::dataIndexOf(const QByteArray &pattern, int from, bool caseSensiti
     if (trailing > m_blockSize)
         return -1;
 
-    QByteArray buffer(m_blockSize + trailing, Qt::Uninitialized);
+    QByteArray buffer;
+    buffer.resize(m_blockSize + trailing);
     char *b = buffer.data();
     QByteArrayMatcher matcher(pattern);
 
