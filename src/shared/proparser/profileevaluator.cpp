@@ -208,7 +208,6 @@ public:
     bool m_invertNext; // Short-lived, so not in State
     int m_skipLevel;
     bool m_cumulative;
-    QString m_origfile;
     QString m_oldPath;                              // To restore the current path to the path
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
     struct ProLoop {
@@ -791,8 +790,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
 {
     PRE(pro);
     m_lineNo = pro->lineNumber();
-    if (m_origfile.isEmpty())
-        m_origfile = pro->fileName();
     if (m_oldPath.isEmpty()) {
         // change the working directory for the initial profile we visit, since
         // that is *the* profile. All the other times we reach this function will be due to
@@ -2257,9 +2254,9 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
     if (variableName == QLatin1String("_DATE_")) //current date/time
         return QStringList(QDateTime::currentDateTime().toString());
     if (variableName == QLatin1String("_PRO_FILE_"))
-        return QStringList(m_origfile);
+        return QStringList(m_profileStack.first()->fileName());
     if (variableName == QLatin1String("_PRO_FILE_PWD_"))
-        return  QStringList(QFileInfo(m_origfile).absolutePath());
+        return  QStringList(QFileInfo(m_profileStack.first()->fileName()).absolutePath());
     if (variableName == QLatin1String("_QMAKE_CACHE_"))
         return QStringList(); // FIXME?
     if (variableName.startsWith(QLatin1String("QMAKE_HOST."))) {
