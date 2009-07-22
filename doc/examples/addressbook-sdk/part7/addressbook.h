@@ -29,9 +29,10 @@ public slots:
     void next();
     void previous();
     void findContact();
-//! [slot definition]
     void saveToFile();
     void loadFromFile();
+//! [slot definition]
+    void exportAsVCard();
 //! [slot definition]
 
 private:

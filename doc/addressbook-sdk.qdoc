@@ -881,10 +881,13 @@
     \gui{Save...} respectively. Ideally, it would be more user-friendly to set
     the push buttons' labels to \gui{Load contacts from file} and
     \gui{Save contacts to file}. However, due to the size of our push buttons,
-    we set the labels to \gui{Load...} and \gui{Save...} instead. Fortunately,
-    Qt Creator's \QD plugin provides a simple way to set tooltips with the
-    \c toolTip property. To test your tooltip, use \key{Ctrl+Alt+R} and hover
-    your mouse cursor on the push buttons.
+    we set the labels to \gui{Load...} and \gui{Save...} instead.
+
+    Fortunately, Qt Creator's \QD plugin provides a simple way to set tooltips
+    with the \c toolTip property. So, we set our buttons' tooltips to
+    \gui{Load contacts from file} and \gui{Save contacts to file} respectively.
+    To test your tooltip, use \key{Ctrl+Alt+R} and hover your mouse cursor on
+    the push buttons.
 
 
     # screenshot of property editor
@@ -894,7 +897,7 @@
 
     We declare two public slots, \c saveToFile() and \c loadFromFile().
 
-    # code
+    \snippet examples/addressbook-sdk/part6/addressbook.h slot definition
 
     Now lets look at the \c saveToFile() and \c loadFromFile() functions in
     detail.
@@ -988,7 +991,8 @@
     \section1 Placing Widgets on The Form
 
     We add a push button into our layout by dragging and dropping it in, with
-    \c exportButton as its \c objectName.
+    \c exportButton as its \c objectName. The \c toolTip property is set to
+    \gui{Export as vCard}.
 
     # screenshot
 

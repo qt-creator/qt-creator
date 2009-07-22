@@ -31,6 +31,8 @@ AddressBook::AddressBook(QWidget *parent)
                 SLOT(removeContact()));
     connect(ui->findButton, SIGNAL(clicked()), this,
                 SLOT(findContact()));
+    connect(ui->exportButton, SIGNAL(clicked()), this,
+                SLOT(exportAsVCard()));
 
     setWindowTitle(tr("Simple Address Book"));
 }
@@ -281,7 +283,7 @@ void AddressBook::loadFromFile()
         in >> contacts;
 
         if (contacts.isEmpty()) {
-            QMessagebox::information(this, tr("No contacts in file"),
+            QMessageBox::information(this, tr("No contacts in file"),
                 tr("The file you are attempting to open contains no contacts."));
         } else {
             QMap<QString, QString>::iterator i = contacts.begin();
@@ -291,4 +293,60 @@ void AddressBook::loadFromFile()
     }
 
     updateInterface(NavigationMode);
+}
+
+void AddressBook::exportAsVCard()
+{
+    QString name = ui->nameLine->text();
+    QString address = ui->addressText->toPlainText();
+    QString firstName;
+    QString lastName;
+    QStringList nameList;
+
+    int index = name.indexOf(" ");
+
+    if (index != -1) {
+        nameList = name.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+        firstName = nameList.first();
+        lastName = nameList.last();
+    } else {
+        firstName = name;
+        lastName = "";
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Export Coontact"), "",
+        tr("vCard files (*.vcf);;All Files (*)"));
+
+    if (fileName.isEmpty())
+        return;
+
+    QFile file(fileName);
+
+    if (!file.open(QIODevice::WriteOnly)) {
+        QMessageBox::information(this, tr("Unable to open file"),
+            file.errorString());
+        return;
+    }
+
+    QTextStream out(&file);
+
+    out << "BEGIN:VCARD" << "\n";
+    out << "VERSION:2.1" << "\n";
+    out << "N:" << lastName << ";" << firstName << "\n";
+
+    if (!nameList.isEmpty())
+        out << "FN:" << nameList.join(" ") << "\n";
+    else
+        out << "FN:" << firstName << "\n";
+
+    address.replace(";", "\\;", Qt::CaseInsensitive);
+    address.replace("\n", ";", Qt::CaseInsensitive);
+    address.replace(",", " ", Qt::CaseInsensitive);
+
+    out << "ADR;HOME:;" << address << "\n";
+    out << "END;VCARD" << "\n";
+
+    QMessageBox::information(this, tr("Export Successful"),
+        tr("\%1\" has been exported as a vCard.").arg(name));
 }

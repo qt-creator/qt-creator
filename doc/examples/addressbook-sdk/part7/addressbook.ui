@@ -104,6 +104,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="exportButton">
+         <property name="toolTip">
+          <string>Export as vCard</string>
+         </property>
+         <property name="text">
+          <string>Export</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
