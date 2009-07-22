@@ -547,121 +547,194 @@ QtVersion *QtVersionManager::qtVersionForDirectory(const QString &directory)
    return 0;
 }
 
-QtVersion::QmakeBuildConfig QtVersionManager::scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig)
+void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
 {
-    bool debugScan = false;
+    foreach(QMakeAssignment qa, list) {
+        qDebug()<<qa.variable<<qa.op<<qa.value;
+    }
+}
+
+// New code
+QPair<QtVersion::QmakeBuildConfig, QStringList> QtVersionManager::scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig)
+{
+    qDebug()<<"ScanMakeFile, the gory details:";
     QtVersion::QmakeBuildConfig result = QtVersion::NoBuild;
+    QStringList result2;
+
+    QString line = findQMakeLine(directory);
+    if (!line.isEmpty()) {
+        qDebug()<<"Found line"<<line;
+        line = trimLine(line);
+        qDebug()<<"Trimmed to"<<line;
+        QStringList parts = splitLine(line);
+        qDebug()<<"Splitted into"<<parts;
+        QList<QMakeAssignment> assignments;
+        QList<QMakeAssignment> afterAssignments;
+        QStringList additionalArguments;
+        parseParts(parts, &assignments, &afterAssignments, &additionalArguments);
+
+        qDebug()<<"After parseParts";
+        dumpQMakeAssignments(assignments);
+        qDebug()<<"-after";
+        dumpQMakeAssignments(afterAssignments);
+
+        // Search in assignments for CONFIG(+=,-=,=)(debug,release,debug_and_release)
+        // Also remove them from the list
+        result = qmakeBuildConfigFromCmdArgs(&assignments, defaultBuildConfig);
+
+        qDebug()<<"After qmakeBuildConfigFromCmdArgs";
+        dumpQMakeAssignments(assignments);
+
+        result2.append(additionalArguments);
+        foreach(QMakeAssignment qa, assignments)
+            result2.append(qa.variable + qa.op + qa.value);
+        if (!afterAssignments.isEmpty()) {
+            result2.append("-after");
+            foreach(QMakeAssignment qa, afterAssignments)
+                result2.append(qa.variable + qa.op + qa.value);
+        }
+    }
+
+    // Dump the gathered information:
+    qDebug()<<"\n\nDumping information from scanMakeFile";
+    qDebug()<<"QMake CONFIG variable parsing";
+    qDebug()<<"  "<< (result & QtVersion::NoBuild ? "No Build" : QString::number(int(result)));
+    qDebug()<<"  "<< (result & QtVersion::DebugBuild ? "debug" : "release");
+    qDebug()<<"  "<< (result & QtVersion::BuildAll ? "debug_and_release" : "no debug_and_release");
+    qDebug()<<"\nAddtional Arguments";
+    qDebug()<<result2;
+    qDebug()<<"\n\n";
+    return qMakePair(result, result2);
+}
+
+QString QtVersionManager::findQMakeLine(const QString &directory)
+{
     QFile makefile(directory + "/Makefile" );
     if (makefile.exists() && makefile.open(QFile::ReadOnly)) {
         QTextStream ts(&makefile);
         while (!ts.atEnd()) {
             QString line = ts.readLine();
-            if (line.startsWith("# Command:")) {
-                // if nothing is specified
-                result = defaultBuildConfig;
-
-                // Actually parsing that line is not trivial in the general case
-                // There might things like this
-                // # Command: /home/dteske/git/bqt-45/bin/qmake -unix CONFIG+=debug\ release CONFIG\ +=\ debug_and_release\ debug -o Makefile test.pro
-                // which sets debug_and_release and debug
-                // or something like this:
-                //[...] CONFIG+=debug\ release CONFIG\ +=\ debug_and_release\ debug CONFIG\ -=\ debug_and_release CONFIG\ -=\ debug -o Makefile test.pro
-                // which sets -build_all and release
-
-                // To parse that, we search for the first CONFIG, then look for " " which is not after a "\" or the end
-                // And then look at each config individually
-                // we then remove all "\ " with just " "
-                // += sets adding flags
-                // -= sets removing flags
-                // and then split the string after the =
-                // and go over each item separetly
-                // debug sets/removes the flag DebugBuild
-                // release removes/sets the flag DebugBuild
-                // debug_and_release sets/removes the flag BuildAll
-                int pos = line.indexOf("CONFIG");
-                if (pos != -1) {
-                    // Chopped of anything that is not interesting
-                    line = line.mid(pos);
-                    line = line.trimmed();
-                    if (debugScan)
-                        qDebug()<<"chopping line :"<<line;
-
-                    //Now chop into parts that are intresting
-                    QStringList parts;
-                    int lastpos = 0;
-                    for (int i = 1; i < line.size(); ++i) {
-                        if (line.at(i) == QLatin1Char(' ') && line.at(i-1) != QLatin1Char('\\')) {
-                            // found a part
-                            parts.append(line.mid(lastpos, i-lastpos));
-                            if (debugScan)
-                                qDebug()<<"part appended:"<<line.mid(lastpos, i-lastpos);
-                            lastpos = i + 1; // Nex one starts after the space
-                        }
-                    }
-                    parts.append(line.mid(lastpos));
-                    if (debugScan)
-                        qDebug()<<"part appended:"<<line.mid(lastpos);
-
-                    foreach(const QString &part, parts) {
-                        if (debugScan)
-                            qDebug()<<"now interpreting part"<<part;
-                        bool setFlags;
-                        // Now try to understand each part for that we do a rather stupid approach, optimize it if you care
-                        if (part.startsWith("CONFIG")) {
-                            // Yep something interesting
-                            if (part.indexOf("+=") != -1) {
-                                setFlags = true;
-                            } else if (part.indexOf("-=") != -1) {
-                                setFlags = false;
-                            } else {
-                                setFlags = true;
-                                if (debugScan)
-                                    qDebug()<<"This can never happen, except if we can't parse Makefiles...";
-                            }
-                            if (debugScan)
-                                qDebug()<<"part has setFlags:"<<setFlags;
-                            // now loop forward, looking for something that looks like debug, release or debug_and_release
-
-                            for (int i = 0; i < part.size(); ++i) {
-                                int left = part.size() - i;
-                                if (left >= 17  && QStringRef(&part, i, 17) == "debug_and_release") {
-                                        if (setFlags)
-                                            result = QtVersion::QmakeBuildConfig(result | QtVersion::BuildAll);
-                                        else
-                                            result = QtVersion::QmakeBuildConfig(result & ~QtVersion::BuildAll);
-                                        if (debugScan)
-                                            qDebug()<<"found debug_and_release new value"<<result;
-                                        i += 17;
-                                } else if (left >=7 && QStringRef(&part, i, 7) ==  "release") {
-                                        if (setFlags)
-                                            result = QtVersion::QmakeBuildConfig(result & ~QtVersion::DebugBuild);
-                                        else
-                                            result = QtVersion::QmakeBuildConfig(result | QtVersion::DebugBuild);
-                                        if (debugScan)
-                                            qDebug()<<"found release new value"<<result;
-                                        i += 7;
-                                } else if (left >= 5 && QStringRef(&part, i, 5) == "debug") {
-                                        if (setFlags)
-                                            result = QtVersion::QmakeBuildConfig(result  | QtVersion::DebugBuild);
-                                        else
-                                            result = QtVersion::QmakeBuildConfig(result  & ~QtVersion::DebugBuild);
-                                        if (debugScan)
-                                            qDebug()<<"found debug new value"<<result;
-                                        i += 5;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (debugScan)
-                    qDebug()<<"returning: "<<result;
-                if (debugScan)
-                    qDebug()<<"buildall = "<<bool(result & QtVersion::BuildAll);
-                if (debugScan)
-                    qDebug()<<"debug ="<<bool(result & QtVersion::DebugBuild);
-            }
+            if (line.startsWith("# Command:"))
+                return line;
         }
-        makefile.close();
+    }
+    return QString();
+}
+
+/// This function trims the "#Command /path/to/qmake" from the the line
+QString QtVersionManager::trimLine(const QString line)
+{
+
+    // Actually the first space after #Command: /path/to/qmake
+    int firstSpace = line.indexOf(" ", 11);
+    return line.mid(firstSpace).trimmed();
+}
+
+QStringList QtVersionManager::splitLine(const QString &line)
+{
+    // Split on each " ", except on those which are escaped
+    // Also remove all escaping
+    bool escape = false;
+    QString currentWord;
+    QStringList results;
+    int length = line.length();
+    for (int i=0; i<length; ++i) {
+        if (escape) {
+            currentWord += line.at(i);
+            escape = false;
+        } else if (line.at(i) == ' ') {
+            results << currentWord;
+            currentWord.clear();
+        } else if (line.at(i) == '\\') {
+            escape = true;
+        } else {
+            currentWord += line.at(i);
+        }
+    }
+    return results;
+}
+
+void QtVersionManager::parseParts(const QStringList &parts, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments, QStringList *additionalArguments)
+{
+    QRegExp regExp("([^\\s\\+-]*)\\s*(\\+=|=|-=|~=)(.*)");
+    bool after = false;
+    bool ignoreNext = false;
+    foreach (const QString &part, parts) {
+        if (ignoreNext) {
+            // Ignoring
+            ignoreNext = false;
+        } else if (part == "after") {
+            after = true;
+        } else if(part.contains('=')) {
+            if (regExp.exactMatch(part)) {
+                qDebug()<<regExp.cap(1)<<"|"<<regExp.cap(2)<<"|"<<regExp.cap(3);
+                QMakeAssignment qa;
+                qa.variable = regExp.cap(1);
+                qa.op = regExp.cap(2);
+                qa.value = regExp.cap(3).trimmed();
+                if (after)
+                    afterAssignments->append(qa);
+                else
+                    assignments->append(qa);
+            } else {
+                qDebug()<<"regexp did not match";
+            }
+        } else if (part == "-o") {
+            ignoreNext = true;
+        } else {
+            qDebug()<<"Not parsed"<<part;
+            additionalArguments->append(part);
+        }
+    }
+#if defined(Q_OS_WIN32)
+    additionalArguments->removeAll("-win32");
+#elif defined(Q_OS_MAC)
+    additionalArguments->removeAll("-macx");
+#elif defined(Q_OS_QNX6)
+    additionalArguments->removeAll("-qnx6");
+#else
+    additionalArguments->removeAll("-unix");
+#endif
+}
+
+
+/// This function extracts all the CONFIG+=debug, CONFIG+=release
+QtVersion::QmakeBuildConfig QtVersionManager::qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, QtVersion::QmakeBuildConfig defaultBuildConfig)
+{
+    QtVersion::QmakeBuildConfig result = defaultBuildConfig;
+    QList<QMakeAssignment> oldAssignments = *assignments;
+    assignments->clear();
+    foreach(QMakeAssignment qa, oldAssignments) {
+        if (qa.variable == "CONFIG") {
+            QStringList values = qa.value.split(' ');
+            QStringList newValues;
+            foreach(const QString &value, values) {
+                if (value == "debug") {
+                    if (qa.op == "+=")
+                        result = QtVersion::QmakeBuildConfig(result  | QtVersion::DebugBuild);
+                    else
+                        result = QtVersion::QmakeBuildConfig(result  & ~QtVersion::DebugBuild);
+                } else if (value == "release") {
+                    if (qa.op == "+=")
+                        result = QtVersion::QmakeBuildConfig(result & ~QtVersion::DebugBuild);
+                    else
+                        result = QtVersion::QmakeBuildConfig(result | QtVersion::DebugBuild);
+                } else if (value == "debug_and_release") {
+                    if (qa.op == "+=")
+                        result = QtVersion::QmakeBuildConfig(result | QtVersion::BuildAll);
+                    else
+                        result = QtVersion::QmakeBuildConfig(result & ~QtVersion::BuildAll);
+                } else {
+                    newValues.append(value);
+                }
+                QMakeAssignment newQA = qa;
+                newQA.value = newValues.join(" ");
+                if (!newValues.isEmpty())
+                    assignments->append(newQA);
+            }
+        } else {
+            assignments->append(qa);
+        }
     }
     return result;
 }

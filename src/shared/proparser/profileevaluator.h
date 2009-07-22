@@ -59,6 +59,9 @@ public:
     void setVerbose(bool on); // Default is false
     void setCumulative(bool on); // Default is true!
     void setOutputDir(const QString &dir); // Default is empty
+
+    // -nocache, -cache, -spec, QMAKESPEC
+    // -set persistent value
     void setUserConfigCmdArgs(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs);
     void setParsePreAndPostFiles(bool on); // Default is true
 

@@ -167,6 +167,13 @@ private:
     mutable QString m_qmakeCXX;
 };
 
+struct QMakeAssignment
+{
+    QString variable;
+    QString op;
+    QString value;
+};
+
 class QtVersionManager : public QObject
 {
     Q_OBJECT
@@ -189,13 +196,18 @@ public:
     void removeVersion(QtVersion *version);
 
     // Static Methods
-    static QtVersion::QmakeBuildConfig scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
+    static QPair<QtVersion::QmakeBuildConfig, QStringList> scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
     static QString findQtVersionFromMakefile(const QString &directory);
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();
     void updatedExamples(const QString& examplesPath, const QString& demosPath);
 private:
+    static QString findQMakeLine(const QString &directory);
+    static QString trimLine(const QString line);
+    static QStringList splitLine(const QString &line);
+    static void parseParts(const QStringList &parts, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments, QStringList *additionalArguments);
+    static QtVersion::QmakeBuildConfig qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, QtVersion::QmakeBuildConfig defaultBuildConfig);
     // Used by QtOptionsPage
     void setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion);
     // Used by QtVersion

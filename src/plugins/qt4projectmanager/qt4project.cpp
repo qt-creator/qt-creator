@@ -722,11 +722,7 @@ void Qt4Project::addDefaultBuild()
         wizard.execDialog();
     } else {
         // Migrate settings
-        QMakeStep *qs = 0;
-        foreach(BuildStep *bs, buildSteps())
-            if ( (qs = qobject_cast<QMakeStep *>(bs)) != 0)
-                break;
-
+        QMakeStep *qs = qmakeStep();
         foreach (const QString &buildConfiguration, buildConfigurations()) {
             QVariant v = qs->value(buildConfiguration, "buildConfiguration");
             if (v.isValid()) {
@@ -1042,6 +1038,15 @@ void Qt4Project::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *nod
             }
         }
     }
+}
+
+QMakeStep *Qt4Project::qmakeStep() const
+{
+    QMakeStep *qs = 0;
+    foreach(BuildStep *bs, buildSteps())
+        if ((qs = qobject_cast<QMakeStep *>(bs)) != 0)
+            return qs;
+    return 0;
 }
 
 MakeStep *Qt4Project::makeStep() const

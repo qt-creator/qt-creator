@@ -256,10 +256,7 @@ void Qt4Manager::runQMakeContextMenu()
 
 void Qt4Manager::runQMake(ProjectExplorer::Project *p)
 {
-    QMakeStep *qs = 0;
-    foreach(BuildStep *bs, p->buildSteps())
-        if ( (qs = qobject_cast<QMakeStep *>(bs)) != 0)
-            break;
+    QMakeStep *qs = qobject_cast<Qt4Project *>(p)->qmakeStep();
     if (!qs)
         return;
     //found qmakeStep, now use it

@@ -227,14 +227,18 @@ void Qt4ProjectConfigWidget::importLabelClicked()
                     version = new QtVersion(QFileInfo(qtPath).baseName(), qtPath);
                     vm->addVersion(version);
                 }
-                QtVersion::QmakeBuildConfig qmakeBuildConfig = version->defaultBuildConfig();
-                qmakeBuildConfig = QtVersionManager::scanMakefileForQmakeConfig(directory, qmakeBuildConfig);
+
+                QPair<QtVersion::QmakeBuildConfig, QStringList> result =
+                        QtVersionManager::scanMakeFile(directory, version->defaultBuildConfig());
+                QtVersion::QmakeBuildConfig qmakeBuildConfig = result.first;
+                QStringList additionalArguments = result.second;
 
                 // So we got all the information now apply it...
                 m_pro->setQtVersion(m_buildConfiguration, version->uniqueId());
                 // Combo box will be updated at the end
 
-                // Find qmakestep...
+                QMakeStep *qmakeStep = m_pro->qmakeStep();
+                qmakeStep->setValue(m_buildConfiguration, "qmakeArgs", additionalArguments);
                 MakeStep *makeStep = m_pro->makeStep();
 
                 m_pro->setValue(m_buildConfiguration, "buildConfiguration", int(qmakeBuildConfig));
