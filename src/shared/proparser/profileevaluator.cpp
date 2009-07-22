@@ -856,14 +856,14 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
                 }
                 m_cumulative = cumulative;
             }
-
-            foreach (ProBlock *itm, m_replaceFunctions)
-                itm->deref();
-            m_replaceFunctions.clear();
-            foreach (ProBlock *itm, m_testFunctions)
-                itm->deref();
-            m_testFunctions.clear();
         }
+
+        foreach (ProBlock *itm, m_replaceFunctions)
+            itm->deref();
+        m_replaceFunctions.clear();
+        foreach (ProBlock *itm, m_testFunctions)
+            itm->deref();
+        m_testFunctions.clear();
 
         m_profileStack.pop();
         return returnBool(QDir::setCurrent(m_oldPath));
