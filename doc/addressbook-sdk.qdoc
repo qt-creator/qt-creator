@@ -892,13 +892,9 @@
 
     \section1 The AddressBook Class
 
-    We declare two public slots, \c saveToFile() and \c loadFromFile(), as well
-    as two QPushButton objects, \c loadButton and \c saveButton.
+    We declare two public slots, \c saveToFile() and \c loadFromFile().
 
     # code
-
-    In our constructor, we instantiate \c loadButton and \c saveButton.
-
 
     Now lets look at the \c saveToFile() and \c loadFromFile() functions in
     detail.
@@ -914,7 +910,7 @@
 
     \snippet examples/addressbook-sdk/part6/addressbook.cpp saveToFile part1
 
-    The file dialog that pops up is displayed in the screenshto below:
+    The file dialog that pops up is displayed in the screenshot below:
 
     #screenshot
 
