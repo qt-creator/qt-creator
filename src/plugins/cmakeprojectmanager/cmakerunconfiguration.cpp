@@ -237,6 +237,8 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 {
 
     QFormLayout *fl = new QFormLayout();
+    fl->setMargin(0);
+    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     QLineEdit *argumentsLineEdit = new QLineEdit();
     argumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(cmakeRunConfiguration->commandLineArguments()));
     connect(argumentsLineEdit, SIGNAL(textChanged(QString)),
@@ -259,6 +261,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     fl->addRow(tr("Working Directory:"), boxlayout);
 
     QVBoxLayout *vbx = new QVBoxLayout(this);
+    vbx->setContentsMargins(0, -1, 0, -1);
     vbx->addLayout(fl);
 
     QLabel *environmentLabel = new QLabel(this);
