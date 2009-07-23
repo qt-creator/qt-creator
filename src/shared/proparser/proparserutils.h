@@ -35,10 +35,6 @@
 
 QT_BEGIN_NAMESPACE
 
-// Pre- and postcondition macros
-#define PRE(cond) do {if(!(cond))qt_assert(#cond,__FILE__,__LINE__);} while (0)
-#define POST(cond) do {if(!(cond))qt_assert(#cond,__FILE__,__LINE__);} while (0)
-
 // This struct is from qmake, but we are not using everything.
 struct Option
 {

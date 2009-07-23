@@ -788,7 +788,6 @@ void ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 
 ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
 {
-    PRE(pro);
     m_lineNo = pro->lineNumber();
     m_profileStack.push(pro);
     if (m_profileStack.count() == 1) {
@@ -827,7 +826,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
 
 ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
 {
-    PRE(pro);
     m_lineNo = pro->lineNumber();
     if (m_profileStack.count() == 1) {
         if (m_parsePreAndPostFiles) {
@@ -871,7 +869,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
 
 void ProFileEvaluator::Private::visitProValue(ProValue *value)
 {
-    PRE(value);
     m_lineNo = value->lineNumber();
     m_sts.varVal += expandVariableReferences(value->value());
 }
