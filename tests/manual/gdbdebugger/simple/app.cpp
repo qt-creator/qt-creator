@@ -1213,8 +1213,33 @@ void testQHash1()
     hash.insert("!", QList<int>() << 1 << 2);
 }
 
+void testPointer()
+{
+    Foo *f = new Foo();
+    int i = 0;
+    ++i;
+    ++i;
+    ++i;
+}
+
+class Z : public QObject
+{
+public:
+    Z() {
+        f = new Foo();
+        i = 0;
+        i = 1;
+        i = 2;
+        i = 3;
+    }
+    int i;
+    Foo *f;
+};
+
+
 int main(int argc, char *argv[])
 {
+    testPointer();
     testQFileInfo();
     testObject1();
     testVector1();
