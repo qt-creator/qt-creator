@@ -67,6 +67,7 @@ private:
 private:
     QMap<QString, ProFile *> m_includeFiles;
     QList<ProFile *> m_proFiles;
+    ProFileEvaluator::Option m_option;
 };
 
 } // namespace Internal

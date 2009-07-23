@@ -35,7 +35,7 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-ProFileReader::ProFileReader()
+ProFileReader::ProFileReader() : ProFileEvaluator(&m_option)
 {
 }
 

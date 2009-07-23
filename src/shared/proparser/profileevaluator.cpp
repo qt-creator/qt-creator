@@ -82,20 +82,31 @@ namespace {
 //
 ///////////////////////////////////////////////////////////////////////
 
-#if defined(Q_OS_WIN32)
-ProFileEvaluator::Option::TARG_MODE ProFileEvaluator::Option::target_mode = ProFileEvaluator::Option::TARG_WIN_MODE;
-#elif defined(Q_OS_MAC)
-ProFileEvaluator::Option::TARG_MODE ProFileEvaluator::Option::target_mode = ProFileEvaluator::Option::TARG_MACX_MODE;
-#elif defined(Q_OS_QNX6)
-ProFileEvaluator::Option::TARG_MODE ProFileEvaluator::Option::target_mode = ProFileEvaluator::Option::TARG_QNX6_MODE;
+ProFileEvaluator::Option::Option()
+{
+#ifdef Q_OS_WIN
+    dirlist_sep = QLatin1Char(';');
+    dir_sep = QLatin1Char('\\');
 #else
-ProFileEvaluator::Option::TARG_MODE ProFileEvaluator::Option::target_mode = ProFileEvaluator::Option::TARG_UNIX_MODE;
+    dirlist_sep = QLatin1Char(':');
+    dir_sep = QLatin1Char('/');
+#endif
+    qmakespec = QString::fromLatin1(qgetenv("QMAKESPEC").data());
+
+#if defined(Q_OS_WIN32)
+    target_mode = TARG_WIN_MODE;
+#elif defined(Q_OS_MAC)
+    target_mode = TARG_MACX_MODE;
+#elif defined(Q_OS_QNX6)
+    target_mode = TARG_QNX6_MODE;
+#else
+    target_mode = TARG_UNIX_MODE;
 #endif
 
-QString ProFileEvaluator::Option::qmakespec;
-QString ProFileEvaluator::Option::dirlist_sep;
-QString ProFileEvaluator::Option::dir_sep;
-QChar ProFileEvaluator::Option::field_sep;
+    field_sep = QLatin1String(" ");
+}
+
+QString ProFileEvaluator::Option::field_sep;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -106,7 +117,7 @@ QChar ProFileEvaluator::Option::field_sep;
 class ProFileEvaluator::Private : public AbstractProItemVisitor
 {
 public:
-    Private(ProFileEvaluator *q_);
+    Private(ProFileEvaluator *q_, ProFileEvaluator::Option *option);
 
     ProFileEvaluator *q;
     int m_lineNo;                                   // Error reporting
@@ -160,6 +171,8 @@ public:
                        const ProFile *pro) const;
     QString propertyValue(const QString &val) const;
 
+    QStringList split_value_list(const QString &vals, bool do_semicolon = false);
+    QStringList split_arg_list(const QString &params);
     bool isActiveConfig(const QString &config, bool regex = false);
     QStringList expandVariableReferences(const QString &value);
     void doVariableReplace(QString *str);
@@ -179,7 +192,8 @@ public:
 
     QStringList evaluateFunction(ProBlock *funcPtr, const QStringList &argumentsList, bool *ok);
 
-    QStringList qmakeFeaturePaths();
+    QStringList qmakeMkspecPaths() const;
+    QStringList qmakeFeaturePaths() const;
 
     struct State {
         bool condition;
@@ -216,6 +230,8 @@ public:
     QStringList m_addUserConfigCmdArgs;
     QStringList m_removeUserConfigCmdArgs;
     bool m_parsePreAndPostFiles;
+
+    Option *m_option;
 };
 
 #if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
@@ -223,8 +239,8 @@ Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::State, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::ProLoop, Q_MOVABLE_TYPE);
 #endif
 
-ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
-  : q(q_)
+ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileEvaluator::Option *option)
+  : q(q_), m_option(option)
 {
     // Configuration, more or less
     m_verbose = true;
@@ -586,7 +602,7 @@ void ProFileEvaluator::Private::updateItem()
 
 //////// Evaluator tools /////////
 
-static QStringList split_arg_list(QString params)
+QStringList ProFileEvaluator::Private::split_arg_list(const QString &params)
 {
     int quote = 0;
     QStringList args;
@@ -641,12 +657,13 @@ static QStringList split_arg_list(QString params)
     return args;
 }
 
-static QStringList split_value_list(const QString &vals, bool do_semicolon=false)
+QStringList ProFileEvaluator::Private::split_value_list(const QString &vals, bool do_semicolon)
 {
     QString build;
     QStringList ret;
     QStack<char> quote;
 
+    const ushort SPACE = ' ';
     const ushort LPAREN = '(';
     const ushort RPAREN = ')';
     const ushort SINGLEQUOTE = '\'';
@@ -673,7 +690,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
         }
 
         if (!parens && quote.isEmpty() && ((do_semicolon && unicode == SEMICOLON) ||
-                                           vals_data[x] == ProFileEvaluator::Option::field_sep)) {
+                                           vals_data[x] == SPACE)) {
             ret << build;
             build.clear();
         } else {
@@ -1046,14 +1063,14 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFunction(ProFunction *
 }
 
 
-static QStringList qmake_mkspec_paths()
+QStringList ProFileEvaluator::Private::qmakeMkspecPaths() const
 {
     QStringList ret;
     const QString concat = QDir::separator() + QString(QLatin1String("mkspecs"));
     QByteArray qmakepath = qgetenv("QMAKEPATH");
     if (!qmakepath.isEmpty()) {
         const QStringList lst = QString::fromLocal8Bit(qmakepath)
-                .split(ProFileEvaluator::Option::dirlist_sep);
+                .split(m_option->dirlist_sep);
         for (QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it)
             ret << ((*it) + concat);
     }
@@ -1062,7 +1079,7 @@ static QStringList qmake_mkspec_paths()
     return ret;
 }
 
-QStringList ProFileEvaluator::Private::qmakeFeaturePaths()
+QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
 {
     QStringList concat;
     {
@@ -1079,15 +1096,15 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths()
     QStringList feature_roots;
     QByteArray mkspec_path = qgetenv("QMAKEFEATURES");
     if (!mkspec_path.isNull())
-        feature_roots += QString::fromLocal8Bit(mkspec_path).split(Option::dirlist_sep);
+        feature_roots += QString::fromLocal8Bit(mkspec_path).split(m_option->dirlist_sep);
     /*
     if (prop)
-        feature_roots += prop->value("QMAKEFEATURES").split(Option::dirlist_sep);
-    if (!Option::mkfile::cachefile.isEmpty()) {
+        feature_roots += prop->value("QMAKEFEATURES").split(m_option->dirlist_sep);
+    if (!m_option->mkfile::cachefile.isEmpty()) {
         QString path;
-        int last_slash = Option::mkfile::cachefile.lastIndexOf(Option::dir_sep);
+        int last_slash = m_option->mkfile::cachefile.lastIndexOf(m_option->dir_sep);
         if (last_slash != -1)
-            path = fixPathToLocalOS(Option::mkfile::cachefile.left(last_slash));
+            path = fixPathToLocalOS(m_option->mkfile::cachefile.left(last_slash));
         foreach (const QString &concat_it, concat)
             feature_roots << (path + concat_it);
     }
@@ -1095,16 +1112,16 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths()
 
     QByteArray qmakepath = qgetenv("QMAKEPATH");
     if (!qmakepath.isNull()) {
-        const QStringList lst = QString::fromLocal8Bit(qmakepath).split(Option::dirlist_sep);
+        const QStringList lst = QString::fromLocal8Bit(qmakepath).split(m_option->dirlist_sep);
         foreach (const QString &item, lst) {
             foreach (const QString &concat_it, concat)
                 feature_roots << (item + mkspecs_concat + concat_it);
         }
     }
-    //if (!Option::mkfile::qmakespec.isEmpty())
-    //    feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
-    //if (!Option::mkfile::qmakespec.isEmpty()) {
-    //    QFileInfo specfi(Option::mkfile::qmakespec);
+    //if (!m_option->mkfile::qmakespec.isEmpty())
+    //    feature_roots << m_option->mkfile::qmakespec + QDir::separator() + "features";
+    //if (!m_option->mkfile::qmakespec.isEmpty()) {
+    //    QFileInfo specfi(m_option->mkfile::qmakespec);
     //    QDir specdir(specfi.absoluteFilePath());
     //    while (!specdir.isRoot()) {
     //        if (!specdir.cdUp() || specdir.isRoot())
@@ -1152,7 +1169,7 @@ QString ProFileEvaluator::Private::propertyValue(const QString &name) const
     if (name == QLatin1String("QT_INSTALL_DEMOS"))
         return QLibraryInfo::location(QLibraryInfo::DemosPath);
     if (name == QLatin1String("QMAKE_MKSPECS"))
-        return qmake_mkspec_paths().join(Option::dirlist_sep);
+        return qmakeMkspecPaths().join(m_option->dirlist_sep);
     if (name == QLatin1String("QMAKE_VERSION"))
         return QLatin1String("1.0");        //### FIXME
         //return qmake_version();
@@ -1186,7 +1203,7 @@ QString ProFileEvaluator::Private::currentDirectory() const
 
 void ProFileEvaluator::Private::doVariableReplace(QString *str)
 {
-    *str = expandVariableReferences(*str).join(QString(Option::field_sep));
+    *str = expandVariableReferences(*str).join(Option::field_sep);
 }
 
 QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &str)
@@ -1311,7 +1328,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
                     current = str.left(start_var);
                 if (!replacement.isEmpty()) {
                     if (quote) {
-                        current += replacement.join(QString(Option::field_sep));
+                        current += replacement.join(Option::field_sep);
                     } else {
                         current += replacement.takeFirst();
                         if (!replacement.isEmpty()) {
@@ -1377,28 +1394,28 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
         return false;
 
     // mkspecs
-    if ((Option::target_mode == Option::TARG_MACX_MODE
-            || Option::target_mode == Option::TARG_QNX6_MODE
-            || Option::target_mode == Option::TARG_UNIX_MODE)
+    if ((m_option->target_mode == m_option->TARG_MACX_MODE
+            || m_option->target_mode == m_option->TARG_QNX6_MODE
+            || m_option->target_mode == m_option->TARG_UNIX_MODE)
           && config == QLatin1String("unix"))
         return true;
-    if (Option::target_mode == Option::TARG_MACX_MODE && config == QLatin1String("macx"))
+    if (m_option->target_mode == m_option->TARG_MACX_MODE && config == QLatin1String("macx"))
         return true;
-    if (Option::target_mode == Option::TARG_QNX6_MODE && config == QLatin1String("qnx6"))
+    if (m_option->target_mode == m_option->TARG_QNX6_MODE && config == QLatin1String("qnx6"))
         return true;
-    if (Option::target_mode == Option::TARG_MAC9_MODE && config == QLatin1String("mac9"))
+    if (m_option->target_mode == m_option->TARG_MAC9_MODE && config == QLatin1String("mac9"))
         return true;
-    if ((Option::target_mode == Option::TARG_MAC9_MODE
-            || Option::target_mode == Option::TARG_MACX_MODE)
+    if ((m_option->target_mode == m_option->TARG_MAC9_MODE
+            || m_option->target_mode == m_option->TARG_MACX_MODE)
           && config == QLatin1String("mac"))
         return true;
-    if (Option::target_mode == Option::TARG_WIN_MODE && config == QLatin1String("win32"))
+    if (m_option->target_mode == m_option->TARG_WIN_MODE && config == QLatin1String("win32"))
         return true;
 
     if (regex) {
         QRegExp re(config, Qt::CaseSensitive, QRegExp::Wildcard);
 
-        if (re.exactMatch(Option::qmakespec))
+        if (re.exactMatch(m_option->qmakespec))
             return true;
 
         // CONFIG variable
@@ -1408,7 +1425,7 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
         }
     } else {
         // mkspecs
-        if (Option::qmakespec == config)
+        if (m_option->qmakespec == config)
             return true;
 
         // CONFIG variable
@@ -1578,7 +1595,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             if (args.count() != 2) {
                 q->logMessage(format("split(var, sep) requires one or two arguments"));
             } else {
-                const QString &sep = (args.count() == 2) ? args[1] : QString(Option::field_sep);
+                const QString &sep = (args.count() == 2) ? args[1] : Option::field_sep;
                 foreach (const QString &var, values(args.first()))
                     foreach (const QString &splt, var.split(sep))
                         ret.append(splt);
@@ -1827,7 +1844,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 const QRegExp regex(r, Qt::CaseSensitive, QRegExp::Wildcard);
                 for (int d = 0; d < dirs.count(); d++) {
                     QString dir = dirs[d];
-                    if (!dir.isEmpty() && !dir.endsWith(Option::dir_sep))
+                    if (!dir.isEmpty() && !dir.endsWith(m_option->dir_sep))
                         dir += QLatin1Char('/');
 
                     QDir qdir(dir);
@@ -2239,7 +2256,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 q->logMessage(format("%1(variable, value) requires two arguments.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            QString rhs(args[1]), lhs(values(args[0]).join(QString(Option::field_sep)));
+            QString rhs(args[1]), lhs(values(args[0]).join(Option::field_sep));
             bool ok;
             int rhs_int = rhs.toInt(&ok);
             if (ok) { // do integer compare
@@ -2259,7 +2276,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 q->logMessage(format("%1(variable, value) requires two arguments.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            return returnBool(values(args[0]).join(QString(Option::field_sep)) == args[1]);
+            return returnBool(values(args[0]).join(Option::field_sep) == args[1]);
         case T_CLEAR: {
             if (m_skipLevel && !m_cumulative)
                 return ProItem::ReturnFalse;
@@ -2370,7 +2387,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             }
             //regular expression I guess
             QString dirstr = currentDirectory();
-            int slsh = file.lastIndexOf(Option::dir_sep);
+            int slsh = file.lastIndexOf(m_option->dir_sep);
             if (slsh != -1) {
                 dirstr = file.left(slsh+1);
                 file = file.right(file.length() - slsh - 1);
@@ -2406,9 +2423,9 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
         variableName == QLatin1String("IN_PWD"))
         return QStringList(currentDirectory());
     if (variableName == QLatin1String("DIR_SEPARATOR"))
-        return QStringList(Option::dir_sep);
+        return QStringList(m_option->dir_sep);
     if (variableName == QLatin1String("DIRLIST_SEPARATOR"))
-        return QStringList(Option::dirlist_sep);
+        return QStringList(m_option->dirlist_sep);
     if (variableName == QLatin1String("_LINE_")) //parser line number
         return QStringList(QString::number(m_lineNo));
     if (variableName == QLatin1String("_FILE_")) //parser file; qmake is a bit weird here
@@ -2499,7 +2516,7 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
         if (variableName == QLatin1String("TEMPLATE")) {
             result.append(QLatin1String("app"));
         } else if (variableName == QLatin1String("QMAKE_DIR_SEP")) {
-            result.append(Option::dirlist_sep);
+            result.append(m_option->dirlist_sep);
         }
     }
     return result;
@@ -2583,10 +2600,9 @@ QString ProFileEvaluator::Private::format(const char *fmt) const
 //
 ///////////////////////////////////////////////////////////////////////
 
-ProFileEvaluator::ProFileEvaluator()
-  : d(new Private(this))
+ProFileEvaluator::ProFileEvaluator(ProFileEvaluator::Option *option)
+  : d(new Private(this, option))
 {
-    Option::init();
 }
 
 ProFileEvaluator::~ProFileEvaluator()
