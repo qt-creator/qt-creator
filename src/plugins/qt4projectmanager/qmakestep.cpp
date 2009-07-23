@@ -156,17 +156,24 @@ bool QMakeStep::init(const QString &name)
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
                 QString actualSpec = extractSpecFromArgumentList(value(name, "qmakeArgs").toStringList());
+                if (actualSpec.isEmpty())
+                    actualSpec = m_pro->qtVersion(name)->mkspec();
                 QString parsedSpec = extractSpecFromArgumentList(result.second);
 
                 // Now to convert the actualSpec to a absolute path, we go through a few hops
                 if (QFileInfo(actualSpec).isRelative()) {
-                    QString path = qtVersion->versionInfo().value("QMAKE_MKSPECS") + "/" + actualSpec;
+                    QString path = qtVersion->sourcePath() + "/mkspecs/" + actualSpec;
                     if (QFileInfo(path).exists()) {
                         actualSpec = QDir::cleanPath(path);
                     } else {
-                        QString path = workingDirectory + "/" + actualSpec;
-                        if (QFileInfo(path).exists())
+                        path = qtVersion->versionInfo().value("QMAKE_MKSPECS") + "/" + actualSpec;
+                        if (QFileInfo(path).exists()) {
                             actualSpec = QDir::cleanPath(path);
+                        } else {
+                            path = workingDirectory + "/" + actualSpec;
+                            if (QFileInfo(path).exists())
+                                actualSpec = QDir::cleanPath(path);
+                        }
                     }
                 }
 
