@@ -915,10 +915,10 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths()
     QStringList feature_roots;
     QByteArray mkspec_path = qgetenv("QMAKEFEATURES");
     if (!mkspec_path.isNull())
-        feature_roots += splitPathList(QString::fromLocal8Bit(mkspec_path));
+        feature_roots += QString::fromLocal8Bit(mkspec_path).split(Option::dirlist_sep);
     /*
     if (prop)
-        feature_roots += splitPathList(prop->value("QMAKEFEATURES"));
+        feature_roots += prop->value("QMAKEFEATURES").split(Option::dirlist_sep);
     if (!Option::mkfile::cachefile.isEmpty()) {
         QString path;
         int last_slash = Option::mkfile::cachefile.lastIndexOf(Option::dir_sep);
@@ -931,7 +931,7 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths()
 
     QByteArray qmakepath = qgetenv("QMAKEPATH");
     if (!qmakepath.isNull()) {
-        const QStringList lst = splitPathList(QString::fromLocal8Bit(qmakepath));
+        const QStringList lst = QString::fromLocal8Bit(qmakepath).split(Option::dirlist_sep);
         foreach (const QString &item, lst) {
             foreach (const QString &concat_it, concat)
                 feature_roots << (item + mkspecs_concat + concat_it);
@@ -2165,7 +2165,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 q->logMessage(format("%1(message) requires one argument.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            QString msg = fixEnvVariables(args.first());
+            QString msg = Option::fixString(args.first(), Option::FixEnvVars);
             q->fileMessage(QString::fromLatin1("Project %1: %2").arg(function.toUpper(), msg));
             // ### Consider real termination in non-cumulative mode
             return returnBool(function != QLatin1String("error"));

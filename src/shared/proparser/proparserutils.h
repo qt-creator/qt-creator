@@ -147,16 +147,6 @@ static void replaceInList(QStringList *varlist,
     }
 }
 
-inline QString fixEnvVariables(const QString &x)
-{
-    return Option::fixString(x, Option::FixEnvVars);
-}
-
-inline QStringList splitPathList(const QString &paths)
-{
-    return paths.split(Option::dirlist_sep);
-}
-
 static QStringList split_arg_list(QString params)
 {
     int quote = 0;
@@ -262,7 +252,7 @@ static QStringList qmake_mkspec_paths()
     const QString concat = QDir::separator() + QString(QLatin1String("mkspecs"));
     QByteArray qmakepath = qgetenv("QMAKEPATH");
     if (!qmakepath.isEmpty()) {
-        const QStringList lst = splitPathList(QString::fromLocal8Bit(qmakepath));
+        const QStringList lst = QString::fromLocal8Bit(qmakepath).split(Option::dirlist_sep);
         for (QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it)
             ret << ((*it) + concat);
     }
