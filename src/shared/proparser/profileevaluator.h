@@ -43,6 +43,51 @@ QT_BEGIN_NAMESPACE
 class ProFileEvaluator
 {
 public:
+
+    // This struct is from qmake, but we are not using everything.
+    struct Option
+    {
+        //simply global convenience
+        //static QString libtool_ext;
+        //static QString pkgcfg_ext;
+        //static QString prf_ext;
+        //static QString prl_ext;
+        //static QString ui_ext;
+        //static QStringList h_ext;
+        //static QStringList cpp_ext;
+        //static QString h_moc_ext;
+        //static QString cpp_moc_ext;
+        //static QString obj_ext;
+        //static QString lex_ext;
+        //static QString yacc_ext;
+        //static QString h_moc_mod;
+        //static QString cpp_moc_mod;
+        //static QString lex_mod;
+        //static QString yacc_mod;
+        static QString dir_sep;
+        static QString dirlist_sep;
+        static QString qmakespec;
+        static QChar field_sep;
+
+        enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
+        static TARG_MODE target_mode;
+        //static QString pro_ext;
+        //static QString res_ext;
+
+        static void init()
+        {
+#ifdef Q_OS_WIN
+            dirlist_sep = QLatin1Char(';');
+            dir_sep = QLatin1Char('\\');
+#else
+            dirlist_sep = QLatin1Char(':');
+            dir_sep = QLatin1Char('/');
+#endif
+            qmakespec = QString::fromLatin1(qgetenv("QMAKESPEC").data());
+            field_sep = QLatin1Char(' ');
+        }
+    };
+
     enum TemplateType {
         TT_Unknown = 0,
         TT_Application,

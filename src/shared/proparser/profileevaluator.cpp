@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "profileevaluator.h"
-#include "proparserutils.h"
 #include "proitems.h"
 
 #include <QtCore/QByteArray>
@@ -83,51 +82,20 @@ namespace {
 //
 ///////////////////////////////////////////////////////////////////////
 
-QString
-Option::fixString(QString string, uchar flags)
-{
-    // XXX Ripped out caching, so this will be slow. Should not matter for current uses.
-
-    //fix the environment variables
-    if (flags & Option::FixEnvVars) {
-        int rep;
-        QRegExp reg_variableName(QLatin1String("\\$\\(.*\\)"));
-        reg_variableName.setMinimal(true);
-        while ((rep = reg_variableName.indexIn(string)) != -1)
-            string.replace(rep, reg_variableName.matchedLength(),
-                           QString::fromLocal8Bit(qgetenv(string.mid(rep + 2, reg_variableName.matchedLength() - 3).toLatin1().constData()).constData()));
-    }
-
-    //canonicalize it (and treat as a path)
-    if (flags & Option::FixPathCanonicalize) {
-#if 0
-        string = QFileInfo(string).canonicalFilePath();
-#endif
-        string = QDir::cleanPath(string);
-    }
-
-    if (string.length() > 2 && string[0].isLetter() && string[1] == QLatin1Char(':'))
-        string[0] = string[0].toLower();
-
-    //fix separators
-    Q_ASSERT(!((flags & Option::FixPathToLocalSeparators) && (flags & Option::FixPathToTargetSeparators)));
-    if (flags & Option::FixPathToLocalSeparators) {
 #if defined(Q_OS_WIN32)
-        string = string.replace(QLatin1Char('/'), QLatin1Char('\\'));
+ProFileEvaluator::Option::TARG_MODE ProFileEvaluator::Option::target_mode = ProFileEvaluator::Option::TARG_WIN_MODE;
+#elif defined(Q_OS_MAC)
+ProFileEvaluator::Option::TARG_MODE ProFileEvaluator::Option::target_mode = ProFileEvaluator::Option::TARG_MACX_MODE;
+#elif defined(Q_OS_QNX6)
+ProFileEvaluator::Option::TARG_MODE ProFileEvaluator::Option::target_mode = ProFileEvaluator::Option::TARG_QNX6_MODE;
 #else
-        string = string.replace(QLatin1Char('\\'), QLatin1Char('/'));
+ProFileEvaluator::Option::TARG_MODE ProFileEvaluator::Option::target_mode = ProFileEvaluator::Option::TARG_UNIX_MODE;
 #endif
-    } else if (flags & Option::FixPathToTargetSeparators) {
-        string = string.replace(QLatin1Char('/'), Option::dir_sep)
-                       .replace(QLatin1Char('\\'), Option::dir_sep);
-    }
 
-    if ((string.startsWith(QLatin1Char('"')) && string.endsWith(QLatin1Char('"'))) ||
-        (string.startsWith(QLatin1Char('\'')) && string.endsWith(QLatin1Char('\''))))
-        string = string.mid(1, string.length() - 2);
-
-    return string;
-}
+QString ProFileEvaluator::Option::qmakespec;
+QString ProFileEvaluator::Option::dirlist_sep;
+QString ProFileEvaluator::Option::dir_sep;
+QChar ProFileEvaluator::Option::field_sep;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -705,7 +673,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
         }
 
         if (!parens && quote.isEmpty() && ((do_semicolon && unicode == SEMICOLON) ||
-                                           vals_data[x] == Option::field_sep)) {
+                                           vals_data[x] == ProFileEvaluator::Option::field_sep)) {
             ret << build;
             build.clear();
         } else {
@@ -750,6 +718,34 @@ static void replaceInList(QStringList *varlist,
             ++varit;
         }
     }
+}
+
+static QString expandEnvVars(const QString &str)
+{
+    QString string = str;
+    int rep;
+    QRegExp reg_variableName(QLatin1String("\\$\\(.*\\)"));
+    reg_variableName.setMinimal(true);
+    while ((rep = reg_variableName.indexIn(string)) != -1)
+        string.replace(rep, reg_variableName.matchedLength(),
+                       QString::fromLocal8Bit(qgetenv(string.mid(rep + 2, reg_variableName.matchedLength() - 3).toLatin1().constData()).constData()));
+    return string;
+}
+
+// This is braindead, but we want qmake compat
+static QString fixPathToLocalOS(const QString &str)
+{
+    QString string = str;
+
+    if (string.length() > 2 && string[0].isLetter() && string[1] == QLatin1Char(':'))
+        string[0] = string[0].toLower();
+
+#if defined(Q_OS_WIN32)
+    string.replace(QLatin1Char('/'), QLatin1Char('\\'));
+#else
+    string.replace(QLatin1Char('\\'), QLatin1Char('/'));
+#endif
+    return string;
 }
 
 //////// Evaluator /////////
@@ -1056,7 +1052,8 @@ static QStringList qmake_mkspec_paths()
     const QString concat = QDir::separator() + QString(QLatin1String("mkspecs"));
     QByteArray qmakepath = qgetenv("QMAKEPATH");
     if (!qmakepath.isEmpty()) {
-        const QStringList lst = QString::fromLocal8Bit(qmakepath).split(Option::dirlist_sep);
+        const QStringList lst = QString::fromLocal8Bit(qmakepath)
+                .split(ProFileEvaluator::Option::dirlist_sep);
         for (QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it)
             ret << ((*it) + concat);
     }
@@ -1090,7 +1087,7 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths()
         QString path;
         int last_slash = Option::mkfile::cachefile.lastIndexOf(Option::dir_sep);
         if (last_slash != -1)
-            path = Option::fixPathToLocalOS(Option::mkfile::cachefile.left(last_slash));
+            path = fixPathToLocalOS(Option::mkfile::cachefile.left(last_slash));
         foreach (const QString &concat_it, concat)
             feature_roots << (path + concat_it);
     }
@@ -1657,7 +1654,6 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 q->logMessage(format("cat(file, singleline=true) requires one or two arguments."));
             } else {
                 QString file = args[0];
-                file = Option::fixPathToLocalOS(file);
 
                 bool singleLine = true;
                 if (args.count() > 1)
@@ -1682,7 +1678,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             } else {
                 QString file = args[0], seek_variableName = args[1];
 
-                ProFile pro(Option::fixPathToLocalOS(file));
+                ProFile pro(fixPathToLocalOS(file));
 
                 ProFileEvaluator visitor;
                 visitor.setVerbose(m_verbose);
@@ -1819,7 +1815,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 if (args.count() == 2)
                     recursive = (!args[1].compare(QLatin1String("true"), Qt::CaseInsensitive) || args[1].toInt());
                 QStringList dirs;
-                QString r = Option::fixPathToLocalOS(args[0]);
+                QString r = fixPathToLocalOS(args[0]);
                 int slash = r.lastIndexOf(QDir::separator());
                 if (slash != -1) {
                     dirs.append(r.left(slash));
@@ -2332,7 +2328,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 q->logMessage(format("%1(message) requires one argument.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            QString msg = Option::fixString(args.first(), Option::FixEnvVars);
+            QString msg = expandEnvVars(args.first());
             q->fileMessage(QString::fromLatin1("Project %1: %2").arg(function.toUpper(), msg));
             // ### Consider real termination in non-cumulative mode
             return returnBool(function != QLatin1String("error"));
@@ -2367,7 +2363,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 return ProItem::ReturnFalse;
             }
             QString file = args.first();
-            file = Option::fixPathToLocalOS(file);
+            file = fixPathToLocalOS(file);
 
             if (QFile::exists(file)) {
                 return ProItem::ReturnTrue;
@@ -2607,7 +2603,7 @@ inline QStringList fixEnvVariables(const QStringList &x)
 {
     QStringList ret;
     foreach (const QString &str, x)
-        ret << Option::fixString(str, Option::FixEnvVars);
+        ret << expandEnvVars(str);
     return ret;
 }
 

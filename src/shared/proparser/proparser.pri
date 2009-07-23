@@ -12,7 +12,6 @@ HEADERS += \
         profileevaluator.h \
         proiteminfo.h \
         proitems.h \
-        proparserutils.h \
         prowriter.h \
         proxml.h \
         valueeditor.h \
