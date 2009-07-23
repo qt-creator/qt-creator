@@ -633,12 +633,23 @@ QString QtVersionManager::trimLine(const QString line)
 QStringList QtVersionManager::splitLine(const QString &line)
 {
     // Split on each " ", except on those which are escaped
-    // Also remove all escaping
+    // On Unix also remove all escaping
+    // On Windows also, but different escaping
     bool escape = false;
     QString currentWord;
     QStringList results;
     int length = line.length();
     for (int i=0; i<length; ++i) {
+#ifdef Q_OS_WIN
+        if (line.at(i) == '"') {
+            escape = !escape;
+        } else if (escape || line.at(i) != ' ') {
+            currentWord += line.at(i);
+        } else {
+            results << currentWord;
+            currentWord.clear();;
+        }
+#else
         if (escape) {
             currentWord += line.at(i);
             escape = false;
@@ -650,6 +661,7 @@ QStringList QtVersionManager::splitLine(const QString &line)
         } else {
             currentWord += line.at(i);
         }
+#endif
     }
     return results;
 }

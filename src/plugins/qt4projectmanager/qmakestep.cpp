@@ -176,6 +176,11 @@ bool QMakeStep::init(const QString &name)
                 QStringList actualArgs = removeSpecFromArgumentList(value(name, "qmakeArgs").toStringList());
                 QStringList parsedArgs = removeSpecFromArgumentList(result.second);
 
+                qDebug()<<"Actual args:"<<actualArgs;
+                qDebug()<<"Parsed args:"<<parsedArgs;
+                qDebug()<<"Actual spec:"<<actualSpec;
+                qDebug()<<"Parsed spec:"<<parsedSpec;
+
                 if (actualArgs == parsedArgs && actualSpec == parsedSpec)
                     needToRunQMake = false;
             }
