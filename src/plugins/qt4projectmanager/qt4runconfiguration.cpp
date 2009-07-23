@@ -172,39 +172,27 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     environmentLabel->setFont(f);
     vbox->addWidget(environmentLabel);
 
-    QFormLayout *formlayout = new QFormLayout();
+    QWidget *baseEnvironmentWidget = new QWidget;
+    QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
+    baseEnvironmentLayout->setMargin(0);
     QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
-
+    baseEnvironmentLayout->addWidget(label);
     m_baseEnvironmentComboBox = new QComboBox(this);
     m_baseEnvironmentComboBox->addItems(QStringList()
                                         << tr("Clean Environment")
                                         << tr("System Environment")
                                         << tr("Build Environment"));
-    formlayout->addRow(label, m_baseEnvironmentComboBox);
-    vbox->addLayout(formlayout);
-    label->setVisible(false);
-    m_baseEnvironmentComboBox->setVisible(false);
-
     m_baseEnvironmentComboBox->setCurrentIndex(qt4RunConfiguration->baseEnvironmentBase());
-
     connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(baseEnvironmentComboBoxChanged(int)));
+    baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
+    baseEnvironmentLayout->addStretch(10);
 
-    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this);
+    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
     m_environmentWidget->setUserChanges(m_qt4RunConfiguration->userEnvironmentChanges());
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     vbox->addWidget(m_environmentWidget);
-
-    connect(m_environmentWidget, SIGNAL(switchedToSummary()),
-            m_baseEnvironmentComboBox, SLOT(hide()));
-    connect(m_environmentWidget, SIGNAL(switchedToDetails()),
-            m_baseEnvironmentComboBox, SLOT(show()));
-
-    connect(m_environmentWidget, SIGNAL(switchedToSummary()),
-            label, SLOT(hide()));
-    connect(m_environmentWidget, SIGNAL(switchedToDetails()),
-            label, SLOT(show()));
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
