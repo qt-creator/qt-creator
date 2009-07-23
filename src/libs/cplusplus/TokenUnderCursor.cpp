@@ -51,7 +51,8 @@ SimpleToken TokenUnderCursor::operator()(const QTextCursor &cursor, QTextBlock *
     QTextBlock block = cursor.block();
     int column = cursor.columnNumber();
 
-    _tokens = tokenize(block.text(), previousBlockState(block));
+    _text = block.text();
+    _tokens = tokenize(_text, previousBlockState(block));
     for (int index = _tokens.size() - 1; index != -1; --index) {
         const SimpleToken &tk = _tokens.at(index);
         if (tk.position() < column) {
