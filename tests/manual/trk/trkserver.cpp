@@ -66,14 +66,34 @@ struct Inferior
     uint tid;
     uint codeseg;
     uint dataseg;
+
+    uint registers[16];
 };
 
 Inferior::Inferior()
 {
     pid = 0x000008F5;
     tid = 0x000008F6;
+
     codeseg = 0x786A4000;
     dataseg = 0x00400000;
+
+    registers[0]  = 0xC92D7FBC;
+    registers[1]  = 0x00000000;
+    registers[2]  = 0x00600000;
+    registers[3]  = 0x00000000;
+    registers[4]  = 0x786A7970;
+    registers[5]  = 0x00000000;
+    registers[6]  = 0x00000000;
+    registers[7]  = 0x00000012;
+    registers[8]  = 0x00000040;
+    registers[9]  = 0xC82AF210;
+    registers[10] = 0x00000000;
+    registers[11] = 0xC8000548;
+    registers[12] = 0x00403ED0;
+    registers[13] = 0x786A6BD8;
+    registers[14] = 0x786A4CC8;
+    registers[15] = 0x68000010;
 }
 
 class TrkServer : public QObject
@@ -199,15 +219,17 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             byte option = p[0];
             Q_UNUSED(option);
             ushort len = extractShort(p + 1);
-            uint addr = extractInt(p + 3); 
+            uint addr = extractInt(p + 3);
             //qDebug() << "MESSAGE: " << result.data.toHex();
             qDebug() << "ADDR: " << hexNumber(addr) << " " << hexNumber(len);
             if (addr < m_inferior.codeseg
                 || addr + len >= m_inferior.codeseg + m_memoryData.size()) {
                 qDebug() << "ADDRESS OUTSIDE CODESEG: " << hexNumber(addr)
-                    << hexNumber(m_inferior.codeseg); 
+                    << hexNumber(m_inferior.codeseg);
                 for (int i = 0; i != len / 4; ++i)
                     appendInt(&data, 0xDEADBEEF);
+                writeToAdapter(0x80, result.token, data);
+                break;
             }
             for (int i = 0; i != len; ++i)
                 appendByte(&data, m_memoryData[addr - m_inferior.codeseg + i]);
@@ -218,29 +240,15 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             appendByte(&data, 0x00);
             appendByte(&data, 0x00);
             appendByte(&data, 0x00);
-            appendInt(&data, 0xC92D7FBC, BigEndian);
-            appendInt(&data, 0x00000000, BigEndian);
-            appendInt(&data, 0x00600000, BigEndian);
-            appendInt(&data, 0x00000000, BigEndian);
-            appendInt(&data, 0x786A7970, BigEndian);
-            appendInt(&data, 0x00000000, BigEndian);
-            appendInt(&data, 0x00000000, BigEndian);
-            appendInt(&data, 0x00000012, BigEndian);
-            appendInt(&data, 0x00000040, BigEndian);
-            appendInt(&data, 0xC82AF210, BigEndian);
-            appendInt(&data, 0x00000000, BigEndian);
-            appendInt(&data, 0xC8000548, BigEndian);
-            appendInt(&data, 0x00403ED0, BigEndian);
-            appendInt(&data, 0x786A6BD8, BigEndian);
-            appendInt(&data, 0x786A4CC8, BigEndian);
-            appendInt(&data, 0x68000010, BigEndian);
+            for (int i = 0; i < 16; ++i)
+                appendInt(&data, m_inferior.registers[i], BigEndian);
             writeToAdapter(0x80, result.token, data);
             break;
         }
         case 0x18: { // Continue
             writeToAdapter(0x80, result.token, data); // ACK Package
 
-            if (0) { // Fake "Stop" 
+            if (1) { // Fake "Stop"
                 QByteArray note;
                 appendInt(&note, 0); // FIXME: use proper address
                 appendInt(&note, m_inferior.pid);
@@ -249,7 +257,36 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
                 appendByte(&note, 0x00);
                 writeToAdapter(0x90, nextNotificationToken(), note);
             }
-            
+
+            break;
+        }
+        case 0x19: { // Step
+            const char *p = result.data.data();
+            //byte option = *p;
+            uint startaddr = extractInt(p + 1);
+            uint endaddr = extractInt(p + 5);
+            uint pid = extractInt(p + 9);
+            //uint tid = extractInt(p + 13);
+            if (startaddr != m_inferior.registers[14])
+                logMessage("addr mismatch:" + hexNumber(startaddr) + " " +
+                    hexNumber(m_inferior.registers[14]));
+            if (pid != m_inferior.pid)
+                logMessage("pid mismatch:" + hexNumber(pid) + " " +
+                    hexNumber(m_inferior.pid));
+            writeToAdapter(0x80, result.token, data);
+
+            // Fake "step"
+            m_inferior.registers[14] = endaddr;
+
+            if (1) { // Fake "Stop"
+                QByteArray note;
+                appendInt(&note, 0); // FIXME: use proper address
+                appendInt(&note, m_inferior.pid);
+                appendInt(&note, m_inferior.tid);
+                appendByte(&note, 0x00);
+                appendByte(&note, 0x00);
+                writeToAdapter(0x90, nextNotificationToken(), note);
+            }
             break;
         }
         case 0x40: { // Create Item
