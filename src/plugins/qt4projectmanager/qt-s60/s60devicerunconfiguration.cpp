@@ -499,7 +499,7 @@ void S60DeviceRunControl::makesisProcessFailed()
 
 void S60DeviceRunControl::makesisProcessFinished()
 {
-    if (m_makesis->exitStatus() != 0) {
+    if (m_makesis->exitCode() != 0) {
         error(this, tr("An error occurred while creating the package."));
         emit finished();
         return;
@@ -527,7 +527,7 @@ void S60DeviceRunControl::signsisProcessFailed()
 
 void S60DeviceRunControl::signsisProcessFinished()
 {
-    if (m_signsis->exitStatus() != 0) {
+    if (m_signsis->exitCode() != 0) {
         error(this, tr("An error occurred while creating the package."));
         emit finished();
         return;
@@ -547,7 +547,7 @@ void S60DeviceRunControl::installProcessFailed()
 
 void S60DeviceRunControl::installProcessFinished()
 {
-    if (m_install->exitStatus() != 0) {
+    if (m_install->exitCode() != 0) {
         error(this, tr("An error occurred while creating the package."));
     }
     emit addToOutputWindow(this, tr("Finished."));
