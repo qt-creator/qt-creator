@@ -989,10 +989,10 @@ QString SessionManager::activeSession() const
     return m_sessionName;
 }
 
- bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
- {
-     return s1.toLower() < s2.toLower();
- }
+static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
+{
+    return s1.compare(s2, Qt::CaseInsensitive) < 0;
+}
 
 QStringList SessionManager::sessions() const
 {
