@@ -360,8 +360,9 @@ void TextEditorActionHandler::gotoAction()
 {
     QuickOpen::QuickOpenManager *quickopen = QuickOpen::QuickOpenManager::instance();
     QTC_ASSERT(quickopen, return);
-    QString shortcut = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
-    quickopen->show(shortcut + tr(" <line number>"), 2, 13);
+    const QString shortcut = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
+    const QString text = tr(" <line number>");
+    quickopen->show(shortcut + text, 2, text.length()-1);
 }
 
 void TextEditorActionHandler::printAction()
