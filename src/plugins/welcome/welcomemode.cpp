@@ -39,10 +39,12 @@
 #include <coreplugin/dialogs/newdialog.h>
 
 #include <utils/styledbar.h>
+#include <utils/welcomemodetreewidget.h>
 
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QScrollArea>
+#include <QtGui/QButtonGroup>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
@@ -467,108 +469,6 @@ QStringList WelcomeMode::tipsOfTheDay()
         tips.append(tr("In the editor, <tt>F2</tt> toggles declaration and definition while <tt>F4</tt> toggles header file and source file."));
     }
     return tips;
-}
-
-// ---  WelcomeModeButton
-
-WelcomeModeButton::WelcomeModeButton(QWidget *parent) :
-        QLabel(parent),
-        m_isPressed(false),
-        m_isInited(false)
-{
-    setCursor(QCursor(Qt::PointingHandCursor));
-}
-
-void WelcomeModeButton::mousePressEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton)
-        m_isPressed = true;
-}
-
-void WelcomeModeButton::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton && m_isPressed) {
-        m_isPressed = false;
-        if (rect().contains(event->pos()))
-            emit clicked();
-    }
-}
-
-void WelcomeModeButton::enterEvent(QEvent *)
-{
-    if (!m_isInited) {
-        m_isInited = true;
-        m_text = text();
-        m_hoverText = m_text;
-        m_hoverText.replace(QLatin1String(".png"), QLatin1String("_hover.png"));
-        if (m_text == m_hoverText) {
-            m_text.clear();
-            m_hoverText.clear();
-        }
-    }
-    if (!m_hoverText.isEmpty())
-        setText(m_hoverText);
-}
-
-void WelcomeModeButton::leaveEvent(QEvent *)
-{
-    if (!m_text.isEmpty())
-        setText(m_text);
-}
-
-// ---  WelcomeModeTreeWidget
-
-WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
-        QTreeWidget(parent),
-        m_bullet(QLatin1String(":/welcome/images/list_bullet_arrow.png"))
-{
-    connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
-            SLOT(slotItemClicked(QTreeWidgetItem *)));
-}
-
-QSize WelcomeModeTreeWidget::minimumSizeHint() const
-{
-    return QSize();
-}
-
-QSize WelcomeModeTreeWidget::sizeHint() const
-{
-    return QSize(QTreeWidget::sizeHint().width(), 30 * topLevelItemCount());
-}
-
-QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QString &data)
-{
-    QTreeWidgetItem *item = new QTreeWidgetItem(this);
-    item->setIcon(0, m_bullet);
-    item->setSizeHint(0, QSize(24, 30));
-    QLabel *lbl = new QLabel(label);
-    lbl->setTextInteractionFlags(Qt::NoTextInteraction);
-    lbl->setCursor(QCursor(Qt::PointingHandCursor));
-    lbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    QBoxLayout *lay = new QVBoxLayout;
-    lay->setContentsMargins(3, 2, 0, 0);
-    lay->addWidget(lbl);
-    QWidget *wdg = new QWidget;
-    wdg->setLayout(lay);
-    setItemWidget(item, 1, wdg);
-    item->setData(0, Qt::UserRole, data);
-    return item;
-}
-
-void WelcomeModeTreeWidget::slotAddNewsItem(const QString &title, const QString &description, const QString &link)
-{
-    int itemWidth = width()-header()->sectionSize(0);
-    QFont f = font();
-    QString elidedText = QFontMetrics(f).elidedText(description, Qt::ElideRight, itemWidth);
-    f.setBold(true);
-    QString elidedTitle = QFontMetrics(f).elidedText(title, Qt::ElideRight, itemWidth);
-    QString data = QString::fromLatin1("<b>%1</b><br />%2").arg(elidedTitle).arg(elidedText);
-    addTopLevelItem(addItem(data,link));
-}
-
-void WelcomeModeTreeWidget::slotItemClicked(QTreeWidgetItem *item)
-{
-    emit activated(item->data(0, Qt::UserRole).toString());
 }
 
 } // namespace Welcome

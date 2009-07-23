@@ -31,8 +31,8 @@ SOURCES += reloadpromptutils.cpp \
     treewidgetcolumnstretcher.cpp \
     checkablemessagebox.cpp \
     styledbar.cpp \
-    stylehelper.cpp
-
+    stylehelper.cpp \
+    welcomemodetreewidget.cpp
 win32 { 
     SOURCES += abstractprocess_win.cpp \
         consoleprocess_win.cpp \
@@ -71,8 +71,8 @@ HEADERS += utils_global.h \
     checkablemessagebox.h \
     qtcassert.h \
     styledbar.h \
-    stylehelper.h
-
+    stylehelper.h \
+    welcomemodetreewidget.h
 FORMS += filewizardpage.ui \
     projectintropage.ui \
     newclasswidget.ui \

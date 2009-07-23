@@ -27,44 +27,25 @@
 **
 **************************************************************************/
 
-#ifndef WELCOMEMODE_P_H
-#define WELCOMEMODE_P_H
+#ifndef WELCOMEMODETREEWIDGET_H
+#define WELCOMEMODETREEWIDGET_H
 
-#include <QtGui/QIcon>
-#include <QtGui/QLabel>
+#include "utils_global.h"
+
 #include <QtGui/QTreeWidget>
 
-namespace Welcome {
+namespace Core {
+  namespace Utils {
 
-class WelcomeModeButton : public QLabel
-{
-    Q_OBJECT
+struct WelcomeModeTreeWidgetPrivate;
 
-public:
-    WelcomeModeButton(QWidget *parent = 0);
-
-signals:
-    void clicked();
-
-protected:
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
-    virtual void enterEvent(QEvent *event);
-    virtual void leaveEvent(QEvent *event);
-
-private:
-    bool m_isPressed;
-    bool m_isInited;
-    QString m_text;
-    QString m_hoverText;
-};
-
-class WelcomeModeTreeWidget : public QTreeWidget
+class QTCREATOR_UTILS_EXPORT WelcomeModeTreeWidget : public QTreeWidget
 {
     Q_OBJECT
 
 public:
     WelcomeModeTreeWidget(QWidget *parent = 0);
+    ~WelcomeModeTreeWidget();
     QTreeWidgetItem *addItem(const QString &label, const QString &data);
 
 public slots:
@@ -81,9 +62,10 @@ private slots:
     void slotItemClicked(QTreeWidgetItem *item);
 
 private:
-    QIcon m_bullet;
+    WelcomeModeTreeWidgetPrivate *m_d;
 };
 
 }
+}
 
-#endif // WELCOMEMODE_P_H
+#endif // WELCOMEMODETREEWIDGET_H

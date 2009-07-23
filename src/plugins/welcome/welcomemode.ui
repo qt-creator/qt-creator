@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Welcome::WelcomePage</class>
- <widget class="QWidget" name="Welcome::WelcomePage">
+ <widget class="QWidget" name="Core::Utils::WelcomePage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -417,7 +417,7 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item row="1" column="0">
-                 <widget class="Welcome::WelcomeModeTreeWidget" name="tutorialTreeWidget">
+                 <widget class="Core::Utils::WelcomeModeTreeWidget" name="tutorialTreeWidget">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -746,7 +746,7 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item row="1" column="0" colspan="3">
-                 <widget class="Welcome::WelcomeModeTreeWidget" name="sessTreeWidget">
+                 <widget class="Core::Utils::WelcomeModeTreeWidget" name="sessTreeWidget">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -853,7 +853,7 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item row="1" column="0" colspan="3">
-                 <widget class="Welcome::WelcomeModeTreeWidget" name="projTreeWidget">
+                 <widget class="Core::Utils::WelcomeModeTreeWidget" name="projTreeWidget">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -967,7 +967,7 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item>
-                 <widget class="Welcome::WelcomeModeTreeWidget" name="newsTreeWidget">
+                 <widget class="Core::Utils::WelcomeModeTreeWidget" name="newsTreeWidget">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -1051,7 +1051,7 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item>
-                 <widget class="Welcome::WelcomeModeTreeWidget" name="sitesTreeWidget">
+                 <widget class="Core::Utils::WelcomeModeTreeWidget" name="sitesTreeWidget">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -1221,9 +1221,9 @@ QToolButton:pressed {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Welcome::WelcomeModeTreeWidget</class>
+   <class>Core::Utils::WelcomeModeTreeWidget</class>
    <extends>QTreeWidget</extends>
-   <header>welcomemode_p.h</header>
+   <header>utils/welcomemodetreewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>
