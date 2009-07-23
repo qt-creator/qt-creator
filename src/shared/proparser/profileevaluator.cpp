@@ -37,6 +37,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QLibraryInfo>
 #include <QtCore/QList>
 #include <QtCore/QRegExp>
 #include <QtCore/QSet>
@@ -63,6 +64,18 @@
 #endif
 
 QT_BEGIN_NAMESPACE
+
+namespace {
+    template<class K, class T> void updateHash(QHash<K,T> *out, const QHash<K,T> &in)
+    {
+        typename QHash<K,T>::const_iterator i = in.begin();
+        while (i != in.end()) {
+            out->insert(i.key(), i.value());
+            ++i;
+        }
+    }
+} // anon namespace
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -257,6 +270,8 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
     m_skipLevel = 0;
     m_definingFunc.clear();
 }
+
+////////// Parser ///////////
 
 bool ProFileEvaluator::Private::read(ProFile *pro)
 {
@@ -601,6 +616,143 @@ void ProFileEvaluator::Private::updateItem()
     block->appendItem(m_commentItem);
 }
 
+//////// Evaluator tools /////////
+
+static QStringList split_arg_list(QString params)
+{
+    int quote = 0;
+    QStringList args;
+
+    const ushort LPAREN = '(';
+    const ushort RPAREN = ')';
+    const ushort SINGLEQUOTE = '\'';
+    const ushort DOUBLEQUOTE = '"';
+    const ushort COMMA = ',';
+    const ushort SPACE = ' ';
+    //const ushort TAB = '\t';
+
+    ushort unicode;
+    const QChar *params_data = params.data();
+    const int params_len = params.length();
+    int last = 0;
+    while (last < params_len && ((params_data+last)->unicode() == SPACE
+                                /*|| (params_data+last)->unicode() == TAB*/))
+        ++last;
+    for (int x = last, parens = 0; x <= params_len; x++) {
+        unicode = (params_data+x)->unicode();
+        if (x == params_len) {
+            while (x && (params_data+(x-1))->unicode() == SPACE)
+                --x;
+            QString mid(params_data+last, x-last);
+            if (quote) {
+                if (mid[0] == quote && mid[(int)mid.length()-1] == quote)
+                    mid = mid.mid(1, mid.length()-2);
+                quote = 0;
+            }
+            args << mid;
+            break;
+        }
+        if (unicode == LPAREN) {
+            --parens;
+        } else if (unicode == RPAREN) {
+            ++parens;
+        } else if (quote && unicode == quote) {
+            quote = 0;
+        } else if (!quote && (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE)) {
+            quote = unicode;
+        }
+        if (!parens && !quote && unicode == COMMA) {
+            QString mid = params.mid(last, x - last).trimmed();
+            args << mid;
+            last = x+1;
+            while (last < params_len && ((params_data+last)->unicode() == SPACE
+                                        /*|| (params_data+last)->unicode() == TAB*/))
+                ++last;
+        }
+    }
+    return args;
+}
+
+static QStringList split_value_list(const QString &vals, bool do_semicolon=false)
+{
+    QString build;
+    QStringList ret;
+    QStack<char> quote;
+
+    const ushort LPAREN = '(';
+    const ushort RPAREN = ')';
+    const ushort SINGLEQUOTE = '\'';
+    const ushort DOUBLEQUOTE = '"';
+    const ushort BACKSLASH = '\\';
+    const ushort SEMICOLON = ';';
+
+    ushort unicode;
+    const QChar *vals_data = vals.data();
+    const int vals_len = vals.length();
+    for (int x = 0, parens = 0; x < vals_len; x++) {
+        unicode = vals_data[x].unicode();
+        if (x != (int)vals_len-1 && unicode == BACKSLASH &&
+            (vals_data[x+1].unicode() == SINGLEQUOTE || vals_data[x+1].unicode() == DOUBLEQUOTE)) {
+            build += vals_data[x++]; //get that 'escape'
+        } else if (!quote.isEmpty() && unicode == quote.top()) {
+            quote.pop();
+        } else if (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE) {
+            quote.push(unicode);
+        } else if (unicode == RPAREN) {
+            --parens;
+        } else if (unicode == LPAREN) {
+            ++parens;
+        }
+
+        if (!parens && quote.isEmpty() && ((do_semicolon && unicode == SEMICOLON) ||
+                                           vals_data[x] == Option::field_sep)) {
+            ret << build;
+            build.clear();
+        } else {
+            build += vals_data[x];
+        }
+    }
+    if (!build.isEmpty())
+        ret << build;
+    return ret;
+}
+
+static void insertUnique(QHash<QString, QStringList> *map,
+    const QString &key, const QStringList &value)
+{
+    QStringList &sl = (*map)[key];
+    foreach (const QString &str, value)
+        if (!sl.contains(str))
+            sl.append(str);
+}
+
+static void removeEach(QHash<QString, QStringList> *map,
+    const QString &key, const QStringList &value)
+{
+    QStringList &sl = (*map)[key];
+    foreach (const QString &str, value)
+        sl.removeAll(str);
+}
+
+static void replaceInList(QStringList *varlist,
+        const QRegExp &regexp, const QString &replace, bool global)
+{
+    for (QStringList::Iterator varit = varlist->begin(); varit != varlist->end(); ) {
+        if ((*varit).contains(regexp)) {
+            (*varit).replace(regexp, replace);
+            if ((*varit).isEmpty())
+                varit = varlist->erase(varit);
+            else
+                ++varit;
+            if (!global)
+                break;
+        } else {
+            ++varit;
+        }
+    }
+}
+
+//////// Evaluator /////////
 
 ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProBlock(ProBlock *block)
 {
@@ -897,6 +1049,21 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFunction(ProFunction *
     return ProItem::ReturnTrue;
 }
 
+
+static QStringList qmake_mkspec_paths()
+{
+    QStringList ret;
+    const QString concat = QDir::separator() + QString(QLatin1String("mkspecs"));
+    QByteArray qmakepath = qgetenv("QMAKEPATH");
+    if (!qmakepath.isEmpty()) {
+        const QStringList lst = QString::fromLocal8Bit(qmakepath).split(Option::dirlist_sep);
+        for (QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it)
+            ret << ((*it) + concat);
+    }
+    ret << QLibraryInfo::location(QLibraryInfo::DataPath) + concat;
+
+    return ret;
+}
 
 QStringList ProFileEvaluator::Private::qmakeFeaturePaths()
 {
@@ -2545,25 +2712,14 @@ QString ProFileEvaluator::propertyValue(const QString &name) const
     return d->propertyValue(name);
 }
 
-namespace {
-    template<class K, class T> void insert(QHash<K,T> *out, const QHash<K,T> &in)
-    {
-        typename QHash<K,T>::const_iterator i = in.begin();
-        while (i != in.end()) {
-            out->insert(i.key(), i.value());
-            ++i;
-        }
-    }
-} // anon namespace
-
 void ProFileEvaluator::addVariables(const QHash<QString, QStringList> &variables)
 {
-    insert(&(d->m_valuemap), variables);
+    updateHash(&(d->m_valuemap), variables);
 }
 
 void ProFileEvaluator::addProperties(const QHash<QString, QString> &properties)
 {
-    insert(&(d->m_properties), properties);
+    updateHash(&(d->m_properties), properties);
 }
 
 void ProFileEvaluator::logMessage(const QString &message)
