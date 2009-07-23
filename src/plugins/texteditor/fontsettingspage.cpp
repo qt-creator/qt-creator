@@ -512,12 +512,20 @@ void FontSettingsPage::maybeSaveColorScheme()
     if (d_ptr->m_value.colorScheme() == d_ptr->ui.schemeEdit->colorScheme())
         return;
 
-    int ret = QMessageBox::warning(d_ptr->ui.schemeComboBox->window(),
-                                   tr("Color Scheme Changed"),
-                                   tr("The color scheme \"%1\" was modified, do you want to save the changes?")
-                                           .arg(d_ptr->ui.schemeEdit->colorScheme().name()),
-                                   QMessageBox::Discard | QMessageBox::Save, QMessageBox::Save);
-    if (ret == QMessageBox::Save) {
+    QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
+                                              tr("Color Scheme Changed"),
+                                              tr("The color scheme \"%1\" was modified, do you want to save the changes?")
+                                                  .arg(d_ptr->ui.schemeEdit->colorScheme().name()),
+                                              QMessageBox::Discard | QMessageBox::Save,
+                                              d_ptr->ui.schemeComboBox->window());
+
+    // Change the text of the discard button
+    QPushButton *discardButton = static_cast<QPushButton*>(messageBox->button(QMessageBox::Discard));
+    discardButton->setText(tr("Discard"));
+    messageBox->addButton(discardButton, QMessageBox::DestructiveRole);
+    messageBox->setDefaultButton(QMessageBox::Save);
+
+    if (messageBox->exec() == QMessageBox::Save) {
         const ColorScheme &scheme = d_ptr->ui.schemeEdit->colorScheme();
         scheme.save(d_ptr->m_value.colorSchemeFileName());
     }
