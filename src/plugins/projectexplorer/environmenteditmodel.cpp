@@ -423,7 +423,7 @@ void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
 // EnvironmentWidget::EnvironmentWidget
 ////
 
-EnvironmentWidget::EnvironmentWidget(QWidget *parent)
+EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget)
     : QStackedWidget(parent)
 {
     m_model = new EnvironmentModel();
@@ -435,26 +435,41 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent)
     addWidget(m_summaryPage);
     QVBoxLayout *vbox = new QVBoxLayout(m_summaryPage);
     vbox->setContentsMargins(0, -1, 0, -1);
-    m_summaryText = new QLabel(this);
 
-    m_summaryText->setText("");
-    vbox->addWidget(m_summaryText);
     QPushButton *detailsButton = new QPushButton(this);
     detailsButton->setText(tr("Show Details"));
-
     QHBoxLayout *hdetailsButtonLayout = new QHBoxLayout();
+    hdetailsButtonLayout->setMargin(0);
     hdetailsButtonLayout->addWidget(detailsButton);
-    hdetailsButtonLayout->addSpacerItem(new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Fixed));
-    vbox->addLayout(hdetailsButtonLayout);
-
+    hdetailsButtonLayout->addStretch(10);
     connect(detailsButton, SIGNAL(clicked()),
             this, SLOT(switchToDetails()));
+    vbox->addLayout(hdetailsButtonLayout);
+
+    m_summaryText = new QLabel(this);
+    m_summaryText->setText("");
+    vbox->addWidget(m_summaryText);
 
     m_detailsPage = new QWidget();
     //addWidget(m_detailsPage);
     QVBoxLayout *vbox2 = new QVBoxLayout(m_detailsPage);
+    vbox2->setContentsMargins(0, -1, 0, -1);
+
+    QPushButton *summaryButton = new QPushButton(this);
+    summaryButton->setText(tr("Hide Details"));
+    QHBoxLayout *hbox = new QHBoxLayout();
+    hbox->setMargin(0);
+    hbox->addWidget(summaryButton);
+    hbox->addStretch(10);
+    connect(summaryButton, SIGNAL(clicked()),
+        this, SLOT(switchToSummary()));
+    vbox2->addLayout(hbox);
+
+    if (additionalDetailsWidget)
+        vbox2->addWidget(additionalDetailsWidget);
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
+    horizontalLayout->setMargin(0);
     m_environmentTreeView = new QTreeView(this);
     m_environmentTreeView->setRootIsDecorated(false);
     m_environmentTreeView->setHeaderHidden(false);
@@ -488,17 +503,6 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent)
     horizontalLayout->addLayout(verticalLayout_2);
     vbox2->addLayout(horizontalLayout);
     
-    QHBoxLayout *hbox = new QHBoxLayout();
-    QPushButton *summaryButton = new QPushButton(this);
-    summaryButton->setText(tr("Hide Details"));
-    hbox->addWidget(summaryButton);
-
-    connect(summaryButton, SIGNAL(clicked()),
-        this, SLOT(switchToSummary()));
-
-    hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
-    vbox2->addLayout(hbox);
-
     connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateButtons()));
 
@@ -527,7 +531,6 @@ void EnvironmentWidget::switchToDetails()
     addWidget(m_detailsPage);
     setCurrentWidget(m_detailsPage);
     removeWidget(m_summaryPage);
-    emit switchedToDetails();
 }
 
 
@@ -537,7 +540,6 @@ void EnvironmentWidget::switchToSummary()
     addWidget(m_summaryPage);
     setCurrentWidget(m_summaryPage);
     removeWidget(m_detailsPage);
-    emit switchedToSummary();
 }
 
 void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)
@@ -579,7 +581,7 @@ void EnvironmentWidget::updateSummaryText()
             text.append(tr("Set <b>%1</b> to <b>%2</b>").arg(item.name, item.value));
     }
     if (text.isEmpty())
-        text = tr("No changes to Environment");
+        text = tr("Summary: No changes to Environment");
     m_summaryText->setText(text);
 }
 

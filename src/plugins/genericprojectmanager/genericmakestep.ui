@@ -6,12 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>274</width>
-    <height>392</height>
+    <width>399</width>
+    <height>279</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
     <widget class="QLabel" name="makeLabel">
      <property name="text">
       <string>Override %1:</string>
@@ -21,10 +27,10 @@
      </property>
     </widget>
    </item>
-   <item>
+   <item row="0" column="1">
     <widget class="QLineEdit" name="makeLineEdit"/>
    </item>
-   <item>
+   <item row="1" column="0">
     <widget class="QLabel" name="makeArgumentsLabel">
      <property name="text">
       <string>Make arguments:</string>
@@ -34,10 +40,10 @@
      </property>
     </widget>
    </item>
-   <item>
+   <item row="1" column="1">
     <widget class="QLineEdit" name="makeArgumentsLineEdit"/>
    </item>
-   <item>
+   <item row="2" column="0">
     <widget class="QLabel" name="targetsLabel">
      <property name="text">
       <string>Targets:</string>
@@ -47,21 +53,8 @@
      </property>
     </widget>
    </item>
-   <item>
+   <item row="2" column="1">
     <widget class="QListWidget" name="targetsList"/>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

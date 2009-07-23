@@ -93,7 +93,7 @@ class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QStackedWidget
 {
     Q_OBJECT
 public:
-    EnvironmentWidget(QWidget *parent);
+    EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget = 0);
     ~EnvironmentWidget();
 
     void setBaseEnvironment(const ProjectExplorer::Environment &env);
@@ -111,8 +111,6 @@ public slots:
 
 signals:
     void userChangesUpdated();
-    void switchedToDetails();
-    void switchedToSummary();
 
 private slots:
     void editEnvironmentButtonClicked();

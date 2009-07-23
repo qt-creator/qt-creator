@@ -3032,13 +3032,19 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         qDebug() << "IT'S A POINTER";
         #endif
 #if 1
-        insertData(data.pointerChildPlaceHolder());
         data.setChildrenUnneeded();
         insertData(data);
+        WatchData data1;
+        data1.iname = data.iname + QLatin1String(".*");
+        data1.name = QLatin1Char('*') + data.name;
+        data1.exp = QLatin1String("(*(") + data.exp + QLatin1String("))");
+        data1.type = stripPointerType(data.type);
+        data1.setValueNeeded();
+        insertData(data1);
 #else
         // Try automatic dereferentiation
-        data.exp = "*(" + data.exp + ")";
-        data.type = data.type + "."; // FIXME: fragile HACK to avoid recursion
+        data.exp = _("*(") + data.exp + _(")");
+        data.type = data.type + _("."); // FIXME: fragile HACK to avoid recursion
         insertData(data);
 #endif
         return;

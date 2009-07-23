@@ -178,19 +178,19 @@ static inline QStringList getPluginPaths()
     // Figure out root:  Up one from 'bin'
     QDir rootDir = QApplication::applicationDirPath();
     rootDir.cdUp();
-    const QString rootDirPath = QDir::toNativeSeparators(rootDir.canonicalPath());
+    const QString rootDirPath = rootDir.canonicalPath();
     // 1) "plugins" (Win/Linux)
     QString pluginPath = rootDirPath;
-    pluginPath += QDir::separator();
+    pluginPath += '/';
     pluginPath += QLatin1String(IDE_LIBRARY_BASENAME);
-    pluginPath += QDir::separator();
+    pluginPath += '/';
     pluginPath += QLatin1String("qtcreator");
-    pluginPath += QDir::separator();
+    pluginPath += '/';
     pluginPath += QLatin1String("plugins");
     rc.push_back(pluginPath);
     // 2) "PlugIns" (OS X)
     pluginPath = rootDirPath;
-    pluginPath += QDir::separator();
+    pluginPath += '/';
     pluginPath += QLatin1String("PlugIns");
     rc.push_back(pluginPath);
     return rc;
@@ -269,7 +269,8 @@ int main(int argc, char **argv)
         }
     }
     if (!coreplugin) {
-        const QString reason = QCoreApplication::translate("Application", "Couldn't find 'Core.pluginspec' in %1").arg(pluginPaths.join(QLatin1String(",")));
+        QString nativePaths = QDir::toNativeSeparators(pluginPaths.join(QLatin1String(",")));
+        const QString reason = QCoreApplication::translate("Application", "Couldn't find 'Core.pluginspec' in %1").arg(nativePaths);
         displayError(msgCoreLoadFailure(reason));
         return 1;
     }

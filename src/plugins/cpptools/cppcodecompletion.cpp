@@ -52,10 +52,12 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/mimedatabase.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/itexteditable.h>
-#include <utils/qtcassert.h>
 #include <texteditor/basetexteditor.h>
+#include <projectexplorer/projectexplorer.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QMap>
@@ -585,6 +587,15 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     } else if ((ch2.isNull() || ch2.isSpace()) && (ch == QLatin1Char('@') || ch == QLatin1Char('\\'))) {
         k = T_DOXY_COMMENT;
         --start;
+    } else if (ch == QLatin1Char('<')) {
+        k = T_ANGLE_STRING_LITERAL;
+        --start;
+    } else if (ch == QLatin1Char('"')) {
+        k = T_STRING_LITERAL;
+        --start;
+    } else if (ch == QLatin1Char('/')) {
+        k = T_SLASH;
+        --start;
     }
 
     if (start == pos)
@@ -594,6 +605,17 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     QTextCursor tc(edit->textCursor());
     tc.setPosition(pos);
 
+    // Include completion: make sure the quote character is the first one on the line
+    if (k == T_STRING_LITERAL) {
+        QTextCursor s = tc;
+        s.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+        QString sel = s.selectedText();
+        if (sel.indexOf(QLatin1Char('"')) < sel.length() - 1) {
+            k = T_EOF_SYMBOL;
+            start = pos;
+        }
+    }
+
     static CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(tc);
 
@@ -601,7 +623,16 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         k = T_EOF_SYMBOL;
         start = pos;
     }
-    else if (tk.is(T_COMMENT) || tk.isLiteral()) {
+    // Don't complete in comments or strings, but still check for include completion
+    else if (tk.is(T_COMMENT) || (tk.isLiteral() &&
+                                  (k != T_STRING_LITERAL
+                                   && k != T_ANGLE_STRING_LITERAL
+                                   && k != T_SLASH))) {
+        k = T_EOF_SYMBOL;
+        start = pos;
+    }
+    // Include completion: can be triggered by slash, but only in a string
+    else if (k == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
         k = T_EOF_SYMBOL;
         start = pos;
     }
@@ -622,6 +653,32 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         }
 
         if (i == tokens.size()) {
+            k = T_EOF_SYMBOL;
+            start = pos;
+        }
+    }
+
+    // Check for include preprocessor directive
+    if (k == T_STRING_LITERAL || k == T_ANGLE_STRING_LITERAL || k == T_SLASH) {
+        const QList<SimpleToken> &tokens = tokenUnderCursor.tokens();
+        int i = 0;
+        bool include = false;
+        for (; i < tokens.size(); ++i) {
+            const SimpleToken &token = tokens.at(i);
+            if (token.position() == tk.position()) {
+                if (i == 0) // no token on the left, but might be on a previous line
+                    break;
+                const SimpleToken &previousToken = tokens.at(i - 1);
+                if (previousToken.is(T_IDENTIFIER)) {
+                    if (previousToken.text() == QLatin1String("include")) {
+                        include = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!include) {
             k = T_EOF_SYMBOL;
             start = pos;
         }
@@ -682,6 +739,18 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             m_completions.append(item);
         }
 
+        return m_startPosition;
+    }
+
+    // Include completion
+    if (m_completionOperator == T_STRING_LITERAL
+        || m_completionOperator == T_ANGLE_STRING_LITERAL
+        || m_completionOperator == T_SLASH) {
+
+        QTextCursor c = edit->textCursor();
+        c.setPosition(endOfExpression);
+        if (completeInclude(c))
+            m_startPosition = startOfName;
         return m_startPosition;
     }
 
@@ -1121,6 +1190,72 @@ void CppCodeCompletion::addCompletionItem(Symbol *symbol)
         m_completions.append(item);
 }
 
+bool CppCodeCompletion::completeInclude(const QTextCursor &cursor)
+{
+    QString directoryPrefix;
+    if (m_completionOperator == T_SLASH) {
+        QTextCursor c = cursor;
+        c.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+        QString sel = c.selectedText();
+        int startCharPos = sel.indexOf(QLatin1Char('"'));
+        if (startCharPos == -1) {
+            startCharPos = sel.indexOf(QLatin1Char('<'));
+            m_completionOperator = T_ANGLE_STRING_LITERAL;
+        } else {
+            m_completionOperator = T_STRING_LITERAL;
+        }
+        if (startCharPos != -1)
+            directoryPrefix = sel.mid(startCharPos + 1, sel.length() - 1);
+    }
+
+    // Make completion for all relevant includes
+    if (ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject()) {
+        QStringList items;
+        QStringList includePaths = m_manager->projectInfo(project).includePaths;
+        const QString currentFilePath = QFileInfo(m_editor->file()->fileName()).path();
+        if (!includePaths.contains(currentFilePath))
+            includePaths.append(currentFilePath);
+
+        const Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+        const Core::MimeType mimeType = mimeDatabase->findByType(QLatin1String("text/x-c++hdr"));
+        const QStringList suffixes = mimeType.suffixes();
+
+        foreach (const QString &includePath, includePaths) {
+            QString realPath = includePath;
+            if (!directoryPrefix.isEmpty()) {
+                realPath += QLatin1Char('/');
+                realPath += directoryPrefix;
+            }
+            // TODO: This should be cached
+            QDirIterator i(realPath, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+            while (i.hasNext()) {
+                const QString fileName = i.next();
+                const QFileInfo fileInfo = i.fileInfo();
+                const QString suffix = fileInfo.suffix();
+                if (suffix.isEmpty() || suffixes.contains(suffix)) {
+                    QString text = fileName.mid(realPath.length() + 1);
+                    if (fileInfo.isDir())
+                        text += QLatin1Char('/');
+                    items.append(text);
+                }
+            }
+        }
+
+        if (!items.isEmpty()) {
+            foreach (const QString &itemText, items) {
+                TextEditor::CompletionItem item(this);
+                item.m_text += itemText;
+                // TODO: Icon for include files
+                item.m_icon = m_icons.keywordIcon();
+                m_completions.append(item);
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void CppCodeCompletion::completeNamespace(const QList<Symbol *> &candidates,
                                           const LookupContext &context)
 {
@@ -1324,16 +1459,18 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
     if (item.m_data.isValid())
         symbol = item.m_data.value<Symbol *>();
 
+    QString toInsert;
+    int extraLength = 0;
+
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
-        QString toInsert = item.m_text;
+        toInsert = item.m_text;
         toInsert += QLatin1Char(')');
-        // Insert the remainder of the name
-        int length = m_editor->position() - m_startPosition;
-        m_editor->setCurPos(m_startPosition);
-        m_editor->replace(length, toInsert);
+    } else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL) {
+        toInsert = item.m_text;
+        if (!toInsert.endsWith(QLatin1Char('/')))
+            toInsert += QLatin1Char((m_completionOperator == T_ANGLE_STRING_LITERAL) ? '>' : '"');
     } else {
-        QString toInsert = item.m_text;
-        int extraLength = 0;
+        toInsert = item.m_text;
 
         //qDebug() << "current symbol:" << overview.prettyName(symbol->name())
         //<< overview.prettyType(symbol->type());
@@ -1381,11 +1518,12 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             toInsert += extraChars;
         }
 
-        // Insert the remainder of the name
-        int length = m_editor->position() - m_startPosition + extraLength;
-        m_editor->setCurPos(m_startPosition);
-        m_editor->replace(length, toInsert);
     }
+
+    // Insert the remainder of the name
+    int length = m_editor->position() - m_startPosition + extraLength;
+    m_editor->setCurPos(m_startPosition);
+    m_editor->replace(length, toInsert);
 }
 
 bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)

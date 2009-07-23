@@ -153,6 +153,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     : m_makeStep(makeStep)
 {
     QFormLayout *fl = new QFormLayout(this);
+    fl->setMargin(0);
+    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
 
     m_additionalArguments = new QLineEdit(this);

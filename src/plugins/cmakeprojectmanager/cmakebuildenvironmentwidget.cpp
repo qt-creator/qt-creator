@@ -43,18 +43,12 @@ CMakeBuildEnvironmentWidget::CMakeBuildEnvironmentWidget(CMakeProject *project)
     : BuildStepConfigWidget(), m_pro(project)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setMargin(0);
     m_clearSystemEnvironmentCheckBox = new QCheckBox(this);
     m_clearSystemEnvironmentCheckBox->setText("Clear system environment");
-    m_clearSystemEnvironmentCheckBox->setVisible(false);
 
-    vbox->addWidget(m_clearSystemEnvironmentCheckBox);
-    m_buildEnvironmentWidget = new ProjectExplorer::EnvironmentWidget(this);
+    m_buildEnvironmentWidget = new ProjectExplorer::EnvironmentWidget(this, m_clearSystemEnvironmentCheckBox);
     vbox->addWidget(m_buildEnvironmentWidget);
-
-    connect(m_buildEnvironmentWidget, SIGNAL(switchedToDetails()),
-            m_clearSystemEnvironmentCheckBox, SLOT(show()));
-    connect(m_buildEnvironmentWidget, SIGNAL(switchedToSummary()),
-            m_clearSystemEnvironmentCheckBox, SLOT(hide()));
 
     connect(m_buildEnvironmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(environmentModelUserChangesUpdated()));

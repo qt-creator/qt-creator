@@ -47,20 +47,12 @@ Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
 
     m_clearSystemEnvironmentCheckBox = new QCheckBox(this);
     m_clearSystemEnvironmentCheckBox->setText("Clear system environment");
-    vbox->addWidget(m_clearSystemEnvironmentCheckBox);
-    m_clearSystemEnvironmentCheckBox->setVisible(false);
 
-    m_buildEnvironmentWidget = new ProjectExplorer::EnvironmentWidget(this);
+    m_buildEnvironmentWidget = new ProjectExplorer::EnvironmentWidget(this, m_clearSystemEnvironmentCheckBox);
     vbox->addWidget(m_buildEnvironmentWidget);
 
     connect(m_buildEnvironmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(environmentModelUserChangesUpdated()));
-
-    connect(m_buildEnvironmentWidget, SIGNAL(switchedToDetails()),
-            m_clearSystemEnvironmentCheckBox, SLOT(show()));
-
-    connect(m_buildEnvironmentWidget, SIGNAL(switchedToSummary()),
-            m_clearSystemEnvironmentCheckBox, SLOT(hide()));
 
     connect(m_clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(clearSystemEnvironmentCheckBoxClicked(bool)));

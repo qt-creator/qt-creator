@@ -198,17 +198,6 @@ void WatchData::setAddress(const QString &str)
     addr = str;
 }
 
-WatchData WatchData::pointerChildPlaceHolder() const
-{
-    WatchData data1;
-    data1.iname = iname + QLatin1String(".*");
-    data1.name = QLatin1Char('*') + name;
-    data1.exp = QLatin1String("(*(") + exp + QLatin1String("))");
-    data1.type = stripPointerType(type);
-    data1.setValueNeeded();
-    return data1;
-}
-
 QString WatchData::toString() const
 {
     const char *doubleQuoteComma = "\",";

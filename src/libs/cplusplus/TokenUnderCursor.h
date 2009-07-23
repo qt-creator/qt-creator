@@ -55,6 +55,7 @@ private:
     int previousBlockState(const QTextBlock &block) const;
 
     QList<SimpleToken> _tokens;
+    QString _text;
 };
 
 } // end of namespace CPlusPlus

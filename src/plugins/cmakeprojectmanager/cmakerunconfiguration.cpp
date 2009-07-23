@@ -237,6 +237,8 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 {
 
     QFormLayout *fl = new QFormLayout();
+    fl->setMargin(0);
+    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     QLineEdit *argumentsLineEdit = new QLineEdit();
     argumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(cmakeRunConfiguration->commandLineArguments()));
     connect(argumentsLineEdit, SIGNAL(textChanged(QString)),
@@ -259,6 +261,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     fl->addRow(tr("Working Directory:"), boxlayout);
 
     QVBoxLayout *vbx = new QVBoxLayout(this);
+    vbx->setContentsMargins(0, -1, 0, -1);
     vbx->addLayout(fl);
 
     QLabel *environmentLabel = new QLabel(this);
@@ -269,25 +272,21 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     environmentLabel->setFont(f);
     vbx->addWidget(environmentLabel);
 
-    QFormLayout *formlayout = new QFormLayout();
+    QWidget *baseEnvironmentWidget = new QWidget;
+    QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
+    baseEnvironmentLayout->setMargin(0);
     QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
-
-
+    baseEnvironmentLayout->addWidget(label);
     m_baseEnvironmentComboBox = new QComboBox(this);
     m_baseEnvironmentComboBox->addItems(QStringList()
                                         << tr("Clean Environment")
                                         << tr("System Environment")
                                         << tr("Build Environment"));
-    formlayout->addRow(label, m_baseEnvironmentComboBox);
-    vbx->addLayout(formlayout);
-    label->setVisible(false);
-    m_baseEnvironmentComboBox->setVisible(false);
-
     m_baseEnvironmentComboBox->setCurrentIndex(m_cmakeRunConfiguration->baseEnvironmentBase());
-
     connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(baseEnvironmentComboBoxChanged(int)));
-
+    baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
+    baseEnvironmentLayout->addStretch(10);
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
@@ -295,19 +294,9 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(resetButton, SIGNAL(clicked()),
             this, SLOT(resetWorkingDirectory()));
 
-    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this);
+    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
     m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
     m_environmentWidget->setUserChanges(m_cmakeRunConfiguration->userEnvironmentChanges());
-
-    connect(m_environmentWidget, SIGNAL(switchedToSummary()),
-            m_baseEnvironmentComboBox, SLOT(hide()));
-    connect(m_environmentWidget, SIGNAL(switchedToDetails()),
-            m_baseEnvironmentComboBox, SLOT(show()));
-
-    connect(m_environmentWidget, SIGNAL(switchedToSummary()),
-            label, SLOT(hide()));
-    connect(m_environmentWidget, SIGNAL(switchedToDetails()),
-            label, SLOT(show()));
 
     vbx->addWidget(m_environmentWidget);
 

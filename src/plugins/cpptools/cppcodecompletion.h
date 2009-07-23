@@ -41,6 +41,9 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+class QTextCursor;
+QT_END_NAMESPACE
 
 namespace TextEditor {
 class ITextEditor;
@@ -107,6 +110,8 @@ private:
                           QSet<QString> *processed,
                           QSet<QString> *definedMacros);
     void addCompletionItem(CPlusPlus::Symbol *symbol);
+
+    bool completeInclude(const QTextCursor &cursor);
 
     bool completeConstructorOrFunction(const QList<CPlusPlus::TypeOfExpression::Result> &);
 

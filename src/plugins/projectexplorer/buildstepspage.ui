@@ -62,7 +62,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>GroupBox</string>
+      <string>No step selected</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
