@@ -91,45 +91,6 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
     return arguments;
 }
 
-// We match -spec and -platfrom separetly
-// We ignore -cache, because qmake contained a bug that it didn't
-// mention the -cache in the Makefile
-// That means changing the -cache option in the additional arguments
-// does not automatically rerun qmake. Alas, we could try more
-// intelligent matching for -cache, but i guess people rarely
-// do use that.
-
-QStringList removeSpecFromArgumentList(const QStringList &old)
-{
-    if (!old.contains("-spec") && !old.contains("-platform"))
-        return old;
-    QStringList newList;
-    bool ignoreNext = false;
-    foreach(const QString &item, old) {
-        if (ignoreNext) {
-            ignoreNext = false;
-        } else if (item == "-spec" || item == "-platform" || item == "-cache") {
-            ignoreNext = true;
-        } else {
-            newList << item;
-        }
-    }
-    return newList;
-}
-
-QString extractSpecFromArgumentList(const QStringList &list)
-{
-    int index = list.indexOf("-spec");
-    if (index == -1)
-        index = list.indexOf("-platform");
-    if (index == -1)
-        return QString();
-    if (index + 1 < list.length())
-        return list.at(index +1);
-    else
-        return QString();
-}
-
 bool QMakeStep::init(const QString &name)
 {
     m_buildConfiguration = name;
@@ -155,50 +116,7 @@ bool QMakeStep::init(const QString &name)
     if (QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
         QString qtPath = QtVersionManager::findQtVersionFromMakefile(workingDirectory);
         if (qtVersion->path() == qtPath) {
-            // same qtversion
-            QPair<QtVersion::QmakeBuildConfig, QStringList> result =
-                    QtVersionManager::scanMakeFile(workingDirectory, qtVersion->defaultBuildConfig());
-            if (QtVersion::QmakeBuildConfig(m_pro->value(name, "buildConfiguration").toInt()) == result.first) {
-                // The QMake Build Configuration are the same,
-                // now compare arguments lists
-                // we have to compare without the spec/platform cmd argument
-                // and compare that on its own
-                QString actualSpec = extractSpecFromArgumentList(value(name, "qmakeArgs").toStringList());
-                if (actualSpec.isEmpty())
-                    actualSpec = m_pro->qtVersion(name)->mkspec();
-                QString parsedSpec = extractSpecFromArgumentList(result.second);
-
-                // Now to convert the actualSpec to a absolute path, we go through a few hops
-                if (QFileInfo(actualSpec).isRelative()) {
-                    QString path = qtVersion->sourcePath() + "/mkspecs/" + actualSpec;
-                    if (QFileInfo(path).exists()) {
-                        actualSpec = QDir::cleanPath(path);
-                    } else {
-                        path = qtVersion->versionInfo().value("QMAKE_MKSPECS") + "/" + actualSpec;
-                        if (QFileInfo(path).exists()) {
-                            actualSpec = QDir::cleanPath(path);
-                        } else {
-                            path = workingDirectory + "/" + actualSpec;
-                            if (QFileInfo(path).exists())
-                                actualSpec = QDir::cleanPath(path);
-                        }
-                    }
-                }
-
-                if (QFileInfo(parsedSpec).isRelative())
-                    parsedSpec = QDir::cleanPath(workingDirectory + "/" + parsedSpec);
-
-                QStringList actualArgs = removeSpecFromArgumentList(value(name, "qmakeArgs").toStringList());
-                QStringList parsedArgs = removeSpecFromArgumentList(result.second);
-
-                qDebug()<<"Actual args:"<<actualArgs;
-                qDebug()<<"Parsed args:"<<parsedArgs;
-                qDebug()<<"Actual spec:"<<actualSpec;
-                qDebug()<<"Parsed spec:"<<parsedSpec;
-
-                if (actualArgs == parsedArgs && actualSpec == parsedSpec)
-                    needToRunQMake = false;
-            }
+            needToRunQMake = m_pro->compareBuildConfigurationToImportFrom(name, workingDirectory);
         }
     }
 

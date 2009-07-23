@@ -196,6 +196,8 @@ public:
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
 
+    bool compareBuildConfigurationToImportFrom(const QString &buildConfiguration, const QString &workingDirectory);
+
 signals:
     void targetInformationChanged();
 

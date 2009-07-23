@@ -1098,6 +1098,107 @@ void Qt4Project::invalidateCachedTargetInformation()
     emit targetInformationChanged();
 }
 
+// We match -spec and -platfrom separetly
+// We ignore -cache, because qmake contained a bug that it didn't
+// mention the -cache in the Makefile
+// That means changing the -cache option in the additional arguments
+// does not automatically rerun qmake. Alas, we could try more
+// intelligent matching for -cache, but i guess people rarely
+// do use that.
+
+QStringList removeSpecFromArgumentList(const QStringList &old)
+{
+    if (!old.contains("-spec") && !old.contains("-platform") && !old.contains("-cache"))
+        return old;
+    QStringList newList;
+    bool ignoreNext = false;
+    foreach(const QString &item, old) {
+        qDebug()<<"Item:"<<item;
+        if (ignoreNext) {
+            qDebug()<<"ignored (2)";
+            ignoreNext = false;
+        } else if (item == "-spec" || item == "-platform" || item == "-cache") {
+            ignoreNext = true;
+            qDebug()<<"ignored (1)";
+        } else {
+            newList << item;
+            qDebug()<<"added";
+        }
+    }
+    return newList;
+}
+
+QString extractSpecFromArgumentList(const QStringList &list)
+{
+    int index = list.indexOf("-spec");
+    if (index == -1)
+        index = list.indexOf("-platform");
+    if (index == -1)
+        return QString();
+    if (index + 1 < list.length())
+        return list.at(index +1);
+    else
+        return QString();
+}
+
+bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfiguration, const QString &workingDirectory)
+{
+    if (QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
+        QString qtPath = QtVersionManager::findQtVersionFromMakefile(workingDirectory);
+        QtVersion *version = qtVersion(buildConfiguration);
+        if (version->path() == qtPath) {
+            // same qtversion
+            QPair<QtVersion::QmakeBuildConfig, QStringList> result =
+                    QtVersionManager::scanMakeFile(workingDirectory, version->defaultBuildConfig());
+            if (QtVersion::QmakeBuildConfig(value(buildConfiguration, "buildConfiguration").toInt()) == result.first) {
+                // The QMake Build Configuration are the same,
+                // now compare arguments lists
+                // we have to compare without the spec/platform cmd argument
+                // and compare that on its own
+                QString actualSpec = extractSpecFromArgumentList(qmakeStep()->value(buildConfiguration, "qmakeArgs").toStringList());
+                if (actualSpec.isEmpty())
+                    actualSpec = qtVersion(buildConfiguration)->mkspec();
+                QString parsedSpec = extractSpecFromArgumentList(result.second);
+
+                // Now to convert the actualSpec to a absolute path, we go through a few hops
+                if (QFileInfo(actualSpec).isRelative()) {
+                    QString path = version->sourcePath() + "/mkspecs/" + actualSpec;
+                    if (QFileInfo(path).exists()) {
+                        actualSpec = QDir::cleanPath(path);
+                    } else {
+                        path = version->versionInfo().value("QMAKE_MKSPECS") + "/" + actualSpec;
+                        if (QFileInfo(path).exists()) {
+                            actualSpec = QDir::cleanPath(path);
+                        } else {
+                            path = workingDirectory + "/" + actualSpec;
+                            if (QFileInfo(path).exists())
+                                actualSpec = QDir::cleanPath(path);
+                        }
+                    }
+                }
+
+                if (QFileInfo(parsedSpec).isRelative())
+                    parsedSpec = QDir::cleanPath(workingDirectory + "/" + parsedSpec);
+
+
+                qDebug()<<"before:"<<qmakeStep()->value(buildConfiguration, "qmakeArgs").toStringList();
+                QStringList actualArgs = removeSpecFromArgumentList(qmakeStep()->value(buildConfiguration, "qmakeArgs").toStringList());
+                qDebug()<<"after:"<<actualArgs;
+                QStringList parsedArgs = removeSpecFromArgumentList(result.second);
+
+                qDebug()<<"Actual args:"<<actualArgs;
+                qDebug()<<"Parsed args:"<<parsedArgs;
+                qDebug()<<"Actual spec:"<<actualSpec;
+                qDebug()<<"Parsed spec:"<<parsedSpec;
+
+                if (actualArgs == parsedArgs && actualSpec == parsedSpec)
+                    return false;
+            }
+        }
+    }
+    return true;
+}
+
 
 /*!
   Handle special case were a subproject of the qt directory is opened, and
