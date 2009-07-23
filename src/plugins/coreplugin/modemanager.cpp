@@ -147,11 +147,16 @@ void ModeManager::objectAdded(QObject *obj)
     m_modeShortcuts.insert(index, cmd);
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateModeToolTip()));
     for (int i = 0; i < m_modeShortcuts.size(); ++i) {
+        Command *currentCmd = m_modeShortcuts.at(i);
+        bool currentlyHasDefaultSequence = (currentCmd->keySequence()
+                                            == currentCmd->defaultKeySequence());
 #ifdef Q_WS_MAC
-        m_modeShortcuts.at(i)->setDefaultKeySequence(QKeySequence(QString("Meta+%1").arg(i+1)));
+        currentCmd->setDefaultKeySequence(QKeySequence(QString("Meta+%1").arg(i+1)));
 #else
-        m_modeShortcuts.at(i)->setDefaultKeySequence(QKeySequence(QString("Ctrl+%1").arg(i+1)));
+        currentCmd->setDefaultKeySequence(QKeySequence(QString("Ctrl+%1").arg(i+1)));
 #endif
+        if (currentlyHasDefaultSequence)
+            currentCmd->setKeySequence(currentCmd->defaultKeySequence());
     }
 
     m_signalMapper->setMapping(shortcut, mode->uniqueModeName());
