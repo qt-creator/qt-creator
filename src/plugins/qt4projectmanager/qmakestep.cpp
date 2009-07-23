@@ -91,6 +91,14 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
     return arguments;
 }
 
+// We match -spec and -platfrom separetly
+// We ignore -cache, because qmake contained a bug that it didn't
+// mention the -cache in the Makefile
+// That means changing the -cache option in the additional arguments
+// does not automatically rerun qmake. Alas, we could try more
+// intelligent matching for -cache, but i guess people rarely
+// do use that.
+
 QStringList removeSpecFromArgumentList(const QStringList &old)
 {
     if (!old.contains("-spec") && !old.contains("-platform"))
@@ -100,7 +108,7 @@ QStringList removeSpecFromArgumentList(const QStringList &old)
     foreach(const QString &item, old) {
         if (ignoreNext) {
             ignoreNext = false;
-        } else if (item == "-spec" || item == "-platform") {
+        } else if (item == "-spec" || item == "-platform" || item == "-cache") {
             ignoreNext = true;
         } else {
             newList << item;
