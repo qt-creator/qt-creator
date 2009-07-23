@@ -161,6 +161,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 #endif
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setContentsMargins(0, -1, 0, -1);
     vbox->addLayout(toplayout);
 
     QLabel *environmentLabel = new QLabel(this);
