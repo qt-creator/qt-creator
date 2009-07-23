@@ -178,7 +178,7 @@ static inline QStringList getPluginPaths()
     // Figure out root:  Up one from 'bin'
     QDir rootDir = QApplication::applicationDirPath();
     rootDir.cdUp();
-    const QString rootDirPath = rootDir.canonicalPath();
+    const QString rootDirPath = QDir::toNativeSeparators(rootDir.canonicalPath());
     // 1) "plugins" (Win/Linux)
     QString pluginPath = rootDirPath;
     pluginPath += QDir::separator();
