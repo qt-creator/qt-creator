@@ -519,6 +519,8 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     : m_project(project)
 {
     QFormLayout *fl = new QFormLayout(this);
+    fl->setContentsMargins(0, -1, 0, -1);
+    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     // build directory
     m_pathChooser = new Core::Utils::PathChooser(this);
@@ -528,6 +530,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
 
     // tool chain
     QComboBox *toolChainChooser = new QComboBox;
+    toolChainChooser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     toolChainChooser->addItems(ProjectExplorer::ToolChain::supportedToolChains());
     toolChainChooser->setCurrentIndex(toolChainChooser->findText(m_project->toolChainId()));
     fl->addRow(tr("Toolchain:"), toolChainChooser);
