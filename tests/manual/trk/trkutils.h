@@ -72,8 +72,9 @@ enum CodeMode
 
 enum TargetConstants
 {
-    registerCount = 17,
-    memoryChunkSize = 256
+    RegisterCount = 16,
+    RegisterPC = 15, // Program counter
+    MemoryChunkSize = 256
 };
 
 struct Session
@@ -112,9 +113,9 @@ struct Session
     uint currentThread;
 };
 
-struct SnapShot
+struct Snapshot
 {
-    uint registers[registerCount];
+    uint registers[RegisterCount];
     typedef QHash<uint, QByteArray> Memory;
     Memory memory;
 };
@@ -147,7 +148,7 @@ struct TrkResult
 QByteArray frameMessage(byte command, byte token, const QByteArray &data);
 TrkResult extractResult(QByteArray *buffer);
 QByteArray errorMessage(byte code);
-QByteArray hexNumber(uint n); 
+QByteArray hexNumber(uint n, int digits = 0); 
 
 } // namespace trk
 

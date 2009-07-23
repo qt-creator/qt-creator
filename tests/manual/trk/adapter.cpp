@@ -163,7 +163,7 @@ private:
 
     // Debuggee state
     Session m_session; // global-ish data (process id, target information)
-    SnapShot m_snapshot; // local-ish data (memory and registers)
+    Snapshot m_snapshot; // local-ish data (memory and registers)
 };
 
 Adapter::Adapter()
@@ -453,7 +453,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
 
         appendByte(&ba, 0); // first register
         // FIXME: off by one?
-        appendByte(&ba, registerCount - 1); // last register
+        appendByte(&ba, RegisterCount - 1); // last register
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
         
@@ -537,7 +537,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         #endif
         bool ok = false;
         uint registerNumber = response.mid(1).toInt(&ok, 16);
-        if (registerNumber < registerCount) {
+        if (registerNumber < RegisterCount) {
             QByteArray ba;
             appendInt(&ba, m_snapshot.registers[registerNumber]);
             sendGdbMessage(ba.toHex(), "read single known register");
@@ -565,8 +565,9 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         sendGdbMessageAfterSync("QC@TID@");
     }
 
-    else if (response == "qSupported") {
+    else if (response.startsWith("qSupported")) {
         //$qSupported#37
+        //$qSupported:multiprocess+#c6
         //logMessage("Handling 'qSupported'");
         sendGdbAckMessage();
         if (0) 
@@ -620,8 +621,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         sendGdbAckMessage();
         QByteArray ba;
         appendByte(&ba, 0); // options
-        appendInt(&ba, m_snapshot.registers[14]); // start address
-        appendInt(&ba, m_snapshot.registers[14] + 4); // end address
+        appendInt(&ba, m_snapshot.registers[RegisterPC]); // start address
+        appendInt(&ba, m_snapshot.registers[RegisterPC] + 4); // end address
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
         sendTrkMessage(0x19, 0, ba, "Step range");
@@ -1057,7 +1058,15 @@ void Adapter::handleAndReportReadRegisters(const TrkResult &result)
     //logMessage("       RESULT: " + result.toString());
     // [80 0B 00   00 00 00 00   C9 24 FF BC   00 00 00 00   00
     //  60 00 00   00 00 00 00   78 67 79 70   00 00 00 00   00...]
-    QByteArray ba = result.data.toHex();
+    const char *data = result.data.data();
+    for (int i = 0; i < RegisterCount; ++i)
+        m_snapshot.registers[i] = extractInt(data + 4 * i);
+
+    //QByteArray ba = result.data.toHex();
+    QByteArray ba;
+    for (int i = 0; i < 16; ++i)
+        ba += hexNumber(m_snapshot.registers[i], 8);
+
     sendGdbMessage(ba, "register contents");
 }
 
@@ -1080,14 +1089,14 @@ void Adapter::reportReadMemory(const TrkResult &result)
     uint len = uint(cookie);
 
     QByteArray ba;
-    uint blockaddr = (addr / memoryChunkSize) * memoryChunkSize;
-    for (; blockaddr < addr + len; blockaddr += memoryChunkSize) {
+    uint blockaddr = (addr / MemoryChunkSize) * MemoryChunkSize;
+    for (; blockaddr < addr + len; blockaddr += MemoryChunkSize) {
         QByteArray blockdata = m_snapshot.memory[blockaddr];
         Q_ASSERT(!blockdata.isEmpty());
         ba.append(blockdata);
     }
 
-    ba = ba.mid(addr % memoryChunkSize, len);
+    ba = ba.mid(addr % MemoryChunkSize, len);
     // qDebug() << "REPORTING MEMORY " << ba.size()
     //     << " ADDR: " << hexNumber(blockaddr) << " LEN: " << len
     //     << " BYTES: " << quoteUnprintableLatin1(ba);
@@ -1252,14 +1261,14 @@ void Adapter::readMemory(uint addr, uint len)
     // We try to get medium-sized chunks of data from the device
 
     QList <uint> blocksToFetch;
-    uint blockaddr = (addr / memoryChunkSize) * memoryChunkSize;
-    for (; blockaddr < addr + len; blockaddr += memoryChunkSize) {
+    uint blockaddr = (addr / MemoryChunkSize) * MemoryChunkSize;
+    for (; blockaddr < addr + len; blockaddr += MemoryChunkSize) {
         QByteArray blockdata = m_snapshot.memory[blockaddr];
         if (blockdata.isEmpty()) {
             // fetch it
             QByteArray ba;
             appendByte(&ba, 0x08); // Options, FIXME: why?
-            appendShort(&ba, memoryChunkSize);
+            appendShort(&ba, MemoryChunkSize);
             appendInt(&ba, blockaddr);
             appendInt(&ba, m_session.pid);
             appendInt(&ba, m_session.tid);

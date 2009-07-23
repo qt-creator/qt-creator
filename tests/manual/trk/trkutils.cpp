@@ -35,9 +35,12 @@
 
 namespace trk {
 
-QByteArray hexNumber(uint n)
+QByteArray hexNumber(uint n, int digits)
 {
-    return QByteArray::number(n, 16);
+    QByteArray ba = QByteArray::number(n, 16);
+    if (digits == 0 || ba.size() == digits)
+        return ba;
+    return QByteArray(digits - ba.size(), '0') + ba;
 }
 
 QString TrkResult::toString() const

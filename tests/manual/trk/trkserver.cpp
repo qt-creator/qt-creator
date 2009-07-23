@@ -67,7 +67,7 @@ struct Inferior
     uint codeseg;
     uint dataseg;
 
-    uint registers[16];
+    uint registers[RegisterCount];
 };
 
 Inferior::Inferior()
@@ -78,22 +78,23 @@ Inferior::Inferior()
     codeseg = 0x786A4000;
     dataseg = 0x00400000;
 
-    registers[0]  = 0xC92D7FBC;
-    registers[1]  = 0x00000000;
-    registers[2]  = 0x00600000;
-    registers[3]  = 0x00000000;
-    registers[4]  = 0x786A7970;
-    registers[5]  = 0x00000000;
+    registers[0]  = 0x00000000;
+    registers[1]  = 0xC92D7FBC;
+    registers[2]  = 0x00000000;
+    registers[3]  = 0x00600000;
+    registers[4]  = 0x00000000;
+    registers[5]  = 0x786A7970;
     registers[6]  = 0x00000000;
-    registers[7]  = 0x00000012;
-    registers[8]  = 0x00000040;
-    registers[9]  = 0xC82AF210;
-    registers[10] = 0x00000000;
-    registers[11] = 0xC8000548;
-    registers[12] = 0x00403ED0;
-    registers[13] = 0x786A6BD8;
-    registers[14] = 0x786A4CC8;
-    registers[15] = 0x68000010;
+    registers[7]  = 0x00000000;
+    registers[8]  = 0x00000012;
+    registers[9]  = 0x00000040;
+    registers[10]  = 0xC82AF210;
+    registers[11] = 0x00000000;
+    registers[12] = 0xC8000548;
+    registers[13] = 0x00403ED0;
+    registers[14] = 0x786A6BD8;
+    registers[15] = 0x786A4CC8;
+    //registers[25] = 0x68000010;
 }
 
 class TrkServer : public QObject
@@ -240,7 +241,7 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             appendByte(&data, 0x00);
             appendByte(&data, 0x00);
             appendByte(&data, 0x00);
-            for (int i = 0; i < 16; ++i)
+            for (int i = 0; i < RegisterCount; ++i)
                 appendInt(&data, m_inferior.registers[i], BigEndian);
             writeToAdapter(0x80, result.token, data);
             break;
@@ -267,16 +268,16 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             uint endaddr = extractInt(p + 5);
             uint pid = extractInt(p + 9);
             //uint tid = extractInt(p + 13);
-            if (startaddr != m_inferior.registers[14])
+            if (startaddr != m_inferior.registers[RegisterPC])
                 logMessage("addr mismatch:" + hexNumber(startaddr) + " " +
-                    hexNumber(m_inferior.registers[14]));
+                    hexNumber(m_inferior.registers[RegisterPC]));
             if (pid != m_inferior.pid)
                 logMessage("pid mismatch:" + hexNumber(pid) + " " +
                     hexNumber(m_inferior.pid));
             writeToAdapter(0x80, result.token, data);
 
             // Fake "step"
-            m_inferior.registers[14] = endaddr;
+            m_inferior.registers[RegisterPC] = endaddr;
 
             if (1) { // Fake "Stop"
                 QByteArray note;
