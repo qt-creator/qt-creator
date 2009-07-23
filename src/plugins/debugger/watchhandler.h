@@ -102,8 +102,6 @@ public:
     void setHasChildren(bool c) { hasChildren = c; setHasChildrenUnneeded();
         if (!c) setChildrenUnneeded(); }
 
-    WatchData pointerChildPlaceHolder() const;
-
     QString toString() const;
     QString toToolTip() const;
     bool isLocal() const { return iname.startsWith(QLatin1String("local.")); }
