@@ -567,21 +567,24 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
                 wchild.valuedisabled = dchild.valuedisabled;
                 wchild.setValue(decodeData(dchild.value, dchild.valueEncoded));
             }
-            wchild.setType(dchild.type.isEmpty() ? childType : dchild.type);
             wchild.setAddress(dchild.address);
-            // Child overrides.
-            const int effectiveChildChildCount = dchild.childCount == -1 ?  childChildCount : dchild.childCount;
-            switch (effectiveChildChildCount) {
+            // The type setter sets hasChildren for known types.
+            wchild.setType(dchild.type.isEmpty() ? childType : dchild.type);
+            if (wchild.isHasChildrenNeeded()) {
+                // Child overrides.
+                const int effectiveChildChildCount = dchild.childCount == -1 ?  childChildCount : dchild.childCount;
+                switch (effectiveChildChildCount) {
                 case -1:
-                wchild.setChildrenNeeded();
-                wchild.setHasChildrenNeeded();
-                break;
+                    wchild.setChildrenNeeded();
+                    wchild.setHasChildrenNeeded();
+                    break;
                 case 0:
-                wchild.setHasChildren(false);
-                break;
+                    wchild.setHasChildren(false);
+                    break;
                 default:
-                wchild.setHasChildren(true);
-                break;
+                    wchild.setHasChildren(true);
+                    break;
+                }
             }
         }
     }

@@ -1177,8 +1177,11 @@ void CdbDebugEngine::selectThread(int index)
 
     ThreadsHandler *threadsHandler = m_d->m_debuggerManagerAccess->threadsHandler();
     threadsHandler->setCurrentThread(index);
-    m_d->m_currentThreadId = index;
-    m_d->updateStackTrace();
+    const int newThreadId = threadsHandler->threads().at(index).id;
+    if (newThreadId != m_d->m_currentThreadId) {
+        m_d->m_currentThreadId = threadsHandler->threads().at(index).id;
+        m_d->updateStackTrace();
+    }
 }
 
 void CdbDebugEngine::attemptBreakpointSynchronization()
@@ -1223,7 +1226,7 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
                                                  m_cif.debugSymbols,
                                                  m_debuggerManagerAccess->breakHandler(),
                                                  errorMessage, &warnings);
-    if (const int warningsCount = warnings.size())        
+    if (const int warningsCount = warnings.size())
         for (int w = 0; w < warningsCount; w++)
             m_engine->warning(warnings.at(w));
     return ok;
@@ -1390,6 +1393,16 @@ void CdbDebugEnginePrivate::notifyCrashed()
     m_dumper->disable();
 }
 
+static int threadIndexById(const ThreadsHandler *threadsHandler, int id)
+{
+    const QList<ThreadData> threads = threadsHandler->threads();
+    const int count = threads.count();
+    for (int i = 0; i < count; i++)
+        if (threads.at(i).id == id)
+            return i;
+    return -1;
+}
+
 void CdbDebugEnginePrivate::handleDebugEvent()
 {
     if (debugCDB)
@@ -1401,10 +1414,15 @@ void CdbDebugEnginePrivate::handleDebugEvent()
     m_breakEventMode = BreakEventHandle;
 
     switch (mode) {
-    case BreakEventHandle:
+    case BreakEventHandle: {
         m_debuggerManagerAccess->notifyInferiorStopped();
-        updateThreadList();
+        m_currentThreadId = updateThreadList();
+        ThreadsHandler *threadsHandler = m_debuggerManagerAccess->threadsHandler();
+        const int threadIndex = threadIndexById(threadsHandler, m_currentThreadId);
+        if (threadIndex != -1)
+            threadsHandler->setCurrentThread(threadIndex);
         updateStackTrace();
+    }
         break;
     case BreakEventIgnoreOnce:
         m_engine->startWatchTimer();
@@ -1430,7 +1448,7 @@ void CdbDebugEnginePrivate::setDebuggeeHandles(HANDLE hDebuggeeProcess,  HANDLE 
     m_hDebuggeeThread = hDebuggeeThread;
 }
 
-void CdbDebugEnginePrivate::updateThreadList()
+ULONG CdbDebugEnginePrivate::updateThreadList()
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << m_hDebuggeeProcess;
@@ -1439,25 +1457,25 @@ void CdbDebugEnginePrivate::updateThreadList()
     QList<ThreadData> threads;
     bool success = false;
     QString errorMessage;
+    ULONG currentThreadId = 0;
     do {
-        ULONG numberOfThreads;
-        HRESULT hr= m_cif.debugSystemObjects->GetNumberThreads(&numberOfThreads);
+        ULONG threadCount;
+        HRESULT hr= m_cif.debugSystemObjects->GetNumberThreads(&threadCount);
         if (FAILED(hr)) {
             errorMessage= msgComFailed("GetNumberThreads", hr);
             break;
         }
-        const ULONG maxThreadIds = 256;
-        ULONG threadIds[maxThreadIds];
-        ULONG biggestThreadId = qMin(maxThreadIds, numberOfThreads - 1);
-        hr = m_cif.debugSystemObjects->GetThreadIdsByIndex(0, biggestThreadId, threadIds, 0);
-        if (FAILED(hr)) {
-            errorMessage= msgComFailed("GetThreadIdsByIndex", hr);
-            break;
-        }
-        for (ULONG threadId = 0; threadId <= biggestThreadId; ++threadId) {
-            ThreadData thread;
-            thread.id = threadId;
-            threads.append(thread);
+        // Get ids and index of current
+        if (threadCount) {
+            m_cif.debugSystemObjects->GetCurrentThreadId(&currentThreadId);
+            QVector<ULONG> threadIds(threadCount);
+            hr = m_cif.debugSystemObjects->GetThreadIdsByIndex(0, threadCount, &(*threadIds.begin()), 0);
+            if (FAILED(hr)) {
+                errorMessage= msgComFailed("GetThreadIdsByIndex", hr);
+                break;
+            }
+            for (ULONG i = 0; i < threadCount; i++)
+                threads.push_back(ThreadData(threadIds.at(i)));
         }
 
         th->setThreads(threads);
@@ -1465,6 +1483,7 @@ void CdbDebugEnginePrivate::updateThreadList()
     } while (false);
     if (!success)
         m_engine->warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
+    return currentThreadId;
 }
 
 void CdbDebugEnginePrivate::updateStackTrace()

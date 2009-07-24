@@ -40,7 +40,7 @@
 namespace Debugger {
 namespace Internal {
 
-enum { OwnerNewItem, OwnerSymbolGroup, OwnerDumper };
+enum { OwnerNewItem, OwnerSymbolGroup, OwnerSymbolGroupDumper , OwnerDumper };
 
 typedef QSharedPointer<CdbDumperHelper> SharedPointerCdbDumperHelper;
 typedef QList<WatchData> WatchDataList;
@@ -216,6 +216,12 @@ WatchHandleDumperInserter &WatchHandleDumperInserter::operator=(WatchData &wd)
         wd.source = OwnerDumper;
         return *this;
     }
+    // Expanded by internal dumper? : ok
+    if (wd.source == OwnerSymbolGroupDumper) {
+        m_wh->insertData(wd);
+        return *this;
+    }
+    // Try library dumpers.
     switch (m_dumper->dumpType(wd, true, OwnerDumper, &m_dumperResult, &errorMessage)) {
     case CdbDumperHelper::DumpOk:
         if (debugCDBWatchHandling)
@@ -258,13 +264,15 @@ bool CdbStackFrameContext::populateModelInitially(WatchHandler *wh, QString *err
         qDebug() << "populateModelInitially dumpers=" << m_useDumpers;
     // Recurse down items that are initially expanded in the view, stop processing for
     // dumper items.
+    const CdbSymbolGroupRecursionContext rctx(m_symbolContext, OwnerSymbolGroupDumper,
+                                              m_dumper->comInterfaces()->debugDataSpaces);
     const bool rc = m_useDumpers ?
-        CdbSymbolGroupContext::populateModelInitially(m_symbolContext,
+        CdbSymbolGroupContext::populateModelInitially(rctx,
                                                       WatchHandleDumperInserter(wh, m_dumper),
                                                       WatchHandlerExpandedPredicate(wh),
                                                       isDumperPredicate,
                                                       errorMessage) :
-        CdbSymbolGroupContext::populateModelInitially(m_symbolContext,
+        CdbSymbolGroupContext::populateModelInitially(rctx,
                                                       WatchHandlerModelInserter(wh),
                                                       WatchHandlerExpandedPredicate(wh),
                                                       falsePredicate,
@@ -279,9 +287,11 @@ bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
     if (debugCDBWatchHandling)
         qDebug() << ">completeData src=" << incompleteLocal.source << incompleteLocal.toString();
 
+    const CdbSymbolGroupRecursionContext rctx(m_symbolContext, OwnerSymbolGroupDumper,
+                                              m_dumper->comInterfaces()->debugDataSpaces);
     // Expand symbol group items, recurse one level from desired item
     if (!m_useDumpers) {
-        return CdbSymbolGroupContext::completeData(m_symbolContext, incompleteLocal,
+        return CdbSymbolGroupContext::completeData(rctx, incompleteLocal,
                                                    WatchHandlerModelInserter(wh),
                                                    MatchINamePredicate(incompleteLocal.iname),
                                                    falsePredicate,
@@ -311,7 +321,7 @@ bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
     }
 
     // Expand symbol group items, recurse one level from desired item
-    return CdbSymbolGroupContext::completeData(m_symbolContext, incompleteLocal,
+    return CdbSymbolGroupContext::completeData(rctx, incompleteLocal,
                                                WatchHandleDumperInserter(wh, m_dumper),
                                                MatchINamePredicate(incompleteLocal.iname),
                                                isDumperPredicate,

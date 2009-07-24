@@ -46,6 +46,7 @@ namespace Internal {
 
 class WatchData;
 class WatchHandler;
+struct CdbSymbolGroupRecursionContext;
 
 /* A thin wrapper around the IDebugSymbolGroup2 interface which represents
  * a flat list of symbols using an index (for example, belonging to a stack
@@ -73,7 +74,7 @@ class CdbSymbolGroupContext
 public:
     ~CdbSymbolGroupContext();
     static CdbSymbolGroupContext *create(const QString &prefix,
-                                         CIDebugSymbolGroup *symbolGroup,                                         
+                                         CIDebugSymbolGroup *symbolGroup,
                                          QString *errorMessage);
 
     QString prefix() const { return m_prefix; }
@@ -87,7 +88,7 @@ public:
     // to terminate processing after insertion of an item (if the calling
     // routine wants to insert another subtree).
     template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-    static bool populateModelInitially(CdbSymbolGroupContext *sg,
+    static bool populateModelInitially(const CdbSymbolGroupRecursionContext &ctx,
                                        OutputIterator it,
                                        RecursionPredicate recursionPredicate,
                                        IgnorePredicate ignorePredicate,
@@ -99,7 +100,7 @@ public:
     // to terminate processing after insertion of an item (if the calling
     // routine wants to insert another subtree).
     template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-    static bool completeData (CdbSymbolGroupContext *sg,
+    static bool completeData (const CdbSymbolGroupRecursionContext &ctx,
                               WatchData incompleteLocal,
                               OutputIterator it,
                               RecursionPredicate recursionPredicate,
@@ -108,9 +109,19 @@ public:
 
     // Retrieve child symbols of prefix as a sequence of WatchData.
     template <class OutputIterator>
-            bool getChildSymbols(const QString &prefix, OutputIterator it, QString *errorMessage);
+            bool getChildSymbols(const QString &prefix, OutputIterator it, QString *errorMessage)
+            { return getDumpChildSymbols(0, prefix, 0, it, errorMessage); }
+    // Retrieve child symbols of prefix as a sequence of WatchData.
+    // Is CIDebugDataSpaces is != 0, try internal dumper and set owner
+    template <class OutputIterator>
+            bool getDumpChildSymbols(CIDebugDataSpaces *ds, const QString &prefix,
+                                      int dumpedOwner,
+                                      OutputIterator it, QString *errorMessage);
 
     WatchData symbolAt(unsigned long index) const;
+    // Run the internal dumpers on the symbol
+    WatchData dumpSymbolAt(CIDebugDataSpaces *ds, unsigned long index);
+
     bool lookupPrefix(const QString &prefix, unsigned long *index) const;
 
     enum SymbolState { LeafSymbol, ExpandedSymbol, CollapsedSymbol };
@@ -127,6 +138,10 @@ public:
     // format an array of unsigned longs as "0x323, 0x2322, ..."
     static QString hexFormatArray(const unsigned short *array, int size);
 
+    // Dump
+    enum DumperResult { DumperOk, DumperError, DumperNotHandled };
+    DumperResult dump(CIDebugDataSpaces *ds, WatchData *wd);
+
 private:
     typedef QMap<QString, unsigned long>  NameIndexMap;
 
@@ -140,8 +155,11 @@ private:
                                  unsigned long *parentId,
                                  QString *errorMessage);
     bool expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage);
-    void populateINameIndexMap(const QString &prefix, unsigned long parentId, unsigned long start, unsigned long count);    
-    QString symbolINameAt(unsigned long index) const;  
+    void populateINameIndexMap(const QString &prefix, unsigned long parentId, unsigned long start, unsigned long count);
+    QString symbolINameAt(unsigned long index) const;
+
+    int dumpQString(CIDebugDataSpaces *ds, WatchData *wd);
+    int dumpStdString(WatchData *wd);
 
     inline DEBUG_SYMBOL_PARAMETERS *symbolParameters() { return &(*m_symbolParameters.begin()); }
     inline const DEBUG_SYMBOL_PARAMETERS *symbolParameters() const { return &(*m_symbolParameters.constBegin()); }
@@ -153,6 +171,16 @@ private:
     NameIndexMap m_inameIndexMap;
     QVector<DEBUG_SYMBOL_PARAMETERS> m_symbolParameters;
     int m_unnamedSymbolNumber;
+};
+
+
+// A convenience struct to save parameters for the model recursion.
+struct CdbSymbolGroupRecursionContext {
+    explicit CdbSymbolGroupRecursionContext(CdbSymbolGroupContext *ctx, int internalDumperOwner, CIDebugDataSpaces *ds);
+
+    CdbSymbolGroupContext *context;
+    int internalDumperOwner;
+    CIDebugDataSpaces *dataspaces;
 };
 
 // Helper to a sequence of  WatchData into a list.

@@ -48,18 +48,32 @@ enum { debugSgRecursion = 0 };
 }
 
 template <class OutputIterator>
-bool CdbSymbolGroupContext::getChildSymbols(const QString &prefix, OutputIterator it, QString *errorMessage)
+bool CdbSymbolGroupContext::getDumpChildSymbols(CIDebugDataSpaces *ds, const QString &prefix,
+                             int dumpedOwner,
+                             OutputIterator it, QString *errorMessage)
 {
     unsigned long start;
     unsigned long parentId;
     if (!getChildSymbolsPosition(prefix, &start, &parentId, errorMessage))
         return false;
-    // Skip over expanded children
-    const unsigned long end = m_symbolParameters.size();
-    for (unsigned long s = start; s < end; ++s) {
+    // Skip over expanded children. Internal dumping might expand
+    // children, so, re-evaluate size in end condition.
+    for (int s = start; s < m_symbolParameters.size(); ++s) {
         const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(s);
         if (p.ParentSymbol == parentId && isSymbolDisplayable(p)) {
-            *it = symbolAt(s);
+            WatchData wd = symbolAt(s);
+            // Run internal dumper, mark ownership
+            if (ds) {
+                switch (dump(ds, &wd)) {
+                case DumperOk:
+                case DumperError: // Not initialized yet, do not run other dumpers
+                    wd.source = dumpedOwner;
+                    break;
+                case DumperNotHandled:
+                    break;
+                }
+            }
+            *it = wd;
             ++it;
         }
     }
@@ -73,7 +87,7 @@ bool CdbSymbolGroupContext::getChildSymbols(const QString &prefix, OutputIterato
 // (expand icon), though (ignore for simplicity).
 template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
 bool insertSymbolRecursion(WatchData wd,
-                           CdbSymbolGroupContext *sg,
+                           const CdbSymbolGroupRecursionContext &ctx,
                            OutputIterator it,
                            RecursionPredicate recursionPredicate,
                            IgnorePredicate ignorePredicate,
@@ -110,13 +124,16 @@ bool insertSymbolRecursion(WatchData wd,
         return true;
     QList<WatchData> watchList;
     // This implicitly enforces expansion
-    if (!sg->getChildSymbols(wd.iname, WatchDataBackInserter(watchList), errorMessage))
+    if (!ctx.context->getDumpChildSymbols(ctx.dataspaces,
+                                          wd.iname,
+                                          ctx.internalDumperOwner,
+                                          WatchDataBackInserter(watchList), errorMessage))
         return false;
     const int childCount = watchList.size();
     for (int c = 0; c < childCount; c++) {
         const WatchData &cwd = watchList.at(c);
         if (wd.isValid()) { // We sometimes get empty names for deeply nested data
-            if (!insertSymbolRecursion(cwd, sg, it, recursionPredicate, ignorePredicate, errorMessage))
+            if (!insertSymbolRecursion(cwd, ctx, it, recursionPredicate, ignorePredicate, errorMessage))
                 return false;
         }  else {
             const QString msg = QString::fromLatin1("WARNING: Skipping invalid child symbol #%2 (type %3) of '%4'.").
@@ -128,7 +145,7 @@ bool insertSymbolRecursion(WatchData wd,
 }
 
 template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-bool CdbSymbolGroupContext::populateModelInitially(CdbSymbolGroupContext *sg,
+bool CdbSymbolGroupContext::populateModelInitially(const CdbSymbolGroupRecursionContext &ctx,
                                                    OutputIterator it,
                                                    RecursionPredicate recursionPredicate,
                                                    IgnorePredicate ignorePredicate,
@@ -139,17 +156,20 @@ bool CdbSymbolGroupContext::populateModelInitially(CdbSymbolGroupContext *sg,
 
     // Insert root items
     QList<WatchData> watchList;
-    if (!sg->getChildSymbols(sg->prefix(), WatchDataBackInserter(watchList), errorMessage))
+    CdbSymbolGroupContext *sg = ctx.context;
+    if (!sg->getDumpChildSymbols(ctx.dataspaces, sg->prefix(),
+                                 ctx.internalDumperOwner,
+                                 WatchDataBackInserter(watchList), errorMessage))
         return false;
     // Insert data
     foreach(const WatchData &wd, watchList)
-        if (!insertSymbolRecursion(wd, sg, it, recursionPredicate, ignorePredicate, errorMessage))
+        if (!insertSymbolRecursion(wd, ctx, it, recursionPredicate, ignorePredicate, errorMessage))
             return false;
     return true;
 }
 
 template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-bool CdbSymbolGroupContext::completeData(CdbSymbolGroupContext *sg,
+bool CdbSymbolGroupContext::completeData(const CdbSymbolGroupRecursionContext &ctx,
                                          WatchData incompleteLocal,
                                          OutputIterator it,
                                          RecursionPredicate recursionPredicate,
@@ -160,7 +180,7 @@ bool CdbSymbolGroupContext::completeData(CdbSymbolGroupContext *sg,
         qDebug().nospace() << "###>CdbSymbolGroupContext::completeData" << ' ' << incompleteLocal.iname << '\n';
     // If the symbols are already expanded in the context, they will be re-inserted,
     // which is not handled for simplicity.
-    if (!insertSymbolRecursion(incompleteLocal, sg, it, recursionPredicate, ignorePredicate, errorMessage))
+    if (!insertSymbolRecursion(incompleteLocal, ctx, it, recursionPredicate, ignorePredicate, errorMessage))
         return false;
     return true;
 }

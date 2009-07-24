@@ -115,7 +115,7 @@ struct CdbDebugEnginePrivate
 
     bool isDebuggeeRunning() const { return m_watchTimer != -1; }
     void handleDebugEvent();
-    void updateThreadList();    
+    ULONG updateThreadList();
     void updateStackTrace();
     void updateModules();
 
