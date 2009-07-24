@@ -28,18 +28,40 @@
 **************************************************************************/
 
 #include "clonewizardpage.h"
+#include "gitplugin.h"
+#include "gitclient.h"
+
+#include <vcsbase/checkoutjobs.h>
+#include <utils/qtcassert.h>
 
 namespace Git {
-namespace Internal {
+
+struct CloneWizardPagePrivate {
+    CloneWizardPagePrivate();
+
+    const QString mainLinePostfix;
+    const QString gitPostFix;
+    const QString protocolDelimiter;
+};
+
+CloneWizardPagePrivate::CloneWizardPagePrivate() :
+    mainLinePostfix(QLatin1String("/mainline.git")),
+    gitPostFix(QLatin1String(".git")),
+    protocolDelimiter(QLatin1String("://"))
+{
+}
 
 CloneWizardPage::CloneWizardPage(QWidget *parent) :
     VCSBase::BaseCheckoutWizardPage(parent),
-    m_mainLinePostfix(QLatin1String("/mainline.git")),
-    m_gitPostFix(QLatin1String(".git")),
-    m_protocolDelimiter(QLatin1String("://"))
+    d(new CloneWizardPagePrivate)
 {
     setSubTitle(tr("Specify repository URL, checkout directory and path."));
     setRepositoryLabel(tr("Clone URL:"));
+}
+
+CloneWizardPage::~CloneWizardPage()
+{
+    delete d;
 }
 
 QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
@@ -51,19 +73,19 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
     QString url = urlIn.trimmed();
     const QChar slash = QLatin1Char('/');
     // remove host
-    const int protocolDelimiterPos = url.indexOf(m_protocolDelimiter); // "://"
-    const int startRepoSearchPos = protocolDelimiterPos == -1 ? 0 : protocolDelimiterPos + m_protocolDelimiter.size();
+    const int protocolDelimiterPos = url.indexOf(d->protocolDelimiter); // "://"
+    const int startRepoSearchPos = protocolDelimiterPos == -1 ? 0 : protocolDelimiterPos + d->protocolDelimiter.size();
     int repoPos = url.indexOf(QLatin1Char(':'), startRepoSearchPos);
     if (repoPos == -1)
         repoPos = url.indexOf(slash, startRepoSearchPos);
     if (repoPos != -1)
         url.remove(0, repoPos + 1);
     // Remove postfixes
-    if (url.endsWith(m_mainLinePostfix)) {
-        url.truncate(url.size() - m_mainLinePostfix.size());
+    if (url.endsWith(d->mainLinePostfix)) {
+        url.truncate(url.size() - d->mainLinePostfix.size());
     } else {
-        if (url.endsWith(m_gitPostFix)) {
-            url.truncate(url.size() - m_gitPostFix.size());
+        if (url.endsWith(d->gitPostFix)) {
+            url.truncate(url.size() - d->gitPostFix.size());
         }
     }
     // Check for equal parts, something like "qt/qt" -> "qt"
@@ -79,5 +101,19 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
     return url;
 }
 
-} // namespace Internal
+QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(QString *checkoutPath) const
+{
+     const Internal::GitClient *client = Internal::GitPlugin::instance()->gitClient();
+     QStringList args = client->binary();
+     const QString workingDirectory = path();
+     const QString checkoutDir = directory();
+     *checkoutPath = workingDirectory + QLatin1Char('/') + checkoutDir;
+     args << QLatin1String("clone") << repository() << checkoutDir;
+     const QString binary = args.front();
+     args.pop_front();
+     VCSBase::AbstractCheckoutJob *job = new VCSBase::ProcessCheckoutJob(binary, args, workingDirectory,
+                                                                         client->processEnvironment());
+     return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
+}
+
 } // namespace Git

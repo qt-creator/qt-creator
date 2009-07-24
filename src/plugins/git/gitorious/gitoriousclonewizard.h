@@ -27,37 +27,34 @@
 **
 **************************************************************************/
 
-#ifndef CLONEWIZARDPAGE_H
-#define CLONEWIZARDPAGE_H
+#ifndef GITORIOUSCLONEWIZARD_H
+#define GITORIOUSCLONEWIZARD_H
 
-#include <vcsbase/basecheckoutwizardpage.h>
+#include <vcsbase/basecheckoutwizard.h>
 
-#include <QtCore/QSharedPointer>
+namespace Gitorious {
+namespace Internal {
 
-namespace VCSBase {
-    class AbstractCheckoutJob;
-}
-
-namespace Git {
-
-struct CloneWizardPagePrivate;
-
-// Used by gitorious as well.
-class CloneWizardPage : public VCSBase::BaseCheckoutWizardPage
+// GitoriousCloneWizard: A wizard allowing for browsing
+// Gitorious-hosted projects.
+class GitoriousCloneWizard : public VCSBase::BaseCheckoutWizard
 {
-    Q_OBJECT
 public:
-    explicit CloneWizardPage(QWidget *parent = 0);
-    virtual ~CloneWizardPage();
+    explicit GitoriousCloneWizard(QObject *parent = 0);
 
-    QSharedPointer<VCSBase::AbstractCheckoutJob> createCheckoutJob(QString *checkoutPath) const;
+    // IWizard
+    virtual QIcon icon() const;
+    virtual QString description() const;
+    virtual QString name() const;
 
 protected:
-    virtual QString directoryFromRepository(const QString &r) const;
-
-private:
-    CloneWizardPagePrivate *d;
+    // BaseCheckoutWizard
+    virtual QList<QWizardPage*> createParameterPages(const QString &path);
+    virtual QSharedPointer<VCSBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPages,
+                                                                   QString *checkoutPath);
 };
 
-} // namespace Git
-#endif // CLONEWIZARDPAGE_H
+} // namespace Internal
+} // namespace Gitorious
+
+#endif // GITORIOUSCLONEWIZARD_H

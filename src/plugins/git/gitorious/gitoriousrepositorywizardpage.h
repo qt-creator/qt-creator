@@ -27,37 +27,54 @@
 **
 **************************************************************************/
 
-#ifndef CLONEWIZARDPAGE_H
-#define CLONEWIZARDPAGE_H
+#ifndef GITORIOUSREPOSITORYWIZARDPAGE_H
+#define GITORIOUSREPOSITORYWIZARDPAGE_H
 
-#include <vcsbase/basecheckoutwizardpage.h>
+#include <QtGui/QWizardPage>
 
-#include <QtCore/QSharedPointer>
+QT_BEGIN_NAMESPACE
+class QStandardItemModel;
+class QStandardItem;
+class QModelIndex;
+class QUrl;
+QT_END_NAMESPACE
 
-namespace VCSBase {
-    class AbstractCheckoutJob;
+namespace Gitorious {
+namespace Internal {
+
+class GitoriousProjectWizardPage;
+
+namespace Ui {
+    class GitoriousRepositoryWizardPage;
 }
 
-namespace Git {
+// A wizard page listing Gitorious repositories in a tree, by repository type.
 
-struct CloneWizardPagePrivate;
-
-// Used by gitorious as well.
-class CloneWizardPage : public VCSBase::BaseCheckoutWizardPage
-{
+class GitoriousRepositoryWizardPage : public QWizardPage {
     Q_OBJECT
 public:
-    explicit CloneWizardPage(QWidget *parent = 0);
-    virtual ~CloneWizardPage();
+    explicit GitoriousRepositoryWizardPage(const GitoriousProjectWizardPage *projectPage,
+                                           QWidget *parent = 0);
+    ~GitoriousRepositoryWizardPage();
 
-    QSharedPointer<VCSBase::AbstractCheckoutJob> createCheckoutJob(QString *checkoutPath) const;
+    virtual void initializePage();
+    virtual bool isComplete() const;
+
+    QString repositoryName() const;
+    QUrl repositoryURL() const;
+
+public slots:
+    void slotCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 protected:
-    virtual QString directoryFromRepository(const QString &r) const;
+    void changeEvent(QEvent *e);
 
-private:
-    CloneWizardPagePrivate *d;
+    Ui::GitoriousRepositoryWizardPage *ui;
+    const GitoriousProjectWizardPage *m_projectPage;
+    QStandardItemModel *m_model;
+    bool m_valid;
 };
 
-} // namespace Git
-#endif // CLONEWIZARDPAGE_H
+} // namespace Internal
+} // namespace Gitorious
+#endif // GITORIOUSREPOSITORYWIZARDPAGE_H

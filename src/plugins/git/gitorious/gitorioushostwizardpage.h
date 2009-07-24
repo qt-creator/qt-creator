@@ -27,37 +27,32 @@
 **
 **************************************************************************/
 
-#ifndef CLONEWIZARDPAGE_H
-#define CLONEWIZARDPAGE_H
+#ifndef GITORIOUSHOSTWIZARDPAGE_H
+#define GITORIOUSHOSTWIZARDPAGE_H
 
-#include <vcsbase/basecheckoutwizardpage.h>
+#include <QtGui/QWizardPage>
 
-#include <QtCore/QSharedPointer>
+namespace Gitorious {
+namespace Internal {
 
-namespace VCSBase {
-    class AbstractCheckoutJob;
-}
+class GitoriousHostWidget;
 
-namespace Git {
+/* A page listing gitorious hosts with browse/add options. */
 
-struct CloneWizardPagePrivate;
-
-// Used by gitorious as well.
-class CloneWizardPage : public VCSBase::BaseCheckoutWizardPage
-{
+class GitoriousHostWizardPage : public QWizardPage {
     Q_OBJECT
 public:
-    explicit CloneWizardPage(QWidget *parent = 0);
-    virtual ~CloneWizardPage();
+    GitoriousHostWizardPage(QWidget *parent = 0);
+    virtual ~GitoriousHostWizardPage();
 
-    QSharedPointer<VCSBase::AbstractCheckoutJob> createCheckoutJob(QString *checkoutPath) const;
+    virtual bool isComplete() const;
 
-protected:
-    virtual QString directoryFromRepository(const QString &r) const;
+    int selectedHostIndex() const;
 
 private:
-    CloneWizardPagePrivate *d;
+    GitoriousHostWidget *m_widget;
 };
 
-} // namespace Git
-#endif // CLONEWIZARDPAGE_H
+} // namespace Internal
+} // namespace Gitorious
+#endif // GITORIOUSHOSTWIZARDPAGE_H

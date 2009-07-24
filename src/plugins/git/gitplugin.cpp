@@ -38,6 +38,7 @@
 #include "gitversioncontrol.h"
 #include "branchdialog.h"
 #include "clonewizard.h"
+#include "gitoriousclonewizard.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -216,6 +217,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(versionControl);
 
     addAutoReleasedObject(new CloneWizard);
+    addAutoReleasedObject(new Gitorious::Internal::GitoriousCloneWizard);
 
     //register actions
     Core::ActionManager *actionManager = m_core->actionManager();

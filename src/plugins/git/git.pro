@@ -47,3 +47,4 @@ FORMS += changeselectiondialog.ui \
     branchdialog.ui
 
 OTHER_FILES += ScmGit.pluginspec
+include(gitorious/gitorious.pri)

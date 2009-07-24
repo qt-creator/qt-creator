@@ -62,6 +62,9 @@ public:
     QString repository() const;
     void setRepository(const QString &r);
 
+    bool isRepositoryReadOnly() const;
+    void setRepositoryReadOnly(bool v);
+
     virtual bool isComplete() const;
 
 protected:

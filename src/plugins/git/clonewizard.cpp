@@ -29,8 +29,6 @@
 
 #include "clonewizard.h"
 #include "clonewizardpage.h"
-#include "gitplugin.h"
-#include "gitclient.h"
 
 #include <vcsbase/checkoutjobs.h>
 #include <utils/qtcassert.h>
@@ -75,18 +73,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<
     // Collect parameters for the clone command.
     const CloneWizardPage *cwp = qobject_cast<const CloneWizardPage *>(parameterPages.front());
     QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
-    const GitClient *client = GitPlugin::instance()->gitClient();
-    QStringList args = client->binary();
-    const QString workingDirectory = cwp->path();
-    const QString directory = cwp->directory();
-    *checkoutPath = workingDirectory + QLatin1Char('/') + directory;
-    args << QLatin1String("clone") << cwp->repository() << directory;
-    const QString binary = args.front();
-    args.pop_front();
-
-    VCSBase::AbstractCheckoutJob *job = new VCSBase::ProcessCheckoutJob(binary, args, workingDirectory,
-                                                                        client->processEnvironment());
-    return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
+    return cwp->createCheckoutJob(checkoutPath);
 }
 
 } // namespace Internal

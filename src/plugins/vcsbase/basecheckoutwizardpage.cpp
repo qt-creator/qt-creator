@@ -63,6 +63,16 @@ void BaseCheckoutWizardPage::setRepositoryLabel(const QString &l)
     d->ui.repositoryLabel->setText(l);
 }
 
+bool BaseCheckoutWizardPage::isRepositoryReadOnly() const
+{
+    return d->ui.repositoryLineEdit->isReadOnly();
+}
+
+void BaseCheckoutWizardPage::setRepositoryReadOnly(bool v)
+{
+    d->ui.repositoryLineEdit->setReadOnly(v);
+}
+
 QString BaseCheckoutWizardPage::path() const
 {
     return d->ui.pathChooser->path();
