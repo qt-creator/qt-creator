@@ -1428,12 +1428,50 @@
 
     Since Qt Creator 1.1, generic projects are supported, in addition to
     \c qmake projects. In other words, you can import existing projects that
-    do not use \c qmake or \c CMake and  Qt Creator will simply ignore your
+    do not use \c qmake or \c CMake and Qt Creator will simply ignore your
     build system.
 
-    This feature lets you use Qt Creator as a code editor. You can build your
-    project by modifying the \c make command in the \gui{Project Settings}
-    page.
+    This feature lets you use Qt Creator as a code editor. You can change the
+    way your project is built by modifying the \c make command on the
+    \gui{Project Settings} page.
+
+    Since Qt Creator has no way of knowing which files belong to your project,
+    or which include directories and defines you're passing to your compiler,
+    the generic project allows you to specify this information manually.
+
+    \section1 Specifying which files belong to your project
+
+    The list of files belonging to a generic project is specified in the
+    \c{.files} file. Qt Creator adds any files that it recognizes when you
+    first create the generic project. If you want to add additional files, or
+    need to add/remove files later, edit the .files file in Qt Creator. Your
+    project tree will be refreshed on saving this file.
+
+    If you frequently need to update this file, for example after updating
+    from a source control system, you may want to write a small script that
+    updates the file for you. At the moment Qt Creator needs to be restarted
+    when the file is modified externally, in order to pick up the changes.
+
+    \section1 Specifying the include paths
+
+    The include paths are specified in the \c{.includes} file.
+
+    \section1 Specifying the defines
+
+    The defines are specified in the \c{.config} file. This is basically a
+    regular C++ file that is prepended to all your source files when they are
+    being parsed, but you should generally only use it to add lines like the
+    following:
+
+    #define NAME value
+
+    \section1 Creating a run configuration
+
+    Qt Creator can't automatically determine which executable it should run.
+    Hence, set up a custom executable run configuration in the Projects mode,
+    using the + button. Specify the name, executable, optionally some
+    arguments. The working directory is $BUILDDIR by default, which should
+    generally work fine.
 
 */
 

@@ -35,9 +35,9 @@
 #include <QtCore/QString>
 #include <QtCore/QVariant>
 
-namespace trk {
-
 typedef unsigned char byte;
+
+namespace trk {
 
 QByteArray decode7d(const QByteArray &ba);
 QByteArray encode7d(const QByteArray &ba);
@@ -149,6 +149,7 @@ struct TrkResult
 
 // returns a QByteArray containing 0x01 0x90 <len> 0x7e encoded7d(ba) 0x7e
 QByteArray frameMessage(byte command, byte token, const QByteArray &data);
+ushort isValidTrkResult(const QByteArray &buffer);
 TrkResult extractResult(QByteArray *buffer);
 QByteArray errorMessage(byte code);
 QByteArray hexNumber(uint n, int digits = 0); 

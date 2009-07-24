@@ -80,38 +80,38 @@ QByteArray frameMessage(byte command, byte token, const QByteArray &data)
     return ba;
 }
 
+/* returns 0 if array doesn't represent a result,
+otherwise returns the length of the result data */
+ushort isValidTrkResult(const QByteArray &buffer)
+{
+    if (buffer.length() < 9)
+        return 0;
+    if (buffer.at(0) != 0x01 || byte(buffer.at(1)) != 0x90) {
+        return 0;
+    }
+    ushort len = extractShort(buffer.data() + 2);
+
+    //logMessage("   READ BUF: " << stringFromArray(*buffer));
+    if (buffer.size() < len + 4) {
+        return 0;
+    }
+
+    if (byte(buffer.at(4)) != 0x7e) {
+        return 0;
+    }
+
+    if (byte(buffer.at(4 + len - 1)) != 0x7e) {
+        return 0;
+    }
+    return len;
+}
+
 TrkResult extractResult(QByteArray *buffer)
 {
     TrkResult result;
-    if (buffer->at(0) != 0x01 || byte(buffer->at(1)) != 0x90) {
-        logMessage("*** ERROR READBUFFER INVALID (2): "
-            << stringFromArray(*buffer)
-            << int(buffer->at(0))
-            << int(buffer->at(1))
-            << buffer->size());
+    ushort len = isValidTrkResult(*buffer);
+    if (!len)
         return result;
-    }
-    ushort len = extractShort(buffer->data() + 2);
-
-    //logMessage("   READ BUF: " << stringFromArray(*buffer));
-    if (buffer->size() < len + 4) {
-        logMessage("*** INCOMPLETE RESPONSE: "
-            << stringFromArray(*buffer));
-        return result;
-    }
-
-    if (byte(buffer->at(4)) != 0x7e) {
-        logMessage("** ERROR READBUFFER BEGIN FRAME MARKER INVALID: "
-            << stringFromArray(*buffer) << len);
-        return result;
-    }
-
-    if (byte(buffer->at(4 + len - 1)) != 0x7e) {
-        logMessage("** ERROR READBUFFER END FRAME MARKER INVALID: "
-            << stringFromArray(*buffer) << len);
-        return result;
-    }
-
     // FIXME: what happens if the length contains 0xfe?
     // Assume for now that it passes unencoded!
     QByteArray data = decode7d(buffer->mid(5, len - 2));

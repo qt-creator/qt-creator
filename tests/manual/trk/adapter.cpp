@@ -38,6 +38,10 @@
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
 
+#if USE_NATIVE
+#include <windows.h>
+#endif
+
 #ifdef Q_OS_UNIX
 
 #include <signal.h>
@@ -64,7 +68,7 @@ public:
     ~Adapter();
     void setGdbServerName(const QString &name);
     void setTrkServerName(const QString &name) { m_trkServerName = name; }
-    void startServer();
+    bool startServer();
 
 private:
     //
@@ -128,7 +132,11 @@ private:
     void startInferiorIfNeeded();
     void interruptInferior();
 
-    QLocalSocket *m_trkDevice;
+#if USE_NATIVE
+    HANDLE m_hdevice;
+#else
+     QLocalSocket *m_trkDevice;
+#endif
 
     QString m_trkServerName;
     QByteArray m_trkReadBuffer;
@@ -192,13 +200,13 @@ Adapter::~Adapter()
 #if USE_NATIVE
     CloseHandle(m_hdevice);
 #else
+    m_trkDevice->abort();
     delete m_trkDevice;
 #endif
 
     // Gdb
     m_gdbServer.close();
     //>disconnectFromServer();
-    m_trkDevice->abort();
     logMessage("Shutting down.\n");
 }
 
@@ -214,11 +222,11 @@ void Adapter::setGdbServerName(const QString &name)
     }
 }
 
-void Adapter::startServer()
+bool Adapter::startServer()
 {
     if (!openTrkPort(m_trkServerName)) {
         logMessage("Unable to connect to TRK server");
-        return;
+        return false;
     }
 
     sendTrkInitialPing();
@@ -237,7 +245,7 @@ void Adapter::startServer()
         logMessage(QString("Unable to start the gdb server at %1:%2: %3.")
             .arg(m_gdbServerName).arg(m_gdbServerPort)
             .arg(m_gdbServer.errorString()));
-        return;
+        return false;
     }
 
     logMessage(QString("Gdb server running on port %1. Run arm-gdb now.")
@@ -245,6 +253,7 @@ void Adapter::startServer()
 
     connect(&m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
+    return true;
 }
 
 void Adapter::logMessage(const QString &msg)
@@ -669,17 +678,21 @@ void Adapter::readFromTrk()
 
 bool Adapter::openTrkPort(const QString &port)
 {
-    // QFile does not work with "COM3", so work around
-    /*
-    FILE *f = fopen("COM3", "r+");
-    if (!f) {
-        logMessage("Could not open file ");
-        return;
-    }
-    m_trkDevice = new QFile;
-    if (!m_trkDevice->open(f, QIODevice::ReadWrite))
-    */
+#if USE_NATIVE
+    m_hdevice = CreateFile(port.toStdWString().c_str(),
+                           GENERIC_READ | GENERIC_WRITE,
+                           0,
+                           NULL,
+                           OPEN_EXISTING,
+                           FILE_ATTRIBUTE_NORMAL,
+                           NULL);
 
+    if (INVALID_HANDLE_VALUE == m_hdevice){
+        logMessage("Could not open device " + port);
+        return false;
+     }
+    return true;
+#else
 #if 0
     m_trkDevice = new Win_QextSerialPort(port);
     m_trkDevice->setBaudRate(BAUD115200);
@@ -692,12 +705,14 @@ bool Adapter::openTrkPort(const QString &port)
     if (!m_trkDevice->open(QIODevice::ReadWrite)) {
         QByteArray ba = m_trkDevice->errorString().toLatin1();
         logMessage("Could not open device " << ba);
-        return;
+        return false;
     }
+    return true
 #else
     m_trkDevice = new QLocalSocket(this);
     m_trkDevice->connectToServer(port);
     return m_trkDevice->waitForConnected();
+#endif
 #endif
 }
 
@@ -794,18 +809,15 @@ void Adapter::trkWrite(const TrkMessage &msg)
     m_writtenTrkMessages.insert(msg.token, msg);
     m_trkWriteBusy = true;
 
-#if USE_NATIVE
+    logMessage("WRITE: " + stringFromArray(ba));
 
+#if USE_NATIVE
     DWORD charsWritten;
     if (!WriteFile(m_hdevice, ba.data(), ba.size(), &charsWritten, NULL))
         logMessage("WRITE ERROR: ");
 
-    //logMessage("WRITE: " + stringFromArray(ba));
     FlushFileBuffers(m_hdevice);
-
 #else
-
-    //logMessage("WRITE: " + stringFromArray(ba));
     if (!m_trkDevice->write(ba))
         logMessage("WRITE ERROR: " + m_trkDevice->errorString());
     m_trkDevice->flush();
@@ -819,17 +831,15 @@ void Adapter::tryTrkRead()
     //        << stringFromArray(m_trkReadQueue);
 
 #if USE_NATIVE
-
-    const int BUFFERSIZE = 1024;
+    const DWORD BUFFERSIZE = 1;
     char buffer[BUFFERSIZE];
     DWORD charsRead;
 
-    while (ReadFile(m_hdevice, buffer, BUFFERSIZE, &charsRead, NULL)
-            && BUFFERSIZE == charsRead) {
+    while (ReadFile(m_hdevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
         m_trkReadQueue.append(buffer, charsRead);
+        if (isValidTrkResult(m_trkReadQueue))
+            break;
     }
-    m_trkReadQueue.append(buffer, charsRead);
-
 #else // USE_NATIVE
 
     if (m_trkDevice->bytesAvailable() == 0 && m_trkReadQueue.isEmpty())
@@ -1079,12 +1089,10 @@ void Adapter::handleAndReportReadRegisters(const TrkResult &result)
         m_snapshot.registers[i] = extractInt(data + 4 * i);
         //qDebug() << i << hexNumber(m_snapshot.registers[i], 8);
     }
-
     //QByteArray ba = result.data.toHex();
     QByteArray ba;
     for (int i = 0; i < 16; ++i)
         ba += hexNumber(m_snapshot.registers[i], 8);
-
     sendGdbMessage(ba, "register contents");
 }
 
@@ -1310,9 +1318,10 @@ void Adapter::startInferiorIfNeeded()
     appendByte(&ba, 0); // ?
     appendByte(&ba, 0); // ?
 
-    appendString(&ba, "C:\\sys\\bin\\filebrowseapp.exe", TargetByteOrder);
-    ba.append('\0');
-    ba.append('\0');
+    QByteArray file("C:\\sys\\bin\\filebrowseapp.exe");
+    file.append('\0');
+    file.append('\0');
+    appendString(&ba, file, TargetByteOrder);
     sendTrkMessage(0x40, CB(handleCreateProcess), ba); // Create Item
 }
 
@@ -1342,9 +1351,9 @@ int main(int argc, char *argv[])
     Adapter adapter;
     adapter.setTrkServerName(argv[1]);
     adapter.setGdbServerName(argv[2]);
-    adapter.startServer();
-
-    return app.exec();
+    if (adapter.startServer())
+        return app.exec();
+    return 4;
 }
 
 #include "adapter.moc"

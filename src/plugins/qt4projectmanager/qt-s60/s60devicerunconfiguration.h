@@ -58,6 +58,7 @@ public:
     void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 
+    QString targetName() const;
     QString basePackageFilePath() const;
     SigningMode signingMode() const;
     void setSigningMode(SigningMode mode);
@@ -76,6 +77,7 @@ private:
     void updateTarget();
 
     QString m_proFilePath;
+    QString m_targetName;
     QString m_baseFileName;
     bool m_cachedTargetInformationValid;
     SigningMode m_signingMode;
@@ -147,10 +149,13 @@ private slots:
     void signsisProcessFinished();
     void installProcessFailed();
     void installProcessFinished();
+    void runProcessFailed();
+    void runProcessFinished();
 
 private:
     void processFailed(const QString &program, QProcess::ProcessError errorCode);
 
+    QString m_targetName;
     QString m_baseFileName;
     QString m_workingDirectory;
     QString m_toolsDirectory;
@@ -161,6 +166,7 @@ private:
     QProcess *m_makesis;
     QProcess *m_signsis;
     QProcess *m_install;
+    QProcess *m_run;
 };
 
 } // namespace Internal
