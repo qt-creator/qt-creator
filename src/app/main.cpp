@@ -181,16 +181,16 @@ static inline QStringList getPluginPaths()
     const QString rootDirPath = rootDir.canonicalPath();
     // 1) "plugins" (Win/Linux)
     QString pluginPath = rootDirPath;
-    pluginPath += '/';
+    pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String(IDE_LIBRARY_BASENAME);
-    pluginPath += '/';
+    pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String("qtcreator");
-    pluginPath += '/';
+    pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String("plugins");
     rc.push_back(pluginPath);
     // 2) "PlugIns" (OS X)
     pluginPath = rootDirPath;
-    pluginPath += '/';
+    pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String("PlugIns");
     rc.push_back(pluginPath);
     return rc;
