@@ -129,7 +129,7 @@ void CompletionSupport::autoComplete_helper(ITextEditable *editor, bool forced,
         m_startPosition = m_completionCollector->startCompletion(editor);
         completionItems = getCompletions();
 
-        QTC_ASSERT(m_startPosition != -1 || completionItems.size() == 0, return);
+        QTC_ASSERT(!(m_startPosition == -1 && completionItems.size() > 0), return);
 
         if (completionItems.isEmpty()) {
             cleanupCompletions();

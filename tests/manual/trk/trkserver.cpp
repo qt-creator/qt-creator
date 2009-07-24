@@ -88,13 +88,13 @@ Inferior::Inferior()
     registers[7]  = 0x00000000;
     registers[8]  = 0x00000012;
     registers[9]  = 0x00000040;
-    registers[10]  = 0xC82AF210;
+    registers[10] = 0xC82AF210;
     registers[11] = 0x00000000;
     registers[12] = 0xC8000548;
     registers[13] = 0x00403ED0;
     registers[14] = 0x786A6BD8;
     registers[15] = 0x786A4CC8;
-    //registers[25] = 0x68000010;
+    registers[16] = 0x68000010; // that's reg 25 on chip?
 }
 
 class TrkServer : public QObject
@@ -238,9 +238,7 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             break;
         }
         case 0x12: { // Read Registers
-            appendByte(&data, 0x00);
-            appendByte(&data, 0x00);
-            appendByte(&data, 0x00);
+            data.clear();
             for (int i = 0; i < RegisterCount; ++i)
                 appendInt(&data, m_inferior.registers[i], BigEndian);
             writeToAdapter(0x80, result.token, data);

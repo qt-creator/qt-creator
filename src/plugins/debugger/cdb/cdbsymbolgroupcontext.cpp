@@ -33,13 +33,20 @@
 #include "watchutils.h"
 
 #include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QRegExp>
 
 enum { debug = 0 };
+enum { debugInternalDumpers = 0 };
 
 static inline QString msgSymbolNotFound(const QString &s)
 {
     return QString::fromLatin1("The symbol '%1' could not be found.").arg(s);
+}
+
+static inline QString msgOutOfScope()
+{
+    return QCoreApplication::translate("SymbolGroup", "Out of scope");
 }
 
 static inline bool isTopLevelSymbol(const DEBUG_SYMBOL_PARAMETERS &p)
@@ -101,6 +108,16 @@ static inline QString getSymbolString(IDebugSymbolGroup2 *sg,
 
 namespace Debugger {
 namespace Internal {
+
+
+CdbSymbolGroupRecursionContext::CdbSymbolGroupRecursionContext(CdbSymbolGroupContext *ctx,
+                                                         int ido,
+                                                         CIDebugDataSpaces *ds) :
+    context(ctx),
+    internalDumperOwner(ido),
+    dataspaces(ds)
+{
+}
 
 static inline CdbSymbolGroupContext::SymbolState getSymbolState(const DEBUG_SYMBOL_PARAMETERS &p)
 {
@@ -419,6 +436,13 @@ WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
     return wd;
 }
 
+WatchData CdbSymbolGroupContext::dumpSymbolAt(CIDebugDataSpaces *ds, unsigned long index)
+{
+    WatchData rc = symbolAt(index);
+    dump(ds, &rc);
+    return rc;
+}
+
 bool CdbSymbolGroupContext::assignValue(const QString &iname, const QString &value,
                                         QString *newValue, QString *errorMessage)
 {
@@ -559,6 +583,190 @@ bool CdbSymbolGroupContext::debugValueToInteger(const DEBUG_VALUE &dv, qint64 *v
         break;
     }
     return false;
+}
+
+/* The special type dumpers have an integer return code meaning:
+ *  0:  ok
+ *  1:  Dereferencing or retrieving memory failed, this is out of scope,
+ *      do not try to query further.
+ * > 1: A structural error was encountered, that is, the implementation
+ *      of the class changed (Qt or say, a different STL implementation).
+ *      Visibly warn about it.
+ * To add further types, have a look at the toString() output of the
+ * symbol group. */
+
+static QString msgStructuralError(const QString &type, int code)
+{
+    return QString::fromLatin1("Warning: Internal dumper for '%1' failed with %2.").arg(type).arg(code);
+}
+
+static inline bool isStdStringOrPointer(const QString &type)
+{
+#define STD_WSTRING "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >"
+#define STD_STRING "std::basic_string<char,std::char_traits<char>,std::allocator<char> >"
+    return type.endsWith(QLatin1String(STD_STRING))
+            || type.endsWith(QLatin1String(STD_STRING" *"))
+            || type.endsWith(QLatin1String(STD_WSTRING))
+            || type.endsWith(QLatin1String(STD_WSTRING" *"));
+#undef STD_WSTRING
+#undef STD_STRING
+}
+
+CdbSymbolGroupContext::DumperResult
+        CdbSymbolGroupContext::dump(CIDebugDataSpaces *ds, WatchData *wd)
+{
+    DumperResult rc = DumperNotHandled;
+    do {
+        // Is this a previously detected Null-Pointer?
+        if (wd->isHasChildrenKnown() && !wd->hasChildren)
+            break;
+        // QString
+        if (wd->type.endsWith(QLatin1String("QString")) || wd->type.endsWith(QLatin1String("QString *"))) {
+            const int drc = dumpQString(ds, wd);
+            switch (drc) {
+            case 0:
+                rc = DumperOk;
+                break;
+            case 1:
+                rc = DumperError;
+                break;
+            default:
+                qWarning("%s\n", qPrintable(msgStructuralError(wd->type, drc)));
+                rc = DumperNotHandled;
+                break;
+            }
+        }
+        // StdString
+        if (isStdStringOrPointer(wd->type)) {
+            const int drc = dumpStdString(wd);
+            switch (drc) {
+            case 0:
+                rc = DumperOk;
+                break;
+            case 1:
+                rc = DumperError;
+                break;
+            default:
+                qWarning("%s\n", qPrintable(msgStructuralError(wd->type, drc)));
+                rc = DumperNotHandled;
+                break;
+            }
+
+        }
+    } while (false);
+    if (debugInternalDumpers)
+        qDebug() << "CdbSymbolGroupContext::dump" << rc << wd->toString();
+    return rc;
+}
+
+// Get integer value of symbol group
+static inline bool getIntValue(CIDebugSymbolGroup *sg, int index, int *value)
+{
+    const QString valueS = getSymbolString(sg, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
+    bool ok;
+    *value = valueS.toInt(&ok);
+    return ok;
+}
+
+// Get pointer value of symbol group ("0xAAB")
+static inline bool getPointerValue(CIDebugSymbolGroup *sg, int index, quint64 *value)
+{
+    *value = 0;
+    QString valueS = getSymbolString(sg, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
+    if (!valueS.startsWith(QLatin1String("0x")))
+        return false;
+    valueS.remove(0, 2);
+    bool ok;
+    *value = valueS.toULongLong(&ok, 16);
+    return ok;
+}
+
+int CdbSymbolGroupContext::dumpQString(CIDebugDataSpaces *ds, WatchData *wd)
+{
+    const int maxLength = 40;
+    QString errorMessage;
+    unsigned long stringIndex;
+    if (!lookupPrefix(wd->iname, &stringIndex))
+        return 1;
+
+    // Expand string and it's "d" (step over 'static null')
+    if (!expandSymbol(wd->iname, stringIndex, &errorMessage))
+        return 2;
+    const unsigned long dIndex = stringIndex + 4;
+    if (!expandSymbol(wd->iname, dIndex, &errorMessage))
+        return 3;
+    const unsigned long sizeIndex = dIndex + 3;
+    const unsigned long arrayIndex = dIndex + 4;
+    // Get size and pointer
+    int size;
+    if (!getIntValue(m_symbolGroup, sizeIndex, &size))
+        return 4;
+    quint64 array;
+    if (!getPointerValue(m_symbolGroup, arrayIndex, &array))
+        return 5;
+    // Fetch
+    const bool truncated = size > maxLength;
+    if (truncated)
+        size = maxLength;
+    const QChar doubleQuote = QLatin1Char('"');
+    QString value(doubleQuote);
+    if (size) {
+        // Should this ever be a remote debugger, need to check byte order.
+        unsigned short *buf =  new unsigned short[size + 1];
+        unsigned long bytesRead;
+        const HRESULT hr = ds->ReadVirtual(array, buf, size * sizeof(unsigned short), &bytesRead);
+        if (FAILED(hr)) {
+            delete [] buf;
+            return 1;
+        }
+        buf[bytesRead / sizeof(unsigned short)] = 0;
+        value += QString::fromUtf16(buf);
+        delete [] buf;
+        if (truncated)
+            value += QLatin1String("...");
+    }
+    value += doubleQuote;
+    wd->setValue(value);
+    wd->setHasChildren(false);
+    return 0;
+}
+
+int CdbSymbolGroupContext::dumpStdString(WatchData *wd)
+{
+    const int maxLength = 40;
+    QString errorMessage;
+    unsigned long stringIndex;
+    if (!lookupPrefix(wd->iname, &stringIndex))
+        return 1;
+
+    // Expand string ->string_val->_bx.
+    if (!expandSymbol(wd->iname, stringIndex, &errorMessage))
+        return 1;
+    const unsigned long bxIndex = stringIndex + 3;
+    if (!expandSymbol(wd->iname, bxIndex, &errorMessage))
+        return 2;
+    // Check if size is something sane
+    const int sizeIndex = stringIndex + 6;
+    int size;
+    if (!getIntValue(m_symbolGroup, sizeIndex, &size))
+        return 3;
+    if (size < 0)
+        return 1;
+    // Just copy over the value of the buf[]-array, which should be the string
+    const QChar doubleQuote = QLatin1Char('"');
+    const int bufIndex = stringIndex + 4;
+    QString bufValue = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, bufIndex);
+    const int quotePos = bufValue.indexOf(doubleQuote);
+    if (quotePos == -1)
+        return 1;
+    bufValue.remove(0, quotePos);
+    if (bufValue.size() > maxLength) {
+        bufValue.truncate(maxLength);
+        bufValue += QLatin1String("...\"");
+    }
+    wd->setValue(bufValue);
+    wd->setHasChildren(false);
+    return 0;
 }
 
 } // namespace Internal

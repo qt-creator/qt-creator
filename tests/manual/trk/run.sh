@@ -10,6 +10,7 @@ trkservername="TRKSERVER-${userid}";
 gdbserverip=127.0.0.1
 gdbserverport=$[2222 + ${userid}]
 memorydump=TrkDump-78-6a-40-00.bin
+memorydump=TrkDump-78-6a-40-00-BigEndian.bin
 
 fuser -n tcp -k ${gdbserverport} 
 rm /tmp/${trkservername}

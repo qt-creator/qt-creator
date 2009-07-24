@@ -103,6 +103,7 @@ private:
 
 struct ThreadData
 {
+    ThreadData(int threadId = 0) : id(threadId) {}
     int id;
 };
 

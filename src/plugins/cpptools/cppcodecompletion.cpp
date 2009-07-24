@@ -1386,6 +1386,12 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
     else if (length > 0) {
         const QString key = m_editor->textAt(m_startPosition, length);
 
+        /* Close on the trailing slash for include completion, to enable the slash to
+         * trigger a new completion list. */
+        if ((m_completionOperator == T_STRING_LITERAL ||
+             m_completionOperator == T_ANGLE_STRING_LITERAL) && key.endsWith(QLatin1Char('/')))
+            return;
+
         if (m_completionOperator != T_LPAREN) {
             /*
              * This code builds a regular expression in order to more intelligently match

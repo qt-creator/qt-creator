@@ -72,8 +72,11 @@ enum CodeMode
 
 enum TargetConstants
 {
-    RegisterCount = 16,
+    RegisterCount = 17,
     RegisterPC = 15, // Program counter
+    RegisterPSGdb = 25, // gdb's view of the world
+    RegisterPSTrk = 16, // gdb's view of the world
+
     MemoryChunkSize = 256
 };
 
