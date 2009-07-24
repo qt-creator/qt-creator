@@ -396,7 +396,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
 
     else if (response == "!") {
         sendGdbAckMessage();
-        sendGdbMessage("OK", "extended mode enabled");
+        sendGdbMessage("", "extended mode not enabled");
+        //sendGdbMessage("OK", "extended mode enabled");
     }
 
     else if (response.startsWith("?")) {
@@ -645,6 +646,16 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     //    // vCont[;action[:thread-id]]...'
     //}
 
+    else if (response.startsWith("vKill")) {
+        // kill
+        sendGdbAckMessage();
+        QByteArray ba;
+        appendByte(&ba, 0); // Sub-command: Delete Process
+        appendInt(&ba, m_session.pid);
+        sendTrkMessage(0x41, 0, ba, "Delete process"); // Delete Item
+        sendGdbMessageAfterSync("", "process killed");
+    }
+
     else {
         logMessage("FIXME unknown: " + response);
     }
@@ -886,7 +897,8 @@ void Adapter::handleResult(const TrkResult &result)
 //            uint tid = extractInt(data + 8); // ThreadID: 4 bytes
             //logMessage(prefix << "      ADDR: " << addr << " PID: " << pid << " TID: " << tid);
             sendTrkAck(result.token);
-            sendGdbMessage("S11", "Target stopped");
+            //sendGdbMessage("S11", "Target stopped");
+            sendGdbMessage("S05", "Target stopped");
             break;
         }
         case 0x91: { // Notify Exception (obsolete)
