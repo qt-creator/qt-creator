@@ -1318,9 +1318,10 @@ void Adapter::startInferiorIfNeeded()
     appendByte(&ba, 0); // ?
     appendByte(&ba, 0); // ?
 
-    appendString(&ba, "C:\\sys\\bin\\filebrowseapp.exe", TargetByteOrder);
-    ba.append('\0');
-    ba.append('\0');
+    QByteArray file("C:\\sys\\bin\\filebrowseapp.exe");
+    file.append('\0');
+    file.append('\0');
+    appendString(&ba, file, TargetByteOrder);
     sendTrkMessage(0x40, CB(handleCreateProcess), ba); // Create Item
 }
 
