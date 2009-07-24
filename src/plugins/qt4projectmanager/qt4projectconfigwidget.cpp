@@ -263,7 +263,7 @@ void Qt4ProjectConfigWidget::importLabelClicked()
             // Combo box will be updated at the end
 
             QMakeStep *qmakeStep = m_pro->qmakeStep();
-            qmakeStep->setValue(m_buildConfiguration, "qmakeArgs", additionalArguments);
+            qmakeStep->setQMakeArguments(m_buildConfiguration, additionalArguments);
             MakeStep *makeStep = m_pro->makeStep();
 
             m_pro->setValue(m_buildConfiguration, "buildConfiguration", int(qmakeBuildConfig));
@@ -281,7 +281,7 @@ void Qt4ProjectConfigWidget::importLabelClicked()
                 makeCmdArguments.removeAll("debug");
                 makeCmdArguments.removeAll("release");
             }
-            makeStep->setValue(m_buildConfiguration, "makeargs", makeCmdArguments);
+            makeStep->setMakeArguments(m_buildConfiguration, makeCmdArguments);
         }
     }
     setupQtVersionsComboBox();

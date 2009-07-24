@@ -77,6 +77,11 @@ public:
     void setForced(bool b);
     bool forced();
 
+    void setQMakeArguments(const QString &buildConfiguraion, const QStringList &arguments);
+
+signals:
+    void changed();
+
 protected:
     virtual void processStartupFailed();
     virtual bool processFinished(int exitCode, QProcess::ExitStatus status);
@@ -100,6 +105,7 @@ public:
 private slots:
     void qmakeArgumentsLineEditTextEdited();
     void buildConfigurationChanged();
+    void update();
 private:
     QString m_buildConfiguration;
     Ui::QMakeStep m_ui;

@@ -72,6 +72,9 @@ public:
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
+    void setMakeArguments(const QString &buildConfiguration, const QStringList &arguments);
+signals:
+    void changed();
 private:
     QString m_buildConfiguration;
 };
@@ -86,6 +89,7 @@ public:
 private slots:
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
+    void update();
 private:
     QString m_buildConfiguration;
     Ui::MakeStep m_ui;

@@ -193,6 +193,12 @@ bool QMakeStep::processFinished(int exitCode, QProcess::ExitStatus status)
     return result;
 }
 
+void QMakeStep::setQMakeArguments(const QString &buildConfiguration, const QStringList &arguments)
+{
+    setValue(buildConfiguration, "qmakeArgs", arguments);
+    emit changed();
+}
+
 QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     : BuildStepConfigWidget(), m_step(step)
 {
@@ -200,6 +206,8 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(m_ui.qmakeAdditonalArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(qmakeArgumentsLineEditTextEdited()));
     connect(m_ui.buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(buildConfigurationChanged()));
+    connect(step, SIGNAL(changed()),
+            this, SLOT(update()));
 }
 
 void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
@@ -227,6 +235,11 @@ void QMakeStepConfigWidget::buildConfigurationChanged()
 QString QMakeStepConfigWidget::displayName() const
 {
     return m_step->displayName();
+}
+
+void QMakeStepConfigWidget::update()
+{
+    init(m_buildConfiguration);
 }
 
 void QMakeStepConfigWidget::init(const QString &buildConfiguration)

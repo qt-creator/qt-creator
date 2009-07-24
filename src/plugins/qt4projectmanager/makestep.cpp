@@ -157,6 +157,12 @@ ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
     return new MakeStepConfigWidget(this);
 }
 
+void MakeStep::setMakeArguments(const QString &buildConfiguration, const QStringList &arguments)
+{
+    setValue(buildConfiguration, "makeargs", arguments);
+    emit changed();
+}
+
 MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     : BuildStepConfigWidget(), m_makeStep(makeStep)
 {
@@ -165,11 +171,20 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
             this, SLOT(makeLineEditTextEdited()));
     connect(m_ui.makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEditTextEdited()));
+
+    connect(makeStep, SIGNAL(changed()),
+            this, SLOT(update()));
+
 }
 
 QString MakeStepConfigWidget::displayName() const
 {
     return m_makeStep->displayName();
+}
+
+void MakeStepConfigWidget::update()
+{
+    init(m_buildConfiguration);
 }
 
 void MakeStepConfigWidget::init(const QString &buildConfiguration)
