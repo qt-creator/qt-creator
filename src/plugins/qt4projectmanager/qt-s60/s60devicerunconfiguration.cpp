@@ -108,6 +108,12 @@ void S60DeviceRunConfiguration::restore(const PersistentSettingsReader &reader)
     m_customKeyPath = reader.restoreValue("CustomKeyPath").toString();
 }
 
+QString S60DeviceRunConfiguration::targetName() const
+{
+    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
+    return m_targetName;
+}
+
 QString S60DeviceRunConfiguration::basePackageFilePath() const
 {
     const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
@@ -200,7 +206,8 @@ void S60DeviceRunConfiguration::updateTarget()
         m_workingDir = baseDir;
     }
 
-    m_baseFileName = QDir::cleanPath(m_workingDir + QLatin1Char('/') + reader->value("TARGET"));
+    m_targetName = reader->value("TARGET");
+    m_baseFileName = QDir::cleanPath(m_workingDir + QLatin1Char('/') + m_targetName);
 
     if (pro->toolChainType(pro->activeBuildConfiguration()) == ToolChain::GCCE)
         m_baseFileName += "_gcce";
@@ -433,6 +440,15 @@ S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runCon
             this, SLOT(installProcessFailed()));
     connect(m_install, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(installProcessFinished()));
+    m_run = new QProcess(this);
+    connect(m_run, SIGNAL(readyReadStandardError()),
+            this, SLOT(readStandardError()));
+    connect(m_run, SIGNAL(readyReadStandardOutput()),
+            this, SLOT(readStandardOutput()));
+    connect(m_run, SIGNAL(error(QProcess::ProcessError)),
+            this, SLOT(runProcessFailed()));
+    connect(m_run, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(runProcessFinished()));
 }
 
 void S60DeviceRunControl::start()
@@ -442,6 +458,7 @@ void S60DeviceRunControl::start()
 
     Qt4Project *project = qobject_cast<Qt4Project *>(rc->project());
 
+    m_targetName = rc->targetName();
     m_baseFileName = rc->basePackageFilePath();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
     m_qtDir = project->qtVersion(project->activeBuildConfiguration())->path();
@@ -470,7 +487,10 @@ void S60DeviceRunControl::start()
 
 void S60DeviceRunControl::stop()
 {
-    // TODO
+    m_makesis->kill();
+    m_signsis->kill();
+    m_install->kill();
+    m_run->kill();
 }
 
 bool S60DeviceRunControl::isRunning() const
@@ -548,7 +568,27 @@ void S60DeviceRunControl::installProcessFailed()
 void S60DeviceRunControl::installProcessFinished()
 {
     if (m_install->exitCode() != 0) {
-        error(this, tr("An error occurred while creating the package."));
+        error(this, tr("An error occurred while installing the package."));
+        emit finished();
+        return;
+    }
+    QString trklauncher = QApplication::applicationDirPath() + "/../tests/manual/trk/debug/trklauncher.exe";
+    QStringList arguments;
+    arguments << "COM5" << QString("C:\\sys\\bin\\%1.exe").arg(m_targetName); //TODO com selection and file path
+    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(trklauncher), arguments.join(tr(" "))));
+    m_run->start(trklauncher, arguments, QIODevice::ReadOnly);
+}
+
+void S60DeviceRunControl::runProcessFailed()
+{
+    processFailed("trklauncher", m_run->error());
+    error(this, tr("Did you compile the trklauncher application in tests\\manual\\trk ?"));
+}
+
+void S60DeviceRunControl::runProcessFinished()
+{
+    if (m_run->exitCode() != 0) {
+        error(this, tr("An error occurred while starting the application."));
     }
     emit addToOutputWindow(this, tr("Finished."));
     emit finished();
