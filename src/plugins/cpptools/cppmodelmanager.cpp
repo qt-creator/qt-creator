@@ -701,6 +701,16 @@ QByteArray CppModelManager::internalDefinedMacros() const
     return macros;
 }
 
+void CppModelManager::setIncludesInPaths(const QMap<QString, QStringList> includesInPaths)
+{
+    QMutexLocker locker(&mutex);
+    QMapIterator<QString, QStringList> i(includesInPaths);
+    while (i.hasNext()) {
+        i.next();
+        m_includesInPaths.insert(i.key(), i.value());
+    }
+}
+
 void CppModelManager::addEditorSupport(AbstractEditorSupport *editorSupport)
 {
     m_addtionalEditorSupport.insert(editorSupport);
@@ -763,6 +773,23 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 
     m_projects.insert(pinfo.project, pinfo);
     m_dirty = true;
+
+    QFuture<void> result = QtConcurrent::run(&CppModelManager::updateIncludesInPaths,
+                                             this,
+                                             pinfo.includePaths,
+                                             m_headerSuffixes);
+
+    if (pinfo.includePaths.size() > 1) {
+        m_core->progressManager()->addTask(result, tr("Scanning"),
+                                           CppTools::Constants::TASK_INDEX,
+                                           Core::ProgressManager::CloseOnSuccess);
+    }
+}
+
+QStringList CppModelManager::includesInPath(const QString &path) const
+{
+    QMutexLocker locker(&mutex);
+    return m_includesInPaths.value(path);
 }
 
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)
@@ -1062,6 +1089,64 @@ void CppModelManager::onSessionUnloaded()
     } while (0);
 
     GC();
+}
+
+void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
+                                            CppModelManager *manager,
+                                            QStringList paths,
+                                            QStringList suffixes)
+{
+    QMap<QString, QStringList> entriesInPaths;
+    int processed = 0;
+
+    future.setProgressRange(0, paths.size());
+
+    while (!paths.isEmpty()) {
+        if (future.isPaused())
+            future.waitForResume();
+
+        if (future.isCanceled())
+            break;
+
+        const QString path = paths.takeFirst();
+        QStringList entries;
+
+        QDirIterator i(path, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        while (i.hasNext()) {
+            const QString fileName = i.next();
+            const QFileInfo fileInfo = i.fileInfo();
+            const QString suffix = fileInfo.suffix();
+            if (suffix.isEmpty() || suffixes.contains(suffix)) {
+                QString text = fileName.mid(path.length() + 1);
+                if (fileInfo.isDir()) {
+                    text += QLatin1Char('/');
+
+                    // Also scan subdirectory, but avoid endless recursion with symbolic links
+                    if (fileInfo.isSymLink()) {
+                        QMap<QString, QStringList>::const_iterator result = entriesInPaths.find(fileInfo.canonicalFilePath());
+                        if (result != entriesInPaths.constEnd()) {
+                            entriesInPaths.insert(fileName, result.value());
+                        } else {
+                            paths.append(fileName);
+                        }
+                    } else {
+                        paths.append(fileName);
+                    }
+                }
+                entries.append(text);
+            }
+        }
+
+        entriesInPaths.insert(path, entries);
+
+        ++processed;
+        future.setProgressRange(0, processed + paths.size());
+        future.setProgressValue(processed);
+    }
+
+    manager->setIncludesInPaths(entriesInPaths);
+
+    future.reportFinished();
 }
 
 void CppModelManager::parse(QFutureInterface<void> &future,

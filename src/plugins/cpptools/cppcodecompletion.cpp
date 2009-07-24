@@ -52,7 +52,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/itexteditable.h>
 #include <texteditor/basetexteditor.h>
@@ -1216,29 +1215,13 @@ bool CppCodeCompletion::completeInclude(const QTextCursor &cursor)
         if (!includePaths.contains(currentFilePath))
             includePaths.append(currentFilePath);
 
-        const Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
-        const Core::MimeType mimeType = mimeDatabase->findByType(QLatin1String("text/x-c++hdr"));
-        const QStringList suffixes = mimeType.suffixes();
-
         foreach (const QString &includePath, includePaths) {
             QString realPath = includePath;
             if (!directoryPrefix.isEmpty()) {
                 realPath += QLatin1Char('/');
                 realPath += directoryPrefix;
             }
-            // TODO: This should be cached
-            QDirIterator i(realPath, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-            while (i.hasNext()) {
-                const QString fileName = i.next();
-                const QFileInfo fileInfo = i.fileInfo();
-                const QString suffix = fileInfo.suffix();
-                if (suffix.isEmpty() || suffixes.contains(suffix)) {
-                    QString text = fileName.mid(realPath.length() + 1);
-                    if (fileInfo.isDir())
-                        text += QLatin1Char('/');
-                    items.append(text);
-                }
-            }
+            items.append(m_manager->includesInPath(realPath));
         }
 
         if (!items.isEmpty()) {

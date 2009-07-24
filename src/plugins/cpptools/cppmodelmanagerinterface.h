@@ -90,6 +90,8 @@ public:
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
     virtual void updateProjectInfo(const ProjectInfo &pinfo) = 0;
 
+    virtual QStringList includesInPath(const QString &path) const = 0;
+
     virtual void addEditorSupport(AbstractEditorSupport *editorSupport) = 0;
     virtual void removeEditorSupport(AbstractEditorSupport *editorSupport) = 0;
 };

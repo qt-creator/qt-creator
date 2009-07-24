@@ -263,6 +263,11 @@ void CppToolsPlugin::extensionsInitialized()
     m_fileSettings->fromSettings(Core::ICore::instance()->settings());
     if (!m_fileSettings->applySuffixesToMimeDB())
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
+
+    // Initialize header suffixes
+    const Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    const Core::MimeType mimeType = mimeDatabase->findByType(QLatin1String("text/x-c++hdr"));
+    m_modelManager->setHeaderSuffixes(mimeType.suffixes());
 }
 
 void CppToolsPlugin::shutdown()

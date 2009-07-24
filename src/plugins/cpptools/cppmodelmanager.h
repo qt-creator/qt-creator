@@ -77,6 +77,8 @@ public:
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
     virtual void updateProjectInfo(const ProjectInfo &pinfo);
 
+    virtual QStringList includesInPath(const QString &path) const;
+
     virtual CPlusPlus::Snapshot snapshot() const;
     virtual void GC();
 
@@ -98,6 +100,9 @@ public:
 
     virtual void addEditorSupport(AbstractEditorSupport *editorSupport);
     virtual void removeEditorSupport(AbstractEditorSupport *editorSupport);
+
+    void setHeaderSuffixes(const QStringList &suffixes)
+    { m_headerSuffixes = suffixes; }
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
@@ -149,6 +154,13 @@ private:
     QStringList internalFrameworkPaths() const;
     QByteArray internalDefinedMacros() const;
 
+    void setIncludesInPaths(const QMap<QString, QStringList> includesInPaths);
+
+    static void updateIncludesInPaths(QFutureInterface<void> &future,
+                                      CppModelManager *manager,
+                                      QStringList paths,
+                                      QStringList suffixes);
+
     static void parse(QFutureInterface<void> &future,
                       CppPreprocessor *preproc,
                       QStringList files);
@@ -163,6 +175,9 @@ private:
     QStringList m_includePaths;
     QStringList m_frameworkPaths;
     QByteArray m_definedMacros;
+
+    QMap<QString, QStringList> m_includesInPaths;
+    QStringList m_headerSuffixes;
 
     // editor integration
     QMap<TextEditor::ITextEditor *, CppEditorSupport *> m_editorSupport;
