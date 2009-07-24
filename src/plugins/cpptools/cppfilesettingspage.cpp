@@ -260,7 +260,7 @@ void CppFileSettingsWidget::slotEdit()
         return;
     }
     // Pick a file name and write new template, edit with C++
-    path = QFileDialog::getSaveFileName(this, tr("Choose a new license template file"));
+    path = QFileDialog::getSaveFileName(this, tr("Choose a location for the new license template file"));
     if (path.isEmpty())
         return;
     QFile file(path);
