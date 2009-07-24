@@ -1106,7 +1106,7 @@ void Qt4Project::invalidateCachedTargetInformation()
 // intelligent matching for -cache, but i guess people rarely
 // do use that.
 
-QStringList removeSpecFromArgumentList(const QStringList &old)
+QStringList Qt4Project::removeSpecFromArgumentList(const QStringList &old)
 {
     if (!old.contains("-spec") && !old.contains("-platform") && !old.contains("-cache"))
         return old;
@@ -1128,7 +1128,7 @@ QStringList removeSpecFromArgumentList(const QStringList &old)
     return newList;
 }
 
-QString extractSpecFromArgumentList(const QStringList &list)
+QString Qt4Project::extractSpecFromArgumentList(const QStringList &list)
 {
     int index = list.indexOf("-spec");
     if (index == -1)
@@ -1157,7 +1157,7 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
                 // and compare that on its own
                 QString actualSpec = extractSpecFromArgumentList(qmakeStep()->value(buildConfiguration, "qmakeArgs").toStringList());
                 if (actualSpec.isEmpty())
-                    actualSpec = qtVersion(buildConfiguration)->mkspec();
+                    actualSpec = version->mkspec();
                 QString parsedSpec = extractSpecFromArgumentList(result.second);
 
                 // Now to convert the actualSpec to a absolute path, we go through a few hops
@@ -1179,7 +1179,6 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
 
                 if (QFileInfo(parsedSpec).isRelative())
                     parsedSpec = QDir::cleanPath(workingDirectory + "/" + parsedSpec);
-
 
                 qDebug()<<"before:"<<qmakeStep()->value(buildConfiguration, "qmakeArgs").toStringList();
                 QStringList actualArgs = removeSpecFromArgumentList(qmakeStep()->value(buildConfiguration, "qmakeArgs").toStringList());

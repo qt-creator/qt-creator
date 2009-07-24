@@ -198,6 +198,8 @@ public:
 
     bool compareBuildConfigurationToImportFrom(const QString &buildConfiguration, const QString &workingDirectory);
 
+    static QStringList removeSpecFromArgumentList(const QStringList &old);
+    static QString extractSpecFromArgumentList(const QStringList &list);
 signals:
     void targetInformationChanged();
 
