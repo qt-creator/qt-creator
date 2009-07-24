@@ -111,19 +111,12 @@ private:
 
     void handleCpuType(const TrkResult &result);
     void handleCreateProcess(const TrkResult &result);
-    void handleSetBreakpoint(const TrkResult &result);
-    void handleSignalContinue(const TrkResult &result);
     void handleWaitForFinished(const TrkResult &result);
     void handleStop(const TrkResult &result);
     void handleSupportMask(const TrkResult &result);
 
     void handleAndReportCreateProcess(const TrkResult &result);
-    void handleAndReportReadRegisters(const TrkResult &result);
-    void handleReadMemory(const TrkResult &result);
-    void reportReadMemory(const TrkResult &result);
-
     void handleResult(const TrkResult &data);
-    void readMemory(uint addr, uint len);
     void startInferiorIfNeeded();
 
 #if USE_NATIVE
@@ -530,32 +523,6 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid);
     sendTrkMessage(0x18, 0, ba, "CONTINUE");
-}
-
-void Adapter::handleAndReportReadRegisters(const TrkResult &result)
-{
-    //logMessage("       RESULT: " + result.toString());
-    // [80 0B 00   00 00 00 00   C9 24 FF BC   00 00 00 00   00
-    //  60 00 00   00 00 00 00   78 67 79 70   00 00 00 00   00...]
-    QByteArray ba = result.data.toHex();
-}
-
-void Adapter::handleSetBreakpoint(const TrkResult &result)
-{
-    //---TRK------------------------------------------------------
-    //  Command: 0x80 Acknowledge
-    //    Error: 0x00
-    // [80 09 00 00 00 00 0A]
-    uint bpnr = extractInt(result.data.data());
-    logMessage("SET BREAKPOINT " + bpnr
-        + stringFromArray(result.data.data()));
-}
-
-void Adapter::handleSignalContinue(const TrkResult &result)
-{
-    int signalNumber = result.cookie.toInt();
-    logMessage("   HANDLE SIGNAL CONTINUE: " + stringFromArray(result.data));
-    qDebug() << "NUMBER" << signalNumber;
 }
 
 void Adapter::handleWaitForFinished(const TrkResult &result)
