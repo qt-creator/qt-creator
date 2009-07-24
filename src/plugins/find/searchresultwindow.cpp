@@ -153,7 +153,7 @@ void SearchResultWindow::handleJumpToSearchResult(int index, const QString &file
 ResultWindowItem *SearchResultWindow::addResult(const QString &fileName, int lineNumber, const QString &rowText,
     int searchTermStart, int searchTermLength)
 {
-    qDebug()<<"###"<<fileName;
+    //qDebug()<<"###"<<fileName;
     m_widget->setCurrentWidget(m_searchResultTreeView);
     int index = m_items.size();
     ResultWindowItem *item = new ResultWindowItem;
