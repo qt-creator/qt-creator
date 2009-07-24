@@ -157,6 +157,8 @@ private slots:
     void dumpQObjectPropertyList();
     void dumpQObjectSignal();
     void dumpQObjectSignalList();
+    void dumpQObjectSlot();
+    void dumpQObjectSlotList();
     void dumpQPixmap();
 #if QT_VERSION >= 0x040500
     void dumpQSharedPointer();
@@ -190,6 +192,8 @@ private:
     void dumpQObjectPropertyListHelper(QObject &obj);
     void dumpQObjectSignalHelper(QObject &o, int sigNum);
     void dumpQObjectSignalListHelper(QObject &o);
+    void dumpQObjectSlotHelper(QObject &o, int slot);
+    void dumpQObjectSlotListHelper(QObject &o);
     void dumpQPixmapHelper(QPixmap &p);
 #if QT_VERSION >= 0x040500
     template <typename T>
@@ -1088,9 +1092,9 @@ static const char *connectionType(uint type)
 class Cheater : public QObject
 {
 public:
-    static QObjectPrivate *getPrivate(QObject &o)
+    static const QObjectPrivate *getPrivate(const QObject &o)
     {
-        return dynamic_cast<QObjectPrivate *>(static_cast<Cheater&>(o).d_ptr);
+        return dynamic_cast<const QObjectPrivate *>(static_cast<const Cheater&>(o).d_ptr);
     }
 };
 
@@ -1244,6 +1248,190 @@ void tst_Debugger::dumpQObjectSignalList()
     connect(&m, SIGNAL(columnsRemoved(const QModelIndex &, int, int)),
             &m, SLOT(deleteLater()), Qt::AutoConnection);
     dumpQObjectSignalListHelper(m);
+}
+
+void tst_Debugger::dumpQObjectSlotHelper(QObject &o, int slot)
+{
+    // TODO: This test passes, but it's because both the dumper and
+    //       the test are broken (no slots are ever listed).
+    QByteArray expected = QByteArray("addr='").append(ptrToBa(&o)).
+        append("',numchild='1',type='"NS"QObjectSlot'");
+#if QT_VERSION >= 0x040400
+   expected.append(",children=[");
+    const QObjectPrivate *p = Cheater::getPrivate(o);
+    int numChild = 0;
+#if QT_VERSION >= 0x040600
+    int senderNum = 0;
+    for (QObjectPrivate::Connection *senderConn = p->senders;
+         senderConn != 0; senderConn = senderConn->next, ++senderNum) {
+#else
+    for (senderNum = 0; senderNum < p->senders.size(); ++senderNum) {
+        QObjectPrivate::Connection *senderConn = &p->senders.at(senderNum);
+#endif
+        QString senderNumStr = QString::number(senderNum);
+        QObject *sender = senderConn->sender;
+        int signal = senderConn->method;
+        const ConnLists *connLists =
+            reinterpret_cast<const ConnLists *>(p->connectionLists);
+        const QObjectPrivate::ConnectionList &connList =
+                connLists != 0 && connLists->size() > signal ?
+                connLists->at(signal) : QObjectPrivate::ConnectionList();
+        for (int i = 0; i < connList.size(); ++i) {
+            const QObjectPrivate::Connection *conn = connList.at(i);
+            if (conn->receiver == &o && conn->method == slot) {
+                ++numChild;
+                const QMetaMethod &method = sender->metaObject()->method(signal);
+                if (numChild > 0)
+                    expected.append(",");
+                expected.append("{name='").append(senderNumStr).append(" sender',");
+                if (sender == &o) {
+                    expected.append("value='").append(utfToBase64("<this>")).
+                        append("',type='").append(o.metaObject()->className()).
+                        append("',numchild='0',addr='").append(ptrToBa(&o)).append("'");
+                } else if (sender != 0) {
+                       expected.append("addr='").append(ptrToBa(sender)).
+                           append(",value='").append(utfToBase64(sender->objectName())).
+                           append("',valueencoded='2',type='"NS"QObject',displayedtype='").
+                           append(sender->metaObject()->className()).
+                           append("',numchild='1'");
+                } else {
+                    expected.append("value='0x0',type='"NS"QObject *',numchild='0'");
+                }
+                expected.append("},{name='").append(senderNumStr).
+                    append(" signal',type='',value='").append(method.signature()).
+                    append("',numchild='0'},{name='").append(senderNumStr).
+                    append(" type',type='',value='<'").append(connectionType(conn->method)).
+                    append(" connection>',numchild='0'}");
+            }
+        }
+    }
+    expected.append("],numchild='0'");
+#endif
+    testDumper(expected, &o, NS"QObjectSlot", true, "", "", slot);
+}
+
+void tst_Debugger::dumpQObjectSlot()
+{
+    // Case 1: Simple QObject.
+    QObject o;
+    o.setObjectName("Test");
+    dumpQObjectSlotHelper(o, o.metaObject()->indexOfSlot("deleteLater()"));
+
+    // Case 2: QAbstractItemModel with no connections.
+    QStringListModel m(QStringList() << "Test1" << "Test2");
+    const QMetaObject *mo = m.metaObject();
+    QList<int> slotIndices;
+    for (int i = 0; i < mo->methodCount(); ++i) {
+        const QMetaMethod &mm = mo->method(i);
+        if (mm.methodType() == QMetaMethod::Slot) {
+            int slotIndex = mo->indexOfSlot(mm.signature());
+            Q_ASSERT(slotIndex != -1);
+            slotIndices.append(slotIndex);
+        }
+    }
+    foreach(const int slotIndex, slotIndices)
+        dumpQObjectSlotHelper(m, slotIndex);
+
+    // Case 3: QAbstractItemModel with connections to itself and to another
+    //         object, using different connection types.
+    qRegisterMetaType<QModelIndex>("QModelIndex");
+    connect(&m, SIGNAL(columnsAboutToBeInserted(const QModelIndex &, int, int)),
+            &o, SLOT(deleteLater()), Qt::DirectConnection);
+    connect(&o, SIGNAL(destroyed(QObject *)),
+            &m, SLOT(revert()), Qt::QueuedConnection);
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)),
+            &m, SLOT(submit()), Qt::QueuedConnection);
+    connect(&m, SIGNAL(columnsInserted(const QModelIndex &, int, int)),
+            &m, SLOT(submit()), Qt::BlockingQueuedConnection);
+    connect(&m, SIGNAL(columnsRemoved(const QModelIndex &, int, int)),
+            &m, SLOT(deleteLater()), Qt::AutoConnection);
+#if QT_VERSION >= 0x040600
+    connect(&m, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
+            &m, SLOT(revert()), Qt::UniqueConnection);
+#endif
+    foreach(const int slotIndex, slotIndices)
+        dumpQObjectSlotHelper(m, slotIndex);
+}
+
+void tst_Debugger::dumpQObjectSlotListHelper(QObject &o)
+{
+    const QMetaObject *mo = o.metaObject();
+    QList<QMetaMethod> slotList;;
+    for (int i = 0; i < mo->methodCount(); ++i) {
+        const QMetaMethod &method = mo->method(i);
+        if (method.methodType() == QMetaMethod::Slot)
+            slotList.append(method);
+    }
+    const QString numSlotsStr = QString::number(slotList.size());
+    QByteArray expected = QByteArray("numchild='").append(numSlotsStr).
+        append("',value='<").append(numSlotsStr).
+        append(" items>',type='"NS"QObjectSlotList',children=[");
+#if QT_VERSION >= 0x040400
+    const QObjectPrivate *p = Cheater::getPrivate(o);
+    for (int i = 0; i < slotList.size(); ++i) {
+        const QMetaMethod &method = slotList.at(i);
+        int k = mo->indexOfSlot(method.signature());
+        Q_ASSERT(k != -1);
+        expected.append("{name='").append(QString::number(k)).
+            append("',value='").append(method.signature());
+        int numChild = 0;
+#if QT_VERSION >= 0x040600
+        int s = 0;
+        for (QObjectPrivate::Connection *senderList = p->senders; senderList != 0;
+             senderList = senderList->next, ++s) {
+#else
+            for (int s = 0; s != p->senders.size(); ++s) {
+                const Connection *senderList = &p->senders.at(s);
+#endif // QT_VERSION >= 0x040600
+                const QObject *sender = senderList->sender;
+                int signal = senderList->method;
+                const ConnLists *connLists =
+                    reinterpret_cast<const ConnLists *>(Cheater::getPrivate(*sender)->connectionLists);
+                const QObjectPrivate::ConnectionList &connList =
+                        connLists != 0 && connLists->size() > signal ?
+                        connLists->at(signal) : QObjectPrivate::ConnectionList();
+                for (int c = 0; c != connList.size(); ++c) {
+                    const QObjectPrivate::Connection *conn = connList.at(c);
+                    if (conn->receiver == &o && conn->method == k)
+                        ++numChild;
+                }
+            }
+        expected.append("',numchild='").append(QString::number(numChild)).
+            append("',addr='").append(ptrToBa(&o)).append("',type='"NS"QObjectSlot'}");
+        if (i < slotList.size() - 1)
+            expected.append(",");
+    }
+#endif // QT_VERSION >= 0x040400
+    expected.append("]");
+    testDumper(expected, &o, NS"QObjectSlotList", true);
+}
+
+void tst_Debugger::dumpQObjectSlotList()
+{
+    // Case 1: Simple QObject.
+    QObject o;
+    o.setObjectName("Test");
+    dumpQObjectSlotListHelper(o);
+
+    // Case 2: QAbstractItemModel with no connections.
+    QStringListModel m(QStringList() << "Test1" << "Test2");
+    dumpQObjectSlotListHelper(m);
+
+    // Case 3: QAbstractItemModel with connections to itself and to another
+    //         object, using different connection types.
+    qRegisterMetaType<QModelIndex>("QModelIndex");
+    connect(&m, SIGNAL(columnsAboutToBeInserted(const QModelIndex &, int, int)),
+            &o, SLOT(deleteLater()), Qt::DirectConnection);
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)),
+            &m, SLOT(revert()), Qt::QueuedConnection);
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)),
+            &m, SLOT(submit()), Qt::QueuedConnection);
+    connect(&m, SIGNAL(columnsInserted(const QModelIndex &, int, int)),
+            &m, SLOT(submit()), Qt::BlockingQueuedConnection);
+    connect(&m, SIGNAL(columnsRemoved(const QModelIndex &, int, int)),
+            &m, SLOT(deleteLater()), Qt::AutoConnection);
+    connect(&o, SIGNAL(destroyed(QObject *)), &m, SLOT(submit()));
+    dumpQObjectSlotListHelper(m);
 }
 
 void tst_Debugger::dumpQPixmapHelper(QPixmap &p)
