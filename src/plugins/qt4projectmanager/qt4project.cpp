@@ -1113,16 +1113,12 @@ QStringList Qt4Project::removeSpecFromArgumentList(const QStringList &old)
     QStringList newList;
     bool ignoreNext = false;
     foreach(const QString &item, old) {
-        qDebug()<<"Item:"<<item;
         if (ignoreNext) {
-            qDebug()<<"ignored (2)";
             ignoreNext = false;
         } else if (item == "-spec" || item == "-platform" || item == "-cache") {
             ignoreNext = true;
-            qDebug()<<"ignored (1)";
         } else {
             newList << item;
-            qDebug()<<"added";
         }
     }
     return newList;
@@ -1180,9 +1176,7 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
                 if (QFileInfo(parsedSpec).isRelative())
                     parsedSpec = QDir::cleanPath(workingDirectory + "/" + parsedSpec);
 
-                qDebug()<<"before:"<<qmakeStep()->value(buildConfiguration, "qmakeArgs").toStringList();
                 QStringList actualArgs = removeSpecFromArgumentList(qmakeStep()->value(buildConfiguration, "qmakeArgs").toStringList());
-                qDebug()<<"after:"<<actualArgs;
                 QStringList parsedArgs = removeSpecFromArgumentList(result.second);
 
 #ifdef Q_OS_WIN
