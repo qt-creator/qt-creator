@@ -203,17 +203,14 @@ const char *stdWideStringTypeUShortC = "std::basic_string<unsigned short,std::ch
         uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
         QBasicAtomicPointer<int> argumentTypes;
         //senders linked list
-        //Connection *next;
-        //Connection **prev;
+        Connection *next;
+        Connection **prev;
     };
 
     typedef QList<Connection *> ConnectionList;
-    typedef ConnectionList SenderList;
+    typedef Connection *SenderList;
 
     const Connection &connectionAt(const ConnectionList &l, int i) { return *l.at(i); }
-    const QObject *senderAt(const SenderList &l, int i) { return l.at(i)->sender; }
-    // FIXME: 'method' is wrong
-    int signalAt(const SenderList &l, int i) { return l.at(i)->method; }
 #endif
 
 class ObjectPrivate : public QObjectData
@@ -2470,9 +2467,17 @@ static void qDumpQObjectSlot(QDumper &d)
         int numchild = 0;
         const QObject *ob = reinterpret_cast<const QObject *>(d.data);
         const ObjectPrivate *p = reinterpret_cast<const ObjectPrivate *>(dfunc(ob));
+#if QT_VERSION >= 0x040600
+        int s = 0;
+        for (SenderList senderList = p->senders; senderList != 0;
+             senderList = senderList->next, ++s) {
+            const QObject *sender = senderList->sender;
+            int signal = senderList->method; // FIXME: 'method' is wrong.
+#else
         for (int s = 0; s != p->senders.size(); ++s) {
             const QObject *sender = senderAt(p->senders, s);
             int signal = signalAt(p->senders, s);
+#endif
             const ConnectionList &connList = qConnectionList(sender, signal);
             for (int i = 0; i != connList.size(); ++i) {
                 const Connection &conn = connectionAt(connList, i);
@@ -2538,9 +2543,17 @@ static void qDumpQObjectSlotList(QDumper &d)
 
                 // count senders. expensive...
                 int numchild = 0;
+#if QT_VERSION >= 0x040600
+                int s = 0;
+                for (SenderList senderList = p->senders; senderList != 0;
+                     senderList = senderList->next, ++s) {
+                    const QObject *sender = senderList->sender;
+                    int signal = senderList->method; // FIXME: 'method' is wrong.
+#else
                 for (int s = 0; s != p->senders.size(); ++s) {
                     const QObject *sender = senderAt(p->senders, s);
                     int signal = signalAt(p->senders, s);
+#endif
                     const ConnectionList &connList = qConnectionList(sender, signal);
                     for (int c = 0; c != connList.size(); ++c) {
                         const Connection &conn = connectionAt(connList, c);
