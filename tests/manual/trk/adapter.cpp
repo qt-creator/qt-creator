@@ -537,7 +537,11 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         #endif
         bool ok = false;
         uint registerNumber = response.mid(1).toInt(&ok, 16);
-        if (registerNumber < RegisterCount) {
+        if (registerNumber == RegisterPSGdb) {
+            QByteArray ba;
+            appendInt(&ba, m_snapshot.registers[RegisterPSTrk]);
+            sendGdbMessage(ba.toHex(), "read processor status register");
+        } else if (registerNumber < RegisterCount) {
             QByteArray ba;
             appendInt(&ba, m_snapshot.registers[registerNumber]);
             sendGdbMessage(ba.toHex(), "read single known register");
@@ -1059,8 +1063,10 @@ void Adapter::handleAndReportReadRegisters(const TrkResult &result)
     // [80 0B 00   00 00 00 00   C9 24 FF BC   00 00 00 00   00
     //  60 00 00   00 00 00 00   78 67 79 70   00 00 00 00   00...]
     const char *data = result.data.data();
-    for (int i = 0; i < RegisterCount; ++i)
+    for (int i = 0; i < RegisterCount; ++i) {
         m_snapshot.registers[i] = extractInt(data + 4 * i);
+        //qDebug() << i << hexNumber(m_snapshot.registers[i], 8);
+    }
 
     //QByteArray ba = result.data.toHex();
     QByteArray ba;
