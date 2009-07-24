@@ -16,7 +16,7 @@ Debugging
    * QMap/QSet types), dereference reference parameters
    * CDB: Simplified display of STL types in the locals window
    * CDB: Fixed thread handling
-   * CDB: Added internal dumpers for string types for debuggee crashes
+   * CDB: Added internal dumpers for string types for debugger crashes
    * Improved QObject dumping, print out QRect/QSize, enumerations and flags
 
 General:
@@ -26,6 +26,7 @@ General:
 Editing:
    * Added support for text editor color schemes
    * Added highlighting of uses of the symbol under the cursor
+   * Added completion of include directives
    * Added the option to turn off marking of text changes
 
 Project support:
