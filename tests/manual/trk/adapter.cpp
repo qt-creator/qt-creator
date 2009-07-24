@@ -196,7 +196,6 @@ private:
 
     void handleCpuType(const TrkResult &result);
     void handleCreateProcess(const TrkResult &result);
-    void handleSetBreakpoint(const TrkResult &result);
     void handleClearBreakpoint(const TrkResult &result);
     void handleSignalContinue(const TrkResult &result);
     void handleWaitForFinished(const TrkResult &result);
@@ -208,11 +207,11 @@ private:
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleAndReportReadRegisters(const TrkResult &result);
     QByteArray memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const;
+    void handleAndReportSetBreakpoint(const TrkResult &result);
     void handleReadMemory(const TrkResult &result);
     void reportReadMemory(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
 
-    void setTrkBreakpoint(const Breakpoint &bp);
     void clearTrkBreakpoint(const Breakpoint &bp);
     void handleResult(const TrkResult &data);
     void readMemory(uint addr, uint len);
@@ -702,7 +701,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         else
             sendGdbMessage(
                 "PacketSize=7cf;"
-                "QPassSignals+;"
+                //"QPassSignals+;"
                 "qXfer:libraries:read+;"
                 //"qXfer:auxv:read+;"
                 "qXfer:features:read+");
@@ -744,6 +743,16 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         m_gdbAckMode = false;
     }
 
+    else if (response.startsWith("QPassSignals")) {
+        // list of signals to pass directly to inferior
+        // $QPassSignals:e;10;14;17;1a;1b;1c;21;24;25;4c;#8f
+        // happens only if "QPassSignals+;" is qSupported
+        sendGdbAckMessage();
+        // FIXME: use the parameters
+        sendGdbMessage("OK", "passing signals accepted");
+    }
+
+
     else if (response == "s") {
         sendGdbAckMessage();
         QByteArray ba;
@@ -776,6 +785,42 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         appendInt(&ba, m_session.pid);
         sendTrkMessage(0x41, 0, ba, "Delete process"); // Delete Item
         sendGdbMessageAfterSync("", "process killed");
+    }
+
+    else if (response.startsWith("Z0,")) {
+        // $z0,786a4ccc,4#99
+        int pos = response.lastIndexOf(',');
+        bool ok = false;
+        uint addr = response.mid(3, pos - 1).toInt(&ok, 16);
+        uint len = response.mid(pos + 1).toInt(&ok, 16);
+
+        //---IDE------------------------------------------------------
+        //  Command: 0x1B Set Break
+        //BreakType: 0x82
+        //  Options: 0x00
+        //  Address: 0x78674340 (2020033344)    i.e + 0x00000340
+        //   Length: 0x00000001 (1)
+        //    Count: 0x00000000 (0)
+        //ProcessID: 0x000001b5 (437)
+        // ThreadID: 0xffffffff (-1)
+        // [1B 09 82 00 78 67 43 40 00 00 00 01 00 00 00 00
+        //  00 00 01 B5 FF FF FF FF]
+        QByteArray ba;
+        appendByte(&ba, 0x82);  // unused option
+        appendByte(&ba, true /*bp.mode == ArmMode*/ ? 0x00 : 0x01);
+        appendInt(&ba, addr);
+        appendInt(&ba, len);
+        appendInt(&ba, 0x00000001);
+        appendInt(&ba, m_session.pid);
+        appendInt(&ba, 0xFFFFFFFF);
+
+        sendTrkMessage(0x1B, CB(handleAndReportSetBreakpoint), ba);
+        //m_session.toekn
+
+        //---TRK------------------------------------------------------
+        //  Command: 0x80 Acknowledge
+        //    Error: 0x00
+        // [80 09 00 00 00 00 0A]
     }
 
     else {
@@ -1312,38 +1357,7 @@ void Adapter::reportReadMemory(const TrkResult &result)
     }
 }
 
-void Adapter::setTrkBreakpoint(const Breakpoint &bp)
-{
-    //---IDE------------------------------------------------------
-    //  Command: 0x1B Set Break
-    //BreakType: 0x82
-    //  Options: 0x00
-    //  Address: 0x78674340 (2020033344)    i.e + 0x00000340
-    //   Length: 0x00000001 (1)
-    //    Count: 0x00000000 (0)
-    //ProcessID: 0x000001b5 (437)
-    // ThreadID: 0xffffffff (-1)
-    // [1B 09 82 00 78 67 43 40 00 00 00 01 00 00 00 00
-    //  00 00 01 B5 FF FF FF FF]
-    QByteArray ba;
-    appendByte(&ba, 0x82);
-    appendByte(&ba, bp.mode == ArmMode ? 0x00 : 0x01);
-    appendInt(&ba, m_session.codeseg + bp.offset);
-    appendInt(&ba, 0x00000001);
-    appendInt(&ba, 0x00000001);
-    appendInt(&ba, m_session.pid);
-    appendInt(&ba, 0xFFFFFFFF);
-
-    sendTrkMessage(0x1B, CB(handleSetBreakpoint), ba);
-    //m_session.toekn
-
-    //---TRK------------------------------------------------------
-    //  Command: 0x80 Acknowledge
-    //    Error: 0x00
-    // [80 09 00 00 00 00 0A]
-}
-
-void Adapter::handleSetBreakpoint(const TrkResult &result)
+void Adapter::handleAndReportSetBreakpoint(const TrkResult &result)
 {
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
@@ -1352,6 +1366,7 @@ void Adapter::handleSetBreakpoint(const TrkResult &result)
     uint bpnr = extractInt(result.data.data());
     logMessage("SET BREAKPOINT " + bpnr
         + stringFromArray(result.data.data()));
+    sendGdbMessage("OK");
 }
 
 void Adapter::clearTrkBreakpoint(const Breakpoint &bp)

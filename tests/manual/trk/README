@@ -1,2 +1,21 @@
 Run ./run.sh  in one terminal.
-Run ./gdb-symbian in a second terminal.
+Run ./welsh-gdb or ./symbianelf-gdb in a second terminal.
+Note that welsh-gdb does not handle 'set remote noack-packet on'
+
+The following items "work":
+
+- "stop" at E32Main
+- manual relocation on the gdb side using
+  add-symbol-file filebrowseapp.sym 0x786A4000
+- disassembly at stopped location
+- p <functionname>
+- p $pc
+- one level of 'bt'
+
+To do:
+
+- figure out why the result of the qOffsets query is not honoured
+  _or_ how to have gdb doing the relocation automatically
+- setting breakpoints by filename:line
+- signaling of stopped/single step end. SIGTRAP? SIGSTOP?
+- run it against the red brick

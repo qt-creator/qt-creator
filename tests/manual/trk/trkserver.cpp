@@ -406,7 +406,6 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
         }
         case 0x41: { // Delete Item
             writeToAdapter(0x80, result.token, data);
-
             // A Process?
             // Command: 0xA1 Notify Deleted
             //[A1 02 00 00 00 00 00 00 00 00 01 B5]
@@ -418,12 +417,18 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             writeToAdapter(0xA1, nextNotificationToken(), note);
             break;
         }
-        default:
+        case 0x1B: { // Set Break
+            static int breakpointNumber = 10; // Trk does that
+            appendInt(&data, breakpointNumber++);
+            writeToAdapter(0x80, result.token, data);
+            break;
+        }
+        default: {
             data[0] = 0x10; // Command not supported
             writeToAdapter(0xff, result.token, data);
             break;
+        }
     }
-
 }
 
 byte TrkServer::nextNotificationToken()
