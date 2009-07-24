@@ -199,13 +199,21 @@ void Qt4ProjectConfigWidget::shadowBuildCheckBoxClicked(bool checked)
 
 void Qt4ProjectConfigWidget::updateImportLabel()
 {
-    m_ui->importLabel->setVisible(false);
-    if (m_ui->shadowBuildCheckBox->isChecked()) {
-        QString qtPath = QtVersionManager::findQtVersionFromMakefile(m_ui->shadowBuildDirEdit->path());
-        if (!qtPath.isEmpty()) {
-            m_ui->importLabel->setVisible(true);
+    bool visible = false;
+
+    QString qtPath = QtVersionManager::findQtVersionFromMakefile(m_pro->buildDirectory(m_buildConfiguration));
+    QtVersion *version = m_pro->qtVersion(m_buildConfiguration);
+    if (!qtPath.isEmpty()) {
+        if (qtPath != (version ? version->path() : QString())) {
+            visible = true;
+        } else {
+            visible = !m_pro->compareBuildConfigurationToImportFrom(m_buildConfiguration, m_pro->buildDirectory(m_buildConfiguration));
         }
+    } else {
+        visible = false;
     }
+
+    m_ui->importLabel->setVisible(visible);
 }
 
 void Qt4ProjectConfigWidget::shadowBuildLineEditTextChanged()
@@ -219,15 +227,6 @@ void Qt4ProjectConfigWidget::shadowBuildLineEditTextChanged()
     updateImportLabel();
 
     m_pro->invalidateCachedTargetInformation();
-
-//    QFileInfo fi(m_ui->shadowBuildDirEdit->path());
-//    if (fi.exists()) {
-//        m_ui->shadowBuildLineEdit->setStyleSheet("");
-//        m_ui->shadowBuildLineEdit->setToolTip("");
-//    } else {
-//        m_ui->shadowBuildLineEdit->setStyleSheet("background: red;");
-//        m_ui->shadowBuildLineEdit->setToolTip(tr("Directory does not exist."));
-//    }
 }
 
 void Qt4ProjectConfigWidget::importLabelClicked()

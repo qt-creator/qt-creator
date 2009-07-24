@@ -1186,6 +1186,11 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
                 qDebug()<<"after:"<<actualArgs;
                 QStringList parsedArgs = removeSpecFromArgumentList(result.second);
 
+#ifdef Q_OS_WIN
+                actualSpec = actualSpec.toLower();
+                parsedSpec = parsedSpec.toLower();
+#endif
+
                 qDebug()<<"Actual args:"<<actualArgs;
                 qDebug()<<"Parsed args:"<<parsedArgs;
                 qDebug()<<"Actual spec:"<<actualSpec;
