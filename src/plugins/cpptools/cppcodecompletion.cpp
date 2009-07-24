@@ -1209,7 +1209,6 @@ bool CppCodeCompletion::completeInclude(const QTextCursor &cursor)
 
     // Make completion for all relevant includes
     if (ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject()) {
-        QStringList items;
         QStringList includePaths = m_manager->projectInfo(project).includePaths;
         const QString currentFilePath = QFileInfo(m_editor->file()->fileName()).path();
         if (!includePaths.contains(currentFilePath))
@@ -1221,22 +1220,17 @@ bool CppCodeCompletion::completeInclude(const QTextCursor &cursor)
                 realPath += QLatin1Char('/');
                 realPath += directoryPrefix;
             }
-            items.append(m_manager->includesInPath(realPath));
-        }
-
-        if (!items.isEmpty()) {
-            foreach (const QString &itemText, items) {
+            foreach (const QString &itemText, m_manager->includesInPath(realPath)) {
                 TextEditor::CompletionItem item(this);
                 item.m_text += itemText;
                 // TODO: Icon for include files
                 item.m_icon = m_icons.keywordIcon();
                 m_completions.append(item);
             }
-            return true;
         }
     }
 
-    return false;
+    return !m_completions.isEmpty();
 }
 
 void CppCodeCompletion::completeNamespace(const QList<Symbol *> &candidates,
@@ -1443,15 +1437,16 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
         symbol = item.m_data.value<Symbol *>();
 
     QString toInsert;
+    QString extraChars;
     int extraLength = 0;
 
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         toInsert = item.m_text;
-        toInsert += QLatin1Char(')');
+        extraChars += QLatin1Char(')');
     } else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL) {
         toInsert = item.m_text;
         if (!toInsert.endsWith(QLatin1Char('/')))
-            toInsert += QLatin1Char((m_completionOperator == T_ANGLE_STRING_LITERAL) ? '>' : '"');
+            extraChars += QLatin1Char((m_completionOperator == T_ANGLE_STRING_LITERAL) ? '>' : '"');
     } else {
         toInsert = item.m_text;
 
@@ -1459,8 +1454,6 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
         //<< overview.prettyType(symbol->type());
 
         if (m_autoInsertBrackets && symbol && symbol->type()) {
-            QString extraChars;
-
             if (Function *function = symbol->type()->asFunctionType()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
@@ -1487,21 +1480,20 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     }
                 }
             }
-
-            // Avoid inserting characters that are already there
-            for (int i = 0; i < extraChars.length(); ++i) {
-                const QChar a = extraChars.at(i);
-                const QChar b = m_editor->characterAt(m_editor->position() + i);
-                if (a == b)
-                    ++extraLength;
-                else
-                    break;
-            }
-
-            toInsert += extraChars;
         }
-
     }
+
+    // Avoid inserting characters that are already there
+    for (int i = 0; i < extraChars.length(); ++i) {
+        const QChar a = extraChars.at(i);
+        const QChar b = m_editor->characterAt(m_editor->position() + i);
+        if (a == b)
+            ++extraLength;
+        else
+            break;
+    }
+
+    toInsert += extraChars;
 
     // Insert the remainder of the name
     int length = m_editor->position() - m_startPosition + extraLength;
