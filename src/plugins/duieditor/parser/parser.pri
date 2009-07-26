@@ -1,5 +1,6 @@
 
 INCLUDEPATH += $$PWD
+DEPENDPATH += $$PWD
 
 HEADERS += $$PWD/qmljsast_p.h \
            $$PWD/qmljsastfwd_p.h \

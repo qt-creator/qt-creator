@@ -271,6 +271,9 @@ public:
       AST::UiObjectMemberList *UiObjectMemberList;
       AST::UiArrayMemberList *UiArrayMemberList;
       AST::UiQualifiedId *UiQualifiedId;
+      AST::UiSignature *UiSignature;
+      AST::UiFormalList *UiFormalList;
+      AST::UiFormal *UiFormal;
     };
 
 public:
@@ -741,8 +744,8 @@ UiObjectMember: UiObjectDefinition ;
 UiObjectMember: UiQualifiedId T_COLON T_LBRACKET UiArrayMemberList T_RBRACKET ;
 /.
 case $rule_number: {
-    AST::UiArrayBinding *node = makeAstNode<AST::UiArrayBinding> (driver->nodePool(), sym(1).UiQualifiedId->finish(),
-        sym(4).UiArrayMemberList->finish());
+    AST::UiArrayBinding *node = makeAstNode<AST::UiArrayBinding> (driver->nodePool(),
+        sym(1).UiQualifiedId->finish(), sym(4).UiArrayMemberList->finish());
     node->colonToken = loc(2);
     node->lbracketToken = loc(3);
     node->rbracketToken = loc(5);
@@ -750,27 +753,7 @@ case $rule_number: {
 }   break;
 ./
 
-UiMultilineStringLiteral: T_MULTILINE_STRING_LITERAL ;
-/.
-case $rule_number: {
-  AST::StringLiteral *node = makeAstNode<AST::StringLiteral> (driver->nodePool(), sym(1).sval);
-  node->literalToken = loc(1);
-  sym(1).Node = node;
-} break;
-./
-
-UiMultilineStringStatement: UiMultilineStringLiteral T_AUTOMATIC_SEMICOLON ;  -- automatic semicolon
-UiMultilineStringStatement: UiMultilineStringLiteral T_SEMICOLON ;
-/.
-case $rule_number: {
-  AST::ExpressionStatement *node = makeAstNode<AST::ExpressionStatement> (driver->nodePool(), sym(1).Expression);
-  node->semicolonToken = loc(2);
-  sym(1).Node = node;
-} break;
-./
-
-
-UiObjectMember: UiQualifiedId T_COLON Expression UiObjectInitializer ;
+UiObjectMember: UiQualifiedId             T_COLON Expression UiObjectInitializer ;
 /.
 case $rule_number: {
   if (AST::UiQualifiedId *qualifiedId = reparseAsQualifiedId(sym(3).Expression)) {
@@ -789,6 +772,48 @@ case $rule_number: {
 } break;
 ./
 
+UiObjectMember: UiQualifiedId UiSignature T_COLON Expression UiObjectInitializer ;
+/.
+case $rule_number: {
+  if (AST::UiQualifiedId *qualifiedId = reparseAsQualifiedId(sym(4).Expression)) {
+    AST::UiObjectBinding *node = makeAstNode<AST::UiObjectBinding> (driver->nodePool(),
+      sym(1).UiQualifiedId->finish(), qualifiedId, sym(5).UiObjectInitializer);
+    node->colonToken = loc(3);
+    sym(1).Node = node;
+  } else {
+    sym(1).Node = 0;
+
+    diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, loc(2),
+      QLatin1String("Expected a type name after token `:'")));
+
+    return false; // ### recover
+  }
+} break;
+./
+
+UiObjectMember: UiQualifiedId UiSignature T_COLON Block ;
+/.case $rule_number:./
+
+UiObjectMember: UiQualifiedId UiSignature T_COLON EmptyStatement ;
+/.case $rule_number:./
+
+UiObjectMember: UiQualifiedId UiSignature T_COLON ExpressionStatement ;
+/.case $rule_number:./
+
+UiObjectMember: UiQualifiedId UiSignature T_COLON IfStatement ; --- ### do we really want if statement in a binding?
+/.case $rule_number:./
+
+/.
+{
+    AST::UiScriptBinding *node = makeAstNode<AST::UiScriptBinding> (driver->nodePool(),
+        sym(1).UiQualifiedId->finish(), sym(4).Statement);
+    node->colonToken = loc(3);
+    sym(1).Node = node;
+}   break;
+./
+
+
+
 UiObjectMember: UiQualifiedId T_COLON Block ;
 /.case $rule_number:./
 
@@ -798,19 +823,13 @@ UiObjectMember: UiQualifiedId T_COLON EmptyStatement ;
 UiObjectMember: UiQualifiedId T_COLON ExpressionStatement ;
 /.case $rule_number:./
 
-UiObjectMember: UiQualifiedId T_COLON DebuggerStatement ;
-/.case $rule_number:./
-
-UiObjectMember: UiQualifiedId T_COLON UiMultilineStringStatement ;
-/.case $rule_number:./
-
 UiObjectMember: UiQualifiedId T_COLON IfStatement ; --- ### do we really want if statement in a binding?
 /.case $rule_number:./
 
 /.
 {
-    AST::UiScriptBinding *node = makeAstNode<AST::UiScriptBinding> (driver->nodePool(), sym(1).UiQualifiedId->finish(),
-        sym(3).Statement);
+    AST::UiScriptBinding *node = makeAstNode<AST::UiScriptBinding> (driver->nodePool(),
+        sym(1).UiQualifiedId->finish(), sym(3).Statement);
     node->colonToken = loc(2);
     sym(1).Node = node;
 }   break;
@@ -863,27 +882,89 @@ case $rule_number: {
 } break;
 ./
 
-UiObjectMember: T_SIGNAL T_IDENTIFIER T_LPAREN UiParameterListOpt T_RPAREN ;
+UiFormal: JsIdentifier ;
+/.
+case $rule_number: {
+    AST::UiFormal *node = makeAstNode<AST::UiFormal>(driver->nodePool(), sym(1).sval);
+    node->identifierToken = loc(1);
+    sym(1).UiFormal = node;
+} break;
+./
+
+UiFormal: JsIdentifier T_AS JsIdentifier ;
+/.
+case $rule_number: {
+    AST::UiFormal *node = makeAstNode<AST::UiFormal>(driver->nodePool(),
+        sym(1).sval, sym(3).sval);
+    node->identifierToken = loc(1);
+    node->asToken = loc(2);
+    node->aliasToken = loc(3);
+    sym(1).UiFormal = node;
+} break;
+./
+
+UiFormalList: UiFormal ;
+/.
+case $rule_number: {
+    sym(1).UiFormalList = makeAstNode<AST::UiFormalList>(driver->nodePool(),
+        sym(1).UiFormal);
+} break;
+./
+
+UiFormalList: UiFormalList T_COMMA UiFormal ;
+/.
+case $rule_number: {
+    sym(1).UiFormalList = makeAstNode<AST::UiFormalList>(driver->nodePool(),
+        sym(1).UiFormalList, sym(3).UiFormal);
+} break;
+./
+
+UiSignature: T_LPAREN              T_RPAREN ;
+/.
+case $rule_number: {
+    AST::UiSignature *node = makeAstNode<AST::UiSignature>(driver->nodePool());
+    node->lparenToken = loc(1);
+    node->rparenToken = loc(3);
+    sym(1).UiSignature = node;
+} break;
+./
+
+UiSignature: T_LPAREN UiFormalList T_RPAREN ;
+/.
+case $rule_number: {
+    AST::UiSignature *node = makeAstNode<AST::UiSignature>(driver->nodePool(),
+        sym(2).UiFormalList->finish());
+    node->lparenToken = loc(1);
+    node->rparenToken = loc(3);
+    sym(1).UiSignature = node;
+} break;
+./
+
+UiObjectMember: T_SIGNAL T_IDENTIFIER T_LPAREN UiParameterListOpt T_RPAREN T_AUTOMATIC_SEMICOLON ;
+UiObjectMember: T_SIGNAL T_IDENTIFIER T_LPAREN UiParameterListOpt T_RPAREN T_SEMICOLON ;
 /.
 case $rule_number: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), (NameId *)0, sym(2).sval);
     node->type = AST::UiPublicMember::Signal;
     node->propertyToken = loc(1);
     node->typeToken = loc(2);
-    node->identifierToken = loc(3);
+    node->identifierToken = loc(2);
     node->parameters = sym(4).UiParameterList;
+    node->semicolonToken = loc(6);
     sym(1).Node = node;
 }   break;
 ./
 
-UiObjectMember: T_SIGNAL T_IDENTIFIER ;
+UiObjectMember: T_SIGNAL T_IDENTIFIER T_AUTOMATIC_SEMICOLON ;
+UiObjectMember: T_SIGNAL T_IDENTIFIER T_SEMICOLON ;
 /.
 case $rule_number: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), (NameId *)0, sym(2).sval);
     node->type = AST::UiPublicMember::Signal;
     node->propertyToken = loc(1);
     node->typeToken = loc(2);
-    node->identifierToken = loc(3);
+    node->identifierToken = loc(2);
+    node->semicolonToken = loc(3);
     sym(1).Node = node;
 }   break;
 ./
@@ -1047,11 +1128,14 @@ case $rule_number: {
 PrimaryExpression: T_NUMERIC_LITERAL ;
 /.
 case $rule_number: {
-  AST::NumericLiteral *node = makeAstNode<AST::NumericLiteral> (driver->nodePool(), sym(1).dval, lexer->flags);
+  AST::NumericLiteral *node = makeAstNode<AST::NumericLiteral> (driver->nodePool(), sym(1).dval);
   node->literalToken = loc(1);
   sym(1).Node = node;
 } break;
 ./
+
+PrimaryExpression: T_MULTILINE_STRING_LITERAL ;
+/.case $rule_number:./
 
 PrimaryExpression: T_STRING_LITERAL ;
 /.

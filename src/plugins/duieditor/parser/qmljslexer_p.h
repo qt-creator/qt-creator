@@ -112,25 +112,6 @@ public:
                  Other,
                  Bad };
 
-    enum Suffix {
-        noSuffix,
-        emSuffix,
-        exSuffix,
-        pxSuffix,
-        cmSuffix,
-        mmSuffix,
-        inSuffix,
-        ptSuffix,
-        pcSuffix,
-        degSuffix,
-        radSuffix,
-        gradSuffix,
-        msSuffix,
-        sSuffix,
-        hzSuffix,
-        khzSuffix
-    };
-
     enum Error {
         NoError,
         IllegalCharacter,

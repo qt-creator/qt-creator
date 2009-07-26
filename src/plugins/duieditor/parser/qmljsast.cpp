@@ -49,44 +49,6 @@ QT_BEGIN_NAMESPACE
 
 namespace QmlJS { namespace AST {
 
-int NumericLiteral::suffixLength[] = {
-    0, // noSuffix
-    2, // emSuffix
-    2, // exSuffix
-    2, // pxSuffix
-    2, // cmSuffix
-    2, // mmSuffix
-    2, // inSuffix
-    2, // ptSuffix
-    2, // pcSuffix
-    3, // degSuffix
-    3, // radSuffix
-    4, // gradSuffix
-    2, // msSuffix
-    1, // sSuffix
-    2, // hzSuffix
-    3  // khzSuffix
-};
-
-const char *const NumericLiteral::suffixSpell[] = {
-    "",
-    "em",
-    "ex",
-    "px",
-    "cm",
-    "mm",
-    "in",
-    "pt",
-    "pc",
-    "deg",
-    "rad",
-    "grad",
-    "ms",
-    "s",
-    "hz",
-    "khz"
-};
-
 ExpressionNode *Node::expressionCast()
 {
     return 0;
@@ -836,6 +798,31 @@ void UiProgram::accept0(Visitor *visitor)
             acceptChild(it->member, visitor);
     }
 
+    visitor->endVisit(this);
+}
+
+void UiSignature::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        acceptChild(formals, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void UiFormalList::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        for (UiFormalList *it = this; it; it = it->next) {
+            acceptChild(it->formal, visitor);
+        }
+    }
+    visitor->endVisit(this);
+}
+
+void UiFormal::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
     visitor->endVisit(this);
 }
 
