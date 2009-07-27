@@ -316,13 +316,13 @@ void ProjectWindow::handleItem(QTreeWidgetItem *item, int column)
 
     const QString path = item->data(2, Qt::UserRole).toString();
     Project *project = findProject(path);
-    if (project && project->isApplication()) {
-        if (!(item->checkState(1) == Qt::Checked)) { // is now unchecked
-            if (m_session->startupProject() == project) {
-                item->setCheckState(1, Qt::Checked); // uncheck not supported
-            }
-        } else { // is now checked
-            m_session->setStartupProject(project);
-        }
-    }
+     if (!(item->checkState(1) == Qt::Checked)) { // is now unchecked
+         if (m_session->startupProject() == project) {
+             item->setCheckState(1, Qt::Checked); // uncheck not supported
+         }
+     } else if (project && project->isApplication()) { // is now checked
+         m_session->setStartupProject(project);
+     } else {
+         item->setCheckState(1, Qt::Unchecked); // check not supported
+     }
 }
