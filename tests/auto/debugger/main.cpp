@@ -3,6 +3,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QFileInfo>
+#include <QtCore/QMap>
 #include <QtCore/QMetaMethod>
 #include <QtCore/QModelIndex>
 #if QT_VERSION >= 0x040500
@@ -152,7 +153,9 @@ private slots:
     void dumpQList_QString();
     void dumpQList_QString3();
     void dumpQList_Int3();
+    void dumpQMapNode();
     void dumpQObject();
+    void dumpQObjectChildList();
     void dumpQObjectMethodList();
     void dumpQObjectPropertyList();
     void dumpQObjectSignal();
@@ -188,6 +191,8 @@ private:
     void dumpQFileHelper(const QString &name, bool exists);
     void dumpQImageHelper(QImage &img);
     void dumpQImageDataHelper(QImage &img);
+    template <typename K, typename V> void dumpQMapNodeHelper(QMap<K, V> &m);
+    void dumpQObjectChildListHelper(QObject &o);
     void dumpQObjectMethodListHelper(QObject &obj);
     void dumpQObjectPropertyListHelper(QObject &obj);
     void dumpQObjectSignalHelper(QObject &o, int sigNum);
@@ -916,6 +921,80 @@ void tst_Debugger::dumpQList_QString3()
         &s3list, NS"QList", true, "QString3");
 }
 
+// Helper functions for QMap* dumping.
+template <typename T> static const char *typeToString(const T &)
+{
+    return "<unknown type>";
+}
+template <typename T> const QByteArray valToString(const T &)
+{
+    return "<unknown value>";
+}
+template <> const QByteArray valToString(const int &n)
+{
+    return QByteArray().append(QString::number(n));
+}
+template <> const QByteArray valToString(const QString &s)
+{
+    return QByteArray(utfToBase64(s)).append("',valueencoded='2");
+}
+template <> const char *typeToString(const int &)
+{
+    return "int";
+}
+template <> const char *typeToString(const QString &)
+{
+    return NS"QString";
+}
+template <typename T> static const char *typeToNumchild(const T &)
+{
+    return "1";
+}
+template <> const char *typeToNumchild(const int &)
+{
+    return "0";
+}
+template <> const char *typeToNumchild(const QString &)
+{
+    return "0";
+}
+
+template <typename K, typename V>
+        void tst_Debugger::dumpQMapNodeHelper(QMap<K, V> &map)
+{
+    for (typename QMap<K, V>::iterator it = map.begin(); it != map.end(); ++it) {
+        const K &key = it.key();
+        const V &val = it.value();
+        const char * const keyType = typeToString(key);
+        QByteArray expected = QByteArray("value='',numchild='2',childtype='").
+            append(keyType).append("',childnumchild='").append(typeToNumchild(key)).
+            append("',children=[{name='key',addr='").append(ptrToBa(&key)).
+            append("',value='").append(valToString(key)).append("'},{name='value',addr='").
+            append(ptrToBa(&val)).append("',value='").append(valToString(val)).
+            append("'}]");
+        QByteArray valType = QByteArray(typeToString(val));
+        QByteArray nodeType = keyType + QByteArray("@") + valType;
+        typedef QMapNode<K, V> node_t;
+        testDumper(expected, *reinterpret_cast<QMapData **>(&it), NS"QMapNode",
+                   true, nodeType, "", 0, 0, sizeof(node_t), offsetof(node_t, value));
+    };
+}
+
+void tst_Debugger::dumpQMapNode()
+{
+    // Case 1: Empty Map.
+    QMap<int, QString> map;
+    dumpQMapNodeHelper(map);
+
+    // Case 2: One element.
+    map[3] = "String 1";
+    dumpQMapNodeHelper(map);
+
+    // Case 3: Two elements.
+    map[10] = "String 2";
+    dumpQMapNodeHelper(map);
+}
+
 void tst_Debugger::dumpQObject()
 {
     QObject parent;
@@ -973,6 +1052,41 @@ void tst_Debugger::dumpQObject()
     testDumper("value='QQAgAHIAZQBuAGEAbQBlAGQAIABDAGgAaQBsAGQA',valueencoded='2',"
         "type='$T',displayedtype='QObject',numchild='4'",
         &child, NS"QObject", false);
+}
+
+void tst_Debugger::dumpQObjectChildListHelper(QObject &o)
+{
+    const QObjectList children = o.children();
+    const int size = children.size();
+    const QString sizeStr = QString::number(size);
+    QByteArray expected = QByteArray("numchild='").append(sizeStr).append("',value='<").
+        append(sizeStr).append(" items>',type='"NS"QObjectChildList',children=[");
+    for (int i = 0; i < size; ++i) {
+        const QObject *child = children.at(i);
+        expected.append("{addr='").append(ptrToBa(child)).append("',value='").
+            append(utfToBase64(child->objectName())).
+            append("',valueencoded='2',type='"NS"QObject',displayedtype='").
+            append(child->metaObject()->className()).append("',numchild='1'}");
+        if (i < size - 1)
+            expected.append(",");
+    }
+    expected.append("]");
+    testDumper(expected, &o, NS"QObjectChildList", true);
+}
+
+void tst_Debugger::dumpQObjectChildList()
+{
+    // Case 1: Object with no children.
+    QObject o;
+    dumpQObjectChildListHelper(o);
+
+    // Case 2: Object with one child.
+    QObject o2(&o);
+    dumpQObjectChildListHelper(o);
+
+    // Case 3: Object with two children.
+    QObject o3(&o);
+    dumpQObjectChildListHelper(o);
 }
 
 void tst_Debugger::dumpQObjectMethodListHelper(QObject &obj)
