@@ -217,7 +217,6 @@ private:
 
     Qt4ProjectType m_projectType;
     QHash<Qt4Variable, QStringList> m_varValues;
-    bool m_isQBuildProject;
     QTimer m_updateTimer;
 
     QMap<QString, QDateTime> m_uitimestamps;

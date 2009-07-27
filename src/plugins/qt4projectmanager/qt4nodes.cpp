@@ -542,8 +542,7 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
                                QObject *parent)
         : Qt4PriFileNode(project, this, filePath),
           // own stuff
-          m_projectType(InvalidProject),
-          m_isQBuildProject(false)
+          m_projectType(InvalidProject)
 {
     if (parent)
         setParent(parent);
@@ -612,12 +611,6 @@ void Qt4ProFileNode::update()
 
     if (debug)
         qDebug() << "Qt4ProFileNode - updating files for file " << m_projectFilePath;
-
-#ifdef QTEXTENDED_QBUILD_SUPPORT
-    if (m_projectFilePath.endsWith("qbuild.pro")) {
-        m_isQBuildProject = true;
-    }
-#endif
 
     Qt4ProjectType projectType = InvalidProject;
     switch (reader->templateType()) {
@@ -950,7 +943,6 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
         //    subid.file = realdir/realfile.pro"
 
         QString realDir;
-        QString realFile;
         const QString subDirKey = subDirVar + QLatin1String(".subdir");
         const QString subDirFileKey = subDirVar + QLatin1String(".file");
         if (reader->contains(subDirKey))
@@ -960,15 +952,13 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
         else
             realDir = subDirVar;
         QFileInfo info(realDir);
-        if (!info.isAbsolute())
+        if (!info.isAbsolute()) {
+            info.setFile(m_projectDir + "/" + realDir);
             realDir = m_projectDir + "/" + realDir;
+        }
 
-#ifdef QTEXTENDED_QBUILD_SUPPORT
-        // QBuild only uses project files named qbuild.pro, and subdirs are implied
-        if (m_isQBuildProject)
-            return qBuildSubDirsPaths(realDir);
-#endif
-        if (info.suffix().isEmpty() || info.isDir()) {
+        QString realFile;
+        if (info.isDir()) {
             realFile = QString("%1/%2.pro").arg(realDir, info.fileName());
             if (!QFile::exists(realFile)) {
                 // parse directory for pro files - if there is only one, use that
