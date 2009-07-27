@@ -309,6 +309,17 @@ void HelpViewer::home()
     setSource(homepage);
 }
 
+// TODO: remove this once we support multiple keysequences per command
+void HelpViewer::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Insert && e->modifiers() == Qt::CTRL) {
+        if (hasSelection())
+            copy();
+    }
+
+    QWebView::keyPressEvent(e);
+}
+
 void HelpViewer::wheelEvent(QWheelEvent *e)
 {
     if (e->modifiers() & Qt::ControlModifier) {

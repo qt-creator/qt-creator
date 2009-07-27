@@ -105,7 +105,9 @@ Q_SIGNALS:
     void sourceChanged(const QUrl &);
 
 protected:
-    virtual void wheelEvent(QWheelEvent *);
+    void keyPressEvent(QKeyEvent *e);
+
+    void wheelEvent(QWheelEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void mousePressEvent(QMouseEvent *event);
 
