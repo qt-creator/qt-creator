@@ -266,12 +266,17 @@ void BuildStepsPage::stepMoveUp(int pos)
 void BuildStepsPage::updateBuildStepButtonsState()
 {
     int pos = m_ui->buildSettingsList->currentIndex().row();
-
-    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
-    m_ui->buildStepRemoveToolButton->setEnabled(!steps.at(pos)->immutable());
-    bool enableUp = pos>0 && !(steps.at(pos)->immutable() && steps.at(pos-1)->immutable());
-    m_ui->buildStepUpToolButton->setEnabled(enableUp);
-    bool enableDown = pos < (m_ui->buildSettingsList->invisibleRootItem()->childCount() - 1) &&
-                      !(steps.at(pos)->immutable() && steps.at(pos+1)->immutable());
-    m_ui->buildStepDownToolButton->setEnabled(enableDown);
+    if (pos == -1) {
+        m_ui->buildStepRemoveToolButton->setEnabled(false);
+        m_ui->buildStepUpToolButton->setEnabled(false);
+        m_ui->buildStepDownToolButton->setEnabled(false);
+    } else {
+        const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+        m_ui->buildStepRemoveToolButton->setEnabled(!steps.at(pos)->immutable());
+        bool enableUp = pos>0 && !(steps.at(pos)->immutable() && steps.at(pos-1)->immutable());
+        m_ui->buildStepUpToolButton->setEnabled(enableUp);
+        bool enableDown = pos < (m_ui->buildSettingsList->invisibleRootItem()->childCount() - 1) &&
+                          !(steps.at(pos)->immutable() && steps.at(pos+1)->immutable());
+        m_ui->buildStepDownToolButton->setEnabled(enableDown);
+    }
 }
