@@ -536,7 +536,8 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     //endEditBlock();
 
     // We fake vi-style end-of-line behaviour
-    m_fakeEnd = (atEndOfLine() && m_mode == CommandMode);
+    m_fakeEnd = (atEndOfLine() && m_mode == CommandMode
+                 && m_visualMode != VisualBlockMode);
 
     if (m_fakeEnd)
         moveLeft();
@@ -774,18 +775,22 @@ void FakeVimHandler::Private::updateSelection()
         } else if (m_visualMode == VisualBlockMode) {
             QTextCursor tc = m_tc;
             tc.setPosition(anchorPos);
+            int anchorColumn = tc.columnNumber();
+            int cursorColumn = m_tc.columnNumber();
+            int anchorRow    = tc.blockNumber();
+            int cursorRow    = m_tc.blockNumber();
+            int startColumn  = qMin(anchorColumn, cursorColumn);
+            int endColumn    = qMax(anchorColumn, cursorColumn);
+            int diffRow      = cursorRow - anchorRow;
+            if (anchorRow > cursorRow) {
+                tc.setPosition(cursorPos);
+                diffRow = -diffRow;
+            }
             tc.movePosition(StartOfLine, MoveAnchor);
-            QTextBlock anchorBlock = tc.block();
-            QTextBlock cursorBlock = m_tc.block();
-            int anchorColumn = anchorPos - anchorBlock.position();
-            int cursorColumn = cursorPos - cursorBlock.position();
-            int startColumn = qMin(anchorColumn, cursorColumn);
-            int endColumn = qMax(anchorColumn, cursorColumn);
-            int endPos = cursorBlock.position();
-            while (tc.position() <= endPos) {
+            for (int i = 0; i <= diffRow; ++i) {
                 if (startColumn < tc.block().length() - 1) {
-                    int last = qMin(tc.block().length() - 1, endColumn);
-                    int len = last - startColumn + 1;
+                    int last = qMin(tc.block().length(), endColumn + 1);
+                    int len = last - startColumn;
                     sel.cursor = tc;
                     sel.cursor.movePosition(Right, MoveAnchor, startColumn);
                     sel.cursor.movePosition(Right, KeepAnchor, len);
