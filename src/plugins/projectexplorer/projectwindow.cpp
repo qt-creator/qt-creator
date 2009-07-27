@@ -310,12 +310,14 @@ void ProjectWindow::handleCurrentItemChanged(QTreeWidgetItem *current)
 
 void ProjectWindow::handleItem(QTreeWidgetItem *item, int column)
 {
-
     if (!item || column != 1) // startup project
         return;
 
     const QString path = item->data(2, Qt::UserRole).toString();
     Project *project = findProject(path);
+    // Project no longer exists
+    if (!project)
+        return;
      if (!(item->checkState(1) == Qt::Checked)) { // is now unchecked
          if (m_session->startupProject() == project) {
              item->setCheckState(1, Qt::Checked); // uncheck not supported
