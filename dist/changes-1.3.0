@@ -12,11 +12,12 @@ API, so if you have created your own custom plugins, they will need to be
 adapted accordingly.
 
 Debugging
+   * Detect debugger from project tool chain
    * CDB: Added more types to the dumpers (QSharedPointer, QVector, common
-   * QMap/QSet types), dereference reference parameters
+     QMap/QSet types), dereference reference and pointer parameters
    * CDB: Simplified display of STL types in the locals window
    * CDB: Fixed thread handling
-   * CDB: Added internal dumpers for string types for debugger crashes
+   * CDB: Added internal dumpers for string types for debuggee crashes
    * Improved QObject dumping, print out QRect/QSize, enumerations and flags
 
 General:
