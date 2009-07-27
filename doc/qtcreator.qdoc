@@ -54,6 +54,7 @@
        \o   \l{Writing a Simple Program with Qt Creator}
        \o   \l{Qt Creator and Version Control Systems}
        \o   \l{Navigating Quickly Around Your Code with Locator}
+       \o   \l{Session Management in Qt Creator}
        \o   \l{Debugging with Qt Creator}
        \o   \l{CMake Support in Qt Creator}
        \o   \l{Support for Generic Projects in Qt Creator}
@@ -161,24 +162,6 @@
     \gui{Build Issues}
 
     \image qtcreator-compile-pane.png
-
-
-    \section1 Session Management in Qt Creator
-
-    In Qt Creator, a session is a collection of loaded projects, opened files,
-    editor settings, and so on. When you run Qt Creator, you have a default
-    session. You can create a new session using the \gui{Session Manager...}
-    option, available in the \gui{File -> Session} menu.
-
-
-    \image qtcreator-session-manager.png
-
-
-    To switch between sessions, select \gui{File -> Session}. If you do not
-    create and select any session, Qt Creator will always use the default
-    session.
-
-    \image qtcreator-session-menu.png
 
 
     \section1 Qt Help Integration
@@ -990,6 +973,39 @@
     \note By default, if you press \key{Ctrl+K} and do not use a prefix to
     specify a filter, three filters will be enabled: \c{o}, \c{l}, and \c{a}.
 
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-navigation.html
+    \page creator-session.html
+    \nextpage creator-debugging.html
+
+    \title Session Management in Qt Creator
+
+    In Qt Creator, a session is a collection of:
+
+    \list
+        \o open projects together with their dependencies,
+        \o open editors,
+        \o breakpoints and watches, as well as
+        \o bookmarks
+    \endlist
+
+    When you run Qt Creator, you have a default session. You can create a new
+    session using the \gui{Session Manager...} option, available in the
+    \gui{File -> Session} menu.
+
+
+    \image qtcreator-session-manager.png
+
+
+    To switch between sessions, select \gui{File -> Session}. If you do not
+    create and select any session, Qt Creator will always use the default
+    session.
+
+    \image qtcreator-session-menu.png
 */
 
 
