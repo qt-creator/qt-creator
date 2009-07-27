@@ -201,16 +201,23 @@ void Qt4ProjectConfigWidget::updateImportLabel()
 {
     bool visible = false;
 
-    QString qtPath = QtVersionManager::findQtVersionFromMakefile(m_pro->buildDirectory(m_buildConfiguration));
-    QtVersion *version = m_pro->qtVersion(m_buildConfiguration);
-    if (!qtPath.isEmpty()) {
-        if (qtPath != (version ? version->path() : QString())) {
-            visible = true;
+    // we only show if we actually have a qmake and makestep
+    if (m_pro->qmakeStep() && m_pro->makeStep()) {
+        QString qtPath = QtVersionManager::findQtVersionFromMakefile(m_pro->buildDirectory(m_buildConfiguration));
+        QtVersion *version = m_pro->qtVersion(m_buildConfiguration);
+        // check that there's a makefile
+        if (!qtPath.isEmpty()) {
+            // and that the makefile path is different from the current version
+            if (qtPath != (version ? version->path() : QString())) {
+                // import enable
+                visible = true;
+            } else {
+                // check that the qmake flags, arguments match
+                visible = !m_pro->compareBuildConfigurationToImportFrom(m_buildConfiguration, m_pro->buildDirectory(m_buildConfiguration));
+            }
         } else {
-            visible = !m_pro->compareBuildConfigurationToImportFrom(m_buildConfiguration, m_pro->buildDirectory(m_buildConfiguration));
+            visible = false;
         }
-    } else {
-        visible = false;
     }
 
     m_ui->importLabel->setVisible(visible);
@@ -231,6 +238,8 @@ void Qt4ProjectConfigWidget::shadowBuildLineEditTextChanged()
 
 void Qt4ProjectConfigWidget::importLabelClicked()
 {
+    if (!m_pro->qmakeStep() || !m_pro->makeStep())
+        return;
     QString directory = m_pro->buildDirectory(m_buildConfiguration);
     if (!directory.isEmpty()) {
         QString qtPath = QtVersionManager::findQtVersionFromMakefile(directory);

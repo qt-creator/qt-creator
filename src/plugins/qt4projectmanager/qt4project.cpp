@@ -724,7 +724,7 @@ void Qt4Project::addDefaultBuild()
         // Migrate settings
         QMakeStep *qs = qmakeStep();
         foreach (const QString &buildConfiguration, buildConfigurations()) {
-            QVariant v = qs->value(buildConfiguration, "buildConfiguration");
+            QVariant v = qs ? qs->value(buildConfiguration, "buildConfiguration") : QVariant();
             if (v.isValid()) {
                 qs->setValue(buildConfiguration, "buildConfiguration", QVariant());
                 setValue(buildConfiguration, "buildConfiguration", v);
@@ -735,6 +735,7 @@ void Qt4Project::addDefaultBuild()
                     setValue(buildConfiguration, "buildConfiguration", int(QtVersion::BuildAll & QtVersion::DebugBuild));
             }
         }
+
 
         // Restoring configuration
         foreach(const QString &bc, buildConfigurations()) {
@@ -1137,9 +1138,11 @@ QString Qt4Project::extractSpecFromArgumentList(const QStringList &list)
         return QString();
 }
 
+// returns true if both are equal
 bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfiguration, const QString &workingDirectory)
 {
-    if (QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
+    QMakeStep *qs = qmakeStep();
+    if (QDir(workingDirectory).exists(QLatin1String("Makefile")) && qs) {
         QString qtPath = QtVersionManager::findQtVersionFromMakefile(workingDirectory);
         QtVersion *version = qtVersion(buildConfiguration);
         if (version->path() == qtPath) {
@@ -1151,7 +1154,7 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
                 // now compare arguments lists
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
-                QString actualSpec = extractSpecFromArgumentList(qmakeStep()->value(buildConfiguration, "qmakeArgs").toStringList());
+                QString actualSpec = extractSpecFromArgumentList(qs->value(buildConfiguration, "qmakeArgs").toStringList());
                 if (actualSpec.isEmpty())
                     actualSpec = version->mkspec();
                 QString parsedSpec = extractSpecFromArgumentList(result.second);
@@ -1176,7 +1179,7 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
                 if (QFileInfo(parsedSpec).isRelative())
                     parsedSpec = QDir::cleanPath(workingDirectory + "/" + parsedSpec);
 
-                QStringList actualArgs = removeSpecFromArgumentList(qmakeStep()->value(buildConfiguration, "qmakeArgs").toStringList());
+                QStringList actualArgs = removeSpecFromArgumentList(qs->value(buildConfiguration, "qmakeArgs").toStringList());
                 QStringList parsedArgs = removeSpecFromArgumentList(result.second);
 
 #ifdef Q_OS_WIN
@@ -1190,11 +1193,11 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
                 qDebug()<<"Parsed spec:"<<parsedSpec;
 
                 if (actualArgs == parsedArgs && actualSpec == parsedSpec)
-                    return false;
+                    return true;
             }
         }
     }
-    return true;
+    return false;
 }
 
 

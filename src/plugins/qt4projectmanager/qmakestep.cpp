@@ -116,7 +116,7 @@ bool QMakeStep::init(const QString &name)
     if (QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
         QString qtPath = QtVersionManager::findQtVersionFromMakefile(workingDirectory);
         if (qtVersion->path() == qtPath) {
-            needToRunQMake = m_pro->compareBuildConfigurationToImportFrom(name, workingDirectory);
+            needToRunQMake = !m_pro->compareBuildConfigurationToImportFrom(name, workingDirectory);
         }
     }
 
