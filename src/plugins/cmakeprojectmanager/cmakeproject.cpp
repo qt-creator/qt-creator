@@ -981,10 +981,14 @@ void CMakeCbpParser::parseUnit()
         if (isEndElement()) {
             if (!fileName.endsWith(".rule") && !m_processedUnits.contains(fileName)) {
                 // Now check whether we found a virtual element beneath
-                if (m_parsingCmakeUnit)
-                    m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, false));
-                else
+                if (m_parsingCmakeUnit) {
                     m_cmakeFileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ProjectFileType, false));
+                } else {
+                    if (fileName.endsWith(".qrc"))
+                        m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ResourceType, false));
+                    else
+                        m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, false));
+                }
                 m_processedUnits.insert(fileName);
             }
             return;
