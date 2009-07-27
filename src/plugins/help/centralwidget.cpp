@@ -153,7 +153,11 @@ CentralWidget *CentralWidget::instance()
 void CentralWidget::newTab()
 {
     HelpViewer* viewer = currentHelpViewer();
+#if !defined(QT_NO_WEBKIT)
+    if (viewer && viewer->hasLoadFinished())
+#else
     if (viewer)
+#endif
         setSourceInNewTab(viewer->source());
 }
 
@@ -500,26 +504,22 @@ void CentralWidget::activateTab(bool onlyHelpViewer)
 
 void CentralWidget::setTabTitle(const QUrl& url)
 {
-    int tab = lastTabPage;
-    HelpViewer* viewer = currentHelpViewer();
-
-#if !defined(QT_NO_WEBKIT)
-    if (!viewer || viewer->source() != url) {
-        QTabBar *tabBar = qFindChild<QTabBar*>(tabWidget);
-        for (tab = 0; tab < tabBar->count(); ++tab) {
-            viewer = qobject_cast<HelpViewer*>(tabWidget->widget(tab));
-            if (viewer && viewer->source() == url)
-                break;
-        }
-    }
-#else
     Q_UNUSED(url)
-#endif
-
-    if (viewer) {
-        tabWidget->setTabText(tab,
+#if !defined(QT_NO_WEBKIT)
+        QTabBar *tabBar = qFindChild<QTabBar*>(tabWidget);
+        for (int i = 0; i < tabBar->count(); ++i) {
+            HelpViewer* view = qobject_cast<HelpViewer*>(tabWidget->widget(i));
+            if (view) {
+                tabWidget->setTabText(i,
+                    quoteTabTitle(view->documentTitle().trimmed()));
+            }
+        }
+#else
+    if (HelpViewer* viewer = currentHelpViewer()) {
+        tabWidget->setTabText(lastTabPage,
             quoteTabTitle(viewer->documentTitle().trimmed()));
     }
+#endif
 }
 
 void CentralWidget::currentPageChanged(int index)

@@ -235,6 +235,7 @@ HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *paren
     , helpEngine(engine)
     , parentWidget(parent)
     , multiTabsAllowed(true)
+    , loadFinished(false)
 {
     setPage(new HelpPage(parent, helpEngine, this));
     settings()->setAttribute(QWebSettings::PluginsEnabled, false);
@@ -262,11 +263,13 @@ HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *paren
     connect(page(), SIGNAL(linkHovered(QString, QString, QString)), this,
         SIGNAL(highlighted(QString)));
     connect(this, SIGNAL(urlChanged(QUrl)), this, SIGNAL(sourceChanged(QUrl)));
+    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(setLoadFinished(bool)));
     setAcceptDrops(false);
 }
 
 void HelpViewer::setSource(const QUrl &url)
 {
+    loadFinished = false;
     if (!homeUrl.isValid())
         homeUrl = url;
     load(url);
@@ -354,6 +357,12 @@ void HelpViewer::mousePressEvent(QMouseEvent *event)
         currentPage->m_keyboardModifiers = event->modifiers();
     }
     QWebView::mousePressEvent(event);
+}
+
+void HelpViewer::setLoadFinished(bool ok)
+{
+    loadFinished = ok;
+    emit sourceChanged(url());
 }
 
 #else  // !defined(QT_NO_WEBKIT)
