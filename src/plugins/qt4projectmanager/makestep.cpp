@@ -149,7 +149,7 @@ QString MakeStep::displayName()
 
 bool MakeStep::immutable() const
 {
-    return true;
+    return false;
 }
 
 ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()

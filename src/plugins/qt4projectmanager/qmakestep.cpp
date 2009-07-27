@@ -175,7 +175,7 @@ ProjectExplorer::BuildStepConfigWidget *QMakeStep::createConfigWidget()
 
 bool QMakeStep::immutable() const
 {
-    return true;
+    return false;
 }
 
 
