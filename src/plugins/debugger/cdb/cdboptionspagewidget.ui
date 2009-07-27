@@ -38,7 +38,7 @@
         <item row="0" column="0" colspan="2">
          <widget class="QLabel" name="noteLabel">
           <property name="text">
-           <string extracomment="Placeholder" notr="true">Note: bla, blah</string>
+           <string notr="true" extracomment="Placeholder">Note: bla, blah</string>
           </property>
          </widget>
         </item>
@@ -75,6 +75,22 @@
       </item>
       <item row="1" column="1">
        <widget class="Core::Utils::PathListEditor" name="sourcePathListEditor" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="variousOptionsGroupBox">
+     <property name="title">
+      <string>Other options</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_3">
+      <item row="0" column="0" colspan="2">
+       <widget class="QCheckBox" name="verboseSymbolLoadingCheckBox">
+        <property name="text">
+         <string>Verbose Symbol Loading</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

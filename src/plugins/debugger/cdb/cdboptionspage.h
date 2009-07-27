@@ -86,6 +86,7 @@ public:
 
 signals:
     void debuggerPathsChanged();
+    void optionsChanged();
 
 private:
     const QSharedPointer<CdbOptions> m_options;

@@ -49,7 +49,9 @@ public:
     void toSettings(QSettings *s) const;
 
     // A set of flags for comparison function.
-    enum ChangeFlags { InitializationOptionsChanged = 0x1, DebuggerPathsChanged = 0x2 };
+    enum ChangeFlags { InitializationOptionsChanged = 0x1,
+                       DebuggerPathsChanged = 0x2,
+                       SymbolOptionsChanged = 0x4 };
     unsigned compare(const CdbOptions &s) const;
 
     // Locate the debugging tools
@@ -59,6 +61,7 @@ public:
     QString path;
     QStringList symbolPaths;
     QStringList sourcePaths;
+    bool verboseSymbolLoading;
 };
 
 inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)

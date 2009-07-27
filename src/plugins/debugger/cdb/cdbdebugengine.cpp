@@ -307,6 +307,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent,
 
 bool CdbDebugEnginePrivate::init(QString *errorMessage)
 {
+    enum {  bufLen = 10240 };
     // Load the DLL
     DebuggerEngineLibrary lib;
     if (!lib.init(m_options->path, errorMessage))
@@ -342,6 +343,14 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
         *errorMessage = QString::fromLatin1("Creation of IDebugSymbols3 failed: %1").arg(msgDebugEngineComResult(hr));
         return false;
     }
+
+    WCHAR buf[bufLen];
+    hr = m_cif.debugSymbols->GetImagePathWide(buf, bufLen, 0);
+    if (FAILED(hr)) {
+        *errorMessage = msgComFailed("GetImagePathWide", hr);
+        return false;
+    }
+    m_baseImagePath = QString::fromUtf16(buf);
 
     hr = lib.debugCreate( __uuidof(IDebugRegisters2), reinterpret_cast<void**>(&m_cif.debugRegisters));
     if (FAILED(hr)) {
@@ -619,16 +628,22 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
 
     const QSharedPointer<DebuggerStartParameters> sp = m_d->m_debuggerManager->startParameters();
     const QString filename(sp->executable);
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO <<filename;
-
+    // Set image path
     const QFileInfo fi(filename);
-    m_d->m_cif.debugSymbols->AppendImagePathWide(reinterpret_cast<PCWSTR>(QDir::toNativeSeparators(fi.absolutePath()).utf16()));
-    //m_cif.debugSymbols->SetSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_DEBUG | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS);
-    m_d->m_cif.debugSymbols->SetSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS);
-    //m_cif.debugSymbols->AddSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_DEBUG | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS | SYMOPT_NO_IMAGE_SEARCH);
+    QString imagePath = QDir::toNativeSeparators(fi.absolutePath());
+    if (!m_d->m_baseImagePath.isEmpty()) {
+        imagePath += QLatin1Char(';');
+        imagePath += m_d->m_baseImagePath;
+    }
+    m_d->m_cif.debugSymbols->SetImagePathWide(reinterpret_cast<PCWSTR>(imagePath.utf16()));
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO <<'\n' << filename << imagePath;
 
-    // TODO console
+    ULONG symbolOptions = SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS;
+    if (m_d->m_options->verboseSymbolLoading)
+        symbolOptions |= SYMOPT_DEBUG;
+    m_d->m_cif.debugSymbols->SetSymbolOptions(symbolOptions);
+
     const QString cmd = Core::Utils::AbstractProcess::createWinCommandline(filename, sp->processArgs);
     if (debugCDB)
         qDebug() << "Starting " << cmd;

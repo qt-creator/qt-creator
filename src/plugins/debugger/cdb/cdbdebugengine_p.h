@@ -157,6 +157,7 @@ struct CdbDebugEnginePrivate
     CdbDebugEventCallback   m_debugEventCallBack;
     CdbDebugOutput          m_debugOutputCallBack;    
     QSharedPointer<CdbDumperHelper> m_dumper;
+    QString                 m_baseImagePath;
 
     CdbDebugEngine* m_engine;
     DebuggerManager *m_debuggerManager;

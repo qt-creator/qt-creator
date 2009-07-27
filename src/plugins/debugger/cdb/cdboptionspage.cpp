@@ -84,6 +84,8 @@ void CdbOptionsPageWidget::setOptions(CdbOptions &o)
     m_ui.cdbPathGroupBox->setChecked(o.enabled);
     m_ui.symbolPathListEditor->setPathList(o.symbolPaths);
     m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
+    m_ui.verboseSymbolLoadingCheckBox->setChecked(o.verboseSymbolLoading);
+
 }
 
 CdbOptions CdbOptionsPageWidget::options() const
@@ -93,6 +95,7 @@ CdbOptions CdbOptionsPageWidget::options() const
     rc.enabled = m_ui.cdbPathGroupBox->isChecked();
     rc.symbolPaths = m_ui.symbolPathListEditor->pathList();
     rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
+    rc.verboseSymbolLoading = m_ui.verboseSymbolLoadingCheckBox->isChecked();
     return rc;
 }
 
@@ -167,11 +170,17 @@ void CdbOptionsPage::apply()
     if (!m_widget)
         return;
     const CdbOptions newOptions = m_widget->options();
-    if (const unsigned changedMask = m_options->compare(newOptions)) {
+    if (unsigned changedMask = m_options->compare(newOptions)) {
         *m_options = newOptions;
         m_options->toSettings(Core::ICore::instance()->settings());
-        if (changedMask & CdbOptions::DebuggerPathsChanged)
+        // Paths changed?
+        if (changedMask & CdbOptions::DebuggerPathsChanged) {
             emit debuggerPathsChanged();
+            changedMask &= ~CdbOptions::DebuggerPathsChanged;
+        }
+        // Remaining options?
+        if (changedMask)
+            emit optionsChanged();
     }
 }
 
