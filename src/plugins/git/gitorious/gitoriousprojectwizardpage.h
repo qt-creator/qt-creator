@@ -41,7 +41,7 @@ namespace Gitorious {
 namespace Internal {
 
 class GitoriousHostWizardPage;
-class GitoriousProject;
+struct GitoriousProject;
 class GitoriousProjectWidget;
 
 namespace Ui {
