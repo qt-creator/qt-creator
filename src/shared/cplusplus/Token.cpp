@@ -114,7 +114,7 @@ const char *Token::name(int kind)
 
 const char *Token::spell() const
 {
-    switch (kind) {
+    switch (f.kind) {
     case T_IDENTIFIER:
         return identifier->chars();
 
@@ -128,7 +128,7 @@ const char *Token::spell() const
         return literal->chars();
 
     default:
-        return token_names[kind];
+        return token_names[f.kind];
     } // switch
 }
 

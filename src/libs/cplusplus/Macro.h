@@ -93,22 +93,22 @@ public:
     { _line = line; }
 
     bool isHidden() const
-    { return _hidden; }
+    { return f._hidden; }
 
     void setHidden(bool isHidden)
-    { _hidden = isHidden; }
+    { f._hidden = isHidden; }
 
     bool isFunctionLike() const
-    { return _functionLike; }
+    { return f._functionLike; }
 
     void setFunctionLike(bool isFunctionLike)
-    { _functionLike = isFunctionLike; }
+    { f._functionLike = isFunctionLike; }
 
     bool isVariadic() const
-    { return _variadic; }
+    { return f._variadic; }
 
     void setVariadic(bool isVariadic)
-    { _variadic = isVariadic; }
+    { f._variadic = isVariadic; }
 
     QString toString() const;
 
@@ -117,6 +117,13 @@ public:
     unsigned _hashcode;
 
 private:
+    struct Flags
+    {
+        unsigned _hidden: 1;
+        unsigned _functionLike: 1;
+        unsigned _variadic: 1;
+    };
+
     QByteArray _name;
     QByteArray _definition;
     QVector<QByteArray> _formals;
@@ -126,13 +133,7 @@ private:
     union
     {
         unsigned _state;
-
-        struct
-        {
-            unsigned _hidden: 1;
-            unsigned _functionLike: 1;
-            unsigned _variadic: 1;
-        };
+        Flags f;
     };
 };
 

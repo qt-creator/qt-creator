@@ -121,30 +121,31 @@ public:
 
 private:
     Type *_type;
+    struct Flags {
+        // cv qualifiers
+        unsigned _isConst: 1;
+        unsigned _isVolatile: 1;
+
+        // sign
+        unsigned _isSigned: 1;
+        unsigned _isUnsigned: 1;
+
+        // storage class specifiers
+        unsigned _isFriend: 1;
+        unsigned _isRegister: 1;
+        unsigned _isStatic: 1;
+        unsigned _isExtern: 1;
+        unsigned _isMutable: 1;
+        unsigned _isTypedef: 1;
+
+        // function specifiers
+        unsigned _isInline: 1;
+        unsigned _isVirtual: 1;
+        unsigned _isExplicit: 1;
+    };
     union {
         unsigned _flags;
-        struct {
-            // cv qualifiers
-            unsigned _isConst: 1;
-            unsigned _isVolatile: 1;
-
-            // sign
-            unsigned _isSigned: 1;
-            unsigned _isUnsigned: 1;
-
-            // storage class specifiers
-            unsigned _isFriend: 1;
-            unsigned _isRegister: 1;
-            unsigned _isStatic: 1;
-            unsigned _isExtern: 1;
-            unsigned _isMutable: 1;
-            unsigned _isTypedef: 1;
-
-            // function specifiers
-            unsigned _isInline: 1;
-            unsigned _isVirtual: 1;
-            unsigned _isExplicit: 1;
-        };
+        Flags f;
     };
 };
 

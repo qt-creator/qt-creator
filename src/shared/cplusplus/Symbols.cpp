@@ -152,19 +152,19 @@ Function::~Function()
 }
 
 bool Function::isNormal() const
-{ return _methodKey == NormalMethod; }
+{ return f._methodKey == NormalMethod; }
 
 bool Function::isSignal() const
-{ return _methodKey == SignalMethod; }
+{ return f._methodKey == SignalMethod; }
 
 bool Function::isSlot() const
-{ return _methodKey == SlotMethod; }
+{ return f._methodKey == SlotMethod; }
 
 int Function::methodKey() const
-{ return _methodKey; }
+{ return f._methodKey; }
 
 void Function::setMethodKey(int key)
-{ _methodKey = key; }
+{ f._methodKey = key; }
 
 unsigned Function::templateParameterCount() const
 {
@@ -249,34 +249,34 @@ bool Function::hasArguments() const
 }
 
 bool Function::isVariadic() const
-{ return _isVariadic; }
+{ return f._isVariadic; }
 
 void Function::setVariadic(bool isVariadic)
-{ _isVariadic = isVariadic; }
+{ f._isVariadic = isVariadic; }
 
 bool Function::isConst() const
-{ return _isConst; }
+{ return f._isConst; }
 
 void Function::setConst(bool isConst)
-{ _isConst = isConst; }
+{ f._isConst = isConst; }
 
 bool Function::isVolatile() const
-{ return _isVolatile; }
+{ return f._isVolatile; }
 
 void Function::setVolatile(bool isVolatile)
-{ _isVolatile = isVolatile; }
+{ f._isVolatile = isVolatile; }
 
 bool Function::isPureVirtual() const
-{ return _isPureVirtual; }
+{ return f._isPureVirtual; }
 
 void Function::setPureVirtual(bool isPureVirtual)
-{ _isPureVirtual = isPureVirtual; }
+{ f._isPureVirtual = isPureVirtual; }
 
 bool Function::isAmbiguous() const
-{ return _isAmbiguous; }
+{ return f._isAmbiguous; }
 
 void Function::setAmbiguous(bool isAmbiguous)
-{ _isAmbiguous = isAmbiguous; }
+{ f._isAmbiguous = isAmbiguous; }
 
 void Function::visitSymbol0(SymbolVisitor *visitor)
 {

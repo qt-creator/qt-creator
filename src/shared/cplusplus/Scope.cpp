@@ -55,6 +55,8 @@
 #include <cstring>
 #include <iostream>
 
+using namespace std;
+
 CPLUSPLUS_BEGIN_NAMESPACE
 
 Scope::Scope(ScopedSymbol *owner)

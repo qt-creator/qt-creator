@@ -129,6 +129,15 @@ private:
     void pushLineStartOffset();
 
 private:
+    struct Flags {
+        unsigned _isIncremental: 1;
+        unsigned _scanCommentTokens: 1;
+        unsigned _scanKeywords: 1;
+        unsigned _scanAngleStringLiteralTokens: 1;
+        unsigned _qtMocRunEnabled: 1;
+        unsigned _objCEnabled: 1;
+    };
+
     TranslationUnit *_translationUnit;
     const char *_firstChar;
     const char *_currentChar;
@@ -138,14 +147,7 @@ private:
     int _state;
     union {
         unsigned _flags;
-        struct {
-            unsigned _isIncremental: 1;
-            unsigned _scanCommentTokens: 1;
-            unsigned _scanKeywords: 1;
-            unsigned _scanAngleStringLiteralTokens: 1;
-            unsigned _qtMocRunEnabled: 1;
-            unsigned _objCEnabled: 1;
-        };
+        Flags f;
     };
     unsigned _currentLine;
 };

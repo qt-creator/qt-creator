@@ -80,10 +80,10 @@ public:
            _Literal **lastLiteral = _literals + _literalCount + 1;
            for (_Literal **it = _literals; it != lastLiteral; ++it)
               delete *it;
-           free(_literals);
+           std::free(_literals);
        }
        if (_buckets)
-           free(_buckets);
+           std::free(_buckets);
     }
 
     bool empty() const
@@ -107,7 +107,7 @@ public:
            unsigned h = _Literal::hashCode(chars, size);
            _Literal *literal = _buckets[h % _allocatedBuckets];
            for (; literal; literal = static_cast<_Literal *>(literal->_next)) {
-              if (literal->size() == size && ! strncmp(literal->chars(), chars, size))
+               if (literal->size() == size && ! std::strncmp(literal->chars(), chars, size))
                   return literal;
            }
        }
@@ -120,7 +120,7 @@ public:
            if (! _allocatedLiterals)
               _allocatedLiterals = 256;
 
-           _literals = (_Literal **) realloc(_literals, sizeof(_Literal *) * _allocatedLiterals);
+           _literals = (_Literal **) std::realloc(_literals, sizeof(_Literal *) * _allocatedLiterals);
        }
 
        _literals[_literalCount] = literal;
@@ -140,14 +140,14 @@ protected:
     void rehash()
     {
        if (_buckets)
-           free(_buckets);
+           std::free(_buckets);
 
        _allocatedBuckets <<= 1;
 
        if (! _allocatedBuckets)
            _allocatedBuckets = 256;
 
-       _buckets = (_Literal **) calloc(_allocatedBuckets, sizeof(_Literal *));
+       _buckets = (_Literal **) std::calloc(_allocatedBuckets, sizeof(_Literal *));
 
        _Literal **lastLiteral = _literals + (_literalCount + 1);
 

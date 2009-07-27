@@ -115,14 +115,14 @@ public:
     bool isHex() const;
 
 private:
+    struct Flags {
+        unsigned _type      : 8;
+        unsigned _isHex     : 1;
+        unsigned _isUnsigned: 1;
+    };
     union {
         unsigned _flags;
-
-        struct {
-            unsigned _type      : 8;
-            unsigned _isHex     : 1;
-            unsigned _isUnsigned: 1;
-        };
+        Flags f;
     };
 };
 

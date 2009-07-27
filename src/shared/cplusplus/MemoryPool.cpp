@@ -53,6 +53,8 @@
 
 CPLUSPLUS_BEGIN_NAMESPACE
 
+using namespace std;
+
 MemoryPool::MemoryPool()
     : _initializeAllocatedMemory(true),
       _blocks(0),

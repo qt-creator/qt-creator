@@ -84,82 +84,82 @@ FullySpecifiedType FullySpecifiedType::qualifiedType() const
 }
 
 bool FullySpecifiedType::isConst() const
-{ return _isConst; }
+{ return f._isConst; }
 
 void FullySpecifiedType::setConst(bool isConst)
-{ _isConst = isConst; }
+{ f._isConst = isConst; }
 
 bool FullySpecifiedType::isVolatile() const
-{ return _isVolatile; }
+{ return f._isVolatile; }
 
 void FullySpecifiedType::setVolatile(bool isVolatile)
-{ _isVolatile = isVolatile; }
+{ f._isVolatile = isVolatile; }
 
 bool FullySpecifiedType::isSigned() const
-{ return _isSigned; }
+{ return f._isSigned; }
 
 void FullySpecifiedType::setSigned(bool isSigned)
-{ _isSigned = isSigned; }
+{ f._isSigned = isSigned; }
 
 bool FullySpecifiedType::isUnsigned() const
-{ return _isUnsigned; }
+{ return f._isUnsigned; }
 
 void FullySpecifiedType::setUnsigned(bool isUnsigned)
-{ _isUnsigned = isUnsigned; }
+{ f._isUnsigned = isUnsigned; }
 
 bool FullySpecifiedType::isFriend() const
-{ return _isFriend; }
+{ return f._isFriend; }
 
 void FullySpecifiedType::setFriend(bool isFriend)
-{ _isFriend = isFriend; }
+{ f._isFriend = isFriend; }
 
 bool FullySpecifiedType::isRegister() const
-{ return _isRegister; }
+{ return f._isRegister; }
 
 void FullySpecifiedType::setRegister(bool isRegister)
-{ _isRegister = isRegister; }
+{ f._isRegister = isRegister; }
 
 bool FullySpecifiedType::isStatic() const
-{ return _isStatic; }
+{ return f._isStatic; }
 
 void FullySpecifiedType::setStatic(bool isStatic)
-{ _isStatic = isStatic; }
+{ f._isStatic = isStatic; }
 
 bool FullySpecifiedType::isExtern() const
-{ return _isExtern; }
+{ return f._isExtern; }
 
 void FullySpecifiedType::setExtern(bool isExtern)
-{ _isExtern = isExtern; }
+{ f._isExtern = isExtern; }
 
 bool FullySpecifiedType::isMutable() const
-{ return _isMutable; }
+{ return f._isMutable; }
 
 void FullySpecifiedType::setMutable(bool isMutable)
-{ _isMutable = isMutable; }
+{ f._isMutable = isMutable; }
 
 bool FullySpecifiedType::isTypedef() const
-{ return _isTypedef; }
+{ return f._isTypedef; }
 
 void FullySpecifiedType::setTypedef(bool isTypedef)
-{ _isTypedef = isTypedef; }
+{ f._isTypedef = isTypedef; }
 
 bool FullySpecifiedType::isInline() const
-{ return _isInline; }
+{ return f._isInline; }
 
 void FullySpecifiedType::setInline(bool isInline)
-{ _isInline = isInline; }
+{ f._isInline = isInline; }
 
 bool FullySpecifiedType::isVirtual() const
-{ return _isVirtual; }
+{ return f._isVirtual; }
 
 void FullySpecifiedType::setVirtual(bool isVirtual)
-{ _isVirtual = isVirtual; }
+{ f._isVirtual = isVirtual; }
 
 bool FullySpecifiedType::isExplicit() const
-{ return _isExplicit; }
+{ return f._isExplicit; }
 
 void FullySpecifiedType::setExplicit(bool isExplicit)
-{ _isExplicit = isExplicit; }
+{ f._isExplicit = isExplicit; }
 
 bool FullySpecifiedType::isEqualTo(const FullySpecifiedType &other) const
 {

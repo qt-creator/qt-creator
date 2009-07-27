@@ -50,7 +50,7 @@
 #define CPLUSPLUS_DIAGNOSTICCLIENT_H
 
 #include "CPlusPlusForwardDeclarations.h"
-#include <cstdarg>
+#include "stdarg.h"
 
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE

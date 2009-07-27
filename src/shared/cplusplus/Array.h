@@ -77,7 +77,7 @@ public:
             for (int index = 0; index <= _segmentCount; ++index) {
                 delete[] (_segments[index] + (index << SEGMENT_SHIFT));
             }
-            free(_segments);
+            std::free(_segments);
         }
     }
 
@@ -101,7 +101,7 @@ public:
         if (++_count == _allocatedElements) {
             if (++_segmentCount == _allocatedSegments) {
                 _allocatedSegments += 4;
-                _segments = (_Tp **) realloc(_segments, _allocatedSegments * sizeof(_Tp *));
+                _segments = (_Tp **) std::realloc(_segments, _allocatedSegments * sizeof(_Tp *));
             }
 
             _Tp *segment = new _Tp[SEGMENT_SIZE];

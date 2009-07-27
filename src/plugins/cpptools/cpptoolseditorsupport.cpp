@@ -211,7 +211,7 @@ protected:
         unsigned line, col;
         getTokenStartPosition(index, &line, &col);
         QTextCursor tc = _textCursor;
-        tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col + tk.length - 1);
+        tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col + tk.f.length - 1);
         return tc;
     }
 
@@ -284,7 +284,7 @@ QTextCursor QuickFixOperation::cursor(unsigned index) const
     getTokenStartPosition(index, &line, &col);
     QTextCursor tc = _textCursor;
     tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col - 1);
-    tc.setPosition(tc.position() + tk.length, QTextCursor::KeepAnchor);
+    tc.setPosition(tc.position() + tk.f.length, QTextCursor::KeepAnchor);
     return tc;
 }
 
@@ -304,7 +304,7 @@ QTextCursor QuickFixOperation::moveAtEndOfToken(unsigned index) const
     unsigned line, col;
     getTokenStartPosition(index, &line, &col);
     QTextCursor tc = _textCursor;
-    tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col + tk.length - 1);
+    tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col + tk.f.length - 1);
     return tc;
 }
 

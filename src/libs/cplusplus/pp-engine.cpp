@@ -64,7 +64,7 @@ struct Value
 {
     enum Kind {
         Kind_Long,
-        Kind_ULong,
+        Kind_ULong
     };
 
     Kind kind;
@@ -231,7 +231,7 @@ protected:
     QByteArray tokenSpell() const
     {
         const QByteArray text = QByteArray::fromRawData(source.constData() + (*_lex)->offset,
-                                                        (*_lex)->length);
+                                                        (*_lex)->f.length);
         return text;
     }
 
@@ -677,7 +677,7 @@ void Preprocessor::processSkippingBlocks(bool skippingBlocks,
         unsigned offset = start->offset;
 
         if (_skipping[iflevel]) {
-            if (_dot->newline)
+            if (_dot->f.newline)
                 ++offset;
 
             client->startSkippingBlocks(offset);
@@ -751,7 +751,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
 
     while (true) {
 
-        if (_dot->joined)
+        if (_dot->f.joined)
             out("\\");
 
         processNewline();
@@ -759,13 +759,13 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
         if (_dot->is(T_EOF_SYMBOL)) {
             break;
 
-        } else if (_dot->is(T_POUND) && (! _dot->joined && _dot->newline)) {
+        } else if (_dot->is(T_POUND) && (! _dot->f.joined && _dot->f.newline)) {
             // handle the preprocessor directive
 
             TokenIterator start = _dot;
             do {
                 ++_dot;
-            } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->joined || ! _dot->newline));
+            } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->f.joined || ! _dot->f.newline));
 
             const bool skippingBlocks = _skipping[iflevel];
 
@@ -777,11 +777,11 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
 
             do {
                 ++_dot;
-            } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->joined || ! _dot->newline));
+            } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->f.joined || ! _dot->f.newline));
 
         } else {
 
-            if (_dot->whitespace) {
+            if (_dot->f.whitespace) {
                 unsigned endOfPreviousToken = 0;
 
                 if (_dot != _tokens.constBegin())
@@ -1027,14 +1027,14 @@ const char *Preprocessor::endOfToken(const Token &token) const
 QByteArray Preprocessor::tokenSpell(const Token &token) const
 {
     const QByteArray text = QByteArray::fromRawData(_source.constBegin() + token.offset,
-                                                     token.length);
+                                                     token.f.length);
     return text;
 }
 
 QByteArray Preprocessor::tokenText(const Token &token) const
 {
     const QByteArray text(_source.constBegin() + token.offset,
-                          token.length);
+                          token.f.length);
     return text;
 }
 
@@ -1179,7 +1179,7 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
     macro.setName(tokenText(*tk));
     ++tk; // skip T_IDENTIFIER
 
-    if (tk->is(T_LPAREN) && ! tk->whitespace) {
+    if (tk->is(T_LPAREN) && ! tk->f.whitespace) {
         // a function-like macro definition
         macro.setFunctionLike(true);
 

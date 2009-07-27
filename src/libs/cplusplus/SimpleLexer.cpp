@@ -129,14 +129,14 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
             break;
 
         SimpleToken simpleTk;
-        simpleTk._kind = int(tk.kind);
+        simpleTk._kind = int(tk.f.kind);
         simpleTk._position = int(lex.tokenOffset());
         simpleTk._length = int(lex.tokenLength());
         simpleTk._text = text.midRef(simpleTk._position, simpleTk._length);
 
         lex.setScanAngleStringLiteralTokens(false);
 
-        if (tk.newline && tk.is(T_POUND))
+        if (tk.f.newline && tk.is(T_POUND))
             inPreproc = true;
         else if (inPreproc && tokens.size() == 1 && simpleTk.is(T_IDENTIFIER) &&
                  simpleTk.text() == QLatin1String("include"))

@@ -338,17 +338,17 @@ protected:
 private:
     Scope *_templateParameters;
     FullySpecifiedType _returnType;
+    struct Flags {
+        unsigned _isVariadic: 1;
+        unsigned _isPureVirtual: 1;
+        unsigned _isConst: 1;
+        unsigned _isVolatile: 1;
+        unsigned _isAmbiguous: 1;
+        unsigned _methodKey: 3;
+    };
     union {
         unsigned _flags;
-
-        struct {
-            unsigned _isVariadic: 1;
-            unsigned _isPureVirtual: 1;
-            unsigned _isConst: 1;
-            unsigned _isVolatile: 1;
-            unsigned _isAmbiguous: 1;
-            unsigned _methodKey: 3;
-        };
+        Flags f;
     };
     Scope *_arguments;
 };

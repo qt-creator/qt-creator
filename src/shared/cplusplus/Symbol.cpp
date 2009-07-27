@@ -219,7 +219,7 @@ void Symbol::setSourceLocation(unsigned sourceLocation)
 
         const Token &tk = unit->tokenAt(sourceLocation);
 
-        _isGenerated = tk.generated;
+        _isGenerated = tk.f.generated;
         _sourceOffset = tk.offset;
     }
 }

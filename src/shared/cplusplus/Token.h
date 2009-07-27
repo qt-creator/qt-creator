@@ -276,8 +276,8 @@ public:
     Token();
     ~Token();
 
-    inline bool is(unsigned k) const    { return kind == k; }
-    inline bool isNot(unsigned k) const { return kind != k; }
+    inline bool is(unsigned k) const    { return f.kind == k; }
+    inline bool isNot(unsigned k) const { return f.kind != k; }
     const char *spell() const;
     void reset();
 
@@ -285,39 +285,39 @@ public:
     { return offset; }
 
     inline unsigned end() const
-    { return offset + length; }
+    { return offset + f.length; }
 
     inline bool isLiteral() const
-    { return kind >= T_FIRST_LITERAL && kind <= T_LAST_LITERAL; }
+    { return f.kind >= T_FIRST_LITERAL && f.kind <= T_LAST_LITERAL; }
 
     inline bool isOperator() const
-    { return kind >= T_FIRST_OPERATOR && kind <= T_LAST_OPERATOR; }
+    { return f.kind >= T_FIRST_OPERATOR && f.kind <= T_LAST_OPERATOR; }
 
     inline bool isKeyword() const
-    { return kind >= T_FIRST_KEYWORD && kind < T_FIRST_QT_KEYWORD; }
+    { return f.kind >= T_FIRST_KEYWORD && f.kind < T_FIRST_QT_KEYWORD; }
 
     inline bool isComment() const
-    { return kind == T_COMMENT || kind == T_DOXY_COMMENT; }
+    { return f.kind == T_COMMENT || f.kind == T_DOXY_COMMENT; }
 
     inline bool isObjCAtKeyword() const
-    { return kind >= T_FIRST_OBJC_AT_KEYWORD && kind <= T_LAST_OBJC_AT_KEYWORD; }
+    { return f.kind >= T_FIRST_OBJC_AT_KEYWORD && f.kind <= T_LAST_OBJC_AT_KEYWORD; }
 
     static const char *name(int kind);
 
 public:
+    struct Flags {
+        unsigned kind       : 8;
+        unsigned newline    : 1;
+        unsigned whitespace : 1;
+        unsigned joined     : 1;
+        unsigned expanded   : 1;
+        unsigned generated  : 1;
+        unsigned pad        : 3;
+        unsigned length     : 16;
+    };
     union {
         unsigned flags;
-
-        struct {
-            unsigned kind       : 8;
-            unsigned newline    : 1;
-            unsigned whitespace : 1;
-            unsigned joined     : 1;
-            unsigned expanded   : 1;
-            unsigned generated  : 1;
-            unsigned pad        : 3;
-            unsigned length     : 16;
-        };
+        Flags f;
     };
 
     unsigned offset;

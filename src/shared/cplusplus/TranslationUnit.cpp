@@ -59,6 +59,8 @@
 #include <cstdarg>
 #include <algorithm>
 
+using namespace std;
+
 CPLUSPLUS_BEGIN_NAMESPACE
 
 TranslationUnit::TranslationUnit(Control *control, StringLiteral *fileId)
@@ -83,16 +85,16 @@ TranslationUnit::~TranslationUnit()
 }
 
 bool TranslationUnit::qtMocRunEnabled() const
-{ return _qtMocRunEnabled; }
+{ return f._qtMocRunEnabled; }
 
 void TranslationUnit::setQtMocRunEnabled(bool onoff)
-{ _qtMocRunEnabled = onoff; }
+{ f._qtMocRunEnabled = onoff; }
 
 bool TranslationUnit::objCEnabled() const
-{ return _objCEnabled; }
+{ return f._objCEnabled; }
 
 void TranslationUnit::setObjCEnabled(bool onoff)
-{ _objCEnabled = onoff; }
+{ f._objCEnabled = onoff; }
 
 Control *TranslationUnit::control() const
 { return _control; }
@@ -128,7 +130,7 @@ const Token &TranslationUnit::tokenAt(unsigned index) const
 { return _tokens->at(index); }
 
 int TranslationUnit::tokenKind(unsigned index) const
-{ return _tokens->at(index).kind; }
+{ return _tokens->at(index).f.kind; }
 
 const char *TranslationUnit::spell(unsigned index) const
 {
@@ -160,21 +162,21 @@ AST *TranslationUnit::ast() const
 { return _ast; }
 
 bool TranslationUnit::isTokenized() const
-{ return _tokenized; }
+{ return f._tokenized; }
 
 bool TranslationUnit::isParsed() const
-{ return _parsed; }
+{ return f._parsed; }
 
 void TranslationUnit::tokenize()
 {
     if (isTokenized())
         return;
 
-    _tokenized = true;
+    f._tokenized = true;
 
     Lexer lex(this);
-    lex.setQtMocRunEnabled(_qtMocRunEnabled);
-    lex.setObjCEnabled(_objCEnabled);
+    lex.setQtMocRunEnabled(f._qtMocRunEnabled);
+    lex.setObjCEnabled(f._objCEnabled);
 
     std::stack<unsigned> braces;
     _tokens->push_back(Token()); // the first token needs to be invalid!
@@ -195,23 +197,23 @@ void TranslationUnit::tokenize()
             unsigned offset = tk.offset;
             lex(&tk);
 
-            if (! tk.newline && tk.is(T_IDENTIFIER) && tk.identifier == genId) {
+            if (! tk.f.newline && tk.is(T_IDENTIFIER) && tk.identifier == genId) {
                 // it's a gen directive.
                 lex(&tk);
 
-                if (! tk.newline && tk.is(T_TRUE)) {
+                if (! tk.f.newline && tk.is(T_TRUE)) {
                     lex(&tk);
                     generated = true;
                 } else {
                     generated = false;
                 }
             } else {
-                if (! tk.newline && tk.is(T_IDENTIFIER) && tk.identifier == lineId)
+                if (! tk.f.newline && tk.is(T_IDENTIFIER) && tk.identifier == lineId)
                     lex(&tk);
-                if (! tk.newline && tk.is(T_NUMERIC_LITERAL)) {
+                if (! tk.f.newline && tk.is(T_NUMERIC_LITERAL)) {
                     unsigned line = (unsigned) strtoul(tk.spell(), 0, 0);
                     lex(&tk);
-                    if (! tk.newline && tk.is(T_STRING_LITERAL)) {
+                    if (! tk.f.newline && tk.is(T_STRING_LITERAL)) {
                         StringLiteral *fileName = control()->findOrInsertStringLiteral(tk.string->chars(),
                                                                                        tk.string->size());
                         pushPreprocessorLine(offset, line, fileName);
@@ -219,19 +221,19 @@ void TranslationUnit::tokenize()
                     }
                 }
             }
-            while (tk.isNot(T_EOF_SYMBOL) && ! tk.newline)
+            while (tk.isNot(T_EOF_SYMBOL) && ! tk.f.newline)
                 lex(&tk);
             goto _Lrecognize;
-        } else if (tk.kind == T_LBRACE) {
+        } else if (tk.f.kind == T_LBRACE) {
             braces.push(_tokens->size());
-        } else if (tk.kind == T_RBRACE && ! braces.empty()) {
+        } else if (tk.f.kind == T_RBRACE && ! braces.empty()) {
             const unsigned open_brace_index = braces.top();
             braces.pop();
             (*_tokens)[open_brace_index].close_brace = _tokens->size();
         }
-        tk.generated = generated;
+        tk.f.generated = generated;
         _tokens->push_back(tk);
-    } while (tk.kind);
+    } while (tk.f.kind);
 
     for (; ! braces.empty(); braces.pop()) {
         unsigned open_brace_index = braces.top();
@@ -240,10 +242,10 @@ void TranslationUnit::tokenize()
 }
 
 bool TranslationUnit::skipFunctionBody() const
-{ return _skipFunctionBody; }
+{ return f._skipFunctionBody; }
 
 void TranslationUnit::setSkipFunctionBody(bool skipFunctionBody)
-{ _skipFunctionBody = skipFunctionBody; }
+{ f._skipFunctionBody = skipFunctionBody; }
 
 bool TranslationUnit::parse(ParseMode mode)
 {
@@ -254,8 +256,8 @@ bool TranslationUnit::parse(ParseMode mode)
         tokenize();
 
     Parser parser(this);
-    parser.setQtMocRunEnabled(_qtMocRunEnabled);
-    parser.setObjCEnabled(_objCEnabled);
+    parser.setQtMocRunEnabled(f._qtMocRunEnabled);
+    parser.setObjCEnabled(f._objCEnabled);
 
     bool parsed = false;
 
@@ -375,14 +377,14 @@ void TranslationUnit::getPosition(unsigned tokenOffset,
 
 bool TranslationUnit::blockErrors(bool block)
 {
-    bool previous = _blockErrors;
-    _blockErrors = block;
+    bool previous = f._blockErrors;
+    f._blockErrors = block;
     return previous;
 }
 
 void TranslationUnit::warning(unsigned index, const char *format, ...)
 {
-    if (_blockErrors)
+    if (f._blockErrors)
         return;
 
     index = std::min(index, tokenCount() - 1);
@@ -413,7 +415,7 @@ void TranslationUnit::warning(unsigned index, const char *format, ...)
 
 void TranslationUnit::error(unsigned index, const char *format, ...)
 {
-    if (_blockErrors)
+    if (f._blockErrors)
         return;
 
     index = std::min(index, tokenCount() - 1);
@@ -444,7 +446,7 @@ void TranslationUnit::error(unsigned index, const char *format, ...)
 
 void TranslationUnit::fatal(unsigned index, const char *format, ...)
 {
-    if (_blockErrors)
+    if (f._blockErrors)
         return;
 
     index = std::min(index, tokenCount() - 1);

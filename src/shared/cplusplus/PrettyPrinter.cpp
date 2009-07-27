@@ -84,7 +84,7 @@ void PrettyPrinter::outToken(unsigned token)
     oss << ba.constData();
 
     // Print the token itself
-    QByteArray tt(_contents.constData() + t.begin(), t.length);
+    QByteArray tt(_contents.constData() + t.begin(), t.f.length);
     oss << tt.constData();
 
     QString stuff = QString::fromUtf8(oss.str().c_str());

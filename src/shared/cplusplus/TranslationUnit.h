@@ -53,7 +53,7 @@
 #include "ASTfwd.h"
 #include "Token.h"
 #include "Array.h"
-#include <cstdio>
+#include <stdio.h> // for FILE*
 #include <vector> // ### remove me
 
 CPLUSPLUS_BEGIN_HEADER
@@ -190,16 +190,17 @@ private:
     MemoryPool *_pool;
     AST *_ast;
     TranslationUnit *_previousTranslationUnit;
+    struct Flags {
+        unsigned _tokenized: 1;
+        unsigned _parsed: 1;
+        unsigned _blockErrors: 1;
+        unsigned _skipFunctionBody: 1;
+        unsigned _qtMocRunEnabled: 1;
+        unsigned _objCEnabled: 1;
+    };
     union {
         unsigned _flags;
-        struct {
-            unsigned _tokenized: 1;
-            unsigned _parsed: 1;
-            unsigned _blockErrors: 1;
-            unsigned _skipFunctionBody: 1;
-            unsigned _qtMocRunEnabled: 1;
-            unsigned _objCEnabled: 1;
-        };
+        Flags f;
     };
 };
 

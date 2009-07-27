@@ -51,6 +51,8 @@
 #include <algorithm>
 #include <iostream>
 
+using namespace std;
+
 CPLUSPLUS_BEGIN_NAMESPACE
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,20 +115,20 @@ enum {
     NumericLiteralIsDouble,
     NumericLiteralIsLongDouble,
     NumericLiteralIsLong,
-    NumericLiteralIsLongLong,
+    NumericLiteralIsLongLong
 };
 
 NumericLiteral::NumericLiteral(const char *chars, unsigned size)
     : Literal(chars, size), _flags(0)
 {
-    _type = NumericLiteralIsInt;
+    f._type = NumericLiteralIsInt;
 
     if (chars[0] == '\'') {
-        _type = NumericLiteralIsChar;
+        f._type = NumericLiteralIsChar;
     } else if (size > 1 && chars[0] == 'L' && chars[1] == '\'') {
-        _type = NumericLiteralIsWideChar;
+        f._type = NumericLiteralIsWideChar;
     } else if (size > 1 && chars[0] == '0' && (chars[1] == 'x' || chars[1] == 'X')) {
-        _isHex = true;
+        f._isHex = true;
     } else {
         const char *begin = chars;
         const char *end = begin + size;
@@ -149,23 +151,23 @@ NumericLiteral::NumericLiteral(const char *chars, unsigned size)
 
         for (const char *dot = it; it != begin - 1; --it) {
             if (*dot == '.')
-                _type = NumericLiteralIsDouble;
+                f._type = NumericLiteralIsDouble;
         }
 
         for (++it; it != end; ++it) {
             if (*it == 'l' || *it == 'L') {
-                if (_type == NumericLiteralIsDouble) {
-                    _type = NumericLiteralIsLongDouble;
+                if (f._type == NumericLiteralIsDouble) {
+                    f._type = NumericLiteralIsLongDouble;
                 } else if (it + 1 != end && (it[1] == 'l' || it[1] == 'L')) {
                     ++it;
-                    _type = NumericLiteralIsLongLong;
+                    f._type = NumericLiteralIsLongLong;
                 } else {
-                    _type = NumericLiteralIsLong;
+                    f._type = NumericLiteralIsLong;
                 }
             } else if (*it == 'f' || *it == 'F') {
-                _type = NumericLiteralIsFloat;
+                f._type = NumericLiteralIsFloat;
             } else if (*it == 'u' || *it == 'U') {
-                _isUnsigned = true;
+                f._isUnsigned = true;
             }
         }
     }
@@ -175,34 +177,34 @@ NumericLiteral::~NumericLiteral()
 { }
 
 bool NumericLiteral::isHex() const
-{ return _isHex; }
+{ return f._isHex; }
 
 bool NumericLiteral::isUnsigned() const
-{ return _isUnsigned; }
+{ return f._isUnsigned; }
 
 bool NumericLiteral::isChar() const
-{ return _type == NumericLiteralIsChar; }
+{ return f._type == NumericLiteralIsChar; }
 
 bool NumericLiteral::isWideChar() const
-{ return _type == NumericLiteralIsWideChar; }
+{ return f._type == NumericLiteralIsWideChar; }
 
 bool NumericLiteral::isInt() const
-{ return _type == NumericLiteralIsInt; }
+{ return f._type == NumericLiteralIsInt; }
 
 bool NumericLiteral::isFloat() const
-{ return _type == NumericLiteralIsFloat; }
+{ return f._type == NumericLiteralIsFloat; }
 
 bool NumericLiteral::isDouble() const
-{ return _type == NumericLiteralIsDouble; }
+{ return f._type == NumericLiteralIsDouble; }
 
 bool NumericLiteral::isLongDouble() const
-{ return _type == NumericLiteralIsLongDouble; }
+{ return f._type == NumericLiteralIsLongDouble; }
 
 bool NumericLiteral::isLong() const
-{ return _type == NumericLiteralIsLong; }
+{ return f._type == NumericLiteralIsLong; }
 
 bool NumericLiteral::isLongLong() const
-{ return _type == NumericLiteralIsLongLong; }
+{ return f._type == NumericLiteralIsLongLong; }
 
 ////////////////////////////////////////////////////////////////////////////////
 Identifier::Identifier(const char *chars, unsigned size)
