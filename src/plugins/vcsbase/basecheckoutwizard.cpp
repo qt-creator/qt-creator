@@ -109,6 +109,36 @@ QStringList BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
     return QStringList(projectFile);
 }
 
+static inline QString msgNoProjectFiles(const QDir &dir, const QStringList &patterns)
+{
+    return BaseCheckoutWizard::tr("Could not find any project files matching (%1) in the directory '%2'.").arg(patterns.join(QLatin1String(", ")), dir.absolutePath());
+}
+
+// Try to find the project files in a project directory with some smartness
+static QFileInfoList findProjectFiles(const QDir &projectDir, QString *errorMessage)
+{
+    // Hardcoded: Find *.pro/Cmakefiles
+    QStringList projectFilePatterns;
+    projectFilePatterns << QLatin1String("*.pro") << QLatin1String("CMakeLists.txt");
+    // Project directory
+    QFileInfoList projectFiles = projectDir.entryInfoList(projectFilePatterns, QDir::Files|QDir::NoDotAndDotDot|QDir::Readable);
+    if (!projectFiles.empty())
+        return projectFiles;
+    // Try a 'src' directory
+    QFileInfoList srcDirs = projectDir.entryInfoList(QStringList(QLatin1String("src")), QDir::Dirs|QDir::NoDotAndDotDot|QDir::Readable);
+    if (srcDirs.empty()) {
+        *errorMessage = msgNoProjectFiles(projectDir, projectFilePatterns);
+        return QFileInfoList();
+    }
+    const QDir srcDir = QDir(srcDirs.front().absoluteFilePath());
+    projectFiles = srcDir.entryInfoList(projectFilePatterns, QDir::Files|QDir::NoDotAndDotDot|QDir::Readable);
+    if (projectFiles.empty()) {
+        *errorMessage = msgNoProjectFiles(srcDir, projectFilePatterns);
+        return QFileInfoList();
+    }
+    return projectFiles;;
+}
+
 QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessage)
 {
     ProjectExplorer::ProjectExplorerPlugin *pe  = ProjectExplorer::ProjectExplorerPlugin::instance();
@@ -123,15 +153,10 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
         *errorMessage = tr("'%1' does not exist.").arg(path); // Should not happen
         return QString();
     }
-    // Hardcoded: Find *.pro/Cmakefiles
-    QStringList patterns;
-    patterns << QLatin1String("*.pro") << QLatin1String("CMakeList.txt");
-    QFileInfoList projectFiles = dir.entryInfoList(patterns, QDir::Files|QDir::NoDotAndDotDot|QDir::Readable);
-    if (projectFiles.empty()) {
-        *errorMessage = tr("No project files could be found (%1).").arg(patterns.join(QLatin1String(", ")));
+    QFileInfoList projectFiles = findProjectFiles(dir, errorMessage);
+    if (projectFiles.empty())
         return QString();
-    }
-    // Open!
+    // Open. Do not use a busy cursor here as additional wizards might pop up
     const QString projectFile = projectFiles.front().absoluteFilePath();
     if (!pe->openProject(projectFile)) {
         *errorMessage = tr("Unable to open the project '%1'.").arg(projectFile);

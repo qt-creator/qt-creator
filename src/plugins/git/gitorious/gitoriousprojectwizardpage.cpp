@@ -68,11 +68,12 @@ void GitoriousProjectWizardPage::initializePage()
 {
     // Try to find the page by hostindex
     const int hostIndex = m_hostPage->selectedHostIndex();
-    const int existingStackIndex = hostIndexToStackIndex(hostIndex);
+    const QString hostName = Gitorious::instance().hostName(hostIndex);
+    const int existingStackIndex = stackIndexOf(hostName);
     // Found? - pop up that page
     if (existingStackIndex != -1) {
         m_stackedWidget->setCurrentIndex(existingStackIndex);
-        setSubTitle(msgChooseProject(selectedHostName()));
+        setSubTitle(msgChooseProject(hostName));
         return;
     }
     // Add a new page
@@ -119,12 +120,12 @@ GitoriousProjectWidget *GitoriousProjectWizardPage::currentProjectWidget() const
     return projectWidgetAt(index);
 }
 
-// Convert a host index to a stack index.
-int GitoriousProjectWizardPage::hostIndexToStackIndex(int hostIndex) const
+// Convert a host name to a stack index.
+int GitoriousProjectWizardPage::stackIndexOf(const QString &hostName) const
 {
     const int count = m_stackedWidget->count();
     for(int i = 0; i < count; i++)
-        if (projectWidgetAt(i)->hostIndex() == hostIndex)
+        if (projectWidgetAt(i)->hostName() == hostName)
             return i;
     return -1;
 }

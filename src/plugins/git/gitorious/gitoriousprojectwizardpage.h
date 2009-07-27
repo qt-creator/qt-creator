@@ -74,7 +74,7 @@ private slots:
 private:
     GitoriousProjectWidget *projectWidgetAt(int index) const;
     GitoriousProjectWidget *currentProjectWidget() const;
-    int hostIndexToStackIndex(int hostIndex) const;
+    int stackIndexOf(const QString &hostName) const;
 
     const GitoriousHostWizardPage *m_hostPage;
     QStackedWidget *m_stackedWidget;

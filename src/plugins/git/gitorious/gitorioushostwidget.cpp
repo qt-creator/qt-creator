@@ -46,8 +46,6 @@
 
 enum { debug = 0 };
 
-enum { NewDummyEntryRole = Qt::UserRole + 1  };
-
 namespace Gitorious {
 namespace Internal {
 
@@ -164,9 +162,7 @@ void GitoriousHostWidget::selectRow(int r)
 void GitoriousHostWidget::appendNewDummyEntry()
 {
     // Append a new entry where a host name is editable
-    const QList<QStandardItem *> dummyRow = hostEntry(m_newHost, 0, QString(), true);
-    dummyRow.front()->setData(QVariant(true), NewDummyEntryRole);
-    m_model->appendRow(dummyRow);
+    m_model->appendRow(hostEntry(m_newHost, 0, QString(), true));
 }
 
 void GitoriousHostWidget::slotItemEdited(QStandardItem *item)
@@ -180,7 +176,6 @@ void GitoriousHostWidget::slotItemEdited(QStandardItem *item)
     case HostNameColumn:
         if (isDummyEntry) {
             Gitorious::instance().addHost(item->text(), m_model->item(row, DescriptionColumn)->text());
-            item->setData(QVariant(false), NewDummyEntryRole);
             m_isHostListDirty = true;
             appendNewDummyEntry();
             selectRow(row);
