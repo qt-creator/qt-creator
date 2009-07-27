@@ -201,7 +201,6 @@ public:
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();
-    void updatedExamples(const QString& examplesPath, const QString& demosPath);
 private:
     static QString findQMakeLine(const QString &directory);
     static QString trimLine(const QString line);

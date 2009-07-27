@@ -169,9 +169,6 @@ WelcomeMode::WelcomeMode() :
     connect(m_d->ui.openExampleButton, SIGNAL(clicked()), SLOT(slotOpenExample()));
     connect(m_d->ui.examplesComboBox, SIGNAL(currentIndexChanged(int)), SLOT(slotEnableExampleButton(int)));
 
-    connect(this, SIGNAL(updatedExamples(QString, QString)),
-            this, SLOT(slotUpdateExamples(QString, QString)));
-
     connect(m_d->rssFetcher, SIGNAL(newsItemReady(QString, QString, QString)),
         m_d->ui.newsTreeWidget, SLOT(slotAddNewsItem(QString, QString, QString)));
 
@@ -315,11 +312,14 @@ void WelcomeMode::slotUrlClicked(const QString &data)
     QDesktopServices::openUrl(QUrl(data));
 }
 
-void WelcomeMode::slotUpdateExamples(const QString& examplePath, const QString& demosPath)
+void WelcomeMode::updateExamples(const QString& examplePath, const QString& demosPath, const QString &sourcePath)
 {
     QString demoxml = demosPath + "/qtdemo/xml/examples.xml";
-    if (!QFile::exists(demoxml))
-        return;
+    if (!QFile::exists(demoxml)) {
+        demoxml = sourcePath + "/demos/qtdemo/xml/examples.xml";
+        if (!QFile::exists(demoxml))
+            return;
+    }
 
     QFile description(demoxml);
     if (!description.open(QFile::ReadOnly))
@@ -353,7 +353,10 @@ void WelcomeMode::slotUpdateExamples(const QString& examplePath, const QString& 
             if (inExamples && reader.name() == "example") {
                 QString name = reader.attributes().value(QLatin1String("name")).toString();
                 QString fn = reader.attributes().value(QLatin1String("filename")).toString();
-                QString fileName = examplePath + '/' + dirName + '/' + fn + '/' + fn + ".pro";
+                QString relativeProPath = '/' + dirName + '/' + fn + '/' + fn + ".pro";
+                QString fileName = examplePath + relativeProPath;
+                if (!QFile::exists(fileName))
+                    fileName = sourcePath + "/examples" + relativeProPath;
                 QString helpPath = "qthelp://com.trolltech.qt/qdoc/" + dirName.replace("/", "-") + "-" + fn + ".html";
 
                 m_d->ui.examplesComboBox->addItem("  " + name, fileName);

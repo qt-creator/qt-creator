@@ -121,11 +121,6 @@ QtVersionManager::QtVersionManager()
 
     writeVersionsIntoSettings();
 
-    if (Welcome::WelcomeMode *welcomeMode = qobject_cast<Welcome::WelcomeMode*>
-        (Core::ICore::instance()->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
-        connect(this, SIGNAL(updatedExamples(QString, QString)),
-                welcomeMode, SIGNAL(updatedExamples(QString, QString)));
-    }
     updateDocumentation();
     updateExamples();
 }
@@ -190,7 +185,9 @@ void QtVersionManager::updateExamples()
         if (version->hasDemos())
             demosPath = version->demosPath();
         if (!examplesPath.isEmpty() && !demosPath.isEmpty()) {
-            emit updatedExamples(examplesPath, demosPath);
+            if (Welcome::WelcomeMode *welcomeMode = qobject_cast<Welcome::WelcomeMode*>
+                    (Core::ICore::instance()->modeManager()->mode(Core::Constants::MODE_WELCOME)))
+                welcomeMode->updateExamples(examplesPath, demosPath, version->sourcePath());
             return;
         }
     }
