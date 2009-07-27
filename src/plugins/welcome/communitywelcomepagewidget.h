@@ -27,53 +27,38 @@
 **
 **************************************************************************/
 
-#ifndef WELCOMEMODE_H
-#define WELCOMEMODE_H
+#ifndef COMMUNITYWELCOMEPAGEWIDGET_H
+#define COMMUNITYWELCOMEPAGEWIDGET_H
 
-#include "welcome_global.h"
-
-#include <coreplugin/imode.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QPair>
-
-QT_BEGIN_NAMESPACE
-class QWidget;
-class QUrl;
-QT_END_NAMESPACE
+#include <QWidget>
 
 namespace Welcome {
+namespace Internal {
 
-struct WelcomeModePrivate;
+class RSSFetcher;
 
-class WELCOME_EXPORT WelcomeMode : public Core::IMode
+namespace Ui {
+    class CommunityWelcomePageWidget;
+}
+
+class CommunityWelcomePageWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    WelcomeMode();
-    ~WelcomeMode();
-
-    // IMode
-    QString name() const;
-    QIcon icon() const;
-    int priority() const;
-    QWidget *widget();
-    const char *uniqueModeName() const;
-    QList<int> context() const;
-    void activated();
-    QString contextHelpId() const { return QLatin1String("Qt Creator"); }
-    void initPlugins();
+    CommunityWelcomePageWidget(QWidget *parent = 0);
+    ~CommunityWelcomePageWidget();
 
 private slots:
-    void slotFeedback();
-    void welcomePluginAdded(QObject*);
-    void showClickedPage();
+    void slotUrlClicked(const QString &data);
+
 
 private:
-    WelcomeModePrivate *m_d;
+    RSSFetcher *m_rssFetcher;
+    Ui::CommunityWelcomePageWidget *ui;
 };
 
-} // namespace Welcome
 
-#endif // WELCOMEMODE_H
+} // namespace Internal
+} // namespace Welcome
+#endif // COMMUNITYWELCOMEPAGEWIDGET_H

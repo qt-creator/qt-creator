@@ -27,53 +27,43 @@
 **
 **************************************************************************/
 
-#ifndef WELCOMEMODE_H
-#define WELCOMEMODE_H
+#ifndef GETTINGSTARTEDWELCOMEPAGEWIDGET_H
+#define GETTINGSTARTEDWELCOMEPAGEWIDGET_H
 
-#include "welcome_global.h"
+#include <QWidget>
 
-#include <coreplugin/imode.h>
+namespace Qt4ProjectManager {
+namespace Internal {
 
-#include <QtCore/QObject>
-#include <QtCore/QPair>
+namespace Ui {
+    class GettingStartedWelcomePageWidget;
+}
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-class QUrl;
-QT_END_NAMESPACE
-
-namespace Welcome {
-
-struct WelcomeModePrivate;
-
-class WELCOME_EXPORT WelcomeMode : public Core::IMode
-{
+class GettingStartedWelcomePageWidget : public QWidget {
     Q_OBJECT
-
 public:
-    WelcomeMode();
-    ~WelcomeMode();
+    GettingStartedWelcomePageWidget(QWidget *parent = 0);
+    ~GettingStartedWelcomePageWidget();
 
-    // IMode
-    QString name() const;
-    QIcon icon() const;
-    int priority() const;
-    QWidget *widget();
-    const char *uniqueModeName() const;
-    QList<int> context() const;
-    void activated();
-    QString contextHelpId() const { return QLatin1String("Qt Creator"); }
-    void initPlugins();
+ public slots:
+    void updateExamples(const QString& examplePath, const QString& demosPath, const QString &sourcePath);
 
 private slots:
-    void slotFeedback();
-    void welcomePluginAdded(QObject*);
-    void showClickedPage();
+    void slotOpenHelpPage(const QString& url);
+    void slotOpenContextHelpPage(const QString& url);
+    void slotEnableExampleButton(int);
+    void slotOpenExample();
+    void slotNextTip();
+    void slotPrevTip();
 
 private:
-    WelcomeModePrivate *m_d;
+    QStringList tipsOfTheDay();
+
+    Ui::GettingStartedWelcomePageWidget *ui;
+    int m_currentTip;
 };
 
-} // namespace Welcome
 
-#endif // WELCOMEMODE_H
+} // namespace Internal
+} // namespace Qt4ProjectManager
+#endif // GETTINGSTARTEDWELCOMEPAGEWIDGET_H

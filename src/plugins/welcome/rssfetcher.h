@@ -35,6 +35,7 @@
 #include <QtNetwork/QHttp>
 
 namespace Welcome {
+namespace Internal {
 
 class RSSFetcher : public QObject
 {
@@ -69,6 +70,7 @@ private:
 };
 
 } // namespace Welcome
+} // namespace Internal
 
 #endif // RSSFETCHER_H
 

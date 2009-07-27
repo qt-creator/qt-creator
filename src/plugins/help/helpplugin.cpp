@@ -87,8 +87,8 @@
 using namespace Help;
 using namespace Help::Internal;
 
-HelpManager::HelpManager(QHelpEngine *helpEngine)
-    : m_helpEngine(helpEngine)
+HelpManager::HelpManager(Internal::HelpPlugin* plugin)
+    : m_plugin(plugin)
 {
 }
 
@@ -96,7 +96,7 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
 {
     bool needsSetup = false;
     {
-        QHelpEngineCore hc(m_helpEngine->collectionFile());
+        QHelpEngineCore hc(m_plugin->helpEngine()->collectionFile());
         if (!hc.setupData())
             qWarning() << "Could not initialize help engine:" << hc.error();
         foreach (const QString &fileName, fileNames) {
@@ -113,7 +113,17 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
         }
     }
     if (needsSetup)
-        m_helpEngine->setupData();
+        m_plugin->helpEngine()->setupData();
+}
+
+void HelpManager::openHelpPage(const QString& url)
+{
+    m_plugin->openHelpPage(url);
+}
+
+void HelpManager::openContextHelpPage(const QString& url)
+{
+    m_plugin->openContextHelpPage(url);
 }
 
 HelpPlugin::HelpPlugin() :
@@ -180,7 +190,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(m_helpEngine, SIGNAL(setupFinished()), this,
         SLOT(updateFilterComboBox()));
 
-    addAutoReleasedObject(new HelpManager(m_helpEngine));
+    addAutoReleasedObject(new HelpManager(this));
 
     m_filterSettingsPage = new FilterSettingsPage(m_helpEngine);
     addAutoReleasedObject(m_filterSettingsPage);
@@ -430,6 +440,11 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     return true;
 }
 
+QHelpEngine* HelpPlugin::helpEngine() const
+{
+    return m_helpEngine;
+}
+
 void HelpPlugin::createRightPaneSideBar()
 {
     QAction *switchToHelpMode = new QAction("Go to Help Mode", this);
@@ -609,17 +624,6 @@ void HelpPlugin::extensionsInitialized()
 
     updateFilterComboBox();
     m_bookmarkManager->setupBookmarkModels();
-
-    using namespace Core::Internal;
-    using namespace Core::Constants;
-    Welcome::WelcomeMode *welcomeMode =
-        qobject_cast<Welcome::WelcomeMode*>(m_core->modeManager()->mode(MODE_WELCOME));
-    if (welcomeMode) {
-        connect(welcomeMode, SIGNAL(openHelpPage(QString)), this,
-            SLOT(openHelpPage(QString)));
-        connect(welcomeMode, SIGNAL(openContextHelpPage(QString)), this,
-            SLOT(openContextHelpPage(QString)));
-    }
 
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();

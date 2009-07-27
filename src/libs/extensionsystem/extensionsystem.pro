@@ -4,9 +4,7 @@ DEFINES += EXTENSIONSYSTEM_LIBRARY
 include(../../qtcreatorlibrary.pri)
 include(extensionsystem_dependencies.pri)
 
-unix:!macx:!freebsd* {
-  LIBS += -ldl
-}
+unix:!macx:!freebsd*:LIBS += -ldl
 
 DEFINES += IDE_TEST_DIR=\\\"$$IDE_SOURCE_TREE\\\"
 
@@ -21,14 +19,16 @@ HEADERS += pluginerrorview.h \
     pluginspec_p.h \
     pluginview.h \
     pluginview_p.h \
-    optionsparser.h
+    optionsparser.h \
+    iwelcomepage.h
 SOURCES += pluginerrorview.cpp \
     plugindetailsview.cpp \
     iplugin.cpp \
     pluginmanager.cpp \
     pluginspec.cpp \
     pluginview.cpp \
-    optionsparser.cpp
+    optionsparser.cpp \
+    iwelcomepage.cpp
 FORMS += pluginview.ui \
     pluginerrorview.ui \
     plugindetailsview.ui

@@ -57,6 +57,8 @@
 #include "sessiondialog.h"
 #include "buildparserfactory.h"
 #include "projectexplorersettingspage.h"
+#include "projectwelcomepage.h"
+#include "projectwelcomepagewidget.h"
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
@@ -140,6 +142,7 @@ ProjectExplorerPlugin::ProjectExplorerPlugin()
 
 ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
+    removeObject(m_welcomePlugin);
     removeObject(this);
 }
 
@@ -156,6 +159,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 
+    m_welcomePlugin = new ProjectWelcomePage;
+    m_welcomePage = qobject_cast<Internal::ProjectWelcomePageWidget*>(m_welcomePlugin->page());
+    Q_ASSERT(m_welcomePage);
+    connect(m_welcomePage, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
+    addObject(m_welcomePlugin);
     addObject(this);
 
     connect(core->fileManager(), SIGNAL(currentFileChanged(QString)),
@@ -646,10 +654,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         m_projectExplorerSettings.showCompilerOutput = s->value("ProjectExplorer/Settings/ShowCompilerOutput", false).toBool();
     }
 
-    if (Welcome::WelcomeMode *welcomeMode = qobject_cast<Welcome::WelcomeMode*>
-        (Core::ICore::instance()->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
-        connect(welcomeMode, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
-    }
     connect(m_sessionManagerAction, SIGNAL(triggered()), this, SLOT(showSessionManager()));
     connect(m_newAction, SIGNAL(triggered()), this, SLOT(newProject()));
 #if 0
@@ -684,6 +688,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(Core::ICore::instance(), SIGNAL(coreAboutToOpen()),
             this, SLOT(determineSessionToRestoreAtStartup()));
     connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(restoreSession()));
+
+    updateWelcomePage();
 
     return true;
 }
@@ -835,9 +841,7 @@ void ProjectExplorerPlugin::showSessionManager()
     Core::ModeManager *modeManager = Core::ModeManager::instance();
     Core::IMode *welcomeMode = modeManager->mode(Core::Constants::MODE_WELCOME);
     if (modeManager->currentMode() == welcomeMode)
-    {
-        updateWelcomePage(qobject_cast<Welcome::WelcomeMode*>(welcomeMode));
-    }
+        updateWelcomePage();
 }
 
 void ProjectExplorerPlugin::setStartupProject(Project *project)
@@ -1019,20 +1023,19 @@ Project *ProjectExplorerPlugin::startupProject() const
 }
 
 // update welcome page
-void ProjectExplorerPlugin::updateWelcomePage(Welcome::WelcomeMode *welcomeMode)
+void ProjectExplorerPlugin::updateWelcomePage()
 {
-    Welcome::WelcomeMode::WelcomePageData welcomePageData;
+    ProjectWelcomePageWidget::WelcomePageData welcomePageData;
     welcomePageData.sessionList =  m_session->sessions();
     welcomePageData.activeSession = m_session->activeSession();
     welcomePageData.previousSession = m_session->lastSession();
     welcomePageData.projectList = m_recentProjects;
-    welcomeMode->updateWelcomePage(welcomePageData);
+    m_welcomePage->updateWelcomePage(welcomePageData);
 }
 
-void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode)
+void ProjectExplorerPlugin::currentModeChanged(Core::IMode *)
 {
-    if (Welcome::WelcomeMode *welcomeMode = qobject_cast<Welcome::WelcomeMode*>(mode))
-        updateWelcomePage(welcomeMode);
+        updateWelcomePage();
 }
 
 void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
@@ -1080,11 +1083,8 @@ void ProjectExplorerPlugin::restoreSession()
     // update welcome page
     Core::ModeManager *modeManager = Core::ModeManager::instance();
     connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)), this, SLOT(currentModeChanged(Core::IMode*)));
-    if (Welcome::WelcomeMode *welcomeMode = qobject_cast<Welcome::WelcomeMode*>(modeManager->mode(Core::Constants::MODE_WELCOME))) {
-        updateWelcomePage(welcomeMode);
-        connect(welcomeMode, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
-        connect(welcomeMode, SIGNAL(requestProject(QString)), this, SLOT(loadProject(QString)));
-    }
+    connect(m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
+    connect(m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(loadProject(QString)));
 
     Core::ICore::instance()->openFiles(arguments);
     updateActions();

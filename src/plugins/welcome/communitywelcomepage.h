@@ -27,53 +27,34 @@
 **
 **************************************************************************/
 
-#ifndef WELCOMEMODE_H
-#define WELCOMEMODE_H
+#ifndef COMMUNITYWELCOMEPAGE_H
+#define COMMUNITYWELCOMEPAGE_H
 
 #include "welcome_global.h"
 
-#include <coreplugin/imode.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QPair>
-
-QT_BEGIN_NAMESPACE
-class QWidget;
-class QUrl;
-QT_END_NAMESPACE
+#include <extensionsystem/iwelcomepage.h>
 
 namespace Welcome {
+namespace Internal {
 
-struct WelcomeModePrivate;
+class CommunityWelcomePageWidget;
 
-class WELCOME_EXPORT WelcomeMode : public Core::IMode
+class WELCOME_EXPORT CommunityWelcomePage : public ExtensionSystem::IWelcomePage
 {
     Q_OBJECT
-
 public:
-    WelcomeMode();
-    ~WelcomeMode();
+    CommunityWelcomePage();
 
-    // IMode
-    QString name() const;
-    QIcon icon() const;
-    int priority() const;
-    QWidget *widget();
-    const char *uniqueModeName() const;
-    QList<int> context() const;
-    void activated();
-    QString contextHelpId() const { return QLatin1String("Qt Creator"); }
-    void initPlugins();
-
-private slots:
-    void slotFeedback();
-    void welcomePluginAdded(QObject*);
-    void showClickedPage();
+    QWidget *page();
+    QString title() const { return tr("Community"); }
+    int priority() const { return 30; }
 
 private:
-    WelcomeModePrivate *m_d;
+    CommunityWelcomePageWidget *m_page;
+
 };
 
+} // namespace Internal
 } // namespace Welcome
 
-#endif // WELCOMEMODE_H
+#endif // COMMUNITYWELCOMEPAGE_H

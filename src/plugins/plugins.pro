@@ -94,7 +94,6 @@ plugin_projectexplorer.depends = plugin_quickopen
 plugin_projectexplorer.depends += plugin_find
 plugin_projectexplorer.depends += plugin_coreplugin
 plugin_projectexplorer.depends += plugin_texteditor
-plugin_projectexplorer.depends += plugin_welcome
 
 plugin_qt4projectmanager.subdir = qt4projectmanager
 plugin_qt4projectmanager.depends = plugin_texteditor
@@ -103,7 +102,6 @@ plugin_qt4projectmanager.depends += plugin_cpptools
 plugin_qt4projectmanager.depends += plugin_cppeditor
 plugin_qt4projectmanager.depends += plugin_help
 plugin_qt4projectmanager.depends += plugin_designer
-plugin_qt4projectmanager.depends += plugin_welcome
 
 plugin_quickopen.subdir = quickopen
 plugin_quickopen.depends = plugin_coreplugin
@@ -144,7 +142,6 @@ plugin_help.subdir = help
 plugin_help.depends = plugin_find
 plugin_help.depends += plugin_quickopen
 plugin_help.depends += plugin_coreplugin
-plugin_help.depends += plugin_welcome
 
 plugin_resourceeditor.subdir = resourceeditor
 plugin_resourceeditor.depends = plugin_coreplugin

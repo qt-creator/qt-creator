@@ -3,7 +3,6 @@ TARGET = Qt4ProjectManager
 QT += network
 include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
-
 HEADERS += qt4projectmanagerplugin.h \
     qt4projectmanager.h \
     qt4project.h \
@@ -39,7 +38,9 @@ HEADERS += qt4projectmanagerplugin.h \
     qtversionmanager.h \
     qtoptionspage.h \
     qtuicodemodelsupport.h \
-    externaleditors.h
+    externaleditors.h \
+    gettingstartedwelcomepagewidget.h \
+    gettingstartedwelcomepage.h
 SOURCES += qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \
@@ -73,19 +74,20 @@ SOURCES += qt4projectmanagerplugin.cpp \
     qtversionmanager.cpp \
     qtoptionspage.cpp \
     qtuicodemodelsupport.cpp \
-    externaleditors.cpp
+    externaleditors.cpp \
+    gettingstartedwelcomepagewidget.cpp \
+    gettingstartedwelcomepage.cpp
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
     embeddedpropertiespage.ui \
     qtversionmanager.ui \
-    showbuildlog.ui
+    showbuildlog.ui \
+    gettingstartedwelcomepagewidget.ui
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
-
 include(../../shared/proparser/proparser.pri)
 include(qt-s60/qt-s60.pri)
 include(customwidgetwizard/customwidgetwizard.pri)
-
 DEFINES += QT_NO_CAST_TO_ASCII
 OTHER_FILES += Qt4ProjectManager.pluginspec

@@ -33,10 +33,6 @@
 #include <extensionsystem/iplugin.h>
 
 namespace Core {
-    class IMode;
-}
-
-namespace Core {
 namespace Internal {
 
 class EditMode;
@@ -59,7 +55,6 @@ public slots:
 
 private:
     MainWindow *m_mainWindow;
-    Core::IMode *m_welcomeMode;
     EditMode *m_editMode;
 };
 

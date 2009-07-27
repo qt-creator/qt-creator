@@ -49,6 +49,7 @@ class MakeStepFactory;
 class GccParserFactory;
 class MsvcParserFactory;
 class EmbeddedPropertiesPage;
+class GettingStartedWelcomePage;
 
 class Qt4ProjectManagerPlugin : public ExtensionSystem::IPlugin
 {
@@ -81,6 +82,7 @@ private:
 
     QAction *m_runQMakeAction;
     QAction *m_runQMakeActionContextMenu;
+    GettingStartedWelcomePage *m_welcomePage;
 };
 
 } // namespace Internal

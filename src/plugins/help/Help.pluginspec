@@ -22,6 +22,5 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
         <dependency name="Core" version="1.2.80"/>
         <dependency name="Find" version="1.2.80"/>
         <dependency name="QuickOpen" version="1.2.80"/>
-        <dependency name="Welcome" version="1.2.80"/>
     </dependencyList>
 </plugin>
