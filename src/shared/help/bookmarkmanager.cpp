@@ -660,6 +660,7 @@ QModelIndex BookmarkManager::addNewFolder(const QModelIndex& index)
 {
     QStandardItem *item = new QStandardItem(uniqueFolderName());
     item->setEditable(false);
+    item->setIcon(folderIcon);
     item->setData(false, Qt::UserRole + 11);
     item->setData(QLatin1String("Folder"), Qt::UserRole + 10);
     item->setIcon(QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon));
@@ -715,9 +716,10 @@ void BookmarkManager::addNewBookmark(const QModelIndex& index,
 {
     QStandardItem *item = new QStandardItem(name);
     item->setEditable(false);
+    item->setIcon(bookmarkIcon);
     item->setData(false, Qt::UserRole + 11);
     item->setData(url, Qt::UserRole + 10);
-
+    
     if (index.isValid())
         treeModel->itemFromIndex(index)->appendRow(item);
     else
