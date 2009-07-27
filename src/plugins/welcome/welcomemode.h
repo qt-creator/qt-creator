@@ -76,7 +76,7 @@ public:
     void activated();
     QString contextHelpId() const { return QLatin1String("Qt Creator"); }
 
-    void updateExamples(const QString& examplePath, const QString& demosPath, const QString &demosPath);
+    void updateExamples(const QString& examplePath, const QString& demosPath, const QString &sourcePath);
 
 signals:
     void requestProject(const QString &project);
