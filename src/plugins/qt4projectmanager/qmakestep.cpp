@@ -277,14 +277,16 @@ ProjectExplorer::BuildStep * QMakeStepFactory::create(ProjectExplorer::Project *
 
 QStringList QMakeStepFactory::canCreateForProject(ProjectExplorer::Project *pro) const
 {
-    Q_UNUSED(pro)
+    Qt4Project *project = qobject_cast<Qt4Project *>(pro);
+    if (project && !project->qmakeStep())
+        return QStringList() << Constants::QMAKESTEP;
     return QStringList();
 }
 
 QString QMakeStepFactory::displayNameForName(const QString &name) const
 {
-    Q_UNUSED(name)
-    return QString();
+    Q_UNUSED(name);
+    return tr("QMake");
 }
 
 
