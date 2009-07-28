@@ -635,7 +635,12 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
         imagePath += QLatin1Char(';');
         imagePath += m_d->m_baseImagePath;
     }
-    m_d->m_cif.debugSymbols->SetImagePathWide(reinterpret_cast<PCWSTR>(imagePath.utf16()));
+    HRESULT hr = m_d->m_cif.debugSymbols->SetImagePathWide(reinterpret_cast<PCWSTR>(imagePath.utf16()));
+    if (FAILED(hr)) {
+        *errorMessage = tr("Unable to set the image path to %1: %2").arg(imagePath, msgComFailed("SetImagePathWide", hr));
+        return false;
+    }
+
     if (debugCDB)
         qDebug() << Q_FUNC_INFO <<'\n' << filename << imagePath;
 
@@ -653,12 +658,15 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
         envData = Core::Utils::AbstractProcess::createWinEnvironment(Core::Utils::AbstractProcess::fixWinEnvironment(sp->environment));
         env = reinterpret_cast<PCWSTR>(envData.data());
     }
-    const HRESULT hr = m_d->m_cif.debugClient->CreateProcess2Wide(NULL,
-                                                               reinterpret_cast<PWSTR>(const_cast<ushort *>(cmd.utf16())),
-                                                               &dbgopts,
-                                                               sizeof(dbgopts),
-                                                               reinterpret_cast<PCWSTR>(sp->workingDir.utf16()),
-                                                               env);
+    // The working directory cannot be empty.
+    PCWSTR workingDirC = 0;
+    const QString workingDir = sp->workingDir.isEmpty() ? QString() : QDir::toNativeSeparators(sp->workingDir);
+    if (!workingDir.isEmpty())
+        workingDirC = workingDir.utf16();
+    hr = m_d->m_cif.debugClient->CreateProcess2Wide(NULL,
+                                                    reinterpret_cast<PWSTR>(const_cast<ushort *>(cmd.utf16())),
+                                                    &dbgopts, sizeof(dbgopts),
+                                                    workingDirC, env);
     if (FAILED(hr)) {
         *errorMessage = tr("Unable to create a process '%1': %2").arg(cmd, msgDebugEngineComResult(hr));
         m_d->m_debuggerManagerAccess->notifyInferiorExited();
