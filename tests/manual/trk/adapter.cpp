@@ -32,6 +32,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QQueue>
 #include <QtCore/QTimer>
+#include <QtCore/QStringList>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
@@ -57,6 +58,41 @@ using namespace trk;
 
 enum { TRK_SYNC = 0x7f };
 
+
+enum { KnownRegisters = RegisterPSGdb + 1};
+
+static const char *registerNames[KnownRegisters] =
+{
+    "A1", "A2", "A3", "A4",
+    0, 0, 0, 0,
+    0, 0, 0, "AP",
+    "IP", "SP", "LR", "PC",
+    "PSTrk", 0, 0, 0,
+    0, 0, 0, 0,
+    0, "PSGdb"
+};
+
+static inline void dumpRegister(int n, uint value, QByteArray &a)
+{
+    a += ' ';
+    if (n < KnownRegisters && registerNames[n]) {
+        a += registerNames[n];
+    } else {
+        a += '#';
+        a += QByteArray::number(n);
+    }
+    a += "=0x";
+    a += QByteArray::number(value, 16);
+}
+
+struct AdapterOptions {
+    AdapterOptions() : verbose(1) {}
+
+    int verbose;
+    QString gdbServer;
+    QString trkServer;
+};
+
 #define CB(s) &Adapter::s
 
 class Adapter : public QObject
@@ -68,6 +104,7 @@ public:
     ~Adapter();
     void setGdbServerName(const QString &name);
     void setTrkServerName(const QString &name) { m_trkServerName = name; }
+    void setVerbose(int verbose) { m_verbose = verbose; }
     bool startServer();
 
 private:
@@ -78,7 +115,7 @@ private:
 
     typedef void (Adapter::*TrkCallBack)(const TrkResult &);
 
-    struct TrkMessage 
+    struct TrkMessage
     {
         TrkMessage() { code = token = 0; callBack = 0; }
         byte code;
@@ -160,7 +197,7 @@ private:
     void sendGdbAckMessage();
 
     //
-    void logMessage(const QString &msg);
+    void logMessage(const QString &msg, bool force = false);
 
     QTcpServer m_gdbServer;
     QTcpSocket *m_gdbConnection;
@@ -172,6 +209,7 @@ private:
     // Debuggee state
     Session m_session; // global-ish data (process id, target information)
     Snapshot m_snapshot; // local-ish data (memory and registers)
+    int m_verbose;
 };
 
 Adapter::Adapter()
@@ -207,7 +245,7 @@ Adapter::~Adapter()
     // Gdb
     m_gdbServer.close();
     //>disconnectFromServer();
-    logMessage("Shutting down.\n");
+    logMessage("Shutting down.\n", true);
 }
 
 void Adapter::setGdbServerName(const QString &name)
@@ -225,7 +263,7 @@ void Adapter::setGdbServerName(const QString &name)
 bool Adapter::startServer()
 {
     if (!openTrkPort(m_trkServerName)) {
-        logMessage("Unable to connect to TRK server");
+        logMessage("Unable to connect to TRK server " + m_trkServerName + " " +m_trkDevice->errorString(), true);
         return false;
     }
 
@@ -244,21 +282,22 @@ bool Adapter::startServer()
     if (!m_gdbServer.listen(QHostAddress(m_gdbServerName), m_gdbServerPort)) {
         logMessage(QString("Unable to start the gdb server at %1:%2: %3.")
             .arg(m_gdbServerName).arg(m_gdbServerPort)
-            .arg(m_gdbServer.errorString()));
+            .arg(m_gdbServer.errorString()), true);
         return false;
     }
 
-    logMessage(QString("Gdb server running on port %1. Run arm-gdb now.")
-        .arg(m_gdbServer.serverPort()));
+    logMessage(QString("Gdb server running on %1:%2. Run arm-gdb now.")
+        .arg(m_gdbServerName).arg(m_gdbServer.serverPort()), true);
 
     connect(&m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
     return true;
 }
 
-void Adapter::logMessage(const QString &msg)
+void Adapter::logMessage(const QString &msg, bool force)
 {
-    qDebug() << "ADAPTER: " << qPrintable(msg);
+    if (m_verbose || force)
+        qDebug("ADAPTER: %s ", qPrintable(msg));
 }
 
 //
@@ -306,7 +345,7 @@ void Adapter::readFromGdb()
         }
 
         if (code != '$') {
-            logMessage("Broken package (2) " + quoteUnprintableLatin1(ba) 
+            logMessage("Broken package (2) " + quoteUnprintableLatin1(ba)
                 + hexNumber(code));
             continue;
         }
@@ -436,7 +475,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
 
     else if (response.startsWith("C")) {
         // C sig[;addr] Continue with signal sig (hex signal number)
-        //Reply: See section D.3 Stop Reply Packets, for the reply specifications. 
+        //Reply: See section D.3 Stop Reply Packets, for the reply specifications.
         sendGdbAckMessage();
         bool ok = false;
         uint signalNumber = response.mid(1).toInt(&ok, 16);
@@ -466,7 +505,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         appendByte(&ba, RegisterCount - 1); // last register
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
-        
+
         sendTrkMessage(0x12, CB(handleAndReportReadRegisters), ba);
     }
 
@@ -526,37 +565,40 @@ void Adapter::handleGdbResponse(const QByteArray &response)
           F7 = 23, 	 last floating point register
           FPS = 24,	 floating point status register
           PS = 25,	 Contains processor status
-          WR0,		 WMMX data registers. 
+          WR0,		 WMMX data registers.
           WR15 = WR0 + 15,
-          WC0,		 WMMX control registers. 
+          WC0,		 WMMX control registers.
           WCSSF = WC0 + 2,
           WCASF = WC0 + 3,
           WC7 = WC0 + 7,
-          WCGR0,		WMMX general purpose registers. 
+          WCGR0,		WMMX general purpose registers.
           WCGR3 = WCGR0 + 3,
           WCGR7 = WCGR0 + 7,
           NUM_REGS,
 
-          // Other useful registers. 
-          FP = 11,		Frame register in ARM code, if used. 
-          THUMB_FP = 7,		Frame register in Thumb code, if used. 
-          NUM_ARG_REGS = 4, 
+          // Other useful registers.
+          FP = 11,		Frame register in ARM code, if used.
+          THUMB_FP = 7,		Frame register in Thumb code, if used.
+          NUM_ARG_REGS = 4,
           LAST_ARG = A4,
           NUM_FP_ARG_REGS = 4,
           LAST_FP_ARG = F3
         #endif
         bool ok = false;
-        uint registerNumber = response.mid(1).toInt(&ok, 16);
+        const uint registerNumber = response.mid(1).toInt(&ok, 16);
+        QByteArray logMsg = "read register";
         if (registerNumber == RegisterPSGdb) {
             QByteArray ba;
             appendInt(&ba, m_snapshot.registers[RegisterPSTrk]);
-            sendGdbMessage(ba.toHex(), "read processor status register");
+            dumpRegister(registerNumber, m_snapshot.registers[RegisterPSTrk], logMsg);
+            sendGdbMessage(ba.toHex(), logMsg);
         } else if (registerNumber < RegisterCount) {
             QByteArray ba;
             appendInt(&ba, m_snapshot.registers[registerNumber]);
-            sendGdbMessage(ba.toHex(), "read single known register");
+            dumpRegister(registerNumber, m_snapshot.registers[registerNumber], logMsg);
+            sendGdbMessage(ba.toHex(), logMsg);
         } else {
-            sendGdbMessage("0000", "read single unknown register");
+            sendGdbMessage("0000", "read single unknown register #" + QByteArray::number(registerNumber));
             //sendGdbMessage("E01", "read single unknown register");
         }
     }
@@ -584,7 +626,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         //$qSupported:multiprocess+#c6
         //logMessage("Handling 'qSupported'");
         sendGdbAckMessage();
-        if (0) 
+        if (0)
             sendGdbMessage(QByteArray(), "nothing supported");
         else
             sendGdbMessage(
@@ -601,7 +643,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         sendGdbAckMessage();
         sendGdbMessage("", "FIXME: nothing?");
     }
-    
+
     else if (response == "qOffsets") {
         sendGdbAckMessage();
         startInferiorIfNeeded();
@@ -1093,7 +1135,12 @@ void Adapter::handleAndReportReadRegisters(const TrkResult &result)
     QByteArray ba;
     for (int i = 0; i < 16; ++i)
         ba += hexNumber(m_snapshot.registers[i], 8);
-    sendGdbMessage(ba, "register contents");
+    QByteArray logMsg = "contents";
+    if (m_verbose > 1) {
+        for (int i = 0; i < RegisterCount; ++i)
+            dumpRegister(i, m_snapshot.registers[i], logMsg);
+    }
+    sendGdbMessage(ba, logMsg);
 }
 
 void Adapter::handleReadMemory(const TrkResult &result)
@@ -1127,7 +1174,16 @@ void Adapter::reportReadMemory(const TrkResult &result)
     //     << " ADDR: " << hexNumber(blockaddr) << " LEN: " << len
     //     << " BYTES: " << quoteUnprintableLatin1(ba);
 
-    sendGdbMessage(ba.toHex(), "memory contents");
+    QByteArray logMsg = "memory contents";
+    if (m_verbose > 1) {
+        logMsg += " addr: 0x";
+        logMsg += QByteArray::number(addr, 16);
+        logMsg += " length ";
+        logMsg += QByteArray::number(len);
+        logMsg += " :";
+        logMsg += stringFromArray(ba, 16);
+    }
+    sendGdbMessage(ba.toHex(), logMsg);
 }
 
 void Adapter::setTrkBreakpoint(const Breakpoint &bp)
@@ -1335,22 +1391,52 @@ void Adapter::interruptInferior()
     sendTrkMessage(0x1A, 0, ba, "Interrupting...");
 }
 
+static bool readAdapterArgs(const QStringList &args, AdapterOptions *o)
+{
+    int argNumber = 0;
+    const QStringList::const_iterator cend = args.constEnd();
+    QStringList::const_iterator it = args.constBegin();
+    for (++it; it != cend; ++it) {
+        if (it->startsWith(QLatin1Char('-'))) {
+            if (*it == QLatin1String("-v")) {
+                o->verbose++;
+            } else if (*it == QLatin1String("-q")) {
+                o->verbose = 0;
+            }
+        } else {
+            switch (argNumber++) {
+            case 0:
+                o->trkServer = *it;
+                break;
+            case 1:
+                o->gdbServer = *it;
+                break;
+            }
+        }
+      }
+    return !o->gdbServer.isEmpty();
+}
+
 int main(int argc, char *argv[])
 {
-    if (argc < 3) {
-        qDebug() << "Usage: " << argv[0] << " <trkservername> <gdbserverport>";
-        return 1;
-    }
-
 #ifdef Q_OS_UNIX
     signal(SIGUSR1, signalHandler);
 #endif
 
     QCoreApplication app(argc, argv);
+    AdapterOptions options;
+
+    if (!readAdapterArgs(app.arguments(), &options)) {
+        qDebug("Usage: %s [-v|-q] <trkservername> <gdbserverport>\n"
+               "Options: -v verbose\n"
+               "         -q quiet\n", argv[0]);
+        return 1;
+    }
 
     Adapter adapter;
-    adapter.setTrkServerName(argv[1]);
-    adapter.setGdbServerName(argv[2]);
+    adapter.setTrkServerName(options.trkServer);
+    adapter.setGdbServerName(options.gdbServer);
+    adapter.setVerbose(options.verbose);
     if (adapter.startServer())
         return app.exec();
     return 4;

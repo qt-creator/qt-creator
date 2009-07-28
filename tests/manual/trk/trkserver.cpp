@@ -31,6 +31,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
+#include <QtCore/QStringList>
 
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
@@ -49,13 +50,22 @@ void signalHandler(int)
 
 using namespace trk;
 
+struct TrkOptions {
+    TrkOptions() : verbose(1) {}
+
+    int verbose;
+    QString serverName;
+    QString dumpName;
+};
+
+
 // Format of the replay source is something like
 // ---IDE------------------------------------------------------
 //  Command: 0x05 Support Mask
 // [05 02]
 //---TRK------------------------------------------------------
 //  Command: 0x80 Acknowledge
-//    Error: 0x00
+//    Error: 0x0
 // [80 02 00 7E 00 4F 5F 01 00 00 00 0F 1F 00 00 00
 //  00 00 00 01 00 11 00 03 00 00 00 00 00 03 00 00...]
 
@@ -107,6 +117,7 @@ public:
 
     void setServerName(const QString &name) { m_serverName = name; }
     void setMemoryDumpName(const QString &source) { m_memoryDumpName = source; }
+    void setVerbose(int v) { m_verbose = v; }
     void startServer();
 
 private slots:
@@ -117,7 +128,7 @@ private slots:
     void handleAdapterMessage(const TrkResult &result);
 
 private:
-    void logMessage(const QString &msg);
+    void logMessage(const QString &msg, bool force = 0);
     byte nextNotificationToken();
 
     QString m_serverName;
@@ -131,9 +142,10 @@ private:
     QLocalSocket *m_adapterConnection;
     Inferior m_inferior;
     byte m_notificationToken;
+    int m_verbose;
 };
 
-TrkServer::TrkServer()
+TrkServer::TrkServer() : m_verbose(1)
 {
     m_adapterConnection = 0;
     m_notificationToken = 0;
@@ -158,17 +170,18 @@ void TrkServer::startServer()
     m_lastSent = 0;
     if (!m_server.listen(m_serverName)) {
         logMessage(QString("Error: Unable to start the TRK server %1: %2.")
-            .arg(m_serverName).arg(m_server.errorString()));
+            .arg(m_serverName).arg(m_server.errorString()), true);
         return;
     }
 
-    logMessage("The TRK server is running. Run the adapter now.");
+    logMessage("The TRK server '" + m_serverName + "'is running. Run the adapter now.", true);
     connect(&m_server, SIGNAL(newConnection()), this, SLOT(handleConnection()));
 }
 
-void TrkServer::logMessage(const QString &msg)
+void TrkServer::logMessage(const QString &msg, bool force)
 {
-    qDebug() << "TRKSERVER: " << qPrintable(msg);
+    if (m_verbose || force)
+        qDebug("TRKSERVER: %s", qPrintable(msg));
 }
 
 void TrkServer::handleConnection()
@@ -326,23 +339,51 @@ byte TrkServer::nextNotificationToken()
     return m_notificationToken;
 }
 
+static bool readTrkArgs(const QStringList &args, TrkOptions *o)
+{
+    int argNumber = 0;
+    const QStringList::const_iterator cend = args.constEnd();
+    QStringList::const_iterator it = args.constBegin();
+    for (++it; it != cend; ++it) {
+        if (it->startsWith(QLatin1Char('-'))) {
+            if (*it == QLatin1String("-v")) {
+                o->verbose++;
+            } else if (*it == QLatin1String("-q")) {
+                o->verbose = 0;
+            }
+        } else {
+            switch (argNumber++) {
+            case 0:
+                o->serverName = *it;
+                break;
+            case 1:
+                o->dumpName = *it;
+                break;
+            }
+        }
+    }
+    return !o->dumpName.isEmpty();
+}
+
 int main(int argc, char *argv[])
 {
-    if (argc < 3) {
-        qDebug() << "Usage: " << argv[0] << " <trkservername>"
-            << " <replaysource>";
-        return 1;
-    }
-
 #ifdef Q_OS_UNIX
     signal(SIGUSR1, signalHandler);
 #endif
 
     QCoreApplication app(argc, argv);
+    TrkOptions options;
+    if (!readTrkArgs(app.arguments(), &options)) {
+        qWarning("Usage: %s [-v|-q] <trkservername> <replaysource>\n"
+                 "Options: -v verbose\n"
+                 "         -q quiet\n", argv[0]);
+        return 1;
+    }
 
     TrkServer server;
-    server.setServerName(argv[1]);
-    server.setMemoryDumpName(argv[2]);
+    server.setServerName(options.serverName);
+    server.setMemoryDumpName(options.dumpName);
+    server.setVerbose(options.verbose);
     server.startServer();
 
     return app.exec();

@@ -50,7 +50,7 @@ QString quoteUnprintableLatin1(const QByteArray &ba);
 // produces "xx "
 QString stringFromByte(byte c);
 // produces "xx xx xx "
-QString stringFromArray(const QByteArray &ba);
+QString stringFromArray(const QByteArray &ba, int maxLen = - 1);
 
 enum Endianness
 {
@@ -152,7 +152,7 @@ QByteArray frameMessage(byte command, byte token, const QByteArray &data);
 ushort isValidTrkResult(const QByteArray &buffer);
 TrkResult extractResult(QByteArray *buffer);
 QByteArray errorMessage(byte code);
-QByteArray hexNumber(uint n, int digits = 0); 
+QByteArray hexNumber(uint n, int digits = 0);
 
 } // namespace trk
 

@@ -206,17 +206,22 @@ QString stringFromByte(byte c)
     return QString("%1 ").arg(c, 2, 16, QChar('0'));
 }
 
-QString stringFromArray(const QByteArray &ba)
+QString stringFromArray(const QByteArray &ba, int maxLen)
 {
     QString str;
     QString ascii;
-    for (int i = 0; i < ba.size(); ++i) {
+    const int size = maxLen == -1 ? ba.size() : qMin(ba.size(), maxLen);
+    for (int i = 0; i < size; ++i) {
         //if (i == 5 || i == ba.size() - 2)
         //    str += "  ";
         int c = byte(ba.at(i));
         str += QString("%1 ").arg(c, 2, 16, QChar('0'));
         if (i >= 8 && i < ba.size() - 2)
             ascii += QChar(c).isPrint() ? QChar(c) : QChar('.');
+    }
+    if (size != ba.size()) {
+        str += "...";
+        ascii += "...";
     }
     return str + "  " + ascii;
 }

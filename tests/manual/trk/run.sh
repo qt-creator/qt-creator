@@ -1,5 +1,26 @@
 #!/bin/sh
 
+ADAPTER_OPTIONS=""
+TRKSERVEROPTIONS=""
+
+while expr " $1" : " -.*" >/dev/null
+do
+  if [ " $1" = " -av" ]
+  then
+    ADAPTER_OPTIONS="$ADAPTER_OPTIONS -v"
+  elif [ " $1" = " -aq" ]
+  then
+     ADAPTER_OPTIONS="$ADAPTER_OPTIONS -q"
+  elif [ " $1" = " -tv" ]
+  then
+     TRKSERVEROPTIONS="$TRKSERVEROPTIONS -v"
+  elif [ " $1" = " -tq" ]
+  then
+     TRKSERVEROPTIONS="$TRKSERVEROPTIONS -q"
+  fi
+  shift 1
+done
+
 make || exit 1
 
 killall -s USR1 adapter trkserver > /dev/null 2>&1
@@ -15,12 +36,12 @@ memorydump=TrkDump-78-6a-40-00-BigEndian.bin
 fuser -n tcp -k ${gdbserverport} 
 rm /tmp/${trkservername}
 
-./trkserver ${trkservername} ${memorydump} &
+./trkserver $TRKSERVEROPTIONS ${trkservername} ${memorydump} &
 trkserverpid=$!
 
 sleep 1
 
-./adapter ${trkservername} ${gdbserverip}:${gdbserverport} &
+./adapter $ADAPTER_OPTIONS ${trkservername} ${gdbserverip}:${gdbserverport} &
 adapterpid=$!
 
 echo "# This is generated. Changes will be lost.
