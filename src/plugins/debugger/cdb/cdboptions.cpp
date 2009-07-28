@@ -38,7 +38,7 @@ static const char *enabledKeyC = "Enabled";
 static const char *pathKeyC = "Path";
 static const char *symbolPathsKeyC = "SymbolPaths";
 static const char *sourcePathsKeyC = "SourcePaths";
-static const char *verboseSymbolLoadingKeyC = "SymbolPaths";
+static const char *verboseSymbolLoadingKeyC = "VerboseSymbolLoading";
 
 namespace Debugger {
 namespace Internal {
