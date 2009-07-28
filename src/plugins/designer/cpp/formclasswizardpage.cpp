@@ -37,7 +37,6 @@
 #include <cpptools/cpptoolsconstants.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QDir>
 #include <QtCore/QSettings>
 
 #include <QtGui/QAbstractButton>
@@ -146,7 +145,7 @@ bool FormClassWizardPage::validatePage()
     QString errorMessage;
     const bool rc = m_ui->newClassWidget->isValid(&errorMessage);
     if (!rc) {
-        QMessageBox::critical(this, tr("%1 - Error").arg(title()), errorMessage);
+        QMessageBox::warning(this, tr("%1 - Error").arg(title()), errorMessage);
     }
     return rc;
 }

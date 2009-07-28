@@ -32,8 +32,6 @@
 #include "formclasswizardpage.h"
 #include "formclasswizardparameters.h"
 
-#include <coreplugin/icore.h>
-
 #include <QtCore/QDebug>
 #include <QtGui/QAbstractButton>
 

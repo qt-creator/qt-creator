@@ -32,13 +32,9 @@
 
 #include <QtGui/QWizard>
 
-namespace Core {
-    class ICore;
-}
-
 namespace Designer {
 
-struct FormClassWizardParameters;
+class FormClassWizardParameters;
 
 namespace Internal {
 

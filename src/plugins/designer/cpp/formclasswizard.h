@@ -37,7 +37,7 @@
 namespace Designer {
 namespace Internal {
 
-struct FormClassWizardParameters;
+class FormClassWizardParameters;
 
 class FormClassWizard : public Core::BaseFileWizard
 {

@@ -32,7 +32,6 @@
 #include "formwindoweditor.h"
 #include "designerconstants.h"
 
-#include <QtCore/QFile>
 #include <QtCore/QDebug>
 
 using namespace Designer;

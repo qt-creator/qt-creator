@@ -34,8 +34,8 @@
 
 namespace Designer {
 
-struct FormClassWizardParameters;
-struct FormClassWizardGenerationParameters;
+class FormClassWizardParameters;
+class FormClassWizardGenerationParameters;
 
 namespace Internal {
 
