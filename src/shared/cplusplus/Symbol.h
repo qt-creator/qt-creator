@@ -75,7 +75,8 @@ public:
     enum Visibility {
         Public,
         Protected,
-        Private
+        Private,
+        Package
     };
 
 public:
@@ -209,6 +210,18 @@ public:
     /// Returns true if this Symbol is a ForwardClassDeclaration.
     bool isForwardClassDeclaration() const;
 
+    /// Returns true if this Symbol is a Objective-C Class definition.
+    bool isObjCClass() const;
+
+    /// Returns true if this Symbol is a Objective-C Class forward declaration.
+    bool isObjCForwardClassDeclaration() const;
+
+    /// Returns true if this Symbol is a Objective-C Protocol definition.
+    bool isObjCProtocol() const;
+
+    /// Returns true if this Symbol is a Objective-C Protocol forward declaration.
+    bool isObjCForwardProtocolDeclaration() const;
+
     virtual const ScopedSymbol *asScopedSymbol() const { return 0; }
     virtual const Enum *asEnum() const { return 0; }
     virtual const Function *asFunction() const { return 0; }
@@ -221,6 +234,10 @@ public:
     virtual const Argument *asArgument() const { return 0; }
     virtual const BaseClass *asBaseClass() const { return 0; }
     virtual const ForwardClassDeclaration *asForwardClassDeclaration() const { return 0; }
+    virtual const ObjCClass *asObjCClass() const { return 0; }
+    virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const { return 0; }
+    virtual const ObjCProtocol *asObjCProtocol() const { return 0; }
+    virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const { return 0; }
 
     virtual ScopedSymbol *asScopedSymbol() { return 0; }
     virtual Enum *asEnum() { return 0; }
@@ -234,6 +251,10 @@ public:
     virtual Argument *asArgument() { return 0; }
     virtual BaseClass *asBaseClass() { return 0; }
     virtual ForwardClassDeclaration *asForwardClassDeclaration() { return 0; }
+    virtual ObjCClass *asObjCClass() { return 0; }
+    virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() { return 0; }
+    virtual ObjCProtocol *asObjCProtocol() { return 0; }
+    virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() { return 0; }
 
     /// Returns this Symbol's type.
     virtual FullySpecifiedType type() const = 0;

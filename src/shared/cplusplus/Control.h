@@ -147,6 +147,18 @@ public:
     /// Creates a new ForwardClassDeclaration symbol.
     ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, Name *name = 0);
 
+    /// Creates a new Objective-C class symbol.
+    ObjCClass *newObjCClass(unsigned sourceLocation, Name *name = 0);
+
+    /// Creates a new Objective-C class forward declaration symbol.
+    ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(unsigned sourceLocation, Name *name = 0);
+
+    /// Creates a new Objective-C protocol symbol.
+    ObjCProtocol *newObjCProtocol(unsigned sourceLocation, Name *name = 0);
+
+    /// Creates a new Objective-C protocol forward declaration symbol.
+    ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name = 0);
+
     Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
     Identifier *findOrInsertIdentifier(const char *chars);
 

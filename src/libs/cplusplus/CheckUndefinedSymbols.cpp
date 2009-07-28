@@ -154,6 +154,14 @@ void CheckUndefinedSymbols::buildTypeMap(NamespaceBinding *binding, QSet<Namespa
                 } else if (Declaration *decl = member->asDeclaration()) {
                     if (decl->isTypedef())
                         addType(decl->name());
+                } else if (ObjCForwardClassDeclaration *fKlass = member->asObjCForwardClassDeclaration()) {
+                    addType(fKlass->name());
+                } else if (ObjCClass *klass = member->asObjCClass()) {
+                    addType(klass->name());
+                } else if (ObjCForwardProtocolDeclaration *fProto = member->asObjCForwardProtocolDeclaration()) {
+                    addType(fProto->name());
+                } else if (ObjCProtocol *proto = member->asObjCProtocol()) {
+                    addType(proto->name());
                 }
             }
         }

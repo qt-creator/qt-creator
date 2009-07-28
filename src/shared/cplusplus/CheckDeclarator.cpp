@@ -94,6 +94,15 @@ FullySpecifiedType CheckDeclarator::check(PtrOperatorAST *ptrOperators,
     return switchFullySpecifiedType(previousType);
 }
 
+FullySpecifiedType CheckDeclarator::check(ObjCMethodPrototypeAST *methodPrototype,
+                                          Scope *scope)
+{
+    Scope *previousScope = switchScope(scope);
+    accept(methodPrototype);
+    (void) switchScope(previousScope);
+    return _fullySpecifiedType;
+}
+
 DeclaratorAST *CheckDeclarator::switchDeclarator(DeclaratorAST *declarator)
 {
     DeclaratorAST *previousDeclarator = _declarator;
@@ -234,6 +243,34 @@ bool CheckDeclarator::visit(ReferenceAST *ast)
     FullySpecifiedType ty(refTy);
     _fullySpecifiedType = ty;
     accept(ast->next);
+    return false;
+}
+
+bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
+{
+    unsigned location = ast->firstToken();
+
+    Name *name = semantic()->check(ast->selector, _scope);
+
+    Function *fun = control()->newFunction(location, name);
+    ast->symbol = fun;
+    fun->setSourceLocation(location);
+    fun->setScope(_scope);
+    fun->setMethodKey(Function::NormalMethod);
+    fun->setVisibility(semantic()->currentVisibility());
+    fun->setPureVirtual(false);
+
+    // TODO: check return type (EV)
+//    fun->setReturnType(semantic()->check(ast->type_name, _scope));
+    // TODO: check the parameters (EV)
+    //    fun->setVariadic(...);
+    // TODO: add arguments (EV)
+
+    FullySpecifiedType mTy(fun);
+    _fullySpecifiedType = mTy;
+
+    // TODO: check which specifiers are allowed here (EV)
+
     return false;
 }
 

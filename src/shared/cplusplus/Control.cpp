@@ -121,6 +121,10 @@ public:
         delete_array_entries(enums);
         delete_array_entries(usingDeclarations);
         delete_array_entries(classForwardDeclarations);
+        delete_array_entries(objcClasses);
+        delete_array_entries(objcProtocols);
+        delete_array_entries(objcForwardClassDeclarations);
+        delete_array_entries(objcForwardProtocolDeclarations);
     }
 
     NameId *findOrInsertNameId(Identifier *id)
@@ -327,6 +331,34 @@ public:
         return c;
     }
 
+    ObjCClass *newObjCClass(unsigned sourceLocation, Name *name)
+    {
+        ObjCClass *c = new ObjCClass(translationUnit, sourceLocation, name);
+        objcClasses.push_back(c);
+        return c;
+    }
+
+    ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(unsigned sourceLocation, Name *name)
+    {
+        ObjCForwardClassDeclaration *fwd = new ObjCForwardClassDeclaration(translationUnit, sourceLocation, name);
+        objcForwardClassDeclarations.push_back(fwd);
+        return fwd;
+    }
+
+    ObjCProtocol *newObjCProtocol(unsigned sourceLocation, Name *name)
+    {
+        ObjCProtocol *p = new ObjCProtocol(translationUnit, sourceLocation, name);
+        objcProtocols.push_back(p);
+        return p;
+    }
+
+    ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name)
+    {
+        ObjCForwardProtocolDeclaration *fwd = new ObjCForwardProtocolDeclaration(translationUnit, sourceLocation, name);
+        objcForwardProtocolDeclarations.push_back(fwd);
+        return fwd;
+    }
+
     Enum *newEnum(unsigned sourceLocation, Name *name)
     {
         Enum *e = new Enum(translationUnit,
@@ -482,6 +514,10 @@ public:
     std::vector<Enum *> enums;
     std::vector<UsingDeclaration *> usingDeclarations;
     std::vector<ForwardClassDeclaration *> classForwardDeclarations;
+    std::vector<ObjCClass *> objcClasses;
+    std::vector<ObjCProtocol *> objcProtocols;
+    std::vector<ObjCForwardClassDeclaration *> objcForwardClassDeclarations;
+    std::vector<ObjCForwardProtocolDeclaration *> objcForwardProtocolDeclarations;
 };
 
 Control::Control()
@@ -638,5 +674,16 @@ ForwardClassDeclaration *Control::newForwardClassDeclaration(unsigned sourceLoca
                                                              Name *name)
 { return d->newForwardClassDeclaration(sourceLocation, name); }
 
+ObjCClass *Control::newObjCClass(unsigned sourceLocation, Name *name)
+{ return d->newObjCClass(sourceLocation, name); }
+
+ObjCForwardClassDeclaration *Control::newObjCForwardClassDeclaration(unsigned sourceLocation, Name *name)
+{ return d->newObjCForwardClassDeclaration(sourceLocation, name); }
+
+ObjCProtocol *Control::newObjCProtocol(unsigned sourceLocation, Name *name)
+{ return d->newObjCProtocol(sourceLocation, name); }
+
+ObjCForwardProtocolDeclaration *Control::newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name)
+{ return d->newObjCForwardProtocolDeclaration(sourceLocation, name); }
 
 CPLUSPLUS_END_NAMESPACE

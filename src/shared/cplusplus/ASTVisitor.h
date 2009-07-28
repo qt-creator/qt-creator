@@ -198,7 +198,7 @@ public:
     // ObjC++
     virtual bool visit(IdentifierListAST *) { return true; }
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
-    virtual bool visit(ObjCClassInterfaceDeclarationAST *) { return true; }
+    virtual bool visit(ObjCClassInterfaceDefinitionAST *) { return true; }
     virtual bool visit(ObjCCategoryInterfaceDeclarationAST *) { return true; }
     virtual bool visit(ObjCProtocolDeclarationAST *) { return true; }
     virtual bool visit(ObjCProtocolDefinitionAST *) { return true; }
@@ -209,10 +209,15 @@ public:
     virtual bool visit(ObjCProtocolExpressionAST *) { return true; }
     virtual bool visit(ObjCTypeNameAST *) { return true; }
     virtual bool visit(ObjCEncodeExpressionAST *) { return true; }
+    virtual bool visit(ObjCSelectorWithoutArgumentsAST *) { return true; }
+    virtual bool visit(ObjCSelectorArgumentAST *) { return true; }
+    virtual bool visit(ObjCSelectorArgumentListAST *) { return true; }
+    virtual bool visit(ObjCSelectorWithArgumentsAST *) { return true; }
+    virtual bool visit(ObjCSelectorExpressionAST *) { return true; }
     virtual bool visit(ObjCInstanceVariablesDeclarationAST *) { return true; }
     virtual bool visit(ObjCVisibilityDeclarationAST *) { return true; }
-    virtual bool visit(ObjcPropertyAttributeAST *) { return true; }
-    virtual bool visit(ObjcPropertyAttributeListAST *) { return true; }
+    virtual bool visit(ObjCPropertyAttributeAST *) { return true; }
+    virtual bool visit(ObjCPropertyAttributeListAST *) { return true; }
     virtual bool visit(ObjCPropertyDeclarationAST *) { return true; }
     virtual bool visit(ObjCMethodPrototypeAST *) { return true; }
     virtual bool visit(ObjCMethodDeclarationAST *) { return true; }
@@ -335,7 +340,7 @@ public:
     // ObjC++
     virtual void endVisit(IdentifierListAST *) { }
     virtual void endVisit(ObjCClassDeclarationAST *) { }
-    virtual void endVisit(ObjCClassInterfaceDeclarationAST *) { }
+    virtual void endVisit(ObjCClassInterfaceDefinitionAST *) { }
     virtual void endVisit(ObjCCategoryInterfaceDeclarationAST *) { }
     virtual void endVisit(ObjCProtocolDeclarationAST *) { }
     virtual void endVisit(ObjCProtocolDefinitionAST *) { }
@@ -346,10 +351,15 @@ public:
     virtual void endVisit(ObjCProtocolExpressionAST *) { }
     virtual void endVisit(ObjCTypeNameAST *) { }
     virtual void endVisit(ObjCEncodeExpressionAST *) { }
+    virtual void endVisit(ObjCSelectorWithoutArgumentsAST *) { }
+    virtual void endVisit(ObjCSelectorArgumentAST *) { }
+    virtual void endVisit(ObjCSelectorArgumentListAST *) { }
+    virtual void endVisit(ObjCSelectorWithArgumentsAST *) { }
+    virtual void endVisit(ObjCSelectorExpressionAST *) { }
     virtual void endVisit(ObjCInstanceVariablesDeclarationAST *) { }
     virtual void endVisit(ObjCVisibilityDeclarationAST *) { }
-    virtual void endVisit(ObjcPropertyAttributeAST *) { }
-    virtual void endVisit(ObjcPropertyAttributeListAST *) { }
+    virtual void endVisit(ObjCPropertyAttributeAST *) { }
+    virtual void endVisit(ObjCPropertyAttributeListAST *) { }
     virtual void endVisit(ObjCPropertyDeclarationAST *) { }
     virtual void endVisit(ObjCMethodPrototypeAST *) { }
     virtual void endVisit(ObjCMethodDeclarationAST *) { }

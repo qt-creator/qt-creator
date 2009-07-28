@@ -71,6 +71,9 @@ public:
                                   FullySpecifiedType type,
                                   Scope *scope);
 
+    FullySpecifiedType check(ObjCMethodPrototypeAST *methodPrototype,
+                             Scope *scope);
+
 protected:
     DeclaratorAST *switchDeclarator(DeclaratorAST *declarator);
     FullySpecifiedType switchFullySpecifiedType(FullySpecifiedType type);
@@ -90,6 +93,8 @@ protected:
     // postfix declarators
     virtual bool visit(FunctionDeclaratorAST *ast);
     virtual bool visit(ArrayDeclaratorAST *ast);
+    // ObjC
+    virtual bool visit(ObjCMethodPrototypeAST *ast);
 
     void applyCvQualifiers(SpecifierAST *cv);
 

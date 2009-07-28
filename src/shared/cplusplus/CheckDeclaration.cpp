@@ -464,4 +464,146 @@ bool CheckDeclaration::visit(UsingDirectiveAST *ast)
     return false;
 }
 
+bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
+{
+    const unsigned sourceLocation = ast->firstToken();
+
+    List<ObjCForwardProtocolDeclaration *> **symbolIter = &ast->symbols;
+    for (IdentifierListAST *it = ast->identifier_list; it; it = it->next) {
+        unsigned declarationLocation;
+        if (it->name)
+            declarationLocation = it->name->firstToken();
+        else
+            declarationLocation = sourceLocation;
+
+        Name *protocolName = semantic()->check(it->name, _scope);
+        ObjCForwardProtocolDeclaration *fwdProtocol = control()->newObjCForwardProtocolDeclaration(sourceLocation, protocolName);
+        fwdProtocol->setStartOffset(tokenAt(ast->firstToken()).offset);
+        fwdProtocol->setEndOffset(tokenAt(ast->lastToken()).offset);
+
+        _scope->enterSymbol(fwdProtocol);
+
+        *symbolIter = new (translationUnit()->memoryPool()) List<ObjCForwardProtocolDeclaration *>();
+        (*symbolIter)->value = fwdProtocol;
+        symbolIter = &(*symbolIter)->next;
+    }
+
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCProtocolDefinitionAST *ast)
+{
+    unsigned sourceLocation;
+    if (ast->name)
+        sourceLocation = ast->name->firstToken();
+    else
+        sourceLocation = ast->firstToken();
+
+    Name *protocolName = semantic()->check(ast->name, _scope);
+    ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, protocolName);
+    protocol->setStartOffset(tokenAt(ast->firstToken()).offset);
+    protocol->setEndOffset(tokenAt(ast->lastToken()).offset);
+    ast->symbol = protocol;
+
+    _scope->enterSymbol(protocol);
+
+    // TODO EV: walk protocols and method prototypes
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
+{
+    const unsigned sourceLocation = ast->firstToken();
+
+    List<ObjCForwardClassDeclaration *> **symbolIter = &ast->symbols;
+    for (IdentifierListAST *it = ast->identifier_list; it; it = it->next) {
+        unsigned declarationLocation;
+        if (it->name)
+            declarationLocation = it->name->firstToken();
+        else
+            declarationLocation = sourceLocation;
+
+        Name *className = semantic()->check(it->name, _scope);
+        ObjCForwardClassDeclaration *fwdClass = control()->newObjCForwardClassDeclaration(sourceLocation, className);
+        fwdClass->setStartOffset(tokenAt(ast->firstToken()).offset);
+        fwdClass->setEndOffset(tokenAt(ast->lastToken()).offset);
+
+        _scope->enterSymbol(fwdClass);
+
+        *symbolIter = new (translationUnit()->memoryPool()) List<ObjCForwardClassDeclaration *>();
+        (*symbolIter)->value = fwdClass;
+        symbolIter = &(*symbolIter)->next;
+    }
+
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCClassInterfaceDefinitionAST *ast)
+{
+    unsigned sourceLocation;
+    if (ast->class_name)
+        sourceLocation = ast->class_name->firstToken();
+    else
+        sourceLocation = ast->firstToken();
+
+    Name *className = semantic()->check(ast->class_name, _scope);
+    ObjCClass *klass = control()->newObjCClass(sourceLocation, className);
+    klass->setStartOffset(tokenAt(ast->firstToken()).offset);
+    klass->setEndOffset(tokenAt(ast->lastToken()).offset);
+    ast->symbol = klass;
+
+    // TODO: walk super-class, and protocols (EV)
+    _scope->enterSymbol(klass);
+
+    int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Protected);
+
+    if (ast->inst_vars_decl) {
+        for (DeclarationListAST *it = ast->inst_vars_decl->instance_variables; it; it = it->next) {
+            semantic()->check(it->declaration, klass->members());
+        }
+    }
+
+    for (DeclarationListAST *it = ast->member_declarations; it; it = it->next) {
+        semantic()->check(it->declaration, klass->members());
+    }
+
+    (void) semantic()->switchObjCVisibility(previousObjCVisibility);
+
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
+{
+    if (!ast->method_prototype)
+        return false;
+
+    FullySpecifiedType ty = semantic()->check(ast->method_prototype, _scope);
+    Function *fun = ty.type()->asFunctionType();
+    if (!fun)
+        return false;
+
+    Declaration *symbol = control()->newDeclaration(ast->firstToken(), fun->name());
+    symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
+    symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
+
+    symbol->setType(fun->returnType());
+
+    symbol->setVisibility(semantic()->currentVisibility());
+
+    if (semantic()->isObjCClassMethod(ast->method_prototype->method_type_token))
+        symbol->setStorage(Symbol::Static);
+
+    _scope->enterSymbol(symbol);
+
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCVisibilityDeclarationAST *ast)
+{
+    int accessSpecifier = tokenKind(ast->visibility_token);
+    int visibility = semantic()->visibilityForObjCAccessSpecifier(accessSpecifier);
+    semantic()->switchObjCVisibility(visibility);
+    return false;
+}
+
 CPLUSPLUS_END_NAMESPACE

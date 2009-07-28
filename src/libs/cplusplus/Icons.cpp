@@ -98,6 +98,10 @@ QIcon Icons::iconForSymbol(const Symbol *symbol) const
         return _enumIcon;
     } else if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
         return _classIcon;
+    } else if (symbol->isObjCClass() || symbol->isObjCForwardClassDeclaration()) {
+        return _classIcon;
+    } else if (symbol->isObjCProtocol() || symbol->isObjCForwardProtocolDeclaration()) {
+        return _classIcon;
     } else if (symbol->isNamespace()) {
         return _namespaceIcon;
     } else if (symbol->isUsingNamespaceDirective() ||

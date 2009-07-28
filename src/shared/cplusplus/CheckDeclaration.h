@@ -91,6 +91,13 @@ protected:
     virtual bool visit(UsingAST *ast);
     virtual bool visit(UsingDirectiveAST *ast);
 
+    virtual bool visit(ObjCProtocolDeclarationAST *ast);
+    virtual bool visit(ObjCProtocolDefinitionAST *ast);
+    virtual bool visit(ObjCClassDeclarationAST *ast);
+    virtual bool visit(ObjCClassInterfaceDefinitionAST *ast);
+    virtual bool visit(ObjCMethodDeclarationAST *ast);
+    virtual bool visit(ObjCVisibilityDeclarationAST *ast);
+
 private:
     DeclarationAST *_declaration;
     Scope *_scope;

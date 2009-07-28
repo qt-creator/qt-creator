@@ -453,4 +453,16 @@ bool Symbol::isArgument() const
 bool Symbol::isBaseClass() const
 { return asBaseClass() != 0; }
 
+bool Symbol::isObjCClass() const
+{ return asObjCClass() != 0; }
+
+bool Symbol::isObjCForwardClassDeclaration() const
+{ return asObjCForwardClassDeclaration() != 0; }
+
+bool Symbol::isObjCProtocol() const
+{ return asObjCProtocol() != 0; }
+
+bool Symbol::isObjCForwardProtocolDeclaration() const
+{ return asObjCForwardProtocolDeclaration() != 0; }
+
 CPLUSPLUS_END_NAMESPACE

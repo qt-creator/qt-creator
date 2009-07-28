@@ -97,6 +97,17 @@ Name *CheckName::check(NestedNameSpecifierAST *nested_name_specifier, Scope *sco
     return switchName(previousName);
 }
 
+Name *CheckName::check(ObjCSelectorAST *args, Scope *scope)
+{
+    Name *previousName = switchName(0);
+    Scope *previousScope = switchScope(scope);
+
+    accept(args);
+
+    (void) switchScope(previousScope);
+    return switchName(previousName);
+}
+
 Name *CheckName::switchName(Name *name)
 {
     Name *previousName = _name;
@@ -348,6 +359,30 @@ bool CheckName::visit(TemplateIdAST *ast)
         _name = control()->templateNameId(id, &templateArguments[0],
                                           templateArguments.size());
     ast->name = _name;
+    return false;
+}
+
+bool CheckName::visit(ObjCSelectorWithoutArgumentsAST *ast)
+{
+    Identifier *id = identifier(ast->name_token);
+    _name = control()->nameId(id);
+    ast->selector_name = _name;
+
+    return false;
+}
+
+bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
+{
+    std::vector<Name *> names;
+    for (ObjCSelectorArgumentListAST *it = ast->selector_arguments; it; it = it->next) {
+        Identifier *id =  identifier(it->argument->name_token);
+        Name *name = control()->nameId(id);
+
+        names.push_back(name);
+    }
+    _name = control()->qualifiedNameId(&names[0], names.size(), false);
+    ast->selector_name = _name;
+
     return false;
 }
 

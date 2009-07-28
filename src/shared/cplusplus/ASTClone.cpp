@@ -1207,7 +1207,8 @@ IdentifierListAST *IdentifierListAST::clone(MemoryPool *pool) const
 {
     IdentifierListAST *ast = new (pool) IdentifierListAST;
     // copy IdentifierListAST
-    ast->identifier_token = identifier_token;
+    if (ast->name) ast->name = name->clone(pool);
+    ast->comma_token = comma_token;
     if (next) ast->next = next->clone(pool);
     return ast;
 }
@@ -1224,14 +1225,14 @@ ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-ObjCClassInterfaceDeclarationAST *ObjCClassInterfaceDeclarationAST::clone(MemoryPool *pool) const
+ObjCClassInterfaceDefinitionAST *ObjCClassInterfaceDefinitionAST::clone(MemoryPool *pool) const
 {
-    ObjCClassInterfaceDeclarationAST *ast = new (pool) ObjCClassInterfaceDeclarationAST;
+    ObjCClassInterfaceDefinitionAST *ast = new (pool) ObjCClassInterfaceDefinitionAST;
     // copy DeclarationAST
     // copy ObjCClassInterfaceDeclarationAST
     if (attributes) ast->attributes = attributes->clone(pool);
     ast->interface_token = interface_token;
-    ast->class_identifier_token = class_identifier_token;
+    if (class_name) ast->class_name = class_name->clone(pool);
     ast->colon_token = colon_token;
     ast->superclass_identifier_token = superclass_identifier_token;
     if (protocol_refs) ast->protocol_refs = protocol_refs->clone(pool);
@@ -1273,7 +1274,7 @@ ObjCProtocolDefinitionAST *ObjCProtocolDefinitionAST::clone(MemoryPool *pool) co
     ObjCProtocolDefinitionAST *ast = new (pool) ObjCProtocolDefinitionAST;
     if (attributes) ast->attributes = attributes->clone(pool);
     ast->protocol_token = protocol_token;
-    ast->identifier_token = identifier_token;
+    if (name) ast->name = name->clone(pool);
     if (protocol_refs) ast->protocol_refs = protocol_refs->clone(pool);
     if (member_declarations) ast->member_declarations = member_declarations->clone(pool);
     ast->end_token = end_token;
@@ -1344,12 +1345,51 @@ ObjCEncodeExpressionAST *ObjCEncodeExpressionAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+ObjCSelectorWithoutArgumentsAST *ObjCSelectorWithoutArgumentsAST::clone(MemoryPool *pool) const
+{
+    ObjCSelectorWithoutArgumentsAST *ast = new (pool) ObjCSelectorWithoutArgumentsAST;
+    ast->name_token = name_token;
+    return ast;
+}
+
+ObjCSelectorArgumentAST *ObjCSelectorArgumentAST::clone(MemoryPool *pool) const
+{
+    ObjCSelectorArgumentAST *ast = new (pool) ObjCSelectorArgumentAST;
+    ast->name_token = name_token;
+    ast->colon_token = colon_token;
+    return ast;
+}
+
+ObjCSelectorArgumentListAST *ObjCSelectorArgumentListAST::clone(MemoryPool *pool) const
+{
+    ObjCSelectorArgumentListAST *ast = new (pool) ObjCSelectorArgumentListAST;
+    if (argument) ast->argument = argument->clone(pool);
+    if (next) ast->next = next->clone(pool);
+    return ast;
+}
+
+ObjCSelectorWithArgumentsAST *ObjCSelectorWithArgumentsAST::clone(MemoryPool *pool) const
+{
+    ObjCSelectorWithArgumentsAST *ast = new (pool) ObjCSelectorWithArgumentsAST;
+    if (selector_arguments) ast->selector_arguments = selector_arguments->clone(pool);
+    return ast;
+}
+
+ObjCSelectorExpressionAST *ObjCSelectorExpressionAST::clone(MemoryPool *pool) const
+{
+    ObjCSelectorExpressionAST *ast = new (pool) ObjCSelectorExpressionAST;
+    ast->selector_token = selector_token;
+    ast->lparen_token = lparen_token;
+    if (selector) ast->selector = selector->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 ObjCInstanceVariablesDeclarationAST *ObjCInstanceVariablesDeclarationAST::clone(MemoryPool *pool) const
 {
     ObjCInstanceVariablesDeclarationAST *ast = new (pool) ObjCInstanceVariablesDeclarationAST;
     ast->lbrace_token = lbrace_token;
     if (instance_variables) ast->instance_variables = instance_variables->clone(pool);
-    if (member_declarations) ast->member_declarations = member_declarations->clone(pool);
     ast->rbrace_token = rbrace_token;
     return ast;
 }
@@ -1361,19 +1401,18 @@ ObjCVisibilityDeclarationAST *ObjCVisibilityDeclarationAST::clone(MemoryPool *po
     return ast;
 }
 
-ObjcPropertyAttributeAST *ObjcPropertyAttributeAST::clone(MemoryPool *pool) const
+ObjCPropertyAttributeAST *ObjCPropertyAttributeAST::clone(MemoryPool *pool) const
 {
-    ObjcPropertyAttributeAST *ast = new (pool) ObjcPropertyAttributeAST;
+    ObjCPropertyAttributeAST *ast = new (pool) ObjCPropertyAttributeAST;
     ast->attribute_identifier_token = attribute_identifier_token;
     ast->equals_token = equals_token;
-    ast->method_selector_identifier_token = method_selector_identifier_token;
-    ast->colon_token = colon_token;
+    if (method_selector) ast->method_selector = method_selector->clone(pool);
     return ast;
 }
 
-ObjcPropertyAttributeListAST *ObjcPropertyAttributeListAST::clone(MemoryPool *pool) const
+ObjCPropertyAttributeListAST *ObjCPropertyAttributeListAST::clone(MemoryPool *pool) const
 {
-    ObjcPropertyAttributeListAST *ast = new (pool) ObjcPropertyAttributeListAST;
+    ObjCPropertyAttributeListAST *ast = new (pool) ObjCPropertyAttributeListAST;
     if (attr) ast->attr = attr->clone(pool);
     ast->comma_token = comma_token;
     if (next) ast->next = next->clone(pool);
@@ -1395,8 +1434,6 @@ ObjCPropertyDeclarationAST *ObjCPropertyDeclarationAST::clone(MemoryPool *pool) 
 ObjCMessageArgumentDeclarationAST *ObjCMessageArgumentDeclarationAST::clone(MemoryPool *pool) const
 {
     ObjCMessageArgumentDeclarationAST *ast = new (pool) ObjCMessageArgumentDeclarationAST;
-    ast->param_selector_token = param_selector_token;
-    ast->colon_token = colon_token;
     if (type_name) ast->type_name = type_name->clone(pool);
     if (attributes) ast->attributes = attributes->clone(pool);
     ast->param_name_token = param_name_token;

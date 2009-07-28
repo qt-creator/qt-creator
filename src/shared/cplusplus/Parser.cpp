@@ -2894,48 +2894,41 @@ bool Parser::parseObjCProtocolExpression(ExpressionAST *&node)
     return true;
 }
 
-bool Parser::parseObjCSelectorExpression(ExpressionAST *&)
+bool Parser::parseObjCSelectorExpression(ExpressionAST *&node)
 {
     if (LA() != T_AT_SELECTOR)
         return false;
 
-    /*unsigned selector_token = */consumeToken();
-    unsigned lparen_token = 0, rparen_token = 0;
-    match(T_LPAREN, &lparen_token);
+    ObjCSelectorExpressionAST *ast = new (_pool) ObjCSelectorExpressionAST;
+    ast->selector_token = consumeToken();
+    match(T_LPAREN, &(ast->lparen_token));
 
-    if (LA() == T_COLON || LA() == T_COLON_COLON) {
-        consumeToken();
+    unsigned identifier_token = 0;
+    match(T_IDENTIFIER, &identifier_token);
+    if (LA() == T_COLON) {
+        ObjCSelectorWithArgumentsAST *args = new (_pool) ObjCSelectorWithArgumentsAST;
+        ast->selector = args;
+        ObjCSelectorArgumentListAST *last = new (_pool) ObjCSelectorArgumentListAST;
+        args->selector_arguments = last;
+        last->argument = new (_pool) ObjCSelectorArgumentAST;
+        last->argument->name_token = identifier_token;
+        last->argument->colon_token = consumeToken();
 
-        if (LA() == T_RPAREN) {
-            _translationUnit->warning(cursor(),
-                                      "error expended a selector");
-            match(T_RPAREN, &rparen_token);
-            return true;
+        while (LA() != T_RPAREN) {
+            last->next = new (_pool) ObjCSelectorArgumentListAST;
+            last = last->next;
+            last->argument = new (_pool) ObjCSelectorArgumentAST;
+            match(T_IDENTIFIER, &(last->argument->name_token));
+            match(T_COLON, &(last->argument->colon_token));
         }
-    } else if (lookAtObjCSelector()) {
-        unsigned start = cursor();
-        consumeToken();
-        if (LA() != T_RPAREN)
-            rewind(start);
-        else {
-            match(T_RPAREN, &rparen_token);
-            return true;
-        }
+    } else {
+        ObjCSelectorWithoutArgumentsAST *args = new (_pool) ObjCSelectorWithoutArgumentsAST;
+        ast->selector = args;
+        args->name_token = identifier_token;
     }
 
-    while (lookAtObjCSelector()) {
-        unsigned selector_token = 0;
-        parseObjCSelector(selector_token);
-        if (LA() == T_COLON)
-            consumeToken();
-        else {
-            _translationUnit->error(cursor(),
-                                    "expected :");
-            break;
-        }
-    }
-
-    match(T_RPAREN, &rparen_token);
+    match(T_RPAREN, &(ast->rparen_token));
+    node = ast;
     return true;
 }
 
@@ -3923,7 +3916,8 @@ bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
     match(T_IDENTIFIER, &identifier_token);
 
     ast->identifier_list = new (_pool) IdentifierListAST;
-    ast->identifier_list->identifier_token = identifier_token;
+    ast->identifier_list->name = new (_pool) SimpleNameAST;
+    ast->identifier_list->name->identifier_token = identifier_token;
     IdentifierListAST **nextId = &(ast->identifier_list->next);
 
     while (LA() == T_COMMA) {
@@ -3932,7 +3926,8 @@ bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
 
         *nextId = new (_pool) IdentifierListAST;
         (*nextId)->comma_token = comma_token;
-        (*nextId)->identifier_token = identifier_token;
+        (*nextId)->name = new (_pool) SimpleNameAST;
+        (*nextId)->name->identifier_token = identifier_token;
         nextId = &((*nextId)->next);
     }
 
@@ -4006,10 +4001,11 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         return true;
     } else {
         // a class interface declaration
-        ObjCClassInterfaceDeclarationAST *ast = new (_pool) ObjCClassInterfaceDeclarationAST;
+        ObjCClassInterfaceDefinitionAST *ast = new (_pool) ObjCClassInterfaceDefinitionAST;
         ast->attributes = attributes;
         ast->interface_token = objc_interface_token;
-        ast->class_identifier_token = identifier_token;
+        ast->class_name = new (_pool) SimpleNameAST;
+        ast->class_name->identifier_token = identifier_token;
 
         if (LA() == T_COLON) {
             ast->colon_token = consumeToken();
@@ -4059,7 +4055,8 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
         ast->attributes = attributes;
         ast->protocol_token = protocol_token;
         ast->identifier_list = new (_pool) IdentifierListAST;
-        ast->identifier_list->identifier_token = identifier_token;
+        ast->identifier_list->name = new (_pool) SimpleNameAST;
+        ast->identifier_list->name->identifier_token = identifier_token;
         IdentifierListAST **nextId = &(ast->identifier_list->next);
 
         while (LA() == T_COMMA) {
@@ -4068,7 +4065,8 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
 
             *nextId = new (_pool) IdentifierListAST;
             (*nextId)->comma_token = comma_token;
-            (*nextId)->identifier_token = identifier_token;
+            (*nextId)->name = new (_pool) SimpleNameAST;
+            (*nextId)->name->identifier_token = identifier_token;
             nextId = &((*nextId)->next);
         }
 
@@ -4080,7 +4078,8 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
         ObjCProtocolDefinitionAST *ast = new (_pool) ObjCProtocolDefinitionAST;
         ast->attributes = attributes;
         ast->protocol_token = protocol_token;
-        ast->identifier_token = identifier_token;
+        ast->name = new (_pool) SimpleNameAST;
+        ast->name->identifier_token = identifier_token;
 
         parseObjCProtocolRefs(ast->protocol_refs);
 
@@ -4206,14 +4205,16 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
             ObjCDynamicPropertiesDeclarationAST *ast = new (_pool) ObjCDynamicPropertiesDeclarationAST;
             ast->dynamic_token = consumeToken();
             ast->property_identifiers = new (_pool) IdentifierListAST;
-            match(T_IDENTIFIER, &(ast->property_identifiers->identifier_token));
+            ast->property_identifiers->name = new (_pool) SimpleNameAST;
+            match(T_IDENTIFIER, &(ast->property_identifiers->name->identifier_token));
 
             IdentifierListAST *last = ast->property_identifiers;
             while (LA() == T_COMMA) {
                 last->comma_token = consumeToken();
                 last->next = new (_pool) IdentifierListAST;
                 last = last->next;
-                match(T_IDENTIFIER, &(last->identifier_token));
+                last->name = new (_pool) SimpleNameAST;
+                match(T_IDENTIFIER, &(last->name->identifier_token));
             }
 
             match(T_SEMICOLON, &(ast->semicolon_token));
@@ -4284,7 +4285,8 @@ bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
     ast->identifier_list = new (_pool) IdentifierListAST;
-    ast->identifier_list->identifier_token = identifier_token;
+    ast->identifier_list->name = new (_pool) SimpleNameAST;
+    ast->identifier_list->name->identifier_token = identifier_token;
     IdentifierListAST **nextId = &(ast->identifier_list->next);
 
     while (LA() == T_COMMA) {
@@ -4293,7 +4295,8 @@ bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
 
         *nextId = new (_pool) IdentifierListAST;
         (*nextId)->comma_token = comma_token;
-        (*nextId)->identifier_token = identifier_token;
+        (*nextId)->name = new (_pool) SimpleNameAST;
+        (*nextId)->name->identifier_token = identifier_token;
         nextId = &((*nextId)->next);
     }
 
@@ -4422,15 +4425,15 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *a
     if (LA() == T_LPAREN) {
         match(T_LPAREN, &(ast->lparen_token));
 
-        ObjcPropertyAttributeAST *property_attribute = 0;
+        ObjCPropertyAttributeAST *property_attribute = 0;
         if (parseObjCPropertyAttribute(property_attribute)) {
-            ast->property_attributes = new (_pool) ObjcPropertyAttributeListAST;
+            ast->property_attributes = new (_pool) ObjCPropertyAttributeListAST;
             ast->property_attributes->attr = property_attribute;
-            ObjcPropertyAttributeListAST *last = ast->property_attributes;
+            ObjCPropertyAttributeListAST *last = ast->property_attributes;
 
             while (LA() == T_COMMA) {
                 last->comma_token = consumeToken();
-                last->next = new (_pool) ObjcPropertyAttributeListAST;
+                last->next = new (_pool) ObjCPropertyAttributeListAST;
                 last = last->next;
                 parseObjCPropertyAttribute(last->attr);
             }
@@ -4461,17 +4464,28 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
     parseObjCTypeName(ast->type_name);
 
     if ((lookAtObjCSelector() && LA(2) == T_COLON) || LA() == T_COLON) {
+        ObjCSelectorArgumentAST *argument = 0;
         ObjCMessageArgumentDeclarationAST *declaration = 0;
-        parseObjCKeywordDeclaration(declaration);
+        parseObjCKeywordDeclaration(argument, declaration);
+
+        ObjCSelectorWithArgumentsAST *sel = new (_pool) ObjCSelectorWithArgumentsAST;
+        ast->selector = sel;
+        ObjCSelectorArgumentListAST *lastSel = new (_pool) ObjCSelectorArgumentListAST;
+        sel->selector_arguments = lastSel;
+        sel->selector_arguments->argument = argument;
 
         ast->arguments = new (_pool) ObjCMessageArgumentDeclarationListAST;
         ast->arguments->argument_declaration = declaration;
-        ObjCMessageArgumentDeclarationListAST **last = &(ast->arguments);
+        ObjCMessageArgumentDeclarationListAST *lastArg = ast->arguments;
 
-        while (parseObjCKeywordDeclaration(declaration)) {
-            (*last)->next = new (_pool) ObjCMessageArgumentDeclarationListAST;
-            last = &((*last)->next);
-            (*last)->argument_declaration = declaration;
+        while (parseObjCKeywordDeclaration(argument, declaration)) {
+            lastSel->next = new (_pool) ObjCSelectorArgumentListAST;
+            lastSel = lastSel->next;
+            lastSel->argument = argument;
+
+            lastArg->next = new (_pool) ObjCMessageArgumentDeclarationListAST;
+            lastArg = lastArg->next;
+            lastArg->argument_declaration = declaration;
         }
 
         // TODO EV: get this in the ast
@@ -4487,9 +4501,9 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
             parseParameterDeclaration(parameter_declaration);
         }
     } else if (lookAtObjCSelector()) {
-        ast->arguments = new (_pool) ObjCMessageArgumentDeclarationListAST;
-        ast->arguments->argument_declaration = new (_pool) ObjCMessageArgumentDeclarationAST;
-        parseObjCSelector(ast->arguments->argument_declaration->param_selector_token);
+        ObjCSelectorWithoutArgumentsAST *sel = new (_pool) ObjCSelectorWithoutArgumentsAST;
+        parseObjCSelector(sel->name_token);
+        ast->selector = sel;
     } else {
         _translationUnit->error(cursor(), "expected a selector");
     }
@@ -4510,18 +4524,31 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
 // objc-property-attribute ::= retain
 // objc-property-attribute ::= copy
 // objc-property-attribute ::= nonatomic
-bool Parser::parseObjCPropertyAttribute(ObjcPropertyAttributeAST *&node)
+bool Parser::parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node)
 {
     if (LA() != T_IDENTIFIER)
         return false;
 
-    node = new (_pool) ObjcPropertyAttributeAST;
+    node = new (_pool) ObjCPropertyAttributeAST;
     match(T_IDENTIFIER, &(node->attribute_identifier_token));
     if (LA() == T_EQUAL) {
         node->equals_token = consumeToken();
-        match(T_IDENTIFIER, &(node->method_selector_identifier_token));
-        if (LA() == T_COLON)
-            node->colon_token = consumeToken();
+
+        unsigned identifier_token = 0;
+        match(T_IDENTIFIER, &identifier_token);
+
+        if (LA() == T_COLON) {
+            ObjCSelectorWithArgumentsAST *selector = new (_pool) ObjCSelectorWithArgumentsAST;
+            selector->selector_arguments = new (_pool) ObjCSelectorArgumentListAST;
+            selector->selector_arguments->argument = new (_pool) ObjCSelectorArgumentAST;
+            selector->selector_arguments->argument->name_token = identifier_token;
+            selector->selector_arguments->argument->colon_token = consumeToken();
+            node->method_selector = selector;
+        } else {
+            ObjCSelectorWithoutArgumentsAST *selector = new (_pool) ObjCSelectorWithoutArgumentsAST;
+            selector->name_token = identifier_token;
+            node->method_selector = selector;
+        }
     }
 
     return true;
@@ -4556,24 +4583,25 @@ bool Parser::parseObjCSelector(unsigned &selector_token)
 
 // objc-keyword-decl ::= objc-selector? T_COLON objc-type-name? objc-keyword-attributes-opt T_IDENTIFIER
 //
-bool Parser::parseObjCKeywordDeclaration(ObjCMessageArgumentDeclarationAST *&node)
+bool Parser::parseObjCKeywordDeclaration(ObjCSelectorArgumentAST *&argument, ObjCMessageArgumentDeclarationAST *&node)
 {
     if (! (LA() == T_COLON || (lookAtObjCSelector() && LA(2) == T_COLON)))
         return false;
 
-    ObjCMessageArgumentDeclarationAST *ast = new (_pool) ObjCMessageArgumentDeclarationAST;
+    node = new (_pool) ObjCMessageArgumentDeclarationAST;
+    argument = new (_pool) ObjCSelectorArgumentAST;
 
-    parseObjCSelector(ast->param_selector_token);
-    match(T_COLON, &(ast->colon_token));
-    parseObjCTypeName(ast->type_name);
+    parseObjCSelector(argument->name_token);
+    match(T_COLON, &(argument->colon_token));
 
-    SpecifierAST **attr = &(ast->attributes);
+    parseObjCTypeName(node->type_name);
+
+    SpecifierAST **attr = &(node->attributes);
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
-    match(T_IDENTIFIER, &(ast->param_name_token));
+    match(T_IDENTIFIER, &(node->param_name_token));
 
-    node = ast;
     return true;
 }
 

@@ -74,6 +74,8 @@ public:
     FullySpecifiedType check(PtrOperatorAST *ptrOperators, FullySpecifiedType type,
                              Scope *scope);
 
+    FullySpecifiedType check(ObjCMethodPrototypeAST *methodPrototype, Scope *scope);
+
     FullySpecifiedType check(ExpressionAST *expression, Scope *scope);
 
     void check(DeclarationAST *declaration, Scope *scope, Scope *templateParameters = 0);
@@ -84,17 +86,24 @@ public:
 
     Name *check(NestedNameSpecifierAST *name, Scope *scope);
 
+    Name *check(ObjCSelectorAST *args, Scope *scope);
+
     bool skipFunctionBodies() const;
     void setSkipFunctionBodies(bool skipFunctionBodies);
 
     int currentVisibility() const;
     int switchVisibility(int visibility);
 
+    int currentObjCVisibility() const;
+    int switchObjCVisibility(int visibility);
+
     int currentMethodKey() const;
     int switchMethodKey(int methodKey);
 
     int visibilityForClassKey(int tokenKind) const;
     int visibilityForAccessSpecifier(int tokenKind) const;
+    int visibilityForObjCAccessSpecifier(int tokenKind) const;
+    bool isObjCClassMethod(int tokenKind) const;
 
 private:
     class Data;

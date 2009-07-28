@@ -133,6 +133,12 @@ class ForwardClassDeclaration;
 
 class Token;
 
+// Objective-C symbols
+class ObjCClass;
+class ObjCForwardClassDeclaration;
+class ObjCProtocol;
+class ObjCForwardProtocolDeclaration;
+
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER
 

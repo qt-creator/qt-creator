@@ -79,6 +79,12 @@ public:
     virtual bool visit(Class *) { return true; }
     virtual bool visit(Block *) { return true; }
     virtual bool visit(ForwardClassDeclaration *) { return true; }
+
+    // Objective-C
+    virtual bool visit(ObjCClass *) { return true; }
+    virtual bool visit(ObjCForwardClassDeclaration *) { return true; }
+    virtual bool visit(ObjCProtocol *) { return true; }
+    virtual bool visit(ObjCForwardProtocolDeclaration *) { return true; }
 };
 
 CPLUSPLUS_END_NAMESPACE
