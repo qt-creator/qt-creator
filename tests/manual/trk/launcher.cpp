@@ -175,10 +175,10 @@ bool Adapter::startServer()
     }
 
     sendTrkInitialPing();
-    sendTrkMessage(0x01); // Connect
-    sendTrkMessage(0x05, CB(handleSupportMask));
-    sendTrkMessage(0x06, CB(handleCpuType));
-    sendTrkMessage(0x04); // Versions
+    sendTrkMessage(TrkConnect); // Connect
+    sendTrkMessage(TrkSupported, CB(handleSupportMask));
+    sendTrkMessage(TrkCpuType, CB(handleCpuType));
+    sendTrkMessage(TrkVersions); // Versions
 //    sendTrkMessage(0x09); // Unrecognized command
     startInferiorIfNeeded();
     return true;
@@ -380,7 +380,7 @@ void Adapter::handleResult(const TrkResult &result)
     QByteArray prefix = "READ BUF:                                       ";
     QByteArray str = result.toString().toUtf8();
     switch (result.code) {
-        case 0x80: { // ACK
+        case TrkNotifyAck: { // ACK
             //logMessage(prefix + "ACK: " + str);
             if (!result.data.isEmpty() && result.data.at(0))
                 logMessage(prefix + "ERR: " +QByteArray::number(result.data.at(0)));
@@ -402,13 +402,13 @@ void Adapter::handleResult(const TrkResult &result)
             }
             break;
         }
-        case 0xff: { // NAK
+        case TrkNotifyNak: { // NAK
             logMessage(prefix + "NAK: " + str);
             //logMessage(prefix << "TOKEN: " << result.token);
             logMessage(prefix + "ERROR: " + errorMessage(result.data.at(0)));
             break;
         }
-        case 0x90: { // Notified Stopped
+        case TrkNotifyStopped: { // Notified Stopped
             logMessage(prefix + "NOTE: STOPPED  " + str);
             // 90 01   78 6a 40 40   00 00 07 23   00 00 07 24  00 00
             //const char *data = result.data.data();
@@ -419,19 +419,19 @@ void Adapter::handleResult(const TrkResult &result)
             sendTrkAck(result.token);
             break;
         }
-        case 0x91: { // Notify Exception (obsolete)
+        case TrkNotifyException: { // Notify Exception (obsolete)
             logMessage(prefix + "NOTE: EXCEPTION  " + str);
             sendTrkAck(result.token);
             break;
         }
-        case 0x92: { //
+        case TrkNotifyInternalError: { //
             logMessage(prefix + "NOTE: INTERNAL ERROR: " + str);
             sendTrkAck(result.token);
             break;
         }
 
         // target->host OS notification
-        case 0xa0: { // Notify Created
+        case TrkNotifyCreated: { // Notify Created
             /*
             const char *data = result.data.data();
             byte error = result.data.at(0);
@@ -458,26 +458,26 @@ void Adapter::handleResult(const TrkResult &result)
             QByteArray ba;
             appendInt(&ba, m_session.pid);
             appendInt(&ba, m_session.tid);
-            sendTrkMessage(0x18, 0, ba, "CONTINUE");
+            sendTrkMessage(TrkContinue, 0, ba, "CONTINUE");
             //sendTrkAck(result.token)
             break;
         }
-        case 0xa1: { // NotifyDeleted
+        case TrkNotifyDeleted: { // NotifyDeleted
             logMessage(prefix + "NOTE: LIBRARY UNLOAD: " + str);
             sendTrkAck(result.token);
             break;
         }
-        case 0xa2: { // NotifyProcessorStarted
+        case TrkNotifyProcessorStarted: { // NotifyProcessorStarted
             logMessage(prefix + "NOTE: PROCESSOR STARTED: " + str);
             sendTrkAck(result.token);
             break;
         }
-        case 0xa6: { // NotifyProcessorStandby
+        case TrkNotifyProcessorStandBy: { // NotifyProcessorStandby
             logMessage(prefix + "NOTE: PROCESSOR STANDBY: " + str);
             sendTrkAck(result.token);
             break;
         }
-        case 0xa7: { // NotifyProcessorReset
+        case TrkNotifyProcessorReset: { // NotifyProcessorReset
             logMessage(prefix + "NOTE: PROCESSOR RESET: " + str);
             sendTrkAck(result.token);
             break;
@@ -522,7 +522,7 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     QByteArray ba;
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid);
-    sendTrkMessage(0x18, 0, ba, "CONTINUE");
+    sendTrkMessage(TrkContinue, 0, ba, "CONTINUE");
 }
 
 void Adapter::handleWaitForFinished(const TrkResult &result)
@@ -557,7 +557,7 @@ void Adapter::cleanUp()
     appendByte(&ba, 0x00);
     appendByte(&ba, 0x00);
     appendInt(&ba, m_session.pid);
-    sendTrkMessage(0x41, 0, ba, "Delete process");
+    sendTrkMessage(TrkDeleteItem, 0, ba, "Delete process");
 
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
@@ -614,7 +614,7 @@ void Adapter::startInferiorIfNeeded()
     file.append('\0');
     file.append('\0');
     appendString(&ba, file, TargetByteOrder);
-    sendTrkMessage(0x40, CB(handleCreateProcess), ba); // Create Item
+    sendTrkMessage(TrkCreateItem, CB(handleCreateProcess), ba); // Create Item
 }
 
 int main(int argc, char *argv[])

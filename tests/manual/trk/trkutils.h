@@ -39,6 +39,27 @@ typedef unsigned char byte;
 
 namespace trk {
 
+enum Command {
+    TrkConnect = 0x01,
+    TrkVersions = 0x04,
+    TrkSupported = 0x05,
+    TrkCpuType = 0x06,
+    TrkContinue = 0x18,
+    TrkCreateItem = 0x40,
+    TrkDeleteItem = 0x41,
+
+    TrkNotifyAck = 0x80,
+    TrkNotifyNak = 0xff,
+    TrkNotifyStopped = 0x90,
+    TrkNotifyException = 0x91,
+    TrkNotifyInternalError = 0x92,
+    TrkNotifyCreated = 0xa0,
+    TrkNotifyDeleted = 0xa1,
+    TrkNotifyProcessorStarted = 0xa2,
+    TrkNotifyProcessorStandBy = 0xa6,
+    TrkNotifyProcessorReset = 0xa7
+};
+
 QByteArray decode7d(const QByteArray &ba);
 QByteArray encode7d(const QByteArray &ba);
 
