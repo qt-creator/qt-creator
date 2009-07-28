@@ -264,9 +264,10 @@ void appendInt(QByteArray *ba, uint i, Endianness endian)
 void appendString(QByteArray *ba, const QByteArray &str, Endianness endian)
 {
     const int n = str.size();
-    appendShort(ba, n, endian);
+    appendShort(ba, n+1, endian); // count the terminating \0
     for (int i = 0; i != n; ++i)
         ba->append(str.at(i));
+    ba->append('\0');
 }
 
 QByteArray errorMessage(byte code)

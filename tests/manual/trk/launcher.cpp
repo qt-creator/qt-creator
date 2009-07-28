@@ -629,10 +629,7 @@ void Adapter::startInferiorIfNeeded()
     appendByte(&ba, 0); // ?
     appendByte(&ba, 0); // ?
     appendByte(&ba, 0); // ?
-    QByteArray file = m_fileName.toLocal8Bit();
-    file.append('\0');
-    file.append('\0');
-    appendString(&ba, file, TargetByteOrder);
+    appendString(&ba, m_fileName.toLocal8Bit(), TargetByteOrder);
     sendTrkMessage(TrkCreateItem, CB(handleCreateProcess), ba); // Create Item
 }
 
