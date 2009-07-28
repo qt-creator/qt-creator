@@ -203,7 +203,7 @@ public:
     bool m_invertNext; // Short-lived, so not in State
     int m_skipLevel;
     bool m_cumulative;
-    QString m_oldPath;                              // To restore the current path to the path
+    QStack<QString> m_oldPathStack;                 // To restore the current path to the path
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
     struct ProLoop {
         QString variable;
@@ -954,13 +954,18 @@ void ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
 {
     m_lineNo = pro->lineNumber();
+
+    m_oldPathStack.push(QDir::currentPath());
+    if (!QDir::setCurrent(pro->directoryName())) {
+        m_oldPathStack.pop();
+        return ProItem::ReturnFalse;
+    }
+
     m_profileStack.push(pro);
     if (m_profileStack.count() == 1) {
-        // change the working directory for the initial profile we visit, since
+        // Do this only for the initial profile we visit, since
         // that is *the* profile. All the other times we reach this function will be due to
         // include(file) or load(file)
-
-        m_oldPath = QDir::currentPath();
 
         if (m_parsePreAndPostFiles) {
             const QString mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
@@ -982,8 +987,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
                 tmp.removeAll(remove);
             m_valuemap.insert(QLatin1String("CONFIG"), tmp);
         }
-
-        return returnBool(QDir::setCurrent(pro->directoryName()));
     }
 
     return ProItem::ReturnTrue;
@@ -992,6 +995,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
 ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
 {
     m_lineNo = pro->lineNumber();
+
     if (m_profileStack.count() == 1) {
         if (m_parsePreAndPostFiles) {
             evaluateFeatureFile(QLatin1String("default_post.prf"));
@@ -1021,15 +1025,10 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
         foreach (ProBlock *itm, m_testFunctions)
             itm->deref();
         m_testFunctions.clear();
-
-        m_profileStack.pop();
-
-        return returnBool(QDir::setCurrent(m_oldPath));
     }
-
     m_profileStack.pop();
 
-    return ProItem::ReturnTrue;
+    return returnBool(QDir::setCurrent(m_oldPathStack.pop()));
 }
 
 void ProFileEvaluator::Private::visitProValue(ProValue *value)
