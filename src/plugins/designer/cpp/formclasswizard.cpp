@@ -34,15 +34,12 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <cpptools/cpptoolsconstants.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QDir>
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
-using namespace Designer;
-using namespace Designer::Internal;
+namespace Designer {
+namespace Internal {
 
 FormClassWizard::FormClassWizard(const BaseFileWizardParameters &parameters,  QObject *parent)
   : Core::BaseFileWizard(parameters, parent)
@@ -62,16 +59,6 @@ QString FormClassWizard::sourceSuffix() const
 QString FormClassWizard::formSuffix() const
 {
     return preferredSuffix(QLatin1String(Constants::FORM_MIMETYPE));
-}
-
-// Retrieve settings of CppTools plugin.
-static inline bool lowerCaseFiles()
-{
-    QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
-    lowerCaseSettingsKey += QLatin1Char('/');
-    lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
-    const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
-    return Core::ICore::instance()->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
 QWizard *FormClassWizard::createWizardDialog(QWidget *parent,
@@ -122,4 +109,7 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
         qDebug() << Q_FUNC_INFO << '\n' << header << '\n' << source;
 
     return  Core::GeneratedFiles() << headerFile << sourceFile << uiFile;
+}
+
+}
 }

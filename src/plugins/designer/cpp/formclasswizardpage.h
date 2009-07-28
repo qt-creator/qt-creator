@@ -72,7 +72,7 @@ private slots:
     void slotValidChanged();
 
 private:
-    void initParameters();
+    void initFileGenerationSettings();
 
     Ui::FormClassWizardPage *m_ui;
     bool m_isValid;

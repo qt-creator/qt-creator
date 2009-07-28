@@ -61,6 +61,8 @@ FormClassWizardPage::FormClassWizardPage(QWidget * parent) :
 
     connect(m_ui->newClassWidget, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
     connect(m_ui->settingsToolButton, SIGNAL(clicked()), this, SLOT(slotSettings()));
+
+    initFileGenerationSettings();
 }
 
 FormClassWizardPage::~FormClassWizardPage()
@@ -79,7 +81,7 @@ static  bool inline lowerCaseFiles(const Core::ICore *core)
 }
 
 // Set up new class widget from settings
-void FormClassWizardPage::initParameters()
+void FormClassWizardPage::initFileGenerationSettings()
 {
     Core::ICore *core = Core::ICore::instance();
     const Core::MimeDatabase *mdb = core->mimeDatabase();
@@ -88,12 +90,13 @@ void FormClassWizardPage::initParameters()
     m_ui->newClassWidget->setLowerCaseFiles(lowerCaseFiles(core));
 }
 
+// Pop up settings dialog for generation settings
 void FormClassWizardPage::slotSettings()
 {
     const QString id = QLatin1String(CppTools::Constants::CPP_SETTINGS_ID);
     const QString cat = QLatin1String(CppTools::Constants::CPP_SETTINGS_CATEGORY);
     if (Core::ICore::instance()->showOptionsDialog(cat, id, this)) {
-        initParameters();
+        initFileGenerationSettings();
         m_ui->newClassWidget->triggerUpdateFileNames();
     }
 }
