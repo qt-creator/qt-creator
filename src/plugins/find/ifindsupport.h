@@ -48,7 +48,7 @@ public:
         FindWholeWords = 0x04,
         FindRegularExpression = 0x08
     };
-    Q_DECLARE_FLAGS(FindFlags, FindFlag);
+    Q_DECLARE_FLAGS(FindFlags, FindFlag)
 
     IFindSupport() : QObject(0) {}
     virtual ~IFindSupport() {}

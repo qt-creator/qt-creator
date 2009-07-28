@@ -62,7 +62,7 @@ public:
     enum Kind {
         Directory,
         File,
-        Command,
+        Command
         // ,Any
     };
 

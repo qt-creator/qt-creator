@@ -152,7 +152,7 @@ public:
 private:
     QList<IFile *> m_files;
     bool m_reload;
-    Q_DISABLE_COPY(FileChangeBlocker);
+    Q_DISABLE_COPY(FileChangeBlocker)
 };
 
 } // namespace Core
