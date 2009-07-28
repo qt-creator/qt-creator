@@ -41,6 +41,25 @@
 
 #if USE_NATIVE
 #include <windows.h>
+
+// Non-blocking replacement for win-api ReadFile function
+BOOL WINAPI TryReadFile(HANDLE          hFile,
+                        LPVOID          lpBuffer,
+                        DWORD           nNumberOfBytesToRead,
+                        LPDWORD         lpNumberOfBytesRead,
+                        LPOVERLAPPED    lpOverlapped)
+{
+    COMSTAT comStat;
+    if(!ClearCommError(hFile, NULL, &comStat)){
+        qDebug() << "ClearCommError() failed";
+        return FALSE;
+    }
+    return ReadFile(hFile,
+                    lpBuffer,
+                    qMin(comStat.cbInQue, nNumberOfBytesToRead),
+                    lpNumberOfBytesRead,
+                    lpOverlapped);
+}
 #endif
 
 #ifdef Q_OS_UNIX
@@ -342,11 +361,11 @@ void Adapter::trkWrite(const TrkMessage &msg)
 void Adapter::tryTrkRead()
 {
 #if USE_NATIVE
-    const DWORD BUFFERSIZE = 1;
+    const DWORD BUFFERSIZE = 1024;
     char buffer[BUFFERSIZE];
     DWORD charsRead;
 
-    while (ReadFile(m_hdevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
+    while (TryReadFile(m_hdevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
         m_trkReadQueue.append(buffer, charsRead);
         if (isValidTrkResult(m_trkReadQueue))
             break;
