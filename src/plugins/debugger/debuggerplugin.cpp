@@ -1221,6 +1221,9 @@ void DebuggerPlugin::startExternalApplication()
         m_manager->breakByFunctionMain();
 
     QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (rc.isNull())
+        rc = DebuggerRunner::createDefaultRunConfiguration(sp->executable);
+
     if (RunControl *runControl = m_debuggerRunner
             ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, StartExternal))
         runControl->start();
@@ -1244,6 +1247,8 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
     sp->crashParameter = crashParameter;
     const DebuggerStartMode dsm = crashParameter.isEmpty() ?  AttachExternal : AttachCrashedExternal;
     QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (rc.isNull())
+        rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
             ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, dsm))
         runControl->start();

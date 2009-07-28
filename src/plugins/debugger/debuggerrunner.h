@@ -70,6 +70,8 @@ public:
                  const QSharedPointer<DebuggerStartParameters> &sp,
                  DebuggerStartMode startMode);
 
+    static RunConfigurationPtr createDefaultRunConfiguration(const QString &executable = QString());
+
 private:
     QSharedPointer<DebuggerStartParameters> m_startParameters;
     DebuggerManager *m_manager;
