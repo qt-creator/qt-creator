@@ -12,8 +12,8 @@ SOURCES += welcomeplugin.cpp \
     welcomemode.cpp \
     rssfetcher.cpp \
     communitywelcomepagewidget.cpp \
-    communitywelcomepage.cpp \
     communitywelcomepage.cpp
+
 FORMS += welcomemode.ui \
     communitywelcomepagewidget.ui
 RESOURCES += welcome.qrc
