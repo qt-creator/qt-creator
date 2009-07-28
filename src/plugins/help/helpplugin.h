@@ -63,6 +63,7 @@ class SideBarItem;
 namespace Help {
 namespace Internal {
     class CentralWidget;
+    class HelpPlugin;
 }
 
 namespace Constants {
@@ -76,12 +77,14 @@ class HELP_EXPORT HelpManager : public QObject
 {
     Q_OBJECT
 public:
-    HelpManager(QHelpEngine *helpEngine);
+    HelpManager(Internal::HelpPlugin*);
 
     void registerDocumentation(const QStringList &fileNames);
+    void openHelpPage(const QString& url);
+    void openContextHelpPage(const QString &url);
 
 private:
-    QHelpEngine *m_helpEngine;
+    Internal::HelpPlugin *m_plugin;
 };
 
 namespace Internal {
@@ -108,6 +111,12 @@ public:
     void setIndexFilter(const QString &filter);
     QString indexFilter() const;
 
+    void openHelpPage(const QUrl& url);
+    void openHelpPage(const QString& url);
+    void openContextHelpPage(const QString &url);
+
+    QHelpEngine* helpEngine() const;
+
 private slots:
     void modeChanged(Core::IMode *mode);
     void activateContext();
@@ -127,10 +136,6 @@ private slots:
     void switchToHelpMode(const QMap<QString, QUrl> &urls, const QString &keyword);
     void slotHideRightPane();
     void copyFromSideBar();
-
-    void openHelpPage(const QUrl& url);
-    void openHelpPage(const QString& url);
-    void openContextHelpPage(const QString &url);
 
     void updateSideBarSource();
     void updateSideBarSource(const QUrl &newUrl);

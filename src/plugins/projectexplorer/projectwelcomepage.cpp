@@ -27,53 +27,22 @@
 **
 **************************************************************************/
 
-#ifndef WELCOMEMODE_H
-#define WELCOMEMODE_H
+#include "projectwelcomepage.h"
+#include "projectwelcomepagewidget.h"
 
-#include "welcome_global.h"
+namespace ProjectExplorer {
+namespace Internal {
 
-#include <coreplugin/imode.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QPair>
-
-QT_BEGIN_NAMESPACE
-class QWidget;
-class QUrl;
-QT_END_NAMESPACE
-
-namespace Welcome {
-
-struct WelcomeModePrivate;
-
-class WELCOME_EXPORT WelcomeMode : public Core::IMode
+ProjectWelcomePage::ProjectWelcomePage()
+ : m_page(new ProjectWelcomePageWidget)
 {
-    Q_OBJECT
 
-public:
-    WelcomeMode();
-    ~WelcomeMode();
+}
 
-    // IMode
-    QString name() const;
-    QIcon icon() const;
-    int priority() const;
-    QWidget *widget();
-    const char *uniqueModeName() const;
-    QList<int> context() const;
-    void activated();
-    QString contextHelpId() const { return QLatin1String("Qt Creator"); }
-    void initPlugins();
+QWidget* ProjectWelcomePage::page()
+{
+    return m_page;
+}
 
-private slots:
-    void slotFeedback();
-    void welcomePluginAdded(QObject*);
-    void showClickedPage();
-
-private:
-    WelcomeModePrivate *m_d;
-};
-
-} // namespace Welcome
-
-#endif // WELCOMEMODE_H
+} // namespace Internal
+} // namespace ProjectExplorer

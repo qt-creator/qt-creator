@@ -27,53 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef WELCOMEMODE_H
-#define WELCOMEMODE_H
+#ifndef GETTINGSTARTEDWELCOMEPLUGIN_H
+#define GETTINGSTARTEDWELCOMEPLUGIN_H
 
-#include "welcome_global.h"
+#include <extensionsystem/iwelcomepage.h>
 
-#include <coreplugin/imode.h>
+namespace Qt4ProjectManager {
+namespace Internal {
 
-#include <QtCore/QObject>
-#include <QtCore/QPair>
+class GettingStartedWelcomePageWidget;
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-class QUrl;
-QT_END_NAMESPACE
-
-namespace Welcome {
-
-struct WelcomeModePrivate;
-
-class WELCOME_EXPORT WelcomeMode : public Core::IMode
+class GettingStartedWelcomePage : public ExtensionSystem::IWelcomePage
 {
-    Q_OBJECT
-
 public:
-    WelcomeMode();
-    ~WelcomeMode();
+    GettingStartedWelcomePage();
 
-    // IMode
-    QString name() const;
-    QIcon icon() const;
-    int priority() const;
-    QWidget *widget();
-    const char *uniqueModeName() const;
-    QList<int> context() const;
-    void activated();
-    QString contextHelpId() const { return QLatin1String("Qt Creator"); }
-    void initPlugins();
-
-private slots:
-    void slotFeedback();
-    void welcomePluginAdded(QObject*);
-    void showClickedPage();
+    QWidget *page();
+    QString title() const { return tr("Getting Started");}
+    int priority() const { return 10; }
 
 private:
-    WelcomeModePrivate *m_d;
+    GettingStartedWelcomePageWidget *m_page;
 };
 
-} // namespace Welcome
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif // WELCOMEMODE_H
+#endif // GETTINGSTARTEDWELCOMEPLUGIN_H

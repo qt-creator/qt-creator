@@ -72,6 +72,8 @@ class ApplicationOutput;
 class OutputPane;
 class ProjectWindow;
 class ProjectFileFactory;
+class ProjectWelcomePage;
+class ProjectWelcomePageWidget;
 
 struct ProjectExplorerSettings
 {
@@ -209,7 +211,7 @@ private:
 
     void updateActions();
     void addToRecentProjects(const QString &fileName, const QString &displayName);
-    void updateWelcomePage(Welcome::WelcomeMode *welcomeMode);
+    void updateWelcomePage();
     Internal::ProjectFileFactory *findProjectFileFactory(const QString &filename) const;
 
     static ProjectExplorerPlugin *m_instance;
@@ -279,6 +281,8 @@ private:
     QString m_runMode;
     QString m_projectFilterString;
     Internal::ProjectExplorerSettings m_projectExplorerSettings;
+    Internal::ProjectWelcomePage *m_welcomePlugin;
+    Internal::ProjectWelcomePageWidget *m_welcomePage;
 };
 
 namespace Internal {

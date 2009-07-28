@@ -27,53 +27,55 @@
 **
 **************************************************************************/
 
-#ifndef WELCOMEMODE_H
-#define WELCOMEMODE_H
+#ifndef PROJECTWELCOMEPAGEWIDGET_H
+#define PROJECTWELCOMEPAGEWIDGET_H
 
-#include "welcome_global.h"
+#include <QtGui/QWidget>
 
-#include <coreplugin/imode.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QPair>
+namespace ProjectExplorer {
+    namespace Internal {
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-class QUrl;
-QT_END_NAMESPACE
 
-namespace Welcome {
+namespace Ui {
+    class ProjectWelcomePageWidget;
+}
 
-struct WelcomeModePrivate;
-
-class WELCOME_EXPORT WelcomeMode : public Core::IMode
-{
+class ProjectWelcomePageWidget : public QWidget {
     Q_OBJECT
-
 public:
-    WelcomeMode();
-    ~WelcomeMode();
+    ProjectWelcomePageWidget(QWidget *parent = 0);
+    ~ProjectWelcomePageWidget();
 
-    // IMode
-    QString name() const;
-    QIcon icon() const;
-    int priority() const;
-    QWidget *widget();
-    const char *uniqueModeName() const;
-    QList<int> context() const;
-    void activated();
-    QString contextHelpId() const { return QLatin1String("Qt Creator"); }
-    void initPlugins();
+    struct WelcomePageData{
+        bool operator==(const WelcomePageData &rhs) const;
+        bool operator!=(const WelcomePageData &rhs) const;
+
+        QString previousSession;
+        QString activeSession;
+        QStringList sessionList;
+        QList<QPair<QString, QString> > projectList; // pair of filename, displayname
+    };
+
+    void updateWelcomePage(const WelcomePageData &welcomePageData);
+
+signals:
+    void requestProject(const QString &project);
+    void requestSession(const QString &session);
+    void manageSessions();
 
 private slots:
-    void slotFeedback();
-    void welcomePluginAdded(QObject*);
-    void showClickedPage();
+    void slotSessionClicked(const QString &data);
+    void slotProjectClicked(const QString &data);
+    void slotCreateNewProject();
 
 private:
-    WelcomeModePrivate *m_d;
+    void activateEditMode();
+    Ui::ProjectWelcomePageWidget *ui;
+    WelcomePageData lastData;
 };
 
-} // namespace Welcome
+}
+}
 
-#endif // WELCOMEMODE_H
+#endif // PROJECTWELCOMEPAGEWIDGET_H

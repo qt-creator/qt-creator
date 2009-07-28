@@ -42,7 +42,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
-#include <welcome/welcomemode.h>
 #include <extensionsystem/pluginmanager.h>
 #include <help/helpplugin.h>
 #include <utils/qtcassert.h>
@@ -51,6 +50,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QSettings>
 #include <QtCore/QTime>
+#include <QtCore/QTimer>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
 
@@ -122,7 +122,8 @@ QtVersionManager::QtVersionManager()
     writeVersionsIntoSettings();
 
     updateDocumentation();
-    updateExamples();
+    // cannot call from ctor, needs to get connected extenernally first
+    QTimer::singleShot(0, this, SLOT(updateExamples()));
 }
 
 QtVersionManager::~QtVersionManager()
@@ -185,9 +186,7 @@ void QtVersionManager::updateExamples()
         if (version->hasDemos())
             demosPath = version->demosPath();
         if (!examplesPath.isEmpty() && !demosPath.isEmpty()) {
-            if (Welcome::WelcomeMode *welcomeMode = qobject_cast<Welcome::WelcomeMode*>
-                    (Core::ICore::instance()->modeManager()->mode(Core::Constants::MODE_WELCOME)))
-                welcomeMode->updateExamples(examplesPath, demosPath, version->sourcePath());
+            emit updateExamples(examplesPath, demosPath, version->sourcePath());
             return;
         }
     }

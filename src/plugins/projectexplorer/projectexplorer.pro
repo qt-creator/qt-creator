@@ -61,7 +61,9 @@ HEADERS += projectexplorer.h \
     filewatcher.h \
     debugginghelper.h \
     abstractmakestep.h \
-    projectexplorersettingspage.h
+    projectexplorersettingspage.h \
+    projectwelcomepage.h \
+    projectwelcomepagewidget.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -111,7 +113,9 @@ SOURCES += projectexplorer.cpp \
     filewatcher.cpp \
     debugginghelper.cpp \
     abstractmakestep.cpp \
-    projectexplorersettingspage.cpp
+    projectexplorersettingspage.cpp \
+    projectwelcomepage.cpp \
+    projectwelcomepagewidget.cpp
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \
@@ -119,7 +123,8 @@ FORMS += processstep.ui \
     projectwizardpage.ui \
     buildstepspage.ui \
     removefiledialog.ui \
-    projectexplorersettingspage.ui
+    projectexplorersettingspage.ui \
+    projectwelcomepagewidget.ui
 win32 { 
     SOURCES += applicationlauncher_win.cpp \
         winguiprocess.cpp

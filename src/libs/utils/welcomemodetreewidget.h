@@ -33,11 +33,22 @@
 #include "utils_global.h"
 
 #include <QtGui/QTreeWidget>
+#include <QtGui/QLabel>
 
 namespace Core {
   namespace Utils {
 
 struct WelcomeModeTreeWidgetPrivate;
+struct WelcomeModeLabelPrivate;
+
+class QTCREATOR_UTILS_EXPORT WelcomeModeLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    WelcomeModeLabel(QWidget *parent) : QLabel(parent) {};
+    void setStyledText(const QString &text);
+    WelcomeModeLabelPrivate *m_d;
+};
 
 class QTCREATOR_UTILS_EXPORT WelcomeModeTreeWidget : public QTreeWidget
 {

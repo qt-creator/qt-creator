@@ -201,6 +201,10 @@ public:
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();
+    void updateExamples(QString, QString, QString);
+
+private slots:
+    void updateExamples();
 private:
     static QString findQMakeLine(const QString &directory);
     static QString trimLine(const QString line);
@@ -215,7 +219,6 @@ private:
     void addNewVersionsFromInstaller();
     void updateSystemVersion();
     void updateDocumentation();
-    void updateExamples();
 
     static int indexOfVersionInList(const QtVersion * const version, const QList<QtVersion *> &list);
     void updateUniqueIdToIndexMap();

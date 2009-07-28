@@ -118,7 +118,7 @@ public:
     void setServerName(const QString &name) { m_serverName = name; }
     void setMemoryDumpName(const QString &source) { m_memoryDumpName = source; }
     void setVerbose(int v) { m_verbose = v; }
-    void startServer();
+    bool startServer();
 
 private slots:
     void handleConnection();
@@ -157,25 +157,29 @@ TrkServer::~TrkServer()
     m_server.close();
 }
 
-void TrkServer::startServer()
+bool TrkServer::startServer()
 {
     QFile file(m_memoryDumpName);
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly)) {
+        logMessage(QString::fromLatin1("Unable to read %1: %2").arg(m_memoryDumpName, file.errorString()), true);
+        return false;
+    }
     m_memoryData = file.readAll();
     file.close();
 
     logMessage(QString("Read %1 bytes of data from %2")
-        .arg(m_memoryData.size()).arg(m_memoryDumpName));
+        .arg(m_memoryData.size()).arg(m_memoryDumpName), true);
 
     m_lastSent = 0;
     if (!m_server.listen(m_serverName)) {
         logMessage(QString("Error: Unable to start the TRK server %1: %2.")
             .arg(m_serverName).arg(m_server.errorString()), true);
-        return;
+        return false;
     }
 
     logMessage("The TRK server '" + m_serverName + "'is running. Run the adapter now.", true);
     connect(&m_server, SIGNAL(newConnection()), this, SLOT(handleConnection()));
+    return true;
 }
 
 void TrkServer::logMessage(const QString &msg, bool force)
@@ -384,7 +388,8 @@ int main(int argc, char *argv[])
     server.setServerName(options.serverName);
     server.setMemoryDumpName(options.dumpName);
     server.setVerbose(options.verbose);
-    server.startServer();
+    if (!server.startServer())
+        return -1;
 
     return app.exec();
 }
