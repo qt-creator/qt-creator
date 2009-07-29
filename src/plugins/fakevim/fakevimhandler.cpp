@@ -1564,30 +1564,34 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         }
     } else if (key == Key_Left) {
         moveLeft(count());
+        setTargetColumn();
         m_lastInsertion.clear();
     } else if (key == Key_Down) {
-        removeAutomaticIndentation();
+        //removeAutomaticIndentation();
         m_submode = NoSubMode;
         moveDown(count());
         m_lastInsertion.clear();
     } else if (key == Key_Up) {
-        removeAutomaticIndentation();
+        //removeAutomaticIndentation();
         m_submode = NoSubMode;
         moveUp(count());
         m_lastInsertion.clear();
     } else if (key == Key_Right) {
         moveRight(count());
+        setTargetColumn();
         m_lastInsertion.clear();
     } else if (key == Key_Return) {
         m_submode = NoSubMode;
         m_tc.insertBlock();
         m_lastInsertion += "\n";
         insertAutomaticIndentation(true);
+        setTargetColumn();
     } else if (key == Key_Backspace || key == control('h')) {
         if (!removeAutomaticIndentation()) 
             if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
                 m_tc.deletePreviousChar();
                 m_lastInsertion.chop(1);
+                setTargetColumn();
             }
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
@@ -1604,6 +1608,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         QString str = QString(theFakeVimSetting(ConfigTabStop)->value().toInt(), ' ');
         m_lastInsertion.append(str);
         m_tc.insertText(str);
+        setTargetColumn();
     } else if (key >= control('a') && key <= control('z')) {
         // ignore these
     } else if (!text.isEmpty()) {
@@ -1625,6 +1630,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
 
         if (!m_inReplay)
             emit q->completionRequested();
+        setTargetColumn();
     } else {
         return EventUnhandled;
     }
@@ -2200,14 +2206,14 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
 void FakeVimHandler::Private::moveToTargetColumn()
 {
     const QTextBlock &block = m_tc.block();
-    int col = m_tc.position() - m_tc.block().position();
+    int col = m_tc.position() - block.position();
     if (col == m_targetColumn)
         return;
     //qDebug() << "CORRECTING COLUMN FROM: " << col << "TO" << m_targetColumn;
-    if (m_targetColumn == -1 || m_tc.block().length() <= m_targetColumn)
-        m_tc.setPosition(block.position() + block.length() - 1, KeepAnchor);
+    if (m_targetColumn == -1 || block.length() <= m_targetColumn)
+        m_tc.setPosition(block.position() + block.length() - 1, MoveAnchor);
     else
-        m_tc.setPosition(m_tc.block().position() + m_targetColumn, KeepAnchor);
+        m_tc.setPosition(block.position() + m_targetColumn, MoveAnchor);
 }
 
 /* if simple is given:
