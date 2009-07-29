@@ -96,6 +96,10 @@ QStringList SubversionSettings::addOptions(const QStringList &args) const
 {
     if (!useAuthentication || user.isEmpty())
         return args;
+    // SVN pre 1.5 does not accept "--userName" for "add", which is most likely
+    // an oversight. As no password is needed for the option, generally omit it.
+    if (!args.empty() && args.front() == QLatin1String("add"))
+        return args;
 
     QStringList rc;
     rc.push_back(QLatin1String(userNameOptionC));
