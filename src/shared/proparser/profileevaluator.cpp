@@ -812,6 +812,10 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
             }
             evaluateFeatureFile(QLatin1String("default_pre.prf"));
 
+            QStringList &tgt = m_valuemap[QLatin1String("TARGET")];
+            if (tgt.isEmpty())
+                tgt.append(QFileInfo(pro->fileName()).baseName());
+
             QStringList tmp = m_valuemap.value(QLatin1String("CONFIG"));
             tmp.append(m_addUserConfigCmdArgs);
             foreach (const QString &remove, m_removeUserConfigCmdArgs)
@@ -2333,9 +2337,7 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
 
     QStringList result = place[variableName];
     if (result.isEmpty()) {
-        if (variableName == QLatin1String("TARGET")) {
-            result.append(QFileInfo(m_origfile).baseName());
-        } else if (variableName == QLatin1String("TEMPLATE")) {
+        if (variableName == QLatin1String("TEMPLATE")) {
             result.append(QLatin1String("app"));
         } else if (variableName == QLatin1String("QMAKE_DIR_SEP")) {
             result.append(Option::dirlist_sep);
