@@ -569,16 +569,15 @@ QPair<QtVersion::QmakeBuildConfig, QStringList> QtVersionManager::scanMakeFile(c
         QStringList additionalArguments;
         parseParts(parts, &assignments, &afterAssignments, &additionalArguments);
 
-        qDebug()<<"After parseParts";
         dumpQMakeAssignments(assignments);
-        qDebug()<<"-after";
+        if (!afterAssignments.isEmpty())
+            qDebug()<<"-after";
         dumpQMakeAssignments(afterAssignments);
 
         // Search in assignments for CONFIG(+=,-=,=)(debug,release,debug_and_release)
         // Also remove them from the list
         result = qmakeBuildConfigFromCmdArgs(&assignments, defaultBuildConfig);
 
-        qDebug()<<"After qmakeBuildConfigFromCmdArgs";
         dumpQMakeAssignments(assignments);
 
         result2.append(additionalArguments);
