@@ -98,10 +98,6 @@
        </widget>
       </item>
      </layout>
-     <zorder></zorder>
-     <zorder>checkBoxDebugDebuggingHelpers</zorder>
-     <zorder>checkBoxUseDebuggingHelpers</zorder>
-     <zorder></zorder>
     </widget>
    </item>
    <item>

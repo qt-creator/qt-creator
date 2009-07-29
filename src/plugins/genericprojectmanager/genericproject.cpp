@@ -356,6 +356,7 @@ void GenericProject::setToolChainId(const QString &toolChainId)
 
 QString GenericProject::buildParser(const QString &buildConfiguration) const
 {
+    Q_UNUSED(buildConfiguration)
     if (m_toolChain) {
         switch (m_toolChain->type()) {
         case ProjectExplorer::ToolChain::GCC:
@@ -448,6 +449,7 @@ GenericProjectNode *GenericProject::rootProjectNode() const
 
 QStringList GenericProject::files(FilesMode fileMode) const
 {
+    Q_UNUSED(fileMode)
     return m_files; // ### TODO: handle generated files here.
 }
 

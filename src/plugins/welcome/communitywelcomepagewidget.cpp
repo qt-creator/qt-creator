@@ -39,8 +39,8 @@ namespace Internal {
 
 CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::CommunityWelcomePageWidget),
-    m_rssFetcher(new RSSFetcher(7))
+    m_rssFetcher(new RSSFetcher(7)),
+    ui(new Ui::CommunityWelcomePageWidget)
 {
     ui->setupUi(this);
     ui->labsTitleLabel->setStyledText(tr("News From the Qt Labs"));

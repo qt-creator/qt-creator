@@ -39,6 +39,7 @@ class GettingStartedWelcomePageWidget;
 
 class GettingStartedWelcomePage : public ExtensionSystem::IWelcomePage
 {
+    Q_OBJECT
 public:
     GettingStartedWelcomePage();
 

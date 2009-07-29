@@ -454,7 +454,7 @@ void QScriptHighlighter::highlightKeyword(int currentPos, const QString &buffer)
     if (buffer.isEmpty())
         return;
 
-    if (m_duiEnabled && buffer.at(0).isUpper() || (! m_duiEnabled && buffer.at(0) == QLatin1Char('Q'))) {
+    if ((m_duiEnabled && buffer.at(0).isUpper()) || (! m_duiEnabled && buffer.at(0) == QLatin1Char('Q'))) {
         setFormat(currentPos - buffer.length(), buffer.length(), m_formats[TypeFormat]);
     } else {
         if (qscriptKeywords.contains(buffer))

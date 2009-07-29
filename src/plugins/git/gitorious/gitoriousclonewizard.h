@@ -39,6 +39,7 @@ namespace Internal {
 // Gitorious-hosted projects.
 class GitoriousCloneWizard : public VCSBase::BaseCheckoutWizard
 {
+    Q_OBJECT
 public:
     explicit GitoriousCloneWizard(QObject *parent = 0);
 

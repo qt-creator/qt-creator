@@ -27,6 +27,8 @@ bool QtScriptCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 #if 0 // ### disable JS Completion. It's pretty buggy and it can crash Creator.
     if (qobject_cast<ScriptEditor *>(editor->widget()))
         return true;
+#else
+    Q_UNUSED(editor)
 #endif
 
     return false;

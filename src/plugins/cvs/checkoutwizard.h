@@ -37,6 +37,7 @@ namespace Internal {
 
 class CheckoutWizard : public VCSBase::BaseCheckoutWizard
 {
+    Q_OBJECT
 public:
     explicit CheckoutWizard(QObject *parent = 0);
 

@@ -37,6 +37,7 @@ namespace Internal {
 
 class CloneWizard : public VCSBase::BaseCheckoutWizard
 {
+    Q_OBJECT
 public:
     explicit CloneWizard(QObject *parent = 0);
 
