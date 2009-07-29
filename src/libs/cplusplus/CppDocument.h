@@ -291,6 +291,8 @@ public:
 
     QSharedPointer<NamespaceBinding> globalNamespaceBinding(Document::Ptr doc) const;
 
+    QStringList dependsOn(const QString &fileName) const;
+
     void insert(Document::Ptr doc);
 
     using _Base::insert;
