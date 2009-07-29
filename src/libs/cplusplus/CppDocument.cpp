@@ -40,9 +40,9 @@
 #include <AST.h>
 #include <Scope.h>
 
-#include <QByteArray>
-#include <QFile>
-#include <QtDebug>
+#include <QtCore/QByteArray>
+#include <QtCore/QBitArray>
+#include <QtCore/QtDebug>
 
 using namespace CPlusPlus;
 
@@ -418,4 +418,79 @@ void Snapshot::simplified_helper(Document::Ptr doc, Snapshot *snapshot) const
             simplified_helper(includedDoc, snapshot);
         }
     }
+}
+
+QStringList Snapshot::dependsOn(const QString &fileName) const
+{
+    const int n = size();
+
+    QVector<QString> files(n);
+    QHash<QString, int> fileIndex;
+    QHash<int, QList<int> > includes;
+
+    QMapIterator<QString, Document::Ptr> it(*this);
+    for (int i = 0; it.hasNext(); ++i) {
+        it.next();
+        files[i] = it.key();
+        fileIndex[it.key()] = i;
+    }
+
+    int index = fileIndex.value(fileName, -1);
+    if (index == -1) {
+        qWarning() << fileName << "not in the snapshot";
+        return QStringList();
+    }
+
+    QVector<QBitArray> includeMap(files.size());
+
+    for (int i = 0; i < files.size(); ++i) {
+        if (Document::Ptr doc = value(files.at(i))) {
+            QBitArray bitmap(files.size());
+            QList<int> directIncludes;
+
+            foreach (const QString &includedFile, doc->includedFiles()) {
+                int index = fileIndex.value(includedFile);
+
+                if (index == -1)
+                    continue;
+                else if (! directIncludes.contains(index))
+                    directIncludes.append(index);
+
+                bitmap.setBit(index, true);
+            }
+
+            includeMap[i] = bitmap;
+            includes[i] = directIncludes;
+        }
+    }
+
+    bool changed;
+
+    do {
+        changed = false;
+
+        for (int i = 0; i < files.size(); ++i) {
+            QBitArray bitmap = includeMap.value(i);
+            QBitArray previousBitmap = bitmap;
+
+            foreach (int includedFileIndex, includes.value(i)) {
+                bitmap |= includeMap.value(includedFileIndex);
+            }
+
+            if (bitmap != previousBitmap) {
+                includeMap[i] = bitmap;
+                changed = true;
+            }
+        }
+    } while (changed);
+
+    QStringList deps;
+    for (int i = 0; i < files.size(); ++i) {
+        const QBitArray &bits = includeMap.at(i);
+
+        if (bits.testBit(index))
+            deps.append(files.at(i));
+    }
+
+    return deps;
 }
