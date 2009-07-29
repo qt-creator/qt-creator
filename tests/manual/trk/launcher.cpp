@@ -33,6 +33,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QQueue>
 #include <QtCore/QTimer>
+#include <QtCore/QDateTime>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
@@ -88,6 +89,8 @@ public:
     ~Adapter();
     void setTrkServerName(const QString &name) { m_trkServerName = name; }
     void setFileName(const QString &name) { m_fileName = name; }
+    void setCopyFileName(const QString &srcName, const QString &dstName) { m_copySrcFileName = srcName; m_copyDstFileName = dstName; }
+    void setInstallFileName(const QString &name) { m_installFileName = name; }
     bool startServer();
 
 private:
@@ -128,6 +131,8 @@ private:
     void timerEvent(QTimerEvent *ev);
     byte nextTrkWriteToken();
 
+    void handleFileCreation(const TrkResult &result);
+    void handleFileCreated(const TrkResult &result);
     void handleCpuType(const TrkResult &result);
     void handleCreateProcess(const TrkResult &result);
     void handleWaitForFinished(const TrkResult &result);
@@ -136,6 +141,10 @@ private:
 
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleResult(const TrkResult &data);
+
+    void copyFileToRemote();
+    void installRemotePackageSilently(const QString &filename);
+    void installAndRun();
     void startInferiorIfNeeded();
 
 #if USE_NATIVE
@@ -158,6 +167,9 @@ private:
     Session m_session; // global-ish data (process id, target information)
 
     QString m_fileName;
+    QString m_copySrcFileName;
+    QString m_copyDstFileName;
+    QString m_installFileName;
 };
 
 Adapter::Adapter()
@@ -198,11 +210,22 @@ bool Adapter::startServer()
     sendTrkMessage(TrkSupported, CB(handleSupportMask));
     sendTrkMessage(TrkCpuType, CB(handleCpuType));
     sendTrkMessage(TrkVersions); // Versions
-//    sendTrkMessage(0x09); // Unrecognized command
-    startInferiorIfNeeded();
+    if (!m_copySrcFileName.isEmpty() && !m_copyDstFileName.isEmpty())
+        copyFileToRemote();
+    else
+        installAndRun();
     return true;
 }
 
+void Adapter::installAndRun()
+{
+    if (!m_installFileName.isEmpty()) {
+        installRemotePackageSilently(m_installFileName);
+        startInferiorIfNeeded();
+    } else {
+        startInferiorIfNeeded();
+    }
+}
 void Adapter::logMessage(const QString &msg)
 {
     qDebug() << "ADAPTER: " << qPrintable(msg);
@@ -508,6 +531,38 @@ void Adapter::handleResult(const TrkResult &result)
     }
 }
 
+void Adapter::handleFileCreation(const TrkResult &result)
+{
+    // we don't do any error handling yet, which is bad
+    const char *data = result.data.data();
+    uint copyFileHandle = extractInt(data + 2);
+    qDebug() << copyFileHandle;
+    QFile file(m_copySrcFileName);
+    file.open(QIODevice::ReadOnly);
+    QByteArray src = file.readAll();
+    file.close();
+    const int BLOCKSIZE = 1024;
+    int size = src.length();
+    int pos = 0;
+    while (pos < size) {
+        QByteArray ba;
+        appendInt(&ba, copyFileHandle, TargetByteOrder);
+        appendString(&ba, src.mid(pos, BLOCKSIZE), TargetByteOrder, false);
+        sendTrkMessage(TrkWriteFile, 0, ba);
+        pos += BLOCKSIZE;
+    }
+    QByteArray ba;
+    appendInt(&ba, copyFileHandle, TargetByteOrder);
+    appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
+    sendTrkMessage(TrkCloseFile, CB(handleFileCreated), ba);
+}
+
+void Adapter::handleFileCreated(const TrkResult &result)
+{
+    Q_UNUSED(result)
+    installAndRun();
+}
+
 void Adapter::handleCpuType(const TrkResult &result)
 {
     logMessage("HANDLE CPU TYPE: " + result.toString());
@@ -618,6 +673,22 @@ void Adapter::cleanUp()
     // Error: 0x00
 }
 
+void Adapter::copyFileToRemote()
+{
+    QByteArray ba;
+    appendByte(&ba, 0x10);
+    appendString(&ba, m_copyDstFileName.toLocal8Bit(), TargetByteOrder, false);
+    sendTrkMessage(TrkOpenFile, CB(handleFileCreation), ba);
+}
+
+void Adapter::installRemotePackageSilently(const QString &fileName)
+{
+    QByteArray ba;
+    appendByte(&ba, 'C');
+    appendString(&ba, fileName.toLocal8Bit(), TargetByteOrder, false);
+    sendTrkMessage(TrkInstallFile, 0, ba);
+}
+
 void Adapter::startInferiorIfNeeded()
 {
     if (m_session.pid != 0) {
@@ -635,9 +706,13 @@ void Adapter::startInferiorIfNeeded()
 
 int main(int argc, char *argv[])
 {
-    if (argc < 3) {
-        qDebug() << "Usage: " << argv[0] << "<trkservername> <remotefilename>";
+    if ((argc != 3 && argc != 5 && argc != 6)
+            || (argc == 5 && QString(argv[2]) != "-i")
+            || (argc == 6 && QString(argv[2]) != "-I")) {
+        qDebug() << "Usage: " << argv[0] << "<trk_port_name> [-i remote_sis_file | -I local_sis_file remote_sis_file] <remote_executable_name>";
         qDebug() << "for example" << argv[0] << "COM5 C:\\sys\\bin\\test.exe";
+        qDebug() << "           " << argv[0] << "COM5 -i C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe";
+        qDebug() << "           " << argv[0] << "COM5 -I C:\\Projects\\test\\test_gcce_udeb.sisx C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe";
         return 1;
     }
 
@@ -649,7 +724,16 @@ int main(int argc, char *argv[])
 
     Adapter adapter;
     adapter.setTrkServerName(argv[1]);
-    adapter.setFileName(argv[2]);
+    if (argc == 3) {
+        adapter.setFileName(argv[2]);
+    } else if (argc == 5) {
+        adapter.setInstallFileName(argv[3]);
+        adapter.setFileName(argv[4]);
+    } else {
+        adapter.setCopyFileName(argv[3], argv[4]);
+        adapter.setInstallFileName(argv[4]);
+        adapter.setFileName(argv[5]);
+    }
     if (adapter.startServer())
         return app.exec();
     return 4;

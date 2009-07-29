@@ -40,13 +40,21 @@ typedef unsigned char byte;
 namespace trk {
 
 enum Command {
+    TrkPing = 0x00,
     TrkConnect = 0x01,
     TrkVersions = 0x04,
     TrkSupported = 0x05,
     TrkCpuType = 0x06,
+    TrkHostVersions = 0x09,
     TrkContinue = 0x18,
     TrkCreateItem = 0x40,
     TrkDeleteItem = 0x41,
+
+    TrkWriteFile = 0x48,
+    TrkOpenFile = 0x4a,
+    TrkCloseFile = 0x4b,
+    TrkInstallFile = 0x4d,
+    TrkInstallFile2 = 0x4e,
 
     TrkNotifyAck = 0x80,
     TrkNotifyNak = 0xff,
@@ -83,7 +91,7 @@ enum Endianness
 void appendByte(QByteArray *ba, byte b);
 void appendShort(QByteArray *ba, ushort s, Endianness = TargetByteOrder);
 void appendInt(QByteArray *ba, uint i, Endianness = TargetByteOrder);
-void appendString(QByteArray *ba, const QByteArray &str, Endianness = TargetByteOrder);
+void appendString(QByteArray *ba, const QByteArray &str, Endianness = TargetByteOrder, bool appendNullTerminator = true);
 
 enum CodeMode
 {

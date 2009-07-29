@@ -28,6 +28,10 @@
 * Run on device
     * Finish runner when application exits
     * passphrase for signing
+    * time stamp of copied sisx is ridiculous
+    * maybe don't copy the sisx all the time
+    * don't hardcode com port
+    * don't hardcode copy destination
 
 * Add compile output parser winscw at least
 

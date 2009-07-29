@@ -147,8 +147,6 @@ private slots:
     void makesisProcessFinished();
     void signsisProcessFailed();
     void signsisProcessFinished();
-    void installProcessFailed();
-    void installProcessFinished();
     void runProcessFailed();
     void runProcessFinished();
 
@@ -165,7 +163,6 @@ private:
     QString m_customKeyPath;
     QProcess *m_makesis;
     QProcess *m_signsis;
-    QProcess *m_install;
     QProcess *m_run;
 };
 

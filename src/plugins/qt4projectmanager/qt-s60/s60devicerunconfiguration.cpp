@@ -431,15 +431,6 @@ S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runCon
             this, SLOT(signsisProcessFailed()));
     connect(m_signsis, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(signsisProcessFinished()));
-    m_install = new QProcess(this);
-    connect(m_install, SIGNAL(readyReadStandardError()),
-            this, SLOT(readStandardError()));
-    connect(m_install, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(readStandardOutput()));
-    connect(m_install, SIGNAL(error(QProcess::ProcessError)),
-            this, SLOT(installProcessFailed()));
-    connect(m_install, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(installProcessFinished()));
     m_run = new QProcess(this);
     connect(m_run, SIGNAL(readyReadStandardError()),
             this, SLOT(readStandardError()));
@@ -489,7 +480,6 @@ void S60DeviceRunControl::stop()
 {
     m_makesis->kill();
     m_signsis->kill();
-    m_install->kill();
     m_run->kill();
 }
 
@@ -552,29 +542,12 @@ void S60DeviceRunControl::signsisProcessFinished()
         emit finished();
         return;
     }
-    QString applicationInstaller = "cmd.exe";
-    QStringList arguments;
-    arguments << "/C" << QDir::toNativeSeparators(m_baseFileName + ".sisx");
-    m_install->setWorkingDirectory(m_workingDirectory);
-    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(applicationInstaller), arguments.join(tr(" "))));
-    m_install->start(applicationInstaller, arguments, QIODevice::ReadOnly);
-}
-
-void S60DeviceRunControl::installProcessFailed()
-{
-    processFailed("ApplicationInstaller", m_install->error());
-}
-
-void S60DeviceRunControl::installProcessFinished()
-{
-    if (m_install->exitCode() != 0) {
-        error(this, tr("An error occurred while installing the package."));
-        emit finished();
-        return;
-    }
     QString trklauncher = QApplication::applicationDirPath() + "/../tests/manual/trk/debug/trklauncher.exe";
     QStringList arguments;
-    arguments << "COM5" << QString("C:\\sys\\bin\\%1.exe").arg(m_targetName); //TODO com selection and file path
+    //TODO com selection, sisx destination and file path user definable
+    arguments << "COM5" << "-I" << (m_baseFileName + ".sisx")
+            << QString("C:\\Data\\%1.sisx").arg(QFileInfo(m_baseFileName).fileName())
+            << QString("C:\\sys\\bin\\%1.exe").arg(m_targetName);
     emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(trklauncher), arguments.join(tr(" "))));
     m_run->start(trklauncher, arguments, QIODevice::ReadOnly);
 }
