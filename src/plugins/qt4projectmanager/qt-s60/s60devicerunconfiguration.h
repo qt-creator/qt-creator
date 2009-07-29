@@ -30,6 +30,8 @@
 #ifndef S60DEVICERUNCONFIGURATION_H
 #define S60DEVICERUNCONFIGURATION_H
 
+#include "launcher.h"
+
 #include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QProcess>
@@ -147,8 +149,7 @@ private slots:
     void makesisProcessFinished();
     void signsisProcessFailed();
     void signsisProcessFinished();
-    void runProcessFailed();
-    void runProcessFinished();
+    void runFinished();
 
 private:
     void processFailed(const QString &program, QProcess::ProcessError errorCode);
@@ -163,7 +164,7 @@ private:
     QString m_customKeyPath;
     QProcess *m_makesis;
     QProcess *m_signsis;
-    QProcess *m_run;
+    trk::Adapter *m_adapter;
 };
 
 } // namespace Internal

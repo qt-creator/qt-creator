@@ -112,7 +112,7 @@ void Adapter::installAndRun()
 }
 void Adapter::logMessage(const QString &msg)
 {
-    if (DEBUG)
+    if (DEBUG_TRK)
         qDebug() << "ADAPTER: " << qPrintable(msg);
 }
 

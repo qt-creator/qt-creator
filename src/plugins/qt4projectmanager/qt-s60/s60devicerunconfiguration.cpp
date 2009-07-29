@@ -431,15 +431,6 @@ S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runCon
             this, SLOT(signsisProcessFailed()));
     connect(m_signsis, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(signsisProcessFinished()));
-    m_run = new QProcess(this);
-    connect(m_run, SIGNAL(readyReadStandardError()),
-            this, SLOT(readStandardError()));
-    connect(m_run, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(readStandardOutput()));
-    connect(m_run, SIGNAL(error(QProcess::ProcessError)),
-            this, SLOT(runProcessFailed()));
-    connect(m_run, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(runProcessFinished()));
 }
 
 void S60DeviceRunControl::start()
@@ -480,7 +471,7 @@ void S60DeviceRunControl::stop()
 {
     m_makesis->kill();
     m_signsis->kill();
-    m_run->kill();
+    //m_adapter->terminate();
 }
 
 bool S60DeviceRunControl::isRunning() const
@@ -542,27 +533,22 @@ void S60DeviceRunControl::signsisProcessFinished()
         emit finished();
         return;
     }
-    QString trklauncher = QApplication::applicationDirPath() + "/../tests/manual/trk/debug/trklauncher.exe";
-    QStringList arguments;
+    //TODO
+    m_adapter = new trk::Adapter;
+    connect(m_adapter, SIGNAL(finished()), this, SLOT(runFinished()));
     //TODO com selection, sisx destination and file path user definable
-    arguments << "COM5" << "-I" << (m_baseFileName + ".sisx")
-            << QString("C:\\Data\\%1.sisx").arg(QFileInfo(m_baseFileName).fileName())
-            << QString("C:\\sys\\bin\\%1.exe").arg(m_targetName);
-    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(trklauncher), arguments.join(tr(" "))));
-    m_run->start(trklauncher, arguments, QIODevice::ReadOnly);
+    m_adapter->setTrkServerName("COM5");
+    const QString copySrc(m_baseFileName + ".sisx");
+    const QString copyDst = QString("C:\\Data\\%1.sisx").arg(QFileInfo(m_baseFileName).fileName());
+    const QString runFileName = QString("C:\\sys\\bin\\%1.exe").arg(m_targetName);
+    m_adapter->setCopyFileName(copySrc, copyDst);
+    m_adapter->setInstallFileName(copyDst);
+    m_adapter->setFileName(runFileName);
+    m_adapter->startServer();
 }
 
-void S60DeviceRunControl::runProcessFailed()
+void S60DeviceRunControl::runFinished()
 {
-    processFailed("trklauncher", m_run->error());
-    error(this, tr("Did you compile the trklauncher application in tests\\manual\\trk ?"));
-}
-
-void S60DeviceRunControl::runProcessFinished()
-{
-    if (m_run->exitCode() != 0) {
-        error(this, tr("An error occurred while starting the application."));
-    }
     emit addToOutputWindow(this, tr("Finished."));
     emit finished();
 }

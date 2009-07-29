@@ -1,5 +1,7 @@
 win32:DEFINES += USE_NATIVE
-SOURCES = $$PWD/launcher.cpp \
+DEFINES += DEBUG_TRK=0
+INCLUDEPATH *= $$PWD
+SOURCES += $$PWD/launcher.cpp \
     $$PWD/trkutils.cpp
-HEADERS = $$PWD/trkutils.h \
+HEADERS += $$PWD/trkutils.h \
     $$PWD/launcher.h

@@ -18,4 +18,6 @@ SUPPORT_QT_S60 = $$(QTCREATOR_WITH_S60)
         $$PWD/s60devicerunconfiguration.h
     FORMS += $$PWD/s60devicespreferencepane.ui
     OTHER_FILES += $$PWD/qt-s60-todo.txt
+
+    include($$PWD/../../../../tests/manual/trk/trklauncher.pri) || error("could not include trklauncher.pri")
 }
