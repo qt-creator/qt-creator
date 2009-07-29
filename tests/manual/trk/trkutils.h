@@ -177,6 +177,8 @@ ushort isValidTrkResult(const QByteArray &buffer);
 TrkResult extractResult(QByteArray *buffer);
 QByteArray errorMessage(byte code);
 QByteArray hexNumber(uint n, int digits = 0);
+uint swapEndian(uint in);
+
 
 } // namespace trk
 

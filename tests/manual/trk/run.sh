@@ -2,6 +2,8 @@
 
 ADAPTER_OPTIONS=""
 TRKSERVEROPTIONS=""
+DUMP_POSTFIX='-BigEndian.bin'
+ENDIANESS='big'
 
 while expr " $1" : " -.*" >/dev/null
 do
@@ -17,6 +19,11 @@ do
   elif [ " $1" = " -tq" ]
   then
      TRKSERVEROPTIONS="$TRKSERVEROPTIONS -q"
+  elif [ " $1" = " -l" ]
+  then
+     DUMP_POSTFIX='.bin'
+     ENDIANESS='little'
+     ADAPTER_OPTIONS="$ADAPTER_OPTIONS -l"
   fi
   shift 1
 done
@@ -30,24 +37,23 @@ userid=`id -u`
 trkservername="TRKSERVER-${userid}";
 gdbserverip=127.0.0.1
 gdbserverport=$[2222 + ${userid}]
-memorydump=TrkDump-78-6a-40-00.bin
-memorydump=TrkDump-78-6a-40-00-BigEndian.bin
 
 fuser -n tcp -k ${gdbserverport} 
 rm /tmp/${trkservername}
 
-./trkserver $TRKSERVEROPTIONS ${trkservername} ${memorydump} &
+MEMORYDUMP="TrkDump-78-6a-40-00$DUMP_POSTFIX"
+ADDITIONAL_DUMPS="0x00402000$DUMP_POSTFIX 0x786a4000$DUMP_POSTFIX 0x00600000$DUMP_POSTFIX"
+./trkserver $TRKSERVEROPTIONS ${trkservername} ${MEMORYDUMP} ${ADDITIONAL_DUMPS}&
 trkserverpid=$!
 
 sleep 1
-
 ./adapter $ADAPTER_OPTIONS ${trkservername} ${gdbserverip}:${gdbserverport} &
 adapterpid=$!
 
 echo "# This is generated. Changes will be lost.
 #set remote noack-packet on
 set confirm off
-set endian big
+set endian $ENDIANESS
 #set debug remote 1
 #target remote ${gdbserverip}:${gdbserverport}
 target extended-remote ${gdbserverip}:${gdbserverport}

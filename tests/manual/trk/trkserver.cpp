@@ -314,8 +314,6 @@ bool TrkServer::handleMemoryRequest(uint addr, ushort len, byte option, QByteArr
             return true;
         }
     }
-    for (int i = 0; i != len / 4; ++i)
-        appendInt(ba, 0xDEADBEEF);
     logMessage(QString::fromLatin1("ADDRESS OUTSIDE ANY SEGMENTS: 0X%1").arg(addr, 0, 16), true);
     return false;
 }
@@ -340,8 +338,12 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             Q_UNUSED(option);
             const ushort len = extractShort(p + 1);
             const uint addr = extractInt(p + 3);;
-            handleMemoryRequest(addr, len, option, &data);
-            writeToAdapter(0x80, result.token, data);
+            if (handleMemoryRequest(addr, len, option, &data)) {
+                writeToAdapter(0x80, result.token, data);
+            } else {
+                data[0] =32; // NAK, bad hair day
+                writeToAdapter(0xff, result.token, data);
+            }
             break;
         }
         case 0x12: { // Read Registers

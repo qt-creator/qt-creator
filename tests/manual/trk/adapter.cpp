@@ -105,9 +105,10 @@ static inline void dumpRegister(int n, uint value, QByteArray &a)
 }
 
 struct AdapterOptions {
-    AdapterOptions() : verbose(1) {}
+    AdapterOptions() : verbose(1),registerEndianness(BigEndian) {}
 
     int verbose;
+    Endianness registerEndianness;
     QString gdbServer;
     QString trkServer;
 };
@@ -124,6 +125,7 @@ public:
     void setGdbServerName(const QString &name);
     void setTrkServerName(const QString &name) { m_trkServerName = name; }
     void setVerbose(int verbose) { m_verbose = verbose; }
+    void setRegisterEndianness(Endianness r) { m_registerEndianness = r; }
     bool startServer();
 
 private:
@@ -136,19 +138,21 @@ private:
 
     struct TrkMessage
     {
-        TrkMessage() { code = token = 0; callBack = 0; }
+        TrkMessage() : code(0), token(0), callBack(0), invokeOnFailure(0) {}
         byte code;
         byte token;
         QByteArray data;
         QVariant cookie;
         TrkCallBack callBack;
+        bool invokeOnFailure;
     };
 
     bool openTrkPort(const QString &port); // or server name for local server
     void sendTrkMessage(byte code,
-        TrkCallBack callBack = 0,
+        TrkCallBack calBack = 0,
         const QByteArray &data = QByteArray(),
-        const QVariant &cookie = QVariant());
+        const QVariant &cookie = QVariant(),
+        bool invokeOnFailure = false);
     // adds message to 'send' queue
     void queueTrkMessage(const TrkMessage &msg);
     void tryTrkWrite();
@@ -229,9 +233,11 @@ private:
     Session m_session; // global-ish data (process id, target information)
     Snapshot m_snapshot; // local-ish data (memory and registers)
     int m_verbose;
+    Endianness m_registerEndianness;
 };
 
-Adapter::Adapter()
+Adapter::Adapter() :
+    m_registerEndianness(BigEndian)
 {
     // Trk
 #if USE_NATIVE
@@ -305,8 +311,8 @@ bool Adapter::startServer()
         return false;
     }
 
-    logMessage(QString("Gdb server running on %1:%2. Run arm-gdb now.")
-        .arg(m_gdbServerName).arg(m_gdbServer.serverPort()), true);
+    logMessage(QString("Gdb server running on %1:%2.\nRegister endianness: %3\nRun arm-gdb now.")
+        .arg(m_gdbServerName).arg(m_gdbServer.serverPort()).arg(m_registerEndianness), true);
 
     connect(&m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
@@ -608,12 +614,12 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         QByteArray logMsg = "read register";
         if (registerNumber == RegisterPSGdb) {
             QByteArray ba;
-            appendInt(&ba, m_snapshot.registers[RegisterPSTrk]);
+            appendInt(&ba, m_snapshot.registers[RegisterPSTrk], m_registerEndianness);
             dumpRegister(registerNumber, m_snapshot.registers[RegisterPSTrk], logMsg);
             sendGdbMessage(ba.toHex(), logMsg);
         } else if (registerNumber < RegisterCount) {
             QByteArray ba;
-            appendInt(&ba, m_snapshot.registers[registerNumber]);
+            appendInt(&ba, m_snapshot.registers[registerNumber], m_registerEndianness);
             dumpRegister(registerNumber, m_snapshot.registers[registerNumber], logMsg);
             sendGdbMessage(ba.toHex(), logMsg);
         } else {
@@ -793,7 +799,7 @@ byte Adapter::nextTrkWriteToken()
 }
 
 void Adapter::sendTrkMessage(byte code, TrkCallBack callBack,
-    const QByteArray &data, const QVariant &cookie)
+    const QByteArray &data, const QVariant &cookie, bool invokeOnFailure)
 {
     TrkMessage msg;
     msg.code = code;
@@ -801,6 +807,7 @@ void Adapter::sendTrkMessage(byte code, TrkCallBack callBack,
     msg.callBack = callBack;
     msg.data = data;
     msg.cookie = cookie;
+    msg.invokeOnFailure = invokeOnFailure;
     queueTrkMessage(msg);
 }
 
@@ -945,7 +952,6 @@ void Adapter::handleResult(const TrkResult &result)
             result1.cookie = msg.cookie;
             TrkCallBack cb = msg.callBack;
             if (cb) {
-                //logMessage("HANDLE: " << stringFromArray(result.data));
                 (this->*cb)(result1);
             } else {
                 QString msg = result.cookie.toString();
@@ -956,8 +962,14 @@ void Adapter::handleResult(const TrkResult &result)
         }
         case 0xff: { // NAK
             logMessage(prefix + "NAK: " + str);
-            //logMessage(prefix << "TOKEN: " << result.token);
             logMessage(prefix + "ERROR: " + errorMessage(result.data.at(0)));
+            TrkMessage msg = m_writtenTrkMessages.take(result.token);
+            // Invoke failure if desired
+            if (msg.callBack && msg.invokeOnFailure) {
+                TrkResult result1 = result;
+                result1.cookie = msg.cookie;
+                (this->*msg.callBack)(result1);
+            }
             break;
         }
         case 0x90: { // Notified Stopped
@@ -1153,9 +1165,11 @@ void Adapter::handleAndReportReadRegisters(const TrkResult &result)
     }
     //QByteArray ba = result.data.toHex();
     QByteArray ba;
-    for (int i = 0; i < 16; ++i)
-        ba += hexNumber(m_snapshot.registers[i], 8);
-    QByteArray logMsg = "contents";
+    for (int i = 0; i < 16; ++i) {
+        const uint reg = m_registerEndianness == LittleEndian ? swapEndian(m_snapshot.registers[i]) : m_snapshot.registers[i];
+        ba += hexNumber(reg, 8);
+    }
+    QByteArray logMsg = "register contents";
     if (m_verbose > 1) {
         for (int i = 0; i < RegisterCount; ++i)
             dumpRegister(i, m_snapshot.registers[i], logMsg);
@@ -1163,16 +1177,20 @@ void Adapter::handleAndReportReadRegisters(const TrkResult &result)
     sendGdbMessage(ba, logMsg);
 }
 
+static inline QString msgMemoryReadError(uint addr)
+{
+    return QString::fromLatin1("Memory read error at: 0x%1").arg(addr, 0 ,16);
+}
+
 void Adapter::handleReadMemory(const TrkResult &result)
 {
-    //logMessage("       RESULT READ MEMORY: " + result.data.toHex());
-    QByteArray ba = result.data.mid(1);
-    uint blockaddr = result.cookie.toInt();
-    //qDebug() << "READING " << ba.size() << " BYTES: "
-    //    << quoteUnprintableLatin1(ba)
-    //    << "ADDR: " << hexNumber(blockaddr)
-    //    << "COOKIE: " << result.cookie;
-    m_snapshot.memory[blockaddr] = ba;
+    const uint blockaddr = result.cookie.toInt();
+    if (result.code == 0xff) {
+        logMessage(msgMemoryReadError(blockaddr));
+    } else {
+        const QByteArray ba = result.data.mid(1);
+        m_snapshot.memory.insert(blockaddr , ba);
+    }
 }
 
 // Format log message for memory access with some smartness about registers
@@ -1208,20 +1226,31 @@ QByteArray Adapter::memoryReadLogMessage(uint addr, uint len, const QByteArray &
 
 void Adapter::reportReadMemory(const TrkResult &result)
 {
-    qulonglong cookie = result.cookie.toLongLong();
-    uint addr = cookie >> 32;
-    uint len = uint(cookie);
+    const qulonglong cookie = result.cookie.toLongLong();
+    const uint addr = cookie >> 32;
+    const uint len = uint(cookie);
 
+    // Gdb accepts less memory according to documentation.
+    // Send E on complete failure.
     QByteArray ba;
     uint blockaddr = (addr / MemoryChunkSize) * MemoryChunkSize;
     for (; blockaddr < addr + len; blockaddr += MemoryChunkSize) {
-        QByteArray blockdata = m_snapshot.memory[blockaddr];
-        Q_ASSERT(!blockdata.isEmpty());
-        ba.append(blockdata);
+        const Snapshot::Memory::const_iterator it = m_snapshot.memory.constFind(blockaddr);
+        if (it == m_snapshot.memory.constEnd())
+            break;
+        ba.append(it.value());
     }
-
-    ba = ba.mid(addr % MemoryChunkSize, len);
-    sendGdbMessage(ba.toHex(), memoryReadLogMessage(addr, len, ba));
+    const int previousChunkOverlap = addr % MemoryChunkSize;
+    if (previousChunkOverlap != 0 && ba.size() > previousChunkOverlap)
+        ba.remove(0, previousChunkOverlap);
+    if (ba.size() > int(len))
+        ba.truncate(len);
+    if (ba.isEmpty()) {
+        ba = "E20";
+        sendGdbMessage(ba, msgMemoryReadError(addr).toLatin1());
+    } else {
+        sendGdbMessage(ba.toHex(), memoryReadLogMessage(addr, len, ba));
+    }
 }
 
 void Adapter::setTrkBreakpoint(const Breakpoint &bp)
@@ -1393,7 +1422,7 @@ void Adapter::readMemory(uint addr, uint len)
             appendInt(&ba, m_session.pid);
             appendInt(&ba, m_session.tid);
             // Read Memory
-            sendTrkMessage(0x10, CB(handleReadMemory), ba, QVariant(blockaddr));
+            sendTrkMessage(0x10, CB(handleReadMemory), ba, QVariant(blockaddr), true);
         }
     }
     qulonglong cookie = (qulonglong(addr) << 32) + len;
@@ -1440,6 +1469,8 @@ static bool readAdapterArgs(const QStringList &args, AdapterOptions *o)
                 o->verbose++;
             } else if (*it == QLatin1String("-q")) {
                 o->verbose = 0;
+            } else if (*it == QLatin1String("-l")) {
+                o->registerEndianness = LittleEndian;
             }
         } else {
             switch (argNumber++) {
@@ -1465,9 +1496,10 @@ int main(int argc, char *argv[])
     AdapterOptions options;
 
     if (!readAdapterArgs(app.arguments(), &options)) {
-        qDebug("Usage: %s [-v|-q] <trkservername> <gdbserverport>\n"
+        qDebug("Usage: %s [-v|-q] [-l] <trkservername> <gdbserverport>\n"
                "Options: -v verbose\n"
-               "         -q quiet\n", argv[0]);
+               "         -q quiet\n"
+               "         -l Set register endianness to little\n", argv[0]);
         return 1;
     }
 
@@ -1475,6 +1507,7 @@ int main(int argc, char *argv[])
     adapter.setTrkServerName(options.trkServer);
     adapter.setGdbServerName(options.gdbServer);
     adapter.setVerbose(options.verbose);
+    adapter.setRegisterEndianness(options.registerEndianness);
     if (adapter.startServer())
         return app.exec();
     return 4;

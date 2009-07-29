@@ -298,6 +298,9 @@ QByteArray errorMessage(byte code)
     return "Unknown error";
 }
 
-
+uint swapEndian(uint in)
+{
+    return (in>>24) | ((in<<8) & 0x00FF0000) | ((in>>8) & 0x0000FF00) | (in<<24);
+}
 } // namespace trk
 
