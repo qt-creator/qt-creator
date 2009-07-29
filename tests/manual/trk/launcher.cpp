@@ -27,18 +27,7 @@
 **
 **************************************************************************/
 
-#include "trkutils.h"
-
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFile>
-#include <QtCore/QQueue>
-#include <QtCore/QTimer>
-#include <QtCore/QDateTime>
-
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
-#include <QtNetwork/QLocalServer>
-#include <QtNetwork/QLocalSocket>
+#include "launcher.h"
 
 #if USE_NATIVE
 #include <windows.h>
@@ -63,114 +52,9 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
 }
 #endif
 
-#ifdef Q_OS_UNIX
-
-#include <signal.h>
-
-void signalHandler(int)
-{
-    qApp->exit(1);
-}
-
-#endif
-
 using namespace trk;
 
-enum { TRK_SYNC = 0x7f };
-
 #define CB(s) &Adapter::s
-
-class Adapter : public QObject
-{
-    Q_OBJECT
-
-public:
-    Adapter();
-    ~Adapter();
-    void setTrkServerName(const QString &name) { m_trkServerName = name; }
-    void setFileName(const QString &name) { m_fileName = name; }
-    void setCopyFileName(const QString &srcName, const QString &dstName) { m_copySrcFileName = srcName; m_copyDstFileName = dstName; }
-    void setInstallFileName(const QString &name) { m_installFileName = name; }
-    bool startServer();
-
-private:
-    //
-    // TRK
-    //
-    typedef void (Adapter::*TrkCallBack)(const TrkResult &);
-
-    struct TrkMessage 
-    {
-        TrkMessage() { code = token = 0; callBack = 0; }
-        byte code;
-        byte token;
-        QByteArray data;
-        QVariant cookie;
-        TrkCallBack callBack;
-    };
-
-    bool openTrkPort(const QString &port); // or server name for local server
-    void sendTrkMessage(byte code,
-        TrkCallBack callBack = 0,
-        const QByteArray &data = QByteArray(),
-        const QVariant &cookie = QVariant());
-    // adds message to 'send' queue
-    void queueTrkMessage(const TrkMessage &msg);
-    void tryTrkWrite();
-    void tryTrkRead();
-    // actually writes a message to the device
-    void trkWrite(const TrkMessage &msg);
-    // convienience messages
-    void sendTrkInitialPing();
-    void sendTrkAck(byte token);
-
-    // kill process and breakpoints
-    void cleanUp();
-
-    void timerEvent(QTimerEvent *ev);
-    byte nextTrkWriteToken();
-
-    void handleFileCreation(const TrkResult &result);
-    void handleFileCreated(const TrkResult &result);
-    void handleCpuType(const TrkResult &result);
-    void handleCreateProcess(const TrkResult &result);
-    void handleWaitForFinished(const TrkResult &result);
-    void handleStop(const TrkResult &result);
-    void handleSupportMask(const TrkResult &result);
-    void waitForTrkFinished(const TrkResult &data);
-
-    void handleAndReportCreateProcess(const TrkResult &result);
-    void handleResult(const TrkResult &data);
-
-    void copyFileToRemote();
-    void installRemotePackageSilently(const QString &filename);
-    void installAndRun();
-    void startInferiorIfNeeded();
-
-#if USE_NATIVE
-    HANDLE m_hdevice;
-#else
-    QLocalSocket *m_trkDevice;
-#endif
-
-    QString m_trkServerName;
-    QByteArray m_trkReadBuffer;
-
-    unsigned char m_trkWriteToken;
-    QQueue<TrkMessage> m_trkWriteQueue;
-    QHash<byte, TrkMessage> m_writtenTrkMessages;
-    QByteArray m_trkReadQueue;
-    bool m_trkWriteBusy;
-
-    void logMessage(const QString &msg);
-    // Debuggee state
-    Session m_session; // global-ish data (process id, target information)
-
-    QString m_fileName;
-    QString m_copySrcFileName;
-    QString m_copyDstFileName;
-    QString m_installFileName;
-};
 
 Adapter::Adapter()
 {
@@ -309,6 +193,7 @@ void Adapter::sendTrkInitialPing()
 
 void Adapter::waitForTrkFinished(const TrkResult &result)
 {
+    Q_UNUSED(result)
     sendTrkMessage(TrkPing, CB(handleWaitForFinished));
 }
 
@@ -338,19 +223,7 @@ void Adapter::tryTrkWrite()
         return;
 
     TrkMessage msg = m_trkWriteQueue.dequeue();
-    if (msg.code == TRK_SYNC) {
-        //logMessage("TRK SYNC");
-        TrkResult result;
-        result.code = msg.code;
-        result.token = msg.token;
-        result.data = msg.data;
-        result.cookie = msg.cookie;
-        TrkCallBack cb = msg.callBack;
-        if (cb)
-            (this->*cb)(result);
-    } else {
-        trkWrite(msg);
-    }
+    trkWrite(msg);
 }
 
 void Adapter::trkWrite(const TrkMessage &msg)
@@ -602,7 +475,7 @@ void Adapter::handleCreateProcess(const TrkResult &result)
 void Adapter::handleWaitForFinished(const TrkResult &result)
 {
     logMessage("   FINISHED: " + stringFromArray(result.data));
-    qApp->exit(0);
+    emit finished();
 }
 
 void Adapter::handleSupportMask(const TrkResult &result)
@@ -706,40 +579,3 @@ void Adapter::startInferiorIfNeeded()
     appendString(&ba, m_fileName.toLocal8Bit(), TargetByteOrder);
     sendTrkMessage(TrkCreateItem, CB(handleCreateProcess), ba); // Create Item
 }
-
-int main(int argc, char *argv[])
-{
-    if ((argc != 3 && argc != 5 && argc != 6)
-            || (argc == 5 && QString(argv[2]) != "-i")
-            || (argc == 6 && QString(argv[2]) != "-I")) {
-        qDebug() << "Usage: " << argv[0] << "<trk_port_name> [-i remote_sis_file | -I local_sis_file remote_sis_file] <remote_executable_name>";
-        qDebug() << "for example" << argv[0] << "COM5 C:\\sys\\bin\\test.exe";
-        qDebug() << "           " << argv[0] << "COM5 -i C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe";
-        qDebug() << "           " << argv[0] << "COM5 -I C:\\Projects\\test\\test_gcce_udeb.sisx C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe";
-        return 1;
-    }
-
-#ifdef Q_OS_UNIX
-    signal(SIGUSR1, signalHandler);
-#endif
-
-    QCoreApplication app(argc, argv);
-
-    Adapter adapter;
-    adapter.setTrkServerName(argv[1]);
-    if (argc == 3) {
-        adapter.setFileName(argv[2]);
-    } else if (argc == 5) {
-        adapter.setInstallFileName(argv[3]);
-        adapter.setFileName(argv[4]);
-    } else {
-        adapter.setCopyFileName(argv[3], argv[4]);
-        adapter.setInstallFileName(argv[4]);
-        adapter.setFileName(argv[5]);
-    }
-    if (adapter.startServer())
-        return app.exec();
-    return 4;
-}
-
-#include "launcher.moc"
