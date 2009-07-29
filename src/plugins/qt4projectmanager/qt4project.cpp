@@ -1157,7 +1157,6 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
                 QString actualSpec = extractSpecFromArgumentList(qs->value(buildConfiguration, "qmakeArgs").toStringList());
                 if (actualSpec.isEmpty())
                     actualSpec = version->mkspec();
-                QString parsedSpec = extractSpecFromArgumentList(result.second);
 
                 // Now to convert the actualSpec to a absolute path, we go through a few hops
                 if (QFileInfo(actualSpec).isRelative()) {
@@ -1176,6 +1175,11 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
                     }
                 }
 
+
+                QString parsedSpec = extractSpecFromArgumentList(result.second);
+                // if the MakeFile did not contain a mkspec, then it is the default for that qmake
+                if (parsedSpec.isEmpty())
+                    parsedSpec = version->sourcePath() + "/mkspecs/" + version->mkspec();
                 if (QFileInfo(parsedSpec).isRelative())
                     parsedSpec = QDir::cleanPath(workingDirectory + "/" + parsedSpec);
 
