@@ -42,6 +42,7 @@ namespace trk {
 enum Command {
     TrkPing = 0x00,
     TrkConnect = 0x01,
+    TrkDisconnect = 0x02,
     TrkVersions = 0x04,
     TrkSupported = 0x05,
     TrkCpuType = 0x06,

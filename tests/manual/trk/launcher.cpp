@@ -122,7 +122,6 @@ private:
     void trkWrite(const TrkMessage &msg);
     // convienience messages
     void sendTrkInitialPing();
-    void waitForTrkFinished();
     void sendTrkAck(byte token);
 
     // kill process and breakpoints
@@ -138,6 +137,7 @@ private:
     void handleWaitForFinished(const TrkResult &result);
     void handleStop(const TrkResult &result);
     void handleSupportMask(const TrkResult &result);
+    void waitForTrkFinished(const TrkResult &data);
 
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleResult(const TrkResult &data);
@@ -307,14 +307,9 @@ void Adapter::sendTrkInitialPing()
     queueTrkMessage(msg);
 }
 
-void Adapter::waitForTrkFinished()
+void Adapter::waitForTrkFinished(const TrkResult &result)
 {
-    TrkMessage msg;
-    // initiate one last roundtrip to ensure all is flushed
-    msg.code = 0x00; // Ping
-    msg.token = nextTrkWriteToken();
-    msg.callBack = CB(handleWaitForFinished);
-    queueTrkMessage(msg);
+    sendTrkMessage(TrkPing, CB(handleWaitForFinished));
 }
 
 void Adapter::sendTrkAck(byte token)
@@ -508,6 +503,11 @@ void Adapter::handleResult(const TrkResult &result)
         case TrkNotifyDeleted: { // NotifyDeleted
             logMessage(prefix + "NOTE: LIBRARY UNLOAD: " + str);
             sendTrkAck(result.token);
+            const char *data = result.data.data();
+            ushort itemType = extractShort(data);
+            if (itemType == 0) { // process
+                sendTrkMessage(TrkDisconnect, CB(waitForTrkFinished));
+            }
             break;
         }
         case TrkNotifyProcessorStarted: { // NotifyProcessorStarted
@@ -602,7 +602,7 @@ void Adapter::handleCreateProcess(const TrkResult &result)
 void Adapter::handleWaitForFinished(const TrkResult &result)
 {
     logMessage("   FINISHED: " + stringFromArray(result.data));
-    //qApp->exit(1);
+    qApp->exit(0);
 }
 
 void Adapter::handleSupportMask(const TrkResult &result)
