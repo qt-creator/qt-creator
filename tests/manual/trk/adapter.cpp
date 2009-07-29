@@ -177,6 +177,7 @@ private:
 
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleAndReportReadRegisters(const TrkResult &result);
+    QByteArray memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const;
     void handleReadMemory(const TrkResult &result);
     void reportReadMemory(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
@@ -215,7 +216,6 @@ private:
     void sendGdbMessageAfterSync(const QByteArray &msg, const QByteArray &logNote = QByteArray());
     void sendGdbAckMessage();
 
-    //
     void logMessage(const QString &msg, bool force = false);
 
     QTcpServer m_gdbServer;
@@ -870,7 +870,8 @@ void Adapter::trkWrite(const TrkMessage &msg)
     m_writtenTrkMessages.insert(msg.token, msg);
     m_trkWriteBusy = true;
 
-    logMessage("WRITE: " + stringFromArray(ba));
+    if (m_verbose > 1)
+        logMessage("WRITE: " + stringFromArray(ba));
 
 #if USE_NATIVE
     DWORD charsWritten;
@@ -1174,6 +1175,37 @@ void Adapter::handleReadMemory(const TrkResult &result)
     m_snapshot.memory[blockaddr] = ba;
 }
 
+// Format log message for memory access with some smartness about registers
+QByteArray Adapter::memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const
+{
+    QByteArray logMsg = "memory contents";
+    if (m_verbose > 1) {
+        logMsg += " addr: 0x";
+        logMsg += QByteArray::number(addr, 16);
+        // indicate dereferencing of registers
+        if (len == 4) {
+            if (addr == m_snapshot.registers[RegisterPC]) {
+                logMsg += "[PC]";
+            } else if (addr == m_snapshot.registers[RegisterPSTrk]) {
+                logMsg += "[PSTrk]";
+            } else if (addr == m_snapshot.registers[RegisterSP]) {
+                logMsg += "[SP]";
+            } else if (addr == m_snapshot.registers[RegisterLR]) {
+                logMsg += "[LR]";
+            } else if (addr > m_snapshot.registers[RegisterSP] && (addr - m_snapshot.registers[RegisterSP]) < 10240) {
+                logMsg += "[SP+"; // Stack area ...stack seems to be top-down
+                logMsg += QByteArray::number(addr - m_snapshot.registers[RegisterSP]);
+                logMsg += ']';
+            }
+        }
+        logMsg += " length ";
+        logMsg += QByteArray::number(len);
+        logMsg += " :";
+        logMsg += stringFromArray(ba, 16);
+    }
+    return logMsg;
+}
+
 void Adapter::reportReadMemory(const TrkResult &result)
 {
     qulonglong cookie = result.cookie.toLongLong();
@@ -1189,20 +1221,7 @@ void Adapter::reportReadMemory(const TrkResult &result)
     }
 
     ba = ba.mid(addr % MemoryChunkSize, len);
-    // qDebug() << "REPORTING MEMORY " << ba.size()
-    //     << " ADDR: " << hexNumber(blockaddr) << " LEN: " << len
-    //     << " BYTES: " << quoteUnprintableLatin1(ba);
-
-    QByteArray logMsg = "memory contents";
-    if (m_verbose > 1) {
-        logMsg += " addr: 0x";
-        logMsg += QByteArray::number(addr, 16);
-        logMsg += " length ";
-        logMsg += QByteArray::number(len);
-        logMsg += " :";
-        logMsg += stringFromArray(ba, 16);
-    }
-    sendGdbMessage(ba.toHex(), logMsg);
+    sendGdbMessage(ba.toHex(), memoryReadLogMessage(addr, len, ba));
 }
 
 void Adapter::setTrkBreakpoint(const Breakpoint &bp)

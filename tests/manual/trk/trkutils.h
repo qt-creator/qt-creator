@@ -93,10 +93,13 @@ enum CodeMode
 
 enum TargetConstants
 {
+
     RegisterCount = 17,
+    RegisterSP = 13, // Stack Pointer
+    RegisterLR = 14, // Return address
     RegisterPC = 15, // Program counter
     RegisterPSGdb = 25, // gdb's view of the world
-    RegisterPSTrk = 16, // gdb's view of the world
+    RegisterPSTrk = 16, // TRK's view of the world
 
     MemoryChunkSize = 256
 };

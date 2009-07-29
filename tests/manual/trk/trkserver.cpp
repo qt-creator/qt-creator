@@ -32,6 +32,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 #include <QtCore/QStringList>
+#include <QtCore/QFileInfo>
 
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
@@ -56,6 +57,7 @@ struct TrkOptions {
     int verbose;
     QString serverName;
     QString dumpName;
+    QStringList additionalDumps;
 };
 
 
@@ -69,6 +71,76 @@ struct TrkOptions {
 // [80 02 00 7E 00 4F 5F 01 00 00 00 0F 1F 00 00 00
 //  00 00 00 01 00 11 00 03 00 00 00 00 00 03 00 00...]
 
+struct MemorySegment {
+    MemorySegment(const QString &n = QString()) : name(n), address(0) {}
+
+    bool readDump(const QString &fileName, uint address /* = 0*/, QString *errorMessage);
+    bool readMemory(uint addr, ushort len, QByteArray *ba) const;
+
+    QString name;
+    uint address;
+    QByteArray data;
+};
+
+// Determine address from filename using the "0xa5453.bin" convention
+
+static int addressFromFileName(const QString &fn)
+{
+    QString baseName = QFileInfo(fn).fileName();
+    if (!baseName.startsWith(QLatin1String("0x")))
+        return -1;
+    baseName.remove(0, 2);
+    int sepPos = baseName.indexOf(QLatin1Char('_'));
+    if (sepPos == -1)
+        sepPos = baseName.indexOf(QLatin1Char('-'));
+    if (sepPos == -1)
+        sepPos = baseName.indexOf(QLatin1Char('.'));
+    if (sepPos == -1)
+        return -1;
+    baseName.truncate(sepPos);
+    bool ok;
+    const int value = baseName.toInt(&ok, 16);
+    return ok ? value : -1;
+}
+
+// Read a chunk of memory from file. Use address unless it is 0,
+// in which case the filename is used for matching "0xa5453.bin"
+bool MemorySegment::readDump(const QString &fileName, uint addressIn /* = 0*/, QString *errorMessage)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        *errorMessage = QString::fromLatin1("Unable to read %1: %2").arg(fileName, file.errorString());
+        return false;
+    }
+    data = file.readAll();
+    file.close();
+    if (addressIn) {
+        address = addressIn;
+    } else {
+        const int addressInt = addressFromFileName(fileName);
+        if (addressInt == -1) {
+            *errorMessage = QString::fromLatin1("Unable to determine address from %1").arg(fileName);
+            return false;
+        }
+        address = addressInt;
+    }
+    *errorMessage = QString::fromLatin1("Read %1 bytes of data starting at 0x%2 from %3").arg(data.size()).arg(address, 0, 16).arg(fileName);
+    return true;
+}
+
+bool MemorySegment::readMemory(uint addr, ushort len, QByteArray *ba) const
+{
+    if (addr < address)
+        return false;
+    const int requestStart = addr - address;
+    const int requestEnd = requestStart + len;
+    if (requestEnd > data.size())
+        return false;
+    for (int i = requestStart; i != requestEnd; ++i)
+        appendByte(ba, data.at(i));
+    return true;
+}
+
 struct Inferior
 {
     Inferior();
@@ -78,6 +150,7 @@ struct Inferior
     uint dataseg;
 
     uint registers[RegisterCount];
+    QList<MemorySegment> memorySegments;
 };
 
 Inferior::Inferior()
@@ -118,6 +191,7 @@ public:
     void setServerName(const QString &name) { m_serverName = name; }
     void setMemoryDumpName(const QString &source) { m_memoryDumpName = source; }
     void setVerbose(int v) { m_verbose = v; }
+    bool readDump(const QString &fn);
     bool startServer();
 
 private slots:
@@ -128,7 +202,8 @@ private slots:
     void handleAdapterMessage(const TrkResult &result);
 
 private:
-    void logMessage(const QString &msg, bool force = 0);
+    void logMessage(const QString &msg, bool force = 0) const;
+    bool handleMemoryRequest(uint addr, ushort len, byte option, QByteArray *ba) const;
     byte nextNotificationToken();
 
     QString m_serverName;
@@ -157,18 +232,29 @@ TrkServer::~TrkServer()
     m_server.close();
 }
 
-bool TrkServer::startServer()
+bool TrkServer::readDump(const QString &fn)
 {
-    QFile file(m_memoryDumpName);
-    if (!file.open(QIODevice::ReadOnly)) {
-        logMessage(QString::fromLatin1("Unable to read %1: %2").arg(m_memoryDumpName, file.errorString()), true);
+    QString msg;
+    MemorySegment segment(QLatin1String("data"));
+    if (!segment.readDump(fn, 0, &msg)) {
+        logMessage(msg, true);
         return false;
     }
-    m_memoryData = file.readAll();
-    file.close();
+    m_inferior.memorySegments.push_back(segment);
+    logMessage(msg, true);
+    return true;
+}
 
-    logMessage(QString("Read %1 bytes of data from %2")
-        .arg(m_memoryData.size()).arg(m_memoryDumpName), true);
+bool TrkServer::startServer()
+{
+    QString msg;
+    MemorySegment codeSegment(QLatin1String("code"));
+    if (!codeSegment.readDump(m_memoryDumpName, 0x786A4000, &msg)) {
+        logMessage(msg, true);
+        return false;
+    }
+    m_inferior.memorySegments.push_front(codeSegment);
+    logMessage(msg, true);
 
     m_lastSent = 0;
     if (!m_server.listen(m_serverName)) {
@@ -182,7 +268,7 @@ bool TrkServer::startServer()
     return true;
 }
 
-void TrkServer::logMessage(const QString &msg, bool force)
+void TrkServer::logMessage(const QString &msg, bool force) const
 {
     if (m_verbose || force)
         qDebug("TRKSERVER: %s", qPrintable(msg));
@@ -218,6 +304,22 @@ void TrkServer::writeToAdapter(byte command, byte token, const QByteArray &data)
     m_adapterConnection->write(msg);
 }
 
+bool TrkServer::handleMemoryRequest(uint addr, ushort len, byte option, QByteArray *ba) const
+{
+    Q_UNUSED(option);
+    foreach (const MemorySegment &s, m_inferior.memorySegments) {
+        if (s.readMemory(addr, len, ba)) {
+            if (m_verbose)
+                logMessage(QString::fromLatin1("Read memory %1 bytes from 0x%2 from segment %3.").arg(len).arg(addr, 0, 16).arg(s.name));
+            return true;
+        }
+    }
+    for (int i = 0; i != len / 4; ++i)
+        appendInt(ba, 0xDEADBEEF);
+    logMessage(QString::fromLatin1("ADDRESS OUTSIDE ANY SEGMENTS: 0X%1").arg(addr, 0, 16), true);
+    return false;
+}
+
 void TrkServer::handleAdapterMessage(const TrkResult &result)
 {
     QByteArray data;
@@ -236,21 +338,9 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             const char *p = result.data.data();
             byte option = p[0];
             Q_UNUSED(option);
-            ushort len = extractShort(p + 1);
-            uint addr = extractInt(p + 3);
-            //qDebug() << "MESSAGE: " << result.data.toHex();
-            qDebug() << "ADDR: " << hexNumber(addr) << " " << hexNumber(len);
-            if (addr < m_inferior.codeseg
-                || addr + len >= m_inferior.codeseg + m_memoryData.size()) {
-                qDebug() << "ADDRESS OUTSIDE CODESEG: " << hexNumber(addr)
-                    << hexNumber(m_inferior.codeseg);
-                for (int i = 0; i != len / 4; ++i)
-                    appendInt(&data, 0xDEADBEEF);
-                writeToAdapter(0x80, result.token, data);
-                break;
-            }
-            for (int i = 0; i != len; ++i)
-                appendByte(&data, m_memoryData[addr - m_inferior.codeseg + i]);
+            const ushort len = extractShort(p + 1);
+            const uint addr = extractInt(p + 3);;
+            handleMemoryRequest(addr, len, option, &data);
             writeToAdapter(0x80, result.token, data);
             break;
         }
@@ -363,6 +453,9 @@ static bool readTrkArgs(const QStringList &args, TrkOptions *o)
             case 1:
                 o->dumpName = *it;
                 break;
+            default:
+                o->additionalDumps.push_back(*it);
+                break;
             }
         }
     }
@@ -378,15 +471,19 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
     TrkOptions options;
     if (!readTrkArgs(app.arguments(), &options)) {
-        qWarning("Usage: %s [-v|-q] <trkservername> <replaysource>\n"
+        qWarning("Usage: %s [-v|-q] <trkservername> <replaysource> [additional dumps]\n"
                  "Options: -v verbose\n"
-                 "         -q quiet\n", argv[0]);
+                 "         -q quiet\n"
+                 "         Additional dump names must follow the naming convention '0x4AD.bin", argv[0]);
         return 1;
     }
 
     TrkServer server;
     server.setServerName(options.serverName);
     server.setMemoryDumpName(options.dumpName);
+    foreach(const QString &ad, options.additionalDumps)
+        if (!server.readDump(ad))
+            return -1;
     server.setVerbose(options.verbose);
     if (!server.startServer())
         return -1;
