@@ -1511,6 +1511,10 @@ void ObjCFastEnumerationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         // visit ObjCFastEnumerationAST
+        if (type_specifiers)
+            accept(type_specifiers, visitor);
+        if (declarator)
+            accept(declarator, visitor);
         if (initializer)
             accept(initializer, visitor);
         if (fast_enumeratable_expression)

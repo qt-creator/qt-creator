@@ -3208,7 +3208,13 @@ class CPLUSPLUS_EXPORT ObjCFastEnumerationAST: public StatementAST
 public:
     unsigned for_token;
     unsigned lparen_token;
-    StatementAST *initializer;
+
+    // declaration
+    SpecifierAST *type_specifiers;
+    DeclaratorAST *declarator;
+    // or an expression
+    ExpressionAST *initializer;
+
     unsigned in_token;
     ExpressionAST *fast_enumeratable_expression;
     unsigned rparen_token;

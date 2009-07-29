@@ -2554,6 +2554,10 @@ unsigned ObjCFastEnumerationAST::lastToken() const
         return in_token + 1;
     else if (initializer)
         return initializer->lastToken();
+    else if (declarator)
+        return declarator->lastToken();
+    else if (type_specifiers)
+        return type_specifiers->lastToken();
     else if (lparen_token)
         return lparen_token + 1;
     else

@@ -1541,14 +1541,13 @@ ObjCFastEnumerationAST *ObjCFastEnumerationAST::clone(MemoryPool *pool) const
     ObjCFastEnumerationAST *ast = new (pool) ObjCFastEnumerationAST;
     ast->for_token = for_token;
     ast->lparen_token = lparen_token;
-    if (initializer)
-        ast->initializer = initializer->clone(pool);
+    if (type_specifiers) ast->type_specifiers = type_specifiers->clone(pool);
+    if (declarator) ast->declarator = declarator->clone(pool);
+    if (initializer) ast->initializer = initializer->clone(pool);
     ast->in_token = in_token;
-    if (fast_enumeratable_expression)
-        ast->fast_enumeratable_expression = fast_enumeratable_expression->clone(pool);
+    if (fast_enumeratable_expression) ast->fast_enumeratable_expression = fast_enumeratable_expression->clone(pool);
     ast->rparen_token = rparen_token;
-    if (body_statement)
-        ast->body_statement = body_statement->clone(pool);
+    if (body_statement) ast->body_statement = body_statement->clone(pool);
     return ast;
 }
 

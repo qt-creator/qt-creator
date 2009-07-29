@@ -2178,38 +2178,55 @@ bool Parser::parseForStatement(StatementAST *&node)
     unsigned lparen_token = 0;
     match(T_LPAREN, &lparen_token);
 
-    // FIXME: for ObjC fast enumeration, this needs a semicolon before the "in" token, which is obviously wrong.
-    StatementAST *initializer = 0;
-    parseForInitStatement(initializer);
-    unsigned in_token = 0;
+    unsigned startOfTypeSpecifier = cursor();
+    bool blocked = blockErrors(true);
 
-    if (parseObjCContextKeyword(Token_in, in_token)) {
+    if (objCEnabled()) {
         ObjCFastEnumerationAST *ast = new (_pool) ObjCFastEnumerationAST;
-
         ast->for_token = for_token;
         ast->lparen_token = lparen_token;
-        ast->initializer = initializer;
-        ast->in_token = in_token;
-        parseExpression(ast->fast_enumeratable_expression);
-        match(T_RPAREN, &ast->rparen_token);
-        parseStatement(ast->body_statement);
 
-        node = ast;
-    } else {
-        ForStatementAST *ast = new (_pool) ForStatementAST;
+        if (parseTypeSpecifier(ast->type_specifiers))
+            parseDeclarator(ast->declarator);
 
-        ast->for_token = for_token;
-        ast->lparen_token = lparen_token;
-        ast->initializer = initializer;
-        parseExpression(ast->condition);
-        match(T_SEMICOLON, &ast->semicolon_token);
-        parseExpression(ast->expression);
-        match(T_RPAREN, &ast->rparen_token);
-        parseStatement(ast->statement);
+        if (! ast->type_specifiers || ! ast->declarator) {
+            ast->type_specifiers = 0;
+            ast->declarator = 0;
 
-        node = ast;
+            rewind(startOfTypeSpecifier);
+            parseAssignmentExpression(ast->initializer);
+        }
+
+        if (parseObjCContextKeyword(Token_in, ast->in_token)) {
+            blockErrors(blocked);
+
+            parseExpression(ast->fast_enumeratable_expression);
+            match(T_RPAREN, &ast->rparen_token);
+            parseStatement(ast->body_statement);
+
+            node = ast;
+            return true;
+        }
+
+        // there was no "in" token, so we continue with a normal for-statement
+        rewind(startOfTypeSpecifier);
     }
 
+    blockErrors(blocked);
+
+    // Normal C/C++ for-statement parsing
+    ForStatementAST *ast = new (_pool) ForStatementAST;
+
+    ast->for_token = for_token;
+    ast->lparen_token = lparen_token;
+    parseForInitStatement(ast->initializer);
+    parseExpression(ast->condition);
+    match(T_SEMICOLON, &ast->semicolon_token);
+    parseExpression(ast->expression);
+    match(T_RPAREN, &ast->rparen_token);
+    parseStatement(ast->statement);
+
+    node = ast;
     return true;
 }
 
