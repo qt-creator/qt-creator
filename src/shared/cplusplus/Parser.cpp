@@ -56,7 +56,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
-
+#include <QDebug>
 CPLUSPLUS_BEGIN_NAMESPACE
 
 Parser::Parser(TranslationUnit *unit)
@@ -2188,6 +2188,15 @@ bool Parser::parseForStatement(StatementAST *&node)
 
         if (parseTypeSpecifier(ast->type_specifiers))
             parseDeclarator(ast->declarator);
+
+        if ((ast->type_specifiers || ast->declarator) && !peekAtObjCContextKeyword(Token_in)) {
+            // woops, probably parsed too much: "in" got parsed as a declarator. Let's redo it:
+            ast->type_specifiers = 0;
+            ast->declarator = 0;
+
+            rewind(startOfTypeSpecifier);
+            parseDeclarator(ast->declarator);
+        }
 
         if (! ast->type_specifiers || ! ast->declarator) {
             ast->type_specifiers = 0;
@@ -4635,17 +4644,24 @@ bool Parser::parseObjCTypeQualifiers(unsigned &type_qualifier)
     return true;
 }
 
-bool Parser::parseObjCContextKeyword(int kind, unsigned &in_token)
+bool Parser::peekAtObjCContextKeyword(int kind)
 {
     if (LA() != T_IDENTIFIER)
         return false;
 
     Identifier *id = tok().identifier;
     const int k = classifyObjectiveCTypeQualifiers(id->chars(), id->size());
-    if (k != kind)
+    return k == kind;
+}
+
+bool Parser::parseObjCContextKeyword(int kind, unsigned &in_token)
+{
+    if (peekAtObjCContextKeyword(kind)) {
+        in_token = consumeToken();
+        return true;
+    } else {
         return false;
-    in_token = consumeToken();
-    return true;
+    }
 }
 
 CPLUSPLUS_END_NAMESPACE

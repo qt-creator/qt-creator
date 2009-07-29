@@ -244,6 +244,7 @@ public:
     bool parseObjCSelector(unsigned &selector_token);
     bool parseObjCKeywordDeclaration(ObjCSelectorArgumentAST *&argument, ObjCMessageArgumentDeclarationAST *&node);
     bool parseObjCTypeQualifiers(unsigned &type_qualifier);
+    bool peekAtObjCContextKeyword(int kind);
     bool parseObjCContextKeyword(int kind, unsigned &in_token);
 
     bool lookAtObjCSelector() const;
