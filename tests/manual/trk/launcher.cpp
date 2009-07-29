@@ -201,10 +201,10 @@ Adapter::~Adapter()
 bool Adapter::startServer()
 {
     if (!openTrkPort(m_trkServerName)) {
-        logMessage("Unable to connect to TRK server");
+        qDebug("Unable to connect to TRK server");
         return false;
     }
-
+    qDebug("Connecting");
     sendTrkInitialPing();
     sendTrkMessage(TrkConnect); // Connect
     sendTrkMessage(TrkSupported, CB(handleSupportMask));
@@ -228,7 +228,8 @@ void Adapter::installAndRun()
 }
 void Adapter::logMessage(const QString &msg)
 {
-    qDebug() << "ADAPTER: " << qPrintable(msg);
+    if (DEBUG)
+        qDebug() << "ADAPTER: " << qPrintable(msg);
 }
 
 bool Adapter::openTrkPort(const QString &port)
@@ -536,7 +537,6 @@ void Adapter::handleFileCreation(const TrkResult &result)
     // we don't do any error handling yet, which is bad
     const char *data = result.data.data();
     uint copyFileHandle = extractInt(data + 2);
-    qDebug() << copyFileHandle;
     QFile file(m_copySrcFileName);
     file.open(QIODevice::ReadOnly);
     QByteArray src = file.readAll();
@@ -675,6 +675,7 @@ void Adapter::cleanUp()
 
 void Adapter::copyFileToRemote()
 {
+    qDebug("Copying file");
     QByteArray ba;
     appendByte(&ba, 0x10);
     appendString(&ba, m_copyDstFileName.toLocal8Bit(), TargetByteOrder, false);
@@ -683,6 +684,7 @@ void Adapter::copyFileToRemote()
 
 void Adapter::installRemotePackageSilently(const QString &fileName)
 {
+    qDebug("Installing file");
     QByteArray ba;
     appendByte(&ba, 'C');
     appendString(&ba, fileName.toLocal8Bit(), TargetByteOrder, false);
@@ -691,6 +693,7 @@ void Adapter::installRemotePackageSilently(const QString &fileName)
 
 void Adapter::startInferiorIfNeeded()
 {
+    qDebug("Starting");
     if (m_session.pid != 0) {
         qDebug() << "Process already 'started'";
         return;
