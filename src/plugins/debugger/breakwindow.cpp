@@ -136,10 +136,10 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     const int rowCount = itemModel->rowCount();
 
-    QAction *deleteAction = new QAction(tr("Delete breakpoint", 0, si.size()), &menu);
+    QAction *deleteAction = new QAction(tr("Delete breakpoint"), &menu);
     deleteAction->setEnabled(si.size() > 0);
 
-    QAction *deleteAllAction = new QAction(tr("Delete all breakpoints", 0, si.size()), &menu);
+    QAction *deleteAllAction = new QAction(tr("Delete all breakpoints"), &menu);
     deleteAllAction->setEnabled(si.size() > 0);
 
     // Delete by file: Find indexes of breakpoints of the same file
@@ -168,7 +168,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     alwaysAdjustAction->setCheckable(true);
     alwaysAdjustAction->setChecked(m_alwaysResizeColumnsToContents);
 
-    QAction *editConditionAction = new QAction(tr("Edit condition...", 0, si.size()), &menu);
+    QAction *editConditionAction = new QAction(tr("Edit condition..."), &menu);
     editConditionAction->setEnabled(si.size() > 0);
 
     QAction *synchronizeAction = new QAction(tr("Synchronize breakpoints"), &menu);

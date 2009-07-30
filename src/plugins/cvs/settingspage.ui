@@ -30,7 +30,7 @@
         <string>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</string>
        </property>
        <property name="text">
-        <string>Describe by commit id</string>
+        <string>Describe all files matching commit id:</string>
        </property>
       </widget>
      </item>
