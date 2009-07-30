@@ -792,6 +792,7 @@ void UiProgram::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(imports, visitor);
+        accept(members, visitor);
     }
 
     visitor->endVisit(this);
