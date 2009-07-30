@@ -40,14 +40,25 @@
 ****************************************************************************/
 
 #include "qmljsast_p.h"
-
-
-
 #include "qmljsastvisitor_p.h"
 
 QT_BEGIN_NAMESPACE
 
 namespace QmlJS { namespace AST {
+
+void Node::accept(Visitor *visitor)
+{
+    if (visitor->preVisit(this)) {
+        accept0(visitor);
+    }
+    visitor->postVisit(this);
+}
+
+void Node::accept(Node *node, Visitor *visitor)
+{
+    if (node)
+        node->accept(visitor);
+}
 
 ExpressionNode *Node::expressionCast()
 {
@@ -82,7 +93,7 @@ Statement *Statement::statementCast()
 void NestedExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
     visitor->endVisit(this);
 }
@@ -154,8 +165,8 @@ void RegExpLiteral::accept0(Visitor *visitor)
 void ArrayLiteral::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(elements, visitor);
-        acceptChild(elision, visitor);
+        accept(elements, visitor);
+        accept(elision, visitor);
     }
 
     visitor->endVisit(this);
@@ -164,7 +175,7 @@ void ArrayLiteral::accept0(Visitor *visitor)
 void ObjectLiteral::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(properties, visitor);
+        accept(properties, visitor);
     }
 
     visitor->endVisit(this);
@@ -173,12 +184,10 @@ void ObjectLiteral::accept0(Visitor *visitor)
 void ElementList::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        ElementList *it = this;
-        do {
-            acceptChild(it->elision, visitor);
-            acceptChild(it->expression, visitor);
-            it = it->next;
-        } while (it);
+        for (ElementList *it = this; it; it = it->next) {
+            accept(it->elision, visitor);
+            accept(it->expression, visitor);
+        }
     }
 
     visitor->endVisit(this);
@@ -196,12 +205,10 @@ void Elision::accept0(Visitor *visitor)
 void PropertyNameAndValueList::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        PropertyNameAndValueList *it = this;
-        do {
-            acceptChild(it->name, visitor);
-            acceptChild(it->value, visitor);
-            it = it->next;
-        } while (it);
+        for (PropertyNameAndValueList *it = this; it; it = it->next) {
+            accept(it->name, visitor);
+            accept(it->value, visitor);
+        }
     }
 
     visitor->endVisit(this);
@@ -234,8 +241,8 @@ void NumericLiteralPropertyName::accept0(Visitor *visitor)
 void ArrayMemberExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(base, visitor);
-        acceptChild(expression, visitor);
+        accept(base, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -244,7 +251,7 @@ void ArrayMemberExpression::accept0(Visitor *visitor)
 void FieldMemberExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(base, visitor);
+        accept(base, visitor);
     }
 
     visitor->endVisit(this);
@@ -253,8 +260,8 @@ void FieldMemberExpression::accept0(Visitor *visitor)
 void NewMemberExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(base, visitor);
-        acceptChild(arguments, visitor);
+        accept(base, visitor);
+        accept(arguments, visitor);
     }
 
     visitor->endVisit(this);
@@ -263,7 +270,7 @@ void NewMemberExpression::accept0(Visitor *visitor)
 void NewExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -272,8 +279,8 @@ void NewExpression::accept0(Visitor *visitor)
 void CallExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(base, visitor);
-        acceptChild(arguments, visitor);
+        accept(base, visitor);
+        accept(arguments, visitor);
     }
 
     visitor->endVisit(this);
@@ -282,11 +289,9 @@ void CallExpression::accept0(Visitor *visitor)
 void ArgumentList::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        ArgumentList *it = this;
-        do {
-            acceptChild(it->expression, visitor);
-            it = it->next;
-        } while (it);
+        for (ArgumentList *it = this; it; it = it->next) {
+            accept(it->expression, visitor);
+        }
     }
 
     visitor->endVisit(this);
@@ -295,7 +300,7 @@ void ArgumentList::accept0(Visitor *visitor)
 void PostIncrementExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(base, visitor);
+        accept(base, visitor);
     }
 
     visitor->endVisit(this);
@@ -304,7 +309,7 @@ void PostIncrementExpression::accept0(Visitor *visitor)
 void PostDecrementExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(base, visitor);
+        accept(base, visitor);
     }
 
     visitor->endVisit(this);
@@ -313,7 +318,7 @@ void PostDecrementExpression::accept0(Visitor *visitor)
 void DeleteExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -322,7 +327,7 @@ void DeleteExpression::accept0(Visitor *visitor)
 void VoidExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -331,7 +336,7 @@ void VoidExpression::accept0(Visitor *visitor)
 void TypeOfExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -340,7 +345,7 @@ void TypeOfExpression::accept0(Visitor *visitor)
 void PreIncrementExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -349,7 +354,7 @@ void PreIncrementExpression::accept0(Visitor *visitor)
 void PreDecrementExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -358,7 +363,7 @@ void PreDecrementExpression::accept0(Visitor *visitor)
 void UnaryPlusExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -367,7 +372,7 @@ void UnaryPlusExpression::accept0(Visitor *visitor)
 void UnaryMinusExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -376,7 +381,7 @@ void UnaryMinusExpression::accept0(Visitor *visitor)
 void TildeExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -385,7 +390,7 @@ void TildeExpression::accept0(Visitor *visitor)
 void NotExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -394,8 +399,8 @@ void NotExpression::accept0(Visitor *visitor)
 void BinaryExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(left, visitor);
-        acceptChild(right, visitor);
+        accept(left, visitor);
+        accept(right, visitor);
     }
 
     visitor->endVisit(this);
@@ -404,9 +409,9 @@ void BinaryExpression::accept0(Visitor *visitor)
 void ConditionalExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
-        acceptChild(ok, visitor);
-        acceptChild(ko, visitor);
+        accept(expression, visitor);
+        accept(ok, visitor);
+        accept(ko, visitor);
     }
 
     visitor->endVisit(this);
@@ -415,8 +420,8 @@ void ConditionalExpression::accept0(Visitor *visitor)
 void Expression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(left, visitor);
-        acceptChild(right, visitor);
+        accept(left, visitor);
+        accept(right, visitor);
     }
 
     visitor->endVisit(this);
@@ -425,7 +430,7 @@ void Expression::accept0(Visitor *visitor)
 void Block::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(statements, visitor);
+        accept(statements, visitor);
     }
 
     visitor->endVisit(this);
@@ -434,11 +439,9 @@ void Block::accept0(Visitor *visitor)
 void StatementList::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        StatementList *it = this;
-        do {
-            acceptChild(it->statement, visitor);
-            it = it->next;
-        } while (it);
+        for (StatementList *it = this; it; it = it->next) {
+            accept(it->statement, visitor);
+        }
     }
 
     visitor->endVisit(this);
@@ -447,7 +450,7 @@ void StatementList::accept0(Visitor *visitor)
 void VariableStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(declarations, visitor);
+        accept(declarations, visitor);
     }
 
     visitor->endVisit(this);
@@ -456,11 +459,9 @@ void VariableStatement::accept0(Visitor *visitor)
 void VariableDeclarationList::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        VariableDeclarationList *it = this;
-        do {
-            acceptChild(it->declaration, visitor);
-            it = it->next;
-        } while (it);
+        for (VariableDeclarationList *it = this; it; it = it->next) {
+            accept(it->declaration, visitor);
+        }
     }
 
     visitor->endVisit(this);
@@ -469,7 +470,7 @@ void VariableDeclarationList::accept0(Visitor *visitor)
 void VariableDeclaration::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -486,7 +487,7 @@ void EmptyStatement::accept0(Visitor *visitor)
 void ExpressionStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -495,9 +496,9 @@ void ExpressionStatement::accept0(Visitor *visitor)
 void IfStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
-        acceptChild(ok, visitor);
-        acceptChild(ko, visitor);
+        accept(expression, visitor);
+        accept(ok, visitor);
+        accept(ko, visitor);
     }
 
     visitor->endVisit(this);
@@ -506,8 +507,8 @@ void IfStatement::accept0(Visitor *visitor)
 void DoWhileStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(statement, visitor);
-        acceptChild(expression, visitor);
+        accept(statement, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -516,8 +517,8 @@ void DoWhileStatement::accept0(Visitor *visitor)
 void WhileStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
-        acceptChild(statement, visitor);
+        accept(expression, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -526,10 +527,10 @@ void WhileStatement::accept0(Visitor *visitor)
 void ForStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(initialiser, visitor);
-        acceptChild(condition, visitor);
-        acceptChild(expression, visitor);
-        acceptChild(statement, visitor);
+        accept(initialiser, visitor);
+        accept(condition, visitor);
+        accept(expression, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -538,10 +539,10 @@ void ForStatement::accept0(Visitor *visitor)
 void LocalForStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(declarations, visitor);
-        acceptChild(condition, visitor);
-        acceptChild(expression, visitor);
-        acceptChild(statement, visitor);
+        accept(declarations, visitor);
+        accept(condition, visitor);
+        accept(expression, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -550,9 +551,9 @@ void LocalForStatement::accept0(Visitor *visitor)
 void ForEachStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(initialiser, visitor);
-        acceptChild(expression, visitor);
-        acceptChild(statement, visitor);
+        accept(initialiser, visitor);
+        accept(expression, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -561,9 +562,9 @@ void ForEachStatement::accept0(Visitor *visitor)
 void LocalForEachStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(declaration, visitor);
-        acceptChild(expression, visitor);
-        acceptChild(statement, visitor);
+        accept(declaration, visitor);
+        accept(expression, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -588,7 +589,7 @@ void BreakStatement::accept0(Visitor *visitor)
 void ReturnStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -597,8 +598,8 @@ void ReturnStatement::accept0(Visitor *visitor)
 void WithStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
-        acceptChild(statement, visitor);
+        accept(expression, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -607,8 +608,8 @@ void WithStatement::accept0(Visitor *visitor)
 void SwitchStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
-        acceptChild(block, visitor);
+        accept(expression, visitor);
+        accept(block, visitor);
     }
 
     visitor->endVisit(this);
@@ -617,9 +618,9 @@ void SwitchStatement::accept0(Visitor *visitor)
 void CaseBlock::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(clauses, visitor);
-        acceptChild(defaultClause, visitor);
-        acceptChild(moreClauses, visitor);
+        accept(clauses, visitor);
+        accept(defaultClause, visitor);
+        accept(moreClauses, visitor);
     }
 
     visitor->endVisit(this);
@@ -628,11 +629,9 @@ void CaseBlock::accept0(Visitor *visitor)
 void CaseClauses::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        CaseClauses *it = this;
-        do {
-            acceptChild(it->clause, visitor);
-            it = it->next;
-        } while (it);
+        for (CaseClauses *it = this; it; it = it->next) {
+            accept(it->clause, visitor);
+        }
     }
 
     visitor->endVisit(this);
@@ -641,8 +640,8 @@ void CaseClauses::accept0(Visitor *visitor)
 void CaseClause::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
-        acceptChild(statements, visitor);
+        accept(expression, visitor);
+        accept(statements, visitor);
     }
 
     visitor->endVisit(this);
@@ -651,7 +650,7 @@ void CaseClause::accept0(Visitor *visitor)
 void DefaultClause::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(statements, visitor);
+        accept(statements, visitor);
     }
 
     visitor->endVisit(this);
@@ -660,7 +659,7 @@ void DefaultClause::accept0(Visitor *visitor)
 void LabelledStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(statement, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -669,7 +668,7 @@ void LabelledStatement::accept0(Visitor *visitor)
 void ThrowStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -678,9 +677,9 @@ void ThrowStatement::accept0(Visitor *visitor)
 void TryStatement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(statement, visitor);
-        acceptChild(catchExpression, visitor);
-        acceptChild(finallyExpression, visitor);
+        accept(statement, visitor);
+        accept(catchExpression, visitor);
+        accept(finallyExpression, visitor);
     }
 
     visitor->endVisit(this);
@@ -689,7 +688,7 @@ void TryStatement::accept0(Visitor *visitor)
 void Catch::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(statement, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -698,7 +697,7 @@ void Catch::accept0(Visitor *visitor)
 void Finally::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(statement, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -707,8 +706,8 @@ void Finally::accept0(Visitor *visitor)
 void FunctionDeclaration::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(formals, visitor);
-        acceptChild(body, visitor);
+        accept(formals, visitor);
+        accept(body, visitor);
     }
 
     visitor->endVisit(this);
@@ -717,8 +716,8 @@ void FunctionDeclaration::accept0(Visitor *visitor)
 void FunctionExpression::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(formals, visitor);
-        acceptChild(body, visitor);
+        accept(formals, visitor);
+        accept(body, visitor);
     }
 
     visitor->endVisit(this);
@@ -736,7 +735,7 @@ void FormalParameterList::accept0(Visitor *visitor)
 void FunctionBody::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(elements, visitor);
+        accept(elements, visitor);
     }
 
     visitor->endVisit(this);
@@ -745,7 +744,7 @@ void FunctionBody::accept0(Visitor *visitor)
 void Program::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(elements, visitor);
+        accept(elements, visitor);
     }
 
     visitor->endVisit(this);
@@ -754,11 +753,9 @@ void Program::accept0(Visitor *visitor)
 void SourceElements::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        SourceElements *it = this;
-        do {
-            acceptChild(it->element, visitor);
-            it = it->next;
-        } while (it);
+        for (SourceElements *it = this; it; it = it->next) {
+            accept(it->element, visitor);
+        }
     }
 
     visitor->endVisit(this);
@@ -767,7 +764,7 @@ void SourceElements::accept0(Visitor *visitor)
 void FunctionSourceElement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(declaration, visitor);
+        accept(declaration, visitor);
     }
 
     visitor->endVisit(this);
@@ -776,7 +773,7 @@ void FunctionSourceElement::accept0(Visitor *visitor)
 void StatementSourceElement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(statement, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -794,8 +791,7 @@ void DebuggerStatement::accept0(Visitor *visitor)
 void UiProgram::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (UiObjectMemberList *it = members; it; it = it->next)
-            acceptChild(it->member, visitor);
+        accept(imports, visitor);
     }
 
     visitor->endVisit(this);
@@ -804,7 +800,7 @@ void UiProgram::accept0(Visitor *visitor)
 void UiSignature::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(formals, visitor);
+        accept(formals, visitor);
     }
     visitor->endVisit(this);
 }
@@ -813,7 +809,7 @@ void UiFormalList::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         for (UiFormalList *it = this; it; it = it->next) {
-            acceptChild(it->formal, visitor);
+            accept(it->formal, visitor);
         }
     }
     visitor->endVisit(this);
@@ -829,7 +825,7 @@ void UiFormal::accept0(Visitor *visitor)
 void UiPublicMember::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(expression, visitor);
+        accept(expression, visitor);
     }
 
     visitor->endVisit(this);
@@ -838,8 +834,8 @@ void UiPublicMember::accept0(Visitor *visitor)
 void UiObjectDefinition::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(qualifiedTypeNameId, visitor);
-        acceptChild(initializer, visitor);
+        accept(qualifiedTypeNameId, visitor);
+        accept(initializer, visitor);
     }
 
     visitor->endVisit(this);
@@ -848,8 +844,7 @@ void UiObjectDefinition::accept0(Visitor *visitor)
 void UiObjectInitializer::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (UiObjectMemberList *it = members; it; it = it->next)
-            acceptChild(it->member, visitor);
+        accept(members, visitor);
     }
 
     visitor->endVisit(this);
@@ -858,9 +853,9 @@ void UiObjectInitializer::accept0(Visitor *visitor)
 void UiObjectBinding::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(qualifiedId, visitor);
-        acceptChild(qualifiedTypeNameId, visitor);
-        acceptChild(initializer, visitor);
+        accept(qualifiedId, visitor);
+        accept(qualifiedTypeNameId, visitor);
+        accept(initializer, visitor);
     }
 
     visitor->endVisit(this);
@@ -869,8 +864,8 @@ void UiObjectBinding::accept0(Visitor *visitor)
 void UiScriptBinding::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(qualifiedId, visitor);
-        acceptChild(statement, visitor);
+        accept(qualifiedId, visitor);
+        accept(statement, visitor);
     }
 
     visitor->endVisit(this);
@@ -879,9 +874,8 @@ void UiScriptBinding::accept0(Visitor *visitor)
 void UiArrayBinding::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(qualifiedId, visitor);
-        for (UiArrayMemberList *it = members; it; it = it->next)
-            acceptChild(it->member, visitor);
+        accept(qualifiedId, visitor);
+        accept(members, visitor);
     }
 
     visitor->endVisit(this);
@@ -891,7 +885,7 @@ void UiObjectMemberList::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         for (UiObjectMemberList *it = this; it; it = it->next)
-            acceptChild(it->member, visitor);
+            accept(it->member, visitor);
     }
 
     visitor->endVisit(this);
@@ -901,7 +895,7 @@ void UiArrayMemberList::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         for (UiArrayMemberList *it = this; it; it = it->next)
-            acceptChild(it->member, visitor);
+            accept(it->member, visitor);
     }
 
     visitor->endVisit(this);
@@ -918,6 +912,7 @@ void UiQualifiedId::accept0(Visitor *visitor)
 void UiImport::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(importUri, visitor);
     }
 
     visitor->endVisit(this);
@@ -926,8 +921,8 @@ void UiImport::accept0(Visitor *visitor)
 void UiImportList::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(import, visitor);
-        acceptChild(next, visitor);
+        accept(import, visitor);
+        accept(next, visitor);
     }
 
     visitor->endVisit(this);
@@ -936,7 +931,7 @@ void UiImportList::accept0(Visitor *visitor)
 void UiSourceElement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        acceptChild(sourceElement, visitor);
+        accept(sourceElement, visitor);
     }
 
     visitor->endVisit(this);

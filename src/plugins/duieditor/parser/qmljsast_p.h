@@ -228,19 +228,11 @@ public:
     virtual BinaryExpression *binaryExpressionCast();
     virtual Statement *statementCast();
 
-    inline void accept(Visitor *visitor)
-    {
-        if (visitor->preVisit(this)) {
-            accept0(visitor);
-            visitor->postVisit(this);
-        }
-    }
+    void accept(Visitor *visitor);
+    static void accept(Node *node, Visitor *visitor);
 
-    static void acceptChild(Node *node, Visitor *visitor)
-    {
-        if (node)
-            node->accept(visitor);
-    }
+    inline static void acceptChild(Node *node, Visitor *visitor)
+    { return accept(node, visitor); } // ### remove
 
     virtual void accept0(Visitor *visitor) = 0;
 
@@ -2291,6 +2283,12 @@ public:
         : fileName(0), importUri(uri), importId(0)
     { kind = K; }
 
+    virtual SourceLocation firstSourceLocation() const
+    { return importToken; }
+
+    virtual SourceLocation lastSourceLocation() const
+    { return semicolonToken; }
+
     virtual void accept0(Visitor *visitor);
 
 // attributes
@@ -2321,6 +2319,21 @@ public:
         kind = K;
         next = previous->next;
         previous->next = this;
+    }
+
+    virtual SourceLocation firstSourceLocation() const
+    {
+        if (import) return import->firstSourceLocation();
+        else return SourceLocation();
+    }
+
+    virtual SourceLocation lastSourceLocation() const
+    {
+        for (const UiImportList *it = this; it; it = it->next)
+            if (!it->next && it->import)
+                return it->import->lastSourceLocation();
+
+        return SourceLocation();
     }
 
     UiImportList *finish()
