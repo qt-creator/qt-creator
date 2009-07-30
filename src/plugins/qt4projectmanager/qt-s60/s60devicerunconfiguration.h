@@ -38,6 +38,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
+#include <QtGui/QComboBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -100,7 +101,7 @@ public:
 private slots:
     void nameEdited(const QString &text);
     void updateTargetInformation();
-    void setSerialPort(const QString &portName);
+    void setSerialPort(int index);
     void selfSignToggled(bool toggle);
     void customSignatureToggled(bool toggle);
     void signaturePathChanged(const QString &path);
@@ -108,6 +109,7 @@ private slots:
 
 private:
     S60DeviceRunConfiguration *m_runConfiguration;
+    QComboBox *m_serialPorts;
     QLineEdit *m_nameLineEdit;
     QLabel *m_sisxFileLabel;
 };

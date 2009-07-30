@@ -34,6 +34,7 @@
 #include "profilereader.h"
 #include "s60manager.h"
 #include "s60devices.h"
+#include "serialdevicelister.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -264,11 +265,20 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(S60DeviceRunCon
     m_sisxFileLabel = new QLabel(m_runConfiguration->basePackageFilePath() + ".sisx");
     formLayout->addRow(tr("Install File:"), m_sisxFileLabel);
 
-    QComboBox *serialPorts = new QComboBox;
-    serialPorts->addItems(QStringList() << "COM1" << "COM2" << "COM3" << "COM4" << "COM5" << "COM6" << "COM7" << "COM8" << "COM9");
-    serialPorts->setCurrentIndex(m_runConfiguration->serialPortName().mid(3).toInt()-1);
-    connect(serialPorts, SIGNAL(activated(QString)), this, SLOT(setSerialPort(QString)));
-    formLayout->addRow(tr("Device on Serial Port:"), serialPorts);
+    QString runConfigurationPortName = m_runConfiguration->serialPortName();
+    QList<SerialDeviceLister::SerialDevice> serialDevices = SerialDeviceLister().serialDevices();
+    m_serialPorts = new QComboBox;
+    for (int i = 0; i < serialDevices.size(); ++i) {
+        const SerialDeviceLister::SerialDevice &device = serialDevices.at(i);
+        m_serialPorts->addItem(device.friendlyName, device.portName);
+        if (device.portName == runConfigurationPortName)
+            m_serialPorts->setCurrentIndex(i);
+    }
+    QString selectedPortName = m_serialPorts->itemData(m_serialPorts->currentIndex()).toString();
+    if (m_serialPorts->count() > 0 && runConfigurationPortName != selectedPortName)
+        m_runConfiguration->setSerialPortName(selectedPortName);
+    connect(m_serialPorts, SIGNAL(activated(int)), this, SLOT(setSerialPort(int)));
+    formLayout->addRow(tr("Device on Serial Port:"), m_serialPorts);
 
     QWidget *signatureWidget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout();
@@ -331,9 +341,9 @@ void S60DeviceRunConfigurationWidget::updateTargetInformation()
     m_sisxFileLabel->setText(m_runConfiguration->basePackageFilePath() + ".sisx");
 }
 
-void S60DeviceRunConfigurationWidget::setSerialPort(const QString &portName)
+void S60DeviceRunConfigurationWidget::setSerialPort(int index)
 {
-    m_runConfiguration->setSerialPortName(portName.trimmed());
+    m_runConfiguration->setSerialPortName(m_serialPorts->itemData(index).toString());
 }
 
 void S60DeviceRunConfigurationWidget::selfSignToggled(bool toggle)
