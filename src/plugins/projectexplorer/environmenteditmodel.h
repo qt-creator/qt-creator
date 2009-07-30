@@ -89,7 +89,7 @@ private:
     bool m_mergedEnvironments;
 };
 
-class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QStackedWidget
+class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -122,9 +122,8 @@ private slots:
 private:
     void updateSummaryText();
     EnvironmentModel *m_model;
-    QWidget*m_summaryPage;
-    QWidget *m_detailsPage;
     QLabel *m_summaryText;
+    QWidget *m_details;
     QTreeView *m_environmentTreeView;
     QPushButton *m_editButton;
     QPushButton *m_addButton;

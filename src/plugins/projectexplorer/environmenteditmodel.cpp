@@ -31,6 +31,7 @@
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHeaderView>
+#include <QtGui/QToolButton>
 
 using namespace ProjectExplorer;
 
@@ -424,46 +425,36 @@ void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
 ////
 
 EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget)
-    : QStackedWidget(parent)
+    : QWidget(parent)
 {
     m_model = new EnvironmentModel();
     m_model->setMergedEnvironments(true);
     connect(m_model, SIGNAL(userChangesUpdated()),
             this, SIGNAL(userChangesUpdated()));
 
-    m_summaryPage = new QWidget();
-    addWidget(m_summaryPage);
-    QVBoxLayout *vbox = new QVBoxLayout(m_summaryPage);
-    vbox->setContentsMargins(0, -1, 0, -1);
-
-    QPushButton *detailsButton = new QPushButton(this);
-    detailsButton->setText(tr("Show Details"));
-    QHBoxLayout *hdetailsButtonLayout = new QHBoxLayout();
-    hdetailsButtonLayout->setMargin(0);
-    hdetailsButtonLayout->addWidget(detailsButton);
-    hdetailsButtonLayout->addStretch(10);
-    connect(detailsButton, SIGNAL(clicked()),
-            this, SLOT(switchToDetails()));
-    vbox->addLayout(hdetailsButtonLayout);
+    QVBoxLayout *vbox = new QVBoxLayout(this);
 
     m_summaryText = new QLabel(this);
     m_summaryText->setText("");
-    vbox->addWidget(m_summaryText);
 
-    m_detailsPage = new QWidget();
-    //addWidget(m_detailsPage);
-    QVBoxLayout *vbox2 = new QVBoxLayout(m_detailsPage);
-    vbox2->setContentsMargins(0, -1, 0, -1);
+    QToolButton *detailsButton = new QToolButton(this);
+    detailsButton->setText(tr("Details"));
 
-    QPushButton *summaryButton = new QPushButton(this);
-    summaryButton->setText(tr("Hide Details"));
+    connect(detailsButton, SIGNAL(clicked()),
+            this, SLOT(switchToDetails()));
+
     QHBoxLayout *hbox = new QHBoxLayout();
+    hbox->addWidget(m_summaryText);
+    hbox->addWidget(detailsButton);
     hbox->setMargin(0);
-    hbox->addWidget(summaryButton);
-    hbox->addStretch(10);
-    connect(summaryButton, SIGNAL(clicked()),
-        this, SLOT(switchToSummary()));
-    vbox2->addLayout(hbox);
+
+    vbox->addLayout(hbox);
+
+    m_details = new QWidget(this);
+    m_details->setVisible(false);
+
+    QVBoxLayout *vbox2 = new QVBoxLayout(m_details);
+    vbox2->setMargin(0);
 
     if (additionalDetailsWidget)
         vbox2->addWidget(additionalDetailsWidget);
@@ -478,30 +469,32 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     m_environmentTreeView->setMinimumHeight(400);
     horizontalLayout->addWidget(m_environmentTreeView);
 
-    QVBoxLayout *verticalLayout_2 = new QVBoxLayout();
+    QVBoxLayout *buttonLayout = new QVBoxLayout();
 
     m_editButton = new QPushButton(this);
     m_editButton->setText(tr("&Edit"));
-    verticalLayout_2->addWidget(m_editButton);
+    buttonLayout->addWidget(m_editButton);
 
     m_addButton = new QPushButton(this);
     m_addButton->setText(tr("&Add"));
-    verticalLayout_2->addWidget(m_addButton);
+    buttonLayout->addWidget(m_addButton);
 
     m_removeButton = new QPushButton(this);
     m_removeButton->setEnabled(false);
     m_removeButton->setText(tr("&Reset"));
-    verticalLayout_2->addWidget(m_removeButton);
+    buttonLayout->addWidget(m_removeButton);
 
     m_unsetButton = new QPushButton(this);
     m_unsetButton->setEnabled(false);
     m_unsetButton->setText(tr("&Unset"));
-    verticalLayout_2->addWidget(m_unsetButton);
+    buttonLayout->addWidget(m_unsetButton);
 
     QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    verticalLayout_2->addItem(verticalSpacer);
-    horizontalLayout->addLayout(verticalLayout_2);
+    buttonLayout->addItem(verticalSpacer);
+    horizontalLayout->addLayout(buttonLayout);
     vbox2->addLayout(horizontalLayout);
+
+    vbox->addWidget(m_details);
     
     connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateButtons()));
@@ -520,26 +513,13 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
 EnvironmentWidget::~EnvironmentWidget()
 {
-    delete m_summaryPage;
-    delete m_detailsPage;
     delete m_model;
     m_model = 0;
 }
 
 void EnvironmentWidget::switchToDetails()
 {
-    addWidget(m_detailsPage);
-    setCurrentWidget(m_detailsPage);
-    removeWidget(m_summaryPage);
-}
-
-
-void EnvironmentWidget::switchToSummary()
-{
-    updateSummaryText();
-    addWidget(m_summaryPage);
-    setCurrentWidget(m_summaryPage);
-    removeWidget(m_detailsPage);
+    m_details->setVisible(!m_details->isVisible());
 }
 
 void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)
