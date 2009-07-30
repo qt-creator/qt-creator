@@ -728,7 +728,7 @@ void Qt4Project::addDefaultBuild()
             if (v.isValid()) {
                 qs->setValue(buildConfiguration, "buildConfiguration", QVariant());
                 setValue(buildConfiguration, "buildConfiguration", v);
-            } else {
+            } else if (!value(buildConfiguration, "buildConfiguration").isValid()) {
                 if (QtVersion *version = qtVersion(buildConfiguration))
                     setValue(buildConfiguration, "buildConfiguration", version->defaultBuildConfig());
                 else
