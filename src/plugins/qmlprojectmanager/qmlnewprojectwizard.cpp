@@ -228,6 +228,8 @@ Core::GeneratedFiles QmlNewProjectWizard::generateFiles(const QWizard *w,
     QTextStream out(&contents);
 
     out
+        << "import Qt 4.6" << endl
+        << endl
         << "Rect {" << endl
         << "    width: 200" << endl
         << "    height: 200" << endl
