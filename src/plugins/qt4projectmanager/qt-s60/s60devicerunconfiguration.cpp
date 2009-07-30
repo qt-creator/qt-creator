@@ -411,7 +411,7 @@ RunControl* S60DeviceRunConfigurationRunner::run(QSharedPointer<RunConfiguration
 // ======== S60DeviceRunControl
 
 S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runConfiguration)
-    : RunControl(runConfiguration)
+    : RunControl(runConfiguration), m_adapter(0)
 {
     m_makesis = new QProcess(this);
     connect(m_makesis, SIGNAL(readyReadStandardError()),
@@ -471,7 +471,7 @@ void S60DeviceRunControl::stop()
 {
     m_makesis->kill();
     m_signsis->kill();
-    //m_adapter->terminate();
+    m_adapter->terminate();
 }
 
 bool S60DeviceRunControl::isRunning() const
@@ -533,7 +533,6 @@ void S60DeviceRunControl::signsisProcessFinished()
         emit finished();
         return;
     }
-    //TODO
     m_adapter = new trk::Adapter;
     connect(m_adapter, SIGNAL(finished()), this, SLOT(runFinished()));
     //TODO com selection, sisx destination and file path user definable
@@ -549,6 +548,8 @@ void S60DeviceRunControl::signsisProcessFinished()
 
 void S60DeviceRunControl::runFinished()
 {
+    m_adapter->deleteLater();
+    m_adapter = 0;
     emit addToOutputWindow(this, tr("Finished."));
     emit finished();
 }

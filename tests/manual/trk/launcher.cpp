@@ -40,8 +40,12 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
                         LPOVERLAPPED    lpOverlapped)
 {
     COMSTAT comStat;
-    if(!ClearCommError(hFile, NULL, &comStat)){
+    if (!ClearCommError(hFile, NULL, &comStat)){
         qDebug() << "ClearCommError() failed";
+        return FALSE;
+    }
+    if (comStat.cbInQue == 0) {
+        *lpNumberOfBytesRead = 0;
         return FALSE;
     }
     return ReadFile(hFile,
@@ -66,7 +70,6 @@ Adapter::Adapter()
 #endif
     m_trkWriteToken = 0;
     m_trkWriteBusy = false;
-    startTimer(100);
 }
 
 Adapter::~Adapter()
@@ -88,6 +91,7 @@ bool Adapter::startServer()
         qDebug("Unable to connect to TRK server");
         return false;
     }
+    m_timerId = startTimer(100);
     qDebug("Connecting");
     sendTrkInitialPing();
     sendTrkMessage(TrkConnect); // Connect
@@ -197,6 +201,14 @@ void Adapter::waitForTrkFinished(const TrkResult &result)
     sendTrkMessage(TrkPing, CB(handleWaitForFinished));
 }
 
+void Adapter::terminate()
+{
+    QByteArray ba;
+    appendShort(&ba, 0x0000, TargetByteOrder);
+    appendInt(&ba, m_session.pid, TargetByteOrder);
+    sendTrkMessage(TrkDeleteItem, CB(waitForTrkFinished), ba);
+}
+
 void Adapter::sendTrkAck(byte token)
 {
     logMessage(QString("SENDING ACKNOWLEDGEMENT FOR TOKEN %1").arg(int(token)));
@@ -261,6 +273,9 @@ void Adapter::tryTrkRead()
         m_trkReadQueue.append(buffer, charsRead);
         if (isValidTrkResult(m_trkReadQueue))
             break;
+    }
+    if (charsRead == 0 && m_trkReadQueue.isEmpty()) {
+        return;
     }
 #else // USE_NATIVE
     if (m_trkDevice->bytesAvailable() == 0 && m_trkReadQueue.isEmpty()) {
@@ -475,6 +490,7 @@ void Adapter::handleCreateProcess(const TrkResult &result)
 void Adapter::handleWaitForFinished(const TrkResult &result)
 {
     logMessage("   FINISHED: " + stringFromArray(result.data));
+    killTimer(m_timerId);
     emit finished();
 }
 

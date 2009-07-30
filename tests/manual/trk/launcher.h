@@ -64,6 +64,9 @@ public:
 signals:
     void finished();
 
+public slots:
+    void terminate();
+
 private:
     //
     // TRK
@@ -137,6 +140,7 @@ private:
     // Debuggee state
     Session m_session; // global-ish data (process id, target information)
 
+    int m_timerId;
     QString m_fileName;
     QString m_copySrcFileName;
     QString m_copyDstFileName;
