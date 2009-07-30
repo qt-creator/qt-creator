@@ -60,6 +60,8 @@ public:
     void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 
+    QString serialPortName() const;
+    void setSerialPortName(const QString &name);
     QString targetName() const;
     QString basePackageFilePath() const;
     SigningMode signingMode() const;
@@ -82,6 +84,7 @@ private:
     QString m_targetName;
     QString m_baseFileName;
     bool m_cachedTargetInformationValid;
+    QString m_serialPortName;
     SigningMode m_signingMode;
     QString m_customSignaturePath;
     QString m_customKeyPath;
@@ -97,6 +100,7 @@ public:
 private slots:
     void nameEdited(const QString &text);
     void updateTargetInformation();
+    void setSerialPort(const QString &portName);
     void selfSignToggled(bool toggle);
     void customSignatureToggled(bool toggle);
     void signaturePathChanged(const QString &path);
@@ -158,6 +162,7 @@ private slots:
 private:
     void processFailed(const QString &program, QProcess::ProcessError errorCode);
 
+    QString m_serialPortName;
     QString m_targetName;
     QString m_baseFileName;
     QString m_workingDirectory;

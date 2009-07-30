@@ -88,11 +88,10 @@ Adapter::~Adapter()
 bool Adapter::startServer()
 {
     if (!openTrkPort(m_trkServerName)) {
-        qDebug("Unable to connect to TRK server");
+        logMessage("Unable to connect to TRK server");
         return false;
     }
     m_timerId = startTimer(100);
-    qDebug("Connecting");
     sendTrkInitialPing();
     sendTrkMessage(TrkConnect); // Connect
     sendTrkMessage(TrkSupported, CB(handleSupportMask));

@@ -26,7 +26,6 @@
     * auto-create run configurations the first time s60 qt is selected.
 
 * Run on device
-    * Finish runner when application exits
     * passphrase for signing
     * time stamp of copied sisx is ridiculous
     * maybe don't copy the sisx all the time
