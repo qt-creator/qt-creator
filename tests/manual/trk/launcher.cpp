@@ -40,8 +40,12 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
                         LPOVERLAPPED    lpOverlapped)
 {
     COMSTAT comStat;
-    if(!ClearCommError(hFile, NULL, &comStat)){
+    if (!ClearCommError(hFile, NULL, &comStat)){
         qDebug() << "ClearCommError() failed";
+        return FALSE;
+    }
+    if (comStat.cbInQue == 0) {
+        *lpNumberOfBytesRead = 0;
         return FALSE;
     }
     return ReadFile(hFile,
@@ -66,7 +70,6 @@ Adapter::Adapter()
 #endif
     m_trkWriteToken = 0;
     m_trkWriteBusy = false;
-    startTimer(100);
 }
 
 Adapter::~Adapter()
@@ -85,10 +88,10 @@ Adapter::~Adapter()
 bool Adapter::startServer()
 {
     if (!openTrkPort(m_trkServerName)) {
-        qDebug("Unable to connect to TRK server");
+        logMessage("Unable to connect to TRK server");
         return false;
     }
-    qDebug("Connecting");
+    m_timerId = startTimer(100);
     sendTrkInitialPing();
     sendTrkMessage(TrkConnect); // Connect
     sendTrkMessage(TrkSupported, CB(handleSupportMask));
@@ -105,7 +108,6 @@ void Adapter::installAndRun()
 {
     if (!m_installFileName.isEmpty()) {
         installRemotePackageSilently(m_installFileName);
-        startInferiorIfNeeded();
     } else {
         startInferiorIfNeeded();
     }
@@ -197,6 +199,14 @@ void Adapter::waitForTrkFinished(const TrkResult &result)
     sendTrkMessage(TrkPing, CB(handleWaitForFinished));
 }
 
+void Adapter::terminate()
+{
+    QByteArray ba;
+    appendShort(&ba, 0x0000, TargetByteOrder);
+    appendInt(&ba, m_session.pid, TargetByteOrder);
+    sendTrkMessage(TrkDeleteItem, CB(waitForTrkFinished), ba);
+}
+
 void Adapter::sendTrkAck(byte token)
 {
     logMessage(QString("SENDING ACKNOWLEDGEMENT FOR TOKEN %1").arg(int(token)));
@@ -261,6 +271,9 @@ void Adapter::tryTrkRead()
         m_trkReadQueue.append(buffer, charsRead);
         if (isValidTrkResult(m_trkReadQueue))
             break;
+    }
+    if (charsRead == 0 && m_trkReadQueue.isEmpty()) {
+        return;
     }
 #else // USE_NATIVE
     if (m_trkDevice->bytesAvailable() == 0 && m_trkReadQueue.isEmpty()) {
@@ -462,10 +475,11 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     m_session.tid = extractInt(data + 5);
     m_session.codeseg = extractInt(data + 9);
     m_session.dataseg = extractInt(data + 13);
-    qDebug() << "    READ PID: " << m_session.pid;
-    qDebug() << "    READ TID: " << m_session.tid;
-    qDebug() << "    READ CODE: " << m_session.codeseg;
-    qDebug() << "    READ DATA: " << m_session.dataseg;
+    logMessage(QString("    READ PID:  %1").arg(m_session.pid));
+    logMessage(QString("    READ TID:  %1").arg(m_session.tid));
+    logMessage(QString("    READ CODE: %1").arg(m_session.codeseg));
+    logMessage(QString("    READ DATA: %1").arg(m_session.dataseg));
+    emit applicationRunning(m_session.pid);
     QByteArray ba;
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid);
@@ -475,6 +489,7 @@ void Adapter::handleCreateProcess(const TrkResult &result)
 void Adapter::handleWaitForFinished(const TrkResult &result)
 {
     logMessage("   FINISHED: " + stringFromArray(result.data));
+    killTimer(m_timerId);
     emit finished();
 }
 
@@ -548,7 +563,7 @@ void Adapter::cleanUp()
 
 void Adapter::copyFileToRemote()
 {
-    qDebug("Copying file");
+    emit copyingStarted();
     QByteArray ba;
     appendByte(&ba, 0x10);
     appendString(&ba, m_copyDstFileName.toLocal8Bit(), TargetByteOrder, false);
@@ -557,18 +572,23 @@ void Adapter::copyFileToRemote()
 
 void Adapter::installRemotePackageSilently(const QString &fileName)
 {
-    qDebug("Installing file");
+    emit installingStarted();
     QByteArray ba;
     appendByte(&ba, 'C');
     appendString(&ba, fileName.toLocal8Bit(), TargetByteOrder, false);
-    sendTrkMessage(TrkInstallFile, 0, ba);
+    sendTrkMessage(TrkInstallFile, CB(handleInstallPackageFinished), ba);
+}
+
+void Adapter::handleInstallPackageFinished(const TrkResult &)
+{
+    startInferiorIfNeeded();
 }
 
 void Adapter::startInferiorIfNeeded()
 {
-    qDebug("Starting");
+    emit startingApplication();
     if (m_session.pid != 0) {
-        qDebug() << "Process already 'started'";
+        logMessage("Process already 'started'");
         return;
     }
     // It's not started yet

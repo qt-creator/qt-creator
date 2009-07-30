@@ -68,7 +68,7 @@
         <item>
          <widget class="QCheckBox" name="includeQtModuleCheckBox">
           <property name="text">
-           <string>Include Qt module name</string>
+           <string>Use Qt module name in #include-directive</string>
           </property>
          </widget>
         </item>

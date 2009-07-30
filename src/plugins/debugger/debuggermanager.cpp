@@ -1525,10 +1525,11 @@ QString DebuggerManager::qtDumperLibraryName() const
 
 QStringList DebuggerManager::qtDumperLibraryLocations() const
 {
-    if (theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool())
-        return QStringList() <<
-                ( theDebuggerAction(CustomDebuggingHelperLocation)->value().toString()
-                  + tr(" (explicitly set in the Debugger Options)"));
+    if (theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool()) {
+        const QString customLocation = theDebuggerAction(CustomDebuggingHelperLocation)->value().toString();
+        const QString location = tr("%1 (explicitly set in the Debugger Options)").arg(customLocation);
+        return QStringList(location);
+    }
     return m_dumperLibLocations;
 }
 

@@ -183,7 +183,7 @@
           </item>
           <item>
            <property name="text">
-            <string>Reload all unmodified files</string>
+            <string>Reload all modified files</string>
            </property>
           </item>
           <item>

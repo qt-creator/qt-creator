@@ -8,14 +8,16 @@ SUPPORT_QT_S60 = $$(QTCREATOR_WITH_S60)
         $$PWD/winscwtoolchain.cpp \
         $$PWD/gccetoolchain.cpp \
         $$PWD/s60emulatorrunconfiguration.cpp \
-        $$PWD/s60devicerunconfiguration.cpp
+        $$PWD/s60devicerunconfiguration.cpp \
+        $$PWD/serialdevicelister.cpp
     HEADERS += $$PWD/s60devices.h \
         $$PWD/s60devicespreferencepane.h \
         $$PWD/s60manager.h \
         $$PWD/winscwtoolchain.h \
         $$PWD/gccetoolchain.h \
         $$PWD/s60emulatorrunconfiguration.h \
-        $$PWD/s60devicerunconfiguration.h
+        $$PWD/s60devicerunconfiguration.h \
+        $$PWD/serialdevicelister.h
     FORMS += $$PWD/s60devicespreferencepane.ui
     OTHER_FILES += $$PWD/qt-s60-todo.txt
 

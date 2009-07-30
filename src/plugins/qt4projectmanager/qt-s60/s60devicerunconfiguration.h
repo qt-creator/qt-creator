@@ -38,6 +38,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
+#include <QtGui/QComboBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -60,6 +61,8 @@ public:
     void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 
+    QString serialPortName() const;
+    void setSerialPortName(const QString &name);
     QString targetName() const;
     QString basePackageFilePath() const;
     SigningMode signingMode() const;
@@ -82,6 +85,7 @@ private:
     QString m_targetName;
     QString m_baseFileName;
     bool m_cachedTargetInformationValid;
+    QString m_serialPortName;
     SigningMode m_signingMode;
     QString m_customSignaturePath;
     QString m_customKeyPath;
@@ -97,6 +101,7 @@ public:
 private slots:
     void nameEdited(const QString &text);
     void updateTargetInformation();
+    void setSerialPort(int index);
     void selfSignToggled(bool toggle);
     void customSignatureToggled(bool toggle);
     void signaturePathChanged(const QString &path);
@@ -104,6 +109,7 @@ private slots:
 
 private:
     S60DeviceRunConfiguration *m_runConfiguration;
+    QComboBox *m_serialPorts;
     QLineEdit *m_nameLineEdit;
     QLabel *m_sisxFileLabel;
 };
@@ -149,11 +155,16 @@ private slots:
     void makesisProcessFinished();
     void signsisProcessFailed();
     void signsisProcessFinished();
+    void printCopyingNotice();
+    void printInstallingNotice();
+    void printStartingNotice();
+    void printRunNotice(uint pid);
     void runFinished();
 
 private:
     void processFailed(const QString &program, QProcess::ProcessError errorCode);
 
+    QString m_serialPortName;
     QString m_targetName;
     QString m_baseFileName;
     QString m_workingDirectory;

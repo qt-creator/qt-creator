@@ -62,7 +62,14 @@ public:
     bool startServer();
 
 signals:
+    void copyingStarted();
+    void installingStarted();
+    void startingApplication();
+    void applicationRunning(uint pid);
     void finished();
+
+public slots:
+    void terminate();
 
 private:
     //
@@ -103,6 +110,7 @@ private:
 
     void handleFileCreation(const TrkResult &result);
     void handleFileCreated(const TrkResult &result);
+    void handleInstallPackageFinished(const TrkResult &result);
     void handleCpuType(const TrkResult &result);
     void handleCreateProcess(const TrkResult &result);
     void handleWaitForFinished(const TrkResult &result);
@@ -137,6 +145,7 @@ private:
     // Debuggee state
     Session m_session; // global-ish data (process id, target information)
 
+    int m_timerId;
     QString m_fileName;
     QString m_copySrcFileName;
     QString m_copyDstFileName;

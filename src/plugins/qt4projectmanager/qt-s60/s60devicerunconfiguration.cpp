@@ -34,6 +34,7 @@
 #include "profilereader.h"
 #include "s60manager.h"
 #include "s60devices.h"
+#include "serialdevicelister.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -52,6 +53,7 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     : RunConfiguration(project),
     m_proFilePath(proFilePath),
     m_cachedTargetInformationValid(false),
+    m_serialPortName("COM5"),
     m_signingMode(SignSelf)
 {
     if (!m_proFilePath.isEmpty())
@@ -95,6 +97,7 @@ void S60DeviceRunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue("SigningMode", (int)m_signingMode);
     writer.saveValue("CustomSignaturePath", m_customSignaturePath);
     writer.saveValue("CustomKeyPath", m_customKeyPath);
+    writer.saveValue("SerialPortName", m_serialPortName);
     RunConfiguration::save(writer);
 }
 
@@ -106,6 +109,17 @@ void S60DeviceRunConfiguration::restore(const PersistentSettingsReader &reader)
     m_signingMode = (SigningMode)reader.restoreValue("SigningMode").toInt();
     m_customSignaturePath = reader.restoreValue("CustomSignaturePath").toString();
     m_customKeyPath = reader.restoreValue("CustomKeyPath").toString();
+    m_serialPortName = reader.restoreValue("SerialPortName").toString().trimmed();
+}
+
+QString S60DeviceRunConfiguration::serialPortName() const
+{
+    return m_serialPortName;
+}
+
+void S60DeviceRunConfiguration::setSerialPortName(const QString &name)
+{
+    m_serialPortName = name.trimmed();
 }
 
 QString S60DeviceRunConfiguration::targetName() const
@@ -216,7 +230,7 @@ void S60DeviceRunConfiguration::updateTarget()
     if (projectBuildConfiguration & QtVersion::DebugBuild)
         m_baseFileName += "_udeb";
     else
-        m_baseFileName += "_rel";
+        m_baseFileName += "_urel";
 
     delete reader;
     m_cachedTargetInformationValid = true;
@@ -250,6 +264,21 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(S60DeviceRunCon
 
     m_sisxFileLabel = new QLabel(m_runConfiguration->basePackageFilePath() + ".sisx");
     formLayout->addRow(tr("Install File:"), m_sisxFileLabel);
+
+    QString runConfigurationPortName = m_runConfiguration->serialPortName();
+    QList<SerialDeviceLister::SerialDevice> serialDevices = SerialDeviceLister().serialDevices();
+    m_serialPorts = new QComboBox;
+    for (int i = 0; i < serialDevices.size(); ++i) {
+        const SerialDeviceLister::SerialDevice &device = serialDevices.at(i);
+        m_serialPorts->addItem(device.friendlyName, device.portName);
+        if (device.portName == runConfigurationPortName)
+            m_serialPorts->setCurrentIndex(i);
+    }
+    QString selectedPortName = m_serialPorts->itemData(m_serialPorts->currentIndex()).toString();
+    if (m_serialPorts->count() > 0 && runConfigurationPortName != selectedPortName)
+        m_runConfiguration->setSerialPortName(selectedPortName);
+    connect(m_serialPorts, SIGNAL(activated(int)), this, SLOT(setSerialPort(int)));
+    formLayout->addRow(tr("Device on Serial Port:"), m_serialPorts);
 
     QWidget *signatureWidget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout();
@@ -310,6 +339,11 @@ void S60DeviceRunConfigurationWidget::nameEdited(const QString &text)
 void S60DeviceRunConfigurationWidget::updateTargetInformation()
 {
     m_sisxFileLabel->setText(m_runConfiguration->basePackageFilePath() + ".sisx");
+}
+
+void S60DeviceRunConfigurationWidget::setSerialPort(int index)
+{
+    m_runConfiguration->setSerialPortName(m_serialPorts->itemData(index).toString());
 }
 
 void S60DeviceRunConfigurationWidget::selfSignToggled(bool toggle)
@@ -411,7 +445,7 @@ RunControl* S60DeviceRunConfigurationRunner::run(QSharedPointer<RunConfiguration
 // ======== S60DeviceRunControl
 
 S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runConfiguration)
-    : RunControl(runConfiguration)
+    : RunControl(runConfiguration), m_adapter(0)
 {
     m_makesis = new QProcess(this);
     connect(m_makesis, SIGNAL(readyReadStandardError()),
@@ -440,6 +474,7 @@ void S60DeviceRunControl::start()
 
     Qt4Project *project = qobject_cast<Qt4Project *>(rc->project());
 
+    m_serialPortName = rc->serialPortName();
     m_targetName = rc->targetName();
     m_baseFileName = rc->basePackageFilePath();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
@@ -471,7 +506,8 @@ void S60DeviceRunControl::stop()
 {
     m_makesis->kill();
     m_signsis->kill();
-    //m_adapter->terminate();
+    if (m_adapter)
+        m_adapter->terminate();
 }
 
 bool S60DeviceRunControl::isRunning() const
@@ -533,22 +569,54 @@ void S60DeviceRunControl::signsisProcessFinished()
         emit finished();
         return;
     }
-    //TODO
     m_adapter = new trk::Adapter;
     connect(m_adapter, SIGNAL(finished()), this, SLOT(runFinished()));
-    //TODO com selection, sisx destination and file path user definable
-    m_adapter->setTrkServerName("COM5");
+    connect(m_adapter, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
+    connect(m_adapter, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
+    connect(m_adapter, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
+    connect(m_adapter, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
+
+    //TODO sisx destination and file path user definable
+    m_adapter->setTrkServerName(m_serialPortName);
     const QString copySrc(m_baseFileName + ".sisx");
     const QString copyDst = QString("C:\\Data\\%1.sisx").arg(QFileInfo(m_baseFileName).fileName());
     const QString runFileName = QString("C:\\sys\\bin\\%1.exe").arg(m_targetName);
     m_adapter->setCopyFileName(copySrc, copyDst);
     m_adapter->setInstallFileName(copyDst);
     m_adapter->setFileName(runFileName);
-    m_adapter->startServer();
+    if (!m_adapter->startServer()) {
+        delete m_adapter;
+        m_adapter = 0;
+        error(this, tr("Could not connect to phone on port %1. "
+                       "Check if the phone is connected and if it runs the TRK application.").arg(m_serialPortName));
+        emit finished();
+    }
+}
+
+void S60DeviceRunControl::printCopyingNotice()
+{
+    emit addToOutputWindow(this, tr("Copying install file to device..."));
+}
+
+void S60DeviceRunControl::printInstallingNotice()
+{
+    emit addToOutputWindow(this, tr("Installing application..."));
+}
+
+void S60DeviceRunControl::printStartingNotice()
+{
+    emit addToOutputWindow(this, tr("Starting..."));
+}
+
+void S60DeviceRunControl::printRunNotice(uint pid)
+{
+    emit addToOutputWindow(this, tr("Application started with pid %1.").arg(pid));
 }
 
 void S60DeviceRunControl::runFinished()
 {
+    m_adapter->deleteLater();
+    m_adapter = 0;
     emit addToOutputWindow(this, tr("Finished."));
     emit finished();
 }
@@ -567,4 +635,5 @@ void S60DeviceRunControl::processFailed(const QString &program, QProcess::Proces
         errorString = tr("Some error has occurred while running %1.");
     }
     error(this, errorString.arg(program));
+    emit finished();
 }
