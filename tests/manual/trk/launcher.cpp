@@ -109,7 +109,6 @@ void Adapter::installAndRun()
 {
     if (!m_installFileName.isEmpty()) {
         installRemotePackageSilently(m_installFileName);
-        startInferiorIfNeeded();
     } else {
         startInferiorIfNeeded();
     }
@@ -477,10 +476,11 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     m_session.tid = extractInt(data + 5);
     m_session.codeseg = extractInt(data + 9);
     m_session.dataseg = extractInt(data + 13);
-    qDebug() << "    READ PID: " << m_session.pid;
-    qDebug() << "    READ TID: " << m_session.tid;
-    qDebug() << "    READ CODE: " << m_session.codeseg;
-    qDebug() << "    READ DATA: " << m_session.dataseg;
+    logMessage(QString("    READ PID:  %1").arg(m_session.pid));
+    logMessage(QString("    READ TID:  %1").arg(m_session.tid));
+    logMessage(QString("    READ CODE: %1").arg(m_session.codeseg));
+    logMessage(QString("    READ DATA: %1").arg(m_session.dataseg));
+    emit applicationRunning(m_session.pid);
     QByteArray ba;
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid);
@@ -564,7 +564,7 @@ void Adapter::cleanUp()
 
 void Adapter::copyFileToRemote()
 {
-    qDebug("Copying file");
+    emit copyingStarted();
     QByteArray ba;
     appendByte(&ba, 0x10);
     appendString(&ba, m_copyDstFileName.toLocal8Bit(), TargetByteOrder, false);
@@ -573,18 +573,23 @@ void Adapter::copyFileToRemote()
 
 void Adapter::installRemotePackageSilently(const QString &fileName)
 {
-    qDebug("Installing file");
+    emit installingStarted();
     QByteArray ba;
     appendByte(&ba, 'C');
     appendString(&ba, fileName.toLocal8Bit(), TargetByteOrder, false);
-    sendTrkMessage(TrkInstallFile, 0, ba);
+    sendTrkMessage(TrkInstallFile, CB(handleInstallPackageFinished), ba);
+}
+
+void Adapter::handleInstallPackageFinished(const TrkResult &)
+{
+    startInferiorIfNeeded();
 }
 
 void Adapter::startInferiorIfNeeded()
 {
-    qDebug("Starting");
+    emit startingApplication();
     if (m_session.pid != 0) {
-        qDebug() << "Process already 'started'";
+        logMessage("Process already 'started'");
         return;
     }
     // It's not started yet

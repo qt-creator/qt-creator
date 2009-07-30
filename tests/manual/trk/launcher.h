@@ -62,6 +62,10 @@ public:
     bool startServer();
 
 signals:
+    void copyingStarted();
+    void installingStarted();
+    void startingApplication();
+    void applicationRunning(uint pid);
     void finished();
 
 public slots:
@@ -106,6 +110,7 @@ private:
 
     void handleFileCreation(const TrkResult &result);
     void handleFileCreated(const TrkResult &result);
+    void handleInstallPackageFinished(const TrkResult &result);
     void handleCpuType(const TrkResult &result);
     void handleCreateProcess(const TrkResult &result);
     void handleWaitForFinished(const TrkResult &result);

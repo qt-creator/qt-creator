@@ -149,6 +149,10 @@ private slots:
     void makesisProcessFinished();
     void signsisProcessFailed();
     void signsisProcessFinished();
+    void printCopyingNotice();
+    void printInstallingNotice();
+    void printStartingNotice();
+    void printRunNotice(uint pid);
     void runFinished();
 
 private:

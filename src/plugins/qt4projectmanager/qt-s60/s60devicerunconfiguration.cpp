@@ -471,7 +471,8 @@ void S60DeviceRunControl::stop()
 {
     m_makesis->kill();
     m_signsis->kill();
-    m_adapter->terminate();
+    if (m_adapter)
+        m_adapter->terminate();
 }
 
 bool S60DeviceRunControl::isRunning() const
@@ -535,6 +536,11 @@ void S60DeviceRunControl::signsisProcessFinished()
     }
     m_adapter = new trk::Adapter;
     connect(m_adapter, SIGNAL(finished()), this, SLOT(runFinished()));
+    connect(m_adapter, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
+    connect(m_adapter, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
+    connect(m_adapter, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
+    connect(m_adapter, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
+
     //TODO com selection, sisx destination and file path user definable
     m_adapter->setTrkServerName("COM5");
     const QString copySrc(m_baseFileName + ".sisx");
@@ -544,6 +550,26 @@ void S60DeviceRunControl::signsisProcessFinished()
     m_adapter->setInstallFileName(copyDst);
     m_adapter->setFileName(runFileName);
     m_adapter->startServer();
+}
+
+void S60DeviceRunControl::printCopyingNotice()
+{
+    emit addToOutputWindow(this, tr("Copying install file to device..."));
+}
+
+void S60DeviceRunControl::printInstallingNotice()
+{
+    emit addToOutputWindow(this, tr("Installing application..."));
+}
+
+void S60DeviceRunControl::printStartingNotice()
+{
+    emit addToOutputWindow(this, tr("Starting..."));
+}
+
+void S60DeviceRunControl::printRunNotice(uint pid)
+{
+    emit addToOutputWindow(this, tr("Application started with pid %1.").arg(pid));
 }
 
 void S60DeviceRunControl::runFinished()
