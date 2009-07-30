@@ -749,6 +749,14 @@ static QString expandEnvVars(const QString &str)
     return string;
 }
 
+static QStringList expandEnvVars(const QStringList &x)
+{
+    QStringList ret;
+    foreach (const QString &str, x)
+        ret << expandEnvVars(str);
+    return ret;
+}
+
 // This is braindead, but we want qmake compat
 static QString fixPathToLocalOS(const QString &str)
 {
@@ -2614,23 +2622,14 @@ bool ProFileEvaluator::contains(const QString &variableName) const
     return d->m_valuemap.contains(variableName);
 }
 
-inline QStringList fixEnvVariables(const QStringList &x)
-{
-    QStringList ret;
-    foreach (const QString &str, x)
-        ret << expandEnvVars(str);
-    return ret;
-}
-
-
 QStringList ProFileEvaluator::values(const QString &variableName) const
 {
-    return fixEnvVariables(d->values(variableName));
+    return expandEnvVars(d->values(variableName));
 }
 
 QStringList ProFileEvaluator::values(const QString &variableName, const ProFile *pro) const
 {
-    return fixEnvVariables(d->values(variableName, pro));
+    return expandEnvVars(d->values(variableName, pro));
 }
 
 QStringList ProFileEvaluator::absolutePathValues(
