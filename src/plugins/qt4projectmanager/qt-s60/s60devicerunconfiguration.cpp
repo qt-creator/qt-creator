@@ -230,7 +230,7 @@ void S60DeviceRunConfiguration::updateTarget()
     if (projectBuildConfiguration & QtVersion::DebugBuild)
         m_baseFileName += "_udeb";
     else
-        m_baseFileName += "_rel";
+        m_baseFileName += "_urel";
 
     delete reader;
     m_cachedTargetInformationValid = true;
