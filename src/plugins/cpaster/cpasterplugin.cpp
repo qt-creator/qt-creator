@@ -68,13 +68,6 @@ CodepasterPlugin::CodepasterPlugin()
 
 CodepasterPlugin::~CodepasterPlugin()
 {
-    if (m_settingsPage) {
-        removeObject(m_settingsPage);
-        delete m_settingsPage;
-        m_settingsPage = 0;
-    }
-    foreach(Protocol* item, m_protocols)
-        removeObject(item->settingsPage());
 }
 
 bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_message)
@@ -88,7 +81,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
 
     // Create the settings Page
     m_settingsPage = new SettingsPage();
-    addObject(m_settingsPage);
+    addAutoReleasedObject(m_settingsPage);
 
     // Create the protocols and append them to the Settings
     Protocol *protos[] =  { new CodePasterProtocol(),
@@ -101,7 +94,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
                 this, SLOT(finishFetch(QString,QString,bool)));
         m_settingsPage->addProtocol(protos[i]->name());
         if (protos[i]->hasSettings())
-            addObject(protos[i]->settingsPage());
+            addAutoReleasedObject(protos[i]->settingsPage());
         m_protocols.append(protos[i]);
     }
 
