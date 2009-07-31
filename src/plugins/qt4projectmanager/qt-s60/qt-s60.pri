@@ -22,4 +22,5 @@ SUPPORT_QT_S60 = $$(QTCREATOR_WITH_S60)
     OTHER_FILES += $$PWD/qt-s60-todo.txt
 
     include($$PWD/../../../../tests/manual/trk/trklauncher.pri) || error("could not include trklauncher.pri")
+    # LIBS += -lUser32 -lSetupApi
 }

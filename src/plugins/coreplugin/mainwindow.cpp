@@ -106,7 +106,7 @@ static const char *uriListMimeFormatC = "text/uri-list";
 enum { debugMainWindow = 0 };
 
 MainWindow::MainWindow() :
-    QMainWindow(),
+    EventFilteringMainWindow(),
     m_coreImpl(new CoreImpl(this)),
     m_uniqueIDManager(new UniqueIDManager()),
     m_globalContext(QList<int>() << Constants::C_GLOBAL_ID),
@@ -1254,3 +1254,4 @@ void MainWindow::setFullScreen(bool on)
         //statusBar()->show();
     }
 }
+

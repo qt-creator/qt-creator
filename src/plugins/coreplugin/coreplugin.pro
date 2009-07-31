@@ -77,7 +77,8 @@ SOURCES += mainwindow.cpp \
     editormanager/ieditor.cpp \
     dialogs/ioptionspage.cpp \
     dialogs/iwizard.cpp \
-    settingsdatabase.cpp
+    settingsdatabase.cpp \
+    eventfilteringmainwindow.cpp
 HEADERS += mainwindow.h \
     editmode.h \
     tabpositionindicator.h \
@@ -154,21 +155,20 @@ HEADERS += mainwindow.h \
     sidebar.h \
     fileiconprovider.h \
     mimedatabase.h \
-    settingsdatabase.h
+    settingsdatabase.h \
+    eventfilteringmainwindow.h
 FORMS += dialogs/newdialog.ui \
     dialogs/settingsdialog.ui \
     dialogs/shortcutsettings.ui \
     dialogs/saveitemsdialog.ui \
     dialogs/openwithdialog.ui \
     editormanager/openeditorsview.ui \
-    generalsettings.ui 
+    generalsettings.ui
 RESOURCES += core.qrc \
     fancyactionbar.qrc
-
-unix:!macx {
+unix:!macx { 
     images.files = images/qtcreator_logo_*.png
     images.path = /share/pixmaps
     INSTALLS += images
 }
-
 OTHER_FILES += Core.pluginspec

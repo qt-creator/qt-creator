@@ -36,7 +36,10 @@
 #include "s60emulatorrunconfiguration.h"
 #include "s60Devicerunconfiguration.h"
 
+#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+
+#include <QtGui/QMainWindow>
 
 using namespace Qt4ProjectManager::Internal;
 
@@ -55,7 +58,8 @@ S60Manager::S60Manager(QObject *parent)
         m_s60EmulatorRunConfigurationFactory(new S60EmulatorRunConfigurationFactory(this)),
         m_s60EmulatorRunConfigurationRunner(new S60EmulatorRunConfigurationRunner(this)),
         m_s60DeviceRunConfigurationFactory(new S60DeviceRunConfigurationFactory(this)),
-        m_s60DeviceRunConfigurationRunner(new S60DeviceRunConfigurationRunner(this))
+        m_s60DeviceRunConfigurationRunner(new S60DeviceRunConfigurationRunner(this)),
+        m_serialDeviceLister(new SerialDeviceLister(this))
 {
     m_instance = this;
     m_devices->detectQtForDevices();
@@ -72,6 +76,8 @@ S60Manager::S60Manager(QObject *parent)
     updateQtVersions();
     connect(m_devices, SIGNAL(qtVersionsChanged()),
             this, SLOT(updateQtVersions()));
+    connect(Core::ICore::instance()->mainWindow(), SIGNAL(deviceChange()),
+            m_serialDeviceLister, SLOT(update()));
 }
 
 S60Manager::~S60Manager()

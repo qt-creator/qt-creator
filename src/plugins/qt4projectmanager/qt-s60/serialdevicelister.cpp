@@ -31,6 +31,8 @@
 
 #include <QtCore/QSettings>
 #include <QtCore/QStringList>
+#include <QtGui/QApplication>
+#include <QtGui/QWidget>
 #include <QtDebug>
 
 using namespace Qt4ProjectManager::Internal;
@@ -40,13 +42,54 @@ namespace {
     const char * const USBSER = "Services/usbser/Enum";
 }
 
-SerialDeviceLister::SerialDeviceLister()
+//#ifdef Q_OS_WIN
+//GUID WceusbshGUID = { 0x25dbce51, 0x6c8f, 0x4a72,
+//                      0x8a,0x6d,0xb5,0x4c,0x2b,0x4f,0xc8,0x35 };
+//#endif
+
+SerialDeviceLister::SerialDeviceLister(QObject *parent)
+        : QObject(parent),
+        m_initialized(false)
+//        , m_devNotifyHandle(0)
 {
+//#ifdef Q_OS_WIN
+//    // register for events
+//    DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
+//    ZeroMemory( &NotificationFilter, sizeof(NotificationFilter) );
+//    NotificationFilter.dbcc_size = sizeof(DEV_BROADCAST_DEVICEINTERFACE);
+//    NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
+//    NotificationFilter.dbcc_classguid  = WceusbshGUID;
+//    m_devNotifyHandle = RegisterDeviceNotification(QApplication::topLevelWidgets().at(0)->winId(), &NotificationFilter, DEVICE_NOTIFY_WINDOW_HANDLE);
+//#endif
+}
+
+SerialDeviceLister::~SerialDeviceLister()
+{
+//#ifdef Q_OS_WIN
+//    if (m_devNotifyHandle)
+//        UnregisterDeviceNotification(m_devNotifyHandle);
+//#endif
 }
 
 QList<SerialDeviceLister::SerialDevice> SerialDeviceLister::serialDevices() const
 {
-    QList<SerialDeviceLister::SerialDevice> devices;
+    if (!m_initialized) {
+        updateSilently();
+        m_initialized = true;
+    }
+    return m_devices;
+}
+
+void SerialDeviceLister::update()
+{
+    updateSilently();
+    emit updated();
+}
+
+void SerialDeviceLister::updateSilently() const
+{
+    m_devices.clear();
+#ifdef Q_OS_WIN32
     QSettings registry(REGKEY_CURRENT_CONTROL_SET, QSettings::NativeFormat);
     int count = registry.value(QString::fromLatin1("%1/Count").arg(USBSER)).toInt();
     for (int i = 0; i < count; ++i) {
@@ -56,8 +99,8 @@ QList<SerialDeviceLister::SerialDevice> SerialDeviceLister::serialDevices() cons
             SerialDeviceLister::SerialDevice device;
             device.friendlyName = registry.value(QString::fromLatin1("Enum/%1/FriendlyName").arg(driver)).toString();
             device.portName = registry.value(QString::fromLatin1("Enum/%1/Device Parameters/PortName").arg(driver)).toString();
-            devices.append(device);
+            m_devices.append(device);
         }
     }
-    return devices;
+#endif
 }

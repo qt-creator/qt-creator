@@ -27,55 +27,27 @@
 **
 **************************************************************************/
 
-#ifndef SERIALDEVICELISTER_H
-#define SERIALDEVICELISTER_H
+#include "eventfilteringmainwindow.h"
 
-#include <QtCore/QAbstractEventDispatcher>
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 
-//#ifdef Q_OS_WIN32
-//#include <windows.h>
-//#include <dbt.h>
-//#endif
+#include <QtDebug>
 
-namespace Qt4ProjectManager {
-namespace Internal {
+using namespace Core::Internal;
 
-class SerialDeviceLister : public QObject
+EventFilteringMainWindow::EventFilteringMainWindow()
 {
-    Q_OBJECT
-public:
+}
 
-    struct SerialDevice {
-        QString portName;
-        QString friendlyName;
-    };
-
-    SerialDeviceLister(QObject *parent = 0);
-    ~SerialDeviceLister();
-    QList<SerialDevice> serialDevices() const;
-
-public slots:
-    void update();
-
-signals:
-    void updated();
-
-private:
-    void updateSilently() const;
-
-    mutable bool m_initialized;
-    mutable QList<SerialDevice> m_devices;
-
-//#ifdef Q_OS_WIN
-//private:
-//    HDEVNOTIFY m_devNotifyHandle;
-//#endif
-};
-
-} // Internal
-} // Qt4ProjectManager
-
-#endif // SERIALDEVICELISTER_H
+#ifdef Q_OS_WIN
+bool EventFilteringMainWindow::winEvent(MSG *msg, long *result)
+{
+    if (msg->message == WM_DEVICECHANGE) {
+        emit deviceChange();
+        *result = TRUE;
+    }
+    return false;
+}
+#endif

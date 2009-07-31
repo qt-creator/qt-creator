@@ -18,6 +18,8 @@
     * should the default make target be defined by the project
       instead of tool chain, or perhaps by the QtVersion dependent on a
       tool chain?
+    * seems that the make for building for device doesn't return useful exit code,
+      so a run is started even if the build has errors
 
 * Run Configurations
     * handling of active run config getting disabled not optimal yet
@@ -28,8 +30,7 @@
 * Run on device
     * passphrase for signing
     * time stamp of copied sisx is ridiculous
-    * maybe don't copy the sisx all the time
-    * don't hardcode com port
+    * don't copy the sisx all the time
     * don't hardcode copy destination
 
 * Add compile output parser winscw at least

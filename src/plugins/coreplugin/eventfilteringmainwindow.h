@@ -27,55 +27,36 @@
 **
 **************************************************************************/
 
-#ifndef SERIALDEVICELISTER_H
-#define SERIALDEVICELISTER_H
+#ifndef EVENTFILTERINGMAINWINDOW_H
+#define EVENTFILTERINGMAINWINDOW_H
 
-#include <QtCore/QAbstractEventDispatcher>
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include <QtGui/QMainWindow>
 
-//#ifdef Q_OS_WIN32
-//#include <windows.h>
-//#include <dbt.h>
-//#endif
-
-namespace Qt4ProjectManager {
+namespace Core {
 namespace Internal {
 
-class SerialDeviceLister : public QObject
+/*!
+ * This class only exists because we can't include windows.h in mainwindow.cpp
+ * because windows defines an IContext...
+ */
+
+class EventFilteringMainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
+    EventFilteringMainWindow();
 
-    struct SerialDevice {
-        QString portName;
-        QString friendlyName;
-    };
-
-    SerialDeviceLister(QObject *parent = 0);
-    ~SerialDeviceLister();
-    QList<SerialDevice> serialDevices() const;
-
-public slots:
-    void update();
+#ifdef Q_OS_WIN
+protected:
+    bool winEvent(MSG *message, long *result);
+#endif
 
 signals:
-    void updated();
+    void deviceChange();
 
-private:
-    void updateSilently() const;
-
-    mutable bool m_initialized;
-    mutable QList<SerialDevice> m_devices;
-
-//#ifdef Q_OS_WIN
-//private:
-//    HDEVNOTIFY m_devNotifyHandle;
-//#endif
 };
 
 } // Internal
-} // Qt4ProjectManager
+} // Core
 
-#endif // SERIALDEVICELISTER_H
+#endif // EVENTFILTERINGMAINWINDOW_H

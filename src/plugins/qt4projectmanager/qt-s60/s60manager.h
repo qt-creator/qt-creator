@@ -31,6 +31,7 @@
 #define S60MANAGER_H
 
 #include "qtversionmanager.h"
+#include "serialdevicelister.h"
 
 #include <extensionsystem/iplugin.h>
 #include <projectexplorer/toolchain.h>
@@ -61,6 +62,8 @@ public:
     S60Devices *devices() const { return m_devices; }
     QString deviceIdFromDetectionSource(const QString &autoDetectionSource) const;
 
+    SerialDeviceLister *serialDeviceLister() const { return m_serialDeviceLister; }
+
 private slots:
     void updateQtVersions();
 
@@ -72,6 +75,7 @@ private:
     S60EmulatorRunConfigurationRunner *m_s60EmulatorRunConfigurationRunner;
     S60DeviceRunConfigurationFactory *m_s60DeviceRunConfigurationFactory;
     S60DeviceRunConfigurationRunner *m_s60DeviceRunConfigurationRunner;
+    SerialDeviceLister *m_serialDeviceLister;
 };
 
 } // namespace Internal

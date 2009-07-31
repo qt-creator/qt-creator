@@ -101,6 +101,7 @@ public:
 private slots:
     void nameEdited(const QString &text);
     void updateTargetInformation();
+    void updateSerialDevices();
     void setSerialPort(int index);
     void selfSignToggled(bool toggle);
     void customSignatureToggled(bool toggle);

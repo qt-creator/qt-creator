@@ -32,7 +32,8 @@
 
 #include "core_global.h"
 
-#include <QtGui/QMainWindow>
+#include "eventfilteringmainwindow.h"
+
 #include <QtCore/QMap>
 #include <QtCore/QList>
 #include <QtCore/QSet>
@@ -79,7 +80,7 @@ class ShortcutSettings;
 class ViewManager;
 class VersionDialog;
 
-class CORE_EXPORT MainWindow : public QMainWindow
+class CORE_EXPORT MainWindow : public EventFilteringMainWindow
 {
     Q_OBJECT
 

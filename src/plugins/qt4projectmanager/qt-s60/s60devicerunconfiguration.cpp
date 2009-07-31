@@ -265,18 +265,9 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(S60DeviceRunCon
     m_sisxFileLabel = new QLabel(m_runConfiguration->basePackageFilePath() + ".sisx");
     formLayout->addRow(tr("Install File:"), m_sisxFileLabel);
 
-    QString runConfigurationPortName = m_runConfiguration->serialPortName();
-    QList<SerialDeviceLister::SerialDevice> serialDevices = SerialDeviceLister().serialDevices();
     m_serialPorts = new QComboBox;
-    for (int i = 0; i < serialDevices.size(); ++i) {
-        const SerialDeviceLister::SerialDevice &device = serialDevices.at(i);
-        m_serialPorts->addItem(device.friendlyName, device.portName);
-        if (device.portName == runConfigurationPortName)
-            m_serialPorts->setCurrentIndex(i);
-    }
-    QString selectedPortName = m_serialPorts->itemData(m_serialPorts->currentIndex()).toString();
-    if (m_serialPorts->count() > 0 && runConfigurationPortName != selectedPortName)
-        m_runConfiguration->setSerialPortName(selectedPortName);
+    updateSerialDevices();
+    connect(S60Manager::instance()->serialDeviceLister(), SIGNAL(updated()), this, SLOT(updateSerialDevices()));
     connect(m_serialPorts, SIGNAL(activated(int)), this, SLOT(setSerialPort(int)));
     formLayout->addRow(tr("Device on Serial Port:"), m_serialPorts);
 
@@ -329,6 +320,22 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(S60DeviceRunCon
     connect(customSignature, SIGNAL(toggled(bool)), this, SLOT(customSignatureToggled(bool)));
     connect(signaturePath, SIGNAL(changed(QString)), this, SLOT(signaturePathChanged(QString)));
     connect(keyPath, SIGNAL(changed(QString)), this, SLOT(keyPathChanged(QString)));
+}
+
+void S60DeviceRunConfigurationWidget::updateSerialDevices()
+{
+    m_serialPorts->clear();
+    QString runConfigurationPortName = m_runConfiguration->serialPortName();
+    QList<SerialDeviceLister::SerialDevice> serialDevices = S60Manager::instance()->serialDeviceLister()->serialDevices();
+    for (int i = 0; i < serialDevices.size(); ++i) {
+        const SerialDeviceLister::SerialDevice &device = serialDevices.at(i);
+        m_serialPorts->addItem(device.friendlyName, device.portName);
+        if (device.portName == runConfigurationPortName)
+            m_serialPorts->setCurrentIndex(i);
+    }
+    QString selectedPortName = m_serialPorts->itemData(m_serialPorts->currentIndex()).toString();
+    if (m_serialPorts->count() > 0 && runConfigurationPortName != selectedPortName)
+        m_runConfiguration->setSerialPortName(selectedPortName);
 }
 
 void S60DeviceRunConfigurationWidget::nameEdited(const QString &text)
