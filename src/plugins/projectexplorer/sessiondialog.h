@@ -47,13 +47,11 @@ class SessionDialog : public QDialog
 public:
     SessionDialog(SessionManager *sessionManager, const QString &lastSession, bool startup);
 
-    void accept();
-    void reject();
-
 private slots:
     void createNew();
     void clone();
     void remove();
+    void switchToSession();
 
     void updateActions();
 
