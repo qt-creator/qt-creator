@@ -139,7 +139,7 @@ void CodePasterProtocol::fetchFinished()
 void CodePasterProtocol::listFinished()
 {
     if (listReply->error()) {
-        ICore::instance()->messageManager()->printToOutputPane(reply->errorString(), true);
+        ICore::instance()->messageManager()->printToOutputPane(listReply->errorString(), true);
     } else {
         QByteArray data = listReply->readAll();
         listWidget->clear();
