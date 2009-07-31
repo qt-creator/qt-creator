@@ -76,6 +76,9 @@ bool Name::isConversionNameId() const
 bool Name::isQualifiedNameId() const
 { return asQualifiedNameId() != 0; }
 
+bool Name::isSelectorNameId() const
+{ return asSelectorNameId() != 0; }
+
 void Name::accept(NameVisitor *visitor)
 {
     if (visitor->preVisit(this))

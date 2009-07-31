@@ -96,6 +96,7 @@ protected:
     virtual bool visit(ObjCClassDeclarationAST *ast);
     virtual bool visit(ObjCClassInterfaceDefinitionAST *ast);
     virtual bool visit(ObjCMethodDeclarationAST *ast);
+    virtual bool visit(ObjCMethodDefinitionAST *ast);
     virtual bool visit(ObjCVisibilityDeclarationAST *ast);
 
 private:

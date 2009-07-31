@@ -89,6 +89,10 @@ public:
                                      unsigned nameCount,
                                      bool isGlobal = false);
 
+    SelectorNameId *selectorNameId(Name *const *names,
+                                   unsigned nameCount,
+                                   bool hasArguments);
+
     /// Returns a Type object of type VoidType.
     VoidType *voidType();
 

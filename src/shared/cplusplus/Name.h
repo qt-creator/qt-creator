@@ -71,6 +71,7 @@ public:
     bool isOperatorNameId() const;
     bool isConversionNameId() const;
     bool isQualifiedNameId() const;
+    bool isSelectorNameId() const;
 
     virtual const NameId *asNameId() const { return 0; }
     virtual const TemplateNameId *asTemplateNameId() const { return 0; }
@@ -78,6 +79,7 @@ public:
     virtual const OperatorNameId *asOperatorNameId() const { return 0; }
     virtual const ConversionNameId *asConversionNameId() const { return 0; }
     virtual const QualifiedNameId *asQualifiedNameId() const { return 0; }
+    virtual const SelectorNameId *asSelectorNameId() const { return 0; }
 
     virtual NameId *asNameId() { return 0; }
     virtual TemplateNameId *asTemplateNameId() { return 0; }
@@ -85,6 +87,7 @@ public:
     virtual OperatorNameId *asOperatorNameId() { return 0; }
     virtual ConversionNameId *asConversionNameId() { return 0; }
     virtual QualifiedNameId *asQualifiedNameId() { return 0; }
+    virtual SelectorNameId *asSelectorNameId() { return 0; }
 
     virtual bool isEqualTo(const Name *other) const = 0;
 

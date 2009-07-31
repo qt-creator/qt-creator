@@ -598,6 +598,36 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
     return false;
 }
 
+bool CheckDeclaration::visit(ObjCMethodDefinitionAST *ast)
+{
+    if (!ast->method_prototype)
+        return false;
+
+    FullySpecifiedType ty = semantic()->check(ast->method_prototype, _scope);
+    Function *fun = ty.type()->asFunctionType();
+    if (!fun)
+        return false;
+
+    Declaration *symbol = control()->newDeclaration(ast->firstToken(), fun->name());
+    symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
+    symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
+
+    symbol->setType(fun->returnType());
+
+    symbol->setVisibility(semantic()->currentVisibility());
+
+    if (semantic()->isObjCClassMethod(ast->method_prototype->method_type_token))
+        symbol->setStorage(Symbol::Static);
+
+    _scope->enterSymbol(symbol);
+
+     if (! semantic()->skipFunctionBodies()) {
+        semantic()->check(ast->function_body, fun->members());
+    }
+
+    return false;
+}
+
 bool CheckDeclaration::visit(ObjCVisibilityDeclarationAST *ast)
 {
     int accessSpecifier = tokenKind(ast->visibility_token);

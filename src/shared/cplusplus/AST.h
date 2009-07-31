@@ -2644,8 +2644,6 @@ protected:
 class CPLUSPLUS_EXPORT ObjCMessageArgumentAST: public AST
 {
 public:
-    unsigned parameter_key_identifier;
-    unsigned colon_token;
     ExpressionAST *parameter_value_expression;
 
 public:
@@ -2685,6 +2683,7 @@ class CPLUSPLUS_EXPORT ObjCMessageExpressionAST: public ExpressionAST
 public:
     unsigned lbracket_token;
     ExpressionAST *receiver_expression;
+    ObjCSelectorAST *selector;
     ObjCMessageArgumentListAST *argument_list;
     unsigned rbracket_token;
 

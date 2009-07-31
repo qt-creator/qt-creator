@@ -253,3 +253,20 @@ void NamePrettyPrinter::visit(QualifiedNameId *name)
         _name += operator()(name->nameAt(index));
     }
 }
+
+void NamePrettyPrinter::visit(SelectorNameId *name)
+{
+    for (unsigned i = 0; i < name->nameCount(); ++i) {
+        Name *n = name->nameAt(i);
+        if (!n)
+            continue;
+
+        Identifier *id = n->identifier();
+        if (id) {
+            _name += QString::fromLatin1(id->chars(), id->size());
+
+            if (name->hasArguments() || name->nameCount() > 1)
+                _name += ':';
+        }
+    }
+}

@@ -1220,6 +1220,8 @@ void ObjCMessageExpressionAST::accept0(ASTVisitor *visitor)
         // visit ObjCMessageExpressionAST
         if (receiver_expression)
             accept(receiver_expression, visitor);
+        if (selector)
+            accept(selector, visitor);
         if (argument_list)
             accept(argument_list, visitor);
         // visit ExpressionAST
@@ -1231,10 +1233,9 @@ void ObjCMessageArgumentListAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         // visit ObjCMessageArgumentListAST
-        if (arg)
-            accept(arg, visitor);
-        if (next)
-            accept(next, visitor);
+        for (ObjCMessageArgumentListAST *it = this; it; it = it->next)
+            if (it->arg)
+                accept(it->arg, visitor);
         // visit AST
     }
     visitor->endVisit(this);

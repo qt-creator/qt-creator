@@ -2080,6 +2080,9 @@ unsigned ObjCMessageExpressionAST::lastToken() const
     if (receiver_expression)
         return receiver_expression->lastToken();
 
+    if (selector)
+        return selector->lastToken();
+
     if (argument_list)
         return argument_list->lastToken();
 
@@ -2107,7 +2110,7 @@ unsigned ObjCMessageArgumentListAST::lastToken() const
 
 unsigned ObjCMessageArgumentAST::firstToken() const
 {
-    return parameter_key_identifier;
+    return parameter_value_expression->firstToken();
 }
 
 unsigned ObjCMessageArgumentAST::lastToken() const
@@ -2115,10 +2118,8 @@ unsigned ObjCMessageArgumentAST::lastToken() const
     if (parameter_value_expression)
         return parameter_value_expression->lastToken();
 
-    if (colon_token)
-        return colon_token + 1;
-
-    return parameter_key_identifier + 1;
+    // ### assert?
+    return 0;
 }
 
 unsigned ObjCProtocolExpressionAST::firstToken() const

@@ -196,6 +196,15 @@ public:
         return it->second;
     }
 
+    SelectorNameId *findOrInsertSelectorNameId(const std::vector<Name *> &names, bool hasArguments)
+    {
+        const SelectorNameIdKey key(names, hasArguments);
+        std::map<SelectorNameIdKey, SelectorNameId *>::iterator it = selectorNameIds.lower_bound(key);
+        if (it == selectorNameIds.end() || it->first != key)
+            it = selectorNameIds.insert(it, std::make_pair(key, new SelectorNameId(&names[0], names.size(), hasArguments)));
+        return it->second;
+    }
+
     IntegerType *findOrInsertIntegerType(int kind)
     {
         const int key = int(kind);
@@ -423,6 +432,27 @@ public:
         }
     };
 
+    struct SelectorNameIdKey {
+        std::vector<Name *> _names;
+        bool _hasArguments;
+
+        SelectorNameIdKey(const std::vector<Name *> &names, bool hasArguments): _names(names), _hasArguments(hasArguments) {}
+
+        bool operator==(const SelectorNameIdKey &other) const
+        { return _names == other._names && _hasArguments == other._hasArguments; }
+
+        bool operator!=(const SelectorNameIdKey &other) const
+        { return !operator==(other); }
+
+        bool operator<(const SelectorNameIdKey &other) const
+        {
+            if (_hasArguments == other._hasArguments)
+                return std::lexicographical_compare(_names.begin(), _names.end(), other._names.begin(), other._names.end());
+            else
+                return _hasArguments < other._hasArguments;
+        }
+    };
+
     struct ArrayKey {
         FullySpecifiedType type;
         size_t size;
@@ -491,6 +521,7 @@ public:
     std::map<FullySpecifiedType, ConversionNameId *> conversionNameIds;
     std::map<TemplateNameIdKey, TemplateNameId *> templateNameIds;
     std::map<QualifiedNameIdKey, QualifiedNameId *> qualifiedNameIds;
+    std::map<SelectorNameIdKey, SelectorNameId *> selectorNameIds;
 
     // types
     VoidType voidType;
@@ -614,6 +645,15 @@ QualifiedNameId *Control::qualifiedNameId(Name *const *names,
     std::vector<Name *> classOrNamespaceNames(names, names + nameCount);
     return d->findOrInsertQualifiedNameId(classOrNamespaceNames, isGlobal);
 }
+
+SelectorNameId *Control::selectorNameId(Name *const *names,
+                                        unsigned nameCount,
+                                        bool hasArguments)
+{
+    std::vector<Name *> selectorNames(names, names + nameCount);
+    return d->findOrInsertSelectorNameId(selectorNames, hasArguments);
+}
+
 
 VoidType *Control::voidType()
 { return &d->voidType; }

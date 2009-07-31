@@ -2967,7 +2967,7 @@ bool Parser::parseObjCMessageExpression(ExpressionAST *&node)
     ast->lbracket_token = consumeToken();
 
     parseObjCMessageReceiver(ast->receiver_expression);
-    parseObjCMessageArguments(ast->argument_list);
+    parseObjCMessageArguments(ast->selector, ast->argument_list);
 
     match(T_RBRACKET, &(ast->rbracket_token));
     node = ast;
@@ -2979,25 +2979,34 @@ bool Parser::parseObjCMessageReceiver(ExpressionAST *&node)
     return parseExpression(node);
 }
 
-bool Parser::parseObjCMessageArguments(ObjCMessageArgumentListAST *& node)
+bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArgumentListAST *& argNode)
 {
     if (LA() == T_RBRACKET)
         return false; // nothing to do.
 
     unsigned start = cursor();
 
-    ObjCMessageArgumentListAST *ast = new (_pool) ObjCMessageArgumentListAST;
-    ObjCMessageArgumentAST *argument = 0;
+    ObjCSelectorArgumentAST *selectorArgument = 0;
+    ObjCMessageArgumentAST *messageArgument = 0;
 
-    if (parseObjCSelectorArg(argument)) {
-        ast->arg = argument;
-        ObjCMessageArgumentListAST *lastArgument = ast;
+    if (parseObjCSelectorArg(selectorArgument, messageArgument)) {
+        ObjCSelectorArgumentListAST *selAst = new (_pool) ObjCSelectorArgumentListAST;
+        selAst->argument = selectorArgument;
+        ObjCSelectorArgumentListAST *lastSelector = selAst;
 
-        while (parseObjCSelectorArg(argument)) {
+        ObjCMessageArgumentListAST *argAst = new (_pool) ObjCMessageArgumentListAST;
+        argAst->arg = messageArgument;
+        ObjCMessageArgumentListAST *lastArgument = argAst;
+
+        while (parseObjCSelectorArg(selectorArgument, messageArgument)) {
             // accept the selector args.
+            lastSelector->next = new (_pool) ObjCSelectorArgumentListAST;
+            lastSelector = lastSelector->next;
+            lastSelector->argument = selectorArgument;
+
             lastArgument->next = new (_pool) ObjCMessageArgumentListAST;
             lastArgument = lastArgument->next;
-            lastArgument->arg = argument;
+            lastArgument->arg = messageArgument;
         }
 
         if (LA() == T_COMMA) {
@@ -3011,17 +3020,24 @@ bool Parser::parseObjCMessageArguments(ObjCMessageArgumentListAST *& node)
                 lastExpression = &(binaryExpression->right_expression);
             }
         }
+
+        ObjCSelectorWithArgumentsAST *selWithArgs = new (_pool) ObjCSelectorWithArgumentsAST;
+        selWithArgs->selector_arguments = selAst;
+
+        selNode = selWithArgs;
+        argNode = argAst;
     } else {
         rewind(start);
-        ast->arg = new (_pool) ObjCMessageArgumentAST;
-        parseObjCSelector(ast->arg->parameter_key_identifier);
+        ObjCSelectorWithoutArgumentsAST *sel = new (_pool) ObjCSelectorWithoutArgumentsAST;
+        parseObjCSelector(sel->name_token);
+        selNode = sel;
+        argNode = 0;
     }
 
-    node = ast;
     return true;
 }
 
-bool Parser::parseObjCSelectorArg(ObjCMessageArgumentAST *&node)
+bool Parser::parseObjCSelectorArg(ObjCSelectorArgumentAST *&selNode, ObjCMessageArgumentAST *&argNode)
 {
     unsigned selector_token = 0;
     if (!parseObjCSelector(selector_token))
@@ -3030,12 +3046,12 @@ bool Parser::parseObjCSelectorArg(ObjCMessageArgumentAST *&node)
     if (LA() != T_COLON)
         return false;
 
-    ObjCMessageArgumentAST *argument = new (_pool) ObjCMessageArgumentAST;
-    argument->parameter_key_identifier = selector_token;
-    argument->colon_token = consumeToken();
+    selNode = new (_pool) ObjCSelectorArgumentAST;
+    selNode->name_token = selector_token;
+    selNode->colon_token = consumeToken();
 
-    parseAssignmentExpression(argument->parameter_value_expression);
-    node = argument;
+    argNode = new (_pool) ObjCMessageArgumentAST;
+    parseAssignmentExpression(argNode->parameter_value_expression);
     return true;
 }
 

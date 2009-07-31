@@ -376,8 +376,10 @@ bool CheckName::visit(TemplateIdAST *ast)
 
 bool CheckName::visit(ObjCSelectorWithoutArgumentsAST *ast)
 {
+    std::vector<Name *> names;
     Identifier *id = identifier(ast->name_token);
-    _name = control()->nameId(id);
+    names.push_back(control()->nameId(id));
+    _name = control()->selectorNameId(&names[0], names.size(), false);
     ast->selector_name = _name;
 
     return false;
@@ -392,7 +394,7 @@ bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
 
         names.push_back(name);
     }
-    _name = control()->qualifiedNameId(&names[0], names.size(), false);
+    _name = control()->selectorNameId(&names[0], names.size(), true);
     ast->selector_name = _name;
 
     return false;

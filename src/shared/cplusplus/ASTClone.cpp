@@ -1295,6 +1295,7 @@ ObjCMessageExpressionAST *ObjCMessageExpressionAST::clone(MemoryPool *pool) cons
     ObjCMessageExpressionAST *ast = new (pool) ObjCMessageExpressionAST;
     ast->lbracket_token = lbracket_token;
     if (receiver_expression) ast->receiver_expression = receiver_expression->clone(pool);
+    if (selector) ast->selector = selector->clone(pool);
     if (argument_list) ast->argument_list = argument_list->clone(pool);
     ast->rbracket_token = rbracket_token;
     return ast;
@@ -1311,8 +1312,6 @@ ObjCMessageArgumentListAST *ObjCMessageArgumentListAST::clone(MemoryPool *pool) 
 ObjCMessageArgumentAST *ObjCMessageArgumentAST::clone(MemoryPool *pool) const
 {
     ObjCMessageArgumentAST *ast = new (pool) ObjCMessageArgumentAST;
-    ast->parameter_key_identifier = parameter_key_identifier;
-    ast->colon_token = colon_token;
     if (parameter_value_expression) ast->parameter_value_expression = parameter_value_expression->clone(pool);
     return ast;
 }

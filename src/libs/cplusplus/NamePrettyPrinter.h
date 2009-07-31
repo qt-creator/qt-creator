@@ -55,6 +55,7 @@ protected:
     virtual void visit(OperatorNameId *name);
     virtual void visit(ConversionNameId *name);
     virtual void visit(QualifiedNameId *name);
+    virtual void visit(SelectorNameId *name);
 
 private:
     const Overview *_overview;

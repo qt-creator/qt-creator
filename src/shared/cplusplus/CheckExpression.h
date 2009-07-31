@@ -110,6 +110,11 @@ protected:
     virtual bool visit(PostIncrDecrAST *ast);
     virtual bool visit(MemberAccessAST *ast);
 
+    // ObjC
+    virtual bool visit(ObjCMessageExpressionAST *ast);
+    virtual bool visit(ObjCEncodeExpressionAST *ast);
+    virtual bool visit(ObjCSelectorExpressionAST *ast);
+
 private:
     ExpressionAST *_expression;
     FullySpecifiedType _fullySpecifiedType;

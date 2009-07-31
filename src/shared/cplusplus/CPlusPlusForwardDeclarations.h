@@ -100,6 +100,7 @@ class DestructorNameId;
 class OperatorNameId;
 class ConversionNameId;
 class QualifiedNameId;
+class SelectorNameId;
 
 // types
 class FullySpecifiedType;
@@ -138,6 +139,7 @@ class ObjCClass;
 class ObjCForwardClassDeclaration;
 class ObjCProtocol;
 class ObjCForwardProtocolDeclaration;
+class ObjCMethod;
 
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER

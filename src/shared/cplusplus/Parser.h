@@ -226,8 +226,8 @@ public:
     bool parseObjCMethodSignature();
     bool parseObjCMessageExpression(ExpressionAST *&node);
     bool parseObjCMessageReceiver(ExpressionAST *&node);
-    bool parseObjCMessageArguments(ObjCMessageArgumentListAST *&node);
-    bool parseObjCSelectorArg(ObjCMessageArgumentAST *&node);
+    bool parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArgumentListAST *& argNode);
+    bool parseObjCSelectorArg(ObjCSelectorArgumentAST *&selNode, ObjCMessageArgumentAST *&argNode);
     bool parseObjCMethodDefinitionList(DeclarationListAST *&node);
     bool parseObjCMethodDefinition(DeclarationAST *&node);
 

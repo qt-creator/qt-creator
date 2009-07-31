@@ -383,4 +383,29 @@ bool CheckExpression::visit(MemberAccessAST *ast)
     return false;
 }
 
+bool CheckExpression::visit(ObjCMessageExpressionAST *ast)
+{
+    semantic()->check(ast->receiver_expression, _scope);
+
+    if (Name *name = semantic()->check(ast->selector, _scope))
+        _scope->addUse(ast->selector->firstToken(), name);
+
+    accept(ast->argument_list);
+    return false;
+}
+
+bool CheckExpression::visit(ObjCEncodeExpressionAST * /*ast*/)
+{
+    // TODO: visit the type name, but store the type here? (EV)
+    return true;
+}
+
+bool CheckExpression::visit(ObjCSelectorExpressionAST *ast)
+{
+    if (Name *name = semantic()->check(ast->selector, _scope))
+        _scope->addUse(ast->selector->firstToken(), name);
+
+    return false;
+}
+
 CPLUSPLUS_END_NAMESPACE

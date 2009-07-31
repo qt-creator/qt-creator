@@ -164,6 +164,12 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
         QString name = _overview.prettyName(symbol->name());
         if (name.isEmpty())
             name = QLatin1String("anonymous");
+        if (symbol->isObjCForwardClassDeclaration())
+            name = QLatin1String("@class ") + name;
+        if (symbol->isObjCForwardProtocolDeclaration() || symbol->isObjCProtocol())
+            name = QLatin1String("@protocol ") + name;
+        if (symbol->isObjCClass())
+            name = QLatin1String("@interface ") + name;
         if (! symbol->isScopedSymbol() || symbol->isFunction()) {
             QString type = _overview.prettyType(symbol->type());
             if (! type.isEmpty()) {

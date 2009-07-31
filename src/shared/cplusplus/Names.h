@@ -271,6 +271,39 @@ private:
     FullySpecifiedType _type;
 };
 
+class CPLUSPLUS_EXPORT SelectorNameId: public Name
+{
+public:
+    SelectorNameId(Name *const names[],
+                   unsigned nameCount,
+                   bool hasArguments);
+    virtual ~SelectorNameId();
+
+    virtual Identifier *identifier() const;
+
+    unsigned nameCount() const;
+    Name *nameAt(unsigned index) const;
+    Name *const *names() const;
+
+    bool hasArguments() const;
+
+    virtual bool isEqualTo(const Name *other) const;
+
+    virtual const SelectorNameId *asSelectorNameId() const
+    { return this; }
+
+    virtual SelectorNameId *asSelectorNameId()
+    { return this; }
+
+protected:
+    virtual void accept0(NameVisitor *visitor);
+
+private:
+    Name **_names;
+    unsigned _nameCount;
+    bool _hasArguments;
+};
+
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER
 

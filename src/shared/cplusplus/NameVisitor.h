@@ -74,6 +74,7 @@ public:
     virtual void visit(OperatorNameId *) {}
     virtual void visit(ConversionNameId *) {}
     virtual void visit(QualifiedNameId *) {}
+    virtual void visit(SelectorNameId *) {}
 };
 
 CPLUSPLUS_END_NAMESPACE
