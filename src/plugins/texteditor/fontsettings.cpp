@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QTextCharFormat>
 
 static const char *fontFamilyKey = "FontFamily";
@@ -132,7 +133,7 @@ bool FontSettings::fromSettings(const QString &category,
             m_scheme.setFormatFor(name, format);
         }
 
-        m_scheme.setName(QObject::tr("Customized"));
+        m_scheme.setName(QCoreApplication::translate("TextEditor::Internal::FontSettings", "Customized"));
     }
 
     return true;

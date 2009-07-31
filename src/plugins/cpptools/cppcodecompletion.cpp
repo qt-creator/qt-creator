@@ -669,7 +669,8 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
                     break;
                 const SimpleToken &previousToken = tokens.at(i - 1);
                 if (previousToken.is(T_IDENTIFIER)) {
-                    if (previousToken.text() == QLatin1String("include")) {
+                    if (previousToken.text() == QLatin1String("include") ||
+                        previousToken.text() == QLatin1String("import")) {
                         include = true;
                         break;
                     }

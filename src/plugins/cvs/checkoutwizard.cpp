@@ -51,7 +51,7 @@ QIcon CheckoutWizard::icon() const
 
 QString CheckoutWizard::description() const
 {
-    return tr("Check-out a project from a CVS repository.");
+    return tr("Checks out a project from a CVS repository.");
 }
 
 QString CheckoutWizard::name() const

@@ -101,7 +101,7 @@ QStringList BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
     const QString projectFile = openProject(checkoutPath, &errorMessage);
     if (projectFile.isEmpty()) {
         QMessageBox msgBox(QMessageBox::Warning, tr("Cannot Open Project"),
-                           tr("Failed to open project in '%1'").arg(checkoutPath));
+                           tr("Failed to open project in '%1'.").arg(checkoutPath));
         msgBox.setDetailedText(errorMessage);
         msgBox.exec();
         return QStringList();

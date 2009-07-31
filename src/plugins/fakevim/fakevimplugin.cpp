@@ -533,7 +533,7 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
         if (failed.isEmpty())
             handler->showBlackMessage(tr("Saving succeeded"));
         else
-            handler->showRedMessage(tr("%1 files not saaved").arg(failed.size()));
+            handler->showRedMessage(tr("%n files not saved", 0, failed.size()));
     } else if (reQuit.indexIn(cmd) != -1) {
         // :q
         bool forced = cmd.contains(QChar('!'));
@@ -543,7 +543,7 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
         bool forced = cmd.contains(QChar('!'));
         emit delayedQuitAllRequested(forced);
     } else {
-        handler->showRedMessage(tr("Not an editor command: ") + cmd);
+        handler->showRedMessage(tr("Not an editor command: %1").arg(cmd));
     }
 }
 
