@@ -30,8 +30,7 @@ SOURCES += annotationhighlighter.cpp \
     checkoutwizard.cpp \
     checkoutwizardpage.cpp
 
-FORMS += settingspage.ui \
-     checkoutwizardpage.ui
+FORMS += settingspage.ui
 
 RESOURCES += subversion.qrc
 

@@ -51,7 +51,7 @@ QIcon CheckoutWizard::icon() const
 
 QString CheckoutWizard::description() const
 {
-    return tr("Check-out a project from a Subversion repository.");
+    return tr("Checks out a project from a Subversion repository.");
 }
 
 QString CheckoutWizard::name() const

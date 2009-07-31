@@ -299,7 +299,7 @@ void CMakeRunPage::initializePage()
 
         if (m_cmakeWizard->existsUpToDateXmlFile()) {
             m_descriptionLabel->setText(
-                    tr("The directoyr %1 already contains a cbp file, which is recent enough. "
+                    tr("The directory %1 already contains a cbp file, which is recent enough. "
                        "You can pass special arguments or change the used toolchain here and rerun cmake. "
                        "Or simply finish the wizard directly").arg(m_buildDirectory));
         } else {
