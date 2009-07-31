@@ -110,6 +110,11 @@ SessionDialog::SessionDialog(SessionManager *sessionManager, const QString &last
 {
     m_ui.setupUi(this);
 
+    QPushButton *switchButton = m_ui.buttonBox->addButton(tr("Switch to session"),
+                                                          QDialogButtonBox::AcceptRole);
+    connect(switchButton, SIGNAL(clicked()),
+            this, SLOT(switchToSession()));
+
     connect(m_ui.btCreateNew, SIGNAL(clicked()),
             this, SLOT(createNew()));
 
@@ -141,18 +146,6 @@ void SessionDialog::updateActions()
         enableDelete = (m_ui.sessionList->currentItem()->text() != m_sessionManager->activeSession()
                         && (m_ui.sessionList->currentItem()->text() != QLatin1String("default")));
     m_ui.btDelete->setEnabled(enableDelete);
-}
-
-void SessionDialog::accept()
-{
-    // do nothing
-    QDialog::accept();
-}
-
-void SessionDialog::reject()
-{
-    // clear list
-    QDialog::reject();
 }
 
 void SessionDialog::createNew()
@@ -190,6 +183,15 @@ void SessionDialog::remove()
     m_sessionManager->deleteSession(m_ui.sessionList->currentItem()->text());
     m_ui.sessionList->clear();
     m_ui.sessionList->addItems(m_sessionManager->sessions());
+}
+
+void SessionDialog::switchToSession()
+{
+    if (m_ui.sessionList->currentItem()) {
+        QString session = m_ui.sessionList->currentItem()->text();
+        m_sessionManager->loadSession(session);
+    }
+    accept();
 }
 
 } // namespace Internal
