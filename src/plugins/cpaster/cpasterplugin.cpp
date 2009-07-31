@@ -95,6 +95,8 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
                             0};
     for(int i=0; protos[i] != 0; ++i) {
         connect(protos[i], SIGNAL(pasteDone(QString)), this, SLOT(finishPost(QString)));
+        connect(protos[i], SIGNAL(fetchDone(QString,QString,bool)),
+                this, SLOT(finishFetch(QString,QString,bool)));
         m_settingsPage->addProtocol(protos[i]->name());
         if (protos[i]->hasSettings())
             addObject(protos[i]->settingsPage());
@@ -249,6 +251,18 @@ void CodepasterPlugin::finishPost(const QString &link)
         QApplication::clipboard()->setText(link);
     ICore::instance()->messageManager()->printToOutputPane(link,
                                                            m_settingsPage->displayOutput());
+}
+
+void CodepasterPlugin::finishFetch(const QString &titleDescription,
+                                   const QString &content,
+                                   bool error)
+{
+    QString title = titleDescription;
+    if (error) {
+        ICore::instance()->messageManager()->printToOutputPane(content, true);
+    } else {
+        EditorManager::instance()->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR, &title, content);
+    }
 }
 
 Q_EXPORT_PLUGIN(CodepasterPlugin)

@@ -115,14 +115,18 @@ void PasteBinDotComProtocol::postRequestFinished(int id, bool error)
 
 void PasteBinDotComProtocol::fetchFinished()
 {
-    if (reply->error()) {
-        ICore::instance()->messageManager()->printToOutputPane(reply->errorString(), true);
+    QString title;
+    QString content;
+    bool error = reply->error();
+    if (error) {
+        content = reply->errorString();
     } else {
-        QString title = QString::fromLatin1("Pastebin.com: %1").arg(fetchId);
-        QString data = reply->readAll();
-        EditorManager::instance()->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR, &title, data);
+        title = QString::fromLatin1("Pastebin.com: %1").arg(fetchId);
+        content = reply->readAll();
     }
     reply->deleteLater();
+    reply = 0;
+    emit fetchDone(title, content, error);
 }
 
 Core::IOptionsPage* PasteBinDotComProtocol::settingsPage()

@@ -118,17 +118,22 @@ Core::IOptionsPage* CodePasterProtocol::settingsPage()
 
 void CodePasterProtocol::fetchFinished()
 {
-    if (reply->error()) {
-        ICore::instance()->messageManager()->printToOutputPane(reply->errorString(), true);
+    QString title;
+    QString content;
+    bool error = reply->error();
+    if (error) {
+        content = reply->errorString();
     } else {
-        QString data = reply->readAll();
-        if (data.contains("<B>No such paste!</B>"))
-            ICore::instance()->messageManager()->printToOutputPane(tr("No such paste"), true);
-        QString title = QString::fromLatin1("Codepaster: %1").arg(fetchId);
-        EditorManager::instance()->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR, &title, data);
+        content = reply->readAll();
+        if (content.contains("<B>No such paste!</B>")) {
+            content = tr("No such paste");
+            error = true;
+        }
+        title = QString::fromLatin1("Codepaster: %1").arg(fetchId);
     }
     reply->deleteLater();
     reply = 0;
+    emit fetchDone(title, content, error);
 }
 
 void CodePasterProtocol::listFinished()

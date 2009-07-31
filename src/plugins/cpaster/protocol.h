@@ -61,6 +61,9 @@ public:
 
 signals:
     void pasteDone(const QString &link);
+    void fetchDone(const QString &titleDescription,
+                   const QString &content,
+                   bool error);
 };
 
 #endif // PROTOCOL_H

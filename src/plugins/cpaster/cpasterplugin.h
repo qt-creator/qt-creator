@@ -64,6 +64,9 @@ public slots:
     void post();
     void fetch();
     void finishPost(const QString &link);
+    void finishFetch(const QString &titleDescription,
+                     const QString &content,
+                     bool error);
 
 private:
     QAction *m_postAction;
