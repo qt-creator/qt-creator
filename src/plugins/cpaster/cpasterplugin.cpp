@@ -261,7 +261,9 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     if (error) {
         ICore::instance()->messageManager()->printToOutputPane(content, true);
     } else {
-        EditorManager::instance()->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR, &title, content);
+        EditorManager* manager = EditorManager::instance();
+        IEditor* editor = manager->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR, &title, content);
+        manager->activateEditor(editor);
     }
 }
 
