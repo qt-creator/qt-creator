@@ -35,6 +35,7 @@
 #include "pasteview.h"
 #include "codepasterprotocol.h"
 #include "pastebindotcomprotocol.h"
+#include "pastebindotcaprotocol.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -92,6 +93,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     // Create the protocols and append them to the Settings
     Protocol *protos[] =  { new CodePasterProtocol(),
                             new PasteBinDotComProtocol(),
+                            new PasteBinDotCaProtocol(),
                             0};
     for(int i=0; protos[i] != 0; ++i) {
         connect(protos[i], SIGNAL(pasteDone(QString)), this, SLOT(finishPost(QString)));
