@@ -1271,6 +1271,8 @@ void DebuggerPlugin::attachCore()
     sp->executable = dlg.executableFile();
     sp->coreFile = dlg.coreFile();
     QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (rc.isNull())
+        rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
             ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, AttachCore))
         runControl->start();
@@ -1303,6 +1305,8 @@ void DebuggerPlugin::startRemoteApplication()
         sp->serverStartScript = dlg.serverStartScript();
 
     QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (rc.isNull())
+        rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
             ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, StartRemote))
         runControl->start();
@@ -1336,6 +1340,8 @@ void DebuggerPlugin::attachRemoteTcf()
         sp->serverStartScript = dlg.serverStartScript();
 
     QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    if (rc.isNull())
+        rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
             ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, AttachTcf))
         runControl->start();
