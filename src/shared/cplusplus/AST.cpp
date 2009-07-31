@@ -2565,4 +2565,18 @@ unsigned ObjCFastEnumerationAST::lastToken() const
         return for_token + 1;
 }
 
+unsigned ObjCSynchronizedStatementAST::firstToken() const
+{
+    return synchronized_token;
+}
+
+unsigned ObjCSynchronizedStatementAST::lastToken() const
+{
+    if (statement) return statement->lastToken();
+    if (rparen_token) return rparen_token + 1;
+    if (synchronized_object) return synchronized_object->lastToken();
+    if (lparen_token) return lparen_token + 1;
+    return synchronized_token + 1;
+}
+
 CPLUSPLUS_END_NAMESPACE

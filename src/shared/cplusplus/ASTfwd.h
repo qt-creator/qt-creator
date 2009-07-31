@@ -205,6 +205,7 @@ class ObjCSynthesizedPropertyListAST;
 class ObjCSynthesizedPropertiesDeclarationAST;
 class ObjCDynamicPropertiesDeclarationAST;
 class ObjCFastEnumerationAST;
+class ObjCSynchronizedStatementAST;
 
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER

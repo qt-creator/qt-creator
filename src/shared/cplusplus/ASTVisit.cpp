@@ -1527,4 +1527,17 @@ void ObjCFastEnumerationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void ObjCSynchronizedStatementAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        // visit ObjCSynchronizedStatementAST
+        if (synchronized_object)
+            accept(synchronized_object, visitor);
+        if (statement)
+            accept(statement, visitor);
+        // visit StatementAST
+    }
+    visitor->endVisit(this);
+}
+
 CPLUSPLUS_END_NAMESPACE

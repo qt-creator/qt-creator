@@ -3232,6 +3232,28 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
+class CPLUSPLUS_EXPORT ObjCSynchronizedStatementAST: public StatementAST
+{
+public:
+    unsigned synchronized_token;
+    unsigned lparen_token;
+    ExpressionAST *synchronized_object;
+    unsigned rparen_token;
+    StatementAST *statement;
+
+public:
+    virtual ObjCSynchronizedStatementAST *asObjCSynchronizedStatement()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSynchronizedStatementAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER
 

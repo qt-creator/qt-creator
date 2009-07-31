@@ -198,6 +198,10 @@ bool Parser::skipUntilStatement()
             case T_USING:
                 return true;
 
+            case T_AT_SYNCHRONIZED:
+                if (objCEnabled())
+                    return true;
+
             default:
                 consumeToken();
         }
@@ -1932,6 +1936,10 @@ bool Parser::parseStatement(StatementAST *&node)
         return true;
     }
 
+    case T_AT_SYNCHRONIZED:
+        if (objCEnabled())
+            return parseObjCSynchronizedStatement(node);
+
     default:
         if (LA() == T_IDENTIFIER && LA(2) == T_COLON)
             return parseLabeledStatement(node);
@@ -2891,6 +2899,23 @@ bool Parser::parseObjCStringLiteral(ExpressionAST *&node)
         (*ast)->literal_token = consumeToken();
         ast = &(*ast)->next;
     }
+    return true;
+}
+
+bool Parser::parseObjCSynchronizedStatement(StatementAST *&node)
+{
+    if (LA() != T_AT_SYNCHRONIZED)
+        return false;
+
+    ObjCSynchronizedStatementAST *ast = new (_pool) ObjCSynchronizedStatementAST;
+
+    ast->synchronized_token = consumeToken();
+    match(T_LPAREN, &ast->lparen_token);
+    parseExpression(ast->synchronized_object);
+    match(T_RPAREN, &ast->rparen_token);
+    parseStatement(ast->statement);
+
+    node = ast;
     return true;
 }
 

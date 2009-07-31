@@ -1550,4 +1550,16 @@ ObjCFastEnumerationAST *ObjCFastEnumerationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+ObjCSynchronizedStatementAST *ObjCSynchronizedStatementAST::clone(MemoryPool *pool) const
+{
+    ObjCSynchronizedStatementAST *ast = new (pool) ObjCSynchronizedStatementAST;
+    ast->synchronized_token = synchronized_token;
+    ast->lparen_token = lparen_token;
+    if (synchronized_object) ast->synchronized_object = synchronized_object->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (statement) ast->statement = statement->clone(pool);
+    return ast;
+}
+
+
 CPLUSPLUS_END_NAMESPACE

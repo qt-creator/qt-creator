@@ -231,10 +231,10 @@ public:
     virtual bool visit(ObjCSynthesizedPropertiesDeclarationAST *) { return true; }
     virtual bool visit(ObjCDynamicPropertiesDeclarationAST *) { return true; }
     virtual bool visit(ObjCFastEnumerationAST *) { return true; }
+    virtual bool visit(ObjCSynchronizedStatementAST *) { return true; }
 
     virtual bool visit(DeclarationListAST *) { return true; }
     virtual void endVisit(DeclarationListAST *) { }
-
 
     virtual void endVisit(AccessDeclarationAST *) { }
     virtual void endVisit(ArrayAccessAST *) { }
@@ -373,6 +373,7 @@ public:
     virtual void endVisit(ObjCSynthesizedPropertiesDeclarationAST *) { }
     virtual void endVisit(ObjCDynamicPropertiesDeclarationAST *) { }
     virtual void endVisit(ObjCFastEnumerationAST *) { }
+    virtual void endVisit(ObjCSynchronizedStatementAST *) { }
 
 private:
     Control *_control;
