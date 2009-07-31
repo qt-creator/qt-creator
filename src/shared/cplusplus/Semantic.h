@@ -87,6 +87,9 @@ public:
     Name *check(NestedNameSpecifierAST *name, Scope *scope);
 
     Name *check(ObjCSelectorAST *args, Scope *scope);
+    FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope);
+
+    void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);
 
     bool skipFunctionBodies() const;
     void setSkipFunctionBodies(bool skipFunctionBodies);

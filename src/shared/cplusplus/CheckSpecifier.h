@@ -63,6 +63,7 @@ public:
     virtual ~CheckSpecifier();
 
     FullySpecifiedType check(SpecifierAST *specifier, Scope *scope);
+    FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope);
 
 protected:
     SpecifierAST *switchSpecifier(SpecifierAST *specifier);
@@ -78,6 +79,8 @@ protected:
     virtual bool visit(EnumSpecifierAST *ast);
     virtual bool visit(TypeofSpecifierAST *ast);
     virtual bool visit(AttributeSpecifierAST *ast);
+
+    virtual bool visit(ObjCTypeNameAST *ast);
 
 private:
     SpecifierAST *_specifier;

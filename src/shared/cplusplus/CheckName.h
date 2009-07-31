@@ -64,6 +64,7 @@ public:
     Name *check(NameAST *name, Scope *scope);
     Name *check(NestedNameSpecifierAST *name, Scope *scope);
     Name *check(ObjCSelectorAST *args, Scope *scope);
+    void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);
 
 protected:
     Name *switchName(Name *name);
@@ -81,6 +82,7 @@ protected:
     // ObjC
     virtual bool visit(ObjCSelectorWithoutArgumentsAST *ast);
     virtual bool visit(ObjCSelectorWithArgumentsAST *ast);
+    virtual bool visit(ObjCMessageArgumentDeclarationAST *ast);
 
 private:
     Name *_name;

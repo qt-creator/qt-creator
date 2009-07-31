@@ -2970,7 +2970,7 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public AST
+class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public NameAST
 {
 public:
     ObjCTypeNameAST* type_name;
@@ -2978,7 +2978,7 @@ public:
     unsigned param_name_token;
 
 public: // annotations
-    Name *param_name;
+    Argument *argument;
 
 public:
     virtual ObjCMessageArgumentDeclarationAST *asObjCMessageArgumentDeclaration()

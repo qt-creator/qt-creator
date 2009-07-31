@@ -248,6 +248,8 @@ bool CheckDeclarator::visit(ReferenceAST *ast)
 
 bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
 {
+    FullySpecifiedType returnType = semantic()->check(ast->type_name, _scope);
+
     unsigned location = ast->firstToken();
 
     Name *name = semantic()->check(ast->selector, _scope);
@@ -259,15 +261,20 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
     fun->setMethodKey(Function::NormalMethod);
     fun->setVisibility(semantic()->currentVisibility());
     fun->setPureVirtual(false);
+    fun->setReturnType(returnType);
 
-    // TODO: check return type (EV)
-//    fun->setReturnType(semantic()->check(ast->type_name, _scope));
-    // TODO: check the parameters (EV)
-    //    fun->setVariadic(...);
-    // TODO: add arguments (EV)
+    if (ast->selector->asObjCSelectorWithArguments()) {
+        // TODO: check the parameters (EV)
+        //    fun->setVariadic(...);
+        // TODO: add arguments (EV)
+        for (ObjCMessageArgumentDeclarationListAST *it = ast->arguments; it; it = it->next) {
+            ObjCMessageArgumentDeclarationAST *argDecl = it->argument_declaration;
 
-    FullySpecifiedType mTy(fun);
-    _fullySpecifiedType = mTy;
+            semantic()->check(argDecl, fun->arguments());
+        }
+    }
+
+    _fullySpecifiedType = FullySpecifiedType(fun);
 
     // TODO: check which specifiers are allowed here (EV)
 

@@ -137,6 +137,12 @@ FullySpecifiedType Semantic::check(PtrOperatorAST *ptrOperators, FullySpecifiedT
 FullySpecifiedType Semantic::check(ObjCMethodPrototypeAST *methodPrototype, Scope *scope)
 { return d->checkDeclarator->check(methodPrototype, scope); }
 
+FullySpecifiedType Semantic::check(ObjCTypeNameAST *typeName, Scope *scope)
+{ return d->checkSpecifier->check(typeName, scope); }
+
+void Semantic::check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope)
+{ return d->checkName->check(arg, scope); }
+
 FullySpecifiedType Semantic::check(ExpressionAST *expression, Scope *scope)
 { return d->checkExpression->check(expression, scope); }
 

@@ -96,6 +96,7 @@ protected:
     // ObjC
     virtual bool visit(ObjCMethodPrototypeAST *ast);
 
+    void checkMessageArgument(ObjCMessageArgumentDeclarationAST *arg);
     void applyCvQualifiers(SpecifierAST *cv);
 
 private:

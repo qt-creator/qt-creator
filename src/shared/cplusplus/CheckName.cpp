@@ -55,6 +55,7 @@
 #include "Names.h"
 #include "CoreTypes.h"
 #include "Symbols.h"
+#include "Scope.h"
 #include <cassert>
 
 CPLUSPLUS_BEGIN_NAMESPACE
@@ -106,6 +107,17 @@ Name *CheckName::check(ObjCSelectorAST *args, Scope *scope)
 
     (void) switchScope(previousScope);
     return switchName(previousName);
+}
+
+void CheckName::check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope)
+{
+    Name *previousName = switchName(0);
+    Scope *previousScope = switchScope(scope);
+
+    accept(arg);
+
+    (void) switchScope(previousScope);
+    (void) switchName(previousName);
 }
 
 Name *CheckName::switchName(Name *name)
@@ -382,6 +394,28 @@ bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
     }
     _name = control()->qualifiedNameId(&names[0], names.size(), false);
     ast->selector_name = _name;
+
+    return false;
+}
+
+bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
+{
+    FullySpecifiedType type;
+
+    if (ast->type_name)
+        type = semantic()->check(ast->type_name, _scope);
+
+    if (ast->param_name_token) {
+        Identifier *id = identifier(ast->param_name_token);
+        _name = control()->nameId(id);
+        ast->name = _name;
+
+        Argument *arg = control()->newArgument(ast->firstToken(), _name);
+        ast->argument = arg;
+        arg->setType(type);
+        arg->setInitializer(false);
+        _scope->enterSymbol(arg);
+    }
 
     return false;
 }
