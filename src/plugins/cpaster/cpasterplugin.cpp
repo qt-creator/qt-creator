@@ -219,7 +219,13 @@ void CodepasterPlugin::fetch()
 
     ui.listWidget->addItems(QStringList() << tr("This protocol supports no listing"));
     ui.listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+#ifndef Q_WS_MACX
     ui.listWidget->setFrameStyle(QFrame::NoFrame);
+#endif // Q_WS_MACX
+    QFont listFont = ui.listWidget->font();
+    listFont.setFamily("Courier");
+    listFont.setStyleHint(QFont::TypeWriter);
+    ui.listWidget->setFont(listFont);
     // ### TODO2: when we change the protocol, we need to relist
     foreach(Protocol *protocol, m_protocols) {
         if (protocol->name() == ui.protocolBox->currentText() && protocol->canList()) {
