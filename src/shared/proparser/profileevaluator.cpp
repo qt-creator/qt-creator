@@ -1088,19 +1088,34 @@ QStringList ProFileEvaluator::Private::qmakeMkspecPaths() const
 
 QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
 {
+    QString mkspecs_concat = QLatin1String("/mkspecs");
+    QString features_concat = QLatin1String("/features");
     QStringList concat;
-    {
-        const QString base_concat = QDir::separator() + QString(QLatin1String("features"));
-        concat << base_concat + QDir::separator() + QLatin1String("mac");
-        concat << base_concat + QDir::separator() + QLatin1String("macx");
-        concat << base_concat + QDir::separator() + QLatin1String("unix");
-        concat << base_concat + QDir::separator() + QLatin1String("win32");
-        concat << base_concat + QDir::separator() + QLatin1String("mac9");
-        concat << base_concat + QDir::separator() + QLatin1String("qnx6");
-        concat << base_concat;
+    switch (m_option->target_mode) {
+    case Option::TARG_MACX_MODE:
+        concat << QLatin1String("/features/mac");
+        concat << QLatin1String("/features/macx");
+        concat << QLatin1String("/features/unix");
+        break;
+    case Option::TARG_UNIX_MODE:
+        concat << QLatin1String("/features/unix");
+        break;
+    case Option::TARG_WIN_MODE:
+        concat << QLatin1String("/features/win32");
+        break;
+    case Option::TARG_MAC9_MODE:
+        concat << QLatin1String("/features/mac");
+        concat << QLatin1String("/features/mac9");
+        break;
+    case Option::TARG_QNX6_MODE:
+        concat << QLatin1String("/features/qnx6");
+        concat << QLatin1String("/features/unix");
+        break;
     }
-    const QString mkspecs_concat = QDir::separator() + QString(QLatin1String("mkspecs"));
+    concat << features_concat;
+
     QStringList feature_roots;
+
     QByteArray mkspec_path = qgetenv("QMAKEFEATURES");
     if (!mkspec_path.isNull())
         feature_roots += QString::fromLocal8Bit(mkspec_path).split(m_option->dirlist_sep);
