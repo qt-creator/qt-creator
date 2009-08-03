@@ -1530,26 +1530,28 @@ Click here to continue where you left creator last time", or something similar p
 
     \section1 CMake Projects
 
-    In CMake, libraries are usually detected using the \c{FIND_PACKAGE()} macro.
-    A couple of them are already being shipped with CMake, they can be found in
-    the \c{Modules} directory of your CMake installation. If you provide 
-    libraries on your own, you will need to provide your own \c{FindFoo.cmake}
-    file. Refer to the \l{http://vtk.org/Wiki/CMake_FAQ#Writing_FindXXX.cmake_files}
-    {CMake FAQ} for details.
+    In CMake, libraries are usually detected using the \c{FIND_PACKAGE()}
+    macro. A couple of them are already being shipped with CMake, they can be
+    found in the \c{Modules} directory of your CMake installation. If you
+    provide libraries on your own, you will need to provide your own
+    \c{FindFoo.cmake} file. Refer to the
+    \l{http://vtk.org/Wiki/CMake_FAQ#Writing_FindXXX.cmake_files}{CMake FAQ}
+    for details.
     
-    As with qmake project, syntax completion and highlighting should work if 
-    you can sucessfully build and link against the external library.
+    As with \c qmake projects, syntax completion and highlighting should work
+    if you can sucessfully build and link against the external library.
+
     
     \section1 Generic Projects
 
-    If you import a project using the \e{Generic Projects} function, Qt Creator will
-    create a file called \c{<projectname>.includes} in your project root directory. It will
-    contain all project subdirectories it that was able to find relevant header files in. 
-    Simply add your include pathes there. 
+    If you import a project using the \e{Generic Projects} function, Qt Creator
+    will create a file called \c{<projectname>.includes} in your project root
+    directory. This file contains all project subdirectories which Qt Creator
+    could find relevant headers for. Simply add your include pathes here.
     
-    Note that in Generic Project mode, Qt Creator will refrain from touching any
-    project settings, so the above is merely a hint for the code completion and
-    the syntax highlighter.
+    In \guiGeneric Project} mode, Qt Creator will not modify any project
+    settings, so the above is merely a hint for code completion and syntax
+    highlighting.
 */
 
 
