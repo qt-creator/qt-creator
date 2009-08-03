@@ -2440,7 +2440,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
                 int boxWidth = collapseBoxWidth(fm);
                 if (hovered) {
-                    QRect box = QRect(extraAreaWidth + 1, top, boxWidth - 2, fmLineSpacing + 2);
+                    QRect box = QRect(extraAreaWidth + 1, top, boxWidth - 2, bottom - top);
                     drawRectBox(&painter, box, drawStart, drawEnd, pal);
                 }
 
