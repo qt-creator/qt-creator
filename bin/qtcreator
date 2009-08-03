@@ -1,6 +1,6 @@
 #!/bin/sh
 
-function makeAbsolute() {
+makeAbsolute() {
     case "$1" in
 	/*)
 	    # already absolute, return it
