@@ -1507,7 +1507,7 @@ Click here to continue where you left creator last time", or something similar p
     \title Handling External Libraries
 
     The ability to recognize external libraries is not only important for the
-    underlying buidl system, but also for Qt Creator itself. This ability
+    underlying build system, but also for Qt Creator itself. This ability
     allows Qt Creator to support code completion and syntax highlighting for
     external libraries as if they were part of the current project or the Qt
     library.
