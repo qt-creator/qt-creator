@@ -29,6 +29,7 @@
 
 #include "trkutils.h"
 
+#include <QtCore/QPointer>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QQueue>
 #include <QtCore/QTimer>
@@ -239,11 +240,12 @@ private:
     void sendGdbMessage(const QByteArray &msg, const QByteArray &logNote = QByteArray());
     void sendGdbMessageAfterSync(const QByteArray &msg, const QByteArray &logNote = QByteArray());
     void sendGdbAckMessage();
+    bool sendGdbPacket(const QByteArray &packet, bool doFlush);
 
     void logMessage(const QString &msg, bool force = false);
 
     QTcpServer m_gdbServer;
-    QTcpSocket *m_gdbConnection;
+    QPointer<QTcpSocket> m_gdbConnection;
     QString m_gdbServerName;
     quint16 m_gdbServerPort;
     QByteArray m_gdbReadBuffer;
@@ -425,14 +427,28 @@ void Adapter::readFromGdb()
     }
 }
 
+bool Adapter::sendGdbPacket(const QByteArray &packet, bool doFlush)
+{
+    if (!m_gdbConnection || m_gdbConnection->state() != QAbstractSocket::ConnectedState) {
+        logMessage(QString::fromLatin1("Cannot write to gdb: Not connected (%1)").arg(QString::fromLatin1(packet)), true);
+        return false;
+    }
+    if (m_gdbConnection->write(packet) == -1) {
+        logMessage(QString::fromLatin1("Cannot write to gdb: %1 (%2)").arg(m_gdbConnection->errorString()).arg(QString::fromLatin1(packet)), true);
+        return false;
+    }
+    if (doFlush)
+        m_gdbConnection->flush();
+    return true;
+}
+
 void Adapter::sendGdbAckMessage()
 {
     if (!m_gdbAckMode)
         return;
     QByteArray packet = "+";
     logMessage("gdb: <- " + packet);
-    m_gdbConnection->write(packet);
-    //m_gdbConnection->flush();
+    sendGdbPacket(packet, false);
 }
 
 void Adapter::sendGdbMessage(const QByteArray &msg, const QByteArray &logNote)
@@ -453,10 +469,8 @@ void Adapter::sendGdbMessage(const QByteArray &msg, const QByteArray &logNote)
     packet.append(checkSum);
     int pad = qMax(0, 24 - packet.size());
     logMessage("gdb: <- " + packet + QByteArray(pad, ' ') + logNote);
-    m_gdbConnection->write(packet);
-    m_gdbConnection->flush();
+    sendGdbPacket(packet, true);
 }
-
 
 void Adapter::sendGdbMessageAfterSync(const QByteArray &msg, const QByteArray &logNote)
 {
@@ -532,7 +546,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     else if (response.startsWith("D")) {
         sendGdbAckMessage();
         sendGdbMessage("OK", "shutting down");
-        qApp->exit(1);
+        qApp->quit();
     }
 
     else if (response == "g") {
