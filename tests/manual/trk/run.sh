@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ADAPTER_OPTIONS=""
+ADAPTER_OPTIONS="-s"
 TRKSERVEROPTIONS=""
 DUMP_POSTFIX='-BigEndian.bin'
 ENDIANESS='big'

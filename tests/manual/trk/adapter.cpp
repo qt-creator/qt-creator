@@ -39,7 +39,7 @@
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
 
-#if USE_NATIVE
+#ifdef Q_OS_WIN
 #include <windows.h>
 
 // Non-blocking replacement for win-api ReadFile function
@@ -60,6 +60,25 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
                     lpNumberOfBytesRead,
                     lpOverlapped);
 }
+
+// Format windows error from GetLastError() value.
+QString winErrorMessage(unsigned long error)
+{
+    QString rc = QString::fromLatin1("#%1: ").arg(error);
+    ushort *lpMsgBuf;
+
+    const int len = FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, error, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
+    if (len) {
+        rc = QString::fromUtf16(lpMsgBuf, len);
+        LocalFree(lpMsgBuf);
+    } else {
+        rc += QString::fromLatin1("<unknown error>");
+    }
+    return rc;
+}
+
 #endif
 
 #ifdef Q_OS_UNIX
@@ -105,10 +124,11 @@ static inline void dumpRegister(int n, uint value, QByteArray &a)
 }
 
 struct AdapterOptions {
-    AdapterOptions() : verbose(1),registerEndianness(BigEndian) {}
+    AdapterOptions() : verbose(1),registerEndianness(BigEndian),useSocket(false) {}
 
     int verbose;
     Endianness registerEndianness;
+    bool useSocket;
     QString gdbServer;
     QString trkServer;
 };
@@ -126,6 +146,7 @@ public:
     void setTrkServerName(const QString &name) { m_trkServerName = name; }
     void setVerbose(int verbose) { m_verbose = verbose; }
     void setRegisterEndianness(Endianness r) { m_registerEndianness = r; }
+    void setUseSocket(bool s) { m_useSocket = s; }
     bool startServer();
 
 private:
@@ -147,7 +168,7 @@ private:
         bool invokeOnFailure;
     };
 
-    bool openTrkPort(const QString &port); // or server name for local server
+    bool openTrkPort(const QString &port, QString *errorMessage); // or server name for local server
     void sendTrkMessage(byte code,
         TrkCallBack calBack = 0,
         const QByteArray &data = QByteArray(),
@@ -193,11 +214,10 @@ private:
     void startInferiorIfNeeded();
     void interruptInferior();
 
-#if USE_NATIVE
-    HANDLE m_hdevice;
-#else
-     QLocalSocket *m_trkDevice;
+#ifdef Q_OS_WIN
+    HANDLE m_winComDevice;
 #endif
+     QLocalSocket *m_socketDevice;
 
     QString m_trkServerName;
     QByteArray m_trkReadBuffer;
@@ -234,42 +254,40 @@ private:
     Snapshot m_snapshot; // local-ish data (memory and registers)
     int m_verbose;
     Endianness m_registerEndianness;
+    bool m_useSocket;
 };
 
 Adapter::Adapter() :
-    m_registerEndianness(BigEndian)
-{
-    // Trk
-#if USE_NATIVE
-    m_hdevice = NULL;
-#else
-    m_trkDevice = 0;
+#ifdef Q_OS_WIN
+    m_winComDevice(NULL),
 #endif
-    m_trkWriteToken = 0;
-    m_trkWriteBusy = false;
-    //m_breakpoints.append(Breakpoint(0x0370));
-    //m_breakpoints.append(Breakpoint(0x0340));
-    //m_breakpoints.append(Breakpoint(0x0040)); // E32Main
+    m_socketDevice(0),
+    m_trkWriteToken(0),
+    m_trkWriteBusy(false),
+    m_gdbConnection(0),
+    m_gdbServerPort(0),
+    m_gdbAckMode(true),
+    m_verbose(1),
+    m_registerEndianness(BigEndian),
+    m_useSocket(false)
+{
     startTimer(100);
-
-    // Gdb
-    m_gdbConnection = 0;
-    m_gdbAckMode = true;
 }
 
 Adapter::~Adapter()
 {
     // Trk
-#if USE_NATIVE
-    CloseHandle(m_hdevice);
-#else
-    m_trkDevice->abort();
-    delete m_trkDevice;
+#ifdef Q_OS_WIN
+    if (m_winComDevice)
+        CloseHandle(m_winComDevice);
 #endif
+    if (m_socketDevice) {
+        m_socketDevice->abort();
+        delete m_socketDevice;
+    }
 
     // Gdb
     m_gdbServer.close();
-    //>disconnectFromServer();
     logMessage("Shutting down.\n", true);
 }
 
@@ -287,8 +305,9 @@ void Adapter::setGdbServerName(const QString &name)
 
 bool Adapter::startServer()
 {
-    if (!openTrkPort(m_trkServerName)) {
-        logMessage("Unable to connect to TRK server " + m_trkServerName + " " +m_trkDevice->errorString(), true);
+    QString errorMessage;
+    if (!openTrkPort(m_trkServerName, &errorMessage)) {
+        logMessage(errorMessage, true);
         return false;
     }
 
@@ -743,10 +762,18 @@ void Adapter::readFromTrk()
     //logMessage("Read from gdb: " + ba);
 }
 
-bool Adapter::openTrkPort(const QString &port)
+bool Adapter::openTrkPort(const QString &port, QString *errorMessage)
 {
-#if USE_NATIVE
-    m_hdevice = CreateFile(port.toStdWString().c_str(),
+    if (m_useSocket) {
+        m_socketDevice = new QLocalSocket(this);
+        m_socketDevice->connectToServer(port);
+        const bool rc = m_socketDevice->waitForConnected();
+        if (!rc)
+            *errorMessage = "Unable to connect to TRK server " + m_trkServerName + ' ' + m_socketDevice->errorString();
+        return rc;
+    }
+#ifdef Q_OS_WIN
+    m_winComDevice = CreateFile(port.toStdWString().c_str(),
                            GENERIC_READ | GENERIC_WRITE,
                            0,
                            NULL,
@@ -754,32 +781,31 @@ bool Adapter::openTrkPort(const QString &port)
                            FILE_ATTRIBUTE_NORMAL,
                            NULL);
 
-    if (INVALID_HANDLE_VALUE == m_hdevice){
-        logMessage("Could not open device " + port);
+    if (INVALID_HANDLE_VALUE == m_winComDevice){
+        *errorMessage = "Could not open device " + port + ' ' + winErrorMessage(GetLastError());
         return false;
      }
     return true;
 #else
-#if 0
-    m_trkDevice = new Win_QextSerialPort(port);
-    m_trkDevice->setBaudRate(BAUD115200);
-    m_trkDevice->setDataBits(DATA_8);
-    m_trkDevice->setParity(PAR_NONE);
-    //m_trkDevice->setStopBits(STO);
-    m_trkDevice->setFlowControl(FLOW_OFF);
-    m_trkDevice->setTimeout(0, 500);
+    logMessage("Not implemented", true);
+    return false;
+#endif
 
-    if (!m_trkDevice->open(QIODevice::ReadWrite)) {
-        QByteArray ba = m_trkDevice->errorString().toLatin1();
+#if 0
+    m_socketDevice = new Win_QextSerialPort(port);
+    m_socketDevice->setBaudRate(BAUD115200);
+    m_socketDevice->setDataBits(DATA_8);
+    m_socketDevice->setParity(PAR_NONE);
+    //m_socketDevice->setStopBits(STO);
+    m_socketDevice->setFlowControl(FLOW_OFF);
+    m_socketDevice->setTimeout(0, 500);
+
+    if (!m_socketDevice->open(QIODevice::ReadWrite)) {
+        QByteArray ba = m_socketDevice->errorString().toLatin1();
         logMessage("Could not open device " << ba);
         return false;
     }
     return true
-#else
-    m_trkDevice = new QLocalSocket(this);
-    m_trkDevice->connectToServer(port);
-    return m_trkDevice->waitForConnected();
-#endif
 #endif
 }
 
@@ -880,45 +906,43 @@ void Adapter::trkWrite(const TrkMessage &msg)
     if (m_verbose > 1)
         logMessage("WRITE: " + stringFromArray(ba));
 
-#if USE_NATIVE
-    DWORD charsWritten;
-    if (!WriteFile(m_hdevice, ba.data(), ba.size(), &charsWritten, NULL))
-        logMessage("WRITE ERROR: ");
-
-    FlushFileBuffers(m_hdevice);
-#else
-    if (!m_trkDevice->write(ba))
-        logMessage("WRITE ERROR: " + m_trkDevice->errorString());
-    m_trkDevice->flush();
-
+    if (m_useSocket) {
+        if (!m_socketDevice->write(ba))
+            logMessage("WRITE ERROR: " + m_socketDevice->errorString());
+        m_socketDevice->flush();
+    } else {
+#ifdef Q_OS_WIN
+        DWORD charsWritten;
+        if (!WriteFile(m_winComDevice, ba.data(), ba.size(), &charsWritten, NULL))
+            logMessage("WRITE ERROR: " + winErrorMessage(GetLastError()));
+        FlushFileBuffers(m_winComDevice);
 #endif
+    }
 }
 
 void Adapter::tryTrkRead()
 {
-    //logMessage("TRY READ: " << m_trkDevice->bytesAvailable()
+    //logMessage("TRY READ: " << m_socketDevice->bytesAvailable()
     //        << stringFromArray(m_trkReadQueue);
+    if (m_useSocket) {
+        if (m_socketDevice->bytesAvailable() == 0 && m_trkReadQueue.isEmpty())
+            return;
 
-#if USE_NATIVE
-    const DWORD BUFFERSIZE = 1024;
-    char buffer[BUFFERSIZE];
-    DWORD charsRead;
+        QByteArray res = m_socketDevice->readAll();
+        m_trkReadQueue.append(res);
+    } else {
+#ifdef Q_OS_WIN    
+        const DWORD BUFFERSIZE = 1024;
+        char buffer[BUFFERSIZE];
+        DWORD charsRead;
 
-    while (TryReadFile(m_hdevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
-        m_trkReadQueue.append(buffer, charsRead);
-        if (isValidTrkResult(m_trkReadQueue))
-            break;
-    }
-#else // USE_NATIVE
-
-    if (m_trkDevice->bytesAvailable() == 0 && m_trkReadQueue.isEmpty())
-        return;
-
-    QByteArray res = m_trkDevice->readAll();
-    m_trkReadQueue.append(res);
-
-
+        while (TryReadFile(m_winComDevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
+            m_trkReadQueue.append(buffer, charsRead);
+            if (isValidTrkResult(m_trkReadQueue))
+                break;
+        }
 #endif // USE_NATIVE
+    }
 
     if (m_trkReadQueue.size() < 9) {
         logMessage("ERROR READBUFFER INVALID (1): "
@@ -1469,6 +1493,8 @@ static bool readAdapterArgs(const QStringList &args, AdapterOptions *o)
                 o->verbose = 0;
             } else if (*it == QLatin1String("-l")) {
                 o->registerEndianness = LittleEndian;
+            } else if (*it == QLatin1String("-s")) {
+                o->useSocket = true;
             }
         } else {
             switch (argNumber++) {
@@ -1494,9 +1520,10 @@ int main(int argc, char *argv[])
     AdapterOptions options;
 
     if (!readAdapterArgs(app.arguments(), &options)) {
-        qDebug("Usage: %s [-v|-q] [-l] <trkservername> <gdbserverport>\n"
+        qDebug("Usage: %s [-v|-q] [-s][-l] <trk com/trkservername> <gdbserverport>\n"
                "Options: -v verbose\n"
                "         -q quiet\n"
+               "         -s Use socket (simulation)\n"
                "         -l Set register endianness to little\n", argv[0]);
         return 1;
     }
@@ -1506,6 +1533,7 @@ int main(int argc, char *argv[])
     adapter.setGdbServerName(options.gdbServer);
     adapter.setVerbose(options.verbose);
     adapter.setRegisterEndianness(options.registerEndianness);
+    adapter.setUseSocket(options.useSocket);
     if (adapter.startServer())
         return app.exec();
     return 4;
