@@ -1006,6 +1006,10 @@
     session.
 
     \image qtcreator-session-menu.png
+    ##########
+<eike> kavindra: with a welcome screen screenshot with a nice fat red arrow
+pointing vigoriously on the "Resume session, ... (last session)" entry, saying
+Click here to continue where you left creator last time", or something similar preferably :)
 */
 
 
@@ -1443,52 +1447,54 @@
     \title Support for Generic Projects in Qt Creator
 
     Since Qt Creator 1.1, generic projects are supported, in addition to
-    \c qmake projects. In other words, you can import existing projects that
-    do not use \c qmake or \c CMake and Qt Creator will simply ignore your
-    build system.
+    \c qmake projects. In other words, you can import existing projects that do
+    not use \c qmake or \c CMake and Qt Creator will simply ignore your build
+    system.
 
     This feature lets you use Qt Creator as a code editor. You can change the
     way your project is built by modifying the \c make command on the
     \gui{Project Settings} page.
 
-    Since Qt Creator has no way of knowing which files belong to your project,
-    or which include directories and defines you're passing to your compiler,
-    the generic project allows you to specify this information manually.
+    For a generic project, you have to manually specify which files belong to
+    your project and which include directories/defines you want to pass to your
+    compiler.
 
-    \section1 Specifying which files belong to your project
 
-    The list of files belonging to a generic project is specified in the
-    \c{.files} file. Qt Creator adds any files that it recognizes when you
-    first create the generic project. If you want to add additional files, or
-    need to add/remove files later, edit the .files file in Qt Creator. Your
-    project tree will be refreshed on saving this file.
+    \section2 Specifying Files
 
-    If you frequently need to update this file, for example after updating
-    from a source control system, you may want to write a small script that
-    updates the file for you. At the moment Qt Creator needs to be restarted
-    when the file is modified externally, in order to pick up the changes.
+    The list of files for a generic project is specified in the \c{.files}
+    file. When you first create a generic project, Qt Creator will add any
+    files it recognizes to your project. To add or remove files later, simply
+    edit the \c{.files} file in Qt Creator. Your project tree will be refreshed
+    when you save this file.
 
-    \section1 Specifying the include paths
+    If you frequently need to update the \c{.files} file, we recommend the use
+    of a small script that will update the files for you. Currently, if the
+    file is modified externally, Qt Creator must be restarted for the changes
+    to take effect.
+
+
+    \section2 Specifying Include Paths
 
     The include paths are specified in the \c{.includes} file.
 
-    \section1 Specifying the defines
+    \section2 Specifying Defines
 
-    The defines are specified in the \c{.config} file. This is basically a
-    regular C++ file that is prepended to all your source files when they are
-    being parsed, but you should generally only use it to add lines like the
-    following:
+    The defines are specified in the \c{.config} file. This file is a regular
+    C++ file, prepended to all your source files when they are being parsed.
+    However, you should only use it to add lines like the following:
 
+    \code
     #define NAME value
+    \endcode
 
-    \section1 Creating a run configuration
+    \section2 Creating a Run Configuration
 
-    Qt Creator can't automatically determine which executable it should run.
-    Hence, set up a custom executable run configuration in the Projects mode,
-    using the + button. Specify the name, executable, optionally some
-    arguments. The working directory is $BUILDDIR by default, which should
-    generally work fine.
-
+    Qt Creator cannot automatically determine which executable it should run.
+    To set up a custom executable run configuration in the \gui Projects mode,
+    use the \bold{+} button. Here you can specify the name, executable, and
+    some optional arguments. By default, the working directory is
+    \c{$BUILDDIR} which should work fine.
 */
 
 
