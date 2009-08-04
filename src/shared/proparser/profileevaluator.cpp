@@ -36,7 +36,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
-#include <QtCore/QLibraryInfo>
 #include <QtCore/QList>
 #include <QtCore/QRegExp>
 #include <QtCore/QSet>
@@ -1255,38 +1254,11 @@ QString ProFileEvaluator::Private::propertyValue(const QString &name) const
 {
     if (m_properties.contains(name))
         return m_properties.value(name);
-    if (name == QLatin1String("QT_INSTALL_PREFIX"))
-        return QLibraryInfo::location(QLibraryInfo::PrefixPath);
-    if (name == QLatin1String("QT_INSTALL_DATA"))
-        return QLibraryInfo::location(QLibraryInfo::DataPath);
-    if (name == QLatin1String("QT_INSTALL_DOCS"))
-        return QLibraryInfo::location(QLibraryInfo::DocumentationPath);
-    if (name == QLatin1String("QT_INSTALL_HEADERS"))
-        return QLibraryInfo::location(QLibraryInfo::HeadersPath);
-    if (name == QLatin1String("QT_INSTALL_LIBS"))
-        return QLibraryInfo::location(QLibraryInfo::LibrariesPath);
-    if (name == QLatin1String("QT_INSTALL_BINS"))
-        return QLibraryInfo::location(QLibraryInfo::BinariesPath);
-    if (name == QLatin1String("QT_INSTALL_PLUGINS"))
-        return QLibraryInfo::location(QLibraryInfo::PluginsPath);
-    if (name == QLatin1String("QT_INSTALL_TRANSLATIONS"))
-        return QLibraryInfo::location(QLibraryInfo::TranslationsPath);
-    if (name == QLatin1String("QT_INSTALL_CONFIGURATION"))
-        return QLibraryInfo::location(QLibraryInfo::SettingsPath);
-    if (name == QLatin1String("QT_INSTALL_EXAMPLES"))
-        return QLibraryInfo::location(QLibraryInfo::ExamplesPath);
-    if (name == QLatin1String("QT_INSTALL_DEMOS"))
-        return QLibraryInfo::location(QLibraryInfo::DemosPath);
     if (name == QLatin1String("QMAKE_MKSPECS"))
         return qmakeMkspecPaths().join(m_option->dirlist_sep);
     if (name == QLatin1String("QMAKE_VERSION"))
         return QLatin1String("1.0");        //### FIXME
-        //return qmake_version();
-#ifdef QT_VERSION_STR
-    if (name == QLatin1String("QT_VERSION"))
-        return QLatin1String(QT_VERSION_STR);
-#endif
-    return QLatin1String("UNKNOWN");        //###
+    return QString();
 }
 
 ProFile *ProFileEvaluator::Private::currentProFile() const
