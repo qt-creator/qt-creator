@@ -197,6 +197,7 @@ public Q_SLOTS:
     void setSortedMethodOverview(bool sort);
     void switchDeclarationDefinition();
     void jumpToDefinition();
+    void renameSymbolUnderCursor();
 
     void moveToPreviousToken();
     void moveToNextToken();
@@ -228,7 +229,6 @@ private Q_SLOTS:
     void updateUsesNow();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
     void reformatDocument();
-    void renameInPlace();
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
 
     void semanticRehighlight();

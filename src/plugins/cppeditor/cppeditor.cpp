@@ -543,9 +543,6 @@ CPPEditor::CPPEditor(QWidget *parent)
     setCodeFoldingVisible(true);
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 
-    new QShortcut(QKeySequence(tr("CTRL+SHIFT+r")), this, SLOT(renameInPlace()),
-                  /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
-
 #ifdef WITH_TOKEN_MOVE_POSITION
     new QShortcut(QKeySequence::MoveToPreviousWord, this, SLOT(moveToPreviousToken()),
                   /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
@@ -829,7 +826,7 @@ void CPPEditor::reformatDocument()
     c.insertText(QString::fromUtf8(str.c_str(), str.length()));
 }
 
-void CPPEditor::renameInPlace()
+void CPPEditor::renameSymbolUnderCursor()
 {
     updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
@@ -1331,8 +1328,8 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     if (lastAction->menu() && QLatin1String(lastAction->menu()->metaObject()->className()) == QLatin1String("QUnicodeControlCharacterMenu"))
         menu->removeAction(lastAction);
 
-    Core::ActionContainer *mcontext =
-        Core::ICore::instance()->actionManager()->actionContainer(CppEditor::Constants::M_CONTEXT);
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionContainer *mcontext = am->actionContainer(CppEditor::Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
     foreach (QAction *action, contextMenu->actions())
@@ -1340,13 +1337,6 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
 
     const QList<QTextEdit::ExtraSelection> selections =
             extraSelections(BaseTextEditor::CodeSemanticsSelection);
-
-    if (! selections.isEmpty()) {
-        const QString name = selections.first().cursor.selectedText();
-        QAction *renameAction = new QAction(tr("Rename '%1'").arg(name), menu);
-        connect(renameAction, SIGNAL(triggered()), this, SLOT(renameInPlace()));
-        menu->addAction(renameAction);
-    }
 
     menu->exec(e->globalPos());
     delete menu;

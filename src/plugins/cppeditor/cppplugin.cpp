@@ -212,6 +212,14 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
+    QAction *renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol under Cursor"), this);
+    cmd = am->registerAction(renameSymbolUnderCursorAction,
+        Constants::RENAME_SYMBOL_UNDER_CURSOR, context);
+    cmd->setDefaultKeySequence(QKeySequence("CTRL+SHIFT+R"));
+    connect(renameSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(renameSymbolUnderCursor()));
+    am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
+    am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
+
     m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
@@ -263,6 +271,14 @@ void CppPlugin::jumpToDefinition()
     CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
     if (editor)
         editor->jumpToDefinition();
+}
+
+void CppPlugin::renameSymbolUnderCursor()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
+    if (editor)
+        editor->renameSymbolUnderCursor();
 }
 
 Q_EXPORT_PLUGIN(CppPlugin)
