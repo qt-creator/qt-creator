@@ -475,8 +475,6 @@
     default. This is because navigation is only enabled when there is more than
     one contact in the address book.
 
-    \snippet examples/addressbook-sdk/part3/addressbook.cpp extract objects
-
     Next, we connect the buttons to their respective slots:
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp signal slot
@@ -776,7 +774,7 @@
     public, classes instantiating and using \c FindDialog can always access the
     search string that the user has entered and accepted.
 
-    \snippet examples/addressbook-sdk/part5/finddialog.cpp getFindText
+    \snippet examples/addressbook-sdk/part5/finddialog.cpp findText
 
 
     \section1 The AddressBook Class
@@ -791,23 +789,13 @@
     \c findButton and \c findContact().
 
     \snippet examples/addressbook-sdk/part5/addressbook.h slot definition
-    \dots
-    \snippet examples/addressbook-sdk/part5/addressbook.h private members
-
-    Lastly, we declare the private variable, \c dialog, which we will use to
-    refer to an instance of \c FindDialog.
 
     Once we have instantiated a dialog, we might want to use it more than once;
     using a private variable allows us to refer to it from more than one place
     in the class.
 
-    Within the \c AddressBook class's constructor, we insantiate our private
-    objects, \c findButton and \c dialog:
-
-    \snippet examples/addressbook-sdk/part5/addressbook.cpp private members
-
-    Next, we connect the \c{findButton}'s \l{QPushButton::}{clicked()} signal
-    to \c findContact().
+    Within the \c AddressBook class's constructor, we connect the
+    \c{findButton}'s \l{QPushButton::}{clicked()} signal to \c findContact().
 
     \snippet examples/addressbook-sdk/part5/addressbook.cpp signal slot
 
