@@ -52,23 +52,21 @@ void ProFileReader::setQtVersion(QtVersion *qtVersion) {
 bool ProFileReader::readProFile(const QString &fileName)
 {
     //disable caching -> list of include files is not updated otherwise
-    QString fn = QFileInfo(fileName).filePath();
-    ProFile *pro = new ProFile(fn);
+    ProFile *pro = new ProFile(fileName);
     if (!queryProFile(pro)) {
         delete pro;
         return false;
     }
-    m_includeFiles.insert(fn, pro);
+    m_includeFiles.insert(fileName, pro);
     m_proFiles.append(pro);
     return accept(pro);
 }
 
 ProFile *ProFileReader::parsedProFile(const QString &fileName)
 {
-    QString fn =  QFileInfo(fileName).filePath();
-    ProFile *pro = ProFileEvaluator::parsedProFile(fn);
+    ProFile *pro = ProFileEvaluator::parsedProFile(fileName);
     if (pro) {
-        m_includeFiles.insert(fn, pro);
+        m_includeFiles.insert(fileName, pro);
         m_proFiles.append(pro);
     }
     return pro;
