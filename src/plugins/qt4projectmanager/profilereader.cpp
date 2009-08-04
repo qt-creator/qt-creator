@@ -46,10 +46,6 @@ ProFileReader::~ProFileReader()
 }
 
 void ProFileReader::setQtVersion(QtVersion *qtVersion) {
-    QHash<QString, QStringList> additionalVariables;
-    additionalVariables.insert(QString("QT_BUILD_TREE"), QStringList() << qtVersion->path());
-    additionalVariables.insert(QString("QT_SOURCE_TREE"), QStringList() << qtVersion->sourcePath());
-    addVariables(additionalVariables);
     addProperties(qtVersion->versionInfo());
     // ### TODO override QT_VERSION property
 }

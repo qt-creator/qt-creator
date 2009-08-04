@@ -69,13 +69,19 @@ public:
         QString dir_sep;
         QString dirlist_sep;
         QString qmakespec;
+        QString cachefile;
 
         enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
         TARG_MODE target_mode;
         //QString pro_ext;
         //QString res_ext;
 
+      private:
+        friend class ProFileEvaluator;
         static QString field_sep; // Just a cache for quick construction
+        QHash<QString, QStringList> cache_valuemap; // Cached results of .qmake.cache
+        QHash<QString, QStringList> base_valuemap; // ~ and qmake.conf and default_pre.prf
+        QStringList feature_roots;
     };
 
     enum TemplateType {
@@ -104,7 +110,6 @@ public:
     bool queryProFile(ProFile *pro, const QString &content); // the same as above but the content is read from "content" string, not from filesystem
     bool accept(ProFile *pro);
 
-    void addVariables(const QHash<QString, QStringList> &variables);
     void addProperties(const QHash<QString, QString> &properties);
     QStringList values(const QString &variableName) const;
     QStringList values(const QString &variableName, const ProFile *pro) const;

@@ -185,7 +185,8 @@ public:
 
     ProItem::ProItemReturn evaluateConditionalFunction(const QString &function, const QString &arguments);
     bool evaluateFile(const QString &fileName);
-    bool evaluateFeatureFile(const QString &fileName);
+    bool evaluateFeatureFile(const QString &fileName, QHash<QString, QStringList> *values = 0);
+    bool evaluateFileInto(const QString &fileName, QHash<QString, QStringList> *values);
 
     static inline ProItem::ProItemReturn returnBool(bool b)
         { return b ? ProItem::ReturnTrue : ProItem::ReturnFalse; }
@@ -977,14 +978,93 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
         // include(file) or load(file)
 
         if (m_parsePreAndPostFiles) {
-            const QString mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
-            if (!mkspecDirectory.isEmpty()) {
-                bool cumulative = m_cumulative;
-                m_cumulative = false;
-                evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"));
-                m_cumulative = cumulative;
+
+            if (m_option->base_valuemap.isEmpty()) {
+                // ### init QMAKE_QMAKE, QMAKE_SH
+                // ### init QMAKE_EXT_{C,H,CPP,OBJ}
+                // ### init TEMPLATE_PREFIX
+
+                QString qmake_cache = m_option->cachefile;
+                if (qmake_cache.isEmpty() && !m_outputDir.isEmpty())  { //find it as it has not been specified
+                    QDir dir(m_outputDir);
+                    forever {
+                        qmake_cache = dir.filePath(QLatin1String(".qmake.cache"));
+                        if (QFile::exists(qmake_cache))
+                            break;
+                        dir.cdUp();
+                        if (dir.isRoot()) {
+                            qmake_cache.clear();
+                            break;
+                        }
+                    }
+                }
+                if (!qmake_cache.isEmpty()) {
+                    qmake_cache = QDir::cleanPath(qmake_cache);
+                    if (evaluateFileInto(qmake_cache, &m_option->cache_valuemap)) {
+                        m_option->cachefile = qmake_cache;
+                        if (m_option->qmakespec.isEmpty()) {
+                            const QStringList &vals = m_option->cache_valuemap.value(QLatin1String("QMAKESPEC"));
+                            if (!vals.isEmpty())
+                                m_option->qmakespec = vals.first();
+                        }
+                    }
+                }
+
+                QStringList mkspec_roots = qmakeMkspecPaths();
+
+                QString qmakespec = expandEnvVars(m_option->qmakespec);
+                if (qmakespec.isEmpty()) {
+                    foreach (const QString &root, mkspec_roots) {
+                        QString mkspec = root + QLatin1String("/default");
+                        QFileInfo default_info(mkspec);
+                        if (default_info.exists() && default_info.isDir()) {
+                            qmakespec = mkspec;
+                            break;
+                        }
+                    }
+                    if (qmakespec.isEmpty()) {
+                        q->errorMessage(format("Could not find qmake configuration directory"));
+                        // Unlike in qmake, not finding the spec is not critical ...
+                    }
+                }
+
+                if (QDir::isRelativePath(qmakespec)) {
+                    if (QFile::exists(qmakespec + QLatin1String("/qmake.conf"))) {
+                        qmakespec = QFileInfo(qmakespec).absoluteFilePath();
+                    } else if (!m_outputDir.isEmpty()
+                               && QFile::exists(m_outputDir + QLatin1Char('/') + qmakespec
+                                                + QLatin1String("/qmake.conf"))) {
+                        qmakespec = m_outputDir + QLatin1Char('/') + qmakespec;
+                    } else {
+                        foreach (const QString &root, mkspec_roots) {
+                            QString mkspec = root + QLatin1Char('/') + qmakespec;
+                            if (QFile::exists(mkspec)) {
+                                qmakespec = mkspec;
+                                goto cool;
+                            }
+                        }
+                        q->errorMessage(format("Could not find qmake configuration file"));
+                        // Unlike in qmake, a missing config is not critical ...
+                        qmakespec.clear();
+                      cool: ;
+                    }
+                }
+
+                if (!qmakespec.isEmpty()) {
+                    m_option->qmakespec = QDir::cleanPath(qmakespec);
+
+                    QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
+                    if (!evaluateFileInto(spec, &m_option->base_valuemap)) {
+                        q->errorMessage(format("Could not read qmake configuration file %1").arg(spec));
+                    } else {
+                        updateHash(&m_option->base_valuemap, m_option->cache_valuemap);
+                    }
+                }
+
+                evaluateFeatureFile(QLatin1String("default_pre.prf"), &m_option->base_valuemap);
             }
-            evaluateFeatureFile(QLatin1String("default_pre.prf"));
+
+            m_valuemap = m_option->base_valuemap;
 
             QStringList &tgt = m_valuemap[QLatin1String("TARGET")];
             if (tgt.isEmpty())
@@ -1073,15 +1153,14 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFunction(ProFunction *
 QStringList ProFileEvaluator::Private::qmakeMkspecPaths() const
 {
     QStringList ret;
-    const QString concat = QDir::separator() + QString(QLatin1String("mkspecs"));
+    const QString concat = QLatin1String("/mkspecs");
+
     QByteArray qmakepath = qgetenv("QMAKEPATH");
-    if (!qmakepath.isEmpty()) {
-        const QStringList lst = QString::fromLocal8Bit(qmakepath)
-                .split(m_option->dirlist_sep);
-        for (QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it)
-            ret << ((*it) + concat);
-    }
-    ret << QLibraryInfo::location(QLibraryInfo::DataPath) + concat;
+    if (!qmakepath.isEmpty())
+        foreach (const QString &it, QString::fromLocal8Bit(qmakepath).split(m_option->dirlist_sep))
+            ret << QDir::cleanPath(it) + concat;
+
+    ret << propertyValue(QLatin1String("QT_INSTALL_DATA")) + concat;
 
     return ret;
 }
@@ -1117,50 +1196,58 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
     QStringList feature_roots;
 
     QByteArray mkspec_path = qgetenv("QMAKEFEATURES");
-    if (!mkspec_path.isNull())
-        feature_roots += QString::fromLocal8Bit(mkspec_path).split(m_option->dirlist_sep);
-    /*
-    if (prop)
-        feature_roots += prop->value("QMAKEFEATURES").split(m_option->dirlist_sep);
-    if (!m_option->mkfile::cachefile.isEmpty()) {
+    if (!mkspec_path.isEmpty())
+        foreach (const QString &f, QString::fromLocal8Bit(mkspec_path).split(m_option->dirlist_sep))
+            feature_roots += QDir::cleanPath(f);
+
+    feature_roots += propertyValue(QLatin1String("QMAKEFEATURES")).split(
+            m_option->dirlist_sep, QString::SkipEmptyParts);
+
+    if (!m_option->cachefile.isEmpty()) {
         QString path;
-        int last_slash = m_option->mkfile::cachefile.lastIndexOf(m_option->dir_sep);
+        int last_slash = m_option->cachefile.lastIndexOf((ushort)'/');
         if (last_slash != -1)
-            path = fixPathToLocalOS(m_option->mkfile::cachefile.left(last_slash));
+            path = m_option->cachefile.left(last_slash);
         foreach (const QString &concat_it, concat)
             feature_roots << (path + concat_it);
     }
-    */
 
     QByteArray qmakepath = qgetenv("QMAKEPATH");
     if (!qmakepath.isNull()) {
         const QStringList lst = QString::fromLocal8Bit(qmakepath).split(m_option->dirlist_sep);
         foreach (const QString &item, lst) {
+            QString citem = QDir::cleanPath(item);
             foreach (const QString &concat_it, concat)
-                feature_roots << (item + mkspecs_concat + concat_it);
+                feature_roots << (citem + mkspecs_concat + concat_it);
         }
     }
-    //if (!m_option->mkfile::qmakespec.isEmpty())
-    //    feature_roots << m_option->mkfile::qmakespec + QDir::separator() + "features";
-    //if (!m_option->mkfile::qmakespec.isEmpty()) {
-    //    QFileInfo specfi(m_option->mkfile::qmakespec);
-    //    QDir specdir(specfi.absoluteFilePath());
-    //    while (!specdir.isRoot()) {
-    //        if (!specdir.cdUp() || specdir.isRoot())
-    //            break;
-    //        if (QFile::exists(specdir.path() + QDir::separator() + "features")) {
-    //            foreach (const QString &concat_it, concat) 
-    //                feature_roots << (specdir.path() + concat_it);
-    //            break;
-    //        }
-    //    }
-    //}
+
+    if (!m_option->qmakespec.isEmpty()) {
+        feature_roots << (m_option->qmakespec + features_concat);
+
+        QDir specdir(m_option->qmakespec);
+        while (!specdir.isRoot()) {
+            if (!specdir.cdUp() || specdir.isRoot())
+                break;
+            if (QFile::exists(specdir.path() + features_concat)) {
+                foreach (const QString &concat_it, concat)
+                    feature_roots << (specdir.path() + concat_it);
+                break;
+            }
+        }
+    }
+
     foreach (const QString &concat_it, concat)
         feature_roots << (propertyValue(QLatin1String("QT_INSTALL_PREFIX")) +
                           mkspecs_concat + concat_it);
     foreach (const QString &concat_it, concat)
         feature_roots << (propertyValue(QLatin1String("QT_INSTALL_DATA")) +
                           mkspecs_concat + concat_it);
+
+    for (int i = 0; i < feature_roots.count(); ++i)
+        if (!feature_roots.at(i).endsWith((ushort)'/'))
+            feature_roots[i].append((ushort)'/');
+
     return feature_roots;
 }
 
@@ -2589,22 +2676,67 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
     }
 }
 
-bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
+bool ProFileEvaluator::Private::evaluateFeatureFile(
+        const QString &fileName, QHash<QString, QStringList> *values)
 {
-    QString fn = QLatin1Char('/') + fileName;
+    QString fn = fileName;
     if (!fn.endsWith(QLatin1String(".prf")))
         fn += QLatin1String(".prf");
-    foreach (const QString &path, qmakeFeaturePaths()) {
-        QString fname = path + fn;
-        if (QFileInfo(fname).exists()) {
-            bool cumulative = m_cumulative;
-            m_cumulative = false;
-            bool ok = evaluateFile(fname);
-            m_cumulative = cumulative;
-            return ok;
+
+    if (!fileName.contains((ushort)'/') || !QFile::exists(fn)) {
+        if (m_option->feature_roots.isEmpty())
+            m_option->feature_roots = qmakeFeaturePaths();
+        int start_root = 0;
+        QString currFn = currentFileName();
+        if (QFileInfo(currFn).fileName() == QFileInfo(fn).fileName()) {
+            for (int root = 0; root < m_option->feature_roots.size(); ++root)
+                if (m_option->feature_roots.at(root) + fn == currFn) {
+                    start_root = root + 1;
+                    break;
+                }
         }
+        for (int root = start_root; root < m_option->feature_roots.size(); ++root) {
+            QString fname = m_option->feature_roots.at(root) + fn;
+            if (QFileInfo(fname).exists()) {
+                fn = fname;
+                goto cool;
+            }
+        }
+        return false;
+
+      cool:
+        // It's beyond me why qmake has this inside this if ...
+        QStringList &already = m_valuemap[QLatin1String("QMAKE_INTERNAL_INCLUDED_FEATURES")];
+        if (already.contains(fn))
+            return true;
+        already.append(fn);
+    } else {
+        fn = QDir::cleanPath(fn);
     }
-    return false;
+
+    if (values) {
+        return evaluateFileInto(fn, values);
+    } else {
+        bool cumulative = m_cumulative;
+        m_cumulative = false;
+        bool ok = evaluateFile(fn);
+        m_cumulative = cumulative;
+        return ok;
+    }
+}
+
+bool ProFileEvaluator::Private::evaluateFileInto(
+        const QString &fileName, QHash<QString, QStringList> *values)
+{
+    ProFileEvaluator visitor(m_option);
+    visitor.d->m_cumulative = false;
+    visitor.d->m_parsePreAndPostFiles = false;
+    visitor.d->m_verbose = m_verbose;
+    visitor.d->m_valuemap = *values;
+    if (!visitor.d->evaluateFile(fileName))
+        return false;
+    *values = visitor.d->m_valuemap;
+    return true;
 }
 
 QString ProFileEvaluator::Private::format(const char *fmt) const
@@ -2735,11 +2867,6 @@ bool ProFileEvaluator::accept(ProFile *pro)
 QString ProFileEvaluator::propertyValue(const QString &name) const
 {
     return d->propertyValue(name);
-}
-
-void ProFileEvaluator::addVariables(const QHash<QString, QStringList> &variables)
-{
-    updateHash(&(d->m_valuemap), variables);
 }
 
 void ProFileEvaluator::addProperties(const QHash<QString, QString> &properties)
