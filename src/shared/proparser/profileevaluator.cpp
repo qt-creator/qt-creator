@@ -2694,7 +2694,14 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
     } else {
         bool cumulative = m_cumulative;
         m_cumulative = false;
-        bool ok = evaluateFile(fn);
+
+        // Don't use evaluateFile() here to avoid the virtual parsedProFile().
+        // The path is fully normalized already.
+        ProFile pro(fn);
+        bool ok = false;
+        if (read(&pro))
+            ok = (pro.Accept(this) == ProItem::ReturnTrue);
+
         m_cumulative = cumulative;
         return ok;
     }
