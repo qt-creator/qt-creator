@@ -263,7 +263,7 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
     fun->setPureVirtual(false);
     fun->setReturnType(returnType);
 
-    if (ast->selector->asObjCSelectorWithArguments()) {
+    if (ast->selector && ast->selector->asObjCSelectorWithArguments()) {
         // TODO: check the parameters (EV)
         //    fun->setVariadic(...);
         // TODO: add arguments (EV)
