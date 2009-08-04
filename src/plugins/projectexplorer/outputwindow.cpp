@@ -49,6 +49,8 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QTabWidget>
 
+#include <QtGui/QApplication>
+
 using namespace ProjectExplorer::Internal;
 using namespace ProjectExplorer;
 
@@ -391,12 +393,13 @@ OutputWindow::~OutputWindow()
 void OutputWindow::appendOutput(const QString &out)
 {
     setMaximumBlockCount(MaxBlockCount);
-
+    moveCursor(QTextCursor::End);
     if (out.endsWith('\n'))
-        appendPlainText(out.right(out.length()-1));
+        insertPlainText(out.right(out.length()-1));
     else
-        appendPlainText(out);
-
+        insertPlainText(out);
+    // insert newline and get automatic scroll behavior
+    appendPlainText(""); // makes sure that there's an newline in front
     enableUndoRedo();
 }
 
