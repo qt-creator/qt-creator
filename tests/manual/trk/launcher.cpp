@@ -272,7 +272,8 @@ void Adapter::tryTrkRead()
         if (isValidTrkResult(m_trkReadQueue))
             break;
     }
-    if (charsRead == 0 && m_trkReadQueue.isEmpty()) {
+    if (!isValidTrkResult(m_trkReadQueue)) {
+        logMessage("Partial message: " + stringFromArray(m_trkReadQueue));
         return;
     }
 #else // USE_NATIVE
@@ -285,15 +286,7 @@ void Adapter::tryTrkRead()
 #endif // USE_NATIVE
 
     logMessage("READ:  " + stringFromArray(m_trkReadQueue));
-    if (m_trkReadQueue.size() < 9) {
-        logMessage("ERROR READBUFFER INVALID (1): "
-            + stringFromArray(m_trkReadQueue));
-        m_trkReadQueue.clear();
-        return;
-    }
-
-    while (!m_trkReadQueue.isEmpty())
-        handleResult(extractResult(&m_trkReadQueue));
+    handleResult(extractResult(&m_trkReadQueue));
 
     m_trkWriteBusy = false;
 }
@@ -303,6 +296,11 @@ void Adapter::handleResult(const TrkResult &result)
 {
     QByteArray prefix = "READ BUF:                                       ";
     QByteArray str = result.toString().toUtf8();
+    if (result.isDebugOutput) { // handle application output
+        logMessage("APPLICATION OUTPUT: " + result.data);
+        emit applicationOutputReceived(result.data);
+        return;
+    }
     switch (result.code) {
         case TrkNotifyAck: { // ACK
             //logMessage(prefix + "ACK: " + str);

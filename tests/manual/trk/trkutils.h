@@ -171,7 +171,7 @@ struct Breakpoint
 
 struct TrkResult
 {
-    TrkResult() { code = token = 0; }
+    TrkResult() { code = token = 0; isDebugOutput = false; }
     QString toString() const;
     // 0 for no error.
     int errorCode() const;
@@ -180,6 +180,7 @@ struct TrkResult
     byte token;
     QByteArray data;
     QVariant cookie;
+    bool isDebugOutput;
 };
 
 // returns a QByteArray containing 0x01 0x90 <len> 0x7e encoded7d(ba) 0x7e

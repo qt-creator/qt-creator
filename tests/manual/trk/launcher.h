@@ -67,6 +67,7 @@ signals:
     void startingApplication();
     void applicationRunning(uint pid);
     void finished();
+    void applicationOutputReceived(const QString &output);
 
 public slots:
     void terminate();

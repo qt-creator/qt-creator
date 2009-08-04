@@ -581,6 +581,7 @@ void S60DeviceRunControl::signsisProcessFinished()
     connect(m_adapter, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
     connect(m_adapter, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
     connect(m_adapter, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
+    connect(m_adapter, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
 
     //TODO sisx destination and file path user definable
     m_adapter->setTrkServerName(m_serialPortName);
@@ -618,6 +619,11 @@ void S60DeviceRunControl::printStartingNotice()
 void S60DeviceRunControl::printRunNotice(uint pid)
 {
     emit addToOutputWindow(this, tr("Application running with pid %1.").arg(pid));
+}
+
+void S60DeviceRunControl::printApplicationOutput(const QString &output)
+{
+    emit addToOutputWindowInline(this, output);
 }
 
 void S60DeviceRunControl::runFinished()

@@ -160,6 +160,7 @@ private slots:
     void printInstallingNotice();
     void printStartingNotice();
     void printRunNotice(uint pid);
+    void printApplicationOutput(const QString &output);
     void runFinished();
 
 private:

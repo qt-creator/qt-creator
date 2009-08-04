@@ -84,23 +84,13 @@ QByteArray frameMessage(byte command, byte token, const QByteArray &data)
 otherwise returns the length of the result data */
 ushort isValidTrkResult(const QByteArray &buffer)
 {
-    if (buffer.length() < 9)
+    if (buffer.length() < 4)
         return 0;
-    if (buffer.at(0) != 0x01 || byte(buffer.at(1)) != 0x90) {
+    if (buffer.at(0) != 0x01 || byte(buffer.at(1)) != 0x90)
         return 0;
-    }
     ushort len = extractShort(buffer.data() + 2);
 
-    //logMessage("   READ BUF: " << stringFromArray(*buffer));
     if (buffer.size() < len + 4) {
-        return 0;
-    }
-
-    if (byte(buffer.at(4)) != 0x7e) {
-        return 0;
-    }
-
-    if (byte(buffer.at(4 + len - 1)) != 0x7e) {
         return 0;
     }
     return len;
@@ -112,6 +102,13 @@ TrkResult extractResult(QByteArray *buffer)
     ushort len = isValidTrkResult(*buffer);
     if (!len)
         return result;
+    // handle receiving application output, which is not a regular command
+    if (buffer->at(4) != 0x7e) {
+        result.isDebugOutput = true;
+        result.data = buffer->mid(4, len);
+        *buffer = buffer->mid(4 + len);
+        return result;
+    }
     // FIXME: what happens if the length contains 0xfe?
     // Assume for now that it passes unencoded!
     QByteArray data = decode7d(buffer->mid(5, len - 2));
