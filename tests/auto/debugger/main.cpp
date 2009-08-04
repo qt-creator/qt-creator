@@ -1731,41 +1731,79 @@ void tst_Debugger::dumpQPixmap()
 template<typename T>
 void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
 {
-#if 0
-    QByteArray expected("value = '");
-    QString val = ptr.isNull() ? "<null>" : valToString(*ptr.data());
-    QAtomicInt *weakAddr;
-    QAtomicInt *strongAddr;
+    struct Cheater : public QSharedPointer<T>
+    {
+        static const typename QSharedPointer<T>::Data *getData(const QSharedPointer<T> &p)
+        {
+            return static_cast<const Cheater &>(p).d;
+        }
+    };
+
+    T dummy;
+    QByteArray expected("value='");
+    QString val1 = ptr.isNull() ? "<null>" : valToString(*ptr.data());
+    QString val2 = isSimpleType(dummy) ? val1 : "";
+    const QAtomicInt *weakAddr;
+    const QAtomicInt *strongAddr;
     int weakValue;
     int strongValue;
     if (!ptr.isNull()) {
-        weakAddr = &ptr.d->weakref;
-        strongAddr = &ptr.d->strongref;
+        weakAddr = &Cheater::getData(ptr)->weakref;
+        strongAddr = &Cheater::getData(ptr)->strongref;
         weakValue = *weakAddr;
         strongValue = *strongAddr;
     } else {
         weakAddr = strongAddr = 0;
         weakValue = strongValue = 0;
     }
-    expected.append("',valuedisabled='true',numchild='1',children=[").
+    expected.append(val2).append("',valuedisabled='true',numchild='1',children=[").
         append("{name='data',addr='").append(ptrToBa(ptr.data())).
-        append("',type='int',value='").append(val).append("'},").
-        append("{name='weakref',value='").append(QString::number(weakValue)).
+        append("',type='").append(typeToString(dummy)).append("',value='").append(val1).
+        append("'},{name='weakref',value='").append(QString::number(weakValue)).
         append("',type='int',addr='").append(ptrToBa(weakAddr)).append("',numchild='0'},").
-        append("{name='data',value='").append(val).append("'},").
         append("{name='strongref',value='").append(QString::number(strongValue)).
         append("',type='int',addr='").append(ptrToBa(strongAddr)).append("',numchild='0'}]");
-    testDumper(expected, &ptr, NS"QSharedPointer", true);
-#endif
+    testDumper(expected, &ptr, NS"QSharedPointer", true, typeToString(dummy));
 }
 
 void tst_Debugger::dumpQSharedPointer()
 {
-    QSharedPointer<int> ptr;
-    dumpQSharedPointerHelper(ptr);
+    // Case 1: Simple type.
+    // Case 1.1: Null pointer.
+    QSharedPointer<int> simplePtr;
+    // TODO: This case is not handled in gdbmacros.cpp (segfault!)
+    //dumpQSharedPointerHelper(simplePtr);
 
-    QSharedPointer<int> ptr2(new int(99));
-    dumpQSharedPointerHelper(ptr2);
+    // Case 1.2: Non-null pointer,
+    QSharedPointer<int> simplePtr2(new int(99));
+    dumpQSharedPointerHelper(simplePtr2);
+
+    // Case 1.3: Shared pointer.
+    QSharedPointer<int> simplePtr3 = simplePtr2;
+    dumpQSharedPointerHelper(simplePtr2);
+
+    // Case 1.4: Weak pointer.
+    QWeakPointer<int> simplePtr4(simplePtr2);
+    dumpQSharedPointerHelper(simplePtr2);
+
+    // Case 2: Composite type.
+    // Case 1.1: Null pointer.
+    QSharedPointer<QString> compositePtr;
+    // TODO: This case is not handled in gdbmacros.cpp (segfault!)
+    //dumpQSharedPointerHelper(compoistePtr);
+
+    // Case 1.2: Non-null pointer,
+    QSharedPointer<QString> compositePtr2(new QString("Test"));
+    dumpQSharedPointerHelper(compositePtr2);
+
+    // Case 1.3: Shared pointer.
+    QSharedPointer<QString> compositePtr3 = compositePtr2;
+    dumpQSharedPointerHelper(compositePtr2);
+
+    // Case 1.4: Weak pointer.
+    QWeakPointer<QString> compositePtr4(compositePtr2);
+    dumpQSharedPointerHelper(compositePtr2);
+
 }
 #endif
 
