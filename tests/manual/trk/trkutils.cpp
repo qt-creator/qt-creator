@@ -115,7 +115,7 @@ TrkResult extractResult(QByteArray *buffer)
     // FIXME: what happens if the length contains 0xfe?
     // Assume for now that it passes unencoded!
     QByteArray data = decode7d(buffer->mid(5, len - 2));
-    *buffer = buffer->mid(4 + len);
+    *buffer->remove(0, 4 + len);
 
     byte sum = 0;
     for (int i = 0; i < data.size(); ++i) // 3 = 2 * 0xfe + sum
@@ -304,6 +304,17 @@ QByteArray errorMessage(byte code)
 uint swapEndian(uint in)
 {
     return (in>>24) | ((in<<8) & 0x00FF0000) | ((in>>8) & 0x0000FF00) | (in<<24);
+}
+
+int TrkResult::errorCode() const
+{
+    // NAK means always error, else data sized 1 with a non-null element
+    const bool isNAK = code == 0xff;
+    if (data.size() != 1 && !isNAK)
+        return 0;
+    if (const int errorCode = data.at(0))
+        return errorCode;
+    return isNAK ? 0xff : 0;
 }
 } // namespace trk
 

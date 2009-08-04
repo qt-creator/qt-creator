@@ -341,13 +341,12 @@ void TrkServer::handleAdapterMessage(const TrkResult &result)
             if (handleMemoryRequest(addr, len, option, &data)) {
                 writeToAdapter(0x80, result.token, data);
             } else {
-                data[0] =32; // NAK, bad hair day
-                writeToAdapter(0xff, result.token, data);
+                data[0] = 32; // NAK, bad hair day
+                writeToAdapter(0x80, result.token, data);
             }
             break;
         }
         case 0x12: { // Read Registers
-            data.clear();
             for (int i = 0; i < RegisterCount; ++i)
                 appendInt(&data, m_inferior.registers[i], BigEndian);
             writeToAdapter(0x80, result.token, data);

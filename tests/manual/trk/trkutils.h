@@ -173,6 +173,8 @@ struct TrkResult
 {
     TrkResult() { code = token = 0; }
     QString toString() const;
+    // 0 for no error.
+    int errorCode() const;
 
     byte code;
     byte token;

@@ -55,6 +55,8 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
         qDebug() << "ClearCommError() failed";
         return FALSE;
     }
+    if (!comStat.cbInQue)
+        return FALSE;
     return ReadFile(hFile,
                     lpBuffer,
                     qMin(comStat.cbInQue, nNumberOfBytesToRead),
@@ -200,6 +202,8 @@ private:
     void handleWaitForFinished(const TrkResult &result);
     void handleStop(const TrkResult &result);
     void handleSupportMask(const TrkResult &result);
+    void handleTrkVersions(const TrkResult &result);
+    void handleDisconnect(const TrkResult &result);
 
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleAndReportReadRegisters(const TrkResult &result);
@@ -257,6 +261,7 @@ private:
     int m_verbose;
     Endianness m_registerEndianness;
     bool m_useSocket;
+    bool m_startInferiorTriggered;
 };
 
 Adapter::Adapter() :
@@ -271,7 +276,8 @@ Adapter::Adapter() :
     m_gdbAckMode(true),
     m_verbose(1),
     m_registerEndianness(BigEndian),
-    m_useSocket(false)
+    m_useSocket(false),
+    m_startInferiorTriggered(false)
 {
     startTimer(100);
 }
@@ -317,8 +323,8 @@ bool Adapter::startServer()
     sendTrkMessage(0x01); // Connect
     sendTrkMessage(0x05, CB(handleSupportMask));
     sendTrkMessage(0x06, CB(handleCpuType));
-    sendTrkMessage(0x04); // Versions
-    sendTrkMessage(0x09); // Unrecognized command
+    sendTrkMessage(0x04, CB(handleTrkVersions)); // Versions
+    //sendTrkMessage(0x09); // Unrecognized command
     //sendTrkMessage(0x4a, 0,
     //    "10 " + formatString("C:\\data\\usingdlls.sisx")); // Open File
     //sendTrkMessage(0x4B, 0, "00 00 00 01 73 1C 3A C8"); // Close File
@@ -358,6 +364,7 @@ void Adapter::handleGdbConnection()
             m_gdbConnection, SLOT(deleteLater()));
     connect(m_gdbConnection, SIGNAL(readyRead()),
             this, SLOT(readFromGdb()));
+    m_startInferiorTriggered = false;
 }
 
 void Adapter::readFromGdb()
@@ -422,7 +429,7 @@ void Adapter::readFromGdb()
         }
 
         QByteArray response = ba.left(pos);
-        ba = ba.mid(pos + 3);
+        ba.remove(0, pos + 3);
         handleGdbResponse(response);
     }
 }
@@ -554,17 +561,12 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         //sendGdbMessage("00000000", "read registers");
         sendGdbAckMessage();
         QByteArray ba;
-        appendByte(&ba, 0); // ?
-        appendByte(&ba, 0); // ?
-        appendByte(&ba, 0); // ?
-
-        appendByte(&ba, 0); // first register
-        // FIXME: off by one?
-        appendByte(&ba, RegisterCount - 1); // last register
+        appendByte(&ba, 0); // Register set, only 0 supported
+        appendShort(&ba, 0);
+        appendShort(&ba, RegisterCount - 1); // last register
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
-
-        sendTrkMessage(0x12, CB(handleAndReportReadRegisters), ba);
+        sendTrkMessage(0x12, CB(handleAndReportReadRegisters), ba, QVariant(), true);
     }
 
     else if (response.startsWith("Hc")) {
@@ -597,15 +599,26 @@ void Adapter::handleGdbResponse(const QByteArray &response)
 
     else if (response.startsWith("m")) {
         // m addr,length
-        sendGdbAckMessage();
-        int pos = response.indexOf(',');
-        bool ok = false;
-        uint addr = response.mid(1, pos - 1).toInt(&ok, 16);
-        uint len = response.mid(pos + 1).toInt(&ok, 16);
-        //qDebug() << "GDB ADDR: " << hexNumber(addr) << " " << hexNumber(len);
-        readMemory(addr, len);
+        sendGdbAckMessage();        
+        uint addr = 0, len = 0;
+        do {
+            const int pos = response.indexOf(',');
+            if (pos == -1)
+                break;
+            bool ok;
+            addr = response.mid(1, pos - 1).toUInt(&ok, 16);
+            if (!ok)
+                break;
+            len = response.mid(pos + 1).toUInt(&ok, 16);
+            if (!ok)
+                break;
+        } while (false);
+        if (len) {
+            readMemory(addr, len);
+        } else {
+            sendGdbMessage("E20", "Error " + response);
+        }
     }
-
     else if (response.startsWith("p")) {
         // 0xf == current instruction pointer?
         //sendGdbMessage("0000", "current IP");
@@ -843,7 +856,9 @@ void Adapter::sendTrkMessage(byte code, TrkCallBack callBack,
 {
     TrkMessage msg;
     msg.code = code;
-    msg.token = nextTrkWriteToken();
+    // Tokens must be strictly sequential
+    if (msg.code != TRK_SYNC)
+        msg.token = nextTrkWriteToken();
     msg.callBack = callBack;
     msg.data = data;
     msg.cookie = cookie;
@@ -896,7 +911,7 @@ void Adapter::tryTrkWrite()
 
     TrkMessage msg = m_trkWriteQueue.dequeue();
     if (msg.code == TRK_SYNC) {
-        //logMessage("TRK SYNC");
+        logMessage(QString::fromLatin1("TRK SYNC [token=%1]").arg(msg.token));
         TrkResult result;
         result.code = msg.code;
         result.token = msg.token;
@@ -917,8 +932,10 @@ void Adapter::trkWrite(const TrkMessage &msg)
     m_writtenTrkMessages.insert(msg.token, msg);
     m_trkWriteBusy = true;
 
-    if (m_verbose > 1)
-        logMessage("WRITE: " + stringFromArray(ba));
+    if (m_verbose > 1) {
+        const QString logMsg = QString::fromLatin1("WRITE: 0x%1 [token=%2]: %3").arg(msg.code, 0, 16).arg(msg.token).arg(stringFromArray(ba));
+        logMessage(logMsg);
+    }
 
     if (m_useSocket) {
         if (!m_socketDevice->write(ba))
@@ -945,16 +962,19 @@ void Adapter::tryTrkRead()
         QByteArray res = m_socketDevice->readAll();
         m_trkReadQueue.append(res);
     } else {
-#ifdef Q_OS_WIN    
+#ifdef Q_OS_WIN  
         const DWORD BUFFERSIZE = 1024;
         char buffer[BUFFERSIZE];
         DWORD charsRead;
-
+        DWORD totalCharsRead = 0;
         while (TryReadFile(m_winComDevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
             m_trkReadQueue.append(buffer, charsRead);
+            totalCharsRead += charsRead;
             if (isValidTrkResult(m_trkReadQueue))
                 break;
         }
+        if (!totalCharsRead)
+            return;
 #endif // USE_NATIVE
     }
 
@@ -979,9 +999,8 @@ void Adapter::handleResult(const TrkResult &result)
     switch (result.code) {
         case 0x80: { // ACK
             //logMessage(prefix + "ACK: " + str);
-            if (!result.data.isEmpty() && result.data.at(0))
-                logMessage(prefix + "ERR: " +QByteArray::number(result.data.at(0)));
-            //logMessage("READ RESULT FOR TOKEN: " << token);
+            if (const int ec = result.errorCode())
+                logMessage(QString::fromLatin1("READ BUF ACK/ERR %1 for token=%2").arg(ec).arg(result.token), true);
             if (!m_writtenTrkMessages.contains(result.token)) {
                 logMessage("NO ENTRY FOUND!");
             }
@@ -998,15 +1017,17 @@ void Adapter::handleResult(const TrkResult &result)
             }
             break;
         }
-        case 0xff: { // NAK
-            logMessage(prefix + "NAK: " + str);
-            logMessage(prefix + "ERROR: " + errorMessage(result.data.at(0)));
-            TrkMessage msg = m_writtenTrkMessages.take(result.token);
+        case 0xff: { // NAK. This mostly means transmission error, not command failed.
+            const TrkMessage writtenMsg = m_writtenTrkMessages.take(result.token);
+            QString logMsg;
+            QTextStream(&logMsg) << prefix << "NAK: for 0x" << QString::number(int(writtenMsg.code), 16)
+                    << " token=" << result.token << " ERROR: " << errorMessage(result.data.at(0)) << ' ' << str;
+            logMessage(logMsg, true);
             // Invoke failure if desired
-            if (msg.callBack && msg.invokeOnFailure) {
+            if (writtenMsg.callBack && writtenMsg.invokeOnFailure) {
                 TrkResult result1 = result;
-                result1.cookie = msg.cookie;
-                (this->*msg.callBack)(result1);
+                result1.cookie = writtenMsg.cookie;
+                (this->*writtenMsg.callBack)(result1);
             }
             break;
         }
@@ -1036,28 +1057,25 @@ void Adapter::handleResult(const TrkResult &result)
 
         // target->host OS notification
         case 0xa0: { // Notify Created
-            /*
             const char *data = result.data.data();
-            byte error = result.data.at(0);
-            byte type = result.data.at(1); // type: 1 byte; for dll item, this value is 2.
-            uint pid = extractInt(data + 2); //  ProcessID: 4 bytes;
-            uint tid = extractInt(data + 6); //threadID: 4 bytes
-            uint codeseg = extractInt(data + 10); //code address: 4 bytes; code base address for the library
-            uint dataseg = extractInt(data + 14); //data address: 4 bytes; data base address for the library
-            uint len = extractShort(data + 18); //length: 2 bytes; length of the library name string to follow
-            QByteArray name = result.data.mid(20, len); // name: library name
-
-            logMessage(prefix + "NOTE: LIBRARY LOAD: " + str);
-            logMessage(prefix + "TOKEN: " + result.token);
-            logMessage(prefix + "ERROR: " + int(error));
-            logMessage(prefix + "TYPE:  " + int(type));
-            logMessage(prefix + "PID:   " + pid);
-            logMessage(prefix + "TID:   " + tid);
-            logMessage(prefix + "CODE:  " + codeseg);
-            logMessage(prefix + "DATA:  " + dataseg);
-            logMessage(prefix + "LEN:   " + len);
-            logMessage(prefix + "NAME:  " + name);
-            */
+            const byte error = result.data.at(0);
+            const byte type = result.data.at(1); // type: 1 byte; for dll item, this value is 2.
+            const uint pid = extractInt(data + 2); //  ProcessID: 4 bytes;
+            const uint tid = extractInt(data + 6); //threadID: 4 bytes
+            const uint codeseg = extractInt(data + 10); //code address: 4 bytes; code base address for the library
+            const uint dataseg = extractInt(data + 14); //data address: 4 bytes; data base address for the library
+            const uint len = extractShort(data + 18); //length: 2 bytes; length of the library name string to follow
+            const QByteArray name = result.data.mid(20, len); // name: library name
+            QString logMsg;
+            QTextStream str(&logMsg);
+            str<< prefix << " NOTE: LIBRARY LOAD: token=" + result.token << " ERROR: "
+                    << int(error) << " TYPE: " << int(type) << " PID: " << pid
+                    << " TID:   " <<  tid;
+            str.setIntegerBase(16);
+            str << " CODE: 0x" + codeseg << " DATA: 0x"  << dataseg;
+            str.setIntegerBase(10);
+            str << " LEN: " << len << " NAME: " << name;
+            logMessage(logMsg);
 
             QByteArray ba;
             appendInt(&ba, m_session.pid);
@@ -1095,7 +1113,6 @@ void Adapter::handleResult(const TrkResult &result)
 
 void Adapter::handleCpuType(const TrkResult &result)
 {
-    logMessage("HANDLE CPU TYPE: " + result.toString());
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
     //    Error: 0x00
@@ -1107,6 +1124,12 @@ void Adapter::handleCpuType(const TrkResult &result)
     m_session.fpTypeSize = result.data[4];
     m_session.extended1TypeSize = result.data[5];
     //m_session.extended2TypeSize = result.data[6];
+    QString logMsg;
+    QTextStream(&logMsg) << "HANDLE CPU TYPE: " << " CPU=" << m_session.cpuMajor << '.'
+            << m_session.cpuMinor << " bigEndian=" << m_session.bigEndian
+            << " defaultTypeSize=" << m_session.defaultTypeSize
+            << " fpTypeSize=" << m_session.fpTypeSize << " extended1TypeSize=" <<  m_session.extended1TypeSize;
+    logMessage(logMsg);
 }
 
 void Adapter::handleCreateProcess(const TrkResult &result)
@@ -1119,10 +1142,9 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     m_session.tid = extractInt(data + 5);
     m_session.codeseg = extractInt(data + 9);
     m_session.dataseg = extractInt(data + 13);
-    qDebug() << "    READ PID: " << m_session.pid;
-    qDebug() << "    READ TID: " << m_session.tid;
-    qDebug() << "    READ CODE: " << m_session.codeseg;
-    qDebug() << "    READ DATA: " << m_session.dataseg;
+    QString logMsg = QString::fromLatin1("handleCreateProcess PID=%1 TID=%2 CODE=0x%3 (%4) DATA=0x%5 (%6)")
+                     .arg(m_session.pid).arg(m_session.tid).arg(m_session.codeseg, 0 ,16).arg(m_session.codeseg).arg(m_session.dataseg, 0, 16).arg(m_session.dataseg);
+    logMessage(logMsg);
 
 #if 0
     /*
@@ -1196,12 +1218,11 @@ void Adapter::handleAndReportReadRegisters(const TrkResult &result)
     //logMessage("       RESULT: " + result.toString());
     // [80 0B 00   00 00 00 00   C9 24 FF BC   00 00 00 00   00
     //  60 00 00   00 00 00 00   78 67 79 70   00 00 00 00   00...]
-    const char *data = result.data.data();
+
+    const char *data = result.data.data() + 1; // Skip ok byte
     for (int i = 0; i < RegisterCount; ++i) {
         m_snapshot.registers[i] = extractInt(data + 4 * i);
-        //qDebug() << i << hexNumber(m_snapshot.registers[i], 8);
     }
-    //QByteArray ba = result.data.toHex();
     QByteArray ba;
     for (int i = 0; i < 16; ++i) {
         const uint reg = m_registerEndianness == LittleEndian ? swapEndian(m_snapshot.registers[i]) : m_snapshot.registers[i];
@@ -1215,16 +1236,16 @@ void Adapter::handleAndReportReadRegisters(const TrkResult &result)
     sendGdbMessage(ba, logMsg);
 }
 
-static inline QString msgMemoryReadError(uint addr)
+static inline QString msgMemoryReadError(int code, uint addr)
 {
-    return QString::fromLatin1("Memory read error at: 0x%1").arg(addr, 0 ,16);
+    return QString::fromLatin1("Memory read error %1 at: 0x%2").arg(code).arg(addr, 0 ,16);
 }
 
 void Adapter::handleReadMemory(const TrkResult &result)
 {
     const uint blockaddr = result.cookie.toInt();
-    if (result.code == 0xff) {
-        logMessage(msgMemoryReadError(blockaddr));
+    if (const int errorCode = result.errorCode()) {
+        logMessage(msgMemoryReadError(errorCode, blockaddr));
     } else {
         const QByteArray ba = result.data.mid(1);
         m_snapshot.memory.insert(blockaddr , ba);
@@ -1285,7 +1306,7 @@ void Adapter::reportReadMemory(const TrkResult &result)
         ba.truncate(len);
     if (ba.isEmpty()) {
         ba = "E20";
-        sendGdbMessage(ba, msgMemoryReadError(addr).toLatin1());
+        sendGdbMessage(ba, msgMemoryReadError(32, addr).toLatin1());
     } else {
         sendGdbMessage(ba.toHex(), memoryReadLogMessage(addr, len, ba));
     }
@@ -1381,8 +1402,24 @@ void Adapter::handleSupportMask(const TrkResult &result)
             str.append(QByteArray::number(i * 8 + j, 16));
     }
     logMessage("SUPPORTED: " + str);
+ }
+
+void Adapter::handleTrkVersions(const TrkResult &result)
+{
+    QString logMsg;
+    QTextStream str(&logMsg);
+    str << "Versions: ";
+    if (result.data.size() >= 5) {
+        str << "Trk version " << int(result.data.at(1)) << '.' << int(result.data.at(2))
+                << ", Protocol version " << int(result.data.at(3)) << '.' << int(result.data.at(4));
+    }
+    logMessage(logMsg);
 }
 
+void Adapter::handleDisconnect(const TrkResult & /*result*/)
+{
+    logMessage(QLatin1String("Trk disconnected"), true);
+}
 
 void Adapter::cleanUp()
 {
@@ -1392,6 +1429,10 @@ void Adapter::cleanUp()
     //  Sub Cmd: Delete Process
     //ProcessID: 0x0000071F (1823)
     // [41 24 00 00 00 00 07 1F]
+    logMessage(QString::fromLatin1("Cleanup PID=%1").arg(m_session.pid), true);
+    if (!m_session.pid)
+        return;
+
     QByteArray ba;
     appendByte(&ba, 0x00);
     appendByte(&ba, 0x00);
@@ -1406,6 +1447,8 @@ void Adapter::cleanUp()
     foreach (const Breakpoint &bp, m_breakpoints)
         clearTrkBreakpoint(bp);
 
+    sendTrkMessage(0x02, CB(handleDisconnect));
+    m_startInferiorTriggered = false;
     //---IDE------------------------------------------------------
     //  Command: 0x1C Clear Break
     // [1C 25 00 00 00 0A 78 6A 43 40]
@@ -1446,12 +1489,14 @@ void Adapter::readMemory(uint addr, uint len)
     Q_ASSERT(len < (2 << 16));
 
     // We try to get medium-sized chunks of data from the device
+    if (m_verbose > 2)
+        logMessage(QString::fromLatin1("readMemory %1 bytes from 0x%2 blocksize=%3").arg(len).arg(addr, 0, 16).arg(MemoryChunkSize));
 
-    QList <uint> blocksToFetch;
     uint blockaddr = (addr / MemoryChunkSize) * MemoryChunkSize;
     for (; blockaddr < addr + len; blockaddr += MemoryChunkSize) {
-        QByteArray blockdata = m_snapshot.memory[blockaddr];
-        if (blockdata.isEmpty()) {
+        if (!m_snapshot.memory.contains(blockaddr)) {
+            if (m_verbose > 2)
+                logMessage(QString::fromLatin1("Requesting memory from 0x%1").arg(blockaddr, 0, 16));
             // fetch it
             QByteArray ba;
             appendByte(&ba, 0x08); // Options, FIXME: why?
@@ -1469,11 +1514,14 @@ void Adapter::readMemory(uint addr, uint len)
 
 void Adapter::startInferiorIfNeeded()
 {
+    if (m_startInferiorTriggered)
+        return;
     if (m_session.pid != 0) {
         qDebug() << "Process already 'started'";
         return;
     }
     // It's not started yet
+    m_startInferiorTriggered = true;
     QByteArray ba;
     appendByte(&ba, 0); // ?
     appendByte(&ba, 0); // ?
