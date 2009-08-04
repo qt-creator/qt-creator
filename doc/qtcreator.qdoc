@@ -130,9 +130,9 @@
 
     \section2 Build Issues
 
-    The {Build Issues} pane provides a list of issues, e.g., error messages or
-    warnings that need to be fixed. It filters out irrelevant output from the
-    compiler and collects them in an organized way.
+    The \gui{Build Issues} pane provides a list of issues, e.g., error messages
+    or warnings that need to be fixed. It filters out irrelevant output from
+    the compiler and collects them in an organized way.
 
     \image qtcreator-build-issues.png
 
@@ -1006,10 +1006,12 @@
     session.
 
     \image qtcreator-session-menu.png
-    ##########
-<eike> kavindra: with a welcome screen screenshot with a nice fat red arrow
-pointing vigoriously on the "Resume session, ... (last session)" entry, saying
-Click here to continue where you left creator last time", or something similar preferably :)
+
+    When you launch Qt Creator, a list of your recent sessions will be
+    displayed on the \gui{Welcome Screen}.
+
+    \image qtcreator-welcome-session.png
+
 */
 
 
@@ -1525,7 +1527,7 @@ Click here to continue where you left creator last time", or something similar p
     {Declaring other Libraries} section of the Qt documentation.
 
     If your project successfully builds and links against the external library,
-    syntax completion and highlighting should also work.
+    syntax completion and highlighting should work.
     
 
     \section1 CMake Projects
