@@ -148,12 +148,32 @@ void S60Manager::updateQtVersions()
 
 ProjectExplorer::ToolChain *S60Manager::createWINSCWToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
-    QString id = version->autodetectionSource().mid(QString(S60_AUTODETECTION_SOURCE).length()+1);
-    return new WINSCWToolChain(m_devices->deviceForId(id), version->mwcDirectory());
+    return new WINSCWToolChain(deviceForQtVersion(version), version->mwcDirectory());
 }
 
 ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
-    QString id = version->autodetectionSource().mid(QString(S60_AUTODETECTION_SOURCE).length()+1);
-    return new GCCEToolChain(m_devices->deviceForId(id));
+    return new GCCEToolChain(deviceForQtVersion(version));
+}
+
+S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const
+{
+    S60Devices::Device device;
+    QString deviceId;
+    if (version->isAutodetected())
+        deviceId = deviceIdFromDetectionSource(version->autodetectionSource());
+    if (deviceId.isEmpty()) { // it's not an s60 autodetected version
+        // have a look if we find the device root anyhow
+        if (QFile::exists(QString::fromLatin1("%1/epoc32").arg(version->path()))) {
+            device.epocRoot = version->path();
+            device.toolsRoot = device.epocRoot;
+            device.qt = device.epocRoot;
+            device.isDefault = false;
+            device.name = QString::fromLatin1("SDK");
+            device.id = QString::fromLatin1("SDK");
+        }
+    } else {
+        device = m_devices->deviceForId(deviceId);
+    }
+    return device;
 }

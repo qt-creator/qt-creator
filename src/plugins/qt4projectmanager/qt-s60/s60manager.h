@@ -32,6 +32,7 @@
 
 #include "qtversionmanager.h"
 #include "serialdevicelister.h"
+#include "s60devices.h"
 
 #include <extensionsystem/iplugin.h>
 #include <projectexplorer/toolchain.h>
@@ -41,7 +42,6 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class S60Devices;
 class S60DevicesPreferencePane;
 class S60EmulatorRunConfigurationFactory;
 class S60EmulatorRunConfigurationRunner;
@@ -60,6 +60,7 @@ public:
     ProjectExplorer::ToolChain *createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const;
 
     S60Devices *devices() const { return m_devices; }
+    S60Devices::Device deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const;
     QString deviceIdFromDetectionSource(const QString &autoDetectionSource) const;
 
     SerialDeviceLister *serialDeviceLister() const { return m_serialDeviceLister; }

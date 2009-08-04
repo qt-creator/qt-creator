@@ -143,8 +143,7 @@ void S60EmulatorRunConfiguration::updateTarget()
         return;
     }
 
-    QString baseDir = S60Manager::instance()->devices()->deviceForId(
-            S60Manager::instance()->deviceIdFromDetectionSource(qtVersion->autodetectionSource())).epocRoot;
+    QString baseDir = S60Manager::instance()->deviceForQtVersion(qtVersion).epocRoot;
     QString qmakeBuildConfig = "urel";
     if (projectBuildConfiguration & QtVersion::DebugBuild)
         qmakeBuildConfig = "udeb";

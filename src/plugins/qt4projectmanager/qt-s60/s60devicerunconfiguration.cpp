@@ -495,10 +495,8 @@ void S60DeviceRunControl::start()
     emit addToOutputWindow(this, tr("Creating %1.sisx ...").arg(QDir::toNativeSeparators(m_baseFileName)));
 
     Q_ASSERT(project);
-    m_toolsDirectory = S60Manager::instance()->devices()->deviceForId(
-            S60Manager::instance()->deviceIdFromDetectionSource(
-            project->qtVersion(project->activeBuildConfiguration())
-            ->autodetectionSource())).epocRoot
+    m_toolsDirectory = S60Manager::instance()->deviceForQtVersion(
+            project->qtVersion(project->activeBuildConfiguration())).toolsRoot
             + "/epoc32/tools";
     QString makesisTool = m_toolsDirectory + "/makesis.exe";
     QString packageFile = QFileInfo(m_baseFileName + ".pkg").fileName();
