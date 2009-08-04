@@ -595,33 +595,7 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
 
     _scope->enterSymbol(symbol);
 
-    return false;
-}
-
-bool CheckDeclaration::visit(ObjCMethodDefinitionAST *ast)
-{
-    if (!ast->method_prototype)
-        return false;
-
-    FullySpecifiedType ty = semantic()->check(ast->method_prototype, _scope);
-    Function *fun = ty.type()->asFunctionType();
-    if (!fun)
-        return false;
-
-    Declaration *symbol = control()->newDeclaration(ast->firstToken(), fun->name());
-    symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
-    symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
-
-    symbol->setType(fun->returnType());
-
-    symbol->setVisibility(semantic()->currentVisibility());
-
-    if (semantic()->isObjCClassMethod(ast->method_prototype->method_type_token))
-        symbol->setStorage(Symbol::Static);
-
-    _scope->enterSymbol(symbol);
-
-     if (! semantic()->skipFunctionBodies()) {
+    if (ast->function_body && !semantic()->skipFunctionBodies()) {
         semantic()->check(ast->function_body, fun->members());
     }
 

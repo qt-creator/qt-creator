@@ -222,7 +222,6 @@ public:
     virtual ObjCMessageArgumentDeclarationListAST *asObjCMessageArgumentDeclarationList() { return 0; }
     virtual ObjCMethodPrototypeAST *asObjCMethodPrototype() { return 0; }
     virtual ObjCMethodDeclarationAST *asObjCMethodDeclaration() { return 0; }
-    virtual ObjCMethodDefinitionAST *asObjCMethodDefinition() { return 0; }
     virtual ObjCClassImplementationAST *asObjCClassImplementation() { return 0; }
     virtual ObjCCategoryImplementationAST *asObjCCategoryImplementation() { return 0; }
     virtual ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty() { return 0; }
@@ -3040,6 +3039,7 @@ class CPLUSPLUS_EXPORT ObjCMethodDeclarationAST: public DeclarationAST
 {
 public:
     ObjCMethodPrototypeAST *method_prototype;
+    StatementAST *function_body;
     unsigned semicolon_token;
 
 public:
@@ -3050,25 +3050,6 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ObjCMethodDeclarationAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
-class CPLUSPLUS_EXPORT ObjCMethodDefinitionAST: public DeclarationAST
-{
-public:
-    ObjCMethodPrototypeAST *method_prototype;
-    StatementAST *function_body;
-
-public:
-    virtual ObjCMethodDefinitionAST *asObjCMethodDefinition()
-    { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCMethodDefinitionAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

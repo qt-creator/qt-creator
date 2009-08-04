@@ -1461,15 +1461,8 @@ ObjCMethodDeclarationAST *ObjCMethodDeclarationAST::clone(MemoryPool *pool) cons
 {
     ObjCMethodDeclarationAST *ast = new (pool) ObjCMethodDeclarationAST;
     if (method_prototype) ast->method_prototype = method_prototype->clone(pool);
-    ast->semicolon_token = semicolon_token;
-    return ast;
-}
-
-ObjCMethodDefinitionAST *ObjCMethodDefinitionAST::clone(MemoryPool *pool) const
-{
-    ObjCMethodDefinitionAST *ast = new (pool) ObjCMethodDefinitionAST;
-    if (method_prototype) ast->method_prototype = method_prototype->clone(pool);
     if (function_body) ast->function_body = function_body->clone(pool);
+    ast->semicolon_token = semicolon_token;
     return ast;
 }
 

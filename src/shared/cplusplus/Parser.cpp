@@ -4321,20 +4321,18 @@ bool Parser::parseObjCMethodDefinition(DeclarationAST *&node)
     if (! parseObjCMethodPrototype(method_prototype))
         return false;
 
+    ObjCMethodDeclarationAST *ast = new (_pool) ObjCMethodDeclarationAST;
+    ast->method_prototype = method_prototype;
+
     if (LA() == T_SEMICOLON) {
         // method declaration:
-        ObjCMethodDeclarationAST *ast = new (_pool) ObjCMethodDeclarationAST;
-        ast->method_prototype = method_prototype;
         ast->semicolon_token = consumeToken();
-        node = ast;
     } else {
         // method definition:
-        ObjCMethodDefinitionAST *ast = new (_pool) ObjCMethodDefinitionAST;
-        ast->method_prototype = method_prototype;
         parseFunctionBody(ast->function_body);
-        node = ast;
     }
 
+    node = ast;
     return true;
 }
 
@@ -4567,10 +4565,14 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
             DeclarationAST *parameter_declaration = 0;
             parseParameterDeclaration(parameter_declaration);
         }
+
+        node = ast;
     } else if (lookAtObjCSelector()) {
         ObjCSelectorWithoutArgumentsAST *sel = new (_pool) ObjCSelectorWithoutArgumentsAST;
         parseObjCSelector(sel->name_token);
         ast->selector = sel;
+
+        node = ast;
     } else {
         _translationUnit->error(cursor(), "expected a selector");
     }
@@ -4579,7 +4581,6 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
-    node = ast;
     return true;
 }
 

@@ -1406,16 +1406,6 @@ void ObjCMethodDeclarationAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         // visit ObjCMethodDeclarationAST
         accept(method_prototype, visitor);
-        // visit DeclarationAST
-    }
-    visitor->endVisit(this);
-}
-
-void ObjCMethodDefinitionAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        // visit ObjCMethodDefinitionAST
-        accept(method_prototype, visitor);
         accept(function_body, visitor);
         // visit DeclarationAST
     }

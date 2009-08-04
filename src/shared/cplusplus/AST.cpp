@@ -2398,21 +2398,9 @@ unsigned ObjCMethodDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
-    else
-        return method_prototype->lastToken();
-}
-
-unsigned ObjCMethodDefinitionAST::firstToken() const
-{
-    return method_prototype->firstToken();
-}
-
-unsigned ObjCMethodDefinitionAST::lastToken() const
-{
     if (function_body)
         return function_body->lastToken();
-    else
-        return method_prototype->lastToken();
+    return method_prototype->lastToken();
 }
 
 unsigned ObjCClassImplementationAST::firstToken() const

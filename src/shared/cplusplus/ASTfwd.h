@@ -195,7 +195,6 @@ class ObjCPropertyAttributeListAST;
 class ObjCPropertyAttributeAST;
 class ObjCMethodPrototypeAST;
 class ObjCMethodDeclarationAST;
-class ObjCMethodDefinitionAST;
 class ObjCMessageArgumentDeclarationListAST;
 class ObjCMessageArgumentDeclarationAST;
 class ObjCCategoryImplementationAST;
