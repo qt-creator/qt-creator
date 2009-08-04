@@ -34,6 +34,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
 
@@ -50,6 +51,8 @@
 
 using namespace ProjectExplorer::Internal;
 using namespace ProjectExplorer;
+
+static const int MaxBlockCount = 100000;
 
 OutputPane::OutputPane()
     : m_mainWidget(new QWidget)
@@ -337,52 +340,103 @@ OutputWindow::OutputWindow(QWidget *parent)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
-    setMaximumBlockCount(100000);
     setWindowTitle(tr("Application Output Window"));
     setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
     setFrameShape(QFrame::NoFrame);
-}
 
+    static uint usedIds = 0;
+    Core::ICore *core = Core::ICore::instance();
+    QList<int> context;
+    context << core->uniqueIDManager()->uniqueIdentifier(QString(Constants::C_APP_OUTPUT) + QString().setNum(usedIds++));
+    m_outputWindowContext = new Core::BaseContext(this, context);
+    core->addContextObject(m_outputWindowContext);
+
+    QAction *undoAction = new QAction(this);
+    QAction *redoAction = new QAction(this);
+    QAction *cutAction = new QAction(this);
+    QAction *copyAction = new QAction(this);
+    QAction *pasteAction = new QAction(this);
+    QAction *selectAllAction = new QAction(this);
+
+    core->actionManager()->registerAction(undoAction, Core::Constants::UNDO, context);
+    core->actionManager()->registerAction(redoAction, Core::Constants::REDO, context);
+    core->actionManager()->registerAction(cutAction, Core::Constants::CUT, context);
+    core->actionManager()->registerAction(copyAction, Core::Constants::COPY, context);
+    core->actionManager()->registerAction(pasteAction, Core::Constants::PASTE, context);
+    core->actionManager()->registerAction(selectAllAction, Core::Constants::SELECTALL, context);
+
+    connect(undoAction, SIGNAL(triggered()), this, SLOT(undo()));
+    connect(redoAction, SIGNAL(triggered()), this, SLOT(redo()));
+    connect(cutAction, SIGNAL(triggered()), this, SLOT(cut()));
+    connect(copyAction, SIGNAL(triggered()), this, SLOT(copy()));
+    connect(pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
+    connect(selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
+
+    connect(this, SIGNAL(undoAvailable(bool)), undoAction, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(redoAvailable(bool)), redoAction, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(copyAvailable(bool)), cutAction, SLOT(setEnabled(bool)));  // OutputWindow never read-only
+    connect(this, SIGNAL(copyAvailable(bool)), copyAction, SLOT(setEnabled(bool)));
+
+    undoAction->setEnabled(false);
+    redoAction->setEnabled(false);
+    cutAction->setEnabled(false);
+    copyAction->setEnabled(false);
+}
 
 OutputWindow::~OutputWindow()
 {
+    Core::ICore::instance()->removeContextObject(m_outputWindowContext);
 }
 
 void OutputWindow::appendOutput(const QString &out)
 {
+    setMaximumBlockCount(MaxBlockCount);
+
     if (out.endsWith('\n'))
         appendPlainText(out.right(out.length()-1));
     else
         appendPlainText(out);
+
+    enableUndoRedo();
 }
 
 
 void OutputWindow::appendOutputInline(const QString &out)
 {
+    setMaximumBlockCount(MaxBlockCount);
+
     int newline = out.indexOf(QLatin1Char('\n'));
     if (newline < 0) {
         moveCursor(QTextCursor::End);
         insertPlainText(out); // doesn't insert additional '\n' like appendPlainText
-        return;
+    }else{
+        int lastnewline = out.lastIndexOf(QLatin1Char('\n'));
+        // make sure that we use appendPlainText to add the last newline
+        // in the string, so we get automatic scrolling
+        // and work around the fact that appendPlainText also ensures
+        // a newline in front of the appended text
+        if (lastnewline > 0) {
+            moveCursor(QTextCursor::End);
+            insertPlainText(out.left(lastnewline));
+        }
+        appendPlainText(""); // add the newline
+        if (lastnewline < out.length()-1) { // newline is not last character
+            moveCursor(QTextCursor::End);
+            insertPlainText(out.mid(lastnewline+1));
+        }
     }
-    int lastnewline = out.lastIndexOf(QLatin1Char('\n'));
-    // make sure that we use appendPlainText to add the last newline
-    // in the string, so we get automatic scrolling
-    // and work around the fact that appendPlainText also ensures
-    // a newline in front of the appended text
-    if (lastnewline > 0) {
-        moveCursor(QTextCursor::End);
-        insertPlainText(out.left(lastnewline));
-    }
-    appendPlainText(""); // add the newline
-    if (lastnewline < out.length()-1) { // newline is not last character
-        moveCursor(QTextCursor::End);
-        insertPlainText(out.mid(lastnewline+1));
-    }
+    enableUndoRedo();
 }
 
 void OutputWindow::insertLine()
 {
+    setMaximumBlockCount(MaxBlockCount);
     appendPlainText(QString());
+    enableUndoRedo();
 }
 
+void OutputWindow::enableUndoRedo()
+{
+    setMaximumBlockCount(0);
+    setUndoRedoEnabled(true);
+}

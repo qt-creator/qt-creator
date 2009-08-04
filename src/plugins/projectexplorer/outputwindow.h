@@ -48,6 +48,10 @@ namespace ProjectExplorer {
 
 class RunControl;
 
+namespace Constants {
+    const char * const C_APP_OUTPUT = "Application Output";
+}
+
 namespace Internal {
 
 class OutputWindow;
@@ -121,6 +125,10 @@ public:
     void appendOutput(const QString &out);
     void appendOutputInline(const QString &out);
     void insertLine();
+
+private:
+    Core::BaseContext *m_outputWindowContext;
+    void enableUndoRedo();
 };
 
 #if 0
