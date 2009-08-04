@@ -19,13 +19,12 @@
 #include <QtGui/QStringListModel>
 #include <QtTest/QtTest>
 
-#include <QtCore/private/qobject_p.h>
-
 //#include <QtTest/qtest_gui.h>
 
 #include "gdb/gdbmi.h"
 #include "tcf/json.h"
 #include "gdbmacros.h"
+#include "gdbmacros_p.h"
 
 
 #undef NS
@@ -173,6 +172,7 @@ private slots:
     void dumpQVariant_QString();
     void dumpQVariant_QStringList();
     void dumpStdVector();
+    void initTestCase();
 
 public slots:
     void runQtc();
@@ -204,7 +204,7 @@ private:
     void dumpQPixmapHelper(QPixmap &p);
 #if QT_VERSION >= 0x040500
     template <typename T>
-    void dumpQSharedPointerHelper(QSharedPointer<T> &ptr, bool isSimple);
+    void dumpQSharedPointerHelper(QSharedPointer<T> &ptr);
 #endif
     void dumpQTextCodecHelper(QTextCodec *codec);
 };
@@ -1729,15 +1729,11 @@ void tst_Debugger::dumpQPixmap()
 
 #if QT_VERSION >= 0x040500
 template<typename T>
-void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr, bool isSimple)
+void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
 {
-    // TODO: This works only for integer types at the moment.
+#if 0
     QByteArray expected("value = '");
-    QString val;
-    if (isSimple) {
-        val = QString::number(*ptr.data());
-        expected.append(val);
-    }
+    QString val = ptr.isNull() ? "<null>" : valToString(*ptr.data());
     QAtomicInt *weakAddr;
     QAtomicInt *strongAddr;
     int weakValue;
@@ -1760,12 +1756,16 @@ void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr, bool isSimpl
         append("{name='strongref',value='").append(QString::number(strongValue)).
         append("',type='int',addr='").append(ptrToBa(strongAddr)).append("',numchild='0'}]");
     testDumper(expected, &ptr, NS"QSharedPointer", true);
+#endif
 }
 
 void tst_Debugger::dumpQSharedPointer()
 {
-    QSharedPointer<int> ptr(new int(99));
-    // dumpQSharedPointerHelper(ptr, 1, 0, true);
+    QSharedPointer<int> ptr;
+    dumpQSharedPointerHelper(ptr);
+
+    QSharedPointer<int> ptr2(new int(99));
+    dumpQSharedPointerHelper(ptr2);
 }
 #endif
 
@@ -1861,6 +1861,11 @@ void tst_Debugger::dumpQTextCodec()
 //
 // Creator
 //
+
+void tst_Debugger::initTestCase()
+{
+    QVERIFY(sizeof(QObjectPrivate) == sizeof(ObjectPrivate));
+}
 
 void tst_Debugger::readStandardOutput()
 {

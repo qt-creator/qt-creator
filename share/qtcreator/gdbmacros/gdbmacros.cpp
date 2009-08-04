@@ -62,7 +62,7 @@
 #include <QtCore/QWeakPointer>
 #endif
 
-#include <QtCore/private/qobject_p.h>
+#include "gdbmacros_p.h"
 
 int qtGhVersion = QT_VERSION;
 
@@ -174,75 +174,8 @@ int qtGhVersion = QT_VERSION;
 QT_BEGIN_NAMESPACE
 #endif
 
-struct Sender { QObject *sender; int signal; int ref; };
-
 const char *stdStringTypeC = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
 const char *stdWideStringTypeUShortC = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
-
-#if QT_VERSION < 0x040600
-    struct Connection
-    {
-        QObject *receiver;
-        int method;
-        uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
-        QBasicAtomicPointer<int> argumentTypes;
-    };
-
-    typedef QList<Connection> ConnectionList;
-    typedef QList<Sender> SenderList;
-
-    const Connection &connectionAt(const ConnectionList &l, int i) { return l.at(i); }
-    const QObject *senderAt(const SenderList &l, int i) { return l.at(i).sender; }
-    int signalAt(const SenderList &l, int i) { return l.at(i).signal; }
-#endif
-
-#if QT_VERSION >= 0x040600
-    struct Connection
-    {
-        QObject *sender;
-        QObject *receiver;
-        int method;
-        uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
-        QBasicAtomicPointer<int> argumentTypes;
-        //senders linked list
-        Connection *next;
-        Connection **prev;
-    };
-
-    typedef QList<Connection *> ConnectionList;
-    typedef Connection *SenderList;
-
-    const Connection &connectionAt(const ConnectionList &l, int i) { return *l.at(i); }
-#endif
-
-class ObjectPrivate : public QObjectData
-{
-public:
-    ObjectPrivate() {}
-    virtual ~ObjectPrivate() {}
-
-    QList<QObject *> pendingChildInsertedEvents;
-    void *threadData;
-    void *currentSender;
-    void *currentChildBeingDeleted;
-    QList<QPointer<QObject> > eventFilters;
-
-    void *extraData;
-#if QT_VERSION >= 0x040600
-    mutable quint32 connectedSignals[2];
-#else
-    mutable quint32 connectedSignals;
-#endif
-    QString objectName;
-
-    void *connectionLists;
-    SenderList senders;
-    int *deleteWatch;
-#if QT_VERSION >= 0x040600
-    void *objectGuards;
-#endif
-};
-
 
 #if defined(QT_BEGIN_NAMESPACE)
 QT_END_NAMESPACE
@@ -265,9 +198,6 @@ QT_END_NAMESPACE
 #endif
 
 namespace {
-
-// Causes a compile error if QObjectPrivate goes out of sync.
-int sanityCheck[(sizeof(ObjectPrivate) == sizeof(QObjectPrivate)) - 1];
 
 static QByteArray strPtrConst = "* const";
 
