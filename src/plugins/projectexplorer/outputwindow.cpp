@@ -351,22 +351,34 @@ OutputWindow::~OutputWindow()
 void OutputWindow::appendOutput(const QString &out)
 {
     if (out.endsWith('\n'))
-        appendPlainText(out);
+        appendPlainText(out.right(out.length()-1));
     else
-        appendPlainText(out + '\n');
+        appendPlainText(out);
 }
+
 
 void OutputWindow::appendOutputInline(const QString &out)
 {
-    moveCursor(QTextCursor::End);
     int newline = out.indexOf(QLatin1Char('\n'));
     if (newline < 0) {
-        insertPlainText(out);
+        moveCursor(QTextCursor::End);
+        insertPlainText(out); // doesn't insert additional '\n' like appendPlainText
         return;
     }
-    insertPlainText(out.left(newline));
-    if (newline < out.length())
-        appendPlainText(out.mid(newline+1));
+    int lastnewline = out.lastIndexOf(QLatin1Char('\n'));
+    // make sure that we use appendPlainText to add the last newline
+    // in the string, so we get automatic scrolling
+    // and work around the fact that appendPlainText also ensures
+    // a newline in front of the appended text
+    if (lastnewline > 0) {
+        moveCursor(QTextCursor::End);
+        insertPlainText(out.left(lastnewline));
+    }
+    appendPlainText(""); // add the newline
+    if (lastnewline < out.length()-1) { // newline is not last character
+        moveCursor(QTextCursor::End);
+        insertPlainText(out.mid(lastnewline+1));
+    }
 }
 
 void OutputWindow::insertLine()
