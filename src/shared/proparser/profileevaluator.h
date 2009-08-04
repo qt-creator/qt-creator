@@ -70,6 +70,7 @@ public:
         QString dirlist_sep;
         QString qmakespec;
         QString cachefile;
+        QHash<QString, QString> properties;
 
         enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
         TARG_MODE target_mode;
@@ -110,7 +111,6 @@ public:
     bool queryProFile(ProFile *pro, const QString &content); // the same as above but the content is read from "content" string, not from filesystem
     bool accept(ProFile *pro);
 
-    void addProperties(const QHash<QString, QString> &properties);
     QStringList values(const QString &variableName) const;
     QStringList values(const QString &variableName, const ProFile *pro) const;
     QStringList absolutePathValues(const QString &variable, const QString &baseDirectory) const;

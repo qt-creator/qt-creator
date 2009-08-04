@@ -216,7 +216,6 @@ public:
 
     QHash<QString, QStringList> m_valuemap;         // VariableName must be us-ascii, the content however can be non-us-ascii.
     QHash<const ProFile*, QHash<QString, QStringList> > m_filevaluemap; // Variables per include file
-    QHash<QString, QString> m_properties;
     QString m_outputDir;
 
     bool m_definingTest;
@@ -1252,8 +1251,8 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
 
 QString ProFileEvaluator::Private::propertyValue(const QString &name, bool complain) const
 {
-    if (m_properties.contains(name))
-        return m_properties.value(name);
+    if (m_option->properties.contains(name))
+        return m_option->properties.value(name);
     if (name == QLatin1String("QMAKE_MKSPECS"))
         return qmakeMkspecPaths().join(m_option->dirlist_sep);
     if (name == QLatin1String("QMAKE_VERSION"))
@@ -2841,11 +2840,6 @@ bool ProFileEvaluator::accept(ProFile *pro)
 QString ProFileEvaluator::propertyValue(const QString &name) const
 {
     return d->propertyValue(name);
-}
-
-void ProFileEvaluator::addProperties(const QHash<QString, QString> &properties)
-{
-    updateHash(&(d->m_properties), properties);
 }
 
 void ProFileEvaluator::logMessage(const QString &message)
