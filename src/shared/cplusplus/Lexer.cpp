@@ -49,6 +49,7 @@
 #include "Lexer.h"
 #include "Control.h"
 #include "TranslationUnit.h"
+#include "Literals.h"
 #include <cctype>
 #include <cassert>
 
@@ -255,7 +256,9 @@ void Lexer::scan_helper(Token *tok)
         const char *yytext = _currentChar;
 
         while (_yychar && _yychar != quote) {
-            if (_yychar != '\\')
+            if (_yychar == '\n')
+                break;
+            else if (_yychar != '\\')
                 yyinp();
             else {
                 yyinp(); // skip `\\'
