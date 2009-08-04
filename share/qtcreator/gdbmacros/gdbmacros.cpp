@@ -62,6 +62,8 @@
 #include <QtCore/QWeakPointer>
 #endif
 
+#include <QtCore/private/qobject_p.h>
+
 int qtGhVersion = QT_VERSION;
 
 #ifndef USE_QT_GUI
@@ -223,17 +225,22 @@ public:
     void *threadData;
     void *currentSender;
     void *currentChildBeingDeleted;
-
     QList<QPointer<QObject> > eventFilters;
 
     void *extraData;
+#if QT_VERSION >= 0x040600
+    mutable quint32 connectedSignals[2];
+#else
     mutable quint32 connectedSignals;
-
+#endif
     QString objectName;
 
     void *connectionLists;
     SenderList senders;
     int *deleteWatch;
+#if QT_VERSION >= 0x040600
+    void *objectGuards;
+#endif
 };
 
 
@@ -258,6 +265,9 @@ QT_END_NAMESPACE
 #endif
 
 namespace {
+
+// Causes a compile error if QObjectPrivate goes out of sync.
+int sanityCheck[(sizeof(ObjectPrivate) == sizeof(QObjectPrivate)) - 1];
 
 static QByteArray strPtrConst = "* const";
 
@@ -2327,7 +2337,7 @@ static const char *qConnectionType(uint type)
         case Qt::BlockingQueuedConnection: output = "blockingqueued"; break;
         case 3: output = "autocompat"; break;
 #if QT_VERSION >= 0x040600
-        case Qt::UniqueConnection: output = "unique"; break;
+        case Qt::UniqueConnection: break; // Can't happen.
 #endif
         };
     return output;

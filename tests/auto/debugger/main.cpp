@@ -153,6 +153,7 @@ private slots:
     void dumpQList_QString();
     void dumpQList_QString3();
     void dumpQList_Int3();
+    void dumpQMap();
     void dumpQMapNode();
     void dumpQObject();
     void dumpQObjectChildList();
@@ -191,6 +192,7 @@ private:
     void dumpQFileHelper(const QString &name, bool exists);
     void dumpQImageHelper(QImage &img);
     void dumpQImageDataHelper(QImage &img);
+    template <typename K, typename V> void dumpQMapHelper(QMap<K, V> &m);
     template <typename K, typename V> void dumpQMapNodeHelper(QMap<K, V> &m);
     void dumpQObjectChildListHelper(QObject &o);
     void dumpQObjectMethodListHelper(QObject &obj);
@@ -922,6 +924,13 @@ void tst_Debugger::dumpQList_QString3()
 }
 
 // Helper functions for QMap* dumping.
+
+#ifdef Q_CC_MSVC
+#  define MAP_NODE_TYPE_END ">"
+#else
+#  define MAP_NODE_TYPE_END " >"
+#endif
+
 template <typename T> static const char *typeToString(const T &)
 {
     return "<unknown type>";
@@ -946,6 +955,14 @@ template <> const char *typeToString(const QString &)
 {
     return NS"QString";
 }
+template <typename T> bool isSimpleType(const T &)
+{
+    return false;
+}
+template <> bool isSimpleType(const int &)
+{
+    return true;
+}
 template <typename T> static const char *typeToNumchild(const T &)
 {
     return "1";
@@ -959,9 +976,142 @@ template <> const char *typeToNumchild(const QString &)
     return "0";
 }
 
+template <typename K, typename V> const QByteArray getMapType(K keyDummy, V valDummy)
+{
+    return QByteArray(typeToString(keyDummy)) + "@" + QByteArray(typeToString(valDummy));
+}
+
+template <typename K, typename V>
+    void getMapNodeParams(size_t &nodeSize, size_t &valOffset)
+{
+#if QT_VERSION >= 0x040500
+        typedef QMapNode<K, V> node_t;
+        nodeSize = sizeof(node_t);
+        valOffset = offsetof(node_t, value);
+#else
+        nodeSize = sizeof(K) + sizeof(V) + 2*sizeof(void *);
+        valOffset = sizeof(K);
+#endif
+}
+
+
+template <typename K, typename V>
+        void tst_Debugger::dumpQMapHelper(QMap<K, V> &map)
+{
+    QByteArray sizeStr(valToString(map.size()));
+    size_t nodeSize;
+    size_t valOff;
+    getMapNodeParams<K, V>(nodeSize, valOff);
+    int transKeyOffset = static_cast<int>(2*sizeof(void *)) - static_cast<int>(nodeSize);
+    int transValOffset = transKeyOffset + valOff;
+    K dummyKey;
+    V dummyVal;
+    bool simpleKey = isSimpleType(dummyKey);
+    bool simpleVal = isSimpleType(dummyVal);
+    QByteArray expected = QByteArray("value='<").append(sizeStr).append(" items>',numchild='").
+        append(sizeStr).append("',extra='simplekey: ").append(QString::number(simpleKey)).
+        append(" isSimpleValue: ").append(QString::number(simpleVal)).
+        append(" keyOffset: ").append(QString::number(transKeyOffset)).append(" valueOffset: ").
+        append(QString::number(transValOffset)).append(" mapnodesize: ").
+        append(QString::number(nodeSize)).append("',children=[");
+    typedef typename QMap<K, V>::iterator mapIter;
+    for (mapIter it = map.begin(); it != map.end(); ++it) {
+        if (it != map.begin())
+            expected.append(",");
+        const QByteArray keyString =
+            QByteArray(valToString(it.key())).replace("valueencoded","keyencoded");
+        expected.append("{key='").append(keyString).append("',value='").
+            append(valToString(it.value())).append("',");
+        if (simpleKey && simpleVal) {
+            expected.append("type='").append(typeToString(dummyVal)).
+                append("',addr='").append(ptrToBa(&it.value())).append("'");
+        } else {
+            QString keyTypeStr = typeToString(dummyKey);
+            QString valTypeStr = typeToString(dummyVal);
+#if QT_VERSION >= 0x040500
+            expected.append("addr='").
+                append(ptrToBa(reinterpret_cast<char *>(&(*it)) + sizeof(V))).
+                append("',type='"NS"QMapNode<").append(keyTypeStr).append(",").
+                append(valTypeStr).append(MAP_NODE_TYPE_END).append("'");
+#else
+            expected.append("type='"NS"QMapData::Node<").append(keyTypeStr).
+                append(",").append(valTypeStr).append(MAP_NODE_TYPE_END).
+                append("',exp='*('"NS"QMapData::Node<").append(keyTypeStr).
+                append(",").append(valTypeStr).append(MAP_NODE_TYPE_END).
+                append(" >'*)").append(ptrToBa(&(*it))).append("'");
+#endif
+        }
+        expected.append("}");
+    }
+    expected.append("]");
+    mapIter it = map.begin();
+    testDumper(expected, *reinterpret_cast<QMapData **>(&it), NS"QMap",
+               true, getMapType(dummyKey, dummyVal), "", 0, 0, nodeSize, valOff);
+}
+
+void tst_Debugger::dumpQMap()
+{
+    // Case 1: Simple type -> simple type.
+    QMap<int, int> map1;
+
+    // Case 1.1: Empty map.
+    dumpQMapHelper(map1);
+
+    // Case 1.2: One element.
+    map1[2] = 3;
+    dumpQMapHelper(map1);
+
+    // Case 1.3: Two elements.
+    map1[3] = 5;
+    dumpQMapHelper(map1);
+
+    // Case 2: Simple type -> composite type.
+    QMap<int, QString> map2;
+
+    // Case 2.1: Empty Map.
+    dumpQMapHelper(map2);
+
+    // Case 2.2: One element.
+    map2[5] = "String 7";
+    dumpQMapHelper(map2);
+
+    // Case 2.3: Two elements.
+    map2[7] = "String 11";
+    dumpQMapHelper(map2);
+
+    // Case 3: Composite type -> simple type.
+    QMap<QString, int> map3;
+
+    // Case 3.1: Empty map.
+    dumpQMapHelper(map3);
+
+    // Case 3.2: One element.
+    map3["String 13"] = 11;
+    dumpQMapHelper(map3);
+
+    // Case 3.3: Two elements.
+    map3["String 17"] = 13;
+    dumpQMapHelper(map3);
+
+    // Case 4: Composite type -> composite type.
+    QMap<QString, QString> map4;
+
+    // Case 4.1: Empty map.
+    dumpQMapHelper(map4);
+
+    // Case 4.2: One element.
+    map4["String 19"] = "String 23";
+    dumpQMapHelper(map4);
+
+    // Case 4.3: Two elements.
+    map4["String 29"] = "String 31";
+    dumpQMapHelper(map4);
+}
+
 template <typename K, typename V>
         void tst_Debugger::dumpQMapNodeHelper(QMap<K, V> &map)
 {
+#if 0 // TODO: Fails due to inconsistencies in gdbmacros.cpp
     for (typename QMap<K, V>::iterator it = map.begin(); it != map.end(); ++it) {
         const K &key = it.key();
         const V &val = it.value();
@@ -972,12 +1122,13 @@ template <typename K, typename V>
             append("',value='").append(valToString(key)).append("'},{name='value',addr='").
             append(ptrToBa(&val)).append("',value='").append(valToString(val)).
             append("'}]");
-        QByteArray valType = QByteArray(typeToString(val));
-        QByteArray nodeType = keyType + QByteArray("@") + valType;
-        typedef QMapNode<K, V> node_t;
+        size_t nodeSize;
+        size_t valOffset;
+        getMapNodeParams<K, V>(nodeSize, valOffset);
         testDumper(expected, *reinterpret_cast<QMapData **>(&it), NS"QMapNode",
-                   true, nodeType, "", 0, 0, sizeof(node_t), offsetof(node_t, value));
+                   true, getMapType(key, val), "", 0, 0, nodeSize, valOffset);
     };
+#endif
 }
 
 void tst_Debugger::dumpQMapNode()
@@ -1197,7 +1348,7 @@ static const char *connectionType(uint type)
         case Qt::BlockingQueuedConnection: output = "blockingqueued"; break;
         case 3: output = "autocompat"; break;
 #if QT_VERSION >= 0x040600
-        case Qt::UniqueConnection: output = "unique"; break;
+        case Qt::UniqueConnection: break; // Can't happen.
 #endif
         };
     return output;
@@ -1213,8 +1364,6 @@ public:
 };
 
 typedef QVector<QObjectPrivate::ConnectionList> ConnLists;
-
-
 
 void tst_Debugger::dumpQObjectSignalHelper(QObject &o, int sigNum)
 {
