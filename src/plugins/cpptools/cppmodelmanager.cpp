@@ -774,15 +774,17 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
     m_projects.insert(pinfo.project, pinfo);
     m_dirty = true;
 
-    QFuture<void> result = QtConcurrent::run(&CppModelManager::updateIncludesInPaths,
-                                             this,
-                                             pinfo.includePaths,
-                                             m_headerSuffixes);
+    if (qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
+        QFuture<void> result = QtConcurrent::run(&CppModelManager::updateIncludesInPaths,
+                                                 this,
+                                                 pinfo.includePaths,
+                                                 m_headerSuffixes);
 
-    if (pinfo.includePaths.size() > 1) {
-        m_core->progressManager()->addTask(result, tr("Scanning"),
-                                           CppTools::Constants::TASK_INDEX,
-                                           Core::ProgressManager::CloseOnSuccess);
+        if (pinfo.includePaths.size() > 1) {
+            m_core->progressManager()->addTask(result, tr("Scanning"),
+                                               CppTools::Constants::TASK_INDEX,
+                                               Core::ProgressManager::CloseOnSuccess);
+        }
     }
 }
 
