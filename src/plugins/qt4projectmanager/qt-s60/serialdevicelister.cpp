@@ -80,6 +80,15 @@ QList<SerialDeviceLister::SerialDevice> SerialDeviceLister::serialDevices() cons
     return m_devices;
 }
 
+QString SerialDeviceLister::friendlyNameForPort(const QString &port) const
+{
+    foreach (const SerialDevice &device, m_devices) {
+        if (device.portName == port)
+            return device.friendlyName;
+    }
+    return QString();
+}
+
 void SerialDeviceLister::update()
 {
     updateSilently();

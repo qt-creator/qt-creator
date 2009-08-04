@@ -56,6 +56,7 @@ public:
     SerialDeviceLister(QObject *parent = 0);
     ~SerialDeviceLister();
     QList<SerialDevice> serialDevices() const;
+    QString friendlyNameForPort(const QString &port) const;
 
 public slots:
     void update();

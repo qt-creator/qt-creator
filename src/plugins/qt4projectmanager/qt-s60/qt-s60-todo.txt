@@ -20,7 +20,7 @@
       tool chain?
     * seems that the make for building for device doesn't return useful exit code,
       so a run is started even if the build has errors
-    * gcce error parser (gcc seems not to be enough sometimes, and the make tool does not return valid exit codes
+    * gcce error parser (gcc seems not to be enough sometimes, and the make tool does not return valid exit codes`
 
 * Run Configurations
     * handling of active run config getting disabled not optimal yet

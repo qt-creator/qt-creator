@@ -482,6 +482,7 @@ void S60DeviceRunControl::start()
     Qt4Project *project = qobject_cast<Qt4Project *>(rc->project());
 
     m_serialPortName = rc->serialPortName();
+    m_serialPortFriendlyName = S60Manager::instance()->serialDeviceLister()->friendlyNameForPort(m_serialPortName);
     m_targetName = rc->targetName();
     m_baseFileName = rc->basePackageFilePath();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
@@ -589,6 +590,7 @@ void S60DeviceRunControl::signsisProcessFinished()
     m_adapter->setCopyFileName(copySrc, copyDst);
     m_adapter->setInstallFileName(copyDst);
     m_adapter->setFileName(runFileName);
+    emit addToOutputWindow(this, tr("Starting application on %1...").arg(m_serialPortFriendlyName));
     if (!m_adapter->startServer()) {
         delete m_adapter;
         m_adapter = 0;
@@ -600,7 +602,7 @@ void S60DeviceRunControl::signsisProcessFinished()
 
 void S60DeviceRunControl::printCopyingNotice()
 {
-    emit addToOutputWindow(this, tr("Copying install file to device..."));
+    emit addToOutputWindow(this, tr("Copying install file..."));
 }
 
 void S60DeviceRunControl::printInstallingNotice()
@@ -610,7 +612,7 @@ void S60DeviceRunControl::printInstallingNotice()
 
 void S60DeviceRunControl::printStartingNotice()
 {
-    emit addToOutputWindow(this, tr("Starting..."));
+    emit addToOutputWindow(this, tr("Starting application..."));
 }
 
 void S60DeviceRunControl::printRunNotice(uint pid)

@@ -166,6 +166,7 @@ private:
     void processFailed(const QString &program, QProcess::ProcessError errorCode);
 
     QString m_serialPortName;
+    QString m_serialPortFriendlyName;
     QString m_targetName;
     QString m_baseFileName;
     QString m_workingDirectory;
