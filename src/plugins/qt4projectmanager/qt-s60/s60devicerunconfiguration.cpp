@@ -612,12 +612,12 @@ void S60DeviceRunControl::printInstallingNotice()
 
 void S60DeviceRunControl::printStartingNotice()
 {
-    emit addToOutputWindow(this, tr("Starting application..."));
+    emit addToOutputWindow(this, tr("Running application..."));
 }
 
 void S60DeviceRunControl::printRunNotice(uint pid)
 {
-    emit addToOutputWindow(this, tr("Application started with pid %1.").arg(pid));
+    emit addToOutputWindow(this, tr("Application running with pid %1.").arg(pid));
 }
 
 void S60DeviceRunControl::runFinished()
