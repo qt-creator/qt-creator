@@ -168,7 +168,7 @@ public:
     QStringList values(const QString &variableName, const ProFile *pro) const;
     QStringList values(const QString &variableName, const QHash<QString, QStringList> &place,
                        const ProFile *pro) const;
-    QString propertyValue(const QString &val) const;
+    QString propertyValue(const QString &val, bool complain = true) const;
 
     QStringList split_value_list(const QString &vals, bool do_semicolon = false);
     QStringList split_arg_list(const QString &params);
@@ -1199,7 +1199,7 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
         foreach (const QString &f, QString::fromLocal8Bit(mkspec_path).split(m_option->dirlist_sep))
             feature_roots += QDir::cleanPath(f);
 
-    feature_roots += propertyValue(QLatin1String("QMAKEFEATURES")).split(
+    feature_roots += propertyValue(QLatin1String("QMAKEFEATURES"), false).split(
             m_option->dirlist_sep, QString::SkipEmptyParts);
 
     if (!m_option->cachefile.isEmpty()) {
@@ -1250,7 +1250,7 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
     return feature_roots;
 }
 
-QString ProFileEvaluator::Private::propertyValue(const QString &name) const
+QString ProFileEvaluator::Private::propertyValue(const QString &name, bool complain) const
 {
     if (m_properties.contains(name))
         return m_properties.value(name);
@@ -1258,6 +1258,8 @@ QString ProFileEvaluator::Private::propertyValue(const QString &name) const
         return qmakeMkspecPaths().join(m_option->dirlist_sep);
     if (name == QLatin1String("QMAKE_VERSION"))
         return QLatin1String("1.0");        //### FIXME
+    if (complain)
+        q->logMessage(format("Querying unknown property %1").arg(name));
     return QString();
 }
 
