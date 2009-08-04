@@ -106,6 +106,7 @@ TrkResult extractResult(QByteArray *buffer)
     if (buffer->at(4) != 0x7e) {
         result.isDebugOutput = true;
         result.data = buffer->mid(4, len);
+        result.data.replace("\r\n", "\n");
         *buffer = buffer->mid(4 + len);
         return result;
     }

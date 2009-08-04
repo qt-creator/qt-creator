@@ -591,7 +591,7 @@ void S60DeviceRunControl::signsisProcessFinished()
     m_adapter->setCopyFileName(copySrc, copyDst);
     m_adapter->setInstallFileName(copyDst);
     m_adapter->setFileName(runFileName);
-    emit addToOutputWindow(this, tr("Starting application on %1...").arg(m_serialPortFriendlyName));
+    emit addToOutputWindow(this, tr("Deploying application to %1...").arg(m_serialPortFriendlyName));
     if (!m_adapter->startServer()) {
         delete m_adapter;
         m_adapter = 0;
@@ -613,7 +613,7 @@ void S60DeviceRunControl::printInstallingNotice()
 
 void S60DeviceRunControl::printStartingNotice()
 {
-    emit addToOutputWindow(this, tr("Running application..."));
+    emit addToOutputWindow(this, tr("Starting application..."));
 }
 
 void S60DeviceRunControl::printRunNotice(uint pid)
