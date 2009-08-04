@@ -391,6 +391,7 @@ bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
             finalizeBlock();
         ++m_lineNo;
     }
+    m_proitem.clear(); // Throw away pre-allocation
     return true;
 }
 
@@ -762,7 +763,7 @@ static QString fixPathToLocalOS(const QString &str)
 {
     QString string = str;
 
-    if (string.length() > 2 && string[0].isLetter() && string[1] == QLatin1Char(':'))
+    if (string.length() > 2 && string.at(0).isLetter() && string.at(1) == QLatin1Char(':'))
         string[0] = string[0].toLower();
 
 #if defined(Q_OS_WIN32)
@@ -904,7 +905,7 @@ void ProFileEvaluator::Private::visitEndProVariable(ProVariable *variable)
 
                 QString val = m_sts.varVal.first();
                 doVariableReplace(&val);
-                if (val.length() < 4 || val[0] != QLatin1Char('s')) {
+                if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
                     q->logMessage(format("the ~= operator can handle only the s/// function."));
                     break;
                 }
@@ -989,11 +990,10 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
             if (tgt.isEmpty())
                 tgt.append(QFileInfo(pro->fileName()).baseName());
 
-            QStringList tmp = m_valuemap.value(QLatin1String("CONFIG"));
+            QStringList &tmp = m_valuemap[QLatin1String("CONFIG")];
             tmp.append(m_addUserConfigCmdArgs);
             foreach (const QString &remove, m_removeUserConfigCmdArgs)
                 tmp.removeAll(remove);
-            m_valuemap.insert(QLatin1String("CONFIG"), tmp);
         }
     }
 
@@ -1013,7 +1013,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
                 bool finished = true;
                 QStringList configs = valuesDirect(QLatin1String("CONFIG"));
                 for (int i = configs.size() - 1; i >= 0; --i) {
-                    const QString config = configs[i].toLower();
+                    const QString config = configs.at(i).toLower();
                     if (!processed.contains(config)) {
                         processed.insert(config);
                         if (evaluateFeatureFile(config)) {
@@ -1490,7 +1490,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
 
     QStringList args;
     for (int i = 0; i < argumentsList.count(); ++i)
-        args += expandVariableReferences(argumentsList[i]).join(Option::field_sep);
+        args += expandVariableReferences(argumentsList.at(i)).join(Option::field_sep);
 
     enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
@@ -1926,7 +1926,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
     sep.append(Option::field_sep);
     QStringList args;
     for (int i = 0; i < argumentsList.count(); ++i)
-        args += expandVariableReferences(argumentsList[i]).join(sep);
+        args += expandVariableReferences(argumentsList.at(i)).join(sep);
 
     enum TestFunc { T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
                     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
@@ -2020,9 +2020,9 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 return ProItem::ReturnFalse;
             }
             for (int i = 0; i < m_valuemapStack.size(); ++i) {
-                m_valuemapStack[i][args[0]] = m_valuemap[args[0]];
+                m_valuemapStack[i][args[0]] = m_valuemap.value(args[0]);
                 m_filevaluemapStack[i][currentProFile()][args[0]] =
-                        m_filevaluemap[currentProFile()][args[0]];
+                        m_filevaluemap.value(currentProFile()).value(args[0]);
             }
             return ProItem::ReturnTrue;
 #if 0
@@ -2059,7 +2059,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 doVariableReplace(&args[1]);
                 it_list = args[1];
             }
-            loop.list = m_valuemap[it_list];
+            loop.list = m_valuemap.value(it_list);
             if (loop.list.isEmpty()) {
                 if (it_list == QLatin1String("forever")) {
                     loop.infinite = true;
@@ -2518,7 +2518,7 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
         return QStringList(ret);
     }
 
-    QStringList result = place[variableName];
+    QStringList result = place.value(variableName);
     if (result.isEmpty()) {
         if (variableName == QLatin1String("TEMPLATE")) {
             result.append(QLatin1String("app"));
