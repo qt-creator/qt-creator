@@ -2614,24 +2614,17 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName, const
     return values(variableName, m_filevaluemap[pro], pro);
 }
 
+// virtual
 ProFile *ProFileEvaluator::parsedProFile(const QString &fileName)
 {
-    QFileInfo fi(fileName);
-    if (fi.exists()) {
-        QString fn = QDir::cleanPath(fi.absoluteFilePath());
-        foreach (const ProFile *pf, d->m_profileStack)
-            if (pf->fileName() == fn) {
-                errorMessage(d->format("circular inclusion of %1").arg(fn));
-                return 0;
-            }
-        ProFile *pro = new ProFile(fn);
-        if (d->read(pro))
-            return pro;
-        delete pro;
-    }
+    ProFile *pro = new ProFile(fileName);
+    if (d->read(pro))
+        return pro;
+    delete pro;
     return 0;
 }
 
+// virtual
 void ProFileEvaluator::releaseParsedProFile(ProFile *proFile)
 {
     delete proFile;
@@ -2639,7 +2632,16 @@ void ProFileEvaluator::releaseParsedProFile(ProFile *proFile)
 
 bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
 {
-    ProFile *pro = q->parsedProFile(fileName);
+    QFileInfo fi(fileName);
+    if (!fi.exists())
+        return false;
+    QString fn = QDir::cleanPath(fi.absoluteFilePath());
+    foreach (const ProFile *pf, m_profileStack)
+        if (pf->fileName() == fn) {
+            q->errorMessage(format("circular inclusion of %1").arg(fn));
+            return false;
+        }
+    ProFile *pro = q->parsedProFile(fn);
     if (pro) {
         bool ok = (pro->Accept(this) == ProItem::ReturnTrue);
         q->releaseParsedProFile(pro);
