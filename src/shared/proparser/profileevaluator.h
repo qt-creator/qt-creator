@@ -42,6 +42,7 @@ QT_BEGIN_NAMESPACE
 
 class ProFileEvaluator
 {
+    class Private;
 public:
 
     // This struct is from qmake, but we are not using everything.
@@ -77,8 +78,9 @@ public:
         //QString pro_ext;
         //QString res_ext;
 
-//      private:
+      private:
         friend class ProFileEvaluator;
+        friend class ProFileEvaluator::Private;
         static QString field_sep; // Just a cache for quick construction
         QHash<QString, QStringList> cache_valuemap; // Cached results of .qmake.cache
         QHash<QString, QStringList> base_valuemap; // ~ and qmake.conf and default_pre.prf
@@ -127,7 +129,6 @@ public:
     virtual void fileMessage(const QString &msg); // error() and message() from .pro file
 
 private:
-    class Private;
     Private *d;
 
     // This doesn't help gcc 3.3 ...
