@@ -463,7 +463,7 @@ private:
     Array<BaseClass *> _baseClasses;
 };
 
-class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration: public Symbol, public Type
+class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration: public Symbol
 {
 public:
     ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
@@ -472,24 +472,14 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
-    // Type's interface
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const
     { return this; }
 
     virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration()
     { return this; }
 
-    virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() const
-    { return this; }
-
-    virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType()
-    { return this; }
-
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
-    virtual void accept0(TypeVisitor *visitor);
 
 private:
 };
@@ -526,7 +516,7 @@ private:
     Array<ObjCProtocol *> _protocols;
 };
 
-class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration: public Symbol, public Type
+class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration: public Symbol
 {
 public:
     ObjCForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
@@ -535,24 +525,14 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
-    // Type's interface
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const
     { return this; }
 
     virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration()
     { return this; }
 
-    virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() const
-    { return this; }
-
-    virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType()
-    { return this; }
-
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
-    virtual void accept0(TypeVisitor *visitor);
 
 private:
 };

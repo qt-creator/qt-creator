@@ -464,7 +464,7 @@ bool CheckDeclaration::visit(UsingDirectiveAST *ast)
     return false;
 }
 
-bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
+bool CheckDeclaration::visit(ObjCProtocolForwardDeclarationAST *ast)
 {
     const unsigned sourceLocation = ast->firstToken();
 
@@ -491,7 +491,7 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
     return false;
 }
 
-bool CheckDeclaration::visit(ObjCProtocolDefinitionAST *ast)
+bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
 {
     unsigned sourceLocation;
     if (ast->name)
@@ -511,7 +511,7 @@ bool CheckDeclaration::visit(ObjCProtocolDefinitionAST *ast)
     return false;
 }
 
-bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
+bool CheckDeclaration::visit(ObjCClassForwardDeclarationAST *ast)
 {
     const unsigned sourceLocation = ast->firstToken();
 
@@ -538,7 +538,7 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
     return false;
 }
 
-bool CheckDeclaration::visit(ObjCClassInterfaceDefinitionAST *ast)
+bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
 {
     unsigned sourceLocation;
     if (ast->class_name)
@@ -552,7 +552,7 @@ bool CheckDeclaration::visit(ObjCClassInterfaceDefinitionAST *ast)
     klass->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = klass;
 
-    // TODO: walk super-class, and protocols (EV)
+    // TODO: walk category name, super-class, and protocols (EV)
     _scope->enterSymbol(klass);
 
     int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Protected);
@@ -562,6 +562,8 @@ bool CheckDeclaration::visit(ObjCClassInterfaceDefinitionAST *ast)
             semantic()->check(it->declaration, klass->members());
         }
     }
+
+    (void) semantic()->switchObjCVisibility(Function::Public);
 
     for (DeclarationListAST *it = ast->member_declarations; it; it = it->next) {
         semantic()->check(it->declaration, klass->members());

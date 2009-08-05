@@ -197,9 +197,10 @@ public:
     virtual WhileStatementAST *asWhileStatement() { return 0; }
     virtual IdentifierListAST *asIdentifierList() { return 0; }
 
+    virtual ObjCClassForwardDeclarationAST *asObjCClassForwarDeclaration() { return 0; }
     virtual ObjCClassDeclarationAST *asObjCClassDeclaration() { return 0; }
+    virtual ObjCProtocolForwardDeclarationAST *asObjCProtocolForwardDeclaration() { return 0; }
     virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration() { return 0; }
-    virtual ObjCProtocolDefinitionAST *asObjCProtocolDefinition() { return 0; }
     virtual ObjCProtocolRefsAST *asObjCProtocolRefs() { return 0; }
     virtual ObjCMessageArgumentAST *asObjCMessageArgument() { return 0; }
     virtual ObjCMessageArgumentListAST *asObjCMessageArgumentList() { return 0; }
@@ -222,8 +223,6 @@ public:
     virtual ObjCMessageArgumentDeclarationListAST *asObjCMessageArgumentDeclarationList() { return 0; }
     virtual ObjCMethodPrototypeAST *asObjCMethodPrototype() { return 0; }
     virtual ObjCMethodDeclarationAST *asObjCMethodDeclaration() { return 0; }
-    virtual ObjCClassImplementationAST *asObjCClassImplementation() { return 0; }
-    virtual ObjCCategoryImplementationAST *asObjCCategoryImplementation() { return 0; }
     virtual ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty() { return 0; }
     virtual ObjCSynthesizedPropertyListAST *asObjCSynthesizedPropertyList() { return 0; }
     virtual ObjCSynthesizedPropertiesDeclarationAST *asObjCSynthesizedPropertiesDeclaration() { return 0; }
@@ -2474,7 +2473,7 @@ protected:
 class CPLUSPLUS_EXPORT IdentifierListAST: public AST
 {
 public:
-    SimpleNameAST *name;
+    NameAST *name;
     unsigned comma_token;
     IdentifierListAST *next;
 
@@ -2491,7 +2490,7 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
+class CPLUSPLUS_EXPORT ObjCClassForwardDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierAST *attributes;
@@ -2501,6 +2500,39 @@ public:
 
 public: // annotations
     List<ObjCForwardClassDeclaration *> *symbols;
+
+public:
+    virtual ObjCClassForwardDeclarationAST *asObjCClassForwardDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCClassForwardDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
+{
+public:
+    SpecifierAST *attributes;
+    unsigned interface_token;
+    unsigned implementation_token;
+    NameAST *class_name;
+    unsigned lparen_token;
+    NameAST *category_name;
+    unsigned rparen_token;
+    unsigned colon_token;
+    NameAST *superclass;
+    ObjCProtocolRefsAST *protocol_refs;
+    ObjCInstanceVariablesDeclarationAST *inst_vars_decl;
+    DeclarationListAST *member_declarations;
+    unsigned end_token;
+
+public: // annotations
+    ObjCClass *symbol;
 
 public:
     virtual ObjCClassDeclarationAST *asObjCClassDeclaration()
@@ -2515,62 +2547,7 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCClassInterfaceDefinitionAST: public DeclarationAST
-{
-public:
-    SpecifierAST *attributes;
-    unsigned interface_token;
-    SimpleNameAST *class_name;
-    unsigned colon_token;
-    unsigned superclass_identifier_token;
-    ObjCProtocolRefsAST *protocol_refs;
-    ObjCInstanceVariablesDeclarationAST *inst_vars_decl;
-    DeclarationListAST *member_declarations;
-    unsigned end_token;
-
-public: // annotations
-    ObjCClass *symbol;
-
-public:
-    virtual ObjCClassInterfaceDefinitionAST *asObjCClassInterfaceDefinition()
-    { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCClassInterfaceDefinitionAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
-class CPLUSPLUS_EXPORT ObjCCategoryInterfaceDeclarationAST: public DeclarationAST
-{
-public:
-    SpecifierAST *attributes;
-    unsigned interface_token;
-    unsigned class_identifier_token;
-    unsigned lparen_token;
-    unsigned category_identifier_token;
-    unsigned rparen_token;
-    ObjCProtocolRefsAST *protocol_refs;
-    DeclarationListAST *member_declarations;
-    unsigned end_token;
-
-public:
-    virtual ObjCCategoryInterfaceDeclarationAST *asObjCCategoryInterfaceDeclaration()
-    { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCCategoryInterfaceDeclarationAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
-class CPLUSPLUS_EXPORT ObjCProtocolDeclarationAST: public DeclarationAST
+class CPLUSPLUS_EXPORT ObjCProtocolForwardDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierAST *attributes;
@@ -2582,24 +2559,24 @@ public: // annotations
     List<ObjCForwardProtocolDeclaration *> *symbols;
 
 public:
-    virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration()
+    virtual ObjCProtocolForwardDeclarationAST *asObjCProtocolForwardDeclaration()
     { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual ObjCProtocolDeclarationAST *clone(MemoryPool *pool) const;
+    virtual ObjCProtocolForwardDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCProtocolDefinitionAST: public DeclarationAST
+class CPLUSPLUS_EXPORT ObjCProtocolDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierAST *attributes;
     unsigned protocol_token;
-    SimpleNameAST *name;
+    NameAST *name;
     ObjCProtocolRefsAST *protocol_refs;
     DeclarationListAST *member_declarations;
     unsigned end_token;
@@ -2608,13 +2585,13 @@ public: // annotations
     ObjCProtocol *symbol;
 
 public:
-    virtual ObjCProtocolDefinitionAST *asObjCProtocolDefinition()
+    virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration()
     { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual ObjCProtocolDefinitionAST *clone(MemoryPool *pool) const;
+    virtual ObjCProtocolDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
@@ -3050,54 +3027,6 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ObjCMethodDeclarationAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
-class CPLUSPLUS_EXPORT ObjCClassImplementationAST: public DeclarationAST
-{
-public:
-    unsigned implementation_token;
-    unsigned class_identifier;
-    unsigned colon_token;
-    unsigned super_class_identifier;
-    ObjCInstanceVariablesDeclarationAST *inst_vars_decl;
-    DeclarationListAST *declarations;
-    unsigned end_token;
-
-public:
-    virtual ObjCClassImplementationAST *asObjCClassImplementation()
-    { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCClassImplementationAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
-class CPLUSPLUS_EXPORT ObjCCategoryImplementationAST: public DeclarationAST
-{
-public:
-    unsigned implementation_token;
-    unsigned class_identifier;
-    unsigned lparen_token;
-    unsigned category_name_token;
-    unsigned rparen_token;
-    DeclarationListAST *declarations;
-    unsigned end_token;
-
-public:
-    virtual ObjCCategoryImplementationAST *asObjCCategoryImplementation()
-    { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCCategoryImplementationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

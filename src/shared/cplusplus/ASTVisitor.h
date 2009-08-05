@@ -198,10 +198,9 @@ public:
     // ObjC++
     virtual bool visit(IdentifierListAST *) { return true; }
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
-    virtual bool visit(ObjCClassInterfaceDefinitionAST *) { return true; }
-    virtual bool visit(ObjCCategoryInterfaceDeclarationAST *) { return true; }
+    virtual bool visit(ObjCClassForwardDeclarationAST *) { return true; }
     virtual bool visit(ObjCProtocolDeclarationAST *) { return true; }
-    virtual bool visit(ObjCProtocolDefinitionAST *) { return true; }
+    virtual bool visit(ObjCProtocolForwardDeclarationAST *) { return true; }
     virtual bool visit(ObjCProtocolRefsAST *) { return true; }
     virtual bool visit(ObjCMessageExpressionAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentListAST *) { return true; }
@@ -223,8 +222,6 @@ public:
     virtual bool visit(ObjCMethodDeclarationAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentDeclarationListAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentDeclarationAST *) { return true; }
-    virtual bool visit(ObjCClassImplementationAST *) { return true; }
-    virtual bool visit(ObjCCategoryImplementationAST *) { return true; }
     virtual bool visit(ObjCSynthesizedPropertyAST *) { return true; }
     virtual bool visit(ObjCSynthesizedPropertyListAST *) { return true; }
     virtual bool visit(ObjCSynthesizedPropertiesDeclarationAST *) { return true; }
@@ -339,10 +336,9 @@ public:
     // ObjC++
     virtual void endVisit(IdentifierListAST *) { }
     virtual void endVisit(ObjCClassDeclarationAST *) { }
-    virtual void endVisit(ObjCClassInterfaceDefinitionAST *) { }
-    virtual void endVisit(ObjCCategoryInterfaceDeclarationAST *) { }
+    virtual void endVisit(ObjCClassForwardDeclarationAST *) { }
     virtual void endVisit(ObjCProtocolDeclarationAST *) { }
-    virtual void endVisit(ObjCProtocolDefinitionAST *) { }
+    virtual void endVisit(ObjCProtocolForwardDeclarationAST *) { }
     virtual void endVisit(ObjCProtocolRefsAST *) { }
     virtual void endVisit(ObjCMessageExpressionAST *) { }
     virtual void endVisit(ObjCMessageArgumentListAST *) { }
@@ -364,8 +360,6 @@ public:
     virtual void endVisit(ObjCMethodDeclarationAST *) { }
     virtual void endVisit(ObjCMessageArgumentDeclarationListAST *) { }
     virtual void endVisit(ObjCMessageArgumentDeclarationAST *) { }
-    virtual void endVisit(ObjCClassImplementationAST *) { }
-    virtual void endVisit(ObjCCategoryImplementationAST *) { }
     virtual void endVisit(ObjCSynthesizedPropertyAST *) { }
     virtual void endVisit(ObjCSynthesizedPropertyListAST *) { }
     virtual void endVisit(ObjCSynthesizedPropertiesDeclarationAST *) { }

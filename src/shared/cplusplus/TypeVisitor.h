@@ -83,8 +83,6 @@ public:
     virtual void visit(ForwardClassDeclaration *) {}
     virtual void visit(ObjCClass *) {}
     virtual void visit(ObjCProtocol *) {}
-    virtual void visit(ObjCForwardClassDeclaration *) {}
-    virtual void visit(ObjCForwardProtocolDeclaration *) {}
 };
 
 CPLUSPLUS_END_NAMESPACE

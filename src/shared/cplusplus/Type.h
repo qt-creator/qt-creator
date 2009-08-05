@@ -78,9 +78,7 @@ public:
     bool isEnumType() const;
     bool isForwardClassDeclarationType() const;
     bool isObjCClassType() const;
-    bool isObjCForwardClassDeclarationType() const;
     bool isObjCProtocolType() const;
-    bool isObjCForwardProtocolDeclarationType() const;
 
     virtual const VoidType *asVoidType() const { return 0; }
     virtual const IntegerType *asIntegerType() const { return 0; }
@@ -96,9 +94,7 @@ public:
     virtual const Enum *asEnumType() const { return 0; }
     virtual const ForwardClassDeclaration *asForwardClassDeclarationType() const { return 0; }
     virtual const ObjCClass *asObjCClassType() const { return 0; }
-    virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() const { return 0; }
     virtual const ObjCProtocol *asObjCProtocolType() const { return 0; }
-    virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() const { return 0; }
 
     virtual VoidType *asVoidType() { return 0; }
     virtual IntegerType *asIntegerType() { return 0; }
@@ -114,9 +110,7 @@ public:
     virtual Enum *asEnumType() { return 0; }
     virtual ForwardClassDeclaration *asForwardClassDeclarationType() { return 0; }
     virtual ObjCClass *asObjCClassType() { return 0; }
-    virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() { return 0; }
     virtual ObjCProtocol *asObjCProtocoTypel() { return 0; }
-    virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() { return 0; }
 
     void accept(TypeVisitor *visitor);
     static void accept(Type *type, TypeVisitor *visitor);

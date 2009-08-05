@@ -213,7 +213,7 @@ public:
 
     // ObjC++
     bool parseObjCExpression(ExpressionAST *&node);
-    bool parseObjCClassDeclaration(DeclarationAST *&node);
+    bool parseObjCClassForwardDeclaration(DeclarationAST *&node);
     bool parseObjCInterface(DeclarationAST *&node,
                             SpecifierAST *attributes = 0);
     bool parseObjCProtocol(DeclarationAST *&node,

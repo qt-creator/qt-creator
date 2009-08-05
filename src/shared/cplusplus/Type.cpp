@@ -104,14 +104,8 @@ bool Type::isForwardClassDeclarationType() const
 bool Type::isObjCClassType() const
 { return asObjCClassType() != 0; }
 
-bool Type::isObjCForwardClassDeclarationType() const
-{ return asObjCForwardClassDeclarationType() != 0; }
-
 bool Type::isObjCProtocolType() const
 { return asObjCProtocolType() != 0; }
-
-bool Type::isObjCForwardProtocolDeclarationType() const
-{ return asObjCForwardProtocolDeclarationType() != 0; }
 
 void Type::accept(TypeVisitor *visitor)
 {

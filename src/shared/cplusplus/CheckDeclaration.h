@@ -92,9 +92,9 @@ protected:
     virtual bool visit(UsingDirectiveAST *ast);
 
     virtual bool visit(ObjCProtocolDeclarationAST *ast);
-    virtual bool visit(ObjCProtocolDefinitionAST *ast);
+    virtual bool visit(ObjCProtocolForwardDeclarationAST *ast);
     virtual bool visit(ObjCClassDeclarationAST *ast);
-    virtual bool visit(ObjCClassInterfaceDefinitionAST *ast);
+    virtual bool visit(ObjCClassForwardDeclarationAST *ast);
     virtual bool visit(ObjCMethodDeclarationAST *ast);
     virtual bool visit(ObjCVisibilityDeclarationAST *ast);
 

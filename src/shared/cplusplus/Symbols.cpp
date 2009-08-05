@@ -636,25 +636,9 @@ ObjCForwardClassDeclaration::~ObjCForwardClassDeclaration()
 {}
 
 FullySpecifiedType ObjCForwardClassDeclaration::type() const
-{ return FullySpecifiedType(const_cast<ObjCForwardClassDeclaration *>(this)); }
-
-bool ObjCForwardClassDeclaration::isEqualTo(const Type *other) const
-{
-    if (const ObjCForwardClassDeclaration *otherForward = other->asObjCForwardClassDeclarationType()) {
-        if (name() == otherForward->name())
-            return true;
-        else if (name() && otherForward->name())
-            return name()->isEqualTo(otherForward->name());
-
-        return false;
-    }
-    return false;
-}
+{ return FullySpecifiedType(); }
 
 void ObjCForwardClassDeclaration::visitSymbol0(SymbolVisitor *visitor)
-{ visitor->visit(this); }
-
-void ObjCForwardClassDeclaration::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
 ObjCForwardProtocolDeclaration::ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
@@ -666,25 +650,9 @@ ObjCForwardProtocolDeclaration::~ObjCForwardProtocolDeclaration()
 {}
 
 FullySpecifiedType ObjCForwardProtocolDeclaration::type() const
-{ return FullySpecifiedType(const_cast<ObjCForwardProtocolDeclaration *>(this)); }
-
-bool ObjCForwardProtocolDeclaration::isEqualTo(const Type *other) const
-{
-    if (const ObjCForwardProtocolDeclaration *otherForward = other->asObjCForwardProtocolDeclarationType()) {
-        if (name() == otherForward->name())
-            return true;
-        else if (name() && otherForward->name())
-            return name()->isEqualTo(otherForward->name());
-
-        return false;
-    }
-    return false;
-}
+{ return FullySpecifiedType(); }
 
 void ObjCForwardProtocolDeclaration::visitSymbol0(SymbolVisitor *visitor)
-{ visitor->visit(this); }
-
-void ObjCForwardProtocolDeclaration::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
 CPLUSPLUS_END_NAMESPACE

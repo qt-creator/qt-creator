@@ -414,7 +414,7 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
 
     // ObjcC++
     case T_AT_CLASS:
-        return parseObjCClassDeclaration(node);
+        return parseObjCClassForwardDeclaration(node);
 
     case T_AT_INTERFACE:
         return parseObjCInterface(node);
@@ -3971,20 +3971,21 @@ bool Parser::lookAtObjCSelector() const
 
 // objc-class-declaraton ::= T_AT_CLASS (T_IDENTIFIER @ T_COMMA) T_SEMICOLON
 //
-bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
+bool Parser::parseObjCClassForwardDeclaration(DeclarationAST *&node)
 {
     if (LA() != T_AT_CLASS)
         return false;
 
-    ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
+    ObjCClassForwardDeclarationAST *ast = new (_pool) ObjCClassForwardDeclarationAST;
 
     ast->class_token = consumeToken();
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
 
     ast->identifier_list = new (_pool) IdentifierListAST;
-    ast->identifier_list->name = new (_pool) SimpleNameAST;
-    ast->identifier_list->name->identifier_token = identifier_token;
+    SimpleNameAST *name = new (_pool) SimpleNameAST;
+    name->identifier_token = identifier_token;
+    ast->identifier_list->name = name;
     IdentifierListAST **nextId = &(ast->identifier_list->next);
 
     while (LA() == T_COMMA) {
@@ -3993,8 +3994,9 @@ bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
 
         *nextId = new (_pool) IdentifierListAST;
         (*nextId)->comma_token = comma_token;
-        (*nextId)->name = new (_pool) SimpleNameAST;
-        (*nextId)->name->identifier_token = identifier_token;
+        name = new (_pool) SimpleNameAST;
+        name->identifier_token = identifier_token;
+        (*nextId)->name = name;
         nextId = &((*nextId)->next);
     }
 
@@ -4041,14 +4043,19 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
             _translationUnit->error(attributes->firstToken(),
                                     "invalid attributes for category interface declaration");
 
-        ObjCCategoryInterfaceDeclarationAST *ast = new (_pool) ObjCCategoryInterfaceDeclarationAST;
+        ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
         ast->attributes = attributes;
         ast->interface_token = objc_interface_token;
-        ast->class_identifier_token = identifier_token;
+        SimpleNameAST *class_name = new (_pool) SimpleNameAST;
+        class_name->identifier_token= identifier_token;
+        ast->class_name = class_name;
 
         match(T_LPAREN, &(ast->lparen_token));
-        if (LA() == T_IDENTIFIER)
-            ast->category_identifier_token = consumeToken();
+        if (LA() == T_IDENTIFIER) {
+            SimpleNameAST *category_name = new (_pool) SimpleNameAST;
+            category_name->identifier_token = consumeToken();
+            ast->category_name = category_name;
+        }
 
         match(T_RPAREN, &(ast->rparen_token));
 
@@ -4068,15 +4075,18 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         return true;
     } else {
         // a class interface declaration
-        ObjCClassInterfaceDefinitionAST *ast = new (_pool) ObjCClassInterfaceDefinitionAST;
+        ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
         ast->attributes = attributes;
         ast->interface_token = objc_interface_token;
-        ast->class_name = new (_pool) SimpleNameAST;
-        ast->class_name->identifier_token = identifier_token;
+        SimpleNameAST* class_name = new (_pool) SimpleNameAST;
+        class_name->identifier_token = identifier_token;
+        ast->class_name = class_name;
 
         if (LA() == T_COLON) {
             ast->colon_token = consumeToken();
-            match(T_IDENTIFIER, &(ast->superclass_identifier_token));
+            SimpleNameAST *superclass = new (_pool) SimpleNameAST;
+            match(T_IDENTIFIER, &(superclass->identifier_token));
+            ast->superclass = superclass;
         }
 
         parseObjCProtocolRefs(ast->protocol_refs);
@@ -4118,12 +4128,13 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
     if (LA() == T_COMMA || LA() == T_SEMICOLON) {
         // a protocol forward declaration
 
-        ObjCProtocolDeclarationAST *ast = new (_pool) ObjCProtocolDeclarationAST;
+        ObjCProtocolForwardDeclarationAST *ast = new (_pool) ObjCProtocolForwardDeclarationAST;
         ast->attributes = attributes;
         ast->protocol_token = protocol_token;
         ast->identifier_list = new (_pool) IdentifierListAST;
-        ast->identifier_list->name = new (_pool) SimpleNameAST;
-        ast->identifier_list->name->identifier_token = identifier_token;
+        SimpleNameAST *name = new (_pool) SimpleNameAST;
+        name->identifier_token = identifier_token;
+        ast->identifier_list->name = name;
         IdentifierListAST **nextId = &(ast->identifier_list->next);
 
         while (LA() == T_COMMA) {
@@ -4132,8 +4143,9 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
 
             *nextId = new (_pool) IdentifierListAST;
             (*nextId)->comma_token = comma_token;
-            (*nextId)->name = new (_pool) SimpleNameAST;
-            (*nextId)->name->identifier_token = identifier_token;
+            name = new (_pool) SimpleNameAST;
+            name->identifier_token = identifier_token;
+            (*nextId)->name = name;
             nextId = &((*nextId)->next);
         }
 
@@ -4142,11 +4154,12 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
         return true;
     } else {
         // a protocol definition
-        ObjCProtocolDefinitionAST *ast = new (_pool) ObjCProtocolDefinitionAST;
+        ObjCProtocolDeclarationAST *ast = new (_pool) ObjCProtocolDeclarationAST;
         ast->attributes = attributes;
         ast->protocol_token = protocol_token;
-        ast->name = new (_pool) SimpleNameAST;
-        ast->name->identifier_token = identifier_token;
+        SimpleNameAST *name = new (_pool) SimpleNameAST;
+        name->identifier_token = identifier_token;
+        ast->name = name;
 
         parseObjCProtocolRefs(ast->protocol_refs);
 
@@ -4180,31 +4193,39 @@ bool Parser::parseObjCImplementation(DeclarationAST *&node)
 
     if (LA() == T_LPAREN) {
         // a category implementation
-        ObjCCategoryImplementationAST *ast = new (_pool) ObjCCategoryImplementationAST;
+        ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
         ast->implementation_token = implementation_token;
-        ast->class_identifier = identifier_token;
+        SimpleNameAST *class_name = new (_pool) SimpleNameAST;
+        class_name->identifier_token = identifier_token;
+        ast->class_name = class_name;
 
         match(T_LPAREN, &(ast->lparen_token));
-        match(T_IDENTIFIER, &(ast->category_name_token));
+        SimpleNameAST *category_name = new (_pool) SimpleNameAST;
+        match(T_IDENTIFIER, &(category_name->identifier_token));
+        ast->category_name = category_name;
         match(T_RPAREN, &(ast->rparen_token));
 
-        parseObjCMethodDefinitionList(ast->declarations);
+        parseObjCMethodDefinitionList(ast->member_declarations);
         match(T_AT_END, &(ast->end_token));
 
         node = ast;
     } else {
         // a class implementation
-        ObjCClassImplementationAST *ast = new (_pool) ObjCClassImplementationAST;
+        ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
         ast->implementation_token = implementation_token;
-        ast->class_identifier = identifier_token;
+        SimpleNameAST *class_name = new (_pool) SimpleNameAST;
+        class_name->identifier_token = identifier_token;
+        ast->class_name = class_name;
 
         if (LA() == T_COLON) {
             ast->colon_token = consumeToken();
-            match(T_IDENTIFIER, &(ast->super_class_identifier));
+            SimpleNameAST *superclass = new (_pool) SimpleNameAST;
+            match(T_IDENTIFIER, &(superclass->identifier_token));
+            ast->superclass = superclass;
         }
 
         parseObjClassInstanceVariables(ast->inst_vars_decl);
-        parseObjCMethodDefinitionList(ast->declarations);
+        parseObjCMethodDefinitionList(ast->member_declarations);
         match(T_AT_END, &(ast->end_token));
 
         node = ast;
@@ -4272,16 +4293,18 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
             ObjCDynamicPropertiesDeclarationAST *ast = new (_pool) ObjCDynamicPropertiesDeclarationAST;
             ast->dynamic_token = consumeToken();
             ast->property_identifiers = new (_pool) IdentifierListAST;
-            ast->property_identifiers->name = new (_pool) SimpleNameAST;
-            match(T_IDENTIFIER, &(ast->property_identifiers->name->identifier_token));
+            SimpleNameAST *name = new (_pool) SimpleNameAST;
+            match(T_IDENTIFIER, &(name->identifier_token));
+            ast->property_identifiers->name = name;
 
             IdentifierListAST *last = ast->property_identifiers;
             while (LA() == T_COMMA) {
                 last->comma_token = consumeToken();
                 last->next = new (_pool) IdentifierListAST;
                 last = last->next;
-                last->name = new (_pool) SimpleNameAST;
-                match(T_IDENTIFIER, &(last->name->identifier_token));
+                name = new (_pool) SimpleNameAST;
+                match(T_IDENTIFIER, &(name->identifier_token));
+                last->name = name;
             }
 
             match(T_SEMICOLON, &(ast->semicolon_token));
@@ -4350,8 +4373,9 @@ bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
     ast->identifier_list = new (_pool) IdentifierListAST;
-    ast->identifier_list->name = new (_pool) SimpleNameAST;
-    ast->identifier_list->name->identifier_token = identifier_token;
+    SimpleNameAST *name = new (_pool) SimpleNameAST;
+    name->identifier_token = identifier_token;
+    ast->identifier_list->name = name;
     IdentifierListAST **nextId = &(ast->identifier_list->next);
 
     while (LA() == T_COMMA) {
@@ -4360,8 +4384,9 @@ bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
 
         *nextId = new (_pool) IdentifierListAST;
         (*nextId)->comma_token = comma_token;
-        (*nextId)->name = new (_pool) SimpleNameAST;
-        (*nextId)->name->identifier_token = identifier_token;
+        name = new (_pool) SimpleNameAST;
+        name->identifier_token = identifier_token;
+        (*nextId)->name = name;
         nextId = &((*nextId)->next);
     }
 

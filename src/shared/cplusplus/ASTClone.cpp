@@ -1213,11 +1213,11 @@ IdentifierListAST *IdentifierListAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
+ObjCClassForwardDeclarationAST *ObjCClassForwardDeclarationAST::clone(MemoryPool *pool) const
 {
-    ObjCClassDeclarationAST *ast = new (pool) ObjCClassDeclarationAST;
+    ObjCClassForwardDeclarationAST *ast = new (pool) ObjCClassForwardDeclarationAST;
     // copy DeclarationAST
-    // copy ObjCClassDeclarationAST
+    // copy ObjCClassForwardDeclarationAST
     if (attributes) ast->attributes = attributes->clone(pool);
     ast->class_token = class_token;
     if (identifier_list) ast->identifier_list = identifier_list->clone(pool);
@@ -1225,16 +1225,20 @@ ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-ObjCClassInterfaceDefinitionAST *ObjCClassInterfaceDefinitionAST::clone(MemoryPool *pool) const
+ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
 {
-    ObjCClassInterfaceDefinitionAST *ast = new (pool) ObjCClassInterfaceDefinitionAST;
+    ObjCClassDeclarationAST *ast = new (pool) ObjCClassDeclarationAST;
     // copy DeclarationAST
-    // copy ObjCClassInterfaceDeclarationAST
+    // copy ObjCClassDeclarationAST
     if (attributes) ast->attributes = attributes->clone(pool);
     ast->interface_token = interface_token;
+    ast->implementation_token = implementation_token;
     if (class_name) ast->class_name = class_name->clone(pool);
+    ast->lparen_token = lparen_token;
+    if (category_name) ast->category_name = category_name->clone(pool);
+    ast->rparen_token = rparen_token;
     ast->colon_token = colon_token;
-    ast->superclass_identifier_token = superclass_identifier_token;
+    if (superclass) ast->superclass = superclass->clone(pool);
     if (protocol_refs) ast->protocol_refs = protocol_refs->clone(pool);
     if (inst_vars_decl) ast->inst_vars_decl = inst_vars_decl->clone(pool);
     if (member_declarations) ast->member_declarations = member_declarations->clone(pool);
@@ -1242,26 +1246,9 @@ ObjCClassInterfaceDefinitionAST *ObjCClassInterfaceDefinitionAST::clone(MemoryPo
     return ast;
 }
 
-ObjCCategoryInterfaceDeclarationAST *ObjCCategoryInterfaceDeclarationAST::clone(MemoryPool *pool) const
+ObjCProtocolForwardDeclarationAST *ObjCProtocolForwardDeclarationAST::clone(MemoryPool *pool) const
 {
-    ObjCCategoryInterfaceDeclarationAST *ast = new (pool) ObjCCategoryInterfaceDeclarationAST;
-    // copy DeclarationAST
-    // copy ObjCCategoryInterfaceDeclarationAST
-    if (attributes) ast->attributes = attributes->clone(pool);
-    ast->interface_token = interface_token;
-    ast->class_identifier_token = class_identifier_token;
-    if (protocol_refs) ast->protocol_refs = protocol_refs->clone(pool);
-    ast->lparen_token = lparen_token;
-    ast->category_identifier_token = category_identifier_token;
-    ast->rparen_token = rparen_token;
-    if (member_declarations) ast->member_declarations = member_declarations->clone(pool);
-    ast->end_token = end_token;
-    return ast;
-}
-
-ObjCProtocolDeclarationAST *ObjCProtocolDeclarationAST::clone(MemoryPool *pool) const
-{
-    ObjCProtocolDeclarationAST *ast = new (pool) ObjCProtocolDeclarationAST;
+    ObjCProtocolForwardDeclarationAST *ast = new (pool) ObjCProtocolForwardDeclarationAST;
     if (attributes) ast->attributes = attributes->clone(pool);
     ast->protocol_token = protocol_token;
     if (identifier_list) ast->identifier_list = identifier_list;
@@ -1269,9 +1256,9 @@ ObjCProtocolDeclarationAST *ObjCProtocolDeclarationAST::clone(MemoryPool *pool) 
     return ast;
 }
 
-ObjCProtocolDefinitionAST *ObjCProtocolDefinitionAST::clone(MemoryPool *pool) const
+ObjCProtocolDeclarationAST *ObjCProtocolDeclarationAST::clone(MemoryPool *pool) const
 {
-    ObjCProtocolDefinitionAST *ast = new (pool) ObjCProtocolDefinitionAST;
+    ObjCProtocolDeclarationAST *ast = new (pool) ObjCProtocolDeclarationAST;
     if (attributes) ast->attributes = attributes->clone(pool);
     ast->protocol_token = protocol_token;
     if (name) ast->name = name->clone(pool);
@@ -1463,32 +1450,6 @@ ObjCMethodDeclarationAST *ObjCMethodDeclarationAST::clone(MemoryPool *pool) cons
     if (method_prototype) ast->method_prototype = method_prototype->clone(pool);
     if (function_body) ast->function_body = function_body->clone(pool);
     ast->semicolon_token = semicolon_token;
-    return ast;
-}
-
-ObjCClassImplementationAST *ObjCClassImplementationAST::clone(MemoryPool *pool) const
-{
-    ObjCClassImplementationAST *ast = new (pool) ObjCClassImplementationAST;
-    ast->implementation_token = implementation_token;
-    ast->class_identifier = class_identifier;
-    ast->colon_token = colon_token;
-    ast->super_class_identifier = super_class_identifier;
-    if (inst_vars_decl) ast->inst_vars_decl = inst_vars_decl->clone(pool);
-    if (declarations) ast->declarations = declarations->clone(pool);
-    ast->end_token = end_token;
-    return ast;
-}
-
-ObjCCategoryImplementationAST *ObjCCategoryImplementationAST::clone(MemoryPool *pool) const
-{
-    ObjCCategoryImplementationAST *ast = new (pool) ObjCCategoryImplementationAST;
-    ast->implementation_token = implementation_token;
-    ast->class_identifier = class_identifier;
-    ast->lparen_token = lparen_token;
-    ast->category_name_token = category_name_token;
-    ast->rparen_token = rparen_token;
-    if (declarations) ast->declarations = declarations->clone(pool);
-    ast->end_token = end_token;
     return ast;
 }
 

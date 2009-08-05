@@ -1924,14 +1924,14 @@ unsigned IdentifierListAST::lastToken() const
 }
 
 
-unsigned ObjCClassDeclarationAST::firstToken() const
+unsigned ObjCClassForwardDeclarationAST::firstToken() const
 {
     if (attributes)
         return attributes->firstToken();
     return class_token;
 }
 
-unsigned ObjCClassDeclarationAST::lastToken() const
+unsigned ObjCClassForwardDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
@@ -1941,12 +1941,62 @@ unsigned ObjCClassDeclarationAST::lastToken() const
             return it->name->lastToken();
     }
 
-    for (SpecifierAST *it = attributes; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
+    return class_token + 1;
+}
+
+unsigned ObjCProtocolForwardDeclarationAST::firstToken() const
+{
+    if (attributes)
+        return attributes->firstToken();
+    return protocol_token;
+}
+
+unsigned ObjCProtocolForwardDeclarationAST::lastToken() const
+{
+    if (semicolon_token)
+        return semicolon_token + 1;
+
+    for (IdentifierListAST *it = identifier_list; it; it = it->next) {
+        if (! it->next && it->name)
+            return it->name->lastToken();
     }
 
-    return class_token + 1;
+    return protocol_token + 1;
+}
+
+unsigned ObjCClassDeclarationAST::firstToken() const
+{
+    if (attributes)
+        return attributes->firstToken();
+
+    if (interface_token)
+        return interface_token;
+    else
+        return implementation_token;
+}
+
+unsigned ObjCClassDeclarationAST::lastToken() const
+{
+    if (end_token)                   return end_token + 1;
+    if (member_declarations)         return member_declarations->lastToken();
+    if (inst_vars_decl)              return inst_vars_decl->lastToken();
+    if (protocol_refs)
+        return protocol_refs->lastToken();
+    if (superclass)
+        return superclass->lastToken();
+    if (colon_token)                 return colon_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+    if (category_name)
+        return category_name->lastToken();
+    if (lparen_token)
+        return lparen_token + 1;
+    if (class_name)                  return class_name->lastToken();
+
+    if (interface_token)
+        return interface_token + 1;
+    else
+        return implementation_token + 1;
 }
 
 unsigned ObjCProtocolDeclarationAST::firstToken() const
@@ -1957,78 +2007,6 @@ unsigned ObjCProtocolDeclarationAST::firstToken() const
 }
 
 unsigned ObjCProtocolDeclarationAST::lastToken() const
-{
-    if (semicolon_token)
-        return semicolon_token + 1;
-
-    for (IdentifierListAST *it = identifier_list; it; it = it->next) {
-        if (! it->next && it->name)
-            return it->name->lastToken();
-    }
-
-    for (SpecifierAST *it = attributes; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
-
-    return protocol_token + 1;
-}
-
-unsigned ObjCClassInterfaceDefinitionAST::firstToken() const
-{
-    if (attributes)
-        return attributes->firstToken();
-    return interface_token;
-}
-
-unsigned ObjCClassInterfaceDefinitionAST::lastToken() const
-{
-    if (end_token)                   return end_token + 1;
-    if (member_declarations)         return member_declarations->lastToken();
-    if (inst_vars_decl)              return inst_vars_decl->lastToken();
-    if (superclass_identifier_token) return superclass_identifier_token + 1;
-    if (colon_token)                 return colon_token + 1;
-    if (class_name)                  return class_name->lastToken();
-
-    for (SpecifierAST *it = attributes; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
-
-    return interface_token + 1;
-}
-
-unsigned ObjCCategoryInterfaceDeclarationAST::firstToken() const
-{
-    if (attributes)
-        return attributes->firstToken();
-    else
-        return interface_token;
-}
-
-unsigned ObjCCategoryInterfaceDeclarationAST::lastToken() const
-{
-    if (end_token)
-        return end_token + 1;
-
-    if (member_declarations)
-        return member_declarations->lastToken();
-
-    if (rparen_token)              return rparen_token + 1;
-    if (category_identifier_token) return category_identifier_token + 1;
-    if (lparen_token)              return lparen_token + 1;
-    if (class_identifier_token)    return class_identifier_token + 1;
-    return interface_token + 1;
-}
-
-unsigned ObjCProtocolDefinitionAST::firstToken() const
-{
-    if (attributes)
-        return attributes->firstToken();
-    return protocol_token;
-}
-
-unsigned ObjCProtocolDefinitionAST::lastToken() const
 {
     if (end_token)
         return end_token + 1;
@@ -2401,60 +2379,6 @@ unsigned ObjCMethodDeclarationAST::lastToken() const
     if (function_body)
         return function_body->lastToken();
     return method_prototype->lastToken();
-}
-
-unsigned ObjCClassImplementationAST::firstToken() const
-{
-    return implementation_token;
-}
-
-unsigned ObjCClassImplementationAST::lastToken() const
-{
-    if (end_token)
-        return end_token + 1;
-
-    for (DeclarationListAST *it = declarations; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
-
-    if (inst_vars_decl)
-        return inst_vars_decl->lastToken();
-    if (super_class_identifier)
-        return super_class_identifier + 1;
-    if (colon_token)
-        return colon_token + 1;
-    if (class_identifier)
-        return class_identifier + 1;
-
-    return implementation_token + 1;
-}
-
-unsigned ObjCCategoryImplementationAST::firstToken() const
-{
-    return implementation_token;
-}
-
-unsigned ObjCCategoryImplementationAST::lastToken() const
-{
-    if (end_token)
-        return end_token + 1;
-
-    for (DeclarationListAST *it = declarations; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
-
-    if (rparen_token)
-        return rparen_token + 1;
-    if (category_name_token)
-        return category_name_token + 1;
-    if (lparen_token)
-        return lparen_token + 1;
-    if (class_identifier)
-        return class_identifier + 1;
-
-    return implementation_token + 1;
 }
 
 unsigned ObjCSynthesizedPropertyAST::firstToken() const

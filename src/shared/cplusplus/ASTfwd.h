@@ -170,11 +170,10 @@ class QtMethodAST;
 
 // ObjC++
 class IdentifierListAST;
+class ObjCClassForwardDeclarationAST;
 class ObjCClassDeclarationAST;
+class ObjCProtocolForwardDeclarationAST;
 class ObjCProtocolDeclarationAST;
-class ObjCProtocolDefinitionAST;
-class ObjCClassInterfaceDefinitionAST;
-class ObjCCategoryInterfaceDeclarationAST;
 class ObjCProtocolRefsAST;
 class ObjCMessageExpressionAST;
 class ObjCMessageArgumentListAST;
@@ -197,8 +196,6 @@ class ObjCMethodPrototypeAST;
 class ObjCMethodDeclarationAST;
 class ObjCMessageArgumentDeclarationListAST;
 class ObjCMessageArgumentDeclarationAST;
-class ObjCCategoryImplementationAST;
-class ObjCClassImplementationAST;
 class ObjCSynthesizedPropertyAST;
 class ObjCSynthesizedPropertyListAST;
 class ObjCSynthesizedPropertiesDeclarationAST;
