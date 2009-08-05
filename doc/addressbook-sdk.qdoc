@@ -114,7 +114,7 @@
 
     We begin by launching Qt Creator and use it to generate a new project. To
     do this, select \gui{New File or Project...} from the \gui File menu. In
-    the \gui{New...} dialog, select \gui{Projects|Qt4 Gui Application} and
+    the \gui{New...} dialog, select \gui{Projects -> Qt4 Gui Application} and
     click \gui OK. Set your project name to \bold part1 with the QtCore and
     QtGui modules checked. Ensure that you select QWidget as your base class
     and name it \c AddressBook.
@@ -166,8 +166,8 @@
     structured manner. QGridLayout divides the available space into a grid and
     places widgets in the cells we specify with row and column numbers. The
     diagram below shows the layout cells and the position of our widgets. Place
-    your widgets accordingly and save the form by choosing
-    \gui{File | Save} or using the \key{Ctrl+S} shortcut.
+    your widgets accordingly and save the form by choosing \gui{File -> Save}
+    or using the \key{Ctrl+S} shortcut.
 
     \image addressbook-tutorial-part1-labeled-screenshot.png
 
@@ -180,6 +180,14 @@
     anywhere on the form and select \gui{Lay out Horizontally} or
     \gui{Lay out Vertically}. The output will be the same. Now your widgets
     will resize correctly.
+
+    \table
+        \row
+            \o  \bold{Note:} Refer to the \l{Layout Classes} document for more
+                details on Qt's layout management classes. In addition, the
+                \l{Getting to Know Qt Designer} document explains how to use
+                layouts with \QD.
+    \endtable
 
 
     \section1 The AddressBook Class
