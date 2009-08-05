@@ -4053,7 +4053,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         match(T_RPAREN, &(ast->rparen_token));
 
         parseObjCProtocolRefs(ast->protocol_refs);
-        
+
         DeclarationListAST **nextMembers = &(ast->member_declarations);
         DeclarationAST *declaration = 0;
         while (parseObjCInterfaceMemberDeclaration(declaration)) {
@@ -4317,7 +4317,7 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
 
 bool Parser::parseObjCMethodDefinition(DeclarationAST *&node)
 {
-    ObjCMethodPrototypeAST *method_prototype;
+    ObjCMethodPrototypeAST *method_prototype = 0;
     if (! parseObjCMethodPrototype(method_prototype))
         return false;
 
@@ -4565,14 +4565,10 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
             DeclarationAST *parameter_declaration = 0;
             parseParameterDeclaration(parameter_declaration);
         }
-
-        node = ast;
     } else if (lookAtObjCSelector()) {
         ObjCSelectorWithoutArgumentsAST *sel = new (_pool) ObjCSelectorWithoutArgumentsAST;
         parseObjCSelector(sel->name_token);
         ast->selector = sel;
-
-        node = ast;
     } else {
         _translationUnit->error(cursor(), "expected a selector");
     }
@@ -4581,6 +4577,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
+    node = ast;
     return true;
 }
 
