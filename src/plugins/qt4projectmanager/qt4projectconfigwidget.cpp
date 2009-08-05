@@ -60,7 +60,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     // fix the layout
     m_browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
 #ifdef Q_OS_WIN
-    browseButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_browseButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 #endif
     m_ui->gridLayout->addWidget(m_browseButton, 4, 2);
     int minimumHeight = qMax(m_ui->qtVersionComboBox->sizeHint().height(), m_ui->manageQtVersionPushButtons->sizeHint().height());
