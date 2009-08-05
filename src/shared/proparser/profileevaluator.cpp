@@ -989,8 +989,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
                         qmake_cache = dir.filePath(QLatin1String(".qmake.cache"));
                         if (QFile::exists(qmake_cache))
                             break;
-                        dir.cdUp();
-                        if (dir.isRoot()) {
+                        if (!dir.cdUp() || dir.isRoot()) {
                             qmake_cache.clear();
                             break;
                         }
