@@ -63,7 +63,6 @@ private slots:
     void qtVersionComboBoxCurrentIndexChanged(const QString &);
     void manageQtVersions();
     void selectToolChain(int index);
-    void toggleDetails();
 
 private:
     void updateToolChainCombo();
