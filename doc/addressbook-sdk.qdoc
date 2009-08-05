@@ -113,27 +113,35 @@
     \image addressbook-tutorial-part1-screenshot.png
 
     We begin by launching Qt Creator and use it to generate a new project. To
-    do this, select \gui New from the \gui File menu. In the
-    \gui{New...} dialog, select \gui{Projects|Qt4 Gui Application}. For a step
-    by step guide on how to create a \gui Project with Qt Creator, refer to the
-    \l{Creating a Project in Qt Creator}. Ensure that you select QWidget as
-    your subclass and name it \c AddressBook.
+    do this, select \gui{New File or Project...} from the \gui File menu. In
+    the \gui{New...} dialog, select \gui{Projects|Qt4 Gui Application} and
+    click \gui OK. Set your project name to \bold part1 with the QtCore and
+    QtGui modules checked. Ensure that you select QWidget as your base class
+    and name it \c AddressBook.
 
-    Five files will be generated in this \gui{Project}:
+    When you click \gui Next, \e five files will be generated in this
+    \gui{Project}:
 
     \list
-        \o  \c{addressbook.pro} - the project file,
-        \o  \c{addressbook.h} - the definition file for the \c AddressBook
-            class,
+        \o  \c{main.cpp} - the file containing a \c main() function, with an
+            instance of \c AddressBook,
         \o  \c{addressbook.cpp} - the implementation file for the
             \c AddressBook class,
-        \o  \c{main.cpp} - the file containing a \c main() function, with an
-            instance of \c AddressBook, and
-        \o  \c{addressbook.ui} - the user interface file created with \QD.
+        \o  \c{addressbook.h} - the definition file for the \c AddressBook
+            class,
+        \o  \c{addressbook.ui} - the user interface file created with \QD,
+            and
+        \o  \c{part1.pro} - the project file.
     \endlist
 
     Now that we have all the files we need, let's move on to designing the user
     interface.
+
+    \table
+        \row
+            \o  \bold{Note:} For more details on how to create a \gui Project
+                with Qt Creator, refer to \l{Creating a Project in Qt Creator}.
+    \endtable
 
 
     \section1 Placing Widgets on The Form
