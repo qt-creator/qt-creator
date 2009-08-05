@@ -33,6 +33,7 @@
 #include "s60devicespreferencepane.h"
 #include "winscwtoolchain.h"
 #include "gccetoolchain.h"
+#include "rvcttoolchain.h"
 #include "s60emulatorrunconfiguration.h"
 #include "s60Devicerunconfiguration.h"
 
@@ -154,6 +155,23 @@ ProjectExplorer::ToolChain *S60Manager::createWINSCWToolChain(const Qt4ProjectMa
 ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
     return new GCCEToolChain(deviceForQtVersion(version));
+}
+
+ProjectExplorer::ToolChain *S60Manager::createRVCTToolChain(const Qt4ProjectManager::QtVersion *version,
+                                                ProjectExplorer::ToolChain::ToolChainType type) const
+{
+    QString makeTargetBase;
+    switch (type) {
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+        makeTargetBase = "armv5";
+        break;
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        makeTargetBase = "armv6";
+        break;
+    default:
+        makeTargetBase = "InternalError";
+    }
+    return new RVCTToolChain(deviceForQtVersion(version), type, makeTargetBase);
 }
 
 S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const

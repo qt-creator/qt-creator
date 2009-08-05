@@ -82,7 +82,7 @@ bool S60DeviceRunConfiguration::isEnabled() const
     Qt4Project *pro = qobject_cast<Qt4Project*>(project());
     QTC_ASSERT(pro, return false);
     ToolChain::ToolChainType type = pro->toolChainType(pro->activeBuildConfiguration());
-    return type == ToolChain::GCCE; //TODO || type == ToolChain::ARMV5
+    return type == ToolChain::GCCE || type == ToolChain::RVCT_ARMV5 || type == ToolChain::RVCT_ARMV6;
 }
 
 QWidget *S60DeviceRunConfiguration::configurationWidget()

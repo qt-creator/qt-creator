@@ -77,6 +77,8 @@ public:
 #ifdef QTCREATOR_WITH_S60
         WINSCW = 5,
         GCCE = 6,
+        RVCT_ARMV5 = 7,
+        RVCT_ARMV6 = 8,
 #endif
         OTHER = 200,
         UNKNOWN = 201,

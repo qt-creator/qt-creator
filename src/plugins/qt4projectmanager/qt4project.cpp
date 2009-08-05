@@ -45,6 +45,7 @@
 
 #ifdef QTCREATOR_WITH_S60
 #include "qt-s60/gccetoolchain.h"
+#include "qt-s60/rvcttoolchain.h"
 #endif
 
 #include <coreplugin/icore.h>
@@ -406,6 +407,9 @@ void Qt4Project::updateToolChain(const QString &buildConfiguration) const
 #ifdef QTCREATOR_WITH_S60
     if (m_toolChain && m_toolChain->type() == ToolChain::GCCE) {
         static_cast<GCCEToolChain *>(m_toolChain)->setProject(this);
+    } else if (m_toolChain && (m_toolChain->type() == ToolChain::RVCT_ARMV5
+                               || m_toolChain->type() == ToolChain::RVCT_ARMV6)) {
+        static_cast<RVCTToolChain *>(m_toolChain)->setProject(this);
     }
 #endif
 }
