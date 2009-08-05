@@ -72,6 +72,9 @@ QList<IEditor *> OpenEditorsModel::editors() const
 
 void OpenEditorsModel::addEditor(IEditor *editor, bool isDuplicate)
 {
+    if (!editor)
+        return;
+
     if (isDuplicate) {
         m_duplicateEditors.append(editor);
         return;
@@ -195,7 +198,7 @@ int OpenEditorsModel::restoredEditorCount() const
 
 bool OpenEditorsModel::isDuplicate(IEditor *editor) const
 {
-    return m_duplicateEditors.contains(editor);
+    return editor && m_duplicateEditors.contains(editor);
 }
 
 IEditor *OpenEditorsModel::originalForDuplicate(IEditor *duplicate) const
@@ -219,13 +222,15 @@ QList<IEditor *> OpenEditorsModel::duplicatesFor(IEditor *editor) const
 
 void OpenEditorsModel::makeOriginal(IEditor *duplicate)
 {
-    Q_ASSERT(isDuplicate(duplicate));
+    Q_ASSERT(duplicate && isDuplicate(duplicate));
     IEditor *original = originalForDuplicate(duplicate);
     Q_ASSERT(original);
     int i = findEditor(original);
     m_editors[i].editor = duplicate;
     m_duplicateEditors.removeOne(duplicate);
     m_duplicateEditors.append(original);
+    disconnect(original, SIGNAL(changed()), this, SLOT(itemChanged()));
+    connect(duplicate, SIGNAL(changed()), this, SLOT(itemChanged()));
 }
 
 void OpenEditorsModel::emitDataChanged(IEditor *editor)

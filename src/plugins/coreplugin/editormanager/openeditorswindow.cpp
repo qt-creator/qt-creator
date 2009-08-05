@@ -199,14 +199,14 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
 
     QSet<IFile*> filesDone;
     foreach (const EditLocation &hi, view->editorHistory()) {
-        if (hi.file == 0 || filesDone.contains(hi.file))
+        if (hi.file.isNull() || filesDone.contains(hi.file))
             continue;
         filesDone.insert(hi.file.data());
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
 
         QString title = model->displayNameForFile(hi.file);
-        if (hi.file && hi.file->isModified())
+        if (hi.file->isModified())
             title += tr("*");
         item->setIcon(0, hi.file->isReadOnly() ? lockedIcon : emptyIcon);
         item->setText(0, title);
@@ -226,20 +226,21 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
     // add missing editors from the main view
     if (mainView != view) {
         foreach (const EditLocation &hi, mainView->editorHistory()) {
-            if (hi.file == 0 || filesDone.contains(hi.file))
+            if (hi.file.isNull() || filesDone.contains(hi.file))
                 continue;
             filesDone.insert(hi.file.data());
 
             QTreeWidgetItem *item = new QTreeWidgetItem();
 
             QString title = model->displayNameForFile(hi.file);
-            if (hi.file && hi.file->isModified())
+            if (hi.file->isModified())
                 title += tr("*");
             item->setIcon(0, hi.file->isReadOnly() ? lockedIcon : emptyIcon);
             item->setText(0, title);
             item->setToolTip(0, hi.file->fileName());
             item->setData(0, Qt::UserRole, QVariant::fromValue(hi.file.data()));
             item->setData(0, Qt::UserRole+1, QVariant::fromValue(view));
+            item->setData(0, Qt::UserRole+2, QVariant::fromValue(hi.kind));
             item->setTextAlignment(0, Qt::AlignLeft);
 
             m_editorList->addTopLevelItem(item);
