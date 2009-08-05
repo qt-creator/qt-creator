@@ -91,6 +91,7 @@ public:
     ObjectPrivate() {}
     virtual ~ObjectPrivate() {}
 
+#if QT_VERSION < 0x040600
     QList<QObject *> pendingChildInsertedEvents;
     void *threadData;
     void *currentSender;
@@ -98,18 +99,26 @@ public:
     QList<QPointer<QObject> > eventFilters;
 
     void *extraData;
-#if QT_VERSION >= 0x040600
-    mutable quint32 connectedSignals[2];
-#else
     mutable quint32 connectedSignals;
-#endif
     QString objectName;
 
     void *connectionLists;
     SenderList senders;
     int *deleteWatch;
-#if QT_VERSION >= 0x040600
+#else
+    QString objectName;
+    void *extraData;
+    void *threadData;
+    void *connectionLists;
+    SenderList senders;
+    void *currentSender;
+    mutable quint32 connectedSignals[2];
+    QList<QObject *> pendingChildInsertedEvents;
+    QList<QPointer<QObject> > eventFilters;
+    void *currentChildBeingDeleted;
+    void *declarativeData;
     void *objectGuards;
+    int *deleteWatch;
 #endif
 };
 
