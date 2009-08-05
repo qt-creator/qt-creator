@@ -106,8 +106,7 @@ public:
 
 public slots:
     void updateButtons();
-    void switchToSummary();
-    void switchToDetails();
+    void toggleDetails();
 
 signals:
     void userChangesUpdated();

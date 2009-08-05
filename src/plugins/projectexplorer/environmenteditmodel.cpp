@@ -433,6 +433,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
             this, SIGNAL(userChangesUpdated()));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setContentsMargins(20, 0, 0, 0);
 
     m_summaryText = new QLabel(this);
     m_summaryText->setText("");
@@ -441,7 +442,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     detailsButton->setText(tr("Details"));
 
     connect(detailsButton, SIGNAL(clicked()),
-            this, SLOT(switchToDetails()));
+            this, SLOT(toggleDetails()));
 
     QHBoxLayout *hbox = new QHBoxLayout();
     hbox->addWidget(m_summaryText);
@@ -517,7 +518,7 @@ EnvironmentWidget::~EnvironmentWidget()
     m_model = 0;
 }
 
-void EnvironmentWidget::switchToDetails()
+void EnvironmentWidget::toggleDetails()
 {
     m_details->setVisible(!m_details->isVisible());
 }
