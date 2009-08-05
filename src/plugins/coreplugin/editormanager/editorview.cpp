@@ -857,7 +857,9 @@ void SplitterOrView::split(Qt::Orientation orientation)
     m_layout->setCurrentWidget(m_splitter);
 
     view->view()->copyNavigationHistoryFrom(m_view);
+    view->view()->setCurrentEditor(view->view()->currentEditor());
     otherView->view()->copyNavigationHistoryFrom(m_view);
+    otherView->view()->setCurrentEditor(otherView->view()->currentEditor());
 
     if (m_view && !m_isRoot) {
         em->emptyView(m_view);
