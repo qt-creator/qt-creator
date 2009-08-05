@@ -58,11 +58,11 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     m_ui->setupUi(this);
 
     // fix the layout
-    QAbstractButton *browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
+    m_browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
 #ifdef Q_OS_WIN
     browseButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 #endif
-    m_ui->gridLayout->addWidget(browseButton, 4, 2);
+    m_ui->gridLayout->addWidget(m_browseButton, 4, 2);
     int minimumHeight = qMax(m_ui->qtVersionComboBox->sizeHint().height(), m_ui->manageQtVersionPushButtons->sizeHint().height());
     Qt::Alignment labelAlignment = Qt::Alignment(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
     for (int i = 0; i < m_ui->gridLayout->rowCount(); ++i) {
@@ -137,6 +137,7 @@ void Qt4ProjectConfigWidget::init(const QString &buildConfiguration)
     bool shadowBuild = m_pro->value(buildConfiguration, "useShadowBuild").toBool();
     m_ui->shadowBuildCheckBox->setChecked(shadowBuild);
     m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
+    m_browseButton->setEnabled(shadowBuild);
     m_ui->shadowBuildDirEdit->setPath(m_pro->buildDirectory(buildConfiguration));
     updateImportLabel();
     updateToolChainCombo();
@@ -189,6 +190,7 @@ void Qt4ProjectConfigWidget::onBeforeBeforeShadowBuildDirBrowsed()
 void Qt4ProjectConfigWidget::shadowBuildCheckBoxClicked(bool checked)
 {
     m_ui->shadowBuildDirEdit->setEnabled(checked);
+    m_browseButton->setEnabled(checked);
     bool b = m_ui->shadowBuildCheckBox->isChecked();
     m_pro->setValue(m_buildConfiguration, "useShadowBuild", b);
     if (b)

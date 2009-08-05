@@ -31,6 +31,7 @@
 #define QT4PROJECTCONFIGWIDGET_H
 
 #include <projectexplorer/buildstep.h>
+#include <QtGui/QPushButton>
 
 namespace Qt4ProjectManager {
 
@@ -62,12 +63,14 @@ private slots:
     void qtVersionComboBoxCurrentIndexChanged(const QString &);
     void manageQtVersions();
     void selectToolChain(int index);
+    void toggleDetails();
 
 private:
     void updateToolChainCombo();
     void updateImportLabel();
     void setToolChain(int index);
     Ui::Qt4ProjectConfigWidget *m_ui;
+    QAbstractButton *m_browseButton;
     Qt4Project *m_pro;
     QString m_buildConfiguration;
 };
