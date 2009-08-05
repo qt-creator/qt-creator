@@ -85,6 +85,7 @@ public:
     virtual bool visit(ObjCForwardClassDeclaration *) { return true; }
     virtual bool visit(ObjCProtocol *) { return true; }
     virtual bool visit(ObjCForwardProtocolDeclaration *) { return true; }
+    virtual bool visit(ObjCMethod *) { return true; }
 };
 
 CPLUSPLUS_END_NAMESPACE

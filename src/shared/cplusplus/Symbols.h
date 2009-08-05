@@ -543,6 +543,13 @@ public:
     ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
     virtual ~ObjCClass();
 
+    bool isInterface() const { return _isInterface; }
+    void setInterface(bool isInterface) { _isInterface = isInterface; }
+
+    bool isCategory() const { return _categoryName != 0; }
+    Name *categoryName() const { return _categoryName; }
+    void setCategoryName(Name *categoryName) { _categoryName = categoryName; }
+
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
@@ -566,8 +573,66 @@ protected:
     virtual void accept0(TypeVisitor *visitor);
 
 private:
+    bool _isInterface;
+    Name *_categoryName;
     Array<ObjCClass *> _baseClasses;
     Array<ObjCProtocol *> _protocols;
+};
+
+class CPLUSPLUS_EXPORT ObjCMethod: public ScopedSymbol, public Type
+{
+public:
+    ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    virtual ~ObjCMethod();
+
+    FullySpecifiedType returnType() const;
+    void setReturnType(FullySpecifiedType returnType);
+
+    /** Convenience function that returns whether the function returns something (including void). */
+    bool hasReturnType() const;
+
+    unsigned argumentCount() const;
+    Symbol *argumentAt(unsigned index) const;
+    Scope *arguments() const;
+
+    /** Convenience function that returns whether the function receives any arguments. */
+    bool hasArguments() const;
+
+    bool isVariadic() const;
+    void setVariadic(bool isVariadic);
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    // Type's interface
+    virtual bool isEqualTo(const Type *other) const;
+
+    virtual const ObjCMethod *asObjCMethod() const
+    { return this; }
+
+    virtual ObjCMethod *asObjCMethod()
+    { return this; }
+
+    virtual const ObjCMethod *asObjCMethodType() const
+    { return this; }
+
+    virtual ObjCMethod *asObjCMethodType()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+    virtual void accept0(TypeVisitor *visitor);
+
+private:
+    FullySpecifiedType _returnType;
+    struct Flags {
+        unsigned _isVariadic: 1;
+    };
+    union {
+        unsigned _flags;
+        Flags f;
+    };
+    Scope *_arguments;
 };
 
 CPLUSPLUS_END_NAMESPACE

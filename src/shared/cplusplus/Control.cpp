@@ -125,6 +125,7 @@ public:
         delete_array_entries(objcProtocols);
         delete_array_entries(objcForwardClassDeclarations);
         delete_array_entries(objcForwardProtocolDeclarations);
+        delete_array_entries(objcMethods);
     }
 
     NameId *findOrInsertNameId(Identifier *id)
@@ -368,6 +369,13 @@ public:
         return fwd;
     }
 
+    ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name)
+    {
+        ObjCMethod *method = new ObjCMethod(translationUnit, sourceLocation, name);
+        objcMethods.push_back(method);
+        return method;
+    }
+
     Enum *newEnum(unsigned sourceLocation, Name *name)
     {
         Enum *e = new Enum(translationUnit,
@@ -549,6 +557,7 @@ public:
     std::vector<ObjCProtocol *> objcProtocols;
     std::vector<ObjCForwardClassDeclaration *> objcForwardClassDeclarations;
     std::vector<ObjCForwardProtocolDeclaration *> objcForwardProtocolDeclarations;
+    std::vector<ObjCMethod *> objcMethods;
 };
 
 Control::Control()
@@ -725,5 +734,8 @@ ObjCProtocol *Control::newObjCProtocol(unsigned sourceLocation, Name *name)
 
 ObjCForwardProtocolDeclaration *Control::newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name)
 { return d->newObjCForwardProtocolDeclaration(sourceLocation, name); }
+
+ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, Name *name)
+{ return d->newObjCMethod(sourceLocation, name); }
 
 CPLUSPLUS_END_NAMESPACE

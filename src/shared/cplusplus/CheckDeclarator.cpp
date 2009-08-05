@@ -254,14 +254,12 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
 
     Name *name = semantic()->check(ast->selector, _scope);
 
-    Function *fun = control()->newFunction(location, name);
-    ast->symbol = fun;
-    fun->setSourceLocation(location);
-    fun->setScope(_scope);
-    fun->setMethodKey(Function::NormalMethod);
-    fun->setVisibility(semantic()->currentVisibility());
-    fun->setPureVirtual(false);
-    fun->setReturnType(returnType);
+    ObjCMethod *method = control()->newObjCMethod(location, name);
+    ast->symbol = method;
+    method->setSourceLocation(location);
+    method->setScope(_scope);
+    method->setVisibility(semantic()->currentVisibility());
+    method->setReturnType(returnType);
 
     if (ast->selector && ast->selector->asObjCSelectorWithArguments()) {
         // TODO: check the parameters (EV)
@@ -270,11 +268,11 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
         for (ObjCMessageArgumentDeclarationListAST *it = ast->arguments; it; it = it->next) {
             ObjCMessageArgumentDeclarationAST *argDecl = it->argument_declaration;
 
-            semantic()->check(argDecl, fun->arguments());
+            semantic()->check(argDecl, method->arguments());
         }
     }
 
-    _fullySpecifiedType = FullySpecifiedType(fun);
+    _fullySpecifiedType = FullySpecifiedType(method);
 
     // TODO: check which specifiers are allowed here (EV)
 

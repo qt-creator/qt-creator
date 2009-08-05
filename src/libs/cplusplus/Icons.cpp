@@ -102,6 +102,8 @@ QIcon Icons::iconForSymbol(const Symbol *symbol) const
         return _classIcon;
     } else if (symbol->isObjCProtocol() || symbol->isObjCForwardProtocolDeclaration()) {
         return _classIcon;
+    } else if (symbol->isObjCMethod()) {
+        return _funcPublicIcon;
     } else if (symbol->isNamespace()) {
         return _namespaceIcon;
     } else if (symbol->isUsingNamespaceDirective() ||

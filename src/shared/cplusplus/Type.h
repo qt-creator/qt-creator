@@ -79,6 +79,7 @@ public:
     bool isForwardClassDeclarationType() const;
     bool isObjCClassType() const;
     bool isObjCProtocolType() const;
+    bool isObjCMethodType() const;
 
     virtual const VoidType *asVoidType() const { return 0; }
     virtual const IntegerType *asIntegerType() const { return 0; }
@@ -95,6 +96,7 @@ public:
     virtual const ForwardClassDeclaration *asForwardClassDeclarationType() const { return 0; }
     virtual const ObjCClass *asObjCClassType() const { return 0; }
     virtual const ObjCProtocol *asObjCProtocolType() const { return 0; }
+    virtual const ObjCMethod *asObjCMethodType() const { return 0; }
 
     virtual VoidType *asVoidType() { return 0; }
     virtual IntegerType *asIntegerType() { return 0; }
@@ -110,7 +112,8 @@ public:
     virtual Enum *asEnumType() { return 0; }
     virtual ForwardClassDeclaration *asForwardClassDeclarationType() { return 0; }
     virtual ObjCClass *asObjCClassType() { return 0; }
-    virtual ObjCProtocol *asObjCProtocoTypel() { return 0; }
+    virtual ObjCProtocol *asObjCProtocolType() { return 0; }
+    virtual ObjCMethod *asObjCMethodType() { return 0; }
 
     void accept(TypeVisitor *visitor);
     static void accept(Type *type, TypeVisitor *visitor);

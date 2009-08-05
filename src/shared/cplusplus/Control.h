@@ -163,6 +163,9 @@ public:
     /// Creates a new Objective-C protocol forward declaration symbol.
     ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name = 0);
 
+    /// Creates a new Objective-C method symbol.
+    ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name = 0);
+
     Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
     Identifier *findOrInsertIdentifier(const char *chars);
 

@@ -170,6 +170,34 @@ bool CheckStatement::visit(ForeachStatementAST *ast)
     return false;
 }
 
+bool CheckStatement::visit(ObjCFastEnumerationAST *ast)
+{
+    Block *block = control()->newBlock(ast->for_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
+    ast->symbol = block;
+    _scope->enterSymbol(block);
+    Scope *previousScope = switchScope(block->members());
+    if (ast->type_specifiers && ast->declarator) {
+        FullySpecifiedType ty = semantic()->check(ast->type_specifiers, _scope);
+        Name *name = 0;
+        ty = semantic()->check(ast->declarator, ty, _scope, &name);
+        unsigned location = ast->declarator->firstToken();
+        if (CoreDeclaratorAST *core_declarator = ast->declarator->core_declarator)
+            location = core_declarator->firstToken();
+        Declaration *decl = control()->newDeclaration(location, name);
+        decl->setType(ty);
+        _scope->enterSymbol(decl);
+    } else {
+        FullySpecifiedType exprTy = semantic()->check(ast->initializer, _scope);
+        (void) exprTy;
+    }
+
+    semantic()->check(ast->body_statement, _scope);
+    (void) switchScope(previousScope);
+    return false;
+}
+
 bool CheckStatement::visit(ForStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->for_token);

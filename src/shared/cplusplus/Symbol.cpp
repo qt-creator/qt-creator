@@ -465,4 +465,7 @@ bool Symbol::isObjCProtocol() const
 bool Symbol::isObjCForwardProtocolDeclaration() const
 { return asObjCForwardProtocolDeclaration() != 0; }
 
+bool Symbol::isObjCMethod() const
+{ return asObjCMethod() != 0; }
+
 CPLUSPLUS_END_NAMESPACE

@@ -552,7 +552,14 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
     klass->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = klass;
 
-    // TODO: walk category name, super-class, and protocols (EV)
+    klass->setInterface(ast->interface_token != 0);
+
+    if (ast->category_name) {
+        Name *categoryName = semantic()->check(ast->category_name, _scope);
+        klass->setCategoryName(categoryName);
+    }
+
+    // TODO: super-class, and protocols (EV)
     _scope->enterSymbol(klass);
 
     int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Protected);
@@ -580,26 +587,31 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
         return false;
 
     FullySpecifiedType ty = semantic()->check(ast->method_prototype, _scope);
-    Function *fun = ty.type()->asFunctionType();
-    if (!fun)
+    ObjCMethod *methodType = ty.type()->asObjCMethodType();
+    if (!methodType)
         return false;
 
-    Declaration *symbol = control()->newDeclaration(ast->firstToken(), fun->name());
+    Symbol *symbol;
+    if (!ast->function_body) {
+        Declaration *decl = control()->newDeclaration(ast->firstToken(), methodType->name());
+        decl->setType(methodType);
+        symbol = decl;
+    } else {
+        if (!semantic()->skipFunctionBodies()) {
+            semantic()->check(ast->function_body, methodType->members());
+        }
+
+        symbol = methodType;
+    }
+
     symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
     symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
-
-    symbol->setType(fun->returnType());
-
     symbol->setVisibility(semantic()->currentVisibility());
 
     if (semantic()->isObjCClassMethod(ast->method_prototype->method_type_token))
         symbol->setStorage(Symbol::Static);
 
     _scope->enterSymbol(symbol);
-
-    if (ast->function_body && !semantic()->skipFunctionBodies()) {
-        semantic()->check(ast->function_body, fun->members());
-    }
 
     return false;
 }

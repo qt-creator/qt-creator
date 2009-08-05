@@ -123,7 +123,7 @@ int OverviewModel::rowCount(const QModelIndex &parent) const
             Q_ASSERT(parentSymbol);
 
             if (ScopedSymbol *scopedSymbol = parentSymbol->asScopedSymbol()) {
-                if (!scopedSymbol->isFunction()) {
+                if (!scopedSymbol->isFunction() && !scopedSymbol->isObjCMethod()) {
                     Scope *parentScope = scopedSymbol->members();
                     Q_ASSERT(parentScope);
 
@@ -168,9 +168,23 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
             name = QLatin1String("@class ") + name;
         if (symbol->isObjCForwardProtocolDeclaration() || symbol->isObjCProtocol())
             name = QLatin1String("@protocol ") + name;
-        if (symbol->isObjCClass())
-            name = QLatin1String("@interface ") + name;
-        if (! symbol->isScopedSymbol() || symbol->isFunction()) {
+        if (symbol->isObjCClass()) {
+            ObjCClass *clazz = symbol->asObjCClass();
+            if (clazz->isInterface())
+                name = QLatin1String("@interface ") + name;
+            else
+                name = QLatin1String("@implementation ") + name;
+
+            if (clazz->isCategory())
+                name += QLatin1String(" (") + _overview.prettyName(clazz->categoryName()) + QLatin1Char(')');
+        }
+        if (symbol->isObjCMethod()) {
+            ObjCMethod *method = symbol->asObjCMethod();
+            if (method->isStatic())
+                name = QLatin1Char('+') + name;
+            else
+                name = QLatin1Char('-') + name;
+        } else if (! symbol->isScopedSymbol() || symbol->isFunction()) {
             QString type = _overview.prettyType(symbol->type());
             if (! type.isEmpty()) {
                 if (! symbol->type()->isFunctionType())

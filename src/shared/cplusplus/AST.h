@@ -2997,7 +2997,7 @@ public:
     SpecifierAST *attributes;
 
 public: // annotations
-    Function *symbol;
+    ObjCMethod *symbol;
 
 public:
     virtual ObjCMethodPrototypeAST *asObjCMethodPrototype()
@@ -3128,6 +3128,9 @@ public:
     ExpressionAST *fast_enumeratable_expression;
     unsigned rparen_token;
     StatementAST *body_statement;
+
+public: // annotations
+    Block *symbol;
 
 public:
     virtual ObjCFastEnumerationAST *asObjCFastEnumeration()

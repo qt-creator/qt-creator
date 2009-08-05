@@ -107,6 +107,9 @@ bool Type::isObjCClassType() const
 bool Type::isObjCProtocolType() const
 { return asObjCProtocolType() != 0; }
 
+bool Type::isObjCMethodType() const
+{ return asObjCMethodType() != 0; }
+
 void Type::accept(TypeVisitor *visitor)
 {
     if (visitor->preVisit(this))

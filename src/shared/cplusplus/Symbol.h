@@ -210,17 +210,20 @@ public:
     /// Returns true if this Symbol is a ForwardClassDeclaration.
     bool isForwardClassDeclaration() const;
 
-    /// Returns true if this Symbol is a Objective-C Class definition.
+    /// Returns true if this Symbol is an Objective-C Class declaration.
     bool isObjCClass() const;
 
-    /// Returns true if this Symbol is a Objective-C Class forward declaration.
+    /// Returns true if this Symbol is an Objective-C Class forward declaration.
     bool isObjCForwardClassDeclaration() const;
 
-    /// Returns true if this Symbol is a Objective-C Protocol definition.
+    /// Returns true if this Symbol is an Objective-C Protocol declaration.
     bool isObjCProtocol() const;
 
-    /// Returns true if this Symbol is a Objective-C Protocol forward declaration.
+    /// Returns true if this Symbol is an Objective-C Protocol forward declaration.
     bool isObjCForwardProtocolDeclaration() const;
+
+    /// Returns true if this Symbol is an Objective-C method declaration.
+    bool isObjCMethod() const;
 
     virtual const ScopedSymbol *asScopedSymbol() const { return 0; }
     virtual const Enum *asEnum() const { return 0; }
@@ -238,6 +241,7 @@ public:
     virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const { return 0; }
     virtual const ObjCProtocol *asObjCProtocol() const { return 0; }
     virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const { return 0; }
+    virtual const ObjCMethod *asObjCMethod() const { return 0; }
 
     virtual ScopedSymbol *asScopedSymbol() { return 0; }
     virtual Enum *asEnum() { return 0; }
@@ -255,6 +259,7 @@ public:
     virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() { return 0; }
     virtual ObjCProtocol *asObjCProtocol() { return 0; }
     virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() { return 0; }
+    virtual ObjCMethod *asObjCMethod() { return 0; }
 
     /// Returns this Symbol's type.
     virtual FullySpecifiedType type() const = 0;

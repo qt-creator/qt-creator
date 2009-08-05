@@ -554,7 +554,8 @@ void Class::visitSymbol0(SymbolVisitor *visitor)
 }
 
 ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
-        ScopedSymbol(translationUnit, sourceLocation, name)
+        ScopedSymbol(translationUnit, sourceLocation, name),
+        _categoryName(0)
 {
 }
 
@@ -654,5 +655,95 @@ FullySpecifiedType ObjCForwardProtocolDeclaration::type() const
 
 void ObjCForwardProtocolDeclaration::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
+
+ObjCMethod::ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+    : ScopedSymbol(translationUnit, sourceLocation, name),
+     _flags(0)
+{ _arguments = new Scope(this); }
+
+ObjCMethod::~ObjCMethod()
+{
+    delete _arguments;
+}
+
+bool ObjCMethod::isEqualTo(const Type *other) const
+{
+    const ObjCMethod *o = other->asObjCMethodType();
+    if (! o)
+        return false;
+
+    Name *l = identity();
+    Name *r = o->identity();
+    if (l == r || (l && l->isEqualTo(r))) {
+        if (_arguments->symbolCount() != o->_arguments->symbolCount())
+            return false;
+        else if (! _returnType.isEqualTo(o->_returnType))
+            return false;
+        for (unsigned i = 0; i < _arguments->symbolCount(); ++i) {
+            Symbol *l = _arguments->symbolAt(i);
+            Symbol *r = o->_arguments->symbolAt(i);
+            if (! l->type().isEqualTo(r->type()))
+                return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+void ObjCMethod::accept0(TypeVisitor *visitor)
+{ visitor->visit(this); }
+
+FullySpecifiedType ObjCMethod::type() const
+{ return FullySpecifiedType(const_cast<ObjCMethod *>(this)); }
+
+FullySpecifiedType ObjCMethod::returnType() const
+{ return _returnType; }
+
+void ObjCMethod::setReturnType(FullySpecifiedType returnType)
+{ _returnType = returnType; }
+
+bool ObjCMethod::hasReturnType() const
+{
+    const FullySpecifiedType ty = returnType();
+    return ty.isValid() || ty.isSigned() || ty.isUnsigned();
+}
+
+unsigned ObjCMethod::argumentCount() const
+{
+    if (! _arguments)
+        return 0;
+
+    return _arguments->symbolCount();
+}
+
+Symbol *ObjCMethod::argumentAt(unsigned index) const
+{ return _arguments->symbolAt(index); }
+
+Scope *ObjCMethod::arguments() const
+{ return _arguments; }
+
+bool ObjCMethod::hasArguments() const
+{
+    return ! (argumentCount() == 0 ||
+              (argumentCount() == 1 && argumentAt(0)->type()->isVoidType()));
+}
+
+bool ObjCMethod::isVariadic() const
+{ return f._isVariadic; }
+
+void ObjCMethod::setVariadic(bool isVariadic)
+{ f._isVariadic = isVariadic; }
+
+void ObjCMethod::visitSymbol0(SymbolVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        for (unsigned i = 0; i < _arguments->symbolCount(); ++i) {
+            visitSymbol(_arguments->symbolAt(i), visitor);
+        }
+        for (unsigned i = 0; i < memberCount(); ++i) {
+            visitSymbol(memberAt(i), visitor);
+        }
+    }
+}
 
 CPLUSPLUS_END_NAMESPACE
