@@ -77,7 +77,7 @@ public:
         //QString pro_ext;
         //QString res_ext;
 
-      private:
+//      private:
         friend class ProFileEvaluator;
         static QString field_sep; // Just a cache for quick construction
         QHash<QString, QStringList> cache_valuemap; // Cached results of .qmake.cache
