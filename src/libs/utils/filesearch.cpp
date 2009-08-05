@@ -30,6 +30,8 @@
 #include "filesearch.h"
 #include <cctype>
 
+#include <QtCore/QIODevice>
+#include <QtCore/QBuffer>
 #include <QtCore/QFile>
 #include <QtCore/QFutureInterface>
 #include <QtCore/QtConcurrentRun>
@@ -69,7 +71,8 @@ namespace {
 void runFileSearch(QFutureInterface<FileSearchResult> &future,
                    QString searchTerm,
                    QStringList files,
-                   QTextDocument::FindFlags flags)
+                   QTextDocument::FindFlags flags,
+                   QMap<QString, QString> fileToContentsMap)
 {
     future.setProgressRange(0, files.size());
     int numFilesSearched = 0;
@@ -90,6 +93,8 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
 
     int chunkSize = qMax(100000, sa.length());
 
+    QFile file;
+    QBuffer buffer;
     foreach (QString s, files) {
         if (future.isPaused())
             future.waitForResume();
@@ -97,18 +102,25 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
             future.setProgressValueAndText(numFilesSearched, msgCanceled(searchTerm, numMatches, numFilesSearched));
             break;
         }
-        QFile file(s);
-        if (!file.open(QIODevice::ReadOnly))
+        QIODevice *device;
+        if (fileToContentsMap.contains(s)) {
+            buffer.setData(fileToContentsMap.value(s).toLocal8Bit());
+            device = &buffer;
+        } else {
+            file.setFileName(s);
+            device = &file;
+        }
+        if (!device->open(QIODevice::ReadOnly))
             continue;
         int lineNr = 1;
         const char *startOfLastLine = NULL;
 
         bool firstChunk = true;
-        while (!file.atEnd()) {
+        while (!device->atEnd()) {
             if (!firstChunk)
-                file.seek(file.pos()-sa.length()+1);
+                device->seek(device->pos()-sa.length()+1);
 
-            const QByteArray chunk = file.read(chunkSize);
+            const QByteArray chunk = device->read(chunkSize);
             const char *chunkPtr = chunk.constData();
             startOfLastLine = chunkPtr;
             for (const char *regionPtr = chunkPtr; regionPtr < chunkPtr + chunk.length()-scMaxIndex; ++regionPtr) {
@@ -168,6 +180,7 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
         }
         ++numFilesSearched;
         future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched, files.size()));
+        device->close();
     }
     if (!future.isCanceled())
         future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched));
@@ -176,7 +189,8 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
 void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
                    QString searchTerm,
                    QStringList files,
-                   QTextDocument::FindFlags flags)
+                   QTextDocument::FindFlags flags,
+                   QMap<QString, QString> fileToContentsMap)
 {
     future.setProgressRange(0, files.size());
     int numFilesSearched = 0;
@@ -186,6 +200,9 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
     const Qt::CaseSensitivity caseSensitivity = (flags & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
     const QRegExp expression(searchTerm, caseSensitivity);
 
+    QFile file;
+    QString str;
+    QTextStream stream;
     foreach (const QString &s, files) {
         if (future.isPaused())
             future.waitForResume();
@@ -193,10 +210,18 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
             future.setProgressValueAndText(numFilesSearched, msgCanceled(searchTerm, numMatches, numFilesSearched));
             break;
         }
-        QFile file(s);
-        if (!file.open(QIODevice::ReadOnly))
-            continue;
-        QTextStream stream(&file);
+
+        bool needsToCloseFile = false;
+        if (fileToContentsMap.contains(s)) {
+            str = fileToContentsMap.value(s);
+            stream.setString(&str);
+        } else {
+            file.setFileName(s);
+            if (!file.open(QIODevice::ReadOnly))
+                continue;
+            needsToCloseFile = true;
+            stream.setDevice(&file);
+        }
         int lineNr = 1;
         QString line;
         while (!stream.atEnd()) {
@@ -211,6 +236,8 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
         }
         ++numFilesSearched;
         future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched, files.size()));
+        if (needsToCloseFile)
+            file.close();
     }
     if (!future.isCanceled())
         future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched));
@@ -220,13 +247,15 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
 
 
 QFuture<FileSearchResult> Core::Utils::findInFiles(const QString &searchTerm, const QStringList &files,
-    QTextDocument::FindFlags flags)
+    QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
 {
-    return QtConcurrent::run<FileSearchResult, QString, QStringList, QTextDocument::FindFlags>(runFileSearch, searchTerm, files, flags);
+    return QtConcurrent::run<FileSearchResult, QString, QStringList, QTextDocument::FindFlags, QMap<QString, QString> >
+            (runFileSearch, searchTerm, files, flags, fileToContentsMap);
 }
 
 QFuture<FileSearchResult> Core::Utils::findInFilesRegExp(const QString &searchTerm, const QStringList &files,
-    QTextDocument::FindFlags flags)
+    QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
 {
-    return QtConcurrent::run<FileSearchResult, QString, QStringList, QTextDocument::FindFlags>(runFileSearchRegExp, searchTerm, files, flags);
+    return QtConcurrent::run<FileSearchResult, QString, QStringList, QTextDocument::FindFlags, QMap<QString, QString> >
+            (runFileSearchRegExp, searchTerm, files, flags, fileToContentsMap);
 }

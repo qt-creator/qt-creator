@@ -27,41 +27,21 @@
 **
 **************************************************************************/
 
-#ifndef FILESEARCH_H
-#define FILESEARCH_H
+#include "itexteditor.h"
 
-#include "utils_global.h"
+#include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QFuture>
-#include <QtCore/QMap>
-#include <QtGui/QTextDocument>
+using namespace TextEditor;
 
-namespace Core {
-namespace Utils {
-
-class QTCREATOR_UTILS_EXPORT FileSearchResult
+QMap<QString, QString> ITextEditor::openedTextEditorsContents()
 {
-public:
-    FileSearchResult() {}
-    FileSearchResult(QString fileName, int lineNumber, QString matchingLine, int matchStart, int matchLength)
-            : fileName(fileName), lineNumber(lineNumber), matchingLine(matchingLine), matchStart(matchStart), matchLength(matchLength)
-    {
+    QMap<QString, QString> workingCopy;
+    foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors()) {
+        ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
+        if (!textEditor)
+            continue;
+        QString fileName = textEditor->file()->fileName();
+        workingCopy[fileName] = textEditor->contents();
     }
-    QString fileName;
-    int lineNumber;
-    QString matchingLine;
-    int matchStart;
-    int matchLength;
-};
-
-QTCREATOR_UTILS_EXPORT QFuture<FileSearchResult> findInFiles(const QString &searchTerm, const QStringList &files,
-    QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap = QMap<QString, QString>());
-
-QTCREATOR_UTILS_EXPORT QFuture<FileSearchResult> findInFilesRegExp(const QString &searchTerm, const QStringList &files,
-    QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap = QMap<QString, QString>());
-
-} // namespace Utils
-} // namespace Core
-
-#endif // FILESEARCH_H
+    return workingCopy;
+}

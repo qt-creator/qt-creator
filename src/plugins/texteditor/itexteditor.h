@@ -36,6 +36,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
+#include <QtCore/QMap>
 #include <QtGui/QColor>
 #include <QtGui/QIcon>
 
@@ -118,6 +119,7 @@ public:
     virtual void setTextCodec(QTextCodec *) = 0;
     virtual QTextCodec *textCodec() const = 0;
 
+    static QMap<QString, QString> openedTextEditorsContents();
 
 signals:
     void contentsChanged();

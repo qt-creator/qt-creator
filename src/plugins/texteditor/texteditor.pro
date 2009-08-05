@@ -28,7 +28,8 @@ SOURCES += texteditorplugin.cpp \
     codecselector.cpp \
     findincurrentfile.cpp \
     colorscheme.cpp \
-    colorschemeedit.cpp
+    colorschemeedit.cpp \
+    itexteditor.cpp
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
     plaintexteditor.h \
