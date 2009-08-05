@@ -134,8 +134,8 @@
         \o  \c{part1.pro} - the project file.
     \endlist
 
-    Now that we have all the files we need, let's move on to designing the user
-    interface.
+    Now that we have all the files we need, click \gui Finish so can start
+    designing the user interface.
 
     \table
         \row
@@ -146,9 +146,13 @@
 
     \section1 Placing Widgets on The Form
 
-    In the \gui{Project Sidebar}, double-click on the \c{addressbook.ui} file.
+    \image addressbook-tutorial-part1-creator-screenshot.png
+
+    In the \gui{Projects} sidebar, double-click on the \c{addressbook.ui} file.
     The \QD plugin will be launched, allowing you to design your program's user
     interface.
+
+    \image addressbook-tutorial-part1-designer-screenshot.png
 
     We require two \l{QLabel}s to label the input fields as well as a QLineEdit
     and a QTextEdit for the input fields. So, drag those widgets from the
