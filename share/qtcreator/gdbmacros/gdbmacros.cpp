@@ -1041,7 +1041,7 @@ static void qDumpQAbstractItem(QDumper &d)
                         .put(child.internalPointer()).put(",").put(child.model());
                 d.endItem();
                 d.putItem("type", NS"QAbstractItem");
-                d.putItem("value", m->data(mi, Qt::DisplayRole).toString());
+                d.putItem("value", m->data(child, Qt::DisplayRole).toString());
                 d.putItem("valueencoded", "2");
                 d.endHash();
             }
