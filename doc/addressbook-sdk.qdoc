@@ -601,7 +601,7 @@
     In order to switch between modes, we introduce the \c updateInterface()
     function to control the enabling and disabling of all push buttons.
 
-    \snippet examples/addressbook-sdk/part4/adressbook.h updateInterface
+    \snippet examples/addressbook-sdk/part4/addressbook.h updateInterface
 
     Lastly, we declare \c currentMode to keep track of the enum's current mode.
 
