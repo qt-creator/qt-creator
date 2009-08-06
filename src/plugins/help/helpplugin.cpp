@@ -76,6 +76,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QComboBox>
 #include <QtGui/QDesktopServices>
+#include <QtGui/QMessageBox>
 #include <QtHelp/QHelpEngine>
 
 #ifndef QT_NO_WEBKIT
@@ -118,7 +119,7 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
 
 void HelpManager::openHelpPage(const QString& url)
 {
-    m_plugin->openHelpPage(url);
+    m_plugin->handleHelpRequest(url);
 }
 
 void HelpManager::openContextHelpPage(const QString& url)
@@ -405,7 +406,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     createRightPaneSideBar();
 
-    QDesktopServices::setUrlHandler("qthelp", this, "openHelpPage");
+    QDesktopServices::setUrlHandler("qthelp", this, "handleHelpRequest");
 
     if (Core::ActionContainer *advancedMenu =
         am->actionContainer(Core::Constants::M_EDIT_ADVANCED)) {
@@ -674,12 +675,6 @@ void HelpPlugin::modeChanged(Core::IMode *mode)
     }
 }
 
-void HelpPlugin::openContextHelpPage(const QString &url)
-{
-    Core::RightPaneWidget::instance()->setShown(true);
-    m_helpViewerForSideBar->setSource(QUrl(url));
-}
-
 void HelpPlugin::updateSideBarSource()
 {
     const QUrl &url = m_centralWidget->currentSource();
@@ -713,10 +708,45 @@ void HelpPlugin::fontChanged()
 #endif
 }
 
+HelpViewer* HelpPlugin::viewerForContextMode()
+{
+    HelpViewer *viewer = 0;
+    bool showSideBySide = false;
+
+    switch (m_helpEngine->customValue(QLatin1String("ContextHelpOption"), 0).toInt())
+    {
+    case 0: // side by side if possible
+        {
+            if (Core::IEditor *editor = Core::EditorManager::instance()->currentEditor()) {
+                if (editor->widget() && editor->widget()->isVisible() && editor->widget()->width() < 800 )
+                    break;
+            }
+        }
+        // fall through
+    case 1: // side by side
+        showSideBySide = true;
+        break;
+    default: // help mode
+        break;
+    }
+
+    Core::RightPanePlaceHolder* placeHolder = Core::RightPanePlaceHolder::current();
+    if (placeHolder && showSideBySide) {
+        Core::RightPaneWidget::instance()->setShown(true);
+        viewer = m_helpViewerForSideBar;
+    } else {
+        if (!m_centralWidget->currentHelpViewer())
+            activateHelpMode();
+        viewer = m_centralWidget->currentHelpViewer();
+    }
+
+    return viewer;
+}
+
 void HelpPlugin::activateContext()
 {
     Core::RightPanePlaceHolder* placeHolder = Core::RightPanePlaceHolder::current();
-    if (placeHolder && Core::RightPaneWidget::instance()->hasFocus()) {
+    if (placeHolder && m_helpViewerForSideBar->hasFocus()) {
         switchToHelpMode();
         return;
     } else if (m_core->modeManager()->currentMode() == m_mode)
@@ -737,38 +767,9 @@ void HelpPlugin::activateContext()
         id = context->contextHelpId();
         links = m_contextHelpEngine->linksForIdentifier(id);
     }
+    QMessageBox::warning(0, "id", id);
 
-    HelpViewer *viewer = 0;
-
-
-
-    bool showSideBySide = false;
-
-    switch (m_helpEngine->customValue(QLatin1String("ContextHelpOption"), 0).toInt())
-    {
-    case 0: // side by side if possible
-        {
-            if (Core::IEditor *editor = Core::EditorManager::instance()->currentEditor()) {
-                if (editor->widget() && editor->widget()->isVisible() && editor->widget()->width() < 800 )
-                    break;
-            }
-        }
-        // fall through
-    case 1: // side by side
-        showSideBySide = true;
-        break;
-    default: // help mode
-        break;
-    }
-
-    if (placeHolder && showSideBySide && !Core::RightPaneWidget::instance()->hasFocus()) {
-        Core::RightPaneWidget::instance()->setShown(true);
-        viewer = m_helpViewerForSideBar;
-    } else {
-        if (!m_centralWidget->currentHelpViewer())
-            activateHelpMode();
-        viewer = m_centralWidget->currentHelpViewer();
-    }
+    HelpViewer* viewer = viewerForContextMode();
 
     if (viewer) {
         if (links.isEmpty()) {
@@ -876,9 +877,12 @@ void HelpPlugin::addNewBookmark(const QString &title, const QString &url)
     m_bookmarkManager->showBookmarkDialog(m_centralWidget, title, url);
 }
 
-void HelpPlugin::openHelpPage(const QUrl& url)
+void HelpPlugin::handleHelpRequest(const QUrl& url)
 {
-    openHelpPage(url.toString());
+    if (url.queryItemValue("view") == QLatin1String("split"))
+        openContextHelpPage(url.toString());
+    else
+        openHelpPage(url.toString());
 }
 
 void HelpPlugin::openHelpPage(const QString& url)
@@ -897,6 +901,15 @@ void HelpPlugin::openHelpPage(const QString& url)
         }
         QDesktopServices::openUrl(urlPrefix + url.mid(url.lastIndexOf('/') + 1));
     }
+}
+
+void HelpPlugin::openContextHelpPage(const QString &url)
+{
+    Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
+    if (modeManager->currentMode() == modeManager->mode(Core::Constants::MODE_WELCOME))
+        modeManager->activateMode(Core::Constants::MODE_EDIT);
+    HelpViewer* viewer = viewerForContextMode();
+    viewer->setSource(QUrl(url));
 }
 
 Q_EXPORT_PLUGIN(HelpPlugin)

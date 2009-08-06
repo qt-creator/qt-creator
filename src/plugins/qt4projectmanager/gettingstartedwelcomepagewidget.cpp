@@ -48,8 +48,6 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-// TODO: remove
-
 GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::GettingStartedWelcomePageWidget)
@@ -67,13 +65,13 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     ui->tutorialTreeWidget->addItem(tr("<b>Qt Creator - A quick tour</b>"),
                                         QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
     ui->tutorialTreeWidget->addItem(tr("Creating an address book"),
-                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/tutorials-addressbook-sdk.html"));
+                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/tutorials-addressbook-sdk.html?view=split"));
     ui->tutorialTreeWidget->addItem(tr("Understanding widgets"),
-                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/widgets-tutorial.html"));
+                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/widgets-tutorial.html?view=split"));
     ui->tutorialTreeWidget->addItem(tr("Building with qmake"),
-                                        QLatin1String("qthelp://com.trolltech.qmake/qdoc/qmake-tutorial.html"));
+                                        QLatin1String("qthelp://com.trolltech.qmake/qdoc/qmake-tutorial.html?view=split"));
     ui->tutorialTreeWidget->addItem(tr("Writing test cases"),
-                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/qtestlib-tutorial.html"));
+                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/qtestlib-tutorial.html?view=split"));
 
     srand(QDateTime::currentDateTime().toTime_t());
     QStringList tips = tipsOfTheDay();

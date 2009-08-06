@@ -111,7 +111,7 @@ public:
     void setIndexFilter(const QString &filter);
     QString indexFilter() const;
 
-    void openHelpPage(const QUrl& url);
+    void handleHelpRequest(const QUrl& url);
     void openHelpPage(const QString& url);
     void openContextHelpPage(const QString &url);
 
@@ -146,6 +146,7 @@ private:
     QToolBar *createToolBar();
     void createRightPaneSideBar();
     void activateHelpMode();
+    HelpViewer* viewerForContextMode();
 
     Core::ICore *m_core;
     QHelpEngine *m_helpEngine;
