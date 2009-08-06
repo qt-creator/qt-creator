@@ -510,6 +510,8 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
             this, SLOT(unsetEnvironmentButtonClicked()));
     connect(m_environmentTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this, SLOT(environmentCurrentIndexChanged(QModelIndex, QModelIndex)));
+
+    connect(m_model, SIGNAL(userChangesUpdated()), this, SLOT(updateSummaryText()));
 }
 
 EnvironmentWidget::~EnvironmentWidget()

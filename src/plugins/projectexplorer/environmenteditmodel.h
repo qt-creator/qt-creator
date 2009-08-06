@@ -117,9 +117,9 @@ private slots:
     void removeEnvironmentButtonClicked();
     void unsetEnvironmentButtonClicked();
     void environmentCurrentIndexChanged(const QModelIndex &current, const QModelIndex &previous);
+    void updateSummaryText();
 
 private:
-    void updateSummaryText();
     EnvironmentModel *m_model;
     QLabel *m_summaryText;
     QWidget *m_details;
