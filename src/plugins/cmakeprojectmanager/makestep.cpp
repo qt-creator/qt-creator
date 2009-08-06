@@ -145,18 +145,6 @@ void MakeStep::setAdditionalArguments(const QString &buildConfiguration, const Q
     setValue(buildConfiguration, "additionalArguments", list);
 }
 
-// TODO
-//QString MakeStep::oneLineSummary(const QString &buildConfiguration)
-//{
-//    QStringList arguments = value(buildConfiguration, "buildTargets").toStringList();
-//    arguments << additionalArguments(buildConfiguration);
-//    return tr("<b>%1 %2</b> in %3").arg(
-//            m_pro->toolChain(buildConfiguration)->makeCommand(),
-//            arguments.join(" "),
-//            m_pro->buildDirectory(buildConfiguration));
-//
-//}
-
 //
 // MakeStepConfigWidget
 //
@@ -192,11 +180,13 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 void MakeStepConfigWidget::additionalArgumentsEdited()
 {
     m_makeStep->setAdditionalArguments(m_buildConfiguration, ProjectExplorer::Environment::parseCombinedArgString(m_additionalArguments->text()));
+    updateDetails();
 }
 
 void MakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 {
     m_makeStep->setBuildTarget(m_buildConfiguration, item->text(), item->checkState() & Qt::Checked);
+    updateDetails();
 }
 
 QString MakeStepConfigWidget::displayName() const
@@ -224,12 +214,22 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
     connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 
     m_additionalArguments->setText(ProjectExplorer::Environment::joinArgumentList(m_makeStep->additionalArguments(m_buildConfiguration)));
+    updateDetails();
+}
+
+void MakeStepConfigWidget::updateDetails()
+{
+    QStringList arguments = m_makeStep->value(m_buildConfiguration, "buildTargets").toStringList();
+    arguments << m_makeStep->additionalArguments(m_buildConfiguration);
+    m_summaryText = tr("<b>Make:</b>%1 %2")
+                    .arg(m_makeStep->project()->toolChain(m_buildConfiguration)->makeCommand(),
+                         arguments.join(" "));
+    emit updateSummary();
 }
 
 QString MakeStepConfigWidget::summaryText() const
 {
-    // TODO
-    return tr("<b>Make:</b>");
+    return m_summaryText;
 }
 
 //

@@ -83,10 +83,12 @@ private slots:
     void itemChanged(QListWidgetItem*);
     void additionalArgumentsEdited();
 private:
+    void updateDetails();
     QString m_buildConfiguration;
     MakeStep *m_makeStep;
     QListWidget *m_targetsList;
     QLineEdit *m_additionalArguments;
+    QString m_summaryText;
 };
 
 class MakeStepFactory : public ProjectExplorer::IBuildStepFactory

@@ -713,7 +713,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeProject *project)
     : m_project(project)
 {
     QFormLayout *fl = new QFormLayout(this);
-    fl->setContentsMargins(0, -1, 0, -1);
+    fl->setContentsMargins(20, -1, 0, -1);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
     m_pathLineEdit = new QLineEdit(this);
