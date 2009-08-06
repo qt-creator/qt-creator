@@ -62,6 +62,8 @@ public:
     GenericProject *project() const;
     bool buildsTarget(const QString &buildConfiguration, const QString &target) const;
     void setBuildTarget(const QString &buildConfiguration, const QString &target, bool on);
+    QStringList replacedArguments(const QString &buildConfiguration) const;
+    QString makeCommand(const QString &buildConfiguration) const;
 private:
     GenericProject *m_pro;
 };
@@ -79,9 +81,11 @@ private slots:
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
 private:
+    void updateDetails();
     QString m_buildConfiguration;
     Ui::GenericMakeStep *m_ui;
     GenericMakeStep *m_makeStep;
+    QString m_summaryText;
 };
 
 class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory

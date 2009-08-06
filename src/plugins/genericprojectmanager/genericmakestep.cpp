@@ -67,15 +67,16 @@ bool GenericMakeStep::init(const QString &buildConfiguration)
     const QString buildDir = vm->resolve(rawBuildDir);
     setWorkingDirectory(buildConfiguration, buildDir);
 
-    QString command = value(buildConfiguration, "makeCommand").toString();
-    if (command.isEmpty()) {
-        if (ProjectExplorer::ToolChain *toolChain = m_pro->toolChain())
-            command = toolChain->makeCommand();
-        else
-            command = QLatin1String("make");
-    }
-    setCommand(buildConfiguration, command);
+    setCommand(buildConfiguration, makeCommand(buildConfiguration));
+    setArguments(buildConfiguration, replacedArguments(buildConfiguration));
 
+    setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
+    return AbstractMakeStep::init(buildConfiguration);
+}
+
+QStringList GenericMakeStep::replacedArguments(const QString &buildConfiguration) const
+{
+    Core::VariableManager *vm = Core::VariableManager::instance();
     const QStringList targets = value(buildConfiguration, "buildTargets").toStringList();
     QStringList arguments = value(buildConfiguration, "makeArguments").toStringList();
     QStringList replacedArguments;
@@ -85,10 +86,19 @@ bool GenericMakeStep::init(const QString &buildConfiguration)
     foreach (const QString &arg, targets) {
       replacedArguments.append(vm->resolve(arg));
     }
-    setArguments(buildConfiguration, replacedArguments);
+    return replacedArguments;
+}
 
-    setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
-    return AbstractMakeStep::init(buildConfiguration);
+QString GenericMakeStep::makeCommand(const QString &buildConfiguration) const
+{
+    QString command = value(buildConfiguration, "makeCommand").toString();
+    if (command.isEmpty()) {
+        if (ProjectExplorer::ToolChain *toolChain = m_pro->toolChain())
+            command = toolChain->makeCommand();
+        else
+            command = QLatin1String("make");
+    }
+    return command;
 }
 
 void GenericMakeStep::run(QFutureInterface<bool> &fi)
@@ -171,9 +181,9 @@ void GenericMakeStepConfigWidget::init(const QString &buildConfiguration)
     m_buildConfiguration = buildConfiguration;
 
     // TODO: Label should update when tool chain is changed
-    m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->command(buildConfiguration)));
+    m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->makeCommand(buildConfiguration)));
 
-    const QString &makeCommand = m_makeStep->value(buildConfiguration, "makeCommand").toString();
+    QString makeCommand = m_makeStep->value(buildConfiguration, "makeCommand").toString();
     m_ui->makeLineEdit->setText(makeCommand);
 
     const QStringList &makeArguments =
@@ -189,26 +199,36 @@ void GenericMakeStepConfigWidget::init(const QString &buildConfiguration)
         item->setCheckState(m_makeStep->buildsTarget(buildConfiguration, item->text()) ? Qt::Checked : Qt::Unchecked);
     }
 
+    updateDetails();
     // and connect again
     connect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 }
 
+void GenericMakeStepConfigWidget::updateDetails()
+{
+    m_summaryText = tr("<b>Make:</b> %1 %2")
+                    .arg(m_makeStep->makeCommand(m_buildConfiguration),
+                         ProjectExplorer::Environment::joinArgumentList(m_makeStep->replacedArguments(m_buildConfiguration)));
+    emit updateSummary();
+}
+
 QString GenericMakeStepConfigWidget::summaryText() const
 {
-    // TODO
-    return tr("<b>Make:</b>");
+    return m_summaryText;
 }
 
 void GenericMakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 {
     QTC_ASSERT(!m_buildConfiguration.isNull(), return);
     m_makeStep->setBuildTarget(m_buildConfiguration, item->text(), item->checkState() & Qt::Checked);
+    updateDetails();
 }
 
 void GenericMakeStepConfigWidget::makeLineEditTextEdited()
 {
     QTC_ASSERT(!m_buildConfiguration.isNull(), return);
     m_makeStep->setValue(m_buildConfiguration, "makeCommand", m_ui->makeLineEdit->text());
+    updateDetails();
 }
 
 void GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited()
@@ -216,6 +236,7 @@ void GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited()
     QTC_ASSERT(!m_buildConfiguration.isNull(), return);
     m_makeStep->setValue(m_buildConfiguration, "makeArguments",
                          ProjectExplorer::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text()));
+    updateDetails();
 }
 
 //
