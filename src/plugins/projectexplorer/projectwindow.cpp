@@ -170,6 +170,31 @@ void ProjectView::updateSizeHint()
     }
 }
 
+///
+// OnePixelBlackLine
+///
+
+#include <QtGui/QPainter>
+#include <QtGui/QPaintEvent>
+#include <utils/stylehelper.h>
+
+class OnePixelBlackLine : public QWidget
+{
+public:
+    OnePixelBlackLine(QWidget *parent)
+        : QWidget(parent)
+    {
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        setMinimumHeight(1);
+        setMaximumHeight(1);
+    }
+    void paintEvent(QPaintEvent *e)
+    {
+        QPainter p(this);
+        p.fillRect(e->rect(), QBrush(StyleHelper::borderColor()));
+    }
+};
+
 
 ///
 // ProjectWindow
@@ -205,8 +230,10 @@ ProjectWindow::ProjectWindow(QWidget *parent)
 
     QVBoxLayout *topLevelLayout = new QVBoxLayout(this);
     topLevelLayout->setMargin(0);
+    topLevelLayout->setSpacing(0);
     topLevelLayout->addWidget(new Core::Utils::StyledBar(this));
     topLevelLayout->addWidget(m_treeWidget);
+    topLevelLayout->addWidget(new OnePixelBlackLine(this));
     topLevelLayout->addWidget(m_panelsWidget);
 
     connect(m_session, SIGNAL(sessionLoaded()), this, SLOT(restoreStatus()));
