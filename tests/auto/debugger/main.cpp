@@ -21,11 +21,12 @@
 
 //#include <QtTest/qtest_gui.h>
 
+#include <QtCore/private/qobject_p.h>
+
 #include "gdb/gdbmi.h"
 #include "tcf/json.h"
 #include "gdbmacros.h"
 #include "gdbmacros_p.h"
-
 
 #undef NS
 #ifdef QT_NAMESPACE
