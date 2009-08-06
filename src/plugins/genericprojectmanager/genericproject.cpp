@@ -427,14 +427,14 @@ QString GenericProject::buildDirectory(const QString &buildConfiguration) const
     return buildDirectory;
 }
 
-ProjectExplorer::BuildStepConfigWidget *GenericProject::createConfigWidget()
+ProjectExplorer::BuildConfigWidget *GenericProject::createConfigWidget()
 {
     return new GenericBuildSettingsWidget(this);
 }
 
-QList<ProjectExplorer::BuildStepConfigWidget*> GenericProject::subConfigWidgets()
+QList<ProjectExplorer::BuildConfigWidget*> GenericProject::subConfigWidgets()
 {
-    return QList<ProjectExplorer::BuildStepConfigWidget*>();
+    return QList<ProjectExplorer::BuildConfigWidget*>();
 }
 
  void GenericProject::newBuildConfiguration(const QString &buildConfiguration)

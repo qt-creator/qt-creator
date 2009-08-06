@@ -71,7 +71,6 @@ QString ProcessStep::name()
 void ProcessStep::setDisplayName(const QString &name)
 {
     setValue("ProjectExplorer.ProcessStep.DisplayName", name);
-    emit displayNameChanged(this, name);
 }
 
 QString ProcessStep::displayName()
@@ -142,8 +141,27 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
             this, SLOT(nameLineEditTextEdited()));
     connect(m_ui.commandArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(commandArgumentsLineEditTextEdited()));
-    connect(m_ui.enabledGroupBox, SIGNAL(clicked(bool)),
-            this, SLOT(enabledGroupBoxClicked(bool)));
+    connect(m_ui.enabledCheckBox, SIGNAL(clicked(bool)),
+            this, SLOT(enabledCheckBoxClicked(bool)));
+
+    connect(m_ui.detailsButton, SIGNAL(clicked()),
+            this, SLOT(toggleDetails()));
+
+    m_ui.detailsWidget->setVisible(false);
+}
+
+void ProcessStepConfigWidget::updateDetails()
+{
+    m_summaryText = tr("<b>Process Step</b> %1 %2 %3")
+                    .arg(m_step->command(m_buildConfiguration),
+                         m_step->arguments(m_buildConfiguration).join(" "),
+                         m_step->enabled(m_buildConfiguration) ? "" : tr("(disabled)"));
+    emit updateSummary();
+}
+
+void ProcessStepConfigWidget::toggleDetails()
+{
+    m_ui.detailsWidget->setVisible(!m_ui.detailsWidget->isVisible());
 }
 
 QString ProcessStepConfigWidget::displayName() const
@@ -163,9 +181,15 @@ void ProcessStepConfigWidget::init(const QString &buildConfiguration)
         m_ui.workingDirectory->setPath(workingDirectory);
 
         m_ui.commandArgumentsLineEdit->setText(m_step->arguments(buildConfiguration).join(" "));
-        m_ui.enabledGroupBox->setChecked(m_step->enabled(buildConfiguration));
+        m_ui.enabledCheckBox->setChecked(m_step->enabled(buildConfiguration));
     }
     m_ui.nameLineEdit->setText(m_step->displayName());
+    updateDetails();
+}
+
+QString ProcessStepConfigWidget::summaryText() const
+{
+    return m_summaryText;
 }
 
 void ProcessStepConfigWidget::nameLineEditTextEdited()
@@ -176,6 +200,7 @@ void ProcessStepConfigWidget::nameLineEditTextEdited()
 void ProcessStepConfigWidget::commandLineEditTextEdited()
 {
     m_step->setCommand(m_buildConfiguration, m_ui.command->path());
+    updateDetails();
 }
 
 void ProcessStepConfigWidget::workingDirectoryLineEditTextEdited()
@@ -188,9 +213,11 @@ void ProcessStepConfigWidget::commandArgumentsLineEditTextEdited()
 {
     m_step->setArguments(m_buildConfiguration, m_ui.commandArgumentsLineEdit->text().split(" ",
           QString::SkipEmptyParts));
+    updateDetails();
 }
 
-void ProcessStepConfigWidget::enabledGroupBoxClicked(bool)
+void ProcessStepConfigWidget::enabledCheckBoxClicked(bool)
 {
-    m_step->setEnabled(m_buildConfiguration, m_ui.enabledGroupBox->isChecked());
+    m_step->setEnabled(m_buildConfiguration, m_ui.enabledCheckBox->isChecked());
+    updateDetails();
 }

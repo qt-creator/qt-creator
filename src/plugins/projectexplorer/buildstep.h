@@ -131,8 +131,6 @@ Q_SIGNALS:
     void addToTaskWindow(const QString &filename, int type, int linenumber, const QString &description);
     void addToOutputWindow(const QString &string);
 
-    void displayNameChanged(BuildStep *, const QString &displayName);
-
 private:
     QList<Internal::BuildConfiguration *> buildConfigurations();
     void addBuildConfiguration(const QString & name);
@@ -164,20 +162,32 @@ public:
     virtual QString displayNameForName(const QString &name) const = 0;
 };
 
-class PROJECTEXPLORER_EXPORT BuildStepConfigWidget
+class PROJECTEXPLORER_EXPORT BuildConfigWidget
     : public QWidget
 {
     Q_OBJECT
 public:
-    BuildStepConfigWidget()
+    BuildConfigWidget()
         :QWidget(0)
         {}
 
     virtual QString displayName() const = 0;
 
     // This is called to set up the config widget before showing it
-    // buildConfiguration is QString::null for the non buildConfiguration specific page
     virtual void init(const QString &buildConfiguration) = 0;
+};
+
+class PROJECTEXPLORER_EXPORT BuildStepConfigWidget
+    : public BuildConfigWidget
+{
+    Q_OBJECT
+public:
+    BuildStepConfigWidget()
+        : BuildConfigWidget()
+        {}
+    virtual QString summaryText() const = 0;
+signals:
+    void updateSummary();
 };
 
 } // namespace ProjectExplorer

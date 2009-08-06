@@ -71,6 +71,7 @@ PanelsWidget::PanelsWidget(QWidget *parent)
     QWidget *verticalWidget = new QWidget;
     verticalWidget->setMaximumWidth(800);
     m_layout = new QVBoxLayout;
+    m_layout->addStretch(10);
     verticalWidget->setLayout(m_layout);
     topwidgetLayout->addWidget(verticalWidget);
     topwidgetLayout->addStretch(10);
@@ -95,10 +96,15 @@ void PanelsWidget::addWidget(const QString &name, QWidget *widget)
     f.setPointSizeF(f.pointSizeF() * 1.4);
     p.nameLabel->setFont(f);
     p.panelWidget = widget;
-    m_panels.append(p);
 
-    m_layout->addWidget(p.nameLabel);
-    m_layout->addWidget(p.panelWidget);
+    m_layout->insertWidget(m_layout->count() -1, p.nameLabel);
+    QHBoxLayout *hboxLayout = new QHBoxLayout();
+    hboxLayout->setContentsMargins(20, 0, 0, 0);
+    hboxLayout->addWidget(p.panelWidget);
+    p.marginLayout = hboxLayout;
+    m_layout->insertLayout(m_layout->count() -1, hboxLayout);
+
+    m_panels.append(p);
 }
 
 void PanelsWidget::clear()
@@ -106,9 +112,73 @@ void PanelsWidget::clear()
     foreach(Panel p, m_panels) {
         delete p.nameLabel;
         delete p.panelWidget;
+        delete p.marginLayout;
     }
     m_panels.clear();
 }
+
+///
+// ProjectView
+///
+
+ProjectView::ProjectView(QWidget *parent)
+    : QTreeWidget(parent)
+{
+    m_sizeHint = QSize(250, 250);
+    setUniformRowHeights(true);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    QAbstractItemModel *m = model();
+    connect(m, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            this, SLOT(updateSizeHint()));
+    connect(m, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+            this, SLOT(updateSizeHint()));
+    connect(m, SIGNAL(modelReset()),
+            this, SLOT(updateSizeHint()));
+    connect(m, SIGNAL(layoutChanged()),
+            this, SLOT(updateSizeHint()));
+    updateSizeHint();
+}
+
+ProjectView::~ProjectView()
+{
+
+}
+
+QSize ProjectView::sizeHint() const
+{
+    qDebug()<<"sizeHint()"<<m_sizeHint;
+    return m_sizeHint;
+}
+
+void ProjectView::updateSizeHint()
+{
+    if (!model()) {
+        m_sizeHint = QSize(250, 250);
+        return;
+    }
+
+    int heightOffset = size().height() - viewport()->height();
+    qDebug()<<"heightOffset"<<heightOffset;
+
+    qDebug()<<"updating sizehint";
+    int heightPerRow = sizeHintForRow(0);
+    if (heightPerRow == -1) {
+        qDebug()<<"No row height";
+        heightPerRow = 30;
+    }
+    int rows = qMin(qMax(model()->rowCount(), 2), 6);
+    int height = rows * heightPerRow + heightOffset;
+    if (m_sizeHint.height() != height) {
+        m_sizeHint.setHeight(height);
+        updateGeometry();
+    }
+}
+
+
+///
+// ProjectWindow
+///
 
 ProjectWindow::ProjectWindow(QWidget *parent)
     : QWidget(parent), m_currentItemChanged(false)
@@ -119,7 +189,7 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     m_projectExplorer = ProjectExplorerPlugin::instance();
     m_session = m_projectExplorer->session();
 
-    m_treeWidget = new QTreeWidget(this);
+    m_treeWidget = new ProjectView(this);
     m_treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     m_treeWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeWidget->setFrameStyle(QFrame::NoFrame);
@@ -138,27 +208,11 @@ ProjectWindow::ProjectWindow(QWidget *parent)
 
     m_panelsWidget = new PanelsWidget(this);
 
-    QWidget *dummy = new QWidget;
-    QVBoxLayout *dummyLayout = new QVBoxLayout(dummy);
-    dummyLayout->setMargin(0);
-    dummyLayout->setSpacing(0);
-    dummyLayout->addWidget(new Core::Utils::StyledBar(dummy));
-    dummyLayout->addWidget(m_treeWidget);
-
-    QSplitter *splitter = new Core::MiniSplitter;
-    splitter->setOrientation(Qt::Vertical);
-    splitter->addWidget(dummy);
-    splitter->addWidget(m_panelsWidget);
-
-    // make sure that the tree treewidget has same size policy as qtabwidget
-    m_treeWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
-    const int treeWidgetMinSize = m_treeWidget->minimumSizeHint().height();
-    splitter->setSizes(QList<int>() << treeWidgetMinSize << splitter->height() - treeWidgetMinSize);
-
-    QVBoxLayout *topLayout = new QVBoxLayout(this);
-    topLayout->setMargin(0);
-    topLayout->setSpacing(0);
-    topLayout->addWidget(splitter);
+    QVBoxLayout *topLevelLayout = new QVBoxLayout(this);
+    topLevelLayout->setMargin(0);
+    topLevelLayout->addWidget(new Core::Utils::StyledBar(this));
+    topLevelLayout->addWidget(m_treeWidget);
+    topLevelLayout->addWidget(m_panelsWidget);
 
     connect(m_session, SIGNAL(sessionLoaded()), this, SLOT(restoreStatus()));
     connect(m_session, SIGNAL(aboutToSaveSession()), this, SLOT(saveStatus()));
@@ -167,7 +221,6 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     connect(m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetProjectAdded(ProjectExplorer::Project*)));
     connect(m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetProjectRemoved(ProjectExplorer::Project*)));
     connect(m_session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetAboutToRemoveProject(ProjectExplorer::Project*)));
-
 }
 
 ProjectWindow::~ProjectWindow()

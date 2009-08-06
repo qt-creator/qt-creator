@@ -32,7 +32,10 @@
 
 #include "iprojectproperties.h"
 
+#include <QtCore/QSize>
 #include <QtGui/QWidget>
+#include <QtGui/QLabel>
+#include <QtGui/QTreeView>
 
 namespace ProjectExplorer {
 
@@ -93,6 +96,38 @@ private:
     SessionManager *m_session;
     Project *m_project;
     QList<Project *> m_projects;
+};
+
+class DependenciesView : public QTreeView
+{
+    Q_OBJECT
+public:
+    DependenciesView(QWidget *parent);
+    ~DependenciesView();
+    virtual QSize sizeHint() const;
+    virtual void setModel(QAbstractItemModel *model);
+private slots:
+    void updateSizeHint();
+private:
+    QSize m_sizeHint;
+};
+
+class DependenciesWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    DependenciesWidget(SessionManager *session, Project *project,
+                       QWidget *parent = 0);
+private slots:
+    void toggleDetails();
+    void updateDetails();
+
+private:
+    SessionManager *m_session;
+    Project *m_project;
+    DependenciesModel *m_model;
+    QWidget *m_detailsWidget;
+    QLabel *m_titleLabel;
 };
 
 } // namespace Internal

@@ -594,7 +594,7 @@ void Qt4Project::updateCodeModel()
 
 
         pinfo.defines = predefinedMacros;
-        // pinfo->defines += definedMacros;   // ### FIXME: me
+        pinfo.defines += definedMacros;   // ### FIXME: me
         pinfo.includePaths = allIncludePaths;
         pinfo.frameworkPaths = allFrameworkPaths;
         pinfo.sourceFiles = files;
@@ -911,14 +911,14 @@ ProjectExplorer::ToolChain::ToolChainType Qt4Project::toolChainType(const QStrin
     return type;
 }
 
-BuildStepConfigWidget *Qt4Project::createConfigWidget()
+BuildConfigWidget *Qt4Project::createConfigWidget()
 {
     return new Qt4ProjectConfigWidget(this);
 }
 
-QList<BuildStepConfigWidget*> Qt4Project::subConfigWidgets()
+QList<BuildConfigWidget*> Qt4Project::subConfigWidgets()
 {
-    QList<BuildStepConfigWidget*> subWidgets;
+    QList<BuildConfigWidget*> subWidgets;
     subWidgets << new Qt4BuildEnvironmentWidget(this);
     return subWidgets;
 }

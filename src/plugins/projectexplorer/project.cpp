@@ -194,9 +194,9 @@ bool Project::restoreSettings()
     return true;
 }
 
-QList<BuildStepConfigWidget*> Project::subConfigWidgets()
+QList<BuildConfigWidget*> Project::subConfigWidgets()
 {
-    return QList<BuildStepConfigWidget*>();
+    return QList<BuildConfigWidget*>();
 }
 
 void Project::saveSettingsImpl(PersistentSettingsWriter &writer)

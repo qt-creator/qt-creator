@@ -166,8 +166,8 @@ public:
     void setToolChainType(const QString &buildConfiguration, ProjectExplorer::ToolChain::ToolChainType type);
     ProjectExplorer::ToolChain::ToolChainType toolChainType(const QString &buildConfiguration) const;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    QList<ProjectExplorer::BuildStepConfigWidget*> subConfigWidgets();
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     void setQtVersion(const QString &buildConfiguration, int id);
     virtual void newBuildConfiguration(const QString &buildConfiguration);

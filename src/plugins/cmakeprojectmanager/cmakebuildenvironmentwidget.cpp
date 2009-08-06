@@ -40,7 +40,7 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
 CMakeBuildEnvironmentWidget::CMakeBuildEnvironmentWidget(CMakeProject *project)
-    : BuildStepConfigWidget(), m_pro(project)
+    : BuildConfigWidget(), m_pro(project)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);

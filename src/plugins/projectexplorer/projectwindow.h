@@ -32,14 +32,15 @@
 
 #include <QtGui/QWidget>
 #include <QtGui/QScrollArea>
+#include <QtGui/QTreeWidget>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QVBoxLayout;
 class QModelIndex;
 class QTabWidget;
-class QTreeWidget;
 class QTreeWidgetItem;
+class QHBoxLayout;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -68,9 +69,24 @@ private:
     {
         QLabel *nameLabel;
         QWidget *panelWidget;
+        QHBoxLayout *marginLayout;
     };
     QVBoxLayout *m_layout;
     QList<Panel> m_panels;
+};
+
+
+class ProjectView : public QTreeWidget
+{
+    Q_OBJECT
+public:
+    ProjectView (QWidget *parent);
+    ~ProjectView ();
+    virtual QSize sizeHint() const;
+private slots:
+    void updateSizeHint();
+private:
+    QSize m_sizeHint;
 };
 
 class ProjectWindow : public QWidget
@@ -98,12 +114,13 @@ private:
     SessionManager *m_session;
     ProjectExplorerPlugin *m_projectExplorer;
 
-    QTreeWidget* m_treeWidget;
+    ProjectView* m_treeWidget;
     PanelsWidget *m_panelsWidget;
 
     Project *findProject(const QString &path) const;
     bool m_currentItemChanged;
 };
+
 
 } // namespace Internal
 } // namespace ProjectExplorer

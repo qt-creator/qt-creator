@@ -36,67 +36,80 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
+#include <QtGui/QLabel>
+#include <QtGui/QPushButton>
+
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
-    BuildStepConfigWidget(),
-    m_ui(new Ui::BuildStepsPage),
+    BuildConfigWidget(),
     m_pro(project),
     m_clean(clean)
 {
-    m_ui->setupUi(this);
-
-    m_ui->buildStepAddButton->setMenu(new QMenu(this));
-    m_ui->buildStepAddButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
-    m_ui->buildStepRemoveToolButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
-    m_ui->buildStepUpToolButton->setArrowType(Qt::UpArrow);
-    m_ui->buildStepDownToolButton->setArrowType(Qt::DownArrow);
-
-    connect(m_ui->buildSettingsList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-            this, SLOT(updateBuildStepWidget(QTreeWidgetItem *, QTreeWidgetItem *)));
-
-    connect(m_ui->buildStepAddButton->menu(), SIGNAL(aboutToShow()),
-            this, SLOT(updateAddBuildStepMenu()));
-
-    connect(m_ui->buildStepAddButton, SIGNAL(clicked()),
-            this, SLOT(addBuildStep()));
-    connect(m_ui->buildStepRemoveToolButton, SIGNAL(clicked()),
-            this, SLOT(removeBuildStep()));
-    connect(m_ui->buildStepUpToolButton, SIGNAL(clicked()),
-            this, SLOT(upBuildStep()));
-    connect(m_ui->buildStepDownToolButton, SIGNAL(clicked()),
-            this, SLOT(downBuildStep()));
-
-    // Remove dummy pages
-    while (QWidget *widget = m_ui->buildSettingsWidget->currentWidget()) {
-        m_ui->buildSettingsWidget->removeWidget(widget);
-        delete widget;
-    }
-
-    // Add buildsteps
+    m_vbox = new QVBoxLayout(this);
+    m_vbox->setContentsMargins(20, 0, 0, 0);
     const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
     foreach (BuildStep *bs, steps) {
-        connect(bs, SIGNAL(displayNameChanged(BuildStep *, QString)),
-                this, SLOT(displayNameChanged(BuildStep *,QString)));
-
-        QTreeWidgetItem *buildStepItem = new QTreeWidgetItem();
-        buildStepItem->setText(0, bs->displayName());
-        m_ui->buildSettingsWidget->addWidget(bs->createConfigWidget());
-        m_ui->buildSettingsList->invisibleRootItem()->addChild(buildStepItem);
+        addBuildStepWidget(-1, bs);
     }
+
+    m_noStepsLabel = new QLabel(tr("No Build Steps"), this);
+    m_noStepsLabel->setVisible(steps.isEmpty());
+    m_vbox->addWidget(m_noStepsLabel);
+
+    QHBoxLayout *hboxLayout = new QHBoxLayout();
+    m_addButton = new QPushButton(this);
+    m_addButton->setText(tr("Add build step"));
+    m_addButton->setMenu(new QMenu(this));
+    hboxLayout->addWidget(m_addButton);
+
+    m_removeButton = new QPushButton(this);
+    m_removeButton->setText(tr("Remove build step"));
+    m_removeButton->setMenu(new QMenu(this));
+    hboxLayout->addWidget(m_removeButton);
+    hboxLayout->addStretch(10);
+
+    m_vbox->addLayout(hboxLayout);
+
+    updateBuildStepButtonsState();
+
+    connect(m_addButton->menu(), SIGNAL(aboutToShow()),
+            this, SLOT(updateAddBuildStepMenu()));
+
+    connect(m_removeButton->menu(), SIGNAL(aboutToShow()),
+            this, SLOT(updateRemoveBuildStepMenu()));
 }
 
 BuildStepsPage::~BuildStepsPage()
 {
-    // Also deletes all added widgets
-    delete m_ui;
+    foreach(BuildStepsWidgetStruct s, m_buildSteps) {
+        delete s.detailsLabel;
+        delete s.upButton;
+        delete s.downButton;
+        delete s.detailsButton;
+        delete s.hbox;
+        delete s.widget;
+    }
+    m_buildSteps.clear();
 }
 
-void BuildStepsPage::displayNameChanged(BuildStep *bs, const QString & /* displayName */)
+void BuildStepsPage::toggleDetails()
 {
-    int index = m_clean ?  m_pro->cleanSteps().indexOf(bs) : m_pro->buildSteps().indexOf(bs);
-    m_ui->buildSettingsList->invisibleRootItem()->child(index)->setText(0, bs->displayName());
+    QToolButton *tb = qobject_cast<QToolButton *>(sender());
+    if (tb)
+        foreach(const BuildStepsWidgetStruct &s, m_buildSteps)
+            if (s.detailsButton == tb)
+                s.widget->setVisible(!s.widget->isVisible());
+}
+
+void BuildStepsPage::updateSummary()
+{
+    BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(sender());
+    if (widget)
+        foreach(const BuildStepsWidgetStruct &s, m_buildSteps)
+            if (s.widget == widget)
+                s.detailsLabel->setText(widget->summaryText());
 }
 
 QString BuildStepsPage::displayName() const
@@ -108,32 +121,12 @@ void BuildStepsPage::init(const QString &buildConfiguration)
 {
     m_configuration = buildConfiguration;
 
-    m_ui->buildSettingsList->setCurrentItem(m_ui->buildSettingsList->invisibleRootItem()->child(0));
     // make sure widget is updated
-    if (m_ui->buildSettingsWidget->currentWidget()) {
-        BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(m_ui->buildSettingsWidget->currentWidget());
-        widget->init(m_configuration);
+    foreach(BuildStepsWidgetStruct s, m_buildSteps) {
+        s.widget->init(m_configuration);
+        s.detailsLabel->setText(s.widget->summaryText());
     }
 }
-
-/* switch from one tree item / build step to another */
-void BuildStepsPage::updateBuildStepWidget(QTreeWidgetItem *newItem, QTreeWidgetItem *oldItem)
-{
-    if (oldItem == newItem)
-        return;
-    Q_ASSERT(m_pro);
-
-    if (newItem) {
-        int row = m_ui->buildSettingsList->indexOfTopLevelItem(newItem);
-        m_ui->buildSettingsWidget->setCurrentIndex(row);
-        m_ui->groupBox->setTitle(newItem->text(0));
-        BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(m_ui->buildSettingsWidget->currentWidget());
-        Q_ASSERT(widget);
-        widget->init(m_configuration);
-    }
-    updateBuildStepButtonsState();
-}
-
 
 void BuildStepsPage::updateAddBuildStepMenu()
 {
@@ -148,7 +141,7 @@ void BuildStepsPage::updateAddBuildStepMenu()
     }
 
     // Ask the user which one to add
-    QMenu *menu = m_ui->buildStepAddButton->menu();
+    QMenu *menu = m_addButton->menu();
     m_addBuildStepHash.clear();
     menu->clear();
     if (!map.isEmpty()) {
@@ -164,119 +157,165 @@ void BuildStepsPage::updateAddBuildStepMenu()
     }
 }
 
+void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
+{
+    // create everything
+    BuildStepsWidgetStruct s;
+    s.widget = step->createConfigWidget();
+    s.detailsLabel = new QLabel(this);
+    s.detailsLabel->setText(s.widget->summaryText());
+    s.upButton = new QToolButton(this);
+    s.upButton->setArrowType(Qt::UpArrow);
+    s.downButton = new QToolButton(this);
+    s.downButton->setArrowType(Qt::DownArrow);
+    s.detailsButton = new QToolButton(this);
+    s.detailsButton->setText(tr("Details"));
+
+    // layout
+    s.hbox = new QHBoxLayout();
+    s.hbox->addWidget(s.detailsLabel);
+    s.hbox->addWidget(s.upButton);
+    s.hbox->addWidget(s.downButton);
+    s.hbox->addWidget(s.detailsButton);
+
+    if (pos == -1)
+        m_buildSteps.append(s);
+    else
+        m_buildSteps.insert(pos, s);
+
+    if (pos == -1) {
+        m_vbox->addLayout(s.hbox);
+        m_vbox->addWidget(s.widget);
+    } else {
+        m_vbox->insertLayout(pos *2, s.hbox);
+        m_vbox->insertWidget(pos *2 + 1, s.widget);
+    }
+    s.widget->hide();
+
+    // connect
+    connect(s.detailsButton, SIGNAL(clicked()),
+            this, SLOT(toggleDetails()));
+
+    connect(s.widget, SIGNAL(updateSummary()),
+            this, SLOT(updateSummary()));
+
+    connect(s.upButton, SIGNAL(clicked()),
+            this, SLOT(upBuildStep()));
+    connect(s.downButton, SIGNAL(clicked()),
+            this, SLOT(downBuildStep()));
+}
 
 void BuildStepsPage::addBuildStep()
 {
     if (QAction *action = qobject_cast<QAction *>(sender())) {
         QPair<QString, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
         BuildStep *newStep = pair.second->create(m_pro, pair.first);
-        m_clean ? m_pro->insertCleanStep(0, newStep) : m_pro->insertBuildStep(0, newStep);
-        QTreeWidgetItem *buildStepItem = new QTreeWidgetItem();
-        buildStepItem->setText(0, newStep->displayName());
-        m_ui->buildSettingsList->invisibleRootItem()->insertChild(0, buildStepItem);
-        m_ui->buildSettingsWidget->insertWidget(0, newStep->createConfigWidget());
-        m_ui->buildSettingsList->setCurrentItem(buildStepItem);
+        int pos = m_clean ? m_pro->cleanSteps().count() : m_pro->buildSteps().count();
+        m_clean ? m_pro->insertCleanStep(pos, newStep) : m_pro->insertBuildStep(pos, newStep);
 
-        connect(newStep, SIGNAL(displayNameChanged(BuildStep *, QString)),
-                this, SLOT(displayNameChanged(BuildStep *,QString)));
+        addBuildStepWidget(pos, newStep);
+        const BuildStepsWidgetStruct s = m_buildSteps.at(pos);
+        s.widget->init(m_configuration);
+        s.detailsLabel->setText(s.widget->summaryText());
+    }
+}
+
+void BuildStepsPage::updateRemoveBuildStepMenu()
+{
+    QMenu *menu = m_removeButton->menu();
+    menu->clear();
+    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+    foreach(BuildStep *step, steps) {
+        QAction *action = menu->addAction(step->displayName());
+        if (step->immutable())
+            action->setEnabled(false);
+        connect(action, SIGNAL(triggered()),
+                this, SLOT(removeBuildStep()));
     }
 }
 
 void BuildStepsPage::removeBuildStep()
 {
-    int pos = m_ui->buildSettingsList->currentIndex().row();
-    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
-    if (steps.at(pos)->immutable())
-        return;
-    bool blockSignals = m_ui->buildSettingsList->blockSignals(true);
-    delete m_ui->buildSettingsList->invisibleRootItem()->takeChild(pos);
-    m_ui->buildSettingsList->blockSignals(blockSignals);
-    QWidget *widget = m_ui->buildSettingsWidget->widget(pos);
-    m_ui->buildSettingsWidget->removeWidget(widget);
-    delete widget;
-    if (pos < m_ui->buildSettingsList->invisibleRootItem()->childCount())
-        m_ui->buildSettingsList->setCurrentItem(m_ui->buildSettingsList->invisibleRootItem()->child(pos));
-    else
-        m_ui->buildSettingsList->setCurrentItem(m_ui->buildSettingsList->invisibleRootItem()->child(pos - 1));
-    m_clean ? m_pro->removeCleanStep(pos) : m_pro->removeBuildStep(pos);
-    updateBuildStepButtonsState();
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action) {
+        int pos = m_removeButton->menu()->actions().indexOf(action);
+        qDebug()<<"pos:"<<pos;
+
+        const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+        if (steps.at(pos)->immutable())
+            return;
+
+        BuildStepsWidgetStruct s = m_buildSteps.at(pos);
+        delete s.detailsLabel;
+        delete s.upButton;
+        delete s.downButton;
+        delete s.detailsButton;
+        delete s.hbox;
+        delete s.widget;
+        m_buildSteps.removeAt(pos);
+        m_clean ? m_pro->removeCleanStep(pos) : m_pro->removeBuildStep(pos);
+    }
 }
 
 void BuildStepsPage::upBuildStep()
 {
-    int pos = m_ui->buildSettingsList->currentIndex().row();
-    if (pos < 1)
-        return;
-    if (pos > m_ui->buildSettingsList->invisibleRootItem()->childCount()-1)
-        return;
-    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
-    if (steps.at(pos)->immutable() && steps.at(pos-1)->immutable())
+    int pos = -1;
+    QToolButton *tb = qobject_cast<QToolButton *>(sender());
+    if (!tb)
         return;
 
-    bool blockSignals = m_ui->buildSettingsList->blockSignals(true);
-    m_clean ?  m_pro->moveCleanStepUp(pos) : m_pro->moveBuildStepUp(pos);
+    for (int i=0; i<m_buildSteps.count(); ++i) {
+        if (m_buildSteps.at(i).upButton == tb) {
+            pos = i;
+            break;
+        }
+    }
+    if (pos == -1)
+        return;
+
     stepMoveUp(pos);
-    QTreeWidgetItem *item = m_ui->buildSettingsList->invisibleRootItem()->child(pos - 1);
-    m_ui->buildSettingsList->blockSignals(blockSignals);
-    m_ui->buildSettingsList->setCurrentItem(item);
     updateBuildStepButtonsState();
 }
 
 void BuildStepsPage::downBuildStep()
 {
-    int pos = m_ui->buildSettingsList->currentIndex().row() + 1;
-    if (pos < 1)
-        return;
-    if (pos > m_ui->buildSettingsList->invisibleRootItem()->childCount() - 1)
-        return;
-    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
-    if (steps.at(pos)->immutable() && steps.at(pos - 1)->immutable())
+    int pos = -1;
+    QToolButton *tb = qobject_cast<QToolButton *>(sender());
+    if (!tb)
         return;
 
-    bool blockSignals = m_ui->buildSettingsList->blockSignals(true);
-    m_clean ? m_pro->moveCleanStepUp(pos) : m_pro->moveBuildStepUp(pos);
-    stepMoveUp(pos);
-    QTreeWidgetItem *item = m_ui->buildSettingsList->invisibleRootItem()->child(pos);
-    m_ui->buildSettingsList->blockSignals(blockSignals);
-    m_ui->buildSettingsList->setCurrentItem(item);
-    updateBuildStepButtonsState();
-}
-
-void BuildStepsPage::changeEvent(QEvent *e)
-{
-    BuildStepConfigWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
+    for (int i=0; i<m_buildSteps.count(); ++i) {
+        if (m_buildSteps.at(i).downButton == tb) {
+            pos = i;
+            break;
+        }
     }
+    if (pos == -1)
+        return;
+
+    stepMoveUp(pos + 1);
+    updateBuildStepButtonsState();
 }
 
 void BuildStepsPage::stepMoveUp(int pos)
 {
-    QWidget *widget = m_ui->buildSettingsWidget->widget(pos);
-    m_ui->buildSettingsWidget->removeWidget(widget);
-    m_ui->buildSettingsWidget->insertWidget(pos -1, widget);
-    QTreeWidgetItem *item = m_ui->buildSettingsList->invisibleRootItem()->takeChild(pos);
-    m_ui->buildSettingsList->invisibleRootItem()->insertChild(pos - 1, item);
+    m_clean ? m_pro->moveCleanStepUp(pos) : m_pro->moveBuildStepUp(pos);
+
+    m_buildSteps.at(pos).hbox->setParent(0);
+    m_vbox->insertLayout((pos - 1) * 2, m_buildSteps.at(pos).hbox);
+    m_vbox->insertWidget((pos - 1) * 2 + 1, m_buildSteps.at(pos).widget);
+
+    BuildStepsWidgetStruct tmp = m_buildSteps.at(pos -1);
+    m_buildSteps[pos -1] = m_buildSteps.at(pos);
+    m_buildSteps[pos] = tmp;
 }
 
 void BuildStepsPage::updateBuildStepButtonsState()
 {
-    int pos = m_ui->buildSettingsList->currentIndex().row();
-    if (pos == -1) {
-        m_ui->buildStepRemoveToolButton->setEnabled(false);
-        m_ui->buildStepUpToolButton->setEnabled(false);
-        m_ui->buildStepDownToolButton->setEnabled(false);
-    } else {
-        const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
-        m_ui->buildStepRemoveToolButton->setEnabled(!steps.at(pos)->immutable());
-        bool enableUp = pos>0 && !(steps.at(pos)->immutable() && steps.at(pos-1)->immutable());
-        m_ui->buildStepUpToolButton->setEnabled(enableUp);
-        bool enableDown = pos < (m_ui->buildSettingsList->invisibleRootItem()->childCount() - 1) &&
-                          !(steps.at(pos)->immutable() && steps.at(pos+1)->immutable());
-        m_ui->buildStepDownToolButton->setEnabled(enableDown);
+    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+    for(int i=0; i<m_buildSteps.count(); ++i) {
+        BuildStepsWidgetStruct s = m_buildSteps.at(i);
+        s.upButton->setEnabled((i>0) && !(steps.at(i)->immutable() && steps.at(i - 1)));
+        s.downButton->setEnabled((i + 1< steps.count()) && !(steps.at(i)->immutable() && steps.at(i + 1)->immutable()));
     }
 }

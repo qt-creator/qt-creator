@@ -36,12 +36,14 @@
 #include <QtCore/QVector>
 #include <QtCore/QDebug>
 #include <QtCore/QAbstractListModel>
+#include <QtGui/QLabel>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QTreeView>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 #include <QtCore/QCoreApplication>
 
 namespace ProjectExplorer {
@@ -73,7 +75,6 @@ DependenciesModel::~DependenciesModel()
 
 void DependenciesModel::resetModel()
 {
-    qDebug()<<"Resetting";
     m_projects = m_session->projects();
     m_projects.removeAll(m_project);
     reset();
@@ -110,7 +111,7 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
     qDebug() << index << value << role << value.toBool();
 
     if (role == Qt::CheckStateRole) {
-        const Project *p = m_projects.at(index.row());
+        Project *p = m_projects.at(index.row());
         const Qt::CheckState c = static_cast<Qt::CheckState>(value.toInt());
 
         if (c == Qt::Checked) {
@@ -141,35 +142,154 @@ Qt::ItemFlags DependenciesModel::flags(const QModelIndex &index) const
 }
 
 //
+// DependenciesView
+//
+DependenciesView::DependenciesView(QWidget *parent)
+    : QTreeView(parent)
+{
+    m_sizeHint = QSize(250, 250);
+    setUniformRowHeights(true);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+    setRootIsDecorated(false);
+}
+
+DependenciesView::~DependenciesView()
+{
+
+}
+
+QSize DependenciesView::sizeHint() const
+{
+    qDebug()<<"sizeHint()"<<m_sizeHint;
+    return m_sizeHint;
+}
+
+void DependenciesView::setModel(QAbstractItemModel *newModel)
+{
+    if (QAbstractItemModel *oldModel = model()) {
+        disconnect(oldModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                this, SLOT(updateSizeHint()));
+        disconnect(oldModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                this, SLOT(updateSizeHint()));
+        disconnect(oldModel, SIGNAL(modelReset()),
+                this, SLOT(updateSizeHint()));
+        disconnect(oldModel, SIGNAL(layoutChanged()),
+                this, SLOT(updateSizeHint()));
+    }
+
+    QTreeView::setModel(newModel);
+
+    if (newModel) {
+        connect(newModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                this, SLOT(updateSizeHint()));
+        connect(newModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                this, SLOT(updateSizeHint()));
+        connect(newModel, SIGNAL(modelReset()),
+                this, SLOT(updateSizeHint()));
+        connect(newModel, SIGNAL(layoutChanged()),
+                this, SLOT(updateSizeHint()));
+    }
+    updateSizeHint();
+}
+
+void DependenciesView::updateSizeHint()
+{
+    if (!model()) {
+        m_sizeHint = QSize(250, 250);
+        return;
+    }
+
+    int heightOffset = size().height() - viewport()->height();
+
+    qDebug()<<"updating sizehint";
+    int heightPerRow = sizeHintForRow(0);
+    if (heightPerRow == -1) {
+        qDebug()<<"No row height";
+        heightPerRow = 30;
+    }
+    int rows = qMin(qMax(model()->rowCount(), 2), 10);
+    int height = rows * heightPerRow + heightOffset;
+    if (m_sizeHint.height() != height) {
+        m_sizeHint.setHeight(height);
+        updateGeometry();
+    }
+}
+
+//
 // DependenciesWidget
 //
-
-class DependenciesWidget : public QWidget
-{
-public:
-    DependenciesWidget(SessionManager *session, Project *project,
-                       QWidget *parent = 0);
-
-private:
-    SessionManager *m_session;
-    DependenciesModel *m_model;
-};
 
 DependenciesWidget::DependenciesWidget(SessionManager *session,
                                        Project *project,
                                        QWidget *parent)
     : QWidget(parent)
     , m_session(session)
+    , m_project(project)
     , m_model(new DependenciesModel(session, project, this))
 {
-    QHBoxLayout *layout = new QHBoxLayout(this);
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setContentsMargins(0, 0, 0, 0);
+
+    QHBoxLayout *hbox = new QHBoxLayout();
+    m_titleLabel = new QLabel(this);
+    m_titleLabel->setText("Dummy Text");
+    hbox->addWidget(m_titleLabel);
+
+    QToolButton *detailsButton = new QToolButton(this);
+    detailsButton->setText(tr("Details"));
+    connect(detailsButton, SIGNAL(clicked()),
+            this, SLOT(toggleDetails()));
+
+    hbox->addWidget(detailsButton);
+    vbox->addLayout(hbox);
+
+    m_detailsWidget = new QWidget(this);
+    QHBoxLayout *layout = new QHBoxLayout(m_detailsWidget);
     layout->setContentsMargins(0, -1, 0, -1);
-    QTreeView *treeView = new QTreeView(this);
+    DependenciesView *treeView = new DependenciesView(this);
     treeView->setModel(m_model);
     treeView->setHeaderHidden(true);
-    treeView->setMinimumHeight(250);
     layout->addWidget(treeView);
     layout->addSpacerItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed));
+    vbox->addWidget(m_detailsWidget);
+    m_detailsWidget->setVisible(false);
+
+    updateDetails();
+
+    connect(session, SIGNAL(dependencyChanged(ProjectExplorer::Project*,ProjectExplorer::Project*)),
+            this, SLOT(updateDetails()));
+
+    connect(session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(updateDetails()));
+    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(updateDetails()));
+    connect(session, SIGNAL(sessionLoaded()),
+            this, SLOT(updateDetails()));
+}
+
+void DependenciesWidget::toggleDetails()
+{
+    m_detailsWidget->setVisible(!m_detailsWidget->isVisible());
+}
+
+void DependenciesWidget::updateDetails()
+{
+    QStringList dependsOn;
+
+    foreach(Project *other, m_session->projects()) {
+        if (m_session->hasDependency(m_project, other)) {
+            dependsOn.append(other->name());
+        }
+    }
+    QString text;
+    if (dependsOn.isEmpty()) {
+        text = tr("%1 has no dependencies.").arg(m_project->name());
+    } else if (dependsOn.count() == 1) {
+        text =tr("%1 depends on %2.").arg(m_project->name(), dependsOn.first());
+    } else {
+        text = tr("%1 depends on: %2.").arg(m_project->name(), dependsOn.join(tr(", ")));
+    }
+    m_titleLabel->setText(text);
 }
 
 //

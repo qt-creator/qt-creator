@@ -74,16 +74,20 @@ public:
     ProcessStepConfigWidget(ProcessStep *step);
     virtual QString displayName() const;
     virtual void init(const QString &buildConfiguration);
+    virtual QString summaryText() const;
 private slots:
     void nameLineEditTextEdited();
     void commandLineEditTextEdited();
     void workingDirectoryLineEditTextEdited();
     void commandArgumentsLineEditTextEdited();
-    void enabledGroupBoxClicked(bool);
+    void enabledCheckBoxClicked(bool);
+    void toggleDetails();
 private:
+    void updateDetails();
     QString m_buildConfiguration;
     ProcessStep *m_step;
     Ui::ProcessStepWidget m_ui;
+    QString m_summaryText;
 };
 
 } // namespace Internal

@@ -43,7 +43,7 @@ namespace Ui {
 class Qt4ProjectConfigWidget;
 }
 
-class Qt4ProjectConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+class Qt4ProjectConfigWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 public:
@@ -63,11 +63,13 @@ private slots:
     void qtVersionComboBoxCurrentIndexChanged(const QString &);
     void manageQtVersions();
     void selectToolChain(int index);
+    void toggleDetails();
 
 private:
     void updateToolChainCombo();
     void updateImportLabel();
     void setToolChain(int index);
+    void updateDetails();
     Ui::Qt4ProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
     Qt4Project *m_pro;

@@ -52,7 +52,7 @@ namespace ProjectExplorer {
 
 class BuildManager;
 class BuildStep;
-class BuildStepConfigWidget;
+class BuildConfigWidget;
 class IProjectManager;
 class RunConfiguration;
 class EditorConfiguration;
@@ -126,8 +126,8 @@ public:
     void saveSettings();
     bool restoreSettings();
 
-    virtual BuildStepConfigWidget *createConfigWidget() = 0;
-    virtual QList<BuildStepConfigWidget*> subConfigWidgets();
+    virtual BuildConfigWidget *createConfigWidget() = 0;
+    virtual QList<BuildConfigWidget*> subConfigWidgets();
 
     /* This method is called for new build configurations. You should probably
      * set some default values in this method.

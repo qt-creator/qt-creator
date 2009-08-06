@@ -193,6 +193,12 @@ void GenericMakeStepConfigWidget::init(const QString &buildConfiguration)
     connect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 }
 
+QString GenericMakeStepConfigWidget::summaryText() const
+{
+    // TODO
+    return tr("<b>Make:</b>");
+}
+
 void GenericMakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 {
     QTC_ASSERT(!m_buildConfiguration.isNull(), return);

@@ -89,8 +89,8 @@ public:
 
     virtual QString buildDirectory(const QString &buildConfiguration) const;
 
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual QList<ProjectExplorer::BuildStepConfigWidget*> subConfigWidgets();
+    virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     // This method is called for new build configurations
     // You should probably set some default values in this method
@@ -204,7 +204,7 @@ private:
     QString m_fileName;
 };
 
-class CMakeBuildSettingsWidget : public ProjectExplorer::BuildStepConfigWidget
+class CMakeBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 public:

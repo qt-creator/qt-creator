@@ -212,14 +212,14 @@ void BuildSettingsWidget::updateBuildSettings()
     m_removeButton->setEnabled(m_project->buildConfigurations().size() > 1);
 
     // Add pages
-    BuildStepConfigWidget *generalConfigWidget = m_project->createConfigWidget();
+    BuildConfigWidget *generalConfigWidget = m_project->createConfigWidget();
     m_subWidgets->addWidget(generalConfigWidget->displayName(), generalConfigWidget);
 
     m_subWidgets->addWidget(tr("Build Steps"), new BuildStepsPage(m_project));
     m_subWidgets->addWidget(tr("Clean Steps"), new BuildStepsPage(m_project, true));
 
-    QList<BuildStepConfigWidget *> subConfigWidgets = m_project->subConfigWidgets();
-    foreach (BuildStepConfigWidget *subConfigWidget, subConfigWidgets)
+    QList<BuildConfigWidget *> subConfigWidgets = m_project->subConfigWidgets();
+    foreach (BuildConfigWidget *subConfigWidget, subConfigWidgets)
         m_subWidgets->addWidget(subConfigWidget->displayName(), subConfigWidget);
 
     // Add tree items
@@ -254,7 +254,7 @@ void BuildSettingsWidget::activeBuildConfigurationChanged()
         }
     }
     foreach (QWidget *widget, m_subWidgets->widgets()) {
-        if (BuildStepConfigWidget *buildStepWidget = qobject_cast<BuildStepConfigWidget*>(widget)) {
+        if (BuildConfigWidget *buildStepWidget = qobject_cast<BuildConfigWidget*>(widget)) {
             buildStepWidget->init(activeBuildConfiguration);
         }
     }

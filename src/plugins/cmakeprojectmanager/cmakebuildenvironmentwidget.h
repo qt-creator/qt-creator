@@ -43,7 +43,7 @@ namespace CMakeProjectManager {
 namespace Internal {
 class CMakeProject;
 
-class CMakeBuildEnvironmentWidget : public ProjectExplorer::BuildStepConfigWidget
+class CMakeBuildEnvironmentWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 

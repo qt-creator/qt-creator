@@ -122,8 +122,8 @@ public:
     QList<Project *> dependencies(const Project *project) const;
     bool hasDependency(const Project *project, const Project *depProject) const;
     bool canAddDependency(const Project *project, const Project *depProject) const;
-    bool addDependency(const Project *project, const Project *depProject);
-    void removeDependency(const Project *project, const Project *depProject);
+    bool addDependency(Project *project, Project *depProject);
+    void removeDependency(Project *project, Project *depProject);
 
     Core::IFile *file() const;
     Project *startupProject() const;
@@ -162,6 +162,7 @@ signals:
     void sessionUnloaded();
     void sessionLoaded();
     void aboutToSaveSession();
+    void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 
 private slots:
     void saveActiveMode(Core::IMode *mode);

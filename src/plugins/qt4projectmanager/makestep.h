@@ -86,14 +86,17 @@ public:
     MakeStepConfigWidget(MakeStep *makeStep);
     QString displayName() const;
     void init(const QString &buildConfiguration);
+    QString summaryText() const;
 private slots:
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
     void update();
 private:
+    void updateTitle();
     QString m_buildConfiguration;
     Ui::MakeStep m_ui;
     MakeStep *m_makeStep;
+    QString m_summaryText;
 };
 
 } // Qt4ProjectManager

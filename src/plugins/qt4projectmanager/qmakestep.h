@@ -102,14 +102,17 @@ public:
     QMakeStepConfigWidget(QMakeStep *step);
     QString displayName() const;
     void init(const QString &buildConfiguration);
+    QString summaryText() const;
 private slots:
     void qmakeArgumentsLineEditTextEdited();
     void buildConfigurationChanged();
     void update();
 private:
+    void updateTitleLabel();
     QString m_buildConfiguration;
     Ui::QMakeStep m_ui;
     QMakeStep *m_step;
+    QString m_summaryText;
 };
 
 } // namespace Qt4ProjectManager

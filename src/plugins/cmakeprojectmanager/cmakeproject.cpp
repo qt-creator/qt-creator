@@ -512,14 +512,14 @@ QString CMakeProject::buildDirectory(const QString &buildConfiguration) const
     return buildDirectory;
 }
 
-ProjectExplorer::BuildStepConfigWidget *CMakeProject::createConfigWidget()
+ProjectExplorer::BuildConfigWidget *CMakeProject::createConfigWidget()
 {
     return new CMakeBuildSettingsWidget(this);
 }
 
-QList<ProjectExplorer::BuildStepConfigWidget*> CMakeProject::subConfigWidgets()
+QList<ProjectExplorer::BuildConfigWidget*> CMakeProject::subConfigWidgets()
 {
-    QList<ProjectExplorer::BuildStepConfigWidget*> list;
+    QList<ProjectExplorer::BuildConfigWidget*> list;
     list <<  new CMakeBuildEnvironmentWidget(this);
     return list;
 }

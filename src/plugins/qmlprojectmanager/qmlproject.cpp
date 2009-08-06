@@ -200,14 +200,14 @@ QString QmlProject::buildDirectory(const QString &) const
     return QString();
 }
 
-ProjectExplorer::BuildStepConfigWidget *QmlProject::createConfigWidget()
+ProjectExplorer::BuildConfigWidget *QmlProject::createConfigWidget()
 {
     return 0;
 }
 
-QList<ProjectExplorer::BuildStepConfigWidget*> QmlProject::subConfigWidgets()
+QList<ProjectExplorer::BuildConfigWidget*> QmlProject::subConfigWidgets()
 {
-    return QList<ProjectExplorer::BuildStepConfigWidget*>();
+    return QList<ProjectExplorer::BuildConfigWidget*>();
 }
 
 void QmlProject::newBuildConfiguration(const QString &)

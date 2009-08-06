@@ -78,6 +78,7 @@ public:
 
     virtual QString displayName() const;
     virtual void init(const QString &buildConfiguration);
+    virtual QString summaryText() const;
 
 private:
     QmlMakeStep *m_makeStep;

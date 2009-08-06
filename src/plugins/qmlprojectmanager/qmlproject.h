@@ -69,8 +69,8 @@ public:
     virtual ProjectExplorer::Environment environment(const QString &buildConfiguration) const;
     virtual QString buildDirectory(const QString &buildConfiguration) const;
 
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual QList<ProjectExplorer::BuildStepConfigWidget*> subConfigWidgets();
+    virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     virtual void newBuildConfiguration(const QString &buildConfiguration);
     virtual QmlProjectNode *rootProjectNode() const;

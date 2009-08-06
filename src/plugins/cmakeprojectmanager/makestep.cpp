@@ -145,6 +145,18 @@ void MakeStep::setAdditionalArguments(const QString &buildConfiguration, const Q
     setValue(buildConfiguration, "additionalArguments", list);
 }
 
+// TODO
+//QString MakeStep::oneLineSummary(const QString &buildConfiguration)
+//{
+//    QStringList arguments = value(buildConfiguration, "buildTargets").toStringList();
+//    arguments << additionalArguments(buildConfiguration);
+//    return tr("<b>%1 %2</b> in %3").arg(
+//            m_pro->toolChain(buildConfiguration)->makeCommand(),
+//            arguments.join(" "),
+//            m_pro->buildDirectory(buildConfiguration));
+//
+//}
+
 //
 // MakeStepConfigWidget
 //
@@ -212,6 +224,12 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
     connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 
     m_additionalArguments->setText(ProjectExplorer::Environment::joinArgumentList(m_makeStep->additionalArguments(m_buildConfiguration)));
+}
+
+QString MakeStepConfigWidget::summaryText() const
+{
+    // TODO
+    return tr("<b>Make:</b>");
 }
 
 //

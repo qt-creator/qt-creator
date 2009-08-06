@@ -45,7 +45,7 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
-class Qt4BuildEnvironmentWidget : public ProjectExplorer::BuildStepConfigWidget
+class Qt4BuildEnvironmentWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 

@@ -82,8 +82,8 @@ public:
     virtual ProjectExplorer::Environment environment(const QString &buildConfiguration) const;
     virtual QString buildDirectory(const QString &buildConfiguration) const;
 
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual QList<ProjectExplorer::BuildStepConfigWidget*> subConfigWidgets();
+    virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     virtual void newBuildConfiguration(const QString &buildConfiguration);
     virtual GenericProjectNode *rootProjectNode() const;
@@ -172,7 +172,7 @@ private:
     QString m_fileName;
 };
 
-class GenericBuildSettingsWidget : public ProjectExplorer::BuildStepConfigWidget
+class GenericBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 

@@ -129,6 +129,11 @@ void QmlMakeStepConfigWidget::init(const QString &)
 {
 }
 
+QString QmlMakeStepConfigWidget::summaryText() const
+{
+    return tr("<b>QML Make</b>");
+}
+
 //
 // QmlMakeStepFactory
 //

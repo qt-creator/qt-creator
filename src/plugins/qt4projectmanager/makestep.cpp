@@ -174,7 +174,51 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     connect(makeStep, SIGNAL(changed()),
             this, SLOT(update()));
+}
 
+void MakeStepConfigWidget::updateTitle()
+{
+    // TODO reduce heavy code duplication
+    QString workingDirectory;
+    Qt4Project *pro = static_cast<Qt4Project *>(m_makeStep->project());
+    if (pro->value(m_buildConfiguration, "useShadowBuild").toBool())
+        workingDirectory = pro->value(m_buildConfiguration, "buildDirectory").toString();
+    if (workingDirectory.isEmpty())
+        workingDirectory = QFileInfo(pro->file()->fileName()).absolutePath();
+
+    Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
+    QString makeCmd = qt4project->makeCommand(m_buildConfiguration);
+    if (!m_makeStep->value(m_buildConfiguration, "makeCmd").toString().isEmpty())
+        makeCmd = m_makeStep->value(m_buildConfiguration, "makeCmd").toString();
+    if (!QFileInfo(makeCmd).isAbsolute()) {
+        Environment environment = pro->environment(m_buildConfiguration);
+        // Try to detect command in environment
+        QString tmp = environment.searchInPath(makeCmd);
+        if (tmp == QString::null) {
+            m_summaryText = tr("<b>Make Step:</b> %1 not found in the environment.").arg(makeCmd);
+            emit updateSummary();
+            return;
+        }
+        makeCmd = tmp;
+    }
+    // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
+    // absolute file path
+    // FIXME doing this without the user having a way to override this is rather bad
+    // so we only do it for unix and if the user didn't override the make command
+    // but for now this is the least invasive change
+    QStringList args = m_makeStep->value(m_buildConfiguration, "makeargs").toStringList();
+    ProjectExplorer::ToolChain::ToolChainType t = qobject_cast<Qt4Project *>(pro)->toolChain(m_buildConfiguration)->type();
+    if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {
+        if (m_makeStep->value(m_buildConfiguration, "makeCmd").toString().isEmpty())
+            args << "-w";
+    }
+    m_summaryText = tr("<b>Make:</b> %1 %2 in %3").arg(QFileInfo(makeCmd).fileName(), args.join(" "), workingDirectory);
+    emit updateSummary();
+}
+
+QString MakeStepConfigWidget::summaryText() const
+{
+    return m_summaryText;
 }
 
 QString MakeStepConfigWidget::displayName() const
@@ -208,12 +252,14 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
     const QStringList &makeArguments =
             m_makeStep->value(buildConfiguration, "makeargs").toStringList();
     m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
+    updateTitle();
 }
 
 void MakeStepConfigWidget::makeLineEditTextEdited()
 {
     Q_ASSERT(!m_buildConfiguration.isNull());
     m_makeStep->setValue(m_buildConfiguration, "makeCmd", m_ui.makeLineEdit->text());
+    updateTitle();
 }
 
 void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
@@ -221,6 +267,7 @@ void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
     Q_ASSERT(!m_buildConfiguration.isNull());
     m_makeStep->setValue(m_buildConfiguration, "makeargs",
                          ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
+    updateTitle();
 }
 
 ///

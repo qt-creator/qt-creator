@@ -210,12 +210,40 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(update()));
 }
 
+QString QMakeStepConfigWidget::summaryText() const
+{
+    return m_summaryText;
+}
+
+void QMakeStepConfigWidget::updateTitleLabel()
+{
+    const QtVersion *qtVersion = static_cast<Qt4Project *>(m_step->project())->qtVersion(m_buildConfiguration);
+    if (!qtVersion) {
+        m_summaryText = tr("<b>QMake:</b> No qt version set. QMake can't be run.");
+        emit updateSummary();
+        return;
+    }
+
+    QStringList args = m_step->arguments(m_buildConfiguration);
+    // We don't want the full path to the .pro file
+    int index = args.indexOf(m_step->project()->file()->fileName());
+    if (index != -1)
+        args[index] = QFileInfo(m_step->project()->file()->fileName()).fileName();
+
+    // And we only use the .pro filename not the full path
+    QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
+    m_summaryText = tr("<b>QMake:</b> %1 %2").arg(program, args.join(" "));
+    emit updateSummary();
+
+}
+
 void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
 {
     Q_ASSERT(!m_buildConfiguration.isNull());
     m_step->setValue(m_buildConfiguration, "qmakeArgs", ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
     m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
     static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
+    updateTitleLabel();
 }
 
 void QMakeStepConfigWidget::buildConfigurationChanged()
@@ -230,6 +258,7 @@ void QMakeStepConfigWidget::buildConfigurationChanged()
     m_step->project()->setValue(m_buildConfiguration, "buildConfiguration", int(buildConfiguration));
     m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
     static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
+    updateTitleLabel();
 }
 
 QString QMakeStepConfigWidget::displayName() const
@@ -250,6 +279,7 @@ void QMakeStepConfigWidget::init(const QString &buildConfiguration)
     m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(buildConfiguration)));
     bool debug = QtVersion::QmakeBuildConfig(m_step->project()->value(buildConfiguration, "buildConfiguration").toInt()) & QtVersion::DebugBuild;
     m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
+    updateTitleLabel();
 }
 
 ////

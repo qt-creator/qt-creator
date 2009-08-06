@@ -40,7 +40,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
-    : BuildStepConfigWidget(), m_pro(project)
+    : BuildConfigWidget(), m_pro(project)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);

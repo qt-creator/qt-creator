@@ -484,7 +484,7 @@ bool SessionManager::canAddDependency(const Project *project, const Project *dep
     return recursiveDependencyCheck(newDep, checkDep);
 }
 
-bool SessionManager::addDependency(const Project *project, const Project *depProject)
+bool SessionManager::addDependency(Project *project, Project *depProject)
 {
     const QString &proName = project->file()->fileName();
     const QString &depName = depProject->file()->fileName();
@@ -498,11 +498,12 @@ bool SessionManager::addDependency(const Project *project, const Project *depPro
         proDeps.append(depName);
         m_file->m_depMap[proName] = proDeps;
     }
+    emit dependencyChanged(project, depProject);
 
     return true;
 }
 
-void SessionManager::removeDependency(const Project *project, const Project *depProject)
+void SessionManager::removeDependency(Project *project, Project *depProject)
 {
     const QString &proName = project->file()->fileName();
     const QString &depName = depProject->file()->fileName();
@@ -514,6 +515,7 @@ void SessionManager::removeDependency(const Project *project, const Project *dep
     } else {
         m_file->m_depMap[proName] = proDeps;
     }
+    emit dependencyChanged(project, depProject);
 }
 
 void SessionManager::setStartupProject(Project *startupProject)

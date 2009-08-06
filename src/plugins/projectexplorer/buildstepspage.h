@@ -34,6 +34,11 @@
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
+class QHBoxLayout;
+class QPushButton;
+class QToolButton;
+class QLabel;
+class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -46,7 +51,18 @@ namespace Ui {
     class BuildStepsPage;
 }
 
-class BuildStepsPage : public BuildStepConfigWidget {
+struct BuildStepsWidgetStruct
+{
+    BuildStepConfigWidget *widget;
+    QLabel *detailsLabel;
+    QToolButton *detailsButton;
+    QToolButton *upButton;
+    QToolButton *downButton;
+    QHBoxLayout *hbox;
+};
+
+class BuildStepsPage : public BuildConfigWidget
+{
     Q_OBJECT
     Q_DISABLE_COPY(BuildStepsPage)
 public:
@@ -56,27 +72,34 @@ public:
     QString displayName() const;
     void init(const QString &buildConfiguration);
 
-protected:
-    virtual void changeEvent(QEvent *e);
-
 private slots:
-    void displayNameChanged(BuildStep *bs, const QString &displayName);
-    void updateBuildStepWidget(QTreeWidgetItem *newItem, QTreeWidgetItem *oldItem);
     void updateAddBuildStepMenu();
     void addBuildStep();
+    void updateRemoveBuildStepMenu();
     void removeBuildStep();
     void upBuildStep();
     void downBuildStep();
+    void toggleDetails();
+    void updateSummary();
 
 private:
     void stepMoveUp(int pos);
     void updateBuildStepButtonsState();
+    void addBuildStepWidget(int pos, BuildStep *step);
 
-    Ui::BuildStepsPage *m_ui;
     Project *m_pro;
     QString m_configuration;
     QHash<QAction *, QPair<QString, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
     bool m_clean;
+
+    QList<QHBoxLayout *> m_titleLayouts;
+    QList<BuildStepsWidgetStruct> m_buildSteps;
+
+    QVBoxLayout *m_vbox;
+
+    QLabel *m_noStepsLabel;
+    QPushButton *m_addButton;
+    QPushButton *m_removeButton;
 };
 
 } // Internal

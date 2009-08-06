@@ -78,6 +78,7 @@ public:
     MakeStepConfigWidget(MakeStep *makeStep);
     virtual QString displayName() const;
     virtual void init(const QString &buildConfiguration);
+    virtual QString summaryText() const;
 private slots:
     void itemChanged(QListWidgetItem*);
     void additionalArgumentsEdited();
