@@ -221,7 +221,7 @@ void MakeStepConfigWidget::updateDetails()
 {
     QStringList arguments = m_makeStep->value(m_buildConfiguration, "buildTargets").toStringList();
     arguments << m_makeStep->additionalArguments(m_buildConfiguration);
-    m_summaryText = tr("<b>Make:</b>%1 %2")
+    m_summaryText = tr("<b>Make:</b> %1 %2")
                     .arg(m_makeStep->project()->toolChain(m_buildConfiguration)->makeCommand(),
                          arguments.join(" "));
     emit updateSummary();
