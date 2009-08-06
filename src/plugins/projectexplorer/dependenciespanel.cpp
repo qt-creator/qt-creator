@@ -108,8 +108,6 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
 
 bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    qDebug() << index << value << role << value.toBool();
-
     if (role == Qt::CheckStateRole) {
         Project *p = m_projects.at(index.row());
         const Qt::CheckState c = static_cast<Qt::CheckState>(value.toInt());

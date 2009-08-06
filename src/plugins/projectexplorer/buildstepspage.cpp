@@ -239,8 +239,6 @@ void BuildStepsPage::removeBuildStep()
     QAction *action = qobject_cast<QAction *>(sender());
     if (action) {
         int pos = m_removeButton->menu()->actions().indexOf(action);
-        qDebug()<<"pos:"<<pos;
-
         const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
         if (steps.at(pos)->immutable())
             return;
