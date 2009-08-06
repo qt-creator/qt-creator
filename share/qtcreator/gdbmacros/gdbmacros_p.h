@@ -43,7 +43,6 @@
 #define GDBMACROS_P_H
 
 #include <QtCore/QObject>
-#include <QtCore/private/qobject_p.h>
 
 #if defined(QT_BEGIN_NAMESPACE)
 QT_BEGIN_NAMESPACE
