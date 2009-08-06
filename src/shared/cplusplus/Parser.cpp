@@ -4347,13 +4347,15 @@ bool Parser::parseObjCMethodDefinition(DeclarationAST *&node)
     ObjCMethodDeclarationAST *ast = new (_pool) ObjCMethodDeclarationAST;
     ast->method_prototype = method_prototype;
 
+    // Objective-C allows you to write:
+    // - (void) foo; { body; }
+    // so a method is a forward declaration when it doesn't have a _body_.
+    // However, we still need to read the semicolon.
     if (LA() == T_SEMICOLON) {
-        // method declaration:
         ast->semicolon_token = consumeToken();
-    } else {
-        // method definition:
-        parseFunctionBody(ast->function_body);
     }
+
+    parseFunctionBody(ast->function_body);
 
     node = ast;
     return true;
