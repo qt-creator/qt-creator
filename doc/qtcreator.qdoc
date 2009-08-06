@@ -1551,7 +1551,7 @@
     directory. This file contains all project subdirectories which Qt Creator
     could find relevant headers for. Simply add your include pathes here.
     
-    In \guiGeneric Project} mode, Qt Creator will not modify any project
+    In \gui{Generic Project} mode, Qt Creator will not modify any project
     settings, so the above is merely a hint for code completion and syntax
     highlighting.
 */

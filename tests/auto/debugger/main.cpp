@@ -137,6 +137,7 @@ private slots:
     void niceType_data();
 
     void dumperCompatibility();
+    void dumpQAbstractItem();
     void dumpQAbstractItemModel();
     void dumpQByteArray();
     void dumpQChar();
@@ -184,6 +185,7 @@ public slots:
 private:
     QProcess m_proc; // the Qt Creator process
 
+    void dumpQAbstractItemHelper(QModelIndex &index);
     void dumpQAbstractItemModelHelper(QAbstractItemModel &m);
     void dumpQByteArrayHelper(QByteArray &ba);
     void dumpQCharHelper(QChar &c);
@@ -472,9 +474,9 @@ static const char *boolToVal(bool b)
     return b ? "'true'" : "'false'";
 }
 
-static const QByteArray ptrToBa(const void *p)
+static const QByteArray ptrToBa(const void *p, bool symbolicNull = true)
 {
-    return QByteArray().append(p == 0 ?
+    return QByteArray().append(p == 0 && symbolicNull ?
         "<null>" :
         QString("0x") + QString::number((quintptr) p, 16));
 }
@@ -505,6 +507,182 @@ static const QByteArray generateLongSpec(long n)
 static const QByteArray generateIntSpec(int n)
 {
     return generateIntegerSpec(n, "int");
+}
+
+// Helper functions.
+
+#ifdef Q_CC_MSVC
+#  define MAP_NODE_TYPE_END ">"
+#else
+#  define MAP_NODE_TYPE_END " >"
+#endif
+
+template <typename T> static const char *typeToString(const T &)
+{
+    return "<unknown type>";
+}
+template <typename T> const QByteArray valToString(const T &)
+{
+    return "<unknown value>";
+}
+template <> const QByteArray valToString(const int &n)
+{
+    return QByteArray().append(QString::number(n));
+}
+template <> const QByteArray valToString(const QString &s)
+{
+    return QByteArray(utfToBase64(s)).append("',valueencoded='2");
+}
+template <> const char *typeToString(const int &)
+{
+    return "int";
+}
+template <> const char *typeToString(const QString &)
+{
+    return NS"QString";
+}
+template <typename T> bool isSimpleType(const T &)
+{
+    return false;
+}
+template <> bool isSimpleType(const int &)
+{
+    return true;
+}
+template <typename T> static const char *typeToNumchild(const T &)
+{
+    return "1";
+}
+template <> const char *typeToNumchild(const int &)
+{
+    return "0";
+}
+template <> const char *typeToNumchild(const QString &)
+{
+    return "0";
+}
+
+void tst_Debugger::dumpQAbstractItemHelper(QModelIndex &index)
+{
+    const QAbstractItemModel *model = index.model();
+    const QString &rowStr = QString::number(index.row());
+    const QString &colStr = QString::number(index.column());
+    const QByteArray &internalPtrStrSymbolic = ptrToBa(index.internalPointer());
+    const QByteArray &internalPtrStrValue = ptrToBa(index.internalPointer(), false);
+    const QByteArray &modelPtrStr = ptrToBa(model);
+    QByteArray indexSpecSymbolic = QByteArray().append(rowStr + "," + colStr + ",").
+        append(internalPtrStrSymbolic + "," + modelPtrStr);
+    QByteArray indexSpecValue = QByteArray().append(rowStr + "," + colStr + ",").
+        append(internalPtrStrValue + "," + modelPtrStr);
+    QByteArray expected = QByteArray("tiname='iname',addr='").append(ptrToBa(&index)).
+        append("',type='"NS"QAbstractItem',addr='$").append(indexSpecSymbolic).
+        append("',value='").append(valToString(model->data(index).toString())).
+        append("',numchild='1',children=[");
+    int rowCount = model->rowCount(index);
+    int columnCount = model->columnCount(index);
+    for (int row = 0; row < rowCount; ++row) {
+        for (int col = 0; col < columnCount; ++col) {
+            const QModelIndex &childIndex = model->index(row, col, index);
+            expected.append("{name='[").append(valToString(row)).append(",").
+                append(QString::number(col)).append("]',numchild='1',addr='$").
+                append(QString::number(childIndex.row())).append(",").
+                append(QString::number(childIndex.column())).append(",").
+                append(ptrToBa(childIndex.internalPointer())).append(",").
+                append(modelPtrStr).append("',type='"NS"QAbstractItem',value='").
+                append(valToString(model->data(childIndex).toString())).append("'}");
+            if (col < columnCount - 1 || row < rowCount - 1)
+                expected.append(",");
+        }
+    }
+    expected.append("]");
+    testDumper(expected, &index, NS"QAbstractItem", true, indexSpecValue);
+}
+
+void tst_Debugger::dumpQAbstractItem()
+{
+    // Case 1: ModelIndex with no children.
+    QStringListModel m(QStringList() << "item1" << "item2" << "item3");
+    QModelIndex index = m.index(2, 0);
+    dumpQAbstractItemHelper(index);
+
+    class PseudoTreeItemModel : public QAbstractItemModel
+    {
+    public:
+        PseudoTreeItemModel() : QAbstractItemModel(), parent1(0),
+            parent1Child(1), parent2(10), parent2Child1(11), parent2Child2(12)
+        {}
+
+        int	columnCount(const QModelIndex &parent = QModelIndex()) const
+        {
+            return 1;
+        }
+
+        QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
+        {
+            return !index.isValid() || role != Qt::DisplayRole ?
+                    QVariant() : *static_cast<int *>(index.internalPointer());
+        }
+
+        QModelIndex	index(int row, int column,
+                          const QModelIndex & parent = QModelIndex()) const
+        {
+            QModelIndex index;
+            if (column == 0) {
+                if (!parent.isValid()) {
+                    if (row == 0)
+                        index = createIndex(row, column, &parent1);
+                    else if (row == 1)
+                        index = createIndex(row, column, &parent2);
+                } else if (parent.internalPointer() == &parent1 && row == 0) {
+                    index = createIndex(row, column, &parent1Child);
+                } else if (parent.internalPointer() == &parent2) {
+                    index = createIndex(row, column,
+                                row == 0 ? &parent2Child1 : &parent2Child2);
+                }
+            }
+            return index;
+        }
+
+        QModelIndex	parent(const QModelIndex & index) const
+        {
+            QModelIndex parent;
+            if (index.isValid()) {
+                if (index.internalPointer() == &parent1Child)
+                    parent = createIndex(0, 0, &parent1);
+                else if (index.internalPointer() == &parent2Child1 ||
+                         index.internalPointer() == &parent2Child2)
+                    parent = createIndex(1, 0, &parent2);
+            }
+            return parent;
+        }
+
+        int	rowCount(const QModelIndex &parent = QModelIndex()) const
+        {
+            int rowCount;
+            if (!parent.isValid() || parent.internalPointer() == &parent2)
+                rowCount = 2;
+            else if (parent.internalPointer() == &parent1)
+                rowCount = 1;
+            else
+                rowCount = 0;
+            return rowCount;
+        }
+
+    private:
+        mutable int parent1;
+        mutable int parent1Child;
+        mutable int parent2;
+        mutable int parent2Child1;
+        mutable int parent2Child2;
+    } m2;
+
+    // Case 2: ModelIndex with one child.
+    QModelIndex index2 = m2.index(0, 0);
+    dumpQAbstractItemHelper(index2);
+
+    // Case 3: ModelIndex with two children.
+    QModelIndex index3 = m2.index(1, 0);
+    dumpQAbstractItemHelper(index3);
 }
 
 void tst_Debugger::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
@@ -923,59 +1101,6 @@ void tst_Debugger::dumpQList_QString3()
         &s3list, NS"QList", true, "QString3");
 }
 
-// Helper functions for QMap* dumping.
-
-#ifdef Q_CC_MSVC
-#  define MAP_NODE_TYPE_END ">"
-#else
-#  define MAP_NODE_TYPE_END " >"
-#endif
-
-template <typename T> static const char *typeToString(const T &)
-{
-    return "<unknown type>";
-}
-template <typename T> const QByteArray valToString(const T &)
-{
-    return "<unknown value>";
-}
-template <> const QByteArray valToString(const int &n)
-{
-    return QByteArray().append(QString::number(n));
-}
-template <> const QByteArray valToString(const QString &s)
-{
-    return QByteArray(utfToBase64(s)).append("',valueencoded='2");
-}
-template <> const char *typeToString(const int &)
-{
-    return "int";
-}
-template <> const char *typeToString(const QString &)
-{
-    return NS"QString";
-}
-template <typename T> bool isSimpleType(const T &)
-{
-    return false;
-}
-template <> bool isSimpleType(const int &)
-{
-    return true;
-}
-template <typename T> static const char *typeToNumchild(const T &)
-{
-    return "1";
-}
-template <> const char *typeToNumchild(const int &)
-{
-    return "0";
-}
-template <> const char *typeToNumchild(const QString &)
-{
-    return "0";
-}
-
 template <typename K, typename V> const QByteArray getMapType(K keyDummy, V valDummy)
 {
     return QByteArray(typeToString(keyDummy)) + "@" + QByteArray(typeToString(valDummy));
@@ -993,7 +1118,6 @@ template <typename K, typename V>
         valOffset = sizeof(K);
 #endif
 }
-
 
 template <typename K, typename V>
         void tst_Debugger::dumpQMapHelper(QMap<K, V> &map)

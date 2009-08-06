@@ -27,37 +27,38 @@
 **
 **************************************************************************/
 
-#include "gccetoolchain.h"
-#include "qt4project.h"
+#include "rvcttoolchain.h"
 
-#include <QtCore/QDir>
-#include <QtDebug>
+#include "qt4project.h"
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-namespace {
-    const char *GCCE_COMMAND = "arm-none-symbianelf-gcc.exe";
-}
-
-GCCEToolChain::GCCEToolChain(S60Devices::Device device)
-    : GccToolChain(QLatin1String(GCCE_COMMAND)),
-    m_deviceId(device.id),
+RVCTToolChain::RVCTToolChain(S60Devices::Device device, ToolChain::ToolChainType type,
+                             const QString &makeTargetBase)
+    : m_deviceId(device.id),
     m_deviceName(device.name),
-    m_deviceRoot(device.epocRoot)
+    m_deviceRoot(device.epocRoot),
+    m_type(type),
+    m_makeTargetBase(makeTargetBase)
 {
-
 }
 
-ToolChain::ToolChainType GCCEToolChain::type() const
+ToolChain::ToolChainType RVCTToolChain::type() const
 {
-    return ToolChain::GCCE;
+    return m_type;
 }
 
-QList<HeaderPath> GCCEToolChain::systemHeaderPaths()
+QByteArray RVCTToolChain::predefinedMacros()
+{
+    //TODO
+    return QByteArray();
+}
+
+QList<HeaderPath> RVCTToolChain::systemHeaderPaths()
 {
     if (m_systemHeaderPaths.isEmpty()) {
-        GccToolChain::systemHeaderPaths();
+        //TODO system header paths (from environment variables?)
         m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
         m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\stdapis").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
         m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\stdapis\\sys").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
@@ -66,41 +67,40 @@ QList<HeaderPath> GCCEToolChain::systemHeaderPaths()
     return m_systemHeaderPaths;
 }
 
-void GCCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
+void RVCTToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
-    // TODO: do we need to set path to gcce?
     env.prependOrSetPath(QString("%1\\epoc32\\tools").arg(m_deviceRoot)); // e.g. make.exe
     env.prependOrSetPath(QString("%1\\epoc32\\gcc\\bin").arg(m_deviceRoot)); // e.g. gcc.exe
     env.set("EPOCDEVICE", QString("%1:%2").arg(m_deviceId, m_deviceName));
     env.set("EPOCROOT", S60Devices::cleanedRootPath(m_deviceRoot));
 }
 
-QString GCCEToolChain::makeCommand() const
+QString RVCTToolChain::makeCommand() const
 {
     return "make";
 }
 
-QString GCCEToolChain::defaultMakeTarget() const
+QString RVCTToolChain::defaultMakeTarget() const
 {
     const Qt4Project *qt4project = qobject_cast<const Qt4Project *>(m_project);
     if (qt4project) {
         if (!(QtVersion::QmakeBuildConfig(qt4project->value(
                 qt4project->activeBuildConfiguration(),
                 "buildConfiguration").toInt()) & QtVersion::DebugBuild)) {
-            return "release-gcce";
+            return QString::fromLocal8Bit("release-%1").arg(m_makeTargetBase);
         }
     }
-    return "debug-gcce";
+    return QString::fromLocal8Bit("debug-%1").arg(m_makeTargetBase);
 }
 
-bool GCCEToolChain::equals(ToolChain *other) const
+bool RVCTToolChain::equals(ToolChain *other) const
 {
     return (other->type() == type()
-            && m_deviceId == static_cast<GCCEToolChain *>(other)->m_deviceId
-            && m_deviceName == static_cast<GCCEToolChain *>(other)->m_deviceName);
+            && m_deviceId == static_cast<RVCTToolChain *>(other)->m_deviceId
+            && m_deviceName == static_cast<RVCTToolChain *>(other)->m_deviceName);
 }
 
-void GCCEToolChain::setProject(const ProjectExplorer::Project *project)
+void RVCTToolChain::setProject(const ProjectExplorer::Project *project)
 {
     m_project = project;
 }

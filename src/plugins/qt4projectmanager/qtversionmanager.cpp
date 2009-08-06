@@ -997,6 +997,9 @@ ProjectExplorer::ToolChain *QtVersion::createToolChain(ProjectExplorer::ToolChai
         tempToolchain = S60Manager::instance()->createWINSCWToolChain(this);
     } else if (type == ProjectExplorer::ToolChain::GCCE) {
         tempToolchain = S60Manager::instance()->createGCCEToolChain(this);
+    } else if (type == ProjectExplorer::ToolChain::RVCT_ARMV5
+               || type == ProjectExplorer::ToolChain::RVCT_ARMV6) {
+        tempToolchain = S60Manager::instance()->createRVCTToolChain(this, type);
 #endif
     } else {
         qDebug()<<"Could not create ToolChain for"<<mkspec();
@@ -1087,7 +1090,10 @@ QList<ProjectExplorer::ToolChain::ToolChainType> QtVersion::possibleToolChainTyp
         toolChains << ProjectExplorer::ToolChain::LinuxICC;
 #ifdef QTCREATOR_WITH_S60
     else if (spec.contains("symbian-abld"))
-        toolChains << ProjectExplorer::ToolChain::GCCE << ProjectExplorer::ToolChain::WINSCW;
+        toolChains << ProjectExplorer::ToolChain::GCCE
+                << ProjectExplorer::ToolChain::RVCT_ARMV5
+                << ProjectExplorer::ToolChain::RVCT_ARMV6
+                << ProjectExplorer::ToolChain::WINSCW;
 #endif
     else
         toolChains << ProjectExplorer::ToolChain::GCC;

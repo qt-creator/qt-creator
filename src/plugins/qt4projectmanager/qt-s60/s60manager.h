@@ -58,6 +58,8 @@ public:
 
     ProjectExplorer::ToolChain *createWINSCWToolChain(const Qt4ProjectManager::QtVersion *version) const;
     ProjectExplorer::ToolChain *createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const;
+    ProjectExplorer::ToolChain *createRVCTToolChain(const Qt4ProjectManager::QtVersion *version,
+                                                    ProjectExplorer::ToolChain::ToolChainType type) const;
 
     S60Devices *devices() const { return m_devices; }
     S60Devices::Device deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const;

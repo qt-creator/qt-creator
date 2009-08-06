@@ -324,26 +324,32 @@ void Qt4ProjectConfigWidget::updateToolChainCombo()
     foreach (ProjectExplorer::ToolChain::ToolChainType toolchain, toolchains) {
         switch (toolchain) {
         case ProjectExplorer::ToolChain::GCC:
-            m_ui->toolChainComboBox->addItem(tr("gcc"), qVariantFromValue(ProjectExplorer::ToolChain::GCC));
+            m_ui->toolChainComboBox->addItem(tr("gcc"), qVariantFromValue(toolchain));
             break;
         case ProjectExplorer::ToolChain::LinuxICC:
-            m_ui->toolChainComboBox->addItem(tr("icc"), qVariantFromValue(ProjectExplorer::ToolChain::LinuxICC));
+            m_ui->toolChainComboBox->addItem(tr("icc"), qVariantFromValue(toolchain));
             break;
         case ProjectExplorer::ToolChain::MinGW:
-            m_ui->toolChainComboBox->addItem(tr("mingw"), qVariantFromValue(ProjectExplorer::ToolChain::MinGW));
+            m_ui->toolChainComboBox->addItem(tr("mingw"), qVariantFromValue(toolchain));
             break;
         case ProjectExplorer::ToolChain::MSVC:
-            m_ui->toolChainComboBox->addItem(tr("msvc"), qVariantFromValue(ProjectExplorer::ToolChain::MSVC));
+            m_ui->toolChainComboBox->addItem(tr("msvc"), qVariantFromValue(toolchain));
             break;
         case ProjectExplorer::ToolChain::WINCE:
-            m_ui->toolChainComboBox->addItem(tr("wince"), qVariantFromValue(ProjectExplorer::ToolChain::WINCE));
+            m_ui->toolChainComboBox->addItem(tr("wince"), qVariantFromValue(toolchain));
             break;
 #ifdef QTCREATOR_WITH_S60
         case ProjectExplorer::ToolChain::WINSCW:
-            m_ui->toolChainComboBox->addItem(tr("winscw"), qVariantFromValue(ProjectExplorer::ToolChain::WINSCW));
+            m_ui->toolChainComboBox->addItem(tr("winscw"), qVariantFromValue(toolchain));
             break;
         case ProjectExplorer::ToolChain::GCCE:
-            m_ui->toolChainComboBox->addItem(tr("gcce"), qVariantFromValue(ProjectExplorer::ToolChain::GCCE));
+            m_ui->toolChainComboBox->addItem(tr("gcce"), qVariantFromValue(toolchain));
+            break;
+        case ProjectExplorer::ToolChain::RVCT_ARMV5:
+            m_ui->toolChainComboBox->addItem(tr("rvct - armv5"), qVariantFromValue(toolchain));
+            break;
+        case ProjectExplorer::ToolChain::RVCT_ARMV6:
+            m_ui->toolChainComboBox->addItem(tr("rvct - armv6"), qVariantFromValue(toolchain));
             break;
 #endif
         case ProjectExplorer::ToolChain::OTHER:
