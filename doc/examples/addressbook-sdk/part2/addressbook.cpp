@@ -69,7 +69,6 @@ void AddressBook::submitContact()
         contacts.insert(name, address);
         QMessageBox::information(this, tr("Add Successful"),
             tr("\"%1\" has been added to your address book.").arg(name));
-        return;
     } else {
         QMessageBox::information(this, tr("Add Unsuccessful"),
             tr("Sorry, \"%1\" is already in your address book.").arg(name));
