@@ -767,7 +767,6 @@ void HelpPlugin::activateContext()
         id = context->contextHelpId();
         links = m_contextHelpEngine->linksForIdentifier(id);
     }
-    QMessageBox::warning(0, "id", id);
 
     HelpViewer* viewer = viewerForContextMode();
 
