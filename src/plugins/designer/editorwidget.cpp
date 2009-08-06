@@ -41,8 +41,6 @@ using namespace Designer::Constants;
 
 enum { ActionEditorTab, SignalSlotEditorTab };
 
-enum { wantSignalSlotEditor = 1 };
-
 namespace Designer {
 namespace Internal {
 
@@ -156,27 +154,21 @@ EditorWidget::EditorWidget(QWidget *formWindow) :
     // Get shared sub windows from Form Editor
     FormEditorW *few = FormEditorW::instance();
     QWidget * const*subs = few->designerSubWindows();
-    // Create shared sub windows except SignalSlotEditor
-    qFill(m_designerSubWindows, m_designerSubWindows + DesignerSubWindowCount, static_cast<SharedSubWindow*>(0));
+    // Create shared sub windows
     for (int i=0; i < DesignerSubWindowCount; i++)
-        if (wantSignalSlotEditor || i != SignalSlotEditorSubWindow)
-            m_designerSubWindows[i] = new SharedSubWindow(subs[i]);
+        m_designerSubWindows[i] = new SharedSubWindow(subs[i]);
     // Create splitter
     addWidget(m_designerSubWindows[WidgetBoxSubWindow]);
 
     // center
     m_centerVertSplitter->addWidget(formWindow);
 
-    if (wantSignalSlotEditor) {
-        m_bottomTab = new QTabWidget;
-        m_bottomTab->setTabPosition(QTabWidget::South);
-        m_bottomTab->setDocumentMode(true);
-        m_bottomTab->addTab(m_designerSubWindows[ActionEditorSubWindow], tr("Action editor"));
-        m_bottomTab->addTab(m_designerSubWindows[SignalSlotEditorSubWindow], tr("Signals and slots editor"));
-        m_centerVertSplitter->addWidget(m_bottomTab);
-    } else {
-        m_centerVertSplitter->addWidget(m_designerSubWindows[ActionEditorSubWindow]);
-    }
+    m_bottomTab = new QTabWidget;
+    m_bottomTab->setTabPosition(QTabWidget::South);
+    m_bottomTab->setDocumentMode(true);
+    m_bottomTab->addTab(m_designerSubWindows[ActionEditorSubWindow], tr("Action editor"));
+    m_bottomTab->addTab(m_designerSubWindows[SignalSlotEditorSubWindow], tr("Signals and slots editor"));
+    m_centerVertSplitter->addWidget(m_bottomTab);
 
     addWidget(m_centerVertSplitter);
 
@@ -215,8 +207,7 @@ void EditorWidget::setInitialSizes()
 void EditorWidget::activate()
 {
     for (int i=0; i < DesignerSubWindowCount; i++)
-        if (SharedSubWindow *sw = m_designerSubWindows[i]) // Signal slot might be deactivated
-            sw->activate();
+        m_designerSubWindows[i]->activate();
     if (!restore(*editorWidgetState()))
         setInitialSizes();
 }
