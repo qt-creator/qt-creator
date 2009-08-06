@@ -1868,13 +1868,13 @@ void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
     QByteArray expected("value='");
     QString val1 = ptr.isNull() ? "<null>" : valToString(*ptr.data());
     QString val2 = isSimpleType(dummy) ? val1 : "";
-    const QAtomicInt *weakAddr;
-    const QAtomicInt *strongAddr;
+    const int *weakAddr;
+    const int *strongAddr;
     int weakValue;
     int strongValue;
     if (!ptr.isNull()) {
-        weakAddr = &Cheater::getData(ptr)->weakref;
-        strongAddr = &Cheater::getData(ptr)->strongref;
+        weakAddr = reinterpret_cast<const int *>(&Cheater::getData(ptr)->weakref);
+        strongAddr = reinterpret_cast<const int *>(&Cheater::getData(ptr)->strongref);
         weakValue = *weakAddr;
         strongValue = *strongAddr;
     } else {

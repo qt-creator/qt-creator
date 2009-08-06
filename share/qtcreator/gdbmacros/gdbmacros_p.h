@@ -117,6 +117,7 @@ public:
     void *currentChildBeingDeleted;
     void *declarativeData;
     void *objectGuards;
+    QAtomicPointer<void> sharedRefCount;
     int *deleteWatch;
 #endif
 };
