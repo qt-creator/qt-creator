@@ -501,6 +501,7 @@ void QtVersion::updateSourcePath()
             }
         }
     }
+    m_sourcePath = QDir::cleanPath(m_sourcePath);
 }
 
 // Returns the version that was used to build the project in that directory
