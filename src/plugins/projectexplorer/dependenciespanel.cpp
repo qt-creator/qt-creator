@@ -158,7 +158,6 @@ DependenciesView::~DependenciesView()
 
 QSize DependenciesView::sizeHint() const
 {
-    qDebug()<<"sizeHint()"<<m_sizeHint;
     return m_sizeHint;
 }
 
@@ -199,10 +198,8 @@ void DependenciesView::updateSizeHint()
 
     int heightOffset = size().height() - viewport()->height();
 
-    qDebug()<<"updating sizehint";
     int heightPerRow = sizeHintForRow(0);
     if (heightPerRow == -1) {
-        qDebug()<<"No row height";
         heightPerRow = 30;
     }
     int rows = qMin(qMax(model()->rowCount(), 2), 10);
