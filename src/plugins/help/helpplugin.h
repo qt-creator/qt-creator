@@ -111,11 +111,12 @@ public:
     void setIndexFilter(const QString &filter);
     QString indexFilter() const;
 
-    void handleHelpRequest(const QUrl& url);
     void openHelpPage(const QString& url);
     void openContextHelpPage(const QString &url);
 
     QHelpEngine* helpEngine() const;
+public slots:
+    void handleHelpRequest(const QUrl& url);
 
 private slots:
     void modeChanged(Core::IMode *mode);
