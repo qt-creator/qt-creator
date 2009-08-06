@@ -71,6 +71,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/fancymainwindow.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QObject>
@@ -82,7 +83,6 @@
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QDockWidget>
-#include <QtGui/QMainWindow>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
@@ -742,8 +742,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_toggleLockedAction->setCheckable(true);
     m_toggleLockedAction->setChecked(true);
     connect(m_toggleLockedAction, SIGNAL(toggled(bool)),
-        m_manager, SLOT(setLocked(bool)));
-    foreach (QDockWidget *dockWidget, m_manager->dockWidgets()) {
+        m_manager->mainWindow(), SLOT(setLocked(bool)));
+    foreach (QDockWidget *dockWidget, m_manager->mainWindow()->dockWidgets()) {
         cmd = am->registerAction(dockWidget->toggleViewAction(),
             "Debugger." + dockWidget->objectName(), debuggercontext);
         viewsMenu->addAction(cmd);
@@ -1135,8 +1135,7 @@ void DebuggerPlugin::writeSettings() const
     QSettings *s = settings();
     DebuggerSettings::instance()->writeSettings(s);
     s->beginGroup(QLatin1String("DebugMode"));
-    s->setValue("State", m_manager->mainWindow()->saveState());
-    s->setValue("Locked", m_toggleLockedAction->isChecked());
+    m_manager->mainWindow()->saveSettings(s);
     s->endGroup();
 }
 
@@ -1154,12 +1153,9 @@ void DebuggerPlugin::readSettings()
     QString defaultScript;
 
     s->beginGroup(QLatin1String("DebugMode"));
-    QByteArray ba = s->value("State", QByteArray()).toByteArray();
-    m_toggleLockedAction->setChecked(s->value("Locked", true).toBool());
+    m_manager->mainWindow()->restoreSettings(s);
+    m_toggleLockedAction->setChecked(m_manager->mainWindow()->isLocked());
     s->endGroup();
-
-    m_manager->mainWindow()->restoreState(ba);
-    m_manager->setLocked(m_toggleLockedAction->isChecked());
 }
 
 void DebuggerPlugin::onModeChanged(IMode *mode)
@@ -1169,15 +1165,10 @@ void DebuggerPlugin::onModeChanged(IMode *mode)
      //        also on shutdown.
 
     if (mode != m_debugMode) {
-        if (m_manager)
-            m_manager->modeVisibilityChanged(false);
         return;
     }
-    if (m_manager)
-        m_manager->modeVisibilityChanged(true);
 
     EditorManager *editorManager = EditorManager::instance();
-
     if (editorManager->currentEditor())
         editorManager->currentEditor()->widget()->setFocus();
 }

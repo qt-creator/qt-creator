@@ -57,6 +57,7 @@
 #endif
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <utils/fancymainwindow.h>
 #include <projectexplorer/toolchain.h>
 
 #include <QtCore/QDebug>
@@ -73,7 +74,6 @@
 #include <QtGui/QErrorMessage>
 #include <QtGui/QFileDialog>
 #include <QtGui/QLabel>
-#include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
@@ -212,9 +212,6 @@ void DebuggerManager::init()
     m_modulesHandler = 0;
     m_registerHandler = 0;
 
-    m_locked = true;
-    m_handleDockVisibilityChanges = false;
-
     m_statusLabel = new QLabel;
     // FIXME: Do something to show overly long messages at least partially
     //QSizePolicy policy = m_statusLabel->sizePolicy();
@@ -234,7 +231,7 @@ void DebuggerManager::init()
     //m_tooltipWindow = new WatchWindow(WatchWindow::TooltipType);
     m_statusTimer = new QTimer(this);
 
-    m_mainWindow = new QMainWindow;
+    m_mainWindow = new Core::Utils::FancyMainWindow;
     m_mainWindow->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
     m_mainWindow->setDocumentMode(true);
 
@@ -436,29 +433,29 @@ void DebuggerManager::init()
     connect(theDebuggerAction(WatchPoint), SIGNAL(triggered()),
         this, SLOT(watchPoint()));
 
-    m_breakDock = createDockForWidget(m_breakWindow);
+    m_breakDock = m_mainWindow->addDockForWidget(m_breakWindow);
 
-    m_disassemblerDock = createDockForWidget(m_disassemblerWindow);
+    m_disassemblerDock = m_mainWindow->addDockForWidget(m_disassemblerWindow);
     connect(m_disassemblerDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadDisassembler()), Qt::QueuedConnection);
 
-    m_modulesDock = createDockForWidget(m_modulesWindow);
+    m_modulesDock = m_mainWindow->addDockForWidget(m_modulesWindow);
     connect(m_modulesDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadModules()), Qt::QueuedConnection);
 
-    m_registerDock = createDockForWidget(m_registerWindow);
+    m_registerDock = m_mainWindow->addDockForWidget(m_registerWindow);
     connect(m_registerDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadRegisters()), Qt::QueuedConnection);
 
-    m_outputDock = createDockForWidget(m_outputWindow);
+    m_outputDock = m_mainWindow->addDockForWidget(m_outputWindow);
 
-    m_stackDock = createDockForWidget(m_stackWindow);
+    m_stackDock = m_mainWindow->addDockForWidget(m_stackWindow);
 
-    m_sourceFilesDock = createDockForWidget(m_sourceFilesWindow);
+    m_sourceFilesDock = m_mainWindow->addDockForWidget(m_sourceFilesWindow);
     connect(m_sourceFilesDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadSourceFiles()), Qt::QueuedConnection);
 
-    m_threadsDock = createDockForWidget(m_threadsWindow);
+    m_threadsDock = m_mainWindow->addDockForWidget(m_threadsWindow);
 
     QSplitter *localsAndWatchers = new QSplitter(Qt::Vertical, 0);
     localsAndWatchers->setWindowTitle(m_localsWindow->windowTitle());
@@ -468,7 +465,7 @@ void DebuggerManager::init()
     localsAndWatchers->setStretchFactor(0, 3);
     localsAndWatchers->setStretchFactor(1, 1);
     localsAndWatchers->setStretchFactor(2, 1);
-    m_watchDock = createDockForWidget(localsAndWatchers);
+    m_watchDock = m_mainWindow->addDockForWidget(localsAndWatchers);
 
     setStatus(DebuggerProcessNotReady);
 }
@@ -509,30 +506,14 @@ void DebuggerManager::createNewDock(QWidget *widget)
     dockWidget->show();
 }
 
-QDockWidget *DebuggerManager::createDockForWidget(QWidget *widget)
-{
-    QDockWidget *dockWidget = new QDockWidget(widget->windowTitle(), m_mainWindow);
-    dockWidget->setObjectName(widget->windowTitle());
-    dockWidget->setWidget(widget);
-    connect(dockWidget->toggleViewAction(), SIGNAL(triggered()),
-        this, SLOT(dockActionTriggered()), Qt::QueuedConnection);
-    connect(dockWidget, SIGNAL(visibilityChanged(bool)),
-            this, SLOT(onDockVisibilityChange(bool)));
-    connect(dockWidget, SIGNAL(topLevelChanged(bool)),
-            this, SLOT(onTopLevelChanged()));
-    m_dockWidgets.append(dockWidget);
-    m_dockWidgetActiveState.append(true);
-    updateDockWidget(dockWidget);
-    return dockWidget;
-}
-
 void DebuggerManager::setSimpleDockWidgetArrangement()
 {
-    m_handleDockVisibilityChanges = false;
-    foreach (QDockWidget *dockWidget, m_dockWidgets)
+    m_mainWindow->setTrackingEnabled(false);
+    QList<QDockWidget *> dockWidgets = m_mainWindow->dockWidgets();
+    foreach (QDockWidget *dockWidget, dockWidgets)
         m_mainWindow->removeDockWidget(dockWidget);
 
-    foreach (QDockWidget *dockWidget, m_dockWidgets) {
+    foreach (QDockWidget *dockWidget, dockWidgets) {
         m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
         dockWidget->show();
     }
@@ -552,69 +533,7 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     m_disassemblerDock->hide();
     m_modulesDock->hide();
     m_outputDock->hide();
-    for (int i = 0; i < m_dockWidgets.size(); ++i)
-        m_dockWidgetActiveState[i] = m_dockWidgets[i]->isVisible();
-    m_handleDockVisibilityChanges = true;
-}
-
-void DebuggerManager::onDockVisibilityChange(bool visible)
-{
-    if (!m_handleDockVisibilityChanges)
-        return;
-    QDockWidget *dockWidget = qobject_cast<QDockWidget *>(sender());
-    int index = m_dockWidgets.indexOf(dockWidget);
-    m_dockWidgetActiveState[index] = visible;
-}
-
-void DebuggerManager::modeVisibilityChanged(bool visible)
-{
-    m_handleDockVisibilityChanges = false;
-    for (int i = 0; i < m_dockWidgets.size(); ++i) {
-        QDockWidget *dockWidget = m_dockWidgets.at(i);
-        if (dockWidget->isFloating()) {
-            dockWidget->setVisible(visible && m_dockWidgetActiveState.at(i));
-        }
-    }
-    if (visible)
-        m_handleDockVisibilityChanges = true;
-}
-
-void DebuggerManager::onTopLevelChanged()
-{
-    updateDockWidget(qobject_cast<QDockWidget*>(sender()));
-}
-
-void DebuggerManager::setLocked(bool locked)
-{
-    m_locked = locked;
-    foreach (QDockWidget *dockWidget, m_dockWidgets) {
-        updateDockWidget(dockWidget);
-    }
-}
-
-void DebuggerManager::updateDockWidget(QDockWidget *dockWidget)
-{
-    const QDockWidget::DockWidgetFeatures features =
-            (m_locked) ? QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable :
-                       QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable;
-    QWidget *titleBarWidget = dockWidget->titleBarWidget();
-    if (m_locked && !titleBarWidget && !dockWidget->isFloating())
-        titleBarWidget = new QWidget(dockWidget);
-    else if ((!m_locked || dockWidget->isFloating()) && titleBarWidget) {
-        delete titleBarWidget;
-        titleBarWidget = 0;
-    }
-    dockWidget->setTitleBarWidget(titleBarWidget);
-    dockWidget->setFeatures(features);
-}
-
-void DebuggerManager::dockActionTriggered()
-{
-    QDockWidget *dw = qobject_cast<QDockWidget *>(sender()->parent());
-    if (dw) {
-        if (dw->isVisible())
-            dw->raise();
-    }
+    m_mainWindow->setTrackingEnabled(true);
 }
 
 QAbstractItemModel *DebuggerManager::threadsModel()

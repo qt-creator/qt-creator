@@ -30,6 +30,8 @@
 #ifndef DEBUGGER_DEBUGGERMANAGER_H
 #define DEBUGGER_DEBUGGERMANAGER_H
 
+#include <utils/fancymainwindow.h>
+
 #include <QtCore/QByteArray>
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
@@ -41,7 +43,6 @@ class QAction;
 class QAbstractItemModel;
 class QDockWidget;
 class QLabel;
-class QMainWindow;
 class QModelIndex;
 class QPoint;
 class QTimer;
@@ -262,7 +263,7 @@ public:
     ~DebuggerManager();
 
     IDebuggerManagerAccessForEngines *engineInterface();
-    QMainWindow *mainWindow() const { return m_mainWindow; }
+    Core::Utils::FancyMainWindow *mainWindow() const { return m_mainWindow; }
     QLabel *statusLabel() const { return m_statusLabel; }
 
 public slots:
@@ -276,9 +277,6 @@ public slots:
     void setQtDumperLibraryLocations(const QStringList &dl);
 
     void setSimpleDockWidgetArrangement();
-    void setLocked(bool locked);
-    void dockActionTriggered();
-    void modeVisibilityChanged(bool visible);
 
     void setBusyCursor(bool on);
     void queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **ed);
@@ -374,7 +372,6 @@ private:
     // Implementation of IDebuggerManagerAccessForDebugMode
     //
     QWidget *threadsWindow() const { return m_threadsWindow; }
-    QList<QDockWidget*> dockWidgets() const { return m_dockWidgets; }
 
     virtual bool qtDumperLibraryEnabled() const;
     virtual QString qtDumperLibraryName() const;
@@ -421,11 +418,7 @@ public:
 private:
     void init();
     void runTest(const QString &fileName);
-    QDockWidget *createDockForWidget(QWidget *widget);
     Q_SLOT void createNewDock(QWidget *widget);
-    void updateDockWidget(QDockWidget *dockWidget);
-    Q_SLOT void onDockVisibilityChange(bool visible);
-    Q_SLOT void onTopLevelChanged();
 
     void shutdown();
 
@@ -442,7 +435,7 @@ private:
 
 
     /// Views
-    QMainWindow *m_mainWindow;
+    Core::Utils::FancyMainWindow *m_mainWindow;
     QLabel *m_statusLabel;
     QDockWidget *m_breakDock;
     QDockWidget *m_disassemblerDock;
@@ -453,10 +446,6 @@ private:
     QDockWidget *m_sourceFilesDock;
     QDockWidget *m_threadsDock;
     QDockWidget *m_watchDock;
-    QList<QDockWidget*> m_dockWidgets;
-    QList<bool> m_dockWidgetActiveState;
-    bool m_locked;
-    bool m_handleDockVisibilityChanges;
 
     BreakHandler *m_breakHandler;
     DisassemblerHandler *m_disassemblerHandler;
