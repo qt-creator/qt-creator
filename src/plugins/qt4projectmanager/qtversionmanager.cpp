@@ -1266,10 +1266,8 @@ QString QtVersion::buildDebuggingHelperLibrary()
     // TODO: the debugging helper doesn't comply to actual tool chain yet
     ProjectExplorer::ToolChain *tc = createToolChain(defaultToolchainType());
     tc->addToEnvironment(env);
-    QString output;
-    QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, path(), &output);
-    if (!directory.isEmpty())
-        output += DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), mkspec(), env);
+    QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, path());
+    QString output = DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), mkspec(), env);
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     delete tc;
     return output;

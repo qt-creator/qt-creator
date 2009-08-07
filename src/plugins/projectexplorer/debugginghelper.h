@@ -56,12 +56,10 @@ public:
     static QString buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env);
     static QString buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env);
 
-    // Build the helpers and return the output log/errormessage.
     static QStringList debuggingHelperLibraryLocations(const QString &qmakePath);
     static QStringList debuggingHelperLibraryLocations(const QString &qtInstallData, const QString &qtpath);
 
-    // Copy the source files to a target location and return the chosen target location.
-    static QString copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir, QString *errorMessage);
+    static QString copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir);
 
 private:
     static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData, const QString &qtpath);
