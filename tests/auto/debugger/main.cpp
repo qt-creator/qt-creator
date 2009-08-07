@@ -147,6 +147,7 @@ private slots:
     void dumpQFile();
     void dumpQFileInfo();
     void dumpQHash();
+    void dumpQHashNode();
     void dumpQImage();
     void dumpQImageData();
     void dumpQList_int();
@@ -154,6 +155,7 @@ private slots:
     void dumpQList_QString();
     void dumpQList_QString3();
     void dumpQList_Int3();
+    void dumpQLocale();
     void dumpQMap();
     void dumpQMapNode();
     void dumpQObject();
@@ -193,8 +195,10 @@ private:
     void dumpQDateTimeHelper(QDateTime &d);
     void dumpQDirHelper(QDir &d);
     void dumpQFileHelper(const QString &name, bool exists);
+    template <typename K, typename V> void dumpQHashNodeHelper(QHash<K, V> &hash);
     void dumpQImageHelper(QImage &img);
     void dumpQImageDataHelper(QImage &img);
+    void dumpQLocaleHelper(QLocale &loc);
     template <typename K, typename V> void dumpQMapHelper(QMap<K, V> &m);
     template <typename K, typename V> void dumpQMapNodeHelper(QMap<K, V> &m);
     void dumpQObjectChildListHelper(QObject &o);
@@ -488,6 +492,13 @@ static const QByteArray generateQStringSpec(const QString& str)
         append("',type='"NS"QString',numchild='0',valueencoded='2'");
 }
 
+static const QByteArray generateQCharSpec(const QChar& ch)
+{
+    return QByteArray("value='").append(utfToBase64(QString(QLatin1String("'%1' (%2, 0x%3)")).
+                                        arg(ch).arg(ch.unicode()).arg(ch.unicode(), 0, 16))).
+            append("',valueencoded='2',type='"NS"QChar',numchild='0'");
+}
+
 static const QByteArray generateBoolSpec(bool b)
 {
     return QByteArray("value=").append(boolToVal(b)).append(",type='bool',numchild='0'");
@@ -508,6 +519,12 @@ static const QByteArray generateLongSpec(long n)
 static const QByteArray generateIntSpec(int n)
 {
     return generateIntegerSpec(n, "int");
+}
+
+const QString createExp(const void *ptr, const QString &type, const QString &method)
+{
+    return QString("exp='((").append(NSX).append(type).append(NSY).append("*)").
+        append(ptrToBa(ptr)).append(")->").append(method).append("()'");
 }
 
 // Helper functions.
@@ -924,7 +941,6 @@ void tst_Debugger::dumpQFileInfo()
         append("{name='isBundle',").append(generateBoolSpec(fi.isBundle()).append("},").
         append("{name='bundleName',").append(generateQStringSpec(fi.bundleName())).append("'},").
 #endif
-        append("{name='completeSuffix',").append(generateQStringSpec(fi.completeSuffix())).append("},").
         append("{name='fileName',").append(generateQStringSpec(fi.fileName())).append("},").
         append("{name='filePath',").append(generateQStringSpec(fi.filePath())).append("},").
         append("{name='group',").append(generateQStringSpec(fi.group())).append("},").
@@ -946,26 +962,15 @@ void tst_Debugger::dumpQFileInfo()
         append("{name='isSymLink',").append(generateBoolSpec(fi.isSymLink())).append("},").
         append("{name='isWritable',").append(generateBoolSpec(fi.isWritable())).append("},").
         append("{name='created',value='").append(utfToBase64(fi.created().toString())).
-        append("',valueencoded='2',type='"NS"QDateTime',numchild='1'},").
-
-#if 0
-        ???
-     d.beginHash();
-        d.putItem("name", "created");
-        d.putItem("value", info.created().toString());
-        d.putItem("valueencoded", "2");
-        d.beginItem("exp");
-            d.put("(("NSX"QFileInfo"NSY"*)").put(d.data).put(")->created()");
-        d.endItem();
-        d.putItem("type", NS"QDateTime");
-        d.putItem("numchild", "1");
-        d.endHash();
-#endif
-
-        append("]");
-
-
-   // testDumper(expected, &fi, NS"QFileInfo", true);
+        append("',valueencoded='2',").append(createExp(&fi, "QFileInfo", "created")).
+        append(",type='"NS"QDateTime',numchild='1'},").append("{name='lastModified',value='").
+        append(utfToBase64(fi.lastModified().toString())).append("',valueencoded='2',").
+        append(createExp(&fi, "QFileInfo", "lastModified")).
+        append(",type='"NS"QDateTime',numchild='1'},").
+        append("{name='lastRead',value='").append(utfToBase64(fi.lastRead().toString())).
+        append("',valueencoded='2',").append(createExp(&fi, "QFileInfo", "lastRead")).
+        append(",type='"NS"QDateTime',numchild='1'}]");
+    testDumper(expected, &fi, NS"QFileInfo", true);
 }
 
 void tst_Debugger::dumpQHash()
@@ -975,6 +980,50 @@ void tst_Debugger::dumpQHash()
     hash.insert("Welt", QList<int>() << 1);
     hash.insert("!", QList<int>() << 1 << 2);
     hash.insert("!", QList<int>() << 1 << 2);
+}
+
+template <typename K, typename V>
+        void tst_Debugger::dumpQHashNodeHelper(QHash<K, V> &hash)
+{
+    typename QHash<K, V>::iterator it = hash.begin();
+    typedef QHashNode<K, V> HashNode;
+    HashNode *node =
+        reinterpret_cast<HashNode *>(reinterpret_cast<char *>(const_cast<K *>(&it.key())) -
+                                     offsetof(HashNode, key));
+    const K &key = it.key();
+    const V &val = it.value();
+    QByteArray expected("value='");
+    if (isSimpleType(val))
+        expected.append(valToString(val));
+    expected.append("',numchild='2',children=[{name='key',type='").
+        append(typeToString(key)).append("',addr='").append(ptrToBa(&key)).
+        append("'},{name='value',type='").append(typeToString(val)).
+        append("',addr='").append(ptrToBa(&val)).append("'}]");
+    testDumper(expected, node, NS"QHashNode", true,
+        getMapType(it.key(), it.value()), "", sizeof(it.key()), sizeof(it.value()));
+}
+
+void tst_Debugger::dumpQHashNode()
+{
+    // Case 1: simple type -> simple type.
+    QHash<int, int> hash1;
+    hash1[2] = 3;
+    dumpQHashNodeHelper(hash1);
+
+    // Case 2: simple type -> composite type.
+    QHash<int, QString> hash2;
+    hash2[5] = "String 7";
+    dumpQHashNodeHelper(hash2);
+
+    // Case 3: composite type -> simple type
+    QHash<QString, int> hash3;
+    hash3["String 11"] = 13;
+    dumpQHashNodeHelper(hash3);
+
+    // Case 4: composite type -> composite type
+    QHash<QString, QString> hash4;
+    hash4["String 17"] = "String 19";
+    dumpQHashNodeHelper(hash4);
 }
 
 void tst_Debugger::dumpQImageHelper(QImage &img)
@@ -1100,6 +1149,42 @@ void tst_Debugger::dumpQList_QString3()
         "{addr='" + str(&s3list.at(0)) + "'},"
         "{addr='" + str(&s3list.at(1)) + "'}]",
         &s3list, NS"QList", true, "QString3");
+}
+
+void tst_Debugger::dumpQLocaleHelper(QLocale &loc)
+{
+    QByteArray expected = QByteArray("value='").append(valToString(loc.name())).
+        append("',type='"NS"QLocale',numchild='8',children=[{name='country',").
+        append(createExp(&loc, "QLocale", "country")).append("},{name='language',").
+        append(createExp(&loc, "QLocale", "language")).append("},{name='measurementSystem',").
+        append(createExp(&loc, "QLocale", "measurementSystem")).
+        append("},{name='numberOptions',").append(createExp(&loc, "QLocale", "numberOptions")).
+        append("},{name='timeFormat_(short)',").
+        append(generateQStringSpec(loc.timeFormat(QLocale::ShortFormat))).
+        append("},{name='timeFormat_(long)',").append(generateQStringSpec(loc.timeFormat())).
+        append("},{name='decimalPoint',").append(generateQCharSpec(loc.decimalPoint())).
+        append("},{name='exponential',").append(generateQCharSpec(loc.exponential())).
+        append("},{name='percent',").append(generateQCharSpec(loc.percent())).
+        append("},{name='zeroDigit',").append(generateQCharSpec(loc.zeroDigit())).
+        append("},{name='groupSeparator',").append(generateQCharSpec(loc.groupSeparator())).
+        append("},{name='negativeSign',").append(generateQCharSpec(loc.negativeSign())).
+        append("}]");
+    testDumper(expected, &loc, NS"QLocale", true);
+}
+
+void tst_Debugger::dumpQLocale()
+{
+    QLocale english(QLocale::English);
+    dumpQLocaleHelper(english);
+
+    QLocale german(QLocale::German);
+    dumpQLocaleHelper(german);
+
+    QLocale chinese(QLocale::Chinese);
+    dumpQLocaleHelper(chinese);
+
+    QLocale swahili(QLocale::Swahili);
+    dumpQLocaleHelper(swahili);
 }
 
 template <typename K, typename V> const QByteArray getMapType(K keyDummy, V valDummy)

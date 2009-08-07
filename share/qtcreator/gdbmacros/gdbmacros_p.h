@@ -44,6 +44,19 @@
 
 #include <QtCore/QObject>
 
+#undef NS
+#ifdef QT_NAMESPACE
+#   define STRINGIFY0(s) #s
+#   define STRINGIFY1(s) STRINGIFY0(s)
+#   define NS STRINGIFY1(QT_NAMESPACE) "::"
+#   define NSX "'" STRINGIFY1(QT_NAMESPACE) "::"
+#   define NSY "'"
+#else
+#   define NS ""
+#   define NSX ""
+#   define NSY ""
+#endif
+
 #if defined(QT_BEGIN_NAMESPACE)
 QT_BEGIN_NAMESPACE
 #endif
