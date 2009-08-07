@@ -197,7 +197,9 @@ static QList<ProcData> unixProcessList()
         filename += procId;
         filename += QLatin1String("/stat");
         QFile file(filename);
-        file.open(QIODevice::ReadOnly);
+        if (!file.open(QIODevice::ReadOnly))
+            continue;           // process may have exited
+
         const QStringList data = QString::fromLocal8Bit(file.readAll()).split(' ');
         ProcData proc;
         proc.ppid = procId;
