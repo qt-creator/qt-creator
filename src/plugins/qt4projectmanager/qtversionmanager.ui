@@ -17,31 +17,6 @@
       <string>Qt versions</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0" colspan="2">
-       <widget class="QTreeWidget" name="qtdirList">
-        <property name="uniformRowHeights">
-         <bool>true</bool>
-        </property>
-        <property name="columnCount">
-         <number>3</number>
-        </property>
-        <column>
-         <property name="text">
-          <string>Name</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Path</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Debugging Helper</string>
-         </property>
-        </column>
-       </widget>
-      </item>
       <item row="0" column="2">
        <layout class="QVBoxLayout">
         <property name="spacing">
@@ -91,43 +66,6 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="versionNameLabel">
-        <property name="text">
-         <string>Version Name:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="nameEdit"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="pathLabel">
-        <property name="text">
-         <string>Path:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="Core::Utils::PathChooser" name="qtPath" native="true"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="mingwLabel">
-        <property name="text">
-         <string>MinGw Directory:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="Core::Utils::PathChooser" name="mingwPath" native="true"/>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="msvcLabel">
-        <property name="text">
-         <string>MSVC Version:</string>
-        </property>
-       </widget>
-      </item>
       <item row="4" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <property name="spacing">
@@ -162,23 +100,6 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="mwcLabel">
-        <property name="text">
-         <string>MWC Directory:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="Core::Utils::PathChooser" name="mwcPath" native="true"/>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Debugging Helper:</string>
-        </property>
-       </widget>
-      </item>
       <item row="6" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
@@ -210,12 +131,91 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QTreeWidget" name="qtdirList">
+        <property name="uniformRowHeights">
+         <bool>true</bool>
+        </property>
+        <property name="columnCount">
+         <number>3</number>
+        </property>
+        <column>
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Path</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Debugging Helper</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="versionNameLabel">
+        <property name="text">
+         <string>Version Name:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="nameEdit"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="pathLabel">
+        <property name="text">
+         <string>Path:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="Core::Utils::PathChooser" name="qtPath"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="mingwLabel">
+        <property name="text">
+         <string>MinGw Directory:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="Core::Utils::PathChooser" name="mingwPath"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="msvcLabel">
+        <property name="text">
+         <string>MSVC Version:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="debuggingHelperLabel">
+        <property name="text">
+         <string>Debugging Helper:</string>
+        </property>
+       </widget>
+      </item>
       <item row="7" column="1">
        <widget class="QLabel" name="errorLabel">
         <property name="text">
          <string/>
         </property>
        </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="mwcLabel">
+        <property name="text">
+         <string>MWC Directory:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="Core::Utils::PathChooser" name="mwcPath"/>
       </item>
      </layout>
      <zorder>qtdirList</zorder>
@@ -226,12 +226,10 @@ p, li { white-space: pre-wrap; }
      <zorder>mingwLabel</zorder>
      <zorder>mingwPath</zorder>
      <zorder>msvcLabel</zorder>
-     <zorder>label</zorder>
+     <zorder>debuggingHelperLabel</zorder>
      <zorder>errorLabel</zorder>
      <zorder>mwcLabel</zorder>
      <zorder>mwcPath</zorder>
-     <zorder>msvcComboBox</zorder>
-     <zorder>msvcNotFoundLabel</zorder>
     </widget>
    </item>
    <item>

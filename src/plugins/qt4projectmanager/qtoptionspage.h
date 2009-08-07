@@ -31,7 +31,11 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QtCore/QSharedPointer>
+
 #include <QtGui/QWidget>
+#include <QtGui/QPixmap>
+#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
@@ -40,34 +44,62 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 
 class QtVersion;
+typedef QSharedPointer<QtVersion> QSharedPointerQtVersion;
 
 namespace Internal {
 namespace Ui {
 class QtVersionManager;
 }
 
+// A task suitable to be run by QtConcurrent to build the helpers.
+// Note that it may outlive the settings page if someone quickly cancels it,
+// so, the versions are passed around by QSharedPointer.
+class DebuggingHelperBuildTask : public QObject {
+    Q_DISABLE_COPY(DebuggingHelperBuildTask)
+    Q_OBJECT
+public:
+    explicit DebuggingHelperBuildTask(const QSharedPointerQtVersion &version);
+    virtual ~DebuggingHelperBuildTask();
+
+    void run();
+
+signals:
+    void finished(const QString &versionName, const QString &output);
+
+private:
+    QSharedPointerQtVersion m_version;
+};
+
 class QtOptionsPageWidget : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY(QtOptionsPageWidget)
 public:
     QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion);
     ~QtOptionsPageWidget();
-    QList<QtVersion *> versions() const;
+    QList<QSharedPointerQtVersion> versions() const;
     int defaultVersion() const;
     void finish();
 
 private:
     void showEnvironmentPage(QTreeWidgetItem * item);
     void fixQtVersionName(int index);
-    int indexForWidget(QWidget *debuggingHelperWidget) const;
-    int indexForTreeItem(QTreeWidgetItem *item) const;
+    int indexForTreeItem(const QTreeWidgetItem *item) const;
     QTreeWidgetItem *treeItemForIndex(int index) const;
+    QtVersion *currentVersion() const;
+    int currentIndex() const;
+    void updateDebuggingHelperStateLabel(const QtVersion *version = 0);
+
+    const QPixmap m_debuggingHelperOkPixmap;
+    const QPixmap m_debuggingHelperErrorPixmap;
+    const QIcon m_debuggingHelperOkIcon;
+    const QIcon m_debuggingHelperErrorIcon;
+    const QString m_specifyNameString;
+    const QString m_specifyPathString;
 
     Internal::Ui::QtVersionManager *m_ui;
-    QList<QtVersion *> m_versions;
+    QList<QSharedPointerQtVersion> m_versions; // Passed on to the helper build task, so, use QSharedPointerQtVersion
     int m_defaultVersion;
-    QString m_specifyNameString;
-    QString m_specifyPathString;
 
 private slots:
     void versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old);
@@ -89,6 +121,7 @@ private slots:
     void msvcVersionChanged();
     void buildDebuggingHelper();
     void showDebuggingBuildLog();
+    void debuggingHelperBuildFinished(const QString &versionName, const QString &output);
 };
 
 class QtOptionsPage : public Core::IOptionsPage
