@@ -146,13 +146,13 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
     hbox->addWidget(m_buildConfigurationComboBox);
 
     m_addButton = new QPushButton(this);
-    m_addButton->setText("Add");
+    m_addButton->setText(tr("Add"));
     m_addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_addButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     hbox->addWidget(m_addButton);
 
     m_removeButton = new QPushButton(this);
-    m_removeButton->setText("Remove");
+    m_removeButton->setText(tr("Remove"));
     m_removeButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
     m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     hbox->addWidget(m_removeButton);

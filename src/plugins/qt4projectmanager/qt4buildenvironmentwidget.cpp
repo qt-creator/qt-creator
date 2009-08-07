@@ -46,7 +46,7 @@ Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
     vbox->setMargin(0);
 
     m_clearSystemEnvironmentCheckBox = new QCheckBox(this);
-    m_clearSystemEnvironmentCheckBox->setText("Clear system environment");
+    m_clearSystemEnvironmentCheckBox->setText(tr("Clear system environment"));
 
     m_buildEnvironmentWidget = new ProjectExplorer::EnvironmentWidget(this, m_clearSystemEnvironmentCheckBox);
     vbox->addWidget(m_buildEnvironmentWidget);
