@@ -338,9 +338,6 @@
     Since the \c AddressBook class is a subclass of QWidget, Qt Creator
     includes QWidget in the header file.
 
-    ## this is a bit confusing, because QWidget is already included, but without QtGui/
-    ## Also, how about ordering the includes by module?
-
     \snippet examples/addressbook-sdk/part2/addressbook.h include
 
     We need a container to store our address book contacts, so that we can

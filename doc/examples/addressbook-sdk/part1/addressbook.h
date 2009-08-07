@@ -2,7 +2,7 @@
 #ifndef ADDRESSBOOK_H
 #define ADDRESSBOOK_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 namespace Ui
 {

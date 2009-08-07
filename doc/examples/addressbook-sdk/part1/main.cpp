@@ -1,5 +1,5 @@
 //! [main function]
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "addressbook.h"
 
 int main(int argc, char *argv[])

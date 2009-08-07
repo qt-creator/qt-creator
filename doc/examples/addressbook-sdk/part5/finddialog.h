@@ -1,9 +1,9 @@
 #ifndef FINDDIALOG_H
 #define FINDDIALOG_H
 
-#include <QtGui/QDialog>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
+#include <QDialog>
+#include <QLineEdit>
+#include <QPushButton>
 
 namespace Ui {
     class FindDialog;

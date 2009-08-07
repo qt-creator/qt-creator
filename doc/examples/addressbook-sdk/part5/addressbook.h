@@ -1,9 +1,9 @@
 #ifndef ADDRESSBOOK_H
 #define ADDRESSBOOK_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QMessageBox>
-#include <QtCore/QMap>
+#include <QWidget>
+#include <QMessageBox>
+#include <QMap>
 //! [include]
 #include "finddialog.h"
 //! [include]

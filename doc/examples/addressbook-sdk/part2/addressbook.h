@@ -2,9 +2,9 @@
 #define ADDRESSBOOK_H
 
 //! [include]
-#include <QtGui/QWidget>
-#include <QtCore/QMap>
-#include <QtGui/QMessageBox>
+#include <QWidget>
+#include <QMap>
+#include <QMessageBox>
 //! [include]
 
 namespace Ui
