@@ -32,6 +32,8 @@
 #include "cppplugin.h"
 #include "cpphighlighter.h"
 
+#include <cpptools/cpptoolsplugin.h>
+
 #include <AST.h>
 #include <Control.h>
 #include <Token.h>
@@ -46,6 +48,7 @@
 #include <SymbolVisitor.h>
 #include <TranslationUnit.h>
 #include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/OverviewModel.h>
@@ -825,6 +828,51 @@ void CPPEditor::reformatDocument()
     c.setPosition(0);
     c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     c.insertText(QString::fromUtf8(str.c_str(), str.length()));
+}
+
+void CPPEditor::findReferences()
+{
+    QTextCursor tc = textCursor();
+    m_currentRenameSelection = -1;
+
+    int line, col;
+    convertPosition(tc.position(), &line, &col);
+    ++col;
+
+    tc.movePosition(QTextCursor::EndOfWord);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString code = expressionUnderCursor(tc);
+    qDebug() << "code:" << code;
+
+    Snapshot snapshot = m_modelManager->snapshot();
+    Document::Ptr doc = snapshot.value(file()->fileName());
+
+    TypeOfExpression typeOfExpression;
+    typeOfExpression.setSnapshot(snapshot);
+
+    Symbol *lastVisibleSymbol = doc->findSymbolAt(line, col);
+
+    const QList<TypeOfExpression::Result> results = typeOfExpression(code, doc,
+                                                                     lastVisibleSymbol,
+                                                                     TypeOfExpression::Preprocess);
+
+    if (! results.isEmpty()) {
+        TypeOfExpression::Result result = results.first();
+        Symbol *symbol = result.second;
+        qDebug() << "result:" << symbol->fileName() << symbol->line() << symbol->column();
+        m_modelManager->findReferences(symbol);
+    }
+
+
+#if 0
+        LookupContext context(
+        Overview oo;
+        qDebug() << "==============> filename:" << symbol->fileName()
+                << "name:" << oo(symbol->name());
+        m_modelManager->findReferences(symbol);
+    }
+#endif
 }
 
 void CPPEditor::renameSymbolUnderCursor()

@@ -35,6 +35,7 @@
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
+#include "cppfindreferences.h"
 
 #include <functional>
 #include <QtConcurrentRun>
@@ -579,6 +580,8 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
 CppModelManager::CppModelManager(QObject *parent)
     : CppModelManagerInterface(parent)
 {
+    m_findReferences = new CppFindReferences(this);
+
     m_revision = 0;
     m_synchronizer.setCancelOnWait(true);
 
@@ -713,6 +716,14 @@ void CppModelManager::addEditorSupport(AbstractEditorSupport *editorSupport)
 void CppModelManager::removeEditorSupport(AbstractEditorSupport *editorSupport)
 {
     m_addtionalEditorSupport.remove(editorSupport);
+}
+
+void CppModelManager::findReferences(CPlusPlus::Symbol *symbol)
+{
+    if (Identifier *id = symbol->identifier()) {
+        QString word = QString::fromLatin1(id->chars(), id->size());
+        m_findReferences->findAll(symbol->fileName(), word);
+    }
 }
 
 QMap<QString, QString> CppModelManager::buildWorkingCopyList()

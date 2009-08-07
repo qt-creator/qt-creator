@@ -203,7 +203,9 @@ ResolveExpression::ResolveExpression(const LookupContext &context)
     : ASTVisitor(context.expressionDocument()->control()),
       _context(context),
       sem(_context.control())
-{ }
+{
+    _wantReferences = false;
+}
 
 ResolveExpression::~ResolveExpression()
 { }
@@ -235,6 +237,7 @@ void ResolveExpression::addResult(const FullySpecifiedType &ty, Symbol *symbol)
 void ResolveExpression::addResult(const Result &r)
 {
     Result p = r;
+
     if (! p.second)
         p.second = _context.symbol();
 

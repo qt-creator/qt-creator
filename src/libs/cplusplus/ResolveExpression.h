@@ -47,6 +47,21 @@ public:
     ResolveExpression(const LookupContext &context);
     virtual ~ResolveExpression();
 
+    bool wantReferences() const
+    { return _wantReferences; }
+
+    void setWantReferences(bool onoff)
+    { _wantReferences = onoff; }
+
+    void setDeclSymbol(Symbol *symbol)
+    {
+        references.clear();
+        _wantReferences = true;
+        _declSymbol = symbol;
+    }
+
+    QList<unsigned> references;
+
     QList<Result> operator()(ExpressionAST *ast);
 
     QList<Result> resolveMemberExpression(const QList<Result> &baseResults,
@@ -123,6 +138,8 @@ private:
     LookupContext _context;
     Semantic sem;
     QList<Result> _results;
+    bool _wantReferences;
+    Symbol *_declSymbol;
 };
 
 class CPLUSPLUS_EXPORT ResolveClass
