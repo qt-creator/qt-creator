@@ -32,6 +32,8 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtGui/QWidget>
+#include <QtGui/QPixmap>
+#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
@@ -46,6 +48,24 @@ namespace Ui {
 class QtVersionManager;
 }
 
+// A task suitable to be run by QtConcurrent to build the helpers.
+// It may outlive the settings page if someone quickly cancels it,
+// so, it maintains a copy of the QtVersion and emits finished() by name.
+class DebuggingHelperBuildTask : public QObject {
+    Q_OBJECT
+public:
+    explicit DebuggingHelperBuildTask(const QtVersion &version);
+    virtual ~DebuggingHelperBuildTask();
+
+    void run();
+
+signals:
+    void finished(const QString &versionName, const QString &output);
+
+private:
+    QtVersion *m_version;
+};
+
 class QtOptionsPageWidget : public QWidget
 {
     Q_OBJECT
@@ -57,11 +77,17 @@ public:
     void finish();
 
 private:
+    const QPixmap m_debuggingHelperOkPixmap;
+    const QPixmap m_debuggingHelperErrorPixmap;
+    const QIcon m_debuggingHelperOkIcon;
+    const QIcon m_debuggingHelperErrorIcon;
+
     void showEnvironmentPage(QTreeWidgetItem * item);
     void fixQtVersionName(int index);
-    int indexForWidget(QWidget *debuggingHelperWidget) const;
-    int indexForTreeItem(QTreeWidgetItem *item) const;
+    int indexForTreeItem(const QTreeWidgetItem *item) const;
     QTreeWidgetItem *treeItemForIndex(int index) const;
+    QtVersion *currentVersion() const;
+    void updateDebuggingHelperStateLabel(const QtVersion *version = 0);
 
     Internal::Ui::QtVersionManager *m_ui;
     QList<QtVersion *> m_versions;
@@ -89,6 +115,7 @@ private slots:
     void msvcVersionChanged();
     void buildDebuggingHelper();
     void showDebuggingBuildLog();
+    void debuggingHelperBuildFinished(const QString &name, const QString &output);
 };
 
 class QtOptionsPage : public Core::IOptionsPage
@@ -105,7 +132,7 @@ public:
     void apply();
     void finish() { }
 private:
-    QtOptionsPageWidget *m_widget;
+    QtOptionsPageWidget *m_widget;    
 };
 
 } //namespace Internal
