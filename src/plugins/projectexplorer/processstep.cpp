@@ -120,7 +120,7 @@ QStringList ProcessStepFactory::canCreateForProject(Project *pro) const
 QString ProcessStepFactory::displayNameForName(const QString &name) const
 {
     Q_UNUSED(name)
-    return "Custom Process Step";
+    return ProcessStep::tr("Custom Process Step", "item in combobox");
 }
 
 //*******
