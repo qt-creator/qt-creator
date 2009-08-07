@@ -129,8 +129,9 @@ public:
     bool read(ProFile *pro, QTextStream *ts);
 
     ProBlock *currentBlock();
-    void updateItem();
-    void insertVariable(const ushort **pCur, const ushort *end);
+    void updateItem(ushort *ptr);
+    void updateItem2();
+    bool insertVariable(ushort *ptr, bool *doSplit, bool *doSemicolon);
     void insertOperator(const char op);
     void insertComment(const QString &comment);
     void enterScope(bool multiLine);
@@ -143,7 +144,6 @@ public:
     ProItem *m_commentItem;
     QString m_proitem;
     QString m_pendingComment;
-    ushort *m_proitemPtr;
 
     enum StrState { NeverStarted, NotStarted, Started, PutSpace };
 
@@ -284,110 +284,238 @@ bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
     m_blockstack.clear();
     m_blockstack.push(pro);
 
+  freshLine:
     int parens = 0;
-    bool inQuote = false;
+    bool inError = false;
+    bool inAssignment = false;
+    bool doSplit = false;
+    bool doSemicolon = false;
+    bool putSpace = false;
+    ushort quote = 0;
     while (!ts->atEnd()) {
         QString line = ts->readLine();
         const ushort *cur = (const ushort *)line.unicode(),
                      *end = cur + line.length(),
+                     *orgend = end,
                      *cmtptr = 0;
-        m_proitem.reserve(line.length());
-        m_proitemPtr = (ushort *)m_proitem.unicode();
-        enum { NotEscaped, Escaped, PostEscaped } escaped = NotEscaped;
-        StrState sts = NeverStarted;
-        goto startItem;
-      nextItem:
-        escaped = NotEscaped;
-      nextItem1:
-        sts = NotStarted;
-      startItem:
-        ushort *ptr = m_proitemPtr;
-        while (cur < end) {
-            ushort c = *cur++;
-            if (c == '#') { // Yep - no escaping possible
-                cmtptr = cur;
+        ushort c, *ptr;
+
+        // First, skip leading whitespace
+        forever {
+            if (cur == end) { // Entirely empty line (sans whitespace)
+                updateItem2();
+                finalizeBlock();
+                ++m_lineNo;
+                goto freshLine;
+            }
+            c = *cur;
+            if (c != ' ' && c != '\t')
+                break;
+            cur++;
+        }
+
+        // Then strip comments. Yep - no escaping is possible.
+        for (const ushort *cptr = cur; cptr != end; ++cptr)
+            if (*cptr == '#') {
+                if (cptr == cur) { // Line with only a comment (sans whitespace)
+                    if (!inError)
+                        insertComment(line.right(end - (cptr + 1)));
+                    // Qmake bizarreness: such lines do not affect line continuations
+                    goto ignore;
+                }
+                end = cptr;
+                cmtptr = cptr + 1;
                 break;
             }
-            if (escaped != Escaped) {
-                if (c == '\\') {
-                    escaped = Escaped;
-                    goto putch;
-                } else if (c == '"') {
-                    inQuote = !inQuote;
-                    goto putch1;
-                }
+
+        // Then look for line continuations
+        bool lineCont;
+        forever {
+            // We don't have to check for underrun here, as we already determined
+            // that the line is non-empty.
+            ushort ec = *(end - 1);
+            if (ec == '\\') {
+                --end;
+                lineCont = true;
+                break;
             }
-            if (!inQuote) {
-                if (c == '(') {
-                    ++parens;
-                } else if (c == ')') {
-                    --parens;
-                } else if (!parens) {
-                    if (m_block && (m_block->blockKind() & ProBlock::VariableKind)) {
-                        if (c == ' ' || c == '\t') {
-                            m_proitemPtr = ptr;
-                            updateItem();
-                            if (escaped == Escaped)
-                                escaped = PostEscaped;
-                            goto nextItem1;
+            if (ec != ' ' && ec != '\t') {
+                lineCont = false;
+                break;
+            }
+            --end;
+        }
+
+        if (!inError) {
+            // May need enough space for this line and anything accumulated so far
+            m_proitem.reserve(m_proitem.length() + (end - cur));
+
+            // Finally, do the tokenization
+            if (!inAssignment) {
+              newItem:
+                ptr = (ushort *)m_proitem.unicode() + m_proitem.length();
+                do {
+                    if (cur == end)
+                        goto lineEnd;
+                    c = *cur++;
+                } while (c == ' ' || c == '\t');
+                forever {
+                    if (c == '"') {
+                        quote = '"' - quote;
+                    } else if (!quote) {
+                        if (c == '(') {
+                            ++parens;
+                        } else if (c == ')') {
+                            --parens;
+                        } else if (!parens) {
+                            if (c == ':') {
+                                updateItem(ptr);
+                                enterScope(false);
+                              nextItem:
+                                putSpace = false;
+                                goto newItem;
+                            }
+                            if (c == '{') {
+                                updateItem(ptr);
+                                enterScope(true);
+                                goto nextItem;
+                            }
+                            if (c == '}') {
+                                updateItem(ptr);
+                                leaveScope();
+                                goto nextItem;
+                            }
+                            if (c == '=') {
+                                if (insertVariable(ptr, &doSplit, &doSemicolon)) {
+                                    inAssignment = true;
+                                    putSpace = false;
+                                    break;
+                                }
+                                inError = true;
+                                goto skip;
+                            }
+                            if (c == '|' || c == '!') {
+                                updateItem(ptr);
+                                insertOperator(c);
+                                goto nextItem;
+                            }
+                        }
+                    }
+
+                    if (putSpace) {
+                        putSpace = false;
+                        *ptr++ = ' ';
+                    }
+                    *ptr++ = c;
+
+                    forever {
+                        if (cur == end)
+                            goto lineEnd;
+                        c = *cur++;
+                        if (c != ' ' && c != '\t')
+                            break;
+                        putSpace = true;
+                    }
+                }
+            } // !inAssignment
+
+          nextVal:
+            ptr = (ushort *)m_proitem.unicode() + m_proitem.length();
+            do {
+                if (cur == end)
+                    goto lineEnd;
+                c = *cur++;
+            } while (c == ' ' || c == '\t');
+            if (doSplit) {
+                // Qmake's parser supports truly bizarre quote nesting here, but later
+                // stages (in qmake) don't grok it anyway. So make it simple instead.
+                forever {
+                    if (c == '\\') {
+                        ushort ec;
+                        if (cur != end && ((ec = *cur) == '"' || ec == '\'')) {
+                            ++cur;
+                            if (putSpace) {
+                                putSpace = false;
+                                *ptr++ = ' ';
+                            }
+                            *ptr++ = '\\';
+                            *ptr++ = ec;
+                            goto getNext;
                         }
                     } else {
-                        if (c == ':') {
-                            m_proitemPtr = ptr;
-                            enterScope(false);
-                            goto nextItem;
+                        if (quote) {
+                            if (c == quote) {
+                                quote = 0;
+                            } else if (c == ' ' || c == '\t') {
+                                putSpace = true;
+                                goto getNext;
+                            }
+                        } else {
+                            if (c == '"' || c == '\'') {
+                                quote = c;
+                            } else if (c == ')') {
+                                --parens;
+                            } else if (c == '(') {
+                                ++parens;
+                            } else if (c == ' ' || c == '\t') {
+                                if (parens) {
+                                    putSpace = true;
+                                    goto getNext;
+                                }
+                                updateItem(ptr);
+                                // assert(!putSpace);
+                                goto nextVal;
+                            }
                         }
-                        if (c == '{') {
-                            m_proitemPtr = ptr;
-                            enterScope(true);
-                            goto nextItem;
-                        }
-                        if (c == '}') {
-                            m_proitemPtr = ptr;
-                            leaveScope();
-                            goto nextItem;
-                        }
-                        if (c == '=') {
-                            m_proitemPtr = ptr;
-                            insertVariable(&cur, end);
-                            goto nextItem;
-                        }
-                        if (c == '|' || c == '!') {
-                            m_proitemPtr = ptr;
-                            insertOperator(c);
-                            goto nextItem;
-                        }
+                    }
+
+                    if (putSpace) {
+                        putSpace = false;
+                        *ptr++ = ' ';
+                    }
+                    *ptr++ = c;
+
+                  getNext:
+                    if (cur == end)
+                        break;
+                    c = *cur++;
+                }
+            } else { // doSplit
+                forever {
+                    if (putSpace) {
+                        putSpace = false;
+                        *ptr++ = ' ';
+                    }
+                    *ptr++ = c;
+
+                    forever {
+                        if (cur == end)
+                            goto lineEnd;
+                        c = *cur++;
+                        if (c != ' ' && c != '\t')
+                            break;
+                        putSpace = true;
                     }
                 }
             }
-
-            if (c == ' ' || c == '\t') {
-                if (sts == Started) {
-                    sts = PutSpace;
-                    if (escaped == Escaped)
-                        escaped = PostEscaped;
-                }
+          lineEnd:
+            if (lineCont) {
+                m_proitem.resize(ptr - (ushort *)m_proitem.unicode());
+                putSpace = !m_proitem.isEmpty();
             } else {
-              putch1:
-                escaped = NotEscaped;
-              putch:
-                if (sts == PutSpace)
-                    *ptr++ = ' ';
-                *ptr++ = c;
-                sts = Started;
+                updateItem(ptr);
+                putSpace = false;
             }
-        }
-        if (escaped != NotEscaped) {
-            --ptr;
-            if (ptr != (ushort *)m_proitem.unicode() && *(ptr - 1) == ' ')
-                --ptr;
-        }
-        m_proitemPtr = ptr;
-        updateItem();
-        if (cmtptr)
-            insertComment(line.right(end - cmtptr).simplified());
-        if (sts != NeverStarted && escaped == NotEscaped)
+            if (cmtptr)
+                insertComment(line.right(orgend - cmtptr));
+        } // !inError
+      skip:
+        if (!lineCont) {
             finalizeBlock();
+            ++m_lineNo;
+            goto freshLine;
+        }
+      ignore:
         ++m_lineNo;
     }
     m_proitem.clear(); // Throw away pre-allocation
@@ -402,14 +530,13 @@ void ProFileEvaluator::Private::finalizeBlock()
     m_commentItem = 0;
 }
 
-void ProFileEvaluator::Private::insertVariable(const ushort **pCur, const ushort *end)
+bool ProFileEvaluator::Private::insertVariable(ushort *ptr, bool *doSplit, bool *doSemicolon)
 {
     ProVariable::VariableOperator opkind;
     ushort *uc = (ushort *)m_proitem.unicode();
-    ushort *ptr = m_proitemPtr;
 
     if (ptr == uc) // Line starting with '=', like a conflict marker
-        return;
+        return false;
 
     switch (*(ptr - 1)) {
         case '+':
@@ -430,10 +557,15 @@ void ProFileEvaluator::Private::insertVariable(const ushort **pCur, const ushort
             break;
         default:
             opkind = ProVariable::SetOperator;
+            goto skipTrunc;
     }
 
-    while (ptr != uc && *(ptr - 1) == ' ')
+    if (ptr == uc) // Line starting with manipulation operator
+        return false;
+    if (*(ptr - 1) == ' ')
         --ptr;
+
+  skipTrunc:
     m_proitem.resize(ptr - uc);
     QString proVar = m_proitem;
     proVar.detach();
@@ -451,38 +583,16 @@ void ProFileEvaluator::Private::insertVariable(const ushort **pCur, const ushort
     }
     m_commentItem = variable;
 
-    if (opkind == ProVariable::ReplaceOperator) {
-        // skip util end of line or comment
-        StrState sts = NotStarted;
-        ptr = uc;
-        const ushort *cur = *pCur;
-        while (cur < end) {
-            ushort c = *cur;
-            if (c == '#') // comment?
-                break;
-            ++cur;
+    m_proitem.resize(0);
 
-            if (c == ' ' || c == '\t') {
-                if (sts == Started)
-                    sts = PutSpace;
-            } else {
-                if (sts == PutSpace)
-                    *ptr++ = ' ';
-                *ptr++ = c;
-                sts = Started;
-            }
-        }
-        *pCur = cur;
-        m_proitemPtr = ptr;
-    } else {
-        m_proitemPtr = uc;
-    }
+    *doSplit = (opkind != ProVariable::ReplaceOperator);
+    *doSemicolon = (proVar == QLatin1String("DEPENDPATH")
+                    || proVar == QLatin1String("INCLUDEPATH"));
+    return true;
 }
 
 void ProFileEvaluator::Private::insertOperator(const char op)
 {
-    updateItem();
-
     ProOperator::OperatorKind opkind;
     switch (op) {
         case '!':
@@ -527,8 +637,6 @@ void ProFileEvaluator::Private::insertComment(const QString &comment)
 
 void ProFileEvaluator::Private::enterScope(bool multiLine)
 {
-    updateItem();
-
     ProBlock *parent = currentBlock();
     ProBlock *block = new ProBlock(parent);
     block->setLineNumber(m_lineNo);
@@ -547,7 +655,6 @@ void ProFileEvaluator::Private::enterScope(bool multiLine)
 
 void ProFileEvaluator::Private::leaveScope()
 {
-    updateItem();
     if (m_blockstack.count() == 1)
         q->errorMessage(format("Excess closing brace."));
     else
@@ -575,16 +682,17 @@ ProBlock *ProFileEvaluator::Private::currentBlock()
     return m_block;
 }
 
-void ProFileEvaluator::Private::updateItem()
+void ProFileEvaluator::Private::updateItem(ushort *ptr)
 {
-    ushort *uc = (ushort *)m_proitem.unicode();
-    ushort *ptr = m_proitemPtr;
+    m_proitem.resize(ptr - (ushort *)m_proitem.unicode());
+    updateItem2();
+}
 
-    if (ptr == uc)
+void ProFileEvaluator::Private::updateItem2()
+{
+    if (m_proitem.isEmpty())
         return;
 
-    m_proitem.resize(ptr - uc);
-    m_proitemPtr = uc;
     QString proItem = m_proitem;
     proItem.detach();
 
@@ -598,6 +706,8 @@ void ProFileEvaluator::Private::updateItem()
     }
     m_commentItem->setLineNumber(m_lineNo);
     block->appendItem(m_commentItem);
+
+    m_proitem.resize(0);
 }
 
 //////// Evaluator tools /////////
