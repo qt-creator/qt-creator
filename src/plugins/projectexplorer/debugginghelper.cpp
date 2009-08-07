@@ -181,7 +181,7 @@ QString DebuggingHelperLibrary::copyDebuggingHelperLibrary(const QString &qtInst
     const QStringList directories = DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData, qtdir);
 
     QStringList files;
-    files << QLatin1String("gdbmacros.cpp") << QLatin1String("gdbmacros.h") << QLatin1String("gdbmacros.pro")
+    files << QLatin1String("gdbmacros.cpp") << QLatin1String("gdbmacros_p.h") << QLatin1String("gdbmacros.h") << QLatin1String("gdbmacros.pro")
           << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
     // Try to find a writeable directory.
     foreach(const QString &directory, directories)
