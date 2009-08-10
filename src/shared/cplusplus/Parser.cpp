@@ -3076,7 +3076,12 @@ bool Parser::parseObjCSelectorArg(ObjCSelectorArgumentAST *&selNode, ObjCMessage
     selNode->colon_token = consumeToken();
 
     argNode = new (_pool) ObjCMessageArgumentAST;
-    parseAssignmentExpression(argNode->parameter_value_expression);
+    ExpressionAST *expr = argNode->parameter_value_expression;
+    unsigned expressionStart = cursor();
+    if (parseAssignmentExpression(expr) && LA() == T_COLON && expr->asCastExpression()) {
+        rewind(expressionStart);
+        parseUnaryExpression(expr);
+    }
     return true;
 }
 
