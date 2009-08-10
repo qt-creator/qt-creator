@@ -55,6 +55,12 @@ protected:
     bool equals(ToolChain *other) const;
 
 private:
+    void updateVersion();
+
+    bool m_versionUpToDate;
+    int m_major;
+    int m_minor;
+    int m_build;
     QString m_deviceId;
     QString m_deviceName;
     QString m_deviceRoot;

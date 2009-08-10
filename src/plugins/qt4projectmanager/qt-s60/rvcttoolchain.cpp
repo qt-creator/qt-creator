@@ -36,7 +36,8 @@ using namespace Qt4ProjectManager::Internal;
 
 RVCTToolChain::RVCTToolChain(S60Devices::Device device, ToolChain::ToolChainType type,
                              const QString &makeTargetBase)
-    : m_deviceId(device.id),
+    : m_versionUpToDate(false),
+    m_deviceId(device.id),
     m_deviceName(device.name),
     m_deviceRoot(device.epocRoot),
     m_type(type),
@@ -49,10 +50,57 @@ ToolChain::ToolChainType RVCTToolChain::type() const
     return m_type;
 }
 
+void RVCTToolChain::updateVersion()
+{
+    if (m_versionUpToDate)
+        return;
+    m_versionUpToDate = true;
+    m_major = 0;
+    m_minor = 0;
+    m_build = 0;
+    QProcess armcc;
+    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    addToEnvironment(env);
+    armcc.setEnvironment(env.toStringList());
+    armcc.start("armcc", QStringList());
+    armcc.closeWriteChannel();
+    armcc.waitForFinished();
+    QString versionLine = armcc.readAllStandardOutput();
+    versionLine += armcc.readAllStandardError();
+    QRegExp versionRegExp("RVCT(\\d*)\\.(\\d*).*\\[Build.(\\d*)\\]",
+        Qt::CaseInsensitive);
+    if (versionRegExp.indexIn(versionLine) != -1) {
+        m_major = versionRegExp.cap(1).toInt();
+	m_minor = versionRegExp.cap(2).toInt();
+	m_build = versionRegExp.cap(3).toInt();
+    }
+}
+
 QByteArray RVCTToolChain::predefinedMacros()
 {
-    //TODO
-    return QByteArray();
+    // see http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0205f/Babbacdb.html
+    updateVersion();
+    QByteArray ba = QString::fromLocal8Bit(
+        "#define __arm__arm__\n"
+        "#define __ARMCC_VERSION %1%2%3%4\n"
+        "#define __ARRAY_OPERATORS\n"
+        "#define _BOOL\n"
+        "#define c_plusplus\n"
+        "#define __cplusplus\n"
+        "#define __CC_ARM\n"
+        "#define __EDG__\n"
+        "#define __STDC__\n"
+        "#define __STDC_VERSION__\n"
+        "#define __TARGET_FEATURE_DOUBLEWORD\n"
+        "#define __TARGET_FEATURE_DSPMUL\n"
+        "#define __TARGET_FEATURE_HALFWORD\n"
+        "#define __TARGET_FEATURE_THUMB\n"
+        "#define _WCHAR_T\n"
+        ).arg(m_major, 1, 10, QLatin1Char('0'))
+        .arg(m_minor, 1, 10, QLatin1Char('0'))
+        .arg("0")
+        .arg(m_build, 3, 10, QLatin1Char('0')).toLocal8Bit();
+    return ba;
 }
 
 QList<HeaderPath> RVCTToolChain::systemHeaderPaths()
