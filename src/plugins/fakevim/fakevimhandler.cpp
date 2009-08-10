@@ -357,7 +357,7 @@ public:
     QString removeSelectedText();
     int anchor() const { return m_anchor; }
     int position() const { return m_tc.position(); }
-    QString selectedText() const;
+    QString selectedText(MoveType moveType = MoveExclusive) const;
 
     // undo handling
     void undo();
@@ -764,7 +764,8 @@ void FakeVimHandler::Private::updateSelection()
         int anchorPos = m_marks['<'];
         //qDebug() << "POS: " << cursorPos << " ANCHOR: " << anchorPos;
         if (m_visualMode == VisualCharMode) {
-            sel.cursor.setPosition(anchorPos, KeepAnchor);
+            sel.cursor.setPosition(qMin(cursorPos, anchorPos), MoveAnchor);
+            sel.cursor.setPosition(qMax(cursorPos, anchorPos) + 1, KeepAnchor);
             selections.append(sel);
         } else if (m_visualMode == VisualLineMode) {
             sel.cursor.setPosition(qMin(cursorPos, anchorPos), MoveAnchor);
@@ -1476,7 +1477,20 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveLeft();
         setAnchor();
         m_submode = YankSubMode;
-    } else if (key == 'y' && m_visualMode == VisualLineMode) {
+    } else if (key == 'y' && m_visualMode == VisualCharMode) {
+        m_registers[m_register] = selectedText(MoveInclusive);
+        setPosition(qMin(position(), anchor()));
+        leaveVisualMode();
+        finishMovement();
+    } else if (key == 'Y' && m_visualMode == NoVisualMode)  {
+        const int line = cursorLineInDocument() + 1;
+        selectRange(line, line + count() - 1);
+        m_registers[m_register] = selectedText();
+        setPosition(qMin(position(), anchor()));
+        finishMovement();
+    } else if ((key == 'y' && m_visualMode == VisualLineMode)
+            || (key == 'Y' && m_visualMode == VisualLineMode)
+            || (key == 'Y' && m_visualMode == VisualCharMode)) {
         int beginLine = lineForPosition(m_marks['<']);
         int endLine = lineForPosition(m_marks['>']);
         selectRange(beginLine, endLine);
@@ -1484,13 +1498,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setPosition(qMin(position(), anchor()));
         moveToStartOfLine();
         leaveVisualMode();
-        updateSelection();
-    } else if (key == 'Y') {
-        moveToStartOfLine();
-        setAnchor();
-        moveDown(count());
-        m_moveType = MoveLineWise;
         finishMovement();
+    } else if ((key == 'y' || key == 'Y') && m_visualMode == VisualBlockMode) {
+        // not implemented
     } else if (key == 'z') {
         m_submode = ZSubMode;
     } else if (key == 'Z') {
@@ -2403,10 +2413,15 @@ QString FakeVimHandler::Private::lastSearchString() const
      return m_searchHistory.empty() ? QString() : m_searchHistory.back();
 }
 
-QString FakeVimHandler::Private::selectedText() const
+QString FakeVimHandler::Private::selectedText(MoveType moveType) const
 {
+    int beginPos = qMin(position(), anchor());
+    int endPos = qMax(position(), anchor());
+    if (moveType == MoveInclusive)
+        ++endPos;
     QTextCursor tc = m_tc;
-    tc.setPosition(m_anchor, KeepAnchor);
+    tc.setPosition(beginPos, MoveAnchor);
+    tc.setPosition(endPos, KeepAnchor);
     return tc.selection().toPlainText();
 }
 
