@@ -56,7 +56,7 @@ void EnvironmentModel::updateResultEnvironment()
     m_resultEnvironment.modify(m_items);
     foreach (const EnvironmentItem &item, m_items) {
         if (item.unset) {
-            m_resultEnvironment.set(item.name, QLatin1String("<UNSET>"));
+            m_resultEnvironment.set(item.name, tr("<UNSET>"));
         }
     }
 }
@@ -128,7 +128,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
                 return m_resultEnvironment.value(m_resultEnvironment.constBegin() + index.row());
             } else {
                 if (m_items.at(index.row()).unset)
-                    return QLatin1String("<UNSET>");
+                    return tr("<UNSET>");
                 else
                     return m_items.at(index.row()).value;
             }
@@ -286,7 +286,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 
 QModelIndex EnvironmentModel::addVariable()
 {
-    const QString &name = QLatin1String("<VARIABLE>");
+    const QString name = tr("<VARIABLE>");
     if (m_mergedEnvironments) {
         int i = findInResult(name);
         if (i != -1)
@@ -297,7 +297,7 @@ QModelIndex EnvironmentModel::addVariable()
             return index(i, 0, QModelIndex());
     }
     // Don't exist, really add them
-    return addVariable(EnvironmentItem(name, QLatin1String("<VALUE>")));
+    return addVariable(EnvironmentItem(name, tr("<VALUE>")));
 }
 
 QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
@@ -558,10 +558,12 @@ void EnvironmentWidget::updateSummaryText()
     foreach (const EnvironmentItem &item, list) {
         if (!text.isEmpty())
             text.append("<br>");
-        if (item.unset)
-            text.append(tr("Unset <b>%1</b>").arg(item.name));
-        else
-            text.append(tr("Set <b>%1</b> to <b>%2</b>").arg(item.name, item.value));
+	if (item.name != EnvironmentModel::tr("<VARIABLE>")) {
+            if (item.unset)
+                text.append(tr("Unset <b>%1</b>").arg(item.name));
+            else
+                text.append(tr("Set <b>%1</b> to <b>%2</b>").arg(item.name, item.value));
+        }
     }
     if (text.isEmpty())
         text = tr("Summary: No changes to Environment");
