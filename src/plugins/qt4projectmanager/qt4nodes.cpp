@@ -891,7 +891,6 @@ ProFileReader *Qt4PriFileNode::createProFileReader() const
         reader->setQtVersion(version);
 
     reader->setOutputDir(m_qt4ProFileNode->buildDir());
-    reader->setCumulative(false);
 
     return reader;
 }
