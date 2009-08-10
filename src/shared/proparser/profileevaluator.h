@@ -45,10 +45,16 @@ class ProFileEvaluator
     class Private;
 public:
 
+    struct FunctionDefs {
+        QHash<QString, ProBlock *> testFunctions;
+        QHash<QString, ProBlock *> replaceFunctions;
+    };
+
     // This struct is from qmake, but we are not using everything.
     struct Option
     {
         Option();
+        ~Option();
 
         //simply global convenience
         //QString libtool_ext;
@@ -84,6 +90,7 @@ public:
         static QString field_sep; // Just a cache for quick construction
         QHash<QString, QStringList> cache_valuemap; // Cached results of .qmake.cache
         QHash<QString, QStringList> base_valuemap; // ~ and qmake.conf and default_pre.prf
+        FunctionDefs base_functions;
         QStringList feature_roots;
     };
 

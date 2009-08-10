@@ -74,6 +74,25 @@ namespace {
     }
 } // anon namespace
 
+static void refFunctions(QHash<QString, ProBlock *> *defs)
+{
+    foreach (ProBlock *itm, *defs)
+        itm->ref();
+}
+
+static void clearFunctions(QHash<QString, ProBlock *> *defs)
+{
+    foreach (ProBlock *itm, *defs)
+        itm->deref();
+    defs->clear();
+}
+
+static void clearFunctions(ProFileEvaluator::FunctionDefs *defs)
+{
+    clearFunctions(&defs->replaceFunctions);
+    clearFunctions(&defs->testFunctions);
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -105,6 +124,11 @@ ProFileEvaluator::Option::Option()
     field_sep = QLatin1String(" ");
 }
 
+ProFileEvaluator::Option::~Option()
+{
+    clearFunctions(&base_functions);
+}
+
 QString ProFileEvaluator::Option::field_sep;
 
 ///////////////////////////////////////////////////////////////////////
@@ -117,6 +141,7 @@ class ProFileEvaluator::Private : public AbstractProItemVisitor
 {
 public:
     Private(ProFileEvaluator *q_, ProFileEvaluator::Option *option);
+    ~Private();
 
     ProFileEvaluator *q;
     int m_lineNo;                                   // Error reporting
@@ -184,8 +209,10 @@ public:
 
     ProItem::ProItemReturn evaluateConditionalFunction(const QString &function, const QString &arguments);
     bool evaluateFile(const QString &fileName);
-    bool evaluateFeatureFile(const QString &fileName, QHash<QString, QStringList> *values = 0);
-    bool evaluateFileInto(const QString &fileName, QHash<QString, QStringList> *values);
+    bool evaluateFeatureFile(const QString &fileName,
+                             QHash<QString, QStringList> *values = 0, FunctionDefs *defs = 0);
+    bool evaluateFileInto(const QString &fileName,
+                          QHash<QString, QStringList> *values, FunctionDefs *defs);
 
     static inline ProItem::ProItemReturn returnBool(bool b)
         { return b ? ProItem::ReturnTrue : ProItem::ReturnFalse; }
@@ -220,8 +247,7 @@ public:
 
     bool m_definingTest;
     QString m_definingFunc;
-    QHash<QString, ProBlock *> m_testFunctions;
-    QHash<QString, ProBlock *> m_replaceFunctions;
+    FunctionDefs m_functionDefs;
     QStringList m_returnValue;
     QStack<QHash<QString, QStringList> > m_valuemapStack;
     QStack<QHash<const ProFile*, QHash<QString, QStringList> > > m_filevaluemapStack;
@@ -252,6 +278,11 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileEvaluator::Optio
     m_invertNext = false;
     m_skipLevel = 0;
     m_definingFunc.clear();
+}
+
+ProFileEvaluator::Private::~Private()
+{
+    clearFunctions(&m_functionDefs);
 }
 
 ////////// Parser ///////////
@@ -891,7 +922,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProBlock(ProBlock *b
         if (!m_definingFunc.isEmpty()) {
             if (!m_skipLevel || m_cumulative) {
                 QHash<QString, ProBlock *> *hash =
-                        (m_definingTest ? &m_testFunctions : &m_replaceFunctions);
+                        (m_definingTest ? &m_functionDefs.testFunctions
+                                        : &m_functionDefs.replaceFunctions);
                 if (ProBlock *def = hash->value(m_definingFunc))
                     def->deref();
                 hash->insert(m_definingFunc, block);
@@ -1107,7 +1139,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
                 }
                 if (!qmake_cache.isEmpty()) {
                     qmake_cache = QDir::cleanPath(qmake_cache);
-                    if (evaluateFileInto(qmake_cache, &m_option->cache_valuemap)) {
+                    if (evaluateFileInto(qmake_cache, &m_option->cache_valuemap, 0)) {
                         m_option->cachefile = qmake_cache;
                         if (m_option->qmakespec.isEmpty()) {
                             const QStringList &vals = m_option->cache_valuemap.value(QLatin1String("QMAKESPEC"));
@@ -1161,17 +1193,24 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
                     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
                     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
-                    if (!evaluateFileInto(spec, &m_option->base_valuemap)) {
+                    if (!evaluateFileInto(spec,
+                                          &m_option->base_valuemap, &m_option->base_functions)) {
                         q->errorMessage(format("Could not read qmake configuration file %1").arg(spec));
                     } else {
                         updateHash(&m_option->base_valuemap, m_option->cache_valuemap);
                     }
                 }
 
-                evaluateFeatureFile(QLatin1String("default_pre.prf"), &m_option->base_valuemap);
+                evaluateFeatureFile(QLatin1String("default_pre.prf"),
+                                    &m_option->base_valuemap, &m_option->base_functions);
             }
 
             m_valuemap = m_option->base_valuemap;
+
+            clearFunctions(&m_functionDefs);
+            m_functionDefs = m_option->base_functions;
+            refFunctions(&m_functionDefs.testFunctions);
+            refFunctions(&m_functionDefs.replaceFunctions);
 
             QStringList &tgt = m_valuemap[QLatin1String("TARGET")];
             if (tgt.isEmpty())
@@ -1213,13 +1252,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
                     break;
             }
         }
-
-        foreach (ProBlock *itm, m_replaceFunctions)
-            itm->deref();
-        m_replaceFunctions.clear();
-        foreach (ProBlock *itm, m_testFunctions)
-            itm->deref();
-        m_testFunctions.clear();
     }
     m_profileStack.pop();
 
@@ -1669,7 +1701,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
 {
     QStringList argumentsList = split_arg_list(arguments);
 
-    if (ProBlock *funcPtr = m_replaceFunctions.value(func, 0))
+    if (ProBlock *funcPtr = m_functionDefs.replaceFunctions.value(func, 0))
         return evaluateFunction(funcPtr, argumentsList, 0);
 
     QStringList args;
@@ -2079,7 +2111,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
 {
     QStringList argumentsList = split_arg_list(arguments);
 
-    if (ProBlock *funcPtr = m_testFunctions.value(function, 0)) {
+    if (ProBlock *funcPtr = m_functionDefs.testFunctions.value(function, 0)) {
         bool ok;
         QStringList ret = evaluateFunction(funcPtr, argumentsList, &ok);
         if (ok) {
@@ -2176,15 +2208,15 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             }
             if (args.count() > 1) {
                 if (args[1] == QLatin1String("test"))
-                    return returnBool(m_testFunctions.contains(args[0]));
+                    return returnBool(m_functionDefs.testFunctions.contains(args[0]));
                 else if (args[1] == QLatin1String("replace"))
-                    return returnBool(m_replaceFunctions.contains(args[0]));
+                    return returnBool(m_functionDefs.replaceFunctions.contains(args[0]));
                 q->logMessage(format("defined(function, type):"
                                      " unexpected type [%1].\n").arg(args[1]));
                 return ProItem::ReturnFalse;
             }
-            return returnBool(m_replaceFunctions.contains(args[0])
-                              || m_testFunctions.contains(args[0]));
+            return returnBool(m_functionDefs.replaceFunctions.contains(args[0])
+                              || m_functionDefs.testFunctions.contains(args[0]));
         case T_RETURN:
             m_returnValue = args;
             // It is "safe" to ignore returns - due to qmake brokeness
@@ -2761,7 +2793,7 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
 }
 
 bool ProFileEvaluator::Private::evaluateFeatureFile(
-        const QString &fileName, QHash<QString, QStringList> *values)
+        const QString &fileName, QHash<QString, QStringList> *values, FunctionDefs *funcs)
 {
     QString fn = fileName;
     if (!fn.endsWith(QLatin1String(".prf")))
@@ -2799,7 +2831,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
     }
 
     if (values) {
-        return evaluateFileInto(fn, values);
+        return evaluateFileInto(fn, values, funcs);
     } else {
         bool cumulative = m_cumulative;
         m_cumulative = false;
@@ -2817,16 +2849,24 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
 }
 
 bool ProFileEvaluator::Private::evaluateFileInto(
-        const QString &fileName, QHash<QString, QStringList> *values)
+        const QString &fileName, QHash<QString, QStringList> *values, FunctionDefs *funcs)
 {
     ProFileEvaluator visitor(m_option);
     visitor.d->m_cumulative = false;
     visitor.d->m_parsePreAndPostFiles = false;
     visitor.d->m_verbose = m_verbose;
     visitor.d->m_valuemap = *values;
+    if (funcs)
+        visitor.d->m_functionDefs = *funcs;
     if (!visitor.d->evaluateFile(fileName))
         return false;
     *values = visitor.d->m_valuemap;
+    if (funcs) {
+        *funcs = visitor.d->m_functionDefs;
+        // So they are not unref'd
+        visitor.d->m_functionDefs.testFunctions.clear();
+        visitor.d->m_functionDefs.replaceFunctions.clear();
+    }
     return true;
 }
 
