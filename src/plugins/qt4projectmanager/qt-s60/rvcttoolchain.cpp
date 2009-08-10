@@ -106,7 +106,11 @@ QByteArray RVCTToolChain::predefinedMacros()
 QList<HeaderPath> RVCTToolChain::systemHeaderPaths()
 {
     if (m_systemHeaderPaths.isEmpty()) {
-        //TODO system header paths (from environment variables?)
+        updateVersion();
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        QString rvctInclude = env.value(QString::fromLatin1("RVCT%1%2INC").arg(m_major).arg(m_minor));
+        if (!rvctInclude.isEmpty())
+            m_systemHeaderPaths.append(HeaderPath(rvctInclude, HeaderPath::GlobalHeaderPath));
         m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
         m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\stdapis").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
         m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\stdapis\\sys").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
