@@ -29,6 +29,8 @@ Editing:
    * Added highlighting of uses of the symbol under the cursor
    * Added completion of include directives
    * Added the option to turn off marking of text changes
+   * Objective-C: Much improved parsing
+   * Objective-C: Added partial semantic checking and symbol navigation
 
 Project support:
    * Added support for adding and removing files from a generic Makefile-based
