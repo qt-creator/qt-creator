@@ -142,20 +142,41 @@ void FancyMainWindow::handleVisibilityChanged(bool visible)
 
 void FancyMainWindow::saveSettings(QSettings *settings) const
 {
-    settings->setValue("State", saveState());
-    settings->setValue("Locked", m_locked);
-    for (int i = 0; i < m_dockWidgetActiveState.count(); ++i) {
-        settings->setValue(m_dockWidgets.at(i)->objectName(),
-                           m_dockWidgetActiveState.at(i));
+    QHash<QString, QVariant> hash = saveSettings();
+    QHashIterator<QString, QVariant> it(hash);
+    while (it.hasNext()) {
+        it.next();
+        settings->setValue(it.key(), it.value());
     }
 }
 
 void FancyMainWindow::restoreSettings(QSettings *settings)
 {
-    QByteArray ba = settings->value("State", QByteArray()).toByteArray();
-    restoreState(ba);
-    m_locked = settings->value("Locked", true).toBool();
+    QHash<QString, QVariant> hash;
+    foreach (const QString &key, settings->childKeys()) {
+        hash.insert(key, settings->value(key));
+    }
+    restoreSettings(hash);
+}
+
+QHash<QString, QVariant> FancyMainWindow::saveSettings() const
+{
+    QHash<QString, QVariant> settings;
+    settings["State"] = saveState();
+    settings["Locked"] = m_locked;
     for (int i = 0; i < m_dockWidgetActiveState.count(); ++i) {
-        m_dockWidgetActiveState[i] = settings->value(m_dockWidgets.at(i)->objectName(), false).toBool();
+        settings[m_dockWidgets.at(i)->objectName()] =
+                           m_dockWidgetActiveState.at(i);
+    }
+    return settings;
+}
+
+void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
+{
+    QByteArray ba = settings.value("State", QByteArray()).toByteArray();
+    restoreState(ba);
+    m_locked = settings.value("Locked", true).toBool();
+    for (int i = 0; i < m_dockWidgetActiveState.count(); ++i) {
+        m_dockWidgetActiveState[i] = settings.value(m_dockWidgets.at(i)->objectName(), false).toBool();
     }
 }

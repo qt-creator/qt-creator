@@ -33,6 +33,7 @@
 #include "utils_global.h"
 
 #include <QtCore/QList>
+#include <QtCore/QHash>
 #include <QtCore/QSettings>
 #include <QtGui/QMainWindow>
 #include <QtGui/QDockWidget>
@@ -56,6 +57,8 @@ public:
 
     void saveSettings(QSettings *settings) const;
     void restoreSettings(QSettings *settings);
+    QHash<QString, QVariant> saveSettings() const;
+    void restoreSettings(const QHash<QString, QVariant> &settings);
 
 public slots:
     void setLocked(bool locked);
