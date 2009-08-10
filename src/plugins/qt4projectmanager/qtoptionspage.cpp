@@ -607,7 +607,7 @@ void QtOptionsPageWidget::updateCurrentQtPath()
         m_ui->rebuildButton->setEnabled(true);
     } else {
         currentItem->setData(2, Qt::DecorationRole, QIcon());
-        m_ui->rebuildButton->setEnabled(true);
+        m_ui->rebuildButton->setEnabled(false);
     }
     updateDebuggingHelperStateLabel(version);
 }
