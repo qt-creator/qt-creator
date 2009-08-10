@@ -11,6 +11,25 @@ This release introduces source and binary incompatible changes to the plugin
 API, so if you have created your own custom plugins, they will need to be
 adapted accordingly.
 
+General
+   * Added the option to automatically reload files when externally modified,
+     or to ignore external modifications (contributed by Henrik Abelsson)
+   * Improved the general resizing behavior for small screen sizes
+
+Editing
+   * Added support for text editor color schemes
+   * Added highlighting of uses of the symbol under the cursor
+   * Added completion of include directives
+   * Added the option to turn off marking of text changes
+   * Objective-C: Much improved parsing
+   * Objective-C: Added partial semantic checking and symbol navigation
+   * Fixed searching in files to take open documents into account
+   * Added a Locator filter for symbols in the current document
+
+Project support
+   * Added support for adding and removing files from a generic Makefile-based
+     project (contributed by Kevin Michel)
+
 Debugging
    * Detect debugger from project tool chain
    * CDB: Added more types to the dumpers (QSharedPointer, QVector, common
@@ -19,22 +38,6 @@ Debugging
    * CDB: Fixed thread handling
    * CDB: Added internal dumpers for string types for debuggee crashes
    * Improved QObject dumping, print out QRect/QSize, enumerations and flags
-
-General:
-   * Added the option to automatically reload files when externally modified,
-     or to ignore external modifications (contributed by Henrik Abelsson)
-
-Editing:
-   * Added support for text editor color schemes
-   * Added highlighting of uses of the symbol under the cursor
-   * Added completion of include directives
-   * Added the option to turn off marking of text changes
-   * Objective-C: Much improved parsing
-   * Objective-C: Added partial semantic checking and symbol navigation
-
-Project support:
-   * Added support for adding and removing files from a generic Makefile-based
-     project (contributed by Kevin Michel)
 
 Version control plugins
    * Added CVS support
@@ -46,3 +49,6 @@ Wizards
    * Added a license header template setting
    * Added a wizard for Qt Designer custom widgets
    * Added a gitorious clone wizard
+
+Additional credits go to:
+   * Christian Hoenig (Locator filter for symbols in current document)
