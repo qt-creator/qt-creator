@@ -1319,41 +1319,47 @@ void tst_Debugger::dumpQMap()
 }
 
 template <typename K, typename V>
-        void tst_Debugger::dumpQMapNodeHelper(QMap<K, V> &map)
+        void tst_Debugger::dumpQMapNodeHelper(QMap<K, V> &m)
 {
-#if 0 // TODO: Fails due to inconsistencies in gdbmacros.cpp
-    for (typename QMap<K, V>::iterator it = map.begin(); it != map.end(); ++it) {
-        const K &key = it.key();
-        const V &val = it.value();
-        const char * const keyType = typeToString(key);
-        QByteArray expected = QByteArray("value='',numchild='2',childtype='").
-            append(keyType).append("',childnumchild='").append(typeToNumchild(key)).
-            append("',children=[{name='key',addr='").append(ptrToBa(&key)).
-            append("',value='").append(valToString(key)).append("'},{name='value',addr='").
-            append(ptrToBa(&val)).append("',value='").append(valToString(val)).
-            append("'}]");
-        size_t nodeSize;
-        size_t valOffset;
-        getMapNodeParams<K, V>(nodeSize, valOffset);
-        testDumper(expected, *reinterpret_cast<QMapData **>(&it), NS"QMapNode",
-                   true, getMapType(key, val), "", 0, 0, nodeSize, valOffset);
-    };
-#endif
+    typename QMap<K, V>::iterator it = m.begin();
+    const K &key = it.key();
+    const V &val = it.value();
+    const char * const keyType = typeToString(key);
+    QByteArray expected = QByteArray("value='',numchild='2',"
+        "children=[{name='key',addr='").append(ptrToBa(&key)).
+        append("',type='").append(typeToString(key)).append("',value='").
+        append(valToString(key)).append("'},{name='value',addr='").
+        append(ptrToBa(&val)).append("',type='").append(typeToString(val)).
+        append("',value='").append(valToString(val)).
+        append("'}]");
+    size_t nodeSize;
+    size_t valOffset;
+    getMapNodeParams<K, V>(nodeSize, valOffset);
+    testDumper(expected, *reinterpret_cast<QMapData **>(&it), NS"QMapNode",
+               true, getMapType(key, val), "", 0, 0, nodeSize, valOffset);
 }
 
 void tst_Debugger::dumpQMapNode()
 {
-    // Case 1: Empty Map.
-    QMap<int, QString> map;
+    // Case 1: simple type -> simple type.
+    QMap<int, int> map;
+    map[2] = 3;
     dumpQMapNodeHelper(map);
 
-    // Case 2: One element.
-    map[3] = "String 1";
-    dumpQMapNodeHelper(map);
+    // Case 2: simple type -> composite type.
+    QMap<int, QString> map2;
+    map2[3] = "String 5";
+    dumpQMapNodeHelper(map2);
 
-    // Case 3: Two elements.
-    map[10] = "String 2";
-    dumpQMapNodeHelper(map);
+    // Case 3: composite type -> simple type.
+    QMap<QString, int> map3;
+    map3["String 7"] = 11;
+    dumpQMapNodeHelper(map3);
+
+    // Case 4: composite type -> composite type.
+    QMap<QString, QString> map4;
+    map4["String 13"] = "String 17";
+    dumpQMapNodeHelper(map4);
 }
 
 void tst_Debugger::dumpQObject()
@@ -1911,17 +1917,17 @@ void tst_Debugger::dumpQPixmapHelper(QPixmap &p)
 {
     QByteArray expected = QByteArray("value='(").append(QString::number(p.width())).
         append("x").append(QString::number(p.height())).
-        append("',type='"NS"QPixmap',numchild='0'");
+        append(")',type='"NS"QPixmap',numchild='0'");
     testDumper(expected, &p, NS"QPixmap", true);
 }
 
 void tst_Debugger::dumpQPixmap()
 {
-#if 0 // Crashes.
     // Case 1: Null Pixmap.
     QPixmap p;
     dumpQPixmapHelper(p);
 
+#if 0 // Crashes.
     // Case 2: Uninitialized non-null pixmap.
     p = QPixmap(20, 100);
     dumpQPixmapHelper(p);

@@ -1696,7 +1696,7 @@ static void qDumpQMapNode(QDumper &d)
         unsigned keyOffset = 2 * sizeof(void*) - mapnodesize;
         unsigned valueOffset = 2 * sizeof(void*) - mapnodesize + valueOff;
 
-        d.beginChildren(d.innertype);
+        d.beginChildren();
         d.beginHash();
         d.putItem("name", "key");
         qDumpInnerValue(d, keyType, addOffset(h, keyOffset));
