@@ -31,6 +31,7 @@
 #include "diffhighlighter.h"
 #include "vcsbasesettingspage.h"
 #include "nicknamedialog.h"
+#include "vcsbaseoutputwindow.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -68,6 +69,7 @@ bool VCSBasePlugin::initialize(const QStringList &arguments, QString *errorMessa
 
     m_settingsPage = new VCSBaseSettingsPage;
     addAutoReleasedObject(m_settingsPage);
+    addAutoReleasedObject(VCSBaseOutputWindow::instance());
     connect(m_settingsPage, SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)),
             this, SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)));
     connect(m_settingsPage, SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)),

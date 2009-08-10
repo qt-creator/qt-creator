@@ -11,7 +11,6 @@ include(../../libs/utils/utils.pri)
 HEADERS += annotationhighlighter.h \
     subversionplugin.h \
     subversioncontrol.h \
-    subversionoutputwindow.h \
     settingspage.h \
     subversioneditor.h \
     subversionsubmiteditor.h \
@@ -22,7 +21,6 @@ HEADERS += annotationhighlighter.h \
 SOURCES += annotationhighlighter.cpp \
     subversionplugin.cpp \
     subversioncontrol.cpp \
-    subversionoutputwindow.cpp \
     settingspage.cpp \
     subversioneditor.cpp \
     subversionsubmiteditor.cpp \

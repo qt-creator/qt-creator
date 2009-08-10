@@ -30,7 +30,6 @@
 #include "cvsplugin.h"
 #include "settingspage.h"
 #include "cvseditor.h"
-#include "cvsoutputwindow.h"
 #include "cvssubmiteditor.h"
 #include "cvsconstants.h"
 #include "cvscontrol.h"
@@ -39,6 +38,7 @@
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
+#include <vcsbase/vcsbaseoutputwindow.h>
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 
@@ -152,7 +152,6 @@ CVSPlugin *CVSPlugin::m_cvsPluginInstance = 0;
 CVSPlugin::CVSPlugin() :
     m_versionControl(0),
     m_changeTmpFile(0),
-    m_cvsOutputWindow(0),
     m_projectExplorer(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -238,9 +237,6 @@ bool CVSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new CVSEditorFactory(editorParameters + i, this, describeSlotC));
-
-    m_cvsOutputWindow = new CVSOutputWindow(this);
-    addAutoReleasedObject(m_cvsOutputWindow);
 
     addAutoReleasedObject(new CheckoutWizard);
 
@@ -644,14 +640,14 @@ void CVSPlugin::startCommit(const QString &source)
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
     if (m_changeTmpFile) {
-        showOutput(tr("Another commit is currently being executed."));
+        VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Another commit is currently being executed."));
         return;
     }
     const QFileInfo sourceFi(source);
     const QString sourceDir = sourceFi.isDir() ? source : sourceFi.absolutePath();
     const QString topLevel = findTopLevelForDirectory(sourceDir);
     if (topLevel.isEmpty()) {
-        showOutput(msgCannotFindTopLevel(source), true);
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(msgCannotFindTopLevel(source));
         return;
     }
     // We need the "Examining <subdir>" stderr output to tell
@@ -673,7 +669,7 @@ void CVSPlugin::startCommit(const QString &source)
         qDebug() << Q_FUNC_INFO << '\n' << source << "top" << topLevel;
 
     if (statusOutput.empty()) {
-        showOutput(tr("There are no modified files."), true);
+        VCSBase::VCSBaseOutputWindow::instance()->append(tr("There are no modified files."));
         return;
     }
 
@@ -681,7 +677,7 @@ void CVSPlugin::startCommit(const QString &source)
     QTemporaryFile *changeTmpFile = new QTemporaryFile(this);
     changeTmpFile->setAutoRemove(true);
     if (!changeTmpFile->open()) {
-        showOutput(tr("Cannot create temporary file: %1").arg(changeTmpFile->errorString()));
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file: %1").arg(changeTmpFile->errorString()));
         delete changeTmpFile;
         return;
     }
@@ -807,7 +803,7 @@ void CVSPlugin::slotDescribe(const QString &source, const QString &changeNr)
 {
     QString errorMessage;
     if (!describe(source, changeNr, &errorMessage))
-        showOutput(errorMessage, true);
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
 }
 
 bool CVSPlugin::describe(const QString &file, const QString &changeNr, QString *errorMessage)
@@ -1034,12 +1030,11 @@ static inline QString fixFileArgs(QStringList *files)
 // Format log entry for command
 static inline QString msgExecutionLogEntry(const QString &workingDir, const QString &executable, const QStringList &arguments)
 {
-    const QString timeStamp = QTime::currentTime().toString(QLatin1String("HH:mm"));
-    //: <timestamp> Executing: <executable> <arguments>
+    //: Executing: <executable> <arguments>
     const QString args = arguments.join(QString(QLatin1Char(' ')));
     if (workingDir.isEmpty())
-        return CVSPlugin::tr("%1 Executing: %2 %3\n").arg(timeStamp, executable, args);
-    return CVSPlugin::tr("%1 Executing in %2: %3 %4\n").arg(timeStamp, workingDir, executable, args);
+        return CVSPlugin::tr("Executing: %2 %3\n").arg(executable, args);
+    return CVSPlugin::tr("Executing in %2: %3 %4\n").arg(workingDir, executable, args);
 }
 
 // Figure out a working directory for the process,
@@ -1075,7 +1070,7 @@ CVSResponse CVSPlugin::runCVS(const QString &workingDirectory,
     const QStringList allArgs = m_settings.addOptions(arguments);
 
     const QString outputText = msgExecutionLogEntry(response.workingDirectory, executable, allArgs);
-    showOutput(outputText, false);
+    VCSBase::VCSBaseOutputWindow::instance()->appendCommand(outputText);
 
     if (CVS::Constants::debug)
         qDebug() << "runCVS" << timeOut << outputText;
@@ -1092,12 +1087,13 @@ CVSResponse CVSPlugin::runCVS(const QString &workingDirectory,
     process.setStdOutCodec(outputCodec);
 
     process.setStdErrBufferedSignalsEnabled(true);
-    connect(&process, SIGNAL(stdErrBuffered(QString,bool)), m_cvsOutputWindow, SLOT(append(QString,bool)));
+    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+    connect(&process, SIGNAL(stdErrBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
 
     // connect stdout to the output window if desired
     if (showStdOutInOutputWindow) {
         process.setStdOutBufferedSignalsEnabled(true);
-        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), m_cvsOutputWindow, SLOT(append(QString,bool)));
+        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
     }
 
     const Core::Utils::SynchronousProcessResponse sp_resp = process.run(executable, allArgs);
@@ -1123,16 +1119,9 @@ CVSResponse CVSPlugin::runCVS(const QString &workingDirectory,
         break;
     }
     if (response.result != CVSResponse::Ok)
-        m_cvsOutputWindow->append(response.message, true);
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(response.message);
 
     return response;
-}
-
-void CVSPlugin::showOutput(const QString &output, bool bringToForeground)
-{
-    m_cvsOutputWindow->append(output);
-    if (bringToForeground)
-        m_cvsOutputWindow->popup();
 }
 
 Core::IEditor * CVSPlugin::showOutputInEditor(const QString& title, const QString &output,

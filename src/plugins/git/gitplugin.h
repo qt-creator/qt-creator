@@ -30,7 +30,6 @@
 #ifndef GITPLUGIN_H
 #define GITPLUGIN_H
 
-#include "gitoutputwindow.h"
 #include "settingspage.h"
 
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -93,8 +92,6 @@ public:
     void extensionsInitialized();
 
     QString getWorkingDirectory();
-
-    GitOutputWindow *outputWindow() const;
 
     GitSettings settings() const;
     void setSettings(const GitSettings &s);
@@ -165,7 +162,6 @@ private:
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     GitClient                   *m_gitClient;
-    GitOutputWindow             *m_outputWindow;
     ChangeSelectionDialog       *m_changeSelectionDialog;
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;

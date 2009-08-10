@@ -33,7 +33,6 @@
 #include "pendingchangesdialog.h"
 #include "perforceconstants.h"
 #include "perforceeditor.h"
-#include "perforceoutputwindow.h"
 #include "perforcesubmiteditor.h"
 #include "perforceversioncontrol.h"
 #include "settingspage.h"
@@ -52,6 +51,7 @@
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
@@ -166,8 +166,6 @@ bool CoreListener::editorAboutToClose(Core::IEditor *editor)
 PerforcePlugin *PerforcePlugin::m_perforcePluginInstance = NULL;
 
 PerforcePlugin::PerforcePlugin() :
-    m_perforceOutputWindow(0),
-    m_settingsPage(0),
     m_editAction(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -192,8 +190,6 @@ PerforcePlugin::PerforcePlugin() :
     m_undoAction(0),
     m_redoAction(0),
     m_changeTmpFile(0),
-    m_coreListener(0),
-    m_submitEditorFactory(0),
     m_versionControl(0)
 {
 }
@@ -220,28 +216,20 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     if (QSettings *settings = core->settings())
         m_settings.fromSettings(settings);
 
-    m_perforceOutputWindow = new PerforceOutputWindow(this);
-    addObject(m_perforceOutputWindow);
-
-    m_settingsPage = new SettingsPage;
-    addObject(m_settingsPage);
+    addAutoReleasedObject(new SettingsPage);
 
     // Editor factories
-    m_submitEditorFactory = new PerforceSubmitEditorFactory(&submitParameters);
-    addObject(m_submitEditorFactory);
+    addAutoReleasedObject(new PerforceSubmitEditorFactory(&submitParameters));
 
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
-    for (int i = 0; i < editorCount; i++) {
-        m_editorFactories.push_back(new PerforceEditorFactory(editorParameters + i, this, describeSlot));
-        addObject(m_editorFactories.back());
-    }
+    for (int i = 0; i < editorCount; i++)
+        addAutoReleasedObject(new PerforceEditorFactory(editorParameters + i, this, describeSlot));
 
     m_versionControl = new PerforceVersionControl(this);
-    addObject(m_versionControl);
+    addAutoReleasedObject(m_versionControl);
 
-    m_coreListener = new CoreListener(this);
-    addObject(m_coreListener);
+    addAutoReleasedObject(new CoreListener(this));
 
     //register actions
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
@@ -555,19 +543,18 @@ void PerforcePlugin::submit()
 
     QString errorMessage;
     if (!checkP4Configuration(&errorMessage)) {
-        showOutput(errorMessage, true);
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
         return;
     }
 
     if (m_changeTmpFile) {
-        showOutput(tr("Another submit is currently executed."), true);
-        m_perforceOutputWindow->popup(false);
+        VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Another submit is currently executed."));
         return;
     }
 
     m_changeTmpFile = new QTemporaryFile(this);
     if (!m_changeTmpFile->open()) {
-        showOutput(tr("Cannot create temporary file."), true);
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file."));
         cleanChangeTmpFile();
         return;
     }
@@ -599,7 +586,7 @@ void PerforcePlugin::submit()
             depotFileNames.append(line.mid(14));
     }
     if (depotFileNames.isEmpty()) {
-        showOutput(tr("Project has no files"));
+        VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Project has no files"));
         cleanChangeTmpFile();
         return;
     }
@@ -804,8 +791,9 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
         qDebug() << "PerforcePlugin::runP4Cmd" << args << extraArgs << debugCodec(outputCodec);
     PerforceResponse response;
     response.error = true;
+    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     if (!checkP4Configuration(&response.message)) {
-        m_perforceOutputWindow->append(response.message, true);
+        outputWindow->appendError(response.message);
         return response;
     }
 
@@ -832,9 +820,8 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
         QString command = m_settings.p4Command();
         command += blank;
         command += actualArgs.join(QString(blank));
-        const QString timeStamp = QTime::currentTime().toString(QLatin1String("HH:mm"));
-        const QString outputText = tr("%1 Executing: %2\n").arg(timeStamp, command);
-        showOutput(outputText, false);
+        const QString outputText = tr("Executing: %1\n").arg(command);
+        outputWindow->appendCommand(outputText);
     }
 
     // Run, connect stderr to the output window
@@ -846,13 +833,13 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
     // connect stderr to the output window if desired
     if (logFlags & StdErrToWindow) {
         process.setStdErrBufferedSignalsEnabled(true);
-        connect(&process, SIGNAL(stdErrBuffered(QString,bool)), m_perforceOutputWindow, SLOT(append(QString,bool)));
+        connect(&process, SIGNAL(stdErrBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
     }
 
     // connect stdout to the output window if desired
     if (logFlags & StdOutToWindow) {
         process.setStdOutBufferedSignalsEnabled(true);
-        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), m_perforceOutputWindow, SLOT(append(QString,bool)));
+        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
     }
 
     const Core::Utils::SynchronousProcessResponse sp_resp = process.run(m_settings.p4Command(), actualArgs);
@@ -883,7 +870,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
         if (Perforce::Constants::debug)
             qDebug() << response.message;
         if (logFlags & ErrorToWindow)
-            m_perforceOutputWindow->append(response.message, true);
+            outputWindow->appendError(response.message);
     }
     return response;
 }
@@ -1043,7 +1030,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             QByteArray change = m_changeTmpFile->readAll();
             QString errorMessage;
             if (!checkP4Configuration(&errorMessage)) {
-                showOutput(errorMessage, true);
+                VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
                 return false;
             }
 
@@ -1054,7 +1041,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             proc.start(m_settings.p4Command(),
                 m_settings.basicP4Args() << QLatin1String("submit") << QLatin1String("-i"));
             if (!proc.waitForStarted(p4Timeout)) {
-                showOutput(tr("Cannot execute p4 submit."), true);
+                VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot execute p4 submit."));
                 QApplication::restoreOverrideCursor();
                 return false;
             }
@@ -1062,12 +1049,12 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             proc.closeWriteChannel();
 
             if (!proc.waitForFinished()) {
-                showOutput(tr("Cannot execute p4 submit."), true);
+                VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot execute p4 submit."));
                 QApplication::restoreOverrideCursor();
                 return false;
             }
-            const QString output = QString::fromUtf8(proc.readAll());
-            showOutput(output);
+            const QString output = QString::fromLocal8Bit(proc.readAll());
+            VCSBase::VCSBaseOutputWindow::instance()->append(output);
             if (output.contains(QLatin1String("Out of date files must be resolved or reverted)"))) {
                 QMessageBox::warning(editor->widget(), tr("Pending change"), tr("Could not submit the change, because your workspace was out of date. Created a pending submit instead."));
             }
@@ -1161,49 +1148,8 @@ QString PerforcePlugin::pendingChangesData()
     return data;
 }
 
-void PerforcePlugin::showOutput(const QString &output, bool popup) const
-{
-    m_perforceOutputWindow->append(output, popup);
-}
-
 PerforcePlugin::~PerforcePlugin()
 {
-    if (m_settingsPage) {
-        removeObject(m_settingsPage);
-        delete m_settingsPage;
-        m_settingsPage = 0;
-    }
-
-    if (m_perforceOutputWindow) {
-        removeObject(m_perforceOutputWindow);
-        delete  m_perforceOutputWindow;
-        m_perforceOutputWindow = 0;
-    }
-
-    if (m_submitEditorFactory) {
-        removeObject(m_submitEditorFactory);
-        delete m_submitEditorFactory;
-        m_submitEditorFactory = 0;
-    }
-
-    if (m_versionControl) {
-        removeObject(m_versionControl);
-        delete m_versionControl;
-        m_versionControl = 0;
-    }
-
-    if (!m_editorFactories.empty()) {
-        foreach (Core::IEditorFactory *pf, m_editorFactories)
-            removeObject(pf);
-        qDeleteAll(m_editorFactories);
-        m_editorFactories.clear();
-    }
-
-    if (m_coreListener) {
-        removeObject(m_coreListener);
-        delete m_coreListener;
-        m_coreListener = 0;
-    }
 }
 
 const PerforceSettings& PerforcePlugin::settings() const

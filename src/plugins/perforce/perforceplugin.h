@@ -50,7 +50,6 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Core {
-    class IEditorFactory;
     namespace Utils {
         class ParameterAction;
     }
@@ -59,8 +58,6 @@ namespace Core {
 namespace Perforce {
 namespace Internal {
 
-class PerforceOutputWindow;
-class SettingsPage;
 class PerforceVersionControl;
 class PerforcePlugin;
 
@@ -91,8 +88,6 @@ class PerforcePlugin : public ExtensionSystem::IPlugin
 public:
     PerforcePlugin();
     ~PerforcePlugin();
-
-    SettingsPage *settingsPage() const { return m_settingsPage; }
 
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
@@ -165,16 +160,12 @@ private:
     QString clientFilePath(const QString &serverFilePath);
     QString currentFileName();
     bool checkP4Configuration(QString *errorMessage = 0) const;
-    void showOutput(const QString &output, bool popup = false) const;
     void annotate(const QString &fileName);
     void filelog(const QString &fileName);
     void cleanChangeTmpFile();
     void updateCheckout(const QStringList &dirs = QStringList());
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
-    PerforceOutputWindow *m_perforceOutputWindow;
-    SettingsPage *m_settingsPage;
-    QList<Core::IEditorFactory*> m_editorFactories;
 
     Core::Utils::ParameterAction *m_editAction;
     Core::Utils::ParameterAction *m_addAction;
@@ -206,12 +197,8 @@ private:
     static PerforcePlugin *m_perforcePluginInstance;
     QString pendingChangesData();
 
-    CoreListener *m_coreListener;
-    Core::IEditorFactory *m_submitEditorFactory;
     PerforceVersionControl *m_versionControl;
     PerforceSettings m_settings;
-
-    friend class PerforceOutputWindow; // needs openFiles()
 };
 
 } // namespace Perforce

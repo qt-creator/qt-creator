@@ -22,7 +22,8 @@ HEADERS += vcsbase_global.h \
     checkoutwizarddialog.h \
     checkoutprogresswizardpage.h \
     checkoutjobs.h \
-    basecheckoutwizardpage.h
+    basecheckoutwizardpage.h \
+    vcsbaseoutputwindow.h
 
 SOURCES += vcsbaseplugin.cpp \
     baseannotationhighlighter.cpp \
@@ -41,7 +42,8 @@ SOURCES += vcsbaseplugin.cpp \
     checkoutwizarddialog.cpp \
     checkoutprogresswizardpage.cpp \
     checkoutjobs.cpp \
-    basecheckoutwizardpage.cpp
+    basecheckoutwizardpage.cpp \
+    vcsbaseoutputwindow.cpp
 
 RESOURCES += vcsbase.qrc
 

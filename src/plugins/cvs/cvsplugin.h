@@ -58,7 +58,6 @@ namespace ProjectExplorer {
 namespace CVS {
 namespace Internal {
 
-class CVSOutputWindow;
 class CVSSubmitEditor;
 
 struct CVSResponse
@@ -141,7 +140,6 @@ private:
                        bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0,
                        bool mergeStderr = false);
 
-    void showOutput(const QString &output, bool bringToForeground = true);
     void annotate(const QString &file);
     bool describe(const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &repository, QList<CVS_LogEntry> entries, QString *errorMessage);
@@ -157,7 +155,6 @@ private:
     Core::IVersionControl *m_versionControl;
     QTemporaryFile *m_changeTmpFile;
 
-    CVSOutputWindow *m_cvsOutputWindow;
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 
     Core::Utils::ParameterAction *m_addAction;

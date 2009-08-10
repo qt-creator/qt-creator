@@ -32,7 +32,6 @@
 #include "settingspage.h"
 #include "subversioneditor.h"
 
-#include "subversionoutputwindow.h"
 #include "subversionsubmiteditor.h"
 #include "subversionconstants.h"
 #include "subversioncontrol.h"
@@ -41,6 +40,7 @@
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
+#include <vcsbase/vcsbaseoutputwindow.h>
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 
@@ -181,7 +181,6 @@ SubversionPlugin::SubversionPlugin() :
     m_svnDirectories(svnDirectories()),
     m_versionControl(0),
     m_changeTmpFile(0),
-    m_subversionOutputWindow(0),
     m_projectExplorer(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -266,9 +265,6 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new SubversionEditorFactory(editorParameters + i, this, describeSlot));
-
-    m_subversionOutputWindow = new SubversionOutputWindow(this);
-    addAutoReleasedObject(m_subversionOutputWindow);
 
     addAutoReleasedObject(new CheckoutWizard);
 
@@ -663,7 +659,7 @@ void SubversionPlugin::startCommit(const QStringList &files)
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
     if (m_changeTmpFile) {
-        showOutput(tr("Another commit is currently being executed."));
+        VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Another commit is currently being executed."));
         return;
     }
 
@@ -678,7 +674,7 @@ void SubversionPlugin::startCommit(const QStringList &files)
     // Get list of added/modified/deleted files
     const StatusList statusOutput = parseStatusOutput(response.stdOut);
     if (statusOutput.empty()) {
-        showOutput(tr("There are no modified files."), true);
+        VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("There are no modified files."));
         return;
     }
 
@@ -686,7 +682,7 @@ void SubversionPlugin::startCommit(const QStringList &files)
     QTemporaryFile *changeTmpFile = new QTemporaryFile(this);
     changeTmpFile->setAutoRemove(true);
     if (!changeTmpFile->open()) {
-        showOutput(tr("Cannot create temporary file: %1").arg(changeTmpFile->errorString()));
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file: %1").arg(changeTmpFile->errorString()));
         delete changeTmpFile;
         return;
     }
@@ -923,11 +919,11 @@ SubversionResponse SubversionPlugin::runSvn(const QStringList &arguments,
     }
     const QStringList allArgs = m_settings.addOptions(arguments);
 
+    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     // Hide passwords, etc in the log window
-    const QString timeStamp = QTime::currentTime().toString(QLatin1String("HH:mm"));
-    //: <timestamp> Executing: <executable> <arguments>
-    const QString outputText = tr("%1 Executing: %2 %3\n").arg(timeStamp, executable, SubversionSettings::formatArguments(allArgs));
-    showOutput(outputText, false);
+    //: Executing: <executable> <arguments>
+    const QString outputText = tr("Executing: %1 %2\n").arg(executable, SubversionSettings::formatArguments(allArgs));
+    outputWindow->appendCommand(outputText);
 
     if (Subversion::Constants::debug)
         qDebug() << "runSvn" << timeOut << outputText;
@@ -938,12 +934,12 @@ SubversionResponse SubversionPlugin::runSvn(const QStringList &arguments,
     process.setStdOutCodec(outputCodec);
 
     process.setStdErrBufferedSignalsEnabled(true);
-    connect(&process, SIGNAL(stdErrBuffered(QString,bool)), m_subversionOutputWindow, SLOT(append(QString,bool)));
+    connect(&process, SIGNAL(stdErrBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
 
     // connect stdout to the output window if desired
     if (showStdOutInOutputWindow) {
         process.setStdOutBufferedSignalsEnabled(true);
-        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), m_subversionOutputWindow, SLOT(append(QString,bool)));
+        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
     }
 
     const Core::Utils::SynchronousProcessResponse sp_resp = process.run(executable, allArgs);
@@ -968,16 +964,9 @@ SubversionResponse SubversionPlugin::runSvn(const QStringList &arguments,
         break;
     }
     if (response.error)
-        m_subversionOutputWindow->append(response.message, true);
+        outputWindow->appendError(response.message);
 
     return response;
-}
-
-void SubversionPlugin::showOutput(const QString &output, bool bringToForeground)
-{
-    m_subversionOutputWindow->append(output);
-    if (bringToForeground)
-        m_subversionOutputWindow->popup();
 }
 
 Core::IEditor * SubversionPlugin::showOutputInEditor(const QString& title, const QString &output,

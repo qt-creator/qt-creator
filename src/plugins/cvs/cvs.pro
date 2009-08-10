@@ -11,7 +11,6 @@ include(../../libs/utils/utils.pri)
 HEADERS += annotationhighlighter.h \
     cvsplugin.h \
     cvscontrol.h \
-    cvsoutputwindow.h \
     settingspage.h \
     cvseditor.h \
     cvssubmiteditor.h \
@@ -24,7 +23,6 @@ HEADERS += annotationhighlighter.h \
 SOURCES += annotationhighlighter.cpp \
     cvsplugin.cpp \
     cvscontrol.cpp \
-    cvsoutputwindow.cpp \
     settingspage.cpp \
     cvseditor.cpp \
     cvssubmiteditor.cpp \

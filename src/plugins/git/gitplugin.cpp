@@ -54,6 +54,7 @@
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
+#include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -139,7 +140,6 @@ GitPlugin::GitPlugin() :
     m_branchListAction(0),
     m_projectExplorer(0),
     m_gitClient(0),
-    m_outputWindow(0),
     m_changeSelectionDialog(0),
     m_changeTmpFile(0),
     m_submitActionTriggered(false)
@@ -196,10 +196,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // Create the globalco6664324b12a3339d18251df1cd69a1da06d1e2dcntext list to register actions accordingly
     QList<int> globalcontext;
     globalcontext << m_core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_GLOBAL);
-
-    // Create the output Window
-    m_outputWindow = new GitOutputWindow();
-    addAutoReleasedObject(m_outputWindow);
 
     // Create the settings Page
     addAutoReleasedObject(new SettingsPage());
@@ -464,8 +460,7 @@ QString GitPlugin::getWorkingDirectory()
         qDebug() << Q_FUNC_INFO << "file" << workingDirectory;
 
     if (workingDirectory.isEmpty()) {
-        m_outputWindow->append(tr("Could not find working directory"));
-        m_outputWindow->popup(false);
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Could not find working directory"));
         return QString();
     }
     return workingDirectory;
@@ -519,7 +514,7 @@ void GitPlugin::undoFileChanges()
 
     QString errorMessage;
     if (!m_gitClient->synchronousCheckout(workingDirectory, QStringList() << fileName, &errorMessage))
-        m_outputWindow->append(errorMessage);
+        VCSBase::VCSBaseOutputWindow::instance()->append(errorMessage);
 
 }
 
@@ -561,8 +556,7 @@ void GitPlugin::startCommit()
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
     if (m_changeTmpFile) {
-        m_outputWindow->append(tr("Another submit is currently beeing executed."));
-        m_outputWindow->popup(false);
+        VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Another submit is currently being executed."));
         return;
     }
 
@@ -575,8 +569,7 @@ void GitPlugin::startCommit()
     QString errorMessage, commitTemplate;
     CommitData data;
     if (!m_gitClient->getCommitData(workingDirectory, &commitTemplate, &data, &errorMessage)) {
-        m_outputWindow->append(errorMessage);
-        m_outputWindow->popup(false);
+        VCSBase::VCSBaseOutputWindow::instance()->append(errorMessage);
         return;
     }
 
@@ -593,8 +586,7 @@ void GitPlugin::startCommit()
     QTemporaryFile *changeTmpFile = new QTemporaryFile(this);
     changeTmpFile->setAutoRemove(true);
     if (!changeTmpFile->open()) {
-        m_outputWindow->append(tr("Cannot create temporary file: %1").arg(changeTmpFile->errorString()));
-        m_outputWindow->popup(false);
+        VCSBase::VCSBaseOutputWindow::instance()->append(tr("Cannot create temporary file: %1").arg(changeTmpFile->errorString()));
         delete changeTmpFile;
         return;
     }
@@ -734,19 +726,14 @@ void GitPlugin::branchList()
     const QString workingDirectory = getWorkingDirectory();
     if (workingDirectory.isEmpty())
         return;
-#ifndef USE_BRANCHDIALOG
     QString errorMessage;
     BranchDialog dialog(m_core->mainWindow());
 
     if (!dialog.init(m_gitClient, workingDirectory, &errorMessage)) {
-        m_outputWindow->append(errorMessage);
-        m_outputWindow->popup(false);
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
         return;
     }
     dialog.exec();
-#else
-    m_gitClient->branchList(workingDirectory);
-#endif
 }
 
 void GitPlugin::stashList()
@@ -831,11 +818,6 @@ void GitPlugin::showCommit()
         return;
 
     m_gitClient->show(m_changeSelectionDialog->m_ui.repositoryEdit->text(), change);
-}
-
-GitOutputWindow *GitPlugin::outputWindow() const
-{
-    return m_outputWindow;
 }
 
 GitSettings GitPlugin::settings() const

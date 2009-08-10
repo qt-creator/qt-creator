@@ -6,7 +6,6 @@ include(perforce_dependencies.pri)
 
 HEADERS += \
     perforceplugin.h \
-    perforceoutputwindow.h \
     settingspage.h \
     perforceeditor.h \
     changenumberdialog.h \
@@ -19,7 +18,6 @@ HEADERS += \
     perforcesubmiteditorwidget.h
 
 SOURCES += perforceplugin.cpp \
-    perforceoutputwindow.cpp \
     settingspage.cpp \
     perforceeditor.cpp \
     changenumberdialog.cpp \

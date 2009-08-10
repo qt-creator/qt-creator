@@ -8,7 +8,6 @@ include(../../plugins/vcsbase/vcsbase.pri)
 include(../../libs/utils/utils.pri)
 HEADERS += gitplugin.h \
     gitconstants.h \
-    gitoutputwindow.h \
     gitclient.h \
     changeselectiondialog.h \
     commitdata.h \
@@ -25,7 +24,6 @@ HEADERS += gitplugin.h \
     clonewizard.h \
     clonewizardpage.h
 SOURCES += gitplugin.cpp \
-    gitoutputwindow.cpp \
     gitclient.cpp \
     changeselectiondialog.cpp \
     commitdata.cpp \

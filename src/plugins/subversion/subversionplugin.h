@@ -56,7 +56,6 @@ namespace ProjectExplorer {
 namespace Subversion {
 namespace Internal {
 
-class SubversionOutputWindow;
 class SubversionSubmitEditor;
 
 struct SubversionResponse
@@ -120,7 +119,6 @@ private:
                                        QTextCodec *codec);
     SubversionResponse runSvn(const QStringList &arguments, int timeOut,
                               bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0);
-    void showOutput(const QString &output, bool bringToForeground = true);
     void annotate(const QString &file);
     void filelog(const QString &file);
     bool managesDirectory(const QDir &directory) const;
@@ -136,7 +134,6 @@ private:
     Core::IVersionControl *m_versionControl;
     QTemporaryFile *m_changeTmpFile;
 
-    SubversionOutputWindow *m_subversionOutputWindow;
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 
     Core::Utils::ParameterAction *m_addAction;
@@ -159,8 +156,6 @@ private:
     bool    m_submitActionTriggered;
 
     static SubversionPlugin *m_subversionPluginInstance;
-
-    friend class SubversionOutputWindow;
 };
 
 // Just a proxy for SubversionPlugin
