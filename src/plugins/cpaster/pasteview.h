@@ -30,11 +30,11 @@
 #ifndef PASTEVIEW_H
 #define PASTEVIEW_H
 
-#include <QDialog>
-#include <QByteArray>
-
 #include "splitter.h"
 #include "ui_pasteview.h"
+
+#include <QDialog>
+#include <QByteArray>
 
 class PasteView : public QDialog
 {
@@ -48,11 +48,11 @@ public:
 
     void addProtocol(const QString &protocol, bool defaultProtocol = false);
 
-    QString getUser();
-    QString getDescription();
-    QString getComment();
-    QByteArray getContent();
-    QString getProtocol();
+    QString user() const;
+    QString description() const;
+    QString comment() const;
+    QByteArray content() const;
+    QString protocol() const;
 
 private slots:
     void contentChanged();

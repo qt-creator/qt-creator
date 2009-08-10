@@ -26,8 +26,10 @@
 ** contact the sales department at http://www.qtsoftware.com/contact.
 **
 **************************************************************************/
+
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
+
 #include "settingspage.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -35,7 +37,9 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
 class QListWidget;
+QT_END_NAMESPACE
 
 class Protocol : public QObject
 {
@@ -55,9 +59,9 @@ public:
     virtual void fetch(const QString &id) = 0;
     virtual void list(QListWidget *listWidget);
     virtual void paste(const QString &text,
-                       const QString &username = "",
-                       const QString &comment = "",
-                       const QString &description = "") = 0;
+                       const QString &username = QString(),
+                       const QString &comment = QString(),
+                       const QString &description = QString()) = 0;
 
 signals:
     void pasteDone(const QString &link);

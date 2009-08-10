@@ -178,11 +178,11 @@ void CodepasterPlugin::post()
     if (!view.show(username, description, comment, lst))
         return; // User canceled post
 
-    username = view.getUser();
-    description = view.getDescription();
-    comment = view.getComment();
-    data = view.getContent();
-    protocolName = view.getProtocol();
+    username = view.user();
+    description = view.description();
+    comment = view.comment();
+    data = view.content();
+    protocolName = view.protocol();
 
     // Copied from cpaster. Otherwise lineendings will screw up
     if (!data.contains("\r\n")) {

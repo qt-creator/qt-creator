@@ -94,7 +94,7 @@ PasteView::~PasteView()
 {
 }
 
-QString PasteView::getUser()
+QString PasteView::user() const
 {
     const QString username = m_ui.uiUsername->text();
     if (username.isEmpty() || username == tr("<Username>"))
@@ -102,7 +102,7 @@ QString PasteView::getUser()
     return username;
 }
 
-QString PasteView::getDescription()
+QString PasteView::description() const
 {
     const QString description = m_ui.uiDescription->text();
     if (description == tr("<Description>"))
@@ -110,7 +110,7 @@ QString PasteView::getDescription()
     return description;
 }
 
-QString PasteView::getComment()
+QString PasteView::comment() const
 {
     const QString comment = m_ui.uiComment->toPlainText();
     if (comment == tr("<Comment>"))
@@ -118,7 +118,7 @@ QString PasteView::getComment()
     return comment;
 }
 
-QByteArray PasteView::getContent()
+QByteArray PasteView::content() const
 {
     QByteArray newContent;
     for (int i = 0; i < m_ui.uiPatchList->count(); ++i) {
@@ -129,14 +129,14 @@ QByteArray PasteView::getContent()
     return newContent;
 }
 
-QString PasteView::getProtocol()
+QString PasteView::protocol() const
 {
     return m_ui.protocolBox->currentText();
 }
 
 void PasteView::contentChanged()
 {
-    m_ui.uiPatchView->setPlainText(getContent());
+    m_ui.uiPatchView->setPlainText(content());
 }
 
 int PasteView::show(const QString &user, const QString &description, const QString &comment,

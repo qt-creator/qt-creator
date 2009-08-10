@@ -29,7 +29,9 @@
 
 #ifndef PASTEBINDOTCAPROTOCOL_H
 #define PASTEBINDOTCAPROTOCOL_H
+
 #include "protocol.h"
+
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QHttp>
@@ -46,9 +48,9 @@ public:
 
     void fetch(const QString &id);
     void paste(const QString &text,
-               const QString &username = "",
-               const QString &comment = "",
-               const QString &description = "");
+               const QString &username = QString(),
+               const QString &comment = QString(),
+               const QString &description = QString());
 public slots:
     void fetchFinished();
 

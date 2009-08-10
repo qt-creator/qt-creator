@@ -29,6 +29,7 @@
 
 #ifndef CODEPASTERPROTOCOL_H
 #define CODEPASTERPROTOCOL_H
+
 #include "protocol.h"
 
 #include <QtGui/QListWidget>
@@ -38,7 +39,7 @@
 
 namespace CodePaster {
 
-    class CodePasterSettingsPage;
+class CodePasterSettingsPage;
 
 class CodePasterProtocol : public Protocol
 {
@@ -51,28 +52,29 @@ public:
 
     bool canList() const;
     bool hasSettings() const;
-    Core::IOptionsPage* settingsPage();
+    Core::IOptionsPage *settingsPage();
 
     void fetch(const QString &id);
     void list(QListWidget *listWidget);
     void paste(const QString &text,
-               const QString &username = "",
-               const QString &comment = "",
-               const QString &description = "");
+               const QString &username = QString(),
+               const QString &comment = QString(),
+               const QString &description = QString());
 public slots:
     void fetchFinished();
     void listFinished();
-    void readPostResponseHeader(const QHttpResponseHeader&);
+    void readPostResponseHeader(const QHttpResponseHeader &);
 
 private:
     CodePasterSettingsPage *m_page;
     QHttp http;
     QNetworkAccessManager manager;
-    QNetworkReply* reply;
-    QNetworkReply* listReply;
-    QListWidget* listWidget;
+    QNetworkReply *reply;
+    QNetworkReply *listReply;
+    QListWidget *listWidget;
     QString fetchId;
 };
 
-}
+} // namespace CodePaster
+
 #endif // CODEPASTERPROTOCOL_H
