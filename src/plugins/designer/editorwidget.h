@@ -32,17 +32,17 @@
 
 #include "designerconstants.h"
 
-#include <coreplugin/minisplitter.h>
+#include <utils/fancymainwindow.h>
 
 #include <QtCore/QPointer>
 #include <QtCore/QList>
+#include <QtCore/QHash>
 #include <QtCore/QVariant>
+#include <QtCore/QSettings>
 #include <QtGui/QWidget>
-
-QT_BEGIN_NAMESPACE
-class QTabWidget;
-class QVBoxLayout;
-QT_END_NAMESPACE
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QDockWidget>
+#include <QtGui/QHideEvent>
 
 namespace Designer {
 namespace Internal {
@@ -68,49 +68,33 @@ private:
     QVBoxLayout *m_layout;
 };
 
-/** State of the editor window (splitter sizes)
-  * Shared as a global struct between the instances and stored
-  * in QSettings. */
-struct EditorWidgetState
-{
-    QVariant toVariant() const; // API to conveniently store in QSettings
-    bool fromVariant(const QVariant &v);
-
-    QList<int> horizontalSizes;
-    QList<int> centerVerticalSizes;
-    QList<int> rightVerticalSizes;
-};
-
 /* Form editor splitter used as editor window. Contains the shared designer
  * windows. */
-class EditorWidget : public Core::MiniSplitter
+class EditorWidget : public QWidget
 {
     Q_OBJECT
     Q_DISABLE_COPY(EditorWidget)
 public:
     explicit EditorWidget(QWidget *formWindow);
 
-    virtual bool event(QEvent * e);
+    void setDefaultLayout();
 
-    EditorWidgetState save() const;
-    bool restore(const EditorWidgetState &s);
-
-    // Get/Set the shared splitter state of all editors of that type for
-    // settings
-    static EditorWidgetState state();
-    static void setState(const EditorWidgetState&st);
+    static void saveState(QSettings *settings);
+    static void restoreState(QSettings *settings);
 
 public slots:
     void activate();
     void toolChanged(int);
 
-private:
-    void setInitialSizes();
+protected:
+    void hideEvent(QHideEvent * e);
 
+private:
     SharedSubWindow* m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
-    QSplitter *m_centerVertSplitter;
-    QTabWidget *m_bottomTab;
-    QSplitter *m_rightVertSplitter;
+    QDockWidget *m_designerDockWidgets[Designer::Constants::DesignerSubWindowCount];
+    Core::Utils::FancyMainWindow *m_mainWindow;
+
+    static QHash<QString, QVariant> m_globalState;
 };
 
 } // namespace Internal

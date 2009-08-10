@@ -37,9 +37,9 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QTabWidget>
 
-using namespace Designer::Constants;
+static const char *editorWidgetStateKeyC = "editorWidgetState";
 
-enum { ActionEditorTab, SignalSlotEditorTab };
+using namespace Designer::Constants;
 
 namespace Designer {
 namespace Internal {
@@ -62,198 +62,113 @@ void SharedSubWindow::activate()
     if (currentParent == this)
         return;
 
-    if (currentParent) {
-        QVBoxLayout *lt = qobject_cast<QVBoxLayout *>(currentParent->layout());
-        QTC_ASSERT(lt, return);
-        m_shared->setParent(0);
-        delete lt->takeAt(0);
-    }
     m_layout->addWidget(m_shared);
-    m_layout->invalidate();
+    m_shared->show();
 }
 
 SharedSubWindow::~SharedSubWindow()
 {
     // Do not destroy the shared sub window if we currently own it
-    if (m_layout->count()) {
+    if (m_shared->parent() == this) {
+        m_shared->hide();
         m_shared->setParent(0);
-        delete m_layout->takeAt(0);
     }
-}
-
-// ---------- Global EditorState
-Q_GLOBAL_STATIC(EditorWidgetState, editorWidgetState)
-
-enum { Version = 1 };
-// Simple conversion of an int list to QVariantList, size as leading element
-static void intToVariantList(const QList<int> &il, QVariantList& vl)
-{
-    const int size = il.size();
-    vl.push_back(size);
-    if (size != 0) {
-        const QList<int>::const_iterator cend = il.constEnd();
-        for (QList<int>::const_iterator it = il.constBegin(); it != cend; ++it)
-            vl.push_back(QVariant(*it));
-    }
-}
-// Simple conversion of a QVariantList portion saved by the above function to int list
-bool variantListToIntList(const QVariantList& vl, int &index, QList<int> &list)
-{
-    list.clear();
-    if (index >= vl.size())
-        return false;
-    const int size = vl.at(index++).toInt();
-    const int end = index + size;
-    if (end > vl.size())
-        return false;
-    if (size != 0) {
-        for ( ; index < end; index++)
-            list.push_back(vl.at(index).toInt());
-    }
-    return true;
-}
-
-// ------------------ EditorWidgetState
-QVariant EditorWidgetState::toVariant() const
-{
-    QVariantList rc;
-    rc.push_back(Version);
-    intToVariantList(horizontalSizes, rc);
-    intToVariantList(centerVerticalSizes, rc);
-    intToVariantList(rightVerticalSizes, rc);
-    return QVariant(rc);
-}
-
-bool EditorWidgetState::fromVariant(const QVariant &v)
-{
-    // Restore state. The weird thing is that QSettings might return
-    // a QStringList although it was saved as QVariantList<int>.
-    if (v.type() != QVariant::List && v.type() != QVariant::StringList)
-        return false;
-    const QVariantList vl = v.toList();
-    if (vl.empty())
-        return false;
-    int index = 0;
-    const QVariant &versionV = vl.at(index++);
-    if (versionV.type() != QVariant::Int && versionV.type() != QVariant::String)
-        return false;
-    if (versionV.toInt() > Version)
-        return false;
-    return variantListToIntList(vl, index, horizontalSizes) &&
-           variantListToIntList(vl, index, centerVerticalSizes) &&
-           variantListToIntList(vl, index, rightVerticalSizes);
 }
 
 // ---------- EditorWidget
-EditorWidget::EditorWidget(QWidget *formWindow) :
-    Core::MiniSplitter(Qt::Horizontal),
-    m_centerVertSplitter(new Core::MiniSplitter(Qt::Vertical)),
-    m_bottomTab(0),
-    m_rightVertSplitter(new Core::MiniSplitter(Qt::Vertical))
+
+QHash<QString, QVariant> EditorWidget::m_globalState = QHash<QString, QVariant>();
+
+EditorWidget::EditorWidget(QWidget *formWindow)
+    : m_mainWindow(new Core::Utils::FancyMainWindow)
 {
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    setLayout(layout);
+    layout->addWidget(m_mainWindow);
+    m_mainWindow->setCentralWidget(formWindow);
+    m_mainWindow->setDocumentMode(true);
+    m_mainWindow->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
+    m_mainWindow->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    m_mainWindow->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
     // Get shared sub windows from Form Editor
     FormEditorW *few = FormEditorW::instance();
     QWidget * const*subs = few->designerSubWindows();
     // Create shared sub windows
-    for (int i=0; i < DesignerSubWindowCount; i++)
+    for (int i=0; i < DesignerSubWindowCount; i++) {
         m_designerSubWindows[i] = new SharedSubWindow(subs[i]);
-    // Create splitter
-    addWidget(m_designerSubWindows[WidgetBoxSubWindow]);
-
-    // center
-    m_centerVertSplitter->addWidget(formWindow);
-
-    m_bottomTab = new QTabWidget;
-    m_bottomTab->setTabPosition(QTabWidget::South);
-    m_bottomTab->setDocumentMode(true);
-    m_bottomTab->addTab(m_designerSubWindows[ActionEditorSubWindow], tr("Action editor"));
-    m_bottomTab->addTab(m_designerSubWindows[SignalSlotEditorSubWindow], tr("Signals and slots editor"));
-    m_centerVertSplitter->addWidget(m_bottomTab);
-
-    addWidget(m_centerVertSplitter);
-
-    m_rightVertSplitter->addWidget(m_designerSubWindows[ObjectInspectorSubWindow]);
-    m_rightVertSplitter->addWidget(m_designerSubWindows[PropertyEditorSubWindow]);
-    addWidget(m_rightVertSplitter);
+        m_designerSubWindows[i]->setWindowTitle(subs[i]->windowTitle());
+        m_designerDockWidgets[i] = m_mainWindow->addDockForWidget(m_designerSubWindows[i]);
+    }
 }
 
-void EditorWidget::setInitialSizes()
+void EditorWidget::setDefaultLayout()
 {
-    QList<int> sizes;
-    // center vertical. Either the tab containing signal slot editor/
-    // action editor or the action editor itself
-    const QWidget *bottomWidget = m_bottomTab;
-    if (!bottomWidget)
-        bottomWidget = m_designerSubWindows[ActionEditorSubWindow];
-    const int tabHeight = bottomWidget->sizeHint().height();
-    sizes.push_back(height() - handleWidth() -  tabHeight);
-    sizes.push_back( tabHeight);
-    m_centerVertSplitter->setSizes(sizes);
-    // right vert
-    sizes.clear();
-    sizes.push_back(height() /2 - (handleWidth() / 2));
-    sizes.push_back(height() / 2 - (handleWidth() / 2));
-    m_rightVertSplitter->setSizes(sizes);
-    // horiz sizes
-    sizes.clear();
-    const int wboxWidth = m_designerSubWindows[WidgetBoxSubWindow]->sizeHint().width();
-    const int vSplitterWidth = m_rightVertSplitter->sizeHint().width();
-    sizes.push_back(wboxWidth);
-    sizes.push_back(width() - 2 * handleWidth() -  wboxWidth - vSplitterWidth);
-    sizes.push_back(vSplitterWidth);
-    setSizes(sizes);
+    m_mainWindow->setTrackingEnabled(false);
+    QList<QDockWidget *> dockWidgets = m_mainWindow->dockWidgets();
+    foreach (QDockWidget *dockWidget, dockWidgets)
+        m_mainWindow->removeDockWidget(dockWidget);
+
+    m_mainWindow->addDockWidget(Qt::LeftDockWidgetArea, m_designerDockWidgets[WidgetBoxSubWindow]);
+    m_mainWindow->addDockWidget(Qt::RightDockWidgetArea, m_designerDockWidgets[ObjectInspectorSubWindow]);
+    m_mainWindow->addDockWidget(Qt::RightDockWidgetArea, m_designerDockWidgets[PropertyEditorSubWindow]);
+    m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_designerDockWidgets[ActionEditorSubWindow]);
+    m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_designerDockWidgets[SignalSlotEditorSubWindow]);
+
+    m_mainWindow->tabifyDockWidget(m_designerDockWidgets[ActionEditorSubWindow],
+                                   m_designerDockWidgets[SignalSlotEditorSubWindow]);
+
+    foreach (QDockWidget *dockWidget, dockWidgets) {
+        dockWidget->show();
+    }
+
+    m_mainWindow->setTrackingEnabled(true);
+    m_globalState = m_mainWindow->saveSettings();
 }
 
 void EditorWidget::activate()
 {
     for (int i=0; i < DesignerSubWindowCount; i++)
         m_designerSubWindows[i]->activate();
-    if (!restore(*editorWidgetState()))
-        setInitialSizes();
+
+    if (!m_globalState.isEmpty())
+        m_mainWindow->restoreSettings(m_globalState);
+    else
+        setDefaultLayout();
 }
 
-bool EditorWidget::event(QEvent * e)
+void EditorWidget::hideEvent(QHideEvent *)
 {
-    if (e->type() == QEvent::Hide)
-        *editorWidgetState() = save();
-    return QSplitter::event(e);
+    m_globalState = m_mainWindow->saveSettings();
 }
 
-EditorWidgetState EditorWidget::save() const
+void EditorWidget::saveState(QSettings *settings)
 {
-    EditorWidgetState rc;
-    rc.horizontalSizes = sizes();
-    rc.centerVerticalSizes = m_centerVertSplitter->sizes();
-    rc.rightVerticalSizes = m_rightVertSplitter->sizes();
-    return rc;
+    settings->beginGroup(editorWidgetStateKeyC);
+    QHashIterator<QString, QVariant> it(m_globalState);
+    while (it.hasNext()) {
+        it.next();
+        settings->setValue(it.key(), it.value());
+    }
+    settings->endGroup();
 }
 
-bool EditorWidget::restore(const EditorWidgetState &s)
+void EditorWidget::restoreState(QSettings *settings)
 {
-    if (s.horizontalSizes.size() != count() ||
-        s.centerVerticalSizes.size() != m_centerVertSplitter->count() ||
-        s.rightVerticalSizes.size() != m_rightVertSplitter->count())
-        return false;
-    m_centerVertSplitter->setSizes(s.centerVerticalSizes);
-    m_rightVertSplitter->setSizes(s.rightVerticalSizes);
-    setSizes(s.horizontalSizes);
-    return true;
+    m_globalState.clear();
+    settings->beginGroup(editorWidgetStateKeyC);
+    foreach (const QString &key, settings->childKeys()) {
+        m_globalState.insert(key, settings->value(key));
+    }
+    settings->endGroup();
 }
 
 void EditorWidget::toolChanged(int i)
 {
-    if (m_bottomTab)
-        m_bottomTab->setCurrentIndex(i == EditModeSignalsSlotEditor ? SignalSlotEditorTab : ActionEditorTab);
-}
-
-EditorWidgetState EditorWidget::state()
-{
-    return *editorWidgetState();
-}
-
-void EditorWidget::setState(const EditorWidgetState& st)
-{
-    *editorWidgetState() = st;
+//    if (m_bottomTab)
+//        m_bottomTab->setCurrentIndex(i == EditModeSignalsSlotEditor ? SignalSlotEditorTab : ActionEditorTab);
 }
 
 } // namespace Internal

@@ -130,7 +130,7 @@ private:
     void fullInit();
 
     void saveSettings(QSettings *s);
-    void restoreSettings(const QSettings *s);
+    void restoreSettings(QSettings *s);
 
     void initDesignerSubWindows();
 

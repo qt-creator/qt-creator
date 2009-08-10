@@ -80,7 +80,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
-static const char *editorWidgetStateKeyC = "editorWidgetState";
 static const char *settingsGroup = "Designer";
 
 #ifdef Q_OS_MAC
@@ -522,20 +521,15 @@ Core::ActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager *
 void FormEditorW::saveSettings(QSettings *s)
 {
     s->beginGroup(settingsGroup);
-    s->setValue(QLatin1String(editorWidgetStateKeyC), EditorWidget::state().toVariant());
+    EditorWidget::saveState(s);
     s->endGroup();
 }
 
-void FormEditorW::restoreSettings(const QSettings *s)
+void FormEditorW::restoreSettings(QSettings *s)
 {
-    QString key = QLatin1String(settingsGroup) + QLatin1Char('/')
-                                + QLatin1String(editorWidgetStateKeyC);
-    const QVariant ev = s->value(key);
-    if (ev.type() != QVariant::Invalid) {
-        EditorWidgetState st;
-        if (st.fromVariant(ev))
-            EditorWidget::setState(st);
-    }
+    s->beginGroup(settingsGroup);
+    EditorWidget::restoreState(s);
+    s->endGroup();
 }
 
 
