@@ -84,7 +84,7 @@ int StackHandler::rowCount(const QModelIndex &parent) const
 
 int StackHandler::columnCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : 4;
+    return parent.isValid() ? 0 : 5;
 }
 
 QVariant StackHandler::data(const QModelIndex &index, int role) const
