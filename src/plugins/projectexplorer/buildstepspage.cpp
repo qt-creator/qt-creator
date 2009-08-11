@@ -222,6 +222,7 @@ void BuildStepsPage::addBuildStep()
         s.widget->init(m_configuration);
         s.detailsLabel->setText(s.widget->summaryText());
     }
+    updateBuildStepButtonsState();
 }
 
 void BuildStepsPage::updateRemoveBuildStepMenu()
@@ -257,6 +258,7 @@ void BuildStepsPage::removeBuildStep()
         m_buildSteps.removeAt(pos);
         m_clean ? m_pro->removeCleanStep(pos) : m_pro->removeBuildStep(pos);
     }
+    updateBuildStepButtonsState();
 }
 
 void BuildStepsPage::upBuildStep()
