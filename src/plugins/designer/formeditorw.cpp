@@ -498,7 +498,7 @@ void FormEditorW::setupActions()
     createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.SeparatorViews"));
 
     Core::ActionContainer *mviews = am->createMenu(M_FORMEDITOR_VIEWS);
-    mviews->menu()->setTitle(tr("Views..."));
+    mviews->menu()->setTitle(tr("Views"));
     mformtools->addMenu(mviews);
 
     m_designerSubWindowActions[WidgetBoxSubWindow] = new ProxyAction(tr("Widget Box"), this);
@@ -520,6 +520,19 @@ void FormEditorW::setupActions()
     m_designerSubWindowActions[ActionEditorSubWindow] = new ProxyAction(tr("Action Editor"), this);
     addToolAction(m_designerSubWindowActions[ActionEditorSubWindow], am, globalcontext,
                   QLatin1String("FormEditor.ActionEditor"), mviews, "");
+
+    createSeparator(this, am, globalcontext, mviews, QLatin1String("FormEditor.Menu.Tools.Views.SeparatorLock"));
+
+    m_lockAction = new QAction(tr("Locked"), this);
+    m_lockAction->setCheckable(true);
+    addToolAction(m_lockAction, am, globalcontext, QLatin1String("FormEditor.Locked"), mviews, "");
+    connect(m_lockAction, SIGNAL(toggled(bool)), this, SLOT(setFormWindowLayoutLocked(bool)));
+
+    createSeparator(this, am, globalcontext, mviews, QLatin1String("FormEditor.Menu.Tools.Views.SeparatorReset"));
+
+    m_resetLayoutAction = new QAction(tr("Reset to Default Layout"), this);
+    addToolAction(m_resetLayoutAction, am, globalcontext, QLatin1String("FormEditor.ResetToDefaultLayout"), mviews, "");
+    connect(m_resetLayoutAction, SIGNAL(triggered()), this, SLOT(resetToDefaultLayout()));
 
     // Commands that do not go into the editor toolbar
     createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator2"));
@@ -677,6 +690,9 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
             if (m_designerSubWindowActions[i] != 0 && dockWidgets[i] != 0)
                 m_designerSubWindowActions[i]->setAction(dockWidgets[i]->toggleViewAction());
         }
+        m_lockAction->setEnabled(true);
+        m_lockAction->setChecked(fw->isLocked());
+        m_resetLayoutAction->setEnabled(true);
     } else {
         m_actionGroupEditMode->setVisible(false);
         m_modeActionSeparator->setVisible(false);
@@ -685,6 +701,8 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
             if (m_designerSubWindowActions[i] != 0)
                 m_designerSubWindowActions[i]->setAction(0);
         }
+        m_lockAction->setEnabled(false);
+        m_resetLayoutAction->setEnabled(false);
     }
 }
 
@@ -749,6 +767,20 @@ void FormEditorW::toolChanged(int t)
             (*it)->setChecked(true);
             break;
         }
+}
+
+void FormEditorW::setFormWindowLayoutLocked(bool locked)
+{
+    FormWindowEditor *fwe = activeFormWindow();
+    if (fwe)
+        fwe->setLocked(locked);
+}
+
+void FormEditorW::resetToDefaultLayout()
+{
+    FormWindowEditor *fwe = activeFormWindow();
+    if (fwe)
+        fwe->resetToDefaultLayout();
 }
 
 void FormEditorW::print()

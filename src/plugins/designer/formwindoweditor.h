@@ -94,6 +94,8 @@ public:
     void updateFormWindowSelectionHandles(bool state);
     void setSuggestedFileName(const QString &fileName);
     QDockWidget* const* dockWidgets() const { return m_editorWidget->dockWidgets(); }
+    bool isLocked() const { return m_editorWidget->isLocked(); }
+    void setLocked(bool locked) { m_editorWidget->setLocked(locked); }
 
     QString contents() const;
 
@@ -103,6 +105,7 @@ signals:
 
 public slots:
     void activate();
+    void resetToDefaultLayout();
 
 private slots:
     void slotOpen(const QString &fileName);

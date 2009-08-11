@@ -105,12 +105,14 @@ EditorWidget::EditorWidget(QWidget *formWindow)
     }
 }
 
-void EditorWidget::setDefaultLayout()
+void EditorWidget::resetToDefaultLayout()
 {
     m_mainWindow->setTrackingEnabled(false);
     QList<QDockWidget *> dockWidgets = m_mainWindow->dockWidgets();
-    foreach (QDockWidget *dockWidget, dockWidgets)
+    foreach (QDockWidget *dockWidget, dockWidgets) {
+        dockWidget->setFloating(false);
         m_mainWindow->removeDockWidget(dockWidget);
+    }
 
     m_mainWindow->addDockWidget(Qt::LeftDockWidgetArea, m_designerDockWidgets[WidgetBoxSubWindow]);
     m_mainWindow->addDockWidget(Qt::RightDockWidgetArea, m_designerDockWidgets[ObjectInspectorSubWindow]);
@@ -139,7 +141,7 @@ void EditorWidget::activate()
         // (otherwise we end up with a broken mainwindow layout)
         // we can't do it in the constructor, because the sub windows
         // don't have their widgets yet there
-        setDefaultLayout();
+        resetToDefaultLayout();
         m_initialized = true;
     }
 

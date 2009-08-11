@@ -327,6 +327,11 @@ void FormWindowEditor::activate()
     m_editorWidget->activate();
 }
 
+void FormWindowEditor::resetToDefaultLayout()
+{
+    m_editorWidget->resetToDefaultLayout();
+}
+
 QString FormWindowEditor::contextHelpId() const
 {
     const QDesignerFormEditorInterface *core = FormEditorW::instance()->designerEditor();

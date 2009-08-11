@@ -77,8 +77,10 @@ class EditorWidget : public QWidget
 public:
     explicit EditorWidget(QWidget *formWindow);
 
-    void setDefaultLayout();
+    void resetToDefaultLayout();
     QDockWidget* const* dockWidgets() const { return m_designerDockWidgets; }
+    bool isLocked() const { return m_mainWindow->isLocked(); }
+    void setLocked(bool locked) { m_mainWindow->setLocked(locked); }
 
     static void saveState(QSettings *settings);
     static void restoreState(QSettings *settings);

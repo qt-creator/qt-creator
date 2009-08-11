@@ -136,6 +136,8 @@ private slots:
     void currentEditorChanged(Core::IEditor *editor);
     void toolChanged(int);
     void print();
+    void setFormWindowLayoutLocked(bool locked);
+    void resetToDefaultLayout();
 
     void editorDestroyed();
 
@@ -166,6 +168,8 @@ private:
 
     QWidget *m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
     ProxyAction *m_designerSubWindowActions[Designer::Constants::DesignerSubWindowCount];
+    QAction *m_lockAction;
+    QAction *m_resetLayoutAction;
 
     QList<SettingsPage *> m_settingsPages;
     QActionGroup *m_actionGroupEditMode;
