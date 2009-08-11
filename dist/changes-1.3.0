@@ -25,6 +25,7 @@ Editing
    * Objective-C: Added partial semantic checking and symbol navigation
    * Fixed searching in files to take open documents into account
    * Added a Locator filter for symbols in the current document
+   * Handle block selection in fakevim
 
 Project support
    * Added support for adding and removing files from a generic Makefile-based

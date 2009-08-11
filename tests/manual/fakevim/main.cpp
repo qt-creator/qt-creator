@@ -108,8 +108,8 @@ int main(int argc, char *argv[])
 
     QObject::connect(&handler, SIGNAL(commandBufferChanged(QString)),
         &proxy, SLOT(changeStatusMessage(QString)));
-    QObject::connect(&handler, SIGNAL(quitRequested(bool)),
-        &app, SLOT(quit()));
+    //QObject::connect(&handler, SIGNAL(quitRequested(bool)),
+    //    &app, SLOT(quit()));
     QObject::connect(&handler,
         SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
         &proxy, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
