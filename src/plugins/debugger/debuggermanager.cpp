@@ -510,8 +510,10 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
 {
     m_mainWindow->setTrackingEnabled(false);
     QList<QDockWidget *> dockWidgets = m_mainWindow->dockWidgets();
-    foreach (QDockWidget *dockWidget, dockWidgets)
+    foreach (QDockWidget *dockWidget, dockWidgets) {
+        dockWidget->setFloating(false);
         m_mainWindow->removeDockWidget(dockWidget);
+    }
 
     foreach (QDockWidget *dockWidget, dockWidgets) {
         m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
