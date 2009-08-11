@@ -1818,7 +1818,7 @@ static void qDumpQModelIndex(QDumper &d)
             const QModelIndex parent = mi->parent();
             d.beginItem("value");
             if (parent.isValid())
-                d.put("(").put(mi->row()).put(", ").put(mi->column()).put(")");
+                d.put("(").put(parent.row()).put(", ").put(parent.column()).put(")");
             else
                 d.put("<invalid>");
             d.endItem();

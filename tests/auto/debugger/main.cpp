@@ -138,7 +138,7 @@ private slots:
     void niceType_data();
 
     void dumperCompatibility();
-    void dumpQAbstractItem();
+    void dumpQAbstractItemAndModelIndex();
     void dumpQAbstractItemModel();
     void dumpQByteArray();
     void dumpQChar();
@@ -201,6 +201,7 @@ private:
     void dumpQLocaleHelper(QLocale &loc);
     template <typename K, typename V> void dumpQMapHelper(QMap<K, V> &m);
     template <typename K, typename V> void dumpQMapNodeHelper(QMap<K, V> &m);
+    void dumpQModelIndexHelper(QModelIndex &index);
     void dumpQObjectChildListHelper(QObject &o);
     void dumpQObjectMethodListHelper(QObject &obj);
     void dumpQObjectPropertyListHelper(QObject &obj);
@@ -643,12 +644,45 @@ void tst_Debugger::dumpQAbstractItemHelper(QModelIndex &index)
     testDumper(expected, &index, NS"QAbstractItem", true, indexSpecValue);
 }
 
-void tst_Debugger::dumpQAbstractItem()
+void tst_Debugger::dumpQModelIndexHelper(QModelIndex &index)
+{
+    QByteArray expected = QByteArray("tiname='iname',addr='").
+        append(ptrToBa(&index)).append("',type='"NS"QModelIndex',value='");
+    if (index.isValid()) {
+        const int row = index.row();
+        const int col = index.column();
+        const QString &rowStr = QString::number(row);
+        const QString &colStr = QString::number(col);
+        const QModelIndex &parent = index.parent();
+        expected.append("(").append(rowStr).append(", ").append(colStr).
+            append(")',numchild='5',children=[").append("{name='row',").
+            append(generateIntSpec(row)).append("},{name='column',").
+            append(generateIntSpec(col)).append("},{name='parent',value='");
+        if (parent.isValid()) {
+            expected.append("(").append(QString::number(parent.row())).
+                append(", ").append(QString::number(parent.column())).append(")");
+        } else {
+            expected.append("<invalid>");
+        }
+        expected.append("',").append(createExp(&index, "QModelIndex", "parent")).
+            append(",type='"NS"QModelIndex',numchild='1'},").
+            append("{name='internalId',").
+            append(generateQStringSpec(QString::number(index.internalId()))).
+            append("},{name='model',value='").append(ptrToBa(index.model())).
+            append("',type='"NS"QAbstractItemModel*',numchild='1'}]");
+    } else {
+        expected.append("<invalid>',numchild='0'");
+    }
+    testDumper(expected, &index, NS"QModelIndex", true);
+}
+
+void tst_Debugger::dumpQAbstractItemAndModelIndex()
 {
     // Case 1: ModelIndex with no children.
     QStringListModel m(QStringList() << "item1" << "item2" << "item3");
     QModelIndex index = m.index(2, 0);
     dumpQAbstractItemHelper(index);
+    dumpQModelIndexHelper(index);
 
     class PseudoTreeItemModel : public QAbstractItemModel
     {
@@ -724,10 +758,20 @@ void tst_Debugger::dumpQAbstractItem()
     // Case 2: ModelIndex with one child.
     QModelIndex index2 = m2.index(0, 0);
     dumpQAbstractItemHelper(index2);
+    dumpQModelIndexHelper(index2);
 
     // Case 3: ModelIndex with two children.
     QModelIndex index3 = m2.index(1, 0);
     dumpQAbstractItemHelper(index3);
+    dumpQModelIndexHelper(index3);
+
+    // Case 4: ModelIndex with a parent.
+    index = m2.index(0, 0, index3);
+    dumpQModelIndexHelper(index);
+
+    // Case 5: Empty ModelIndex
+    QModelIndex index4;
+    dumpQModelIndexHelper(index4);
 }
 
 void tst_Debugger::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
