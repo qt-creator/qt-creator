@@ -78,6 +78,7 @@ public:
     explicit EditorWidget(QWidget *formWindow);
 
     void setDefaultLayout();
+    QDockWidget* const* dockWidgets() const { return m_designerDockWidgets; }
 
     static void saveState(QSettings *settings);
     static void restoreState(QSettings *settings);

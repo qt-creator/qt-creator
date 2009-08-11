@@ -36,6 +36,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
+#include <QtGui/QAction>
 
 #include "designerconstants.h"
 
@@ -45,7 +46,6 @@ class QDesignerIntegrationInterface;
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 
-class QAction;
 class QActionGroup;
 class QFocusEvent;
 
@@ -73,6 +73,20 @@ namespace Internal {
 class FormWindowEditor;
 class SettingsPage;
 
+class ProxyAction : public QAction
+{
+    Q_OBJECT
+public:
+    ProxyAction(const QString &defaultText, QObject *parent = 0);
+    void setAction(QAction *action);
+
+private slots:
+    void update();
+
+private:
+    QString m_defaultText;
+    QPointer<QAction> m_action;
+};
 
 /** FormEditorW is a singleton that stores the Designer CoreInterface and
   * performs centralized operations. The instance() method will return an
@@ -151,6 +165,7 @@ private:
     InitializationStage m_initStage;
 
     QWidget *m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
+    ProxyAction *m_designerSubWindowActions[Designer::Constants::DesignerSubWindowCount];
 
     QList<SettingsPage *> m_settingsPages;
     QActionGroup *m_actionGroupEditMode;

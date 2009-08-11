@@ -495,6 +495,7 @@ void OverrideableAction::actionChanged()
         m_action->setWhatsThis(m_currentAction->whatsThis());
     }
 
+    m_action->setCheckable(m_currentAction->isCheckable());
     bool block = m_action->blockSignals(true);
     m_action->setChecked(m_currentAction->isChecked());
     m_action->blockSignals(block);

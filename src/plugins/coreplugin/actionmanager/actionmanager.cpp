@@ -359,7 +359,6 @@ Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const 
         baseAction->setSeparator(action->isSeparator());
         baseAction->setShortcutContext(Qt::ApplicationShortcut);
         baseAction->setEnabled(false);
-        baseAction->setObjectName(id);
         baseAction->setParent(m_mainWnd);
 #ifdef Q_WS_MAC
         baseAction->setIconVisibleInMenu(false);

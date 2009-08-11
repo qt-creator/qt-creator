@@ -66,6 +66,7 @@
 #include <QtGui/QActionGroup>
 #include <QtGui/QApplication>
 #include <QtGui/QCursor>
+#include <QtGui/QDockWidget>
 #include <QtGui/QMenu>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
@@ -158,10 +159,70 @@ static inline void addToolAction(QAction *a,
     c1->addAction(command);
 }
 
-// --------- FormEditorW
-
 using namespace Designer::Internal;
 using namespace Designer::Constants;
+
+// --------- Proxy Action
+
+ProxyAction::ProxyAction(const QString &defaultText, QObject *parent)
+    : QAction(defaultText, parent),
+    m_defaultText(defaultText),
+    m_action(0)
+{
+    setEnabled(false);
+}
+
+void ProxyAction::setAction(QAction *action)
+{
+    if (m_action) {
+        disconnect(m_action, SIGNAL(changed()), this, SLOT(update()));
+        disconnect(this, SIGNAL(triggered(bool)), m_action, SIGNAL(triggered(bool)));
+        disconnect(this, SIGNAL(toggled(bool)), m_action, SLOT(setChecked(bool)));
+    }
+    m_action = action;
+    if (!m_action) {
+        setEnabled(false);
+//        if (hasAttribute(CA_Hide))
+//            m_action->setVisible(false);
+//        if (hasAttribute(CA_UpdateText)) {
+            setText(m_defaultText);
+//        }
+    } else {
+        setCheckable(m_action->isCheckable());
+        setSeparator(m_action->isSeparator());
+        connect(m_action, SIGNAL(changed()), this, SLOT(update()));
+        // we want to avoid the toggling semantic on slot trigger(), so we just connect the signals
+        connect(this, SIGNAL(triggered(bool)), m_action, SIGNAL(triggered(bool)));
+        // we need to update the checked state, so we connect to setChecked slot, which also fires a toggled signal
+        connect(this, SIGNAL(toggled(bool)), m_action, SLOT(setChecked(bool)));
+        update();
+    }
+}
+
+void ProxyAction::update()
+{
+    QTC_ASSERT(m_action, return)
+    bool block = blockSignals(true);
+//    if (hasAttribute(CA_UpdateIcon)) {
+        setIcon(m_action->icon());
+        setIconText(m_action->iconText());
+//    }
+//    if (hasAttribute(CA_UpdateText)) {
+        setText(m_action->text());
+        setToolTip(m_action->toolTip());
+        setStatusTip(m_action->statusTip());
+        setWhatsThis(m_action->whatsThis());
+//    }
+
+    setChecked(m_action->isChecked());
+
+    setEnabled(m_action->isEnabled());
+    setVisible(m_action->isVisible());
+    blockSignals(block);
+    emit changed();
+}
+
+// --------- FormEditorW
 
 FormEditorW *FormEditorW::m_self = 0;
 
@@ -185,6 +246,8 @@ FormEditorW::FormEditorW() :
 
     qFill(m_designerSubWindows, m_designerSubWindows + Designer::Constants::DesignerSubWindowCount,
           static_cast<QWidget *>(0));
+    qFill(m_designerSubWindowActions, m_designerSubWindowActions + Designer::Constants::DesignerSubWindowCount,
+          static_cast<ProxyAction *>(0));
 
     m_formeditor->setTopLevel(qobject_cast<QWidget *>(m_core->editorManager()));
     m_formeditor->setSettingsManager(new SettingsManager());
@@ -268,26 +331,26 @@ void FormEditorW::initDesignerSubWindows()
     qFill(m_designerSubWindows, m_designerSubWindows + Designer::Constants::DesignerSubWindowCount, static_cast<QWidget*>(0));
 
     QDesignerWidgetBoxInterface *wb = QDesignerComponents::createWidgetBox(m_formeditor, 0);
-    wb->setWindowTitle(tr("Designer widgetbox"));
+    wb->setWindowTitle(tr("Widget Box"));
     m_formeditor->setWidgetBox(wb);
     m_designerSubWindows[WidgetBoxSubWindow] = wb;
 
     QDesignerObjectInspectorInterface *oi = QDesignerComponents::createObjectInspector(m_formeditor, 0);
-    oi->setWindowTitle(tr("Object inspector"));
+    oi->setWindowTitle(tr("Object Inspector"));
     m_formeditor->setObjectInspector(oi);
     m_designerSubWindows[ObjectInspectorSubWindow] = oi;
 
     QDesignerPropertyEditorInterface *pe = QDesignerComponents::createPropertyEditor(m_formeditor, 0);
-    pe->setWindowTitle(tr("Property editor"));
+    pe->setWindowTitle(tr("Property Editor"));
     m_formeditor->setPropertyEditor(pe);
     m_designerSubWindows[PropertyEditorSubWindow] = pe;
 
     QWidget *se = QDesignerComponents::createSignalSlotEditor(m_formeditor, 0);
-    se->setWindowTitle(tr("Signals and slots editor"));
+    se->setWindowTitle(tr("Signals & Slots Editor"));
     m_designerSubWindows[SignalSlotEditorSubWindow] = se;
 
     QDesignerActionEditorInterface *ae = QDesignerComponents::createActionEditor(m_formeditor, 0);
-    ae->setWindowTitle(tr("Action editor"));
+    ae->setWindowTitle(tr("Action Editor"));
     m_formeditor->setActionEditor(ae);
     m_designerSubWindows[ActionEditorSubWindow] = ae;
 }
@@ -430,6 +493,33 @@ void FormEditorW::setupActions()
 
     addToolAction(m_fwm->actionRaise(), am, globalcontext,
                   QLatin1String("FormEditor.Raise"), mformtools);
+
+    // Views
+    createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.SeparatorViews"));
+
+    Core::ActionContainer *mviews = am->createMenu(M_FORMEDITOR_VIEWS);
+    mviews->menu()->setTitle(tr("Views..."));
+    mformtools->addMenu(mviews);
+
+    m_designerSubWindowActions[WidgetBoxSubWindow] = new ProxyAction(tr("Widget Box"), this);
+    addToolAction(m_designerSubWindowActions[WidgetBoxSubWindow], am, globalcontext,
+                  QLatin1String("FormEditor.WidgetBox"), mviews, "");
+
+    m_designerSubWindowActions[ObjectInspectorSubWindow] = new ProxyAction(tr("Object Inspector"), this);
+    addToolAction(m_designerSubWindowActions[ObjectInspectorSubWindow], am, globalcontext,
+                  QLatin1String("FormEditor.ObjectInspector"), mviews, "");
+
+        m_designerSubWindowActions[PropertyEditorSubWindow] = new ProxyAction(tr("Property Editor"), this);
+    addToolAction(m_designerSubWindowActions[PropertyEditorSubWindow], am, globalcontext,
+                  QLatin1String("FormEditor.PropertyEditor"), mviews, "");
+
+    m_designerSubWindowActions[SignalSlotEditorSubWindow] = new ProxyAction(tr("Signals & Slots Editor"), this);
+    addToolAction(m_designerSubWindowActions[SignalSlotEditorSubWindow], am, globalcontext,
+                  QLatin1String("FormEditor.SignalsAndSlotsEditor"), mviews, "");
+
+    m_designerSubWindowActions[ActionEditorSubWindow] = new ProxyAction(tr("Action Editor"), this);
+    addToolAction(m_designerSubWindowActions[ActionEditorSubWindow], am, globalcontext,
+                  QLatin1String("FormEditor.ActionEditor"), mviews, "");
 
     // Commands that do not go into the editor toolbar
     createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator2"));
@@ -582,10 +672,19 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
         m_fwm->setActiveFormWindow(fw->formWindow());
         m_actionGroupEditMode->setVisible(true);
         m_modeActionSeparator->setVisible(true);
+        QDockWidget * const*dockWidgets = fw->dockWidgets();
+        for (int i = 0; i < Designer::Constants::DesignerSubWindowCount; ++i) {
+            if (m_designerSubWindowActions[i] != 0 && dockWidgets[i] != 0)
+                m_designerSubWindowActions[i]->setAction(dockWidgets[i]->toggleViewAction());
+        }
     } else {
         m_actionGroupEditMode->setVisible(false);
         m_modeActionSeparator->setVisible(false);
         m_fwm->setActiveFormWindow(0);
+        for (int i = 0; i < Designer::Constants::DesignerSubWindowCount; ++i) {
+            if (m_designerSubWindowActions[i] != 0)
+                m_designerSubWindowActions[i]->setAction(0);
+        }
     }
 }
 
