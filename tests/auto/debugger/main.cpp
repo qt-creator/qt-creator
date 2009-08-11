@@ -467,7 +467,8 @@ void tst_Debugger::dumperCompatibility()
     // Ensure that no arbitrary padding is introduced by QVectorTypedData.
     const size_t qVectorDataSize = 16;
     QCOMPARE(sizeof(QVectorData), qVectorDataSize);
-    QCOMPARE( ((size_t)&(((QVectorTypedData<int> *)(0))->array)), qVectorDataSize);
+    QVectorTypedData<int> *v = 0;
+    QCOMPARE(size_t(&v->array), qVectorDataSize);
 }
 
 static const QByteArray utfToBase64(const QString &string)
@@ -691,8 +692,9 @@ void tst_Debugger::dumpQAbstractItemAndModelIndex()
             parent1Child(1), parent2(10), parent2Child1(11), parent2Child2(12)
         {}
 
-        int	columnCount(const QModelIndex &parent = QModelIndex()) const
+        int columnCount(const QModelIndex &parent = QModelIndex()) const
         {
+            Q_UNUSED(parent);
             return 1;
         }
 
@@ -702,7 +704,7 @@ void tst_Debugger::dumpQAbstractItemAndModelIndex()
                     QVariant() : *static_cast<int *>(index.internalPointer());
         }
 
-        QModelIndex	index(int row, int column,
+        QModelIndex index(int row, int column,
                           const QModelIndex & parent = QModelIndex()) const
         {
             QModelIndex index;
@@ -722,7 +724,7 @@ void tst_Debugger::dumpQAbstractItemAndModelIndex()
             return index;
         }
 
-        QModelIndex	parent(const QModelIndex & index) const
+        QModelIndex parent(const QModelIndex & index) const
         {
             QModelIndex parent;
             if (index.isValid()) {
@@ -735,7 +737,7 @@ void tst_Debugger::dumpQAbstractItemAndModelIndex()
             return parent;
         }
 
-        int	rowCount(const QModelIndex &parent = QModelIndex()) const
+        int rowCount(const QModelIndex &parent = QModelIndex()) const
         {
             int rowCount;
             if (!parent.isValid() || parent.internalPointer() == &parent2)
@@ -753,7 +755,9 @@ void tst_Debugger::dumpQAbstractItemAndModelIndex()
         mutable int parent2;
         mutable int parent2Child1;
         mutable int parent2Child2;
-    } m2;
+    };
+
+    PseudoTreeItemModel m2;
 
     // Case 2: ModelIndex with one child.
     QModelIndex index2 = m2.index(0, 0);
@@ -892,7 +896,6 @@ void tst_Debugger::dumpQCharHelper(QChar &c)
         + QByteArray("',numchild='0'"), &c, NS"QChar", false);
 }
 
-
 void tst_Debugger::dumpQChar()
 {
     // Case 1: Printable ASCII character.
@@ -977,7 +980,6 @@ void tst_Debugger::dumpQFileHelper(const QString &name, bool exists)
             QByteArray("',type='"NS"QString',numchild='0',valueencoded='2'},{name='exists',value=") +
             QByteArray(boolToVal(exists)) + QByteArray(",type='bool',numchild='0'}]"),
             &file, NS"QFile", true);
-
 }
 
 void tst_Debugger::dumpQFile()
@@ -1054,13 +1056,14 @@ void tst_Debugger::dumpQHash()
 }
 
 template <typename K, typename V>
-        void tst_Debugger::dumpQHashNodeHelper(QHash<K, V> &hash)
+void tst_Debugger::dumpQHashNodeHelper(QHash<K, V> &hash)
 {
     typename QHash<K, V>::iterator it = hash.begin();
     typedef QHashNode<K, V> HashNode;
+    HashNode *dummy = 0;
     HashNode *node =
         reinterpret_cast<HashNode *>(reinterpret_cast<char *>(const_cast<K *>(&it.key())) -
-                                     offsetof(HashNode, key));
+            size_t(&dummy->key));
     const K &key = it.key();
     const V &val = it.value();
     QByteArray expected("value='");
@@ -1258,21 +1261,23 @@ void tst_Debugger::dumpQLocale()
     dumpQLocaleHelper(swahili);
 }
 
-template <typename K, typename V> const QByteArray getMapType(K keyDummy, V valDummy)
+template <typename K, typename V>
+QByteArray getMapType(K keyDummy, V valDummy)
 {
     return QByteArray(typeToString(keyDummy)) + "@" + QByteArray(typeToString(valDummy));
 }
 
 template <typename K, typename V>
-    void getMapNodeParams(size_t &nodeSize, size_t &valOffset)
+void getMapNodeParams(size_t &nodeSize, size_t &valOffset)
 {
 #if QT_VERSION >= 0x040500
-        typedef QMapNode<K, V> node_t;
-        nodeSize = sizeof(node_t);
-        valOffset = offsetof(node_t, value);
+    typedef QMapNode<K, V> NodeType;
+    NodeType *node = 0;
+    nodeSize = sizeof(NodeType);
+    valOffset = size_t(&node->value);
 #else
-        nodeSize = sizeof(K) + sizeof(V) + 2*sizeof(void *);
-        valOffset = sizeof(K);
+    nodeSize = sizeof(K) + sizeof(V) + 2*sizeof(void *);
+    valOffset = sizeof(K);
 #endif
 }
 
@@ -1395,7 +1400,7 @@ template <typename K, typename V>
     typename QMap<K, V>::iterator it = m.begin();
     const K &key = it.key();
     const V &val = it.value();
-    const char * const keyType = typeToString(key);
+    //const char * const keyType = typeToString(key);
     QByteArray expected = QByteArray("value='',numchild='2',"
         "children=[{name='key',addr='").append(ptrToBa(&key)).
         append("',type='").append(typeToString(key)).append("',value='").
@@ -2193,9 +2198,11 @@ void tst_Debugger::dumpQTextCodec()
 // Creator
 //
 
-#define VERIFY_OFFSETOF(member)                                               \
-do {                                                                          \
-    QVERIFY(offsetof(QObjectPrivate, member) == offsetof(ObjectPrivate, member)); \
+#define VERIFY_OFFSETOF(member)                           \
+do {                                                      \
+    QObjectPrivate *qob = 0;                              \
+    ObjectPrivate *ob = 0;                                \
+    QVERIFY(size_t(&qob->member) == size_t(&ob->member)); \
 } while (0)
 
 
