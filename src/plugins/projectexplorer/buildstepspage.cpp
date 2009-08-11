@@ -97,10 +97,14 @@ BuildStepsPage::~BuildStepsPage()
 void BuildStepsPage::toggleDetails()
 {
     QToolButton *tb = qobject_cast<QToolButton *>(sender());
-    if (tb)
-        foreach(const BuildStepsWidgetStruct &s, m_buildSteps)
-            if (s.detailsButton == tb)
+    if (tb) {
+        foreach(const BuildStepsWidgetStruct &s, m_buildSteps) {
+            if (s.detailsButton == tb) {
                 s.widget->setVisible(!s.widget->isVisible());
+                fixupLayout(s.widget);
+            }
+        }
+    }
 }
 
 void BuildStepsPage::updateSummary()

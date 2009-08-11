@@ -520,9 +520,25 @@ EnvironmentWidget::~EnvironmentWidget()
     m_model = 0;
 }
 
+bool EnvironmentWidget::detailsVisible() const
+{
+    return m_details->isVisible();
+}
+
+void EnvironmentWidget::setDetailsVisible(bool b)
+{
+    m_details->setVisible(b);
+}
+
 void EnvironmentWidget::toggleDetails()
 {
     m_details->setVisible(!m_details->isVisible());
+    emit detailsVisibleChanged(m_details->isVisible());
+}
+
+QWidget *EnvironmentWidget::detailsWidget() const
+{
+    return m_details;
 }
 
 void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)

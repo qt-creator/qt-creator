@@ -120,6 +120,7 @@ Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
 void Qt4ProjectConfigWidget::toggleDetails()
 {
     m_ui->detailsWidget->setVisible(!m_ui->detailsWidget->isVisible());
+    fixupLayout(m_ui->detailsWidget);
 }
 
 void Qt4ProjectConfigWidget::updateDetails()

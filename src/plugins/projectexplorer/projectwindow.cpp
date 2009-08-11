@@ -76,8 +76,9 @@ PanelsWidget::PanelsWidget(QWidget *parent)
     topwidgetLayout->addWidget(verticalWidget);
     topwidgetLayout->addStretch(10);
 
-    setWidgetResizable(true);
     setFrameStyle(QFrame::NoFrame);
+    setWidgetResizable(true);
+
     setWidget(topwidget);
 }
 

@@ -104,12 +104,18 @@ public:
     QList<EnvironmentItem> userChanges() const;
     void setUserChanges(QList<EnvironmentItem> list);
 
+    bool detailsVisible() const;
+    void setDetailsVisible(bool b);
+
+    QWidget *detailsWidget() const;
+
 public slots:
     void updateButtons();
     void toggleDetails();
 
 signals:
     void userChangesUpdated();
+    void detailsVisibleChanged(bool visible);
 
 private slots:
     void editEnvironmentButtonClicked();

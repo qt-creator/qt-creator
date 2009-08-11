@@ -31,6 +31,7 @@
 #include "buildconfiguration.h"
 
 #include <utils/qtcassert.h>
+#include <QtGui/QLayout>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -131,6 +132,13 @@ BuildConfiguration * BuildStep::getBuildConfiguration(const QString & name) cons
 bool BuildStep::immutable() const
 {
     return false;
+}
+
+void BuildConfigWidget::fixupLayout(QWidget *widget)
+{
+    QWidget *parent = widget;
+    while((parent = parent->parentWidget()) && parent && parent->layout())
+        parent->layout()->activate();
 }
 
 IBuildStepFactory::IBuildStepFactory()
