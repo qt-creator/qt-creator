@@ -33,6 +33,7 @@
 #include "gitorious.h"
 #include "ui_gitoriousrepositorywizardpage.h"
 
+#include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -40,6 +41,7 @@
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QStandardItem>
 #include <QtGui/QItemSelectionModel>
+#include <QtGui/QSortFilterProxyModel>
 
 enum { TypeRole = Qt::UserRole + 1};
 enum { HeaderType, RepositoryType };
@@ -49,6 +51,23 @@ enum { debug = 0 };
 namespace Gitorious {
 namespace Internal {
 
+// A filter model that returns true for the parent (category) nodes
+// (which by default do not match the search string and are thus collapsed).
+class RepositoryFilterModel : public QSortFilterProxyModel {
+public:
+    explicit RepositoryFilterModel(QObject *parent = 0) : QSortFilterProxyModel(parent) {}
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+};
+
+bool RepositoryFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    if (!source_parent.isValid())
+        return true; // Always true for parents.
+    return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+}
+
+// ----------- GitoriousRepositoryWizardPage
 enum { RepositoryColumn, OwnerColumn, DescriptionColumn, ColumnCount };
 
 GitoriousRepositoryWizardPage::GitoriousRepositoryWizardPage(const GitoriousProjectWizardPage *projectPage,
@@ -57,14 +76,25 @@ GitoriousRepositoryWizardPage::GitoriousRepositoryWizardPage(const GitoriousProj
     ui(new Ui::GitoriousRepositoryWizardPage),
     m_projectPage(projectPage),
     m_model(new QStandardItemModel(0, ColumnCount)),
+    m_filterModel(new RepositoryFilterModel),
     m_valid(false)
 {
     QStringList headers;
     headers << tr("Name") << tr("Owner") << tr("Description");
-    m_model->setHorizontalHeaderLabels(headers);
+    m_model->setHorizontalHeaderLabels(headers);    
+    // Filter on all columns
+    m_filterModel->setSourceModel(m_model);
+    m_filterModel->setFilterKeyColumn(-1);
+    m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_filterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
 
     ui->setupUi(this);
-    ui->repositoryTreeView->setModel(m_model);
+    // Filter
+    connect(ui->filterLineEdit, SIGNAL(textChanged(QString)), m_filterModel, SLOT(setFilterFixedString(QString)));
+    ui->filterClearButton->setIcon(QIcon(Core::Constants::ICON_RESET));
+    connect(ui->filterClearButton, SIGNAL(clicked()), ui->filterLineEdit, SLOT(clear()));
+    // Tree view
+    ui->repositoryTreeView->setModel(m_filterModel);
     ui->repositoryTreeView->setUniformRowHeights(true);
     ui->repositoryTreeView->setAlternatingRowColors(true);
     ui->repositoryTreeView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -121,6 +151,7 @@ void GitoriousRepositoryWizardPage::initializePage()
     ui->repositoryTreeView->selectionModel()->clearSelection();
     if (const int oldRowCount = m_model->rowCount())
         m_model->removeRows(0, oldRowCount);
+    ui->filterLineEdit->clear();
     // fill model
     const QSharedPointer<GitoriousProject> proj = m_projectPage->project();
     setSubTitle(tr("Choose a repository of the project '%1'.").arg(proj->name));
@@ -153,14 +184,32 @@ void GitoriousRepositoryWizardPage::initializePage()
         ui->repositoryTreeView->resizeColumnToContents(r);
     // Select first
     if (firstEntry) {
-        const QModelIndex idx = m_model->indexFromItem(firstEntry);
-        ui->repositoryTreeView->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select|QItemSelectionModel::Current|QItemSelectionModel::Rows);
+        const QModelIndex filterIndex = m_filterModel->mapFromSource(m_model->indexFromItem(firstEntry));
+        ui->repositoryTreeView->selectionModel()->setCurrentIndex(filterIndex, QItemSelectionModel::Select|QItemSelectionModel::Current|QItemSelectionModel::Rows);
     }
+    ui->repositoryTreeView->setFocus();
+}
+
+QStandardItem *GitoriousRepositoryWizardPage::currentItem0() const
+{
+    return item0FromIndex(ui->repositoryTreeView->selectionModel()->currentIndex());
+}
+
+QStandardItem *GitoriousRepositoryWizardPage::item0FromIndex(const QModelIndex &filterIndex) const
+{
+    if (filterIndex.isValid()) {
+        const QModelIndex sourceIndex = m_filterModel->mapToSource(filterIndex);
+        if (sourceIndex.column() == 0)
+            return m_model->itemFromIndex(sourceIndex);
+        const QModelIndex sibling0 = sourceIndex.sibling(sourceIndex.row(), 0);
+        return m_model->itemFromIndex(sibling0);
+    }
+    return 0;
 }
 
 void GitoriousRepositoryWizardPage::slotCurrentChanged(const QModelIndex &current, const QModelIndex & /*previous */)
 {
-    const QStandardItem *item = current.isValid() ? m_model->itemFromIndex(current) : static_cast<const QStandardItem *>(0);
+    const QStandardItem *item = item0FromIndex(current);
     const bool isValid = item && item->data(TypeRole).toInt() == RepositoryType;
     if (isValid != m_valid) {
         m_valid = isValid;
@@ -170,13 +219,9 @@ void GitoriousRepositoryWizardPage::slotCurrentChanged(const QModelIndex &curren
 
 QString GitoriousRepositoryWizardPage::repositoryName() const
 {
-    const QModelIndex idx = ui->repositoryTreeView->selectionModel()->currentIndex();
-    if (idx.isValid()) {
-        const QModelIndex sibling0 = idx.column() ? idx.sibling(idx.row(), 0) : idx;
-        if (const QStandardItem *item = m_model->itemFromIndex(sibling0))
-            if (item->data(TypeRole).toInt() == RepositoryType)
-                return item->text();
-    }
+    if (const QStandardItem *item = currentItem0())
+        if (item->data(TypeRole).toInt() == RepositoryType)
+            return item->text();
     return QString();
 }
 

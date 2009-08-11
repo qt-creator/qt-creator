@@ -33,6 +33,7 @@
 #include <QtGui/QWizardPage>
 
 QT_BEGIN_NAMESPACE
+class QSortFilterProxyModel;
 class QStandardItemModel;
 class QStandardItem;
 class QModelIndex;
@@ -69,9 +70,16 @@ public slots:
 protected:
     void changeEvent(QEvent *e);
 
+private:
+    // return the repository (column 0) item.
+    QStandardItem *currentItem0() const;
+    // return the repository (column 0) item of index.
+    QStandardItem *item0FromIndex(const QModelIndex &filterIndex) const;
+
     Ui::GitoriousRepositoryWizardPage *ui;
     const GitoriousProjectWizardPage *m_projectPage;
     QStandardItemModel *m_model;
+    QSortFilterProxyModel *m_filterModel;
     bool m_valid;
 };
 
