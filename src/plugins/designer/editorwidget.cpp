@@ -80,7 +80,8 @@ SharedSubWindow::~SharedSubWindow()
 QHash<QString, QVariant> EditorWidget::m_globalState = QHash<QString, QVariant>();
 
 EditorWidget::EditorWidget(QWidget *formWindow)
-    : m_mainWindow(new Core::Utils::FancyMainWindow)
+    : m_mainWindow(new Core::Utils::FancyMainWindow),
+    m_initialized(false)
 {
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
@@ -125,7 +126,6 @@ void EditorWidget::setDefaultLayout()
     }
 
     m_mainWindow->setTrackingEnabled(true);
-    m_globalState = m_mainWindow->saveSettings();
 }
 
 void EditorWidget::activate()
@@ -133,10 +133,21 @@ void EditorWidget::activate()
     for (int i=0; i < DesignerSubWindowCount; i++)
         m_designerSubWindows[i]->activate();
 
+    if (!m_initialized) {
+        // set a default layout, so if something goes wrong with
+        // restoring the settings below, there is a fallback
+        // (otherwise we end up with a broken mainwindow layout)
+        // we can't do it in the constructor, because the sub windows
+        // don't have their widgets yet there
+        setDefaultLayout();
+        m_initialized = true;
+    }
+
     if (!m_globalState.isEmpty())
         m_mainWindow->restoreSettings(m_globalState);
-    else
-        setDefaultLayout();
+    else {
+        m_globalState = m_mainWindow->saveSettings();
+    }
 }
 
 void EditorWidget::hideEvent(QHideEvent *)
