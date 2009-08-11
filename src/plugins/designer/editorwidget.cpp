@@ -167,6 +167,8 @@ void EditorWidget::restoreState(QSettings *settings)
 
 void EditorWidget::toolChanged(int i)
 {
+    Q_UNUSED(i)
+//    TODO: How to activate the right dock window?
 //    if (m_bottomTab)
 //        m_bottomTab->setCurrentIndex(i == EditModeSignalsSlotEditor ? SignalSlotEditorTab : ActionEditorTab);
 }
