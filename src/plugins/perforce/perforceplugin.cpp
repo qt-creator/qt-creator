@@ -884,8 +884,7 @@ Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const Q
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::showOutputInEditor" << title << kind <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::instance()->
-        newFile(kind, &s, output.toLocal8Bit());
+    Core::IEditor *editor = Core::EditorManager::instance()->newFile(kind, &s, output);
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
     if (!e)
         return 0;

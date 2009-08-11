@@ -979,7 +979,7 @@ Core::IEditor * SubversionPlugin::showOutputInEditor(const QString& title, const
     if (Subversion::Constants::debug)
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << kind <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::instance()->newFile(kind, &s, output.toLocal8Bit());
+    Core::IEditor *editor = Core::EditorManager::instance()->newFile(kind, &s, output);
     SubversionEditor *e = qobject_cast<SubversionEditor*>(editor->widget());
     if (!e)
         return 0;
