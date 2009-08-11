@@ -10,90 +10,60 @@
     <height>154</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
-    <number>0</number>
-   </property>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="titleLabel">
-       <property name="text">
-        <string>Custom Process:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="detailsButton">
-       <property name="text">
-        <string>Details</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QWidget" name="detailsWidget" native="true">
-     <layout class="QFormLayout" name="formLayout">
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Enable Custom Process Step</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="enabledCheckBox">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="nameLabel">
-        <property name="text">
-         <string>Name:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="nameLineEdit"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="commandLabel">
-        <property name="text">
-         <string>Command:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="Core::Utils::PathChooser" name="command" native="true"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="workingDirecoryLabel">
-        <property name="text">
-         <string>Working Directory:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="Core::Utils::PathChooser" name="workingDirectory" native="true"/>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="commandArgumentsLabel">
-        <property name="text">
-         <string>Command Arguments:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="commandArgumentsLineEdit"/>
-      </item>
-     </layout>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Enable Custom Process Step</string>
+     </property>
     </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QCheckBox" name="enabledCheckBox">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="nameLabel">
+     <property name="text">
+      <string>Name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="nameLineEdit"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="commandLabel">
+     <property name="text">
+      <string>Command:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="Core::Utils::PathChooser" name="command" native="true"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="workingDirecoryLabel">
+     <property name="text">
+      <string>Working Directory:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="Core::Utils::PathChooser" name="workingDirectory" native="true"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="commandArgumentsLabel">
+     <property name="text">
+      <string>Command Arguments:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="commandArgumentsLineEdit"/>
    </item>
   </layout>
  </widget>

@@ -81,7 +81,6 @@ private slots:
     void workingDirectoryLineEditTextEdited();
     void commandArgumentsLineEditTextEdited();
     void enabledCheckBoxClicked(bool);
-    void toggleDetails();
 private:
     void updateDetails();
     QString m_buildConfiguration;

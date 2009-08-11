@@ -143,11 +143,6 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
             this, SLOT(commandArgumentsLineEditTextEdited()));
     connect(m_ui.enabledCheckBox, SIGNAL(clicked(bool)),
             this, SLOT(enabledCheckBoxClicked(bool)));
-
-    connect(m_ui.detailsButton, SIGNAL(clicked()),
-            this, SLOT(toggleDetails()));
-
-    m_ui.detailsWidget->setVisible(false);
 }
 
 void ProcessStepConfigWidget::updateDetails()
@@ -157,11 +152,6 @@ void ProcessStepConfigWidget::updateDetails()
                          m_step->arguments(m_buildConfiguration).join(" "),
                          m_step->enabled(m_buildConfiguration) ? "" : tr("(disabled)"));
     emit updateSummary();
-}
-
-void ProcessStepConfigWidget::toggleDetails()
-{
-    m_ui.detailsWidget->setVisible(!m_ui.detailsWidget->isVisible());
 }
 
 QString ProcessStepConfigWidget::displayName() const
