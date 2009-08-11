@@ -86,15 +86,36 @@ struct Connection
     int method;
     uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
     QBasicAtomicPointer<int> argumentTypes;
+    Connection *nextConnectionList;
     //senders linked list
     Connection *next;
     Connection **prev;
 };
 
-typedef QList<Connection *> ConnectionList;
+struct ConnectionList
+{
+    ConnectionList() : first(0), last(0) { }
+    int size() const
+    {
+        int count = 0;
+        for (Connection *c = first; c != 0; c = c->nextConnectionList)
+            ++count;
+        return count;
+    }
+
+    Connection *first;
+    Connection *last;
+};
+
 typedef Connection *SenderList;
 
-static inline const Connection &connectionAt(const ConnectionList &l, int i) { return *l.at(i); }
+static inline const Connection &connectionAt(const ConnectionList &l, int i)
+{
+    Connection *conn = l.first;
+    for (int cnt = 0; cnt < i; ++cnt)
+        conn = conn->nextConnectionList;
+    return *conn;
+}
 #endif
 
 class ObjectPrivate : public QObjectData
@@ -130,7 +151,7 @@ public:
     void *currentChildBeingDeleted;
     void *declarativeData;
     void *objectGuards;
-    QAtomicPointer<void> sharedRefCount;
+    QAtomicPointer<void> sharedRefcount;
     int *deleteWatch;
 #endif
 };

@@ -580,6 +580,33 @@ template <> const char *typeToNumchild(const QString &)
     return "0";
 }
 
+
+static int qobj_priv_conn_list_size(const QObjectPrivate::ConnectionList &l)
+{
+#if QT_VERSION >= 0x040600
+    int count = 0;
+    for (QObjectPrivate::Connection *c = l.first; c != 0; c = c->nextConnectionList)
+        ++count;
+    return count;
+#else
+    return l.size();
+#endif
+}
+
+static QObjectPrivate::Connection &qobj_priv_conn_list_at(
+        const QObjectPrivate::ConnectionList &l, int pos)
+{
+#if QT_VERSION >= 0x040600
+    QObjectPrivate::Connection *c = l.first;
+    for (int i = 0; i < pos; ++i)
+        c = c->nextConnectionList;
+    return *c;
+#else
+    return l.at(pos);
+#endif
+}
+
+
 void tst_Debugger::dumpQAbstractItemHelper(QModelIndex &index)
 {
     const QAbstractItemModel *model = index.model();
@@ -1592,8 +1619,9 @@ void tst_Debugger::dumpQObjectSignalHelper(QObject &o, int sigNum)
     QObjectPrivate::ConnectionList connList =
         connLists != 0 && connLists->size() > sigNum ?
         connLists->at(sigNum) : QObjectPrivate::ConnectionList();
-    for (int i = 0; i < connList.size(); ++i) {
-        const QObjectPrivate::Connection *conn = connList.at(i);
+    int i = 0;
+    for (QObjectPrivate::Connection *conn = connList.first; conn != 0;
+         ++i, conn = conn->nextConnectionList) {
         const QString iStr = QString::number(i);
         expected.append("{name='").append(iStr).append(" receiver',");
         if (conn->receiver == &o)
@@ -1615,10 +1643,10 @@ void tst_Debugger::dumpQObjectSignalHelper(QObject &o, int sigNum)
         expected.append("',numchild='0'},{name='").append(iStr).append(" type',type='',value='<").
             append(connectionType(conn->connectionType)).append(" connection>',").
             append("numchild='0'}");
-        if (i < connList.size() - 1)
+        if (conn != connList.last)
             expected.append(",");
     }
-    expected.append("],numchild='").append(QString::number(connList.size())).append("'");
+    expected.append("],numchild='").append(QString::number(i)).append("'");
 #endif
     testDumper(expected, &o, NS"QObjectSignal", true, "", "", sigNum);
 }
@@ -1692,7 +1720,8 @@ void tst_Debugger::dumpQObjectSignalListHelper(QObject &o)
                 connLists != 0 && connLists->size() > sigNum ?
                 connLists->at(sigNum) : QObjectPrivate::ConnectionList();
         expected.append("{name='").append(QString::number(sigNum)).append("',value='").
-            append(signature).append("',numchild='").append(QString::number(connList.size())).
+            append(signature).append("',numchild='").
+            append(QString::number(qobj_priv_conn_list_size(connList))).
             append("',addr='").append(addrString).append("',type='"NS"QObjectSignal'}");
         if (i < methods.size() - 1)
             expected.append(",");
@@ -1755,8 +1784,10 @@ void tst_Debugger::dumpQObjectSlotHelper(QObject &o, int slot)
         const QObjectPrivate::ConnectionList &connList =
                 connLists != 0 && connLists->size() > signal ?
                 connLists->at(signal) : QObjectPrivate::ConnectionList();
-        for (int i = 0; i < connList.size(); ++i) {
-            const QObjectPrivate::Connection *conn = connList.at(i);
+        const int listSize = qobj_priv_conn_list_size(connList);
+        for (int i = 0; i < listSize; ++i) {
+            const QObjectPrivate::Connection *conn =
+                    &qobj_priv_conn_list_at(connList, i);
             if (conn->receiver == &o && conn->method == slot) {
                 ++numChild;
                 const QMetaMethod &method = sender->metaObject()->method(signal);
@@ -1869,8 +1900,10 @@ void tst_Debugger::dumpQObjectSlotListHelper(QObject &o)
                 const QObjectPrivate::ConnectionList &connList =
                         connLists != 0 && connLists->size() > signal ?
                         connLists->at(signal) : QObjectPrivate::ConnectionList();
-                for (int c = 0; c != connList.size(); ++c) {
-                    const QObjectPrivate::Connection *conn = connList.at(c);
+                const int listSize = qobj_priv_conn_list_size(connList);
+                for (int c = 0; c != listSize; ++c) {
+                    const QObjectPrivate::Connection *conn =
+                            &qobj_priv_conn_list_at(connList, c);
                     if (conn->receiver == &o && conn->method == k)
                         ++numChild;
                 }
@@ -2116,9 +2149,32 @@ void tst_Debugger::dumpQTextCodec()
 // Creator
 //
 
+#define VERIFY_OFFSETOF(member)                                               \
+do {                                                                          \
+    QVERIFY(offsetof(QObjectPrivate, member) == offsetof(ObjectPrivate, member)); \
+} while (0)
+
+
 void tst_Debugger::initTestCase()
 {
     QVERIFY(sizeof(QObjectPrivate) == sizeof(ObjectPrivate));
+    VERIFY_OFFSETOF(threadData);
+    VERIFY_OFFSETOF(extraData);
+    VERIFY_OFFSETOF(objectName);
+    VERIFY_OFFSETOF(connectionLists);
+    VERIFY_OFFSETOF(senders);
+    VERIFY_OFFSETOF(currentSender);
+    VERIFY_OFFSETOF(eventFilters);
+    VERIFY_OFFSETOF(currentChildBeingDeleted);
+    VERIFY_OFFSETOF(connectedSignals);
+    VERIFY_OFFSETOF(deleteWatch);
+#if QT_VERSION < 0x040600
+    VERIFY_OFFSETOF(pendingChildInsertedEvents);
+#else
+    VERIFY_OFFSETOF(declarativeData);
+    VERIFY_OFFSETOF(objectGuards);
+    VERIFY_OFFSETOF(sharedRefcount);
+#endif
 }
 
 void tst_Debugger::readStandardOutput()
