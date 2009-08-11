@@ -40,6 +40,9 @@ Debugging
    * CDB: Added internal dumpers for string types for debuggee crashes
    * Improved QObject dumping, print out QRect/QSize, enumerations and flags
 
+Designer
+   * Added support for rearranging and floating form editor tools
+
 Version control plugins
    * Added CVS support
    * Added "sync" menu item to the perforce plugin
