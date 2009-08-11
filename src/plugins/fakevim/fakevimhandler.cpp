@@ -76,6 +76,8 @@
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QTextEdit>
 
+#include <climits>
+
 
 //#define DEBUG_KEY  1
 #if DEBUG_KEY
