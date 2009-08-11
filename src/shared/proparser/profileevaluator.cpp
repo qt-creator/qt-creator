@@ -2518,7 +2518,7 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
     if (variableName == QLatin1String("_PRO_FILE_PWD_"))
         return  QStringList(QFileInfo(m_profileStack.first()->fileName()).absolutePath());
     if (variableName == QLatin1String("_QMAKE_CACHE_"))
-        return QStringList(); // FIXME?
+        return QStringList(m_option->cachefile);
     if (variableName.startsWith(QLatin1String("QMAKE_HOST."))) {
         QString ret, type = variableName.mid(11);
 #if defined(Q_OS_WIN32)
