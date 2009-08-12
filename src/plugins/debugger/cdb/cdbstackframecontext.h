@@ -49,6 +49,9 @@ class CdbStackFrameContext
 {
     Q_DISABLE_COPY(CdbStackFrameContext)
 public:
+    // Mask bits for the source field of watch data.
+    enum { SourceMask = 0xFF, ChildrenKnownBit = 0x0100 };
+
     explicit CdbStackFrameContext(const QSharedPointer<CdbDumperHelper> &dumper,
                                   CdbSymbolGroupContext *symbolContext);
     ~CdbStackFrameContext();   

@@ -49,7 +49,7 @@ typedef QList<WatchData> WatchDataList;
 inline bool truePredicate(const WatchData & /* whatever */) { return true; }
 inline bool falsePredicate(const WatchData & /* whatever */) { return false; }
 inline bool isDumperPredicate(const WatchData &wd)
-{ return wd.source == OwnerDumper; }
+{ return (wd.source & CdbStackFrameContext::SourceMask) == OwnerDumper; }
 
 static inline void debugWatchDataList(const QList<WatchData> &l, const char *why = 0)
 {
@@ -155,14 +155,14 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
         derefedWd.setAddress(hexAddrS);
         derefedWd.name = QString(QLatin1Char('*'));
         derefedWd.iname = wd.iname + QLatin1String(".*");
-        derefedWd.source = OwnerDumper;
+        derefedWd.source = OwnerDumper | CdbStackFrameContext::ChildrenKnownBit;
         const CdbDumperHelper::DumpResult dr = m_dumper->dumpType(derefedWd, true, OwnerDumper, &m_dumperResult, errorMessage);
         if (dr != CdbDumperHelper::DumpOk)
             break;
         // Insert the pointer item with 1 additional child + its dumper results
         // Note: formal arguments might already be expanded in the symbol group.
         WatchData ptrWd = wd;
-        ptrWd.source = OwnerDumper;
+        ptrWd.source = OwnerDumper | CdbStackFrameContext::ChildrenKnownBit;
         ptrWd.setHasChildren(true);
         ptrWd.setChildrenUnneeded();
         m_wh->insertData(ptrWd);
@@ -200,6 +200,9 @@ static inline void fixDumperResult(const WatchData &source,
     }
     if (size == 1)
         return;
+    // If the model queries the expanding item by pretending childrenNeeded=1,
+    // refuse the request as the children are already known
+    returned.source |= CdbStackFrameContext::ChildrenKnownBit;
     // Fix the children: If the address is missing, we cannot query any further.
     const QList<WatchData>::iterator wend = result->end();
     QList<WatchData>::iterator it = result->begin();
@@ -230,7 +233,7 @@ WatchHandleDumperInserter &WatchHandleDumperInserter::operator=(WatchData &wd)
         return *this;
     }
     // Expanded by internal dumper? : ok
-    if (wd.source == OwnerSymbolGroupDumper) {
+    if ((wd.source & CdbStackFrameContext::SourceMask) == OwnerSymbolGroupDumper) {
         m_wh->insertData(wd);
         return *this;
     }
@@ -312,7 +315,15 @@ bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
     }
 
     // Expand artifical dumper items
-    if (incompleteLocal.source == OwnerDumper) {
+    if ((incompleteLocal.source & CdbStackFrameContext::SourceMask) == OwnerDumper) {
+        // If the model queries the expanding item by pretending childrenNeeded=1,
+        // refuse the request if the children are already known
+        if (incompleteLocal.state == WatchData::ChildrenNeeded && (incompleteLocal.source & CdbStackFrameContext::ChildrenKnownBit)) {
+            WatchData local = incompleteLocal;
+            local.setChildrenUnneeded();
+            wh->insertData(local);
+            return true;
+        }
         QList<WatchData> dumperResult;
         const CdbDumperHelper::DumpResult dr = m_dumper->dumpType(incompleteLocal, true, OwnerDumper, &dumperResult, errorMessage);
         if (dr == CdbDumperHelper::DumpOk) {
