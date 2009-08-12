@@ -170,8 +170,6 @@ public:
     QString m_proitem;
     QString m_pendingComment;
 
-    enum StrState { NeverStarted, NotStarted, Started, PutSpace };
-
     /////////////// Evaluating pro file contents
 
     // implementation of AbstractProItemVisitor
