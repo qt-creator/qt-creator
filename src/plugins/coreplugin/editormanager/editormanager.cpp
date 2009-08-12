@@ -1189,7 +1189,7 @@ void EditorManager::ensureEditorManagerVisible()
         m_d->m_core->modeManager()->activateMode(Constants::MODE_EDIT);
 }
 
-IEditor *EditorManager::newFile(const QString &editorKind,
+IEditor *EditorManager::openEditorWithContents(const QString &editorKind,
                                         QString *titlePattern,
                                         const QString &contents)
 {

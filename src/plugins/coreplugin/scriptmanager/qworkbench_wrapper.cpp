@@ -273,7 +273,7 @@ Core::IEditor *EditorManagerPrototype::openEditor(const QString &fileName, const
 
 Core::IEditor *EditorManagerPrototype::newFile(const QString &editorKind, QString titlePattern, const QString &contents)
 {
-    return callee()->newFile(editorKind, &titlePattern, contents);
+    return callee()->openEditorWithContents(editorKind, &titlePattern, contents);
 }
 
 int EditorManagerPrototype::makeEditorWritable(Core::IEditor *editor)

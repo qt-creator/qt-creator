@@ -113,6 +113,9 @@ public:
     IEditor *openEditor(const QString &fileName,
                         const QString &editorKind = QString(),
                         OpenEditorFlags flags = 0);
+    IEditor *openEditorWithContents(const QString &editorKind,
+                     QString *titlePattern = 0,
+                     const QString &contents = QString());
 
     bool openExternalEditor(const QString &fileName, const QString &editorKind);
     
@@ -120,9 +123,6 @@ public:
     QString getOpenWithEditorKind(const QString &fileName, bool *isExternalEditor = 0) const;
 
     void ensureEditorManagerVisible();
-    IEditor *newFile(const QString &editorKind,
-                     QString *titlePattern = 0,
-                     const QString &contents = QString());
     bool hasEditor(const QString &fileName) const;
     QList<IEditor *> editorsForFileName(const QString &filename) const;
     QList<IEditor *> editorsForFile(IFile *file) const;

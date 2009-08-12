@@ -173,7 +173,7 @@ VCSBase::VCSBaseEditor
         QTC_ASSERT(rc, return 0);
     } else {
         // Create new, set wait message, set up with source and codec
-        outputEditor = m_core->editorManager()->newFile(kind, &title, m_msgWait);
+        outputEditor = m_core->editorManager()->openEditorWithContents(kind, &title, m_msgWait);
         outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(rc, return 0);

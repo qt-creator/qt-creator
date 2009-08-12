@@ -1134,7 +1134,7 @@ Core::IEditor * CVSPlugin::showOutputInEditor(const QString& title, const QStrin
     if (CVS::Constants::debug)
         qDebug() << "CVSPlugin::showOutputInEditor" << title << kind <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::instance()->newFile(kind, &s, output.toLocal8Bit());
+    Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(kind, &s, output.toLocal8Bit());
     CVSEditor *e = qobject_cast<CVSEditor*>(editor->widget());
     if (!e)
         return 0;
