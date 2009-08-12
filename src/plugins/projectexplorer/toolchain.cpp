@@ -374,6 +374,14 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 
 QString MSVCToolChain::makeCommand() const
 {
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom) {
+        // We want jom! Try to find it.
+        QString jom = QCoreApplication::applicationDirPath() + QLatin1String("/jom.exe");
+        if (QFileInfo(jom).exists())
+            return jom;
+        else
+            return "jom.exe";
+    }
     return "nmake.exe";
 }
 

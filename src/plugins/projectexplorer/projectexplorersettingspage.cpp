@@ -73,6 +73,11 @@ QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
     m_ui.buildProjectBeforeRunCheckBox->setChecked(pes.buildBeforeRun);
     m_ui.saveAllFilesCheckBox->setChecked(pes.saveBeforeBuild);
     m_ui.showCompileOutputCheckBox->setChecked(pes.showCompilerOutput);
+#ifdef Q_OS_WIN
+    m_ui.jomCheckbox->setChecked(pes.useJom);
+#else
+    m_ui.jomCheckbox->setVisible(false);
+#endif
     return w;
 }
 
@@ -82,6 +87,9 @@ void ProjectExplorerSettingsPage::apply()
     pes.buildBeforeRun = m_ui.buildProjectBeforeRunCheckBox->isChecked();
     pes.saveBeforeBuild = m_ui.saveAllFilesCheckBox->isChecked();
     pes.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
+#ifdef Q_OS_WIN
+    pes.useJom = m_ui.jomCheckbox->isChecked();
+#endif
     ProjectExplorerPlugin::instance()->setProjectExplorerSettings(pes);
 }
 

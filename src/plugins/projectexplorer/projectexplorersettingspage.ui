@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>296</width>
-    <height>152</height>
+    <height>249</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -35,6 +35,16 @@
        <widget class="QCheckBox" name="showCompileOutputCheckBox">
         <property name="text">
          <string>Show Compiler Output on building</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="jomCheckbox">
+        <property name="whatsThis">
+         <string/>
+        </property>
+        <property name="text">
+         <string>Use jom instead of nmake</string>
         </property>
        </widget>
       </item>

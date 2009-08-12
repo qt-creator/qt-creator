@@ -80,6 +80,7 @@ struct ProjectExplorerSettings
     bool buildBeforeRun;
     bool saveBeforeBuild;
     bool showCompilerOutput;
+    bool useJom;
 };
 
 } // namespace Internal
