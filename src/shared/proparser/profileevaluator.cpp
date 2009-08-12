@@ -1819,7 +1819,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             }
             break;
         }
-        case E_SPLIT: {
+        case E_SPLIT:
             if (args.count() != 2) {
                 logMessage(format("split(var, sep) requires one or two arguments"));
             } else {
@@ -1829,8 +1829,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                         ret.append(splt);
             }
             break;
-        }
-        case E_MEMBER: {
+        case E_MEMBER:
             if (args.count() < 1 || args.count() > 3) {
                 logMessage(format("member(var, start, end) requires one to three arguments."));
             } else {
@@ -1878,9 +1877,8 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 }
             }
             break;
-        }
         case E_FIRST:
-        case E_LAST: {
+        case E_LAST:
             if (args.count() != 1) {
                 logMessage(format("%1(var) requires one argument.").arg(func));
             } else {
@@ -1893,7 +1891,6 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 }
             }
             break;
-        }
         case E_CAT:
             if (args.count() < 1 || args.count() > 2) {
                 logMessage(format("cat(file, singleline=true) requires one or two arguments."));
@@ -1939,14 +1936,14 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             }
             break;
 #endif
-        case E_EVAL: {
+        case E_EVAL:
             if (args.count() != 1) {
                 logMessage(format("eval(variable) requires one argument"));
 
             } else {
                 ret += values(args.at(0));
             }
-            break; }
+            break;
         case E_LIST: {
             static int x = 0;
             QString tmp;
@@ -2453,7 +2450,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             }
             return ProItem::ReturnFalse;
         }
-        case T_COUNT: {
+        case T_COUNT:
             if (args.count() != 2 && args.count() != 3) {
                 logMessage(format("count(var, count, op=\"equals\") requires two or three arguments."));
                 return ProItem::ReturnFalse;
@@ -2477,7 +2474,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 }
             }
             return returnBool(values(args.first()).count() == args[1].toInt());
-        }
         case T_GREATERTHAN:
         case T_LESSTHAN: {
             if (args.count() != 2) {
