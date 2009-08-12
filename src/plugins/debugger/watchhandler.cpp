@@ -246,6 +246,17 @@ static void formatToolTipRow(QTextStream &str, const QString &category, const QS
         << Qt::escape(value) << "</td></tr>";
 }
 
+static inline QString typeToolTip(const WatchData &wd)
+{
+    if (wd.displayedType.isEmpty())
+        return wd.type;
+    QString rc = wd.displayedType;
+    rc += QLatin1String(" (");
+    rc += wd.type;
+    rc += QLatin1Char(')');
+    return rc;
+}
+
 QString WatchData::toToolTip() const
 {
     if (!valuetooltip.isEmpty())
@@ -254,7 +265,7 @@ QString WatchData::toToolTip() const
     QTextStream str(&res);
     str << "<html><body><table>";
     formatToolTipRow(str, WatchHandler::tr("Expression"), exp);
-    formatToolTipRow(str, WatchHandler::tr("Type"), type);
+    formatToolTipRow(str, WatchHandler::tr("Type"), typeToolTip(*this));
     QString val = value;
     if (value.size() > 1000) {
         val.truncate(1000);
@@ -629,7 +640,10 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 case 1: return formattedValue(data,
                     m_handler->m_individualFormats[data.iname],
                     m_handler->m_typeFormats[data.type]);
-                case 2: return niceType(data.type);
+                case 2:
+                    if (!data.displayedType.isEmpty())
+                        return data.displayedType;
+                    return niceType(data.type);
                 default: break;
             }
             break;
@@ -884,6 +898,21 @@ WatchItem *WatchModel::findItem(const QString &iname, WatchItem *root) const
         if (WatchItem *item = findItem(iname, root->children.at(i)))
             return item;
     return 0;
+}
+
+static void debugRecursion(QDebug &d, const WatchItem *item, int depth)
+{
+    d << QString(2 * depth, QLatin1Char(' ')) << item->toString() << '\n';
+    foreach(const WatchItem *i, item->children)
+        debugRecursion(d, i, depth + 1);
+}
+
+QDebug operator<<(QDebug d, const WatchModel &m)
+{
+    QDebug nospace = d.nospace();
+    if (m.m_root)
+        debugRecursion(nospace, m.m_root, 0);
+    return d;
 }
 
 

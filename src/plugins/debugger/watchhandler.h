@@ -39,6 +39,10 @@
 #include <QtGui/QTreeView>
 #include <QtScript/QScriptValue>
 
+QT_BEGIN_NAMESPACE
+class QDebug;
+QT_END_NAMESPACE
+
 namespace Debugger {
 namespace Internal {
 
@@ -115,7 +119,8 @@ public:
     QString value;        // displayed value
     QByteArray editvalue; // displayed value
     QString valuetooltip; // tooltip in value column
-    QString type;         // displayed type
+    QString type;         // type for further processing
+    QString displayedType; // displayed type (optional)
     QString variable;     // name of internal Gdb variable if created
     QString addr;         // displayed adress
     QString saddr;        // stored address (pointer in container)
@@ -199,6 +204,7 @@ private:
     void emitDataChanged(int column,
         const QModelIndex &parentIndex = QModelIndex());
 
+    friend QDebug operator<<(QDebug d, const WatchModel &m);
 private:
     WatchHandler *m_handler;
     WatchType m_type;

@@ -51,6 +51,16 @@ inline bool falsePredicate(const WatchData & /* whatever */) { return false; }
 inline bool isDumperPredicate(const WatchData &wd)
 { return wd.source == OwnerDumper; }
 
+static inline void debugWatchDataList(const QList<WatchData> &l, const char *why = 0)
+{
+    QDebug nospace = qDebug().nospace();
+    if (why)
+        nospace << why << '\n';
+    foreach(const WatchData &wd, l)
+        nospace << wd.toString() << '\n';
+    nospace << '\n';
+}
+
 // Match an item that is expanded in the watchhandler.
 class WatchHandlerExpandedPredicate {
 public:
@@ -174,6 +184,7 @@ static inline void fixDumperResult(const WatchData &source,
     const int size = result->size();
     if (!size)
         return;
+    // debugWatchDataList(*result, suppressGrandChildren ? ">fixDumperResult suppressGrandChildren" : ">fixDumperResult");
     WatchData &returned = result->front();
     if (returned.iname != source.iname)
         return;
@@ -195,6 +206,7 @@ static inline void fixDumperResult(const WatchData &source,
     for (++it; it != wend; ++it) {
         WatchData &wd = *it;
         if (wd.addr.isEmpty() && wd.isSomethingNeeded()) {
+            wd.setHasChildren(false);
             wd.setAllUnneeded();
         } else {
             // Hack: Suppress endless recursion of the model. To be fixed,
@@ -203,6 +215,7 @@ static inline void fixDumperResult(const WatchData &source,
                 wd.setHasChildren(false);
         }
     }
+    // debugWatchDataList(*result, "<fixDumperResult");
 }
 
 WatchHandleDumperInserter &WatchHandleDumperInserter::operator=(WatchData &wd)
@@ -314,6 +327,7 @@ bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
             WatchData wd = incompleteLocal;
             if (wd.isValueNeeded())
                 wd.setValue(QCoreApplication::translate("CdbStackFrameContext", "<Unknown>"));
+            wd.setHasChildren(false);
             wd.setAllUnneeded();
             wh->insertData(wd);
         }

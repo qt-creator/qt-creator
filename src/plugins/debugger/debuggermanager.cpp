@@ -847,6 +847,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl,
 
     emit debugModeRequested();
     showDebuggerOutput(LogStatus, tr("Starting debugger for tool chain '%1'...").arg(toolChainName));
+    showDebuggerOutput(LogDebug, DebuggerSettings::instance()->dump());
 
     QString errorMessage;
     QString settingsIdHint;

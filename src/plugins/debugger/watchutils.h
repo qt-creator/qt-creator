@@ -102,6 +102,7 @@ struct QtDumperResult
         QString address;
         QString exp;
         QString type;
+        QString displayedType;
         QByteArray key;
         bool valueEncountered;
         QByteArray value;

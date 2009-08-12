@@ -187,6 +187,10 @@ static int dumpQVariant()
     prepareInBuffer("QVariant", "local.qvariant", "local.qvariant", "");
     qDumpObjectData440(2, 42, testAddress(&test), 1, 0, 0,0 ,0);
     fputs(qDumpOutBuffer, stdout);
+    test = QVariant(QRect(1,2, 3, 4));
+    prepareInBuffer("QVariant", "local.qvariant", "local.qvariant", "");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, 0, 0,0 ,0);
+    fputs(qDumpOutBuffer, stdout);
     return 0;
 }
 

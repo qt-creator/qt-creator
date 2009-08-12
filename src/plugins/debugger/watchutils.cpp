@@ -56,7 +56,6 @@
 #include <ctype.h>
 
 enum { debug = 0 };
-
 namespace Debugger {
 namespace Internal {
 
@@ -528,7 +527,9 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
         root.setValue(decodeData(value, valueEncoded));
         root.valuedisabled = valuedisabled;
     }
-    root.setType(displayedType.isEmpty() ? type : displayedType);
+    root.setType(type);
+    if (!displayedType.isEmpty())
+        root.displayedType = displayedType;
     root.setAddress(address);
     root.source = source;
     if (childCount >= 0)
@@ -570,21 +571,20 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
             wchild.setAddress(dchild.address);
             // The type setter sets hasChildren for known types.
             wchild.setType(dchild.type.isEmpty() ? childType : dchild.type);
-            if (wchild.isHasChildrenNeeded()) {
-                // Child overrides.
-                const int effectiveChildChildCount = dchild.childCount == -1 ?  childChildCount : dchild.childCount;
-                switch (effectiveChildChildCount) {
-                case -1:
-                    wchild.setChildrenNeeded();
-                    wchild.setHasChildrenNeeded();
-                    break;
-                case 0:
-                    wchild.setHasChildren(false);
-                    break;
-                default:
-                    wchild.setHasChildren(true);
-                    break;
-                }
+            if (!dchild.displayedType.isEmpty())
+                wchild.displayedType = dchild.displayedType;
+            // Child overrides.
+            const int effectiveChildChildCount = dchild.childCount == -1 ?  childChildCount : dchild.childCount;
+            switch (effectiveChildChildCount) {
+            case -1: // In this case, trust WatchData::setType().
+                break;
+            case 0:
+                wchild.setHasChildren(false);
+                break;
+            default:
+                wchild.setHasChildren(true);
+                wchild.setChildrenNeeded();
+                break;
             }
         }
     }
@@ -904,7 +904,7 @@ bool DumperParser::run()
 {
     const char *ptr = m_s;
     const bool rc = parseHash(0, ptr);
-    if (debug)
+    if (debug > 1)
         qDebug() << Q_FUNC_INFO << '\n' << m_s << rc;
     return rc;
 }
@@ -988,35 +988,35 @@ bool DumperParser::parseValue(int level, const char *&pos)
 
 bool DumperParser::handleKeyword(const char *k, int size)
 {
-    if (debug)
+    if (debug > 1)
         qDebug() << Q_FUNC_INFO << '\n' << QByteArray(k, size);
     return true;
 }
 
 bool DumperParser::handleListStart()
 {
-    if (debug)
+    if (debug > 1)
         qDebug() << Q_FUNC_INFO;
     return true;
 }
 
 bool DumperParser::handleListEnd()
 {
-    if (debug)
+    if (debug > 1)
         qDebug() << Q_FUNC_INFO;
     return true;
 }
 
 bool DumperParser::handleHashStart()
 {
-    if (debug)
+    if (debug > 1)
         qDebug() << Q_FUNC_INFO;
     return true;
 }
 
 bool DumperParser::handleHashEnd()
 {
-    if (debug)
+    if (debug > 1)
         qDebug() << Q_FUNC_INFO;
 
     return true;
@@ -1024,7 +1024,7 @@ bool DumperParser::handleHashEnd()
 
 bool DumperParser::handleValue(const char *k, int size)
 {
-    if (debug)
+    if (debug > 1)
         qDebug() << Q_FUNC_INFO << '\n' << QByteArray(k, size);
     return true;
 }
@@ -1513,6 +1513,7 @@ private:
                 ChildModeStart,
                 ExpectingChildren,ExpectingChildName, ExpectingChildAddress,
                 ExpectingChildExpression, ExpectingChildType,
+                ExpectingChildDisplayedType,
                 ExpectingChildKey, ExpectingChildKeyEncoded,
                 ExpectingChildValue, ExpectingChildValueEncoded,
                 ExpectingChildValueDisabled, ExpectingChildChildCount,
@@ -1582,7 +1583,7 @@ ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword
         if (!qstrncmp(keyword, "valuedisabled", size))
             return in > ChildModeStart ? ExpectingChildValueDisabled : ExpectingValueDisabled;
         if (!qstrncmp(keyword, "displayedtype", size))
-            return ExpectingDisplayedType;
+            return in > ChildModeStart ? ExpectingChildDisplayedType : ExpectingDisplayedType;
         if (!qstrncmp(keyword, "childnumchild", size))
             return ExpectingChildChildOverrideCount;
         break;
@@ -1687,6 +1688,9 @@ bool ValueDumperParser::handleValue(const char *k, int size)
     case ExpectingChildType:
         m_result.children.back().type = QString::fromLatin1(valueBA);
         break;
+    case ExpectingChildDisplayedType:
+        m_result.children.back().displayedType = QString::fromLatin1(valueBA);
+        break;
     case ExpectingChildChildCount:
         m_result.children.back().childCount = QString::fromLatin1(valueBA).toInt();
         break;
@@ -1704,7 +1708,7 @@ bool QtDumperHelper::parseValue(const char *data, QtDumperResult *r)
     // Sanity
     if (!r->children.empty() && r->childCount != r->children.size())
         r->childCount = r->children.size();
-    if (debug)
+    if (debug > 1)
         qDebug() << '\n' << data << '\n' << *r;
     return true;
 }

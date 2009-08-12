@@ -853,6 +853,8 @@ void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
     } while (false);
     if (!success)
         warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
+    if (debugCDBWatchHandling > 1)
+        qDebug() << *m_d->m_debuggerManagerAccess->watchHandler()->model(LocalsWatch);
 }
 
 void CdbDebugEngine::stepExec()
