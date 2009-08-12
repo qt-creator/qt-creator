@@ -88,6 +88,8 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QMessageBox>
 
+#include <climits>
+
 using namespace Core;
 using namespace Debugger::Constants;
 using namespace Debugger::Internal;
@@ -406,6 +408,7 @@ void DebuggingHelperOptionPage::updateState()
 
 } // namespace Internal
 } // namespace Debugger
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1113,6 +1116,7 @@ void DebuggerPlugin::gotoLocation(const QString &fileName, int lineNumber,
         m_locationMark = new LocationMark(fileName, lineNumber);
     }
 }
+
 
 void DebuggerPlugin::changeStatus(int status)
 {

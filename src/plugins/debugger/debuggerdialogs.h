@@ -171,6 +171,7 @@ private:
     Ui::StartRemoteDialog *m_ui;
 };
 
+
 } // namespace Debugger
 } // namespace Internal
 

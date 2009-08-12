@@ -33,7 +33,7 @@
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
 #include <QtGui/QAction>

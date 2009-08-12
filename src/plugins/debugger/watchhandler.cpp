@@ -690,6 +690,16 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 return m_handler->m_typeFormats[data.type];
             return format;
         }
+        
+        case AddressRole: {
+            if (!data.addr.isEmpty())
+                return data.addr;
+            bool ok;
+            (void) data.value.toULongLong(&ok, 0);
+            if (ok)
+                return data.value;
+            return QVariant();
+        }
 
         default:
             break; 

@@ -226,9 +226,9 @@ void DebuggerManager::init()
     m_stackWindow = new StackWindow;
     m_sourceFilesWindow = new SourceFilesWindow;
     m_threadsWindow = new ThreadsWindow;
-    m_localsWindow = new WatchWindow(WatchWindow::LocalsType);
-    m_watchersWindow = new WatchWindow(WatchWindow::WatchersType);
-    //m_tooltipWindow = new WatchWindow(WatchWindow::TooltipType);
+    m_localsWindow = new WatchWindow(WatchWindow::LocalsType, this);
+    m_watchersWindow = new WatchWindow(WatchWindow::WatchersType, this);
+    //m_tooltipWindow = new WatchWindow(WatchWindow::TooltipType, this);
     m_statusTimer = new QTimer(this);
 
     m_mainWindow = new Core::Utils::FancyMainWindow;
@@ -1496,7 +1496,6 @@ bool DebuggerManager::isReverseDebugging() const
 {
     return m_reverseDirectionAction->isChecked();
 }
-
 
 //////////////////////////////////////////////////////////////////////
 //

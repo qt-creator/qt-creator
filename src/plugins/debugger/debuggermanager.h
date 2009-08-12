@@ -251,8 +251,7 @@ private:
 // DebuggerManager
 //
 
-class DebuggerManager : public QObject,
-    public IDebuggerManagerAccessForEngines
+class DebuggerManager : public QObject, public IDebuggerManagerAccessForEngines
 {
     Q_OBJECT
 
@@ -265,9 +264,11 @@ public:
     IDebuggerManagerAccessForEngines *engineInterface();
     Core::Utils::FancyMainWindow *mainWindow() const { return m_mainWindow; }
     QLabel *statusLabel() const { return m_statusLabel; }
+    IDebuggerEngine *currentEngine() const { return m_engine; }
 
 public slots:
-    void startNewDebugger(DebuggerRunControl *runControl, const QSharedPointer<DebuggerStartParameters> &startParameters);
+    void startNewDebugger(DebuggerRunControl *runControl,
+        const QSharedPointer<DebuggerStartParameters> &startParameters);
     void exitDebugger();
 
     virtual QSharedPointer<DebuggerStartParameters> startParameters() const;
@@ -297,6 +298,7 @@ public slots:
     void setBreakpoint(const QString &fileName, int lineNumber);
     void activateFrame(int index);
     void selectThread(int index);
+    void fetchMemory(quint64 addr, quint64 length);
 
     void stepExec();
     void stepOutExec();
@@ -406,14 +408,11 @@ signals:
     void gotoLocationRequested(const QString &file, int line, bool setLocationMarker);
     void resetLocationRequested();
     void currentTextEditorRequested(QString *fileName, int *lineNumber, QObject **ob);
-    void currentMainWindowRequested(QWidget **);
     void sessionValueRequested(const QString &name, QVariant *value);
     void setSessionValueRequested(const QString &name, const QVariant &value);
     void configValueRequested(const QString &name, QVariant *value);
     void setConfigValueRequested(const QString &name, const QVariant &value);
     void applicationOutputAvailable(const QString &output);
-
-public:
 
 private:
     void init();

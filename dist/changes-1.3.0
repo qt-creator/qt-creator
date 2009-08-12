@@ -39,6 +39,7 @@ Debugging
    * CDB: Fixed thread handling
    * CDB: Added internal dumpers for string types for debuggee crashes
    * Improved QObject dumping, print out QRect/QSize, enumerations and flags
+   * Use the BinEditor plugin to show raw memory
 
 Designer
    * Added support for rearranging and floating form editor tools

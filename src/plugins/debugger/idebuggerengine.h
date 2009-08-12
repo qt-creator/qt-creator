@@ -49,6 +49,7 @@ namespace Internal {
 class Symbol;
 class WatchData;
 struct DebuggerStartParameters;
+class MemoryViewAgent;
 
 class IDebuggerEngine : public QObject
 {
@@ -95,6 +96,8 @@ public:
     virtual void reloadFullStack() = 0;
 
     virtual void watchPoint(const QPoint &) {}
+    virtual void fetchMemory(MemoryViewAgent *, quint64 addr, quint64 length)
+        { Q_UNUSED(addr); Q_UNUSED(length); }
 };
 
 } // namespace Internal

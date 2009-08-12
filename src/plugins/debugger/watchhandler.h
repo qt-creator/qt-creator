@@ -146,7 +146,8 @@ enum WatchRoles
     ActiveDataRole,  // used for tooltip
     TypeFormatListRole,
     TypeFormatRole,  // used to communicate alternative formats to the view
-    IndividualFormatRole
+    IndividualFormatRole,
+    AddressRole,     // some memory address related to the object
 };
 
 enum IntegerFormat

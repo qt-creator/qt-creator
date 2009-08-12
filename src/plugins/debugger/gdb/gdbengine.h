@@ -122,6 +122,9 @@ private:
     void loadAllSymbols();
     virtual QList<Symbol> moduleSymbols(const QString &moduleName);
 
+    void fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length);
+    void handleFetchMemory(const GdbResultRecord &record, const QVariant &cookie);
+
     Q_SLOT void setDebugDebuggingHelpers(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 

@@ -27,60 +27,52 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_WATCHWINDOW_H
-#define DEBUGGER_WATCHWINDOW_H
+#ifndef DEBUGGER_AGENTS_H
+#define DEBUGGER_AGENTS_H
 
-#include <QtGui/QTreeView>
+#include "debuggermanager.h"
+
+#include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/ieditor.h>
+
+#include <utils/qtcassert.h>
+
+#include <QtCore/QObject>
+#include <QtCore/QDebug>
+#include <QtCore/QPointer>
+#include <QtGui/QAction>
 
 namespace Debugger {
 namespace Internal {
 
-/////////////////////////////////////////////////////////////////////
-//
-// WatchWindow
-//
-/////////////////////////////////////////////////////////////////////
-
 class DebuggerManager;
 
-class WatchWindow : public QTreeView
+// Object form this class are created in response to user actions in
+// the Gui for showing raw memory from the inferior. After creation
+// it handles communication between the engine and the bineditor.
+
+class MemoryViewAgent : public QObject
 {
     Q_OBJECT
 
 public:
-    enum Type { LocalsType, TooltipType, WatchersType };
+    // Called from Gui
+    MemoryViewAgent(DebuggerManager *manager, quint64 startaddr);
+    ~MemoryViewAgent();
 
-    WatchWindow(Type type, DebuggerManager *manager, QWidget *parent = 0);
-    void setType(Type type) { m_type = type; }
-    Type type() const { return m_type; }
-    
+    enum { BinBlockSize = 1024 };
+
 public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on = true);
-    void setModel(QAbstractItemModel *model);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
+    // Called from Engine
+    void addLazyData(quint64 addr, const QByteArray &data);
+    // Called from Editor
+    void fetchLazyData(int block, bool sync);
 
-private:
-    Q_SLOT void resetHelper();
-    Q_SLOT void expandNode(const QModelIndex &idx);
-    Q_SLOT void collapseNode(const QModelIndex &idx);
-
-    void keyPressEvent(QKeyEvent *ev);
-    void contextMenuEvent(QContextMenuEvent *ev);
-    void dragEnterEvent(QDragEnterEvent *ev);
-    void dropEvent(QDropEvent *ev);
-    void dragMoveEvent(QDragMoveEvent *ev);
-    bool event(QEvent *ev);
-
-    void editItem(const QModelIndex &idx);
-    void resetHelper(const QModelIndex &idx);
-
-    bool m_alwaysResizeColumnsToContents;
-    Type m_type;
-    DebuggerManager *m_manager;
-    bool m_grabbing;
+public:
+    QPointer<IDebuggerEngine> m_engine;
+    QPointer<Core::IEditor> m_editor;
 };
-
 
 } // namespace Internal
 } // namespace Debugger

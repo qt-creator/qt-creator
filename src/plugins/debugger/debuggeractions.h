@@ -37,6 +37,7 @@
 QT_BEGIN_NAMESPACE
 class QActionGroup;
 QT_END_NAMESPACE
+
 namespace Debugger {
 namespace Internal {
 
@@ -80,6 +81,12 @@ enum DebuggerActionCode
     LockView,
     LogTimeStamps,
 
+    RecheckDebuggingHelpers,
+    UseDebuggingHelpers,
+    UseCustomDebuggingHelperLocation,
+    CustomDebuggingHelperLocation,
+    DebugDebuggingHelpers,
+    
     // Gdb
     GdbLocation,
     GdbEnvironment,
@@ -98,12 +105,6 @@ enum DebuggerActionCode
     UseToolTips,
     AssignValue,
     AssignType,
-
-    RecheckDebuggingHelpers,
-    UseDebuggingHelpers,
-    UseCustomDebuggingHelperLocation,
-    CustomDebuggingHelperLocation,
-    DebugDebuggingHelpers,
 
     // Source List
     ListSourceFiles,

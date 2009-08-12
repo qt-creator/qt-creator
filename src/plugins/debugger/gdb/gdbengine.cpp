@@ -34,6 +34,7 @@
 
 #include "watchutils.h"
 #include "debuggeractions.h"
+#include "debuggeragents.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggertooltip.h"
@@ -3985,6 +3986,40 @@ void GdbEngine::handleWatchPoint(const GdbResultRecord &record, const QVariant &
         QString exp = _("(*(%1)%2)").arg(type).arg(addr);
         theDebuggerAction(WatchExpression)->trigger(exp);
     }
+}
+
+void GdbEngine::handleFetchMemory(const GdbResultRecord &record,
+    const QVariant &cookie)
+{
+    // ^done,addr="0x08910c88",nr-bytes="16",total-bytes="16",
+    // next-row="0x08910c98",prev-row="0x08910c78",next-page="0x08910c98",
+    // prev-page="0x08910c78",memory=[{addr="0x08910c88",
+    // data=["1","0","0","0","5","0","0","0","0","0","0","0","0","0","0","0"]}]
+    bool ok = true;
+    MemoryViewAgent *agent = (MemoryViewAgent *)cookie.toULongLong(&ok);
+    QTC_ASSERT(ok, return);
+    QTC_ASSERT(agent, return);
+    QByteArray ba;
+    GdbMi memory = record.data.findChild("memory");
+    QTC_ASSERT(memory.children().size() == 1, return);
+    GdbMi memory0 = memory.children().at(0); // we asked for only one 'row'
+    quint64 addr = memory0.findChild("addr").data().toULongLong(&ok, 0);
+    QTC_ASSERT(ok, return);
+    GdbMi data = memory0.findChild("data");
+    foreach (const GdbMi &child, data.children()) {
+        unsigned char c = child.data().toUInt(&ok, 0);
+        QTC_ASSERT(ok, return);
+        ba.append(c);
+    }
+    //qDebug() << "GDB READ MEMORY" << agent << addr << data.data() << ba.size();
+    agent->addLazyData(addr, ba);
+}
+
+void GdbEngine::fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length)
+{
+    //qDebug() << "GDB MEMORY FETCH" << addr << length;
+    postCommand(_("-data-read-memory %1 x 1 1 %2").arg(addr).arg(length),
+        NeedsStop, CB(handleFetchMemory), QVariant(quint64(agent)));
 }
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *opts)

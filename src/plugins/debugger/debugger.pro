@@ -6,11 +6,11 @@ TARGET = Debugger
 
 # CONFIG += single
 include(../../qtcreatorplugin.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/find/find.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
 include(../../plugins/cpptools/cpptools.pri)
+include(../../plugins/find/find.pri)
+include(../../plugins/projectexplorer/projectexplorer.pri)
+include(../../plugins/texteditor/texteditor.pri)
 include(../../libs/cplusplus/cplusplus.pri)
 include(../../libs/utils/utils.pri)
 INCLUDEPATH += $$PWD/../../libs/utils
@@ -20,6 +20,7 @@ QT += gui network script
 HEADERS += \
     breakhandler.h \
     breakwindow.h \
+    debuggeragents.h \
     debuggeractions.h \
     debuggerconstants.h \
     debuggerdialogs.h \
@@ -50,6 +51,7 @@ SOURCES += \
     breakhandler.cpp \
     breakwindow.cpp \
     breakwindow.h \
+    debuggeragents.cpp \
     debuggeractions.cpp \
     debuggerdialogs.cpp \
     debuggermanager.cpp \

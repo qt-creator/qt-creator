@@ -31,6 +31,7 @@
 #include "watchhandler.h"
 
 #include "debuggeractions.h"
+#include "debuggeragents.h"
 
 #include <utils/qtcassert.h>
 
@@ -39,8 +40,11 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QDialog>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QItemDelegate>
+#include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
@@ -111,8 +115,9 @@ public:
 //
 /////////////////////////////////////////////////////////////////////
 
-WatchWindow::WatchWindow(Type type, QWidget *parent)
-    : QTreeView(parent), m_alwaysResizeColumnsToContents(true), m_type(type)
+WatchWindow::WatchWindow(Type type, DebuggerManager *manager, QWidget *parent)
+    : QTreeView(parent), m_alwaysResizeColumnsToContents(true), m_type(type),
+        m_manager(manager)
 {
     m_grabbing = false;
 
@@ -237,28 +242,44 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     QMenu menu;
-    QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
-    QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
+    QAction *actAdjustColumnWidths =
+        new QAction(tr("Adjust column widths to contents"), &menu);
 
-    act2->setCheckable(true);
-    act2->setChecked(m_alwaysResizeColumnsToContents);
+    QAction *actAlwaysAdjustColumnWidth =
+        new QAction(tr("Always adjust column widths to contents"), &menu);
+    actAlwaysAdjustColumnWidth->setCheckable(true);
+    actAlwaysAdjustColumnWidth->setChecked(m_alwaysResizeColumnsToContents);
 
-    //QAction *act4 = theDebuggerAction(WatchExpressionInWindow);
-    //menu.addAction(act4);
+    //QAction *actWatchExpressionInWindow
+    // = theDebuggerAction(WatchExpressionInWindow);
+    //menu.addAction(actWatchExpressionInWindow);
 
-    QAction *act3 = new QAction(tr("Insert new watch item"), &menu); 
-    QAction *act4 = new QAction(tr("Select widget to watch"), &menu);
+    QAction *actInsertNewWatchItem =
+        new QAction(tr("Insert new watch item"), &menu); 
 
-    menu.addAction(act1);
-    menu.addAction(act2);
+    QAction *actSelectWidgetToWatch =
+        new QAction(tr("Select widget to watch"), &menu);
+
+    QString address = model()->data(mi0, AddressRole).toString();
+    QAction *actWatchKnownMemory = 0;
+    QAction *actWatchUnknownMemory = 0;
+    if (address.isEmpty())
+        actWatchUnknownMemory = new QAction(tr("Open memory editor"), &menu);
+    else
+        actWatchKnownMemory =
+            new QAction(tr("Open memory editor at %1").arg(address), &menu);
+
+    menu.addAction(actAdjustColumnWidths);
+    menu.addAction(actAlwaysAdjustColumnWidth);
     menu.addSeparator();
     int atype = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
     menu.addAction(theDebuggerAction(atype)->updatedAction(exp));
 
-    menu.addAction(act3);
-    menu.addAction(act4);
+    menu.addAction(actInsertNewWatchItem);
+    menu.addAction(actSelectWidgetToWatch);
     menu.addMenu(&typeFormatMenu);
     menu.addMenu(&individualFormatMenu);
+    menu.addAction(actWatchKnownMemory ? actWatchKnownMemory : actWatchUnknownMemory);
 
     menu.addSeparator();
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
@@ -268,14 +289,33 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == act1) {
+    if (act == actAdjustColumnWidths) {
         resizeColumnsToContents();
-    } else if (act == act2) {
+    } else if (act == actAlwaysAdjustColumnWidth) {
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    } else if (act == act3) {
+    } else if (act == actInsertNewWatchItem) {
         theDebuggerAction(WatchExpression)
             ->trigger(WatchHandler::watcherEditPlaceHolder());
-    } else if (act == act4) {
+    } else if (act == actWatchKnownMemory) {
+        bool ok = true;
+        uint addr = address.toUInt(&ok, 0);
+        (void) new MemoryViewAgent(m_manager, addr);
+    } else if (act == actWatchUnknownMemory) {
+        QLabel *label = new QLabel("Enter an address: ");
+        QLineEdit *lineEdit = new QLineEdit;
+        QHBoxLayout *layout = new QHBoxLayout;
+        layout->addWidget(label);
+        layout->addWidget(lineEdit);
+        QDialog dialog(this);
+        dialog.setWindowTitle("Select start address");
+        dialog.setLayout(layout);
+        connect(lineEdit, SIGNAL(returnPressed()), &dialog, SLOT(accept()));
+        if (dialog.exec() == QDialog::Accepted) {
+            bool ok = true;
+            uint addr = lineEdit->text().toUInt(&ok, 0);
+            (void) new MemoryViewAgent(m_manager, addr);
+        }
+    } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
     } else { 

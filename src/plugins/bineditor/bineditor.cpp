@@ -32,14 +32,13 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <QtGui/QScrollBar>
+#include <QtCore/QByteArrayMatcher>
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
 #include <QtGui/QFontMetrics>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
 #include <QtGui/QWheelEvent>
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
-#include <QtCore/QByteArrayMatcher>
 
 using namespace BINEditor;
 
@@ -794,7 +793,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
             }
         }
 
-        if (cursor >= 0) {
+        if (cursor >= 0 && !printable.isEmpty()) {
             QRect cursorRect(text_x + painter.fontMetrics().width(printable.left(cursor)),
                              y-m_ascent,
                              painter.fontMetrics().width(printable.at(cursor)),

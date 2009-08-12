@@ -30,12 +30,13 @@
 #ifndef BINEDITOR_H
 #define BINEDITOR_H
 
-#include <QtGui/qabstractscrollarea.h>
-#include <QtCore/qbasictimer.h>
-#include <QtCore/qstack.h>
-#include <QtCore/qset.h>
-#include <QtGui/qtextdocument.h>
-#include <QtGui/qtextformat.h>
+#include <QtCore/QBasicTimer>
+#include <QtCore/QSet>
+#include <QtCore/QStack>
+
+#include <QtGui/QAbstractScrollArea>
+#include <QtGui/QTextDocument>
+#include <QtGui/QTextFormat>
 
 namespace Core {
 class IEditor;
@@ -63,9 +64,9 @@ public:
     inline int dataSize() const { return m_size; }
 
     inline bool inLazyMode() const { return m_inLazyMode; }
-    void setLazyData(int cursorPosition, int size, int blockSize = 4096);
+    Q_INVOKABLE void setLazyData(int cursorPosition, int size, int blockSize = 4096);
     inline int lazyDataBlockSize() const { return m_blockSize; }
-    void addLazyData(int block, const QByteArray &data);
+    Q_INVOKABLE void addLazyData(int block, const QByteArray &data);
     bool applyModifications(QByteArray &data) const;
 
     void zoomIn(int range = 1);
