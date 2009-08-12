@@ -109,15 +109,15 @@ QString ToolChain::toolChainName(ToolChainType tc)
 {
     switch (tc) {
     case GCC:
-        return QLatin1String("gcc");
+        return QCoreApplication::translate("ToolChain", "GCC");
     case LinuxICC:
-        return QLatin1String("Linux icc");
+        return QCoreApplication::translate("ToolChain", "Linux ICC");
     case MinGW:
-        return QLatin1String("MinGW");
+        return QCoreApplication::translate("ToolChain", "MinGW");
     case MSVC:
-        return QLatin1String("MS VC");
+        return QCoreApplication::translate("ToolChain", "Microsoft Visual Studio");
     case WINCE:
-        return QLatin1String("Windows CE");
+        return QCoreApplication::translate("ToolChain", "Windows CE");
     case OTHER:
         return QCoreApplication::translate("ToolChain", "Other");
     case INVALID:
