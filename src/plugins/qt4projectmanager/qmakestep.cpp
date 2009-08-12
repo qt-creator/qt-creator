@@ -241,9 +241,10 @@ void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
 {
     Q_ASSERT(!m_buildConfiguration.isNull());
     m_step->setValue(m_buildConfiguration, "qmakeArgs", ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
-    m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
+
     static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
     updateTitleLabel();
+    updateEffectiveQMakeCall();
 }
 
 void QMakeStepConfigWidget::buildConfigurationChanged()
@@ -256,9 +257,9 @@ void QMakeStepConfigWidget::buildConfigurationChanged()
         buildConfiguration = QtVersion::QmakeBuildConfig(buildConfiguration & ~QtVersion::DebugBuild);
     }
     m_step->project()->setValue(m_buildConfiguration, "buildConfiguration", int(buildConfiguration));
-    m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
     static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
     updateTitleLabel();
+    updateEffectiveQMakeCall();
 }
 
 QString QMakeStepConfigWidget::displayName() const
@@ -276,10 +277,21 @@ void QMakeStepConfigWidget::init(const QString &buildConfiguration)
     m_buildConfiguration = buildConfiguration;
     QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->value(buildConfiguration, "qmakeArgs").toStringList());
     m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
-    m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(buildConfiguration)));
     bool debug = QtVersion::QmakeBuildConfig(m_step->project()->value(buildConfiguration, "buildConfiguration").toInt()) & QtVersion::DebugBuild;
     m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
     updateTitleLabel();
+    updateEffectiveQMakeCall();
+}
+
+void QMakeStepConfigWidget::updateEffectiveQMakeCall()
+{
+    const QtVersion *qtVersion = static_cast<Qt4Project *>(m_step->project())->qtVersion(m_buildConfiguration);
+    if (qtVersion) {
+        QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
+        m_ui.qmakeArgumentsEdit->setPlainText(program + " " + ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
+    } else {
+        m_ui.qmakeArgumentsEdit->setPlainText(tr("No valid qt version set."));
+    }
 }
 
 ////

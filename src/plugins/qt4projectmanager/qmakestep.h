@@ -109,6 +109,7 @@ private slots:
     void update();
 private:
     void updateTitleLabel();
+    void updateEffectiveQMakeCall();
     QString m_buildConfiguration;
     Ui::QMakeStep m_ui;
     QMakeStep *m_step;
