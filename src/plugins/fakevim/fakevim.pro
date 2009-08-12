@@ -7,7 +7,7 @@ include(../../libs/cplusplus/cplusplus.pri)
 include(../../plugins/projectexplorer/projectexplorer.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/texteditor/cppeditor.pri)
+include(../../plugins/cppeditor/cppeditor.pri)
 include(../../shared/indenter/indenter.pri)
 
 # DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
