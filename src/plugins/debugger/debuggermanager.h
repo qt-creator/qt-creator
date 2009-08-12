@@ -298,7 +298,6 @@ public slots:
     void setBreakpoint(const QString &fileName, int lineNumber);
     void activateFrame(int index);
     void selectThread(int index);
-    void fetchMemory(quint64 addr, quint64 length);
 
     void stepExec();
     void stepOutExec();
