@@ -32,6 +32,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <limits.h>
+
 namespace Debugger {
 namespace Internal {
 
