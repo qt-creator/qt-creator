@@ -592,16 +592,20 @@ void Qt4RunConfiguration::updateTarget()
         }
     }
 
+    QString target = reader->value("TARGET");
+    if (target.isEmpty())
+        target = QFileInfo(m_proFilePath).baseName();
+
 #if defined (Q_OS_MAC)
     if (reader->values("CONFIG").contains("app_bundle")) {
         m_workingDir += QLatin1Char('/')
-                   + reader->value("TARGET")
+                   + target
                    + QLatin1String(".app/Contents/MacOS");
     }
 #endif
 
     m_workingDir = QDir::cleanPath(m_workingDir);
-    m_executable = QDir::cleanPath(m_workingDir + QLatin1Char('/') + reader->value("TARGET"));
+    m_executable = QDir::cleanPath(m_workingDir + QLatin1Char('/') + target);
     //qDebug()<<"##### updateTarget sets:"<<m_workingDir<<m_executable;
 
 #if defined (Q_OS_WIN)

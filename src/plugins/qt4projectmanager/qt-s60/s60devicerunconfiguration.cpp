@@ -221,6 +221,9 @@ void S60DeviceRunConfiguration::updateTarget()
     }
 
     m_targetName = reader->value("TARGET");
+    if (m_targetName.isEmpty())
+        m_targetName = QFileInfo(m_proFilePath).baseName();
+
     m_baseFileName = QDir::cleanPath(m_workingDir + QLatin1Char('/') + m_targetName);
 
     if (pro->toolChainType(pro->activeBuildConfiguration()) == ToolChain::GCCE)

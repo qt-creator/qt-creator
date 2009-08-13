@@ -149,8 +149,12 @@ void S60EmulatorRunConfiguration::updateTarget()
         qmakeBuildConfig = "udeb";
     baseDir += "/epoc32/release/winscw/" + qmakeBuildConfig;
 
+    QString target = reader->value("TARGET");
+    if (target.isEmpty())
+        target = QFileInfo(m_proFilePath).baseName();
+
     m_executable = QDir::toNativeSeparators(
-            QDir::cleanPath(baseDir + QLatin1Char('/') + reader->value("TARGET")));
+            QDir::cleanPath(baseDir + QLatin1Char('/') + target));
     m_executable += QLatin1String(".exe");
 
     delete reader;
