@@ -111,11 +111,11 @@ QString ToolChain::toolChainName(ToolChainType tc)
     case GCC:
         return QCoreApplication::translate("ToolChain", "GCC");
     case LinuxICC:
-        return QCoreApplication::translate("ToolChain", "Linux ICC");
+        return QCoreApplication::translate("ToolChain", "Intel C++ Compiler (Linux)");
     case MinGW:
         return QCoreApplication::translate("ToolChain", "MinGW");
     case MSVC:
-        return QCoreApplication::translate("ToolChain", "Microsoft Visual Studio");
+        return QCoreApplication::translate("ToolChain", "Microsoft Visual C++");
     case WINCE:
         return QCoreApplication::translate("ToolChain", "Windows CE");
     case OTHER:
