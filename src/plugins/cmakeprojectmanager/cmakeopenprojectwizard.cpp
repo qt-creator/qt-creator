@@ -213,9 +213,9 @@ InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
     setLayout(new QVBoxLayout);
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
-    label->setText(tr("Qt Creator has detected an in-source-build "
+    label->setText(tr("Qt Creator has detected an <b>in-source-build in %1</b> "
                    "which prevents shadow builds. Qt Creator will not allow you to change the build directory. "
-                   "If you want a shadow build, clean your source directory and re-open the project."));
+                   "If you want a shadow build, clean your source directory and re-open the project.").arg(m_cmakeWizard->buildDirectory()));
     layout()->addWidget(label);
 }
 
