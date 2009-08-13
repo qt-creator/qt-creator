@@ -159,8 +159,8 @@ signals:
 
     void startupProjectChanged(ProjectExplorer::Project *project);
 
-    void sessionUnloaded();
     void sessionLoaded();
+    void aboutToUnloadSession();
     void aboutToSaveSession();
     void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 

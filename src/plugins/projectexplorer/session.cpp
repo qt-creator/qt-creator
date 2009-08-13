@@ -399,8 +399,8 @@ SessionManager::SessionManager(QObject *parent)
 
 SessionManager::~SessionManager()
 {
+    emit aboutToUnloadSession();
     delete m_file;
-    emit sessionUnloaded();
 }
 
 
@@ -598,8 +598,8 @@ bool SessionManager::createImpl(const QString &fileName)
     }
 
     if (success) {
+        emit aboutToUnloadSession();
         delete m_file;
-        emit sessionUnloaded();
         m_file = new SessionFile;
         m_file->setFileName(fileName);
         setStartupProject(defaultStartupProject());
@@ -633,9 +633,8 @@ bool SessionManager::loadImpl(const QString &fileName)
     }
 
     if (success) {
+        emit aboutToUnloadSession();
         delete m_file;
-        m_file = 0;
-        emit sessionUnloaded();
         m_file = new SessionFile;
         if (!m_file->load(fileName)) {
             QMessageBox::warning(0, tr("Error while restoring session"),

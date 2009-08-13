@@ -118,7 +118,7 @@ private Q_SLOTS:
     // this should be executed in the GUI thread.
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
-    void onSessionUnloaded();
+    void onAboutToUnloadSession();
     void onProjectAdded(ProjectExplorer::Project *project);
     void postEditorUpdate();
     void updateEditorSelections();

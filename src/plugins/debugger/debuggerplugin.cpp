@@ -871,8 +871,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
        m_manager, SLOT(sessionLoaded()));
     connect(sessionManager(), SIGNAL(aboutToSaveSession()),
        m_manager, SLOT(aboutToSaveSession()));
-    connect(sessionManager(), SIGNAL(sessionUnloaded()),
-       m_manager, SLOT(sessionUnloaded()));
+    connect(sessionManager(), SIGNAL(aboutToUnloadSession()),
+       m_manager, SLOT(aboutToUnloadSession()));
 
     // EditorManager
     QObject *editorManager = core->editorManager();

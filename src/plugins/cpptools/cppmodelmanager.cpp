@@ -611,8 +611,8 @@ CppModelManager::CppModelManager(QObject *parent)
     connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project *)),
             this, SLOT(onAboutToRemoveProject(ProjectExplorer::Project *)));
 
-    connect(session, SIGNAL(sessionUnloaded()),
-            this, SLOT(onSessionUnloaded()));
+    connect(session, SIGNAL(aboutToUnloadSession()),
+            this, SLOT(onAboutToUnloadSession()));
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
 
@@ -1078,7 +1078,7 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
     GC();
 }
 
-void CppModelManager::onSessionUnloaded()
+void CppModelManager::onAboutToUnloadSession()
 {
     if (m_core->progressManager()) {
         m_core->progressManager()->cancelTasks(CppTools::Constants::TASK_INDEX);

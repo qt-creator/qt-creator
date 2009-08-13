@@ -1046,7 +1046,7 @@ void DebuggerManager::sessionLoaded()
     loadSessionData();
 }
 
-void DebuggerManager::sessionUnloaded()
+void DebuggerManager::aboutToUnloadSession()
 {
     cleanupViews();
     if (m_engine)

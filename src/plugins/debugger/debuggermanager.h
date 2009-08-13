@@ -311,7 +311,7 @@ public slots:
     void updateWatchData(const WatchData &data);
 
     void sessionLoaded();
-    void sessionUnloaded();
+    void aboutToUnloadSession();
     void aboutToSaveSession();
 
     void assignValueInDebugger();
