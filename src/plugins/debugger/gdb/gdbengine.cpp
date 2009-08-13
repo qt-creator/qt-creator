@@ -1196,7 +1196,10 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                     "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
                     .arg(name.isEmpty() ? tr(" <Unknown> ") : _(name))
                     .arg(meaning.isEmpty() ? tr(" <Unknown> ") : _(meaning));
-                QMessageBox::information(q->mainWindow(), tr("Signal received"), msg);
+                QMessageBox *mb = new QMessageBox(QMessageBox::Information,
+                    tr("Signal received"), msg);
+                mb->setAttribute(Qt::WA_DeleteOnClose);
+                mb->show();
             }
 
             if (reason.isEmpty())
