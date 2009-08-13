@@ -177,7 +177,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateMakeOverrideLabel()));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            this, SLOT(updateSummary()));
+            this, SLOT(updateDetails()));
 }
 
 void MakeStepConfigWidget::updateMakeOverrideLabel()
