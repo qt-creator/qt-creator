@@ -325,7 +325,7 @@ void GenericProject::setIncludePaths(const QStringList &includePaths)
 QByteArray GenericProject::defines() const
 { return m_defines; }
 
-void GenericProject::setToolChainId(const QString &toolChainId)
+void GenericProject::setToolChainId(ProjectExplorer::ToolChain::ToolChainType toolChainId)
 {
     using namespace ProjectExplorer;
 
@@ -334,21 +334,21 @@ void GenericProject::setToolChainId(const QString &toolChainId)
     delete m_toolChain;
     m_toolChain = 0;
 
-    if (toolChainId == QLatin1String("mingw")) {
+    if (toolChainId == ToolChain::MinGW) {
         const QLatin1String qmake_cxx("g++"); // ### FIXME
         const QString mingwDirectory; // ### FIXME
 
         m_toolChain = ToolChain::createMinGWToolChain(qmake_cxx, mingwDirectory);
 
-    } else if (toolChainId == QLatin1String("msvc")) {
+    } else if (toolChainId == ToolChain::MSVC) {
         const QString msvcVersion; // ### FIXME
         m_toolChain = ToolChain::createMSVCToolChain(msvcVersion, false);
 
-    } else if (toolChainId == QLatin1String("wince")) {
+    } else if (toolChainId == ToolChain::WINCE) {
         const QString msvcVersion, wincePlatform; // ### FIXME
         m_toolChain = ToolChain::createWinCEToolChain(msvcVersion, wincePlatform);
 
-    } else if (toolChainId == QLatin1String("gcc") || toolChainId == QLatin1String("icc")) {
+    } else if (toolChainId == ToolChain::GCC || toolChainId == ToolChain::GCC) {
         const QLatin1String qmake_cxx("g++"); // ### FIXME
         m_toolChain = ToolChain::createGccToolChain(qmake_cxx);
     }
@@ -381,7 +381,7 @@ ProjectExplorer::ToolChain *GenericProject::toolChain() const
     return m_toolChain;
 }
 
-QString GenericProject::toolChainId() const
+ProjectExplorer::ToolChain::ToolChainType GenericProject::toolChainId() const
 { return m_toolChainId; }
 
 QString GenericProject::name() const
@@ -490,11 +490,24 @@ bool GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
         setValue(all, buildDirectory, fileInfo.absolutePath());
     }
 
-    QString toolChainId = reader.restoreValue(QLatin1String("toolChain")).toString();
-    if (toolChainId.isEmpty())
-        toolChainId = QLatin1String("gcc");
+    using namespace ProjectExplorer;
+    QString toolChainName = reader.restoreValue(QLatin1String("toolChain")).toString();
+    bool convertible = false;
+    ToolChain::ToolChainType toolChainId = ToolChain::GCC;
+    toolChainId = ToolChain::ToolChainType(toolChainName.toInt(&convertible));
+    if (!convertible) {
+        // legacy string values
+        if (toolChainName == QLatin1String("gcc"))
+            toolChainId = ToolChain::GCC;
+        else if (toolChainName == QLatin1String("mingw"))
+            toolChainId = ToolChain::MinGW;
+        else if (toolChainName == QLatin1String("msvc"))
+            toolChainId = ToolChain::MSVC;
+        else if (toolChainName == QLatin1String("wince"))
+            toolChainId = ToolChain::WINCE;
+    }
 
-    setToolChainId(toolChainId.toLower()); // ### move
+    setToolChainId(toolChainId); // ### move
 
     const QStringList userIncludePaths =
             reader.restoreValue(QLatin1String("includePaths")).toStringList();
@@ -533,10 +546,14 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     // tool chain
     QComboBox *toolChainChooser = new QComboBox;
     toolChainChooser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    toolChainChooser->addItems(ProjectExplorer::ToolChain::supportedToolChains());
-    toolChainChooser->setCurrentIndex(toolChainChooser->findText(m_project->toolChainId()));
-    fl->addRow(tr("Toolchain:"), toolChainChooser);
-    connect(toolChainChooser, SIGNAL(activated(QString)), m_project, SLOT(setToolChainId(QString)));
+    using namespace ProjectExplorer;
+    foreach (ToolChain::ToolChainType tc, ToolChain::supportedToolChains()) {
+        toolChainChooser->addItem(ToolChain::toolChainName(tc), tc);
+    }
+
+    toolChainChooser->setCurrentIndex(toolChainChooser->findData(m_project->toolChainId()));
+    fl->addRow(tr("Tool Chain:"), toolChainChooser);
+    connect(toolChainChooser, SIGNAL(activated(QString)), m_project, SLOT(setToolChainId(int)));
 }
 
 GenericBuildSettingsWidget::~GenericBuildSettingsWidget()

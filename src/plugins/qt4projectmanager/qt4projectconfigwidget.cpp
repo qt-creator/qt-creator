@@ -356,42 +356,9 @@ void Qt4ProjectConfigWidget::updateToolChainCombo()
 {
     m_ui->toolChainComboBox->clear();
     QList<ProjectExplorer::ToolChain::ToolChainType> toolchains = m_pro->qtVersion(m_buildConfiguration)->possibleToolChainTypes();
-    foreach (ProjectExplorer::ToolChain::ToolChainType toolchain, toolchains) {
-        switch (toolchain) {
-        case ProjectExplorer::ToolChain::GCC:
-            m_ui->toolChainComboBox->addItem(tr("gcc"), qVariantFromValue(toolchain));
-            break;
-        case ProjectExplorer::ToolChain::LinuxICC:
-            m_ui->toolChainComboBox->addItem(tr("icc"), qVariantFromValue(toolchain));
-            break;
-        case ProjectExplorer::ToolChain::MinGW:
-            m_ui->toolChainComboBox->addItem(tr("mingw"), qVariantFromValue(toolchain));
-            break;
-        case ProjectExplorer::ToolChain::MSVC:
-            m_ui->toolChainComboBox->addItem(tr("msvc"), qVariantFromValue(toolchain));
-            break;
-        case ProjectExplorer::ToolChain::WINCE:
-            m_ui->toolChainComboBox->addItem(tr("wince"), qVariantFromValue(toolchain));
-            break;
-#ifdef QTCREATOR_WITH_S60
-        case ProjectExplorer::ToolChain::WINSCW:
-            m_ui->toolChainComboBox->addItem(tr("winscw"), qVariantFromValue(toolchain));
-            break;
-        case ProjectExplorer::ToolChain::GCCE:
-            m_ui->toolChainComboBox->addItem(tr("gcce"), qVariantFromValue(toolchain));
-            break;
-        case ProjectExplorer::ToolChain::RVCT_ARMV5:
-            m_ui->toolChainComboBox->addItem(tr("rvct - armv5"), qVariantFromValue(toolchain));
-            break;
-        case ProjectExplorer::ToolChain::RVCT_ARMV6:
-            m_ui->toolChainComboBox->addItem(tr("rvct - armv6"), qVariantFromValue(toolchain));
-            break;
-#endif
-        case ProjectExplorer::ToolChain::OTHER:
-        case ProjectExplorer::ToolChain::INVALID:
-        case ProjectExplorer::ToolChain::UNKNOWN:
-            break;
-        }
+    using namespace ProjectExplorer;
+    foreach (ToolChain::ToolChainType toolchain, toolchains) {
+        m_ui->toolChainComboBox->addItem(ToolChain::toolChainName(toolchain), qVariantFromValue(toolchain));
     }
     m_ui->toolChainComboBox->setEnabled(toolchains.size() > 1);
     setToolChain(toolchains.indexOf(m_pro->toolChainType(m_buildConfiguration)));

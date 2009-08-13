@@ -79,6 +79,9 @@ public:
         GCCE = 6,
         RVCT_ARMV5 = 7,
         RVCT_ARMV6 = 8,
+        LAST_VALID = 9,
+#else
+        LAST_VALID = 5,
 #endif
         OTHER = 200,
         UNKNOWN = 201,
@@ -102,7 +105,7 @@ public:
     static ToolChain *createMSVCToolChain(const QString &name, bool amd64);
     static ToolChain *createWinCEToolChain(const QString &name, const QString &platform);
     static QStringList availableMSVCVersions();
-    static QStringList supportedToolChains();
+    static QList<ToolChain::ToolChainType> supportedToolChains();
 
     static QString toolChainName(ToolChainType tc);
 

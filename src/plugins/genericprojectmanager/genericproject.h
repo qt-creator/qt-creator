@@ -36,6 +36,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/toolchain.h>
 #include <coreplugin/ifile.h>
 
 QT_BEGIN_NAMESPACE
@@ -47,10 +48,6 @@ namespace Core {
 namespace Utils {
 class PathChooser;
 }
-}
-
-namespace ProjectExplorer {
-class ToolChain;
 }
 
 namespace GenericProjectManager {
@@ -114,10 +111,10 @@ public:
     QStringList projectIncludePaths() const;
     QStringList files() const;
     QStringList generated() const;    
-    QString toolChainId() const;
+    ProjectExplorer::ToolChain::ToolChainType toolChainId() const;
 
 public Q_SLOTS:
-    void setToolChainId(const QString &toolChainId);
+    void setToolChainId(ProjectExplorer::ToolChain::ToolChainType);
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
@@ -143,7 +140,7 @@ private:
 
     GenericProjectNode *m_rootNode;
     ProjectExplorer::ToolChain *m_toolChain;
-    QString m_toolChainId;
+    ProjectExplorer::ToolChain::ToolChainType m_toolChainId;
 };
 
 class GenericProjectFile : public Core::IFile

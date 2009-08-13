@@ -95,14 +95,13 @@ QStringList ToolChain::availableMSVCVersions()
     return versions;
 }
 
-QStringList ToolChain::supportedToolChains()
+QList<ToolChain::ToolChainType> ToolChain::supportedToolChains()
 {
-    return QStringList() << QLatin1String("gcc")
-                         << QLatin1String("mingw")
-                         << QLatin1String("msvc")
-                         << QLatin1String("wince")
-                         << QLatin1String("winscw")
-                         << QLatin1String("gcce");
+    QList<ToolChain::ToolChainType> toolChains;
+    for (int i = 0; i < LAST_VALID; ++i) {
+        toolChains.append(ToolChainType(i));
+    }
+    return toolChains;
 }
 
 QString ToolChain::toolChainName(ToolChainType tc)
@@ -118,6 +117,18 @@ QString ToolChain::toolChainName(ToolChainType tc)
         return QCoreApplication::translate("ToolChain", "Microsoft Visual C++");
     case WINCE:
         return QCoreApplication::translate("ToolChain", "Windows CE");
+
+#ifdef QTCREATOR_WITH_S60
+    case WINSCW:
+        return QCoreApplication::translate("ToolChain", "WINSCW");
+    case GCCE:
+        return QCoreApplication::translate("ToolChain", "GCCE");
+    case RVCT_ARMV5:
+        return QCoreApplication::translate("ToolChain", "RVCT (ARMV5)");
+    case RVCT_ARMV6:
+        return QCoreApplication::translate("ToolChain", "RVCT (ARMV6)");
+#endif
+
     case OTHER:
         return QCoreApplication::translate("ToolChain", "Other");
     case INVALID:
