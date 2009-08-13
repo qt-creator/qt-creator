@@ -236,7 +236,7 @@ Core::GeneratedFiles QmlNewProjectWizard::generateFiles(const QWizard *w,
         << "    color: \"white\"" << endl
         << "    Text {" << endl
         << "        text: \"Hello World\"" << endl
-        << "        anchors.centeredIn: parent" << endl
+        << "        anchors.centerIn: parent" << endl
         << "    }" << endl
         << "}" << endl;
 
