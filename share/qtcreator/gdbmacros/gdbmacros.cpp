@@ -29,35 +29,35 @@
 
 #include <qglobal.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-
-#ifndef QT_BOOTSTRAPPED
-
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QHash>
 #include <QtCore/QLinkedList>
+#include <QtCore/QList>
 #include <QtCore/QLocale>
 #include <QtCore/QMap>
+#include <QtCore/QMetaEnum>
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
-#include <QtCore/QMetaEnum>
-#include <QtCore/QModelIndex>
-#include <QtCore/QPointer>
-#include <QtCore/QTextCodec>
-#include <QtCore/QVector>
-#include <QtCore/QTextStream>
 #include <QtCore/QPoint>
-#include <QtCore/QSize>
-#include <QtCore/QRect>
 #include <QtCore/QPointF>
-#include <QtCore/QSizeF>
+#include <QtCore/QPointer>
+#include <QtCore/QRect>
 #include <QtCore/QRectF>
+#include <QtCore/QSize>
+#include <QtCore/QSizeF>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtCore/QTextCodec>
+#include <QtCore/QTextStream>
+#include <QtCore/QVector>
+
+#ifndef QT_BOOTSTRAPPED
+
+#include <QtCore/QModelIndex>
 
 #if QT_VERSION >= 0x040500
 #include <QtCore/QSharedPointer>
@@ -1161,7 +1161,6 @@ static void qDumpQChar(QDumper &d)
     d.disarm();
 }
 
-#ifndef QT_BOOTSTRAPPED
 static void qDumpQDateTime(QDumper &d)
 {
 #ifdef QT_NO_DATESTRING
@@ -1329,7 +1328,6 @@ static void qDumpQFileInfo(QDumper &d)
     }
     d.disarm();
 }
-#endif // QT_BOOTSTRAPPED
 
 bool isOptimizedIntKey(const char *keyType)
 {
@@ -1491,8 +1489,6 @@ static void qDumpQHashNode(QDumper &d)
     }
     d.disarm();
 }
-
-#ifndef QT_BOOTSTRAPPED
 
 #if USE_QT_GUI
 static void qDumpQImage(QDumper &d)
@@ -1823,6 +1819,7 @@ static void qDumpQMultiMap(QDumper &d)
     qDumpQMap(d);
 }
 
+#ifndef QT_BOOTSTRAPPED
 static void qDumpQModelIndex(QDumper &d)
 {
     const QModelIndex *mi = reinterpret_cast<const QModelIndex *>(d.data);
@@ -1941,6 +1938,7 @@ static void qDumpQObject(QDumper &d)
     }
     d.disarm();
 }
+#endif // QT_BOOTSTRAPPED
 
 #if USE_QT_GUI
 static const char *sizePolicyEnumValue(QSizePolicy::Policy p)
@@ -2003,6 +2001,7 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
         *value = QString::number(v->toDouble());
         *numchild = 0;
         break;
+    #ifndef QT_BOOTSTRAPPED
     case QVariant::Point: {
             const QPoint p = v->toPoint();
             *value = QString::fromLatin1("%1, %2").arg(p.x()).arg(p.y());
@@ -2046,7 +2045,8 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
         }
         *numchild = 0;
         break;
-#if USE_QT_GUI
+    #endif // QT_BOOTSTRAPPED
+    #if USE_QT_GUI
     case QVariant::Font:
         *value = qvariant_cast<QFont>(*v).toString();
         break;
@@ -2059,7 +2059,7 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
     case QVariant::SizePolicy:
         *value = sizePolicyValue(qvariant_cast<QSizePolicy>(*v));
         break;
-#endif
+    #endif
     default: {
         char buf[1000];
         const char *format = (v->typeName()[0] == 'Q')
@@ -2162,6 +2162,7 @@ static inline void dumpMetaFlagValue(QDumper &d, const QMetaProperty &mop,
     d.putItem("numchild", 0);
 }
 
+#ifndef QT_BOOTSTRAPPED
 static void qDumpQObjectProperty(QDumper &d)
 {
     const QObject *ob = (const QObject *)d.data;
@@ -2545,6 +2546,7 @@ static void qDumpQObjectChildList(QDumper &d)
     }
     d.disarm();
 }
+#endif // QT_BOOTSTRAPPED
 
 #if USE_QT_GUI
 static void qDumpQPixmap(QDumper &d)
@@ -2604,6 +2606,7 @@ static void qDumpQSet(QDumper &d)
     d.disarm();
 }
 
+#ifndef QT_BOOTSTRAPPED
 #if QT_VERSION >= 0x040500
 static void qDumpQSharedPointer(QDumper &d)
 {
@@ -2701,7 +2704,6 @@ static void qDumpQStringList(QDumper &d)
     d.disarm();
 }
 
-#ifndef QT_BOOTSTRAPPED
 static void qDumpQTextCodec(QDumper &d)
 {
     const QTextCodec &codec = *reinterpret_cast<const QTextCodec *>(d.data);
@@ -2717,7 +2719,6 @@ static void qDumpQTextCodec(QDumper &d)
     }
     d.disarm();
 }
-
 
 static void qDumpQVector(QDumper &d)
 {
@@ -2762,6 +2763,7 @@ static void qDumpQVector(QDumper &d)
     d.disarm();
 }
 
+#ifndef QT_BOOTSTRAPPED
 #if QT_VERSION >= 0x040500
 static void qDumpQWeakPointer(QDumper &d)
 {
@@ -2801,7 +2803,6 @@ static void qDumpQWeakPointer(QDumper &d)
     d.disarm();
 }
 #endif // QT_VERSION >= 0x040500
-
 #endif // QT_BOOTSTRAPPED
 
 static void qDumpStdList(QDumper &d)
@@ -3181,12 +3182,10 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQChar(d);
             break;
         case 'D':
-            #ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QDateTime"))
                 qDumpQDateTime(d);
             else if (isEqual(type, "QDir"))
                 qDumpQDir(d);
-            #endif
             break;
         case 'e':
             if (isEqual(type, "vector"))
@@ -3512,6 +3511,7 @@ void *qDumpObjectData440(
          .put(NS"QSharedDataPointer=\"").put(sizeof(QSharedDataPointer<QSharedData>)).put("\",")
          .put(NS"QWeakPointer=\"").put(sizeof(QWeakPointer<int>)).put("\",")
 #endif
+#endif // QT_BOOTSTRAPPED
          .put("QPointer=\"").put(sizeof(QPointer<QObject>)).put("\",")
          // Common map node types
          .put(NS"QMapNode<int,int>=\"").put(sizeof(QMapNode<int,int >)).put("\",")
@@ -3520,7 +3520,6 @@ void *qDumpObjectData440(
          .put(NS"QMapNode<"NS"QString,int>=\"").put(sizeof(QMapNode<QString, int>)).put("\",")
          .put(NS"QMapNode<"NS"QString,"NS"QString>=\"").put(sizeof(QMapNode<QString, QString>)).put("\",")
          .put(NS"QMapNode<"NS"QString,"NS"QVariant>=\"").put(sizeof(QMapNode<QString, QVariant>))
-#endif // QT_BOOTSTRAPPED
          .put("\"}");
         // Write out common expression values for CDB
 #ifdef Q_CC_MSVC

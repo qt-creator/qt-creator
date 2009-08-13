@@ -846,7 +846,8 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl,
     const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChain::ToolChainType>(m_startParameters->toolChainType));
 
     emit debugModeRequested();
-    showDebuggerOutput(LogStatus, tr("Starting debugger for tool chain '%1'...").arg(toolChainName));
+    showDebuggerOutput(LogStatus,
+        tr("Starting debugger for tool chain '%1'...").arg(toolChainName));
     showDebuggerOutput(LogDebug, DebuggerSettings::instance()->dump());
 
     QString errorMessage;
@@ -868,8 +869,10 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl,
         debuggingFinished();
         // Create Message box with possibility to go to settings
         QAbstractButton *settingsButton = 0;
-        QMessageBox msgBox(QMessageBox::Warning, tr("Warning"), tr("Cannot debug '%1' (tool chain: '%2'): %3").
-                           arg(m_startParameters->executable, toolChainName, errorMessage), QMessageBox::Ok);
+        QMessageBox msgBox(QMessageBox::Warning, tr("Warning"),
+            tr("Cannot debug '%1' (tool chain: '%2'): %3").
+            arg(m_startParameters->executable, toolChainName, errorMessage),
+            QMessageBox::Ok);
         if (!settingsIdHint.isEmpty())
             settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
         msgBox.exec();
@@ -1144,14 +1147,15 @@ static bool isAllowedTransition(int from, int to)
 void DebuggerManager::setStatus(int status)
 {
     if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << "STATUS CHANGE: from" << stateName(m_status) << "to" << stateName(status);
+        qDebug() << Q_FUNC_INFO << "STATUS CHANGE: from" << stateName(m_status)
+            << "to" << stateName(status);
 
     if (status == m_status)
         return;
 
     if (0 && !isAllowedTransition(m_status, status)) {
-        const QString msg = QString::fromLatin1("%1: UNEXPECTED TRANSITION: %2 -> %3").
-                            arg(_(Q_FUNC_INFO), _(stateName(m_status)), _(stateName(status)));
+        const QString msg = QString::fromLatin1("%1: UNEXPECTED TRANSITION: %2 -> %3")
+            .arg(_(Q_FUNC_INFO), _(stateName(m_status)), _(stateName(status)));
         qWarning("%s", qPrintable(msg));
     }
 
