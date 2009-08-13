@@ -1048,9 +1048,7 @@ void DebuggerManager::sessionLoaded()
 
 void DebuggerManager::sessionUnloaded()
 {
-    return;
-    //FIXME: Breakview crashes on startup as there is
-    //cleanupViews();
+    cleanupViews();
     if (m_engine)
         m_engine->shutdown();
     setStatus(DebuggerProcessNotReady);
