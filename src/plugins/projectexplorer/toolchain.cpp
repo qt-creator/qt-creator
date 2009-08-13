@@ -135,6 +135,8 @@ QString ToolChain::toolChainName(ToolChainType tc)
         return QCoreApplication::translate("ToolChain", "<Invalid>");
     case UNKNOWN:
         break;
+     default:
+        Q_ASSERT("Missing name for Toolchaintype");
     };
     return QCoreApplication::translate("ToolChain", "<Unknown>");
 }

@@ -754,6 +754,7 @@ static IDebuggerEngine *debuggerEngineForToolChain(ProjectExplorer::ToolChain::T
     case ProjectExplorer::ToolChain::OTHER:
     case ProjectExplorer::ToolChain::UNKNOWN:
     case ProjectExplorer::ToolChain::INVALID:
+    default:
         break;
     }
     if (Debugger::Constants::Internal::debug)
