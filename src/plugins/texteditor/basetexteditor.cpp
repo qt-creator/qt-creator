@@ -898,6 +898,27 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         e->accept();
         setTextCursor(cursor);
         return;
+    } else if (!ro
+               && (e == QKeySequence::MoveToStartOfBlock
+                   || e == QKeySequence::SelectStartOfBlock)){
+        if ((e->modifiers() & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier))
+            d->m_lastEventWasBlockSelectionEvent = true;
+        handleHomeKey(e == QKeySequence::SelectStartOfBlock);
+        e->accept();
+        return;
+    } else if (!ro
+               && (e == QKeySequence::MoveToStartOfLine
+                   || e == QKeySequence::SelectStartOfLine)){
+        if ((e->modifiers() & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier))
+            d->m_lastEventWasBlockSelectionEvent = true;
+        QTextCursor cursor = textCursor();
+        if (QTextLayout *layout = cursor.block().layout()) {
+            if (layout->lineForTextPosition(cursor.position() - cursor.block().position()).lineNumber() == 0) {
+                handleHomeKey(e == QKeySequence::SelectStartOfLine);
+                e->accept();
+                return;
+            }
+        }
     } else switch (e->key()) {
 
 
@@ -944,15 +965,6 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                                | Qt::MetaModifier)) == Qt::NoModifier
             && !textCursor().hasSelection()) {
             handleBackspaceKey();
-            e->accept();
-            return;
-        }
-        break;
-    case Qt::Key_Home:
-        if (!(e == QKeySequence::MoveToStartOfDocument) && !(e == QKeySequence::SelectStartOfDocument)) {
-            if ((e->modifiers() & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier))
-                d->m_lastEventWasBlockSelectionEvent = true;
-            handleHomeKey(e->modifiers() & Qt::ShiftModifier);
             e->accept();
             return;
         }
