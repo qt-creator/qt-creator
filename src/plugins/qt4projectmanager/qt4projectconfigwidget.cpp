@@ -134,11 +134,11 @@ void Qt4ProjectConfigWidget::updateDetails()
     }
     // Qt Version, Build Directory and Toolchain
     m_ui->titleLabel->setText(tr("using Qt Version: <b>%1</b><br>"
-                                 "with Toolchain <b>%2</b><br>"
+                                 "with tool chain <b>%2</b><br>"
                                  "building in <b>%3</b>")
                               .arg(versionString,
                                    ProjectExplorer::ToolChain::toolChainName(m_pro->toolChainType(m_buildConfiguration)),
-                                   m_pro->buildDirectory(m_buildConfiguration)));
+                                   QDir::toNativeSeparators(m_pro->buildDirectory(m_buildConfiguration))));
 }
 
 void Qt4ProjectConfigWidget::manageQtVersions()
