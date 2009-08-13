@@ -294,6 +294,8 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         m_ui.checkBoxListSourceFiles);
     m_group.insert(theDebuggerAction(UseAlternatingRowColors),
         m_ui.checkBoxUseAlternatingRowColors);
+    m_group.insert(theDebuggerAction(UseMessageBoxForSignals),
+        m_ui.checkBoxUseMessageBoxForSignals);
     m_group.insert(theDebuggerAction(SkipKnownFrames),
         m_ui.checkBoxSkipKnownFrames);
     m_group.insert(theDebuggerAction(UseToolTips),

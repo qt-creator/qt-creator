@@ -122,13 +122,13 @@ DebuggerSettings *DebuggerSettings::instance()
     // View
     //
     item = new SavedAction(instance);
-    instance->insertItem(AdjustColumnWidths, item);
     item->setText(tr("Adjust column widths to contents"));
+    instance->insertItem(AdjustColumnWidths, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(AlwaysAdjustColumnWidths, item);
     item->setText(tr("Always adjust column widths to contents"));
     item->setCheckable(true);
+    instance->insertItem(AlwaysAdjustColumnWidths, item);
 
     item = new SavedAction(instance);
     item->setText(tr("Use alternating row colors"));
@@ -138,8 +138,16 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(UseAlternatingRowColors, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey(debugModeGroup, QLatin1String("LogTimeStamps"));
+    item->setText(tr("Show a message box when receiving a signal"));
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseMessageBoxForSignals"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    instance->insertItem(UseMessageBoxForSignals, item);
+
+    item = new SavedAction(instance);
     item->setText(tr("Log time stamps"));
+    item->setSettingsKey(debugModeGroup, QLatin1String("LogTimeStamps"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(LogTimeStamps, item);

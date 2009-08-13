@@ -77,6 +77,7 @@ enum DebuggerActionCode
     AdjustColumnWidths,
     AlwaysAdjustColumnWidths,
     UseAlternatingRowColors,
+    UseMessageBoxForSignals,
     AutoQuit,
     LockView,
     LogTimeStamps,

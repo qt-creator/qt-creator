@@ -790,7 +790,7 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 
     if (record.token < m_oldestAcceptableToken && (cmd.flags & Discardable)) {
         //qDebug() << "### SKIPPING OLD RESULT" << record.toString();
-        //QMessageBox::information(m_mainWindow, tr("Skipped"), "xxx");
+        //QMessageBox::information(q->mainWindow(), tr("Skipped"), "xxx");
         return;
     }
 
@@ -1186,6 +1186,19 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                 }
             }
 #endif
+            if (reason == "signal-received"
+                && theDebuggerBoolSetting(UseMessageBoxForSignals)) {
+                QByteArray name = data.findChild("signal-name").data();
+                QByteArray meaning = data.findChild("signal-meaning").data();
+                QString msg = tr("<p>The inferior stopped because it received a "
+                    "signal from the Operating System.<p>"
+                    "<table><tr><td>Signal name : </td><td>%1</td></tr>"
+                    "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
+                    .arg(name.isEmpty() ? tr(" <Unknown> ") : _(name))
+                    .arg(meaning.isEmpty() ? tr(" <Unknown> ") : _(meaning));
+                QMessageBox::information(q->mainWindow(), tr("Signal received"), msg);
+            }
+
             if (reason.isEmpty())
                 q->showStatusMessage(tr("Stopped."));
             else
@@ -1295,11 +1308,11 @@ void GdbEngine::handleShowVersion(const GdbResultRecord &response, const QVarian
                      "Using gdb 6.7 or later is strongly recommended.");
 #if 0
             // ugly, but 'Show again' check box...
-            static QErrorMessage *err = new QErrorMessage(m_mainWindow);
+            static QErrorMessage *err = new QErrorMessage(q->mainWindow());
             err->setMinimumSize(400, 300);
             err->showMessage(msg);
 #else
-            //QMessageBox::information(m_mainWindow, tr("Warning"), msg);
+            //QMessageBox::information(q->mainWindow(), tr("Warning"), msg);
 #endif
         } else {
             m_gdbVersion = 10000 * supported.cap(2).toInt()

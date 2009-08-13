@@ -28,6 +28,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="checkBoxUseMessageBoxForSignals">
+        <property name="text">
+         <string>Show a message box when receiving a signal</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="checkBoxUseAlternatingRowColors">
         <property name="text">
          <string>Use alternating row colors in debug views</string>
