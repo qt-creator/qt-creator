@@ -50,8 +50,9 @@ using namespace Debugger::Constants;
 //////////////////////////////////////////////////////////////////
 
 RegisterHandler::RegisterHandler(QObject *parent)
-  : QAbstractTableModel(parent)
-{}
+    : QAbstractTableModel(parent), m_base(16)
+{
+}
 
 int RegisterHandler::rowCount(const QModelIndex &parent) const
 {
@@ -66,19 +67,33 @@ int RegisterHandler::columnCount(const QModelIndex &parent) const
 QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 {
     static const QVariant red = QColor(200, 0, 0);
+
+    if (role == Qt::UserRole)
+        return m_base;
+
     if (!index.isValid() || index.row() >= m_registers.size())
         return QVariant();
 
     const Register &reg = m_registers.at(index.row());
 
+    const QString padding = "  ";
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
-            case 0: return reg.name;
-            case 1: return reg.value;
+            case 0: return padding + reg.name + padding;
+            case 1: {
+                bool ok = true;
+                qulonglong value = reg.value.toULongLong(&ok, 0);
+                return padding + QString::number(value, m_base) + padding;
+            }
         }
     }
+
+    if (role == Qt::TextAlignmentRole && index.column() == 1)
+        return Qt::AlignRight;
+
     if (role == Qt::TextColorRole && reg.changed && index.column() == 1)
         return red;
+    
     return QVariant();
 }
 
@@ -88,7 +103,7 @@ QVariant RegisterHandler::headerData(int section, Qt::Orientation orientation,
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
             case 0: return tr("Name");
-            case 1: return tr("Value");
+            case 1: return tr("Value (base %1)").arg(m_base);
         };
     }
     return QVariant();
@@ -114,4 +129,10 @@ void RegisterHandler::setRegisters(const QList<Register> &registers)
 QList<Register> RegisterHandler::registers() const
 {
     return m_registers;
+}
+
+void RegisterHandler::setNumberBase(int base)
+{
+    m_base = base;
+    emit reset();
 }

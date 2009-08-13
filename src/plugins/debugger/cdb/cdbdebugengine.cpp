@@ -1320,28 +1320,9 @@ QList<Symbol> CdbDebugEngine::moduleSymbols(const QString &moduleName)
     return rc;
 }
 
-static inline int registerFormatBase()
-{
-    switch(checkedRegisterFormatAction()) {
-    case FormatHexadecimal:
-        return 16;
-    case FormatDecimal:
-        return 10;
-    case FormatOctal:
-        return 8;
-    case FormatBinary:
-        return 2;
-        break;
-    case FormatRaw:
-    case FormatNatural:
-        break;
-    }
-    return 10;
-}
-
 void CdbDebugEngine::reloadRegisters()
 {
-    const int intBase = registerFormatBase();
+    const int intBase = 10;
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << intBase;
     QList<Register> registers;

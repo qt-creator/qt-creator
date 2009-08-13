@@ -55,16 +55,12 @@ public:
 
     static DebuggerSettings *instance();
 
-    // Return one of FormatHexadecimal, FormatDecimal,...
-    int checkedRegisterFormatAction() const;
-
 public slots:
     void readSettings(QSettings *settings);
     void writeSettings(QSettings *settings) const;
 
 private:
     QHash<int, Core::Utils::SavedAction *> m_items; 
-    QActionGroup *m_registerFormatGroup;
 };
 
 
@@ -120,21 +116,10 @@ enum DebuggerActionCode
     SelectedPluginBreakpoints,
     NoPluginBreakpoints,
     SelectedPluginBreakpointsPattern,
-
-    // Registers
-    FormatHexadecimal,
-    FormatDecimal,
-    FormatOctal,
-    FormatBinary,
-    FormatRaw,
-    FormatNatural,
 };
 
 // singleton access
 Core::Utils::SavedAction *theDebuggerAction(int code);
-
-// Return one of FormatHexadecimal, FormatDecimal,...
-int checkedRegisterFormatAction();
 
 // convenience
 bool theDebuggerBoolSetting(int code);

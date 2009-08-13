@@ -762,20 +762,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(resetToSimpleAction, SIGNAL(triggered()),
         m_manager, SLOT(setSimpleDockWidgetArrangement()));
 
-    connect(theDebuggerAction(FormatHexadecimal), SIGNAL(triggered()),
-        m_manager, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatDecimal), SIGNAL(triggered()),
-        m_manager, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatOctal), SIGNAL(triggered()),
-        m_manager, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatBinary), SIGNAL(triggered()),
-        m_manager, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatRaw), SIGNAL(triggered()),
-        m_manager, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatNatural), SIGNAL(triggered()),
-        m_manager, SLOT(reloadRegisters()));
-
-   // FIXME:
+    // FIXME:
     addAutoReleasedObject(new CommonOptionsPage);
     addAutoReleasedObject(new DebuggingHelperOptionPage);
     foreach (Core::IOptionsPage* op, engineOptionPages)

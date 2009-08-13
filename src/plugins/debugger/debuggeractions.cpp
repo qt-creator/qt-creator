@@ -36,7 +36,6 @@
 #include <QtCore/QSettings>
 
 #include <QtGui/QAction>
-#include <QtGui/QActionGroup>
 #include <QtGui/QAbstractButton>
 #include <QtGui/QRadioButton>
 #include <QtGui/QCheckBox>
@@ -54,7 +53,7 @@ namespace Internal {
 //////////////////////////////////////////////////////////////////////////
 
 DebuggerSettings::DebuggerSettings(QObject *parent)
-    : QObject(parent), m_registerFormatGroup(0)
+    : QObject(parent)
 {}
 
 DebuggerSettings::~DebuggerSettings()
@@ -223,68 +222,6 @@ DebuggerSettings *DebuggerSettings::instance()
 
 
     //
-    // Registers
-    //
-
-    instance->m_registerFormatGroup = new QActionGroup(instance);
-    instance->m_registerFormatGroup->setExclusive(true);
-
-    item = new SavedAction(instance);
-    item->setText(tr("Hexadecimal"));
-    item->setCheckable(true);
-    item->setSettingsKey(debugModeGroup, QLatin1String("FormatHexadecimal"));
-    item->setChecked(true);
-    item->setDefaultValue(false);
-    item->setData(FormatHexadecimal);
-    instance->insertItem(FormatHexadecimal, item);
-    instance->m_registerFormatGroup->addAction(item);
-
-    item = new SavedAction(instance);
-    item->setText(tr("Decimal"));
-    item->setCheckable(true);
-    item->setSettingsKey(debugModeGroup, QLatin1String("FormatDecimal"));
-    item->setDefaultValue(false);
-    item->setData(FormatDecimal);
-    instance->insertItem(FormatDecimal, item);
-    instance->m_registerFormatGroup->addAction(item);
-
-    item = new SavedAction(instance);
-    item->setText(tr("Octal"));
-    item->setCheckable(true);
-    item->setSettingsKey(debugModeGroup, QLatin1String("FormatOctal"));
-    item->setDefaultValue(false);
-    item->setData(FormatOctal);
-    instance->insertItem(FormatOctal, item);
-    instance->m_registerFormatGroup->addAction(item);
-
-    item = new SavedAction(instance);
-    item->setText(tr("Binary"));
-    item->setCheckable(true);
-    item->setSettingsKey(debugModeGroup, QLatin1String("FormatBinary"));
-    item->setDefaultValue(false);
-    item->setData(FormatBinary);
-    instance->insertItem(FormatBinary, item);
-    instance->m_registerFormatGroup->addAction(item);
-
-    item = new SavedAction(instance);
-    item->setText(tr("Raw"));
-    item->setCheckable(true);
-    item->setSettingsKey(debugModeGroup, QLatin1String("FormatRaw"));
-    item->setDefaultValue(false);
-    item->setData(FormatRaw);
-    instance->insertItem(FormatRaw, item);
-    instance->m_registerFormatGroup->addAction(item);
-
-    item = new SavedAction(instance);
-    item->setText(tr("Natural"));
-    item->setCheckable(true);
-    item->setSettingsKey(debugModeGroup, QLatin1String("FormatNatural"));
-    item->setDefaultValue(true);
-    item->setData(FormatNatural);
-    instance->insertItem(FormatNatural, item);
-    instance->m_registerFormatGroup->addAction(item);
-
-    //
     // Settings
     //
     item = new SavedAction(instance);
@@ -373,10 +310,6 @@ DebuggerSettings *DebuggerSettings::instance()
     return instance;
 }
 
-int DebuggerSettings::checkedRegisterFormatAction() const
-{
-    return m_registerFormatGroup->checkedAction()->data().toInt();
-}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -387,11 +320,6 @@ int DebuggerSettings::checkedRegisterFormatAction() const
 SavedAction *theDebuggerAction(int code)
 {
     return DebuggerSettings::instance()->item(code);
-}
-
-int checkedRegisterFormatAction()
-{
-    return DebuggerSettings::instance()->checkedRegisterFormatAction();
 }
 
 bool theDebuggerBoolSetting(int code)

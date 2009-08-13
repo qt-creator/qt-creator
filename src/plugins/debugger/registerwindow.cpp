@@ -67,46 +67,51 @@ void RegisterWindow::resizeEvent(QResizeEvent *ev)
 
 void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
-    enum { Adjust, AlwaysAdjust, Reload, AlwaysReload, Count };
-
     QMenu menu;
-    QAction *actions[Count];
-    //QString format = model()->property(PROPERTY_REGISTER_FORMAT).toString();
-    //qDebug() << "FORMAT: " << format;
 
-    actions[Adjust] = menu.addAction(tr("Adjust column widths to contents"));
+    QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));
+    QAction *actAlwaysAdjust =
+        menu.addAction(tr("Always adjust column widths to contents"));
+    actAlwaysAdjust->setCheckable(true);
+    actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
 
-    actions[AlwaysAdjust] = menu.addAction(tr("Always adjust column widths to contents"));
-    actions[AlwaysAdjust]->setCheckable(true);
-    actions[AlwaysAdjust]->setChecked(m_alwaysResizeColumnsToContents);
-
-    actions[Reload] = menu.addAction(tr("Reload register listing"));
-
-    actions[AlwaysReload] = menu.addAction(tr("Always reload register listing"));
-    actions[AlwaysReload]->setCheckable(true);
-    actions[AlwaysReload]->setChecked(m_alwaysReloadContents);
-
+    QAction *actReload = menu.addAction(tr("Reload register listing"));
+    QAction *actAlwaysReload = menu.addAction(tr("Always reload register listing"));
+    actAlwaysReload->setCheckable(true);
+    actAlwaysReload->setChecked(m_alwaysReloadContents);
     menu.addSeparator();
-    menu.addAction(theDebuggerAction(FormatHexadecimal));
-    menu.addAction(theDebuggerAction(FormatDecimal));
-    menu.addAction(theDebuggerAction(FormatOctal));
-    menu.addAction(theDebuggerAction(FormatBinary));
-    menu.addAction(theDebuggerAction(FormatRaw));
-    menu.addAction(theDebuggerAction(FormatNatural));
 
+    int base = model()->data(QModelIndex(), Qt::UserRole).toInt();
+    QAction *act16 = menu.addAction(tr("Hexadecimal"));
+    act16->setCheckable(true);
+    act16->setChecked(base == 16);
+    QAction *act10 = menu.addAction(tr("Decimal"));
+    act10->setCheckable(true);
+    act10->setChecked(base == 10);
+    QAction *act8 = menu.addAction(tr("Octal"));
+    act8->setCheckable(true);
+    act8->setChecked(base == 8);
+    QAction *act2 = menu.addAction(tr("Binary"));
+    act2->setCheckable(true);
+    act2->setChecked(base == 2);
     menu.addSeparator();
+
     menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
-
-    if (act == actions[Adjust])
+    
+    if (act == actAdjust)
         resizeColumnsToContents();
-    else if (act == actions[AlwaysAdjust])
+    else if (act == actAlwaysAdjust)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    else if (act == actions[Reload])
+    else if (act == actReload)
         reloadContents();
-    else if (act == actions[AlwaysReload])
+    else if (act == actAlwaysReload)
         setAlwaysReloadContents(!m_alwaysReloadContents);
+    else if (act) {
+        base = (act == act10 ? 10 : act == act8 ? 8 : act == act2 ? 2 : 16);
+        QMetaObject::invokeMethod(model(), "setNumberBase", Q_ARG(int, base));
+    }
 }
 
 void RegisterWindow::resizeColumnsToContents()

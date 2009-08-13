@@ -60,6 +60,7 @@ public:
     void setRegisters(const QList<Register> &registers);
     QList<Register> registers() const;
     void removeAll();
+    Q_SLOT void setNumberBase(int base);
 
 private:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -67,8 +68,9 @@ private:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
-
+    
     QList<Register> m_registers;
+    int m_base;
 };
 
 } // namespace Internal

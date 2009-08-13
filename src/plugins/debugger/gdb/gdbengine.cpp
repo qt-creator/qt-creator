@@ -2652,28 +2652,9 @@ void GdbEngine::handleStackListThreads(const GdbResultRecord &record, const QVar
 //
 //////////////////////////////////////////////////////////////////////
 
-static inline char registerFormatChar()
-{
-    switch(checkedRegisterFormatAction()) {
-    case FormatHexadecimal:
-        return 'x';
-    case FormatDecimal:
-        return 'd';
-    case FormatOctal:
-        return 'o';
-    case FormatBinary:
-        return 't';
-    case FormatRaw:
-        return 'r';
-    default:
-        break;
-    }
-    return 'N';
-}
-
 void GdbEngine::reloadRegisters()
 {
-    postCommand(_("-data-list-register-values ") + _c(registerFormatChar()),
+    postCommand(_("-data-list-register-values d"),
                 Discardable, CB(handleRegisterListValues));
 }
 
