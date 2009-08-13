@@ -762,6 +762,25 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
     if (token == -1)
         return;
 
+    if (!m_cookieForToken.contains(token)) {
+        // In theory this should not happen, in practice it does.
+        debugMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN. "
+            "TWO RESPONSES FOR ONE COMMAND?").arg(token));
+        // handle a case known to occur on Linux/gdb 6.8 when debugging moc
+        // with helpers enabled. In this case we get a second response with
+        // msg="Cannot find new threads: generic error"
+        if (record.resultClass == GdbResultError) {
+            QByteArray msg = record.data.findChild("msg").data();
+            QMessageBox::critical(q->mainWindow(), tr("Error"),
+                tr("Executable failed:\n") + QString::fromLocal8Bit(msg));
+            q->showStatusMessage(tr("Process failed to start."));
+            exitDebugger();
+            //qq->notifyInferiorStopped();
+            //qq->notifyInferiorExited();
+        }
+        return;
+    }
+
     GdbCommand cmd = m_cookieForToken.take(token);
     if (theDebuggerBoolSetting(LogTimeStamps)) {
         emit gdbOutputAvailable(LogTime, _("Response time: %1: %2 s")
@@ -1162,7 +1181,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                 GdbMi frameData = data.findChild("frame");
                 if (frameData.findChild("func").data() == "_start"
                     && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
-                    postCommand(_("-exec-continue"));
+                    postCommand(_("-exec-continue"), CB(handleExecContinue));
                     return;
                 }
             }
@@ -1812,7 +1831,7 @@ void GdbEngine::runToFunctionExec(const QString &functionName)
     qq->notifyInferiorRunningRequested();
     // that should be "^running". We need to handle the resulting
     // "Stopped"
-    postCommand(_("-exec-continue"));
+    postCommand(_("-exec-continue"), CB(handleExecContinue));
     //postCommand(_("-exec-continue"), handleExecRunToFunction);
 }
 

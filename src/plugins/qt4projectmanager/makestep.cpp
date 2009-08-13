@@ -174,9 +174,18 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     connect(makeStep, SIGNAL(changed()),
             this, SLOT(update()));
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+            this, SLOT(updateMakeOverrideLabel()));
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+            this, SLOT(updateSummary()));
 }
 
-void MakeStepConfigWidget::updateTitle()
+void MakeStepConfigWidget::updateMakeOverrideLabel()
+{
+    m_ui.makeLabel->setText(tr("Override %1:").arg(static_cast<Qt4Project *>(m_makeStep->project())->makeCommand(m_buildConfiguration)));
+}
+
+void MakeStepConfigWidget::updateDetails()
 {
     // TODO reduce heavy code duplication
     QString workingDirectory;
@@ -244,7 +253,7 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
         m_makeStep->setValue(buildConfiguration, "makeargs", QStringList() << "clean");
     }
 
-    m_ui.makeLabel->setText(tr("Override %1:").arg(pro->makeCommand(buildConfiguration)));
+    updateMakeOverrideLabel();
 
     const QString &makeCmd = m_makeStep->value(buildConfiguration, "makeCmd").toString();
     m_ui.makeLineEdit->setText(makeCmd);
@@ -252,14 +261,14 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
     const QStringList &makeArguments =
             m_makeStep->value(buildConfiguration, "makeargs").toStringList();
     m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
-    updateTitle();
+    updateDetails();
 }
 
 void MakeStepConfigWidget::makeLineEditTextEdited()
 {
     Q_ASSERT(!m_buildConfiguration.isNull());
     m_makeStep->setValue(m_buildConfiguration, "makeCmd", m_ui.makeLineEdit->text());
-    updateTitle();
+    updateDetails();
 }
 
 void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
@@ -267,7 +276,7 @@ void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
     Q_ASSERT(!m_buildConfiguration.isNull());
     m_makeStep->setValue(m_buildConfiguration, "makeargs",
                          ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
-    updateTitle();
+    updateDetails();
 }
 
 ///

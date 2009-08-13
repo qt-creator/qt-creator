@@ -169,6 +169,11 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
             this, SLOT(makeLineEditTextEdited()));
     connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEditTextEdited()));
+
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+            this, SLOT(updateMakeOverrrideLabel()));
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+            this, SLOT(updateDetails()));
 }
 
 QString GenericMakeStepConfigWidget::displayName() const
@@ -176,12 +181,17 @@ QString GenericMakeStepConfigWidget::displayName() const
     return "Make";
 }
 
+// TODO: Label should update when tool chain is changed
+void GenericMakeStepConfigWidget::updateMakeOverrrideLabel()
+{
+    m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->makeCommand(m_buildConfiguration)));
+}
+
 void GenericMakeStepConfigWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
 
-    // TODO: Label should update when tool chain is changed
-    m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->makeCommand(buildConfiguration)));
+    updateMakeOverrrideLabel();
 
     QString makeCommand = m_makeStep->value(buildConfiguration, "makeCommand").toString();
     m_ui->makeLineEdit->setText(makeCommand);

@@ -185,6 +185,7 @@ private:
     void trkWrite(const TrkMessage &msg);
     // convienience messages
     void sendTrkInitialPing();
+    void sendTrkContinue();
     void waitForTrkFinished();
     void sendTrkAck(byte token);
 
@@ -919,6 +920,14 @@ void Adapter::sendTrkInitialPing()
     queueTrkMessage(msg);
 }
 
+void Adapter::sendTrkContinue()
+{
+    QByteArray ba;
+    appendInt(&ba, m_session.pid);
+    appendInt(&ba, m_session.tid);
+    sendTrkMessage(0x18, 0, ba, "CONTINUE");
+}
+
 void Adapter::waitForTrkFinished()
 {
     TrkMessage msg;
@@ -1113,20 +1122,16 @@ void Adapter::handleResult(const TrkResult &result)
             const QByteArray name = result.data.mid(20, len); // name: library name
             QString logMsg;
             QTextStream str(&logMsg);
-            str<< prefix << " NOTE: LIBRARY LOAD: token=" + result.token << " ERROR: "
-                    << int(error) << " TYPE: " << int(type) << " PID: " << pid
-                    << " TID:   " <<  tid;
+            str<< prefix << " NOTE: LIBRARY LOAD: token=" << result.token;
+            if (error)
+                str<< " ERROR: " << int(error);
+            str << " TYPE: " << int(type) << " PID: " << pid << " TID:   " <<  tid;
             str.setIntegerBase(16);
-            str << " CODE: 0x" + codeseg << " DATA: 0x"  << dataseg;
+            str << " CODE: 0x" << codeseg << " DATA: 0x" << dataseg;
             str.setIntegerBase(10);
-            str << " LEN: " << len << " NAME: " << name;
-            logMessage(logMsg);
-
-            QByteArray ba;
-            appendInt(&ba, m_session.pid);
-            appendInt(&ba, m_session.tid);
-            sendTrkMessage(0x18, 0, ba, "CONTINUE");
-            //sendTrkAck(result.token)
+            str << " NAME: '" << name << '\'';
+            logMessage(logMsg);            
+            sendTrkContinue();
             break;
         }
         case 0xa1: { // NotifyDeleted
@@ -1190,7 +1195,7 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     QString logMsg = QString::fromLatin1("handleCreateProcess PID=%1 TID=%2 CODE=0x%3 (%4) DATA=0x%5 (%6)")
                      .arg(m_session.pid).arg(m_session.tid).arg(m_session.codeseg, 0 ,16).arg(m_session.codeseg).arg(m_session.dataseg, 0, 16).arg(m_session.dataseg);
     logMessage(logMsg);
-
+    sendTrkContinue();
 #if 0
     /*
     logMessage("PID: " + formatInt(m_session.pid) + m_session.pid);

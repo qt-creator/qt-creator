@@ -82,8 +82,8 @@ public:
 private slots:
     void itemChanged(QListWidgetItem*);
     void additionalArgumentsEdited();
-private:
     void updateDetails();
+private:
     QString m_buildConfiguration;
     MakeStep *m_makeStep;
     QListWidget *m_targetsList;

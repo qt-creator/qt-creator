@@ -175,6 +175,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     }
 
     connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+            this, SLOT(updateDetails()));
 }
 
 void MakeStepConfigWidget::additionalArgumentsEdited()

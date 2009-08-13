@@ -81,6 +81,12 @@ struct ProjectExplorerSettings
     bool saveBeforeBuild;
     bool showCompilerOutput;
     bool useJom;
+    bool operator==(const ProjectExplorerSettings &other) {
+        return this->buildBeforeRun == other.buildBeforeRun
+                && this->saveBeforeBuild == other.saveBeforeBuild
+                && this->showCompilerOutput == other.showCompilerOutput
+                && this->useJom == other.useJom;
+    }
 };
 
 } // namespace Internal
@@ -135,6 +141,8 @@ signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void aboutToExecuteProject(ProjectExplorer::Project *project);
+
+    void settingsChanged();
 
 private slots:
     void buildStateChanged(ProjectExplorer::Project * pro);

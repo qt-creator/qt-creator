@@ -44,6 +44,8 @@
 
 #include <QtCore/QObject>
 
+#ifndef QT_BOOTSTRAPPED
+
 #undef NS
 #ifdef QT_NAMESPACE
 #   define STRINGIFY0(s) #s
@@ -155,6 +157,8 @@ public:
     int *deleteWatch;
 #endif
 };
+
+#endif // QT_BOOTSTRAPPED
 
 #if defined(QT_BEGIN_NAMESPACE)
 QT_END_NAMESPACE

@@ -1,10 +1,10 @@
 TEMPLATE = lib
 TARGET = Help
-include(../../qtcreatorplugin.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/find/find.pri)
-include(../../plugins/quickopen/quickopen.pri)
 QT += network
+
+include(../../qtcreatorplugin.pri)
+include(help_dependencies.pri)
+
 CONFIG += help
 DEFINES += QT_CLUCENE_SUPPORT \
     HELP_LIBRARY

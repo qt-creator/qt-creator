@@ -167,15 +167,14 @@ private slots:
     void dumpQObjectSlot();
     void dumpQObjectSlotList();
     void dumpQPixmap();
-#if QT_VERSION >= 0x040500
     void dumpQSharedPointer();
-#endif
     void dumpQString();
     void dumpQTextCodec();
     void dumpQVariant_invalid();
     void dumpQVariant_QString();
     void dumpQVariant_QStringList();
     void dumpStdVector();
+    void dumpQWeakPointer();
     void initTestCase();
 
 public slots:
@@ -213,6 +212,8 @@ private:
 #if QT_VERSION >= 0x040500
     template <typename T>
     void dumpQSharedPointerHelper(QSharedPointer<T> &ptr);
+    template <typename T>
+    void dumpQWeakPointerHelper(QWeakPointer<T> &ptr);
 #endif
     void dumpQTextCodecHelper(QTextCodec *codec);
 };
@@ -1392,6 +1393,10 @@ void tst_Debugger::dumpQMap()
     // Case 4.3: Two elements.
     map4["String 29"] = "String 31";
     dumpQMapHelper(map4);
+
+    // Case 4.4: Different value, same key (multimap functionality).
+    map4["String 29"] = "String 37";
+    dumpQMapHelper(map4);
 }
 
 template <typename K, typename V>
@@ -2063,14 +2068,15 @@ void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
         append("',type='int',addr='").append(ptrToBa(strongAddr)).append("',numchild='0'}]");
     testDumper(expected, &ptr, NS"QSharedPointer", true, typeToString(dummy));
 }
+#endif
 
 void tst_Debugger::dumpQSharedPointer()
 {
+#if QT_VERSION >= 0x040500
     // Case 1: Simple type.
     // Case 1.1: Null pointer.
     QSharedPointer<int> simplePtr;
-    // TODO: This case is not handled in gdbmacros.cpp (segfault!)
-    //dumpQSharedPointerHelper(simplePtr);
+    dumpQSharedPointerHelper(simplePtr);
 
     // Case 1.2: Non-null pointer,
     QSharedPointer<int> simplePtr2(new int(99));
@@ -2101,9 +2107,8 @@ void tst_Debugger::dumpQSharedPointer()
     // Case 1.4: Weak pointer.
     QWeakPointer<QString> compositePtr4(compositePtr2);
     dumpQSharedPointerHelper(compositePtr2);
-
-}
 #endif
+}
 
 void tst_Debugger::dumpQString()
 {
@@ -2194,6 +2199,70 @@ void tst_Debugger::dumpQTextCodec()
         dumpQTextCodecHelper(QTextCodec::codecForName(codecName));
 }
 
+#if QT_VERSION >= 0x040500
+template <typename T1, typename T2>
+        size_t offsetOf(const T1 *klass, const T2 *member)
+{
+    return static_cast<size_t>(reinterpret_cast<const char *>(member) -
+                               reinterpret_cast<const char *>(klass));
+}
+
+template <typename T>
+        void tst_Debugger::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
+{
+    T dummy;
+    typedef QtSharedPointer::ExternalRefCountData Data;
+    const size_t dataOffset = 0;
+    const Data *d = *reinterpret_cast<const Data **>(
+            reinterpret_cast<const char **>(&ptr) + dataOffset);
+    const int *weakRefPtr = reinterpret_cast<const int *>(&d->weakref);
+    const int *strongRefPtr = reinterpret_cast<const int *>(&d->strongref);
+    T *data = ptr.toStrongRef().data();
+    const QString dataStr = valToString(*data);
+    QByteArray expected("value='");
+    if (isSimpleType(dummy))
+        expected.append(dataStr);
+    expected.append("',valuedisabled='true',numchild='1',children=[{name='data',addr='").
+        append(ptrToBa(data)).append("',type='").append(typeToString(dummy)).
+        append("',value='").append(dataStr).append("'},{name='weakref',value='").
+        append(valToString(*weakRefPtr)).append("',type='int',addr='").
+        append(ptrToBa(weakRefPtr)).append("',numchild='0'},{name='strongref',value='").
+        append(valToString(*strongRefPtr)).append("',type='int',addr='").
+        append(ptrToBa(strongRefPtr)).append("',numchild='0'}]");
+    testDumper(expected, &ptr, NS"QWeakPointer", true, typeToString(dummy));
+}
+#endif
+
+void tst_Debugger::dumpQWeakPointer()
+{
+#if QT_VERSION >= 0x040500
+    // Case 1: Simple type.
+
+    // Case 1.1: Null pointer.
+    QSharedPointer<int> spNull;
+    QWeakPointer<int> wp = spNull.toWeakRef();
+    dumpQWeakPointerHelper(wp);
+
+    // Case 1.2: Weak pointer is unique.
+    QSharedPointer<int> sp(new int(99));
+    wp = sp.toWeakRef();
+    dumpQWeakPointerHelper(wp);
+
+    // Case 1.3: There are other weak pointers.
+    QWeakPointer<int> wp2 = sp.toWeakRef();
+    dumpQWeakPointerHelper(wp);
+
+    // Case 1.4: There are other strong shared pointers as well.
+    QSharedPointer<int> sp2(sp);
+    dumpQWeakPointerHelper(wp);
+
+    // Case 2: Composite type.
+    QSharedPointer<QString> spS(new QString("Test"));
+    QWeakPointer<QString> wpS = spS.toWeakRef();
+    dumpQWeakPointerHelper(wpS);
+#endif
+}
+
 //
 // Creator
 //
@@ -2208,6 +2277,12 @@ do {                                                      \
 
 void tst_Debugger::initTestCase()
 {
+    QVERIFY(sizeof(QWeakPointer<int>) == 2*sizeof(void *));
+    QVERIFY(sizeof(QSharedPointer<int>) == 2*sizeof(void *));
+    QtSharedPointer::ExternalRefCountData d;
+    d.weakref = d.strongref = 0; // That's what the destructor expects.
+    QVERIFY(sizeof(int) == sizeof(d.weakref));
+    QVERIFY(sizeof(int) == sizeof(d.strongref));
     QVERIFY(sizeof(QObjectPrivate) == sizeof(ObjectPrivate));
     VERIFY_OFFSETOF(threadData);
     VERIFY_OFFSETOF(extraData);

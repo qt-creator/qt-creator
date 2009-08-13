@@ -30,12 +30,12 @@
     <message>
         <location/>
         <source>Executable:</source>
-        <translation>Exécutable:</translation>
+        <translation>Exécutable :</translation>
     </message>
     <message>
         <location/>
         <source>Core File:</source>
-        <translation type="unfinished">Fichier Core:</translation>
+        <translation type="unfinished">Fichier Core :</translation>
     </message>
 </context>
 <context>
@@ -49,17 +49,17 @@
         <location/>
         <source>Attach to Process ID:</source>
         <translatorcomment>PID ?</translatorcomment>
-        <translation type="unfinished">Attacher au processus d&apos;ID:</translation>
+        <translation type="unfinished">Attacher au processus d&apos;ID :</translation>
     </message>
     <message>
         <location/>
         <source>Filter:</source>
-        <translation type="unfinished">Filtre:</translation>
+        <translation>Filtre :</translation>
     </message>
     <message>
         <location/>
         <source>Clear</source>
-        <translation type="unfinished">Effacer</translation>
+        <translation>Effacer</translation>
     </message>
 </context>
 <context>
@@ -82,12 +82,12 @@
     <message>
         <location/>
         <source>Use server start script:</source>
-        <translation type="unfinished">Utiliser le script de démarrage du serveur:</translation>
+        <translation>Utiliser le script de démarrage du serveur :</translation>
     </message>
     <message>
         <location/>
         <source>Server start script:</source>
-        <translation type="unfinished">Script de démarrage du serveur:</translation>
+        <translation>Script de démarrage du serveur :</translation>
     </message>
 </context>
 <context>
@@ -113,12 +113,12 @@
     <message>
         <location/>
         <source>Bookmark:</source>
-        <translation type="unfinished">Signet:</translation>
+        <translation>Signet :</translation>
     </message>
     <message>
         <location/>
         <source>Add in Folder:</source>
-        <translation type="unfinished">Ajouter dans le dossier:</translation>
+        <translation>Ajouter dans le dossier :</translation>
     </message>
     <message>
         <location/>
@@ -185,37 +185,37 @@
     <message>
         <location line="-435"/>
         <source>Delete Folder</source>
-        <translation type="unfinished">Supprimer le Dossier</translation>
+        <translation type="unfinished">Supprimer le dossier</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Rename Folder</source>
-        <translation type="unfinished">Renommer le Dossier</translation>
+        <translation type="unfinished">Renommer le dossier</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Show Bookmark</source>
-        <translation type="unfinished">Afficher le Signet</translation>
+        <translation type="unfinished">Afficher le signet</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Show Bookmark in New Tab</source>
-        <translation type="unfinished">Afficher le Signet dans un Nouvel Onglet</translation>
+        <translation type="unfinished">Afficher le signet dans un nouvel onglet</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Delete Bookmark</source>
-        <translation type="unfinished">Supprimer le Signet</translation>
+        <translation type="unfinished">Supprimer le signet</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Rename Bookmark</source>
-        <translation type="unfinished">Renommer le Signet</translation>
+        <translation type="unfinished">Renommer le signet</translation>
     </message>
     <message>
         <location line="+38"/>
         <source>Filter:</source>
-        <translation type="unfinished">Filtre:</translation>
+        <translation type="unfinished">Filtre :</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -2555,12 +2555,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location/>
         <source>Header suffix:</source>
-        <translation type="unfinished">Suffixe des header :</translation>
+        <translation type="unfinished">Suffixe des headers :</translation>
     </message>
     <message>
         <location/>
         <source>Source suffix:</source>
-        <translation type="unfinished">Suffixe des fichiers source</translation>
+        <translation type="unfinished">Suffixe des fichiers source:</translation>
     </message>
     <message>
         <location/>
@@ -2570,7 +2570,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location/>
         <source>License Template:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modèle de licence:</translation>
     </message>
 </context>
 <context>
@@ -11422,12 +11422,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/displaysettingspage.ui"/>
         <source>Display</source>
-        <translation type="unfinished">Affichage</translation>
+        <translation>Affichage</translation>
     </message>
     <message>
         <location/>
         <source>Display line &amp;numbers</source>
-        <translation type="unfinished">Afficher les &amp;numéros de ligne</translation>
+        <translation>Afficher les &amp;numéros de ligne</translation>
     </message>
     <message>
         <location/>
@@ -11490,13 +11490,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+210"/>
         <source>Font &amp; Colors</source>
-        <translation type="unfinished">Polices et couleurs</translation>
+        <translation type="unfinished">Polices &amp; couleurs</translation>
     </message>
     <message>
         <location line="+209"/>
         <source>
 	This is only an example.</source>
-        <translation type="unfinished">\n\tCeci est seulement un exemple.</translation>
+        <translation>\n\tCeci est seulement un exemple.</translation>
     </message>
 </context>
 <context>
@@ -12207,12 +12207,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbasesettingspage.ui"/>
         <source>Common</source>
-        <translation type="unfinished">Commun</translation>
+        <translation>Commun</translation>
     </message>
     <message>
         <location/>
         <source>Wrap submit message at:</source>
-        <translation type="unfinished">Limiter la largeur du message à :</translation>
+        <translation>Limiter la largeur du message à :</translation>
     </message>
     <message>
         <location/>
@@ -12222,7 +12222,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location/>
         <source>Submit message check script:</source>
-        <translation type="unfinished">Script de vérification du message :</translation>
+        <translation>Script de vérification du message :</translation>
     </message>
     <message>
         <location/>
@@ -12234,7 +12234,7 @@ nom &lt;email&gt; alias &lt;/email&gt;</translation>
     <message>
         <location/>
         <source>User/alias configuration file:</source>
-        <translation type="unfinished">Fichier de configuration des alias utilisateur :</translation>
+        <translation>Fichier de configuration des alias utilisateur :</translation>
     </message>
     <message>
         <location/>
@@ -12244,7 +12244,7 @@ nom &lt;email&gt; alias &lt;/email&gt;</translation>
     <message>
         <location/>
         <source>User fields configuration file:</source>
-        <translation type="unfinished">Fichier de configuration des champs utilisateurs :</translation>
+        <translation>Fichier de configuration des champs utilisateurs :</translation>
     </message>
 </context>
 <context>
@@ -12252,14 +12252,14 @@ nom &lt;email&gt; alias &lt;/email&gt;</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/vcsmanager.cpp" line="+132"/>
         <source>Version Control</source>
-        <translation type="unfinished">Gestion de versions</translation>
+        <translation>Gestion de versions</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Would you like to remove this file from the version control system (%1)?
 Note: This might remove the local file.</source>
         <translation type="unfinished">Voulez-vous retirer ce fichier du système de gestion de versions (%1)?
-Note: Ceci peut supprimer le fichier sur le disque</translation>
+Note : Ceci risque de supprimer le fichier sur le disque.</translation>
     </message>
 </context>
 <context>
@@ -12267,13 +12267,13 @@ Note: Ceci peut supprimer le fichier sur le disque</translation>
     <message>
         <location filename="../../../src/shared/cpaster/view.cpp" line="+89"/>
         <source>Paste</source>
-        <translation type="unfinished">Coller</translation>
+        <translation>Coller</translation>
     </message>
     <message>
         <location line="+11"/>
         <location line="+41"/>
         <source>&lt;Username&gt;</source>
-        <translation type="unfinished">&lt;Utilisateur&gt;</translation>
+        <translation>&lt;Utilisateur&gt;</translation>
     </message>
     <message>
         <location line="-33"/>
@@ -12285,7 +12285,7 @@ Note: Ceci peut supprimer le fichier sur le disque</translation>
         <location line="-30"/>
         <location line="+35"/>
         <source>&lt;Comment&gt;</source>
-        <translation type="unfinished">&lt;Commentaire&gt;</translation>
+        <translation>&lt;Commentaire&gt;</translation>
     </message>
 </context>
 <context>
@@ -12293,17 +12293,17 @@ Note: Ceci peut supprimer le fichier sur le disque</translation>
     <message>
         <location filename="../../../src/shared/cpaster/view.ui"/>
         <source>Send to Codepaster</source>
-        <translation type="unfinished">Envoyer sur Codepaster</translation>
+        <translation>Envoyer sur Codepaster</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Username:</source>
-        <translation type="unfinished">&amp;Utilisateur:</translation>
+        <translation>&amp;Utilisateur :</translation>
     </message>
     <message>
         <location/>
         <source>&lt;Username&gt;</source>
-        <translation type="unfinished">&lt;Utilisateur&gt;</translation>
+        <translation>&lt;Utilisateur&gt;</translation>
     </message>
     <message>
         <location/>
@@ -12326,7 +12326,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Parts to send to codepaster</source>
-        <translation type="unfinished">Fragments envoyés sur codepaster</translation>
+        <translation type="unfinished">Fragments à envoyer sur codepaster</translation>
     </message>
     <message>
         <location/>

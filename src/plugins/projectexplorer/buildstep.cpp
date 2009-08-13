@@ -137,8 +137,15 @@ bool BuildStep::immutable() const
 void BuildConfigWidget::fixupLayout(QWidget *widget)
 {
     QWidget *parent = widget;
-    while((parent = parent->parentWidget()) && parent && parent->layout())
-        parent->layout()->activate();
+    QStack<QWidget *> widgets;
+    while((parent = parent->parentWidget()) && parent && parent->layout()) {
+        widgets.push(parent);
+        parent->layout()->update();
+    }
+
+    while(!widgets.isEmpty()) {
+        widgets.pop()->layout()->activate();
+    }
 }
 
 IBuildStepFactory::IBuildStepFactory()

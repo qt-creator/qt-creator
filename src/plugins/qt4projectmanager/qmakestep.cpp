@@ -178,7 +178,6 @@ bool QMakeStep::immutable() const
     return false;
 }
 
-
 void QMakeStep::processStartupFailed()
 {
     m_forced = true;

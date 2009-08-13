@@ -80,6 +80,7 @@ private slots:
     void itemChanged(QListWidgetItem*);
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
+    void updateMakeOverrrideLabel();
 private:
     void updateDetails();
     QString m_buildConfiguration;

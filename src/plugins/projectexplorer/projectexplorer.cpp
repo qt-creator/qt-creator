@@ -1989,7 +1989,10 @@ void ProjectExplorerPlugin::setSession(QAction *action)
 
 void ProjectExplorerPlugin::setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes)
 {
+    if (m_projectExplorerSettings == pes)
+        return;
     m_projectExplorerSettings = pes;
+    emit settingsChanged();
 }
 
 Internal::ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings() const

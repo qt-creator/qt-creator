@@ -91,8 +91,9 @@ private slots:
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
     void update();
+    void updateMakeOverrideLabel();
+    void updateDetails();
 private:
-    void updateTitle();
     QString m_buildConfiguration;
     Ui::MakeStep m_ui;
     MakeStep *m_makeStep;
