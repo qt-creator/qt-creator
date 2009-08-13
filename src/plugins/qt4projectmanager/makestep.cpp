@@ -212,7 +212,7 @@ void MakeStepConfigWidget::updateDetails()
     }
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
-    // FIXME doing this without the user haaving a way to override this is rather bad
+    // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
     QStringList args = m_makeStep->value(m_buildConfiguration, "makeargs").toStringList();
