@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET = Help
 QT += network
 
+include(../../qtcreatorplugin.pri)
 include(help_dependencies.pri)
 
 CONFIG += help
