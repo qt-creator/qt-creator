@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi</class>
- <widget class="QWidget" name="ProjectExplorer::Internal::ProjetExplorerSettingsPageUi">
+ <class>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</class>
+ <widget class="QWidget" name="ProjectExplorer::Internal::ProjectExplorerSettingsPageUi">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>296</width>
-    <height>249</height>
+    <width>338</width>
+    <height>289</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -16,7 +16,7 @@
      <property name="title">
       <string>Build and Run</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QCheckBox" name="saveAllFilesCheckBox">
         <property name="text">
@@ -39,14 +39,37 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="jomCheckbox">
-        <property name="whatsThis">
-         <string/>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
         </property>
-        <property name="text">
-         <string>Use jom instead of nmake</string>
-        </property>
-       </widget>
+        <item>
+         <widget class="QCheckBox" name="jomCheckbox">
+          <property name="whatsThis">
+           <string/>
+          </property>
+          <property name="text">
+           <string>Use jom instead of nmake</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="jomLabel">
+          <property name="text">
+           <string>jom is a drop-in replacement for nmake which distributes the compilation process to multiple CPU cores. For more details, see &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;the jom Homepage&lt;/a&gt;. Disable this if you expirience problems with your Makefiles.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="indent">
+           <number>20</number>
+          </property>
+          <property name="openExternalLinks">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

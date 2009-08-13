@@ -77,6 +77,7 @@ QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
     m_ui.jomCheckbox->setChecked(pes.useJom);
 #else
     m_ui.jomCheckbox->setVisible(false);
+    m_ui.jomLabel->setVisible(false);
 #endif
     return w;
 }

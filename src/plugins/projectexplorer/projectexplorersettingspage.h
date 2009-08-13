@@ -52,7 +52,7 @@ public:
     virtual void apply();
     virtual void finish();
 private:
-    ProjectExplorer::Internal::Ui::ProjetExplorerSettingsPageUi m_ui;
+    Ui::ProjectExplorerSettingsPageUi m_ui;
 };
 
 } // Internal
