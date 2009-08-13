@@ -185,7 +185,7 @@ void MakeStepConfigWidget::updateMakeOverrideLabel()
     m_ui.makeLabel->setText(tr("Override %1:").arg(static_cast<Qt4Project *>(m_makeStep->project())->makeCommand(m_buildConfiguration)));
 }
 
-void MakeStepConfigWidget::updateSummary()
+void MakeStepConfigWidget::updateDetails()
 {
     // TODO reduce heavy code duplication
     QString workingDirectory;
@@ -261,14 +261,14 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
     const QStringList &makeArguments =
             m_makeStep->value(buildConfiguration, "makeargs").toStringList();
     m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
-    updateSummary();
+    updateDetails();
 }
 
 void MakeStepConfigWidget::makeLineEditTextEdited()
 {
     Q_ASSERT(!m_buildConfiguration.isNull());
     m_makeStep->setValue(m_buildConfiguration, "makeCmd", m_ui.makeLineEdit->text());
-    updateSummary();
+    updateDetails();
 }
 
 void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
@@ -276,7 +276,7 @@ void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
     Q_ASSERT(!m_buildConfiguration.isNull());
     m_makeStep->setValue(m_buildConfiguration, "makeargs",
                          ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
-    updateSummary();
+    updateDetails();
 }
 
 ///

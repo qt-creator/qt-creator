@@ -92,7 +92,7 @@ private slots:
     void makeArgumentsLineEditTextEdited();
     void update();
     void updateMakeOverrideLabel();
-    void updateSummary();
+    void updateDetails();
 private:
     QString m_buildConfiguration;
     Ui::MakeStep m_ui;
