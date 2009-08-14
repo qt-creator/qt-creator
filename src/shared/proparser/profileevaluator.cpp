@@ -218,7 +218,8 @@ public:
     static inline ProItem::ProItemReturn returnBool(bool b)
         { return b ? ProItem::ReturnTrue : ProItem::ReturnFalse; }
 
-    QStringList evaluateFunction(ProBlock *funcPtr, const QStringList &argumentsList, bool *ok);
+    QList<QStringList> prepareFunctionArgs(const QString &arguments);
+    QStringList evaluateFunction(ProBlock *funcPtr, const QList<QStringList> &argumentsList, bool *ok);
 
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;
@@ -1673,8 +1674,20 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
     return false;
 }
 
+QList<QStringList> ProFileEvaluator::Private::prepareFunctionArgs(const QString &arguments)
+{
+    QList<QStringList> args_list;
+    foreach (const QString &urArg, split_arg_list(arguments)) {
+        QStringList tmp;
+        foreach (const QString &arg, split_value_list(urArg))
+            tmp += expandVariableReferences(arg);
+        args_list << tmp;
+    }
+    return args_list;
+}
+
 QStringList ProFileEvaluator::Private::evaluateFunction(
-        ProBlock *funcPtr, const QStringList &argumentsList, bool *ok)
+        ProBlock *funcPtr, const QList<QStringList> &argumentsList, bool *ok)
 {
     bool oki;
     QStringList ret;
@@ -1689,9 +1702,8 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
 
         QStringList args;
         for (int i = 0; i < argumentsList.count(); ++i) {
-            QStringList theArgs = expandVariableReferences(argumentsList[i]);
-            args += theArgs;
-            m_valuemap[QString::number(i+1)] = theArgs;
+            args += argumentsList[i];
+            m_valuemap[QString::number(i+1)] = argumentsList[i];
         }
         m_valuemap[QLatin1String("ARGS")] = args;
         oki = (funcPtr->Accept(this) != ProItem::ReturnFalse); // True || Return
@@ -1711,14 +1723,14 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
 
 QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &func, const QString &arguments)
 {
-    QStringList argumentsList = split_arg_list(arguments);
+    QList<QStringList> args_list = prepareFunctionArgs(arguments);
 
     if (ProBlock *funcPtr = m_functionDefs.replaceFunctions.value(func, 0))
-        return evaluateFunction(funcPtr, argumentsList, 0);
+        return evaluateFunction(funcPtr, args_list, 0);
 
-    QStringList args;
-    for (int i = 0; i < argumentsList.count(); ++i)
-        args += expandVariableReferences(argumentsList.at(i)).join(Option::field_sep);
+    QStringList args; //why don't the builtin functions just use args_list? --Sam
+    foreach (const QStringList &arg, args_list)
+        args += arg.join(Option::field_sep);
 
     enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
@@ -2118,11 +2130,11 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
 ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         const QString &function, const QString &arguments)
 {
-    QStringList argumentsList = split_arg_list(arguments);
+    QList<QStringList> args_list = prepareFunctionArgs(arguments);
 
     if (ProBlock *funcPtr = m_functionDefs.testFunctions.value(function, 0)) {
         bool ok;
-        QStringList ret = evaluateFunction(funcPtr, argumentsList, &ok);
+        QStringList ret = evaluateFunction(funcPtr, args_list, &ok);
         if (ok) {
             if (ret.isEmpty()) {
                 return ProItem::ReturnTrue;
@@ -2147,11 +2159,9 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         return ProItem::ReturnFalse;
     }
 
-    QString sep;
-    sep.append(Option::field_sep);
-    QStringList args;
-    for (int i = 0; i < argumentsList.count(); ++i)
-        args += expandVariableReferences(argumentsList.at(i)).join(sep);
+    QStringList args; //why don't the builtin functions just use args_list? --Sam
+    foreach (const QStringList &arg, args_list)
+        args += arg.join(Option::field_sep);
 
     enum TestFunc { T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
                     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
