@@ -219,7 +219,7 @@ void WelcomeMode::showClickedPage()
 void WelcomeMode::slotFeedback()
 {
     QDesktopServices::openUrl(QUrl(QLatin1String(
-            "http://qtsoftware.com/forms/feedback-forms/qt-creator-user-feedback/view")));
+        "http://qt.nokia.com/forms/feedback-forms/qt-creator-user-feedback/view")));
 }
 
 

@@ -54,7 +54,7 @@ CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     //: Add localized feed here only if one exists
     m_rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
 
-    ui->sitesTreeWidget->addItem(tr("Qt Home"), QLatin1String("http://qtsoftware.com"));
+    ui->sitesTreeWidget->addItem(tr("Qt Home"), QLatin1String("http://qt.nokia.com"));
     ui->sitesTreeWidget->addItem(tr("Qt Labs"), QLatin1String("http://labs.trolltech.com"));
     ui->sitesTreeWidget->addItem(tr("Qt Git Hosting"), QLatin1String("http://qt.gitorious.org"));
     ui->sitesTreeWidget->addItem(tr("Qt Centre"), QLatin1String("http://www.qtcentre.org"));
@@ -67,13 +67,10 @@ CommunityWelcomePageWidget::~CommunityWelcomePageWidget()
     delete ui;
 }
 
-
 void CommunityWelcomePageWidget::slotUrlClicked(const QString &data)
 {
     QDesktopServices::openUrl(QUrl(data));
 }
-
-
 
 } // namespace Internal
 } // namespace Welcome
