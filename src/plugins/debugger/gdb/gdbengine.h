@@ -125,6 +125,17 @@ private:
     void fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length);
     void handleFetchMemory(const GdbResultRecord &record, const QVariant &cookie);
 
+    void fetchDisassembler(DisassemblerViewAgent *agent,
+        const StackFrame &frame);
+    void fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
+        bool useMixedMode);
+    void handleFetchDisassemblerByLine(const GdbResultRecord &record,
+        const QVariant &cookie);
+    void handleFetchDisassemblerByAddress1(const GdbResultRecord &record,
+        const QVariant &cookie);
+    void handleFetchDisassemblerByAddress0(const GdbResultRecord &record,
+        const QVariant &cookie);
+
     Q_SLOT void setDebugDebuggingHelpers(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 

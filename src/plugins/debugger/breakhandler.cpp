@@ -29,6 +29,9 @@
 
 #include "breakhandler.h"
 
+#include "debuggermanager.h"
+#include "stackframe.h"
+
 #include "imports.h" // TextEditor::BaseTextMark
 
 #include <QtCore/QDebug>
@@ -242,8 +245,8 @@ bool BreakpointData::conditionsMatch() const
 //
 //////////////////////////////////////////////////////////////////
 
-BreakHandler::BreakHandler(QObject *parent)
-    : QAbstractItemModel(parent)
+BreakHandler::BreakHandler(DebuggerManager *manager, QObject *parent)
+    : QAbstractItemModel(parent), m_manager(manager)
 {
 }
 
@@ -345,13 +348,12 @@ void BreakHandler::saveBreakpoints()
             map.insert(QLatin1String("usefullpath"), QLatin1String("1"));
         list.append(map);
     }
-    setSessionValueRequested("Breakpoints", list);
+    m_manager->setSessionValue("Breakpoints", list);
 }
 
 void BreakHandler::loadBreakpoints()
 {
-    QVariant value;
-    sessionValueRequested("Breakpoints", &value);
+    QVariant value = m_manager->sessionValue("Breakpoints");
     QList<QVariant> list = value.toList();
     clear();
     foreach (const QVariant &var, list) {
@@ -677,8 +679,12 @@ void BreakHandler::activateBreakpoint(int index)
 {
     const BreakpointData *data = at(index);
     //qDebug() << "BREAKPOINT ACTIVATED: " << data->fileName;
-    if (!data->markerFileName.isEmpty())
-        emit gotoLocation(data->markerFileName, data->markerLineNumber, false);
+    if (!data->markerFileName.isEmpty()) {
+        StackFrame frame;
+        frame.file = data->markerFileName;
+        frame.line = data->markerLineNumber;
+        m_manager->gotoLocation(frame, false);
+    }
 }
 
 void BreakHandler::breakByFunction(const QString &functionName)

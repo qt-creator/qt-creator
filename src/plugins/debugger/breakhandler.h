@@ -40,6 +40,7 @@ namespace Internal {
 
 class BreakpointMarker;
 class BreakHandler;
+class DebuggerManager;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -113,7 +114,7 @@ class BreakHandler : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit BreakHandler(QObject *parent = 0);
+    explicit BreakHandler(DebuggerManager *manager, QObject *parent = 0);
     ~BreakHandler();
 
     void removeAllBreakpoints();
@@ -149,12 +150,6 @@ public slots:
     void activateBreakpoint(int index);
     void removeBreakpoint(int index);
 
-signals:
-    void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
-
-    void sessionValueRequested(const QString &name, QVariant *value);
-    void setSessionValueRequested(const QString &name, const QVariant &value);
-
 private:
     friend class BreakpointMarker;
 
@@ -175,6 +170,7 @@ private:
     void resetBreakpoints();
     void removeBreakpointHelper(int index);
 
+    DebuggerManager *m_manager; // not owned
     QList<BreakpointData *> m_bp;
     QList<BreakpointData *> m_inserted; // lately inserted breakpoints
     QList<BreakpointData *> m_removed; // lately removed breakpoints

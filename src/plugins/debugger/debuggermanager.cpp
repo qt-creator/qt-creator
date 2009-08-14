@@ -219,8 +219,8 @@ void DebuggerManager::init()
     m_disassemblerWindow = new DisassemblerWindow;
     m_modulesWindow = new ModulesWindow(this);
     m_outputWindow = new DebuggerOutputWindow;
-    m_registerWindow = new RegisterWindow;
-    m_stackWindow = new StackWindow;
+    m_registerWindow = new RegisterWindow(this);
+    m_stackWindow = new StackWindow(this);
     m_sourceFilesWindow = new SourceFilesWindow;
     m_threadsWindow = new ThreadsWindow;
     m_localsWindow = new WatchWindow(WatchWindow::LocalsType, this);
@@ -261,7 +261,7 @@ void DebuggerManager::init()
             this, SLOT(reloadDisassembler()));
 
     // Breakpoints
-    m_breakHandler = new BreakHandler;
+    m_breakHandler = new BreakHandler(this);
     QAbstractItemView *breakView =
         qobject_cast<QAbstractItemView *>(m_breakWindow);
     breakView->setModel(m_breakHandler->model());
@@ -271,12 +271,6 @@ void DebuggerManager::init()
         m_breakHandler, SLOT(removeBreakpoint(int)));
     connect(breakView, SIGNAL(breakpointSynchronizationRequested()),
         this, SLOT(attemptBreakpointSynchronization()));
-    connect(m_breakHandler, SIGNAL(gotoLocation(QString,int,bool)),
-        this, SLOT(gotoLocation(QString,int,bool)));
-    connect(m_breakHandler, SIGNAL(sessionValueRequested(QString,QVariant*)),
-        this, SIGNAL(sessionValueRequested(QString,QVariant*)));
-    connect(m_breakHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
-        this, SIGNAL(setSessionValueRequested(QString,QVariant)));
     connect(breakView, SIGNAL(breakByFunctionRequested(QString)),
         this, SLOT(breakByFunction(QString)), Qt::QueuedConnection);
     connect(breakView, SIGNAL(breakByFunctionMainRequested()),
@@ -357,16 +351,6 @@ void DebuggerManager::init()
     //m_stepAction->setShortcut(QKeySequence(tr("F7")));
     m_stepAction->setIcon(QIcon(":/debugger/images/debugger_stepinto_small.png"));
 
-    m_nextIAction = new QAction(this);
-    m_nextIAction->setText(tr("Step Over Instruction"));
-    //m_nextIAction->setShortcut(QKeySequence(tr("Shift+F6")));
-    m_nextIAction->setIcon(QIcon(":/debugger/images/debugger_stepoverproc_small.png"));
-
-    m_stepIAction = new QAction(this);
-    m_stepIAction->setText(tr("Step One Instruction"));
-    //m_stepIAction->setShortcut(QKeySequence(tr("Shift+F9")));
-    m_stepIAction->setIcon(QIcon(":/debugger/images/debugger_steponeproc_small.png"));
-
     m_stepOutAction = new QAction(this);
     m_stepOutAction->setText(tr("Step Out"));
     //m_stepOutAction->setShortcut(QKeySequence(tr("Shift+F7")));
@@ -405,10 +389,8 @@ void DebuggerManager::init()
         this, SLOT(nextExec()));
     connect(m_stepAction, SIGNAL(triggered()),
         this, SLOT(stepExec()));
-    connect(m_nextIAction, SIGNAL(triggered()),
-        this, SLOT(nextIExec()));
-    connect(m_stepIAction, SIGNAL(triggered()),
-        this, SLOT(stepIExec()));
+    connect(theDebuggerAction(StepByInstruction), SIGNAL(triggered()),
+        this, SLOT(stepByInstructionTriggered()));
     connect(m_stepOutAction, SIGNAL(triggered()),
         this, SLOT(stepOutExec()));
     connect(m_runToLineAction, SIGNAL(triggered()),
@@ -427,8 +409,13 @@ void DebuggerManager::init()
 
     connect(theDebuggerAction(ExecuteCommand), SIGNAL(triggered()),
         this, SLOT(executeDebuggerCommand()));
+
     connect(theDebuggerAction(WatchPoint), SIGNAL(triggered()),
         this, SLOT(watchPoint()));
+
+    connect(theDebuggerAction(StepByInstruction), SIGNAL(triggered()),
+        this, SLOT(stepByInstructionTriggered()));
+
 
     m_breakDock = m_mainWindow->addDockForWidget(m_breakWindow);
 
@@ -725,14 +712,6 @@ void DebuggerManager::updateWatchData(const WatchData &data)
         m_engine->updateWatchData(data);
 }
 
-QVariant DebuggerManager::sessionValue(const QString &name)
-{
-    // this is answered by the plugin
-    QVariant value;
-    emit sessionValueRequested(name, &value);
-    return value;
-}
-
 static inline QString msgEngineNotAvailable(const char *engine)
 {
     return DebuggerManager::tr("The application requires the debugger engine '%1', which is disabled.").arg(QLatin1String(engine));
@@ -986,7 +965,10 @@ void DebuggerManager::stepExec()
 {
     QTC_ASSERT(m_engine, return);
     resetLocation();
-    m_engine->stepExec();
+    if (theDebuggerBoolSetting(StepByInstruction))
+        m_engine->stepIExec();
+    else
+        m_engine->stepExec();
 }
 
 void DebuggerManager::stepOutExec()
@@ -1000,21 +982,10 @@ void DebuggerManager::nextExec()
 {
     QTC_ASSERT(m_engine, return);
     resetLocation();
-    m_engine->nextExec();
-}
-
-void DebuggerManager::stepIExec()
-{
-    QTC_ASSERT(m_engine, return);
-    resetLocation();
-    m_engine->stepIExec();
-}
-
-void DebuggerManager::nextIExec()
-{
-    QTC_ASSERT(m_engine, return);
-    resetLocation();
-    m_engine->nextIExec();
+    if (theDebuggerBoolSetting(StepByInstruction))
+        m_engine->nextIExec();
+    else
+        m_engine->nextExec();
 }
 
 void DebuggerManager::watchPoint()
@@ -1190,8 +1161,6 @@ void DebuggerManager::setStatus(int status)
     m_runToFunctionAction->setEnabled(ready);
     m_jumpToLineAction->setEnabled(ready);
     m_nextAction->setEnabled(ready);
-    m_stepIAction->setEnabled(ready);
-    m_nextIAction->setEnabled(ready);
     //showStatusMessage(QString("started: %1, running: %2").arg(started).arg(running));
     emit statusChanged(m_status);
     const bool notbusy = ready || status == DebuggerProcessNotReady;
@@ -1316,17 +1285,26 @@ void DebuggerManager::resetLocation()
     emit resetLocationRequested();
 }
 
-void DebuggerManager::gotoLocation(const QString &fileName, int line,
-    bool setMarker)
+void DebuggerManager::gotoLocation(const StackFrame &frame, bool setMarker)
 {
     // connected to the plugin
-    emit gotoLocationRequested(fileName, line, setMarker);
+    emit gotoLocationRequested(frame, setMarker);
 }
 
 void DebuggerManager::fileOpen(const QString &fileName)
 {
     // connected to the plugin
-    emit gotoLocationRequested(fileName, 1, false);
+    StackFrame frame;
+    frame.file = fileName;
+    frame.line = -1;
+    emit gotoLocationRequested(frame, false);
+}
+
+void DebuggerManager::stepByInstructionTriggered()
+{
+    QTC_ASSERT(m_stackHandler, return);
+    StackFrame frame = m_stackHandler->currentFrame();
+    gotoLocation(frame, true);
 }
 
 
@@ -1496,6 +1474,20 @@ bool DebuggerManager::isReverseDebugging() const
 {
     return m_reverseDirectionAction->isChecked();
 }
+
+QVariant DebuggerManager::sessionValue(const QString &name)
+{
+    // this is answered by the plugin
+    QVariant value;
+    emit sessionValueRequested(name, &value);
+    return value;
+}
+
+void DebuggerManager::setSessionValue(const QString &name, const QVariant &value)
+{
+    emit setSessionValueRequested(name, value);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 //

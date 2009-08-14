@@ -28,8 +28,10 @@
 **************************************************************************/
 
 #include "stackwindow.h"
+#include "stackframe.h"
 
 #include "debuggeractions.h"
+#include "debuggeragents.h"
 
 #include <utils/qtcassert.h>
 
@@ -46,11 +48,14 @@
 #include <QtGui/QVBoxLayout>
 
 
-using Debugger::Internal::StackWindow;
+namespace Debugger {
+namespace Internal {
 
-StackWindow::StackWindow(QWidget *parent)
-    : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
+StackWindow::StackWindow(DebuggerManager *manager, QWidget *parent)
+    : QTreeView(parent), m_manager(manager), m_alwaysResizeColumnsToContents(false)
 {
+    m_disassemblerAgent = new DisassemblerViewAgent(manager);
+
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Stack"));
 
@@ -90,33 +95,60 @@ void StackWindow::rowActivated(const QModelIndex &index)
 
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
+    QModelIndex idx = indexAt(ev->pos());
+    StackFrame frame = model()->data(idx, Qt::UserRole).value<StackFrame>();
+    QString address = frame.address;
+    
+    qDebug() << "RECV: " << frame.toToolTip();
+
     QMenu menu;
 
-    QAction *act0 = new QAction(tr("Copy contents to clipboard"), &menu);
-    act0->setEnabled(model() != 0);
+    QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));
 
-    QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
+    QAction *actAlwaysAdjust =
+        menu.addAction(tr("Always adjust column widths to contents"));
+    actAlwaysAdjust->setCheckable(true);
+    actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
 
-    QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
-    act2->setCheckable(true);
-    act2->setChecked(m_alwaysResizeColumnsToContents);
+    menu.addSeparator();
 
     menu.addAction(theDebuggerAction(ExpandStack));
-    menu.addAction(act0);
+
+    QAction *actCopyContents = menu.addAction(tr("Copy contents to clipboard"));
+    actCopyContents->setEnabled(model() != 0);
+
+    QAction *actShowMemory = menu.addAction(QString());
+    if (address.isEmpty()) {
+        actShowMemory->setText(tr("Open memory editor"));
+        actShowMemory->setEnabled(false);
+    } else {
+        actShowMemory->setText(tr("Open memory editor at %1").arg(address));
+    }
+
+    QAction *actShowDisassembler = menu.addAction(QString());
+    if (address.isEmpty()) {
+        actShowDisassembler->setText(tr("Open disassembler"));
+        actShowDisassembler->setEnabled(false);
+    } else {
+        actShowDisassembler->setText(tr("Open disassembler at %1").arg(address));
+    }
+
     menu.addSeparator();
-    menu.addAction(act1);
-    menu.addAction(act2);
-    menu.addSeparator();
+
     menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == act0)
+    if (act == actCopyContents)
         copyContentsToClipboard();
-    else if (act == act1)
+    else if (act == actAdjust)
         resizeColumnsToContents();
-    else if (act == act2)
+    else if (act == actAlwaysAdjust)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
+    else if (act == actShowMemory)
+        (void) new MemoryViewAgent(m_manager, address);
+    else if (act == actShowDisassembler)
+        m_disassemblerAgent->setFrame(frame);
 }
 
 void StackWindow::copyContentsToClipboard()
@@ -157,3 +189,6 @@ void StackWindow::setAlwaysResizeColumnsToContents(bool on)
     header()->setResizeMode(2, mode);
     header()->setResizeMode(3, mode);
 }
+
+} // namespace Internal
+} // namespace Debugger

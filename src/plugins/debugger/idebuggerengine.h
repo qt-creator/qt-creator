@@ -46,10 +46,12 @@ class ITextEditor;
 namespace Debugger {
 namespace Internal {
 
+class DebuggerStartParameters;
+class DisassemblerViewAgent;
+class MemoryViewAgent;
+class StackFrame;
 class Symbol;
 class WatchData;
-struct DebuggerStartParameters;
-class MemoryViewAgent;
 
 class IDebuggerEngine : public QObject
 {
@@ -98,6 +100,8 @@ public:
     virtual void watchPoint(const QPoint &) {}
     virtual void fetchMemory(MemoryViewAgent *, quint64 addr, quint64 length)
         { Q_UNUSED(addr); Q_UNUSED(length); }
+    virtual void fetchDisassembler(DisassemblerViewAgent *, const StackFrame &frame)
+        { Q_UNUSED(frame); }
 };
 
 } // namespace Internal

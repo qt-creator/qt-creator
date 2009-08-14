@@ -77,6 +77,7 @@ class DisassemblerHandler;
 class ModulesHandler;
 class RegisterHandler;
 class SourceFilesWindow;
+class StackFrame;
 class StackHandler;
 class Symbol;
 class ThreadsHandler;
@@ -141,8 +142,9 @@ enum LogChannel
     LogMisc    
 };
 
-struct DebuggerStartParameters
+class DebuggerStartParameters
 {
+public:
     DebuggerStartParameters();
     void clear();
 
@@ -281,9 +283,8 @@ public slots:
 
     void setBusyCursor(bool on);
     void queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **ed);
-    QVariant sessionValue(const QString &name);
 
-    void gotoLocation(const QString &file, int line, bool setLocationMarker);
+    void gotoLocation(const StackFrame &frame, bool setLocationMarker);
     void fileOpen(const QString &file);
     void resetLocation();
 
@@ -302,8 +303,6 @@ public slots:
     void stepExec();
     void stepOutExec();
     void nextExec();
-    void stepIExec();
-    void nextIExec();
     void continueExec();
     void detachDebugger();
 
@@ -313,6 +312,8 @@ public slots:
     void sessionLoaded();
     void aboutToUnloadSession();
     void aboutToSaveSession();
+    QVariant sessionValue(const QString &name);
+    void setSessionValue(const QString &name, const QVariant &value);
 
     void assignValueInDebugger();
     void assignValueInDebugger(const QString &expr, const QString &value);
@@ -346,6 +347,7 @@ private slots:
     void clearStatusMessage();
     void attemptBreakpointSynchronization();
     void reloadFullStack();
+    void stepByInstructionTriggered();
 
 private:
     //
@@ -404,7 +406,7 @@ signals:
     void debugModeRequested();
     void previousModeRequested();
     void statusMessageRequested(const QString &msg, int timeout); // -1 for 'forever'
-    void gotoLocationRequested(const QString &file, int line, bool setLocationMarker);
+    void gotoLocationRequested(const StackFrame &frame, bool setLocationMarker);
     void resetLocationRequested();
     void currentTextEditorRequested(QString *fileName, int *lineNumber, QObject **ob);
     void sessionValueRequested(const QString &name, QVariant *value);
@@ -468,8 +470,7 @@ private:
     QAction *m_watchAction;
     QAction *m_breakAction;
     QAction *m_sepAction;
-    QAction *m_stepIAction;
-    QAction *m_nextIAction;
+    //QActio *m_stepByInstructionAction;
     QAction *m_reverseDirectionAction;
 
     QWidget *m_breakWindow;

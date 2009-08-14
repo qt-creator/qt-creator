@@ -27,53 +27,18 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_STACKWINDOW_H
-#define DEBUGGER_STACKWINDOW_H
+#ifndef DEBUGGER_CPPTOOLS_H
+#define DEBUGGER_CPPTOOLS_H
 
-#include <QtGui/QTreeView>
-#include <QtGui/QWidget>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QModelIndex;
-QT_END_NAMESPACE
+#include <QtCore/QByteArray>
 
 namespace Debugger {
 namespace Internal {
 
-class DebuggerManager;
-class DisassemblerViewAgent;
-    
-class StackWindow : public QTreeView
-{
-    Q_OBJECT
-
-public:
-    StackWindow(DebuggerManager *manager, QWidget *parent = 0);
-
-signals:
-    void frameActivated(int);
-
-public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
-
-private slots:
-    void rowActivated(const QModelIndex &index);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
-
-private:
-    void resizeEvent(QResizeEvent *ev);
-    void contextMenuEvent(QContextMenuEvent *ev);
-    void copyContentsToClipboard();
-
-    DebuggerManager *m_manager;
-    DisassemblerViewAgent *m_disassemblerAgent;
-    bool m_alwaysResizeColumnsToContents;
-};
+QByteArray mangleName(const QByteArray &ba);
+QByteArray demangleName(const QByteArray &ba);
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_STACKWINDOW_H
-
+#endif // DEBUGGER_WATCHWINDOW_H

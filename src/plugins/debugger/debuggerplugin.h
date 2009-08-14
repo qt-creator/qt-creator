@@ -50,6 +50,8 @@ class IMode;
 
 namespace TextEditor {
 class ITextEditor;
+class ITextMark;
+class BaseTextMark;
 }
 
 namespace Debugger {
@@ -59,7 +61,8 @@ class BreakpointData;
 class DebuggerManager;
 class DebuggerRunner;
 class DebugMode;
-class LocationMark;
+class DisassemblerViewAgent;
+class StackFrame;
 
 class DebuggerPlugin : public ExtensionSystem::IPlugin
 {
@@ -94,7 +97,7 @@ private slots:
     void updateActions(int status);
 
     void resetLocation();
-    void gotoLocation(const QString &fileName, int line, bool setMarker);
+    void gotoLocation(const StackFrame &frame, bool setMarker);
 
     void breakpointSetRemoveMarginActionTriggered();
     void breakpointEnableDisableMarginActionTriggered();
@@ -127,7 +130,8 @@ private:
     DebuggerRunner *m_debuggerRunner;
 
     QString m_previousMode;
-    LocationMark *m_locationMark;
+    TextEditor::BaseTextMark *m_locationMark;
+    DisassemblerViewAgent *m_disassemblerViewAgent;
     int m_gdbRunningContext;
     unsigned m_cmdLineEnabledEngines;
     quint64 m_cmdLineAttachPid;

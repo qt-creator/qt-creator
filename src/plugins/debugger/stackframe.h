@@ -27,53 +27,34 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_STACKWINDOW_H
-#define DEBUGGER_STACKWINDOW_H
+#ifndef DEBUGGER_STACKFRAME_H
+#define DEBUGGER_STACKFRAME_H
 
-#include <QtGui/QTreeView>
-#include <QtGui/QWidget>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QModelIndex;
-QT_END_NAMESPACE
+#include <QtCore/QString>
+#include <QtCore/QVariant>
 
 namespace Debugger {
 namespace Internal {
 
-class DebuggerManager;
-class DisassemblerViewAgent;
-    
-class StackWindow : public QTreeView
+struct StackFrame
 {
-    Q_OBJECT
+    StackFrame(int level = 0);    
+    bool isUsable() const;
+    QString toToolTip() const;
+    QString toString() const;
 
-public:
-    StackWindow(DebuggerManager *manager, QWidget *parent = 0);
-
-signals:
-    void frameActivated(int);
-
-public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
-
-private slots:
-    void rowActivated(const QModelIndex &index);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
-
-private:
-    void resizeEvent(QResizeEvent *ev);
-    void contextMenuEvent(QContextMenuEvent *ev);
-    void copyContentsToClipboard();
-
-    DebuggerManager *m_manager;
-    DisassemblerViewAgent *m_disassemblerAgent;
-    bool m_alwaysResizeColumnsToContents;
+    int level;
+    QString function;
+    QString file;  // we try to put an absolute file name in there
+    QString from;
+    QString to;
+    int line;
+    QString address;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_STACKWINDOW_H
+Q_DECLARE_METATYPE(Debugger::Internal::StackFrame);
 
+#endif // DEBUGGER_STACKFRAME_H

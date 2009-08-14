@@ -30,6 +30,7 @@
 #include "registerwindow.h"
 
 #include "debuggeractions.h"
+#include "debuggeragents.h"
 #include "debuggerconstants.h"
 
 #include <QtCore/QDebug>
@@ -47,8 +48,9 @@
 using namespace Debugger::Internal;
 using namespace Debugger::Constants;
 
-RegisterWindow::RegisterWindow()
-  : m_alwaysResizeColumnsToContents(true), m_alwaysReloadContents(false)
+RegisterWindow::RegisterWindow(DebuggerManager *manager)
+  : m_manager(manager), m_alwaysResizeColumnsToContents(true),
+    m_alwaysReloadContents(false)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Registers"));
@@ -81,6 +83,17 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     actAlwaysReload->setChecked(m_alwaysReloadContents);
     menu.addSeparator();
 
+    QModelIndex idx = indexAt(ev->pos());
+    QString address = model()->data(idx, Qt::UserRole + 1).toString();
+    QAction *actShowMemory = menu.addAction(QString());
+    if (address.isEmpty()) {
+        actShowMemory->setText(tr("Open memory editor"));
+        actShowMemory->setEnabled(false);
+    } else {
+        actShowMemory->setText(tr("Open memory editor at %1").arg(address));
+    }
+    menu.addSeparator();
+
     int base = model()->data(QModelIndex(), Qt::UserRole).toInt();
     QAction *act16 = menu.addAction(tr("Hexadecimal"));
     act16->setCheckable(true);
@@ -108,6 +121,8 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
         reloadContents();
     else if (act == actAlwaysReload)
         setAlwaysReloadContents(!m_alwaysReloadContents);
+    else if (act == actShowMemory)
+        (void) new MemoryViewAgent(m_manager, address);
     else if (act) {
         base = (act == act10 ? 10 : act == act8 ? 8 : act == act2 ? 2 : 16);
         QMetaObject::invokeMethod(model(), "setNumberBase", Q_ARG(int, base));

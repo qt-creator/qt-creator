@@ -151,6 +151,13 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setDefaultValue(false);
     instance->insertItem(LogTimeStamps, item);
 
+    item = new SavedAction(instance);
+    item->setText(tr("Step by instruction"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setIcon(QIcon(":/debugger/images/debugger_stepoverproc_small.png"));
+    instance->insertItem(StepByInstruction, item);
+
     //
     // Locals & Watchers
     //

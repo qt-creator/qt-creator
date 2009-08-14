@@ -297,9 +297,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         theDebuggerAction(WatchExpression)
             ->trigger(WatchHandler::watcherEditPlaceHolder());
     } else if (act == actWatchKnownMemory) {
-        bool ok = true;
-        uint addr = address.toUInt(&ok, 0);
-        (void) new MemoryViewAgent(m_manager, addr);
+        (void) new MemoryViewAgent(m_manager, address);
     } else if (act == actWatchUnknownMemory) {
         QLabel *label = new QLabel("Enter an address: ");
         QLineEdit *lineEdit = new QLineEdit;
@@ -310,11 +308,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         dialog.setWindowTitle("Select start address");
         dialog.setLayout(layout);
         connect(lineEdit, SIGNAL(returnPressed()), &dialog, SLOT(accept()));
-        if (dialog.exec() == QDialog::Accepted) {
-            bool ok = true;
-            uint addr = lineEdit->text().toUInt(&ok, 0);
-            (void) new MemoryViewAgent(m_manager, addr);
-        }
+        if (dialog.exec() == QDialog::Accepted)
+            (void) new MemoryViewAgent(m_manager, address);
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;

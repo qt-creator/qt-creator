@@ -1178,7 +1178,7 @@ void CdbDebugEngine::activateFrame(int frameIndex)
             break;
         }
 
-        m_d->m_debuggerManager->gotoLocation(frame.file, frame.line, true);
+        m_d->m_debuggerManager->gotoLocation(frame, true);
 
         if (oldIndex != frameIndex || m_d->m_firstActivatedFrame) {
             watchHandler->beginCycle();

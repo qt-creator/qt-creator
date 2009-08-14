@@ -77,6 +77,7 @@ enum DebuggerActionCode
     AutoQuit,
     LockView,
     LogTimeStamps,
+    StepByInstruction,
 
     RecheckDebuggingHelpers,
     UseDebuggingHelpers,

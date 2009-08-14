@@ -35,12 +35,14 @@
 namespace Debugger {
 namespace Internal {
 
+class DebuggerManager;
+
 class RegisterWindow : public QTreeView
 {
     Q_OBJECT
 
 public:
-    RegisterWindow();
+    explicit RegisterWindow(DebuggerManager *manager);
     void setModel(QAbstractItemModel *model);
 
 signals:
@@ -56,6 +58,8 @@ public slots:
 private:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
+
+    DebuggerManager *m_manager;
 
     bool m_alwaysResizeColumnsToContents;
     bool m_alwaysReloadContents;

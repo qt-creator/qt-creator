@@ -31,10 +31,12 @@
 
 #include "breakhandler.h"
 #include "debuggeractions.h"
+#include "debuggeragents.h"
 #include "debuggerdialogs.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggerrunner.h"
+#include "stackframe.h"
 
 #include "ui_commonoptionspage.h"
 #include "ui_dumperoptionpage.h"
@@ -116,6 +118,7 @@ const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
 const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
 const char * const ADD_TO_WATCH         = "Debugger.AddToWatch";
+const char * const STEP_BY_INSTRUCTION  = "Debugger.StepByInstruction";
 
 #ifdef Q_WS_MAC
 const char * const INTERRUPT_KEY            = "Shift+F5";
@@ -123,8 +126,6 @@ const char * const RESET_KEY                = "Ctrl+Shift+F5";
 const char * const STEP_KEY                 = "F7";
 const char * const STEPOUT_KEY              = "Shift+F7";
 const char * const NEXT_KEY                 = "F6";
-const char * const STEPI_KEY                = "Shift+F9";
-const char * const NEXTI_KEY                = "Shift+F6";
 const char * const REVERSE_KEY              = "";
 const char * const RUN_TO_LINE_KEY          = "Shift+F8";
 const char * const RUN_TO_FUNCTION_KEY      = "Ctrl+F6";
@@ -139,8 +140,6 @@ const char * const RESET_KEY                = "Ctrl+Shift+F5";
 const char * const STEP_KEY                 = "F11";
 const char * const STEPOUT_KEY              = "Shift+F11";
 const char * const NEXT_KEY                 = "F10";
-const char * const STEPI_KEY                = "";
-const char * const NEXTI_KEY                = "";
 const char * const REVERSE_KEY              = "F12";
 const char * const RUN_TO_LINE_KEY          = "";
 const char * const RUN_TO_FUNCTION_KEY      = "";
@@ -218,6 +217,13 @@ DebugMode::~DebugMode()
 namespace Debugger {
 namespace Internal {
 
+static QIcon locationMarkIcon()
+{
+    static const QIcon icon(":/debugger/images/location.svg");
+    return icon;
+}
+
+// Used in "real" editors
 class LocationMark : public TextEditor::BaseTextMark
 {
     Q_OBJECT
@@ -226,24 +232,12 @@ public:
     LocationMark(const QString &fileName, int linenumber)
         : BaseTextMark(fileName, linenumber)
     {}
-    ~LocationMark();
 
-    QIcon icon() const;
+    QIcon icon() const { return locationMarkIcon(); }
     void updateLineNumber(int /*lineNumber*/) {}
     void updateBlock(const QTextBlock & /*block*/) {}
     void removedFromEditor() {}
 };
-
-LocationMark::~LocationMark()
-{
-    //qDebug() << "LOCATIONMARK DESTRUCTOR";
-}
-
-QIcon LocationMark::icon() const
-{
-    static const QIcon icon(":/debugger/images/location.svg");
-    return icon;
-}
 
 } // namespace Internal
 } // namespace Debugger
@@ -422,6 +416,7 @@ DebuggerPlugin::DebuggerPlugin()
   : m_manager(0),
     m_debugMode(0),
     m_locationMark(0),
+    m_disassemblerViewAgent(0),
     m_gdbRunningContext(0),
     m_cmdLineEnabledEngines(AllEngineTypes),
     m_cmdLineAttachPid(0),
@@ -682,14 +677,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(m_manager->m_nextIAction,
-        Constants::NEXTI, debuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::NEXTI_KEY));
-    mdebug->addAction(cmd);
-
-    cmd = am->registerAction(m_manager->m_stepIAction,
-        Constants::STEPI, debuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::STEPI_KEY));
+    cmd = am->registerAction(theDebuggerAction(StepByInstruction),
+        Constants::STEP_BY_INSTRUCTION, debuggercontext);
     mdebug->addAction(cmd);
 
     cmd = am->registerAction(m_manager->m_runToLineAction,
@@ -831,9 +820,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::NEXT)->action()));
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP)->action()));
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
-    debugToolBarLayout->addWidget(new Core::Utils::StyledSeparator);
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPI)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::NEXTI)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP_BY_INSTRUCTION)->action()));
 #ifdef USE_REVERSE_DEBUGGING
     debugToolBarLayout->addWidget(new Core::Utils::StyledSeparator);
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::REVERSE)->action()));
@@ -892,8 +879,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     connect(m_manager, SIGNAL(resetLocationRequested()),
         this, SLOT(resetLocation()));
-    connect(m_manager, SIGNAL(gotoLocationRequested(QString,int,bool)),
-        this, SLOT(gotoLocation(QString,int,bool)));
+    connect(m_manager, SIGNAL(gotoLocationRequested(StackFrame,bool)),
+        this, SLOT(gotoLocation(StackFrame,bool)));
     connect(m_manager, SIGNAL(statusChanged(int)),
         this, SLOT(changeStatus(int)));
     connect(m_manager, SIGNAL(previousModeRequested()),
@@ -1096,16 +1083,22 @@ void DebuggerPlugin::resetLocation()
     m_locationMark = 0;
 }
 
-void DebuggerPlugin::gotoLocation(const QString &fileName, int lineNumber,
-    bool setMarker)
+void DebuggerPlugin::gotoLocation(const StackFrame &frame, bool setMarker)
 {
-    TextEditor::BaseTextEditor::openEditorAt(fileName, lineNumber);
-    if (setMarker) {
-        resetLocation();
-        m_locationMark = new LocationMark(fileName, lineNumber);
+    if (theDebuggerBoolSetting(StepByInstruction) || !frame.isUsable()) {
+        if (!m_disassemblerViewAgent)
+            m_disassemblerViewAgent = new DisassemblerViewAgent(m_manager);
+        m_disassemblerViewAgent->setFrame(frame);
+        if (setMarker)
+            resetLocation();
+    } else {
+        TextEditor::BaseTextEditor::openEditorAt(frame.file, frame.line);
+        if (setMarker) {
+            resetLocation();
+            m_locationMark = new LocationMark(frame.file, frame.line);
+        }
     }
 }
-
 
 void DebuggerPlugin::changeStatus(int status)
 {
@@ -1157,9 +1150,8 @@ void DebuggerPlugin::onModeChanged(IMode *mode)
      //        different then the debugger mode. E.g. Welcome and Help mode and
      //        also on shutdown.
 
-    if (mode != m_debugMode) {
+    if (mode != m_debugMode)
         return;
-    }
 
     EditorManager *editorManager = EditorManager::instance();
     if (editorManager->currentEditor())

@@ -29,6 +29,8 @@
 
 #include "stackhandler.h"
 
+#include "debuggeractions.h"
+
 #include <utils/qtcassert.h>
 
 #include <QtCore/QAbstractTableModel>
@@ -44,6 +46,19 @@ StackFrame::StackFrame(int l)
 bool StackFrame::isUsable() const
 {
     return !file.isEmpty() && QFileInfo(file).isReadable();
+}
+
+QString StackFrame::toString() const
+{
+    QString res;
+    QTextStream str(&res);
+    str << StackHandler::tr("Address:") << " " << address << " "
+        << StackHandler::tr("Function:") << " " << function << " "
+        << StackHandler::tr("File:") << " " << file << " "
+        << StackHandler::tr("Line:") << " " << line << " "
+        << StackHandler::tr("From:") << " " << from << " "
+        << StackHandler::tr("To:") << " " << to;
+    return res;
 }
 
 QString StackFrame::toToolTip() const
@@ -117,13 +132,21 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         case 4: // Address
             return frame.address;
         }
-    } else if (role == Qt::ToolTipRole) {
+        return QVariant();
+    }
+
+    if (role == Qt::ToolTipRole) {
         //: Tooltip for variable
         return frame.toToolTip();
-    } else if (role == Qt::DecorationRole && index.column() == 0) {
+    }
+
+    if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
     }
+
+    if (role == Qt::UserRole)
+        return QVariant::fromValue(frame);
 
     return QVariant();
 }
@@ -149,7 +172,8 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
     if (index.row() == m_stackFrames.size())
         return QAbstractTableModel::flags(index);
     const StackFrame &frame = m_stackFrames.at(index.row());
-    const bool isValid = (!frame.file.isEmpty() && !frame.function.isEmpty());
+    const bool isValid = (!frame.file.isEmpty() && !frame.function.isEmpty())
+        || theDebuggerBoolSetting(StepByInstruction);
     return isValid ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
 }
 

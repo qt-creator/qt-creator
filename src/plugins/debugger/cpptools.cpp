@@ -27,53 +27,21 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_STACKWINDOW_H
-#define DEBUGGER_STACKWINDOW_H
-
-#include <QtGui/QTreeView>
-#include <QtGui/QWidget>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QModelIndex;
-QT_END_NAMESPACE
+#include "cpptools.h"
 
 namespace Debugger {
 namespace Internal {
 
-class DebuggerManager;
-class DisassemblerViewAgent;
-    
-class StackWindow : public QTreeView
+QByteArray mangleName(const QByteArray &ba)
 {
-    Q_OBJECT
+    return ba;
+}
 
-public:
-    StackWindow(DebuggerManager *manager, QWidget *parent = 0);
 
-signals:
-    void frameActivated(int);
-
-public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
-
-private slots:
-    void rowActivated(const QModelIndex &index);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
-
-private:
-    void resizeEvent(QResizeEvent *ev);
-    void contextMenuEvent(QContextMenuEvent *ev);
-    void copyContentsToClipboard();
-
-    DebuggerManager *m_manager;
-    DisassemblerViewAgent *m_disassemblerAgent;
-    bool m_alwaysResizeColumnsToContents;
-};
+QByteArray demangleName(const QByteArray &ba)
+{
+    return ba;
+}
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_STACKWINDOW_H
-

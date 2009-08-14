@@ -970,11 +970,11 @@ void GdbEngine::handleExecRunToFunction(const GdbResultRecord &record, const QVa
     qq->notifyInferiorStopped();
     q->showStatusMessage(tr("Run to Function finished. Stopped."));
     GdbMi frame = record.data.findChild("frame");
-    QString file = QString::fromLocal8Bit(frame.findChild("fullname").data());
-    int line = frame.findChild("line").data().toInt();
-    qDebug() << "HIT:" << file << line << "IN" << frame.toString()
-        << "--" << record.toString();
-    q->gotoLocation(file, line, true);
+    StackFrame f;
+    f.file = QString::fromLocal8Bit(frame.findChild("fullname").data());
+    f.line = frame.findChild("line").data().toInt();
+    f.address = _(frame.findChild("addr").data());
+    q->gotoLocation(f, true);
 }
 
 static bool isExitedReason(const QByteArray &reason)
@@ -1229,11 +1229,11 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     qq->notifyInferiorStopped();
     q->showStatusMessage(tr("Run to Function finished. Stopped."));
     GdbMi frame = data.findChild("frame");
-    QString file = QString::fromLocal8Bit(frame.findChild("fullname").data());
-    int line = frame.findChild("line").data().toInt();
-    qDebug() << "HIT:" << file << line << "IN" << frame.toString()
-        << "--" << data.toString();
-    q->gotoLocation(file, line, true);
+    StackFrame f;
+    f.file = QString::fromLocal8Bit(frame.findChild("fullname").data());
+    f.line = frame.findChild("line").data().toInt();
+    f.address = _(frame.findChild("addr").data());
+    q->gotoLocation(f, true);
 #endif
 }
 
@@ -1853,6 +1853,9 @@ void GdbEngine::runToFunctionExec(const QString &functionName)
 
 void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 {
+    StackFrame frame;
+    frame.file = fileName;
+    frame.line = lineNumber;
 #if 1
     // not available everywhere?
     //sendCliCommand(_("tbreak ") + fileName + ':' + QString::number(lineNumber));
@@ -1864,11 +1867,11 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
     //  ~"run1 (argc=1, argv=0x7fffbf1f5538) at test1.cpp:242"
     //  ~"242\t x *= 2;"
     //  23^done"
-    q->gotoLocation(fileName, lineNumber, true);
+    q->gotoLocation(frame, true);
     //setBreakpoint();
     //postCommand(_("jump ") + fileName + ':' + QString::number(lineNumber));
 #else
-    q->gotoLocation(fileName, lineNumber, true);
+    q->gotoLocation(frame,  true);
     setBreakpoint(fileName, lineNumber);
     postCommand(_("jump ") + fileName + ':' + QString::number(lineNumber));
 #endif
@@ -2566,13 +2569,9 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVari
     theDebuggerAction(ExpandStack)->setEnabled(canExpand);
     qq->stackHandler()->setFrames(stackFrames, canExpand);
 
-    if (topFrame != -1) {
-        // updates of locals already triggered early
+    if (topFrame != -1 || theDebuggerBoolSetting(StepByInstruction)) {
         const StackFrame &frame = qq->stackHandler()->currentFrame();
-        if (frame.isUsable())
-            q->gotoLocation(frame.file, frame.line, true);
-        else
-            qDebug() << "FULL NAME NOT USABLE 0:" << frame.file << topFrame;
+        q->gotoLocation(frame, true);
     }
 }
 
@@ -2622,7 +2621,7 @@ void GdbEngine::activateFrame(int frameIndex)
     const StackFrame &frame = stackHandler->currentFrame();
 
     if (frame.isUsable())
-        q->gotoLocation(frame.file, frame.line, true);
+        q->gotoLocation(frame, true);
     else
         qDebug() << "FULL NAME NOT USABLE:" << frame.file;
 }
@@ -4004,6 +4003,18 @@ void GdbEngine::handleWatchPoint(const GdbResultRecord &record, const QVariant &
     }
 }
 
+static QVariant agentCookie(void *agent)
+{
+    return QVariant(quint64(quintptr(agent)));
+}
+
+void GdbEngine::fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length)
+{
+    //qDebug() << "GDB MEMORY FETCH" << addr << length;
+    postCommand(_("-data-read-memory %1 x 1 1 %2").arg(addr).arg(length),
+        NeedsStop, CB(handleFetchMemory), agentCookie(agent));
+}
+
 void GdbEngine::handleFetchMemory(const GdbResultRecord &record,
     const QVariant &cookie)
 {
@@ -4017,7 +4028,7 @@ void GdbEngine::handleFetchMemory(const GdbResultRecord &record,
     QTC_ASSERT(agent, return);
     QByteArray ba;
     GdbMi memory = record.data.findChild("memory");
-    QTC_ASSERT(memory.children().size() == 1, return);
+    QTC_ASSERT(memory.children().size() <= 1, return);
     GdbMi memory0 = memory.children().at(0); // we asked for only one 'row'
     quint64 addr = memory0.findChild("addr").data().toULongLong(&ok, 0);
     QTC_ASSERT(ok, return);
@@ -4031,12 +4042,148 @@ void GdbEngine::handleFetchMemory(const GdbResultRecord &record,
     agent->addLazyData(addr, ba);
 }
 
-void GdbEngine::fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length)
+
+void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent,
+    const StackFrame &frame)
 {
-    //qDebug() << "GDB MEMORY FETCH" << addr << length;
-    postCommand(_("-data-read-memory %1 x 1 1 %2").arg(addr).arg(length),
-        NeedsStop, CB(handleFetchMemory), QVariant(quint64(agent)));
+    if (frame.file.isEmpty()) {
+        fetchDisassemblerByAddress(agent, true);
+    } else {
+        // Disassemble full function:
+        QString cmd = _("-data-disassemble -f %1 -l %2 -n -1 -- 1");
+        postCommand(cmd.arg(frame.file).arg(frame.line),
+            Discardable, CB(handleFetchDisassemblerByLine), agentCookie(agent));
+    }
 }
+
+void GdbEngine::fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
+    bool useMixedMode)
+{
+    QTC_ASSERT(agent, return);
+    bool ok = true;
+    quint64 address = agent->address().toULongLong(&ok, 0);
+    quint64 start = address - 20;
+    quint64 end = address + 100;
+    // -data-disassemble [ -s start-addr -e end-addr ]
+    //  | [ -f filename -l linenum [ -n lines ] ] -- mode
+    if (useMixedMode) 
+        postCommand(_("-data-disassemble -s %1 -e %2 -- 1").arg(start).arg(end),
+            Discardable, CB(handleFetchDisassemblerByAddress1), agentCookie(agent));
+    else
+        postCommand(_("-data-disassemble -s %1 -e %2 -- 0").arg(start).arg(end),
+            Discardable, CB(handleFetchDisassemblerByAddress0), agentCookie(agent));
+}
+
+static QByteArray parseLine(const GdbMi &line)
+{
+    QByteArray ba;
+    ba.reserve(200);
+    QByteArray address = line.findChild("address").data();
+    QByteArray funcName = line.findChild("func-name").data();
+    QByteArray offset = line.findChild("offset").data();
+    QByteArray inst = line.findChild("inst").data();
+    ba += address + QByteArray(15 - address.size(), ' ');
+    ba += funcName + "+" + offset + "  ";
+    ba += QByteArray(30 - funcName.size() - offset.size(), ' ');
+    ba += inst;
+    ba += '\n';
+    return ba;
+}
+
+static QString parseDisassembler(const GdbMi &lines)
+{
+    // ^done,data={asm_insns=[src_and_asm_line={line="1243",file=".../app.cpp",
+    // line_asm_insn=[{address="0x08054857",func-name="main",offset="27",
+    // inst="call 0x80545b0 <_Z13testQFileInfov>"}]},
+    // src_and_asm_line={line="1244",file=".../app.cpp",
+    // line_asm_insn=[{address="0x0805485c",func-name="main",offset="32",
+    //inst="call 0x804cba1 <_Z11testObject1v>"}]}]}
+    // - or -
+    // ^done,asm_insns=[
+    // {address="0x0805acf8",func-name="...",offset="25",inst="and $0xe8,%al"},
+    // {address="0x0805acfa",func-name="...",offset="27",inst="pop %esp"},
+
+    QList<QByteArray> fileContents;
+    bool fileLoaded = false;
+    QByteArray ba;
+    ba.reserve(200 * lines.children().size());
+
+    // FIXME: Performance?
+    foreach (const GdbMi &child, lines.children()) {
+        if (child.hasName("src_and_asm_line")) {
+            // mixed mode
+            int line = child.findChild("line").data().toInt();
+            QByteArray fileName = child.findChild("file").data();
+            if (!fileLoaded) {
+                QFile file(QFile::decodeName(fileName));
+                file.open(QIODevice::ReadOnly);
+                fileContents = file.readAll().split('\n');
+                fileLoaded = true;
+            }
+            if (line >= 0 && line < fileContents.size())
+                ba += "             " + fileContents.at(line) + '\n';
+
+            GdbMi insn = child.findChild("line_asm_insn");
+            foreach (const GdbMi &line, insn.children()) 
+                ba += parseLine(line);
+        } else {
+            // the non-mixed version
+            ba += parseLine(child);
+        }
+    }
+    return _(ba);
+}
+
+void GdbEngine::handleFetchDisassemblerByLine(const GdbResultRecord &record,
+    const QVariant &cookie)
+{
+    bool ok = true;
+    DisassemblerViewAgent *agent = (DisassemblerViewAgent *)cookie.toULongLong(&ok);
+    QTC_ASSERT(agent, return);
+
+    if (record.resultClass == GdbResultDone) {
+        GdbMi lines = record.data.findChild("asm_insns");
+        if (lines.children().isEmpty())
+            fetchDisassemblerByAddress(agent, true);
+        else
+            agent->setContents(parseDisassembler(lines));
+    } else if (record.resultClass == GdbResultError) {
+        //536^error,msg="mi_cmd_disassemble: Invalid line number"
+        QByteArray msg = record.data.findChild("msg").data();
+        if (msg == "mi_cmd_disassemble: Invalid line number")
+            fetchDisassemblerByAddress(agent, true);
+    }
+}
+
+void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResultRecord &record,
+    const QVariant &cookie)
+{
+    bool ok = true;
+    DisassemblerViewAgent *agent = (DisassemblerViewAgent *)cookie.toULongLong(&ok);
+    QTC_ASSERT(agent, return);
+
+    if (record.resultClass == GdbResultDone) {
+        GdbMi lines = record.data.findChild("asm_insns");
+        if (lines.children().isEmpty())
+            fetchDisassemblerByAddress(agent, false);
+        else
+            agent->setContents(parseDisassembler(lines));
+    }
+}
+
+void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResultRecord &record,
+    const QVariant &cookie)
+{
+    bool ok = true;
+    DisassemblerViewAgent *agent = (DisassemblerViewAgent *)cookie.toULongLong(&ok);
+    QTC_ASSERT(agent, return);
+
+    if (record.resultClass == GdbResultDone) {
+        GdbMi lines = record.data.findChild("asm_insns");
+        agent->setContents(parseDisassembler(lines));
+    }
+}
+
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *opts)
 {

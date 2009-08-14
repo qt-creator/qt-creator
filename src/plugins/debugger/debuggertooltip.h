@@ -30,7 +30,7 @@
 #ifndef DEBUGGER_DEBUGGERTOOLTIP_H
 #define DEBUGGER_DEBUGGERTOOLTIP_H
 
-#include <qglobal.h>
+#include <QtCore/QtGlobal>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;

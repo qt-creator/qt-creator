@@ -565,7 +565,10 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
     }
 
     qq->notifyInferiorStopped();
-    q->gotoLocation(fileName, lineNumber, true);
+    StackFrame frame;
+    frame.file = fileName;      
+    frame.line = lineNumber;
+    q->gotoLocation(frame, true);
     updateLocals();
 }
 

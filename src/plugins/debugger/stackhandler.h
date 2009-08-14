@@ -30,10 +30,13 @@
 #ifndef DEBUGGER_STACKHANDLER_H
 #define DEBUGGER_STACKHANDLER_H
 
+#include "stackframe.h"
+
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QObject>
 
 #include <QtGui/QIcon>
+
 
 namespace Debugger {
 namespace Internal {
@@ -43,21 +46,6 @@ namespace Internal {
 // StackModel
 //
 ////////////////////////////////////////////////////////////////////////
-
-struct StackFrame
-{
-    StackFrame(int level = 0);    
-    bool isUsable() const;
-    QString toToolTip() const;
-
-    int level;
-    QString function;
-    QString file;  // we try to put an absolute file name in there
-    QString from;
-    QString to;
-    int line;
-    QString address;
-};
 
 /*! A model to represent the stack in a QTreeView. */
 class StackHandler : public QAbstractTableModel

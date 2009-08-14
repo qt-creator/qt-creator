@@ -31,26 +31,21 @@
 #define DEBUGGER_AGENTS_H
 
 #include "debuggermanager.h"
+#include "stackframe.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
-
-#include <utils/qtcassert.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
 #include <QtGui/QAction>
 
+
 namespace Debugger {
 namespace Internal {
 
 class DebuggerManager;
-
-// Object form this class are created in response to user actions in
-// the Gui for showing raw memory from the inferior. After creation
-// it handles communication between the engine and the bineditor.
+class DisassemblerViewAgentPrivate;
 
 class MemoryViewAgent : public QObject
 {
@@ -59,6 +54,7 @@ class MemoryViewAgent : public QObject
 public:
     // Called from Gui
     MemoryViewAgent(DebuggerManager *manager, quint64 startaddr);
+    MemoryViewAgent(DebuggerManager *manager, const QString &startaddr);
     ~MemoryViewAgent();
 
     enum { BinBlockSize = 1024 };
@@ -69,10 +65,31 @@ public slots:
     // Called from Editor
     void fetchLazyData(int block, bool sync);
 
-public:
+private:
+    void init(quint64 startaddr);
+
     QPointer<IDebuggerEngine> m_engine;
     QPointer<Core::IEditor> m_editor;
 };
+
+
+class DisassemblerViewAgent : public QObject
+{
+    Q_OBJECT
+
+public:
+    // Called from Gui
+    DisassemblerViewAgent(DebuggerManager *manager);
+    ~DisassemblerViewAgent();
+
+    void setFrame(const StackFrame &frame);
+    Q_SLOT void setContents(const QString &contents);
+    QString address() const;
+
+private:
+    DisassemblerViewAgentPrivate *d;
+};
+
 
 } // namespace Internal
 } // namespace Debugger

@@ -76,6 +76,12 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 
     const Register &reg = m_registers.at(index.row());
 
+    if (role == Qt::UserRole + 1) {
+        bool ok = true;
+        qulonglong value = reg.value.toULongLong(&ok, 0);
+        return QString::fromLatin1("0x") + QString::number(value, 16);
+    }
+
     const QString padding = "  ";
     if (role == Qt::DisplayRole) {
         switch (index.column()) {

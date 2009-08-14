@@ -30,15 +30,59 @@
 #include "debuggeragents.h"
 #include "idebuggerengine.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
+
+#include <texteditor/basetexteditor.h>
+#include <texteditor/basetextmark.h>
+#include <texteditor/itexteditor.h>
+#include <texteditor/texteditorconstants.h>
+
+#include <utils/qtcassert.h>
+
+#include <QtGui/QPlainTextEdit>
+#include <QtGui/QTextCursor>
 
 #include <limits.h>
 
 namespace Debugger {
 namespace Internal {
 
+///////////////////////////////////////////////////////////////////////
+//
+// MemoryViewAgent
+//
+///////////////////////////////////////////////////////////////////////
+
+/*! 
+    \class MemoryViewAgent
+
+    Objects form this class are created in response to user actions in
+    the Gui for showing raw memory from the inferior. After creation
+    it handles communication between the engine and the bineditor.
+*/
+
 MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, quint64 addr)
     : QObject(manager), m_engine(manager->currentEngine())
+{
+    init(addr);
+}
+
+MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, const QString &addr)
+    : QObject(manager), m_engine(manager->currentEngine())
+{
+    bool ok = true;
+    init(addr.toUInt(&ok, 0));
+}
+
+MemoryViewAgent::~MemoryViewAgent()
+{
+    m_editor->deleteLater();
+}
+
+void MemoryViewAgent::init(quint64 addr) 
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     QString titlePattern = "Memory $";
@@ -49,12 +93,7 @@ MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, quint64 addr)
         this, SLOT(fetchLazyData(int,bool)));
     editorManager->activateEditor(m_editor);
     QMetaObject::invokeMethod(m_editor->widget(), "setLazyData",
-    Q_ARG(int, addr), Q_ARG(int, INT_MAX), Q_ARG(int, BinBlockSize));
-}
-
-MemoryViewAgent::~MemoryViewAgent()
-{
-    m_editor->deleteLater();
+        Q_ARG(int, addr), Q_ARG(int, INT_MAX), Q_ARG(int, BinBlockSize));
 }
 
 void MemoryViewAgent::fetchLazyData(int block, bool sync)
@@ -70,6 +109,113 @@ void MemoryViewAgent::addLazyData(quint64 addr, const QByteArray &ba)
 }
 
 
+///////////////////////////////////////////////////////////////////////
+//
+// DisassemblerViewAgent
+//
+///////////////////////////////////////////////////////////////////////
+
+static QIcon locationMarkIcon()
+{
+    static const QIcon icon(":/debugger/images/location.svg");
+    return icon;
+}
+
+// Used for the disassembler view
+class LocationMark2 : public TextEditor::ITextMark
+{
+public:
+    LocationMark2() {}
+
+    QIcon icon() const { return locationMarkIcon(); }
+    void updateLineNumber(int /*lineNumber*/) {}
+    void updateBlock(const QTextBlock & /*block*/) {}
+    void removedFromEditor() {}
+    void documentClosing() {}
+};
+
+struct DisassemblerViewAgentPrivate
+{
+    QPointer<TextEditor::ITextEditor> editor;
+    QPointer<IDebuggerEngine> engine;
+    QString address;
+    LocationMark2 *locationMark;
+};
+
+/*!
+    \class DisassemblerViewAgent
+
+     Objects from this class are created in response to user actions in
+     the Gui for showing disassembled memory from the inferior. After creation
+     it handles communication between the engine and the editor.
+*/
+
+DisassemblerViewAgent::DisassemblerViewAgent(DebuggerManager *manager)
+    : QObject(manager), d(new DisassemblerViewAgentPrivate)
+{
+    d->editor = 0;
+    d->engine = manager->currentEngine();
+    d->locationMark = new LocationMark2();
+}
+
+DisassemblerViewAgent::~DisassemblerViewAgent()
+{
+    if (d->editor)
+        d->editor->deleteLater();
+    delete d;
+}
+
+void DisassemblerViewAgent::setFrame(const StackFrame &frame)
+{
+    d->engine->fetchDisassembler(this, frame);
+    d->address = frame.address;
+}
+
+void DisassemblerViewAgent::setContents(const QString &contents)
+{
+    using namespace Core;
+    using namespace TextEditor;
+
+    EditorManager *editorManager = EditorManager::instance();
+    if (!d->editor) {
+        QString titlePattern = "Disassembler";
+        d->editor = qobject_cast<ITextEditor *>(
+            editorManager->openEditorWithContents(
+            Core::Constants::K_DEFAULT_TEXT_EDITOR,
+            &titlePattern));
+    }
+
+    editorManager->activateEditor(d->editor);
+
+    QPlainTextEdit *plainTextEdit =
+        qobject_cast<QPlainTextEdit *>(d->editor->widget());
+    if (plainTextEdit)
+        plainTextEdit->setPlainText(contents);
+
+    d->editor->markableInterface()->removeMark(d->locationMark);
+
+    for (int pos = 0, line = 0; ; ++line, ++pos) {
+        if (contents.midRef(pos, d->address.size()) == d->address) {
+            d->editor->markableInterface()->addMark(d->locationMark, line + 1);
+            if (plainTextEdit) {
+                QTextCursor tc = plainTextEdit->textCursor();
+                tc.setPosition(pos);
+                plainTextEdit->setTextCursor(tc);
+            }
+            break;
+        }
+        pos = contents.indexOf('\n', pos + 1);
+        if (pos == -1)
+            break;
+    }
+}
+
+QString DisassemblerViewAgent::address() const
+{
+    return d->address;
+}
+
 } // namespace Internal
 } // namespace Debugger
 
+#include "debuggeragents.moc"
