@@ -17,7 +17,8 @@ General
    * Improved the general resizing behavior for small screen sizes
    * Fixed a crash in the RSS reader that sometimes causes Qt Creator to crash
      on startup
-   
+   * Reworked the projects pane
+
 Editing
    * Added support for text editor color schemes
    * Added highlighting of uses of the symbol under the cursor
@@ -28,10 +29,21 @@ Editing
    * Fixed searching in files to take open documents into account
    * Added a Locator filter for symbols in the current document
    * Handle block selection in fakevim
+   * Add Copy full path to the editors combobox.
 
 Project support
    * Added support for adding and removing files from a generic Makefile-based
      project (contributed by Kevin Michel)
+   * Added better control over the environment used for running.
+   * Add all cmake files to the project tree. (Only works with a cvs cmake.)
+   * Support cmake with Microsoft Visual Studio Compiler (Only works with cvs
+     cmake)
+   * Fix a few cmake wizard bugs, where canceling left creator in a strange 
+     state
+   * The qmake and make steps can now be removed.
+   * The qmake step is a lot smarter and tries harder to not run
+   * By default projects using the Microsoft Visual Studio toolchain use jom
+     instead of nmake, for better utilization of all processors.
 
 Compilation
    * Support distributed compilation on Windows/MSVC via jom 
