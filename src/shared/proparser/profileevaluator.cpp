@@ -507,8 +507,11 @@ bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
                     *ptr++ = c;
 
                   getNext:
-                    if (cur == end)
+                    if (cur == end) {
+                        if (!quote && !parens)
+                            goto flushItem;
                         break;
+                    }
                     c = *cur++;
                 }
             } else { // doSplit
@@ -534,6 +537,7 @@ bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
                 m_proitem.resize(ptr - (ushort *)m_proitem.unicode());
                 putSpace = !m_proitem.isEmpty();
             } else {
+              flushItem:
                 updateItem(ptr);
                 putSpace = false;
             }
