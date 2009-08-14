@@ -2530,10 +2530,12 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             if (m_skipLevel && !m_cumulative)
                 return ProItem::ReturnFalse;
             QString parseInto;
-            if (args.count() == 2) {
+            // the third optional argument to include() controls warnings
+            //      and is not used here
+            if ((args.count() == 2) || (args.count() == 3) ) {
                 parseInto = args[1];
             } else if (args.count() != 1) {
-                q->logMessage(format("include(file) requires one or two arguments."));
+                q->logMessage(format("include(file) requires one,two or three arguments."));
                 return ProItem::ReturnFalse;
             }
             QString fileName = args.first();
