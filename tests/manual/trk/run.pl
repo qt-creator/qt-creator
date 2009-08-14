@@ -8,8 +8,8 @@ use Cwd;
 
 my @ADAPTER_OPTIONS = ();
 my @TRKSERVEROPTIONS = ();
-my $DUMP_POSTFIX ='-BigEndian.bin';
-my $ENDIANESS ='big';
+my $DUMP_POSTFIX ='.bin';
+my $ENDIANESS ='little';
 
 my $isUnix = $OSNAME eq 'linux' ? 1 : 0;
 my $MAKE= $isUnix ? 'make' : 'nmake';
@@ -23,7 +23,6 @@ Options:
      -aq     Adapter quiet
      -tv     TrkServer verbose
      -tq     TrkServer quiet
-     -l      Little endian
 
      trkserver simulator will be run unless COM is specified
 EOF
@@ -41,10 +40,6 @@ for (my $i = 0; $i < $argCount; $i++) {
 	    push(@TRKSERVEROPTIONS, '-v');
 	} elsif ($a eq '-tq') {
 	    push(@TRKSERVEROPTIONS, '-q');
-	}  elsif ($a eq '-l') {
-	    $DUMP_POSTFIX='.bin';
-	    $ENDIANESS='little';
-	    push(@ADAPTER_OPTIONS, '-l');
 	}  elsif ($a eq '-h') {
 	    print $usage;
 	    exit(1);
@@ -130,7 +125,8 @@ target extended-remote $gdbserverip:$gdbserverport
 #file filebrowseapp.sym
 add-symbol-file filebrowseapp.sym 0x786A4000
 symbol-file filebrowseapp.sym
-p E32Main
+print E32Main 
+break E32Main
 #continue
 #info files
 #file filebrowseapp.sym -readnow

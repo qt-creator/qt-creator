@@ -127,7 +127,7 @@ static inline void dumpRegister(int n, uint value, QByteArray &a)
 }
 
 struct AdapterOptions {
-    AdapterOptions() : verbose(1),registerEndianness(BigEndian),useSocket(false) {}
+    AdapterOptions() : verbose(1),registerEndianness(LittleEndian),useSocket(false) {}
 
     int verbose;
     Endianness registerEndianness;
@@ -275,7 +275,7 @@ Adapter::Adapter() :
     m_gdbServerPort(0),
     m_gdbAckMode(true),
     m_verbose(1),
-    m_registerEndianness(BigEndian),
+    m_registerEndianness(LittleEndian),
     m_useSocket(false),
     m_startInferiorTriggered(false)
 {
@@ -367,12 +367,17 @@ void Adapter::handleGdbConnection()
     m_startInferiorTriggered = false;
 }
 
+static inline QString msgGdbPacket(const QString &p)
+{
+    return QLatin1String("gdb: -> ") + p;
+}
+
 void Adapter::readFromGdb()
 {
     QByteArray packet = m_gdbConnection->readAll();
     m_gdbReadBuffer.append(packet);
 
-    logMessage("gdb: -> " + packet);
+    logMessage(msgGdbPacket(QString::fromAscii(packet)));
     if (packet != m_gdbReadBuffer)
         logMessage("buffer: " + m_gdbReadBuffer);
 
@@ -504,7 +509,6 @@ void Adapter::reportToGdb(const TrkResult &result)
 void Adapter::handleGdbResponse(const QByteArray &response)
 {
     // http://sourceware.org/gdb/current/onlinedocs/gdb_34.html
-
     if (0) {}
 
     else if (response == "!") {
@@ -514,6 +518,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else if (response.startsWith("?")) {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("Query halted")));
         // Indicate the reason the target halted.
         // The reply is the same as for step and continue.
         sendGdbAckMessage();
@@ -526,6 +532,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else if (response == "c") {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("continue")));
         sendGdbAckMessage();
         QByteArray ba;
         appendByte(&ba, 0); // options
@@ -539,6 +547,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else if (response.startsWith("C")) {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("continue with signal")));
         // C sig[;addr] Continue with signal sig (hex signal number)
         //Reply: See section D.3 Stop Reply Packets, for the reply specifications.
         sendGdbAckMessage();
@@ -557,6 +567,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else if (response == "g") {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("read registers")));
         // Read general registers.
         //sendGdbMessage("00000000", "read registers");
         sendGdbAckMessage();
@@ -570,6 +582,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else if (response.startsWith("Hc")) {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("Set thread & continue")));
         // Set thread for subsequent operations (`m', `M', `g', `G', et.al.).
         // for step and continue operations
         //$Hc-1#09
@@ -578,6 +592,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else if (response.startsWith("Hg")) {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("Set thread")));
         // Set thread for subsequent operations (`m', `M', `g', `G', et.al.).
         // for 'other operations.  0 - any thread
         //$Hg0#df
@@ -588,6 +604,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else if (response == "k") {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("kill")));
         // kill
         sendGdbAckMessage();
         QByteArray ba;
@@ -598,8 +616,10 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else if (response.startsWith("m")) {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("read memory")));
         // m addr,length
-        sendGdbAckMessage();        
+        sendGdbAckMessage();
         uint addr = 0, len = 0;
         do {
             const int pos = response.indexOf(',');
@@ -620,6 +640,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         }
     }
     else if (response.startsWith("p")) {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("read register")));
         // 0xf == current instruction pointer?
         //sendGdbMessage("0000", "current IP");
         sendGdbAckMessage();
@@ -685,6 +707,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else if (response.startsWith("qC")) {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("query thread id")));
         // Return the current thread ID
         //$qC#b4
         sendGdbAckMessage();
@@ -722,6 +746,8 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else if (response == "qSymbol::") {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("notify can handle symbol lookup")));
         // Notify the target that GDB is prepared to serve symbol lookup requests.
         sendGdbAckMessage();
         if (1)
@@ -753,8 +779,9 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         sendGdbMessage("OK", "passing signals accepted");
     }
 
-
     else if (response == "s") {
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("Step range")));
         sendGdbAckMessage();
         QByteArray ba;
         appendByte(&ba, 0); // options
@@ -788,12 +815,16 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         sendGdbMessageAfterSync("", "process killed");
     }
 
-    else if (response.startsWith("Z0,")) {
+    else if (response.startsWith("Z0,")) { // Insert breakpoint
+        if (m_verbose)
+            logMessage(msgGdbPacket(QLatin1String("Insert breakpoint")));
         // $z0,786a4ccc,4#99
-        int pos = response.lastIndexOf(',');
+        const int pos = response.lastIndexOf(',');
         bool ok = false;
-        uint addr = response.mid(3, pos - 1).toInt(&ok, 16);
-        uint len = response.mid(pos + 1).toInt(&ok, 16);
+        const uint addr = response.mid(3, pos - 1).toInt(&ok, 16);
+        const uint len = response.mid(pos + 1).toInt(&ok, 16);
+        if (m_verbose)
+            logMessage(QString::fromLatin1("Inserting breakpoint at 0x%1, %2").arg(addr,0 ,16).arg(len));
 
         //---IDE------------------------------------------------------
         //  Command: 0x1B Set Break
@@ -825,7 +856,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
     }
 
     else {
-        logMessage("FIXME unknown: " + response);
+        logMessage(msgGdbPacket(QLatin1String("FIXME unknown: ") + QString::fromAscii(response)));
     }
 }
 
@@ -1016,7 +1047,7 @@ void Adapter::tryTrkRead()
         QByteArray res = m_socketDevice->readAll();
         m_trkReadQueue.append(res);
     } else {
-#ifdef Q_OS_WIN  
+#ifdef Q_OS_WIN
         const DWORD BUFFERSIZE = 1024;
         char buffer[BUFFERSIZE];
         DWORD charsRead;
@@ -1086,16 +1117,20 @@ void Adapter::handleResult(const TrkResult &result)
             break;
         }
         case 0x90: { // Notified Stopped
-            logMessage(prefix + "NOTE: STOPPED  " + str);
             // 90 01   78 6a 40 40   00 00 07 23   00 00 07 24  00 00
-            //const char *data = result.data.data();
-//            uint addr = extractInt(data); //code address: 4 bytes; code base address for the library
-//            uint pid = extractInt(data + 4); // ProcessID: 4 bytes;
-//            uint tid = extractInt(data + 8); // ThreadID: 4 bytes
-            //logMessage(prefix << "      ADDR: " << addr << " PID: " << pid << " TID: " << tid);
+            const char *data = result.data.data();
+            const uint addr = extractInt(data); //code address: 4 bytes; code base address for the library
+            const uint pid = extractInt(data + 4); // ProcessID: 4 bytes;
+            const uint tid = extractInt(data + 8); // ThreadID: 4 bytes
+            logMessage(prefix + QString::fromLatin1("NOTE: PID %1/TID %2 STOPPED at 0x%3").arg(pid).arg(tid).arg(addr, 0, 16));
             sendTrkAck(result.token);
-            //sendGdbMessage("S11", "Target stopped");
-            sendGdbMessage("S05", "Target stopped");
+            if (addr) {
+                // Todo: Do not send off GdbMessages if a synced gdb query is pending, queue instead
+                sendGdbMessage("S05", "Target stopped");
+            } else {
+                if (m_verbose)
+                    logMessage(QLatin1String("Ignoring stop at 0"));
+            }
             break;
         }
         case 0x91: { // Notify Exception (obsolete)
@@ -1130,7 +1165,7 @@ void Adapter::handleResult(const TrkResult &result)
             str << " CODE: 0x" << codeseg << " DATA: 0x" << dataseg;
             str.setIntegerBase(10);
             str << " NAME: '" << name << '\'';
-            logMessage(logMsg);            
+            logMessage(logMsg);
             sendTrkContinue();
             break;
         }
@@ -1573,8 +1608,8 @@ static bool readAdapterArgs(const QStringList &args, AdapterOptions *o)
                 o->verbose++;
             } else if (*it == QLatin1String("-q")) {
                 o->verbose = 0;
-            } else if (*it == QLatin1String("-l")) {
-                o->registerEndianness = LittleEndian;
+            } else if (*it == QLatin1String("-b")) {
+                o->registerEndianness = BigEndian;
             } else if (*it == QLatin1String("-s")) {
                 o->useSocket = true;
             }
@@ -1606,7 +1641,7 @@ int main(int argc, char *argv[])
                "Options: -v verbose\n"
                "         -q quiet\n"
                "         -s Use socket (simulation)\n"
-               "         -l Set register endianness to little\n", argv[0]);
+               "         -b Set register endianness to big\n", argv[0]);
         return 1;
     }
 
