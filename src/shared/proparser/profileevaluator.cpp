@@ -229,6 +229,7 @@ public:
         QStringList varVal;
     } m_sts;
     bool m_invertNext; // Short-lived, so not in State
+    bool m_hadCondition; // Nested calls set it on return, so no need for it to be in State
     int m_skipLevel;
     bool m_cumulative;
     QStack<QString> m_oldPathStack;                 // To restore the current path to the path
@@ -938,12 +939,15 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProBlock(ProBlock *b
             m_definingFunc.clear();
             return ProItem::ReturnSkip;
         } else if (!(block->blockKind() & ProBlock::FunctionBodyKind)) {
-            if (!m_sts.condition)
-                ++m_skipLevel;
-            else
+            if (!m_sts.condition) {
+                if (m_skipLevel || m_hadCondition)
+                    ++m_skipLevel;
+            } else {
                 Q_ASSERT(!m_skipLevel);
+            }
         }
     } else {
+        m_hadCondition = false;
         if (!m_skipLevel) {
             if (m_sts.condition) {
                 m_sts.prevCondition = true;
@@ -1095,6 +1099,7 @@ void ProFileEvaluator::Private::visitProOperator(ProOperator *oper)
 void ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 {
     if (!m_skipLevel) {
+        m_hadCondition = true;
         if (!cond->text().compare(QLatin1String("else"), Qt::CaseInsensitive)) {
             m_sts.condition = !m_sts.prevCondition;
         } else {
@@ -1274,8 +1279,10 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFunction(ProFunction *
     // Make sure that called subblocks don't inherit & destroy the state
     bool invertThis = m_invertNext;
     m_invertNext = false;
-    if (!m_skipLevel)
+    if (!m_skipLevel) {
+        m_hadCondition = true;
         m_sts.prevCondition = false;
+    }
     if (m_cumulative || !m_sts.condition) {
         QString text = func->text();
         int lparen = text.indexOf(QLatin1Char('('));
