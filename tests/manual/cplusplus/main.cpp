@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at http://www.qtsoftware.com/contact.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 
@@ -253,7 +253,7 @@ public:
             "** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\n"
             "**\n"
             "** If you are unsure which license is appropriate for your use, please\n"
-            "** contact the sales department at http://www.qtsoftware.com/contact.\n"
+            "** contact the sales department at http://qt.nokia.com/contact.\n"
             "**\n"
             "**************************************************************************/\n"
             "\n"
@@ -409,7 +409,7 @@ public:
             "** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\n"
             "**\n"
             "** If you are unsure which license is appropriate for your use, please\n"
-            "** contact the sales department at http://www.qtsoftware.com/contact.\n"
+            "** contact the sales department at http://qt.nokia.com/contact.\n"
             "**\n"
             "**************************************************************************/\n"
             "\n"

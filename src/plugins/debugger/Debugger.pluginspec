@@ -17,7 +17,7 @@ Foundation.  Please review the following information to
 ensure the GNU Lesser General Public License version 2.1 requirements
 will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Debugger integration.</description>
-    <url>http://www.qtsoftware.com</url>
+    <url>http://qt.nokia.com</url>
     <dependencyList>
         <dependency name="CppEditor" version="1.2.80"/><!-- Debugger plugin adds items to the editor's context menu -->
         <dependency name="ProjectExplorer" version="1.2.80"/>
