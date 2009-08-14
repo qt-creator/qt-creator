@@ -15,7 +15,9 @@ General
    * Added the option to automatically reload files when externally modified,
      or to ignore external modifications (contributed by Henrik Abelsson)
    * Improved the general resizing behavior for small screen sizes
-
+   * Fixed a crash in the RSS reader that sometimes causes Qt Creator to crash
+     on startup
+   
 Editing
    * Added support for text editor color schemes
    * Added highlighting of uses of the symbol under the cursor
@@ -31,6 +33,10 @@ Project support
    * Added support for adding and removing files from a generic Makefile-based
      project (contributed by Kevin Michel)
 
+Compilation
+   * Support distributed compilation on Windows/MSVC via jom 
+     (see http://qt.gitorious.org/qt-labs/jom/)
+
 Debugging
    * Detect debugger from project tool chain
    * CDB: Added more types to the dumpers (QSharedPointer, QVector, common
@@ -39,7 +45,7 @@ Debugging
    * CDB: Fixed thread handling
    * CDB: Added internal dumpers for string types for debuggee crashes
    * Improved QObject dumping, print out QRect/QSize, enumerations and flags
-   * Use the BinEditor plugin to show raw memory
+   * Made it possible to use the BinEditor plugin for displaying raw memory
 
 Designer
    * Added support for rearranging and floating form editor tools
