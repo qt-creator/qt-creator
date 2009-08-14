@@ -32,6 +32,24 @@
 #if USE_NATIVE
 #include <windows.h>
 
+// Format windows error from GetLastError() value: TODO: Use the one provided by the utisl lib.
+QString winErrorMessage(unsigned long error)
+{
+    QString rc = QString::fromLatin1("#%1: ").arg(error);
+    ushort *lpMsgBuf;
+
+    const int len = FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, error, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
+    if (len) {
+        rc = QString::fromUtf16(lpMsgBuf, len);
+        LocalFree(lpMsgBuf);
+    } else {
+        rc += QString::fromLatin1("<unknown error>");
+    }
+    return rc;
+}
+
 // Non-blocking replacement for win-api ReadFile function
 BOOL WINAPI TryReadFile(HANDLE          hFile,
                         LPVOID          lpBuffer,
@@ -58,9 +76,9 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
 
 using namespace trk;
 
-#define CB(s) &Adapter::s
+#define CB(s) &Launcher::s
 
-Adapter::Adapter()
+Launcher::Launcher()
 {
     // Trk
 #if USE_NATIVE
@@ -72,7 +90,7 @@ Adapter::Adapter()
     m_trkWriteBusy = false;
 }
 
-Adapter::~Adapter()
+Launcher::~Launcher()
 {
     // Trk
 #if USE_NATIVE
@@ -85,12 +103,10 @@ Adapter::~Adapter()
     logMessage("Shutting down.\n");
 }
 
-bool Adapter::startServer()
+bool Launcher::startServer(QString *errorMessage)
 {
-    if (!openTrkPort(m_trkServerName)) {
-        logMessage("Unable to connect to TRK server");
+    if (!openTrkPort(m_trkServerName, errorMessage))
         return false;
-    }
     m_timerId = startTimer(100);
     sendTrkInitialPing();
     sendTrkMessage(TrkConnect); // Connect
@@ -104,7 +120,7 @@ bool Adapter::startServer()
     return true;
 }
 
-void Adapter::installAndRun()
+void Launcher::installAndRun()
 {
     if (!m_installFileName.isEmpty()) {
         installRemotePackageSilently(m_installFileName);
@@ -112,13 +128,13 @@ void Adapter::installAndRun()
         startInferiorIfNeeded();
     }
 }
-void Adapter::logMessage(const QString &msg)
+void Launcher::logMessage(const QString &msg)
 {
     if (DEBUG_TRK)
         qDebug() << "ADAPTER: " << qPrintable(msg);
 }
 
-bool Adapter::openTrkPort(const QString &port)
+bool Launcher::openTrkPort(const QString &port, QString *errorMessage)
 {
 #if USE_NATIVE
     m_hdevice = CreateFile(port.toStdWString().c_str(),
@@ -130,7 +146,8 @@ bool Adapter::openTrkPort(const QString &port)
                            NULL);
 
     if (INVALID_HANDLE_VALUE == m_hdevice){
-        logMessage("Could not open device " + port);
+        *errorMessage = QString::fromLatin1("Could not open device '%1': %2").arg(port, winErrorMessage(GetLastError()));
+        logMessage(*errorMessage);
         return false;
     }
     return true;
@@ -145,8 +162,8 @@ bool Adapter::openTrkPort(const QString &port)
     m_trkDevice->setTimeout(0, 500);
 
     if (!m_trkDevice->open(QIODevice::ReadWrite)) {
-        QByteArray ba = m_trkDevice->errorString().toLatin1();
-        logMessage("Could not open device " << ba);
+        *errorMessage = QString::fromLatin1("Could not open device '%1': %2").arg(port, m_trkDevice->errorString());
+        logMessage(*errorMessage);
         return false;
     }
     return true;
@@ -158,14 +175,14 @@ bool Adapter::openTrkPort(const QString &port)
 #endif
 }
 
-void Adapter::timerEvent(QTimerEvent *)
+void Launcher::timerEvent(QTimerEvent *)
 {
     //qDebug(".");
     tryTrkWrite();
     tryTrkRead();
 }
 
-byte Adapter::nextTrkWriteToken()
+byte Launcher::nextTrkWriteToken()
 {
     ++m_trkWriteToken;
     if (m_trkWriteToken == 0)
@@ -173,7 +190,7 @@ byte Adapter::nextTrkWriteToken()
     return m_trkWriteToken;
 }
 
-void Adapter::sendTrkMessage(byte code, TrkCallBack callBack,
+void Launcher::sendTrkMessage(byte code, TrkCallBack callBack,
     const QByteArray &data, const QVariant &cookie)
 {
     TrkMessage msg;
@@ -185,7 +202,7 @@ void Adapter::sendTrkMessage(byte code, TrkCallBack callBack,
     queueTrkMessage(msg);
 }
 
-void Adapter::sendTrkInitialPing()
+void Launcher::sendTrkInitialPing()
 {
     TrkMessage msg;
     msg.code = 0x00; // Ping
@@ -193,13 +210,13 @@ void Adapter::sendTrkInitialPing()
     queueTrkMessage(msg);
 }
 
-void Adapter::waitForTrkFinished(const TrkResult &result)
+void Launcher::waitForTrkFinished(const TrkResult &result)
 {
     Q_UNUSED(result)
     sendTrkMessage(TrkPing, CB(handleWaitForFinished));
 }
 
-void Adapter::terminate()
+void Launcher::terminate()
 {
     QByteArray ba;
     appendShort(&ba, 0x0000, TargetByteOrder);
@@ -207,7 +224,7 @@ void Adapter::terminate()
     sendTrkMessage(TrkDeleteItem, CB(waitForTrkFinished), ba);
 }
 
-void Adapter::sendTrkAck(byte token)
+void Launcher::sendTrkAck(byte token)
 {
     logMessage(QString("SENDING ACKNOWLEDGEMENT FOR TOKEN %1").arg(int(token)));
     TrkMessage msg;
@@ -220,12 +237,12 @@ void Adapter::sendTrkAck(byte token)
     // 01 90 00 07 7e 80 01 00 7d 5e 7e
 }
 
-void Adapter::queueTrkMessage(const TrkMessage &msg)
+void Launcher::queueTrkMessage(const TrkMessage &msg)
 {
     m_trkWriteQueue.append(msg);
 }
 
-void Adapter::tryTrkWrite()
+void Launcher::tryTrkWrite()
 {
     if (m_trkWriteBusy)
         return;
@@ -236,7 +253,7 @@ void Adapter::tryTrkWrite()
     trkWrite(msg);
 }
 
-void Adapter::trkWrite(const TrkMessage &msg)
+void Launcher::trkWrite(const TrkMessage &msg)
 {
     QByteArray ba = frameMessage(msg.code, msg.token, msg.data);
 
@@ -260,7 +277,7 @@ void Adapter::trkWrite(const TrkMessage &msg)
 #endif
 }
 
-void Adapter::tryTrkRead()
+void Launcher::tryTrkRead()
 {
 #if USE_NATIVE
     const DWORD BUFFERSIZE = 1024;
@@ -292,7 +309,7 @@ void Adapter::tryTrkRead()
 }
 
 
-void Adapter::handleResult(const TrkResult &result)
+void Launcher::handleResult(const TrkResult &result)
 {
     QByteArray prefix = "READ BUF:                                       ";
     QByteArray str = result.toString().toUtf8();
@@ -416,7 +433,7 @@ void Adapter::handleResult(const TrkResult &result)
     }
 }
 
-void Adapter::handleFileCreation(const TrkResult &result)
+void Launcher::handleFileCreation(const TrkResult &result)
 {
     // we don't do any error handling yet, which is bad
     const char *data = result.data.data();
@@ -441,13 +458,13 @@ void Adapter::handleFileCreation(const TrkResult &result)
     sendTrkMessage(TrkCloseFile, CB(handleFileCreated), ba);
 }
 
-void Adapter::handleFileCreated(const TrkResult &result)
+void Launcher::handleFileCreated(const TrkResult &result)
 {
     Q_UNUSED(result)
     installAndRun();
 }
 
-void Adapter::handleCpuType(const TrkResult &result)
+void Launcher::handleCpuType(const TrkResult &result)
 {
     logMessage("HANDLE CPU TYPE: " + result.toString());
     //---TRK------------------------------------------------------
@@ -463,7 +480,7 @@ void Adapter::handleCpuType(const TrkResult &result)
     //m_session.extended2TypeSize = result.data[6];
 }
 
-void Adapter::handleCreateProcess(const TrkResult &result)
+void Launcher::handleCreateProcess(const TrkResult &result)
 {
     //  40 00 00]
     //logMessage("       RESULT: " + result.toString());
@@ -484,14 +501,14 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     sendTrkMessage(TrkContinue, 0, ba, "CONTINUE");
 }
 
-void Adapter::handleWaitForFinished(const TrkResult &result)
+void Launcher::handleWaitForFinished(const TrkResult &result)
 {
     logMessage("   FINISHED: " + stringFromArray(result.data));
     killTimer(m_timerId);
     emit finished();
 }
 
-void Adapter::handleSupportMask(const TrkResult &result)
+void Launcher::handleSupportMask(const TrkResult &result)
 {
     const char *data = result.data.data();
     QByteArray str;
@@ -505,7 +522,7 @@ void Adapter::handleSupportMask(const TrkResult &result)
 }
 
 
-void Adapter::cleanUp()
+void Launcher::cleanUp()
 {
     //
     //---IDE------------------------------------------------------
@@ -559,7 +576,7 @@ void Adapter::cleanUp()
     // Error: 0x00
 }
 
-void Adapter::copyFileToRemote()
+void Launcher::copyFileToRemote()
 {
     emit copyingStarted();
     QByteArray ba;
@@ -568,7 +585,7 @@ void Adapter::copyFileToRemote()
     sendTrkMessage(TrkOpenFile, CB(handleFileCreation), ba);
 }
 
-void Adapter::installRemotePackageSilently(const QString &fileName)
+void Launcher::installRemotePackageSilently(const QString &fileName)
 {
     emit installingStarted();
     QByteArray ba;
@@ -577,12 +594,12 @@ void Adapter::installRemotePackageSilently(const QString &fileName)
     sendTrkMessage(TrkInstallFile, CB(handleInstallPackageFinished), ba);
 }
 
-void Adapter::handleInstallPackageFinished(const TrkResult &)
+void Launcher::handleInstallPackageFinished(const TrkResult &)
 {
     startInferiorIfNeeded();
 }
 
-void Adapter::startInferiorIfNeeded()
+void Launcher::startInferiorIfNeeded()
 {
     emit startingApplication();
     if (m_session.pid != 0) {

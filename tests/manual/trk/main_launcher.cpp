@@ -16,21 +16,23 @@ int main(int argc, char *argv[])
 
     QCoreApplication app(argc, argv);
 
-    Adapter adapter;
-    adapter.setTrkServerName(argv[1]);
+    Launcher launcher;
+    launcher.setTrkServerName(argv[1]);
     if (argc == 3) {
-        adapter.setFileName(argv[2]);
+        launcher.setFileName(argv[2]);
     } else if (argc == 5) {
-        adapter.setInstallFileName(argv[3]);
-        adapter.setFileName(argv[4]);
+        launcher.setInstallFileName(argv[3]);
+        launcher.setFileName(argv[4]);
     } else {
-        adapter.setCopyFileName(argv[3], argv[4]);
-        adapter.setInstallFileName(argv[4]);
-        adapter.setFileName(argv[5]);
+        launcher.setCopyFileName(argv[3], argv[4]);
+        launcher.setInstallFileName(argv[4]);
+        launcher.setFileName(argv[5]);
     }
-    QObject::connect(&adapter, SIGNAL(finished()), &app, SLOT(quit()));
-    if (adapter.startServer())
+    QObject::connect(&launcher, SIGNAL(finished()), &app, SLOT(quit()));
+    QString errorMessage;
+    if (launcher.startServer(&errorMessage))
         return app.exec();
+    qWarning("%s\n", qPrintable(errorMessage));
     return 4;
 }
 

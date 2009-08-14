@@ -48,6 +48,15 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
+// Format information about a file
+static QString lsFile(const QString &f)
+{
+    QString rc;
+    const QFileInfo fi(f);
+    QTextStream str(&rc);
+    str << fi.size() << ' ' << fi.lastModified().toString(Qt::ISODate) << ' ' << QDir::toNativeSeparators(fi.absoluteFilePath());
+    return rc;
+}
 // ======== S60DeviceRunConfiguration
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QString &proFilePath)
     : RunConfiguration(project),
@@ -162,6 +171,49 @@ QString S60DeviceRunConfiguration::customKeyPath() const
 void S60DeviceRunConfiguration::setCustomKeyPath(const QString &path)
 {
     m_customKeyPath = path;
+}
+
+QString S60DeviceRunConfiguration::packageFileName() const
+{
+    QString rc = basePackageFilePath();
+    if (!rc.isEmpty())
+        rc += QLatin1String(".pkg");
+    return rc;
+}
+
+/* Grep the pkg file for \code
+; Executable and default resource files
+"/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/gcce/udeb/foo.exe"    - "!:\sys\bin\foo.exe"
+\endcode */
+
+static QString executableFromPkgFile(const QString &pkgFileName, QString *errorMessage)
+{
+    QFile pkgFile(pkgFileName);
+    if (!pkgFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
+        *errorMessage = S60DeviceRunConfiguration::tr("Cannot open %1: %2").arg(pkgFileName, pkgFile.errorString());
+        return QString();
+    }
+    // "<SDK>/foo.exe"    - "!:\device_bin\foo.exe"
+    const QRegExp exePattern = QRegExp(QLatin1String("^\"([^\"]+\\.exe)\" +-.*$"));
+    Q_ASSERT(exePattern.isValid());
+    foreach(const QString &line, QString::fromLocal8Bit(pkgFile.readAll()).split(QLatin1Char('\n')))
+        if (exePattern.exactMatch(line))
+            return exePattern.cap(1);
+    *errorMessage = S60DeviceRunConfiguration::tr("Unable to find the executable in the package file %1.").arg(pkgFileName);
+    return QString();
+}
+
+QString S60DeviceRunConfiguration::executableFileName() const
+{
+    const QString pkg = packageFileName();
+    if (!pkg.isEmpty()) {
+        QString errorMessage;
+        const QString rc = executableFromPkgFile(pkg, &errorMessage);
+        if (rc.isEmpty())
+            qWarning("%s\n", qPrintable(errorMessage));
+        return rc;
+    }
+    return QString();
 }
 
 void S60DeviceRunConfiguration::updateTarget()
@@ -455,7 +507,7 @@ RunControl* S60DeviceRunConfigurationRunner::run(QSharedPointer<RunConfiguration
 // ======== S60DeviceRunControl
 
 S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runConfiguration)
-    : RunControl(runConfiguration), m_adapter(0)
+    : RunControl(runConfiguration), m_launcher(0)
 {
     m_makesis = new QProcess(this);
     connect(m_makesis, SIGNAL(readyReadStandardError()),
@@ -480,9 +532,10 @@ S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runCon
 void S60DeviceRunControl::start()
 {
     QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration().dynamicCast<S60DeviceRunConfiguration>();
-    Q_ASSERT(!rc.isNull());
+    QTC_ASSERT(!rc.isNull(), return);
 
     Qt4Project *project = qobject_cast<Qt4Project *>(rc->project());
+    QTC_ASSERT(project, return);
 
     m_serialPortName = rc->serialPortName();
     m_serialPortFriendlyName = S60Manager::instance()->serialDeviceLister()->friendlyNameForPort(m_serialPortName);
@@ -497,26 +550,25 @@ void S60DeviceRunControl::start()
     emit started();
 
     emit addToOutputWindow(this, tr("Creating %1.sisx ...").arg(QDir::toNativeSeparators(m_baseFileName)));
+    emit addToOutputWindow(this, tr("Executable file: %1").arg(lsFile(rc->executableFileName())));
 
-    Q_ASSERT(project);
     m_toolsDirectory = S60Manager::instance()->deviceForQtVersion(
             project->qtVersion(project->activeBuildConfiguration())).toolsRoot
             + "/epoc32/tools";
-    QString makesisTool = m_toolsDirectory + "/makesis.exe";
-    QString packageFile = QFileInfo(m_baseFileName + ".pkg").fileName();
+    const QString makesisTool = m_toolsDirectory + "/makesis.exe";
+    const QString packageFile = QFileInfo(rc->packageFileName()).fileName();
+
     m_makesis->setWorkingDirectory(m_workingDirectory);
     emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(makesisTool), packageFile));
-    m_makesis->start(makesisTool, QStringList()
-        << packageFile,
-        QIODevice::ReadOnly);
+    m_makesis->start(makesisTool, QStringList(packageFile), QIODevice::ReadOnly);
 }
 
 void S60DeviceRunControl::stop()
 {
     m_makesis->kill();
     m_signsis->kill();
-    if (m_adapter)
-        m_adapter->terminate();
+    if (m_launcher)
+        m_launcher->terminate();
 }
 
 bool S60DeviceRunControl::isRunning() const
@@ -578,28 +630,29 @@ void S60DeviceRunControl::signsisProcessFinished()
         emit finished();
         return;
     }
-    m_adapter = new trk::Adapter;
-    connect(m_adapter, SIGNAL(finished()), this, SLOT(runFinished()));
-    connect(m_adapter, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
-    connect(m_adapter, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
-    connect(m_adapter, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
-    connect(m_adapter, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
-    connect(m_adapter, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
+    m_launcher = new trk::Launcher;
+    connect(m_launcher, SIGNAL(finished()), this, SLOT(runFinished()));
+    connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
+    connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
+    connect(m_launcher, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
+    connect(m_launcher, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
+    connect(m_launcher, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
 
     //TODO sisx destination and file path user definable
-    m_adapter->setTrkServerName(m_serialPortName);
+    m_launcher->setTrkServerName(m_serialPortName);
     const QString copySrc(m_baseFileName + ".sisx");
     const QString copyDst = QString("C:\\Data\\%1.sisx").arg(QFileInfo(m_baseFileName).fileName());
     const QString runFileName = QString("C:\\sys\\bin\\%1.exe").arg(m_targetName);
-    m_adapter->setCopyFileName(copySrc, copyDst);
-    m_adapter->setInstallFileName(copyDst);
-    m_adapter->setFileName(runFileName);
-    emit addToOutputWindow(this, tr("Deploying application to %1...").arg(m_serialPortFriendlyName));
-    if (!m_adapter->startServer()) {
-        delete m_adapter;
-        m_adapter = 0;
-        error(this, tr("Could not connect to phone on port %1. "
-                       "Check if the phone is connected and if it runs the TRK application.").arg(m_serialPortName));
+    m_launcher->setCopyFileName(copySrc, copyDst);
+    m_launcher->setInstallFileName(copyDst);
+    m_launcher->setFileName(runFileName);
+    emit addToOutputWindow(this, tr("Package: %1\nDeploying application to '%2'...").arg(lsFile(copySrc), m_serialPortFriendlyName));
+    QString errorMessage;
+    if (!m_launcher->startServer(&errorMessage)) {
+        delete m_launcher;
+        m_launcher = 0;
+        error(this, tr("Could not connect to phone on port '%1': %2\n"
+                       "Check if the phone is connected and the TRK application is running.").arg(m_serialPortName, errorMessage));
         emit finished();
     }
 }
@@ -631,8 +684,8 @@ void S60DeviceRunControl::printApplicationOutput(const QString &output)
 
 void S60DeviceRunControl::runFinished()
 {
-    m_adapter->deleteLater();
-    m_adapter = 0;
+    m_launcher->deleteLater();
+    m_launcher = 0;
     emit addToOutputWindow(this, tr("Finished."));
     emit finished();
 }

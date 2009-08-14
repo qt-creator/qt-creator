@@ -72,6 +72,9 @@ public:
     QString customKeyPath() const;
     void setCustomKeyPath(const QString &path);
 
+    QString packageFileName() const;
+    QString executableFileName() const;
+
 signals:
     void targetInformationChanged();
 
@@ -178,7 +181,7 @@ private:
     QString m_customKeyPath;
     QProcess *m_makesis;
     QProcess *m_signsis;
-    trk::Adapter *m_adapter;
+    trk::Launcher *m_launcher;
 };
 
 } // namespace Internal

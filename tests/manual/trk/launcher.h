@@ -48,18 +48,18 @@
 
 namespace trk {
 
-class Adapter : public QObject
+class Launcher : public QObject
 {
     Q_OBJECT
 
 public:
-    Adapter();
-    ~Adapter();
+    Launcher();
+    ~Launcher();
     void setTrkServerName(const QString &name) { m_trkServerName = name; }
     void setFileName(const QString &name) { m_fileName = name; }
     void setCopyFileName(const QString &srcName, const QString &dstName) { m_copySrcFileName = srcName; m_copyDstFileName = dstName; }
     void setInstallFileName(const QString &name) { m_installFileName = name; }
-    bool startServer();
+    bool startServer(QString *errorMessage);
 
 signals:
     void copyingStarted();
@@ -76,7 +76,7 @@ private:
     //
     // TRK
     //
-    typedef void (Adapter::*TrkCallBack)(const TrkResult &);
+    typedef void (Launcher::*TrkCallBack)(const TrkResult &);
 
     struct TrkMessage
     {
@@ -88,7 +88,7 @@ private:
         TrkCallBack callBack;
     };
 
-    bool openTrkPort(const QString &port); // or server name for local server
+    bool openTrkPort(const QString &port, QString *errorMessage); // or server name for local server
     void sendTrkMessage(byte code,
         TrkCallBack callBack = 0,
         const QByteArray &data = QByteArray(),
