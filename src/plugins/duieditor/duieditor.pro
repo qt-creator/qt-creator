@@ -2,10 +2,7 @@ TEMPLATE = lib
 TARGET = DuiEditor
 
 include(../../qtcreatorplugin.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../shared/qscripthighlighter/qscripthighlighter.pri)
-include(../../shared/indenter/indenter.pri)
+include(duieditor_dependencies.pri)
 
 include(parser/parser.pri)
 include(rewriter/rewriter.pri)
