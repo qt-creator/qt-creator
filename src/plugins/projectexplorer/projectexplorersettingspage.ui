@@ -56,7 +56,7 @@
         <item>
          <widget class="QLabel" name="jomLabel">
           <property name="text">
-           <string>jom is a drop-in replacement for nmake which distributes the compilation process to multiple CPU cores. For more details, see &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;the jom Homepage&lt;/a&gt;. Disable this if you expirience problems with your Makefiles.</string>
+           <string>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. For more details, see the &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Homepage&lt;/a&gt;. Disable it if you experience problems with your builds.</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
