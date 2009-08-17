@@ -325,8 +325,9 @@ void GenericProject::setIncludePaths(const QStringList &includePaths)
 QByteArray GenericProject::defines() const
 { return m_defines; }
 
-void GenericProject::setToolChainId(ProjectExplorer::ToolChain::ToolChainType toolChainId)
+void GenericProject::setToolChainId(int t)
 {
+    ProjectExplorer::ToolChain::ToolChainType toolChainId = ProjectExplorer::ToolChain::ToolChainType(t);
     using namespace ProjectExplorer;
 
     m_toolChainId = toolChainId;

@@ -114,7 +114,7 @@ public:
     ProjectExplorer::ToolChain::ToolChainType toolChainId() const;
 
 public Q_SLOTS:
-    void setToolChainId(ProjectExplorer::ToolChain::ToolChainType);
+    void setToolChainId(int);
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
