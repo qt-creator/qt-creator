@@ -68,6 +68,8 @@ static const char *defaultQtVersionKey = "DefaultQtVersion";
 static const char *newQtVersionsKey = "NewQtVersions";
 static const char *PATH_AUTODETECTION_SOURCE = "PATH";
 
+enum { debug = 0 };
+
 QtVersionManager *QtVersionManager::m_self = 0;
 
 QtVersionManager::QtVersionManager()
@@ -551,29 +553,32 @@ void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
     }
 }
 
-// New code
 QPair<QtVersion::QmakeBuildConfig, QStringList> QtVersionManager::scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig)
 {
-    qDebug()<<"ScanMakeFile, the gory details:";
+    if (debug)
+        qDebug()<<"ScanMakeFile, the gory details:";
     QtVersion::QmakeBuildConfig result = QtVersion::NoBuild;
     QStringList result2;
 
     QString line = findQMakeLine(directory);
     if (!line.isEmpty()) {
-        qDebug()<<"Found line"<<line;
+        if (debug)
+            qDebug()<<"Found line"<<line;
         line = trimLine(line);
-        qDebug()<<"Trimmed to"<<line;
         QStringList parts = splitLine(line);
-        qDebug()<<"Splitted into"<<parts;
+        if (debug)
+            qDebug()<<"Splitted into"<<parts;
         QList<QMakeAssignment> assignments;
         QList<QMakeAssignment> afterAssignments;
         QStringList additionalArguments;
         parseParts(parts, &assignments, &afterAssignments, &additionalArguments);
 
-        dumpQMakeAssignments(assignments);
-        if (!afterAssignments.isEmpty())
-            qDebug()<<"-after";
-        dumpQMakeAssignments(afterAssignments);
+        if (debug) {
+            dumpQMakeAssignments(assignments);
+            if (!afterAssignments.isEmpty())
+                qDebug()<<"-after";
+            dumpQMakeAssignments(afterAssignments);
+        }
 
         // Search in assignments for CONFIG(+=,-=,=)(debug,release,debug_and_release)
         // Also remove them from the list
@@ -592,14 +597,16 @@ QPair<QtVersion::QmakeBuildConfig, QStringList> QtVersionManager::scanMakeFile(c
     }
 
     // Dump the gathered information:
-    qDebug()<<"\n\nDumping information from scanMakeFile";
-    qDebug()<<"QMake CONFIG variable parsing";
-    qDebug()<<"  "<< (result & QtVersion::NoBuild ? "No Build" : QString::number(int(result)));
-    qDebug()<<"  "<< (result & QtVersion::DebugBuild ? "debug" : "release");
-    qDebug()<<"  "<< (result & QtVersion::BuildAll ? "debug_and_release" : "no debug_and_release");
-    qDebug()<<"\nAddtional Arguments";
-    qDebug()<<result2;
-    qDebug()<<"\n\n";
+    if (debug) {
+        qDebug()<<"\n\nDumping information from scanMakeFile";
+        qDebug()<<"QMake CONFIG variable parsing";
+        qDebug()<<"  "<< (result & QtVersion::NoBuild ? "No Build" : QString::number(int(result)));
+        qDebug()<<"  "<< (result & QtVersion::DebugBuild ? "debug" : "release");
+        qDebug()<<"  "<< (result & QtVersion::BuildAll ? "debug_and_release" : "no debug_and_release");
+        qDebug()<<"\nAddtional Arguments";
+        qDebug()<<result2;
+        qDebug()<<"\n\n";
+    }
     return qMakePair(result, result2);
 }
 
@@ -690,7 +697,6 @@ void QtVersionManager::parseParts(const QStringList &parts, QList<QMakeAssignmen
         } else if (part == "-o") {
             ignoreNext = true;
         } else {
-            qDebug()<<"Not parsed"<<part;
             additionalArguments->append(part);
         }
     }

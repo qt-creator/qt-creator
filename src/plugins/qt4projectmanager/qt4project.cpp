@@ -1195,10 +1195,12 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
                 parsedSpec = parsedSpec.toLower();
 #endif
 
-                qDebug()<<"Actual args:"<<actualArgs;
-                qDebug()<<"Parsed args:"<<parsedArgs;
-                qDebug()<<"Actual spec:"<<actualSpec;
-                qDebug()<<"Parsed spec:"<<parsedSpec;
+                if (debug) {
+                    qDebug()<<"Actual args:"<<actualArgs;
+                    qDebug()<<"Parsed args:"<<parsedArgs;
+                    qDebug()<<"Actual spec:"<<actualSpec;
+                    qDebug()<<"Parsed spec:"<<parsedSpec;
+                }
 
                 if (actualArgs == parsedArgs && actualSpec == parsedSpec)
                     return true;
