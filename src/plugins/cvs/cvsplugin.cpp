@@ -687,7 +687,7 @@ void CVSPlugin::startCommit(const QString &source)
     // Create a submit
     m_changeTmpFile->write(submitTemplate.toUtf8());
     m_changeTmpFile->flush();
-    m_changeTmpFile->seek(0);
+    m_changeTmpFile->close();
     // Create a submit editor and set file list
     CVSSubmitEditor *editor = openCVSSubmitEditor(m_changeTmpFile->fileName());
     editor->setStateList(statusOutput);

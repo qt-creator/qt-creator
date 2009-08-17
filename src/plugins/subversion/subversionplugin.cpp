@@ -692,7 +692,7 @@ void SubversionPlugin::startCommit(const QStringList &files)
     // Create a submit
     m_changeTmpFile->write(submitTemplate.toUtf8());
     m_changeTmpFile->flush();
-    m_changeTmpFile->seek(0);
+    m_changeTmpFile->close();
     // Create a submit editor and set file list
     SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_changeTmpFile->fileName());
     editor->setStatusList(statusOutput);

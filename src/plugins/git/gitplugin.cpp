@@ -592,10 +592,10 @@ void GitPlugin::startCommit()
     }
     m_changeTmpFile = changeTmpFile;
     m_changeTmpFile->write(commitTemplate.toLocal8Bit());
-    m_changeTmpFile->flush();
+    m_changeTmpFile->flush();    
     // Keep the file alive, else it removes self and forgets
     // its name
-    m_changeTmpFile->seek(0);
+    m_changeTmpFile->close();
     openSubmitEditor(m_changeTmpFile->fileName(), data);
 }
 

@@ -553,6 +553,7 @@ void PerforcePlugin::submit()
     }
 
     m_changeTmpFile = new QTemporaryFile(this);
+    m_changeTmpFile->setAutoRemove(true);
     if (!m_changeTmpFile->open()) {
         VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file."));
         cleanChangeTmpFile();
@@ -567,7 +568,7 @@ void PerforcePlugin::submit()
     }
 
     m_changeTmpFile->write(result.stdOut.toAscii());
-    m_changeTmpFile->seek(0);
+    m_changeTmpFile->close();
 
     // Assemble file list of project
     QString name;
@@ -782,6 +783,15 @@ bool PerforcePlugin::vcsDelete(const QString &fileName)
     return !(result.error && result2.error);
 }
 
+static QString formatCommand(const QString &cmd, const QStringList &args)
+{
+    const QChar blank = QLatin1Char(' ');
+    QString command = cmd;
+    command += blank;
+    command += args.join(QString(blank));
+    return PerforcePlugin::tr("Executing: %1\n").arg(command);
+}
+
 PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
                                           const QStringList &extraArgs,
                                           unsigned logFlags,
@@ -816,13 +826,8 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
     }
     actualArgs << args;
 
-    if (logFlags & CommandToWindow) {
-        QString command = m_settings.p4Command();
-        command += blank;
-        command += actualArgs.join(QString(blank));
-        const QString outputText = tr("Executing: %1\n").arg(command);
-        outputWindow->appendCommand(outputText);
-    }
+    if (logFlags & CommandToWindow)
+        outputWindow->appendCommand(formatCommand(m_settings.p4Command(), actualArgs));
 
     // Run, connect stderr to the output window
     Core::Utils::SynchronousProcess process;
@@ -1025,20 +1030,25 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
         fileIFace->save();
         core->fileManager()->unblockFileChange(fileIFace);
         if (answer == VCSBase::VCSBaseSubmitEditor::SubmitConfirmed) {
-            m_changeTmpFile->seek(0);
+            if (!m_changeTmpFile->open()) {
+                VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot open temporary file."));
+                return false;
+            }
             QByteArray change = m_changeTmpFile->readAll();
+            m_changeTmpFile->close();
             QString errorMessage;
             if (!checkP4Configuration(&errorMessage)) {
                 VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
                 return false;
             }
-
             QProcess proc;
             proc.setEnvironment(environment());
 
             QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-            proc.start(m_settings.p4Command(),
-                m_settings.basicP4Args() << QLatin1String("submit") << QLatin1String("-i"));
+            QStringList submitArgs = m_settings.basicP4Args();
+            submitArgs << QLatin1String("submit") << QLatin1String("-i");
+            VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(m_settings.p4Command(), submitArgs));
+            proc.start(m_settings.p4Command(),submitArgs);
             if (!proc.waitForStarted(p4Timeout)) {
                 VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot execute p4 submit."));
                 QApplication::restoreOverrideCursor();
@@ -1049,6 +1059,12 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
 
             if (!proc.waitForFinished()) {
                 VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot execute p4 submit."));
+                QApplication::restoreOverrideCursor();
+                return false;
+            }
+            const int exitCode = proc.exitCode();
+            if (exitCode) {
+                VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("p4 submit failed (exit code %1).").arg(exitCode));
                 QApplication::restoreOverrideCursor();
                 return false;
             }
