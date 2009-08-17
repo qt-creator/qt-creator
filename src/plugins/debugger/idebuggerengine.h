@@ -85,8 +85,6 @@ public:
 
     virtual void attemptBreakpointSynchronization() = 0;
 
-    virtual void reloadDisassembler() = 0;
-
     virtual void reloadModules() = 0;
     virtual void loadSymbols(const QString &moduleName) = 0;
     virtual void loadAllSymbols() = 0;

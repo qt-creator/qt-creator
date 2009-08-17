@@ -41,7 +41,6 @@
 #include "gdbmi.h"
 #include "procinterrupt.h"
 
-#include "disassemblerhandler.h"
 #include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
@@ -244,7 +243,6 @@ void GdbEngine::initializeVariables()
 
     m_inbuffer.clear();
 
-    m_address.clear();
     m_currentFunctionArgs.clear();
     m_currentFrame.clear();
     m_dumperHelper.clear();
@@ -1270,18 +1268,6 @@ void GdbEngine::handleAsyncOutput2(const GdbMi &data)
     reloadStack();
     if (supportsThreads())
         postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), currentId);
-
-    //
-    // Disassembler
-    //
-    // Linux:
-    //"79*stopped,reason="end-stepping-range",reason="breakpoint-hit",bkptno="1",
-    //thread-id="1",frame={addr="0x0000000000405d8f",func="run1",
-    //args=[{name="argc",value="1"},{name="argv",value="0x7fffb7c23058"}],
-    //file="test1.cpp",fullname="/home/apoenitz/dev/work/test1/test1.cpp",line="261"}"
-    // Mac: (but only sometimes)
-    m_address = _(data.findChild("frame").findChild("addr").data());
-    qq->reloadDisassembler();
 
     //
     // Registers
@@ -2321,69 +2307,6 @@ void GdbEngine::attemptBreakpointSynchronization()
             handler->updateMarkers();
         }
     }
-}
-
-
-//////////////////////////////////////////////////////////////////////
-//
-// Disassembler specific stuff
-//
-//////////////////////////////////////////////////////////////////////
-
-void GdbEngine::reloadDisassembler()
-{
-    emit postCommand(_("disassemble"), CB(handleDisassemblerList), m_address);
-}
-
-void GdbEngine::handleDisassemblerList(const GdbResultRecord &record,
-    const QVariant &cookie)
-{
-    QString listedLine = cookie.toString();
-    QList<DisassemblerLine> lines;
-    static const QString pad = _("    ");
-    int currentLine = -1;
-    if (record.resultClass == GdbResultDone) {
-        QString res = _(record.data.findChild("consolestreamoutput").data());
-        QTextStream ts(&res, QIODevice::ReadOnly);
-        while (!ts.atEnd()) {
-            //0x0000000000405fd8 <_ZN11QTextStreamD1Ev@plt+0>:
-            //    jmpq   *2151890(%rip)    # 0x6135b0 <_GLOBAL_OFFSET_TABLE_+640>
-            //0x0000000000405fde <_ZN11QTextStreamD1Ev@plt+6>:
-            //    pushq  $0x4d
-            //0x0000000000405fe3 <_ZN11QTextStreamD1Ev@plt+11>:
-            //    jmpq   0x405af8 <_init+24>
-            //0x0000000000405fe8 <_ZN9QHashData6rehashEi@plt+0>:
-            //    jmpq   *2151882(%rip)    # 0x6135b8 <_GLOBAL_OFFSET_TABLE_+648>
-            QString str = ts.readLine();
-            if (!str.startsWith(__("0x"))) {
-                //qDebug() << "IGNORING DISASSEMBLER" << str;
-                continue;
-            }
-            DisassemblerLine line;
-            QTextStream ts(&str, QIODevice::ReadOnly);
-            ts >> line.address >> line.symbol;
-            line.mnemonic = ts.readLine().trimmed();
-            if (line.symbol.endsWith(_c(':')))
-                line.symbol.chop(1);
-            line.addressDisplay = line.address + pad;
-            if (line.addressDisplay.startsWith(__("0x00000000")))
-                line.addressDisplay.replace(2, 8, QString());
-            line.symbolDisplay = line.symbol + pad;
-
-            if (line.address == listedLine)
-                currentLine = lines.size();
-
-            lines.append(line);
-        }
-    } else {
-        DisassemblerLine line;
-        line.addressDisplay = tr("<could not retreive module information>");
-        lines.append(line);
-    }
-
-    qq->disassemblerHandler()->setLines(lines);
-    if (currentLine != -1)
-        qq->disassemblerHandler()->setCurrentLine(currentLine);
 }
 
 

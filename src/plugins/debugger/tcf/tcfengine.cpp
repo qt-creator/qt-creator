@@ -33,7 +33,6 @@
 #include "breakhandler.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
-#include "disassemblerhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
@@ -302,10 +301,6 @@ void TcfEngine::selectThread(int index)
 }
 
 void TcfEngine::attemptBreakpointSynchronization()
-{
-}
-
-void TcfEngine::reloadDisassembler()
 {
 }
 

@@ -288,16 +288,6 @@ private:
     void breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt);
     void sendInsertBreakpoint(int index);
 
-
-    //
-    // Disassembler specific stuff
-    //
-    void handleDisassemblerList(const GdbResultRecord &record,
-        const QVariant &cookie);
-    void reloadDisassembler();
-    QString m_address;
-
-
     //
     // Modules specific stuff
     //

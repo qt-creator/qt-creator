@@ -39,6 +39,7 @@ namespace Debugger {
 namespace Internal {
 
 class DebuggerManager;
+class DisassemblerViewAgent;
 class CdbDebugEventCallback;
 class CdbDebugOutput;
 struct CdbDebugEnginePrivate;
@@ -86,7 +87,8 @@ public:
 
     virtual void attemptBreakpointSynchronization();
 
-    virtual void reloadDisassembler();
+    virtual void fetchDisassembler(DisassemblerViewAgent *agent,
+        const StackFrame &frame);
 
     virtual void reloadModules();
     virtual void loadSymbols(const QString &moduleName);

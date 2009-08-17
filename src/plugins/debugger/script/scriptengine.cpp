@@ -33,7 +33,6 @@
 #include "breakhandler.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
-#include "disassemblerhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
@@ -394,10 +393,6 @@ void ScriptEngine::attemptBreakpointSynchronization()
     }
     if (updateNeeded)
         handler->updateMarkers();
-}
-
-void ScriptEngine::reloadDisassembler()
-{
 }
 
 void ScriptEngine::loadSymbols(const QString &moduleName)

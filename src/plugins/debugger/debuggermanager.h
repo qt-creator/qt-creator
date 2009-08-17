@@ -73,7 +73,6 @@ class DebugMode;
 
 class BreakHandler;
 class BreakpointData;
-class DisassemblerHandler;
 class ModulesHandler;
 class RegisterHandler;
 class SourceFilesWindow;
@@ -219,7 +218,6 @@ private:
     virtual void notifyInferiorExited() = 0;
     virtual void notifyInferiorPidChanged(qint64) = 0;
 
-    virtual DisassemblerHandler *disassemblerHandler() = 0;
     virtual ModulesHandler *modulesHandler() = 0;
     virtual BreakHandler *breakHandler() = 0;
     virtual RegisterHandler *registerHandler() = 0;
@@ -232,7 +230,6 @@ private:
     virtual void showDebuggerOutput(int channel, const QString &msg) = 0;
     virtual void showDebuggerInput(int channel, const QString &msg) = 0;
 
-    virtual void reloadDisassembler() = 0;
     virtual void reloadModules() = 0;
     virtual void reloadSourceFiles() = 0;
     virtual void reloadRegisters() = 0;
@@ -330,9 +327,6 @@ private slots:
     void showDebuggerInput(int channel, const QString &msg);
     void showApplicationOutput(const QString &data);
 
-    void reloadDisassembler();
-    void disassemblerDockToggled(bool on);
-
     void reloadSourceFiles();
     void sourceFilesDockToggled(bool on);
 
@@ -353,7 +347,6 @@ private:
     //
     // Implementation of IDebuggerManagerAccessForEngines
     //
-    DisassemblerHandler *disassemblerHandler() { return m_disassemblerHandler; }
     ModulesHandler *modulesHandler() { return m_modulesHandler; }
     BreakHandler *breakHandler() { return m_breakHandler; }
     RegisterHandler *registerHandler() { return m_registerHandler; }
@@ -438,7 +431,6 @@ private:
     Core::Utils::FancyMainWindow *m_mainWindow;
     QLabel *m_statusLabel;
     QDockWidget *m_breakDock;
-    QDockWidget *m_disassemblerDock;
     QDockWidget *m_modulesDock;
     QDockWidget *m_outputDock;
     QDockWidget *m_registerDock;
@@ -448,7 +440,6 @@ private:
     QDockWidget *m_watchDock;
 
     BreakHandler *m_breakHandler;
-    DisassemblerHandler *m_disassemblerHandler;
     ModulesHandler *m_modulesHandler;
     RegisterHandler *m_registerHandler;
     StackHandler *m_stackHandler;
@@ -474,7 +465,6 @@ private:
     QAction *m_reverseDirectionAction;
 
     QWidget *m_breakWindow;
-    QWidget *m_disassemblerWindow;
     QWidget *m_localsWindow;
     QWidget *m_registerWindow;
     QWidget *m_modulesWindow;

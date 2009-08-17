@@ -1257,8 +1257,13 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
     return ok;
 }
 
-void CdbDebugEngine::reloadDisassembler()
+void CdbDebugEngine::fetchDisassembler(DisassemblerViewAgent *agent,
+        const StackFrame &frame)
 {
+    // was: void CdbDebugEngine::reloadDisassembler()
+    // use agent->address() to create a listing
+
+/*
     enum { ContextLines = 40 };
     // Do we have a top stack frame?
     const ULONG64 offset = m_d->m_currentStackTrace ? m_d->m_currentStackTrace->instructionOffset() : ULONG64(0);
@@ -1283,6 +1288,7 @@ void CdbDebugEngine::reloadDisassembler()
     } else {
         dh->setLines(QList<DisassemblerLine>());
     }
+*/
 }
 
 void CdbDebugEngine::reloadModules()

@@ -35,7 +35,6 @@
 #include "idebuggerengine.h"
 
 #include "breakwindow.h"
-#include "disassemblerwindow.h"
 #include "debuggeroutputwindow.h"
 #include "moduleswindow.h"
 #include "registerwindow.h"
@@ -44,7 +43,6 @@
 #include "threadswindow.h"
 #include "watchwindow.h"
 
-#include "disassemblerhandler.h"
 #include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
@@ -208,7 +206,6 @@ void DebuggerManager::init()
 
     m_runControl = 0;
 
-    m_disassemblerHandler = 0;
     m_modulesHandler = 0;
     m_registerHandler = 0;
 
@@ -216,7 +213,6 @@ void DebuggerManager::init()
     m_statusLabel->setMinimumSize(QSize(30, 10));
 
     m_breakWindow = new BreakWindow;
-    m_disassemblerWindow = new DisassemblerWindow;
     m_modulesWindow = new ModulesWindow(this);
     m_outputWindow = new DebuggerOutputWindow;
     m_registerWindow = new RegisterWindow(this);
@@ -251,14 +247,6 @@ void DebuggerManager::init()
     threadsView->setModel(m_threadsHandler->threadsModel());
     connect(threadsView, SIGNAL(threadSelected(int)),
         this, SLOT(selectThread(int)));
-
-    // Disassembler
-    m_disassemblerHandler = new DisassemblerHandler;
-    QAbstractItemView *disassemblerView =
-        qobject_cast<QAbstractItemView *>(m_disassemblerWindow);
-    disassemblerView->setModel(m_disassemblerHandler->model());
-    connect(m_disassemblerWindow, SIGNAL(reloadDisassemblerRequested()),
-            this, SLOT(reloadDisassembler()));
 
     // Breakpoints
     m_breakHandler = new BreakHandler(this);
@@ -419,10 +407,6 @@ void DebuggerManager::init()
 
     m_breakDock = m_mainWindow->addDockForWidget(m_breakWindow);
 
-    m_disassemblerDock = m_mainWindow->addDockForWidget(m_disassemblerWindow);
-    connect(m_disassemblerDock->toggleViewAction(), SIGNAL(toggled(bool)),
-        this, SLOT(reloadDisassembler()), Qt::QueuedConnection);
-
     m_modulesDock = m_mainWindow->addDockForWidget(m_modulesWindow);
     connect(m_modulesDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadModules()), Qt::QueuedConnection);
@@ -505,7 +489,6 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     }
 
     m_mainWindow->tabifyDockWidget(m_watchDock, m_breakDock);
-    m_mainWindow->tabifyDockWidget(m_watchDock, m_disassemblerDock);
     m_mainWindow->tabifyDockWidget(m_watchDock, m_modulesDock);
     m_mainWindow->tabifyDockWidget(m_watchDock, m_outputDock);
     m_mainWindow->tabifyDockWidget(m_watchDock, m_registerDock);
@@ -516,7 +499,6 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     // saves cycles since the corresponding information won't be retrieved.
     m_sourceFilesDock->hide();
     m_registerDock->hide();
-    m_disassemblerDock->hide();
     m_modulesDock->hide();
     m_outputDock->hide();
     m_mainWindow->setTrackingEnabled(true);
@@ -613,7 +595,6 @@ void DebuggerManager::shutdown()
     // Delete these manually before deleting the manager
     // (who will delete the models for most views)
     doDelete(m_breakWindow);
-    doDelete(m_disassemblerWindow);
     doDelete(m_modulesWindow);
     doDelete(m_outputWindow);
     doDelete(m_registerWindow);
@@ -625,7 +606,6 @@ void DebuggerManager::shutdown()
     doDelete(m_localsWindow);
 
     doDelete(m_breakHandler);
-    doDelete(m_disassemblerHandler);
     doDelete(m_threadsHandler);
     doDelete(m_modulesHandler);
     doDelete(m_registerHandler);
@@ -759,7 +739,7 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
         return scriptEngine;
     }
 
-#ifndef Q_OS_WIN    
+#ifndef Q_OS_WIN
     Q_UNUSED(settingsIdHint)
     if (!gdbEngine) {
         *errorMessage = msgEngineNotAvailable("Gdb Engine");
@@ -876,7 +856,6 @@ void DebuggerManager::cleanupViews()
     breakHandler()->setAllPending();
     stackHandler()->removeAll();
     threadsHandler()->removeAll();
-    disassemblerHandler()->removeAll();
     modulesHandler()->removeAll();
     watchHandler()->cleanup();
     m_sourceFilesWindow->removeAll();
@@ -1176,7 +1155,6 @@ void DebuggerManager::setBusyCursor(bool busy)
 
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_breakWindow->setCursor(cursor);
-    m_disassemblerWindow->setCursor(cursor);
     m_localsWindow->setCursor(cursor);
     m_modulesWindow->setCursor(cursor);
     m_outputWindow->setCursor(cursor);
@@ -1305,25 +1283,6 @@ void DebuggerManager::stepByInstructionTriggered()
     QTC_ASSERT(m_stackHandler, return);
     StackFrame frame = m_stackHandler->currentFrame();
     gotoLocation(frame, true);
-}
-
-
-//////////////////////////////////////////////////////////////////////
-//
-// Disassembler specific stuff
-//
-//////////////////////////////////////////////////////////////////////
-
-void DebuggerManager::reloadDisassembler()
-{
-    if (m_engine && m_disassemblerDock && m_disassemblerDock->isVisible())
-        m_engine->reloadDisassembler();
-}
-
-void DebuggerManager::disassemblerDockToggled(bool on)
-{
-    if (on)
-        reloadDisassembler();
 }
 
 
