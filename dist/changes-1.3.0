@@ -17,7 +17,11 @@ General
    * Improved the general resizing behavior for small screen sizes
    * Fixed a crash in the RSS reader that sometimes causes Qt Creator to crash
      on startup
+   * Use the default encoding instead of system encoding for the editor when 
+     choosing a file through the "Search results" pane
    * Reworked the projects pane
+   * Made the welcome screen tabs into plugins, reimplement IWelcomePage 
+     to add your own welcome screen page
 
 Editing
    * Added support for text editor color schemes
