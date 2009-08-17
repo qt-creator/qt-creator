@@ -150,6 +150,7 @@ private slots:
     void dumpQHashNode();
     void dumpQImage();
     void dumpQImageData();
+    void dumpQLinkedList();
     void dumpQList_int();
     void dumpQList_char();
     void dumpQList_QString();
@@ -197,6 +198,7 @@ private:
     template <typename K, typename V> void dumpQHashNodeHelper(QHash<K, V> &hash);
     void dumpQImageHelper(QImage &img);
     void dumpQImageDataHelper(QImage &img);
+    template <typename T> void dumpQLinkedListHelper(QLinkedList<T> &l);
     void dumpQLocaleHelper(QLocale &loc);
     template <typename K, typename V> void dumpQMapHelper(QMap<K, V> &m);
     template <typename K, typename V> void dumpQMapNodeHelper(QMap<K, V> &m);
@@ -538,7 +540,7 @@ const QString createExp(const void *ptr, const QString &type, const QString &met
 #  define MAP_NODE_TYPE_END " >"
 #endif
 
-template <typename T> static const char *typeToString(const T &)
+template <typename T> static const char *typeToString()
 {
     return "<unknown type>";
 }
@@ -554,33 +556,80 @@ template <> const QByteArray valToString(const QString &s)
 {
     return QByteArray(utfToBase64(s)).append("',valueencoded='2");
 }
-template <> const char *typeToString(const int &)
+template <> const QByteArray valToString(int * const &p)
+{
+    return ptrToBa(p);
+}
+template <typename T> const QByteArray derefValToString(const T &v)
+{
+    return valToString(v);
+}
+template <> const QByteArray derefValToString(int * const &ptr)
+{
+    return valToString(*ptr);
+}
+const QString stripPtrType(const QString &ptrTypeStr)
+{
+    return ptrTypeStr.mid(0, ptrTypeStr.size() - 2);
+}
+template <> const char *typeToString<int>()
 {
     return "int";
 }
-template <> const char *typeToString(const QString &)
+template <> const char *typeToString<QString>()
 {
     return NS"QString";
 }
-template <typename T> bool isSimpleType(const T &)
+template <> const char *typeToString<int *>()
+{
+    return "int *";
+}
+template <typename T> bool isSimpleType()
 {
     return false;
 }
-template <> bool isSimpleType(const int &)
+template <> bool isSimpleType<int>()
 {
     return true;
 }
-template <typename T> static const char *typeToNumchild(const T &)
+template <typename T> bool isPointer()
+{
+    return false;
+}
+template <> bool isPointer<int *>()
+{
+    return true;
+}
+
+template <typename T> static const char *typeToNumchild()
 {
     return "1";
 }
-template <> const char *typeToNumchild(const int &)
+template <> const char *typeToNumchild<int>()
 {
     return "0";
 }
-template <> const char *typeToNumchild(const QString &)
+template <> const char *typeToNumchild<QString>()
 {
     return "0";
+}
+template <typename K, typename V>
+QByteArray getMapType()
+{
+    return QByteArray(typeToString<K>()) + "@" + QByteArray(typeToString<V>());
+}
+template <typename K, typename V>
+void getMapNodeParams(size_t &nodeSize, size_t &valOffset)
+{
+#if QT_VERSION >= 0x040500
+    typedef QMapNode<K, V> NodeType;
+    NodeType *node = 0;
+    nodeSize = sizeof(NodeType);
+    valOffset = size_t(&node->value);
+#else
+    nodeSize = sizeof(K) + sizeof(V) + 2*sizeof(void *);
+    valOffset = sizeof(K);
+#endif
 }
 
 
@@ -1068,14 +1117,14 @@ void tst_Debugger::dumpQHashNodeHelper(QHash<K, V> &hash)
     const K &key = it.key();
     const V &val = it.value();
     QByteArray expected("value='");
-    if (isSimpleType(val))
+    if (isSimpleType<V>())
         expected.append(valToString(val));
     expected.append("',numchild='2',children=[{name='key',type='").
-        append(typeToString(key)).append("',addr='").append(ptrToBa(&key)).
-        append("'},{name='value',type='").append(typeToString(val)).
+        append(typeToString<K>()).append("',addr='").append(ptrToBa(&key)).
+        append("'},{name='value',type='").append(typeToString<V>()).
         append("',addr='").append(ptrToBa(&val)).append("'}]");
     testDumper(expected, node, NS"QHashNode", true,
-        getMapType(it.key(), it.value()), "", sizeof(it.key()), sizeof(it.value()));
+        getMapType<K, V>(), "", sizeof(it.key()), sizeof(it.value()));
 }
 
 void tst_Debugger::dumpQHashNode()
@@ -1149,6 +1198,88 @@ void tst_Debugger::dumpQImageData()
     // Case 3: Invalid image.
     img = QImage(100, 0, QImage::Format_Invalid);
     dumpQImageDataHelper(img);
+}
+
+template <typename T>
+        void tst_Debugger::dumpQLinkedListHelper(QLinkedList<T> &l)
+{
+    const int size = qMin(l.size(), 1000);
+    const QString &sizeStr = QString::number(size);
+    const QByteArray elemTypeStr = typeToString<T>();
+    QByteArray expected = QByteArray("value='<").append(sizeStr).
+        append(" items>',valuedisabled='true',numchild='").append(sizeStr).
+        append("',childtype='").append(elemTypeStr).append("',childnumchild='").
+        append(typeToNumchild<T>()).append("',children=[");
+    typename QLinkedList<T>::const_iterator iter = l.constBegin();
+    for (int i = 0; i < size; ++i, ++iter) {
+        expected.append("{");
+        const T &curElem = *iter;
+        if (isPointer<T>()) {
+            const QString typeStr = stripPtrType(typeToString<T>());
+            const QByteArray addrStr = valToString(curElem);
+            if (curElem != 0) {
+                expected.append("addr='").append(addrStr).append("',saddr='").
+                        append(addrStr).append("',type='").append(typeStr).
+                        append("',value='").
+                        append(derefValToString(curElem)).append("'");
+            } else {
+                expected.append("addr='").append(ptrToBa(&curElem)).append("',type='").
+                    append(typeStr).append("',value='<null>',numchild='0'");
+            }
+        } else {
+            expected.append("addr='").append(ptrToBa(&curElem)).
+                append("',value='").append(valToString(curElem)).append("'");
+        }
+        expected.append("}");
+        if (i < size - 1)
+            expected.append(",");
+    }
+    if (size < l.size())
+        expected.append(",...");
+    expected.append("]");
+    testDumper(expected, &l, NS"QLinkedList", true, elemTypeStr);
+}
+
+void tst_Debugger::dumpQLinkedList()
+{
+    // Case 1: Simple element type.
+    QLinkedList<int> l;
+
+    // Case 1.1: Empty list.
+    dumpQLinkedListHelper(l);
+
+    // Case 1.2: One element.
+    l.append(2);
+    dumpQLinkedListHelper(l);
+
+    // Case 1.3: Two elements
+    l.append(3);
+    dumpQLinkedListHelper(l);
+
+    // Case 2: Composite element type.
+    QLinkedList<QString> l2;
+
+    // Case 2.1: Empty list.
+    dumpQLinkedListHelper(l2);
+
+    // Case 2.2: One element.
+    l2.append("Teststring 1");
+    dumpQLinkedListHelper(l2);
+
+    // Case 2.3: Two elements.
+    l2.append("Teststring 2");
+    dumpQLinkedListHelper(l2);
+
+    // Case 2.4: > 1000 elements.
+    for (int i = 3; i <= 1002; ++i)
+        l2.append("Test " + QString::number(i));
+
+    // Case 3: Pointer type.
+    QLinkedList<int *> l3;
+    l3.append(new int(5));
+    l3.append(new int(7));
+    l3.append(0);
+    dumpQLinkedListHelper(l3);
 }
 
 void tst_Debugger::dumpQList_int()
@@ -1263,26 +1394,6 @@ void tst_Debugger::dumpQLocale()
 }
 
 template <typename K, typename V>
-QByteArray getMapType(K keyDummy, V valDummy)
-{
-    return QByteArray(typeToString(keyDummy)) + "@" + QByteArray(typeToString(valDummy));
-}
-
-template <typename K, typename V>
-void getMapNodeParams(size_t &nodeSize, size_t &valOffset)
-{
-#if QT_VERSION >= 0x040500
-    typedef QMapNode<K, V> NodeType;
-    NodeType *node = 0;
-    nodeSize = sizeof(NodeType);
-    valOffset = size_t(&node->value);
-#else
-    nodeSize = sizeof(K) + sizeof(V) + 2*sizeof(void *);
-    valOffset = sizeof(K);
-#endif
-}
-
-template <typename K, typename V>
         void tst_Debugger::dumpQMapHelper(QMap<K, V> &map)
 {
     QByteArray sizeStr(valToString(map.size()));
@@ -1291,10 +1402,8 @@ template <typename K, typename V>
     getMapNodeParams<K, V>(nodeSize, valOff);
     int transKeyOffset = static_cast<int>(2*sizeof(void *)) - static_cast<int>(nodeSize);
     int transValOffset = transKeyOffset + valOff;
-    K dummyKey;
-    V dummyVal;
-    bool simpleKey = isSimpleType(dummyKey);
-    bool simpleVal = isSimpleType(dummyVal);
+    bool simpleKey = isSimpleType<K>();
+    bool simpleVal = isSimpleType<V>();
     QByteArray expected = QByteArray("value='<").append(sizeStr).append(" items>',numchild='").
         append(sizeStr).append("',extra='simplekey: ").append(QString::number(simpleKey)).
         append(" isSimpleValue: ").append(QString::number(simpleVal)).
@@ -1310,11 +1419,11 @@ template <typename K, typename V>
         expected.append("{key='").append(keyString).append("',value='").
             append(valToString(it.value())).append("',");
         if (simpleKey && simpleVal) {
-            expected.append("type='").append(typeToString(dummyVal)).
+            expected.append("type='").append(typeToString<V>()).
                 append("',addr='").append(ptrToBa(&it.value())).append("'");
         } else {
-            QString keyTypeStr = typeToString(dummyKey);
-            QString valTypeStr = typeToString(dummyVal);
+            QString keyTypeStr = typeToString<K>();
+            QString valTypeStr = typeToString<V>();
 #if QT_VERSION >= 0x040500
             expected.append("addr='").
                 append(ptrToBa(reinterpret_cast<char *>(&(*it)) + sizeof(V))).
@@ -1333,7 +1442,7 @@ template <typename K, typename V>
     expected.append("]");
     mapIter it = map.begin();
     testDumper(expected, *reinterpret_cast<QMapData **>(&it), NS"QMap",
-               true, getMapType(dummyKey, dummyVal), "", 0, 0, nodeSize, valOff);
+               true, getMapType<K,V>(), "", 0, 0, nodeSize, valOff);
 }
 
 void tst_Debugger::dumpQMap()
@@ -1408,16 +1517,16 @@ template <typename K, typename V>
     //const char * const keyType = typeToString(key);
     QByteArray expected = QByteArray("value='',numchild='2',"
         "children=[{name='key',addr='").append(ptrToBa(&key)).
-        append("',type='").append(typeToString(key)).append("',value='").
+        append("',type='").append(typeToString<K>()).append("',value='").
         append(valToString(key)).append("'},{name='value',addr='").
-        append(ptrToBa(&val)).append("',type='").append(typeToString(val)).
+        append(ptrToBa(&val)).append("',type='").append(typeToString<V>()).
         append("',value='").append(valToString(val)).
         append("'}]");
     size_t nodeSize;
     size_t valOffset;
     getMapNodeParams<K, V>(nodeSize, valOffset);
     testDumper(expected, *reinterpret_cast<QMapData **>(&it), NS"QMapNode",
-               true, getMapType(key, val), "", 0, 0, nodeSize, valOffset);
+               true, getMapType<K,V>(), "", 0, 0, nodeSize, valOffset);
 }
 
 void tst_Debugger::dumpQMapNode()
@@ -2042,10 +2151,9 @@ void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
         }
     };
 
-    T dummy;
     QByteArray expected("value='");
     QString val1 = ptr.isNull() ? "<null>" : valToString(*ptr.data());
-    QString val2 = isSimpleType(dummy) ? val1 : "";
+    QString val2 = isSimpleType<T>() ? val1 : "";
     const int *weakAddr;
     const int *strongAddr;
     int weakValue;
@@ -2061,12 +2169,12 @@ void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
     }
     expected.append(val2).append("',valuedisabled='true',numchild='1',children=[").
         append("{name='data',addr='").append(ptrToBa(ptr.data())).
-        append("',type='").append(typeToString(dummy)).append("',value='").append(val1).
+        append("',type='").append(typeToString<T>()).append("',value='").append(val1).
         append("'},{name='weakref',value='").append(QString::number(weakValue)).
         append("',type='int',addr='").append(ptrToBa(weakAddr)).append("',numchild='0'},").
         append("{name='strongref',value='").append(QString::number(strongValue)).
         append("',type='int',addr='").append(ptrToBa(strongAddr)).append("',numchild='0'}]");
-    testDumper(expected, &ptr, NS"QSharedPointer", true, typeToString(dummy));
+    testDumper(expected, &ptr, NS"QSharedPointer", true, typeToString<T>());
 }
 #endif
 
@@ -2210,7 +2318,6 @@ template <typename T1, typename T2>
 template <typename T>
         void tst_Debugger::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
 {
-    T dummy;
     typedef QtSharedPointer::ExternalRefCountData Data;
     const size_t dataOffset = 0;
     const Data *d = *reinterpret_cast<const Data **>(
@@ -2220,16 +2327,16 @@ template <typename T>
     T *data = ptr.toStrongRef().data();
     const QString dataStr = valToString(*data);
     QByteArray expected("value='");
-    if (isSimpleType(dummy))
+    if (isSimpleType<T>())
         expected.append(dataStr);
     expected.append("',valuedisabled='true',numchild='1',children=[{name='data',addr='").
-        append(ptrToBa(data)).append("',type='").append(typeToString(dummy)).
+        append(ptrToBa(data)).append("',type='").append(typeToString<T>()).
         append("',value='").append(dataStr).append("'},{name='weakref',value='").
         append(valToString(*weakRefPtr)).append("',type='int',addr='").
         append(ptrToBa(weakRefPtr)).append("',numchild='0'},{name='strongref',value='").
         append(valToString(*strongRefPtr)).append("',type='int',addr='").
         append(ptrToBa(strongRefPtr)).append("',numchild='0'}]");
-    testDumper(expected, &ptr, NS"QWeakPointer", true, typeToString(dummy));
+    testDumper(expected, &ptr, NS"QWeakPointer", true, typeToString<T>());
 }
 #endif
 
