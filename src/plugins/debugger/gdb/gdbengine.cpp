@@ -4002,12 +4002,12 @@ static QByteArray parseLine(const GdbMi &line)
     QByteArray ba;
     ba.reserve(200);
     QByteArray address = line.findChild("address").data();
-    QByteArray funcName = line.findChild("func-name").data();
-    QByteArray offset = line.findChild("offset").data();
+    //QByteArray funcName = line.findChild("func-name").data();
+    //QByteArray offset = line.findChild("offset").data();
     QByteArray inst = line.findChild("inst").data();
     ba += address + QByteArray(15 - address.size(), ' ');
-    ba += funcName + "+" + offset + "  ";
-    ba += QByteArray(30 - funcName.size() - offset.size(), ' ');
+    //ba += funcName + "+" + offset + "  ";
+    //ba += QByteArray(30 - funcName.size() - offset.size(), ' ');
     ba += inst;
     ba += '\n';
     return ba;
@@ -4044,7 +4044,7 @@ static QString parseDisassembler(const GdbMi &lines)
                 fileLoaded = true;
             }
             if (line >= 0 && line < fileContents.size())
-                ba += "             " + fileContents.at(line) + '\n';
+                ba += "    " + fileContents.at(line) + '\n';
 
             GdbMi insn = child.findChild("line_asm_insn");
             foreach (const GdbMi &line, insn.children()) 

@@ -77,9 +77,10 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
     const Register &reg = m_registers.at(index.row());
 
     if (role == Qt::UserRole + 1) {
+        // return some address associated with the register
         bool ok = true;
         qulonglong value = reg.value.toULongLong(&ok, 0);
-        return QString::fromLatin1("0x") + QString::number(value, 16);
+        return ok ? QString::fromLatin1("0x") + QString::number(value, 16) : QVariant();
     }
 
     const QString padding = "  ";
@@ -89,7 +90,7 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
             case 1: {
                 bool ok = true;
                 qulonglong value = reg.value.toULongLong(&ok, 0);
-                return padding + QString::number(value, m_base) + padding;
+                return ok ? padding + QString::number(value, m_base) + padding : reg.value;
             }
         }
     }
