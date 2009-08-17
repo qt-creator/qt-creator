@@ -62,6 +62,7 @@ Debugging
    * CDB: Added internal dumpers for string types for debuggee crashes
    * Improved QObject dumping, print out QRect/QSize, enumerations and flags
    * Made it possible to use the BinEditor plugin for displaying raw memory
+   * Replace disassembler window by a real text editor enabling "mixed" output
 
 Designer
    * Added support for rearranging and floating form editor tools
