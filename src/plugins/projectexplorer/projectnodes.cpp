@@ -153,7 +153,11 @@ FolderNode::FolderNode(const QString &folderPath)
         : Node(FolderNodeType, folderPath),
           m_folderName(folderPath)
 {
-    m_icon = QApplication::style()->standardIcon(QStyle::SP_DirIcon);
+    static QIcon dirIcon;
+    if (dirIcon.isNull()) {
+        dirIcon = QApplication::style()->standardIcon(QStyle::SP_DirIcon);
+    }
+    m_icon = dirIcon;
 }
 
 FolderNode::~FolderNode()
@@ -549,8 +553,13 @@ void ProjectNode::watcherDestroyed(QObject *watcher)
 /*!
   Sort pointers to FileNodes
   */
-bool ProjectNode::sortNodesByPath(Node *f1, Node *f2) {
-    return f1->path() < f2->path();
+bool ProjectNode::sortNodesByPath(Node *n1, Node *n2) {
+    return n1->path() < n2->path();
+}
+
+bool ProjectNode::sortFolderNodesByName(FolderNode *f1, FolderNode *f2)
+{
+    return f1->name() < f2->name();
 }
 
 /*!
