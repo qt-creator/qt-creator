@@ -217,5 +217,3 @@ QString DisassemblerViewAgent::address() const
 
 } // namespace Internal
 } // namespace Debugger
-
-#include "debuggeragents.moc"
