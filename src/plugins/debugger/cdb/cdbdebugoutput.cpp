@@ -81,7 +81,7 @@ STDMETHODIMP CdbDebugOutputBase::Output(
     )
 {
     const QString msg = QString::fromUtf16(reinterpret_cast<const ushort *>(text));
-    output(mask, msg.trimmed());
+    output(mask, msg);
     return S_OK;
 }
 
@@ -124,10 +124,8 @@ CdbDebugOutput::CdbDebugOutput()
 {
 }
 
-void CdbDebugOutput::output(ULONG mask, const QString &_msg)
+void CdbDebugOutput::output(ULONG mask, const QString &msg)
 {
-    QString msg = _msg + '\n';
-
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << "\n    " << msg;
 

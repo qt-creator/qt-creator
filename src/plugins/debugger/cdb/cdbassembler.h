@@ -35,10 +35,12 @@
 
 #include "cdbcom.h"
 
+QT_BEGIN_NAMESPACE
+class QTextStream;
+QT_END_NAMESPACE
+
 namespace Debugger {
 namespace Internal {
-
-class DisassemblerLine;
 
 // Utilities related to assembler code.
 class Register;
@@ -54,7 +56,8 @@ bool dissassemble(CIDebugClient *client,
                   ULONG64 offset,
                   unsigned long beforeLines,
                   unsigned long afterLines,
-                  QList<DisassemblerLine> *lines,
+                  int addressFieldWith /* = 0*/,
+                  QTextStream &str,
                   QString *errorMessage);
 
 } // namespace Internal

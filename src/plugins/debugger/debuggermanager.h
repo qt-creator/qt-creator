@@ -76,7 +76,7 @@ class BreakpointData;
 class ModulesHandler;
 class RegisterHandler;
 class SourceFilesWindow;
-class StackFrame;
+struct StackFrame;
 class StackHandler;
 class Symbol;
 class ThreadsHandler;

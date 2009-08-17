@@ -31,7 +31,7 @@
 #define DEBUGGER_STACKFRAME_H
 
 #include <QtCore/QString>
-#include <QtCore/QVariant>
+#include <QtCore/QMetaType>
 
 namespace Debugger {
 namespace Internal {

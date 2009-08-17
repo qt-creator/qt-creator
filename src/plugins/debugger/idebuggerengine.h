@@ -49,7 +49,7 @@ namespace Internal {
 class DebuggerStartParameters;
 class DisassemblerViewAgent;
 class MemoryViewAgent;
-class StackFrame;
+struct StackFrame;
 class Symbol;
 class WatchData;
 
@@ -98,8 +98,8 @@ public:
     virtual void watchPoint(const QPoint &) {}
     virtual void fetchMemory(MemoryViewAgent *, quint64 addr, quint64 length)
         { Q_UNUSED(addr); Q_UNUSED(length); }
-    virtual void fetchDisassembler(DisassemblerViewAgent *, const StackFrame &frame)
-        { Q_UNUSED(frame); }
+    virtual void fetchDisassembler(DisassemblerViewAgent *, const StackFrame & /* frame */)
+        { }
 };
 
 } // namespace Internal

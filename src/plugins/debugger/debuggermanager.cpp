@@ -47,6 +47,7 @@
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
+#include "stackframe.h"
 #include "watchhandler.h"
 
 #include "debuggerdialogs.h"

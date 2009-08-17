@@ -32,15 +32,12 @@
 #include "cdbdebugengine_p.h"
 #include "cdbsymbolgroupcontext.h"
 
-#include "disassemblerhandler.h"
 #include "registerhandler.h"
 
 #include <QtCore/QVector>
 
 namespace Debugger {
 namespace Internal {
-
-typedef QList<DisassemblerLine> DisassemblerLineList;
 
 bool getRegisters(CIDebugControl *ctl,
                   CIDebugRegisters *ireg,
@@ -90,35 +87,39 @@ bool getRegisters(CIDebugControl *ctl,
 // it uses that symbol.
 class DisassemblerOutputParser
 {
+    Q_DISABLE_COPY(DisassemblerOutputParser)
 public:
-    explicit DisassemblerOutputParser(DisassemblerLineList *list);
+    explicit DisassemblerOutputParser(QTextStream &str, int addressFieldWith = 0);
 
     void parse(const QStringList &l);
 
 private:
     enum ParseResult { ParseOk, ParseIgnore, ParseFailed };
-    ParseResult parseDisassembled(const QString &in, DisassemblerLine* l);
+    ParseResult parseDisassembled(const QString &in);
 
-    DisassemblerLineList *m_list;
+    const int m_addressFieldWith;
+    QTextStream &m_str;
     QString m_sourceSymbol;
     int m_sourceSymbolOffset;
 };
 
-DisassemblerOutputParser::DisassemblerOutputParser(DisassemblerLineList *list) :
-    m_list(list),
+DisassemblerOutputParser::DisassemblerOutputParser(QTextStream &str, int addressFieldWith) :
+    m_addressFieldWith(addressFieldWith),
+    m_str(str),
     m_sourceSymbolOffset(0)
 {
 }
 
-// Parse a disassembler line:
-//  module!class::foo:
-//                          004017cf cc int 3
-//  77 mainwindow.cpp       004018ff 8d4da8           lea     ecx,[ebp-0x58]
-DisassemblerOutputParser::ParseResult
-    DisassemblerOutputParser::parseDisassembled(const QString &in, DisassemblerLine* l)
-{
-    l->clear();
+/* Parse a disassembler line:
+ * \code
+module!class::foo:
+                        004017cf cc int 3
+77 mainwindow.cpp       004018ff 8d4da8           lea     ecx,[ebp-0x58]
+\endcode */
 
+DisassemblerOutputParser::ParseResult
+    DisassemblerOutputParser::parseDisassembled(const QString &in)
+{
     // Check if there is a source file
     if (in.size() < 7)
         return ParseIgnore;
@@ -129,9 +130,11 @@ DisassemblerOutputParser::ParseResult
     if (simplified.isEmpty())
         return ParseIgnore;
 
-    QStringList tokens = simplified.split(QLatin1Char(' '), QString::SkipEmptyParts);
+    const QStringList tokens = simplified.split(QLatin1Char(' '), QString::SkipEmptyParts);
+    const int tokenCount = tokens.size();
     // Check for symbols as 'module!class::foo:' (start of function encountered)
-    if (tokens.size() == 1) {
+    // and store as state.
+    if (tokenCount == 1) {
         QString symbol = tokens.front();
         if (symbol.endsWith(QLatin1Char(':'))  && symbol.contains(QLatin1Char('!'))) {
             symbol.truncate(symbol.size() - 1);
@@ -140,51 +143,49 @@ DisassemblerOutputParser::ParseResult
         }
         return ParseIgnore;
     }
-    if (tokens.size() < 2)
+    if (tokenCount < 2)
         return ParseIgnore;
-    // Symbol display: Do we know a symbol?
-    if (!m_sourceSymbol.isEmpty()) {
-        l->symbol = QString(QLatin1Char('<'));
-        l->symbol += m_sourceSymbol;
-        if (m_sourceSymbolOffset) {
-            l->symbol += QLatin1Char('+');
-            l->symbol += QString::number(m_sourceSymbolOffset);
-        }
-        l->symbol += QLatin1Char('>');
+    if (tokenCount < 3)
+        return ParseFailed;
+    // Format line. Start with address with the field width given,
+    // which is important for setting the marker.
+    const int addressToken = hasSourceFile ? 2 : 0;
+    m_str << "0x";
+    if (m_str.fieldWidth() == m_addressFieldWith) {
+        m_str << tokens.at(addressToken);
+    } else {
+        const QChar oldPadChar = m_str.padChar();
+        const int oldFieldWidth = m_str.fieldWidth();
+        m_str.setFieldWidth(m_addressFieldWith);
+        m_str.setPadChar(QLatin1Char('0'));
+        m_str << tokens.at(addressToken);
+        m_str.setFieldWidth(oldFieldWidth);
+        m_str.setPadChar(oldPadChar);
+    }
+    m_str << ' ';
+    // Symbol display: Do we know a symbol? -> Display with offset.
+    // Else default to source file information.
+    if (m_sourceSymbol.isEmpty()) {
+        if (hasSourceFile)
+            m_str << tokens.at(1) << '+' << tokens.front();
+    } else {
+        m_str << '<' << m_sourceSymbol;
+        if (m_sourceSymbolOffset)
+            m_str << '+' << m_sourceSymbolOffset;
+        m_str << '>';
         m_sourceSymbolOffset++;
     }
-    // Read source file information: If we don't know a symbol yet,
-    // use the source file.
-    if (hasSourceFile) {
-        if (l->symbol.isEmpty()) {
-            l->symbol = tokens.at(1);
-            l->symbol += QLatin1Char('+');
-            l->symbol += tokens.front();
-        }
-        tokens.pop_front();
-        tokens.pop_front();
-    }
-    l->symbolDisplay = l->symbol;
-    // Get offset address and instruction
-    if (tokens.size() < 3)
-        return ParseFailed;
-    l->addressDisplay = l->address = tokens.front();    
-    tokens.pop_front();
-    // The rest is effective address & instructions
-    if (tokens.size() > 1)
-        tokens.pop_front();
-    l->mnemonic = tokens.join(QString(QLatin1Char(' ')));     
+    for (int i = addressToken + 1; i < tokenCount; i++)
+        m_str << ' ' << tokens.at(i);
+    m_str << '\n';
     return ParseOk;
 }
 
 void DisassemblerOutputParser::parse(const QStringList &l)
 {
-    DisassemblerLine dLine;
     foreach(const QString &line, l) {
-        switch (parseDisassembled(line, &dLine)) {
+        switch (parseDisassembled(line)) {
         case ParseOk:
-            m_list->push_back(dLine);
-            break;
         case ParseIgnore:
             break;
         case ParseFailed:
@@ -199,12 +200,13 @@ bool dissassemble(CIDebugClient *client,
                   ULONG64 offset,
                   unsigned long beforeLines,
                   unsigned long afterLines,
-                  QList<DisassemblerLine> *lines,
+                  int addressFieldWith,
+                  QTextStream &str,
                   QString *errorMessage)
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << offset;
-    lines->clear();
+
     const ULONG flags = DEBUG_DISASM_MATCHING_SYMBOLS|DEBUG_DISASM_SOURCE_LINE_NUMBER|DEBUG_DISASM_SOURCE_FILE_NAME;
     // Catch the output by temporarily setting another handler.
     // We use the method that outputs to the output handler as it
@@ -219,10 +221,10 @@ bool dissassemble(CIDebugClient *client,
                                                     offset, flags, 0, 0, 0, 0);
     if (FAILED(hr)) {
         *errorMessage= QString::fromLatin1("Unable to dissamble at 0x%1: %2").
-                       arg(QString::number(offset, 16), msgComFailed("OutputDisassemblyLines", hr));
+                       arg(offset, 0, 16).arg(msgComFailed("OutputDisassemblyLines", hr));
         return false;
     }
-    DisassemblerOutputParser parser(lines);
+    DisassemblerOutputParser parser(str, addressFieldWith);
     parser.parse(stringHandler.result().split(QLatin1Char('\n')));
     return true;
 }

@@ -37,6 +37,7 @@
 #include "cdbassembler.h"
 #include "cdboptionspage.h"
 #include "cdboptions.h"
+#include "debuggeragents.h"
 
 #include "debuggeractions.h"
 #include "debuggermanager.h"
@@ -45,7 +46,6 @@
 #include "watchhandler.h"
 #include "registerhandler.h"
 #include "moduleshandler.h"
-#include "disassemblerhandler.h"
 #include "watchutils.h"
 
 #include <coreplugin/icore.h>
@@ -1258,37 +1258,50 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
 }
 
 void CdbDebugEngine::fetchDisassembler(DisassemblerViewAgent *agent,
-        const StackFrame &frame)
+                                       const StackFrame & frame)
 {
-    // was: void CdbDebugEngine::reloadDisassembler()
-    // use agent->address() to create a listing
-
-/*
     enum { ContextLines = 40 };
-    // Do we have a top stack frame?
-    const ULONG64 offset = m_d->m_currentStackTrace ? m_d->m_currentStackTrace->instructionOffset() : ULONG64(0);
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO << offset;
-
-    DisassemblerHandler *dh = m_d->m_debuggerManagerAccess->disassemblerHandler();
-    if (offset) {
-        QList<DisassemblerLine> lines;
-        QString errorMessage;
-        QApplication::setOverrideCursor(Qt::WaitCursor);
-        const bool drc = dissassemble(m_d->m_cif.debugClient, m_d->m_cif.debugControl, offset,
-                         ContextLines, ContextLines, &lines, &errorMessage);
-        QApplication::restoreOverrideCursor();
-        if (drc) {
-            dh->setLines(lines);
-            if (lines.size() > ContextLines)
-                dh->setCurrentLine(ContextLines);
-        } else {
-            warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
+    bool ok = false;
+    QString errorMessage;
+    do {
+        // get address       
+        QString address;
+        if (!frame.file.isEmpty())
+            address = frame.address;
+        if (address.isEmpty())
+            address = agent->address();
+        if (debugCDB)
+            qDebug() << "fetchDisassembler" << address << " Agent: " << agent->address()
+            << " Frame" << frame.file << frame.line << frame.address;
+        if (address.isEmpty()) { // Clear window
+            agent->setContents(QString());
+            ok = true;
+            break;
         }
-    } else {
-        dh->setLines(QList<DisassemblerLine>());
+        if (address.startsWith(QLatin1String("0x")))
+            address.remove(0, 2);
+        const int addressFieldWith = address.size(); // For the Marker
+
+        const ULONG64 offset = address.toULongLong(&ok, 16);
+        if (!ok) {
+            errorMessage = QString::fromLatin1("Internal error: Invalid address for disassembly: '%1'.").arg(agent->address());
+            break;
+        }
+        QString disassembly;
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        ok = dissassemble(m_d->m_cif.debugClient, m_d->m_cif.debugControl, offset, addressFieldWith,
+                          ContextLines, ContextLines, QTextStream(&disassembly), &errorMessage);
+        QApplication::restoreOverrideCursor();
+        if (!ok)
+            break;
+        agent->setContents(disassembly);
+
+    } while (false);
+
+    if (!ok) {
+        agent->setContents(QString());
+        warning(errorMessage);
     }
-*/
 }
 
 void CdbDebugEngine::reloadModules()

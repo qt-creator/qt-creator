@@ -62,7 +62,7 @@ class DebuggerManager;
 class DebuggerRunner;
 class DebugMode;
 class DisassemblerViewAgent;
-class StackFrame;
+struct StackFrame;
 
 class DebuggerPlugin : public ExtensionSystem::IPlugin
 {
