@@ -138,8 +138,8 @@ public:
     S60DeviceRunConfigurationRunner(QObject *parent = 0);
     bool canRun(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration, const QString &mode);
     ProjectExplorer::RunControl* run(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration, const QString &mode);
-    QString displayName() const { return "Run on Device"; }
-    QWidget *configurationWidget(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration) { return 0; }
+    QString displayName() const;
+    QWidget *configurationWidget(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration);
 };
 
 class S60DeviceRunControl : public ProjectExplorer::RunControl

@@ -277,6 +277,16 @@ RunControl* S60EmulatorRunConfigurationRunner::run(QSharedPointer<RunConfigurati
     return runControl;
 }
 
+QString S60EmulatorRunConfigurationRunner::displayName() const
+{
+    return tr("Run in Emulator");
+}
+
+QWidget *S60EmulatorRunConfigurationRunner::configurationWidget(QSharedPointer<ProjectExplorer::RunConfiguration> /* runConfiguration */)
+{
+    return 0;
+}
+
 // ======== S60EmulatorRunControl
 
 S60EmulatorRunControl::S60EmulatorRunControl(QSharedPointer<RunConfiguration> runConfiguration)

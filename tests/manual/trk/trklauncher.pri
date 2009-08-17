@@ -1,4 +1,3 @@
-win32:DEFINES += USE_NATIVE
 DEFINES += DEBUG_TRK=0
 INCLUDEPATH *= $$PWD
 SOURCES += $$PWD/launcher.cpp \

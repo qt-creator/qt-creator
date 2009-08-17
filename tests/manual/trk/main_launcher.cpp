@@ -1,6 +1,7 @@
 #include "launcher.h"
 
-using namespace trk;
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
 
     QCoreApplication app(argc, argv);
 
-    Launcher launcher;
+    trk::Launcher launcher;
     launcher.setTrkServerName(argv[1]);
     if (argc == 3) {
         launcher.setFileName(argv[2]);

@@ -28,8 +28,16 @@
 **************************************************************************/
 
 #include "launcher.h"
+#include "trkutils.h"
 
-#if USE_NATIVE
+#include <QtCore/QTimer>
+#include <QtCore/QDateTime>
+#include <QtCore/QVariant>
+#include <QtCore/QDebug>
+#include <QtCore/QQueue>
+#include <QtCore/QFile>
+
+#ifdef Q_OS_WIN
 #include <windows.h>
 
 // Format windows error from GetLastError() value: TODO: Use the one provided by the utisl lib.
@@ -74,46 +82,98 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
 }
 #endif
 
-using namespace trk;
+namespace trk {
+
+struct TrkMessage {
+    TrkMessage() { code = token = 0; callBack = 0; }
+    byte code;
+    byte token;
+    QByteArray data;
+    QVariant cookie;
+    Launcher::TrkCallBack callBack;
+};
+
+struct LauncherPrivate {
+    LauncherPrivate();
+#ifdef Q_OS_WIN
+    HANDLE m_hdevice;
+#endif
+
+    QString m_trkServerName;
+    QByteArray m_trkReadBuffer;
+
+    unsigned char m_trkWriteToken;
+    QQueue<TrkMessage> m_trkWriteQueue;
+    QHash<byte, TrkMessage> m_writtenTrkMessages;
+    QByteArray m_trkReadQueue;
+    bool m_trkWriteBusy;
+
+    void logMessage(const QString &msg);
+    // Debuggee state
+    Session m_session; // global-ish data (process id, target information)
+
+    int m_timerId;
+    QString m_fileName;
+    QString m_copySrcFileName;
+    QString m_copyDstFileName;
+    QString m_installFileName;
+};
+
+LauncherPrivate::LauncherPrivate() :
+#ifdef Q_OS_WIN
+    m_hdevice(0),
+#endif
+    m_trkWriteToken(0),
+    m_trkWriteBusy(false),
+    m_timerId(-1)
+{
+}
 
 #define CB(s) &Launcher::s
 
-Launcher::Launcher()
+Launcher::Launcher() :
+    d(new LauncherPrivate)
 {
-    // Trk
-#if USE_NATIVE
-    m_hdevice = NULL;
-#else
-    m_trkDevice = 0;
-#endif
-    m_trkWriteToken = 0;
-    m_trkWriteBusy = false;
 }
 
 Launcher::~Launcher()
 {
-    // Trk
-#if USE_NATIVE
-    CloseHandle(m_hdevice);
-#else
-    m_trkDevice->abort();
-    delete m_trkDevice;
-#endif
-
     logMessage("Shutting down.\n");
+    delete d;
+}
+
+void Launcher::setTrkServerName(const QString &name)
+{
+    d->m_trkServerName = name;
+}
+
+void Launcher::setFileName(const QString &name)
+{
+    d->m_fileName = name;
+}
+
+void Launcher::setCopyFileName(const QString &srcName, const QString &dstName)
+{
+    d->m_copySrcFileName = srcName;
+    d->m_copyDstFileName = dstName;
+}
+
+void Launcher::setInstallFileName(const QString &name)
+{
+    d->m_installFileName = name;
 }
 
 bool Launcher::startServer(QString *errorMessage)
 {
-    if (!openTrkPort(m_trkServerName, errorMessage))
+    if (!openTrkPort(d->m_trkServerName, errorMessage))
         return false;
-    m_timerId = startTimer(100);
+    d->m_timerId = startTimer(100);
     sendTrkInitialPing();
     sendTrkMessage(TrkConnect); // Connect
     sendTrkMessage(TrkSupported, CB(handleSupportMask));
     sendTrkMessage(TrkCpuType, CB(handleCpuType));
     sendTrkMessage(TrkVersions); // Versions
-    if (!m_copySrcFileName.isEmpty() && !m_copyDstFileName.isEmpty())
+    if (!d->m_copySrcFileName.isEmpty() && !d->m_copyDstFileName.isEmpty())
         copyFileToRemote();
     else
         installAndRun();
@@ -122,8 +182,8 @@ bool Launcher::startServer(QString *errorMessage)
 
 void Launcher::installAndRun()
 {
-    if (!m_installFileName.isEmpty()) {
-        installRemotePackageSilently(m_installFileName);
+    if (!d->m_installFileName.isEmpty()) {
+        installRemotePackageSilently(d->m_installFileName);
     } else {
         startInferiorIfNeeded();
     }
@@ -136,8 +196,8 @@ void Launcher::logMessage(const QString &msg)
 
 bool Launcher::openTrkPort(const QString &port, QString *errorMessage)
 {
-#if USE_NATIVE
-    m_hdevice = CreateFile(port.toStdWString().c_str(),
+#ifdef Q_OS_WIN
+    d->m_hdevice = CreateFile(port.toStdWString().c_str(),
                            GENERIC_READ | GENERIC_WRITE,
                            0,
                            NULL,
@@ -145,33 +205,17 @@ bool Launcher::openTrkPort(const QString &port, QString *errorMessage)
                            FILE_ATTRIBUTE_NORMAL,
                            NULL);
 
-    if (INVALID_HANDLE_VALUE == m_hdevice){
+    if (INVALID_HANDLE_VALUE == d->m_hdevice){
         *errorMessage = QString::fromLatin1("Could not open device '%1': %2").arg(port, winErrorMessage(GetLastError()));
         logMessage(*errorMessage);
         return false;
     }
     return true;
 #else
-#if 0
-    m_trkDevice = new Win_QextSerialPort(port);
-    m_trkDevice->setBaudRate(BAUD115200);
-    m_trkDevice->setDataBits(DATA_8);
-    m_trkDevice->setParity(PAR_NONE);
-    //m_trkDevice->setStopBits(STO);
-    m_trkDevice->setFlowControl(FLOW_OFF);
-    m_trkDevice->setTimeout(0, 500);
-
-    if (!m_trkDevice->open(QIODevice::ReadWrite)) {
-        *errorMessage = QString::fromLatin1("Could not open device '%1': %2").arg(port, m_trkDevice->errorString());
-        logMessage(*errorMessage);
-        return false;
-    }
-    return true;
-#else
-    m_trkDevice = new QLocalSocket(this);
-    m_trkDevice->connectToServer(port);
-    return m_trkDevice->waitForConnected();
-#endif
+    Q_UNUSED(port)
+    *errorMessage = QString::fromLatin1("Not implemented");
+    logMessage(*errorMessage);
+    return false;
 #endif
 }
 
@@ -184,10 +228,10 @@ void Launcher::timerEvent(QTimerEvent *)
 
 byte Launcher::nextTrkWriteToken()
 {
-    ++m_trkWriteToken;
-    if (m_trkWriteToken == 0)
-        ++m_trkWriteToken;
-    return m_trkWriteToken;
+    ++d->m_trkWriteToken;
+    if (d->m_trkWriteToken == 0)
+        ++d->m_trkWriteToken;
+    return d->m_trkWriteToken;
 }
 
 void Launcher::sendTrkMessage(byte code, TrkCallBack callBack,
@@ -220,7 +264,7 @@ void Launcher::terminate()
 {
     QByteArray ba;
     appendShort(&ba, 0x0000, TargetByteOrder);
-    appendInt(&ba, m_session.pid, TargetByteOrder);
+    appendInt(&ba, d->m_session.pid, TargetByteOrder);
     sendTrkMessage(TrkDeleteItem, CB(waitForTrkFinished), ba);
 }
 
@@ -239,17 +283,17 @@ void Launcher::sendTrkAck(byte token)
 
 void Launcher::queueTrkMessage(const TrkMessage &msg)
 {
-    m_trkWriteQueue.append(msg);
+    d->m_trkWriteQueue.append(msg);
 }
 
 void Launcher::tryTrkWrite()
 {
-    if (m_trkWriteBusy)
+    if (d->m_trkWriteBusy)
         return;
-    if (m_trkWriteQueue.isEmpty())
+    if (d->m_trkWriteQueue.isEmpty())
         return;
 
-    TrkMessage msg = m_trkWriteQueue.dequeue();
+    TrkMessage msg = d->m_trkWriteQueue.dequeue();
     trkWrite(msg);
 }
 
@@ -257,55 +301,42 @@ void Launcher::trkWrite(const TrkMessage &msg)
 {
     QByteArray ba = frameMessage(msg.code, msg.token, msg.data);
 
-    m_writtenTrkMessages.insert(msg.token, msg);
-    m_trkWriteBusy = true;
+    d->m_writtenTrkMessages.insert(msg.token, msg);
+    d->m_trkWriteBusy = true;
 
     logMessage("WRITE: " + stringFromArray(ba));
 
-#if USE_NATIVE
+#ifdef Q_OS_WIN
     DWORD charsWritten;
-    if (!WriteFile(m_hdevice, ba.data(), ba.size(), &charsWritten, NULL))
+    if (!WriteFile(d->m_hdevice, ba.data(), ba.size(), &charsWritten, NULL))
         logMessage("WRITE ERROR: ");
 
     //logMessage("WRITE: " + stringFromArray(ba));
-    FlushFileBuffers(m_hdevice);
-#else
-    if (!m_trkDevice->write(ba))
-        logMessage("WRITE ERROR: " + m_trkDevice->errorString());
-    m_trkDevice->flush();
-
+    FlushFileBuffers(d->m_hdevice);
 #endif
 }
 
 void Launcher::tryTrkRead()
 {
-#if USE_NATIVE
+#ifdef Q_OS_WIN
     const DWORD BUFFERSIZE = 1024;
     char buffer[BUFFERSIZE];
     DWORD charsRead;
 
-    while (TryReadFile(m_hdevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
-        m_trkReadQueue.append(buffer, charsRead);
-        if (isValidTrkResult(m_trkReadQueue))
+    while (TryReadFile(d->m_hdevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
+        d->m_trkReadQueue.append(buffer, charsRead);
+        if (isValidTrkResult(d->m_trkReadQueue))
             break;
     }
-    if (!isValidTrkResult(m_trkReadQueue)) {
-        logMessage("Partial message: " + stringFromArray(m_trkReadQueue));
+    if (!isValidTrkResult(d->m_trkReadQueue)) {
+        logMessage("Partial message: " + stringFromArray(d->m_trkReadQueue));
         return;
     }
-#else // USE_NATIVE
-    if (m_trkDevice->bytesAvailable() == 0 && m_trkReadQueue.isEmpty()) {
-        return;
-    }
+#endif // Q_OS_WIN
+    logMessage("READ:  " + stringFromArray(d->m_trkReadQueue));
+    handleResult(extractResult(&d->m_trkReadQueue));
 
-    QByteArray res = m_trkDevice->readAll();
-    m_trkReadQueue.append(res);
-#endif // USE_NATIVE
-
-    logMessage("READ:  " + stringFromArray(m_trkReadQueue));
-    handleResult(extractResult(&m_trkReadQueue));
-
-    m_trkWriteBusy = false;
+    d->m_trkWriteBusy = false;
 }
 
 
@@ -324,10 +355,10 @@ void Launcher::handleResult(const TrkResult &result)
             if (!result.data.isEmpty() && result.data.at(0))
                 logMessage(prefix + "ERR: " +QByteArray::number(result.data.at(0)));
             //logMessage("READ RESULT FOR TOKEN: " << token);
-            if (!m_writtenTrkMessages.contains(result.token)) {
+            if (!d->m_writtenTrkMessages.contains(result.token)) {
                 logMessage("NO ENTRY FOUND!");
             }
-            TrkMessage msg = m_writtenTrkMessages.take(result.token);
+            TrkMessage msg = d->m_writtenTrkMessages.take(result.token);
             TrkResult result1 = result;
             result1.cookie = msg.cookie;
             TrkCallBack cb = msg.callBack;
@@ -395,8 +426,8 @@ void Launcher::handleResult(const TrkResult &result)
             */
 
             QByteArray ba;
-            appendInt(&ba, m_session.pid);
-            appendInt(&ba, m_session.tid);
+            appendInt(&ba, d->m_session.pid);
+            appendInt(&ba, d->m_session.tid);
             sendTrkMessage(TrkContinue, 0, ba, "CONTINUE");
             //sendTrkAck(result.token)
             break;
@@ -438,7 +469,7 @@ void Launcher::handleFileCreation(const TrkResult &result)
     // we don't do any error handling yet, which is bad
     const char *data = result.data.data();
     uint copyFileHandle = extractInt(data + 2);
-    QFile file(m_copySrcFileName);
+    QFile file(d->m_copySrcFileName);
     file.open(QIODevice::ReadOnly);
     QByteArray src = file.readAll();
     file.close();
@@ -471,13 +502,13 @@ void Launcher::handleCpuType(const TrkResult &result)
     //  Command: 0x80 Acknowledge
     //    Error: 0x00
     // [80 03 00  04 00 00 04 00 00 00]
-    m_session.cpuMajor = result.data[0];
-    m_session.cpuMinor = result.data[1];
-    m_session.bigEndian = result.data[2];
-    m_session.defaultTypeSize = result.data[3];
-    m_session.fpTypeSize = result.data[4];
-    m_session.extended1TypeSize = result.data[5];
-    //m_session.extended2TypeSize = result.data[6];
+    d->m_session.cpuMajor = result.data[0];
+    d->m_session.cpuMinor = result.data[1];
+    d->m_session.bigEndian = result.data[2];
+    d->m_session.defaultTypeSize = result.data[3];
+    d->m_session.fpTypeSize = result.data[4];
+    d->m_session.extended1TypeSize = result.data[5];
+    //d->m_session.extended2TypeSize = result.data[6];
 }
 
 void Launcher::handleCreateProcess(const TrkResult &result)
@@ -486,25 +517,25 @@ void Launcher::handleCreateProcess(const TrkResult &result)
     //logMessage("       RESULT: " + result.toString());
     // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]
     const char *data = result.data.data();
-    m_session.pid = extractInt(data + 1);
-    m_session.tid = extractInt(data + 5);
-    m_session.codeseg = extractInt(data + 9);
-    m_session.dataseg = extractInt(data + 13);
-    logMessage(QString("    READ PID:  %1").arg(m_session.pid));
-    logMessage(QString("    READ TID:  %1").arg(m_session.tid));
-    logMessage(QString("    READ CODE: %1").arg(m_session.codeseg));
-    logMessage(QString("    READ DATA: %1").arg(m_session.dataseg));
-    emit applicationRunning(m_session.pid);
+    d->m_session.pid = extractInt(data + 1);
+    d->m_session.tid = extractInt(data + 5);
+    d->m_session.codeseg = extractInt(data + 9);
+    d->m_session.dataseg = extractInt(data + 13);
+    logMessage(QString("    READ PID:  %1").arg(d->m_session.pid));
+    logMessage(QString("    READ TID:  %1").arg(d->m_session.tid));
+    logMessage(QString("    READ CODE: %1").arg(d->m_session.codeseg));
+    logMessage(QString("    READ DATA: %1").arg(d->m_session.dataseg));
+    emit applicationRunning(d->m_session.pid);
     QByteArray ba;
-    appendInt(&ba, m_session.pid);
-    appendInt(&ba, m_session.tid);
+    appendInt(&ba, d->m_session.pid);
+    appendInt(&ba, d->m_session.tid);
     sendTrkMessage(TrkContinue, 0, ba, "CONTINUE");
 }
 
 void Launcher::handleWaitForFinished(const TrkResult &result)
 {
     logMessage("   FINISHED: " + stringFromArray(result.data));
-    killTimer(m_timerId);
+    killTimer(d->m_timerId);
     emit finished();
 }
 
@@ -533,7 +564,7 @@ void Launcher::cleanUp()
     QByteArray ba;
     appendByte(&ba, 0x00);
     appendByte(&ba, 0x00);
-    appendInt(&ba, m_session.pid);
+    appendInt(&ba, d->m_session.pid);
     sendTrkMessage(TrkDeleteItem, 0, ba, "Delete process");
 
     //---TRK------------------------------------------------------
@@ -581,7 +612,7 @@ void Launcher::copyFileToRemote()
     emit copyingStarted();
     QByteArray ba;
     appendByte(&ba, 0x10);
-    appendString(&ba, m_copyDstFileName.toLocal8Bit(), TargetByteOrder, false);
+    appendString(&ba, d->m_copyDstFileName.toLocal8Bit(), TargetByteOrder, false);
     sendTrkMessage(TrkOpenFile, CB(handleFileCreation), ba);
 }
 
@@ -602,7 +633,7 @@ void Launcher::handleInstallPackageFinished(const TrkResult &)
 void Launcher::startInferiorIfNeeded()
 {
     emit startingApplication();
-    if (m_session.pid != 0) {
+    if (d->m_session.pid != 0) {
         logMessage("Process already 'started'");
         return;
     }
@@ -611,6 +642,8 @@ void Launcher::startInferiorIfNeeded()
     appendByte(&ba, 0); // ?
     appendByte(&ba, 0); // ?
     appendByte(&ba, 0); // ?
-    appendString(&ba, m_fileName.toLocal8Bit(), TargetByteOrder);
+    appendString(&ba, d->m_fileName.toLocal8Bit(), TargetByteOrder);
     sendTrkMessage(TrkCreateItem, CB(handleCreateProcess), ba); // Create Item
+}
+
 }

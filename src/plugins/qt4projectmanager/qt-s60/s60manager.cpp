@@ -35,7 +35,7 @@
 #include "gccetoolchain.h"
 #include "rvcttoolchain.h"
 #include "s60emulatorrunconfiguration.h"
-#include "s60Devicerunconfiguration.h"
+#include "s60devicerunconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>

@@ -29,36 +29,27 @@
 #ifndef LAUNCHER_H
 #define LAUNCHER_H
 
-#include "trkutils.h"
-
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFile>
-#include <QtCore/QQueue>
-#include <QtCore/QTimer>
-#include <QtCore/QDateTime>
-
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
-#include <QtNetwork/QLocalServer>
-#include <QtNetwork/QLocalSocket>
-
-#if USE_NATIVE
-#include <windows.h>
-#endif
+#include <QtCore/QObject>
+#include <QtCore/QVariant>
 
 namespace trk {
+
+struct TrkResult;
+struct TrkMessage;
+struct LauncherPrivate;
 
 class Launcher : public QObject
 {
     Q_OBJECT
-
 public:
+    typedef void (Launcher::*TrkCallBack)(const TrkResult &);
+
     Launcher();
     ~Launcher();
-    void setTrkServerName(const QString &name) { m_trkServerName = name; }
-    void setFileName(const QString &name) { m_fileName = name; }
-    void setCopyFileName(const QString &srcName, const QString &dstName) { m_copySrcFileName = srcName; m_copyDstFileName = dstName; }
-    void setInstallFileName(const QString &name) { m_installFileName = name; }
+    void setTrkServerName(const QString &name);
+    void setFileName(const QString &name);
+    void setCopyFileName(const QString &srcName, const QString &dstName);
+    void setInstallFileName(const QString &name);
     bool startServer(QString *errorMessage);
 
 signals:
@@ -73,23 +64,8 @@ public slots:
     void terminate();
 
 private:
-    //
-    // TRK
-    //
-    typedef void (Launcher::*TrkCallBack)(const TrkResult &);
-
-    struct TrkMessage
-    {
-        TrkMessage() { code = token = 0; callBack = 0; }
-        byte code;
-        byte token;
-        QByteArray data;
-        QVariant cookie;
-        TrkCallBack callBack;
-    };
-
     bool openTrkPort(const QString &port, QString *errorMessage); // or server name for local server
-    void sendTrkMessage(byte code,
+    void sendTrkMessage(unsigned char code,
         TrkCallBack callBack = 0,
         const QByteArray &data = QByteArray(),
         const QVariant &cookie = QVariant());
@@ -101,13 +77,13 @@ private:
     void trkWrite(const TrkMessage &msg);
     // convienience messages
     void sendTrkInitialPing();
-    void sendTrkAck(byte token);
+    void sendTrkAck(unsigned char token);
 
     // kill process and breakpoints
     void cleanUp();
 
     void timerEvent(QTimerEvent *ev);
-    byte nextTrkWriteToken();
+    unsigned char nextTrkWriteToken();
 
     void handleFileCreation(const TrkResult &result);
     void handleFileCreated(const TrkResult &result);
@@ -127,30 +103,9 @@ private:
     void installAndRun();
     void startInferiorIfNeeded();
 
-#if USE_NATIVE
-    HANDLE m_hdevice;
-#else
-    QLocalSocket *m_trkDevice;
-#endif
-
-    QString m_trkServerName;
-    QByteArray m_trkReadBuffer;
-
-    unsigned char m_trkWriteToken;
-    QQueue<TrkMessage> m_trkWriteQueue;
-    QHash<byte, TrkMessage> m_writtenTrkMessages;
-    QByteArray m_trkReadQueue;
-    bool m_trkWriteBusy;
-
     void logMessage(const QString &msg);
-    // Debuggee state
-    Session m_session; // global-ish data (process id, target information)
 
-    int m_timerId;
-    QString m_fileName;
-    QString m_copySrcFileName;
-    QString m_copyDstFileName;
-    QString m_installFileName;
+    LauncherPrivate *d;
 };
 
 } // namespace Trk

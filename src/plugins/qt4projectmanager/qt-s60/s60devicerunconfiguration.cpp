@@ -504,6 +504,16 @@ RunControl* S60DeviceRunConfigurationRunner::run(QSharedPointer<RunConfiguration
     return runControl;
 }
 
+QString S60DeviceRunConfigurationRunner::displayName() const
+{
+    return tr("Run on Device");
+}
+
+QWidget *S60DeviceRunConfigurationRunner::configurationWidget(QSharedPointer<ProjectExplorer::RunConfiguration>  /* runConfiguration */)
+{
+    return 0;
+}
+
 // ======== S60DeviceRunControl
 
 S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runConfiguration)
