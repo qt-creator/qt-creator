@@ -161,12 +161,6 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
 
-    QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));
-    QAction *actAlwaysAdjust =
-        menu.addAction(tr("Always adjust column widths to contents"));
-    actAlwaysAdjust->setCheckable(true);
-    actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
-
     QAction *actReload = menu.addAction(tr("Reload register listing"));
     QAction *actAlwaysReload = menu.addAction(tr("Always reload register listing"));
     actAlwaysReload->setCheckable(true);
@@ -197,6 +191,13 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act2 = menu.addAction(tr("Binary"));
     act2->setCheckable(true);
     act2->setChecked(base == 2);
+    menu.addSeparator();
+
+    QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));
+    QAction *actAlwaysAdjust =
+        menu.addAction(tr("Always adjust column widths to contents"));
+    actAlwaysAdjust->setCheckable(true);
+    actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
     menu.addSeparator();
 
     menu.addAction(theDebuggerAction(SettingsDialog));

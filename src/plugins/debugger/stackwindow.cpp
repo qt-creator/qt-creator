@@ -99,18 +99,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     StackFrame frame = model()->data(idx, Qt::UserRole).value<StackFrame>();
     QString address = frame.address;
     
-    qDebug() << "RECV: " << frame.toToolTip();
-
     QMenu menu;
-
-    QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));
-
-    QAction *actAlwaysAdjust =
-        menu.addAction(tr("Always adjust column widths to contents"));
-    actAlwaysAdjust->setCheckable(true);
-    actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
-
-    menu.addSeparator();
 
     menu.addAction(theDebuggerAction(ExpandStack));
 
@@ -132,6 +121,15 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else {
         actShowDisassembler->setText(tr("Open disassembler at %1").arg(address));
     }
+
+    menu.addSeparator();
+
+    QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));
+
+    QAction *actAlwaysAdjust =
+        menu.addAction(tr("Always adjust column widths to contents"));
+    actAlwaysAdjust->setCheckable(true);
+    actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
 
     menu.addSeparator();
 
