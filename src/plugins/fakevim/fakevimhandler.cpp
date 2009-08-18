@@ -954,12 +954,15 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setDotCommand("%1cc", count());
         finishMovement();
     } else if (m_submode == DeleteSubMode && key == 'd') { // tested
-        moveToStartOfLine();
-        setTargetColumn(); 
-        setAnchor();
-        moveDown(count());
         m_movetype = MoveLineWise;
+        int endPos = firstPositionInLine(lineForPosition(position()) + count() - 1);
+        Range range(position(), endPos, RangeLineMode);
+        yankText(range);
+        removeText(range);
         setDotCommand("%1dd", count());
+        m_submode = NoSubMode;
+        moveToFirstNonBlankOnLine();
+        setTargetColumn(); 
         finishMovement();
     } else if (m_submode == YankSubMode && key == 'y') {
         m_movetype = MoveLineWise;
