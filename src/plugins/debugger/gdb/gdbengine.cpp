@@ -1256,6 +1256,19 @@ void GdbEngine::handleAsyncOutput2(const GdbMi &data)
 {
     qq->notifyInferiorStopped();
 
+    // Sometimes we get some interesting extra information. Grab it.
+    GdbMi frame = data.findChild("frame");
+    GdbMi shortName = frame.findChild("file");
+    GdbMi fullName = frame.findChild("fullname");
+    if (shortName.isValid() && fullName.isValid()) {
+        QString file = QFile::decodeName(shortName.data());
+        QString full = QFile::decodeName(fullName.data());
+        if (file != full) {
+            m_shortToFullName[file] = full;
+            m_fullToShortName[full] = file;
+        }
+    }
+
     //
     // Stack
     //
@@ -1263,6 +1276,7 @@ void GdbEngine::handleAsyncOutput2(const GdbMi &data)
     updateLocals(); // Quick shot
 
     int currentId = data.findChild("thread-id").data().toInt();
+
     reloadStack();
     if (supportsThreads())
         postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), currentId);
@@ -1768,7 +1782,7 @@ void GdbEngine::stepExec()
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
     if (qq->isReverseDebugging())
-        postCommand(_("reverse-step"), CB(handleExecContinue));
+        postCommand(_("-reverse-step"), CB(handleExecContinue));
     else
         postCommand(_("-exec-step"), CB(handleExecContinue));
 }
@@ -1778,7 +1792,7 @@ void GdbEngine::stepIExec()
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
     if (qq->isReverseDebugging())
-        postCommand(_("reverse-stepi"), CB(handleExecContinue));
+        postCommand(_("-reverse-stepi"), CB(handleExecContinue));
     else
         postCommand(_("-exec-step-instruction"), CB(handleExecContinue));
 }
@@ -1795,7 +1809,7 @@ void GdbEngine::nextExec()
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
     if (qq->isReverseDebugging())
-        postCommand(_("reverse-next"), CB(handleExecContinue));
+        postCommand(_("-reverse-next"), CB(handleExecContinue));
     else
         postCommand(_("-exec-next"), CB(handleExecContinue));
 }
@@ -1805,9 +1819,9 @@ void GdbEngine::nextIExec()
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
     if (qq->isReverseDebugging())
-        postCommand(_("reverse-nexti"), CB(handleExecContinue));
+        postCommand(_("-reverse-nexti"), CB(handleExecContinue));
     else
-        postCommand(_("exec-next-instruction"), CB(handleExecContinue));
+        postCommand(_("-exec-next-instruction"), CB(handleExecContinue));
 }
 
 void GdbEngine::runToLineExec(const QString &fileName, int lineNumber)
@@ -1921,9 +1935,9 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             else
                 data->bpAddress = _(child.data());
         } else if (child.hasName("file")) {
-            files.append(QString::fromLocal8Bit(child.data()));
+            files.append(QFile::decodeName(child.data()));
         } else if (child.hasName("fullname")) {
-            QString fullName = QString::fromLocal8Bit(child.data());
+            QString fullName = QFile::decodeName(child.data());
             #ifdef Q_OS_WIN
             fullName = QDir::cleanPath(fullName);
             #endif
@@ -2446,8 +2460,8 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVari
         const GdbMi frameMi = stack.childAt(i);
         StackFrame frame(i);
         QStringList files;
-        files.append(QString::fromLocal8Bit(frameMi.findChild("fullname").data()));
-        files.append(QString::fromLocal8Bit(frameMi.findChild("file").data()));
+        files.append(QFile::decodeName(frameMi.findChild("fullname").data()));
+        files.append(QFile::decodeName(frameMi.findChild("file").data()));
         frame.file = fullName(files);
         frame.function = _(frameMi.findChild("func").data());
         frame.from = _(frameMi.findChild("from").data());
@@ -4035,7 +4049,7 @@ static QByteArray parseLine(const GdbMi &line)
     return ba;
 }
 
-static QString parseDisassembler(const GdbMi &lines)
+QString GdbEngine::parseDisassembler(const GdbMi &lines)
 {
     // ^done,data={asm_insns=[src_and_asm_line={line="1243",file=".../app.cpp",
     // line_asm_insn=[{address="0x08054857",func-name="main",offset="27",
@@ -4058,16 +4072,15 @@ static QString parseDisassembler(const GdbMi &lines)
         if (child.hasName("src_and_asm_line")) {
             // mixed mode
             int line = child.findChild("line").data().toInt();
-            QByteArray fileName = child.findChild("file").data();
+            QString fileName = QFile::decodeName(child.findChild("file").data());
             if (!fileLoaded) {
-                QFile file(QFile::decodeName(fileName));
+                QFile file(fullName(fileName));
                 file.open(QIODevice::ReadOnly);
                 fileContents = file.readAll().split('\n');
                 fileLoaded = true;
             }
             if (line >= 0 && line < fileContents.size())
                 ba += "    " + fileContents.at(line) + '\n';
-
             GdbMi insn = child.findChild("line_asm_insn");
             foreach (const GdbMi &line, insn.children()) 
                 ba += parseLine(line);

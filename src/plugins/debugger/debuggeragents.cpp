@@ -44,6 +44,7 @@
 
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextCursor>
+#include <QtGui/QSyntaxHighlighter>
 
 #include <limits.h>
 
@@ -144,6 +145,30 @@ struct DisassemblerViewAgentPrivate
 };
 
 /*!
+    \class DisassemblerSyntaxHighlighter
+
+     Simple syntax highlighter to make the disassembler text less prominent.
+*/
+
+class DisassemblerHighlighter : public QSyntaxHighlighter
+{
+public:
+    DisassemblerHighlighter(QPlainTextEdit *parent)
+        : QSyntaxHighlighter(parent->document())
+    {}
+
+private:
+    void highlightBlock(const QString &text)
+    {
+        if (!text.isEmpty() && text.at(0) != ' ') {
+            QTextCharFormat format;
+            format.setForeground(QColor(128, 128, 128));
+            setFormat(0, text.size(), format);
+        }
+    }
+};
+
+/*!
     \class DisassemblerViewAgent
 
      Objects from this class are created in response to user actions in
@@ -177,6 +202,7 @@ void DisassemblerViewAgent::setContents(const QString &contents)
     using namespace Core;
     using namespace TextEditor;
 
+    QPlainTextEdit *plainTextEdit = 0;
     EditorManager *editorManager = EditorManager::instance();
     if (!d->editor) {
         QString titlePattern = "Disassembler";
@@ -184,12 +210,13 @@ void DisassemblerViewAgent::setContents(const QString &contents)
             editorManager->openEditorWithContents(
             Core::Constants::K_DEFAULT_TEXT_EDITOR,
             &titlePattern));
+        if ((plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget())))
+            (void) new DisassemblerHighlighter(plainTextEdit);
     }
 
     editorManager->activateEditor(d->editor);
 
-    QPlainTextEdit *plainTextEdit =
-        qobject_cast<QPlainTextEdit *>(d->editor->widget());
+    plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget());
     if (plainTextEdit)
         plainTextEdit->setPlainText(contents);
 

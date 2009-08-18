@@ -260,7 +260,7 @@ public:
     CombinedPane(QWidget *parent)
         : DebuggerPane(parent)
     {
-        (void)new OutputHighlighter(this);
+        (void) new OutputHighlighter(this);
     }
 
 public slots:

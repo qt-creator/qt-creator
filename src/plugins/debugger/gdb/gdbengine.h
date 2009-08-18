@@ -144,7 +144,6 @@ private:
     //
 
     int currentFrame() const;
-    //QString currentWorkingDirectory() const { return m_pwd; }
 
     bool supportsThreads() const;
 
@@ -162,12 +161,12 @@ public: // otherwise the Qt flag macros are unhappy
         NeedsStop = 1,
         Discardable = 2,
         RebuildModel = 4,
-        WatchUpdate = Discardable|RebuildModel,
+        WatchUpdate = Discardable | RebuildModel,
         EmbedToken = 8
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
-private:
 
+private:
     typedef void (GdbEngine::*GdbCommandCallback)(const GdbResultRecord &record, const QVariant &cookie);
 
     struct GdbCommand
@@ -372,6 +371,7 @@ private:
     void setLocals(const QList<GdbMi> &locals);
    
     bool startModeAllowsDumpers() const;
+    QString parseDisassembler(const GdbMi &lines);
 
     int m_pendingRequests;
 
