@@ -1185,17 +1185,21 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             if (reason == "signal-received"
                 && theDebuggerBoolSetting(UseMessageBoxForSignals)) {
                 QByteArray name = data.findChild("signal-name").data();
-                QByteArray meaning = data.findChild("signal-meaning").data();
-                QString msg = tr("<p>The inferior stopped because it received a "
-                    "signal from the Operating System.<p>"
-                    "<table><tr><td>Signal name : </td><td>%1</td></tr>"
-                    "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
-                    .arg(name.isEmpty() ? tr(" <Unknown> ") : _(name))
-                    .arg(meaning.isEmpty() ? tr(" <Unknown> ") : _(meaning));
-                QMessageBox *mb = new QMessageBox(QMessageBox::Information,
-                    tr("Signal received"), msg);
-                mb->setAttribute(Qt::WA_DeleteOnClose);
-                mb->show();
+                // Ignore SIGTRAP as they are showing up regularily when
+                // stopping debugging.
+                if (name != "SIGTRAP") {
+                    QByteArray meaning = data.findChild("signal-meaning").data();
+                    QString msg = tr("<p>The inferior stopped because it received a "
+                        "signal from the Operating System.<p>"
+                        "<table><tr><td>Signal name : </td><td>%1</td></tr>"
+                        "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
+                        .arg(name.isEmpty() ? tr(" <Unknown> ") : _(name))
+                        .arg(meaning.isEmpty() ? tr(" <Unknown> ") : _(meaning));
+                    QMessageBox *mb = new QMessageBox(QMessageBox::Information,
+                        tr("Signal received"), msg);
+                    mb->setAttribute(Qt::WA_DeleteOnClose);
+                    mb->show();
+                }
             }
 
             if (reason.isEmpty())
@@ -4130,7 +4134,6 @@ void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResultRecord &record,
 void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResultRecord &record,
     const QVariant &cookie)
 {
-    bool ok = true;
     DisassemblerAgentCookie ac = cookie.value<DisassemblerAgentCookie>();
     QTC_ASSERT(ac.agent, return);
 
