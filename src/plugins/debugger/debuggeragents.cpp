@@ -139,8 +139,9 @@ public:
 struct DisassemblerViewAgentPrivate
 {
     QPointer<TextEditor::ITextEditor> editor;
-    QPointer<IDebuggerEngine> engine;
     QString address;
+    QString function;
+    QPointer<DebuggerManager> manager;
     LocationMark2 *locationMark;
 };
 
@@ -180,8 +181,8 @@ DisassemblerViewAgent::DisassemblerViewAgent(DebuggerManager *manager)
     : QObject(manager), d(new DisassemblerViewAgentPrivate)
 {
     d->editor = 0;
-    d->engine = manager->currentEngine();
     d->locationMark = new LocationMark2();
+    d->manager = manager;
 }
 
 DisassemblerViewAgent::~DisassemblerViewAgent()
@@ -193,8 +194,11 @@ DisassemblerViewAgent::~DisassemblerViewAgent()
 
 void DisassemblerViewAgent::setFrame(const StackFrame &frame)
 {
-    d->engine->fetchDisassembler(this, frame);
+    IDebuggerEngine *engine = d->manager->currentEngine();
+    QTC_ASSERT(engine, return);
+    engine->fetchDisassembler(this, frame);
     d->address = frame.address;
+    d->function = frame.function;
 }
 
 void DisassemblerViewAgent::setContents(const QString &contents)
@@ -208,8 +212,9 @@ void DisassemblerViewAgent::setContents(const QString &contents)
         QString titlePattern = "Disassembler";
         d->editor = qobject_cast<ITextEditor *>(
             editorManager->openEditorWithContents(
-            Core::Constants::K_DEFAULT_TEXT_EDITOR,
-            &titlePattern));
+                Core::Constants::K_DEFAULT_TEXT_EDITOR,
+                &titlePattern));
+        QTC_ASSERT(d->editor, return);
         if ((plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget())))
             (void) new DisassemblerHighlighter(plainTextEdit);
     }
@@ -221,6 +226,7 @@ void DisassemblerViewAgent::setContents(const QString &contents)
         plainTextEdit->setPlainText(contents);
 
     d->editor->markableInterface()->removeMark(d->locationMark);
+    d->editor->setDisplayName(_("Disassembler (%1)").arg(d->function));
 
     for (int pos = 0, line = 0; ; ++line, ++pos) {
         if (contents.midRef(pos, d->address.size()) == d->address) {
