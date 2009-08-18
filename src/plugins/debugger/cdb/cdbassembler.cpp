@@ -36,6 +36,23 @@
 
 #include <QtCore/QVector>
 
+// Format a hex address with a given field width if possible. Convert
+// to number to ensure it is not truncated should it be larger than the
+// field width.
+static inline void formatAddress(QTextStream &str, const QString &hexAddressS, int fieldWidth)
+{
+    const QChar oldPadChar = str.padChar();
+    const int oldFieldWidth = str.fieldWidth();
+    const int oldIntegerBase = str.integerBase();
+    str.setFieldWidth(fieldWidth);
+    str.setPadChar(QLatin1Char('0'));
+    str.setIntegerBase(16);
+    str << hexAddressS.toULongLong(0, 16);
+    str.setFieldWidth(oldFieldWidth);
+    str.setPadChar(oldPadChar);
+    str.setIntegerBase(oldIntegerBase);
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -89,7 +106,7 @@ class DisassemblerOutputParser
 {
     Q_DISABLE_COPY(DisassemblerOutputParser)
 public:
-    explicit DisassemblerOutputParser(QTextStream &str, int addressFieldWith = 0);
+    explicit DisassemblerOutputParser(QTextStream &str, int addressFieldWidth = 0);
 
     void parse(const QStringList &l);
 
@@ -97,14 +114,14 @@ private:
     enum ParseResult { ParseOk, ParseIgnore, ParseFailed };
     ParseResult parseDisassembled(const QString &in);
 
-    const int m_addressFieldWith;
+    const int m_addressFieldWidth;
     QTextStream &m_str;
     QString m_sourceSymbol;
     int m_sourceSymbolOffset;
 };
 
-DisassemblerOutputParser::DisassemblerOutputParser(QTextStream &str, int addressFieldWith) :
-    m_addressFieldWith(addressFieldWith),
+DisassemblerOutputParser::DisassemblerOutputParser(QTextStream &str, int addressFieldWidth) :
+    m_addressFieldWidth(addressFieldWidth),
     m_str(str),
     m_sourceSymbolOffset(0)
 {
@@ -151,16 +168,10 @@ DisassemblerOutputParser::ParseResult
     // which is important for setting the marker.
     const int addressToken = hasSourceFile ? 2 : 0;
     m_str << "0x";
-    if (m_str.fieldWidth() == m_addressFieldWith) {
+    if (m_str.fieldWidth() == m_addressFieldWidth) {
         m_str << tokens.at(addressToken);
     } else {
-        const QChar oldPadChar = m_str.padChar();
-        const int oldFieldWidth = m_str.fieldWidth();
-        m_str.setFieldWidth(m_addressFieldWith);
-        m_str.setPadChar(QLatin1Char('0'));
-        m_str << tokens.at(addressToken);
-        m_str.setFieldWidth(oldFieldWidth);
-        m_str.setPadChar(oldPadChar);
+        formatAddress(m_str, tokens.at(addressToken), m_addressFieldWidth);
     }
     m_str << ' ';
     // Symbol display: Do we know a symbol? -> Display with offset.
@@ -200,7 +211,7 @@ bool dissassemble(CIDebugClient *client,
                   ULONG64 offset,
                   unsigned long beforeLines,
                   unsigned long afterLines,
-                  int addressFieldWith,
+                  int addressFieldWidth,
                   QTextStream &str,
                   QString *errorMessage)
 {
@@ -224,7 +235,7 @@ bool dissassemble(CIDebugClient *client,
                        arg(offset, 0, 16).arg(msgComFailed("OutputDisassemblyLines", hr));
         return false;
     }
-    DisassemblerOutputParser parser(str, addressFieldWith);
+    DisassemblerOutputParser parser(str, addressFieldWidth);
     parser.parse(stringHandler.result().split(QLatin1Char('\n')));
     return true;
 }

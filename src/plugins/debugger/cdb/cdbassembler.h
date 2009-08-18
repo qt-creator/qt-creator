@@ -56,7 +56,7 @@ bool dissassemble(CIDebugClient *client,
                   ULONG64 offset,
                   unsigned long beforeLines,
                   unsigned long afterLines,
-                  int addressFieldWith /* = 0*/,
+                  int addressFieldWidth /* = 0*/,
                   QTextStream &str,
                   QString *errorMessage);
 

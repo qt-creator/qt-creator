@@ -330,7 +330,7 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
         return false;
     }
 
-    m_cif.debugControl->SetCodeLevel(DEBUG_LEVEL_SOURCE);
+    setCodeLevel();
 
     hr = lib.debugCreate( __uuidof(IDebugSystemObjects4), reinterpret_cast<void**>(&m_cif.debugSystemObjects));
     if (FAILED(hr)) {
@@ -380,6 +380,34 @@ IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *parent,
     }
     delete rc;
     return 0;
+}
+
+// Adapt code level setting to the setting of the action.
+static inline const char *codeLevelName(ULONG level)
+{
+    return level == DEBUG_LEVEL_ASSEMBLY ? "assembly" : "source";
+}
+
+bool CdbDebugEnginePrivate::setCodeLevel()
+{
+    const ULONG codeLevel = theDebuggerBoolSetting(StepByInstruction) ?
+                            DEBUG_LEVEL_ASSEMBLY : DEBUG_LEVEL_SOURCE;
+    ULONG currentCodeLevel = DEBUG_LEVEL_ASSEMBLY;
+    HRESULT hr = m_cif.debugControl->GetCodeLevel(&currentCodeLevel);
+    if (FAILED(hr)) {
+        m_engine->warning(QString::fromLatin1("Cannot determine code level: %1").arg(msgComFailed("GetCodeLevel", hr)));
+        return true;
+    }
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << "\nSetting code level to " << codeLevelName(codeLevel) << " (was" << codeLevelName(currentCodeLevel) << ')';
+    if (currentCodeLevel == currentCodeLevel)
+        return false;
+    hr = m_cif.debugControl->SetCodeLevel(codeLevel);
+    if (FAILED(hr)) {
+        m_engine->warning(QString::fromLatin1("Cannot set code level: %1").arg(msgComFailed("SetCodeLevel", hr)));
+        return false;
+    }
+    return true;
 }
 
 CdbDebugEnginePrivate::~CdbDebugEnginePrivate()
@@ -565,6 +593,7 @@ bool CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     bool rc = false;
     bool needWatchTimer = false;
     m_d->clearForRun();
+    m_d->setCodeLevel();
     switch (mode) {
     case AttachExternal:
     case AttachCrashedExternal:
@@ -863,6 +892,7 @@ void CdbDebugEngine::stepExec()
         qDebug() << Q_FUNC_INFO;
 
     m_d->clearForRun();
+    m_d->setCodeLevel();
     const HRESULT hr = m_d->m_cif.debugControl->SetExecutionStatus(DEBUG_STATUS_STEP_INTO);
     if (FAILED(hr))
         warning(msgFunctionFailed(Q_FUNC_INFO, msgComFailed("SetExecutionStatus", hr)));
@@ -919,6 +949,7 @@ void CdbDebugEngine::nextExec()
         qDebug() << Q_FUNC_INFO;
 
     m_d->clearForRun();
+    m_d->setCodeLevel();
     const HRESULT hr = m_d->m_cif.debugControl->SetExecutionStatus(DEBUG_STATUS_STEP_OVER);
     if (SUCCEEDED(hr)) {
         startWatchTimer();
@@ -938,6 +969,7 @@ void CdbDebugEngine::nextIExec()
         qDebug() << Q_FUNC_INFO;
 
     m_d->clearForRun();
+    m_d->setCodeLevel();
     const HRESULT hr = m_d->m_cif.debugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, "p", 0);
     if (SUCCEEDED(hr)) {
         startWatchTimer();
@@ -948,7 +980,7 @@ void CdbDebugEngine::nextIExec()
 
 void CdbDebugEngine::continueInferior()
 {
-    QString errorMessage;
+    QString errorMessage;    
     if  (!m_d->continueInferior(&errorMessage))
         warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
 }
@@ -987,6 +1019,7 @@ bool CdbDebugEnginePrivate::continueInferior(QString *errorMessage)
     }
 
     clearForRun();
+    setCodeLevel();
     m_engine->killWatchTimer();
     m_debuggerManager->resetLocation();
     m_debuggerManagerAccess->notifyInferiorRunningRequested();
@@ -1289,8 +1322,8 @@ void CdbDebugEngine::fetchDisassembler(DisassemblerViewAgent *agent,
         }
         QString disassembly;
         QApplication::setOverrideCursor(Qt::WaitCursor);
-        ok = dissassemble(m_d->m_cif.debugClient, m_d->m_cif.debugControl, offset, addressFieldWith,
-                          ContextLines, ContextLines, QTextStream(&disassembly), &errorMessage);
+        ok = dissassemble(m_d->m_cif.debugClient, m_d->m_cif.debugControl, offset,
+                          ContextLines, ContextLines, addressFieldWith, QTextStream(&disassembly), &errorMessage);
         QApplication::restoreOverrideCursor();
         if (!ok)
             break;

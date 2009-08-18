@@ -146,6 +146,8 @@ struct CdbDebugEnginePrivate
     QStringList symbolPaths() const;
     bool setSymbolPaths(const QStringList &s, QString *errorMessage);
 
+    bool setCodeLevel();
+
     const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
