@@ -187,7 +187,8 @@ private:
     int posAt(const QPoint &pos) const;
     bool inTextArea(const QPoint &pos) const;
     QRect cursorRect() const;
-    void updateLines(int fromPosition = -1, int toPosition = -1);
+    void updateLines();
+    void updateLines(int fromPosition, int toPosition);
     void ensureCursorVisible();
     void setBlinkingCursorEnabled(bool enable);
 

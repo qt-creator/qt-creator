@@ -439,13 +439,13 @@ bool BinEditor::inTextArea(const QPoint &pos) const
     return (x > 16 * m_columnWidth + m_charWidth/2);
 }
 
+void BinEditor::updateLines()
+{
+    updateLines(m_cursorPosition, m_cursorPosition);
+}
 
 void BinEditor::updateLines(int fromPosition, int toPosition)
 {
-    if (fromPosition < 0)
-        fromPosition = m_cursorPosition;
-    if (toPosition < 0)
-        toPosition = fromPosition;
     int topLine = verticalScrollBar()->value();
     int firstLine = qMin(fromPosition, toPosition) / 16;
     int lastLine = qMax(fromPosition, toPosition) / 16;
@@ -650,6 +650,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
     const char *hex = "0123456789abcdef";
 
     painter.setPen(palette().text().color());
+    const QFontMetrics &fm = painter.fontMetrics();
     for (int i = 0; i <= m_numVisibleLines; ++i) {
         int line = topLine + i;
         if (line >= m_numLines)
@@ -715,18 +716,18 @@ void BinEditor::paintEvent(QPaintEvent *e)
                 if (foundPatternAt >= 0 && pos >= foundPatternAt && pos < foundPatternAt + matchLength) {
                     painter.fillRect(item_x, y-m_ascent, m_columnWidth, m_lineHeight, QColor(0xffef0b));
                     int printable_item_x = -xoffset + m_margin + m_labelWidth + 16 * m_columnWidth + m_charWidth
-                                           + painter.fontMetrics().width( printable.left(c));
+                                           + fm.width(printable.left(c));
                     painter.fillRect(printable_item_x, y-m_ascent,
-                                     painter.fontMetrics().width(printable.at(c)),
+                                     fm.width(printable.at(c)),
                                      m_lineHeight, QColor(0xffef0b));
                 }
 
                 if (selStart < selEnd && !isFullySelected && pos >= selStart && pos < selEnd) {
                     selectionRect |= QRect(item_x, y-m_ascent, m_columnWidth, m_lineHeight);
                     int printable_item_x = -xoffset + m_margin + m_labelWidth + 16 * m_columnWidth + m_charWidth
-                                           + painter.fontMetrics().width( printable.left(c));
+                                           + fm.width(printable.left(c));
                     printableSelectionRect |= QRect(printable_item_x, y-m_ascent,
-                                                    painter.fontMetrics().width(printable.at(c)),
+                                                    fm.width(printable.at(c)),
                                                     m_lineHeight);
                 }
             }
@@ -754,7 +755,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
 
 
         if (cursor >= 0) {
-            int w = painter.fontMetrics().boundingRect(itemString.mid(cursor*3, 2)).width();
+            int w = fm.boundingRect(itemString.mid(cursor*3, 2)).width();
             QRect cursorRect(x + cursor * m_columnWidth, y - m_ascent, w + 1, m_lineHeight);
             painter.save();
             painter.setPen(Qt::red);
@@ -762,7 +763,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
             painter.restore();
             if (m_hexCursor && m_cursorVisible) {
                 if (m_lowNibble)
-                    cursorRect.adjust(painter.fontMetrics().width(itemString.left(1)), 0, 0, 0);
+                    cursorRect.adjust(fm.width(itemString.left(1)), 0, 0, 0);
                 painter.fillRect(cursorRect, Qt::red);
                 painter.save();
                 painter.setClipRect(cursorRect);
@@ -776,7 +777,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
 
         if (isFullySelected) {
                 painter.save();
-                painter.fillRect(text_x, y-m_ascent, painter.fontMetrics().width(printable), m_lineHeight,
+                painter.fillRect(text_x, y-m_ascent, fm.width(printable), m_lineHeight,
                                  palette().highlight());
                 painter.setPen(palette().highlightedText().color());
                 painter.drawText(text_x, y, printable);
@@ -794,9 +795,9 @@ void BinEditor::paintEvent(QPaintEvent *e)
         }
 
         if (cursor >= 0 && !printable.isEmpty()) {
-            QRect cursorRect(text_x + painter.fontMetrics().width(printable.left(cursor)),
+            QRect cursorRect(text_x + fm.width(printable.left(cursor)),
                              y-m_ascent,
-                             painter.fontMetrics().width(printable.at(cursor)),
+                             fm.width(printable.at(cursor)),
                              m_lineHeight);
             painter.save();
             if (m_hexCursor || !m_cursorVisible) {
