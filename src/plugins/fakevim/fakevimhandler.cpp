@@ -1406,6 +1406,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             search(lastSearchString(), !m_lastSearchForward);
         recordJump();
     } else if (key == 'o' || key == 'O') {
+        beginEditBlock();
         setDotCommand("%1o", count());
         enterInsertMode();
         moveToFirstNonBlankOnLine();
@@ -1414,6 +1415,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToEndOfLine();
         m_tc.insertText("\n");
         insertAutomaticIndentation(key == 'o');
+        endEditBlock();
     } else if (key == control('o')) {
         if (!m_jumpListUndo.isEmpty()) {
             m_jumpListRedo.append(cursorPosition());
