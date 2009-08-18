@@ -51,6 +51,7 @@ public:
     void setCopyFileName(const QString &srcName, const QString &dstName);
     void setInstallFileName(const QString &name);
     bool startServer(QString *errorMessage);
+    void setVerbose(int v);
 
 signals:
     void copyingStarted();
@@ -93,6 +94,7 @@ private:
     void handleWaitForFinished(const TrkResult &result);
     void handleStop(const TrkResult &result);
     void handleSupportMask(const TrkResult &result);
+    void handleTrkVersion(const TrkResult &result);
     void waitForTrkFinished(const TrkResult &data);
 
     void handleAndReportCreateProcess(const TrkResult &result);

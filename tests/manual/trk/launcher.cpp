@@ -117,6 +117,7 @@ struct LauncherPrivate {
     QString m_copySrcFileName;
     QString m_copyDstFileName;
     QString m_installFileName;
+    int m_verbose;
 };
 
 LauncherPrivate::LauncherPrivate() :
@@ -125,7 +126,8 @@ LauncherPrivate::LauncherPrivate() :
 #endif
     m_trkWriteToken(0),
     m_trkWriteBusy(false),
-    m_timerId(-1)
+    m_timerId(-1),
+    m_verbose(0)
 {
 }
 
@@ -165,6 +167,11 @@ void Launcher::setInstallFileName(const QString &name)
 
 bool Launcher::startServer(QString *errorMessage)
 {
+    if (d->m_verbose) {
+        const QString msg = QString::fromLatin1("Port=%1 Executable=%2 Package=%3 Remote Package=%4 Install file=%5")
+                            .arg(d->m_trkServerName, d->m_fileName, d->m_copySrcFileName, d->m_copyDstFileName, d->m_installFileName);
+        logMessage(msg);
+    }
     if (!openTrkPort(d->m_trkServerName, errorMessage))
         return false;
     d->m_timerId = startTimer(100);
@@ -172,12 +179,19 @@ bool Launcher::startServer(QString *errorMessage)
     sendTrkMessage(TrkConnect); // Connect
     sendTrkMessage(TrkSupported, CB(handleSupportMask));
     sendTrkMessage(TrkCpuType, CB(handleCpuType));
-    sendTrkMessage(TrkVersions); // Versions
+    sendTrkMessage(TrkVersions, CB(handleTrkVersion));
+    if (d->m_fileName.isEmpty())
+        return true;
     if (!d->m_copySrcFileName.isEmpty() && !d->m_copyDstFileName.isEmpty())
         copyFileToRemote();
     else
         installAndRun();
     return true;
+}
+
+void Launcher::setVerbose(int v)
+{
+    d->m_verbose = v;
 }
 
 void Launcher::installAndRun()
@@ -190,7 +204,7 @@ void Launcher::installAndRun()
 }
 void Launcher::logMessage(const QString &msg)
 {
-    if (DEBUG_TRK)
+    if (d->m_verbose)
         qDebug() << "ADAPTER: " << qPrintable(msg);
 }
 
@@ -464,6 +478,27 @@ void Launcher::handleResult(const TrkResult &result)
     }
 }
 
+void Launcher::handleTrkVersion(const TrkResult &result)
+{
+    if (result.data.size() < 5)
+        return;
+    const int trkMajor = result.data.at(1);
+    const int trkMinor = result.data.at(2);
+    const int protocolMajor = result.data.at(3);
+    const int protocolMinor = result.data.at(4);
+    // Ping mode: Log & Terminate
+    if (d->m_fileName.isEmpty()) {
+        QString msg;
+        QTextStream(&msg) << "CPU: " << d->m_session.cpuMajor << '.' << d->m_session.cpuMinor << ' '
+                << (d->m_session.bigEndian ? "big endian" : "little endian")
+                << " type size: " << d->m_session.defaultTypeSize
+                << " float size: " << d->m_session.fpTypeSize
+                << " Trk: v" << trkMajor << '.' << trkMinor << " Protocol: " << protocolMajor << '.' << protocolMinor;
+        qWarning("%s", qPrintable(msg));
+        sendTrkMessage(TrkPing, CB(waitForTrkFinished));
+    }
+}
+
 void Launcher::handleFileCreation(const TrkResult &result)
 {
     // we don't do any error handling yet, which is bad
@@ -502,12 +537,12 @@ void Launcher::handleCpuType(const TrkResult &result)
     //  Command: 0x80 Acknowledge
     //    Error: 0x00
     // [80 03 00  04 00 00 04 00 00 00]
-    d->m_session.cpuMajor = result.data[0];
-    d->m_session.cpuMinor = result.data[1];
-    d->m_session.bigEndian = result.data[2];
-    d->m_session.defaultTypeSize = result.data[3];
-    d->m_session.fpTypeSize = result.data[4];
-    d->m_session.extended1TypeSize = result.data[5];
+    d->m_session.cpuMajor = result.data.at(1);
+    d->m_session.cpuMinor = result.data.at(2);
+    d->m_session.bigEndian = result.data.at(3);
+    d->m_session.defaultTypeSize = result.data.at(4);
+    d->m_session.fpTypeSize = result.data.at(5);
+    d->m_session.extended1TypeSize = result.data.at(6);
     //d->m_session.extended2TypeSize = result.data[6];
 }
 
@@ -521,10 +556,12 @@ void Launcher::handleCreateProcess(const TrkResult &result)
     d->m_session.tid = extractInt(data + 5);
     d->m_session.codeseg = extractInt(data + 9);
     d->m_session.dataseg = extractInt(data + 13);
-    logMessage(QString("    READ PID:  %1").arg(d->m_session.pid));
-    logMessage(QString("    READ TID:  %1").arg(d->m_session.tid));
-    logMessage(QString("    READ CODE: %1").arg(d->m_session.codeseg));
-    logMessage(QString("    READ DATA: %1").arg(d->m_session.dataseg));
+    if (d->m_verbose) {
+        const QString msg = QString::fromLatin1("Process id: %1 Thread id: %2 code: 0x%3 data: 0x%4").
+                            arg(d->m_session.pid).arg(d->m_session.tid).arg(d->m_session.codeseg, 0, 16).
+                            arg(d->m_session.dataseg,  0 ,16);
+        logMessage(msg);
+    }
     emit applicationRunning(d->m_session.pid);
     QByteArray ba;
     appendInt(&ba, d->m_session.pid);
