@@ -4131,12 +4131,12 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResultRecord &record,
     const QVariant &cookie)
 {
     bool ok = true;
-    DisassemblerViewAgent *agent = (DisassemblerViewAgent *)cookie.toULongLong(&ok);
-    QTC_ASSERT(agent, return);
+    DisassemblerAgentCookie ac = cookie.value<DisassemblerAgentCookie>();
+    QTC_ASSERT(ac.agent, return);
 
     if (record.resultClass == GdbResultDone) {
         GdbMi lines = record.data.findChild("asm_insns");
-        agent->setContents(parseDisassembler(lines));
+        ac.agent->setContents(parseDisassembler(lines));
     }
 }
 
