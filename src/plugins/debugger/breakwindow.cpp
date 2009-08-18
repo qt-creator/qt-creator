@@ -196,12 +196,13 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(deleteAllAction);
     menu.addAction(deleteByFileAction);
     menu.addSeparator();
-    menu.addAction(adjustColumnAction);
-    menu.addAction(alwaysAdjustAction);
     menu.addAction(synchronizeAction);
     menu.addSeparator();
     menu.addAction(breakAtFunctionAction);
     menu.addAction(breakAtMainAction);
+    menu.addSeparator();
+    menu.addAction(adjustColumnAction);
+    menu.addAction(alwaysAdjustAction);
     menu.addSeparator();
     menu.addAction(theDebuggerAction(SettingsDialog));
 

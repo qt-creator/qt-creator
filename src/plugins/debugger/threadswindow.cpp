@@ -82,12 +82,14 @@ void ThreadsWindow::rowActivated(const QModelIndex &index)
 void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
-    QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
+    QAction *act1 = menu.addAction(tr("Adjust column widths to contents"));
+    QAction *act2 = menu.addAction(tr("Always adjust column widths to contents"));
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
-    menu.addAction(act1);
-    menu.addAction(act2);
+
+    menu.addSeparator();
+
+    menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

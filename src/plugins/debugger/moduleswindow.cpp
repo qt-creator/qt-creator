@@ -136,16 +136,20 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(act6);
     menu.addAction(act7);
     menu.addSeparator();
-    menu.addAction(act1);
-    menu.addAction(act2);
+    QAction *actAdjustColumnWidths =
+        menu.addAction(tr("Adjust column widths to contents"));
+    QAction *actAlwaysAdjustColumnWidth =
+        menu.addAction(tr("Always adjust column widths to contents"));
+    menu.addSeparator();
+    menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == act0)
         emit reloadModulesRequested();
-    else if (act == act1)
+    else if (act == actAdjustColumnWidths)
         resizeColumnsToContents();
-    else if (act == act2)
+    else if (act == actAlwaysAdjustColumnWidth)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == act3)
         emit displaySourceRequested(name);

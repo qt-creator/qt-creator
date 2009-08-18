@@ -242,23 +242,12 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     QMenu menu;
-    QAction *actAdjustColumnWidths =
-        new QAction(tr("Adjust column widths to contents"), &menu);
-
-    QAction *actAlwaysAdjustColumnWidth =
-        new QAction(tr("Always adjust column widths to contents"), &menu);
-    actAlwaysAdjustColumnWidth->setCheckable(true);
-    actAlwaysAdjustColumnWidth->setChecked(m_alwaysResizeColumnsToContents);
-
     //QAction *actWatchExpressionInWindow
     // = theDebuggerAction(WatchExpressionInWindow);
     //menu.addAction(actWatchExpressionInWindow);
 
-    QAction *actInsertNewWatchItem =
-        new QAction(tr("Insert new watch item"), &menu); 
-
-    QAction *actSelectWidgetToWatch =
-        new QAction(tr("Select widget to watch"), &menu);
+    QAction *actInsertNewWatchItem = menu.addAction(tr("Insert new watch item"));
+    QAction *actSelectWidgetToWatch = menu.addAction(tr("Select widget to watch"));
 
     QString address = model()->data(mi0, AddressRole).toString();
     QAction *actWatchKnownMemory = 0;
@@ -268,10 +257,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     else
         actWatchKnownMemory =
             new QAction(tr("Open memory editor at %1").arg(address), &menu);
-
-    menu.addAction(actAdjustColumnWidths);
-    menu.addAction(actAlwaysAdjustColumnWidth);
     menu.addSeparator();
+
     int atype = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
     menu.addAction(theDebuggerAction(atype)->updatedAction(exp));
 
@@ -284,6 +271,15 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
     menu.addAction(theDebuggerAction(UseDebuggingHelpers));
+
+    menu.addSeparator();
+    QAction *actAdjustColumnWidths =
+        menu.addAction(tr("Adjust column widths to contents"));
+    QAction *actAlwaysAdjustColumnWidth =
+        menu.addAction(tr("Always adjust column widths to contents"));
+    actAlwaysAdjustColumnWidth->setCheckable(true);
+    actAlwaysAdjustColumnWidth->setChecked(m_alwaysResizeColumnsToContents);
+
     menu.addSeparator();
     menu.addAction(theDebuggerAction(SettingsDialog));
 
