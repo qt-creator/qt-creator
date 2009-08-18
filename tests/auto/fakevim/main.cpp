@@ -58,6 +58,7 @@ private slots:
     // command mode
     void command_cc();
     void command_dd();
+    void command_dd_2();
     void command_dollar();
     void command_down();
     void command_dfx_down();
@@ -277,11 +278,21 @@ void tst_FakeVim::command_dd()
     move("j",    "@" + l[1]);
     check("dd",  l[0] + "\n@" + lmid(2));
     check(".",   l[0] + "\n@" + lmid(3));
-    check("3dd", l[0] + "\n@" + lmid(6));
-    check("8l",  l[0] + "\n    QApp@lication app(argc, argv);\n" + lmid(7));
+    check("3dd", l[0] + "\n    @QApplication app(argc, argv);\n" + lmid(7));
+    check("4l",  l[0] + "\n    QApp@lication app(argc, argv);\n" + lmid(7));
     check("dd",  l[0] + "\n@" + lmid(7));
-    check(".",   l[0] + "\n@" + lmid(8));
+    check(".",   l[0] + "\n    @return app.exec();\n" + lmid(9));
     check("dd",  l[0] + "\n@" + lmid(9));
+}
+
+void tst_FakeVim::command_dd_2()
+{
+    setup();
+    move("j",    "@" + l[1]);
+    check("dd",  l[0] + "\n@" + lmid(2));
+    check("p",   l[0] + "\n" + l[2] + "\n@" + l[1] + "\n" + lmid(3));
+return; // FIXME
+    check("u",   l[0] + "\n@" + lmid(2));
 }
 
 void tst_FakeVim::command_dollar()
