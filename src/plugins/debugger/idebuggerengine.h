@@ -98,8 +98,9 @@ public:
     virtual void watchPoint(const QPoint &) {}
     virtual void fetchMemory(MemoryViewAgent *, quint64 addr, quint64 length)
         { Q_UNUSED(addr); Q_UNUSED(length); }
-    virtual void fetchDisassembler(DisassemblerViewAgent *, const StackFrame & /* frame */)
-        { }
+    virtual void fetchDisassembler(DisassemblerViewAgent *, const StackFrame &) {}
+    virtual void setRegisterValue(int regnr, const QString &value)
+        { Q_UNUSED(regnr); Q_UNUSED(value); }
 };
 
 } // namespace Internal

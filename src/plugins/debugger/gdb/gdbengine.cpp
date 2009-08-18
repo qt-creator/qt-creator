@@ -78,11 +78,9 @@
 #endif
 #include <ctype.h>
 
-using namespace Debugger;
-using namespace Debugger::Internal;
+namespace Debugger {
+namespace Internal {
 using namespace Debugger::Constants;
-
-Q_DECLARE_METATYPE(Debugger::Internal::GdbMi);
 
 //#define DEBUG_PENDING  1
 //#define DEBUG_SUBITEM  1
@@ -1722,13 +1720,6 @@ void GdbEngine::handleAttach(const GdbResultRecord &, const QVariant &)
         postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), 0);
 
     //
-    // Disassembler
-    //
-    // XXX we have no data here ...
-    //m_address = data.findChild("frame").findChild("addr").data();
-    //qq->reloadDisassembler();
-
-    //
     // Registers
     //
     qq->reloadRegisters();
@@ -2581,6 +2572,20 @@ void GdbEngine::reloadRegisters()
 {
     postCommand(_("-data-list-register-values d"),
                 Discardable, CB(handleRegisterListValues));
+}
+
+void GdbEngine::setRegisterValue(int nr, const QString &value)
+{
+    Register reg = qq->registerHandler()->registers().at(nr);
+    //qDebug() << "NOT IMPLEMENTED: CHANGE REGISTER " << nr << reg.name << ":"
+    //    << value;
+    postCommand(_("-var-delete \"R@\""));
+    postCommand(_("-var-create \"R@\" * $%1").arg(reg.name));
+    postCommand(_("-var-assign \"R@\" %1").arg(value));
+    postCommand(_("-var-delete \"R@\""));
+    //postCommand(_("-data-list-register-values d"),
+    //            Discardable, CB(handleRegisterListValues));
+    reloadRegisters();
 }
 
 void GdbEngine::handleRegisterListNames(const GdbResultRecord &record, const QVariant &)
@@ -3926,16 +3931,23 @@ void GdbEngine::handleWatchPoint(const GdbResultRecord &record, const QVariant &
     }
 }
 
-static QVariant agentCookie(void *agent)
+
+struct MemoryAgentCookie
 {
-    return QVariant(quint64(quintptr(agent)));
-}
+    MemoryAgentCookie() : agent(0), address(0) {}
+    MemoryAgentCookie(MemoryViewAgent *agent_, quint64 address_)
+        : agent(agent_), address(address_)
+    {}
+    MemoryViewAgent *agent;
+    quint64 address;
+};
 
 void GdbEngine::fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length)
 {
-    //qDebug() << "GDB MEMORY FETCH" << addr << length;
+    //qDebug() << "GDB MEMORY FETCH" << agent << addr << length;
     postCommand(_("-data-read-memory %1 x 1 1 %2").arg(addr).arg(length),
-        NeedsStop, CB(handleFetchMemory), agentCookie(agent));
+        NeedsStop, CB(handleFetchMemory),
+        QVariant::fromValue(MemoryAgentCookie(agent, addr)));
 }
 
 void GdbEngine::handleFetchMemory(const GdbResultRecord &record,
@@ -3945,26 +3957,33 @@ void GdbEngine::handleFetchMemory(const GdbResultRecord &record,
     // next-row="0x08910c98",prev-row="0x08910c78",next-page="0x08910c98",
     // prev-page="0x08910c78",memory=[{addr="0x08910c88",
     // data=["1","0","0","0","5","0","0","0","0","0","0","0","0","0","0","0"]}]
-    bool ok = true;
-    MemoryViewAgent *agent = (MemoryViewAgent *)cookie.toULongLong(&ok);
-    QTC_ASSERT(ok, return);
-    QTC_ASSERT(agent, return);
+    MemoryAgentCookie ac = cookie.value<MemoryAgentCookie>();
+    QTC_ASSERT(ac.agent, return);
     QByteArray ba;
     GdbMi memory = record.data.findChild("memory");
     QTC_ASSERT(memory.children().size() <= 1, return);
+    if (memory.children().isEmpty())
+        return;
     GdbMi memory0 = memory.children().at(0); // we asked for only one 'row'
-    quint64 addr = memory0.findChild("addr").data().toULongLong(&ok, 0);
-    QTC_ASSERT(ok, return);
     GdbMi data = memory0.findChild("data");
     foreach (const GdbMi &child, data.children()) {
+        bool ok = true;
         unsigned char c = child.data().toUInt(&ok, 0);
         QTC_ASSERT(ok, return);
         ba.append(c);
     }
-    //qDebug() << "GDB READ MEMORY" << agent << addr << data.data() << ba.size();
-    agent->addLazyData(addr, ba);
+    ac.agent->addLazyData(ac.address, ba);
 }
 
+
+struct DisassemblerAgentCookie
+{
+    DisassemblerAgentCookie() : agent(0) {}
+    DisassemblerAgentCookie(DisassemblerViewAgent *agent_)
+        : agent(agent_)
+    {}
+    DisassemblerViewAgent *agent;
+};
 
 void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent,
     const StackFrame &frame)
@@ -3975,7 +3994,8 @@ void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent,
         // Disassemble full function:
         QString cmd = _("-data-disassemble -f %1 -l %2 -n -1 -- 1");
         postCommand(cmd.arg(frame.file).arg(frame.line),
-            Discardable, CB(handleFetchDisassemblerByLine), agentCookie(agent));
+            Discardable, CB(handleFetchDisassemblerByLine),
+            QVariant::fromValue(DisassemblerAgentCookie(agent)));
     }
 }
 
@@ -3991,10 +4011,12 @@ void GdbEngine::fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
     //  | [ -f filename -l linenum [ -n lines ] ] -- mode
     if (useMixedMode) 
         postCommand(_("-data-disassemble -s %1 -e %2 -- 1").arg(start).arg(end),
-            Discardable, CB(handleFetchDisassemblerByAddress1), agentCookie(agent));
+            Discardable, CB(handleFetchDisassemblerByAddress1),
+            QVariant::fromValue(DisassemblerAgentCookie(agent)));
     else
         postCommand(_("-data-disassemble -s %1 -e %2 -- 0").arg(start).arg(end),
-            Discardable, CB(handleFetchDisassemblerByAddress0), agentCookie(agent));
+            Discardable, CB(handleFetchDisassemblerByAddress0),
+            QVariant::fromValue(DisassemblerAgentCookie(agent)));
 }
 
 static QByteArray parseLine(const GdbMi &line)
@@ -4060,37 +4082,35 @@ static QString parseDisassembler(const GdbMi &lines)
 void GdbEngine::handleFetchDisassemblerByLine(const GdbResultRecord &record,
     const QVariant &cookie)
 {
-    bool ok = true;
-    DisassemblerViewAgent *agent = (DisassemblerViewAgent *)cookie.toULongLong(&ok);
-    QTC_ASSERT(agent, return);
+    DisassemblerAgentCookie ac = cookie.value<DisassemblerAgentCookie>();
+    QTC_ASSERT(ac.agent, return);
 
     if (record.resultClass == GdbResultDone) {
         GdbMi lines = record.data.findChild("asm_insns");
         if (lines.children().isEmpty())
-            fetchDisassemblerByAddress(agent, true);
+            fetchDisassemblerByAddress(ac.agent, true);
         else
-            agent->setContents(parseDisassembler(lines));
+            ac.agent->setContents(parseDisassembler(lines));
     } else if (record.resultClass == GdbResultError) {
         //536^error,msg="mi_cmd_disassemble: Invalid line number"
         QByteArray msg = record.data.findChild("msg").data();
         if (msg == "mi_cmd_disassemble: Invalid line number")
-            fetchDisassemblerByAddress(agent, true);
+            fetchDisassemblerByAddress(ac.agent, true);
     }
 }
 
 void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResultRecord &record,
     const QVariant &cookie)
 {
-    bool ok = true;
-    DisassemblerViewAgent *agent = (DisassemblerViewAgent *)cookie.toULongLong(&ok);
-    QTC_ASSERT(agent, return);
+    DisassemblerAgentCookie ac = cookie.value<DisassemblerAgentCookie>();
+    QTC_ASSERT(ac.agent, return);
 
     if (record.resultClass == GdbResultDone) {
         GdbMi lines = record.data.findChild("asm_insns");
         if (lines.children().isEmpty())
-            fetchDisassemblerByAddress(agent, false);
+            fetchDisassemblerByAddress(ac.agent, false);
         else
-            agent->setContents(parseDisassembler(lines));
+            ac.agent->setContents(parseDisassembler(lines));
     }
 }
 
@@ -4107,9 +4127,16 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResultRecord &record,
     }
 }
 
-
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *opts)
 {
     opts->push_back(new GdbOptionsPage);
     return new GdbEngine(parent);
 }
+
+} // namespace Internal
+} // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::MemoryAgentCookie);
+Q_DECLARE_METATYPE(Debugger::Internal::DisassemblerAgentCookie);
+Q_DECLARE_METATYPE(Debugger::Internal::GdbMi);
+

@@ -227,7 +227,6 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setText(tr("Synchronize breakpoints"));
     instance->insertItem(SynchronizeBreakpoints, item);
 
-
     //
     // Settings
     //

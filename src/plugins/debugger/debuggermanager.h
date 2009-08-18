@@ -319,6 +319,7 @@ public slots:
     void executeDebuggerCommand(const QString &command);
 
     void watchPoint();
+    void setRegisterValue(int nr, const QString &value);
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 

@@ -50,8 +50,9 @@ using namespace Debugger::Constants;
 //////////////////////////////////////////////////////////////////
 
 RegisterHandler::RegisterHandler(QObject *parent)
-    : QAbstractTableModel(parent), m_base(16)
+    : QAbstractTableModel(parent)
 {
+    setNumberBase(16);
 }
 
 int RegisterHandler::rowCount(const QModelIndex &parent) const
@@ -68,7 +69,7 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 {
     static const QVariant red = QColor(200, 0, 0);
 
-    if (role == Qt::UserRole)
+    if (role == RegisterNumberBaseRole)
         return m_base;
 
     if (!index.isValid() || index.row() >= m_registers.size())
@@ -76,7 +77,7 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 
     const Register &reg = m_registers.at(index.row());
 
-    if (role == Qt::UserRole + 1) {
+    if (role == RegisterAddressRole) {
         // return some address associated with the register
         bool ok = true;
         qulonglong value = reg.value.toULongLong(&ok, 0);
@@ -90,7 +91,8 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
             case 1: {
                 bool ok = true;
                 qulonglong value = reg.value.toULongLong(&ok, 0);
-                return ok ? padding + QString::number(value, m_base) + padding : reg.value;
+                QString res = ok ? QString::number(value, m_base) : reg.value;
+                return QString(m_strlen - res.size(), QLatin1Char(' ')) + res;
             }
         }
     }
@@ -114,6 +116,26 @@ QVariant RegisterHandler::headerData(int section, Qt::Orientation orientation,
         };
     }
     return QVariant();
+}
+
+Qt::ItemFlags RegisterHandler::flags(const QModelIndex &idx) const
+{
+    using namespace Qt;
+
+    if (!idx.isValid())
+        return ItemFlags();
+
+    static const ItemFlags notEditable =
+          ItemIsSelectable
+        | ItemIsDragEnabled
+        | ItemIsDropEnabled
+        | ItemIsEnabled;
+
+    static const ItemFlags editable = notEditable | ItemIsEditable;
+
+    if (idx.column() == 1)
+        return editable; // locals and watcher values are editable
+    return  notEditable;
 }
 
 void RegisterHandler::removeAll()
@@ -141,5 +163,6 @@ QList<Register> RegisterHandler::registers() const
 void RegisterHandler::setNumberBase(int base)
 {
     m_base = base;
+    m_strlen = (base == 2 ? 64 : base == 8 ? 32 : base == 10 ? 26 : 16);
     emit reset();
 }

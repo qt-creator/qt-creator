@@ -299,6 +299,7 @@ private:
     // Register specific stuff
     // 
     Q_SLOT void reloadRegisters();
+    void setRegisterValue(int nr, const QString &value);
     void handleRegisterListNames(const GdbResultRecord &record, const QVariant &);
     void handleRegisterListValues(const GdbResultRecord &record, const QVariant &);
 

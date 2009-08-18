@@ -88,7 +88,6 @@
 // of the engine.
 using namespace Debugger::Internal;
 
-IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineEnabled */, QList<Core::IOptionsPage*> *)
 #ifdef CDB_ENABLED
 ;
@@ -101,6 +100,8 @@ IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPa
 
 namespace Debugger {
 namespace Internal {
+
+IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 
 QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
 {
@@ -1430,6 +1431,12 @@ void DebuggerManager::reloadFullStack()
         m_engine->reloadFullStack();
 }
 
+void DebuggerManager::setRegisterValue(int nr, const QString &value)
+{
+    if (m_engine)
+        m_engine->setRegisterValue(nr, value);
+}
+
 bool DebuggerManager::isReverseDebugging() const
 {
     return m_reverseDirectionAction->isChecked();
@@ -1447,7 +1454,6 @@ void DebuggerManager::setSessionValue(const QString &name, const QVariant &value
 {
     emit setSessionValueRequested(name, value);
 }
-
 
 //////////////////////////////////////////////////////////////////////
 //

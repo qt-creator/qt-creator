@@ -75,6 +75,7 @@ MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, const QString &addr)
 {
     bool ok = true;
     init(addr.toUInt(&ok, 0));
+    //qDebug() <<  " ADDRESS: " << addr <<  addr.toUInt(&ok, 0);
 }
 
 MemoryViewAgent::~MemoryViewAgent()

@@ -28,10 +28,13 @@
 **************************************************************************/
 
 #include "registerwindow.h"
+#include "registerhandler.h"
 
 #include "debuggeractions.h"
 #include "debuggeragents.h"
 #include "debuggerconstants.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -40,13 +43,99 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QHeaderView>
+#include <QtGui/QItemDelegate>
+#include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
+#include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QToolButton>
 
 
-using namespace Debugger::Internal;
-using namespace Debugger::Constants;
+namespace Debugger {
+namespace Internal {
+
+///////////////////////////////////////////////////////////////////////
+//
+// RegisterDelegate
+//
+///////////////////////////////////////////////////////////////////////
+
+class RegisterDelegate : public QItemDelegate
+{
+public:
+    RegisterDelegate(DebuggerManager *manager, QObject *parent)
+        : QItemDelegate(parent), m_manager(manager)
+    {}
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
+        const QModelIndex &) const
+    {
+        QLineEdit *lineEdit = new QLineEdit(parent);
+        lineEdit->setAlignment(Qt::AlignRight);
+        return lineEdit;
+    }
+
+    void setEditorData(QWidget *editor, const QModelIndex &index) const
+    {
+        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
+        QTC_ASSERT(lineEdit, return);
+        lineEdit->setText(index.model()->data(index, Qt::DisplayRole).toString());
+    }
+
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+        const QModelIndex &index) const
+    {
+        Q_UNUSED(model);
+        //qDebug() << "SET MODEL DATA";
+        QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor);
+        QTC_ASSERT(lineEdit, return);
+        QString value = lineEdit->text();
+        //model->setData(index, value, Qt::EditRole);
+        if (index.column() == 1)
+            m_manager->setRegisterValue(index.row(), value);
+    }
+
+    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
+        const QModelIndex &) const
+    {
+        editor->setGeometry(option.rect);
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+        const QModelIndex &index) const
+    {
+        if (index.column() == 1) {
+            // FIXME: performance? this changes only on real font changes.
+            QFontMetrics fm(option.font);
+            int charWidth = fm.width(QLatin1Char('x'));
+            for (int i = '1'; i <= '9'; ++i)
+                charWidth = qMax(charWidth, fm.width(QLatin1Char(i)));
+            for (int i = 'a'; i <= 'f'; ++i)
+                charWidth = qMax(charWidth, fm.width(QLatin1Char(i)));
+            QString str = index.model()->data(index, Qt::DisplayRole).toString();
+            int x = option.rect.x();
+            for (int i = 0; i < str.size(); ++i) {
+                QRect r = option.rect;
+                r.setX(x);
+                r.setWidth(charWidth);
+                x += charWidth;
+                painter->drawText(r, Qt::AlignHCenter, QString(str.at(i)));
+            }
+        } else {
+            QItemDelegate::paint(painter, option, index);
+        }
+    }
+
+private:
+    DebuggerManager *m_manager;
+};
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// RegisterWindow
+//
+///////////////////////////////////////////////////////////////////////
 
 RegisterWindow::RegisterWindow(DebuggerManager *manager)
   : m_manager(manager), m_alwaysResizeColumnsToContents(true),
@@ -57,6 +146,7 @@ RegisterWindow::RegisterWindow(DebuggerManager *manager)
     setSortingEnabled(true);
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
+    setItemDelegate(new RegisterDelegate(m_manager, this));
 
     connect(act, SIGNAL(toggled(bool)),
         this, SLOT(setAlternatingRowColorsHelper(bool)));
@@ -84,7 +174,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
 
     QModelIndex idx = indexAt(ev->pos());
-    QString address = model()->data(idx, Qt::UserRole + 1).toString();
+    QString address = model()->data(idx, RegisterAddressRole).toString();
     QAction *actShowMemory = menu.addAction(QString());
     if (address.isEmpty()) {
         actShowMemory->setText(tr("Open memory editor"));
@@ -94,7 +184,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
     menu.addSeparator();
 
-    int base = model()->data(QModelIndex(), Qt::UserRole).toInt();
+    int base = model()->data(QModelIndex(), RegisterNumberBaseRole).toInt();
     QAction *act16 = menu.addAction(tr("Hexadecimal"));
     act16->setCheckable(true);
     act16->setChecked(base == 16);
@@ -112,7 +202,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
-    
+ 
     if (act == actAdjust)
         resizeColumnsToContents();
     else if (act == actAlwaysAdjust)
@@ -162,4 +252,6 @@ void RegisterWindow::setModel(QAbstractItemModel *model)
     QTreeView::setModel(model);
     setAlwaysResizeColumnsToContents(true);
 }
-    
+
+} // namespace Internal
+} // namespace Debugger

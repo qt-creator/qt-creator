@@ -35,6 +35,12 @@
 namespace Debugger {
 namespace Internal {
 
+enum RegisterRole
+{
+    RegisterNumberBaseRole = Qt::UserRole, // Currently used number base
+    RegisterAddressRole                   // Start value for opening memory view
+};
+
 class Register
 {
 public:
@@ -68,9 +74,11 @@ private:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
+    Qt::ItemFlags flags(const QModelIndex &idx) const;
     
     QList<Register> m_registers;
     int m_base;
+    int m_strlen; // approximate width of an value in chars
 };
 
 } // namespace Internal
