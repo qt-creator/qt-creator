@@ -860,6 +860,7 @@ void DebuggerManager::cleanupViews()
     threadsHandler()->removeAll();
     modulesHandler()->removeAll();
     watchHandler()->cleanup();
+    registerHandler()->removeAll();
     m_sourceFilesWindow->removeAll();
 }
 
