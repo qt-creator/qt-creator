@@ -107,10 +107,6 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QMenu menu;
     QAction *act0 = new QAction(tr("Update module list"), &menu);
-    QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
-    QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
-    act2->setCheckable(true);
-    act2->setChecked(m_alwaysResizeColumnsToContents);
     QAction *act3 = new QAction(tr("Show source files for module \"%1\"").arg(name),
          &menu);
     QAction *act4 = new QAction(tr("Load symbols for all modules"), &menu);
@@ -140,6 +136,8 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
         menu.addAction(tr("Adjust column widths to contents"));
     QAction *actAlwaysAdjustColumnWidth =
         menu.addAction(tr("Always adjust column widths to contents"));
+    actAlwaysAdjustColumnWidth->setCheckable(true);
+    actAlwaysAdjustColumnWidth->setChecked(m_alwaysResizeColumnsToContents);
     menu.addSeparator();
     menu.addAction(theDebuggerAction(SettingsDialog));
 
