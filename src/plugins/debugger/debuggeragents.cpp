@@ -75,7 +75,7 @@ MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, const QString &addr)
     : QObject(manager), m_engine(manager->currentEngine())
 {
     bool ok = true;
-    init(addr.toUInt(&ok, 0));
+    init(addr.toULongLong(&ok, 0));
     //qDebug() <<  " ADDRESS: " << addr <<  addr.toUInt(&ok, 0);
 }
 
@@ -87,7 +87,7 @@ MemoryViewAgent::~MemoryViewAgent()
 void MemoryViewAgent::init(quint64 addr) 
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    QString titlePattern = "Memory $";
+    QString titlePattern = tr("Memory $");
     m_editor = editorManager->openEditorWithContents(
         Core::Constants::K_DEFAULT_BINARY_EDITOR,
         &titlePattern);

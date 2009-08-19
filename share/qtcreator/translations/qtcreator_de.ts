@@ -490,10 +490,6 @@
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>Es wurde ein &lt;b&gt;Build im Quellverzeichnis&lt;/b&gt; festgestellt, der Shadow-Builds verhindert. Das Build-Verzeichnis kann nicht in Qt Creator geändert werden. Wenn Sie einen Shadow-Build wünschen, bereinigen Sie bitte das Quellverzeichnis und öffnen Sie das Projekt noch einmal.</translation>
     </message>
-    <message>
-        <source>Qt Creator has detected an in-source-build which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
-        <translation type="obsolete">Es wurde ein Build im Quellverzeichnis festgestellt, der Shadow-Builds verhindert. Das Build-Verzeichnis kann nicht in Qt Creator geändert werden. Wenn Sie einen Shadow-Build wünschen, bereinigen Sie bitte das Quellverzeichnis und öffnen Sie das Projekt noch einmal.</translation>
-    </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
@@ -542,17 +538,6 @@
         <location line="+2"/>
         <source>&lt;No Symbols&gt;</source>
         <translation>&lt;keine Symbole&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CVS::Internal::CVSOutputWindow</name>
-    <message>
-        <source>CVS Output</source>
-        <translation type="obsolete">CVS-Ausgabe</translation>
-    </message>
-    <message>
-        <source>CVS</source>
-        <translation type="obsolete">CVS</translation>
     </message>
 </context>
 <context>
@@ -769,23 +754,6 @@
         <source>Executing in %1: %2 %2
 </source>
         <translation>Kommando [%1]: %2 %3
-</translation>
-    </message>
-    <message>
-        <source>Executing: %2 %3
-</source>
-        <translation type="obsolete">Kommando: %2 %3
-</translation>
-    </message>
-    <message>
-        <source>%1 Executing: %2 %3
-</source>
-        <translation type="obsolete">%1 Kommando: %2 %3</translation>
-    </message>
-    <message>
-        <source>%1 Executing in %2: %3 %4
-</source>
-        <translation type="obsolete">%1 Kommando [%2]: %3 %4
 </translation>
     </message>
     <message>
@@ -2670,10 +2638,6 @@ Sollen sie überschrieben werden?</translation>
         <source>Sort alphabetically</source>
         <translation>Alphabetisch sortieren</translation>
     </message>
-    <message>
-        <source>Rename &apos;%1&apos;</source>
-        <translation type="obsolete">&apos;%1&apos; Umbenennen</translation>
-    </message>
 </context>
 <context>
     <name>CppEditor::Internal::ClassNamePage</name>
@@ -2983,9 +2947,22 @@ Sollen sie überschrieben werden?</translation>
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::AddressDialog</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+545"/>
+        <source>Select start address</source>
+        <translation>Startadresse</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Enter an address: </source>
+        <translation>Adresse:</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::AttachCoreDialog</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+134"/>
+        <location line="-414"/>
         <source>Select Executable</source>
         <translation>Ausführbare Datei auswählen</translation>
     </message>
@@ -3276,7 +3253,12 @@ Sollen sie überschrieben werden?</translation>
         <translation>Der Wert &apos;%1&apos; konnte nicht an &apos;%2&apos; zugewiesen werden: %3</translation>
     </message>
     <message>
-        <location line="+249"/>
+        <location line="+234"/>
+        <source>Unable to retrieve %1 bytes of memory at 0x%2: %3</source>
+        <translation>Die Abfrage des Speichers (%1 bytes ab 0x%2) schlug fehl: %3</translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>Cannot retrieve symbols while the debuggee is running.</source>
         <translation>Die Symbole können nicht bestimmt werden, solange die zu debuggende Anwendung läuft.</translation>
     </message>
@@ -3428,14 +3410,6 @@ Sollen sie überschrieben werden?</translation>
         <location line="+5"/>
         <source>Step Into</source>
         <translation>Einzelschritt herein</translation>
-    </message>
-    <message>
-        <source>Step Over Instruction</source>
-        <translation type="obsolete">Einzelschritt über Anweisung</translation>
-    </message>
-    <message>
-        <source>Step One Instruction</source>
-        <translation type="obsolete">Einzelschritt eine Anweisung</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -3787,30 +3761,6 @@ Sollen sie überschrieben werden?</translation>
         <translation>Haltepunkte synchronisieren</translation>
     </message>
     <message>
-        <source>Hexadecimal</source>
-        <translation type="obsolete">Hexadezimal</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation type="obsolete">Dezimal</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation type="obsolete">Oktal</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="obsolete">Binär</translation>
-    </message>
-    <message>
-        <source>Raw</source>
-        <translation type="obsolete">Rohformat</translation>
-    </message>
-    <message>
-        <source>Natural</source>
-        <translation type="obsolete">Natürliches Format</translation>
-    </message>
-    <message>
         <location line="+23"/>
         <source>Automatically quit debugger</source>
         <translation>Debugger automatisch beenden</translation>
@@ -3862,44 +3812,6 @@ Sollen sie überschrieben werden?</translation>
         <location line="+32"/>
         <source>Ctrl+Shift+F11</source>
         <translation></translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DisassemblerHandler</name>
-    <message>
-        <source>Address</source>
-        <translation type="obsolete">Adresse</translation>
-    </message>
-    <message>
-        <source>Symbol</source>
-        <translation type="obsolete">Symbol</translation>
-    </message>
-    <message>
-        <source>Mnemonic</source>
-        <translation type="obsolete">Kürzel</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DisassemblerWindow</name>
-    <message>
-        <source>Disassembler</source>
-        <translation type="obsolete">Disassembler</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Spaltenbreite an Inhalt anpassen</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Spaltenbreite immer an Inhalt anpassen</translation>
-    </message>
-    <message>
-        <source>Reload disassembler listing</source>
-        <translation type="obsolete">Dissambler neu laden</translation>
-    </message>
-    <message>
-        <source>Always reload disassembler listing</source>
-        <translation type="obsolete">Dissambler immer neu laden</translation>
     </message>
 </context>
 <context>
@@ -4190,10 +4102,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Debugger beendet.</translation>
     </message>
     <message>
-        <source>&lt;could not retreive module information&gt;</source>
-        <translation type="obsolete">&lt;Modulinformation nicht verfügbar&gt;</translation>
-    </message>
-    <message>
         <location line="+570"/>
         <source>Unable to run &apos;%1&apos;: %2</source>
         <translation>&apos;%1&apos; kann nicht ausgeführt werden: %2</translation>
@@ -4326,6 +4234,14 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <location line="+2"/>
         <source>Choose Location of Startup Script File</source>
         <translation>Pfad zu Startup-Skript</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::MemoryViewAgent</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/debuggeragents.cpp" line="+90"/>
+        <source>Memory $</source>
+        <translation>Speicher $</translation>
     </message>
 </context>
 <context>
@@ -4463,10 +4379,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <location line="+1"/>
         <source>Value (base %1)</source>
         <translation>Wert (Basis %1)</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="obsolete">Wert</translation>
     </message>
 </context>
 <context>
@@ -4910,7 +4822,12 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Format für den Ausdruck ändern</translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+14"/>
+        <source>Open memory editor...</source>
+        <translation>Speicher-Editor öffnen...</translation>
+    </message>
+    <message>
+        <location line="+21"/>
         <source>Adjust column widths to contents</source>
         <translation>Spaltenbreite an Inhalt anpassen</translation>
     </message>
@@ -4920,17 +4837,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Spaltenbreite immer an Inhalt anpassen</translation>
     </message>
     <message>
-        <location line="+19"/>
-        <source>Enter an address: </source>
-        <translation>Adresse:</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Select start address</source>
-        <translation>Startadresse</translation>
-    </message>
-    <message>
-        <location line="-55"/>
+        <location line="-28"/>
         <source>Insert new watch item</source>
         <translation>Neuen Überwachten Ausdruck einfügen</translation>
     </message>
@@ -4941,11 +4848,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Open memory editor</source>
-        <translation>Speicher-Editor öffnen</translation>
-    </message>
-    <message>
-        <location line="+3"/>
         <source>Open memory editor at %1</source>
         <translation>Speicher-Editor bei %1 öffnen</translation>
     </message>
@@ -5086,17 +4988,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::EditorWidget</name>
-    <message>
-        <source>Action editor</source>
-        <translation type="obsolete">Aktionseditor</translation>
-    </message>
-    <message>
-        <source>Signals and slots editor</source>
-        <translation type="obsolete">Signale und Slots</translation>
-    </message>
-</context>
-<context>
     <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/designer/cpp/formclasswizarddialog.cpp" line="+50"/>
@@ -5157,26 +5048,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 </context>
 <context>
     <name>Designer::Internal::FormEditorW</name>
-    <message>
-        <source>Designer widgetbox</source>
-        <translation type="obsolete">Widgetbox</translation>
-    </message>
-    <message>
-        <source>Object inspector</source>
-        <translation type="obsolete">Objektanzeige</translation>
-    </message>
-    <message>
-        <source>Property editor</source>
-        <translation type="obsolete">Eigenschaften</translation>
-    </message>
-    <message>
-        <source>Signals and slots editor</source>
-        <translation type="obsolete">Signale und Slots</translation>
-    </message>
-    <message>
-        <source>Action editor</source>
-        <translation type="obsolete">Aktionseditor</translation>
-    </message>
     <message>
         <location filename="../../../src/plugins/designer/formeditorw.cpp" line="+334"/>
         <location line="+170"/>
@@ -6360,10 +6231,6 @@ Grund: %3</translation>
         <translation>Toolchain:</translation>
     </message>
     <message>
-        <source>Toolchain:</source>
-        <translation type="obsolete">Werkzeugkette:</translation>
-    </message>
-    <message>
         <location line="+8"/>
         <source>Generic Manager</source>
         <translation>Generische Verwaltung</translation>
@@ -6578,12 +6445,6 @@ Grund: %3</translation>
         <translation>Die Ausgabe der Datei konnte nicht ausgewertet werden.</translation>
     </message>
     <message>
-        <source>%1 Executing: %2 %3
-</source>
-        <extracomment>&lt;timestamp&gt; Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
-        <translation type="obsolete">%1 Kommando: %2 %3</translation>
-    </message>
-    <message>
         <location line="+7"/>
         <source>Executing: %1 %2
 </source>
@@ -6719,17 +6580,6 @@ Grund: %3</translation>
         <location line="+22"/>
         <source>There are no modified files.</source>
         <translation>Es gibt keine geänderten Dateien.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitOutputWindow</name>
-    <message>
-        <source>Git Output</source>
-        <translation type="obsolete">Git-Ausgabe</translation>
-    </message>
-    <message>
-        <source>Git</source>
-        <translation type="obsolete">Git</translation>
     </message>
 </context>
 <context>
@@ -6973,10 +6823,6 @@ Grund: %3</translation>
         <location line="+96"/>
         <source>Another submit is currently being executed.</source>
         <translation>Another submit is currently being executed.</translation>
-    </message>
-    <message>
-        <source>Another submit is currently beeing executed.</source>
-        <translation type="obsolete">Es läuft bereits ein Commit.</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -8242,17 +8088,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceOutputWindow</name>
-    <message>
-        <source>Perforce Output</source>
-        <translation type="obsolete">Perforce-Ausgabe</translation>
-    </message>
-    <message>
-        <source>Perforce</source>
-        <translation type="obsolete">Perforce</translation>
-    </message>
-</context>
-<context>
     <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <location filename="../../../src/plugins/perforce/perforceplugin.cpp" line="+242"/>
@@ -8517,12 +8352,6 @@ p, li { white-space: pre-wrap; }
         <source>Executing: %1
 </source>
         <translation>Kommando: %1
-</translation>
-    </message>
-    <message>
-        <source>%1 Executing: %2
-</source>
-        <translation type="obsolete">%1 Kommando: %2
 </translation>
     </message>
     <message>
@@ -9060,14 +8889,6 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
-        <source>Show Details</source>
-        <translation type="obsolete">Details anzeigen</translation>
-    </message>
-    <message>
-        <source>Hide Details</source>
-        <translation type="obsolete">Details ausblenden</translation>
-    </message>
-    <message>
         <location line="+142"/>
         <source>Details</source>
         <translation>Details</translation>
@@ -9417,10 +9238,6 @@ Fehler: %2</translation>
         <source>%1 depends on: %2.</source>
         <translation>%1 hängt von %2 ab.</translation>
     </message>
-    <message>
-        <source>, </source>
-        <translation type="obsolete">, </translation>
-    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::DetailedModel</name>
@@ -9553,10 +9370,6 @@ Fehler: %2</translation>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProcessStepWidget</name>
-    <message>
-        <source>Enable custom process step</source>
-        <translation type="obsolete">Benutzerdefinierten Verarbeitungsschritt aktivieren</translation>
-    </message>
     <message>
         <location filename="../../../src/plugins/projectexplorer/processstep.ui"/>
         <source>Name:</source>
@@ -9762,25 +9575,6 @@ Fehler: %2</translation>
         <location line="+8"/>
         <source>Files to be added:</source>
         <translation>Zu erzeugende Dateien:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi</name>
-    <message>
-        <source>Save all files before Build</source>
-        <translation type="obsolete">Alle Dateien vor Erstellen speichern</translation>
-    </message>
-    <message>
-        <source>Always build Project before Running</source>
-        <translation type="obsolete">Projekt vor Ausführung stets erstellen</translation>
-    </message>
-    <message>
-        <source>Build and Run</source>
-        <translation type="obsolete">Erstellung und Ausführung</translation>
-    </message>
-    <message>
-        <source>Show Compiler Output on building</source>
-        <translation type="obsolete">Compiler-Ausgabe beim Erstellen anzeigen</translation>
     </message>
 </context>
 <context>
@@ -10551,10 +10345,6 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
 </context>
 <context>
     <name>QrcEditor</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formular</translation>
-    </message>
     <message>
         <location filename="../../../src/shared/qrceditor/qrceditor.ui"/>
         <source>Add</source>
@@ -11440,10 +11230,6 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>verwende Qt-Version: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;mit Toolchain &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;Erstellung in &lt;b&gt;%3&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>using Qt Version: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;with tool chain &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;building in &lt;b&gt;%3&lt;/b&gt;</source>
-        <translation type="obsolete">benutze</translation>
-    </message>
-    <message>
         <location line="+17"/>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -11806,17 +11592,9 @@ p, li { white-space: pre-wrap; }
         <translation>Gerät auf serieller Schnittstelle:</translation>
     </message>
     <message>
-        <source>Self-sign</source>
-        <translation type="obsolete">Selbstsigniertes Zertifikat</translation>
-    </message>
-    <message>
         <location line="+19"/>
         <source>Choose certificate file (.cer)</source>
         <translation>Geben Sie eine Datei mit einem Zertifikat (.cer) an</translation>
-    </message>
-    <message>
-        <source>Custom signature:</source>
-        <translation type="obsolete">Signatur:</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -13232,17 +13010,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionOutputWindow</name>
-    <message>
-        <source>Subversion Output</source>
-        <translation type="obsolete">Subversion-Ausgabe</translation>
-    </message>
-    <message>
-        <source>Subversion</source>
-        <translation type="obsolete">Subversion</translation>
-    </message>
-</context>
-<context>
     <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <location filename="../../../src/plugins/subversion/subversionplugin.cpp" line="+277"/>
@@ -13442,12 +13209,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <source>No subversion executable specified!</source>
         <translation>Es wurde keine ausführbaren Subversion-Datei angegeben!
 </translation>
-    </message>
-    <message>
-        <source>%1 Executing: %2 %3
-</source>
-        <extracomment>&lt;timestamp&gt; Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
-        <translation type="obsolete">%1 Kommando: %2 %3</translation>
     </message>
     <message>
         <location line="+37"/>

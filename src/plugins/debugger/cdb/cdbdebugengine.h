@@ -89,6 +89,7 @@ public:
 
     virtual void fetchDisassembler(DisassemblerViewAgent *agent,
         const StackFrame &frame);
+    virtual void fetchMemory(MemoryViewAgent *, quint64 addr, quint64 length);
 
     virtual void reloadModules();
     virtual void loadSymbols(const QString &moduleName);

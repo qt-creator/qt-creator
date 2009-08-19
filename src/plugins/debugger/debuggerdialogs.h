@@ -36,6 +36,8 @@ QT_BEGIN_NAMESPACE
 
 class QModelIndex;
 class QPushButton;
+class QLineEdit;
+class QDialogButtonBox;
 
 namespace Ui {
 class AttachCoreDialog;
@@ -171,6 +173,26 @@ private:
     Ui::StartRemoteDialog *m_ui;
 };
 
+class AddressDialog : public QDialog {
+    Q_OBJECT
+public:
+     explicit AddressDialog(QWidget *parent = 0);
+     quint64 address() const;
+
+     virtual void accept();
+
+private slots:
+     void textChanged();
+
+private:
+     void setOkButtonEnabled(bool v);
+     bool isOkButtonEnabled() const;
+
+     bool isValid() const;
+
+     QLineEdit *m_lineEdit;
+     QDialogButtonBox *m_box;
+};
 
 } // namespace Debugger
 } // namespace Internal
