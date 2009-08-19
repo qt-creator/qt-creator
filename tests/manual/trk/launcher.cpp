@@ -38,7 +38,13 @@
 #include <QtCore/QFile>
 
 #ifdef Q_OS_WIN
-#include <windows.h>
+#  include <windows.h>
+#else
+#  include <stdio.h>
+#  include <sys/ioctl.h>
+#endif
+
+#ifdef Q_OS_WIN
 
 // Format windows error from GetLastError() value: TODO: Use the one provided by the utisl lib.
 QString winErrorMessage(unsigned long error)
@@ -97,6 +103,8 @@ struct LauncherPrivate {
     LauncherPrivate();
 #ifdef Q_OS_WIN
     HANDLE m_hdevice;
+#else
+    QFile m_file;
 #endif
 
     QString m_trkServerName;
@@ -226,16 +234,19 @@ bool Launcher::openTrkPort(const QString &port, QString *errorMessage)
     }
     return true;
 #else
-    Q_UNUSED(port)
-    *errorMessage = QString::fromLatin1("Not implemented");
-    logMessage(*errorMessage);
-    return false;
+    d->m_file.setFileName(port);
+    if (!d->m_file.open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
+        *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(port, d->m_file.errorString());
+        return false;
+    }
+    return true;
 #endif
 }
 
 void Launcher::timerEvent(QTimerEvent *)
 {
-    //qDebug(".");
+    if (d->m_verbose>1)
+        qDebug(".");
     tryTrkWrite();
     tryTrkRead();
 }
@@ -327,8 +338,22 @@ void Launcher::trkWrite(const TrkMessage &msg)
 
     //logMessage("WRITE: " + stringFromArray(ba));
     FlushFileBuffers(d->m_hdevice);
+#else
+    if (d->m_file.write(ba) == -1 || !d->m_file.flush())
+        logMessage(QString::fromLatin1("Cannot write: %1").arg(d->m_file.errorString()));
 #endif
 }
+
+#ifndef Q_OS_WIN
+static inline int bytesAvailable(int fileNo)
+{
+    int numBytes;
+    const int rc = ioctl(fileNo, FIONREAD, &numBytes);
+    if (rc < 0) 
+        numBytes=0;
+    return numBytes;
+}
+#endif
 
 void Launcher::tryTrkRead()
 {
@@ -344,6 +369,19 @@ void Launcher::tryTrkRead()
     }
     if (!isValidTrkResult(d->m_trkReadQueue)) {
         logMessage("Partial message: " + stringFromArray(d->m_trkReadQueue));
+        return;
+    }
+#else
+    const int size = bytesAvailable(d->m_file.handle());
+    if (!size)
+        return;
+    const QByteArray data = d->m_file.read(size);
+    d->m_trkReadQueue.append(data);
+    if (!isValidTrkResult(d->m_trkReadQueue)) {
+        if (d->m_trkReadQueue.size() > 10) {
+            logMessage(QString::fromLatin1("Unable to extract message from '%1' '%2'").
+                       arg(QLatin1String(d->m_trkReadQueue.toHex())).arg(QString::fromAscii(d->m_trkReadQueue)));
+        }
         return;
     }
 #endif // Q_OS_WIN
