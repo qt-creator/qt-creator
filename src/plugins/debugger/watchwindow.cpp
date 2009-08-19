@@ -32,6 +32,7 @@
 
 #include "debuggeractions.h"
 #include "debuggeragents.h"
+#include "debuggerdialogs.h"
 
 #include <utils/qtcassert.h>
 
@@ -50,7 +51,6 @@
 #include <QtGui/QResizeEvent>
 
 using namespace Debugger::Internal;
-
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -249,14 +249,11 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert new watch item"));
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select widget to watch"));
 
-    QString address = model()->data(mi0, AddressRole).toString();
+    const QString address = model()->data(mi0, AddressRole).toString();
     QAction *actWatchKnownMemory = 0;
-    QAction *actWatchUnknownMemory = 0;
-    if (address.isEmpty())
-        actWatchUnknownMemory = new QAction(tr("Open memory editor"), &menu);
-    else
-        actWatchKnownMemory =
-            new QAction(tr("Open memory editor at %1").arg(address), &menu);
+    QAction *actWatchUnknownMemory = new QAction(tr("Open memory editor..."), &menu);;
+    if (!address.isEmpty())
+        actWatchKnownMemory = new QAction(tr("Open memory editor at %1").arg(address), &menu);
     menu.addSeparator();
 
     int atype = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
@@ -266,8 +263,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actSelectWidgetToWatch);
     menu.addMenu(&typeFormatMenu);
     menu.addMenu(&individualFormatMenu);
-    menu.addAction(actWatchKnownMemory ? actWatchKnownMemory : actWatchUnknownMemory);
-
+    if (actWatchKnownMemory)
+        menu.addAction(actWatchKnownMemory);
+    menu.addAction(actWatchUnknownMemory);
     menu.addSeparator();
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
     menu.addAction(theDebuggerAction(UseDebuggingHelpers));
@@ -292,20 +290,13 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actInsertNewWatchItem) {
         theDebuggerAction(WatchExpression)
             ->trigger(WatchHandler::watcherEditPlaceHolder());
-    } else if (act == actWatchKnownMemory) {
+    } else if (actWatchKnownMemory != 0 && act == actWatchKnownMemory) {
         (void) new MemoryViewAgent(m_manager, address);
-    } else if (act == actWatchUnknownMemory) {
-        QLabel *label = new QLabel(tr("Enter an address: "));
-        QLineEdit *lineEdit = new QLineEdit;
-        QHBoxLayout *layout = new QHBoxLayout;
-        layout->addWidget(label);
-        layout->addWidget(lineEdit);
-        QDialog dialog(this);
-        dialog.setWindowTitle(tr("Select start address"));
-        dialog.setLayout(layout);
-        connect(lineEdit, SIGNAL(returnPressed()), &dialog, SLOT(accept()));
-        if (dialog.exec() == QDialog::Accepted)
-            (void) new MemoryViewAgent(m_manager, address);
+    } else if (actWatchUnknownMemory != 0 && act == actWatchUnknownMemory) {
+        AddressDialog dialog;
+        if (dialog.exec() == QDialog::Accepted) {
+            (void) new MemoryViewAgent(m_manager, dialog.address());
+        }
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;

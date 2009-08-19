@@ -1337,6 +1337,23 @@ void CdbDebugEngine::fetchDisassembler(DisassemblerViewAgent *agent,
     }
 }
 
+void CdbDebugEngine::fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length)
+{
+    if (!m_d->m_hDebuggeeProcess && !length)
+        return;
+    ULONG received;
+    QByteArray data(length, '\0');
+    const HRESULT hr = m_d->m_cif.debugDataSpaces->ReadVirtual(addr, data.data(), length, &received);
+    if (FAILED(hr)) {
+        warning(tr("Unable to retrieve %1 bytes of memory at 0x%2: %3").
+                arg(length).arg(addr, 0, 16).arg(msgComFailed("ReadVirtual", hr)));
+        return;
+    }
+    if (received < length)
+        data.truncate(received);
+    agent->addLazyData(addr, data);
+}
+
 void CdbDebugEngine::reloadModules()
 {
 }

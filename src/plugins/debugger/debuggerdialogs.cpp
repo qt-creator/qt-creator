@@ -537,5 +537,62 @@ void StartRemoteDialog::updateState()
     m_ui->serverStartScript->setEnabled(enabled);
 }
 
+AddressDialog::AddressDialog(QWidget *parent) :
+        QDialog(parent),
+        m_lineEdit(new QLineEdit),
+        m_box(new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel))
+{
+    setWindowTitle(tr("Select start address"));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    QHBoxLayout *hLayout = new QHBoxLayout;
+    hLayout->addWidget(new QLabel(tr("Enter an address: ")));
+    hLayout->addWidget(m_lineEdit);
+    QVBoxLayout *vLayout = new QVBoxLayout;
+    vLayout->addLayout(hLayout);
+    vLayout->addWidget(m_box);
+    setLayout(vLayout);
+
+    connect(m_box, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_box, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_lineEdit, SIGNAL(returnPressed()), this, SLOT(accept()));
+    connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textChanged()));
+
+    setOkButtonEnabled(false);
+}
+
+void AddressDialog::setOkButtonEnabled(bool v)
+{
+    m_box->button(QDialogButtonBox::Ok)->setEnabled(v);
+}
+
+bool AddressDialog::isOkButtonEnabled() const
+{
+    return m_box->button(QDialogButtonBox::Ok)->isEnabled();
+}
+
+quint64 AddressDialog::address() const
+{
+    return m_lineEdit->text().toULongLong(0, 16);
+}
+
+void AddressDialog::accept()
+{
+    if (isOkButtonEnabled())
+        QDialog::accept();
+}
+
+void AddressDialog::textChanged()
+{
+    setOkButtonEnabled(isValid());
+}
+
+bool AddressDialog::isValid() const
+{
+    const QString text = m_lineEdit->text();
+    bool ok = false;
+    text.toULongLong(&ok, 16);
+    return ok;
+}
+
 } // namespace Internal
 } // namespace Debugger

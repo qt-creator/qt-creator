@@ -53,8 +53,8 @@ class MemoryViewAgent : public QObject
 
 public:
     // Called from Gui
-    MemoryViewAgent(DebuggerManager *manager, quint64 startaddr);
-    MemoryViewAgent(DebuggerManager *manager, const QString &startaddr);
+    explicit MemoryViewAgent(DebuggerManager *manager, quint64 startaddr);
+    explicit MemoryViewAgent(DebuggerManager *manager, const QString &startaddr);
     ~MemoryViewAgent();
 
     enum { BinBlockSize = 1024 };
@@ -79,7 +79,7 @@ class DisassemblerViewAgent : public QObject
 
 public:
     // Called from Gui
-    DisassemblerViewAgent(DebuggerManager *manager);
+    explicit DisassemblerViewAgent(DebuggerManager *manager);
     ~DisassemblerViewAgent();
 
     void setFrame(const StackFrame &frame);
