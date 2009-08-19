@@ -75,8 +75,8 @@ static  bool inline lowerCaseFiles(const Core::ICore *core)
     QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
     lowerCaseSettingsKey += QLatin1Char('/');
     lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
-
-    return core->settings()->value(lowerCaseSettingsKey, QVariant(false)).toBool();
+    const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
+    return core->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
 // Set up new class widget from settings
