@@ -295,13 +295,13 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actWatchKnownMemory) {
         (void) new MemoryViewAgent(m_manager, address);
     } else if (act == actWatchUnknownMemory) {
-        QLabel *label = new QLabel("Enter an address: ");
+        QLabel *label = new QLabel(tr("Enter an address: "));
         QLineEdit *lineEdit = new QLineEdit;
         QHBoxLayout *layout = new QHBoxLayout;
         layout->addWidget(label);
         layout->addWidget(lineEdit);
         QDialog dialog(this);
-        dialog.setWindowTitle("Select start address");
+        dialog.setWindowTitle(tr("Select start address"));
         dialog.setLayout(layout);
         connect(lineEdit, SIGNAL(returnPressed()), &dialog, SLOT(accept()));
         if (dialog.exec() == QDialog::Accepted)

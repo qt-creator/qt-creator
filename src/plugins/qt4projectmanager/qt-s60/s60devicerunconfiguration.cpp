@@ -624,7 +624,7 @@ void S60DeviceRunControl::makesisProcessFinished()
             << sisxFile << QDir::toNativeSeparators(signature)
             << QDir::toNativeSeparators(key);
     m_signsis->setWorkingDirectory(m_workingDirectory);
-    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(signsisTool), arguments.join(tr(" "))));
+    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(signsisTool), arguments.join(QString(QLatin1Char(' ')))));
     m_signsis->start(signsisTool, arguments, QIODevice::ReadOnly);
 }
 
@@ -711,7 +711,7 @@ void S60DeviceRunControl::processFailed(const QString &program, QProcess::Proces
         errorString = tr("%1 has unexpectedly finished.");
         break;
     default:
-        errorString = tr("Some error has occurred while running %1.");
+        errorString = tr("An error has occurred while running %1.");
     }
     error(this, errorString.arg(program));
     emit finished();

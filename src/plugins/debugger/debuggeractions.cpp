@@ -297,7 +297,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("SelectedPluginBreakpointsPattern"));
-    item->setDefaultValue(QString(".*"));
+    item->setDefaultValue(QLatin1String(".*"));
     instance->insertItem(SelectedPluginBreakpointsPattern, item);
 
     item = new SavedAction(instance);

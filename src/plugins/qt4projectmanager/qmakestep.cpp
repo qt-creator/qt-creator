@@ -218,7 +218,7 @@ void QMakeStepConfigWidget::updateTitleLabel()
 {
     const QtVersion *qtVersion = static_cast<Qt4Project *>(m_step->project())->qtVersion(m_buildConfiguration);
     if (!qtVersion) {
-        m_summaryText = tr("<b>QMake:</b> No qt version set. QMake can't be run.");
+        m_summaryText = tr("<b>QMake:</b> No Qt version set. QMake can not be run.");
         emit updateSummary();
         return;
     }
@@ -231,7 +231,7 @@ void QMakeStepConfigWidget::updateTitleLabel()
 
     // And we only use the .pro filename not the full path
     QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
-    m_summaryText = tr("<b>QMake:</b> %1 %2").arg(program, args.join(" "));
+    m_summaryText = tr("<b>QMake:</b> %1 %2").arg(program, args.join(QString(QLatin1Char(' '))));
     emit updateSummary();
 
 }
@@ -287,9 +287,9 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
     const QtVersion *qtVersion = static_cast<Qt4Project *>(m_step->project())->qtVersion(m_buildConfiguration);
     if (qtVersion) {
         QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
-        m_ui.qmakeArgumentsEdit->setPlainText(program + " " + ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
+        m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
     } else {
-        m_ui.qmakeArgumentsEdit->setPlainText(tr("No valid qt version set."));
+        m_ui.qmakeArgumentsEdit->setPlainText(tr("No valid Qt version set."));
     }
 }
 
