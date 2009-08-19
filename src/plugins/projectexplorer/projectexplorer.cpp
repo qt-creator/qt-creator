@@ -426,6 +426,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(m_showInFinder, ProjectExplorer::Constants::SHOWINFINDER,
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OPEN);
+    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
 #endif
 
     // Open With menu
@@ -592,6 +593,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        globalcontext);
     mproject->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProject->addAction(cmd, Constants::G_PROJECT_FILES);
+    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
 
     // add existing file action
     m_addExistingFilesAction = new QAction(tr("Add Existing Files..."), this);
@@ -599,6 +601,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        globalcontext);
     mproject->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProject->addAction(cmd, Constants::G_PROJECT_FILES);
+    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
 
     // remove file action
     m_removeFileAction = new QAction(tr("Remove File..."), this);
@@ -1676,9 +1679,9 @@ void ProjectExplorerPlugin::updateContextMenuActions()
 
 void ProjectExplorerPlugin::addNewFile()
 {
-    if (!m_currentNode && m_currentNode->nodeType() == ProjectNodeType)
-        return;
-    const QString location = QFileInfo(m_currentNode->path()).dir().absolutePath();
+    QTC_ASSERT(m_currentNode, return)
+    QFileInfo fi(m_currentNode->path());
+    const QString location = (fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
     Core::ICore::instance()->showNewItemDialog(tr("New File", "Title of dialog"),
                               Core::IWizard::wizardsOfKind(Core::IWizard::FileWizard)
                               + Core::IWizard::wizardsOfKind(Core::IWizard::ClassWizard),
@@ -1687,11 +1690,12 @@ void ProjectExplorerPlugin::addNewFile()
 
 void ProjectExplorerPlugin::addExistingFiles()
 {
-    if (!m_currentNode && m_currentNode->nodeType() == ProjectNodeType)
-        return;
-    ProjectNode *projectNode = qobject_cast<ProjectNode*>(m_currentNode);
+    QTC_ASSERT(m_currentNode, return)
+
+    ProjectNode *projectNode = qobject_cast<ProjectNode*>(m_currentNode->projectNode());
     Core::ICore *core = Core::ICore::instance();
-    const QString dir = QFileInfo(m_currentNode->path()).dir().absolutePath();
+    QFileInfo fi(m_currentNode->path());
+    const QString dir = (fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
     QStringList fileNames = QFileDialog::getOpenFileNames(core->mainWindow(), tr("Add Existing Files"), dir);
     if (fileNames.isEmpty())
         return;
@@ -1741,8 +1745,7 @@ void ProjectExplorerPlugin::addExistingFiles()
 
 void ProjectExplorerPlugin::openFile()
 {
-    if (!m_currentNode)
-        return;
+    QTC_ASSERT(m_currentNode, return)
     Core::EditorManager *em = Core::EditorManager::instance();
     em->openEditor(m_currentNode->path());
     em->ensureEditorManagerVisible();
@@ -1751,8 +1754,7 @@ void ProjectExplorerPlugin::openFile()
 #ifdef Q_OS_MAC
 void ProjectExplorerPlugin::showInFinder()
 {
-    if (!m_currentNode)
-        return;
+    QTC_ASSERT(m_currentNode, return)
     QProcess::execute("/usr/bin/osascript", QStringList()
                       << "-e"
                       << QString("tell application \"Finder\" to reveal POSIX file \"%1\"")
@@ -1765,8 +1767,7 @@ void ProjectExplorerPlugin::showInFinder()
 
 void ProjectExplorerPlugin::removeFile()
 {
-    if (!m_currentNode && m_currentNode->nodeType() == FileNodeType)
-        return;
+    QTC_ASSERT(m_currentNode && m_currentNode->nodeType() == FileNodeType, return)
 
     FileNode *fileNode = qobject_cast<FileNode*>(m_currentNode);
     Core::ICore *core = Core::ICore::instance();
@@ -1937,7 +1938,7 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
             }
         } // matches
     }
-    m_openWithMenu->setEnabled(anyMatches);   
+    m_openWithMenu->setEnabled(anyMatches);
 }
 
 void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
