@@ -282,7 +282,7 @@ void DependenciesWidget::updateDetails()
     } else if (dependsOn.count() == 1) {
         text =tr("%1 depends on %2.").arg(m_project->name(), dependsOn.first());
     } else {
-        text = tr("%1 depends on: %2.").arg(m_project->name(), dependsOn.join(tr(", ")));
+        text = tr("%1 depends on: %2.").arg(m_project->name(), dependsOn.join(QLatin1String(", ")));
     }
     m_titleLabel->setText(text);
 }

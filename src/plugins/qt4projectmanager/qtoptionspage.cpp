@@ -320,6 +320,7 @@ void QtOptionsPageWidget::removeQtDir()
 // Format html table tooltip about helpers
 static inline QString msgHtmlHelperToolTip(const QFileInfo &fi)
 {
+    //: Tooltip showing the debugging helper library file.
     return QtOptionsPageWidget::tr("<html><body><table><tr><td>File:</td><td><pre>%1</pre></td></tr>"
                                    "<tr><td>Last&nbsp;modified:</td><td>%2</td></tr>"
                                    "<tr><td>Size:</td><td>%3 Bytes</td></tr></table></body></html>").
