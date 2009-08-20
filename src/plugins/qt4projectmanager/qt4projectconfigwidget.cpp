@@ -79,7 +79,22 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     m_ui->detailsWidget->setVisible(false);
     m_ui->titleLabel->setText("");
 
-    connect(m_ui->detailsButton, SIGNAL(clicked()),
+    QAbstractButton *detailsButton;
+#ifdef Q_OS_MAC
+    detailsButton = new QPushButton;
+    detailsButton->setAttribute(Qt::WA_MacSmallSize);
+    detailsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+#else
+    detailsButton = new QToolButton;
+#endif
+    detailsButton->setText(tr("Details"));
+    QHBoxLayout *layout = new QHBoxLayout;
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(detailsButton);
+    m_ui->detailsButtonWidget->setLayout(layout);
+
+    connect(detailsButton, SIGNAL(clicked()),
             this, SLOT(toggleDetails()));
 
     connect(m_ui->nameLineEdit, SIGNAL(textEdited(QString)),

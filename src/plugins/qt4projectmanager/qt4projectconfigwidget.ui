@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>463</width>
-    <height>221</height>
+    <width>557</width>
+    <height>237</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -38,9 +38,12 @@ placeholder</string>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QToolButton" name="detailsButton">
-       <property name="text">
-        <string>Details</string>
+      <widget class="QWidget" name="detailsButtonWidget" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
       </widget>
      </item>

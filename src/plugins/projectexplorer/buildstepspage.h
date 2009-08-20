@@ -36,6 +36,7 @@ QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
 class QHBoxLayout;
 class QPushButton;
+class QAbstractButton;
 class QToolButton;
 class QLabel;
 class QVBoxLayout;
@@ -55,7 +56,7 @@ struct BuildStepsWidgetStruct
 {
     BuildStepConfigWidget *widget;
     QLabel *detailsLabel;
-    QToolButton *detailsButton;
+    QAbstractButton *detailsButton;
     QToolButton *upButton;
     QToolButton *downButton;
     QHBoxLayout *hbox;

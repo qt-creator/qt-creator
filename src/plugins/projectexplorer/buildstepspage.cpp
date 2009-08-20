@@ -70,6 +70,11 @@ BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
     hboxLayout->addWidget(m_removeButton);
     hboxLayout->addStretch(10);
 
+#ifdef Q_OS_MAC
+    m_addButton->setAttribute(Qt::WA_MacSmallSize);
+    m_removeButton->setAttribute(Qt::WA_MacSmallSize);
+#endif
+
     m_vbox->addLayout(hboxLayout);
 
     updateBuildStepButtonsState();
@@ -96,10 +101,10 @@ BuildStepsPage::~BuildStepsPage()
 
 void BuildStepsPage::toggleDetails()
 {
-    QToolButton *tb = qobject_cast<QToolButton *>(sender());
-    if (tb) {
+    QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
+    if (button) {
         foreach(const BuildStepsWidgetStruct &s, m_buildSteps) {
-            if (s.detailsButton == tb) {
+            if (s.detailsButton == button) {
                 s.widget->setVisible(!s.widget->isVisible());
                 fixupLayout(s.widget);
             }
@@ -172,8 +177,17 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
     s.upButton->setArrowType(Qt::UpArrow);
     s.downButton = new QToolButton(this);
     s.downButton->setArrowType(Qt::DownArrow);
+#ifdef Q_OS_MAC
+    s.detailsButton = new QPushButton(this);
+    s.detailsButton->setAttribute(Qt::WA_MacSmallSize);
+    s.detailsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    s.upButton->setIconSize(QSize(10, 10));
+    s.downButton->setIconSize(QSize(10, 10));
+#else
     s.detailsButton = new QToolButton(this);
+#endif
     s.detailsButton->setText(tr("Details"));
+
 
     // layout
     s.hbox = new QHBoxLayout();

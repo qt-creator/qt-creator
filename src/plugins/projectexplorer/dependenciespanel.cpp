@@ -230,7 +230,14 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
     m_titleLabel->setText("Dummy Text");
     hbox->addWidget(m_titleLabel);
 
-    QToolButton *detailsButton = new QToolButton(this);
+    QAbstractButton *detailsButton;
+#ifdef Q_OS_MAC
+    detailsButton = new QPushButton;
+    detailsButton->setAttribute(Qt::WA_MacSmallSize);
+    detailsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+#else
+    detailsButton = new QToolButton(this);
+#endif
     detailsButton->setText(tr("Details"));
     connect(detailsButton, SIGNAL(clicked()),
             this, SLOT(toggleDetails()));
