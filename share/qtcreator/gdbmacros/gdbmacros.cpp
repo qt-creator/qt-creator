@@ -442,6 +442,8 @@ struct QDumper
     void putHash(const char *name, long value);
     void putHash(const char *name, bool value);
     void putHash(const char *name, QChar value);
+    void putHash(const char *name, float value);
+    void putHash(const char *name, double value);
 
     void beginHash(); // start of data hash output
     void endHash(); // start of data hash output
@@ -789,6 +791,26 @@ void QDumper::putHash(const char *name, long value)
     putItem("name", name);
     putItem("value", value);
     putItem("type", "long");
+    putItem("numchild", "0");
+    endHash();
+}
+
+void QDumper::putHash(const char *name, float value)
+{
+    beginHash();
+    putItem("name", name);
+    putItem("value", value);
+    putItem("type", "float");
+    putItem("numchild", "0");
+    endHash();
+}
+
+void QDumper::putHash(const char *name, double value)
+{
+    beginHash();
+    putItem("name", name);
+    putItem("value", value);
+    putItem("type", "double");
     putItem("numchild", "0");
     endHash();
 }
@@ -2562,21 +2584,89 @@ static void qDumpQPixmap(QDumper &d)
 #endif
 
 #ifndef QT_BOOTSTRAPPED
+static void qDumpQPoint(QDumper &d)
+{
+    const QPoint &pnt = *reinterpret_cast<const QPoint *>(d.data);
+    d.beginItem("value");
+        d.put("(").put(pnt.x()).put(", ").put(pnt.y()).put(")");
+    d.endItem();
+    d.putItem("type", NS"QPoint");
+    d.putItem("numchild", "2");
+    if (d.dumpChildren) {
+        d.beginChildren();
+        d.putHash("x", pnt.x());
+        d.putHash("y", pnt.y());
+        d.endChildren();
+    }
+    d.disarm();
+}
+
+static void qDumpQPointF(QDumper &d)
+{
+    const QPointF &pnt = *reinterpret_cast<const QPointF *>(d.data);
+    d.beginItem("value");
+        d.put("(").put(pnt.x()).put(", ").put(pnt.y()).put(")");
+    d.endItem();
+    d.putItem("type", NS"QPointF");
+    d.putItem("numchild", "2");
+    if (d.dumpChildren) {
+        d.beginChildren();
+        d.putHash("x", pnt.x());
+        d.putHash("y", pnt.y());
+        d.endChildren();
+    }
+    d.disarm();
+}
+
 static void qDumpQRect(QDumper &d)
 {
     const QRect &rc = *reinterpret_cast<const QRect *>(d.data);
     d.beginItem("value");
         d.put("(").put(rc.width()).put("x").put(rc.height());
-        if (rc.x() > 0)
+        if (rc.x() >= 0)
             d.put("+");
         d.put(rc.x());
-        if (rc.y() > 0)
+        if (rc.y() >= 0)
             d.put("+");
         d.put(rc.y());
         d.put(")");
     d.endItem();
     d.putItem("type", NS"QRect");
     d.putItem("numchild", "4");
+    if (d.dumpChildren) {
+        d.beginChildren();
+        d.putHash("x", rc.x());
+        d.putHash("y", rc.y());
+        d.putHash("width", rc.width());
+        d.putHash("height", rc.height());
+        d.endChildren();
+    }
+    d.disarm();
+}
+
+static void qDumpQRectF(QDumper &d)
+{
+    const QRectF &rc = *reinterpret_cast<const QRectF *>(d.data);
+    d.beginItem("value");
+        d.put("(").put(rc.width()).put("x").put(rc.height());
+        if (rc.x() >= 0)
+            d.put("+");
+        d.put(rc.x());
+        if (rc.y() >= 0)
+            d.put("+");
+        d.put(rc.y());
+        d.put(")");
+    d.endItem();
+    d.putItem("type", NS"QRectF");
+    d.putItem("numchild", "4");
+    if (d.dumpChildren) {
+        d.beginChildren();
+        d.putHash("x", rc.x());
+        d.putHash("y", rc.y());
+        d.putHash("width", rc.width());
+        d.putHash("height", rc.height());
+        d.endChildren();
+    }
     d.disarm();
 }
 #endif
@@ -3288,11 +3378,19 @@ static void handleProtocolVersion2and3(QDumper & d)
             if (isEqual(type, "QPixmap"))
                 qDumpQPixmap(d);
             #endif
+            #ifndef QT_BOOTSTRAPPED
+            if (isEqual(type, "QPoint"))
+                qDumpQPoint(d);
+            else if (isEqual(type, "QPointF"))
+                qDumpQPointF(d);
+            #endif
             break;
         case 'R':
             #ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QRect"))
                 qDumpQRect(d);
+            else if (isEqual(type, "QRectF"))
+                qDumpQRectF(d);
             #endif
             break;
         case 'S':
@@ -3472,7 +3570,10 @@ void *qDumpObjectData440(
             "\""NS"QObjectSlot\","
             "\""NS"QObjectSlotList\","
             "\""NS"QObjectChildList\","
+            "\""NS"QPoint\","
+            "\""NS"QPointF\","
             "\""NS"QRect\","
+            "\""NS"QRectF\","
             //"\""NS"QRegion\","
             "\""NS"QSet\","
             "\""NS"QString\","
