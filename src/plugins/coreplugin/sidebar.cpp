@@ -101,8 +101,8 @@ SideBarItem *SideBar::item(const QString &title)
 SideBarWidget *SideBar::insertSideBarWidget(int position, const QString &title)
 {
     SideBarWidget *item = new SideBarWidget(this, title);
-    connect(item, SIGNAL(split()), this, SLOT(split()));
-    connect(item, SIGNAL(close()), this, SLOT(close()));
+    connect(item, SIGNAL(splitMe()), this, SLOT(splitSubWidget()));
+    connect(item, SIGNAL(closeMe()), this, SLOT(closeSubWidget()));
     connect(item, SIGNAL(currentWidgetChanged()), this, SLOT(updateWidgets()));
     insertWidget(position, item);
     m_widgets.insert(position, item);
@@ -118,7 +118,7 @@ void SideBar::removeSideBarWidget(SideBarWidget *widget)
     widget->deleteLater();
 }
 
-void SideBar::split()
+void SideBar::splitSubWidget()
 {
     SideBarWidget *original = qobject_cast<SideBarWidget*>(sender());
     int pos = indexOf(original) + 1;
@@ -126,7 +126,7 @@ void SideBar::split()
     updateWidgets();
 }
 
-void SideBar::close()
+void SideBar::closeSubWidget()
 {
     if (m_widgets.count() != 1) {
         SideBarWidget *widget = qobject_cast<SideBarWidget*>(sender());
@@ -245,7 +245,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &title)
     m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
     m_closeButton->setToolTip(tr("Close"));
 
-    connect(m_closeButton, SIGNAL(clicked(bool)), this, SIGNAL(close()));
+    connect(m_closeButton, SIGNAL(clicked(bool)), this, SIGNAL(closeMe()));
 
     QWidget *spacerItem = new QWidget(this);
     spacerItem->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);

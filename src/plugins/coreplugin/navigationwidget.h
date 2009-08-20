@@ -103,8 +103,8 @@ protected:
 private slots:
     void objectAdded(QObject*);
     void activateSubWidget();
-    void split();
-    void close();
+    void splitSubWidget();
+    void closeSubWidget();
 
 private:
     NavigationSubWidget *insertSubItem(int position);
@@ -136,8 +136,8 @@ public:
     Core::Command *command(const QString &title) const;
 
 signals:
-    void split();
-    void close();
+    void splitMe();
+    void closeMe();
 
 private slots:
     void objectAdded(QObject*);

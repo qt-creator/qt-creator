@@ -111,8 +111,8 @@ public:
     QMap<QString, Core::Command*> shortcutMap() const;
 
 private slots:
-    void split();
-    void close();
+    void splitSubWidget();
+    void closeSubWidget();
     void updateWidgets();
 
 private:
@@ -146,8 +146,8 @@ public:
     Core::Command *command(const QString &title) const;
 
 signals:
-    void split();
-    void close();
+    void splitMe();
+    void closeMe();
     void currentWidgetChanged();
 
 private slots:
