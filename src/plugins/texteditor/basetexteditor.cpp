@@ -2253,13 +2253,19 @@ int BaseTextEditor::extraAreaWidth(int *markWidthPtr) const
     const QFontMetrics fm(d->m_extraArea->fontMetrics());
 
     if (d->m_lineNumbersVisible) {
+        QFont fnt = d->m_extraArea->font();
+        // this works under the assumption that bold or italic can only make a font wider
+        fnt.setBold(d->m_currentLineNumberFormat.font().bold());
+        fnt.setItalic(d->m_currentLineNumberFormat.font().italic());
+        const QFontMetrics linefm(fnt);
+
         int digits = 2;
         int max = qMax(1, blockCount());
         while (max >= 100) {
             max /= 10;
             ++digits;
         }
-        space += fm.width(QLatin1Char('9')) * digits;
+        space += linefm.width(QLatin1Char('9')) * digits;
     }
     int markWidth = 0;
 
@@ -2332,7 +2338,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     QPalette pal = d->m_extraArea->palette();
     pal.setCurrentColorGroup(QPalette::Active);
     QPainter painter(d->m_extraArea);
-    QFontMetrics fm(painter.fontMetrics());
+    const QFontMetrics fm(d->m_extraArea->font());
     int fmLineSpacing = fm.lineSpacing();
 
     int markWidth = 0;
