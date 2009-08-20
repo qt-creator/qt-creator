@@ -1788,7 +1788,7 @@ void tst_Debugger::dumpQObjectSignalHelper(QObject &o, int sigNum)
         const QString iStr = QString::number(i);
         expected.append("{name='").append(iStr).append(" receiver',");
         if (conn->receiver == &o)
-            expected.append("value='").append(utfToBase64("<this>")).
+            expected.append("value='").append("<this>").
                 append("',valueencoded='2',type='").append(o.metaObject()->className()).
                 append("',numchild='0',addr='").append(ptrToBa(&o)).append("'");
         else if (conn->receiver == 0)
@@ -1954,11 +1954,9 @@ void tst_Debugger::dumpQObjectSlotHelper(QObject &o, int slot)
             if (conn->receiver == &o && conn->method == slot) {
                 ++numChild;
                 const QMetaMethod &method = sender->metaObject()->method(signal);
-                if (numChild > 0)
-                    expected.append(",");
                 expected.append("{name='").append(senderNumStr).append(" sender',");
                 if (sender == &o) {
-                    expected.append("value='").append(utfToBase64("<this>")).
+                    expected.append("value='").append("<this>").
                         append("',type='").append(o.metaObject()->className()).
                         append("',numchild='0',addr='").append(ptrToBa(&o)).append("'");
                 } else if (sender != 0) {
