@@ -1446,7 +1446,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveRight(qMin(count(), rightDist()));
         yankSelectedText();
         removeSelectedText();
-        setDotCommand("s"); // setDotCommand("%1s", count());
+        setDotCommand("%1s", count());
         m_opcount.clear();
         m_mvcount.clear();
         enterInsertMode();
