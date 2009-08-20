@@ -158,7 +158,8 @@ void FancyActionBar::insertAction(int index, QAction *action, QMenu *menu)
 
         // execute action also if a context menu item is select
         connect(toolButton, SIGNAL(triggered(QAction*)),
-                this, SLOT(toolButtonContextMenuActionTriggered(QAction*)));
+                this, SLOT(toolButtonContextMenuActionTriggered(QAction*)),
+                Qt::QueuedConnection);
     }
     m_actionsLayout->insertWidget(index, toolButton);
 }
