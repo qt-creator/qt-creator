@@ -2294,7 +2294,7 @@ static void qDumpQObjectMethodList(QDumper &d)
 static const char *qConnectionType(uint type)
 {
     Qt::ConnectionType connType = static_cast<Qt::ConnectionType>(type);
-    const char *output;
+    const char *output = "unknown";
     switch (connType) {
         case Qt::AutoConnection: output = "auto"; break;
         case Qt::DirectConnection: output = "direct"; break;
@@ -2337,8 +2337,7 @@ static inline void qDumpQObjectConnectionPart(QDumper &d,
     d.put(number).put(namePostfix);
     d.endItem();
     if (partner == owner) {
-        d.putItem("value", QLatin1String("<this>"));
-        d.putItem("valueencoded", "2");
+        d.putItem("value", "<this>");
         d.putItem("type", owner->metaObject()->className());
         d.putItem("numchild", 0);
         d.putItem("addr", owner);
