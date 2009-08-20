@@ -69,8 +69,6 @@ public:
     bool writeFile(QFile &file, QString &errorString) const;
 
 signals:
-    // IFile
-    void changed();
     // Internal
     void reload(const QString &);
     void setDisplayName(const QString &);

@@ -114,7 +114,6 @@ public:
 
 signals:
     void titleChanged(QString title);
-    void changed();
     void aboutToReload();
     void reloaded();
 
