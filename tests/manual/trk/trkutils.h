@@ -171,7 +171,7 @@ struct Breakpoint
 
 struct TrkResult
 {
-    TrkResult() { code = token = 0; isDebugOutput = false; }
+    TrkResult();
     QString toString() const;
     // 0 for no error.
     int errorCode() const;
@@ -183,10 +183,11 @@ struct TrkResult
     bool isDebugOutput;
 };
 
-// returns a QByteArray containing 0x01 0x90 <len> 0x7e encoded7d(ba) 0x7e
-QByteArray frameMessage(byte command, byte token, const QByteArray &data);
-ushort isValidTrkResult(const QByteArray &buffer);
-TrkResult extractResult(QByteArray *buffer);
+// returns a QByteArray containing optionally
+// the serial frame [0x01 0x90 <len>] and 0x7e encoded7d(ba) 0x7e
+QByteArray frameMessage(byte command, byte token, const QByteArray &data, bool serialFrame);
+ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame);
+TrkResult extractResult(QByteArray *buffer, bool serialFrame);
 QByteArray errorMessage(byte code);
 QByteArray hexNumber(uint n, int digits = 0);
 uint swapEndian(uint in);

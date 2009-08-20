@@ -52,9 +52,10 @@ void signalHandler(int)
 using namespace trk;
 
 struct TrkOptions {
-    TrkOptions() : verbose(1) {}
+    TrkOptions() : verbose(1), serialFrame(true) {}
 
     int verbose;
+    bool serialFrame;
     QString serverName;
     QString dumpName;
     QStringList additionalDumps;
@@ -191,6 +192,7 @@ public:
     void setServerName(const QString &name) { m_serverName = name; }
     void setMemoryDumpName(const QString &source) { m_memoryDumpName = source; }
     void setVerbose(int v) { m_verbose = v; }
+    void setSerialFrame(bool b) { m_serialFrame = b; }
     bool readDump(const QString &fn);
     bool startServer();
 
@@ -218,12 +220,15 @@ private:
     Inferior m_inferior;
     byte m_notificationToken;
     int m_verbose;
+    bool m_serialFrame;
 };
 
-TrkServer::TrkServer() : m_verbose(1)
+TrkServer::TrkServer() :
+        m_adapterConnection(0),
+        m_notificationToken(0),
+        m_verbose(1),
+        m_serialFrame(true)
 {
-    m_adapterConnection = 0;
-    m_notificationToken = 0;
 }
 
 TrkServer::~TrkServer()
@@ -294,12 +299,12 @@ void TrkServer::readFromAdapter()
         logMessage("buffer: " + stringFromArray(m_adapterReadBuffer));
 
     while (!m_adapterReadBuffer.isEmpty())
-        handleAdapterMessage(extractResult(&m_adapterReadBuffer));
+        handleAdapterMessage(extractResult(&m_adapterReadBuffer, m_serialFrame));
 }
 
 void TrkServer::writeToAdapter(byte command, byte token, const QByteArray &data)
 {
-    QByteArray msg = frameMessage(command, token, data);
+    QByteArray msg = frameMessage(command, token, data, m_serialFrame);
     logMessage("trk: <- " + stringFromArray(msg));
     m_adapterConnection->write(msg);
 }
@@ -450,7 +455,10 @@ static bool readTrkArgs(const QStringList &args, TrkOptions *o)
                 o->verbose++;
             } else if (*it == QLatin1String("-q")) {
                 o->verbose = 0;
+            } else if (*it == QLatin1String("-f")) {
+                o->serialFrame= false;
             }
+
         } else {
             switch (argNumber++) {
             case 0:
@@ -479,6 +487,7 @@ int main(int argc, char *argv[])
     if (!readTrkArgs(app.arguments(), &options)) {
         qWarning("Usage: %s [-v|-q] <trkservername> <replaysource> [additional dumps]\n"
                  "Options: -v verbose\n"
+                 "         -f Turn serial message frame off\n"
                  "         -q quiet\n"
                  "         Additional dump names must follow the naming convention '0x4AD.bin", argv[0]);
         return 1;
@@ -487,6 +496,7 @@ int main(int argc, char *argv[])
     TrkServer server;
     server.setServerName(options.serverName);
     server.setMemoryDumpName(options.dumpName);
+    server.setSerialFrame(options.serialFrame);
     foreach(const QString &ad, options.additionalDumps)
         if (!server.readDump(ad))
             return -1;

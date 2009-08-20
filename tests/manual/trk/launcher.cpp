@@ -42,6 +42,9 @@
 #else
 #  include <stdio.h>
 #  include <sys/ioctl.h>
+#  include <termios.h>
+#  include <errno.h>
+#  include <string.h>
 #endif
 
 #ifdef Q_OS_WIN
@@ -125,6 +128,7 @@ struct LauncherPrivate {
     QString m_copySrcFileName;
     QString m_copyDstFileName;
     QString m_installFileName;
+    bool m_serialFrame;
     int m_verbose;
 };
 
@@ -135,6 +139,7 @@ LauncherPrivate::LauncherPrivate() :
     m_trkWriteToken(0),
     m_trkWriteBusy(false),
     m_timerId(-1),
+    m_serialFrame(true),
     m_verbose(0)
 {
 }
@@ -171,6 +176,11 @@ void Launcher::setCopyFileName(const QString &srcName, const QString &dstName)
 void Launcher::setInstallFileName(const QString &name)
 {
     d->m_installFileName = name;
+}
+
+void Launcher::setSerialFrame(bool b)
+{
+    d->m_serialFrame = b;
 }
 
 bool Launcher::startServer(QString *errorMessage)
@@ -237,6 +247,27 @@ bool Launcher::openTrkPort(const QString &port, QString *errorMessage)
     d->m_file.setFileName(port);
     if (!d->m_file.open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
         *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(port, d->m_file.errorString());
+        return false;
+    }
+
+    struct termios termInfo;
+    if (tcgetattr(d->m_file.handle(), &termInfo) < 0) {
+        *errorMessage = QString::fromLatin1("Unable to retrieve terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno)));
+        return false;
+    }
+    // Turn off terminal echo as not get messages back, among other things
+    termInfo.c_cflag|=CREAD|CLOCAL;
+    termInfo.c_lflag&=(~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
+    termInfo.c_iflag&=(~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
+    termInfo.c_oflag&=(~OPOST);
+    termInfo.c_cc[VMIN]=0;
+    termInfo.c_cc[VINTR] = _POSIX_VDISABLE;
+    termInfo.c_cc[VQUIT] = _POSIX_VDISABLE;
+    termInfo.c_cc[VSTART] = _POSIX_VDISABLE;
+    termInfo.c_cc[VSTOP] = _POSIX_VDISABLE;
+    termInfo.c_cc[VSUSP] = _POSIX_VDISABLE;
+    if (tcsetattr(d->m_file.handle(), TCSAFLUSH, &termInfo) < 0) {
+        *errorMessage = QString::fromLatin1("Unable to apply terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno)));
         return false;
     }
     return true;
@@ -324,7 +355,7 @@ void Launcher::tryTrkWrite()
 
 void Launcher::trkWrite(const TrkMessage &msg)
 {
-    QByteArray ba = frameMessage(msg.code, msg.token, msg.data);
+    QByteArray ba = frameMessage(msg.code, msg.token, msg.data, d->m_serialFrame);
 
     d->m_writtenTrkMessages.insert(msg.token, msg);
     d->m_trkWriteBusy = true;
@@ -364,10 +395,11 @@ void Launcher::tryTrkRead()
 
     while (TryReadFile(d->m_hdevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
         d->m_trkReadQueue.append(buffer, charsRead);
-        if (isValidTrkResult(d->m_trkReadQueue))
+        if (isValidTrkResult(d->m_trkReadQueue, d->m_serialFrame))
             break;
     }
-    if (!isValidTrkResult(d->m_trkReadQueue)) {
+    const ushort len = isValidTrkResult(d->m_trkReadQueue, d->m_serialFrame);
+    if (!len) {
         logMessage("Partial message: " + stringFromArray(d->m_trkReadQueue));
         return;
     }
@@ -377,7 +409,8 @@ void Launcher::tryTrkRead()
         return;
     const QByteArray data = d->m_file.read(size);
     d->m_trkReadQueue.append(data);
-    if (!isValidTrkResult(d->m_trkReadQueue)) {
+    const ushort len = isValidTrkResult(d->m_trkReadQueue, d->m_serialFrame);
+    if (!len) {
         if (d->m_trkReadQueue.size() > 10) {
             logMessage(QString::fromLatin1("Unable to extract message from '%1' '%2'").
                        arg(QLatin1String(d->m_trkReadQueue.toHex())).arg(QString::fromAscii(d->m_trkReadQueue)));
@@ -385,8 +418,8 @@ void Launcher::tryTrkRead()
         return;
     }
 #endif // Q_OS_WIN
-    logMessage("READ:  " + stringFromArray(d->m_trkReadQueue));
-    handleResult(extractResult(&d->m_trkReadQueue));
+    logMessage(QString::fromLatin1("READ: %1 bytes %2").arg(len).arg(stringFromArray(d->m_trkReadQueue)));
+    handleResult(extractResult(&d->m_trkReadQueue, d->m_serialFrame));
 
     d->m_trkWriteBusy = false;
 }

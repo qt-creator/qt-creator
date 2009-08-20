@@ -51,7 +51,8 @@ public:
     void setCopyFileName(const QString &srcName, const QString &dstName);
     void setInstallFileName(const QString &name);
     bool startServer(QString *errorMessage);
-    void setVerbose(int v);
+    void setVerbose(int v);    
+    void setSerialFrame(bool b);
 
 signals:
     void copyingStarted();

@@ -6,7 +6,8 @@
 
 static const char *usageC =
 "\nUsage: %1 <trk_port_name> [-v] [-i remote_sis_file | -I local_sis_file remote_sis_file] <remote_executable_name>\n"
-"\nOptions:\n    -v verbose\n\n"
+"\nOptions:\n    -v verbose\n"
+            "    -f turn serial message frame off\n\n"
 "\nPing:\n"
 "%1 COM5\n"
 "\nRemote launch:\n"
@@ -40,6 +41,9 @@ static bool parseArguments(const QStringList &arguments, trk::Launcher &launcher
         case 'v':
             verbosity++;
             break;
+        case 'f':
+            launcher.setSerialFrame(false);
+            break;verbosity++;
         case 'i':
             install = true;
             break;

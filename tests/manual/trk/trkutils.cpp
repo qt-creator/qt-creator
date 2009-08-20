@@ -43,6 +43,13 @@ QByteArray hexNumber(uint n, int digits)
     return QByteArray(digits - ba.size(), '0') + ba;
 }
 
+TrkResult::TrkResult() :
+    code(0),
+    token(0),
+    isDebugOutput(false)
+{
+}
+
 QString TrkResult::toString() const
 {
     QString res = stringFromByte(code) + "[" + stringFromByte(token);
@@ -50,7 +57,7 @@ QString TrkResult::toString() const
     return res + "] " + stringFromArray(data);
 }
 
-QByteArray frameMessage(byte command, byte token, const QByteArray &data)
+QByteArray frameMessage(byte command, byte token, const QByteArray &data, bool serialFrame)
 {
     byte s = command + token;
     for (int i = 0; i != data.size(); ++i)
@@ -66,13 +73,15 @@ QByteArray frameMessage(byte command, byte token, const QByteArray &data)
     response.append(char(checksum));
 
     QByteArray encodedData = encode7d(response);
-    ushort encodedSize = encodedData.size() + 2; // 2 x 0x7e
 
     QByteArray ba;
-    ba.append(char(0x01));
-    ba.append(char(0x90));
-    ba.append(char(encodedSize / 256));
-    ba.append(char(encodedSize % 256));
+    if (serialFrame) {
+        ba.append(char(0x01));
+        ba.append(char(0x90));
+        const ushort encodedSize = encodedData.size() + 2; // 2 x 0x7e
+        ba.append(char(encodedSize / 256));
+        ba.append(char(encodedSize % 256));
+    }
     ba.append(char(0x7e));
     ba.append(encodedData);
     ba.append(char(0x7e));
@@ -82,38 +91,48 @@ QByteArray frameMessage(byte command, byte token, const QByteArray &data)
 
 /* returns 0 if array doesn't represent a result,
 otherwise returns the length of the result data */
-ushort isValidTrkResult(const QByteArray &buffer)
+ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame)
 {
-    if (buffer.length() < 4)
-        return 0;
-    if (buffer.at(0) != 0x01 || byte(buffer.at(1)) != 0x90)
-        return 0;
-    ushort len = extractShort(buffer.data() + 2);
-
-    if (buffer.size() < len + 4) {
-        return 0;
+    if (serialFrame) {
+        // Serial protocol with length info
+        if (buffer.length() < 4)
+            return 0;
+        if (buffer.at(0) != 0x01 || byte(buffer.at(1)) != 0x90)
+            return 0;
+        const ushort len = extractShort(buffer.data() + 2);
+        return (buffer.size() >= len + 4) ? len : ushort(0);
     }
-    return len;
+    // Frameless protocol without length info
+    const char delimiter = char(0x7e);
+    const int firstDelimiterPos = buffer.indexOf(delimiter);
+    // Regular message delimited by 0x7e..0x7e
+    if (firstDelimiterPos == 0) {
+        const int endPos = buffer.indexOf(delimiter, firstDelimiterPos + 1);
+        return endPos != -1 ? endPos + 1 - firstDelimiterPos : 0;
+    }
+    // Some ASCII log message up to first delimiter or all
+    return firstDelimiterPos != -1 ? firstDelimiterPos : buffer.size();
 }
 
-TrkResult extractResult(QByteArray *buffer)
+TrkResult extractResult(QByteArray *buffer, bool serialFrame)
 {
     TrkResult result;
-    ushort len = isValidTrkResult(*buffer);
+    const ushort len = isValidTrkResult(*buffer, serialFrame);
     if (!len)
         return result;
     // handle receiving application output, which is not a regular command
-    if (buffer->at(4) != 0x7e) {
+    const int delimiterPos = serialFrame ? 4 : 0;
+    if (buffer->at(delimiterPos) != 0x7e) {
         result.isDebugOutput = true;
-        result.data = buffer->mid(4, len);
+        result.data = buffer->mid(delimiterPos, len);
         result.data.replace("\r\n", "\n");
-        *buffer = buffer->mid(4 + len);
+        *buffer->remove(0, delimiterPos + len);
         return result;
     }
     // FIXME: what happens if the length contains 0xfe?
     // Assume for now that it passes unencoded!
-    QByteArray data = decode7d(buffer->mid(5, len - 2));
-    *buffer->remove(0, 4 + len);
+    const QByteArray data = decode7d(buffer->mid(delimiterPos + 1, len - 2));
+    *buffer->remove(0, delimiterPos + len);
 
     byte sum = 0;
     for (int i = 0; i < data.size(); ++i) // 3 = 2 * 0xfe + sum

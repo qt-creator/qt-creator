@@ -127,9 +127,10 @@ static inline void dumpRegister(int n, uint value, QByteArray &a)
 }
 
 struct AdapterOptions {
-    AdapterOptions() : verbose(1),registerEndianness(LittleEndian),useSocket(false) {}
+    AdapterOptions() : verbose(1),serialFrame(true),registerEndianness(LittleEndian),useSocket(false) {}
 
     int verbose;
+    bool serialFrame;
     Endianness registerEndianness;
     bool useSocket;
     QString gdbServer;
@@ -148,6 +149,7 @@ public:
     void setGdbServerName(const QString &name);
     void setTrkServerName(const QString &name) { m_trkServerName = name; }
     void setVerbose(int verbose) { m_verbose = verbose; }
+    void setSerialFrame(bool b) { m_serialFrame = b; }
     void setRegisterEndianness(Endianness r) { m_registerEndianness = r; }
     void setUseSocket(bool s) { m_useSocket = s; }
     bool startServer();
@@ -261,6 +263,7 @@ private:
     int m_verbose;
     Endianness m_registerEndianness;
     bool m_useSocket;
+    bool m_serialFrame;
     bool m_startInferiorTriggered;
 };
 
@@ -277,6 +280,7 @@ Adapter::Adapter() :
     m_verbose(1),
     m_registerEndianness(LittleEndian),
     m_useSocket(false),
+    m_serialFrame(true),
     m_startInferiorTriggered(false)
 {
     startTimer(100);
@@ -1012,7 +1016,7 @@ void Adapter::tryTrkWrite()
 
 void Adapter::trkWrite(const TrkMessage &msg)
 {
-    QByteArray ba = frameMessage(msg.code, msg.token, msg.data);
+    QByteArray ba = frameMessage(msg.code, msg.token, msg.data, m_serialFrame);
 
     m_writtenTrkMessages.insert(msg.token, msg);
     m_trkWriteBusy = true;
@@ -1071,7 +1075,7 @@ void Adapter::tryTrkRead()
     }
 
     while (!m_trkReadQueue.isEmpty())
-        handleResult(extractResult(&m_trkReadQueue));
+        handleResult(extractResult(&m_trkReadQueue, m_serialFrame));
 
     m_trkWriteBusy = false;
 }
@@ -1612,6 +1616,8 @@ static bool readAdapterArgs(const QStringList &args, AdapterOptions *o)
                 o->registerEndianness = BigEndian;
             } else if (*it == QLatin1String("-s")) {
                 o->useSocket = true;
+            } else if (*it == QLatin1String("-f")) {
+                o->serialFrame = false;
             }
         } else {
             switch (argNumber++) {
@@ -1639,6 +1645,7 @@ int main(int argc, char *argv[])
     if (!readAdapterArgs(app.arguments(), &options)) {
         qDebug("Usage: %s [-v|-q] [-s][-l] <trk com/trkservername> <gdbserverport>\n"
                "Options: -v verbose\n"
+               "         -f Turn serial message frame off\n"
                "         -q quiet\n"
                "         -s Use socket (simulation)\n"
                "         -b Set register endianness to big\n", argv[0]);
@@ -1651,6 +1658,7 @@ int main(int argc, char *argv[])
     adapter.setVerbose(options.verbose);
     adapter.setRegisterEndianness(options.registerEndianness);
     adapter.setUseSocket(options.useSocket);
+    adapter.setSerialFrame(options.serialFrame);
     if (adapter.startServer())
         return app.exec();
     return 4;
