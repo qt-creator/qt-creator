@@ -63,7 +63,6 @@ public:
 signals:
     void jumpToSearchResult(const QString &fileName, int lineNumber,
                             int searchTermStart, int searchTermLength);
-    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 public slots:
     void clear();
