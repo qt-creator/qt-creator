@@ -176,8 +176,8 @@ void NavigationWidget::resizeEvent(QResizeEvent *re)
 NavigationSubWidget *NavigationWidget::insertSubItem(int position)
 {
     NavigationSubWidget *nsw = new NavigationSubWidget(this);
-    connect(nsw, SIGNAL(split()), this, SLOT(split()));
-    connect(nsw, SIGNAL(close()), this, SLOT(close()));
+    connect(nsw, SIGNAL(splitMe()), this, SLOT(splitSubWidget()));
+    connect(nsw, SIGNAL(closeMe()), this, SLOT(closeSubWidget()));
     insertWidget(position, nsw);
     m_subWidgets.insert(position, nsw);
     return nsw;
@@ -199,7 +199,7 @@ void NavigationWidget::activateSubWidget()
     m_subWidgets.first()->setFocusWidget();
 }
 
-void NavigationWidget::split()
+void NavigationWidget::splitSubWidget()
 {
     NavigationSubWidget *original = qobject_cast<NavigationSubWidget *>(sender());
     int pos = indexOf(original) + 1;
@@ -207,7 +207,7 @@ void NavigationWidget::split()
     newnsw->setFactory(original->factory());
 }
 
-void NavigationWidget::close()
+void NavigationWidget::closeSubWidget()
 {
     if (m_subWidgets.count() != 1) {
         NavigationSubWidget *subWidget = qobject_cast<NavigationSubWidget *>(sender());
@@ -389,8 +389,8 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget)
     setLayout(lay);
     lay->addWidget(m_toolBar);
 
-    connect(splitAction, SIGNAL(clicked()), this, SIGNAL(split()));
-    connect(close, SIGNAL(clicked()), this, SIGNAL(close()));
+    connect(splitAction, SIGNAL(clicked()), this, SIGNAL(splitMe()));
+    connect(close, SIGNAL(clicked()), this, SIGNAL(closeMe()));
     connect(m_navigationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setCurrentIndex(int)));
 
