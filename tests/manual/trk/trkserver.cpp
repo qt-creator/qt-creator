@@ -298,8 +298,11 @@ void TrkServer::readFromAdapter()
     if (packet != m_adapterReadBuffer)
         logMessage("buffer: " + stringFromArray(m_adapterReadBuffer));
 
-    while (!m_adapterReadBuffer.isEmpty())
-        handleAdapterMessage(extractResult(&m_adapterReadBuffer, m_serialFrame));
+    while (!m_adapterReadBuffer.isEmpty()) {
+        TrkResult r;
+        while (extractResult(&m_adapterReadBuffer, m_serialFrame, &r))
+            handleAdapterMessage(r);
+    }
 }
 
 void TrkServer::writeToAdapter(byte command, byte token, const QByteArray &data)

@@ -1059,7 +1059,7 @@ void Adapter::tryTrkRead()
         while (TryReadFile(m_winComDevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
             m_trkReadQueue.append(buffer, charsRead);
             totalCharsRead += charsRead;
-            if (isValidTrkResult(m_trkReadQueue))
+            if (isValidTrkResult(m_trkReadQueue, m_serialFrame))
                 break;
         }
         if (!totalCharsRead)
@@ -1074,8 +1074,9 @@ void Adapter::tryTrkRead()
         return;
     }
 
-    while (!m_trkReadQueue.isEmpty())
-        handleResult(extractResult(&m_trkReadQueue, m_serialFrame));
+    TrkResult r;
+    while (extractResult(&m_trkReadQueue, m_serialFrame, &r))
+        handleResult(r);
 
     m_trkWriteBusy = false;
 }

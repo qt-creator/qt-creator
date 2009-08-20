@@ -50,6 +50,14 @@ TrkResult::TrkResult() :
 {
 }
 
+void TrkResult::clear()
+{
+    code = token= 0;
+    isDebugOutput = false;
+    data.clear();
+    cookie = QVariant();
+}
+
 QString TrkResult::toString() const
 {
     QString res = stringFromByte(code) + "[" + stringFromByte(token);
@@ -114,20 +122,20 @@ ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame)
     return firstDelimiterPos != -1 ? firstDelimiterPos : buffer.size();
 }
 
-TrkResult extractResult(QByteArray *buffer, bool serialFrame)
+bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result)
 {
-    TrkResult result;
+    result->clear();
     const ushort len = isValidTrkResult(*buffer, serialFrame);
     if (!len)
-        return result;
+        return false;
     // handle receiving application output, which is not a regular command
     const int delimiterPos = serialFrame ? 4 : 0;
     if (buffer->at(delimiterPos) != 0x7e) {
-        result.isDebugOutput = true;
-        result.data = buffer->mid(delimiterPos, len);
-        result.data.replace("\r\n", "\n");
+        result->isDebugOutput = true;
+        result->data = buffer->mid(delimiterPos, len);
+        result->data.replace("\r\n", "\n");
         *buffer->remove(0, delimiterPos + len);
-        return result;
+        return true;
     }
     // FIXME: what happens if the length contains 0xfe?
     // Assume for now that it passes unencoded!
@@ -140,14 +148,14 @@ TrkResult extractResult(QByteArray *buffer, bool serialFrame)
     if (sum != 0xff)
         logMessage("*** CHECKSUM ERROR: " << byte(sum));
 
-    result.code = data.at(0);
-    result.token = data.at(1);
-    result.data = data.mid(2, data.size() - 3);
+    result->code = data.at(0);
+    result->token = data.at(1);
+    result->data = data.mid(2, data.size() - 3);
     //logMessage("   REST BUF: " << stringFromArray(*buffer));
     //logMessage("   CURR DATA: " << stringFromArray(data));
     //QByteArray prefix = "READ BUF:                                       ";
     //logMessage((prefix + "HEADER: " + stringFromArray(header).toLatin1()).data());
-    return result;
+    return true;
 }
 
 ushort extractShort(const char *data)

@@ -53,6 +53,7 @@ public:
     bool startServer(QString *errorMessage);
     void setVerbose(int v);    
     void setSerialFrame(bool b);
+    bool serialFrame() const;
 
 signals:
     void copyingStarted();
@@ -65,8 +66,10 @@ signals:
 public slots:
     void terminate();
 
+private slots:
+    void handleResult(const TrkResult &data);
+
 private:
-    bool openTrkPort(const QString &port, QString *errorMessage); // or server name for local server
     void sendTrkMessage(unsigned char code,
         TrkCallBack callBack = 0,
         const QByteArray &data = QByteArray(),
@@ -77,6 +80,7 @@ private:
     void tryTrkRead();
     // actually writes a message to the device
     void trkWrite(const TrkMessage &msg);
+    void trkWriteRawMessage(const TrkMessage &msg);
     // convienience messages
     void sendTrkInitialPing();
     void sendTrkAck(unsigned char token);
@@ -99,8 +103,6 @@ private:
     void waitForTrkFinished(const TrkResult &data);
 
     void handleAndReportCreateProcess(const TrkResult &result);
-    void handleResult(const TrkResult &data);
-
     void copyFileToRemote();
     void installRemotePackageSilently(const QString &filename);
     void installAndRun();

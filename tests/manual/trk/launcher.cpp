@@ -29,6 +29,7 @@
 
 #include "launcher.h"
 #include "trkutils.h"
+#include "trkdevice.h"
 
 #include <QtCore/QTimer>
 #include <QtCore/QDateTime>
@@ -36,60 +37,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QQueue>
 #include <QtCore/QFile>
-
-#ifdef Q_OS_WIN
-#  include <windows.h>
-#else
-#  include <stdio.h>
-#  include <sys/ioctl.h>
-#  include <termios.h>
-#  include <errno.h>
-#  include <string.h>
-#endif
-
-#ifdef Q_OS_WIN
-
-// Format windows error from GetLastError() value: TODO: Use the one provided by the utisl lib.
-QString winErrorMessage(unsigned long error)
-{
-    QString rc = QString::fromLatin1("#%1: ").arg(error);
-    ushort *lpMsgBuf;
-
-    const int len = FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, error, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
-    if (len) {
-        rc = QString::fromUtf16(lpMsgBuf, len);
-        LocalFree(lpMsgBuf);
-    } else {
-        rc += QString::fromLatin1("<unknown error>");
-    }
-    return rc;
-}
-
-// Non-blocking replacement for win-api ReadFile function
-BOOL WINAPI TryReadFile(HANDLE          hFile,
-                        LPVOID          lpBuffer,
-                        DWORD           nNumberOfBytesToRead,
-                        LPDWORD         lpNumberOfBytesRead,
-                        LPOVERLAPPED    lpOverlapped)
-{
-    COMSTAT comStat;
-    if (!ClearCommError(hFile, NULL, &comStat)){
-        qDebug() << "ClearCommError() failed";
-        return FALSE;
-    }
-    if (comStat.cbInQue == 0) {
-        *lpNumberOfBytesRead = 0;
-        return FALSE;
-    }
-    return ReadFile(hFile,
-                    lpBuffer,
-                    qMin(comStat.cbInQue, nNumberOfBytesToRead),
-                    lpNumberOfBytesRead,
-                    lpOverlapped);
-}
-#endif
 
 namespace trk {
 
@@ -104,12 +51,7 @@ struct TrkMessage {
 
 struct LauncherPrivate {
     LauncherPrivate();
-#ifdef Q_OS_WIN
-    HANDLE m_hdevice;
-#else
-    QFile m_file;
-#endif
-
+    TrkDevice m_device;
     QString m_trkServerName;
     QByteArray m_trkReadBuffer;
 
@@ -128,18 +70,13 @@ struct LauncherPrivate {
     QString m_copySrcFileName;
     QString m_copyDstFileName;
     QString m_installFileName;
-    bool m_serialFrame;
     int m_verbose;
 };
 
 LauncherPrivate::LauncherPrivate() :
-#ifdef Q_OS_WIN
-    m_hdevice(0),
-#endif
     m_trkWriteToken(0),
     m_trkWriteBusy(false),
     m_timerId(-1),
-    m_serialFrame(true),
     m_verbose(0)
 {
 }
@@ -149,6 +86,7 @@ LauncherPrivate::LauncherPrivate() :
 Launcher::Launcher() :
     d(new LauncherPrivate)
 {
+    connect(&d->m_device, SIGNAL(messageReceived(TrkResult)), this, SLOT(handleResult(TrkResult)));
 }
 
 Launcher::~Launcher()
@@ -180,7 +118,12 @@ void Launcher::setInstallFileName(const QString &name)
 
 void Launcher::setSerialFrame(bool b)
 {
-    d->m_serialFrame = b;
+    d->m_device.setSerialFrame(b);
+}
+
+bool Launcher::serialFrame() const
+{
+    return d->m_device.serialFrame();
 }
 
 bool Launcher::startServer(QString *errorMessage)
@@ -190,7 +133,7 @@ bool Launcher::startServer(QString *errorMessage)
                             .arg(d->m_trkServerName, d->m_fileName, d->m_copySrcFileName, d->m_copyDstFileName, d->m_installFileName);
         logMessage(msg);
     }
-    if (!openTrkPort(d->m_trkServerName, errorMessage))
+    if (!d->m_device.open(d->m_trkServerName, errorMessage))
         return false;
     d->m_timerId = startTimer(100);
     sendTrkInitialPing();
@@ -210,6 +153,7 @@ bool Launcher::startServer(QString *errorMessage)
 void Launcher::setVerbose(int v)
 {
     d->m_verbose = v;
+    d->m_device.setVerbose(v > 1);
 }
 
 void Launcher::installAndRun()
@@ -226,60 +170,11 @@ void Launcher::logMessage(const QString &msg)
         qDebug() << "ADAPTER: " << qPrintable(msg);
 }
 
-bool Launcher::openTrkPort(const QString &port, QString *errorMessage)
-{
-#ifdef Q_OS_WIN
-    d->m_hdevice = CreateFile(port.toStdWString().c_str(),
-                           GENERIC_READ | GENERIC_WRITE,
-                           0,
-                           NULL,
-                           OPEN_EXISTING,
-                           FILE_ATTRIBUTE_NORMAL,
-                           NULL);
-
-    if (INVALID_HANDLE_VALUE == d->m_hdevice){
-        *errorMessage = QString::fromLatin1("Could not open device '%1': %2").arg(port, winErrorMessage(GetLastError()));
-        logMessage(*errorMessage);
-        return false;
-    }
-    return true;
-#else
-    d->m_file.setFileName(port);
-    if (!d->m_file.open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
-        *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(port, d->m_file.errorString());
-        return false;
-    }
-
-    struct termios termInfo;
-    if (tcgetattr(d->m_file.handle(), &termInfo) < 0) {
-        *errorMessage = QString::fromLatin1("Unable to retrieve terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno)));
-        return false;
-    }
-    // Turn off terminal echo as not get messages back, among other things
-    termInfo.c_cflag|=CREAD|CLOCAL;
-    termInfo.c_lflag&=(~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
-    termInfo.c_iflag&=(~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
-    termInfo.c_oflag&=(~OPOST);
-    termInfo.c_cc[VMIN]=0;
-    termInfo.c_cc[VINTR] = _POSIX_VDISABLE;
-    termInfo.c_cc[VQUIT] = _POSIX_VDISABLE;
-    termInfo.c_cc[VSTART] = _POSIX_VDISABLE;
-    termInfo.c_cc[VSTOP] = _POSIX_VDISABLE;
-    termInfo.c_cc[VSUSP] = _POSIX_VDISABLE;
-    if (tcsetattr(d->m_file.handle(), TCSAFLUSH, &termInfo) < 0) {
-        *errorMessage = QString::fromLatin1("Unable to apply terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno)));
-        return false;
-    }
-    return true;
-#endif
-}
-
 void Launcher::timerEvent(QTimerEvent *)
 {
     if (d->m_verbose>1)
         qDebug(".");
     tryTrkWrite();
-    tryTrkRead();
 }
 
 byte Launcher::nextTrkWriteToken()
@@ -333,7 +228,7 @@ void Launcher::sendTrkAck(byte token)
     msg.data.append('\0');
     // The acknowledgement must not be queued!
     //queueMessage(msg);
-    trkWrite(msg);
+    trkWriteRawMessage(msg);
     // 01 90 00 07 7e 80 01 00 7d 5e 7e
 }
 
@@ -353,80 +248,25 @@ void Launcher::tryTrkWrite()
     trkWrite(msg);
 }
 
+void Launcher::trkWriteRawMessage(const TrkMessage &msg)
+{
+    const QByteArray ba = frameMessage(msg.code, msg.token, msg.data, serialFrame());
+    logMessage("WRITE: " + stringFromArray(ba));
+    QString errorMessage;
+    if (!d->m_device.write(ba, &errorMessage))
+        logMessage(errorMessage);
+}
+
 void Launcher::trkWrite(const TrkMessage &msg)
 {
-    QByteArray ba = frameMessage(msg.code, msg.token, msg.data, d->m_serialFrame);
-
     d->m_writtenTrkMessages.insert(msg.token, msg);
     d->m_trkWriteBusy = true;
-
-    logMessage("WRITE: " + stringFromArray(ba));
-
-#ifdef Q_OS_WIN
-    DWORD charsWritten;
-    if (!WriteFile(d->m_hdevice, ba.data(), ba.size(), &charsWritten, NULL))
-        logMessage("WRITE ERROR: ");
-
-    //logMessage("WRITE: " + stringFromArray(ba));
-    FlushFileBuffers(d->m_hdevice);
-#else
-    if (d->m_file.write(ba) == -1 || !d->m_file.flush())
-        logMessage(QString::fromLatin1("Cannot write: %1").arg(d->m_file.errorString()));
-#endif
+    trkWriteRawMessage(msg);
 }
-
-#ifndef Q_OS_WIN
-static inline int bytesAvailable(int fileNo)
-{
-    int numBytes;
-    const int rc = ioctl(fileNo, FIONREAD, &numBytes);
-    if (rc < 0) 
-        numBytes=0;
-    return numBytes;
-}
-#endif
-
-void Launcher::tryTrkRead()
-{
-#ifdef Q_OS_WIN
-    const DWORD BUFFERSIZE = 1024;
-    char buffer[BUFFERSIZE];
-    DWORD charsRead;
-
-    while (TryReadFile(d->m_hdevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
-        d->m_trkReadQueue.append(buffer, charsRead);
-        if (isValidTrkResult(d->m_trkReadQueue, d->m_serialFrame))
-            break;
-    }
-    const ushort len = isValidTrkResult(d->m_trkReadQueue, d->m_serialFrame);
-    if (!len) {
-        logMessage("Partial message: " + stringFromArray(d->m_trkReadQueue));
-        return;
-    }
-#else
-    const int size = bytesAvailable(d->m_file.handle());
-    if (!size)
-        return;
-    const QByteArray data = d->m_file.read(size);
-    d->m_trkReadQueue.append(data);
-    const ushort len = isValidTrkResult(d->m_trkReadQueue, d->m_serialFrame);
-    if (!len) {
-        if (d->m_trkReadQueue.size() > 10) {
-            logMessage(QString::fromLatin1("Unable to extract message from '%1' '%2'").
-                       arg(QLatin1String(d->m_trkReadQueue.toHex())).arg(QString::fromAscii(d->m_trkReadQueue)));
-        }
-        return;
-    }
-#endif // Q_OS_WIN
-    logMessage(QString::fromLatin1("READ: %1 bytes %2").arg(len).arg(stringFromArray(d->m_trkReadQueue)));
-    handleResult(extractResult(&d->m_trkReadQueue, d->m_serialFrame));
-
-    d->m_trkWriteBusy = false;
-}
-
 
 void Launcher::handleResult(const TrkResult &result)
 {
+    d->m_trkWriteBusy = false;
     QByteArray prefix = "READ BUF:                                       ";
     QByteArray str = result.toString().toUtf8();
     if (result.isDebugOutput) { // handle application output
@@ -518,10 +358,13 @@ void Launcher::handleResult(const TrkResult &result)
             break;
         }
         case TrkNotifyDeleted: { // NotifyDeleted
-            logMessage(prefix + "NOTE: LIBRARY UNLOAD: " + str);
+            const ushort itemType = (unsigned char)result.data.at(1);
+            const ushort len = result.data.size() > 12 ? extractShort(result.data.data() + 10) : ushort(0);
+            const QString name = len ? QString::fromAscii(result.data.mid(13, len)) : QString();
+            logMessage(QString::fromLatin1("%1 %2 UNLOAD: %3").
+                       arg(QString::fromAscii(prefix)).arg(itemType ? QLatin1String("LIB") : QLatin1String("PROCESS")).
+                       arg(name));
             sendTrkAck(result.token);
-            const char *data = result.data.data();
-            ushort itemType = extractShort(data);
             if (itemType == 0) { // process
                 sendTrkMessage(TrkDisconnect, CB(waitForTrkFinished));
             }
