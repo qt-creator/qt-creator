@@ -34,6 +34,7 @@
 #include <QtGui/QPicture>
 #include <QtGui/QVBoxLayout>
 #include <QtSvg/QSvgRenderer>
+#include <QtGui/QAction>
 
 using namespace Core;
 using namespace Internal;
@@ -154,6 +155,24 @@ void FancyActionBar::insertAction(int index, QAction *action, QMenu *menu)
     if (menu) {
         toolButton->setMenu(menu);
         toolButton->setPopupMode(QToolButton::DelayedPopup);
+
+        // execute action also if a context menu item is select
+        connect(toolButton, SIGNAL(triggered(QAction*)),
+                this, SLOT(toolButtonContextMenuActionTriggered(QAction*)));
     }
     m_actionsLayout->insertWidget(index, toolButton);
+}
+
+/*
+  This slot is invoked when a context menu action of a tool button is triggered.
+  In this case we also want to trigger the default action of the button.
+
+  This allows the user e.g. to select and run a specific run configuration with one click.
+  */
+void FancyActionBar::toolButtonContextMenuActionTriggered(QAction* action)
+{
+    if (QToolButton *button = qobject_cast<QToolButton*>(sender())) {
+        if (action != button->defaultAction())
+            button->defaultAction()->trigger();
+    }
 }

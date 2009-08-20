@@ -64,6 +64,8 @@ public:
     void paintEvent(QPaintEvent *event);
     void insertAction(int index, QAction *action, QMenu *menu = 0);
 
+private slots:
+    void toolButtonContextMenuActionTriggered(QAction*);
 private:
     QVBoxLayout *m_actionsLayout;
 };
