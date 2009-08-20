@@ -5,4 +5,4 @@ SUBDIRS += \
     debugger \
     extensionsystem \
     fakevim \
-    rofilereader
+    profilereader
