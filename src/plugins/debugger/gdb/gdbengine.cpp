@@ -2901,6 +2901,18 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     }
     WatchData data = data0;
 
+    // Avoid endless loops created by faulty dumpers
+    if (m_processedNames.contains(data.iname)) {
+        emit gdbInputAvailable(LogStatus,
+            _("<Breaking endless loop for %1>").arg(data.iname));
+        data.setAllUnneeded();
+        data.setValue(_("<unavailable>"));
+        data.setHasChildren(false);
+        insertData(data);
+        return; 
+    }
+    m_processedNames.insert(data.iname);
+
     QByteArray params;
     QStringList extraArgs;
     const QtDumperHelper::TypeData td = m_dumperHelper.typeData(data0.type);
@@ -3530,6 +3542,7 @@ void GdbEngine::updateLocals()
         tryQueryDebuggingHelpers();
 
     m_pendingRequests = 0;
+    m_processedNames.clear();
 
     PENDING_DEBUG("\nRESET PENDING");
     //m_toolTipCache.clear();
