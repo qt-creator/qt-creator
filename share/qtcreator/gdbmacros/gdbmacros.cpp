@@ -2561,6 +2561,26 @@ static void qDumpQPixmap(QDumper &d)
 }
 #endif
 
+#ifndef QT_BOOTSTRAPPED
+static void qDumpQRect(QDumper &d)
+{
+    const QRect &rc = *reinterpret_cast<const QRect *>(d.data);
+    d.beginItem("value");
+        d.put("(").put(rc.width()).put("x").put(rc.height());
+        if (rc.x() > 0)
+            d.put("+");
+        d.put(rc.x());
+        if (rc.y() > 0)
+            d.put("+");
+        d.put(rc.y());
+        d.put(")");
+    d.endItem();
+    d.putItem("type", NS"QRect");
+    d.putItem("numchild", "4");
+    d.disarm();
+}
+#endif
+
 static void qDumpQSet(QDumper &d)
 {
     // This uses the knowledge that QHash<T> has only a single member
@@ -3269,6 +3289,12 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQPixmap(d);
             #endif
             break;
+        case 'R':
+            #ifndef QT_BOOTSTRAPPED
+            if (isEqual(type, "QRect"))
+                qDumpQRect(d);
+            #endif
+            break;
         case 'S':
             if (isEqual(type, "QString"))
                 qDumpQString(d);
@@ -3446,6 +3472,7 @@ void *qDumpObjectData440(
             "\""NS"QObjectSlot\","
             "\""NS"QObjectSlotList\","
             "\""NS"QObjectChildList\","
+            "\""NS"QRect\","
             //"\""NS"QRegion\","
             "\""NS"QSet\","
             "\""NS"QString\","
