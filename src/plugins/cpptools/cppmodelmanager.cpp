@@ -1120,6 +1120,10 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
             const QString suffix = fileInfo.suffix();
             if (suffix.isEmpty() || suffixes.contains(suffix)) {
                 QString text = fileName.mid(path.length() + 1);
+                if (text.isEmpty()) {
+                    qWarning() << Q_FUNC_INFO << "Empty filename?" << path << fileName;
+                    continue;
+                }
                 if (fileInfo.isDir()) {
                     text += QLatin1Char('/');
 
