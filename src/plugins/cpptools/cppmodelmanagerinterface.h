@@ -41,7 +41,7 @@ namespace ProjectExplorer {
 }
 
 namespace CppTools {
-    
+
 class AbstractEditorSupport;
 
 class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
