@@ -134,3 +134,5 @@ else:unix:SOURCES += applicationlauncher_x11.cpp
 RESOURCES += projectexplorer.qrc
 DEFINES += PROJECTEXPLORER_LIBRARY
 OTHER_FILES += ProjectExplorer.pluginspec
+
+mac:LIBS += -framework Carbon
