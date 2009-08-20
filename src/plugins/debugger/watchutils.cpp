@@ -81,10 +81,16 @@ bool isSkippableFunction(const QString &funcName, const QString &fileName)
         return true;
     if (fileName.endsWith(QLatin1String("kernel/qmetaobject.cpp")))
         return true;
+    if (fileName.endsWith(QLatin1String("kernel/qmetaobject_p.h")))
+        return true;
     if (fileName.endsWith(QLatin1String(".moc")))
         return true;
 
     if (funcName.endsWith("::qt_metacall"))
+        return true;
+    if (funcName.endsWith("::d_func"))
+        return true;
+    if (funcName.endsWith("::q_func"))
         return true;
 
     return false;
@@ -93,6 +99,8 @@ bool isSkippableFunction(const QString &funcName, const QString &fileName)
 bool isLeavableFunction(const QString &funcName, const QString &fileName)
 {
     if (funcName.endsWith(QLatin1String("QObjectPrivate::setCurrentSender")))
+        return true;
+    if (funcName.endsWith(QLatin1String("QMutexPool::get")))
         return true;
     if (fileName.endsWith(QLatin1String("kernel/qmetaobject.cpp"))
             && funcName.endsWith(QLatin1String("QMetaObject::methodOffset")))
@@ -126,6 +134,8 @@ bool isLeavableFunction(const QString &funcName, const QString &fileName)
     if (fileName.endsWith(QLatin1String("tools/qhash.h")))
         return true;
     if (fileName.endsWith(QLatin1String("tools/qmap.h")))
+        return true;
+    if (fileName.endsWith(QLatin1String("tools/qshareddata.h")))
         return true;
     if (fileName.endsWith(QLatin1String("tools/qstring.h")))
         return true;
