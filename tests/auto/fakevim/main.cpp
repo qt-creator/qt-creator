@@ -291,7 +291,6 @@ void tst_FakeVim::command_dd_2()
     move("j",    "@" + l[1]);
     check("dd",  l[0] + "\n@" + lmid(2));
     check("p",   l[0] + "\n" + l[2] + "\n@" + l[1] + "\n" + lmid(3));
-return; // FIXME
     check("u",   l[0] + "\n@" + lmid(2));
 }
 
@@ -318,8 +317,6 @@ void tst_FakeVim::command_dfx_down()
     check("df ",  l[0] + "\n#inc@<QtCore>\n" + lmid(2));
     check("j",    l[0] + "\n#inc<QtCore>\n#inc@lude <QtGui>\n" + lmid(3));
     check(".",    l[0] + "\n#inc<QtCore>\n#inc@<QtGui>\n" + lmid(3));
-    qWarning("FIXME");
-return;
     check("u",    l[0] + "\n#inc<QtCore>\n#inc@lude <QtGui>\n" + lmid(3));
     check("u",    l[0] + "\n#inc@lude <QtCore>\n" + lmid(2));
 }
@@ -366,9 +363,8 @@ void tst_FakeVim::command_i()
     // small insertion at start of document
     check("ix" + escape, "@x" + lines);
     check("u", "@" + lines);
-// FIXME redo broken
-    //check(control('r'), "@x" + lines);
-    //check("u", "@" + lines);
+    check(control('r'), "@x" + lines);
+    check("u", "@" + lines);
 
     // small insertion at start of document
     check("ixxx" + escape, "xx@x" + lines);
@@ -386,9 +382,8 @@ void tst_FakeVim::command_i()
     check("icyy" + escape, "bcy@yxa" + lines);
     check("u", "b@xa" + lines);
     check("u", "@a" + lines); 
-// FIXME undo broken
-//    checkEx("redo", "b@xa" + lines);
-//    check("u", "@a" + lines);
+    checkEx("redo", "b@xa" + lines);
+    check("u", "@a" + lines);
 }
 
 void tst_FakeVim::command_left()
@@ -470,19 +465,6 @@ return; // FIXME
     check("G",   lmid(0) + "@");
     check("yyp", lmid(0) + "@" + lmid(9, 1));
 }
-/*
-
-#include <QtCore>
-#include <QtGui>
-
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-
-    return app.exec();
-}
-*/
-
 
 void tst_FakeVim::test_i_cw_i()
 {
@@ -495,6 +477,19 @@ return; // FIXME: not in sync with Gui behaviour?
     check("iaa" + escape,    l[0] + "\nxya@ay" + lmid(1));
 }
 
+
+/*
+
+#include <QtCore>
+#include <QtGui>
+
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+
+    return app.exec();
+}
+*/
 
 //////////////////////////////////////////////////////////////////////////
 //

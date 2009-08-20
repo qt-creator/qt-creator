@@ -571,7 +571,6 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         key += 32;
     }
 
-    m_undoCursorPosition[m_tc.document()->revision()] = m_tc.position();
     //if (m_mode == InsertMode)
     //    joinPreviousEditBlock();
     //else
@@ -656,6 +655,7 @@ void FakeVimHandler::Private::restoreWidget()
 EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
     const QString &text)
 {
+    m_undoCursorPosition[m_tc.document()->revision()] = m_tc.position();
     //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
     if (m_mode == InsertMode)
         return handleInsertMode(key, unmodified, text);
