@@ -374,6 +374,7 @@ private:
     QString parseDisassembler(const GdbMi &lines);
 
     int m_pendingRequests;
+    QSet<QString> m_processedNames; 
 
     QtDumperHelper m_dumperHelper;
     
