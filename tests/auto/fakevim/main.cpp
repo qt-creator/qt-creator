@@ -57,6 +57,8 @@ public slots:
 private slots:
     // command mode
     void command_cc();
+    void command_cw();
+    void command_dw();
     void command_dd();
     void command_dd_2();
     void command_dollar();
@@ -270,6 +272,32 @@ void tst_FakeVim::command_cc()
     check(".",               l[0] + "\nab@c\n" + lmid(2));
     check("j",               l[0] + "\nabc\n#i@nclude <QtGui>\n" + lmid(3));
     check("3ccxyz" + escape, l[0] + "\nabc\nxy@z\n" + lmid(5));
+}
+
+void tst_FakeVim::command_cw()
+{
+    setup();
+    move("j",                "@" + l[1]);
+    qWarning("FIXME");
+return; // FIXME
+    check("cwx" + escape,    l[0] + "\n@xinclude <QtCore>\n" + lmid(2));
+}
+
+void tst_FakeVim::command_dw()
+{
+    setup();
+    check("dw",  "@#include <QtCore>\n" + lmid(2));
+    check("dw",  "@include <QtCore>\n" + lmid(2));
+    check("dw",  "@<QtCore>\n" + lmid(2));
+    check("dw",  "@QtCore>\n" + lmid(2));
+    check("dw",  "@>\n" + lmid(2));
+    qWarning("FIXME");
+    //check("dw",  "@\n" + lmid(2)); // FIXME: Real vim has this intermediate step
+    check("dw",  "@#include <QtGui>\n" + lmid(3));
+    check("dw",  "@include <QtGui>\n" + lmid(3));
+    check("dw",  "@<QtGui>\n" + lmid(3));
+    check("dw",  "@QtGui>\n" + lmid(3));
+    check("dw",  "@>\n" + lmid(3));
 }
 
 void tst_FakeVim::command_dd()
