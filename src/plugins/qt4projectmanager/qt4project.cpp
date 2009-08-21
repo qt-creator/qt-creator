@@ -594,7 +594,7 @@ void Qt4Project::updateCodeModel()
 
 
         pinfo.defines = predefinedMacros;
-        pinfo.defines += definedMacros;   // ### FIXME: me
+        // pinfo.defines += definedMacros;   // ### FIXME: me
         pinfo.includePaths = allIncludePaths;
         pinfo.frameworkPaths = allFrameworkPaths;
         pinfo.sourceFiles = files;
