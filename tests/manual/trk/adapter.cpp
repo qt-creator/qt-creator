@@ -150,7 +150,7 @@ private:
     void reportReadMemory(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
 
-    void clearTrkBreakpoint(const Breakpoint &bp);    
+    void clearTrkBreakpoint(const Breakpoint &bp);
     void readMemory(uint addr, uint len);
     void startInferiorIfNeeded();
     void interruptInferior();
@@ -794,12 +794,14 @@ bool Adapter::openTrkPort(const QString &port, QString *errorMessage)
         connect(m_socketDevice.data(), SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));
         if (m_verbose > 1)
             m_socketDevice->setVerbose(true);
+        m_socketDevice->setSerialFrame(m_serialFrame);
         return true;
     }
     m_trkDevice = QSharedPointer<TrkWriteQueueDevice>(new TrkWriteQueueDevice);
     connect(m_trkDevice.data(), SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));
     if (m_verbose > 1)
         m_trkDevice->setVerbose(true);
+    m_trkDevice->setSerialFrame(m_serialFrame);
     return m_trkDevice->open(port, errorMessage);
 }
 
@@ -853,7 +855,7 @@ void Adapter::handleResult(const TrkResult &result)
     QByteArray str = result.toString().toUtf8();
     switch (result.code) {
         case 0x80: // ACK
-            break;        
+            break;
         case 0xff: { // NAK. This mostly means transmission error, not command failed.
             QString logMsg;
             QTextStream(&logMsg) << prefix << "NAK: for token=" << result.token << " ERROR: " << errorMessage(result.data.at(0)) << ' ' << str;
