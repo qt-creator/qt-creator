@@ -32,6 +32,9 @@
 
 #include <QtCore/QString>
 #include <QtCore/QDebug>
+#include <QtCore/QQueue>
+#include <QtCore/QHash>
+#include <QtCore/QMap>
 
 #ifdef Q_OS_WIN
 #  include <windows.h>
@@ -194,6 +197,7 @@ void TrkDevice::close()
     }
 #ifdef Q_OS_WIN
     CloseHandle(d->hdevice);
+    d->hdevice = INVALID_HANDLE_VALUE;
 #else
     d->file.close();
 #endif
@@ -287,8 +291,8 @@ void TrkDevice::tryTrkRead()
         return;
     const ushort len = isValidTrkResult(d->trkReadBuffer, d->serialFrame);
     if (!len) {
-        d->errorString = QString::fromLatin1("Partial message: %1").arg(stringFromArray(d->trkReadBuffer));
-        qWarning("%s\n", qPrintable(d->errorString));
+        const QString msg = QString::fromLatin1("Partial message: %1").arg(stringFromArray(d->trkReadBuffer));
+        emitError(msg);
         return;
     }
 #else
@@ -300,9 +304,9 @@ void TrkDevice::tryTrkRead()
     const ushort len = isValidTrkResult(d->trkReadBuffer, d->serialFrame);
     if (!len) {
         if (d->trkReadBuffer.size() > 10) {
-            d->errorString = QString::fromLatin1("Unable to extract message from '%1' '%2'").
+            const QString msg = QString::fromLatin1("Unable to extract message from '%1' '%2'").
                              arg(QLatin1String(d->trkReadBuffer.toHex())).arg(QString::fromAscii(d->trkReadBuffer));
-            qWarning("%s\n", qPrintable(d->errorString));
+            emitError(msg);
         }
         return;
     }
@@ -320,4 +324,166 @@ void TrkDevice::timerEvent(QTimerEvent *)
     tryTrkRead();
 }
 
-} // namespace trk
+void TrkDevice::emitError(const QString &s)
+{
+    d->errorString = s;
+    qWarning("%s\n", qPrintable(s));
+    emit error(s);
+}
+
+/* A message to be send to TRK, triggering a callback on receipt
+ * of the answer. */
+struct TrkMessage {
+    typedef TrkFunctor1<const TrkResult &> Callback;
+
+    explicit TrkMessage(unsigned char code = 0u,
+                        unsigned char token = 0u,
+                        Callback callback = Callback());
+
+    unsigned char code;
+    unsigned char token;
+    QByteArray data;
+    QVariant cookie;
+    Callback callback;
+    bool invokeOnNAK;
+};
+
+TrkMessage::TrkMessage(unsigned char c,
+                        unsigned char t,
+                        Callback cb) :
+    code(c),
+    token(t),
+    callback(cb),
+    invokeOnNAK(false)
+{
+}
+
+// ------- TrkWriteQueueDevice
+
+struct TrkWriteQueueDevicePrivate {
+    typedef QMap<unsigned char, TrkMessage> TokenMessageMap;
+    TrkWriteQueueDevicePrivate();
+
+    unsigned char trkWriteToken;
+    QQueue<TrkMessage> trkWriteQueue;
+    TokenMessageMap writtenTrkMessages;
+    bool trkWriteBusy;
+};
+
+TrkWriteQueueDevicePrivate::TrkWriteQueueDevicePrivate() :
+    trkWriteToken(0),
+    trkWriteBusy(false)
+{
+}
+
+TrkWriteQueueDevice::TrkWriteQueueDevice(QObject *parent) :
+    TrkDevice(parent),
+    qd(new TrkWriteQueueDevicePrivate)
+{
+    connect(this, SIGNAL(messageReceived(TrkResult)), this, SLOT(slotHandleResult(TrkResult)));
+}
+
+TrkWriteQueueDevice::~TrkWriteQueueDevice()
+{
+    delete qd;
+}
+
+unsigned char TrkWriteQueueDevice::nextTrkWriteToken()
+{
+    ++qd->trkWriteToken;
+    if (qd->trkWriteToken == 0)
+        ++qd->trkWriteToken;
+    return qd->trkWriteToken;
+}
+
+void TrkWriteQueueDevice::sendTrkMessage(unsigned char code, Callback callback,
+                                         const QByteArray &data, const QVariant &cookie,
+                                         bool invokeOnNAK)
+{
+    TrkMessage msg(code, nextTrkWriteToken(), callback);
+    msg.data = data;
+    msg.cookie = cookie;
+    msg.invokeOnNAK = invokeOnNAK;
+    queueTrkMessage(msg);
+}
+
+void TrkWriteQueueDevice::sendTrkInitialPing()
+{
+    const TrkMessage msg(0, 0); // Ping, reset sequence count
+    queueTrkMessage(msg);
+}
+
+bool TrkWriteQueueDevice::sendTrkAck(unsigned char token)
+{
+    TrkMessage msg(0x80, token);
+    msg.token = token;
+    msg.data.append('\0');
+    // The acknowledgement must not be queued!
+    return trkWriteRawMessage(msg);
+    // 01 90 00 07 7e 80 01 00 7d 5e 7e
+}
+
+void TrkWriteQueueDevice::queueTrkMessage(const TrkMessage &msg)
+{
+    qd->trkWriteQueue.append(msg);
+}
+
+void TrkWriteQueueDevice::tryTrkWrite()
+{
+    // Invoked from timer, try to flush out message queue
+    if (qd->trkWriteBusy)
+        return;
+    if (qd->trkWriteQueue.isEmpty())
+        return;
+
+    const TrkMessage msg = qd->trkWriteQueue.dequeue();
+    trkWrite(msg);
+}
+
+bool TrkWriteQueueDevice::trkWriteRawMessage(const TrkMessage &msg)
+{
+    const QByteArray ba = frameMessage(msg.code, msg.token, msg.data, serialFrame());
+    if (verbose())
+         qDebug() << ("WRITE: " + stringFromArray(ba));
+    QString errorMessage;
+    const bool rc = write(ba, &errorMessage);
+    if (!rc)
+        emitError(errorMessage);
+    return rc;
+}
+
+bool TrkWriteQueueDevice::trkWrite(const TrkMessage &msg)
+{
+    qd->writtenTrkMessages.insert(msg.token, msg);
+    qd->trkWriteBusy = true;
+    return trkWriteRawMessage(msg);
+}
+
+void TrkWriteQueueDevice::timerEvent(QTimerEvent *ev)
+{
+    tryTrkWrite();
+    TrkDevice::timerEvent(ev);
+}
+
+void TrkWriteQueueDevice::slotHandleResult(const TrkResult &result)
+{
+    qd->trkWriteBusy = false;
+    if (result.code != TrkNotifyAck && result.code != TrkNotifyNak)
+        return;
+    // Find which request the message belongs to and invoke callback
+    // if ACK or on NAK if desired.
+    const TrkWriteQueueDevicePrivate::TokenMessageMap::iterator it = qd->writtenTrkMessages.find(result.token);
+    if (it == qd->writtenTrkMessages.end())
+        return;
+    const bool invokeCB = it.value().callback
+                          && (result.code == TrkNotifyAck || it.value().invokeOnNAK);
+
+    if (invokeCB) {
+        TrkResult result1 = result;
+        result1.cookie = it.value().cookie;
+        it.value().callback(result1);
+    }
+    qd->writtenTrkMessages.erase(it);
+}
+
+} // namespace tr

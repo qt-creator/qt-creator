@@ -70,26 +70,10 @@ private slots:
     void handleResult(const TrkResult &data);
 
 private:
-    void sendTrkMessage(unsigned char code,
-        TrkCallBack callBack = 0,
-        const QByteArray &data = QByteArray(),
-        const QVariant &cookie = QVariant());
-    // adds message to 'send' queue
-    void queueTrkMessage(const TrkMessage &msg);
-    void tryTrkWrite();
     void tryTrkRead();
-    // actually writes a message to the device
-    void trkWrite(const TrkMessage &msg);
-    void trkWriteRawMessage(const TrkMessage &msg);
-    // convienience messages
-    void sendTrkInitialPing();
-    void sendTrkAck(unsigned char token);
 
     // kill process and breakpoints
     void cleanUp();
-
-    void timerEvent(QTimerEvent *ev);
-    unsigned char nextTrkWriteToken();
 
     void handleFileCreation(const TrkResult &result);
     void handleFileCreated(const TrkResult &result);

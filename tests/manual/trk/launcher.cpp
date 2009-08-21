@@ -40,32 +40,18 @@
 
 namespace trk {
 
-struct TrkMessage {
-    TrkMessage() { code = token = 0; callBack = 0; }
-    byte code;
-    byte token;
-    QByteArray data;
-    QVariant cookie;
-    Launcher::TrkCallBack callBack;
-};
+typedef TrkWriteQueueDevice::Callback Callback;
 
 struct LauncherPrivate {
     LauncherPrivate();
-    TrkDevice m_device;
+    TrkWriteQueueDevice m_device;
     QString m_trkServerName;
     QByteArray m_trkReadBuffer;
-
-    unsigned char m_trkWriteToken;
-    QQueue<TrkMessage> m_trkWriteQueue;
-    QHash<byte, TrkMessage> m_writtenTrkMessages;
-    QByteArray m_trkReadQueue;
-    bool m_trkWriteBusy;
 
     void logMessage(const QString &msg);
     // Debuggee state
     Session m_session; // global-ish data (process id, target information)
 
-    int m_timerId;
     QString m_fileName;
     QString m_copySrcFileName;
     QString m_copyDstFileName;
@@ -74,14 +60,9 @@ struct LauncherPrivate {
 };
 
 LauncherPrivate::LauncherPrivate() :
-    m_trkWriteToken(0),
-    m_trkWriteBusy(false),
-    m_timerId(-1),
     m_verbose(0)
 {
 }
-
-#define CB(s) &Launcher::s
 
 Launcher::Launcher() :
     d(new LauncherPrivate)
@@ -135,12 +116,11 @@ bool Launcher::startServer(QString *errorMessage)
     }
     if (!d->m_device.open(d->m_trkServerName, errorMessage))
         return false;
-    d->m_timerId = startTimer(100);
-    sendTrkInitialPing();
-    sendTrkMessage(TrkConnect); // Connect
-    sendTrkMessage(TrkSupported, CB(handleSupportMask));
-    sendTrkMessage(TrkCpuType, CB(handleCpuType));
-    sendTrkMessage(TrkVersions, CB(handleTrkVersion));
+    d->m_device.sendTrkInitialPing();
+    d->m_device.sendTrkMessage(TrkConnect); // Connect
+    d->m_device.sendTrkMessage(TrkSupported, Callback(this, &Launcher::handleSupportMask));
+    d->m_device.sendTrkMessage(TrkCpuType, Callback(this, &Launcher::handleCpuType));
+    d->m_device.sendTrkMessage(TrkVersions, Callback(this, &Launcher::handleTrkVersion));
     if (d->m_fileName.isEmpty())
         return true;
     if (!d->m_copySrcFileName.isEmpty() && !d->m_copyDstFileName.isEmpty())
@@ -170,45 +150,10 @@ void Launcher::logMessage(const QString &msg)
         qDebug() << "ADAPTER: " << qPrintable(msg);
 }
 
-void Launcher::timerEvent(QTimerEvent *)
-{
-    if (d->m_verbose>1)
-        qDebug(".");
-    tryTrkWrite();
-}
-
-byte Launcher::nextTrkWriteToken()
-{
-    ++d->m_trkWriteToken;
-    if (d->m_trkWriteToken == 0)
-        ++d->m_trkWriteToken;
-    return d->m_trkWriteToken;
-}
-
-void Launcher::sendTrkMessage(byte code, TrkCallBack callBack,
-    const QByteArray &data, const QVariant &cookie)
-{
-    TrkMessage msg;
-    msg.code = code;
-    msg.token = nextTrkWriteToken();
-    msg.callBack = callBack;
-    msg.data = data;
-    msg.cookie = cookie;
-    queueTrkMessage(msg);
-}
-
-void Launcher::sendTrkInitialPing()
-{
-    TrkMessage msg;
-    msg.code = 0x00; // Ping
-    msg.token = 0; // reset sequence count
-    queueTrkMessage(msg);
-}
-
 void Launcher::waitForTrkFinished(const TrkResult &result)
 {
     Q_UNUSED(result)
-    sendTrkMessage(TrkPing, CB(handleWaitForFinished));
+    d->m_device.sendTrkMessage(TrkPing, Callback(this, &Launcher::handleWaitForFinished));
 }
 
 void Launcher::terminate()
@@ -216,57 +161,11 @@ void Launcher::terminate()
     QByteArray ba;
     appendShort(&ba, 0x0000, TargetByteOrder);
     appendInt(&ba, d->m_session.pid, TargetByteOrder);
-    sendTrkMessage(TrkDeleteItem, CB(waitForTrkFinished), ba);
-}
-
-void Launcher::sendTrkAck(byte token)
-{
-    logMessage(QString("SENDING ACKNOWLEDGEMENT FOR TOKEN %1").arg(int(token)));
-    TrkMessage msg;
-    msg.code = 0x80;
-    msg.token = token;
-    msg.data.append('\0');
-    // The acknowledgement must not be queued!
-    //queueMessage(msg);
-    trkWriteRawMessage(msg);
-    // 01 90 00 07 7e 80 01 00 7d 5e 7e
-}
-
-void Launcher::queueTrkMessage(const TrkMessage &msg)
-{
-    d->m_trkWriteQueue.append(msg);
-}
-
-void Launcher::tryTrkWrite()
-{
-    if (d->m_trkWriteBusy)
-        return;
-    if (d->m_trkWriteQueue.isEmpty())
-        return;
-
-    TrkMessage msg = d->m_trkWriteQueue.dequeue();
-    trkWrite(msg);
-}
-
-void Launcher::trkWriteRawMessage(const TrkMessage &msg)
-{
-    const QByteArray ba = frameMessage(msg.code, msg.token, msg.data, serialFrame());
-    logMessage("WRITE: " + stringFromArray(ba));
-    QString errorMessage;
-    if (!d->m_device.write(ba, &errorMessage))
-        logMessage(errorMessage);
-}
-
-void Launcher::trkWrite(const TrkMessage &msg)
-{
-    d->m_writtenTrkMessages.insert(msg.token, msg);
-    d->m_trkWriteBusy = true;
-    trkWriteRawMessage(msg);
+    d->m_device.sendTrkMessage(TrkDeleteItem, Callback(this, &Launcher::waitForTrkFinished), ba);
 }
 
 void Launcher::handleResult(const TrkResult &result)
 {
-    d->m_trkWriteBusy = false;
     QByteArray prefix = "READ BUF:                                       ";
     QByteArray str = result.toString().toUtf8();
     if (result.isDebugOutput) { // handle application output
@@ -275,28 +174,8 @@ void Launcher::handleResult(const TrkResult &result)
         return;
     }
     switch (result.code) {
-        case TrkNotifyAck: { // ACK
-            //logMessage(prefix + "ACK: " + str);
-            if (!result.data.isEmpty() && result.data.at(0))
-                logMessage(prefix + "ERR: " +QByteArray::number(result.data.at(0)));
-            //logMessage("READ RESULT FOR TOKEN: " << token);
-            if (!d->m_writtenTrkMessages.contains(result.token)) {
-                logMessage("NO ENTRY FOUND!");
-            }
-            TrkMessage msg = d->m_writtenTrkMessages.take(result.token);
-            TrkResult result1 = result;
-            result1.cookie = msg.cookie;
-            TrkCallBack cb = msg.callBack;
-            if (cb) {
-                //logMessage("HANDLE: " << stringFromArray(result.data));
-                (this->*cb)(result1);
-            } else {
-                QString msg = result.cookie.toString();
-                if (!msg.isEmpty())
-                    logMessage("HANDLE: " + msg + stringFromArray(result.data));
-            }
+        case TrkNotifyAck:
             break;
-        }
         case TrkNotifyNak: { // NAK
             logMessage(prefix + "NAK: " + str);
             //logMessage(prefix << "TOKEN: " << result.token);
@@ -311,17 +190,17 @@ void Launcher::handleResult(const TrkResult &result)
 //            uint pid = extractInt(data + 4); // ProcessID: 4 bytes;
 //            uint tid = extractInt(data + 8); // ThreadID: 4 bytes
             //logMessage(prefix << "      ADDR: " << addr << " PID: " << pid << " TID: " << tid);
-            sendTrkAck(result.token);
+            d->m_device.sendTrkAck(result.token);
             break;
         }
         case TrkNotifyException: { // Notify Exception (obsolete)
             logMessage(prefix + "NOTE: EXCEPTION  " + str);
-            sendTrkAck(result.token);
+            d->m_device.sendTrkAck(result.token);
             break;
         }
         case TrkNotifyInternalError: { //
             logMessage(prefix + "NOTE: INTERNAL ERROR: " + str);
-            sendTrkAck(result.token);
+            d->m_device.sendTrkAck(result.token);
             break;
         }
 
@@ -353,8 +232,8 @@ void Launcher::handleResult(const TrkResult &result)
             QByteArray ba;
             appendInt(&ba, d->m_session.pid);
             appendInt(&ba, d->m_session.tid);
-            sendTrkMessage(TrkContinue, 0, ba, "CONTINUE");
-            //sendTrkAck(result.token)
+            d->m_device.sendTrkMessage(TrkContinue, Callback(), ba, "CONTINUE");
+            //d->m_device.sendTrkAck(result.token)
             break;
         }
         case TrkNotifyDeleted: { // NotifyDeleted
@@ -364,25 +243,25 @@ void Launcher::handleResult(const TrkResult &result)
             logMessage(QString::fromLatin1("%1 %2 UNLOAD: %3").
                        arg(QString::fromAscii(prefix)).arg(itemType ? QLatin1String("LIB") : QLatin1String("PROCESS")).
                        arg(name));
-            sendTrkAck(result.token);
+            d->m_device.sendTrkAck(result.token);
             if (itemType == 0) { // process
-                sendTrkMessage(TrkDisconnect, CB(waitForTrkFinished));
+                d->m_device.sendTrkMessage(TrkDisconnect, Callback(this, &Launcher::waitForTrkFinished));
             }
             break;
         }
         case TrkNotifyProcessorStarted: { // NotifyProcessorStarted
             logMessage(prefix + "NOTE: PROCESSOR STARTED: " + str);
-            sendTrkAck(result.token);
+            d->m_device.sendTrkAck(result.token);
             break;
         }
         case TrkNotifyProcessorStandBy: { // NotifyProcessorStandby
             logMessage(prefix + "NOTE: PROCESSOR STANDBY: " + str);
-            sendTrkAck(result.token);
+            d->m_device.sendTrkAck(result.token);
             break;
         }
         case TrkNotifyProcessorReset: { // NotifyProcessorReset
             logMessage(prefix + "NOTE: PROCESSOR RESET: " + str);
-            sendTrkAck(result.token);
+            d->m_device.sendTrkAck(result.token);
             break;
         }
         default: {
@@ -409,7 +288,7 @@ void Launcher::handleTrkVersion(const TrkResult &result)
                 << " float size: " << d->m_session.fpTypeSize
                 << " Trk: v" << trkMajor << '.' << trkMinor << " Protocol: " << protocolMajor << '.' << protocolMinor;
         qWarning("%s", qPrintable(msg));
-        sendTrkMessage(TrkPing, CB(waitForTrkFinished));
+        d->m_device.sendTrkMessage(TrkPing, Callback(this, &Launcher::waitForTrkFinished));
     }
 }
 
@@ -429,13 +308,13 @@ void Launcher::handleFileCreation(const TrkResult &result)
         QByteArray ba;
         appendInt(&ba, copyFileHandle, TargetByteOrder);
         appendString(&ba, src.mid(pos, BLOCKSIZE), TargetByteOrder, false);
-        sendTrkMessage(TrkWriteFile, 0, ba);
+        d->m_device.sendTrkMessage(TrkWriteFile, Callback(), ba);
         pos += BLOCKSIZE;
     }
     QByteArray ba;
     appendInt(&ba, copyFileHandle, TargetByteOrder);
     appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
-    sendTrkMessage(TrkCloseFile, CB(handleFileCreated), ba);
+    d->m_device.sendTrkMessage(TrkCloseFile, Callback(this, &Launcher::handleFileCreated), ba);
 }
 
 void Launcher::handleFileCreated(const TrkResult &result)
@@ -480,13 +359,12 @@ void Launcher::handleCreateProcess(const TrkResult &result)
     QByteArray ba;
     appendInt(&ba, d->m_session.pid);
     appendInt(&ba, d->m_session.tid);
-    sendTrkMessage(TrkContinue, 0, ba, "CONTINUE");
+    d->m_device.sendTrkMessage(TrkContinue, Callback(), ba, "CONTINUE");
 }
 
 void Launcher::handleWaitForFinished(const TrkResult &result)
 {
     logMessage("   FINISHED: " + stringFromArray(result.data));
-    killTimer(d->m_timerId);
     emit finished();
 }
 
@@ -516,7 +394,7 @@ void Launcher::cleanUp()
     appendByte(&ba, 0x00);
     appendByte(&ba, 0x00);
     appendInt(&ba, d->m_session.pid);
-    sendTrkMessage(TrkDeleteItem, 0, ba, "Delete process");
+    d->m_device.sendTrkMessage(TrkDeleteItem, Callback(), ba, "Delete process");
 
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
@@ -552,7 +430,7 @@ void Launcher::cleanUp()
     //---IDE------------------------------------------------------
     //  Command: 0x02 Disconnect
     // [02 27]
-//    sendTrkMessage(0x02, CB(handleDisconnect));
+//    sendTrkMessage(0x02, Callback(this, &Launcher::handleDisconnect));
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
     // Error: 0x00
@@ -564,7 +442,7 @@ void Launcher::copyFileToRemote()
     QByteArray ba;
     appendByte(&ba, 0x10);
     appendString(&ba, d->m_copyDstFileName.toLocal8Bit(), TargetByteOrder, false);
-    sendTrkMessage(TrkOpenFile, CB(handleFileCreation), ba);
+    d->m_device.sendTrkMessage(TrkOpenFile, Callback(this, &Launcher::handleFileCreation), ba);
 }
 
 void Launcher::installRemotePackageSilently(const QString &fileName)
@@ -573,7 +451,7 @@ void Launcher::installRemotePackageSilently(const QString &fileName)
     QByteArray ba;
     appendByte(&ba, 'C');
     appendString(&ba, fileName.toLocal8Bit(), TargetByteOrder, false);
-    sendTrkMessage(TrkInstallFile, CB(handleInstallPackageFinished), ba);
+    d->m_device.sendTrkMessage(TrkInstallFile, Callback(this, &Launcher::handleInstallPackageFinished), ba);
 }
 
 void Launcher::handleInstallPackageFinished(const TrkResult &)
@@ -594,7 +472,7 @@ void Launcher::startInferiorIfNeeded()
     appendByte(&ba, 0); // ?
     appendByte(&ba, 0); // ?
     appendString(&ba, d->m_fileName.toLocal8Bit(), TargetByteOrder);
-    sendTrkMessage(TrkCreateItem, CB(handleCreateProcess), ba); // Create Item
+    d->m_device.sendTrkMessage(TrkCreateItem, Callback(this, &Launcher::handleCreateProcess), ba); // Create Item
 }
 
 }

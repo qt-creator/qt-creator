@@ -30,6 +30,8 @@
 #ifndef TRKDEVICE_H
 #define TRKDEVICE_H
 
+#include "trkfunctor.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
 #include <QtCore/QByteArray>
@@ -37,7 +39,9 @@
 namespace trk {
 
 struct TrkResult;
+struct TrkMessage;
 struct TrkDevicePrivate;
+struct TrkWriteQueueDevicePrivate;
 
 /* TrkDevice: Implements a Windows COM or Linux device for
  * Trk communications. Provides synchronous write and asynchronous
@@ -71,13 +75,61 @@ public:
 
 signals:
     void messageReceived(const TrkResult&);
+    void error(const QString &s);
+
+protected:
+    void emitError(const QString &);
+    virtual void timerEvent(QTimerEvent *ev);
 
 private:
     void tryTrkRead();
-    virtual void timerEvent(QTimerEvent *ev);
 
     TrkDevicePrivate *d;
 };
+
+/* TrkWriteQueueDevice: Extends TrkDevice by write message queue allowing
+ * for queueing messages with a notification callback. If the message receives
+ * an ACK, the callback is invoked. */
+class TrkWriteQueueDevice : public TrkDevice
+{
+    Q_OBJECT
+public:
+    explicit TrkWriteQueueDevice(QObject *parent = 0);
+    virtual ~TrkWriteQueueDevice();
+
+    // Construct as 'TrkWriteQueueDevice::Callback(instance, &Klass::method);'
+    typedef TrkFunctor1<const TrkResult &> Callback;
+
+    // Enqueue a message with a notification callback.
+    void sendTrkMessage(unsigned char code,
+                        Callback callBack = Callback(),
+                        const QByteArray &data = QByteArray(),
+                        const QVariant &cookie = QVariant(),
+                        // Invoke callback on receiving NAK, too.
+                        bool invokeOnNAK = false);
+
+    // Enqeue an initial ping
+    void sendTrkInitialPing();
+
+    // Send an Ack synchronously, bypassing the queue
+    bool sendTrkAck(unsigned char token);
+
+private slots:
+    void slotHandleResult(const TrkResult &);
+
+protected:
+    virtual void timerEvent(QTimerEvent *ev);
+
+private:
+    unsigned char nextTrkWriteToken();
+    void queueTrkMessage(const TrkMessage &msg);
+    void tryTrkWrite();
+    bool trkWriteRawMessage(const TrkMessage &msg);
+    bool trkWrite(const TrkMessage &msg);
+
+    TrkWriteQueueDevicePrivate *qd;
+};
+
 
 } // namespace trk
 
