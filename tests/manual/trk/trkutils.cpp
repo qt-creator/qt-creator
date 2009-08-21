@@ -122,9 +122,11 @@ ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame)
     return firstDelimiterPos != -1 ? firstDelimiterPos : buffer.size();
 }
 
-bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result)
+bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result, QByteArray *rawData)
 {
     result->clear();
+    if(rawData)
+        rawData->clear();
     const ushort len = isValidTrkResult(*buffer, serialFrame);
     if (!len)
         return false;
@@ -140,6 +142,8 @@ bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result)
     // FIXME: what happens if the length contains 0xfe?
     // Assume for now that it passes unencoded!
     const QByteArray data = decode7d(buffer->mid(delimiterPos + 1, len - 2));
+    if(rawData)
+        *rawData = data;
     *buffer->remove(0, delimiterPos + len);
 
     byte sum = 0;

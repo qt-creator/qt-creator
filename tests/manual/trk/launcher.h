@@ -67,7 +67,7 @@ public slots:
     void terminate();
 
 private slots:
-    void handleResult(const TrkResult &data);
+    void handleResult(const trk::TrkResult &data);
 
 private:
     void tryTrkRead();
