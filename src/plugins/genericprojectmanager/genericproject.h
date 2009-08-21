@@ -111,10 +111,8 @@ public:
     QStringList projectIncludePaths() const;
     QStringList files() const;
     QStringList generated() const;    
-    ProjectExplorer::ToolChain::ToolChainType toolChainId() const;
-
-public Q_SLOTS:
-    void setToolChainId(int);
+    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    void setToolChainType(ProjectExplorer::ToolChain::ToolChainType type);
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
@@ -140,7 +138,7 @@ private:
 
     GenericProjectNode *m_rootNode;
     ProjectExplorer::ToolChain *m_toolChain;
-    ProjectExplorer::ToolChain::ToolChainType m_toolChainId;
+    ProjectExplorer::ToolChain::ToolChainType m_toolChainType;
 };
 
 class GenericProjectFile : public Core::IFile
@@ -183,6 +181,7 @@ public:
 
 private Q_SLOTS:
     void buildDirectoryChanged();
+    void toolChainSelected(int index);
 
 private:
     GenericProject *m_project;
