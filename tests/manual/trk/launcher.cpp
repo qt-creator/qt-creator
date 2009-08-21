@@ -67,7 +67,7 @@ LauncherPrivate::LauncherPrivate() :
 Launcher::Launcher() :
     d(new LauncherPrivate)
 {
-    connect(&d->m_device, SIGNAL(messageReceived(TrkResult)), this, SLOT(handleResult(TrkResult)));
+    connect(&d->m_device, SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));
 }
 
 Launcher::~Launcher()
@@ -147,7 +147,7 @@ void Launcher::installAndRun()
 void Launcher::logMessage(const QString &msg)
 {
     if (d->m_verbose)
-        qDebug() << "ADAPTER: " << qPrintable(msg);
+        qDebug() << "LAUNCHER: " << qPrintable(msg);
 }
 
 void Launcher::waitForTrkFinished(const TrkResult &result)
@@ -239,7 +239,7 @@ void Launcher::handleResult(const TrkResult &result)
         case TrkNotifyDeleted: { // NotifyDeleted
             const ushort itemType = (unsigned char)result.data.at(1);
             const ushort len = result.data.size() > 12 ? extractShort(result.data.data() + 10) : ushort(0);
-            const QString name = len ? QString::fromAscii(result.data.mid(13, len)) : QString();
+            const QString name = len ? QString::fromAscii(result.data.mid(12, len)) : QString();
             logMessage(QString::fromLatin1("%1 %2 UNLOAD: %3").
                        arg(QString::fromAscii(prefix)).arg(itemType ? QLatin1String("LIB") : QLatin1String("PROCESS")).
                        arg(name));

@@ -188,7 +188,7 @@ struct TrkResult
 // the serial frame [0x01 0x90 <len>] and 0x7e encoded7d(ba) 0x7e
 QByteArray frameMessage(byte command, byte token, const QByteArray &data, bool serialFrame);
 ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame);
-bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *r);
+bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *r, QByteArray *rawData = 0);
 QByteArray errorMessage(byte code);
 QByteArray hexNumber(uint n, int digits = 0);
 uint swapEndian(uint in);

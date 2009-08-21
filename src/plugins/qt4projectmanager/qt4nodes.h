@@ -104,6 +104,7 @@ enum Qt4Variable {
 
 class Qt4PriFileNode;
 class Qt4ProFileNode;
+struct InternalNode;
 
 // Implements ProjectNode for qt4 pro files
 class Qt4PriFileNode : public ProjectExplorer::ProjectNode
@@ -175,6 +176,8 @@ private:
 
     // managed by Qt4ProFileNode
     friend class Qt4ProFileNode;
+    // internal temporary subtree representation
+    friend class InternalNode;
 };
 
 // Implements ProjectNode for qt4 pro files

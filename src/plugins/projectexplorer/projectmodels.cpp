@@ -961,11 +961,15 @@ FolderNode *FlatModel::visibleFolderNode(FolderNode *node) const
 bool FlatModel::filter(Node *node) const
 {
     bool isHidden = false;
-    if (ProjectNode *projectNode = qobject_cast<ProjectNode*>(node)) {
+    if (node->nodeType() == SessionNodeType) {
+        isHidden = false;
+    } else if (ProjectNode *projectNode = qobject_cast<ProjectNode*>(node)) {
         if (m_filterProjects && projectNode->parentFolderNode() != m_rootNode)
             isHidden = !projectNode->hasTargets();
-    }
-    if (FileNode *fileNode = qobject_cast<FileNode*>(node)) {
+    } else if (node->nodeType() == FolderNodeType) {
+        if (m_filterProjects)
+            isHidden = true;
+    } else if (FileNode *fileNode = qobject_cast<FileNode*>(node)) {
         if (m_filterGeneratedFiles)
             isHidden = fileNode->isGenerated();
     }

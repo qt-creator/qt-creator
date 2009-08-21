@@ -136,10 +136,10 @@ public:
 
     virtual void accept(NodesVisitor *visitor);
 
-protected:
     void setFolderName(const QString &name);
     void setIcon(const QIcon &icon);
 
+protected:
     QList<FolderNode*> m_subFolderNodes;
     QList<FileNode*> m_fileNodes;
 
@@ -193,6 +193,7 @@ public:
     void accept(NodesVisitor *visitor);
 
     static bool sortNodesByPath(Node *n1, Node *n2);
+    static bool sortFolderNodesByName(FolderNode *f1, FolderNode *f2);
 
 protected:
     // this is just the in-memory representation, a subclass

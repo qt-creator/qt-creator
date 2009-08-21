@@ -21,10 +21,15 @@ Usage: run.pl -av -aq -tv -tq -l [COM]
 Options:
      -av     Adapter verbose
      -aq     Adapter quiet
+     -af     Adapter turn off serial frame
      -tv     TrkServer verbose
      -tq     TrkServer quiet
 
      trkserver simulator will be run unless COM is specified
+
+Bluetooth:
+     rfcomm listen /dev/rfcomm0 1 \$PWD/run.pl -av -af {}
+
 EOF
 
 # ------- Parse arguments
@@ -36,11 +41,16 @@ for (my $i = 0; $i < $argCount; $i++) {
 	    push(@ADAPTER_OPTIONS, '-v');
 	} elsif ($a eq '-aq') {
 	    push(@ADAPTER_OPTIONS, '-q');
+	} elsif ($a eq '-af') {
+	    push(@ADAPTER_OPTIONS, '-f');
 	} elsif ($a eq '-tv') {
 	    push(@TRKSERVEROPTIONS, '-v');
 	} elsif ($a eq '-tq') {
 	    push(@TRKSERVEROPTIONS, '-q');
 	}  elsif ($a eq '-h') {
+	    print $usage;
+	    exit(0);
+	}  else {
 	    print $usage;
 	    exit(1);
 	}
