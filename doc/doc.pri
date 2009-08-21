@@ -1,8 +1,16 @@
+QDOC_BIN = $$(QTDIR)/bin/qdoc3
+win32:QDOC_BIN = $$replace(QDOC_BIN, "/", "\\")
+
+!exists( $$QDOC_BIN ) {
+	QDOC_BIN = $$(QTDIR)/tools/qdoc3/qdoc3
+	win32:QDOC_BIN = $$replace(QDOC_BIN, "/", "\\")
+}
+
 unix {
-    QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html $$(QTDIR)/tools/qdoc3/qdoc3
+    QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html $$QDOC_BIN 
     HELPGENERATOR = $$(QTDIR)/bin/qhelpgenerator
 } else {
-    QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$OUT_PWD/doc/html&& $$(QTDIR)\tools\qdoc3\release\qdoc3.exe
+    QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$OUT_PWD/doc/html&& $$QDOC_BIN 
     HELPGENERATOR = $$(QTDIR)\bin\qhelpgenerator.exe
 }
 
