@@ -442,12 +442,10 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         // Indicate the reason the target halted.
         // The reply is the same as for step and continue.
         sendGdbAckMessage();
-        startInferiorIfNeeded();
-        //sendGdbMessageAfterSync("T05thread:p@PID@.@TID@;", "current thread Id");
-        //sendGdbMessageAfterSync("T05thread:@TID@;", "current thread Id");
-        //sendGdbMessage("T0505:00000000;04:e0c1ddbf;08:10f80bb8;thread:1f43;",
-        //    sendGdbMessage("T0505:00000000;thread:" + QByteArray(buf),
-        sendGdbMessage("S05", "target halted");
+        startInferiorIfNeeded();        
+        sendGdbMessage("T05library:r;", "target halted (library load)");
+        // trap 05
+        // sendGdbMessage("S05", "target halted (trap)");
     }
 
     else if (response == "c") {
@@ -517,7 +515,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         // for 'other operations.  0 - any thread
         //$Hg0#df
         sendGdbAckMessage();
-        m_session.currentThread = response.mid(2).toInt();
+        m_session.currentThread = response.mid(2).toInt(0, 16);
         sendGdbMessage("OK", "set current thread "
             + QByteArray::number(m_session.currentThread));
     }
@@ -901,6 +899,7 @@ void Adapter::handleResult(const TrkResult &result)
             const uint dataseg = extractInt(data + 14); //data address: 4 bytes; data base address for the library
             const uint len = extractShort(data + 18); //length: 2 bytes; length of the library name string to follow
             const QByteArray name = result.data.mid(20, len); // name: library name
+            m_session.modules += QString::fromAscii(name);
             QString logMsg;
             QTextStream str(&logMsg);
             str<< prefix << " NOTE: LIBRARY LOAD: token=" << result.token;
@@ -916,7 +915,14 @@ void Adapter::handleResult(const TrkResult &result)
             break;
         }
         case 0xa1: { // NotifyDeleted
-            logMessage(prefix + "NOTE: LIBRARY UNLOAD: " + str);
+            const ushort itemType = (unsigned char)result.data.at(1);
+            const ushort len = result.data.size() > 12 ? extractShort(result.data.data() + 10) : ushort(0);
+            const QString name = len ? QString::fromAscii(result.data.mid(12, len)) : QString();
+            if (!name.isEmpty())
+                m_session.modules.removeAll(name);
+            logMessage(QString::fromLatin1("%1 %2 UNLOAD: %3").
+                       arg(QString::fromAscii(prefix)).arg(itemType ? QLatin1String("LIB") : QLatin1String("PROCESS")).
+                       arg(name));
             sendTrkAck(result.token);
             break;
         }
@@ -948,12 +954,12 @@ void Adapter::handleCpuType(const TrkResult &result)
     //  Command: 0x80 Acknowledge
     //    Error: 0x00
     // [80 03 00  04 00 00 04 00 00 00]
-    m_session.cpuMajor = result.data[0];
-    m_session.cpuMinor = result.data[1];
-    m_session.bigEndian = result.data[2];
-    m_session.defaultTypeSize = result.data[3];
-    m_session.fpTypeSize = result.data[4];
-    m_session.extended1TypeSize = result.data[5];
+    m_session.cpuMajor = result.data[1];
+    m_session.cpuMinor = result.data[2];
+    m_session.bigEndian = result.data[3];
+    m_session.defaultTypeSize = result.data[4];
+    m_session.fpTypeSize = result.data[5];
+    m_session.extended1TypeSize = result.data[6];
     //m_session.extended2TypeSize = result.data[6];
     QString logMsg;
     QTextStream(&logMsg) << "HANDLE CPU TYPE: " << " CPU=" << m_session.cpuMajor << '.'

@@ -32,7 +32,7 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
-#include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
 typedef unsigned char byte;
@@ -147,6 +147,7 @@ struct Session
 
     // Gdb request
     uint currentThread;
+    QStringList modules;
 };
 
 struct Snapshot
