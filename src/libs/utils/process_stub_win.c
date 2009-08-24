@@ -174,6 +174,8 @@ int main()
     case Suspend:
         creationFlags |= CREATE_SUSPENDED;
         break;
+    default:
+        break;
     }
     if (!CreateProcessW(0, argv[ArgCmdLine], 0, 0, FALSE, creationFlags, env, 0, &si, &pi)) {
         /* Only expected error: no such file or direcotry, i.e. executable not found */
