@@ -1228,7 +1228,7 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
     } else {
         // ### make me fast!
         const char *startOfDefinition = startOfToken(*tk);
-        const char *endOfDefinition = startOfToken(*lastToken);
+        const char *endOfDefinition = endOfToken(lastToken[- 1]);
         QByteArray definition(startOfDefinition,
                               endOfDefinition - startOfDefinition);
         definition.replace("\\\n", " ");
