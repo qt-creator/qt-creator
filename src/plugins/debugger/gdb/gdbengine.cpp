@@ -1325,7 +1325,8 @@ void GdbEngine::handleShowVersion(const GdbResultRecord &response, const QVarian
                          +   100 * supported.cap(3).toInt()
                          +     1 * supported.cap(5).toInt();
             m_gdbBuildVersion = supported.cap(7).toInt();
-            debugMessage(_("GDB VERSION: %1").arg(m_gdbVersion));
+            debugMessage(_("GDB VERSION: %1, BUILD: %2 ").arg(m_gdbVersion)
+                .arg(m_gdbBuildVersion));
         }
         //qDebug () << "VERSION 3:" << m_gdbVersion << m_gdbBuildVersion;
     }
@@ -2649,7 +2650,10 @@ void GdbEngine::handleRegisterListValues(const GdbResultRecord &record, const QV
 
 bool GdbEngine::supportsThreads() const
 {
-    // 6.3 crashes happily on -thread-list-ids. So don't use it.
+#ifdef Q_OS_MAC
+    return true;
+#endif
+    // FSF gdb 6.3 crashes happily on -thread-list-ids. So don't use it.
     // The test below is a semi-random pick, 6.8 works fine
     return m_gdbVersion > 60500;
 }
