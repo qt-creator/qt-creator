@@ -1,4 +1,4 @@
-<plugin name="DuiEditor" version="1.2.80" compatVersion="1.2.80">
+<plugin name="DuiEditor" version="1.2.90" compatVersion="1.2.90">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,7 +19,7 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Editor for DUI.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.2.80"/>
-        <dependency name="TextEditor" version="1.2.80"/>
+        <dependency name="Core" version="1.2.90"/>
+        <dependency name="TextEditor" version="1.2.90"/>
     </dependencyList>
 </plugin>

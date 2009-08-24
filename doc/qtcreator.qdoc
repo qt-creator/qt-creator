@@ -5,7 +5,7 @@
 
     \title Qt Creator Manual
 
-    \section1 Version 1.2.80
+    \section1 Version 1.2.90
 
     The goal of Qt Creator is to provide a cross-platform, complete Integrated
     Development Environment (IDE) to develop Qt projects. It is available for
@@ -1782,7 +1782,7 @@
     There are some known issues with Qt Creator.
     The development team is aware of those, there is no need to report them as bug.
 
-    \section1 Known Issues of Version 1.2.80
+    \section1 Known Issues of Version 1.2.90
 
     \list
         \o Gdb on Windows may not work if the 'Embassy \reg Security Center' software

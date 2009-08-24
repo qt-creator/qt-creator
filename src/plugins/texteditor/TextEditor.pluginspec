@@ -1,4 +1,4 @@
-<plugin name="TextEditor" version="1.2.80" compatVersion="1.2.80">
+<plugin name="TextEditor" version="1.2.90" compatVersion="1.2.90">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,8 +19,8 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Text editor framework and the implementation of the basic text editor.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.2.80"/>
-        <dependency name="Find" version="1.2.80"/>
-        <dependency name="QuickOpen" version="1.2.80"/>
+        <dependency name="Core" version="1.2.90"/>
+        <dependency name="Find" version="1.2.90"/>
+        <dependency name="QuickOpen" version="1.2.90"/>
     </dependencyList>
 </plugin>
