@@ -3144,6 +3144,7 @@ void GdbEngine::updateWatchData(const WatchData &data)
 
 void GdbEngine::rebuildModel()
 {
+    m_processedNames.clear();
     PENDING_DEBUG("REBUILDING MODEL");
     emit gdbInputAvailable(LogStatus, _("<Rebuild Watchmodel>"));
     q->showStatusMessage(tr("Finished retrieving data."), 400);
@@ -3267,20 +3268,22 @@ void GdbEngine::handleVarAssign(const GdbResultRecord &, const QVariant &)
 }
 
 // Find the "type" and "displayedtype" children of root and set up type.
-void GdbEngine::setWatchDataType(WatchData &data, const GdbMi &root)
+void GdbEngine::setWatchDataType(WatchData &data, const GdbMi &item)
 {
-    const GdbMi &typeItem = root.findChild("type");
-    if (typeItem.isValid()) {
-        const QString miData = _(typeItem.data());
+    if (item.isValid()) {
+        const QString miData = _(item.data());
         if (!data.framekey.isEmpty())
             m_varToType[data.framekey] = miData;
         data.setType(miData);
     } else if (data.type.isEmpty()) {
         data.setTypeNeeded();
     }
-    const GdbMi &displayedTypeItem = root.findChild("displayedtype");
-    if (displayedTypeItem.isValid())
-        data.displayedType = _(displayedTypeItem.data());
+}
+
+void GdbEngine::setWatchDataDisplayedType(WatchData &data, const GdbMi &item)
+{
+    if (item.isValid())
+        data.displayedType = _(item.data());
 }
 
 void GdbEngine::handleVarCreate(const GdbResultRecord &record,
@@ -3293,7 +3296,7 @@ void GdbEngine::handleVarCreate(const GdbResultRecord &record,
     //qDebug() << "HANDLE VARIABLE CREATION:" << data.toString();
     if (record.resultClass == GdbResultDone) {
         data.variable = data.iname;
-        setWatchDataType(data, record.data);
+        setWatchDataType(data, record.data.findChild("type"));
         if (hasDebuggingHelperForType(data.type)) {
             // we do not trust gdb if we have a custom dumper
             if (record.data.findChild("children").isValid())
@@ -3395,7 +3398,8 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
         return;
     }
 
-    setWatchDataType(data, contents);
+    setWatchDataType(data, record.data.findChild("type"));
+    setWatchDataDisplayedType(data, record.data.findChild("displaytype"));
     setWatchDataValue(data, contents.findChild("value"),
         contents.findChild("valueencoded").data().toInt());
     setWatchDataAddress(data, contents.findChild("addr"));
@@ -3421,7 +3425,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
 
     // try not to repeat data too often
     WatchData childtemplate;
-    setWatchDataType(childtemplate, contents);
+    setWatchDataType(childtemplate, contents.findChild("childtype"));
     setWatchDataChildCount(childtemplate, contents.findChild("childnumchild"));
     //qDebug() << "DATA:" << data.toString();
 
@@ -3449,7 +3453,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
             //data1.name += " (" + skey + ")";
             data1.name = skey;
         }
-        setWatchDataType(data1, item);
+        setWatchDataType(data1, item.findChild("type"));
         setWatchDataExpression(data1, item.findChild("exp"));
         setWatchDataChildCount(data1, item.findChild("numchild"));
         setWatchDataValue(data1, item.findChild("value"),
@@ -3652,7 +3656,7 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
             data.name = nam;
             data.exp = nam;
             data.framekey = m_currentFrame + data.name;
-            setWatchDataType(data, item);
+            setWatchDataType(data, item.findChild("type"));
             // set value only directly if it is simple enough, otherwise
             // pass through the insertData() machinery
             if (isIntOrFloatType(data.type) || isPointerType(data.type))
@@ -3709,7 +3713,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         data.name = _(exp);
         data.iname = parent.iname + _c('.') + data.name;
         data.variable = _(name);
-        setWatchDataType(data, item);
+        setWatchDataType(data, item.findChild("type"));
         setWatchDataValue(data, item.findChild("value"));
         setWatchDataAddress(data, item.findChild("addr"));
         setWatchDataSAddress(data, item.findChild("saddr"));
@@ -3731,7 +3735,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         WatchData data;
         data.iname = parent.iname + _c('.') + __(exp);
         data.variable = _(name);
-        setWatchDataType(data, item);
+        setWatchDataType(data, item.findChild("type"));
         setWatchDataValue(data, item.findChild("value"));
         setWatchDataAddress(data, item.findChild("addr"));
         setWatchDataSAddress(data, item.findChild("saddr"));
