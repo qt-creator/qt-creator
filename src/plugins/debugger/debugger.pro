@@ -1,9 +1,8 @@
 TEMPLATE = lib
 TARGET = Debugger
 
-#DEFINES += QT_USE_FAST_OPERATOR_PLUS
-#DEFINES += QT_USE_FAST_CONCATENATION
-
+# DEFINES += QT_USE_FAST_OPERATOR_PLUS
+# DEFINES += QT_USE_FAST_CONCATENATION
 # CONFIG += single
 include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
@@ -14,11 +13,10 @@ include(../../plugins/texteditor/texteditor.pri)
 include(../../libs/cplusplus/cplusplus.pri)
 include(../../libs/utils/utils.pri)
 INCLUDEPATH += $$PWD/../../libs/utils
-
-QT += gui network script
-
-HEADERS += \
-    breakhandler.h \
+QT += gui \
+    network \
+    script
+HEADERS += breakhandler.h \
     breakwindow.h \
     debuggeragents.h \
     debuggeractions.h \
@@ -44,9 +42,8 @@ HEADERS += \
     threadswindow.h \
     watchhandler.h \
     watchwindow.h \
-
-SOURCES += \
-    breakhandler.cpp \
+    name_demangler.h
+SOURCES += breakhandler.cpp \
     breakwindow.cpp \
     breakwindow.h \
     debuggeragents.cpp \
@@ -70,7 +67,7 @@ SOURCES += \
     threadswindow.cpp \
     watchhandler.cpp \
     watchwindow.cpp \
-
+    name_demangler.cpp
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
     attachtcfdialog.ui \
@@ -79,21 +76,16 @@ FORMS += attachexternaldialog.ui \
     dumperoptionpage.ui \
     commonoptionspage.ui \
     startexternaldialog.ui \
-    startremotedialog.ui \
-
+    startremotedialog.ui
 RESOURCES += debugger.qrc
-
-false {
-SOURCES += $$PWD/modeltest.cpp
-HEADERS += $$PWD/modeltest.h
-DEFINES += USE_MODEL_TEST=1
+false { 
+    SOURCES += $$PWD/modeltest.cpp
+    HEADERS += $$PWD/modeltest.h
+    DEFINES += USE_MODEL_TEST=1
 }
-
 include(cdb/cdb.pri)
 include(gdb/gdb.pri)
 include(script/script.pri)
 include(tcf/tcf.pri)
-
 include(shared/shared.pri)
-
 OTHER_FILES += Debugger.pluginspec
