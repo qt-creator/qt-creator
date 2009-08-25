@@ -7,12 +7,12 @@
         <location filename="../../../src/app/main.cpp" line="+133"/>
         <source>Failed to load core: %1</source>
         <translatorcomment>traduire core ?</translatorcomment>
-        <translation type="unfinished">Échec dans le chargement de core : %1</translation>
+        <translation type="unfinished">Échec dans le chargement du core : %1</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Unable to send command line arguments to the already running instance. It appears to be not responding.</source>
-        <translation type="unfinished">Impossible de passer les arguments de la ligne de commande à l&apos;instance en cours d&apos;execution. Elle semble ne pas répondre.</translation>
+        <translation>Impossible de passer les arguments de la ligne de commande à l&apos;instance en cours d&apos;execution. Elle semble ne pas répondre.</translation>
     </message>
     <message>
         <location line="+134"/>
@@ -166,12 +166,12 @@
     <message>
         <location line="+36"/>
         <source>Remove</source>
-        <translation type="unfinished">Retirer</translation>
+        <translation>Supprimer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
-        <translation type="unfinished">Vous aller supprimer un dossier et tout ce qu&apos;il contient.&lt;br&gt;Êtes vous sûr de vouloir continuer?</translation>
+        <translation>Vous allez supprimer un dossier et tout ce qu&apos;il contient.&lt;br&gt;Êtes vous sûr de vouloir continuer?</translation>
     </message>
     <message>
         <location line="+109"/>
@@ -185,37 +185,37 @@
     <message>
         <location line="-435"/>
         <source>Delete Folder</source>
-        <translation type="unfinished">Supprimer le dossier</translation>
+        <translation>Supprimer le dossier</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Rename Folder</source>
-        <translation type="unfinished">Renommer le dossier</translation>
+        <translation>Renommer le dossier</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Show Bookmark</source>
-        <translation type="unfinished">Afficher le signet</translation>
+        <translation>Afficher le signet</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Show Bookmark in New Tab</source>
-        <translation type="unfinished">Afficher le signet dans un nouvel onglet</translation>
+        <translation>Afficher le signet dans un nouvel onglet</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Delete Bookmark</source>
-        <translation type="unfinished">Supprimer le signet</translation>
+        <translation>Supprimer le signet</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Rename Bookmark</source>
-        <translation type="unfinished">Renommer le signet</translation>
+        <translation>Renommer le signet</translation>
     </message>
     <message>
         <location line="+38"/>
         <source>Filter:</source>
-        <translation type="unfinished">Filtre :</translation>
+        <translation>Filtre :</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -225,7 +225,7 @@
     <message>
         <location line="+9"/>
         <source>Remove</source>
-        <translation type="unfinished">Retirer</translation>
+        <translation>Supprimer</translation>
     </message>
 </context>
 <context>
@@ -238,12 +238,12 @@
     <message>
         <location line="+23"/>
         <source>&amp;Remove Bookmark</source>
-        <translation type="unfinished">&amp;Retirer le Signet</translation>
+        <translation>&amp;Supprimer le Signet</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Remove all Bookmarks</source>
-        <translation type="unfinished">Retirer tous les Signets</translation>
+        <translation>Supprimer tous les signets</translation>
     </message>
 </context>
 <context>
@@ -251,73 +251,73 @@
     <message>
         <location filename="../../../src/plugins/bookmarks/bookmarksplugin.cpp" line="+82"/>
         <source>&amp;Bookmarks</source>
-        <translation type="unfinished">&amp;Signets</translation>
+        <translation>&amp;Signets</translation>
     </message>
     <message>
         <location line="+4"/>
         <location line="+79"/>
         <source>Toggle Bookmark</source>
-        <translation type="unfinished">Activer/Désactiver le Signet</translation>
+        <translation>Activer/Désactiver le signet</translation>
     </message>
     <message>
         <location line="-75"/>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Meta+M</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Move Up</source>
-        <translation type="unfinished">Vers le Haut</translation>
+        <translation>Monter</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Move Down</source>
-        <translation type="unfinished">Vers le Bas</translation>
+        <translation>Descendre</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Previous Bookmark</source>
-        <translation type="unfinished">Signet Précédent</translation>
+        <translation>Signet précédent</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Ctrl+,</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Meta+,</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Next Bookmark</source>
-        <translation type="unfinished">Signet Suivant</translation>
+        <translation>Signet suivant</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Ctrl+.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Meta+.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Previous Bookmark In Document</source>
-        <translation type="unfinished">Signet Précédent dans le Document</translation>
+        <translation>Signet précédent dans le document</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Next Bookmark In Document</source>
-        <translation type="unfinished">Signet Suivant dans le Document</translation>
+        <translation>Signet suivant dans le document</translation>
     </message>
 </context>
 <context>
@@ -325,12 +325,12 @@
     <message>
         <location filename="../../../src/plugins/debugger/breakbyfunction.ui"/>
         <source>Set Breakpoint at Function</source>
-        <translation type="unfinished">Placer un Point d&apos;Arrêt à la Fonction</translation>
+        <translation>Placer un point d&apos;arrêt à la fonction</translation>
     </message>
     <message>
         <location/>
         <source>Function to break on:</source>
-        <translation type="unfinished">Fonction à interrompre:</translation>
+        <translation>Fonction à interrompre :</translation>
     </message>
 </context>
 <context>
@@ -338,12 +338,12 @@
     <message>
         <location filename="../../../src/plugins/debugger/breakcondition.ui"/>
         <source>Condition:</source>
-        <translation type="unfinished">Condition:</translation>
+        <translation>Condition :</translation>
     </message>
     <message>
         <location/>
         <source>Ignore count:</source>
-        <translation type="unfinished">Nombre de passages:</translation>
+        <translation>Nombre de passages à ignorer:</translation>
     </message>
 </context>
 <context>
@@ -375,12 +375,12 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakerunconfiguration.cpp" line="+238"/>
         <source>Arguments:</source>
-        <translation type="unfinished">Arguments:</translation>
+        <translation>Arguments :</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Select the working directory</source>
-        <translation type="unfinished">Sélectionner le répertoire de travail</translation>
+        <translation>Sélectionner le répertoire de travail</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -390,7 +390,7 @@
     <message>
         <location line="+7"/>
         <source>Working Directory:</source>
-        <translation type="unfinished">Répertoire de Travail:</translation>
+        <translation>Répertoire de travail :</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -408,12 +408,12 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+156"/>
         <source>Run CMake</source>
-        <translation type="unfinished">Exécuter CMake</translation>
+        <translation>Exécuter CMake</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Arguments</source>
-        <translation type="unfinished">Arguments</translation>
+        <translation>Arguments</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -433,7 +433,7 @@
     <message>
         <location line="+8"/>
         <source>Qt Creator needs to run cmake in the new build directory. Some projects require command line arguments to the initial cmake call.</source>
-        <translation type="unfinished"> Qt Creator doit exécuter cmake dans le nouveau répertoire de compilation. Certains projets nécessitent des arguments de ligne de commande pour le premier appel à cmake.</translation>
+        <translation>Qt Creator doit exécuter cmake dans le nouveau répertoire de compilation. Certains projets nécessitent des arguments de ligne de commande pour le premier appel à cmake.</translation>
     </message>
 </context>
 <context>
@@ -515,7 +515,7 @@
     <message>
         <location filename="../../../src/plugins/debugger/cdb/cdboptionspagewidget.ui"/>
         <source>These options take effect at the next start of Qt Creator.</source>
-        <translation type="unfinished">Ces options prendront effet au prochain démarrage de Qt Creator.</translation>
+        <translation>Ces options prendront effet au prochain démarrage de Qt Creator.</translation>
     </message>
     <message>
         <location/>
@@ -526,22 +526,22 @@
     <message>
         <location/>
         <source>Path:</source>
-        <translation type="unfinished">Chemin:</translation>
+        <translation>Chemin :</translation>
     </message>
     <message>
         <location/>
         <source>Debugger Paths</source>
-        <translation type="unfinished">Chemins du débogueur</translation>
+        <translation>Chemins du débogueur</translation>
     </message>
     <message>
         <location/>
         <source>Symbol paths:</source>
-        <translation type="unfinished">Chemins des symboles:</translation>
+        <translation type="unfinished">Chemins des symboles :</translation>
     </message>
     <message>
         <location/>
         <source>Source paths:</source>
-        <translation type="unfinished">Chemins des sources:</translation>
+        <translation type="unfinished">Chemins des sources :</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/debugger/cdb/cdboptionspage.cpp" line="+58"/>
@@ -552,12 +552,12 @@
     <message>
         <location line="+5"/>
         <source>64-bit version</source>
-        <translation type="unfinished">version 64-bits</translation>
+        <translation>version 64-bits</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>32-bit version</source>
-        <translation type="unfinished">version 32-bits</translation>
+        <translation>version 32-bits</translation>
     </message>
 </context>
 <context>
@@ -565,17 +565,17 @@
     <message>
         <location filename="../../../src/plugins/git/changeselectiondialog.ui"/>
         <source>Repository Location:</source>
-        <translation type="unfinished">Adresse du répertoire:</translation>
+        <translation>Adresse du depôt :</translation>
     </message>
     <message>
         <location/>
         <source>Select</source>
-        <translation type="unfinished">Sélectionner</translation>
+        <translation>Sélectionner</translation>
     </message>
     <message>
         <location/>
         <source>Change:</source>
-        <translation type="unfinished">Changer:</translation>
+        <translation>Modification :</translation>
     </message>
 </context>
 <context>
@@ -1619,27 +1619,27 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/outputpane.cpp" line="+171"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sortie</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Effacer</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Next Item</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Élement suivant</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Previous Item</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Élement précédent</translation>
     </message>
     <message>
         <location line="+56"/>
         <source>Output &amp;Panes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Paneaux de sortie</translation>
     </message>
 </context>
 <context>
@@ -1647,32 +1647,32 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/plugindialog.cpp" line="+54"/>
         <source>Details</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Détails</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Error Details</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Détails de l&apos;erreur</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Installed Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Plugins installés</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>Plugin Details of %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Détail sur plugin %1</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Plugin Errors of %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreurs du plugins %1</translation>
     </message>
 </context>
 <context>
@@ -1680,7 +1680,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/progressmanager/progressview.cpp" line="+47"/>
         <source>Processes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Processus</translation>
     </message>
 </context>
 <context>
@@ -1688,22 +1688,22 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/saveitemsdialog.cpp" line="+55"/>
         <source>Don&apos;t Save</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ne pas enregistrer</translation>
     </message>
     <message>
         <location line="+44"/>
         <source>Save All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tout enregistrer</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enregistrer</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Save Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enregistrer la selection</translation>
     </message>
 </context>
 <context>
@@ -1711,12 +1711,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/shortcutsettings.cpp" line="+72"/>
         <source>Keyboard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Clavier</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Environment</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Environement</translation>
     </message>
     <message>
         <location line="+157"/>
@@ -1740,12 +1740,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="-131"/>
         <source>Split</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Diviser</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer</translation>
     </message>
 </context>
 <context>
@@ -1753,13 +1753,13 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/versiondialog.cpp" line="+58"/>
         <source>About Qt Creator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">À propos de Qt Creator</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>From revision %1&lt;br/&gt;</source>
         <extracomment>This gets conditionally inserted as argument %8 into the description string.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Depuis la révision %1&lt;br/&gt;</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1772,37 +1772,37 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/welcomemode.cpp" line="+126"/>
         <source>Open Recent Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir project recent</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Resume Session</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reprendre la session</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Tutorials</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tutoriels</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Explore Qt Examples</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Explorer les exemples Qt</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Did You Know?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le saviez-vous?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>News From the Qt Labs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Actualité de Qt Labs</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Qt Websites</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sites web de Qt</translation>
     </message>
     <message>
         <location line="+38"/>
@@ -1813,12 +1813,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+2"/>
         <source>Qt Home</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Qt Labs</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1828,7 +1828,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+1"/>
         <source>Qt Centre</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2478,7 +2478,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+116"/>
         <source>Error while generating file contents.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur a la génération du contenu du fichier</translation>
     </message>
 </context>
 <context>
@@ -2486,7 +2486,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="-66"/>
         <source>C++ Class Wizard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Assistant de création de classe C++</translation>
     </message>
 </context>
 <context>
@@ -2494,7 +2494,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cppeditor/cpphoverhandler.cpp" line="+87"/>
         <source>Unfiltered</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sans filtre</translation>
     </message>
 </context>
 <context>
@@ -2507,42 +2507,42 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+1"/>
         <source>Creates a C++ header file.</source>
-        <translation type="unfinished">Créer un fichier header C++.</translation>
+        <translation>Créer un fichier header C++.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>C++ Header File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier header C++</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Creates a C++ source file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Créer un fichier source C++.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>C++ Source File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier source C++</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>C++ Class</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Classe C++</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a header and a source file for a new class.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Créer un header et un fichier source pour une nouvelle classe.</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Follow Symbol under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Suivre le symbole sous le curseur</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Switch between Method Declaration/Definition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Changer entre la définition et déclaration de la méthode</translation>
     </message>
 </context>
 <context>
@@ -2550,27 +2550,27 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
         <source>File Naming Conventions</source>
-        <translation type="unfinished">Convention de nommage des fichiers</translation>
+        <translation>Convention de nommage des fichiers</translation>
     </message>
     <message>
         <location/>
         <source>Header suffix:</source>
-        <translation type="unfinished">Suffixe des headers :</translation>
+        <translation>Suffixe des headers :</translation>
     </message>
     <message>
         <location/>
         <source>Source suffix:</source>
-        <translation type="unfinished">Suffixe des fichiers source:</translation>
+        <translation>Suffixe des fichiers source :</translation>
     </message>
     <message>
         <location/>
         <source>Lower case file names</source>
-        <translation type="unfinished">Nom des fichiers en minuscule</translation>
+        <translation>Nom de fichiers en minuscule</translation>
     </message>
     <message>
         <location/>
         <source>License Template:</source>
-        <translation type="unfinished">Modèle de licence:</translation>
+        <translation>Modèle de licence :</translation>
     </message>
 </context>
 <context>
@@ -2578,7 +2578,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+842"/>
         <source>%1: No such file or directory</source>
-        <translation type="unfinished">%1 : Aucun fichier ou répertoire de ce type</translation>
+        <translation>%1 : aucun fichier ou répertoire de ce type</translation>
     </message>
 </context>
 <context>
@@ -2586,7 +2586,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+52"/>
         <source>File Naming Conventions</source>
-        <translation type="unfinished">Conventions de nommage des fichiers</translation>
+        <translation>Conventions de nommage des fichiers</translation>
     </message>
     <message>
         <location line="+1"/>
