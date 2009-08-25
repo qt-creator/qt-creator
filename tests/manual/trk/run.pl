@@ -17,10 +17,11 @@ my $trkservername;
 my $runTrkServer = 1;
 
 my $usage=<<EOF;
-Usage: run.pl -av -aq -tv -tq -l [COM]
+Usage: run.pl -av -aq -au -tv -tq -l [COM]
 Options:
      -av     Adapter verbose
      -aq     Adapter quiet
+     -au     Adapter turn off buffered memory read
      -af     Adapter turn off serial frame
      -tv     TrkServer verbose
      -tq     TrkServer quiet
@@ -43,6 +44,8 @@ for (my $i = 0; $i < $argCount; $i++) {
 	    push(@ADAPTER_OPTIONS, '-q');
 	} elsif ($a eq '-af') {
 	    push(@ADAPTER_OPTIONS, '-f');
+	} elsif ($a eq '-au') {
+	    push(@ADAPTER_OPTIONS, '-u');
 	} elsif ($a eq '-tv') {
 	    push(@TRKSERVEROPTIONS, '-v');
 	} elsif ($a eq '-tq') {

@@ -81,12 +81,14 @@ static inline void dumpRegister(int n, uint value, QByteArray &a)
 }
 
 struct AdapterOptions {
-    AdapterOptions() : verbose(1),serialFrame(true),registerEndianness(LittleEndian),useSocket(false) {}
+    AdapterOptions() : verbose(1),serialFrame(true),registerEndianness(LittleEndian),
+                       useSocket(false), bufferedMemoryRead(true) {}
 
     int verbose;
     bool serialFrame;
     Endianness registerEndianness;
     bool useSocket;
+    bool bufferedMemoryRead;
     QString gdbServer;
     QString trkServer;
 };
@@ -106,6 +108,7 @@ public:
     void setSerialFrame(bool b) { m_serialFrame = b; }
     void setRegisterEndianness(Endianness r) { m_registerEndianness = r; }
     void setUseSocket(bool s) { m_useSocket = s; }
+    void setBufferedMemoryRead(bool b) { qDebug() << "Buffered=" << b; m_bufferedMemoryRead = b; }
     bool startServer();
 
 private slots:
@@ -146,8 +149,9 @@ private:
     void handleAndReportReadRegisters(const TrkResult &result);
     QByteArray memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const;
     void handleAndReportSetBreakpoint(const TrkResult &result);
-    void handleReadMemory(const TrkResult &result);
-    void reportReadMemory(const TrkResult &result);
+    void handleReadMemoryBuffered(const TrkResult &result);
+    void handleReadMemoryUnbuffered(const TrkResult &result);
+    void reportReadMemoryBuffered(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
 
     void clearTrkBreakpoint(const Breakpoint &bp);
@@ -192,6 +196,7 @@ private:
     bool m_useSocket;
     bool m_serialFrame;
     bool m_startInferiorTriggered;
+    bool m_bufferedMemoryRead;
 };
 
 Adapter::Adapter() :
@@ -202,7 +207,8 @@ Adapter::Adapter() :
     m_registerEndianness(LittleEndian),
     m_useSocket(false),
     m_serialFrame(true),
-    m_startInferiorTriggered(false)
+    m_startInferiorTriggered(false),
+    m_bufferedMemoryRead(true)
 {
 }
 
@@ -1073,20 +1079,21 @@ void Adapter::handleAndReportReadRegisters(const TrkResult &result)
     sendGdbMessage(ba, logMsg);
 }
 
-static inline QString msgMemoryReadError(int code, uint addr)
+static inline QString msgMemoryReadError(int code, uint addr, uint len = 0)
 {
-    return QString::fromLatin1("Memory read error %1 at: 0x%2").arg(code).arg(addr, 0 ,16);
+    const QString lenS = len ? QString::number(len) : QLatin1String("<unknown>");
+    return QString::fromLatin1("Memory read error %1 at: 0x%2 %3").arg(code).arg(addr, 0 ,16).arg(lenS);
 }
 
-void Adapter::handleReadMemory(const TrkResult &result)
+void Adapter::handleReadMemoryBuffered(const TrkResult &result)
 {
-    const uint blockaddr = result.cookie.toInt();
+    const uint blockaddr = result.cookie.toUInt();
     if (const int errorCode = result.errorCode()) {
         logMessage(msgMemoryReadError(errorCode, blockaddr));
-    } else {
-        const QByteArray ba = result.data.mid(1);
-        m_snapshot.memory.insert(blockaddr , ba);
+        return;
     }
+    const QByteArray ba = result.data.mid(1);
+    m_snapshot.memory.insert(blockaddr , ba);
 }
 
 // Format log message for memory access with some smartness about registers
@@ -1120,9 +1127,9 @@ QByteArray Adapter::memoryReadLogMessage(uint addr, uint len, const QByteArray &
     return logMsg;
 }
 
-void Adapter::reportReadMemory(const TrkResult &result)
+void Adapter::reportReadMemoryBuffered(const TrkResult &result)
 {
-    const qulonglong cookie = result.cookie.toLongLong();
+    const qulonglong cookie = result.cookie.toULongLong();
     const uint addr = cookie >> 32;
     const uint len = uint(cookie);
 
@@ -1141,11 +1148,24 @@ void Adapter::reportReadMemory(const TrkResult &result)
         ba.remove(0, previousChunkOverlap);
     if (ba.size() > int(len))
         ba.truncate(len);
+
     if (ba.isEmpty()) {
         ba = "E20";
-        sendGdbMessage(ba, msgMemoryReadError(32, addr).toLatin1());
+        sendGdbMessage(ba, msgMemoryReadError(32, addr, len).toLatin1());
     } else {
         sendGdbMessage(ba.toHex(), memoryReadLogMessage(addr, len, ba));
+    }
+}
+
+void Adapter::handleReadMemoryUnbuffered(const TrkResult &result)
+{
+    const uint blockaddr = result.cookie.toUInt();
+    if (const int errorCode = result.errorCode()) {
+        const QByteArray ba = "E20";
+        sendGdbMessage(ba, msgMemoryReadError(32, blockaddr).toLatin1());
+    } else {
+        const QByteArray ba = result.data.mid(1);
+        sendGdbMessage(ba.toHex(), memoryReadLogMessage(blockaddr, ba.size(), ba));
     }
 }
 
@@ -1291,6 +1311,17 @@ void Adapter::cleanUp()
     // Error: 0x00
 }
 
+static inline QByteArray memoryRequestTrkMessage(uint addr, uint len, int pid, int tid)
+{
+    QByteArray ba;
+    appendByte(&ba, 0x08); // Options, FIXME: why?
+    appendShort(&ba, len);
+    appendInt(&ba, addr);
+    appendInt(&ba, pid);
+    appendInt(&ba, tid);
+    return ba;
+}
+
 void Adapter::readMemory(uint addr, uint len)
 {
     Q_ASSERT(len < (2 << 16));
@@ -1299,24 +1330,26 @@ void Adapter::readMemory(uint addr, uint len)
     if (m_verbose > 2)
         logMessage(QString::fromLatin1("readMemory %1 bytes from 0x%2 blocksize=%3").arg(len).arg(addr, 0, 16).arg(MemoryChunkSize));
 
-    uint blockaddr = (addr / MemoryChunkSize) * MemoryChunkSize;
-    for (; blockaddr < addr + len; blockaddr += MemoryChunkSize) {
-        if (!m_snapshot.memory.contains(blockaddr)) {
-            if (m_verbose > 2)
-                logMessage(QString::fromLatin1("Requesting memory from 0x%1").arg(blockaddr, 0, 16));
-            // fetch it
-            QByteArray ba;
-            appendByte(&ba, 0x08); // Options, FIXME: why?
-            appendShort(&ba, MemoryChunkSize);
-            appendInt(&ba, blockaddr);
-            appendInt(&ba, m_session.pid);
-            appendInt(&ba, m_session.tid);
-            // Read Memory
-            sendTrkMessage(0x10, Callback(this, &Adapter::handleReadMemory), ba, QVariant(blockaddr), true);
+    if (m_bufferedMemoryRead) {
+        uint blockaddr = (addr / MemoryChunkSize) * MemoryChunkSize;
+        for (; blockaddr < addr + len; blockaddr += MemoryChunkSize) {
+            if (!m_snapshot.memory.contains(blockaddr)) {
+                if (m_verbose)
+                    logMessage(QString::fromLatin1("Requesting buffered memory %1 bytes from 0x%2").arg(MemoryChunkSize).arg(blockaddr, 0, 16));
+                sendTrkMessage(0x10, Callback(this, &Adapter::handleReadMemoryBuffered),
+                               memoryRequestTrkMessage(blockaddr, MemoryChunkSize, m_session.pid, m_session.tid),
+                               QVariant(blockaddr), true);
+            }
         }
+        const qulonglong cookie = (qulonglong(addr) << 32) + len;
+        sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, Callback(this, &Adapter::reportReadMemoryBuffered), QByteArray(), cookie);
+    } else {
+        if (m_verbose)
+            logMessage(QString::fromLatin1("Requesting unbuffered memory %1 bytes from 0x%2").arg(len).arg(addr, 0, 16));
+        sendTrkMessage(0x10, Callback(this, &Adapter::handleReadMemoryUnbuffered),
+                       memoryRequestTrkMessage(addr, len, m_session.pid, m_session.tid),
+                       QVariant(addr), true);
     }
-    qulonglong cookie = (qulonglong(addr) << 32) + len;
-    sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, Callback(this, &Adapter::reportReadMemory), QByteArray(), cookie);
 }
 
 void Adapter::startInferiorIfNeeded()
@@ -1366,6 +1399,10 @@ static bool readAdapterArgs(const QStringList &args, AdapterOptions *o)
                 o->useSocket = true;
             } else if (*it == QLatin1String("-f")) {
                 o->serialFrame = false;
+            } else if (*it == QLatin1String("-u")) {
+                o->bufferedMemoryRead = false;
+            } else {
+                return false;
             }
         } else {
             switch (argNumber++) {
@@ -1391,9 +1428,10 @@ int main(int argc, char *argv[])
     AdapterOptions options;
 
     if (!readAdapterArgs(app.arguments(), &options)) {
-        qDebug("Usage: %s [-v|-q] [-s][-l] <trk com/trkservername> <gdbserverport>\n"
+        qDebug("Usage: %s [-v|-q] [-b][-s][-l][-u] <trk com/trkservername> <gdbserverport>\n"
                "Options: -v verbose\n"
                "         -f Turn serial message frame off\n"
+               "         -u Turn buffered memory read off\n"
                "         -q quiet\n"
                "         -s Use socket (simulation)\n"
                "         -b Set register endianness to big\n", argv[0]);
@@ -1404,6 +1442,7 @@ int main(int argc, char *argv[])
     adapter.setTrkServerName(options.trkServer);
     adapter.setGdbServerName(options.gdbServer);
     adapter.setVerbose(options.verbose);
+    adapter.setBufferedMemoryRead(options.bufferedMemoryRead);
     adapter.setRegisterEndianness(options.registerEndianness);
     adapter.setUseSocket(options.useSocket);
     adapter.setSerialFrame(options.serialFrame);
