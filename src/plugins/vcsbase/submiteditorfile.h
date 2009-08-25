@@ -58,7 +58,6 @@ public:
     void setModified(bool modified = true);
 
 signals:
-    void changed();
     void saveMe(const QString &fileName);
 
 private:
