@@ -155,6 +155,10 @@ private:
     void reportToGdb(const TrkResult &result);
 
     void clearTrkBreakpoint(const Breakpoint &bp);
+
+    void handleSetTrkBreakpoint(const TrkResult &result);
+    void setTrkBreakpoint(const Breakpoint &bp);
+
     void readMemory(uint addr, uint len);
     void startInferiorIfNeeded();
     void interruptInferior();
@@ -210,6 +214,7 @@ Adapter::Adapter() :
     m_startInferiorTriggered(false),
     m_bufferedMemoryRead(true)
 {
+    // m_breakpoints.append(Breakpoint(0x0040)); // E32Main
 }
 
 Adapter::~Adapter()
@@ -429,6 +434,19 @@ void Adapter::reportToGdb(const TrkResult &result)
     message.replace("@PID@", hexNumber(m_session.pid));
     message.replace("@TID@", hexNumber(m_session.tid));
     sendGdbMessage(message, note);
+}
+
+static QByteArray breakpointTrkMessage(uint addr, int len, int pid, bool armMode = true)
+{
+    QByteArray ba;
+    appendByte(&ba, 0x82);  // unused option
+    appendByte(&ba, armMode /*bp.mode == ArmMode*/ ? 0x00 : 0x01);
+    appendInt(&ba, addr);
+    appendInt(&ba, len);
+    appendInt(&ba, 0x00000001);
+    appendInt(&ba, pid);
+    appendInt(&ba, 0xFFFFFFFF);
+    return ba;
 }
 
 void Adapter::handleGdbResponse(const QByteArray &response)
@@ -760,15 +778,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         // ThreadID: 0xffffffff (-1)
         // [1B 09 82 00 78 67 43 40 00 00 00 01 00 00 00 00
         //  00 00 01 B5 FF FF FF FF]
-        QByteArray ba;
-        appendByte(&ba, 0x82);  // unused option
-        appendByte(&ba, true /*bp.mode == ArmMode*/ ? 0x00 : 0x01);
-        appendInt(&ba, addr);
-        appendInt(&ba, len);
-        appendInt(&ba, 0x00000001);
-        appendInt(&ba, m_session.pid);
-        appendInt(&ba, 0xFFFFFFFF);
-
+        const QByteArray ba = breakpointTrkMessage(addr, len, m_session.pid);
         sendTrkMessage(0x1B, Callback(this, &Adapter::handleAndReportSetBreakpoint), ba);
         //m_session.toekn
 
@@ -998,6 +1008,39 @@ void Adapter::handleCpuType(const TrkResult &result)
     logMessage(logMsg);
 }
 
+void Adapter::setTrkBreakpoint(const Breakpoint &bp)
+{
+        //---IDE------------------------------------------------------
+        //  Command: 0x1B Set Break
+        //BreakType: 0x82
+        //  Options: 0x00
+        //  Address: 0x78674340 (2020033344)    i.e + 0x00000340
+        //   Length: 0x00000001 (1)
+        //    Count: 0x00000000 (0)
+        //ProcessID: 0x000001b5 (437)
+        // ThreadID: 0xffffffff (-1)
+        // [1B 09 82 00 78 67 43 40 00 00 00 01 00 00 00 00
+        //  00 00 01 B5 FF FF FF FF]
+    const QByteArray ba = breakpointTrkMessage(m_session.codeseg + bp.offset, 1, m_session.pid);
+    sendTrkMessage(0x1B, Callback(this, &Adapter::handleSetTrkBreakpoint), ba);
+
+        //---TRK------------------------------------------------------
+        //  Command: 0x80 Acknowledge
+        //    Error: 0x00
+        // [80 09 00 00 00 00 0A]
+}
+
+void Adapter::handleSetTrkBreakpoint(const TrkResult &result)
+{
+    //---TRK------------------------------------------------------
+    //  Command: 0x80 Acknowledge
+    //    Error: 0x00
+    // [80 09 00 00 00 00 0A]
+    const  uint bpnr = extractInt(result.data.data());
+    if (m_verbose)
+        logMessage(QString::fromLatin1("SET BREAKPOINT %1 %2").arg(bpnr).arg(stringFromArray(result.data.data())));
+}
+
 void Adapter::handleCreateProcess(const TrkResult &result)
 {
     //  40 00 00]
@@ -1011,6 +1054,9 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     QString logMsg = QString::fromLatin1("handleCreateProcess PID=%1 TID=%2 CODE=0x%3 (%4) DATA=0x%5 (%6)")
                      .arg(m_session.pid).arg(m_session.tid).arg(m_session.codeseg, 0 ,16).arg(m_session.codeseg).arg(m_session.dataseg, 0, 16).arg(m_session.dataseg);
     logMessage(logMsg);
+    foreach (const Breakpoint &bp, m_breakpoints)
+        setTrkBreakpoint(bp);
+
     sendTrkContinue();
 #if 0
     /*
@@ -1024,10 +1070,8 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     //setTrkBreakpoint(0x0000, ArmMode);
     //clearTrkBreakpoint(0x0000);
 
-#if 1
-    foreach (const Breakpoint &bp, m_breakpoints)
-        setTrkBreakpoint(bp);
-#endif
+
+
 
 #if 1
     //---IDE------------------------------------------------------
