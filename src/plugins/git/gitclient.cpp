@@ -527,16 +527,16 @@ QStringList GitClient::processEnvironment() const
 }
 
 bool GitClient::synchronousGit(const QString &workingDirectory,
-                               const QStringList &arguments,
+                               const QStringList &gitArguments,
                                QByteArray* outputText,
                                QByteArray* errorText,
                                bool logCommandToWindow)
 {
     if (Git::Constants::debug)
-        qDebug() << "synchronousGit" << workingDirectory << arguments;
+        qDebug() << "synchronousGit" << workingDirectory << gitArguments;
 
     if (logCommandToWindow)
-        VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(m_binaryPath, arguments));
+        VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(m_binaryPath, gitArguments));
 
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
@@ -545,8 +545,8 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
     QStringList args = binary();
     const QString executable = args.front();
     args.pop_front();
-    args.append(arguments);
-    process.start(executable, arguments);
+    args.append(gitArguments);
+    process.start(executable, args);
     process.closeWriteChannel();
 
     if (!process.waitForFinished()) {
