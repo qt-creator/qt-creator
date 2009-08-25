@@ -32,6 +32,8 @@
 
 #include "basefilefind.h"
 
+#include <coreplugin/ifile.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <find/ifindfilter.h>
 #include <find/searchresultwindow.h>
 
@@ -62,8 +64,12 @@ public:
 protected:
     QStringList files();
 
+private slots:
+    void handleFileChange(Core::IEditor *editor);
+
 private:
     QPointer<QWidget> m_configWidget;
+    Core::IFile *m_currentFile;
 };
 
 } // namespace Internal

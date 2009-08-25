@@ -43,8 +43,12 @@ using namespace TextEditor::Internal;
 
 FindInCurrentFile::FindInCurrentFile(SearchResultWindow *resultWindow)
   : BaseFileFind(resultWindow),
-    m_configWidget(0)
+    m_configWidget(0),
+    m_currentFile(0)
 {
+    connect(Core::ICore::instance()->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(handleFileChange(Core::IEditor*)));
+    handleFileChange(Core::ICore::instance()->editorManager()->currentEditor());
 }
 
 QString FindInCurrentFile::id() const
@@ -65,18 +69,32 @@ QKeySequence FindInCurrentFile::defaultShortcut() const
 QStringList FindInCurrentFile::files()
 {
     QStringList fileList;
-    if (Core::IEditor *editor = Core::ICore::instance()->editorManager()->currentEditor()) {
-        if (editor->file() && !editor->file()->fileName().isEmpty())
-            fileList << editor->file()->fileName();
-    }
+    if (isEnabled())
+        fileList << m_currentFile->fileName();
     return fileList;
 }
 
 bool FindInCurrentFile::isEnabled() const
 {
-    Core::IEditor *editor = Core::ICore::instance()->editorManager()->currentEditor();
-    return editor && editor->file() && !editor->file()->fileName().isEmpty();
+    return m_currentFile && !m_currentFile->fileName().isEmpty();
 }
+
+void FindInCurrentFile::handleFileChange(Core::IEditor *editor)
+{
+    if (!editor) {
+        if (m_currentFile) {
+            m_currentFile = 0;
+            emit changed();
+        }
+    } else {
+        Core::IFile *file = editor->file();
+        if (file != m_currentFile) {
+            m_currentFile = file;
+            emit changed();
+        }
+    }
+}
+
 
 QWidget *FindInCurrentFile::createConfigWidget()
 {
