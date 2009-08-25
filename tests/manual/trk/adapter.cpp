@@ -776,8 +776,31 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         //  Command: 0x80 Acknowledge
         //    Error: 0x00
         // [80 09 00 00 00 00 0A]
-    }
-
+    } else if (response.startsWith("qPart:") || response.startsWith("qXfer:"))  {
+        QByteArray data  = response.mid(1 + response.indexOf(':'));
+        // "qPart:auxv:read::0,147": Read OS auxiliary data (see info aux)
+        bool handled = false;
+        if (data.startsWith("auxv:read::")) {
+            const int offsetPos = data.lastIndexOf(':') + 1;
+            const int commaPos = data.lastIndexOf(',');
+            if (commaPos != -1) {                
+                bool ok1 = false, ok2 = false;
+                const int offset = data.mid(offsetPos,  commaPos - offsetPos).toInt(&ok1, 16);
+                const int length = data.mid(commaPos + 1).toInt(&ok2, 16);
+                if (ok1 && ok2) {
+                    const QString msg = QString::fromLatin1("Read of OS auxilary vector (%1, %2) not implemented.").arg(offset).arg(length);
+                    logMessage(msgGdbPacket(msg), true);
+                    sendGdbMessage("E20", msg.toLatin1());
+                    handled = true;
+                }
+            }
+        } // auxv read
+        if (!handled) {
+            const QString msg = QLatin1String("FIXME unknown 'XFER'-request: ") + QString::fromAscii(response);
+            logMessage(msgGdbPacket(msg), true);
+            sendGdbMessage("E20", msg.toLatin1());
+        }
+    } // qPart/qXfer
     else {
         logMessage(msgGdbPacket(QLatin1String("FIXME unknown: ") + QString::fromAscii(response)));
     }

@@ -130,7 +130,11 @@ if ($adapterpid == 0) {
     exit(0);
 }
 die ('Unable to launch adapter') if $adapterpid == -1;
-waitpid($adapterpid, 0) if ($waitAdapter > 0);
+
+if ($waitAdapter > 0) {
+    print '### kill -USR1 ',$adapterpid,"\n";    
+    waitpid($adapterpid, 0);
+}    
 # ------- Write out .gdbinit
 my $gdbInit = <<EOF;
 # This is generated. Changes will be lost.
