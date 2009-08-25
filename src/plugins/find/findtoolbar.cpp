@@ -448,6 +448,9 @@ void FindToolBar::findFlagsChanged()
     updateIcons();
     updateFlagMenus();
     invokeClearResults();
+    if (isVisible()) {
+        m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
+    }
 }
 
 void FindToolBar::updateIcons()
