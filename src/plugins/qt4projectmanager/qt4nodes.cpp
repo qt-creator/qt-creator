@@ -126,6 +126,11 @@ namespace Internal {
         QString fullName;
         QIcon icon;
 
+        InternalNode()
+        {
+            type = ProjectExplorer::UnknownFileType;
+        }
+
         ~InternalNode()
         {
             qDeleteAll(subnodes);
