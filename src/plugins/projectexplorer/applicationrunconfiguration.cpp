@@ -81,7 +81,7 @@ ApplicationRunConfigurationRunner::~ApplicationRunConfigurationRunner()
 bool ApplicationRunConfigurationRunner::canRun(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
 {
     return (mode == ProjectExplorer::Constants::RUNMODE)
-            && (!runConfiguration.dynamicCast<ApplicationRunConfiguration>().isNull());
+            && (!runConfiguration.objectCast<ApplicationRunConfiguration>().isNull());
 }
 
 QString ApplicationRunConfigurationRunner::displayName() const
@@ -91,7 +91,7 @@ QString ApplicationRunConfigurationRunner::displayName() const
 
 RunControl *ApplicationRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
 {
-    QSharedPointer<ApplicationRunConfiguration> rc = runConfiguration.dynamicCast<ApplicationRunConfiguration>();
+    QSharedPointer<ApplicationRunConfiguration> rc = runConfiguration.objectCast<ApplicationRunConfiguration>();
     Q_ASSERT(!rc.isNull());
     Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE);
 
@@ -126,7 +126,7 @@ ApplicationRunControl::~ApplicationRunControl()
 
 void ApplicationRunControl::start()
 {
-    QSharedPointer<ApplicationRunConfiguration> rc = runConfiguration().dynamicCast<ApplicationRunConfiguration>();
+    QSharedPointer<ApplicationRunConfiguration> rc = runConfiguration().objectCast<ApplicationRunConfiguration>();
     Q_ASSERT(!rc.isNull());
 
     m_applicationLauncher.setEnvironment(rc->environment().toStringList());

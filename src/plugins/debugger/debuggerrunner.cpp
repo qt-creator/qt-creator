@@ -31,7 +31,6 @@
 
 #include "debuggermanager.h"
 
-#include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -49,29 +48,6 @@ using namespace Debugger::Internal;
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::RunControl;
 using ProjectExplorer::ApplicationRunConfiguration;
-
-// A default run configuration for external executables or attaching to
-// running processes by id.
-class DefaultApplicationRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
-{
-public:
-    explicit DefaultApplicationRunConfiguration(const QString &executable = QString());
-
-    virtual QString executable() const                 { return m_executable; }
-    virtual RunMode runMode() const                    { return Gui; }
-    virtual QString workingDirectory() const           { return QString(); }
-    virtual QStringList commandLineArguments() const   { return QStringList(); }
-    virtual ProjectExplorer::Environment environment() const
-        { return ProjectExplorer::Environment(); }
-    virtual QString dumperLibrary() const              { return QString(); }
-    virtual QStringList dumperLibraryLocations() const { return QStringList(); }
-    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const
-        { return ProjectExplorer::ToolChain::UNKNOWN; }
-    virtual QWidget *configurationWidget()             { return 0; }
-
-private:
-    const QString m_executable;
-};
 
 DefaultApplicationRunConfiguration::DefaultApplicationRunConfiguration(const QString &executable) :
     ProjectExplorer::ApplicationRunConfiguration(0),
@@ -93,7 +69,7 @@ DebuggerRunner::DebuggerRunner(DebuggerManager *manager)
 bool DebuggerRunner::canRun(RunConfigurationPtr runConfiguration, const QString &mode)
 {
     return mode == ProjectExplorer::Constants::DEBUGMODE
-       && !runConfiguration.dynamicCast<ApplicationRunConfiguration>().isNull();
+       && !runConfiguration.objectCast<ApplicationRunConfiguration>().isNull();
 }
 
 QString DebuggerRunner::displayName() const
@@ -113,7 +89,7 @@ RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     ApplicationRunConfigurationPtr rc =
-        runConfiguration.dynamicCast<ApplicationRunConfiguration>();
+        runConfiguration.objectCast<ApplicationRunConfiguration>();
     QTC_ASSERT(!rc.isNull(), return 0);
     //qDebug() << "***** Debugging" << rc->name() << rc->executable();
     DebuggerRunControl *runControl = new DebuggerRunControl(m_manager, startMode, sp, rc);
@@ -170,7 +146,7 @@ void DebuggerRunControl::start()
 {
     m_running = true;
     ApplicationRunConfigurationPtr rc =
-        runConfiguration().dynamicCast<ApplicationRunConfiguration>();
+        runConfiguration().objectCast<ApplicationRunConfiguration>();
     if (rc) {
         // Enhance parameters by info from the project, but do not clobber
         // arguments given in the dialogs

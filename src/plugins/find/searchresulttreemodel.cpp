@@ -166,8 +166,10 @@ QVariant SearchResultTreeModel::data(const SearchResultTextRow *row, int role) c
         break;
     case ItemDataRoles::FileNameRole:
         {
-            const SearchResultFile *file = dynamic_cast<const SearchResultFile *>(row->parent());
-            result = file->fileName();
+            if (row->parent()->itemType() == SearchResultTreeItem::ResultFile) {
+                const SearchResultFile *file = static_cast<const SearchResultFile *>(row->parent());
+                result = file->fileName();
+            }
             break;
         }
     default:

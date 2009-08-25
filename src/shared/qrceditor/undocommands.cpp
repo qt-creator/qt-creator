@@ -86,11 +86,8 @@ ModifyPropertyCommand::ModifyPropertyCommand(ResourceView *view, const QModelInd
 
 bool ModifyPropertyCommand::mergeWith(const QUndoCommand * command)
 {
-    const ModifyPropertyCommand * const brother
-            = dynamic_cast<const ModifyPropertyCommand *>(command);
-    if (command == 0 || m_property != brother->m_property)
+    if (command->id() != id() || m_property != static_cast<const ModifyPropertyCommand *>(command)->m_property)
         return false;
-
     // Choose older command (this) and forgot the other
     return true;
 }

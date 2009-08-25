@@ -960,7 +960,7 @@ void Qt4Project::checkForNewApplicationProjects()
     foreach (Qt4ProFileNode *qt4proFile, m_applicationProFileChange) {
         bool found = false;
         foreach (QSharedPointer<RunConfiguration> rc, runConfigurations()) {
-            QSharedPointer<Qt4RunConfiguration> qtrc = rc.dynamicCast<Qt4RunConfiguration>();
+            QSharedPointer<Qt4RunConfiguration> qtrc = rc.objectCast<Qt4RunConfiguration>();
             if (qtrc && qtrc->proFilePath() == qt4proFile->path()) {
                 found = true;
                 break;
@@ -984,7 +984,7 @@ void Qt4Project::checkForDeletedApplicationProjects()
 
     QList<QSharedPointer<Qt4RunConfiguration> > removeList;
     foreach (QSharedPointer<RunConfiguration> rc, runConfigurations()) {
-        if (QSharedPointer<Qt4RunConfiguration> qt4rc = rc.dynamicCast<Qt4RunConfiguration>()) {
+        if (QSharedPointer<Qt4RunConfiguration> qt4rc = rc.objectCast<Qt4RunConfiguration>()) {
             if (!paths.contains(qt4rc->proFilePath())) {
                 removeList.append(qt4rc);
 //                qDebug()<<"Removing runConfiguration for "<<qt4rc->proFilePath();
@@ -1037,7 +1037,7 @@ void Qt4Project::projectTypeChanged(Qt4ProFileNode *node, const Qt4ProjectType o
 void Qt4Project::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node)
 {
     foreach (QSharedPointer<RunConfiguration> rc, runConfigurations()) {
-        if (QSharedPointer<Qt4RunConfiguration> qt4rc = rc.dynamicCast<Qt4RunConfiguration>()) {
+        if (QSharedPointer<Qt4RunConfiguration> qt4rc = rc.objectCast<Qt4RunConfiguration>()) {
             if (qt4rc->proFilePath() == node->path()) {
                 qt4rc->invalidateCachedTargetInformation();
             }

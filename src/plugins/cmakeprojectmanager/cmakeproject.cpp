@@ -250,7 +250,7 @@ bool CMakeProject::parseCMakeLists()
         //qDebug()<<"Create run configurations of m_targets";
         QMultiMap<QString, QSharedPointer<CMakeRunConfiguration> > existingRunConfigurations;
         foreach(QSharedPointer<ProjectExplorer::RunConfiguration> cmakeRunConfiguration, runConfigurations()) {
-            if (QSharedPointer<CMakeRunConfiguration> rc = cmakeRunConfiguration.dynamicCast<CMakeRunConfiguration>()) {
+            if (QSharedPointer<CMakeRunConfiguration> rc = cmakeRunConfiguration.objectCast<CMakeRunConfiguration>()) {
                 existingRunConfigurations.insert(rc->title(), rc);
             }
         }

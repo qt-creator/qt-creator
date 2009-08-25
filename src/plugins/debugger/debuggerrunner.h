@@ -33,6 +33,7 @@
 #include "debuggermanager.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/applicationrunconfiguration.h>
 
 namespace ProjectExplorer {
 class ApplicationRunConfiguration;
@@ -108,6 +109,30 @@ private:
     const QSharedPointer<DebuggerStartParameters> m_startParameters;
     DebuggerManager *m_manager;
     bool m_running;
+};
+
+// A default run configuration for external executables or attaching to
+// running processes by id.
+class DefaultApplicationRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
+{
+    Q_OBJECT
+public:
+    explicit DefaultApplicationRunConfiguration(const QString &executable = QString());
+
+    virtual QString executable() const                 { return m_executable; }
+    virtual RunMode runMode() const                    { return Gui; }
+    virtual QString workingDirectory() const           { return QString(); }
+    virtual QStringList commandLineArguments() const   { return QStringList(); }
+    virtual ProjectExplorer::Environment environment() const
+        { return ProjectExplorer::Environment(); }
+    virtual QString dumperLibrary() const              { return QString(); }
+    virtual QStringList dumperLibraryLocations() const { return QStringList(); }
+    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const
+        { return ProjectExplorer::ToolChain::UNKNOWN; }
+    virtual QWidget *configurationWidget()             { return 0; }
+
+private:
+    const QString m_executable;
 };
 
 } // namespace Internal

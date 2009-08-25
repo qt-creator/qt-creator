@@ -264,12 +264,12 @@ S60EmulatorRunConfigurationRunner::S60EmulatorRunConfigurationRunner(QObject *pa
 bool S60EmulatorRunConfigurationRunner::canRun(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
 {
     return (mode == ProjectExplorer::Constants::RUNMODE)
-            && (!runConfiguration.dynamicCast<S60EmulatorRunConfiguration>().isNull());
+            && (!runConfiguration.objectCast<S60EmulatorRunConfiguration>().isNull());
 }
 
 RunControl* S60EmulatorRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
 {
-    QSharedPointer<S60EmulatorRunConfiguration> rc = runConfiguration.dynamicCast<S60EmulatorRunConfiguration>();
+    QSharedPointer<S60EmulatorRunConfiguration> rc = runConfiguration.objectCast<S60EmulatorRunConfiguration>();
     Q_ASSERT(!rc.isNull());
     Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE);
 
@@ -304,7 +304,7 @@ S60EmulatorRunControl::S60EmulatorRunControl(QSharedPointer<RunConfiguration> ru
 
 void S60EmulatorRunControl::start()
 {
-    QSharedPointer<S60EmulatorRunConfiguration> rc = runConfiguration().dynamicCast<S60EmulatorRunConfiguration>();
+    QSharedPointer<S60EmulatorRunConfiguration> rc = runConfiguration().objectCast<S60EmulatorRunConfiguration>();
     Q_ASSERT(!rc.isNull());
 
     // stuff like the EPOCROOT and EPOCDEVICE env variable

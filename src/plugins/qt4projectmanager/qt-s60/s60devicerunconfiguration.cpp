@@ -491,12 +491,12 @@ S60DeviceRunConfigurationRunner::S60DeviceRunConfigurationRunner(QObject *parent
 bool S60DeviceRunConfigurationRunner::canRun(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
 {
     return (mode == ProjectExplorer::Constants::RUNMODE)
-            && (!runConfiguration.dynamicCast<S60DeviceRunConfiguration>().isNull());
+            && (!runConfiguration.objectCast<S60DeviceRunConfiguration>().isNull());
 }
 
 RunControl* S60DeviceRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
 {
-    QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration.dynamicCast<S60DeviceRunConfiguration>();
+    QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration.objectCast<S60DeviceRunConfiguration>();
     Q_ASSERT(!rc.isNull());
     Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE);
 
@@ -541,7 +541,7 @@ S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runCon
 
 void S60DeviceRunControl::start()
 {
-    QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration().dynamicCast<S60DeviceRunConfiguration>();
+    QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration().objectCast<S60DeviceRunConfiguration>();
     QTC_ASSERT(!rc.isNull(), return);
 
     Qt4Project *project = qobject_cast<Qt4Project *>(rc->project());

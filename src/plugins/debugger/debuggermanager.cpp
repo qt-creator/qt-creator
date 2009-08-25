@@ -463,7 +463,7 @@ IDebuggerEngine *DebuggerManager::engine()
 
 IDebuggerManagerAccessForEngines *DebuggerManager::engineInterface()
 {
-    return dynamic_cast<IDebuggerManagerAccessForEngines *>(this);
+    return this;
 }
 
 void DebuggerManager::createNewDock(QWidget *widget)
