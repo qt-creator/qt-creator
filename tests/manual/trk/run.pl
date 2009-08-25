@@ -15,21 +15,23 @@ my $isUnix = $OSNAME eq 'linux' ? 1 : 0;
 my $MAKE= $isUnix ? 'make' : 'nmake';
 my $trkservername;
 my $runTrkServer = 1;
+my $waitAdapter = 0;
 
 my $usage=<<EOF;
-Usage: run.pl -av -aq -au -tv -tq -l [COM]
+Usage: run.pl -w -av -aq -au -tv -tq -l [COM]
 Options:
      -av     Adapter verbose
      -aq     Adapter quiet
      -au     Adapter turn off buffered memory read
      -af     Adapter turn off serial frame
+     -w      Wait for termination of Adapter (Bluetooth)
      -tv     TrkServer verbose
      -tq     TrkServer quiet
 
      trkserver simulator will be run unless COM is specified
 
 Bluetooth:
-     rfcomm listen /dev/rfcomm0 1 \$PWD/run.pl -av -af {}
+     rfcomm listen /dev/rfcomm0 1 \$PWD/run.pl -av -af -w {}
 
 EOF
 
@@ -46,6 +48,8 @@ for (my $i = 0; $i < $argCount; $i++) {
 	    push(@ADAPTER_OPTIONS, '-f');
 	} elsif ($a eq '-au') {
 	    push(@ADAPTER_OPTIONS, '-u');
+	} elsif ($a eq '-w') {
+	    $waitAdapter = 1;
 	} elsif ($a eq '-tv') {
 	    push(@TRKSERVEROPTIONS, '-v');
 	} elsif ($a eq '-tq') {
@@ -125,7 +129,8 @@ if ($adapterpid == 0) {
     exec(@ADAPTER_ARGS);
     exit(0);
 }
-
+die ('Unable to launch adapter') if $adapterpid == -1;
+waitpid($adapterpid, 0) if ($waitAdapter > 0);
 # ------- Write out .gdbinit
 my $gdbInit = <<EOF;
 # This is generated. Changes will be lost.
@@ -138,7 +143,7 @@ target extended-remote $gdbserverip:$gdbserverport
 #file filebrowseapp.sym
 add-symbol-file filebrowseapp.sym 0x786A4000
 symbol-file filebrowseapp.sym
-print E32Main 
+print E32Main
 break E32Main
 #continue
 #info files
