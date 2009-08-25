@@ -203,9 +203,7 @@ ResolveExpression::ResolveExpression(const LookupContext &context)
     : ASTVisitor(context.expressionDocument()->control()),
       _context(context),
       sem(_context.control())
-{
-    _wantReferences = false;
-}
+{ }
 
 ResolveExpression::~ResolveExpression()
 { }
