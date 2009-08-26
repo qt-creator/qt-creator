@@ -647,6 +647,7 @@ void S60DeviceRunControl::signsisProcessFinished()
     connect(m_launcher, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
     connect(m_launcher, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
     connect(m_launcher, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
+    connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
 
     //TODO sisx destination and file path user definable
     m_launcher->setTrkServerName(m_serialPortName);
@@ -670,6 +671,12 @@ void S60DeviceRunControl::signsisProcessFinished()
 void S60DeviceRunControl::printCopyingNotice()
 {
     emit addToOutputWindow(this, tr("Copying install file..."));
+    emit addToOutputWindow(this, tr("0% copied."));
+}
+
+void S60DeviceRunControl::printCopyProgress(int progress)
+{
+    emit addToOutputWindow(this, tr("%1% copied.").arg(progress));
 }
 
 void S60DeviceRunControl::printInstallingNotice()

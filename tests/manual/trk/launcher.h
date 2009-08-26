@@ -62,6 +62,7 @@ signals:
     void applicationRunning(uint pid);
     void finished();
     void applicationOutputReceived(const QString &output);
+    void copyProgress(int percent);
 
 public slots:
     void terminate();
@@ -76,6 +77,8 @@ private:
     void cleanUp();
 
     void handleFileCreation(const TrkResult &result);
+    void handleCopy(const TrkResult &result);
+    void continueCopying();
     void handleFileCreated(const TrkResult &result);
     void handleInstallPackageFinished(const TrkResult &result);
     void handleCpuType(const TrkResult &result);

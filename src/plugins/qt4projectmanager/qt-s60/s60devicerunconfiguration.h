@@ -160,6 +160,7 @@ private slots:
     void signsisProcessFailed();
     void signsisProcessFinished();
     void printCopyingNotice();
+    void printCopyProgress(int progress);
     void printInstallingNotice();
     void printStartingNotice();
     void printRunNotice(uint pid);

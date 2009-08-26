@@ -43,6 +43,14 @@ namespace trk {
 typedef TrkWriteQueueDevice::Callback Callback;
 
 struct LauncherPrivate {
+    struct CopyState {
+        QString sourceFileName;
+        QString destinationFileName;
+        uint copyFileHandle;
+        QByteArray *data;
+        int position;
+    };
+
     LauncherPrivate();
     TrkWriteQueueDevice m_device;
     QString m_trkServerName;
@@ -52,9 +60,8 @@ struct LauncherPrivate {
     // Debuggee state
     Session m_session; // global-ish data (process id, target information)
 
+    CopyState m_copyState;
     QString m_fileName;
-    QString m_copySrcFileName;
-    QString m_copyDstFileName;
     QString m_installFileName;
     int m_verbose;
 };
@@ -88,8 +95,8 @@ void Launcher::setFileName(const QString &name)
 
 void Launcher::setCopyFileName(const QString &srcName, const QString &dstName)
 {
-    d->m_copySrcFileName = srcName;
-    d->m_copyDstFileName = dstName;
+    d->m_copyState.sourceFileName = srcName;
+    d->m_copyState.destinationFileName = dstName;
 }
 
 void Launcher::setInstallFileName(const QString &name)
@@ -111,7 +118,7 @@ bool Launcher::startServer(QString *errorMessage)
 {
     if (d->m_verbose) {
         const QString msg = QString::fromLatin1("Port=%1 Executable=%2 Package=%3 Remote Package=%4 Install file=%5")
-                            .arg(d->m_trkServerName, d->m_fileName, d->m_copySrcFileName, d->m_copyDstFileName, d->m_installFileName);
+                            .arg(d->m_trkServerName, d->m_fileName, d->m_copyState.sourceFileName, d->m_copyState.destinationFileName, d->m_installFileName);
         logMessage(msg);
     }
     if (!d->m_device.open(d->m_trkServerName, errorMessage))
@@ -123,7 +130,7 @@ bool Launcher::startServer(QString *errorMessage)
     d->m_device.sendTrkMessage(TrkVersions, Callback(this, &Launcher::handleTrkVersion));
     if (d->m_fileName.isEmpty())
         return true;
-    if (!d->m_copySrcFileName.isEmpty() && !d->m_copyDstFileName.isEmpty())
+    if (!d->m_copyState.sourceFileName.isEmpty() && !d->m_copyState.destinationFileName.isEmpty())
         copyFileToRemote();
     else
         installAndRun();
@@ -158,6 +165,7 @@ void Launcher::waitForTrkFinished(const TrkResult &result)
 
 void Launcher::terminate()
 {
+    //TODO handle case where application has not been started
     QByteArray ba;
     appendShort(&ba, 0x0000, TargetByteOrder);
     appendInt(&ba, d->m_session.pid, TargetByteOrder);
@@ -296,25 +304,46 @@ void Launcher::handleFileCreation(const TrkResult &result)
 {
     // we don't do any error handling yet, which is bad
     const char *data = result.data.data();
-    uint copyFileHandle = extractInt(data + 2);
-    QFile file(d->m_copySrcFileName);
+    d->m_copyState.copyFileHandle = extractInt(data + 2);
+    QFile file(d->m_copyState.sourceFileName);
     file.open(QIODevice::ReadOnly);
-    QByteArray src = file.readAll();
+    d->m_copyState.data = new QByteArray(file.readAll());
+    d->m_copyState.position = 0;
     file.close();
-    const int BLOCKSIZE = 1024;
-    int size = src.length();
-    int pos = 0;
-    while (pos < size) {
-        QByteArray ba;
-        appendInt(&ba, copyFileHandle, TargetByteOrder);
-        appendString(&ba, src.mid(pos, BLOCKSIZE), TargetByteOrder, false);
-        d->m_device.sendTrkMessage(TrkWriteFile, Callback(), ba);
-        pos += BLOCKSIZE;
+    continueCopying();
+}
+
+void Launcher::handleCopy(const TrkResult &result)
+{
+    Q_UNUSED(result)
+
+    continueCopying();
+}
+
+void Launcher::continueCopying()
+{
+    static const int BLOCKSIZE = 1024;
+    int size = d->m_copyState.data->length();
+    if (size == 0)
+        emit copyProgress(100);
+    else {
+        int percent = qMin((d->m_copyState.position*100)/size, 100);
+        emit copyProgress(percent);
     }
-    QByteArray ba;
-    appendInt(&ba, copyFileHandle, TargetByteOrder);
-    appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
-    d->m_device.sendTrkMessage(TrkCloseFile, Callback(this, &Launcher::handleFileCreated), ba);
+    if (d->m_copyState.position < size) {
+        QByteArray ba;
+        appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
+        appendString(&ba, d->m_copyState.data->mid(d->m_copyState.position, BLOCKSIZE), TargetByteOrder, false);
+        d->m_copyState.position += BLOCKSIZE;
+        d->m_device.sendTrkMessage(TrkWriteFile, Callback(this, &Launcher::handleCopy), ba);
+    } else {
+        QByteArray ba;
+        appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
+        appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
+        d->m_device.sendTrkMessage(TrkCloseFile, Callback(this, &Launcher::handleFileCreated), ba);
+        delete d->m_copyState.data;
+        d->m_copyState.data = 0;
+    }
 }
 
 void Launcher::handleFileCreated(const TrkResult &result)
@@ -441,7 +470,7 @@ void Launcher::copyFileToRemote()
     emit copyingStarted();
     QByteArray ba;
     appendByte(&ba, 0x10);
-    appendString(&ba, d->m_copyDstFileName.toLocal8Bit(), TargetByteOrder, false);
+    appendString(&ba, d->m_copyState.destinationFileName.toLocal8Bit(), TargetByteOrder, false);
     d->m_device.sendTrkMessage(TrkOpenFile, Callback(this, &Launcher::handleFileCreation), ba);
 }
 
