@@ -203,6 +203,7 @@ QString WatchData::toString() const
     const char *doubleQuoteComma = "\",";
     QString res;
     QTextStream str(&res);
+    str << QLatin1Char('{');
     if (!iname.isEmpty())
         str << "iname=\"" << iname << doubleQuoteComma;
     if (!addr.isEmpty())
@@ -855,6 +856,22 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
     typedef QMap<IName, WatchData>::iterator Iterator;
     foreach (const WatchItem &data, list)
         newList[data.iname] = data;
+    if (newList.size() != list.size()) {
+        qDebug() << "LIST: ";
+        foreach (const WatchItem &data, list)
+            qDebug() << data.toString();
+        qDebug() << "NEW LIST: ";
+        foreach (const WatchItem &data, newList.values())
+            qDebug() << data.toString();
+        qDebug() << "P->CHILDREN: ";
+        foreach (const WatchItem *item, parent->children)
+            qDebug() << item->toString();
+        qDebug()
+            << "P->CHILDREN.SIZE: " << parent->children.size()
+            << "NEWLIST SIZE: " << newList.size()
+            << "LIST SIZE: " << list.size();
+    }
+    QTC_ASSERT(newList.size() == list.size(), return);
 
     foreach (WatchItem *oldItem, parent->children) {
         Iterator it = newList.find(oldItem->iname);
@@ -871,15 +888,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
 
     // overwrite existing items
     Iterator it = newList.begin();
-    int oldCount = newList.size() - list.size();
-    if (oldCount != parent->children.size())
-        qDebug() //<< "LIST:" << list.keys()
-            << "NEWLIST: " << newList.keys()
-            << "OLD COUNT: " << oldCount 
-            << "P->CHILDREN.SIZE: " << parent->children.size()
-            << "NEWLIST SIZE: " << newList.size()
-            << "LIST SIZE: " << list.size();
-    QTC_ASSERT(oldCount == parent->children.size(), return);
+    const int oldCount = parent->children.size();
     for (int i = 0; i < oldCount; ++i, ++it)
         parent->children[i]->setData(*it);
     QModelIndex idx = watchIndex(parent);
