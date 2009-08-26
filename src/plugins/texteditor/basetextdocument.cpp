@@ -31,7 +31,6 @@
 #include "basetexteditor.h"
 #include "storagesettings.h"
 
-
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
@@ -223,12 +222,10 @@ bool BaseTextDocument::open(const QString &fileName)
         }
 
         m_document->setModified(false);
-        m_document->setUndoRedoEnabled(false);
         if (m_isBinaryData)
             m_document->setHtml(tr("<em>Binary data</em>"));
         else
             m_document->setPlainText(text);
-        m_document->setUndoRedoEnabled(true);
         TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(m_document->documentLayout());
         QTC_ASSERT(documentLayout, return true);
         documentLayout->lastSaveRevision = 0;
