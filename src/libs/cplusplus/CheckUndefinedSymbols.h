@@ -58,7 +58,9 @@ protected:
     void addType(Name *name);
     void buildTypeMap(Class *klass);
     void buildTypeMap(NamespaceBinding *binding, QSet<NamespaceBinding *> *processed);
+
     FunctionDeclaratorAST *currentFunctionDeclarator() const;
+    CompoundStatementAST *compoundStatement() const;
     bool qobjectCheck() const;
 
     QByteArray templateParameterName(NameAST *ast) const;
@@ -79,6 +81,9 @@ protected:
     virtual bool visit(FunctionDefinitionAST *ast);
     virtual void endVisit(FunctionDefinitionAST *ast);
 
+    virtual bool visit(CompoundStatementAST *ast);
+    virtual void endVisit(CompoundStatementAST *ast);
+
     virtual bool visit(SimpleDeclarationAST *ast);
     virtual bool visit(BaseSpecifierAST *base);
     virtual bool visit(UsingDirectiveAST *ast);
@@ -92,6 +97,7 @@ private:
     QList<bool> _qobjectStack;
     QList<FunctionDeclaratorAST *> _functionDeclaratorStack;
     QList<TemplateDeclarationAST *> _templateDeclarationStack;
+    QList<CompoundStatementAST *> _compoundStatementStack;
     QSet<QByteArray> _types;
     QSet<QByteArray> _namespaceNames;
 };

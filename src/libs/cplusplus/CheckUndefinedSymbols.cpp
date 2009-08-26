@@ -84,14 +84,32 @@ QByteArray CheckUndefinedSymbols::templateParameterName(DeclarationAST *ast) con
 
 bool CheckUndefinedSymbols::isType(const QByteArray &name) const
 {
+    for (int i = _compoundStatementStack.size() - 1; i != -1; --i) {
+        Scope *members = _compoundStatementStack.at(i)->symbol->members();
+
+        for (unsigned m = 0; m < members->symbolCount(); ++m) {
+            Symbol *member = members->symbolAt(m);
+
+            if (member->isTypedef() && member->isDeclaration()) {
+                if (Identifier *id = member->identifier()) {
+                    if (name == id->chars())
+                        return true;
+                }
+            }
+        }
+    }
+
     for (int i = _templateDeclarationStack.size() - 1; i != - 1; --i) {
         TemplateDeclarationAST *templateDeclaration = _templateDeclarationStack.at(i);
+
         for (DeclarationListAST *it = templateDeclaration->template_parameters; it; it = it->next) {
             DeclarationAST *templateParameter = it->declaration;
+
             if (templateParameterName(templateParameter) == name)
                 return true;
         }
     }
+
     return _types.contains(name);
 }
 
@@ -180,10 +198,17 @@ FunctionDeclaratorAST *CheckUndefinedSymbols::currentFunctionDeclarator() const
     return _functionDeclaratorStack.last();
 }
 
+CompoundStatementAST *CheckUndefinedSymbols::compoundStatement() const
+{
+    if (_compoundStatementStack.isEmpty())
+        return 0;
+
+    return _compoundStatementStack.last();
+}
+
 bool CheckUndefinedSymbols::visit(FunctionDeclaratorAST *ast)
 {
     _functionDeclaratorStack.append(ast);
-
     return true;
 }
 
@@ -288,6 +313,17 @@ bool CheckUndefinedSymbols::visit(FunctionDefinitionAST *ast)
 
 void CheckUndefinedSymbols::endVisit(FunctionDefinitionAST *)
 { }
+
+bool CheckUndefinedSymbols::visit(CompoundStatementAST *ast)
+{
+    _compoundStatementStack.append(ast);
+    return true;
+}
+
+void CheckUndefinedSymbols::endVisit(CompoundStatementAST *)
+{
+    _compoundStatementStack.removeLast();
+}
 
 bool CheckUndefinedSymbols::visit(SimpleDeclarationAST *ast)
 {
