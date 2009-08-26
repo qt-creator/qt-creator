@@ -123,7 +123,7 @@ Control *Semantic::control() const
 FullySpecifiedType Semantic::check(SpecifierAST *specifier, Scope *scope)
 { return d->checkSpecifier->check(specifier, scope); }
 
-void Semantic::check(DeclarationAST *declaration, Scope *scope, Scope *templateParameters)
+void Semantic::check(DeclarationAST *declaration, Scope *scope, TemplateParameters *templateParameters)
 { d->checkDeclaration->check(declaration, scope, templateParameters); }
 
 FullySpecifiedType Semantic::check(DeclaratorAST *declarator, FullySpecifiedType type,

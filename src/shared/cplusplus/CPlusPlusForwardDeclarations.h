@@ -90,6 +90,7 @@ class StringLiteral;
 class NumericLiteral;
 
 class Scope;
+class TemplateParameters;
 
 // names
 class NameVisitor;

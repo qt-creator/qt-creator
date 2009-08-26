@@ -55,6 +55,26 @@
 
 CPLUSPLUS_BEGIN_NAMESPACE
 
+TemplateParameters::TemplateParameters(Scope *scope)
+    : _previous(0), _scope(scope)
+{ }
+
+TemplateParameters::TemplateParameters(TemplateParameters *previous, Scope *scope)
+    : _previous(previous), _scope(scope)
+{ }
+
+TemplateParameters::~TemplateParameters()
+{
+    delete _previous;
+    delete _scope;
+}
+
+TemplateParameters *TemplateParameters::previous() const
+{ return _previous; }
+
+Scope *TemplateParameters::scope() const
+{ return _scope; }
+
 UsingNamespaceDirective::UsingNamespaceDirective(TranslationUnit *translationUnit,
                                                  unsigned sourceLocation, Name *name)
     : Symbol(translationUnit, sourceLocation, name)
@@ -91,20 +111,10 @@ Declaration::Declaration(TranslationUnit *translationUnit, unsigned sourceLocati
 Declaration::~Declaration()
 { delete _templateParameters; }
 
-unsigned Declaration::templateParameterCount() const
-{
-    if (! _templateParameters)
-        return 0;
-    return _templateParameters->symbolCount();
-}
-
-Symbol *Declaration::templateParameterAt(unsigned index) const
-{ return _templateParameters->symbolAt(index); }
-
-Scope *Declaration::templateParameters() const
+TemplateParameters *Declaration::templateParameters() const
 { return _templateParameters; }
 
-void Declaration::setTemplateParameters(Scope *templateParameters)
+void Declaration::setTemplateParameters(TemplateParameters *templateParameters)
 { _templateParameters = templateParameters; }
 
 void Declaration::setType(FullySpecifiedType type)
@@ -170,16 +180,17 @@ unsigned Function::templateParameterCount() const
 {
     if (! _templateParameters)
         return 0;
-    return _templateParameters->symbolCount();
+
+    return _templateParameters->scope()->symbolCount();
 }
 
 Symbol *Function::templateParameterAt(unsigned index) const
-{ return _templateParameters->symbolAt(index); }
+{ return _templateParameters->scope()->symbolAt(index); }
 
-Scope *Function::templateParameters() const
+TemplateParameters *Function::templateParameters() const
 { return _templateParameters; }
 
-void Function::setTemplateParameters(Scope *templateParameters)
+void Function::setTemplateParameters(TemplateParameters *templateParameters)
 { _templateParameters = templateParameters; }
 
 bool Function::isEqualTo(const Type *other) const
@@ -435,20 +446,10 @@ ForwardClassDeclaration::ForwardClassDeclaration(TranslationUnit *translationUni
 ForwardClassDeclaration::~ForwardClassDeclaration()
 { delete _templateParameters; }
 
-unsigned ForwardClassDeclaration::templateParameterCount() const
-{
-    if (! _templateParameters)
-        return 0;
-    return _templateParameters->symbolCount();
-}
-
-Symbol *ForwardClassDeclaration::templateParameterAt(unsigned index) const
-{ return _templateParameters->symbolAt(index); }
-
-Scope *ForwardClassDeclaration::templateParameters() const
+TemplateParameters *ForwardClassDeclaration::templateParameters() const
 { return _templateParameters; }
 
-void ForwardClassDeclaration::setTemplateParameters(Scope *templateParameters)
+void ForwardClassDeclaration::setTemplateParameters(TemplateParameters *templateParameters)
 { _templateParameters = templateParameters; }
 
 FullySpecifiedType ForwardClassDeclaration::type() const
@@ -501,16 +502,17 @@ unsigned Class::templateParameterCount() const
 {
     if (! _templateParameters)
         return 0;
-    return _templateParameters->symbolCount();
+
+    return _templateParameters->scope()->symbolCount();
 }
 
 Symbol *Class::templateParameterAt(unsigned index) const
-{ return _templateParameters->symbolAt(index); }
+{ return _templateParameters->scope()->symbolAt(index); }
 
-Scope *Class::templateParameters() const
+TemplateParameters *Class::templateParameters() const
 { return _templateParameters; }
 
-void Class::setTemplateParameters(Scope *templateParameters)
+void Class::setTemplateParameters(TemplateParameters *templateParameters)
 { _templateParameters = templateParameters; }
 
 void Class::accept0(TypeVisitor *visitor)

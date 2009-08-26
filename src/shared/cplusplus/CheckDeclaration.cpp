@@ -72,10 +72,10 @@ CheckDeclaration::~CheckDeclaration()
 { }
 
 void CheckDeclaration::check(DeclarationAST *declaration,
-                             Scope *scope, Scope *templateParameters)
+                             Scope *scope, TemplateParameters *templateParameters)
 {
     Scope *previousScope = switchScope(scope);
-    Scope *previousTemplateParameters = switchTemplateParameters(templateParameters);
+    TemplateParameters *previousTemplateParameters = switchTemplateParameters(templateParameters);
     DeclarationAST *previousDeclaration = switchDeclaration(declaration);
     accept(declaration);
     (void) switchDeclaration(previousDeclaration);
@@ -97,9 +97,9 @@ Scope *CheckDeclaration::switchScope(Scope *scope)
     return previousScope;
 }
 
-Scope *CheckDeclaration::switchTemplateParameters(Scope *templateParameters)
+TemplateParameters *CheckDeclaration::switchTemplateParameters(TemplateParameters *templateParameters)
 {
-    Scope *previousTemplateParameters = _templateParameters;
+    TemplateParameters *previousTemplateParameters = _templateParameters;
     _templateParameters = templateParameters;
     return previousTemplateParameters;
 }
@@ -395,13 +395,15 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
 
 bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
 {
-    Scope *previousScope = switchScope(new Scope(_scope->owner()));
+    Scope *scope = new Scope(_scope->owner());
+
     for (DeclarationListAST *param = ast->template_parameters; param; param = param->next) {
-       semantic()->check(param->declaration, _scope);
+       semantic()->check(param->declaration, scope);
     }
 
-    Scope *templateParameters = switchScope(previousScope);
-    semantic()->check(ast->declaration, _scope, templateParameters);
+    semantic()->check(ast->declaration, _scope,
+                      new TemplateParameters(_templateParameters, scope));
+
     return false;
 }
 

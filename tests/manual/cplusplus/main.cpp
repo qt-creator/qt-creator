@@ -102,7 +102,7 @@ public:
             }
 
             if (! _removed.contains(i))
-                out->append(source + tk.begin(), tk.length);
+                out->append(source + tk.begin(), tk.f.length);
 
             it = _insertAfter.constFind(i);
             for (; it != _insertAfter.constEnd() && it.key() == i; ++it) {

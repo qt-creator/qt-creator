@@ -61,12 +61,12 @@ public:
     CheckDeclaration(Semantic *semantic);
     virtual ~CheckDeclaration();
 
-    void check(DeclarationAST *declaration, Scope *scope, Scope *templateParameters);
+    void check(DeclarationAST *declaration, Scope *scope, TemplateParameters *templateParameters);
 
 protected:
     DeclarationAST *switchDeclaration(DeclarationAST *declaration);
     Scope *switchScope(Scope *scope);
-    Scope *switchTemplateParameters(Scope *templateParameters);
+    TemplateParameters *switchTemplateParameters(TemplateParameters *templateParameters);
 
     void checkFunctionArguments(Function *fun);
 
@@ -101,7 +101,7 @@ protected:
 private:
     DeclarationAST *_declaration;
     Scope *_scope;
-    Scope *_templateParameters;
+    TemplateParameters *_templateParameters;
     bool _checkAnonymousArguments: 1;
 };
 

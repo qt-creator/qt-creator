@@ -78,7 +78,7 @@ public:
 
     FullySpecifiedType check(ExpressionAST *expression, Scope *scope);
 
-    void check(DeclarationAST *declaration, Scope *scope, Scope *templateParameters = 0);
+    void check(DeclarationAST *declaration, Scope *scope, TemplateParameters *templateParameters = 0);
 
     void check(StatementAST *statement, Scope *scope);
 

@@ -58,6 +58,21 @@
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
 
+class TemplateParameters
+{
+public:
+    TemplateParameters(Scope *scope);
+    TemplateParameters(TemplateParameters *previous, Scope *scope);
+    ~TemplateParameters();
+
+    TemplateParameters *previous() const;
+    Scope *scope() const;
+
+private:
+    TemplateParameters *_previous;
+    Scope *_scope;
+};
+
 class CPLUSPLUS_EXPORT UsingNamespaceDirective: public Symbol
 {
 public:
@@ -102,11 +117,8 @@ public:
     Declaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
     virtual ~Declaration();
 
-    unsigned templateParameterCount() const;
-    Symbol *templateParameterAt(unsigned index) const;
-
-    Scope *templateParameters() const;
-    void setTemplateParameters(Scope *templateParameters);
+    TemplateParameters *templateParameters() const;
+    void setTemplateParameters(TemplateParameters *templateParameters);
 
     void setType(FullySpecifiedType type);
 
@@ -124,7 +136,7 @@ protected:
 
 private:
     FullySpecifiedType _type;
-    Scope *_templateParameters;
+    TemplateParameters *_templateParameters;
 };
 
 class CPLUSPLUS_EXPORT Argument: public Symbol
@@ -201,11 +213,8 @@ public:
     ForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
     virtual ~ForwardClassDeclaration();
 
-    unsigned templateParameterCount() const;
-    Symbol *templateParameterAt(unsigned index) const;
-
-    Scope *templateParameters() const;
-    void setTemplateParameters(Scope *templateParameters);
+    TemplateParameters *templateParameters() const;
+    void setTemplateParameters(TemplateParameters *templateParameters);
 
     virtual FullySpecifiedType type() const;
 
@@ -228,7 +237,7 @@ protected:
     virtual void accept0(TypeVisitor *visitor);
 
 private:
-    Scope *_templateParameters;
+    TemplateParameters *_templateParameters;
 };
 
 class CPLUSPLUS_EXPORT Enum: public ScopedSymbol, public Type
@@ -279,11 +288,11 @@ public:
     int methodKey() const;
     void setMethodKey(int key);
 
-    unsigned templateParameterCount() const;
-    Symbol *templateParameterAt(unsigned index) const;
+    unsigned templateParameterCount() const; // ### remove me
+    Symbol *templateParameterAt(unsigned index) const; // ### remove me
 
-    Scope *templateParameters() const;
-    void setTemplateParameters(Scope *templateParameters);
+    TemplateParameters *templateParameters() const;
+    void setTemplateParameters(TemplateParameters *templateParameters);
 
     FullySpecifiedType returnType() const;
     void setReturnType(FullySpecifiedType returnType);
@@ -336,7 +345,7 @@ protected:
     virtual void accept0(TypeVisitor *visitor);
 
 private:
-    Scope *_templateParameters;
+    TemplateParameters *_templateParameters;
     FullySpecifiedType _returnType;
     struct Flags {
         unsigned _isVariadic: 1;
@@ -425,11 +434,11 @@ public:
     Key classKey() const;
     void setClassKey(Key key);
 
-    unsigned templateParameterCount() const;
-    Symbol *templateParameterAt(unsigned index) const;
+    unsigned templateParameterCount() const; // ### remove me
+    Symbol *templateParameterAt(unsigned index) const; // ### remove me
 
-    Scope *templateParameters() const;
-    void setTemplateParameters(Scope *templateParameters);
+    TemplateParameters *templateParameters() const;
+    void setTemplateParameters(TemplateParameters *templateParameters);
 
     unsigned baseClassCount() const;
     BaseClass *baseClassAt(unsigned index) const;
@@ -459,7 +468,7 @@ protected:
 
 private:
     Key _key;
-    Scope *_templateParameters;
+    TemplateParameters *_templateParameters;
     Array<BaseClass *> _baseClasses;
 };
 
