@@ -67,9 +67,6 @@ public:
     QString suggestedFileName() const;
     virtual QString mimeType() const;
 
-signals:
-    void changed();
-
 private:
     const QString m_mimeType;
     ResourceEditorW *m_parent;
