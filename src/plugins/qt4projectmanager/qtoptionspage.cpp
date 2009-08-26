@@ -76,7 +76,7 @@ QString QtOptionsPage::trCategory() const
 QWidget *QtOptionsPage::createPage(QWidget *parent)
 {
     QtVersionManager *vm = QtVersionManager::instance();
-    m_widget = new QtOptionsPageWidget(parent, vm->versions(), vm->currentQtVersion());
+    m_widget = new QtOptionsPageWidget(parent, vm->versions(), vm->defaultVersion());
     return m_widget;
 }
 

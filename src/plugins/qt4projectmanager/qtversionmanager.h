@@ -188,7 +188,7 @@ public:
     QList<QtVersion *> versions() const;
 
     QtVersion *version(int id) const;
-    QtVersion *currentQtVersion() const;
+    QtVersion *defaultVersion() const;
 
     QtVersion *qtVersionForDirectory(const QString &directory);
     // Used by the projectloadwizard

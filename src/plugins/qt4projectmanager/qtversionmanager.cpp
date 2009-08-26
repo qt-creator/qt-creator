@@ -174,7 +174,7 @@ void QtVersionManager::updateDocumentation()
 void QtVersionManager::updateExamples()
 {
     QList<QtVersion *> versions;
-    versions.append(currentQtVersion());
+    versions.append(defaultVersion());
     versions.append(m_versions);
 
     QString examplesPath;
@@ -334,7 +334,7 @@ void QtVersionManager::updateSystemVersion()
         ++m_defaultVersion;
 }
 
-QtVersion *QtVersionManager::currentQtVersion() const
+QtVersion *QtVersionManager::defaultVersion() const
 {
     if (m_defaultVersion < m_versions.count())
         return m_versions.at(m_defaultVersion);

@@ -64,12 +64,12 @@ private slots:
     void manageQtVersions();
     void selectToolChain(int index);
     void toggleDetails();
+    void updateDetails();
 
 private:
     void updateToolChainCombo();
     void updateImportLabel();
     void setToolChain(int index);
-    void updateDetails();
     Ui::Qt4ProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
     Qt4Project *m_pro;
