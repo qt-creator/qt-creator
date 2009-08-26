@@ -43,6 +43,7 @@
 #define GDBMACROS_P_H
 
 #include <QtCore/QObject>
+#include <QtCore/QPointer>
 
 #ifndef QT_BOOTSTRAPPED
 
