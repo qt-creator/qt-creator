@@ -2612,6 +2612,14 @@ static void qDumpQSharedPointer(QDumper &d)
     const QSharedPointer<int> &ptr =
         *reinterpret_cast<const QSharedPointer<int> *>(d.data);
 
+    if (ptr.isNull()) { 
+        d.putItem("value", "<null>");
+        d.putItem("valuedisabled", "true");
+        d.putItem("numchild", 0);
+        d.disarm();
+        return;
+    }
+
     if (isSimpleType(d.innertype))
         qDumpInnerValueHelper(d, d.innertype, ptr.data());
     else
@@ -2768,6 +2776,15 @@ static void qDumpQWeakPointer(QDumper &d)
 {
     const int v = sizeof(void *);
     const void *value = deref(addOffset(d.data, v));
+    const void *data = deref(d.data);
+
+    if (value == 0 || data == 0) {
+        d.putItem("value", "<null>");
+        d.putItem("valuedisabled", "true");
+        d.putItem("numchild", 0);
+        d.disarm();
+        return;
+    }
 
     if (isSimpleType(d.innertype))
         qDumpInnerValueHelper(d, d.innertype, value);
