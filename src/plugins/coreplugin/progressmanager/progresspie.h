@@ -35,7 +35,7 @@
 #include <QtGui/QProgressBar>
 #include <QtGui/QMouseEvent>
 
-class ProgressBar : public QProgressBar
+class ProgressBar : public QWidget
 {
     Q_OBJECT
 public:
@@ -51,6 +51,12 @@ public:
     void paintEvent(QPaintEvent *);
     void mouseMoveEvent(QMouseEvent *);
 
+    int minimum() const { return m_minimum; }
+    int maximum() const { return m_maximum; }
+    int value() const { return m_value; }
+    void reset();
+    void setRange(int minimum, int maximum);
+    void setValue(int value);
 signals:
     void clicked();
 
@@ -62,6 +68,10 @@ private:
     QString m_title;
     bool m_error;
     int m_progressHeight;
+
+    int m_minimum;
+    int m_maximum;
+    int m_value;
 };
 
 #endif // PROGRESSPIE_H

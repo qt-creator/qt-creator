@@ -39,7 +39,7 @@
 #define PROGRESSBAR_HEIGHT 11
 
 ProgressBar::ProgressBar(QWidget *parent)
-    : QProgressBar(parent), m_error(false)
+    : QWidget(parent), m_error(false), m_minimum(1), m_maximum(100), m_value(1)
 {
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     setMouseTracking(true);
@@ -47,6 +47,32 @@ ProgressBar::ProgressBar(QWidget *parent)
 
 ProgressBar::~ProgressBar()
 {
+}
+
+void ProgressBar::reset()
+{
+    m_value = m_minimum;
+    update();
+}
+
+void ProgressBar::setRange(int minimum, int maximum)
+{
+    m_minimum = minimum;
+    m_maximum = maximum;
+    if (m_value < m_minimum || m_value > m_maximum)
+        m_value = m_minimum;
+    update();
+}
+
+void ProgressBar::setValue(int value)
+{
+    if (m_value == value
+            || m_value < m_minimum
+            || m_value > m_maximum) {
+        return;
+    }
+    m_value = value;
+    update();
 }
 
 QString ProgressBar::title() const
@@ -62,6 +88,7 @@ bool ProgressBar::hasError() const
 void ProgressBar::setTitle(const QString &title)
 {
     m_title = title;
+    update();
 }
 
 void ProgressBar::setError(bool on)
@@ -88,7 +115,7 @@ void ProgressBar::mousePressEvent(QMouseEvent *event)
         emit clicked();
         return;
     }
-    QProgressBar::mousePressEvent(event);
+    QWidget::mousePressEvent(event);
 }
 
 void ProgressBar::mouseMoveEvent(QMouseEvent *)
