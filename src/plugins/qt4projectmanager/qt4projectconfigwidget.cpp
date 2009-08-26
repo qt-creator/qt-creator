@@ -125,6 +125,8 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
 
     connect(vm, SIGNAL(qtVersionsChanged()),
             this, SLOT(setupQtVersionsComboBox()));
+    connect(vm, SIGNAL(qtVersionsChanged()),
+            this, SLOT(updateDetails()));
 }
 
 Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
@@ -143,7 +145,7 @@ void Qt4ProjectConfigWidget::updateDetails()
     QtVersion *version = m_pro->qtVersion(m_buildConfiguration);
     QString versionString;
     if (m_pro->qtVersionId(m_buildConfiguration) == 0) {
-        versionString = tr("Default Qt Version");
+        versionString = tr("Default Qt Version (%1)").arg(version->name());
     } else {
         versionString = version->name();
     }
@@ -202,15 +204,16 @@ void Qt4ProjectConfigWidget::setupQtVersionsComboBox()
     disconnect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(QString)),
         this, SLOT(qtVersionComboBoxCurrentIndexChanged(QString)));
 
+    QtVersionManager *vm = QtVersionManager::instance();
+
     m_ui->qtVersionComboBox->clear();
-    m_ui->qtVersionComboBox->addItem(tr("Default Qt Version"), 0);
+    m_ui->qtVersionComboBox->addItem(tr("Default Qt Version (%1)").arg(vm->defaultVersion()->name()), 0);
 
     if (m_pro->qtVersionId(m_buildConfiguration) == 0) {
         m_ui->qtVersionComboBox->setCurrentIndex(0);
         m_ui->invalidQtWarningLabel->setVisible(false);
     }
     // Add Qt Versions to the combo box
-    QtVersionManager *vm = QtVersionManager::instance();
     const QList<QtVersion *> &versions = vm->versions();
     for (int i = 0; i < versions.size(); ++i) {
         m_ui->qtVersionComboBox->addItem(versions.at(i)->name(), versions.at(i)->uniqueId());
