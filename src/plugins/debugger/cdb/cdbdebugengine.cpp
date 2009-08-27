@@ -400,7 +400,7 @@ bool CdbDebugEnginePrivate::setCodeLevel()
     }
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << "\nSetting code level to " << codeLevelName(codeLevel) << " (was" << codeLevelName(currentCodeLevel) << ')';
-    if (currentCodeLevel == currentCodeLevel)
+    if (currentCodeLevel == codeLevel)
         return false;
     hr = m_cif.debugControl->SetCodeLevel(codeLevel);
     if (FAILED(hr)) {
