@@ -1741,9 +1741,8 @@ void tst_Debugger::dumpQObjectChildList()
 void tst_Debugger::dumpQObjectMethodList()
 {
     QStringListModel m;
-    qDebug() << "FIXME: that should be NS::QMetaMethod::Method";
     testDumper("addr='<synthetic>',type='$T',numchild='20',"
-        "childtype='QMetaMethod::Method',childnumchild='0',children=["
+        "childtype='"NS"QMetaMethod::Method',childnumchild='0',children=["
         "{name='0 0 destroyed(QObject*)',value='<Signal> (1)'},"
         "{name='1 1 destroyed()',value='<Signal> (1)'},"
         "{name='2 2 deleteLater()',value='<Slot> (2)'},"
@@ -1905,8 +1904,8 @@ void tst_Debugger::dumpQObjectSignalList()
     QObject o;
     o.setObjectName("Test");
 
-    qDebug() << "FIXME: that should be NS::QObjectSignalList";
-    testDumper("type='QObjectSignalList',value='<2 items>',addr='$A',numchild='2',children=["
+    testDumper("type='"NS"QObjectSignalList',value='<2 items>',"
+                "addr='$A',numchild='2',children=["
             "{name='0',value='destroyed(QObject*)',numchild='0',"
                 "addr='$A',type='"NS"QObjectSignal'},"
             "{name='1',value='destroyed()',numchild='0',"
@@ -1915,7 +1914,7 @@ void tst_Debugger::dumpQObjectSignalList()
 
     // Case 2: QAbstractItemModel with no connections.
     QStringListModel m(QStringList() << "Test1" << "Test2");
-    QByteArray expected = "type='QObjectSignalList',value='<16 items>',"
+    QByteArray expected = "type='"NS"QObjectSignalList',value='<16 items>',"
         "addr='$A',numchild='16',children=["
         "{name='0',value='destroyed(QObject*)',numchild='0',"
             "addr='$A',type='"NS"QObjectSignal'},"

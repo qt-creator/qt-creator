@@ -2269,7 +2269,7 @@ static void qDumpQObjectMethodList(QDumper &d)
     d.putItem("type", NS"QObjectMethodList");
     d.putItem("numchild", mo->methodCount());
     if (d.dumpChildren) {
-        d.putItem("childtype", "QMetaMethod::Method");
+        d.putItem("childtype", NS"QMetaMethod::Method");
         d.putItem("childnumchild", "0");
         d.beginChildren();
         for (int i = 0; i != mo->methodCount(); ++i) {
@@ -2400,7 +2400,7 @@ static void qDumpQObjectSignalList(QDumper &d)
     const int methodCount = mo->methodCount();
     for (int i = methodCount; --i >= 0; )
         count += (mo->method(i).methodType() == QMetaMethod::Signal);
-    d.putItem("type", "QObjectSignalList");
+    d.putItem("type", NS"QObjectSignalList");
     d.putItemCount("value", count);
     d.putItem("addr", d.data);
     d.putItem("numchild", count);
