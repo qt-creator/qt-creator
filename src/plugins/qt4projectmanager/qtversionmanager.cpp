@@ -474,6 +474,9 @@ void QtVersion::setName(const QString &name)
 void QtVersion::setPath(const QString &path)
 {
     m_path = QDir::cleanPath(path);
+#ifdef Q_OS_WIN
+    m_path = m_path.toLower();
+#endif
     updateSourcePath();
     m_versionInfoUpToDate = false;
     m_mkspecUpToDate = false;
@@ -525,6 +528,9 @@ QString QtVersionManager::findQtVersionFromMakefile(const QString &directory)
                 QFileInfo qmake(r1.cap(1).trimmed());
                 QFileInfo binDir(qmake.absolutePath());
                 QString qtDir = binDir.absolutePath();
+#ifdef Q_OS_WIN
+                qtDir = qtDir.toLower();
+#endif
                 if (debugAdding)
                     qDebug() << "#~~ QtDir:"<<qtDir;
                 return qtDir;
