@@ -2236,12 +2236,11 @@ void tst_Debugger::dumpQVariant_QString()
 
 void tst_Debugger::dumpQVariant_QStringList()
 {
-   QVariant v = QStringList() << "Hi";
-return; // FIXME
-    testDumper("value='(QStringList) ',type='$T',"
-        "numchild='1',children=[{name='value',"
-        "exp='(*('myns::QStringList'*)3215364300)',"
-        "type='QStringList',numchild='1'}]",
+    QVariant v = QStringList() << "Hi";
+    testDumper("value='(QStringList) ',type='$T',numchild='1',"
+        "children=[{name='value',exp='(*('myns::QStringList'*)%)',"
+        "type='QStringList',numchild='1'}]"
+            << QByteArray::number(quintptr(&v)),
         &v, NS"QVariant", true);
 }
 
