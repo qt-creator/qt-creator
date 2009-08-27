@@ -379,8 +379,6 @@ void DebuggerManager::init()
         this, SLOT(nextExec()));
     connect(m_stepAction, SIGNAL(triggered()),
         this, SLOT(stepExec()));
-    connect(theDebuggerAction(StepByInstruction), SIGNAL(triggered()),
-        this, SLOT(stepByInstructionTriggered()));
     connect(m_stepOutAction, SIGNAL(triggered()),
         this, SLOT(stepOutExec()));
     connect(m_runToLineAction, SIGNAL(triggered()),
