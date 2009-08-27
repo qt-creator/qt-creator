@@ -396,7 +396,7 @@ static void testDumper(QByteArray expected0, const void *data, QByteArray outert
         outertype.data(), 0, "iname", 0, exp.data(), 0,
         innertype.data(), 0, "iname", 0);
     //qDebug() << "FIXME qDumpObjectData440 signature to use const void *";
-    void *res = qDumpObjectData440(2, 42, const_cast<void *>(data), dumpChildren,
+    void *res = qDumpObjectData440(2, 42, data, dumpChildren,
         extraInt0, extraInt1, extraInt2, extraInt3);
     QString expected(expected0);
     char buf[100];

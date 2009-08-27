@@ -39,7 +39,7 @@ Q_DECL_EXPORT extern char qDumpOutBuffer[];
 #endif
 
 extern "C" Q_DECL_EXPORT
-void *qDumpObjectData440(int protocolVersion, int token, void *data,
+void *qDumpObjectData440(int protocolVersion, int token, const void *data,
   int dumpChildren, int extraInt0, int extraInt1, int extraInt2, int extraInt3);
 
 

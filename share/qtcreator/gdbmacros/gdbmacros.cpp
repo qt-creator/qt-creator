@@ -3541,7 +3541,7 @@ extern "C" Q_DECL_EXPORT
 void *qDumpObjectData440(
     int protocolVersion,
     int token,
-    void *data,
+    const void *data,
     int dumpChildren,
     int extraInt0,
     int extraInt1,
