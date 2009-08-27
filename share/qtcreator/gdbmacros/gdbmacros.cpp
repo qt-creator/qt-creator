@@ -1464,8 +1464,8 @@ static void qDumpQHash(QDumper &d)
                 } else {
                     d.putItem("addr", node);
                     d.beginItem("type");
-                        d.put("'"NS"QHashNode<").put(keyType).put(",")
-                            .put(valueType).put(MAP_NODE_TYPE_END"'");
+                        d.put(NS"QHashNode<").put(keyType).put(",")
+                            .put(valueType).put(MAP_NODE_TYPE_END);
                     d.endItem();
                 }
             d.endHash();
