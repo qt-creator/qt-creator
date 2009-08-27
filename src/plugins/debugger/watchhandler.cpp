@@ -780,8 +780,12 @@ bool operator<(const IName &iname1, const IName &iname2)
     QString name1 = iname1.section('.', -1);
     QString name2 = iname2.section('.', -1);
     if (!name1.isEmpty() && !name2.isEmpty()) {
-        if (name1.at(0).isDigit() && name2.at(0).isDigit())
-            return name1.toInt() < name2.toInt();
+        if (name1.at(0).isDigit() && name2.at(0).isDigit()) {
+            bool ok1 = false, ok2 = false;
+            int i1 = name1.toInt(&ok1), i2 = name2.toInt(&ok2);
+            if (ok1 && ok2)
+                return i1 < i2;
+        }
     }
     return name1 < name2; 
 }
