@@ -839,7 +839,7 @@ void QDumper::putHash(const char *name, QChar value)
     endHash();
 }
 
-#define DUMPUNKNOWN_MESSAGE "<internal error>"
+#define DUMPUNKNOWN_MESSAGE "<not in scope>"
 static void qDumpUnknown(QDumper &d, const char *why = 0)
 {
     //d.putItem("iname", d.iname);
@@ -1570,6 +1570,10 @@ static void qDumpQList(QDumper &d)
         qCheckAccess(ldata.d->array);
         //qCheckAccess(ldata.d->array[0]);
         //qCheckAccess(ldata.d->array[nn - 1]);
+        if (ldata.d->begin < 0)
+            return;
+        if (ldata.d->begin > ldata.d->end)
+            return;
 #if QT_VERSION >= 0x040400
         if (ldata.d->ref._q_value <= 0)
             return;
@@ -3256,7 +3260,7 @@ static void qDumpStdVectorBool(QDumper &d)
     return qDumpStdVector(d);
 }
 
-static void handleProtocolVersion2and3(QDumper & d)
+static void handleProtocolVersion2and3(QDumper &d)
 {
     if (!d.outertype[0]) {
         qDumpUnknown(d);
