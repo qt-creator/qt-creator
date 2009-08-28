@@ -872,7 +872,7 @@ void QDumper::putHash(const char *name, QChar value)
     endHash();
 }
 
-#define DUMPUNKNOWN_MESSAGE "<not in scope*>"
+#define DUMPUNKNOWN_MESSAGE "<not in scope>"
 static void qDumpUnknown(QDumper &d, const char *why = 0)
 {
     //d.putItem("iname", d.iname);
@@ -1311,7 +1311,6 @@ static void qDumpQFileInfo(QDumper &d)
     if (d.dumpChildren) {
         d.beginChildren();
         d.putHash("absolutePath", info.absolutePath());
-#if 0
         d.putHash("absoluteFilePath", info.absoluteFilePath());
         d.putHash("canonicalPath", info.canonicalPath());
         d.putHash("canonicalFilePath", info.canonicalFilePath());
@@ -1327,7 +1326,6 @@ static void qDumpQFileInfo(QDumper &d)
         d.putHash("group", info.group());
         d.putHash("owner", info.owner());
         d.putHash("path", info.path());
-#endif
 
         d.putHash("groupid", (long)info.groupId());
         d.putHash("ownerid", (long)info.ownerId());
@@ -1355,7 +1353,6 @@ static void qDumpQFileInfo(QDumper &d)
         d.endHash();
         //QDir absoluteDir () const
         //QDir dir () const
-#if 0
         d.putHash("caching", info.caching());
         d.putHash("exists", info.exists());
         d.putHash("isAbsolute", info.isAbsolute());
@@ -1401,7 +1398,6 @@ static void qDumpQFileInfo(QDumper &d)
         d.putItem("type", NS"QDateTime");
         d.putItem("numchild", "1");
         d.endHash();
-#endif
 
         d.endChildren();
     }
