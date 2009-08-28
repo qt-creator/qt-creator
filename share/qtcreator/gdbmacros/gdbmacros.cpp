@@ -275,9 +275,11 @@ static bool couldBePointer(const void *p)
 {
     // we assume valid pointer to be 4-aligned at least.
     // So use this check only when this is guaranteed.
+    // FIXME: this breaks e.g. in the QString dumper...
     const quintptr d = quintptr(p);
-    qDebug() << "CHECKING : " << p << ((d & 3) == 0 && (d > 1000 || d == 0));
-    return (d & 3) == 0 && (d > 1000 || d == 0);
+    //qDebug() << "CHECKING : " << p << ((d & 3) == 0 && (d > 1000 || d == 0));
+    //return (d & 3) == 0 && (d > 1000 || d == 0);
+    return d > 1000 || d == 0;
 }
 
 // Check memory for read access and provoke segfault if nothing else helps.
@@ -870,7 +872,7 @@ void QDumper::putHash(const char *name, QChar value)
     endHash();
 }
 
-#define DUMPUNKNOWN_MESSAGE "<not in scope>"
+#define DUMPUNKNOWN_MESSAGE "<not in scope*>"
 static void qDumpUnknown(QDumper &d, const char *why = 0)
 {
     //d.putItem("iname", d.iname);
