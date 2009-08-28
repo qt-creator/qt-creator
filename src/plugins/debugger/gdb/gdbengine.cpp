@@ -83,7 +83,7 @@ namespace Internal {
 using namespace Debugger::Constants;
 
 //#define DEBUG_PENDING  1
-#define DEBUG_SUBITEM  1
+//#define DEBUG_SUBITEM  1
 
 #if DEBUG_PENDING
 #   define PENDING_DEBUG(s) qDebug() << s
@@ -3127,6 +3127,13 @@ void GdbEngine::updateSubItem(const WatchData &data0)
     QTC_ASSERT(false, return);
 }
 
+void GdbEngine::updateWatchDataAnnounce()
+{
+    // Bump requests to avoid model rebuilding during the nested
+    // updateWatchModel runs.
+    ++m_pendingRequests;
+}
+
 void GdbEngine::updateWatchData(const WatchData &data)
 {
     //m_pendingRequests = 0;
@@ -3137,9 +3144,6 @@ void GdbEngine::updateWatchData(const WatchData &data)
     //qDebug() << data.toString();
     #endif
 
-    // Bump requests to avoid model rebuilding during the nested
-    // updateWatchModel runs.
-    ++m_pendingRequests;
     updateSubItem(data);
     //PENDING_DEBUG("INTERNAL TRIGGERING UPDATE WATCH MODEL");
     --m_pendingRequests;
@@ -3449,7 +3453,7 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
     WatchData childtemplate;
     setWatchDataType(childtemplate, item.findChild("childtype"));
     setWatchDataChildCount(childtemplate, item.findChild("childnumchild"));
-    qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
+    //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
     int i = 0;
     foreach (GdbMi child, children.children()) {

@@ -332,6 +332,7 @@ private:
     void updateSubItem(const WatchData &data);
 
     void updateWatchData(const WatchData &data);
+    void updateWatchDataAnnounce();
     void rebuildModel();
 
     void insertData(const WatchData &data);

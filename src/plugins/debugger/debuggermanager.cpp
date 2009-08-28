@@ -319,6 +319,8 @@ void DebuggerManager::init()
     //qRegisterMetaType<WatchData>("Debugger::Internal::WatchData");
     qRegisterMetaType<WatchData>("WatchData");
     connect(m_watchHandler, SIGNAL(watchDataUpdateNeeded(WatchData)),
+        this, SLOT(updateWatchDataAnnounce()));
+    connect(m_watchHandler, SIGNAL(watchDataUpdateNeeded(WatchData)),
         this, SLOT(updateWatchData(WatchData)), Qt::QueuedConnection);
 
     m_continueAction = new QAction(this);
@@ -691,6 +693,12 @@ void DebuggerManager::updateWatchData(const WatchData &data)
 {
     if (m_engine)
         m_engine->updateWatchData(data);
+}
+
+void DebuggerManager::updateWatchDataAnnounce()
+{
+    if (m_engine)
+        m_engine->updateWatchDataAnnounce();
 }
 
 static inline QString msgEngineNotAvailable(const char *engine)

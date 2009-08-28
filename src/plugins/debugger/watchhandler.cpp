@@ -806,6 +806,8 @@ static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *i
 void WatchModel::insertData(const WatchData &data)
 {
     // qDebug() << "WMI:" << data.toString();
+    static int bulk = 0;
+    //qDebug() << "SINGLE: " << ++bulk << data.toString();
     QTC_ASSERT(!data.iname.isEmpty(), return);
     WatchItem *parent = findItem(parentName(data.iname), m_root);
     if (!parent) {
@@ -844,8 +846,9 @@ void WatchModel::insertData(const WatchData &data)
 void WatchModel::insertBulkData(const QList<WatchData> &list)
 {
     //qDebug() << "WMI:" << list.toString();
+    static int bulk = 0;
     //foreach (const WatchItem &data, list)
-    //    qDebug() << data.toString();
+    //    qDebug() << "BULK: " << ++bulk << data.toString();
     QTC_ASSERT(!list.isEmpty(), return);
     QString parentIName = parentName(list.at(0).iname);
     WatchItem *parent = findItem(parentIName, m_root);
@@ -1001,6 +1004,12 @@ void WatchHandler::insertData(const WatchData &data)
 // bulk-insertion
 void WatchHandler::insertBulkData(const QList<WatchData> &list)
 {
+#if 1
+    foreach (const WatchItem &data, list)
+        insertData(data);
+    return;
+#endif
+
     if (list.isEmpty())
         return;
     QMap<QString, QList<WatchData> > hash;
