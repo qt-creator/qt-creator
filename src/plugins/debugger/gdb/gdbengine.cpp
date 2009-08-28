@@ -83,7 +83,7 @@ namespace Internal {
 using namespace Debugger::Constants;
 
 //#define DEBUG_PENDING  1
-//#define DEBUG_SUBITEM  1
+#define DEBUG_SUBITEM  1
 
 #if DEBUG_PENDING
 #   define PENDING_DEBUG(s) qDebug() << s
@@ -2958,6 +2958,10 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
 
 void GdbEngine::createGdbVariable(const WatchData &data)
 {
+    if (data.iname == _("local.flist.0")) {
+        int i = 1;
+        Q_UNUSED(i);
+    }
     postCommand(_("-var-delete \"%1\"").arg(data.iname), WatchUpdate);
     QString exp = data.exp;
     if (exp.isEmpty() && data.addr.startsWith(__("0x")))
@@ -3401,11 +3405,17 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
 
     setWatchDataType(data, record.data.findChild("type"));
     setWatchDataDisplayedType(data, record.data.findChild("displaytype"));
-    handleChildren(data, contents);
+    QList<WatchData> list;
+    handleChildren(data, contents, &list);
+    //for (int i = 0; i != list.size(); ++i)
+    //    qDebug() << "READ: " << list.at(i).toString();
+    qq->watchHandler()->insertBulkData(list);
 }
 
-void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item)
+void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
+    QList<WatchData> *list)
 {
+    //qDebug() << "HANDLE CHILDREN: " << data0.toString() << item.toString();
     WatchData data = data0;
     if (!qq->watchHandler()->isExpandedIName(data.iname))
         data.setChildrenUnneeded();
@@ -3432,16 +3442,16 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item)
     setWatchDataValueToolTip(data, item.findChild("valuetooltip"),
         item.findChild("valuetooltipencoded").data().toInt());
     setWatchDataValueDisabled(data, item.findChild("valuedisabled"));
+    //qDebug() << "HANDLE CHILDREN: " << data.toString();
+    list->append(data);
 
     // try not to repeat data too often
     WatchData childtemplate;
     setWatchDataType(childtemplate, item.findChild("childtype"));
     setWatchDataChildCount(childtemplate, item.findChild("childnumchild"));
-    //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
+    qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
-    qq->watchHandler()->insertData(data); 
     int i = 0;
-    QList<WatchData> list;
     foreach (GdbMi child, children.children()) {
         WatchData data1 = childtemplate;
         GdbMi name = child.findChild("name");
@@ -3463,11 +3473,9 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item)
             //data1.name += " (" + skey + ")";
             data1.name = skey;
         }
-        handleChildren(data1, child);
-        list.append(data1);
+        handleChildren(data1, child, list);
         ++i;
     }
-    qq->watchHandler()->insertBulkData(list); 
 }
 
 void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,

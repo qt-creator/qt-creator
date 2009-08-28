@@ -2834,7 +2834,7 @@ static void qDumpQSharedPointer(QDumper &d)
 
 static void qDumpQString(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    //qCheckAccess(deref(d.data));
     const QString &str = *reinterpret_cast<const QString *>(d.data);
 
     const int size = str.size();

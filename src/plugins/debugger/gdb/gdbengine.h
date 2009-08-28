@@ -241,7 +241,8 @@ private:
     void debugMessage(const QString &msg);
     bool showToolTip();
 
-    void handleChildren(const WatchData &parent, const GdbMi &child);
+    void handleChildren(const WatchData &parent, const GdbMi &child,
+        QList<WatchData> *insertions);
     const bool m_dumperInjectionLoad;
 
     OutputCollector m_outputCollector;
