@@ -11,11 +11,13 @@
     Development Environment (IDE) to develop Qt projects. It is available for
     the Linux, Mac OS X and Windows platforms.
 
-    \note Please report bugs and suggestions to the Qt task tracker at
-    http://qt.nokia.com/developer/task-tracker. You can also join the
-    qt-creator@trolltech.com mailing list. To subscribe, send a message with
-    the word \e subscribe to qt-creator-request@trolltech.com. For more
-    information on Qt mailing lists, visit http://lists.trolltech.com
+    \note Please report bugs and suggestions to the
+    \l{http://qt.nokia.com/developer/task-tracker}{Qt task tracker}.
+    You can also join the Qt Creator mailing list. To subscribe,
+    send a message with the word \e subscribe to
+    \l{mailto:qt-creator-request@trolltech.com}
+    {qt-creator-request@trolltech.com}. For more information on Qt mailing
+    lists, visit \l{http://lists.trolltech.com}{http://lists.trolltech.com}.
 
     \image qtcreator-screenshots.png
 
