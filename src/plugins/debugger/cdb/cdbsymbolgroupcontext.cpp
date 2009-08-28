@@ -709,8 +709,9 @@ int CdbSymbolGroupContext::dumpQString(CIDebugDataSpaces *ds, WatchData *wd)
     if (truncated)
         size = maxLength;
     const QChar doubleQuote = QLatin1Char('"');
-    QString value(doubleQuote);
-    if (size) {
+    QString value;
+    if (size > 0) {
+        value += doubleQuote;
         // Should this ever be a remote debugger, need to check byte order.
         unsigned short *buf =  new unsigned short[size + 1];
         unsigned long bytesRead;
@@ -724,8 +725,13 @@ int CdbSymbolGroupContext::dumpQString(CIDebugDataSpaces *ds, WatchData *wd)
         delete [] buf;
         if (truncated)
             value += QLatin1String("...");
+        value += doubleQuote;
+    } else if (size == 0) {
+        value = QString(doubleQuote) + doubleQuote;
+    } else {
+        value = "Invalid QString";
     }
-    value += doubleQuote;
+
     wd->setValue(value);
     wd->setHasChildren(false);
     return 0;
