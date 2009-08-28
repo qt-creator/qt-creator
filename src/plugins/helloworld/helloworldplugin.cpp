@@ -114,6 +114,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
     baseMode->setIcon(QIcon());
     baseMode->setPriority(0);
     baseMode->setWidget(new QPushButton(tr("Hello World PushButton!")));
+    baseMode->setContext(context);
     addAutoReleasedObject(baseMode);
 
     // Add the Hello World action command to the mode manager (with 0 priority)
