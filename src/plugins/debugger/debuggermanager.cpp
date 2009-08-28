@@ -316,9 +316,10 @@ void DebuggerManager::init()
     // Tooltip
     //QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);
     //tooltipView->setModel(m_watchHandler->model(TooltipsWatch));
-
+    //qRegisterMetaType<WatchData>("Debugger::Internal::WatchData");
+    qRegisterMetaType<WatchData>("WatchData");
     connect(m_watchHandler, SIGNAL(watchDataUpdateNeeded(WatchData)),
-        this, SLOT(updateWatchData(WatchData)));
+        this, SLOT(updateWatchData(WatchData)), Qt::QueuedConnection);
 
     m_continueAction = new QAction(this);
     m_continueAction->setText(tr("Continue"));

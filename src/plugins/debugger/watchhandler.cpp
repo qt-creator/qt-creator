@@ -1003,7 +1003,7 @@ void WatchHandler::insertBulkData(const QList<WatchData> &list)
 {
     if (list.isEmpty())
         return;
-    QHash<QString, QList<WatchData> > hash;
+    QMap<QString, QList<WatchData> > hash;
 
     foreach (const WatchData &data, list) {
         if (data.isSomethingNeeded())
