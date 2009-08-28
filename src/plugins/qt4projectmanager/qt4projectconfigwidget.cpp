@@ -146,8 +146,10 @@ void Qt4ProjectConfigWidget::updateDetails()
     QString versionString;
     if (m_pro->qtVersionId(m_buildConfiguration) == 0) {
         versionString = tr("Default Qt Version (%1)").arg(version->name());
-    } else {
+    } else if(version){
         versionString = version->name();
+    } else {
+        versionString = tr("No Qt Version set");
     }
     // Qt Version, Build Directory and Toolchain
     m_ui->titleLabel->setText(tr("using Qt version: <b>%1</b><br>"

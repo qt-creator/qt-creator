@@ -46,7 +46,10 @@ ProFileReader::~ProFileReader()
 }
 
 void ProFileReader::setQtVersion(QtVersion *qtVersion) {
-    m_option.properties = qtVersion->versionInfo();
+    if (qtVersion)
+        m_option.properties = qtVersion->versionInfo();
+    else
+        m_option.properties.clear();
 }
 
 bool ProFileReader::readProFile(const QString &fileName)

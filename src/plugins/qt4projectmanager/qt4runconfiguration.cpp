@@ -629,14 +629,20 @@ QString Qt4RunConfiguration::dumperLibrary() const
 {
     Qt4Project *pro = qobject_cast<Qt4Project *>(project());
     QtVersion *version = pro->qtVersion(pro->activeBuildConfiguration());
-    return version->debuggingHelperLibrary();
+    if (version)
+        return version->debuggingHelperLibrary();
+    else
+        return QString::null;
 }
 
 QStringList Qt4RunConfiguration::dumperLibraryLocations() const
 {
     Qt4Project *pro = qobject_cast<Qt4Project *>(project());
     QtVersion *version = pro->qtVersion(pro->activeBuildConfiguration());
-    return version->debuggingHelperLibraryLocations();;
+    if (version)
+        return version->debuggingHelperLibraryLocations();
+    else
+        return QStringList();
 }
 
 void Qt4RunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
