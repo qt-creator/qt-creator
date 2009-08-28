@@ -69,6 +69,7 @@ private:
         enum OpType { UnaryOp, BinaryOp, TernaryOp };
         Operator(const QString &code, const QString &repr)
             : code(code), repr(repr) { }
+        virtual ~Operator() {}
         virtual const QString makeExpr(const QStringList &exprs) const=0;
         virtual OpType type() const=0;
 
@@ -165,7 +166,7 @@ private:
         QuestionMarkOperator() : Operator("qu", "") { }
         virtual const QString makeExpr(const QStringList &exprs) const
         {
-            Q_ASSERT(exprs.size() == 2);
+            Q_ASSERT(exprs.size() == 3);
             return exprs.first() + " ? " + exprs.at(1) + " : " + exprs.at(2);
         }
         OpType type() const { return TernaryOp; }
