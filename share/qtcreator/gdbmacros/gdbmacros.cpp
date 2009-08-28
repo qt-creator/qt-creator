@@ -47,6 +47,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QRect>
 #include <QtCore/QRectF>
+#include <QtCore/QStack>
 #include <QtCore/QSize>
 #include <QtCore/QSizeF>
 #include <QtCore/QString>
@@ -270,15 +271,45 @@ static bool startsWith(const char *s, const char *t)
     return true;
 }
 
+static bool couldBePointer(const void *p)
+{
+    // we assume valid pointer to be 4-aligned at least.
+    // So use this check only when this is guaranteed.
+    const quintptr d = quintptr(p);
+    qDebug() << "CHECKING : " << p << ((d & 3) == 0 && (d > 1000 || d == 0));
+    return (d & 3) == 0 && (d > 1000 || d == 0);
+}
+
 // Check memory for read access and provoke segfault if nothing else helps.
 // On Windows, try to be less crash-prone by checking memory using WinAPI
 
 #ifdef Q_OS_WIN
-#    define qCheckAccess(d) do { if (IsBadReadPtr(d, 1)) return; qProvokeSegFaultHelper = *(char*)d; } while (0)
-#    define qCheckPointer(d) do { if (d && IsBadReadPtr(d, 1)) return; if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
+
+#    define qCheckAccess(d) do { \
+        if (IsBadReadPtr(d, 1)) \
+            return; \
+         qProvokeSegFaultHelper = *(char*)d; \
+    } while (0)
+#    define qCheckPointer(d) do { \
+        if (d && IsBadReadPtr(d, 1)) \
+            return; \
+        if (d) qProvokeSegFaultHelper = *(char*)d; \
+    } while (0)
+
 #else
-#    define qCheckAccess(d) do { qProvokeSegFaultHelper = *(char*)d; } while (0)
-#    define qCheckPointer(d) do { if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
+
+#    define qCheckAccess(d) do { \
+        if (!couldBePointer(d) && d != 0) \
+            return; \
+        qProvokeSegFaultHelper = *(char*)d; \
+     } while (0)
+#    define qCheckPointer(d) do { \
+        if (!couldBePointer(d)) \
+            return; \
+        if (d) \
+            qProvokeSegFaultHelper = *(char*)d; \
+     } while (0)
+
 #endif
 
 #ifdef QT_NAMESPACE
@@ -848,6 +879,7 @@ static void qDumpUnknown(QDumper &d, const char *why = 0)
         why = DUMPUNKNOWN_MESSAGE;
     d.putItem("value", why);
     d.putItem("type", d.outertype);
+    d.putItem("valuedisabled", "true");
     d.putItem("numchild", "0", d.currentChildNumChild);
     d.disarm();
 }
@@ -1143,6 +1175,7 @@ static void qDumpQAbstractItemModel(QDumper &d)
 
 static void qDumpQByteArray(QDumper &d)
 {
+    qCheckAccess(deref(d.data));
     const QByteArray &ba = *reinterpret_cast<const QByteArray *>(d.data);
 
     if (!ba.isEmpty()) {
@@ -1408,10 +1441,11 @@ int hashOffset(bool optimizedIntKey, bool forKey, unsigned keySize, unsigned val
 
 static void qDumpQHash(QDumper &d)
 {
-    QHashData *h = *reinterpret_cast<QHashData *const*>(d.data);
+    qCheckAccess(deref(d.data));
     const char *keyType   = d.templateParameters[0];
     const char *valueType = d.templateParameters[1];
 
+    QHashData *h = *reinterpret_cast<QHashData *const*>(d.data);
     qCheckPointer(h->fakeNext);
     qCheckPointer(h->buckets);
 
@@ -1515,6 +1549,7 @@ static void qDumpQHashNode(QDumper &d)
 #if USE_QT_GUI
 static void qDumpQImage(QDumper &d)
 {
+    qCheckAccess(deref(d.data));
     const QImage &im = *reinterpret_cast<const QImage *>(d.data);
     d.beginItem("value");
         d.put("(").put(im.width()).put("x").put(im.height()).put(")");
@@ -1556,20 +1591,17 @@ static void qDumpQImageData(QDumper &d)
 
 static void qDumpQList(QDumper &d)
 {
+    qCheckAccess(deref(d.data));
     // This uses the knowledge that QList<T> has only a single member
     // of type  union { QListData p; QListData::Data *d; };
 
     const QListData &ldata = *reinterpret_cast<const QListData*>(d.data);
     const QListData::Data *pdata =
         *reinterpret_cast<const QListData::Data* const*>(d.data);
-    qCheckAccess(pdata);
     int nn = ldata.size();
     if (nn < 0)
         return;
     if (nn > 0) {
-        qCheckAccess(ldata.d->array);
-        //qCheckAccess(ldata.d->array[0]);
-        //qCheckAccess(ldata.d->array[nn - 1]);
         if (ldata.d->begin < 0)
             return;
         if (ldata.d->begin > ldata.d->end)
@@ -1578,7 +1610,11 @@ static void qDumpQList(QDumper &d)
         if (ldata.d->ref._q_value <= 0)
             return;
 #endif
+        qCheckAccess(ldata.d->array);
+        //qCheckAccess(ldata.d->array[0]);
+        //qCheckAccess(ldata.d->array[nn - 1]);
     }
+    qCheckAccess(pdata);
 
     int n = nn;
     d.putItemCount("value", n);
@@ -1635,6 +1671,7 @@ static void qDumpQList(QDumper &d)
 
 static void qDumpQLinkedList(QDumper &d)
 {
+    qCheckAccess(deref(d.data));
     // This uses the knowledge that QLinkedList<T> has only a single member
     // of type  union { QLinkedListData *d; QLinkedListNode<T> *e; };
     const QLinkedListData *ldata =
@@ -1760,6 +1797,7 @@ static void qDumpQMapNode(QDumper &d)
 
 static void qDumpQMap(QDumper &d)
 {
+    qCheckAccess(deref(d.data));
     QMapData *h = *reinterpret_cast<QMapData *const*>(d.data);
     const char *keyType   = d.templateParameters[0];
     const char *valueType = d.templateParameters[1];
@@ -1898,6 +1936,7 @@ static void qDumpQModelIndex(QDumper &d)
 
 static void qDumpQObject(QDumper &d)
 {
+    qCheckAccess(deref(d.data));
     const QObject *ob = reinterpret_cast<const QObject *>(d.data);
     const QMetaObject *mo = ob->metaObject();
     d.putItem("value", ob->objectName());
@@ -2147,6 +2186,7 @@ static void qDumpQVariant(QDumper &d, const QVariant *v)
 
 static inline void qDumpQVariant(QDumper &d)
 {
+    qCheckAccess(deref(d.data));
     qDumpQVariant(d, reinterpret_cast<const QVariant *>(d.data));
 }
 
@@ -2772,6 +2812,7 @@ static void qDumpQSharedPointer(QDumper &d)
 
 static void qDumpQString(QDumper &d)
 {
+    qCheckAccess(deref(d.data));
     const QString &str = *reinterpret_cast<const QString *>(d.data);
 
     const int size = str.size();
@@ -2796,6 +2837,7 @@ static void qDumpQString(QDumper &d)
 
 static void qDumpQStringList(QDumper &d)
 {
+    qCheckAccess(deref(d.data));
     const QStringList &list = *reinterpret_cast<const QStringList *>(d.data);
     int n = list.size();
     if (n < 0)
@@ -2827,6 +2869,7 @@ static void qDumpQStringList(QDumper &d)
 
 static void qDumpQTextCodec(QDumper &d)
 {
+    qCheckPointer(deref(d.data));
     const QTextCodec &codec = *reinterpret_cast<const QTextCodec *>(d.data);
     d.putItem("value", codec.name());
     d.putItem("valueencoded", "1");
@@ -2843,6 +2886,7 @@ static void qDumpQTextCodec(QDumper &d)
 
 static void qDumpQVector(QDumper &d)
 {
+    qCheckAccess(deref(d.data));
     QVectorTypedData<int> *dummy = 0;
     const unsigned typeddatasize = (char*)(&dummy->array) - (char*)dummy;
 
@@ -3421,6 +3465,8 @@ static void handleProtocolVersion2and3(QDumper &d)
             #ifndef QT_BOOTSTRAPPED
             else if (isEqual(type, "QSet"))
                 qDumpQSet(d);
+            else if (isEqual(type, "QStack"))
+                qDumpQVector(d);
             #if QT_VERSION >= 0x040500
             else if (isEqual(type, "QSharedPointer"))
                 qDumpQSharedPointer(d);
@@ -3596,6 +3642,7 @@ void *qDumpObjectData440(
             "\""NS"QRectF\","
             //"\""NS"QRegion\","
             "\""NS"QSet\","
+            "\""NS"QStack\","
             "\""NS"QString\","
             "\""NS"QStringList\","
             "\""NS"QTextCodec\","

@@ -785,24 +785,26 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
     } else {
         s = s.mid(namespaceIndex + 2);
     }
-    if (s == QLatin1String("QObject"))
-        return QObjectType;
-    if (s == QLatin1String("QWidget"))
-        return QWidgetType;
-    if (s == QLatin1String("QObjectSlot"))
-        return QObjectSlotType;
-    if (s == QLatin1String("QObjectSignal"))
-        return QObjectSignalType;
-    if (s == QLatin1String("QVector"))
-        return QVectorType;
     if (s == QLatin1String("QAbstractItem"))
         return QAbstractItemType;
     if (s == QLatin1String("QMap"))
         return QMapType;
-    if (s == QLatin1String("QMultiMap"))
-        return QMultiMapType;
     if (s == QLatin1String("QMapNode"))
         return QMapNodeType;
+    if (s == QLatin1String("QMultiMap"))
+        return QMultiMapType;
+    if (s == QLatin1String("QObject"))
+        return QObjectType;
+    if (s == QLatin1String("QObjectSignal"))
+        return QObjectSignalType;
+    if (s == QLatin1String("QObjectSlot"))
+        return QObjectSlotType;
+    if (s == QLatin1String("QStack"))
+        return QStackType;
+    if (s == QLatin1String("QVector"))
+        return QVectorType;
+    if (s == QLatin1String("QWidget"))
+        return QWidgetType;
     return UnknownType;
 }
 
@@ -1458,6 +1460,7 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         break;
     case SupportedType:
     case QVectorType:
+    case QStackType:
     case QObjectType:
     case QWidgetType:
         break;

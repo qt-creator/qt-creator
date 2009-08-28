@@ -2907,7 +2907,8 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     WatchData data = data0;
 
     // Avoid endless loops created by faulty dumpers
-    if (m_processedNames.contains(data.iname)) {
+    QString processedName = QString(_("%1-%2").arg(dumpChildren).arg(data.iname));
+    if (m_processedNames.contains(processedName)) {
         emit gdbInputAvailable(LogStatus,
             _("<Breaking endless loop for %1>").arg(data.iname));
         data.setAllUnneeded();
@@ -2916,7 +2917,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
         insertData(data);
         return; 
     }
-    m_processedNames.insert(data.iname);
+    m_processedNames.insert(processedName);
 
     QByteArray params;
     QStringList extraArgs;
@@ -3427,7 +3428,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
     WatchData childtemplate;
     setWatchDataType(childtemplate, contents.findChild("childtype"));
     setWatchDataChildCount(childtemplate, contents.findChild("childnumchild"));
-    //qDebug() << "DATA:" << data.toString();
+    //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
     qq->watchHandler()->insertData(data); 
     int i = 0;

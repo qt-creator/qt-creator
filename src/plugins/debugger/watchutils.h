@@ -160,7 +160,7 @@ public:
         // Below types require special handling
         QAbstractItemType,
         QObjectType, QWidgetType, QObjectSlotType, QObjectSignalType,
-        QVectorType, QMapType, QMultiMapType, QMapNodeType,
+        QVectorType, QMapType, QMultiMapType, QMapNodeType, QStackType,
         StdVectorType, StdDequeType, StdSetType, StdMapType, StdStackType,
         StdStringType
     };

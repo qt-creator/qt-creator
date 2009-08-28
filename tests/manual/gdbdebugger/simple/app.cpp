@@ -36,6 +36,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
+#include <QtCore/QStack>
 #include <QtCore/QThread>
 #include <QtCore/QVariant>
 #include <QtCore/QVector>
@@ -855,6 +856,30 @@ void testQStandardItemModel()
     +i;
 }
 
+void testQStack()
+{
+    QVector<int> bigv;
+    for (int i = 0; i < 10; ++i)
+        bigv.append(i);
+    QStack<int> big;
+    for (int i = 0; i < 10; ++i)
+        big.append(i);
+    QStack<Foo *> plist;
+    plist.append(new Foo(1));
+    plist.append(0);
+    plist.append(new Foo(2));
+    QStack<Foo> flist;
+    flist.append(1);
+    flist.append(2);
+    flist.append(3);
+    flist.append(4);
+    //flist.takeFirst();
+    //flist.takeFirst();
+    QStack<bool> vec;
+    vec.append(true);
+    vec.append(false);
+}
+
 void testQString()
 {
     QString str = "Hello ";
@@ -1236,9 +1261,31 @@ public:
     Foo *f;
 };
 
+void testUninitialized()
+{
+    QString s;
+    QStringList sl;
+    QMap<int, int> mii;
+    QMap<QString, QString> mss;
+    QHash<int, int> hii;
+    QHash<QString, QString> hss;
+    QList<int> li;
+    QVector<int> vi;
+    QStack<int> si;
+
+    std::string ss;
+    std::map<int, int> smii;
+    std::map<std::string, std::string> smss;
+    std::list<int> sli;
+    std::list<std::string> ssl;
+    std::vector<int> svi;
+    std::stack<int> ssi;
+}
 
 int main(int argc, char *argv[])
 {
+    testQStack();
+    testUninitialized();
     testPointer();
     testQFileInfo();
     testObject1();
