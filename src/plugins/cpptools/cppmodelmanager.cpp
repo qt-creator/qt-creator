@@ -1099,6 +1099,9 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
                                             QStringList suffixes)
 {
     QMap<QString, QStringList> entriesInPaths;
+    typedef QPair<QString, QString> SymLink;
+    typedef QList<SymLink> SymLinks;
+    SymLinks symlinks;
     int processed = 0;
 
     future.setProgressRange(0, paths.size());
@@ -1111,6 +1114,11 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
             break;
 
         const QString path = paths.takeFirst();
+
+        // Skip already scanned paths
+        if (entriesInPaths.contains(path))
+            continue;
+
         QStringList entries;
 
         QDirIterator i(path, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
@@ -1125,11 +1133,18 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
 
                     // Also scan subdirectory, but avoid endless recursion with symbolic links
                     if (fileInfo.isSymLink()) {
-                        QMap<QString, QStringList>::const_iterator result = entriesInPaths.find(fileInfo.canonicalFilePath());
+                        QString target = fileInfo.symLinkTarget();
+
+                        // Don't add broken symlinks
+                        if (!QFileInfo(target).exists())
+                            continue;
+
+                        QMap<QString, QStringList>::const_iterator result = entriesInPaths.find(target);
                         if (result != entriesInPaths.constEnd()) {
                             entriesInPaths.insert(fileName, result.value());
                         } else {
-                            paths.append(fileName);
+                            paths.append(target);
+                            symlinks.append(SymLink(fileName, target));
                         }
                     } else {
                         paths.append(fileName);
@@ -1144,6 +1159,14 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
         ++processed;
         future.setProgressRange(0, processed + paths.size());
         future.setProgressValue(processed);
+    }
+    // link symlinks
+    QListIterator<SymLink> it(symlinks);
+    it.toBack();
+    while (it.hasPrevious()) {
+        SymLink v = it.previous();
+        QMap<QString, QStringList>::const_iterator result = entriesInPaths.find(v.second);
+        entriesInPaths.insert(v.first, result.value());
     }
 
     manager->setIncludesInPaths(entriesInPaths);
