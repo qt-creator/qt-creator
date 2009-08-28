@@ -549,7 +549,7 @@ void CppCodeCompletion::setPartialCompletionEnabled(bool partialCompletionEnable
 }
 
 /*
-  Searches beckward for an access operator.
+  Searches backwards for an access operator.
 */
 static int startOfOperator(TextEditor::ITextEditable *editor,
                            int pos, unsigned *kind,
@@ -562,39 +562,63 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     int start = pos;
     int k = T_EOF_SYMBOL;
 
-    if        (ch2 != QLatin1Char('.') && ch == QLatin1Char('.')) {
-        k = T_DOT;
-        --start;
-    } else if (ch == QLatin1Char(',')) {
+    switch (ch.toLatin1()) {
+    case '.':
+        if (ch2 != QLatin1Char('.')) {
+            k = T_DOT;
+            --start;
+        }
+        break;
+    case ',':
         k = T_COMMA;
         --start;
-    } else if (wantFunctionCall        && ch == QLatin1Char('(')) {
-        k = T_LPAREN;
-        --start;
-    } else if (ch3 != QLatin1Char(':') && ch2 == QLatin1Char(':') && ch == QLatin1Char(':')) {
-        k = T_COLON_COLON;
-        start -= 2;
-    } else if (ch2 == QLatin1Char('-') && ch == QLatin1Char('>')) {
-        k = T_ARROW;
-        start -= 2;
-    } else if (ch2 == QLatin1Char('.') && ch == QLatin1Char('*')) {
-        k = T_DOT_STAR;
-        start -= 2;
-    } else if (ch3 == QLatin1Char('-') && ch2 == QLatin1Char('>') && ch == QLatin1Char('*')) {
-        k = T_ARROW_STAR;
-        start -= 3;
-    } else if ((ch2.isNull() || ch2.isSpace()) && (ch == QLatin1Char('@') || ch == QLatin1Char('\\'))) {
-        k = T_DOXY_COMMENT;
-        --start;
-    } else if (ch == QLatin1Char('<')) {
+        break;
+    case '(':
+        if (wantFunctionCall) {
+            k = T_LPAREN;
+            --start;
+        }
+        break;
+    case ':':
+        if (ch3 != QLatin1Char(':') && ch2 == QLatin1Char(':')) {
+            k = T_COLON_COLON;
+            start -= 2;
+        }
+        break;
+    case '>':
+        if (ch2 == QLatin1Char('-')) {
+            k = T_ARROW;
+            start -= 2;
+        }
+        break;
+    case '*':
+        if (ch2 == QLatin1Char('.')) {
+            k = T_DOT_STAR;
+            start -= 2;
+        } else if (ch3 == QLatin1Char('-') && ch2 == QLatin1Char('>')) {
+            k = T_ARROW_STAR;
+            start -= 3;
+        }
+        break;
+    case '\\':
+    case '@':
+        if (ch2.isNull() || ch2.isSpace()) {
+            k = T_DOXY_COMMENT;
+            --start;
+        }
+        break;
+    case '<':
         k = T_ANGLE_STRING_LITERAL;
         --start;
-    } else if (ch == QLatin1Char('"')) {
+        break;
+    case '"':
         k = T_STRING_LITERAL;
         --start;
-    } else if (ch == QLatin1Char('/')) {
+        break;
+    case '/':
         k = T_SLASH;
         --start;
+        break;
     }
 
     if (start == pos)
@@ -635,8 +659,7 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         k = T_EOF_SYMBOL;
         start = pos;
     }
-
-    if (k == T_LPAREN) {
+    else if (k == T_LPAREN) {
         const QList<SimpleToken> &tokens = tokenUnderCursor.tokens();
         int i = 0;
         for (; i < tokens.size(); ++i) {
@@ -656,9 +679,8 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
             start = pos;
         }
     }
-
     // Check for include preprocessor directive
-    if (k == T_STRING_LITERAL || k == T_ANGLE_STRING_LITERAL || k == T_SLASH) {
+    else if (k == T_STRING_LITERAL || k == T_ANGLE_STRING_LITERAL || k == T_SLASH) {
         const QList<SimpleToken> &tokens = tokenUnderCursor.tokens();
         int i = 0;
         bool include = false;
