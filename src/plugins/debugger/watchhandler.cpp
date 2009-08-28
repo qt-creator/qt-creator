@@ -843,7 +843,9 @@ void WatchModel::insertData(const WatchData &data)
 
 void WatchModel::insertBulkData(const QList<WatchData> &list)
 {
-    // qDebug() << "WMI:" << list.toString();
+    //qDebug() << "WMI:" << list.toString();
+    //foreach (const WatchItem &data, list)
+    //    qDebug() << data.toString();
     QTC_ASSERT(!list.isEmpty(), return);
     QString parentIName = parentName(list.at(0).iname);
     WatchItem *parent = findItem(parentIName, m_root);

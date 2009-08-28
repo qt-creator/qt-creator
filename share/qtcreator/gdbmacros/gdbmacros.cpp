@@ -1309,6 +1309,7 @@ static void qDumpQFileInfo(QDumper &d)
     if (d.dumpChildren) {
         d.beginChildren();
         d.putHash("absolutePath", info.absolutePath());
+#if 0
         d.putHash("absoluteFilePath", info.absoluteFilePath());
         d.putHash("canonicalPath", info.canonicalPath());
         d.putHash("canonicalFilePath", info.canonicalFilePath());
@@ -1324,15 +1325,35 @@ static void qDumpQFileInfo(QDumper &d)
         d.putHash("group", info.group());
         d.putHash("owner", info.owner());
         d.putHash("path", info.path());
+#endif
 
         d.putHash("groupid", (long)info.groupId());
         d.putHash("ownerid", (long)info.ownerId());
         //QFile::Permissions permissions () const
-        d.putHash("permissions", (long)info.permissions());
-
+        long perms = info.permissions();
+        d.beginHash();
+            d.putItem("name", "permissions");
+            d.putItem("value", " ");
+            d.putItem("type", NS"QFile::Permissions");
+            d.putItem("numchild", 10);
+            d.beginChildren();
+                d.putHash("ReadOwner",  bool(perms & QFile::ReadOwner));
+                d.putHash("WriteOwner", bool(perms & QFile::WriteOwner));
+                d.putHash("ExeOwner",   bool(perms & QFile::ExeOwner));
+                d.putHash("ReadUser",   bool(perms & QFile::ReadUser));
+                d.putHash("WriteUser",  bool(perms & QFile::WriteUser));
+                d.putHash("ExeUser",    bool(perms & QFile::ExeUser));
+                d.putHash("ReadGroup",  bool(perms & QFile::ReadGroup));
+                d.putHash("WriteGroup", bool(perms & QFile::WriteGroup));
+                d.putHash("ExeGroup",   bool(perms & QFile::ExeGroup));
+                d.putHash("ReadOther",  bool(perms & QFile::ReadOther));
+                d.putHash("WriteOther", bool(perms & QFile::WriteOther));
+                d.putHash("ExeOther",   bool(perms & QFile::ExeOther));
+            d.endChildren();
+        d.endHash();
         //QDir absoluteDir () const
         //QDir dir () const
-
+#if 0
         d.putHash("caching", info.caching());
         d.putHash("exists", info.exists());
         d.putHash("isAbsolute", info.isAbsolute());
@@ -1378,6 +1399,7 @@ static void qDumpQFileInfo(QDumper &d)
         d.putItem("type", NS"QDateTime");
         d.putItem("numchild", "1");
         d.endHash();
+#endif
 
         d.endChildren();
     }

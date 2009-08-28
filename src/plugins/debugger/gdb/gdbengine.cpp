@@ -3401,41 +3401,50 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
 
     setWatchDataType(data, record.data.findChild("type"));
     setWatchDataDisplayedType(data, record.data.findChild("displaytype"));
-    setWatchDataValue(data, contents.findChild("value"),
-        contents.findChild("valueencoded").data().toInt());
-    setWatchDataAddress(data, contents.findChild("addr"));
-    setWatchDataSAddress(data, contents.findChild("saddr"));
-    setWatchDataChildCount(data, contents.findChild("numchild"));
-    setWatchDataValueToolTip(data, contents.findChild("valuetooltip"),
-        contents.findChild("valuetooltipencoded").data().toInt());
-    setWatchDataValueDisabled(data, contents.findChild("valuedisabled"));
-    setWatchDataEditValue(data, contents.findChild("editvalue"));
+    handleChildren(data, contents);
+}
+
+void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item)
+{
+    WatchData data = data0;
+    if (!qq->watchHandler()->isExpandedIName(data.iname))
+        data.setChildrenUnneeded();
+
+    GdbMi children = item.findChild("children");
+    if (children.isValid() || !qq->watchHandler()->isExpandedIName(data.iname))
+        data.setChildrenUnneeded();
+
     if (qq->watchHandler()->isDisplayedIName(data.iname)) {
-        GdbMi editvalue = contents.findChild("editvalue");
+        GdbMi editvalue = item.findChild("editvalue");
         if (editvalue.isValid()) {
             setWatchDataEditValue(data, editvalue);
             qq->watchHandler()->showEditValue(data);
         }
     }
-    if (!qq->watchHandler()->isExpandedIName(data.iname))
-        data.setChildrenUnneeded();
-    GdbMi children = contents.findChild("children");
-    if (children.isValid() || !qq->watchHandler()->isExpandedIName(data.iname))
-        data.setChildrenUnneeded();
-    data.setValueUnneeded();
+    setWatchDataType(data, item.findChild("type"));
+    setWatchDataEditValue(data, item.findChild("editvalue"));
+    setWatchDataExpression(data, item.findChild("exp"));
+    setWatchDataChildCount(data, item.findChild("numchild"));
+    setWatchDataValue(data, item.findChild("value"),
+        item.findChild("valueencoded").data().toInt());
+    setWatchDataAddress(data, item.findChild("addr"));
+    setWatchDataSAddress(data, item.findChild("saddr"));
+    setWatchDataValueToolTip(data, item.findChild("valuetooltip"),
+        item.findChild("valuetooltipencoded").data().toInt());
+    setWatchDataValueDisabled(data, item.findChild("valuedisabled"));
 
     // try not to repeat data too often
     WatchData childtemplate;
-    setWatchDataType(childtemplate, contents.findChild("childtype"));
-    setWatchDataChildCount(childtemplate, contents.findChild("childnumchild"));
+    setWatchDataType(childtemplate, item.findChild("childtype"));
+    setWatchDataChildCount(childtemplate, item.findChild("childnumchild"));
     //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
     qq->watchHandler()->insertData(data); 
     int i = 0;
     QList<WatchData> list;
-    foreach (GdbMi item, children.children()) {
+    foreach (GdbMi child, children.children()) {
         WatchData data1 = childtemplate;
-        GdbMi name = item.findChild("name");
+        GdbMi name = child.findChild("name");
         if (name.isValid())
             data1.name = _(name.data());
         else
@@ -3443,9 +3452,9 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
         data1.iname = data.iname + _c('.') + data1.name;
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
             data1.name = _c('[') + data1.name + _c(']');
-        QByteArray key = item.findChild("key").data();
+        QByteArray key = child.findChild("key").data();
         if (!key.isEmpty()) {
-            int encoding = item.findChild("keyencoded").data().toInt();
+            int encoding = child.findChild("keyencoded").data().toInt();
             QString skey = decodeData(key, encoding);
             if (skey.size() > 13) {
                 skey = skey.left(12);
@@ -3454,19 +3463,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
             //data1.name += " (" + skey + ")";
             data1.name = skey;
         }
-        setWatchDataType(data1, item.findChild("type"));
-        setWatchDataExpression(data1, item.findChild("exp"));
-        setWatchDataChildCount(data1, item.findChild("numchild"));
-        setWatchDataValue(data1, item.findChild("value"),
-            item.findChild("valueencoded").data().toInt());
-        setWatchDataAddress(data1, item.findChild("addr"));
-        setWatchDataSAddress(data1, item.findChild("saddr"));
-        setWatchDataValueToolTip(data1, item.findChild("valuetooltip"),
-            contents.findChild("valuetooltipencoded").data().toInt());
-        setWatchDataValueDisabled(data1, item.findChild("valuedisabled"));
-        if (!qq->watchHandler()->isExpandedIName(data1.iname))
-            data1.setChildrenUnneeded();
-        //qDebug() << "HANDLE CUSTOM SUBCONTENTS:" << data1.toString();
+        handleChildren(data1, child);
         list.append(data1);
         ++i;
     }
