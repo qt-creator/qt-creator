@@ -1,7 +1,7 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS = trkserver adapter swapendian trklauncher.pro
+SUBDIRS = trkserver adapter swapendian runner.pro trklauncher.pro
 
 trkserver.file = trkserver.pro
 adapter.file = adapter.pro
