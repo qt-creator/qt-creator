@@ -35,6 +35,7 @@
     <message>
         <location/>
         <source>Core File:</source>
+        <translatorcomment>&apos;core&apos; encore...</translatorcomment>
         <translation type="unfinished">Fichier Core :</translation>
     </message>
 </context>
@@ -400,7 +401,7 @@
     <message>
         <location line="+5"/>
         <source>Base environment for this runconfiguration:</source>
-        <translation type="unfinished">Environnement de base pour cette configuration d&apos;éxecution:</translation>
+        <translation type="unfinished">Environnement de base pour cette configuration d&apos;éxecution :</translation>
     </message>
 </context>
 <context>
@@ -463,12 +464,12 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/makestep.cpp" line="+158"/>
         <source>Additional arguments:</source>
-        <translation type="unfinished">Arguments supplémentaires:</translation>
+        <translation type="unfinished">Arguments supplémentaires :</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Targets:</source>
-        <translation type="unfinished">Cibles:</translation>
+        <translation type="unfinished">Cibles :</translation>
     </message>
 </context>
 <context>
@@ -486,7 +487,7 @@
     <message>
         <location line="+8"/>
         <source>Build directory:</source>
-        <translation type="unfinished">Répertoire de compilation:</translation>
+        <translation type="unfinished">Répertoire de compilation :</translation>
     </message>
 </context>
 <context>
@@ -521,7 +522,7 @@
         <location/>
         <source>Cdb</source>
         <extracomment>Placeholder</extracomment>
-        <translation type="unfinished">Cdb</translation>
+        <translation>Cdb</translation>
     </message>
     <message>
         <location/>
@@ -643,7 +644,7 @@
         <location filename="../../../src/plugins/cpaster/pasteselect.ui"/>
         <source>Paste:</source>
         <translatorcomment>quelque chose de plus français pour la référence de paste?</translatorcomment>
-        <translation type="unfinished">Collage:</translation>
+        <translation type="unfinished">Collage :</translation>
     </message>
 </context>
 <context>
@@ -657,12 +658,12 @@
     <message>
         <location/>
         <source>CodePaster Server:</source>
-        <translation type="unfinished">Serveur CodePaster:</translation>
+        <translation type="unfinished">Serveur CodePaster :</translation>
     </message>
     <message>
         <location/>
         <source>Username:</source>
-        <translation type="unfinished">Nom d&apos;utilisateur:</translation>
+        <translation type="unfinished">Nom d&apos;utilisateur :</translation>
     </message>
     <message>
         <location/>
@@ -706,17 +707,19 @@
         <location/>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
  reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lorsque cette option est cochée, &apos;Entrer dans&apos; compresse plusieurs étapes en une dans certains cas, afin d&apos;éviter une &apos;pollution&apos; du déboguage. Cela conduit par exemple
+ à passer le comptage de référence atomique, et un simple &apos;Entrer dans&apos; depuis une émission de signal conduit directement au slot qui y est connecté.</translation>
     </message>
     <message>
         <location/>
         <source>Skip known frames when stepping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Passer les trames connues en pas à pas</translation>
     </message>
     <message>
         <location/>
         <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>shunté le coup de la &quot;scope information&quot;... :/</translatorcomment>
+        <translation type="unfinished">Active les info-bulles sur les variables pendant le déboguage. Comme ceci peut ralentir le déboguage et ne fournit pas nécessairement des valeurs fiables, cette option est désactivée par défault.</translation>
     </message>
     <message>
         <location/>
@@ -731,7 +734,7 @@
     <message>
         <location/>
         <source>Maximal stack depth:</source>
-        <translation type="unfinished">Profondeur maximale de la pile:</translation>
+        <translation type="unfinished">Profondeur maximale de la pile :</translation>
     </message>
     <message>
         <location/>
@@ -769,7 +772,7 @@
     <message>
         <location/>
         <source>Insert the common prefix of available completion items.</source>
-        <translation type="unfinished">Insérer le préfix commun des élements disponibles.</translation>
+        <translation type="unfinished">Insérer le préfixe commun des élements disponibles.</translation>
     </message>
     <message>
         <location/>
@@ -782,12 +785,12 @@
     <message>
         <location filename="../../../src/shared/help/contentwindow.cpp" line="+136"/>
         <source>Open Link</source>
-        <translation type="unfinished">Ouvrir le Lien</translation>
+        <translation type="unfinished">Ouvrir le lien</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Open Link in New Tab</source>
-        <translation type="unfinished">Ouvrir le Lien dans un Nouvel Onglet</translation>
+        <translation type="unfinished">Ouvrir le lien dans un nouvel onglet</translation>
     </message>
 </context>
 <context>
@@ -813,7 +816,7 @@
         <location line="+7"/>
         <location line="+6"/>
         <source>File Generation Failure</source>
-        <translation type="unfinished">Échec de la Génération du Fichier</translation>
+        <translation type="unfinished">Échec de la génération du fichier</translation>
     </message>
     <message>
         <location line="-22"/>
@@ -845,7 +848,7 @@
         <location line="+34"/>
         <source>The project directory %1 contains files which cannot be overwritten:
 %2.</source>
-        <translation type="unfinished">Le répertoire du projet %1 contient des fichiers qui ne peuvent être écrasés:
+        <translation type="unfinished">Le répertoire du projet %1 contient des fichiers qui ne peuvent être écrasés :
 %2.</translation>
     </message>
     <message>
@@ -853,7 +856,7 @@
         <source>The following files already exist in the directory %1:
 %2.
 Would you like to overwrite them?</source>
-        <translation type="unfinished">Les fichiers suivants existent déjà dans le répertoire %1:
+        <translation type="unfinished">Les fichiers suivants existent déjà dans le répertoire %1 :
 %2,
 Voulez vous les écraser?</translation>
     </message>
@@ -1128,7 +1131,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+54"/>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;La variable&lt;/th&gt;&lt;th&gt;se développe en &lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;nom de fichier&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;numéro de ligne courante&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;numéro de colonne courante&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;abscisse de l&apos;éditeur à l&apos;écran&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;ordonnée de l&apos;éditeur à l&apos;écran&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;largeur de l&apos;éditeur en pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;hauteur de l&apos;éditeur en pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;largeur de l&apos;éditeur en caractères&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;hauteur de l&apos;éditeur en caractères&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
 </context>
 <context>
@@ -1146,12 +1149,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+113"/>
         <source>Overwrite?</source>
-        <translation type="unfinished">Écraser?</translation>
+        <translation type="unfinished">Écraser ?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>An item named &apos;%1&apos; already exists at this location. Do you want to overwrite it?</source>
-        <translation type="unfinished">Un élément nommé &apos;%1&apos; existe déjà. Voulez-vous l&apos;écraser?</translation>
+        <translation type="unfinished">Un élément nommé &apos;%1&apos; existe déjà. Voulez-vous l&apos;écraser ?</translation>
     </message>
     <message>
         <location line="+35"/>
@@ -1180,12 +1183,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/editormanager/editorsplitter.cpp" line="+75"/>
         <source>Split Left/Right</source>
-        <translation type="unfinished">Scinder Gauche/Droite</translation>
+        <translation type="unfinished">Scinder gauche/droite</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Split Top/Bottom</source>
-        <translation type="unfinished">Scinder Haut/Bas</translation>
+        <translation type="unfinished">Scinder haut/bas</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -1195,17 +1198,17 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+11"/>
         <source>Default Splitter Layout</source>
-        <translation type="unfinished">Arrangement par Défaut</translation>
+        <translation type="unfinished">Arrangement par défaut</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Save Current as Default</source>
-        <translation type="unfinished">Sauvegarder comme Arrangement par Défaut</translation>
+        <translation type="unfinished">Sauvegarder comme arrangement par défaut</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Restore Default Layout</source>
-        <translation type="unfinished">Restaurer l&apos;Arrangement par Défaut</translation>
+        <translation type="unfinished">Restaurer l&apos;arrangement par défaut</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -1220,7 +1223,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+5"/>
         <source>Next Document</source>
-        <translation type="unfinished">Document Suivant</translation>
+        <translation type="unfinished">Document suivant</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1230,22 +1233,22 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+6"/>
         <source>Previous Group</source>
-        <translation type="unfinished">Groupe Précédent</translation>
+        <translation type="unfinished">Groupe précédent</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Next Group</source>
-        <translation type="unfinished">Groupe Suivant</translation>
+        <translation type="unfinished">Groupe suivant</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Move Document to Previous Group</source>
-        <translation type="unfinished">Déplacer le Document vers le Groupe Précédent</translation>
+        <translation type="unfinished">Déplacer le document vers le groupe précédent</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Move Document to Next Group</source>
-        <translation type="unfinished">Déplacer le Document vers le Groupe Suivant</translation>
+        <translation type="unfinished">Déplacer le document vers le groupe suivant</translation>
     </message>
 </context>
 <context>
@@ -1254,7 +1257,7 @@ Voulez vous les écraser?</translation>
         <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="+409"/>
         <location line="+35"/>
         <source>Placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Signet</translation>
     </message>
     <message>
         <location line="-29"/>
@@ -1264,12 +1267,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+198"/>
         <source>Make writable</source>
-        <translation type="unfinished">Rendre Inscriptible</translation>
+        <translation type="unfinished">Rendre inscriptible</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>File is writable</source>
-        <translation type="unfinished">Le Fichier est Inscriptible</translation>
+        <translation type="unfinished">Le fichier est inscriptible</translation>
     </message>
     <message>
         <location line="+57"/>
@@ -1282,12 +1285,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/generalsettings.ui"/>
         <source>General settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réglages généraux</translation>
     </message>
     <message>
         <location/>
         <source>User &amp;interface color:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Couleur de l&apos;&amp;interface utilisateur :</translation>
     </message>
     <message>
         <location/>
@@ -1297,37 +1300,37 @@ Voulez vous les écraser?</translation>
     <message>
         <location/>
         <source>R</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">R</translation>
     </message>
     <message>
         <location/>
         <source>Terminal:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Terminal :</translation>
     </message>
     <message>
         <location/>
         <source>External editor:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Éditeur externe :</translation>
     </message>
     <message>
         <location/>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">?</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/coreplugin/generalsettings.cpp" line="+56"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Général</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Environment</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Environnement</translation>
     </message>
     <message>
         <location line="+75"/>
         <source>Variables</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Variables</translation>
     </message>
 </context>
 <context>
@@ -1340,7 +1343,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+144"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sortie</translation>
     </message>
     <message>
         <location line="+162"/>
@@ -1429,7 +1432,7 @@ Voulez vous les écraser?</translation>
         <location line="+5"/>
         <location line="+4"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished">Annu&amp;ler</translation>
+        <translation type="unfinished">Ann&amp;uler</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -1475,43 +1478,43 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+10"/>
         <source>Minimize</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Minimiser</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Zoom</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Show Sidebar</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher la barre latérale</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Plein écran</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>About &amp;Qt Creator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">A propos de &amp;Qt Creator</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>About &amp;Qt Creator...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">A propos de &amp;Qt Creator...</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>About &amp;Plugins...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">A propos des &amp;Plugins...</translation>
     </message>
     <message>
         <location line="+23"/>
         <source>New...</source>
         <comment>Title of dialog</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nouveau...</translation>
     </message>
 </context>
 <context>
@@ -1716,23 +1719,23 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+10"/>
         <source>Environment</source>
-        <translation type="unfinished">Environement</translation>
+        <translation type="unfinished">Environnement</translation>
     </message>
     <message>
         <location line="+157"/>
         <source>Import Keyboard Mapping Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importer le mapping clavier</translation>
     </message>
     <message>
         <location line="+2"/>
         <location line="+32"/>
         <source>Keyboard Mapping Scheme (*.kms)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Schéma de mapping clavier (*.kms)</translation>
     </message>
     <message>
         <location line="-2"/>
         <source>Export Keyboard Mapping Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exporter le mapping clavier</translation>
     </message>
 </context>
 <context>
@@ -1740,7 +1743,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="-131"/>
         <source>Split</source>
-        <translation type="unfinished">Diviser</translation>
+        <translation type="unfinished">Scinder</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -1764,7 +1767,8 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+3"/>
         <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%4 == __DATE__ et %5 ==__TIME__. Pour les formulations légales, dans le doute, mieux vaut laisser l&apos;anglais...</translatorcomment>
+        <translation type="unfinished">&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Basé sur Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Compilé le %4 à %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. Tous droits réservés.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</translation>
     </message>
 </context>
 <context>
@@ -1772,7 +1776,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/welcomemode.cpp" line="+126"/>
         <source>Open Recent Project</source>
-        <translation type="unfinished">Ouvrir project recent</translation>
+        <translation type="unfinished">Ouvrir un projet récent</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1802,7 +1806,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+1"/>
         <source>Qt Websites</source>
-        <translation type="unfinished">Sites web de Qt</translation>
+        <translation type="unfinished">Sites web Qt</translation>
     </message>
     <message>
         <location line="+38"/>
@@ -1813,7 +1817,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+2"/>
         <source>Qt Home</source>
-        <translation></translation>
+        <translation type="unfinished">Qt Home</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1823,7 +1827,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+1"/>
         <source>Qt Git Hosting</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dépôts Git Qt</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1833,7 +1837,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+1"/>
         <source>Qt for S60 at Forum Nokia</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt pour S60</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1996,47 +2000,47 @@ Voulez vous les écraser?</translation>
     <message>
         <location/>
         <source>Getting Started</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commencer</translation>
     </message>
     <message>
         <location/>
         <source>Develop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Developper</translation>
     </message>
     <message>
         <location/>
         <source>Community</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Communauté</translation>
     </message>
     <message>
         <location/>
         <source>Examples not installed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exemples non trouvés</translation>
     </message>
     <message>
         <location/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir</translation>
     </message>
     <message>
         <location/>
         <source>Manage Sessions...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestion des sessions...</translation>
     </message>
     <message>
         <location/>
         <source>Create New Project...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Créer un nouveau projet...</translation>
     </message>
     <message>
         <location/>
         <source>Help us make Qt Creator even better</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aidez-nous à améliorer Qt Creator</translation>
     </message>
     <message>
         <location/>
         <source>Feedback</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Votre avis nous interesse</translation>
     </message>
 </context>
 <context>
@@ -2044,7 +2048,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/modemanager.cpp" line="+144"/>
         <source>Switch to %1 mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Basculer vers le mode %1</translation>
     </message>
 </context>
 <context>
@@ -2053,12 +2057,13 @@ Voulez vous les écraser?</translation>
         <location filename="../../../src/plugins/coreplugin/scriptmanager/scriptmanager.cpp" line="+237"/>
         <source>Exception at line %1: %2
 %3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exception à la ligne %1 : %2
+%3</translation>
     </message>
     <message>
         <location line="+67"/>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur inconnue</translation>
     </message>
 </context>
 <context>
@@ -2066,7 +2071,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/basefilewizard.cpp" line="+53"/>
         <source>New %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nouveau %1</translation>
     </message>
 </context>
 <context>
@@ -2092,17 +2097,17 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/classnamevalidatinglineedit.cpp" line="+85"/>
         <source>The class name must not contain namespace delimiters.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le nom de classe ne doit pas contenir de délimiteur d&apos;espace de nommage.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Please enter a class name.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Veuillez entrer un nom de classe.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The class name contains invalid characters.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le nom de classe contient des caractères invalides.</translation>
     </message>
 </context>
 <context>
@@ -2110,22 +2115,22 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/consoleprocess.cpp" line="+50"/>
         <source>Cannot set up communication channel: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;établir le canal de communication : %1</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Press &lt;RETURN&gt; to close this window...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Appuyez sur &lt;ENTRÉE&gt; pour fermer cette fenêtre...</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Cannot create temporary file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de créer un fichier temporaire : %1</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Cannot create temporary directory &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de créer un dossier temporaire &apos;%1&apos; : %2</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -11262,17 +11267,18 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+114"/>
         <location line="+20"/>
         <source>%1 found</source>
-        <translation type="unfinished">%1 éléments trouvés</translation>
+        <translation>%1 éléments trouvés</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>List of comma separated wildcard filters</source>
-        <translation type="unfinished">Liste de filtres séparée par des virgules</translation>
+        <translatorcomment>wildcard -&gt; joker mais est-ce le terme pour les expressions régulières en français ?</translatorcomment>
+        <translation type="unfinished">Liste de filtres &apos;joker&apos; séparés par des virgules</translation>
     </message>
     <message>
         <location line="+27"/>
         <source>Use Regular E&amp;xpressions</source>
-        <translation type="unfinished">Utiliser des e&amp;xpressions régulières</translation>
+        <translation>Utiliser des e&amp;xpressions régulières</translation>
     </message>
 </context>
 <context>
@@ -11280,12 +11286,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/basetextdocument.cpp" line="+158"/>
         <source>untitled</source>
-        <translation type="unfinished">document sans titre</translation>
+        <translatorcomment>document ? (en plus c&apos;est plus long...)</translatorcomment>
+        <translation type="unfinished">sans titre</translation>
     </message>
     <message>
         <location line="+68"/>
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
-        <translation type="unfinished">&lt;em&gt;Données binaire&lt;/em&gt;</translation>
+        <translation>&lt;em&gt;Données binaire&lt;/em&gt;</translation>
     </message>
 </context>
 <context>
@@ -11293,17 +11300,18 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+229"/>
         <source>Print Document</source>
-        <translation type="unfinished">Imprimer le document</translation>
+        <translation>Imprimer le document</translation>
     </message>
     <message>
         <location line="+290"/>
         <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translation type="unfinished">&lt;b&gt;Error :&lt;/b&gt; Impossible de décoder &quot;%1&quot; avec l&apos;encodage &quot;%2&quot;. L&apos;édition est impossible.</translation>
+        <translatorcomment>error -&gt; erreur ;)</translatorcomment>
+        <translation type="unfinished">&lt;b&gt;Erreur :&lt;/b&gt; Impossible de décoder &quot;%1&quot; avec l&apos;encodage &quot;%2&quot;. L&apos;édition est impossible.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Select Encoding</source>
-        <translation type="unfinished">Choisir l&apos;encodage</translation>
+        <translation>Choisir l&apos;encodage</translation>
     </message>
 </context>
 <context>
@@ -11311,12 +11319,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+3718"/>
         <source>Line: %1, Col: %2</source>
-        <translation type="unfinished">Ligne : %1, Col : %2</translation>
+        <translation>Ligne : %1, Col : %2</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line: %1, Col: 999</source>
-        <translation type="unfinished">Ligne : %1, Col : 999</translation>
+        <translation>Ligne : %1, Col : 999</translation>
     </message>
 </context>
 <context>
@@ -11324,97 +11332,97 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/behaviorsettingspage.ui"/>
         <source>Tabs and Indentation</source>
-        <translation type="unfinished">Tabulation et indentation</translation>
+        <translation>Tabulation et indentation</translation>
     </message>
     <message>
         <location/>
         <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="unfinished">Insérer des e&amp;spaces au lieu de tabulations</translation>
+        <translation>Insérer des e&amp;spaces au lieu de tabulations</translation>
     </message>
     <message>
         <location/>
         <source>Enable automatic &amp;indentation</source>
-        <translation type="unfinished">Activer l&apos;&amp;indentation automatique</translation>
+        <translation>Activer l&apos;&amp;indentation automatique</translation>
     </message>
     <message>
         <location/>
         <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation type="unfinished">La touche retour reviendra un niveau d&apos;indentation en arrière au lieux d&apos;un caractère espace.</translation>
+        <translation>La touche retour reviendra un niveau d&apos;indentation en arrière au lieux d&apos;un caractère espace.</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Backspace follows indentation</source>
-        <translation type="unfinished">La touche &amp;retour arrière suit l&apos;indentation</translation>
+        <translation>La touche &amp;retour arrière suit l&apos;indentation</translation>
     </message>
     <message>
         <location/>
         <source>Ta&amp;b size:</source>
-        <translation type="unfinished">Taille de &amp;tabulation :</translation>
+        <translation>Taille de &amp;tabulation :</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Indent size:</source>
-        <translation type="unfinished">Taille de l&apos;in&amp;dentation :</translation>
+        <translation>Taille de l&apos;in&amp;dentation :</translation>
     </message>
     <message>
         <location/>
         <source>Tab key performs auto-indent:</source>
-        <translation type="unfinished">La touche tabulation active l&apos;identation automatique :</translation>
+        <translation>La touche tabulation active l&apos;identation automatique :</translation>
     </message>
     <message>
         <location/>
         <source>Never</source>
-        <translation type="unfinished">Jamais</translation>
+        <translation>Jamais</translation>
     </message>
     <message>
         <location/>
         <source>Always</source>
-        <translation type="unfinished">Toujours</translation>
+        <translation>Toujours</translation>
     </message>
     <message>
         <location/>
         <source>In leading white space</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Espaces de début de ligne</translation>
     </message>
     <message>
         <location/>
         <source>Storage</source>
-        <translation type="unfinished">Sauvegarde</translation>
+        <translation>Sauvegarde</translation>
     </message>
     <message>
         <location/>
         <source>Removes trailing whitespace on saving.</source>
-        <translation type="unfinished">Supprime les charactères d&apos;espacement à la fin des lignes lors de la sauvegarde.</translation>
+        <translation type="unfinished">Supprime les caractères d&apos;espacement à la fin des lignes lors de la sauvegarde.</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Clean whitespace</source>
-        <translation type="unfinished">&amp;Nettoyer les espaces</translation>
+        <translation>&amp;Nettoyer les espaces</translation>
     </message>
     <message>
         <location/>
         <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="unfinished">Nettoyer les espaces dans tout le document au lieu de limiter le nettoyage aux parties modifiées.</translation>
+        <translation>Nettoyer les espaces dans tout le document au lieu de limiter le nettoyage aux parties modifiées.</translation>
     </message>
     <message>
         <location/>
         <source>In entire &amp;document</source>
-        <translation type="unfinished">Dans tout le &amp;document</translation>
+        <translation>Dans tout le &amp;document</translation>
     </message>
     <message>
         <location/>
         <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="unfinished">Corriger les espaces à l&apos;avant des lignes pour respecter la configuration des tabulations.</translation>
+        <translation>Corriger les espaces à l&apos;avant des lignes pour respecter la configuration des tabulations.</translation>
     </message>
     <message>
         <location/>
         <source>Clean indentation</source>
-        <translation type="unfinished">Nettoyer l&apos;indentation</translation>
+        <translation>Nettoyer l&apos;indentation</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Ensure newline at end of file</source>
-        <translation type="unfinished">&amp;Forcer un retour de ligne à la fin du fichier</translation>
+        <translation>&amp;Forcer un retour de ligne à la fin du fichier</translation>
     </message>
 </context>
 <context>
@@ -11437,52 +11445,52 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location/>
         <source>Show tabs and spaces.</source>
-        <translation type="unfinished">Afficher les tabulations et espaces.</translation>
+        <translation>Afficher les tabulations et espaces.</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Visualize whitespace</source>
-        <translation type="unfinished">&amp;Visualiser les espaces</translation>
+        <translation>&amp;Visualiser les espaces</translation>
     </message>
     <message>
         <location/>
         <source>Highlight current &amp;line</source>
-        <translation type="unfinished">Surligner la &amp;ligne courante</translation>
+        <translation>Surligner la &amp;ligne courante</translation>
     </message>
     <message>
         <location/>
         <source>Highlight &amp;blocks</source>
-        <translation type="unfinished">Surligner les &amp;blocs</translation>
+        <translation>Surligner les &amp;blocs</translation>
     </message>
     <message>
         <location/>
         <source>Animate matching parentheses</source>
-        <translation type="unfinished">Animer les parenthèses correspondantes</translation>
+        <translation>Animer les parenthèses correspondantes</translation>
     </message>
     <message>
         <location/>
         <source>Text Wrapping</source>
-        <translation type="unfinished">Retour à la ligne dynamique</translation>
+        <translation>Retour à la ligne dynamique</translation>
     </message>
     <message>
         <location/>
         <source>Enable text &amp;wrapping</source>
-        <translation type="unfinished">Activer le &amp;retour à la ligne automatique</translation>
+        <translation>Activer le &amp;retour à la ligne automatique</translation>
     </message>
     <message>
         <location/>
         <source>Display right &amp;margin at column:</source>
-        <translation type="unfinished">Afficher une &amp;marge à la colonne :</translation>
+        <translation>Afficher une &amp;marge à la colonne :</translation>
     </message>
     <message>
         <location/>
         <source>Navigation</source>
-        <translation type="unfinished">Navigation</translation>
+        <translation>Navigation</translation>
     </message>
     <message>
         <location/>
         <source>Enable &amp;mouse navigation</source>
-        <translation type="unfinished">Activer la navigation à la &amp;souris</translation>
+        <translation>Activer la navigation à la &amp;souris</translation>
     </message>
 </context>
 <context>
@@ -11490,7 +11498,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+210"/>
         <source>Font &amp; Colors</source>
-        <translation type="unfinished">Polices &amp; couleurs</translation>
+        <translation>Polices &amp; couleurs</translation>
     </message>
     <message>
         <location line="+209"/>
@@ -11504,28 +11512,29 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/texteditor/codecselector.cpp" line="+72"/>
         <source>Text Encoding</source>
-        <translation type="unfinished">Encodage du texte</translation>
+        <translation>Encodage du texte</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>
 The following encodings are likely to fit:</source>
-        <translation type="unfinished">\nLes encodages suivant pourrait fonctionner:</translation>
+        <translation type="unfinished">
+Les encodages suivants pourraient fonctionner :</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Select encoding for &quot;%1&quot;.%2</source>
-        <translation type="unfinished">Selectionner l&apos;encodage pour &quot;%1&quot;.%2</translation>
+        <translation>Selectionner l&apos;encodage pour &quot;%1&quot;.%2</translation>
     </message>
     <message>
         <location line="+44"/>
         <source>Reload with Encoding</source>
-        <translation type="unfinished">Recharger avec l&apos;encodage</translation>
+        <translation>Recharger avec l&apos;encodage</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Save with Encoding</source>
-        <translation type="unfinished">Sauver avec l&apos;encodage</translation>
+        <translation>Sauver avec l&apos;encodage</translation>
     </message>
 </context>
 <context>
@@ -11533,7 +11542,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/findincurrentfile.cpp" line="+57"/>
         <source>Current File</source>
-        <translation type="unfinished">Fichier courrant</translation>
+        <translation type="unfinished">Fichier courant</translation>
     </message>
 </context>
 <context>
@@ -11541,27 +11550,28 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/findinfiles.cpp" line="+55"/>
         <source>Files on Disk</source>
-        <translation type="unfinished">Fichiers sur le disque</translation>
+        <translation>Fichiers sur le disque</translation>
     </message>
     <message>
         <location line="+37"/>
         <source>&amp;Directory:</source>
-        <translation type="unfinished">&amp;Dossier :</translation>
+        <translation>&amp;Dossier :</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>&amp;Browse</source>
-        <translation type="unfinished">&amp;Parcourir</translation>
+        <translation>&amp;Parcourir</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>File &amp;pattern:</source>
-        <translation type="unfinished">&amp;Motif de fichier :</translation>
+        <translatorcomment>Schéma ou motif ? (motif ça fait penser au style du même nom...)</translatorcomment>
+        <translation type="unfinished">&amp;Schéma de fichier :</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Directory to search</source>
-        <translation type="unfinished">Dossier sur lequel effectuer la recherche</translation>
+        <translation type="unfinished">Dossier dans lequel effectuer la recherche</translation>
     </message>
 </context>
 <context>
@@ -11569,52 +11579,53 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/fontsettingspage.ui"/>
         <source>Font</source>
-        <translation type="unfinished">Police</translation>
+        <translation>Police</translation>
     </message>
     <message>
         <location/>
         <source>Family:</source>
-        <translation type="unfinished">Famille :</translation>
+        <translation>Famille :</translation>
     </message>
     <message>
         <location/>
         <source>Size:</source>
-        <translation type="unfinished">Taille :</translation>
+        <translation>Taille :</translation>
     </message>
     <message>
         <location/>
         <source>Antialias</source>
+        <translatorcomment>c&apos;est le français pour anti-aliasing ?</translatorcomment>
         <translation type="unfinished">Anticrénelage</translation>
     </message>
     <message>
         <location/>
         <source>Color Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Schéma de couleurs</translation>
     </message>
     <message>
         <location/>
         <source>Bold</source>
-        <translation type="unfinished">Gras</translation>
+        <translation>Gras</translation>
     </message>
     <message>
         <location/>
         <source>Italic</source>
-        <translation type="unfinished">Italique</translation>
+        <translation>Italique</translation>
     </message>
     <message>
         <location/>
         <source>Background:</source>
-        <translation type="unfinished">Arrière plan :</translation>
+        <translation>Arrière plan :</translation>
     </message>
     <message>
         <location/>
         <source>Foreground:</source>
-        <translation type="unfinished">Premier plan :</translation>
+        <translation>Premier plan :</translation>
     </message>
     <message>
         <location/>
         <source>Erase background</source>
-        <translation type="unfinished">Effacer l&apos;arrière plan</translation>
+        <translation>Effacer l&apos;arrière plan</translation>
     </message>
     <message>
         <location/>
@@ -11624,7 +11635,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location/>
         <source>Preview:</source>
-        <translation type="unfinished">Aperçu :</translation>
+        <translation>Aperçu :</translation>
     </message>
 </context>
 <context>
@@ -11637,7 +11648,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/linenumberfilter.h" line="+52"/>
         <source>Line in current document</source>
-        <translation type="unfinished">Ligne du document courrant</translation>
+        <translation type="unfinished">Ligne du document courant</translation>
     </message>
 </context>
 <context>
@@ -11645,12 +11656,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/texteditor/texteditorplugin.cpp" line="+94"/>
         <source>Creates a text file (.txt).</source>
-        <translation type="unfinished">Créer un fichier texte (.txt).</translation>
+        <translation>Créer un fichier texte (.txt).</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Text File</source>
-        <translation type="unfinished">Fichier texte</translation>
+        <translation>Fichier texte</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -11660,17 +11671,17 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+26"/>
         <source>Triggers a completion in this scope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lancer la complétion dans ce contexte</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Ctrl+Space</source>
-        <translation type="unfinished">Ctrl+Espace</translation>
+        <translation>Ctrl+Espace</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Meta+Space</source>
-        <translation type="unfinished">Meta+Espace</translation>
+        <translation>Meta+Espace</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -11680,7 +11691,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+4"/>
         <source>Alt+Return</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+Entrée</translation>
     </message>
 </context>
 <context>
@@ -11698,17 +11709,17 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+13"/>
         <source>Select Encoding...</source>
-        <translation type="unfinished">Choisir l&apos;encodage...</translation>
+        <translation>Choisir l&apos;encodage...</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Auto-&amp;indent Selection</source>
-        <translation type="unfinished">&amp;Indenter automatiquement la sélection</translation>
+        <translation>&amp;Indenter automatiquement la sélection</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+I</source>
-        <translation type="unfinished">Ctrl+I</translation>
+        <translation>Ctrl+I</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -11723,7 +11734,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+5"/>
         <source>Clean Whitespace</source>
-        <translation type="unfinished">Nettoyer les espaces</translation>
+        <translation>Nettoyer les espaces</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -11931,124 +11942,125 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+1"/>
         <source>Line Number</source>
-        <translation type="unfinished">Numéro de ligne</translation>
+        <translation>Numéro de ligne</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Search Result</source>
-        <translation type="unfinished">Résultat de la recherche</translation>
+        <translation>Résultat de la recherche</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Search Scope</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>contexte/portée/autre ?</translatorcomment>
+        <translation type="unfinished">Contexte de la recherche</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Parentheses</source>
-        <translation type="unfinished">Parenthèses</translation>
+        <translation>Parenthèses</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Current Line</source>
-        <translation type="unfinished">Ligne courrante</translation>
+        <translation type="unfinished">Ligne courante</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Current Line Number</source>
-        <translation type="unfinished">Numéro de la ligne courrante</translation>
+        <translation type="unfinished">Numéro de la ligne courante</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Number</source>
-        <translation type="unfinished">Nombre</translation>
+        <translation type="unfinished">Numéro</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>String</source>
-        <translation type="unfinished">Chaîne de caractères</translation>
+        <translation>Chaîne de caractères</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Type</source>
-        <translation type="unfinished">Type</translation>
+        <translation>Type</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Keyword</source>
-        <translation type="unfinished">Mot clé</translation>
+        <translation>Mot clé</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Operator</source>
-        <translation type="unfinished">Opérateur</translation>
+        <translation>Opérateur</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Preprocessor</source>
-        <translation type="unfinished">Préprocesseur</translation>
+        <translation>Préprocesseur</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Label</source>
-        <translation type="unfinished">Label</translation>
+        <translation type="unfinished">Étiquette</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Comment</source>
-        <translation type="unfinished">Commentaire</translation>
+        <translation>Commentaire</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Doxygen Comment</source>
-        <translation type="unfinished">Commentaire Doxygen</translation>
+        <translation>Commentaire Doxygen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Doxygen Tag</source>
-        <translation type="unfinished">Tag Doxygen</translation>
+        <translation>Tag Doxygen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Disabled Code</source>
-        <translation type="unfinished">Code désactivé</translation>
+        <translation>Code désactivé</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Added Line</source>
-        <translation type="unfinished">Ligne ajouté</translation>
+        <translation type="unfinished">Ligne ajoutée</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Removed Line</source>
-        <translation type="unfinished">Ligne supprimée</translation>
+        <translation>Ligne supprimée</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Diff File</source>
-        <translation type="unfinished">Fichier Diff</translation>
+        <translation>Fichier Diff</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Diff Location</source>
-        <translation type="unfinished">Emplacement du Diff</translation>
+        <translation>Emplacement du Diff</translation>
     </message>
     <message>
         <location line="+4"/>
         <location line="+8"/>
         <location line="+8"/>
         <source>Text Editor</source>
-        <translation type="unfinished">Éditeur de texte</translation>
+        <translation>Éditeur de texte</translation>
     </message>
     <message>
         <location line="-10"/>
         <source>Behavior</source>
-        <translation type="unfinished">Comportement</translation>
+        <translation>Comportement</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Display</source>
-        <translation type="unfinished">Affichage</translation>
+        <translation>Affichage</translation>
     </message>
 </context>
 <context>
@@ -12056,17 +12068,17 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/projectexplorer/toolchain.cpp" line="+120"/>
         <source>Other</source>
-        <translation type="unfinished">Autre</translation>
+        <translation>Autre</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&lt;Invalid&gt;</source>
-        <translation type="unfinished">&lt;Invalide&gt;</translation>
+        <translation>&lt;Invalide&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>&lt;Unknown&gt;</source>
-        <translation type="unfinished">&lt;Inconnu&gt;</translation>
+        <translation>&lt;Inconnu&gt;</translation>
     </message>
 </context>
 <context>
@@ -12074,6 +12086,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/shared/help/topicchooser.ui"/>
         <source>Choose Topic</source>
+        <translatorcomment>thème ?</translatorcomment>
         <translation type="unfinished">Choisissez le thème</translation>
     </message>
     <message>
@@ -12102,12 +12115,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseconstants.h" line="+38"/>
         <source>Version Control</source>
-        <translation type="unfinished">Gestion de versions</translation>
+        <translation>Gestion de versions</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Common</source>
-        <translation type="unfinished">Commun</translation>
+        <translation>Commun</translation>
     </message>
 </context>
 <context>
@@ -12115,27 +12128,28 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/nicknamedialog.cpp" line="+217"/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>E-mail</source>
-        <translation type="unfinished">Email</translation>
+        <translatorcomment>avec ou sans &apos;-&apos; ?</translatorcomment>
+        <translation type="unfinished">E-mail</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Alias</source>
-        <translation type="unfinished">Alias</translation>
+        <translation>Alias</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Alias e-mail</source>
-        <translation type="unfinished">Alias de l&apos;email</translation>
+        <translation type="unfinished">Alias de l&apos;e-mail</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Cannot open &apos;%1&apos;: %2</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
+        <translation>Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
     </message>
 </context>
 <context>
@@ -12143,12 +12157,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/submitfilemodel.cpp" line="+43"/>
         <source>State</source>
-        <translation type="unfinished">État</translation>
+        <translation>État</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>File</source>
-        <translation type="unfinished">Fichier</translation>
+        <translation>Fichier</translation>
     </message>
 </context>
 <context>
@@ -12156,7 +12170,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseeditor.cpp" line="+325"/>
         <source>Describe change %1</source>
-        <translation type="unfinished">Decrivez le changement %1</translation>
+        <translation>Decrivez le changement %1</translation>
     </message>
 </context>
 <context>
@@ -12164,7 +12178,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbasesubmiteditor.cpp" line="+136"/>
         <source>Check message</source>
-        <translation type="unfinished">Message</translation>
+        <translation type="unfinished">Contrôle du message</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -12184,22 +12198,22 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+28"/>
         <source>Unable to open &apos;%1&apos;: %2</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
+        <translation>Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The check script &apos;%1&apos; could not be started: %2</source>
-        <translation type="unfinished">Le script de vérification &apos;%1&apos; ne peut pas être démarré : %2</translation>
+        <translation>Le script de vérification &apos;%1&apos; ne peut pas être démarré : %2</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The check script &apos;%1&apos; could not be run: %2</source>
-        <translation type="unfinished">Le script de vérification &apos;%1&apos; ne peut pas être exécuté : %2</translation>
+        <translation>Le script de vérification &apos;%1&apos; ne peut pas être exécuté : %2</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>The check script returned exit code %1.</source>
-        <translation type="unfinished">Le script de vérification a retourné le code %1.</translation>
+        <translation>Le script de vérification a retourné le code %1.</translation>
     </message>
 </context>
 <context>
@@ -12279,7 +12293,7 @@ Note : Ceci risque de supprimer le fichier sur le disque.</translation>
         <location line="-33"/>
         <location line="+38"/>
         <source>&lt;Description&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Description&gt;</translation>
     </message>
     <message>
         <location line="-30"/>
@@ -12308,12 +12322,12 @@ Note : Ceci risque de supprimer le fichier sur le disque.</translation>
     <message>
         <location/>
         <source>&amp;Description:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Description :</translation>
     </message>
     <message>
         <location/>
         <source>&lt;Description&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Description&gt;</translation>
     </message>
     <message>
         <location/>
@@ -12321,12 +12335,15 @@ Note : Ceci risque de supprimer le fichier sur le disque.</translation>
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;lt;Comment&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;lt;Commentaire&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
         <source>Parts to send to codepaster</source>
-        <translation type="unfinished">Fragments à envoyer sur codepaster</translation>
+        <translation>Fragments à envoyer sur codepaster</translation>
     </message>
     <message>
         <location/>
