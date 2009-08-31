@@ -79,6 +79,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
       m_title(new QLabel(this)),
       m_autoSync(false)
 {
+    m_dirModel->setResolveSymlinks(false);
     m_dirModel->setFilter(QDir::Dirs | QDir::Files | QDir::Drives | QDir::Readable | QDir::Writable
                           | QDir::Executable | QDir::Hidden);
     m_dirModel->setSorting(QDir::Name | QDir::DirsFirst);
