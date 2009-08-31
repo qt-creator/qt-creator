@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -35,10 +36,18 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
+#include <QtCore/QTimer>
 
 #include <QtGui/QApplication>
+#include <QtGui/QTextEdit>
 
 #include <unistd.h>
+
+///////////////////////////////////////////////////////////////////////
+//
+// Runner
+//
+///////////////////////////////////////////////////////////////////////
 
 class Runner : public QObject
 {
@@ -46,13 +55,28 @@ class Runner : public QObject
 
 public:
     Runner();
+    void parseArguments();
+
+signals:
+    void output(const QString &senderName, const QString &data);
+
+private slots:
+    void handleProcError(QProcess::ProcessError error);
+    void handleProcFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void handleProcReadyReadStandardError();
+    void handleProcReadyReadStandardOutput();
+    void handleProcStarted();
+    void handleProcStateChanged(QProcess::ProcessState newState);
+    void run();
 
 private:
-    void parseArguments();
+    friend class RunnerGui;
     void launchAdapter();
     void launchTrkServer();
     void writeGdbInit();
-    void run();
+    void connectProcess(QProcess *proc);
+    void sendOutput(QObject *sender, const QString &data);
+    void sendOutput(const QString &data) { sendOutput(0, data); }
 
     QStringList m_adapterOptions;
     QStringList m_trkServerOptions;
@@ -79,11 +103,82 @@ Runner::Runner()
     m_endianness = "little";
     m_runTrkServer = true;
     m_waitAdapter = 0;
+
+    uid_t userId = getuid();
+    m_gdbServerIP = "127.0.0.1";
+    m_gdbServerPort = QString::number(2222 + userId);
+
+    m_trkServerProc.setObjectName("TRKSERVER");
+    m_adapterProc.setObjectName("ADAPTER");
+    m_debuggerProc.setObjectName("GDB");
+
+    connectProcess(&m_trkServerProc);
+    connectProcess(&m_adapterProc);
+    connectProcess(&m_debuggerProc);
 }
+
+void Runner::connectProcess(QProcess *proc)
+{
+    connect(proc, SIGNAL(error(QProcess::ProcessError)),
+        this, SLOT(handleProcError(QProcess::ProcessError)));
+    connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)),
+        this, SLOT(handleProcFinished(int, QProcess::ExitStatus)));
+    connect(proc, SIGNAL(readyReadStandardError()),
+        this, SLOT(handleProcReadyReadStandardError()));
+    connect(proc, SIGNAL(readyReadStandardOutput()),
+        this, SLOT(handleProcReadyReadStandardOutput()));
+    connect(proc, SIGNAL(started()),
+        this, SLOT(handleProcStarted()));
+    connect(proc, SIGNAL(stateChanged(QProcess::ProcessState)),
+        this, SLOT(handleProcStateChanged(QProcess::ProcessState)));
+}
+
+
+void Runner::sendOutput(QObject *sender, const QString &data)
+{
+    if (sender)
+        emit output(sender->objectName(), data);
+    else
+        emit output(QString(), data);
+}
+
+void Runner::handleProcError(QProcess::ProcessError error)
+{
+    sendOutput(sender(), QString("Process Error %1").arg(error));
+}
+
+void Runner::handleProcFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    sendOutput(sender(),
+        QString("ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
+}
+
+void Runner::handleProcReadyReadStandardError()
+{
+    QByteArray ba = qobject_cast<QProcess *>(sender())->readAllStandardError();
+    sendOutput(sender(), QString("stderr: %1").arg(QString::fromLatin1(ba)));
+}
+
+void Runner::handleProcReadyReadStandardOutput()
+{
+    QByteArray ba = qobject_cast<QProcess *>(sender())->readAllStandardOutput();
+    sendOutput(sender(), QString("stdout: %1").arg(QString::fromLatin1(ba)));
+}
+
+void Runner::handleProcStarted()
+{
+    sendOutput(sender(), QString("Process Started"));
+}
+
+void Runner::handleProcStateChanged(QProcess::ProcessState newState)
+{
+    sendOutput(sender(), QString("Process State %1").arg(newState));
+}
+
 
 static QString usage()
 {
-   return "Usage: run.pl -w -av -aq -au -tv -tq -l [COM]\n\n"
+   return QString("Usage: %1 -w -av -aq -au -tv -tq -l [COM]\n\n"
     "Options:\n"
     "     -av     Adapter verbose\n"
     "     -aq     Adapter quiet\n"
@@ -96,12 +191,13 @@ static QString usage()
     "     trkserver simulator will be run unless COM is specified\n"
     "\n"
     "Bluetooth:\n"
-    "     rfcomm listen /dev/rfcomm0 1 $PWD/run.pl -av -af -w {}\n";
+    "     rfcomm listen /dev/rfcomm0 1 $PWD/run.pl -av -af -w {}\n")
+        .arg(QCoreApplication::arguments().at(0));
 }
 
 void Runner::parseArguments()
 {
-    QStringList args = qApp->arguments();
+    QStringList args = QCoreApplication::arguments();
     for (int i = 1; i < args.size(); ++i) {
         const QString arg = args.at(i);
         if (arg.startsWith('-')) {
@@ -135,11 +231,12 @@ void Runner::parseArguments()
 
 void Runner::launchTrkServer()
 {
+    sendOutput("Launching Trk Server");
     const QString dumpPostfix = ".bin";
 
     QString trkServerName;
     if (m_isUnix)
-        trkServerName = QDir::currentPath() + "trkserver";
+        trkServerName = QDir::currentPath() + "/trkserver";
     else
 	trkServerName = "cmd.exe";
 
@@ -151,12 +248,12 @@ void Runner::launchTrkServer()
 
     trkServerArgs << m_trkServerOptions;
     trkServerArgs << m_trkServerName;
-    trkServerArgs << "TrkDump-78-6a-40-00 " + dumpPostfix;
+    trkServerArgs << "TrkDump-78-6a-40-00" + dumpPostfix;
     trkServerArgs << "0x00402000" + dumpPostfix;
     trkServerArgs << "0x786a4000" + dumpPostfix;
     trkServerArgs << "0x00600000" + dumpPostfix;
 
-    qDebug() << "### Executing: " + trkServerArgs.join(" ");
+    sendOutput("### Starting " + trkServerName + " " + trkServerArgs.join(" "));
     m_trkServerProc.start(trkServerName, trkServerArgs);
     m_trkServerProc.waitForStarted();
 }
@@ -165,7 +262,7 @@ void Runner::launchAdapter()
 {
     QString adapterName;
     if (m_isUnix)
-        adapterName = QDir::currentPath() + "adapter";
+        adapterName = QDir::currentPath() + "/adapter";
     else
 	adapterName = "cmd.exe";
 
@@ -178,7 +275,7 @@ void Runner::launchAdapter()
     adapterArgs << "-s";
     adapterArgs << m_trkServerName << m_gdbServerIP + ':' + m_gdbServerPort;
 
-    qDebug() << "### Executing: " + adapterArgs.join(" ");
+    sendOutput("### Starting " + adapterName + " " + adapterArgs.join(" "));
 
     m_adapterProc.start(adapterName, adapterArgs);
     m_adapterProc.waitForStarted();
@@ -194,10 +291,10 @@ void Runner::launchAdapter()
 
 void Runner::writeGdbInit()
 {
-    QString gdbInitFile = ".gdbinit";
+    QString gdbInitFile = QDir::currentPath() + "/.gdbinit";
     QFile file(gdbInitFile);
-    if (file.open(QIODevice::WriteOnly)) {
-        qDebug() << "Cannot open "<<  gdbInitFile;
+    if (!file.open(QIODevice::ReadWrite)) {
+        sendOutput(QString("Cannot open %1 for writing").arg(gdbInitFile));
         return;
     }
     QTextStream ts(&file);
@@ -230,14 +327,14 @@ void Runner::run()
 
     uid_t userId = getuid();
     if (m_trkServerName.isEmpty())
-        m_trkServerName = QString("TRKSERVER-%").arg(userId);
-
-    m_gdbServerIP = "127.0.0.1";
-    m_gdbServerPort = QString::number(2222 + userId);
+        m_trkServerName = QString("TRKSERVER-%1").arg(userId);
 
     if (m_isUnix) {
         QProcess fuserProc;
         fuserProc.start("fuser -n tcp -k " + m_gdbServerPort);
+        fuserProc.waitForStarted();
+        fuserProc.closeWriteChannel();
+        fuserProc.waitForFinished();
         qDebug() << "fuser: " << fuserProc.readAllStandardOutput();
         qDebug() << "fuser: " << fuserProc.readAllStandardError();
     }
@@ -253,11 +350,54 @@ void Runner::run()
     writeGdbInit();
 }
 
+
+///////////////////////////////////////////////////////////////////////
+//
+// RunnerGui
+//
+///////////////////////////////////////////////////////////////////////
+
+class RunnerGui : public QTextEdit
+{
+    Q_OBJECT
+
+public:
+    RunnerGui(Runner *runner);
+
+private slots:
+    void handleOutput(const QString &senderName, const QString &data);
+
+private:
+    Runner *m_runner;
+};
+
+RunnerGui::RunnerGui(Runner *runner)
+    : m_runner(runner) 
+{
+    resize(600, 800);
+    connect(runner, SIGNAL(output(QString,QString)),
+        this, SLOT(handleOutput(QString,QString)));
+}
+
+void RunnerGui::handleOutput(const QString &senderName, const QString &data)
+{
+    append(senderName + " : " + data);
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// main
+//
+///////////////////////////////////////////////////////////////////////
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     Runner runner;
-
+    runner.parseArguments();
+    RunnerGui gui(&runner);
+    gui.show();
+    QTimer::singleShot(0, &runner, SLOT(run()));
     return app.exec();
 }
 

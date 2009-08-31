@@ -44,3 +44,4 @@ rfcomm listen /dev/rfcomm0 1 $PWD/run.pl  -af -av -w {}
 
 cp /data5/dev/debugger/symbian-codesourcery-welsh/cs-gdb/build/gdb/gdb cs-gdb
 cp /data5/dev/trk/filebrowseapp* .
+cp /home/f*/dev/creator/tests/manual/trk/*.bin .

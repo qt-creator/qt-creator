@@ -82,6 +82,8 @@ $trkservername = ('TRKSERVER-' . $userid) unless defined $trkservername;
 my $gdbserverip= '127.0.0.1';
 my $gdbserverport= 2222 + $userid;
 
+print "Serverport: $gdbserverport\n" ;
+
 system('fuser', '-n', 'tcp', '-k', $gdbserverport) if ($isUnix);
 
 # Who writes that?
