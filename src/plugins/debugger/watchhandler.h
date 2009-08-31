@@ -111,6 +111,8 @@ public:
     bool isLocal() const { return iname.startsWith(QLatin1String("local.")); }
     bool isWatcher() const { return iname.startsWith(QLatin1String("watch.")); }
     bool isValid() const { return !iname.isEmpty(); }
+    
+    bool isEqual(const WatchData &other) const;
 
 public:
     QString iname;        // internal name sth like 'local.baz.public.a'
@@ -128,7 +130,8 @@ public:
     QScriptValue scriptValue; // if needed...
     bool hasChildren;
     int generation;       // when updated?
-    bool valuedisabled;   // value will be greyed out
+    bool valueEnabled;    // value will be greyed out or not
+    bool valueEditable;   // value will be editable
 
 private:
 
@@ -204,8 +207,16 @@ private:
 
     void emitDataChanged(int column,
         const QModelIndex &parentIndex = QModelIndex());
+    void beginCycle(); // called at begin of updateLocals() cycle
+    void endCycle(); // called after all results have been received
 
     friend QDebug operator<<(QDebug d, const WatchModel &m);
+
+    void dump();
+    void dumpHelper(WatchItem *item);
+signals:
+    void enableUpdates(bool);
+
 private:
     WatchHandler *m_handler;
     WatchType m_type;

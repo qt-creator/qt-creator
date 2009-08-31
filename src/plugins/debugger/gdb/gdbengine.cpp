@@ -57,6 +57,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QMetaObject>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 #include <QtCore/QTextStream>
@@ -2814,12 +2815,20 @@ static void setWatchDataChildCount(WatchData &data, const GdbMi &mi)
         data.setHasChildren(mi.data().toInt() > 0);
 }
 
-static void setWatchDataValueDisabled(WatchData &data, const GdbMi &mi)
+static void setWatchDataValueEnabled(WatchData &data, const GdbMi &mi)
 {
     if (mi.data() == "true")
-        data.valuedisabled = true;
+        data.valueEnabled = true;
     else if (mi.data() == "false")
-        data.valuedisabled = false;
+        data.valueEnabled = false;
+}
+
+static void setWatchDataValueEditable(WatchData &data, const GdbMi &mi)
+{
+    if (mi.data() == "true")
+        data.valueEditable = true;
+    else if (mi.data() == "false")
+        data.valueEditable = false;
 }
 
 static void setWatchDataExpression(WatchData &data, const GdbMi &mi)
@@ -3127,20 +3136,26 @@ void GdbEngine::updateSubItem(const WatchData &data0)
     QTC_ASSERT(false, return);
 }
 
-void GdbEngine::updateWatchDataAnnounce()
+void GdbEngine::updateWatchData(const WatchData &data)
 {
     // Bump requests to avoid model rebuilding during the nested
     // updateWatchModel runs.
     ++m_pendingRequests;
+#if 1
+    QMetaObject::invokeMethod(this, "updateWatchDataHelper",
+        Qt::QueuedConnection, Q_ARG(WatchData, data));
+#else
+    updateWatchDataHelper(data);
+#endif
 }
 
-void GdbEngine::updateWatchData(const WatchData &data)
+void GdbEngine::updateWatchDataHelper(const WatchData &data)
 {
     //m_pendingRequests = 0;
     PENDING_DEBUG("UPDATE WATCH DATA");
     #if DEBUG_PENDING
     //qDebug() << "##############################################";
-    //qDebug() << "UPDATE MODEL, FOUND INCOMPLETE:";
+    qDebug() << "UPDATE MODEL, FOUND INCOMPLETE:";
     //qDebug() << data.toString();
     #endif
 
@@ -3153,9 +3168,11 @@ void GdbEngine::updateWatchData(const WatchData &data)
 
 void GdbEngine::rebuildModel()
 {
+    static int count = 0;
+    ++count;
     m_processedNames.clear();
-    PENDING_DEBUG("REBUILDING MODEL");
-    emit gdbInputAvailable(LogStatus, _("<Rebuild Watchmodel>"));
+    PENDING_DEBUG("REBUILDING MODEL" << count);
+    emit gdbInputAvailable(LogStatus, _("<Rebuild Watchmodel %1>").arg(count));
     q->showStatusMessage(tr("Finished retrieving data."), 400);
     qq->watchHandler()->endCycle();
     showToolTip();
@@ -3330,7 +3347,8 @@ void GdbEngine::handleVarCreate(const GdbResultRecord &record,
             data.type = _(" ");
             data.setAllUnneeded();
             data.setHasChildren(false);
-            data.valuedisabled = true;
+            data.valueEnabled = false;
+            data.valueEditable = false;
             insertData(data);
         }
     }
@@ -3445,7 +3463,8 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
     setWatchDataSAddress(data, item.findChild("saddr"));
     setWatchDataValueToolTip(data, item.findChild("valuetooltip"),
         item.findChild("valuetooltipencoded").data().toInt());
-    setWatchDataValueDisabled(data, item.findChild("valuedisabled"));
+    setWatchDataValueEnabled(data, item.findChild("valueenabled"));
+    setWatchDataValueEditable(data, item.findChild("valueeditable"));
     //qDebug() << "HANDLE CHILDREN: " << data.toString();
     list->append(data);
 
@@ -3495,7 +3514,7 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
         //    <<  " STREAM:" << out;
         if (list.isEmpty()) {
             //: Value for variable
-            data.setValue(strNotInScope);
+            data.setError(strNotInScope);
             data.setAllUnneeded();
             insertData(data);
         } else if (data.type == __("QString")
@@ -3540,13 +3559,13 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
             }
         } else {
             //: Value for variable
-            data.setValue(strNotInScope);
+            data.setError(strNotInScope);
             data.setAllUnneeded();
             insertData(data);
         }
     } else if (record.resultClass == GdbResultError) {
         WatchData data = cookie.value<WatchData>();
-        data.setValue(strNotInScope);
+        data.setError(strNotInScope);
         data.setAllUnneeded();
         insertData(data);
     }
@@ -3628,6 +3647,7 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
     //qDebug() << m_varToType;
     QMap<QByteArray, int> seen;
 
+    QList<WatchData> list;
     foreach (const GdbMi &item, locals) {
         // Local variables of inlined code are reported as
         // 26^done,locals={varobj={exp="this",value="",name="var4",exp="this",
@@ -3657,7 +3677,7 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
             //variable of the same name in a nested block
             data.setType(tr("<shadowed>"));
             data.setHasChildren(false);
-            insertData(data);
+            list.append(data);
         } else {
             seen[name] = 1;
             WatchData data;
@@ -3679,9 +3699,10 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
                 qDebug() << "RE-USING" << m_varToType.value(data.framekey);
                 data.setType(m_varToType.value(data.framekey));
             }
-            insertData(data);
+            list.append(data);
         }
     }
+    qq->watchHandler()->insertBulkData(list);
 }
 
 void GdbEngine::insertData(const WatchData &data0)
@@ -3698,7 +3719,6 @@ void GdbEngine::insertData(const WatchData &data0)
 void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
     const WatchData &parent)
 {
-    //qDebug() <<  "VAR_LIST_CHILDREN: PARENT 2" << parent.toString();
     //qDebug() <<  "VAR_LIST_CHILDREN: APPENDEE" << data.toString();
     QByteArray exp = item.findChild("exp").data();
     QByteArray name = item.findChild("name").data();

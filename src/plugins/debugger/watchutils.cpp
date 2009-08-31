@@ -491,7 +491,7 @@ QtDumperResult::Child::Child() :
    keyEncoded(0),
    valueEncoded(0),
    childCount(-1),
-   valuedisabled(false),
+   valueEnabled(true),
    valueEncountered(false)
 {
 }
@@ -499,7 +499,7 @@ QtDumperResult::Child::Child() :
 QtDumperResult::QtDumperResult() :
     valueEncountered(false),
     valueEncoded(0),
-    valuedisabled(false),
+    valueEnabled(true),
     childCount(-1),
     internal(false),
     childChildCount(-1)
@@ -516,7 +516,8 @@ void QtDumperResult::clear()
     extra.clear();
     displayedType.clear();
     valueEncoded = 0;
-    valueEncountered = valuedisabled = false;
+    valueEncountered = false;
+    valueEnabled = false;
     childCount = -1;
     internal = false;
     childType.clear();
@@ -535,7 +536,7 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
     root.exp = root.name = lastDotIndex == -1 ? iname : iname.mid(lastDotIndex + 1);
     if (valueEncountered) {
         root.setValue(decodeData(value, valueEncoded));
-        root.valuedisabled = valuedisabled;
+        root.valueEnabled = valueEnabled;
     }
     root.setType(type);
     if (!displayedType.isEmpty())
@@ -575,7 +576,7 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
             wchild.iname += iname;
             wchild.exp = dchild.exp;
             if (dchild.valueEncountered) {
-                wchild.valuedisabled = dchild.valuedisabled;
+                wchild.valueEnabled = dchild.valueEnabled;
                 wchild.setValue(decodeData(dchild.value, dchild.valueEncoded));
             }
             wchild.setAddress(dchild.address);
@@ -611,14 +612,15 @@ QList<WatchData> QtDumperResult::toWatchData(int source) const
 QDebug operator<<(QDebug in, const QtDumperResult &d)
 {
     QDebug nospace = in.nospace();
-    nospace << " iname=" << d.iname << " type=" << d.type << " displayed=" << d.displayedType
+    nospace << " iname=" << d.iname << " type=" << d.type
+            << " displayed=" << d.displayedType
             << " address=" << d.address;
     if (!d.addressInfo.isEmpty())
         nospace << " addressInfo=" << d.addressInfo;
     if (d.valueEncountered) {
         nospace << " encoded=" << d.valueEncoded
                 << " value="  << d.value
-                << " disabled=" << d.valuedisabled;
+                << " enabled=" << d.valueEnabled;
     } else {
         nospace  << " <no value>";
     }
@@ -633,7 +635,7 @@ QDebug operator<<(QDebug in, const QtDumperResult &d)
         for (int i = 0; i < realChildCount; i++) {
             const QtDumperResult::Child &c = d.children.at(i);
             nospace << "   #" << i << " addr=" << c.address
-                    << " disabled=" << c.valuedisabled
+                    << " enabled=" << c.valueEnabled
                     << " type=" << c.type << " exp=" << c.exp
                     << " name=" << c.name;
             if (!c.key.isEmpty())
@@ -1518,7 +1520,7 @@ protected:
 private:
     enum Mode { None, ExpectingIName, ExpectingAddress, ExpectingValue,
                 ExpectingType, ExpectingDisplayedType, ExpectingInternal,
-                ExpectingValueDisabled,  ExpectingValueEncoded,
+                ExpectingValueEnabled,  ExpectingValueEncoded,
                 ExpectingCommonChildType, ExpectingChildCount,
                 ExpectingChildChildOverrideCount,
                 ExpectingExtra,
@@ -1529,7 +1531,7 @@ private:
                 ExpectingChildDisplayedType,
                 ExpectingChildKey, ExpectingChildKeyEncoded,
                 ExpectingChildValue, ExpectingChildValueEncoded,
-                ExpectingChildValueDisabled, ExpectingChildChildCount,
+                ExpectingChildValueEnabled, ExpectingChildChildCount,
                 IgnoreNextChildMode
               };
 
@@ -1593,8 +1595,8 @@ ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword
             return in > ChildModeStart ? ExpectingChildValueEncoded : ExpectingValueEncoded;
         break;
     case 13:
-        if (!qstrncmp(keyword, "valuedisabled", size))
-            return in > ChildModeStart ? ExpectingChildValueDisabled : ExpectingValueDisabled;
+        if (!qstrncmp(keyword, "valueenabled", size))
+            return in > ChildModeStart ? ExpectingChildValueEnabled : ExpectingValueEnabled;
         if (!qstrncmp(keyword, "displayedtype", size))
             return in > ChildModeStart ? ExpectingChildDisplayedType : ExpectingDisplayedType;
         if (!qstrncmp(keyword, "childnumchild", size))
@@ -1642,8 +1644,8 @@ bool ValueDumperParser::handleValue(const char *k, int size)
         m_result.valueEncountered = true;
         m_result.value = valueBA;
         break;
-    case ExpectingValueDisabled:
-        m_result.valuedisabled = valueBA == "true";
+    case ExpectingValueEnabled:
+        m_result.valueEnabled = valueBA == "true";
         break;
     case ExpectingValueEncoded:
         m_result.valueEncoded = QString::fromLatin1(valueBA).toInt();
@@ -1695,8 +1697,8 @@ bool ValueDumperParser::handleValue(const char *k, int size)
     case ExpectingChildValueEncoded:
         m_result.children.back().valueEncoded = QString::fromLatin1(valueBA).toInt();
         break;
-    case ExpectingChildValueDisabled:
-        m_result.children.back().valuedisabled = valueBA == "true";
+    case ExpectingChildValueEnabled:
+        m_result.children.back().valueEnabled = valueBA == "true";
         break;
     case ExpectingChildType:
         m_result.children.back().type = QString::fromLatin1(valueBA);

@@ -1,4 +1,8 @@
 
+
+SOURCES += $$PWD/backtrace.cpp
+HEADERS += $$PWD/backtrace.h 
+
 win32 {
 
 INCLUDEPATH+=$$PWD

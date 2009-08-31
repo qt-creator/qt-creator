@@ -97,7 +97,7 @@ struct QtDumperResult
         int keyEncoded;
         int valueEncoded;
         int childCount;
-        bool valuedisabled;
+        bool valueEnabled;
         QString name;
         QString address;
         QString exp;
@@ -121,7 +121,7 @@ struct QtDumperResult
     bool valueEncountered;
     QByteArray value;
     int valueEncoded;
-    bool valuedisabled;
+    bool valueEnabled;
     int childCount;
     bool internal;
     QString childType;

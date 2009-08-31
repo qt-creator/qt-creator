@@ -332,7 +332,7 @@ private:
     void updateSubItem(const WatchData &data);
 
     void updateWatchData(const WatchData &data);
-    void updateWatchDataAnnounce();
+    Q_SLOT void updateWatchDataHelper(const WatchData &data);
     void rebuildModel();
 
     void insertData(const WatchData &data);

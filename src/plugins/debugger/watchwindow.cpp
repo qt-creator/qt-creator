@@ -353,7 +353,16 @@ void WatchWindow::setModel(QAbstractItemModel *model)
     if (m_type != LocalsType)
         header()->hide();
 
-    connect(model, SIGNAL(layoutChanged()), this, SLOT(resetHelper()));
+    connect(model, SIGNAL(layoutChanged()),
+        this, SLOT(resetHelper()));
+    connect(model, SIGNAL(enableUpdates(bool)),
+        this, SLOT(setUpdatesEnabled(bool)));
+}
+
+void WatchWindow::setUpdatesEnabled(bool enable)
+{
+    //qDebug() << "ENABLING UPDATES: " << enable;
+    QTreeView::setUpdatesEnabled(enable);
 }
 
 void WatchWindow::resetHelper()
