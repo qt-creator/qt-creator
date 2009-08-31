@@ -304,7 +304,6 @@ public slots:
     void detachDebugger();
 
     void addToWatchWindow();
-    void updateWatchDataAnnounce();
     void updateWatchData(const WatchData &data);
 
     void sessionLoaded();
