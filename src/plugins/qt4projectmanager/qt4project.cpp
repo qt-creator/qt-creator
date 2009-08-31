@@ -923,11 +923,6 @@ QList<BuildConfigWidget*> Qt4Project::subConfigWidgets()
     return subWidgets;
 }
 
-/// **************************
-/// Qt4ProjectBuildConfigWidget
-/// **************************
-
-
 void Qt4Project::collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node)
 {
     if (node->projectType() == Internal::ApplicationTemplate

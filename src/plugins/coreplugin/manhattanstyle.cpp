@@ -474,6 +474,12 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
     case PE_PanelLineEdit:
         {
             painter->save();
+
+            // Fill the line edit background
+            QRect filledRect = option->rect.adjusted(1, 1, -1, -1);
+            painter->setBrushOrigin(filledRect.topLeft());
+            painter->fillRect(filledRect, option->palette.base());
+
             if (option->state & State_Enabled)
                 drawCornerImage(d->lineeditImage, painter, option->rect, 2, 2, 2, 2);
             else
