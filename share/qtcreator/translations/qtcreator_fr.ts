@@ -7,7 +7,7 @@
         <location filename="../../../src/app/main.cpp" line="+133"/>
         <source>Failed to load core: %1</source>
         <translatorcomment>traduire core ?</translatorcomment>
-        <translation type="unfinished">Échec dans le chargement du core : %1</translation>
+        <translation type="unfinished">Échec dans le chargement du core : %1</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -30,13 +30,13 @@
     <message>
         <location/>
         <source>Executable:</source>
-        <translation>Exécutable :</translation>
+        <translation>Exécutable :</translation>
     </message>
     <message>
         <location/>
         <source>Core File:</source>
         <translatorcomment>&apos;core&apos; encore...</translatorcomment>
-        <translation type="unfinished">Fichier Core :</translation>
+        <translation type="unfinished">Fichier Core :</translation>
     </message>
 </context>
 <context>
@@ -50,12 +50,12 @@
         <location/>
         <source>Attach to Process ID:</source>
         <translatorcomment>PID ?</translatorcomment>
-        <translation type="unfinished">Attacher au processus d&apos;ID :</translation>
+        <translation type="unfinished">Attacher au processus d&apos;ID :</translation>
     </message>
     <message>
         <location/>
         <source>Filter:</source>
-        <translation>Filtre :</translation>
+        <translation>Filtre :</translation>
     </message>
     <message>
         <location/>
@@ -73,22 +73,22 @@
     <message>
         <location/>
         <source>Host and port:</source>
-        <translation>Hôte et port :</translation>
+        <translation>Hôte et port :</translation>
     </message>
     <message>
         <location/>
         <source>Architecture:</source>
-        <translation>Architecture :</translation>
+        <translation>Architecture :</translation>
     </message>
     <message>
         <location/>
         <source>Use server start script:</source>
-        <translation>Utiliser le script de démarrage du serveur :</translation>
+        <translation>Utiliser le script de démarrage du serveur :</translation>
     </message>
     <message>
         <location/>
         <source>Server start script:</source>
-        <translation>Script de démarrage du serveur :</translation>
+        <translation>Script de démarrage du serveur :</translation>
     </message>
 </context>
 <context>
@@ -114,12 +114,12 @@
     <message>
         <location/>
         <source>Bookmark:</source>
-        <translation>Signet :</translation>
+        <translation>Signet :</translation>
     </message>
     <message>
         <location/>
         <source>Add in Folder:</source>
-        <translation>Ajouter dans le dossier :</translation>
+        <translation>Ajouter dans le dossier :</translation>
     </message>
     <message>
         <location/>
@@ -216,7 +216,7 @@
     <message>
         <location line="+38"/>
         <source>Filter:</source>
-        <translation>Filtre :</translation>
+        <translation>Filtre :</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -331,7 +331,7 @@
     <message>
         <location/>
         <source>Function to break on:</source>
-        <translation>Fonction à interrompre :</translation>
+        <translation>Fonction à interrompre :</translation>
     </message>
 </context>
 <context>
@@ -339,7 +339,7 @@
     <message>
         <location filename="../../../src/plugins/debugger/breakcondition.ui"/>
         <source>Condition:</source>
-        <translation>Condition :</translation>
+        <translation>Condition :</translation>
     </message>
     <message>
         <location/>
@@ -376,7 +376,7 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakerunconfiguration.cpp" line="+238"/>
         <source>Arguments:</source>
-        <translation>Arguments :</translation>
+        <translation>Arguments :</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -391,7 +391,7 @@
     <message>
         <location line="+7"/>
         <source>Working Directory:</source>
-        <translation>Répertoire de travail :</translation>
+        <translation>Répertoire de travail :</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -401,7 +401,7 @@
     <message>
         <location line="+5"/>
         <source>Base environment for this runconfiguration:</source>
-        <translation type="unfinished">Environnement de base pour cette configuration d&apos;éxecution :</translation>
+        <translation type="unfinished">Environnement de base pour cette configuration d&apos;éxecution :</translation>
     </message>
 </context>
 <context>
@@ -464,12 +464,12 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/makestep.cpp" line="+158"/>
         <source>Additional arguments:</source>
-        <translation type="unfinished">Arguments supplémentaires :</translation>
+        <translation type="unfinished">Arguments supplémentaires :</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Targets:</source>
-        <translation type="unfinished">Cibles :</translation>
+        <translation type="unfinished">Cibles :</translation>
     </message>
 </context>
 <context>
@@ -487,7 +487,7 @@
     <message>
         <location line="+8"/>
         <source>Build directory:</source>
-        <translation type="unfinished">Répertoire de compilation :</translation>
+        <translation type="unfinished">Répertoire de compilation :</translation>
     </message>
 </context>
 <context>
@@ -527,7 +527,7 @@
     <message>
         <location/>
         <source>Path:</source>
-        <translation>Chemin :</translation>
+        <translation>Chemin :</translation>
     </message>
     <message>
         <location/>
@@ -537,12 +537,12 @@
     <message>
         <location/>
         <source>Symbol paths:</source>
-        <translation type="unfinished">Chemins des symboles :</translation>
+        <translation type="unfinished">Chemins des symboles :</translation>
     </message>
     <message>
         <location/>
         <source>Source paths:</source>
-        <translation type="unfinished">Chemins des sources :</translation>
+        <translation type="unfinished">Chemins des sources :</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/debugger/cdb/cdboptionspage.cpp" line="+58"/>
@@ -566,7 +566,7 @@
     <message>
         <location filename="../../../src/plugins/git/changeselectiondialog.ui"/>
         <source>Repository Location:</source>
-        <translation>Adresse du depôt :</translation>
+        <translation>Adresse du depôt :</translation>
     </message>
     <message>
         <location/>
@@ -576,7 +576,7 @@
     <message>
         <location/>
         <source>Change:</source>
-        <translation>Modification :</translation>
+        <translation>Modification :</translation>
     </message>
 </context>
 <context>
@@ -644,7 +644,7 @@
         <location filename="../../../src/plugins/cpaster/pasteselect.ui"/>
         <source>Paste:</source>
         <translatorcomment>quelque chose de plus français pour la référence de paste?</translatorcomment>
-        <translation type="unfinished">Collage :</translation>
+        <translation type="unfinished">Collage :</translation>
     </message>
 </context>
 <context>
@@ -658,12 +658,12 @@
     <message>
         <location/>
         <source>CodePaster Server:</source>
-        <translation type="unfinished">Serveur CodePaster :</translation>
+        <translation type="unfinished">Serveur CodePaster :</translation>
     </message>
     <message>
         <location/>
         <source>Username:</source>
-        <translation type="unfinished">Nom d&apos;utilisateur :</translation>
+        <translation type="unfinished">Nom d&apos;utilisateur :</translation>
     </message>
     <message>
         <location/>
@@ -718,7 +718,7 @@
     <message>
         <location/>
         <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translatorcomment>shunté le coup de la &quot;scope information&quot;... :/</translatorcomment>
+        <translatorcomment>shunté le coup de la &quot;scope information&quot;... :/</translatorcomment>
         <translation type="unfinished">Active les info-bulles sur les variables pendant le déboguage. Comme ceci peut ralentir le déboguage et ne fournit pas nécessairement des valeurs fiables, cette option est désactivée par défault.</translation>
     </message>
     <message>
@@ -734,7 +734,7 @@
     <message>
         <location/>
         <source>Maximal stack depth:</source>
-        <translation type="unfinished">Profondeur maximale de la pile :</translation>
+        <translation type="unfinished">Profondeur maximale de la pile :</translation>
     </message>
     <message>
         <location/>
@@ -848,7 +848,7 @@
         <location line="+34"/>
         <source>The project directory %1 contains files which cannot be overwritten:
 %2.</source>
-        <translation type="unfinished">Le répertoire du projet %1 contient des fichiers qui ne peuvent être écrasés :
+        <translation type="unfinished">Le répertoire du projet %1 contient des fichiers qui ne peuvent être écrasés :
 %2.</translation>
     </message>
     <message>
@@ -856,7 +856,7 @@
         <source>The following files already exist in the directory %1:
 %2.
 Would you like to overwrite them?</source>
-        <translation type="unfinished">Les fichiers suivants existent déjà dans le répertoire %1 :
+        <translation type="unfinished">Les fichiers suivants existent déjà dans le répertoire %1 :
 %2,
 Voulez vous les écraser?</translation>
     </message>
@@ -1290,7 +1290,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location/>
         <source>User &amp;interface color:</source>
-        <translation type="unfinished">Couleur de l&apos;&amp;interface utilisateur :</translation>
+        <translation type="unfinished">Couleur de l&apos;&amp;interface utilisateur :</translation>
     </message>
     <message>
         <location/>
@@ -1305,12 +1305,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location/>
         <source>Terminal:</source>
-        <translation type="unfinished">Terminal :</translation>
+        <translation type="unfinished">Terminal :</translation>
     </message>
     <message>
         <location/>
         <source>External editor:</source>
-        <translation type="unfinished">Éditeur externe :</translation>
+        <translation type="unfinished">Éditeur externe :</translation>
     </message>
     <message>
         <location/>
@@ -1614,7 +1614,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/openwithdialog.cpp" line="+43"/>
         <source>Open file &apos;%1&apos; with:</source>
-        <translation>Ouvrir le fichier %1 avec :</translation>
+        <translation>Ouvrir le fichier %1 avec :</translation>
     </message>
 </context>
 <context>
@@ -2057,7 +2057,7 @@ Voulez vous les écraser?</translation>
         <location filename="../../../src/plugins/coreplugin/scriptmanager/scriptmanager.cpp" line="+237"/>
         <source>Exception at line %1: %2
 %3</source>
-        <translation type="unfinished">Exception à la ligne %1 : %2
+        <translation type="unfinished">Exception à la ligne %1 : %2
 %3</translation>
     </message>
     <message>
@@ -2115,7 +2115,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/consoleprocess.cpp" line="+50"/>
         <source>Cannot set up communication channel: %1</source>
-        <translation type="unfinished">Impossible d&apos;établir le canal de communication : %1</translation>
+        <translation type="unfinished">Impossible d&apos;établir le canal de communication : %1</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -2125,12 +2125,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+5"/>
         <source>Cannot create temporary file: %1</source>
-        <translation>Impossible de créer un fichier temporaire : %1</translation>
+        <translation>Impossible de créer un fichier temporaire : %1</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Cannot create temporary directory &apos;%1&apos;: %2</source>
-        <translation type="unfinished">Impossible de créer un dossier temporaire &apos;%1&apos; : %2</translation>
+        <translation type="unfinished">Impossible de créer un dossier temporaire &apos;%1&apos; : %2</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -2560,12 +2560,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location/>
         <source>Header suffix:</source>
-        <translation>Suffixe des headers :</translation>
+        <translation>Suffixe des headers :</translation>
     </message>
     <message>
         <location/>
         <source>Source suffix:</source>
-        <translation>Suffixe des fichiers source :</translation>
+        <translation>Suffixe des fichiers source :</translation>
     </message>
     <message>
         <location/>
@@ -2575,7 +2575,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location/>
         <source>License Template:</source>
-        <translation>Modèle de licence :</translation>
+        <translation>Modèle de licence :</translation>
     </message>
 </context>
 <context>
@@ -2583,7 +2583,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+842"/>
         <source>%1: No such file or directory</source>
-        <translation>%1 : aucun fichier ou répertoire de ce type</translation>
+        <translation>%1 : aucun fichier ou répertoire de ce type</translation>
     </message>
 </context>
 <context>
@@ -11306,7 +11306,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <location line="+290"/>
         <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
         <translatorcomment>error -&gt; erreur ;)</translatorcomment>
-        <translation type="unfinished">&lt;b&gt;Erreur :&lt;/b&gt; Impossible de décoder &quot;%1&quot; avec l&apos;encodage &quot;%2&quot;. L&apos;édition est impossible.</translation>
+        <translation type="unfinished">&lt;b&gt;Erreur :&lt;/b&gt; Impossible de décoder &quot;%1&quot; avec l&apos;encodage &quot;%2&quot;. L&apos;édition est impossible.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -11319,12 +11319,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+3718"/>
         <source>Line: %1, Col: %2</source>
-        <translation>Ligne : %1, Col : %2</translation>
+        <translation>Ligne : %1, Col : %2</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line: %1, Col: 999</source>
-        <translation>Ligne : %1, Col : 999</translation>
+        <translation>Ligne : %1, Col : 999</translation>
     </message>
 </context>
 <context>
@@ -11357,17 +11357,17 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location/>
         <source>Ta&amp;b size:</source>
-        <translation>Taille de &amp;tabulation :</translation>
+        <translation>Taille de &amp;tabulation :</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Indent size:</source>
-        <translation>Taille de l&apos;in&amp;dentation :</translation>
+        <translation>Taille de l&apos;in&amp;dentation :</translation>
     </message>
     <message>
         <location/>
         <source>Tab key performs auto-indent:</source>
-        <translation>La touche tabulation active l&apos;identation automatique :</translation>
+        <translation>La touche tabulation active l&apos;identation automatique :</translation>
     </message>
     <message>
         <location/>
@@ -11480,7 +11480,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location/>
         <source>Display right &amp;margin at column:</source>
-        <translation>Afficher une &amp;marge à la colonne :</translation>
+        <translation>Afficher une &amp;marge à la colonne :</translation>
     </message>
     <message>
         <location/>
@@ -11519,7 +11519,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>
 The following encodings are likely to fit:</source>
         <translation type="unfinished">
-Les encodages suivants pourraient fonctionner :</translation>
+Les encodages suivants pourraient fonctionner :</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11555,7 +11555,7 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+37"/>
         <source>&amp;Directory:</source>
-        <translation>&amp;Dossier :</translation>
+        <translation>&amp;Dossier :</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -11566,7 +11566,7 @@ Les encodages suivants pourraient fonctionner :</translation>
         <location line="+4"/>
         <source>File &amp;pattern:</source>
         <translatorcomment>Schéma ou motif ? (motif ça fait penser au style du même nom...)</translatorcomment>
-        <translation type="unfinished">&amp;Schéma de fichier :</translation>
+        <translation type="unfinished">&amp;Schéma de fichier :</translation>
     </message>
     <message>
         <location line="+18"/>
@@ -11584,12 +11584,12 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location/>
         <source>Family:</source>
-        <translation>Famille :</translation>
+        <translation>Famille :</translation>
     </message>
     <message>
         <location/>
         <source>Size:</source>
-        <translation>Taille :</translation>
+        <translation>Taille :</translation>
     </message>
     <message>
         <location/>
@@ -11615,12 +11615,12 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location/>
         <source>Background:</source>
-        <translation>Arrière plan :</translation>
+        <translation>Arrière plan :</translation>
     </message>
     <message>
         <location/>
         <source>Foreground:</source>
-        <translation>Premier plan :</translation>
+        <translation>Premier plan :</translation>
     </message>
     <message>
         <location/>
@@ -11635,7 +11635,7 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location/>
         <source>Preview:</source>
-        <translation>Aperçu :</translation>
+        <translation>Aperçu :</translation>
     </message>
 </context>
 <context>
@@ -12107,7 +12107,7 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location filename="../../../src/shared/help/topicchooser.cpp" line="+42"/>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation type="unfinished">Choisissez un thème pour &lt;b&gt;%1&lt;/b&gt; :</translation>
+        <translation type="unfinished">Choisissez un thème pour &lt;b&gt;%1&lt;/b&gt; :</translation>
     </message>
 </context>
 <context>
@@ -12149,7 +12149,7 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+15"/>
         <source>Cannot open &apos;%1&apos;: %2</source>
-        <translation>Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
+        <translation>Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
     </message>
 </context>
 <context>
@@ -12198,17 +12198,17 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+28"/>
         <source>Unable to open &apos;%1&apos;: %2</source>
-        <translation>Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
+        <translation>Impossible d&apos;ouvrir &apos;%1&apos; : %2</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The check script &apos;%1&apos; could not be started: %2</source>
-        <translation>Le script de vérification &apos;%1&apos; ne peut pas être démarré : %2</translation>
+        <translation>Le script de vérification &apos;%1&apos; ne peut pas être démarré : %2</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The check script &apos;%1&apos; could not be run: %2</source>
-        <translation>Le script de vérification &apos;%1&apos; ne peut pas être exécuté : %2</translation>
+        <translation>Le script de vérification &apos;%1&apos; ne peut pas être exécuté : %2</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -12226,7 +12226,7 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location/>
         <source>Wrap submit message at:</source>
-        <translation>Limiter la largeur du message à :</translation>
+        <translation>Limiter la largeur du message à :</translation>
     </message>
     <message>
         <location/>
@@ -12236,19 +12236,19 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location/>
         <source>Submit message check script:</source>
-        <translation>Script de vérification du message :</translation>
+        <translation>Script de vérification du message :</translation>
     </message>
     <message>
         <location/>
         <source>A file listing user names and email addresses in a 4-column mailmap format:
 name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="unfinished">Un fichier listant les noms d&apos;utilisateur et leur adresse email dans le format 4 colonnes de mailmap :
+        <translation type="unfinished">Un fichier listant les noms d&apos;utilisateur et leur adresse email dans le format 4 colonnes de mailmap :
 nom &lt;email&gt; alias &lt;/email&gt;</translation>
     </message>
     <message>
         <location/>
         <source>User/alias configuration file:</source>
-        <translation>Fichier de configuration des alias utilisateur :</translation>
+        <translation>Fichier de configuration des alias utilisateur :</translation>
     </message>
     <message>
         <location/>
@@ -12258,7 +12258,7 @@ nom &lt;email&gt; alias &lt;/email&gt;</translation>
     <message>
         <location/>
         <source>User fields configuration file:</source>
-        <translation>Fichier de configuration des champs utilisateurs :</translation>
+        <translation>Fichier de configuration des champs utilisateurs :</translation>
     </message>
 </context>
 <context>
@@ -12273,7 +12273,7 @@ nom &lt;email&gt; alias &lt;/email&gt;</translation>
         <source>Would you like to remove this file from the version control system (%1)?
 Note: This might remove the local file.</source>
         <translation type="unfinished">Voulez-vous retirer ce fichier du système de gestion de versions (%1)?
-Note : Ceci risque de supprimer le fichier sur le disque.</translation>
+Note : Ceci risque de supprimer le fichier sur le disque.</translation>
     </message>
 </context>
 <context>
@@ -12312,7 +12312,7 @@ Note : Ceci risque de supprimer le fichier sur le disque.</translation>
     <message>
         <location/>
         <source>&amp;Username:</source>
-        <translation>&amp;Utilisateur :</translation>
+        <translation>&amp;Utilisateur :</translation>
     </message>
     <message>
         <location/>
@@ -12322,7 +12322,7 @@ Note : Ceci risque de supprimer le fichier sur le disque.</translation>
     <message>
         <location/>
         <source>&amp;Description:</source>
-        <translation type="unfinished">&amp;Description :</translation>
+        <translation type="unfinished">&amp;Description :</translation>
     </message>
     <message>
         <location/>
