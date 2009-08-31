@@ -19,11 +19,7 @@
     {qt-creator-request@trolltech.com}. For more information on Qt mailing
     lists, visit \l{http://lists.trolltech.com}{http://lists.trolltech.com}.
 
-    \image qtcreator-screenshots.png
-
-    \table
-    \row
-        \o Qt Creator includes a wide range of useful features. Among them are:
+    Qt Creator includes a wide range of useful features. Among them are:
     \list 1
         \o \bold{Smart Code Editor}: The code editor provides syntax
             highlighting as well as code completion.
@@ -43,9 +39,13 @@
            within Qt Creator using a graphical frontend to the GNU symbolic
            debugger (GDB) and the Microsoft Console Debugger (CDB).
     \endlist
-    \endtable
 
     To learn more about the Qt Creator, click on one of the links below:
+
+
+    \raw HTML
+    <img border="0" style="float:right;" src="images/qtcreator-screenshots.png" />
+    \endraw 
 
     \list
        \o   \l{A Quick Tour of Qt Creator}
@@ -68,9 +68,7 @@
        \o   \l{Known Issues}
        \o   \l{Acknowledgements}
     \endlist
-
 */
-
 
 /*!
     \contentspage index.html

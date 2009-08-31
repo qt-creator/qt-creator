@@ -12,7 +12,7 @@ exampledirs = $SRCDIR
 indexes                 = qt.index
 
 extraimages.HTML        = qt-logo \
-                          trolltech-logo
+                          qtcreator-screenshots
 
 sources.fileextensions  = "qtcreator.qdoc addressbook-sdk.qdoc"
 
@@ -24,7 +24,8 @@ qhp.QtCreator.virtualFolder    = doc
 qhp.QtCreator.indexTitle       = Qt Creator
 qhp.QtCreator.indexRoot        =
 qhp.QtCreator.extraFiles       = classic.css \
-                          images/qt-logo.png
+                          images/qt-logo.png \
+                          images/qtcreator-screenshots.png
 qhp.QtCreator.filterAttributes = qtcreator 1.2.1
 qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 1.2.1
 qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 1.2.1
