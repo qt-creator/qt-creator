@@ -1,0 +1,2 @@
+Interesting to test is e.g.
+* if opening one of the symbolic links opens the link target (bad), or the symbolic link (good)
