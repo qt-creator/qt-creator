@@ -1208,7 +1208,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
                                           &m_option->base_valuemap, &m_option->base_functions)) {
                         errorMessage(format("Could not read qmake configuration file %1").arg(spec));
                     } else {
-                        updateHash(&m_option->base_valuemap, m_option->cache_valuemap);
+                        evaluateFileInto(qmake_cache, &m_option->base_valuemap, &m_option->base_functions);
                     }
                 }
 
