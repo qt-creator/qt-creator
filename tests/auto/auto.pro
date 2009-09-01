@@ -5,4 +5,5 @@ SUBDIRS += \
     debugger \
     extensionsystem \
     fakevim \
-    profilereader
+#    profilereader \
+    aggregation
