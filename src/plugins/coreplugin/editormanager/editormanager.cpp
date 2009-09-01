@@ -1484,8 +1484,8 @@ void EditorManager::updateActions()
     m_d->m_gotoNextDocHistoryAction->setEnabled(m_d->m_editorModel->rowCount() != 0);
     m_d->m_gotoPreviousDocHistoryAction->setEnabled(m_d->m_editorModel->rowCount() != 0);
     EditorView *view  = currentEditorView();
-    m_d->m_goBackAction->setEnabled(view->canGoBack());
-    m_d->m_goForwardAction->setEnabled(view->canGoForward());
+    m_d->m_goBackAction->setEnabled(view ? view->canGoBack() : false);
+    m_d->m_goForwardAction->setEnabled(view ? view->canGoForward() : false);
 
     bool hasSplitter = m_d->m_splitter->isSplitter();
     m_d->m_removeCurrentSplitAction->setEnabled(hasSplitter);

@@ -617,7 +617,6 @@ SplitterOrView::SplitterOrView(OpenEditorsModel *model)
     m_view = new EditorView(model);
     m_splitter = 0;
     m_layout->addWidget(m_view);
-    setFocusPolicy(Qt::ClickFocus);
 }
 
 SplitterOrView::SplitterOrView(Core::IEditor *editor)
@@ -629,7 +628,6 @@ SplitterOrView::SplitterOrView(Core::IEditor *editor)
         m_view->addEditor(editor);
     m_splitter = 0;
     m_layout->addWidget(m_view);
-    setFocusPolicy(Qt::ClickFocus);
 }
 
 SplitterOrView::~SplitterOrView()
@@ -642,10 +640,11 @@ SplitterOrView::~SplitterOrView()
     m_splitter = 0;
 }
 
-
-
-void SplitterOrView::focusInEvent(QFocusEvent *)
+void SplitterOrView::mousePressEvent(QMouseEvent *e)
 {
+    if (e->button() != Qt::LeftButton)
+        return;
+    setFocus(Qt::MouseFocusReason);
     CoreImpl::instance()->editorManager()->setCurrentView(this);
 }
 
@@ -664,6 +663,7 @@ void SplitterOrView::paintEvent(QPaintEvent *)
     const int r = 3;
     painter.drawRoundedRect(rect().adjusted(r, r, -r, -r), r * 2, r * 2);
 
+#if 0
     if (hasFocus()) {
 #ifdef Q_WS_MAC
         // With QMacStyle, we have to draw our own focus rect, since I didn't find
@@ -687,6 +687,7 @@ void SplitterOrView::paintEvent(QPaintEvent *)
         }
 #endif
     }
+#endif
 }
 
 SplitterOrView *SplitterOrView::findFirstView()
