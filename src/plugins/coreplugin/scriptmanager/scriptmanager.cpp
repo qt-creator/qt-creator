@@ -46,10 +46,6 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QStatusBar>
 
-namespace {
-    enum { debugQWorkbenchWrappers = 0 };
-}
-
 // Script function template to pop up a message box
 // with a certain icon and buttons.
 template <int MsgBoxIcon, int MsgBoxButtons>
@@ -178,14 +174,9 @@ namespace Core {
 namespace Internal {
 
 ScriptManagerPrivate::ScriptManagerPrivate(QObject *parent)
-   : ScriptManager(parent), m_initialized(false)
+   : ScriptManager(parent),
+   m_engine(0)
 {
-}
-
-QScriptEngine &ScriptManagerPrivate::scriptEngine()
-{
-    ensureEngineInitialized();
-    return m_engine;
 }
 
 // Split a backtrace of the form:
@@ -225,25 +216,26 @@ bool ScriptManagerPrivate::runScript(const QString &script, QString *errorMessag
     ensureEngineInitialized();
     stack->clear();
 
-    m_engine.pushContext();
-    m_engine.evaluate(script);
+    m_engine->pushContext();
+    m_engine->evaluate(script);
 
-    const bool failed = m_engine.hasUncaughtException ();
+    const bool failed = m_engine->hasUncaughtException ();
     if (failed) {
-        const int errorLineNumber = m_engine.uncaughtExceptionLineNumber();
-        const QStringList backTrace = m_engine.uncaughtExceptionBacktrace();
+        const int errorLineNumber = m_engine->uncaughtExceptionLineNumber();
+        const QStringList backTrace = m_engine->uncaughtExceptionBacktrace();
         parseBackTrace(backTrace, *stack);
         const QString backtrace = backTrace.join(QString(QLatin1Char('\n')));
         *errorMessage = ScriptManager::tr("Exception at line %1: %2\n%3").arg(errorLineNumber).arg(engineError(m_engine)).arg(backtrace);
     }
-    m_engine.popContext();
+    m_engine->popContext();
     return !failed;
 }
 
 void ScriptManagerPrivate::ensureEngineInitialized()
 {
-    if (m_initialized)
+    if (m_engine)
         return;
+    m_engine = new QScriptEngine(this);
     // register QObjects that occur as properties
     SharedTools::registerQObject<QMainWindow>(m_engine);
     SharedTools::registerQObject<QStatusBar>(m_engine);
@@ -252,52 +244,51 @@ void ScriptManagerPrivate::ensureEngineInitialized()
 //    SharedTools::registerQObjectInterface<Core::MessageManager, MessageManagerPrototype>(m_engine);
 
 //    SharedTools::registerQObjectInterface<Core::IFile, FilePrototype>(m_engine);
-//    qScriptRegisterSequenceMetaType<QList<Core::IFile *> >(&m_engine);
+//    qScriptRegisterSequenceMetaType<QList<Core::IFile *> >(m_engine);
 //    SharedTools::registerQObjectInterface<Core::FileManager, FileManagerPrototype>(m_engine);
 
 //    SharedTools::registerQObjectInterface<Core::IEditor, EditorPrototype>(m_engine);
-    qScriptRegisterSequenceMetaType<QList<Core::IEditor *> >(&m_engine);
+    qScriptRegisterSequenceMetaType<QList<Core::IEditor *> >(m_engine);
 
 //    SharedTools::registerQObjectInterface<Core::EditorGroup, EditorGroupPrototype>(m_engine);
-    qScriptRegisterSequenceMetaType<QList<Core::EditorGroup *> >(&m_engine);
+    qScriptRegisterSequenceMetaType<QList<Core::EditorGroup *> >(m_engine);
 
     SharedTools::registerQObjectInterface<Core::EditorManager, EditorManagerPrototype>(m_engine);
 
 //    SharedTools::registerQObjectInterface<Core::ICore, CorePrototype>(m_engine);
 
     // Make "core" available
-    m_engine.globalObject().setProperty(QLatin1String("core"), qScriptValueFromValue(&m_engine, Core::ICore::instance()));
+    m_engine->globalObject().setProperty(QLatin1String("core"), qScriptValueFromValue(m_engine, Core::ICore::instance()));
 
     // CLASSIC:  registerInterfaceWithDefaultPrototype<Core::MessageManager, MessageManagerPrototype>(m_engine);
 
     // Message box conveniences
-    m_engine.globalObject().setProperty(QLatin1String("critical"),
-                                        m_engine.newFunction(messageBox<QMessageBox::Critical, QMessageBox::Ok>, 3));
-    m_engine.globalObject().setProperty(QLatin1String("warning"),
-                                        m_engine.newFunction(messageBox<QMessageBox::Warning, QMessageBox::Ok>, 3));
-    m_engine.globalObject().setProperty(QLatin1String("information"),
-                                        m_engine.newFunction(messageBox<QMessageBox::Information, QMessageBox::Ok>, 3));
+    m_engine->globalObject().setProperty(QLatin1String("critical"),
+                                        m_engine->newFunction(messageBox<QMessageBox::Critical, QMessageBox::Ok>, 3));
+    m_engine->globalObject().setProperty(QLatin1String("warning"),
+                                        m_engine->newFunction(messageBox<QMessageBox::Warning, QMessageBox::Ok>, 3));
+    m_engine->globalObject().setProperty(QLatin1String("information"),
+                                        m_engine->newFunction(messageBox<QMessageBox::Information, QMessageBox::Ok>, 3));
     // StandardButtons has overloaded operator '|' - grrr.
     enum { MsgBoxYesNo = 0x00014000 };
-    m_engine.globalObject().setProperty(QLatin1String("yesNoQuestion"),
-                                        m_engine.newFunction(messageBox<QMessageBox::Question, MsgBoxYesNo>, 3));
+    m_engine->globalObject().setProperty(QLatin1String("yesNoQuestion"),
+                                        m_engine->newFunction(messageBox<QMessageBox::Question, MsgBoxYesNo>, 3));
 
-    m_engine.globalObject().setProperty(QLatin1String("getText"), m_engine.newFunction(inputDialogGetText, 3));
-    m_engine.globalObject().setProperty(QLatin1String("getInteger"), m_engine.newFunction(inputDialogGetInteger, 3));
-    m_engine.globalObject().setProperty(QLatin1String("getDouble"), m_engine.newFunction(inputDialogGetDouble, 3));
-    m_engine.globalObject().setProperty(QLatin1String("getItem"), m_engine.newFunction(inputDialogGetItem, 3));
+    m_engine->globalObject().setProperty(QLatin1String("getText"), m_engine->newFunction(inputDialogGetText, 3));
+    m_engine->globalObject().setProperty(QLatin1String("getInteger"), m_engine->newFunction(inputDialogGetInteger, 3));
+    m_engine->globalObject().setProperty(QLatin1String("getDouble"), m_engine->newFunction(inputDialogGetDouble, 3));
+    m_engine->globalObject().setProperty(QLatin1String("getItem"), m_engine->newFunction(inputDialogGetItem, 3));
 
     // file box
-    m_engine.globalObject().setProperty(QLatin1String("getOpenFileNames"), m_engine.newFunction(fileBox<QFileDialog::AcceptOpen, QFileDialog::ExistingFiles> , 2));
-    m_engine.globalObject().setProperty(QLatin1String("getOpenFileName"), m_engine.newFunction(fileBox<QFileDialog::AcceptOpen, QFileDialog::ExistingFile> , 2));
-    m_engine.globalObject().setProperty(QLatin1String("getSaveFileName"), m_engine.newFunction(fileBox<QFileDialog::AcceptSave, QFileDialog::AnyFile> , 2));
-    m_engine.globalObject().setProperty(QLatin1String("getExistingDirectory"), m_engine.newFunction(fileBox<QFileDialog::AcceptSave, QFileDialog::DirectoryOnly> , 2));
-    m_initialized = true;
+    m_engine->globalObject().setProperty(QLatin1String("getOpenFileNames"), m_engine->newFunction(fileBox<QFileDialog::AcceptOpen, QFileDialog::ExistingFiles> , 2));
+    m_engine->globalObject().setProperty(QLatin1String("getOpenFileName"), m_engine->newFunction(fileBox<QFileDialog::AcceptOpen, QFileDialog::ExistingFile> , 2));
+    m_engine->globalObject().setProperty(QLatin1String("getSaveFileName"), m_engine->newFunction(fileBox<QFileDialog::AcceptSave, QFileDialog::AnyFile> , 2));
+    m_engine->globalObject().setProperty(QLatin1String("getExistingDirectory"), m_engine->newFunction(fileBox<QFileDialog::AcceptSave, QFileDialog::DirectoryOnly> , 2));
 }
 
-QString ScriptManagerPrivate::engineError(QScriptEngine &scriptEngine)
+QString ScriptManagerPrivate::engineError(QScriptEngine *scriptEngine)
 {
-    QScriptValue error = scriptEngine.evaluate(QLatin1String("Error"));
+    QScriptValue error = scriptEngine->evaluate(QLatin1String("Error"));
     if (error.isValid())
         return error.toString();
     return ScriptManager::tr("Unknown error");

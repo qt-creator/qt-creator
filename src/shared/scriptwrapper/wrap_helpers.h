@@ -319,9 +319,9 @@ static void scriptValueToQObject(const QScriptValue &sv, SomeQObject * &p)
 // Q_PROPERTY(QMainWindow*).
 
 template <class SomeQObject>
-static void registerQObject(QScriptEngine &engine)
+static void registerQObject(QScriptEngine *engine)
 {
-    qScriptRegisterMetaType<SomeQObject*>(&engine,
+    qScriptRegisterMetaType<SomeQObject*>(engine,
                                           qObjectToScriptValue<SomeQObject>,
                                           scriptValueToQObject<SomeQObject>);
 }

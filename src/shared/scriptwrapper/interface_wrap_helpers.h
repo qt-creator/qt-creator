@@ -70,13 +70,13 @@ static void scriptValueToQObjectInterface(const QScriptValue &sv, QObjectInterfa
 // QObject that implements the interface, so it can be casted to it.
 
 template <class QObjectInterface, class Prototype>
-static void registerQObjectInterface(QScriptEngine &engine)
+static void registerQObjectInterface(QScriptEngine *engine)
 {
-    Prototype *protoType = new Prototype(&engine);
-    const QScriptValue scriptProtoType = engine.newQObject(protoType);
+    Prototype *protoType = new Prototype(engine);
+    const QScriptValue scriptProtoType = engine->newQObject(protoType);
 
     const int metaTypeId = qScriptRegisterMetaType<QObjectInterface*>(
-        &engine,
+        engine,
         qObjectInterfaceToScriptValue<QObjectInterface>,
         scriptValueToQObjectInterface<QObjectInterface>,
         scriptProtoType);
