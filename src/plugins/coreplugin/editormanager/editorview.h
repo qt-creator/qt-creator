@@ -199,8 +199,8 @@ public:
     void unsplitAll();
 
 protected:
-    void focusInEvent(QFocusEvent *);
     void paintEvent(QPaintEvent *);
+    void mousePressEvent(QMouseEvent *e);
 
 
 private:
