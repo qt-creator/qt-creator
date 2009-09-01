@@ -1454,8 +1454,8 @@
     system.
 
     This feature lets you use Qt Creator as a code editor. You can change the
-    way your project is built by modifying the \c make command on the
-    \gui{Project Settings} page.
+    way your project is built by modifying the \c make command under
+    \gui{Build Settings} in the \gui{Projects} mode.
 
     For a generic project, you have to manually specify which files belong to
     your project and which include directories/defines you want to pass to your
@@ -1468,7 +1468,8 @@
     file. When you first create a generic project, Qt Creator will add any
     files it recognizes to your project. To add or remove files later, simply
     edit the \c{.files} file in Qt Creator. Your project tree will be refreshed
-    when you save this file.
+    when you save this file. You can also add or remove files using the context
+    menu in the project tree.
 
     If you frequently need to update the \c{.files} file, we recommend the use
     of a small script that will update the files for you. Currently, if the
@@ -1478,7 +1479,9 @@
 
     \section2 Specifying Include Paths
 
-    The include paths are specified in the \c{.includes} file.
+    The include paths are specified in the \c{.includes} file, one include
+    path per line. The paths can be either absolute or relative to the
+    \c{.includes} file.
 
     \section2 Specifying Defines
 
@@ -1490,11 +1493,12 @@
     #define NAME value
     \endcode
 
+
     \section2 Creating a Run Configuration
 
     Qt Creator cannot automatically determine which executable it should run.
     To set up a custom executable run configuration in the \gui Projects mode,
-    use the \bold{+} button. Here you can specify the name, executable, and
+    use the \bold{Add} button. Here you can specify the name, executable, and
     some optional arguments. By default, the working directory is
     \c{$BUILDDIR} which should work fine.
 */
