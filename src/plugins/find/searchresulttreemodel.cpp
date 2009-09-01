@@ -31,8 +31,10 @@
 #include "searchresulttreeitems.h"
 #include "searchresulttreeitemroles.h"
 
+#include <QtGui/QApplication>
 #include <QtGui/QFont>
 #include <QtGui/QColor>
+#include <QtGui/QPalette>
 #include <QtCore/QDir>
 
 using namespace Find::Internal;
@@ -186,9 +188,11 @@ QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) con
 
     switch (role)
     {
-    case Qt::BackgroundRole:
-        result = QColor(qRgb(245, 245, 245));
+    case Qt::BackgroundRole: {
+        const QColor baseColor = QApplication::palette().base().color();
+        result = baseColor.darker(105);
         break;
+    }
     case Qt::DisplayRole:
         result = QString(QDir::toNativeSeparators(file->fileName())
             + " (" + QString::number(file->childrenCount()) + ")");
@@ -212,7 +216,7 @@ QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) con
 }
 
 QVariant SearchResultTreeModel::headerData(int section, Qt::Orientation orientation,
-                               int role) const
+                                           int role) const
 {
     Q_UNUSED(section)
     Q_UNUSED(orientation)
@@ -224,7 +228,8 @@ void SearchResultTreeModel::appendResultFile(const QString &fileName)
 {
     m_lastAppendedResultFile = new SearchResultFile(fileName, m_rootItem);
 
-    beginInsertRows(QModelIndex(), m_rootItem->childrenCount(), m_rootItem->childrenCount());
+    const int childrenCount = m_rootItem->childrenCount();
+    beginInsertRows(QModelIndex(), childrenCount, childrenCount);
     m_rootItem->appendChild(m_lastAppendedResultFile);
     endInsertRows();
 }

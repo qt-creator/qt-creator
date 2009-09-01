@@ -38,13 +38,13 @@ using namespace Find::Internal;
 
 SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     : QTreeView(parent)
+    , m_model(new SearchResultTreeModel(this))
     , m_autoExpandResults(false)
 {
-    m_model = new SearchResultTreeModel(this);
     setModel(m_model);
     setItemDelegate(new SearchResultTreeItemDelegate(this));
-
     setIndentation(14);
+    setUniformRowHeights(true);
     header()->hide();
 
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(emitJumpToSearchResult(QModelIndex)));
