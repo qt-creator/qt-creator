@@ -63,17 +63,6 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace {
-    template<class K, class T> void updateHash(QHash<K,T> *out, const QHash<K,T> &in)
-    {
-        typename QHash<K,T>::const_iterator i = in.begin();
-        while (i != in.end()) {
-            out->insert(i.key(), i.value());
-            ++i;
-        }
-    }
-} // anon namespace
-
 static void refFunctions(QHash<QString, ProBlock *> *defs)
 {
     foreach (ProBlock *itm, *defs)
