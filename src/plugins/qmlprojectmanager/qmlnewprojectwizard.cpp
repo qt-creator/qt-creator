@@ -230,7 +230,7 @@ Core::GeneratedFiles QmlNewProjectWizard::generateFiles(const QWizard *w,
     out
         << "import Qt 4.6" << endl
         << endl
-        << "Rect {" << endl
+        << "Rectangle {" << endl
         << "    width: 200" << endl
         << "    height: 200" << endl
         << "    color: \"white\"" << endl
