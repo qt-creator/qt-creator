@@ -460,20 +460,20 @@ void FindToolBar::updateIcons()
     bool wholewords = effectiveFlags & IFindSupport::FindWholeWords;
     bool regexp = effectiveFlags & IFindSupport::FindRegularExpression;
     QPixmap pixmap(17, 17);
+    pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
-    painter.eraseRect(0, 0, 17, 17);
     int x = 16;
 
     if (casesensitive) {
-        painter.drawPixmap(x-10, 0, m_casesensitiveIcon);
+        painter.drawPixmap(x - 10, 0, m_casesensitiveIcon);
         x -= 6;
     }
     if (wholewords) {
-        painter.drawPixmap(x-10, 0, m_wholewordsIcon);
+        painter.drawPixmap(x - 10, 0, m_wholewordsIcon);
         x -= 6;
     }
     if (regexp) {
-        painter.drawPixmap(x-10, 0, m_regexpIcon);
+        painter.drawPixmap(x - 10, 0, m_regexpIcon);
     }
     if (!casesensitive && !wholewords && !regexp) {
         QPixmap mag(Core::Constants::ICON_MAGNIFIER);
