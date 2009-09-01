@@ -45,17 +45,15 @@ class ScriptManagerPrivate : public Core::ScriptManager
 public:
     explicit ScriptManagerPrivate(QObject *parent);
 
-    QScriptEngine &scriptEngine();
     bool runScript(const QString &script, QString *errorMessage, Stack *stack);
     bool runScript(const QString &script, QString *errorMessage);
 
-    static QString engineError(QScriptEngine &scriptEngine);
+    static QString engineError(QScriptEngine *scriptEngine);
 
 private:
     void ensureEngineInitialized();
 
-    QScriptEngine m_engine;
-    bool m_initialized;
+    QScriptEngine *m_engine;
 };
 
 } // namespace Internal

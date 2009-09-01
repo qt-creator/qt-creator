@@ -33,7 +33,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/scriptmanager/scriptmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtGui/QAction>

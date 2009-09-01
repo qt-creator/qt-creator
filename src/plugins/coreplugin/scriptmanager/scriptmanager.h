@@ -59,9 +59,6 @@ public:
     ScriptManager(QObject *parent = 0) : QObject(parent) {}
     virtual ~ScriptManager() { }
 
-    // Access the engine (for plugins to wrap additional interfaces).
-    virtual QScriptEngine &scriptEngine() = 0;
-
     // Run a script
     virtual bool runScript(const QString &script, QString *errorMessage, Stack *errorStack) = 0;
     virtual bool runScript(const QString &script, QString *errorMessage) = 0;
