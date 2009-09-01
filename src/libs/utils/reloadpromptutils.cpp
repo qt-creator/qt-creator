@@ -31,6 +31,7 @@
 
 #include <QtGui/QMessageBox>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
 
 using namespace Core;
 using namespace Core::Utils;
@@ -44,10 +45,10 @@ QTCREATOR_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
 
     if (modified)
         msg = QCoreApplication::translate("Core::Utils::reloadPrompt",
-                                          "The unsaved file %1 has been changed outside Qt Creator. Do you want to reload it and discard your changes?").arg(fileName);
+                                          "The unsaved file %1 has been changed outside Qt Creator. Do you want to reload it and discard your changes?").arg(QDir::toNativeSeparators(fileName));
     else
         msg = QCoreApplication::translate("Core::Utils::reloadPrompt",
-                                          "The file %1 has changed outside Qt Creator. Do you want to reload it?").arg(fileName);
+                                          "The file %1 has changed outside Qt Creator. Do you want to reload it?").arg(QDir::toNativeSeparators(fileName));
     return reloadPrompt(title, msg, parent);
 }
 
