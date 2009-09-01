@@ -51,7 +51,6 @@ SearchResultWindow::SearchResultWindow()
     m_widget->setWindowTitle(name());
 
     m_searchResultTreeView = new SearchResultTreeView(m_widget);
-    m_searchResultTreeView->setUniformRowHeights(true);
     m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
     m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_widget->addWidget(m_searchResultTreeView);

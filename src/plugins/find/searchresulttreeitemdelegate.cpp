@@ -91,7 +91,8 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
         cg = QPalette::Disabled;
 
     painter->fillRect(lineNumberAreaRect, QBrush(isSelected ?
-        option.palette.brush(cg, QPalette::Highlight) : QBrush(qRgb(230, 230, 230))));
+        option.palette.brush(cg, QPalette::Highlight) :
+        option.palette.color(cg, QPalette::Base).darker(111)));
     painter->setPen(isSelected ?
         option.palette.color(cg, QPalette::HighlightedText) : Qt::darkGray);
     painter->drawText(lineNumberAreaRect.adjusted(0, 0, -lineNumberAreaHorizontalPadding, 0),
