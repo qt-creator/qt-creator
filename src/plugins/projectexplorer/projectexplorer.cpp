@@ -420,13 +420,17 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OPEN);
 
-#ifdef Q_OS_MAC
-    // Show in Finder action
-    m_showInFinder = new QAction(tr("Show in Finder..."), this);
-    cmd = am->registerAction(m_showInFinder, ProjectExplorer::Constants::SHOWINFINDER,
+#if defined(Q_OS_WIN)
+    m_showInGraphicalShell = new QAction(tr("Show in Explorer..."), this);
+#elif defined(Q_OS_MAC)
+    m_showInGraphicalShell = new QAction(tr("Show in Finder..."), this);
+#else
+    m_showInGraphicalShell = new QAction(tr("Show containing folder..."), this);
+#endif
+    cmd = am->registerAction(m_showInGraphicalShell, ProjectExplorer::Constants::SHOWINGRAPHICALSHELL,
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OPEN);
-#endif
+    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
 
     // Open With menu
     mfilec->addMenu(openWith, ProjectExplorer::Constants::G_FILE_OPEN);
@@ -678,9 +682,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(m_addNewFileAction, SIGNAL(triggered()), this, SLOT(addNewFile()));
     connect(m_addExistingFilesAction, SIGNAL(triggered()), this, SLOT(addExistingFiles()));
     connect(m_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
-#ifdef Q_OS_MAC
-    connect(m_showInFinder, SIGNAL(triggered()), this, SLOT(showInFinder()));
-#endif
+    connect(m_showInGraphicalShell, SIGNAL(triggered()), this, SLOT(showInGraphicalShell()));
     connect(m_removeFileAction, SIGNAL(triggered()), this, SLOT(removeFile()));
     connect(m_renameFileAction, SIGNAL(triggered()), this, SLOT(renameFile()));
 
@@ -1748,11 +1750,21 @@ void ProjectExplorerPlugin::openFile()
     em->ensureEditorManagerVisible();
 }
 
-#ifdef Q_OS_MAC
-void ProjectExplorerPlugin::showInFinder()
+void ProjectExplorerPlugin::showInGraphicalShell()
 {
-    if (!m_currentNode)
+    QTC_ASSERT(m_currentNode, return)
+#if defined(Q_OS_WIN)
+    QString explorer = Environment::systemEnvironment().searchInPath("explorer.exe");
+    if (explorer.isEmpty()) {
+        QMessageBox::warning(Core::ICore::instance()->mainWindow(),
+                             tr("Launching Windows Explorer failed"),
+                             tr("Could not find explorer.exe in path to launch Windows Explorer."));
         return;
+    }
+    QProcess::execute(explorer,
+                      QStringList() << QString("/select,%1")
+                      .arg(QDir::toNativeSeparators(m_currentNode->path())));
+#elif defined(Q_OS_MAC)
     QProcess::execute("/usr/bin/osascript", QStringList()
                       << "-e"
                       << QString("tell application \"Finder\" to reveal POSIX file \"%1\"")
@@ -1760,8 +1772,19 @@ void ProjectExplorerPlugin::showInFinder()
     QProcess::execute("/usr/bin/osascript", QStringList()
                       << "-e"
                       << "tell application \"Finder\" to activate");
-}
+#elif
+    // we cannot select a file here, because no file browser really supports it...
+    QFileInfo fileInfo(m_currentNode->path());
+    QString xdgopen = Environment::systemEnvironment().searchInPath("xdg-open");
+    if (xdgopen.isEmpty()) {
+        QMessageBox::warning(Core::ICore::instance()->mainWindow(),
+                             tr("Launching a file explorer failed"),
+                             tr("Could not find xdg-open to launch the native file explorer."));
+        return;
+    }
+    QProcess::execute(xdgopen, QStringList() <<  fileInfo.path());
 #endif
+}
 
 void ProjectExplorerPlugin::removeFile()
 {

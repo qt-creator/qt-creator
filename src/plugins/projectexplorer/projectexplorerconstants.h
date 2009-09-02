@@ -66,7 +66,7 @@ const char * const SHOWPROPERTIES       = "ProjectExplorer.ShowProperties";
 const char * const ADDNEWFILE           = "ProjectExplorer.AddNewFile";
 const char * const ADDEXISTINGFILES     = "ProjectExplorer.AddExistingFiles";
 const char * const OPENFILE             = "ProjectExplorer.OpenFile";
-const char * const SHOWINFINDER         = "ProjectExplorer.ShowInFinder";
+const char * const SHOWINGRAPHICALSHELL = "ProjectExplorer.ShowInGraphicalShell";
 const char * const REMOVEFILE           = "ProjectExplorer.RemoveFile";
 const char * const RENAMEFILE           = "ProjectExplorer.RenameFile";
 
