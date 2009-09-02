@@ -342,6 +342,19 @@ static Document::Ptr findDefinition(const Function *functionDeclaration, int *li
 
 }
 
+static bool isEndingQuote(const QString &contents, int quoteIndex)
+{
+    bool endingQuote = true;
+    if (quoteIndex > 0) {
+        int previous = 1;
+        while (contents.at(quoteIndex - previous) == QLatin1Char('\\')) {
+            previous++;
+            endingQuote = !endingQuote;
+        }
+    }
+    return endingQuote;
+}
+
 // TODO: Wait for robust Roberto's code using AST or whatever for that. Current implementation is hackish.
 static int findClassEndPosition(const QString &headerContents, int classStartPosition)
 {
@@ -361,7 +374,7 @@ static int findClassEndPosition(const QString &headerContents, int classStartPos
         } else if (contents.at(idx) == QLatin1Char('\"')) {
             do {
                 idx = contents.indexOf(QLatin1Char('\"'), idx + 1); // drop everything up to the nearest "
-            } while (idx > 0 && contents.at(idx - 1) == QLatin1Char('\\')); // if the nearest " is preceeded by \ we find next one
+            } while (idx > 0 && !isEndingQuote(contents, idx)); // if the nearest " is preceeded by \ (or by \\\ or by \\\\\, but not by \\ nor \\\\) we find next one
             if (idx < 0)
                 break;
             idx++;
