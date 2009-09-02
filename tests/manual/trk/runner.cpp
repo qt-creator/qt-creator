@@ -109,9 +109,9 @@ Runner::Runner()
     m_gdbServerIP = "127.0.0.1";
     m_gdbServerPort = QString::number(2222 + userId);
 
-    m_trkServerProc.setObjectName("TRKSERVER");
-    m_adapterProc.setObjectName("ADAPTER");
-    m_debuggerProc.setObjectName("GDB");
+    m_trkServerProc.setObjectName("TRKSERVER PROCESS");
+    m_adapterProc.setObjectName("ADAPTER PROCESS");
+    m_debuggerProc.setObjectName("GDB PROCESS");
 
     connectProcess(&m_trkServerProc);
     connectProcess(&m_adapterProc);
@@ -319,12 +319,12 @@ void Runner::writeGdbInit()
 
 void Runner::run()
 {
-    launchAdapter();
-
     if (m_isUnix) {
         QProcess::execute("killall -s USR adapter trkserver");
         QProcess::execute("killall adapter trkserver");
     }
+
+    launchAdapter();
 
     uid_t userId = getuid();
     if (m_trkServerName.isEmpty())
@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 #if 1
     QStringList args = QCoreApplication::arguments();
-    qDebug() << "ARGS: " << args;
+    qDebug() << "RUNNER ARGS: " << args;
 #else
     // Important options: -w wait for adapter, -af omit serial frame.
     QStringList args = QStringList() << "-w" << "-af" << "COM5";

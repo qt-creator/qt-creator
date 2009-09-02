@@ -188,10 +188,9 @@ ScriptEngine::ScriptEngine(DebuggerManager *parent)
 {
     q = parent;
     qq = parent->engineInterface();
-    m_scriptEngine = new QScriptEngine(this);
-    m_scriptAgent = new ScriptAgent(this, m_scriptEngine);
-    m_scriptEngine->setAgent(m_scriptAgent);
-    m_scriptEngine->setProcessEventsInterval(1 /*ms*/);
+    // created in startDebugger()
+    m_scriptEngine = 0;
+    m_scriptAgent = 0;
 }
 
 ScriptEngine::~ScriptEngine()
@@ -220,6 +219,13 @@ void ScriptEngine::exitDebugger()
 
 bool ScriptEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
+    if (!m_scriptEngine)
+        m_scriptEngine = new QScriptEngine(this);
+    if (!m_scriptAgent)
+        m_scriptAgent = new ScriptAgent(this, m_scriptEngine);
+    m_scriptEngine->setAgent(m_scriptAgent);
+    m_scriptEngine->setProcessEventsInterval(1 /*ms*/);
+
     m_stopped = false;
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
