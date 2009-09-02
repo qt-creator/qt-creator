@@ -80,9 +80,15 @@ static inline void dumpRegister(int n, uint value, QByteArray &a)
     a += QByteArray::number(value, 16);
 }
 
-struct AdapterOptions {
-    AdapterOptions() : verbose(1),serialFrame(true),registerEndianness(LittleEndian),
-                       useSocket(false), bufferedMemoryRead(true) {}
+struct AdapterOptions
+{
+    AdapterOptions()
+      : verbose(1),
+        serialFrame(true),
+        registerEndianness(LittleEndian),
+        useSocket(false),
+        bufferedMemoryRead(true)
+    {}
 
     int verbose;
     bool serialFrame;
@@ -820,13 +826,13 @@ bool Adapter::openTrkPort(const QString &port, QString *errorMessage)
 {
     if (m_useSocket) {
         QLocalSocket *socket = new QLocalSocket;
+        m_socket = QSharedPointer<QIODevice>(new QLocalSocket);
         socket->connectToServer(port);
         if (!socket->waitForConnected()) {
-            *errorMessage = "Unable to connect to TRK server " + m_trkServerName + ' ' + m_socket->errorString();
+            *errorMessage = "Unable to connect to TRK server " + m_trkServerName + ' ' + socket->errorString();
             delete socket;
             return false;
         }
-        m_socket = QSharedPointer<QIODevice>(socket);
         m_socketDevice = QSharedPointer<TrkWriteQueueIODevice>(new TrkWriteQueueIODevice(m_socket));
         connect(m_socketDevice.data(), SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));
         if (m_verbose > 1)
@@ -1504,6 +1510,8 @@ int main(int argc, char *argv[])
                "         -b Set register endianness to big\n", argv[0]);
         return 1;
     }
+
+    qDebug() << "Adapter args: " << app.arguments();
 
     Adapter adapter;
     adapter.setTrkServerName(options.trkServer);

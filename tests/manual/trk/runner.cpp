@@ -55,7 +55,7 @@ class Runner : public QObject
 
 public:
     Runner();
-    void parseArguments();
+    void parseArguments(const QStringList &args);
 
 signals:
     void output(const QString &senderName, const QString &data);
@@ -68,6 +68,7 @@ private slots:
     void handleProcStarted();
     void handleProcStateChanged(QProcess::ProcessState newState);
     void run();
+    void runRfcomm();
 
 private:
     friend class RunnerGui;
@@ -84,7 +85,7 @@ private:
     QString m_trkServerName;
     bool m_runTrkServer;
     bool m_isUnix;
-    int m_waitAdapter;
+    bool m_waitForAdapter;
     QString m_gdbServerIP;
     QString m_gdbServerPort;
 
@@ -102,7 +103,7 @@ Runner::Runner()
 #endif
     m_endianness = "little";
     m_runTrkServer = true;
-    m_waitAdapter = 0;
+    m_waitForAdapter = false;
 
     uid_t userId = getuid();
     m_gdbServerIP = "127.0.0.1";
@@ -195,9 +196,8 @@ static QString usage()
         .arg(QCoreApplication::arguments().at(0));
 }
 
-void Runner::parseArguments()
+void Runner::parseArguments(const QStringList &args)
 {
-    QStringList args = QCoreApplication::arguments();
     for (int i = 1; i < args.size(); ++i) {
         const QString arg = args.at(i);
         if (arg.startsWith('-')) {
@@ -210,7 +210,7 @@ void Runner::parseArguments()
             } else if (arg == "-au") {
                 m_adapterOptions.append("-u");
             } else if (arg == "-w") {
-                m_waitAdapter = 1;
+                m_waitForAdapter = true;
             } else if (arg == "-tv") {
                 m_trkServerOptions.append("-v");
             } else if (arg == "-tq") {
@@ -224,7 +224,7 @@ void Runner::parseArguments()
             }
         } else {
             m_trkServerName = arg;
-            m_runTrkServer = 0;
+            m_runTrkServer = false;
         }
     }
 }
@@ -272,7 +272,7 @@ void Runner::launchAdapter()
             << QDir::currentPath() + "/debug/adapter.exe";
     }
     adapterArgs << m_adapterOptions;
-    adapterArgs << "-s";
+    //adapterArgs << "-s";
     adapterArgs << m_trkServerName << m_gdbServerIP + ':' + m_gdbServerPort;
 
     sendOutput("### Starting " + adapterName + " " + adapterArgs.join(" "));
@@ -282,7 +282,7 @@ void Runner::launchAdapter()
     //die ('Unable to launch adapter') if $adapterpid == -1;
 
 /*
-    if ($m_waitAdapter > 0) {
+    if (m_waitForAdapter) {
         print '### kill -USR1 ',$adapterpid,"\n";    
         waitpid($adapterpid, 0);
     }    
@@ -291,6 +291,7 @@ void Runner::launchAdapter()
 
 void Runner::writeGdbInit()
 {
+    qDebug() << "WRITE GDBINIT";
     QString gdbInitFile = QDir::currentPath() + "/.gdbinit";
     QFile file(gdbInitFile);
     if (!file.open(QIODevice::ReadWrite)) {
@@ -350,6 +351,18 @@ void Runner::run()
     writeGdbInit();
 }
 
+void Runner::runRfcomm()
+{
+    qDebug() << "RUNNING RFCCOMM";
+    QProcess *proc = new QProcess;
+    connectProcess(proc);
+    proc->start("rfcomm listen /dev/rfcomm0 1");
+    proc->waitForStarted();
+    qDebug() << "STARTED";
+    proc->write("\x90\x01\x00\x05\x7e\x00\x00\xff\x7e");
+    qDebug() << "WRITTEN";
+    proc->waitForFinished();
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -393,11 +406,19 @@ void RunnerGui::handleOutput(const QString &senderName, const QString &data)
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+#if 1
+    QStringList args = QCoreApplication::arguments();
+    qDebug() << "ARGS: " << args;
+#else
+    // Important options: -w wait for adapter, -af omit serial frame.
+    QStringList args = QStringList() << "-w" << "-af" << "COM5";
+#endif
     Runner runner;
-    runner.parseArguments();
+    runner.parseArguments(args);
     RunnerGui gui(&runner);
     gui.show();
     QTimer::singleShot(0, &runner, SLOT(run()));
+    //QTimer::singleShot(0, &runner, SLOT(runRfcomm()));
     return app.exec();
 }
 

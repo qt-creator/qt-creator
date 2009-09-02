@@ -27,9 +27,8 @@ Enter the following commands in a terminal (all as root, adjust device
 permissions as required to work as user):
 
 
-sdptool add SP         # announce Serial Port Profile via Service Discovery Protocol
-sudo mknod /dev/rfcomm0 c 216 0 # Creates a Bluetooth Serial Device
-sudo chmod ugo+rw /dev/rfcomm0  # Give permissions)
+sdptool add SP  # announce Serial Port Profile via Service Discovery Protocol
+sudo mknod --mode=666 /dev/rfcomm0 c 216 0  # Creates a Bluetooth Serial Device
 
 rfcomm listen /dev/rfcomm0 1 $PWD/trklauncher -v -f {}
 
