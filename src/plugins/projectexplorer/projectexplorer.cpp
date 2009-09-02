@@ -1774,7 +1774,7 @@ void ProjectExplorerPlugin::showInGraphicalShell()
     QProcess::execute("/usr/bin/osascript", QStringList()
                       << "-e"
                       << "tell application \"Finder\" to activate");
-#elif
+#else
     // we cannot select a file here, because no file browser really supports it...
     QFileInfo fileInfo(m_currentNode->path());
     QString xdgopen = Environment::systemEnvironment().searchInPath("xdg-open");

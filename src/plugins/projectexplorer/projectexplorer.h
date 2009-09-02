@@ -184,9 +184,7 @@ private slots:
     void addNewFile();
     void addExistingFiles();
     void openFile();
-#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
     void showInGraphicalShell();
-#endif
     void removeFile();
     void renameFile();
 
@@ -257,9 +255,7 @@ private:
     QAction *m_addNewFileAction;
     QAction *m_addExistingFilesAction;
     QAction *m_openFileAction;
-#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
     QAction *m_showInGraphicalShell;
-#endif
     QAction *m_removeFileAction;
     QAction *m_renameFileAction;
 
