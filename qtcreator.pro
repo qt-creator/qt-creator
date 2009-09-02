@@ -1,7 +1,7 @@
 #version check qt
-contains(QT_VERSION, ^4\.[0-4]\..*) {
+contains(QT_VERSION, ^4\.[0-5]\..*) {
     message("Cannot build Qt Creator with Qt version $$QT_VERSION.")
-    error("Use at least Qt 4.5.")
+    error("Use at least Qt 4.6.")
 }
 
 include(qtcreator.pri)
