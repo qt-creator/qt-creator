@@ -1175,7 +1175,8 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/editmode.cpp" line="+94"/>
         <source>Edit</source>
-        <translation type="unfinished">Modifier</translation>
+        <translatorcomment>sonne mieux pour le mode...  non ?</translatorcomment>
+        <translation type="unfinished">Éditeur</translation>
     </message>
 </context>
 <context>
@@ -1213,7 +1214,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+11"/>
         <source>Previous Document</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Document précédent</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1295,7 +1296,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location/>
         <source>Reset to default</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Restaurer les réglages par default</translation>
     </message>
     <message>
         <location/>
@@ -1842,47 +1843,48 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+2"/>
         <source>&lt;b&gt;Qt Creator - A quick tour&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;b&gt;Qt Creator - Aperçu rapide&lt;/b&gt;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Creating an address book</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Créer un carnet d&apos;adresses</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Understanding widgets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comprendre les widgets</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Building with qmake</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Compiler grâce à qmake</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Writing test cases</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Écrire des tests</translation>
     </message>
     <message>
         <location line="+31"/>
         <source>Welcome</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>il s&apos;agit du mode, donc d&apos;un écran d&apos;accueil</translatorcomment>
+        <translation type="unfinished">Accueil</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>%1 (last session)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 (dernière session)</translation>
     </message>
     <message>
         <location line="+60"/>
         <source>Choose an example...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir un exemple...</translation>
     </message>
     <message>
         <location line="+73"/>
         <source>New Project...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nouveau projet...</translation>
     </message>
     <message>
         <location line="+24"/>
@@ -1899,28 +1901,28 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+2"/>
         <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vous pouvez basculer entre les modes de Qt Creator en utilisant &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Accueil&lt;/li&gt;&lt;li&gt;2 - Éditeur&lt;/li&gt;&lt;li&gt;3 - Débogueur&lt;/li&gt;&lt;li&gt;4 - Projets&lt;/li&gt;&lt;li&gt;5 - Aide&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>You can show and hide the side bar using &lt;tt&gt;%1+0&lt;tt&gt;.</source>
         <extracomment>%1 gets replaced by Alt (Win/Unix) or Cmd (Mac)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vous pouvez afficher et masquer la barre latérale en utilisant &lt;tt&gt;%1+0&lt;tt&gt;.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>You can fine tune the &lt;tt&gt;Find&lt;/tt&gt; function by selecting &amp;quot;Whole Words&amp;quot; or &amp;quot;Case Sensitive&amp;quot;. Simply click on the icons on the right end of the line edit.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vous pouvez affiner les résultats de la fonction recherche en sélectionnant &amp;quot;Mots complets&amp;quot; ou &amp;quot;Sensible à la casse&amp;quot;. Cliquez simplement sur les icônes sur le bord droit du champ de recherche.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Si vous ajoutez &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;des bibliothèques externes&lt;/a&gt;, Qt Creator proposera automatiquement la coloration syntaxique et l&apos;auto-complétion du code.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>The code completion is CamelCase-aware. For example, to complete &lt;tt&gt;namespaceUri&lt;/tt&gt; you can just type &lt;tt&gt;nU&lt;/tt&gt; and hit &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">L&apos;auto-complétion du code.est compatible avec CamelCase. Par exemple, pour compléter &lt;tt&gt;namespaceUri&lt;/tt&gt; vous pouvez taper simplement &lt;tt&gt;nU&lt;/tt&gt; puis &lt;tt&gt;Ctrl+Espace&lt;/tt&gt;.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -2743,7 +2745,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+1"/>
         <source>Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Débogueur</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+380"/>
@@ -5580,12 +5582,12 @@ Reason: %3</source>
     <message>
         <location/>
         <source>&amp;Case sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sensible à la &amp;casse</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Whole words only</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Mots complets uniquement</translation>
     </message>
 </context>
 <context>
