@@ -29,3 +29,5 @@ win32 {
     target.path  = /bin
     INSTALLS    += target
 }
+
+OTHER_FILES += qtcreator.rc
