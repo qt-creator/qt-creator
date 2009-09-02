@@ -549,6 +549,9 @@ void FontSettingsPage::refreshColorSchemeList()
         colorSchemes.append(ColorSchemeEntry(fileName, true));
     }
 
+    if (colorSchemes.isEmpty())
+        qWarning() << "Warning: no color schemes found in path:" << styleDir.path();
+
     styleDir.setPath(customStylesPath());
 
     foreach (const QString &file, styleDir.entryList()) {
