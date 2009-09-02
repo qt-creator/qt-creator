@@ -49,9 +49,11 @@ Project support
    * By default projects using the Microsoft Visual Studio toolchain use jom
      instead of nmake, for better utilization of all processors.
    * Show subdirectory structure below .pro/.pri files in project tree
+   * Add "Show file in Finder/Explorer" (Mac/Windows) to context menu.
+     On Linux it opens the containing directory.
 
 Compilation
-   * Support distributed compilation on Windows/MSVC via jom 
+   * Support multi-core compilation on Windows/MSVC via jom
      (see http://qt.gitorious.org/qt-labs/jom/)
 
 Debugging
