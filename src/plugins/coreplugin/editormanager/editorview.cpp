@@ -650,11 +650,14 @@ void SplitterOrView::mousePressEvent(QMouseEvent *e)
 
 void SplitterOrView::paintEvent(QPaintEvent *)
 {
-    if  (CoreImpl::instance()->editorManager()->currentSplitterOrView() != this)
+    if (CoreImpl::instance()->editorManager()->currentSplitterOrView() != this)
         return;
-    QPainter painter(this);
 
-    // Discreet indication where an editor would be
+    if (!m_view || hasEditors())
+        return;
+
+    // Discreet indication where an editor would be if there is none
+    QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setPen(Qt::NoPen);
     QColor shadeBrush(Qt::black);

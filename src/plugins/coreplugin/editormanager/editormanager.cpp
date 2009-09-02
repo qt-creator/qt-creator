@@ -554,12 +554,10 @@ IEditor *EditorManager::currentEditor() const
     return m_d->m_currentEditor;
 }
 
-
 void EditorManager::emptyView(Core::Internal::EditorView *view)
 {
     if (!view)
         return;
-
 
     QList<IEditor *> editors = view->editors();
     foreach (IEditor *editor, editors) {
