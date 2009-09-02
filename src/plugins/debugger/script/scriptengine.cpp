@@ -608,10 +608,13 @@ void ScriptEngine::updateLocals()
     data.iname = "local";
     data.name = "local";
     data.scriptValue = context->activationObject();
-    qq->watchHandler()->insertData(data);
+    qq->watchHandler()->beginCycle();
+    updateSubItem(data);
+    qq->watchHandler()->endCycle();
 
     // FIXME: Use an extra thread. This here is evil
     m_stopped = true;
+    q->showStatusMessage(tr("Stopped."), 5000);
     while (m_stopped) {
         //SDEBUG("LOOPING");
         QApplication::processEvents();
@@ -623,7 +626,6 @@ void ScriptEngine::updateWatchData(const WatchData &data)
 {
     updateSubItem(data);
     //qq->watchHandler()->rebuildModel();
-    q->showStatusMessage(tr("Stopped."), 5000);
 }
 
 void ScriptEngine::updateSubItem(const WatchData &data0)
@@ -679,9 +681,11 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
         } else if (ob.isUndefined()) {
             data.setType("<undefined>");
             data.setValue("<unknown>");
+            data.setHasChildren(false);
         } else {
             data.setType("<unknown>");
             data.setValue("<unknown>");
+            data.setHasChildren(false);
         }
         qq->watchHandler()->insertData(data);
         return;
