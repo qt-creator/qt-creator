@@ -730,9 +730,6 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
                                                 QString *errorMessage,
                                                 QString *settingsIdHint)
 {
-    if (IDebuggerEngine *tce = debuggerEngineForToolChain(static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
-        return tce;
-
     if (executable.endsWith(_(".js"))) {
         if (!scriptEngine) {
             *errorMessage = msgEngineNotAvailable("Script Engine");
@@ -740,6 +737,9 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
         }
         return scriptEngine;
     }
+
+    if (IDebuggerEngine *tce = debuggerEngineForToolChain(static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
+        return tce;
 
 #ifndef Q_OS_WIN
     Q_UNUSED(settingsIdHint)
