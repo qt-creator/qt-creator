@@ -2135,42 +2135,42 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+5"/>
         <source>Unexpected output from helper program.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sortie imprévue du logiciel externe.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Cannot change to working directory &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de changer le rrpertoire de travail &apos;%1&apos; : %2</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Cannot execute &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;éxecuter &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <location filename="../../../src/libs/utils/consoleprocess_unix.cpp" line="+111"/>
         <source>Cannot start the terminal emulator &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de démarrer l&apos;émulateur de terminal &apos;%1&apos;.</translation>
     </message>
     <message>
         <location line="+49"/>
         <source>Cannot create socket &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de créer le socket &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <location filename="../../../src/libs/utils/consoleprocess_win.cpp" line="+125"/>
         <source>The process &apos;%1&apos; could not be started: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le processus &apos;%1&apos; ne peut pas être démarrer: %2</translation>
     </message>
     <message>
         <location line="+70"/>
         <source>Cannot obtain a handle to the inferior: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;obtenir le descripteur du processus: %1</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>Cannot obtain exit status from inferior: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;obtenir la valeur de retour du processus: %1</translation>
     </message>
 </context>
 <context>
@@ -2178,22 +2178,22 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/filenamevalidatinglineedit.cpp" line="+96"/>
         <source>The name must not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le nom ne peut pas être vide</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>The name must not contain any of the characters &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le nom ne peut pas contenir un des caractères suivant: &apos;%1&apos;.</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>The name must not contain &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le nom ne peut pas contenir &apos;%1&apos;.</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The name must not match that of a MS Windows device. (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le nom ne peut pas correspondre à un périphérique MS Windows. (%1).</translation>
     </message>
 </context>
 <context>
@@ -2202,24 +2202,24 @@ Voulez vous les écraser?</translation>
         <location filename="../../../src/libs/utils/filesearch.cpp" line="+46"/>
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%1: annulé. %n entrée trouvée dans %2 fichiers.</numerusform>
+            <numerusform>%1: annulé. %n entrées trouvées dans %2 fichiers.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+8"/>
         <source>%1: %n occurrences found in %2 files.</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%1: %n occurrence trouvée dans %2 fichiers.</numerusform>
+            <numerusform>%1: %n occurrences trouvées dans %2 fichiers.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+8"/>
         <source>%1: %n occurrences found in %2 of %3 files.</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%1: %n occurence trouvé dans %2 de %3 fichiers.</numerusform>
+            <numerusform>%1: %n occurences trouvés dans %2 de %3 fichiers.</numerusform>
         </translation>
     </message>
 </context>
@@ -2228,57 +2228,57 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/newclasswidget.ui"/>
         <source>Class name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom de la classe :</translation>
     </message>
     <message>
         <location/>
         <source>Base class:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Classe parent :</translation>
     </message>
     <message>
         <location/>
         <source>Header file:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier d&apos;en-tête :</translation>
     </message>
     <message>
         <location/>
         <source>Source file:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier source :</translation>
     </message>
     <message>
         <location/>
         <source>Generate form:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Générer l&apos;interface graphique :</translation>
     </message>
     <message>
         <location/>
         <source>Form file:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier d&apos;interface :</translation>
     </message>
     <message>
         <location/>
         <source>Path:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Chemin :</translation>
     </message>
     <message>
         <location filename="../../../src/libs/utils/newclasswidget.cpp" line="+393"/>
         <source>Invalid base class name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom de la classe parente invalide</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Invalid header file name: &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom du fichier d&apos;en-tête invalide: &apos;%1&apos;</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Invalid source file name: &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom du fichier source invalide: &apos;%1&apos;</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Invalid form file name: &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom du fichier d&apos;interface invalide: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -2286,47 +2286,47 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/pathchooser.cpp" line="+49"/>
         <source>Choose...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Browse...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parcourir...</translation>
     </message>
     <message>
         <location line="+117"/>
         <source>Choose a directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selectionner un répertoire</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Choose a file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selectionner un fichier</translation>
     </message>
     <message>
         <location line="+32"/>
         <source>The path must not be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le chemin ne peut pas être vide.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>The path &apos;%1&apos; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le chemin &apos;%1&apos; n&apos;existe pas.</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>The path &apos;%1&apos; is not a directory.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&apos;%1&apos; n&apos;est pas le chemin d&apos;un répertoire.</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>The path &apos;%1&apos; is not a file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 n&apos;est pas le chemin d&apos;un fichier.</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Path:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Chemin :</translation>
     </message>
 </context>
 <context>
@@ -2334,27 +2334,27 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/pathlisteditor.cpp" line="+120"/>
         <source>Insert...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Insérer...</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Add...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Delete line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer la ligne</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Effacer tout</translation>
     </message>
     <message>
         <location line="+130"/>
         <source>From &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Depuis &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -2483,7 +2483,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+116"/>
         <source>Error while generating file contents.</source>
-        <translation type="unfinished">Erreur a la génération du contenu du fichier</translation>
+        <translation type="unfinished">Erreur a la génération du contenu du fichier.</translation>
     </message>
 </context>
 <context>
@@ -11043,12 +11043,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+11"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Add &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -11058,12 +11058,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+5"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Delete &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -11138,17 +11138,17 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+8"/>
         <source>Describe...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Décrire...</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Project Status</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Status du projet</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Update Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mettre à jour le projet</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -11163,22 +11163,22 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+3"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annu&amp;ler</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Refaire</translation>
     </message>
     <message>
         <location line="+40"/>
         <source>Closing Subversion Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer l&apos;éditeur Subversion</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Voulez vous envoyez les changements?</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11193,64 +11193,65 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+80"/>
         <source>The commit list spans several repositories (%1). Please commit them one by one.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La liste de commit s&apos;étend sur plusieur répertoire (%1). Veuillez les ajouter un par un.</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Another commit is currently being executed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Un autre commit est en cours d&apos;exécution.</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>There are no modified files.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Il n&apos;y a aucun fichier modifié.</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Cannot create temporary file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de créer le fichier temporaire : %1</translation>
     </message>
     <message>
         <location line="+184"/>
         <source>Describe</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Décrire</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Revision number:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Numéro de révision :</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>No subversion executable specified!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aucun exécutable Subversion n&apos;a été spécifié!</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>%1 Executing: %2 %3
 </source>
         <extracomment>&lt;timestamp&gt; Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 Exécute : %2 %3
+</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>The process terminated with exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le processus s&apos;est terminé avec le code %1.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>The process terminated abnormally.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le processus s&apos;est terminé de façon anormale.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Could not start subversion &apos;%1&apos;. Please check your settings in the preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de démarrer subversion &apos;%1&apos;. Veuillez vérifier la configuration dans les préférences.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Subversion did not respond within timeout limit (%1 ms).</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Subversion n&apos;a pas répondu après la limite de temps (%1 ms).</translation>
     </message>
 </context>
 <context>
@@ -11258,7 +11259,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/subversion/subversionsubmiteditor.cpp" line="+42"/>
         <source>Subversion Submit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Submit Subversion</translation>
     </message>
 </context>
 <context>
