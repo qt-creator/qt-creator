@@ -220,7 +220,10 @@ void MakeStepConfigWidget::updateDetails()
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
     QStringList args = m_makeStep->value(m_buildConfiguration, "makeargs").toStringList();
-    ProjectExplorer::ToolChain::ToolChainType t = qobject_cast<Qt4Project *>(pro)->toolChain(m_buildConfiguration)->type();
+    ProjectExplorer::ToolChain::ToolChainType t = ProjectExplorer::ToolChain::UNKNOWN;
+    ProjectExplorer::ToolChain *toolChain = qobject_cast<Qt4Project *>(pro)->toolChain(m_buildConfiguration);
+    if (toolChain)
+        t = toolChain->type();
     if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {
         if (m_makeStep->value(m_buildConfiguration, "makeCmd").toString().isEmpty())
             args << "-w";
