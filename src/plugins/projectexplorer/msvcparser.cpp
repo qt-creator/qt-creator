@@ -31,6 +31,7 @@
 #include "projectexplorerconstants.h"
 
 #include <QtCore/QStringList>
+#include <QtCore/QDir>
 
 using namespace ProjectExplorer;
 
@@ -58,7 +59,7 @@ void MsvcParser::stdOutput(const QString & line)
     QString lne = line.trimmed();
     if (m_compileRegExp.indexIn(lne) > -1 && m_compileRegExp.numCaptures() == 4) {
         emit addToTaskWindow(
-            m_compileRegExp.cap(1), //filename
+            QDir::cleanPath(m_compileRegExp.cap(1)), //filename
             toType(m_compileRegExp.cap(3).toInt()), // PatternType
             m_compileRegExp.cap(2).toInt(), //linenumber
             m_compileRegExp.cap(4) //description
@@ -70,7 +71,7 @@ void MsvcParser::stdOutput(const QString & line)
             fileName.clear();
 
         emit addToTaskWindow(
-            fileName, //filename
+            QDir::cleanPath(fileName), //filename
             toType(m_linkRegExp.cap(2).toInt()), // pattern type
             -1, // line number
             m_linkRegExp.cap(3) // description
