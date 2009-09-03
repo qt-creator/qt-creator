@@ -388,6 +388,8 @@ QtVersion::QtVersion(const QString &name, const QString &path, int id,
     m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
+    m_mkspecUpToDate(false),
+    m_versionInfoUpToDate(false),
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
     m_defaultConfigIsDebugAndRelease(true),
@@ -409,10 +411,33 @@ QtVersion::QtVersion(const QString &name, const QString &path,
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_mkspecUpToDate(false),
-    m_versionInfoUpToDate(false)
+    m_versionInfoUpToDate(false),
+    m_notInstalled(false),
+    m_defaultConfigIsDebug(true),
+    m_defaultConfigIsDebugAndRelease(true),
+    m_hasExamples(false),
+    m_hasDemos(false),
+    m_hasDocumentation(false)
 {
     m_id = getUniqueId();
     setPath(path);
+}
+
+QtVersion::QtVersion()
+    : m_name(QString::null),
+    m_id(-1),
+    m_isAutodetected(false),
+    m_hasDebuggingHelper(false),
+    m_mkspecUpToDate(false),
+    m_versionInfoUpToDate(false),
+    m_notInstalled(false),
+    m_defaultConfigIsDebug(true),
+    m_defaultConfigIsDebugAndRelease(true),
+    m_hasExamples(false),
+    m_hasDemos(false),
+    m_hasDocumentation(false)
+{
+    setPath(QString::null);
 }
 
 QtVersion::~QtVersion()
