@@ -80,7 +80,7 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
 {
     COMSTAT comStat;
     if (!ClearCommError(hFile, NULL, &comStat)){
-        logMessage("ClearCommError() failed");
+        qDebug()<<("ClearCommError() failed");
         return FALSE;
     }
     if (comStat.cbInQue == 0) {
