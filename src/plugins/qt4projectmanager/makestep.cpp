@@ -103,7 +103,11 @@ bool MakeStep::init(const QString &name)
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    ProjectExplorer::ToolChain::ToolChainType t = qobject_cast<Qt4Project *>(project())->toolChain(name)->type();
+    ProjectExplorer::ToolChain *toolchain = qobject_cast<Qt4Project *>(project())->toolChain(name);
+
+    ProjectExplorer::ToolChain::ToolChainType t =  ProjectExplorer::ToolChain::UNKNOWN;
+    if (toolchain)
+        t = toolchain->type();
     if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {
         if (value(name, "makeCmd").toString().isEmpty())
             args << "-w";
