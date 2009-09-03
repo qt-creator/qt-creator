@@ -26,7 +26,6 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-
 #include "makestep.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"

@@ -149,10 +149,26 @@ void AbstractMakeStep::slotAddToTaskWindow(const QString & fn, int type, int lin
                 }
             }
         }
-        if (possibleFiles.count() == 1)
+        if (possibleFiles.count() == 1) {
             filePath = possibleFiles.first().filePath();
-        else
-            qWarning() << "Could not find absolute location of file " << filePath;
+        } else {
+            // More then one filename, so do a better compare
+            // Chop of any "../"
+            while (filePath.startsWith("../"))
+                filePath = filePath.mid(3);
+            int count = 0;
+            QString possibleFilePath;
+            foreach(const QFileInfo & fi, possibleFiles) {
+                if (fi.filePath().endsWith(filePath)) {
+                    possibleFilePath = fi.filePath();
+                    ++count;
+                }
+            }
+            if (count == 1)
+                filePath = possibleFilePath;
+            else
+                qWarning() << "Could not find absolute location of file " << filePath;
+        }
     }
     emit addToTaskWindow(filePath, type, linenumber, description);
 }
