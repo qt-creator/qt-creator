@@ -1315,7 +1315,7 @@ EditorManager::ReadOnlyAction
                                       bool displaySaveAsButton)
 {
     QMessageBox msgBox(QMessageBox::Question, tr("File is Read Only"),
-                       tr("The file %1 is read only.").arg(fileName),
+                       tr("The file %1 is read only.").arg(QDir::toNativeSeparators(fileName)),
                        QMessageBox::Cancel, parent);
 
     QPushButton *sccButton = 0;
@@ -1674,7 +1674,7 @@ void EditorManager::revertToSaved()
         return;
     if (currEditor->file()->isModified()) {
         QMessageBox msgBox(QMessageBox::Question, tr("Revert to Saved"),
-                           tr("You will lose your current changes if you proceed reverting %1.").arg(fileName),
+                           tr("You will lose your current changes if you proceed reverting %1.").arg(QDir::toNativeSeparators(fileName)),
                            QMessageBox::Yes|QMessageBox::No, m_d->m_core->mainWindow());
         msgBox.button(QMessageBox::Yes)->setText(tr("Proceed"));
         msgBox.button(QMessageBox::No)->setText(tr("Cancel"));
