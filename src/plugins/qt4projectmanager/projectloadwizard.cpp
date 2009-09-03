@@ -50,15 +50,15 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
 {
     QtVersionManager * vm = QtVersionManager::instance();
     QString directory = QFileInfo(project->file()->fileName()).absolutePath();
-    QString importVersion =  QtVersionManager::findQtVersionFromMakefile(directory);
+    QString importVersion =  QtVersionManager::findQMakeBinaryFromMakefile(directory);
 
     if (!importVersion.isNull()) {
         // This also means we have a build in there
         // First get the qt version
-        m_importVersion = vm->qtVersionForDirectory(importVersion);
+        m_importVersion = vm->qtVersionForQMakeBinary(importVersion);
         // Okay does not yet exist, create
         if (!m_importVersion) {
-            m_importVersion = new QtVersion(QFileInfo(importVersion).baseName(), importVersion);
+            m_importVersion = new QtVersion(importVersion);
             m_temporaryVersion = true;
         }
 
@@ -209,7 +209,7 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
     QVBoxLayout *importLayout = new QVBoxLayout(importPage);
     importLabel = new QLabel(importPage);
 
-    QString versionString = version->name() + " (" + QDir::toNativeSeparators(version->path()) + ")";
+    QString versionString = version->name() + " (" + QDir::toNativeSeparators(version->qmakeCommand()) + ")";
     QString buildConfigString = (buildConfig & QtVersion::BuildAll) ? QLatin1String("debug_and_release ") : QLatin1String("");
     buildConfigString.append((buildConfig & QtVersion::DebugBuild) ? QLatin1String("debug") : QLatin1String("release"));
     importLabel->setTextFormat(Qt::RichText);
@@ -231,8 +231,8 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
     import2Label = new QLabel(importPage);
     import2Label->setTextFormat(Qt::RichText);
     if (m_temporaryVersion)
-        import2Label->setText(tr("<b>Note:</b> Importing the settings will automatically add the Qt Version from:<br><b>%1</b> to the list of Qt versions.")
-                              .arg(QDir::toNativeSeparators(m_importVersion->path())));
+        import2Label->setText(tr("<b>Note:</b> Importing the settings will automatically add the Qt Version identified by <br><b>%1</b> to the list of Qt versions.")
+                              .arg(QDir::toNativeSeparators(m_importVersion->qmakeCommand())));
     importLayout->addWidget(import2Label);
     addPage(importPage);
 }

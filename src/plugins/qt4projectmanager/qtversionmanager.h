@@ -50,11 +50,14 @@ class QtVersion
 public:
     QtVersion(const QString &name, const QString &path,
               bool isAutodetected = false, const QString &autodetectionSource = QString());
+
+    QtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+
     QtVersion(const QString &name, const QString &path, int id,
               bool isAutodetected = false, const QString &autodetectionSource = QString());
     QtVersion()
         :m_name(QString::null), m_id(-1)
-    { setPath(QString::null); }
+    { setQMakeCommand(QString::null); }
     ~QtVersion();
 
     bool isValid() const; //TOOD check that the dir exists and the name is non empty
@@ -63,7 +66,6 @@ public:
     QString autodetectionSource() const { return m_autodetectionSource; }
 
     QString name() const;
-    QString path() const;
     QString sourcePath() const;
     QString mkspecPath() const;
     QString qmakeCommand() const;
@@ -77,7 +79,7 @@ public:
     ProjectExplorer::ToolChain *createToolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
 
     void setName(const QString &name);
-    void setPath(const QString &path);
+    void setQMakeCommand(const QString &path);
 
     QString qtVersionString() const;
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
@@ -132,7 +134,6 @@ private:
     QString qmakeCXX() const;
     QString findQtBinary(const QStringList &possibleName) const;
     QString m_name;
-    QString m_path;
     QString m_sourcePath;
     QString m_mingwDirectory;
     QString m_msvcVersion;
@@ -190,14 +191,14 @@ public:
     QtVersion *version(int id) const;
     QtVersion *defaultVersion() const;
 
-    QtVersion *qtVersionForDirectory(const QString &directory);
+    QtVersion *qtVersionForQMakeBinary(const QString &qmakePath);
     // Used by the projectloadwizard
     void addVersion(QtVersion *version);
     void removeVersion(QtVersion *version);
 
     // Static Methods
     static QPair<QtVersion::QmakeBuildConfig, QStringList> scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
-    static QString findQtVersionFromMakefile(const QString &directory);
+    static QString findQMakeBinaryFromMakefile(const QString &directory);
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();

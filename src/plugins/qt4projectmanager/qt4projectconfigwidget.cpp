@@ -257,12 +257,12 @@ void Qt4ProjectConfigWidget::updateImportLabel()
 
     // we only show if we actually have a qmake and makestep
     if (m_pro->qmakeStep() && m_pro->makeStep()) {
-        QString qtPath = QtVersionManager::findQtVersionFromMakefile(m_pro->buildDirectory(m_buildConfiguration));
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(m_pro->buildDirectory(m_buildConfiguration));
         QtVersion *version = m_pro->qtVersion(m_buildConfiguration);
         // check that there's a makefile
-        if (!qtPath.isEmpty()) {
-            // and that the makefile path is different from the current version
-            if (qtPath != (version ? version->path() : QString())) {
+        if (!qmakePath.isEmpty()) {
+            // and that the qmake path is different from the current version
+            if (qmakePath != (version ? version->qmakeCommand() : QString())) {
                 // import enable
                 visible = true;
             } else {
@@ -297,12 +297,12 @@ void Qt4ProjectConfigWidget::importLabelClicked()
         return;
     QString directory = m_pro->buildDirectory(m_buildConfiguration);
     if (!directory.isEmpty()) {
-        QString qtPath = QtVersionManager::findQtVersionFromMakefile(directory);
-        if (!qtPath.isEmpty()) {
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(directory);
+        if (!qmakePath.isEmpty()) {
             QtVersionManager *vm = QtVersionManager::instance();
-            QtVersion *version = vm->qtVersionForDirectory(qtPath);
+            QtVersion *version = vm->qtVersionForQMakeBinary(qmakePath);
             if (!version) {
-                version = new QtVersion(QFileInfo(qtPath).baseName(), qtPath);
+                version = new QtVersion(qmakePath);
                 vm->addVersion(version);
             }
 

@@ -552,7 +552,7 @@ void S60DeviceRunControl::start()
     m_targetName = rc->targetName();
     m_baseFileName = rc->basePackageFilePath();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
-    m_qtDir = project->qtVersion(project->activeBuildConfiguration())->path();
+    m_qtDir = project->qtVersion(project->activeBuildConfiguration())->versionInfo().value("QT_INSTALL_DATA");
     m_useCustomSignature = (rc->signingMode() == S60DeviceRunConfiguration::SignCustom);
     m_customSignaturePath = rc->customSignaturePath();
     m_customKeyPath = rc->customKeyPath();

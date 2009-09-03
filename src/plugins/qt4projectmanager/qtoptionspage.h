@@ -113,7 +113,7 @@ private slots:
     void onMingwBrowsed();
     void defaultChanged(int index);
     void updateCurrentQtName();
-    void updateCurrentQtPath();
+    void updateCurrentQMakeLocation();
     void updateCurrentMingwDirectory();
 #ifdef QTCREATOR_WITH_S60
     void updateCurrentMwcDirectory();

@@ -124,7 +124,7 @@ void S60Manager::updateQtVersions()
         }
         if (deviceVersion) {
             deviceVersion->setName(QString("%1 (Qt %2)").arg(device.id, deviceVersion->qtVersionString()));
-            deviceVersion->setPath(device.qt);
+            deviceVersion->setQMakeCommand(device.qt+"/bin/qmake.exe");
             handledVersions.append(deviceVersion);
         } else {
             deviceVersion = new QtVersion(QString("%1 (Qt %2)").arg(device.id), device.qt,
@@ -171,8 +171,9 @@ S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVer
         deviceId = deviceIdFromDetectionSource(version->autodetectionSource());
     if (deviceId.isEmpty()) { // it's not an s60 autodetected version
         // have a look if we find the device root anyhow
-        if (QFile::exists(QString::fromLatin1("%1/epoc32").arg(version->path()))) {
-            device.epocRoot = version->path();
+        QString qtPath = version->versionInfo().value("QT_INSTALL_DATA");
+        if (QFile::exists(QString::fromLatin1("%1/epoc32").arg(qtPath))) {
+            device.epocRoot = qtPath;
             device.toolsRoot = device.epocRoot;
             device.qt = device.epocRoot;
             device.isDefault = false;

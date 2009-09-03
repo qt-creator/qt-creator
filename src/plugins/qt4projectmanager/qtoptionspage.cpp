@@ -4,6 +4,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "qtversionmanager.h"
 
+#include <projectexplorer/debugginghelper.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -102,7 +103,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     , m_debuggingHelperOkIcon(m_debuggingHelperOkPixmap)
     , m_debuggingHelperErrorIcon(m_debuggingHelperErrorPixmap)
     , m_specifyNameString(tr("<specify a name>"))
-    , m_specifyPathString(tr("<specify a path>"))
+    , m_specifyPathString(tr("<specify a qmake location>"))
     , m_ui(new Internal::Ui::QtVersionManager())
     , m_defaultVersion(versions.indexOf(defaultVersion))
 {
@@ -111,10 +112,10 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
         m_versions.push_back(QSharedPointerQtVersion(new QtVersion(*version)));
 
     m_ui->setupUi(this);
-    m_ui->qtPath->setExpectedKind(Core::Utils::PathChooser::Directory);
-    m_ui->qtPath->setPromptDialogTitle(tr("Select QTDIR"));
+    m_ui->qmakePath->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->qmakePath->setPromptDialogTitle(tr("Select QMake Executable"));
     m_ui->mingwPath->setExpectedKind(Core::Utils::PathChooser::Directory);
-    m_ui->qtPath->setPromptDialogTitle(tr("Select the Qt Directory"));
+    m_ui->mingwPath->setPromptDialogTitle(tr("Select the MinGW Directory"));
     m_ui->mwcPath->setExpectedKind(Core::Utils::PathChooser::Directory);
     m_ui->mwcPath->setPromptDialogTitle(tr("Select \"x86build\" Directory from Carbide Install"));
 
@@ -136,7 +137,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
         const QtVersion * const version = m_versions.at(i).data();
         QTreeWidgetItem *item = new QTreeWidgetItem(version->isAutodetected()? autoItem : manualItem);
         item->setText(0, version->name());
-        item->setText(1, QDir::toNativeSeparators(version->path()));
+        item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
         item->setData(0, Qt::UserRole, version->uniqueId());
 
         if (version->isValid()) {
@@ -155,8 +156,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
             this, SLOT(updateCurrentQtName()));
 
 
-    connect(m_ui->qtPath, SIGNAL(changed(QString)),
-            this, SLOT(updateCurrentQtPath()));
+    connect(m_ui->qmakePath, SIGNAL(changed(QString)),
+            this, SLOT(updateCurrentQMakeLocation()));
     connect(m_ui->mingwPath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentMingwDirectory()));
 #ifdef QTCREATOR_WITH_S60
@@ -169,7 +170,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     connect(m_ui->delButton, SIGNAL(clicked()),
             this, SLOT(removeQtDir()));
 
-    connect(m_ui->qtPath, SIGNAL(browsingFinished()),
+    connect(m_ui->qmakePath, SIGNAL(browsingFinished()),
             this, SLOT(onQtBrowsed()));
     connect(m_ui->mingwPath, SIGNAL(browsingFinished()),
             this, SLOT(onMingwBrowsed()));
@@ -284,14 +285,14 @@ void QtOptionsPageWidget::addQtDir()
 
     QTreeWidgetItem *item = new QTreeWidgetItem(m_ui->qtdirList->topLevelItem(1));
     item->setText(0, newVersion->name());
-    item->setText(1, QDir::toNativeSeparators(newVersion->path()));
+    item->setText(1, QDir::toNativeSeparators(newVersion->qmakeCommand()));
     item->setData(0, Qt::UserRole, newVersion->uniqueId());
     item->setData(2, Qt::DecorationRole, QIcon());
 
     m_ui->qtdirList->setCurrentItem(item);
 
     m_ui->nameEdit->setText(newVersion->name());
-    m_ui->qtPath->setPath(newVersion->path());
+    m_ui->qmakePath->setPath(newVersion->qmakeCommand());
     m_ui->defaultCombo->addItem(newVersion->name());
     m_ui->nameEdit->setFocus();
     m_ui->nameEdit->selectAll();
@@ -355,7 +356,7 @@ void QtOptionsPageWidget::updateState()
     const bool isAutodetected = enabled && version->isAutodetected();
     m_ui->delButton->setEnabled(enabled && !isAutodetected);
     m_ui->nameEdit->setEnabled(enabled && !isAutodetected);
-    m_ui->qtPath->setEnabled(enabled && !isAutodetected);
+    m_ui->qmakePath->setEnabled(enabled && !isAutodetected);
     m_ui->mingwPath->setEnabled(enabled);
 
     const bool hasLog = enabled && !m_ui->qtdirList->currentItem()->data(2, Qt::UserRole).toString().isEmpty();
@@ -433,10 +434,10 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeMingwVisible(false);
             makeMWCVisible(false);
             if (!m_versions.at(index)->isInstalled())
-                m_ui->errorLabel->setText(tr("The Qt Version %1 is not installed. Run make install")
-                                           .arg(QDir::toNativeSeparators(m_versions.at(index)->path())));
+                m_ui->errorLabel->setText(tr("The Qt Version identified by %1 is not installed. Run make install")
+                                           .arg(QDir::toNativeSeparators(m_versions.at(index)->qmakeCommand())));
             else
-                m_ui->errorLabel->setText(tr("%1 is not a valid Qt directory").arg(QDir::toNativeSeparators(m_versions.at(index)->path())));
+                m_ui->errorLabel->setText(tr("%1 does not specify a valid Qt installation").arg(QDir::toNativeSeparators(m_versions.at(index)->qmakeCommand())));
         } else { //ProjectExplorer::ToolChain::GCC
             makeMSVCVisible(false);
             makeMingwVisible(false);
@@ -487,10 +488,10 @@ void QtOptionsPageWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem 
     int itemIndex = indexForTreeItem(item);
     if (itemIndex >= 0) {
         m_ui->nameEdit->setText(item->text(0));
-        m_ui->qtPath->setPath(item->text(1));
+        m_ui->qmakePath->setPath(item->text(1));
     } else {
         m_ui->nameEdit->clear();
-        m_ui->qtPath->setPath(QString()); // clear()
+        m_ui->qmakePath->setPath(QString()); // clear()
     }
     showEnvironmentPage(item);
     updateState();
@@ -498,15 +499,15 @@ void QtOptionsPageWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem 
 
 void QtOptionsPageWidget::onQtBrowsed()
 {
-    const QString dir = m_ui->qtPath->path();
+    const QString dir = m_ui->qmakePath->path();
     if (dir.isEmpty())
         return;
 
-    updateCurrentQtPath();
+    updateCurrentQMakeLocation();
     if (m_ui->nameEdit->text().isEmpty() || m_ui->nameEdit->text() == m_specifyNameString) {
-        QStringList dirSegments = dir.split(QDir::separator(), QString::SkipEmptyParts);
-        if (!dirSegments.isEmpty())
-            m_ui->nameEdit->setText(dirSegments.last());
+        QString name = ProjectExplorer::DebuggingHelperLibrary::qtVersionForQMake(QDir::cleanPath(dir));
+        if (!name.isEmpty())
+            m_ui->nameEdit->setText(name);
         updateCurrentQtName();
     }
     updateState();
@@ -587,7 +588,7 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
     }
 }
 
-void QtOptionsPageWidget::updateCurrentQtPath()
+void QtOptionsPageWidget::updateCurrentQMakeLocation()
 {
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
     Q_ASSERT(currentItem);
@@ -595,10 +596,10 @@ void QtOptionsPageWidget::updateCurrentQtPath()
     if (currentItemIndex < 0)
         return;
     QtVersion *version = m_versions.at(currentItemIndex).data();
-    if (version->path() == m_ui->qtPath->path())
+    if (version->qmakeCommand() == m_ui->qmakePath->path())
         return;
-    version->setPath(m_ui->qtPath->path());
-    currentItem->setText(1, QDir::toNativeSeparators(version->path()));
+    version->setQMakeCommand(m_ui->qmakePath->path());
+    currentItem->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
     showEnvironmentPage(currentItem);
 
     if (version->isValid()) {

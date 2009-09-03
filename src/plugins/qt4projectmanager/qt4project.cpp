@@ -831,7 +831,7 @@ QString Qt4Project::qtDir(const QString &buildConfiguration) const
 {
     QtVersion *version = qtVersion(buildConfiguration);
     if (version)
-        return version->path();
+        return version->versionInfo().value("QT_INSTALL_DATA");
     return QString::null;
 }
 
@@ -1151,9 +1151,9 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(const QString &buildConfi
 {
     QMakeStep *qs = qmakeStep();
     if (QDir(workingDirectory).exists(QLatin1String("Makefile")) && qs) {
-        QString qtPath = QtVersionManager::findQtVersionFromMakefile(workingDirectory);
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(workingDirectory);
         QtVersion *version = qtVersion(buildConfiguration);
-        if (version->path() == qtPath) {
+        if (version->qmakeCommand() == qmakePath) {
             // same qtversion
             QPair<QtVersion::QmakeBuildConfig, QStringList> result =
                     QtVersionManager::scanMakeFile(workingDirectory, version->defaultBuildConfig());

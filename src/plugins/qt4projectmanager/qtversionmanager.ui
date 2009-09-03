@@ -146,7 +146,7 @@ p, li { white-space: pre-wrap; }
         </column>
         <column>
          <property name="text">
-          <string>Path</string>
+          <string>QMake Location</string>
          </property>
         </column>
         <column>
@@ -169,12 +169,12 @@ p, li { white-space: pre-wrap; }
       <item row="2" column="0">
        <widget class="QLabel" name="pathLabel">
         <property name="text">
-         <string>Path:</string>
+         <string>Path to QMake:</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="Core::Utils::PathChooser" name="qtPath"/>
+       <widget class="Core::Utils::PathChooser" name="qmakePath" native="true"/>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="mingwLabel">
@@ -184,7 +184,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="Core::Utils::PathChooser" name="mingwPath"/>
+       <widget class="Core::Utils::PathChooser" name="mingwPath" native="true"/>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="msvcLabel">
@@ -215,21 +215,9 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="Core::Utils::PathChooser" name="mwcPath"/>
+       <widget class="Core::Utils::PathChooser" name="mwcPath" native="true"/>
       </item>
      </layout>
-     <zorder>qtdirList</zorder>
-     <zorder>versionNameLabel</zorder>
-     <zorder>nameEdit</zorder>
-     <zorder>pathLabel</zorder>
-     <zorder>qtPath</zorder>
-     <zorder>mingwLabel</zorder>
-     <zorder>mingwPath</zorder>
-     <zorder>msvcLabel</zorder>
-     <zorder>debuggingHelperLabel</zorder>
-     <zorder>errorLabel</zorder>
-     <zorder>mwcLabel</zorder>
-     <zorder>mwcPath</zorder>
     </widget>
    </item>
    <item>
@@ -268,7 +256,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>addButton</tabstop>
   <tabstop>delButton</tabstop>
   <tabstop>nameEdit</tabstop>
-  <tabstop>qtPath</tabstop>
+  <tabstop>qmakePath</tabstop>
   <tabstop>mingwPath</tabstop>
   <tabstop>msvcComboBox</tabstop>
   <tabstop>showLogButton</tabstop>

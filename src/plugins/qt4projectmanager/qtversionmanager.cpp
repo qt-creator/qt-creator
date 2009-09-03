@@ -102,8 +102,15 @@ QtVersionManager::QtVersionManager()
             if (isAutodetected)
                 autodetectionSource = QLatin1String(PATH_AUTODETECTION_SOURCE);
         }
+
+        QString qmakePath = s->value("QMakePath").toString();
+        if (qmakePath.isEmpty()) {
+            QString path = s->value("Path").toString();
+            if (!path.isEmpty())
+                qmakePath =  + "/bin/qmake.exe";
+        }
         QtVersion *version = new QtVersion(s->value("Name").toString(),
-                                           s->value("Path").toString(),
+                                           qmakePath,
                                            id,
                                            isAutodetected,
                                            autodetectionSource);
@@ -215,7 +222,9 @@ void QtVersionManager::writeVersionsIntoSettings()
         const QtVersion *version = m_versions.at(i);
         s->setArrayIndex(i);
         s->setValue("Name", version->name());
-        s->setValue("Path", version->path());
+        // for downwards compat
+        s->setValue("Path", version->versionInfo().value("QT_INSTALL_DATA"));
+        s->setValue("QMakePath", version->qmakeCommand());
         s->setValue("Id", version->uniqueId());
         s->setValue("MingwDirectory", version->mingwDirectory());
         s->setValue("msvcVersion", version->msvcVersion());
@@ -249,8 +258,8 @@ QtVersion *QtVersionManager::version(int id) const
 void QtVersionManager::addNewVersionsFromInstaller()
 {
     // Add new versions which may have been installed by the WB installer in the form:
-    // NewQtVersions="qt 4.3.2=c:\\qt\\qt432;qt embedded=c:\\qtembedded;"
-    // or NewQtVersions="qt 4.3.2=c:\\qt\\qt432=c:\\qtcreator\\mingw\\=prependToPath;
+    // NewQtVersions="qt 4.3.2=c:\\qt\\qt432\bin\qmake.exe;qt embedded=c:\\qtembedded;"
+    // or NewQtVersions="qt 4.3.2=c:\\qt\\qt432bin\qmake.exe=c:\\qtcreator\\mingw\\=prependToPath;
     // Duplicate entries are not added, the first new version is set as default.
     QSettings *settings = Core::ICore::instance()->settings();
 
@@ -276,7 +285,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
 
                 bool versionWasAlreadyInList = false;
                 foreach(const QtVersion * const it, m_versions) {
-                    if (QDir(version->path()).canonicalPath() == QDir(it->path()).canonicalPath()) {
+                    if (QDir(version->qmakeCommand()).canonicalPath() == QDir(it->qmakeCommand()).canonicalPath()) {
                         versionWasAlreadyInList = true;
                         break;
                     }
@@ -304,19 +313,13 @@ void QtVersionManager::updateSystemVersion()
 {
     bool haveSystemVersion = false;
     QString systemQMakePath = DebuggingHelperLibrary::findSystemQt(ProjectExplorer::Environment::systemEnvironment());
-    QString systemQtPath;
-    if (systemQMakePath.isNull()) {
-        systemQtPath = tr("<not found>");
-    } else {
-        QDir dir(QFileInfo(systemQMakePath).absoluteDir());
-        dir.cdUp();
-        systemQtPath = dir.absolutePath();
-    }
+    if (systemQMakePath.isNull())
+        systemQMakePath = tr("<not found>");
 
     foreach (QtVersion *version, m_versions) {
         if (version->isAutodetected()
             && version->autodetectionSource() == PATH_AUTODETECTION_SOURCE) {
-            version->setPath(systemQtPath);
+            version->setQMakeCommand(systemQMakePath);
             version->setName(tr("Qt in PATH"));
             haveSystemVersion = true;
         }
@@ -324,7 +327,7 @@ void QtVersionManager::updateSystemVersion()
     if (haveSystemVersion)
         return;
     QtVersion *version = new QtVersion(tr("Qt in PATH"),
-                                       systemQtPath,
+                                       systemQMakePath,
                                        getUniqueId(),
                                        true,
                                        PATH_AUTODETECTION_SOURCE);
@@ -347,7 +350,7 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
     bool versionPathsChanged = m_versions.size() != newVersions.size();
     if (!versionPathsChanged) {
         for (int i = 0; i < m_versions.size(); ++i) {
-            if (m_versions.at(i)->path() != newVersions.at(i)->path()) {
+            if (m_versions.at(i)->qmakeCommand() != newVersions.at(i)->qmakeCommand()) {
                 versionPathsChanged = true;
                 break;
             }
@@ -382,12 +385,14 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
 /// QtVersion
 ///
 
-QtVersion::QtVersion(const QString &name, const QString &path, int id,
+QtVersion::QtVersion(const QString &name, const QString &qmakeCommand, int id,
                      bool isAutodetected, const QString &autodetectionSource)
     : m_name(name),
     m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
+    m_mkspecUpToDate(false),
+    m_versionInfoUpToDate(false),
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
     m_defaultConfigIsDebugAndRelease(true),
@@ -399,20 +404,45 @@ QtVersion::QtVersion(const QString &name, const QString &path, int id,
         m_id = getUniqueId();
     else
         m_id = id;
-    setPath(path);
+    setQMakeCommand(qmakeCommand);
 }
 
-QtVersion::QtVersion(const QString &name, const QString &path,
+QtVersion::QtVersion(const QString &name, const QString &qmakeCommand,
                      bool isAutodetected, const QString &autodetectionSource)
     : m_name(name),
     m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_mkspecUpToDate(false),
-    m_versionInfoUpToDate(false)
+    m_versionInfoUpToDate(false),
+    m_notInstalled(false),
+    m_defaultConfigIsDebug(true),
+    m_defaultConfigIsDebugAndRelease(true),
+    m_hasExamples(false),
+    m_hasDemos(false),
+    m_hasDocumentation(false)
 {
     m_id = getUniqueId();
-    setPath(path);
+    setQMakeCommand(qmakeCommand);
+}
+
+
+QtVersion::QtVersion(const QString &qmakeCommand, bool isAutodetected, const QString &autodetectionSource)
+    : m_isAutodetected(isAutodetected),
+    m_autodetectionSource(autodetectionSource),
+    m_hasDebuggingHelper(false),
+    m_mkspecUpToDate(false),
+    m_versionInfoUpToDate(false),
+    m_notInstalled(false),
+    m_defaultConfigIsDebug(true),
+    m_defaultConfigIsDebugAndRelease(true),
+    m_hasExamples(false),
+    m_hasDemos(false),
+    m_hasDocumentation(false)
+{
+    m_id = getUniqueId();
+    setQMakeCommand(qmakeCommand);
+    m_name = qtVersionString();
 }
 
 QtVersion::~QtVersion()
@@ -425,9 +455,9 @@ QString QtVersion::name() const
     return m_name;
 }
 
-QString QtVersion::path() const
+QString QtVersion::qmakeCommand() const
 {
-    return m_path;
+    return m_qmakeCommand;
 }
 
 QString QtVersion::sourcePath() const
@@ -449,7 +479,6 @@ QString QtVersion::mkspecPath() const
 
 QString QtVersion::qtVersionString() const
 {
-    qmakeCommand();
     return m_qtVersionString;
 }
 
@@ -471,26 +500,35 @@ void QtVersion::setName(const QString &name)
     m_name = name;
 }
 
-void QtVersion::setPath(const QString &path)
+void QtVersion::setQMakeCommand(const QString& qmakeCommand)
 {
-    m_path = QDir::cleanPath(path);
+    m_qmakeCommand = qmakeCommand;
 #ifdef Q_OS_WIN
-    m_path = m_path.toLower();
+    m_qmakeCommand = m_qmakeCommand.toLower();
 #endif
-    updateSourcePath();
-    m_versionInfoUpToDate = false;
+    m_designerCommand = m_linguistCommand = m_uicCommand = QString::null;
     m_mkspecUpToDate = false;
-    m_designerCommand = m_linguistCommand = m_qmakeCommand = m_uicCommand = QString::null;
-    // TODO do i need to optimize this?
-    m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     m_qmakeCXX = QString::null;
     m_qmakeCXXUpToDate = false;
+    // TODO do i need to optimize this?
+    m_versionInfoUpToDate = false;
+    m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
+
+    QFileInfo qmake(qmakeCommand);
+    if (qmake.exists() && qmake.isExecutable()) {
+        m_qtVersionString = DebuggingHelperLibrary::qtVersionForQMake(qmake.absoluteFilePath());
+    } else {
+        m_qtVersionString = QString::null;
+    }
+    updateSourcePath();
 }
 
 void QtVersion::updateSourcePath()
 {
-    m_sourcePath = m_path;
-    QFile qmakeCache(m_path + QLatin1String("/.qmake.cache"));
+    updateVersionInfo();
+    const QString installData = m_versionInfo["QT_INSTALL_DATA"];
+    m_sourcePath = installData;
+    QFile qmakeCache(installData + QLatin1String("/.qmake.cache"));
     if (qmakeCache.exists()) {
         qmakeCache.open(QIODevice::ReadOnly | QIODevice::Text);
         QTextStream stream(&qmakeCache);
@@ -513,7 +551,7 @@ void QtVersion::updateSourcePath()
 // That is returns the directory
 // To find out wheter we already have a qtversion for that directory call
 // QtVersion *QtVersionManager::qtVersionForDirectory(const QString directory);
-QString QtVersionManager::findQtVersionFromMakefile(const QString &directory)
+QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &directory)
 {
     bool debugAdding = false;
     QFile makefile(directory + "/Makefile" );
@@ -526,14 +564,11 @@ QString QtVersionManager::findQtVersionFromMakefile(const QString &directory)
                 if (debugAdding)
                     qDebug()<<"#~~ QMAKE is:"<<r1.cap(1).trimmed();
                 QFileInfo qmake(r1.cap(1).trimmed());
-                QFileInfo binDir(qmake.absolutePath());
-                QString qtDir = binDir.absolutePath();
+                QString qmakePath = qmake.filePath();
 #ifdef Q_OS_WIN
-                qtDir = qtDir.toLower();
+                qmakePath = qmakePath.toLower();
 #endif
-                if (debugAdding)
-                    qDebug() << "#~~ QtDir:"<<qtDir;
-                return qtDir;
+                return qmakePath;
             }
         }
         makefile.close();
@@ -541,10 +576,10 @@ QString QtVersionManager::findQtVersionFromMakefile(const QString &directory)
     return QString::null;
 }
 
-QtVersion *QtVersionManager::qtVersionForDirectory(const QString &directory)
+QtVersion *QtVersionManager::qtVersionForQMakeBinary(const QString &qmakePath)
 {
    foreach(QtVersion *v, versions()) {
-        if (v->path() == directory) {
+        if (v->qmakeCommand() == qmakePath) {
             return v;
             break;
         }
@@ -768,8 +803,10 @@ void QtVersion::updateVersionInfo() const
     m_notInstalled = false;
     m_hasExamples = false;
     m_hasDocumentation = false;
+
     QFileInfo qmake(qmakeCommand());
-    if (qmake.exists()) {
+    if (ProjectExplorer::DebuggingHelperLibrary::possibleQMakeCommands().contains(qmake.fileName())
+        && qmake.exists()) {
         static const char * const variables[] = {
              "QT_VERSION",
              "QT_INSTALL_DATA",
@@ -831,9 +868,7 @@ void QtVersion::updateVersionInfo() const
         }
 
         // Parse qconfigpri
-        QString baseDir = m_versionInfo.contains("QT_INSTALL_DATA") ?
-                           m_versionInfo.value("QT_INSTALL_DATA") :
-                           m_path;
+        QString baseDir = m_versionInfo.value("QT_INSTALL_DATA");
         QFile qconfigpri(baseDir + QLatin1String("/mkspecs/qconfig.pri"));
         if (qconfigpri.exists()) {
             qconfigpri.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -874,7 +909,7 @@ void QtVersion::updateMkSpec() const
     // no .qmake.cache so look at the default mkspec
     QString mkspecPath = versionInfo().value("QMAKE_MKSPECS");
     if (mkspecPath.isEmpty())
-        mkspecPath = path() + "/mkspecs/default";
+        mkspecPath = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs/default";
     else
         mkspecPath = mkspecPath + "/default";
 //        qDebug() << "default mkspec is located at" << mkspecPath;
@@ -930,36 +965,13 @@ void QtVersion::updateMkSpec() const
     int index = mkspec.lastIndexOf('/');
     if (index == -1)
         index = mkspec.lastIndexOf('\\');
-    QString mkspecDir = QDir(m_path + "/mkspecs/").canonicalPath();
+    QString mkspecDir = QDir(versionInfo().value("QT_INSTALL_DATA") + "/mkspecs/").canonicalPath();
     if (index >= 0 && QDir(mkspec.left(index)).canonicalPath() == mkspecDir)
         mkspec = mkspec.mid(index+1).trimmed();
 
     m_mkspec = mkspec;
     m_mkspecUpToDate = true;
-//    qDebug()<<"mkspec for "<<m_path<<" is "<<mkspec;
-}
-
-QString QtVersion::qmakeCommand() const
-{
-    // We can't use versionInfo QT_INSTALL_BINS here
-    // because that functions calls us to find out the values for versionInfo
-    if (!m_qmakeCommand.isNull())
-        return m_qmakeCommand;
-
-    QDir qtDir = path() + QLatin1String("/bin/");
-    foreach (const QString &possibleCommand, DebuggingHelperLibrary::possibleQMakeCommands()) {
-        QString s = qtDir.absoluteFilePath(possibleCommand);
-        QFileInfo qmake(s);
-        if (qmake.exists() && qmake.isExecutable()) {
-            QString qtVersion = DebuggingHelperLibrary::qtVersionForQMake(qmake.absoluteFilePath());
-            if (!qtVersion.isNull()) {
-                m_qtVersionString = qtVersion;
-                m_qmakeCommand = qmake.absoluteFilePath();
-                return qmake.absoluteFilePath();
-            }
-        }
-    }
-    return QString::null;
+//    qDebug()<<"mkspec for "<<versionInfo().value("QT_INSTALL_DATA")<<" is "<<mkspec;
 }
 
 void QtVersion::updateQMakeCXX() const
@@ -1158,7 +1170,7 @@ void QtVersion::setMsvcVersion(const QString &version)
 
 void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
 {
-    env.set("QTDIR", m_path);
+    env.set("QTDIR", versionInfo().value("QT_INSTALL_DATA"));
     QString qtdirbin = versionInfo().value("QT_INSTALL_BINS");
     env.prependOrSetPath(qtdirbin);
 }
@@ -1175,7 +1187,7 @@ int QtVersion::getUniqueId()
 
 bool QtVersion::isValid() const
 {
-    return (!(m_id == -1 || m_path == QString::null || m_name == QString::null || mkspec() == QString::null) && !m_notInstalled);
+    return (!(m_id == -1 || m_qmakeCommand == QString::null || m_name == QString::null || mkspec() == QString::null) && !m_notInstalled);
 }
 
 QtVersion::QmakeBuildConfig QtVersion::defaultBuildConfig() const
@@ -1198,16 +1210,16 @@ QString QtVersion::debuggingHelperLibrary() const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
-        qtInstallData = path();
-    return DebuggingHelperLibrary::debuggingHelperLibrary(qtInstallData, path());
+        return QString::null;
+    return DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
 }
 
 QStringList QtVersion::debuggingHelperLibraryLocations() const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
-        qtInstallData = path();
-    return DebuggingHelperLibrary::debuggingHelperLibraryLocations(qtInstallData, path());
+        QString::null;
+    return DebuggingHelperLibrary::debuggingHelperLibraryLocations(qtInstallData);
 }
 
 bool QtVersion::hasDocumentation() const
@@ -1271,7 +1283,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
-        qtInstallData = path();
+        return QString::null;
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     addToEnvironment(env);
 
@@ -1279,7 +1291,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
     ProjectExplorer::ToolChain *tc = createToolChain(defaultToolchainType());
     tc->addToEnvironment(env);
     QString output;
-    QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, path(), &output);
+    QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, &output);
     if (!directory.isEmpty())
         output += DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), mkspec(), env);
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();

@@ -62,10 +62,10 @@ bool DebuggingHelperLibrary::hasDebuggingHelperLibrary(const QString &qmakePath)
     return !debuggingHelperLibrary(qmakePath).isNull();
 }
 
-QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QString &qtInstallData, const QString &qtpath)
+QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QString &qtInstallData)
 {
     const QChar slash = QLatin1Char('/');
-    const uint hash = qHash(qtpath);
+    const uint hash = qHash(qtInstallData);
     QStringList directories;
     directories
             << (qtInstallData + QLatin1String("/qtc-debugging-helper/"))
@@ -76,12 +76,12 @@ QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QStr
 
 QStringList DebuggingHelperLibrary::debuggingHelperLibraryLocations(const QString &qmakePath)
 {
-    return debuggingHelperLibraryLocations(qtInstallDataDir(qmakePath), qtDir(qmakePath));
+    return debuggingHelperLibraryLocationsByInstallData(qtInstallDataDir(qmakePath));
 }
 
 QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qmakePath)
 {
-    return debuggingHelperLibrary(qtInstallDataDir(qmakePath), qtDir(qmakePath));
+    return debuggingHelperLibraryByInstallData(qtInstallDataDir(qmakePath));
 }
 
 QString DebuggingHelperLibrary::qtInstallDataDir(const QString &qmakePath)
@@ -113,17 +113,17 @@ static inline QString helperFilePath(const QString &directory)
 #endif
 }
 
-QStringList DebuggingHelperLibrary::debuggingHelperLibraryLocations(const QString &qtInstallData, const QString &qtpath)
+QStringList DebuggingHelperLibrary::debuggingHelperLibraryLocationsByInstallData(const QString &qtInstallData)
 {
     QStringList result;
-    foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData, qtpath))
+    foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData))
         result << QFileInfo(helperFilePath(directory)).filePath();
     return result;
 }
 
-QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qtInstallData, const QString &qtpath)
+QString DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(const QString &qtInstallData)
 {
-    foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData, qtpath)) {
+    foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData)) {
         const QFileInfo fi(helperFilePath(directory));
         if (fi.exists())
             return fi.filePath();
@@ -134,7 +134,7 @@ QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qtInstallD
 QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env)
 {
     QString errorMessage;
-    const QString directory = copyDebuggingHelperLibrary(qtInstallDataDir(qmakePath), qtDir(qmakePath), &errorMessage);
+    const QString directory = copyDebuggingHelperLibrary(qtInstallDataDir(qmakePath), &errorMessage);
     if (directory.isEmpty())
         return errorMessage;
     return buildDebuggingHelperLibrary(directory, make, qmakePath, QString::null, env);
@@ -171,14 +171,13 @@ static bool copyDebuggingHelperFiles(const QStringList &files,
 }
 
 QString DebuggingHelperLibrary::copyDebuggingHelperLibrary(const QString &qtInstallData,
-                                                           const QString &qtdir,
                                                            QString *errorMessage)
 {
     // Locations to try:
     //    $QTDIR/qtc-debugging-helper
     //    $APPLICATION-DIR/qtc-debugging-helper/$hash
     //    $USERDIR/qtc-debugging-helper/$hash
-    const QStringList directories = DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData, qtdir);
+    const QStringList directories = DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 
     QStringList files;
     files << QLatin1String("gdbmacros.cpp") << QLatin1String("gdbmacros_p.h") << QLatin1String("gdbmacros.h") << QLatin1String("gdbmacros.pro")
@@ -241,13 +240,18 @@ QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &direc
     }
     return output;
 }
-
+#include <QDebug>
 QString DebuggingHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 {
+    QString binary = qmakePath.mid(qmakePath.lastIndexOf('/')+1);
+    qDebug() << qmakePath << binary;
+    if (!possibleQMakeCommands().contains(binary))
+        return QString();
+
     QProcess qmake;
     qmake.start(qmakePath, QStringList(QLatin1String("--version")));
     if (!qmake.waitForFinished())
-        return false;
+        return QString::null;
     QString output = qmake.readAllStandardOutput();
     QRegExp regexp(QLatin1String("(QMake version|QMake version:)[\\s]*([\\d.]*)"), Qt::CaseInsensitive);
     regexp.indexIn(output);

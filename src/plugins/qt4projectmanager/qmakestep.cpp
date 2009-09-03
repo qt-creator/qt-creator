@@ -114,8 +114,8 @@ bool QMakeStep::init(const QString &name)
     // Check wheter we need to run qmake
     bool needToRunQMake = true;
     if (QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
-        QString qtPath = QtVersionManager::findQtVersionFromMakefile(workingDirectory);
-        if (qtVersion->path() == qtPath) {
+        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(workingDirectory);
+        if (qtVersion->qmakeCommand() == qmakePath) {
             needToRunQMake = !m_pro->compareBuildConfigurationToImportFrom(name, workingDirectory);
         }
     }
