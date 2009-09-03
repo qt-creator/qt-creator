@@ -492,6 +492,7 @@ void TrkDevice::tryTrkRead()
     while (extractResult(&d->trkReadBuffer, d->serialFrame, &r, &rawData)) {
         //if (verbose())
         //    logMessage("Read TrkResult " + r.data.toHex());
+        qDebug() << "RECEIVE DATA: " << r.data.toHex();
         emit messageReceived(r);
         if (!rawData.isEmpty())
             emit rawDataReceived(rawData);

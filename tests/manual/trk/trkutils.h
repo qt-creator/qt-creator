@@ -72,6 +72,7 @@ enum Command {
 QByteArray decode7d(const QByteArray &ba);
 QByteArray encode7d(const QByteArray &ba);
 
+inline byte extractByte(const char *data) { return *data; }
 ushort extractShort(const char *data);
 uint extractInt(const char *data);
 

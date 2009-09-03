@@ -32,6 +32,9 @@
 
 #include <QtGlobal>
 
+
+// FIXME: rename into something less TRK-specific
+
 namespace trk {
 namespace Internal {
 /* Helper class for the 1-argument functor:
