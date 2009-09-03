@@ -55,9 +55,7 @@ public:
 
     QtVersion(const QString &name, const QString &path, int id,
               bool isAutodetected = false, const QString &autodetectionSource = QString());
-    QtVersion()
-        :m_name(QString::null), m_id(-1)
-    { setQMakeCommand(QString::null); }
+    QtVersion();
     ~QtVersion();
 
     bool isValid() const; //TOOD check that the dir exists and the name is non empty

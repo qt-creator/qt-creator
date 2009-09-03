@@ -445,6 +445,24 @@ QtVersion::QtVersion(const QString &qmakeCommand, bool isAutodetected, const QSt
     m_name = qtVersionString();
 }
 
+QtVersion::QtVersion()
+    : m_name(QString::null),
+    m_id(-1),
+    m_isAutodetected(false),
+    m_hasDebuggingHelper(false),
+    m_mkspecUpToDate(false),
+    m_versionInfoUpToDate(false),
+    m_notInstalled(false),
+    m_defaultConfigIsDebug(true),
+    m_defaultConfigIsDebugAndRelease(true),
+    m_hasExamples(false),
+    m_hasDemos(false),
+    m_hasDocumentation(false)
+{
+    setQMakeCommand(QString::null);
+}
+
+
 QtVersion::~QtVersion()
 {
 
