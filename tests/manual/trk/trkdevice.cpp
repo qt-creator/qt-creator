@@ -80,7 +80,7 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
 {
     COMSTAT comStat;
     if (!ClearCommError(hFile, NULL, &comStat)){
-        qDebug() << "ClearCommError() failed";
+        logMessage("ClearCommError() failed");
         return FALSE;
     }
     if (comStat.cbInQue == 0) {
@@ -202,8 +202,8 @@ void TrkDevice::close()
 #else
     d->file.close();
 #endif
-    if (d->verbose)
-        qDebug() << "Close";
+    if (verbose())
+        logMessage("Close");
 }
 
 bool TrkDevice::isOpen() const
@@ -232,7 +232,7 @@ void TrkDevice::setSerialFrame(bool f)
 
 bool TrkDevice::verbose() const
 {
-    return d->verbose;
+    return true || d->verbose;
 }
 
 void TrkDevice::setVerbose(bool b)
@@ -242,8 +242,8 @@ void TrkDevice::setVerbose(bool b)
 
 bool TrkDevice::write(const QByteArray &data, QString *errorMessage)
 {
-    if (d->verbose)
-        qDebug() << ">WRITE" << data.toHex();
+    if (verbose())
+        logMessage("XWRITE " + data.toHex());
 #ifdef Q_OS_WIN
     DWORD charsWritten;
     if (!WriteFile(d->hdevice, data.data(), data.size(), &charsWritten, NULL)) {
@@ -286,8 +286,8 @@ void TrkDevice::tryTrkRead()
         if (isValidTrkResult(d->trkReadBuffer, d->serialFrame))
             break;
     }
-    if (d->verbose && totalCharsRead)
-        qDebug() << "Read" << d->trkReadBuffer.toHex();
+    if (verbose() && totalCharsRead)
+        logMessage("Read" + d->trkReadBuffer.toHex());
     if (!totalCharsRead)
         return;
     const ushort len = isValidTrkResult(d->trkReadBuffer, d->serialFrame);
@@ -301,6 +301,8 @@ void TrkDevice::tryTrkRead()
     if (!size)
         return;
     const QByteArray data = d->file.read(size);
+    if (verbose())
+        logMessage("READ " + data.toHex());
     d->trkReadBuffer.append(data);
     const ushort len = isValidTrkResult(d->trkReadBuffer, d->serialFrame);
     if (!len) {
@@ -315,8 +317,8 @@ void TrkDevice::tryTrkRead()
     TrkResult r;
     QByteArray rawData;
     while (extractResult(&d->trkReadBuffer, d->serialFrame, &r, &rawData)) {
-        if (d->verbose)
-            qDebug() << "Read TrkResult " << r.data.toHex();
+        if (verbose())
+            logMessage("Read TrkResult " + r.data.toHex());
         emit messageReceived(r);
         if (!rawData.isEmpty())
             emit rawDataReceived(rawData);
@@ -547,7 +549,7 @@ bool TrkWriteQueueDevice::trkWriteRawMessage(const TrkMessage &msg)
 {
     const QByteArray ba = frameMessage(msg.code, msg.token, msg.data, serialFrame());
     if (verbose())
-         qDebug() << ("WRITE: " + stringFromArray(ba));
+         logMessage("WRITE: " + stringFromArray(ba));
     QString errorMessage;
     const bool rc = write(ba, &errorMessage);
     if (!rc)
@@ -610,7 +612,7 @@ void TrkWriteQueueIODevice::setSerialFrame(bool f)
 
 bool TrkWriteQueueIODevice::verbose() const
 {
-    return d->verbose;
+    return true || d->verbose;
 }
 
 void TrkWriteQueueIODevice::setVerbose(bool b)
@@ -659,7 +661,7 @@ bool TrkWriteQueueIODevice::trkWriteRawMessage(const TrkMessage &msg)
 {
     const QByteArray ba = frameMessage(msg.code, msg.token, msg.data, serialFrame());
     if (verbose())
-         qDebug() << ("WRITE: " + stringFromArray(ba));
+        logMessage("WRITE: " + stringFromArray(ba));
     const bool ok = d->device->write(ba) != -1;
     if (!ok) {
         const QString msg = QString::fromLatin1("Unable to write %1 bytes: %2:").arg(ba.size()).arg(d->device->errorString());
@@ -674,8 +676,8 @@ void TrkWriteQueueIODevice::tryTrkRead()
     if (!bytesAvailable)
         return;
     const QByteArray newData = d->device->read(bytesAvailable);
-    if (d->verbose)
-        qDebug() << "READ " << newData.toHex();
+    //if (verbose())
+        logMessage("READ " + newData.toHex());
     d->readBuffer.append(newData);
     TrkResult r;
     QByteArray rawData;
