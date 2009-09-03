@@ -28,20 +28,17 @@
 **************************************************************************/
 
 #include "rvcttoolchain.h"
-
-#include "qt4project.h"
+#include <QtCore/QProcess>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-RVCTToolChain::RVCTToolChain(S60Devices::Device device, ToolChain::ToolChainType type,
-                             const QString &makeTargetBase)
+RVCTToolChain::RVCTToolChain(S60Devices::Device device, ToolChain::ToolChainType type)
     : m_versionUpToDate(false),
     m_deviceId(device.id),
     m_deviceName(device.name),
     m_deviceRoot(device.epocRoot),
-    m_type(type),
-    m_makeTargetBase(makeTargetBase)
+    m_type(type)
 {
 }
 
@@ -132,19 +129,6 @@ QString RVCTToolChain::makeCommand() const
     return "make";
 }
 
-QString RVCTToolChain::defaultMakeTarget() const
-{
-    const Qt4Project *qt4project = qobject_cast<const Qt4Project *>(m_project);
-    if (qt4project) {
-        if (!(QtVersion::QmakeBuildConfig(qt4project->value(
-                qt4project->activeBuildConfiguration(),
-                "buildConfiguration").toInt()) & QtVersion::DebugBuild)) {
-            return QString::fromLocal8Bit("release-%1").arg(m_makeTargetBase);
-        }
-    }
-    return QString::fromLocal8Bit("debug-%1").arg(m_makeTargetBase);
-}
-
 bool RVCTToolChain::equals(ToolChain *other) const
 {
     return (other->type() == type()
@@ -152,7 +136,3 @@ bool RVCTToolChain::equals(ToolChain *other) const
             && m_deviceName == static_cast<RVCTToolChain *>(other)->m_deviceName);
 }
 
-void RVCTToolChain::setProject(const ProjectExplorer::Project *project)
-{
-    m_project = project;
-}

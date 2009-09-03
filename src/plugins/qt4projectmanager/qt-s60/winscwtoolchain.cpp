@@ -113,11 +113,6 @@ QString WINSCWToolChain::makeCommand() const
     return "make";
 }
 
-QString WINSCWToolChain::defaultMakeTarget() const
-{
-    return "debug-winscw";
-}
-
 bool WINSCWToolChain::equals(ToolChain *other) const
 {
     return (other->type() == type()

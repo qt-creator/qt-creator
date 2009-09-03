@@ -404,14 +404,6 @@ void Qt4Project::updateToolChain(const QString &buildConfiguration) const
     } else {
         delete tempToolChain;
     }
-#ifdef QTCREATOR_WITH_S60
-    if (m_toolChain && m_toolChain->type() == ToolChain::GCCE) {
-        static_cast<GCCEToolChain *>(m_toolChain)->setProject(this);
-    } else if (m_toolChain && (m_toolChain->type() == ToolChain::RVCT_ARMV5
-                               || m_toolChain->type() == ToolChain::RVCT_ARMV6)) {
-        static_cast<RVCTToolChain *>(m_toolChain)->setProject(this);
-    }
-#endif
 }
 
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
@@ -422,8 +414,25 @@ QString Qt4Project::makeCommand(const QString &buildConfiguration) const
 
 QString Qt4Project::defaultMakeTarget(const QString &buildConfiguration) const
 {
+#ifdef QTCREATOR_WITH_S60
     ToolChain *tc = toolChain(buildConfiguration);
-    return tc ? tc->defaultMakeTarget() : "";
+    if (!tc)
+        return QString::null;
+    QtVersion::QmakeBuildConfig buildConfig
+            = QtVersion::QmakeBuildConfig(value(activeBuildConfiguration(), "buildConfiguration").toInt());
+
+    if (tc->type() == ToolChain::GCCE) {
+        if (!(buildConfig & QtVersion::DebugBuild)) {
+            return "release-gcce";
+        }
+        return "debug-gcce";
+    } else if (tc->type() == ToolChain::RVCT_ARMV5) {
+        return (buildConfig & QtVersion::DebugBuild ? "debug-" : "release-") + QLatin1String("armv5");
+    } else if (tc->type() == ToolChain::RVCT_ARMV6) {
+        return (buildConfig & QtVersion::DebugBuild ? "debug-" : "release-") + QLatin1String("armv6");
+    }
+#endif
+    return QString::null;
 }
 
 void Qt4Project::updateCodeModel()
