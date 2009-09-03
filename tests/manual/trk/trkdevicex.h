@@ -53,11 +53,17 @@ struct TrkWriteQueueIODevicePrivate;
  * Trk communications. Provides synchronous write and asynchronous
  * read operation.
  * The serialFrames property specifies whether packets are encapsulated in
- * "0x90 <length>" frames, which is currently the case for serial ports. */
+ * "0x90 <length>" frames, which is currently the case for serial ports. 
+ * Contains write message queue allowing
+ * for queueing messages with a notification callback. If the message receives
+ * an ACK, the callback is invoked.
+ * The special message TRK_WRITE_QUEUE_NOOP_CODE code can be used for synchronisation.
+ * The respective  message will not be sent, the callback is just invoked. */
+
+enum { TRK_WRITE_QUEUE_NOOP_CODE = 0x7f };
 
 class TrkDevice : public QObject
 {
-    Q_DISABLE_COPY(TrkDevice)
     Q_OBJECT
     Q_PROPERTY(bool serialFrame READ serialFrame WRITE setSerialFrame)
     Q_PROPERTY(bool verbose READ verbose WRITE setVerbose)
@@ -79,6 +85,9 @@ public:
 
     bool write(const QByteArray &data, QString *errorMessage);
 
+    // Construct as 'TrkWriteQueueDevice::Callback(instance, &Klass::method);'
+    typedef TrkFunctor1<const TrkResult &> Callback;
+
 signals:
     void messageReceived(const trk::TrkResult &result);
     // Emitted with the contents of messages enclosed in 07e, not for log output
@@ -90,29 +99,8 @@ protected:
     void emitError(const QString &msg);
     virtual void timerEvent(QTimerEvent *ev);
 
-private:
-    void tryTrkRead();
-
-    TrkDevicePrivate *d;
-};
-
-/* TrkWriteQueueDevice: Extends TrkDevice by write message queue allowing
- * for queueing messages with a notification callback. If the message receives
- * an ACK, the callback is invoked.
- * The special message TRK_WRITE_QUEUE_NOOP_CODE code can be used for synchronisation.
- * The respective  message will not be sent, the callback is just invoked. */
-
-enum { TRK_WRITE_QUEUE_NOOP_CODE = 0x7f };
-
-class TrkWriteQueueDevice : public TrkDevice
-{
-    Q_OBJECT
 public:
-    explicit TrkWriteQueueDevice(QObject *parent = 0);
-    virtual ~TrkWriteQueueDevice();
-
-    // Construct as 'TrkWriteQueueDevice::Callback(instance, &Klass::method);'
-    typedef TrkFunctor1<const TrkResult &> Callback;
+    void tryTrkRead();
 
     // Enqueue a message with a notification callback.
     void sendTrkMessage(unsigned char code,
@@ -128,69 +116,15 @@ public:
     // Send an Ack synchronously, bypassing the queue
     bool sendTrkAck(unsigned char token);
 
-signals:
-    void logMessage(const QString &msg);
-
 private slots:
     void slotHandleResult(const trk::TrkResult &);
 
-protected:
-    virtual void timerEvent(QTimerEvent *ev);
-
 private:
     void tryTrkWrite();
     bool trkWriteRawMessage(const TrkMessage &msg);
 
+    TrkDevicePrivate *d;
     TrkWriteQueue *qd;
-};
-
-/* A Trk queueing device wrapping around a QIODevice (otherwise
- * mimicking TrkWriteQueueDevice).
- * Can be used to forward Trk over a network or to simulate things. */
-
-class TrkWriteQueueIODevice : public QObject
-{
-    Q_OBJECT
-    Q_DISABLE_COPY(TrkWriteQueueIODevice)
-    Q_PROPERTY(bool serialFrame READ serialFrame WRITE setSerialFrame)
-    Q_PROPERTY(bool verbose READ verbose WRITE setVerbose)
-public:
-    typedef TrkFunctor1<const TrkResult &> Callback;
-
-    explicit TrkWriteQueueIODevice(const QSharedPointer<QIODevice> &device,
-                                   QObject *parent = 0);
-    virtual ~TrkWriteQueueIODevice();
-
-    bool serialFrame() const;
-    void setSerialFrame(bool f);
-
-    bool verbose() const;
-    void setVerbose(bool b);
-
-    void sendTrkMessage(unsigned char code,
-                        Callback callback = Callback(),
-                        const QByteArray &data = QByteArray(),
-                        const QVariant &cookie = QVariant(),
-                        bool invokeOnNAK = false);
-    void sendTrkInitialPing();
-    bool sendTrkAck(unsigned char token);
-
-signals:
-    void messageReceived(const trk::TrkResult&);
-    // Emitted with the contents of messages enclosed in 07e, not for log output
-    void rawDataReceived(const QByteArray &data);
-    void logMessage(const QString &msg);
-
-
-protected:
-    virtual void timerEvent(QTimerEvent *ev);
-
-private:
-    void tryTrkRead();    
-    void tryTrkWrite();
-    bool trkWriteRawMessage(const TrkMessage &msg);
-
-    TrkWriteQueueIODevicePrivate *d;
 };
 
 } // namespace trk
