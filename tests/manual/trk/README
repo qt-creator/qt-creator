@@ -37,7 +37,8 @@ rfcomm listen /dev/rfcomm0 1 $PWD/trklauncher -v -f {}
 
 #The same with the debug adapter:
 
-rfcomm listen /dev/rfcomm0 1 $PWD/run.pl  -af -av -w {}
+rfcomm listen /dev/rfcomm0 1 $PWD/run.pl -af -av -w {}
+rfcomm listen /dev/rfcomm0 1 $PWD/runner -af -av -w {}
 
 #Important options: -w wait for adapter, -af omit serial frame.
 

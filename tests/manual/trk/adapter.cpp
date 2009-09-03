@@ -115,7 +115,9 @@ public:
     void setRegisterEndianness(Endianness r) { m_registerEndianness = r; }
     void setUseSocket(bool s) { m_useSocket = s; }
     void setBufferedMemoryRead(bool b) { qDebug() << "Buffered=" << b; m_bufferedMemoryRead = b; }
-    bool startServer();
+
+public slots:
+    void startServer();
 
 private slots:
     void handleResult(const trk::TrkResult &data);
@@ -141,7 +143,7 @@ private:
     // kill process and breakpoints
     void cleanUp();
 
-   void handleCpuType(const TrkResult &result);
+    void handleCpuType(const TrkResult &result);
     void handleCreateProcess(const TrkResult &result);
     void handleClearBreakpoint(const TrkResult &result);
     void handleSignalContinue(const TrkResult &result);
@@ -247,12 +249,14 @@ void Adapter::setGdbServerName(const QString &name)
     }
 }
 
-bool Adapter::startServer()
+void Adapter::startServer()
 {
     QString errorMessage;
     if (!openTrkPort(m_trkServerName, &errorMessage)) {
         logMessage(errorMessage, true);
-        return false;
+        logMessage("LOOPING");
+        QTimer::singleShot(1000, this, SLOT(startServer()));
+        return;
     }
 
     sendTrkInitialPing();
@@ -271,7 +275,8 @@ bool Adapter::startServer()
         logMessage(QString("Unable to start the gdb server at %1:%2: %3.")
             .arg(m_gdbServerName).arg(m_gdbServerPort)
             .arg(m_gdbServer.errorString()), true);
-        return false;
+        QCoreApplication::exit(5);
+        return;
     }
 
     logMessage(QString("Gdb server running on %1:%2.\nRegister endianness: %3\nRun arm-gdb now.")
@@ -279,7 +284,6 @@ bool Adapter::startServer()
 
     connect(&m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
-    return true;
 }
 
 void Adapter::logMessage(const QString &msg, bool force)
@@ -1521,9 +1525,8 @@ int main(int argc, char *argv[])
     adapter.setRegisterEndianness(options.registerEndianness);
     adapter.setUseSocket(options.useSocket);
     adapter.setSerialFrame(options.serialFrame);
-    if (adapter.startServer())
-        return app.exec();
-    return 4;
+    QTimer::singleShot(0, &adapter, SLOT(startServer()));
+    return app.exec();
 }
 
 #include "adapter.moc"

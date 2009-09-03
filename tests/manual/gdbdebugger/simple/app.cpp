@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include <QtCore/QDebug>
+#include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QHash>
 #include <QtCore/QLibrary>
@@ -192,6 +193,16 @@ void testQByteArray()
     ba += char(0);
     ba += 1;
     ba += 2;
+}
+
+void testQDateTime()
+{
+    QDateTime date;
+    date = QDateTime::currentDateTime();
+    date = date.addSecs(5);
+    date = date.addSecs(5);
+    date = date.addSecs(5);
+    date = date.addSecs(5);
 }
 
 void testQFileInfo()
@@ -553,6 +564,7 @@ void testQSet()
     QObject ob;
     QSet<QPointer<QObject> > hash;
     QPointer<QObject> ptr(&ob);
+    ptr;
     //hash.insert(ptr);
     //hash.insert(ptr);
     //hash.insert(ptr);
@@ -592,7 +604,7 @@ public:
 
    private:
      QSharedDataPointer<EmployeeData> d;
- };
+};
 
 
 void testQSharedPointer()
@@ -1301,6 +1313,7 @@ int main(int argc, char *argv[])
     testQStack();
     testUninitialized();
     testPointer();
+    testQDateTime();
     testQFileInfo();
     testObject1();
     testVector1();

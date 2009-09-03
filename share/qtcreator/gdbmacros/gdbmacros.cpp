@@ -1085,7 +1085,7 @@ static void qDumpQAbstractItem(QDumper &d)
     //d.putItem("value", "(").put(rowCount).put(",").put(columnCount).put(")");
     d.putItem("value", m->data(mi, Qt::DisplayRole).toString());
     d.putItem("valueencoded", "2");
-    d.putItem("numchild", "1");
+    d.putItem("numchild", rowCount * columnCount);
     if (d.dumpChildren) {
         d.beginChildren();
         for (int row = 0; row < rowCount; ++row) {
@@ -1096,7 +1096,7 @@ static void qDumpQAbstractItem(QDumper &d)
                     d.put("[").put(row).put(",").put(column).put("]");
                 d.endItem();
                 //d.putItem("numchild", (m->hasChildren(child) ? "1" : "0"));
-                d.putItem("numchild", "1");
+                d.putItem("numchild", m->rowCount(child) * m->columnCount(child));
                 d.beginItem("addr");
                     d.put("$").put(child.row()).put(",").put(child.column()).put(",")
                         .put(child.internalPointer()).put(",").put(child.model());
@@ -1158,7 +1158,7 @@ static void qDumpQAbstractItemModel(QDumper &d)
                 d.putItem("value", m.data(mi, Qt::DisplayRole).toString());
                 d.putItem("valueencoded", "2");
                 //d.putItem("numchild", (m.hasChildren(mi) ? "1" : "0"));
-                d.putItem("numchild", "1");
+                d.putItem("numchild", m.rowCount(mi) * m.columnCount(mi));
                 d.beginItem("addr");
                     d.put("$").put(mi.row()).put(",").put(mi.column()).put(",");
                     d.put(mi.internalPointer()).put(",").put(mi.model());
@@ -3637,8 +3637,8 @@ void *qDumpObjectData440(
             "\""NS"QFileInfo\","
             "\""NS"QHash\","
             "\""NS"QHashNode\","
-            "\""NS"QImage\","
-            "\""NS"QImageData\","
+            //"\""NS"QImage\","
+            //"\""NS"QImageData\","
             "\""NS"QLinkedList\","
             "\""NS"QList\","
             "\""NS"QLocale\","
