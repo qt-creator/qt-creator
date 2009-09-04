@@ -130,7 +130,7 @@ void DuiModelManager::parse(QFutureInterface<void> &future,
                             QStringList files,
                             DuiModelManager *modelManager)
 {
-    future.setProgressRange(0, files.size() + 1);
+    future.setProgressRange(0, files.size());
 
     for (int i = 0; i < files.size(); ++i) {
         future.setProgressValue(i);
@@ -157,5 +157,5 @@ void DuiModelManager::parse(QFutureInterface<void> &future,
         modelManager->emitDocumentUpdated(doc);
     }
 
-    future.setProgressValue(files.size() + 1);
+    future.setProgressValue(files.size());
 }
