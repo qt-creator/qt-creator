@@ -240,11 +240,10 @@ QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &direc
     }
     return output;
 }
-#include <QDebug>
+
 QString DebuggingHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 {
     QString binary = qmakePath.mid(qmakePath.lastIndexOf('/')+1);
-    qDebug() << qmakePath << binary;
     if (!possibleQMakeCommands().contains(binary))
         return QString();
 
