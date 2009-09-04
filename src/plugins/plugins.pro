@@ -176,3 +176,4 @@ plugin_qmlprojectmanager.subdir = qmlprojectmanager
 plugin_qmlprojectmanager.depends = plugin_texteditor
 plugin_qmlprojectmanager.depends += plugin_projectexplorer
 plugin_qmlprojectmanager.depends += plugin_help
+plugin_qmlprojectmanager.depends += plugin_duieditor

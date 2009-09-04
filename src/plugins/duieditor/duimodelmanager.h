@@ -32,6 +32,7 @@
 
 #include <QFuture>
 #include <QFutureSynchronizer>
+#include <QMutex>
 
 #include "duidocument.h"
 #include "duimodelmanagerinterface.h"
@@ -75,6 +76,7 @@ protected:
                       DuiModelManager *modelManager);
 
 private:
+    mutable QMutex m_mutex;
     Core::ICore *m_core;
     Snapshot _snapshot;
 

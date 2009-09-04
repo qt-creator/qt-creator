@@ -39,6 +39,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <duieditor/duimodelmanagerinterface.h>
+
 #include <utils/synchronousprocess.h>
 #include <utils/pathchooser.h>
 
@@ -62,7 +64,8 @@ using namespace QmlProjectManager::Internal;
 
 QmlProject::QmlProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
-      m_fileName(fileName)
+      m_fileName(fileName),
+      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<DuiEditor::DuiModelManagerInterface>())
 {
     QFileInfo fileInfo(m_fileName);
     m_projectName = fileInfo.completeBaseName();
@@ -118,6 +121,7 @@ void QmlProject::parseProject(RefreshOptions options)
     if (options & Files) {
         m_files = convertToAbsoluteFiles(readLines(filesFileName()));
         m_files.removeDuplicates();
+        m_modelManager->updateSourceFiles(m_files);
     }
 
     if (options & Configuration) {

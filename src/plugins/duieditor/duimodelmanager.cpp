@@ -57,6 +57,8 @@ DuiModelManager::DuiModelManager(QObject *parent):
 
 Snapshot DuiModelManager::snapshot() const
 {
+    QMutexLocker locker(&m_mutex);
+
     return _snapshot;
 }
 
@@ -118,6 +120,8 @@ void DuiModelManager::emitDocumentUpdated(DuiDocument::Ptr doc)
 
 void DuiModelManager::onDocumentUpdated(DuiDocument::Ptr doc)
 {
+    QMutexLocker locker(&m_mutex);
+
     _snapshot.insert(doc);
 }
 
