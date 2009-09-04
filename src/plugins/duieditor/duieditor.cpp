@@ -623,7 +623,7 @@ void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedCha
 
 		QTextCursor tc(block);
 
-		if (typedChar == QLatin1Char('}')
+		if (typedChar == QLatin1Char('}'))
 			tc = textCursor();
 		
 		if (TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tc)) {
