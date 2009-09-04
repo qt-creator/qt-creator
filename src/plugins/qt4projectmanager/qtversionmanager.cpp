@@ -102,12 +102,20 @@ QtVersionManager::QtVersionManager()
             if (isAutodetected)
                 autodetectionSource = QLatin1String(PATH_AUTODETECTION_SOURCE);
         }
-
         QString qmakePath = s->value("QMakePath").toString();
         if (qmakePath.isEmpty()) {
             QString path = s->value("Path").toString();
-            if (!path.isEmpty())
-                qmakePath =  + "/bin/qmake.exe";
+            if (!path.isEmpty()) {
+                foreach(const QString& command, ProjectExplorer::DebuggingHelperLibrary::possibleQMakeCommands())
+                {
+                    QFileInfo fi(path + "/bin/" + command);
+                    if (fi.exists())
+                    {
+                        qmakePath = fi.filePath();
+                        break;
+                    }
+                }
+            }
         }
         QtVersion *version = new QtVersion(s->value("Name").toString(),
                                            qmakePath,
