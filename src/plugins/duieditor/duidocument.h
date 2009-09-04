@@ -33,13 +33,14 @@
 #include <QtCore/QMap>
 #include <QtCore/QString>
 
+#include "duieditor_global.h"
+
 #include "qmljsengine_p.h"
 #include "qmljsastfwd_p.h"
 
 namespace DuiEditor {
-namespace Internal {
 
-class DuiDocument
+class DUIEDITOR_EXPORT DuiDocument
 {
 public:
 	typedef QSharedPointer<DuiDocument> Ptr;
@@ -58,6 +59,11 @@ public:
 	void setSource(const QString &source);
 	bool parse();
 
+    bool isParsedCorrectly() const
+    { return _parsedCorrectly; }
+
+    QString fileName() const { return _fileName; }
+
 private:
 	QmlJS::Engine *_engine;
 	QmlJS::NodePool *_pool;
@@ -65,16 +71,26 @@ private:
 	QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
 	QString _fileName;
 	QString _source;
+    bool _parsedCorrectly;
 };
 
-class Snapshot: public QMap<QString, DuiDocument>
+class DUIEDITOR_EXPORT Snapshot: protected QMap<QString, DuiDocument::Ptr>
 {
 public:
 	Snapshot();
 	~Snapshot();
+
+    void insert(const DuiDocument::Ptr &document)
+    { QMap<QString, DuiDocument::Ptr>::insert(document->fileName(), document); }
+
+    typedef QMapIterator<QString, DuiDocument::Ptr> Iterator;
+    Iterator iterator() const
+    { return Iterator(*this); }
+
+    DuiDocument::Ptr document(const QString &fileName) const
+    { return value(fileName); }
 };
 
-} // end of namespace Internal
 } // emd of namespace DuiEditor
 
 #endif // DUIDOCUMENT_H

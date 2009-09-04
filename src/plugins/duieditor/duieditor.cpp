@@ -32,6 +32,7 @@
 #include "duihighlighter.h"
 #include "duieditorplugin.h"
 #include "duidocument.h"
+#include "duimodelmanager.h"
 
 #include "rewriter_p.h"
 
@@ -41,6 +42,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textblockiterator.h>
@@ -369,7 +371,8 @@ ScriptEditor::ScriptEditor(const Context &context,
 						   QWidget *parent) :
 	TextEditor::BaseTextEditor(parent),
 	m_context(context),
-	m_methodCombo(0)
+    m_methodCombo(0),
+    m_modelManager(0)
 {
 	setParenthesesMatchingEnabled(true);
 	setMarksVisible(true);
@@ -386,6 +389,13 @@ ScriptEditor::ScriptEditor(const Context &context,
 	connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
 
 	baseTextDocument()->setSyntaxHighlighter(new DuiHighlighter);
+
+    m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<DuiModelManagerInterface>();
+
+    if (m_modelManager) {
+        connect(m_modelManager, SIGNAL(documentUpdated(DuiDocument::Ptr)),
+                this, SLOT(onDocumentUpdated(DuiDocument::Ptr)));
+    }
 }
 
 ScriptEditor::~ScriptEditor()
@@ -428,17 +438,21 @@ void ScriptEditor::updateDocumentNow()
 	m_updateDocumentTimer->stop();
 
 	const QString fileName = file()->fileName();
-	const QString source = toPlainText();
 
-	DuiDocument::Ptr doc = DuiDocument::create(fileName);
-	doc->setSource(source);
-	bool parsed = doc->parse();
-	m_document = doc;
+    m_modelManager->updateSourceFiles(QStringList() << fileName);
+}
+
+void ScriptEditor::onDocumentUpdated(DuiDocument::Ptr doc)
+{
+    if (file()->fileName() != doc->fileName())
+        return;
+
+    m_document = doc;
 
 	FindIdDeclarations updateIds;
 	m_ids = updateIds(doc->program());
 
-	if (parsed) {
+    if (doc->isParsedCorrectly()) {
 		FindDeclarations findDeclarations;
 		m_declarations = findDeclarations(doc->program());
 
@@ -454,7 +468,7 @@ void ScriptEditor::updateDocumentNow()
 		m_methodCombo->clear();
 		m_methodCombo->addItems(items);
 		updateMethodBoxIndex();
-	}
+    }
 
 	QList<QTextEdit::ExtraSelection> selections;
 

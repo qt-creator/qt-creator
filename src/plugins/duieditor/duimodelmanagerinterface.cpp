@@ -27,74 +27,15 @@
 **
 **************************************************************************/
 
-#include "duidocument.h"
-#include "qmljsast_p.h"
-#include "qmljslexer_p.h"
-#include "qmljsparser_p.h"
-#include "qmljsengine_p.h"
-#include "qmljsnodepool_p.h"
+#include "duimodelmanagerinterface.h"
 
 using namespace DuiEditor;
-using namespace QmlJS;
 
-DuiDocument::DuiDocument(const QString &fileName)
-    : _engine(0), _pool(0), _program(0), _fileName(fileName), _parsedCorrectly(false)
+DuiModelManagerInterface::DuiModelManagerInterface(QObject *parent):
+        QObject(parent)
 {
 }
 
-DuiDocument::~DuiDocument()
-{
-	delete _engine;
-	delete _pool;
-}
-
-DuiDocument::Ptr DuiDocument::create(const QString &fileName)
-{
-	DuiDocument::Ptr doc(new DuiDocument(fileName));
-	return doc;
-}
-
-AST::UiProgram *DuiDocument::program() const
-{
-	return _program;
-}
-
-QList<DiagnosticMessage> DuiDocument::diagnosticMessages() const
-{
-	return _diagnosticMessages;
-}
-
-void DuiDocument::setSource(const QString &source)
-{
-	_source = source;
-}
-
-bool DuiDocument::parse()
-{
-	Q_ASSERT(! _engine);
-	Q_ASSERT(! _pool);
-	Q_ASSERT(! _program);
-
-	_engine = new Engine();
-	_pool = new NodePool(_fileName, _engine);
-
-	Lexer lexer(_engine);
-	Parser parser(_engine);
-
-	lexer.setCode(_source, /*line = */ 1);
-
-    _parsedCorrectly = parser.parse();
-	_program = parser.ast();
-	_diagnosticMessages = parser.diagnosticMessages();
-    return _parsedCorrectly;
-}
-
-Snapshot::Snapshot()
+DuiModelManagerInterface::~DuiModelManagerInterface()
 {
 }
-
-Snapshot::~Snapshot()
-{
-}
-
-

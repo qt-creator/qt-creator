@@ -46,6 +46,9 @@ namespace Core {
 }
 
 namespace DuiEditor {
+
+class DuiModelManagerInterface;
+
 namespace Internal {
 
 class DuiHighlighter;
@@ -112,6 +115,8 @@ public slots:
 	virtual void setFontSettings(const TextEditor::FontSettings &);
 
 private slots:
+    void onDocumentUpdated(DuiDocument::Ptr doc);
+
 	void updateDocument();
 	void updateDocumentNow();
 	void jumpToMethod(int index);
@@ -142,6 +147,7 @@ private:
 	QMap<QString, QList<QmlJS::AST::SourceLocation> > m_ids; // ### use QMultiMap
 	QList<QmlJS::DiagnosticMessage> m_diagnosticMessages;
 	DuiDocument::Ptr m_document;
+    DuiModelManagerInterface *m_modelManager;
 };
 
 } // namespace Internal

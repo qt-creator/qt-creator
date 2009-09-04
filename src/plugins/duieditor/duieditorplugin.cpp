@@ -35,6 +35,7 @@
 #include "duieditorfactory.h"
 #include "duicodecompletion.h"
 #include "duihoverhandler.h"
+#include "duimodelmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -62,6 +63,7 @@ using namespace DuiEditor::Constants;
 DuiEditorPlugin *DuiEditorPlugin::m_instance = 0;
 
 DuiEditorPlugin::DuiEditorPlugin() :
+        m_modelManager(0),
     m_wizard(0),
     m_editor(0),
     m_actionHandler(0),
@@ -85,6 +87,10 @@ bool DuiEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/duieditor/DuiEditor.mimetypes.xml"), error_message))
         return false;
+
+    m_modelManager = new DuiModelManager(this);
+    addAutoReleasedObject(m_modelManager);
+
     m_scriptcontext << core->uniqueIDManager()->uniqueIdentifier(DuiEditor::Constants::C_DUIEDITOR);
     m_context = m_scriptcontext;
     m_context << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);

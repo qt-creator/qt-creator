@@ -27,60 +27,61 @@
 **
 **************************************************************************/
 
-#ifndef DUIEDITORPLUGIN_H
-#define DUIEDITORPLUGIN_H
+#ifndef DUIMODELMANAGER_H
+#define DUIMODELMANAGER_H
 
-#include <extensionsystem/iplugin.h>
+#include <QFuture>
+#include <QFutureSynchronizer>
 
-namespace TextEditor {
-class TextFileWizard;
-class TextEditorActionHandler;
-} // namespace TextEditor
+#include "duidocument.h"
+#include "duimodelmanagerinterface.h"
+
+namespace Core {
+class ICore;
+}
 
 namespace DuiEditor {
-
-class DuiModelManagerInterface;
-
 namespace Internal {
 
-class DuiEditorFactory;
-class DuiCodeCompletion;
-class ScriptEditor;
-
-class DuiEditorPlugin : public ExtensionSystem::IPlugin
+class DuiModelManager: public DuiModelManagerInterface
 {
     Q_OBJECT
 
 public:
-    DuiEditorPlugin();
-    virtual ~DuiEditorPlugin();
+    DuiModelManager(QObject *parent = 0);
 
-    // IPlugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+    virtual Snapshot snapshot() const;
+    virtual void updateSourceFiles(const QStringList &files);
 
-    static DuiEditorPlugin *instance()
-    { return m_instance; }
+    void emitDocumentUpdated(DuiDocument::Ptr doc);
 
-    void initializeEditor(ScriptEditor *editor);
+Q_SIGNALS:
+    void projectPathChanged(const QString &projectPath);
+
+    void documentUpdated(DuiDocument::Ptr doc);
+    void aboutToRemoveFiles(const QStringList &files);
+
+private Q_SLOTS:
+    // this should be executed in the GUI thread.
+    void onDocumentUpdated(DuiDocument::Ptr doc);
+
+protected:
+    QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
+    QMap<QString, QString> buildWorkingCopyList();
+
+    static void parse(QFutureInterface<void> &future,
+                      QMap<QString, QString> workingCopy,
+                      QStringList files,
+                      DuiModelManager *modelManager);
 
 private:
-    void registerActions();
+    Core::ICore *m_core;
+    Snapshot _snapshot;
 
-    static DuiEditorPlugin *m_instance;
-
-    typedef QList<int> Context;
-    Context m_context;
-    Context m_scriptcontext;
-
-    DuiModelManagerInterface *m_modelManager;
-    TextEditor::TextFileWizard *m_wizard;
-    DuiEditorFactory *m_editor;
-    TextEditor::TextEditorActionHandler *m_actionHandler;
-    DuiCodeCompletion *m_completion;
+    QFutureSynchronizer<void> m_synchronizer;
 };
 
 } // namespace Internal
 } // namespace DuiEditor
 
-#endif // DUIEDITORPLUGIN_H
+#endif // DUIMODELMANAGER_H
