@@ -38,6 +38,7 @@ namespace Constants {
 const char * const M_TOOLS_CPP              = "CppTools.Tools.Menu";
 const char * const SWITCH_HEADER_SOURCE     = "CppTools.SwitchHeaderSource";
 const char * const TASK_INDEX               = "CppTools.Task.Index";
+const char * const TASK_SEARCH              = "CppTools.Task.Search";
 const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
 const char * const C_HEADER_MIMETYPE = "text/x-chdr";
 const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";

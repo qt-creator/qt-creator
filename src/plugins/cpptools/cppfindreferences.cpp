@@ -264,7 +264,7 @@ void CppFindReferences::findAll(const QString &fileName, const QString &text)
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),
-                                                              CppTools::Constants::TASK_INDEX,
+                                                              CppTools::Constants::TASK_SEARCH,
                                                               Core::ProgressManager::CloseOnSuccess);
 
     connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
