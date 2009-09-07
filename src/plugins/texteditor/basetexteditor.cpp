@@ -2833,7 +2833,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
                             document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last()).position()
                             );
                     QTextBlock c = cursor.block();
-                    if (!TextBlockUserData::canCollapse(c))
+                    if (TextBlockUserData::hasCollapseAfter(c.previous()))
                         c = c.previous();
                     toggleBlockVisible(c);
                     d->moveCursorVisible(false);
