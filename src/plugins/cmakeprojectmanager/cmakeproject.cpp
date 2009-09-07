@@ -500,7 +500,7 @@ void CMakeProject::setUserEnvironmentChanges(const QString &buildConfig, const Q
     QStringList list = EnvironmentItem::toStringList(diff);
     if (list == value(buildConfig, "userEnvironmentChanges"))
         return;
-    setValue(buildConfig, "userEnvironmentChanges", EnvironmentItem::toStringList(diff));
+    setValue(buildConfig, "userEnvironmentChanges", list);
     emit environmentChanged(buildConfig);
 }
 
