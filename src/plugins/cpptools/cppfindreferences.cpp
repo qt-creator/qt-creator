@@ -223,6 +223,8 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
 
     future.setProgressRange(0, files.size());
 
+    const QByteArray literal = word.toLatin1();
+
     tm.start();
     for (int i = 0; i < files.size(); ++i) {
         const QString &fn = files.at(i);
@@ -234,14 +236,15 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
         const QString source = QTextStream(&f).readAll();
         const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fn);
         Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, fn);
-        doc->check();
+        doc->tokenize();
 
         Control *control = doc->control();
-        Identifier *id = control->findOrInsertIdentifier(word.toLatin1().constData());
-
-        TranslationUnit *unit = doc->translationUnit();
-        Process process(future, doc, snapshot);
-        process(id, unit->ast());
+        if (Identifier *id = control->findIdentifier(literal.constData(), literal.size())) {
+            doc->check();
+            TranslationUnit *unit = doc->translationUnit();
+            Process process(future, doc, snapshot);
+            process(id, unit->ast());
+        }
     }
     future.setProgressValue(files.size());
 }
