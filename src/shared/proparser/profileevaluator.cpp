@@ -1197,8 +1197,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
                     if (!evaluateFileInto(spec,
                                           &m_option->base_valuemap, &m_option->base_functions)) {
                         errorMessage(format("Could not read qmake configuration file %1").arg(spec));
-                    } else {
-                        evaluateFileInto(qmake_cache,
+                    } else if (!m_option->cachefile.isEmpty()) {
+                        evaluateFileInto(m_option->cachefile,
                                          &m_option->base_valuemap, &m_option->base_functions);
                     }
                 }
