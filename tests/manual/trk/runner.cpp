@@ -251,7 +251,7 @@ public:
     Q_SLOT void handleGdbConnection();
     Q_SLOT void readGdbServerCommand();
     void readGdbResponse();
-    void handleGdbServerCommand(const QByteArray &ba);
+    void handleGdbServerCommand(const QByteArray &cmd);
     void sendGdbServerMessage(const QByteArray &msg,
         const QByteArray &logNote = QByteArray());
     void sendGdbServerMessageAfterTrkResponse(const QByteArray &msg,
@@ -475,9 +475,9 @@ void Adapter::readGdbServerCommand()
                 + quoteUnprintableLatin1(ba)).arg(checkSum).arg(sum));
         }
 
-        QByteArray response = ba.left(pos);
+        QByteArray cmd = ba.left(pos);
         ba.remove(0, pos + 3);
-        handleGdbServerCommand(response);
+        handleGdbServerCommand(cmd);
     }
 }
 
@@ -569,18 +569,18 @@ QByteArray Adapter::trkBreakpointMessage(uint addr, int len, int pid, bool armMo
     return ba;
 }
 
-void Adapter::handleGdbServerCommand(const QByteArray &response)
+void Adapter::handleGdbServerCommand(const QByteArray &cmd)
 {
     // http://sourceware.org/gdb/current/onlinedocs/gdb_34.html
     if (0) {}
 
-    else if (response == "!") {
+    else if (cmd == "!") {
         sendGdbServerAck();
         //sendGdbServerMessage("", "extended mode not enabled");
         sendGdbServerMessage("OK", "extended mode enabled");
     }
 
-    else if (response.startsWith("?")) {
+    else if (cmd.startsWith("?")) {
         logMessage(msgGdbPacket(QLatin1String("Query halted")));
         // Indicate the reason the target halted.
         // The reply is the same as for step and continue.
@@ -594,7 +594,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         //sendGdbServerMessage("O" + QByteArray("Starting...").toHex());
     }
 
-    else if (response == "c") {
+    else if (cmd == "c") {
         logMessage(msgGdbPacket(QLatin1String("Continue")));
         sendGdbServerAck();
         QByteArray ba;
@@ -606,26 +606,26 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         sendTrkMessage(0x18, TrkCallback(), ba);
     }
 
-    else if (response.startsWith("C")) {
+    else if (cmd.startsWith("C")) {
         logMessage(msgGdbPacket(QLatin1String("Continue with signal")));
         // C sig[;addr] Continue with signal sig (hex signal number)
         //Reply: See section D.3 Stop Reply Packets, for the reply specifications.
         sendGdbServerAck();
         bool ok = false;
-        uint signalNumber = response.mid(1).toInt(&ok, 16);
+        uint signalNumber = cmd.mid(1).toInt(&ok, 16);
         QByteArray ba;
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
         sendTrkMessage(0x18, TrkCB(handleSignalContinue), ba, signalNumber); // Continue
     }
 
-    else if (response.startsWith("D")) {
+    else if (cmd.startsWith("D")) {
         sendGdbServerAck();
         sendGdbServerMessage("OK", "shutting down");
         qApp->quit();
     }
 
-    else if (response == "g") {
+    else if (cmd == "g") {
         logMessage(msgGdbPacket(QLatin1String("Read registers")));
         // Read general registers.
         //sendGdbServerMessage("00000000", "read registers");
@@ -639,7 +639,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         sendTrkMessage(0x12, TrkCB(handleAndReportReadRegisters), ba, QVariant(), true);
     }
 
-    else if (response.startsWith("Hc")) {
+    else if (cmd.startsWith("Hc")) {
         logMessage(msgGdbPacket(QLatin1String("Set thread & continue")));
         // Set thread for subsequent operations (`m', `M', `g', `G', et.al.).
         // for step and continue operations
@@ -648,18 +648,18 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         sendGdbServerMessage("OK", "Set current thread for step & continue");
     }
 
-    else if (response.startsWith("Hg")) {
+    else if (cmd.startsWith("Hg")) {
         logMessage(msgGdbPacket(QLatin1String("Set thread")));
         // Set thread for subsequent operations (`m', `M', `g', `G', et.al.).
         // for 'other operations.  0 - any thread
         //$Hg0#df
         sendGdbServerAck();
-        m_session.currentThread = response.mid(2).toInt(0, 16);
+        m_session.currentThread = cmd.mid(2).toInt(0, 16);
         sendGdbServerMessage("OK", "Set current thread "
             + QByteArray::number(m_session.currentThread));
     }
 
-    else if (response == "k") {
+    else if (cmd == "k") {
         logMessage(msgGdbPacket(QLatin1String("kill")));
         // kill
         sendGdbServerAck();
@@ -671,30 +671,30 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         sendGdbServerMessageAfterTrkResponse("", "process killed");
     }
 
-    else if (response.startsWith("m")) {
+    else if (cmd.startsWith("m")) {
         logMessage(msgGdbPacket(QLatin1String("Read memory")));
         // m addr,length
         sendGdbServerAck();
         uint addr = 0, len = 0;
         do {
-            const int pos = response.indexOf(',');
+            const int pos = cmd.indexOf(',');
             if (pos == -1)
                 break;
             bool ok;
-            addr = response.mid(1, pos - 1).toUInt(&ok, 16);
+            addr = cmd.mid(1, pos - 1).toUInt(&ok, 16);
             if (!ok)
                 break;
-            len = response.mid(pos + 1).toUInt(&ok, 16);
+            len = cmd.mid(pos + 1).toUInt(&ok, 16);
             if (!ok)
                 break;
         } while (false);
         if (len) {
             readMemory(addr, len);
         } else {
-            sendGdbServerMessage("E20", "Error " + response);
+            sendGdbServerMessage("E20", "Error " + cmd);
         }
     }
-    else if (response.startsWith("p")) {
+    else if (cmd.startsWith("p")) {
         logMessage(msgGdbPacket(QLatin1String("read register")));
         // 0xf == current instruction pointer?
         //sendGdbServerMessage("0000", "current IP");
@@ -732,7 +732,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
           LAST_FP_ARG = F3
         #endif
         bool ok = false;
-        const uint registerNumber = response.mid(1).toInt(&ok, 16);
+        const uint registerNumber = cmd.mid(1).toInt(&ok, 16);
         QByteArray logMsg = "Read Register";
         if (registerNumber == RegisterPSGdb) {
             QByteArray ba;
@@ -750,7 +750,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         }
     }
 
-    else if (response == "qAttached") {
+    else if (cmd == "qAttached") {
         //$qAttached#8f
         // 1: attached to an existing process
         // 0: created a new process
@@ -760,7 +760,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         //sendGdbServerMessage("E01", "new process created");
     }
 
-    else if (response.startsWith("qC")) {
+    else if (cmd.startsWith("qC")) {
         logMessage(msgGdbPacket(QLatin1String("query thread id")));
         // Return the current thread ID
         //$qC#b4
@@ -768,7 +768,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         sendGdbServerMessageAfterTrkResponse("QC@TID@");
     }
 
-    else if (response.startsWith("qSupported")) {
+    else if (cmd.startsWith("qSupported")) {
         //$qSupported#37
         //$qSupported:multiprocess+#c6
         //logMessage("Handling 'qSupported'");
@@ -784,7 +784,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
                 "qXfer:features:read+");
     }
 
-    else if (response == "qPacketInfo") {
+    else if (cmd == "qPacketInfo") {
         // happens with  gdb 6.4.50.20060226-cvs / CodeSourcery
         // deprecated by qSupported?
 
@@ -792,12 +792,12 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         sendGdbServerMessage("", "FIXME: nothing?");
     }
 
-    else if (response == "qOffsets") {
+    else if (cmd == "qOffsets") {
         sendGdbServerAck();
         sendGdbServerMessageAfterTrkResponse("TextSeg=@CODESEG@;DataSeg=@DATASEG@");
     }
 
-    else if (response == "qSymbol::") {
+    else if (cmd == "qSymbol::") {
         if (m_verbose)
             logMessage(msgGdbPacket(QLatin1String("notify can handle symbol lookup")));
         // Notify the target that GDB is prepared to serve symbol lookup requests.
@@ -808,13 +808,13 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
             sendGdbServerMessage("qSymbol:" + QByteArray("_Z7E32Mainv").toHex(), "ask for more");
     }
 
-    else if (response.startsWith("qXfer:features:read:target.xml:")) {
+    else if (cmd.startsWith("qXfer:features:read:target.xml:")) {
         //  $qXfer:features:read:target.xml:0,7ca#46...Ack
         sendGdbServerAck();
         sendGdbServerMessage("l<target><architecture>symbianelf</architecture></target>");
     }
 
-    else if (response == "QStartNoAckMode") {
+    else if (cmd == "QStartNoAckMode") {
         //$qSupported#37
         //logMessage("Handling 'QStartNoAckMode'");
         sendGdbServerAck();
@@ -822,7 +822,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         m_gdbAckMode = false;
     }
 
-    else if (response.startsWith("QPassSignals")) {
+    else if (cmd.startsWith("QPassSignals")) {
         // list of signals to pass directly to inferior
         // $QPassSignals:e;10;14;17;1a;1b;1c;21;24;25;4c;#8f
         // happens only if "QPassSignals+;" is qSupported
@@ -831,7 +831,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         sendGdbServerMessage("OK", "passing signals accepted");
     }
 
-    else if (response == "s") {
+    else if (cmd == "s" || cmd.startsWith("vCont;s")) {
         if (m_verbose)
             logMessage(msgGdbPacket(QLatin1String("Step range")));
         sendGdbServerAck();
@@ -846,28 +846,21 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         //sendGdbServerMessageAfterTrkResponse("S05", "target halted");
     }
 
-    else if (response == "vCont?") {
+    else if (cmd == "vCont?") {
         // actions supported by the vCont packet
         sendGdbServerAck();
         sendGdbServerMessage("OK"); // we don't support vCont.
         //sendGdbServerMessage("vCont;c");
     }
 
-    else if (response == "vCont;c") {
+    else if (cmd == "vCont;c") {
         // vCont[;action[:thread-id]]...'
         sendGdbServerAck();
         m_running = true;
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
     }
 
-    else if (response.startsWith("vCont;s")) {
-        // vCont[;action[:thread-id]]...'
-        sendGdbServerAck();
-        m_running = true;
-        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
-    }
-
-    else if (response.startsWith("vKill")) {
+    else if (cmd.startsWith("vKill")) {
         // kill
         sendGdbServerAck();
         QByteArray ba;
@@ -877,20 +870,20 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         sendGdbServerMessageAfterTrkResponse("", "process killed");
     }
 
-    else if (0 && response.startsWith("Z0,")) {
+    else if (0 && cmd.startsWith("Z0,")) {
         // Tell gdb  we don't support software breakpoints
         sendGdbServerMessage("");
     }
 
-    else if (response.startsWith("Z0,") || response.startsWith("Z1,")) {
+    else if (cmd.startsWith("Z0,") || cmd.startsWith("Z1,")) {
         // Insert breakpoint
         if (m_verbose)
             logMessage(msgGdbPacket(QLatin1String("Insert breakpoint")));
         // $z0,786a4ccc,4#99
-        const int pos = response.lastIndexOf(',');
+        const int pos = cmd.lastIndexOf(',');
         bool ok = false;
-        const uint addr = response.mid(3, pos - 3).toInt(&ok, 16);
-        const uint len = response.mid(pos + 1).toInt(&ok, 16);
+        const uint addr = cmd.mid(3, pos - 3).toInt(&ok, 16);
+        const uint len = cmd.mid(pos + 1).toInt(&ok, 16);
         qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
         if (m_verbose)
             logMessage(QString::fromLatin1("Inserting breakpoint at 0x%1, %2")
@@ -915,8 +908,8 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         //  Command: 0x80 Acknowledge
         //    Error: 0x00
         // [80 09 00 00 00 00 0A]
-    } else if (response.startsWith("qPart:") || response.startsWith("qXfer:"))  {
-        QByteArray data  = response.mid(1 + response.indexOf(':'));
+    } else if (cmd.startsWith("qPart:") || cmd.startsWith("qXfer:"))  {
+        QByteArray data  = cmd.mid(1 + cmd.indexOf(':'));
         // "qPart:auxv:read::0,147": Read OS auxiliary data (see info aux)
         bool handled = false;
         if (data.startsWith("auxv:read::")) {
@@ -938,14 +931,14 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         } // auxv read
         if (!handled) {
             const QString msg = QLatin1String("FIXME unknown 'XFER'-request: ")
-                + QString::fromAscii(response);
+                + QString::fromAscii(cmd);
             logMessage(msgGdbPacket(msg), true);
             sendGdbServerMessage("E20", msg.toLatin1());
         }
     } // qPart/qXfer
     else {
         logMessage(msgGdbPacket(QLatin1String("FIXME unknown: ")
-            + QString::fromAscii(response)));
+            + QString::fromAscii(cmd)));
     }
 }
 
