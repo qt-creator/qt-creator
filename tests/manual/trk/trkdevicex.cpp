@@ -257,8 +257,18 @@ void TrkWriteQueue::queueTrkInitialPing()
     trkWriteQueue.append(TrkMessage(0, 0));
 }
 
-struct TrkDevicePrivate {
+
+///////////////////////////////////////////////////////////////////////
+//
+// TrkDevicePrivate
+//
+///////////////////////////////////////////////////////////////////////
+
+struct TrkDevicePrivate
+{
     TrkDevicePrivate();
+
+    TrkWriteQueue queue;
 #ifdef Q_OS_WIN
     HANDLE hdevice;
 #else
@@ -298,11 +308,13 @@ TrkDevicePrivate::TrkDevicePrivate() :
 
 TrkDevice::TrkDevice(QObject *parent) :
     QObject(parent),
-    d(new TrkDevicePrivate),
-    qd(new TrkWriteQueue)
+    d(new TrkDevicePrivate)
+{}
+
+TrkDevice::~TrkDevice()
 {
-    connect(this, SIGNAL(messageReceived(trk::TrkResult)),
-        this, SLOT(slotHandleResult(trk::TrkResult)));
+    close();
+    delete d;
 }
 
 bool TrkDevice::open(const QString &port, QString *errorMessage)
@@ -353,14 +365,6 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
     d->timerId = startTimer(TimerInterval);
     return true;
 #endif
-}
-
-
-TrkDevice::~TrkDevice()
-{
-    close();
-    delete d;
-    delete qd;
 }
 
 void TrkDevice::close()
@@ -493,6 +497,7 @@ void TrkDevice::tryTrkRead()
         //if (verbose())
         //    logMessage("Read TrkResult " + r.data.toHex());
         qDebug() << "RECEIVE DATA: " << r.data.toHex();
+        d->queue.slotHandleResult(r);
         emit messageReceived(r);
         if (!rawData.isEmpty())
             emit rawDataReceived(rawData);
@@ -515,12 +520,12 @@ void TrkDevice::emitError(const QString &s)
 void TrkDevice::sendTrkMessage(byte code, Callback callback,
      const QByteArray &data, const QVariant &cookie, bool invokeOnNAK)
 {
-    qd->queueTrkMessage(code, callback, data, cookie, invokeOnNAK);
+    d->queue.queueTrkMessage(code, callback, data, cookie, invokeOnNAK);
 }
 
 void TrkDevice::sendTrkInitialPing()
 {
-    qd->queueTrkInitialPing();
+    d->queue.queueTrkInitialPing();
 }
 
 bool TrkDevice::sendTrkAck(byte token)
@@ -536,10 +541,10 @@ bool TrkDevice::sendTrkAck(byte token)
 void TrkDevice::tryTrkWrite()
 {
     TrkMessage message;
-    if (!qd->pendingMessage(&message))
+    if (!d->queue.pendingMessage(&message))
         return;
     const bool success = trkWriteRawMessage(message);
-    qd->notifyWriteResult(success);
+    d->queue.notifyWriteResult(success);
 }
 
 bool TrkDevice::trkWriteRawMessage(const TrkMessage &msg)
@@ -552,11 +557,6 @@ bool TrkDevice::trkWriteRawMessage(const TrkMessage &msg)
     if (!rc)
         emitError(errorMessage);
     return rc;
-}
-
-void TrkDevice::slotHandleResult(const TrkResult &result)
-{
-    qd->slotHandleResult(result);
 }
 
 } // namespace trk

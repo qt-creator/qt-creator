@@ -999,7 +999,6 @@ void Adapter::handleTrkError(const QString &msg)
 
 void Adapter::handleTrkResult(const TrkResult &result)
 {
-    logMessage("HANDLING RESULT: " + result.data);
     if (result.isDebugOutput) {
         sendTrkAck(result.token);
         logMessage(QLatin1String("APPLICATION OUTPUT: ") +
