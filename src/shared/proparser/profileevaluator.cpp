@@ -1139,10 +1139,11 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
                 }
                 if (!qmake_cache.isEmpty()) {
                     qmake_cache = QDir::cleanPath(qmake_cache);
-                    if (evaluateFileInto(qmake_cache, &m_option->cache_valuemap, 0)) {
+                    QHash<QString, QStringList> cache_valuemap;
+                    if (evaluateFileInto(qmake_cache, &cache_valuemap, 0)) {
                         m_option->cachefile = qmake_cache;
                         if (m_option->qmakespec.isEmpty()) {
-                            const QStringList &vals = m_option->cache_valuemap.value(QLatin1String("QMAKESPEC"));
+                            const QStringList &vals = cache_valuemap.value(QLatin1String("QMAKESPEC"));
                             if (!vals.isEmpty())
                                 m_option->qmakespec = vals.first();
                         }

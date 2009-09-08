@@ -88,8 +88,7 @@ public:
         friend class ProFileEvaluator;
         friend class ProFileEvaluator::Private;
         static QString field_sep; // Just a cache for quick construction
-        QHash<QString, QStringList> cache_valuemap; // Cached results of .qmake.cache
-        QHash<QString, QStringList> base_valuemap; // ~ and qmake.conf and default_pre.prf
+        QHash<QString, QStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
         FunctionDefs base_functions;
         QStringList feature_roots;
     };
