@@ -230,8 +230,6 @@ public:
 
     TrkDevice m_trkDevice;
 
-    QList<Breakpoint> m_breakpoints;
-
     //
     // Gdb
     //
@@ -302,9 +300,6 @@ Adapter::Adapter()
     m_serialFrame = false;
     m_bufferedMemoryRead = true;
     //m_bufferedMemoryRead = false;
-    // m_breakpoints.append(Breakpoint(0x0040)); // E32Main
-    m_breakpoints.append(Breakpoint(0x0cc8)); // E32Main
-    m_breakpoints.append(Breakpoint(0x0cd0)); // E32Main
     m_trkServerName = "/dev/rfcomm0";
 
     uid_t userId = getuid();
@@ -863,9 +858,10 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerAck();
         m_running = true;
         QByteArray ba;
-        appendByte(&ba, 1); // options
+        appendByte(&ba, 0x01); // options
         appendInt(&ba, m_snapshot.registers[RegisterPC]); // start address
-        appendInt(&ba, m_snapshot.registers[RegisterPC] + 4); // end address
+        //appendInt(&ba, m_snapshot.registers[RegisterPC] + 4); // end address
+        appendInt(&ba, -1); // end address
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
         sendTrkMessage(0x19, TrkCB(handleStepRange), ba, "Step range");
@@ -911,10 +907,9 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
         bool ok = false;
         const uint addr = cmd.mid(3, pos - 3).toInt(&ok, 16);
         const uint len = cmd.mid(pos + 1).toInt(&ok, 16);
-        qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
-        if (m_verbose)
-            logMessage(QString::fromLatin1("Inserting breakpoint at 0x%1, %2")
-                .arg(addr, 0, 16).arg(len));
+        //qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
+        logMessage(QString::fromLatin1("Inserting breakpoint at 0x%1, %2")
+            .arg(addr, 0, 16).arg(len));
 
         //---IDE------------------------------------------------------
         //  Command: 0x1B Set Break
@@ -1060,8 +1055,7 @@ void Adapter::handleTrkResult(const TrkResult &result)
                     sendGdbServerMessage("S05", "Target stopped");
                 }
             } else {
-                if (m_verbose)
-                    logMessage(QLatin1String("Ignoring stop at 0"));
+                logMessage(QLatin1String("Ignoring stop at 0"));
             }
             break;
         }
@@ -1197,9 +1191,8 @@ void Adapter::handleSetTrkBreakpoint(const TrkResult &result)
     //    Error: 0x00
     // [80 09 00 00 00 00 0A]
     const uint bpnr = extractInt(result.data.data());
-    if (m_verbose)
-        logMessage("SET BREAKPOINT " + hexxNumber(bpnr)
-            + stringFromArray(result.data.data()));
+    logMessage("SET BREAKPOINT " + hexxNumber(bpnr)
+        + stringFromArray(result.data.data()));
 }
 
 void Adapter::handleCreateProcess(const TrkResult &result)
@@ -1502,8 +1495,8 @@ void Adapter::cleanUp()
     //    Error: 0x00
     // [80 24 00]
 
-    foreach (const Breakpoint &bp, m_breakpoints)
-        clearTrkBreakpoint(bp);
+    //foreach (const Breakpoint &bp, m_breakpoints)
+    //    clearTrkBreakpoint(bp);
 
     sendTrkMessage(0x02, TrkCB(handleDisconnect));
     //---IDE------------------------------------------------------
@@ -1662,6 +1655,7 @@ void Adapter::startGdb()
     sendGdbMessage("set remotebreak on");
     sendGdbMessage("set breakpoint pending on");
     sendGdbMessage("set trust-readonly-sections on");
+    //sendGdbMessage("mem 0 ~0ll rw 8 cache");
 
     // FIXME: "remote noack" does not seem to be supported on cs-gdb?
     //sendGdbMessage("set remote noack-packet");
@@ -1688,24 +1682,21 @@ void Adapter::startGdb()
     sendGdbMessage("symbol-file filebrowseapp.sym");
 
     // -symbol-info-address not implemented in cs-gdb 6.4-6.8 (at least)
-    sendGdbMessage("info address E32Main", GdbCB(handleInfoMainAddress)); 
+    sendGdbMessage("info address E32Main",
+        GdbCB(handleInfoMainAddress)); 
+    sendGdbMessage("info address CFileBrowseAppUi::HandleCommandL",
+        GdbCB(handleInfoMainAddress)); 
         
 #if 1
     // FIXME: Gdb based version. That's the goal
     //sendGdbMessage("break E32Main");
     //sendGdbMessage("continue");
-    QByteArray ba;
-    appendInt(&ba, m_session.pid);
-    appendInt(&ba, m_session.tid);
     //sendTrkMessage(0x18, TrkCB(handleContinueAfterCreateProcess), 
     // trkContinueMessage(), "CONTINUE");
 #else
     // Directly talk to TRK. Works for now...
     sendGdbMessage("break E32Main");
     sendGdbMessage("break filebrowseappui.cpp:39");
-    //foreach (const Breakpoint &bp, m_breakpoints)
-    //    setTrkBreakpoint(bp);
-    //sendTrkContinue();
    //         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
 #endif
 }
@@ -1753,42 +1744,43 @@ void Adapter::handleGdbReadyReadStandardOutput()
     if (!cmd.callback.isNull())
         cmd.callback(result);
 #else
+    bool ok;
     QRegExp re(QString("Symbol .._Z7E32Mainv.. is a function at address 0x(.*)\\."));
-    if (re.indexIn(str) == -1) {
-        logMessage(QString("-> GDB: %1").arg(str));
+    if (re.indexIn(str) != -1) {
+        logMessage(QString("-> GDB MAIN BREAKPOINT: %1").arg(re.cap(1)));
+        uint addr = re.cap(1).toInt(&ok, 16);
+        sendTrkMessage(0x1B, TrkCallback(), trkBreakpointMessage(addr, 1));
         return;
     }
-    logMessage(QString("-> GDB MAIN: %1").arg(re.cap(1)));
-    GdbResult result;
-    result.data = re.cap(1).toLatin1();
-    handleInfoMainAddress(result);
+    QRegExp re1(QString("Symbol .._ZN16CFileBrowseAppUi14HandleCommandLEi.. is a function at address 0x(.*)\\."));
+    if (re1.indexIn(str) != -1) {
+        logMessage(QString("-> GDB USER BREAKPOINT: %1").arg(re1.cap(1)));
+        uint addr = re1.cap(1).toInt(&ok, 16);
+        sendTrkMessage(0x1B, TrkCallback(), trkBreakpointMessage(addr, 1));
+
+        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+        sendGdbMessage("target remote " + m_gdbServerName);
+        return;
+    }
+    logMessage(QString("-> GDB: %1").arg(str));
 #endif
 }
 
 void Adapter::handleInfoMainAddress(const GdbResult &result)
 {
-    bool ok;
-    uint addr = result.data.toInt(&ok, 16);
-    const QByteArray ba = trkBreakpointMessage(addr, 1);
-    sendTrkMessage(0x1B, TrkCB(handleSetTrkMainBreakpoint), ba);
+    Q_UNUSED(result);
 }
 
 void Adapter::handleSetTrkMainBreakpoint(const TrkResult &result)
 {
+    Q_UNUSED(result);
+/*
     //---TRK------------------------------------------------------
     // [80 09 00 00 00 00 0A]
     const uint bpnr = extractInt(result.data.data());
     logMessage("SET MAIN BREAKPOINT " + hexxNumber(bpnr)
         + stringFromArray(result.data.data()));
-
-    // 'continue after initial break'
-    QByteArray ba;
-    appendInt(&ba, m_session.pid);
-    appendInt(&ba, m_session.tid);
-    sendTrkMessage(0x18, TrkCallback(), ba, "CONTINUE");
-
-    // this attaches
-    sendGdbMessage("target remote " + m_gdbServerName);
+*/
 }
 
 void Adapter::handleInfoAddress(const GdbResult &result)
@@ -1869,16 +1861,23 @@ public:
 
 private slots:
     void executeStepICommand();
+    void executeStepCommand();
+    void executeDisassICommand();
 
 private:
     Adapter *m_adapter;
     TextEdit m_textEdit;
     QToolBar m_toolBar;
     QAction m_stepIAction;
+    QAction m_stepAction;
+    QAction m_disassIAction;
 };
 
 RunnerGui::RunnerGui(Adapter *adapter)
-    : m_adapter(adapter), m_stepIAction(0)
+  : m_adapter(adapter),
+    m_stepIAction(0),
+    m_stepAction(0),
+    m_disassIAction(0)
 {
     resize(1200, 1000);
     setCentralWidget(&m_textEdit);
@@ -1886,19 +1885,39 @@ RunnerGui::RunnerGui(Adapter *adapter)
     addToolBar(&m_toolBar);
 
     m_stepIAction.setText("StepI");
+    m_disassIAction.setText("DisassI");
     m_toolBar.addAction(&m_stepIAction);
+    m_toolBar.addAction(&m_stepAction);
+    m_toolBar.addAction(&m_disassIAction);
 
     connect(adapter, SIGNAL(output(QString,QString)),
         &m_textEdit, SLOT(handleOutput(QString,QString)));
     connect(&m_textEdit, SIGNAL(executeCommand(QString)),
         m_adapter, SLOT(executeCommand(QString)));
+
     connect(&m_stepIAction, SIGNAL(triggered()),
         this, SLOT(executeStepICommand()));
+    connect(&m_stepAction, SIGNAL(triggered()),
+        this, SLOT(executeStepCommand()));
+    connect(&m_disassIAction, SIGNAL(triggered()),
+        this, SLOT(executeDisassICommand()));
+}
+
+void RunnerGui::executeStepCommand()
+{
+    //m_adapter->executeCommand("stepi");
+    m_adapter->executeCommand("-exec-step");
 }
 
 void RunnerGui::executeStepICommand()
 {
-    m_adapter->executeCommand("stepi");
+    //m_adapter->executeCommand("stepi");
+    m_adapter->executeCommand("-exec-step-instruction");
+}
+
+void RunnerGui::executeDisassICommand()
+{
+    m_adapter->executeCommand("disass $pc $pc+4");
 }
 
 ///////////////////////////////////////////////////////////////////////
