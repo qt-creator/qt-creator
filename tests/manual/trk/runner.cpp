@@ -108,7 +108,7 @@ static QByteArray dumpRegister(int n, uint value)
         ba += '#';
         ba += QByteArray::number(n);
     }
-    ba += "=0x" + hexNumber(value);
+    ba += "=" + hexxNumber(value);
     return ba;
 }
 
@@ -856,22 +856,19 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd == "s" || cmd.startsWith("vCont;s")) {
-        static int used = 0;
-        if (!used) {
-        ++used;
         logMessage(msgGdbPacket(QLatin1String("Step range")));
+        logMessage("  from " + hexxNumber(m_snapshot.registers[RegisterPC]));
         sendGdbServerAck();
         m_running = true;
         QByteArray ba;
-        appendByte(&ba, 0); // options
+        appendByte(&ba, 1); // options
         appendInt(&ba, m_snapshot.registers[RegisterPC]); // start address
-        appendInt(&ba, m_snapshot.registers[RegisterPC] + 8); // end address
+        appendInt(&ba, m_snapshot.registers[RegisterPC] + 4); // end address
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
         sendTrkMessage(0x19, TrkCB(handleStepRange), ba, "Step range");
         // FIXME: should be triggered by "real" stop"
         //sendGdbServerMessageAfterTrkResponse("S05", "target halted");
-        }
     }
 
     else if (cmd == "vCont?") {
@@ -977,7 +974,8 @@ void Adapter::executeCommand(const QString &msg)
     } else if (msg == "C") {
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
     } else if (msg == "R") {
-        sendTrkMessage(0x18, TrkCallback(), trkReadRegisterMessage(), "READ REGS");
+        sendTrkMessage(0x18, TrkCB(handleReadRegisters),
+            trkReadRegisterMessage(), "READ REGS");
     } else if (msg == "I") {
         interruptInferior();
     } else {
@@ -1095,8 +1093,8 @@ void Adapter::handleTrkResult(const TrkResult &result)
             if (error)
                 str << " ERROR: " << int(error);
             str << " TYPE: " << int(type) << " PID: " << pid << " TID:   " <<  tid;
-            str << " CODE: 0x" << hexNumber(codeseg);
-            str << " DATA: 0x" << hexNumber(dataseg);
+            str << " CODE: " << hexxNumber(codeseg);
+            str << " DATA: " << hexxNumber(dataseg);
             str << " NAME: '" << name << '\'';
             logMessage(logMsg);
             // This lets gdb trigger a register update etc
@@ -1198,7 +1196,7 @@ void Adapter::handleSetTrkBreakpoint(const TrkResult &result)
     // [80 09 00 00 00 00 0A]
     const uint bpnr = extractInt(result.data.data());
     if (m_verbose)
-        logMessage("SET BREAKPOINT 0x" + hexNumber(bpnr)
+        logMessage("SET BREAKPOINT " + hexxNumber(bpnr)
             + stringFromArray(result.data.data()));
 }
 
@@ -1213,10 +1211,10 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     m_session.codeseg = extractInt(data + 9);
     m_session.dataseg = extractInt(data + 13);
 
-    logMessage("PID: 0x" + hexNumber(m_session.pid));
-    logMessage("TID: 0x" + hexNumber(m_session.tid));
-    logMessage("COD: 0x" + hexNumber(m_session.codeseg));
-    logMessage("DAT: 0x" + hexNumber(m_session.dataseg));
+    logMessage("PID: " + hexxNumber(m_session.pid));
+    logMessage("TID: " + hexxNumber(m_session.tid));
+    logMessage("COD: " + hexxNumber(m_session.codeseg));
+    logMessage("DAT: " + hexxNumber(m_session.dataseg));
 
     QByteArray ba;
     appendInt(&ba, m_session.pid);
@@ -1263,7 +1261,10 @@ void Adapter::handleReadRegisters(const TrkResult &result)
     logMessage("       RESULT: " + result.toString());
     // [80 0B 00   00 00 00 00   C9 24 FF BC   00 00 00 00   00
     //  60 00 00   00 00 00 00   78 67 79 70   00 00 00 00   00...]
-
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString());
+        return;
+    }
     const char *data = result.data.data() + 1; // Skip ok byte
     for (int i = 0; i < RegisterCount; ++i)
         m_snapshot.registers[i] = extractInt(data + 4 * i);
@@ -1313,8 +1314,7 @@ QByteArray Adapter::memoryReadLogMessage(uint addr, uint len, const QByteArray &
 {
     QByteArray logMsg = "memory contents";
     if (m_verbose > 1) {
-        logMsg += " addr: 0x";
-        logMsg += QByteArray::number(addr, 16);
+        logMsg += " addr: " + hexxNumber(addr);
         // indicate dereferencing of registers
         if (len == 4) {
             if (addr == m_snapshot.registers[RegisterPC]) {
@@ -1387,9 +1387,12 @@ void Adapter::handleReadMemoryUnbuffered(const TrkResult &result)
 
 void Adapter::handleStepRange(const TrkResult &result)
 {
-    // [80 0f 12]
-    //uint bpnr = extractInt(result.data.data());
-    logMessage("STEPPING FINISHED " + stringFromArray(result.data.data()));
+    // [80 0f 00]
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString());
+        return;
+    }
+    logMessage("STEPPING FINISHED ");
     //sendGdbServerMessage("S05", "Stepping finished");
 }
 
@@ -1400,7 +1403,7 @@ void Adapter::handleAndReportSetBreakpoint(const TrkResult &result)
     //    Error: 0x00
     // [80 09 00 00 00 00 0A]
     uint bpnr = extractByte(result.data.data());
-    logMessage("SET BREAKPOINT 0x" + hexNumber(bpnr) + " "
+    logMessage("SET BREAKPOINT " + hexxNumber(bpnr) + " "
          + stringFromArray(result.data.data()));
     sendGdbServerMessage("OK");
 }
@@ -1656,6 +1659,7 @@ void Adapter::startGdb()
     sendGdbMessage("set endian little");
     sendGdbMessage("set remotebreak on");
     sendGdbMessage("set breakpoint pending on");
+    sendGdbMessage("set trust-readonly-sections on");
 
     // FIXME: "remote noack" does not seem to be supported on cs-gdb?
     //sendGdbMessage("set remote noack-packet");
@@ -1677,8 +1681,8 @@ void Adapter::startGdb()
     //sendGdbMessage("info files");
     //sendGdbMessage("file filebrowseapp.sym -readnow");
 
-    sendGdbMessage("add-symbol-file filebrowseapp.sym 0x"
-        + hexNumber(m_session.codeseg));
+    sendGdbMessage("add-symbol-file filebrowseapp.sym "
+        + hexxNumber(m_session.codeseg));
     sendGdbMessage("symbol-file filebrowseapp.sym");
 
     // -symbol-info-address not implemented in cs-gdb 6.4-6.8 (at least)
@@ -1772,7 +1776,7 @@ void Adapter::handleSetTrkMainBreakpoint(const TrkResult &result)
     //---TRK------------------------------------------------------
     // [80 09 00 00 00 00 0A]
     const uint bpnr = extractInt(result.data.data());
-    logMessage("SET MAIN BREAKPOINT 0x" + hexNumber(bpnr)
+    logMessage("SET MAIN BREAKPOINT " + hexxNumber(bpnr)
         + stringFromArray(result.data.data()));
 
     // 'continue after initial break'

@@ -43,6 +43,11 @@ QByteArray hexNumber(uint n, int digits)
     return QByteArray(digits - ba.size(), '0') + ba;
 }
 
+QByteArray hexxNumber(uint n, int digits)
+{
+    return "0x" + hexNumber(n, digits);
+}
+
 TrkResult::TrkResult() :
     code(0),
     token(0),
@@ -345,5 +350,16 @@ int TrkResult::errorCode() const
         return errorCode;
     return isNAK ? 0xff : 0;
 }
+
+QString TrkResult::errorString() const
+{
+    // NAK means always error, else data sized 1 with a non-null element
+    if (code == 0xff)
+        return "NAK";
+    if (data.size() < 1)
+        return "Unknown error packet";
+    return errorMessage(data.at(0));
+}
+
 } // namespace trk
 
