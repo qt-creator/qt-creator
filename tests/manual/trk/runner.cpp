@@ -664,6 +664,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &response)
         // kill
         sendGdbServerAck();
         QByteArray ba;
+        appendByte(&ba, 0); // ?
         appendByte(&ba, 0); // Sub-command: Delete Process
         appendInt(&ba, m_session.pid);
         sendTrkMessage(0x41, TrkCallback(), ba, "Delete process"); // Delete Item
@@ -1006,6 +1007,7 @@ void Adapter::handleTrkResult(const TrkResult &result)
         sendGdbServerMessage("O" + result.data.toHex());
         return;
     }
+    logMessage("READ TRK " + result.toString());
     QByteArray prefix = "READ BUF:                                       ";
     QByteArray str = result.toString().toUtf8();
     switch (result.code) {
@@ -1074,8 +1076,9 @@ void Adapter::handleTrkResult(const TrkResult &result)
             str << " DATA: 0x" << hexNumber(dataseg);
             str << " NAME: '" << name << '\'';
             logMessage(logMsg);
-            sendGdbServerMessage("T05library:" + name);
-            //sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+            // This lets gdb trigger a register update etc
+            //sendGdbServerMessage("T05library:r;");
+            sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
             break;
         }
         case 0xa1: { // NotifyDeleted
