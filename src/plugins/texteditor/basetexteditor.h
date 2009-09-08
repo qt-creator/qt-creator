@@ -274,8 +274,7 @@ private:
 };
 
 
-class TEXTEDITOR_EXPORT BaseTextEditor
-  : public QPlainTextEdit
+class TEXTEDITOR_EXPORT BaseTextEditor : public QPlainTextEdit
 {
     Q_OBJECT
 
@@ -344,6 +343,9 @@ public:
 
     void setCodeFoldingSupported(bool b);
     bool codeFoldingSupported() const;
+
+    void setMouseNavigationEnabled(bool b);
+    bool mouseNavigationEnabled() const;
 
     void setRevisionsVisible(bool b);
     bool revisionsVisible() const;
@@ -496,13 +498,53 @@ protected:
     void timerEvent(QTimerEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void leaveEvent(QEvent *);
+    void keyReleaseEvent(QKeyEvent *);
 
-    // Rertuns true if key triggers an indent.
+    // Returns true if key triggers an indent.
     virtual bool isElectricCharacter(const QChar &ch) const;
     // Indent a text block based on previous line. Default does nothing
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     // Indent at cursor. Calls indentBlock for selection or current line.
     virtual void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
+
+    struct Link
+    {
+        Link(const QString &fileName = QString(),
+             int line = 0,
+             int column = 0)
+            : pos(-1)
+            , length(-1)
+            , fileName(fileName)
+            , line(line)
+            , column(column)
+        {}
+
+        bool isValid() const
+        { return !(pos == -1 || length == -1); }
+
+        int pos;           // Link position
+        int length;        // Link length
+
+        QString fileName;  // Target file
+        int line;          // Target line
+        int column;        // Target column
+    };
+
+    /*!
+       Reimplement this function to enable code navigation.
+
+       \a resolveTarget is set to true when the target of the link is relevant
+       (it isn't until the link is used).
+     */
+    virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
+
+    /*!
+       Reimplement this function if you want to customize the way a link is
+       opened. Returns whether the link was opened succesfully.
+     */
+    virtual bool openLink(const Link &link);
 
 protected slots:
     virtual void slotUpdateExtraAreaWidth();
@@ -537,6 +579,8 @@ private:
 
     QTextBlock collapsedBlockAt(const QPoint &pos, QRect *box = 0) const;
 
+    void showLink(const Link &);
+    void clearLink();
 
     // parentheses matcher
 private slots:

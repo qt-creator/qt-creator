@@ -527,8 +527,6 @@ CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
 
 CPPEditor::CPPEditor(QWidget *parent)
     : TextEditor::BaseTextEditor(parent)
-    , m_mouseNavigationEnabled(true)
-    , m_showingLink(false)
     , m_currentRenameSelection(-1)
     , m_inRename(false)
 {
@@ -1073,7 +1071,7 @@ void CPPEditor::switchDeclarationDefinition()
 }
 
 CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
-                                      bool lookupDefinition)
+                                      bool resolveTarget)
 {
     Link link;
 
@@ -1153,7 +1151,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
         if (Symbol *symbol = result.second) {
             Symbol *def = 0;
-            if (lookupDefinition && !lastSymbol->isFunction())
+            if (resolveTarget && !lastSymbol->isFunction())
                 def = findDefinition(symbol);
 
             link = linkToSymbol(def ? def : symbol);
@@ -1190,7 +1188,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
 void CPPEditor::jumpToDefinition()
 {
-    openCppEditorAt(findLinkAt(textCursor()));
+    openLink(findLinkAt(textCursor()));
 }
 
 Symbol *CPPEditor::findDefinition(Symbol *symbol)
@@ -1342,68 +1340,6 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     delete menu;
 }
 
-void CPPEditor::mouseMoveEvent(QMouseEvent *e)
-{
-    bool linkFound = false;
-
-    if (m_mouseNavigationEnabled && e->modifiers() & Qt::ControlModifier) {
-        // Link emulation behaviour for 'go to definition'
-        const QTextCursor cursor = cursorForPosition(e->pos());
-
-        // Check that the mouse was actually on the text somewhere
-        bool onText = cursorRect(cursor).right() >= e->x();
-        if (!onText) {
-            QTextCursor nextPos = cursor;
-            nextPos.movePosition(QTextCursor::Right);
-            onText = cursorRect(nextPos).right() >= e->x();
-        }
-
-        const Link link = findLinkAt(cursor, false);
-
-        if (onText && !link.fileName.isEmpty()) {
-            showLink(link);
-            linkFound = true;
-        }
-    }
-
-    if (!linkFound)
-        clearLink();
-
-    TextEditor::BaseTextEditor::mouseMoveEvent(e);
-}
-
-void CPPEditor::mouseReleaseEvent(QMouseEvent *e)
-{
-    if (m_mouseNavigationEnabled && e->modifiers() & Qt::ControlModifier
-        && !(e->modifiers() & Qt::ShiftModifier)
-        && e->button() == Qt::LeftButton) {
-
-        const QTextCursor cursor = cursorForPosition(e->pos());
-        if (openCppEditorAt(findLinkAt(cursor))) {
-            clearLink();
-            e->accept();
-            return;
-        }
-    }
-
-    TextEditor::BaseTextEditor::mouseReleaseEvent(e);
-}
-
-void CPPEditor::leaveEvent(QEvent *e)
-{
-    clearLink();
-    TextEditor::BaseTextEditor::leaveEvent(e);
-}
-
-void CPPEditor::keyReleaseEvent(QKeyEvent *e)
-{
-    // Clear link emulation when Ctrl is released
-    if (e->key() == Qt::Key_Control)
-        clearLink();
-
-    TextEditor::BaseTextEditor::keyReleaseEvent(e);
-}
-
 void CPPEditor::keyPressEvent(QKeyEvent *e)
 {
     if (m_currentRenameSelection == -1) {
@@ -1491,29 +1427,6 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
     TextEditor::BaseTextEditor::keyPressEvent(e);
 }
 
-void CPPEditor::showLink(const Link &link)
-{
-    QTextEdit::ExtraSelection sel;
-    sel.cursor = textCursor();
-    sel.cursor.setPosition(link.pos);
-    sel.cursor.setPosition(link.pos + link.length, QTextCursor::KeepAnchor);
-    sel.format = m_linkFormat;
-    sel.format.setFontUnderline(true);
-    setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
-    viewport()->setCursor(Qt::PointingHandCursor);
-    m_showingLink = true;
-}
-
-void CPPEditor::clearLink()
-{
-    if (!m_showingLink)
-        return;
-
-    setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
-    viewport()->setCursor(Qt::IBeamCursor);
-    m_showingLink = false;
-}
-
 QList<int> CPPEditorEditable::context() const
 {
     return m_context;
@@ -1557,15 +1470,8 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
     highlighter->rehighlight();
 
-    m_linkFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LINK));
     m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
     m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
-}
-
-void CPPEditor::setDisplaySettings(const TextEditor::DisplaySettings &ds)
-{
-    TextEditor::BaseTextEditor::setDisplaySettings(ds);
-    m_mouseNavigationEnabled = ds.m_mouseNavigation;
 }
 
 void CPPEditor::unCommentSelection()
