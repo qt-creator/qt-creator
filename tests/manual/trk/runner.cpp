@@ -180,8 +180,7 @@ public:
     void sendTrkMessage(byte code,
         TrkCallback callback = TrkCallback(),
         const QByteArray &data = QByteArray(),
-        const QVariant &cookie = QVariant(),
-        bool invokeOnFailure = false);
+        const QVariant &cookie = QVariant());
     Q_SLOT void handleTrkResult(const trk::TrkResult &data);
     Q_SLOT void handleTrkError(const QString &msg);
 
@@ -206,8 +205,9 @@ public:
     void handleAndReportReadRegisters(const TrkResult &result);
     QByteArray memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const;
     QByteArray trkContinueMessage();
-    QByteArray trkBreakpointMessage(uint addr, int len, int pid,
-        bool armMode = true);
+    QByteArray trkReadRegisterMessage();
+    QByteArray trkReadMemoryMessage(uint addr, uint len);
+    QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
     void handleAndReportSetBreakpoint(const TrkResult &result);
     void handleReadMemoryBuffered(const TrkResult &result);
     void handleReadMemoryUnbuffered(const TrkResult &result);
@@ -356,6 +356,36 @@ uint Adapter::gdbServerPort() const
     if (pos == -1)
         return 0;
     return m_gdbServerName.mid(pos + 1).toUInt();
+}
+
+QByteArray Adapter::trkContinueMessage()
+{
+    QByteArray ba;
+    appendInt(&ba, m_session.pid);
+    appendInt(&ba, m_session.tid);
+    return ba;
+}
+
+QByteArray Adapter::trkReadRegisterMessage()
+{
+    QByteArray ba;
+    appendByte(&ba, 0); // Register set, only 0 supported
+    appendShort(&ba, 0);
+    appendShort(&ba, RegisterCount - 1); // last register
+    appendInt(&ba, m_session.pid);
+    appendInt(&ba, m_session.tid);
+    return ba;
+}
+
+QByteArray Adapter::trkReadMemoryMessage(uint addr, uint len)
+{
+    QByteArray ba;
+    appendByte(&ba, 0x08); // Options, FIXME: why?
+    appendShort(&ba, len);
+    appendInt(&ba, addr);
+    appendInt(&ba, m_session.pid);
+    appendInt(&ba, m_session.tid);
+    return ba;
 }
 
 void Adapter::startInferior()
@@ -556,7 +586,7 @@ void Adapter::reportToGdb(const TrkResult &result)
     sendGdbServerMessage(message, note);
 }
 
-QByteArray Adapter::trkBreakpointMessage(uint addr, int len, int pid, bool armMode)
+QByteArray Adapter::trkBreakpointMessage(uint addr, uint len, bool armMode)
 {
     QByteArray ba;
     appendByte(&ba, 0x82);  // unused option
@@ -564,7 +594,7 @@ QByteArray Adapter::trkBreakpointMessage(uint addr, int len, int pid, bool armMo
     appendInt(&ba, addr);
     appendInt(&ba, len);
     appendInt(&ba, 0x00000001);
-    appendInt(&ba, pid);
+    appendInt(&ba, m_session.pid);
     appendInt(&ba, 0xFFFFFFFF);
     return ba;
 }
@@ -630,13 +660,8 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
         // Read general registers.
         //sendGdbServerMessage("00000000", "read registers");
         sendGdbServerAck();
-        QByteArray ba;
-        appendByte(&ba, 0); // Register set, only 0 supported
-        appendShort(&ba, 0);
-        appendShort(&ba, RegisterCount - 1); // last register
-        appendInt(&ba, m_session.pid);
-        appendInt(&ba, m_session.tid);
-        sendTrkMessage(0x12, TrkCB(handleAndReportReadRegisters), ba, QVariant(), true);
+        sendTrkMessage(0x12, TrkCB(handleAndReportReadRegisters),
+            trkReadRegisterMessage());
     }
 
     else if (cmd.startsWith("Hc")) {
@@ -787,7 +812,6 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "qPacketInfo") {
         // happens with  gdb 6.4.50.20060226-cvs / CodeSourcery
         // deprecated by qSupported?
-
         sendGdbServerAck();
         sendGdbServerMessage("", "FIXME: nothing?");
     }
@@ -832,9 +856,12 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd == "s" || cmd.startsWith("vCont;s")) {
-        if (m_verbose)
-            logMessage(msgGdbPacket(QLatin1String("Step range")));
+        static int used = 0;
+        if (!used) {
+        ++used;
+        logMessage(msgGdbPacket(QLatin1String("Step range")));
         sendGdbServerAck();
+        m_running = true;
         QByteArray ba;
         appendByte(&ba, 0); // options
         appendInt(&ba, m_snapshot.registers[RegisterPC]); // start address
@@ -844,6 +871,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
         sendTrkMessage(0x19, TrkCB(handleStepRange), ba, "Step range");
         // FIXME: should be triggered by "real" stop"
         //sendGdbServerMessageAfterTrkResponse("S05", "target halted");
+        }
     }
 
     else if (cmd == "vCont?") {
@@ -948,6 +976,8 @@ void Adapter::executeCommand(const QString &msg)
         sendGdbMessage("-exec-interrupt");
     } else if (msg == "C") {
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+    } else if (msg == "R") {
+        sendTrkMessage(0x18, TrkCallback(), trkReadRegisterMessage(), "READ REGS");
     } else if (msg == "I") {
         interruptInferior();
     } else {
@@ -969,9 +999,9 @@ bool Adapter::openTrkPort(const QString &port, QString *errorMessage)
 }
 
 void Adapter::sendTrkMessage(byte code, TrkCallback callback,
-    const QByteArray &data, const QVariant &cookie, bool invokeOnFailure)
+    const QByteArray &data, const QVariant &cookie)
 {
-    m_trkDevice.sendTrkMessage(code, callback, data, cookie, invokeOnFailure);
+    m_trkDevice.sendTrkMessage(code, callback, data, cookie);
 }
 
 void Adapter::waitForTrkFinished()
@@ -1310,14 +1340,6 @@ QByteArray Adapter::memoryReadLogMessage(uint addr, uint len, const QByteArray &
     return logMsg;
 }
 
-QByteArray Adapter::trkContinueMessage()
-{
-    QByteArray ba;
-    appendInt(&ba, m_session.pid);
-    appendInt(&ba, m_session.tid);
-    return ba;
-}
-
 void Adapter::reportReadMemoryBuffered(const TrkResult &result)
 {
     const qulonglong cookie = result.cookie.toULongLong();
@@ -1368,7 +1390,7 @@ void Adapter::handleStepRange(const TrkResult &result)
     // [80 0f 12]
     //uint bpnr = extractInt(result.data.data());
     logMessage("STEPPING FINISHED " + stringFromArray(result.data.data()));
-    sendGdbServerMessage("S05", "Stepping finished");
+    //sendGdbServerMessage("S05", "Stepping finished");
 }
 
 void Adapter::handleAndReportSetBreakpoint(const TrkResult &result)
@@ -1514,17 +1536,6 @@ void Adapter::cleanUp()
     // Error: 0x00
 }
 
-static inline QByteArray memoryRequestTrkMessage(uint addr, uint len, int pid, int tid)
-{
-    QByteArray ba;
-    appendByte(&ba, 0x08); // Options, FIXME: why?
-    appendShort(&ba, len);
-    appendInt(&ba, addr);
-    appendInt(&ba, pid);
-    appendInt(&ba, tid);
-    return ba;
-}
-
 void Adapter::readMemory(uint addr, uint len)
 {
     Q_ASSERT(len < (2 << 16));
@@ -1543,9 +1554,8 @@ void Adapter::readMemory(uint addr, uint len)
                         "memory %1 bytes from 0x%2")
                     .arg(MemoryChunkSize).arg(blockaddr, 0, 16));
                 sendTrkMessage(0x10, TrkCB(handleReadMemoryBuffered),
-                    memoryRequestTrkMessage(blockaddr, MemoryChunkSize,
-                        m_session.pid, m_session.tid),
-                    QVariant(blockaddr), true);
+                    trkReadMemoryMessage(blockaddr, MemoryChunkSize),
+                    QVariant(blockaddr));
             }
         }
         const qulonglong cookie = (qulonglong(addr) << 32) + len;
@@ -1556,8 +1566,7 @@ void Adapter::readMemory(uint addr, uint len)
             logMessage(QString::fromLatin1("Requesting unbuffered memory %1 "
                 "bytes from 0x%2").arg(len).arg(addr, 0, 16));
         sendTrkMessage(0x10, TrkCB(handleReadMemoryUnbuffered),
-           memoryRequestTrkMessage(addr, len, m_session.pid, m_session.tid),
-           QVariant(addr), true);
+           trkReadMemoryMessage(addr, len), QVariant(addr));
     }
 }
 
@@ -1754,7 +1763,7 @@ void Adapter::handleInfoMainAddress(const GdbResult &result)
 {
     bool ok;
     uint addr = result.data.toInt(&ok, 16);
-    const QByteArray ba = trkBreakpointMessage(addr, 1, m_session.pid);
+    const QByteArray ba = trkBreakpointMessage(addr, 1);
     sendTrkMessage(0x1B, TrkCB(handleSetTrkMainBreakpoint), ba);
 }
 

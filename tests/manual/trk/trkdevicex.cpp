@@ -117,14 +117,12 @@ struct TrkMessage
     QByteArray data;
     QVariant cookie;
     Callback callback;
-    bool invokeOnNAK;
 };
 
 TrkMessage::TrkMessage(byte c, byte t, Callback cb) :
     code(c),
     token(t),
-    callback(cb),
-    invokeOnNAK(false)
+    callback(cb)
 {
 }
 
@@ -144,8 +142,7 @@ public:
 
     // Enqueue messages.
     void queueTrkMessage(byte code, Callback callback,
-                        const QByteArray &data, const QVariant &cookie,
-                        bool invokeOnNAK);
+                        const QByteArray &data, const QVariant &cookie);
     void queueTrkInitialPing();
 
     // Call this from the device read notification with the results.
@@ -184,14 +181,13 @@ byte TrkWriteQueue::nextTrkWriteToken()
 }
 
 void TrkWriteQueue::queueTrkMessage(byte code, Callback callback,
-    const QByteArray &data, const QVariant &cookie, bool invokeOnNAK)
+    const QByteArray &data, const QVariant &cookie)
 {
     const byte token = code == TRK_WRITE_QUEUE_NOOP_CODE ?
                                 byte(0) : nextTrkWriteToken();
     TrkMessage msg(code, token, callback);
     msg.data = data;
     msg.cookie = cookie;
-    msg.invokeOnNAK = invokeOnNAK;
     trkWriteQueue.append(msg);
 }
 
@@ -233,16 +229,14 @@ void TrkWriteQueue::notifyWriteResult(bool ok)
 void TrkWriteQueue::slotHandleResult(const TrkResult &result)
 {
     trkWriteBusy = false;
-    if (result.code != TrkNotifyAck && result.code != TrkNotifyNak)
-        return;
+    //if (result.code != TrkNotifyAck && result.code != TrkNotifyNak)
+    //    return;
     // Find which request the message belongs to and invoke callback
     // if ACK or on NAK if desired.
     const TokenMessageMap::iterator it = writtenTrkMessages.find(result.token);
     if (it == writtenTrkMessages.end())
         return;
-    const bool invokeCB = it.value().callback
-                          && (result.code == TrkNotifyAck || it.value().invokeOnNAK);
-
+    const bool invokeCB = it.value().callback;
     if (invokeCB) {
         TrkResult result1 = result;
         result1.cookie = it.value().cookie;
@@ -517,9 +511,9 @@ void TrkDevice::emitError(const QString &s)
 }
 
 void TrkDevice::sendTrkMessage(byte code, Callback callback,
-     const QByteArray &data, const QVariant &cookie, bool invokeOnNAK)
+     const QByteArray &data, const QVariant &cookie)
 {
-    d->queue.queueTrkMessage(code, callback, data, cookie, invokeOnNAK);
+    d->queue.queueTrkMessage(code, callback, data, cookie);
 }
 
 void TrkDevice::sendTrkInitialPing()

@@ -104,9 +104,7 @@ public:
     void sendTrkMessage(unsigned char code,
                         Callback callBack = Callback(),
                         const QByteArray &data = QByteArray(),
-                        const QVariant &cookie = QVariant(),
-                        // Invoke callback on receiving NAK, too.
-                        bool invokeOnNAK = false);
+                        const QVariant &cookie = QVariant());
 
     // Enqeue an initial ping
     void sendTrkInitialPing();
