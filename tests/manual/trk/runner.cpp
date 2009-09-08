@@ -30,7 +30,6 @@
 #include "trkutils.h"
 #include "trkdevicex.h"
 
-#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -43,10 +42,13 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QTimer>
 
+#include <QtGui/QAction>
 #include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextEdit>
+#include <QtGui/QToolBar>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
@@ -281,7 +283,7 @@ public:
     Q_SLOT void handleRfcommReadyReadStandardOutput();
 
     // Debuggee state
-    void executeCommand(const QString &msg);
+    Q_SLOT void executeCommand(const QString &msg);
     Session m_session; // global-ish data (process id, target information)
     Snapshot m_snapshot; // local-ish data (memory and registers)
     int m_verbose;
@@ -1813,57 +1815,90 @@ void Adapter::handleRfcommReadyReadStandardOutput()
 //
 ///////////////////////////////////////////////////////////////////////
 
-class RunnerGui : public QTextEdit
+class TextEdit : public QTextEdit
+{
+    Q_OBJECT
+
+signals:
+    void executeCommand(QString);
+
+public slots:
+    void handleOutput(const QString &senderName, const QString &data)
+    {
+        QString str = senderName + data;
+        str.replace("\\t", QString(QChar(0x09)));
+        str.replace("\\n", QString("\n"));
+        append(str);
+
+        QTextCursor tc = textCursor();
+        tc.movePosition(QTextCursor::End);
+        setTextCursor(tc);
+    /*
+        int pos1 = str.indexOf("#");
+        int pos2 = str.indexOf(")", pos1);
+        if (pos1 != -1 && pos2 != -1)
+            str = str.left(pos1) + "<b>" + str.mid(pos1, pos2 - pos1 + 1)
+                + "</b> " + str.mid(pos2 + 1);
+        insertHtml(str + "\n");
+    */
+        setCurrentCharFormat(QTextCharFormat());
+        ensureCursorVisible();
+    }
+
+    void keyPressEvent(QKeyEvent *ev)
+    {
+        if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_Return)
+            emit executeCommand(textCursor().block().text());
+        else
+            QTextEdit::keyPressEvent(ev);
+    }
+};
+
+///////////////////////////////////////////////////////////////////////
+//
+// RunnerGui
+//
+///////////////////////////////////////////////////////////////////////
+
+class RunnerGui : public QMainWindow
 {
     Q_OBJECT
 
 public:
     RunnerGui(Adapter *adapter);
-    void keyPressEvent(QKeyEvent *ev);
 
 private slots:
-    void handleOutput(const QString &senderName, const QString &data);
+    void executeStepICommand();
 
 private:
     Adapter *m_adapter;
+    TextEdit m_textEdit;
+    QToolBar m_toolBar;
+    QAction m_stepIAction;
 };
 
 RunnerGui::RunnerGui(Adapter *adapter)
-    : m_adapter(adapter) 
+    : m_adapter(adapter), m_stepIAction(0)
 {
     resize(1200, 1000);
+    setCentralWidget(&m_textEdit);
+
+    addToolBar(&m_toolBar);
+
+    m_stepIAction.setText("StepI");
+    m_toolBar.addAction(&m_stepIAction);
+
     connect(adapter, SIGNAL(output(QString,QString)),
-        this, SLOT(handleOutput(QString,QString)));
+        &m_textEdit, SLOT(handleOutput(QString,QString)));
+    connect(&m_textEdit, SIGNAL(executeCommand(QString)),
+        m_adapter, SLOT(executeCommand(QString)));
+    connect(&m_stepIAction, SIGNAL(triggered()),
+        this, SLOT(executeStepICommand()));
 }
 
-void RunnerGui::handleOutput(const QString &senderName, const QString &data)
+void RunnerGui::executeStepICommand()
 {
-    append(senderName + data);
-    QTextCursor tc = textCursor();
-    tc.movePosition(QTextCursor::End);
-    setTextCursor(tc);
-/*
-    QString str = data;
-    int pos1 = str.indexOf("#");
-    int pos2 = str.indexOf(")", pos1);
-    if (pos1 != -1 && pos2 != -1)
-        str = str.left(pos1) + "<b>" + str.mid(pos1, pos2 - pos1 + 1)
-            + "</b> " + str.mid(pos2 + 1);
-    str.replace("\\t", QString(QChar(0x09)));
-    str.replace("\\n", QString("\n"));
-    insertHtml(str + "\n");
-*/
-    setCurrentCharFormat(QTextCharFormat());
-    ensureCursorVisible();
-
-}
-
-void RunnerGui::keyPressEvent(QKeyEvent *ev)
-{
-    if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_Return)
-        m_adapter->executeCommand(textCursor().block().text());
-    else
-        QTextEdit::keyPressEvent(ev);
+    m_adapter->executeCommand("stepi");
 }
 
 ///////////////////////////////////////////////////////////////////////
