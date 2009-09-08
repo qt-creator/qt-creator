@@ -57,7 +57,7 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-/*! 
+/*!
     \class MemoryViewAgent
 
     Objects form this class are created in response to user actions in
@@ -84,30 +84,30 @@ MemoryViewAgent::~MemoryViewAgent()
     m_editor->deleteLater();
 }
 
-void MemoryViewAgent::init(quint64 addr) 
+void MemoryViewAgent::init(quint64 addr)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     QString titlePattern = tr("Memory $");
     m_editor = editorManager->openEditorWithContents(
         Core::Constants::K_DEFAULT_BINARY_EDITOR,
         &titlePattern);
-    connect(m_editor->widget(), SIGNAL(lazyDataRequested(int,bool)),
-        this, SLOT(fetchLazyData(int,bool)));
+    connect(m_editor->widget(), SIGNAL(lazyDataRequested(quint64,bool)),
+        this, SLOT(fetchLazyData(quint64,bool)));
     editorManager->activateEditor(m_editor);
     QMetaObject::invokeMethod(m_editor->widget(), "setLazyData",
-        Q_ARG(int, addr), Q_ARG(int, INT_MAX), Q_ARG(int, BinBlockSize));
+        Q_ARG(quint64, addr), Q_ARG(int, INT_MAX), Q_ARG(int, BinBlockSize));
 }
 
-void MemoryViewAgent::fetchLazyData(int block, bool sync)
+void MemoryViewAgent::fetchLazyData(quint64 block, bool sync)
 {
     Q_UNUSED(sync); // FIXME: needed support for incremental searching
-    m_engine->fetchMemory(this, BinBlockSize * block, BinBlockSize); 
+    m_engine->fetchMemory(this, BinBlockSize * block, BinBlockSize);
 }
 
 void MemoryViewAgent::addLazyData(quint64 addr, const QByteArray &ba)
 {
     QMetaObject::invokeMethod(m_editor->widget(), "addLazyData",
-        Q_ARG(int, addr / BinBlockSize), Q_ARG(QByteArray, ba));
+        Q_ARG(quint64, addr / BinBlockSize), Q_ARG(QByteArray, ba));
 }
 
 

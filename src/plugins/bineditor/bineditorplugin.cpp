@@ -137,7 +137,7 @@ public:
         m_mimeType(QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE))
     {
         m_editor = parent;
-        connect(m_editor, SIGNAL(lazyDataRequested(int, bool)), this, SLOT(provideData(int)));
+        connect(m_editor, SIGNAL(lazyDataRequested(quint64, bool)), this, SLOT(provideData(quint64)));
     }
     ~BinEditorFile() {}
 
@@ -162,7 +162,8 @@ public:
             file.write(data);
             file.close();
             m_editor->setModified(false);
-            m_editor->editorInterface()->setDisplayName(QFileInfo(fileName).fileName());
+            m_editor->editorInterface()->
+                    setDisplayName(QFileInfo(fileName).fileName());
             m_fileName = fileName;
             emit changed();
             return true;
@@ -174,11 +175,13 @@ public:
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
-            if (file.isSequential()) {
+            if (file.isSequential() && file.size() <= INT_MAX) {
                 m_editor->setData(file.readAll());
             } else {
-                m_editor->setLazyData(0, file.size());
-                m_editor->editorInterface()->setDisplayName(QFileInfo(fileName).fileName());
+                m_editor->setLazyData(0, qMin(file.size(),
+                                              static_cast<qint64>(INT_MAX)));
+                m_editor->editorInterface()->
+                        setDisplayName(QFileInfo(fileName).fileName());
             }
             file.close();
             return true;
@@ -187,7 +190,7 @@ public:
     }
 
 private slots:
-    void provideData(int block) {
+    void provideData(quint64 block) {
         QFile file(m_fileName);
         if (file.open(QIODevice::ReadOnly)) {
             int blockSize = m_editor->lazyDataBlockSize();

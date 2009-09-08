@@ -77,6 +77,7 @@ BinEditor::BinEditor(QWidget *parent)
 {
     m_ieditor = 0;
     m_inLazyMode = false;
+    m_baseAddr = 0;
     m_blockSize = 4096;
     init();
     m_unmodifiedState = 0;
@@ -88,7 +89,7 @@ BinEditor::BinEditor(QWidget *parent)
     m_cursorVisible = false;
     m_caseSensitiveSearch = false;
     setFocusPolicy(Qt::WheelFocus);
-    m_addressString = QString(9, QLatin1Char(':'));
+    m_addressString = QString(16 + 3, QLatin1Char(':'));
 }
 
 BinEditor::~BinEditor()
@@ -108,7 +109,7 @@ void BinEditor::init()
     m_numVisibleLines = viewport()->height() / m_lineHeight;
     m_textWidth = 16 * m_charWidth + m_charWidth;
     int m_numberWidth = fm.width(QChar(QLatin1Char('9')));
-    m_labelWidth = 8 * m_numberWidth + 2 * m_charWidth;
+    m_labelWidth = 16 * m_numberWidth + 4 * m_charWidth;
 
     int expectedCharWidth = m_columnWidth / 3;
     const char *hex = "0123456789abcdef";
@@ -129,13 +130,17 @@ void BinEditor::init()
 }
 
 
-void BinEditor::addLazyData(int block, const QByteArray &data)
+void BinEditor::addLazyData(quint64 block, const QByteArray &data)
 {
     Q_ASSERT(m_inLazyMode);
     Q_ASSERT(data.size() == m_blockSize);
-    m_lazyData.insert(block, data);
-    m_lazyRequests.remove(block);
-    viewport()->update();
+    const quint64 addr = block * m_blockSize;
+    if (addr >= m_baseAddr && addr <= m_baseAddr + m_size - 1) {
+        const int translatedBlock = (addr - m_baseAddr) / m_blockSize;
+        m_lazyData.insert(translatedBlock, data);
+        m_lazyRequests.remove(translatedBlock);
+        viewport()->update();
+    }
 }
 
 bool BinEditor::requestDataAt(int pos, bool synchronous) const
@@ -148,7 +153,8 @@ bool BinEditor::requestDataAt(int pos, bool synchronous) const
     if (it == m_lazyData.end()) {
         if (!m_lazyRequests.contains(block)) {
             m_lazyRequests.insert(block);
-            emit const_cast<BinEditor*>(this)->lazyDataRequested(block, synchronous);
+            emit const_cast<BinEditor*>(this)->
+                lazyDataRequested(m_baseAddr / m_blockSize + block, synchronous);
             if (!m_lazyRequests.contains(block))
                 return true; // synchronous data source
         }
@@ -294,6 +300,7 @@ bool BinEditor::isReadOnly() const
 void BinEditor::setData(const QByteArray &data)
 {
     m_inLazyMode = false;
+    m_baseAddr = 0;
     m_lazyData.clear();
     m_lazyRequests.clear();
     m_data = data;
@@ -325,12 +332,12 @@ bool BinEditor::applyModifications(QByteArray &data) const
     if (data.size() != m_size)
         return false;
     for (QMap<int,QByteArray>::const_iterator it = m_lazyData.begin(); it != m_lazyData.end(); ++it) {
-        ::memcpy(data.data() + it.key() * m_blockSize, it->constData(), m_blockSize);
+        ::memcpy(data.data() + m_baseAddr + it.key() * m_blockSize, it->constData(), m_blockSize);
     }
     return true;
 }
 
-void BinEditor::setLazyData(int cursorPosition, int size, int blockSize)
+void BinEditor::setLazyData(quint64 startAddr, int range, int blockSize)
 {
     m_inLazyMode = true;
     m_blockSize = blockSize;
@@ -339,7 +346,14 @@ void BinEditor::setLazyData(int cursorPosition, int size, int blockSize)
     m_data.clear();
     m_lazyData.clear();
     m_lazyRequests.clear();
-    m_size = size;
+
+    // In lazy mode, users can edit data in the range
+    // [startAddr - range/2, startAddr + range/2].
+    m_baseAddr = static_cast<quint64>(range/2) > startAddr
+                ? 0 : startAddr - range/2;
+    m_baseAddr = (m_baseAddr / blockSize) * blockSize;
+    m_size = m_baseAddr != 0 && static_cast<quint64>(range) >= -m_baseAddr
+             ? -m_baseAddr : range;
 
     m_unmodifiedState = 0;
     m_undoStack.clear();
@@ -347,7 +361,7 @@ void BinEditor::setLazyData(int cursorPosition, int size, int blockSize)
 
     init();
 
-    m_cursorPosition = cursorPosition;
+    m_cursorPosition = startAddr - m_baseAddr;
     verticalScrollBar()->setValue(m_cursorPosition / 16);
 
     emit cursorPositionChanged(m_cursorPosition);
@@ -526,7 +540,8 @@ int BinEditor::dataLastIndexOf(const QByteArray &pattern, int from, bool caseSen
 }
 
 
-int BinEditor::find(const QByteArray &pattern_arg, int from, QTextDocument::FindFlags findFlags)
+int BinEditor::find(const QByteArray &pattern_arg, int from,
+                    QTextDocument::FindFlags findFlags)
 {
     if (pattern_arg.isEmpty())
         return 0;
@@ -541,7 +556,7 @@ int BinEditor::find(const QByteArray &pattern_arg, int from, QTextDocument::Find
     bool backwards = (findFlags & QTextDocument::FindBackward);
     int found = backwards ? dataLastIndexOf(pattern, from, caseSensitiveSearch)
                 : dataIndexOf(pattern, from, caseSensitiveSearch);
-    
+
     int foundHex = -1;
     QByteArray hexPattern = calculateHexPattern(pattern_arg);
     if (!hexPattern.isEmpty()) {
@@ -593,20 +608,21 @@ void BinEditor::drawItems(QPainter *painter, int x, int y, const QString &itemSt
     }
 }
 
-QString BinEditor::addressString(uint address)
+QString BinEditor::addressString(quint64 address)
 {
     QChar *addressStringData = m_addressString.data();
     const char *hex = "0123456789abcdef";
-    for (int h = 0; h < 4; ++h) {
-        int shift = 4*(7-h);
-        addressStringData[h] = hex[(address & (0xf<<shift))>>shift];
-    }
-    for (int h = 4; h < 8; ++h) {
-        int shift = 4*(7-h);
-        addressStringData[h+1] = hex[(address & (0xf<<shift))>>shift];
+
+    // Take colons into account.
+    const int indices[16] = {
+        0, 1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18
+    };
+
+    for (int b = 0; b < 8; ++b) {
+        addressStringData[indices[15 - b*2]] = hex[(address >> (8*b)) & 0xf];
+        addressStringData[indices[14 - b*2]] = hex[(address >> (8*b + 4)) & 0xf];
     }
     return m_addressString;
-
 }
 
 void BinEditor::paintEvent(QPaintEvent *e)
@@ -663,7 +679,8 @@ void BinEditor::paintEvent(QPaintEvent *e)
             continue;
 
 
-        painter.drawText(-xoffset, i * m_lineHeight + m_ascent, addressString(((uint) line) * 16));
+        painter.drawText(-xoffset, i * m_lineHeight + m_ascent,
+                         addressString(m_baseAddr + ((uint) line) * 16));
 
         int cursor = -1;
         if (line * 16 <= m_cursorPosition && m_cursorPosition < line * 16 + 16)

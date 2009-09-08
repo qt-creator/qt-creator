@@ -63,7 +63,7 @@ public slots:
     // Called from Engine
     void addLazyData(quint64 addr, const QByteArray &data);
     // Called from Editor
-    void fetchLazyData(int block, bool sync);
+    void fetchLazyData(quint64 block, bool sync);
 
 private:
     void init(quint64 startaddr);
