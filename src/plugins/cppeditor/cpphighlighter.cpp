@@ -73,6 +73,8 @@ void CppHighlighter::highlightBlock(const QString &text)
             userData->setCollapseMode(TextBlockUserData::NoCollapse);
         }
         TextEditDocumentLayout::clearParentheses(currentBlock());
+        if (text.length()) // the empty line can still contain whitespace
+            setFormat(0, text.length(), visualSpaceFormat);
         return;
     }
 
@@ -171,7 +173,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     }
 
     // mark the trailing white spaces
-    if (! tokens.isEmpty()) {
+    {
         const SimpleToken tk = tokens.last();
         const int lastTokenEnd = tk.position() + tk.length();
         if (text.length() > lastTokenEnd)
