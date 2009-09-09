@@ -95,7 +95,7 @@ void MemoryViewAgent::init(quint64 addr)
         this, SLOT(fetchLazyData(quint64,bool)));
     editorManager->activateEditor(m_editor);
     QMetaObject::invokeMethod(m_editor->widget(), "setLazyData",
-        Q_ARG(quint64, addr), Q_ARG(int, INT_MAX), Q_ARG(int, BinBlockSize));
+        Q_ARG(quint64, addr), Q_ARG(int, 1024 * 1024), Q_ARG(int, BinBlockSize));
 }
 
 void MemoryViewAgent::fetchLazyData(quint64 block, bool sync)

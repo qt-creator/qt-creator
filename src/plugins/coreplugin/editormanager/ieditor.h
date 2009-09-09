@@ -40,6 +40,7 @@ class CORE_EXPORT IEditor : public IContext
 {
     Q_OBJECT
 public:
+
     IEditor(QObject *parent = 0) : IContext(parent) {}
     virtual ~IEditor() {}
 

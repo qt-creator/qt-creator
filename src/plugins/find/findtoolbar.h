@@ -37,6 +37,8 @@
 #include <coreplugin/findplaceholder.h>
 #include <utils/styledbar.h>
 
+#include <QtCore/QTimer>
+
 #include <QtGui/QStringListModel>
 #include <QtGui/QWidget>
 #include <QtGui/QLabel>
@@ -124,6 +126,9 @@ private:
     QPixmap m_casesensitiveIcon;
     QPixmap m_regexpIcon;
     QPixmap m_wholewordsIcon;
+
+    QTimer m_findIncrementalTimer;
+    QTimer m_findStepTimer;
 };
 
 } // namespace Internal

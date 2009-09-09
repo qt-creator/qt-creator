@@ -31,8 +31,10 @@
 #define BINEDITOR_H
 
 #include <QtCore/QBasicTimer>
+#include <QtCore/QMap>
 #include <QtCore/QSet>
 #include <QtCore/QStack>
+#include <QtCore/QString>
 
 #include <QtGui/QAbstractScrollArea>
 #include <QtGui/QTextDocument>
@@ -67,7 +69,7 @@ public:
     Q_INVOKABLE void setLazyData(quint64 startAddr, int range, int blockSize = 4096);
     inline int lazyDataBlockSize() const { return m_blockSize; }
     Q_INVOKABLE void addLazyData(quint64 block, const QByteArray &data);
-    bool applyModifications(QByteArray &data) const;
+    bool save(const QString &oldFileName, const QString &newFileName);
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
@@ -109,6 +111,7 @@ public:
 
     QString addressString(quint64 address);
 
+    static const int SearchStride = 1024 * 1024;
 
 public Q_SLOTS:
     void setFontSettings(const TextEditor::FontSettings &fs);
@@ -143,6 +146,7 @@ private:
     QByteArray m_data;
     QMap <int, QByteArray> m_lazyData;
     int m_blockSize;
+    QMap <int, QByteArray> m_modifiedData;
     mutable QSet<int> m_lazyRequests;
     QByteArray m_emptyBlock;
     QByteArray m_lowerBlock;

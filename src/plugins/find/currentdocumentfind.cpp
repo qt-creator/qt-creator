@@ -106,15 +106,15 @@ void CurrentDocumentFind::highlightAll(const QString &txt, IFindSupport::FindFla
     m_currentFind->highlightAll(txt, findFlags);
 }
 
-bool CurrentDocumentFind::findIncremental(const QString &txt, IFindSupport::FindFlags findFlags)
+IFindSupport::Result CurrentDocumentFind::findIncremental(const QString &txt, IFindSupport::FindFlags findFlags)
 {
-    QTC_ASSERT(m_currentFind, return false);
+    QTC_ASSERT(m_currentFind, return IFindSupport::NotFound);
     return m_currentFind->findIncremental(txt, findFlags);
 }
 
-bool CurrentDocumentFind::findStep(const QString &txt, IFindSupport::FindFlags findFlags)
+IFindSupport::Result CurrentDocumentFind::findStep(const QString &txt, IFindSupport::FindFlags findFlags)
 {
-    QTC_ASSERT(m_currentFind, return false);
+    QTC_ASSERT(m_currentFind, return IFindSupport::NotFound);
     return m_currentFind->findStep(txt, findFlags);
 }
 

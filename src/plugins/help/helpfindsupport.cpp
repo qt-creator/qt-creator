@@ -72,17 +72,19 @@ QString HelpFindSupport::completedFindString() const
     return QString();
 }
 
-bool HelpFindSupport::findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags)
+Find::IFindSupport::Result HelpFindSupport::findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags)
 {
-    QTC_ASSERT(m_centralWidget, return false);
+    QTC_ASSERT(m_centralWidget, return NotFound);
     findFlags &= ~Find::IFindSupport::FindBackward;
-    return m_centralWidget->find(txt, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags), true);
+    return m_centralWidget->find(txt, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags), true)
+            ? Found : NotFound;
 }
 
-bool HelpFindSupport::findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags)
+Find::IFindSupport::Result HelpFindSupport::findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags)
 {
-    QTC_ASSERT(m_centralWidget, return false);
-    return m_centralWidget->find(txt, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags), false);
+    QTC_ASSERT(m_centralWidget, return NotFound);
+    return m_centralWidget->find(txt, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags), false)
+            ? Found : NotFound;
 }
 
 HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
@@ -106,17 +108,17 @@ QString HelpViewerFindSupport::currentFindString() const
 #endif
 }
 
-bool HelpViewerFindSupport::findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags)
+Find::IFindSupport::Result HelpViewerFindSupport::findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags)
 {
-    QTC_ASSERT(m_viewer, return false);
+    QTC_ASSERT(m_viewer, return NotFound);
     findFlags &= ~Find::IFindSupport::FindBackward;
-    return find(txt, findFlags, true);
+    return find(txt, findFlags, true) ? Found : NotFound;
 }
 
-bool HelpViewerFindSupport::findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags)
+Find::IFindSupport::Result HelpViewerFindSupport::findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags)
 {
-    QTC_ASSERT(m_viewer, return false);
-    return find(txt, findFlags, false);
+    QTC_ASSERT(m_viewer, return NotFound);
+    return find(txt, findFlags, false) ? Found : NotFound;
 }
 
 bool HelpViewerFindSupport::find(const QString &txt, Find::IFindSupport::FindFlags findFlags, bool incremental)

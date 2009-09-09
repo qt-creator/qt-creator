@@ -33,6 +33,9 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <QtCore/QByteArrayMatcher>
+#include <QtCore/QFile>
+#include <QtCore/QTemporaryFile>
+
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
 #include <QtGui/QFontMetrics>
@@ -136,6 +139,8 @@ void BinEditor::addLazyData(quint64 block, const QByteArray &data)
     Q_ASSERT(data.size() == m_blockSize);
     const quint64 addr = block * m_blockSize;
     if (addr >= m_baseAddr && addr <= m_baseAddr + m_size - 1) {
+        if (m_lazyData.size() * m_blockSize >= 64 * 1024 * 1024)
+            m_lazyData.clear();
         const int translatedBlock = (addr - m_baseAddr) / m_blockSize;
         m_lazyData.insert(translatedBlock, data);
         m_lazyRequests.remove(translatedBlock);
@@ -149,7 +154,10 @@ bool BinEditor::requestDataAt(int pos, bool synchronous) const
         return true;
 
     int block = pos / m_blockSize;
-    QMap<int, QByteArray>::const_iterator it = m_lazyData.find(block);
+    QMap<int, QByteArray>::const_iterator it = m_modifiedData.find(block);
+    if (it != m_modifiedData.constEnd())
+        return true;
+    it = m_lazyData.find(block);
     if (it == m_lazyData.end()) {
         if (!m_lazyRequests.contains(block)) {
             m_lazyRequests.insert(block);
@@ -168,10 +176,8 @@ char BinEditor::dataAt(int pos) const
 {
     if (!m_inLazyMode)
         return m_data.at(pos);
-
     int block = pos / m_blockSize;
-    return m_lazyData.value(block, m_emptyBlock).at(pos - (block*m_blockSize));
-
+    return blockData(block).at(pos - (block*m_blockSize));
 }
 
 void BinEditor::changeDataAt(int pos, char c)
@@ -181,8 +187,17 @@ void BinEditor::changeDataAt(int pos, char c)
         return;
     }
     int block = pos / m_blockSize;
-    if (m_lazyData.contains(block))
-        m_lazyData[block][pos - (block*m_blockSize)] = c;
+    QMap<int, QByteArray>::iterator it = m_modifiedData.find(block);
+    if (it != m_modifiedData.end()) {
+        it.value()[pos - (block*m_blockSize)] = c;
+    } else {
+        it = m_lazyData.find(block);
+        if (it != m_lazyData.end()) {
+            QByteArray data = it.value();
+            data[pos - (block*m_blockSize)] = c;
+            m_modifiedData.insert(block, data);
+        }
+    }
 }
 
 QByteArray BinEditor::dataMid(int from, int length) const
@@ -195,7 +210,7 @@ QByteArray BinEditor::dataMid(int from, int length) const
 
     QByteArray data;
     do {
-        data += m_lazyData.value(block++, m_emptyBlock);
+        data += blockData(block++);
     } while (block * m_blockSize < end);
 
     return data.mid(from - ((from / m_blockSize) * m_blockSize), length);
@@ -209,7 +224,9 @@ QByteArray BinEditor::blockData(int block) const
             data.resize(m_blockSize);
         return data;
     }
-    return m_lazyData.value(block, m_emptyBlock);
+    QMap<int, QByteArray>::const_iterator it = m_modifiedData.find(block);
+    return it != m_modifiedData.constEnd()
+            ? it.value() : m_lazyData.value(block, m_emptyBlock);
 }
 
 
@@ -302,6 +319,7 @@ void BinEditor::setData(const QByteArray &data)
     m_inLazyMode = false;
     m_baseAddr = 0;
     m_lazyData.clear();
+    m_modifiedData.clear();
     m_lazyRequests.clear();
     m_data = data;
     m_size = data.size();
@@ -323,17 +341,45 @@ QByteArray BinEditor::data() const
     return m_data;
 }
 
-bool BinEditor::applyModifications(QByteArray &data) const
+bool BinEditor::save(const QString &oldFileName, const QString &newFileName)
 {
-    if (!m_inLazyMode) {
-        data = m_data;
-        return true;
+    if (m_inLazyMode) {
+        if (oldFileName != newFileName) {
+            QString tmpName;
+            {
+                QTemporaryFile tmp;
+                if (!tmp.open())
+                    return false;
+                tmpName = tmp.fileName();
+            }
+            if (!QFile::copy(oldFileName, tmpName))
+                return false;
+            if (QFile::exists(newFileName) && !QFile::remove(newFileName))
+                return false;
+            if (!QFile::rename(tmpName, newFileName))
+                return false;
+        }
+        QFile output(newFileName);
+        if (!output.open(QIODevice::ReadWrite)) // QtBug: WriteOnly truncates.
+            return false;
+        const qint64 size = output.size();
+        for (QMap<int, QByteArray>::const_iterator it = m_modifiedData.constBegin();
+            it != m_modifiedData.constEnd(); ++it) {
+            if (!output.seek(it.key() * m_blockSize))
+                return false;
+            if (output.write(it.value()) < m_blockSize)
+                return false;
+        }
+        if (size % m_blockSize != 0 && !output.resize(size))
+            return false;
+    } else {
+        QFile output(newFileName);
+        if (!output.open(QIODevice::WriteOnly | QIODevice::Truncate))
+            return false;
+        if (output.write(m_data) < m_size)
+            return false;
     }
-    if (data.size() != m_size)
-        return false;
-    for (QMap<int,QByteArray>::const_iterator it = m_lazyData.begin(); it != m_lazyData.end(); ++it) {
-        ::memcpy(data.data() + m_baseAddr + it.key() * m_blockSize, it->constData(), m_blockSize);
-    }
+    setModified(false);
     return true;
 }
 
@@ -345,6 +391,7 @@ void BinEditor::setLazyData(quint64 startAddr, int range, int blockSize)
     m_emptyBlock = QByteArray(blockSize, '\0');
     m_data.clear();
     m_lazyData.clear();
+    m_modifiedData.clear();
     m_lazyRequests.clear();
 
     // In lazy mode, users can edit data in the range
@@ -485,8 +532,9 @@ int BinEditor::dataIndexOf(const QByteArray &pattern, int from, bool caseSensiti
     QByteArrayMatcher matcher(pattern);
 
     int block = from / m_blockSize;
-
-    while (from < m_size) {
+    const int end =
+        qMin<qint64>(static_cast<qint64>(from) + SearchStride, m_size);
+    while (from < end) {
         if (!requestDataAt(block * m_blockSize, true))
             return -1;
         QByteArray data = blockData(block);
@@ -502,7 +550,7 @@ int BinEditor::dataIndexOf(const QByteArray &pattern, int from, bool caseSensiti
         ++block;
         from = block * m_blockSize - trailing;
     }
-    return -1;
+    return end == m_size ? -1 : -2;
 }
 
 int BinEditor::dataLastIndexOf(const QByteArray &pattern, int from, bool caseSensitive) const
@@ -519,8 +567,8 @@ int BinEditor::dataLastIndexOf(const QByteArray &pattern, int from, bool caseSen
     char *b = buffer.data();
 
     int block = from / m_blockSize;
-
-    while (from > 0) {
+    const int lowerBound = qMax(0, from - SearchStride);
+    while (from > lowerBound) {
         if (!requestDataAt(block * m_blockSize, true))
             return -1;
         QByteArray data = blockData(block);
@@ -536,7 +584,7 @@ int BinEditor::dataLastIndexOf(const QByteArray &pattern, int from, bool caseSen
         --block;
         from = block * m_blockSize + (m_blockSize-1) + trailing;
     }
-    return -1;
+    return lowerBound == 0 ? -1 : -2;
 }
 
 
@@ -564,7 +612,8 @@ int BinEditor::find(const QByteArray &pattern_arg, int from,
                    : dataIndexOf(hexPattern, from);
     }
 
-    int pos = (found >= 0 && (foundHex < 0 || found < foundHex)) ? found : foundHex;
+    int pos = foundHex == -1 || (found >= 0 && (foundHex == -2 || found < foundHex))
+              ? found : foundHex;
 
     if (pos >= m_size)
         pos = -1;
