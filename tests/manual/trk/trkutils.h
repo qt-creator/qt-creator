@@ -144,7 +144,7 @@ struct Session
     uint tid;
     uint codeseg;
     uint dataseg;
-    QHash<uint, uint> tokenToBreakpointIndex;
+    QHash<uint, uint> addressToBP;
 
     // Gdb request
     uint currentThread;

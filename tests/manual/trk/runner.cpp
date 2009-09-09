@@ -141,7 +141,6 @@ public:
     void setGdbServerName(const QString &name);
     QString gdbServerIP() const;
     uint gdbServerPort() const;
-    void setTrkServerName(const QString &name) { m_trkServerName = name; }
     void setVerbose(int verbose) { m_verbose = verbose; }
     void setSerialFrame(bool b) { m_serialFrame = b; }
     void setRegisterEndianness(Endianness r) { m_registerEndianness = r; }
@@ -167,7 +166,7 @@ private:
     void sendOutput(QObject *sender, const QString &data);
     void sendOutput(const QString &data) { sendOutput(0, data); }
 
-    QString m_trkServerName; // 
+    QString m_rfcommDevice;  // /dev/rfcomm0
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
 
     QProcess m_gdbProc;
@@ -178,7 +177,6 @@ public:
     //
     // TRK
     //
-    bool openTrkPort(const QString &port, QString *errorMessage);
     void sendTrkMessage(byte code,
         TrkCallback callback = TrkCallback(),
         const QByteArray &data = QByteArray(),
@@ -187,17 +185,12 @@ public:
     Q_SLOT void handleTrkError(const QString &msg);
 
     // convenience messages
-    void waitForTrkFinished();
     void sendTrkAck(byte token);
-
-    // kill process and breakpoints
-    void cleanUp();
 
     void handleCpuType(const TrkResult &result);
     void handleCreateProcess(const TrkResult &result);
     void handleClearBreakpoint(const TrkResult &result);
     void handleSignalContinue(const TrkResult &result);
-    void handleWaitForFinished(const TrkResult &result);
     void handleStop(const TrkResult &result);
     void handleSupportMask(const TrkResult &result);
     void handleTrkVersions(const TrkResult &result);
@@ -217,8 +210,6 @@ public:
     void handleReadRegisters(const TrkResult &result);
     void reportReadMemoryBuffered(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
-
-    void clearTrkBreakpoint(const Breakpoint &bp);
 
     // set breakpoints behind gdb's back
     void setTrkBreakpoint(const Breakpoint &bp);
@@ -296,11 +287,9 @@ Adapter::Adapter()
     m_gdbAckMode = true;
     m_verbose = 2;
     m_registerEndianness = LittleEndian;
-    //m_serialFrame = true;
     m_serialFrame = false;
     m_bufferedMemoryRead = true;
-    //m_bufferedMemoryRead = false;
-    m_trkServerName = "/dev/rfcomm0";
+    m_rfcommDevice = "/dev/rfcomm0";
 
     uid_t userId = getuid();
     m_gdbServerName = QString("127.0.0.1:%1").arg(2222 + userId);
@@ -318,6 +307,10 @@ Adapter::Adapter()
         this, SLOT(handleRfcommReadyReadStandardError()));
     connect(&m_rfcommProc, SIGNAL(readyReadStandardOutput()),
         this, SLOT(handleRfcommReadyReadStandardOutput()));
+
+    if (m_verbose > 1)
+        m_trkDevice.setVerbose(true);
+    m_trkDevice.setSerialFrame(m_serialFrame);
 
     connect(&m_trkDevice, SIGNAL(logMessage(QString)),
         this, SLOT(trkLogMessage(QString)));
@@ -388,8 +381,7 @@ QByteArray Adapter::trkReadMemoryMessage(uint addr, uint len)
 void Adapter::startInferior()
 {
     QString errorMessage;
-    if (!openTrkPort(m_trkServerName, &errorMessage)) {
-        logMessage(errorMessage, true);
+    if (!m_trkDevice.open(m_rfcommDevice, &errorMessage)) {
         logMessage("LOOPING");
         QTimer::singleShot(1000, this, SLOT(startInferior()));
         return;
@@ -800,7 +792,7 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
         else
             sendGdbServerMessage(
                 "PacketSize=7cf;"
-                //"QPassSignals+;"
+                "QPassSignals+;"
                 "qXfer:libraries:read+;"
                 //"qXfer:auxv:read+;"
                 "qXfer:features:read+");
@@ -872,8 +864,8 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "vCont?") {
         // actions supported by the vCont packet
         sendGdbServerAck();
-        sendGdbServerMessage("OK"); // we don't support vCont.
-        //sendGdbServerMessage("vCont;c");
+        //sendGdbServerMessage("OK"); // we don't support vCont.
+        sendGdbServerMessage("vCont;c;C;s;S");
     }
 
     else if (cmd == "vCont;c") {
@@ -899,10 +891,10 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd.startsWith("Z0,") || cmd.startsWith("Z1,")) {
+        sendGdbServerAck();
         // Insert breakpoint
-        if (m_verbose)
-            logMessage(msgGdbPacket(QLatin1String("Insert breakpoint")));
-        // $z0,786a4ccc,4#99
+        logMessage(msgGdbPacket(QLatin1String("Insert breakpoint")));
+        // $Z0,786a4ccc,4#99
         const int pos = cmd.lastIndexOf(',');
         bool ok = false;
         const uint addr = cmd.mid(3, pos - 3).toInt(&ok, 16);
@@ -923,14 +915,40 @@ void Adapter::handleGdbServerCommand(const QByteArray &cmd)
         // [1B 09 82 00 78 67 43 40 00 00 00 01 00 00 00 00
         //  00 00 01 B5 FF FF FF FF]
         const QByteArray ba = trkBreakpointMessage(addr, len, m_session.pid);
-        sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba);
-        //m_session.toekn
-
+        sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, addr);
         //---TRK------------------------------------------------------
         //  Command: 0x80 Acknowledge
         //    Error: 0x00
         // [80 09 00 00 00 00 0A]
-    } else if (cmd.startsWith("qPart:") || cmd.startsWith("qXfer:"))  {
+    }
+
+    else if (cmd.startsWith("z0,") || cmd.startsWith("z1,")) {
+        sendGdbServerAck();
+        // Remove breakpoint
+        logMessage(msgGdbPacket(QLatin1String("Remove breakpoint")));
+        // $z0,786a4ccc,4#99
+        const int pos = cmd.lastIndexOf(',');
+        bool ok = false;
+        const uint addr = cmd.mid(3, pos - 3).toInt(&ok, 16);
+        const uint len = cmd.mid(pos + 1).toInt(&ok, 16);
+        const uint bp = m_session.addressToBP[addr];
+        if (bp == 0) {
+            logMessage(QString::fromLatin1("NO RECORDED BP AT 0x%1, %2")
+                .arg(addr, 0, 16).arg(len));
+        } else {
+            //---IDE------------------------------------------------------
+            //  Command: 0x1C Clear Break
+            // [1C 25 00 00 00 0A 78 6A 43 40]
+            m_session.addressToBP.remove(addr);
+            QByteArray ba;
+            appendByte(&ba, 0x00);
+            appendShort(&ba, bp);
+            appendInt(&ba, addr);
+            sendTrkMessage(0x1C, TrkCB(handleClearBreakpoint), ba, addr);
+        }
+    }
+
+    else if (cmd.startsWith("qPart:") || cmd.startsWith("qXfer:"))  {
         QByteArray data  = cmd.mid(1 + cmd.indexOf(':'));
         // "qPart:auxv:read::0,147": Read OS auxiliary data (see info aux)
         bool handled = false;
@@ -981,28 +999,10 @@ void Adapter::executeCommand(const QString &msg)
     }
 }
 
-bool Adapter::openTrkPort(const QString &port, QString *errorMessage)
-{
-    connect(&m_trkDevice, SIGNAL(messageReceived(trk::TrkResult)),
-        this, SLOT(handleTrkResult(trk::TrkResult)));
-    connect(&m_trkDevice, SIGNAL(error(QString)),
-        this, SLOT(handleTrkError(QString)));
-    if (m_verbose > 1)
-        m_trkDevice.setVerbose(true);
-    m_trkDevice.setSerialFrame(m_serialFrame);
-    return m_trkDevice.open(port, errorMessage);
-}
-
 void Adapter::sendTrkMessage(byte code, TrkCallback callback,
     const QByteArray &data, const QVariant &cookie)
 {
     m_trkDevice.sendTrkMessage(code, callback, data, cookie);
-}
-
-void Adapter::waitForTrkFinished()
-{
-    // initiate one last roundtrip to ensure all is flushed
-    sendTrkMessage(0x0, TrkCB(handleWaitForFinished));
 }
 
 void Adapter::sendTrkAck(byte token)
@@ -1398,31 +1398,27 @@ void Adapter::handleAndReportSetBreakpoint(const TrkResult &result)
     //    Error: 0x00
     // [80 09 00 00 00 00 0A]
     uint bpnr = extractByte(result.data.data());
+    uint addr = result.cookie.toUInt();
+    m_session.addressToBP[addr] = bpnr;
     logMessage("SET BREAKPOINT " + hexxNumber(bpnr) + " "
          + stringFromArray(result.data.data()));
     sendGdbServerMessage("OK");
-}
-
-void Adapter::clearTrkBreakpoint(const Breakpoint &bp)
-{
-    //---IDE------------------------------------------------------
-    //  Command: 0x1C Clear Break
-    // [1C 25 00 00 00 0A 78 6A 43 40]
-    QByteArray ba;
-    appendByte(&ba, 0x00);
-    appendShort(&ba, bp.number);
-    appendInt(&ba, m_session.codeseg + bp.offset);
-    sendTrkMessage(0x1C, TrkCB(handleClearBreakpoint), ba);
+    //sendGdbServerMessage("OK");
 }
 
 void Adapter::handleClearBreakpoint(const TrkResult &result)
 {
-    Q_UNUSED(result);
+    logMessage("CLEAR BREAKPOINT ");
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString());
+        //return;
+    } 
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
     //    Error: 0x00
     // [80 09 00 00 00 00 0A]
-    logMessage("CLEAR BREAKPOINT ");
+    // FIXME:
+    sendGdbServerMessage("OK");
 }
 
 void Adapter::handleSignalContinue(const TrkResult &result)
@@ -1432,12 +1428,6 @@ void Adapter::handleSignalContinue(const TrkResult &result)
     logMessage("NUMBER" + QString::number(signalNumber));
     sendGdbServerMessage("O" + QByteArray("Console output").toHex());
     sendGdbServerMessage("W81"); // "Process exited with result 1
-}
-
-void Adapter::handleWaitForFinished(const TrkResult &result)
-{
-    logMessage("   FINISHED: " + stringFromArray(result.data));
-    //qApp->exit(1);
 }
 
 void Adapter::handleSupportMask(const TrkResult &result)
@@ -1470,68 +1460,6 @@ void Adapter::handleTrkVersions(const TrkResult &result)
 void Adapter::handleDisconnect(const TrkResult & /*result*/)
 {
     logMessage(QLatin1String("Trk disconnected"), true);
-}
-
-void Adapter::cleanUp()
-{
-    //
-    //---IDE------------------------------------------------------
-    //  Command: 0x41 Delete Item
-    //  Sub Cmd: Delete Process
-    //ProcessID: 0x0000071F (1823)
-    // [41 24 00 00 00 00 07 1F]
-    logMessage(QString::fromLatin1("Cleanup PID=%1").arg(m_session.pid), true);
-    if (!m_session.pid)
-        return;
-
-    QByteArray ba;
-    appendByte(&ba, 0x00);
-    appendByte(&ba, 0x00);
-    appendInt(&ba, m_session.pid);
-    sendTrkMessage(0x41, TrkCallback(), ba, "Delete process");
-
-    //---TRK------------------------------------------------------
-    //  Command: 0x80 Acknowledge
-    //    Error: 0x00
-    // [80 24 00]
-
-    //foreach (const Breakpoint &bp, m_breakpoints)
-    //    clearTrkBreakpoint(bp);
-
-    sendTrkMessage(0x02, TrkCB(handleDisconnect));
-    //---IDE------------------------------------------------------
-    //  Command: 0x1C Clear Break
-    // [1C 25 00 00 00 0A 78 6A 43 40]
-
-        //---TRK------------------------------------------------------
-        //  Command: 0xA1 Notify Deleted
-        // [A1 09 00 00 00 00 00 00 00 00 07 1F]
-        //---IDE------------------------------------------------------
-        //  Command: 0x80 Acknowledge
-        //    Error: 0x00
-        // [80 09 00]
-
-    //---TRK------------------------------------------------------
-    //  Command: 0x80 Acknowledge
-    //    Error: 0x00
-    // [80 25 00]
-
-    //---IDE------------------------------------------------------
-    //  Command: 0x1C Clear Break
-    // [1C 26 00 00 00 0B 78 6A 43 70]
-    //---TRK------------------------------------------------------
-    //  Command: 0x80 Acknowledge
-    //    Error: 0x00
-    // [80 26 00]
-
-
-    //---IDE------------------------------------------------------
-    //  Command: 0x02 Disconnect
-    // [02 27]
-//    sendTrkMessage(0x02, TrkCB(handleDisconnect));
-    //---TRK------------------------------------------------------
-    //  Command: 0x80 Acknowledge
-    // Error: 0x00
 }
 
 void Adapter::readMemory(uint addr, uint len)
@@ -1622,9 +1550,16 @@ void Adapter::handleProcStateChanged(QProcess::ProcessState newState)
 
 void Adapter::run()
 {
-    startInferior();
     sendOutput("### Starting Adapter");
-    m_rfcommProc.start("rfcomm listen /dev/rfcomm0 1");
+    m_rfcommProc.start("rfcomm listen " + m_rfcommDevice + " 1");
+    m_rfcommProc.waitForStarted();
+
+    connect(&m_trkDevice, SIGNAL(messageReceived(trk::TrkResult)),
+        this, SLOT(handleTrkResult(trk::TrkResult)));
+    connect(&m_trkDevice, SIGNAL(error(QString)),
+        this, SLOT(handleTrkError(QString)));
+
+    startInferior();
 }
 
 void Adapter::startGdb()
@@ -1710,7 +1645,7 @@ void Adapter::sendGdbMessage(const QString &msg, GdbCallback callback,
     data.command = msg;
     data.callback = callback;
     data.cookie = cookie;
-    m_gdbCookieForToken[++token] = data;
+    m_gdbCookieForToken[token] = data;
     logMessage(QString("<- GDB: %1 %2").arg(token).arg(msg));
     m_gdbProc.write(QString("%1%2\n").arg(token).arg(msg).toLatin1());
 }
@@ -1860,64 +1795,55 @@ public:
     RunnerGui(Adapter *adapter);
 
 private slots:
-    void executeStepICommand();
-    void executeStepCommand();
-    void executeDisassICommand();
+    void executeStepICommand() { executeCommand("-exec-step-instruction"); }
+    void executeStepCommand() { executeCommand("-exec-step"); }
+    void executeNextICommand() { executeCommand("-exec-next-instruction"); }
+    void executeNextCommand() { executeCommand("-exec-next"); }
+    void executeContinueCommand() { executeCommand("-exec-continue"); }
+    void executeDisassICommand() { executeCommand("disass $pc $pc+4"); }
 
 private:
+    void executeCommand(const QString &cmd) { m_adapter->executeCommand(cmd); }
+    void connectAction(QAction *&, QString name, const char *slot);
+
     Adapter *m_adapter;
     TextEdit m_textEdit;
     QToolBar m_toolBar;
-    QAction m_stepIAction;
-    QAction m_stepAction;
-    QAction m_disassIAction;
+    QAction *m_stepIAction;
+    QAction *m_stepAction;
+    QAction *m_nextIAction;
+    QAction *m_nextAction;
+    QAction *m_disassIAction;
+    QAction *m_continueAction;
 };
 
 RunnerGui::RunnerGui(Adapter *adapter)
-  : m_adapter(adapter),
-    m_stepIAction(0),
-    m_stepAction(0),
-    m_disassIAction(0)
+    : m_adapter(adapter)
 {
     resize(1200, 1000);
     setCentralWidget(&m_textEdit);
 
     addToolBar(&m_toolBar);
 
-    m_stepIAction.setText("StepI");
-    m_disassIAction.setText("DisassI");
-    m_toolBar.addAction(&m_stepIAction);
-    m_toolBar.addAction(&m_stepAction);
-    m_toolBar.addAction(&m_disassIAction);
+    connectAction(m_stepIAction, "Step Inst", SLOT(executeStepICommand()));
+    connectAction(m_stepAction, "Step", SLOT(executeStepCommand()));
+    connectAction(m_nextIAction, "Next Inst", SLOT(executeNextICommand()));
+    connectAction(m_nextAction, "Next", SLOT(executeNextCommand()));
+    connectAction(m_disassIAction, "Disass Inst", SLOT(executeDisassICommand()));
+    connectAction(m_continueAction, "Continue", SLOT(executeContinueCommand()));
 
     connect(adapter, SIGNAL(output(QString,QString)),
         &m_textEdit, SLOT(handleOutput(QString,QString)));
     connect(&m_textEdit, SIGNAL(executeCommand(QString)),
         m_adapter, SLOT(executeCommand(QString)));
-
-    connect(&m_stepIAction, SIGNAL(triggered()),
-        this, SLOT(executeStepICommand()));
-    connect(&m_stepAction, SIGNAL(triggered()),
-        this, SLOT(executeStepCommand()));
-    connect(&m_disassIAction, SIGNAL(triggered()),
-        this, SLOT(executeDisassICommand()));
 }
 
-void RunnerGui::executeStepCommand()
+void RunnerGui::connectAction(QAction *&action, QString name, const char *slot)
 {
-    //m_adapter->executeCommand("stepi");
-    m_adapter->executeCommand("-exec-step");
-}
-
-void RunnerGui::executeStepICommand()
-{
-    //m_adapter->executeCommand("stepi");
-    m_adapter->executeCommand("-exec-step-instruction");
-}
-
-void RunnerGui::executeDisassICommand()
-{
-    m_adapter->executeCommand("disass $pc $pc+4");
+    action = new QAction(this);
+    action->setText(name);
+    m_toolBar.addAction(action);
+    connect(action, SIGNAL(triggered()), this, slot);
 }
 
 ///////////////////////////////////////////////////////////////////////
