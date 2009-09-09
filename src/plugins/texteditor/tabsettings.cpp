@@ -116,6 +116,12 @@ QString TabSettings::indentationString(const QString &text) const
 }
 
 
+int TabSettings::indentationColumn(const QString &text) const
+{
+    return columnAt(text, firstNonSpace(text));
+}
+
+
 int TabSettings::trailingWhitespaces(const QString &text) const
 {
     int i = 0;
@@ -231,7 +237,7 @@ void TabSettings::indentLine(QTextBlock block, int newIndent) const
     const int oldBlockLength = text.size();
 
     // Quickly check whether indenting is required.
-    if (oldBlockLength == 0 && newIndent == 0)
+    if (indentationColumn(text) == newIndent)
         return;
 
     const QString indentString = indentationString(0, newIndent);
@@ -239,12 +245,6 @@ void TabSettings::indentLine(QTextBlock block, int newIndent) const
 
     if (oldBlockLength == indentString.length() && text == indentString)
         return;
-
-    if (oldBlockLength > indentString.length() &&
-        text.startsWith(indentString) &&
-        !text.at(indentString.length()).isSpace()) {
-        return;
-    }
 
     QTextCursor cursor(block);
     cursor.beginEditBlock();

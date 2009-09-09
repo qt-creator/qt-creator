@@ -64,6 +64,7 @@ struct TEXTEDITOR_EXPORT TabSettings
     int indentedColumn(int column, bool doIndent = true) const;
     QString indentationString(int startColumn, int targetColumn) const;
     QString indentationString(const QString &text) const;
+    int indentationColumn(const QString &text) const;
 
     void indentLine(QTextBlock block, int newIndent) const;
 

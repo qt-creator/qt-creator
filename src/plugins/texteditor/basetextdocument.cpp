@@ -93,7 +93,7 @@ bool BaseTextDocument::save(const QString &fileName)
 
     cursor.beginEditBlock();
     if (m_storageSettings.m_cleanWhitespace)
-        cleanWhitespace(cursor, m_storageSettings.m_inEntireDocument);
+        cleanWhitespace(cursor, m_storageSettings.m_cleanIndentation, m_storageSettings.m_inEntireDocument);
     if (m_storageSettings.m_addFinalNewLine)
         ensureFinalNewLine(cursor);
     cursor.endEditBlock();
@@ -305,13 +305,12 @@ void BaseTextDocument::cleanWhitespace()
 {
     QTextCursor cursor(m_document);
     cursor.beginEditBlock();
-    cleanWhitespace(cursor, true);
-    if (m_storageSettings.m_addFinalNewLine)
-        ensureFinalNewLine(cursor);
+    cleanWhitespace(cursor, true, true);
+    ensureFinalNewLine(cursor);
     cursor.endEditBlock();
 }
 
-void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool inEntireDocument)
+void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool cleanIndentation, bool inEntireDocument)
 {
 
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(m_document->documentLayout());
@@ -327,7 +326,7 @@ void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool inEntireDocumen
                 cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, trailing);
                 cursor.removeSelectedText();
             }
-            if (m_storageSettings.m_cleanIndentation && !m_tabSettings.isIndentationClean(blockText)) {
+            if (cleanIndentation && !m_tabSettings.isIndentationClean(blockText)) {
                 cursor.setPosition(block.position());
                 int firstNonSpace = m_tabSettings.firstNonSpace(blockText);
                 if (firstNonSpace == blockText.length()) {
