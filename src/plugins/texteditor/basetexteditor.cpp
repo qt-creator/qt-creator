@@ -887,13 +887,18 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         QTextCursor cursor = textCursor();
         if (d->m_inBlockSelectionMode)
             cursor.clearSelection();
-        if (d->m_document->tabSettings().m_autoIndent) {
+        const TabSettings &ts = d->m_document->tabSettings();
+        if (ts.m_autoIndent) {
             cursor.beginEditBlock();
             cursor.insertBlock();
             indent(document(), cursor, QChar::Null);
             cursor.endEditBlock();
         } else {
+            cursor.beginEditBlock();
+            QString previousBlockText = cursor.block().text();
             cursor.insertBlock();
+            cursor.insertText(ts.indentationString(previousBlockText));
+            cursor.endEditBlock();
         }
         e->accept();
         setTextCursor(cursor);
@@ -3189,17 +3194,14 @@ void BaseTextEditor::handleBackspaceKey()
             continue;
         previousIndent = tabSettings.columnAt(previousNonEmptyBlockText,
                                               tabSettings.firstNonSpace(previousNonEmptyBlockText));
-        if (previousIndent < indent)
+        if (previousIndent < indent) {
+            cursor.beginEditBlock();
+            cursor.setPosition(currentBlock.position(), QTextCursor::KeepAnchor);
+            cursor.insertText(tabSettings.indentationString(previousNonEmptyBlockText));
+            cursor.endEditBlock();
             break;
+        }
     }
-
-    if (previousIndent >= indent)
-        previousIndent = 0;
-
-    cursor.beginEditBlock();
-    cursor.setPosition(currentBlock.position(), QTextCursor::KeepAnchor);
-    cursor.insertText(tabSettings.indentationString(0, previousIndent));
-    cursor.endEditBlock();
 }
 
 void BaseTextEditor::wheelEvent(QWheelEvent *e)

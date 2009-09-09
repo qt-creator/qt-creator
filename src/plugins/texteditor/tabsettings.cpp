@@ -110,6 +110,12 @@ int TabSettings::firstNonSpace(const QString &text) const
     return i;
 }
 
+QString TabSettings::indentationString(const QString &text) const
+{
+    return text.left(firstNonSpace(text));
+}
+
+
 int TabSettings::trailingWhitespaces(const QString &text) const
 {
     int i = 0;
