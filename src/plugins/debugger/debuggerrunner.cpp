@@ -140,39 +140,39 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
             Qt::QueuedConnection);
     connect(this, SIGNAL(stopRequested()),
             m_manager, SLOT(exitDebugger()));
+    if (runConfiguration) {
+        // Enhance parameters by info from the project, but do not clobber
+        // arguments given in the dialogs
+        if (m_startParameters->executable.isEmpty())
+            m_startParameters->executable = runConfiguration->executable();
+        if (m_startParameters->environment.empty())
+            m_startParameters->environment = runConfiguration->environment().toStringList();
+        if (m_startParameters->workingDir.isEmpty())
+            m_startParameters->workingDir = runConfiguration->workingDirectory();
+        if (m_mode != StartExternal)
+            m_startParameters->processArgs = runConfiguration->commandLineArguments();
+        switch (m_startParameters->toolChainType) {
+        case ProjectExplorer::ToolChain::UNKNOWN:
+        case ProjectExplorer::ToolChain::INVALID:
+            m_startParameters->toolChainType = runConfiguration->toolChainType();
+            break;
+        default:
+            break;
+        }
+        if (const ProjectExplorer::Project *project = runConfiguration->project()) {
+            m_startParameters->buildDir = project->buildDirectory(project->activeBuildConfiguration());
+        }
+        m_startParameters->useTerminal = runConfiguration->runMode() == ApplicationRunConfiguration::Console;
+        m_dumperLibrary = runConfiguration->dumperLibrary();
+        m_dumperLibraryLocations = runConfiguration->dumperLibraryLocations();
+    }
 }
 
 void DebuggerRunControl::start()
 {
     m_running = true;
-    ApplicationRunConfigurationPtr rc =
-        runConfiguration().objectCast<ApplicationRunConfiguration>();
-    if (rc) {
-        // Enhance parameters by info from the project, but do not clobber
-        // arguments given in the dialogs
-        if (m_startParameters->executable.isEmpty())
-            m_startParameters->executable = rc->executable();
-        if (m_startParameters->environment.empty())
-            m_startParameters->environment = rc->environment().toStringList();
-        if (m_startParameters->workingDir.isEmpty())
-            m_startParameters->workingDir = rc->workingDirectory();
-        if (m_mode != StartExternal)
-            m_startParameters->processArgs = rc->commandLineArguments();
-        switch (m_startParameters->toolChainType) {
-        case ProjectExplorer::ToolChain::UNKNOWN:
-        case ProjectExplorer::ToolChain::INVALID:
-            m_startParameters->toolChainType = rc->toolChainType();
-            break;
-        default:
-            break;
-        }
-        m_manager->setQtDumperLibraryName(rc->dumperLibrary());
-        m_manager->setQtDumperLibraryLocations(rc->dumperLibraryLocations());
-        if (const ProjectExplorer::Project *project = rc->project()) {
-            m_startParameters->buildDir = project->buildDirectory(project->activeBuildConfiguration());
-        }
-        m_startParameters->useTerminal = rc->runMode() == ApplicationRunConfiguration::Console;
-    }
+    m_manager->setQtDumperLibraryName(m_dumperLibrary);
+    m_manager->setQtDumperLibraryLocations(m_dumperLibraryLocations);
 
     //emit addToOutputWindow(this, tr("Debugging %1").arg(m_executable));
     m_manager->startNewDebugger(this, m_startParameters);
