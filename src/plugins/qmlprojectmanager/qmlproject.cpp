@@ -344,12 +344,7 @@ QString QmlRunConfiguration::type() const
 
 QString QmlRunConfiguration::executable() const
 {
-    if (! QFile::exists(m_qmlViewer)) {
-        QMessageBox::information(Core::ICore::instance()->mainWindow(),
-                                 tr("QML Viewer"),
-                                 tr("Could not find the qmlviewer executable, please specify one."));
-    }
-
+    // No need to verify if the QML Viewer exists. The console will tell us anyway when we try to launch it.
     return m_qmlViewer;
 }
 

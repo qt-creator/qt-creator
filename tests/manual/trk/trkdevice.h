@@ -111,7 +111,7 @@ public:
     explicit TrkWriteQueueDevice(QObject *parent = 0);
     virtual ~TrkWriteQueueDevice();
 
-    // Construct as 'TrkWriteQueueDevice::Callback(instance, &Klass::method);'
+    // Construct as 'TrkWriteQueueDevice::Callback(instance, &Class::method);'
     typedef TrkFunctor1<const TrkResult &> Callback;
 
     // Enqueue a message with a notification callback.

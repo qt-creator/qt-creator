@@ -833,7 +833,7 @@ void BaseTextEditor::moveLineUpDown(bool up)
 
 void BaseTextEditor::cleanWhitespace()
 {
-    d->m_document->cleanWhitespace();
+    d->m_document->cleanWhitespace(textCursor());
 }
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
@@ -887,13 +887,18 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         QTextCursor cursor = textCursor();
         if (d->m_inBlockSelectionMode)
             cursor.clearSelection();
-        if (d->m_document->tabSettings().m_autoIndent) {
+        const TabSettings &ts = d->m_document->tabSettings();
+        if (ts.m_autoIndent) {
             cursor.beginEditBlock();
             cursor.insertBlock();
             indent(document(), cursor, QChar::Null);
             cursor.endEditBlock();
         } else {
+            cursor.beginEditBlock();
+            QString previousBlockText = cursor.block().text();
             cursor.insertBlock();
+            cursor.insertText(ts.indentationString(previousBlockText));
+            cursor.endEditBlock();
         }
         e->accept();
         setTextCursor(cursor);
@@ -1337,6 +1342,16 @@ bool BaseTextEditor::codeFoldingSupported() const
     return d->m_codeFoldingSupported;
 }
 
+void BaseTextEditor::setMouseNavigationEnabled(bool b)
+{
+    d->m_mouseNavigationEnabled = b;
+}
+
+bool BaseTextEditor::mouseNavigationEnabled() const
+{
+    return d->m_mouseNavigationEnabled;
+}
+
 void BaseTextEditor::setRevisionsVisible(bool b)
 {
     d->m_revisionsVisible = b;
@@ -1372,12 +1387,14 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_marksVisible(false),
     m_codeFoldingVisible(false),
     m_codeFoldingSupported(false),
+    m_mouseNavigationEnabled(true),
     m_revisionsVisible(false),
     m_lineNumbersVisible(true),
     m_highlightCurrentLine(true),
     m_requestMarkEnabled(true),
     m_lineSeparatorsAllowed(false),
     m_visibleWrapColumn(0),
+    m_showingLink(false),
     m_editable(0),
     m_actionHack(0),
     m_inBlockSelectionMode(false),
@@ -2721,6 +2738,32 @@ void BaseTextEditorPrivate::clearVisibleCollapsedBlock()
 void BaseTextEditor::mouseMoveEvent(QMouseEvent *e)
 {
     d->m_lastEventWasBlockSelectionEvent = (e->modifiers() & Qt::AltModifier);
+
+    bool linkFound = false;
+
+    if (d->m_mouseNavigationEnabled && e->modifiers() & Qt::ControlModifier) {
+        // Link emulation behaviour for 'go to definition'
+        const QTextCursor cursor = cursorForPosition(e->pos());
+
+        // Check that the mouse was actually on the text somewhere
+        bool onText = cursorRect(cursor).right() >= e->x();
+        if (!onText) {
+            QTextCursor nextPos = cursor;
+            nextPos.movePosition(QTextCursor::Right);
+            onText = cursorRect(nextPos).right() >= e->x();
+        }
+
+        const Link link = findLinkAt(cursor, false);
+
+        if (onText && link.isValid()) {
+            showLink(link);
+            linkFound = true;
+        }
+    }
+
+    if (!linkFound)
+        clearLink();
+
     if (e->buttons() == Qt::NoButton) {
         const QTextBlock collapsedBlock = collapsedBlockAt(e->pos());
         const int blockNumber = collapsedBlock.next().blockNumber();
@@ -2765,6 +2808,38 @@ void BaseTextEditor::mousePressEvent(QMouseEvent *e)
         }
     }
     QPlainTextEdit::mousePressEvent(e);
+}
+
+void BaseTextEditor::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (d->m_mouseNavigationEnabled && e->modifiers() & Qt::ControlModifier
+        && !(e->modifiers() & Qt::ShiftModifier)
+        && e->button() == Qt::LeftButton) {
+
+        const QTextCursor cursor = cursorForPosition(e->pos());
+        if (openLink(findLinkAt(cursor))) {
+            clearLink();
+            return;
+        }
+    }
+
+    QPlainTextEdit::mouseReleaseEvent(e);
+}
+
+void BaseTextEditor::leaveEvent(QEvent *e)
+{
+    // Clear link emulation when the mouse leaves the editor
+    clearLink();
+    QPlainTextEdit::leaveEvent(e);
+}
+
+void BaseTextEditor::keyReleaseEvent(QKeyEvent *e)
+{
+    // Clear link emulation when Ctrl is released
+    if (e->key() == Qt::Key_Control)
+        clearLink();
+
+    QPlainTextEdit::keyReleaseEvent(e);
 }
 
 void BaseTextEditor::extraAreaLeaveEvent(QEvent *)
@@ -2833,7 +2908,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
                             document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last()).position()
                             );
                     QTextBlock c = cursor.block();
-                    if (!TextBlockUserData::canCollapse(c))
+                    if (TextBlockUserData::hasCollapseAfter(c.previous()))
                         c = c.previous();
                     toggleBlockVisible(c);
                     d->moveCursorVisible(false);
@@ -3119,17 +3194,14 @@ void BaseTextEditor::handleBackspaceKey()
             continue;
         previousIndent = tabSettings.columnAt(previousNonEmptyBlockText,
                                               tabSettings.firstNonSpace(previousNonEmptyBlockText));
-        if (previousIndent < indent)
+        if (previousIndent < indent) {
+            cursor.beginEditBlock();
+            cursor.setPosition(currentBlock.position(), QTextCursor::KeepAnchor);
+            cursor.insertText(tabSettings.indentationString(previousNonEmptyBlockText));
+            cursor.endEditBlock();
             break;
+        }
     }
-
-    if (previousIndent >= indent)
-        previousIndent = 0;
-
-    cursor.beginEditBlock();
-    cursor.setPosition(currentBlock.position(), QTextCursor::KeepAnchor);
-    cursor.insertText(tabSettings.indentationString(0, previousIndent));
-    cursor.endEditBlock();
 }
 
 void BaseTextEditor::wheelEvent(QWheelEvent *e)
@@ -3184,6 +3256,50 @@ void BaseTextEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar
     } else {
         indentBlock(doc, cursor.block(), typedChar);
     }
+}
+
+BaseTextEditor::Link BaseTextEditor::findLinkAt(const QTextCursor &, bool)
+{
+    return Link();
+}
+
+bool BaseTextEditor::openLink(const Link &link)
+{
+    if (link.fileName.isEmpty())
+        return false;
+
+    if (baseTextDocument()->fileName() == link.fileName) {
+        Core::EditorManager *editorManager = Core::EditorManager::instance();
+        editorManager->addCurrentPositionToNavigationHistory();
+        gotoLine(link.line, link.column);
+        setFocus();
+        return true;
+    }
+
+    return openEditorAt(link.fileName, link.line, link.column);
+}
+
+void BaseTextEditor::showLink(const Link &link)
+{
+    QTextEdit::ExtraSelection sel;
+    sel.cursor = textCursor();
+    sel.cursor.setPosition(link.pos);
+    sel.cursor.setPosition(link.pos + link.length, QTextCursor::KeepAnchor);
+    sel.format = d->m_linkFormat;
+    sel.format.setFontUnderline(true);
+    setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
+    viewport()->setCursor(Qt::PointingHandCursor);
+    d->m_showingLink = true;
+}
+
+void BaseTextEditor::clearLink()
+{
+    if (!d->m_showingLink)
+        return;
+
+    setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
+    viewport()->setCursor(Qt::IBeamCursor);
+    d->m_showingLink = false;
 }
 
 void BaseTextEditorPrivate::updateMarksBlock(const QTextBlock &block)
@@ -4005,8 +4121,8 @@ void BaseTextEditor::unCommentSelection()
 void BaseTextEditor::showEvent(QShowEvent* e)
 {
     if (!d->m_fontSettings.isEmpty()) {
-	setFontSettings(d->m_fontSettings);
-	d->m_fontSettings.clear();
+        setFontSettings(d->m_fontSettings);
+        d->m_fontSettings.clear();
     }
     QPlainTextEdit::showEvent(e);
 }
@@ -4015,11 +4131,12 @@ void BaseTextEditor::showEvent(QShowEvent* e)
 void BaseTextEditor::setFontSettingsIfVisible(const TextEditor::FontSettings &fs)
 {
     if (!isVisible()) {
-	d->m_fontSettings = fs;
-	return;
+        d->m_fontSettings = fs;
+        return;
     }
     setFontSettings(fs);
 }
+
 void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
     const QTextCharFormat textFormat = fs.toTextCharFormat(QLatin1String(Constants::C_TEXT));
@@ -4030,6 +4147,7 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
     const QTextCharFormat parenthesesFormat = fs.toTextCharFormat(QLatin1String(Constants::C_PARENTHESES));
     d->m_currentLineFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE));
     d->m_currentLineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE_NUMBER));
+    d->m_linkFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LINK));
     d->m_ifdefedOutFormat = fs.toTextCharFormat(QLatin1String(Constants::C_DISABLED_CODE));
     QFont font(textFormat.font());
 
@@ -4082,6 +4200,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     setCodeFoldingVisible(ds.m_displayFoldingMarkers);
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
     setRevisionsVisible(ds.m_markTextChanges);
+    setMouseNavigationEnabled(ds.m_mouseNavigation);
 
     if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
         if (QSyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())

@@ -27,10 +27,13 @@
 **
 **************************************************************************/
 
-#ifndef _TRK_FUNCTOR_H_
-#define _TRK_FUNCTOR_H_
+#ifndef DEBUGGER_TRK_FUNCTOR_H
+#define DEBUGGER_TRK_FUNCTOR_H
 
 #include <QtGlobal>
+
+
+// FIXME: rename into something less TRK-specific
 
 namespace trk {
 namespace Internal {

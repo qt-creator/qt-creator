@@ -103,6 +103,8 @@ namespace Internal {
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 
+IDebuggerEngine *createSymbianEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+
 QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
 {
     QDebug nospace = str.nospace();

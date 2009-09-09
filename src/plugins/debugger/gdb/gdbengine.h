@@ -32,6 +32,7 @@
 
 #include "idebuggerengine.h"
 #include "gdbmi.h"
+#include "gdbprocessbase.h"
 #include "outputcollector.h"
 #include "watchutils.h"
 
@@ -56,6 +57,7 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
+
 class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
 class GdbResultRecord;
@@ -72,13 +74,46 @@ enum DebuggingHelperState
     DebuggingHelperUnavailable,
 };
 
+class GdbProcess : public GdbProcessBase
+{
+public:
+    GdbProcess(QObject *parent = 0)
+        : GdbProcessBase(parent)
+    {
+        connect(&m_proc, SIGNAL(error(QProcess::ProcessError)),
+            this, SIGNAL(error(QProcess::ProcessError)));
+        connect(&m_proc, SIGNAL(readyReadStandardOutput()),
+            this, SIGNAL(readyReadStandardOutput()));
+        connect(&m_proc, SIGNAL(readyReadStandardError()),
+            this, SIGNAL(readyReadStandardError()));
+        connect(&m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
+            this, SIGNAL(finished(int, QProcess::ExitStatus)));
+    }
+
+    void start(const QString &program, const QStringList &args,
+        QIODevice::OpenMode mode) { m_proc.start(program, args, mode); }
+    void kill() { m_proc.kill(); }
+    void terminate() { m_proc.terminate(); }
+    bool waitForStarted(int msecs) { return m_proc.waitForStarted(msecs); }
+    bool waitForFinished(int msecs) { return m_proc.waitForFinished(msecs); }
+    QProcess::ProcessState state() const { return m_proc.state(); }
+    QString errorString() const { return m_proc.errorString(); }
+    QByteArray readAllStandardError() { return m_proc.readAllStandardError(); }
+    QByteArray readAllStandardOutput() { return m_proc.readAllStandardOutput(); }
+    qint64 write(const char *data) { return m_proc.write(data); }
+    void setWorkingDirectory(const QString &dir) { m_proc.setWorkingDirectory(dir); }
+    void setEnvironment(const QStringList &env) { m_proc.setEnvironment(env); }
+
+private:
+    QProcess m_proc;
+};
 
 class GdbEngine : public IDebuggerEngine
 {
     Q_OBJECT
 
 public:
-    GdbEngine(DebuggerManager *parent);
+    GdbEngine(DebuggerManager *parent, GdbProcessBase *gdbProc);
     ~GdbEngine();
 
 signals:
@@ -251,7 +286,7 @@ private:
 
     QByteArray m_inbuffer;
 
-    QProcess m_gdbProc;
+    GdbProcessBase *m_gdbProc;
     QProcess m_uploadProc;
 
     Core::Utils::ConsoleProcess m_stubProc;

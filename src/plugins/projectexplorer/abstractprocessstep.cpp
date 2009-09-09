@@ -58,7 +58,13 @@ void AbstractProcessStep::setCommand(const QString &buildConfiguration, const QS
 
 QString AbstractProcessStep::command(const QString &buildConfiguration) const
 {
-    return value(buildConfiguration, PROCESS_COMMAND).toString();
+    QString result = value(buildConfiguration, PROCESS_COMMAND).toString();
+    if (QFileInfo(result).isRelative()) {
+        QString searchInPath = environment(buildConfiguration).searchInPath(result);
+        if (!searchInPath.isEmpty())
+            result = searchInPath;
+    }
+    return result;
 }
 
 void AbstractProcessStep::setWorkingDirectory(const QString &buildConfiguration, const QString &workingDirectory)

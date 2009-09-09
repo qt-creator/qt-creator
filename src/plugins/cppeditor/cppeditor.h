@@ -193,7 +193,6 @@ public:
 
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
-    virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     void setSortedMethodOverview(bool sort);
     void switchDeclarationDefinition();
     void jumpToDefinition();
@@ -208,10 +207,6 @@ public Q_SLOTS:
 protected:
     bool event(QEvent *e);
     void contextMenuEvent(QContextMenuEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    void leaveEvent(QEvent *);
-    void keyReleaseEvent(QKeyEvent *);
     void keyPressEvent(QKeyEvent *);
 
     TextEditor::BaseTextEditorEditable *createEditableInterface();
@@ -261,36 +256,11 @@ private:
                                const QString &text = QString());
     void abortRename();
 
-    struct Link
-    {
-        Link(const QString &fileName = QString(),
-             int line = 0,
-             int column = 0)
-            : pos(-1)
-            , length(-1)
-            , fileName(fileName)
-            , line(line)
-            , column(column)
-        {}
-
-        int pos;           // Link position
-        int length;        // Link length
-
-        QString fileName;  // Target file
-        int line;          // Target line
-        int column;        // Target column
-    };
-
-    void showLink(const Link &);
-    void clearLink();
-
-    Link findLinkAt(const QTextCursor &, bool lookupDefinition = true);
-    static Link linkToSymbol(CPlusPlus::Symbol *symbol);
+    Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
+    bool openLink(const Link &link) { return openCppEditorAt(link); }
     bool openCppEditorAt(const Link &);
 
-    bool m_mouseNavigationEnabled;
-    bool m_showingLink;
-    QTextCharFormat m_linkFormat;
+    static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 
     CppTools::CppModelManagerInterface *m_modelManager;
 

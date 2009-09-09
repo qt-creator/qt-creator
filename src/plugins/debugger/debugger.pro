@@ -87,5 +87,7 @@ include(cdb/cdb.pri)
 include(gdb/gdb.pri)
 include(script/script.pri)
 include(tcf/tcf.pri)
+include(symbian/symbian.pri)
 include(shared/shared.pri)
+
 OTHER_FILES += Debugger.pluginspec
