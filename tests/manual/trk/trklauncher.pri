@@ -1,9 +1,15 @@
 DEFINES += DEBUG_TRK=0
-INCLUDEPATH *= $$PWD
-SOURCES += $$PWD/launcher.cpp \
-    $$PWD/trkutils.cpp \
-    $$PWD/trkdevice.cpp
-HEADERS += $$PWD/trkutils.h \
-    $$PWD/trkfunctor.h \
+DEBUGGERHOME = ../../../src/plugins/debugger/symbian
+
+INCLUDEPATH *= $$DEBUGGERHOME
+
+SOURCES += \
+    $$DEBUGGERHOME/trkutils.cpp \
+    $$PWD/trkdevice.cpp \
+    $$PWD/launcher.cpp \
+
+HEADERS += \
+    $$DEBUGGERHOME/trkutils.h \
+    $$DEBUGGERHOME/trkfunctor.h \
     $$PWD/trkdevice.h \
     $$PWD/launcher.h

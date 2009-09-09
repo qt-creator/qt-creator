@@ -1,12 +1,17 @@
 
 TEMPLATE = app
 
+DEBUGGERHOME = ../../../src/plugins/debugger/symbian
+
 QT = core network
 win32:CONFIG+=console
 
+INCLUDEPATH *= $$DEBUGGERHOME
+
+
 HEADERS += \
-    trkutils.h
+    $$DEBUGGERHOME/trkutils.h
 
 SOURCES += \
-    trkutils.cpp \
-    trkserver.cpp
+    $$DEBUGGERHOME/trkutils.cpp \
+    $$PWD/trkserver.cpp

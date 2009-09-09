@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "trkdevicex.h"
+#include "trkclient.h"
 #include "trkutils.h"
 
 #include <QtCore/QString>
@@ -35,7 +35,6 @@
 #include <QtCore/QQueue>
 #include <QtCore/QHash>
 #include <QtCore/QMap>
-#include <QtCore/QSharedPointer>
 
 #ifdef Q_OS_WIN
 #  include <windows.h>

@@ -32,6 +32,7 @@
 
 #include "idebuggerengine.h"
 #include "gdbmi.h"
+#include "gdbprocessbase.h"
 #include "outputcollector.h"
 #include "watchutils.h"
 
@@ -71,38 +72,6 @@ enum DebuggingHelperState
     DebuggingHelperLoadTried,
     DebuggingHelperAvailable,
     DebuggingHelperUnavailable,
-};
-
-// GdbProcessBase is inherited by GdbProcess and the gdb/trk Adapter.
-// In the GdbProcess case it's just a wrapper around a QProcess running
-// gdb, in the Adapter case it's the interface to the gdb process in
-// the whole rfomm/gdb/gdbserver combo.
-class GdbProcessBase : public QObject
-{
-    Q_OBJECT
-
-public:
-    GdbProcessBase(QObject *parent) : QObject(parent) {}
-
-    virtual void start(const QString &program, const QStringList &args,
-        QIODevice::OpenMode mode = QIODevice::ReadWrite) = 0;
-    virtual void kill() = 0;
-    virtual void terminate() = 0;
-    virtual bool waitForStarted(int msecs = 30000) = 0;
-    virtual bool waitForFinished(int msecs = 30000) = 0;
-    virtual QProcess::ProcessState state() const = 0;
-    virtual QString errorString() const = 0;
-    virtual QByteArray readAllStandardError() = 0;
-    virtual QByteArray readAllStandardOutput() = 0;
-    virtual qint64 write(const char *data) = 0;
-    virtual void setWorkingDirectory(const QString &dir) = 0;
-    virtual void setEnvironment(const QStringList &env) = 0;
-
-signals:
-    void error(QProcess::ProcessError);
-    void readyReadStandardOutput();
-    void readyReadStandardError();
-    void finished(int, QProcess::ExitStatus);
 };
 
 class GdbProcess : public GdbProcessBase

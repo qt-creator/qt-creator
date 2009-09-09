@@ -197,7 +197,6 @@ QByteArray hexNumber(uint n, int digits = 0);
 QByteArray hexxNumber(uint n, int digits = 0); // prepends '0x', too
 uint swapEndian(uint in);
 
-
 } // namespace trk
 
 #endif // DEBUGGER_TRK_UTILS
