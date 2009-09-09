@@ -144,7 +144,7 @@ static QByteArray parsePlainConsoleStream(const GdbResultRecord &record)
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(DebuggerManager *parent) :
+GdbEngine::GdbEngine(DebuggerManager *parent, GdbProcessBase *gdbProc) :
 #ifdef Q_OS_WIN // Do injection loading with MinGW (call loading does not work with 64bit)
     m_dumperInjectionLoad(true),
 #else
@@ -153,6 +153,7 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
     q(parent),
     qq(parent->engineInterface())
 {
+    m_gdbProc = gdbProc;
     m_stubProc.setMode(Core::Utils::ConsoleProcess::Debug);
 #ifdef Q_OS_UNIX
     m_stubProc.setSettings(Core::ICore::instance()->settings());
@@ -164,19 +165,20 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
 GdbEngine::~GdbEngine()
 {
     // prevent sending error messages afterwards
-    m_gdbProc.disconnect(this);
+    m_gdbProc->disconnect(this);
+    delete m_gdbProc;
 }
 
 void GdbEngine::initializeConnections()
 {
     // Gdb Process interaction
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
+    connect(m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(gdbProcError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
+    connect(m_gdbProc, SIGNAL(readyReadStandardOutput()),
         this, SLOT(readGdbStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
+    connect(m_gdbProc, SIGNAL(readyReadStandardError()),
         this, SLOT(readGdbStandardError()));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
+    connect(m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
         q, SLOT(exitDebugger()));
 
     connect(&m_stubProc, SIGNAL(processError(QString)),
@@ -614,7 +616,7 @@ void GdbEngine::stubError(const QString &msg)
 
 void GdbEngine::readGdbStandardError()
 {
-    qWarning() << "Unexpected gdb stderr:" << m_gdbProc.readAllStandardError();
+    qWarning() << "Unexpected gdb stderr:" << m_gdbProc->readAllStandardError();
 }
 
 void GdbEngine::readGdbStandardOutput()
@@ -622,7 +624,7 @@ void GdbEngine::readGdbStandardOutput()
     int newstart = 0;
     int scan = m_inbuffer.size();
 
-    m_inbuffer.append(m_gdbProc.readAllStandardOutput());
+    m_inbuffer.append(m_gdbProc->readAllStandardOutput());
 
     while (newstart < m_inbuffer.size()) {
         int start = newstart;
@@ -651,7 +653,7 @@ void GdbEngine::interruptInferior()
 {
     qq->notifyInferiorStopRequested();
 
-    if (m_gdbProc.state() == QProcess::NotRunning) {
+    if (m_gdbProc->state() == QProcess::NotRunning) {
         debugMessage(_("TRYING TO INTERRUPT INFERIOR WITHOUT RUNNING GDB"));
         qq->notifyInferiorExited();
         return;
@@ -698,7 +700,7 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
                             GdbCommandCallback callback, const char *callbackName,
                             const QVariant &cookie)
 {
-    if (m_gdbProc.state() == QProcess::NotRunning) {
+    if (m_gdbProc->state() == QProcess::NotRunning) {
         debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + command);
         return;
     }
@@ -742,7 +744,7 @@ void GdbEngine::flushCommand(GdbCommand &cmd)
     if (cmd.flags & EmbedToken)
         cmd.command = cmd.command.arg(currentToken());
 
-    m_gdbProc.write(cmd.command.toLatin1() + "\r\n");
+    m_gdbProc->write(cmd.command.toLatin1() + "\r\n");
     //emit gdbInputAvailable(QString(), "         " +  currentTime());
     //emit gdbInputAvailable(QString(), "[" + currentTime() + "]    " + cmd.command);
     emit gdbInputAvailable(LogInput, cmd.command);
@@ -829,12 +831,12 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 
 void GdbEngine::executeDebuggerCommand(const QString &command)
 {
-    if (m_gdbProc.state() == QProcess::NotRunning) {
+    if (m_gdbProc->state() == QProcess::NotRunning) {
         debugMessage(_("NO GDB PROCESS RUNNING, PLAIN CMD IGNORED: ") + command);
         return;
     }
 
-    m_gdbProc.write(command.toLocal8Bit() + "\r\n");
+    m_gdbProc->write(command.toLocal8Bit() + "\r\n");
 }
 
 void GdbEngine::handleTargetCore(const GdbResultRecord &, const QVariant &)
@@ -1434,15 +1436,15 @@ void GdbEngine::detachDebugger()
 
 void GdbEngine::exitDebugger()
 {
-    debugMessage(_("GDBENGINE EXITDEBUGGER: %1").arg(m_gdbProc.state()));
-    if (m_gdbProc.state() == QProcess::Starting) {
+    debugMessage(_("GDBENGINE EXITDEBUGGER: %1").arg(m_gdbProc->state()));
+    if (m_gdbProc->state() == QProcess::Starting) {
         debugMessage(_("WAITING FOR GDB STARTUP TO SHUTDOWN: %1")
-            .arg(m_gdbProc.state()));
-        m_gdbProc.waitForStarted();
+            .arg(m_gdbProc->state()));
+        m_gdbProc->waitForStarted();
     }
-    if (m_gdbProc.state() == QProcess::Running) {
+    if (m_gdbProc->state() == QProcess::Running) {
         debugMessage(_("WAITING FOR RUNNING GDB TO SHUTDOWN: %1")
-            .arg(m_gdbProc.state()));
+            .arg(m_gdbProc->state()));
         if (q->status() != DebuggerInferiorStopped
             && q->status() != DebuggerProcessStartingUp) {
             QTC_ASSERT(q->status() == DebuggerInferiorRunning,
@@ -1455,17 +1457,17 @@ void GdbEngine::exitDebugger()
             postCommand(_("kill"));
         postCommand(_("-gdb-exit"), CB(handleExit));
         // 20s can easily happen when loading webkit debug information
-        if (!m_gdbProc.waitForFinished(20000)) {
+        if (!m_gdbProc->waitForFinished(20000)) {
             debugMessage(_("FORCING TERMINATION: %1")
-                .arg(m_gdbProc.state()));
-            m_gdbProc.terminate();
-            m_gdbProc.waitForFinished(20000);
+                .arg(m_gdbProc->state()));
+            m_gdbProc->terminate();
+            m_gdbProc->waitForFinished(20000);
         }
     }
-    if (m_gdbProc.state() != QProcess::NotRunning) {
+    if (m_gdbProc->state() != QProcess::NotRunning) {
         debugMessage(_("PROBLEM STOPPING DEBUGGER: STATE %1")
-            .arg(m_gdbProc.state()));
-        m_gdbProc.kill();
+            .arg(m_gdbProc->state()));
+        m_gdbProc->kill();
     }
 
     m_outputCollector.shutdown();
@@ -1487,9 +1489,9 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 
     QStringList gdbArgs;
 
-    if (m_gdbProc.state() != QProcess::NotRunning) {
-        debugMessage(_("GDB IS ALREADY RUNNING, STATE: %1").arg(m_gdbProc.state()));
-        m_gdbProc.kill();
+    if (m_gdbProc->state() != QProcess::NotRunning) {
+        debugMessage(_("GDB IS ALREADY RUNNING, STATE: %1").arg(m_gdbProc->state()));
+        m_gdbProc->kill();
         return false;
     }
 
@@ -1529,16 +1531,16 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
 
         if (!sp->workingDir.isEmpty())
-            m_gdbProc.setWorkingDirectory(sp->workingDir);
+            m_gdbProc->setWorkingDirectory(sp->workingDir);
         if (!sp->environment.isEmpty())
-            m_gdbProc.setEnvironment(sp->environment);
+            m_gdbProc->setEnvironment(sp->environment);
     }
 
     #if 0
     qDebug() << "Command:" << q->settings()->m_gdbCmd;
-    qDebug() << "WorkingDirectory:" << m_gdbProc.workingDirectory();
+    qDebug() << "WorkingDirectory:" << m_gdbProc->workingDirectory();
     qDebug() << "ScriptFile:" << q->settings()->m_scriptFile;
-    qDebug() << "Environment:" << m_gdbProc.environment();
+    qDebug() << "Environment:" << m_gdbProc->environment();
     qDebug() << "Arguments:" << gdbArgs;
     qDebug() << "BuildDir:" << sp->buildDir;
     qDebug() << "ExeFile:" << sp->executable;
@@ -1546,10 +1548,10 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 
     QString loc = theDebuggerStringSetting(GdbLocation);
     q->showStatusMessage(tr("Starting Debugger: ") + loc + _c(' ') + gdbArgs.join(_(" ")));
-    m_gdbProc.start(loc, gdbArgs);
-    if (!m_gdbProc.waitForStarted()) {
+    m_gdbProc->start(loc, gdbArgs);
+    if (!m_gdbProc->waitForStarted()) {
         QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
-                              tr("Cannot start debugger: %1").arg(m_gdbProc.errorString()));
+                              tr("Cannot start debugger: %1").arg(m_gdbProc->errorString()));
         m_outputCollector.shutdown();
         m_stubProc.blockSignals(true);
         m_stubProc.stop();
@@ -4198,7 +4200,7 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResultRecord &record,
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *opts)
 {
     opts->push_back(new GdbOptionsPage);
-    return new GdbEngine(parent);
+    return new GdbEngine(parent, new GdbProcess);
 }
 
 } // namespace Internal

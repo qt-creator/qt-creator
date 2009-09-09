@@ -56,6 +56,7 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
+
 class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
 class GdbResultRecord;
@@ -72,13 +73,78 @@ enum DebuggingHelperState
     DebuggingHelperUnavailable,
 };
 
+// GdbProcessBase is inherited by GdbProcess and the gdb/trk Adapter.
+// In the GdbProcess case it's just a wrapper around a QProcess running
+// gdb, in the Adapter case it's the interface to the gdb process in
+// the whole rfomm/gdb/gdbserver combo.
+class GdbProcessBase : public QObject
+{
+    Q_OBJECT
+
+public:
+    GdbProcessBase(QObject *parent) : QObject(parent) {}
+
+    virtual void start(const QString &program, const QStringList &args,
+        QIODevice::OpenMode mode = QIODevice::ReadWrite) = 0;
+    virtual void kill() = 0;
+    virtual void terminate() = 0;
+    virtual bool waitForStarted(int msecs = 30000) = 0;
+    virtual bool waitForFinished(int msecs = 30000) = 0;
+    virtual QProcess::ProcessState state() const = 0;
+    virtual QString errorString() const = 0;
+    virtual QByteArray readAllStandardError() = 0;
+    virtual QByteArray readAllStandardOutput() = 0;
+    virtual qint64 write(const char *data) = 0;
+    virtual void setWorkingDirectory(const QString &dir) = 0;
+    virtual void setEnvironment(const QStringList &env) = 0;
+
+signals:
+    void error(QProcess::ProcessError);
+    void readyReadStandardOutput();
+    void readyReadStandardError();
+    void finished(int, QProcess::ExitStatus);
+};
+
+class GdbProcess : public GdbProcessBase
+{
+public:
+    GdbProcess(QObject *parent = 0)
+        : GdbProcessBase(parent)
+    {
+        connect(&m_proc, SIGNAL(error(QProcess::ProcessError)),
+            this, SIGNAL(error(QProcess::ProcessError)));
+        connect(&m_proc, SIGNAL(readyReadStandardOutput()),
+            this, SIGNAL(readyReadStandardOutput()));
+        connect(&m_proc, SIGNAL(readyReadStandardError()),
+            this, SIGNAL(readyReadStandardError()));
+        connect(&m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
+            this, SIGNAL(finished(int, QProcess::ExitStatus)));
+    }
+
+    void start(const QString &program, const QStringList &args,
+        QIODevice::OpenMode mode) { m_proc.start(program, args, mode); }
+    void kill() { m_proc.kill(); }
+    void terminate() { m_proc.terminate(); }
+    bool waitForStarted(int msecs) { return m_proc.waitForStarted(msecs); }
+    bool waitForFinished(int msecs) { return m_proc.waitForFinished(msecs); }
+    QProcess::ProcessState state() const { return m_proc.state(); }
+    QString errorString() const { return m_proc.errorString(); }
+    QByteArray readAllStandardError() { return m_proc.readAllStandardError(); }
+    QByteArray readAllStandardOutput() { return m_proc.readAllStandardOutput(); }
+    qint64 write(const char *data) { return m_proc.write(data); }
+    void setWorkingDirectory(const QString &dir) { m_proc.setWorkingDirectory(dir); }
+    void setEnvironment(const QStringList &env) { m_proc.setEnvironment(env); }
+
+private:
+    QProcess m_proc;
+};
 
 class GdbEngine : public IDebuggerEngine
 {
     Q_OBJECT
 
 public:
-    GdbEngine(DebuggerManager *parent);
+    GdbEngine(DebuggerManager *parent, GdbProcessBase *gdbProc);
     ~GdbEngine();
 
 signals:
@@ -251,7 +317,7 @@ private:
 
     QByteArray m_inbuffer;
 
-    QProcess m_gdbProc;
+    GdbProcessBase *m_gdbProc;
     QProcess m_uploadProc;
 
     Core::Utils::ConsoleProcess m_stubProc;
