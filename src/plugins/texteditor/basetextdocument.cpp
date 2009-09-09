@@ -301,13 +301,15 @@ void BaseTextDocument::setSyntaxHighlighter(QSyntaxHighlighter *highlighter)
 
 
 
-void BaseTextDocument::cleanWhitespace()
+void BaseTextDocument::cleanWhitespace(const QTextCursor &cursor)
 {
-    QTextCursor cursor(m_document);
-    cursor.beginEditBlock();
-    cleanWhitespace(cursor, true, true);
-    ensureFinalNewLine(cursor);
-    cursor.endEditBlock();
+    bool hasSelection = cursor.hasSelection();
+    QTextCursor copyCursor = cursor;
+    copyCursor.beginEditBlock();
+    cleanWhitespace(copyCursor, true, true);
+    if (!hasSelection)
+        ensureFinalNewLine(copyCursor);
+    copyCursor.endEditBlock();
 }
 
 void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool cleanIndentation, bool inEntireDocument)
@@ -315,8 +317,12 @@ void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool cleanIndentatio
 
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(m_document->documentLayout());
 
-    QTextBlock block = m_document->firstBlock();
-    while (block.isValid()) {
+    QTextBlock block = m_document->findBlock(cursor.selectionStart());
+    QTextBlock end;
+    if (cursor.hasSelection())
+        end = m_document->findBlock(cursor.selectionEnd()-1).next();
+
+    while (block.isValid() && block != end) {
 
         if (inEntireDocument || block.revision() > documentLayout->lastSaveRevision) {
 

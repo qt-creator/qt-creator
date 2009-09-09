@@ -110,7 +110,7 @@ public:
 
     void reload(QTextCodec *codec);
 
-    void cleanWhitespace();
+    void cleanWhitespace(const QTextCursor &cursor);
 
 signals:
     void titleChanged(QString title);

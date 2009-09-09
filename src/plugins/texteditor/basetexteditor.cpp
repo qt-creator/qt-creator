@@ -833,7 +833,7 @@ void BaseTextEditor::moveLineUpDown(bool up)
 
 void BaseTextEditor::cleanWhitespace()
 {
-    d->m_document->cleanWhitespace();
+    d->m_document->cleanWhitespace(textCursor());
 }
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
