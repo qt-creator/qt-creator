@@ -1563,6 +1563,8 @@ void GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 
 void GdbEngine::startDebugger2()
 {
+    qDebug() << "STARTUP, PHASE 2";
+    debugMessage(_("STARTUP, PHASE 2"));
 #if 0
     if (!m_gdbProc->waitForStarted()) {
         QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
@@ -1726,11 +1728,16 @@ void GdbEngine::handleStart(const GdbResultRecord &response, const QVariant &)
         QString msg = _(response.data.findChild("consolestreamoutput").data());
         QRegExp needle(_("\\bEntry point: (0x[0-9a-f]+)\\b"));
         if (needle.indexIn(msg) != -1) {
-            //debugMessage(_("STREAM: ") + msg + " " + needle.cap(1));
-            postCommand(_("tbreak *") + needle.cap(1));
-            m_waitingForFirstBreakpointToBeHit = true;
-            qq->notifyInferiorRunningRequested();
-            postCommand(_("-exec-run"), CB(handleExecRun));
+            if (m_gdbProc->isAdapter()) {
+                postCommand(_("-exec-continue"), CB(handleExecRun));
+                qq->notifyInferiorRunningRequested();
+            } else {
+                //debugMessage(_("STREAM: ") + msg + " " + needle.cap(1));
+                postCommand(_("tbreak *") + needle.cap(1));
+                m_waitingForFirstBreakpointToBeHit = true;
+                qq->notifyInferiorRunningRequested();
+                postCommand(_("-exec-run"), CB(handleExecRun));
+            }
         } else {
             debugMessage(_("PARSING START ADDRESS FAILED: ") + msg);
         }

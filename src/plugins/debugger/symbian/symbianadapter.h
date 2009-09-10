@@ -93,6 +93,7 @@ public:
 
 public slots:
     void startInferior();
+    void run();
 
 signals:
     void output(const QString &msg);
@@ -103,7 +104,6 @@ private slots:
     void handleProcFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleProcStarted();
     void handleProcStateChanged(QProcess::ProcessState newState);
-    void run();
     void startGdb();
 
 private:
@@ -135,6 +135,7 @@ public:
     qint64 write(const char *data);
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
+    bool isAdapter() const { return true; }
 
     //
     // TRK

@@ -106,6 +106,7 @@ public:
     qint64 write(const char *data) { return m_proc.write(data); }
     void setWorkingDirectory(const QString &dir) { m_proc.setWorkingDirectory(dir); }
     void setEnvironment(const QStringList &env) { m_proc.setEnvironment(env); }
+    bool isAdapter() const { return false; }
 
 private:
     QProcess m_proc;

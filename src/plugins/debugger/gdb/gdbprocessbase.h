@@ -60,6 +60,7 @@ public:
     virtual qint64 write(const char *data) = 0;
     virtual void setWorkingDirectory(const QString &dir) = 0;
     virtual void setEnvironment(const QStringList &env) = 0;
+    virtual bool isAdapter() const = 0;
 
 signals:
     void error(QProcess::ProcessError);

@@ -71,7 +71,7 @@ SymbianAdapter::SymbianAdapter()
 {
     m_running = false;
     m_gdbAckMode = true;
-    m_verbose = 0;
+    m_verbose = 2;
     m_serialFrame = false;
     m_bufferedMemoryRead = true;
     m_rfcommDevice = "/dev/rfcomm0";
@@ -191,7 +191,6 @@ void SymbianAdapter::startInferior()
     appendString(&ba, file, TargetByteOrder);
     sendTrkMessage(0x40, TrkCB(handleCreateProcess), ba); // Create Item
     //sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(startGdbServer));
-    emit started();
 }
 
 void SymbianAdapter::logMessage(const QString &msg)
@@ -1047,7 +1046,7 @@ void SymbianAdapter::handleAndReportReadRegisters(const TrkResult &result)
     sendGdbServerMessage(ba, logMsg);
 }
 
-static inline QString msgMemoryReadError(int code, uint addr, uint len = 0)
+static QString msgMemoryReadError(int code, uint addr, uint len = 0)
 {
     const QString lenS = len ? QString::number(len) : QLatin1String("<unknown>");
     return QString::fromLatin1("Memory read error %1 at: 0x%2 %3")
@@ -1372,21 +1371,18 @@ void SymbianAdapter::startGdb()
         
     sendGdbMessage("-break-insert filebrowseappui.cpp:39");
     sendGdbMessage("target remote " + m_gdbServerName);
-    //sendGdbMessage("-exec-continue");
+    emit started();
 }
 
 void SymbianAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
     const QVariant &cookie)
 {
-    static int token = 0;
-    ++token;
     GdbCommand data;
     data.command = msg;
     data.callback = callback;
     data.cookie = cookie;
-    m_gdbCookieForToken[token] = data;
-    logMessage(QString("<- GDB: %1 %2").arg(token).arg(msg));
-    m_gdbProc.write(QString("%1%2\n").arg(token).arg(msg).toLatin1());
+    logMessage(QString("<- GDB: %2").arg(msg));
+    m_gdbProc.write(msg.toLatin1() + "\n");
 }
 
 void SymbianAdapter::handleSetTrkMainBreakpoint(const TrkResult &result)
@@ -1438,7 +1434,6 @@ void SymbianAdapter::terminate()
 bool SymbianAdapter::waitForFinished(int msecs)
 {
     return m_gdbProc.waitForFinished(msecs);
-    //return true;
 }
 
 QProcess::ProcessState SymbianAdapter::state() const
