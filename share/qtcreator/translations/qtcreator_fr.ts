@@ -10266,17 +10266,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/quickopen/iquickopenfilter.cpp" line="+86"/>
         <source>Filter Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configuration du filtre</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Limit to prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Limiter au préfixe</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Prefix:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Préfixe:</translation>
     </message>
 </context>
 <context>
@@ -10284,36 +10284,36 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/quickopen/directoryfilter.cpp" line="+44"/>
         <source>Generic Directory Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtre de dossier générique</translation>
     </message>
     <message>
         <location line="+59"/>
         <source>Filter Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configuration du filtre</translation>
     </message>
     <message>
         <location line="+45"/>
         <location line="+11"/>
         <source>Choose a directory to add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir un répertoire à ajouter</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>%1 filter update: 0 files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mise à jour du filtre %1: 0 fichiers</translation>
     </message>
     <message numerus="yes">
         <location line="+23"/>
         <source>%1 filter update: %n files</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Mise à jour du filtre %1: %n fichier</numerusform>
+            <numerusform>Mise à jour du filtre %1: %n fichiers</numerusform>
         </translation>
     </message>
     <message>
         <location line="+41"/>
         <source>%1 filter update: canceled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mise à jour du filtre %1: annulée</translation>
     </message>
 </context>
 <context>
@@ -10321,12 +10321,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/quickopen/directoryfilter.ui"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom:</translation>
     </message>
     <message>
         <location/>
         <source>File Types:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Types de fichiers:</translation>
     </message>
     <message>
         <location/>
@@ -10336,38 +10336,38 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Prefix:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Préfixe:</translation>
     </message>
     <message>
         <location/>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Spécifier a mot court ou une abbréviation qui peut être utilisé pour réstreindre la complétion aux fichiers de cette arborescence. Pour ce faire, entrez ce raccourci et un espace dans le champs Localisation, puis ensuite le mot à chercher.</translation>
     </message>
     <message>
         <location/>
         <source>Limit to prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Limiter au préfixe</translation>
     </message>
     <message>
         <location/>
         <source>Add...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter...</translation>
     </message>
     <message>
         <location/>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier...</translation>
     </message>
     <message>
         <location/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer</translation>
     </message>
     <message>
         <location/>
         <source>Directories:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dossiers:</translation>
     </message>
 </context>
 <context>
@@ -10375,7 +10375,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/filesystemfilter.h" line="+54"/>
         <source>Files in file system</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichiers du système de fichier</translation>
     </message>
 </context>
 <context>
@@ -10383,27 +10383,27 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/filesystemfilter.ui"/>
         <source>Filter configuration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configuration du filtre</translation>
     </message>
     <message>
         <location/>
         <source>Prefix:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Préfixe:</translation>
     </message>
     <message>
         <location/>
         <source>Limit to prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Limiter au préfixe</translation>
     </message>
     <message>
         <location/>
         <source>Include hidden files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Inclure les fichiers cachés</translation>
     </message>
     <message>
         <location/>
         <source>Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtre:</translation>
     </message>
 </context>
 <context>
@@ -10411,7 +10411,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/opendocumentsfilter.h" line="+53"/>
         <source>Open documents</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir des documents</translation>
     </message>
 </context>
 <context>
@@ -10419,7 +10419,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/quickopenfiltersfilter.cpp" line="+53"/>
         <source>Available filters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtres disponibles</translation>
     </message>
 </context>
 <context>
@@ -10427,7 +10427,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/quickopenplugin.cpp" line="+281"/>
         <source>Indexing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Indexation</translation>
     </message>
 </context>
 <context>
@@ -10435,27 +10435,27 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/quickopentoolwindow.cpp" line="+254"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Raffraîchir</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Configure...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configurer...</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Locate...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Localiser...</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Type to locate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Taper pour localiser</translation>
     </message>
     <message>
         <location line="+177"/>
         <source>&lt;type here&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;taper ici&gt;</translation>
     </message>
 </context>
 <context>
@@ -10463,37 +10463,37 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/settingswidget.ui"/>
         <source>Configure Filters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configurer les filtres</translation>
     </message>
     <message>
         <location/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter</translation>
     </message>
     <message>
         <location/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer</translation>
     </message>
     <message>
         <location/>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier...</translation>
     </message>
     <message>
         <location/>
         <source>Refresh Interval:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Intervalle de raffraichissement:</translation>
     </message>
     <message>
         <location/>
         <source> min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">min</translation>
     </message>
     <message>
         <location/>
         <source>Refresh now!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Raffraîchir maintenant!</translation>
     </message>
 </context>
 <context>
@@ -10501,7 +10501,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/settingspage.cpp" line="+159"/>
         <source>%1 (Prefix: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 (Prefixe: %2)</translation>
     </message>
 </context>
 <context>
@@ -10509,32 +10509,32 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/settingspage.ui"/>
         <source>Configure Filters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configurer les filtres</translation>
     </message>
     <message>
         <location/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter</translation>
     </message>
     <message>
         <location/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer</translation>
     </message>
     <message>
         <location/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier</translation>
     </message>
     <message>
         <location/>
         <source>Refresh Interval:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Intervalle de raffraichissement:</translation>
     </message>
     <message>
         <location/>
         <source> min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">min</translation>
     </message>
 </context>
 <context>
@@ -10542,102 +10542,102 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/regexp/regexpwindow.cpp" line="+46"/>
         <source>&amp;Pattern:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Motif:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Escaped Pattern:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Motif &amp;échappé:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Pattern Syntax:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Syntaxe du &amp;motif:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Text:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Texte:</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Case &amp;Sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Sensible à la casse</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Minimal</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Minimale</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Index of Match:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Index de la correspondance:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Matched Length:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Longueur de la correspondance:</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Regular expression v1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expression régulière v1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Regular expression v2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expression régulière v2</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Wildcard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Joker</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Fixed string</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Chaîne de caractères fixe</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>Capture %1:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Capture %1:</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Match:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Correspondance:</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Regular Expression</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expression régulière</translation>
     </message>
     <message>
         <location line="+129"/>
         <source>Enter pattern from code...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrer un motif depuis le code...</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Clear patterns</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Effacer les motifs</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Clear texts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Effacer les textes</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Enter pattern from code</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrer le motif depuis le code</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Motif</translation>
     </message>
 </context>
 <context>
@@ -10645,27 +10645,27 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/resourceeditor/resourceeditorplugin.cpp" line="+77"/>
         <source>Creates a Qt Resource file (.qrc).</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crée une fichier ressource Qt (.qrc).</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Qt Resource file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier de ressource Qt</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Qt</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Annuler</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Refaire</translation>
     </message>
 </context>
 <context>
@@ -10673,7 +10673,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/resourceeditor/resourceeditorw.cpp" line="+116"/>
         <source>untitled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">sans titre</translation>
     </message>
 </context>
 <context>
