@@ -30,16 +30,6 @@
 #include "symbianadapter.h"
 
 #include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QHash>
-#include <QtCore/QPointer>
-#include <QtCore/QProcess>
-#include <QtCore/QQueue>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QTextStream>
-#include <QtCore/QTimer>
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
@@ -48,71 +38,6 @@
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextEdit>
 #include <QtGui/QToolBar>
-
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
-#include <QtNetwork/QLocalServer>
-#include <QtNetwork/QLocalSocket>
-
-/*
-fetch-register          p                       info registers
-set-register            P                       set
-binary-download         X                       load, set
-read-aux-vector         qXfer:auxv:read         info auxv
-symbol-lookup           qSymbol                 Detecting multiple threads
-attach                  vAttach                 attach
-verbose-resume          vCont                   Stepping or resuming multiple threads
-run                     vRun                    run
-software-breakpoint     Z0                      break
-hardware-breakpoint     Z1                      hbreak
-write-watchpoint        Z2                      watch
-read-watchpoint         Z3                      rwatch
-access-watchpoint       Z4                      awatch
-target-features         qXfer:features:read     set architecture
-library-info            qXfer:libraries:read    info sharedlibrary
-memory-map              qXfer:memory-map:read   info mem
-read-spu-object         qXfer:spu:read          info spu
-write-spu-object        qXfer:spu:write         info spu
-get-thread-local-
-storage-address         qGetTLSAddr             Displaying __thread variables
-supported-packets       qSupported              Remote communications parameters
-pass-signals            QPassSignals            handle signal
-hostio-close-packet     vFile:close             remote get, remote put
-hostio-open-packet      vFile:open              remote get, remote put
-hostio-pread-packet     vFile:pread             remote get, remote put
-hostio-pwrite-packet    vFile:pwrite            remote get, remote put
-hostio-unlink-packet    vFile:unlink            remote delete
-*/
-
-using namespace trk;
-
-enum { KnownRegisters = RegisterPSGdb + 1};
-
-static const char *registerNames[KnownRegisters] =
-{
-    "A1", "A2", "A3", "A4",
-    0, 0, 0, 0,
-    0, 0, 0, "AP",
-    "IP", "SP", "LR", "PC",
-    "PSTrk", 0, 0, 0,
-    0, 0, 0, 0,
-    0, "PSGdb"
-};
-
-static QByteArray dumpRegister(int n, uint value)
-{
-    QByteArray ba;
-    ba += ' ';
-    if (n < KnownRegisters && registerNames[n]) {
-        ba += registerNames[n];
-    } else {
-        ba += '#';
-        ba += QByteArray::number(n);
-    }
-    ba += "=" + hexxNumber(value);
-    return ba;
-}
-
 
 ///////////////////////////////////////////////////////////////////////
 //
