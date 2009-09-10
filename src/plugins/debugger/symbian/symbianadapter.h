@@ -211,13 +211,8 @@ public:
     void sendGdbServerAck();
     bool sendGdbServerPacket(const QByteArray &packet, bool doFlush);
 
-    Q_SLOT void handleGdbReadyReadStandardError();
-    Q_SLOT void handleGdbReadyReadStandardOutput();
     void logMessage(const QString &msg);  // triggers output() if m_verbose
     Q_SLOT void trkLogMessage(const QString &msg);
-
-    void handleInfoAddress(const GdbResult &result);
-    void handleInfoMainAddress(const GdbResult &result);
 
     QTcpServer m_gdbServer;
     QPointer<QTcpSocket> m_gdbConnection;

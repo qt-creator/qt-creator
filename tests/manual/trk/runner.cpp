@@ -107,6 +107,12 @@ private slots:
     void executeContinueCommand() { executeCommand("-exec-continue"); }
     void executeDisassICommand() { executeCommand("disass $pc $pc+4"); }
 
+    void handleReadyReadStandardError();
+    void handleReadyReadStandardOutput();
+
+    void run();
+    void started();
+
 private:
     void executeCommand(const QString &cmd) { m_adapter->executeCommand(cmd); }
     void connectAction(QAction *&, QString name, const char *slot);
@@ -141,6 +147,13 @@ RunnerGui::RunnerGui(SymbianAdapter *adapter)
         &m_textEdit, SLOT(handleOutput(QString)));
     connect(&m_textEdit, SIGNAL(executeCommand(QString)),
         m_adapter, SLOT(executeCommand(QString)));
+
+    connect(adapter, SIGNAL(readyReadStandardError()),
+        this, SLOT(handleReadyReadStandardError()));
+    connect(adapter, SIGNAL(readyReadStandardOutput()),
+        this, SLOT(handleReadyReadStandardOutput()));
+    connect(adapter, SIGNAL(started()),
+        this, SLOT(started()));
 }
 
 void RunnerGui::connectAction(QAction *&action, QString name, const char *slot)
@@ -149,6 +162,31 @@ void RunnerGui::connectAction(QAction *&action, QString name, const char *slot)
     action->setText(name);
     m_toolBar.addAction(action);
     connect(action, SIGNAL(triggered()), this, slot);
+}
+
+void RunnerGui::handleReadyReadStandardError()
+{
+    QByteArray ba = m_adapter->readAllStandardError();
+    qDebug() << ba;
+    m_textEdit.handleOutput(ba);
+}
+
+void RunnerGui::handleReadyReadStandardOutput()
+{
+    QByteArray ba = m_adapter->readAllStandardOutput();
+    qDebug() << ba;
+    m_textEdit.handleOutput("-> GDB: " + ba);
+}
+
+void RunnerGui::run()
+{
+    m_adapter->run();
+}
+
+void RunnerGui::started()
+{
+    qDebug() << "\nSTARTED\n";
+    m_adapter->sendGdbMessage("-exec-continue");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -161,9 +199,10 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     SymbianAdapter adapter;
+    adapter.setVerbose(2);
     RunnerGui gui(&adapter);
     gui.show();
-    QTimer::singleShot(0, &adapter, SLOT(run()));
+    QTimer::singleShot(0, &gui, SLOT(run()));
     return app.exec();
 }
 

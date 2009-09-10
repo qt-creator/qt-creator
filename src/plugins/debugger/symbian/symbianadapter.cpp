@@ -71,7 +71,7 @@ SymbianAdapter::SymbianAdapter()
 {
     m_running = false;
     m_gdbAckMode = true;
-    m_verbose = 2;
+    m_verbose = 0;
     m_serialFrame = false;
     m_bufferedMemoryRead = true;
     m_rfcommDevice = "/dev/rfcomm0";
@@ -82,9 +82,9 @@ SymbianAdapter::SymbianAdapter()
     m_gdbProc.setObjectName("GDB PROCESS");
     connectProcess(&m_gdbProc);
     connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
-        this, SLOT(handleGdbReadyReadStandardError()));
+        this, SIGNAL(readyReadStandardError()));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
-        this, SLOT(handleGdbReadyReadStandardOutput()));
+        this, SIGNAL(readyReadStandardOutput()));
 
     m_rfcommProc.setObjectName("RFCOMM PROCESS");
     connectProcess(&m_rfcommProc);
@@ -167,7 +167,7 @@ void SymbianAdapter::startInferior()
 {
     QString errorMessage;
     if (!m_trkDevice.open(m_rfcommDevice, &errorMessage)) {
-        logMessage("LOOPING");
+        emit output("LOOPING");
         QTimer::singleShot(1000, this, SLOT(startInferior()));
         return;
     }
@@ -427,7 +427,6 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd.startsWith("D")) {
         sendGdbServerAck();
         sendGdbServerMessage("OK", "shutting down");
-        qApp->quit();
     }
 
     else if (cmd == "g") {
@@ -1332,7 +1331,7 @@ void SymbianAdapter::startGdb()
     if (!m_gdbServer.listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
         logMessage(QString("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer.errorString()));
-        QCoreApplication::exit(5);
+        //emit startFailed();
         return;
     }
 
@@ -1361,47 +1360,19 @@ void SymbianAdapter::startGdb()
     //sendGdbMessage("set remote noack-packet");
 
     // FIXME: creates a lot of noise a la  '&"putpkt: Junk: Ack " &'
-    // even thouhg the communication seems sane
+    // even though the communication seems sane
     //sendGdbMessage("set debug remote 1"); // creates l
-
-    //sendGdbMessage("target remote " + m_gdbServerName);
-//    sendGdbMessage("target extended-remote " + m_gdbServerName);
-    //sendGdbMessage("target extended-async " + m_gdbServerName);
-    //sendGdbMessage("set remotecache ...") // Set cache use for remote targets 
-    //sendGdbMessage("file filebrowseapp.sym");
-//    sendGdbMessage("add-symbol-file filebrowseapp.sym " + m_baseAddress);
-//    sendGdbMessage("symbol-file filebrowseapp.sym");
-//    sendGdbMessage("print E32Main");
-//    sendGdbMessage("break E32Main");
-    //sendGdbMessage("continue");
-    //sendGdbMessage("info files");
-    //sendGdbMessage("file filebrowseapp.sym -readnow");
 
     sendGdbMessage("add-symbol-file filebrowseapp.sym "
         + hexxNumber(m_session.codeseg));
     sendGdbMessage("symbol-file filebrowseapp.sym");
 
-    // -symbol-info-address not implemented in cs-gdb 6.4-6.8 (at least)
-    //sendGdbMessage("info address E32Main",
-    //    GdbCB(handleInfoMainAddress)); 
     //sendGdbMessage("info address CFileBrowseAppUi::HandleCommandL",
     //    GdbCB(handleInfoMainAddress)); 
         
-#if 0
-    // FIXME: Gdb based version. That's the goal
-    //sendGdbMessage("break E32Main");
-    //sendGdbMessage("continue");
-    //sendTrkMessage(0x18, TrkCB(handleContinueAfterCreateProcess), 
-    // trkContinueMessage(), "CONTINUE");
-#else
-    // Directly talk to TRK. Works for now...
-    //sendGdbMessage("break E32Main");
-    sendGdbMessage("-break-insert E32Main");
     sendGdbMessage("-break-insert filebrowseappui.cpp:39");
     sendGdbMessage("target remote " + m_gdbServerName);
-    //sendGdbMessage("break filebrowseappui.cpp:39");
-   //         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
-#endif
+    //sendGdbMessage("-exec-continue");
 }
 
 void SymbianAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
@@ -1418,64 +1389,6 @@ void SymbianAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
     m_gdbProc.write(QString("%1%2\n").arg(token).arg(msg).toLatin1());
 }
 
-void SymbianAdapter::handleGdbReadyReadStandardError()
-{
-    QByteArray ba = qobject_cast<QProcess *>(sender())->readAllStandardError();
-    sendOutput(sender(), QString("stderr: %1").arg(QString::fromLatin1(ba)));
-}
-
-void SymbianAdapter::handleGdbReadyReadStandardOutput()
-{
-    QByteArray ba = qobject_cast<QProcess *>(sender())->readAllStandardOutput();
-    QString str = QString::fromLatin1(ba);
-    // FIXME: fragile. merge with gdbengine logic
-#if 0
-    QRegExp re(QString(".*([0-9]+)[^]done.*"));
-    int pos = re.indexIn(str);
-    if (pos == -1) {
-        logMessage(QString("\n-> GDB: %1 %**% %2 %**%\n").arg(str).arg(pos));
-        return;
-    }
-    int token = re.cap(1).toInt();
-    logMessage(QString("\n-> GDB: %1 %2##\n").arg(token).arg(QString::fromLatin1(ba)));
-    if (!token)
-        return;
-    GdbCommand cmd = m_gdbCookieForToken.take(token);
-    logMessage("FOUND CALLBACK FOR " + cmd.command);
-    GdbResult result;
-    result.data = ba;
-    if (!cmd.callback.isNull())
-        cmd.callback(result);
-#else
-/*
-    bool ok;
-    QRegExp re(QString("Symbol .._Z7E32Mainv.. is a function at address 0x(.*)\\."));
-    if (re.indexIn(str) != -1) {
-        logMessage(QString("-> GDB MAIN BREAKPOINT: %1").arg(re.cap(1)));
-        uint addr = re.cap(1).toInt(&ok, 16);
-        sendTrkMessage(0x1B, TrkCallback(), trkBreakpointMessage(addr, 1));
-        return;
-    }
-    QRegExp re1(QString("Symbol .._ZN16CFileBrowseAppUi14HandleCommandLEi.. is a function at address 0x(.*)\\."));
-    if (re1.indexIn(str) != -1) {
-        logMessage(QString("-> GDB USER BREAKPOINT: %1").arg(re1.cap(1)));
-        uint addr = re1.cap(1).toInt(&ok, 16);
-        sendTrkMessage(0x1B, TrkCallback(), trkBreakpointMessage(addr, 1));
-
-        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
-        sendGdbMessage("target remote " + m_gdbServerName);
-        return;
-    }
-*/
-    logMessage(QString("-> GDB: %1").arg(str));
-#endif
-}
-
-void SymbianAdapter::handleInfoMainAddress(const GdbResult &result)
-{
-    Q_UNUSED(result);
-}
-
 void SymbianAdapter::handleSetTrkMainBreakpoint(const TrkResult &result)
 {
     Q_UNUSED(result);
@@ -1486,12 +1399,6 @@ void SymbianAdapter::handleSetTrkMainBreakpoint(const TrkResult &result)
     logMessage("SET MAIN BREAKPOINT " + hexxNumber(bpnr)
         + stringFromArray(result.data.data()));
 */
-}
-
-void SymbianAdapter::handleInfoAddress(const GdbResult &result)
-{
-    Q_UNUSED(result);
-    // FIXME
 }
 
 void SymbianAdapter::handleRfcommReadyReadStandardError()
