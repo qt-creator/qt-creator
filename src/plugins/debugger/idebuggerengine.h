@@ -55,12 +55,14 @@ class WatchData;
 
 class IDebuggerEngine : public QObject
 {
+    Q_OBJECT
+
 public:
     IDebuggerEngine(QObject *parent = 0) : QObject(parent) {}
 
     virtual void shutdown() = 0;
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos) = 0;
-    virtual bool startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters) = 0;
+    virtual void startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters) = 0;
     virtual void exitDebugger() = 0;
     virtual void detachDebugger() {}
     virtual void updateWatchData(const WatchData &data) = 0;
@@ -101,6 +103,10 @@ public:
     virtual void fetchDisassembler(DisassemblerViewAgent *, const StackFrame &) {}
     virtual void setRegisterValue(int regnr, const QString &value)
         { Q_UNUSED(regnr); Q_UNUSED(value); }
+
+signals:
+    void startSuccessful();
+    void startFailed();
 };
 
 } // namespace Internal

@@ -217,7 +217,7 @@ void ScriptEngine::exitDebugger()
     qq->notifyInferiorExited();
 }
 
-bool ScriptEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
+void ScriptEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
     if (!m_scriptEngine)
         m_scriptEngine = new QScriptEngine(this);
@@ -233,15 +233,17 @@ bool ScriptEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &
     QFileInfo fi(sp->executable);
     m_scriptFileName = fi.absoluteFilePath();
     QFile scriptFile(m_scriptFileName);
-    if (!scriptFile.open(QIODevice::ReadOnly))
-        return false;
+    if (!scriptFile.open(QIODevice::ReadOnly)) {
+        emit startFailed();
+        return;
+    }
     QTextStream stream(&scriptFile);
     m_scriptContents = stream.readAll();
     scriptFile.close();
     attemptBreakpointSynchronization();
     qq->notifyInferiorRunningRequested();
     QTimer::singleShot(0, this, SLOT(runInferior()));
-    return true;
+    emit startSuccessful();
 }
 
 void ScriptEngine::continueInferior()

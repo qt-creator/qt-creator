@@ -62,7 +62,7 @@ public:
 
     virtual void shutdown();
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
-    virtual bool startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters);
+    virtual void startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters);
     virtual void exitDebugger();
     virtual void detachDebugger();
     virtual void updateWatchData(const WatchData &data);

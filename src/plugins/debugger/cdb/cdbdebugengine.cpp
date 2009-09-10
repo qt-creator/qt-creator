@@ -563,11 +563,11 @@ void CdbDebugEnginePrivate::clearDisplay()
     m_debuggerManagerAccess->registerHandler()->removeAll();
 }
 
-bool CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
+void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
     if (m_d->m_hDebuggeeProcess) {
         warning(QLatin1String("Internal error: Attempt to start debugger while another process is being debugged."));
-        return false;
+        emit startFailed();
     }
     m_d->clearDisplay();
 
@@ -627,7 +627,11 @@ bool CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     } else {
         warning(errorMessage);
     }
-    return rc;
+
+    if (rc)
+        emit startSuccessful();
+    else
+        emit startFailed();
 }
 
 bool CdbDebugEngine::startAttachDebugger(qint64 pid, DebuggerStartMode sm, QString *errorMessage)

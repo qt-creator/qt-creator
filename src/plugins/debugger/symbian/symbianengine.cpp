@@ -31,6 +31,7 @@
 
 #include "gdb/gdbengine.h"
 #include "symbianadapter.h"
+#include "debuggermanager.h"
 
 //#include "debuggerdialogs.h"
 
@@ -40,24 +41,20 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QMetaObject>
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
-#include <QtCore/QTextStream>
 
 
 namespace Debugger {
 namespace Internal {
-
 
 IDebuggerEngine *createSymbianEngine(DebuggerManager *parent,
     QList<Core::IOptionsPage*> *opts)
 {
     Q_UNUSED(opts);
     //opts->push_back(new GdbOptionsPage);
-    return new GdbEngine(parent, new SymbianAdapter);
+    SymbianAdapter *adapter = new SymbianAdapter;
+    QObject::connect(adapter, SIGNAL(output(QString)),
+        parent, SLOT(showDebuggerOutput(QString)));
+    return new GdbEngine(parent, adapter);
 }
 
 } // namespace Internal

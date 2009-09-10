@@ -180,6 +180,8 @@ void GdbEngine::initializeConnections()
         this, SLOT(readGdbStandardError()));
     connect(m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
         q, SLOT(exitDebugger()));
+    connect(m_gdbProc, SIGNAL(started()),
+        this, SLOT(startDebugger2()));
 
     connect(&m_stubProc, SIGNAL(processError(QString)),
         this, SLOT(stubError(QString)));
@@ -1440,7 +1442,8 @@ void GdbEngine::exitDebugger()
     if (m_gdbProc->state() == QProcess::Starting) {
         debugMessage(_("WAITING FOR GDB STARTUP TO SHUTDOWN: %1")
             .arg(m_gdbProc->state()));
-        m_gdbProc->waitForStarted();
+        // FIXME: handle this!
+        //m_gdbProc->waitForStarted();
     }
     if (m_gdbProc->state() == QProcess::Running) {
         debugMessage(_("WAITING FOR RUNNING GDB TO SHUTDOWN: %1")
@@ -1481,8 +1484,9 @@ int GdbEngine::currentFrame() const
     return qq->stackHandler()->currentIndex();
 }
 
-bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
+void GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
+    m_startParameters = *sp;
     // This should be set by the constructor or in exitDebugger().
     QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized,
         initializeVariables());
@@ -1492,7 +1496,8 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
     if (m_gdbProc->state() != QProcess::NotRunning) {
         debugMessage(_("GDB IS ALREADY RUNNING, STATE: %1").arg(m_gdbProc->state()));
         m_gdbProc->kill();
-        return false;
+        emit startFailed();
+        return;
     }
 
     //gdbArgs.prepend(_("--quiet"));
@@ -1503,37 +1508,42 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         // nothing to do
     } else if (q->startMode() == StartRemote) {
         // Start the remote server
-        if (sp->serverStartScript.isEmpty()) {
+        if (m_startParameters.serverStartScript.isEmpty()) {
             q->showStatusMessage(_("No server start script given. "
                 "Assuming server runs already."));
         } else {
-            if (!sp->workingDir.isEmpty())
-                m_uploadProc.setWorkingDirectory(sp->workingDir);
-            if (!sp->environment.isEmpty())
-                m_uploadProc.setEnvironment(sp->environment);
-            m_uploadProc.start(_("/bin/sh ") + sp->serverStartScript);
+            if (!m_startParameters.workingDir.isEmpty())
+                m_uploadProc.setWorkingDirectory(m_startParameters.workingDir);
+            if (!m_startParameters.environment.isEmpty())
+                m_uploadProc.setEnvironment(m_startParameters.environment);
+            m_uploadProc.start(_("/bin/sh ") + m_startParameters.serverStartScript);
             m_uploadProc.waitForStarted();
         }
-    } else if (sp->useTerminal) {
+    } else if (m_startParameters.useTerminal) {
         m_stubProc.stop(); // We leave the console open, so recycle it now.
 
-        m_stubProc.setWorkingDirectory(sp->workingDir);
-        m_stubProc.setEnvironment(sp->environment);
-        if (!m_stubProc.start(sp->executable, sp->processArgs))
-            return false; // Error message for user is delivered via a signal.
+        m_stubProc.setWorkingDirectory(m_startParameters.workingDir);
+        m_stubProc.setEnvironment(m_startParameters.environment);
+        if (!m_stubProc.start(m_startParameters.executable,
+                             m_startParameters.processArgs)) {
+            // Error message for user is delivered via a signal.
+            emit startFailed();
+            return;
+        }
     } else {
         if (!m_outputCollector.listen()) {
             QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
                 tr("Cannot set up communication with child process: %1")
                     .arg(m_outputCollector.errorString()));
-            return false;
+            emit startFailed();
+            return;
         }
         gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
 
-        if (!sp->workingDir.isEmpty())
-            m_gdbProc->setWorkingDirectory(sp->workingDir);
-        if (!sp->environment.isEmpty())
-            m_gdbProc->setEnvironment(sp->environment);
+        if (!m_startParameters.workingDir.isEmpty())
+            m_gdbProc->setWorkingDirectory(m_startParameters.workingDir);
+        if (!m_startParameters.environment.isEmpty())
+            m_gdbProc->setEnvironment(m_startParameters.environment);
     }
 
     #if 0
@@ -1542,13 +1552,18 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
     qDebug() << "ScriptFile:" << q->settings()->m_scriptFile;
     qDebug() << "Environment:" << m_gdbProc->environment();
     qDebug() << "Arguments:" << gdbArgs;
-    qDebug() << "BuildDir:" << sp->buildDir;
-    qDebug() << "ExeFile:" << sp->executable;
+    qDebug() << "BuildDir:" << m_startParameters.buildDir;
+    qDebug() << "ExeFile:" << m_startParameters.executable;
     #endif
 
     QString loc = theDebuggerStringSetting(GdbLocation);
     q->showStatusMessage(tr("Starting Debugger: ") + loc + _c(' ') + gdbArgs.join(_(" ")));
     m_gdbProc->start(loc, gdbArgs);
+}
+
+void GdbEngine::startDebugger2()
+{
+#if 0
     if (!m_gdbProc->waitForStarted()) {
         QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
                               tr("Cannot start debugger: %1").arg(m_gdbProc->errorString()));
@@ -1556,8 +1571,10 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         m_stubProc.blockSignals(true);
         m_stubProc.stop();
         m_stubProc.blockSignals(false);
-        return false;
+        emit startFailed();
+        return;
     }
+#endif
 
     q->showStatusMessage(tr("Gdb Running..."));
 
@@ -1639,39 +1656,39 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
     }
 
     if (q->startMode() == AttachExternal || q->startMode() == AttachCrashedExternal) {
-        postCommand(_("attach %1").arg(sp->attachPID), CB(handleAttach));
+        postCommand(_("attach %1").arg(m_startParameters.attachPID), CB(handleAttach));
         // Task 254674 does not want to remove them
         //qq->breakHandler()->removeAllBreakpoints();
     } else if (q->startMode() == AttachCore) {
-        QFileInfo fi(sp->executable);
+        QFileInfo fi(m_startParameters.executable);
         QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
-        QFileInfo fi2(sp->coreFile);
+        QFileInfo fi2(m_startParameters.coreFile);
         // quoting core name below fails in gdb 6.8-debian
         QString coreName = fi2.absoluteFilePath();
         postCommand(_("-file-exec-and-symbols ") + fileName, CB(handleFileExecAndSymbols));
         postCommand(_("target core ") + coreName, CB(handleTargetCore));
         qq->breakHandler()->removeAllBreakpoints();
     } else if (q->startMode() == StartRemote) {
-        postCommand(_("set architecture %1").arg(sp->remoteArchitecture));
+        postCommand(_("set architecture %1").arg(m_startParameters.remoteArchitecture));
         qq->breakHandler()->setAllPending();
-        //QFileInfo fi(sp->executable);
+        //QFileInfo fi(m_startParameters.executable);
         //QString fileName = fi.absoluteFileName();
-        QString fileName = sp->executable;
+        QString fileName = m_startParameters.executable;
         postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName), CB(handleFileExecAndSymbols));
         // works only for > 6.8
         postCommand(_("set target-async on"), CB(handleSetTargetAsync));
-    } else if (sp->useTerminal) {
+    } else if (m_startParameters.useTerminal) {
         qq->breakHandler()->setAllPending();
     } else if (q->startMode() == StartInternal || q->startMode() == StartExternal) {
-        QFileInfo fi(sp->executable);
+        QFileInfo fi(m_startParameters.executable);
         QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
         postCommand(_("-file-exec-and-symbols ") + fileName, CB(handleFileExecAndSymbols));
         //postCommand(_("file ") + fileName, handleFileExecAndSymbols);
         #ifdef Q_OS_MAC
         postCommand(_("sharedlibrary apply-load-rules all"));
         #endif
-        if (!sp->processArgs.isEmpty())
-            postCommand(_("-exec-arguments ") + sp->processArgs.join(_(" ")));
+        if (!m_startParameters.processArgs.isEmpty())
+            postCommand(_("-exec-arguments ") + m_startParameters.processArgs.join(_(" ")));
         #ifndef Q_OS_MAC        
         if (!m_dumperInjectionLoad)
             postCommand(_("set auto-solib-add off"));
@@ -1686,7 +1703,7 @@ bool GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         qq->breakHandler()->setAllPending();
     }
 
-    return true;
+    emit startSuccessful();
 }
 
 void GdbEngine::continueInferior()

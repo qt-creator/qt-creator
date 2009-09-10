@@ -53,9 +53,9 @@ signals:
     void executeCommand(QString);
 
 public slots:
-    void handleOutput(const QString &senderName, const QString &data)
+    void handleOutput(const QString &str0)
     {
-        QString str = senderName + data;
+        QString str = str0;
         str.replace("\\t", QString(QChar(0x09)));
         str.replace("\\n", QString("\n"));
         append(str);
@@ -137,8 +137,8 @@ RunnerGui::RunnerGui(SymbianAdapter *adapter)
     connectAction(m_disassIAction, "Disass Inst", SLOT(executeDisassICommand()));
     connectAction(m_continueAction, "Continue", SLOT(executeContinueCommand()));
 
-    connect(adapter, SIGNAL(output(QString,QString)),
-        &m_textEdit, SLOT(handleOutput(QString,QString)));
+    connect(adapter, SIGNAL(output(QString)),
+        &m_textEdit, SLOT(handleOutput(QString)));
     connect(&m_textEdit, SIGNAL(executeCommand(QString)),
         m_adapter, SLOT(executeCommand(QString)));
 }

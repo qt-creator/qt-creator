@@ -95,7 +95,7 @@ public slots:
     void startInferior();
 
 signals:
-    void output(const QString &senderName, const QString &data);
+    void output(const QString &msg);
 
 private slots:
     void handleProcError(QProcess::ProcessError error);
@@ -126,7 +126,6 @@ public:
         QIODevice::OpenMode mode = QIODevice::ReadWrite);
     void kill();
     void terminate();
-    bool waitForStarted(int msecs = 30000);
     bool waitForFinished(int msecs = 30000);
     QProcess::ProcessState state() const;
     QString errorString() const;
@@ -213,7 +212,7 @@ public:
 
     Q_SLOT void handleGdbReadyReadStandardError();
     Q_SLOT void handleGdbReadyReadStandardOutput();
-    void logMessage(const QString &msg, bool force = false);
+    void logMessage(const QString &msg);  // triggers output() if m_verbose
     Q_SLOT void trkLogMessage(const QString &msg);
 
     void handleInfoAddress(const GdbResult &result);

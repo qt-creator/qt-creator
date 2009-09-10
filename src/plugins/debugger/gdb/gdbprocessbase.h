@@ -51,7 +51,7 @@ public:
         QIODevice::OpenMode mode = QIODevice::ReadWrite) = 0;
     virtual void kill() = 0;
     virtual void terminate() = 0;
-    virtual bool waitForStarted(int msecs = 30000) = 0;
+    //virtual bool waitForStarted(int msecs = 30000) = 0;
     virtual bool waitForFinished(int msecs = 30000) = 0;
     virtual QProcess::ProcessState state() const = 0;
     virtual QString errorString() const = 0;
@@ -63,6 +63,7 @@ public:
 
 signals:
     void error(QProcess::ProcessError);
+    void started();
     void readyReadStandardOutput();
     void readyReadStandardError();
     void finished(int, QProcess::ExitStatus);

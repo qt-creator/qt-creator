@@ -172,12 +172,18 @@ class CdbDebugEngine;
 struct CdbDebugEnginePrivate;
 
 // Flags for initialization
-enum DebuggerEngineTypeFlags {
-    GdbEngineType = 0x1,
-    ScriptEngineType = 0x2,
-    CdbEngineType = 0x4,
-    TcfEngineType = 0x8,
-    AllEngineTypes = (GdbEngineType|ScriptEngineType|CdbEngineType|TcfEngineType)
+enum DebuggerEngineTypeFlags
+{
+    GdbEngineType     = 0x01,
+    ScriptEngineType  = 0x02,
+    CdbEngineType     = 0x04,
+    TcfEngineType     = 0x08,
+    SymbianEngineType = 0x10,
+    AllEngineTypes = GdbEngineType
+        | ScriptEngineType 
+        | CdbEngineType 
+        | TcfEngineType
+        | SymbianEngineType
 };
 
 // The construct below is not nice but enforces a bit of order. The
@@ -324,6 +330,8 @@ public slots:
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
 private slots:
+    void showDebuggerOutput(const QString &msg)
+        { showDebuggerOutput(LogDebug, msg); }
     void showDebuggerOutput(int channel, const QString &msg);
     void showDebuggerInput(int channel, const QString &msg);
     void showApplicationOutput(const QString &data);
@@ -343,6 +351,7 @@ private slots:
     void attemptBreakpointSynchronization();
     void reloadFullStack();
     void stepByInstructionTriggered();
+    void startFailed();
 
 private:
     //

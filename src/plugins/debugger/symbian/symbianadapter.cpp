@@ -104,7 +104,7 @@ SymbianAdapter::SymbianAdapter()
 SymbianAdapter::~SymbianAdapter()
 {
     m_gdbServer.close();
-    logMessage("Shutting down.\n", true);
+    logMessage("Shutting down.\n");
 }
 
 void SymbianAdapter::trkLogMessage(const QString &msg)
@@ -193,10 +193,10 @@ void SymbianAdapter::startInferior()
     //sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(startGdbServer));
 }
 
-void SymbianAdapter::logMessage(const QString &msg, bool force)
+void SymbianAdapter::logMessage(const QString &msg)
 {
-    if (m_verbose || force)
-        emit output(QString(), msg);
+    if (m_verbose)
+        emit output(msg);
 }
 
 //
@@ -289,17 +289,17 @@ bool SymbianAdapter::sendGdbServerPacket(const QByteArray &packet, bool doFlush)
 {
     if (!m_gdbConnection) {
         logMessage(QString::fromLatin1("Cannot write to gdb: No connection (%1)")
-            .arg(QString::fromLatin1(packet)), true);
+            .arg(QString::fromLatin1(packet)));
         return false;
     }
     if (m_gdbConnection->state() != QAbstractSocket::ConnectedState) {
         logMessage(QString::fromLatin1("Cannot write to gdb: Not connected (%1)")
-            .arg(QString::fromLatin1(packet)), true);
+            .arg(QString::fromLatin1(packet)));
         return false;
     }
     if (m_gdbConnection->write(packet) == -1) {
         logMessage(QString::fromLatin1("Cannot write to gdb: %1 (%2)")
-            .arg(m_gdbConnection->errorString()).arg(QString::fromLatin1(packet)), true);
+            .arg(m_gdbConnection->errorString()).arg(QString::fromLatin1(packet)));
         return false;
     }
     if (doFlush)
@@ -720,6 +720,7 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
         if (bp == 0) {
             logMessage(QString::fromLatin1("NO RECORDED BP AT 0x%1, %2")
                 .arg(addr, 0, 16).arg(len));
+            sendGdbServerMessage("E00");
         } else {
             //---IDE------------------------------------------------------
             //  Command: 0x1C Clear Break
@@ -748,7 +749,7 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
                 if (ok1 && ok2) {
                     const QString msg = QString::fromLatin1("Read of OS auxilary "
                         "vector (%1, %2) not implemented.").arg(offset).arg(length);
-                    logMessage(msgGdbPacket(msg), true);
+                    logMessage(msgGdbPacket(msg));
                     sendGdbServerMessage("E20", msg.toLatin1());
                     handled = true;
                 }
@@ -757,7 +758,7 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
         if (!handled) {
             const QString msg = QLatin1String("FIXME unknown 'XFER'-request: ")
                 + QString::fromAscii(cmd);
-            logMessage(msgGdbPacket(msg), true);
+            logMessage(msgGdbPacket(msg));
             sendGdbServerMessage("E20", msg.toLatin1());
         }
     } // qPart/qXfer
@@ -820,7 +821,7 @@ void SymbianAdapter::handleTrkResult(const TrkResult &result)
             QString logMsg;
             QTextStream(&logMsg) << prefix << "NAK: for token=" << result.token
                 << " ERROR: " << errorMessage(result.data.at(0)) << ' ' << str;
-            logMessage(logMsg, true);
+            logMessage(logMsg);
             break;
         }
         case 0x90: { // Notified Stopped
@@ -1221,7 +1222,7 @@ void SymbianAdapter::handleTrkVersions(const TrkResult &result)
 
 void SymbianAdapter::handleDisconnect(const TrkResult & /*result*/)
 {
-    logMessage(QLatin1String("Trk disconnected"), true);
+    logMessage(QLatin1String("Trk disconnected"));
 }
 
 void SymbianAdapter::readMemory(uint addr, uint len)
@@ -1284,9 +1285,9 @@ void SymbianAdapter::connectProcess(QProcess *proc)
 void SymbianAdapter::sendOutput(QObject *sender, const QString &data)
 {
     if (sender)
-        emit output(sender->objectName() + " : ", data);
+        emit output(sender->objectName() + " : " + data);
     else
-        emit output(QString(), data);
+        emit output(data);
 }
 
 void SymbianAdapter::handleProcError(QProcess::ProcessError error)
@@ -1328,13 +1329,13 @@ void SymbianAdapter::startGdb()
 {
     if (!m_gdbServer.listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
         logMessage(QString("Unable to start the gdb server at %1: %2.")
-            .arg(m_gdbServerName).arg(m_gdbServer.errorString()), true);
+            .arg(m_gdbServerName).arg(m_gdbServer.errorString()));
         QCoreApplication::exit(5);
         return;
     }
 
     logMessage(QString("Gdb server running on %1.\nRegister endianness: %3.")
-        .arg(m_gdbServerName).arg(m_registerEndianness), true);
+        .arg(m_gdbServerName).arg(m_registerEndianness));
 
     connect(&m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
@@ -1379,12 +1380,12 @@ void SymbianAdapter::startGdb()
     sendGdbMessage("symbol-file filebrowseapp.sym");
 
     // -symbol-info-address not implemented in cs-gdb 6.4-6.8 (at least)
-    sendGdbMessage("info address E32Main",
-        GdbCB(handleInfoMainAddress)); 
-    sendGdbMessage("info address CFileBrowseAppUi::HandleCommandL",
-        GdbCB(handleInfoMainAddress)); 
+    //sendGdbMessage("info address E32Main",
+    //    GdbCB(handleInfoMainAddress)); 
+    //sendGdbMessage("info address CFileBrowseAppUi::HandleCommandL",
+    //    GdbCB(handleInfoMainAddress)); 
         
-#if 1
+#if 0
     // FIXME: Gdb based version. That's the goal
     //sendGdbMessage("break E32Main");
     //sendGdbMessage("continue");
@@ -1392,8 +1393,11 @@ void SymbianAdapter::startGdb()
     // trkContinueMessage(), "CONTINUE");
 #else
     // Directly talk to TRK. Works for now...
-    sendGdbMessage("break E32Main");
-    sendGdbMessage("break filebrowseappui.cpp:39");
+    //sendGdbMessage("break E32Main");
+    sendGdbMessage("-break-insert E32Main");
+    sendGdbMessage("-break-insert filebrowseappui.cpp:39");
+    sendGdbMessage("target remote " + m_gdbServerName);
+    //sendGdbMessage("break filebrowseappui.cpp:39");
    //         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
 #endif
 }
@@ -1441,6 +1445,7 @@ void SymbianAdapter::handleGdbReadyReadStandardOutput()
     if (!cmd.callback.isNull())
         cmd.callback(result);
 #else
+/*
     bool ok;
     QRegExp re(QString("Symbol .._Z7E32Mainv.. is a function at address 0x(.*)\\."));
     if (re.indexIn(str) != -1) {
@@ -1459,6 +1464,7 @@ void SymbianAdapter::handleGdbReadyReadStandardOutput()
         sendGdbMessage("target remote " + m_gdbServerName);
         return;
     }
+*/
     logMessage(QString("-> GDB: %1").arg(str));
 #endif
 }
@@ -1505,6 +1511,8 @@ void SymbianAdapter::handleRfcommReadyReadStandardOutput()
 void SymbianAdapter::start(const QString &program, const QStringList &args,
     QIODevice::OpenMode mode)
 {
+    qDebug() << "SYMBIAN START";
+    run();
     //m_gdbProc.start(program, args, mode);
 }
 
@@ -1516,12 +1524,6 @@ void SymbianAdapter::kill()
 void SymbianAdapter::terminate()
 {
     //m_gdbProc.terminate();
-}
-
-bool SymbianAdapter::waitForStarted(int msecs)
-{
-    //return m_gdbProc.waitForStarted(msecs);
-    return true;
 }
 
 bool SymbianAdapter::waitForFinished(int msecs)

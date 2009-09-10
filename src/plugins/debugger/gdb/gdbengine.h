@@ -31,6 +31,7 @@
 #define DEBUGGER_GDBENGINE_H
 
 #include "idebuggerengine.h"
+#include "debuggermanager.h" // only for StartParameters
 #include "gdbmi.h"
 #include "gdbprocessbase.h"
 #include "outputcollector.h"
@@ -86,6 +87,8 @@ public:
             this, SIGNAL(readyReadStandardOutput()));
         connect(&m_proc, SIGNAL(readyReadStandardError()),
             this, SIGNAL(readyReadStandardError()));
+        connect(&m_proc, SIGNAL(started()),
+            this, SIGNAL(started()));
         connect(&m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SIGNAL(finished(int, QProcess::ExitStatus)));
     }
@@ -133,7 +136,8 @@ private:
 
     void shutdown();
     void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
-    bool startDebugger(const QSharedPointer<DebuggerStartParameters> &sp);
+    void startDebugger(const QSharedPointer<DebuggerStartParameters> &sp);
+    Q_SLOT void startDebugger2();
     void exitDebugger();
     void detachDebugger();
 
@@ -430,6 +434,7 @@ private:
 
     DebuggerManager * const q;
     IDebuggerManagerAccessForEngines * const qq;
+    DebuggerStartParameters m_startParameters;
     // make sure to re-initialize new members in initializeVariables();
 };
 
