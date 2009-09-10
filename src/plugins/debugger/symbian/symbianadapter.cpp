@@ -33,36 +33,6 @@
 #define GdbCB(s) GdbCallback(this, &SymbianAdapter::s)
 
 
-/*
-fetch-register          p                       info registers
-set-register            P                       set
-binary-download         X                       load, set
-read-aux-vector         qXfer:auxv:read         info auxv
-symbol-lookup           qSymbol                 Detecting multiple threads
-attach                  vAttach                 attach
-verbose-resume          vCont                   Stepping or resuming multiple threads
-run                     vRun                    run
-software-breakpoint     Z0                      break
-hardware-breakpoint     Z1                      hbreak
-write-watchpoint        Z2                      watch
-read-watchpoint         Z3                      rwatch
-access-watchpoint       Z4                      awatch
-target-features         qXfer:features:read     set architecture
-library-info            qXfer:libraries:read    info sharedlibrary
-memory-map              qXfer:memory-map:read   info mem
-read-spu-object         qXfer:spu:read          info spu
-write-spu-object        qXfer:spu:write         info spu
-get-thread-local-
-storage-address         qGetTLSAddr             Displaying __thread variables
-supported-packets       qSupported              Remote communications parameters
-pass-signals            QPassSignals            handle signal
-hostio-close-packet     vFile:close             remote get, remote put
-hostio-open-packet      vFile:open              remote get, remote put
-hostio-pread-packet     vFile:pread             remote get, remote put
-hostio-pwrite-packet    vFile:pwrite            remote get, remote put
-hostio-unlink-packet    vFile:unlink            remote delete
-*/
-
 using namespace trk;
 
 enum { KnownRegisters = RegisterPSGdb + 1};
