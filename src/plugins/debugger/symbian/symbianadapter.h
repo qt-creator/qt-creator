@@ -96,6 +96,7 @@ public slots:
 
 signals:
     void output(const QString &msg);
+    void startSuccessful();
 
 private slots:
     void handleProcError(QProcess::ProcessError error);

@@ -1,7 +1,7 @@
 DEFINES += DEBUG_TRK=0
 DEBUGGERHOME = ../../../src/plugins/debugger/symbian
 
-INCLUDEPATH *= $$DEBUGGERHOME
+INCLUDEPATH *= $$PWD $$DEBUGGERHOME
 
 SOURCES += \
     $$DEBUGGERHOME/trkutils.cpp \

@@ -52,9 +52,10 @@ IDebuggerEngine *createSymbianEngine(DebuggerManager *parent,
     Q_UNUSED(opts);
     //opts->push_back(new GdbOptionsPage);
     SymbianAdapter *adapter = new SymbianAdapter;
+    GdbEngine *engine = new GdbEngine(parent, adapter);
     QObject::connect(adapter, SIGNAL(output(QString)),
         parent, SLOT(showDebuggerOutput(QString)));
-    return new GdbEngine(parent, adapter);
+    return engine;
 }
 
 } // namespace Internal

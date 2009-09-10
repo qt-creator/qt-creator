@@ -1355,14 +1355,18 @@ void DebuggerManager::modulesDockToggled(bool on)
 
 void DebuggerManager::showDebuggerOutput(int channel, const QString &msg)
 {
-    QTC_ASSERT(m_outputWindow, return);
-    m_outputWindow->showOutput(channel, msg);
+    if (m_outputWindow)
+        m_outputWindow->showOutput(channel, msg);
+    else 
+        qDebug() << "OUTPUT: " << channel << msg;
 }
 
 void DebuggerManager::showDebuggerInput(int channel, const QString &msg)
 {
-    QTC_ASSERT(m_outputWindow, return);
-    m_outputWindow->showInput(channel, msg);
+    if (m_outputWindow)
+        m_outputWindow->showInput(channel, msg);
+    else 
+        qDebug() << "INPUT: " << channel << msg;
 }
 
 

@@ -191,6 +191,7 @@ void SymbianAdapter::startInferior()
     appendString(&ba, file, TargetByteOrder);
     sendTrkMessage(0x40, TrkCB(handleCreateProcess), ba); // Create Item
     //sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(startGdbServer));
+    emit started();
 }
 
 void SymbianAdapter::logMessage(const QString &msg)
@@ -1292,7 +1293,8 @@ void SymbianAdapter::sendOutput(QObject *sender, const QString &data)
 
 void SymbianAdapter::handleProcError(QProcess::ProcessError error)
 {
-    sendOutput(sender(), QString("Process Error %1").arg(error));
+    sendOutput(sender(),
+        QString("Process Error %1: %2").arg(error).arg(errorString()));
 }
 
 void SymbianAdapter::handleProcFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -1511,25 +1513,25 @@ void SymbianAdapter::handleRfcommReadyReadStandardOutput()
 void SymbianAdapter::start(const QString &program, const QStringList &args,
     QIODevice::OpenMode mode)
 {
-    qDebug() << "SYMBIAN START";
+    Q_UNUSED(mode);
+    qDebug() << "SYMBIAN START" << program << args << mode;
     run();
-    //m_gdbProc.start(program, args, mode);
 }
 
 void SymbianAdapter::kill()
 {
-    //m_gdbProc.kill();
+    m_gdbProc.kill();
 }
 
 void SymbianAdapter::terminate()
 {
-    //m_gdbProc.terminate();
+    m_gdbProc.terminate();
 }
 
 bool SymbianAdapter::waitForFinished(int msecs)
 {
-    //return m_gdbProc.waitForFinished(msecs);
-    return true;
+    return m_gdbProc.waitForFinished(msecs);
+    //return true;
 }
 
 QProcess::ProcessState SymbianAdapter::state() const
