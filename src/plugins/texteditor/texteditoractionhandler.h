@@ -54,7 +54,8 @@ public:
         None = 0,
         Format = 1,
         UnCommentSelection = 2,
-        UnCollapseAll = 4
+        UnCollapseAll = 4,
+        Reformat = 8
     };
 
     TextEditorActionHandler(const QString &context, uint optionalActions = None);
@@ -91,6 +92,7 @@ private slots:
     void gotoAction();
     void printAction();
     void formatAction();
+    void reformatAction();
     void rewrapParagraphAction();
     void setVisualizeWhitespace(bool);
     void cleanWhitespace();
@@ -131,6 +133,7 @@ private:
     QAction *m_cleanWhitespaceAction;
     QAction *m_textWrappingAction;
     QAction *m_unCommentSelectionAction;
+    QAction *m_reformatAction;
     QAction *m_unCollapseAllAction;
     QAction *m_collapseAction;
     QAction *m_expandAction;

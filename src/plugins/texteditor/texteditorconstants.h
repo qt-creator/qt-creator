@@ -40,6 +40,7 @@ const char * const VISUALIZE_WHITESPACE  = "TextEditor.VisualizeWhitespace";
 const char * const CLEAN_WHITESPACE      = "TextEditor.CleanWhitespace";
 const char * const TEXT_WRAPPING         = "TextEditor.TextWrapping";
 const char * const UN_COMMENT_SELECTION  = "TextEditor.UnCommentSelection";
+const char * const REFORMAT              = "TextEditor.Reformat";
 const char * const COLLAPSE              = "TextEditor.Collapse";
 const char * const EXPAND                = "TextEditor.Expand";
 const char * const UN_COLLAPSE_ALL       = "TextEditor.UnCollapseAll";

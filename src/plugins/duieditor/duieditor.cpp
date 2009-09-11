@@ -34,11 +34,13 @@
 #include "duidocument.h"
 #include "duimodelmanager.h"
 
-#include "rewriter_p.h"
-
 #include "qmljsastvisitor_p.h"
 #include "qmljsast_p.h"
 #include "qmljsengine_p.h"
+
+#include "rewriter_p.h"
+
+#include "navigationtokenfinder.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -66,7 +68,6 @@ enum {
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-
 
 namespace DuiEditor {
 namespace Internal {
@@ -700,6 +701,35 @@ void ScriptEditor::createToolBar(ScriptEditorEditable *editable)
 
 	QList<QAction*> actions = toolBar->actions();
 	toolBar->insertWidget(actions.first(), m_methodCombo);
+}
+
+TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cursor, bool resolveTarget)
+{
+    Link link;
+
+    if (!m_modelManager)
+        return link;
+
+    const Snapshot snapshot = m_modelManager->snapshot();
+    DuiDocument::Ptr doc = snapshot.document(file()->fileName());
+    if (!doc)
+        return link;
+
+    NavigationTokenFinder finder;
+    if (finder(doc->program(), cursor.position(), resolveTarget)) {
+        link.fileName = file()->fileName();
+        link.pos = finder.linkPosition();
+        link.length = finder.linkLength();
+        link.line = finder.targetLine();
+        link.column = finder.targetColumn() - 1;
+    }
+
+    return link;
+}
+
+void ScriptEditor::reformat(QTextDocument *, QTextBlock block)
+{
+    // TODO (EV)
 }
 
 void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
