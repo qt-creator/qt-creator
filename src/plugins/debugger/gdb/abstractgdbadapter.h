@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_PROCESSBASE_H
-#define DEBUGGER_PROCESSBASE_H
+#ifndef DEBUGGER_ABSTRACT_GDB_ADAPTER
+#define DEBUGGER_ABSTRACT_GDB_ADAPTER
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
@@ -38,16 +38,17 @@ namespace Internal {
 
 class GdbEngine;
 
-// GdbProcessBase is inherited by GdbProcess and the gdb/trk Adapter.
-// In the GdbProcess case it's just a wrapper around a QProcess running
-// gdb, in the Adapter case it's the interface to the gdb process in
+// AbstractGdbAdapter is inherited by PlainGdbAdapter used for local
+// debugging and TrkGdbAdapter used for on-device debugging.
+// In the PlainGdbAdapter case it's just a wrapper around a QProcess running
+// gdb, in the TrkGdbAdapter case it's the interface to the gdb process in
 // the whole rfomm/gdb/gdbserver combo.
-class GdbProcessBase : public QObject
+class AbstractGdbAdapter : public QObject
 {
     Q_OBJECT
 
 public:
-    GdbProcessBase(QObject *parent = 0) : QObject(parent) {}
+    AbstractGdbAdapter(QObject *parent = 0) : QObject(parent) {}
 
     virtual void start(const QString &program, const QStringList &args,
         QIODevice::OpenMode mode = QIODevice::ReadWrite) = 0;
@@ -77,4 +78,4 @@ signals:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_PROCESSBASE_H
+#endif // DEBUGGER_ABSTRACT_GDB_ADAPTER

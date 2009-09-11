@@ -1,12 +1,12 @@
 HEADERS += \
-    $$PWD/gdbprocessbase.h \
+    $$PWD/abstractgdbadapter.h \
     $$PWD/gdbmi.h \
     $$PWD/gdbengine.h \
     $$PWD/gdboptionspage.h \
     $$PWD/callback.h \
     $$PWD/trkutils.h \
     $$PWD/trkclient.h \
-    $$PWD/symbianadapter.h \
+    $$PWD/trkgdbadapter.h \
     #$$PWD/gdboptionspage.h \
 
 SOURCES += \
@@ -15,8 +15,7 @@ SOURCES += \
     $$PWD/gdboptionspage.cpp \
     $$PWD/trkutils.cpp \
     $$PWD/trkclient.cpp \
-    $$PWD/symbianadapter.cpp \
-    $$PWD/symbianengine.cpp \
+    $$PWD/trkgdbadapter.cpp \
     #$$PWD/gdboptionspage.cpp \
 
 FORMS +=  $$PWD/gdboptionspage.ui

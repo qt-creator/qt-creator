@@ -27,12 +27,12 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_SYMBIANADAPTER_H
-#define DEBUGGER_SYMBIANADAPTER_H
+#ifndef DEBUGGER_TRKGDBADAPTER_H
+#define DEBUGGER_TRKGDBADAPTER_H
 
 #include "trkutils.h"
 #include "trkclient.h"
-#include "gdbprocessbase.h"
+#include "abstractgdbadapter.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -69,11 +69,11 @@ struct GdbResult
 
 ///////////////////////////////////////////////////////////////////////
 //
-// SymbianAdapter
+// TrkGdbAdapter
 //
 ///////////////////////////////////////////////////////////////////////
 
-class SymbianAdapter : public GdbProcessBase
+class TrkGdbAdapter : public AbstractGdbAdapter
 {
     Q_OBJECT
 
@@ -82,8 +82,8 @@ public:
     typedef Callback<const TrkResult &> TrkCallback;
     typedef Callback<const GdbResult &> GdbCallback;
 
-    SymbianAdapter();
-    ~SymbianAdapter();
+    TrkGdbAdapter();
+    ~TrkGdbAdapter();
     void setGdbServerName(const QString &name);
     QString gdbServerName() const { return m_gdbServerName; }
     QString gdbServerIP() const;
@@ -242,4 +242,4 @@ public:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_SYMBIANADAPTER_H
+#endif // DEBUGGER_TRKGDBADAPTER_H

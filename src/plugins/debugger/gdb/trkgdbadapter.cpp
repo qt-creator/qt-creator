@@ -27,12 +27,12 @@
 **
 **************************************************************************/
 
-#include "symbianadapter.h"
+#include "trkgdbadapter.h"
 #ifndef STANDALONE_RUNNER
 #include "gdbengine.h"
 #endif
 
-#define TrkCB(s) TrkCallback(this, &SymbianAdapter::s)
+#define TrkCB(s) TrkCallback(this, &TrkGdbAdapter::s)
 
 
 using namespace trk;
@@ -69,7 +69,7 @@ namespace Internal {
 
 trk::Endianness m_registerEndianness = LittleEndian;
 
-SymbianAdapter::SymbianAdapter()
+TrkGdbAdapter::TrkGdbAdapter()
 {
     m_running = false;
     m_gdbAckMode = true;
@@ -115,23 +115,23 @@ SymbianAdapter::SymbianAdapter()
         this, SLOT(trkLogMessage(QString)));
 }
 
-SymbianAdapter::~SymbianAdapter()
+TrkGdbAdapter::~TrkGdbAdapter()
 {
     m_gdbServer.close();
     logMessage("Shutting down.\n");
 }
 
-void SymbianAdapter::trkLogMessage(const QString &msg)
+void TrkGdbAdapter::trkLogMessage(const QString &msg)
 {
     logMessage("TRK " + msg);
 }
 
-void SymbianAdapter::setGdbServerName(const QString &name)
+void TrkGdbAdapter::setGdbServerName(const QString &name)
 {
     m_gdbServerName = name;
 }
 
-QString SymbianAdapter::gdbServerIP() const
+QString TrkGdbAdapter::gdbServerIP() const
 {
     int pos = m_gdbServerName.indexOf(':');
     if (pos == -1)
@@ -139,7 +139,7 @@ QString SymbianAdapter::gdbServerIP() const
     return m_gdbServerName.left(pos);
 }
 
-uint SymbianAdapter::gdbServerPort() const
+uint TrkGdbAdapter::gdbServerPort() const
 {
     int pos = m_gdbServerName.indexOf(':');
     if (pos == -1)
@@ -147,7 +147,7 @@ uint SymbianAdapter::gdbServerPort() const
     return m_gdbServerName.mid(pos + 1).toUInt();
 }
 
-QByteArray SymbianAdapter::trkContinueMessage()
+QByteArray TrkGdbAdapter::trkContinueMessage()
 {
     QByteArray ba;
     appendInt(&ba, m_session.pid);
@@ -155,7 +155,7 @@ QByteArray SymbianAdapter::trkContinueMessage()
     return ba;
 }
 
-QByteArray SymbianAdapter::trkReadRegisterMessage()
+QByteArray TrkGdbAdapter::trkReadRegisterMessage()
 {
     QByteArray ba;
     appendByte(&ba, 0); // Register set, only 0 supported
@@ -166,7 +166,7 @@ QByteArray SymbianAdapter::trkReadRegisterMessage()
     return ba;
 }
 
-QByteArray SymbianAdapter::trkReadMemoryMessage(uint addr, uint len)
+QByteArray TrkGdbAdapter::trkReadMemoryMessage(uint addr, uint len)
 {
     QByteArray ba;
     appendByte(&ba, 0x08); // Options, FIXME: why?
@@ -177,7 +177,7 @@ QByteArray SymbianAdapter::trkReadMemoryMessage(uint addr, uint len)
     return ba;
 }
 
-void SymbianAdapter::startInferior()
+void TrkGdbAdapter::startInferior()
 {
     QString errorMessage;
     if (!m_trkDevice.open(m_rfcommDevice, &errorMessage)) {
@@ -207,7 +207,7 @@ void SymbianAdapter::startInferior()
     //sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(startGdbServer));
 }
 
-void SymbianAdapter::logMessage(const QString &msg)
+void TrkGdbAdapter::logMessage(const QString &msg)
 {
     if (m_verbose)
         emit output(msg);
@@ -216,7 +216,7 @@ void SymbianAdapter::logMessage(const QString &msg)
 //
 // Gdb
 //
-void SymbianAdapter::handleGdbConnection()
+void TrkGdbAdapter::handleGdbConnection()
 {
     logMessage("HANDLING GDB CONNECTION");
 
@@ -232,7 +232,7 @@ static inline QString msgGdbPacket(const QString &p)
     return QLatin1String("gdb:                              ") + p;
 }
 
-void SymbianAdapter::readGdbServerCommand()
+void TrkGdbAdapter::readGdbServerCommand()
 {
     QByteArray packet = m_gdbConnection->readAll();
     m_gdbReadBuffer.append(packet);
@@ -299,7 +299,7 @@ void SymbianAdapter::readGdbServerCommand()
     }
 }
 
-bool SymbianAdapter::sendGdbServerPacket(const QByteArray &packet, bool doFlush)
+bool TrkGdbAdapter::sendGdbServerPacket(const QByteArray &packet, bool doFlush)
 {
     if (!m_gdbConnection) {
         logMessage(QString::fromLatin1("Cannot write to gdb: No connection (%1)")
@@ -321,7 +321,7 @@ bool SymbianAdapter::sendGdbServerPacket(const QByteArray &packet, bool doFlush)
     return true;
 }
 
-void SymbianAdapter::sendGdbServerAck()
+void TrkGdbAdapter::sendGdbServerAck()
 {
     if (!m_gdbAckMode)
         return;
@@ -330,7 +330,7 @@ void SymbianAdapter::sendGdbServerAck()
     sendGdbServerPacket(packet, false);
 }
 
-void SymbianAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArray &logNote)
+void TrkGdbAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArray &logNote)
 {
     byte sum = 0;
     for (int i = 0; i != msg.size(); ++i)
@@ -351,14 +351,14 @@ void SymbianAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArra
     sendGdbServerPacket(packet, true);
 }
 
-void SymbianAdapter::sendGdbServerMessageAfterTrkResponse(const QByteArray &msg,
+void TrkGdbAdapter::sendGdbServerMessageAfterTrkResponse(const QByteArray &msg,
     const QByteArray &logNote)
 {
     QByteArray ba = msg + char(1) + logNote;
     sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(reportToGdb), "", ba); // Answer gdb
 }
 
-void SymbianAdapter::reportToGdb(const TrkResult &result)
+void TrkGdbAdapter::reportToGdb(const TrkResult &result)
 {
     QByteArray message = result.cookie.toByteArray();
     QByteArray note;
@@ -374,7 +374,7 @@ void SymbianAdapter::reportToGdb(const TrkResult &result)
     sendGdbServerMessage(message, note);
 }
 
-QByteArray SymbianAdapter::trkBreakpointMessage(uint addr, uint len, bool armMode)
+QByteArray TrkGdbAdapter::trkBreakpointMessage(uint addr, uint len, bool armMode)
 {
     QByteArray ba;
     appendByte(&ba, 0x82);  // unused option
@@ -387,7 +387,7 @@ QByteArray SymbianAdapter::trkBreakpointMessage(uint addr, uint len, bool armMod
     return ba;
 }
 
-void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
+void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 {
     // http://sourceware.org/gdb/current/onlinedocs/gdb_34.html
     if (0) {}
@@ -717,7 +717,7 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 }
 
-void SymbianAdapter::executeCommand(const QString &msg)
+void TrkGdbAdapter::executeCommand(const QString &msg)
 {
     if (msg == "EI") {
         sendGdbMessage("-exec-interrupt");
@@ -734,24 +734,24 @@ void SymbianAdapter::executeCommand(const QString &msg)
     }
 }
 
-void SymbianAdapter::sendTrkMessage(byte code, TrkCallback callback,
+void TrkGdbAdapter::sendTrkMessage(byte code, TrkCallback callback,
     const QByteArray &data, const QVariant &cookie)
 {
     m_trkDevice.sendTrkMessage(code, callback, data, cookie);
 }
 
-void SymbianAdapter::sendTrkAck(byte token)
+void TrkGdbAdapter::sendTrkAck(byte token)
 {
     logMessage(QString("SENDING ACKNOWLEDGEMENT FOR TOKEN %1").arg(int(token)));
     m_trkDevice.sendTrkAck(token);
 }
 
-void SymbianAdapter::handleTrkError(const QString &msg)
+void TrkGdbAdapter::handleTrkError(const QString &msg)
 {
     logMessage("## TRK ERROR: " + msg);
 }
 
-void SymbianAdapter::handleTrkResult(const TrkResult &result)
+void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
 {
     if (result.isDebugOutput) {
         sendTrkAck(result.token);
@@ -874,7 +874,7 @@ void SymbianAdapter::handleTrkResult(const TrkResult &result)
     }
 }
 
-void SymbianAdapter::handleCpuType(const TrkResult &result)
+void TrkGdbAdapter::handleCpuType(const TrkResult &result)
 {
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
@@ -896,7 +896,7 @@ void SymbianAdapter::handleCpuType(const TrkResult &result)
     logMessage(logMsg);
 }
 
-void SymbianAdapter::handleCreateProcess(const TrkResult &result)
+void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 {
     //  40 00 00]
     //logMessage("       RESULT: " + result.toString());
@@ -919,7 +919,7 @@ void SymbianAdapter::handleCreateProcess(const TrkResult &result)
     startGdb();
 }
 
-void SymbianAdapter::handleReadRegisters(const TrkResult &result)
+void TrkGdbAdapter::handleReadRegisters(const TrkResult &result)
 {
     logMessage("       RESULT: " + result.toString());
     // [80 0B 00   00 00 00 00   C9 24 FF BC   00 00 00 00   00
@@ -933,7 +933,7 @@ void SymbianAdapter::handleReadRegisters(const TrkResult &result)
         m_snapshot.registers[i] = extractInt(data + 4 * i);
 } 
 
-void SymbianAdapter::handleAndReportReadRegisters(const TrkResult &result)
+void TrkGdbAdapter::handleAndReportReadRegisters(const TrkResult &result)
 {
     handleReadRegisters(result);
     QByteArray ba;
@@ -959,7 +959,7 @@ static QString msgMemoryReadError(int code, uint addr, uint len = 0)
         .arg(code).arg(addr, 0 ,16).arg(lenS);
 }
 
-void SymbianAdapter::handleReadMemoryBuffered(const TrkResult &result)
+void TrkGdbAdapter::handleReadMemoryBuffered(const TrkResult &result)
 {
     if (extractShort(result.data.data() + 1) + 3 != result.data.size())
         logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + "\n");
@@ -973,7 +973,7 @@ void SymbianAdapter::handleReadMemoryBuffered(const TrkResult &result)
 }
 
 // Format log message for memory access with some smartness about registers
-QByteArray SymbianAdapter::memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const
+QByteArray TrkGdbAdapter::memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const
 {
     QByteArray logMsg = "memory contents";
     if (m_verbose > 1) {
@@ -1003,7 +1003,7 @@ QByteArray SymbianAdapter::memoryReadLogMessage(uint addr, uint len, const QByte
     return logMsg;
 }
 
-void SymbianAdapter::reportReadMemoryBuffered(const TrkResult &result)
+void TrkGdbAdapter::reportReadMemoryBuffered(const TrkResult &result)
 {
     const qulonglong cookie = result.cookie.toULongLong();
     const uint addr = cookie >> 32;
@@ -1033,7 +1033,7 @@ void SymbianAdapter::reportReadMemoryBuffered(const TrkResult &result)
     }
 }
 
-void SymbianAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
+void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
 {
     //logMessage("UNBUFFERED MEMORY READ: " + stringFromArray(result.data));
     const uint blockaddr = result.cookie.toUInt();
@@ -1048,7 +1048,7 @@ void SymbianAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
     }
 }
 
-void SymbianAdapter::handleStepRange(const TrkResult &result)
+void TrkGdbAdapter::handleStepRange(const TrkResult &result)
 {
     // [80 0f 00]
     if (result.errorCode()) {
@@ -1061,7 +1061,7 @@ void SymbianAdapter::handleStepRange(const TrkResult &result)
     //sendGdbServerMessage("S05", "Stepping finished");
 }
 
-void SymbianAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
+void TrkGdbAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
 {
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
@@ -1076,7 +1076,7 @@ void SymbianAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
     //sendGdbServerMessage("OK");
 }
 
-void SymbianAdapter::handleClearBreakpoint(const TrkResult &result)
+void TrkGdbAdapter::handleClearBreakpoint(const TrkResult &result)
 {
     logMessage("CLEAR BREAKPOINT ");
     if (result.errorCode()) {
@@ -1086,7 +1086,7 @@ void SymbianAdapter::handleClearBreakpoint(const TrkResult &result)
     sendGdbServerMessage("OK");
 }
 
-void SymbianAdapter::handleSignalContinue(const TrkResult &result)
+void TrkGdbAdapter::handleSignalContinue(const TrkResult &result)
 {
     int signalNumber = result.cookie.toInt();
     logMessage("   HANDLE SIGNAL CONTINUE: " + stringFromArray(result.data));
@@ -1095,7 +1095,7 @@ void SymbianAdapter::handleSignalContinue(const TrkResult &result)
     sendGdbServerMessage("W81"); // "Process exited with result 1
 }
 
-void SymbianAdapter::handleSupportMask(const TrkResult &result)
+void TrkGdbAdapter::handleSupportMask(const TrkResult &result)
 {
     const char *data = result.data.data();
     QByteArray str;
@@ -1108,7 +1108,7 @@ void SymbianAdapter::handleSupportMask(const TrkResult &result)
     logMessage("SUPPORTED: " + str);
  }
 
-void SymbianAdapter::handleTrkVersions(const TrkResult &result)
+void TrkGdbAdapter::handleTrkVersions(const TrkResult &result)
 {
     QString logMsg;
     QTextStream str(&logMsg);
@@ -1122,12 +1122,12 @@ void SymbianAdapter::handleTrkVersions(const TrkResult &result)
     logMessage(logMsg);
 }
 
-void SymbianAdapter::handleDisconnect(const TrkResult & /*result*/)
+void TrkGdbAdapter::handleDisconnect(const TrkResult & /*result*/)
 {
     logMessage(QLatin1String("Trk disconnected"));
 }
 
-void SymbianAdapter::readMemory(uint addr, uint len)
+void TrkGdbAdapter::readMemory(uint addr, uint len)
 {
     Q_ASSERT(len < (2 << 16));
 
@@ -1161,7 +1161,7 @@ void SymbianAdapter::readMemory(uint addr, uint len)
     }
 }
 
-void SymbianAdapter::interruptInferior()
+void TrkGdbAdapter::interruptInferior()
 {
     QByteArray ba;
     // stop the thread (2) or the process (1) or the whole system (0)
@@ -1172,30 +1172,30 @@ void SymbianAdapter::interruptInferior()
     sendTrkMessage(0x1a, TrkCallback(), ba, "Interrupting...");
 }
 
-void SymbianAdapter::handleGdbError(QProcess::ProcessError error)
+void TrkGdbAdapter::handleGdbError(QProcess::ProcessError error)
 {
     emit output(QString("GDB: Process Error %1: %2").arg(error).arg(errorString()));
 }
 
-void SymbianAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void TrkGdbAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     emit output(QString("GDB: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
 }
 
-void SymbianAdapter::handleGdbStarted()
+void TrkGdbAdapter::handleGdbStarted()
 {
     emit output(QString("GDB: Process Started"));
     emit started();
 }
 
-void SymbianAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
+void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
 {
     emit output(QString("GDB: Process State %1").arg(newState));
 }
 
-void SymbianAdapter::run()
+void TrkGdbAdapter::run()
 {
-    emit output("### Starting SymbianAdapter");
+    emit output("### Starting TrkGdbAdapter");
     m_rfcommProc.start("rfcomm listen " + m_rfcommDevice + " 1");
     m_rfcommProc.waitForStarted();
     
@@ -1212,7 +1212,7 @@ void SymbianAdapter::run()
     startInferior();
 }
 
-void SymbianAdapter::startGdb()
+void TrkGdbAdapter::startGdb()
 {
     if (!m_gdbServer.listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
         logMessage(QString("Unable to start the gdb server at %1: %2.")
@@ -1235,7 +1235,7 @@ void SymbianAdapter::startGdb()
     m_gdbProc.start(QDir::currentPath() + "/cs-gdb", gdbArgs);
 }
 
-void SymbianAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
+void TrkGdbAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
     const QVariant &cookie)
 {
     GdbCommand data;
@@ -1250,35 +1250,35 @@ void SymbianAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
 // GdbProcessBase
 //
 
-void SymbianAdapter::handleRfcommReadyReadStandardError()
+void TrkGdbAdapter::handleRfcommReadyReadStandardError()
 {
     QByteArray ba = m_rfcommProc.readAllStandardError();
     emit output(QString("RFCONN stderr: %1").arg(QString::fromLatin1(ba)));
 }
 
-void SymbianAdapter::handleRfcommReadyReadStandardOutput()
+void TrkGdbAdapter::handleRfcommReadyReadStandardOutput()
 {
     QByteArray ba = m_rfcommProc.readAllStandardOutput();
     emit output(QString("RFCONN stdout: %1").arg(QString::fromLatin1(ba)));
 }
 
 
-void SymbianAdapter::handleRfcommError(QProcess::ProcessError error)
+void TrkGdbAdapter::handleRfcommError(QProcess::ProcessError error)
 {
     emit output(QString("RFCOMM: Process Error %1: %2").arg(error).arg(errorString()));
 }
 
-void SymbianAdapter::handleRfcommFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void TrkGdbAdapter::handleRfcommFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     emit output(QString("RFCOMM: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
 }
 
-void SymbianAdapter::handleRfcommStarted()
+void TrkGdbAdapter::handleRfcommStarted()
 {
     emit output(QString("RFCOMM: Process Started"));
 }
 
-void SymbianAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
+void TrkGdbAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
 {
     emit output(QString("RFCOMM: Process State %1").arg(newState));
 }
@@ -1287,64 +1287,64 @@ void SymbianAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
 // GdbProcessBase
 //
 
-void SymbianAdapter::start(const QString &program, const QStringList &args,
+void TrkGdbAdapter::start(const QString &program, const QStringList &args,
     QIODevice::OpenMode mode)
 {
     Q_UNUSED(mode);
     run();
 }
 
-void SymbianAdapter::kill()
+void TrkGdbAdapter::kill()
 {
     m_gdbProc.kill();
 }
 
-void SymbianAdapter::terminate()
+void TrkGdbAdapter::terminate()
 {
     m_gdbProc.terminate();
 }
 
-bool SymbianAdapter::waitForFinished(int msecs)
+bool TrkGdbAdapter::waitForFinished(int msecs)
 {
     return m_gdbProc.waitForFinished(msecs);
 }
 
-QProcess::ProcessState SymbianAdapter::state() const
+QProcess::ProcessState TrkGdbAdapter::state() const
 {
     return m_gdbProc.state();
 }
 
-QString SymbianAdapter::errorString() const
+QString TrkGdbAdapter::errorString() const
 {
     return m_gdbProc.errorString();
 }
 
-QByteArray SymbianAdapter::readAllStandardError()
+QByteArray TrkGdbAdapter::readAllStandardError()
 {
     return m_gdbProc.readAllStandardError();
 }
 
-QByteArray SymbianAdapter::readAllStandardOutput()
+QByteArray TrkGdbAdapter::readAllStandardOutput()
 {
     return m_gdbProc.readAllStandardOutput();
 }
 
-qint64 SymbianAdapter::write(const char *data)
+qint64 TrkGdbAdapter::write(const char *data)
 {
     return m_gdbProc.write(data);
 }
 
-void SymbianAdapter::setWorkingDirectory(const QString &dir)
+void TrkGdbAdapter::setWorkingDirectory(const QString &dir)
 {
     m_gdbProc.setWorkingDirectory(dir);
 }
 
-void SymbianAdapter::setEnvironment(const QStringList &env)
+void TrkGdbAdapter::setEnvironment(const QStringList &env)
 {
     m_gdbProc.setEnvironment(env);
 }
 
-void SymbianAdapter::attach(GdbEngine *engine) const
+void TrkGdbAdapter::attach(GdbEngine *engine) const
 {
 #ifdef STANDALONE_RUNNER
 #else
