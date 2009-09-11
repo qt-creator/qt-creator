@@ -9,11 +9,12 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace DuiEditor::Internal;
 
-bool NavigationTokenFinder::operator()(QmlJS::AST::UiProgram *ast, int position, bool resolveTarget)
+bool NavigationTokenFinder::operator()(QmlJS::AST::UiProgram *ast, int position, bool resolveTarget, const QMap<QString, QmlJS::AST::SourceLocation> &idPositions)
 {
     _resolveTarget = resolveTarget;
-    _scopes.clear();
     _pos = position;
+    _idPositions = idPositions;
+    _scopes.clear();
     _linkPosition = -1;
     _targetLine = -1;
 
@@ -34,7 +35,7 @@ bool NavigationTokenFinder::visit(QmlJS::AST::IdentifierExpression *ast)
         _linkPosition = ast->identifierToken.offset;
         _linkLength = ast->identifierToken.length;
 
-        if (Node *node = findDeclarationInScopes(ast->name))
+        if (Node *node = findDeclarationInScopesOrIds(ast->name))
             rememberStartPosition(node);
     }
 
@@ -122,7 +123,7 @@ bool NavigationTokenFinder::visit(QmlJS::AST::UiQualifiedId *ast)
                 for (UiQualifiedId *iter2 = ast; iter2; iter2 = iter2->next)
                     _linkLength = iter2->identifierToken.end() - _linkPosition;
 
-                if (Node *node = findDeclarationInScopes(ast))
+                if (Node *node = findDeclarationInScopesOrIds(ast))
                     rememberStartPosition(node);
 
                 return false;
@@ -150,10 +151,7 @@ bool NavigationTokenFinder::visit(QmlJS::AST::UiSourceElement * /*ast*/)
 
 void NavigationTokenFinder::rememberStartPosition(QmlJS::AST::Node *node)
 {
-    if (Statement *s = dynamic_cast<Statement*>(node)) {
-        _targetLine = s->firstSourceLocation().startLine;
-        _targetColumn = s->firstSourceLocation().startColumn;
-    } else if (UiObjectMember *om = dynamic_cast<UiObjectMember*>(node)) {
+    if (UiObjectMember *om = dynamic_cast<UiObjectMember*>(node)) {
         _targetLine = om->firstSourceLocation().startLine;
         _targetColumn = om->firstSourceLocation().startColumn;
     } else if (VariableDeclaration *vd = cast<VariableDeclaration*>(node)) {
@@ -164,18 +162,10 @@ void NavigationTokenFinder::rememberStartPosition(QmlJS::AST::Node *node)
     }
 }
 
-static inline bool isId(QmlJS::AST::UiQualifiedId *ast)
+void NavigationTokenFinder::rememberStartPosition(const QmlJS::AST::SourceLocation &location)
 {
-    return !(ast->next) && ast->name->asString() == "id";
-}
-
-static inline QString idToString(QmlJS::AST::Statement *stmt)
-{
-    if (ExpressionStatement *e = cast<ExpressionStatement*>(stmt))
-        if (IdentifierExpression *i = cast<IdentifierExpression*>(e->expression))
-            return i->name->asString();
-
-    return QString::null;
+    _targetLine = location.startLine;
+    _targetColumn = location.startColumn;
 }
 
 static QmlJS::AST::Node *findDeclaration(const QString &nameId, QmlJS::AST::UiObjectMember *m)
@@ -189,9 +179,6 @@ static QmlJS::AST::Node *findDeclaration(const QString &nameId, QmlJS::AST::UiOb
     } else if (UiArrayBinding *a = cast<UiArrayBinding*>(m)) {
         if (!(a->qualifiedId->next) && a->qualifiedId->name->asString() == nameId)
             return a;
-    } else if (UiScriptBinding *s = cast<UiScriptBinding*>(m)) {
-        if (isId(s->qualifiedId) && nameId == idToString(s->statement))
-            return s->statement;
     }
 
     return 0;
@@ -248,7 +235,7 @@ static QmlJS::AST::Node *findDeclarationInNode(QmlJS::AST::UiQualifiedId *qualif
         return findDeclarationInNode(qualifiedId->next, findDeclarationAsDirectChild(qualifiedId->name->asString(), node));
 }
 
-QmlJS::AST::Node *NavigationTokenFinder::findDeclarationInScopes(QmlJS::NameId *nameId)
+QmlJS::AST::Node *NavigationTokenFinder::findDeclarationInScopesOrIds(QmlJS::NameId *nameId)
 {
     if (!_resolveTarget)
         return 0;
@@ -262,10 +249,14 @@ QmlJS::AST::Node *NavigationTokenFinder::findDeclarationInScopes(QmlJS::NameId *
             return result;
     }
 
+    if (_idPositions.contains(nameAsString)) {
+        rememberStartPosition(_idPositions[nameAsString]);
+    }
+
     return 0;
 }
 
-QmlJS::AST::Node *NavigationTokenFinder::findDeclarationInScopes(QmlJS::AST::UiQualifiedId *qualifiedId)
+QmlJS::AST::Node *NavigationTokenFinder::findDeclarationInScopesOrIds(QmlJS::AST::UiQualifiedId *qualifiedId)
 {
     if (!_resolveTarget)
         return 0;
@@ -278,6 +269,10 @@ QmlJS::AST::Node *NavigationTokenFinder::findDeclarationInScopes(QmlJS::AST::UiQ
 
         if (result)
             return findDeclarationInNode(qualifiedId->next, result);
+    }
+
+    if (_idPositions.contains(nameAsString)) {
+        rememberStartPosition(_idPositions[nameAsString]);
     }
 
     return 0;

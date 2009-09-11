@@ -21,7 +21,8 @@ HEADERS += duieditor.h \
     duieditor_global.h \
     duimodelmanager.h \
     duicodeformatter.h \
-    navigationtokenfinder.h
+    navigationtokenfinder.h \
+    idcollector.h
 SOURCES += duieditor.cpp \
     duieditorfactory.cpp \
     duieditorplugin.cpp \
@@ -34,5 +35,6 @@ SOURCES += duieditor.cpp \
     duimodelmanagerinterface.cpp \
     duimodelmanager.cpp \
     duicodeformatter.cpp \
-    navigationtokenfinder.cpp
+    navigationtokenfinder.cpp \
+    idcollector.cpp
 RESOURCES += duieditor.qrc

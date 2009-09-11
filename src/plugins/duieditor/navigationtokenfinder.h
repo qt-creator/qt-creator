@@ -1,6 +1,7 @@
 #ifndef NAVIGATIONTOKENFINDER_H
 #define NAVIGATIONTOKENFINDER_H
 
+#include <QMap>
 #include <QStack>
 #include <QString>
 
@@ -16,7 +17,7 @@ namespace Internal {
 class NavigationTokenFinder: protected QmlJS::AST::Visitor
 {
 public:
-    bool operator()(QmlJS::AST::UiProgram *ast, int position, bool resolveTarget);
+    bool operator()(QmlJS::AST::UiProgram *ast, int position, bool resolveTarget, const QMap<QString, QmlJS::AST::SourceLocation> &idPositions);
 
     bool targetFound() const { return _targetLine != -1; }
     bool linkFound() const { return _linkPosition != -1; }
@@ -42,14 +43,16 @@ protected:
     virtual void endVisit(QmlJS::AST::UiObjectDefinition *);
 
 private:
-    QmlJS::AST::Node *findDeclarationInScopes(QmlJS::AST::UiQualifiedId *ast);
-    QmlJS::AST::Node *findDeclarationInScopes(QmlJS::NameId *id);
+    QmlJS::AST::Node *findDeclarationInScopesOrIds(QmlJS::AST::UiQualifiedId *ast);
+    QmlJS::AST::Node *findDeclarationInScopesOrIds(QmlJS::NameId *id);
 
     void rememberStartPosition(QmlJS::AST::Node *node);
+    void rememberStartPosition(const QmlJS::AST::SourceLocation &location);
 
 private:
     bool _resolveTarget;
     quint32 _pos;
+    QMap<QString, QmlJS::AST::SourceLocation> _idPositions;
     int _linkPosition;
     int _linkLength;
     int _targetLine;

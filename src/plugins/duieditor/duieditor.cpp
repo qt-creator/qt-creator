@@ -40,6 +40,7 @@
 
 #include "rewriter_p.h"
 
+#include "idcollector.h"
 #include "navigationtokenfinder.h"
 
 #include <coreplugin/icore.h>
@@ -715,8 +716,10 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
     if (!doc)
         return link;
 
+    QMap<QString, QmlJS::AST::SourceLocation> idPositions = IdCollector()(doc->program());
+
     NavigationTokenFinder finder;
-    if (finder(doc->program(), cursor.position(), resolveTarget)) {
+    if (finder(doc->program(), cursor.position(), resolveTarget, idPositions)) {
         link.fileName = file()->fileName();
         link.pos = finder.linkPosition();
         link.length = finder.linkLength();
