@@ -4,6 +4,8 @@ TEMPLATE = app
 DEBUGGERHOME = ../../../src/plugins/debugger/symbian
 INCLUDEPATH *= $$DEBUGGERHOME
 
+DEFINES += STANDALONE_RUNNER
+
 QT += network
 
 win32:CONFIG+=console

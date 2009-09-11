@@ -28,9 +28,11 @@
 **************************************************************************/
 
 #include "symbianadapter.h"
+#ifndef STANDALONE_RUNNER
+#include "gdb/gdbengine.h"
+#endif
 
 #define TrkCB(s) TrkCallback(this, &SymbianAdapter::s)
-#define GdbCB(s) GdbCallback(this, &SymbianAdapter::s)
 
 
 using namespace trk;
@@ -1307,7 +1309,7 @@ void SymbianAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
     data.command = msg;
     data.callback = callback;
     data.cookie = cookie;
-    logMessage(QString("<- GDB: %2").arg(msg));
+    logMessage(QString("<- ADAPTER TO GDB: %2").arg(msg));
     m_gdbProc.write(msg.toLatin1() + "\n");
 }
 
@@ -1408,6 +1410,18 @@ void SymbianAdapter::setWorkingDirectory(const QString &dir)
 void SymbianAdapter::setEnvironment(const QStringList &env)
 {
     m_gdbProc.setEnvironment(env);
+}
+
+void SymbianAdapter::attach(GdbEngine *engine) const
+{
+#ifdef STANDALONE_RUNNER
+#else
+    QString fileName = engine->startParameters().executable; 
+    engine->postCommand(_("add-symbol-file \"%1\" %2").arg(fileName)
+        .arg(m_session.codeseg));
+    engine->postCommand(_("symbol-file \"%1\"").arg(fileName));
+    engine->postCommand(_("target remote ") + gdbServerName());
+#endif
 }
 
 } // namespace Internal

@@ -430,6 +430,7 @@ private:
     BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
     void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
 
+    // FIXME: Remove engine-specific state
     QSharedPointer<DebuggerStartParameters> m_startParameters;
     DebuggerRunControl *m_runControl;
     QString m_dumperLib;

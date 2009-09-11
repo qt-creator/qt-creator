@@ -36,6 +36,8 @@
 namespace Debugger {
 namespace Internal {
 
+class GdbEngine;
+
 // GdbProcessBase is inherited by GdbProcess and the gdb/trk Adapter.
 // In the GdbProcess case it's just a wrapper around a QProcess running
 // gdb, in the Adapter case it's the interface to the gdb process in
@@ -61,6 +63,8 @@ public:
     virtual void setWorkingDirectory(const QString &dir) = 0;
     virtual void setEnvironment(const QStringList &env) = 0;
     virtual bool isAdapter() const = 0;
+
+    virtual void attach(GdbEngine *engine) const = 0;
 
 signals:
     void error(QProcess::ProcessError);

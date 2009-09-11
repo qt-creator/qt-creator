@@ -107,6 +107,7 @@ public:
     void setWorkingDirectory(const QString &dir) { m_proc.setWorkingDirectory(dir); }
     void setEnvironment(const QStringList &env) { m_proc.setEnvironment(env); }
     bool isAdapter() const { return false; }
+    void attach(GdbEngine *engine) const;
 
 private:
     QProcess m_proc;
@@ -126,6 +127,11 @@ signals:
     void applicationOutputAvailable(const QString &output);
 
 private:
+    friend class GdbProcess;
+    friend class SymbianAdapter;
+
+    const DebuggerStartParameters &startParameters() const
+        { return m_startParameters; }
     //
     // IDebuggerEngine implementation
     //
@@ -205,6 +211,7 @@ public: // otherwise the Qt flag macros are unhappy
         EmbedToken = 8
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
+
 
 private:
     typedef void (GdbEngine::*GdbCommandCallback)(const GdbResultRecord &record, const QVariant &cookie);

@@ -140,6 +140,20 @@ static QByteArray parsePlainConsoleStream(const GdbResultRecord &record)
 
 ///////////////////////////////////////////////////////////////////////
 //
+// GdbProcess
+//
+///////////////////////////////////////////////////////////////////////
+
+void GdbProcess::attach(GdbEngine *engine) const
+{
+    QFileInfo fi(engine->startParameters().executable);
+    QString fileName = fi.absoluteFilePath();
+    engine->postCommand(_("-file-exec-and-symbols ") + fileName,
+        &GdbEngine::handleFileExecAndSymbols, "handleFileExecAndSymbols");
+}
+
+///////////////////////////////////////////////////////////////////////
+//
 // GdbEngine
 //
 ///////////////////////////////////////////////////////////////////////
@@ -1678,26 +1692,28 @@ void GdbEngine::startDebugger2()
     } else if (m_startParameters.useTerminal) {
         qq->breakHandler()->setAllPending();
     } else if (q->startMode() == StartInternal || q->startMode() == StartExternal) {
-        QFileInfo fi(m_startParameters.executable);
-        QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
-        postCommand(_("-file-exec-and-symbols ") + fileName, CB(handleFileExecAndSymbols));
-        //postCommand(_("file ") + fileName, handleFileExecAndSymbols);
-        #ifdef Q_OS_MAC
-        postCommand(_("sharedlibrary apply-load-rules all"));
-        #endif
-        if (!m_startParameters.processArgs.isEmpty())
-            postCommand(_("-exec-arguments ") + m_startParameters.processArgs.join(_(" ")));
-        #ifndef Q_OS_MAC        
-        if (!m_dumperInjectionLoad)
-            postCommand(_("set auto-solib-add off"));
-        postCommand(_("info target"), CB(handleStart));
-        #else
-        // On MacOS, breaking in at the entry point wreaks havoc.
-        postCommand(_("tbreak main"));
-        m_waitingForFirstBreakpointToBeHit = true;
-        qq->notifyInferiorRunningRequested();
-        postCommand(_("-exec-run"), CB(handleExecRun));
-        #endif
+        m_gdbProc->attach(this);
+        if (m_gdbProc->isAdapter()) {
+            qq->notifyInferiorRunningRequested();
+            postCommand(_("-exec-continue"), CB(handleExecContinue));
+        } else {
+            #ifdef Q_OS_MAC
+            postCommand(_("sharedlibrary apply-load-rules all"));
+            #endif
+            if (!m_startParameters.processArgs.isEmpty())
+                postCommand(_("-exec-arguments ") + m_startParameters.processArgs.join(_(" ")));
+            #ifdef Q_OS_MAC        
+            // On MacOS, breaking in at the entry point wreaks havoc.
+            postCommand(_("tbreak main"));
+            m_waitingForFirstBreakpointToBeHit = true;
+            qq->notifyInferiorRunningRequested();
+            postCommand(_("-exec-run"), CB(handleExecRun));
+            #else
+            if (!m_dumperInjectionLoad)
+                postCommand(_("set auto-solib-add off"));
+            postCommand(_("info target"), CB(handleStart));
+            #endif
+        }
         qq->breakHandler()->setAllPending();
     }
 
@@ -1724,16 +1740,11 @@ void GdbEngine::handleStart(const GdbResultRecord &response, const QVariant &)
         QString msg = _(response.data.findChild("consolestreamoutput").data());
         QRegExp needle(_("\\bEntry point: (0x[0-9a-f]+)\\b"));
         if (needle.indexIn(msg) != -1) {
-            if (m_gdbProc->isAdapter()) {
-                postCommand(_("-exec-continue"), CB(handleExecRun));
-                qq->notifyInferiorRunningRequested();
-            } else {
-                //debugMessage(_("STREAM: ") + msg + " " + needle.cap(1));
-                postCommand(_("tbreak *") + needle.cap(1));
-                m_waitingForFirstBreakpointToBeHit = true;
-                qq->notifyInferiorRunningRequested();
-                postCommand(_("-exec-run"), CB(handleExecRun));
-            }
+            //debugMessage(_("STREAM: ") + msg + " " + needle.cap(1));
+            postCommand(_("tbreak *") + needle.cap(1));
+            m_waitingForFirstBreakpointToBeHit = true;
+            qq->notifyInferiorRunningRequested();
+            postCommand(_("-exec-run"), CB(handleExecRun));
         } else {
             debugMessage(_("PARSING START ADDRESS FAILED: ") + msg);
         }
@@ -1771,7 +1782,6 @@ void GdbEngine::handleAttach(const GdbResultRecord &, const QVariant &)
 void GdbEngine::handleSetTargetAsync(const GdbResultRecord &record, const QVariant &)
 {
     if (record.resultClass == GdbResultDone) {
-        //postCommand(_("info target"), handleStart);
         qq->notifyInferiorRunningRequested();
         postCommand(_("target remote %1").arg(q->startParameters()->remoteChannel),
             CB(handleTargetRemote));

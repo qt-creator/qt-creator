@@ -132,6 +132,7 @@ public:
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
     bool isAdapter() const { return true; }
+    void attach(GdbEngine *engine) const;
 
     //
     // TRK
