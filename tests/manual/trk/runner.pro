@@ -11,13 +11,13 @@ QT += network
 win32:CONFIG+=console
 
 HEADERS += \
-    $$DEBUGGERHOME/../gdb/gdbprocessbase.h \
+    $$DEBUGGERHOME/../gdb/abstractgdbadapter.h \
     $$DEBUGGERHOME/trkutils.h \
     $$DEBUGGERHOME/trkclient.h \
-    $$DEBUGGERHOME/symbianadapter.h \
+    $$DEBUGGERHOME/trkgdbadapter.h \
 
 SOURCES += \
     $$DEBUGGERHOME/trkutils.cpp \
     $$DEBUGGERHOME/trkclient.cpp \
-    $$DEBUGGERHOME/symbianadapter.cpp \
+    $$DEBUGGERHOME/trkgdbadapter.cpp \
     $$PWD/runner.cpp \

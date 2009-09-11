@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "symbianadapter.h"
+#include "trkgdbadapter.h"
 
 #include <QtCore/QDebug>
 
@@ -97,7 +97,7 @@ class RunnerGui : public QMainWindow
     Q_OBJECT
 
 public:
-    RunnerGui(SymbianAdapter *adapter);
+    RunnerGui(TrkGdbAdapter *adapter);
 
 private slots:
     void executeStepICommand() { executeCommand("-exec-step-instruction"); }
@@ -118,7 +118,7 @@ private:
     void executeCommand(const QString &cmd) { m_adapter->executeCommand(cmd); }
     void connectAction(QAction *&, QString name, const char *slot);
 
-    SymbianAdapter *m_adapter;
+    TrkGdbAdapter *m_adapter;
     TextEdit m_textEdit;
     QToolBar m_toolBar;
     QAction *m_stopAction;
@@ -130,7 +130,7 @@ private:
     QAction *m_continueAction;
 };
 
-RunnerGui::RunnerGui(SymbianAdapter *adapter)
+RunnerGui::RunnerGui(TrkGdbAdapter *adapter)
     : m_adapter(adapter)
 {
     resize(1200, 1000);
@@ -224,7 +224,7 @@ void RunnerGui::started()
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    SymbianAdapter adapter;
+    TrkGdbAdapter adapter;
     adapter.setVerbose(2);
     RunnerGui gui(&adapter);
     gui.show();

@@ -33,7 +33,7 @@
 #include "idebuggerengine.h"
 #include "debuggermanager.h" // only for StartParameters
 #include "gdbmi.h"
-#include "gdbprocessbase.h"
+#include "abstractgdbadapter.h"
 #include "outputcollector.h"
 #include "watchutils.h"
 
@@ -75,11 +75,11 @@ enum DebuggingHelperState
     DebuggingHelperUnavailable,
 };
 
-class GdbProcess : public GdbProcessBase
+class PlainGdbAdapter : public AbstractGdbAdapter
 {
 public:
-    GdbProcess(QObject *parent = 0)
-        : GdbProcessBase(parent)
+    PlainGdbAdapter(QObject *parent = 0)
+        : AbstractGdbAdapter(parent)
     {
         connect(&m_proc, SIGNAL(error(QProcess::ProcessError)),
             this, SIGNAL(error(QProcess::ProcessError)));
@@ -118,7 +118,7 @@ class GdbEngine : public IDebuggerEngine
     Q_OBJECT
 
 public:
-    GdbEngine(DebuggerManager *parent, GdbProcessBase *gdbProc);
+    GdbEngine(DebuggerManager *parent, AbstractGdbAdapter *gdbAdapter);
     ~GdbEngine();
 
 signals:
@@ -127,8 +127,8 @@ signals:
     void applicationOutputAvailable(const QString &output);
 
 private:
-    friend class GdbProcess;
-    friend class SymbianAdapter;
+    friend class PlainGdbAdapter;
+    friend class TrkGdbAdapter;
 
     const DebuggerStartParameters &startParameters() const
         { return m_startParameters; }
@@ -299,7 +299,7 @@ private:
 
     QByteArray m_inbuffer;
 
-    GdbProcessBase *m_gdbProc;
+    AbstractGdbAdapter *m_gdbAdapter;
     QProcess m_uploadProc;
 
     Core::Utils::ConsoleProcess m_stubProc;
