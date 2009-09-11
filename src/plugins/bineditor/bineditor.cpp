@@ -82,6 +82,7 @@ BinEditor::BinEditor(QWidget *parent)
     m_inLazyMode = false;
     m_baseAddr = 0;
     m_blockSize = 4096;
+    m_size = 0;
     init();
     m_unmodifiedState = 0;
     m_readOnly = false;
