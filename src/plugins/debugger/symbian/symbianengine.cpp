@@ -27,47 +27,38 @@
 **
 **************************************************************************/
 
-#ifndef IEDITOR_H
-#define IEDITOR_H
+#define QT_NO_CAST_FROM_ASCII
 
-#include <coreplugin/core_global.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/ifile.h>
+#include "gdb/gdbengine.h"
+#include "symbianadapter.h"
+#include "debuggermanager.h"
 
-namespace Core {
+//#include "debuggerdialogs.h"
 
-class CORE_EXPORT IEditor : public IContext
+#include <utils/qtcassert.h>
+#include <texteditor/itexteditor.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#include <QtCore/QDebug>
+
+
+namespace Debugger {
+namespace Internal {
+
+IDebuggerEngine *createSymbianEngine(DebuggerManager *parent,
+    QList<Core::IOptionsPage*> *opts)
 {
-    Q_OBJECT
-public:
+    Q_UNUSED(opts);
+    //opts->push_back(new GdbOptionsPage);
+    SymbianAdapter *adapter = new SymbianAdapter;
+    GdbEngine *engine = new GdbEngine(parent, adapter);
+    QObject::connect(adapter, SIGNAL(output(QString)),
+        parent, SLOT(showDebuggerOutput(QString)));
+    return engine;
+}
 
-    IEditor(QObject *parent = 0) : IContext(parent) {}
-    virtual ~IEditor() {}
+} // namespace Internal
+} // namespace Debugger
 
-    virtual bool createNew(const QString &contents = QString()) = 0;
-    virtual bool open(const QString &fileName = QString()) = 0;
-    virtual IFile *file() = 0;
-    virtual const char *kind() const = 0;
-    virtual QString displayName() const = 0;
-    virtual void setDisplayName(const QString &title) = 0;
 
-    virtual bool duplicateSupported() const = 0;
-    virtual IEditor *duplicate(QWidget *parent) = 0;
-
-    virtual QByteArray saveState() const = 0;
-    virtual bool restoreState(const QByteArray &state) = 0;
-
-    virtual int currentLine() const { return 0; }
-    virtual int currentColumn() const { return 0; }
-
-    virtual bool isTemporary() const = 0;
-
-    virtual QWidget *toolBar() = 0;
-
-signals:
-    void changed();
-};
-
-} // namespace Core
-
-#endif // IEDITOR_H

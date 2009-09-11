@@ -176,6 +176,7 @@ private:
     QString m_baseFileName;
     QString m_workingDirectory;
     QString m_toolsDirectory;
+    QString m_executableFileName;
     QString m_qtDir;
     bool m_useCustomSignature;
     QString m_customSignaturePath;

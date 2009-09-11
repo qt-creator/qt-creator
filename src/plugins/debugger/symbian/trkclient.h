@@ -46,8 +46,6 @@ namespace trk {
 struct TrkResult;
 struct TrkMessage;
 struct TrkDevicePrivate;
-class TrkWriteQueue;
-struct TrkWriteQueueIODevicePrivate;
 
 /* TrkDevice: Implements a Windows COM or Linux device for
  * Trk communications. Provides synchronous write and asynchronous
@@ -106,9 +104,7 @@ public:
     void sendTrkMessage(unsigned char code,
                         Callback callBack = Callback(),
                         const QByteArray &data = QByteArray(),
-                        const QVariant &cookie = QVariant(),
-                        // Invoke callback on receiving NAK, too.
-                        bool invokeOnNAK = false);
+                        const QVariant &cookie = QVariant());
 
     // Enqeue an initial ping
     void sendTrkInitialPing();
@@ -116,15 +112,11 @@ public:
     // Send an Ack synchronously, bypassing the queue
     bool sendTrkAck(unsigned char token);
 
-private slots:
-    void slotHandleResult(const trk::TrkResult &);
-
 private:
     void tryTrkWrite();
     bool trkWriteRawMessage(const TrkMessage &msg);
 
     TrkDevicePrivate *d;
-    TrkWriteQueue *qd;
 };
 
 } // namespace trk

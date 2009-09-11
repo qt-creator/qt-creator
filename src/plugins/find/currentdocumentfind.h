@@ -55,8 +55,8 @@ public:
     bool isEnabled() const;
     bool candidateIsEnabled() const;
     void highlightAll(const QString &txt, IFindSupport::FindFlags findFlags);
-    bool findIncremental(const QString &txt, IFindSupport::FindFlags findFlags);
-    bool findStep(const QString &txt, IFindSupport::FindFlags findFlags);
+    IFindSupport::Result findIncremental(const QString &txt, IFindSupport::FindFlags findFlags);
+    IFindSupport::Result findStep(const QString &txt, IFindSupport::FindFlags findFlags);
     bool replaceStep(const QString &before, const QString &after,
         IFindSupport::FindFlags findFlags);
     int replaceAll(const QString &before, const QString &after,

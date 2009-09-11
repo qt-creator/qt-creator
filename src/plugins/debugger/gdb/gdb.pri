@@ -1,4 +1,5 @@
 HEADERS += \
+    $$PWD/gdbprocessbase.h \
     $$PWD/gdbmi.h \
     $$PWD/gdbengine.h \
     $$PWD/gdboptionspage.h \

@@ -103,6 +103,8 @@ namespace Internal {
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 
+IDebuggerEngine *createSymbianEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+
 QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
 {
     QDebug nospace = str.nospace();
@@ -180,9 +182,10 @@ void DebuggerStartParameters::clear()
 ///////////////////////////////////////////////////////////////////////
 
 static IDebuggerEngine *gdbEngine = 0;
-static IDebuggerEngine *winEngine = 0;
 static IDebuggerEngine *scriptEngine = 0;
+static IDebuggerEngine *symbianEngine = 0;
 static IDebuggerEngine *tcfEngine = 0;
+static IDebuggerEngine *winEngine = 0;
 
 DebuggerManager::DebuggerManager()
   : m_startParameters(new DebuggerStartParameters),
@@ -195,9 +198,10 @@ DebuggerManager::~DebuggerManager()
 {
     #define doDelete(ptr) delete ptr; ptr = 0
     doDelete(gdbEngine);
-    doDelete(winEngine);
     doDelete(scriptEngine);
+    doDelete(symbianEngine);
     doDelete(tcfEngine);
+    doDelete(winEngine);
     #undef doDelete
 }
 
@@ -444,6 +448,8 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
     QList<Core::IOptionsPage*> rc;
     if (enabledTypeFlags & GdbEngineType)
         gdbEngine = createGdbEngine(this, &rc);
+    if (enabledTypeFlags & SymbianEngineType)
+        symbianEngine = createSymbianEngine(this, &rc);
     winEngine = createWinEngine(this, (enabledTypeFlags & CdbEngineType), &rc);
     if (enabledTypeFlags & ScriptEngineType)
         scriptEngine = createScriptEngine(this, &rc);
@@ -693,9 +699,10 @@ void DebuggerManager::updateWatchData(const WatchData &data)
         m_engine->updateWatchData(data);
 }
 
-static inline QString msgEngineNotAvailable(const char *engine)
+static QString msgEngineNotAvailable(const char *engine)
 {
-    return DebuggerManager::tr("The application requires the debugger engine '%1', which is disabled.").arg(QLatin1String(engine));
+    return DebuggerManager::tr("The application requires the debugger engine '%1', "
+        "which is disabled.").arg(QLatin1String(engine));
 }
 
 static IDebuggerEngine *debuggerEngineForToolChain(ProjectExplorer::ToolChain::ToolChainType tc)
@@ -737,7 +744,16 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
         return scriptEngine;
     }
 
-    if (IDebuggerEngine *tce = debuggerEngineForToolChain(static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
+    if (executable.endsWith(_(".sym"))) {
+        if (!symbianEngine) {
+            *errorMessage = msgEngineNotAvailable("Symbian Engine");
+            return 0;
+        }
+        return symbianEngine;
+    }
+
+    if (IDebuggerEngine *tce = debuggerEngineForToolChain(
+            static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
         return tce;
 
 #ifndef Q_OS_WIN
@@ -772,7 +788,8 @@ static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
                                                 int toolChainType,
                                                 QString *errorMessage)
 {
-    if (IDebuggerEngine *tce = debuggerEngineForToolChain(static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
+    if (IDebuggerEngine *tce = debuggerEngineForToolChain(
+            static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
         return tce;
 #ifdef Q_OS_WIN
     // Preferably Windows debugger
@@ -844,11 +861,15 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl,
 
     setBusyCursor(false);
     setStatus(DebuggerProcessStartingUp);
-    if (!m_engine->startDebugger(m_startParameters)) {
-        setStatus(DebuggerProcessNotReady);
-        debuggingFinished();
-        return;
-    }
+    connect(m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
+    m_engine->startDebugger(m_startParameters);
+}
+
+void DebuggerManager::startFailed()
+{
+    disconnect(m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
+    setStatus(DebuggerProcessNotReady);
+    debuggingFinished();
 }
 
 void DebuggerManager::cleanupViews()
@@ -1334,14 +1355,18 @@ void DebuggerManager::modulesDockToggled(bool on)
 
 void DebuggerManager::showDebuggerOutput(int channel, const QString &msg)
 {
-    QTC_ASSERT(m_outputWindow, return);
-    m_outputWindow->showOutput(channel, msg);
+    if (m_outputWindow)
+        m_outputWindow->showOutput(channel, msg);
+    else 
+        qDebug() << "OUTPUT: " << channel << msg;
 }
 
 void DebuggerManager::showDebuggerInput(int channel, const QString &msg)
 {
-    QTC_ASSERT(m_outputWindow, return);
-    m_outputWindow->showInput(channel, msg);
+    if (m_outputWindow)
+        m_outputWindow->showInput(channel, msg);
+    else 
+        qDebug() << "INPUT: " << channel << msg;
 }
 
 

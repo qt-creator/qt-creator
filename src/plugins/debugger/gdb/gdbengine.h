@@ -31,7 +31,9 @@
 #define DEBUGGER_GDBENGINE_H
 
 #include "idebuggerengine.h"
+#include "debuggermanager.h" // only for StartParameters
 #include "gdbmi.h"
+#include "gdbprocessbase.h"
 #include "outputcollector.h"
 #include "watchutils.h"
 
@@ -56,6 +58,7 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
+
 class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
 class GdbResultRecord;
@@ -72,13 +75,50 @@ enum DebuggingHelperState
     DebuggingHelperUnavailable,
 };
 
+class GdbProcess : public GdbProcessBase
+{
+public:
+    GdbProcess(QObject *parent = 0)
+        : GdbProcessBase(parent)
+    {
+        connect(&m_proc, SIGNAL(error(QProcess::ProcessError)),
+            this, SIGNAL(error(QProcess::ProcessError)));
+        connect(&m_proc, SIGNAL(readyReadStandardOutput()),
+            this, SIGNAL(readyReadStandardOutput()));
+        connect(&m_proc, SIGNAL(readyReadStandardError()),
+            this, SIGNAL(readyReadStandardError()));
+        connect(&m_proc, SIGNAL(started()),
+            this, SIGNAL(started()));
+        connect(&m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
+            this, SIGNAL(finished(int, QProcess::ExitStatus)));
+    }
+
+    void start(const QString &program, const QStringList &args,
+        QIODevice::OpenMode mode) { m_proc.start(program, args, mode); }
+    void kill() { m_proc.kill(); }
+    void terminate() { m_proc.terminate(); }
+    bool waitForStarted(int msecs) { return m_proc.waitForStarted(msecs); }
+    bool waitForFinished(int msecs) { return m_proc.waitForFinished(msecs); }
+    QProcess::ProcessState state() const { return m_proc.state(); }
+    QString errorString() const { return m_proc.errorString(); }
+    QByteArray readAllStandardError() { return m_proc.readAllStandardError(); }
+    QByteArray readAllStandardOutput() { return m_proc.readAllStandardOutput(); }
+    qint64 write(const char *data) { return m_proc.write(data); }
+    void setWorkingDirectory(const QString &dir) { m_proc.setWorkingDirectory(dir); }
+    void setEnvironment(const QStringList &env) { m_proc.setEnvironment(env); }
+    bool isAdapter() const { return false; }
+    void attach(GdbEngine *engine) const;
+
+private:
+    QProcess m_proc;
+};
 
 class GdbEngine : public IDebuggerEngine
 {
     Q_OBJECT
 
 public:
-    GdbEngine(DebuggerManager *parent);
+    GdbEngine(DebuggerManager *parent, GdbProcessBase *gdbProc);
     ~GdbEngine();
 
 signals:
@@ -87,6 +127,11 @@ signals:
     void applicationOutputAvailable(const QString &output);
 
 private:
+    friend class GdbProcess;
+    friend class SymbianAdapter;
+
+    const DebuggerStartParameters &startParameters() const
+        { return m_startParameters; }
     //
     // IDebuggerEngine implementation
     //
@@ -98,7 +143,8 @@ private:
 
     void shutdown();
     void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
-    bool startDebugger(const QSharedPointer<DebuggerStartParameters> &sp);
+    void startDebugger(const QSharedPointer<DebuggerStartParameters> &sp);
+    Q_SLOT void startDebugger2();
     void exitDebugger();
     void detachDebugger();
 
@@ -166,6 +212,7 @@ public: // otherwise the Qt flag macros are unhappy
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 
+
 private:
     typedef void (GdbEngine::*GdbCommandCallback)(const GdbResultRecord &record, const QVariant &cookie);
 
@@ -210,6 +257,7 @@ private slots:
     void stubStarted();
     void stubError(const QString &msg);
     void uploadProcError(QProcess::ProcessError error);
+    void emitStartFailed();
 
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
@@ -251,7 +299,7 @@ private:
 
     QByteArray m_inbuffer;
 
-    QProcess m_gdbProc;
+    GdbProcessBase *m_gdbProc;
     QProcess m_uploadProc;
 
     Core::Utils::ConsoleProcess m_stubProc;
@@ -395,6 +443,7 @@ private:
 
     DebuggerManager * const q;
     IDebuggerManagerAccessForEngines * const qq;
+    DebuggerStartParameters m_startParameters;
     // make sure to re-initialize new members in initializeVariables();
 };
 

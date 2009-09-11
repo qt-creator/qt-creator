@@ -144,7 +144,7 @@ struct Session
     uint tid;
     uint codeseg;
     uint dataseg;
-    QHash<uint, uint> tokenToBreakpointIndex;
+    QHash<uint, uint> addressToBP;
 
     // Gdb request
     uint currentThread;
@@ -178,6 +178,7 @@ struct TrkResult
     QString toString() const;
     // 0 for no error.
     int errorCode() const;
+    QString errorString() const;
 
     byte code;
     byte token;
@@ -193,8 +194,8 @@ ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame);
 bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *r, QByteArray *rawData = 0);
 QByteArray errorMessage(byte code);
 QByteArray hexNumber(uint n, int digits = 0);
+QByteArray hexxNumber(uint n, int digits = 0); // prepends '0x', too
 uint swapEndian(uint in);
-
 
 } // namespace trk
 

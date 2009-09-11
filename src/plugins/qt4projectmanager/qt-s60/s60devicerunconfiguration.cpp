@@ -537,36 +537,34 @@ S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runCon
             this, SLOT(signsisProcessFailed()));
     connect(m_signsis, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(signsisProcessFinished()));
+
+    Qt4Project *project = qobject_cast<Qt4Project *>(runConfiguration->project());
+    QTC_ASSERT(project, return);
+
+    m_serialPortName = runConfiguration->serialPortName();
+    m_serialPortFriendlyName = S60Manager::instance()->serialDeviceLister()->friendlyNameForPort(m_serialPortName);
+    m_targetName = runConfiguration->targetName();
+    m_baseFileName = runConfiguration->basePackageFilePath();
+    m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
+    m_qtDir = project->qtVersion(project->activeBuildConfiguration())->versionInfo().value("QT_INSTALL_DATA");
+    m_useCustomSignature = (runConfiguration->signingMode() == S60DeviceRunConfiguration::SignCustom);
+    m_customSignaturePath = runConfiguration->customSignaturePath();
+    m_customKeyPath = runConfiguration->customKeyPath();
+    m_toolsDirectory = S60Manager::instance()->deviceForQtVersion(
+            project->qtVersion(project->activeBuildConfiguration())).toolsRoot
+            + "/epoc32/tools";
+    m_executableFileName = lsFile(runConfiguration->executableFileName());
+    const QString makesisTool = m_toolsDirectory + "/makesis.exe";
+    const QString packageFile = QFileInfo(runConfiguration->packageFileName()).fileName();
 }
 
 void S60DeviceRunControl::start()
 {
-    QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration().objectCast<S60DeviceRunConfiguration>();
-    QTC_ASSERT(!rc.isNull(), return);
-
-    Qt4Project *project = qobject_cast<Qt4Project *>(rc->project());
-    QTC_ASSERT(project, return);
-
-    m_serialPortName = rc->serialPortName();
-    m_serialPortFriendlyName = S60Manager::instance()->serialDeviceLister()->friendlyNameForPort(m_serialPortName);
-    m_targetName = rc->targetName();
-    m_baseFileName = rc->basePackageFilePath();
-    m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
-    m_qtDir = project->qtVersion(project->activeBuildConfiguration())->versionInfo().value("QT_INSTALL_DATA");
-    m_useCustomSignature = (rc->signingMode() == S60DeviceRunConfiguration::SignCustom);
-    m_customSignaturePath = rc->customSignaturePath();
-    m_customKeyPath = rc->customKeyPath();
-
     emit started();
 
     emit addToOutputWindow(this, tr("Creating %1.sisx ...").arg(QDir::toNativeSeparators(m_baseFileName)));
-    emit addToOutputWindow(this, tr("Executable file: %1").arg(lsFile(rc->executableFileName())));
+    emit addToOutputWindow(this, tr("Executable file: %1").arg(m_executableFileName));
 
-    m_toolsDirectory = S60Manager::instance()->deviceForQtVersion(
-            project->qtVersion(project->activeBuildConfiguration())).toolsRoot
-            + "/epoc32/tools";
-    const QString makesisTool = m_toolsDirectory + "/makesis.exe";
-    const QString packageFile = QFileInfo(rc->packageFileName()).fileName();
 
     m_makesis->setWorkingDirectory(m_workingDirectory);
     emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(makesisTool), packageFile));

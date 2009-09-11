@@ -1,14 +1,20 @@
 
 TEMPLATE = app
 
+DEBUGGERHOME = ../../../src/plugins/debugger/symbian
+
+INCLUDEPATH *= $$DEBUGGERHOME
+
+UTILSDIR = ../../../src/libs
 QT = core network
 win32:CONFIG+=console
 
-HEADERS += trkutils.h \
-trkfunctor.h \
-trkdevice.h \
+HEADERS += \
+    $$DEBUGGERHOME/trkutils.h \
+    $$DEBUGGERHOME/trkfunctor.h \
+    $$PWD/trkdevice.h \
 
 SOURCES += \
-    adapter.cpp \
-    trkutils.cpp \
-    trkdevice.cpp
+    $$DEBUGGERHOME/trkutils.cpp \
+    $$PWD/trkdevice.cpp \
+    $$PWD/adapter.cpp \

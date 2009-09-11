@@ -110,7 +110,7 @@ public:
 
     void reload(QTextCodec *codec);
 
-    void cleanWhitespace();
+    void cleanWhitespace(const QTextCursor &cursor);
 
 signals:
     void titleChanged(QString title);
@@ -146,7 +146,7 @@ private:
     bool m_hasDecodingError;
     QByteArray m_decodingErrorSample;
 
-    void cleanWhitespace(QTextCursor& cursor, bool onlyInModifiedLines);
+    void cleanWhitespace(QTextCursor& cursor, bool cleanIndentation, bool inEntireDocument);
     void ensureFinalNewLine(QTextCursor& cursor);
 };
 

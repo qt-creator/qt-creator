@@ -31,8 +31,10 @@
 #define BINEDITOR_H
 
 #include <QtCore/QBasicTimer>
+#include <QtCore/QMap>
 #include <QtCore/QSet>
 #include <QtCore/QStack>
+#include <QtCore/QString>
 
 #include <QtGui/QAbstractScrollArea>
 #include <QtGui/QTextDocument>
@@ -64,10 +66,10 @@ public:
     inline int dataSize() const { return m_size; }
 
     inline bool inLazyMode() const { return m_inLazyMode; }
-    Q_INVOKABLE void setLazyData(int cursorPosition, int size, int blockSize = 4096);
+    Q_INVOKABLE void setLazyData(quint64 startAddr, int range, int blockSize = 4096);
     inline int lazyDataBlockSize() const { return m_blockSize; }
-    Q_INVOKABLE void addLazyData(int block, const QByteArray &data);
-    bool applyModifications(QByteArray &data) const;
+    Q_INVOKABLE void addLazyData(quint64 block, const QByteArray &data);
+    bool save(const QString &oldFileName, const QString &newFileName);
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
@@ -86,7 +88,8 @@ public:
     void setReadOnly(bool);
     bool isReadOnly() const;
 
-    int find(const QByteArray &pattern, int from = 0, QTextDocument::FindFlags findFlags = 0);
+    int find(const QByteArray &pattern, int from = 0,
+             QTextDocument::FindFlags findFlags = 0);
 
     void selectAll();
     void clear();
@@ -106,8 +109,9 @@ public:
     bool isUndoAvailable() const { return m_undoStack.size(); }
     bool isRedoAvailable() const { return m_redoStack.size(); }
 
-    QString addressString(uint address);
+    QString addressString(quint64 address);
 
+    static const int SearchStride = 1024 * 1024;
 
 public Q_SLOTS:
     void setFontSettings(const TextEditor::FontSettings &fs);
@@ -121,7 +125,7 @@ Q_SIGNALS:
     void copyAvailable(bool);
     void cursorPositionChanged(int position);
 
-    void lazyDataRequested(int block, bool syncronous);
+    void lazyDataRequested(quint64 block, bool synchronous);
 
 protected:
     void scrollContentsBy(int dx, int dy);
@@ -142,6 +146,7 @@ private:
     QByteArray m_data;
     QMap <int, QByteArray> m_lazyData;
     int m_blockSize;
+    QMap <int, QByteArray> m_modifiedData;
     mutable QSet<int> m_lazyRequests;
     QByteArray m_emptyBlock;
     QByteArray m_lowerBlock;
@@ -169,6 +174,7 @@ private:
     int m_numLines;
     int m_numVisibleLines;
 
+    quint64 m_baseAddr;
 
     bool m_cursorVisible;
     int m_cursorPosition;

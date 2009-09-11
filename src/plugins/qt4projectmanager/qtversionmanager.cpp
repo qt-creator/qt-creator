@@ -1244,7 +1244,7 @@ QStringList QtVersion::debuggingHelperLibraryLocations() const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
-        QString::null;
+        return QStringList();
     return DebuggingHelperLibrary::debuggingHelperLibraryLocations(qtInstallData);
 }
 

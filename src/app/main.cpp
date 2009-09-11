@@ -48,6 +48,20 @@
 
 #ifdef Q_OS_MAC
 #  include <sys/resource.h>
+#  include <CoreFoundation/CoreFoundation.h>
+
+// Helper function CoreFoundation -> Qt
+static QString stringFromCFString(CFStringRef value) {
+    QString retVal;
+    CFIndex maxLength = 2 * CFStringGetLength(value) + 1/*zero term*/; // max UTF8
+    char *cstring = new char[maxLength];
+    if (CFStringGetCString(CFStringRef(value), cstring, maxLength, kCFStringEncodingUTF8)) {
+         retVal = QString::fromUtf8(cstring);
+    }
+    delete cstring;
+    return retVal;
+}
+
 #endif
 
 enum { OptionIndent = 4, DescriptionIndent = 24 };
@@ -216,7 +230,29 @@ int main(int argc, char **argv)
 
     QTranslator translator;
     QTranslator qtTranslator;
-    const QString &locale = QLocale::system().name();
+    QString locale = QLocale::system().name();
+#ifdef Q_OS_MAC
+    // because QLocale's system locale is basically useless on the Mac.
+    // Try to get the real system setting via core foundation
+    CFLocaleRef maclocale = CFLocaleCopyCurrent();
+    CFTypeRef value = CFLocaleGetValue(maclocale, kCFLocaleLanguageCode);
+    QString preferredLanguage = stringFromCFString(CFStringRef(value));
+    if (!preferredLanguage.isEmpty())
+        locale = preferredLanguage;
+    CFRelease(maclocale);
+    CFArrayRef languages = (CFArrayRef)CFPreferencesCopyValue(
+             CFSTR("AppleLanguages"),
+             kCFPreferencesAnyApplication,
+             kCFPreferencesCurrentUser,
+             kCFPreferencesAnyHost);
+//    CFShow(languages);
+    if (CFArrayGetCount(languages) > 0) {
+        QString preferredLanguage = stringFromCFString(CFStringRef(CFArrayGetValueAtIndex(languages, 0)));
+        if (!preferredLanguage.isEmpty())
+            locale = preferredLanguage;
+    }
+    CFRelease(languages);
+#endif
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
                         + QLatin1String(SHARE_PATH "/translations");
     if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {

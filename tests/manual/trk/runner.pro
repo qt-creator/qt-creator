@@ -1,15 +1,23 @@
 
 TEMPLATE = app
 
+DEBUGGERHOME = ../../../src/plugins/debugger/symbian
+INCLUDEPATH *= $$DEBUGGERHOME
+
+DEFINES += STANDALONE_RUNNER
+
 QT += network
 
 win32:CONFIG+=console
 
 HEADERS += \
-    trkutils.h \
-    trkdevicex.h \
+    $$DEBUGGERHOME/../gdb/gdbprocessbase.h \
+    $$DEBUGGERHOME/trkutils.h \
+    $$DEBUGGERHOME/trkclient.h \
+    $$DEBUGGERHOME/symbianadapter.h \
 
 SOURCES += \
-    runner.cpp \
-    trkutils.cpp \
-    trkdevicex.cpp \
+    $$DEBUGGERHOME/trkutils.cpp \
+    $$DEBUGGERHOME/trkclient.cpp \
+    $$DEBUGGERHOME/symbianadapter.cpp \
+    $$PWD/runner.cpp \

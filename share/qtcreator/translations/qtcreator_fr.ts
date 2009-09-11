@@ -10266,17 +10266,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/quickopen/iquickopenfilter.cpp" line="+86"/>
         <source>Filter Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configuration du filtre</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Limit to prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Limiter au préfixe</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Prefix:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Préfixe:</translation>
     </message>
 </context>
 <context>
@@ -10284,36 +10284,36 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/quickopen/directoryfilter.cpp" line="+44"/>
         <source>Generic Directory Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtre de dossier générique</translation>
     </message>
     <message>
         <location line="+59"/>
         <source>Filter Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configuration du filtre</translation>
     </message>
     <message>
         <location line="+45"/>
         <location line="+11"/>
         <source>Choose a directory to add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir un répertoire à ajouter</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>%1 filter update: 0 files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mise à jour du filtre %1: 0 fichiers</translation>
     </message>
     <message numerus="yes">
         <location line="+23"/>
         <source>%1 filter update: %n files</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Mise à jour du filtre %1: %n fichier</numerusform>
+            <numerusform>Mise à jour du filtre %1: %n fichiers</numerusform>
         </translation>
     </message>
     <message>
         <location line="+41"/>
         <source>%1 filter update: canceled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mise à jour du filtre %1: annulée</translation>
     </message>
 </context>
 <context>
@@ -10321,12 +10321,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/quickopen/directoryfilter.ui"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom:</translation>
     </message>
     <message>
         <location/>
         <source>File Types:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Types de fichiers:</translation>
     </message>
     <message>
         <location/>
@@ -10336,38 +10336,38 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Prefix:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Préfixe:</translation>
     </message>
     <message>
         <location/>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Spécifier a mot court ou une abbréviation qui peut être utilisé pour réstreindre la complétion aux fichiers de cette arborescence. Pour ce faire, entrez ce raccourci et un espace dans le champs Localisation, puis ensuite le mot à chercher.</translation>
     </message>
     <message>
         <location/>
         <source>Limit to prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Limiter au préfixe</translation>
     </message>
     <message>
         <location/>
         <source>Add...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter...</translation>
     </message>
     <message>
         <location/>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier...</translation>
     </message>
     <message>
         <location/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer</translation>
     </message>
     <message>
         <location/>
         <source>Directories:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dossiers:</translation>
     </message>
 </context>
 <context>
@@ -10375,7 +10375,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/filesystemfilter.h" line="+54"/>
         <source>Files in file system</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichiers du système de fichier</translation>
     </message>
 </context>
 <context>
@@ -10383,27 +10383,27 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/filesystemfilter.ui"/>
         <source>Filter configuration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configuration du filtre</translation>
     </message>
     <message>
         <location/>
         <source>Prefix:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Préfixe:</translation>
     </message>
     <message>
         <location/>
         <source>Limit to prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Limiter au préfixe</translation>
     </message>
     <message>
         <location/>
         <source>Include hidden files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Inclure les fichiers cachés</translation>
     </message>
     <message>
         <location/>
         <source>Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtre:</translation>
     </message>
 </context>
 <context>
@@ -10411,7 +10411,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/opendocumentsfilter.h" line="+53"/>
         <source>Open documents</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir des documents</translation>
     </message>
 </context>
 <context>
@@ -10419,7 +10419,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/quickopenfiltersfilter.cpp" line="+53"/>
         <source>Available filters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtres disponibles</translation>
     </message>
 </context>
 <context>
@@ -10427,7 +10427,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/quickopenplugin.cpp" line="+281"/>
         <source>Indexing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Indexation</translation>
     </message>
 </context>
 <context>
@@ -10435,27 +10435,27 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/quickopentoolwindow.cpp" line="+254"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Raffraîchir</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Configure...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configurer...</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Locate...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Localiser...</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Type to locate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Taper pour localiser</translation>
     </message>
     <message>
         <location line="+177"/>
         <source>&lt;type here&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;taper ici&gt;</translation>
     </message>
 </context>
 <context>
@@ -10463,37 +10463,37 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/settingswidget.ui"/>
         <source>Configure Filters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configurer les filtres</translation>
     </message>
     <message>
         <location/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter</translation>
     </message>
     <message>
         <location/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer</translation>
     </message>
     <message>
         <location/>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier...</translation>
     </message>
     <message>
         <location/>
         <source>Refresh Interval:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Intervalle de raffraichissement:</translation>
     </message>
     <message>
         <location/>
         <source> min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">min</translation>
     </message>
     <message>
         <location/>
         <source>Refresh now!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Raffraîchir maintenant!</translation>
     </message>
 </context>
 <context>
@@ -10501,7 +10501,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/settingspage.cpp" line="+159"/>
         <source>%1 (Prefix: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 (Prefixe: %2)</translation>
     </message>
 </context>
 <context>
@@ -10509,32 +10509,32 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/quickopen/settingspage.ui"/>
         <source>Configure Filters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configurer les filtres</translation>
     </message>
     <message>
         <location/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter</translation>
     </message>
     <message>
         <location/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer</translation>
     </message>
     <message>
         <location/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier</translation>
     </message>
     <message>
         <location/>
         <source>Refresh Interval:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Intervalle de raffraichissement:</translation>
     </message>
     <message>
         <location/>
         <source> min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">min</translation>
     </message>
 </context>
 <context>
@@ -10542,102 +10542,102 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/regexp/regexpwindow.cpp" line="+46"/>
         <source>&amp;Pattern:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Motif:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Escaped Pattern:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Motif &amp;échappé:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Pattern Syntax:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Syntaxe du &amp;motif:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Text:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Texte:</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Case &amp;Sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Sensible à la casse</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Minimal</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Minimale</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Index of Match:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Index de la correspondance:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Matched Length:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Longueur de la correspondance:</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Regular expression v1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expression régulière v1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Regular expression v2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expression régulière v2</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Wildcard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Joker</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Fixed string</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Chaîne de caractères fixe</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>Capture %1:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Capture %1:</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Match:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Correspondance:</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Regular Expression</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expression régulière</translation>
     </message>
     <message>
         <location line="+129"/>
         <source>Enter pattern from code...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrer un motif depuis le code...</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Clear patterns</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Effacer les motifs</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Clear texts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Effacer les textes</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Enter pattern from code</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrer le motif depuis le code</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Motif</translation>
     </message>
 </context>
 <context>
@@ -10645,27 +10645,27 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/resourceeditor/resourceeditorplugin.cpp" line="+77"/>
         <source>Creates a Qt Resource file (.qrc).</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crée une fichier ressource Qt (.qrc).</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Qt Resource file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier de ressource Qt</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Qt</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Annuler</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Refaire</translation>
     </message>
 </context>
 <context>
@@ -10673,7 +10673,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/resourceeditor/resourceeditorw.cpp" line="+116"/>
         <source>untitled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">sans titre</translation>
     </message>
 </context>
 <context>
@@ -10681,17 +10681,17 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/saveitemsdialog.ui"/>
         <source>Save Changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sauvegarder les changements</translation>
     </message>
     <message>
         <location/>
         <source>The following files have unsaved changes:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Les fichiers suivants contiennent des modifications non enregistrées:</translation>
     </message>
     <message>
         <location/>
         <source>Automatically save all files before building</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sauvegarder automatiquement tous les fichiers avant de compiler</translation>
     </message>
 </context>
 <context>
@@ -10699,12 +10699,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/settingsdialog.ui"/>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Options</translation>
     </message>
     <message>
         <location/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">0</translation>
     </message>
 </context>
 <context>
@@ -10712,62 +10712,63 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/shared/qrceditor/qrceditor.cpp" line="+57"/>
         <source>Add Files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter des fichiers</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add Prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter un préfixe</translation>
     </message>
     <message>
         <location line="+156"/>
         <source>Invalid file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier invalide</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copier</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Skip</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>ignorer ?</translatorcomment>
+        <translation type="unfinished">Passer</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Abort</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abandonner</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>The file %1 is not in a subdirectory of the resource file. Continuing will result in an invalid resource file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le fichier %1 n&apos;est pas dans un sous-dossier du fichier de ressource. Continuer résulterait en un fichier de ressource invalide.</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Choose copy location</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir le chemin de la copie</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Overwrite failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">L&apos;écrasement a échoué</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Could not overwrite file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">L&apos;écrasement du fichier %1 a échoué.</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Copying failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Échec de la copie</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Could not copy the file to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La copie du fichier dans &quot;%1&quot; a échoué.</translation>
     </message>
 </context>
 <context>
@@ -10775,72 +10776,72 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/shared/qrceditor/resourceview.cpp" line="+362"/>
         <source>Add Files...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter des fichiers...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Change Alias...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Changer l&apos;alias...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add Prefix...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter un prefixe...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Change Prefix...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Changer le préfixe...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Change Language...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Changer la langue...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Remove Item</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer l&apos;élément</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>Open file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir le fichier</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tous les fichiers (*)</translation>
     </message>
     <message>
         <location line="+93"/>
         <source>Change Prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Changer le préfixe</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Input Prefix:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrée du préfixe:</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Change Language</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Changer la langue</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Language:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Langue:</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Change File Alias</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Changer l&apos;alias du fichier</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Alias:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alias:</translation>
     </message>
 </context>
 <context>
@@ -10848,62 +10849,62 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/shortcutsettings.ui"/>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rarccourcis clavier</translation>
     </message>
     <message>
         <location/>
         <source>Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtre:</translation>
     </message>
     <message>
         <location/>
         <source>Command</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commande</translation>
     </message>
     <message>
         <location/>
         <source>Label</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Libellé</translation>
     </message>
     <message>
         <location/>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Raccourci</translation>
     </message>
     <message>
         <location/>
         <source>Defaults</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Restaurer</translation>
     </message>
     <message>
         <location/>
         <source>Import...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importer...</translation>
     </message>
     <message>
         <location/>
         <source>Export...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exporter...</translation>
     </message>
     <message>
         <location/>
         <source>Key Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Combinaison de touches</translation>
     </message>
     <message>
         <location/>
         <source>Shortcut:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Raccourci:</translation>
     </message>
     <message>
         <location/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Remise à zéro</translation>
     </message>
     <message>
         <location/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Effacer</translation>
     </message>
 </context>
 <context>
@@ -10911,7 +10912,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/showbuildlog.ui"/>
         <source>Debugging Helper Build Log</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Journal de compilation de l&apos;assistant de deboggage</translation>
     </message>
 </context>
 <context>
@@ -10919,7 +10920,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/snippets/snippetsplugin.cpp" line="+94"/>
         <source>Snippets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extraits de code</translation>
     </message>
 </context>
 <context>
@@ -10927,7 +10928,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/snippets/snippetswindow.cpp" line="+58"/>
         <source>Snippets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extraits de code</translation>
     </message>
 </context>
 <context>
@@ -10935,22 +10936,22 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/debugger/startexternaldialog.ui"/>
         <source>Start Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lancer le débogueur</translation>
     </message>
     <message>
         <location/>
         <source>Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom de l&apos;exécutable:</translation>
     </message>
     <message>
         <location/>
         <source>Arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Arguments:</translation>
     </message>
     <message>
         <location/>
         <source>Break at &apos;main&apos;:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">S&apos;arrêter sur &apos;main&apos;:</translation>
     </message>
 </context>
 <context>
@@ -10958,27 +10959,27 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/debugger/startremotedialog.ui"/>
         <source>Start Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lancer le débogueur</translation>
     </message>
     <message>
         <location/>
         <source>Host and port:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hôte et port:</translation>
     </message>
     <message>
         <location/>
         <source>Architecture:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Architecture:</translation>
     </message>
     <message>
         <location/>
         <source>Use server start script:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utiliser le script de démarrage du serveur :</translation>
     </message>
     <message>
         <location/>
         <source>Server start script:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Script de démarrage du serveur :</translation>
     </message>
 </context>
 <context>
@@ -10986,32 +10987,32 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/subversion/settingspage.ui"/>
         <source>Prompt to submit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Demander à chaque soumission</translation>
     </message>
     <message>
         <location/>
         <source>Subversion Command:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commande Subversion:</translation>
     </message>
     <message>
         <location/>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Identification</translation>
     </message>
     <message>
         <location/>
         <source>User name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom d&apos;utilisateur:</translation>
     </message>
     <message>
         <location/>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mot de passe:</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/subversion/settingspage.cpp" line="+86"/>
         <source>Subversion</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Subversion</translation>
     </message>
 </context>
 <context>
@@ -11019,7 +11020,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="-36"/>
         <source>Subversion Command</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commande Subversion</translation>
     </message>
 </context>
 <context>
@@ -11027,12 +11028,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/subversion/subversionoutputwindow.cpp" line="+43"/>
         <source>Subversion Output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sortie de Subversion</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Subversion</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Subversion</translation>
     </message>
 </context>
 <context>
@@ -11040,7 +11041,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/subversion/subversionplugin.cpp" line="+324"/>
         <source>&amp;Subversion</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Subversion</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -11055,7 +11056,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+5"/>
         <source>Alt+S,Alt+A</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+S,Alt+A</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -11070,72 +11071,72 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+7"/>
         <source>Revert</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rétablir</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Revert &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rétablir &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Diff Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faire un diff sur le projet</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Diff Current File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faire un diff du fichier courant</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Diff &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faire un diff de &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Alt+S,Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+S,Alt+D</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Commit All Files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faire un commit de tous les fichiers</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Commit Current File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faire un commit du fichier courant</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Commit &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faire un commit de &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Alt+S,Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+S,Alt+C</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Filelog Current File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Journal du fichier courant</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Filelog &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Journal du fichier &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Annotate Current File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annoter le fichier courant</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Annotate &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annoter &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -11155,12 +11156,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+9"/>
         <source>Commit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faire un commit</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Diff Selected Files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faire un diff sur tous les fichiers sélectionnés</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -11175,7 +11176,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+40"/>
         <source>Closing Subversion Editor</source>
-        <translation type="unfinished">Fermer l&apos;éditeur Subversion</translation>
+        <translation type="unfinished">Fermeture de l&apos;éditeur Subversion</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11185,12 +11186,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location line="+1"/>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La vérification du message de commit a échoué. Voulez-vous soumettre vos modifications ?</translation>
     </message>
     <message>
         <location line="+124"/>
         <source>The file has been changed. Do you want to revert it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le fichier a été modifié. Voulez-vous le rétablir ?</translation>
     </message>
     <message>
         <location line="+80"/>
@@ -11232,8 +11233,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>%1 Executing: %2 %3
 </source>
         <extracomment>&lt;timestamp&gt; Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
-        <translation type="unfinished">%1 Exécute : %2 %3
-</translation>
+        <translation type="unfinished">%1 Exécution de : %2 %3</translation>
     </message>
     <message>
         <location line="+29"/>
@@ -11261,7 +11261,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/subversion/subversionsubmiteditor.cpp" line="+42"/>
         <source>Subversion Submit</source>
-        <translation type="unfinished">Submit Subversion</translation>
+        <translation type="unfinished">Soumission sur Subversion</translation>
     </message>
 </context>
 <context>
@@ -11270,7 +11270,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+114"/>
         <location line="+20"/>
         <source>%1 found</source>
-        <translation>%1 éléments trouvés</translation>
+        <translation type="unfinished">%1 élément(s) trouvé(s)</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -11385,7 +11385,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location/>
         <source>In leading white space</source>
-        <translation type="unfinished">Espaces de début de ligne</translation>
+        <translation type="unfinished">Espaces en début de ligne</translation>
     </message>
     <message>
         <location/>
@@ -11443,7 +11443,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location/>
         <source>Display &amp;folding markers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Affiche les marqueurs de &amp;pliage</translation>
     </message>
     <message>
         <location/>
@@ -11521,8 +11521,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <location line="+4"/>
         <source>
 The following encodings are likely to fit:</source>
-        <translation type="unfinished">
-Les encodages suivants pourraient fonctionner :</translation>
+        <translation type="unfinished">Les encodages suivants pourraient convenir :</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11689,7 +11688,7 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+6"/>
         <source>Triggers a quick fix in this scope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lancer une réparation rapide dans ce contexte</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -11707,7 +11706,7 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+2"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Refaire</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -11747,97 +11746,97 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+4"/>
         <source>Ctrl+E, Ctrl+W</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+E, Ctrl+W</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>(Un)Comment &amp;Selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(Dé)Commenter la &amp;Sélection</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+/</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+/</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Cut &amp;Line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Couper la &amp;Ligne</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Shift+Del</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Shift+Suppr</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Delete &amp;Line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Effacer la &amp;Ligne</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Collapse</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Plier</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+&lt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+&lt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Expand</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Étendre</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>(Un)&amp;Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(Dé)&amp;Plier tout</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Increase Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Augmenter la taille de la police</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl++</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl++</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Decrease Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Diminuer la taille de la police</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+-</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+-</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Goto Block Start</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aller au début du bloc</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+[</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+[</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Goto Block End</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aller à la fin du bloc</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+]</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+]</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -11847,7 +11846,7 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+{</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+{</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -11857,7 +11856,7 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+}</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+}</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -11867,7 +11866,7 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+U</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -11877,52 +11876,52 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+Shift+U</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Shift+U</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Move Line Up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Déplacer la ligne au-dessus</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Shift+Up</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Move Line Down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Déplacer la ligne en-dessous</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Shift+Down</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Copy Line Up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copier la ligne au-dessus</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+Alt+Up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Alt+Up</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Copy Line Down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copier la ligne en-dessous</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+Alt+Down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Alt+Down</translation>
     </message>
     <message>
         <location line="+93"/>
         <source> &lt;line number&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;numéro de ligne&gt;</translation>
     </message>
 </context>
 <context>
@@ -11956,7 +11955,7 @@ Les encodages suivants pourraient fonctionner :</translation>
         <location line="+1"/>
         <source>Search Scope</source>
         <translatorcomment>contexte/portée/autre ?</translatorcomment>
-        <translation type="unfinished">Contexte de la recherche</translation>
+        <translation type="unfinished">Portée de la recherche</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -12186,17 +12185,17 @@ Les encodages suivants pourraient fonctionner :</translation>
     <message>
         <location line="+6"/>
         <source>Insert name...</source>
-        <translation type="unfinished">Inserez nom...</translation>
+        <translation type="unfinished">Inserez le nom...</translation>
     </message>
     <message>
         <location line="+313"/>
         <source>Prompt to submit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher avant de soumettre</translation>
     </message>
     <message>
         <location line="+59"/>
         <source>Submit Message Check failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La vérification du message de soumission a échoué</translation>
     </message>
     <message>
         <location line="+28"/>
@@ -12276,7 +12275,7 @@ nom &lt;email&gt; alias &lt;/email&gt;</translation>
         <source>Would you like to remove this file from the version control system (%1)?
 Note: This might remove the local file.</source>
         <translation type="unfinished">Voulez-vous retirer ce fichier du système de gestion de versions (%1)?
-Note : Ceci risque de supprimer le fichier sur le disque.</translation>
+Note : Ceci risque de supprimer le fichier du disque.</translation>
     </message>
 </context>
 <context>
@@ -12296,7 +12295,7 @@ Note : Ceci risque de supprimer le fichier sur le disque.</translation>
         <location line="-33"/>
         <location line="+38"/>
         <source>&lt;Description&gt;</source>
-        <translation type="unfinished">&lt;Description&gt;</translation>
+        <translation>&lt;Description&gt;</translation>
     </message>
     <message>
         <location line="-30"/>
@@ -12351,12 +12350,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Patch 1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Patch 1</translation>
     </message>
     <message>
         <location/>
         <source>Patch 2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Patch 2</translation>
     </message>
 </context>
 <context>
@@ -12364,27 +12363,27 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/libs/aggregation/examples/text/main.ui"/>
         <source>main</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">main</translation>
     </message>
     <message>
         <location/>
         <source>Text1:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Texte 1:</translation>
     </message>
     <message>
         <location/>
         <source>N/A</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Indisponible</translation>
     </message>
     <message>
         <location/>
         <source>Text2:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Texte 2:</translation>
     </message>
     <message>
         <location/>
         <source>Text3:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Texte 3:</translation>
     </message>
 </context>
 </TS>

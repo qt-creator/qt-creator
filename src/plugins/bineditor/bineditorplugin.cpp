@@ -61,7 +61,11 @@ class BinEditorFind : public Find::IFindSupport
 {
     Q_OBJECT
 public:
-    BinEditorFind(BinEditor *editor) { m_editor = editor; m_incrementalStartPos = -1; }
+    BinEditorFind(BinEditor *editor)
+    {
+        m_editor = editor;
+        m_incrementalStartPos = m_contPos = -1;
+    }
     ~BinEditorFind() {}
 
     bool supportsReplace() const { return false; }
@@ -70,7 +74,11 @@ public:
         return IFindSupport::FindBackward | IFindSupport::FindCaseSensitively;
     }
 
-    void resetIncrementalSearch() { m_incrementalStartPos = -1; }
+    void resetIncrementalSearch()
+    {
+        m_incrementalStartPos = m_contPos = -1;
+    }
+
     void clearResults() { m_editor->highlightSearchResults(QByteArray()); }
     QString currentFindString() const { return QString(); }
     QString completedFindString() const { return QString(); }
@@ -82,41 +90,68 @@ public:
             return pos;
         }
 
-        int found = m_editor->find(pattern, pos, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
-        if (found < 0)
-            found = m_editor->find(pattern,
-                                   (findFlags & Find::IFindSupport::FindBackward)?m_editor->dataSize()-1:0,
-                                   Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
-        return found;
+        return m_editor->find(pattern, pos, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
     }
 
-    bool findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags) {
+    Result findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags) {
         QByteArray pattern = txt.toLatin1();
+        if (pattern != m_lastPattern)
+            resetIncrementalSearch(); // Because we don't search for nibbles.
+        m_lastPattern = pattern;
         if (m_incrementalStartPos < 0)
             m_incrementalStartPos = m_editor->selectionStart();
-        int pos = m_incrementalStartPos;
+        if (m_contPos == -1)
+            m_contPos = m_incrementalStartPos;
         findFlags &= ~Find::IFindSupport::FindBackward;
-        int found =  find(pattern, pos, findFlags);
-        if (found >= 0)
+        int found = find(pattern, m_contPos, findFlags);
+        Result result;
+        if (found >= 0) {
+            result = Found;
             m_editor->highlightSearchResults(pattern, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
-        else
-            m_editor->highlightSearchResults(QByteArray(), 0);
-        return found >= 0;
+            m_contPos = -1;
+        } else {
+            if (found == -2) {
+                result = NotYetFound;
+                m_contPos +=
+                        findFlags & Find::IFindSupport::FindBackward
+                        ? -BinEditor::SearchStride : BinEditor::SearchStride;
+            } else {
+                result = NotFound;
+                m_contPos = -1;
+                m_editor->highlightSearchResults(QByteArray(), 0);
+            }
+        }
+        return result;
     }
 
-    bool findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags) {
+    Result findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags) {
         QByteArray pattern = txt.toLatin1();
         bool wasReset = (m_incrementalStartPos < 0);
-        int pos = m_editor->cursorPosition();
-        if (findFlags & Find::IFindSupport::FindBackward)
-            pos = m_editor->selectionStart()-1;
-        int found = find(pattern, pos, findFlags);
-        if (found)
+        if (m_contPos == -1) {
+            m_contPos = m_editor->cursorPosition();
+            if (findFlags & Find::IFindSupport::FindBackward)
+                m_contPos = m_editor->selectionStart()-1;
+        }
+        int found = find(pattern, m_contPos, findFlags);
+        Result result;
+        if (found >= 0) {
+            result = Found;
             m_incrementalStartPos = found;
-        if (wasReset && found >= 0)
-            m_editor->highlightSearchResults(pattern, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
-        return found >= 0;
+            m_contPos = -1;
+            if (wasReset)
+                m_editor->highlightSearchResults(pattern, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+        } else if (found == -2) {
+            result = NotYetFound;
+            m_contPos += findFlags & Find::IFindSupport::FindBackward
+                         ? -BinEditor::SearchStride : BinEditor::SearchStride;
+        } else {
+            result = NotFound;
+            m_contPos = -1;
+        }
+
+        return result;
     }
+
     bool replaceStep(const QString &, const QString &,
                      Find::IFindSupport::FindFlags) { return false;}
     int replaceAll(const QString &, const QString &,
@@ -125,6 +160,8 @@ public:
 private:
     BinEditor *m_editor;
     int m_incrementalStartPos;
+    int m_contPos; // Only valid if last result was NotYetFound.
+    QByteArray m_lastPattern;
 };
 
 
@@ -137,48 +174,35 @@ public:
         m_mimeType(QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE))
     {
         m_editor = parent;
-        connect(m_editor, SIGNAL(lazyDataRequested(int, bool)), this, SLOT(provideData(int)));
+        connect(m_editor, SIGNAL(lazyDataRequested(quint64, bool)), this, SLOT(provideData(quint64)));
     }
     ~BinEditorFile() {}
 
     virtual QString mimeType() const { return m_mimeType; }
 
     bool save(const QString &fileName = QString()) {
-        QFile file(fileName);
-
-        QByteArray data;
-        if (m_editor->inLazyMode()) {
-            QFile read(m_fileName);
-            if (!read.open(QIODevice::ReadOnly))
-                return false;
-            data = read.readAll();
-            read.close();
-            if (!m_editor->applyModifications(data))
-                return false;
-        } else {
-            data = m_editor->data();
-        }
-        if (file.open(QIODevice::WriteOnly)) {
-            file.write(data);
-            file.close();
-            m_editor->setModified(false);
-            m_editor->editorInterface()->setDisplayName(QFileInfo(fileName).fileName());
+        if (m_editor->save(m_fileName, fileName)) {
             m_fileName = fileName;
+            m_editor->editorInterface()->
+                setDisplayName(QFileInfo(fileName).fileName());
             emit changed();
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     bool open(const QString &fileName) {
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
-            if (file.isSequential()) {
+            if (file.isSequential() && file.size() <= 64 * 1024 * 1024) {
                 m_editor->setData(file.readAll());
             } else {
-                m_editor->setLazyData(0, file.size());
-                m_editor->editorInterface()->setDisplayName(QFileInfo(fileName).fileName());
+                m_editor->setLazyData(0, qMin(file.size(),
+                                              static_cast<qint64>(INT_MAX-16)));
+                m_editor->editorInterface()->
+                        setDisplayName(QFileInfo(fileName).fileName());
             }
             file.close();
             return true;
@@ -187,7 +211,7 @@ public:
     }
 
 private slots:
-    void provideData(int block) {
+    void provideData(quint64 block) {
         QFile file(m_fileName);
         if (file.open(QIODevice::ReadOnly)) {
             int blockSize = m_editor->lazyDataBlockSize();

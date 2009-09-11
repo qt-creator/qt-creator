@@ -17,7 +17,7 @@ win32 {
 } else:macx {
     CONFIG(debug, debug|release):LIBS *= -lExtensionSystem_debug -lAggregation_debug
     else:LIBS *= -lExtensionSystem -lAggregation
-
+    LIBS += -framework CoreFoundation
     ICON = qtcreator.icns
     QMAKE_INFO_PLIST = Info.plist
     FILETYPES.files = profile.icns prifile.icns
