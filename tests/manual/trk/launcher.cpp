@@ -40,7 +40,7 @@
 
 namespace trk {
 
-typedef TrkWriteQueueDevice::Callback Callback;
+typedef TrkWriteQueueDevice::TrkCallback TrkCallback;
 
 struct LauncherPrivate {
     struct CopyState {
@@ -125,9 +125,9 @@ bool Launcher::startServer(QString *errorMessage)
         return false;
     d->m_device.sendTrkInitialPing();
     d->m_device.sendTrkMessage(TrkConnect); // Connect
-    d->m_device.sendTrkMessage(TrkSupported, Callback(this, &Launcher::handleSupportMask));
-    d->m_device.sendTrkMessage(TrkCpuType, Callback(this, &Launcher::handleCpuType));
-    d->m_device.sendTrkMessage(TrkVersions, Callback(this, &Launcher::handleTrkVersion));
+    d->m_device.sendTrkMessage(TrkSupported, TrkCallback(this, &Launcher::handleSupportMask));
+    d->m_device.sendTrkMessage(TrkCpuType, TrkCallback(this, &Launcher::handleCpuType));
+    d->m_device.sendTrkMessage(TrkVersions, TrkCallback(this, &Launcher::handleTrkVersion));
     if (d->m_fileName.isEmpty())
         return true;
     if (!d->m_copyState.sourceFileName.isEmpty() && !d->m_copyState.destinationFileName.isEmpty())
@@ -160,7 +160,7 @@ void Launcher::logMessage(const QString &msg)
 void Launcher::waitForTrkFinished(const TrkResult &result)
 {
     Q_UNUSED(result)
-    d->m_device.sendTrkMessage(TrkPing, Callback(this, &Launcher::handleWaitForFinished));
+    d->m_device.sendTrkMessage(TrkPing, TrkCallback(this, &Launcher::handleWaitForFinished));
 }
 
 void Launcher::terminate()
@@ -169,7 +169,7 @@ void Launcher::terminate()
     QByteArray ba;
     appendShort(&ba, 0x0000, TargetByteOrder);
     appendInt(&ba, d->m_session.pid, TargetByteOrder);
-    d->m_device.sendTrkMessage(TrkDeleteItem, Callback(this, &Launcher::waitForTrkFinished), ba);
+    d->m_device.sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::waitForTrkFinished), ba);
 }
 
 void Launcher::handleResult(const TrkResult &result)
@@ -240,7 +240,7 @@ void Launcher::handleResult(const TrkResult &result)
             QByteArray ba;
             appendInt(&ba, d->m_session.pid);
             appendInt(&ba, d->m_session.tid);
-            d->m_device.sendTrkMessage(TrkContinue, Callback(), ba, "CONTINUE");
+            d->m_device.sendTrkMessage(TrkContinue, TrkCallback(), ba, "CONTINUE");
             //d->m_device.sendTrkAck(result.token)
             break;
         }
@@ -253,7 +253,7 @@ void Launcher::handleResult(const TrkResult &result)
                        arg(name));
             d->m_device.sendTrkAck(result.token);
             if (itemType == 0) { // process
-                d->m_device.sendTrkMessage(TrkDisconnect, Callback(this, &Launcher::waitForTrkFinished));
+                d->m_device.sendTrkMessage(TrkDisconnect, TrkCallback(this, &Launcher::waitForTrkFinished));
             }
             break;
         }
@@ -296,7 +296,7 @@ void Launcher::handleTrkVersion(const TrkResult &result)
                 << " float size: " << d->m_session.fpTypeSize
                 << " Trk: v" << trkMajor << '.' << trkMinor << " Protocol: " << protocolMajor << '.' << protocolMinor;
         qWarning("%s", qPrintable(msg));
-        d->m_device.sendTrkMessage(TrkPing, Callback(this, &Launcher::waitForTrkFinished));
+        d->m_device.sendTrkMessage(TrkPing, TrkCallback(this, &Launcher::waitForTrkFinished));
     }
 }
 
@@ -335,12 +335,12 @@ void Launcher::continueCopying()
         appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
         appendString(&ba, d->m_copyState.data->mid(d->m_copyState.position, BLOCKSIZE), TargetByteOrder, false);
         d->m_copyState.position += BLOCKSIZE;
-        d->m_device.sendTrkMessage(TrkWriteFile, Callback(this, &Launcher::handleCopy), ba);
+        d->m_device.sendTrkMessage(TrkWriteFile, TrkCallback(this, &Launcher::handleCopy), ba);
     } else {
         QByteArray ba;
         appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
         appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
-        d->m_device.sendTrkMessage(TrkCloseFile, Callback(this, &Launcher::handleFileCreated), ba);
+        d->m_device.sendTrkMessage(TrkCloseFile, TrkCallback(this, &Launcher::handleFileCreated), ba);
         delete d->m_copyState.data;
         d->m_copyState.data = 0;
     }
@@ -388,7 +388,7 @@ void Launcher::handleCreateProcess(const TrkResult &result)
     QByteArray ba;
     appendInt(&ba, d->m_session.pid);
     appendInt(&ba, d->m_session.tid);
-    d->m_device.sendTrkMessage(TrkContinue, Callback(), ba, "CONTINUE");
+    d->m_device.sendTrkMessage(TrkContinue, TrkCallback(), ba, "CONTINUE");
 }
 
 void Launcher::handleWaitForFinished(const TrkResult &result)
@@ -423,7 +423,7 @@ void Launcher::cleanUp()
     appendByte(&ba, 0x00);
     appendByte(&ba, 0x00);
     appendInt(&ba, d->m_session.pid);
-    d->m_device.sendTrkMessage(TrkDeleteItem, Callback(), ba, "Delete process");
+    d->m_device.sendTrkMessage(TrkDeleteItem, TrkCallback(), ba, "Delete process");
 
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
@@ -459,7 +459,7 @@ void Launcher::cleanUp()
     //---IDE------------------------------------------------------
     //  Command: 0x02 Disconnect
     // [02 27]
-//    sendTrkMessage(0x02, Callback(this, &Launcher::handleDisconnect));
+//    sendTrkMessage(0x02, TrkCallback(this, &Launcher::handleDisconnect));
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
     // Error: 0x00
@@ -471,7 +471,7 @@ void Launcher::copyFileToRemote()
     QByteArray ba;
     appendByte(&ba, 0x10);
     appendString(&ba, d->m_copyState.destinationFileName.toLocal8Bit(), TargetByteOrder, false);
-    d->m_device.sendTrkMessage(TrkOpenFile, Callback(this, &Launcher::handleFileCreation), ba);
+    d->m_device.sendTrkMessage(TrkOpenFile, TrkCallback(this, &Launcher::handleFileCreation), ba);
 }
 
 void Launcher::installRemotePackageSilently(const QString &fileName)
@@ -480,7 +480,7 @@ void Launcher::installRemotePackageSilently(const QString &fileName)
     QByteArray ba;
     appendByte(&ba, 'C');
     appendString(&ba, fileName.toLocal8Bit(), TargetByteOrder, false);
-    d->m_device.sendTrkMessage(TrkInstallFile, Callback(this, &Launcher::handleInstallPackageFinished), ba);
+    d->m_device.sendTrkMessage(TrkInstallFile, TrkCallback(this, &Launcher::handleInstallPackageFinished), ba);
 }
 
 void Launcher::handleInstallPackageFinished(const TrkResult &)
@@ -501,7 +501,7 @@ void Launcher::startInferiorIfNeeded()
     appendByte(&ba, 0); // ?
     appendByte(&ba, 0); // ?
     appendString(&ba, d->m_fileName.toLocal8Bit(), TargetByteOrder);
-    d->m_device.sendTrkMessage(TrkCreateItem, Callback(this, &Launcher::handleCreateProcess), ba); // Create Item
+    d->m_device.sendTrkMessage(TrkCreateItem, TrkCallback(this, &Launcher::handleCreateProcess), ba); // Create Item
 }
 
 }

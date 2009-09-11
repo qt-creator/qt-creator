@@ -30,7 +30,7 @@
 #ifndef TRKDEVICE_H
 #define TRKDEVICE_H
 
-#include "trkfunctor.h"
+#include "callback.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
@@ -111,12 +111,12 @@ public:
     explicit TrkWriteQueueDevice(QObject *parent = 0);
     virtual ~TrkWriteQueueDevice();
 
-    // Construct as 'TrkWriteQueueDevice::Callback(instance, &Class::method);'
-    typedef TrkFunctor1<const TrkResult &> Callback;
+    // Construct as 'TrkWriteQueueDevice::TrkCallback(instance, &Class::method);'
+    typedef Debugger::Callback<const TrkResult &> TrkCallback;
 
     // Enqueue a message with a notification callback.
     void sendTrkMessage(unsigned char code,
-                        Callback callBack = Callback(),
+                        TrkCallback callBack = TrkCallback(),
                         const QByteArray &data = QByteArray(),
                         const QVariant &cookie = QVariant(),
                         // Invoke callback on receiving NAK, too.
@@ -155,7 +155,7 @@ class TrkWriteQueueIODevice : public QObject
     Q_PROPERTY(bool serialFrame READ serialFrame WRITE setSerialFrame)
     Q_PROPERTY(bool verbose READ verbose WRITE setVerbose)
 public:
-    typedef TrkFunctor1<const TrkResult &> Callback;
+    typedef Debugger::Callback<const TrkResult &> TrkCallback;
 
     explicit TrkWriteQueueIODevice(const QSharedPointer<QIODevice> &device,
                                    QObject *parent = 0);
@@ -168,7 +168,7 @@ public:
     void setVerbose(bool b);
 
     void sendTrkMessage(unsigned char code,
-                        Callback callback = Callback(),
+                        TrkCallback callback = TrkCallback(),
                         const QByteArray &data = QByteArray(),
                         const QVariant &cookie = QVariant(),
                         bool invokeOnNAK = false);

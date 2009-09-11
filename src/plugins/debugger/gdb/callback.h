@@ -27,50 +27,50 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_TRK_FUNCTOR_H
-#define DEBUGGER_TRK_FUNCTOR_H
+#ifndef DEBUGGER_CALLBACK_H
+#define DEBUGGER_CALLBACK_H
 
 #include <QtGlobal>
 
-
-// FIXME: rename into something less TRK-specific
-
-namespace trk {
+namespace Debugger {
 namespace Internal {
+
 /* Helper class for the 1-argument functor:
  * Cloneable base class for the implementation which is
  * invokeable with the argument. */
 template <class Argument>
-class TrkFunctor1ImplBase {
-    Q_DISABLE_COPY(TrkFunctor1ImplBase)
+class CallbackImplBase
+{
+    Q_DISABLE_COPY(CallbackImplBase)
 public:
-    TrkFunctor1ImplBase() {}
-    virtual TrkFunctor1ImplBase *clone() const = 0;
+    CallbackImplBase() {}
+    virtual CallbackImplBase *clone() const = 0;
     virtual void invoke(Argument a) = 0;
-    virtual ~TrkFunctor1ImplBase() {}
+    virtual ~CallbackImplBase() {}
 };
 
 /* Helper class for the 1-argument functor: Implementation for
  * a class instance with a member function pointer. */
-template <class Klass, class Argument>
-class TrkFunctor1MemberPtrImpl : public TrkFunctor1ImplBase<Argument> {
+template <class Class, class Argument>
+class CallbackMemberPtrImpl : public CallbackImplBase<Argument>
+{
 public:
-    typedef void (Klass::*MemberFuncPtr)(Argument);
+    typedef void (Class::*MemberFuncPtr)(Argument);
 
-    explicit TrkFunctor1MemberPtrImpl(Klass *instance,
-                                   MemberFuncPtr memberFunc) :
-                                   m_instance(instance),
-                                   m_memberFunc(memberFunc) {}
+    CallbackMemberPtrImpl(Class *instance,
+                          MemberFuncPtr memberFunc) :
+                          m_instance(instance),
+                          m_memberFunc(memberFunc) {}
 
-    virtual TrkFunctor1ImplBase<Argument> *clone() const
+    virtual CallbackImplBase<Argument> *clone() const
     {
-        return new TrkFunctor1MemberPtrImpl<Klass, Argument>(m_instance, m_memberFunc);
+        return new CallbackMemberPtrImpl<Class, Argument>(m_instance, m_memberFunc);
     }
 
     virtual void invoke(Argument a)
         { (m_instance->*m_memberFunc)(a); }
 private:
-    Klass *m_instance;
+    Class *m_instance;
     MemberFuncPtr m_memberFunc;
 };
 
@@ -85,33 +85,34 @@ public:
 };
 ...
 Foo foo;
-TrkFunctor1<const std::string &> f1(&foo, &Foo::print);
+Callback<const std::string &> f1(&foo, &Foo::print);
 f1("test");
 \endcode */
 
 template <class Argument>
-class TrkFunctor1 {
+class Callback
+{
 public:
-    TrkFunctor1() : m_impl(0) {}
+    Callback() : m_impl(0) {}
 
-    template <class Klass>
-        TrkFunctor1(Klass *instance,
-                 void (Klass::*memberFunc)(Argument)) :
-        m_impl(new Internal::TrkFunctor1MemberPtrImpl<Klass,Argument>(instance, memberFunc)) {}
+    template <class Class>
+    Callback(Class *instance, void (Class::*memberFunc)(Argument)) :
+        m_impl(new Internal::CallbackMemberPtrImpl<Class,Argument>(instance, memberFunc))
+    {}
 
-    ~TrkFunctor1()
+    ~Callback()
     {
         clean();
     }
 
-    TrkFunctor1(const TrkFunctor1 &rhs) :
+    Callback(const Callback &rhs) :
         m_impl(0)
     {
         if (rhs.m_impl)
             m_impl = rhs.m_impl->clone();
     }
 
-    TrkFunctor1 &operator=(const TrkFunctor1 &rhs)
+    Callback &operator=(const Callback &rhs)
     {
         if (this != &rhs) {
             clean();
@@ -121,7 +122,7 @@ public:
         return *this;
     }
 
-    inline bool isNull() const { return m_impl == 0; }
+    bool isNull() const { return m_impl == 0; }
     operator bool() const { return !isNull(); }
 
     void operator()(Argument a)
@@ -139,9 +140,9 @@ private:
         }
     }
 
-    Internal::TrkFunctor1ImplBase<Argument> *m_impl;
+    Internal::CallbackImplBase<Argument> *m_impl;
 };
 
-} // namespace trk
+} // namespace Debugger
 
-#endif // _TRK_FUNCTOR_H_
+#endif // DEBUGGER_CALLBACK_H

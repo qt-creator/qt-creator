@@ -11,7 +11,7 @@ win32:CONFIG+=console
 
 HEADERS += \
     $$DEBUGGERHOME/trkutils.h \
-    $$DEBUGGERHOME/trkfunctor.h \
+    $$DEBUGGERHOME/callback.h \
     $$PWD/trkdevice.h \
 
 SOURCES += \

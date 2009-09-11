@@ -30,7 +30,7 @@
 #ifndef TRKDEVICE_H
 #define TRKDEVICE_H
 
-#include "trkfunctor.h"
+#include "callback.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
@@ -60,6 +60,8 @@ struct TrkDevicePrivate;
 
 enum { TRK_WRITE_QUEUE_NOOP_CODE = 0x7f };
 
+typedef Debugger::Callback<const TrkResult &> TrkCallback;
+
 class TrkDevice : public QObject
 {
     Q_OBJECT
@@ -83,9 +85,6 @@ public:
 
     bool write(const QByteArray &data, QString *errorMessage);
 
-    // Construct as 'TrkWriteQueueDevice::Callback(instance, &Klass::method);'
-    typedef TrkFunctor1<const TrkResult &> Callback;
-
 signals:
     void messageReceived(const trk::TrkResult &result);
     // Emitted with the contents of messages enclosed in 07e, not for log output
@@ -102,7 +101,7 @@ public:
 
     // Enqueue a message with a notification callback.
     void sendTrkMessage(unsigned char code,
-                        Callback callBack = Callback(),
+                        TrkCallback callBack = TrkCallback(),
                         const QByteArray &data = QByteArray(),
                         const QVariant &cookie = QVariant());
 

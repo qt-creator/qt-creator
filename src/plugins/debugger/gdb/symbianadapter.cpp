@@ -29,7 +29,7 @@
 
 #include "symbianadapter.h"
 #ifndef STANDALONE_RUNNER
-#include "gdb/gdbengine.h"
+#include "gdbengine.h"
 #endif
 
 #define TrkCB(s) TrkCallback(this, &SymbianAdapter::s)
@@ -75,7 +75,7 @@ SymbianAdapter::SymbianAdapter()
     m_gdbAckMode = true;
     m_verbose = 2;
     m_serialFrame = false;
-    m_bufferedMemoryRead = true;
+    m_bufferedMemoryRead = false;
     m_rfcommDevice = "/dev/rfcomm0";
 
     uid_t userId = getuid();

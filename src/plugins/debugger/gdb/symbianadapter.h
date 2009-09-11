@@ -32,7 +32,7 @@
 
 #include "trkutils.h"
 #include "trkclient.h"
-#include "../gdb/gdbprocessbase.h"
+#include "gdbprocessbase.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -79,8 +79,8 @@ class SymbianAdapter : public GdbProcessBase
 
 public:
     typedef trk::TrkResult TrkResult;
-    typedef trk::TrkFunctor1<const TrkResult &> TrkCallback;
-    typedef trk::TrkFunctor1<const GdbResult &> GdbCallback;
+    typedef Callback<const TrkResult &> TrkCallback;
+    typedef Callback<const GdbResult &> GdbCallback;
 
     SymbianAdapter();
     ~SymbianAdapter();

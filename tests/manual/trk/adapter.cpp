@@ -104,7 +104,7 @@ class Adapter : public QObject
     Q_OBJECT
 
 public:
-    typedef TrkFunctor1<const TrkResult &> Callback;
+    typedef Debugger::Callback<const TrkResult &> TrkCallback;
 
     Adapter();
     ~Adapter();
@@ -129,7 +129,7 @@ private:
 
     bool openTrkPort(const QString &port, QString *errorMessage); // or server name for local server
     void sendTrkMessage(byte code,
-        Callback callBack = Callback(),
+        TrkCallback callBack = TrkCallback(),
         const QByteArray &data = QByteArray(),
         const QVariant &cookie = QVariant(),
         bool invokeOnFailure = false);
@@ -261,9 +261,9 @@ void Adapter::startServer()
 
     sendTrkInitialPing();
     sendTrkMessage(0x01); // Connect
-    sendTrkMessage(0x05, Callback(this, &Adapter::handleSupportMask));
-    sendTrkMessage(0x06, Callback(this, &Adapter::handleCpuType));
-    sendTrkMessage(0x04, Callback(this, &Adapter::handleTrkVersions)); // Versions
+    sendTrkMessage(0x05, TrkCallback(this, &Adapter::handleSupportMask));
+    sendTrkMessage(0x06, TrkCallback(this, &Adapter::handleCpuType));
+    sendTrkMessage(0x04, TrkCallback(this, &Adapter::handleTrkVersions)); // Versions
     //sendTrkMessage(0x09); // Unrecognized command
     //sendTrkMessage(0x4a, 0,
     //    "10 " + formatString("C:\\data\\usingdlls.sisx")); // Open File
@@ -427,7 +427,7 @@ void Adapter::sendGdbMessage(const QByteArray &msg, const QByteArray &logNote)
 void Adapter::sendGdbMessageAfterSync(const QByteArray &msg, const QByteArray &logNote)
 {
     QByteArray ba = msg + char(1) + logNote;
-    sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, Callback(this, &Adapter::reportToGdb), "", ba); // Answer gdb
+    sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCallback(this, &Adapter::reportToGdb), "", ba); // Answer gdb
 }
 
 void Adapter::reportToGdb(const TrkResult &result)
@@ -492,7 +492,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         appendInt(&ba, 0); // end address
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
-        sendTrkMessage(0x18, Callback(), ba);
+        sendTrkMessage(0x18, TrkCallback(), ba);
         // FIXME: should be triggered by real stop
         //sendGdbMessageAfterSync("S11", "target stopped");
     }
@@ -508,7 +508,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         QByteArray ba;
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
-        sendTrkMessage(0x18, Callback(this, &Adapter::handleSignalContinue), ba, signalNumber); // Continue
+        sendTrkMessage(0x18, TrkCallback(this, &Adapter::handleSignalContinue), ba, signalNumber); // Continue
     }
 
     else if (response.startsWith("D")) {
@@ -529,7 +529,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         appendShort(&ba, RegisterCount - 1); // last register
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
-        sendTrkMessage(0x12, Callback(this, &Adapter::handleAndReportReadRegisters), ba, QVariant(), true);
+        sendTrkMessage(0x12, TrkCallback(this, &Adapter::handleAndReportReadRegisters), ba, QVariant(), true);
     }
 
     else if (response.startsWith("Hc")) {
@@ -562,7 +562,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         QByteArray ba;
         appendByte(&ba, 0); // Sub-command: Delete Process
         appendInt(&ba, m_session.pid);
-        sendTrkMessage(0x41, Callback(), ba, "Delete process"); // Delete Item
+        sendTrkMessage(0x41, TrkCallback(), ba, "Delete process"); // Delete Item
         sendGdbMessageAfterSync("", "process killed");
     }
 
@@ -740,7 +740,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         appendInt(&ba, m_snapshot.registers[RegisterPC] + 4); // end address
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
-        sendTrkMessage(0x19, Callback(), ba, "Step range");
+        sendTrkMessage(0x19, TrkCallback(), ba, "Step range");
         // FIXME: should be triggered by "real" stop"
         //sendGdbMessageAfterSync("S05", "target halted");
     }
@@ -762,7 +762,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         QByteArray ba;
         appendByte(&ba, 0); // Sub-command: Delete Process
         appendInt(&ba, m_session.pid);
-        sendTrkMessage(0x41, Callback(), ba, "Delete process"); // Delete Item
+        sendTrkMessage(0x41, TrkCallback(), ba, "Delete process"); // Delete Item
         sendGdbMessageAfterSync("", "process killed");
     }
 
@@ -789,7 +789,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         // [1B 09 82 00 78 67 43 40 00 00 00 01 00 00 00 00
         //  00 00 01 B5 FF FF FF FF]
         const QByteArray ba = breakpointTrkMessage(addr, len, m_session.pid);
-        sendTrkMessage(0x1B, Callback(this, &Adapter::handleAndReportSetBreakpoint), ba);
+        sendTrkMessage(0x1B, TrkCallback(this, &Adapter::handleAndReportSetBreakpoint), ba);
         //m_session.toekn
 
         //---TRK------------------------------------------------------
@@ -852,7 +852,7 @@ bool Adapter::openTrkPort(const QString &port, QString *errorMessage)
     return m_trkDevice->open(port, errorMessage);
 }
 
-void Adapter::sendTrkMessage(byte code, Callback callBack,
+void Adapter::sendTrkMessage(byte code, TrkCallback callBack,
     const QByteArray &data, const QVariant &cookie, bool invokeOnFailure)
 {
     if (m_useSocket)
@@ -874,13 +874,13 @@ void Adapter::sendTrkContinue()
     QByteArray ba;
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid);
-    sendTrkMessage(0x18, Callback(), ba, "CONTINUE");
+    sendTrkMessage(0x18, TrkCallback(), ba, "CONTINUE");
 }
 
 void Adapter::waitForTrkFinished()
 {
     // initiate one last roundtrip to ensure all is flushed
-    sendTrkMessage(0x0, Callback(this, &Adapter::handleWaitForFinished));
+    sendTrkMessage(0x0, TrkCallback(this, &Adapter::handleWaitForFinished));
 }
 
 void Adapter::sendTrkAck(byte token)
@@ -1032,7 +1032,7 @@ void Adapter::setTrkBreakpoint(const Breakpoint &bp)
         // [1B 09 82 00 78 67 43 40 00 00 00 01 00 00 00 00
         //  00 00 01 B5 FF FF FF FF]
     const QByteArray ba = breakpointTrkMessage(m_session.codeseg + bp.offset, 1, m_session.pid);
-    sendTrkMessage(0x1B, Callback(this, &Adapter::handleSetTrkBreakpoint), ba);
+    sendTrkMessage(0x1B, TrkCallback(this, &Adapter::handleSetTrkBreakpoint), ba);
 
         //---TRK------------------------------------------------------
         //  Command: 0x80 Acknowledge
@@ -1088,10 +1088,10 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     //  Command: 0x42 Read Info
     //          [42 0C 00 06 00 00 00 00 00 14 50 6F 6C 79 6D 6F
     //  72 70 68 69 63 44 4C 4C 32 2E 64 6C 6C 00]
-    sendTrkMessage(0x42, Callback(this, &Adapter::handleReadInfo),
+    sendTrkMessage(0x42, TrkCallback(this, &Adapter::handleReadInfo),
         "00 06 00 00 00 00 00 14 50 6F 6C 79 6D 6F "
         "72 70 68 69 63 44 4C 4C 32 2E 64 6C 6C 00");
-    //sendTrkMessage(0x42, Callback(this, &Adapter::handleReadInfo),
+    //sendTrkMessage(0x42, TrkCallback(this, &Adapter::handleReadInfo),
     //        "00 01 00 00 00 00");
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
@@ -1103,7 +1103,7 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     //  Command: 0x42 Read Info
     // [42 0D 00 06 00 00 00 00 00 14 50 6F 6C 79 6D 6F
     //  72 70 68 69 63 44 4C 4C 31 2E 64 6C 6C 00]
-    sendTrkMessage(0x42, Callback(this, &Adapter::handleReadInfo),
+    sendTrkMessage(0x42, TrkCallback(this, &Adapter::handleReadInfo),
         "00 06 00 00 00 00 00 14 50 6F 6C 79 6D 6F "
         "72 70 68 69 63 44 4C 4C 31 2E 64 6C 6C 00");
     //---TRK------------------------------------------------------
@@ -1112,7 +1112,7 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     // [80 0D 20]
 #endif
 
-    //sendTrkMessage(0x18, Callback(this, &Adapter::handleStop),
+    //sendTrkMessage(0x18, TrkCallback(this, &Adapter::handleStop),
     //    "01 " + formatInt(m_session.pid) + formatInt(m_session.tid));
 
     //---IDE------------------------------------------------------
@@ -1123,8 +1123,8 @@ void Adapter::handleCreateProcess(const TrkResult &result)
     QByteArray ba;
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid);
-    sendTrkMessage(0x18, Callback(this, &Adapter::handleContinue), ba);
-    //sendTrkMessage(0x18, Callback(this, &Adapter::handleContinue),
+    sendTrkMessage(0x18, TrkCallback(this, &Adapter::handleContinue), ba);
+    //sendTrkMessage(0x18, TrkCallback(this, &Adapter::handleContinue),
     //    formatInt(m_session.pid) + "ff ff ff ff");
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
@@ -1267,7 +1267,7 @@ void Adapter::clearTrkBreakpoint(const Breakpoint &bp)
     appendByte(&ba, 0x00);
     appendShort(&ba, bp.number);
     appendInt(&ba, m_session.codeseg + bp.offset);
-    sendTrkMessage(0x1C, Callback(this, &Adapter::handleClearBreakpoint), ba);
+    sendTrkMessage(0x1C, TrkCallback(this, &Adapter::handleClearBreakpoint), ba);
 }
 
 void Adapter::handleClearBreakpoint(const TrkResult &result)
@@ -1341,7 +1341,7 @@ void Adapter::cleanUp()
     appendByte(&ba, 0x00);
     appendByte(&ba, 0x00);
     appendInt(&ba, m_session.pid);
-    sendTrkMessage(0x41, Callback(), ba, "Delete process");
+    sendTrkMessage(0x41, TrkCallback(), ba, "Delete process");
 
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
@@ -1351,7 +1351,7 @@ void Adapter::cleanUp()
     foreach (const Breakpoint &bp, m_breakpoints)
         clearTrkBreakpoint(bp);
 
-    sendTrkMessage(0x02, Callback(this, &Adapter::handleDisconnect));
+    sendTrkMessage(0x02, TrkCallback(this, &Adapter::handleDisconnect));
     m_startInferiorTriggered = false;
     //---IDE------------------------------------------------------
     //  Command: 0x1C Clear Break
@@ -1382,7 +1382,7 @@ void Adapter::cleanUp()
     //---IDE------------------------------------------------------
     //  Command: 0x02 Disconnect
     // [02 27]
-//    sendTrkMessage(0x02, Callback(this, &Adapter::handleDisconnect));
+//    sendTrkMessage(0x02, TrkCallback(this, &Adapter::handleDisconnect));
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
     // Error: 0x00
@@ -1413,17 +1413,17 @@ void Adapter::readMemory(uint addr, uint len)
             if (!m_snapshot.memory.contains(blockaddr)) {
                 if (m_verbose)
                     logMessage(QString::fromLatin1("Requesting buffered memory %1 bytes from 0x%2").arg(MemoryChunkSize).arg(blockaddr, 0, 16));
-                sendTrkMessage(0x10, Callback(this, &Adapter::handleReadMemoryBuffered),
+                sendTrkMessage(0x10, TrkCallback(this, &Adapter::handleReadMemoryBuffered),
                                memoryRequestTrkMessage(blockaddr, MemoryChunkSize, m_session.pid, m_session.tid),
                                QVariant(blockaddr), true);
             }
         }
         const qulonglong cookie = (qulonglong(addr) << 32) + len;
-        sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, Callback(this, &Adapter::reportReadMemoryBuffered), QByteArray(), cookie);
+        sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCallback(this, &Adapter::reportReadMemoryBuffered), QByteArray(), cookie);
     } else {
         if (m_verbose)
             logMessage(QString::fromLatin1("Requesting unbuffered memory %1 bytes from 0x%2").arg(len).arg(addr, 0, 16));
-        sendTrkMessage(0x10, Callback(this, &Adapter::handleReadMemoryUnbuffered),
+        sendTrkMessage(0x10, TrkCallback(this, &Adapter::handleReadMemoryUnbuffered),
                        memoryRequestTrkMessage(addr, len, m_session.pid, m_session.tid),
                        QVariant(addr), true);
     }
@@ -1446,7 +1446,7 @@ void Adapter::startInferiorIfNeeded()
 
     QByteArray file("C:\\sys\\bin\\filebrowseapp.exe");
     appendString(&ba, file, TargetByteOrder);
-    sendTrkMessage(0x40, Callback(this, &Adapter::handleCreateProcess), ba); // Create Item
+    sendTrkMessage(0x40, TrkCallback(this, &Adapter::handleCreateProcess), ba); // Create Item
 }
 
 void Adapter::interruptInferior()
@@ -1456,7 +1456,7 @@ void Adapter::interruptInferior()
     appendByte(&ba, 1);
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid); // threadID: 4 bytes Variable number of bytes.
-    sendTrkMessage(0x1A, Callback(), ba, "Interrupting...");
+    sendTrkMessage(0x1A, TrkCallback(), ba, "Interrupting...");
 }
 
 static bool readAdapterArgs(const QStringList &args, AdapterOptions *o)

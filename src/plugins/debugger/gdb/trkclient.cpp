@@ -52,14 +52,17 @@ enum { TimerInterval = 100 };
 
 #ifdef Q_OS_WIN
 
-// Format windows error from GetLastError() value: TODO: Use the one provided by the utisl lib.
+// Format windows error from GetLastError() value:
+// TODO: Use the one provided by the utils lib.
 QString winErrorMessage(unsigned long error)
 {
     QString rc = QString::fromLatin1("#%1: ").arg(error);
     ushort *lpMsgBuf;
 
     const int len = FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            FORMAT_MESSAGE_ALLOCATE_BUFFER
+                | FORMAT_MESSAGE_FROM_SYSTEM
+                | FORMAT_MESSAGE_IGNORE_INSERTS,
             NULL, error, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
     if (len) {
         rc = QString::fromUtf16(lpMsgBuf, len);
@@ -106,19 +109,17 @@ namespace trk {
  * of the answer. */
 struct TrkMessage
 {
-    typedef TrkFunctor1<const TrkResult &> Callback;
-
     explicit TrkMessage(byte code = 0u, byte token = 0u,
-                        Callback callback = Callback());
+                        TrkCallback callback = TrkCallback());
 
     byte code;
     byte token;
     QByteArray data;
     QVariant cookie;
-    Callback callback;
+    TrkCallback callback;
 };
 
-TrkMessage::TrkMessage(byte c, byte t, Callback cb) :
+TrkMessage::TrkMessage(byte c, byte t, TrkCallback cb) :
     code(c),
     token(t),
     callback(cb)
@@ -135,12 +136,10 @@ TrkMessage::TrkMessage(byte c, byte t, Callback cb) :
 class TrkWriteQueue
 {
 public:
-    typedef TrkDevice::Callback Callback;   
-
     TrkWriteQueue();
 
     // Enqueue messages.
-    void queueTrkMessage(byte code, Callback callback,
+    void queueTrkMessage(byte code, TrkCallback callback,
                         const QByteArray &data, const QVariant &cookie);
     void queueTrkInitialPing();
 
@@ -179,7 +178,7 @@ byte TrkWriteQueue::nextTrkWriteToken()
     return trkWriteToken;
 }
 
-void TrkWriteQueue::queueTrkMessage(byte code, Callback callback,
+void TrkWriteQueue::queueTrkMessage(byte code, TrkCallback callback,
     const QByteArray &data, const QVariant &cookie)
 {
     const byte token = code == TRK_WRITE_QUEUE_NOOP_CODE ?
@@ -509,7 +508,7 @@ void TrkDevice::emitError(const QString &s)
     emit error(s);
 }
 
-void TrkDevice::sendTrkMessage(byte code, Callback callback,
+void TrkDevice::sendTrkMessage(byte code, TrkCallback callback,
      const QByteArray &data, const QVariant &cookie)
 {
     d->queue.queueTrkMessage(code, callback, data, cookie);

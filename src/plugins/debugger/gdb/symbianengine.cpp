@@ -29,7 +29,7 @@
 
 #define QT_NO_CAST_FROM_ASCII
 
-#include "gdb/gdbengine.h"
+#include "gdbengine.h"
 #include "symbianadapter.h"
 #include "debuggermanager.h"
 

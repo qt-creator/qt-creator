@@ -339,24 +339,23 @@ void TrkDevice::emitError(const QString &s)
 
 /* A message to be send to TRK, triggering a callback on receipt
  * of the answer. */
+typedef Debugger::Callback<const TrkResult &> TrkCallback;
 struct TrkMessage {
-    typedef TrkFunctor1<const TrkResult &> Callback;
-
     explicit TrkMessage(unsigned char code = 0u,
                         unsigned char token = 0u,
-                        Callback callback = Callback());
+                        TrkCallback callback = TrkCallback());
 
     unsigned char code;
     unsigned char token;
     QByteArray data;
     QVariant cookie;
-    Callback callback;
+    TrkCallback callback;
     bool invokeOnNAK;
 };
 
 TrkMessage::TrkMessage(unsigned char c,
                         unsigned char t,
-                        Callback cb) :
+                        TrkCallback cb) :
     code(c),
     token(t),
     callback(cb),
@@ -371,12 +370,10 @@ typedef QSharedPointer<TrkMessage> SharedPointerTrkMessage;
 
 class TrkWriteQueue {
 public:
-    typedef TrkWriteQueueDevice::Callback Callback;   
-
     TrkWriteQueue();
 
     // Enqueue messages.
-    void queueTrkMessage(unsigned char code, Callback callback,
+    void queueTrkMessage(unsigned char code, TrkCallback callback,
                         const QByteArray &data, const QVariant &cookie,
                         bool invokeOnNAK);
     void queueTrkInitialPing();
@@ -419,7 +416,7 @@ unsigned char TrkWriteQueue::nextTrkWriteToken()
     return trkWriteToken;
 }
 
-void TrkWriteQueue::queueTrkMessage(unsigned char code, Callback callback,
+void TrkWriteQueue::queueTrkMessage(unsigned char code, TrkCallback callback,
                                          const QByteArray &data, const QVariant &cookie,
                                          bool invokeOnNAK)
 {
@@ -515,7 +512,7 @@ TrkWriteQueueDevice::~TrkWriteQueueDevice()
     delete qd;
 }
 
-void TrkWriteQueueDevice::sendTrkMessage(unsigned char code, Callback callback,
+void TrkWriteQueueDevice::sendTrkMessage(unsigned char code, TrkCallback callback,
                                          const QByteArray &data, const QVariant &cookie,
                                          bool invokeOnNAK)
 {
@@ -620,7 +617,7 @@ void TrkWriteQueueIODevice::setVerbose(bool b)
     d->verbose = b;
 }
 
-void TrkWriteQueueIODevice::sendTrkMessage(unsigned char code, Callback callback,
+void TrkWriteQueueIODevice::sendTrkMessage(unsigned char code, TrkCallback callback,
                                          const QByteArray &data, const QVariant &cookie,
                                          bool invokeOnNAK)
 {

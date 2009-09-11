@@ -10,6 +10,6 @@ SOURCES += \
 
 HEADERS += \
     $$DEBUGGERHOME/trkutils.h \
-    $$DEBUGGERHOME/trkfunctor.h \
+    $$DEBUGGERHOME/callback.h \
     $$PWD/trkdevice.h \
     $$PWD/launcher.h
