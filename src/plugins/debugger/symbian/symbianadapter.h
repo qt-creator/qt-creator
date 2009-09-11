@@ -85,11 +85,13 @@ public:
     SymbianAdapter();
     ~SymbianAdapter();
     void setGdbServerName(const QString &name);
+    QString gdbServerName() const { return m_gdbServerName; }
     QString gdbServerIP() const;
     uint gdbServerPort() const;
     void setVerbose(int verbose) { m_verbose = verbose; }
     void setSerialFrame(bool b) { m_serialFrame = b; }
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
+    trk::Session &session() { return m_session; }
 
 public slots:
     void startInferior();
@@ -98,19 +100,13 @@ public slots:
 signals:
     void output(const QString &msg);
     void startSuccessful();
+    void startFailed();
 
 private slots:
-    void handleProcError(QProcess::ProcessError error);
-    void handleProcFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void handleProcStarted();
-    void handleProcStateChanged(QProcess::ProcessState newState);
     void startGdb();
 
 private:
     friend class RunnerGui;
-    void connectProcess(QProcess *proc);
-    void sendOutput(QObject *sender, const QString &data);
-    void sendOutput(const QString &data) { sendOutput(0, data); }
 
     QString m_rfcommDevice;  // /dev/rfcomm0
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
@@ -174,10 +170,6 @@ public:
     void reportReadMemoryBuffered(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
 
-    // set breakpoints behind gdb's back
-    void handleSetTrkBreakpoint(const TrkResult &result);
-    void handleSetTrkMainBreakpoint(const TrkResult &result);
-
     void readMemory(uint addr, uint len);
     void interruptInferior();
 
@@ -212,6 +204,11 @@ public:
     void sendGdbServerAck();
     bool sendGdbServerPacket(const QByteArray &packet, bool doFlush);
 
+    Q_SLOT void handleGdbError(QProcess::ProcessError error);
+    Q_SLOT void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    Q_SLOT void handleGdbStarted();
+    Q_SLOT void handleGdbStateChanged(QProcess::ProcessState newState);
+
     void logMessage(const QString &msg);  // triggers output() if m_verbose
     Q_SLOT void trkLogMessage(const QString &msg);
 
@@ -227,6 +224,10 @@ public:
     //
     Q_SLOT void handleRfcommReadyReadStandardError();
     Q_SLOT void handleRfcommReadyReadStandardOutput();
+    Q_SLOT void handleRfcommError(QProcess::ProcessError error);
+    Q_SLOT void handleRfcommFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    Q_SLOT void handleRfcommStarted();
+    Q_SLOT void handleRfcommStateChanged(QProcess::ProcessState newState);
 
     // Debuggee state
     Q_SLOT void executeCommand(const QString &msg);

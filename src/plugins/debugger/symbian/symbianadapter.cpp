@@ -79,19 +79,31 @@ SymbianAdapter::SymbianAdapter()
     uid_t userId = getuid();
     m_gdbServerName = QString("127.0.0.1:%1").arg(2222 + userId);
 
-    m_gdbProc.setObjectName("GDB PROCESS");
-    connectProcess(&m_gdbProc);
     connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
         this, SIGNAL(readyReadStandardError()));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
         this, SIGNAL(readyReadStandardOutput()));
+    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
+        this, SLOT(handleGdbError(QProcess::ProcessError)));
+    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
+        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
+    connect(&m_gdbProc, SIGNAL(started()),
+        this, SLOT(handleGdbStarted()));
+    connect(&m_gdbProc, SIGNAL(stateChanged(QProcess::ProcessState)),
+        this, SLOT(handleGdbStateChanged(QProcess::ProcessState)));
 
-    m_rfcommProc.setObjectName("RFCOMM PROCESS");
-    connectProcess(&m_rfcommProc);
     connect(&m_rfcommProc, SIGNAL(readyReadStandardError()),
         this, SLOT(handleRfcommReadyReadStandardError()));
     connect(&m_rfcommProc, SIGNAL(readyReadStandardOutput()),
         this, SLOT(handleRfcommReadyReadStandardOutput()));
+    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
+        this, SLOT(handleRfcommError(QProcess::ProcessError)));
+    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
+        this, SLOT(handleRfcommFinished(int, QProcess::ExitStatus)));
+    connect(&m_gdbProc, SIGNAL(started()),
+        this, SLOT(handleRfcommStarted()));
+    connect(&m_gdbProc, SIGNAL(stateChanged(QProcess::ProcessState)),
+        this, SLOT(handleRfcommStateChanged(QProcess::ProcessState)));
 
     if (m_verbose > 1)
         m_trkDevice.setVerbose(true);
@@ -946,17 +958,6 @@ void SymbianAdapter::handleCpuType(const TrkResult &result)
     logMessage(logMsg);
 }
 
-void SymbianAdapter::handleSetTrkBreakpoint(const TrkResult &result)
-{
-    //---TRK------------------------------------------------------
-    //  Command: 0x80 Acknowledge
-    //    Error: 0x00
-    // [80 09 00 00 00 00 0A]
-    const uint bpnr = extractInt(result.data.data());
-    logMessage("SET BREAKPOINT " + hexxNumber(bpnr)
-        + stringFromArray(result.data.data()));
-}
-
 void SymbianAdapter::handleCreateProcess(const TrkResult &result)
 {
     //  40 00 00]
@@ -978,39 +979,6 @@ void SymbianAdapter::handleCreateProcess(const TrkResult &result)
     appendInt(&ba, m_session.tid);
 
     startGdb();
-
-
-#if 0
-    //---IDE------------------------------------------------------
-    //  Command: 0x42 Read Info
-    //          [42 0C 00 06 00 00 00 00 00 14 50 6F 6C 79 6D 6F
-    //  72 70 68 69 63 44 4C 4C 32 2E 64 6C 6C 00]
-    sendTrkMessage(0x42, TrkCB(handleReadInfo),
-        "00 06 00 00 00 00 00 14 50 6F 6C 79 6D 6F "
-        "72 70 68 69 63 44 4C 4C 32 2E 64 6C 6C 00");
-    //sendTrkMessage(0x42, TrkCB(handleReadInfo),
-    //        "00 01 00 00 00 00");
-    //---TRK------------------------------------------------------
-    //  Command: 0x80 Acknowledge
-    //    Error: 0x20 Unspecified general OS-related error
-    // [80 0C 20]
-
-
-    //---IDE------------------------------------------------------
-    //  Command: 0x42 Read Info
-    // [42 0D 00 06 00 00 00 00 00 14 50 6F 6C 79 6D 6F
-    //  72 70 68 69 63 44 4C 4C 31 2E 64 6C 6C 00]
-    sendTrkMessage(0x42, TrkCB(handleReadInfo),
-        "00 06 00 00 00 00 00 14 50 6F 6C 79 6D 6F "
-        "72 70 68 69 63 44 4C 4C 31 2E 64 6C 6C 00");
-    //---TRK------------------------------------------------------
-    //  Command: 0x80 Acknowledge
-    //    Error: 0x20 Unspecified general OS-related error
-    // [80 0D 20]
-#endif
-
-    //sendTrkMessage(0x18, TrkCB(handleStop),
-    //    "01 " + formatInt(m_session.pid) + formatInt(m_session.tid));
 }
 
 void SymbianAdapter::handleReadRegisters(const TrkResult &result)
@@ -1269,53 +1237,37 @@ void SymbianAdapter::interruptInferior()
     sendTrkMessage(0x1a, TrkCallback(), ba, "Interrupting...");
 }
 
-void SymbianAdapter::connectProcess(QProcess *proc)
+void SymbianAdapter::handleGdbError(QProcess::ProcessError error)
 {
-    connect(proc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(handleProcError(QProcess::ProcessError)));
-    connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        this, SLOT(handleProcFinished(int, QProcess::ExitStatus)));
-    connect(proc, SIGNAL(started()),
-        this, SLOT(handleProcStarted()));
-    connect(proc, SIGNAL(stateChanged(QProcess::ProcessState)),
-        this, SLOT(handleProcStateChanged(QProcess::ProcessState)));
+    emit output(QString("GDB: Process Error %1: %2").arg(error).arg(errorString()));
 }
 
-void SymbianAdapter::sendOutput(QObject *sender, const QString &data)
+void SymbianAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    if (sender)
-        emit output(sender->objectName() + " : " + data);
-    else
-        emit output(data);
+    emit output(QString("GDB: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
 }
 
-void SymbianAdapter::handleProcError(QProcess::ProcessError error)
+void SymbianAdapter::handleGdbStarted()
 {
-    sendOutput(sender(),
-        QString("Process Error %1: %2").arg(error).arg(errorString()));
+    emit output(QString("GDB: Process Started"));
+    emit started();
 }
 
-void SymbianAdapter::handleProcFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void SymbianAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
 {
-    sendOutput(sender(),
-        QString("ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
-}
-
-void SymbianAdapter::handleProcStarted()
-{
-    sendOutput(sender(), QString("Process Started"));
-}
-
-void SymbianAdapter::handleProcStateChanged(QProcess::ProcessState newState)
-{
-    sendOutput(sender(), QString("Process State %1").arg(newState));
+    emit output(QString("GDB: Process State %1").arg(newState));
 }
 
 void SymbianAdapter::run()
 {
-    sendOutput("### Starting SymbianAdapter");
+    emit output("### Starting SymbianAdapter");
     m_rfcommProc.start("rfcomm listen " + m_rfcommDevice + " 1");
     m_rfcommProc.waitForStarted();
+    
+    if (m_rfcommProc.state() != QProcess::Running) {
+        emit finished(-44, QProcess::CrashExit);
+        return;
+    }
 
     connect(&m_trkDevice, SIGNAL(messageReceived(trk::TrkResult)),
         this, SLOT(handleTrkResult(trk::TrkResult)));
@@ -1330,7 +1282,7 @@ void SymbianAdapter::startGdb()
     if (!m_gdbServer.listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
         logMessage(QString("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer.errorString()));
-        //emit startFailed();
+        emit finished(-45, QProcess::CrashExit);
         return;
     }
 
@@ -1346,32 +1298,6 @@ void SymbianAdapter::startGdb()
     gdbArgs.append("-i");
     gdbArgs.append("mi");
     m_gdbProc.start(QDir::currentPath() + "/cs-gdb", gdbArgs);
-    m_gdbProc.waitForStarted();
-
-    sendGdbMessage("set confirm off"); // confirm potentially dangerous operations?
-    sendGdbMessage("set endian little");
-    sendGdbMessage("set remotebreak on");
-    sendGdbMessage("set breakpoint pending on");
-    sendGdbMessage("set trust-readonly-sections on");
-    //sendGdbMessage("mem 0 ~0ll rw 8 cache");
-
-    // FIXME: "remote noack" does not seem to be supported on cs-gdb?
-    //sendGdbMessage("set remote noack-packet");
-
-    // FIXME: creates a lot of noise a la  '&"putpkt: Junk: Ack " &'
-    // even though the communication seems sane
-    //sendGdbMessage("set debug remote 1"); // creates l
-
-    sendGdbMessage("add-symbol-file filebrowseapp.sym "
-        + hexxNumber(m_session.codeseg));
-    sendGdbMessage("symbol-file filebrowseapp.sym");
-
-    //sendGdbMessage("info address CFileBrowseAppUi::HandleCommandL",
-    //    GdbCB(handleInfoMainAddress)); 
-        
-    sendGdbMessage("-break-insert filebrowseappui.cpp:39");
-    sendGdbMessage("target remote " + m_gdbServerName);
-    emit started();
 }
 
 void SymbianAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
@@ -1385,28 +1311,41 @@ void SymbianAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
     m_gdbProc.write(msg.toLatin1() + "\n");
 }
 
-void SymbianAdapter::handleSetTrkMainBreakpoint(const TrkResult &result)
-{
-    Q_UNUSED(result);
-/*
-    //---TRK------------------------------------------------------
-    // [80 09 00 00 00 00 0A]
-    const uint bpnr = extractInt(result.data.data());
-    logMessage("SET MAIN BREAKPOINT " + hexxNumber(bpnr)
-        + stringFromArray(result.data.data()));
-*/
-}
+//
+// GdbProcessBase
+//
 
 void SymbianAdapter::handleRfcommReadyReadStandardError()
 {
-    QByteArray ba = qobject_cast<QProcess *>(sender())->readAllStandardError();
-    sendOutput(sender(), QString("stderr: %1").arg(QString::fromLatin1(ba)));
+    QByteArray ba = m_rfcommProc.readAllStandardError();
+    emit output(QString("RFCONN stderr: %1").arg(QString::fromLatin1(ba)));
 }
 
 void SymbianAdapter::handleRfcommReadyReadStandardOutput()
 {
-    QByteArray ba = qobject_cast<QProcess *>(sender())->readAllStandardOutput();
-    sendOutput(sender(), QString("stdout: %1").arg(QString::fromLatin1(ba)));
+    QByteArray ba = m_rfcommProc.readAllStandardOutput();
+    emit output(QString("RFCONN stdout: %1").arg(QString::fromLatin1(ba)));
+}
+
+
+void SymbianAdapter::handleRfcommError(QProcess::ProcessError error)
+{
+    emit output(QString("RFCOMM: Process Error %1: %2").arg(error).arg(errorString()));
+}
+
+void SymbianAdapter::handleRfcommFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    emit output(QString("RFCOMM: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
+}
+
+void SymbianAdapter::handleRfcommStarted()
+{
+    emit output(QString("RFCOMM: Process Started"));
+}
+
+void SymbianAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
+{
+    emit output(QString("RFCOMM: Process State %1").arg(newState));
 }
 
 //

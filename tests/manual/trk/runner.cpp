@@ -186,7 +186,30 @@ void RunnerGui::run()
 void RunnerGui::started()
 {
     qDebug() << "\nSTARTED\n";
-    m_adapter->sendGdbMessage("-exec-continue");
+    executeCommand("set confirm off"); // confirm potentially dangerous operations?
+    executeCommand("set endian little");
+    executeCommand("set remotebreak on");
+    executeCommand("set breakpoint pending on");
+    executeCommand("set trust-readonly-sections on");
+    //executeCommand("mem 0 ~0ll rw 8 cache");
+
+    // FIXME: "remote noack" does not seem to be supported on cs-gdb?
+    //executeCommand("set remote noack-packet");
+
+    // FIXME: creates a lot of noise a la  '&"putpkt: Junk: Ack " &'
+    // even though the communication seems sane
+    //executeCommand("set debug remote 1"); // creates l
+
+    executeCommand("add-symbol-file filebrowseapp.sym "
+        + trk::hexxNumber(m_adapter->session().codeseg));
+    executeCommand("symbol-file filebrowseapp.sym");
+
+    //executeCommand("info address CFileBrowseAppUi::HandleCommandL",
+    //    GdbCB(handleInfoMainAddress)); 
+        
+    executeCommand("-break-insert filebrowseappui.cpp:39");
+    executeCommand("target remote " + m_adapter->gdbServerName());
+    executeCommand("-exec-continue");
 }
 
 ///////////////////////////////////////////////////////////////////////
