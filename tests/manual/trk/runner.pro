@@ -1,7 +1,7 @@
 
 TEMPLATE = app
 
-DEBUGGERHOME = ../../../src/plugins/debugger/symbian
+DEBUGGERHOME = ../../../src/plugins/debugger/gdb
 INCLUDEPATH *= $$DEBUGGERHOME
 
 DEFINES += STANDALONE_RUNNER

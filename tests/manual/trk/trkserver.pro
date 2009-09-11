@@ -1,7 +1,7 @@
 
 TEMPLATE = app
 
-DEBUGGERHOME = ../../../src/plugins/debugger/symbian
+DEBUGGERHOME = ../../../src/plugins/debugger/gdb
 
 QT = core network
 win32:CONFIG+=console
