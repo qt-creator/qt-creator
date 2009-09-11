@@ -106,6 +106,7 @@ private slots:
     void executeNextCommand() { executeCommand("-exec-next"); }
     void executeContinueCommand() { executeCommand("-exec-continue"); }
     void executeDisassICommand() { executeCommand("disass $pc $pc+4"); }
+    void executeStopCommand() { executeCommand("I"); }
 
     void handleReadyReadStandardError();
     void handleReadyReadStandardOutput();
@@ -120,6 +121,7 @@ private:
     SymbianAdapter *m_adapter;
     TextEdit m_textEdit;
     QToolBar m_toolBar;
+    QAction *m_stopAction;
     QAction *m_stepIAction;
     QAction *m_stepAction;
     QAction *m_nextIAction;
@@ -142,6 +144,7 @@ RunnerGui::RunnerGui(SymbianAdapter *adapter)
     connectAction(m_nextAction, "Next", SLOT(executeNextCommand()));
     connectAction(m_disassIAction, "Disass Inst", SLOT(executeDisassICommand()));
     connectAction(m_continueAction, "Continue", SLOT(executeContinueCommand()));
+    connectAction(m_stopAction, "Stop", SLOT(executeStopCommand()));
 
     connect(adapter, SIGNAL(output(QString)),
         &m_textEdit, SLOT(handleOutput(QString)));

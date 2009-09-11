@@ -434,7 +434,7 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
         QByteArray ba;
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
-        sendTrkMessage(0x18, TrkCB(handleSignalContinue), ba, signalNumber); // Continue
+        sendTrkMessage(0x18, TrkCB(handleSignalContinue), ba, signalNumber);
     }
 
     else if (cmd.startsWith("D")) {
@@ -443,9 +443,8 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd == "g") {
-        logMessage(msgGdbPacket(QLatin1String("Read registers")));
         // Read general registers.
-        //sendGdbServerMessage("00000000", "read registers");
+        logMessage(msgGdbPacket(QLatin1String("Read registers")));
         sendGdbServerAck();
         sendTrkMessage(0x12, TrkCB(handleAndReportReadRegisters),
             trkReadRegisterMessage());
@@ -471,9 +470,9 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
             + QByteArray::number(m_session.currentThread));
     }
 
-    else if (cmd == "k") {
+    else if (cmd == "k" || cmd.startsWith("vKill")) {
+        // Kill inferior process
         logMessage(msgGdbPacket(QLatin1String("kill")));
-        // kill
         sendGdbServerAck();
         QByteArray ba;
         appendByte(&ba, 0); // ?
@@ -511,38 +510,6 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // 0xf == current instruction pointer?
         //sendGdbServerMessage("0000", "current IP");
         sendGdbServerAck();
-        #if 0
-          A1 = 0,	 first integer-like argument
-          A4 = 3,	 last integer-like argument
-          AP = 11,
-          IP = 12,
-          SP = 13,	 Contains address of top of stack
-          LR = 14,	 address to return to from a function call
-          PC = 15,	 Contains program counter
-          F0 = 16,	 first floating point register
-          F3 = 19,	 last floating point argument register
-          F7 = 23, 	 last floating point register
-          FPS = 24,	 floating point status register
-          PS = 25,	 Contains processor status
-          WR0,		 WMMX data registers.
-          WR15 = WR0 + 15,
-          WC0,		 WMMX control registers.
-          WCSSF = WC0 + 2,
-          WCASF = WC0 + 3,
-          WC7 = WC0 + 7,
-          WCGR0,		WMMX general purpose registers.
-          WCGR3 = WCGR0 + 3,
-          WCGR7 = WCGR0 + 7,
-          NUM_REGS,
-
-          // Other useful registers.
-          FP = 11,		Frame register in ARM code, if used.
-          THUMB_FP = 7,		Frame register in Thumb code, if used.
-          NUM_ARG_REGS = 4,
-          LAST_ARG = A4,
-          NUM_FP_ARG_REGS = 4,
-          LAST_FP_ARG = F3
-        #endif
         bool ok = false;
         const uint registerNumber = cmd.mid(1).toInt(&ok, 16);
         QByteArray logMsg = "Read Register";
@@ -557,7 +524,8 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
             logMsg += dumpRegister(registerNumber, m_snapshot.registers[registerNumber]);
             sendGdbServerMessage(ba.toHex(), logMsg);
         } else {
-            sendGdbServerMessage("0000", "read single unknown register #" + QByteArray::number(registerNumber));
+            sendGdbServerMessage("0000", "read single unknown register #"
+                + QByteArray::number(registerNumber));
             //sendGdbServerMessage("E01", "read single unknown register");
         }
     }
@@ -585,15 +553,19 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
         //$qSupported:multiprocess+#c6
         //logMessage("Handling 'qSupported'");
         sendGdbServerAck();
-        if (0)
-            sendGdbServerMessage(QByteArray(), "nothing supported");
-        else
-            sendGdbServerMessage(
-                "PacketSize=7cf;"
-                "QPassSignals+;"
-                "qXfer:libraries:read+;"
-                //"qXfer:auxv:read+;"
-                "qXfer:features:read+");
+        sendGdbServerMessage(
+            "PacketSize=7cf;"
+            "QPassSignals+;"
+            "qXfer:libraries:read+;"
+            //"qXfer:auxv:read+;"
+            "qXfer:features:read+");
+    }
+
+    else if (cmd == "qfDllInfo") {
+        // happens with  gdb 6.4.50.20060226-cvs / CodeSourcery
+        // never made it into FSF gdb?
+        sendGdbServerAck();
+        sendGdbServerMessage("", "FIXME: nothing?");
     }
 
     else if (cmd == "qPacketInfo") {
@@ -616,7 +588,8 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
         if (1)
             sendGdbServerMessage("OK", "no further symbols needed");
         else
-            sendGdbServerMessage("qSymbol:" + QByteArray("_Z7E32Mainv").toHex(), "ask for more");
+            sendGdbServerMessage("qSymbol:" + QByteArray("_Z7E32Mainv").toHex(),
+                "ask for more");
     }
 
     else if (cmd.startsWith("qXfer:features:read:target.xml:")) {
@@ -650,13 +623,10 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
         QByteArray ba;
         appendByte(&ba, 0x01); // options
         appendInt(&ba, m_snapshot.registers[RegisterPC]); // start address
-        //appendInt(&ba, m_snapshot.registers[RegisterPC] + 4); // end address
-        appendInt(&ba, -1); // end address
+        appendInt(&ba, m_snapshot.registers[RegisterPC]); // end address
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
         sendTrkMessage(0x19, TrkCB(handleStepRange), ba, "Step range");
-        // FIXME: should be triggered by "real" stop"
-        //sendGdbServerMessageAfterTrkResponse("S05", "target halted");
     }
 
     else if (cmd == "vCont?") {
@@ -673,24 +643,9 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
     }
 
-    else if (cmd.startsWith("vKill")) {
-        // kill
-        sendGdbServerAck();
-        QByteArray ba;
-        appendByte(&ba, 0); // Sub-command: Delete Process
-        appendInt(&ba, m_session.pid);
-        sendTrkMessage(0x41, TrkCallback(), ba, "Delete process"); // Delete Item
-        sendGdbServerMessageAfterTrkResponse("", "process killed");
-    }
-
-    else if (0 && cmd.startsWith("Z0,")) {
-        // Tell gdb  we don't support software breakpoints
-        sendGdbServerMessage("");
-    }
-
     else if (cmd.startsWith("Z0,") || cmd.startsWith("Z1,")) {
-        sendGdbServerAck();
         // Insert breakpoint
+        sendGdbServerAck();
         logMessage(msgGdbPacket(QLatin1String("Insert breakpoint")));
         // $Z0,786a4ccc,4#99
         const int pos = cmd.lastIndexOf(',');
@@ -700,29 +655,13 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
         //qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
         logMessage(QString::fromLatin1("Inserting breakpoint at 0x%1, %2")
             .arg(addr, 0, 16).arg(len));
-
-        //---IDE------------------------------------------------------
-        //  Command: 0x1B Set Break
-        //BreakType: 0x82
-        //  Options: 0x00
-        //  Address: 0x78674340 (2020033344)    i.e + 0x00000340
-        //   Length: 0x00000001 (1)
-        //    Count: 0x00000000 (0)
-        //ProcessID: 0x000001b5 (437)
-        // ThreadID: 0xffffffff (-1)
-        // [1B 09 82 00 78 67 43 40 00 00 00 01 00 00 00 00
-        //  00 00 01 B5 FF FF FF FF]
         const QByteArray ba = trkBreakpointMessage(addr, len, m_session.pid);
         sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, addr);
-        //---TRK------------------------------------------------------
-        //  Command: 0x80 Acknowledge
-        //    Error: 0x00
-        // [80 09 00 00 00 00 0A]
     }
 
     else if (cmd.startsWith("z0,") || cmd.startsWith("z1,")) {
-        sendGdbServerAck();
         // Remove breakpoint
+        sendGdbServerAck();
         logMessage(msgGdbPacket(QLatin1String("Remove breakpoint")));
         // $z0,786a4ccc,4#99
         const int pos = cmd.lastIndexOf(',');
@@ -735,9 +674,6 @@ void SymbianAdapter::handleGdbServerCommand(const QByteArray &cmd)
                 .arg(addr, 0, 16).arg(len));
             sendGdbServerMessage("E00");
         } else {
-            //---IDE------------------------------------------------------
-            //  Command: 0x1C Clear Break
-            // [1C 25 00 00 00 0A 78 6A 43 40]
             m_session.addressToBP.remove(addr);
             QByteArray ba;
             appendByte(&ba, 0x00);
@@ -1117,9 +1053,11 @@ void SymbianAdapter::handleStepRange(const TrkResult &result)
     // [80 0f 00]
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString());
+        sendGdbServerMessage("S05", "Stepping finished");
         return;
     }
     logMessage("STEPPING FINISHED ");
+    // The gdb server response is triggered later by the Stop Reply packet
     //sendGdbServerMessage("S05", "Stepping finished");
 }
 
@@ -1145,11 +1083,6 @@ void SymbianAdapter::handleClearBreakpoint(const TrkResult &result)
         logMessage("ERROR: " + result.errorString());
         //return;
     } 
-    //---TRK------------------------------------------------------
-    //  Command: 0x80 Acknowledge
-    //    Error: 0x00
-    // [80 09 00 00 00 00 0A]
-    // FIXME:
     sendGdbServerMessage("OK");
 }
 
@@ -1358,7 +1291,6 @@ void SymbianAdapter::start(const QString &program, const QStringList &args,
     QIODevice::OpenMode mode)
 {
     Q_UNUSED(mode);
-    qDebug() << "SYMBIAN START" << program << args << mode;
     run();
 }
 
