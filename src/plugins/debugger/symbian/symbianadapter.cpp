@@ -1421,6 +1421,7 @@ void SymbianAdapter::attach(GdbEngine *engine) const
         .arg(m_session.codeseg));
     engine->postCommand(_("symbol-file \"%1\"").arg(fileName));
     engine->postCommand(_("target remote ") + gdbServerName());
+    engine->attemptBreakpointSynchronization();
 #endif
 }
 

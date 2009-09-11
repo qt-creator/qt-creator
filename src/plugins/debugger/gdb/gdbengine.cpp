@@ -1078,7 +1078,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         return;
     }
 
-
     //MAC: bool isFirstStop = data.findChild("bkptno").data() == "1";
     //!MAC: startSymbolName == data.findChild("frame").findChild("func")
     if (m_waitingForFirstBreakpointToBeHit) {
@@ -1290,6 +1289,15 @@ void GdbEngine::handleAsyncOutput2(const GdbMi &data)
             m_shortToFullName[file] = full;
             m_fullToShortName[full] = file;
         }
+    }
+
+    // FIXME: Hack, remove as soon as we get real stack traces.
+    if (m_gdbProc->isAdapter()) {
+        StackFrame f;
+        f.file = QString::fromLocal8Bit(fullName.data());
+        f.line = frame.findChild("line").data().toInt();
+        f.address = _(frame.findChild("addr").data());
+        q->gotoLocation(f, true);
     }
 
     //
@@ -2051,6 +2059,8 @@ void GdbEngine::sendInsertBreakpoint(int index)
     //    cmd += "-c " + data->condition + " ";
 #else
     QString cmd = _("-break-insert -f ");
+    if (m_gdbProc->isAdapter())
+        cmd = _("-break-insert ");
     //if (!data->condition.isEmpty())
     //    cmd += _("-c ") + data->condition + ' ';
 #endif
