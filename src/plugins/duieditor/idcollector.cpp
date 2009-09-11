@@ -1,5 +1,3 @@
-#include <QDebug>
-
 #include "idcollector.h"
 #include "qmljsast_p.h"
 #include "qmljsengine_p.h"

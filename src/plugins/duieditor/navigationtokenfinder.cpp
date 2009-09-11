@@ -1,5 +1,3 @@
-#include <QDebug>
-
 #include "qmljsast_p.h"
 #include "qmljsengine_p.h"
 
@@ -158,7 +156,7 @@ void NavigationTokenFinder::rememberStartPosition(QmlJS::AST::Node *node)
         _targetLine = vd->identifierToken.startLine;
         _targetColumn = vd->identifierToken.startColumn;
     } else {
-        qWarning() << "Found declaration of unknown type as a navigation target";
+//        qWarning() << "Found declaration of unknown type as a navigation target";
     }
 }
 
@@ -241,6 +239,8 @@ QmlJS::AST::Node *NavigationTokenFinder::findDeclarationInScopesOrIds(QmlJS::Nam
         return 0;
 
     const QString nameAsString = nameId->asString();
+    if (nameAsString == "parent" && _scopes.size() >= 2)
+        return _scopes.at(_scopes.size() - 2);
 
     foreach (QmlJS::AST::Node *scope, _scopes) {
         Node *result = findDeclarationAsDirectChild(nameAsString, scope);
@@ -262,7 +262,8 @@ QmlJS::AST::Node *NavigationTokenFinder::findDeclarationInScopesOrIds(QmlJS::AST
         return 0;
 
     const QString nameAsString = qualifiedId->name->asString();
-    qDebug() << "findDecl. for id part" << nameAsString;
+    if (nameAsString == "parent" && _scopes.size() >= 2)
+        return findDeclarationInNode(qualifiedId->next, _scopes.at(_scopes.size() - 2));
 
     foreach (QmlJS::AST::Node *scope, _scopes) {
         Node *result = findDeclarationAsDirectChild(nameAsString, scope);
