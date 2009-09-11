@@ -179,7 +179,6 @@ void DebuggerRunControl::start()
     m_manager->setQtDumperLibraryName(m_dumperLibrary);
     m_manager->setQtDumperLibraryLocations(m_dumperLibraryLocations);
     m_manager->startNewDebugger(this, m_startParameters);
-    emit started();
 }
 
 void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data)

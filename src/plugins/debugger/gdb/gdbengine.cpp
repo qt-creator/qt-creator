@@ -269,6 +269,7 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program.")
                 .arg(theDebuggerStringSetting(GdbLocation));
+            emitStartFailed();
             break;
         case QProcess::Crashed:
             kill = false;
@@ -746,10 +747,8 @@ void GdbEngine::flushCommand(GdbCommand &cmd)
     if (cmd.flags & EmbedToken)
         cmd.command = cmd.command.arg(currentToken());
 
-    m_gdbProc->write(cmd.command.toLatin1() + "\r\n");
-    //emit gdbInputAvailable(QString(), "         " +  currentTime());
-    //emit gdbInputAvailable(QString(), "[" + currentTime() + "]    " + cmd.command);
     emit gdbInputAvailable(LogInput, cmd.command);
+    executeDebuggerCommand(cmd.command);
 }
 
 void GdbEngine::handleResultRecord(const GdbResultRecord &record)
@@ -833,12 +832,12 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 
 void GdbEngine::executeDebuggerCommand(const QString &command)
 {
-    if (m_gdbProc->state() == QProcess::NotRunning) {
-        debugMessage(_("NO GDB PROCESS RUNNING, PLAIN CMD IGNORED: ") + command);
+    if (m_gdbProc->state() != QProcess::Running) {
+        debugMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
         return;
     }
 
-    m_gdbProc->write(command.toLocal8Bit() + "\r\n");
+    m_gdbProc->write(command.toLatin1() + "\r\n");
 }
 
 void GdbEngine::handleTargetCore(const GdbResultRecord &, const QVariant &)
@@ -1496,7 +1495,7 @@ void GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
     if (m_gdbProc->state() != QProcess::NotRunning) {
         debugMessage(_("GDB IS ALREADY RUNNING, STATE: %1").arg(m_gdbProc->state()));
         m_gdbProc->kill();
-        emit startFailed();
+        emitStartFailed();
         return;
     }
 
@@ -1527,7 +1526,7 @@ void GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         if (!m_stubProc.start(m_startParameters.executable,
                              m_startParameters.processArgs)) {
             // Error message for user is delivered via a signal.
-            emit startFailed();
+            emitStartFailed();
             return;
         }
     } else {
@@ -1535,7 +1534,7 @@ void GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
             QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
                 tr("Cannot set up communication with child process: %1")
                     .arg(m_outputCollector.errorString()));
-            emit startFailed();
+            emitStartFailed();
             return;
         }
         gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
@@ -1561,23 +1560,20 @@ void GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
     m_gdbProc->start(loc, gdbArgs);
 }
 
+void GdbEngine::emitStartFailed()
+{
+    //  QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
+    //    tr("Cannot start debugger: %1").arg(m_gdbProc->errorString()));
+    m_outputCollector.shutdown();
+    m_stubProc.blockSignals(true);
+    m_stubProc.stop();
+    m_stubProc.blockSignals(false);
+    emit startFailed();
+}
+
 void GdbEngine::startDebugger2()
 {
-    qDebug() << "STARTUP, PHASE 2";
     debugMessage(_("STARTUP, PHASE 2"));
-#if 0
-    if (!m_gdbProc->waitForStarted()) {
-        QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
-                              tr("Cannot start debugger: %1").arg(m_gdbProc->errorString()));
-        m_outputCollector.shutdown();
-        m_stubProc.blockSignals(true);
-        m_stubProc.stop();
-        m_stubProc.blockSignals(false);
-        emit startFailed();
-        return;
-    }
-#endif
-
     q->showStatusMessage(tr("Gdb Running..."));
 
     postCommand(_("show version"), CB(handleShowVersion));
@@ -2027,7 +2023,8 @@ void GdbEngine::sendInsertBreakpoint(int index)
         }
         // The argument is simply a C-quoted version of the argument to the
         // non-MI "break" command, including the "original" quoting it wants.
-        where = _("\"\\\"") + GdbMi::escapeCString(where) + _("\\\":") + data->lineNumber + _c('"');
+        where = _("\"\\\"%1\\\":%2\"")
+            .arg(GdbMi::escapeCString(where)).arg(data->lineNumber);
     } else {
         where = data->funcName;
     }

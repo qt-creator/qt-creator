@@ -250,6 +250,7 @@ private slots:
     void stubStarted();
     void stubError(const QString &msg);
     void uploadProcError(QProcess::ProcessError error);
+    void emitStartFailed();
 
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
