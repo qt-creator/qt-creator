@@ -160,7 +160,7 @@ MainWindow::MainWindow() :
     QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QString baseName = qApp->style()->objectName();
-#ifdef Q_WS_X11    
+#ifdef Q_WS_X11
     if (baseName == QLatin1String("windows")) {
         // Sometimes we get the standard windows 95 style as a fallback
         // e.g. if we are running on a KDE4 desktop
@@ -325,7 +325,7 @@ bool MainWindow::init(QString *errorMessage)
 
 void MainWindow::modeChanged(Core::IMode *mode)
 {
-    if (mode == m_outputMode) {        
+    if (mode == m_outputMode) {
         int idx = OutputPaneManager::instance()->m_widgetComboBox->itemData(OutputPaneManager::instance()->m_widgetComboBox->currentIndex()).toInt();
         IOutputPane *out = OutputPaneManager::instance()->m_pageMap.value(idx);
         if (out && out->canFocus())
@@ -678,6 +678,7 @@ void MainWindow::registerDefaultActions()
     cmd = am->registerAction(m_optionsAction, Constants::OPTIONS, m_globalContext);
 #ifdef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+,"));
+    cmd->action()->setMenuRole(QAction::PreferencesRole);
 #endif
     mtools->addAction(cmd, Constants::G_DEFAULT_THREE);
     connect(m_optionsAction, SIGNAL(triggered()), this, SLOT(showOptionsDialog()));
@@ -735,7 +736,11 @@ void MainWindow::registerDefaultActions()
     cmd = am->registerAction(tmpaction, Constants::ABOUT_QTCREATOR, m_globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
+#ifdef Q_WS_MAC
+    cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
+#endif
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutQtCreator()));
+
     //About Plugins Action
     tmpaction = new QAction(tr("About &Plugins..."), this);
     cmd = am->registerAction(tmpaction, Constants::ABOUT_PLUGINS, m_globalContext);
