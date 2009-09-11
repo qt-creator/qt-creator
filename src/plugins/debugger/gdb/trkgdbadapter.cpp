@@ -181,6 +181,17 @@ QByteArray TrkGdbAdapter::trkReadMemoryMessage(uint addr, uint len)
     return ba;
 }
 
+QByteArray TrkGdbAdapter::trkStepRangeMessage(byte option)
+{
+    QByteArray ba;
+    appendByte(&ba, option);
+    appendInt(&ba, m_snapshot.registers[RegisterPC]); // start address
+    appendInt(&ba, m_snapshot.registers[RegisterPC]); // end address
+    appendInt(&ba, m_session.pid);
+    appendInt(&ba, m_session.tid);
+    return ba;
+}
+
 void TrkGdbAdapter::startInferior()
 {
     QString errorMessage;
@@ -624,20 +635,15 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         logMessage("  from " + hexxNumber(m_snapshot.registers[RegisterPC]));
         sendGdbServerAck();
         m_running = true;
-        QByteArray ba;
-        appendByte(&ba, 0x01); // options
-        appendInt(&ba, m_snapshot.registers[RegisterPC]); // start address
-        appendInt(&ba, m_snapshot.registers[RegisterPC]); // end address
-        appendInt(&ba, m_session.pid);
-        appendInt(&ba, m_session.tid);
-        sendTrkMessage(0x19, TrkCB(handleStepRange), ba, "Step range");
+        QByteArray ba = trkStepRangeMessage(0x01);  // options "step into"
+        sendTrkMessage(0x19, TrkCB(handleStepInto), ba, "Step range");
     }
 
     else if (cmd == "vCont?") {
         // actions supported by the vCont packet
         sendGdbServerAck();
         //sendGdbServerMessage("OK"); // we don't support vCont.
-        sendGdbServerMessage("vCont;c;C;s;S");
+        sendGdbServerMessage("vCont;c;C;s;S;n");
     }
 
     else if (cmd == "vCont;c") {
@@ -727,8 +733,12 @@ void TrkGdbAdapter::executeCommand(const QString &msg)
         sendGdbMessage("-exec-interrupt");
     } else if (msg == "C") {
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+    } else if (msg == "S") {
+        sendTrkMessage(0x19, TrkCallback(), trkStepRangeMessage(0x01), "STEP");
+    } else if (msg == "N") {
+        sendTrkMessage(0x19, TrkCallback(), trkStepRangeMessage(0x11), "NEXT");
     } else if (msg == "R") {
-        sendTrkMessage(0x18, TrkCB(handleReadRegisters),
+        sendTrkMessage(0x12, TrkCB(handleReadRegisters),
             trkReadRegisterMessage(), "READ REGS");
     } else if (msg == "I") {
         interruptInferior();
@@ -1052,17 +1062,53 @@ void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
     }
 }
 
-void TrkGdbAdapter::handleStepRange(const TrkResult &result)
+void TrkGdbAdapter::handleStepInto(const TrkResult &result)
 {
-    // [80 0f 00]
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString());
-        sendGdbServerMessage("S05", "Stepping finished");
+        logMessage("ERROR: " + result.errorString() + "in handleStepInto");
+        // Try fallback with Step Over
+        QByteArray ba = trkStepRangeMessage(0x11);  // options "step over"
+        sendTrkMessage(0x19, TrkCB(handleStepInto2), ba, "Step range");
         return;
     }
-    logMessage("STEPPING FINISHED ");
     // The gdb server response is triggered later by the Stop Reply packet
-    //sendGdbServerMessage("S05", "Stepping finished");
+    logMessage("STEP INTO FINISHED ");
+}
+
+void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
+{
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString() + "in handleStepInto2");
+        // Try fallback with Continue
+        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+        //sendGdbServerMessage("S05", "Stepping finished");
+        return;
+    }
+    logMessage("STEP INTO FINISHED (FALLBACK)");
+}
+
+void TrkGdbAdapter::handleStepOver(const TrkResult &result)
+{
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString() + "in handleStepOver");
+        // Try fallback with Step Into
+        QByteArray ba = trkStepRangeMessage(0x01);  // options "step into"
+        sendTrkMessage(0x19, TrkCB(handleStepOver), ba, "Step range");
+        return;
+    }
+    logMessage("STEP OVER FINISHED ");
+}
+
+void TrkGdbAdapter::handleStepOver2(const TrkResult &result)
+{
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString() + "in handleStepOver2");
+        // Try fallback with Continue
+        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+        //sendGdbServerMessage("S05", "Stepping finished");
+        return;
+    }
+    logMessage("STEP OVER FINISHED (FALLBACK)");
 }
 
 void TrkGdbAdapter::handleAndReportSetBreakpoint(const TrkResult &result)

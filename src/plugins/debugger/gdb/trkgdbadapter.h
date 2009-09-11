@@ -163,10 +163,14 @@ public:
     QByteArray trkReadRegisterMessage();
     QByteArray trkReadMemoryMessage(uint addr, uint len);
     QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
+    QByteArray trkStepRangeMessage(byte option);
     void handleAndReportSetBreakpoint(const TrkResult &result);
     void handleReadMemoryBuffered(const TrkResult &result);
     void handleReadMemoryUnbuffered(const TrkResult &result);
-    void handleStepRange(const TrkResult &result);
+    void handleStepInto(const TrkResult &result);
+    void handleStepInto2(const TrkResult &result);
+    void handleStepOver(const TrkResult &result);
+    void handleStepOver2(const TrkResult &result);
     void handleReadRegisters(const TrkResult &result);
     void reportReadMemoryBuffered(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
