@@ -51,7 +51,8 @@ typedef QSharedPointer<ProjectExplorer::RunConfiguration>
 typedef QSharedPointer<ProjectExplorer::ApplicationRunConfiguration>
     ApplicationRunConfigurationPtr;
 
-class DebuggerRunner : public ProjectExplorer::IRunConfigurationRunner
+class DebuggerRunner
+    : public ProjectExplorer::IRunConfigurationRunner
 {
     Q_OBJECT
 
@@ -59,7 +60,7 @@ public:
     explicit DebuggerRunner(DebuggerManager *manager);
 
     // ProjectExplorer::IRunConfigurationRunner
-    virtual bool canRun(RunConfigurationPtr runConfiguration, const QString &mode);
+    bool canRun(RunConfigurationPtr runConfiguration, const QString &mode);
     virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration, const QString &mode);
     virtual QString displayName() const;
 
@@ -79,15 +80,16 @@ private:
 };
 
 // This is a job description
-class DebuggerRunControl : public ProjectExplorer::RunControl
+class DebuggerRunControl
+    : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 
 public:
-    explicit DebuggerRunControl(DebuggerManager *manager,
-                                DebuggerStartMode mode,
-                                const QSharedPointer<DebuggerStartParameters> &sp,
-                                ApplicationRunConfigurationPtr runConfiguration);
+    DebuggerRunControl(DebuggerManager *manager,
+                       DebuggerStartMode mode,
+                       const QSharedPointer<DebuggerStartParameters> &sp,
+                       ApplicationRunConfigurationPtr runConfiguration);
 
     DebuggerStartMode startMode() const { return m_mode; }
 
@@ -115,23 +117,24 @@ private:
 
 // A default run configuration for external executables or attaching to
 // running processes by id.
-class DefaultApplicationRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
+class DefaultApplicationRunConfiguration
+    : public ProjectExplorer::ApplicationRunConfiguration
 {
     Q_OBJECT
 public:
     explicit DefaultApplicationRunConfiguration(const QString &executable = QString());
 
-    virtual QString executable() const                 { return m_executable; }
-    virtual RunMode runMode() const                    { return Gui; }
-    virtual QString workingDirectory() const           { return QString(); }
-    virtual QStringList commandLineArguments() const   { return QStringList(); }
+    virtual QString executable() const { return m_executable; }
+    virtual RunMode runMode() const { return Gui; }
+    virtual QString workingDirectory() const { return QString(); }
+    virtual QStringList commandLineArguments() const  { return QStringList(); }
     virtual ProjectExplorer::Environment environment() const
         { return ProjectExplorer::Environment(); }
-    virtual QString dumperLibrary() const              { return QString(); }
+    virtual QString dumperLibrary() const { return QString(); }
     virtual QStringList dumperLibraryLocations() const { return QStringList(); }
     virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const
         { return ProjectExplorer::ToolChain::UNKNOWN; }
-    virtual QWidget *configurationWidget()             { return 0; }
+    virtual QWidget *configurationWidget() { return 0; }
 
 private:
     const QString m_executable;

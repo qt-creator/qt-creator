@@ -43,7 +43,8 @@
 
 #include <QtGui/QTextDocument>
 
-using namespace Debugger::Internal;
+namespace Debugger {
+namespace Internal {
 
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::RunControl;
@@ -120,10 +121,10 @@ QWidget *DebuggerRunner::configurationWidget(RunConfigurationPtr runConfiguratio
 
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
-                                       DebuggerStartMode mode,
-                                       const QSharedPointer<DebuggerStartParameters> &startParameters,
-                                       QSharedPointer<ApplicationRunConfiguration> runConfiguration) :
-    RunControl(runConfiguration),
+       DebuggerStartMode mode,
+       const QSharedPointer<DebuggerStartParameters> &startParameters,
+       QSharedPointer<ApplicationRunConfiguration> runConfiguration)
+  : RunControl(runConfiguration),
     m_mode(mode),
     m_startParameters(startParameters),
     m_manager(manager),
@@ -140,32 +141,36 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
             Qt::QueuedConnection);
     connect(this, SIGNAL(stopRequested()),
             m_manager, SLOT(exitDebugger()));
-    if (runConfiguration) {
-        // Enhance parameters by info from the project, but do not clobber
-        // arguments given in the dialogs
-        if (m_startParameters->executable.isEmpty())
-            m_startParameters->executable = runConfiguration->executable();
-        if (m_startParameters->environment.empty())
-            m_startParameters->environment = runConfiguration->environment().toStringList();
-        if (m_startParameters->workingDir.isEmpty())
-            m_startParameters->workingDir = runConfiguration->workingDirectory();
-        if (m_mode != StartExternal)
-            m_startParameters->processArgs = runConfiguration->commandLineArguments();
-        switch (m_startParameters->toolChainType) {
-        case ProjectExplorer::ToolChain::UNKNOWN:
-        case ProjectExplorer::ToolChain::INVALID:
-            m_startParameters->toolChainType = runConfiguration->toolChainType();
-            break;
-        default:
-            break;
-        }
-        if (const ProjectExplorer::Project *project = runConfiguration->project()) {
-            m_startParameters->buildDir = project->buildDirectory(project->activeBuildConfiguration());
-        }
-        m_startParameters->useTerminal = runConfiguration->runMode() == ApplicationRunConfiguration::Console;
-        m_dumperLibrary = runConfiguration->dumperLibrary();
-        m_dumperLibraryLocations = runConfiguration->dumperLibraryLocations();
+
+    if (!runConfiguration)
+        return;
+
+    // Enhance parameters by info from the project, but do not clobber
+    // arguments given in the dialogs
+    if (m_startParameters->executable.isEmpty())
+        m_startParameters->executable = runConfiguration->executable();
+    if (m_startParameters->environment.empty())
+        m_startParameters->environment = runConfiguration->environment().toStringList();
+    if (m_startParameters->workingDir.isEmpty())
+        m_startParameters->workingDir = runConfiguration->workingDirectory();
+    if (m_mode != StartExternal)
+        m_startParameters->processArgs = runConfiguration->commandLineArguments();
+    switch (m_startParameters->toolChainType) {
+    case ProjectExplorer::ToolChain::UNKNOWN:
+    case ProjectExplorer::ToolChain::INVALID:
+        m_startParameters->toolChainType = runConfiguration->toolChainType();
+        break;
+    default:
+        break;
     }
+    if (const ProjectExplorer::Project *project = runConfiguration->project()) {
+        m_startParameters->buildDir =
+            project->buildDirectory(project->activeBuildConfiguration());
+    }
+    m_startParameters->useTerminal =
+        runConfiguration->runMode() == ApplicationRunConfiguration::Console;
+    m_dumperLibrary = runConfiguration->dumperLibrary();
+    m_dumperLibraryLocations = runConfiguration->dumperLibraryLocations();
 }
 
 void DebuggerRunControl::start()
@@ -173,11 +178,8 @@ void DebuggerRunControl::start()
     m_running = true;
     m_manager->setQtDumperLibraryName(m_dumperLibrary);
     m_manager->setQtDumperLibraryLocations(m_dumperLibraryLocations);
-
-    //emit addToOutputWindow(this, tr("Debugging %1").arg(m_executable));
     m_manager->startNewDebugger(this, m_startParameters);
     emit started();
-    //debuggingFinished();
 }
 
 void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data)
@@ -187,7 +189,6 @@ void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data)
 
 void DebuggerRunControl::stop()
 {
-    //qDebug() << "DebuggerRunControl::stop";
     m_running = false;
     emit stopRequested();
 }
@@ -195,13 +196,13 @@ void DebuggerRunControl::stop()
 void DebuggerRunControl::debuggingFinished()
 {
     m_running = false;
-    //qDebug() << "DebuggerRunControl::finished";
-    //emit addToOutputWindow(this, tr("Debugging %1 finished").arg(m_executable));
     emit finished();
 }
 
 bool DebuggerRunControl::isRunning() const
 {
-    //qDebug() << "DebuggerRunControl::isRunning" << m_running;
     return m_running;
 }
+
+} // namespace Internal
+} // namespace Debugger
