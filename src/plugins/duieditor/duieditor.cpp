@@ -720,8 +720,11 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
         link.fileName = file()->fileName();
         link.pos = finder.linkPosition();
         link.length = finder.linkLength();
-        link.line = finder.targetLine();
-        link.column = finder.targetColumn() - 1;
+
+        if (resolveTarget) {
+            link.line = finder.targetLine();
+            link.column = finder.targetColumn() - 1;
+        }
     }
 
     return link;

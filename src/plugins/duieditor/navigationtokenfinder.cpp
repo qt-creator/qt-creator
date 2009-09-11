@@ -150,7 +150,10 @@ bool NavigationTokenFinder::visit(QmlJS::AST::UiSourceElement * /*ast*/)
 
 void NavigationTokenFinder::rememberStartPosition(QmlJS::AST::Node *node)
 {
-    if (UiObjectMember *om = dynamic_cast<UiObjectMember*>(node)) {
+    if (Statement *s = dynamic_cast<Statement*>(node)) {
+        _targetLine = s->firstSourceLocation().startLine;
+        _targetColumn = s->firstSourceLocation().startColumn;
+    } else if (UiObjectMember *om = dynamic_cast<UiObjectMember*>(node)) {
         _targetLine = om->firstSourceLocation().startLine;
         _targetColumn = om->firstSourceLocation().startColumn;
     } else if (VariableDeclaration *vd = cast<VariableDeclaration*>(node)) {
@@ -188,7 +191,7 @@ static QmlJS::AST::Node *findDeclaration(const QString &nameId, QmlJS::AST::UiOb
             return a;
     } else if (UiScriptBinding *s = cast<UiScriptBinding*>(m)) {
         if (isId(s->qualifiedId) && nameId == idToString(s->statement))
-            return s;
+            return s->statement;
     }
 
     return 0;
