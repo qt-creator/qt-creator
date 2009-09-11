@@ -16,7 +16,6 @@ SOURCES += \
     $$PWD/trkutils.cpp \
     $$PWD/trkclient.cpp \
     $$PWD/symbianadapter.cpp \
-    $$PWD/symbianengine.cpp \
     #$$PWD/gdboptionspage.cpp \
 
 FORMS +=  $$PWD/gdboptionspage.ui

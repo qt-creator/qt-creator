@@ -4238,10 +4238,23 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResultRecord &record,
     }
 }
 
-IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *opts)
+IDebuggerEngine *createGdbEngine(DebuggerManager *parent,
+    QList<Core::IOptionsPage*> *opts)
 {
     opts->push_back(new GdbOptionsPage);
     return new GdbEngine(parent, new GdbProcess);
+}
+
+IDebuggerEngine *createSymbianEngine(DebuggerManager *parent,
+    QList<Core::IOptionsPage*> *opts)
+{
+    Q_UNUSED(opts);
+    //opts->push_back(new GdbOptionsPage);
+    SymbianAdapter *adapter = new SymbianAdapter;
+    GdbEngine *engine = new GdbEngine(parent, adapter);
+    QObject::connect(adapter, SIGNAL(output(QString)),
+        parent, SLOT(showDebuggerOutput(QString)));
+    return engine;
 }
 
 } // namespace Internal
