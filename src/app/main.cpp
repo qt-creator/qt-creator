@@ -234,12 +234,6 @@ int main(int argc, char **argv)
 #ifdef Q_OS_MAC
     // because QLocale's system locale is basically useless on the Mac.
     // Try to get the real system setting via core foundation
-    CFLocaleRef maclocale = CFLocaleCopyCurrent();
-    CFTypeRef value = CFLocaleGetValue(maclocale, kCFLocaleLanguageCode);
-    QString preferredLanguage = stringFromCFString(CFStringRef(value));
-    if (!preferredLanguage.isEmpty())
-        locale = preferredLanguage;
-    CFRelease(maclocale);
     CFArrayRef languages = (CFArrayRef)CFPreferencesCopyValue(
              CFSTR("AppleLanguages"),
              kCFPreferencesAnyApplication,
