@@ -31,8 +31,6 @@ void IdCollector::addId(QmlJS::NameId* id, const QmlJS::AST::SourceLocation &idL
 {
     const QString idString = id->asString();
 
-    qDebug() << "Found ID" << idString;
-
     if (!_idLocations.contains(idString))
         _idLocations[idString] = idLocation;
 }
