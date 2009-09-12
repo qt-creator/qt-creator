@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "trkutils.h"
+#include <ctype.h>
 
 #include <QtCore/QDebug>
 

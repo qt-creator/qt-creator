@@ -31,6 +31,10 @@
 #ifndef STANDALONE_RUNNER
 #include "gdbengine.h"
 #endif
+#ifndef Q_OS_WIN
+#  include <sys/types.h>
+#  include <unistd.h>
+#endif
 
 #define TrkCB(s) TrkCallback(this, &TrkGdbAdapter::s)
 
