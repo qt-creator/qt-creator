@@ -54,7 +54,7 @@ protected:
 
 private:
     void append(char c) { m_result += c; }
-    void append(char *s) { m_result += s; }
+    void append(const char *s) { m_result += s; }
     void append(const QString &s) { m_result += s; }
     void append(const QmlJS::AST::SourceLocation &loc) { m_result += textAt(loc); }
     void append(int pos, int len) { append(textAt(pos, len)); }
