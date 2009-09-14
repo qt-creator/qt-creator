@@ -55,7 +55,7 @@ isEmpty(IDE_BUILD_TREE) {
 }
 IDE_APP_PATH = $$IDE_BUILD_TREE/bin
 macx {
-    IDE_APP_TARGET   = QtCreator
+    IDE_APP_TARGET   = "Qt Creator"
     IDE_LIBRARY_PATH = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/PlugIns
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH
     IDE_LIBEXEC_PATH = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/Resources

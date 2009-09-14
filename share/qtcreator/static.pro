@@ -41,7 +41,7 @@ DATA_DIRS = \
     copy2build.input = FILES
     copy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcDir}
     isEmpty(vcproj):copy2build.variable_out = PRE_TARGETDEPS
-    copy2build.commands = $$QMAKE_COPY \"${QMAKE_FILE_IN}\" \"${QMAKE_FILE_OUT}\"
+    copy2build.commands = $$QMAKE_COPY ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
     copy2build.name = COPY ${QMAKE_FILE_IN}
     copy2build.CONFIG += no_link
     QMAKE_EXTRA_COMPILERS += copy2build
@@ -49,7 +49,7 @@ DATA_DIRS = \
     macx {
         run_in_term.target = $$IDE_DATA_PATH/runInTerminal.command
         run_in_term.depends = $$PWD/runInTerminal.command
-        run_in_term.commands = $$QMAKE_COPY $< $@
+        run_in_term.commands = $$QMAKE_COPY \"$<\" \"$@\"
         QMAKE_EXTRA_TARGETS += run_in_term
         PRE_TARGETDEPS += $$run_in_term.target
         QMAKE_CLEAN += $$run_in_term.target
