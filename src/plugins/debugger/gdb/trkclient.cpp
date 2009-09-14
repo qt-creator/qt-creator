@@ -160,24 +160,24 @@ private:
 
     byte nextTrkWriteToken();
 
-    byte trkWriteToken;
-    QQueue<TrkMessage> trkWriteQueue;
-    TokenMessageMap writtenTrkMessages;
-    bool trkWriteBusy;
+    byte m_trkWriteToken;
+    QQueue<TrkMessage> m_trkWriteQueue;
+    TokenMessageMap m_writtenTrkMessages;
+    bool m_trkWriteBusy;
 };
 
 TrkWriteQueue::TrkWriteQueue() :
-    trkWriteToken(0),
-    trkWriteBusy(false)
+    m_trkWriteToken(0),
+    m_trkWriteBusy(false)
 {
 }
 
 byte TrkWriteQueue::nextTrkWriteToken()
 {
-    ++trkWriteToken;
-    if (trkWriteToken == 0)
-        ++trkWriteToken;
-    return trkWriteToken;
+    ++m_trkWriteToken;
+    if (m_trkWriteToken == 0)
+        ++m_trkWriteToken;
+    return m_trkWriteToken;
 }
 
 void TrkWriteQueue::queueTrkMessage(byte code, TrkCallback callback,
@@ -188,17 +188,17 @@ void TrkWriteQueue::queueTrkMessage(byte code, TrkCallback callback,
     TrkMessage msg(code, token, callback);
     msg.data = data;
     msg.cookie = cookie;
-    trkWriteQueue.append(msg);
+    m_trkWriteQueue.append(msg);
 }
 
 bool TrkWriteQueue::pendingMessage(TrkMessage *message)
 {
     // Invoked from timer, try to flush out message queue
-    if (trkWriteBusy || trkWriteQueue.isEmpty())
+    if (m_trkWriteBusy || m_trkWriteQueue.isEmpty())
         return false;
     // Handle the noop message, just invoke CB
-    if (trkWriteQueue.front().code == TRK_WRITE_QUEUE_NOOP_CODE) {
-        TrkMessage noopMessage = trkWriteQueue.dequeue();
+    if (m_trkWriteQueue.front().code == TRK_WRITE_QUEUE_NOOP_CODE) {
+        TrkMessage noopMessage = m_trkWriteQueue.dequeue();
         if (noopMessage.callback) {
             TrkResult result;
             result.code = noopMessage.code;
@@ -209,10 +209,10 @@ bool TrkWriteQueue::pendingMessage(TrkMessage *message)
         }
     }
     // Check again for real messages
-    if (trkWriteQueue.isEmpty())
+    if (m_trkWriteQueue.isEmpty())
         return false;
     if (message)
-        *message = trkWriteQueue.front();
+        *message = m_trkWriteQueue.front();
     return true;
 }
 
@@ -220,21 +220,21 @@ void TrkWriteQueue::notifyWriteResult(bool ok)
 {
     // On success, dequeue message and await result
     if (ok) {        
-        TrkMessage firstMsg = trkWriteQueue.dequeue();
-        writtenTrkMessages.insert(firstMsg.token, firstMsg);
-        trkWriteBusy = true;
+        TrkMessage firstMsg = m_trkWriteQueue.dequeue();
+        m_writtenTrkMessages.insert(firstMsg.token, firstMsg);
+        m_trkWriteBusy = true;
     }
 }
 
 void TrkWriteQueue::slotHandleResult(const TrkResult &result)
 {
-    trkWriteBusy = false;
+    m_trkWriteBusy = false;
     //if (result.code != TrkNotifyAck && result.code != TrkNotifyNak)
     //    return;
     // Find which request the message belongs to and invoke callback
     // if ACK or on NAK if desired.
-    const TokenMessageMap::iterator it = writtenTrkMessages.find(result.token);
-    if (it == writtenTrkMessages.end())
+    const TokenMessageMap::iterator it = m_writtenTrkMessages.find(result.token);
+    if (it == m_writtenTrkMessages.end())
         return;
     const bool invokeCB = it.value().callback;
     if (invokeCB) {
@@ -242,13 +242,14 @@ void TrkWriteQueue::slotHandleResult(const TrkResult &result)
         result1.cookie = it.value().cookie;
         it.value().callback(result1);
     }
-    writtenTrkMessages.erase(it);
+    m_writtenTrkMessages.erase(it);
 }
 
 void TrkWriteQueue::queueTrkInitialPing()
 {
     // Ping, reset sequence count
-    trkWriteQueue.append(TrkMessage(0, 0));
+    m_trkWriteToken = 0;
+    m_trkWriteQueue.append(TrkMessage(0, 0));
 }
 
 
@@ -270,7 +271,7 @@ struct TrkDevicePrivate
 #endif
 
     QByteArray trkReadBuffer;
-    bool trkWriteBusy;
+    bool m_trkWriteBusy;
     int timerId;
     bool serialFrame;
     bool verbose;
@@ -287,7 +288,7 @@ TrkDevicePrivate::TrkDevicePrivate() :
 #ifdef Q_OS_WIN
     hdevice(INVALID_HANDLE_VALUE),
 #endif
-    trkWriteBusy(false),
+    m_trkWriteBusy(false),
     timerId(-1),
     serialFrame(true),
     verbose(false)

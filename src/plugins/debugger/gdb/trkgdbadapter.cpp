@@ -459,8 +459,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // Read general registers.
         logMessage(msgGdbPacket(QLatin1String("Read registers")));
         sendGdbServerAck();
-        sendTrkMessage(0x12, TrkCB(handleAndReportReadRegisters),
-            trkReadRegisterMessage());
+        reportRegisters();
     }
 
     else if (cmd.startsWith("Hc")) {
@@ -537,9 +536,9 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             logMsg += dumpRegister(registerNumber, m_snapshot.registers[registerNumber]);
             sendGdbServerMessage(ba.toHex(), logMsg);
         } else {
-            //sendGdbServerMessage("0000", "read single unknown register #"
-            //    + QByteArray::number(registerNumber));
-            sendGdbServerMessage("E01", "read single unknown register");
+            sendGdbServerMessage("0000", "read single unknown register #"
+                + QByteArray::number(registerNumber));
+            //sendGdbServerMessage("E01", "read single unknown register");
         }
     }
 
@@ -735,9 +734,6 @@ void TrkGdbAdapter::executeCommand(const QString &msg)
         sendTrkMessage(0x19, TrkCallback(), trkStepRangeMessage(0x01), "STEP");
     } else if (msg == "N") {
         sendTrkMessage(0x19, TrkCallback(), trkStepRangeMessage(0x11), "NEXT");
-    } else if (msg == "R") {
-        sendTrkMessage(0x12, TrkCB(handleReadRegisters),
-            trkReadRegisterMessage(), "READ REGS");
     } else if (msg == "I") {
         interruptInferior();
     } else {
@@ -799,16 +795,16 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
                 // query is pending, queue instead
                 if (m_running) {
                     m_running = false;
-                    // We almost always need register values, so get them
-                    // now before informing gdb about the stop. In theory
-                    //sendGdbServerMessage("S05", "Target stopped");
-                    sendTrkMessage(0x12,
-                        TrkCB(handleAndReportReadRegistersAfterStop),
-                        trkReadRegisterMessage());
                 }
             } else {
                 logMessage(QLatin1String("Ignoring stop at 0"));
             }
+            // We almost always need register values, so get them
+            // now before informing gdb about the stop. In theory
+            //sendGdbServerMessage("S05", "Target stopped");
+            sendTrkMessage(0x12,
+                TrkCB(handleAndReportReadRegistersAfterStop),
+                trkReadRegisterMessage());
             break;
         }
         case 0x91: { // Notify Exception (obsolete)
@@ -950,9 +946,8 @@ void TrkGdbAdapter::handleReadRegisters(const TrkResult &result)
         m_snapshot.registers[i] = extractInt(data + 4 * i);
 } 
 
-void TrkGdbAdapter::handleAndReportReadRegisters(const TrkResult &result)
+void TrkGdbAdapter::reportRegisters()
 {
-    handleReadRegisters(result);
     QByteArray ba;
     for (int i = 0; i < 16; ++i) {
         const uint reg = swapEndian(m_snapshot.registers[i]);
@@ -982,6 +977,7 @@ void TrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TrkResult &resul
     QByteArray ba = "T05";
     for (int i = 0; i < 16; ++i)
         appendRegister(&ba, i, m_snapshot.registers[i]);
+    // FIXME: those are not understood by gdb 6.4
     //for (int i = 16; i < 25; ++i)
     //    appendRegister(&ba, i, 0x0);
     appendRegister(&ba, RegisterPSGdb, m_snapshot.registers[RegisterPSTrk]);
