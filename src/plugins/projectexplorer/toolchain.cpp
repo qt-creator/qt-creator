@@ -185,6 +185,7 @@ QList<HeaderPath> GccToolChain::systemHeaderPaths()
         QProcess cpp;
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         addToEnvironment(env);
+        env.set(QLatin1String("LC_ALL"), QLatin1String("C"));   //override current locale settings
         cpp.setEnvironment(env.toStringList());
         cpp.setReadChannelMode(QProcess::MergedChannels);
         cpp.start(m_gcc, arguments);
