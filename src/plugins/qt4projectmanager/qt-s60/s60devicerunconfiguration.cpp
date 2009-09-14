@@ -541,7 +541,7 @@ S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runCon
     Qt4Project *project = qobject_cast<Qt4Project *>(runConfiguration->project());
     QTC_ASSERT(project, return);
 
-    S60DeviceRunConfiguration* s60runConfig = runConfiguration.objectCast<S60DeviceRunConfiguration>();
+    QSharedPointer<S60DeviceRunConfiguration> s60runConfig = runConfiguration.objectCast<S60DeviceRunConfiguration>();
     QTC_ASSERT(s60runConfig, return);
 
     m_serialPortName = s60runConfig->serialPortName();
