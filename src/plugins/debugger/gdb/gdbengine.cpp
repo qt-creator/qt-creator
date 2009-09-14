@@ -1265,7 +1265,8 @@ void GdbEngine::reloadFullStack()
 void GdbEngine::reloadStack()
 {
     QString cmd = _("-stack-list-frames");
-    if (int stackDepth = theDebuggerAction(MaximalStackDepth)->value().toInt())
+    int stackDepth = theDebuggerAction(MaximalStackDepth)->value().toInt();
+    if (stackDepth && !m_gdbAdapter->isAdapter())
         cmd += _(" 0 ") + QString::number(stackDepth);
     postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
 }
@@ -2493,64 +2494,66 @@ void GdbEngine::handleStackSelectThread(const GdbResultRecord &, const QVariant 
 
 void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVariant &cookie)
 {
-    bool isFull = cookie.toBool();
-    QList<StackFrame> stackFrames;
+    if (record.resultClass == GdbResultDone) {
+        bool isFull = cookie.toBool();
+        QList<StackFrame> stackFrames;
 
-    const GdbMi stack = record.data.findChild("stack");
-    stack.toString();
-    if (!stack.isValid()) {
-        qDebug() << "FIXME: stack:" << stack.toString();
-        return;
-    }
-
-    int topFrame = -1;
-
-    int n = stack.childCount();
-    for (int i = 0; i != n; ++i) {
-        //qDebug() << "HANDLING FRAME:" << stack.childAt(i).toString();
-        const GdbMi frameMi = stack.childAt(i);
-        StackFrame frame(i);
-        QStringList files;
-        files.append(QFile::decodeName(frameMi.findChild("fullname").data()));
-        files.append(QFile::decodeName(frameMi.findChild("file").data()));
-        frame.file = fullName(files);
-        frame.function = _(frameMi.findChild("func").data());
-        frame.from = _(frameMi.findChild("from").data());
-        frame.line = frameMi.findChild("line").data().toInt();
-        frame.address = _(frameMi.findChild("addr").data());
-
-        stackFrames.append(frame);
-
-#if defined(Q_OS_WIN)
-        const bool isBogus =
-            // Assume this is wrong and points to some strange stl_algobase
-            // implementation. Happens on Karsten's XP system with Gdb 5.50
-            (frame.file.endsWith(__("/bits/stl_algobase.h")) && frame.line == 150)
-            // Also wrong. Happens on Vista with Gdb 5.50
-               || (frame.function == __("operator new") && frame.line == 151);
-
-        // immediately leave bogus frames
-        if (topFrame == -1 && isBogus) {
-            postCommand(_("-exec-finish"));
+        GdbMi stack = record.data.findChild("stack");
+        if (!stack.isValid()) {
+            qDebug() << "FIXME: stack:" << stack.toString();
             return;
         }
 
-#endif
+        int topFrame = -1;
 
-        // Initialize top frame to the first valid frame
-        const bool isValid = !frame.file.isEmpty() && !frame.function.isEmpty();
-        if (isValid && topFrame == -1)
-            topFrame = i;
-    }
+        int n = stack.childCount();
+        for (int i = 0; i != n; ++i) {
+            //qDebug() << "HANDLING FRAME:" << stack.childAt(i).toString();
+            const GdbMi frameMi = stack.childAt(i);
+            StackFrame frame(i);
+            QStringList files;
+            files.append(QFile::decodeName(frameMi.findChild("fullname").data()));
+            files.append(QFile::decodeName(frameMi.findChild("file").data()));
+            frame.file = fullName(files);
+            frame.function = _(frameMi.findChild("func").data());
+            frame.from = _(frameMi.findChild("from").data());
+            frame.line = frameMi.findChild("line").data().toInt();
+            frame.address = _(frameMi.findChild("addr").data());
 
-    bool canExpand = !isFull 
-        && (n >= theDebuggerAction(MaximalStackDepth)->value().toInt());
-    theDebuggerAction(ExpandStack)->setEnabled(canExpand);
-    qq->stackHandler()->setFrames(stackFrames, canExpand);
+            stackFrames.append(frame);
 
-    if (topFrame != -1 || theDebuggerBoolSetting(StepByInstruction)) {
-        const StackFrame &frame = qq->stackHandler()->currentFrame();
-        q->gotoLocation(frame, true);
+            #if defined(Q_OS_WIN)
+            const bool isBogus =
+                // Assume this is wrong and points to some strange stl_algobase
+                // implementation. Happens on Karsten's XP system with Gdb 5.50
+                (frame.file.endsWith(__("/bits/stl_algobase.h")) && frame.line == 150)
+                // Also wrong. Happens on Vista with Gdb 5.50
+                   || (frame.function == __("operator new") && frame.line == 151);
+
+            // immediately leave bogus frames
+            if (topFrame == -1 && isBogus) {
+                postCommand(_("-exec-finish"));
+                return;
+            }
+            #endif
+
+            // Initialize top frame to the first valid frame
+            const bool isValid = !frame.file.isEmpty() && !frame.function.isEmpty();
+            if (isValid && topFrame == -1)
+                topFrame = i;
+        }
+
+        bool canExpand = !isFull 
+            && (n >= theDebuggerAction(MaximalStackDepth)->value().toInt());
+        theDebuggerAction(ExpandStack)->setEnabled(canExpand);
+        qq->stackHandler()->setFrames(stackFrames, canExpand);
+
+        if (topFrame != -1 || theDebuggerBoolSetting(StepByInstruction)) {
+            const StackFrame &frame = qq->stackHandler()->currentFrame();
+            q->gotoLocation(frame, true);
+        }
+    } else if (record.resultClass == GdbResultError) {
+        qDebug() << "STACK FAILED: " << record.toString();
     }
 }
 
@@ -3619,8 +3622,8 @@ void GdbEngine::updateLocals()
 {
     // Asynchronous load of injected library, initialize in first stop
     if (m_dumperInjectionLoad && m_debuggingHelperState == DebuggingHelperLoadTried
-        && m_dumperHelper.typeCount() == 0
-        && q->inferiorPid() > 0)
+            && m_dumperHelper.typeCount() == 0
+            && q->inferiorPid() > 0)
         tryQueryDebuggingHelpers();
 
     m_pendingRequests = 0;

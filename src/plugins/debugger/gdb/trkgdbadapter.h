@@ -158,6 +158,7 @@ public:
 
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleAndReportReadRegisters(const TrkResult &result);
+    void handleAndReportReadRegistersAfterStop(const TrkResult &result);
     QByteArray memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const;
     QByteArray trkContinueMessage();
     QByteArray trkReadRegisterMessage();

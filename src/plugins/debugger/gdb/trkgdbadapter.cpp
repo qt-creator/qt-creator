@@ -71,15 +71,13 @@ static QByteArray dumpRegister(int n, uint value)
 namespace Debugger {
 namespace Internal {
 
-trk::Endianness m_registerEndianness = LittleEndian;
-
 TrkGdbAdapter::TrkGdbAdapter()
 {
     m_running = false;
     m_gdbAckMode = true;
     m_verbose = 2;
     m_serialFrame = false;
-    m_bufferedMemoryRead = false;
+    m_bufferedMemoryRead = true;
     m_rfcommDevice = "/dev/rfcomm0";
 
     uid_t userId = getuid();
@@ -530,18 +528,18 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         QByteArray logMsg = "Read Register";
         if (registerNumber == RegisterPSGdb) {
             QByteArray ba;
-            appendInt(&ba, m_snapshot.registers[RegisterPSTrk], m_registerEndianness);
+            appendInt(&ba, m_snapshot.registers[RegisterPSTrk], LittleEndian);
             logMsg += dumpRegister(registerNumber, m_snapshot.registers[RegisterPSTrk]);
             sendGdbServerMessage(ba.toHex(), logMsg);
-        } else if (registerNumber < RegisterCount) {
+        } else if (registerNumber < 16) {
             QByteArray ba;
-            appendInt(&ba, m_snapshot.registers[registerNumber], m_registerEndianness);
+            appendInt(&ba, m_snapshot.registers[registerNumber], LittleEndian);
             logMsg += dumpRegister(registerNumber, m_snapshot.registers[registerNumber]);
             sendGdbServerMessage(ba.toHex(), logMsg);
         } else {
-            sendGdbServerMessage("0000", "read single unknown register #"
-                + QByteArray::number(registerNumber));
-            //sendGdbServerMessage("E01", "read single unknown register");
+            //sendGdbServerMessage("0000", "read single unknown register #"
+            //    + QByteArray::number(registerNumber));
+            sendGdbServerMessage("E01", "read single unknown register");
         }
     }
 
@@ -801,7 +799,12 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
                 // query is pending, queue instead
                 if (m_running) {
                     m_running = false;
-                    sendGdbServerMessage("S05", "Target stopped");
+                    // We almost always need register values, so get them
+                    // now before informing gdb about the stop. In theory
+                    //sendGdbServerMessage("S05", "Target stopped");
+                    sendTrkMessage(0x12,
+                        TrkCB(handleAndReportReadRegistersAfterStop),
+                        trkReadRegisterMessage());
                 }
             } else {
                 logMessage(QLatin1String("Ignoring stop at 0"));
@@ -952,8 +955,7 @@ void TrkGdbAdapter::handleAndReportReadRegisters(const TrkResult &result)
     handleReadRegisters(result);
     QByteArray ba;
     for (int i = 0; i < 16; ++i) {
-        const uint reg = m_registerEndianness == LittleEndian
-            ? swapEndian(m_snapshot.registers[i]) : m_snapshot.registers[i];
+        const uint reg = swapEndian(m_snapshot.registers[i]);
         ba += hexNumber(reg, 8);
     }
     QByteArray logMsg = "REGISTER CONTENTS: ";
@@ -964,6 +966,27 @@ void TrkGdbAdapter::handleAndReportReadRegisters(const TrkResult &result)
         }
     }
     sendGdbServerMessage(ba, logMsg);
+}
+
+static void appendRegister(QByteArray *ba, uint regno, uint value)
+{
+    ba->append(hexNumber(regno, 2));
+    ba->append(':');
+    ba->append(hexNumber(swapEndian(value), 8));
+    ba->append(';');
+}
+
+void TrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TrkResult &result)
+{
+    handleReadRegisters(result);
+    QByteArray ba = "T05";
+    for (int i = 0; i < 16; ++i)
+        appendRegister(&ba, i, m_snapshot.registers[i]);
+    //for (int i = 16; i < 25; ++i)
+    //    appendRegister(&ba, i, 0x0);
+    appendRegister(&ba, RegisterPSGdb, m_snapshot.registers[RegisterPSTrk]);
+    qDebug() << "TrkGdbAdapter::handleAndReportReadRegistersAfterStop" << ba;
+    sendGdbServerMessage(ba, "Registers");
 }
 
 static QString msgMemoryReadError(int code, uint addr, uint len = 0)
@@ -1271,8 +1294,8 @@ void TrkGdbAdapter::startGdb()
         return;
     }
 
-    logMessage(QString("Gdb server running on %1.\nRegister endianness: %3.")
-        .arg(m_gdbServerName).arg(m_registerEndianness));
+    logMessage(QString("Gdb server running on %1.\nLittle endian assumed.")
+        .arg(m_gdbServerName));
 
     connect(&m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
