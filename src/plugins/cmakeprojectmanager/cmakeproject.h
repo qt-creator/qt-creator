@@ -139,6 +139,7 @@ private:
     ProjectExplorer::ToolChain *m_toolChain;
     ProjectExplorer::FileWatcher *m_watcher;
     bool m_insideFileChanged;
+    QSet<QString> m_watchedFiles;
 };
 
 class CMakeCbpParser : public QXmlStreamReader

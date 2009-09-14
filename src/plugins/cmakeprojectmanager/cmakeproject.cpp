@@ -84,18 +84,20 @@ void CMakeProject::slotActiveBuildConfiguration()
 {
     // Pop up a dialog asking the user to rerun cmake
     QFileInfo sourceFileInfo(m_fileName);
-    QStringList needToCreate;
-    QStringList needToUpdate;
 
     QString cbpFile = CMakeManager::findCbpFile(QDir(buildDirectory(activeBuildConfiguration())));
     QFileInfo cbpFileFi(cbpFile);
-    CMakeOpenProjectWizard::Mode mode;
-    if (!cbpFileFi.exists())
+    CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
+    if (!cbpFileFi.exists()) {
         mode = CMakeOpenProjectWizard::NeedToCreate;
-    else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
-        mode = CMakeOpenProjectWizard::NeedToUpdate;
-    else
-        mode = CMakeOpenProjectWizard::Nothing;
+    } else {
+        foreach(const QString &file, m_watchedFiles) {
+            if (QFileInfo(file).lastModified() > sourceFileInfo.lastModified()) {
+                mode = CMakeOpenProjectWizard::NeedToUpdate;
+                break;
+            }
+        }
+    }
 
     if (mode != CMakeOpenProjectWizard::Nothing) {
         CMakeOpenProjectWizard copw(m_manager,
@@ -115,10 +117,7 @@ void CMakeProject::fileChanged(const QString &fileName)
     if (m_insideFileChanged== true)
         return;
     m_insideFileChanged = true;
-    if (fileName == m_fileName) {
-        // Oh we have changed...
-        slotActiveBuildConfiguration();
-    }
+    slotActiveBuildConfiguration();
     m_insideFileChanged = false;
 }
 
@@ -189,12 +188,26 @@ bool CMakeProject::parseCMakeLists()
 
         QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
 
+        QSet<QString> projectFiles;
         if (cbpparser.hasCMakeFiles()) {
             fileList.append(cbpparser.cmakeFileList());
+            foreach(ProjectExplorer::FileNode *node, cbpparser.cmakeFileList())
+                projectFiles.insert(node->path());
         } else {
             // Manually add the CMakeLists.txt file
-            fileList.append(new ProjectExplorer::FileNode(sourceDirectory() + "/CMakeLists.txt", ProjectExplorer::ProjectFileType, false));
+            QString cmakeListTxt = sourceDirectory() + "/CMakeLists.txt";
+            fileList.append(new ProjectExplorer::FileNode(cmakeListTxt, ProjectExplorer::ProjectFileType, false));
+            projectFiles.insert(cmakeListTxt);
         }
+
+
+        QSet<QString> added = projectFiles;
+        added.subtract(m_watchedFiles);
+        foreach(const QString &add, added)
+            m_watcher->addFile(add);
+        foreach(const QString &remove, m_watchedFiles.subtract(projectFiles))
+            m_watcher->removeFile(remove);
+        m_watchedFiles = projectFiles;
 
         m_files.clear();
         foreach (ProjectExplorer::FileNode *fn, fileList)
@@ -620,16 +633,15 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
             setValue(activeBuildConfiguration(), "msvcVersion", copw.msvcVersion());
         }
     }
-    bool result = parseCMakeLists(); // Gets the directory from the active buildconfiguration
-    if (!result)
-        return false;
 
     if (!hasUserFile && targets().contains("all"))
         makeStep->setBuildTarget("all", "all", true);
 
     m_watcher = new ProjectExplorer::FileWatcher(this);
     connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
-    m_watcher->addFile(m_fileName);
+    bool result = parseCMakeLists(); // Gets the directory from the active buildconfiguration
+    if (!result)
+        return false;
 
     connect(this, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(slotActiveBuildConfiguration()));
