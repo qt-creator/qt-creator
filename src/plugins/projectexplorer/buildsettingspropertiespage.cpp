@@ -143,6 +143,7 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
     QHBoxLayout *hbox = new QHBoxLayout();
     hbox->addWidget(new QLabel(tr("Build Configuration:"), this));
     m_buildConfigurationComboBox = new QComboBox(this);
+    m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     hbox->addWidget(m_buildConfigurationComboBox);
 
     m_addButton = new QPushButton(this);
