@@ -107,7 +107,8 @@ public:
     void setWorkingDirectory(const QString &dir) { m_proc.setWorkingDirectory(dir); }
     void setEnvironment(const QStringList &env) { m_proc.setEnvironment(env); }
     bool isAdapter() const { return false; }
-    void attach(GdbEngine *engine) const;
+    void attach();
+    void interruptInferior();
 
 private:
     QProcess m_proc;
@@ -289,6 +290,15 @@ private:
     void debugMessage(const QString &msg);
     bool showToolTip();
 
+    // Convenience
+    DebuggerManager *manager() { return m_manager; }
+    void showStatusMessage(const QString &msg, int timeout = -1)
+        { m_manager->showStatusMessage(msg, timeout); }
+    int status() const { return m_manager->status(); }
+    QMainWindow *mainWindow() const { return m_manager->mainWindow(); }
+    DebuggerStartMode startMode() const { return m_manager->startMode(); }
+    qint64 inferiorPid() const { return m_manager->inferiorPid(); }
+
     void handleChildren(const WatchData &parent, const GdbMi &child,
         QList<WatchData> *insertions);
     const bool m_dumperInjectionLoad;
@@ -441,7 +451,7 @@ private:
 
     QList<GdbCommand> m_commandsToRunOnTemporaryBreak;
 
-    DebuggerManager * const q;
+    DebuggerManager * const m_manager;
     IDebuggerManagerAccessForEngines * const qq;
     DebuggerStartParameters m_startParameters;
     // make sure to re-initialize new members in initializeVariables();

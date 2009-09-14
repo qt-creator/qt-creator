@@ -50,6 +50,7 @@ class AbstractGdbAdapter : public QObject
 public:
     AbstractGdbAdapter(QObject *parent = 0) : QObject(parent) {}
 
+    virtual void setEngine(GdbEngine *engine) { m_engine = engine; }
     virtual void start(const QString &program, const QStringList &args,
         QIODevice::OpenMode mode = QIODevice::ReadWrite) = 0;
     virtual void kill() = 0;
@@ -65,7 +66,8 @@ public:
     virtual void setEnvironment(const QStringList &env) = 0;
     virtual bool isAdapter() const = 0;
 
-    virtual void attach(GdbEngine *engine) const = 0;
+    virtual void attach() = 0;
+    virtual void interruptInferior() = 0;
 
 signals:
     void error(QProcess::ProcessError);
@@ -73,6 +75,9 @@ signals:
     void readyReadStandardOutput();
     void readyReadStandardError();
     void finished(int, QProcess::ExitStatus);
+
+protected:
+    GdbEngine *m_engine;
 };
 
 } // namespace Internal

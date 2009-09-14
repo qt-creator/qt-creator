@@ -132,7 +132,8 @@ public:
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
     bool isAdapter() const { return true; }
-    void attach(GdbEngine *engine) const;
+    void attach();
+    void interruptInferior();
 
     //
     // TRK
@@ -177,7 +178,6 @@ public:
     void reportToGdb(const TrkResult &result);
 
     void readMemory(uint addr, uint len);
-    void interruptInferior();
 
     trk::TrkDevice m_trkDevice;
 

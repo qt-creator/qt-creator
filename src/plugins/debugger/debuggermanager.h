@@ -271,13 +271,13 @@ public:
     QLabel *statusLabel() const { return m_statusLabel; }
     IDebuggerEngine *currentEngine() const { return m_engine; }
 
+    virtual QSharedPointer<DebuggerStartParameters> startParameters() const;
+    virtual qint64 inferiorPid() const;
+
 public slots:
     void startNewDebugger(DebuggerRunControl *runControl,
         const QSharedPointer<DebuggerStartParameters> &startParameters);
     void exitDebugger();
-
-    virtual QSharedPointer<DebuggerStartParameters> startParameters() const;
-    virtual qint64 inferiorPid() const;
 
     void setQtDumperLibraryName(const QString &dl); // Run Control
     void setQtDumperLibraryLocations(const QStringList &dl);
@@ -397,6 +397,7 @@ public:
     // one of the interfaces
     QAbstractItemModel *threadsModel();
     int status() const { return m_status; }
+    // FIXME: hide this in the engines?
     DebuggerStartMode startMode() const;
     DebuggerRunControl *runControl() const { return m_runControl; }
 

@@ -1416,16 +1416,16 @@ void TrkGdbAdapter::setEnvironment(const QStringList &env)
     m_gdbProc.setEnvironment(env);
 }
 
-void TrkGdbAdapter::attach(GdbEngine *engine) const
+void TrkGdbAdapter::attach()
 {
 #ifdef STANDALONE_RUNNER
 #else
-    QString fileName = engine->startParameters().executable; 
-    engine->postCommand(_("add-symbol-file \"%1\" %2").arg(fileName)
+    QString fileName = m_engine->startParameters().executable; 
+    m_engine->postCommand(_("add-symbol-file \"%1\" %2").arg(fileName)
         .arg(m_session.codeseg));
-    engine->postCommand(_("symbol-file \"%1\"").arg(fileName));
-    engine->postCommand(_("target remote ") + gdbServerName());
-    engine->attemptBreakpointSynchronization();
+    m_engine->postCommand(_("symbol-file \"%1\"").arg(fileName));
+    m_engine->postCommand(_("target remote ") + gdbServerName());
+    m_engine->attemptBreakpointSynchronization();
 #endif
 }
 
