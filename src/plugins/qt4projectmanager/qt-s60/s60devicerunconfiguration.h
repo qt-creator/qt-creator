@@ -183,6 +183,9 @@ private:
     QString m_customKeyPath;
     QProcess *m_makesis;
     QProcess *m_signsis;
+    QString m_makesisTool;
+    QString m_packageFile;
+
     trk::Launcher *m_launcher;
 };
 

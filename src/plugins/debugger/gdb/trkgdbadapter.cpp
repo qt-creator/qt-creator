@@ -86,7 +86,6 @@ TrkGdbAdapter::TrkGdbAdapter()
     uid_t userId = getuid();
 #endif
     m_gdbServerName = QString("127.0.0.1:%1").arg(2222 + userId);
-
     connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
         this, SIGNAL(readyReadStandardError()));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),

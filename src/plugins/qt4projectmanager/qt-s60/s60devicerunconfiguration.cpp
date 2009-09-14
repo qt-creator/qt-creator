@@ -541,21 +541,24 @@ S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runCon
     Qt4Project *project = qobject_cast<Qt4Project *>(runConfiguration->project());
     QTC_ASSERT(project, return);
 
-    m_serialPortName = runConfiguration->serialPortName();
+    S60DeviceRunConfiguration* s60runConfig = runConfiguration.objectCast<S60DeviceRunConfiguration>();
+    QTC_ASSERT(s60runConfig, return);
+
+    m_serialPortName = s60runConfig->serialPortName();
     m_serialPortFriendlyName = S60Manager::instance()->serialDeviceLister()->friendlyNameForPort(m_serialPortName);
-    m_targetName = runConfiguration->targetName();
-    m_baseFileName = runConfiguration->basePackageFilePath();
+    m_targetName = s60runConfig->targetName();
+    m_baseFileName = s60runConfig->basePackageFilePath();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
     m_qtDir = project->qtVersion(project->activeBuildConfiguration())->versionInfo().value("QT_INSTALL_DATA");
-    m_useCustomSignature = (runConfiguration->signingMode() == S60DeviceRunConfiguration::SignCustom);
-    m_customSignaturePath = runConfiguration->customSignaturePath();
-    m_customKeyPath = runConfiguration->customKeyPath();
+    m_useCustomSignature = (s60runConfig->signingMode() == S60DeviceRunConfiguration::SignCustom);
+    m_customSignaturePath = s60runConfig->customSignaturePath();
+    m_customKeyPath = s60runConfig->customKeyPath();
     m_toolsDirectory = S60Manager::instance()->deviceForQtVersion(
             project->qtVersion(project->activeBuildConfiguration())).toolsRoot
             + "/epoc32/tools";
-    m_executableFileName = lsFile(runConfiguration->executableFileName());
-    const QString makesisTool = m_toolsDirectory + "/makesis.exe";
-    const QString packageFile = QFileInfo(runConfiguration->packageFileName()).fileName();
+    m_executableFileName = lsFile(s60runConfig->executableFileName());
+    m_makesisTool = m_toolsDirectory + "/makesis.exe";
+    m_packageFile = QFileInfo(s60runConfig->packageFileName()).fileName();
 }
 
 void S60DeviceRunControl::start()
@@ -567,8 +570,8 @@ void S60DeviceRunControl::start()
 
 
     m_makesis->setWorkingDirectory(m_workingDirectory);
-    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(makesisTool), packageFile));
-    m_makesis->start(makesisTool, QStringList(packageFile), QIODevice::ReadOnly);
+    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(m_makesisTool), m_packageFile));
+    m_makesis->start(m_makesisTool, QStringList(m_packageFile), QIODevice::ReadOnly);
 }
 
 void S60DeviceRunControl::stop()
