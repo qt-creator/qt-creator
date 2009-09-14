@@ -50,7 +50,7 @@ using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 TextEditorActionHandler::TextEditorActionHandler(const QString &context,
-                                                 uint optionalActions) 
+                                                 uint optionalActions)
   : QObject(Core::ICore::instance()),
     m_undoAction(0),
     m_redoAction(0),
@@ -188,7 +188,7 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_reformatAction, Constants::REFORMAT, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+F")));
     connect(m_reformatAction, SIGNAL(triggered()), this, SLOT(reformatAction()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_REFORMAT);
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
 
     m_cutLineAction = new QAction(tr("Cut &Line"), this);
     command = am->registerAction(m_cutLineAction, Constants::CUT_LINE, m_contextId);
@@ -221,7 +221,7 @@ void TextEditorActionHandler::createActions()
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl++")));
     connect(m_increaseFontSizeAction, SIGNAL(triggered()), this, SLOT(increaseFontSize()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
-    
+
     m_decreaseFontSizeAction = new QAction(tr("Decrease Font Size"), this);
     command = am->registerAction(m_decreaseFontSizeAction, Constants::DECREASE_FONT_SIZE, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));

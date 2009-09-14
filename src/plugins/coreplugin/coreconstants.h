@@ -180,7 +180,6 @@ const char * const G_EDIT_OTHER          = "QtCreator.Group.Edit.Other";
 // advanced edit menu groups
 
 const char * const G_EDIT_FORMAT         = "QtCreator.Group.Edit.Format";
-const char * const G_EDIT_REFORMAT       = "QtCreator.Group.Edit.Reformat";
 const char * const G_EDIT_COLLAPSING     = "QtCreator.Group.Edit.Collapsing";
 const char * const G_EDIT_FONT           = "QtCreator.Group.Edit.Font";
 const char * const G_EDIT_EDITOR         = "QtCreator.Group.Edit.Editor";
