@@ -524,12 +524,11 @@ QList<ProjectExplorer::BuildConfigWidget*> CMakeProject::subConfigWidgets()
     return list;
 }
 
-// This method is called for new build configurations
-// You should probably set some default values in this method
  void CMakeProject::newBuildConfiguration(const QString &buildConfiguration)
  {
      // Default to all
-     makeStep()->setBuildTarget(buildConfiguration, "all", true);
+     if (targets().contains("all"))
+         makeStep()->setBuildTarget(buildConfiguration, "all", true);
 
     CMakeOpenProjectWizard copw(projectManager(), sourceDirectory(), buildDirectory(buildConfiguration), environment(buildConfiguration));
     if (copw.exec() == QDialog::Accepted) {
@@ -571,24 +570,23 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
 {
     Project::restoreSettingsImpl(reader);
     bool hasUserFile = !buildConfigurations().isEmpty();
+    MakeStep *makeStep = 0;
     if (!hasUserFile) {
         // Ask the user for where he wants to build it
         // and the cmake command line
 
         CMakeOpenProjectWizard copw(m_manager, sourceDirectory(), ProjectExplorer::Environment::systemEnvironment());
         copw.exec();
-        // TODO handle cancel....
 
         qDebug()<<"ccd.buildDirectory()"<<copw.buildDirectory();
 
         // Now create a standard build configuration
-        MakeStep *makeStep = new MakeStep(this);
+        makeStep = new MakeStep(this);
 
         insertBuildStep(0, makeStep);
 
         addBuildConfiguration("all");
         setValue("all", "msvcVersion", copw.msvcVersion());
-        makeStep->setBuildTarget("all", "all", true);
         if (!copw.buildDirectory().isEmpty())
             setValue("all", "buildDirectory", copw.buildDirectory());
         //TODO save arguments somewhere copw.arguments()
@@ -597,8 +595,6 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         insertCleanStep(0, cleanMakeStep);
         cleanMakeStep->setValue("clean", true);
         setActiveBuildConfiguration("all");
-
-
     } else {
         // We have a user file, but we could still be missing the cbp file
         // or simply run createXml with the saved settings
@@ -627,6 +623,9 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
     bool result = parseCMakeLists(); // Gets the directory from the active buildconfiguration
     if (!result)
         return false;
+
+    if (!hasUserFile && targets().contains("all"))
+        makeStep->setBuildTarget("all", "all", true);
 
     m_watcher = new ProjectExplorer::FileWatcher(this);
     connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
