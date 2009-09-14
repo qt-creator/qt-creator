@@ -231,22 +231,6 @@ int main(int argc, char **argv)
     QTranslator translator;
     QTranslator qtTranslator;
     QString locale = QLocale::system().name();
-#ifdef Q_OS_MAC
-    // because QLocale's system locale is basically useless on the Mac.
-    // Try to get the real system setting via core foundation
-    CFArrayRef languages = (CFArrayRef)CFPreferencesCopyValue(
-             CFSTR("AppleLanguages"),
-             kCFPreferencesAnyApplication,
-             kCFPreferencesCurrentUser,
-             kCFPreferencesAnyHost);
-//    CFShow(languages);
-    if (CFArrayGetCount(languages) > 0) {
-        QString preferredLanguage = stringFromCFString(CFStringRef(CFArrayGetValueAtIndex(languages, 0)));
-        if (!preferredLanguage.isEmpty())
-            locale = preferredLanguage;
-    }
-    CFRelease(languages);
-#endif
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
                         + QLatin1String(SHARE_PATH "/translations");
     if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {

@@ -81,5 +81,10 @@ Wizards
    * Added a wizard for Qt Designer custom widgets
    * Added a gitorious clone wizard
 
+Platform Specific
+
+Mac
+   * Make use of system's language settings
+
 Additional credits go to:
    * Christian Hoenig (Locator filter for symbols in current document)
