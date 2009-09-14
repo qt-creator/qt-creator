@@ -67,6 +67,8 @@ public:
     OpenEditorsWidget();
     ~OpenEditorsWidget();
 
+    bool eventFilter(QObject *obj, QEvent *event);
+
 private slots:
     void handleClicked(const QModelIndex &);
     void handlePressed(const QModelIndex &);
@@ -74,6 +76,9 @@ private slots:
     void contextMenuRequested(QPoint pos);
 
 private:
+    void activateEditor(const QModelIndex &index);
+    void closeEditor(const QModelIndex &index);
+
     Ui::OpenEditorsView m_ui;
     QWidget *m_widget;
     OpenEditorsDelegate *m_delegate;
