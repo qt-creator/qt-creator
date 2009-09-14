@@ -60,12 +60,12 @@ BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
 
     QHBoxLayout *hboxLayout = new QHBoxLayout();
     m_addButton = new QPushButton(this);
-    m_addButton->setText(tr("Add build step"));
+    m_addButton->setText(clean ? tr("Add clean step") :  tr("Add build step"));
     m_addButton->setMenu(new QMenu(this));
     hboxLayout->addWidget(m_addButton);
 
     m_removeButton = new QPushButton(this);
-    m_removeButton->setText(tr("Remove build step"));
+    m_removeButton->setText(clean ? tr("Remove clean step") : tr("Remove build step"));
     m_removeButton->setMenu(new QMenu(this));
     hboxLayout->addWidget(m_removeButton);
     hboxLayout->addStretch(10);
