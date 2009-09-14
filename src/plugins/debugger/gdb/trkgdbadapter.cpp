@@ -80,7 +80,11 @@ TrkGdbAdapter::TrkGdbAdapter()
     m_bufferedMemoryRead = true;
     m_rfcommDevice = "/dev/rfcomm0";
 
+#ifdef Q_OS_WIN
+    int userId = 0;
+#else
     uid_t userId = getuid();
+#endif
     m_gdbServerName = QString("127.0.0.1:%1").arg(2222 + userId);
 
     connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
