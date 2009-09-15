@@ -573,14 +573,26 @@ void HelpPlugin::extensionsInitialized()
 
     bool needsSetup = false;
     bool assistantInternalDocRegistered = false;
+    QStringList documentationToRemove;
 
-    const QString &docInternal = QString("com.nokia.qtcreator.%1%2")
-        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR);
+    const QString &docInternal = QString("com.nokia.qtcreator.%1%2%3")
+        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
     const QStringList &docs = m_helpEngine->registeredDocumentations();
     foreach (const QString &ns, docs) {
         if (ns == docInternal) {
             assistantInternalDocRegistered = true;
-            break;
+        } else if (ns.startsWith("com.nokia.qtcreator.")) {
+            documentationToRemove << ns;
+        }
+    }
+
+    //remove any qtcreator documentation that doesn't belong to current version
+    if (!documentationToRemove.isEmpty()) {
+        QHelpEngineCore hc(m_helpEngine->collectionFile());
+        hc.setupData();
+        foreach (const QString &ns, documentationToRemove) {
+            if (hc.unregisterDocumentation(ns))
+                needsSetup = true;
         }
     }
 
