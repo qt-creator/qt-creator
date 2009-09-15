@@ -762,15 +762,21 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
 
 void GdbEngine::flushCommand(GdbCommand &cmd)
 {
+    if (m_gdbAdapter->state() != QProcess::Running) {
+        emit gdbInputAvailable(LogInput, cmd.command);
+        debugMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + cmd.command);
+        return;
+    }
+
     ++currentToken();
     cmd.postTime = QTime::currentTime();
     m_cookieForToken[currentToken()] = cmd;
     cmd.command = QString::number(currentToken()) + cmd.command;
     if (cmd.flags & EmbedToken)
         cmd.command = cmd.command.arg(currentToken());
-
     emit gdbInputAvailable(LogInput, cmd.command);
-    executeDebuggerCommand(cmd.command);
+
+    m_gdbAdapter->write(cmd.command.toLatin1() + "\r\n");
 }
 
 void GdbEngine::handleResultRecord(const GdbResultRecord &record)
@@ -841,6 +847,8 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
             << m_pendingRequests << cmd.command);
     }
 
+    // Continue only if there are no commands wire anymore, so this will
+    // be fully synchroneous.
     // This is somewhat inefficient, as it makes the last command synchronous.
     // An optimization would be requesting the continue immediately when the
     // event loop is entered, and let individual commands have a flag to suppress
