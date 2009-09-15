@@ -163,6 +163,7 @@ public:
 
     QString m_displayName;
     bool m_parenthesesMatchingEnabled;
+    bool m_autoParenthesesEnabled;
     QTimer *m_updateTimer;
 
     // parentheses matcher

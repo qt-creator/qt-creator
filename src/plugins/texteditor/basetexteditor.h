@@ -322,6 +322,9 @@ public:
     void setParenthesesMatchingEnabled(bool b);
     bool isParenthesesMatchingEnabled() const;
 
+    void setAutoParenthesesEnabled(bool b);
+    bool isAutoParenthesesEnabled() const;
+
     void setHighlightCurrentLine(bool b);
     bool highlightCurrentLine() const;
 

@@ -536,6 +536,7 @@ CPPEditor::CPPEditor(QWidget *parent)
     m_semanticHighlighter->start();
 
     setParenthesesMatchingEnabled(true);
+    setAutoParenthesesEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);

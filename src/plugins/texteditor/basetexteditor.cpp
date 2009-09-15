@@ -178,6 +178,7 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
 //     (void) new QShortcut(tr("F11"), this, SLOT(slotToggleBlockVisible()));
 
 
+    d->m_autoParenthesesEnabled = false;
     // parentheses matcher
     d->m_parenthesesMatchingEnabled = false;
     d->m_formatRange = true;
@@ -890,7 +891,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         const TabSettings &ts = d->m_document->tabSettings();
         cursor.beginEditBlock();
 
-        if (ts.m_autoParentheses
+        if (d->m_autoParenthesesEnabled && ts.m_autoParentheses
             && characterAt(cursor.position()) == QLatin1Char('}')) {
             int pos = cursor.position();
             if (ts.m_autoIndent) {
@@ -1059,7 +1060,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         QTextCursor cursor = textCursor();
         QString text = e->text();
         QString autoText;
-        if (d->m_document->tabSettings().m_autoParentheses) {
+        if (d->m_autoParenthesesEnabled && d->m_document->tabSettings().m_autoParentheses) {
             foreach(QChar c, text) {
                 QChar close;
                 if (c == QLatin1Char('{'))
@@ -1310,6 +1311,16 @@ void BaseTextEditor::setParenthesesMatchingEnabled(bool b)
 bool BaseTextEditor::isParenthesesMatchingEnabled() const
 {
     return d->m_parenthesesMatchingEnabled;
+}
+
+void BaseTextEditor::setAutoParenthesesEnabled(bool b)
+{
+    d->m_autoParenthesesEnabled = b;
+}
+
+bool BaseTextEditor::isAutoParenthesesEnabled() const
+{
+    return d->m_autoParenthesesEnabled;
 }
 
 void BaseTextEditor::setHighlightCurrentLine(bool b)
