@@ -1715,10 +1715,13 @@ void GdbEngine::startDebugger2()
     } else if (m_startParameters.useTerminal) {
         qq->breakHandler()->setAllPending();
     } else if (startMode() == StartInternal || startMode() == StartExternal) {
+        qq->breakHandler()->setAllPending();
         m_gdbAdapter->attach();
         if (m_gdbAdapter->isAdapter()) {
+            m_autoContinue = true;
+            qq->notifyInferiorStopped();
+            attemptBreakpointSynchronization();
             qq->notifyInferiorRunningRequested();
-            postCommand(_("-exec-continue"), CB(handleExecContinue));
         } else {
             #ifdef Q_OS_MAC
             postCommand(_("sharedlibrary apply-load-rules all"));
@@ -1737,7 +1740,6 @@ void GdbEngine::startDebugger2()
             postCommand(_("info target"), CB(handleStart));
             #endif
         }
-        qq->breakHandler()->setAllPending();
     }
 
     emit startSuccessful();
@@ -1806,7 +1808,8 @@ void GdbEngine::handleSetTargetAsync(const GdbResultRecord &record, const QVaria
 {
     if (record.resultClass == GdbResultDone) {
         qq->notifyInferiorRunningRequested();
-        postCommand(_("target remote %1").arg(m_manager->startParameters()->remoteChannel),
+        postCommand(_("target remote %1")
+                .arg(m_manager->startParameters()->remoteChannel),
             CB(handleTargetRemote));
     } else if (record.resultClass == GdbResultError) {
         // a typical response on "old" gdb is:

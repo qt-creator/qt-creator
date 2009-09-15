@@ -643,7 +643,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // actions supported by the vCont packet
         sendGdbServerAck();
         //sendGdbServerMessage("OK"); // we don't support vCont.
-        sendGdbServerMessage("vCont;c;C;s;S;n");
+        sendGdbServerMessage("vCont;c;C;s;S");
     }
 
     else if (cmd == "vCont;c") {
@@ -753,7 +753,7 @@ void TrkGdbAdapter::sendTrkMessage(byte code, TrkCallback callback,
 
 void TrkGdbAdapter::sendTrkAck(byte token)
 {
-    logMessage(QString("SENDING ACKNOWLEDGEMENT FOR TOKEN %1").arg(int(token)));
+    //logMessage(QString("SENDING ACKNOWLEDGEMENT FOR TOKEN %1").arg(int(token)));
     m_trkDevice.sendTrkAck(token);
 }
 
@@ -771,7 +771,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         sendGdbServerMessage("O" + result.data.toHex());
         return;
     }
-    logMessage("READ TRK " + result.toString());
+    //logMessage("READ TRK " + result.toString());
     QByteArray prefix = "READ BUF:                                       ";
     QByteArray str = result.toString().toUtf8();
     switch (result.code) {
@@ -984,7 +984,7 @@ void TrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TrkResult &resul
     //for (int i = 16; i < 25; ++i)
     //    appendRegister(&ba, i, 0x0);
     appendRegister(&ba, RegisterPSGdb, m_snapshot.registers[RegisterPSTrk]);
-    qDebug() << "TrkGdbAdapter::handleAndReportReadRegistersAfterStop" << ba;
+    //qDebug() << "TrkGdbAdapter::handleAndReportReadRegistersAfterStop" << ba;
     sendGdbServerMessage(ba, "Registers");
 }
 
@@ -1235,6 +1235,7 @@ void TrkGdbAdapter::readMemory(uint addr, uint len)
 
 void TrkGdbAdapter::interruptInferior()
 {
+    qDebug() << "TRYING TO INTERRUPT INFERIOR";
     QByteArray ba;
     // stop the thread (2) or the process (1) or the whole system (0)
     // We choose 2, as 1 does not seem to work.
@@ -1424,8 +1425,9 @@ void TrkGdbAdapter::attach()
     m_engine->postCommand(_("add-symbol-file \"%1\" %2").arg(fileName)
         .arg(m_session.codeseg));
     m_engine->postCommand(_("symbol-file \"%1\"").arg(fileName));
+    //m_engine->postCommand(_("target remote ") + gdbServerName(),
+    //    &GdbEngine::handleTargetRemote, "handleTargetRemote");
     m_engine->postCommand(_("target remote ") + gdbServerName());
-    m_engine->attemptBreakpointSynchronization();
 #endif
 }
 
