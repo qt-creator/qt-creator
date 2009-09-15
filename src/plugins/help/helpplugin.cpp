@@ -574,9 +574,13 @@ void HelpPlugin::extensionsInitialized()
     bool needsSetup = false;
     bool assistantInternalDocRegistered = false;
     QStringList documentationToRemove;
+    QStringList filtersToRemove;
 
     const QString &docInternal = QString("com.nokia.qtcreator.%1%2%3")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
+    const QString filterInternal = QString("Qt Creator %1.%2.%3")
+        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
+    const QRegExp filterRegExp("Qt Creator \\d*\\.\\d*\\.\\d*");
     const QStringList &docs = m_helpEngine->registeredDocumentations();
     foreach (const QString &ns, docs) {
         if (ns == docInternal) {
@@ -585,36 +589,38 @@ void HelpPlugin::extensionsInitialized()
             documentationToRemove << ns;
         }
     }
+    foreach (const QString &filter, m_helpEngine->customFilters()) {
+        if (filterRegExp.exactMatch(filter) && filter != filterInternal) {
+            filtersToRemove << filter;
+        }
+    }
 
     //remove any qtcreator documentation that doesn't belong to current version
-    if (!documentationToRemove.isEmpty()) {
+    if (!documentationToRemove.isEmpty() || !filtersToRemove.isEmpty() || !assistantInternalDocRegistered) {
         QHelpEngineCore hc(m_helpEngine->collectionFile());
         hc.setupData();
         foreach (const QString &ns, documentationToRemove) {
             if (hc.unregisterDocumentation(ns))
                 needsSetup = true;
         }
-    }
-
-    if (!assistantInternalDocRegistered) {
-        QFileInfo fi(m_helpEngine->collectionFile());
-
-        const QString qchFileName =
-            QDir::cleanPath(QCoreApplication::applicationDirPath()
-#if defined(Q_OS_MAC)
-            + QLatin1String("/../Resources/doc/qtcreator.qch"));
-#else
-            + QLatin1String("../../share/doc/qtcreator/qtcreator.qch"));
-#endif
-        QHelpEngineCore hc(fi.absoluteFilePath());
-        hc.setupData();
-        QString fileNamespace = QHelpEngineCore::namespaceName(qchFileName);
-        if (!fileNamespace.isEmpty()
-            && !hc.registeredDocumentations().contains(fileNamespace)) {
-                if (!hc.registerDocumentation(qchFileName))
-                    qDebug() << hc.error();
+        foreach (const QString &filter, filtersToRemove) {
+            if (hc.removeCustomFilter(filter))
                 needsSetup = true;
         }
+
+        if (!assistantInternalDocRegistered) {
+            const QString qchFileName =
+                QDir::cleanPath(QCoreApplication::applicationDirPath()
+#if defined(Q_OS_MAC)
+                + QLatin1String("/../Resources/doc/qtcreator.qch"));
+#else
+                + QLatin1String("../../share/doc/qtcreator/qtcreator.qch"));
+#endif
+            if (!hc.registerDocumentation(qchFileName))
+                qDebug() << hc.error();
+            needsSetup = true;
+        }
+
     }
 
     QLatin1String key("UnfilteredFilterInserted");
