@@ -1529,8 +1529,6 @@ void GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
     QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized,
         initializeVariables());
 
-    QStringList gdbArgs;
-
     if (m_gdbAdapter->state() != QProcess::NotRunning) {
         debugMessage(_("GDB IS ALREADY RUNNING, STATE: %1").arg(m_gdbAdapter->state()));
         m_gdbAdapter->kill();
@@ -1538,12 +1536,12 @@ void GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
         return;
     }
 
-    //gdbArgs.prepend(_("--quiet"));
+    QStringList gdbArgs;
     gdbArgs.prepend(_("mi"));
     gdbArgs.prepend(_("-i"));
 
-    if (startMode() == AttachCore || startMode() == AttachExternal ||
-startMode() == AttachCrashedExternal) {
+    if (startMode() == AttachCore || startMode() == AttachExternal
+            || startMode() == AttachCrashedExternal) {
         // nothing to do
     } else if (startMode() == StartRemote) {
         // Start the remote server
