@@ -2510,7 +2510,12 @@ void GdbEngine::handleStackSelectThread(const GdbResultRecord &, const QVariant 
 
 void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVariant &cookie)
 {
-    if (record.resultClass == GdbResultDone) {
+    #if defined(Q_OS_MAC)
+    bool handleIt = true;
+    #else
+    bool handleIt = record.resultClass == GdbResultDone;
+    #endif
+    if (handleIt) {
         bool isFull = cookie.toBool();
         QList<StackFrame> stackFrames;
 
@@ -2568,8 +2573,8 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVari
             const StackFrame &frame = qq->stackHandler()->currentFrame();
             m_manager->gotoLocation(frame, true);
         }
-    } else if (record.resultClass == GdbResultError) {
-        qDebug() << "STACK FAILED: " << record.toString();
+    } else {
+        qDebug() << "LISTING STACK FAILED: " << record.toString();
     }
 }
 
