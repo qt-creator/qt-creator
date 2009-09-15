@@ -339,6 +339,13 @@ bool isIntType(const QString &type)
     return types.contains(type);
 }
 
+bool isSymbianIntType(const QString &type)
+{
+    static const QStringList types = QStringList()
+        << QLatin1String("TInt") << QLatin1String("TBool");
+    return types.contains(type);
+}
+
 bool isIntOrFloatType(const QString &type)
 {
     static const QStringList types = QStringList()
