@@ -38,6 +38,7 @@
 static const char *spacesForTabsKey = "SpacesForTabs";
 static const char *smartBackspaceKey = "SmartBackspace";
 static const char *autoIndentKey = "AutoIndent";
+static const char *autoParenthesesKey= "AutoParentheses";
 static const char *tabSizeKey = "TabSize";
 static const char *indentSizeKey = "IndentSize";
 static const char *tabKeyBehaviorKey = "TabKeyBehavior";
@@ -48,6 +49,7 @@ namespace TextEditor {
 TabSettings::TabSettings() :
     m_spacesForTabs(true),
     m_autoIndent(true),
+    m_autoParentheses(true),
     m_smartBackspace(false),
     m_tabSize(8),
     m_indentSize(4),
@@ -63,6 +65,7 @@ void TabSettings::toSettings(const QString &category, QSettings *s) const
     s->beginGroup(group);
     s->setValue(QLatin1String(spacesForTabsKey),  m_spacesForTabs);
     s->setValue(QLatin1String(autoIndentKey), m_autoIndent);
+    s->setValue(QLatin1String(autoParenthesesKey), m_autoParentheses);
     s->setValue(QLatin1String(smartBackspaceKey), m_smartBackspace);
     s->setValue(QLatin1String(tabSizeKey), m_tabSize);
     s->setValue(QLatin1String(indentSizeKey), m_indentSize);
@@ -81,6 +84,7 @@ void TabSettings::fromSettings(const QString &category, const QSettings *s)
 
     m_spacesForTabs   = s->value(group + QLatin1String(spacesForTabsKey), m_spacesForTabs).toBool();
     m_autoIndent      = s->value(group + QLatin1String(autoIndentKey), m_autoIndent).toBool();
+    m_autoParentheses = s->value(group + QLatin1String(autoParenthesesKey), m_autoParentheses).toBool();
     m_smartBackspace  = s->value(group + QLatin1String(smartBackspaceKey), m_smartBackspace).toBool();
     m_tabSize         = s->value(group + QLatin1String(tabSizeKey), m_tabSize).toInt();
     m_indentSize      = s->value(group + QLatin1String(indentSizeKey), m_indentSize).toInt();
@@ -259,6 +263,7 @@ bool TabSettings::equals(const TabSettings &ts) const
 {
     return m_spacesForTabs == ts.m_spacesForTabs
         && m_autoIndent == ts.m_autoIndent
+        && m_autoParentheses== ts.m_autoParentheses
         && m_smartBackspace == ts.m_smartBackspace
         && m_tabSize == ts.m_tabSize
         && m_indentSize == ts.m_indentSize

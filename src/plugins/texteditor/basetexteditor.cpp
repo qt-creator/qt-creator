@@ -888,18 +888,31 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         if (d->m_inBlockSelectionMode)
             cursor.clearSelection();
         const TabSettings &ts = d->m_document->tabSettings();
+        cursor.beginEditBlock();
+
+        if (ts.m_autoParentheses
+            && characterAt(cursor.position()) == QLatin1Char('}')) {
+            int pos = cursor.position();
+            if (ts.m_autoIndent) {
+                cursor.insertBlock();
+                indent(document(), cursor, QChar::Null);
+            } else {
+                QString previousBlockText = cursor.block().text();
+                cursor.insertBlock();
+                cursor.insertText(ts.indentationString(previousBlockText));
+            }
+            cursor.setPosition(pos);
+        }
+
         if (ts.m_autoIndent) {
-            cursor.beginEditBlock();
             cursor.insertBlock();
             indent(document(), cursor, QChar::Null);
-            cursor.endEditBlock();
         } else {
-            cursor.beginEditBlock();
             QString previousBlockText = cursor.block().text();
             cursor.insertBlock();
             cursor.insertText(ts.indentationString(previousBlockText));
-            cursor.endEditBlock();
         }
+        cursor.endEditBlock();
         e->accept();
         setTextCursor(cursor);
         return;
@@ -1029,21 +1042,6 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         break;
 
     default:
-        if (! ro && d->m_document->tabSettings().m_autoIndent
-            && ! e->text().isEmpty() && isElectricCharacter(e->text().at(0))) {
-            QTextCursor cursor = textCursor();
-            const QString text = e->text();
-            cursor.insertText(text);
-            indent(document(), cursor, text.at(0));
-#if 0
-            TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document()->documentLayout());
-            QTC_ASSERT(documentLayout, return);
-            documentLayout->requestUpdate(); // a bit drastic
-            e->accept();
-#endif
-            setTextCursor(cursor);
-            return;
-        }
         break;
     }
 
@@ -1055,7 +1053,59 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    QPlainTextEdit::keyPressEvent(e);
+    if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
+        QPlainTextEdit::keyPressEvent(e);
+    } else {
+        QTextCursor cursor = textCursor();
+        QString text = e->text();
+        QString autoText;
+        if (d->m_document->tabSettings().m_autoParentheses) {
+            foreach(QChar c, text) {
+                QChar close;
+                if (c == QLatin1Char('{'))
+                    close = QLatin1Char('}');
+                else if (c == QLatin1Char('('))
+                    close = QLatin1Char(')');
+                else if (c == QLatin1Char('['))
+                    close = QLatin1Char(']');
+                if (!close.isNull())
+                    autoText += close;
+            }
+
+            QChar first = text.at(0);
+            if (first == QLatin1Char(')')
+                || first == QLatin1Char('}')
+                || first == QLatin1Char(']')) {
+                if (first == characterAt(cursor.position())) {
+                    int pos = cursor.position();
+                    cursor.setPosition(pos+1);
+                    cursor.setPosition(pos, QTextCursor::KeepAnchor);
+                }
+            }
+        }
+        QChar electricChar;
+        if (d->m_document->tabSettings().m_autoIndent) {
+            foreach(QChar c, text) {
+                if (isElectricCharacter(c)) {
+                    electricChar = c;
+                    break;
+                }
+            }
+        }
+        if (!electricChar.isNull())
+            cursor.beginEditBlock();
+        cursor.insertText(text);
+        if (!autoText.isEmpty()) {
+            int pos = cursor.position();
+            cursor.insertText(autoText);
+            cursor.setPosition(pos);
+        }
+        if (!electricChar.isNull()) {
+            indent(document(), cursor, electricChar);
+            cursor.endEditBlock();
+        }
+        setTextCursor(cursor);
+    }
 
 skip_event:
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
