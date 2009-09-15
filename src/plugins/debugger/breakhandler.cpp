@@ -196,20 +196,30 @@ QString BreakpointData::toToolTip() const
     QString rc;
     QTextStream str(&rc);
     str << "<html><body><table>";
-    str << "<tr><td>" << BreakHandler::tr("Marker File:") << "</td><td>" << markerFileName << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Marker Line:") << "</td><td>" << markerLineNumber << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Breakpoint Number:") << "</td><td>" << bpNumber << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Breakpoint Address:") << "</td><td>" << bpAddress << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Marker File:")
+        << "</td><td>" << markerFileName << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Marker Line:")
+        << "</td><td>" << markerLineNumber << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Breakpoint Number:")
+        << "</td><td>" << bpNumber << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Breakpoint Address:")
+        << "</td><td>" << bpAddress << "</td></tr>";
     str << "</table><br><hr><table>";
     str << "<tr><th>" << BreakHandler::tr("Property")
         << "</th><th>" << BreakHandler::tr("Requested")
         << "</th><th>" << BreakHandler::tr("Obtained") << "</th></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Internal Number:") << "</td><td>&mdash;</td><td>" << bpNumber << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("File Name:") << "</td><td>" << fileName << "</td><td>" << bpFileName << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Function Name:") << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Line Number:") << "</td><td>" << lineNumber << "</td><td>" << bpLineNumber << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Condition:") << "</td><td>" << condition << "</td><td>" << bpCondition << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Ignore Count:") << "</td><td>" << ignoreCount << "</td><td>" << bpIgnoreCount << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Internal Number:")
+        << "</td><td>&mdash;</td><td>" << bpNumber << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("File Name:")
+        << "</td><td>" << fileName << "</td><td>" << bpFileName << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Function Name:")
+        << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Line Number:")
+        << "</td><td>" << lineNumber << "</td><td>" << bpLineNumber << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Condition:")
+        << "</td><td>" << condition << "</td><td>" << bpCondition << "</td></tr>";
+    str << "<tr><td>" << BreakHandler::tr("Ignore Count:")
+        << "</td><td>" << ignoreCount << "</td><td>" << bpIgnoreCount << "</td></tr>";
     str << "</table></body></html>";
     return rc;
 }
