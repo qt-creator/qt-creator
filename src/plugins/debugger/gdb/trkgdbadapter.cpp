@@ -1139,7 +1139,7 @@ void TrkGdbAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
     //  Command: 0x80 Acknowledge
     //    Error: 0x00
     // [80 09 00 00 00 00 0A]
-    uint bpnr = extractByte(result.data.data());
+    uint bpnr = extractInt(result.data.data() + 1);
     uint addr = result.cookie.toUInt();
     m_session.addressToBP[addr] = bpnr;
     logMessage("SET BREAKPOINT " + hexxNumber(bpnr) + " "
