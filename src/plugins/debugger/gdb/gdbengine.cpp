@@ -148,8 +148,7 @@ static QByteArray parsePlainConsoleStream(const GdbResultRecord &record)
 void PlainGdbAdapter::attach()
 {
     QFileInfo fi(m_engine->startParameters().executable);
-    QString fileName = fi.absoluteFilePath();
-    m_engine->postCommand(_("-file-exec-and-symbols ") + fileName,
+    m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fi.absoluteFilePath()),
         &GdbEngine::handleFileExecAndSymbols, "handleFileExecAndSymbols");
 }
 
