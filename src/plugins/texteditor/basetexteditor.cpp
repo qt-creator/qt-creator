@@ -1121,10 +1121,10 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         if (!electricChar.isNull())
             cursor.beginEditBlock();
 
-        bool insertAutoParenthesis = !autoText.isEmpty() && contextAllowsAutoParenthesis(cursor);
+        bool insertAutoParentheses = !autoText.isEmpty() && contextAllowsAutoParentheses(cursor);
         cursor.insertText(text);
 
-        if (insertAutoParenthesis) {
+        if (insertAutoParentheses) {
             int pos = cursor.position();
             cursor.insertText(autoText);
             cursor.setPosition(pos);
@@ -3329,7 +3329,7 @@ bool BaseTextEditor::isElectricCharacter(const QChar &) const
     return false;
 }
 
-bool BaseTextEditor::contextAllowsAutoParenthesis(const QTextCursor &) const
+bool BaseTextEditor::contextAllowsAutoParentheses(const QTextCursor &) const
 {
     return true;
 }

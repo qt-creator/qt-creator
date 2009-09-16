@@ -213,7 +213,7 @@ protected:
 
     // These override BaseTextEditor
     bool isElectricCharacter(const QChar &ch) const;
-    bool contextAllowsAutoParenthesis(const QTextCursor &cursor) const;
+    bool contextAllowsAutoParentheses(const QTextCursor &cursor) const;
 
 private Q_SLOTS:
     void updateFileName();

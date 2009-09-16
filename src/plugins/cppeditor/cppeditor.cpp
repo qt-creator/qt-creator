@@ -1268,7 +1268,7 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
-bool CPPEditor::contextAllowsAutoParenthesis(const QTextCursor &cursor) const
+bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor) const
 {
     CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(cursor);
