@@ -108,10 +108,8 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (tk.is(T_RPAREN) || tk.is(T_RBRACE) || tk.is(T_RBRACKET)) {
             const QChar c(tk.text().at(0));
             parentheses.append(Parenthesis(Parenthesis::Closed, c, tk.position()));
-            if (tk.is(T_RBRACE)) {
-                if (--braceDepth < 0)
-                    braceDepth = 0;
-            }
+            if (tk.is(T_RBRACE))
+                --braceDepth;
         }
 
         bool highlightCurrentWordAsPreprocessor = highlightAsPreprocessor;
@@ -228,7 +226,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 if (currentState != -1) {
                     oldState = currentState & 0xff;
                     oldBraceDepth = currentState >> 8;
-                    block.setUserState(qMax(0, (oldBraceDepth + delta) << 8 ) | oldState);
+                    block.setUserState(((oldBraceDepth + delta) << 8 ) | oldState);
                 }
                 block = block.next();
             }
