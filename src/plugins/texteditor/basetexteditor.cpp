@@ -1060,6 +1060,8 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         QTextCursor cursor = textCursor();
         QString text = e->text();
         QString autoText;
+
+        // TODO disable this inside string or character literals
         if (d->m_autoParenthesesEnabled && d->m_document->tabSettings().m_autoParentheses) {
             foreach(QChar c, text) {
                 QChar close;
@@ -1069,6 +1071,10 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                     close = QLatin1Char(')');
                 else if (c == QLatin1Char('['))
                     close = QLatin1Char(']');
+                else if (c == QLatin1Char('\"'))
+                    close = c;
+                else if (c == QLatin1Char('\''))
+                    close = c;
                 if (!close.isNull())
                     autoText += close;
             }
