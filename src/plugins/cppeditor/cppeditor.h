@@ -211,8 +211,9 @@ protected:
 
     TextEditor::BaseTextEditorEditable *createEditableInterface();
 
-    // Rertuns true if key triggers anindent.
-    virtual bool isElectricCharacter(const QChar &ch) const;
+    // These override BaseTextEditor
+    bool isElectricCharacter(const QChar &ch) const;
+    bool contextAllowsAutoParenthesis(const QTextCursor &cursor) const;
 
 private Q_SLOTS:
     void updateFileName();

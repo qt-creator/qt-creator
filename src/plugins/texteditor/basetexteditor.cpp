@@ -1073,9 +1073,8 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         QString text = e->text();
         QString autoText;
 
-        // TODO disable this inside string or character literals
         if (d->m_autoParenthesesEnabled && d->m_document->tabSettings().m_autoParentheses) {
-            foreach(QChar c, text) {
+            foreach (QChar c, text) {
                 QChar close;
                 if (c == QLatin1Char('('))
                     close = QLatin1Char(')');
@@ -1101,7 +1100,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         }
         QChar electricChar;
         if (d->m_document->tabSettings().m_autoIndent) {
-            foreach(QChar c, text) {
+            foreach (QChar c, text) {
                 if (isElectricCharacter(c)) {
                     electricChar = c;
                     break;
@@ -1110,8 +1109,11 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         }
         if (!electricChar.isNull())
             cursor.beginEditBlock();
+
+        bool insertAutoParenthesis = !autoText.isEmpty() && contextAllowsAutoParenthesis(cursor);
         cursor.insertText(text);
-        if (!autoText.isEmpty()) {
+
+        if (insertAutoParenthesis) {
             int pos = cursor.position();
             cursor.insertText(autoText);
             cursor.setPosition(pos);
@@ -3314,6 +3316,11 @@ void BaseTextEditor::zoomOut(int range)
 bool BaseTextEditor::isElectricCharacter(const QChar &) const
 {
     return false;
+}
+
+bool BaseTextEditor::contextAllowsAutoParenthesis(const QTextCursor &) const
+{
+    return true;
 }
 
 void BaseTextEditor::indentBlock(QTextDocument *, QTextBlock, QChar)

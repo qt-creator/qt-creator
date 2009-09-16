@@ -508,6 +508,8 @@ protected:
 
     // Returns true if key triggers an indent.
     virtual bool isElectricCharacter(const QChar &ch) const;
+    // Returns true if automatic brace matching should be enabled in the context of the given cursor
+    virtual bool contextAllowsAutoParenthesis(const QTextCursor &cursor) const;
     // Indent a text block based on previous line. Default does nothing
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     // Indent at cursor. Calls indentBlock for selection or current line.
