@@ -50,7 +50,7 @@
 #  include <unistd.h>
 #endif
 
-enum { TimerInterval = 100 };
+enum { TimerInterval = 10 };
 
 #ifdef Q_OS_WIN
 

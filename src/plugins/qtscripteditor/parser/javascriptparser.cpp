@@ -132,7 +132,7 @@ bool JavaScriptParser::parse(JavaScriptEnginePrivate *driver)
 
     _Lcheck_token:
         if (yytoken == -1 && -TERMINAL_COUNT != action_index[action]) {
-		yyprevlloc = yylloc;
+                yyprevlloc = yylloc;
 
             if (first_token == last_token) {
                 yytoken = lexer->lex();
@@ -1123,7 +1123,12 @@ case 266: {
         token_buffer[1].loc   = yylloc  = location(lexer);
 
         if (t_action(errorState, yytoken)) {
-            const QString msg = QString::fromUtf8("Removed token: `%1'").arg(spell[token_buffer[0].token]);
+            QString msg = QString::fromUtf8("Removed token");
+            if (const char *tokenSpell = spell[token_buffer[0].token]) {
+                msg += QLatin1String(": `");
+                msg += QLatin1String(tokenSpell);
+                msg += QLatin1Char('\'');
+            }
 
             diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
                 token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
@@ -1153,7 +1158,12 @@ case 266: {
         for (int *tk = tokens; *tk != EOF_SYMBOL; ++tk) {
             int a = t_action(errorState, *tk);
             if (a > 0 && t_action(a, yytoken)) {
-                const QString msg = QString::fromUtf8("Inserted token: `%1'").arg(spell[*tk]);
+                QString msg = QString::fromUtf8("Inserted token");
+                if (const char *tokenSpell = spell[*tk]) {
+                    msg += QLatin1String(": `");
+                    msg += QLatin1String(tokenSpell);
+                    msg += QLatin1Char('\'');
+                }
 
                 diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
                     token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
@@ -1173,7 +1183,13 @@ case 266: {
         for (int tk = 1; tk < TERMINAL_COUNT; ++tk) {
             int a = t_action(errorState, tk);
             if (a > 0 && t_action(a, yytoken)) {
-                const QString msg = QString::fromUtf8("Inserted token: `%1'").arg(spell[tk]);
+                QString msg = QString::fromUtf8("Inserted token");
+                if (const char *tokenSpell = spell[tk]) {
+                    msg += QLatin1String(": `");
+                    msg += QLatin1String(tokenSpell);
+                    msg += QLatin1Char('\'');
+                }
+
                 diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
                     token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
 
@@ -1186,7 +1202,13 @@ case 266: {
             }
         }
 
-        const QString msg = QString::fromUtf8("Unexpected token: `%1'").arg(spell[token_buffer[0].token]);
+        QString msg = QString::fromUtf8("Unexpected token");
+        if (const char *tokenSpell = spell[token_buffer[0].token]) {
+            msg += QLatin1String(": `");
+            msg += QLatin1String(tokenSpell);
+            msg += QLatin1Char('\'');
+        }
+
         diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
             token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
     }

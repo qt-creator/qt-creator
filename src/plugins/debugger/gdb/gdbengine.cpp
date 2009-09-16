@@ -85,7 +85,7 @@ namespace Internal {
 using namespace Debugger::Constants;
 
 //#define DEBUG_PENDING  1
-//#define DEBUG_SUBITEM  1
+#define DEBUG_SUBITEM  1
 
 #if DEBUG_PENDING
 #   define PENDING_DEBUG(s) qDebug() << s
@@ -1283,6 +1283,9 @@ void GdbEngine::reloadStack()
     if (stackDepth && !m_gdbAdapter->isAdapter())
         cmd += _(" 0 ") + QString::number(stackDepth);
     postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
+    // FIXME: gdb 6.4 likes to be asked twice
+    if (m_gdbAdapter->isAdapter())
+        postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
 }
 
 void GdbEngine::handleAsyncOutput2(const GdbResultRecord &, const QVariant &cookie)
@@ -3767,6 +3770,16 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
             // pass through the insertData() machinery
             if (isIntOrFloatType(data.type) || isPointerType(data.type))
                 setWatchDataValue(data, item.findChild("value"));
+            if (isSymbianIntType(data.type)) {
+                setWatchDataValue(data, item.findChild("value"));
+                data.setHasChildren(false);
+            }
+            // Let's be a bit more bold:
+            //if (!hasDebuggingHelperForType(data.type)) {
+            //    QByteArray value = item.findChild("value").data();
+            //    if (!value.isEmpty() && value != "{...}")
+            //        data.setValue(decodeData(value, 0));
+            //}
             if (!qq->watchHandler()->isExpandedIName(data.iname))
                 data.setChildrenUnneeded();
             if (isPointerType(data.type) || data.name == __("this"))
