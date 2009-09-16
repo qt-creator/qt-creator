@@ -184,6 +184,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     m_runQMakeActionContextMenu = new QAction(qmakeIcon, tr("Run qmake"), this);
     command = am->registerAction(m_runQMakeActionContextMenu, Constants::RUNQMAKECONTEXTMENU, context);
+    command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_runQMakeActionContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(runQMakeContextMenu()));
 
@@ -215,6 +216,8 @@ void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,
         m_runQMakeActionContextMenu->setVisible(true);
         if (!m_projectExplorer->buildManager()->isBuilding(project))
             m_runQMakeActionContextMenu->setEnabled(true);
+    } else {
+        m_runQMakeActionContextMenu->setVisible(false);
     }
 }
 
