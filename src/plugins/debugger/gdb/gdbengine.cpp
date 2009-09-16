@@ -85,7 +85,7 @@ namespace Internal {
 using namespace Debugger::Constants;
 
 //#define DEBUG_PENDING  1
-#define DEBUG_SUBITEM  1
+//#define DEBUG_SUBITEM  1
 
 #if DEBUG_PENDING
 #   define PENDING_DEBUG(s) qDebug() << s
