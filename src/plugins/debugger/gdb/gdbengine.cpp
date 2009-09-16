@@ -1283,6 +1283,9 @@ void GdbEngine::reloadStack()
     if (stackDepth && !m_gdbAdapter->isAdapter())
         cmd += _(" 0 ") + QString::number(stackDepth);
     postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
+    // FIXME: gdb 6.4 likes to be asked twice
+    if (m_gdbAdapter->isAdapter())
+        postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
 }
 
 void GdbEngine::handleAsyncOutput2(const GdbResultRecord &, const QVariant &cookie)
