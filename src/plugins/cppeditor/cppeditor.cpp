@@ -1272,7 +1272,10 @@ bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor) const
 {
     CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(cursor);
-    return !(tk.isComment() || tk.isLiteral());
+    if (tk.isComment() || tk.isLiteral())
+        if (tk.end() > cursor.position() - cursor.block().position())
+            return false;
+    return true;
 }
 
 void CPPEditor::indentInsertedText(const QTextCursor &tc)
