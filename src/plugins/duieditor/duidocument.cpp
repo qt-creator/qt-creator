@@ -38,54 +38,58 @@ using namespace DuiEditor;
 using namespace QmlJS;
 
 DuiDocument::DuiDocument(const QString &fileName)
-    : _engine(0), _pool(0), _program(0), _fileName(fileName), _parsedCorrectly(false)
+    : _engine(0)
+    , _pool(0)
+    , _program(0)
+    , _fileName(fileName)
+    , _parsedCorrectly(false)
 {
 }
 
 DuiDocument::~DuiDocument()
 {
-	delete _engine;
-	delete _pool;
+    delete _engine;
+    delete _pool;
 }
 
 DuiDocument::Ptr DuiDocument::create(const QString &fileName)
 {
-	DuiDocument::Ptr doc(new DuiDocument(fileName));
-	return doc;
+    DuiDocument::Ptr doc(new DuiDocument(fileName));
+    return doc;
 }
 
 AST::UiProgram *DuiDocument::program() const
 {
-	return _program;
+    return _program;
 }
 
 QList<DiagnosticMessage> DuiDocument::diagnosticMessages() const
 {
-	return _diagnosticMessages;
+    return _diagnosticMessages;
 }
 
 void DuiDocument::setSource(const QString &source)
 {
-	_source = source;
+    _source = source;
 }
 
 bool DuiDocument::parse()
 {
-	Q_ASSERT(! _engine);
-	Q_ASSERT(! _pool);
-	Q_ASSERT(! _program);
+    Q_ASSERT(! _engine);
+    Q_ASSERT(! _pool);
+    Q_ASSERT(! _program);
 
-	_engine = new Engine();
-	_pool = new NodePool(_fileName, _engine);
+    _engine = new Engine();
+    _pool = new NodePool(_fileName, _engine);
 
-	Lexer lexer(_engine);
-	Parser parser(_engine);
+    Lexer lexer(_engine);
+    Parser parser(_engine);
 
-	lexer.setCode(_source, /*line = */ 1);
+    lexer.setCode(_source, /*line = */ 1);
 
     _parsedCorrectly = parser.parse();
-	_program = parser.ast();
-	_diagnosticMessages = parser.diagnosticMessages();
+    _program = parser.ast();
+    _diagnosticMessages = parser.diagnosticMessages();
     return _parsedCorrectly;
 }
 
@@ -96,5 +100,3 @@ Snapshot::Snapshot()
 Snapshot::~Snapshot()
 {
 }
-
-

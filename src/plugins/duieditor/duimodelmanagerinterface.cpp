@@ -32,7 +32,7 @@
 using namespace DuiEditor;
 
 DuiModelManagerInterface::DuiModelManagerInterface(QObject *parent):
-        QObject(parent)
+    QObject(parent)
 {
 }
 
