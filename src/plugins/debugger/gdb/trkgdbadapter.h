@@ -156,6 +156,8 @@ public:
     void handleSupportMask(const TrkResult &result);
     void handleTrkVersions(const TrkResult &result);
     void handleDisconnect(const TrkResult &result);
+    void handleDeleteProcess(const TrkResult &result);
+    void handleDeleteProcess2(const TrkResult &result);
 
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleAndReportReadRegistersAfterStop(const TrkResult &result);

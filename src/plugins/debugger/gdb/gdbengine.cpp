@@ -687,6 +687,7 @@ void GdbEngine::readGdbStandardOutput()
 
 void GdbEngine::interruptInferior()
 {
+    debugMessage(_("GDBENGINE INTERRUPT INFERIOR: %1").arg(m_gdbAdapter->state()));
     qq->notifyInferiorStopRequested();
 
     if (m_gdbAdapter->state() == QProcess::NotRunning) {
@@ -1478,6 +1479,7 @@ void GdbEngine::shutdown()
 void GdbEngine::detachDebugger()
 {
     postCommand(_("detach"));
+    // FIXME: use postCommand(_("detach"), CB(handleExitHelper)) ?
     postCommand(_("-gdb-exit"), CB(handleExit));
 }
 
@@ -1500,18 +1502,30 @@ void GdbEngine::exitDebugger()
             interruptInferior();
         }
         if (startMode() == AttachExternal || startMode() == AttachCrashedExternal)
-            postCommand(_("detach"));
+            postCommand(_("detach"), CB(handleExitHelper));
         else
-            postCommand(_("kill"));
-        postCommand(_("-gdb-exit"), CB(handleExit));
-        // 20s can easily happen when loading webkit debug information
-        if (!m_gdbAdapter->waitForFinished(20000)) {
-            debugMessage(_("FORCING TERMINATION: %1")
-                .arg(m_gdbAdapter->state()));
-            m_gdbAdapter->terminate();
-            m_gdbAdapter->waitForFinished(20000);
-        }
+            postCommand(_("kill"), CB(handleExitHelper));
+    } else {
+        exitDebugger2();
     }
+}
+
+void GdbEngine::handleExitHelper(const GdbResultRecord &, const QVariant &)
+{
+    exitDebugger2();
+}
+
+void GdbEngine::exitDebugger2()
+{
+    postCommand(_("-gdb-exit"), CB(handleExit));
+    // 20s can easily happen when loading webkit debug information
+    if (!m_gdbAdapter->waitForFinished(20000)) {
+        debugMessage(_("FORCING TERMINATION: %1")
+            .arg(m_gdbAdapter->state()));
+        m_gdbAdapter->terminate();
+        m_gdbAdapter->waitForFinished(20000);
+    }
+
     if (m_gdbAdapter->state() != QProcess::NotRunning) {
         debugMessage(_("PROBLEM STOPPING DEBUGGER: STATE %1")
             .arg(m_gdbAdapter->state()));

@@ -147,6 +147,7 @@ private:
     void startDebugger(const QSharedPointer<DebuggerStartParameters> &sp);
     Q_SLOT void startDebugger2();
     void exitDebugger();
+    void exitDebugger2();
     void detachDebugger();
 
     void continueInferior();
@@ -284,6 +285,7 @@ private:
     void handleQuerySources(const GdbResultRecord &response, const QVariant &);
     void handleTargetCore(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
+    void handleExitHelper(const GdbResultRecord &, const QVariant &);
     void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
     void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void handleWatchPoint(const GdbResultRecord &, const QVariant &);

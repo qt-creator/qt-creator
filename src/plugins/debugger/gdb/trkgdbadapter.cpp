@@ -488,13 +488,12 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "k" || cmd.startsWith("vKill")) {
         // Kill inferior process
         logMessage(msgGdbPacket(QLatin1String("kill")));
-        sendGdbServerAck();
         QByteArray ba;
         appendByte(&ba, 0); // ?
         appendByte(&ba, 0); // Sub-command: Delete Process
         appendInt(&ba, m_session.pid);
-        sendTrkMessage(0x41, TrkCallback(), ba, "Delete process"); // Delete Item
-        sendGdbServerMessageAfterTrkResponse("", "process killed");
+        sendTrkMessage(0x41, TrkCB(handleDeleteProcess),
+            ba, "Delete process"); // Delete Item
     }
 
     else if (cmd.startsWith("m")) {
@@ -935,6 +934,22 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     startGdb();
 }
 
+void TrkGdbAdapter::handleDeleteProcess(const TrkResult &result)
+{
+    Q_UNUSED(result);
+    logMessage("TRK Process killed");
+    //sendTrkMessage(0x01, TrkCB(handleDeleteProcess2)); // Ping
+    sendTrkMessage(0x02, TrkCB(handleDeleteProcess2)); // Disconnect
+}
+
+void TrkGdbAdapter::handleDeleteProcess2(const TrkResult &result)
+{
+    Q_UNUSED(result);
+    logMessage("process killed");
+    sendGdbServerAck();
+    sendGdbServerMessage("", "process killed");
+}
+
 void TrkGdbAdapter::handleReadRegisters(const TrkResult &result)
 {
     logMessage("       RESULT: " + result.toString());
@@ -1269,7 +1284,7 @@ void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
 void TrkGdbAdapter::run()
 {
     emit output("### Starting TrkGdbAdapter");
-    m_rfcommProc.start("rfcomm listen " + m_rfcommDevice + " 1");
+    m_rfcommProc.start("rfcomm -r listen " + m_rfcommDevice + " 1");
     m_rfcommProc.waitForStarted();
     
     if (m_rfcommProc.state() != QProcess::Running) {
@@ -1369,16 +1384,26 @@ void TrkGdbAdapter::start(const QString &program, const QStringList &args,
 
 void TrkGdbAdapter::kill()
 {
+    m_rfcommProc.kill();
     m_gdbProc.kill();
 }
 
 void TrkGdbAdapter::terminate()
 {
+    m_rfcommProc.terminate();
     m_gdbProc.terminate();
 }
 
 bool TrkGdbAdapter::waitForFinished(int msecs)
 {
+    QByteArray ba;
+    ba.append(0x03);
+    m_rfcommProc.write(ba);
+    m_rfcommProc.terminate();
+    m_rfcommProc.waitForFinished();
+    QProcess proc;
+    proc.start("rfcomm release " + m_rfcommDevice.toLatin1());
+    proc.waitForFinished();
     return m_gdbProc.waitForFinished(msecs);
 }
 
