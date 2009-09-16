@@ -1074,11 +1074,13 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         QString autoText;
 
         if (d->m_autoParenthesesEnabled && d->m_document->tabSettings().m_autoParentheses) {
+            QChar lookAhead = characterAt(cursor.position());
             foreach (QChar c, text) {
                 QChar close;
-                if (c == QLatin1Char('('))
-                    close = QLatin1Char(')');
-                else if (c == QLatin1Char('['))
+                if (c == QLatin1Char('(')) {
+                    if (!lookAhead.isLetterOrNumber() && lookAhead != c)
+                        close = QLatin1Char(')');
+                } else if (c == QLatin1Char('['))
                     close = QLatin1Char(']');
                 else if (c == QLatin1Char('\"'))
                     close = c;
@@ -1088,14 +1090,23 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                     autoText += close;
             }
 
+            bool skip = false;
             QChar first = text.at(0);
-            if (first == QLatin1Char(')')
-                || first == QLatin1Char(']')) {
-                if (first == characterAt(cursor.position())) {
-                    int pos = cursor.position();
-                    cursor.setPosition(pos+1);
-                    cursor.setPosition(pos, QTextCursor::KeepAnchor);
+            if (first == QLatin1Char(')')) {
+                skip = (first == lookAhead);
+            } else if (first == QLatin1Char(']')) {
+                skip = (first == lookAhead);
+            } else if (first == QLatin1Char('\"') || first == QLatin1Char('\'')) {
+                if (first == lookAhead) {
+                    QChar lookBehind = characterAt(cursor.position()-1);
+                    skip = (lookBehind != '\\');
                 }
+            }
+
+            if (skip) {
+                int pos = cursor.position();
+                cursor.setPosition(pos+1);
+                cursor.setPosition(pos, QTextCursor::KeepAnchor);
             }
         }
         QChar electricChar;
