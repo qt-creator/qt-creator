@@ -132,13 +132,7 @@ static const char pp_configuration_file[] = "<configuration>";
 
 static const char pp_configuration[] =
     "# 1 \"<configuration>\"\n"
-    "#define __GNUC_MINOR__ 0\n"
-    "#define __GNUC__ 4\n"
-    "#define __GNUG__ 4\n"
-    "#define __STDC_HOSTED__ 1\n"
-    "#define __VERSION__ \"4.0.1 (fake)\"\n"
     "#define __cplusplus 1\n"
-
     "#define __extension__\n"
     "#define __context__\n"
     "#define __range__\n"

@@ -302,17 +302,82 @@ bool MSVCToolChain::equals(ToolChain *other) const
     return (m_name == o->m_name);
 }
 
+QByteArray msvcCompilationFile() {
+    static const char* macros[] = {"_ATL_VER", "_CHAR_UNSIGNED", "__CLR_VER",
+                                   "__cplusplus_cli", "__COUNTER__", "__cplusplus",
+                                   "_CPPLIB_VER", "_CPPRTTI", "_CPPUNWIND",
+                                   "_DEBUG", "_DLL", "__FUNCDNAME__",
+                                   "__FUNCSIG__","__FUNCTION__","_INTEGRAL_MAX_BITS",
+                                   "_M_ALPHA","_M_CEE","_M_CEE_PURE",
+                                   "_M_CEE_SAFE","_M_IX86","_M_IA64",
+                                   "_M_IX86_FP","_M_MPPC","_M_MRX000",
+                                   "_M_PPC","_M_X64","_MANAGED",
+                                   "_MFC_VER","_MSC_BUILD","_MSC_EXTENSIONS",
+                                   "_MSC_FULL_VER","_MSC_VER","__MSVC_RUNTIME_CHECKS",
+                                   "_MT", "_NATIVE_WCHAR_T_DEFINED", "_OPENMP",
+                                   "_VC_NODEFAULTLIB", "_WCHAR_T_DEFINED", "_WIN32",
+                                   "_WIN64", "_Wp64", "__DATE__", "__DATE__",
+                                   "__TIME__", "__TIMESTAMP__",
+                                   0};
+    QByteArray file = "#define __PPOUT__(x) V##x=x\n\n";
+    int i =0;
+    while (macros[i] != 0) {
+        const QByteArray macro(macros[i]);
+        file += "#if defined(" + macro + ")\n__PPOUT__("
+                + macro + ")\n#endif\n";
+        ++i;
+    }
+    file += "\nvoid main(){}\n\n";
+    return file;
+}
+
 QByteArray MSVCToolChain::predefinedMacros()
 {
-    return  "#define __WIN32__\n"
-            "#define __WIN32\n"
-            "#define _WIN32\n"
-            "#define WIN32\n"
-            "#define __WINNT__\n"
-            "#define __WINNT\n"
-            "#define WINNT\n"
-            "#define _X86_\n"
-            "#define __MSVCRT__\n";
+    if (m_predefinedMacros.isEmpty()) {
+        m_predefinedMacros += "#define __MSVCRT__\n"
+                              "#define __WINNT__\n"
+                              "#define __WINNT\n"
+                              "#define WINNT\n";
+
+        QString tmpFilePath;
+        {
+            // QTemporaryFile is buggy and will not unlock the file for cl.exe
+            QTemporaryFile tmpFile(QDir::tempPath()+"/envtestXXXXXX.cpp");
+            tmpFile.setAutoRemove(false);
+            if (!tmpFile.open())
+                return m_predefinedMacros;
+            tmpFilePath = QFileInfo(tmpFile).canonicalFilePath();
+            tmpFile.write(msvcCompilationFile());
+            tmpFile.close();
+        }
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        addToEnvironment(env);
+        QProcess cpp;
+        cpp.setEnvironment(env.toStringList());
+        cpp.setWorkingDirectory(QDir::tempPath());
+        QStringList arguments;
+        arguments << "/EP" << QDir::toNativeSeparators(tmpFilePath);
+        cpp.start(QLatin1String("cl.exe"), arguments);
+        cpp.closeWriteChannel();
+        cpp.waitForFinished();
+        QList<QByteArray> output = cpp.readAllStandardOutput().split('\n');
+        foreach (const QByteArray& line, output) {
+            if (line.startsWith('V')) {
+                QList<QByteArray> split = line.split('=');
+                QByteArray key = split.at(0).mid(1);
+                QByteArray value = split.at(1);
+                if (!value.isEmpty()) {
+                    value = value.mid(1);
+                    value.chop(1);
+                }
+                QByteArray newDefine = "#define " + key + " " + value + '\n';
+                m_predefinedMacros.append(newDefine);
+            }            
+        }
+        QFile::remove(tmpFilePath);
+    }
+    //qDebug() << m_predefinedMacros;
+    return m_predefinedMacros;
 }
 
 QList<HeaderPath> MSVCToolChain::systemHeaderPaths()

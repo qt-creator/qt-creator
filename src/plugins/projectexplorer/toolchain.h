@@ -156,6 +156,7 @@ public:
     virtual QString makeCommand() const;
 protected:
     virtual bool equals(ToolChain *other) const;
+    QByteArray m_predefinedMacros;
     QString m_name;
 private:
     mutable QList<QPair<QString, QString> > m_values;
