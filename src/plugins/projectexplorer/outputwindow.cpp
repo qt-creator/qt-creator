@@ -429,7 +429,6 @@ void OutputWindow::appendOutputInline(const QString &out)
     } else {
         if (s.endsWith(QLatin1Char('\n'))) {
             m_enforceNewline = true;
-            qDebug() << "CHOP";
             s.chop(1);
         }
         appendPlainText(s);
