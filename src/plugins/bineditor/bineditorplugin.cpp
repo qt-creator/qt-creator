@@ -349,9 +349,6 @@ public:
 
     bool isTemporary() const { return false; }
 
-signals:
-    void changed();
-
 public slots:
     void updateCursorPosition(int position) {
         m_cursorPositionLabel->setText(m_editor->addressString((uint)position),
