@@ -340,6 +340,8 @@ bool OutputPane::canNavigate()
 OutputWindow::OutputWindow(QWidget *parent)
     : QPlainTextEdit(parent)
 {
+    m_enforceNewline = false;
+
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
     setWindowTitle(tr("Application Output Window"));
@@ -392,14 +394,13 @@ OutputWindow::~OutputWindow()
 
 void OutputWindow::appendOutput(const QString &out)
 {
+    QString s = out;
+    m_enforceNewline = true; // make appendOutputInline put in a newline next time
+    if (s.endsWith(QLatin1Char('\n'))) {
+        s.chop(1);
+    }
     setMaximumBlockCount(MaxBlockCount);
-    moveCursor(QTextCursor::End);
-    if (out.endsWith('\n'))
-        insertPlainText(out.right(out.length()-1));
-    else
-        insertPlainText(out);
-    // insert newline and get automatic scroll behavior
-    appendPlainText(""); // makes sure that there's an newline in front
+    appendPlainText(out);
     enableUndoRedo();
 }
 
@@ -408,26 +409,32 @@ void OutputWindow::appendOutputInline(const QString &out)
 {
     setMaximumBlockCount(MaxBlockCount);
 
-    int newline = out.indexOf(QLatin1Char('\n'));
-    if (newline < 0) {
+    int newline = -1;
+    bool enforceNewline = m_enforceNewline;
+    m_enforceNewline = false;
+
+    if (!enforceNewline) {
+        newline = out.indexOf(QLatin1Char('\n'));
         moveCursor(QTextCursor::End);
-        insertPlainText(out); // doesn't insert additional '\n' like appendPlainText
-    }else{
-        int lastnewline = out.lastIndexOf(QLatin1Char('\n'));
-        // make sure that we use appendPlainText to add the last newline
-        // in the string, so we get automatic scrolling
-        // and work around the fact that appendPlainText also ensures
-        // a newline in front of the appended text
-        if (lastnewline > 0) {
-            moveCursor(QTextCursor::End);
-            insertPlainText(out.left(lastnewline));
-        }
-        appendPlainText(""); // add the newline
-        if (lastnewline < out.length()-1) { // newline is not last character
-            moveCursor(QTextCursor::End);
-            insertPlainText(out.mid(lastnewline+1));
-        }
+        bool atBottom = (blockBoundingRect(document()->lastBlock()).bottom() + contentOffset().y()
+                         <= viewport()->rect().bottom());
+        insertPlainText(newline < 0 ? out : out.left(newline)); // doesn't enforce new paragraph like appendPlainText
+        if (atBottom)
+            verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     }
+
+    QString s = out.mid(newline+1);
+    if (s.isEmpty()) {
+        m_enforceNewline = true;
+    } else {
+        if (s.endsWith(QLatin1Char('\n'))) {
+            m_enforceNewline = true;
+            qDebug() << "CHOP";
+            s.chop(1);
+        }
+        appendPlainText(s);
+    }
+
     enableUndoRedo();
 }
 

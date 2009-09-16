@@ -129,6 +129,7 @@ public:
 private:
     Core::BaseContext *m_outputWindowContext;
     void enableUndoRedo();
+    bool m_enforceNewline;
 };
 
 #if 0
