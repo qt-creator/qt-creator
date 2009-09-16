@@ -3272,12 +3272,18 @@ void BaseTextEditor::handleBackspaceKey()
         if ((lookBehind == QLatin1Char('(') && lookAhead == QLatin1Char(')'))
             || (lookBehind == QLatin1Char('[') && lookAhead == QLatin1Char(']'))
             || (lookBehind == QLatin1Char('"') && lookAhead == QLatin1Char('"')
-                && lookFurtherBehind!= QLatin1Char('\\'))) {
-            cursor.beginEditBlock();
-            cursor.deleteChar();
-            cursor.deletePreviousChar();
-            cursor.endEditBlock();
-            return;
+                && lookFurtherBehind != QLatin1Char('\\'))
+            || (lookBehind == QLatin1Char('\'') && lookAhead == QLatin1Char('\'')
+                && lookFurtherBehind != QLatin1Char('\\'))) {
+            QTextCursor c = cursor;
+            c.setPosition(pos - 1);
+            if (contextAllowsAutoParentheses(c)) {
+                cursor.beginEditBlock();
+                cursor.deleteChar();
+                cursor.deletePreviousChar();
+                cursor.endEditBlock();
+                return;
+            }
         }
     }
 
