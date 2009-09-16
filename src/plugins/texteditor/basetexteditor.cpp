@@ -989,8 +989,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
     } break;
     case Qt::Key_Backspace:
         if (ro) break;
-        if (d->m_document->tabSettings().m_smartBackspace
-            && (e->modifiers() & (Qt::ControlModifier
+        if ((e->modifiers() & (Qt::ControlModifier
                                | Qt::ShiftModifier
                                | Qt::AltModifier
                                | Qt::MetaModifier)) == Qt::NoModifier
@@ -3261,11 +3260,34 @@ void BaseTextEditor::handleHomeKey(bool anchor)
 void BaseTextEditor::handleBackspaceKey()
 {
     QTextCursor cursor = textCursor();
+    int pos = cursor.position();
     QTC_ASSERT(!cursor.hasSelection(), return);
 
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
+
+    if (tabSettings.m_autoParentheses) {
+        QChar lookAhead = characterAt(pos);
+        QChar lookBehind = characterAt(pos-1);
+        QChar lookFurtherBehind = characterAt(pos-2);
+        if ((lookBehind == QLatin1Char('(') && lookAhead == QLatin1Char(')'))
+            || (lookBehind == QLatin1Char('[') && lookAhead == QLatin1Char(']'))
+            || (lookBehind == QLatin1Char('"') && lookAhead == QLatin1Char('"')
+                && lookFurtherBehind!= QLatin1Char('\\'))) {
+            cursor.beginEditBlock();
+            cursor.deleteChar();
+            cursor.deletePreviousChar();
+            cursor.endEditBlock();
+            return;
+        }
+    }
+
+    if (!tabSettings.m_smartBackspace) {
+        cursor.deletePreviousChar();
+        return;
+    }
+
     QTextBlock currentBlock = cursor.block();
-    int positionInBlock = cursor.position() - currentBlock.position();
+    int positionInBlock = pos - currentBlock.position();
     const QString blockText = currentBlock.text();
     if (cursor.atBlockStart() || tabSettings.firstNonSpace(blockText) < positionInBlock) {
         cursor.deletePreviousChar();
