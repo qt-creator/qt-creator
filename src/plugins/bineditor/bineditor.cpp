@@ -126,6 +126,15 @@ void BinEditor::init()
         ++hex;
     }
 
+    if (m_isMonospacedFont && fm.width("M M ") != m_charWidth * 4) {
+        // On Qt/Mac, monospace font widths may have a fractional component
+        // This breaks the assumption that width("MMM") == width('M') * 3
+
+        m_isMonospacedFont = false;
+        m_columnWidth = fm.width("MMM");
+        m_labelWidth = fm.width("MMMM:MMMM:MMMM:MMMM");
+    }
+
     horizontalScrollBar()->setRange(0, 2 * m_margin + 16 * m_columnWidth
                                     + m_labelWidth + m_textWidth - viewport()->width());
     horizontalScrollBar()->setPageStep(viewport()->width());
