@@ -892,17 +892,29 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         cursor.beginEditBlock();
 
         if (d->m_autoParenthesesEnabled && ts.m_autoParentheses
-            && characterAt(cursor.position()) == QLatin1Char('}')) {
-            int pos = cursor.position();
-            if (ts.m_autoIndent) {
-                cursor.insertBlock();
-                indent(document(), cursor, QChar::Null);
-            } else {
-                QString previousBlockText = cursor.block().text();
-                cursor.insertBlock();
-                cursor.insertText(ts.indentationString(previousBlockText));
+            && characterAt(cursor.position()-1) == QLatin1Char('{')) {
+
+            // verify that we indeed do have an extra opening brace in the document
+            int braceDepth = document()->lastBlock().userState();
+            if (braceDepth >= 0)
+                braceDepth >>= 8;
+            else
+                braceDepth= 0;
+
+            if (braceDepth > 0) { // we do have an extra brace, let's close it
+                int pos = cursor.position();
+                cursor.insertText(QLatin1String("}"));
+                cursor.setPosition(pos);
+                if (ts.m_autoIndent) {
+                    cursor.insertBlock();
+                    indent(document(), cursor, QChar::Null);
+                } else {
+                    QString previousBlockText = cursor.block().text();
+                    cursor.insertBlock();
+                    cursor.insertText(ts.indentationString(previousBlockText));
+                }
+                cursor.setPosition(pos);
             }
-            cursor.setPosition(pos);
         }
 
         if (ts.m_autoIndent) {
@@ -1065,9 +1077,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         if (d->m_autoParenthesesEnabled && d->m_document->tabSettings().m_autoParentheses) {
             foreach(QChar c, text) {
                 QChar close;
-                if (c == QLatin1Char('{'))
-                    close = QLatin1Char('}');
-                else if (c == QLatin1Char('('))
+                if (c == QLatin1Char('('))
                     close = QLatin1Char(')');
                 else if (c == QLatin1Char('['))
                     close = QLatin1Char(']');
@@ -1081,7 +1091,6 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 
             QChar first = text.at(0);
             if (first == QLatin1Char(')')
-                || first == QLatin1Char('}')
                 || first == QLatin1Char(']')) {
                 if (first == characterAt(cursor.position())) {
                     int pos = cursor.position();
