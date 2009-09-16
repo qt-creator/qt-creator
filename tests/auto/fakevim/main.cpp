@@ -73,7 +73,9 @@ private slots:
     void command_up();
     void command_w();
     void command_yyp();
+    void command_Yp();
     void command_Gyyp();
+    void command_ma_yank();
 
     // special tests
     void test_i_cw_i();
@@ -483,6 +485,24 @@ void tst_FakeVim::command_yyp()
     setup();
     move("4j",   "@int main");
     check("yyp", lmid(0, 4) + "\n" + lmid(4, 1) + "\n@" + lmid(4));
+}
+
+void tst_FakeVim::command_Yp()
+{
+    setup();
+    move("4j",   "@int main");
+    check("Yp", lmid(0, 4) + "\n" + lmid(4, 1) + "\n@" + lmid(4));
+}
+
+void tst_FakeVim::command_ma_yank()
+{
+    setup();
+    check("ma", "@" + lmid(0));
+    move("4j",   "@int main");
+    check("mb", lmid(0,4) + "\n@" + lmid(4));
+    check("\"ay'a", "@" + lmid(0));
+    check("'b", lmid(0,4) + "\n@" + lmid(4));
+    check("\"ap", lmid(0,5) + "\n@" + lmid(0,4) +"\n" + lmid(4));
 }
 
 void tst_FakeVim::command_Gyyp()

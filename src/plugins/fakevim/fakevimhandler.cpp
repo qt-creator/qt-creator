@@ -249,6 +249,7 @@ public:
     bool wantsOverride(QKeyEvent *ev);
     void handleCommand(const QString &cmd); // sets m_tc + handleExCommand
     void handleExCommand(const QString &cmd);
+    void fixMarks(int positionAction, int positionChange); //Updates marks positions by the difference in positionChange
 
     void installEventFilter();
     void setupWidget();
@@ -746,10 +747,12 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         enterInsertMode();
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
-        if (m_movetype == MoveInclusive)
-            moveRight(); // correction
-        if (anchor() >= position())
-           m_anchor++;
+        if (m_rangemode == RangeCharMode) {
+           if (m_movetype == MoveInclusive)
+               moveRight(); // correction
+           if (anchor() >= position())
+              m_anchor++;
+        }
         if (!dotCommand.isEmpty())
             setDotCommand("d" + dotCommand);
         yankSelectedText();
@@ -761,8 +764,13 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
             setTargetColumn();
     } else if (m_submode == YankSubMode) {
         yankSelectedText();
-        setPosition(m_savedYankPosition);
         m_submode = NoSubMode;
+        if (m_register != '"') {
+            setPosition(m_marks[m_register]);
+            moveToStartOfLine();
+        } else {
+            setPosition(m_savedYankPosition);
+        }
     } else if (m_submode == ReplaceSubMode) {
         m_submode = NoSubMode;
     } else if (m_submode == IndentSubMode) {
@@ -941,6 +949,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (m_submode == RegisterSubMode) {
         m_register = key;
         m_submode = NoSubMode;
+        m_rangemode = RangeLineMode;
     } else if (m_submode == ChangeSubMode && key == 'c') { // tested
         moveDown(count() - 1);
         moveToEndOfLine();
@@ -963,14 +972,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_submode = NoSubMode;
         moveToFirstNonBlankOnLine();
         setTargetColumn(); 
-        finishMovement();
-    } else if (m_submode == YankSubMode && key == 'y') {
-        m_movetype = MoveLineWise;
-        int endPos = firstPositionInLine(lineForPosition(position()) + count() - 1);
-        Range range(position(), endPos, RangeLineMode);
-        ///range.extendByLines(count() - 1);
-        yankText(range);
-        m_submode = NoSubMode;
         finishMovement();
     } else if (m_submode == ShiftLeftSubMode && key == '<') {
         setAnchor();
@@ -1232,9 +1233,16 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == control('c')) {
         showBlackMessage("Type Alt-v,Alt-v  to quit FakeVim mode");
     } else if (key == 'd' && m_visualMode == NoVisualMode) {
-        if (atEndOfLine())
-            moveLeft();
-        setAnchor();
+        if (m_rangemode == RangeLineMode) {
+            m_savedYankPosition = m_tc.position();
+            moveToEndOfLine();
+            setAnchor();
+            setPosition(m_savedYankPosition);
+        } else {
+            if (atEndOfLine())
+                moveLeft();
+            setAnchor();
+        }
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
@@ -1271,7 +1279,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'e') { // tested
         m_movetype = MoveInclusive;
         moveToWordBoundary(false, true);
-        finishMovement();
+        finishMovement("e");
     } else if (key == 'E') {
         m_movetype = MoveInclusive;
         moveToWordBoundary(true, true);
@@ -1512,26 +1520,36 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             removeSelectedText();
         }
         finishMovement();
-    } else if (key == 'y' && m_visualMode == NoVisualMode) {
-        m_savedYankPosition = m_tc.position();
-        if (atEndOfLine())
-            moveLeft();
-        setAnchor();
+    } else if ((m_submode == YankSubMode && key == 'y')
+            || (key == 'Y' && m_visualMode == NoVisualMode))  {
+        const int line = cursorLineInDocument() + 1;
+        m_savedYankPosition = position();
+        setAnchor(firstPositionInLine(line));
+        setPosition(lastPositionInLine(line+count() - 1));
+        if (count() > 1) 
+            showBlackMessage(QString("%1 lines yanked").arg(count()));
+        m_rangemode = RangeLineMode;
+        m_movetype = MoveLineWise;
         m_submode = YankSubMode;
-        m_rangemode = RangeCharMode;
+        finishMovement();
+    } else if (key == 'y' && m_visualMode == NoVisualMode) {
+        if (m_rangemode == RangeLineMode) {
+            m_savedYankPosition = position();
+            setAnchor(firstPositionInLine(cursorLineInDocument() + 1));
+        } else {
+            m_savedYankPosition = position();
+            if (atEndOfLine())
+                moveLeft();
+            setAnchor();
+            m_rangemode = RangeCharMode;
+        }
+        m_submode = YankSubMode;
     } else if (key == 'y' && m_visualMode == VisualCharMode) {
         Range range(position(), anchor(), RangeCharMode);
         range.endPos++; // MoveInclusive
         yankText(range, m_register);
         setPosition(qMin(position(), anchor()));
         leaveVisualMode();
-        finishMovement();
-    } else if (key == 'Y' && m_visualMode == NoVisualMode)  {
-        const int line = cursorLineInDocument() + 1;
-        selectRange(line, line + count() - 1);
-        m_rangemode = RangeLineMode;
-        yankSelectedText();
-        setPosition(qMin(position(), anchor()));
         finishMovement();
     } else if ((key == 'y' && m_visualMode == VisualLineMode)
             || (key == 'Y' && m_visualMode == VisualLineMode)
@@ -2476,6 +2494,12 @@ QString FakeVimHandler::Private::text(const Range &range) const
         tc.setPosition(range.endPos, KeepAnchor);
         return tc.selection().toPlainText();
     }
+    if (range.rangemode == RangeLineMode) {
+        QTextCursor tc = m_tc;
+        tc.setPosition(firstPositionInLine(lineForPosition(range.beginPos)), MoveAnchor);
+        tc.setPosition(firstPositionInLine(lineForPosition(range.endPos)+1), KeepAnchor);
+        return tc.selection().toPlainText();
+    }
     // FIXME: Performance?
     int beginLine = lineForPosition(range.beginPos);
     int endLine = lineForPosition(range.endPos);
@@ -2536,6 +2560,7 @@ void FakeVimHandler::Private::removeText(const Range &range)
         case RangeCharMode: {
             tc.setPosition(range.beginPos, MoveAnchor);
             tc.setPosition(range.endPos, KeepAnchor);
+            fixMarks(range.beginPos, tc.selectionStart() - tc.selectionEnd());
             tc.removeSelectedText();
             return;
         }
@@ -2545,6 +2570,7 @@ void FakeVimHandler::Private::removeText(const Range &range)
             tc.setPosition(range.endPos, KeepAnchor);
             tc.movePosition(EndOfLine, KeepAnchor);
             tc.movePosition(Right, KeepAnchor, 1);
+            fixMarks(range.beginPos, tc.selectionStart() - tc.selectionEnd());
             tc.removeSelectedText();
             return;
         }
@@ -2564,6 +2590,7 @@ void FakeVimHandler::Private::removeText(const Range &range)
                 int eCol = qMin(endColumn, block.length() - 1);
                 tc.setPosition(block.position() + bCol, MoveAnchor);
                 tc.setPosition(block.position() + eCol, KeepAnchor);
+                fixMarks(block.position() + bCol, tc.selectionStart() - tc.selectionEnd());
                 tc.removeSelectedText();
                 block = block.previous();
             }
@@ -2582,6 +2609,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
             for (int i = count(); --i >= 0; ) {
                 if (afterCursor && rightDist() > 0)
                     moveRight();
+                fixMarks(position(), text.length());
                 m_tc.insertText(text);
                 moveLeft();
             }
@@ -2593,6 +2621,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
             for (int i = count(); --i >= 0; ) {
                 if (afterCursor)
                     moveDown();
+                fixMarks(position(), text.length());
                 m_tc.insertText(text);
                 moveUp(lines.size() - 1);
             }
@@ -2611,16 +2640,19 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 tc.movePosition(StartOfLine, MoveAnchor);
                 if (col >= block.length()) {
                     tc.movePosition(EndOfLine, MoveAnchor);
+                    fixMarks(position(), QString(col - line.size() + 1, QChar(' ')).length());
                     tc.insertText(QString(col - line.size() + 1, QChar(' ')));
                 } else { 
                     tc.movePosition(Right, MoveAnchor, col);
                 }
                 qDebug() << "INSERT " << line << " AT " << tc.position()
                     << "COL: " << col;
+                fixMarks(position(), line.length());
                 tc.insertText(line);
                 tc.movePosition(StartOfLine, MoveAnchor);
                 tc.movePosition(Down, MoveAnchor, 1);
                 if (tc.position() >= lastPositionInDocument() - 1) {
+                    fixMarks(position(), QString(QChar('\n')).length());
                     tc.insertText(QString(QChar('\n')));
                     tc.movePosition(Up, MoveAnchor, 1);
                 }
@@ -2628,6 +2660,21 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
             }
             endEditBlock();
             break;
+        }
+    }
+}
+
+//FIXME: This needs to called after undo/insert
+void FakeVimHandler::Private::fixMarks(int positionAction, int positionChange)
+{
+    QHashIterator<int, int> i(m_marks);
+    while (i.hasNext()) {
+        i.next();
+        if (i.value() >= positionAction) { 
+            if (i.value() + positionChange > 0) 
+                m_marks[i.key()] = i.value() + positionChange;
+            else
+                m_marks.remove(i.key());
         }
     }
 }
