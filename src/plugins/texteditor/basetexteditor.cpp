@@ -1091,9 +1091,10 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 
             bool skip = false;
             QChar first = text.at(0);
-            if (first == QLatin1Char(')')) {
-                skip = (first == lookAhead);
-            } else if (first == QLatin1Char(']')) {
+            if (first == QLatin1Char(')')
+                || first == QLatin1Char(']')
+                || first == QLatin1Char(';')
+                ) {
                 skip = (first == lookAhead);
             } else if (first == QLatin1Char('\"') || first == QLatin1Char('\'')) {
                 if (first == lookAhead) {

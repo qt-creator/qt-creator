@@ -1468,6 +1468,11 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
     QString toInsert;
     QString extraChars;
     int extraLength = 0;
+    int cursorOffset = 0;
+
+    bool autoParenthesesEnabled = false;
+    if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(m_editor->widget()))
+        autoParenthesesEnabled = edit->tabSettings().m_autoParentheses;
 
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         toInsert = item.m_text;
@@ -1497,14 +1502,21 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                 } else if (! function->isAmbiguous()) {
                     extraChars += QLatin1Char('(');
 
+                    // If the function doesn't return anything, automatically place the semicolon,
+                    // unless we're doing a scope completion (then it might be function definition).
+                    bool endWithSemicolon = function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON;
+
                     // If the function takes no arguments, automatically place the closing parenthesis
                     if (item.m_duplicateCount == 0 && ! function->hasArguments()) {
                         extraChars += QLatin1Char(')');
-
-                        // If the function doesn't return anything, automatically place the semicolon,
-                        // unless we're doing a scope completion (then it might be function definition).
-                        if (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON) {
+                        if (endWithSemicolon)
                             extraChars += QLatin1Char(';');
+                    } else if (autoParenthesesEnabled) {
+                        extraChars += QLatin1Char(')');
+                        --cursorOffset;
+                        if (endWithSemicolon) {
+                            extraChars += QLatin1Char(';');
+                            --cursorOffset;
                         }
                     }
                 }
@@ -1528,6 +1540,8 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
     int length = m_editor->position() - m_startPosition + extraLength;
     m_editor->setCurPos(m_startPosition);
     m_editor->replace(length, toInsert);
+    if (cursorOffset)
+        m_editor->setCurPos(m_editor->position() + cursorOffset);
 }
 
 bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)
