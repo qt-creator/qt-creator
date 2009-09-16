@@ -1283,7 +1283,12 @@ void GdbEngine::reloadStack()
     if (stackDepth && !m_gdbAdapter->isAdapter())
         cmd += _(" 0 ") + QString::number(stackDepth);
     postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
-    // FIXME: gdb 6.4 likes to be asked twice
+    // FIXME: gdb 6.4 symbianelf likes to be asked twice. The first time it
+    // returns with "^error,msg="Previous frame identical to this frame
+    // (corrupt stack?)". Might be related to the fact that we can't
+    // access the memory belonging to the lower frames. But as we know
+    // this always happens, ask the second time immediately instead
+    // of waiting for the first request to fail.
     if (m_gdbAdapter->isAdapter())
         postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
 }
