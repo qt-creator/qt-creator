@@ -145,7 +145,7 @@ QVariant QuickOpenModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= mEntries.size())
         return QVariant();
 
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole  || role == Qt::ToolTipRole) {
         if (index.column() == 0) {
             return mEntries.at(index.row()).displayName;
         } else if (index.column() == 1) {
