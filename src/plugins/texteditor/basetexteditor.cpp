@@ -1074,19 +1074,27 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 
         if (d->m_autoParenthesesEnabled && d->m_document->tabSettings().m_autoParentheses) {
             QChar lookAhead = characterAt(cursor.position());
-            foreach (QChar c, text) {
-                QChar close;
-                if (c == QLatin1Char('(')) {
-                    if (!lookAhead.isLetterOrNumber() && lookAhead != c)
+            if (lookAhead.isSpace() // Only auto-insert when the text right of the cursor seems unrelated
+                || lookAhead == QLatin1Char('{')
+                || lookAhead == QLatin1Char('}')
+                || lookAhead == QLatin1Char(']')
+                || lookAhead == QLatin1Char(')')
+                || lookAhead == QLatin1Char(';')
+                || lookAhead == QLatin1Char(',')
+                ) {
+                foreach (QChar c, text) {
+                    QChar close;
+                    if (c == QLatin1Char('(')) {
                         close = QLatin1Char(')');
-                } else if (c == QLatin1Char('['))
-                    close = QLatin1Char(']');
-                else if (c == QLatin1Char('\"'))
-                    close = c;
-                else if (c == QLatin1Char('\''))
-                    close = c;
-                if (!close.isNull())
-                    autoText += close;
+                    } else if (c == QLatin1Char('['))
+                        close = QLatin1Char(']');
+                    else if (c == QLatin1Char('\"'))
+                        close = c;
+                    else if (c == QLatin1Char('\''))
+                        close = c;
+                    if (!close.isNull())
+                        autoText += close;
+                }
             }
 
             bool skip = false;
