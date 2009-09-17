@@ -509,8 +509,8 @@ protected:
     virtual QString autoComplete(QTextCursor &cursor, const QString &text) const;
     // Handles backspace. When returning true, backspace processing is stopped
     virtual bool autoBackspace(QTextCursor &cursor);
-    // Hook to insert special characters on enter
-    virtual void paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
+    // Hook to insert special characters on enter. Returns the number of extra blocks inserted.
+    virtual int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
     // Indent a text block based on previous line. Default does nothing
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     // Indent at cursor. Calls indentBlock for selection or current line.

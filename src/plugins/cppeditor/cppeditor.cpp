@@ -1356,13 +1356,13 @@ bool CPPEditor::autoBackspace(QTextCursor &cursor)
     return false;
 }
 
-void CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
+int CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 {
     if (characterAt(cursor.position()-1) != QLatin1Char('{'))
-        return;
+        return 0;
 
     if (!contextAllowsAutoParentheses(cursor))
-        return;
+        return 0;
 
 
     // verify that we indeed do have an extra opening brace in the document
@@ -1387,7 +1387,9 @@ void CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
         }
         cursor.setPosition(pos);
         m_allowSkippingOfBlockEnd = true;
+        return 1;
     }
+    return 0;
 }
 
 bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor) const

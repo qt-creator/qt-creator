@@ -215,7 +215,7 @@ protected:
     bool isElectricCharacter(const QChar &ch) const;
     QString autoComplete(QTextCursor &cursor, const QString &text) const;
     bool autoBackspace(QTextCursor &cursor);
-    void paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
+    int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
 
     bool contextAllowsAutoParentheses(const QTextCursor &cursor) const;
 

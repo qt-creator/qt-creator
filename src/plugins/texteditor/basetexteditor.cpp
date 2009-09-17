@@ -890,7 +890,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         const TabSettings &ts = d->m_document->tabSettings();
         cursor.beginEditBlock();
 
-        paragraphSeparatorAboutToBeInserted(cursor); // virtual
+        int extraBlocks = paragraphSeparatorAboutToBeInserted(cursor); // virtual
 
         if (ts.m_autoIndent) {
             cursor.insertBlock();
@@ -902,6 +902,16 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         }
         cursor.endEditBlock();
         e->accept();
+
+        if (extraBlocks > 0) {
+            QTextCursor ensureVisible = cursor;
+            while (extraBlocks > 0) {
+                --extraBlocks;
+                ensureVisible.movePosition(QTextCursor::NextBlock);
+            }
+            setTextCursor(ensureVisible);
+        }
+
         setTextCursor(cursor);
         return;
     } else if (!ro
@@ -3279,9 +3289,10 @@ bool BaseTextEditor::autoBackspace(QTextCursor &cursor)
     return false;
 }
 
-void BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
+int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 {
-    Q_UNUSED(cursor)
+    Q_UNUSED(cursor);
+    return 0;
 }
 
 void BaseTextEditor::indentBlock(QTextDocument *, QTextBlock, QChar)
