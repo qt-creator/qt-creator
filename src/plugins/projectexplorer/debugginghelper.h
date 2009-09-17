@@ -48,24 +48,18 @@ public:
     // return true if the qmake at qmakePath is qt4 (used by QtVersion)
     static QString qtVersionForQMake(const QString &qmakePath);
 
-    static bool hasDebuggingHelperLibrary(const QString &qmakePath);
-
-    static QString debuggingHelperLibrary(const QString &qmakePath);
     static QString debuggingHelperLibraryByInstallData(const QString &qtInstallData);
+    static QStringList debuggingHelperLibraryLocationsByInstallData(const QString &qtInstallData);
 
+    // Build the helpers and return the output log/errormessage.
     static QString buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env);
     static QString buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env);
 
-    // Build the helpers and return the output log/errormessage.
-    static QStringList debuggingHelperLibraryLocations(const QString &qmakePath);
-    static QStringList debuggingHelperLibraryLocationsByInstallData(const QString &qtInstallData);
-
     // Copy the source files to a target location and return the chosen target location.
     static QString copyDebuggingHelperLibrary(const QString &qtInstallData, QString *errorMessage);
-
+    static QString qtInstallDataDir(const QString &qmakePath);
 private:
     static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData);
-    static QString qtInstallDataDir(const QString &qmakePath);
 };
 }
 

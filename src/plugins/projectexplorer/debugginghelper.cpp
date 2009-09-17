@@ -57,11 +57,6 @@ QString DebuggingHelperLibrary::findSystemQt(const Environment &env)
     return QString::null;
 }
 
-bool DebuggingHelperLibrary::hasDebuggingHelperLibrary(const QString &qmakePath)
-{
-    return !debuggingHelperLibrary(qmakePath).isNull();
-}
-
 QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QString &qtInstallData)
 {
     const QChar slash = QLatin1Char('/');
@@ -72,16 +67,6 @@ QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QStr
             << QDir::cleanPath((QCoreApplication::applicationDirPath() + QLatin1String("/../qtc-debugging-helper/") + QString::number(hash))) + slash
             << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + QLatin1String("/qtc-debugging-helper/") + QString::number(hash)) + slash;
     return directories;
-}
-
-QStringList DebuggingHelperLibrary::debuggingHelperLibraryLocations(const QString &qmakePath)
-{
-    return debuggingHelperLibraryLocationsByInstallData(qtInstallDataDir(qmakePath));
-}
-
-QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qmakePath)
-{
-    return debuggingHelperLibraryByInstallData(qtInstallDataDir(qmakePath));
 }
 
 QString DebuggingHelperLibrary::qtInstallDataDir(const QString &qmakePath)

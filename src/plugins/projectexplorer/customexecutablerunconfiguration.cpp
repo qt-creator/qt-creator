@@ -470,13 +470,15 @@ void CustomExecutableRunConfiguration::setUserName(const QString &name)
 QString CustomExecutableRunConfiguration::dumperLibrary() const
 {
     QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
-    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibrary(qmakePath);
+    QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
+    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
 }
 
 QStringList CustomExecutableRunConfiguration::dumperLibraryLocations() const
 {
     QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
-    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryLocations(qmakePath);
+    QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
+    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryLocationsByInstallData(qtInstallData);
 }
 
 ProjectExplorer::ToolChain::ToolChainType CustomExecutableRunConfiguration::toolChainType() const
