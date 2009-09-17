@@ -71,10 +71,31 @@ static bool isCompleteCharLiteral(const BackwardsScanner &tk, int index, int sta
     return false;
 }
 
+static bool shouldInsertMatchingText(const QChar &lookAhead)
+{
+    if (lookAhead.isSpace())
+        return true;
+    else if (lookAhead == QLatin1Char('{'))
+        return true;
+    else if (lookAhead == QLatin1Char('}'))
+        return true;
+    else if (lookAhead == QLatin1Char(']'))
+        return true;
+    else if (lookAhead == QLatin1Char(')'))
+        return true;
+    else if (lookAhead == QLatin1Char(';'))
+        return true;
+    else if (lookAhead == QLatin1Char(','))
+        return true;
+
+    return false;
+}
+
 MatchingText::MatchingText()
 { }
 
-QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess, int *skippedChars) const
+QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess,
+                                          const QChar &la, int *skippedChars) const
 {
     *skippedChars = 0;
 
@@ -101,7 +122,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
         text = textToProcess.mid(*skippedChars);
     }
 
-    if (text.isEmpty())
+    if (text.isEmpty() || !shouldInsertMatchingText(la))
         return QString();
 
     BackwardsScanner tk(tc, textToProcess.left(*skippedChars), MAX_NUM_LINES);

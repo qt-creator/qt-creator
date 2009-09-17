@@ -1275,11 +1275,13 @@ QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &text) const
     if (!contextAllowsAutoParentheses(cursor))
         return QString();
 
+    QChar lookAhead = characterAt(cursor.selectionEnd());
+
     QString autoText;
     int skippedChars = 0;
 
     MatchingText matchingText;
-    autoText = matchingText.insertMatchingBrace(cursor, text, &skippedChars);
+    autoText = matchingText.insertMatchingBrace(cursor, text, lookAhead, &skippedChars);
 
     if (skippedChars) {
         const int pos = cursor.position();
