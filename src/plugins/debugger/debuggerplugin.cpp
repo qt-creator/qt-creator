@@ -1176,7 +1176,7 @@ static QSharedPointer<RunConfiguration> activeRunConfiguration()
 
 void DebuggerPlugin::startExternalApplication()
 {
-    const QSharedPointer<DebuggerStartParameters> sp(new DebuggerStartParameters);
+    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     StartExternalDialog dlg(m_manager->mainWindow());
     dlg.setExecutableFile(
             configValue(_("LastExternalExecutableFile")).toString());
@@ -1190,6 +1190,7 @@ void DebuggerPlugin::startExternalApplication()
     setConfigValue(_("LastExternalExecutableArguments"),
                    dlg.executableArguments());
     sp->executable = dlg.executableFile();
+    sp->startMode = StartExternal;
     if (!dlg.executableArguments().isEmpty())
         sp->processArgs = dlg.executableArguments().split(QLatin1Char(' '));
 
@@ -1201,7 +1202,7 @@ void DebuggerPlugin::startExternalApplication()
         rc = DebuggerRunner::createDefaultRunConfiguration(sp->executable);
 
     if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, StartExternal))
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
 }
 
@@ -1218,21 +1219,21 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
         QMessageBox::warning(m_manager->mainWindow(), tr("Warning"), tr("Cannot attach to PID 0"));
         return;
     }
-    const QSharedPointer<DebuggerStartParameters> sp(new DebuggerStartParameters);
+    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     sp->attachPID = pid;
     sp->crashParameter = crashParameter;
-    const DebuggerStartMode dsm = crashParameter.isEmpty() ?  AttachExternal : AttachCrashedExternal;
+    sp->startMode = crashParameter.isEmpty() ?  AttachExternal : AttachCrashedExternal;
     QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, dsm))
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
 }
 
 void DebuggerPlugin::attachCore()
 {
-    const QSharedPointer<DebuggerStartParameters> sp(new DebuggerStartParameters);
+    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     AttachCoreDialog dlg(m_manager->mainWindow());
     dlg.setExecutableFile(
             configValue(_("LastExternalExecutableFile")).toString());
@@ -1246,17 +1247,18 @@ void DebuggerPlugin::attachCore()
                    dlg.coreFile());
     sp->executable = dlg.executableFile();
     sp->coreFile = dlg.coreFile();
+    sp->startMode = AttachCore;
     QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, AttachCore))
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
 }
 
 void DebuggerPlugin::startRemoteApplication()
 {
-    const QSharedPointer<DebuggerStartParameters> sp(new DebuggerStartParameters);
+    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     StartRemoteDialog dlg(m_manager->mainWindow());
     QStringList arches;
     arches.append(_("i386:x86-64:intel"));
@@ -1277,6 +1279,7 @@ void DebuggerPlugin::startRemoteApplication()
     setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
     sp->remoteChannel = dlg.remoteChannel();
     sp->remoteArchitecture = dlg.remoteArchitecture();
+    sp->startMode = StartRemote;
     if (dlg.useServerStartScript())
         sp->serverStartScript = dlg.serverStartScript();
 
@@ -1284,13 +1287,13 @@ void DebuggerPlugin::startRemoteApplication()
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, StartRemote))
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
 }
 
 void DebuggerPlugin::attachRemoteTcf()
 {
-    const QSharedPointer<DebuggerStartParameters> sp(new DebuggerStartParameters);
+    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     AttachTcfDialog dlg(m_manager->mainWindow());
     QStringList arches;
     arches.append(_("i386:x86-64:intel"));
@@ -1312,6 +1315,7 @@ void DebuggerPlugin::attachRemoteTcf()
     sp->remoteChannel = dlg.remoteChannel();
     sp->remoteArchitecture = dlg.remoteArchitecture();
     sp->serverStartScript = dlg.serverStartScript();
+    sp->startMode = AttachTcf;
     if (dlg.useServerStartScript())
         sp->serverStartScript = dlg.serverStartScript();
 
@@ -1319,7 +1323,7 @@ void DebuggerPlugin::attachRemoteTcf()
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp, AttachTcf))
+            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
 }
 

@@ -85,23 +85,21 @@ RunConfigurationPtr DebuggerRunner::createDefaultRunConfiguration(const QString 
 
 RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
                                 const QString &mode,
-                                const QSharedPointer<DebuggerStartParameters> &sp,
-                                DebuggerStartMode startMode)
+                                const QSharedPointer<DebuggerStartParameters> &sp)
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     ApplicationRunConfigurationPtr rc =
         runConfiguration.objectCast<ApplicationRunConfiguration>();
     QTC_ASSERT(!rc.isNull(), return 0);
-    //qDebug() << "***** Debugging" << rc->name() << rc->executable();
-    DebuggerRunControl *runControl = new DebuggerRunControl(m_manager, startMode, sp, rc);
-    return runControl;
+    return new DebuggerRunControl(m_manager, sp, rc);
 }
 
 RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
     const QString &mode)
 {
     const QSharedPointer<DebuggerStartParameters> sp(new DebuggerStartParameters);
-    return run(runConfiguration, mode, sp, StartInternal);
+    sp->startMode = StartInternal;
+    return run(runConfiguration, mode, sp);
 }
 
 QWidget *DebuggerRunner::configurationWidget(RunConfigurationPtr runConfiguration)
@@ -121,7 +119,6 @@ QWidget *DebuggerRunner::configurationWidget(RunConfigurationPtr runConfiguratio
 
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
-       DebuggerStartMode mode,
        const QSharedPointer<DebuggerStartParameters> &startParameters,
        QSharedPointer<ApplicationRunConfiguration> runConfiguration)
   : RunControl(runConfiguration),
@@ -146,7 +143,6 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
 
     // Enhance parameters by info from the project, but do not clobber
     // arguments given in the dialogs
-    m_startParameters->startMode = mode;
     if (m_startParameters->executable.isEmpty())
         m_startParameters->executable = runConfiguration->executable();
     if (m_startParameters->environment.empty())

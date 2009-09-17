@@ -61,16 +61,15 @@ public:
 
     // ProjectExplorer::IRunConfigurationRunner
     bool canRun(RunConfigurationPtr runConfiguration, const QString &mode);
-    virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration, const QString &mode);
+    virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration,
+                const QString &mode);
     virtual QString displayName() const;
 
     virtual QWidget *configurationWidget(RunConfigurationPtr runConfiguration);
 
-    virtual ProjectExplorer::RunControl
-            *run(RunConfigurationPtr runConfiguration,
+    virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration,
                  const QString &mode,
-                 const DebuggerStartParametersPtr &sp,
-                 DebuggerStartMode startMode);
+                 const DebuggerStartParametersPtr &sp);
 
     static RunConfigurationPtr createDefaultRunConfiguration(const QString &executable = QString());
 
@@ -87,7 +86,6 @@ class DebuggerRunControl
 
 public:
     DebuggerRunControl(DebuggerManager *manager,
-                       DebuggerStartMode mode,
                        const DebuggerStartParametersPtr &startParamters,
                        ApplicationRunConfigurationPtr runConfiguration);
 
