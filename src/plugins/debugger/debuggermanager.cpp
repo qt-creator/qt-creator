@@ -899,7 +899,7 @@ void DebuggerManager::exitDebugger()
     emit debuggingFinished();
 }
 
-QSharedPointer<DebuggerStartParameters> DebuggerManager::startParameters() const
+DebuggerStartParametersPtr DebuggerManager::startParameters() const
 {
     return m_startParameters;
 }

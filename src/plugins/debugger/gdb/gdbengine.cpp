@@ -1543,7 +1543,7 @@ int GdbEngine::currentFrame() const
     return qq->stackHandler()->currentIndex();
 }
 
-void GdbEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
+void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 {
     m_startParameters = sp;
     // This should be set by the constructor or in exitDebugger().

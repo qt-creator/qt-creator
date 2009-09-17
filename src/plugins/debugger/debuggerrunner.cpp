@@ -85,7 +85,7 @@ RunConfigurationPtr DebuggerRunner::createDefaultRunConfiguration(const QString 
 
 RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
                                 const QString &mode,
-                                const QSharedPointer<DebuggerStartParameters> &sp)
+                                const DebuggerStartParametersPtr &sp)
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     ApplicationRunConfigurationPtr rc =
@@ -97,7 +97,7 @@ RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
 RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
     const QString &mode)
 {
-    const QSharedPointer<DebuggerStartParameters> sp(new DebuggerStartParameters);
+    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     sp->startMode = StartInternal;
     return run(runConfiguration, mode, sp);
 }
@@ -119,7 +119,7 @@ QWidget *DebuggerRunner::configurationWidget(RunConfigurationPtr runConfiguratio
 
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
-       const QSharedPointer<DebuggerStartParameters> &startParameters,
+       const DebuggerStartParametersPtr &startParameters,
        QSharedPointer<ApplicationRunConfiguration> runConfiguration)
   : RunControl(runConfiguration),
     m_startParameters(startParameters),

@@ -220,7 +220,7 @@ void TcfEngine::exitDebugger()
     qq->notifyInferiorExited();
 }
 
-void TcfEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
+void TcfEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 {
     qq->notifyInferiorRunningRequested();
     const int pos = sp->remoteChannel.indexOf(QLatin1Char(':'));

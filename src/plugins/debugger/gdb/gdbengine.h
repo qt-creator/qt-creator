@@ -144,7 +144,7 @@ private:
 
     void shutdown();
     void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
-    void startDebugger(const QSharedPointer<DebuggerStartParameters> &sp);
+    void startDebugger(const DebuggerStartParametersPtr &sp);
     Q_SLOT void startDebugger2();
     void exitDebugger();
     void exitDebugger2();

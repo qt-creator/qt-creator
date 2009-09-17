@@ -52,6 +52,7 @@ class MemoryViewAgent;
 struct StackFrame;
 class Symbol;
 class WatchData;
+typedef QSharedPointer<DebuggerStartParameters> DebuggerStartParametersPtr;
 
 class IDebuggerEngine : public QObject
 {
@@ -62,7 +63,7 @@ public:
 
     virtual void shutdown() = 0;
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos) = 0;
-    virtual void startDebugger(const QSharedPointer<DebuggerStartParameters> &startParameters) = 0;
+    virtual void startDebugger(const DebuggerStartParametersPtr &startParameters) = 0;
     virtual void exitDebugger() = 0;
     virtual void detachDebugger() {}
     virtual void updateWatchData(const WatchData &data) = 0;

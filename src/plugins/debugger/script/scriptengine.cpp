@@ -217,7 +217,7 @@ void ScriptEngine::exitDebugger()
     qq->notifyInferiorExited();
 }
 
-void ScriptEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
+void ScriptEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 {
     if (!m_scriptEngine)
         m_scriptEngine = new QScriptEngine(this);
