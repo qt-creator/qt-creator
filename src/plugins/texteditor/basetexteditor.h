@@ -322,9 +322,6 @@ public:
     void setParenthesesMatchingEnabled(bool b);
     bool isParenthesesMatchingEnabled() const;
 
-    void setAutoParenthesesEnabled(bool b);
-    bool isAutoParenthesesEnabled() const;
-
     void setHighlightCurrentLine(bool b);
     bool highlightCurrentLine() const;
 
@@ -508,8 +505,12 @@ protected:
 
     // Returns true if key triggers an indent.
     virtual bool isElectricCharacter(const QChar &ch) const;
-    // Returns true if automatic brace matching should be enabled in the context of the given cursor
-    virtual bool contextAllowsAutoParentheses(const QTextCursor &cursor) const;
+    // Returns the text to complete at the cursor position, or an empty string
+    virtual QString autoComplete(QTextCursor &cursor, const QString &text) const;
+    // Handles backspace. When returning true, backspace processing is stopped
+    virtual bool autoBackspace(QTextCursor &cursor);
+    // Hook to insert special characters on enter
+    virtual void paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
     // Indent a text block based on previous line. Default does nothing
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     // Indent at cursor. Calls indentBlock for selection or current line.

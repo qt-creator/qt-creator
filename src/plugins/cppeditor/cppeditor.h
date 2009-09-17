@@ -213,6 +213,10 @@ protected:
 
     // These override BaseTextEditor
     bool isElectricCharacter(const QChar &ch) const;
+    QString autoComplete(QTextCursor &cursor, const QString &text) const;
+    bool autoBackspace(QTextCursor &cursor);
+    void paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
+
     bool contextAllowsAutoParentheses(const QTextCursor &cursor) const;
 
 private Q_SLOTS:
@@ -278,6 +282,8 @@ private:
     QList<QTextEdit::ExtraSelection> m_renameSelections;
     int m_currentRenameSelection;
     bool m_inRename;
+
+    mutable bool m_allowSkippingOfBlockEnd;
 
     SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_lastSemanticInfo;

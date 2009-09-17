@@ -74,7 +74,6 @@ struct TEXTEDITOR_EXPORT TabSettings
 
     bool m_spacesForTabs;
     bool m_autoIndent;
-    bool m_autoParentheses;
     bool m_smartBackspace;
     int m_tabSize;
     int m_indentSize;

@@ -130,7 +130,6 @@ void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,
 {
     tabSettings.m_spacesForTabs = m_d->m_page.insertSpaces->isChecked();
     tabSettings.m_autoIndent = m_d->m_page.autoIndent->isChecked();
-    tabSettings.m_autoParentheses= m_d->m_page.autoParentheses->isChecked();
     tabSettings.m_smartBackspace = m_d->m_page.smartBackspace->isChecked();
     tabSettings.m_tabSize = m_d->m_page.tabSize->value();
     tabSettings.m_indentSize = m_d->m_page.indentSize->value();
@@ -147,7 +146,6 @@ void BehaviorSettingsPage::settingsToUI()
     const TabSettings &tabSettings = m_d->m_tabSettings;
     m_d->m_page.insertSpaces->setChecked(tabSettings.m_spacesForTabs);
     m_d->m_page.autoIndent->setChecked(tabSettings.m_autoIndent);
-    m_d->m_page.autoParentheses->setChecked(tabSettings.m_autoParentheses);
     m_d->m_page.smartBackspace->setChecked(tabSettings.m_smartBackspace);
     m_d->m_page.tabSize->setValue(tabSettings.m_tabSize);
     m_d->m_page.indentSize->setValue(tabSettings.m_indentSize);

@@ -178,7 +178,6 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
 //     (void) new QShortcut(tr("F11"), this, SLOT(slotToggleBlockVisible()));
 
 
-    d->m_autoParenthesesEnabled = false;
     // parentheses matcher
     d->m_parenthesesMatchingEnabled = false;
     d->m_formatRange = true;
@@ -891,31 +890,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         const TabSettings &ts = d->m_document->tabSettings();
         cursor.beginEditBlock();
 
-        if (d->m_autoParenthesesEnabled && ts.m_autoParentheses
-            && characterAt(cursor.position()-1) == QLatin1Char('{')) {
-
-            // verify that we indeed do have an extra opening brace in the document
-            int braceDepth = document()->lastBlock().userState();
-            if (braceDepth >= 0)
-                braceDepth >>= 8;
-            else
-                braceDepth= 0;
-
-            if (braceDepth > 0) { // we do have an extra brace, let's close it
-                int pos = cursor.position();
-                cursor.insertText(QLatin1String("}"));
-                cursor.setPosition(pos);
-                if (ts.m_autoIndent) {
-                    cursor.insertBlock();
-                    indent(document(), cursor, QChar::Null);
-                } else {
-                    QString previousBlockText = cursor.block().text();
-                    cursor.insertBlock();
-                    cursor.insertText(ts.indentationString(previousBlockText));
-                }
-                cursor.setPosition(pos);
-            }
-        }
+        paragraphSeparatorAboutToBeInserted(cursor); // virtual
 
         if (ts.m_autoIndent) {
             cursor.insertBlock();
@@ -1070,53 +1045,8 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
     } else {
         QTextCursor cursor = textCursor();
         QString text = e->text();
-        QString autoText;
+        QString autoText = autoComplete(cursor, text);
 
-        if (d->m_autoParenthesesEnabled && d->m_document->tabSettings().m_autoParentheses) {
-            QChar lookAhead = characterAt(cursor.position());
-            if (lookAhead.isSpace() // Only auto-insert when the text right of the cursor seems unrelated
-                || lookAhead == QLatin1Char('{')
-                || lookAhead == QLatin1Char('}')
-                || lookAhead == QLatin1Char(']')
-                || lookAhead == QLatin1Char(')')
-                || lookAhead == QLatin1Char(';')
-                || lookAhead == QLatin1Char(',')
-                ) {
-                foreach (QChar c, text) {
-                    QChar close;
-                    if (c == QLatin1Char('(')) {
-                        close = QLatin1Char(')');
-                    } else if (c == QLatin1Char('['))
-                        close = QLatin1Char(']');
-                    else if (c == QLatin1Char('\"'))
-                        close = c;
-                    else if (c == QLatin1Char('\''))
-                        close = c;
-                    if (!close.isNull())
-                        autoText += close;
-                }
-            }
-
-            bool skip = false;
-            QChar first = text.at(0);
-            if (first == QLatin1Char(')')
-                || first == QLatin1Char(']')
-                || first == QLatin1Char(';')
-                ) {
-                skip = (first == lookAhead);
-            } else if (first == QLatin1Char('\"') || first == QLatin1Char('\'')) {
-                if (first == lookAhead) {
-                    QChar lookBehind = characterAt(cursor.position()-1);
-                    skip = (lookBehind != '\\');
-                }
-            }
-
-            if (skip) {
-                int pos = cursor.position();
-                cursor.setPosition(pos+1);
-                cursor.setPosition(pos, QTextCursor::KeepAnchor);
-            }
-        }
         QChar electricChar;
         if (d->m_document->tabSettings().m_autoIndent) {
             foreach (QChar c, text) {
@@ -1129,10 +1059,9 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         if (!electricChar.isNull())
             cursor.beginEditBlock();
 
-        bool insertAutoParentheses = !autoText.isEmpty() && contextAllowsAutoParentheses(cursor);
         cursor.insertText(text);
 
-        if (insertAutoParentheses) {
+        if (!autoText.isEmpty()) {
             int pos = cursor.position();
             cursor.insertText(autoText);
             cursor.setPosition(pos);
@@ -1347,16 +1276,6 @@ void BaseTextEditor::setParenthesesMatchingEnabled(bool b)
 bool BaseTextEditor::isParenthesesMatchingEnabled() const
 {
     return d->m_parenthesesMatchingEnabled;
-}
-
-void BaseTextEditor::setAutoParenthesesEnabled(bool b)
-{
-    d->m_autoParenthesesEnabled = b;
-}
-
-bool BaseTextEditor::isAutoParenthesesEnabled() const
-{
-    return d->m_autoParenthesesEnabled;
 }
 
 void BaseTextEditor::setHighlightCurrentLine(bool b)
@@ -3274,27 +3193,8 @@ void BaseTextEditor::handleBackspaceKey()
 
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
 
-    if (tabSettings.m_autoParentheses) {
-        QChar lookAhead = characterAt(pos);
-        QChar lookBehind = characterAt(pos-1);
-        QChar lookFurtherBehind = characterAt(pos-2);
-        if ((lookBehind == QLatin1Char('(') && lookAhead == QLatin1Char(')'))
-            || (lookBehind == QLatin1Char('[') && lookAhead == QLatin1Char(']'))
-            || (lookBehind == QLatin1Char('"') && lookAhead == QLatin1Char('"')
-                && lookFurtherBehind != QLatin1Char('\\'))
-            || (lookBehind == QLatin1Char('\'') && lookAhead == QLatin1Char('\'')
-                && lookFurtherBehind != QLatin1Char('\\'))) {
-            QTextCursor c = cursor;
-            c.setPosition(pos - 1);
-            if (contextAllowsAutoParentheses(c)) {
-                cursor.beginEditBlock();
-                cursor.deleteChar();
-                cursor.deletePreviousChar();
-                cursor.endEditBlock();
-                return;
-            }
-        }
-    }
+    if (autoBackspace(cursor))
+        return;
 
     if (!tabSettings.m_smartBackspace) {
         cursor.deletePreviousChar();
@@ -3366,9 +3266,22 @@ bool BaseTextEditor::isElectricCharacter(const QChar &) const
     return false;
 }
 
-bool BaseTextEditor::contextAllowsAutoParentheses(const QTextCursor &) const
+QString BaseTextEditor::autoComplete(QTextCursor &cursor, const QString &text) const
 {
-    return true;
+    Q_UNUSED(cursor);
+    Q_UNUSED(text);
+    return QString();
+}
+
+bool BaseTextEditor::autoBackspace(QTextCursor &cursor)
+{
+    Q_UNUSED(cursor);
+    return false;
+}
+
+void BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
+{
+    Q_UNUSED(cursor)
 }
 
 void BaseTextEditor::indentBlock(QTextDocument *, QTextBlock, QChar)

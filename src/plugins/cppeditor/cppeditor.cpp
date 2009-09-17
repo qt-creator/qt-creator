@@ -529,6 +529,7 @@ CPPEditor::CPPEditor(QWidget *parent)
     : TextEditor::BaseTextEditor(parent)
     , m_currentRenameSelection(-1)
     , m_inRename(false)
+    , m_allowSkippingOfBlockEnd(false)
 {
     qRegisterMetaType<SemanticInfo>("SemanticInfo");
 
@@ -536,7 +537,6 @@ CPPEditor::CPPEditor(QWidget *parent)
     m_semanticHighlighter->start();
 
     setParenthesesMatchingEnabled(true);
-    setAutoParenthesesEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
@@ -1266,6 +1266,128 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
         return true;
     }
     return false;
+}
+
+QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &text) const
+{
+    bool checkBlockEnd = m_allowSkippingOfBlockEnd;
+    m_allowSkippingOfBlockEnd = false;
+
+    if (!contextAllowsAutoParentheses(cursor))
+        return QString();
+
+    QString autoText;
+    QChar lookAhead = characterAt(cursor.position());
+    if (lookAhead.isSpace() // Only auto-insert when the text right of the cursor seems unrelated
+        || lookAhead == QLatin1Char('{')
+        || lookAhead == QLatin1Char('}')
+        || lookAhead == QLatin1Char(']')
+        || lookAhead == QLatin1Char(')')
+        || lookAhead == QLatin1Char(';')
+        || lookAhead == QLatin1Char(',')
+        ) {
+        foreach (QChar c, text) {
+            QChar close;
+            if (c == QLatin1Char('(')) {
+                close = QLatin1Char(')');
+            } else if (c == QLatin1Char('['))
+                close = QLatin1Char(']');
+            else if (c == QLatin1Char('\"'))
+                close = c;
+            else if (c == QLatin1Char('\''))
+                close = c;
+            if (!close.isNull())
+                autoText += close;
+        }
+    }
+
+    bool skip = false;
+    QChar first = text.at(0);
+    if (first == QLatin1Char(')')
+        || first == QLatin1Char(']')
+        || first == QLatin1Char(';')
+        ) {
+        skip = (first == lookAhead);
+    } else if (first == QLatin1Char('\"') || first == QLatin1Char('\'')) {
+        if (first == lookAhead) {
+            QChar lookBehind = characterAt(cursor.position()-1);
+            skip = (lookBehind != '\\');
+        }
+    } else if (checkBlockEnd && first == QLatin1Char('}')
+               && lookAhead == QChar::ParagraphSeparator) {
+        skip = (first == characterAt(cursor.position() + 1));
+        cursor.movePosition(QTextCursor::Right);
+    }
+
+    if (skip) {
+        int pos = cursor.position();
+        cursor.setPosition(pos+1);
+        cursor.setPosition(pos, QTextCursor::KeepAnchor);
+    }
+
+    return autoText;
+}
+
+bool CPPEditor::autoBackspace(QTextCursor &cursor)
+{
+    m_allowSkippingOfBlockEnd = false;
+
+    int pos = cursor.position();
+    QTextCursor c = cursor;
+    c.setPosition(pos - 1);
+    if (!contextAllowsAutoParentheses(c))
+        return false;
+
+    QChar lookAhead = characterAt(pos);
+    QChar lookBehind = characterAt(pos-1);
+    QChar lookFurtherBehind = characterAt(pos-2);
+    if ((lookBehind == QLatin1Char('(') && lookAhead == QLatin1Char(')'))
+        || (lookBehind == QLatin1Char('[') && lookAhead == QLatin1Char(']'))
+        || (lookBehind == QLatin1Char('"') && lookAhead == QLatin1Char('"')
+            && lookFurtherBehind != QLatin1Char('\\'))
+        || (lookBehind == QLatin1Char('\'') && lookAhead == QLatin1Char('\'')
+            && lookFurtherBehind != QLatin1Char('\\'))) {
+        cursor.beginEditBlock();
+        cursor.deleteChar();
+        cursor.deletePreviousChar();
+        cursor.endEditBlock();
+        return true;
+    }
+    return false;
+}
+
+void CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
+{
+    if (characterAt(cursor.position()-1) != QLatin1Char('{'))
+        return;
+
+    if (!contextAllowsAutoParentheses(cursor))
+        return;
+
+
+    // verify that we indeed do have an extra opening brace in the document
+    int braceDepth = document()->lastBlock().userState();
+    if (braceDepth >= 0)
+        braceDepth >>= 8;
+    else
+        braceDepth= 0;
+
+    if (braceDepth > 0) { // we do have an extra brace, let's close it
+        int pos = cursor.position();
+        cursor.insertText(QLatin1String("}"));
+        cursor.setPosition(pos);
+        const TabSettings &ts = tabSettings();
+        if (ts.m_autoIndent) {
+            cursor.insertBlock();
+            indent(document(), cursor, QChar::Null);
+        } else {
+            QString previousBlockText = cursor.block().text();
+            cursor.insertBlock();
+            cursor.insertText(ts.indentationString(previousBlockText));
+        }
+        cursor.setPosition(pos);
+        m_allowSkippingOfBlockEnd = true;
+    }
 }
 
 bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor) const

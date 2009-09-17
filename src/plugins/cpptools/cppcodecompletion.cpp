@@ -1470,9 +1470,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
     int extraLength = 0;
     int cursorOffset = 0;
 
-    bool autoParenthesesEnabled = false;
-    if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(m_editor->widget()))
-        autoParenthesesEnabled = edit->tabSettings().m_autoParentheses;
+    bool autoParenthesesEnabled = true;
 
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         toInsert = item.m_text;

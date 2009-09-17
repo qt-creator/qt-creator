@@ -14,7 +14,7 @@
    <item>
     <widget class="QGroupBox" name="groupBoxTabAndIndentSettings">
      <property name="title">
-      <string>Tabs, Indentation, and Parentheses</string>
+      <string>Tabs and Indentation</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -132,13 +132,6 @@
            </size>
           </property>
          </spacer>
-        </item>
-        <item row="3" column="0">
-         <widget class="QCheckBox" name="autoParentheses">
-          <property name="text">
-           <string>Enable automatic &amp;parentheses</string>
-          </property>
-         </widget>
         </item>
        </layout>
       </item>
