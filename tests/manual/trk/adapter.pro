@@ -1,20 +1,17 @@
 
 TEMPLATE = app
 
-DEBUGGERHOME = ../../../src/plugins/debugger/gdb
+TRK_DIR=../../../src/shared/trk
+include($$TRK_DIR/trk.pri)
 
-INCLUDEPATH *= $$DEBUGGERHOME
+INCLUDEPATH *= $$TRK_DIR
 
 UTILSDIR = ../../../src/libs
 QT = core network
 win32:CONFIG+=console
 
 HEADERS += \
-    $$DEBUGGERHOME/trkutils.h \
-    $$DEBUGGERHOME/callback.h \
-    $$PWD/trkdevice.h \
-
+    trkolddevice.h
 SOURCES += \
-    $$DEBUGGERHOME/trkutils.cpp \
-    $$PWD/trkdevice.cpp \
-    $$PWD/adapter.cpp \
+    trkolddevice.cpp \
+    adapter.cpp

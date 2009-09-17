@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "trkdevice.h"
+#include "trkolddevice.h"
 #include "trkutils.h"
 
 #include <QtCore/QString>
@@ -55,7 +55,7 @@ enum { TimerInterval = 100 };
 #ifdef Q_OS_WIN
 
 // Format windows error from GetLastError() value: TODO: Use the one provided by the utisl lib.
-QString winErrorMessage(unsigned long error)
+static QString winErrorMessage(unsigned long error)
 {
     QString rc = QString::fromLatin1("#%1: ").arg(error);
     ushort *lpMsgBuf;
@@ -73,7 +73,7 @@ QString winErrorMessage(unsigned long error)
 }
 
 // Non-blocking replacement for win-api ReadFile function
-BOOL WINAPI TryReadFile(HANDLE          hFile,
+static BOOL WINAPI TryReadFile(HANDLE          hFile,
                         LPVOID          lpBuffer,
                         DWORD           nNumberOfBytesToRead,
                         LPDWORD         lpNumberOfBytesRead,
@@ -96,7 +96,7 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
 }
 #endif
 
-namespace trk {
+namespace trkold {
 
 struct TrkDevicePrivate {
     TrkDevicePrivate();
@@ -291,7 +291,7 @@ void TrkDevice::tryTrkRead()
         logMessage("Read" + d->trkReadBuffer.toHex());
     if (!totalCharsRead)
         return;
-    const ushort len = isValidTrkResult(d->trkReadBuffer, d->serialFrame);
+    const ushort len = trk::isValidTrkResult(d->trkReadBuffer, d->serialFrame);
     if (!len) {
         const QString msg = QString::fromLatin1("Partial message: %1").arg(stringFromArray(d->trkReadBuffer));
         emitError(msg);
@@ -305,7 +305,7 @@ void TrkDevice::tryTrkRead()
     if (verbose())
         logMessage("READ " + data.toHex());
     d->trkReadBuffer.append(data);
-    const ushort len = isValidTrkResult(d->trkReadBuffer, d->serialFrame);
+    const ushort len = trk::isValidTrkResult(d->trkReadBuffer, d->serialFrame);
     if (!len) {
         if (d->trkReadBuffer.size() > 10) {
             const QString msg = QString::fromLatin1("Unable to extract message from '%1' '%2'").
@@ -315,7 +315,7 @@ void TrkDevice::tryTrkRead()
         return;
     }
 #endif // Q_OS_WIN
-    TrkResult r;
+    trk::TrkResult r;
     QByteArray rawData;
     while (extractResult(&d->trkReadBuffer, d->serialFrame, &r, &rawData)) {
         if (verbose())
@@ -340,7 +340,7 @@ void TrkDevice::emitError(const QString &s)
 
 /* A message to be send to TRK, triggering a callback on receipt
  * of the answer. */
-typedef Debugger::Callback<const TrkResult &> TrkCallback;
+typedef trk::Callback<const trk::TrkResult &> TrkCallback;
 struct TrkMessage {
     explicit TrkMessage(unsigned char code = 0u,
                         unsigned char token = 0u,
@@ -380,7 +380,7 @@ public:
     void queueTrkInitialPing();
 
     // Call this from the device read notification with the results.
-    void slotHandleResult(const TrkResult &result);
+    void slotHandleResult(const trk::TrkResult &result);
 
     // This can be called periodically in a timer to retrieve
     // the pending messages to be sent.
@@ -439,7 +439,7 @@ bool TrkWriteQueue::pendingMessage(SharedPointerTrkMessage *message)
     if (trkWriteQueue.front()->code == TRK_WRITE_QUEUE_NOOP_CODE) {
         const SharedPointerTrkMessage noopMessage = trkWriteQueue.dequeue();
         if (noopMessage->callback) {
-            TrkResult result;
+            trk::TrkResult result;
             result.code = noopMessage->code;
             result.token = noopMessage->token;
             result.data = noopMessage->data;
@@ -458,17 +458,17 @@ bool TrkWriteQueue::pendingMessage(SharedPointerTrkMessage *message)
 void TrkWriteQueue::notifyWriteResult(bool ok)
 {
     // On success, dequeue message and await result
-    if (ok) {        
+    if (ok) {
         const SharedPointerTrkMessage firstMsg = trkWriteQueue.dequeue();
         writtenTrkMessages.insert(firstMsg->token, firstMsg);
         trkWriteBusy = true;
     }
 }
 
-void TrkWriteQueue::slotHandleResult(const TrkResult &result)
+void TrkWriteQueue::slotHandleResult(const trk::TrkResult &result)
 {
     trkWriteBusy = false;
-    if (result.code != TrkNotifyAck && result.code != TrkNotifyNak)
+    if (result.code != trk::TrkNotifyAck && result.code != trk::TrkNotifyNak)
         return;
     // Find which request the message belongs to and invoke callback
     // if ACK or on NAK if desired.
@@ -476,10 +476,10 @@ void TrkWriteQueue::slotHandleResult(const TrkResult &result)
     if (it == writtenTrkMessages.end())
         return;
     const bool invokeCB = it.value()->callback
-                          && (result.code == TrkNotifyAck || it.value()->invokeOnNAK);
+                          && (result.code == trk::TrkNotifyAck || it.value()->invokeOnNAK);
 
     if (invokeCB) {
-        TrkResult result1 = result;
+        trk::TrkResult result1 = result;
         result1.cookie = it.value()->cookie;
         it.value()->callback(result1);
     }
@@ -545,9 +545,9 @@ void TrkWriteQueueDevice::tryTrkWrite()
 
 bool TrkWriteQueueDevice::trkWriteRawMessage(const TrkMessage &msg)
 {
-    const QByteArray ba = frameMessage(msg.code, msg.token, msg.data, serialFrame());
+    const QByteArray ba = trk::frameMessage(msg.code, msg.token, msg.data, serialFrame());
     if (verbose())
-         logMessage("WRITE: " + stringFromArray(ba));
+        logMessage("WRITE: " + trk::stringFromArray(ba));
     QString errorMessage;
     const bool rc = write(ba, &errorMessage);
     if (!rc)
@@ -561,7 +561,7 @@ void TrkWriteQueueDevice::timerEvent(QTimerEvent *ev)
     TrkDevice::timerEvent(ev);
 }
 
-void TrkWriteQueueDevice::slotHandleResult(const TrkResult &result)
+void TrkWriteQueueDevice::slotHandleResult(const trk::TrkResult &result)
 {
     qd->slotHandleResult(result);
 }
@@ -657,9 +657,9 @@ void TrkWriteQueueIODevice::tryTrkWrite()
 
 bool TrkWriteQueueIODevice::trkWriteRawMessage(const TrkMessage &msg)
 {
-    const QByteArray ba = frameMessage(msg.code, msg.token, msg.data, serialFrame());
+    const QByteArray ba = trk::frameMessage(msg.code, msg.token, msg.data, serialFrame());
     if (verbose())
-        logMessage("WRITE: " + stringFromArray(ba));
+        logMessage("WRITE: " + trk::stringFromArray(ba));
     const bool ok = d->device->write(ba) != -1;
     if (!ok) {
         const QString msg = QString::fromLatin1("Unable to write %1 bytes: %2:").arg(ba.size()).arg(d->device->errorString());
@@ -677,9 +677,9 @@ void TrkWriteQueueIODevice::tryTrkRead()
     //if (verbose())
         logMessage("READ " + newData.toHex());
     d->readBuffer.append(newData);
-    TrkResult r;
+    trk::TrkResult r;
     QByteArray rawData;
-    while (extractResult(&(d->readBuffer), d->serialFrame, &r, &rawData)) {
+    while (trk::extractResult(&(d->readBuffer), d->serialFrame, &r, &rawData)) {
         d->queue.slotHandleResult(r);
         emit messageReceived(r);
         if (!rawData.isEmpty())
@@ -687,4 +687,4 @@ void TrkWriteQueueIODevice::tryTrkRead()
     }
 }
 
-} // namespace tr
+} // namespace trkold

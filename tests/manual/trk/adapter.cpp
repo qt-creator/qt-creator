@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "trkutils.h"
-#include "trkdevice.h"
+#include "trkolddevice.h"
 
 #include <QtCore/QPointer>
 #include <QtCore/QCoreApplication>
@@ -104,7 +104,7 @@ class Adapter : public QObject
     Q_OBJECT
 
 public:
-    typedef Debugger::Callback<const TrkResult &> TrkCallback;
+    typedef trk::Callback<const TrkResult &> TrkCallback;
 
     Adapter();
     ~Adapter();
@@ -171,9 +171,9 @@ private:
     void startInferiorIfNeeded();
     void interruptInferior();
 
-    QSharedPointer<TrkWriteQueueDevice> m_trkDevice;
+    QSharedPointer<trkold::TrkWriteQueueDevice> m_trkDevice;
     QSharedPointer<QIODevice> m_socket;
-    QSharedPointer<TrkWriteQueueIODevice> m_socketDevice;
+    QSharedPointer<trkold::TrkWriteQueueIODevice> m_socketDevice;
 
     QString m_trkServerName;
     QByteArray m_trkReadBuffer;
@@ -427,7 +427,7 @@ void Adapter::sendGdbMessage(const QByteArray &msg, const QByteArray &logNote)
 void Adapter::sendGdbMessageAfterSync(const QByteArray &msg, const QByteArray &logNote)
 {
     QByteArray ba = msg + char(1) + logNote;
-    sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCallback(this, &Adapter::reportToGdb), "", ba); // Answer gdb
+    sendTrkMessage(trkold::TRK_WRITE_QUEUE_NOOP_CODE, TrkCallback(this, &Adapter::reportToGdb), "", ba); // Answer gdb
 }
 
 void Adapter::reportToGdb(const TrkResult &result)
@@ -476,7 +476,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         // Indicate the reason the target halted.
         // The reply is the same as for step and continue.
         sendGdbAckMessage();
-        startInferiorIfNeeded();        
+        startInferiorIfNeeded();
         sendGdbMessage("T05library:r;", "target halted (library load)");
         // trap 05
         // sendGdbMessage("S05", "target halted (trap)");
@@ -597,32 +597,32 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         //sendGdbMessage("0000", "current IP");
         sendGdbAckMessage();
         #if 0
-          A1 = 0,	 first integer-like argument
-          A4 = 3,	 last integer-like argument
+          A1 = 0,        first integer-like argument
+          A4 = 3,        last integer-like argument
           AP = 11,
           IP = 12,
-          SP = 13,	 Contains address of top of stack
-          LR = 14,	 address to return to from a function call
-          PC = 15,	 Contains program counter
-          F0 = 16,	 first floating point register
-          F3 = 19,	 last floating point argument register
-          F7 = 23, 	 last floating point register
-          FPS = 24,	 floating point status register
-          PS = 25,	 Contains processor status
-          WR0,		 WMMX data registers.
+          SP = 13,       Contains address of top of stack
+          LR = 14,       address to return to from a function call
+          PC = 15,       Contains program counter
+          F0 = 16,       first floating point register
+          F3 = 19,       last floating point argument register
+          F7 = 23,       last floating point register
+          FPS = 24,      floating point status register
+          PS = 25,       Contains processor status
+          WR0,           WMMX data registers.
           WR15 = WR0 + 15,
-          WC0,		 WMMX control registers.
+          WC0,           WMMX control registers.
           WCSSF = WC0 + 2,
           WCASF = WC0 + 3,
           WC7 = WC0 + 7,
-          WCGR0,		WMMX general purpose registers.
+          WCGR0,                WMMX general purpose registers.
           WCGR3 = WCGR0 + 3,
           WCGR7 = WCGR0 + 7,
           NUM_REGS,
 
           // Other useful registers.
-          FP = 11,		Frame register in ARM code, if used.
-          THUMB_FP = 7,		Frame register in Thumb code, if used.
+          FP = 11,              Frame register in ARM code, if used.
+          THUMB_FP = 7,         Frame register in Thumb code, if used.
           NUM_ARG_REGS = 4,
           LAST_ARG = A4,
           NUM_FP_ARG_REGS = 4,
@@ -803,7 +803,7 @@ void Adapter::handleGdbResponse(const QByteArray &response)
         if (data.startsWith("auxv:read::")) {
             const int offsetPos = data.lastIndexOf(':') + 1;
             const int commaPos = data.lastIndexOf(',');
-            if (commaPos != -1) {                
+            if (commaPos != -1) {
                 bool ok1 = false, ok2 = false;
                 const int offset = data.mid(offsetPos,  commaPos - offsetPos).toInt(&ok1, 16);
                 const int length = data.mid(commaPos + 1).toInt(&ok2, 16);
@@ -837,14 +837,14 @@ bool Adapter::openTrkPort(const QString &port, QString *errorMessage)
             delete socket;
             return false;
         }
-        m_socketDevice = QSharedPointer<TrkWriteQueueIODevice>(new TrkWriteQueueIODevice(m_socket));
+        m_socketDevice = QSharedPointer<trkold::TrkWriteQueueIODevice>(new trkold::TrkWriteQueueIODevice(m_socket));
         connect(m_socketDevice.data(), SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));
         if (m_verbose > 1)
             m_socketDevice->setVerbose(true);
         m_socketDevice->setSerialFrame(m_serialFrame);
         return true;
     }
-    m_trkDevice = QSharedPointer<TrkWriteQueueDevice>(new TrkWriteQueueDevice);
+    m_trkDevice = QSharedPointer<trkold::TrkWriteQueueDevice>(new trkold::TrkWriteQueueDevice);
     connect(m_trkDevice.data(), SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));
     if (m_verbose > 1)
         m_trkDevice->setVerbose(true);
@@ -1419,7 +1419,7 @@ void Adapter::readMemory(uint addr, uint len)
             }
         }
         const qulonglong cookie = (qulonglong(addr) << 32) + len;
-        sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCallback(this, &Adapter::reportReadMemoryBuffered), QByteArray(), cookie);
+        sendTrkMessage(trkold::TRK_WRITE_QUEUE_NOOP_CODE, TrkCallback(this, &Adapter::reportReadMemoryBuffered), QByteArray(), cookie);
     } else {
         if (m_verbose)
             logMessage(QString::fromLatin1("Requesting unbuffered memory %1 bytes from 0x%2").arg(len).arg(addr, 0, 16));

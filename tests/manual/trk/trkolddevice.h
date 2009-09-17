@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef TRKDEVICE_H
-#define TRKDEVICE_H
+#ifndef TRKOLDDEVICE_H
+#define TRKOLDDEVICE_H
 
 #include "callback.h"
 
@@ -41,9 +41,13 @@ QT_BEGIN_NAMESPACE
 class QIODevice;
 QT_END_NAMESPACE
 
-namespace trk {
 
-struct TrkResult;
+namespace trk {
+    struct TrkResult;
+}
+
+namespace trkold {
+
 struct TrkMessage;
 struct TrkDevicePrivate;
 class TrkWriteQueue;
@@ -85,7 +89,7 @@ signals:
     void rawDataReceived(const QByteArray &data);
     void error(const QString &msg);
     void logMessage(const QString &msg);
-    
+
 protected:
     void emitError(const QString &msg);
     virtual void timerEvent(QTimerEvent *ev);
@@ -112,7 +116,7 @@ public:
     virtual ~TrkWriteQueueDevice();
 
     // Construct as 'TrkWriteQueueDevice::TrkCallback(instance, &Class::method);'
-    typedef Debugger::Callback<const TrkResult &> TrkCallback;
+    typedef trk::Callback<const trk::TrkResult &> TrkCallback;
 
     // Enqueue a message with a notification callback.
     void sendTrkMessage(unsigned char code,
@@ -155,7 +159,7 @@ class TrkWriteQueueIODevice : public QObject
     Q_PROPERTY(bool serialFrame READ serialFrame WRITE setSerialFrame)
     Q_PROPERTY(bool verbose READ verbose WRITE setVerbose)
 public:
-    typedef Debugger::Callback<const TrkResult &> TrkCallback;
+    typedef trk::Callback<const trk::TrkResult &> TrkCallback;
 
     explicit TrkWriteQueueIODevice(const QSharedPointer<QIODevice> &device,
                                    QObject *parent = 0);
@@ -186,13 +190,13 @@ protected:
     virtual void timerEvent(QTimerEvent *ev);
 
 private:
-    void tryTrkRead();    
+    void tryTrkRead();
     void tryTrkWrite();
     bool trkWriteRawMessage(const TrkMessage &msg);
 
     TrkWriteQueueIODevicePrivate *d;
 };
 
-} // namespace trk
+} // namespace trkold
 
-#endif // TRKDEVICE_H
+#endif // TRKOLDDEVICE_H
