@@ -1277,7 +1277,7 @@ QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &text) const
         return QString();
 
     QString autoText;
-    QChar lookAhead = characterAt(cursor.position());
+    QChar lookAhead = characterAt(cursor.selectionEnd());
     if (lookAhead.isSpace() // Only auto-insert when the text right of the cursor seems unrelated
         || lookAhead == QLatin1Char('{')
         || lookAhead == QLatin1Char('}')
