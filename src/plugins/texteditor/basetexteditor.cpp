@@ -1066,7 +1066,9 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 }
             }
         }
-        if (!electricChar.isNull())
+
+        bool doEditBlock = !(electricChar.isNull() && autoText.isEmpty());
+        if (doEditBlock)
             cursor.beginEditBlock();
 
         cursor.insertText(text);
@@ -1076,10 +1078,12 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             cursor.insertText(autoText);
             cursor.setPosition(pos);
         }
-        if (!electricChar.isNull()) {
+        if (!electricChar.isNull())
             indent(document(), cursor, electricChar);
+
+        if (doEditBlock)
             cursor.endEditBlock();
-        }
+
         setTextCursor(cursor);
     }
 
