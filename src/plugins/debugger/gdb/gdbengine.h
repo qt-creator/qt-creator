@@ -132,7 +132,7 @@ private:
     friend class TrkGdbAdapter;
 
     const DebuggerStartParameters &startParameters() const
-        { return m_startParameters; }
+        { return *m_startParameters; }
     //
     // IDebuggerEngine implementation
     //
@@ -298,7 +298,7 @@ private:
         { m_manager->showStatusMessage(msg, timeout); }
     int status() const { return m_manager->status(); }
     QMainWindow *mainWindow() const { return m_manager->mainWindow(); }
-    DebuggerStartMode startMode() const { return m_manager->startMode(); }
+    DebuggerStartMode startMode() const { return m_startParameters->startMode; }
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
 
     void handleChildren(const WatchData &parent, const GdbMi &child,
@@ -455,7 +455,7 @@ private:
 
     DebuggerManager * const m_manager;
     IDebuggerManagerAccessForEngines * const qq;
-    DebuggerStartParameters m_startParameters;
+    DebuggerStartParametersPtr m_startParameters;
     // make sure to re-initialize new members in initializeVariables();
 };
 

@@ -399,7 +399,7 @@ public:
     QAbstractItemModel *threadsModel();
     int status() const { return m_status; }
     // FIXME: hide this in the engines?
-    DebuggerStartMode startMode() const;
+    //DebuggerStartMode startMode() const;
 
     QList<Symbol> moduleSymbols(const QString &moduleName);
 

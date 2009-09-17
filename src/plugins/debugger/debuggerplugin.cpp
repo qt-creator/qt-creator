@@ -1334,7 +1334,7 @@ void DebuggerPlugin::updateActions(int status)
     //const bool running = status == DebuggerInferiorRunning;
 
     const bool ready = status == DebuggerInferiorStopped
-            && m_manager->startMode() != AttachCore;
+            && m_manager->startParameters()->startMode != AttachCore;
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(!started && !starting);
 #ifdef Q_OS_WIN

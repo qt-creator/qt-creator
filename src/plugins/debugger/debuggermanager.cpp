@@ -826,7 +826,7 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 
     QString errorMessage;
     QString settingsIdHint;
-    switch (startMode()) {
+    switch (m_startParameters->startMode) {
     case AttachExternal:
     case AttachCrashedExternal:
         m_engine = determineDebuggerEngine(m_startParameters->attachPID,
@@ -1130,7 +1130,7 @@ void DebuggerManager::setStatus(int status)
     const bool running = status == DebuggerInferiorRunning;
 
     const bool ready = status == DebuggerInferiorStopped
-            && startMode() != AttachCore;
+            && m_startParameters->startMode != AttachCore;
     if (ready)
         QApplication::alert(mainWindow(), 3000);
 
@@ -1435,11 +1435,6 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
     } else if (dialog.clickedButton() == helperOff) {
         theDebuggerAction(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);
     }
-}
-
-DebuggerStartMode DebuggerManager::startMode() const
-{
-    return m_startParameters->startMode;
 }
 
 void DebuggerManager::reloadFullStack()
