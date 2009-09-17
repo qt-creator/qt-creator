@@ -43,6 +43,7 @@
 #define QMLJSAST_FWD_P_H
 
 #include <QtCore/qglobal.h>
+#include "qmljsglobal_p.h"
 
 //
 //  W A R N I N G
@@ -55,16 +56,16 @@
 // We mean it.
 //
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS { namespace AST {
 
 class SourceLocation
 {
 public:
-    SourceLocation(quint32 offset = 0, quint32 length = 0)
+    SourceLocation(quint32 offset = 0, quint32 length = 0, quint32 line = 0, quint32 column = 0)
         : offset(offset), length(length),
-          startLine(0), startColumn(0)
+          startLine(line), startColumn(column)
     { }
 
     bool isValid() const { return length != 0; }
@@ -182,6 +183,6 @@ class UiSignature;
 
 } } // namespace AST
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE
 
 #endif

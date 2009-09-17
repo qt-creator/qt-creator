@@ -54,9 +54,10 @@
 //
 
 #include "qmljsastvisitor_p.h"
+#include "qmljsglobal_p.h"
 #include <QtCore/QString>
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 #define QMLJS_DECLARE_AST_NODE(name) \
   enum { K = Kind_##name };
@@ -2480,19 +2481,21 @@ public:
 
     UiPublicMember(NameId *memberType,
                    NameId *name)
-        : type(Property), memberType(memberType), name(name), expression(0), isDefaultMember(false), parameters(0)
+        : type(Property), memberType(memberType), name(name), expression(0), isDefaultMember(false), isReadonlyMember(false), parameters(0)
     { kind = K; }
 
     UiPublicMember(NameId *memberType,
                    NameId *name,
                    ExpressionNode *expression)
-        : type(Property), memberType(memberType), name(name), expression(expression), isDefaultMember(false), parameters(0)
+        : type(Property), memberType(memberType), name(name), expression(expression), isDefaultMember(false), isReadonlyMember(false), parameters(0)
     { kind = K; }
 
     virtual SourceLocation firstSourceLocation() const
     {
       if (defaultToken.isValid())
         return defaultToken;
+      else if (readonlyToken.isValid())
+          return readonlyToken;
 
       return propertyToken;
     }
@@ -2510,8 +2513,10 @@ public:
     NameId *name;
     ExpressionNode *expression;
     bool isDefaultMember;
+    bool isReadonlyMember;
     UiParameterList *parameters;
     SourceLocation defaultToken;
+    SourceLocation readonlyToken;
     SourceLocation propertyToken;
     SourceLocation typeToken;
     SourceLocation identifierToken;
@@ -2662,6 +2667,6 @@ public:
 
 
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE
 
 #endif

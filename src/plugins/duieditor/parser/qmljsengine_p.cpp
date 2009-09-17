@@ -39,12 +39,13 @@
 **
 ****************************************************************************/
 
+#include "qmljsglobal_p.h"
 #include "qmljsengine_p.h"
 #include "qmljsnodepool_p.h"
 #include <qnumeric.h>
 #include <QHash>
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 
@@ -178,6 +179,12 @@ Engine::~Engine()
 QSet<NameId> Engine::literals() const
 { return _literals; }
 
+void Engine::addComment(int pos, int len, int line, int col)
+{ if (len > 0) _comments.append(QmlJS::AST::SourceLocation(pos, len, line, col)); }
+
+QList<QmlJS::AST::SourceLocation> Engine::comments() const
+{ return _comments; }
+
 NameId *Engine::intern(const QChar *u, int s)
 { return const_cast<NameId *>(&*_literals.insert(NameId(u, s))); }
 
@@ -200,4 +207,4 @@ void Engine::setNodePool(NodePool *nodePool)
 
 } // end of namespace QmlJS
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE

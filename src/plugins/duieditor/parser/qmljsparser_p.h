@@ -60,15 +60,15 @@
 #ifndef QMLJSPARSER_P_H
 #define QMLJSPARSER_P_H
 
+#include "qmljsglobal_p.h"
 #include "qmljsgrammar_p.h"
 #include "qmljsast_p.h"
 #include "qmljsengine_p.h"
 
 #include <QtCore/QList>
+#include <QtCore/QString>
 
-QT_BEGIN_NAMESPACE
-
-class QString;
+QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 
@@ -222,11 +222,11 @@ protected:
 
 
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 66
+#define J_SCRIPT_REGEXPLITERAL_RULE1 69
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 67
+#define J_SCRIPT_REGEXPLITERAL_RULE2 70
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE
 
 
 

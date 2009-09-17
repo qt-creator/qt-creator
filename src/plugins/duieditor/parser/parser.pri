@@ -10,7 +10,8 @@ HEADERS += $$PWD/qmljsast_p.h \
            $$PWD/qmljslexer_p.h \
            $$PWD/qmljsmemorypool_p.h \
            $$PWD/qmljsnodepool_p.h \
-           $$PWD/qmljsparser_p.h
+           $$PWD/qmljsparser_p.h \
+           $$PWD/qmljsglobal_p.h
 
 SOURCES += $$PWD/qmljsast.cpp \
            $$PWD/qmljsastvisitor.cpp \

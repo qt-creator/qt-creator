@@ -54,8 +54,9 @@
 //
 
 #include "qmljsastfwd_p.h"
+#include "qmljsglobal_p.h"
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS { namespace AST {
 
@@ -329,6 +330,6 @@ public:
 
 } } // namespace AST
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE
 
 #endif // QMLJSASTVISITOR_P_H

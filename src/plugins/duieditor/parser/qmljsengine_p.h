@@ -56,9 +56,10 @@
 #include <QString>
 #include <QSet>
 
+#include "qmljsglobal_p.h"
 #include "qmljsastfwd_p.h"
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 class NameId
@@ -143,12 +144,16 @@ class Engine
     Lexer *_lexer;
     NodePool *_nodePool;
     QSet<NameId> _literals;
+    QList<QmlJS::AST::SourceLocation> _comments;
 
 public:
     Engine();
     ~Engine();
 
     QSet<NameId> literals() const;
+
+    void addComment(int pos, int len, int line, int col);
+    QList<QmlJS::AST::SourceLocation> comments() const;
 
     NameId *intern(const QChar *u, int s);
 
@@ -163,6 +168,6 @@ public:
 
 } // end of namespace QmlJS
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE
 
 #endif // QMLJSENGINE_P_H

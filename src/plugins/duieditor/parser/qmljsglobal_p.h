@@ -1,0 +1,14 @@
+#ifndef QMLJSGLOBAL_P_H
+#define QMLJSGLOBAL_P_H
+
+#include <QtCore/qglobal.h>
+
+#ifndef QT_CREATOR
+#define QT_QML_BEGIN_NAMESPACE QT_BEGIN_NAMESPACE
+#define QT_QML_END_NAMESPACE QT_END_NAMESPACE
+#else // !QT_CREATOR
+#define QT_QML_BEGIN_NAMESPACE
+#define QT_QML_END_NAMESPACE
+#endif // QT_CREATOR
+
+#endif // QMLJSGLOBAL_P_H

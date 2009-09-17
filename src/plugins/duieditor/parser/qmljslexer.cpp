@@ -43,6 +43,7 @@
 #include "config.h"
 #endif
 
+#include "qmljsglobal_p.h"
 #include "qmljsengine_p.h"
 #include "qmljslexer_p.h"
 #include "qmljsgrammar_p.h"
@@ -52,7 +53,7 @@
 #include <stdio.h>
 #include <string.h>
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 extern double qstrtod(const char *s00, char const **se, bool *ok);
 
@@ -71,7 +72,7 @@ extern double integerFromString(const char *buf, int size, int radix);
 
 using namespace QmlJS;
 
-Lexer::Lexer(Engine *eng)
+Lexer::Lexer(Engine *eng, bool tokenizeComments)
     : driver(eng),
       yylineno(0),
       done(false),
@@ -94,7 +95,8 @@ Lexer::Lexer(Engine *eng)
       check_reserved(true),
       parenthesesState(IgnoreParentheses),
       parenthesesCount(0),
-      prohibitAutomaticSemicolon(false)
+      prohibitAutomaticSemicolon(false),
+      tokenizeComments(tokenizeComments)
 {
     driver->setLexer(this);
     // allocate space for read buffers
@@ -381,6 +383,11 @@ int Lexer::findReservedWord(const QChar *c, int size) const
                 && c[4] == QLatin1Char('e') && c[5] == QLatin1Char('r')
                 && c[6] == QLatin1Char('t') && c[7] == QLatin1Char('y'))
             return QmlJSGrammar::T_PROPERTY;
+        else if (c[0] == QLatin1Char('r') && c[1] == QLatin1Char('e')
+                && c[2] == QLatin1Char('a') && c[3] == QLatin1Char('d')
+                && c[4] == QLatin1Char('o') && c[5] == QLatin1Char('n')
+                && c[6] == QLatin1Char('l') && c[7] == QLatin1Char('y'))
+            return QmlJSGrammar::T_READONLY;
         else if (check_reserved) {
             if (c[0] == QLatin1Char('a') && c[1] == QLatin1Char('b')
                     && c[2] == QLatin1Char('s') && c[3] == QLatin1Char('t')
@@ -642,22 +649,28 @@ int Lexer::lex()
                     setDone(Other);
                 } else
                     state = Start;
+                driver->addComment(startpos, tokenLength(), startlineno, startcolumn);
             } else if (current == 0) {
+                driver->addComment(startpos, tokenLength(), startlineno, startcolumn);
                 setDone(Eof);
             }
+
             break;
         case InMultiLineComment:
             if (current == 0) {
                 setDone(Bad);
                 err = UnclosedComment;
                 errmsg = QLatin1String("Unclosed comment at end of file");
+                driver->addComment(startpos, tokenLength(), startlineno, startcolumn);
             } else if (isLineTerminator()) {
                 shiftWindowsLineBreak();
                 yylineno++;
             } else if (current == '*' && next1 == '/') {
                 state = Start;
                 shift(1);
+                driver->addComment(startpos, tokenLength(), startlineno, startcolumn);
             }
+
             break;
         case InIdentifier:
             if (isIdentLetter(current) || isDecimalDigit(current)) {
@@ -1135,6 +1148,6 @@ void Lexer::syncProhibitAutomaticSemicolon()
     }
 }
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE
 
 

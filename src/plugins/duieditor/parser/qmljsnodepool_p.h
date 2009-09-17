@@ -56,9 +56,10 @@
 #include <QtCore/QHash>
 #include <QtCore/QString>
 
+#include "qmljsglobal_p.h"
 #include "qmljsmemorypool_p.h"
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 
@@ -133,6 +134,6 @@ private:
 
 } // namespace QmlJS
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE
 
 #endif
