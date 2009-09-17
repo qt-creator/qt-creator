@@ -2684,7 +2684,7 @@ void GdbEngine::reloadRegisters()
     if (m_gdbAdapter->isAdapter()) {
         // FIXME: remove that special case. This is only to prevent
         // gdb from asking for the values of the fixed point registers
-        postCommand(_("-data-list-register-values x 1 2 3 4 5 6 7 8 9 "
+        postCommand(_("-data-list-register-values x 0 1 2 3 4 5 6 7 8 9 "
                       "10 11 12 13 14 15 25"),
                     Discardable, CB(handleRegisterListValues));
     } else {

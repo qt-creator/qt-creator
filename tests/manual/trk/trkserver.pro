@@ -1,17 +1,10 @@
 
 TEMPLATE = app
 
-DEBUGGERHOME = ../../../src/plugins/debugger/gdb
+include(../../../src/shared/trk/trk.pri)
 
 QT = core network
 win32:CONFIG+=console
 
-INCLUDEPATH *= $$DEBUGGERHOME
-
-
-HEADERS += \
-    $$DEBUGGERHOME/trkutils.h
-
 SOURCES += \
-    $$DEBUGGERHOME/trkutils.cpp \
     $$PWD/trkserver.cpp

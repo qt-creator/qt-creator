@@ -81,7 +81,8 @@ MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, const QString &addr)
 
 MemoryViewAgent::~MemoryViewAgent()
 {
-    m_editor->deleteLater();
+    if (m_editor)
+        m_editor->deleteLater();
 }
 
 void MemoryViewAgent::init(quint64 addr)
@@ -101,13 +102,15 @@ void MemoryViewAgent::init(quint64 addr)
 void MemoryViewAgent::fetchLazyData(quint64 block, bool sync)
 {
     Q_UNUSED(sync); // FIXME: needed support for incremental searching
-    m_engine->fetchMemory(this, BinBlockSize * block, BinBlockSize);
+    if (m_engine)
+        m_engine->fetchMemory(this, BinBlockSize * block, BinBlockSize);
 }
 
 void MemoryViewAgent::addLazyData(quint64 addr, const QByteArray &ba)
 {
-    QMetaObject::invokeMethod(m_editor->widget(), "addLazyData",
-        Q_ARG(quint64, addr / BinBlockSize), Q_ARG(QByteArray, ba));
+    if (m_editor && m_editor->widget())
+        QMetaObject::invokeMethod(m_editor->widget(), "addLazyData",
+            Q_ARG(quint64, addr / BinBlockSize), Q_ARG(QByteArray, ba));
 }
 
 
@@ -205,6 +208,9 @@ void DisassemblerViewAgent::setContents(const QString &contents)
 {
     using namespace Core;
     using namespace TextEditor;
+
+    if (!d->editor)
+        return;
 
     QPlainTextEdit *plainTextEdit = 0;
     EditorManager *editorManager = EditorManager::instance();

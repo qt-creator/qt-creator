@@ -1,7 +1,10 @@
 
 TEMPLATE = app
 
+TRK_DIR=../../../src/shared/trk
+include($$TRK_DIR/trk.pri)
 DEBUGGERHOME = ../../../src/plugins/debugger/gdb
+INCLUDEPATH *= $$TRK_DIR
 INCLUDEPATH *= $$DEBUGGERHOME
 
 DEFINES += STANDALONE_RUNNER
@@ -11,13 +14,9 @@ QT += network
 win32:CONFIG+=console
 
 HEADERS += \
-    $$DEBUGGERHOME/../gdb/abstractgdbadapter.h \
-    $$DEBUGGERHOME/trkutils.h \
-    $$DEBUGGERHOME/trkclient.h \
+    $$DEBUGGERHOME/abstractgdbadapter.h \
     $$DEBUGGERHOME/trkgdbadapter.h \
 
 SOURCES += \
-    $$DEBUGGERHOME/trkutils.cpp \
-    $$DEBUGGERHOME/trkclient.cpp \
     $$DEBUGGERHOME/trkgdbadapter.cpp \
     $$PWD/runner.cpp \

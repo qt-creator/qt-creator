@@ -54,6 +54,11 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
     : QDialog(parent), m_applied(false)
 {
     setupUi(this);
+#ifdef Q_OS_MAC
+    setWindowTitle(tr("Preferences"));
+#else
+    setWindowTitle(tr("Options"));
+#endif
     QString initialCategory = categoryId;
     QString initialPage = pageId;
     if (initialCategory.isEmpty() && initialPage.isEmpty()) {
