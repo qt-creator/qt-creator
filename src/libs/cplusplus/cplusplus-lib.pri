@@ -8,12 +8,14 @@ HEADERS += \
     $$PWD/Icons.h \
     $$PWD/ExpressionUnderCursor.h \
     $$PWD/TokenUnderCursor.h \
+    $$PWD/BackwardsScanner.h \
     $$PWD/OverviewModel.h
 
 SOURCES += \
     $$PWD/Icons.cpp \
     $$PWD/ExpressionUnderCursor.cpp \
     $$PWD/TokenUnderCursor.cpp \
+    $$PWD/BackwardsScanner.cpp \
     $$PWD/OverviewModel.cpp
 }
 

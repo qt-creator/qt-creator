@@ -29,99 +29,13 @@
 
 #include "ExpressionUnderCursor.h"
 #include "SimpleLexer.h"
+#include "BackwardsScanner.h"
 #include <Token.h>
 
 #include <QTextCursor>
 #include <QTextBlock>
 
 using namespace CPlusPlus;
-
-namespace CPlusPlus {
-
-class BackwardsScanner
-{
-    enum { MAX_BLOCK_COUNT = 10 };
-
-public:
-    BackwardsScanner(const QTextCursor &cursor)
-        : _offset(0)
-        , _blocksTokenized(0)
-        , _block(cursor.block())
-    {
-        _tokenize.setSkipComments(true);
-        _text = _block.text().left(cursor.position() - cursor.block().position());
-        _tokens.append(_tokenize(_text, previousBlockState(_block)));
-    }
-
-    QList<SimpleToken> tokens() const { return _tokens; }
-
-    const SimpleToken &operator[](int i)
-    {
-        while (_offset + i < 0) {
-            _block = _block.previous();
-            if (_blocksTokenized == MAX_BLOCK_COUNT || !_block.isValid()) {
-                ++_offset;
-                _tokens.prepend(SimpleToken()); // sentinel
-                break;
-            } else {
-                ++_blocksTokenized;
-
-                QString blockText = _block.text();
-                _text.prepend(blockText);
-                QList<SimpleToken> adaptedTokens;
-                for (int i = 0; i < _tokens.size(); ++i) {
-                    const SimpleToken &t = _tokens.at(i);
-                    const int position = t.position() + blockText.length();
-                    adaptedTokens.append(SimpleToken(t.kind(),
-                                                     position,
-                                                     t.length(),
-                                                     _text.midRef(position, t.length())));
-                }
-
-                _tokens = _tokenize(blockText, previousBlockState(_block));
-                _offset += _tokens.size();
-                _tokens += adaptedTokens;
-            }
-        }
-
-        return _tokens.at(_offset + i);
-    }
-
-    int startPosition() const
-    { return _block.position(); }
-
-    const QString &text() const
-    { return _text; }
-
-    QString text(int begin, int end) const
-    {
-        const SimpleToken &firstToken = _tokens.at(begin + _offset);
-        const SimpleToken &lastToken = _tokens.at(end + _offset - 1);
-        return _text.mid(firstToken.begin(), lastToken.end() - firstToken.begin());
-    }
-
-    int previousBlockState(const QTextBlock &block)
-    {
-        const QTextBlock prevBlock = block.previous();
-        if (prevBlock.isValid()) {
-            int state = prevBlock.userState();
-
-            if (state != -1)
-                return state;
-        }
-        return 0;
-    }
-
-private:
-    QList<SimpleToken> _tokens;
-    int _offset;
-    int _blocksTokenized;
-    QTextBlock _block;
-    QString _text;
-    SimpleLexer _tokenize;
-};
-
-}
 
 ExpressionUnderCursor::ExpressionUnderCursor()
 { }
