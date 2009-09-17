@@ -154,7 +154,8 @@ static const char *stateName(int s)
 DebuggerStartParameters::DebuggerStartParameters()
   : attachPID(-1),
     useTerminal(false),
-    toolChainType(ProjectExplorer::ToolChain::UNKNOWN)
+    toolChainType(ProjectExplorer::ToolChain::UNKNOWN),
+    startMode(NoStartMode)
 {}
 
 void DebuggerStartParameters::clear()
@@ -172,6 +173,7 @@ void DebuggerStartParameters::clear()
     remoteArchitecture.clear();
     serverStartScript.clear();
     toolChainType = ProjectExplorer::ToolChain::UNKNOWN;
+    startMode = NoStartMode;
 }
 
 
@@ -209,8 +211,6 @@ void DebuggerManager::init()
 {
     m_status = -1;
     m_busy = false;
-
-    m_runControl = 0;
 
     m_modulesHandler = 0;
     m_registerHandler = 0;
@@ -809,15 +809,14 @@ static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
 #endif
 }
 
-void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl,
-    const QSharedPointer<DebuggerStartParameters> &startParameters)
+void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 {
+    m_startParameters = sp;
     if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << '\n' << *startParameters;
+        qDebug() << Q_FUNC_INFO << '\n' << *m_startParameters;
 
-    m_startParameters  = startParameters;
-    m_inferiorPid = startParameters->attachPID > 0 ? startParameters->attachPID : 0;
-    m_runControl = runControl;
+    m_inferiorPid = m_startParameters->attachPID > 0
+        ? m_startParameters->attachPID : 0;
     const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChain::ToolChainType>(m_startParameters->toolChainType));
 
     emit debugModeRequested();
@@ -1437,7 +1436,7 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
 
 DebuggerStartMode DebuggerManager::startMode() const
 {
-    return m_runControl ? m_runControl->startMode() : NoStartMode;
+    return m_startParameters->startMode;
 }
 
 void DebuggerManager::reloadFullStack()

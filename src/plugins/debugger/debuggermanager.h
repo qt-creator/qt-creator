@@ -164,8 +164,10 @@ public:
 
     QString dumperLibrary;
     QStringList dumperLibraryLocations;
+    DebuggerStartMode startMode;
 };
 
+typedef QSharedPointer<DebuggerStartParameters> DebuggerStartParametersPtr;
 QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 
 class IDebuggerEngine;
@@ -251,7 +253,7 @@ private:
 
     virtual qint64 inferiorPid() const = 0;
 
-    virtual QSharedPointer<DebuggerStartParameters> startParameters() const = 0;
+    virtual DebuggerStartParametersPtr startParameters() const = 0;
 };
 
 
@@ -274,12 +276,11 @@ public:
     QLabel *statusLabel() const { return m_statusLabel; }
     IDebuggerEngine *currentEngine() const { return m_engine; }
 
-    virtual QSharedPointer<DebuggerStartParameters> startParameters() const;
+    virtual DebuggerStartParametersPtr startParameters() const;
     virtual qint64 inferiorPid() const;
 
 public slots:
-    void startNewDebugger(DebuggerRunControl *runControl,
-        const QSharedPointer<DebuggerStartParameters> &startParameters);
+    void startNewDebugger(const DebuggerStartParametersPtr &sp);
     void exitDebugger();
 
     void setSimpleDockWidgetArrangement();
@@ -399,7 +400,6 @@ public:
     int status() const { return m_status; }
     // FIXME: hide this in the engines?
     DebuggerStartMode startMode() const;
-    DebuggerRunControl *runControl() const { return m_runControl; }
 
     QList<Symbol> moduleSymbols(const QString &moduleName);
 
@@ -432,10 +432,7 @@ private:
     void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
 
     // FIXME: Remove engine-specific state
-    QSharedPointer<DebuggerStartParameters> m_startParameters;
-    DebuggerRunControl *m_runControl;
-    QString m_dumperLib;
-    QStringList m_dumperLibLocations;
+    DebuggerStartParametersPtr m_startParameters;
     qint64 m_inferiorPid;
 
 

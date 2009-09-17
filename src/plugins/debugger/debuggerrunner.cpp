@@ -178,7 +178,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
 void DebuggerRunControl::start()
 {
     m_running = true;
-    m_manager->startNewDebugger(this, m_startParameters);
+    m_manager->startNewDebugger(m_startParameters);
 }
 
 void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data)

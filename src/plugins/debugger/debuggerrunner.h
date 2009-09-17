@@ -69,13 +69,13 @@ public:
     virtual ProjectExplorer::RunControl
             *run(RunConfigurationPtr runConfiguration,
                  const QString &mode,
-                 const QSharedPointer<DebuggerStartParameters> &sp,
+                 const DebuggerStartParametersPtr &sp,
                  DebuggerStartMode startMode);
 
     static RunConfigurationPtr createDefaultRunConfiguration(const QString &executable = QString());
 
 private:
-    QSharedPointer<DebuggerStartParameters> m_startParameters;
+    DebuggerStartParametersPtr m_startParameters;
     DebuggerManager *m_manager;
 };
 
@@ -88,7 +88,7 @@ class DebuggerRunControl
 public:
     DebuggerRunControl(DebuggerManager *manager,
                        DebuggerStartMode mode,
-                       const QSharedPointer<DebuggerStartParameters> &sp,
+                       const DebuggerStartParametersPtr &startParamters,
                        ApplicationRunConfigurationPtr runConfiguration);
 
     DebuggerStartMode startMode() const { return m_mode; }
@@ -99,6 +99,7 @@ public:
     virtual bool isRunning() const;
 
     Q_SLOT void debuggingFinished();
+    DebuggerStartParametersPtr startParameters() { return m_startParameters; }
 
 signals:
     void stopRequested();
@@ -108,7 +109,7 @@ private slots:
 
 private:
     const DebuggerStartMode m_mode;
-    const QSharedPointer<DebuggerStartParameters> m_startParameters;
+    DebuggerStartParametersPtr m_startParameters;
     DebuggerManager *m_manager;
     bool m_running;
 };
