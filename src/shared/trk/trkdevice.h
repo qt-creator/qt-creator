@@ -60,7 +60,7 @@ struct TrkDevicePrivate;
 
 enum { TRK_WRITE_QUEUE_NOOP_CODE = 0x7f };
 
-typedef Debugger::Callback<const TrkResult &> TrkCallback;
+typedef trk::Callback<const TrkResult &> TrkCallback;
 
 class TrkDevice : public QObject
 {

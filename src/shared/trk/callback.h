@@ -30,9 +30,9 @@
 #ifndef DEBUGGER_CALLBACK_H
 #define DEBUGGER_CALLBACK_H
 
-#include <QtGlobal>
+#include <QtCore/QtGlobal>
 
-namespace Debugger {
+namespace trk {
 namespace Internal {
 
 /* Helper class for the 1-argument functor:
@@ -143,6 +143,6 @@ private:
     Internal::CallbackImplBase<Argument> *m_impl;
 };
 
-} // namespace Debugger
+} // namespace trk
 
 #endif // DEBUGGER_CALLBACK_H

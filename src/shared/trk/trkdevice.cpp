@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "trkclient.h"
+#include "trkdevice.h"
 #include "trkutils.h"
 
 #include <QtCore/QString>

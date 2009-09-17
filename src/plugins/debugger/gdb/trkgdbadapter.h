@@ -31,7 +31,7 @@
 #define DEBUGGER_TRKGDBADAPTER_H
 
 #include "trkutils.h"
-#include "trkclient.h"
+#include "trkdevice.h"
 #include "abstractgdbadapter.h"
 
 #include <QtCore/QDebug>
@@ -79,8 +79,8 @@ class TrkGdbAdapter : public AbstractGdbAdapter
 
 public:
     typedef trk::TrkResult TrkResult;
-    typedef Callback<const TrkResult &> TrkCallback;
-    typedef Callback<const GdbResult &> GdbCallback;
+    typedef trk::Callback<const TrkResult &> TrkCallback;
+    typedef trk::Callback<const GdbResult &> GdbCallback;
 
     TrkGdbAdapter();
     ~TrkGdbAdapter();
