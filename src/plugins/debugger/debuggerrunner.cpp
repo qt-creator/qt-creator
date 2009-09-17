@@ -125,7 +125,6 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
        const QSharedPointer<DebuggerStartParameters> &startParameters,
        QSharedPointer<ApplicationRunConfiguration> runConfiguration)
   : RunControl(runConfiguration),
-    m_mode(mode),
     m_startParameters(startParameters),
     m_manager(manager),
     m_running(false)
@@ -147,13 +146,14 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
 
     // Enhance parameters by info from the project, but do not clobber
     // arguments given in the dialogs
+    m_startParameters->startMode = mode;
     if (m_startParameters->executable.isEmpty())
         m_startParameters->executable = runConfiguration->executable();
     if (m_startParameters->environment.empty())
         m_startParameters->environment = runConfiguration->environment().toStringList();
     if (m_startParameters->workingDir.isEmpty())
         m_startParameters->workingDir = runConfiguration->workingDirectory();
-    if (m_mode != StartExternal)
+    if (m_startParameters->startMode != StartExternal)
         m_startParameters->processArgs = runConfiguration->commandLineArguments();
     switch (m_startParameters->toolChainType) {
     case ProjectExplorer::ToolChain::UNKNOWN:

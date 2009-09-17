@@ -91,8 +91,6 @@ public:
                        const DebuggerStartParametersPtr &startParamters,
                        ApplicationRunConfigurationPtr runConfiguration);
 
-    DebuggerStartMode startMode() const { return m_mode; }
-
     // ProjectExplorer::RunControl
     virtual void start();
     virtual void stop();
@@ -108,7 +106,6 @@ private slots:
     void slotAddToOutputWindowInline(const QString &output);
 
 private:
-    const DebuggerStartMode m_mode;
     DebuggerStartParametersPtr m_startParameters;
     DebuggerManager *m_manager;
     bool m_running;
