@@ -194,6 +194,7 @@ private:
     int currentFrame() const;
 
     bool supportsThreads() const;
+    void gotoLocation(const StackFrame &frame, bool setLocationMarker);
 
     void initializeConnections();
     void initializeVariables();

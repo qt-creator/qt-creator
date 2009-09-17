@@ -985,7 +985,7 @@ void GdbEngine::handleExecJumpToLine(const GdbResultRecord &record)
         if (idx2 > 0) {
             QString file = QString::fromLocal8Bit(output.mid(idx1, idx2 - idx1));
             int line = output.mid(idx2 + 1).toInt();
-            m_manager->gotoLocation(file, line, true);
+            gotoLocation(file, line, true);
         }
     }
 }
@@ -1006,7 +1006,7 @@ void GdbEngine::handleExecRunToFunction(const GdbResultRecord &record, const QVa
     f.file = QString::fromLocal8Bit(frame.findChild("fullname").data());
     f.line = frame.findChild("line").data().toInt();
     f.address = _(frame.findChild("addr").data());
-    m_manager->gotoLocation(f, true);
+    gotoLocation(f, true);
 }
 
 static bool isExitedReason(const QByteArray &reason)
@@ -1269,7 +1269,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     f.file = QString::fromLocal8Bit(frame.findChild("fullname").data());
     f.line = frame.findChild("line").data().toInt();
     f.address = _(frame.findChild("addr").data());
-    m_manager->gotoLocation(f, true);
+    gotoLocation(f, true);
 #endif
 }
 
@@ -1324,7 +1324,7 @@ void GdbEngine::handleAsyncOutput2(const GdbMi &data)
         f.file = QString::fromLocal8Bit(fullName.data());
         f.line = frame.findChild("line").data().toInt();
         f.address = _(frame.findChild("addr").data());
-        m_manager->gotoLocation(f, true);
+        gotoLocation(f, true);
     }
 
     //
@@ -1947,11 +1947,11 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
     //  ~"run1 (argc=1, argv=0x7fffbf1f5538) at test1.cpp:242"
     //  ~"242\t x *= 2;"
     //  23^done"
-    m_manager->gotoLocation(frame, true);
+    gotoLocation(frame, true);
     //setBreakpoint();
     //postCommand(_("jump ") + fileName + ':' + QString::number(lineNumber));
 #else
-    m_manager->gotoLocation(frame,  true);
+    gotoLocation(frame,  true);
     setBreakpoint(fileName, lineNumber);
     postCommand(_("jump ") + fileName + ':' + QString::number(lineNumber));
 #endif
@@ -2595,7 +2595,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVari
 
         if (topFrame != -1 || theDebuggerBoolSetting(StepByInstruction)) {
             const StackFrame &frame = qq->stackHandler()->currentFrame();
-            m_manager->gotoLocation(frame, true);
+            gotoLocation(frame, true);
         }
     } else {
         qDebug() << "LISTING STACK FAILED: " << record.toString();
@@ -2648,7 +2648,7 @@ void GdbEngine::activateFrame(int frameIndex)
     const StackFrame &frame = stackHandler->currentFrame();
 
     if (frame.isUsable())
-        m_manager->gotoLocation(frame, true);
+        gotoLocation(frame, true);
     else
         qDebug() << "FULL NAME NOT USABLE:" << frame.file;
 }
@@ -4283,6 +4283,11 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResultRecord &record,
         GdbMi lines = record.data.findChild("asm_insns");
         ac.agent->setContents(parseDisassembler(lines));
     }
+}
+
+void GdbEngine::gotoLocation(const StackFrame &frame, bool setMarker)
+{
+    m_manager->gotoLocation(frame, setMarker);
 }
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent,
