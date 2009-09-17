@@ -829,13 +829,15 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     switch (startMode()) {
     case AttachExternal:
     case AttachCrashedExternal:
-        m_engine = determineDebuggerEngine(m_startParameters->attachPID, m_startParameters->toolChainType, &errorMessage);
+        m_engine = determineDebuggerEngine(m_startParameters->attachPID,
+            m_startParameters->toolChainType, &errorMessage);
         break;
     case AttachTcf:
         m_engine = tcfEngine;
         break;
     default:
-        m_engine = determineDebuggerEngine(m_startParameters->executable, m_startParameters->toolChainType, &errorMessage, &settingsIdHint);
+        m_engine = determineDebuggerEngine(m_startParameters->executable, 
+            m_startParameters->toolChainType, &errorMessage, &settingsIdHint);
         break;
     }
 
@@ -851,7 +853,8 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
             settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
         msgBox.exec();
         if (msgBox.clickedButton() == settingsButton)
-            Core::ICore::instance()->showOptionsDialog(_(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
+            Core::ICore::instance()->showOptionsDialog(
+                _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
         return;
     }
 
