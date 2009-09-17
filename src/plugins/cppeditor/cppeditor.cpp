@@ -1269,6 +1269,27 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
+#if 1
+QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &text) const
+{
+    if (!contextAllowsAutoParentheses(cursor))
+        return QString();
+
+    QString autoText;
+    int skippedChars = 0;
+
+    MatchingText matchingText;
+    autoText = matchingText.insertMatchingBrace(cursor, text, &skippedChars);
+
+    if (skippedChars) {
+        const int pos = cursor.position();
+        cursor.setPosition(pos + skippedChars);
+        cursor.setPosition(pos, QTextCursor::KeepAnchor);
+    }
+
+    return autoText;
+}
+#else
 QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &text) const
 {
     bool checkBlockEnd = m_allowSkippingOfBlockEnd;
@@ -1328,6 +1349,7 @@ QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &text) const
 
     return autoText;
 }
+#endif
 
 bool CPPEditor::autoBackspace(QTextCursor &cursor)
 {
@@ -1401,9 +1423,10 @@ bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor) const
 {
     CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(cursor);
-    if (tk.isComment() || tk.isLiteral())
-        if (tk.end() > cursor.position() - cursor.block().position())
-            return false;
+
+    if (tk.isComment())
+        return false;
+
     return true;
 }
 

@@ -51,7 +51,7 @@ public:
     ~ExpressionUnderCursor();
 
     QString operator()(const QTextCursor &cursor);
-    int startOfFunctionCall(const QTextCursor &cursor);
+    int startOfFunctionCall(const QTextCursor &cursor) const;
 
 private:
     int startOfExpression(BackwardsScanner &tk, int index);

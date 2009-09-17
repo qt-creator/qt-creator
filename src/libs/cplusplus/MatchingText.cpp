@@ -34,16 +34,123 @@
 
 using namespace CPlusPlus;
 
+enum { MAX_NUM_LINES = 400 };
+
+static bool maybeOverrideChar(const QChar &ch)
+{
+    if      (ch == QLatin1Char(')'))  return true;
+    else if (ch == QLatin1Char(']'))  return true;
+    else if (ch == QLatin1Char('"'))  return true;
+    else if (ch == QLatin1Char('\'')) return true;
+    else                               return false;
+}
+
+static bool isCompleteStringLiteral(const BackwardsScanner &tk, int index, int startToken)
+{
+    const QStringRef text = tk.textRef(index, startToken);
+
+    if (text.length() < 2)
+        return false;
+
+    else if (text.at(text.length() - 1) == QLatin1Char('"'))
+        return text.at(text.length() - 2) != QLatin1Char('\\'); // ### not exactly.
+
+    return false;
+}
+
+static bool isCompleteCharLiteral(const BackwardsScanner &tk, int index, int startToken)
+{
+    const QStringRef text = tk.textRef(index, startToken);
+
+    if (text.length() < 2)
+        return false;
+
+    else if (text.at(text.length() - 1) == QLatin1Char('\''))
+        return text.at(text.length() - 2) != QLatin1Char('\\'); // ### not exactly.
+
+    return false;
+}
+
 MatchingText::MatchingText()
 { }
 
+QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess, int *skippedChars) const
+{
+    *skippedChars = 0;
+
+    QTextCursor tc = cursor;
+    QString text = textToProcess;
+
+    const QString blockText = tc.block().text().mid(tc.columnNumber());
+    const int length = qMin(blockText.length(), textToProcess.length());
+
+    for (int i = 0; i < length; ++i) {
+        const QChar ch1 = blockText.at(i);
+        const QChar ch2 = textToProcess.at(i);
+
+        if (ch1 != ch2)
+            break;
+        else if (! maybeOverrideChar(ch1))
+            break;
+
+        ++*skippedChars;
+    }
+
+    if (*skippedChars != 0) {
+        tc.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, *skippedChars);
+        text = textToProcess.mid(*skippedChars);
+    }
+
+    if (text.isEmpty())
+        return QString();
+
+    BackwardsScanner tk(tc, textToProcess.left(*skippedChars), MAX_NUM_LINES);
+    const int startToken = tk.startToken();
+    int index = startToken;
+
+    const SimpleToken &token = tk[index - 1];
+
+    if (text.at(0) == QLatin1Char('"') && (token.is(T_STRING_LITERAL) || token.is(T_WIDE_STRING_LITERAL))) {
+        if (text.length() != 1)
+            qWarning() << Q_FUNC_INFO << "handle event compression";
+
+        if (isCompleteStringLiteral(tk, index - 1, startToken))
+            return QLatin1String("\"");
+
+        return QString();
+    } else if (text.at(0) == QLatin1Char('\'') && (token.is(T_CHAR_LITERAL) || token.is(T_WIDE_CHAR_LITERAL))) {
+        if (text.length() != 1)
+            qWarning() << Q_FUNC_INFO << "handle event compression";
+
+        if (isCompleteCharLiteral(tk, index - 1, startToken))
+            return QLatin1String("'");
+
+        return QString();
+    }
+
+    QString result;
+
+    foreach (const QChar &ch, text) {
+        if      (ch == QLatin1Char('('))  result += ')';
+        else if (ch == QLatin1Char('['))  result += ']';
+        else if (ch == QLatin1Char('"'))  result += '"';
+        else if (ch == QLatin1Char('\'')) result += '\'';
+    }
+
+    return result;
+}
+
 QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
 {
-    BackwardsScanner tk(tc, 400);
+    BackwardsScanner tk(tc, QString(), MAX_NUM_LINES);
     int index = tk.startToken();
 
     if (tk[index - 1].isNot(T_LBRACE))
         return QString(); // nothing to do.
+
+    const QString textBlock = tc.block().text().mid(tc.columnNumber()).trimmed();
+    if (! textBlock.isEmpty())
+        return QString();
 
     --index; // consume the `{'
 

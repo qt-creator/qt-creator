@@ -153,10 +153,8 @@ QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
     return scanner.text(i, initialSize);
 }
 
-int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor)
+int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor) const
 {
-    QString text;
-
     BackwardsScanner scanner(cursor);
 
     int index = scanner.startToken();

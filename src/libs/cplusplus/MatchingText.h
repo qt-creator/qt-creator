@@ -41,6 +41,7 @@ class CPLUSPLUS_EXPORT MatchingText
 public:
     MatchingText();
 
+    QString insertMatchingBrace(const QTextCursor &tc, const QString &text, int *skippedChars) const;
     QString insertParagraphSeparator(const QTextCursor &tc) const;
 };
 

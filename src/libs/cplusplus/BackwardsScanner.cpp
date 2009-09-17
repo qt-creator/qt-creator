@@ -32,7 +32,7 @@
 
 using namespace CPlusPlus;
 
-BackwardsScanner::BackwardsScanner(const QTextCursor &cursor, int maxBlockCount)
+BackwardsScanner::BackwardsScanner(const QTextCursor &cursor, const QString &suffix, int maxBlockCount)
     : _offset(0)
     , _blocksTokenized(0)
     , _block(cursor.block())
@@ -40,6 +40,10 @@ BackwardsScanner::BackwardsScanner(const QTextCursor &cursor, int maxBlockCount)
 {
     _tokenize.setSkipComments(true);
     _text = _block.text().left(cursor.position() - cursor.block().position());
+
+    if (! suffix.isEmpty())
+        _text += suffix;
+
     _tokens.append(_tokenize(_text, previousBlockState(_block)));
 }
 

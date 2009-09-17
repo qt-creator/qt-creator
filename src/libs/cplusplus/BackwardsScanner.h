@@ -41,7 +41,9 @@ class CPLUSPLUS_EXPORT BackwardsScanner
     enum { MAX_BLOCK_COUNT = 10 };
 
 public:
-    BackwardsScanner(const QTextCursor &cursor, int maxBlockCount = MAX_BLOCK_COUNT);
+    BackwardsScanner(const QTextCursor &cursor,
+                     const QString &suffix = QString(),
+                     int maxBlockCount = MAX_BLOCK_COUNT);
 
     int state() const;
     int startToken() const;
