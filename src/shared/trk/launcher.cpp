@@ -40,8 +40,6 @@
 
 namespace trk {
 
-typedef TrkWriteQueueDevice::TrkCallback TrkCallback;
-
 struct LauncherPrivate {
     struct CopyState {
         QString sourceFileName;
@@ -52,7 +50,7 @@ struct LauncherPrivate {
     };
 
     LauncherPrivate();
-    TrkWriteQueueDevice m_device;
+    TrkDevice m_device;
     QString m_trkServerName;
     QByteArray m_trkReadBuffer;
 
