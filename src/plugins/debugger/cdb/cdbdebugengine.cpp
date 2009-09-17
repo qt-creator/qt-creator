@@ -571,7 +571,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     }
     m_d->clearDisplay();
 
-    const DebuggerStartMode mode = m_d->m_debuggerManager->startMode();
+    const DebuggerStartMode mode = sp->startMode;
     // Figure out dumper. @TODO: same in gdb...
     const QString dumperLibName = QDir::toNativeSeparators(m_d->m_debuggerManagerAccess->qtDumperLibraryName());
     bool dumperEnabled = mode != AttachCore
