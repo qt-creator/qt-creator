@@ -4,7 +4,7 @@ include(../../qtcreatorplugin.pri)
 include(duieditor_dependencies.pri)
 include(parser/parser.pri)
 include(rewriter/rewriter.pri)
-DEFINES += DUIEDITOR_LIBRARY
+DEFINES += DUIEDITOR_LIBRARY QT_CREATOR
 INCLUDEPATH += parser \
     rewriter
 HEADERS += duieditor.h \

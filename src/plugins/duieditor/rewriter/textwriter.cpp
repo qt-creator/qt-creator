@@ -41,7 +41,7 @@
 
 #include "textwriter_p.h"
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 using namespace QmlJS;
 
@@ -214,4 +214,4 @@ void TextWriter::write_helper()
         cursor->endEditBlock();
 }
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE

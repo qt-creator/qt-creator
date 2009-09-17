@@ -42,7 +42,7 @@
 #include "rewriter_p.h"
 #include "qmljsast_p.h"
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 using namespace QmlJS;
 
@@ -93,4 +93,4 @@ void Rewriter::moveTextAfter(const AST::SourceLocation &firstLoc,
     textWriter.move(firstLoc.offset, lastLoc.offset + lastLoc.length - firstLoc.offset, loc.offset + loc.length);
 }
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE

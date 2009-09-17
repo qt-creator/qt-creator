@@ -49,7 +49,7 @@
 #include "qmljsastvisitor_p.h"
 
 QT_BEGIN_HEADER
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 
@@ -145,7 +145,7 @@ private:
 
 } // end of namespace QmlJS
 
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE
 QT_END_HEADER
 
 #endif // REWRITER_H
