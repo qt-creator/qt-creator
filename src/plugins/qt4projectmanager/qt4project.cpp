@@ -431,6 +431,8 @@ QString Qt4Project::defaultMakeTarget(const QString &buildConfiguration) const
     } else if (tc->type() == ToolChain::RVCT_ARMV6) {
         return (buildConfig & QtVersion::DebugBuild ? "debug-" : "release-") + QLatin1String("armv6");
     }
+#else
+    Q_UNUSED(buildConfiguration);
 #endif
     return QString::null;
 }
