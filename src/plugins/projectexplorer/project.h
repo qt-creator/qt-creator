@@ -147,11 +147,22 @@ public:
 
 signals:
     void fileListChanged();
+
+// TODO clean up signal names
+// might be better to also have
+// a aboutToRemoveRunConfiguration
+// and a removedBuildConfiguration
+// a runconfiguration display name changed is missing
     void activeBuildConfigurationChanged();
     void activeRunConfigurationChanged();
     void runConfigurationsEnabledStateChanged();
-    void removedRunConfiguration(const QString &name);
-    void addedRunConfiguration(const QString &name);
+
+    void removedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
+    void addedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
+
+    void removedBuildConfiguration(ProjectExplorer::Project *p, const QString &name);
+    void addedBuildConfiguration(ProjectExplorer::Project *p, const QString &name);
+
     // This signal is jut there for updating the tree list in the buildsettings wizard
     void buildConfigurationDisplayNameChanged(const QString &buildConfiguration);
     void environmentChanged(const QString &buildConfiguration);

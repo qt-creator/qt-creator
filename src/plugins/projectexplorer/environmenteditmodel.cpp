@@ -29,6 +29,8 @@
 
 #include "environmenteditmodel.h"
 
+#include <utils/detailsbutton.h>
+
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QToolButton>
@@ -438,15 +440,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     m_summaryText = new QLabel(this);
     m_summaryText->setText("");
 
-     QAbstractButton *detailsButton;
-#ifdef Q_OS_MAC
-    detailsButton = new QPushButton(this);
-    detailsButton->setAttribute(Qt::WA_MacSmallSize);
-    detailsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-#else
-    detailsButton = new QToolButton(this);
-#endif
-    detailsButton->setText(tr("Details"));
+    QAbstractButton *detailsButton = new Utils::DetailsButton(this);
 
     connect(detailsButton, SIGNAL(clicked()),
             this, SLOT(toggleDetails()));

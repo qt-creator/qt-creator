@@ -35,6 +35,7 @@
 #include <projectexplorer/environment.h>
 #include <projectexplorer/debugginghelper.h>
 #include <utils/qtcassert.h>
+#include <utils/detailsbutton.h>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QGroupBox>
@@ -260,9 +261,21 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     fl->addRow(tr("Working Directory:"), boxlayout);
 
+    m_detailsWidget = new QWidget(this);
+    m_detailsWidget->setLayout(fl);
+    m_detailsWidget->setVisible(false);
+
+    m_summaryLabel = new QLabel(this);
+    m_detailsButton = new Utils::DetailsButton(this);
+
+    QHBoxLayout *hbox = new QHBoxLayout();
+    hbox->addWidget(m_summaryLabel);
+    hbox->addWidget(m_detailsButton);
+
     QVBoxLayout *vbx = new QVBoxLayout(this);
     vbx->setContentsMargins(0, -1, 0, -1);
-    vbx->addLayout(fl);
+    vbx->addLayout(hbox);
+    vbx->addWidget(m_detailsWidget);
 
     QLabel *environmentLabel = new QLabel(this);
     environmentLabel->setText(tr("Run Environment"));
@@ -288,17 +301,22 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
     baseEnvironmentLayout->addStretch(10);
 
+    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
+    m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
+    m_environmentWidget->setUserChanges(m_cmakeRunConfiguration->userEnvironmentChanges());
+
+    vbx->addWidget(m_environmentWidget);
+
+    updateSummary();
+
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
 
     connect(resetButton, SIGNAL(clicked()),
             this, SLOT(resetWorkingDirectory()));
 
-    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
-    m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
-    m_environmentWidget->setUserChanges(m_cmakeRunConfiguration->userEnvironmentChanges());
-
-    vbx->addWidget(m_environmentWidget);
+    connect(m_detailsButton, SIGNAL(clicked()),
+            this, SLOT(toggleDetails()));
 
     connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(userChangesUpdated()));
@@ -310,6 +328,11 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(m_cmakeRunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
             this, SLOT(userEnvironmentChangesChanged()));
 
+}
+
+void CMakeRunConfigurationWidget::toggleDetails()
+{
+    m_detailsWidget->setVisible(!m_detailsWidget->isVisible());
 }
 
 void CMakeRunConfigurationWidget::setWorkingDirectory()
@@ -365,6 +388,15 @@ void CMakeRunConfigurationWidget::userEnvironmentChangesChanged()
 void CMakeRunConfigurationWidget::setArguments(const QString &args)
 {
     m_cmakeRunConfiguration->setArguments(args);
+    updateSummary();
+}
+
+void CMakeRunConfigurationWidget::updateSummary()
+{
+    QString text = tr("Running executable: <b>%1</b> %2")
+                   .arg(QFileInfo(m_cmakeRunConfiguration->executable()).fileName(),
+                        ProjectExplorer::Environment::joinArgumentList(m_cmakeRunConfiguration->commandLineArguments()));
+    m_summaryLabel->setText(text);
 }
 
 

@@ -115,13 +115,17 @@ private slots:
 private slots:
     void baseEnvironmentComboBoxChanged(int index);
     void workingDirectoryChanged(const QString &workingDirectory);
+    void toggleDetails();
 private:
+    void updateSummary();
     bool m_ignoreChange;
     CMakeRunConfiguration *m_cmakeRunConfiguration;
     Core::Utils::PathChooser *m_workingDirectoryEdit;
     QComboBox *m_baseEnvironmentComboBox;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
-
+    QWidget *m_detailsWidget;
+    QLabel *m_summaryLabel;
+    QAbstractButton *m_detailsButton;
 };
 
 class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

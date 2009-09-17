@@ -44,7 +44,7 @@ class IBuildStepFactory;
 
 namespace Internal {
 
-class BuildSettingsSubWidgets : public QGroupBox
+class BuildSettingsSubWidgets : public QWidget
 {
     Q_OBJECT
 public:
@@ -99,9 +99,7 @@ private slots:
     void cloneConfiguration();
     void deleteConfiguration();
 
-
 private:
-    void setActiveConfiguration(const QString &configuration);
     void cloneConfiguration(const QString &toClone);
     void deleteConfiguration(const QString &toDelete);
 
@@ -110,6 +108,7 @@ private:
     QPushButton *m_removeButton;
     QComboBox *m_buildConfigurationComboBox;
     BuildSettingsSubWidgets *m_subWidgets;
+    QString m_buildConfiguration;
 };
 
 } // namespace Internal

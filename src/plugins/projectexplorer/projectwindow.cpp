@@ -35,6 +35,7 @@
 #include "iprojectproperties.h"
 #include "session.h"
 #include "projecttreewidget.h"
+#include "runconfiguration.h"
 
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/fileiconprovider.h>
@@ -51,6 +52,9 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
+#include <QtGui/QPainter>
+#include <QtGui/QPaintEvent>
+#include <utils/stylehelper.h>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -87,6 +91,17 @@ PanelsWidget::~PanelsWidget()
     clear();
 }
 
+void PanelsWidget::addWidget(QWidget *widget)
+{
+    Panel p;
+    p.nameLabel = 0;
+    p.panelWidget = widget;
+
+    p.marginLayout = 0;
+    m_layout->insertWidget(m_layout->count() -1, widget);
+    m_panels.append(p);
+}
+
 void PanelsWidget::addWidget(const QString &name, QWidget *widget)
 {
     Panel p;
@@ -96,15 +111,15 @@ void PanelsWidget::addWidget(const QString &name, QWidget *widget)
     f.setBold(true);
     f.setPointSizeF(f.pointSizeF() * 1.4);
     p.nameLabel->setFont(f);
+
     p.panelWidget = widget;
 
-    m_layout->insertWidget(m_layout->count() -1, p.nameLabel);
+    m_layout->insertWidget(m_layout->count() - 1, p.nameLabel);
     QHBoxLayout *hboxLayout = new QHBoxLayout();
     hboxLayout->setContentsMargins(20, 0, 0, 0);
     hboxLayout->addWidget(p.panelWidget);
     p.marginLayout = hboxLayout;
     m_layout->insertLayout(m_layout->count() -1, hboxLayout);
-
     m_panels.append(p);
 }
 
@@ -118,66 +133,437 @@ void PanelsWidget::clear()
     m_panels.clear();
 }
 
-///
-// ProjectView
-///
-
-ProjectView::ProjectView(QWidget *parent)
-    : QTreeWidget(parent)
+void PanelsWidget::removeWidget(QWidget *widget)
 {
-    m_sizeHint = QSize(250, 250);
-    setUniformRowHeights(true);
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
-    QAbstractItemModel *m = model();
-    connect(m, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(updateSizeHint()));
-    connect(m, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-            this, SLOT(updateSizeHint()));
-    connect(m, SIGNAL(modelReset()),
-            this, SLOT(updateSizeHint()));
-    connect(m, SIGNAL(layoutChanged()),
-            this, SLOT(updateSizeHint()));
-    updateSizeHint();
+    for(int i=0; i<m_panels.count(); ++i) {
+        const Panel & p = m_panels.at(i);
+        if (p.panelWidget == widget) {
+            if (p.marginLayout)
+                p.marginLayout->removeWidget(p.panelWidget);
+            else
+                m_layout->removeWidget(p.panelWidget);
+            delete p.nameLabel;
+            delete p.marginLayout;
+            m_panels.removeAt(i);
+            break;
+        }
+    }
 }
 
-ProjectView::~ProjectView()
+////
+// ActiveConfigurationWidget
+////
+
+ActiveConfigurationWidget::ActiveConfigurationWidget(QWidget *parent)
+    : QWidget(parent)
+{
+    QGridLayout *grid = new QGridLayout(this);
+    RunConfigurationComboBox *runConfigurationComboBox = new RunConfigurationComboBox(this);
+    grid->addWidget(new QLabel(tr("Active Runconfiguration")), 0, 0);
+    grid->addWidget(runConfigurationComboBox, 0, 1);
+
+    SessionManager *session = ProjectExplorerPlugin::instance()->session();
+
+    int i = 0;
+    foreach(Project *p, session->projects()) {
+        ++i;
+        BuildConfigurationComboBox *buildConfigurationComboBox = new BuildConfigurationComboBox(p, this);
+        QLabel *label = new QLabel(p->name(), this);
+        grid->addWidget(label, i, 0);
+        grid->addWidget(buildConfigurationComboBox, i, 1);
+        m_buildComboBoxMap.insert(p, qMakePair(buildConfigurationComboBox, label));
+    }
+
+    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(projectAdded(ProjectExplorer::Project*)));
+
+    connect(session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(projectRemoved(ProjectExplorer::Project*)));
+
+};
+
+void ActiveConfigurationWidget::projectAdded(Project *p)
+{
+    QGridLayout *grid = static_cast<QGridLayout *>(layout());
+    BuildConfigurationComboBox *buildConfigurationComboBox = new BuildConfigurationComboBox(p, this);
+    QLabel *label = new QLabel(p->name());
+    grid->addWidget(label);
+    grid->addWidget(buildConfigurationComboBox);
+    m_buildComboBoxMap.insert(p, qMakePair(buildConfigurationComboBox, label));
+}
+
+void ActiveConfigurationWidget::projectRemoved(Project *p)
+{
+    // Find row
+
+    // TODO also remove the label...
+    QPair<BuildConfigurationComboBox *, QLabel *> pair = m_buildComboBoxMap.value(p);;
+    delete pair.first;
+    delete pair.second;
+    m_buildComboBoxMap.remove(p);
+}
+
+
+ActiveConfigurationWidget::~ActiveConfigurationWidget()
 {
 
 }
 
-QSize ProjectView::sizeHint() const
+////
+// RunConfigurationComboBox
+////
+
+RunConfigurationComboBox::RunConfigurationComboBox(QWidget *parent)
+    : QComboBox(parent), m_ignoreChange(false)
 {
-    return m_sizeHint;
+    setSizeAdjustPolicy(QComboBox::AdjustToContents);
+
+    SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+
+    // Setup the treewidget
+    rebuildTree();
+
+    // Connect
+    foreach(Project *p, session->projects()) {
+        foreach(const QSharedPointer<RunConfiguration> &rc, p->runConfigurations()) {
+            connect(rc.data(), SIGNAL(nameChanged()), this, SLOT(rebuildTree()));
+        }
+        connectToProject(p);
+    }
+
+
+    connect(session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(activeRunConfigurationChanged()));
+
+    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(projectAdded(ProjectExplorer::Project*)));
+    connect(session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(projectRemoved(ProjectExplorer::Project*)));
+    connect(this, SIGNAL(activated(int)),
+            this, SLOT(activeItemChanged(int)));
 }
 
-void ProjectView::updateSizeHint()
+RunConfigurationComboBox::~RunConfigurationComboBox()
 {
-    if (!model()) {
-        m_sizeHint = QSize(250, 250);
+
+}
+
+int RunConfigurationComboBox::convertTreeIndexToInt(int project, int runconfigurationIndex)
+{
+    ++runconfigurationIndex;
+    ++project;
+    for(int i=0; i<count(); ++i) {
+        if (itemData(i, Qt::UserRole).toInt() == 0) {
+            --project;
+        } else if (itemData(i, Qt::UserRole).toInt() == 1 && project == 0) {
+            --runconfigurationIndex;
+        }
+        if (runconfigurationIndex == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+QPair<int, int> RunConfigurationComboBox::convertIntToTreeIndex(int index)
+{
+    int projectIndex = -1;
+    int runConfigIndex = -1;
+    for(int i = 0; i <= index; ++i) {
+        if (itemData(i, Qt::UserRole).toInt() == 0) {
+            ++projectIndex;
+            runConfigIndex = -1;
+        } else if (itemData(i, Qt::UserRole).toInt() == 1) {
+            ++runConfigIndex;
+        }
+    }
+    return qMakePair(projectIndex, runConfigIndex);
+}
+
+void RunConfigurationComboBox::activeItemChanged(int index)
+{
+    if (m_ignoreChange)
         return;
+    m_ignoreChange = true;
+    SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    QPair<int, int> pair = convertIntToTreeIndex(index);
+    qDebug()<<"Active Item changed to "<<index<<"which is :"<<pair.first<<pair.second;
+    if (pair.first == -1) {
+        setCurrentIndex(-1);
+    } else {
+        if (pair.second == -1)
+            pair.second = 0;
+        QList<Project *> projects = session->projects();
+        if (pair.first < projects.count()) {
+            Project *p = projects.at(pair.first);
+            QList<QSharedPointer<RunConfiguration> > runconfigurations = p->runConfigurations();
+            if (pair.second < runconfigurations.count()) {
+                session->setStartupProject(p);
+                p->setActiveRunConfiguration(runconfigurations.at(pair.second));
+                if (currentIndex() != convertTreeIndexToInt(pair.first, pair.second))
+                    setCurrentIndex(convertTreeIndexToInt(pair.first, pair.second));
+            }
+        }
+    }
+    m_ignoreChange = false;
+}
+
+void RunConfigurationComboBox::activeRunConfigurationChanged()
+{
+    if (m_ignoreChange)
+        return;
+    m_ignoreChange = true;
+    SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    Project *startupProject = session->startupProject();
+    if (startupProject) {
+        int projectIndex = session->projects().indexOf(startupProject);
+        int runConfigurationIndex = startupProject->runConfigurations().indexOf(startupProject->activeRunConfiguration());        
+        setCurrentIndex(convertTreeIndexToInt(projectIndex, runConfigurationIndex));
+    } else {
+        setCurrentIndex(-1);
+    }
+    m_ignoreChange = false;
+}
+
+void RunConfigurationComboBox::addedRunConfiguration(ProjectExplorer::Project *p, const QString &name)
+{
+    QSharedPointer<RunConfiguration> runConfiguration = QSharedPointer<RunConfiguration>(0);
+    foreach(QSharedPointer<RunConfiguration> rc, p->runConfigurations()) {
+        if (rc->name() == name) {
+            runConfiguration = rc;
+            break;
+        }
+    }
+    if (runConfiguration) {
+        connect(runConfiguration.data(), SIGNAL(nameChanged()),
+                this, SLOT(rebuildTree()));
+    }
+    rebuildTree();
+}
+
+void RunConfigurationComboBox::removedRunConfiguration(ProjectExplorer::Project *p, const QString &name)
+{
+    QSharedPointer<RunConfiguration> runConfiguration = QSharedPointer<RunConfiguration>(0);
+    foreach(QSharedPointer<RunConfiguration> rc, p->runConfigurations()) {
+        if (rc->name() == name) {
+            runConfiguration = rc;
+            break;
+        }
+    }
+    if (runConfiguration) {
+        disconnect(runConfiguration.data(), SIGNAL(nameChanged()),
+                this, SLOT(rebuildTree()));
     }
 
-    int heightOffset = size().height() - viewport()->height();
-    int heightPerRow = sizeHintForRow(0);
-    if (heightPerRow == -1) {
-        heightPerRow = 30;
+    rebuildTree();
+}
+
+void RunConfigurationComboBox::projectAdded(ProjectExplorer::Project *p)
+{
+    rebuildTree();
+    foreach(const QSharedPointer<RunConfiguration> &rc, p->runConfigurations())
+        connect(rc.data(), SIGNAL(nameChanged()), this, SLOT(rebuildTree()));
+    connectToProject(p);
+}
+
+void RunConfigurationComboBox::projectRemoved(ProjectExplorer::Project *p)
+{
+    rebuildTree();
+    disconnectFromProject(p);
+}
+
+void RunConfigurationComboBox::connectToProject(ProjectExplorer::Project *p)
+{
+    connect(p, SIGNAL(activeRunConfigurationChanged()),
+            this, SLOT(activeRunConfigurationChanged()));
+    connect(p, SIGNAL(addedRunConfiguration(ProjectExplorer::Project *, QString)),
+            this, SLOT(addedRunConfiguration(ProjectExplorer::Project *, QString)));
+    connect(p, SIGNAL(removedRunConfiguration(ProjectExplorer::Project *, QString)),
+            this, SLOT(removedRunConfiguration(ProjectExplorer::Project *, QString)));
+}
+
+void RunConfigurationComboBox::disconnectFromProject(ProjectExplorer::Project *p)
+{
+    disconnect(p, SIGNAL(activeRunConfigurationChanged()),
+            this, SLOT(activeRunConfigurationChanged()));
+    disconnect(p, SIGNAL(addedRunConfiguration(ProjectExplorer::Project *, QString)),
+            this, SLOT(addedRunConfiguration(ProjectExplorer::Project *, QString)));
+    disconnect(p, SIGNAL(removedRunConfiguration(ProjectExplorer::Project *, QString)),
+            this, SLOT(removedRunConfiguration(ProjectExplorer::Project *, QString)));
+}
+
+void RunConfigurationComboBox::rebuildTree()
+{
+    m_ignoreChange = true;
+    clear();
+    
+    SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    Project *startupProject = session->startupProject();
+    foreach(Project *p, session->projects()) {
+        addItem(p->name(), QVariant(0));
+        foreach(QSharedPointer<RunConfiguration> rc, p->runConfigurations()) {
+            addItem("  " + rc->name(), QVariant(1));
+            if ((startupProject == p) && (p->activeRunConfiguration() == rc)){
+                setCurrentIndex(count() - 1);
+            }
+        }
     }
-    int rows = qMin(qMax(model()->rowCount(), 2), 6);
-    int height = rows * heightPerRow + heightOffset;
-    if (m_sizeHint.height() != height) {
-        m_sizeHint.setHeight(height);
-        updateGeometry();
+    // Select the right index
+    m_ignoreChange = false;
+}
+
+////
+// BuildConfigurationComboBox
+////
+
+BuildConfigurationComboBox::BuildConfigurationComboBox(Project *p, QWidget *parent)
+    : QComboBox(parent), ignoreIndexChange(false), m_project(p)
+{
+    setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    foreach(const QString &buildConfiguration, p->buildConfigurations())
+        addItem(p->displayNameFor(buildConfiguration), buildConfiguration);
+
+    int index = p->buildConfigurations().indexOf(p->activeBuildConfiguration());
+    if (index != -1)
+        setCurrentIndex(index);
+
+    connect(p, SIGNAL(buildConfigurationDisplayNameChanged(QString)),
+            this, SLOT(nameChanged(QString)));
+    connect(p, SIGNAL(activeBuildConfigurationChanged()),
+            this, SLOT(activeConfigurationChanged()));
+    connect(p, SIGNAL(addedBuildConfiguration(ProjectExplorer::Project *, QString)),
+            this, SLOT(addedBuildConfiguration(ProjectExplorer::Project *, QString)));
+    connect(p, SIGNAL(removedBuildConfiguration(ProjectExplorer::Project *, QString)),
+            this, SLOT(removedBuildConfiguration(ProjectExplorer::Project *, QString)));
+    connect(this, SIGNAL(activated(int)),
+            this, SLOT(changedIndex(int)));
+}
+
+BuildConfigurationComboBox::~BuildConfigurationComboBox()
+{
+
+}
+
+void BuildConfigurationComboBox::nameChanged(const QString &buildConfiguration)
+{
+    int index = nameToIndex(buildConfiguration);
+    if (index == -1)
+        return;
+    setItemText(index, m_project->displayNameFor(buildConfiguration));
+}
+
+int BuildConfigurationComboBox::nameToIndex(const QString &buildConfiguration)
+{
+    for (int i=0; i < count(); ++i)
+        if (itemData(i) == buildConfiguration)
+            return i;
+    return -1;
+}
+
+void BuildConfigurationComboBox::activeConfigurationChanged()
+{
+    int index = nameToIndex(m_project->activeBuildConfiguration());
+    if (index == -1)
+        return;
+    ignoreIndexChange = true;
+    setCurrentIndex(index);
+    ignoreIndexChange = false;
+}
+
+void BuildConfigurationComboBox::addedBuildConfiguration(ProjectExplorer::Project *,const QString &buildConfiguration)
+{
+    ignoreIndexChange = true;
+    addItem(m_project->displayNameFor(buildConfiguration), buildConfiguration);
+    ignoreIndexChange = false;
+}
+
+void BuildConfigurationComboBox::removedBuildConfiguration(ProjectExplorer::Project *, const QString &buildConfiguration)
+{
+    ignoreIndexChange = true;
+    int index = nameToIndex(buildConfiguration);
+    removeItem(index);
+    ignoreIndexChange = false;
+}
+
+void BuildConfigurationComboBox::changedIndex(int newIndex)
+{
+    if (newIndex == -1)
+        return;
+    m_project->setActiveBuildConfiguration(itemData(newIndex).toString());
+}
+///
+// ProjectComboBox
+///
+
+ProjectComboBox::ProjectComboBox(QWidget *parent)
+    : QComboBox(parent), m_lastProject(0)
+{
+    setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    SessionManager *session = ProjectExplorerPlugin::instance()->session();
+
+    foreach(Project *p, session->projects()) {
+        addItem(p->name(), QVariant::fromValue((void *) p));
+    }
+
+    connect(session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(projectRemoved(ProjectExplorer::Project*)));
+    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(projectAdded(ProjectExplorer::Project*)));
+
+    connect(this, SIGNAL(activated(int)),
+            SLOT(itemActivated(int)));
+}
+
+ProjectComboBox::~ProjectComboBox()
+{
+
+}
+
+void ProjectComboBox::projectAdded(ProjectExplorer::Project *p)
+{
+    addItem(p->name(), QVariant::fromValue((void *) p));
+    // Comboboxes don't emit a signal
+    if (count() == 1)
+        itemActivated(0);
+}
+
+void ProjectComboBox::projectRemoved(ProjectExplorer::Project *p)
+{
+    QList<Project *> projects = ProjectExplorerPlugin::instance()->session()->projects();
+    for (int i= 0; i<projects.count(); ++i)
+        if (itemData(i, Qt::UserRole).value<void *>() == (void *) p) {
+            removeItem(i);
+            break;
+    }
+
+    qDebug()<<"aboutToRemoveProject current index is"<<currentIndex();
+
+    // Comboboxes don't emit a signal if the index did't actually change
+    if (count() == 0) {
+        itemActivated(-1);
+    } else {
+        setCurrentIndex(0);
+        itemActivated(0);
+    }
+}
+
+void ProjectComboBox::itemActivated(int index)
+{
+    qDebug()<<"itemActivated"<<index;
+    Project *p = 0;
+    QList<Project *> projects = ProjectExplorerPlugin::instance()->session()->projects();
+    if (index != -1 && index < projects.size())
+        p = projects.at(index);
+
+    if (p != m_lastProject) {
+        m_lastProject = p;
+        emit projectChanged(p);
     }
 }
 
 ///
 // OnePixelBlackLine
 ///
-
-#include <QtGui/QPainter>
-#include <QtGui/QPaintEvent>
-#include <utils/stylehelper.h>
 
 class OnePixelBlackLine : public QWidget
 {
@@ -196,7 +582,6 @@ public:
     }
 };
 
-
 ///
 // ProjectWindow
 ///
@@ -204,46 +589,45 @@ public:
 ProjectWindow::ProjectWindow(QWidget *parent)
     : QWidget(parent), m_currentItemChanged(false)
 {
-    setWindowTitle(tr("Project Explorer"));
-    setWindowIcon(QIcon(":/projectexplorer/images/projectexplorer.png"));
-
     m_projectExplorer = ProjectExplorerPlugin::instance();
     m_session = m_projectExplorer->session();
 
-    m_treeWidget = new ProjectView(this);
-    m_treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_treeWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_treeWidget->setFrameStyle(QFrame::NoFrame);
-    m_treeWidget->setRootIsDecorated(false);
-    m_treeWidget->header()->setResizeMode(QHeaderView::ResizeToContents);
-    m_treeWidget->setHeaderLabels(QStringList()
-                                  << tr("Projects")
-                                  << tr("Startup")
-                                  << tr("Path")
-        );
-
-    connect(m_treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
-            this, SLOT(handleItem(QTreeWidgetItem*, int)));
-    connect(m_treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem *)),
-            this, SLOT(handleCurrentItemChanged(QTreeWidgetItem*)));
-
     m_panelsWidget = new PanelsWidget(this);
+
+    m_activeConfigurationWidget = new ActiveConfigurationWidget(m_panelsWidget);
+
+    m_projectChooser = new QWidget(m_panelsWidget);
+    QHBoxLayout *hbox = new QHBoxLayout(m_projectChooser);
+    hbox->setMargin(0);
+    hbox->addWidget(new QLabel(tr("Edit Configuration for Project:"), m_projectChooser));
+    ProjectComboBox *projectComboBox = new ProjectComboBox(m_projectChooser);
+    hbox->addWidget(projectComboBox);
+
+    m_panelsWidget->addWidget(tr("Active Configuration"), m_activeConfigurationWidget);
+
+    m_spacerBetween = new QWidget(this);
+    QVBoxLayout *vbox = new QVBoxLayout(m_spacerBetween);
+    m_spacerBetween->setLayout(vbox);
+    vbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
+    vbox->addWidget(new OnePixelBlackLine(m_spacerBetween));
+    vbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
+
+    m_panelsWidget->addWidget(m_spacerBetween);
+
+    m_panelsWidget->addWidget(tr("Edit Configuration"), m_projectChooser);
 
     QVBoxLayout *topLevelLayout = new QVBoxLayout(this);
     topLevelLayout->setMargin(0);
     topLevelLayout->setSpacing(0);
     topLevelLayout->addWidget(new Core::Utils::StyledBar(this));
-    topLevelLayout->addWidget(m_treeWidget);
-    topLevelLayout->addWidget(new OnePixelBlackLine(this));
+
     topLevelLayout->addWidget(m_panelsWidget);
+
+    connect(projectComboBox, SIGNAL(projectChanged(ProjectExplorer::Project*)),
+            this, SLOT(showProperties(ProjectExplorer::Project*)));
 
     connect(m_session, SIGNAL(sessionLoaded()), this, SLOT(restoreStatus()));
     connect(m_session, SIGNAL(aboutToSaveSession()), this, SLOT(saveStatus()));
-
-    connect(m_session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetStatupProjectChanged(ProjectExplorer::Project*)));
-    connect(m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetProjectAdded(ProjectExplorer::Project*)));
-    connect(m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetProjectRemoved(ProjectExplorer::Project*)));
-    connect(m_session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetAboutToRemoveProject(ProjectExplorer::Project*)));
 }
 
 ProjectWindow::~ProjectWindow()
@@ -252,35 +636,29 @@ ProjectWindow::~ProjectWindow()
 
 void ProjectWindow::restoreStatus()
 {
-    if (!m_treeWidget->currentItem() && m_treeWidget->topLevelItemCount()) {
-        m_treeWidget->setCurrentItem(m_treeWidget->topLevelItem(0), 0, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
-    }
-
     // TODO
-//    const QVariant lastPanel = m_session->value(QLatin1String("ProjectWindow/Panel"));
-//    if (lastPanel.isValid()) {
-//        const int index = lastPanel.toInt();
-//        if (index < m_panelsTabWidget->count())
-//            m_panelsTabWidget->setCurrentIndex(index);
-//    }
-//
-//    if ((m_panelsTabWidget->currentIndex() == -1) && m_panelsTabWidget->count())
-//        m_panelsTabWidget->setCurrentIndex(0);
 }
 
 void ProjectWindow::saveStatus()
 {
     // TODO
-//    m_session->setValue(QLatin1String("ProjectWindow/Panel"), m_panelsTabWidget->currentIndex());
 }
 
-void ProjectWindow::showProperties(ProjectExplorer::Project *project, const QModelIndex & /* subIndex */)
+void ProjectWindow::showProperties(Project *project)
 {
     if (debug)
         qDebug() << "ProjectWindow - showProperties called";
 
+    m_panelsWidget->removeWidget(m_activeConfigurationWidget);
+    m_panelsWidget->removeWidget(m_spacerBetween);
+    m_panelsWidget->removeWidget(m_projectChooser);
+
     // Remove the tabs from the tab widget first
     m_panelsWidget->clear();
+
+    m_panelsWidget->addWidget(tr("Active Configuration"), m_activeConfigurationWidget);
+    m_panelsWidget->addWidget(m_spacerBetween);
+    m_panelsWidget->addWidget(tr("Edit Configuration"), m_projectChooser);
 
     if (project) {
         QList<IPanelFactory *> pages =
@@ -296,65 +674,6 @@ void ProjectWindow::showProperties(ProjectExplorer::Project *project, const QMod
     }
 }
 
-void ProjectWindow::updateTreeWidgetStatupProjectChanged(ProjectExplorer::Project *startupProject)
-{
-    int count = m_treeWidget->topLevelItemCount();
-    for (int i = 0; i < count; ++i) {
-        QTreeWidgetItem *item = m_treeWidget->topLevelItem(i);
-        if (Project *project = findProject(item->data(2, Qt::UserRole).toString())) {
-            bool checked = (startupProject == project);
-            if (item->checkState(1) != (checked ? Qt::Checked : Qt::Unchecked))
-                item->setCheckState(1, checked ? Qt::Checked : Qt::Unchecked);
-        } else {
-            item->setCheckState(1, Qt::Unchecked);
-        }
-    }
-}
-
-void ProjectWindow::updateTreeWidgetProjectAdded(ProjectExplorer::Project *projectAdded)
-{
-    int position = m_session->projects().indexOf(projectAdded);
-    const QFileInfo fileInfo(projectAdded->file()->fileName());
-
-    QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText(0, projectAdded->name());
-    item->setIcon(0, Core::FileIconProvider::instance()->icon(fileInfo));
-    item->setData(2, Qt::UserRole, fileInfo.filePath());
-    item->setText(2, QDir::toNativeSeparators(fileInfo.filePath()));
-
-    if (projectAdded->isApplication()) {
-        bool checked = (m_session->startupProject() == projectAdded);
-        item->setCheckState(1, checked ? Qt::Checked : Qt::Unchecked);
-    }
-
-    m_treeWidget->insertTopLevelItem(position, item);
-}
-
-void ProjectWindow::updateTreeWidgetAboutToRemoveProject(ProjectExplorer::Project *projectRemoved) {
-    int count = m_treeWidget->topLevelItemCount();
-    for (int i = 0; i < count; ++i) {
-        QTreeWidgetItem *item = m_treeWidget->topLevelItem(i);
-        if (item->data(2, Qt::UserRole).toString() == QFileInfo(projectRemoved->file()->fileName()).filePath()) {
-            if (m_treeWidget->currentItem() == item) {
-                    m_treeWidget->setCurrentItem(0);
-            }
-        }
-    }
-}
-
-void ProjectWindow::updateTreeWidgetProjectRemoved(ProjectExplorer::Project *projectRemoved)
-{    
-    int count = m_treeWidget->topLevelItemCount();
-    for (int i = 0; i < count; ++i) {
-        QTreeWidgetItem *item = m_treeWidget->topLevelItem(i);
-        if (item->data(2, Qt::UserRole).toString() == QFileInfo(projectRemoved->file()->fileName()).filePath()) {
-            QTreeWidgetItem *it = m_treeWidget->takeTopLevelItem(i);
-            delete it;
-            break;
-        }
-    }
-}
-
 Project *ProjectWindow::findProject(const QString &path) const
 {
     QList<Project*> projects = m_session->projects();
@@ -362,45 +681,4 @@ Project *ProjectWindow::findProject(const QString &path) const
         if (QFileInfo(project->file()->fileName()).filePath() == path)
             return project;
     return 0;
-}
-
-
-void ProjectWindow::handleCurrentItemChanged(QTreeWidgetItem *current)
-{
-    if (m_currentItemChanged)
-        return;
-    m_currentItemChanged = true;
-    if (current) {
-        QString path = current->data(2, Qt::UserRole).toString();
-        if (Project *project = findProject(path)) {
-            m_projectExplorer->setCurrentFile(project, path);
-            showProperties(project, QModelIndex());
-            m_currentItemChanged = false;
-            return;
-        }
-    }
-    showProperties(0, QModelIndex());
-    m_currentItemChanged = false;
-}
-
-
-void ProjectWindow::handleItem(QTreeWidgetItem *item, int column)
-{
-    if (!item || column != 1) // startup project
-        return;
-
-    const QString path = item->data(2, Qt::UserRole).toString();
-    Project *project = findProject(path);
-    // Project no longer exists
-    if (!project)
-        return;
-     if (!(item->checkState(1) == Qt::Checked)) { // is now unchecked
-         if (m_session->startupProject() == project) {
-             item->setCheckState(1, Qt::Checked); // uncheck not supported
-         }
-     } else if (project && project->isApplication()) { // is now checked
-         m_session->setStartupProject(project);
-     } else {
-         item->setCheckState(1, Qt::Unchecked); // check not supported
-     }
 }

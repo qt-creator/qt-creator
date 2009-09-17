@@ -32,15 +32,16 @@
 
 #include <QtGui/QWidget>
 #include <QtGui/QScrollArea>
-#include <QtGui/QTreeWidget>
+#include <QtGui/QComboBox>
+#include <QtCore/QPair>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QVBoxLayout;
 class QModelIndex;
 class QTabWidget;
-class QTreeWidgetItem;
 class QHBoxLayout;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -59,7 +60,9 @@ public:
     PanelsWidget(QWidget *parent);
     ~PanelsWidget();
     // Adds a widget
+    void addWidget(QWidget *widget);
     void addWidget(const QString &name, QWidget *widget);
+    void removeWidget(QWidget *widget);
 
     // Removes all widgets and deletes them
     void clear();
@@ -75,18 +78,76 @@ private:
     QList<Panel> m_panels;
 };
 
-
-class ProjectView : public QTreeWidget
+class BuildConfigurationComboBox : public QComboBox
 {
     Q_OBJECT
 public:
-    ProjectView (QWidget *parent);
-    ~ProjectView ();
-    virtual QSize sizeHint() const;
+    BuildConfigurationComboBox(ProjectExplorer::Project *p, QWidget *parent = 0);
+    ~BuildConfigurationComboBox();
 private slots:
-    void updateSizeHint();
+    void nameChanged(const QString &buildConfiguration);
+    void activeConfigurationChanged();
+    void addedBuildConfiguration(ProjectExplorer::Project *, const QString &buildConfiguration);
+    void removedBuildConfiguration(ProjectExplorer::Project *, const QString &buildConfiguration);
+    void changedIndex(int newIndex);
 private:
-    QSize m_sizeHint;
+    int nameToIndex(const QString &buildConfiguration);
+    bool ignoreIndexChange;
+    ProjectExplorer::Project *m_project;
+};
+
+class ActiveConfigurationWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    ActiveConfigurationWidget(QWidget *parent = 0);
+    ~ActiveConfigurationWidget();
+private slots:
+    void projectAdded(ProjectExplorer::Project*);
+    void projectRemoved(ProjectExplorer::Project*);
+private:
+    QMap<ProjectExplorer::Project *, QPair<BuildConfigurationComboBox *, QLabel *> > m_buildComboBoxMap;
+};
+
+class RunConfigurationComboBox : public QComboBox
+{
+    Q_OBJECT
+public:
+    RunConfigurationComboBox(QWidget *parent = 0);
+    ~RunConfigurationComboBox();
+private slots:
+    void activeRunConfigurationChanged();
+    void activeItemChanged(int);
+    void addedRunConfiguration(ProjectExplorer::Project *p, const QString &);
+    void removedRunConfiguration(ProjectExplorer::Project *p, const QString &);
+    void projectAdded(ProjectExplorer::Project*);
+    void projectRemoved(ProjectExplorer::Project*);
+    void rebuildTree();
+private:
+    int convertTreeIndexToInt(int project, int runconfigurationIndex);
+    QPair<int, int> convertIntToTreeIndex(int index);
+    void connectToProject(ProjectExplorer::Project *p);
+    void disconnectFromProject(ProjectExplorer::Project *p);
+
+    bool m_ignoreChange;
+};
+
+class ProjectComboBox : public QComboBox
+{
+    Q_OBJECT
+public:
+    ProjectComboBox(QWidget *parent);
+    ~ProjectComboBox();
+
+signals:
+    void projectChanged(ProjectExplorer::Project *);
+
+private slots:
+    void projectAdded(ProjectExplorer::Project*);
+    void projectRemoved(ProjectExplorer::Project*);
+    void itemActivated(int);
+private:
+    ProjectExplorer::Project *m_lastProject;
 };
 
 class ProjectWindow : public QWidget
@@ -98,23 +159,18 @@ public:
     ~ProjectWindow();
 
 private slots:
-    void showProperties(ProjectExplorer::Project *project, const QModelIndex &subIndex);
+    void showProperties(ProjectExplorer::Project *project);
     void restoreStatus();
     void saveStatus();
 
-    void updateTreeWidgetStatupProjectChanged(ProjectExplorer::Project *startupProject);
-    void updateTreeWidgetProjectAdded(ProjectExplorer::Project *addedProject);
-    void updateTreeWidgetProjectRemoved(ProjectExplorer::Project *removedProject);
-    void updateTreeWidgetAboutToRemoveProject(ProjectExplorer::Project *removedProject);
-
-    void handleItem(QTreeWidgetItem *item, int column);
-    void handleCurrentItemChanged(QTreeWidgetItem *);
-
 private:
+    void updateRunConfigurationsComboBox();
     SessionManager *m_session;
     ProjectExplorerPlugin *m_projectExplorer;
 
-    ProjectView* m_treeWidget;
+    ActiveConfigurationWidget *m_activeConfigurationWidget;
+    QWidget *m_spacerBetween;
+    QWidget *m_projectChooser;
     PanelsWidget *m_panelsWidget;
 
     Project *findProject(const QString &path) const;

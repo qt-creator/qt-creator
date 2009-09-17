@@ -41,13 +41,13 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/environmenteditmodel.h>
 #include <utils/qtcassert.h>
+#include <utils/detailsbutton.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QInputDialog>
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
 #include <QtGui/QToolButton>
-#include <QtGui/QGroupBox>
 #include <QtGui/QComboBox>
 
 using namespace Qt4ProjectManager::Internal;
@@ -163,9 +163,25 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(usingDyldImageSuffixToggled(bool)));
 #endif
 
-    QVBoxLayout *vbox = new QVBoxLayout(this);
-    vbox->setContentsMargins(0, -1, 0, -1);
-    vbox->addLayout(toplayout);
+    m_detailsWidget = new QWidget(this);
+    m_detailsWidget->setVisible(false);
+    QVBoxLayout *vboxTopLayout = new QVBoxLayout(this);
+    vboxTopLayout->setContentsMargins(0, -1, 0, -1);
+    m_summaryLabel = new QLabel(this);
+    m_summaryLabel->setText("This is a summary");
+    m_detailsButton = new Utils::DetailsButton(this);
+
+    connect(m_detailsButton, SIGNAL(clicked()),
+            this, SLOT(toggleDetails()));
+
+    QHBoxLayout *detailsLayout = new QHBoxLayout();
+    detailsLayout->addWidget(m_summaryLabel);
+    detailsLayout->addWidget(m_detailsButton);
+
+    vboxTopLayout->addLayout(detailsLayout);
+
+    vboxTopLayout->addWidget(m_detailsWidget);
+    m_detailsWidget->setLayout(toplayout);
 
     QLabel *environmentLabel = new QLabel(this);
     environmentLabel->setText(tr("Run Environment"));
@@ -173,7 +189,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     f.setBold(true);
     f.setPointSizeF(f.pointSizeF() *1.2);
     environmentLabel->setFont(f);
-    vbox->addWidget(environmentLabel);
+    vboxTopLayout->addWidget(environmentLabel);
 
     QWidget *baseEnvironmentWidget = new QWidget;
     QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
@@ -195,7 +211,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
     m_environmentWidget->setUserChanges(m_qt4RunConfiguration->userEnvironmentChanges());
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    vbox->addWidget(m_environmentWidget);
+    vboxTopLayout->addWidget(m_environmentWidget);
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
@@ -232,6 +248,22 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     connect(qt4RunConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
+}
+
+void Qt4RunConfigurationWidget::toggleDetails()
+{
+    m_detailsWidget->setVisible(!m_detailsWidget->isVisible());
+}
+
+void Qt4RunConfigurationWidget::updateSummary()
+{
+    const QString &filename = QFileInfo(m_qt4RunConfiguration->executable()).fileName();
+    const QString &arguments = ProjectExplorer::Environment::joinArgumentList(m_qt4RunConfiguration->commandLineArguments());
+    QString text = tr("Running executable: <b>%1</b> %2 %3").arg(
+            filename,
+            arguments,
+            m_qt4RunConfiguration->runMode() == ApplicationRunConfiguration::Console ? tr("(in terminal)") : "");
+    m_summaryLabel->setText(text);
 }
 
 void Qt4RunConfigurationWidget::baseEnvironmentComboBoxChanged(int index)
@@ -319,8 +351,10 @@ void Qt4RunConfigurationWidget::workingDirectoryChanged(const QString &workingDi
 
 void Qt4RunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
 {
-    if (!m_ignoreChange)
-        m_argumentsLineEdit->setText(args);
+    updateSummary();
+    if (m_ignoreChange)
+        return;
+    m_argumentsLineEdit->setText(args);
 }
 
 void Qt4RunConfigurationWidget::nameChanged(const QString &name)
@@ -331,6 +365,7 @@ void Qt4RunConfigurationWidget::nameChanged(const QString &name)
 
 void Qt4RunConfigurationWidget::runModeChanged(ApplicationRunConfiguration::RunMode runMode)
 {
+    updateSummary();
     if (!m_ignoreChange)
         m_useTerminalCheck->setChecked(runMode == ApplicationRunConfiguration::Console);
 }
@@ -343,6 +378,7 @@ void Qt4RunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
 
 void Qt4RunConfigurationWidget::effectiveTargetInformationChanged()
 {
+    updateSummary();
     if (m_isShown) {
         m_executableLabel->setText(QDir::toNativeSeparators(m_qt4RunConfiguration->executable()));
         m_ignoreChange = true;

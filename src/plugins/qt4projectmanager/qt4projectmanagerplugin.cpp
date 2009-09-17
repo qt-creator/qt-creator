@@ -212,6 +212,7 @@ void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,
     m_runQMakeActionContextMenu->setEnabled(false);
 
     if (qobject_cast<Qt4Project *>(project)) {
+        m_runQMakeActionContextMenu->setVisible(true);
         if (!m_projectExplorer->buildManager()->isBuilding(project))
             m_runQMakeActionContextMenu->setEnabled(true);
     }

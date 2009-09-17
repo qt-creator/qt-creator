@@ -173,7 +173,6 @@ void RunConfigurationsModel::setRunConfigurations(const QList<QSharedPointer<Run
 RunSettingsWidget::RunSettingsWidget(Project *project)
     : m_project(project),
       m_runConfigurationsModel(new RunConfigurationsModel(this)),
-      m_enabledRunConfigurationsModel(new RunConfigurationsModel(this)),
       m_runConfigurationWidget(0)
 {
     m_ui = new Ui::RunSettingsPropertiesPage;
@@ -185,25 +184,17 @@ RunSettingsWidget::RunSettingsWidget(Project *project)
     m_ui->removeToolButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
     m_ui->removeToolButton->setText(tr("Remove"));
     m_ui->runConfigurationCombo->setModel(m_runConfigurationsModel);
-    m_ui->activeRunConfigurationCombo->setModel(m_enabledRunConfigurationsModel);
 
     connect(m_addMenu, SIGNAL(aboutToShow()),
             this, SLOT(aboutToShowAddMenu()));
     connect(m_ui->runConfigurationCombo, SIGNAL(currentIndexChanged(int)),
             this, SLOT(showRunConfigurationWidget(int)));
-    connect(m_ui->activeRunConfigurationCombo, SIGNAL(activated(int)),
-            this, SLOT(activateRunConfiguration(int)));
     connect(m_ui->removeToolButton, SIGNAL(clicked(bool)),
             this, SLOT(removeRunConfiguration()));
 
-    connect(m_project, SIGNAL(removedRunConfiguration(QString)),
+    connect(m_project, SIGNAL(removedRunConfiguration(ProjectExplorer::Project *, QString)),
             this, SLOT(initRunConfigurationComboBox()));
-    connect(m_project, SIGNAL(addedRunConfiguration(QString)),
-            this, SLOT(initRunConfigurationComboBox()));
-
-    connect(m_project, SIGNAL(activeRunConfigurationChanged()),
-            this, SLOT(activeRunConfigurationChanged()));
-    connect(m_project, SIGNAL(runConfigurationsEnabledStateChanged()),
+    connect(m_project, SIGNAL(addedRunConfiguration(ProjectExplorer::Project *, QString)),
             this, SLOT(initRunConfigurationComboBox()));
 
     initRunConfigurationComboBox();
@@ -292,9 +283,6 @@ void RunSettingsWidget::initRunConfigurationComboBox()
         if (runConfigurations.at(i)->isEnabled())
             enabledRunConfigurations.append(runConfigurations.at(i));
     }
-    m_enabledRunConfigurationsModel->setRunConfigurations(enabledRunConfigurations);
-    m_ui->activeRunConfigurationCombo->setCurrentIndex(
-            enabledRunConfigurations.indexOf(activeRunConfiguration));
     m_ui->removeToolButton->setEnabled(runConfigurations.size() > 1);
 }
 
@@ -307,20 +295,7 @@ void RunSettingsWidget::showRunConfigurationWidget(int index)
     // Update the run configuration configuration widget
     delete m_runConfigurationWidget;
     m_runConfigurationWidget = selectedRunConfiguration->configurationWidget();
-    m_ui->groupBox->layout()->addWidget(m_runConfigurationWidget);
-}
-
-void RunSettingsWidget::activateRunConfiguration(int index)
-{
-    m_project->setActiveRunConfiguration(m_enabledRunConfigurationsModel->runConfigurations().at(index));
-}
-
-void RunSettingsWidget::activeRunConfigurationChanged()
-{
-    QSharedPointer<RunConfiguration> active = m_project->activeRunConfiguration();
-    int index = m_enabledRunConfigurationsModel->runConfigurations().indexOf(active);
-    if (index >= 0)
-        m_ui->activeRunConfigurationCombo->setCurrentIndex(index);
+    layout()->addWidget(m_runConfigurationWidget);
 }
 
 void RunSettingsWidget::nameChanged()

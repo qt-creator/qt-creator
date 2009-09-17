@@ -36,6 +36,7 @@
 #include "qt4projectmanager.h"
 #include "ui_qt4projectconfigwidget.h"
 
+#include <utils/detailsbutton.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -79,15 +80,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     m_ui->detailsWidget->setVisible(false);
     m_ui->titleLabel->setText("");
 
-    QAbstractButton *detailsButton;
-#ifdef Q_OS_MAC
-    detailsButton = new QPushButton;
-    detailsButton->setAttribute(Qt::WA_MacSmallSize);
-    detailsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-#else
-    detailsButton = new QToolButton;
-#endif
-    detailsButton->setText(tr("Details"));
+    QAbstractButton *detailsButton = new Utils::DetailsButton(this);
     QHBoxLayout *layout = new QHBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);

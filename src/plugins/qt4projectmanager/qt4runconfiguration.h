@@ -36,6 +36,7 @@
 #include <projectexplorer/environmenteditmodel.h>
 #include <QtCore/QStringList>
 #include <QtGui/QWidget>
+#include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
@@ -167,7 +168,10 @@ private slots:
     void usingDyldImageSuffixToggled(bool);
     void usingDyldImageSuffixChanged(bool);
     void baseEnvironmentComboBoxChanged(int index);
+
+    void toggleDetails();
 private:
+    void updateSummary();
     Qt4RunConfiguration *m_qt4RunConfiguration;
     bool m_ignoreChange;
     QLabel *m_executableLabel;
@@ -178,6 +182,9 @@ private:
     QCheckBox *m_usingDyldImageSuffix;
 
     QComboBox *m_baseEnvironmentComboBox;
+    QWidget *m_detailsWidget;
+    QToolButton *m_detailsButton;
+    QLabel *m_summaryLabel;
 
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     bool m_isShown;

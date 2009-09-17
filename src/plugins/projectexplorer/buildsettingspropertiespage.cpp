@@ -122,7 +122,7 @@ QList<QWidget *> BuildSettingsSubWidgets::widgets() const
 }
 
 BuildSettingsSubWidgets::BuildSettingsSubWidgets(QWidget *parent)
-    : QGroupBox(parent)
+    : QWidget(parent)
 {
     new QVBoxLayout(this);
 }
@@ -141,7 +141,7 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, -1, 0, -1);
     QHBoxLayout *hbox = new QHBoxLayout();
-    hbox->addWidget(new QLabel(tr("Build Configuration:"), this));
+    hbox->addWidget(new QLabel(tr("Edit Build Configuration:"), this));
     m_buildConfigurationComboBox = new QComboBox(this);
     m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     hbox->addWidget(m_buildConfigurationComboBox);
@@ -170,17 +170,14 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
                              this, SLOT(cloneConfiguration()));
     m_addButton->setMenu(addButtonMenu);
 
+    m_buildConfiguration = m_project->activeBuildConfiguration();
+
     connect(m_buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(currentIndexChanged(int)));
 
-    // TODO currentIndexChanged
-    // needs to change active configuration
-    // and set widgets
-
     connect(m_removeButton, SIGNAL(clicked()),
             this, SLOT(deleteConfiguration()));
-    connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
-            this, SLOT(activeBuildConfigurationChanged()));
+
     connect(m_project, SIGNAL(buildConfigurationDisplayNameChanged(const QString &)),
             this, SLOT(buildConfigurationDisplayNameChanged(const QString &)));
 
@@ -189,7 +186,6 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
 
 void BuildSettingsWidget::buildConfigurationDisplayNameChanged(const QString &buildConfiguration)
 {
-
     for (int i=0; i<m_buildConfigurationComboBox->count(); ++i) {
         if (m_buildConfigurationComboBox->itemData(i).toString() == buildConfiguration) {
             m_buildConfigurationComboBox->setItemText(i, m_project->displayNameFor(buildConfiguration));
@@ -201,11 +197,10 @@ void BuildSettingsWidget::buildConfigurationDisplayNameChanged(const QString &bu
 
 void BuildSettingsWidget::updateBuildSettings()
 {
-
     // TODO save position, entry from combbox
 
     // Delete old tree items
-    m_buildConfigurationComboBox->blockSignals(true); // TODO ...
+    m_buildConfigurationComboBox->blockSignals(true);
     m_buildConfigurationComboBox->clear();
     m_subWidgets->clear();
 
@@ -224,14 +219,12 @@ void BuildSettingsWidget::updateBuildSettings()
         m_subWidgets->addWidget(subConfigWidget->displayName(), subConfigWidget);
 
     // Add tree items
-    QString activeBuildConfiguration = m_project->activeBuildConfiguration();
     foreach (const QString &buildConfiguration, m_project->buildConfigurations()) {
         m_buildConfigurationComboBox->addItem(m_project->displayNameFor(buildConfiguration), buildConfiguration);
-        if (buildConfiguration == activeBuildConfiguration)
+        if (buildConfiguration == m_buildConfiguration)
             m_buildConfigurationComboBox->setCurrentIndex(m_buildConfigurationComboBox->count() - 1);
     }
 
-    // TODO ...
     m_buildConfigurationComboBox->blockSignals(false);
 
     // TODO Restore position, entry from combbox
@@ -241,22 +234,21 @@ void BuildSettingsWidget::updateBuildSettings()
 
 void BuildSettingsWidget::currentIndexChanged(int index)
 {
-    QString buildConfiguration = m_buildConfigurationComboBox->itemData(index).toString();
-    m_project->setActiveBuildConfiguration(buildConfiguration);
+    m_buildConfiguration = m_buildConfigurationComboBox->itemData(index).toString();
+    activeBuildConfigurationChanged();
 }
 
 void BuildSettingsWidget::activeBuildConfigurationChanged()
 {
-    const QString &activeBuildConfiguration = m_project->activeBuildConfiguration();
     for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
-        if (m_buildConfigurationComboBox->itemData(i).toString() == activeBuildConfiguration) {
+        if (m_buildConfigurationComboBox->itemData(i).toString() == m_buildConfiguration) {
             m_buildConfigurationComboBox->setCurrentIndex(i);
             break;
         }
     }
     foreach (QWidget *widget, m_subWidgets->widgets()) {
         if (BuildConfigWidget *buildStepWidget = qobject_cast<BuildConfigWidget*>(widget)) {
-            buildStepWidget->init(activeBuildConfiguration);
+            buildStepWidget->init(m_buildConfiguration);
         }
     }
 }
@@ -293,7 +285,7 @@ void BuildSettingsWidget::createConfiguration()
     m_project->addBuildConfiguration(newBuildConfiguration);
     m_project->setDisplayNameFor(newBuildConfiguration, newDisplayName);
     m_project->newBuildConfiguration(newBuildConfiguration);
-    m_project->setActiveBuildConfiguration(newBuildConfiguration);
+    m_buildConfiguration = newBuildConfiguration;
 
     updateBuildSettings();
 }
@@ -344,9 +336,8 @@ void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
     m_project->copyBuildConfiguration(sourceConfiguration, newBuildConfiguration);
     m_project->setDisplayNameFor(newBuildConfiguration, newDisplayName);
 
+    m_buildConfiguration = newBuildConfiguration;
     updateBuildSettings();
-
-    m_project->setActiveBuildConfiguration(newBuildConfiguration);
 }
 
 void BuildSettingsWidget::deleteConfiguration(const QString &deleteConfiguration)
@@ -358,6 +349,15 @@ void BuildSettingsWidget::deleteConfiguration(const QString &deleteConfiguration
         foreach (const QString &otherConfiguration, m_project->buildConfigurations()) {
             if (otherConfiguration != deleteConfiguration) {
                 m_project->setActiveBuildConfiguration(otherConfiguration);
+                break;
+            }
+        }
+    }
+
+    if (m_buildConfiguration == deleteConfiguration) {
+        foreach (const QString &otherConfiguration, m_project->buildConfigurations()) {
+            if (otherConfiguration != deleteConfiguration) {
+                m_buildConfiguration = otherConfiguration;
                 break;
             }
         }

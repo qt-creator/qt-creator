@@ -35,6 +35,7 @@
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/detailsbutton.h>
 
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
@@ -178,16 +179,10 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
     s.downButton = new QToolButton(this);
     s.downButton->setArrowType(Qt::DownArrow);
 #ifdef Q_OS_MAC
-    s.detailsButton = new QPushButton(this);
-    s.detailsButton->setAttribute(Qt::WA_MacSmallSize);
-    s.detailsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     s.upButton->setIconSize(QSize(10, 10));
     s.downButton->setIconSize(QSize(10, 10));
-#else
-    s.detailsButton = new QToolButton(this);
 #endif
-    s.detailsButton->setText(tr("Details"));
-
+    s.detailsButton = new Utils::DetailsButton(this);
 
     // layout
     s.hbox = new QHBoxLayout();

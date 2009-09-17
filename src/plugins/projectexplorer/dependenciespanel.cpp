@@ -31,6 +31,8 @@
 #include "project.h"
 #include "session.h"
 
+#include <utils/detailsbutton.h>
+
 #include <coreplugin/fileiconprovider.h>
 
 #include <QtCore/QVector>
@@ -230,15 +232,7 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
     m_titleLabel->setText("Dummy Text");
     hbox->addWidget(m_titleLabel);
 
-    QAbstractButton *detailsButton;
-#ifdef Q_OS_MAC
-    detailsButton = new QPushButton;
-    detailsButton->setAttribute(Qt::WA_MacSmallSize);
-    detailsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-#else
-    detailsButton = new QToolButton(this);
-#endif
-    detailsButton->setText(tr("Details"));
+    QAbstractButton *detailsButton = new Utils::DetailsButton(this);
     connect(detailsButton, SIGNAL(clicked()),
             this, SLOT(toggleDetails()));
 

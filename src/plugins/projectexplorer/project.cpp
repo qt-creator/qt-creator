@@ -112,6 +112,7 @@ void Project::addBuildConfiguration(const QString &name)
 
     for (int i = 0; i != m_cleanSteps.size(); ++i)
         m_cleanSteps.at(i)->addBuildConfiguration(name);
+    emit addedBuildConfiguration(this, name);
 }
 
 void Project::removeBuildConfiguration(const QString &name)
@@ -131,6 +132,7 @@ void Project::removeBuildConfiguration(const QString &name)
     for (int i = 0; i != m_cleanSteps.size(); ++i)
         m_cleanSteps.at(i)->removeBuildConfiguration(name);
 
+    emit removedBuildConfiguration(this, name);
 }
 
 void Project::copyBuildConfiguration(const QString &source, const QString &dest)
@@ -147,6 +149,7 @@ void Project::copyBuildConfiguration(const QString &source, const QString &dest)
 
     for (int i = 0; i != m_cleanSteps.size(); ++i)
         m_cleanSteps.at(i)->copyBuildConfiguration(source, dest);
+    emit addedBuildConfiguration(this, dest);
 }
 
 QStringList Project::buildConfigurations() const
@@ -453,7 +456,7 @@ void Project::addRunConfiguration(QSharedPointer<RunConfiguration> runConfigurat
         return;
     }
     m_runConfigurations.push_back(runConfiguration);
-    emit addedRunConfiguration(runConfiguration->name());
+    emit addedRunConfiguration(this, runConfiguration->name());
 }
 
 void Project::removeRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration)
@@ -473,7 +476,7 @@ void Project::removeRunConfiguration(QSharedPointer<RunConfiguration> runConfigu
     }
 
     m_runConfigurations.removeOne(runConfiguration);
-    emit removedRunConfiguration(runConfiguration->name());    
+    emit removedRunConfiguration(this, runConfiguration->name());
 }
 
 QSharedPointer<RunConfiguration> Project::activeRunConfiguration() const
