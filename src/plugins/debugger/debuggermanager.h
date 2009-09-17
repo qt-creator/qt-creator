@@ -161,6 +161,9 @@ public:
     QString remoteArchitecture;
     QString serverStartScript;
     int toolChainType;
+
+    QString dumperLibrary;
+    QStringList dumperLibraryLocations;
 };
 
 QDebug operator<<(QDebug str, const DebuggerStartParameters &);
@@ -278,9 +281,6 @@ public slots:
     void startNewDebugger(DebuggerRunControl *runControl,
         const QSharedPointer<DebuggerStartParameters> &startParameters);
     void exitDebugger();
-
-    void setQtDumperLibraryName(const QString &dl); // Run Control
-    void setQtDumperLibraryLocations(const QStringList &dl);
 
     void setSimpleDockWidgetArrangement();
 

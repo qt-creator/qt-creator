@@ -169,15 +169,15 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
     }
     m_startParameters->useTerminal =
         runConfiguration->runMode() == ApplicationRunConfiguration::Console;
-    m_dumperLibrary = runConfiguration->dumperLibrary();
-    m_dumperLibraryLocations = runConfiguration->dumperLibraryLocations();
+    m_startParameters->dumperLibrary =
+        runConfiguration->dumperLibrary();
+    m_startParameters->dumperLibraryLocations =
+        runConfiguration->dumperLibraryLocations();
 }
 
 void DebuggerRunControl::start()
 {
     m_running = true;
-    m_manager->setQtDumperLibraryName(m_dumperLibrary);
-    m_manager->setQtDumperLibraryLocations(m_dumperLibraryLocations);
     m_manager->startNewDebugger(this, m_startParameters);
 }
 

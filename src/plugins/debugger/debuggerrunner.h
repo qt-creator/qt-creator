@@ -111,8 +111,6 @@ private:
     const QSharedPointer<DebuggerStartParameters> m_startParameters;
     DebuggerManager *m_manager;
     bool m_running;
-    QString m_dumperLibrary;
-    QStringList m_dumperLibraryLocations;
 };
 
 // A default run configuration for external executables or attaching to

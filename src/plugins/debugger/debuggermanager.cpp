@@ -902,16 +902,6 @@ QSharedPointer<DebuggerStartParameters> DebuggerManager::startParameters() const
     return m_startParameters;
 }
 
-void DebuggerManager::setQtDumperLibraryName(const QString &dl)
-{
-    m_dumperLib = dl;
-}
-
-void DebuggerManager::setQtDumperLibraryLocations(const QStringList &dl)
-{
-    m_dumperLibLocations = dl;
-}
-
 qint64 DebuggerManager::inferiorPid() const
 {
     return m_inferiorPid;
@@ -1406,7 +1396,7 @@ QString DebuggerManager::qtDumperLibraryName() const
 {
     if (theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool())
         return theDebuggerAction(CustomDebuggingHelperLocation)->value().toString();
-    return m_dumperLib;
+    return m_startParameters->dumperLibrary;
 }
 
 QStringList DebuggerManager::qtDumperLibraryLocations() const
@@ -1416,7 +1406,7 @@ QStringList DebuggerManager::qtDumperLibraryLocations() const
         const QString location = tr("%1 (explicitly set in the Debugger Options)").arg(customLocation);
         return QStringList(location);
     }
-    return m_dumperLibLocations;
+    return m_startParameters->dumperLibraryLocations;
 }
 
 void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
