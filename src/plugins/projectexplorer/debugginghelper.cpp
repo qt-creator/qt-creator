@@ -93,13 +93,6 @@ QString DebuggingHelperLibrary::qtInstallDataDir(const QString &qmakePath)
     return QString::null;
 }
 
-QString DebuggingHelperLibrary::qtDir(const QString &qmakePath)
-{
-    QDir dir = QFileInfo(qmakePath).absoluteDir();
-    dir.cdUp();
-    return dir.absolutePath();
-}
-
 // Debugging Helper Library
 
 static inline QString helperFilePath(const QString &directory)

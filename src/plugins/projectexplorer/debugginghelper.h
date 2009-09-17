@@ -66,7 +66,6 @@ public:
 private:
     static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData);
     static QString qtInstallDataDir(const QString &qmakePath);
-    static QString qtDir(const QString &qmakePath);
 };
 }
 
