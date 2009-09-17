@@ -1092,10 +1092,16 @@ void DebuggerPlugin::gotoLocation(const StackFrame &frame, bool setMarker)
         if (setMarker)
             resetLocation();
     } else {
-        TextEditor::BaseTextEditor::openEditorAt(frame.file, frame.line);
-        if (setMarker) {
-            resetLocation();
-            m_locationMark = new LocationMark(frame.file, frame.line);
+        static QString lastFile;
+        static int lastLine;
+        if (frame.line != lastLine || frame.file != lastFile) {
+            lastLine = frame.line;
+            lastFile = frame.file;
+            TextEditor::BaseTextEditor::openEditorAt(frame.file, frame.line);
+            if (setMarker) {
+                resetLocation();
+                m_locationMark = new LocationMark(frame.file, frame.line);
+            }
         }
     }
 }
