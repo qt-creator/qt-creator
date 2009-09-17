@@ -40,6 +40,7 @@ static bool maybeOverrideChar(const QChar &ch)
 {
     if      (ch == QLatin1Char(')'))  return true;
     else if (ch == QLatin1Char(']'))  return true;
+    else if (ch == QLatin1Char(';'))  return true;
     else if (ch == QLatin1Char('"'))  return true;
     else if (ch == QLatin1Char('\'')) return true;
     else                               return false;
@@ -97,8 +98,6 @@ MatchingText::MatchingText()
 QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess,
                                           const QChar &la, int *skippedChars) const
 {
-    *skippedChars = 0;
-
     QTextCursor tc = cursor;
     QString text = textToProcess;
 

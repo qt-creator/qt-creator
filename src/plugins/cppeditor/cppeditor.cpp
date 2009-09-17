@@ -1270,15 +1270,24 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
 }
 
 #if 1
-QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &text) const
+QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
 {
+    bool checkBlockEnd = m_allowSkippingOfBlockEnd;
+    m_allowSkippingOfBlockEnd = false;
+
     if (!contextAllowsAutoParentheses(cursor))
         return QString();
 
-    QChar lookAhead = characterAt(cursor.selectionEnd());
+    QString text = textToInsert;
+    const QChar lookAhead = characterAt(cursor.selectionEnd());
 
     QString autoText;
     int skippedChars = 0;
+
+    if (checkBlockEnd && (lookAhead == QChar::ParagraphSeparator && (! text.isEmpty() && text.at(0) == QLatin1Char('}')))) {
+        skippedChars = 2;
+        text = text.mid(1);
+    }
 
     MatchingText matchingText;
     autoText = matchingText.insertMatchingBrace(cursor, text, lookAhead, &skippedChars);
