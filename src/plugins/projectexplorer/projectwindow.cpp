@@ -159,7 +159,7 @@ ActiveConfigurationWidget::ActiveConfigurationWidget(QWidget *parent)
 {
     QGridLayout *grid = new QGridLayout(this);
     RunConfigurationComboBox *runConfigurationComboBox = new RunConfigurationComboBox(this);
-    grid->addWidget(new QLabel(tr("Active Runconfiguration")), 0, 0);
+    grid->addWidget(new QLabel(tr("Active run configuration")), 0, 0);
     grid->addWidget(runConfigurationComboBox, 0, 1);
 
     SessionManager *session = ProjectExplorerPlugin::instance()->session();
@@ -168,7 +168,7 @@ ActiveConfigurationWidget::ActiveConfigurationWidget(QWidget *parent)
     foreach(Project *p, session->projects()) {
         ++i;
         BuildConfigurationComboBox *buildConfigurationComboBox = new BuildConfigurationComboBox(p, this);
-        QLabel *label = new QLabel(p->name(), this);
+        QLabel *label = new QLabel("Build configuration for <b>" + p->name() + "</b>", this);
         grid->addWidget(label, i, 0);
         grid->addWidget(buildConfigurationComboBox, i, 1);
         m_buildComboBoxMap.insert(p, qMakePair(buildConfigurationComboBox, label));
@@ -186,7 +186,7 @@ void ActiveConfigurationWidget::projectAdded(Project *p)
 {
     QGridLayout *grid = static_cast<QGridLayout *>(layout());
     BuildConfigurationComboBox *buildConfigurationComboBox = new BuildConfigurationComboBox(p, this);
-    QLabel *label = new QLabel(p->name());
+    QLabel *label = new QLabel("Build configuration for <b>" + p->name() + "</b>");
     grid->addWidget(label);
     grid->addWidget(buildConfigurationComboBox);
     m_buildComboBoxMap.insert(p, qMakePair(buildConfigurationComboBox, label));
