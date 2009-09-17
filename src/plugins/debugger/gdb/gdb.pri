@@ -1,4 +1,4 @@
-include(../../shared/trk/trk.pri)
+include(../../../shared/trk/trk.pri)
 
 HEADERS += \
     $$PWD/abstractgdbadapter.h \
