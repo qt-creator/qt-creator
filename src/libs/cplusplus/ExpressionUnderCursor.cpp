@@ -43,46 +43,6 @@ ExpressionUnderCursor::ExpressionUnderCursor()
 ExpressionUnderCursor::~ExpressionUnderCursor()
 { }
 
-int ExpressionUnderCursor::startOfMatchingBrace(BackwardsScanner &tk, int index)
-{
-    if (tk[index - 1].is(T_RPAREN)) {
-        int i = index - 1;
-        int count = 0;
-        do {
-            if (tk[i].is(T_LPAREN)) {
-                if (! ++count)
-                    return i;
-            } else if (tk[i].is(T_RPAREN))
-                --count;
-            --i;
-        } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
-    } else if (tk[index - 1].is(T_RBRACKET)) {
-        int i = index - 1;
-        int count = 0;
-        do {
-            if (tk[i].is(T_LBRACKET)) {
-                if (! ++count)
-                    return i;
-            } else if (tk[i].is(T_RBRACKET))
-                --count;
-            --i;
-        } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
-    } else if (tk[index - 1].is(T_GREATER)) {
-        int i = index - 1;
-        int count = 0;
-        do {
-            if (tk[i].is(T_LESS)) {
-                if (! ++count)
-                    return i;
-            } else if (tk[i].is(T_GREATER))
-                --count;
-            --i;
-        } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
-    }
-
-    return index;
-}
-
 int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
 {
     // tk is a reference to a const QList. So, don't worry about [] access.
@@ -122,10 +82,10 @@ int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
         }
         return index - 1;
     } else if (tk[index - 1].is(T_RPAREN)) {
-        int rparenIndex = startOfMatchingBrace(tk, index);
+        int rparenIndex = tk.startOfMatchingBrace(index);
         if (rparenIndex != index) {
             if (tk[rparenIndex - 1].is(T_GREATER)) {
-                int lessIndex = startOfMatchingBrace(tk, rparenIndex);
+                int lessIndex = tk.startOfMatchingBrace(rparenIndex);
                 if (lessIndex != rparenIndex - 1) {
                     if (tk[lessIndex - 1].is(T_DYNAMIC_CAST)     ||
                         tk[lessIndex - 1].is(T_STATIC_CAST)      ||
@@ -144,13 +104,13 @@ int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
         }
         return index;
     } else if (tk[index - 1].is(T_RBRACKET)) {
-        int rbracketIndex = startOfMatchingBrace(tk, index);
+        int rbracketIndex = tk.startOfMatchingBrace(index);
         if (rbracketIndex != index)
             return startOfExpression(tk, rbracketIndex);
         return index;
     } else if (tk[index - 1].is(T_COLON_COLON)) {
         if (tk[index - 2].is(T_GREATER)) { // ### not exactly
-            int lessIndex = startOfMatchingBrace(tk, index - 1);
+            int lessIndex = tk.startOfMatchingBrace(index - 1);
             if (lessIndex != index - 1)
                 return startOfExpression(tk, lessIndex);
             return index - 1;
@@ -185,7 +145,7 @@ QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
 
     _jumpedComma = false;
 
-    const int initialSize = scanner.tokens().size();
+    const int initialSize = scanner.startToken();
     const int i = startOfExpression(scanner, initialSize);
     if (i == initialSize)
         return QString();
@@ -199,7 +159,7 @@ int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor)
 
     BackwardsScanner scanner(cursor);
 
-    int index = scanner.tokens().size();
+    int index = scanner.startToken();
 
     forever {
         const SimpleToken &tk = scanner[index - 1];
@@ -209,7 +169,7 @@ int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor)
         else if (tk.is(T_LPAREN))
             return scanner.startPosition() + tk.position();
         else if (tk.is(T_RPAREN)) {
-            int matchingBrace = startOfMatchingBrace(scanner, index);
+            int matchingBrace = scanner.startOfMatchingBrace(index);
 
             if (matchingBrace == index) // If no matching brace found
                 return -1;

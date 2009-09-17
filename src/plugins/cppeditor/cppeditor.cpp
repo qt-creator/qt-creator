@@ -52,6 +52,7 @@
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/TokenUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/MatchingText.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
 #include <coreplugin/icore.h>
@@ -1374,7 +1375,11 @@ int CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 
     if (braceDepth > 0) { // we do have an extra brace, let's close it
         int pos = cursor.position();
-        cursor.insertText(QLatin1String("}"));
+
+        MatchingText matchingText;
+        const QString textToInsert = matchingText.insertParagraphSeparator(cursor);
+
+        cursor.insertText(textToInsert);
         cursor.setPosition(pos);
         const TabSettings &ts = tabSettings();
         if (ts.m_autoIndent) {

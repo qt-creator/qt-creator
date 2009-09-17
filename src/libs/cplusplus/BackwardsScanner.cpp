@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 #include "BackwardsScanner.h"
+#include <Token.h>
 #include <QtGui/QTextCursor>
 
 using namespace CPlusPlus;
@@ -42,10 +43,16 @@ BackwardsScanner::BackwardsScanner(const QTextCursor &cursor, int maxBlockCount)
     _tokens.append(_tokenize(_text, previousBlockState(_block)));
 }
 
-QList<SimpleToken> BackwardsScanner::tokens() const
+int BackwardsScanner::state() const
+{ return _tokenize.state(); }
+
+const QList<SimpleToken> &BackwardsScanner::tokens() const
 { return _tokens; }
 
-const SimpleToken &BackwardsScanner::operator[](int i)
+const SimpleToken &BackwardsScanner::operator[](int i) const
+{ return const_cast<BackwardsScanner *>(this)->fetchToken(i); }
+
+const SimpleToken &BackwardsScanner::fetchToken(int i)
 {
     while (_offset + i < 0) {
         _block = _block.previous();
@@ -77,10 +84,13 @@ const SimpleToken &BackwardsScanner::operator[](int i)
     return _tokens.at(_offset + i);
 }
 
+int BackwardsScanner::startToken() const
+{ return _tokens.size(); }
+
 int BackwardsScanner::startPosition() const
 { return _block.position(); }
 
-const QString &BackwardsScanner::text() const
+QString BackwardsScanner::text() const
 { return _text; }
 
 QString BackwardsScanner::text(int begin, int end) const
@@ -90,7 +100,14 @@ QString BackwardsScanner::text(int begin, int end) const
     return _text.mid(firstToken.begin(), lastToken.end() - firstToken.begin());
 }
 
-int BackwardsScanner::previousBlockState(const QTextBlock &block)
+QStringRef BackwardsScanner::textRef(int begin, int end) const
+{
+    const SimpleToken &firstToken = _tokens.at(begin + _offset);
+    const SimpleToken &lastToken = _tokens.at(end + _offset - 1);
+    return _text.midRef(firstToken.begin(), lastToken.end() - firstToken.begin());
+}
+
+int BackwardsScanner::previousBlockState(const QTextBlock &block) const
 {
     const QTextBlock prevBlock = block.previous();
 
@@ -102,4 +119,46 @@ int BackwardsScanner::previousBlockState(const QTextBlock &block)
     }
 
     return 0;
+}
+
+int BackwardsScanner::startOfMatchingBrace(int index) const
+{
+    const BackwardsScanner &tk = *this;
+
+    if (tk[index - 1].is(T_RPAREN)) {
+        int i = index - 1;
+        int count = 0;
+        do {
+            if (tk[i].is(T_LPAREN)) {
+                if (! ++count)
+                    return i;
+            } else if (tk[i].is(T_RPAREN))
+                --count;
+            --i;
+        } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
+    } else if (tk[index - 1].is(T_RBRACKET)) {
+        int i = index - 1;
+        int count = 0;
+        do {
+            if (tk[i].is(T_LBRACKET)) {
+                if (! ++count)
+                    return i;
+            } else if (tk[i].is(T_RBRACKET))
+                --count;
+            --i;
+        } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
+    } else if (tk[index - 1].is(T_GREATER)) {
+        int i = index - 1;
+        int count = 0;
+        do {
+            if (tk[i].is(T_LESS)) {
+                if (! ++count)
+                    return i;
+            } else if (tk[i].is(T_GREATER))
+                --count;
+            --i;
+        } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
+    }
+
+    return index;
 }

@@ -26,41 +26,24 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+#ifndef MATCHINGTEXT_H
+#define MATCHINGTEXT_H
 
-#ifndef EXPRESSIONUNDERCURSOR_H
-#define EXPRESSIONUNDERCURSOR_H
-
-#include "CPlusPlusForwardDeclarations.h"
-#include <QList>
-
-QT_BEGIN_NAMESPACE
-class QString;
-class QTextCursor;
-class QTextBlock;
-QT_END_NAMESPACE
+#include <CPlusPlusForwardDeclarations.h>
+#include <QtGui/QTextCursor>
 
 namespace CPlusPlus {
 
 class BackwardsScanner;
-class SimpleToken;
 
-class CPLUSPLUS_EXPORT ExpressionUnderCursor
+class CPLUSPLUS_EXPORT MatchingText
 {
 public:
-    ExpressionUnderCursor();
-    ~ExpressionUnderCursor();
+    MatchingText();
 
-    QString operator()(const QTextCursor &cursor);
-    int startOfFunctionCall(const QTextCursor &cursor);
-
-private:
-    int startOfExpression(BackwardsScanner &tk, int index);
-    int previousBlockState(const QTextBlock &block);
-    bool isAccessToken(const SimpleToken &tk);
-
-    bool _jumpedComma;
+    QString insertParagraphSeparator(const QTextCursor &tc) const;
 };
 
-} // namespace CPlusPlus
+} // end of namespace CPlusPlus
 
-#endif // EXPRESSIONUNDERCURSOR_H
+#endif // MATCHINGTEXT_H

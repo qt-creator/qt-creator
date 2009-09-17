@@ -9,6 +9,7 @@ HEADERS += \
     $$PWD/ExpressionUnderCursor.h \
     $$PWD/TokenUnderCursor.h \
     $$PWD/BackwardsScanner.h \
+    $$PWD/MatchingText.h \
     $$PWD/OverviewModel.h
 
 SOURCES += \
@@ -16,6 +17,7 @@ SOURCES += \
     $$PWD/ExpressionUnderCursor.cpp \
     $$PWD/TokenUnderCursor.cpp \
     $$PWD/BackwardsScanner.cpp \
+    $$PWD/MatchingText.cpp \
     $$PWD/OverviewModel.cpp
 }
 

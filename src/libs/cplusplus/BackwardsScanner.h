@@ -43,13 +43,23 @@ class CPLUSPLUS_EXPORT BackwardsScanner
 public:
     BackwardsScanner(const QTextCursor &cursor, int maxBlockCount = MAX_BLOCK_COUNT);
 
-    QList<SimpleToken> tokens() const;
-    int startPosition() const;
-    const QString &text() const;
+    int state() const;
+    int startToken() const;
 
-    const SimpleToken &operator[](int i);
+    int startPosition() const;
+
+    QString text() const;
     QString text(int begin, int end) const;
-    int previousBlockState(const QTextBlock &block);
+    QStringRef textRef(int begin, int end) const;
+
+    const SimpleToken &operator[](int i) const;
+
+    int startOfMatchingBrace(int index) const;
+    int previousBlockState(const QTextBlock &block) const;
+
+private:
+    const SimpleToken &fetchToken(int i);
+    const QList<SimpleToken> &tokens() const;
 
 private:
     QList<SimpleToken> _tokens;
