@@ -183,7 +183,6 @@ private:
 
     QComboBox *m_baseEnvironmentComboBox;
     QWidget *m_detailsWidget;
-    QToolButton *m_detailsButton;
     QLabel *m_summaryLabel;
 
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;

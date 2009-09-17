@@ -169,14 +169,14 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     vboxTopLayout->setContentsMargins(0, -1, 0, -1);
     m_summaryLabel = new QLabel(this);
     m_summaryLabel->setText("This is a summary");
-    m_detailsButton = new Utils::DetailsButton(this);
+    QAbstractButton *detailsButton = new Utils::DetailsButton(this);
 
-    connect(m_detailsButton, SIGNAL(clicked()),
+    connect(detailsButton, SIGNAL(clicked()),
             this, SLOT(toggleDetails()));
 
     QHBoxLayout *detailsLayout = new QHBoxLayout();
     detailsLayout->addWidget(m_summaryLabel);
-    detailsLayout->addWidget(m_detailsButton);
+    detailsLayout->addWidget(detailsButton);
 
     vboxTopLayout->addLayout(detailsLayout);
 
