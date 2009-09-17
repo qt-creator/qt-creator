@@ -101,9 +101,12 @@ QStringList DebuggingHelperLibrary::debuggingHelperLibraryLocationsByInstallData
 
 QString DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(const QString &qtInstallData)
 {
+    const QString dumperSourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/gdbmacros/");
+    QDateTime lastModified = QFileInfo(dumperSourcePath + "gdbmacros.cpp").lastModified();
+
     foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData)) {
         const QFileInfo fi(helperFilePath(directory));
-        if (fi.exists())
+        if (fi.exists() && fi.lastModified() > lastModified)
             return fi.filePath();
     }
     return QString();
