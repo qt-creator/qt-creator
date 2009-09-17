@@ -287,7 +287,6 @@ void RunConfigurationComboBox::activeItemChanged(int index)
     m_ignoreChange = true;
     SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
     QPair<int, int> pair = convertIntToTreeIndex(index);
-    qDebug()<<"Active Item changed to "<<index<<"which is :"<<pair.first<<pair.second;
     if (pair.first == -1) {
         setCurrentIndex(-1);
     } else {
