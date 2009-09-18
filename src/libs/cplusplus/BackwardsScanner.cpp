@@ -45,6 +45,8 @@ BackwardsScanner::BackwardsScanner(const QTextCursor &cursor, const QString &suf
         _text += suffix;
 
     _tokens.append(_tokenize(_text, previousBlockState(_block)));
+
+    _startToken = _tokens.size();
 }
 
 int BackwardsScanner::state() const
@@ -53,8 +55,11 @@ int BackwardsScanner::state() const
 const QList<SimpleToken> &BackwardsScanner::tokens() const
 { return _tokens; }
 
-const SimpleToken &BackwardsScanner::operator[](int i) const
-{ return const_cast<BackwardsScanner *>(this)->fetchToken(i); }
+const SimpleToken &BackwardsScanner::LA(int index) const
+{ return const_cast<BackwardsScanner *>(this)->fetchToken(_startToken - index); }
+
+const SimpleToken &BackwardsScanner::operator[](int index) const
+{ return const_cast<BackwardsScanner *>(this)->fetchToken(index); }
 
 const SimpleToken &BackwardsScanner::fetchToken(int i)
 {
@@ -89,7 +94,7 @@ const SimpleToken &BackwardsScanner::fetchToken(int i)
 }
 
 int BackwardsScanner::startToken() const
-{ return _tokens.size(); }
+{ return _startToken; }
 
 int BackwardsScanner::startPosition() const
 { return _block.position(); }

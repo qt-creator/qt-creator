@@ -54,7 +54,11 @@ public:
     QString text(int begin, int end) const;
     QStringRef textRef(int begin, int end) const;
 
-    const SimpleToken &operator[](int i) const;
+    // 1-based
+    const SimpleToken &LA(int index) const;
+
+    // n-la token is [startToken - n]
+    const SimpleToken &operator[](int index) const; // ### deprecate
 
     int startOfMatchingBrace(int index) const;
     int previousBlockState(const QTextBlock &block) const;
@@ -71,6 +75,7 @@ private:
     QString _text;
     SimpleLexer _tokenize;
     int _maxBlockCount;
+    int _startToken;
 };
 
 } // end of namespace CPlusPlus
