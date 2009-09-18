@@ -34,33 +34,21 @@
 #include "trkdevice.h"
 #include "abstractgdbadapter.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
 #include <QtCore/QHash>
 #include <QtCore/QPointer>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QProcess>
 #include <QtCore/QQueue>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QTextStream>
-#include <QtCore/QTimer>
-
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextEdit>
-#include <QtGui/QToolBar>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
-#include <QtNetwork/QLocalServer>
-#include <QtNetwork/QLocalSocket>
 
 namespace Debugger {
 namespace Internal {
+
+struct TrkOptions;
 
 struct GdbResult
 {
@@ -81,17 +69,21 @@ public:
     typedef trk::TrkResult TrkResult;
     typedef trk::Callback<const TrkResult &> TrkCallback;
     typedef trk::Callback<const GdbResult &> GdbCallback;
+    typedef QSharedPointer<TrkOptions> TrkOptionsPtr;
 
-    TrkGdbAdapter();
+    explicit TrkGdbAdapter(const TrkOptionsPtr &options);
     ~TrkGdbAdapter();
     void setGdbServerName(const QString &name);
     QString gdbServerName() const { return m_gdbServerName; }
     QString gdbServerIP() const;
     uint gdbServerPort() const;
     void setVerbose(int verbose) { m_verbose = verbose; }
-    void setSerialFrame(bool b) { m_serialFrame = b; }
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
     trk::Session &session() { return m_session; }
+
+    // Set a device (from the project) to override the settings.
+    QString overrideTrkDevice() const;
+    void setOverrideTrkDevice(const QString &);
 
 public slots:
     void startInferior();
@@ -108,7 +100,9 @@ private slots:
 private:
     friend class RunnerGui;
 
-    QString m_rfcommDevice;  // /dev/rfcomm0
+    const TrkOptionsPtr m_options;
+    QString m_overrideTrkDevice;
+
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
 
     QProcess m_gdbProc;
@@ -237,13 +231,15 @@ public:
     Q_SLOT void handleRfcommStarted();
     Q_SLOT void handleRfcommStateChanged(QProcess::ProcessState newState);
 
+    QString effectiveTrkDevice() const;
+
     // Debuggee state
     Q_SLOT void executeCommand(const QString &msg);
     trk::Session m_session; // global-ish data (process id, target information)
     trk::Snapshot m_snapshot; // local-ish data (memory and registers)
     int m_verbose;
-    bool m_serialFrame;
     bool m_bufferedMemoryRead;
+    int m_waitCount;
 };
 
 } // namespace Internal

@@ -31,6 +31,8 @@
 
 #include "gdbengine.h"
 #include "gdboptionspage.h"
+#include "trkoptions.h"
+#include "trkoptionspage.h"
 #include "trkgdbadapter.h"
 
 #include "watchutils.h"
@@ -4313,9 +4315,11 @@ IDebuggerEngine *createGdbEngine(DebuggerManager *parent,
 IDebuggerEngine *createSymbianEngine(DebuggerManager *parent,
     QList<Core::IOptionsPage*> *opts)
 {
-    Q_UNUSED(opts);
-    //opts->push_back(new GdbOptionsPage);
-    TrkGdbAdapter *adapter = new TrkGdbAdapter;
+    QSharedPointer<TrkOptions> options(new TrkOptions);
+    options->fromSettings(Core::ICore::instance()->settings());
+
+    opts->push_back(new TrkOptionsPage(options));
+    TrkGdbAdapter *adapter = new TrkGdbAdapter(options);
     GdbEngine *engine = new GdbEngine(parent, adapter);
     QObject::connect(adapter, SIGNAL(output(QString)),
         parent, SLOT(showDebuggerOutput(QString)));

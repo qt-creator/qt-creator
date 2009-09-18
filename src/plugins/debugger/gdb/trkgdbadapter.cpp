@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "trkgdbadapter.h"
+#include "trkoptions.h"
 #ifndef STANDALONE_RUNNER
 #include "gdbengine.h"
 #endif
@@ -35,6 +36,9 @@
 #  include <sys/types.h>
 #  include <unistd.h>
 #endif
+
+#include <QtCore/QTimer>
+#include <QtCore/QDir>
 
 #define TrkCB(s) TrkCallback(this, &TrkGdbAdapter::s)
 
@@ -71,21 +75,21 @@ static QByteArray dumpRegister(int n, uint value)
 namespace Debugger {
 namespace Internal {
 
-TrkGdbAdapter::TrkGdbAdapter()
+TrkGdbAdapter::TrkGdbAdapter(const TrkOptionsPtr &options) :
+    m_options(options),
+    m_running(false),
+    m_gdbAckMode(true),
+    m_verbose(2),
+    m_bufferedMemoryRead(true),
+    m_waitCount(0)
 {
-    m_running = false;
-    m_gdbAckMode = true;
-    m_verbose = 2;
-    m_serialFrame = false;
-    m_bufferedMemoryRead = true;
-    m_rfcommDevice = "/dev/rfcomm0";
 
 #ifdef Q_OS_WIN
-    int userId = 0;
+    const DWORD portOffset = GetCurrentProcessId() % 100;
 #else
-    uid_t userId = getuid();
+    const uid_t portOffset = getuid();
 #endif
-    m_gdbServerName = QString("127.0.0.1:%1").arg(2222 + userId);
+    m_gdbServerName = QString::fromLatin1("127.0.0.1:%1").arg(2222 + portOffset);
     connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
         this, SIGNAL(readyReadStandardError()));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
@@ -103,18 +107,18 @@ TrkGdbAdapter::TrkGdbAdapter()
         this, SLOT(handleRfcommReadyReadStandardError()));
     connect(&m_rfcommProc, SIGNAL(readyReadStandardOutput()),
         this, SLOT(handleRfcommReadyReadStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
+    connect(&m_rfcommProc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(handleRfcommError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
+    connect(&m_rfcommProc, SIGNAL(finished(int, QProcess::ExitStatus)),
         this, SLOT(handleRfcommFinished(int, QProcess::ExitStatus)));
-    connect(&m_gdbProc, SIGNAL(started()),
+    connect(&m_rfcommProc, SIGNAL(started()),
         this, SLOT(handleRfcommStarted()));
-    connect(&m_gdbProc, SIGNAL(stateChanged(QProcess::ProcessState)),
+    connect(&m_rfcommProc, SIGNAL(stateChanged(QProcess::ProcessState)),
         this, SLOT(handleRfcommStateChanged(QProcess::ProcessState)));
 
     if (m_verbose > 1)
         m_trkDevice.setVerbose(true);
-    m_trkDevice.setSerialFrame(m_serialFrame);
+    m_trkDevice.setSerialFrame(m_options->mode != TrkOptions::BlueTooth);
 
     connect(&m_trkDevice, SIGNAL(logMessage(QString)),
         this, SLOT(trkLogMessage(QString)));
@@ -124,6 +128,25 @@ TrkGdbAdapter::~TrkGdbAdapter()
 {
     m_gdbServer.close();
     logMessage("Shutting down.\n");
+}
+
+QString TrkGdbAdapter::overrideTrkDevice() const
+{
+    return m_overrideTrkDevice;
+}
+
+void TrkGdbAdapter::setOverrideTrkDevice(const QString &d)
+{
+    m_overrideTrkDevice = d;
+}
+
+QString TrkGdbAdapter::effectiveTrkDevice() const
+{
+    if (!m_overrideTrkDevice.isEmpty())
+        return m_overrideTrkDevice;
+    if (m_options->mode == TrkOptions::BlueTooth)
+        return m_options->blueToothDevice;
+    return m_options->serialPort;
 }
 
 void TrkGdbAdapter::trkLogMessage(const QString &msg)
@@ -196,9 +219,16 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage(byte option)
 void TrkGdbAdapter::startInferior()
 {
     QString errorMessage;
-    if (!m_trkDevice.open(m_rfcommDevice, &errorMessage)) {
-        emit output("LOOPING");
-        QTimer::singleShot(1000, this, SLOT(startInferior()));
+    const QString device = effectiveTrkDevice();
+    if (!m_trkDevice.open(device, &errorMessage)) {
+        emit output(QString::fromLatin1("Waiting on %1 (%2)").arg(device, errorMessage));
+        // Do not loop forever
+        if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 60 : 5)) {
+            QTimer::singleShot(1000, this, SLOT(startInferior()));
+        } else {
+            emit output(QString::fromLatin1("Failed to connect to %1 after %2 attempts").arg(device).arg(m_waitCount));
+            emit finished(-44, QProcess::CrashExit);
+        }
         return;
     }
 
@@ -1283,14 +1313,21 @@ void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
 
 void TrkGdbAdapter::run()
 {
-    emit output("### Starting TrkGdbAdapter");
-    m_rfcommProc.start("rfcomm -r listen " + m_rfcommDevice + " 1");
-    m_rfcommProc.waitForStarted();
-    
-    if (m_rfcommProc.state() != QProcess::Running) {
-        emit finished(-44, QProcess::CrashExit);
-        return;
+    emit output(QLatin1String("### Starting TrkGdbAdapter"));
+    if (m_options->mode == TrkOptions::BlueTooth) {
+        const QString device = effectiveTrkDevice();
+        const QString blueToothListener = QLatin1String("rfcomm");
+        emit output(QString::fromLatin1("### Starting BlueTooth listener %1 on %2").arg(blueToothListener, device));
+        m_rfcommProc.start(blueToothListener + QLatin1String(" -r listen ") + m_options->blueToothDevice + QLatin1String(" 1"));
+        m_rfcommProc.waitForStarted();
+        if (m_rfcommProc.state() != QProcess::Running) {
+            const QString msg = QString::fromLocal8Bit(m_rfcommProc.readAllStandardError());
+            emit output(QString::fromLatin1("Failed to start BlueTooth listener %1 on %2: %3\n%4").arg(blueToothListener, device, m_rfcommProc.errorString(), msg));
+            emit finished(-44, QProcess::CrashExit);
+            return;
+        }
     }
+    m_waitCount = 0;
 
     connect(&m_trkDevice, SIGNAL(messageReceived(trk::TrkResult)),
         this, SLOT(handleTrkResult(trk::TrkResult)));
@@ -1299,6 +1336,29 @@ void TrkGdbAdapter::run()
 
     startInferior();
 }
+
+#ifdef Q_OS_WIN
+
+// Prepend environment of the Symbian Gdb by Cygwin '/bin'
+static void setGdbCygwinEnvironment(const QString &cygwin, QProcess *process)
+{
+    if (cygwin.isEmpty() || !QFileInfo(cygwin).isDir())
+        return;
+    const QString cygwinBinPath = QDir::toNativeSeparators(cygwin) + QLatin1String("\\bin");
+    QStringList env = process->environment();
+    if (env.isEmpty())
+        env = QProcess::systemEnvironment();
+    const QRegExp pathPattern(QLatin1String("^PATH=.*"));
+    const int index = env.indexOf(pathPattern);
+    if (index == -1)
+        return;
+    QString pathValue = env.at(index).mid(5);
+    if (pathValue.startsWith(cygwinBinPath))
+        return;
+    env[index] = QLatin1String("PATH=") + cygwinBinPath + QLatin1Char(';');
+    process->setEnvironment(env);
+}
+#endif
 
 void TrkGdbAdapter::startGdb()
 {
@@ -1316,11 +1376,15 @@ void TrkGdbAdapter::startGdb()
         this, SLOT(handleGdbConnection()));
 
     logMessage("STARTING GDB");
+    emit output(QString::fromLatin1("### Starting gdb %1").arg(m_options->gdb));
     QStringList gdbArgs;
-    gdbArgs.append("--nx"); // Do not read .gdbinit file
-    gdbArgs.append("-i");
-    gdbArgs.append("mi");
-    m_gdbProc.start(QDir::currentPath() + "/cs-gdb", gdbArgs);
+    gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
+    gdbArgs.append(QLatin1String("-i"));
+    gdbArgs.append(QLatin1String("mi"));
+#ifdef Q_OS_WIN
+    setGdbCygwinEnvironment(m_options->cygwin, &m_gdbProc);
+#endif
+    m_gdbProc.start(m_options->gdb, gdbArgs);
 }
 
 void TrkGdbAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
@@ -1379,12 +1443,15 @@ void TrkGdbAdapter::start(const QString &program, const QStringList &args,
     QIODevice::OpenMode mode)
 {
     Q_UNUSED(mode);
+    Q_UNUSED(program);
+    Q_UNUSED(args);
     run();
 }
 
 void TrkGdbAdapter::kill()
 {
-    m_rfcommProc.kill();
+    if (m_options->mode == TrkOptions::BlueTooth && m_rfcommProc.state() == QProcess::Running)
+        m_rfcommProc.kill();
     m_gdbProc.kill();
 }
 
@@ -1402,7 +1469,7 @@ bool TrkGdbAdapter::waitForFinished(int msecs)
     m_rfcommProc.terminate();
     m_rfcommProc.waitForFinished();
     QProcess proc;
-    proc.start("rfcomm release " + m_rfcommDevice.toLatin1());
+    proc.start("rfcomm release " + m_options->blueToothDevice);
     proc.waitForFinished();
     return m_gdbProc.waitForFinished(msecs);
 }

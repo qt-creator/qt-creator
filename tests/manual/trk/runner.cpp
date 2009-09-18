@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "trkgdbadapter.h"
+#include "trkoptions.h"
 
 #include <QtCore/QDebug>
 
@@ -38,6 +39,9 @@
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextEdit>
 #include <QtGui/QToolBar>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QTimer>
+#include <QtCore/QDir>
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -224,7 +228,9 @@ void RunnerGui::started()
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    TrkGdbAdapter adapter;
+    QSharedPointer<TrkOptions> options(new TrkOptions);
+    options->gdb = QDir::currentPath() + QLatin1String("/cs-gdb");
+    TrkGdbAdapter adapter(options);
     adapter.setVerbose(2);
     RunnerGui gui(&adapter);
     gui.show();

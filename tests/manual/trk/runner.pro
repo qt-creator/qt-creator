@@ -15,8 +15,10 @@ win32:CONFIG+=console
 
 HEADERS += \
     $$DEBUGGERHOME/abstractgdbadapter.h \
+    $$DEBUGGERHOME/trkoptions.h \
     $$DEBUGGERHOME/trkgdbadapter.h \
 
 SOURCES += \
     $$DEBUGGERHOME/trkgdbadapter.cpp \
+    $$DEBUGGERHOME/trkoptions.cpp \
     $$PWD/runner.cpp \
