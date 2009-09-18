@@ -40,12 +40,13 @@ enum { MAX_NUM_LINES = 20 };
 
 static bool maybeOverrideChar(const QChar &ch)
 {
-    if      (ch == QLatin1Char(')'))  return true;
-    else if (ch == QLatin1Char(']'))  return true;
-    else if (ch == QLatin1Char(';'))  return true;
-    else if (ch == QLatin1Char('"'))  return true;
-    else if (ch == QLatin1Char('\'')) return true;
-    else                               return false;
+    switch (ch.unicode()) {
+    case ')': case ']': case ';': case '"': case '\'':
+        return true;
+
+    default:
+        return false;
+    }
 }
 
 static bool isCompleteStringLiteral(const BackwardsScanner &tk, int index, int startToken)
@@ -76,22 +77,18 @@ static bool isCompleteCharLiteral(const BackwardsScanner &tk, int index, int sta
 
 static bool shouldInsertMatchingText(const QChar &lookAhead)
 {
-    if (lookAhead.isSpace())
-        return true;
-    else if (lookAhead == QLatin1Char('{'))
-        return true;
-    else if (lookAhead == QLatin1Char('}'))
-        return true;
-    else if (lookAhead == QLatin1Char(']'))
-        return true;
-    else if (lookAhead == QLatin1Char(')'))
-        return true;
-    else if (lookAhead == QLatin1Char(';'))
-        return true;
-    else if (lookAhead == QLatin1Char(','))
+    switch (lookAhead.unicode()) {
+    case '{': case '}':
+    case ']': case ')':
+    case ';': case ',':
         return true;
 
-    return false;
+    default:
+        if (lookAhead.isSpace())
+            return true;
+
+        return false;
+    } // switch
 }
 
 MatchingText::MatchingText()
