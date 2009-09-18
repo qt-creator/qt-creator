@@ -44,6 +44,9 @@ public:
     QString insertMatchingBrace(const QTextCursor &tc, const QString &text,
                                 const QChar &la, int *skippedChars) const;
     QString insertParagraphSeparator(const QTextCursor &tc) const;
+
+private:
+    bool shouldInsertNewline(const QTextCursor &tc) const;
 };
 
 } // end of namespace CPlusPlus

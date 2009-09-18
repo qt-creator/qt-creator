@@ -30,11 +30,13 @@
 #include "BackwardsScanner.h"
 
 #include <Token.h>
-#include <QtDebug>
+
+#include <QtGui/QTextDocument>
+#include <QtCore/QtDebug>
 
 using namespace CPlusPlus;
 
-enum { MAX_NUM_LINES = 400 };
+enum { MAX_NUM_LINES = 20 };
 
 static bool maybeOverrideChar(const QChar &ch)
 {
@@ -160,6 +162,28 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     return result;
 }
 
+bool MatchingText::shouldInsertNewline(const QTextCursor &tc) const
+{
+    QTextDocument *doc = tc.document();
+    int pos = tc.selectionEnd();
+
+    // count the number of empty lines.
+    int newlines = 0;
+    for (int e = doc->characterCount(); pos != e; ++pos) {
+        const QChar ch = doc->characterAt(pos);
+
+        if (! ch.isSpace())
+            break;
+        else if (ch == QChar::ParagraphSeparator)
+            ++newlines;
+    }
+
+    if (newlines <= 1 && doc->characterAt(pos) != QLatin1Char('}'))
+        return true;
+
+    return false;
+}
+
 QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
 {
     BackwardsScanner tk(tc, QString(), MAX_NUM_LINES);
@@ -189,8 +213,15 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
             if (current.is(T_EOF_SYMBOL))
                 break;
 
-            else if (current.is(T_CLASS) || current.is(T_STRUCT) || current.is(T_UNION))
-                return QLatin1String("};"); // found a class key.
+            else if (current.is(T_CLASS) || current.is(T_STRUCT) || current.is(T_UNION)) {
+                // found a class key.
+                QString str = QLatin1String("};");
+
+                if (shouldInsertNewline(tc))
+                    str += QLatin1Char('\n');
+
+                return str;
+            }
 
             else if (current.is(T_NAMESPACE))
                 return QLatin1String("}"); // found a namespace declaration
@@ -250,7 +281,12 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
         }
 
         // if we reached this point there is a good chance that we are parsing a function definition
-        return QLatin1String("}");
+        QString str = QLatin1String("}");
+
+        if (shouldInsertNewline(tc))
+            str += QLatin1Char('\n');
+
+        return str;
     }
 
     // match the block
