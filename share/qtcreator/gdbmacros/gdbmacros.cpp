@@ -1064,13 +1064,16 @@ static void qDumpInnerValueOrPointer(QDumper &d,
 #ifndef QT_BOOTSTRAPPED
 struct ModelIndex { int r; int c; void *p; void *m; };
 
+static inline void
+qDeserializeQModelIndex(const char *input, ModelIndex &mm)
+{
+    sscanf(input, "%d,%d,%p,%p", &mm.r, &mm.c, &mm.p, &mm.m);
+}
+
 static void qDumpQAbstractItem(QDumper &d)
 {
-    ModelIndex mm;
-    mm.r = mm.c = 0;
-    mm.p = mm.m = 0;
-    sscanf(d.templateParameters[0], "%d,%d,%p,%p", &mm.r, &mm.c, &mm.p, &mm.m);
-    const QModelIndex &mi(*reinterpret_cast<QModelIndex *>(&mm));
+    QModelIndex mi;
+    qDeserializeQModelIndex(d.templateParameters[0], *reinterpret_cast<ModelIndex *>(&mi));
     const QAbstractItemModel *m = mi.model();
     const int rowCount = m->rowCount(mi);
     if (rowCount < 0)
@@ -1080,7 +1083,8 @@ static void qDumpQAbstractItem(QDumper &d)
         return;
     d.putItem("type", NS"QAbstractItem");
     d.beginItem("addr");
-        d.put('$').put(mm.r).put(',').put(mm.c).put(',').put(mm.p).put(',').put(mm.m);
+        d.put('$').put(mi.row()).put(',').put(mi.column()).put(',')
+            .put(mi.internalPointer()).put(',').put(mi.model());
     d.endItem();
     //d.putItem("value", "(").put(rowCount).put(",").put(columnCount).put(")");
     d.putItem("value", m->data(mi, Qt::DisplayRole).toString());
