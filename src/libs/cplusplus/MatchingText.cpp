@@ -38,7 +38,7 @@ using namespace CPlusPlus;
 
 enum { MAX_NUM_LINES = 20 };
 
-static bool maybeOverrideChar(const QChar &ch)
+static bool shouldOverrideChar(const QChar &ch)
 {
     switch (ch.unicode()) {
     case ')': case ']': case ';': case '"': case '\'':
@@ -109,7 +109,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
 
         if (ch1 != ch2)
             break;
-        else if (! maybeOverrideChar(ch1))
+        else if (! shouldOverrideChar(ch1))
             break;
 
         ++*skippedChars;
