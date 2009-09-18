@@ -230,6 +230,16 @@ FindToolBar::~FindToolBar()
 
 bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
 {
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_Down) {
+            if (obj == m_ui.findEdit)
+                m_findCompleter->complete();
+            else if (obj == m_ui.replaceEdit)
+                m_replaceCompleter->complete();
+        }
+    }
+
     if ((obj == m_ui.findEdit || obj == m_findCompleter->popup())
                && event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
