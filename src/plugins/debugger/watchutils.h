@@ -49,6 +49,7 @@ namespace Debugger {
 namespace Internal {
 
 class WatchData;
+class GdbMi;
 
 QString dotEscape(QString str);
 QString currentTime();
@@ -181,7 +182,6 @@ public:
     void clear();
 
     double dumperVersion() const { return m_dumperVersion; }
-    void setDumperVersion(double v)  { m_dumperVersion = v; }
 
     int typeCount() const;
     // Look up a simple, non-template  type
@@ -192,17 +192,14 @@ public:
 
     int qtVersion() const;
     QString qtVersionString() const;
-    void setQtVersion(int v);
-    void setQtVersion(const QString &v);
-
     QString qtNamespace() const;
-    void setQtNamespace(const QString &qtNamespace);
 
     // Complete parse of "query" (protocol 1) response from debuggee buffer.
     // 'data' excludes the leading indicator character.
     bool parseQuery(const char *data, Debugger debugger);
-    // Set up from pre-parsed type list
-    void parseQueryTypes(const QStringList &l, Debugger debugger);
+    bool parseQuery(const GdbMi &data, Debugger debugger);
+    // Sizes can be added as the debugger determines them
+    void addSize(const QString &name, int size);
 
     // Determine the parameters required for an "evaluate" (protocol 2) call
     void evaluationParameters(const WatchData &data,
@@ -228,9 +225,6 @@ public:
 
     QString toString(bool debug = false) const;
 
-    // Helpers for debuggers that use a different dumper parser.
-    void addSize(const QString &name, int size);
-    void addExpression(const QString &expression, const QString &value);
 
     static QString msgDumperOutdated(double requiredVersion, double currentVersion);
 
@@ -241,6 +235,7 @@ private:
     // Look up a simple (namespace) type
     static Type specialType(QString s);
     QString evaluationSizeofTypeExpression(const QString &typeName, Debugger d) const;
+    void parseQueryTypes(const QStringList &l, Debugger debugger);
 
     NameTypeMap m_nameTypeMap;
     SizeCache m_sizeCache;

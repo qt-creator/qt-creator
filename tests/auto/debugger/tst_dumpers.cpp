@@ -1501,7 +1501,7 @@ template <typename K, typename V>
         append(" isSimpleValue: ").append(N(simpleVal)).
         append(" keyOffset: ").append(N(transKeyOffset)).append(" valueOffset: ").
         append(N(transValOffset)).append(" mapnodesize: ").
-        append(N(nodeSize)).append("',children=[");
+        append(N(qulonglong(nodeSize))).append("',children=["); // 64bit Linux hack
     typedef typename QMap<K, V>::iterator mapIter;
     for (mapIter it = map.begin(); it != map.end(); ++it) {
         if (it != map.begin())
@@ -2368,7 +2368,9 @@ void tst_Debugger::initTestCase()
     d.weakref = d.strongref = 0; // That's what the destructor expects.
     QVERIFY(sizeof(int) == sizeof(d.weakref));
     QVERIFY(sizeof(int) == sizeof(d.strongref));
-    QVERIFY(sizeof(QObjectPrivate) == sizeof(ObjectPrivate));
+    const size_t qObjectPrivateSize = sizeof(QObjectPrivate);
+    const size_t objectPrivateSize = sizeof(ObjectPrivate);    
+    QVERIFY2(qObjectPrivateSize == objectPrivateSize, QString::fromLatin1("QObjectPrivate=%1 ObjectPrivate=%2").arg(qObjectPrivateSize).arg(objectPrivateSize).toLatin1().constData());
     VERIFY_OFFSETOF(threadData);
     VERIFY_OFFSETOF(extraData);
     VERIFY_OFFSETOF(objectName);
@@ -2379,11 +2381,12 @@ void tst_Debugger::initTestCase()
     VERIFY_OFFSETOF(currentChildBeingDeleted);
     VERIFY_OFFSETOF(connectedSignals);
     VERIFY_OFFSETOF(deleteWatch);
+#ifdef QT3_SUPPORT
 #if QT_VERSION < 0x040600
     VERIFY_OFFSETOF(pendingChildInsertedEvents);
-#else
-    VERIFY_OFFSETOF(declarativeData);
-    VERIFY_OFFSETOF(objectGuards);
+#endif
+#endif
+#if QT_VERSION >= 0x040600
     VERIFY_OFFSETOF(sharedRefcount);
 #endif
 }

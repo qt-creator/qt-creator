@@ -3305,36 +3305,12 @@ static void parseSizeCache(const GdbMi &contents, QtDumperHelper *dumperHelper)
 void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const QVariant &)
 {
     const double dumperVersionRequired = 1.0;
-    m_dumperHelper.clear();
     //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
 
     GdbMi contents;
     QTC_ASSERT(parseConsoleStream(record, &contents), /**/);
-    GdbMi simple = contents.findChild("dumpers");
-
-    m_dumperHelper.setQtNamespace(_(contents.findChild("namespace").data()));
-    GdbMi qtversion = contents.findChild("qtversion");
-    int qtv = 0;
-    if (qtversion.children().size() == 3) {
-        qtv = (qtversion.childAt(0).data().toInt() << 16)
-                    + (qtversion.childAt(1).data().toInt() << 8)
-                    + qtversion.childAt(2).data().toInt();
-        //qDebug() << "FOUND QT VERSION:" << qtversion.toString() << m_qtVersion;
-    }
-    m_dumperHelper.setQtVersion(qtv);
-    //qDebug() << "CONTENTS:" << contents.toString();
-    //qDebug() << "SIMPLE DUMPERS:" << simple.toString();
-
-    QStringList availableSimpleDebuggingHelpers;
-    foreach (const GdbMi &item, simple.children())
-        availableSimpleDebuggingHelpers.append(_(item.data()));
-    m_dumperHelper.parseQueryTypes(availableSimpleDebuggingHelpers, QtDumperHelper::GdbDebugger);
-
-    if (availableSimpleDebuggingHelpers.isEmpty()) {
-        if (!m_dumperInjectionLoad) // Retry if thread has not terminated yet.
-            m_debuggingHelperState = DebuggingHelperUnavailable;
-        showStatusMessage(tr("Debugging helpers not found."));
-    } else {
+    const bool ok = m_dumperHelper.parseQuery(contents, QtDumperHelper::GdbDebugger) && m_dumperHelper.typeCount();
+    if (ok) {
         // Get version and sizes from dumpers. Expression cache
         // currently causes errors.
         const double dumperVersion = getDumperVersion(contents);
@@ -3347,6 +3323,10 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
         m_debuggingHelperState = DebuggingHelperAvailable;
         const QString successMsg = tr("Dumper version %1, %n custom dumpers found.", 0, m_dumperHelper.typeCount()).arg(dumperVersion);
         showStatusMessage(successMsg);
+    } else {
+            if (!m_dumperInjectionLoad) // Retry if thread has not terminated yet.
+            m_debuggingHelperState = DebuggingHelperUnavailable;
+        showStatusMessage(tr("Debugging helpers not found."));
     }
     //qDebug() << m_dumperHelper.toString(true);
     //qDebug() << m_availableSimpleDebuggingHelpers << "DATA DUMPERS AVAILABLE";

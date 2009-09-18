@@ -29,6 +29,7 @@
 
 #include "watchutils.h"
 #include "watchhandler.h"
+#include "gdb/gdbmi.h"
 #include <utils/qtcassert.h>
 
 #include <texteditor/basetexteditor.h>
@@ -725,6 +726,10 @@ QString QtDumperHelper::toString(bool debug) const
         for (SizeCache::const_iterator it = m_sizeCache.constBegin(); it != scend; ++it) {
             str << ' ' << it.key() << '=' << it.value();
         }
+        str << "\nExpression cache: (" << m_expressionCache.size() << ")\n";
+        const QMap<QString, QString>::const_iterator excend = m_expressionCache.constEnd();
+        for (QMap<QString, QString>::const_iterator it = m_expressionCache.constBegin(); it != excend; ++it)
+            str << "    " << it.key() << ' ' << it.value() << '\n';
         return rc;
     }
     const QString nameSpace = m_qtNamespace.isEmpty() ? QCoreApplication::translate("QtDumperHelper", "<none>") : m_qtNamespace;
@@ -747,11 +752,6 @@ int QtDumperHelper::qtVersion() const
 QString QtDumperHelper::qtNamespace() const
 {
     return m_qtNamespace;
-}
-
-void QtDumperHelper::setQtNamespace(const QString &qtNamespace)
-{
-    m_qtNamespace = qtNamespace;
 }
 
 int QtDumperHelper::typeCount() const
@@ -840,23 +840,6 @@ QString QtDumperHelper::qtVersionString() const
     QTextStream str(&rc);
     formatQtVersion(m_qtVersion, str);
     return rc;
-}
-
-void QtDumperHelper::setQtVersion(int v)
-{
-    m_qtVersion = v;
-}
-
-void QtDumperHelper::setQtVersion(const QString &v)
-{
-    m_qtVersion = 0;
-    const QStringList vl = v.split(QLatin1Char('.'));
-    if (vl.size() == 3) {
-        const int major = vl.at(0).toInt();
-        const int minor = vl.at(1).toInt();
-        const int patch = vl.at(2).toInt();
-        m_qtVersion = (major << 16) | (minor << 8) | patch;
-    }
 }
 
 // Parse a list of types.
@@ -1049,134 +1032,6 @@ bool DumperParser::handleValue(const char *k, int size)
     return true;
 }
 
-/* Parse 'query' (1) protocol response of the custom dumpers:
- * "'dumpers=["QByteArray","QDateTime",..."std::basic_string",],
- * qtversion=["4","5","1"],namespace="""' */
-
-class QueryDumperParser : public DumperParser {
-public:
-    typedef QPair<QString, int> SizeEntry;
-    explicit QueryDumperParser(const char *s);
-
-    struct Data {
-        QString qtNameSpace;
-        QString qtVersion;
-        QString dumperVersion;
-        QStringList types;
-        QList<SizeEntry> sizes;
-        QMap<QString, QString> expressionCache;
-    };
-
-    inline Data data() const { return m_data; }
-
-protected:
-    virtual bool handleKeyword(const char *k, int size);
-    virtual bool handleListStart();
-    virtual bool handleListEnd();
-    virtual bool handleHashEnd();
-    virtual bool handleValue(const char *k, int size);
-
-private:
-    enum Mode { None, ExpectingDumpers, ExpectingQtVersion, ExpectingDumperVersion,
-                ExpectingNameSpace, ExpectingSizes, ExpectingExpressionCache };
-    Mode m_mode;
-    Data m_data;
-    QString m_lastSizeType;
-    QString m_lastExpression;
-};
-
-QueryDumperParser::QueryDumperParser(const char *s) :
-    DumperParser(s),
-    m_mode(None)
-{
-}
-
-bool QueryDumperParser::handleKeyword(const char *k, int size)
-{
-    switch (m_mode) {
-    case ExpectingSizes:
-        m_lastSizeType = QString::fromLatin1(k, size);
-        return true;
-    case ExpectingExpressionCache:
-        m_lastExpression = QString::fromLatin1(k, size);
-        return true;
-    default:
-       break;
-    }
-    if (!qstrncmp(k, "dumpers", size)) {
-        m_mode = ExpectingDumpers;
-        return true;
-    }
-    if (!qstrncmp(k, "qtversion", size)) {
-        m_mode = ExpectingQtVersion;
-        return true;
-    }
-    if (!qstrncmp(k, "dumperversion", size)) {
-        m_mode = ExpectingDumperVersion;
-        return true;
-    }
-    if (!qstrncmp(k, "namespace", size)) {
-        m_mode = ExpectingNameSpace;
-        return true;
-    }
-    if (!qstrncmp(k, "sizes", size)) {
-        m_mode = ExpectingSizes;
-        return true;
-    }
-    if (!qstrncmp(k, "expressions", size)) {
-        m_mode = ExpectingExpressionCache;
-        return true;
-    }
-    qWarning("%s Unexpected keyword %s.\n", Q_FUNC_INFO, QByteArray(k, size).constData());
-    return false;
-}
-
-bool QueryDumperParser::handleListStart()
-{
-    return m_mode == ExpectingDumpers || m_mode == ExpectingQtVersion;
-}
-
-bool QueryDumperParser::handleListEnd()
-{
-    m_mode = None;
-    return true;
-}
-
-bool QueryDumperParser::handleHashEnd()
-{
-    m_mode = None; // Size hash
-    return true;
-}
-
-bool QueryDumperParser::handleValue(const char *k, int size)
-{
-    switch (m_mode) {
-    case None:
-        return false;
-    case ExpectingDumpers:
-        m_data.types.push_back(QString::fromLatin1(k, size));
-        break;
-    case ExpectingNameSpace:
-        m_data.qtNameSpace = QString::fromLatin1(k, size);
-        break;
-    case ExpectingDumperVersion:
-        m_data.dumperVersion = QString::fromLatin1(k, size);
-        break;
-    case ExpectingQtVersion: // ["4","1","5"]
-        if (!m_data.qtVersion.isEmpty())
-            m_data.qtVersion += QLatin1Char('.');
-        m_data.qtVersion += QString::fromLatin1(k, size);
-        break;
-    case ExpectingSizes:
-        m_data.sizes.push_back(SizeEntry(m_lastSizeType, QString::fromLatin1(k, size).toInt()));
-        break;
-    case ExpectingExpressionCache:
-        m_data.expressionCache.insert(m_lastExpression, QString::fromLatin1(k, size));
-        break;
-    }
-    return true;
-}
-
 static inline QString qClassName(const QString &qtNamespace, const char *className)
 {
     if (qtNamespace.isEmpty())
@@ -1196,34 +1051,68 @@ void QtDumperHelper::setQClassPrefixes(const QString &qNamespace)
     m_qWeakPointerPrefix = qClassName(qNamespace, "QWeakPointer");
 }
 
-// parse a query
-bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
+static inline double getDumperVersion(const GdbMi &contents)
 {
-    QueryDumperParser parser(data);
-    if (!parser.run())
-        return false;
-    clear();
-    m_qtNamespace = parser.data().qtNameSpace;
-    setQtVersion(parser.data().qtVersion);
-    setQClassPrefixes(m_qtNamespace);
-    parseQueryTypes(parser.data().types, debugger);
-    foreach (const QueryDumperParser::SizeEntry &se, parser.data().sizes)
-        addSize(se.first, se.second);
-    m_expressionCache = parser.data().expressionCache;
-    // Version
-    if (!parser.data().dumperVersion.isEmpty()) {
-        double dumperVersion;
+    const GdbMi dumperVersionG = contents.findChild("dumperversion");
+    if (dumperVersionG.type() != GdbMi::Invalid) {
         bool ok;
-        dumperVersion = parser.data().dumperVersion.toDouble(&ok);
+        const double v = QString::fromAscii(dumperVersionG.data()).toDouble(&ok);
         if (ok)
-            m_dumperVersion = dumperVersion;
+            return v;
     }
+    return 1.0;
+}
+
+bool QtDumperHelper::parseQuery(const GdbMi &contents, Debugger debugger)
+{
+    clear();
+    if (debug > 1)
+        qDebug() << "parseQuery" << contents.toString(true, 2);
+
+    // Common info, dumper version, etc
+    m_qtNamespace = QLatin1String(contents.findChild("namespace").data());
+    int qtv = 0;
+    const GdbMi qtversion = contents.findChild("qtversion");
+    if (qtversion.children().size() == 3) {
+        qtv = (qtversion.childAt(0).data().toInt() << 16)
+                    + (qtversion.childAt(1).data().toInt() << 8)
+                    + qtversion.childAt(2).data().toInt();
+    }
+    m_qtVersion = qtv;
+    // Get list of helpers
+    QStringList availableSimpleDebuggingHelpers;
+    foreach (const GdbMi &item, contents.findChild("dumpers").children())
+        availableSimpleDebuggingHelpers.append(QLatin1String(item.data()));
+    parseQueryTypes(availableSimpleDebuggingHelpers, debugger);
+    m_dumperVersion = getDumperVersion(contents);
+    // Parse sizes
+    foreach (const GdbMi &sizesList, contents.findChild("sizes").children()) {
+        const int childCount = sizesList.childCount();
+        if (childCount > 1) {
+            const int size = sizesList.childAt(0).data().toInt();
+            for (int c = 1; c < childCount; c++)
+                addSize(QLatin1String(sizesList.childAt(c).data()), size);
+        }
+    }
+    // Parse expressions
+    foreach (const GdbMi &exprList, contents.findChild("expressions").children())
+        if (exprList.childCount() == 2)
+            m_expressionCache.insert(QLatin1String(exprList.childAt(0).data()),
+                                     QLatin1String(exprList.childAt(1).data()));
     return true;
 }
 
-void QtDumperHelper::addExpression(const QString &expression, const QString &value)
+// parse a query
+bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
 {
-    m_expressionCache.insert(expression, value);
+    QByteArray fullData = data;
+    fullData.insert(0, '{');
+    fullData.append(data);
+    fullData.append('}');
+    GdbMi root(fullData);
+    if (!root.isValid())
+        return false;
+    return parseQuery(root, debugger);
 }
 
 void QtDumperHelper::addSize(const QString &name, int size)
