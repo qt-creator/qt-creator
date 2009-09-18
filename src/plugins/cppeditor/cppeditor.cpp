@@ -1435,8 +1435,12 @@ bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor) const
     CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(cursor);
 
-    if (tk.isComment())
-        return false;
+    if (tk.isComment()) {
+        const int pos = cursor.selectionEnd();
+
+        if (pos < tk.end())
+            return false;
+    }
 
     return true;
 }
