@@ -622,7 +622,7 @@
     <message>
         <location line="+1"/>
         <source>Could not fetch code</source>
-        <translation type="unfinished">Impossible de récuperer le code</translation>
+        <translation>Impossible de récuperer le code</translation>
     </message>
 </context>
 <context>
@@ -635,7 +635,7 @@
     <message>
         <location line="+0"/>
         <source>Some error occured while posting</source>
-        <translation type="unfinished">Une erreur s&apos;est produite lors de la publication</translation>
+        <translation>Une erreur s&apos;est produite lors de la publication</translation>
     </message>
 </context>
 <context>
@@ -653,22 +653,22 @@
         <location filename="../../../src/plugins/cpaster/settingspage.ui"/>
         <location filename="../../../src/plugins/cpaster/settingspage.cpp" line="+62"/>
         <source>General</source>
-        <translation type="unfinished">Général</translation>
+        <translation>Général</translation>
     </message>
     <message>
         <location/>
         <source>CodePaster Server:</source>
-        <translation type="unfinished">Serveur CodePaster :</translation>
+        <translation>Serveur CodePaster :</translation>
     </message>
     <message>
         <location/>
         <source>Username:</source>
-        <translation type="unfinished">Nom d&apos;utilisateur :</translation>
+        <translation>Nom d&apos;utilisateur :</translation>
     </message>
     <message>
         <location/>
         <source>Copy Paste URL to clipboard</source>
-        <translation type="unfinished">Copier l&apos;URL vers le presse papier</translation>
+        <translation>Copier l&apos;URL dans le presse papier</translation>
     </message>
     <message>
         <location/>
@@ -678,7 +678,7 @@
     <message>
         <location filename="../../../src/plugins/cpaster/settingspage.cpp" line="+10"/>
         <source>CodePaster</source>
-        <translation type="unfinished">CodePaster</translation>
+        <translation>CodePaster</translation>
     </message>
 </context>
 <context>
@@ -686,22 +686,22 @@
     <message>
         <location filename="../../../src/plugins/debugger/commonoptionspage.ui"/>
         <source>User interface</source>
-        <translation type="unfinished">Interface utilisateur</translation>
+        <translation>Interface utilisateur</translation>
     </message>
     <message>
         <location/>
         <source>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</source>
-        <translation type="unfinished">Cocher cette case peuplera la vue du fichier source automatiquement mais risque de ralentir considérablement le lancement du débogueur.</translation>
+        <translation type="unfinished">Cocher cette case peuplera automatiquement la vue du fichier source mais risque de ralentir considérablement le lancement du débogueur.</translation>
     </message>
     <message>
         <location/>
         <source>Populate source file view automatically</source>
-        <translation type="unfinished">Peupler la vue du fichier source automatiquement</translation>
+        <translation>Peupler la vue du fichier source automatiquement</translation>
     </message>
     <message>
         <location/>
         <source>Use alternating row colors in debug views</source>
-        <translation type="unfinished">Alterner les couleurs de ligne pour le débogueur visuel</translation>
+        <translation type="unfinished">Alterner la couleur de ligne dans le débogueur visuel</translation>
     </message>
     <message>
         <location/>
@@ -724,22 +724,22 @@
     <message>
         <location/>
         <source>Use tooltips while debugging</source>
-        <translation type="unfinished">Utiliser les info-bulles lors du déboguage</translation>
+        <translation>Utiliser les info-bulles lors du déboguage</translation>
     </message>
     <message>
         <location/>
         <source>Enable reverse debugging</source>
-        <translation type="unfinished">Activer le déboguage inversé</translation>
+        <translation>Activer le déboguage inversé</translation>
     </message>
     <message>
         <location/>
         <source>Maximal stack depth:</source>
-        <translation type="unfinished">Profondeur maximale de la pile :</translation>
+        <translation>Profondeur maximale de la pile :</translation>
     </message>
     <message>
         <location/>
         <source>&lt;unlimited&gt;</source>
-        <translation type="unfinished">&lt;illimitée&gt;</translation>
+        <translation>&lt;illimitée&gt;</translation>
     </message>
 </context>
 <context>
@@ -2364,32 +2364,32 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/projectintropage.ui"/>
         <source>Introduction and project location</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Introduction et emplacement du projet</translation>
     </message>
     <message>
         <location/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom :</translation>
     </message>
     <message>
         <location/>
         <source>Create in:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Créer dans :</translation>
     </message>
     <message>
         <location filename="../../../src/libs/utils/projectintropage.cpp" line="+66"/>
         <source>&lt;Enter_Name&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Entrer_nom&gt;</translation>
     </message>
     <message>
         <location line="+97"/>
         <source>The project already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le projet existe déjà.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>A file with that name already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Un fichier existe déjà avec ce nom.</translation>
     </message>
 </context>
 <context>
@@ -2397,7 +2397,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/projectnamevalidatinglineedit.cpp" line="+51"/>
         <source>The name must not contain the &apos;.&apos;-character.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le nom ne peut pas contenir le caractère &apos;.&apos;.</translation>
     </message>
 </context>
 <context>
@@ -2405,17 +2405,17 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/submiteditorwidget.ui"/>
         <source>Subversion Submit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Submit Subversion</translation>
     </message>
     <message>
         <location/>
         <source>Des&amp;cription</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Des&amp;cription</translation>
     </message>
     <message>
         <location/>
         <source>F&amp;iles</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">F&amp;ichiers</translation>
     </message>
 </context>
 <context>
@@ -2423,17 +2423,17 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/filewizardpage.ui"/>
         <source>Choose the location</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir l&apos;emplacement</translation>
     </message>
     <message>
         <location/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom :</translation>
     </message>
     <message>
         <location/>
         <source>Path:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Chemin :</translation>
     </message>
 </context>
 <context>
@@ -2441,12 +2441,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/reloadpromptutils.cpp" line="+41"/>
         <source>File Changed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier modifié</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The file %1 has changed outside Qt Creator. Do you want to reload it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le fichier %1 a été modifié en dehors de Qt Creator. Voulez-vous le charger à nouveau?</translation>
     </message>
 </context>
 <context>
@@ -2454,12 +2454,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+369"/>
         <source>Sort alphabetically</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Trier par ordre alphabétique</translation>
     </message>
     <message>
         <location line="+647"/>
         <source>Simplify Declarations</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Simplifier les declarations</translation>
     </message>
 </context>
 <context>
@@ -2467,17 +2467,17 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cppeditor/cppclasswizard.cpp" line="+63"/>
         <source>Enter class name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrer le nom de la classe</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The header and source file names will be derived from the class name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le nom du fichier source et du fichier d&apos;en-tête seront dérivé du nom de la classe</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Configure...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configurer...</translation>
     </message>
 </context>
 <context>
@@ -2606,12 +2606,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/completionsettingspage.cpp" line="+57"/>
         <source>Completion</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Complétion</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Text Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Éditeur de texte</translation>
     </message>
 </context>
 <context>
@@ -2619,7 +2619,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppclassesfilter.h" line="+46"/>
         <source>Classes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Classes</translation>
     </message>
 </context>
 <context>
@@ -2627,7 +2627,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppcurrentdocumentfilter.h" line="+53"/>
         <source>Methods in current Document</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Méthodes du document courant</translation>
     </message>
 </context>
 <context>
@@ -2641,27 +2641,32 @@ Voulez vous les écraser?</translation>
 **   To protect a percent sign, use &apos;%%&apos;.
 **************************************************************************/
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">/**************************************************************************
+** modèle de licence Qt Creator
+**   Mot-clés spéciaux: %USER% %DATE% %YEAR%
+**   Variables d&apos;environnement: %$VARIABLE%
+**   Pour échaper un caractère pourcentage, utilisez &apos;%%&apos;.
+**************************************************************************/</translation>
     </message>
     <message>
         <location line="+157"/>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Éditer...</translation>
     </message>
     <message>
         <location line="+51"/>
         <source>Choose a new license template file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir un nouveau fichier pour le modèle de license</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Template write error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur d&apos;écriture du modèle</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Cannot write to %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;écrire %1: %2</translation>
     </message>
 </context>
 <context>
@@ -2669,7 +2674,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppfunctionsfilter.h" line="+46"/>
         <source>Methods</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Méthodes</translation>
     </message>
 </context>
 <context>
@@ -2677,7 +2682,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+270"/>
         <source>Indexing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Indexation</translation>
     </message>
 </context>
 <context>
@@ -2685,7 +2690,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppquickopenfilter.h" line="+53"/>
         <source>Classes and Methods</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Classes et méthodes</translation>
     </message>
 </context>
 <context>
@@ -2693,12 +2698,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+231"/>
         <source>&amp;C++</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;C++</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Switch Header/Source</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sauter vers en-tête/source</translation>
     </message>
 </context>
 <context>
@@ -2706,12 +2711,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="-139"/>
         <source>Search class</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rechercher la classe</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/cpptools/cpptoolsplugin.h" line="+73"/>
         <source>Class Declarations</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Déclaration de classe</translation>
     </message>
 </context>
 <context>
@@ -2719,12 +2724,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+53"/>
         <source>Search functions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rechercher functions</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/cpptools/cpptoolsplugin.h" line="+25"/>
         <source>Function calls</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Appels de function</translation>
     </message>
 </context>
 <context>
@@ -2732,7 +2737,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+431"/>
         <source>%1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 de %2</translation>
     </message>
 </context>
 <context>
@@ -2740,7 +2745,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/debugger/debuggerconstants.h" line="+57"/>
         <source>Common</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commun</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2750,7 +2755,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+380"/>
         <source>&lt;Encoding error&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Erreur d&apos;encodage&gt;</translation>
     </message>
 </context>
 <context>
@@ -2758,12 +2763,12 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+134"/>
         <source>Select Executable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selectionner l&apos;exécutable</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Select Core File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sélectionner le fichier core</translation>
     </message>
 </context>
 <context>
@@ -2771,22 +2776,22 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="-58"/>
         <source>Process ID</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ID du processus</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">État</translation>
     </message>
     <message>
         <location line="+165"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rafraîchir</translation>
     </message>
 </context>
 <context>
@@ -2794,7 +2799,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+71"/>
         <source>Select Executable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selectionner l&apos;exécutable</translation>
     </message>
 </context>
 <context>
@@ -2802,107 +2807,107 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/plugins/debugger/breakhandler.cpp" line="+198"/>
         <source>Marker File:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier marqué :</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Marker Line:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ligne marquée :</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Breakpoint Number:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Numéro du point d&apos;arrêt :</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Breakpoint Address:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Adresse du point d&apos;arrêt :</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Property</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propriété</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Requested</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Demandé</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Obtained</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Obtenu</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Internal Number:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Numéro interne :</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>File Name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom du fichier :</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Function Name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom de la fonction:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line Number:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Numéro de ligne :</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Condition:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Condition:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Ignore Count:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre de passages à ignorer:</translation>
     </message>
     <message>
         <location line="+192"/>
         <source>Number</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Function</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fonction</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichier</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ligne</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Condition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Condition</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ignorer</translation>
     </message>
     <message>
         <location line="+62"/>
         <source>Breakpoint will only be hit if this condition is met.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le point d&apos;arrêt ne sera utilisé que si la condition est remplie.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Breakpoint will only be hit after being ignored so many times.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le point d&apos;arrêt ne sera utilisé qu&apos;après avoir été ignoré autant de fois.</translation>
     </message>
 </context>
 <context>
