@@ -37,6 +37,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QLinkedList>
 #include <QtCore/QList>
+#include <QtCore/QQueue>
 #include <QtCore/QLocale>
 #include <QtCore/QMap>
 #include <QtCore/QMetaEnum>
@@ -3622,6 +3623,10 @@ static inline void dumpSizes(QDumper &d)
     sizeMap.insert(sizeof(QStringList), NS"QStringList");
 #ifndef QT_BOOTSTRAPPED
     sizeMap.insert(sizeof(QObject), NS"QObject");
+    sizeMap.insert(sizeof(QList<int>), NS"QList<int>");
+    sizeMap.insert(sizeof(QLinkedList<int>), NS"QLinkedList<int>");
+    sizeMap.insert(sizeof(QVector<int>), NS"QVector<int>");
+    sizeMap.insert(sizeof(QQueue<int>), NS"QQueue<int>");
 #endif
 #if USE_QT_GUI
     sizeMap.insert(sizeof(QWidget), NS"QWidget");

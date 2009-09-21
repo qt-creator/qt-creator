@@ -227,6 +227,8 @@ QString WatchData::toString() const
     str << QLatin1Char('{');
     if (!iname.isEmpty())
         str << "iname=\"" << iname << doubleQuoteComma;
+    if (!name.isEmpty() && name != iname)
+        str << "name=\"" << name << doubleQuoteComma;
     if (!addr.isEmpty())
         str << "addr=\"" << addr << doubleQuoteComma;
     if (!exp.isEmpty())

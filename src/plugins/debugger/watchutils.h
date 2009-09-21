@@ -90,49 +90,6 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
 // Decode string data as returned by the dumper helpers.
 QString decodeData(const QByteArray &baIn, int encoding);
 
-// Result of a dumper call.
-struct QtDumperResult
-{
-    struct Child {
-        Child();
-
-        int keyEncoded;
-        int valueEncoded;
-        int childCount;
-        bool valueEnabled;
-        QString name;
-        QString address;
-        QString exp;
-        QString type;
-        QString displayedType;
-        QByteArray key;
-        bool valueEncountered;
-        QByteArray value;
-    };
-
-    QtDumperResult();
-    void clear();
-    QList<WatchData> toWatchData(int source = 0) const;
-
-    QString iname;
-    QString address;
-    QString addressInfo; // "<synthetic>" or such, in the 2nd adress field.
-    QString type;
-    QString extra;
-    QString displayedType;
-    bool valueEncountered;
-    QByteArray value;
-    int valueEncoded;
-    bool valueEnabled;
-    int childCount;
-    bool internal;
-    QString childType;
-    int childChildCount;
-    QList <Child> children;
-};
-
-QDebug operator<<(QDebug in, const QtDumperResult &d);
-
 /* Attempt to put common code of the dumper handling into a helper
  * class.
  * "Custom dumper" is a library compiled against the current
@@ -210,7 +167,7 @@ public:
 
     // Parse the value response (protocol 2) from debuggee buffer.
     // 'data' excludes the leading indicator character.
-    static bool parseValue(const char *data, QtDumperResult *r);
+    static bool parseValue(const char *data, QList<WatchData> *l);
 
     // What kind of debugger expressions are required to dump that type.
     // A debugger with restricted expression syntax can handle
@@ -245,7 +202,9 @@ private:
     // They are not complete (std::allocator<X>).
     enum SpecialSizeType { IntSize, PointerSize, StdAllocatorSize,
                            QSharedPointerSize, QSharedDataPointerSize,
-                           QWeakPointerSize, QPointerSize, SpecialSizeCount };
+                           QWeakPointerSize, QPointerSize,
+                           QListSize, QLinkedListSize, QVectorSize, QQueueSize,
+                           SpecialSizeCount };
 
     // Resolve name to enumeration or SpecialSizeCount (invalid)
     SpecialSizeType specialSizeType(const QString &t) const;
@@ -263,6 +222,10 @@ private:
     QString m_qSharedPointerPrefix;
     QString m_qSharedDataPointerPrefix;
     QString m_qWeakPointerPrefix;
+    QString m_qListPrefix;
+    QString m_qLinkedListPrefix;
+    QString m_qVectorPrefix;
+    QString m_qQueuePrefix;
 };
 
 QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d);

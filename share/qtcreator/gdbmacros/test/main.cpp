@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include <QtCore/QStringList>
+#include <QtCore/QLinkedList>
 #include <QtCore/QVector>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QTimer>
@@ -138,6 +139,16 @@ static int dumpQIntList()
     return 0;
 }
 
+static int dumpQIntLinkedList()
+{
+    QLinkedList<int> test = QLinkedList<int>() << 1 << 2;
+    prepareInBuffer("QLinkedList", "local.qintlinkedlist", "local.qlinkedintlist", "int");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), 0, 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
 static int dumpQIntVector()
 {
     QVector<int> test = QVector<int>() << 42 << 43;
@@ -171,6 +182,20 @@ static int dumpQMapIntString()
     test.insert(43, QLatin1String("fortytree"));
     prepareInBuffer("QMap", "local.qmapintqstring", "local.qmapintqstring", "int@QString");
     qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), sizeof(QString), sizeof(mapNode), valueOffset);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
+static int dumpQMapQStringString()
+{
+    QMap<QString,QString> test;
+    QMapNode<QString,QString> mapNode;
+    const int valueOffset = (char*)&(mapNode.value) - (char*)&mapNode;
+    test.insert(QLatin1String("42s"), QLatin1String("fortytwo"));
+    test.insert(QLatin1String("423"), QLatin1String("fortytree"));
+    prepareInBuffer("QMap", "local.qmapqstringqstring", "local.qmapqstringqstring", "QString@QString");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(QString), sizeof(QString), sizeof(mapNode), valueOffset);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
     return 0;
@@ -417,9 +442,11 @@ static TypeDumpFunctionMap registerTypes()
     rc.insert("QSharedPointer<QString>", dumpQSharedPointerQString);
     rc.insert("QStringList", dumpQStringList);
     rc.insert("QList<int>", dumpQIntList);
+    rc.insert("QLinkedList<int>", dumpQIntLinkedList);
     rc.insert("QList<std::string>", dumpStdStringQList);
     rc.insert("QVector<int>", dumpQIntVector);
     rc.insert("QMap<int,QString>", dumpQMapIntString);
+    rc.insert("QMap<QString,QString>", dumpQMapQStringString);
     rc.insert("QMap<int,int>", dumpQMapIntInt);
     rc.insert("string", dumpStdString);
     rc.insert("wstring", dumpStdWString);

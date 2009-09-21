@@ -492,172 +492,6 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
     return expr;
 }
 
-// --------------- QtDumperResult
-
-QtDumperResult::Child::Child() :
-   keyEncoded(0),
-   valueEncoded(0),
-   childCount(-1),
-   valueEnabled(true),
-   valueEncountered(false)
-{
-}
-
-QtDumperResult::QtDumperResult() :
-    valueEncountered(false),
-    valueEncoded(0),
-    valueEnabled(true),
-    childCount(-1),
-    internal(false),
-    childChildCount(-1)
-{
-}
-
-void QtDumperResult::clear()
-{
-    iname.clear();
-    value.clear();
-    address.clear();
-    addressInfo.clear();
-    type.clear();
-    extra.clear();
-    displayedType.clear();
-    valueEncoded = 0;
-    valueEncountered = false;
-    valueEnabled = false;
-    childCount = -1;
-    internal = false;
-    childType.clear();
-    children.clear();
-    childChildCount = -1;
-}
-
-QList<WatchData> QtDumperResult::toWatchData(int source) const
-{
-    QList<WatchData> rc;
-    rc.push_back(WatchData());
-    WatchData &root = rc.front();
-    root.iname = iname;
-    const QChar dot = QLatin1Char('.');
-    const int lastDotIndex = root.iname.lastIndexOf(dot);
-    root.exp = root.name = lastDotIndex == -1 ? iname : iname.mid(lastDotIndex + 1);
-    if (valueEncountered) {
-        root.setValue(decodeData(value, valueEncoded));
-        root.valueEnabled = valueEnabled;
-    }
-    root.setType(type);
-    if (!displayedType.isEmpty())
-        root.displayedType = displayedType;
-    root.setAddress(address);
-    root.source = source;
-    if (childCount >= 0)
-        root.setHasChildren(childCount > 0);
-    // Children. Sanity check after parsing sets childcount to list size
-    // if list is not empty
-    if (children.empty()) {
-        if (childCount > 0)
-            root.setChildrenNeeded();
-    } else {
-        root.setChildrenUnneeded();
-        for (int c = 0; c < childCount; c++) {
-            const Child &dchild = children.at(c);
-            rc.push_back(WatchData());
-            WatchData &wchild = rc.back();
-            wchild.source = source;
-            wchild.iname = iname;
-            // Name can be empty for array-like things
-            const QString iname = dchild.name.isEmpty() ? QString::number(c) : dchild.name;
-            // Use key entry as name (which is used for map nodes)
-            if (dchild.key.isEmpty()) {
-                wchild.name = iname;
-            } else {
-                // Do not use map keys as iname since they might contain quotes.
-                wchild.name = decodeData(dchild.key, dchild.keyEncoded);
-                if (wchild.name.size() > 13) {
-                    wchild.name.truncate(12);
-                    wchild.name += QLatin1String("...");
-                }
-            }
-            // Append iname to total iname.
-            wchild.iname += dot;
-            wchild.iname += iname;
-            wchild.exp = dchild.exp;
-            if (dchild.valueEncountered) {
-                wchild.valueEnabled = dchild.valueEnabled;
-                wchild.setValue(decodeData(dchild.value, dchild.valueEncoded));
-            }
-            wchild.setAddress(dchild.address);
-            // The type setter sets hasChildren for known types.
-            wchild.setType(dchild.type.isEmpty() ? childType : dchild.type);
-            if (!dchild.displayedType.isEmpty())
-                wchild.displayedType = dchild.displayedType;
-            // Child overrides.
-            const int effectiveChildChildCount = dchild.childCount == -1 ?  childChildCount : dchild.childCount;
-            switch (effectiveChildChildCount) {
-            case -1: // In this case, trust WatchData::setType().
-                break;
-            case 0:
-                wchild.setHasChildren(false);
-                break;
-            default:
-                wchild.setHasChildren(true);
-                wchild.setChildrenNeeded();
-                break;
-            }
-        }
-    }
-    if (debug) {
-        QDebug nospace = qDebug().nospace();
-        nospace << "QtDumperResult::toWatchData" << *this << '\n';
-        foreach(const WatchData &wd, rc)
-            nospace << "  " << wd.toString() << '\n';
-    }
-
-    return rc;
-}
-
-QDebug operator<<(QDebug in, const QtDumperResult &d)
-{
-    QDebug nospace = in.nospace();
-    nospace << " iname=" << d.iname << " type=" << d.type
-            << " displayed=" << d.displayedType
-            << " address=" << d.address;
-    if (!d.addressInfo.isEmpty())
-        nospace << " addressInfo=" << d.addressInfo;
-    if (d.valueEncountered) {
-        nospace << " encoded=" << d.valueEncoded
-                << " value="  << d.value
-                << " enabled=" << d.valueEnabled;
-    } else {
-        nospace  << " <no value>";
-    }
-    nospace << " childnumchild=" << d.childChildCount
-            << " internal=" << d.internal
-            << " extra='" << d.extra << "'\n";
-
-    const int realChildCount = d.children.size();
-    if (d.childCount || realChildCount) {
-        nospace << "childCount=" << d.childCount << '/' << realChildCount
-                << " childType=" << d.childType << '\n';
-        for (int i = 0; i < realChildCount; i++) {
-            const QtDumperResult::Child &c = d.children.at(i);
-            nospace << "   #" << i << " addr=" << c.address
-                    << " enabled=" << c.valueEnabled
-                    << " type=" << c.type << " exp=" << c.exp
-                    << " name=" << c.name;
-            if (!c.key.isEmpty())
-                nospace << " keyencoded=" << c.keyEncoded << " key=" << c.key;
-            if (c.valueEncountered) {
-                nospace << " valueencoded=" << c.valueEncoded << " value=" << c.value;
-            } else {
-                nospace  << " <no value>";
-            }
-            nospace  << "childcount=" << c.childCount << '\n';
-        }
-    }
-    return in;
-}
-
 // ----------------- QtDumperHelper::TypeData
 QtDumperHelper::TypeData::TypeData() :
     type(UnknownType),
@@ -1049,6 +883,9 @@ void QtDumperHelper::setQClassPrefixes(const QString &qNamespace)
     m_qSharedPointerPrefix = qClassName(qNamespace, "QSharedPointer");
     m_qSharedDataPointerPrefix = qClassName(qNamespace, "QSharedDataPointer");
     m_qWeakPointerPrefix = qClassName(qNamespace, "QWeakPointer");
+    m_qListPrefix = qClassName(qNamespace, "QList");
+    m_qLinkedListPrefix = qClassName(qNamespace, "QLinkedList");
+    m_qVectorPrefix = qClassName(qNamespace, "QVector");
 }
 
 static inline double getDumperVersion(const GdbMi &contents)
@@ -1205,6 +1042,14 @@ QtDumperHelper::SpecialSizeType QtDumperHelper::specialSizeType(const QString &t
         return QSharedDataPointerSize;
     if (typeName.startsWith(m_qWeakPointerPrefix))
         return QWeakPointerSize;
+    if (typeName.startsWith(m_qListPrefix))
+        return QListSize;
+    if (typeName.startsWith(m_qLinkedListPrefix))
+        return QLinkedListSize;
+    if (typeName.startsWith(m_qVectorPrefix))
+        return QVectorSize;
+    if (typeName.startsWith(m_qQueuePrefix))
+        return QQueueSize;
     return SpecialSizeCount;
 }
 
@@ -1393,233 +1238,173 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         qDebug() << '\n' << Q_FUNC_INFO << '\n' << data.toString() << "\n-->" << outertype << td.type << extraArgs;
 }
 
-/* Parse value:
- * "iname="local.sl",addr="0x0012BA84",value="<3 items>",valuedisabled="true",
- * numchild="3",childtype="QString",childnumchild="0",
- * children=[{name="0",value="<binhex>",valueencoded="2"},
- * {name="1",value="dAB3AG8A",valueencoded="2"},
- * {name="2",value="dABoAHIAZQBlAA==",valueencoded="2"}]" */
+// GdbMi parsing helpers for parsing dumper value results
 
-class ValueDumperParser : public DumperParser
+static bool gdbMiGetIntValue(int *target,
+                             const GdbMi &node,
+                             const char *child)
 {
-public:
-    explicit ValueDumperParser(const char *s);
+    *target = -1;
+    const GdbMi childNode = node.findChild(child);
+    if (!childNode.isValid())
+        return false;
+    bool ok;
+    *target = childNode.data().toInt(&ok);
+    return ok;
+}
 
-    inline QtDumperResult result() const { return m_result; }
+// Find a string child node and assign value if it exists.
+// Optionally decode.
+static bool gdbMiGetStringValue(QString *target,
+                             const GdbMi &node,
+                             const char *child,
+                             const char *encodingChild = 0)
+{
+    target->clear();
+    const GdbMi childNode = node.findChild(child);
+    if (!childNode.isValid())
+        return false;
+    // Encoded data
+    if (encodingChild) {
+        int encoding;
+        if (!gdbMiGetIntValue(&encoding, node, encodingChild))
+            encoding = 0;
+        *target = decodeData(childNode.data(), encoding);
+        return true;
+    }
+    // Plain data
+    *target = QLatin1String(childNode.data());
+    return true;
+}
 
-protected:
-    virtual bool handleKeyword(const char *k, int size);
-    virtual bool handleHashStart();
-    virtual bool handleValue(const char *k, int size);
+static bool gdbMiGetBoolValue(bool *target,
+                             const GdbMi &node,
+                             const char *child)
+{
+    *target = false;
+    const GdbMi childNode = node.findChild(child);
+    if (!childNode.isValid())
+        return false;
+    *target = childNode.data() == "true";
+    return true;
+}
 
-private:
-    enum Mode { None, ExpectingIName, ExpectingAddress, ExpectingValue,
-                ExpectingType, ExpectingDisplayedType, ExpectingInternal,
-                ExpectingValueEnabled,  ExpectingValueEncoded,
-                ExpectingCommonChildType, ExpectingChildCount,
-                ExpectingChildChildOverrideCount,
-                ExpectingExtra,
-                IgnoreNext,
-                ChildModeStart,
-                ExpectingChildren,ExpectingChildName, ExpectingChildAddress,
-                ExpectingChildExpression, ExpectingChildType,
-                ExpectingChildDisplayedType,
-                ExpectingChildKey, ExpectingChildKeyEncoded,
-                ExpectingChildValue, ExpectingChildValueEncoded,
-                ExpectingChildValueEnabled, ExpectingChildChildCount,
-                IgnoreNextChildMode
-              };
+/* Context to store parameters that influence the next level children.
+ *  (next level only, it is not further inherited). For example, the root item
+ * can provide a "childtype" node that specifies the type of the children. */
 
-    static inline Mode nextMode(Mode in, const char *keyword, int size);
+struct GdbMiRecursionContext {
+    GdbMiRecursionContext(int recursionLevelIn = 0) :
+            recursionLevel(recursionLevelIn), childNumChild(-1), childIndex(0) {}
 
-    Mode m_mode;
-    QtDumperResult m_result;
+    int recursionLevel;
+    int childNumChild;
+    int childIndex;
+    QString childType;
+    QString parentIName;
 };
 
-ValueDumperParser::ValueDumperParser(const char *s) :
-   DumperParser(s),
-   m_mode(None)
+static void gbdMiToWatchData(const GdbMi &root,
+                             const GdbMiRecursionContext &ctx,
+                             QList<WatchData> *wl)
 {
-}
-
-// Check key words
-ValueDumperParser::Mode ValueDumperParser::nextMode(Mode in, const char *keyword, int size)
-{
-    // Careful with same prefix
-    switch (size) {
-    case 3:
-        if (!qstrncmp(keyword, "exp", size))
-            return ExpectingChildExpression;
-        if (!qstrncmp(keyword, "key", size))
-            return ExpectingChildKey;
-        break;
-    case 4:
-        if (!qstrncmp(keyword, "addr", size))
-            return in > ChildModeStart ? ExpectingChildAddress : ExpectingAddress;
-        if (!qstrncmp(keyword, "type", size))
-            return in > ChildModeStart ? ExpectingChildType : ExpectingType;
-        if (!qstrncmp(keyword, "name", size))
-            return ExpectingChildName;
-        break;
-    case 5:
-        if (!qstrncmp(keyword, "iname", size))
-            return ExpectingIName;
-        if (!qstrncmp(keyword, "value", size))
-            return in > ChildModeStart ? ExpectingChildValue : ExpectingValue;
-        if (!qstrncmp(keyword, "extra", size))
-            return ExpectingExtra;
-        break;
-    case 8:
-        if (!qstrncmp(keyword, "children", size))
-            return ExpectingChildren;
-        if (!qstrncmp(keyword, "numchild", size))
-            return in > ChildModeStart ?  ExpectingChildChildCount : ExpectingChildCount;
-        if (!qstrncmp(keyword, "internal", size))
-            return ExpectingInternal;
-        break;
-    case 9:
-        if (!qstrncmp(keyword, "childtype", size))
-            return ExpectingCommonChildType;
-        break;
-    case 10:
-        if (!qstrncmp(keyword, "keyencoded", size))
-            return ExpectingChildKeyEncoded;
-        break;
-    case 12:
-        if (!qstrncmp(keyword, "valueencoded", size))
-            return in > ChildModeStart ? ExpectingChildValueEncoded : ExpectingValueEncoded;
-        break;
-    case 13:
-        if (!qstrncmp(keyword, "valueenabled", size))
-            return in > ChildModeStart ? ExpectingChildValueEnabled : ExpectingValueEnabled;
-        if (!qstrncmp(keyword, "displayedtype", size))
-            return in > ChildModeStart ? ExpectingChildDisplayedType : ExpectingDisplayedType;
-        if (!qstrncmp(keyword, "childnumchild", size))
-            return ExpectingChildChildOverrideCount;
-        break;
-    }
-    return in > ChildModeStart ? IgnoreNextChildMode : IgnoreNext;
-}
-
-bool ValueDumperParser::handleKeyword(const char *k, int size)
-{
-    const Mode newMode = nextMode(m_mode, k, size);
-    if (debug && newMode == IgnoreNext)
-        qWarning("%s Unexpected keyword %s.\n", Q_FUNC_INFO, QByteArray(k, size).constData());
-    m_mode = newMode;
-    return true;
-}
-
-bool ValueDumperParser::handleHashStart()
-{
-    m_result.children.push_back(QtDumperResult::Child());
-    return true;
-}
-
-bool ValueDumperParser::handleValue(const char *k, int size)
-{
-    const QByteArray valueBA(k, size);
-    switch (m_mode) {
-    case None:
-    case ChildModeStart:
-        return false;
-    case ExpectingIName:
-        m_result.iname = QString::fromLatin1(valueBA);
-        break;
-        case ExpectingAddress: {
-                const QString address = QString::fromLatin1(valueBA);
-                if (address.startsWith(QLatin1String("0x"))) {
-                    m_result.address = address;
-                } else {
-                    m_result.addressInfo = address;
-                }
-            }
-            break;
-    case ExpectingValue:
-        m_result.valueEncountered = true;
-        m_result.value = valueBA;
-        break;
-    case ExpectingValueEnabled:
-        m_result.valueEnabled = valueBA == "true";
-        break;
-    case ExpectingValueEncoded:
-        m_result.valueEncoded = QString::fromLatin1(valueBA).toInt();
-        break;
-    case ExpectingType:
-        m_result.type = QString::fromLatin1(valueBA);
-        break;
-    case ExpectingDisplayedType:
-        m_result.displayedType = QString::fromLatin1(valueBA);
-        break;
-    case ExpectingExtra:
-        m_result.extra = valueBA;
-        break;
-    case ExpectingInternal:
-        m_result.internal = valueBA == "true";
-        break;
-    case ExpectingCommonChildType:
-        m_result.childType = QString::fromLatin1(valueBA);
-        break;
-    case ExpectingChildCount:
-        m_result.childCount = QString::fromLatin1(valueBA).toInt();
-        break;
-    case ExpectingChildChildOverrideCount:
-        m_result.childChildCount = QString::fromLatin1(valueBA).toInt();
-        break;
-    case ExpectingChildren:
-    case IgnoreNextChildMode:
-    case IgnoreNext:
-        break;
-    case ExpectingChildName:
-        m_result.children.back().name = QString::fromLatin1(valueBA);
-        break;
-    case ExpectingChildAddress:
-        m_result.children.back().address = QString::fromLatin1(valueBA);
-        break;
-    case ExpectingChildKeyEncoded:
-        m_result.children.back().keyEncoded = QString::fromLatin1(valueBA).toInt();
-        break;
-    case ExpectingChildKey:
-        m_result.children.back().key = valueBA;
-        break;
-    case ExpectingChildValue:
-        m_result.children.back().valueEncountered = true;
-        m_result.children.back().value = valueBA;
-        break;
-    case ExpectingChildExpression:
-        m_result.children.back().exp = QString::fromLatin1(valueBA);
-        break;
-    case ExpectingChildValueEncoded:
-        m_result.children.back().valueEncoded = QString::fromLatin1(valueBA).toInt();
-        break;
-    case ExpectingChildValueEnabled:
-        m_result.children.back().valueEnabled = valueBA == "true";
-        break;
-    case ExpectingChildType:
-        m_result.children.back().type = QString::fromLatin1(valueBA);
-        break;
-    case ExpectingChildDisplayedType:
-        m_result.children.back().displayedType = QString::fromLatin1(valueBA);
-        break;
-    case ExpectingChildChildCount:
-        m_result.children.back().childCount = QString::fromLatin1(valueBA).toInt();
-        break;
-    }
-    return true;
-}
-
-bool QtDumperHelper::parseValue(const char *data, QtDumperResult *r)
-{
-    ValueDumperParser parser(data);
-
-    if (!parser.run())
-        return false;
-    *r = parser.result();
-    // Sanity
-    if (!r->children.empty() && r->childCount != r->children.size())
-        r->childCount = r->children.size();
     if (debug > 1)
-        qDebug() << '\n' << data << '\n' << *r;
+        qDebug() << Q_FUNC_INFO << '\n' << root.toString(false, 0);
+    WatchData w;    
+    QString v;
+    // Check for name/iname and use as expression default
+    if (ctx.recursionLevel == 0) {
+        // parents have only iname, from which name is derived
+        if (!gdbMiGetStringValue(&w.iname, root, "iname"))
+            qWarning("Internal error: iname missing");
+        w.name = w.iname;
+        const int lastDotPos = w.name.lastIndexOf(QLatin1Char('.'));
+        if (lastDotPos != -1)
+            w.name.remove(0, lastDotPos + 1);
+        w.exp = w.name;
+    } else {
+        // Children can have a 'name' attribute. If missing, assume array index
+        // For display purposes, it can be overridden by "key"
+        if (!gdbMiGetStringValue(&w.name, root, "name")) {
+            w.name = QString::number(ctx.childIndex);
+        }
+        // Set iname
+        w.iname = ctx.parentIName;
+        w.iname += QLatin1Char('.');
+        w.iname += w.name;
+        // Key?
+        QString key;
+        if (gdbMiGetStringValue(&key, root, "key", "keyencoded")) {
+            w.name = key.size() > 13 ? key.mid(0, 13) + QLatin1String("...") : key;
+        }
+    }
+    if (w.name.isEmpty()) {
+        const QString msg = QString::fromLatin1("Internal error: Unable to determine name at level %1/%2 for %3").arg(ctx.recursionLevel).arg(w.iname, QLatin1String(root.toString(true, 2)));
+        qWarning("%s\n", qPrintable(msg));
+    }
+    gdbMiGetStringValue(&w.displayedType, root, "displayedtype");
+    if (gdbMiGetStringValue(&v, root, "editvalue"))
+        w.editvalue = v.toLatin1();
+    if (gdbMiGetStringValue(&v, root, "exp"))
+        w.exp = v;
+    gdbMiGetStringValue(&w.addr, root, "addr");
+    gdbMiGetStringValue(&w.saddr, root, "saddr");
+    gdbMiGetBoolValue(&w.valueEnabled, root, "valueenabled");    
+    gdbMiGetBoolValue(&w.valueEditable, root, "valueeditable");
+    if (gdbMiGetStringValue(&v, root, "valuetooltip", "valuetooltipencoded"))
+        w.setValue(v);
+    if (gdbMiGetStringValue(&v, root, "value", "valueencoded"))
+        w.setValue(v);
+    // Type from context or self
+    if (ctx.childType.isEmpty()) {
+        if (gdbMiGetStringValue(&v, root, "type"))
+            w.setType(v);
+    } else {
+        w.setType(ctx.childType);
+    }
+    // child count?
+    int numChild = -1;
+    if (ctx.childNumChild >= 0) {
+        numChild = ctx.childNumChild;
+    } else {
+        gdbMiGetIntValue(&numChild, root, "numchild");
+    }
+    if (numChild >= 0)
+        w.setHasChildren(numChild > 0);
+    wl->push_back(w);
+    // Parse children with a new context
+    if (numChild == 0)
+        return;
+    const GdbMi childrenNode = root.findChild("children");
+    if (!childrenNode.isValid())
+        return;
+    const QList<GdbMi> children =childrenNode.children();
+    if (children.empty())
+        return;
+    wl->back().setChildrenUnneeded();
+    GdbMiRecursionContext nextLevelContext(ctx.recursionLevel + 1);
+    nextLevelContext.parentIName = w.iname;
+    gdbMiGetStringValue(&nextLevelContext.childType, root, "childtype");
+    if (!gdbMiGetIntValue(&nextLevelContext.childNumChild, root, "childnumchild"))
+        nextLevelContext.childNumChild = -1;
+    foreach(const GdbMi &child, children) {
+        gbdMiToWatchData(child, nextLevelContext, wl);
+        nextLevelContext.childIndex++;
+    }
+}
+
+bool QtDumperHelper::parseValue(const char *data,
+                                QList<WatchData> *l)
+{
+    l->clear();
+    QByteArray fullData = data;
+    fullData.insert(0, '{');
+    fullData.append(data);
+    fullData.append('}');
+    GdbMi root(fullData);
+    if (!root.isValid())
+        return false;
+    gbdMiToWatchData(root, GdbMiRecursionContext(), l);
     return true;
 }
 
