@@ -22,5 +22,5 @@ SUPPORT_QT_S60 = $$(QTCREATOR_WITH_S60)
         $$PWD/rvcttoolchain.h
     FORMS += $$PWD/s60devicespreferencepane.ui
     OTHER_FILES += $$PWD/qt-s60-todo.txt
-    include(../../shared/trk/trk.pri)||error("could not include trk.pri")
+    include(../../../shared/trk/trk.pri)||error("could not include trk.pri")
 }
