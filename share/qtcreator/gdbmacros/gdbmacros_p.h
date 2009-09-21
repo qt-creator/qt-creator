@@ -152,8 +152,6 @@ public:
     QList<QObject *> pendingChildInsertedEvents;
     QList<QPointer<QObject> > eventFilters;
     void *currentChildBeingDeleted;
-    void *declarativeData;
-    void *objectGuards;
     QAtomicPointer<void> sharedRefcount;
     int *deleteWatch;
 #endif

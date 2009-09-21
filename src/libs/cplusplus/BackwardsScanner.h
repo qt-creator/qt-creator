@@ -51,21 +51,26 @@ public:
     int startPosition() const;
 
     QString text() const;
-    QString text(int begin, int end) const;
-    QStringRef textRef(int begin, int end) const;
+    QString mid(int index) const;
 
+    QString text(int index) const;
+    QStringRef textRef(int index) const;
     // 1-based
-    const SimpleToken &LA(int index) const;
+    SimpleToken LA(int index) const;
 
     // n-la token is [startToken - n]
-    const SimpleToken &operator[](int index) const; // ### deprecate
+    SimpleToken operator[](int index) const; // ### deprecate
 
+    int indentation(int index) const;
+
+    int startOfLine(int index) const;
     int startOfMatchingBrace(int index) const;
+    int startOfBlock(int index) const;
+
     int previousBlockState(const QTextBlock &block) const;
 
 private:
     const SimpleToken &fetchToken(int i);
-    const QList<SimpleToken> &tokens() const;
 
 private:
     QList<SimpleToken> _tokens;

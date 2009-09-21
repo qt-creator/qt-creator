@@ -554,7 +554,7 @@ static inline QString msgNotHandled(const QString &type)
     return QString::fromLatin1("The type '%1' is not handled.").arg(type);
 }
 
-CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool dumpChildren, int source,
+CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool dumpChildren,
                                                       QList<WatchData> *result, QString *errorMessage)
 {
     // Check failure cache and supported types
@@ -593,7 +593,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
                                                         arg(wd.name, wd.exp, wd.type);
     m_access->showDebuggerOutput(LogMisc, message);
 
-    const DumpExecuteResult der = executeDump(wd, td, dumpChildren, source, result, errorMessage);
+    const DumpExecuteResult der = executeDump(wd, td, dumpChildren, result, errorMessage);
     if (der == DumpExecuteOk)
         return DumpOk;
     // Cache types that fail due to complicated template size expressions.
@@ -610,7 +610,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
 
 CdbDumperHelper::DumpExecuteResult
     CdbDumperHelper::executeDump(const WatchData &wd,
-                                const QtDumperHelper::TypeData& td, bool dumpChildren, int source,
+                                const QtDumperHelper::TypeData& td, bool dumpChildren,
                                 QList<WatchData> *result, QString *errorMessage)
 {
     QByteArray inBuffer;
@@ -658,12 +658,10 @@ CdbDumperHelper::DumpExecuteResult
     }
     if (!callDumper(callCmd, inBuffer, &outputData, true, errorMessage))
         return DumpExecuteCallFailed;
-    QtDumperResult dumpResult;
-    if (!QtDumperHelper::parseValue(outputData, &dumpResult)) {
+    if (!QtDumperHelper::parseValue(outputData, result)) {
         *errorMessage = QLatin1String("Parsing of value query output failed.");
         return DumpExecuteCallFailed;
     }
-    *result = dumpResult.toWatchData(source);
     return DumpExecuteOk;
 }
 

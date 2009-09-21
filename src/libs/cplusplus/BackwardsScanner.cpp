@@ -38,6 +38,7 @@ BackwardsScanner::BackwardsScanner(const QTextCursor &cursor, const QString &suf
     , _block(cursor.block())
     , _maxBlockCount(maxBlockCount)
 {
+    _tokenize.setQtMocRunEnabled(true);
     _tokenize.setSkipComments(true);
     _text = _block.text().left(cursor.position() - cursor.block().position());
 
@@ -52,13 +53,10 @@ BackwardsScanner::BackwardsScanner(const QTextCursor &cursor, const QString &suf
 int BackwardsScanner::state() const
 { return _tokenize.state(); }
 
-const QList<SimpleToken> &BackwardsScanner::tokens() const
-{ return _tokens; }
-
-const SimpleToken &BackwardsScanner::LA(int index) const
+SimpleToken BackwardsScanner::LA(int index) const
 { return const_cast<BackwardsScanner *>(this)->fetchToken(_startToken - index); }
 
-const SimpleToken &BackwardsScanner::operator[](int index) const
+SimpleToken BackwardsScanner::operator[](int index) const
 { return const_cast<BackwardsScanner *>(this)->fetchToken(index); }
 
 const SimpleToken &BackwardsScanner::fetchToken(int i)
@@ -72,16 +70,15 @@ const SimpleToken &BackwardsScanner::fetchToken(int i)
         } else {
             ++_blocksTokenized;
 
-            QString blockText = _block.text();
+            const QString blockText = _block.text();
             _text.prepend(blockText);
+
             QList<SimpleToken> adaptedTokens;
             for (int i = 0; i < _tokens.size(); ++i) {
-                const SimpleToken &t = _tokens.at(i);
-                const int position = t.position() + blockText.length();
-                adaptedTokens.append(SimpleToken(t.kind(),
-                                                 position,
-                                                 t.length(),
-                                                 _text.midRef(position, t.length())));
+                SimpleToken t = _tokens.at(i);
+                t.setPosition(t.position() + blockText.length());
+                t.setText(_text.midRef(t.position(), t.length()));
+                adaptedTokens.append(t);
             }
 
             _tokens = _tokenize(blockText, previousBlockState(_block));
@@ -102,18 +99,22 @@ int BackwardsScanner::startPosition() const
 QString BackwardsScanner::text() const
 { return _text; }
 
-QString BackwardsScanner::text(int begin, int end) const
+QString BackwardsScanner::mid(int index) const
 {
-    const SimpleToken &firstToken = _tokens.at(begin + _offset);
-    const SimpleToken &lastToken = _tokens.at(end + _offset - 1);
-    return _text.mid(firstToken.begin(), lastToken.end() - firstToken.begin());
+    const SimpleToken &firstToken = _tokens.at(index + _offset);
+    return _text.mid(firstToken.begin());
 }
 
-QStringRef BackwardsScanner::textRef(int begin, int end) const
+QString BackwardsScanner::text(int index) const
 {
-    const SimpleToken &firstToken = _tokens.at(begin + _offset);
-    const SimpleToken &lastToken = _tokens.at(end + _offset - 1);
-    return _text.midRef(firstToken.begin(), lastToken.end() - firstToken.begin());
+    const SimpleToken &firstToken = _tokens.at(index + _offset);
+    return _text.mid(firstToken.begin(), firstToken.length());
+}
+
+QStringRef BackwardsScanner::textRef(int index) const
+{
+    const SimpleToken &firstToken = _tokens.at(index + _offset);
+    return _text.midRef(firstToken.begin(), firstToken.length());
 }
 
 int BackwardsScanner::previousBlockState(const QTextBlock &block) const
@@ -156,6 +157,17 @@ int BackwardsScanner::startOfMatchingBrace(int index) const
                 --count;
             --i;
         } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
+    } else if (tk[index - 1].is(T_RBRACE)) {
+        int i = index - 1;
+        int count = 0;
+        do {
+            if (tk[i].is(T_LBRACE)) {
+                if (! ++count)
+                    return i;
+            } else if (tk[i].is(T_RBRACE))
+                --count;
+            --i;
+        } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
     } else if (tk[index - 1].is(T_GREATER)) {
         int i = index - 1;
         int count = 0;
@@ -167,7 +179,71 @@ int BackwardsScanner::startOfMatchingBrace(int index) const
                 --count;
             --i;
         } while (count != 0 && tk[i].isNot(T_EOF_SYMBOL));
+    } else {
+        Q_ASSERT(0);
     }
 
     return index;
+}
+
+int BackwardsScanner::startOfLine(int index) const
+{
+    const BackwardsScanner tk(*this);
+
+    forever {
+        const SimpleToken &tok = tk[index - 1];
+
+        if (tok.is(T_EOF_SYMBOL))
+            break;
+        else if (tok.followsNewline())
+            return index - 1;
+
+        --index;
+    }
+
+    return index;
+}
+
+int BackwardsScanner::startOfBlock(int index) const
+{
+    const BackwardsScanner tk(*this);
+
+    const int start = index;
+
+    forever {
+        SimpleToken token = tk[index - 1];
+
+        if (token.is(T_EOF_SYMBOL)) {
+            break;
+
+        } else if (token.is(T_GREATER)) {
+            const int matchingBrace = startOfMatchingBrace(index);
+
+            if (matchingBrace != index && tk[matchingBrace - 1].is(T_TEMPLATE))
+                index = matchingBrace;
+
+        } else if (token.is(T_RPAREN) || token.is(T_RBRACKET) || token.is(T_RBRACE)) {
+            const int matchingBrace = startOfMatchingBrace(index);
+
+            if (matchingBrace != index)
+                index = matchingBrace;
+
+        } else if (token.is(T_LPAREN) || token.is(T_LBRACKET)) {
+            break; // unmatched brace
+
+        } else if (token.is(T_LBRACE)) {
+            return index - 1;
+
+        }
+
+        --index;
+    }
+
+    return start;
+}
+
+int BackwardsScanner::indentation(int index) const
+{
+    SimpleToken newline = operator[](startOfLine(index + 1));
+    return newline.position();
 }

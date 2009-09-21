@@ -106,7 +106,7 @@ QString DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(const QStrin
 
     foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData)) {
         const QFileInfo fi(helperFilePath(directory));
-        if (fi.exists() && fi.lastModified() > lastModified)
+        if (fi.exists() && fi.lastModified() >= lastModified)
             return fi.filePath();
     }
     return QString();

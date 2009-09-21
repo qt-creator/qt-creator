@@ -37,6 +37,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QLinkedList>
 #include <QtCore/QList>
+#include <QtCore/QQueue>
 #include <QtCore/QLocale>
 #include <QtCore/QMap>
 #include <QtCore/QMetaEnum>
@@ -3572,15 +3573,15 @@ template <class Key, class Value>
 {
     QMapNode<Key, Value> *mn = 0;
     const int valueOffset = (char *)&(mn->value) - (char*)mn;
-    d.put("(size_t)&(('"NS"QMapNode<");
+    d.put("[\"(size_t)&(('"NS"QMapNode<");
     d.put(keyType);
     d.put(',');
     d.put(valueType);
     if (valueType[qstrlen(valueType) - 1] == '>')
         d.put(' ');
-    d.put(">'*)0)->value=\"");
+    d.put(">'*)0)->value\",\"");
     d.put(valueOffset);
-    d.put('"');
+    d.put("\"]");
     return d;
 }
 
@@ -3595,19 +3596,85 @@ template <class Key, class Value>
 {
     std::pair<Key, Value> *p = 0;
     const int valueOffset = (char *)&(p->second) - (char*)p;
-    d.put("(size_t)&(('std::pair<");
+    d.put("[\"(size_t)&(('std::pair<");
     d.put(keyType);
     d.put(" const ,");
     d.put(valueType);
     if (valueType[qstrlen(valueType) - 1] == '>')
         d.put(' ');
-    d.put(">'*)0)->second=\"");
+    d.put(">'*)0)->second\",\"");
     d.put(valueOffset);
-    d.put('"');
+    d.put("\"]");
     return  d;
 }
 
 #endif // Q_CC_MSVC
+
+// Dump out sizes for CDB
+static inline void dumpSizes(QDumper &d)
+{
+    // Sort by sizes
+    typedef QMultiMap<size_t, const char *> SizeMap;
+    SizeMap sizeMap;
+
+    sizeMap.insert(sizeof(int), "int");
+    sizeMap.insert(sizeof(char*), "char*");
+    sizeMap.insert(sizeof(QString), NS"QString");
+    sizeMap.insert(sizeof(QStringList), NS"QStringList");
+#ifndef QT_BOOTSTRAPPED
+    sizeMap.insert(sizeof(QObject), NS"QObject");
+    sizeMap.insert(sizeof(QList<int>), NS"QList<int>");
+    sizeMap.insert(sizeof(QLinkedList<int>), NS"QLinkedList<int>");
+    sizeMap.insert(sizeof(QVector<int>), NS"QVector<int>");
+    sizeMap.insert(sizeof(QQueue<int>), NS"QQueue<int>");
+#endif
+#if USE_QT_GUI
+    sizeMap.insert(sizeof(QWidget), NS"QWidget");
+#endif
+#ifdef Q_OS_WIN
+    sizeMap.insert(sizeof(std::string), "string");
+    sizeMap.insert(sizeof(std::wstring), "wstring");
+#endif
+    sizeMap.insert(sizeof(std::string), "std::string");
+    sizeMap.insert(sizeof(std::wstring), "std::wstring");
+    sizeMap.insert(sizeof(std::allocator<int>), "std::allocator");
+    sizeMap.insert(sizeof(std::char_traits<char>), "std::char_traits<char>");
+    sizeMap.insert(sizeof(std::char_traits<unsigned short>), "std::char_traits<unsigned short>");
+#ifndef QT_BOOTSTRAPPED
+#if QT_VERSION >= 0x040500
+    sizeMap.insert(sizeof(QSharedPointer<int>), NS"QSharedPointer");
+    sizeMap.insert(sizeof(QSharedDataPointer<QSharedData>), NS"QSharedDataPointer");
+    sizeMap.insert(sizeof(QWeakPointer<int>), NS"QWeakPointer");
+#endif
+#endif // QT_BOOTSTRAPPED
+    sizeMap.insert(sizeof(QPointer<QObject>), "QPointer");
+    // Common map node types
+    sizeMap.insert(sizeof(QMapNode<int,int >), NS"QMapNode<int,int>");
+    sizeMap.insert(sizeof(QMapNode<int, QString>), NS"QMapNode<int,"NS"QString>");
+    sizeMap.insert(sizeof(QMapNode<int, QVariant>), NS"QMapNode<int,"NS"QVariant>");
+    sizeMap.insert(sizeof(QMapNode<QString, int>), NS"QMapNode<"NS"QString,int>");
+    sizeMap.insert(sizeof(QMapNode<QString, QString>), NS"QMapNode<"NS"QString,"NS"QString>");
+    sizeMap.insert(sizeof(QMapNode<QString, QVariant>), NS"QMapNode<"NS"QString,"NS"QVariant>");
+    // Dump as lists of types preceded by size
+    size_t lastSize = 0;
+    d.put("sizes=[");
+    const SizeMap::const_iterator  cend = sizeMap.constEnd();
+    for (SizeMap::const_iterator it = sizeMap.constBegin(); it != cend; ++it) {
+        // new size list
+        if (it.key() != lastSize) {            
+            if (lastSize)
+                d.put("],");            
+            d.put("[\"");
+            d.put(it.key());
+            lastSize = it.key();
+            d.put('"');
+        }
+        d.put(",\"");
+        d.put(it.value());
+        d.put('"');
+    }
+    d.put("]]");    
+}
 
 extern "C" Q_DECL_EXPORT
 void *qDumpObjectData440(
@@ -3702,45 +3769,10 @@ void *qDumpObjectData440(
         d.put(",namespace=\""NS"\",");
         d.put("dumperversion=\"1.3\",");
 //      Dump out size information
-        d.put("sizes={");
-        d.put("int=\"").put(sizeof(int)).put("\",")
-         .put("char*=\"").put(sizeof(char*)).put("\",")
-         .put(""NS"QString=\"").put(sizeof(QString)).put("\",")
-         .put(""NS"QStringList=\"").put(sizeof(QStringList)).put("\",")
-#ifndef QT_BOOTSTRAPPED
-         .put(""NS"QObject=\"").put(sizeof(QObject)).put("\",")
-#endif
-#if USE_QT_GUI
-         .put(""NS"QWidget=\"").put(sizeof(QWidget)).put("\",")
-#endif
-#ifdef Q_OS_WIN
-         .put("string=\"").put(sizeof(std::string)).put("\",")
-         .put("wstring=\"").put(sizeof(std::wstring)).put("\",")
-#endif
-         .put("std::string=\"").put(sizeof(std::string)).put("\",")
-         .put("std::wstring=\"").put(sizeof(std::wstring)).put("\",")
-         .put("std::allocator=\"").put(sizeof(std::allocator<int>)).put("\",")
-         .put("std::char_traits<char>=\"").put(sizeof(std::char_traits<char>)).put("\",")
-         .put("std::char_traits<unsigned short>=\"").put(sizeof(std::char_traits<unsigned short>)).put("\",")
-#ifndef QT_BOOTSTRAPPED
-#if QT_VERSION >= 0x040500
-         .put(NS"QSharedPointer=\"").put(sizeof(QSharedPointer<int>)).put("\",")
-         .put(NS"QSharedDataPointer=\"").put(sizeof(QSharedDataPointer<QSharedData>)).put("\",")
-         .put(NS"QWeakPointer=\"").put(sizeof(QWeakPointer<int>)).put("\",")
-#endif
-#endif // QT_BOOTSTRAPPED
-         .put("QPointer=\"").put(sizeof(QPointer<QObject>)).put("\",")
-         // Common map node types
-         .put(NS"QMapNode<int,int>=\"").put(sizeof(QMapNode<int,int >)).put("\",")
-         .put(NS"QMapNode<int,"NS"QString>=\"").put(sizeof(QMapNode<int, QString>)).put("\",")
-         .put(NS"QMapNode<int,"NS"QVariant>=\"").put(sizeof(QMapNode<int, QVariant>)).put("\",")
-         .put(NS"QMapNode<"NS"QString,int>=\"").put(sizeof(QMapNode<QString, int>)).put("\",")
-         .put(NS"QMapNode<"NS"QString,"NS"QString>=\"").put(sizeof(QMapNode<QString, QString>)).put("\",")
-         .put(NS"QMapNode<"NS"QString,"NS"QVariant>=\"").put(sizeof(QMapNode<QString, QVariant>))
-         .put("\"}");
+        dumpSizes(d);
         // Write out common expression values for CDB
 #ifdef Q_CC_MSVC
-        d.put(",expressions={");
+        d.put(",expressions=[");
         putQMapNodeOffsetExpression<int,int>("int", "int", d).put(',');
         putQMapNodeOffsetExpression<int,QString>("int", NS"QString", d).put(',');
         putQMapNodeOffsetExpression<int,QVariant>("int", NS"QVariant", d).put(',');
@@ -3754,11 +3786,11 @@ void *qDumpObjectData440(
         putStdPairValueOffsetExpression<QString,int>(NS"QString", "int", d).put(',');
         putStdPairValueOffsetExpression<std::string,std::string>(stdStringTypeC, stdStringTypeC, d).put(',');
         putStdPairValueOffsetExpression<int,std::string>("int", stdStringTypeC, d).put(',');
-        putStdPairValueOffsetExpression<std::string,int>(stdStringTypeC, "int", d.put(','));
+        putStdPairValueOffsetExpression<std::string,int>(stdStringTypeC, "int", d).put(',');
         putStdPairValueOffsetExpression<std::wstring,std::wstring>(stdWideStringTypeUShortC, stdWideStringTypeUShortC, d).put(',');
         putStdPairValueOffsetExpression<int,std::wstring>("int", stdWideStringTypeUShortC, d).put(',');
         putStdPairValueOffsetExpression<std::wstring,int>(stdWideStringTypeUShortC, "int", d);
-        d.put('}');
+        d.put(']');
 #endif // Q_CC_MSVC
         d.disarm();
     }

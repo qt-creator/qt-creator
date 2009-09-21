@@ -397,13 +397,14 @@ void Launcher::handleWaitForFinished(const TrkResult &result)
 
 void Launcher::handleSupportMask(const TrkResult &result)
 {
-    const char *data = result.data.data();
+    const char *data = result.data.data() + 1;
+
     QByteArray str;
     for (int i = 0; i < 32; ++i) {
         //str.append("  [" + formatByte(data[i]) + "]: ");
         for (int j = 0; j < 8; ++j)
         if (data[i] & (1 << j))
-            str.append(QByteArray::number(i * 8 + j, 16));
+            str.append(QByteArray::number(i * 8 + j, 16) + " ");
     }
     logMessage("SUPPORTED: " + str);
 }

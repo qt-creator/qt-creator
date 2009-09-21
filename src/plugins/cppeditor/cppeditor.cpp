@@ -53,6 +53,7 @@
 #include <cplusplus/TokenUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/MatchingText.h>
+#include <cplusplus/BackwardsScanner.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
 #include <coreplugin/icore.h>
@@ -1263,17 +1264,17 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
 {
     if (ch == QLatin1Char('{') ||
         ch == QLatin1Char('}') ||
+        ch == QLatin1Char(':') ||
         ch == QLatin1Char('#')) {
         return true;
     }
     return false;
 }
 
-#if 1
 QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
 {
-    bool checkBlockEnd = m_allowSkippingOfBlockEnd;
-    m_allowSkippingOfBlockEnd = false;
+    const bool checkBlockEnd = m_allowSkippingOfBlockEnd;
+    m_allowSkippingOfBlockEnd = false; // consume blockEnd.
 
     if (!contextAllowsAutoParentheses(cursor))
         return QString();
@@ -1281,16 +1282,21 @@ QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert
     QString text = textToInsert;
     const QChar lookAhead = characterAt(cursor.selectionEnd());
 
-    QString autoText;
-    int skippedChars = 0;
-
-    if (checkBlockEnd && (lookAhead == QChar::ParagraphSeparator && (! text.isEmpty() && text.at(0) == QLatin1Char('}')))) {
-        skippedChars = 2;
-        text = text.mid(1);
-    }
-
     MatchingText matchingText;
-    autoText = matchingText.insertMatchingBrace(cursor, text, lookAhead, &skippedChars);
+    int skippedChars = 0;
+    const QString autoText = matchingText.insertMatchingBrace(cursor, text, lookAhead, &skippedChars);
+
+    if (checkBlockEnd && textToInsert.at(0) == QLatin1Char('}')) {
+        if (textToInsert.length() > 1)
+            qWarning() << "*** handle event compression";
+
+        int startPos = cursor.selectionEnd(), pos = startPos;
+        while (characterAt(pos).isSpace())
+            ++pos;
+
+        if (characterAt(pos) == QLatin1Char('}'))
+            skippedChars += (pos - startPos) + 1;
+    }
 
     if (skippedChars) {
         const int pos = cursor.position();
@@ -1300,67 +1306,6 @@ QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert
 
     return autoText;
 }
-#else
-QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &text) const
-{
-    bool checkBlockEnd = m_allowSkippingOfBlockEnd;
-    m_allowSkippingOfBlockEnd = false;
-
-    if (!contextAllowsAutoParentheses(cursor))
-        return QString();
-
-    QString autoText;
-    QChar lookAhead = characterAt(cursor.selectionEnd());
-    if (lookAhead.isSpace() // Only auto-insert when the text right of the cursor seems unrelated
-        || lookAhead == QLatin1Char('{')
-        || lookAhead == QLatin1Char('}')
-        || lookAhead == QLatin1Char(']')
-        || lookAhead == QLatin1Char(')')
-        || lookAhead == QLatin1Char(';')
-        || lookAhead == QLatin1Char(',')
-        ) {
-        foreach (QChar c, text) {
-            QChar close;
-            if (c == QLatin1Char('(')) {
-                close = QLatin1Char(')');
-            } else if (c == QLatin1Char('['))
-                close = QLatin1Char(']');
-            else if (c == QLatin1Char('\"'))
-                close = c;
-            else if (c == QLatin1Char('\''))
-                close = c;
-            if (!close.isNull())
-                autoText += close;
-        }
-    }
-
-    bool skip = false;
-    QChar first = text.at(0);
-    if (first == QLatin1Char(')')
-        || first == QLatin1Char(']')
-        || first == QLatin1Char(';')
-        ) {
-        skip = (first == lookAhead);
-    } else if (first == QLatin1Char('\"') || first == QLatin1Char('\'')) {
-        if (first == lookAhead) {
-            QChar lookBehind = characterAt(cursor.position()-1);
-            skip = (lookBehind != '\\');
-        }
-    } else if (checkBlockEnd && first == QLatin1Char('}')
-               && lookAhead == QChar::ParagraphSeparator) {
-        skip = (first == characterAt(cursor.position() + 1));
-        cursor.movePosition(QTextCursor::Right);
-    }
-
-    if (skip) {
-        int pos = cursor.position();
-        cursor.setPosition(pos+1);
-        cursor.setPosition(pos, QTextCursor::KeepAnchor);
-    }
-
-    return autoText;
-}
-#endif
 
 bool CPPEditor::autoBackspace(QTextCursor &cursor)
 {
@@ -1398,7 +1343,6 @@ int CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
     if (!contextAllowsAutoParentheses(cursor))
         return 0;
 
-
     // verify that we indeed do have an extra opening brace in the document
     int braceDepth = document()->lastBlock().userState();
     if (braceDepth >= 0)
@@ -1432,6 +1376,9 @@ int CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 
 bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor) const
 {
+    if (! MatchingText::shouldInsertMatchingText(cursor))
+        return false;
+
     CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(cursor);
 
@@ -1470,9 +1417,60 @@ static void indentCPPBlock(const CPPEditor::TabSettings &ts,
 
 void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
+    QTextCursor tc(block);
+    tc.movePosition(QTextCursor::EndOfBlock);
+
+    BackwardsScanner tk(tc, QString(), 400);
+    const int tokenCount = tk.startToken();
+    const int indentSize = tabSettings().m_indentSize;
+
+    if (tokenCount != 0) {
+        const SimpleToken firstToken = tk[0];
+
+        if (firstToken.is(T_COLON)) {
+            const int indent = tk.indentation(-1) +  // indentation of the previous newline
+                               indentSize;
+            tabSettings().indentLine(block, indent);
+            return;
+        } else if ((firstToken.is(T_PUBLIC) || firstToken.is(T_PROTECTED) || firstToken.is(T_PRIVATE) ||
+                    firstToken.is(T_Q_SIGNALS) || firstToken.is(T_Q_SLOTS)) && tk[1].is(T_COLON)) {
+            const int startOfBlock = tk.startOfBlock(0);
+            if (startOfBlock != 0) {
+                const int indent = tk.indentation(startOfBlock);
+                tabSettings().indentLine(block, indent);
+                return;
+            }
+        } else if (firstToken.is(T_CASE) || firstToken.is(T_DEFAULT)) {
+            const int startOfBlock = tk.startOfBlock(0);
+            if (startOfBlock != 0) {
+                const int indent = tk.indentation(startOfBlock);
+                tabSettings().indentLine(block, indent);
+                return;
+            }
+            return;
+        }
+    }
+
+    if ((tokenCount == 0 || tk[0].isNot(T_POUND)) && typedChar.isNull() && (tk[-1].is(T_IDENTIFIER) || tk[-1].is(T_RPAREN))) {
+        int tokenIndex = -1;
+        if (tk[-1].is(T_RPAREN)) {
+            const int matchingBrace = tk.startOfMatchingBrace(0);
+            if (matchingBrace != 0 && tk[matchingBrace - 1].is(T_IDENTIFIER)) {
+                tokenIndex = matchingBrace - 1;
+            }
+        }
+
+        const QString spell = tk.text(tokenIndex);
+        if (tk[tokenIndex].followsNewline() && (spell.startsWith(QLatin1String("QT_")) ||
+                                                spell.startsWith(QLatin1String("Q_")))) {
+            const int indent = tk.indentation(tokenIndex);
+            tabSettings().indentLine(block, indent);
+            return;
+        }
+    }
+
     const TextEditor::TextBlockIterator begin(doc->begin());
     const TextEditor::TextBlockIterator end(block.next());
-
     indentCPPBlock(tabSettings(), block, begin, end, typedChar);
 }
 

@@ -5,3 +5,4 @@ QT = core testlib
 include(../../../../src/libs/cplusplus/cplusplus-lib.pri)
 
 SOURCES += tst_lookup.cpp
+TARGET=tst_$$TARGET

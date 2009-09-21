@@ -35,6 +35,17 @@
 
 using namespace CPlusPlus;
 
+SimpleToken::SimpleToken(const Token &token, const QStringRef &text)
+    : _kind(token.f.kind)
+    , _flags(0)
+    , _position(token.begin())
+    , _length(token.f.length)
+    , _text(text)
+{
+    f._whitespace = token.f.whitespace;
+    f._newline = token.f.newline;
+}
+
 bool SimpleToken::isLiteral() const
 {
     return _kind >= T_FIRST_LITERAL && _kind <= T_LAST_LITERAL;
@@ -58,6 +69,11 @@ bool SimpleToken::isComment() const
 bool SimpleToken::isObjCAtKeyword() const
 {
     return _kind >= T_FIRST_OBJC_AT_KEYWORD && _kind <= T_LAST_OBJC_AT_KEYWORD;
+}
+
+const char *SimpleToken::name() const
+{
+    return Token::name(_kind);
 }
 
 SimpleLexer::SimpleLexer()
@@ -113,6 +129,7 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
     Lexer lex(firstChar, lastChar);
     lex.setQtMocRunEnabled(_qtMocRunEnabled);
     lex.setObjCEnabled(_objCEnabled);
+    lex.setStartWithNewline(true);
 
     if (! _skipComments)
         lex.setScanCommentTokens(true);
@@ -128,12 +145,8 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
         if (tk.is(T_EOF_SYMBOL))
             break;
 
-        SimpleToken simpleTk;
-        simpleTk._kind = int(tk.f.kind);
-        simpleTk._position = int(lex.tokenOffset());
-        simpleTk._length = int(lex.tokenLength());
-        simpleTk._text = text.midRef(simpleTk._position, simpleTk._length);
-
+        QStringRef spell = text.midRef(lex.tokenOffset(), lex.tokenLength());
+        SimpleToken simpleTk(tk, spell);
         lex.setScanAngleStringLiteralTokens(false);
 
         if (tk.f.newline && tk.is(T_POUND))

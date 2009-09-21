@@ -12,3 +12,4 @@ SOURCES += tst_aggregate.cpp \
 HEADERS += $$AGGREGATION_PATH/aggregate.h \
     $$AGGREGATION_PATH/aggregation_global.h
 
+TARGET=tst_$$TARGET

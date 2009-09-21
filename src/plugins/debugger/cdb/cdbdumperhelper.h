@@ -89,7 +89,7 @@ public:
 
     // Dump a WatchData item.
     enum DumpResult { DumpNotHandled, DumpOk, DumpError };
-    DumpResult dumpType(const WatchData &d, bool dumpChildren, int source,
+    DumpResult dumpType(const WatchData &d, bool dumpChildren,
                         QList<WatchData> *result, QString *errorMessage);
 
     inline CdbComInterfaces *comInterfaces() const { return m_cif; }
@@ -113,7 +113,7 @@ private:
                              DumpComplexExpressionEncountered,
                              DumpExecuteCallFailed };
     DumpExecuteResult executeDump(const WatchData &wd,
-                                  const QtDumperHelper::TypeData& td, bool dumpChildren, int source,
+                                  const QtDumperHelper::TypeData& td, bool dumpChildren,
                                   QList<WatchData> *result, QString *errorMessage);
 
     static bool writeToDebuggee(CIDebugDataSpaces *ds, const QByteArray &buffer, quint64 address, QString *errorMessage);

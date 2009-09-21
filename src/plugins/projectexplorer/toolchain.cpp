@@ -367,8 +367,7 @@ QByteArray MSVCToolChain::predefinedMacros()
                 QByteArray key = split.at(0).mid(1);
                 QByteArray value = split.at(1);
                 if (!value.isEmpty()) {
-                    value = value.mid(1);
-                    value.chop(1);
+                    value.chop(1); //remove '\n'
                 }
                 QByteArray newDefine = "#define " + key + " " + value + '\n';
                 m_predefinedMacros.append(newDefine);

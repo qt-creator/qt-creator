@@ -14,3 +14,4 @@ HEADERS += \
     profilereader.h \
     profilecache.h \
     qtversionmanager.h
+TARGET=tst_$$TARGET
