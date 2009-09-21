@@ -1271,7 +1271,6 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
-#if 1
 QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
 {
     bool checkBlockEnd = m_allowSkippingOfBlockEnd;
@@ -1302,67 +1301,6 @@ QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert
 
     return autoText;
 }
-#else
-QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &text) const
-{
-    bool checkBlockEnd = m_allowSkippingOfBlockEnd;
-    m_allowSkippingOfBlockEnd = false;
-
-    if (!contextAllowsAutoParentheses(cursor))
-        return QString();
-
-    QString autoText;
-    QChar lookAhead = characterAt(cursor.selectionEnd());
-    if (lookAhead.isSpace() // Only auto-insert when the text right of the cursor seems unrelated
-        || lookAhead == QLatin1Char('{')
-        || lookAhead == QLatin1Char('}')
-        || lookAhead == QLatin1Char(']')
-        || lookAhead == QLatin1Char(')')
-        || lookAhead == QLatin1Char(';')
-        || lookAhead == QLatin1Char(',')
-        ) {
-        foreach (QChar c, text) {
-            QChar close;
-            if (c == QLatin1Char('(')) {
-                close = QLatin1Char(')');
-            } else if (c == QLatin1Char('['))
-                close = QLatin1Char(']');
-            else if (c == QLatin1Char('\"'))
-                close = c;
-            else if (c == QLatin1Char('\''))
-                close = c;
-            if (!close.isNull())
-                autoText += close;
-        }
-    }
-
-    bool skip = false;
-    QChar first = text.at(0);
-    if (first == QLatin1Char(')')
-        || first == QLatin1Char(']')
-        || first == QLatin1Char(';')
-        ) {
-        skip = (first == lookAhead);
-    } else if (first == QLatin1Char('\"') || first == QLatin1Char('\'')) {
-        if (first == lookAhead) {
-            QChar lookBehind = characterAt(cursor.position()-1);
-            skip = (lookBehind != '\\');
-        }
-    } else if (checkBlockEnd && first == QLatin1Char('}')
-               && lookAhead == QChar::ParagraphSeparator) {
-        skip = (first == characterAt(cursor.position() + 1));
-        cursor.movePosition(QTextCursor::Right);
-    }
-
-    if (skip) {
-        int pos = cursor.position();
-        cursor.setPosition(pos+1);
-        cursor.setPosition(pos, QTextCursor::KeepAnchor);
-    }
-
-    return autoText;
-}
-#endif
 
 bool CPPEditor::autoBackspace(QTextCursor &cursor)
 {
