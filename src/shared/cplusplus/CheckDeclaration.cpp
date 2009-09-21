@@ -594,16 +594,16 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
         return false;
 
     Symbol *symbol;
-    if (!ast->function_body) {
-        Declaration *decl = control()->newDeclaration(ast->firstToken(), methodType->name());
-        decl->setType(methodType);
-        symbol = decl;
-    } else {
+    if (ast->function_body) {
         if (!semantic()->skipFunctionBodies()) {
             semantic()->check(ast->function_body, methodType->members());
         }
 
         symbol = methodType;
+    } else {
+        Declaration *decl = control()->newDeclaration(ast->firstToken(), methodType->name());
+        decl->setType(methodType);
+        symbol = decl;
     }
 
     symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
