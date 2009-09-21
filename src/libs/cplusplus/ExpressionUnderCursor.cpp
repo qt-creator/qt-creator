@@ -150,7 +150,7 @@ QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
     if (i == initialSize)
         return QString();
 
-    return scanner.text(i);
+    return scanner.mid(i);
 }
 
 int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor) const

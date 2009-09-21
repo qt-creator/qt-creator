@@ -99,6 +99,12 @@ int BackwardsScanner::startPosition() const
 QString BackwardsScanner::text() const
 { return _text; }
 
+QString BackwardsScanner::mid(int index) const
+{
+    const SimpleToken &firstToken = _tokens.at(index + _offset);
+    return _text.mid(firstToken.begin());
+}
+
 QString BackwardsScanner::text(int index) const
 {
     const SimpleToken &firstToken = _tokens.at(index + _offset);
