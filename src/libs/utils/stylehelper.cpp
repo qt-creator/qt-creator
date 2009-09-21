@@ -176,10 +176,11 @@ void StyleHelper::horizontalGradient(QPainter *painter, const QRect &spanRect, c
 
     QColor base = StyleHelper::baseColor();
     QLinearGradient grad(rect.topLeft(), rect.bottomLeft());
-
     grad.setColorAt(0, highlightColor().lighter(120));
-    grad.setColorAt(0.4, highlightColor());
-    grad.setColorAt(0.401, base);
+    if (rect.height() == navigationWidgetHeight()) {
+        grad.setColorAt(0.4, highlightColor());
+        grad.setColorAt(0.401, base);
+    }
     grad.setColorAt(1, shadowColor());
     p->fillRect(rect, grad);
 
