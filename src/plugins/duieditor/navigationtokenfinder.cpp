@@ -283,7 +283,24 @@ bool NavigationTokenFinder::findProperty(const QStringList &qualifiedId, QmlJS::
 
     // 3. if the type is a custom type, search properties there:
     {
-        // TODO
+        // TODO: when things around the "import as" clear up a bit, revise this resolving:
+
+        QStringList qualifiedTypeId;
+        for (UiQualifiedId *iter = typeId; iter; iter = iter->next)
+            qualifiedTypeId.append(iter->name->asString());
+
+        DuiDocument::Ptr doc = findCustomType(qualifiedTypeId);
+        if (!doc.isNull() && doc->isParsedCorrectly()) {
+            UiProgram *prog = doc->program();
+
+            if (prog && prog->members && prog->members->member) {
+                if (UiObjectBinding *binding = cast<UiObjectBinding*>(prog->members->member)) {
+                    findProperty(qualifiedId, binding->qualifiedTypeNameId, binding->initializer->members, -1);
+                } else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(prog->members->member)) {
+                    findProperty(qualifiedId, definition->qualifiedTypeNameId, definition->initializer->members, -1);
+                }
+            }
+        }
     }
 
     // all failed, so:
@@ -298,13 +315,15 @@ void NavigationTokenFinder::findAsId(const QStringList &qualifiedId)
         QPair<SourceLocation, Node*> idInfo = ids[qualifiedId.first()];
         if (qualifiedId.size() == 1) {
             rememberLocation(idInfo.first);
-        } else if (qualifiedId.size() == 2) {
+        } else {
             Node *parent = idInfo.second;
+            QStringList newQualifiedId(qualifiedId);
+            newQualifiedId.removeFirst();
 
             if (UiObjectBinding *binding = cast<UiObjectBinding*>(parent)) {
-                findProperty(QStringList() << qualifiedId[1], binding->qualifiedTypeNameId, binding->initializer->members, -1);
+                findProperty(newQualifiedId, binding->qualifiedTypeNameId, binding->initializer->members, -1);
             } else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(parent)) {
-                findProperty(QStringList() << qualifiedId[1], definition->qualifiedTypeNameId, definition->initializer->members, -1);
+                findProperty(newQualifiedId, definition->qualifiedTypeNameId, definition->initializer->members, -1);
             }
         }
     }
@@ -344,7 +363,18 @@ void NavigationTokenFinder::findDeclaration(const QStringList &id)
 
 void NavigationTokenFinder::findTypeDeclaration(const QStringList &id)
 {
-    // TODO
+    DuiDocument::Ptr doc = findCustomType(id);
+    if (doc.isNull() || !doc->isParsedCorrectly())
+        return;
+
+    UiProgram *prog = doc->program();
+    if (!prog || !(prog->members) || !(prog->members->member))
+        return;
+
+    _fileName = doc->fileName();
+    const SourceLocation loc = prog->members->member->firstSourceLocation();
+    _targetLine = loc.startLine;
+    _targetColumn = loc.startColumn;
 }
 
 void NavigationTokenFinder::rememberLocation(const QmlJS::AST::SourceLocation &loc)
@@ -352,4 +382,33 @@ void NavigationTokenFinder::rememberLocation(const QmlJS::AST::SourceLocation &l
     _fileName = _doc->fileName();
     _targetLine = loc.startLine;
     _targetColumn = loc.startColumn;
+}
+
+DuiDocument::Ptr NavigationTokenFinder::findCustomType(const QStringList& qualifiedId) const
+{
+    // TODO: when things around the "import as" clear up a bit, revise this resolving:
+
+    UiProgram *program = _doc->program();
+    if (!program)
+        return DuiDocument::Ptr();
+    UiImportList *imports = program->imports;
+    if (!imports)
+        return DuiDocument::Ptr();
+
+    for (UiImportList *iter = imports; iter; iter = iter->next) {
+        if (!(iter->import))
+            continue;
+
+        UiImport *import = iter->import;
+        if (!(import->fileName))
+            continue;
+
+        const QString path = import->fileName->asString();
+        const QMap<QString, DuiDocument::Ptr> compToDoc = _snapshot.componentsDefinedByImportedDocuments(_doc, path);
+
+        if (compToDoc.contains(qualifiedId[0]))
+            return compToDoc[qualifiedId[0]];
+    }
+
+    return DuiDocument::Ptr();
 }

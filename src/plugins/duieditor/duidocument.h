@@ -100,8 +100,8 @@ public:
     DuiDocument::Ptr document(const QString &fileName) const
     { return value(fileName); }
 
-    DuiDocument::PtrList importedDocuments(const DuiDocument::Ptr &doc, const QString &importPath);
-    QMap<QString, DuiDocument::Ptr> componentsDefinedByImportedDocuments(const DuiDocument::Ptr &doc, const QString &importPath);
+    DuiDocument::PtrList importedDocuments(const DuiDocument::Ptr &doc, const QString &importPath) const;
+    QMap<QString, DuiDocument::Ptr> componentsDefinedByImportedDocuments(const DuiDocument::Ptr &doc, const QString &importPath) const;
 };
 
 } // emd of namespace DuiEditor

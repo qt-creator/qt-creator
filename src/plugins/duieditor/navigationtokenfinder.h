@@ -55,6 +55,7 @@ private:
     void findDeclaration(const QStringList &id);
     void findTypeDeclaration(const QStringList &id);
     void rememberLocation(const QmlJS::AST::SourceLocation &loc);
+    DuiDocument::Ptr findCustomType(const QStringList& qualifiedId) const;
 
 private:
     quint32 _pos;

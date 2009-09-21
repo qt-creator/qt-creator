@@ -123,7 +123,7 @@ void Snapshot::insert(const DuiDocument::Ptr &document)
     QMap<QString, DuiDocument::Ptr>::insert(document->fileName(), document);
 }
 
-DuiDocument::PtrList Snapshot::importedDocuments(const DuiDocument::Ptr &doc, const QString &importPath)
+DuiDocument::PtrList Snapshot::importedDocuments(const DuiDocument::Ptr &doc, const QString &importPath) const
 {
     DuiDocument::PtrList result;
 
@@ -142,7 +142,7 @@ DuiDocument::PtrList Snapshot::importedDocuments(const DuiDocument::Ptr &doc, co
     return result;
 }
 
-QMap<QString, DuiDocument::Ptr> Snapshot::componentsDefinedByImportedDocuments(const DuiDocument::Ptr &doc, const QString &importPath)
+QMap<QString, DuiDocument::Ptr> Snapshot::componentsDefinedByImportedDocuments(const DuiDocument::Ptr &doc, const QString &importPath) const
 {
     QMap<QString, DuiDocument::Ptr> result;
 
