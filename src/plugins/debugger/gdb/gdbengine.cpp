@@ -4298,7 +4298,8 @@ IDebuggerEngine *createSymbianEngine(DebuggerManager *parent,
     QSharedPointer<TrkOptions> options(new TrkOptions);
     options->fromSettings(Core::ICore::instance()->settings());
 
-    opts->push_back(new TrkOptionsPage(options));
+    if (!qgetenv("QTCREATOR_WITH_S60").isEmpty())
+        opts->push_back(new TrkOptionsPage(options));
     TrkGdbAdapter *adapter = new TrkGdbAdapter(options);
     GdbEngine *engine = new GdbEngine(parent, adapter);
     QObject::connect(adapter, SIGNAL(output(QString)),
