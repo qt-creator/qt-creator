@@ -5,23 +5,60 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
+using namespace DuiEditor;
 using namespace DuiEditor::Internal;
 
-bool NavigationTokenFinder::operator()(QmlJS::AST::UiProgram *ast, int position, bool resolveTarget, const QMap<QString, QmlJS::AST::SourceLocation> &idPositions)
+void NavigationTokenFinder::operator()(const DuiDocument::Ptr &doc, int position, const Snapshot &snapshot)
 {
-    _resolveTarget = resolveTarget;
+    _doc = doc;
+    _snapshot = snapshot;
     _pos = position;
-    _idPositions = idPositions;
     _scopes.clear();
     _linkPosition = -1;
+    _fileName.clear();
     _targetLine = -1;
 
-    Node::accept(ast, this);
+    Node::accept(doc->program(), this);
+}
 
-    if (resolveTarget)
-        return targetFound();
-    else
-        return linkFound();
+static QStringList buildQualifiedId(QmlJS::AST::FieldMemberExpression *expr)
+{
+    QStringList qId;
+
+    if (FieldMemberExpression *baseExpr = cast<FieldMemberExpression*>(expr->base)) {
+        qId = buildQualifiedId(baseExpr);
+    } else if (IdentifierExpression *idExpr = cast<IdentifierExpression*>(expr->base)) {
+        qId.append(idExpr->name->asString());
+    } else {
+        return qId;
+    }
+
+    qId.append(expr->name->asString());
+    return qId;
+}
+
+bool NavigationTokenFinder::visit(QmlJS::AST::FieldMemberExpression *ast)
+{
+    if (linkFound())
+        return false;
+
+    if (ast->firstSourceLocation().offset <= _pos && _pos <= ast->lastSourceLocation().end()) {
+        if (ast->identifierToken.offset <= _pos && _pos <= ast->identifierToken.end()) {
+            // found it:
+            _linkPosition = ast->identifierToken.offset;
+            _linkLength = ast->identifierToken.end() - _linkPosition;
+
+            const QStringList qualifiedId(buildQualifiedId(ast));
+            if (!qualifiedId.isEmpty())
+                findDeclaration(qualifiedId);
+        } else {
+            Node::accept(ast->base, this);
+        }
+
+        return false;
+    }
+
+    return true;
 }
 
 bool NavigationTokenFinder::visit(QmlJS::AST::IdentifierExpression *ast)
@@ -33,8 +70,7 @@ bool NavigationTokenFinder::visit(QmlJS::AST::IdentifierExpression *ast)
         _linkPosition = ast->identifierToken.offset;
         _linkLength = ast->identifierToken.length;
 
-        if (Node *node = findDeclarationInScopesOrIds(ast->name))
-            rememberStartPosition(node);
+        findDeclaration(QStringList() << ast->name->asString());
     }
 
     return false;
@@ -47,6 +83,11 @@ bool NavigationTokenFinder::visit(QmlJS::AST::UiArrayBinding *ast)
 
     Node::accept(ast->members, this);
 
+    return false;
+}
+
+bool NavigationTokenFinder::visit(QmlJS::AST::UiImportList *)
+{
     return false;
 }
 
@@ -64,10 +105,7 @@ bool NavigationTokenFinder::visit(QmlJS::AST::Block *ast)
 {
     _scopes.push(ast);
 
-    if (linkFound())
-        return false;
-
-    return true;
+    return !linkFound();
 }
 
 void NavigationTokenFinder::endVisit(QmlJS::AST::Block *)
@@ -79,11 +117,10 @@ bool NavigationTokenFinder::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     _scopes.push(ast);
 
-    if (linkFound())
-        return false;
-
-    Node::accept(ast->qualifiedTypeNameId, this);
-    Node::accept(ast->initializer, this);
+    if (!linkFound()) {
+        checkType(ast->qualifiedTypeNameId);
+        Node::accept(ast->initializer, this);
+    }
 
     return false;
 }
@@ -97,10 +134,12 @@ bool NavigationTokenFinder::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     _scopes.push(ast);
 
-    if (linkFound())
-        return false;
+    if (!linkFound()) {
+        checkType(ast->qualifiedTypeNameId);
+        Node::accept(ast->initializer, this);
+    }
 
-    return true;
+    return false;
 }
 
 void NavigationTokenFinder::endVisit(QmlJS::AST::UiObjectDefinition *)
@@ -108,36 +147,34 @@ void NavigationTokenFinder::endVisit(QmlJS::AST::UiObjectDefinition *)
     _scopes.pop();
 }
 
-bool NavigationTokenFinder::visit(QmlJS::AST::UiQualifiedId *ast)
+void NavigationTokenFinder::checkType(QmlJS::AST::UiQualifiedId *ast)
 {
-    if (linkFound())
-        return false;
-
     if (ast->identifierToken.offset <= _pos) {
         for (UiQualifiedId *iter = ast; iter; iter = iter->next) {
             if (_pos <= iter->identifierToken.end()) {
                 _linkPosition = ast->identifierToken.offset;
 
-                for (UiQualifiedId *iter2 = ast; iter2; iter2 = iter2->next)
+                QStringList names;
+                for (UiQualifiedId *iter2 = ast; iter2; iter2 = iter2->next) {
                     _linkLength = iter2->identifierToken.end() - _linkPosition;
+                    names.append(iter2->name->asString());
+                }
+                findTypeDeclaration(names);
 
-                if (Node *node = findDeclarationInScopesOrIds(ast))
-                    rememberStartPosition(node);
-
-                return false;
+                return;
             }
         }
     }
-
-    return false;
 }
 
 bool NavigationTokenFinder::visit(QmlJS::AST::UiScriptBinding *ast)
 {
-    if (linkFound())
-        return false;
-
-    Node::accept(ast->statement, this);
+    if (!linkFound()) {
+        if (ast->qualifiedId && !ast->qualifiedId->next && ast->qualifiedId->name && ast->qualifiedId->name->asString() == "id")
+            return false;
+        else
+            Node::accept(ast->statement, this);
+    }
 
     return false;
 }
@@ -147,134 +184,172 @@ bool NavigationTokenFinder::visit(QmlJS::AST::UiSourceElement * /*ast*/)
     return false;
 }
 
-void NavigationTokenFinder::rememberStartPosition(QmlJS::AST::Node *node)
+bool NavigationTokenFinder::findInJS(const QStringList &qualifiedId, QmlJS::AST::Block *block)
 {
-    if (UiObjectMember *om = dynamic_cast<UiObjectMember*>(node)) {
-        _targetLine = om->firstSourceLocation().startLine;
-        _targetColumn = om->firstSourceLocation().startColumn;
-    } else if (VariableDeclaration *vd = cast<VariableDeclaration*>(node)) {
-        _targetLine = vd->identifierToken.startLine;
-        _targetColumn = vd->identifierToken.startColumn;
-    } else {
-//        qWarning() << "Found declaration of unknown type as a navigation target";
-    }
-}
+    if (qualifiedId.size() > 1)
+        return false; // we can only find "simple" JavaScript variables this way
 
-void NavigationTokenFinder::rememberStartPosition(const QmlJS::AST::SourceLocation &location)
-{
-    _targetLine = location.startLine;
-    _targetColumn = location.startColumn;
-}
+    const QString id = qualifiedId[0];
 
-static QmlJS::AST::Node *findDeclaration(const QString &nameId, QmlJS::AST::UiObjectMember *m)
-{
-    if (UiPublicMember *p = cast<UiPublicMember*>(m)) {
-        if (p->name->asString() == nameId)
-            return p;
-    } else if (UiObjectBinding *o = cast<UiObjectBinding*>(m)) {
-        if (!(o->qualifiedId->next) && o->qualifiedId->name->asString() == nameId)
-            return o;
-    } else if (UiArrayBinding *a = cast<UiArrayBinding*>(m)) {
-        if (!(a->qualifiedId->next) && a->qualifiedId->name->asString() == nameId)
-            return a;
-    }
+    for (StatementList *iter = block->statements; iter; iter = iter->next) {
+        Statement *stmt = iter->statement;
 
-    return 0;
-}
-
-static QmlJS::AST::Node *findDeclaration(const QString &nameId, QmlJS::AST::UiObjectMemberList *l)
-{
-    for (UiObjectMemberList *iter = l; iter; iter = iter->next)
-        if (Node *n = findDeclaration(nameId, iter->member))
-            return n;
-
-    return 0;
-}
-
-static QmlJS::AST::Node *findDeclaration(const QString &nameId, QmlJS::AST::Statement *s)
-{
-    if (VariableStatement *v = cast<VariableStatement*>(s)) {
-        for (VariableDeclarationList *l = v->declarations; l; l = l->next) {
-            if (l->declaration->name->asString() == nameId)
-                return l->declaration;
+        if (VariableStatement *varStmt = cast<VariableStatement*>(stmt)) {
+            for (VariableDeclarationList *varIter = varStmt->declarations; varIter; varIter = varIter->next) {
+                if (varIter->declaration && varIter->declaration->name && varIter->declaration->name->asString() == id) {
+                    rememberLocation(varIter->declaration->identifierToken);
+                    return true;
+                }
+            }
         }
     }
 
-    return 0;
+    return false;
 }
 
-static QmlJS::AST::Node *findDeclaration(const QString &nameId, QmlJS::AST::StatementList *l)
+static bool matches(UiQualifiedId *candidate, const QStringList &wanted)
 {
-    for (StatementList *iter = l; iter; iter = iter->next)
-        if (Node *n = findDeclaration(nameId, iter->statement))
-            return n;
+    UiQualifiedId *iter = candidate;
+    for (int i = 0; i < wanted.size(); ++i) {
+        if (!iter)
+            return false;
 
-    return 0;
+        if (iter->name->asString() != wanted[i])
+            return false;
+
+        iter = iter->next;
+    }
+
+    return !iter;
 }
 
-static QmlJS::AST::Node *findDeclarationAsDirectChild(const QString &nameId, QmlJS::AST::Node *node)
+bool NavigationTokenFinder::findProperty(const QStringList &qualifiedId, QmlJS::AST::UiQualifiedId *typeId, QmlJS::AST::UiObjectMemberList *ast, int scopeLevel)
 {
-    if (UiObjectBinding *binding = cast<UiObjectBinding*>(node)) {
-        return findDeclaration(nameId, binding->initializer->members);
-    } else if (UiObjectDefinition *def = cast<UiObjectDefinition*>(node)) {
-        return findDeclaration(nameId, def->initializer->members);
-    } else if (Block *block = cast<Block *>(node)) {
-        return findDeclaration(nameId, block->statements);
+    // 1. try the "overridden" properties:
+    for (UiObjectMemberList *iter = ast; iter; iter = iter->next) {
+        UiObjectMember *member = iter->member;
+
+        if (UiPublicMember *publicMember = cast<UiPublicMember*>(member)) {
+            if (publicMember->name && qualifiedId.size() == 1 && publicMember->name->asString() == qualifiedId.first()) {
+                rememberLocation(publicMember->identifierToken);
+                return true;
+            }
+        } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member)) {
+            if (matches(objectBinding->qualifiedId, qualifiedId)) {
+                rememberLocation(objectBinding->qualifiedId->identifierToken);
+                return true;
+            }
+        } else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member)) {
+            if (matches(scriptBinding->qualifiedId, qualifiedId)) {
+                rememberLocation(scriptBinding->qualifiedId->identifierToken);
+                return true;
+            }
+        } else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member)) {
+            if (matches(arrayBinding->qualifiedId, qualifiedId)) {
+                rememberLocation(arrayBinding->qualifiedId->identifierToken);
+                return true;
+            }
+        }
+    }
+
+    // 2. if the property is "parent", go one scope level up:
+    if (qualifiedId[0] == "parent"){
+        if (scopeLevel <= 0)
+            return false;
+
+        int newScopeLevel = scopeLevel - 1;
+        Node *parentScope = _scopes[newScopeLevel];
+
+        QStringList newQualifiedId = qualifiedId;
+        newQualifiedId.removeFirst();
+        if (UiObjectBinding *binding = cast<UiObjectBinding*>(parentScope)) {
+            if (newQualifiedId.isEmpty()) {
+                rememberLocation(binding->qualifiedTypeNameId->identifierToken);
+                return true;
+            } else {
+                return findProperty(newQualifiedId, binding->qualifiedTypeNameId, binding->initializer->members, newScopeLevel);
+            }
+        } else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(parentScope)) {
+            if (newQualifiedId.isEmpty()) {
+                rememberLocation(definition->qualifiedTypeNameId->identifierToken);
+                return true;
+            } else {
+                return findProperty(newQualifiedId, definition->qualifiedTypeNameId, definition->initializer->members, newScopeLevel);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    // 3. if the type is a custom type, search properties there:
+    {
+        // TODO
+    }
+
+    // all failed, so:
+    return false;
+}
+
+void NavigationTokenFinder::findAsId(const QStringList &qualifiedId)
+{
+    const DuiDocument::IdTable ids = _doc->ids();
+
+    if (ids.contains(qualifiedId.first())) {
+        QPair<SourceLocation, Node*> idInfo = ids[qualifiedId.first()];
+        if (qualifiedId.size() == 1) {
+            rememberLocation(idInfo.first);
+        } else if (qualifiedId.size() == 2) {
+            Node *parent = idInfo.second;
+
+            if (UiObjectBinding *binding = cast<UiObjectBinding*>(parent)) {
+                findProperty(QStringList() << qualifiedId[1], binding->qualifiedTypeNameId, binding->initializer->members, -1);
+            } else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(parent)) {
+                findProperty(QStringList() << qualifiedId[1], definition->qualifiedTypeNameId, definition->initializer->members, -1);
+            }
+        }
+    }
+}
+
+void NavigationTokenFinder::findDeclaration(const QStringList &qualifiedId, int scopeLevel)
+{
+    Node *scope = _scopes[scopeLevel];
+
+    if (Block *block = cast<Block*>(scope)) {
+        if (!findInJS(qualifiedId, block)) // continue searching the parent scope:
+            findDeclaration(qualifiedId, scopeLevel - 1);
+    } else if (UiObjectBinding *binding = cast<UiObjectBinding*>(scope)) {
+        if (findProperty(qualifiedId, binding->qualifiedTypeNameId, binding->initializer->members, scopeLevel)) {
+            return;
+        } else {
+            findAsId(qualifiedId);
+        }
+    } else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(scope)) {
+        if (findProperty(qualifiedId, definition->qualifiedTypeNameId, definition->initializer->members, scopeLevel)) {
+            return;
+        } else {
+            findAsId(qualifiedId);
+        }
     } else {
-        return 0;
+        Q_ASSERT(!"Unknown scope type");
     }
 }
 
-static QmlJS::AST::Node *findDeclarationInNode(QmlJS::AST::UiQualifiedId *qualifiedId, QmlJS::AST::Node *node)
+void NavigationTokenFinder::findDeclaration(const QStringList &id)
 {
-    if (!qualifiedId || !node)
-        return node;
-    else
-        return findDeclarationInNode(qualifiedId->next, findDeclarationAsDirectChild(qualifiedId->name->asString(), node));
+    if (id.isEmpty())
+        return;
+
+    findDeclaration(id, _scopes.size() - 1);
 }
 
-QmlJS::AST::Node *NavigationTokenFinder::findDeclarationInScopesOrIds(QmlJS::NameId *nameId)
+void NavigationTokenFinder::findTypeDeclaration(const QStringList &id)
 {
-    if (!_resolveTarget)
-        return 0;
-
-    const QString nameAsString = nameId->asString();
-    if (nameAsString == "parent" && _scopes.size() >= 2)
-        return _scopes.at(_scopes.size() - 2);
-
-    foreach (QmlJS::AST::Node *scope, _scopes) {
-        Node *result = findDeclarationAsDirectChild(nameAsString, scope);
-
-        if (result)
-            return result;
-    }
-
-    if (_idPositions.contains(nameAsString)) {
-        rememberStartPosition(_idPositions[nameAsString]);
-    }
-
-    return 0;
+    // TODO
 }
 
-QmlJS::AST::Node *NavigationTokenFinder::findDeclarationInScopesOrIds(QmlJS::AST::UiQualifiedId *qualifiedId)
+void NavigationTokenFinder::rememberLocation(const QmlJS::AST::SourceLocation &loc)
 {
-    if (!_resolveTarget)
-        return 0;
-
-    const QString nameAsString = qualifiedId->name->asString();
-    if (nameAsString == "parent" && _scopes.size() >= 2)
-        return findDeclarationInNode(qualifiedId->next, _scopes.at(_scopes.size() - 2));
-
-    foreach (QmlJS::AST::Node *scope, _scopes) {
-        Node *result = findDeclarationAsDirectChild(nameAsString, scope);
-
-        if (result)
-            return findDeclarationInNode(qualifiedId->next, result);
-    }
-
-    if (_idPositions.contains(nameAsString)) {
-        rememberStartPosition(_idPositions[nameAsString]);
-    }
-
-    return 0;
+    _fileName = _doc->fileName();
+    _targetLine = loc.startLine;
+    _targetColumn = loc.startColumn;
 }

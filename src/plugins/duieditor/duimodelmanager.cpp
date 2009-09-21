@@ -69,34 +69,36 @@ void DuiModelManager::updateSourceFiles(const QStringList &files)
 
 QFuture<void> DuiModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 {
-    if (! sourceFiles.isEmpty()) {
-        const QMap<QString, QString> workingCopy = buildWorkingCopyList();
-
-        QFuture<void> result = QtConcurrent::run(&DuiModelManager::parse,
-                                                 workingCopy, sourceFiles,
-                                                 this);
-
-        if (m_synchronizer.futures().size() > 10) {
-            QList<QFuture<void> > futures = m_synchronizer.futures();
-
-            m_synchronizer.clearFutures();
-
-            foreach (QFuture<void> future, futures) {
-                if (! (future.isFinished() || future.isCanceled()))
-                    m_synchronizer.addFuture(future);
-            }
-        }
-
-        m_synchronizer.addFuture(result);
-
-        if (sourceFiles.count() > 1) {
-            m_core->progressManager()->addTask(result, tr("Indexing"),
-                            DuiEditor::Constants::TASK_INDEX,
-                            Core::ProgressManager::CloseOnSuccess);
-        }
-        return result;
+    if (sourceFiles.isEmpty()) {
+        return QFuture<void>();
     }
-    return QFuture<void>();
+
+    const QMap<QString, QString> workingCopy = buildWorkingCopyList();
+
+    QFuture<void> result = QtConcurrent::run(&DuiModelManager::parse,
+                                              workingCopy, sourceFiles,
+                                              this);
+
+    if (m_synchronizer.futures().size() > 10) {
+        QList<QFuture<void> > futures = m_synchronizer.futures();
+
+        m_synchronizer.clearFutures();
+
+        foreach (QFuture<void> future, futures) {
+            if (! (future.isFinished() || future.isCanceled()))
+                m_synchronizer.addFuture(future);
+        }
+    }
+
+    m_synchronizer.addFuture(result);
+
+    if (sourceFiles.count() > 1) {
+        m_core->progressManager()->addTask(result, tr("Indexing"),
+                        DuiEditor::Constants::TASK_INDEX,
+                        Core::ProgressManager::CloseOnSuccess);
+    }
+
+    return result;
 }
 
 QMap<QString, QString> DuiModelManager::buildWorkingCopyList()

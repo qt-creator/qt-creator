@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include "idcollector.h"
 #include "duidocument.h"
 #include "qmljsast_p.h"
 #include "qmljslexer_p.h"
@@ -44,12 +45,21 @@ DuiDocument::DuiDocument(const QString &fileName)
     , _fileName(fileName)
     , _parsedCorrectly(false)
 {
+    const int slashIdx = fileName.lastIndexOf('/');
+    if (slashIdx != -1)
+        _path = fileName.left(slashIdx);
+
+    if (fileName.toLower().endsWith(".qml"))
+        _componentName = fileName.mid(slashIdx + 1, fileName.size() - (slashIdx + 1) - 4);
 }
 
 DuiDocument::~DuiDocument()
 {
-    delete _engine;
-    delete _pool;
+    if (_engine)
+        delete _engine;
+
+    if (_pool)
+        delete _pool;
 }
 
 DuiDocument::Ptr DuiDocument::create(const QString &fileName)
@@ -81,6 +91,7 @@ bool DuiDocument::parse()
 
     _engine = new Engine();
     _pool = new NodePool(_fileName, _engine);
+    _ids.clear();
 
     Lexer lexer(_engine);
     Parser parser(_engine);
@@ -90,6 +101,12 @@ bool DuiDocument::parse()
     _parsedCorrectly = parser.parse();
     _program = parser.ast();
     _diagnosticMessages = parser.diagnosticMessages();
+
+    if (_parsedCorrectly && _program) {
+        Internal::IdCollector collect;
+        _ids = collect(_program);
+    }
+
     return _parsedCorrectly;
 }
 
@@ -99,4 +116,47 @@ Snapshot::Snapshot()
 
 Snapshot::~Snapshot()
 {
+}
+
+void Snapshot::insert(const DuiDocument::Ptr &document)
+{
+    QMap<QString, DuiDocument::Ptr>::insert(document->fileName(), document);
+}
+
+DuiDocument::PtrList Snapshot::importedDocuments(const DuiDocument::Ptr &doc, const QString &importPath)
+{
+    DuiDocument::PtrList result;
+
+    const QString docPath = doc->path() + '/' + importPath;
+
+    for (Iterator i = iterator(); i.hasNext();) {
+        DuiDocument::Ptr candidate = i.next().value();
+
+        if (candidate == doc)
+            continue;
+
+        if (candidate->path() == doc->path() || candidate->path() == docPath)
+            result.append(candidate);
+    }
+
+    return result;
+}
+
+QMap<QString, DuiDocument::Ptr> Snapshot::componentsDefinedByImportedDocuments(const DuiDocument::Ptr &doc, const QString &importPath)
+{
+    QMap<QString, DuiDocument::Ptr> result;
+
+    const QString docPath = doc->path() + '/' + importPath;
+
+    for (Iterator i = iterator(); i.hasNext();) {
+        DuiDocument::Ptr candidate = i.next().value();
+
+        if (candidate == doc)
+            continue;
+
+        if (candidate->path() == doc->path() || candidate->path() == docPath)
+            result.insert(candidate->componentName(), candidate);
+    }
+
+    return result;
 }

@@ -714,11 +714,10 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
     if (!doc)
         return link;
 
-    QMap<QString, QmlJS::AST::SourceLocation> idPositions = IdCollector()(doc->program());
-
     NavigationTokenFinder finder;
-    if (finder(doc->program(), cursor.position(), resolveTarget, idPositions)) {
-        link.fileName = file()->fileName();
+    finder(doc, cursor.position(), snapshot);
+    if (finder.targetFound()) {
+        link.fileName = finder.fileName();
         link.pos = finder.linkPosition();
         link.length = finder.linkLength();
 

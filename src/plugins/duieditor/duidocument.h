@@ -29,8 +29,10 @@
 #ifndef DUIDOCUMENT_H
 #define DUIDOCUMENT_H
 
-#include <QtCore/QSharedPointer>
+#include <QtCore/QList>
 #include <QtCore/QMap>
+#include <QtCore/QPair>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
 #include "duieditor_global.h"
@@ -44,6 +46,8 @@ class DUIEDITOR_EXPORT DuiDocument
 {
 public:
 	typedef QSharedPointer<DuiDocument> Ptr;
+    typedef QList<DuiDocument::Ptr> PtrList;
+    typedef QMap<QString, QPair<QmlJS::AST::SourceLocation, QmlJS::AST::Node*> > IdTable;
 
 protected:
 	DuiDocument(const QString &fileName);
@@ -62,7 +66,11 @@ public:
     bool isParsedCorrectly() const
     { return _parsedCorrectly; }
 
+    IdTable ids() const { return _ids; }
+
     QString fileName() const { return _fileName; }
+    QString path() const { return _path; }
+    QString componentName() const { return _componentName; }
 
 private:
 	QmlJS::Engine *_engine;
@@ -70,8 +78,11 @@ private:
 	QmlJS::AST::UiProgram *_program;
 	QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
 	QString _fileName;
+    QString _path;
+    QString _componentName;
 	QString _source;
     bool _parsedCorrectly;
+    IdTable _ids;
 };
 
 class DUIEDITOR_EXPORT Snapshot: protected QMap<QString, DuiDocument::Ptr>
@@ -80,8 +91,7 @@ public:
 	Snapshot();
 	~Snapshot();
 
-    void insert(const DuiDocument::Ptr &document)
-    { QMap<QString, DuiDocument::Ptr>::insert(document->fileName(), document); }
+    void insert(const DuiDocument::Ptr &document);
 
     typedef QMapIterator<QString, DuiDocument::Ptr> Iterator;
     Iterator iterator() const
@@ -89,6 +99,9 @@ public:
 
     DuiDocument::Ptr document(const QString &fileName) const
     { return value(fileName); }
+
+    DuiDocument::PtrList importedDocuments(const DuiDocument::Ptr &doc, const QString &importPath);
+    QMap<QString, DuiDocument::Ptr> componentsDefinedByImportedDocuments(const DuiDocument::Ptr &doc, const QString &importPath);
 };
 
 } // emd of namespace DuiEditor
