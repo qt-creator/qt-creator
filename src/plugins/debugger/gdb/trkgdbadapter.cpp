@@ -75,7 +75,8 @@ static QByteArray dumpRegister(int n, uint value)
 namespace Debugger {
 namespace Internal {
 
-TrkGdbAdapter::TrkGdbAdapter(const TrkOptionsPtr &options) :
+TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
+    AbstractGdbAdapter(engine),
     m_options(options),
     m_running(false),
     m_gdbAckMode(true),
@@ -216,19 +217,22 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage(byte option)
     return ba;
 }
 
-void TrkGdbAdapter::startInferior()
+void TrkGdbAdapter::startInferiorEarly()
 {
     QString errorMessage;
     const QString device = effectiveTrkDevice();
     if (!m_trkDevice.open(device, &errorMessage)) {
-        emit output(QString::fromLatin1("Waiting on %1 (%2)").arg(device, errorMessage));
+        logMessage(QString::fromLatin1("Waiting on %1 (%2)").arg(device, errorMessage));
         // Do not loop forever
         if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 60 : 5)) {
-            QTimer::singleShot(1000, this, SLOT(startInferior()));
+            QTimer::singleShot(1000, this, SLOT(startInferiorEarly()));
         } else {
-            emit output(QString::fromLatin1("Failed to connect to %1 after %2 attempts").arg(device).arg(m_waitCount));
-            emit finished(-44, QProcess::CrashExit);
+            QString msg = QString::fromLatin1("Failed to connect to %1 after "
+                "%2 attempts").arg(device).arg(m_waitCount);
+            logMessage(msg);
+            emit adapterStartFailed(msg);
         }
+        QTimer::singleShot(1000, this, SLOT(startInferiorEarly()));
         return;
     }
 
@@ -1292,38 +1296,43 @@ void TrkGdbAdapter::interruptInferior()
 
 void TrkGdbAdapter::handleGdbError(QProcess::ProcessError error)
 {
-    emit output(QString("GDB: Process Error %1: %2").arg(error).arg(errorString()));
+    logMessage(QString("GDB: Process Error %1: %2").arg(error).arg(errorString()));
 }
 
 void TrkGdbAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    emit output(QString("GDB: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
+    logMessage(QString("GDB: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
 }
 
 void TrkGdbAdapter::handleGdbStarted()
 {
-    emit output(QString("GDB: Process Started"));
-    emit started();
+    logMessage(QString("GDB: Process Started"));
+    emit adapterStarted();
 }
 
 void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
 {
-    emit output(QString("GDB: Process State %1").arg(newState));
+    logMessage(QString("GDB: Process State %1").arg(newState));
 }
 
-void TrkGdbAdapter::run()
+void TrkGdbAdapter::startAdapter(const DebuggerStartParametersPtr &sp)
 {
-    emit output(QLatin1String("### Starting TrkGdbAdapter"));
+    m_startParameters = sp;
+    logMessage(QLatin1String("### Starting TrkGdbAdapter"));
     if (m_options->mode == TrkOptions::BlueTooth) {
         const QString device = effectiveTrkDevice();
         const QString blueToothListener = QLatin1String("rfcomm");
-        emit output(QString::fromLatin1("### Starting BlueTooth listener %1 on %2").arg(blueToothListener, device));
-        m_rfcommProc.start(blueToothListener + QLatin1String(" -r listen ") + m_options->blueToothDevice + QLatin1String(" 1"));
+        logMessage(QString::fromLatin1("### Starting BlueTooth listener %1 on %2")
+            .arg(blueToothListener, device));
+        m_rfcommProc.start(blueToothListener + QLatin1String(" -r listen ")
+            + m_options->blueToothDevice + QLatin1String(" 1"));
         m_rfcommProc.waitForStarted();
         if (m_rfcommProc.state() != QProcess::Running) {
-            const QString msg = QString::fromLocal8Bit(m_rfcommProc.readAllStandardError());
-            emit output(QString::fromLatin1("Failed to start BlueTooth listener %1 on %2: %3\n%4").arg(blueToothListener, device, m_rfcommProc.errorString(), msg));
-            emit finished(-44, QProcess::CrashExit);
+            QString msg = QString::fromLatin1("Failed to start BlueTooth "
+                "listener %1 on %2: %3\n");
+            msg = msg.arg(blueToothListener, device, m_rfcommProc.errorString());
+            msg += QString::fromLocal8Bit(m_rfcommProc.readAllStandardError());
+            emit adapterStartFailed(msg);
             return;
         }
     }
@@ -1334,7 +1343,19 @@ void TrkGdbAdapter::run()
     connect(&m_trkDevice, SIGNAL(error(QString)),
         this, SLOT(handleTrkError(QString)));
 
-    startInferior();
+    startInferiorEarly();
+}
+
+void TrkGdbAdapter::prepareInferior()
+{
+    // we already prepared the inferior during the adapter start
+    emit inferiorPrepared();
+}
+
+void TrkGdbAdapter::startInferior()
+{
+    // we already started the inferior during the adapter start
+    emit inferiorStarted();
 }
 
 #ifdef Q_OS_WIN
@@ -1363,9 +1384,10 @@ static void setGdbCygwinEnvironment(const QString &cygwin, QProcess *process)
 void TrkGdbAdapter::startGdb()
 {
     if (!m_gdbServer.listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
-        logMessage(QString("Unable to start the gdb server at %1: %2.")
-            .arg(m_gdbServerName).arg(m_gdbServer.errorString()));
-        emit finished(-45, QProcess::CrashExit);
+        QString msg = QString("Unable to start the gdb server at %1: %2.")
+            .arg(m_gdbServerName).arg(m_gdbServer.errorString());
+        logMessage(msg);
+        emit adapterStartFailed(msg); 
         return;
     }
 
@@ -1376,7 +1398,7 @@ void TrkGdbAdapter::startGdb()
         this, SLOT(handleGdbConnection()));
 
     logMessage("STARTING GDB");
-    emit output(QString::fromLatin1("### Starting gdb %1").arg(m_options->gdb));
+    logMessage(QString::fromLatin1("### Starting gdb %1").arg(m_options->gdb));
     QStringList gdbArgs;
     gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
     gdbArgs.append(QLatin1String("-i"));
@@ -1405,52 +1427,44 @@ void TrkGdbAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
 void TrkGdbAdapter::handleRfcommReadyReadStandardError()
 {
     QByteArray ba = m_rfcommProc.readAllStandardError();
-    emit output(QString("RFCONN stderr: %1").arg(QString::fromLatin1(ba)));
+    logMessage(QString("RFCONN stderr: %1").arg(QString::fromLatin1(ba)));
 }
 
 void TrkGdbAdapter::handleRfcommReadyReadStandardOutput()
 {
     QByteArray ba = m_rfcommProc.readAllStandardOutput();
-    emit output(QString("RFCONN stdout: %1").arg(QString::fromLatin1(ba)));
+    logMessage(QString("RFCONN stdout: %1").arg(QString::fromLatin1(ba)));
 }
 
 
 void TrkGdbAdapter::handleRfcommError(QProcess::ProcessError error)
 {
-    emit output(QString("RFCOMM: Process Error %1: %2").arg(error).arg(errorString()));
+    logMessage(QString("RFCOMM: Process Error %1: %2").arg(error).arg(errorString()));
 }
 
 void TrkGdbAdapter::handleRfcommFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    emit output(QString("RFCOMM: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
+    logMessage(QString("RFCOMM: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
 }
 
 void TrkGdbAdapter::handleRfcommStarted()
 {
-    emit output(QString("RFCOMM: Process Started"));
+    logMessage(QString("RFCOMM: Process Started"));
 }
 
 void TrkGdbAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
 {
-    emit output(QString("RFCOMM: Process State %1").arg(newState));
+    logMessage(QString("RFCOMM: Process State %1").arg(newState));
 }
 
 //
 // GdbProcessBase
 //
 
-void TrkGdbAdapter::start(const QString &program, const QStringList &args,
-    QIODevice::OpenMode mode)
-{
-    Q_UNUSED(mode);
-    Q_UNUSED(program);
-    Q_UNUSED(args);
-    run();
-}
-
 void TrkGdbAdapter::kill()
 {
-    if (m_options->mode == TrkOptions::BlueTooth && m_rfcommProc.state() == QProcess::Running)
+    if (m_options->mode == TrkOptions::BlueTooth
+            && m_rfcommProc.state() == QProcess::Running)
         m_rfcommProc.kill();
     m_gdbProc.kill();
 }
@@ -1509,6 +1523,17 @@ void TrkGdbAdapter::setEnvironment(const QStringList &env)
     m_gdbProc.setEnvironment(env);
 }
 
+void TrkGdbAdapter::shutdownAdapter()
+{
+    emit adapterShutDown();
+}
+
+void TrkGdbAdapter::shutdownInferior()
+{
+    emit inferiorShutDown();
+}
+
+/*
 void TrkGdbAdapter::attach()
 {
 #ifdef STANDALONE_RUNNER
@@ -1522,6 +1547,7 @@ void TrkGdbAdapter::attach()
     m_engine->postCommand(_("target remote ") + gdbServerName());
 #endif
 }
+*/
 
 } // namespace Internal
 } // namespace Debugger

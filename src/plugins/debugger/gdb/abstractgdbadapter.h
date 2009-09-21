@@ -33,6 +33,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 
+#include "gdbengine.h"
+
 namespace Debugger {
 namespace Internal {
 
@@ -48,15 +50,10 @@ class AbstractGdbAdapter : public QObject
     Q_OBJECT
 
 public:
-    AbstractGdbAdapter(QObject *parent = 0) : QObject(parent) {}
+    AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0)
+        : QObject(parent), m_engine(engine) 
+    {}
 
-    virtual void setEngine(GdbEngine *engine) { m_engine = engine; }
-    virtual void start(const QString &program, const QStringList &args,
-        QIODevice::OpenMode mode = QIODevice::ReadWrite) = 0;
-    virtual void kill() = 0;
-    virtual void terminate() = 0;
-    //virtual bool waitForStarted(int msecs = 30000) = 0;
-    virtual bool waitForFinished(int msecs = 30000) = 0;
     virtual QProcess::ProcessState state() const = 0;
     virtual QString errorString() const = 0;
     virtual QByteArray readAllStandardError() = 0;
@@ -66,18 +63,35 @@ public:
     virtual void setEnvironment(const QStringList &env) = 0;
     virtual bool isAdapter() const = 0;
 
-    virtual void attach() = 0;
+    virtual void startAdapter(const DebuggerStartParametersPtr &sp) = 0;
+    virtual void prepareInferior() = 0;
+    virtual void startInferior() = 0;
+    virtual void shutdownInferior() = 0;
+    virtual void shutdownAdapter() = 0;
     virtual void interruptInferior() = 0;
 
 signals:
+    void adapterStarted();
+    void adapterStartFailed(const QString &msg);
+    void adapterShutDown();
+    void adapterShutdownFailed(const QString &msg);
+    void adapterCrashed();
+
+    void inferiorPrepared();
+    void inferiorPreparationFailed(const QString &msg);
+    void inferiorStarted();
+    void inferiorStartFailed(const QString &msg);
+    void inferiorShutDown();
+    void inferiorShutdownFailed(const QString &msg);
+    
+    void inferiorPidChanged(qint64 pid);
+
     void error(QProcess::ProcessError);
-    void started();
     void readyReadStandardOutput();
     void readyReadStandardError();
-    void finished(int, QProcess::ExitStatus);
 
 protected:
-    GdbEngine *m_engine;
+    GdbEngine * const m_engine;
 };
 
 } // namespace Internal

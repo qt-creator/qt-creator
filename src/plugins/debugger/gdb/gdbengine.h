@@ -33,11 +33,8 @@
 #include "idebuggerengine.h"
 #include "debuggermanager.h" // only for StartParameters
 #include "gdbmi.h"
-#include "abstractgdbadapter.h"
-#include "outputcollector.h"
 #include "watchutils.h"
-
-#include <consoleprocess.h>
+#include "outputcollector.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
@@ -45,6 +42,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QPoint>
+#include <QtCore/QSet>
 #include <QtCore/QTextCodec>
 #include <QtCore/QTime>
 #include <QtCore/QVariant>
@@ -58,7 +56,7 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
-
+class AbstractGdbAdapter;
 class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
 class GdbResultRecord;
@@ -75,52 +73,14 @@ enum DebuggingHelperState
     DebuggingHelperUnavailable,
 };
 
-class PlainGdbAdapter : public AbstractGdbAdapter
-{
-public:
-    PlainGdbAdapter(QObject *parent = 0)
-        : AbstractGdbAdapter(parent)
-    {
-        connect(&m_proc, SIGNAL(error(QProcess::ProcessError)),
-            this, SIGNAL(error(QProcess::ProcessError)));
-        connect(&m_proc, SIGNAL(readyReadStandardOutput()),
-            this, SIGNAL(readyReadStandardOutput()));
-        connect(&m_proc, SIGNAL(readyReadStandardError()),
-            this, SIGNAL(readyReadStandardError()));
-        connect(&m_proc, SIGNAL(started()),
-            this, SIGNAL(started()));
-        connect(&m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SIGNAL(finished(int, QProcess::ExitStatus)));
-    }
-
-    void start(const QString &program, const QStringList &args,
-        QIODevice::OpenMode mode) { m_proc.start(program, args, mode); }
-    void kill() { m_proc.kill(); }
-    void terminate() { m_proc.terminate(); }
-    bool waitForStarted(int msecs) { return m_proc.waitForStarted(msecs); }
-    bool waitForFinished(int msecs) { return m_proc.waitForFinished(msecs); }
-    QProcess::ProcessState state() const { return m_proc.state(); }
-    QString errorString() const { return m_proc.errorString(); }
-    QByteArray readAllStandardError() { return m_proc.readAllStandardError(); }
-    QByteArray readAllStandardOutput() { return m_proc.readAllStandardOutput(); }
-    qint64 write(const char *data) { return m_proc.write(data); }
-    void setWorkingDirectory(const QString &dir) { m_proc.setWorkingDirectory(dir); }
-    void setEnvironment(const QStringList &env) { m_proc.setEnvironment(env); }
-    bool isAdapter() const { return false; }
-    void attach();
-    void interruptInferior();
-
-private:
-    QProcess m_proc;
-};
-
 class GdbEngine : public IDebuggerEngine
 {
     Q_OBJECT
 
 public:
-    GdbEngine(DebuggerManager *parent, AbstractGdbAdapter *gdbAdapter);
+    explicit GdbEngine(DebuggerManager *parent);
     ~GdbEngine();
+    void setGdbAdapter(AbstractGdbAdapter *adapter);
 
 signals:
     void gdbInputAvailable(int channel, const QString &msg);
@@ -145,7 +105,6 @@ private:
     void shutdown();
     void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
     void startDebugger(const DebuggerStartParametersPtr &sp);
-    Q_SLOT void startDebugger2();
     void exitDebugger();
     void exitDebugger2();
     void detachDebugger();
@@ -217,14 +176,20 @@ public: // otherwise the Qt flag macros are unhappy
 
 
 private:
-    typedef void (GdbEngine::*GdbCommandCallback)(const GdbResultRecord &record, const QVariant &cookie);
+    typedef void (GdbEngine::*GdbCommandCallback)
+        (const GdbResultRecord &record, const QVariant &cookie);
+    typedef void (AbstractGdbAdapter::*AdapterCallback)
+        (const GdbResultRecord &record, const QVariant &cookie);
 
     struct GdbCommand
     {
-        GdbCommand() : flags(0), callback(0), callbackName(0) {}
+        GdbCommand()
+            : flags(0), callback(0), adapterCallback(0), callbackName(0)
+        {}
 
         int flags;
         GdbCommandCallback callback;
+        AdapterCallback adapterCallback;
         const char *callbackName;
         QString command;
         QVariant cookie;
@@ -235,7 +200,7 @@ private:
     // queue". resultNeeded == true increments m_pendingResults on
     // send and decrements on receipt, effectively preventing 
     // watch model updates before everything is finished.
-    void flushCommand(GdbCommand &cmd);
+    void flushCommand(const GdbCommand &cmd);
     void postCommand(const QString &command,
                      GdbCommandFlags flags,
                      GdbCommandCallback callback = 0,
@@ -245,7 +210,11 @@ private:
                      GdbCommandCallback callback = 0,
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
-
+    void postCommand(const QString &command,
+                     AdapterCallback callback,
+                     const char *callbackName,
+                     const QVariant &cookie = QVariant());
+    void postCommandHelper(const GdbCommand &cmd);
     void setTokenBarrier();
 
     void updateLocals();
@@ -257,25 +226,36 @@ private slots:
     void readUploadStandardOutput();
     void readUploadStandardError();
     void readDebugeeOutput(const QByteArray &data);
-    void stubStarted();
-    void stubError(const QString &msg);
     void uploadProcError(QProcess::ProcessError error);
     void emitStartFailed();
+
+    void handleAdapterStarted();
+    void handleAdapterStartFailed(const QString &msg);
+
+    void handleInferiorPrepared();
+    void handleInferiorPreparationFailed(const QString &msg);
+    void handleInferiorStarted();
+    void handleInferiorStartFailed(const QString &msg);
+    void handleInferiorShutDown();
+    void handleInferiorShutdownFailed(const QString &msg);
+
+    void handleAdapterShutDown();
+    void handleAdapterShutdownFailed(const QString &msg);
 
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
     void handleStart(const GdbResultRecord &response, const QVariant &);
     void handleAttach(const GdbResultRecord &, const QVariant &);
-    void handleStubAttached(const GdbResultRecord &, const QVariant &);
     void handleAqcuiredInferior();
-    void handleAsyncOutput2(const GdbResultRecord &, const QVariant &cookie);
-    void handleAsyncOutput2(const GdbMi &data);
     void handleAsyncOutput(const GdbMi &data);
+    void handleStop1(const GdbResultRecord &, const QVariant &cookie);
+    void handleStop2(const GdbResultRecord &, const QVariant &cookie);
+    void handleStop2(const GdbMi &data);
     void handleResultRecord(const GdbResultRecord &response);
     void handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &);
     void handleExecContinue(const GdbResultRecord &response, const QVariant &);
-    void handleExecRun(const GdbResultRecord &response, const QVariant &);
+    //void handleExecRun(const GdbResultRecord &response, const QVariant &);
     void handleExecJumpToLine(const GdbResultRecord &response, const QVariant &);
     void handleExecRunToFunction(const GdbResultRecord &response, const QVariant &);
     void handleInfoShared(const GdbResultRecord &response, const QVariant &);
@@ -306,7 +286,6 @@ private:
         QList<WatchData> *insertions);
     const bool m_dumperInjectionLoad;
 
-    OutputCollector m_outputCollector;
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;
 
@@ -314,8 +293,6 @@ private:
 
     AbstractGdbAdapter *m_gdbAdapter;
     QProcess m_uploadProc;
-
-    Core::Utils::ConsoleProcess m_stubProc;
 
     QHash<int, GdbCommand> m_cookieForToken;
     QHash<int, QByteArray> m_customOutputForToken;
@@ -448,7 +425,11 @@ private:
     QString m_currentFrame;
     QMap<QString, QString> m_varToType;
 
-    bool m_autoContinue;
+    typedef void (GdbEngine::*Continuation)();
+    // function called after all previous responses have been received
+    Continuation m_continuationAfterDone;
+    void handleInitialBreakpointsSet();
+
     bool m_waitingForFirstBreakpointToBeHit;
     bool m_modulesListOutdated;
 
@@ -458,6 +439,8 @@ private:
     IDebuggerManagerAccessForEngines * const qq;
     DebuggerStartParametersPtr m_startParameters;
     // make sure to re-initialize new members in initializeVariables();
+public:
+    OutputCollector m_outputCollector;
 };
 
 } // namespace Internal

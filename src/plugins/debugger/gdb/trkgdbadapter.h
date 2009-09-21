@@ -71,7 +71,7 @@ public:
     typedef trk::Callback<const GdbResult &> GdbCallback;
     typedef QSharedPointer<TrkOptions> TrkOptionsPtr;
 
-    explicit TrkGdbAdapter(const TrkOptionsPtr &options);
+    TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options);
     ~TrkGdbAdapter();
     void setGdbServerName(const QString &name);
     QString gdbServerName() const { return m_gdbServerName; }
@@ -80,22 +80,14 @@ public:
     void setVerbose(int verbose) { m_verbose = verbose; }
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
     trk::Session &session() { return m_session; }
+    void startGdb();
 
     // Set a device (from the project) to override the settings.
     QString overrideTrkDevice() const;
     void setOverrideTrkDevice(const QString &);
 
-public slots:
-    void startInferior();
-    void run();
-
 signals:
     void output(const QString &msg);
-    void startSuccessful();
-    void startFailed();
-
-private slots:
-    void startGdb();
 
 private:
     friend class RunnerGui;
@@ -108,6 +100,7 @@ private:
     QProcess m_gdbProc;
     QProcess m_rfcommProc;
     bool m_running;
+    DebuggerStartParametersPtr m_startParameters;
 
 public:
     //
@@ -126,8 +119,15 @@ public:
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
     bool isAdapter() const { return true; }
-    void attach();
+    //void attach();
     void interruptInferior();
+    void startInferiorEarly();
+
+    void startAdapter(const DebuggerStartParametersPtr &sp);
+    void prepareInferior();
+    void startInferior();
+    void shutdownInferior();
+    void shutdownAdapter();
 
     //
     // TRK
