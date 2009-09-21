@@ -1472,9 +1472,6 @@ static void indentCPPBlock(const CPPEditor::TabSettings &ts,
 
 void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
-    const TextEditor::TextBlockIterator begin(doc->begin());
-    const TextEditor::TextBlockIterator end(block.next());
-
     QTextCursor tc(block);
     tc.movePosition(QTextCursor::EndOfBlock);
 
@@ -1509,6 +1506,26 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
         }
     }
 
+    if ((tokenCount == 0 || tk[0].isNot(T_POUND)) && typedChar.isNull() && (tk[-1].is(T_IDENTIFIER) || tk[-1].is(T_RPAREN))) {
+        int tokenIndex = -1;
+        if (tk[-1].is(T_RPAREN)) {
+            const int matchingBrace = tk.startOfMatchingBrace(0);
+            if (matchingBrace != 0 && tk[matchingBrace - 1].is(T_IDENTIFIER)) {
+                tokenIndex = matchingBrace - 1;
+            }
+        }
+
+        const QString spell = tk.text(tokenIndex);
+        if (tk[tokenIndex].followsNewline() && (spell.startsWith(QLatin1String("QT_")) ||
+                                                spell.startsWith(QLatin1String("Q_")))) {
+            const int indent = tk.indentation(tokenIndex);
+            tabSettings().indentLine(block, indent);
+            return;
+        }
+    }
+
+    const TextEditor::TextBlockIterator begin(doc->begin());
+    const TextEditor::TextBlockIterator end(block.next());
     indentCPPBlock(tabSettings(), block, begin, end, typedChar);
 }
 

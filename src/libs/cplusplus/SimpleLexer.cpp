@@ -139,27 +139,14 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
 
     bool inPreproc = false;
 
-    bool first = true;
-
     for (;;) {
         Token tk;
         lex(&tk);
         if (tk.is(T_EOF_SYMBOL))
             break;
 
-        Q_ASSERT(lex.tokenOffset() == tk.begin());
-        Q_ASSERT(lex.tokenLength() == tk.f.length);
-
         QStringRef spell = text.midRef(lex.tokenOffset(), lex.tokenLength());
         SimpleToken simpleTk(tk, spell);
-
-        if (first) {
-            first = false;
-
-            Q_ASSERT(tk.f.newline);
-            Q_ASSERT(simpleTk.followsNewline());
-        }
-
         lex.setScanAngleStringLiteralTokens(false);
 
         if (tk.f.newline && tk.is(T_POUND))

@@ -49,9 +49,9 @@ static bool shouldOverrideChar(const QChar &ch)
     }
 }
 
-static bool isCompleteStringLiteral(const BackwardsScanner &tk, int index, int startToken)
+static bool isCompleteStringLiteral(const BackwardsScanner &tk, int index)
 {
-    const QStringRef text = tk.textRef(index, startToken);
+    const QStringRef text = tk.textRef(index);
 
     if (text.length() < 2)
         return false;
@@ -62,9 +62,9 @@ static bool isCompleteStringLiteral(const BackwardsScanner &tk, int index, int s
     return false;
 }
 
-static bool isCompleteCharLiteral(const BackwardsScanner &tk, int index, int startToken)
+static bool isCompleteCharLiteral(const BackwardsScanner &tk, int index)
 {
-    const QStringRef text = tk.textRef(index, startToken);
+    const QStringRef text = tk.textRef(index);
 
     if (text.length() < 2)
         return false;
@@ -133,7 +133,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
         if (text.length() != 1)
             qWarning() << Q_FUNC_INFO << "handle event compression";
 
-        if (isCompleteStringLiteral(tk, index - 1, startToken))
+        if (isCompleteStringLiteral(tk, index - 1))
             return QLatin1String("\"");
 
         return QString();
@@ -141,7 +141,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
         if (text.length() != 1)
             qWarning() << Q_FUNC_INFO << "handle event compression";
 
-        if (isCompleteCharLiteral(tk, index - 1, startToken))
+        if (isCompleteCharLiteral(tk, index - 1))
             return QLatin1String("'");
 
         return QString();

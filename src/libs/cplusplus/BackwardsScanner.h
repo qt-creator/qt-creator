@@ -51,8 +51,8 @@ public:
     int startPosition() const;
 
     QString text() const;
-    QString text(int begin, int end) const;
-    QStringRef textRef(int begin, int end) const;
+    QString text(int index) const;
+    QStringRef textRef(int index) const;
 
     // 1-based
     SimpleToken LA(int index) const;
