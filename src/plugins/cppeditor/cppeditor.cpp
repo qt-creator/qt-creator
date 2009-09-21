@@ -53,6 +53,7 @@
 #include <cplusplus/TokenUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/MatchingText.h>
+#include <cplusplus/BackwardsScanner.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
 #include <coreplugin/icore.h>
@@ -1263,6 +1264,7 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
 {
     if (ch == QLatin1Char('{') ||
         ch == QLatin1Char('}') ||
+        ch == QLatin1Char(':') ||
         ch == QLatin1Char('#')) {
         return true;
     }
@@ -1472,6 +1474,40 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
 {
     const TextEditor::TextBlockIterator begin(doc->begin());
     const TextEditor::TextBlockIterator end(block.next());
+
+    QTextCursor tc(block);
+    tc.movePosition(QTextCursor::EndOfBlock);
+
+    BackwardsScanner tk(tc, QString(), 400);
+    const int tokenCount = tk.startToken();
+    const int indentSize = tabSettings().m_indentSize;
+
+    if (tokenCount != 0) {
+        const SimpleToken firstToken = tk[0];
+
+        if (firstToken.is(T_COLON)) {
+            const int indent = tk.indentation(-1) +  // indentation of the previous newline
+                               indentSize;
+            tabSettings().indentLine(block, indent);
+            return;
+        } else if ((firstToken.is(T_PUBLIC) || firstToken.is(T_PROTECTED) || firstToken.is(T_PRIVATE) ||
+                    firstToken.is(T_Q_SIGNALS) || firstToken.is(T_Q_SLOTS)) && tk[1].is(T_COLON)) {
+            const int startOfBlock = tk.startOfBlock(0);
+            if (startOfBlock != 0) {
+                const int indent = tk.indentation(startOfBlock);
+                tabSettings().indentLine(block, indent);
+                return;
+            }
+        } else if (firstToken.is(T_CASE) || firstToken.is(T_DEFAULT)) {
+            const int startOfBlock = tk.startOfBlock(0);
+            if (startOfBlock != 0) {
+                const int indent = tk.indentation(startOfBlock);
+                tabSettings().indentLine(block, indent);
+                return;
+            }
+            return;
+        }
+    }
 
     indentCPPBlock(tabSettings(), block, begin, end, typedChar);
 }

@@ -37,21 +37,18 @@
 namespace CPlusPlus {
 
 class SimpleLexer;
+class Token;
 
 class CPLUSPLUS_EXPORT SimpleToken
 {
 public:
-    SimpleToken(int kind, int position, int length, const QStringRef &text)
-        : _kind(kind)
-        , _position(position)
-        , _length(length)
-        , _text(text)
-    { }
+    SimpleToken(const Token &token, const QStringRef &text);
 
     SimpleToken()
-        : _kind(0),
-          _position(0),
-          _length(0)
+        : _kind(0)
+        , _flags(0)
+        , _position(0)
+        , _length(0)
     { }
 
     inline int kind() const
@@ -72,6 +69,12 @@ public:
     inline QStringRef text() const
     { return _text; }
 
+    inline bool followsNewline() const
+    { return f._newline; }
+
+    inline bool followsWhitespace() const
+    { return f._whitespace; }
+
     inline bool is(int k) const    { return _kind == k; }
     inline bool isNot(int k) const { return _kind != k; }
 
@@ -81,8 +84,27 @@ public:
     bool isComment() const;
     bool isObjCAtKeyword() const;
 
+    const char *name() const;
+
+    // internal
+    inline void setPosition(int position)
+    { _position = position; }
+
+    // internal
+    inline void setText(const QStringRef &text)
+    { _text = text; }
+
 public:
-    int _kind;
+    short _kind;
+    union {
+        short _flags;
+
+        struct {
+            short _newline: 1;
+            short _whitespace: 1;
+        } f;
+    };
+
     int _position;
     int _length;
     QStringRef _text;
