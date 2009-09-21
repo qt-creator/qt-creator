@@ -37,6 +37,7 @@
 #include "session.h"
 #include "projecttreewidget.h"
 #include "runconfiguration.h"
+#include "buildconfiguration.h"
 
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/fileiconprovider.h>
@@ -436,7 +437,7 @@ BuildConfigurationComboBox::BuildConfigurationComboBox(Project *p, QWidget *pare
     //m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     QStringList buildConfigurations = p->buildConfigurations();
     foreach(const QString &buildConfiguration, buildConfigurations)
-        m_comboBox->addItem(p->displayNameFor(buildConfiguration), buildConfiguration);   
+        m_comboBox->addItem(p->buildConfiguration(buildConfiguration)->displayName(), buildConfiguration);
     if (buildConfigurations.count() == 1) {
         m_label->setText(m_comboBox->itemText(0));
         setCurrentWidget(m_label);
@@ -468,7 +469,7 @@ void BuildConfigurationComboBox::nameChanged(const QString &buildConfiguration)
     int index = nameToIndex(buildConfiguration);
     if (index == -1)
         return;
-    const QString &displayName = m_project->displayNameFor(buildConfiguration);
+    const QString &displayName = m_project->buildConfiguration(buildConfiguration)->displayName();
     m_comboBox->setItemText(index, displayName);
     if (m_comboBox->count() == 1)
         m_label->setText(displayName);
@@ -495,7 +496,7 @@ void BuildConfigurationComboBox::activeConfigurationChanged()
 void BuildConfigurationComboBox::addedBuildConfiguration(ProjectExplorer::Project *,const QString &buildConfiguration)
 {
     ignoreIndexChange = true;
-    m_comboBox->addItem(m_project->displayNameFor(buildConfiguration), buildConfiguration);
+    m_comboBox->addItem(m_project->buildConfiguration(buildConfiguration)->displayName(), buildConfiguration);
 
     if (m_comboBox->count() == 2)
         setCurrentWidget(m_comboBox);

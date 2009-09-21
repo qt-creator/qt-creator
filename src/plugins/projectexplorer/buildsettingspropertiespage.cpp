@@ -31,6 +31,7 @@
 #include "buildstep.h"
 #include "buildstepspage.h"
 #include "project.h"
+#include "buildconfiguration.h"
 
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
@@ -188,7 +189,7 @@ void BuildSettingsWidget::buildConfigurationDisplayNameChanged(const QString &bu
 {
     for (int i=0; i<m_buildConfigurationComboBox->count(); ++i) {
         if (m_buildConfigurationComboBox->itemData(i).toString() == buildConfiguration) {
-            m_buildConfigurationComboBox->setItemText(i, m_project->displayNameFor(buildConfiguration));
+            m_buildConfigurationComboBox->setItemText(i, m_project->buildConfiguration(buildConfiguration)->displayName());
             break;
         }
     }
@@ -220,7 +221,7 @@ void BuildSettingsWidget::updateBuildSettings()
 
     // Add tree items
     foreach (const QString &buildConfiguration, m_project->buildConfigurations()) {
-        m_buildConfigurationComboBox->addItem(m_project->displayNameFor(buildConfiguration), buildConfiguration);
+        m_buildConfigurationComboBox->addItem(m_project->buildConfiguration(buildConfiguration)->displayName(), buildConfiguration);
         if (buildConfiguration == m_buildConfiguration)
             m_buildConfigurationComboBox->setCurrentIndex(m_buildConfigurationComboBox->count() - 1);
     }
@@ -273,7 +274,7 @@ void BuildSettingsWidget::createConfiguration()
     // Check that we don't have a configuration with the same displayName
     QStringList displayNames;
     foreach (const QString &bc, buildConfigurations)
-        displayNames << m_project->displayNameFor(bc);
+        displayNames << m_project->buildConfiguration(bc)->displayName();
 
     if (displayNames.contains(newDisplayName)) {
         int i = 2;
@@ -325,7 +326,7 @@ void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
     // Check that we don't have a configuration with the same displayName
     QStringList displayNames;
     foreach (const QString &bc, buildConfigurations)
-        displayNames << m_project->displayNameFor(bc);
+        displayNames << m_project->buildConfiguration(bc)->displayName();
 
     if (displayNames.contains(newDisplayName)) {
         int i = 2;

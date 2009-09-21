@@ -215,7 +215,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     //save buildsettings
     foreach (const QString &buildConfigurationName, buildConfigurations()) {
         QMap<QString, QVariant> temp =
-            getBuildConfiguration(buildConfigurationName)->toMap();
+            buildConfiguration(buildConfigurationName)->toMap();
         writer.saveValue("buildConfiguration-" + buildConfigurationName, temp);
     }
 
@@ -297,7 +297,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
         addBuildConfiguration(buildConfigurationName);
         QMap<QString, QVariant> temp =
             reader.restoreValue("buildConfiguration-" + buildConfigurationName).toMap();
-        getBuildConfiguration(buildConfigurationName)->setValuesFromMap(temp);
+        buildConfiguration(buildConfigurationName)->setValuesFromMap(temp);
     }
 
     const QList<IBuildStepFactory *> buildStepFactories =
@@ -410,7 +410,7 @@ QVariant Project::value(const QString &name) const
         return QVariant();
 }
 
-BuildConfiguration *Project::getBuildConfiguration(const QString &name) const
+BuildConfiguration *Project::buildConfiguration(const QString &name) const
 {
     for (int i = 0; i != m_buildConfigurationValues.size(); ++i)
         if (m_buildConfigurationValues.at(i)->name() == name)
@@ -418,16 +418,16 @@ BuildConfiguration *Project::getBuildConfiguration(const QString &name) const
     return 0;
 }
 
-void Project::setValue(const QString &buildConfiguration, const QString &name, const QVariant &value)
+void Project::setValue(const QString &buildConfigurationName, const QString &name, const QVariant &value)
 {
-    BuildConfiguration *bc = getBuildConfiguration(buildConfiguration);
+    BuildConfiguration *bc = buildConfiguration(buildConfigurationName);
     Q_ASSERT(bc);
     bc->setValue(name, value);
 }
 
-QVariant Project::value(const QString &buildConfiguration, const QString &name) const
+QVariant Project::value(const QString &buildConfigurationName, const QString &name) const
 {
-    BuildConfiguration *bc = getBuildConfiguration(buildConfiguration);
+    BuildConfiguration *bc = buildConfiguration(buildConfigurationName);
     if (bc)
         return bc->value(name);
     else
@@ -502,27 +502,22 @@ EditorConfiguration *Project::editorConfiguration() const
     return m_editorConfiguration;
 }
 
-QString Project::displayNameFor(const QString &buildConfiguration)
-{
-    return getBuildConfiguration(buildConfiguration)->displayName();
-}
-
-void Project::setDisplayNameFor(const QString &buildConfiguration, const QString &displayName)
+void Project::setDisplayNameFor(const QString &buildConfigurationName, const QString &displayName)
 {
     QStringList displayNames;
-    foreach (const QString &bc, buildConfigurations()) {
-        if (bc != buildConfiguration)
-            displayNames << displayNameFor(bc);
+    foreach (BuildConfiguration *bc, m_buildConfigurationValues) {
+        if (bc->name() != buildConfigurationName)
+            displayNames << bc->displayName();
     }
     if (displayNames.contains(displayName)) {
         int i = 2;
         while (displayNames.contains(displayName + QString::number(i)))
             ++i;
-        getBuildConfiguration(buildConfiguration)->setDisplayName(displayName + QString::number(i));
+        buildConfiguration(buildConfigurationName)->setDisplayName(displayName + QString::number(i));
     } else {
-        getBuildConfiguration(buildConfiguration)->setDisplayName(displayName);
+        buildConfiguration(buildConfigurationName)->setDisplayName(displayName);
     }
-    emit buildConfigurationDisplayNameChanged(buildConfiguration);
+    emit buildConfigurationDisplayNameChanged(buildConfigurationName);
 }
 
 QByteArray Project::predefinedMacros(const QString &) const

@@ -62,6 +62,7 @@
 #include "projectwelcomepage.h"
 #include "projectwelcomepagewidget.h"
 #include "corelistenercheckingforrunningbuild.h"
+#include "buildconfiguration.h"
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
@@ -1916,7 +1917,7 @@ void ProjectExplorerPlugin::populateBuildConfigurationMenu()
     if (Project *pro = d->m_currentProject) {
         const QString &activeBuildConfiguration = pro->activeBuildConfiguration();
         foreach (const QString &buildConfiguration, pro->buildConfigurations()) {
-            QString displayName = pro->displayNameFor(buildConfiguration);
+            QString displayName = pro->buildConfiguration(buildConfiguration)->displayName();
             QAction *act = new QAction(displayName, d->m_buildConfigurationActionGroup);
             if (debug)
                 qDebug() << "BuildConfiguration " << buildConfiguration << "active: " << activeBuildConfiguration;

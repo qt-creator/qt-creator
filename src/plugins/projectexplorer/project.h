@@ -56,10 +56,7 @@ class Environment;
 class ProjectNode;
 class PersistentSettingsWriter;
 class PersistentSettingsReader;
-
-namespace Internal {
 class BuildConfiguration;
-}
 
 class PROJECTEXPLORER_EXPORT Project
     : public QObject
@@ -101,8 +98,8 @@ public:
     void addBuildConfiguration(const QString &name);
     void removeBuildConfiguration(const QString  &name);
     void copyBuildConfiguration(const QString &source, const QString &dest);
+    BuildConfiguration *buildConfiguration(const QString & name) const;
     QStringList buildConfigurations() const;
-    QString displayNameFor(const QString &buildConfiguration);
     void setDisplayNameFor(const QString &buildConfiguration, const QString &displayName);
 
     QString activeBuildConfiguration() const;
@@ -191,8 +188,6 @@ protected:
     virtual bool restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
-    BuildConfiguration *getBuildConfiguration(const QString & name) const;
-
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
     QStringList m_buildConfigurations;

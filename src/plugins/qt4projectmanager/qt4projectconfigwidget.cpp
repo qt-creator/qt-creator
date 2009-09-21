@@ -40,6 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QFileDialog>
@@ -172,7 +173,7 @@ void Qt4ProjectConfigWidget::init(const QString &buildConfiguration)
 
     m_buildConfiguration = buildConfiguration;
 
-    m_ui->nameLineEdit->setText(m_pro->displayNameFor(m_buildConfiguration));
+    m_ui->nameLineEdit->setText(m_pro->buildConfiguration(m_buildConfiguration)->displayName());
 
     setupQtVersionsComboBox();
 
