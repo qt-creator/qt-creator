@@ -1488,9 +1488,10 @@ bool TrkGdbAdapter::waitForFinished(int msecs)
     return m_gdbProc.waitForFinished(msecs);
 }
 
-QProcess::ProcessState TrkGdbAdapter::state() const
+GdbAdapterState TrkGdbAdapter::state() const
 {
-    return m_gdbProc.state();
+    //return m_gdbProc.state();
+    return AdapterNotRunning; // FIXME
 }
 
 QString TrkGdbAdapter::errorString() const

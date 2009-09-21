@@ -661,10 +661,10 @@ void GdbEngine::readGdbStandardOutput()
 
 void GdbEngine::interruptInferior()
 {
-    debugMessage(_("GDBENGINE INTERRUPT INFERIOR: %1").arg(m_gdbAdapter->state()));
+//    debugMessage(_("GDBENGINE INTERRUPT INFERIOR: %1").arg(m_gdbAdapter->state()));
     qq->notifyInferiorStopRequested();
 
-    if (m_gdbAdapter->state() == QProcess::NotRunning) {
+    if (m_gdbAdapter->state() == AdapterNotRunning) {
         debugMessage(_("TRYING TO INTERRUPT INFERIOR WITHOUT RUNNING GDB"));
         qq->notifyInferiorExited();
         return;
@@ -690,6 +690,13 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
 }
 
 void GdbEngine::postCommand(const QString &command, AdapterCallback callback,
+                            const char *callbackName, const QVariant &cookie)
+{
+    postCommand(command, NoFlags, callback, callbackName, cookie);
+}
+
+void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
+                            AdapterCallback callback,
                             const char *callbackName, const QVariant &cookie)
 {
     GdbCommand cmd;
@@ -722,7 +729,7 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
 
 void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 {
-    if (m_gdbAdapter->state() == QProcess::NotRunning) {
+    if (m_gdbAdapter->state() == AdapterNotRunning) {
         debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
         return;
     }
@@ -753,7 +760,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 void GdbEngine::flushCommand(const GdbCommand &cmd0)
 {
     GdbCommand cmd = cmd0;
-    if (m_gdbAdapter->state() != QProcess::Running) {
+    if (m_gdbAdapter->state() == AdapterNotRunning) {
         emit gdbInputAvailable(LogInput, cmd.command);
         debugMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + cmd.command);
         return;
@@ -858,7 +865,7 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 
 void GdbEngine::executeDebuggerCommand(const QString &command)
 {
-    if (m_gdbAdapter->state() != QProcess::Running) {
+    if (m_gdbAdapter->state() == AdapterNotRunning) {
         debugMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
         return;
     }
@@ -1484,7 +1491,9 @@ QString GdbEngine::fullName(const QStringList &candidates)
 
 void GdbEngine::shutdown()
 {
-    exitDebugger();
+    m_outputCollector.shutdown();
+    initializeVariables();
+    m_gdbAdapter->shutdownAdapter();
 }
 
 void GdbEngine::detachDebugger()
@@ -1496,29 +1505,9 @@ void GdbEngine::detachDebugger()
 
 void GdbEngine::exitDebugger()
 {
-    debugMessage(_("GDBENGINE EXITDEBUGGER: %1").arg(m_gdbAdapter->state()));
-    if (m_gdbAdapter->state() == QProcess::Starting) {
-        debugMessage(_("WAITING FOR GDB STARTUP TO SHUTDOWN: %1")
-            .arg(m_gdbAdapter->state()));
-        // FIXME: handle this!
-        //m_gdbAdapter->waitForStarted();
-    }
-    if (m_gdbAdapter->state() == QProcess::Running) {
-        debugMessage(_("WAITING FOR RUNNING GDB TO SHUTDOWN: %1")
-            .arg(m_gdbAdapter->state()));
-        if (status() != DebuggerInferiorStopped
-            && status() != DebuggerProcessStartingUp) {
-            QTC_ASSERT(status() == DebuggerInferiorRunning,
-                qDebug() << "STATUS ON EXITDEBUGGER:" << status());
-            interruptInferior();
-        }
-        if (startMode() == AttachExternal || startMode() == AttachCrashedExternal)
-            postCommand(_("detach"), CB(handleExitHelper));
-        else
-            postCommand(_("kill"), CB(handleExitHelper));
-    } else {
-        exitDebugger2();
-    }
+    m_outputCollector.shutdown();
+    initializeVariables();
+    m_gdbAdapter->shutdownAdapter();
 }
 
 void GdbEngine::handleExitHelper(const GdbResultRecord &, const QVariant &)
@@ -4316,11 +4305,24 @@ void GdbEngine::handleInferiorStarted()
 void GdbEngine::handleInferiorShutDown()
 {
     debugMessage(_("INFERIOR SUCCESSFULLY SHUT DOWN"));
+    qq->notifyInferiorExited();
 }
 
 void GdbEngine::handleInferiorShutdownFailed(const QString &msg)
 {
     debugMessage(_("INFERIOR SHUTDOWN FAILED"));
+    QMessageBox::critical(mainWindow(), tr("Error"),
+        tr("Inferior shutdown failed:\n") + msg);
+}
+
+void GdbEngine::handleAdapterShutDown()
+{
+    debugMessage(_("ADAPTER SUCCESSFULLY SHUT DOWN"));
+}
+
+void GdbEngine::handleAdapterShutdownFailed(const QString &msg)
+{
+    debugMessage(_("ADAPTER SHUTDOWN FAILED"));
     QMessageBox::critical(mainWindow(), tr("Error"),
         tr("Inferior shutdown failed:\n") + msg);
 }

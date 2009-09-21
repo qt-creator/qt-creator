@@ -111,7 +111,7 @@ public:
     void kill();
     void terminate();
     bool waitForFinished(int msecs = 30000);
-    QProcess::ProcessState state() const;
+    GdbAdapterState state() const;
     QString errorString() const;
     QByteArray readAllStandardError();
     QByteArray readAllStandardOutput();

@@ -57,7 +57,6 @@ public:
 
     //void kill() { m_gdbProc.kill(); }
     //void terminate() { m_gdbProc.terminate(); }
-    QProcess::ProcessState state() const { return m_gdbProc.state(); }
     QString errorString() const { return m_gdbProc.errorString(); }
     QByteArray readAllStandardError() { return m_gdbProc.readAllStandardError(); }
     QByteArray readAllStandardOutput() { return m_gdbProc.readAllStandardOutput(); }
@@ -75,6 +74,7 @@ public:
 
 private:
     void handleFileExecAndSymbols(const GdbResultRecord &, const QVariant &);
+    void handleKill(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
     void handleStubAttached(const GdbResultRecord &, const QVariant &);
     void handleExecRun(const GdbResultRecord &response, const QVariant &);
@@ -82,7 +82,8 @@ private:
 
     void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
     void emitAdapterStartFailed(const QString &msg);
-    Q_SLOT void handleFinished(int, QProcess::ExitStatus);
+    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
+    Q_SLOT void handleGdbStarted();
     Q_SLOT void stubStarted();
     Q_SLOT void stubError(const QString &msg);
 

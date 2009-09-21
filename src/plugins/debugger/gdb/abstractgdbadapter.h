@@ -40,6 +40,26 @@ namespace Internal {
 
 class GdbEngine;
 
+enum GdbAdapterState 
+{
+    AdapterNotRunning,
+    AdapterStarting,
+    AdapterStarted,
+    AdapterStartFailed,
+    InferiorPreparing,
+    InferiorPrepared,
+    InferiorPreparationFailed,
+    InferiorStarting,
+    InferiorStarted,
+    InferiorStartFailed,
+    InferiorShuttingDown,
+    InferiorShutDown,
+    InferiorShutdownFailed,
+    AdapterShuttingDown,
+    //AdapterShutDown,  // use AdapterNotRunning 
+    AdapterShutdownFailed,
+};
+
 // AbstractGdbAdapter is inherited by PlainGdbAdapter used for local
 // debugging and TrkGdbAdapter used for on-device debugging.
 // In the PlainGdbAdapter case it's just a wrapper around a QProcess running
@@ -51,10 +71,9 @@ class AbstractGdbAdapter : public QObject
 
 public:
     AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0)
-        : QObject(parent), m_engine(engine) 
+        : QObject(parent), m_engine(engine), m_state(AdapterNotRunning)
     {}
 
-    virtual QProcess::ProcessState state() const = 0;
     virtual QString errorString() const = 0;
     virtual QByteArray readAllStandardError() = 0;
     virtual QByteArray readAllStandardOutput() = 0;
@@ -90,8 +109,13 @@ signals:
     void readyReadStandardOutput();
     void readyReadStandardError();
 
+public:
+    virtual GdbAdapterState state() const { return m_state; }
 protected:
+    virtual void setState(GdbAdapterState state) { m_state = state; }
+
     GdbEngine * const m_engine;
+    GdbAdapterState m_state;
 };
 
 } // namespace Internal

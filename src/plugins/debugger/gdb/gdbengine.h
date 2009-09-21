@@ -214,6 +214,11 @@ private:
                      AdapterCallback callback,
                      const char *callbackName,
                      const QVariant &cookie = QVariant());
+    void postCommand(const QString &command,
+                     GdbCommandFlags flags,
+                     AdapterCallback callback,
+                     const char *callbackName,
+                     const QVariant &cookie = QVariant());
     void postCommandHelper(const GdbCommand &cmd);
     void setTokenBarrier();
 
