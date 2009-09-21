@@ -29,7 +29,11 @@
 
 #include "buildconfiguration.h"
 
-using namespace ProjectExplorer::Internal;
+using namespace ProjectExplorer;
+
+BuildConfiguration::BuildConfiguration()
+{
+}
 
 BuildConfiguration::BuildConfiguration(const QString &name)
     : m_name(name)
@@ -49,7 +53,7 @@ QString BuildConfiguration::name() const
 
 QString BuildConfiguration::displayName()
 {
-    QVariant v = getValue("ProjectExplorer.BuildConfiguration.DisplayName");
+    QVariant v = value("ProjectExplorer.BuildConfiguration.DisplayName");
     if (v.isValid()) {
         return v.toString();
     } else {
@@ -63,7 +67,7 @@ void BuildConfiguration::setDisplayName(const QString &name)
     setValue("ProjectExplorer.BuildConfiguration.DisplayName", name);
 }
 
-QVariant BuildConfiguration::getValue(const QString & key) const
+QVariant BuildConfiguration::value(const QString & key) const
 {
     QHash<QString, QVariant>::const_iterator it = m_values.find(key);
     if (it != m_values.constEnd())
@@ -94,4 +98,3 @@ QMap<QString, QVariant> BuildConfiguration::toMap() const
         result.insert(it.key(), it.value());
     return result;
 }
-

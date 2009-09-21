@@ -35,7 +35,6 @@
 #include <QtGui/QLayout>
 
 using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
 
 BuildStep::BuildStep(Project * pro)
     : m_project(pro)
@@ -92,14 +91,14 @@ QVariant BuildStep::value(const QString &buildConfiguration, const QString &name
 {
     BuildConfiguration *bc = getBuildConfiguration(buildConfiguration);
     if (bc)
-        return bc->getValue(name);
+        return bc->value(name);
     else
         return QVariant();
 }
 
 QVariant BuildStep::value(const QString &name) const
 {
-    return m_configuration->getValue(name);
+    return m_configuration->value(name);
 }
 
 void BuildStep::setValuesFromMap(const QMap<QString, QVariant> & values)

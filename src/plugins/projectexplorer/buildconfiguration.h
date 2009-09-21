@@ -30,20 +30,26 @@
 #ifndef BUILDCONFIGURATION_H
 #define BUILDCONFIGURATION_H
 
-#include <QtCore/QString>
-#include <QtCore/QVariant>
+#include "projectexplorer_export.h"
+
 #include <QtCore/QHash>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtCore/QObject>
+#include <QtCore/QVariant>
 
 namespace ProjectExplorer {
-namespace Internal {
 
-class BuildConfiguration
+class PROJECTEXPLORER_EXPORT BuildConfiguration : public QObject
 {
+    Q_OBJECT
+
 public:
+    explicit BuildConfiguration();
     BuildConfiguration(const QString &name);
     BuildConfiguration(const QString &name, BuildConfiguration *source);
     QString name() const;
-    QVariant getValue(const QString &key) const;
+    QVariant value(const QString &key) const;
     void setValue(const QString &key, QVariant value);
 
     QString displayName();
@@ -57,7 +63,6 @@ private:
     QString m_name;
 };
 
-}
 } // namespace ProjectExplorer
 
 #endif // BUILDCONFIGURATION_H

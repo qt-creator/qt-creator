@@ -410,7 +410,7 @@ QVariant Project::value(const QString &name) const
         return QVariant();
 }
 
-BuildConfiguration * Project::getBuildConfiguration(const QString &name) const
+BuildConfiguration *Project::getBuildConfiguration(const QString &name) const
 {
     for (int i = 0; i != m_buildConfigurationValues.size(); ++i)
         if (m_buildConfigurationValues.at(i)->name() == name)
@@ -429,7 +429,7 @@ QVariant Project::value(const QString &buildConfiguration, const QString &name) 
 {
     BuildConfiguration *bc = getBuildConfiguration(buildConfiguration);
     if (bc)
-        return bc->getValue(name);
+        return bc->value(name);
     else
         return QVariant();
 }

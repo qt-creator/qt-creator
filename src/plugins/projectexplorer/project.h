@@ -191,13 +191,13 @@ protected:
     virtual bool restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
-    Internal::BuildConfiguration *getBuildConfiguration(const QString & name) const;
+    BuildConfiguration *getBuildConfiguration(const QString & name) const;
 
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
     QStringList m_buildConfigurations;
     QMap<QString, QVariant> m_values;
-    QList<Internal::BuildConfiguration *> m_buildConfigurationValues;
+    QList<BuildConfiguration *> m_buildConfigurationValues;
     QString m_activeBuildConfiguration;
     QList<QSharedPointer<RunConfiguration> > m_runConfigurations;
     QSharedPointer<RunConfiguration> m_activeRunConfiguration;
