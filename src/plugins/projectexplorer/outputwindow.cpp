@@ -341,6 +341,7 @@ OutputWindow::OutputWindow(QWidget *parent)
     : QPlainTextEdit(parent)
 {
     m_enforceNewline = false;
+    m_scrollToBottom = false;
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
@@ -392,8 +393,18 @@ OutputWindow::~OutputWindow()
     Core::ICore::instance()->removeContextObject(m_outputWindowContext);
 }
 
+void OutputWindow::showEvent(QShowEvent *e)
+{
+    QPlainTextEdit::showEvent(e);
+    if (m_scrollToBottom) {
+        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+    }
+    m_scrollToBottom = false;
+}
+
 void OutputWindow::appendOutput(const QString &out)
 {
+    m_scrollToBottom = true;
     QString s = out;
     m_enforceNewline = true; // make appendOutputInline put in a newline next time
     if (s.endsWith(QLatin1Char('\n'))) {
@@ -407,6 +418,7 @@ void OutputWindow::appendOutput(const QString &out)
 
 void OutputWindow::appendOutputInline(const QString &out)
 {
+    m_scrollToBottom = true;
     setMaximumBlockCount(MaxBlockCount);
 
     int newline = -1;
@@ -439,6 +451,7 @@ void OutputWindow::appendOutputInline(const QString &out)
 
 void OutputWindow::insertLine()
 {
+    m_scrollToBottom = true;
     setMaximumBlockCount(MaxBlockCount);
     appendPlainText(QString());
     enableUndoRedo();

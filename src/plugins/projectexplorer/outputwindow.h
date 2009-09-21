@@ -126,10 +126,13 @@ public:
     void appendOutputInline(const QString &out);
     void insertLine();
 
+    void showEvent(QShowEvent *);
+
 private:
     Core::BaseContext *m_outputWindowContext;
     void enableUndoRedo();
     bool m_enforceNewline;
+    bool m_scrollToBottom;
 };
 
 #if 0
