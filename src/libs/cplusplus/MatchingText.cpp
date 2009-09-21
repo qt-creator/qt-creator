@@ -75,7 +75,16 @@ static bool isCompleteCharLiteral(const BackwardsScanner &tk, int index)
     return false;
 }
 
-static bool shouldInsertMatchingText(const QChar &lookAhead)
+MatchingText::MatchingText()
+{ }
+
+bool MatchingText::shouldInsertMatchingText(const QTextCursor &tc)
+{
+    QTextDocument *doc = tc.document();
+    return shouldInsertMatchingText(doc->characterAt(tc.selectionEnd()));
+}
+
+bool MatchingText::shouldInsertMatchingText(const QChar &lookAhead)
 {
     switch (lookAhead.unicode()) {
     case '{': case '}':
@@ -90,9 +99,6 @@ static bool shouldInsertMatchingText(const QChar &lookAhead)
         return false;
     } // switch
 }
-
-MatchingText::MatchingText()
-{ }
 
 QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess,
                                           const QChar &la, int *skippedChars) const

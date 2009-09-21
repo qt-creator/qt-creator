@@ -1273,8 +1273,8 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
 
 QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
 {
-    bool checkBlockEnd = m_allowSkippingOfBlockEnd;
-    m_allowSkippingOfBlockEnd = false;
+    const bool checkBlockEnd = m_allowSkippingOfBlockEnd;
+    m_allowSkippingOfBlockEnd = false; // consume blockEnd.
 
     if (!contextAllowsAutoParentheses(cursor))
         return QString();
@@ -1282,16 +1282,21 @@ QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert
     QString text = textToInsert;
     const QChar lookAhead = characterAt(cursor.selectionEnd());
 
-    QString autoText;
-    int skippedChars = 0;
-
-    if (checkBlockEnd && (lookAhead == QChar::ParagraphSeparator && (! text.isEmpty() && text.at(0) == QLatin1Char('}')))) {
-        skippedChars = 2;
-        text = text.mid(1);
-    }
-
     MatchingText matchingText;
-    autoText = matchingText.insertMatchingBrace(cursor, text, lookAhead, &skippedChars);
+    int skippedChars = 0;
+    const QString autoText = matchingText.insertMatchingBrace(cursor, text, lookAhead, &skippedChars);
+
+    if (checkBlockEnd && textToInsert.at(0) == QLatin1Char('}')) {
+        if (textToInsert.length() > 1)
+            qWarning() << "*** handle event compression";
+
+        int startPos = cursor.selectionEnd(), pos = startPos;
+        while (characterAt(pos).isSpace())
+            ++pos;
+
+        if (characterAt(pos) == QLatin1Char('}'))
+            skippedChars += (pos - startPos) + 1;
+    }
 
     if (skippedChars) {
         const int pos = cursor.position();
@@ -1338,7 +1343,6 @@ int CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
     if (!contextAllowsAutoParentheses(cursor))
         return 0;
 
-
     // verify that we indeed do have an extra opening brace in the document
     int braceDepth = document()->lastBlock().userState();
     if (braceDepth >= 0)
@@ -1372,6 +1376,9 @@ int CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 
 bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor) const
 {
+    if (! MatchingText::shouldInsertMatchingText(cursor))
+        return false;
+
     CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(cursor);
 
