@@ -4,3 +4,4 @@ QT = core testlib
 include(../shared/shared.pri)
 
 SOURCES += tst_semantic.cpp
+TARGET=tst_$$TARGET
