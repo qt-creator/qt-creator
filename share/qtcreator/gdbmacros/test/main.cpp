@@ -33,6 +33,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QTimer>
 #include <QtCore/QMap>
+#include <QtCore/QSet>
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 
@@ -159,6 +160,16 @@ static int dumpQIntVector()
     return 0;
 }
 
+static int dumpQQStringVector()
+{
+    QVector<QString> test = QVector<QString>() << "42s" << "43s";
+    prepareInBuffer("QVector", "local.qstringvector", "local.qstringvector", "QString");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(QString), 0, 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
 static int dumpQMapIntInt()
 {
     QMap<int,int> test;
@@ -186,6 +197,19 @@ static int dumpQMapIntString()
     fputc('\n', stdout);
     return 0;
 }
+
+static int dumpQSetInt()
+{
+    QSet<int> test;
+    test.insert(42);
+    test.insert(43);
+    prepareInBuffer("QSet", "local.qsetint", "local.qsetint", "int");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(int), 0, 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
 
 static int dumpQMapQStringString()
 {
@@ -445,9 +469,11 @@ static TypeDumpFunctionMap registerTypes()
     rc.insert("QLinkedList<int>", dumpQIntLinkedList);
     rc.insert("QList<std::string>", dumpStdStringQList);
     rc.insert("QVector<int>", dumpQIntVector);
+    rc.insert("QVector<QString>", dumpQQStringVector);
     rc.insert("QMap<int,QString>", dumpQMapIntString);
     rc.insert("QMap<QString,QString>", dumpQMapQStringString);
     rc.insert("QMap<int,int>", dumpQMapIntInt);
+    rc.insert("QSet<int>", dumpQSetInt);
     rc.insert("string", dumpStdString);
     rc.insert("wstring", dumpStdWString);
     rc.insert("list<int>", dumpStdIntList);

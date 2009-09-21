@@ -595,9 +595,9 @@ bool CdbSymbolGroupContext::debugValueToInteger(const DEBUG_VALUE &dv, qint64 *v
  * To add further types, have a look at the toString() output of the
  * symbol group. */
 
-static QString msgStructuralError(const QString &type, int code)
+static QString msgStructuralError(const QString &name, const QString &type, int code)
 {
-    return QString::fromLatin1("Warning: Internal dumper for '%1' failed with %2.").arg(type).arg(code);
+    return QString::fromLatin1("Warning: Internal dumper for '%1' (%2) failed with %3.").arg(name, type).arg(code);
 }
 
 static inline bool isStdStringOrPointer(const QString &type)
@@ -631,7 +631,7 @@ CdbSymbolGroupContext::DumperResult
                 rc = DumperError;
                 break;
             default:
-                qWarning("%s\n", qPrintable(msgStructuralError(wd->type, drc)));
+                qWarning("%s\n", qPrintable(msgStructuralError(wd->iname, wd->type, drc)));
                 rc = DumperNotHandled;
                 break;
             }
@@ -647,7 +647,7 @@ CdbSymbolGroupContext::DumperResult
                 rc = DumperError;
                 break;
             default:
-                qWarning("%s\n", qPrintable(msgStructuralError(wd->type, drc)));
+                qWarning("%s\n", qPrintable(msgStructuralError(wd->iname, wd->type, drc)));
                 rc = DumperNotHandled;
                 break;
             }
