@@ -1276,7 +1276,7 @@ QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert
     const bool checkBlockEnd = m_allowSkippingOfBlockEnd;
     m_allowSkippingOfBlockEnd = false; // consume blockEnd.
 
-    if (!contextAllowsAutoParentheses(cursor))
+    if (!contextAllowsAutoParentheses(cursor, textToInsert))
         return QString();
 
     QString text = textToInsert;
@@ -1374,9 +1374,14 @@ int CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
     return 0;
 }
 
-bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor) const
+bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
+                                             const QString &textToInsert) const
 {
-    if (! MatchingText::shouldInsertMatchingText(cursor))
+    QChar ch;
+    if (! textToInsert.isEmpty())
+        ch = textToInsert.at(0);
+
+    if (! (MatchingText::shouldInsertMatchingText(cursor) || ch == QLatin1Char('\'') || ch == QLatin1Char('"')))
         return false;
 
     CPlusPlus::TokenUnderCursor tokenUnderCursor;

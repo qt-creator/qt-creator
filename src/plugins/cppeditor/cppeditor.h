@@ -217,7 +217,8 @@ protected:
     bool autoBackspace(QTextCursor &cursor);
     int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
 
-    bool contextAllowsAutoParentheses(const QTextCursor &cursor) const;
+    bool contextAllowsAutoParentheses(const QTextCursor &cursor,
+                                      const QString &textToInsert = QString()) const;
 
 private Q_SLOTS:
     void updateFileName();

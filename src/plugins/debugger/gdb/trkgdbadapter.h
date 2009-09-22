@@ -71,7 +71,7 @@ public:
     typedef trk::Callback<const GdbResult &> GdbCallback;
     typedef QSharedPointer<TrkOptions> TrkOptionsPtr;
 
-    explicit TrkGdbAdapter(const TrkOptionsPtr &options);
+    TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options);
     ~TrkGdbAdapter();
     void setGdbServerName(const QString &name);
     QString gdbServerName() const { return m_gdbServerName; }
@@ -80,22 +80,14 @@ public:
     void setVerbose(int verbose) { m_verbose = verbose; }
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
     trk::Session &session() { return m_session; }
+    void startGdb();
 
     // Set a device (from the project) to override the settings.
     QString overrideTrkDevice() const;
     void setOverrideTrkDevice(const QString &);
 
-public slots:
-    void startInferior();
-    void run();
-
 signals:
     void output(const QString &msg);
-    void startSuccessful();
-    void startFailed();
-
-private slots:
-    void startGdb();
 
 private:
     friend class RunnerGui;
@@ -108,6 +100,8 @@ private:
     QProcess m_gdbProc;
     QProcess m_rfcommProc;
     bool m_running;
+    DebuggerStartParametersPtr m_startParameters;
+    void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
 
 public:
     //
@@ -115,19 +109,24 @@ public:
     //
     void start(const QString &program, const QStringList &args,
         QIODevice::OpenMode mode = QIODevice::ReadWrite);
-    void kill();
-    void terminate();
-    bool waitForFinished(int msecs = 30000);
-    QProcess::ProcessState state() const;
-    QString errorString() const;
     QByteArray readAllStandardError();
     QByteArray readAllStandardOutput();
     qint64 write(const char *data);
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
-    bool isAdapter() const { return true; }
-    void attach();
+    bool isTrkAdapter() const { return true; }
+
+    void startAdapter(const DebuggerStartParametersPtr &sp);
+    void prepareInferior();
+    void startInferior();
     void interruptInferior();
+    void shutdown();
+
+    Q_SLOT void startInferiorEarly();
+    void handleKill(const GdbResultRecord &, const QVariant &);
+    void handleExit(const GdbResultRecord &, const QVariant &);
+    void handleTargetRemote(const GdbResultRecord &, const QVariant &);
+    void handleFirstContinue(const GdbResultRecord &, const QVariant &);
 
     //
     // TRK

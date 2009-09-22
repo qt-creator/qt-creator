@@ -180,7 +180,6 @@ SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 SubversionPlugin::SubversionPlugin() :
     m_svnDirectories(svnDirectories()),
     m_versionControl(0),
-    m_changeTmpFile(0),
     m_projectExplorer(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -204,17 +203,20 @@ SubversionPlugin::SubversionPlugin() :
 
 SubversionPlugin::~SubversionPlugin()
 {
-    cleanChangeTmpFile();
+    cleanCommitMessageFile();
 }
 
-void SubversionPlugin::cleanChangeTmpFile()
+void SubversionPlugin::cleanCommitMessageFile()
 {
-    if (m_changeTmpFile) {
-        if (m_changeTmpFile->isOpen())
-            m_changeTmpFile->close();
-        delete m_changeTmpFile;
-        m_changeTmpFile = 0;
+    if (!m_commitMessageFileName.isEmpty()) {
+        QFile::remove(m_commitMessageFileName);
+        m_commitMessageFileName.clear();
     }
+}
+
+bool SubversionPlugin::isCommitEditorOpen() const
+{
+    return !m_commitMessageFileName.isEmpty();
 }
 
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
@@ -416,7 +418,7 @@ void SubversionPlugin::extensionsInitialized()
 
 bool SubversionPlugin::editorAboutToClose(Core::IEditor *iEditor)
 {
-    if (!m_changeTmpFile || !iEditor || qstrcmp(Constants::SUBVERSIONCOMMITEDITOR, iEditor->kind()))
+    if ( !iEditor || !isCommitEditorOpen() || qstrcmp(Constants::SUBVERSIONCOMMITEDITOR, iEditor->kind()))
         return true;
 
     Core::IFile *fileIFace = iEditor->file();
@@ -427,7 +429,7 @@ bool SubversionPlugin::editorAboutToClose(Core::IEditor *iEditor)
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
     const QFileInfo editorFile(fileIFace->fileName());
-    const QFileInfo changeFile(m_changeTmpFile->fileName());
+    const QFileInfo changeFile(m_commitMessageFileName);
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!
 
@@ -444,7 +446,7 @@ bool SubversionPlugin::editorAboutToClose(Core::IEditor *iEditor)
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
     case VCSBase::VCSBaseSubmitEditor::SubmitDiscarded:
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
         return true; // Cancel all
     default:
         break;
@@ -457,10 +459,10 @@ bool SubversionPlugin::editorAboutToClose(Core::IEditor *iEditor)
         Core::ICore::instance()->fileManager()->blockFileChange(fileIFace);
         fileIFace->save();
         Core::ICore::instance()->fileManager()->unblockFileChange(fileIFace);
-        closeEditor= commit(m_changeTmpFile->fileName(), fileList);
+        closeEditor= commit(m_commitMessageFileName, fileList);
     }
     if (closeEditor)
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
     return closeEditor;
 }
 
@@ -658,7 +660,7 @@ void SubversionPlugin::startCommit(const QStringList &files)
         return;
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
-    if (m_changeTmpFile) {
+    if (isCommitEditorOpen()) {
         VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Another commit is currently being executed."));
         return;
     }
@@ -679,22 +681,21 @@ void SubversionPlugin::startCommit(const QStringList &files)
     }
 
     // Create a new submit change file containing the submit template
-    QTemporaryFile *changeTmpFile = new QTemporaryFile(this);
-    changeTmpFile->setAutoRemove(true);
-    if (!changeTmpFile->open()) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file: %1").arg(changeTmpFile->errorString()));
-        delete changeTmpFile;
+    QTemporaryFile changeTmpFile;
+    changeTmpFile.setAutoRemove(false);
+    if (!changeTmpFile.open()) {
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file: %1").arg(changeTmpFile.errorString()));
         return;
     }
-    m_changeTmpFile = changeTmpFile;
+    m_commitMessageFileName = changeTmpFile.fileName();
     // TODO: Retrieve submit template from
     const QString submitTemplate;
     // Create a submit
-    m_changeTmpFile->write(submitTemplate.toUtf8());
-    m_changeTmpFile->flush();
-    m_changeTmpFile->close();
+    changeTmpFile.write(submitTemplate.toUtf8());
+    changeTmpFile.flush();
+    changeTmpFile.close();
     // Create a submit editor and set file list
-    SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_changeTmpFile->fileName());
+    SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_commitMessageFileName);
     editor->setStatusList(statusOutput);
 }
 

@@ -911,7 +911,8 @@ void DebuggerPlugin::extensionsInitialized()
 void DebuggerPlugin::attachCmdLinePid()
 {
     m_manager->showStatusMessage(tr("Attaching to PID %1.").arg(m_cmdLineAttachPid));
-    const QString crashParameter = m_cmdLineWinCrashEvent ? QString::number(m_cmdLineWinCrashEvent) : QString();
+    const QString crashParameter =
+        m_cmdLineWinCrashEvent ? QString::number(m_cmdLineWinCrashEvent) : QString();
     attachExternalApplication(m_cmdLineAttachPid, crashParameter);
 }
 
@@ -1092,10 +1093,16 @@ void DebuggerPlugin::gotoLocation(const StackFrame &frame, bool setMarker)
         if (setMarker)
             resetLocation();
     } else {
-        TextEditor::BaseTextEditor::openEditorAt(frame.file, frame.line);
-        if (setMarker) {
-            resetLocation();
-            m_locationMark = new LocationMark(frame.file, frame.line);
+        static QString lastFile;
+        static int lastLine;
+        if (frame.line != lastLine || frame.file != lastFile) {
+            lastLine = frame.line;
+            lastFile = frame.file;
+            TextEditor::BaseTextEditor::openEditorAt(frame.file, frame.line);
+            if (setMarker) {
+                resetLocation();
+                m_locationMark = new LocationMark(frame.file, frame.line);
+            }
         }
     }
 }
@@ -1165,13 +1172,13 @@ void DebuggerPlugin::showSettingsDialog()
         QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE));
 }
 
-static QSharedPointer<RunConfiguration> activeRunConfiguration()
+static RunConfigurationPtr activeRunConfiguration()
 {
     ProjectExplorer::Project *project =
         ProjectExplorerPlugin::instance()->currentProject();
     if (project)
         return project->activeRunConfiguration();
-    return QSharedPointer<RunConfiguration>();
+    return RunConfigurationPtr();
 }
 
 void DebuggerPlugin::startExternalApplication()
@@ -1197,7 +1204,7 @@ void DebuggerPlugin::startExternalApplication()
     if (dlg.breakAtMain())
         m_manager->breakByFunctionMain();
 
-    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration(sp->executable);
 
@@ -1223,7 +1230,7 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
     sp->attachPID = pid;
     sp->crashParameter = crashParameter;
     sp->startMode = crashParameter.isEmpty() ?  AttachExternal : AttachCrashedExternal;
-    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
@@ -1248,7 +1255,7 @@ void DebuggerPlugin::attachCore()
     sp->executable = dlg.executableFile();
     sp->coreFile = dlg.coreFile();
     sp->startMode = AttachCore;
-    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
@@ -1283,7 +1290,7 @@ void DebuggerPlugin::startRemoteApplication()
     if (dlg.useServerStartScript())
         sp->serverStartScript = dlg.serverStartScript();
 
-    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner
@@ -1319,7 +1326,7 @@ void DebuggerPlugin::attachRemoteTcf()
     if (dlg.useServerStartScript())
         sp->serverStartScript = dlg.serverStartScript();
 
-    QSharedPointer<RunConfiguration> rc = activeRunConfiguration();
+    RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration();
     if (RunControl *runControl = m_debuggerRunner

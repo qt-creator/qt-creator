@@ -44,7 +44,6 @@
 QT_BEGIN_NAMESPACE
 class QFile;
 class QAction;
-class QTemporaryFile;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -128,9 +127,10 @@ private slots:
     void push();
 
 private:
+    bool isCommitEditorOpen() const;
     QFileInfo currentFile() const;
     Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
-    void cleanChangeTmpFile();
+    void cleanCommitMessageFile();
 
     static GitPlugin *m_instance;
     Core::ICore *m_core;
@@ -166,7 +166,7 @@ private:
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;
     QStringList                 m_submitOrigDeleteFiles;
-    QTemporaryFile              *m_changeTmpFile;
+    QString                     m_commitMessageFileName;
     bool                        m_submitActionTriggered;
 };
 

@@ -38,7 +38,6 @@
 QT_BEGIN_NAMESPACE
 class QDir;
 class QAction;
-class QTemporaryFile;
 class QTextCodec;
 QT_END_NAMESPACE
 
@@ -113,6 +112,7 @@ private slots:
     void diffFiles(const QStringList &);
 
 private:
+    inline bool isCommitEditorOpen() const;
     QString currentFileName() const;
     Core::IEditor * showOutputInEditor(const QString& title, const QString &output,
                                        int editorType, const QString &source,
@@ -126,13 +126,13 @@ private:
     QStringList currentProjectsTopLevels(QString *name = 0) const;
     void startCommit(const QStringList &files);
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
-    void cleanChangeTmpFile();
+    void cleanCommitMessageFile();
 
     const QStringList m_svnDirectories;
 
     SubversionSettings m_settings;
     Core::IVersionControl *m_versionControl;
-    QTemporaryFile *m_changeTmpFile;
+    QString m_commitMessageFileName;
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 

@@ -33,6 +33,7 @@
 #include "gdboptionspage.h"
 #include "trkoptions.h"
 #include "trkoptionspage.h"
+#include "plaingdbadapter.h"
 #include "trkgdbadapter.h"
 
 #include "watchutils.h"
@@ -82,9 +83,12 @@
 #endif
 #include <ctype.h>
 
+// FIXME: temporary hack to evalute tbreak based step-over behaviour
+static QString lastFile;
+static int lastLine;
+
 namespace Debugger {
 namespace Internal {
-using namespace Debugger::Constants;
 
 //#define DEBUG_PENDING  1
 //#define DEBUG_SUBITEM  1
@@ -98,6 +102,18 @@ using namespace Debugger::Constants;
 #define STRINGIFY_INTERNAL(x) #x
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
+
+static bool stateAcceptsGdbCommands(GdbAdapterState state)
+{
+    return state == AdapterStarted
+        || state == InferiorPreparing
+        || state == InferiorPrepared
+        || state == InferiorStarting
+        || state == InferiorStarted
+        || state == InferiorShuttingDown
+        || state == InferiorShutDown
+        || state == AdapterShuttingDown;
+};
 
 static int &currentToken()
 {
@@ -143,42 +159,11 @@ static QByteArray parsePlainConsoleStream(const GdbResultRecord &record)
 
 ///////////////////////////////////////////////////////////////////////
 //
-// PlainGdbAdapter
-//
-///////////////////////////////////////////////////////////////////////
-
-void PlainGdbAdapter::attach()
-{
-    QFileInfo fi(m_engine->startParameters().executable);
-    m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fi.absoluteFilePath()),
-        &GdbEngine::handleFileExecAndSymbols, "handleFileExecAndSymbols");
-}
-
-void PlainGdbAdapter::interruptInferior()
-{
-    if (m_engine->startMode() == StartRemote) {
-        m_engine->postCommand(_("-exec-interrupt"));
-        return;
-    }
-
-    const qint64 attachedPID = m_engine->inferiorPid();
-    if (attachedPID <= 0) {
-        m_engine->debugMessage(
-            _("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED"));
-        return;
-    }
-
-    if (!interruptProcess(attachedPID))
-        m_engine->debugMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
-}
-
-///////////////////////////////////////////////////////////////////////
-//
 // GdbEngine
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(DebuggerManager *parent, AbstractGdbAdapter *gdbAdapter) :
+GdbEngine::GdbEngine(DebuggerManager *parent) :
 #ifdef Q_OS_WIN // Do injection loading with MinGW (call loading does not work with 64bit)
     m_dumperInjectionLoad(true),
 #else
@@ -187,21 +172,24 @@ GdbEngine::GdbEngine(DebuggerManager *parent, AbstractGdbAdapter *gdbAdapter) :
     m_manager(parent),
     qq(parent->engineInterface())
 {
-    m_gdbAdapter = gdbAdapter;
-    m_gdbAdapter->setEngine(this);
-    m_stubProc.setMode(Core::Utils::ConsoleProcess::Debug);
-#ifdef Q_OS_UNIX
-    m_stubProc.setSettings(Core::ICore::instance()->settings());
-#endif
-    initializeVariables();
-    initializeConnections();
+    m_gdbAdapter = 0;
 }
 
 GdbEngine::~GdbEngine()
 {
     // prevent sending error messages afterwards
-    m_gdbAdapter->disconnect(this);
-    delete m_gdbAdapter;
+    if (m_gdbAdapter) {
+        m_gdbAdapter->disconnect(this);
+        delete m_gdbAdapter;
+        m_gdbAdapter = 0;
+    }
+}
+
+void GdbEngine::setGdbAdapter(AbstractGdbAdapter *gdbAdapter)
+{
+    m_gdbAdapter = gdbAdapter;
+    initializeVariables();
+    initializeConnections();
 }
 
 void GdbEngine::initializeConnections()
@@ -213,24 +201,32 @@ void GdbEngine::initializeConnections()
         this, SLOT(readGdbStandardOutput()));
     connect(m_gdbAdapter, SIGNAL(readyReadStandardError()),
         this, SLOT(readGdbStandardError()));
-    connect(m_gdbAdapter, SIGNAL(finished(int, QProcess::ExitStatus)),
-        m_manager, SLOT(exitDebugger()));
-    connect(m_gdbAdapter, SIGNAL(started()),
-        this, SLOT(startDebugger2()));
 
-    connect(&m_stubProc, SIGNAL(processError(QString)),
-        this, SLOT(stubError(QString)));
-    connect(&m_stubProc, SIGNAL(processStarted()),
-        this, SLOT(stubStarted()));
-    connect(&m_stubProc, SIGNAL(wrapperStopped()),
-        m_manager, SLOT(exitDebugger()));
+    connect(m_gdbAdapter, SIGNAL(adapterStarted()),
+        this, SLOT(handleAdapterStarted()));
+    connect(m_gdbAdapter, SIGNAL(adapterStartFailed(QString)),
+        this, SLOT(handleAdapterStartFailed(QString)));
+    connect(m_gdbAdapter, SIGNAL(adapterShutDown()),
+        this, SLOT(handleAdapterShutDown()));
+    connect(m_gdbAdapter, SIGNAL(adapterShutdownFailed(QString)),
+        this, SLOT(handleAdapterShutdownFailed(QString)));
 
-    connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(uploadProcError(QProcess::ProcessError)));
-    connect(&m_uploadProc, SIGNAL(readyReadStandardOutput()),
-        this, SLOT(readUploadStandardOutput()));
-    connect(&m_uploadProc, SIGNAL(readyReadStandardError()),
-        this, SLOT(readUploadStandardError()));
+    connect(m_gdbAdapter, SIGNAL(inferiorPrepared()),
+        this, SLOT(handleInferiorPrepared()));
+    connect(m_gdbAdapter, SIGNAL(inferiorPreparationFailed(QString)),
+        this, SLOT(handleInferiorPreparationFailed(QString)));
+
+    connect(m_gdbAdapter, SIGNAL(inferiorStarted()),
+        this, SLOT(handleInferiorStarted()));
+    connect(m_gdbAdapter, SIGNAL(inferiorStartFailed(QString)),
+        this, SLOT(handleInferiorStartFailed(QString)));
+    connect(m_gdbAdapter, SIGNAL(inferiorShutDown()),
+        this, SLOT(handleInferiorShutDown()));
+    connect(m_gdbAdapter, SIGNAL(inferiorShutdownFailed(QString)),
+        this, SLOT(handleInferiorShutdownFailed(QString)));
+
+    connect(m_gdbAdapter, SIGNAL(adapterCrashed()),
+        m_manager, SLOT(exitDebugger()));
 
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
@@ -269,7 +265,7 @@ void GdbEngine::initializeVariables()
     m_oldestAcceptableToken = -1;
     m_outputCodec = QTextCodec::codecForLocale();
     m_pendingRequests = 0;
-    m_autoContinue = false;
+    m_continuationAfterDone = 0;
     m_waitingForFirstBreakpointToBeHit = false;
     m_commandsToRunOnTemporaryBreak.clear();
     m_cookieForToken.clear();
@@ -287,10 +283,7 @@ void GdbEngine::initializeVariables()
 
     // FIXME: unhandled:
     //m_outputCodecState = QTextCodec::ConverterState();
-    //OutputCollector m_outputCollector;
-    //QProcess m_gdbAdapter;
-    //QProcess m_uploadProc;
-    //Core::Utils::ConsoleProcess m_stubProc;
+    //m_gdbAdapter;
 }
 
 void GdbEngine::gdbProcError(QProcess::ProcessError error)
@@ -304,7 +297,8 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program.")
                 .arg(theDebuggerStringSetting(GdbLocation));
-            emitStartFailed();
+            emit startFailed();
+            shutdown();
             break;
         case QProcess::Crashed:
             kill = false;
@@ -335,55 +329,6 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
     // act as if it was closed by the core
     if (kill)
         m_manager->exitDebugger();
-}
-
-void GdbEngine::uploadProcError(QProcess::ProcessError error)
-{
-    QString msg;
-    switch (error) {
-        case QProcess::FailedToStart:
-            msg = tr("The upload process failed to start. Either the "
-                "invoked script '%1' is missing, or you may have insufficient "
-                "permissions to invoke the program.")
-                .arg(theDebuggerStringSetting(GdbLocation));
-            break;
-        case QProcess::Crashed:
-            msg = tr("The upload process crashed some time after starting "
-                "successfully.");
-            break;
-        case QProcess::Timedout:
-            msg = tr("The last waitFor...() function timed out. "
-                "The state of QProcess is unchanged, and you can try calling "
-                "waitFor...() again.");
-            break;
-        case QProcess::WriteError:
-            msg = tr("An error occurred when attempting to write "
-                "to the upload process. For example, the process may not be running, "
-                "or it may have closed its input channel.");
-            break;
-        case QProcess::ReadError:
-            msg = tr("An error occurred when attempting to read from "
-                "the upload process. For example, the process may not be running.");
-            break;
-        default:
-            msg = tr("An unknown error in the upload process occurred. "
-                "This is the default return value of error().");
-    }
-
-    showStatusMessage(msg);
-    QMessageBox::critical(mainWindow(), tr("Error"), msg);
-}
-
-void GdbEngine::readUploadStandardOutput()
-{
-    QByteArray ba = m_uploadProc.readAllStandardOutput();
-    gdbOutputAvailable(LogOutput, QString::fromLocal8Bit(ba, ba.length()));
-}
-
-void GdbEngine::readUploadStandardError()
-{
-    QByteArray ba = m_uploadProc.readAllStandardError();
-    gdbOutputAvailable(LogError, QString::fromLocal8Bit(ba, ba.length()));
 }
 
 #if 0
@@ -544,11 +489,13 @@ void GdbEngine::handleResponse(const QByteArray &buff)
         }
 
         case '~': {
+            static QRegExp re(_("New .hread 0x[0-9a-f]* \\(LWP ([0-9]*)\\)"));
             QByteArray data = GdbMi::parseCString(from, to);
             m_pendingConsoleStreamOutput += data;
-            if (data.startsWith("Reading symbols from ")) {
+            if (re.indexIn(_(data)) != -1)
+                maybeHandleInferiorPidChanged(re.cap(1));
+            if (data.startsWith("Reading symbols from "))
                 showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))));
-            }
             break;
         }
 
@@ -633,25 +580,6 @@ void GdbEngine::handleResponse(const QByteArray &buff)
     }
 }
 
-void GdbEngine::handleStubAttached(const GdbResultRecord &, const QVariant &)
-{
-    qq->notifyInferiorStopped();
-    handleAqcuiredInferior();
-    m_autoContinue = true;
-}
-
-void GdbEngine::stubStarted()
-{
-    const qint64 attachedPID = m_stubProc.applicationPID();
-    qq->notifyInferiorPidChanged(attachedPID);
-    postCommand(_("attach %1").arg(attachedPID), CB(handleStubAttached));
-}
-
-void GdbEngine::stubError(const QString &msg)
-{
-    QMessageBox::critical(mainWindow(), tr("Debugger Error"), msg);
-}
-
 void GdbEngine::readGdbStandardError()
 {
     qWarning() << "Unexpected gdb stderr:" << m_gdbAdapter->readAllStandardError();
@@ -689,10 +617,10 @@ void GdbEngine::readGdbStandardOutput()
 
 void GdbEngine::interruptInferior()
 {
-    debugMessage(_("GDBENGINE INTERRUPT INFERIOR: %1").arg(m_gdbAdapter->state()));
+//    debugMessage(_("GDBENGINE INTERRUPT INFERIOR: %1").arg(m_gdbAdapter->state()));
     qq->notifyInferiorStopRequested();
 
-    if (m_gdbAdapter->state() == QProcess::NotRunning) {
+    if (m_gdbAdapter->state() == AdapterNotRunning) {
         debugMessage(_("TRYING TO INTERRUPT INFERIOR WITHOUT RUNNING GDB"));
         qq->notifyInferiorExited();
         return;
@@ -717,6 +645,25 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
         tryLoadDebuggingHelpers();
 }
 
+void GdbEngine::postCommand(const QString &command, AdapterCallback callback,
+                            const char *callbackName, const QVariant &cookie)
+{
+    postCommand(command, NoFlags, callback, callbackName, cookie);
+}
+
+void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
+                            AdapterCallback callback,
+                            const char *callbackName, const QVariant &cookie)
+{
+    GdbCommand cmd;
+    cmd.command = command;
+    cmd.flags = flags;
+    cmd.adapterCallback = callback;
+    cmd.callbackName = callbackName;
+    cmd.cookie = cookie;
+    postCommandHelper(cmd);
+}
+
 void GdbEngine::postCommand(const QString &command, GdbCommandCallback callback,
                             const char *callbackName, const QVariant &cookie)
 {
@@ -727,28 +674,35 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
                             GdbCommandCallback callback, const char *callbackName,
                             const QVariant &cookie)
 {
-    if (m_gdbAdapter->state() == QProcess::NotRunning) {
-        debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + command);
-        return;
-    }
-
-    if (flags & RebuildModel) {
-        ++m_pendingRequests;
-        PENDING_DEBUG("   CALLBACK" << callbackName << "INCREMENTS PENDING TO:"
-            << m_pendingRequests << command);
-    } else {
-        PENDING_DEBUG("   UNKNOWN CALLBACK" << callbackName << "LEAVES PENDING AT:"
-            << m_pendingRequests << command);
-    }
-
     GdbCommand cmd;
     cmd.command = command;
     cmd.flags = flags;
     cmd.callback = callback;
     cmd.callbackName = callbackName;
     cmd.cookie = cookie;
+    postCommandHelper(cmd);
+}
 
-    if ((flags & NeedsStop) && status() != DebuggerInferiorStopped
+void GdbEngine::postCommandHelper(const GdbCommand &cmd)
+{
+    if (!stateAcceptsGdbCommands(m_gdbAdapter->state())) {
+        PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
+        debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
+        return;
+    }
+
+    if (cmd.flags & RebuildModel) {
+        ++m_pendingRequests;
+        PENDING_DEBUG("   CALLBACK" << cmd.callbackName
+            << "INCREMENTS PENDING TO:" << m_pendingRequests << cmd.command
+            << m_gdbAdapter->state());
+    } else {
+        PENDING_DEBUG("   UNKNOWN CALLBACK" << cmd.callbackName
+            << "LEAVES PENDING AT:" << m_pendingRequests << cmd.command
+            << m_gdbAdapter->state());
+    }
+
+    if ((cmd.flags & NeedsStop) && status() != DebuggerInferiorStopped
             && status() != DebuggerProcessStartingUp) {
         // queue the commands that we cannot send at once
         QTC_ASSERT(status() == DebuggerInferiorRunning,
@@ -757,14 +711,15 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
         debugMessage(_("QUEUING COMMAND ") + cmd.command);
         m_commandsToRunOnTemporaryBreak.append(cmd);
         interruptInferior();
-    } else if (!command.isEmpty()) {
+    } else if (!cmd.command.isEmpty()) {
         flushCommand(cmd);
     }
 }
 
-void GdbEngine::flushCommand(GdbCommand &cmd)
+void GdbEngine::flushCommand(const GdbCommand &cmd0)
 {
-    if (m_gdbAdapter->state() != QProcess::Running) {
+    GdbCommand cmd = cmd0;
+    if (m_gdbAdapter->state() == AdapterNotRunning) {
         emit gdbInputAvailable(LogInput, cmd.command);
         debugMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + cmd.command);
         return;
@@ -834,7 +789,9 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
     // << "\n data: " << record.data.toString(true);
 
     if (cmd.callback)
-        (this->*(cmd.callback))(record, cmd.cookie);
+        (this->*cmd.callback)(record, cmd.cookie);
+    if (cmd.adapterCallback)
+        (m_gdbAdapter->*cmd.adapterCallback)(record, cmd.cookie);
 
     if (cmd.flags & RebuildModel) {
         --m_pendingRequests;
@@ -855,16 +812,19 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
     // An optimization would be requesting the continue immediately when the
     // event loop is entered, and let individual commands have a flag to suppress
     // that behavior.
-    if (m_cookieForToken.isEmpty() && m_autoContinue) {
-        m_autoContinue = false;
-        continueInferior();
-        showStatusMessage(tr("Continuing after temporary stop."));
+    if (m_continuationAfterDone && m_cookieForToken.isEmpty()) {
+        Continuation cont = m_continuationAfterDone;
+        m_continuationAfterDone = 0;
+        (this->*cont)();
+        //showStatusMessage(tr("Continuing after temporary stop."));
+    } else {
+        PENDING_DEBUG("MISSING TOKENS: " << m_cookieForToken.keys());
     }
 }
 
 void GdbEngine::executeDebuggerCommand(const QString &command)
 {
-    if (m_gdbAdapter->state() != QProcess::Running) {
+    if (m_gdbAdapter->state() == AdapterNotRunning) {
         debugMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
         return;
     }
@@ -985,7 +945,7 @@ void GdbEngine::handleExecJumpToLine(const GdbResultRecord &record)
         if (idx2 > 0) {
             QString file = QString::fromLocal8Bit(output.mid(idx1, idx2 - idx1));
             int line = output.mid(idx2 + 1).toInt();
-            m_manager->gotoLocation(file, line, true);
+            gotoLocation(file, line, true);
         }
     }
 }
@@ -1006,7 +966,7 @@ void GdbEngine::handleExecRunToFunction(const GdbResultRecord &record, const QVa
     f.file = QString::fromLocal8Bit(frame.findChild("fullname").data());
     f.line = frame.findChild("line").data().toInt();
     f.address = _(frame.findChild("addr").data());
-    m_manager->gotoLocation(f, true);
+    gotoLocation(f, true);
 }
 
 static bool isExitedReason(const QByteArray &reason)
@@ -1077,7 +1037,7 @@ void GdbEngine::handleAqcuiredInferior()
 
 void GdbEngine::handleAsyncOutput(const GdbMi &data)
 {
-    const QByteArray &reason = data.findChild("reason").data();
+    const QByteArray reason = data.findChild("reason").data();
 
     if (isExitedReason(reason)) {
         qq->notifyInferiorExited();
@@ -1107,7 +1067,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 
         qq->notifyInferiorStopped();
         handleAqcuiredInferior();
-        m_autoContinue = true;
+// FIXME:        m_continuationAfterDone = true;
         return;
     }
 
@@ -1123,7 +1083,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             flushCommand(cmd);
         }
         showStatusMessage(tr("Processing queued commands."));
-        m_autoContinue = true;
+// FIXME:        m_continuationAfterDone = true;
         return;
     }
 
@@ -1185,64 +1145,12 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     }
 
     if (isStoppedReason(reason) || reason.isEmpty()) {
-        if (m_modulesListOutdated) {
-            reloadModules();
-            m_modulesListOutdated = false;
-        }
-        // Need another round trip
-        if (reason == "breakpoint-hit") {
-            showStatusMessage(tr("Stopped at breakpoint."));
-            GdbMi frame = data.findChild("frame");
-            //debugMessage(_("HIT BREAKPOINT: " + frame.toString()));
-            m_currentFrame = _(frame.findChild("addr").data() + '%' +
-                 frame.findChild("func").data() + '%');
-
-            if (theDebuggerAction(ListSourceFiles)->value().toBool())
-                reloadSourceFiles();
-            postCommand(_("-break-list"), CB(handleBreakList));
-            QVariant var = QVariant::fromValue<GdbMi>(data);
-            postCommand(_("p 0"), CB(handleAsyncOutput2), var);  // dummy
+         QVariant var = QVariant::fromValue<GdbMi>(data);
+        if (m_debuggingHelperState == DebuggingHelperUninitialized) {
+            tryLoadDebuggingHelpers();
+            postCommand(_("p 4"), CB(handleStop1), var);  // dummy
         } else {
-#ifdef Q_OS_LINUX
-            // For some reason, attaching to a stopped process causes *two* stops
-            // when trying to continue (kernel 2.6.24-23-ubuntu).
-            // Interestingly enough, on MacOSX no signal is delivered at all.
-            if (reason == "signal-received"
-                && data.findChild("signal-name").data() == "SIGSTOP") {
-                GdbMi frameData = data.findChild("frame");
-                if (frameData.findChild("func").data() == "_start"
-                    && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
-                    postCommand(_("-exec-continue"), CB(handleExecContinue));
-                    return;
-                }
-            }
-#endif
-            if (reason == "signal-received"
-                && theDebuggerBoolSetting(UseMessageBoxForSignals)) {
-                QByteArray name = data.findChild("signal-name").data();
-                // Ignore SIGTRAP as they are showing up regularily when
-                // stopping debugging.
-                if (name != "SIGTRAP") {
-                    QByteArray meaning = data.findChild("signal-meaning").data();
-                    QString msg = tr("<p>The inferior stopped because it received a "
-                        "signal from the Operating System.<p>"
-                        "<table><tr><td>Signal name : </td><td>%1</td></tr>"
-                        "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
-                        .arg(name.isEmpty() ? tr(" <Unknown> ") : _(name))
-                        .arg(meaning.isEmpty() ? tr(" <Unknown> ") : _(meaning));
-                    QMessageBox *mb = new QMessageBox(QMessageBox::Information,
-                        tr("Signal received"), msg, QMessageBox::NoButton,
-                        mainWindow());
-                    mb->setAttribute(Qt::WA_DeleteOnClose);
-                    mb->show();
-                }
-            }
-
-            if (reason.isEmpty())
-                showStatusMessage(tr("Stopped."));
-            else
-                showStatusMessage(tr("Stopped: \"%1\"").arg(_(reason)));
-            handleAsyncOutput2(data);
+            handleStop1(GdbResultRecord(), var);
         }
         return;
     }
@@ -1269,7 +1177,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     f.file = QString::fromLocal8Bit(frame.findChild("fullname").data());
     f.line = frame.findChild("line").data().toInt();
     f.address = _(frame.findChild("addr").data());
-    m_manager->gotoLocation(f, true);
+    gotoLocation(f, true);
 #endif
 }
 
@@ -1283,7 +1191,7 @@ void GdbEngine::reloadStack()
 {
     QString cmd = _("-stack-list-frames");
     int stackDepth = theDebuggerAction(MaximalStackDepth)->value().toInt();
-    if (stackDepth && !m_gdbAdapter->isAdapter())
+    if (stackDepth && !m_gdbAdapter->isTrkAdapter())
         cmd += _(" 0 ") + QString::number(stackDepth);
     postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
     // FIXME: gdb 6.4 symbianelf likes to be asked twice. The first time it
@@ -1292,16 +1200,81 @@ void GdbEngine::reloadStack()
     // access the memory belonging to the lower frames. But as we know
     // this always happens, ask the second time immediately instead
     // of waiting for the first request to fail.
-    if (m_gdbAdapter->isAdapter())
+    if (m_gdbAdapter->isTrkAdapter())
         postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
 }
 
-void GdbEngine::handleAsyncOutput2(const GdbResultRecord &, const QVariant &cookie)
+void GdbEngine::handleStop1(const GdbResultRecord &, const QVariant &cookie)
 {
-    handleAsyncOutput2(cookie.value<GdbMi>());
+    GdbMi data = cookie.value<GdbMi>();
+    QByteArray reason = data.findChild("reason").data();
+    if (m_modulesListOutdated) {
+        reloadModules();
+        m_modulesListOutdated = false;
+    }
+    // Need another round trip
+    if (reason == "breakpoint-hit") {
+        showStatusMessage(tr("Stopped at breakpoint."));
+        GdbMi frame = data.findChild("frame");
+        //debugMessage(_("HIT BREAKPOINT: " + frame.toString()));
+        m_currentFrame = _(frame.findChild("addr").data() + '%' +
+             frame.findChild("func").data() + '%');
+
+        if (theDebuggerAction(ListSourceFiles)->value().toBool())
+            reloadSourceFiles();
+        postCommand(_("-break-list"), CB(handleBreakList));
+        QVariant var = QVariant::fromValue<GdbMi>(data);
+        postCommand(_("p 0"), CB(handleStop2), var);  // dummy
+    } else {
+#ifdef Q_OS_LINUX
+        // For some reason, attaching to a stopped process causes *two* stops
+        // when trying to continue (kernel 2.6.24-23-ubuntu).
+        // Interestingly enough, on MacOSX no signal is delivered at all.
+        if (reason == "signal-received"
+            && data.findChild("signal-name").data() == "SIGSTOP") {
+            GdbMi frameData = data.findChild("frame");
+            if (frameData.findChild("func").data() == "_start"
+                && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
+                postCommand(_("-exec-continue"), CB(handleExecContinue));
+                return;
+            }
+        }
+#endif
+        if (reason == "signal-received"
+            && theDebuggerBoolSetting(UseMessageBoxForSignals)) {
+            QByteArray name = data.findChild("signal-name").data();
+            // Ignore SIGTRAP as they are showing up regularily when
+            // stopping debugging.
+            if (name != "SIGTRAP") {
+                QByteArray meaning = data.findChild("signal-meaning").data();
+                QString msg = tr("<p>The inferior stopped because it received a "
+                    "signal from the Operating System.<p>"
+                    "<table><tr><td>Signal name : </td><td>%1</td></tr>"
+                    "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
+                    .arg(name.isEmpty() ? tr(" <Unknown> ") : _(name))
+                    .arg(meaning.isEmpty() ? tr(" <Unknown> ") : _(meaning));
+                QMessageBox *mb = new QMessageBox(QMessageBox::Information,
+                    tr("Signal received"), msg, QMessageBox::NoButton,
+                    mainWindow());
+                mb->setAttribute(Qt::WA_DeleteOnClose);
+                mb->show();
+            }
+        }
+
+        if (reason.isEmpty())
+            showStatusMessage(tr("Stopped."));
+        else
+            showStatusMessage(tr("Stopped: \"%1\"").arg(_(reason)));
+        handleStop2(data);
+    }
 }
 
-void GdbEngine::handleAsyncOutput2(const GdbMi &data)
+void GdbEngine::handleStop2(const GdbResultRecord &, const QVariant &cookie)
+{
+    handleStop2(cookie.value<GdbMi>());
+}
+
+void GdbEngine::handleStop2(const GdbMi &data)
 {
     qq->notifyInferiorStopped();
 
@@ -1319,12 +1292,12 @@ void GdbEngine::handleAsyncOutput2(const GdbMi &data)
     }
 
     // FIXME: Hack, remove as soon as we get real stack traces.
-    if (m_gdbAdapter->isAdapter()) {
+    if (m_gdbAdapter->isTrkAdapter()) {
         StackFrame f;
         f.file = QString::fromLocal8Bit(fullName.data());
         f.line = frame.findChild("line").data().toInt();
         f.address = _(frame.findChild("addr").data());
-        m_manager->gotoLocation(f, true);
+        gotoLocation(f, true);
     }
 
     //
@@ -1399,6 +1372,7 @@ void GdbEngine::handleFileExecAndSymbols(const GdbResultRecord &response, const 
     }
 }
 
+#if 0
 void GdbEngine::handleExecRun(const GdbResultRecord &response, const QVariant &)
 {
     if (response.resultClass == GdbResultRunning) {
@@ -1413,6 +1387,7 @@ void GdbEngine::handleExecRun(const GdbResultRecord &response, const QVariant &)
         qq->notifyInferiorExited();
     }
 }
+#endif
 
 void GdbEngine::handleExecContinue(const GdbResultRecord &response, const QVariant &)
 {
@@ -1475,7 +1450,9 @@ QString GdbEngine::fullName(const QStringList &candidates)
 
 void GdbEngine::shutdown()
 {
-    exitDebugger();
+    m_outputCollector.shutdown();
+    initializeVariables();
+    m_gdbAdapter->shutdown();
 }
 
 void GdbEngine::detachDebugger()
@@ -1487,29 +1464,9 @@ void GdbEngine::detachDebugger()
 
 void GdbEngine::exitDebugger()
 {
-    debugMessage(_("GDBENGINE EXITDEBUGGER: %1").arg(m_gdbAdapter->state()));
-    if (m_gdbAdapter->state() == QProcess::Starting) {
-        debugMessage(_("WAITING FOR GDB STARTUP TO SHUTDOWN: %1")
-            .arg(m_gdbAdapter->state()));
-        // FIXME: handle this!
-        //m_gdbAdapter->waitForStarted();
-    }
-    if (m_gdbAdapter->state() == QProcess::Running) {
-        debugMessage(_("WAITING FOR RUNNING GDB TO SHUTDOWN: %1")
-            .arg(m_gdbAdapter->state()));
-        if (status() != DebuggerInferiorStopped
-            && status() != DebuggerProcessStartingUp) {
-            QTC_ASSERT(status() == DebuggerInferiorRunning,
-                qDebug() << "STATUS ON EXITDEBUGGER:" << status());
-            interruptInferior();
-        }
-        if (startMode() == AttachExternal || startMode() == AttachCrashedExternal)
-            postCommand(_("detach"), CB(handleExitHelper));
-        else
-            postCommand(_("kill"), CB(handleExitHelper));
-    } else {
-        exitDebugger2();
-    }
+    m_outputCollector.shutdown();
+    initializeVariables();
+    m_gdbAdapter->shutdown();
 }
 
 void GdbEngine::handleExitHelper(const GdbResultRecord &, const QVariant &)
@@ -1519,6 +1476,7 @@ void GdbEngine::handleExitHelper(const GdbResultRecord &, const QVariant &)
 
 void GdbEngine::exitDebugger2()
 {
+/*
     postCommand(_("-gdb-exit"), CB(handleExit));
     // 20s can easily happen when loading webkit debug information
     if (!m_gdbAdapter->waitForFinished(20000)) {
@@ -1533,6 +1491,7 @@ void GdbEngine::exitDebugger2()
             .arg(m_gdbAdapter->state()));
         m_gdbAdapter->kill();
     }
+*/
 
     m_outputCollector.shutdown();
     initializeVariables();
@@ -1548,6 +1507,8 @@ int GdbEngine::currentFrame() const
 void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 {
     m_startParameters = sp;
+    m_gdbAdapter->startAdapter(sp);
+/*
     // This should be set by the constructor or in exitDebugger().
     QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized,
         initializeVariables());
@@ -1619,154 +1580,7 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     QString loc = theDebuggerStringSetting(GdbLocation);
     showStatusMessage(tr("Starting Debugger: ") + loc + _c(' ') + gdbArgs.join(_(" ")));
     m_gdbAdapter->start(loc, gdbArgs);
-}
-
-void GdbEngine::emitStartFailed()
-{
-    //  QMessageBox::critical(mainWindow(), tr("Debugger Startup Failure"),
-    //    tr("Cannot start debugger: %1").arg(m_gdbAdapter->errorString()));
-    m_outputCollector.shutdown();
-    m_stubProc.blockSignals(true);
-    m_stubProc.stop();
-    m_stubProc.blockSignals(false);
-    emit startFailed();
-}
-
-void GdbEngine::startDebugger2()
-{
-    debugMessage(_("STARTUP, PHASE 2"));
-    showStatusMessage(tr("Gdb Running..."));
-
-    postCommand(_("show version"), CB(handleShowVersion));
-    //postCommand(_("-enable-timings");
-    postCommand(_("set print static-members off")); // Seemingly doesn't work.
-    //postCommand(_("set debug infrun 1"));
-    //postCommand(_("define hook-stop\n-thread-list-ids\n-stack-list-frames\nend"));
-    //postCommand(_("define hook-stop\nprint 4\nend"));
-    //postCommand(_("define hookpost-stop\nprint 5\nend"));
-    //postCommand(_("define hook-call\nprint 6\nend"));
-    //postCommand(_("define hookpost-call\nprint 7\nend"));
-    //postCommand(_("set print object on")); // works with CLI, but not MI
-    //postCommand(_("set step-mode on"));  // we can't work with that yes
-    //postCommand(_("set exec-done-display on"));
-    //postCommand(_("set print pretty on"));
-    //postCommand(_("set confirm off"));
-    //postCommand(_("set pagination off"));
-    postCommand(_("set print inferior-events 1"));
-    postCommand(_("set breakpoint pending on"));
-    postCommand(_("set print elements 10000"));
-    postCommand(_("-data-list-register-names"), CB(handleRegisterListNames));
-
-    //postCommand(_("set substitute-path /var/tmp/qt-x11-src-4.5.0 "
-    //    "/home/sandbox/qtsdk-2009.01/qt"));
-
-    // one of the following is needed to prevent crashes in gdb on code like:
-    //  template <class T> T foo() { return T(0); }
-    //  int main() { return foo<int>(); }
-    //  (gdb) call 'int foo<int>'()
-    //  /build/buildd/gdb-6.8/gdb/valops.c:2069: internal-error:
-    postCommand(_("set overload-resolution off"));
-    //postCommand(_("set demangle-style none"));
-
-    // From the docs:
-    //  Stop means reenter debugger if this signal happens (implies print).
-    //  Print means print a message if this signal happens.
-    //  Pass means let program see this signal;
-    //  otherwise program doesn't know.
-    //  Pass and Stop may be combined.
-    // We need "print" as otherwise we would get no feedback whatsoever
-    // Custom DebuggingHelper crashs which happen regularily for when accessing
-    // uninitialized variables.
-    postCommand(_("handle SIGSEGV nopass stop print"));
-
-    // This is useful to kill the inferior whenever gdb dies.
-    //postCommand(_("handle SIGTERM pass nostop print"));
-
-    postCommand(_("set unwindonsignal on"));
-    //postCommand(_("pwd"));
-    postCommand(_("set width 0"));
-    postCommand(_("set height 0"));
-
-    #ifdef Q_OS_MAC
-    postCommand(_("-gdb-set inferior-auto-start-cfm off"));
-    postCommand(_("-gdb-set sharedLibrary load-rules "
-            "dyld \".*libSystem.*\" all "
-            "dyld \".*libauto.*\" all "
-            "dyld \".*AppKit.*\" all "
-            "dyld \".*PBGDBIntrospectionSupport.*\" all "
-            "dyld \".*Foundation.*\" all "
-            "dyld \".*CFDataFormatters.*\" all "
-            "dyld \".*libobjc.*\" all "
-            "dyld \".*CarbonDataFormatters.*\" all"));
-    #endif
-
-    QString scriptFileName = theDebuggerStringSetting(GdbScriptFile);
-    if (!scriptFileName.isEmpty()) {
-        if (QFileInfo(scriptFileName).isReadable()) {
-            postCommand(_("source ") + scriptFileName);
-        } else {
-            QMessageBox::warning(mainWindow(),
-            tr("Cannot find debugger initialization script"),
-            tr("The debugger settings point to a script file at '%1' "
-               "which is not accessible. If a script file is not needed, "
-               "consider clearing that entry to avoid this warning. "
-              ).arg(scriptFileName));
-        }
-    }
-
-    if (startMode() == AttachExternal || startMode() == AttachCrashedExternal) {
-        postCommand(_("attach %1").arg(m_startParameters->attachPID), CB(handleAttach));
-        // Task 254674 does not want to remove them
-        //qq->breakHandler()->removeAllBreakpoints();
-    } else if (startMode() == AttachCore) {
-        QFileInfo fi(m_startParameters->executable);
-        QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
-        QFileInfo fi2(m_startParameters->coreFile);
-        // quoting core name below fails in gdb 6.8-debian
-        QString coreName = fi2.absoluteFilePath();
-        postCommand(_("-file-exec-and-symbols ") + fileName, CB(handleFileExecAndSymbols));
-        postCommand(_("target core ") + coreName, CB(handleTargetCore));
-        qq->breakHandler()->removeAllBreakpoints();
-    } else if (startMode() == StartRemote) {
-        postCommand(_("set architecture %1").arg(m_startParameters->remoteArchitecture));
-        qq->breakHandler()->setAllPending();
-        //QFileInfo fi(m_startParameters->executable);
-        //QString fileName = fi.absoluteFileName();
-        QString fileName = m_startParameters->executable;
-        postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName), CB(handleFileExecAndSymbols));
-        // works only for > 6.8
-        postCommand(_("set target-async on"), CB(handleSetTargetAsync));
-    } else if (m_startParameters->useTerminal) {
-        qq->breakHandler()->setAllPending();
-    } else if (startMode() == StartInternal || startMode() == StartExternal) {
-        qq->breakHandler()->setAllPending();
-        m_gdbAdapter->attach();
-        if (m_gdbAdapter->isAdapter()) {
-            m_autoContinue = true;
-            qq->notifyInferiorStopped();
-            attemptBreakpointSynchronization();
-            qq->notifyInferiorRunningRequested();
-        } else {
-            #ifdef Q_OS_MAC
-            postCommand(_("sharedlibrary apply-load-rules all"));
-            #endif
-            if (!m_startParameters->processArgs.isEmpty())
-                postCommand(_("-exec-arguments ") + m_startParameters->processArgs.join(_(" ")));
-            #ifdef Q_OS_MAC        
-            // On MacOS, breaking in at the entry point wreaks havoc.
-            postCommand(_("tbreak main"));
-            m_waitingForFirstBreakpointToBeHit = true;
-            qq->notifyInferiorRunningRequested();
-            postCommand(_("-exec-run"), CB(handleExecRun));
-            #else
-            if (!m_dumperInjectionLoad)
-                postCommand(_("set auto-solib-add off"));
-            postCommand(_("info target"), CB(handleStart));
-            #endif
-        }
-    }
-
-    emit startSuccessful();
+*/
 }
 
 void GdbEngine::continueInferior()
@@ -1775,32 +1589,6 @@ void GdbEngine::continueInferior()
     setTokenBarrier();
     qq->notifyInferiorRunningRequested();
     postCommand(_("-exec-continue"), CB(handleExecContinue));
-}
-
-void GdbEngine::handleStart(const GdbResultRecord &response, const QVariant &)
-{
-#if defined(Q_OS_MAC)
-    Q_UNUSED(response)
-#else
-    if (response.resultClass == GdbResultDone) {
-        // [some leading stdout here]
-        // >&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
-        // [some trailing stdout here]
-        QString msg = _(response.data.findChild("consolestreamoutput").data());
-        QRegExp needle(_("\\bEntry point: (0x[0-9a-f]+)\\b"));
-        if (needle.indexIn(msg) != -1) {
-            //debugMessage(_("STREAM: ") + msg + " " + needle.cap(1));
-            postCommand(_("tbreak *") + needle.cap(1));
-            m_waitingForFirstBreakpointToBeHit = true;
-            qq->notifyInferiorRunningRequested();
-            postCommand(_("-exec-run"), CB(handleExecRun));
-        } else {
-            debugMessage(_("PARSING START ADDRESS FAILED: ") + msg);
-        }
-    } else if (response.resultClass == GdbResultError) {
-        debugMessage(_("FETCHING START ADDRESS FAILED: " + response.toString()));
-    }
-#endif
 }
 
 void GdbEngine::handleAttach(const GdbResultRecord &, const QVariant &)
@@ -1850,7 +1638,7 @@ void GdbEngine::handleTargetRemote(const GdbResultRecord &record, const QVariant
     if (record.resultClass == GdbResultDone) {
         //postCommand(_("-exec-continue"), CB(handleExecContinue));
         handleAqcuiredInferior();
-        m_autoContinue = true;
+// FIXME        m_continuationAfterDone = true;
     } else if (record.resultClass == GdbResultError) {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = __(record.data.findChild("msg").data());
@@ -1899,8 +1687,15 @@ void GdbEngine::nextExec()
     qq->notifyInferiorRunningRequested();
     if (qq->isReverseDebugging())
         postCommand(_("-reverse-next"), CB(handleExecContinue));
-    else
+    else {
+#if 0
         postCommand(_("-exec-next"), CB(handleExecContinue));
+#else
+        postCommand(_("tbreak %1:%2").arg(QFileInfo(lastFile).fileName())
+            .arg(lastLine + 1));
+        postCommand(_("-exec-continue"), CB(handleExecContinue));
+#endif
+    }
 }
 
 void GdbEngine::nextIExec()
@@ -1947,11 +1742,11 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
     //  ~"run1 (argc=1, argv=0x7fffbf1f5538) at test1.cpp:242"
     //  ~"242\t x *= 2;"
     //  23^done"
-    m_manager->gotoLocation(frame, true);
+    gotoLocation(frame, true);
     //setBreakpoint();
     //postCommand(_("jump ") + fileName + ':' + QString::number(lineNumber));
 #else
-    m_manager->gotoLocation(frame,  true);
+    gotoLocation(frame,  true);
     setBreakpoint(fileName, lineNumber);
     postCommand(_("jump ") + fileName + ':' + QString::number(lineNumber));
 #endif
@@ -2101,7 +1896,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     //    cmd += "-c " + data->condition + " ";
 #else
     QString cmd = _("-break-insert -f ");
-    if (m_gdbAdapter->isAdapter())
+    if (m_gdbAdapter->isTrkAdapter())
         cmd = _("-break-insert ");
     //if (!data->condition.isEmpty())
     //    cmd += _("-c ") + data->condition + ' ';
@@ -2595,7 +2390,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVari
 
         if (topFrame != -1 || theDebuggerBoolSetting(StepByInstruction)) {
             const StackFrame &frame = qq->stackHandler()->currentFrame();
-            m_manager->gotoLocation(frame, true);
+            gotoLocation(frame, true);
         }
     } else {
         qDebug() << "LISTING STACK FAILED: " << record.toString();
@@ -2648,7 +2443,7 @@ void GdbEngine::activateFrame(int frameIndex)
     const StackFrame &frame = stackHandler->currentFrame();
 
     if (frame.isUsable())
-        m_manager->gotoLocation(frame, true);
+        gotoLocation(frame, true);
     else
         qDebug() << "FULL NAME NOT USABLE:" << frame.file;
 }
@@ -2683,7 +2478,7 @@ void GdbEngine::handleStackListThreads(const GdbResultRecord &record, const QVar
 
 void GdbEngine::reloadRegisters()
 {
-    if (m_gdbAdapter->isAdapter()) {
+    if (m_gdbAdapter->isTrkAdapter()) {
         // FIXME: remove that special case. This is only to prevent
         // gdb from asking for the values of the fixed point registers
         postCommand(_("-data-list-register-values x 0 1 2 3 4 5 6 7 8 9 "
@@ -3290,18 +3085,6 @@ static inline double getDumperVersion(const GdbMi &contents)
     return 1.0;
 }
 
-static void parseSizeCache(const GdbMi &contents, QtDumperHelper *dumperHelper)
-{
-    const GdbMi sizesList = contents.findChild("sizes");
-    if (sizesList.type() == GdbMi::Invalid)
-        return;
-    foreach(const GdbMi &c, sizesList.children()) {
-        const QString name = QString::fromAscii(c.name());
-        if (const int size = QString::fromAscii(c.data()).toInt())
-            dumperHelper->addSize(name, size);
-    }
-}
-
 void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const QVariant &)
 {
     const double dumperVersionRequired = 1.0;
@@ -3319,7 +3102,6 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
             m_debuggingHelperState = DebuggingHelperUnavailable;
             return;
         }
-        parseSizeCache(contents, &m_dumperHelper);
         m_debuggingHelperState = DebuggingHelperAvailable;
         const QString successMsg = tr("Dumper version %1, %n custom dumpers found.", 0, m_dumperHelper.typeCount()).arg(dumperVersion);
         showStatusMessage(successMsg);
@@ -3478,7 +3260,7 @@ void GdbEngine::handleDebuggingHelperValue1(const GdbResultRecord &record,
                 && msg.startsWith(__("The program being debugged stopped while"))
                 && msg.contains(__("qDumpObjectData440"))) {
             // Fake full stop
-            postCommand(_("p 0"), CB(handleAsyncOutput2));  // dummy
+            postCommand(_("p 0"), CB(handleStop2));  // dummy
             return;
         }
 #endif
@@ -4285,11 +4067,224 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResultRecord &record,
     }
 }
 
+void GdbEngine::gotoLocation(const StackFrame &frame, bool setMarker)
+{
+    lastFile = frame.file;
+    lastLine = frame.line;
+    m_manager->gotoLocation(frame, setMarker);
+}
+
+//
+// Starting up & shutting down
+//
+
+void GdbEngine::handleAdapterStartFailed(const QString &msg)
+{
+    debugMessage(_("ADAPTER START FAILED"));
+    m_outputCollector.shutdown();
+    QMessageBox::critical(mainWindow(), tr("Error"), msg);
+    QTC_ASSERT(status() == DebuggerInferiorRunning, /**/);
+    //interruptInferior();
+}
+
+void GdbEngine::handleAdapterStarted()
+{
+    debugMessage(_("ADAPTER SUCCESSFULLY STARTED, PREPARING INFERIOR"));
+    m_gdbAdapter->prepareInferior();
+}
+
+void GdbEngine::handleInferiorPreparationFailed(const QString &msg)
+{
+    debugMessage(_("INFERIOR PREPARATION FAILD"));
+    m_outputCollector.shutdown();
+    QMessageBox::critical(mainWindow(), tr("Error"),
+        tr("Inferior start preparation failed:\n") + msg);
+}
+
+void GdbEngine::handleInferiorPrepared()
+{
+    // FIXME: Check that inferior is in "stopped" state
+    qq->notifyInferiorStopped();
+    showStatusMessage(tr("Inferior prepared for startup."));
+
+    postCommand(_("show version"), CB(handleShowVersion));
+    //postCommand(_("-enable-timings");
+    postCommand(_("set print static-members off")); // Seemingly doesn't work.
+    //postCommand(_("set debug infrun 1"));
+    //postCommand(_("define hook-stop\n-thread-list-ids\n-stack-list-frames\nend"));
+    //postCommand(_("define hook-stop\nprint 4\nend"));
+    //postCommand(_("define hookpost-stop\nprint 5\nend"));
+    //postCommand(_("define hook-call\nprint 6\nend"));
+    //postCommand(_("define hookpost-call\nprint 7\nend"));
+    //postCommand(_("set print object on")); // works with CLI, but not MI
+    //postCommand(_("set step-mode on"));  // we can't work with that yes
+    //postCommand(_("set exec-done-display on"));
+    //postCommand(_("set print pretty on"));
+    //postCommand(_("set confirm off"));
+    //postCommand(_("set pagination off"));
+    postCommand(_("set print inferior-events 1"));
+    postCommand(_("set breakpoint pending on"));
+    postCommand(_("set print elements 10000"));
+    postCommand(_("-data-list-register-names"), CB(handleRegisterListNames));
+
+    //postCommand(_("set substitute-path /var/tmp/qt-x11-src-4.5.0 "
+    //    "/home/sandbox/qtsdk-2009.01/qt"));
+
+    // one of the following is needed to prevent crashes in gdb on code like:
+    //  template <class T> T foo() { return T(0); }
+    //  int main() { return foo<int>(); }
+    //  (gdb) call 'int foo<int>'()
+    //  /build/buildd/gdb-6.8/gdb/valops.c:2069: internal-error:
+    postCommand(_("set overload-resolution off"));
+    //postCommand(_("set demangle-style none"));
+
+    // From the docs:
+    //  Stop means reenter debugger if this signal happens (implies print).
+    //  Print means print a message if this signal happens.
+    //  Pass means let program see this signal;
+    //  otherwise program doesn't know.
+    //  Pass and Stop may be combined.
+    // We need "print" as otherwise we would get no feedback whatsoever
+    // Custom DebuggingHelper crashs which happen regularily for when accessing
+    // uninitialized variables.
+    postCommand(_("handle SIGSEGV nopass stop print"));
+
+    // This is useful to kill the inferior whenever gdb dies.
+    //postCommand(_("handle SIGTERM pass nostop print"));
+
+    postCommand(_("set unwindonsignal on"));
+    //postCommand(_("pwd"));
+    postCommand(_("set width 0"));
+    postCommand(_("set height 0"));
+
+    #ifdef Q_OS_MAC
+    postCommand(_("-gdb-set inferior-auto-start-cfm off"));
+    postCommand(_("-gdb-set sharedLibrary load-rules "
+            "dyld \".*libSystem.*\" all "
+            "dyld \".*libauto.*\" all "
+            "dyld \".*AppKit.*\" all "
+            "dyld \".*PBGDBIntrospectionSupport.*\" all "
+            "dyld \".*Foundation.*\" all "
+            "dyld \".*CFDataFormatters.*\" all "
+            "dyld \".*libobjc.*\" all "
+            "dyld \".*CarbonDataFormatters.*\" all"));
+    #endif
+
+    QString scriptFileName = theDebuggerStringSetting(GdbScriptFile);
+    if (!scriptFileName.isEmpty()) {
+        if (QFileInfo(scriptFileName).isReadable()) {
+            postCommand(_("source ") + scriptFileName);
+        } else {
+            QMessageBox::warning(mainWindow(),
+            tr("Cannot find debugger initialization script"),
+            tr("The debugger settings point to a script file at '%1' "
+               "which is not accessible. If a script file is not needed, "
+               "consider clearing that entry to avoid this warning. "
+              ).arg(scriptFileName));
+        }
+    }
+
+/*
+    if (startMode() == AttachExternal || startMode() == AttachCrashedExternal) {
+        postCommand(_("attach %1").arg(m_startParameters->attachPID), CB(handleAttach));
+        // Task 254674 does not want to remove them
+        //qq->breakHandler()->removeAllBreakpoints();
+    } else if (startMode() == AttachCore) {
+        QFileInfo fi(m_startParameters->executable);
+        QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
+        QFileInfo fi2(m_startParameters->coreFile);
+        // quoting core name below fails in gdb 6.8-debian
+        QString coreName = fi2.absoluteFilePath();
+        postCommand(_("-file-exec-and-symbols ") + fileName, CB(handleFileExecAndSymbols));
+        postCommand(_("target core ") + coreName, CB(handleTargetCore));
+        qq->breakHandler()->removeAllBreakpoints();
+    } else if (startMode() == StartRemote) {
+        postCommand(_("set architecture %1").arg(m_startParameters->remoteArchitecture));
+        qq->breakHandler()->setAllPending();
+        //QFileInfo fi(m_startParameters->executable);
+        //QString fileName = fi.absoluteFileName();
+        QString fileName = m_startParameters->executable;
+        postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName), CB(handleFileExecAndSymbols));
+        // works only for > 6.8
+        postCommand(_("set target-async on"), CB(handleSetTargetAsync));
+    } else if (m_startParameters->useTerminal) {
+        qq->breakHandler()->setAllPending();
+    } else if (startMode() == StartInternal || startMode() == StartExternal) {
+        qq->breakHandler()->setAllPending();
+        m_gdbAdapter->attach();
+        if (m_gdbAdapter->isTrkAdapter()) {
+            m_continuationAfterDone = true;
+            qq->notifyInferiorStopped();
+            attemptBreakpointSynchronization();
+            qq->notifyInferiorRunningRequested();
+        } [...]
+    }
+*/
+
+    // initial attempt to set breakpoints
+    QTC_ASSERT(m_continuationAfterDone == 0, /**/);
+    showStatusMessage(tr("Start initial breakpoint setting."));
+    m_continuationAfterDone = &GdbEngine::handleInitialBreakpointsSet;
+    attemptBreakpointSynchronization();
+}
+
+void GdbEngine::handleInitialBreakpointsSet()
+{
+    showStatusMessage(tr("Finishing initial breakpoint setting."));
+    qq->notifyInferiorRunningRequested();
+    m_gdbAdapter->startInferior();
+}
+
+void GdbEngine::handleInferiorStartFailed(const QString &msg)
+{
+    debugMessage(_("INFERIOR START FAILED"));
+    QMessageBox::critical(mainWindow(), tr("Error"),
+        tr("Inferior start failed:\n") + msg);
+    qq->notifyInferiorExited();
+}
+
+void GdbEngine::handleInferiorStarted()
+{
+    qq->notifyInferiorRunning();
+}
+
+void GdbEngine::handleInferiorShutDown()
+{
+    debugMessage(_("INFERIOR SUCCESSFULLY SHUT DOWN"));
+    qq->notifyInferiorExited();
+}
+
+void GdbEngine::handleInferiorShutdownFailed(const QString &msg)
+{
+    debugMessage(_("INFERIOR SHUTDOWN FAILED"));
+    QMessageBox::critical(mainWindow(), tr("Error"),
+        tr("Inferior shutdown failed:\n") + msg);
+}
+
+void GdbEngine::handleAdapterShutDown()
+{
+    debugMessage(_("ADAPTER SUCCESSFULLY SHUT DOWN"));
+}
+
+void GdbEngine::handleAdapterShutdownFailed(const QString &msg)
+{
+    debugMessage(_("ADAPTER SHUTDOWN FAILED"));
+    QMessageBox::critical(mainWindow(), tr("Error"),
+        tr("Inferior shutdown failed:\n") + msg);
+}
+
+//
+// Factory
+//
+
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent,
     QList<Core::IOptionsPage*> *opts)
 {
     opts->push_back(new GdbOptionsPage);
-    return new GdbEngine(parent, new PlainGdbAdapter);
+    GdbEngine *engine = new GdbEngine(parent);
+    PlainGdbAdapter *adapter = new PlainGdbAdapter(engine);
+    engine->setGdbAdapter(adapter);
+    return engine;
 }
 
 IDebuggerEngine *createSymbianEngine(DebuggerManager *parent,
@@ -4300,8 +4295,9 @@ IDebuggerEngine *createSymbianEngine(DebuggerManager *parent,
 
     if (!qgetenv("QTCREATOR_WITH_S60").isEmpty())
         opts->push_back(new TrkOptionsPage(options));
-    TrkGdbAdapter *adapter = new TrkGdbAdapter(options);
-    GdbEngine *engine = new GdbEngine(parent, adapter);
+    GdbEngine *engine = new GdbEngine(parent);
+    TrkGdbAdapter *adapter = new TrkGdbAdapter(engine, options);
+    engine->setGdbAdapter(adapter);
     QObject::connect(adapter, SIGNAL(output(QString)),
         parent, SLOT(showDebuggerOutput(QString)));
     return engine;
