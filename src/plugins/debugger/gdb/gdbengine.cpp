@@ -297,7 +297,8 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program.")
                 .arg(theDebuggerStringSetting(GdbLocation));
-            emitStartFailed();
+            emit startFailed();
+            shutdown();
             break;
         case QProcess::Crashed:
             kill = false;

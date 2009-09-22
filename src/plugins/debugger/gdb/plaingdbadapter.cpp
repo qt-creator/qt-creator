@@ -216,6 +216,13 @@ void PlainGdbAdapter::handleExecRun(const GdbResultRecord &response, const QVari
     }
 }
 
+void PlainGdbAdapter::startInferior()
+{
+    QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
+    setState(InferiorStarting);
+    m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
+}
+
 void PlainGdbAdapter::interruptInferior()
 {
     debugMessage(_("TRYING TO INTERUPT INFERIOR"));
