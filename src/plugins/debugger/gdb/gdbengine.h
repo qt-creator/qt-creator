@@ -230,7 +230,6 @@ private slots:
     void readGdbStandardOutput();
     void readGdbStandardError();
     void readDebugeeOutput(const QByteArray &data);
-    void emitStartFailed();
 
     void handleAdapterStarted();
     void handleAdapterStartFailed(const QString &msg);
