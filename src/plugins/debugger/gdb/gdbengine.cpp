@@ -1190,7 +1190,7 @@ void GdbEngine::reloadStack()
 {
     QString cmd = _("-stack-list-frames");
     int stackDepth = theDebuggerAction(MaximalStackDepth)->value().toInt();
-    if (stackDepth && !m_gdbAdapter->isAdapter())
+    if (stackDepth && !m_gdbAdapter->isTrkAdapter())
         cmd += _(" 0 ") + QString::number(stackDepth);
     postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
     // FIXME: gdb 6.4 symbianelf likes to be asked twice. The first time it
@@ -1199,7 +1199,7 @@ void GdbEngine::reloadStack()
     // access the memory belonging to the lower frames. But as we know
     // this always happens, ask the second time immediately instead
     // of waiting for the first request to fail.
-    if (m_gdbAdapter->isAdapter())
+    if (m_gdbAdapter->isTrkAdapter())
         postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
 }
 
@@ -1291,7 +1291,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
     }
 
     // FIXME: Hack, remove as soon as we get real stack traces.
-    if (m_gdbAdapter->isAdapter()) {
+    if (m_gdbAdapter->isTrkAdapter()) {
         StackFrame f;
         f.file = QString::fromLocal8Bit(fullName.data());
         f.line = frame.findChild("line").data().toInt();
@@ -1895,7 +1895,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     //    cmd += "-c " + data->condition + " ";
 #else
     QString cmd = _("-break-insert -f ");
-    if (m_gdbAdapter->isAdapter())
+    if (m_gdbAdapter->isTrkAdapter())
         cmd = _("-break-insert ");
     //if (!data->condition.isEmpty())
     //    cmd += _("-c ") + data->condition + ' ';
@@ -2477,7 +2477,7 @@ void GdbEngine::handleStackListThreads(const GdbResultRecord &record, const QVar
 
 void GdbEngine::reloadRegisters()
 {
-    if (m_gdbAdapter->isAdapter()) {
+    if (m_gdbAdapter->isTrkAdapter()) {
         // FIXME: remove that special case. This is only to prevent
         // gdb from asking for the values of the fixed point registers
         postCommand(_("-data-list-register-values x 0 1 2 3 4 5 6 7 8 9 "
@@ -4224,7 +4224,7 @@ void GdbEngine::handleInferiorPrepared()
     } else if (startMode() == StartInternal || startMode() == StartExternal) {
         qq->breakHandler()->setAllPending();
         m_gdbAdapter->attach();
-        if (m_gdbAdapter->isAdapter()) {
+        if (m_gdbAdapter->isTrkAdapter()) {
             m_continuationAfterDone = true;
             qq->notifyInferiorStopped();
             attemptBreakpointSynchronization();

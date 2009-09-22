@@ -52,13 +52,12 @@ class RemoteGdbAdapter : public AbstractGdbAdapter
 public:
     RemoteGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    QString errorString() const { return m_gdbProc.errorString(); }
     QByteArray readAllStandardError() { return m_gdbProc.readAllStandardError(); }
     QByteArray readAllStandardOutput() { return m_gdbProc.readAllStandardOutput(); }
     qint64 write(const char *data) { return m_gdbProc.write(data); }
     void setWorkingDirectory(const QString &dir) { m_gdbProc.setWorkingDirectory(dir); }
     void setEnvironment(const QStringList &env) { m_gdbProc.setEnvironment(env); }
-    bool isAdapter() const { return false; }
+    bool isTrkAdapter() const { return false; }
 
     void startAdapter(const DebuggerStartParametersPtr &sp);
     void prepareInferior();

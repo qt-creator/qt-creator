@@ -109,13 +109,12 @@ public:
     //
     void start(const QString &program, const QStringList &args,
         QIODevice::OpenMode mode = QIODevice::ReadWrite);
-    QString errorString() const;
     QByteArray readAllStandardError();
     QByteArray readAllStandardOutput();
     qint64 write(const char *data);
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
-    bool isAdapter() const { return true; }
+    bool isTrkAdapter() const { return true; }
 
     void startAdapter(const DebuggerStartParametersPtr &sp);
     void prepareInferior();

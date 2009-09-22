@@ -1312,12 +1312,14 @@ void TrkGdbAdapter::interruptInferior()
 
 void TrkGdbAdapter::handleGdbError(QProcess::ProcessError error)
 {
-    logMessage(QString("GDB: Process Error %1: %2").arg(error).arg(errorString()));
+    logMessage(QString("GDB: Process Error %1: %2")
+        .arg(error).arg(m_gdbProc.errorString()));
 }
 
 void TrkGdbAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    logMessage(QString("GDB: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
+    logMessage(QString("GDB: ProcessFinished %1 %2")
+        .arg(exitCode).arg(exitStatus));
     //setState(AdapterNotRunning);
     //emit adapterShutDown();
 }
@@ -1501,12 +1503,14 @@ void TrkGdbAdapter::handleRfcommReadyReadStandardOutput()
 
 void TrkGdbAdapter::handleRfcommError(QProcess::ProcessError error)
 {
-    logMessage(QString("RFCOMM: Process Error %1: %2").arg(error).arg(errorString()));
+    logMessage(QString("RFCOMM: Process Error %1: %2")
+        .arg(error).arg(m_rfcommProc.errorString()));
 }
 
 void TrkGdbAdapter::handleRfcommFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    logMessage(QString("RFCOMM: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
+    logMessage(QString("RFCOMM: ProcessFinished %1 %2")
+        .arg(exitCode).arg(exitStatus));
 }
 
 void TrkGdbAdapter::handleRfcommStarted()
@@ -1551,11 +1555,6 @@ bool TrkGdbAdapter::waitForFinished(int msecs)
     return m_gdbProc.waitForFinished(msecs);
 }
 */
-
-QString TrkGdbAdapter::errorString() const
-{
-    return m_gdbProc.errorString();
-}
 
 QByteArray TrkGdbAdapter::readAllStandardError()
 {
