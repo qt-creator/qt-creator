@@ -85,9 +85,8 @@ public:
     virtual void startAdapter(const DebuggerStartParametersPtr &sp) = 0;
     virtual void prepareInferior() = 0;
     virtual void startInferior() = 0;
-    virtual void shutdownInferior() = 0;
-    virtual void shutdownAdapter() = 0;
     virtual void interruptInferior() = 0;
+    virtual void shutdown() = 0;
 
 signals:
     void adapterStarted();

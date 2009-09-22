@@ -109,8 +109,6 @@ public:
     //
     void start(const QString &program, const QStringList &args,
         QIODevice::OpenMode mode = QIODevice::ReadWrite);
-    void kill();
-    void terminate();
     QString errorString() const;
     QByteArray readAllStandardError();
     QByteArray readAllStandardOutput();
@@ -118,16 +116,14 @@ public:
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
     bool isAdapter() const { return true; }
-    //void attach();
-    void interruptInferior();
-    Q_SLOT void startInferiorEarly();
 
     void startAdapter(const DebuggerStartParametersPtr &sp);
     void prepareInferior();
     void startInferior();
-    void shutdownInferior();
-    void shutdownAdapter();
+    void interruptInferior();
+    void shutdown();
 
+    Q_SLOT void startInferiorEarly();
     void handleKill(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
     void handleTargetRemote(const GdbResultRecord &, const QVariant &);

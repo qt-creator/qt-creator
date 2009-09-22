@@ -63,13 +63,12 @@ public:
     void setWorkingDirectory(const QString &dir) { m_gdbProc.setWorkingDirectory(dir); }
     void setEnvironment(const QStringList &env) { m_gdbProc.setEnvironment(env); }
     bool isAdapter() const { return false; }
-    void interruptInferior();
 
     void startAdapter(const DebuggerStartParametersPtr &sp);
     void prepareInferior();
     void startInferior();
-    void shutdownInferior();
-    void shutdownAdapter();
+    void interruptInferior();
+    void shutdown();
 
 private:
     void handleFileExecAndSymbols(const GdbResultRecord &, const QVariant &);

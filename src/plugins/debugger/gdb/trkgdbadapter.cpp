@@ -1483,7 +1483,7 @@ void TrkGdbAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
 }
 
 //
-// GdbProcessBase
+// Rfcomm process handling
 //
 
 void TrkGdbAdapter::handleRfcommReadyReadStandardError()
@@ -1523,6 +1523,7 @@ void TrkGdbAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
 // AbstractGdbAdapter interface implementation
 //
 
+/*
 void TrkGdbAdapter::kill()
 {
     if (m_options->mode == TrkOptions::BlueTooth
@@ -1537,7 +1538,6 @@ void TrkGdbAdapter::terminate()
     m_gdbProc.terminate();
 }
 
-/*
 bool TrkGdbAdapter::waitForFinished(int msecs)
 {
     QByteArray ba;
@@ -1582,12 +1582,7 @@ void TrkGdbAdapter::setEnvironment(const QStringList &env)
     m_gdbProc.setEnvironment(env);
 }
 
-void TrkGdbAdapter::shutdownInferior()
-{
-    m_engine->postCommand(_("kill"), CB(handleKill));
-}
-
-void TrkGdbAdapter::shutdownAdapter()
+void TrkGdbAdapter::shutdown()
 {
     if (state() == InferiorStarted) {
         setState(InferiorShuttingDown);
@@ -1610,7 +1605,7 @@ void TrkGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant &
     if (response.resultClass == GdbResultDone) {
         setState(InferiorShutDown);
         emit inferiorShutDown();
-        shutdownAdapter(); // re-iterate...
+        shutdown(); // re-iterate...
     } else if (response.resultClass == GdbResultError) {
         QString msg = tr("Inferior process could not be stopped:\n") +
             __(response.data.findChild("msg").data());

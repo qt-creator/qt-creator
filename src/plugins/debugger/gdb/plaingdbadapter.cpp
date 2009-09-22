@@ -158,11 +158,12 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response, 
     }
 }
 
-void PlainGdbAdapter::startInferior()
+void PlainGdbAdapter::handleInfoTarget(const GdbResultRecord &response, const QVariant &)
 {
-    QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
-    setState(InferiorStarting);
-    m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
+    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+#if defined(Q_OS_MAC)
+    Q_UNUSED(response)
+#else
 /*
     #ifdef Q_OS_MAC        
     m_engine->postCommand(_("sharedlibrary apply-load-rules all"));
@@ -177,14 +178,6 @@ void PlainGdbAdapter::startInferior()
     m_engine->postCommand(_("info target"), CB(handleInfoTarget));
     #endif
 */
-}
-
-void PlainGdbAdapter::handleInfoTarget(const GdbResultRecord &response, const QVariant &)
-{
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
-#if defined(Q_OS_MAC)
-    Q_UNUSED(response)
-#else
     if (response.resultClass == GdbResultDone) {
         // [some leading stdout here]
         // >&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
@@ -241,7 +234,7 @@ void PlainGdbAdapter::interruptInferior()
         debugMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
 }
 
-void PlainGdbAdapter::shutdownAdapter()
+void PlainGdbAdapter::shutdown()
 {
     if (state() == InferiorStarted) {
         setState(InferiorShuttingDown);
@@ -281,7 +274,7 @@ void PlainGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant
     if (response.resultClass == GdbResultDone) {
         setState(InferiorShutDown);
         emit inferiorShutDown();
-        shutdownAdapter(); // re-iterate...
+        shutdown(); // re-iterate...
     } else if (response.resultClass == GdbResultError) {
         QString msg = tr("Inferior process could not be stopped:\n") +
             __(response.data.findChild("msg").data());
@@ -306,11 +299,6 @@ void PlainGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
     debugMessage(_("GDB PROESS FINISHED"));
     setState(AdapterNotRunning);
     emit adapterShutDown();
-}
-
-void PlainGdbAdapter::shutdownInferior()
-{
-    m_engine->postCommand(_("kill"));
 }
 
 void PlainGdbAdapter::stubStarted()

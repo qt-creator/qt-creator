@@ -229,10 +229,7 @@ private slots:
     void gdbProcError(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();
-    void readUploadStandardOutput();
-    void readUploadStandardError();
     void readDebugeeOutput(const QByteArray &data);
-    void uploadProcError(QProcess::ProcessError error);
     void emitStartFailed();
 
     void handleAdapterStarted();
@@ -297,7 +294,6 @@ private:
     QByteArray m_inbuffer;
 
     AbstractGdbAdapter *m_gdbAdapter;
-    QProcess m_uploadProc;
 
     QHash<int, GdbCommand> m_cookieForToken;
     QHash<int, QByteArray> m_customOutputForToken;

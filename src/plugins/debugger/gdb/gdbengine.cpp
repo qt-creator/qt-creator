@@ -228,13 +228,6 @@ void GdbEngine::initializeConnections()
     connect(m_gdbAdapter, SIGNAL(adapterCrashed()),
         m_manager, SLOT(exitDebugger()));
 
-    connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(uploadProcError(QProcess::ProcessError)));
-    connect(&m_uploadProc, SIGNAL(readyReadStandardOutput()),
-        this, SLOT(readUploadStandardOutput()));
-    connect(&m_uploadProc, SIGNAL(readyReadStandardError()),
-        this, SLOT(readUploadStandardError()));
-
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
         this, SLOT(readDebugeeOutput(QByteArray)));
@@ -290,8 +283,7 @@ void GdbEngine::initializeVariables()
 
     // FIXME: unhandled:
     //m_outputCodecState = QTextCodec::ConverterState();
-    //QProcess m_gdbAdapter;
-    //QProcess m_uploadProc;
+    //m_gdbAdapter;
 }
 
 void GdbEngine::gdbProcError(QProcess::ProcessError error)
@@ -336,55 +328,6 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
     // act as if it was closed by the core
     if (kill)
         m_manager->exitDebugger();
-}
-
-void GdbEngine::uploadProcError(QProcess::ProcessError error)
-{
-    QString msg;
-    switch (error) {
-        case QProcess::FailedToStart:
-            msg = tr("The upload process failed to start. Either the "
-                "invoked script '%1' is missing, or you may have insufficient "
-                "permissions to invoke the program.")
-                .arg(theDebuggerStringSetting(GdbLocation));
-            break;
-        case QProcess::Crashed:
-            msg = tr("The upload process crashed some time after starting "
-                "successfully.");
-            break;
-        case QProcess::Timedout:
-            msg = tr("The last waitFor...() function timed out. "
-                "The state of QProcess is unchanged, and you can try calling "
-                "waitFor...() again.");
-            break;
-        case QProcess::WriteError:
-            msg = tr("An error occurred when attempting to write "
-                "to the upload process. For example, the process may not be running, "
-                "or it may have closed its input channel.");
-            break;
-        case QProcess::ReadError:
-            msg = tr("An error occurred when attempting to read from "
-                "the upload process. For example, the process may not be running.");
-            break;
-        default:
-            msg = tr("An unknown error in the upload process occurred. "
-                "This is the default return value of error().");
-    }
-
-    showStatusMessage(msg);
-    QMessageBox::critical(mainWindow(), tr("Error"), msg);
-}
-
-void GdbEngine::readUploadStandardOutput()
-{
-    QByteArray ba = m_uploadProc.readAllStandardOutput();
-    gdbOutputAvailable(LogOutput, QString::fromLocal8Bit(ba, ba.length()));
-}
-
-void GdbEngine::readUploadStandardError()
-{
-    QByteArray ba = m_uploadProc.readAllStandardError();
-    gdbOutputAvailable(LogError, QString::fromLocal8Bit(ba, ba.length()));
 }
 
 #if 0
@@ -713,7 +656,7 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
 {
     GdbCommand cmd;
     cmd.command = command;
-    //cmd.flags = flags;
+    cmd.flags = flags;
     cmd.adapterCallback = callback;
     cmd.callbackName = callbackName;
     cmd.cookie = cookie;
@@ -1508,7 +1451,7 @@ void GdbEngine::shutdown()
 {
     m_outputCollector.shutdown();
     initializeVariables();
-    m_gdbAdapter->shutdownAdapter();
+    m_gdbAdapter->shutdown();
 }
 
 void GdbEngine::detachDebugger()
@@ -1522,7 +1465,7 @@ void GdbEngine::exitDebugger()
 {
     m_outputCollector.shutdown();
     initializeVariables();
-    m_gdbAdapter->shutdownAdapter();
+    m_gdbAdapter->shutdown();
 }
 
 void GdbEngine::handleExitHelper(const GdbResultRecord &, const QVariant &)
