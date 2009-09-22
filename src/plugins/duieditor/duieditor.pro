@@ -4,7 +4,8 @@ include(../../qtcreatorplugin.pri)
 include(duieditor_dependencies.pri)
 include(parser/parser.pri)
 include(rewriter/rewriter.pri)
-DEFINES += DUIEDITOR_LIBRARY QT_CREATOR
+DEFINES += DUIEDITOR_LIBRARY \
+    QT_CREATOR
 INCLUDEPATH += parser \
     rewriter
 HEADERS += duieditor.h \
@@ -22,7 +23,10 @@ HEADERS += duieditor.h \
     duimodelmanager.h \
     duicodeformatter.h \
     navigationtokenfinder.h \
-    idcollector.h
+    idcollector.h \
+    qmlexpressionundercursor.h \
+    qmllookupcontext.h \
+    resolveqmlexpression.h
 SOURCES += duieditor.cpp \
     duieditorfactory.cpp \
     duieditorplugin.cpp \
@@ -36,5 +40,8 @@ SOURCES += duieditor.cpp \
     duimodelmanager.cpp \
     duicodeformatter.cpp \
     navigationtokenfinder.cpp \
-    idcollector.cpp
+    idcollector.cpp \
+    qmlexpressionundercursor.cpp \
+    qmllookupcontext.cpp \
+    resolveqmlexpression.cpp
 RESOURCES += duieditor.qrc
