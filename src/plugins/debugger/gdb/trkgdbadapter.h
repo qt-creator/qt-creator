@@ -101,6 +101,7 @@ private:
     QProcess m_rfcommProc;
     bool m_running;
     DebuggerStartParametersPtr m_startParameters;
+    void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
 
 public:
     //
@@ -110,8 +111,6 @@ public:
         QIODevice::OpenMode mode = QIODevice::ReadWrite);
     void kill();
     void terminate();
-    bool waitForFinished(int msecs = 30000);
-    GdbAdapterState state() const;
     QString errorString() const;
     QByteArray readAllStandardError();
     QByteArray readAllStandardOutput();
@@ -121,13 +120,18 @@ public:
     bool isAdapter() const { return true; }
     //void attach();
     void interruptInferior();
-    void startInferiorEarly();
+    Q_SLOT void startInferiorEarly();
 
     void startAdapter(const DebuggerStartParametersPtr &sp);
     void prepareInferior();
     void startInferior();
     void shutdownInferior();
     void shutdownAdapter();
+
+    void handleKill(const GdbResultRecord &, const QVariant &);
+    void handleExit(const GdbResultRecord &, const QVariant &);
+    void handleTargetRemote(const GdbResultRecord &, const QVariant &);
+    void handleFirstContinue(const GdbResultRecord &, const QVariant &);
 
     //
     // TRK

@@ -83,12 +83,12 @@
 #endif
 #include <ctype.h>
 
+// FIXME: temporary hack to evalute tbreak based step-over behaviour
 static QString lastFile;
 static int lastLine;
 
 namespace Debugger {
 namespace Internal {
-using namespace Debugger::Constants;
 
 //#define DEBUG_PENDING  1
 //#define DEBUG_SUBITEM  1
@@ -102,6 +102,18 @@ using namespace Debugger::Constants;
 #define STRINGIFY_INTERNAL(x) #x
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
+
+static bool stateAcceptsGdbCommands(GdbAdapterState state)
+{
+    return state == AdapterStarted
+        || state == InferiorPreparing
+        || state == InferiorPrepared
+        || state == InferiorStarting
+        || state == InferiorStarted
+        || state == InferiorShuttingDown
+        || state == InferiorShutDown
+        || state == AdapterShuttingDown;
+};
 
 static int &currentToken()
 {
@@ -729,7 +741,8 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
 
 void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 {
-    if (m_gdbAdapter->state() == AdapterNotRunning) {
+    if (!stateAcceptsGdbCommands(m_gdbAdapter->state())) {
+        PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
         debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
         return;
     }
@@ -737,10 +750,12 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
     if (cmd.flags & RebuildModel) {
         ++m_pendingRequests;
         PENDING_DEBUG("   CALLBACK" << cmd.callbackName
-            << "INCREMENTS PENDING TO:" << m_pendingRequests << cmd.command);
+            << "INCREMENTS PENDING TO:" << m_pendingRequests << cmd.command
+            << m_gdbAdapter->state());
     } else {
         PENDING_DEBUG("   UNKNOWN CALLBACK" << cmd.callbackName
-            << "LEAVES PENDING AT:" << m_pendingRequests << cmd.command);
+            << "LEAVES PENDING AT:" << m_pendingRequests << cmd.command
+            << m_gdbAdapter->state());
     }
 
     if ((cmd.flags & NeedsStop) && status() != DebuggerInferiorStopped

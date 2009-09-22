@@ -37,8 +37,16 @@
 #  include <unistd.h>
 #endif
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QTimer>
 #include <QtCore/QDir>
+
+#define STRINGIFY_INTERNAL(x) #x
+#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
+#define CB(callback) \
+    static_cast<GdbEngine::AdapterCallback>(&TrkGdbAdapter::callback), \
+    STRINGIFY(callback)
 
 #define TrkCB(s) TrkCallback(this, &TrkGdbAdapter::s)
 
@@ -84,7 +92,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_bufferedMemoryRead(true),
     m_waitCount(0)
 {
-
+    setState(AdapterNotRunning);
 #ifdef Q_OS_WIN
     const DWORD portOffset = GetCurrentProcessId() % 100;
 #else
@@ -116,6 +124,11 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
         this, SLOT(handleRfcommStarted()));
     connect(&m_rfcommProc, SIGNAL(stateChanged(QProcess::ProcessState)),
         this, SLOT(handleRfcommStateChanged(QProcess::ProcessState)));
+
+    connect(&m_trkDevice, SIGNAL(messageReceived(trk::TrkResult)),
+        this, SLOT(handleTrkResult(trk::TrkResult)));
+    connect(&m_trkDevice, SIGNAL(error(QString)),
+        this, SLOT(handleTrkError(QString)));
 
     if (m_verbose > 1)
         m_trkDevice.setVerbose(true);
@@ -219,6 +232,7 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage(byte option)
 
 void TrkGdbAdapter::startInferiorEarly()
 {
+    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     QString errorMessage;
     const QString device = effectiveTrkDevice();
     if (!m_trkDevice.open(device, &errorMessage)) {
@@ -230,9 +244,9 @@ void TrkGdbAdapter::startInferiorEarly()
             QString msg = QString::fromLatin1("Failed to connect to %1 after "
                 "%2 attempts").arg(device).arg(m_waitCount);
             logMessage(msg);
+            setState(AdapterNotRunning);
             emit adapterStartFailed(msg);
         }
-        QTimer::singleShot(1000, this, SLOT(startInferiorEarly()));
         return;
     }
 
@@ -947,6 +961,7 @@ void TrkGdbAdapter::handleCpuType(const TrkResult &result)
 
 void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 {
+    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     //  40 00 00]
     //logMessage("       RESULT: " + result.toString());
     // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]
@@ -1284,6 +1299,7 @@ void TrkGdbAdapter::readMemory(uint addr, uint len)
 
 void TrkGdbAdapter::interruptInferior()
 {
+    QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
     qDebug() << "TRYING TO INTERRUPT INFERIOR";
     QByteArray ba;
     // stop the thread (2) or the process (1) or the whole system (0)
@@ -1302,30 +1318,42 @@ void TrkGdbAdapter::handleGdbError(QProcess::ProcessError error)
 void TrkGdbAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     logMessage(QString("GDB: ProcessFinished %1 %2").arg(exitCode).arg(exitStatus));
+    //setState(AdapterNotRunning);
+    //emit adapterShutDown();
 }
 
 void TrkGdbAdapter::handleGdbStarted()
 {
+    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     logMessage(QString("GDB: Process Started"));
+    setState(AdapterStarted);
     emit adapterStarted();
 }
 
 void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
 {
-    logMessage(QString("GDB: Process State %1").arg(newState));
+    logMessage(_("GDB: Process State %1").arg(newState));
 }
 
 void TrkGdbAdapter::startAdapter(const DebuggerStartParametersPtr &sp)
 {
+    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    setState(AdapterStarting);
+    debugMessage(_("TRYING TO START ADAPTER"));
     m_startParameters = sp;
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
     if (m_options->mode == TrkOptions::BlueTooth) {
         const QString device = effectiveTrkDevice();
         const QString blueToothListener = QLatin1String("rfcomm");
-        logMessage(QString::fromLatin1("### Starting BlueTooth listener %1 on %2")
-            .arg(blueToothListener, device));
-        m_rfcommProc.start(blueToothListener + QLatin1String(" -r listen ")
-            + m_options->blueToothDevice + QLatin1String(" 1"));
+        QStringList blueToothListenerArguments;
+        blueToothListenerArguments.append(_("-r"));
+        blueToothListenerArguments.append(_("listen"));
+        blueToothListenerArguments.append(m_options->blueToothDevice);
+        blueToothListenerArguments.append(_("1"));
+        logMessage(_("### Starting BlueTooth listener %1 on %2: %3 %4")
+            .arg(blueToothListener).arg(device).arg(blueToothListener)
+            .arg(blueToothListenerArguments.join(" ")));
+        m_rfcommProc.start(blueToothListener, blueToothListenerArguments);
         m_rfcommProc.waitForStarted();
         if (m_rfcommProc.state() != QProcess::Running) {
             QString msg = QString::fromLatin1("Failed to start BlueTooth "
@@ -1338,24 +1366,56 @@ void TrkGdbAdapter::startAdapter(const DebuggerStartParametersPtr &sp)
     }
     m_waitCount = 0;
 
-    connect(&m_trkDevice, SIGNAL(messageReceived(trk::TrkResult)),
-        this, SLOT(handleTrkResult(trk::TrkResult)));
-    connect(&m_trkDevice, SIGNAL(error(QString)),
-        this, SLOT(handleTrkError(QString)));
-
     startInferiorEarly();
 }
 
 void TrkGdbAdapter::prepareInferior()
 {
-    // we already prepared the inferior during the adapter start
-    emit inferiorPrepared();
+    QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
+    // We already started the inferior process during the adapter start.
+    // Now make gdb aware of it.
+    setState(InferiorPreparing);
+    QString fileName = m_engine->startParameters().executable; 
+    m_engine->postCommand(_("add-symbol-file \"%1\" %2").arg(fileName)
+        .arg(m_session.codeseg));
+    m_engine->postCommand(_("symbol-file \"%1\"").arg(fileName));
+    m_engine->postCommand(_("target remote ") + gdbServerName(),
+        CB(handleTargetRemote));
+}
+
+void TrkGdbAdapter::handleTargetRemote(const GdbResultRecord &record, const QVariant &)
+{
+    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    if (record.resultClass == GdbResultDone) {
+        //postCommand(_("-exec-continue"), CB(handleExecContinue));
+        setState(InferiorPrepared);
+        emit inferiorPrepared();
+    } else if (record.resultClass == GdbResultError) {
+        // 16^error,msg="hd:5555: Connection timed out."
+        QString msg = __(record.data.findChild("msg").data());
+        QString msg1 = tr("Connecting to remote server failed:");
+        emit inferiorPreparationFailed(msg1 + _c(' ') + msg);
+    }
 }
 
 void TrkGdbAdapter::startInferior()
 {
-    // we already started the inferior during the adapter start
-    emit inferiorStarted();
+    QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
+    setState(InferiorStarting);
+    m_engine->postCommand(_("-exec-continue"), CB(handleFirstContinue));
+}
+
+void TrkGdbAdapter::handleFirstContinue(const GdbResultRecord &record, const QVariant &)
+{
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    if (record.resultClass == GdbResultDone) {
+        setState(InferiorStarted);
+        emit inferiorStarted();
+    } else if (record.resultClass == GdbResultError) {
+        //QString msg = __(record.data.findChild("msg").data());
+        QString msg1 = tr("Connecting to remote server failed:");
+        emit inferiorStartFailed(msg1 + record.toString());
+    }
 }
 
 #ifdef Q_OS_WIN
@@ -1383,10 +1443,12 @@ static void setGdbCygwinEnvironment(const QString &cygwin, QProcess *process)
 
 void TrkGdbAdapter::startGdb()
 {
+    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     if (!m_gdbServer.listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
         QString msg = QString("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer.errorString());
         logMessage(msg);
+        setState(AdapterNotRunning);
         emit adapterStartFailed(msg); 
         return;
     }
@@ -1458,7 +1520,7 @@ void TrkGdbAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
 }
 
 //
-// GdbProcessBase
+// AbstractGdbAdapter interface implementation
 //
 
 void TrkGdbAdapter::kill()
@@ -1475,6 +1537,7 @@ void TrkGdbAdapter::terminate()
     m_gdbProc.terminate();
 }
 
+/*
 bool TrkGdbAdapter::waitForFinished(int msecs)
 {
     QByteArray ba;
@@ -1487,12 +1550,7 @@ bool TrkGdbAdapter::waitForFinished(int msecs)
     proc.waitForFinished();
     return m_gdbProc.waitForFinished(msecs);
 }
-
-GdbAdapterState TrkGdbAdapter::state() const
-{
-    //return m_gdbProc.state();
-    return AdapterNotRunning; // FIXME
-}
+*/
 
 QString TrkGdbAdapter::errorString() const
 {
@@ -1524,31 +1582,53 @@ void TrkGdbAdapter::setEnvironment(const QStringList &env)
     m_gdbProc.setEnvironment(env);
 }
 
+void TrkGdbAdapter::shutdownInferior()
+{
+    m_engine->postCommand(_("kill"), CB(handleKill));
+}
+
 void TrkGdbAdapter::shutdownAdapter()
 {
+    if (state() == InferiorStarted) {
+        setState(InferiorShuttingDown);
+        m_engine->postCommand(_("kill"), CB(handleKill));
+        return;
+    }
+
+    if (state() == InferiorShutDown) {
+        setState(AdapterShuttingDown);
+        m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
+        return;
+    }
+
+    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
     emit adapterShutDown();
 }
 
-void TrkGdbAdapter::shutdownInferior()
+void TrkGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant &)
 {
-    emit inferiorShutDown();
+    if (response.resultClass == GdbResultDone) {
+        setState(InferiorShutDown);
+        emit inferiorShutDown();
+        shutdownAdapter(); // re-iterate...
+    } else if (response.resultClass == GdbResultError) {
+        QString msg = tr("Inferior process could not be stopped:\n") +
+            __(response.data.findChild("msg").data());
+        setState(InferiorShutdownFailed);
+        emit inferiorShutdownFailed(msg);
+    }
 }
 
-/*
-void TrkGdbAdapter::attach()
+void TrkGdbAdapter::handleExit(const GdbResultRecord &response, const QVariant &)
 {
-#ifdef STANDALONE_RUNNER
-#else
-    QString fileName = m_engine->startParameters().executable; 
-    m_engine->postCommand(_("add-symbol-file \"%1\" %2").arg(fileName)
-        .arg(m_session.codeseg));
-    m_engine->postCommand(_("symbol-file \"%1\"").arg(fileName));
-    //m_engine->postCommand(_("target remote ") + gdbServerName(),
-    //    &GdbEngine::handleTargetRemote, "handleTargetRemote");
-    m_engine->postCommand(_("target remote ") + gdbServerName());
-#endif
+    if (response.resultClass == GdbResultDone) {
+        // don't set state here, this will be handled in handleGdbFinished()
+    } else if (response.resultClass == GdbResultError) {
+        QString msg = tr("Gdb process could not be stopped:\n") +
+            __(response.data.findChild("msg").data());
+        emit adapterShutdownFailed(msg);
+    }
 }
-*/
 
 } // namespace Internal
 } // namespace Debugger
