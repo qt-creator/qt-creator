@@ -404,7 +404,7 @@ void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
             InternalNode *subfolder = new InternalNode;
             subfolder->type = type;
             subfolder->icon = fileTypeIcons.at(i);
-            subfolder->fullName = m_projectDir;
+            subfolder->fullName = m_projectDir + '#' + fileTypeNames.at(i);
             contents.subnodes.insert(fileTypeNames.at(i), subfolder);
             // create the hierarchy with subdirectories
             subfolder->create(m_projectDir, newFilePaths, type);
