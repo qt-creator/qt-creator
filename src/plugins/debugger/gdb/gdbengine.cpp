@@ -3085,18 +3085,6 @@ static inline double getDumperVersion(const GdbMi &contents)
     return 1.0;
 }
 
-static void parseSizeCache(const GdbMi &contents, QtDumperHelper *dumperHelper)
-{
-    const GdbMi sizesList = contents.findChild("sizes");
-    if (sizesList.type() == GdbMi::Invalid)
-        return;
-    foreach(const GdbMi &c, sizesList.children()) {
-        const QString name = QString::fromAscii(c.name());
-        if (const int size = QString::fromAscii(c.data()).toInt())
-            dumperHelper->addSize(name, size);
-    }
-}
-
 void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const QVariant &)
 {
     const double dumperVersionRequired = 1.0;
@@ -3114,7 +3102,6 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
             m_debuggingHelperState = DebuggingHelperUnavailable;
             return;
         }
-        parseSizeCache(contents, &m_dumperHelper);
         m_debuggingHelperState = DebuggingHelperAvailable;
         const QString successMsg = tr("Dumper version %1, %n custom dumpers found.", 0, m_dumperHelper.typeCount()).arg(dumperVersion);
         showStatusMessage(successMsg);
