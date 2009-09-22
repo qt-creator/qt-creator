@@ -1314,23 +1314,23 @@ bool CPPEditor::autoBackspace(QTextCursor &cursor)
     int pos = cursor.position();
     QTextCursor c = cursor;
     c.setPosition(pos - 1);
-    if (!contextAllowsAutoParentheses(c))
-        return false;
 
     QChar lookAhead = characterAt(pos);
     QChar lookBehind = characterAt(pos-1);
     QChar lookFurtherBehind = characterAt(pos-2);
-    if ((lookBehind == QLatin1Char('(') && lookAhead == QLatin1Char(')'))
+    if    ((lookBehind == QLatin1Char('(') && lookAhead == QLatin1Char(')'))
         || (lookBehind == QLatin1Char('[') && lookAhead == QLatin1Char(']'))
         || (lookBehind == QLatin1Char('"') && lookAhead == QLatin1Char('"')
             && lookFurtherBehind != QLatin1Char('\\'))
         || (lookBehind == QLatin1Char('\'') && lookAhead == QLatin1Char('\'')
             && lookFurtherBehind != QLatin1Char('\\'))) {
-        cursor.beginEditBlock();
-        cursor.deleteChar();
-        cursor.deletePreviousChar();
-        cursor.endEditBlock();
-        return true;
+        if (! isInComment(c)) {
+            cursor.beginEditBlock();
+            cursor.deleteChar();
+            cursor.deletePreviousChar();
+            cursor.endEditBlock();
+            return true;
+        }
     }
     return false;
 }
@@ -1378,12 +1378,20 @@ bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
                                              const QString &textToInsert) const
 {
     QChar ch;
+
     if (! textToInsert.isEmpty())
         ch = textToInsert.at(0);
 
     if (! (MatchingText::shouldInsertMatchingText(cursor) || ch == QLatin1Char('\'') || ch == QLatin1Char('"')))
         return false;
+    else if (isInComment(cursor))
+        return false;
 
+    return true;
+}
+
+bool CPPEditor::isInComment(const QTextCursor &cursor) const
+{
     CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(cursor);
 
@@ -1391,10 +1399,10 @@ bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
         const int pos = cursor.selectionEnd();
 
         if (pos < tk.end())
-            return false;
+            return true;
     }
 
-    return true;
+    return false;
 }
 
 void CPPEditor::indentInsertedText(const QTextCursor &tc)

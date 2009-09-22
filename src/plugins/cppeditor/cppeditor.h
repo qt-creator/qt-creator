@@ -220,6 +220,8 @@ protected:
     bool contextAllowsAutoParentheses(const QTextCursor &cursor,
                                       const QString &textToInsert = QString()) const;
 
+    bool isInComment(const QTextCursor &cursor) const;
+
 private Q_SLOTS:
     void updateFileName();
     void jumpToMethod(int index);
