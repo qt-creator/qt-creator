@@ -101,7 +101,24 @@ void RemoteGdbAdapter::startAdapter(const DebuggerStartParametersPtr &sp)
         setEnvironment(m_startParameters->environment);
 
     QString location = theDebuggerStringSetting(GdbLocation);
-    //showStatusMessage(tr("Starting Debugger: ") + loc + _c(' ') + gdbArgs.join(_(" ")));
+
+/*  
+    // FIXME: make asynchroneouis
+    // Start the remote server
+    if (m_startParameters->serverStartScript.isEmpty()) {
+        showStatusMessage(_("No server start script given. "
+            "Assuming server runs already."));
+    } else {
+        if (!m_startParameters->workingDir.isEmpty())
+            m_uploadProc.setWorkingDirectory(m_startParameters->workingDir);
+        if (!m_startParameters->environment.isEmpty())
+            m_uploadProc.setEnvironment(m_startParameters->environment);
+        m_uploadProc.start(_("/bin/sh ") + m_startParameters->serverStartScript);
+        m_uploadProc.waitForStarted();
+    }
+*/
+
+    // Start the debugger
     m_gdbProc.start(location, gdbArgs);
 }
 

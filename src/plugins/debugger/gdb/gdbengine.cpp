@@ -1457,9 +1457,7 @@ void GdbEngine::shutdown()
 
 void GdbEngine::detachDebugger()
 {
-    postCommand(_("detach"));
-    // FIXME: use postCommand(_("detach"), CB(handleExitHelper)) ?
-    postCommand(_("-gdb-exit"), CB(handleExit));
+    postCommand(_("detach"), CB(handleDetach));
 }
 
 void GdbEngine::exitDebugger()
@@ -1469,35 +1467,10 @@ void GdbEngine::exitDebugger()
     m_gdbAdapter->shutdown();
 }
 
-void GdbEngine::handleExitHelper(const GdbResultRecord &, const QVariant &)
+void GdbEngine::handleDetach(const GdbResultRecord &, const QVariant &)
 {
-    exitDebugger2();
+    exitDebugger();
 }
-
-void GdbEngine::exitDebugger2()
-{
-/*
-    postCommand(_("-gdb-exit"), CB(handleExit));
-    // 20s can easily happen when loading webkit debug information
-    if (!m_gdbAdapter->waitForFinished(20000)) {
-        debugMessage(_("FORCING TERMINATION: %1")
-            .arg(m_gdbAdapter->state()));
-        m_gdbAdapter->terminate();
-        m_gdbAdapter->waitForFinished(20000);
-    }
-
-    if (m_gdbAdapter->state() != QProcess::NotRunning) {
-        debugMessage(_("PROBLEM STOPPING DEBUGGER: STATE %1")
-            .arg(m_gdbAdapter->state()));
-        m_gdbAdapter->kill();
-    }
-*/
-
-    m_outputCollector.shutdown();
-    initializeVariables();
-    //m_manager->settings()->m_debugDebuggingHelpers = false;
-}
-
 
 int GdbEngine::currentFrame() const
 {
@@ -1506,20 +1479,15 @@ int GdbEngine::currentFrame() const
 
 void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 {
-    m_startParameters = sp;
-    m_gdbAdapter->startAdapter(sp);
-/*
-    // This should be set by the constructor or in exitDebugger().
+    // This should be set by the constructor or in exitDebugger() 
+    // via initializeVariables()
     QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized,
         initializeVariables());
 
-    if (m_gdbAdapter->state() != QProcess::NotRunning) {
-        debugMessage(_("GDB IS ALREADY RUNNING, STATE: %1").arg(m_gdbAdapter->state()));
-        m_gdbAdapter->kill();
-        emitStartFailed();
-        return;
-    }
+    m_startParameters = sp;
+    m_gdbAdapter->startAdapter(sp);
 
+/*
     QStringList gdbArgs;
     gdbArgs.prepend(_("mi"));
     gdbArgs.prepend(_("-i"));
@@ -1527,19 +1495,6 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     if (startMode() == AttachCore || startMode() == AttachExternal
             || startMode() == AttachCrashedExternal) {
         // nothing to do
-    } else if (startMode() == StartRemote) {
-        // Start the remote server
-        if (m_startParameters->serverStartScript.isEmpty()) {
-            showStatusMessage(_("No server start script given. "
-                "Assuming server runs already."));
-        } else {
-            if (!m_startParameters->workingDir.isEmpty())
-                m_uploadProc.setWorkingDirectory(m_startParameters->workingDir);
-            if (!m_startParameters->environment.isEmpty())
-                m_uploadProc.setEnvironment(m_startParameters->environment);
-            m_uploadProc.start(_("/bin/sh ") + m_startParameters->serverStartScript);
-            m_uploadProc.waitForStarted();
-        }
     } else if (m_startParameters->useTerminal) {
         m_stubProc.stop(); // We leave the console open, so recycle it now.
 
@@ -1566,19 +1521,6 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
         if (!m_startParameters->environment.isEmpty())
             m_gdbAdapter->setEnvironment(m_startParameters->environment);
     }
-
-    #if 0
-    qDebug() << "Command:" << m_manager->settings()->m_gdbCmd;
-    qDebug() << "WorkingDirectory:" << m_gdbAdapter->workingDirectory();
-    qDebug() << "ScriptFile:" << m_manager->settings()->m_scriptFile;
-    qDebug() << "Environment:" << m_gdbAdapter->environment();
-    qDebug() << "Arguments:" << gdbArgs;
-    qDebug() << "BuildDir:" << m_startParameters->buildDir;
-    qDebug() << "ExeFile:" << m_startParameters->executable;
-    #endif
-
-    QString loc = theDebuggerStringSetting(GdbLocation);
-    showStatusMessage(tr("Starting Debugger: ") + loc + _c(' ') + gdbArgs.join(_(" ")));
     m_gdbAdapter->start(loc, gdbArgs);
 */
 }
@@ -1591,6 +1533,7 @@ void GdbEngine::continueInferior()
     postCommand(_("-exec-continue"), CB(handleExecContinue));
 }
 
+#if 0
 void GdbEngine::handleAttach(const GdbResultRecord &, const QVariant &)
 {
     qq->notifyInferiorStopped();
@@ -1648,6 +1591,7 @@ void GdbEngine::handleTargetRemote(const GdbResultRecord &record, const QVariant
         postCommand(_("-gdb-exit"), CB(handleExit));
     }
 }
+#endif
 
 void GdbEngine::handleExit(const GdbResultRecord &, const QVariant &)
 {

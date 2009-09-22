@@ -107,7 +107,6 @@ private:
     void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
     void startDebugger(const DebuggerStartParametersPtr &sp);
     void exitDebugger();
-    void exitDebugger2();
     void detachDebugger();
 
     void continueInferior();
@@ -248,7 +247,7 @@ private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
     void handleStart(const GdbResultRecord &response, const QVariant &);
-    void handleAttach(const GdbResultRecord &, const QVariant &);
+    //void handleAttach(const GdbResultRecord &, const QVariant &);
     void handleAqcuiredInferior();
     void handleAsyncOutput(const GdbMi &data);
     void handleStop1(const GdbResultRecord &, const QVariant &cookie);
@@ -268,9 +267,9 @@ private:
     void handleQuerySources(const GdbResultRecord &response, const QVariant &);
     void handleTargetCore(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleExitHelper(const GdbResultRecord &, const QVariant &);
-    void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
-    void handleTargetRemote(const GdbResultRecord &, const QVariant &);
+    void handleDetach(const GdbResultRecord &, const QVariant &);
+    //void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
+    //void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void handleWatchPoint(const GdbResultRecord &, const QVariant &);
     bool showToolTip();
 
