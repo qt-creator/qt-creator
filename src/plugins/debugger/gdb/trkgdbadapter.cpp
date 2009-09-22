@@ -275,8 +275,13 @@ void TrkGdbAdapter::startInferiorEarly()
 
 void TrkGdbAdapter::logMessage(const QString &msg)
 {
-    if (m_verbose)
+    if (m_verbose) {
+#ifdef STANDALONE_RUNNER
         emit output(msg);
+#else
+        m_engine->debugMessage(msg);
+#endif
+    }
 }
 
 //

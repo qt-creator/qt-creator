@@ -4242,8 +4242,6 @@ IDebuggerEngine *createSymbianEngine(DebuggerManager *parent,
     GdbEngine *engine = new GdbEngine(parent);
     TrkGdbAdapter *adapter = new TrkGdbAdapter(engine, options);
     engine->setGdbAdapter(adapter);
-    QObject::connect(adapter, SIGNAL(output(QString)),
-        parent, SLOT(showDebuggerOutput(QString)));
     return engine;
 }
 
