@@ -90,6 +90,7 @@ signals:
 private:
     friend class PlainGdbAdapter;
     friend class TrkGdbAdapter;
+    friend class RemoteGdbAdapter;
 
     const DebuggerStartParameters &startParameters() const
         { return *m_startParameters; }
@@ -275,7 +276,6 @@ private:
     void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
     void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void handleWatchPoint(const GdbResultRecord &, const QVariant &);
-    void debugMessage(const QString &msg);
     bool showToolTip();
 
     // Convenience
@@ -444,7 +444,9 @@ private:
     IDebuggerManagerAccessForEngines * const qq;
     DebuggerStartParametersPtr m_startParameters;
     // make sure to re-initialize new members in initializeVariables();
+
 public:
+    void debugMessage(const QString &msg);
     OutputCollector m_outputCollector;
 };
 

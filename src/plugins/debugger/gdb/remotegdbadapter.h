@@ -27,13 +27,11 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_PLAINGDBADAPTER_H
-#define DEBUGGER_PLAINGDBADAPTER_H
+#ifndef DEBUGGER_REMOTEGDBADAPTER_H
+#define DEBUGGER_REMOTEGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
 #include "gdbengine.h"
-
-#include <consoleprocess.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
@@ -43,19 +41,17 @@ namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// PlainGdbAdapter
+// RemoteGdbAdapter
 //
 ///////////////////////////////////////////////////////////////////////
 
-class PlainGdbAdapter : public AbstractGdbAdapter
+class RemoteGdbAdapter : public AbstractGdbAdapter
 {
     Q_OBJECT
 
 public:
-    PlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    RemoteGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    //void kill() { m_gdbProc.kill(); }
-    //void terminate() { m_gdbProc.terminate(); }
     QString errorString() const { return m_gdbProc.errorString(); }
     QByteArray readAllStandardError() { return m_gdbProc.readAllStandardError(); }
     QByteArray readAllStandardOutput() { return m_gdbProc.readAllStandardOutput(); }
@@ -75,20 +71,14 @@ private:
     void handleFileExecAndSymbols(const GdbResultRecord &, const QVariant &);
     void handleKill(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleStubAttached(const GdbResultRecord &, const QVariant &);
     void handleExecRun(const GdbResultRecord &response, const QVariant &);
-    void handleInfoTarget(const GdbResultRecord &response, const QVariant &);
 
     void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
-    void emitAdapterStartFailed(const QString &msg);
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
     Q_SLOT void handleGdbStarted();
-    Q_SLOT void stubStarted();
-    Q_SLOT void stubError(const QString &msg);
 
     QProcess m_gdbProc;
     DebuggerStartParametersPtr m_startParameters;
-    Core::Utils::ConsoleProcess m_stubProc;
 };
 
 } // namespace Internal
