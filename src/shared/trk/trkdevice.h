@@ -52,7 +52,7 @@ struct TrkDevicePrivate;
  * read operation.
  * The serialFrames property specifies whether packets are encapsulated in
  * "0x90 <length>" frames, which is currently the case for serial ports. 
- * Contains write message queue allowing
+ * Contains a write message queue allowing
  * for queueing messages with a notification callback. If the message receives
  * an ACK, the callback is invoked.
  * The special message TRK_WRITE_QUEUE_NOOP_CODE code can be used for synchronisation.
@@ -80,24 +80,8 @@ public:
     bool serialFrame() const;
     void setSerialFrame(bool f);
 
-    bool verbose() const;
-    void setVerbose(bool b);
-
-    bool write(const QByteArray &data, QString *errorMessage);
-
-signals:
-    void messageReceived(const trk::TrkResult &result);
-    // Emitted with the contents of messages enclosed in 07e, not for log output
-    void rawDataReceived(const QByteArray &data);
-    void error(const QString &msg);
-    void logMessage(const QString &msg);
-    
-protected:
-    void emitError(const QString &msg);
-    virtual void timerEvent(QTimerEvent *ev);
-
-public:
-    void tryTrkRead();
+    int verbose() const;
+    void setVerbose(int b);
 
     // Enqueue a message with a notification callback.
     void sendTrkMessage(unsigned char code,
@@ -111,10 +95,21 @@ public:
     // Send an Ack synchronously, bypassing the queue
     bool sendTrkAck(unsigned char token);
 
-private:
-    void tryTrkWrite();
-    bool trkWriteRawMessage(const TrkMessage &msg);
+    void tryTrkRead(); // TODO: Why public?
 
+signals:
+    void messageReceived(const trk::TrkResult &result);
+    // Emitted with the contents of messages enclosed in 07e, not for log output
+    void rawDataReceived(const QByteArray &data);
+    void error(const QString &msg);
+    void logMessage(const QString &msg);
+
+protected:
+    void emitError(const QString &msg);
+    void emitLogMessage(const QString &msg);
+    virtual void timerEvent(QTimerEvent *ev);
+
+private:
     TrkDevicePrivate *d;
 };
 

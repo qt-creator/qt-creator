@@ -35,6 +35,10 @@
 #include <QtCore/QQueue>
 #include <QtCore/QHash>
 #include <QtCore/QMap>
+#include <QtCore/QThread>
+#include <QtCore/QMutex>
+#include <QtCore/QWaitCondition>
+#include <QtCore/QSharedPointer>
 
 #ifdef Q_OS_WIN
 #  include <windows.h>
@@ -90,7 +94,7 @@ BOOL WINAPI TryReadFile(HANDLE          hFile,
     if (comStat.cbInQue == 0) {
         *lpNumberOfBytesRead = 0;
         return FALSE;
-    }
+    }   
     return ReadFile(hFile,
                     lpBuffer,
                     qMin(comStat.cbInQue, nNumberOfBytesToRead),
@@ -127,6 +131,7 @@ TrkMessage::TrkMessage(byte c, byte t, TrkCallback cb) :
     callback(cb)
 {
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -252,6 +257,162 @@ void TrkWriteQueue::queueTrkInitialPing()
     m_trkWriteQueue.append(TrkMessage(0, 0));
 }
 
+///////////////////////////////////////////////////////////////////////
+//
+// DeviceContext to be shared between threads
+//
+///////////////////////////////////////////////////////////////////////
+
+struct DeviceContext {
+    DeviceContext();
+#ifdef Q_OS_WIN
+    HANDLE device;
+#else
+    QFile file;
+#endif
+    bool serialFrame;
+};
+
+DeviceContext::DeviceContext() :
+#ifdef Q_OS_WIN
+    device(INVALID_HANDLE_VALUE),
+#endif
+    serialFrame(true)
+{
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// TrkWriterThread: A thread operating a TrkWriteQueue.
+//
+///////////////////////////////////////////////////////////////////////
+
+class WriterThread : public QThread {
+    Q_OBJECT
+    Q_DISABLE_COPY(WriterThread)
+public:            
+    explicit WriterThread(const QSharedPointer<DeviceContext> &context);
+
+    // Enqueue messages.
+    void queueTrkMessage(byte code, TrkCallback callback,
+                        const QByteArray &data, const QVariant &cookie);
+    void queueTrkInitialPing();
+
+    // Call this from the device read notification with the results.
+    void slotHandleResult(const TrkResult &result);
+
+    virtual void run();
+
+signals:
+    void error(const QString &);
+
+public slots:
+    bool trkWriteRawMessage(const TrkMessage &msg);
+    void terminate();
+    void tryWrite();
+
+private:    
+    bool write(const QByteArray &data, QString *errorMessage);
+
+    const QSharedPointer<DeviceContext> m_context;
+    QMutex m_dataMutex;
+    QMutex m_waitMutex;
+    QWaitCondition m_waitCondition;
+    TrkWriteQueue m_queue;
+    bool m_terminate;
+};
+
+WriterThread::WriterThread(const QSharedPointer<DeviceContext> &context) :
+    m_context(context),
+    m_terminate(false)
+{
+}
+
+void WriterThread::run()
+{
+    while (true) {
+        // Wait. Use a timeout in case something is already queued before we
+        // start up or some weird hanging exit condition
+        m_waitMutex.lock();
+        m_waitCondition.wait(&m_waitMutex, 100);
+        m_waitMutex.unlock();
+        if (m_terminate)
+            break;
+        // Send off message
+        m_dataMutex.lock();
+        TrkMessage message;
+        if (m_queue.pendingMessage(&message)) {
+            const bool success = trkWriteRawMessage(message);
+            m_queue.notifyWriteResult(success);
+        }
+        m_dataMutex.unlock();
+    }
+}
+
+void WriterThread::terminate()
+{
+    m_terminate = true;
+    m_waitCondition.wakeAll();
+    wait();
+}
+
+bool WriterThread::write(const QByteArray &data, QString *errorMessage)
+{
+#ifdef Q_OS_WIN
+    DWORD charsWritten;
+    if (!WriteFile(m_context->device, data.data(), data.size(), &charsWritten, NULL)) {
+        *errorMessage = QString::fromLatin1("Error writing data: %1").arg(winErrorMessage(GetLastError()));
+        return false;
+    }
+    FlushFileBuffers(m_context->device);
+    return true;
+#else
+    if (m_context->file.write(data) == -1 || !m_context->file.flush()) {
+        *errorMessage = QString::fromLatin1("Cannot write: %1").arg(m_context->file.errorString());
+        return false;
+    }
+    return  true;
+#endif
+}
+
+bool WriterThread::trkWriteRawMessage(const TrkMessage &msg)
+{
+    const QByteArray ba = frameMessage(msg.code, msg.token, msg.data, m_context->serialFrame);
+    QString errorMessage;
+    const bool rc = write(ba, &errorMessage);
+    if (!rc)
+        emit error(errorMessage);
+    return rc;
+}
+
+void WriterThread::tryWrite()
+{
+    m_waitCondition.wakeAll();
+}
+
+void WriterThread::queueTrkMessage(byte code, TrkCallback callback,
+                                   const QByteArray &data, const QVariant &cookie)
+{
+    m_dataMutex.lock();
+    m_queue.queueTrkMessage(code, callback, data, cookie);
+    m_dataMutex.unlock();
+    tryWrite();
+}
+
+void WriterThread::queueTrkInitialPing()
+{
+    m_dataMutex.lock();
+    m_queue.queueTrkInitialPing();
+    m_dataMutex.unlock();
+    tryWrite();
+}
+
+// Call this from the device read notification with the results.
+void WriterThread::slotHandleResult(const TrkResult &result)
+{
+    m_queue.slotHandleResult(result);
+    tryWrite(); // Have messages been enqueued in-between?
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -263,18 +424,12 @@ struct TrkDevicePrivate
 {
     TrkDevicePrivate();
 
-    TrkWriteQueue queue;
-#ifdef Q_OS_WIN
-    HANDLE hdevice;
-#else
-    QFile file;
-#endif
+    QSharedPointer<DeviceContext> deviceContext;
+    QSharedPointer<WriterThread> writerThread;
 
     QByteArray trkReadBuffer;
-    bool m_trkWriteBusy;
     int timerId;
-    bool serialFrame;
-    bool verbose;
+    int verbose;
     QString errorString;
 };
 
@@ -285,13 +440,9 @@ struct TrkDevicePrivate
 ///////////////////////////////////////////////////////////////////////
 
 TrkDevicePrivate::TrkDevicePrivate() :
-#ifdef Q_OS_WIN
-    hdevice(INVALID_HANDLE_VALUE),
-#endif
-    m_trkWriteBusy(false),
+    deviceContext(new DeviceContext),
     timerId(-1),
-    serialFrame(true),
-    verbose(false)
+    verbose(0)
 {
 }
 
@@ -316,7 +467,7 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
 {
     close();
 #ifdef Q_OS_WIN
-    d->hdevice = CreateFile(port.toStdWString().c_str(),
+    d->deviceContext->device = CreateFile(port.toStdWString().c_str(),
                            GENERIC_READ | GENERIC_WRITE,
                            0,
                            NULL,
@@ -324,21 +475,19 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
                            FILE_ATTRIBUTE_NORMAL,
                            NULL);
 
-    if (INVALID_HANDLE_VALUE == d->hdevice) {
+    if (INVALID_HANDLE_VALUE == d->deviceContext->device) {
         *errorMessage = QString::fromLatin1("Could not open device '%1': %2").arg(port, winErrorMessage(GetLastError()));
         return false;
     }
-    d->timerId = startTimer(TimerInterval);
-    return true;
 #else
-    d->file.setFileName(port);
-    if (!d->file.open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
-        *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(port, d->file.errorString());
+    d->deviceContext->file.setFileName(port);
+    if (!d->deviceContext->file.open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
+        *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(port, d->deviceContext->file.errorString());
         return false;
     }
 
     struct termios termInfo;
-    if (tcgetattr(d->file.handle(), &termInfo) < 0) {
+    if (tcgetattr(d->deviceContext->file.handle(), &termInfo) < 0) {
         *errorMessage = QString::fromLatin1("Unable to retrieve terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno)));
         return false;
     }
@@ -353,13 +502,19 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
     termInfo.c_cc[VSTART] = _POSIX_VDISABLE;
     termInfo.c_cc[VSTOP] = _POSIX_VDISABLE;
     termInfo.c_cc[VSUSP] = _POSIX_VDISABLE;
-    if (tcsetattr(d->file.handle(), TCSAFLUSH, &termInfo) < 0) {
+    if (tcsetattr(d->deviceContext->file.handle(), TCSAFLUSH, &termInfo) < 0) {
         *errorMessage = QString::fromLatin1("Unable to apply terminal settings: %1 %2").arg(errno).arg(QString::fromAscii(strerror(errno)));
         return false;
     }
-    d->timerId = startTimer(TimerInterval);
-    return true;
 #endif
+    d->timerId = startTimer(TimerInterval);
+    d->writerThread = QSharedPointer<WriterThread>(new WriterThread(d->deviceContext));
+    connect(d->writerThread.data(), SIGNAL(error(QString)), this, SIGNAL(error(QString)),
+            Qt::QueuedConnection);
+    d->writerThread->start();
+    if (d->verbose)
+        qDebug() << "Opened" << port;
+    return true;
 }
 
 void TrkDevice::close()
@@ -371,21 +526,22 @@ void TrkDevice::close()
         d->timerId = -1;
     }
 #ifdef Q_OS_WIN
-    CloseHandle(d->hdevice);
-    d->hdevice = INVALID_HANDLE_VALUE;
+    CloseHandle(d->deviceContext->device);
+    d->deviceContext->device = INVALID_HANDLE_VALUE;
 #else
-    d->file.close();
+    d->deviceContext->file.close();
 #endif
-    if (verbose())
-        logMessage("Close");
+    d->writerThread->terminate();
+    if (d->verbose)
+        emitLogMessage("Close");
 }
 
 bool TrkDevice::isOpen() const
 {
 #ifdef Q_OS_WIN
-    return d->hdevice != INVALID_HANDLE_VALUE;
+    return d->deviceContext->device != INVALID_HANDLE_VALUE;
 #else
-    return d->file.isOpen();
+    return d->deviceContext->file.isOpen();
 #endif
 }
 
@@ -396,41 +552,22 @@ QString TrkDevice::errorString() const
 
 bool TrkDevice::serialFrame() const
 {
-    return d->serialFrame;
+    return d->deviceContext->serialFrame;
 }
 
 void TrkDevice::setSerialFrame(bool f)
 {
-    d->serialFrame = f;
+    d->deviceContext->serialFrame = f;
 }
 
-bool TrkDevice::verbose() const
+int TrkDevice::verbose() const
 {
-    return true || d->verbose;
+    return d->verbose;
 }
 
-void TrkDevice::setVerbose(bool b)
+void TrkDevice::setVerbose(int b)
 {
     d->verbose = b;
-}
-
-bool TrkDevice::write(const QByteArray &data, QString *errorMessage)
-{
-#ifdef Q_OS_WIN
-    DWORD charsWritten;
-    if (!WriteFile(d->hdevice, data.data(), data.size(), &charsWritten, NULL)) {
-        *errorMessage = QString::fromLatin1("Error writing data: %1").arg(winErrorMessage(GetLastError()));
-        return false;
-    }
-    FlushFileBuffers(d->hdevice);
-    return true;
-#else
-    if (d->file.write(data) == -1 || !d->file.flush()) {
-        *errorMessage = QString::fromLatin1("Cannot write: %1").arg(d->file.errorString());
-        return false;
-    }
-    return  true;
-#endif
 }
 
 #ifndef Q_OS_WIN
@@ -452,31 +589,31 @@ void TrkDevice::tryTrkRead()
     DWORD charsRead;
     DWORD totalCharsRead = 0;
 
-    while (TryReadFile(d->hdevice, buffer, BUFFERSIZE, &charsRead, NULL)) {
+    while (TryReadFile(d->deviceContext->device, buffer, BUFFERSIZE, &charsRead, NULL)) {
         totalCharsRead += charsRead;
         d->trkReadBuffer.append(buffer, charsRead);
-        if (isValidTrkResult(d->trkReadBuffer, d->serialFrame))
+        if (isValidTrkResult(d->trkReadBuffer, d->deviceContext->serialFrame))
             break;
     }
-    if (verbose() && totalCharsRead)
-        logMessage("Read" + d->trkReadBuffer.toHex());
+    if (d->verbose > 1 && totalCharsRead)
+        emitLogMessage("Read" + d->trkReadBuffer.toHex());
     if (!totalCharsRead)
         return;
-    const ushort len = isValidTrkResult(d->trkReadBuffer, d->serialFrame);
+    const ushort len = isValidTrkResult(d->trkReadBuffer, d->deviceContext->serialFrame);
     if (!len) {
         const QString msg = QString::fromLatin1("Partial message: %1").arg(stringFromArray(d->trkReadBuffer));
         emitError(msg);
         return;
     }
 #else
-    const int size = bytesAvailable(d->file.handle());
+    const int size = bytesAvailable(d->deviceContext->file.handle());
     if (!size)
         return;
-    const QByteArray data = d->file.read(size);
-    if (verbose())
-        logMessage("trk: <- " + stringFromArray(data));
+    const QByteArray data = d->deviceContext->file.read(size);
+    if (d->verbose > 1)
+        emitLogMessage("trk: <- " + stringFromArray(data));
     d->trkReadBuffer.append(data);
-    const ushort len = isValidTrkResult(d->trkReadBuffer, d->serialFrame);
+    const ushort len = isValidTrkResult(d->trkReadBuffer, d->deviceContext->serialFrame);
     if (!len) {
         if (d->trkReadBuffer.size() > 10) {
             const QString msg = QString::fromLatin1("Unable to extract message from '%1' '%2'").
@@ -488,10 +625,10 @@ void TrkDevice::tryTrkRead()
 #endif // Q_OS_WIN
     TrkResult r;
     QByteArray rawData;
-    while (extractResult(&d->trkReadBuffer, d->serialFrame, &r, &rawData)) {
-        //if (verbose())
-        //    logMessage("Read TrkResult " + r.data.toHex());
-        d->queue.slotHandleResult(r);
+    while (extractResult(&d->trkReadBuffer, d->deviceContext->serialFrame, &r, &rawData)) {
+        if (d->verbose > 1)
+            emitLogMessage("Read TrkResult " + r.data.toHex());
+        d->writerThread->slotHandleResult(r);
         emit messageReceived(r);
         if (!rawData.isEmpty())
             emit rawDataReceived(rawData);
@@ -500,7 +637,6 @@ void TrkDevice::tryTrkRead()
 
 void TrkDevice::timerEvent(QTimerEvent *)
 {
-    tryTrkWrite();
     tryTrkRead();
 }
 
@@ -514,44 +650,35 @@ void TrkDevice::emitError(const QString &s)
 void TrkDevice::sendTrkMessage(byte code, TrkCallback callback,
      const QByteArray &data, const QVariant &cookie)
 {
-    d->queue.queueTrkMessage(code, callback, data, cookie);
+    if (!d->writerThread.isNull())
+        d->writerThread->queueTrkMessage(code, callback, data, cookie);
 }
 
 void TrkDevice::sendTrkInitialPing()
 {
-    d->queue.queueTrkInitialPing();
+    if (!d->writerThread.isNull())
+        d->writerThread->queueTrkInitialPing();
 }
 
 bool TrkDevice::sendTrkAck(byte token)
 {
+    if (d->writerThread.isNull())
+        return false;
     // The acknowledgement must not be queued!
     TrkMessage msg(0x80, token);
     msg.token = token;
     msg.data.append('\0');
-    return trkWriteRawMessage(msg);
+    return d->writerThread->trkWriteRawMessage(msg);
     // 01 90 00 07 7e 80 01 00 7d 5e 7e
 }
 
-void TrkDevice::tryTrkWrite()
+void TrkDevice::emitLogMessage(const QString &msg)
 {
-    TrkMessage message;
-    if (!d->queue.pendingMessage(&message))
-        return;
-    const bool success = trkWriteRawMessage(message);
-    d->queue.notifyWriteResult(success);
-}
-
-bool TrkDevice::trkWriteRawMessage(const TrkMessage &msg)
-{
-    const QByteArray ba = frameMessage(msg.code, msg.token, msg.data, serialFrame());
-    if (verbose())
-         logMessage("trk: -> " + stringFromArray(ba));
-    QString errorMessage;
-    const bool rc = write(ba, &errorMessage);
-    if (!rc)
-        emitError(errorMessage);
-    return rc;
+    if (d->verbose)
+        qDebug("%s\n", qPrintable(msg));
+    emit logMessage(msg);
 }
 
 } // namespace trk
 
+#include "trkdevice.moc"

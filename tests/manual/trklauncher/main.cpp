@@ -13,9 +13,9 @@ static const char *usageC =
 "\nRemote launch:\n"
 "%1 COM5 C:\\sys\\bin\\test.exe\n"
 "\nInstallation and remote launch:\n"
-"%1 COM5 -i C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe\n"
+"%1 -i COM5 C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe\n"
 "\nCopy from local file, installation and remote launch:\n"
-"%1 COM5 -I C:\\Projects\\test\\test_gcce_udeb.sisx C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe\n";
+"%1 -I COM5 C:\\Projects\\test\\test_gcce_udeb.sisx C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe\n";
 
 static void usage()
 {

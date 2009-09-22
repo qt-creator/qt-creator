@@ -138,7 +138,7 @@ bool Launcher::startServer(QString *errorMessage)
 void Launcher::setVerbose(int v)
 {
     d->m_verbose = v;
-    d->m_device.setVerbose(v > 1);
+    d->m_device.setVerbose(v);
 }
 
 void Launcher::installAndRun()
