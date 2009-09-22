@@ -46,6 +46,7 @@
 
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/LookupContext.h>
+#include <cplusplus/MatchingText.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TokenUnderCursor.h>
@@ -1510,11 +1511,14 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                         if (endWithSemicolon)
                             extraChars += QLatin1Char(';');
                     } else if (autoParenthesesEnabled) {
-                        extraChars += QLatin1Char(')');
-                        --cursorOffset;
-                        if (endWithSemicolon) {
-                            extraChars += QLatin1Char(';');
+                        const QChar lookAhead = m_editor->characterAt(m_editor->position() + 1);
+                        if (MatchingText::shouldInsertMatchingText(lookAhead)) {
+                            extraChars += QLatin1Char(')');
                             --cursorOffset;
+                            if (endWithSemicolon) {
+                                extraChars += QLatin1Char(';');
+                                --cursorOffset;
+                            }
                         }
                     }
                 }

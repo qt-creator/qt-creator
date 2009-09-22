@@ -1862,5 +1862,3 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
 
     return semanticInfo;
 }
-
-
