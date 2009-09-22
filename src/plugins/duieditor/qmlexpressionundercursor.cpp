@@ -9,12 +9,20 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 
 QmlExpressionUnderCursor::QmlExpressionUnderCursor()
+    : _expressionNode(0),
+      _pos(0)
 {
 }
 
-void QmlExpressionUnderCursor::operator()(const QTextCursor &cursor)
+void QmlExpressionUnderCursor::operator()(const QTextCursor &cursor,
+                                          QmlJS::AST::UiProgram *program)
 {
     _pos = cursor.position();
+    _expressionNode = 0;
+    _scopes.clear();
+
+    if (program)
+        program->accept(this);
 }
 
 bool QmlExpressionUnderCursor::visit(QmlJS::AST::Block *ast)

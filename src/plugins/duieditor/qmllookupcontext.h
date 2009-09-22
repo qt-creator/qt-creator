@@ -17,6 +17,10 @@ public:
                      const DuiDocument::Ptr &doc,
                      const Snapshot &snapshot);
 
+    typedef QmlJS::AST::Node Symbol; // ### FIXME: this needs to be a class.
+
+    Symbol *resolve(const QString &name) const;
+
 private:
     QStack<QmlJS::AST::Node *> _scopes;
     QmlJS::AST::Node *_expressionNode;

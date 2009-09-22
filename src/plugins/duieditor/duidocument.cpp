@@ -78,6 +78,11 @@ QList<DiagnosticMessage> DuiDocument::diagnosticMessages() const
     return _diagnosticMessages;
 }
 
+QString DuiDocument::source() const
+{
+    return _source;
+}
+
 void DuiDocument::setSource(const QString &source)
 {
     _source = source;
@@ -129,9 +134,7 @@ DuiDocument::PtrList Snapshot::importedDocuments(const DuiDocument::Ptr &doc, co
 
     const QString docPath = doc->path() + '/' + importPath;
 
-    for (Iterator i = iterator(); i.hasNext();) {
-        DuiDocument::Ptr candidate = i.next().value();
-
+    foreach (DuiDocument::Ptr candidate, *this) {
         if (candidate == doc)
             continue;
 
@@ -148,9 +151,7 @@ QMap<QString, DuiDocument::Ptr> Snapshot::componentsDefinedByImportedDocuments(c
 
     const QString docPath = doc->path() + '/' + importPath;
 
-    for (Iterator i = iterator(); i.hasNext();) {
-        DuiDocument::Ptr candidate = i.next().value();
-
+    foreach (DuiDocument::Ptr candidate, *this) {
         if (candidate == doc)
             continue;
 

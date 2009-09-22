@@ -14,7 +14,7 @@ class QmlExpressionUnderCursor: protected QmlJS::AST::Visitor
 public:
     QmlExpressionUnderCursor();
 
-    void operator()(const QTextCursor &cursor);
+    void operator()(const QTextCursor &cursor, QmlJS::AST::UiProgram *program);
 
     QStack<QmlJS::AST::Node *> expressionScopes() const
     { return _expressionScopes; }
@@ -36,7 +36,6 @@ private:
     QStack<QmlJS::AST::Node *> _scopes;
     QStack<QmlJS::AST::Node *> _expressionScopes;
     QmlJS::AST::Node *_expressionNode;
-
     quint32 _pos;
 };
 

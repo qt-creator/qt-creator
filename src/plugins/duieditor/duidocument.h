@@ -45,23 +45,25 @@ namespace DuiEditor {
 class DUIEDITOR_EXPORT DuiDocument
 {
 public:
-	typedef QSharedPointer<DuiDocument> Ptr;
+    typedef QSharedPointer<DuiDocument> Ptr;
     typedef QList<DuiDocument::Ptr> PtrList;
     typedef QMap<QString, QPair<QmlJS::AST::SourceLocation, QmlJS::AST::Node*> > IdTable;
 
 protected:
-	DuiDocument(const QString &fileName);
+    DuiDocument(const QString &fileName);
 
 public:
-	~DuiDocument();
+    ~DuiDocument();
 
-	static DuiDocument::Ptr create(const QString &fileName);
+    static DuiDocument::Ptr create(const QString &fileName);
 
-	QmlJS::AST::UiProgram *program() const;
-	QList<QmlJS::DiagnosticMessage> diagnosticMessages() const;
+    QmlJS::AST::UiProgram *program() const;
+    QList<QmlJS::DiagnosticMessage> diagnosticMessages() const;
 
-	void setSource(const QString &source);
-	bool parse();
+    QString source() const;
+    void setSource(const QString &source);
+
+    bool parse();
 
     bool isParsedCorrectly() const
     { return _parsedCorrectly; }
@@ -73,29 +75,25 @@ public:
     QString componentName() const { return _componentName; }
 
 private:
-	QmlJS::Engine *_engine;
-	QmlJS::NodePool *_pool;
-	QmlJS::AST::UiProgram *_program;
-	QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
-	QString _fileName;
+    QmlJS::Engine *_engine;
+    QmlJS::NodePool *_pool;
+    QmlJS::AST::UiProgram *_program;
+    QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
+    QString _fileName;
     QString _path;
     QString _componentName;
-	QString _source;
+    QString _source;
     bool _parsedCorrectly;
     IdTable _ids;
 };
 
-class DUIEDITOR_EXPORT Snapshot: protected QMap<QString, DuiDocument::Ptr>
+class DUIEDITOR_EXPORT Snapshot: public QMap<QString, DuiDocument::Ptr>
 {
 public:
-	Snapshot();
-	~Snapshot();
+    Snapshot();
+    ~Snapshot();
 
     void insert(const DuiDocument::Ptr &document);
-
-    typedef QMapIterator<QString, DuiDocument::Ptr> Iterator;
-    Iterator iterator() const
-    { return Iterator(*this); }
 
     DuiDocument::Ptr document(const QString &fileName) const
     { return value(fileName); }

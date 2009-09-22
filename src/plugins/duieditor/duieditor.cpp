@@ -37,7 +37,9 @@
 #include "qmljsastvisitor_p.h"
 #include "qmljsast_p.h"
 #include "qmljsengine_p.h"
-
+#include "qmlexpressionundercursor.h"
+#include "qmllookupcontext.h"
+#include "resolveqmlexpression.h"
 #include "rewriter_p.h"
 
 #include "idcollector.h"
@@ -714,16 +716,32 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
     if (!doc)
         return link;
 
-    NavigationTokenFinder finder;
-    finder(doc, cursor.position(), snapshot);
-    if (finder.targetFound()) {
-        link.fileName = finder.fileName();
-        link.pos = finder.linkPosition();
-        link.length = finder.linkLength();
+//    NavigationTokenFinder finder;
+//    finder(doc, cursor.position(), snapshot);
+//    if (finder.targetFound()) {
+//        link.fileName = finder.fileName();
+//        link.pos = finder.linkPosition();
+//        link.length = finder.linkLength();
+//
+//        if (resolveTarget) {
+//            link.line = finder.targetLine();
+//            link.column = finder.targetColumn() - 1;
+//        }
+//    }
 
-        if (resolveTarget) {
-            link.line = finder.targetLine();
-            link.column = finder.targetColumn() - 1;
+    QmlExpressionUnderCursor expressionUnderCursor;
+    expressionUnderCursor(cursor, doc->program());
+
+    QmlLookupContext context(expressionUnderCursor.expressionScopes(),
+                             expressionUnderCursor.expressionNode(),
+                             doc, snapshot);
+
+    ResolveQmlExpression resolve(context);
+    if (QmlLookupContext::Symbol *symbol = resolve(expressionUnderCursor.expressionNode())) {
+        if (UiObjectMember *member = static_cast<UiObjectMember *>(symbol)) { // ### FIXME: don't use static_cast<>
+            const int begin = member->firstSourceLocation().begin();
+            const int end = member->lastSourceLocation().end();
+            qDebug() << doc->source().mid(begin, end - begin);
         }
     }
 
