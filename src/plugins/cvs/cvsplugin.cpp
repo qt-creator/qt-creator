@@ -58,9 +58,9 @@
 #include <QtCore/QDate>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryFile>
 #include <QtCore/QTextCodec>
 #include <QtCore/QtPlugin>
+#include <QtCore/QTemporaryFile>
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
@@ -151,7 +151,6 @@ CVSPlugin *CVSPlugin::m_cvsPluginInstance = 0;
 
 CVSPlugin::CVSPlugin() :
     m_versionControl(0),
-    m_changeTmpFile(0),
     m_projectExplorer(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -174,17 +173,19 @@ CVSPlugin::CVSPlugin() :
 
 CVSPlugin::~CVSPlugin()
 {
-    cleanChangeTmpFile();
+    cleanCommitMessageFile();
 }
 
-void CVSPlugin::cleanChangeTmpFile()
+void CVSPlugin::cleanCommitMessageFile()
 {
-    if (m_changeTmpFile) {
-        if (m_changeTmpFile->isOpen())
-            m_changeTmpFile->close();
-        delete m_changeTmpFile;
-        m_changeTmpFile = 0;
+    if (!m_commitMessageFileName.isEmpty()) {
+        QFile::remove(m_commitMessageFileName);
+        m_commitMessageFileName.clear();
     }
+}
+bool CVSPlugin::isCommitEditorOpen() const
+{
+    return !m_commitMessageFileName.isEmpty();
 }
 
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
@@ -383,7 +384,7 @@ void CVSPlugin::extensionsInitialized()
 
 bool CVSPlugin::editorAboutToClose(Core::IEditor *iEditor)
 {
-    if (!m_changeTmpFile || !iEditor || qstrcmp(Constants::CVSCOMMITEDITOR, iEditor->kind()))
+    if (!iEditor || !isCommitEditorOpen() || qstrcmp(Constants::CVSCOMMITEDITOR, iEditor->kind()))
         return true;
 
     Core::IFile *fileIFace = iEditor->file();
@@ -394,7 +395,7 @@ bool CVSPlugin::editorAboutToClose(Core::IEditor *iEditor)
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
     const QFileInfo editorFile(fileIFace->fileName());
-    const QFileInfo changeFile(m_changeTmpFile->fileName());
+    const QFileInfo changeFile(m_commitMessageFileName);
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!
 
@@ -411,7 +412,7 @@ bool CVSPlugin::editorAboutToClose(Core::IEditor *iEditor)
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
     case VCSBase::VCSBaseSubmitEditor::SubmitDiscarded:
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
         return true; // Cancel all
     default:
         break;
@@ -424,10 +425,10 @@ bool CVSPlugin::editorAboutToClose(Core::IEditor *iEditor)
         Core::ICore::instance()->fileManager()->blockFileChange(fileIFace);
         fileIFace->save();
         Core::ICore::instance()->fileManager()->unblockFileChange(fileIFace);
-        closeEditor= commit(m_changeTmpFile->fileName(), fileList);
+        closeEditor= commit(m_commitMessageFileName, fileList);
     }
     if (closeEditor)
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
     return closeEditor;
 }
 
@@ -639,7 +640,7 @@ void CVSPlugin::startCommit(const QString &source)
         return;
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
-    if (m_changeTmpFile) {
+    if (isCommitEditorOpen()) {
         VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Another commit is currently being executed."));
         return;
     }
@@ -674,22 +675,21 @@ void CVSPlugin::startCommit(const QString &source)
     }
 
     // Create a new submit change file containing the submit template
-    QTemporaryFile *changeTmpFile = new QTemporaryFile(this);
-    changeTmpFile->setAutoRemove(true);
-    if (!changeTmpFile->open()) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file: %1").arg(changeTmpFile->errorString()));
-        delete changeTmpFile;
+    QTemporaryFile changeTmpFile;
+    changeTmpFile.setAutoRemove(false);
+    if (!changeTmpFile.open()) {
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file: %1").arg(changeTmpFile.errorString()));
         return;
     }
-    m_changeTmpFile = changeTmpFile;
     // TODO: Retrieve submit template from
     const QString submitTemplate;
+    m_commitMessageFileName = changeTmpFile.fileName();
     // Create a submit
-    m_changeTmpFile->write(submitTemplate.toUtf8());
-    m_changeTmpFile->flush();
-    m_changeTmpFile->close();
+    changeTmpFile.write(submitTemplate.toUtf8());
+    changeTmpFile.flush();
+    changeTmpFile.close();
     // Create a submit editor and set file list
-    CVSSubmitEditor *editor = openCVSSubmitEditor(m_changeTmpFile->fileName());
+    CVSSubmitEditor *editor = openCVSSubmitEditor(m_commitMessageFileName);
     editor->setStateList(statusOutput);
 }
 

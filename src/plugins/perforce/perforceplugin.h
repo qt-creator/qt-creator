@@ -45,7 +45,6 @@
 QT_BEGIN_NAMESPACE
 class QFile;
 class QAction;
-class QTemporaryFile;
 class QTextCodec;
 QT_END_NAMESPACE
 
@@ -162,7 +161,9 @@ private:
     bool checkP4Configuration(QString *errorMessage = 0) const;
     void annotate(const QString &fileName);
     void filelog(const QString &fileName);
-    void cleanChangeTmpFile();
+    void cleanCommitMessageFile();
+    bool isCommitEditorOpen() const;
+
     void updateCheckout(const QStringList &dirs = QStringList());
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
@@ -188,11 +189,11 @@ private:
     QAction *m_updateAllAction;
     bool m_submitActionTriggered;
     QAction *m_diffSelectedFiles;
+    QString m_commitMessageFileName;
 
     QAction *m_undoAction;
     QAction *m_redoAction;
 
-    QTemporaryFile *m_changeTmpFile;
 
     static PerforcePlugin *m_perforcePluginInstance;
     QString pendingChangesData();

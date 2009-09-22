@@ -141,7 +141,6 @@ GitPlugin::GitPlugin() :
     m_projectExplorer(0),
     m_gitClient(0),
     m_changeSelectionDialog(0),
-    m_changeTmpFile(0),
     m_submitActionTriggered(false)
 {
     m_instance = this;
@@ -149,17 +148,22 @@ GitPlugin::GitPlugin() :
 
 GitPlugin::~GitPlugin()
 {
-    cleanChangeTmpFile();
+    cleanCommitMessageFile();
     delete m_gitClient;
     m_instance = 0;
 }
 
-void GitPlugin::cleanChangeTmpFile()
+void GitPlugin::cleanCommitMessageFile()
 {
-    if (m_changeTmpFile) {
-        delete m_changeTmpFile;
-        m_changeTmpFile = 0;
+    if (!m_commitMessageFileName.isEmpty()) {
+        QFile::remove(m_commitMessageFileName);
+        m_commitMessageFileName.clear();
     }
+}
+
+bool GitPlugin::isCommitEditorOpen() const
+{
+    return !m_commitMessageFileName.isEmpty();
 }
 
 GitPlugin *GitPlugin::instance()
@@ -555,7 +559,7 @@ void GitPlugin::startCommit()
 {
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
-    if (m_changeTmpFile) {
+    if (isCommitEditorOpen()) {
         VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Another submit is currently being executed."));
         return;
     }
@@ -583,20 +587,19 @@ void GitPlugin::startCommit()
         qDebug() << Q_FUNC_INFO << data << commitTemplate;
 
     // Start new temp file with message template
-    QTemporaryFile *changeTmpFile = new QTemporaryFile(this);
-    changeTmpFile->setAutoRemove(true);
-    if (!changeTmpFile->open()) {
-        VCSBase::VCSBaseOutputWindow::instance()->append(tr("Cannot create temporary file: %1").arg(changeTmpFile->errorString()));
-        delete changeTmpFile;
+    QTemporaryFile changeTmpFile;
+    changeTmpFile.setAutoRemove(false);
+    if (!changeTmpFile.open()) {
+        VCSBase::VCSBaseOutputWindow::instance()->append(tr("Cannot create temporary file: %1").arg(changeTmpFile.errorString()));
         return;
     }
-    m_changeTmpFile = changeTmpFile;
-    m_changeTmpFile->write(commitTemplate.toLocal8Bit());
-    m_changeTmpFile->flush();    
+    m_commitMessageFileName = changeTmpFile.fileName();
+    changeTmpFile.write(commitTemplate.toLocal8Bit());
+    changeTmpFile.flush();
     // Keep the file alive, else it removes self and forgets
     // its name
-    m_changeTmpFile->close();
-    openSubmitEditor(m_changeTmpFile->fileName(), data);
+    changeTmpFile.close();
+    openSubmitEditor(m_commitMessageFileName, data);
 }
 
 Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd)
@@ -627,7 +630,7 @@ void GitPlugin::submitCurrentLog()
 bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
 {
     // Closing a submit editor?
-    if (!m_changeTmpFile || !iEditor || qstrcmp(iEditor->kind(), Constants::GITSUBMITEDITOR_KIND))
+    if (!iEditor || !isCommitEditorOpen() || qstrcmp(iEditor->kind(), Constants::GITSUBMITEDITOR_KIND))
         return true;
     Core::IFile *fileIFace = iEditor->file();
     const GitSubmitEditor *editor = qobject_cast<GitSubmitEditor *>(iEditor);
@@ -636,7 +639,7 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
     const QFileInfo editorFile(fileIFace->fileName());
-    const QFileInfo changeFile(m_changeTmpFile->fileName());
+    const QFileInfo changeFile(m_commitMessageFileName);
     // Paranoia!
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true;
@@ -654,7 +657,7 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
     case VCSBase::VCSBaseSubmitEditor::SubmitDiscarded:
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
         return true; // Cancel all
     default:
         break;
@@ -674,13 +677,13 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
 
         closeEditor = m_gitClient->addAndCommit(m_submitRepository,
                                                 editor->panelData(),
-                                                m_changeTmpFile->fileName(),
+                                                m_commitMessageFileName,
                                                 fileList,
                                                 m_submitOrigCommitFiles,
                                                 m_submitOrigDeleteFiles);
     }
     if (closeEditor)
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
     return closeEditor;
 }
 

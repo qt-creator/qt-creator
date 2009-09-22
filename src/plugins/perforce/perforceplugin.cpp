@@ -189,7 +189,6 @@ PerforcePlugin::PerforcePlugin() :
     m_diffSelectedFiles(0),
     m_undoAction(0),
     m_redoAction(0),
-    m_changeTmpFile(0),
     m_versionControl(0)
 {
 }
@@ -547,28 +546,29 @@ void PerforcePlugin::submit()
         return;
     }
 
-    if (m_changeTmpFile) {
+    if (isCommitEditorOpen()) {
         VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Another submit is currently executed."));
         return;
     }
 
-    m_changeTmpFile = new QTemporaryFile(this);
-    m_changeTmpFile->setAutoRemove(true);
-    if (!m_changeTmpFile->open()) {
+    QTemporaryFile changeTmpFile;
+    changeTmpFile.setAutoRemove(false);
+    if (!changeTmpFile.open()) {
         VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file."));
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
         return;
     }
 
     PerforceResponse result = runP4Cmd(QStringList()<< QLatin1String("change") << QLatin1String("-o"), QStringList(),
                                        CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (result.error) {
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
         return;
     }
 
-    m_changeTmpFile->write(result.stdOut.toAscii());
-    m_changeTmpFile->close();
+    m_commitMessageFileName = changeTmpFile.fileName();
+    changeTmpFile.write(result.stdOut.toAscii());
+    changeTmpFile.close();
 
     // Assemble file list of project
     QString name;
@@ -576,7 +576,7 @@ void PerforcePlugin::submit()
     PerforceResponse result2 = runP4Cmd(QStringList(QLatin1String("fstat")), nativeFiles,
                                         CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (result2.error) {
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
         return;
     }
 
@@ -588,11 +588,11 @@ void PerforcePlugin::submit()
     }
     if (depotFileNames.isEmpty()) {
         VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Project has no files"));
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
         return;
     }
 
-    openPerforceSubmitEditor(m_changeTmpFile->fileName(), depotFileNames);
+    openPerforceSubmitEditor(m_commitMessageFileName, depotFileNames);
 }
 
 Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames)
@@ -983,19 +983,22 @@ void PerforcePlugin::submitCurrentLog()
     em->closeEditors(QList<Core::IEditor*>() << em->currentEditor());
 }
 
-void PerforcePlugin::cleanChangeTmpFile()
+void PerforcePlugin::cleanCommitMessageFile()
 {
-    if (m_changeTmpFile) {
-        if (m_changeTmpFile->isOpen())
-            m_changeTmpFile->close();
-        delete m_changeTmpFile;
-        m_changeTmpFile = 0;
+    if (!m_commitMessageFileName.isEmpty()) {
+        QFile::remove(m_commitMessageFileName);
+        m_commitMessageFileName.clear();
     }
+}
+
+bool PerforcePlugin::isCommitEditorOpen() const
+{
+    return !m_commitMessageFileName.isEmpty();
 }
 
 bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
 {
-    if (!m_changeTmpFile || !editor)
+    if (!editor || !isCommitEditorOpen())
         return true;
     Core::ICore *core = Core::ICore::instance();
     Core::IFile *fileIFace = editor->file();
@@ -1005,7 +1008,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
     if (!perforceEditor)
         return true;
     QFileInfo editorFile(fileIFace->fileName());
-    QFileInfo changeFile(m_changeTmpFile->fileName());
+    QFileInfo changeFile(m_commitMessageFileName);
     if (editorFile.absoluteFilePath() == changeFile.absoluteFilePath()) {
         // Prompt the user. Force a prompt unless submit was actually invoked (that
         // is, the editor was closed or shutdown).
@@ -1029,12 +1032,13 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
         fileIFace->save();
         core->fileManager()->unblockFileChange(fileIFace);
         if (answer == VCSBase::VCSBaseSubmitEditor::SubmitConfirmed) {
-            if (!m_changeTmpFile->open()) {
+            QFile commitMessageFile(m_commitMessageFileName);
+            if (!commitMessageFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
                 VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot open temporary file."));
                 return false;
             }
-            QByteArray change = m_changeTmpFile->readAll();
-            m_changeTmpFile->close();
+            QByteArray change = commitMessageFile.readAll();
+            commitMessageFile.close();
             QString errorMessage;
             if (!checkP4Configuration(&errorMessage)) {
                 VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
@@ -1074,7 +1078,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             }
             QApplication::restoreOverrideCursor();
         }
-        cleanChangeTmpFile();
+        cleanCommitMessageFile();
     }
     return true;
 }
