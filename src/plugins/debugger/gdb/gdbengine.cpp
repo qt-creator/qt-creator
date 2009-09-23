@@ -1659,7 +1659,7 @@ void GdbEngine::nextExec()
     if (qq->isReverseDebugging())
         postCommand(_("-reverse-next"), CB(handleExecContinue));
     else {
-#if 0
+#if 1
         postCommand(_("-exec-next"), CB(handleExecContinue));
 #else
         postCommand(_("tbreak %1:%2").arg(QFileInfo(lastFile).fileName())
