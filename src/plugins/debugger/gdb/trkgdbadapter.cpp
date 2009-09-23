@@ -240,7 +240,7 @@ void TrkGdbAdapter::startInferiorEarly()
     if (!m_trkDevice.open(device, &errorMessage)) {
         logMessage(QString::fromLatin1("Waiting on %1 (%2)").arg(device, errorMessage));
         // Do not loop forever
-        if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 60 : 5)) {
+        if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 3 : 5)) {
             QTimer::singleShot(1000, this, SLOT(startInferiorEarly()));
         } else {
             QString msg = QString::fromLatin1("Failed to connect to %1 after "

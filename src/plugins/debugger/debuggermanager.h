@@ -43,6 +43,7 @@ class QAction;
 class QAbstractItemModel;
 class QDockWidget;
 class QLabel;
+class QMessageBox;
 class QModelIndex;
 class QPoint;
 class QTimer;
@@ -183,12 +184,10 @@ enum DebuggerEngineTypeFlags
     ScriptEngineType  = 0x02,
     CdbEngineType     = 0x04,
     TcfEngineType     = 0x08,
-    SymbianEngineType = 0x10,
     AllEngineTypes = GdbEngineType
         | ScriptEngineType 
         | CdbEngineType 
         | TcfEngineType
-        | SymbianEngineType
 };
 
 // The construct below is not nice but enforces a bit of order. The
@@ -278,6 +277,8 @@ public:
 
     virtual DebuggerStartParametersPtr startParameters() const;
     virtual qint64 inferiorPid() const;
+
+    void showMessageBox(int icon, const QString &title, const QString &text);
 
 public slots:
     void startNewDebugger(const DebuggerStartParametersPtr &sp);

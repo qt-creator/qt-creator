@@ -101,9 +101,8 @@ IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPa
 namespace Debugger {
 namespace Internal {
 
-IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
 
-IDebuggerEngine *createSymbianEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 
 QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
 {
@@ -185,7 +184,6 @@ void DebuggerStartParameters::clear()
 
 static IDebuggerEngine *gdbEngine = 0;
 static IDebuggerEngine *scriptEngine = 0;
-static IDebuggerEngine *symbianEngine = 0;
 static IDebuggerEngine *tcfEngine = 0;
 static IDebuggerEngine *winEngine = 0;
 
@@ -201,7 +199,6 @@ DebuggerManager::~DebuggerManager()
     #define doDelete(ptr) delete ptr; ptr = 0
     doDelete(gdbEngine);
     doDelete(scriptEngine);
-    doDelete(symbianEngine);
     doDelete(tcfEngine);
     doDelete(winEngine);
     #undef doDelete
@@ -446,10 +443,10 @@ void DebuggerManager::init()
 QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTypeFlags)
 {
     QList<Core::IOptionsPage*> rc;
-    if (enabledTypeFlags & GdbEngineType)
-        gdbEngine = createGdbEngine(this, &rc);
-    if (enabledTypeFlags & SymbianEngineType)
-        symbianEngine = createSymbianEngine(this, &rc);
+    if (enabledTypeFlags & GdbEngineType) {
+        gdbEngine = createGdbEngine(this);
+        gdbEngine->addOptionPages(&rc);
+    }
     winEngine = createWinEngine(this, (enabledTypeFlags & CdbEngineType), &rc);
     if (enabledTypeFlags & ScriptEngineType)
         scriptEngine = createScriptEngine(this, &rc);
@@ -565,7 +562,7 @@ void DebuggerManager::notifyInferiorRunning()
 void DebuggerManager::notifyInferiorExited()
 {
     setStatus(DebuggerProcessNotReady);
-    showStatusMessage(tr("Stopped."), 5000);
+    showStatusMessage(tr("Exited."), 5000);
 }
 
 void DebuggerManager::notifyInferiorPidChanged(qint64 pid)
@@ -744,13 +741,15 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
         return scriptEngine;
     }
 
+/*
     if (executable.endsWith(_(".sym"))) {
-        if (!symbianEngine) {
-            *errorMessage = msgEngineNotAvailable("Symbian Engine");
+        if (!gdbEngine) {
+            *errorMessage = msgEngineNotAvailable("Gdb Engine");
             return 0;
         }
-        return symbianEngine;
+        return gdbEngine;
     }
+*/
 
     if (IDebuggerEngine *tce = debuggerEngineForToolChain(
             static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
@@ -1114,7 +1113,7 @@ void DebuggerManager::setStatus(int status)
     if (status == m_status)
         return;
 
-    if (0 && !isAllowedTransition(m_status, status)) {
+    if (1 && !isAllowedTransition(m_status, status)) {
         const QString msg = QString::fromLatin1("%1: UNEXPECTED TRANSITION: %2 -> %3")
             .arg(_(Q_FUNC_INFO), _(stateName(m_status)), _(stateName(status)));
         qWarning("%s", qPrintable(msg));
@@ -1155,7 +1154,8 @@ void DebuggerManager::setStatus(int status)
     m_runToFunctionAction->setEnabled(ready);
     m_jumpToLineAction->setEnabled(ready);
     m_nextAction->setEnabled(ready);
-    //showStatusMessage(QString("started: %1, running: %2").arg(started).arg(running));
+    //showStatusMessage(QString("started: %1, running: %2")
+    // .arg(started).arg(running));
     emit statusChanged(m_status);
     const bool notbusy = ready || status == DebuggerProcessNotReady;
     setBusyCursor(!notbusy);
@@ -1465,6 +1465,15 @@ QVariant DebuggerManager::sessionValue(const QString &name)
 void DebuggerManager::setSessionValue(const QString &name, const QVariant &value)
 {
     emit setSessionValueRequested(name, value);
+}
+
+void DebuggerManager::showMessageBox(int icon,
+    const QString &title, const QString &text)
+{
+    QMessageBox *mb = new QMessageBox(QMessageBox::Icon(icon),
+        title, text, QMessageBox::NoButton, mainWindow());
+    mb->setAttribute(Qt::WA_DeleteOnClose);
+    mb->show();
 }
 
 //////////////////////////////////////////////////////////////////////

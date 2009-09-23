@@ -43,6 +43,10 @@ namespace TextEditor {
 class ITextEditor;
 }
 
+namespace Core {
+class IOptionsPage;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -104,6 +108,8 @@ public:
     virtual void fetchDisassembler(DisassemblerViewAgent *, const StackFrame &) {}
     virtual void setRegisterValue(int regnr, const QString &value)
         { Q_UNUSED(regnr); Q_UNUSED(value); }
+
+    virtual void addOptionPages(QList<Core::IOptionsPage*> *) const {}
 
 signals:
     void startSuccessful();
