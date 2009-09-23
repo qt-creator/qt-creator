@@ -199,22 +199,23 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
         Qt::QueuedConnection);
 }
 
-void GdbEngine::connectDebuggingHelperActions(bool on)
+void GdbEngine::connectDebuggingHelperActions()
 {
-    if (on) {
-        connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-                this, SLOT(setUseDebuggingHelpers(QVariant)));
-        connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-                this, SLOT(setDebugDebuggingHelpers(QVariant)));
-        connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
-                this, SLOT(recheckDebuggingHelperAvailability()));
-    } else {
-        disconnect(theDebuggerAction(UseDebuggingHelpers), 0, this, 0);
-        disconnect(theDebuggerAction(DebugDebuggingHelpers), 0, this, 0);
-        disconnect(theDebuggerAction(RecheckDebuggingHelpers), 0, this, 0);
-    }
+    connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+            this, SLOT(setUseDebuggingHelpers(QVariant)));
+    connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+            this, SLOT(setDebugDebuggingHelpers(QVariant)));
+    connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
+            this, SLOT(recheckDebuggingHelperAvailability()));
 }
    
+void GdbEngine::disconnectDebuggingHelperActions()
+{
+    disconnect(theDebuggerAction(UseDebuggingHelpers), 0, this, 0);
+    disconnect(theDebuggerAction(DebugDebuggingHelpers), 0, this, 0);
+    disconnect(theDebuggerAction(RecheckDebuggingHelpers), 0, this, 0);
+}
+
 DebuggerStartMode GdbEngine::startMode() const
 {
     QTC_ASSERT(!m_startParameters.isNull(), return NoStartMode);
@@ -1515,7 +1516,7 @@ void GdbEngine::detachDebugger()
 
 void GdbEngine::exitDebugger()
 {
-    connectDebuggingHelperActions(false);
+    disconnectDebuggingHelperActions();
     m_outputCollector.shutdown();
     initializeVariables();
     m_gdbAdapter->shutdown();
@@ -1536,7 +1537,7 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 
     m_startParameters = sp;
     if (startModeAllowsDumpers())
-        connectDebuggingHelperActions(true);
+        connectDebuggingHelperActions();
 
     if (m_gdbAdapter)
         disconnectAdapter();

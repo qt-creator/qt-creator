@@ -411,7 +411,8 @@ private:
     void setWatchDataType(WatchData &data, const GdbMi &mi);
     void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
     void setLocals(const QList<GdbMi> &locals);
-    void connectDebuggingHelperActions(bool on);
+    void connectDebuggingHelperActions();
+    void disconnectDebuggingHelperActions();
    
     bool startModeAllowsDumpers() const;
     QString parseDisassembler(const GdbMi &lines);
