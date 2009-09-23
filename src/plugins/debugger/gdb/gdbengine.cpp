@@ -33,9 +33,11 @@
 #include "gdboptionspage.h"
 #include "trkoptions.h"
 #include "trkoptionspage.h"
+
 #include "plaingdbadapter.h"
 #include "trkgdbadapter.h"
 #include "remotegdbadapter.h"
+#include "coregdbadapter.h"
 
 #include "watchutils.h"
 #include "debuggeractions.h"
@@ -178,7 +180,8 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
     options->fromSettings(Core::ICore::instance()->settings());
     m_plainAdapter = new PlainGdbAdapter(this);
     m_trkAdapter = new TrkGdbAdapter(this, options);
-    m_remoteAdapter = 0; // FIXME
+    m_remoteAdapter = new RemoteGdbAdapter(this);
+    m_coreAdapter = new CoreGdbAdapter(this);
 
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
@@ -228,6 +231,7 @@ GdbEngine::~GdbEngine()
     delete m_plainAdapter;
     delete m_trkAdapter;
     delete m_remoteAdapter;
+    delete m_coreAdapter;
 }
 
 void GdbEngine::connectAdapter()
@@ -900,7 +904,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
     m_gdbAdapter->write(command.toLatin1() + "\r\n");
 }
 
-void GdbEngine::handleTargetCore(const GdbResultRecord &, const QVariant &)
+void GdbEngine::handleTargetCore()
 {
     qq->notifyInferiorStopped();
     showStatusMessage(tr("Core file loaded."));
@@ -1229,7 +1233,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 #if 1
     // FIXME: remove this special case as soon as there's a real
     // reason given when the temporary breakpoint is hit.
-    // reight now we get:
+    // right now we get:
     // 14*stopped,thread-id="1",frame={addr="0x0000000000403ce4",
     // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
     // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
@@ -1559,6 +1563,10 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 
     if (sp->executable.endsWith(_(".sym")))
         m_gdbAdapter = m_trkAdapter;
+    else if (sp->startMode == AttachCore)
+        m_gdbAdapter = m_coreAdapter;
+    else if (sp->startMode == StartRemote)
+        m_gdbAdapter = m_remoteAdapter;
     else 
         m_gdbAdapter = m_plainAdapter;
 
@@ -4215,15 +4223,6 @@ void GdbEngine::handleInferiorPrepared()
         postCommand(_("attach %1").arg(m_startParameters->attachPID), CB(handleAttach));
         // Task 254674 does not want to remove them
         //qq->breakHandler()->removeAllBreakpoints();
-    } else if (startMode() == AttachCore) {
-        QFileInfo fi(m_startParameters->executable);
-        QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
-        QFileInfo fi2(m_startParameters->coreFile);
-        // quoting core name below fails in gdb 6.8-debian
-        QString coreName = fi2.absoluteFilePath();
-        postCommand(_("-file-exec-and-symbols ") + fileName, CB(handleFileExecAndSymbols));
-        postCommand(_("target core ") + coreName, CB(handleTargetCore));
-        qq->breakHandler()->removeAllBreakpoints();
     } else if (startMode() == StartRemote) {
         postCommand(_("set architecture %1").arg(m_startParameters->remoteArchitecture));
         qq->breakHandler()->setAllPending();

@@ -589,6 +589,9 @@ Core::IFile *BaseTextEditor::file()
 
 void BaseTextEditor::editorContentsChange(int position, int charsRemoved, int charsAdded)
 {
+    if (d->m_animator)
+        d->m_animator->finish();
+
     d->m_contentsChanged = true;
 
     // Keep the line numbers and the block information for the text marks updated
@@ -2689,7 +2692,8 @@ void BaseTextEditor::slotCursorPositionChanged()
 
     if (d->m_parenthesesMatchingEnabled) {
         // Delay update when no matching is displayed yet, to avoid flicker
-        if (extraSelections(ParenthesesMatchingSelection).isEmpty()) {
+        if (extraSelections(ParenthesesMatchingSelection).isEmpty()
+            && d->m_animator == 0) {
             d->m_parenthesesMatchingTimer->start(50);
         } else {
              // use 0-timer, not direct call, to give the syntax highlighter a chance
@@ -3747,11 +3751,13 @@ void BaseTextEditor::setFindScope(const QTextCursor &scope)
     }
 }
 
-void BaseTextEditor::_q_animateUpdate(int position, QRectF rect)
+void BaseTextEditor::_q_animateUpdate(int position, QPointF lastPos, QRectF rect)
 {
     QTextCursor cursor(textCursor());
     cursor.setPosition(position);
     viewport()->update(QRectF(cursorRect(cursor).topLeft() + rect.topLeft(), rect.size()).toAlignedRect());
+    if (!lastPos.isNull())
+        viewport()->update(QRectF(lastPos + rect.topLeft(), rect.size()).toAlignedRect());
 }
 
 
@@ -3778,6 +3784,7 @@ void BaseTextEditorAnimator::setData(QFont f, QPalette pal, const QString &text)
 
 void BaseTextEditorAnimator::draw(QPainter *p, const QPointF &pos)
 {
+    m_lastDrawPos = pos;
     p->setPen(m_palette.text().color());
     QFont f = m_font;
     f.setPointSizeF(f.pointSizeF() * (1.0 + m_value/2));
@@ -3809,11 +3816,12 @@ void BaseTextEditorAnimator::step(qreal v)
     QRectF before = rect();
     m_value = v;
     QRectF after = rect();
-    emit updateRequest(m_position, before.united(after));
+    emit updateRequest(m_position, m_lastDrawPos, before.united(after));
 }
 
 void BaseTextEditorAnimator::finish()
 {
+    m_timeline->stop();
     step(0);
     deleteLater();
 }
@@ -3912,8 +3920,8 @@ void BaseTextEditor::_q_matchParentheses()
         pal.setBrush(QPalette::Text, d->m_matchFormat.foreground());
         pal.setBrush(QPalette::Base, d->m_rangeFormat.background());
         d->m_animator->setData(font(), pal, characterAt(d->m_animator->position()));
-        connect(d->m_animator, SIGNAL(updateRequest(int,QRectF)),
-                this, SLOT(_q_animateUpdate(int,QRectF)));
+        connect(d->m_animator, SIGNAL(updateRequest(int,QPointF,QRectF)),
+                this, SLOT(_q_animateUpdate(int,QPointF,QRectF)));
     }
 
     setExtraSelections(ParenthesesMatchingSelection, extraSelections);

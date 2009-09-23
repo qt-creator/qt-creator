@@ -39,6 +39,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QMetaType>
 
 #ifdef Q_OS_WIN
 #  include <windows.h>
@@ -132,18 +133,30 @@ TrkMessage::TrkMessage(byte c, byte t, TrkCallback cb) :
 {
 }
 
+} // namespace trk
+
+Q_DECLARE_METATYPE(trk::TrkMessage)
+
+namespace trk {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// TrkWriteQueue
+// TrkWriteQueue: Mixin class that manages a write queue of Trk messages.
+// pendingMessage()/notifyWriteResult() should be called from a worked/timer
+// that writes the messages. The class does not take precautions for multithreading
+// with exception of the handling of the  TRK_WRITE_QUEUE_NOOP_CODE
+// synchronization message. The invocation of the callback is then
+// done by the thread owning the TrkWriteQueue, while pendingMessage() is called
+// from another thread. This happens via a Qt::BlockingQueuedConnection.
 //
 ///////////////////////////////////////////////////////////////////////
 
-/* Mixin class that manages a write queue of Trk messages. */
-class TrkWriteQueue
-{
+class TrkWriteQueue : public QObject
+{    
+    Q_OBJECT
+    Q_DISABLE_COPY(TrkWriteQueue)
 public:
-    TrkWriteQueue();
+    explicit TrkWriteQueue(bool multithreaded = true);
 
     // Enqueue messages.
     void queueTrkMessage(byte code, TrkCallback callback,
@@ -160,6 +173,12 @@ public:
     // after taking the pendingMessage off.
     void notifyWriteResult(bool ok);
 
+signals:
+    void internalNoopMessageDequeued(const trk::TrkMessage&);
+
+private slots:
+    void invokeNoopMessage(trk::TrkMessage);
+
 private:
     typedef QMap<byte, TrkMessage> TokenMessageMap;
 
@@ -171,10 +190,15 @@ private:
     bool m_trkWriteBusy;
 };
 
-TrkWriteQueue::TrkWriteQueue() :
+TrkWriteQueue::TrkWriteQueue(bool multithreaded) :
     m_trkWriteToken(0),
     m_trkWriteBusy(false)
 {
+    static const int trkMessageMetaId = qRegisterMetaType<trk::TrkMessage>();
+    Q_UNUSED(trkMessageMetaId)
+    connect(this, SIGNAL(internalNoopMessageDequeued(trk::TrkMessage)),
+            this, SLOT(invokeNoopMessage(trk::TrkMessage)),
+            multithreaded ? Qt::BlockingQueuedConnection : Qt::AutoConnection);
 }
 
 byte TrkWriteQueue::nextTrkWriteToken()
@@ -201,17 +225,11 @@ bool TrkWriteQueue::pendingMessage(TrkMessage *message)
     // Invoked from timer, try to flush out message queue
     if (m_trkWriteBusy || m_trkWriteQueue.isEmpty())
         return false;
-    // Handle the noop message, just invoke CB
+    // Handle the noop message, just invoke CB in slot (ower thread)
     if (m_trkWriteQueue.front().code == TRK_WRITE_QUEUE_NOOP_CODE) {
         TrkMessage noopMessage = m_trkWriteQueue.dequeue();
-        if (noopMessage.callback) {
-            TrkResult result;
-            result.code = noopMessage.code;
-            result.token = noopMessage.token;
-            result.data = noopMessage.data;
-            result.cookie = noopMessage.cookie;
-            noopMessage.callback(result);
-        }
+        if (noopMessage.callback)
+            emit internalNoopMessageDequeued(noopMessage);
     }
     // Check again for real messages
     if (m_trkWriteQueue.isEmpty())
@@ -219,6 +237,16 @@ bool TrkWriteQueue::pendingMessage(TrkMessage *message)
     if (message)
         *message = m_trkWriteQueue.front();
     return true;
+}
+
+void TrkWriteQueue::invokeNoopMessage(trk::TrkMessage noopMessage)
+{
+    TrkResult result;
+    result.code = noopMessage.code;
+    result.token = noopMessage.token;
+    result.data = noopMessage.data;
+    result.cookie = noopMessage.cookie;
+    noopMessage.callback(result);
 }
 
 void TrkWriteQueue::notifyWriteResult(bool ok)
@@ -271,6 +299,7 @@ struct DeviceContext {
     QFile file;
 #endif
     bool serialFrame;
+    QMutex mutex;
 };
 
 DeviceContext::DeviceContext() :
@@ -358,6 +387,7 @@ void WriterThread::terminate()
 
 bool WriterThread::write(const QByteArray &data, QString *errorMessage)
 {
+    QMutexLocker(&m_context->mutex);
 #ifdef Q_OS_WIN
     DWORD charsWritten;
     if (!WriteFile(m_context->device, data.data(), data.size(), &charsWritten, NULL)) {
@@ -588,12 +618,14 @@ void TrkDevice::tryTrkRead()
     char buffer[BUFFERSIZE];
     DWORD charsRead;
     DWORD totalCharsRead = 0;
-
-    while (TryReadFile(d->deviceContext->device, buffer, BUFFERSIZE, &charsRead, NULL)) {
-        totalCharsRead += charsRead;
-        d->trkReadBuffer.append(buffer, charsRead);
-        if (isValidTrkResult(d->trkReadBuffer, d->deviceContext->serialFrame))
-            break;
+    {
+        QMutexLocker(&d->deviceContext->mutex);
+        while (TryReadFile(d->deviceContext->device, buffer, BUFFERSIZE, &charsRead, NULL)) {
+            totalCharsRead += charsRead;
+            d->trkReadBuffer.append(buffer, charsRead);
+            if (isValidTrkResult(d->trkReadBuffer, d->deviceContext->serialFrame))
+                break;
+        }
     }
     if (d->verbose > 1 && totalCharsRead)
         emitLogMessage("Read" + d->trkReadBuffer.toHex());
@@ -606,10 +638,14 @@ void TrkDevice::tryTrkRead()
         return;
     }
 #else
-    const int size = bytesAvailable(d->deviceContext->file.handle());
-    if (!size)
-        return;
-    const QByteArray data = d->deviceContext->file.read(size);
+    QByteArray data;
+    {
+        QMutexLocker(&d->deviceContext->mutex);
+        const int size = bytesAvailable(d->deviceContext->file.handle());
+        if (!size)
+            return;
+        data = d->deviceContext->file.read(size);
+    }
     if (d->verbose > 1)
         emitLogMessage("trk: <- " + stringFromArray(data));
     d->trkReadBuffer.append(data);
