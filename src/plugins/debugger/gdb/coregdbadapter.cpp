@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "remotegdbadapter.h"
+#include "coregdbadapter.h"
 
 #include "debuggeractions.h"
 #include "gdbengine.h"
@@ -35,7 +35,6 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
-#include <QtGui/QMessageBox>
 
 namespace Debugger {
 namespace Internal {
@@ -43,16 +42,16 @@ namespace Internal {
 #define STRINGIFY_INTERNAL(x) #x
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) \
-    static_cast<GdbEngine::AdapterCallback>(&RemoteGdbAdapter::callback), \
+    static_cast<GdbEngine::AdapterCallback>(&CoreGdbAdapter::callback), \
     STRINGIFY(callback)
 
 ///////////////////////////////////////////////////////////////////////
 //
-// RemoteGdbAdapter
+// CoreGdbAdapter
 //
 ///////////////////////////////////////////////////////////////////////
 
-RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, QObject *parent)
+CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
@@ -66,16 +65,9 @@ RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, QObject *parent)
         this, SLOT(handleGdbStarted()));
     connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
         this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
-
-    connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(uploadProcError(QProcess::ProcessError)));
-    connect(&m_uploadProc, SIGNAL(readyReadStandardOutput()),
-        this, SLOT(readUploadStandardOutput()));
-    connect(&m_uploadProc, SIGNAL(readyReadStandardError()),
-        this, SLOT(readUploadStandardError()));
 }
 
-void RemoteGdbAdapter::startAdapter()
+void CoreGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
     setState(AdapterStarting);
@@ -98,84 +90,17 @@ void RemoteGdbAdapter::startAdapter()
         setEnvironment(startParameters().environment);
 
     QString location = theDebuggerStringSetting(GdbLocation);
-
-/*  
-    // FIXME: make asynchroneouis
-    // Start the remote server
-    if (startParameters().serverStartScript.isEmpty()) {
-        showStatusMessage(_("No server start script given. "
-            "Assuming server runs already."));
-    } else {
-        if (!startParameters().workingDir.isEmpty())
-            m_uploadProc.setWorkingDirectory(startParameters().workingDir);
-        if (!startParameters().environment.isEmpty())
-            m_uploadProc.setEnvironment(startParameters().environment);
-        m_uploadProc.start(_("/bin/sh ") + startParameters().serverStartScript);
-        m_uploadProc.waitForStarted();
-    }
-*/
-
-    // Start the debugger
     m_gdbProc.start(location, gdbArgs);
 }
 
-void RemoteGdbAdapter::handleGdbStarted()
+void CoreGdbAdapter::handleGdbStarted()
 {
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     setState(AdapterStarted);
     emit adapterStarted();
 }
 
-void RemoteGdbAdapter::uploadProcError(QProcess::ProcessError error)
-{
-    QString msg;
-    switch (error) {
-        case QProcess::FailedToStart:
-            msg = tr("The upload process failed to start. Either the "
-                "invoked script '%1' is missing, or you may have insufficient "
-                "permissions to invoke the program.")
-                .arg(theDebuggerStringSetting(GdbLocation));
-            break;
-        case QProcess::Crashed:
-            msg = tr("The upload process crashed some time after starting "
-                "successfully.");
-            break;
-        case QProcess::Timedout:
-            msg = tr("The last waitFor...() function timed out. "
-                "The state of QProcess is unchanged, and you can try calling "
-                "waitFor...() again.");
-            break;
-        case QProcess::WriteError:
-            msg = tr("An error occurred when attempting to write "
-                "to the upload process. For example, the process may not be running, "
-                "or it may have closed its input channel.");
-            break;
-        case QProcess::ReadError:
-            msg = tr("An error occurred when attempting to read from "
-                "the upload process. For example, the process may not be running.");
-            break;
-        default:
-            msg = tr("An unknown error in the upload process occurred. "
-                "This is the default return value of error().");
-    }
-
-    m_engine->showStatusMessage(msg);
-    QMessageBox::critical(m_engine->mainWindow(), tr("Error"), msg);
-}
-
-void RemoteGdbAdapter::readUploadStandardOutput()
-{
-    QByteArray ba = m_uploadProc.readAllStandardOutput();
-    m_engine->gdbOutputAvailable(LogOutput, QString::fromLocal8Bit(ba, ba.length()));
-}
-
-void RemoteGdbAdapter::readUploadStandardError()
-{
-    QByteArray ba = m_uploadProc.readAllStandardError();
-    m_engine->gdbOutputAvailable(LogError, QString::fromLocal8Bit(ba, ba.length()));
-}
-
-void RemoteGdbAdapter::prepareInferior()
+void CoreGdbAdapter::prepareInferior()
 {
     QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
     setState(InferiorPreparing);
@@ -187,7 +112,7 @@ void RemoteGdbAdapter::prepareInferior()
         CB(handleFileExecAndSymbols));
 }
 
-void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &)
+void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &)
 {
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
@@ -202,67 +127,50 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response,
     }
 }
 
-void RemoteGdbAdapter::startInferior()
+void CoreGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
     setState(InferiorStarting);
-    m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
+    QFileInfo fi(startParameters().executable);
+    QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
+    QFileInfo fi2(startParameters().coreFile);
+    // quoting core name below fails in gdb 6.8-debian
+    QString coreName = fi2.absoluteFilePath();
+    m_engine->postCommand(_("target core ") + coreName, CB(handleTargetCore));
 }
 
-void RemoteGdbAdapter::handleExecRun(const GdbResultRecord &response, const QVariant &)
+void CoreGdbAdapter::handleTargetCore(const GdbResultRecord &response, const QVariant &)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    if (response.resultClass == GdbResultRunning) {
+    if (response.resultClass == GdbResultDone) {
         setState(InferiorStarted);
         emit inferiorStarted();
+        m_engine->updateAll();
     } else {
         QTC_ASSERT(response.resultClass == GdbResultError, /**/);
         const QByteArray &msg = response.data.findChild("msg").data();
-        //QTC_ASSERT(status() == DebuggerInferiorRunning, /**/);
-        //interruptInferior();
         setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
     }
 }
 
-void RemoteGdbAdapter::interruptInferior()
+void CoreGdbAdapter::interruptInferior()
 {
-    m_engine->postCommand(_("-exec-interrupt"));
+    // A core should never 'run'
+    QTC_ASSERT(false, /**/);
 }
 
-void RemoteGdbAdapter::shutdown()
+void CoreGdbAdapter::shutdown()
 {
-    if (state() == InferiorStarted) {
-        setState(InferiorShuttingDown);
-        m_engine->postCommand(_("kill"), CB(handleKill));
-        return;
-    }
-
-    if (state() == InferiorShutDown) {
+    if (state() == InferiorStarted || state() == InferiorShutDown) {
         setState(AdapterShuttingDown);
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
     }
-
-    // FIXME: handle other states, too.
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
 }
 
-void RemoteGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant &)
-{
-    if (response.resultClass == GdbResultDone) {
-        setState(InferiorShutDown);
-        emit inferiorShutDown();
-        shutdown(); // re-iterate...
-    } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Inferior process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
-        setState(InferiorShutdownFailed);
-        emit inferiorShutdownFailed(msg);
-    }
-}
-
-void RemoteGdbAdapter::handleExit(const GdbResultRecord &response, const QVariant &)
+void CoreGdbAdapter::handleExit(const GdbResultRecord &response, const QVariant &)
 {
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()
@@ -273,7 +181,7 @@ void RemoteGdbAdapter::handleExit(const GdbResultRecord &response, const QVarian
     }
 }
 
-void RemoteGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
+void CoreGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
 {
     debugMessage(_("GDB PROESS FINISHED"));
     setState(AdapterNotRunning);

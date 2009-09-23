@@ -62,6 +62,7 @@ namespace Internal {
 
 class CppEditorSupport;
 class CppPreprocessor;
+class CppFindReferences;
 
 class CppModelManager : public CppModelManagerInterface
 {
@@ -100,6 +101,8 @@ public:
 
     virtual void addEditorSupport(AbstractEditorSupport *editorSupport);
     virtual void removeEditorSupport(AbstractEditorSupport *editorSupport);
+
+    virtual void findReferences(CPlusPlus::Symbol *symbol);
 
     void setHeaderSuffixes(const QStringList &suffixes)
     { m_headerSuffixes = suffixes; }
@@ -205,6 +208,8 @@ private:
 
     QFutureSynchronizer<void> m_synchronizer;
     unsigned m_revision;
+
+    CppFindReferences *m_findReferences;
 };
 
 } // namespace Internal

@@ -65,10 +65,6 @@
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptValueIterator>
 
-using namespace Debugger;
-using namespace Debugger::Internal;
-using namespace Debugger::Constants;
-
 //#define DEBUG_SCRIPT 1
 #if DEBUG_SCRIPT
 #   define SDEBUG(s) qDebug() << s
@@ -77,13 +73,17 @@ using namespace Debugger::Constants;
 #endif
 # define XSDEBUG(s) qDebug() << s
 
+
+namespace Debugger {
+namespace Internal {
+
 ///////////////////////////////////////////////////////////////////////
 //
 // ScriptEngine
 //
 ///////////////////////////////////////////////////////////////////////
 
-class Debugger::Internal::ScriptAgent : public QScriptEngineAgent
+class ScriptAgent : public QScriptEngineAgent
 {
 public:
     ScriptAgent(ScriptEngine *debugger, QScriptEngine *script);
@@ -733,8 +733,10 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
     QTC_ASSERT(false, return);
 }
 
-IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *)
+IDebuggerEngine *createScriptEngine(DebuggerManager *parent)
 {
     return new ScriptEngine(parent);
 }
 
+} // namespace Internal
+} // namespace Debugger

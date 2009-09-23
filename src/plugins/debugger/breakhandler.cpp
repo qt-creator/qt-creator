@@ -29,6 +29,7 @@
 
 #include "breakhandler.h"
 
+#include "debuggeractions.h"
 #include "debuggermanager.h"
 #include "stackframe.h"
 
@@ -507,7 +508,8 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
     }
     if (role == Qt::ToolTipRole)
-        return data->toToolTip();
+        return theDebuggerBoolSetting(UseToolTipsInLocalsView)
+                ? data->toToolTip() : QVariant();
     return QVariant();
 }
 

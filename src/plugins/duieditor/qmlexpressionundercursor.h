@@ -22,11 +22,20 @@ public:
     QmlJS::AST::Node *expressionNode() const
     { return _expressionNode; }
 
+    int expressionOffset() const
+    { return _expressionOffset; }
+
+    int expressionLength() const
+    { return _expressionLength; }
+
 protected:
     virtual bool visit(QmlJS::AST::Block *ast);
+    virtual bool visit(QmlJS::AST::FieldMemberExpression *ast);
+    virtual bool visit(QmlJS::AST::IdentifierExpression *ast);
+    virtual bool visit(QmlJS::AST::UiImport *ast);
     virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
-    virtual bool visit(QmlJS::AST::UiScriptBinding *ast);
+    virtual bool visit(QmlJS::AST::UiQualifiedId *ast);
 
     virtual void endVisit(QmlJS::AST::Block *);
     virtual void endVisit(QmlJS::AST::UiObjectBinding *);
@@ -36,6 +45,8 @@ private:
     QStack<QmlJS::AST::Node *> _scopes;
     QStack<QmlJS::AST::Node *> _expressionScopes;
     QmlJS::AST::Node *_expressionNode;
+    int _expressionOffset;
+    int _expressionLength;
     quint32 _pos;
 };
 

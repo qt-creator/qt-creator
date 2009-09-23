@@ -39,11 +39,10 @@
 #include "qmljsengine_p.h"
 #include "qmlexpressionundercursor.h"
 #include "qmllookupcontext.h"
-#include "resolveqmlexpression.h"
+#include "qmlresolveexpression.h"
 #include "rewriter_p.h"
 
 #include "idcollector.h"
-#include "navigationtokenfinder.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -57,7 +56,6 @@
 #include <utils/uncommentselection.h>
 
 #include <QtCore/QTimer>
-#include <QtCore/QtDebug>
 
 #include <QtGui/QMenu>
 #include <QtGui/QComboBox>
@@ -704,7 +702,7 @@ void ScriptEditor::createToolBar(ScriptEditorEditable *editable)
     toolBar->insertWidget(actions.first(), m_methodCombo);
 }
 
-TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cursor, bool resolveTarget)
+TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cursor, bool /*resolveTarget*/)
 {
     Link link;
 
@@ -716,34 +714,25 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
     if (!doc)
         return link;
 
-    NavigationTokenFinder finder;
-    finder(doc, cursor.position(), snapshot);
-    if (finder.targetFound()) {
-        link.fileName = finder.fileName();
-        link.pos = finder.linkPosition();
-        link.length = finder.linkLength();
+    QmlExpressionUnderCursor expressionUnderCursor;
+    expressionUnderCursor(cursor, doc->program());
 
-        if (resolveTarget) {
-            link.line = finder.targetLine();
-            link.column = finder.targetColumn() - 1;
-        }
+    QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, snapshot);
+    QmlResolveExpression resolve(context);
+    QmlSymbol *symbol = resolve(expressionUnderCursor.expressionNode());
+
+    if (!symbol)
+        return link;
+
+    if (const QmlSymbolFromFile *target = symbol->asSymbolFromFile()) {
+        link.pos = expressionUnderCursor.expressionOffset();
+        link.length = expressionUnderCursor.expressionLength();
+        link.fileName = target->fileName();
+        link.line = target->line();
+        link.column = target->column();
+        if (link.column > 0)
+            --link.column;
     }
-
-//    QmlExpressionUnderCursor expressionUnderCursor;
-//    expressionUnderCursor(cursor, doc->program());
-//
-//    QmlLookupContext context(expressionUnderCursor.expressionScopes(),
-//                             expressionUnderCursor.expressionNode(),
-//                             doc, snapshot);
-//
-//    ResolveQmlExpression resolve(context);
-//    if (QmlLookupContext::Symbol *symbol = resolve(expressionUnderCursor.expressionNode())) {
-//        if (UiObjectMember *member = static_cast<UiObjectMember *>(symbol)) { // ### FIXME: don't use static_cast<>
-//            const int begin = member->firstSourceLocation().begin();
-//            const int end = member->lastSourceLocation().end();
-//            qDebug() << doc->source().mid(begin, end - begin);
-//        }
-//    }
 
     return link;
 }

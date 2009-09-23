@@ -297,7 +297,4 @@ Scope::iterator Scope::firstSymbol() const
 Scope::iterator Scope::lastSymbol() const
 { return _symbols + _symbolCount + 1; }
 
-void Scope::addUse(unsigned, Name *)
-{ }
-
 CPLUSPLUS_END_NAMESPACE

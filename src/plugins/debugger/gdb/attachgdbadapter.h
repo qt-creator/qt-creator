@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_REMOTEGDBADAPTER_H
-#define DEBUGGER_REMOTEGDBADAPTER_H
+#ifndef DEBUGGER_ATTACHGDBADAPTER_H
+#define DEBUGGER_ATTACHGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
 #include "gdbengine.h"
@@ -41,16 +41,16 @@ namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// RemoteGdbAdapter
+// AttachGdbAdapter
 //
 ///////////////////////////////////////////////////////////////////////
 
-class RemoteGdbAdapter : public AbstractGdbAdapter
+class AttachGdbAdapter : public AbstractGdbAdapter
 {
     Q_OBJECT
 
 public:
-    RemoteGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    AttachGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
 private:
     QByteArray readAllStandardError() { return m_gdbProc.readAllStandardError(); }
@@ -66,24 +66,19 @@ private:
     void interruptInferior();
     void shutdown();
 
-    Q_SLOT void readUploadStandardOutput();
-    Q_SLOT void readUploadStandardError();
-    Q_SLOT void uploadProcError(QProcess::ProcessError error);
-
-    void handleFileExecAndSymbols(const GdbResultRecord &, const QVariant &);
-    void handleKill(const GdbResultRecord &, const QVariant &);
+    void handleAttach(const GdbResultRecord &, const QVariant &);
+    void handleContinue(const GdbResultRecord &, const QVariant &);
+    void handleDetach(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleExecRun(const GdbResultRecord &response, const QVariant &);
 
     void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
     Q_SLOT void handleGdbStarted();
 
     QProcess m_gdbProc;
-    QProcess m_uploadProc;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_PLAINGDBADAPTER_H
+#endif // DEBUGGER_ATTACHDBADAPTER_H

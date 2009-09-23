@@ -54,34 +54,6 @@
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
 
-class CPLUSPLUS_EXPORT Use
-{
-public:
-    inline Name *name() const
-    { return _name; }
-
-    inline unsigned sourceOffset() const
-    { return _sourceOffset; }
-
-    inline Symbol *lastVisibleSymbol() const
-    { return _lastVisibleSymbol; }
-
-private:
-    void init(unsigned sourceOffset, Name *name, Symbol *lastVisibleSymbol)
-    {
-        _sourceOffset = sourceOffset;
-        _name = name;
-        _lastVisibleSymbol = lastVisibleSymbol;
-    }
-
-    unsigned _sourceOffset;
-
-    Name *_name;
-    Symbol *_lastVisibleSymbol;
-
-    friend class Scope;
-};
-
 class CPLUSPLUS_EXPORT Scope
 {
     Scope(const Scope &other);
@@ -159,8 +131,6 @@ public:
 
     Symbol *lookat(Identifier *id) const;
     Symbol *lookat(int operatorId) const;
-
-    void addUse(unsigned sourceOffset, Name *name);
 
 private:
     /// Returns the hash value for the given Symbol.

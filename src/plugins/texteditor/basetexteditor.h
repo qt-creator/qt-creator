@@ -242,22 +242,23 @@ class TEXTEDITOR_EXPORT BaseTextEditorAnimator : public QObject
 public:
     BaseTextEditorAnimator(QObject *parent);
 
-    void setPosition(int position) { m_position = position; }
-    int position() const { return m_position; }
+    inline void setPosition(int position) { m_position = position; }
+    inline int position() const { return m_position; }
 
     void setData(QFont f, QPalette pal, const QString &text);
 
     void draw(QPainter *p, const QPointF &pos);
     QRectF rect() const;
 
-    qreal value() const { return m_value; }
+    inline qreal value() const { return m_value; }
+    inline QPointF lastDrawPos() const { return m_lastDrawPos; }
 
     void finish();
 
     bool isRunning() const;
 
 signals:
-    void updateRequest(int position, QRectF rect);
+    void updateRequest(int position, QPointF lastPos, QRectF rect);
 
 
 private slots:
@@ -267,6 +268,7 @@ private:
     QTimeLine *m_timeline;
     qreal m_value;
     int m_position;
+    QPointF m_lastDrawPos;
     QFont m_font;
     QPalette m_palette;
     QString m_text;
@@ -599,7 +601,7 @@ private slots:
     void _q_matchParentheses();
     void _q_highlightBlocks();
     void slotSelectionChanged();
-    void _q_animateUpdate(int position, QRectF rect);
+    void _q_animateUpdate(int position, QPointF lastPos, QRectF rect);
 };
 
 

@@ -82,11 +82,17 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QToolTip>
 
+namespace Debugger {
+namespace Internal {
 
-// The creation functions take a list of options pages they can add to.
-// This allows for having a "enabled" toggle on the page indepently
-// of the engine.
-using namespace Debugger::Internal;
+IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
+IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
+IDebuggerEngine *createTcfEngine(DebuggerManager *parent);
+
+// The createWinEngine function takes a list of options pages it can add to.
+// This allows for having a "enabled" toggle on the page independently
+// of the engine. That's good for not enabling the related ActiveX control
+// unnecessarily.
 
 IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineEnabled */, QList<Core::IOptionsPage*> *)
 #ifdef CDB_ENABLED
@@ -94,14 +100,6 @@ IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineEnabled */, Q
 #else
 { return 0; }
 #endif
-IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
-IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
-
-
-namespace Debugger {
-namespace Internal {
-
-IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
 
 
 QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
@@ -369,10 +367,8 @@ void DebuggerManager::init()
     m_reverseDirectionAction->setChecked(false);
     //m_reverseDirectionAction->setIcon(QIcon(":/debugger/images/debugger_stepoverproc_small.png"));
 
-    // For usuage hints oin focus{In,Out}
     connect(m_continueAction, SIGNAL(triggered()),
         this, SLOT(continueExec()));
-
     connect(m_stopAction, SIGNAL(triggered()),
         this, SLOT(interruptDebuggingRequest()));
     connect(m_resetAction, SIGNAL(triggered()),
@@ -443,15 +439,24 @@ void DebuggerManager::init()
 QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTypeFlags)
 {
     QList<Core::IOptionsPage*> rc;
+
     if (enabledTypeFlags & GdbEngineType) {
         gdbEngine = createGdbEngine(this);
         gdbEngine->addOptionPages(&rc);
     }
+
     winEngine = createWinEngine(this, (enabledTypeFlags & CdbEngineType), &rc);
-    if (enabledTypeFlags & ScriptEngineType)
-        scriptEngine = createScriptEngine(this, &rc);
-    if (enabledTypeFlags & TcfEngineType)
-        tcfEngine = createTcfEngine(this, &rc);
+
+    if (enabledTypeFlags & ScriptEngineType) {
+        scriptEngine = createScriptEngine(this);
+        scriptEngine->addOptionPages(&rc);
+    }
+
+    if (enabledTypeFlags & TcfEngineType) {
+        tcfEngine = createTcfEngine(this);
+        tcfEngine->addOptionPages(&rc);
+    }
+
     m_engine = 0;
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine << rc.size();
@@ -764,6 +769,9 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
 
     return gdbEngine;
 #else
+    // A remote executable?
+    if (!executable.endsWith(_(".exe")))
+        return gdbEngine;
     // If a file has PDB files, it has been compiled by VS.
     QStringList pdbFiles;
     if (!getPDBFiles(executable, &pdbFiles, errorMessage))
@@ -1095,7 +1103,7 @@ static bool isAllowedTransition(int from, int to)
 {
     return (from == -1)
       || (from == DebuggerProcessNotReady && to == DebuggerProcessStartingUp)
-      //|| (from == DebuggerProcessStartingUp && to == DebuggerInferiorStopped)
+      || (from == DebuggerProcessStartingUp && to == DebuggerInferiorStopped)
       || (from == DebuggerInferiorStopped && to == DebuggerInferiorRunningRequested)
       || (from == DebuggerInferiorRunningRequested && to == DebuggerInferiorRunning)
       || (from == DebuggerInferiorRunning && to == DebuggerInferiorStopRequested)

@@ -57,11 +57,6 @@
 
 #include <QtNetwork/QTcpSocket>
 
-
-using namespace Debugger;
-using namespace Debugger::Internal;
-using namespace Debugger::Constants;
-
 #define DEBUG_TCF 1
 #if DEBUG_TCF
 #   define SDEBUG(s) qDebug() << s
@@ -74,7 +69,9 @@ using namespace Debugger::Constants;
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) &TcfEngine::callback, STRINGIFY(callback)
 
-QByteArray C(const QByteArray &ba1,
+//#define USE_CONGESTION_CONTROL
+
+static QByteArray C(const QByteArray &ba1,
     const QByteArray &ba2 = QByteArray(),
     const QByteArray &ba3 = QByteArray(),
     const QByteArray &ba4 = QByteArray(),
@@ -88,9 +85,8 @@ QByteArray C(const QByteArray &ba1,
     return result;
 }
 
-
-//#define USE_CONGESTION_CONTROL
-
+namespace Debugger {
+namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -571,8 +567,10 @@ void TcfEngine::updateSubItem(const WatchData &data0)
     QTC_ASSERT(false, return);
 }
 
-IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *)
+IDebuggerEngine *createTcfEngine(DebuggerManager *parent)
 {
     return new TcfEngine(parent);
 }
 
+} // namespace Internal
+} // namespace Debugger

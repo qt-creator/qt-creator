@@ -166,6 +166,8 @@ public:
     /// Creates a new Objective-C method symbol.
     ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name = 0);
 
+    Identifier *findIdentifier(const char *chars, unsigned size) const;
+
     Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
     Identifier *findOrInsertIdentifier(const char *chars);
 

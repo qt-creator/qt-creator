@@ -123,6 +123,7 @@ private:
     LookupContext _context;
     Semantic sem;
     QList<Result> _results;
+    Symbol *_declSymbol;
 };
 
 class CPLUSPLUS_EXPORT ResolveClass

@@ -60,6 +60,8 @@ DuiDocument::~DuiDocument()
 
     if (_pool)
         delete _pool;
+
+    qDeleteAll(_ids.values());
 }
 
 DuiDocument::Ptr DuiDocument::create(const QString &fileName)
@@ -109,7 +111,7 @@ bool DuiDocument::parse()
 
     if (_parsedCorrectly && _program) {
         Internal::IdCollector collect;
-        _ids = collect(_program);
+        _ids = collect(_fileName, _program);
     }
 
     return _parsedCorrectly;

@@ -235,6 +235,7 @@ void ResolveExpression::addResult(const FullySpecifiedType &ty, Symbol *symbol)
 void ResolveExpression::addResult(const Result &r)
 {
     Result p = r;
+
     if (! p.second)
         p.second = _context.symbol();
 

@@ -94,6 +94,8 @@ public:
 
     virtual void addEditorSupport(AbstractEditorSupport *editorSupport) = 0;
     virtual void removeEditorSupport(AbstractEditorSupport *editorSupport) = 0;
+
+    virtual void findReferences(CPlusPlus::Symbol *symbol) = 0;
 };
 
 class CPPTOOLS_EXPORT AbstractEditorSupport

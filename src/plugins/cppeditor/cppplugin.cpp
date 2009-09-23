@@ -220,6 +220,15 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
+    if (! qgetenv("QTCREATOR_REFERENCES").isEmpty()) {
+        QAction *findReferencesAction = new QAction(tr("Find References"), this);
+        cmd = am->registerAction(findReferencesAction,
+                                 Constants::FIND_REFERENCES, context);
+        connect(findReferencesAction, SIGNAL(triggered()), this, SLOT(findReferences()));
+        am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
+        am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
+    }
+
     m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
@@ -279,6 +288,14 @@ void CppPlugin::renameSymbolUnderCursor()
     CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
     if (editor)
         editor->renameSymbolUnderCursor();
+}
+
+void CppPlugin::findReferences()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
+    if (editor)
+        editor->findReferences();
 }
 
 Q_EXPORT_PLUGIN(CppPlugin)

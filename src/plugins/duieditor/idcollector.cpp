@@ -4,10 +4,12 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
+using namespace DuiEditor;
 using namespace DuiEditor::Internal;
 
-QMap<QString, QPair<QmlJS::AST::SourceLocation, QmlJS::AST::Node*> > IdCollector::operator()(QmlJS::AST::UiProgram *ast)
+QMap<QString, QmlIdSymbol*> IdCollector::operator()(const QString &fileName, QmlJS::AST::UiProgram *ast)
 {
+    _fileName = fileName;
     _ids.clear();
 
     Node::accept(ast, this);
@@ -42,15 +44,21 @@ bool IdCollector::visit(QmlJS::AST::UiScriptBinding *ast)
     if (!(ast->qualifiedId->next) && ast->qualifiedId->name->asString() == "id")
         if (ExpressionStatement *e = cast<ExpressionStatement*>(ast->statement))
             if (IdentifierExpression *i = cast<IdentifierExpression*>(e->expression))
-                addId(i->name, i->identifierToken);
+                addId(i->name->asString(), ast);
 
     return false;
 }
 
-void IdCollector::addId(QmlJS::NameId* id, const QmlJS::AST::SourceLocation &idLocation)
+void IdCollector::addId(const QString &id, QmlJS::AST::UiScriptBinding *ast)
 {
-    const QString idString = id->asString();
+    if (!_ids.contains(id)) {
+        Node *parent = _scopes.top();
 
-    if (!_ids.contains(idString))
-        _ids[idString] = qMakePair(idLocation, _scopes.top());
+        if (UiObjectBinding *binding = cast<UiObjectBinding*>(parent))
+            _ids[id] = new QmlIdSymbol(_fileName, ast, QmlSymbolFromFile(_fileName, binding));
+        else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(parent))
+            _ids[id] = new QmlIdSymbol(_fileName, ast, QmlSymbolFromFile(_fileName, definition));
+        else
+            Q_ASSERT(!"Unknown parent for id");
+    }
 }

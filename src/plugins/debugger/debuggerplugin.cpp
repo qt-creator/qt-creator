@@ -292,8 +292,10 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         m_ui.checkBoxUseMessageBoxForSignals);
     m_group.insert(theDebuggerAction(SkipKnownFrames),
         m_ui.checkBoxSkipKnownFrames);
-    m_group.insert(theDebuggerAction(UseToolTips),
-        m_ui.checkBoxUseToolTips);
+    m_group.insert(theDebuggerAction(UseToolTipsInMainEditor),
+        m_ui.checkBoxUseToolTipsInMainEditor);
+    m_group.insert(theDebuggerAction(UseToolTipsInLocalsView),
+        m_ui.checkBoxUseToolTipsInLocalsView);
     m_group.insert(theDebuggerAction(EnableReverseDebugging), 
         m_ui.checkBoxEnableReverseDebugging);
     m_group.insert(theDebuggerAction(MaximalStackDepth), 
@@ -1036,7 +1038,8 @@ void DebuggerPlugin::requestMark(TextEditor::ITextEditor *editor, int lineNumber
 void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
     const QPoint &point, int pos)
 {
-    if (!theDebuggerBoolSetting(UseToolTips) || m_manager->status() == DebuggerProcessNotReady)
+    if (!theDebuggerBoolSetting(UseToolTipsInMainEditor)
+            || m_manager->status() == DebuggerProcessNotReady)
         return;
 
     m_manager->setToolTipExpression(point, editor, pos);
@@ -1229,7 +1232,7 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
     const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     sp->attachPID = pid;
     sp->crashParameter = crashParameter;
-    sp->startMode = crashParameter.isEmpty() ?  AttachExternal : AttachCrashedExternal;
+    sp->startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
     RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration();

@@ -101,7 +101,21 @@ public:
     iterator end() const
     { return _literals + _literalCount + 1; }
 
-    _Literal *findOrInsertLiteral(const char *chars, unsigned size)
+    _Literal *findLiteral(const char *chars, unsigned size) const
+    {
+       if (_buckets) {
+           unsigned h = _Literal::hashCode(chars, size);
+           _Literal *literal = _buckets[h % _allocatedBuckets];
+           for (; literal; literal = static_cast<_Literal *>(literal->_next)) {
+               if (literal->size() == size && ! std::strncmp(literal->chars(), chars, size))
+                  return literal;
+           }
+       }
+
+       return 0;
+   }
+
+   _Literal *findOrInsertLiteral(const char *chars, unsigned size)
     {
        if (_buckets) {
            unsigned h = _Literal::hashCode(chars, size);

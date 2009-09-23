@@ -582,6 +582,9 @@ DiagnosticClient *Control::diagnosticClient() const
 void Control::setDiagnosticClient(DiagnosticClient *diagnosticClient)
 { d->diagnosticClient = diagnosticClient; }
 
+Identifier *Control::findIdentifier(const char *chars, unsigned size) const
+{ return d->identifiers.findLiteral(chars, size); }
+
 Identifier *Control::findOrInsertIdentifier(const char *chars, unsigned size)
 { return d->identifiers.findOrInsertLiteral(chars, size); }
 
