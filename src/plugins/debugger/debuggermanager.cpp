@@ -367,10 +367,8 @@ void DebuggerManager::init()
     m_reverseDirectionAction->setChecked(false);
     //m_reverseDirectionAction->setIcon(QIcon(":/debugger/images/debugger_stepoverproc_small.png"));
 
-    // For usuage hints oin focus{In,Out}
     connect(m_continueAction, SIGNAL(triggered()),
         this, SLOT(continueExec()));
-
     connect(m_stopAction, SIGNAL(triggered()),
         this, SLOT(interruptDebuggingRequest()));
     connect(m_resetAction, SIGNAL(triggered()),
