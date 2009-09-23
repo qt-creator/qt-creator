@@ -133,7 +133,6 @@ void CMakeProject::updateToolChain(const QString &compiler)
         newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
 #endif
     } else if (compiler == "msvc8") {
-        // TODO MSVC toolchain
         newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain(value(activeBuildConfiguration(), "msvcVersion").toString(), false);
     } else {
         // TODO other toolchains
