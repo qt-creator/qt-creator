@@ -1344,12 +1344,11 @@ void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
     logMessage(_("GDB: Process State %1").arg(newState));
 }
 
-void TrkGdbAdapter::startAdapter(const DebuggerStartParametersPtr &sp)
+void TrkGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
-    m_startParameters = sp;
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
     if (m_options->mode == TrkOptions::BlueTooth) {
         const QString device = effectiveTrkDevice();

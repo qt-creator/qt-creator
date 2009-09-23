@@ -95,8 +95,6 @@ private:
     friend class TrkGdbAdapter;
     friend class RemoteGdbAdapter;
 
-    const DebuggerStartParameters &startParameters() const
-        { return *m_startParameters; }
     //
     // IDebuggerEngine implementation
     //
@@ -452,6 +450,8 @@ public:
     void showMessageBox(int icon, const QString &title, const QString &text);
     void debugMessage(const QString &msg);
     void addOptionPages(QList<Core::IOptionsPage*> *opts) const;
+    const DebuggerStartParameters &startParameters() const
+        { return *m_startParameters; }
 
     OutputCollector m_outputCollector;
 };

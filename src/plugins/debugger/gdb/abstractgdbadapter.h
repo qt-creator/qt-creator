@@ -81,11 +81,14 @@ public:
     virtual void setEnvironment(const QStringList &env) = 0;
     virtual bool isTrkAdapter() const = 0;
 
-    virtual void startAdapter(const DebuggerStartParametersPtr &sp) = 0;
+    virtual void startAdapter() = 0;
     virtual void prepareInferior() = 0;
     virtual void startInferior() = 0;
     virtual void interruptInferior() = 0;
     virtual void shutdown() = 0;
+
+    virtual const DebuggerStartParameters &startParameters() const
+        { return m_engine->startParameters(); }
 
 signals:
     void adapterStarted();

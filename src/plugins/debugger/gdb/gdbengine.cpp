@@ -1521,6 +1521,8 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     //    initializeVariables());
     //QTC_ASSERT(m_gdbAdapter == 0, delete m_gdbAdapter; m_gdbAdapter = 0);
 
+    m_startParameters = sp;
+
     if (m_gdbAdapter)
         disconnectAdapter();
 
@@ -1532,9 +1534,7 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     initializeVariables();
     connectAdapter();
 
-    m_startParameters = sp;
-    
-    m_gdbAdapter->startAdapter(sp);
+    m_gdbAdapter->startAdapter();
 
 /*
     QStringList gdbArgs;
