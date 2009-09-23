@@ -92,7 +92,7 @@ void CMakeProject::slotActiveBuildConfiguration()
         mode = CMakeOpenProjectWizard::NeedToCreate;
     } else {
         foreach(const QString &file, m_watchedFiles) {
-            if (QFileInfo(file).lastModified() > sourceFileInfo.lastModified()) {
+            if (QFileInfo(file).lastModified() > cbpFileFi.lastModified()) {
                 mode = CMakeOpenProjectWizard::NeedToUpdate;
                 break;
             }
