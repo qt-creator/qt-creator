@@ -132,7 +132,7 @@ public:
     /* This method is called for new build configurations. You should probably
      * set some default values in this method.
      */
-    virtual void newBuildConfiguration(const QString &buildConfiguration) = 0;
+    virtual bool newBuildConfiguration(const QString &buildConfiguration) = 0;
 
     virtual ProjectNode *rootProjectNode() const = 0;
 

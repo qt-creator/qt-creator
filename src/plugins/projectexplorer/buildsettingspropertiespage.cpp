@@ -282,12 +282,13 @@ void BuildSettingsWidget::createConfiguration()
         newDisplayName += QString::number(i);
     }
 
-    m_project->addBuildConfiguration(newBuildConfiguration);
-    m_project->setDisplayNameFor(newBuildConfiguration, newDisplayName);
-    m_project->newBuildConfiguration(newBuildConfiguration);
-    m_buildConfiguration = newBuildConfiguration;
+    if (m_project->newBuildConfiguration(newBuildConfiguration)) {
+        m_project->addBuildConfiguration(newBuildConfiguration);
+        m_project->setDisplayNameFor(newBuildConfiguration, newDisplayName);
+        m_buildConfiguration = newBuildConfiguration;
 
-    updateBuildSettings();
+        updateBuildSettings();
+    }
 }
 
 void BuildSettingsWidget::cloneConfiguration()

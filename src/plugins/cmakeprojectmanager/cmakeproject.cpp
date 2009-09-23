@@ -114,6 +114,7 @@ void CMakeProject::slotActiveBuildConfiguration()
 
 void CMakeProject::fileChanged(const QString &fileName)
 {
+    Q_UNUSED(fileName)
     if (m_insideFileChanged== true)
         return;
     m_insideFileChanged = true;
@@ -537,7 +538,7 @@ QList<ProjectExplorer::BuildConfigWidget*> CMakeProject::subConfigWidgets()
     return list;
 }
 
- void CMakeProject::newBuildConfiguration(const QString &buildConfiguration)
+ bool CMakeProject::newBuildConfiguration(const QString &buildConfiguration)
  {
      // Default to all
      if (targets().contains("all"))
@@ -548,7 +549,9 @@ QList<ProjectExplorer::BuildConfigWidget*> CMakeProject::subConfigWidgets()
         setValue(buildConfiguration, "buildDirectory", copw.buildDirectory());
         setValue(buildConfiguration, "msvcVersion", copw.msvcVersion());
         parseCMakeLists();
+        return true;
     }
+    return false;
  }
 
 ProjectExplorer::ProjectNode *CMakeProject::rootProjectNode() const

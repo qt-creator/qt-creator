@@ -759,9 +759,10 @@ void Qt4Project::addDefaultBuild()
     }
 }
 
-void Qt4Project::newBuildConfiguration(const QString &buildConfiguration)
+bool Qt4Project::newBuildConfiguration(const QString &buildConfiguration)
 {
     Q_UNUSED(buildConfiguration)
+    return true;
 }
 
 void Qt4Project::proFileParseError(const QString &errorMessage)

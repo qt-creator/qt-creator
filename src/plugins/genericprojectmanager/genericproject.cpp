@@ -437,9 +437,10 @@ QList<ProjectExplorer::BuildConfigWidget*> GenericProject::subConfigWidgets()
     return QList<ProjectExplorer::BuildConfigWidget*>();
 }
 
- void GenericProject::newBuildConfiguration(const QString &buildConfiguration)
+ bool GenericProject::newBuildConfiguration(const QString &buildConfiguration)
  {
      makeStep()->setBuildTarget(buildConfiguration, "all", true);
+     return true;
  }
 
 GenericProjectNode *GenericProject::rootProjectNode() const

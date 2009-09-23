@@ -82,7 +82,7 @@ public:
     virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
     virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
-    virtual void newBuildConfiguration(const QString &buildConfiguration);
+    virtual bool newBuildConfiguration(const QString &buildConfiguration);
     virtual GenericProjectNode *rootProjectNode() const;
     virtual QStringList files(FilesMode fileMode) const;
 

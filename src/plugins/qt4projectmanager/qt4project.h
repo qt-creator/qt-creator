@@ -170,7 +170,7 @@ public:
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     void setQtVersion(const QString &buildConfiguration, int id);
-    virtual void newBuildConfiguration(const QString &buildConfiguration);
+    virtual bool newBuildConfiguration(const QString &buildConfiguration);
 
     QList<Internal::Qt4ProFileNode *> applicationProFiles() const;
 

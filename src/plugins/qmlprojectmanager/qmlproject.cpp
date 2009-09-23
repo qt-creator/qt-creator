@@ -214,8 +214,9 @@ QList<ProjectExplorer::BuildConfigWidget*> QmlProject::subConfigWidgets()
     return QList<ProjectExplorer::BuildConfigWidget*>();
 }
 
-void QmlProject::newBuildConfiguration(const QString &)
+bool QmlProject::newBuildConfiguration(const QString &)
 {
+    return true;
 }
 
 QmlProjectNode *QmlProject::rootProjectNode() const
