@@ -158,6 +158,7 @@ ActiveConfigurationWidget::ActiveConfigurationWidget(QWidget *parent)
     : QWidget(parent)
 {
     QGridLayout *grid = new QGridLayout(this);
+    grid->setMargin(0);
     RunConfigurationComboBox *runConfigurationComboBox = new RunConfigurationComboBox(this);
     grid->addWidget(new QLabel(tr("Active run configuration")), 0, 0);
     grid->addWidget(runConfigurationComboBox, 0, 1);
@@ -603,6 +604,7 @@ ProjectWindow::ProjectWindow(QWidget *parent)
 
     m_spacerBetween = new QWidget(this);
     QVBoxLayout *vbox = new QVBoxLayout(m_spacerBetween);
+    vbox->setMargin(0);
     m_spacerBetween->setLayout(vbox);
     vbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
     vbox->addWidget(new OnePixelBlackLine(m_spacerBetween));

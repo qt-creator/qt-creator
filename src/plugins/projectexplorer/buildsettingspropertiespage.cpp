@@ -125,6 +125,7 @@ BuildSettingsSubWidgets::BuildSettingsSubWidgets(QWidget *parent)
     : QWidget(parent)
 {
     new QVBoxLayout(this);
+    layout()->setMargin(0);
 }
 
 ///

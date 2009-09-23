@@ -141,6 +141,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     resetButton->setIcon(QIcon(":/core/images/reset.png"));
 
     QHBoxLayout *boxlayout = new QHBoxLayout();
+    boxlayout->setMargin(0);
     boxlayout->addWidget(m_workingDirectoryEdit);
     boxlayout->addWidget(resetButton);
     toplayout->addRow(tr("Working Directory:"), boxlayout);
@@ -165,7 +166,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_detailsWidget = new QWidget(this);
     m_detailsWidget->setVisible(false);
     QVBoxLayout *vboxTopLayout = new QVBoxLayout(this);
-    vboxTopLayout->setContentsMargins(0, -1, 0, -1);
+    vboxTopLayout->setMargin(0);
     m_summaryLabel = new QLabel(this);
     m_summaryLabel->setText("This is a summary");
     QAbstractButton *detailsButton = new Utils::DetailsButton(this);
@@ -174,6 +175,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(toggleDetails()));
 
     QHBoxLayout *detailsLayout = new QHBoxLayout();
+    detailsLayout->setMargin(0);
     detailsLayout->addWidget(m_summaryLabel);
     detailsLayout->addWidget(detailsButton);
 
