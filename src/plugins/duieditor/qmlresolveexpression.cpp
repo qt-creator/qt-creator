@@ -108,26 +108,9 @@ bool QmlResolveExpression::visit(FieldMemberExpression *ast)
     return false;
 }
 
-static inline QString toString(UiQualifiedId *id)
-{
-    QString str;
-
-    for (UiQualifiedId *iter = id; iter; iter = iter->next) {
-        if (!(iter->name))
-            continue;
-
-        str.append(iter->name->asString());
-
-        if (iter->next)
-            str.append('.');
-    }
-
-    return str;
-}
-
 bool QmlResolveExpression::visit(QmlJS::AST::UiQualifiedId *ast)
 {
-    _value = _context.resolveType(toString(ast));
+    _value = _context.resolveType(ast);
 
     return false;
 }
