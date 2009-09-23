@@ -812,7 +812,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 {
     //qDebug() << "TOKEN:" << record.token
     //    << " ACCEPTABLE:" << m_oldestAcceptableToken;
-    //qDebug() << "";
     //qDebug() << "\nRESULT" << record.token << record.toString();
 
     int token = record.token;
@@ -823,7 +822,7 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
         // In theory this should not happen, in practice it does.
         debugMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN. "
             "TWO RESPONSES FOR ONE COMMAND?").arg(token));
-        // handle a case known to occur on Linux/gdb 6.8 when debugging moc
+        // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
         // with helpers enabled. In this case we get a second response with
         // msg="Cannot find new threads: generic error"
         if (record.resultClass == GdbResultError) {
@@ -832,8 +831,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
                 tr("Executable failed"), QString::fromLocal8Bit(msg));
             showStatusMessage(tr("Process failed to start."));
             exitDebugger();
-            //qq->notifyInferiorStopped();
-            //qq->notifyInferiorExited();
         }
         return;
     }
@@ -857,8 +854,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
         << " cmd synchronized:" << cmd.synchronized
         << "\n record: " << record.toString();
 #endif
-
-    // << "\n data: " << record.data.toString(true);
 
     if (cmd.callback)
         (this->*cmd.callback)(record, cmd.cookie);
@@ -911,7 +906,7 @@ void GdbEngine::handleTargetCore()
     m_manager->resetLocation();
     tryLoadDebuggingHelpers();
     qq->stackHandler()->setCurrentIndex(0);
-    updateLocals(); // Quick shot
+    updateLocals(); 
     reloadStack();
     if (supportsThreads())
         postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), 0);
@@ -935,7 +930,6 @@ void GdbEngine::handleQuerySources(const GdbResultRecord &record, const QVariant
             full = QDir::cleanPath(full);
             #endif
             if (fullName.isValid() && QFileInfo(full).isReadable()) {
-                //qDebug() << "STORING 2:" << fileName << full;
                 m_shortToFullName[fileName] = full;
                 m_fullToShortName[full] = fileName;
             }
