@@ -62,13 +62,14 @@ class IDebuggerManagerAccessForEngines;
 class GdbResultRecord;
 class GdbMi;
 
-class WatchData;
 class BreakpointData;
+class WatchData;
 
-class PlainGdbAdapter;
-class TrkGdbAdapter;
-class RemoteGdbAdapter;
+class AttachGdbAdapter;
 class CoreGdbAdapter;
+class PlainGdbAdapter;
+class RemoteGdbAdapter;
+class TrkGdbAdapter;
 
 enum DebuggingHelperState
 {
@@ -92,10 +93,11 @@ signals:
     void applicationOutputAvailable(const QString &output);
 
 private:
-    friend class PlainGdbAdapter;
-    friend class TrkGdbAdapter;
-    friend class RemoteGdbAdapter;
+    friend class AttachGdbAdapter;
     friend class CoreGdbAdapter;
+    friend class PlainGdbAdapter;
+    friend class RemoteGdbAdapter;
+    friend class TrkGdbAdapter;
 
     //
     // IDebuggerEngine implementation
@@ -226,6 +228,7 @@ private:
     void postCommandHelper(const GdbCommand &cmd);
     void setTokenBarrier();
 
+    void updateAll();
     void updateLocals();
 
 private slots:
@@ -251,7 +254,6 @@ private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
     void handleStart(const GdbResultRecord &response, const QVariant &);
-    //void handleAttach(const GdbResultRecord &, const QVariant &);
     void handleAqcuiredInferior();
     void handleAsyncOutput(const GdbMi &data);
     void handleStop1(const GdbResultRecord &, const QVariant &cookie);
@@ -260,7 +262,6 @@ private:
     void handleResultRecord(const GdbResultRecord &response);
     void handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &);
     void handleExecContinue(const GdbResultRecord &response, const QVariant &);
-    //void handleExecRun(const GdbResultRecord &response, const QVariant &);
     void handleExecJumpToLine(const GdbResultRecord &response, const QVariant &);
     void handleExecRunToFunction(const GdbResultRecord &response, const QVariant &);
     void handleInfoShared(const GdbResultRecord &response, const QVariant &);
@@ -270,11 +271,9 @@ private:
     void handleQueryPwd(const GdbResultRecord &response, const QVariant &);
     void handleQuerySources(const GdbResultRecord &response, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleDetach(const GdbResultRecord &, const QVariant &);
     //void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
     //void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void handleWatchPoint(const GdbResultRecord &, const QVariant &);
-    void handleTargetCore();
     bool showToolTip();
 
     // Convenience
@@ -412,7 +411,8 @@ private:
     void setWatchDataType(WatchData &data, const GdbMi &mi);
     void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
     void setLocals(const QList<GdbMi> &locals);
-    void connectDebuggingHelperActions(bool on);
+    void connectDebuggingHelperActions();
+    void disconnectDebuggingHelperActions();
    
     bool startModeAllowsDumpers() const;
     QString parseDisassembler(const GdbMi &lines);
@@ -432,7 +432,6 @@ private:
     Continuation m_continuationAfterDone;
     void handleInitialBreakpointsSet();
 
-    bool m_waitingForFirstBreakpointToBeHit;
     bool m_modulesListOutdated;
 
     QList<GdbCommand> m_commandsToRunOnTemporaryBreak;
@@ -444,10 +443,11 @@ private:
 
     // only one of those is active at a given time, available in m_gdbAdapter
     AbstractGdbAdapter *m_gdbAdapter;  // pointer to one listed below
-    PlainGdbAdapter *m_plainAdapter;   // owned
-    TrkGdbAdapter *m_trkAdapter;       // owned
-    RemoteGdbAdapter *m_remoteAdapter; // owned
+    AttachGdbAdapter *m_attachAdapter; // owned
     CoreGdbAdapter *m_coreAdapter;     // owned
+    PlainGdbAdapter *m_plainAdapter;   // owned
+    RemoteGdbAdapter *m_remoteAdapter; // owned
+    TrkGdbAdapter *m_trkAdapter;       // owned
     
 public:
     void showMessageBox(int icon, const QString &title, const QString &text);

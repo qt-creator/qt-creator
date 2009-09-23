@@ -31,13 +31,10 @@
 
 #include "debuggeractions.h"
 #include "gdbengine.h"
-#include "procinterrupt.h"
 
 #include <utils/qtcassert.h>
-#include <coreplugin/icore.h>
 
 #include <QtCore/QFileInfo>
-#include <QtGui/QMessageBox>
 
 namespace Debugger {
 namespace Internal {
@@ -148,7 +145,7 @@ void CoreGdbAdapter::handleTargetCore(const GdbResultRecord &response, const QVa
     if (response.resultClass == GdbResultDone) {
         setState(InferiorStarted);
         emit inferiorStarted();
-        m_engine->handleTargetCore();
+        m_engine->updateAll();
     } else {
         QTC_ASSERT(response.resultClass == GdbResultError, /**/);
         const QByteArray &msg = response.data.findChild("msg").data();

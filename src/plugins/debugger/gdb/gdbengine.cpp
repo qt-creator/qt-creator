@@ -34,10 +34,11 @@
 #include "trkoptions.h"
 #include "trkoptionspage.h"
 
-#include "plaingdbadapter.h"
-#include "trkgdbadapter.h"
-#include "remotegdbadapter.h"
+#include "attachgdbadapter.h"
 #include "coregdbadapter.h"
+#include "plaingdbadapter.h"
+#include "remotegdbadapter.h"
+#include "trkgdbadapter.h"
 
 #include "watchutils.h"
 #include "debuggeractions.h"
@@ -46,7 +47,6 @@
 #include "debuggermanager.h"
 #include "debuggertooltip.h"
 #include "gdbmi.h"
-#include "procinterrupt.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -182,6 +182,7 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
     m_trkAdapter = new TrkGdbAdapter(this, options);
     m_remoteAdapter = new RemoteGdbAdapter(this);
     m_coreAdapter = new CoreGdbAdapter(this);
+    m_attachAdapter = new AttachGdbAdapter(this);
 
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
@@ -198,22 +199,23 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
         Qt::QueuedConnection);
 }
 
-void GdbEngine::connectDebuggingHelperActions(bool on)
+void GdbEngine::connectDebuggingHelperActions()
 {
-    if (on) {
-        connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-                this, SLOT(setUseDebuggingHelpers(QVariant)));
-        connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-                this, SLOT(setDebugDebuggingHelpers(QVariant)));
-        connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
-                this, SLOT(recheckDebuggingHelperAvailability()));
-    } else {
-        disconnect(theDebuggerAction(UseDebuggingHelpers), 0, this, 0);
-        disconnect(theDebuggerAction(DebugDebuggingHelpers), 0, this, 0);
-        disconnect(theDebuggerAction(RecheckDebuggingHelpers), 0, this, 0);
-    }
+    connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+            this, SLOT(setUseDebuggingHelpers(QVariant)));
+    connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+            this, SLOT(setDebugDebuggingHelpers(QVariant)));
+    connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
+            this, SLOT(recheckDebuggingHelperAvailability()));
 }
    
+void GdbEngine::disconnectDebuggingHelperActions()
+{
+    disconnect(theDebuggerAction(UseDebuggingHelpers), 0, this, 0);
+    disconnect(theDebuggerAction(DebugDebuggingHelpers), 0, this, 0);
+    disconnect(theDebuggerAction(RecheckDebuggingHelpers), 0, this, 0);
+}
+
 DebuggerStartMode GdbEngine::startMode() const
 {
     QTC_ASSERT(!m_startParameters.isNull(), return NoStartMode);
@@ -232,6 +234,7 @@ GdbEngine::~GdbEngine()
     delete m_trkAdapter;
     delete m_remoteAdapter;
     delete m_coreAdapter;
+    delete m_attachAdapter;
 }
 
 void GdbEngine::connectAdapter()
@@ -324,7 +327,6 @@ void GdbEngine::initializeVariables()
     m_outputCodec = QTextCodec::codecForLocale();
     m_pendingRequests = 0;
     m_continuationAfterDone = 0;
-    m_waitingForFirstBreakpointToBeHit = false;
     m_commandsToRunOnTemporaryBreak.clear();
     m_cookieForToken.clear();
     m_customOutputForToken.clear();
@@ -698,6 +700,7 @@ void GdbEngine::interruptInferior()
         return;
     }
 
+    debugMessage(_("TRYING TO INTERUPT INFERIOR"));
     m_gdbAdapter->interruptInferior();
 }
 
@@ -812,7 +815,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 {
     //qDebug() << "TOKEN:" << record.token
     //    << " ACCEPTABLE:" << m_oldestAcceptableToken;
-    //qDebug() << "";
     //qDebug() << "\nRESULT" << record.token << record.toString();
 
     int token = record.token;
@@ -823,7 +825,7 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
         // In theory this should not happen, in practice it does.
         debugMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN. "
             "TWO RESPONSES FOR ONE COMMAND?").arg(token));
-        // handle a case known to occur on Linux/gdb 6.8 when debugging moc
+        // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
         // with helpers enabled. In this case we get a second response with
         // msg="Cannot find new threads: generic error"
         if (record.resultClass == GdbResultError) {
@@ -832,8 +834,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
                 tr("Executable failed"), QString::fromLocal8Bit(msg));
             showStatusMessage(tr("Process failed to start."));
             exitDebugger();
-            //qq->notifyInferiorStopped();
-            //qq->notifyInferiorExited();
         }
         return;
     }
@@ -857,8 +857,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
         << " cmd synchronized:" << cmd.synchronized
         << "\n record: " << record.toString();
 #endif
-
-    // << "\n data: " << record.data.toString(true);
 
     if (cmd.callback)
         (this->*cmd.callback)(record, cmd.cookie);
@@ -904,14 +902,14 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
     m_gdbAdapter->write(command.toLatin1() + "\r\n");
 }
 
-void GdbEngine::handleTargetCore()
+void GdbEngine::updateAll()
 {
     qq->notifyInferiorStopped();
     showStatusMessage(tr("Core file loaded."));
     m_manager->resetLocation();
     tryLoadDebuggingHelpers();
     qq->stackHandler()->setCurrentIndex(0);
-    updateLocals(); // Quick shot
+    updateLocals(); 
     reloadStack();
     if (supportsThreads())
         postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), 0);
@@ -935,7 +933,6 @@ void GdbEngine::handleQuerySources(const GdbResultRecord &record, const QVariant
             full = QDir::cleanPath(full);
             #endif
             if (fullName.isValid() && QFileInfo(full).isReadable()) {
-                //qDebug() << "STORING 2:" << fileName << full;
                 m_shortToFullName[fileName] = full;
                 m_fullToShortName[full] = fileName;
             }
@@ -1125,21 +1122,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         }
         showStatusMessage(msg);
         postCommand(_("-gdb-exit"), CB(handleExit));
-        return;
-    }
-
-    //MAC: bool isFirstStop = data.findChild("bkptno").data() == "1";
-    //!MAC: startSymbolName == data.findChild("frame").findChild("func")
-    if (m_waitingForFirstBreakpointToBeHit) {
-        m_waitingForFirstBreakpointToBeHit = false;
-
-        // If the executable dies already that early we might get something
-        // like >49*stopped,reason="exited",exit-code="0177"
-        // This is handled now above.
-
-        qq->notifyInferiorStopped();
-        handleAqcuiredInferior();
-// FIXME:        m_continuationAfterDone = true;
         return;
     }
 
@@ -1375,11 +1357,13 @@ void GdbEngine::handleStop2(const GdbMi &data)
     qq->stackHandler()->setCurrentIndex(0);
     updateLocals(); // Quick shot
 
-    int currentId = data.findChild("thread-id").data().toInt();
-
     reloadStack();
-    if (supportsThreads())
-        postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), currentId);
+
+    if (supportsThreads()) {
+        int currentId = data.findChild("thread-id").data().toInt();
+        postCommand(_("-thread-list-ids"), WatchUpdate,
+            CB(handleStackListThreads), currentId);
+    }
 
     //
     // Registers
@@ -1525,20 +1509,17 @@ void GdbEngine::shutdown()
 
 void GdbEngine::detachDebugger()
 {
-    postCommand(_("detach"), CB(handleDetach));
+    //postCommand(_("detach"), CB(handleDetach));
+    QTC_ASSERT(startMode() == AttachExternal, /**/);
+    shutdown();
 }
 
 void GdbEngine::exitDebugger()
 {
-    connectDebuggingHelperActions(false);
+    disconnectDebuggingHelperActions();
     m_outputCollector.shutdown();
     initializeVariables();
     m_gdbAdapter->shutdown();
-}
-
-void GdbEngine::handleDetach(const GdbResultRecord &, const QVariant &)
-{
-    exitDebugger();
 }
 
 int GdbEngine::currentFrame() const
@@ -1556,7 +1537,7 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 
     m_startParameters = sp;
     if (startModeAllowsDumpers())
-        connectDebuggingHelperActions(true);
+        connectDebuggingHelperActions();
 
     if (m_gdbAdapter)
         disconnectAdapter();
@@ -1567,6 +1548,8 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
         m_gdbAdapter = m_coreAdapter;
     else if (sp->startMode == StartRemote)
         m_gdbAdapter = m_remoteAdapter;
+    else if (sp->startMode == AttachExternal)
+        m_gdbAdapter = m_attachAdapter;
     else 
         m_gdbAdapter = m_plainAdapter;
 
@@ -1622,31 +1605,6 @@ void GdbEngine::continueInferior()
 }
 
 #if 0
-void GdbEngine::handleAttach(const GdbResultRecord &, const QVariant &)
-{
-    qq->notifyInferiorStopped();
-    showStatusMessage(tr("Attached to running process. Stopped."));
-    handleAqcuiredInferior();
-
-    m_manager->resetLocation();
-    recheckDebuggingHelperAvailability();
-
-    //
-    // Stack
-    //
-    qq->stackHandler()->setCurrentIndex(0);
-    updateLocals(); // Quick shot
-
-    reloadStack();
-    if (supportsThreads())
-        postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), 0);
-
-    //
-    // Registers
-    //
-    qq->reloadRegisters();
-}
-
 void GdbEngine::handleSetTargetAsync(const GdbResultRecord &record, const QVariant &)
 {
     if (record.resultClass == GdbResultDone) {
@@ -4126,7 +4084,7 @@ void GdbEngine::handleAdapterStarted()
 
 void GdbEngine::handleInferiorPreparationFailed(const QString &msg)
 {
-    debugMessage(_("INFERIOR PREPARATION FAILD"));
+    debugMessage(_("INFERIOR PREPARATION FAILED"));
     showMessageBox(QMessageBox::Critical,
         tr("Inferior start preparation failed"), msg);
     shutdown();

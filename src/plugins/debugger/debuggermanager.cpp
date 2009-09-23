@@ -769,6 +769,9 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
 
     return gdbEngine;
 #else
+    // A remote executable?
+    if (!executable.endsWith(_(".exe")))
+        return gdbEngine;
     // If a file has PDB files, it has been compiled by VS.
     QStringList pdbFiles;
     if (!getPDBFiles(executable, &pdbFiles, errorMessage))

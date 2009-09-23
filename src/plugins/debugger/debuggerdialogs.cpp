@@ -248,6 +248,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     QPushButton *refreshButton = new QPushButton(tr("Refresh"));
     connect(refreshButton, SIGNAL(clicked()), this, SLOT(rebuildProcessList()));
     m_ui->buttonBox->addButton(refreshButton, QDialogButtonBox::ActionRole);
+    m_ui->filterLineEdit->setFocus(Qt::TabFocusReason);
 
     // Do not use activated, will be single click in Oxygen
     connect(m_ui->procView, SIGNAL(doubleClicked(QModelIndex)),

@@ -366,6 +366,7 @@ private:
     ThreadsHandler *threadsHandler() { return m_threadsHandler; }
     WatchHandler *watchHandler() { return m_watchHandler; }
     SourceFilesWindow *sourceFileWindow() { return m_sourceFilesWindow; }
+    QWidget *threadsWindow() const { return m_threadsWindow; }
 
     void notifyInferiorStopped();
     void notifyInferiorRunningRequested();
@@ -377,19 +378,15 @@ private:
     void cleanupViews();
 
     //
-    // Implementation of IDebuggerManagerAccessForDebugMode
-    //
-    QWidget *threadsWindow() const { return m_threadsWindow; }
-
-    virtual bool qtDumperLibraryEnabled() const;
-    virtual QString qtDumperLibraryName() const;
-    virtual QStringList qtDumperLibraryLocations() const;
-    virtual void showQtDumperLibraryWarning(const QString &details = QString());
-    virtual bool isReverseDebugging() const;
-
-    //
     // internal implementation
     //
+    bool qtDumperLibraryEnabled() const;
+    QString qtDumperLibraryName() const;
+    QStringList qtDumperLibraryLocations() const;
+    void showQtDumperLibraryWarning(const QString &details = QString());
+    bool isReverseDebugging() const;
+    QAbstractItemModel *threadsModel();
+
     Q_SLOT void loadSessionData();
     Q_SLOT void saveSessionData();
     Q_SLOT void dumpLog();
@@ -397,7 +394,6 @@ private:
 public:
     // stuff in this block should be made private by moving it to
     // one of the interfaces
-    QAbstractItemModel *threadsModel();
     int status() const { return m_status; }
     // FIXME: hide this in the engines?
     //DebuggerStartMode startMode() const;
@@ -471,14 +467,12 @@ private:
     QAction *m_watchAction;
     QAction *m_breakAction;
     QAction *m_sepAction;
-    //QActio *m_stepByInstructionAction;
     QAction *m_reverseDirectionAction;
 
     QWidget *m_breakWindow;
     QWidget *m_localsWindow;
     QWidget *m_registerWindow;
     QWidget *m_modulesWindow;
-    //QWidget *m_tooltipWindow;
     QWidget *m_stackWindow;
     QWidget *m_threadsWindow;
     QWidget *m_watchersWindow;
