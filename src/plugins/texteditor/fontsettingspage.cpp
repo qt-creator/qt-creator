@@ -251,6 +251,8 @@ QColor FormatDescription::foreground() const
         } else {
             return m_format.foreground();
         }
+    } else if (m_name == QLatin1String(Constants::C_OCCURRENCES_UNUSED)) {
+        return Qt::lightGray;
     } else if (m_name == QLatin1String(Constants::C_PARENTHESES)) {
         return QColor(Qt::red);
     }
@@ -596,11 +598,11 @@ void FontSettingsPage::apply()
 void FontSettingsPage::saveSettings()
 {
     if (d_ptr->m_value != d_ptr->m_lastValue) {
-	d_ptr->m_lastValue = d_ptr->m_value;
-	if (QSettings *settings = Core::ICore::instance()->settings())
-	    d_ptr->m_value.toSettings(d_ptr->m_settingsGroup, settings);
+        d_ptr->m_lastValue = d_ptr->m_value;
+        if (QSettings *settings = Core::ICore::instance()->settings())
+            d_ptr->m_value.toSettings(d_ptr->m_settingsGroup, settings);
 
-	QTimer::singleShot(0, this, SLOT(delayedChange()));
+        QTimer::singleShot(0, this, SLOT(delayedChange()));
     }
 }
 

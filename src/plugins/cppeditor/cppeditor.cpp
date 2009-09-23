@@ -949,16 +949,22 @@ void CPPEditor::updateMethodBoxIndex()
 
 static void highlightUses(QTextDocument *doc,
                           const QTextCharFormat &format,
+                          const QTextCharFormat &unusedFormat,
                           const QList<SemanticInfo::Use> &uses,
                           QList<QTextEdit::ExtraSelection> *selections)
 {
-    if (uses.size() <= 1)
-        return;
+    bool isUnused = false;
+    if (uses.size() == 1)
+        isUnused = true;
 
     foreach (const SemanticInfo::Use &use, uses) {
         QTextEdit::ExtraSelection sel;
 
-        sel.format = format;
+        if (isUnused)
+            sel.format = unusedFormat;
+        else
+            sel.format = format;
+
         sel.cursor = QTextCursor(doc);
 
         const int anchor = doc->findBlockByNumber(use.line - 1).position() + use.column - 1;
@@ -1708,6 +1714,7 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->rehighlight();
 
     m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
+    m_occurrencesUnusedFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_UNUSED));
     m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
 }
 
@@ -1786,11 +1793,9 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
             }
         }
 
-        if (! good)
-            continue;
-
-        highlightUses(document(), m_occurrencesFormat, uses, &selections);
-        break; // done
+        if (uses.size() == 1 || good)
+            highlightUses(document(), m_occurrencesFormat, m_occurrencesUnusedFormat,
+                          uses, &selections);
     }
 
     setExtraSelections(CodeSemanticsSelection, selections);

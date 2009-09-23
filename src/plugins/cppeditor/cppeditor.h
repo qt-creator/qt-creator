@@ -281,6 +281,7 @@ private:
     QTimer *m_updateMethodBoxTimer;
     QTimer *m_updateUsesTimer;
     QTextCharFormat m_occurrencesFormat;
+    QTextCharFormat m_occurrencesUnusedFormat;
     QTextCharFormat m_occurrenceRenameFormat;
 
     QList<QTextEdit::ExtraSelection> m_renameSelections;
