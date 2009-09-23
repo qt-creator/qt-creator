@@ -193,14 +193,28 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
     connect(this, SIGNAL(applicationOutputAvailable(QString)),
         m_manager, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
+}
 
-    // FIXME: These trigger even if the engine is not active
-    connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(setUseDebuggingHelpers(QVariant)));
-    connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(setDebugDebuggingHelpers(QVariant)));
-    connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
-        this, SLOT(recheckDebuggingHelperAvailability()));
+void GdbEngine::connectDebuggingHelperActions(bool on)
+{
+    if (on) {
+        connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+                this, SLOT(setUseDebuggingHelpers(QVariant)));
+        connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+                this, SLOT(setDebugDebuggingHelpers(QVariant)));
+        connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
+                this, SLOT(recheckDebuggingHelperAvailability()));
+    } else {
+        disconnect(theDebuggerAction(UseDebuggingHelpers), 0, this, 0);
+        disconnect(theDebuggerAction(DebugDebuggingHelpers), 0, this, 0);
+        disconnect(theDebuggerAction(RecheckDebuggingHelpers), 0, this, 0);
+    }
+}
+   
+DebuggerStartMode GdbEngine::startMode() const
+{
+    QTC_ASSERT(!m_startParameters.isNull(), return NoStartMode);
+    return m_startParameters->startMode;
 }
 
 GdbEngine::~GdbEngine()
@@ -529,11 +543,18 @@ void GdbEngine::handleResponse(const QByteArray &buff)
         }
 
         case '~': {
+            // Linux/Mac gdb: [New [Tt]hread 0x545 (LWP 4554)]
+            // MinGW gdb 6.8: [New thread 2728.0x1034]
             static QRegExp re(_("New .hread 0x[0-9a-f]* \\(LWP ([0-9]*)\\)"));
+            static QRegExp re2(_("New .hread ([0-9]+)\\.0x[0-9a-f]+"));
+            QTC_ASSERT(re.isValid() && re2.isValid(), return);
             QByteArray data = GdbMi::parseCString(from, to);
             m_pendingConsoleStreamOutput += data;
-            if (re.indexIn(_(data)) != -1)
+            if (re.indexIn(_(data)) != -1) {
                 maybeHandleInferiorPidChanged(re.cap(1));
+            } else if (re2.indexIn(_(data)) != -1) {
+                maybeHandleInferiorPidChanged(re2.cap(1));
+            }
             if (data.startsWith("Reading symbols from "))
                 showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))));
             break;
@@ -1498,6 +1519,7 @@ void GdbEngine::detachDebugger()
 
 void GdbEngine::exitDebugger()
 {
+    connectDebuggingHelperActions(false);
     m_outputCollector.shutdown();
     initializeVariables();
     m_gdbAdapter->shutdown();
@@ -1522,6 +1544,8 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     //QTC_ASSERT(m_gdbAdapter == 0, delete m_gdbAdapter; m_gdbAdapter = 0);
 
     m_startParameters = sp;
+    if (startModeAllowsDumpers())
+        connectDebuggingHelperActions(true);
 
     if (m_gdbAdapter)
         disconnectAdapter();
@@ -3838,9 +3862,8 @@ void GdbEngine::recheckDebuggingHelperAvailability()
 
 bool GdbEngine::startModeAllowsDumpers() const
 {
-    return startMode() == StartInternal
-        || startMode() == StartExternal
-        || startMode() == AttachExternal;
+    const DebuggerStartMode m = startMode();
+    return m == StartInternal || m == StartExternal || m == AttachExternal;
 }
 
 void GdbEngine::watchPoint(const QPoint &pnt)

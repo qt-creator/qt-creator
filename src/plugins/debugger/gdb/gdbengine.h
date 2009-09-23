@@ -281,7 +281,7 @@ private:
         { m_manager->showStatusMessage(msg, timeout); }
     int status() const { return m_manager->status(); }
     QMainWindow *mainWindow() const { return m_manager->mainWindow(); }
-    DebuggerStartMode startMode() const { return m_startParameters->startMode; }
+    DebuggerStartMode startMode() const;
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
 
     void handleChildren(const WatchData &parent, const GdbMi &child,
@@ -412,6 +412,7 @@ private:
     void setWatchDataType(WatchData &data, const GdbMi &mi);
     void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
     void setLocals(const QList<GdbMi> &locals);
+    void connectDebuggingHelperActions(bool on);
    
     bool startModeAllowsDumpers() const;
     QString parseDisassembler(const GdbMi &lines);
