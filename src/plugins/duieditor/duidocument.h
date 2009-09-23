@@ -36,9 +36,9 @@
 #include <QtCore/QString>
 
 #include "duieditor_global.h"
-
 #include "qmljsengine_p.h"
 #include "qmljsastfwd_p.h"
+#include "qmlsymbol.h"
 
 namespace DuiEditor {
 
@@ -47,7 +47,7 @@ class DUIEDITOR_EXPORT DuiDocument
 public:
     typedef QSharedPointer<DuiDocument> Ptr;
     typedef QList<DuiDocument::Ptr> PtrList;
-    typedef QMap<QString, QPair<QmlJS::AST::SourceLocation, QmlJS::AST::Node*> > IdTable;
+    typedef QMap<QString, QmlIdSymbol*> IdTable;
 
 protected:
     DuiDocument(const QString &fileName);

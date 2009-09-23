@@ -19,6 +19,8 @@ void QmlExpressionUnderCursor::operator()(const QTextCursor &cursor,
 {
     _pos = cursor.position();
     _expressionNode = 0;
+    _expressionOffset = -1;
+    _expressionLength = -1;
     _scopes.clear();
 
     if (program)
@@ -35,6 +37,30 @@ bool QmlExpressionUnderCursor::visit(QmlJS::AST::Block *ast)
 void QmlExpressionUnderCursor::endVisit(QmlJS::AST::Block *)
 {
     _scopes.pop();
+}
+
+bool QmlExpressionUnderCursor::visit(QmlJS::AST::FieldMemberExpression *ast)
+{
+    if (ast->identifierToken.offset <= _pos && _pos <= ast->identifierToken.end()) {
+        _expressionNode = ast;
+        _expressionOffset = ast->identifierToken.offset;
+        _expressionLength = ast->identifierToken.length;
+        _expressionScopes = _scopes;
+    }
+
+    return true;
+}
+
+bool QmlExpressionUnderCursor::visit(QmlJS::AST::IdentifierExpression *ast)
+{
+    if (ast->firstSourceLocation().offset <= _pos && _pos <= ast->lastSourceLocation().end()) {
+        _expressionNode = ast;
+        _expressionOffset = ast->firstSourceLocation().offset;
+        _expressionLength = ast->lastSourceLocation().end() - _expressionOffset;
+        _expressionScopes = _scopes;
+    }
+
+    return false;
 }
 
 bool QmlExpressionUnderCursor::visit(QmlJS::AST::UiObjectBinding *ast)
@@ -59,14 +85,4 @@ bool QmlExpressionUnderCursor::visit(QmlJS::AST::UiObjectDefinition *ast)
 void QmlExpressionUnderCursor::endVisit(QmlJS::AST::UiObjectDefinition *)
 {
     _scopes.pop();
-}
-
-bool QmlExpressionUnderCursor::visit(QmlJS::AST::UiScriptBinding *ast)
-{
-    if (ast->firstSourceLocation().offset <= _pos && _pos <= ast->lastSourceLocation().end()) {
-        _expressionNode = ast;
-        _expressionScopes = _scopes;
-    }
-
-    return false;
 }

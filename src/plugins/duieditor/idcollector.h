@@ -7,8 +7,7 @@
 #include <QString>
 
 #include "qmljsastvisitor_p.h"
-
-namespace QmlJS { class NameId; }
+#include "qmlsymbol.h"
 
 namespace DuiEditor {
 namespace Internal {
@@ -16,7 +15,7 @@ namespace Internal {
 class IdCollector: protected QmlJS::AST::Visitor
 {
 public:
-    QMap<QString, QPair<QmlJS::AST::SourceLocation, QmlJS::AST::Node*> > operator()(QmlJS::AST::UiProgram *ast);
+    QMap<QString, QmlIdSymbol*> operator()(const QString &fileName, QmlJS::AST::UiProgram *ast);
 
 protected:
     virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
@@ -27,10 +26,11 @@ protected:
     virtual void endVisit(QmlJS::AST::UiObjectDefinition *);
 
 private:
-    void addId(QmlJS::NameId* id, const QmlJS::AST::SourceLocation &idLocation);
+    void addId(const QString &id, QmlJS::AST::UiScriptBinding *ast);
 
 private:
-    QMap<QString, QPair<QmlJS::AST::SourceLocation, QmlJS::AST::Node*> > _ids;
+    QString _fileName;
+    QMap<QString, QmlIdSymbol*> _ids;
     QStack<QmlJS::AST::Node *> _scopes;
 };
 
