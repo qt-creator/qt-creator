@@ -34,12 +34,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
-
-namespace Core {
-namespace Utils {
-    class FileSearchResult;
-} // end of namespace Utils
-} // end of namespace Core
+#include <utils/filesearch.h>
 
 namespace Find {
 class SearchResultWindow;
