@@ -132,7 +132,6 @@ private:
     QString m_workingDir;
     ProjectExplorer::ApplicationRunConfiguration::RunMode m_runMode;
     bool m_userSetName;
-    QWidget *m_configWidget;
     bool m_cachedTargetInformationValid;
     bool m_isUsingDyldImageSuffix;
     bool m_userSetWokingDirectory;

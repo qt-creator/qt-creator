@@ -61,7 +61,6 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
       m_proFilePath(proFilePath),
       m_runMode(Gui),
       m_userSetName(false),
-      m_configWidget(0),
       m_cachedTargetInformationValid(false),
       m_isUsingDyldImageSuffix(false),
       m_userSetWokingDirectory(false),
