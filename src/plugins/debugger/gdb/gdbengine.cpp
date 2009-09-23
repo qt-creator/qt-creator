@@ -324,7 +324,6 @@ void GdbEngine::initializeVariables()
     m_outputCodec = QTextCodec::codecForLocale();
     m_pendingRequests = 0;
     m_continuationAfterDone = 0;
-    m_waitingForFirstBreakpointToBeHit = false;
     m_commandsToRunOnTemporaryBreak.clear();
     m_cookieForToken.clear();
     m_customOutputForToken.clear();
@@ -1122,21 +1121,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         return;
     }
 
-    //MAC: bool isFirstStop = data.findChild("bkptno").data() == "1";
-    //!MAC: startSymbolName == data.findChild("frame").findChild("func")
-    if (m_waitingForFirstBreakpointToBeHit) {
-        m_waitingForFirstBreakpointToBeHit = false;
-
-        // If the executable dies already that early we might get something
-        // like >49*stopped,reason="exited",exit-code="0177"
-        // This is handled now above.
-
-        qq->notifyInferiorStopped();
-        handleAqcuiredInferior();
-// FIXME:        m_continuationAfterDone = true;
-        return;
-    }
-
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(status() == DebuggerInferiorStopRequested,
             qDebug() << "STATUS:" << status())
@@ -1369,11 +1353,13 @@ void GdbEngine::handleStop2(const GdbMi &data)
     qq->stackHandler()->setCurrentIndex(0);
     updateLocals(); // Quick shot
 
-    int currentId = data.findChild("thread-id").data().toInt();
-
     reloadStack();
-    if (supportsThreads())
-        postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), currentId);
+
+    if (supportsThreads()) {
+        int currentId = data.findChild("thread-id").data().toInt();
+        postCommand(_("-thread-list-ids"), WatchUpdate,
+            CB(handleStackListThreads), currentId);
+    }
 
     //
     // Registers
@@ -1616,31 +1602,6 @@ void GdbEngine::continueInferior()
 }
 
 #if 0
-void GdbEngine::handleAttach(const GdbResultRecord &, const QVariant &)
-{
-    qq->notifyInferiorStopped();
-    showStatusMessage(tr("Attached to running process. Stopped."));
-    handleAqcuiredInferior();
-
-    m_manager->resetLocation();
-    recheckDebuggingHelperAvailability();
-
-    //
-    // Stack
-    //
-    qq->stackHandler()->setCurrentIndex(0);
-    updateLocals(); // Quick shot
-
-    reloadStack();
-    if (supportsThreads())
-        postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), 0);
-
-    //
-    // Registers
-    //
-    qq->reloadRegisters();
-}
-
 void GdbEngine::handleSetTargetAsync(const GdbResultRecord &record, const QVariant &)
 {
     if (record.resultClass == GdbResultDone) {

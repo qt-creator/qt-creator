@@ -251,7 +251,6 @@ private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
     void handleStart(const GdbResultRecord &response, const QVariant &);
-    //void handleAttach(const GdbResultRecord &, const QVariant &);
     void handleAqcuiredInferior();
     void handleAsyncOutput(const GdbMi &data);
     void handleStop1(const GdbResultRecord &, const QVariant &cookie);
@@ -260,7 +259,6 @@ private:
     void handleResultRecord(const GdbResultRecord &response);
     void handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &);
     void handleExecContinue(const GdbResultRecord &response, const QVariant &);
-    //void handleExecRun(const GdbResultRecord &response, const QVariant &);
     void handleExecJumpToLine(const GdbResultRecord &response, const QVariant &);
     void handleExecRunToFunction(const GdbResultRecord &response, const QVariant &);
     void handleInfoShared(const GdbResultRecord &response, const QVariant &);
@@ -432,7 +430,6 @@ private:
     Continuation m_continuationAfterDone;
     void handleInitialBreakpointsSet();
 
-    bool m_waitingForFirstBreakpointToBeHit;
     bool m_modulesListOutdated;
 
     QList<GdbCommand> m_commandsToRunOnTemporaryBreak;
