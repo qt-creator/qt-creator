@@ -1100,7 +1100,7 @@ static bool isAllowedTransition(int from, int to)
 {
     return (from == -1)
       || (from == DebuggerProcessNotReady && to == DebuggerProcessStartingUp)
-      //|| (from == DebuggerProcessStartingUp && to == DebuggerInferiorStopped)
+      || (from == DebuggerProcessStartingUp && to == DebuggerInferiorStopped)
       || (from == DebuggerInferiorStopped && to == DebuggerInferiorRunningRequested)
       || (from == DebuggerInferiorRunningRequested && to == DebuggerInferiorRunning)
       || (from == DebuggerInferiorRunning && to == DebuggerInferiorStopRequested)

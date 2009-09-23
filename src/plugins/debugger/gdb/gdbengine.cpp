@@ -543,20 +543,27 @@ void GdbEngine::handleResponse(const QByteArray &buff)
         }
 
         case '~': {
-            // Linux/Mac gdb: [New [Tt]hread 0x545 (LWP 4554)]
-            // MinGW gdb 6.8: [New thread 2728.0x1034]
-            static QRegExp re(_("New .hread 0x[0-9a-f]* \\(LWP ([0-9]*)\\)"));
-            static QRegExp re2(_("New .hread ([0-9]+)\\.0x[0-9a-f]+"));
-            QTC_ASSERT(re.isValid() && re2.isValid(), return);
             QByteArray data = GdbMi::parseCString(from, to);
             m_pendingConsoleStreamOutput += data;
-            if (re.indexIn(_(data)) != -1) {
-                maybeHandleInferiorPidChanged(re.cap(1));
-            } else if (re2.indexIn(_(data)) != -1) {
-                maybeHandleInferiorPidChanged(re2.cap(1));
+
+            // Parse pid from noise.
+            if (!inferiorPid()) {
+                // Linux/Mac gdb: [New [Tt]hread 0x545 (LWP 4554)]
+                static QRegExp re1(_("New .hread 0x[0-9a-f]+ \\(LWP ([0-9]*)\\)"));
+                // MinGW 6.8: [New thread 2437.0x435345]
+                static QRegExp re2(_("New .hread ([0-9]+)\\.0x[0-9a-f]*"));
+                QTC_ASSERT(re1.isValid() && re2.isValid(), return);
+                if (re1.indexIn(_(data)) != -1)
+                    maybeHandleInferiorPidChanged(re1.cap(1));
+                else if (re2.indexIn(_(data)) != -1)
+                    maybeHandleInferiorPidChanged(re2.cap(1));
             }
+
+            // Show some messages to give the impression something happens.
             if (data.startsWith("Reading symbols from "))
-                showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))));
+                showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))), 1000);
+            if (data.startsWith("[New "))
+                showStatusMessage(_(data), 1000);
             break;
         }
 
@@ -4105,6 +4112,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg)
 void GdbEngine::handleAdapterStarted()
 {
     debugMessage(_("ADAPTER SUCCESSFULLY STARTED, PREPARING INFERIOR"));
+    qq->notifyInferiorStopped();
     m_gdbAdapter->prepareInferior();
 }
 
@@ -4120,6 +4128,7 @@ void GdbEngine::handleInferiorPreparationFailed(const QString &msg)
 
 void GdbEngine::handleInferiorPrepared()
 {
+    debugMessage(_("INFERIOR PREPARED"));
     // FIXME: Check that inferior is in "stopped" state
     qq->notifyInferiorStopped();
     showStatusMessage(tr("Inferior prepared for startup."));
@@ -4247,7 +4256,7 @@ void GdbEngine::handleInferiorPrepared()
 
 void GdbEngine::handleInitialBreakpointsSet()
 {
-    showStatusMessage(tr("Finishing initial breakpoint setting."));
+    showStatusMessage(tr("Initial breakpoint setting finished."), 1000);
     qq->notifyInferiorRunningRequested();
     m_gdbAdapter->startInferior();
 }
@@ -4255,14 +4264,14 @@ void GdbEngine::handleInitialBreakpointsSet()
 void GdbEngine::handleInferiorStartFailed(const QString &msg)
 {
     debugMessage(_("INFERIOR START FAILED"));
-    showMessageBox(QMessageBox::Critical, tr("Error"),
-        tr("Inferior start failed:\n") + msg);
+    showMessageBox(QMessageBox::Critical, tr("Inferior start failed"), msg);
     qq->notifyInferiorExited();
     m_manager->exitDebugger();
 }
 
 void GdbEngine::handleInferiorStarted()
 {
+    debugMessage(_("INFERIOR STARTED"));
     qq->notifyInferiorRunning();
 }
 
@@ -4274,8 +4283,8 @@ void GdbEngine::handleInferiorShutDown()
 void GdbEngine::handleInferiorShutdownFailed(const QString &msg)
 {
     debugMessage(_("INFERIOR SHUTDOWN FAILED"));
-    showMessageBox(QMessageBox::Critical, tr("Error"),
-        tr("Inferior shutdown failed:\n") + msg);
+    showMessageBox(QMessageBox::Critical,
+        tr("Inferior shutdown failed"), msg);
     qq->notifyInferiorExited();
     m_manager->exitDebugger();
 }
@@ -4289,8 +4298,8 @@ void GdbEngine::handleAdapterShutDown()
 void GdbEngine::handleAdapterShutdownFailed(const QString &msg)
 {
     debugMessage(_("ADAPTER SHUTDOWN FAILED"));
-    showMessageBox(QMessageBox::Critical, tr("Error"),
-        tr("Inferior shutdown failed:\n") + msg);
+    showMessageBox(QMessageBox::Critical,
+        tr("Inferior shutdown failed"), msg);
     qq->notifyInferiorExited();
 }
 
