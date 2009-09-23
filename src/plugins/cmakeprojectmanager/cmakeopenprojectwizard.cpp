@@ -354,16 +354,18 @@ void CMakeRunPage::initializePage()
         m_generatorComboBox->setVisible(true);
         QString cachedGenerator;
         // Try to find out generator from CMakeCachhe file, if it exists
+
+
         QFile fi(m_buildDirectory + "/CMakeCache.txt");
         if (fi.exists()) {
             // Cache exists, then read it...
-            if (fi.open(QIODevice::ReadOnly)) {
+            if (fi.open(QIODevice::ReadOnly | QIODevice::Text)) {
                 while (fi.canReadLine()) {
                     QString line = fi.readLine();
                     if (line.startsWith("CMAKE_GENERATOR:INTERNAL=")) {
                         int splitpos = line.indexOf('=');
                         if (splitpos != -1) {
-                            cachedGenerator = line.mid(splitpos).trimmed();
+                            cachedGenerator = line.mid(splitpos + 1).trimmed();
                         }
                         break;
                     }
