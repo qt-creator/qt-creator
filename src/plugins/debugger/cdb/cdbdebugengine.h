@@ -99,6 +99,7 @@ public:
     virtual void reloadRegisters();
     virtual void reloadSourceFiles();
     virtual void reloadFullStack() {}
+    virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;
 
 public slots:
     void syncDebuggerPaths();

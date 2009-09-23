@@ -61,7 +61,7 @@ public:
     void setEnvironment(const QStringList &env) { m_gdbProc.setEnvironment(env); }
     bool isTrkAdapter() const { return false; }
 
-    void startAdapter(const DebuggerStartParametersPtr &sp);
+    void startAdapter();
     void prepareInferior();
     void startInferior();
     void interruptInferior();
@@ -83,7 +83,6 @@ private:
     Q_SLOT void stubError(const QString &msg);
 
     QProcess m_gdbProc;
-    DebuggerStartParametersPtr m_startParameters;
     Core::Utils::ConsoleProcess m_stubProc;
 };
 

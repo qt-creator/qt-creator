@@ -83,24 +83,23 @@ PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
 //        m_manager, SLOT(exitDebugger()));
 }
 
-void PlainGdbAdapter::startAdapter(const DebuggerStartParametersPtr &sp)
+void PlainGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
-    m_startParameters = sp;
 
     QStringList gdbArgs;
     gdbArgs.prepend(_("mi"));
     gdbArgs.prepend(_("-i"));
 
-    if (m_startParameters->useTerminal) {
+    if (startParameters().useTerminal) {
         m_stubProc.stop(); // We leave the console open, so recycle it now.
 
-        m_stubProc.setWorkingDirectory(m_startParameters->workingDir);
-        m_stubProc.setEnvironment(m_startParameters->environment);
-        if (!m_stubProc.start(m_startParameters->executable,
-                             m_startParameters->processArgs)) {
+        m_stubProc.setWorkingDirectory(startParameters().workingDir);
+        m_stubProc.setEnvironment(startParameters().environment);
+        if (!m_stubProc.start(startParameters().executable,
+                             startParameters().processArgs)) {
             // Error message for user is delivered via a signal.
             emitAdapterStartFailed(QString());
             return;
@@ -113,10 +112,10 @@ void PlainGdbAdapter::startAdapter(const DebuggerStartParametersPtr &sp)
         }
         gdbArgs.prepend(_("--tty=") + m_engine->m_outputCollector.serverName());
 
-        if (!m_startParameters->workingDir.isEmpty())
-            setWorkingDirectory(m_startParameters->workingDir);
-        if (!m_startParameters->environment.isEmpty())
-            setEnvironment(m_startParameters->environment);
+        if (!startParameters().workingDir.isEmpty())
+            setWorkingDirectory(startParameters().workingDir);
+        if (!startParameters().environment.isEmpty())
+            setEnvironment(startParameters().environment);
     }
 
     QString location = theDebuggerStringSetting(GdbLocation);
@@ -135,9 +134,9 @@ void PlainGdbAdapter::prepareInferior()
 {
     QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
     setState(InferiorPreparing);
-    if (!m_startParameters->processArgs.isEmpty())
+    if (!startParameters().processArgs.isEmpty())
         m_engine->postCommand(_("-exec-arguments ")
-            + m_startParameters->processArgs.join(_(" ")));
+            + startParameters().processArgs.join(_(" ")));
     QFileInfo fi(m_engine->startParameters().executable);
     m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fi.absoluteFilePath()),
         CB(handleFileExecAndSymbols));

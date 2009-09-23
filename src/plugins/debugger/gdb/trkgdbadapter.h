@@ -32,6 +32,7 @@
 
 #include "trkutils.h"
 #include "trkdevice.h"
+#include "trkoptions.h"
 #include "abstractgdbadapter.h"
 
 #include <QtCore/QHash>
@@ -47,8 +48,6 @@
 
 namespace Debugger {
 namespace Internal {
-
-struct TrkOptions;
 
 struct GdbResult
 {
@@ -85,6 +84,7 @@ public:
     // Set a device (from the project) to override the settings.
     QString overrideTrkDevice() const;
     void setOverrideTrkDevice(const QString &);
+    const TrkOptionsPtr options() const { return m_options; }
 
 signals:
     void output(const QString &msg);
@@ -100,7 +100,6 @@ private:
     QProcess m_gdbProc;
     QProcess m_rfcommProc;
     bool m_running;
-    DebuggerStartParametersPtr m_startParameters;
     void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
 
 public:
@@ -116,7 +115,7 @@ public:
     void setEnvironment(const QStringList &env);
     bool isTrkAdapter() const { return true; }
 
-    void startAdapter(const DebuggerStartParametersPtr &sp);
+    void startAdapter();
     void prepareInferior();
     void startInferior();
     void interruptInferior();

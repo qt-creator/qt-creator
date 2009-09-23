@@ -65,6 +65,10 @@ class GdbMi;
 class WatchData;
 class BreakpointData;
 
+class PlainGdbAdapter;
+class TrkGdbAdapter;
+class RemoteGdbAdapter;
+
 enum DebuggingHelperState
 {
     DebuggingHelperUninitialized,
@@ -80,7 +84,6 @@ class GdbEngine : public IDebuggerEngine
 public:
     explicit GdbEngine(DebuggerManager *parent);
     ~GdbEngine();
-    void setGdbAdapter(AbstractGdbAdapter *adapter);
 
 signals:
     void gdbInputAvailable(int channel, const QString &msg);
@@ -92,8 +95,6 @@ private:
     friend class TrkGdbAdapter;
     friend class RemoteGdbAdapter;
 
-    const DebuggerStartParameters &startParameters() const
-        { return *m_startParameters; }
     //
     // IDebuggerEngine implementation
     //
@@ -107,7 +108,6 @@ private:
     void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
     void startDebugger(const DebuggerStartParametersPtr &sp);
     void exitDebugger();
-    void exitDebugger2();
     void detachDebugger();
 
     void continueInferior();
@@ -156,7 +156,8 @@ private:
     bool supportsThreads() const;
     void gotoLocation(const StackFrame &frame, bool setLocationMarker);
 
-    void initializeConnections();
+    void connectAdapter();
+    void disconnectAdapter();
     void initializeVariables();
     QString fullName(const QString &fileName);
     // get one usable name out of these, try full names first
@@ -248,7 +249,7 @@ private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
     void handleStart(const GdbResultRecord &response, const QVariant &);
-    void handleAttach(const GdbResultRecord &, const QVariant &);
+    //void handleAttach(const GdbResultRecord &, const QVariant &);
     void handleAqcuiredInferior();
     void handleAsyncOutput(const GdbMi &data);
     void handleStop1(const GdbResultRecord &, const QVariant &cookie);
@@ -268,9 +269,9 @@ private:
     void handleQuerySources(const GdbResultRecord &response, const QVariant &);
     void handleTargetCore(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleExitHelper(const GdbResultRecord &, const QVariant &);
-    void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
-    void handleTargetRemote(const GdbResultRecord &, const QVariant &);
+    void handleDetach(const GdbResultRecord &, const QVariant &);
+    //void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
+    //void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void handleWatchPoint(const GdbResultRecord &, const QVariant &);
     bool showToolTip();
 
@@ -280,7 +281,7 @@ private:
         { m_manager->showStatusMessage(msg, timeout); }
     int status() const { return m_manager->status(); }
     QMainWindow *mainWindow() const { return m_manager->mainWindow(); }
-    DebuggerStartMode startMode() const { return m_startParameters->startMode; }
+    DebuggerStartMode startMode() const;
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
 
     void handleChildren(const WatchData &parent, const GdbMi &child,
@@ -411,6 +412,7 @@ private:
     void setWatchDataType(WatchData &data, const GdbMi &mi);
     void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
     void setLocals(const QList<GdbMi> &locals);
+    void connectDebuggingHelperActions(bool on);
    
     bool startModeAllowsDumpers() const;
     QString parseDisassembler(const GdbMi &lines);
@@ -440,8 +442,18 @@ private:
     DebuggerStartParametersPtr m_startParameters;
     // make sure to re-initialize new members in initializeVariables();
 
+    // only one of those is active at a given time
+    PlainGdbAdapter *m_plainAdapter;
+    TrkGdbAdapter *m_trkAdapter;
+    RemoteGdbAdapter *m_remoteAdapter;
+    
 public:
+    void showMessageBox(int icon, const QString &title, const QString &text);
     void debugMessage(const QString &msg);
+    void addOptionPages(QList<Core::IOptionsPage*> *opts) const;
+    const DebuggerStartParameters &startParameters() const
+        { return *m_startParameters; }
+
     OutputCollector m_outputCollector;
 };
 

@@ -240,7 +240,7 @@ void TrkGdbAdapter::startInferiorEarly()
     if (!m_trkDevice.open(device, &errorMessage)) {
         logMessage(QString::fromLatin1("Waiting on %1 (%2)").arg(device, errorMessage));
         // Do not loop forever
-        if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 60 : 5)) {
+        if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 3 : 5)) {
             QTimer::singleShot(1000, this, SLOT(startInferiorEarly()));
         } else {
             QString msg = QString::fromLatin1("Failed to connect to %1 after "
@@ -275,8 +275,13 @@ void TrkGdbAdapter::startInferiorEarly()
 
 void TrkGdbAdapter::logMessage(const QString &msg)
 {
-    if (m_verbose)
+    if (m_verbose) {
+#ifdef STANDALONE_RUNNER
         emit output(msg);
+#else
+        m_engine->debugMessage(msg);
+#endif
+    }
 }
 
 //
@@ -1339,12 +1344,11 @@ void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
     logMessage(_("GDB: Process State %1").arg(newState));
 }
 
-void TrkGdbAdapter::startAdapter(const DebuggerStartParametersPtr &sp)
+void TrkGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
-    m_startParameters = sp;
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
     if (m_options->mode == TrkOptions::BlueTooth) {
         const QString device = effectiveTrkDevice();
