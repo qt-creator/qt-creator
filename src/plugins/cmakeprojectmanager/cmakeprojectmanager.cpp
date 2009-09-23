@@ -42,6 +42,7 @@
 #include <QtGui/QFormLayout>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QApplication>
+#include <QtGui/QLabel>
 
 using namespace CMakeProjectManager::Internal;
 
@@ -50,12 +51,7 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_projectContext = uidm->uniqueIdentifier(CMakeProjectManager::Constants::PROJECTCONTEXT);
-    m_projectLanguage = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
-}
-
-CMakeSettingsPage::~CMakeSettingsPage()
-{
-
+    m_projectLanguage = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);    
 }
 
 int CMakeManager::projectContext() const
@@ -71,14 +67,6 @@ int CMakeManager::projectLanguage() const
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName)
 {
     // TODO check wheter this project is already opened
-    // Check that we have a cmake executable first
-    // Look at the settings first
-    QString cmakeExecutable = m_settingsPage->cmakeExecutable();
-    if (cmakeExecutable.isNull())
-        m_settingsPage->askUserForCMakeExecutable();
-    cmakeExecutable = m_settingsPage->cmakeExecutable();
-    if (cmakeExecutable.isNull())
-        return 0;
     return new CMakeProject(this, fileName);
 }
 
@@ -90,6 +78,16 @@ QString CMakeManager::mimeType() const
 QString CMakeManager::cmakeExecutable() const
 {
     return m_settingsPage->cmakeExecutable();
+}
+
+bool CMakeManager::isCMakeExecutableValid() const
+{
+    return m_settingsPage->isCMakeExecutableValid();
+}
+
+void CMakeManager::setCMakeExecutable(const QString &executable)
+{
+    m_settingsPage->setCMakeExecutable(executable);
 }
 
 bool CMakeManager::hasCodeBlocksMsvcGenerator() const
@@ -110,18 +108,15 @@ QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QStrin
     // The mid term plan is to move away from the CodeBlocks Generator and use our own
     // QtCreator generator, which actually can be very similar to the CodeBlock Generator
 
-
     // TODO we need to pass on the same paremeters as the cmakestep
     QString buildDirectoryPath = buildDirectory.absolutePath();
-    qDebug()<<"Creating cbp file in"<<buildDirectoryPath;
     buildDirectory.mkpath(buildDirectoryPath);
     QProcess *cmake = new QProcess;
     cmake->setWorkingDirectory(buildDirectoryPath);
     cmake->setProcessChannelMode(QProcess::MergedChannels);
     cmake->setEnvironment(env.toStringList());
 
-    const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ? QString(QLatin1Char('.')) : sourceDirectory;
-    qDebug()<<cmakeExecutable()<<srcdir<<arguments<<generator;
+    const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ? QString(QLatin1Char('.')) : sourceDirectory;    
     cmake->start(cmakeExecutable(), QStringList() << srcdir << arguments << generator);
     return cmake;
 }
@@ -157,106 +152,85 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
     return QString();
 }
 
-////
-// CMakeRunner
-////
-// TODO give a better name, what this class is to update cached information
-// about a cmake executable, with qtconcurrent
-// The nifty feature of this class is that it does so in a seperate thread,
-// not blocking the main thread
-
-CMakeRunner::CMakeRunner()
-    : m_cacheUpToDate(false)
-{
-
-}
-
-void CMakeRunner::run(QFutureInterface<void> &fi)
-{
-    m_mutex.lock();
-    QString executable = m_executable;
-    m_mutex.unlock();
-    QProcess cmake;
-    cmake.start(executable, QStringList(QLatin1String("--help")));
-    cmake.waitForFinished();
-    QString response = cmake.readAll();
-    QRegExp versionRegexp(QLatin1String("^cmake version ([*\\d\\.]*)-(|patch (\\d*))(|\\r)\\n"));
-    versionRegexp.indexIn(response);
-
-    m_mutex.lock();
-    m_supportsQtCreator = response.contains(QLatin1String("QtCreator"));
-    m_hasCodeBlocksMsvcGenerator = response.contains(QLatin1String("CodeBlocks - NMake Makefiles"));
-    m_version = versionRegexp.cap(1);
-    if (!(versionRegexp.capturedTexts().size() > 3))
-        m_version += QLatin1Char('.') + versionRegexp.cap(3);
-    m_cacheUpToDate = true;
-    m_mutex.unlock();
-    fi.reportFinished();
-}
-
-void CMakeRunner::setExecutable(const QString &executable)
-{
-    waitForUpToDate();
-    m_mutex.lock();
-    m_executable = executable;
-    m_cacheUpToDate = false;
-    m_mutex.unlock();
-    m_future = QtConcurrent::run(&CMakeRunner::run, this);
-}
-
-QString CMakeRunner::executable() const
-{
-    waitForUpToDate();
-    m_mutex.lock();
-    QString result = m_executable;
-    m_mutex.unlock();
-    return result;
-}
-
-QString CMakeRunner::version() const
-{
-    waitForUpToDate();
-    m_mutex.lock();
-    QString result = m_version;
-    m_mutex.unlock();
-    return result;
-}
-
-bool CMakeRunner::supportsQtCreator() const
-{
-    waitForUpToDate();
-    m_mutex.lock();
-    bool result = m_supportsQtCreator;
-    m_mutex.unlock();
-    return result;
-}
-
-bool CMakeRunner::hasCodeBlocksMsvcGenerator() const
-{
-    waitForUpToDate();
-    m_mutex.lock();
-    bool result = m_hasCodeBlocksMsvcGenerator;
-    m_mutex.unlock();
-    return result;
-}
-
-void CMakeRunner::waitForUpToDate() const
-{
-    m_future.waitForFinished();
-}
-
 /////
 // CMakeSettingsPage
 ////
 
 
 CMakeSettingsPage::CMakeSettingsPage()
+    : m_process(0),
+      m_pathchooser(0)
 {
     Core::ICore *core = Core::ICore::instance();
     QSettings * settings = core->settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
-    m_cmakeRunner.setExecutable(settings->value(QLatin1String("cmakeExecutable")).toString());
+    m_cmakeExecutable = settings->value(QLatin1String("cmakeExecutable")).toString();
+    QFileInfo fi(m_cmakeExecutable);
+    if (!fi.exists() || !fi.isExecutable())
+        m_cmakeExecutable = findCmakeExecutable();
+    fi.setFile(m_cmakeExecutable);
+    if (fi.exists() && fi.isExecutable()) {
+        // Run it to find out more
+        m_state = RUNNING;
+        startProcess();
+    } else {
+        m_state = INVALID;
+    }
+
     settings->endGroup();
+}
+
+void CMakeSettingsPage::startProcess()
+{
+    m_process = new QProcess();
+
+    connect(m_process, SIGNAL(finished(int)),
+            this, SLOT(cmakeFinished()));
+
+    m_process->start(m_cmakeExecutable, QStringList(QLatin1String("--help")));
+    m_process->waitForStarted();
+}
+
+void CMakeSettingsPage::cmakeFinished()
+{
+    if (m_process) {
+        QString response = m_process->readAll();
+        QRegExp versionRegexp(QLatin1String("^cmake version ([\\d\\.]*)"));
+        versionRegexp.indexIn(response);
+
+        //m_supportsQtCreator = response.contains(QLatin1String("QtCreator"));
+        m_hasCodeBlocksMsvcGenerator = response.contains(QLatin1String("CodeBlocks - NMake Makefiles"));
+        m_version = versionRegexp.cap(1);
+        if (!(versionRegexp.capturedTexts().size() > 3))
+            m_version += QLatin1Char('.') + versionRegexp.cap(3);
+
+        if (m_version.isEmpty())
+            m_state = INVALID;
+        else
+            m_state = VALID;
+
+        m_process->deleteLater();
+        m_process = 0;
+    }
+}
+
+bool CMakeSettingsPage::isCMakeExecutableValid()
+{
+    if (m_state == RUNNING) {
+        disconnect(m_process, SIGNAL(finished(int)),
+                   this, SLOT(cmakeFinished()));
+        m_process->waitForFinished();
+        // Parse the output now
+        cmakeFinished();
+    }
+    return m_state == VALID;
+}
+
+CMakeSettingsPage::~CMakeSettingsPage()
+{
+    if (m_process)
+        m_process->waitForFinished();
+    delete m_process;
 }
 
 QString CMakeSettingsPage::findCmakeExecutable() const
@@ -296,18 +270,33 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
     return w;
 }
 
+void CMakeSettingsPage::updateInfo()
+{
+    QFileInfo fi(m_cmakeExecutable);
+    if (fi.exists() && fi.isExecutable()) {
+        // Run it to find out more
+        m_state = RUNNING;
+        startProcess();
+    } else {
+        m_state = INVALID;
+    }
+    saveSettings();
+}
+
 void CMakeSettingsPage::saveSettings() const
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
-    settings->setValue(QLatin1String("cmakeExecutable"), m_cmakeRunner.executable());
+    settings->setValue(QLatin1String("cmakeExecutable"), m_cmakeExecutable);
     settings->endGroup();
 }
 
 void CMakeSettingsPage::apply()
 {
-    m_cmakeRunner.setExecutable(m_pathchooser->path());
-    saveSettings();
+    if (m_cmakeExecutable == m_pathchooser->path())
+        return;
+    m_cmakeExecutable = m_pathchooser->path();
+    updateInfo();
 }
 
 void CMakeSettingsPage::finish()
@@ -317,28 +306,18 @@ void CMakeSettingsPage::finish()
 
 QString CMakeSettingsPage::cmakeExecutable() const
 {
-    if (m_cmakeRunner.executable().isEmpty()) {
-        QString cmakeExecutable = findCmakeExecutable();
-        if (!cmakeExecutable.isEmpty()) {
-            m_cmakeRunner.setExecutable(cmakeExecutable);
-            saveSettings();
-        }
-    }
-    return m_cmakeRunner.executable();
+    return m_cmakeExecutable;
+}
+
+void CMakeSettingsPage::setCMakeExecutable(const QString &executable)
+{
+    if (m_cmakeExecutable == executable)
+        return;
+    m_cmakeExecutable = executable;
+    updateInfo();
 }
 
 bool CMakeSettingsPage::hasCodeBlocksMsvcGenerator() const
 {
-    return m_cmakeRunner.hasCodeBlocksMsvcGenerator();
-}
-
-
-void CMakeSettingsPage::askUserForCMakeExecutable()
-{
-    // TODO implement
-    // That is ideally add a label to the settings page, which says something
-    // to the effect: please configure the cmake executable
-    // and show the settings page
-    // ensure that we rehide the label in the finish() function
-    // But to test that i need an environment without cmake, e.g. windows
+    return m_hasCodeBlocksMsvcGenerator;
 }

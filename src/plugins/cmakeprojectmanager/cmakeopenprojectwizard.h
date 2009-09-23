@@ -139,6 +139,7 @@ private:
     QPushButton *m_runCMake;
     QProcess *m_cmakeProcess;
     QLineEdit *m_argumentsLineEdit;
+    Core::Utils::PathChooser *m_cmakeExecutable;
     QComboBox *m_generatorComboBox;
     QLabel *m_descriptionLabel;
     bool m_complete;
