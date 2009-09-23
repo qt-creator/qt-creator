@@ -535,8 +535,6 @@ void ProjectComboBox::projectRemoved(ProjectExplorer::Project *p)
             break;
     }
 
-    qDebug()<<"aboutToRemoveProject current index is"<<currentIndex();
-
     // Comboboxes don't emit a signal if the index did't actually change
     if (count() == 0) {
         itemActivated(-1);
@@ -548,7 +546,6 @@ void ProjectComboBox::projectRemoved(ProjectExplorer::Project *p)
 
 void ProjectComboBox::itemActivated(int index)
 {
-    qDebug()<<"itemActivated"<<index;
     Project *p = 0;
     QList<Project *> projects = ProjectExplorerPlugin::instance()->session()->projects();
     if (index != -1 && index < projects.size())

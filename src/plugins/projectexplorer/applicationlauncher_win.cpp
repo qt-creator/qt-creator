@@ -72,7 +72,6 @@ void ApplicationLauncher::setEnvironment(const QStringList &env)
 
 void ApplicationLauncher::start(Mode mode, const QString &program, const QStringList &args)
 {
-    qDebug()<<"ApplicationLauncher::start"<<program<<args;
     m_currentMode = mode;
     if (mode == Gui) {
         m_winGuiProcess->start(program, args);
