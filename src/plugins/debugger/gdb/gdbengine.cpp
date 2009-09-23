@@ -902,6 +902,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
     m_gdbAdapter->write(command.toLatin1() + "\r\n");
 }
 
+// called from CoreAdapter and AttachAdapter
 void GdbEngine::updateAll()
 {
     qq->notifyInferiorStopped();
@@ -1424,23 +1425,6 @@ void GdbEngine::handleFileExecAndSymbols(const GdbResultRecord &response, const 
     }
 }
 
-#if 0
-void GdbEngine::handleExecRun(const GdbResultRecord &response, const QVariant &)
-{
-    if (response.resultClass == GdbResultRunning) {
-        qq->notifyInferiorRunning();
-    } else {
-        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
-        const QByteArray &msg = response.data.findChild("msg").data();
-        showMessageBox(QMessageBox::Critical, tr("Starting executable failed",
-            QString::fromLocal8Bit(msg)));
-        QTC_ASSERT(status() == DebuggerInferiorRunning, /**/);
-        //interruptInferior();
-        qq->notifyInferiorExited();
-    }
-}
-#endif
-
 void GdbEngine::handleExecContinue(const GdbResultRecord &response, const QVariant &)
 {
     if (response.resultClass == GdbResultRunning) {
@@ -1454,10 +1438,9 @@ void GdbEngine::handleExecContinue(const GdbResultRecord &response, const QVaria
             //  "Leaving function..."));
             //stepOutExec();
         } else {
-            showMessageBox(QMessageBox::Critical, tr("Starting executable failed"),
-                QString::fromLocal8Bit(msg));
+            showMessageBox(QMessageBox::Critical, tr("Error"),
+                tr("Starting executable failed:\n") + QString::fromLocal8Bit(msg));
             QTC_ASSERT(status() == DebuggerInferiorRunning, /**/);
-            //interruptInferior();
             qq->notifyInferiorExited();
         }
     }
@@ -1465,7 +1448,6 @@ void GdbEngine::handleExecContinue(const GdbResultRecord &response, const QVaria
 
 QString GdbEngine::fullName(const QString &fileName)
 {
-    //QString absName = m_manager->currentWorkingDirectory() + "/" + file; ??
     if (fileName.isEmpty())
         return QString();
     QString full = m_shortToFullName.value(fileName, QString());
@@ -1509,7 +1491,6 @@ void GdbEngine::shutdown()
 
 void GdbEngine::detachDebugger()
 {
-    //postCommand(_("detach"), CB(handleDetach));
     QTC_ASSERT(startMode() == AttachExternal, /**/);
     shutdown();
 }
