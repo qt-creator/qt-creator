@@ -1685,25 +1685,21 @@ bool CdbDebugEnginePrivate::setSymbolPaths(const QStringList &s, QString *errorM
     return true;
 }
 
-} // namespace Internal
-} // namespace Debugger
-
 // Accessed by DebuggerManager
-Debugger::Internal::IDebuggerEngine *createWinEngine(Debugger::Internal::DebuggerManager *parent,
-                                                     bool cmdLineEnabled,
-                                                     QList<Core::IOptionsPage*> *opts)
+IDebuggerEngine *createWinEngine(DebuggerManager *parent,
+                                 bool cmdLineEnabled,
+                                 QList<Core::IOptionsPage*> *opts)
 {
     // Create options page
-    QSharedPointer<Debugger::Internal::CdbOptions> options(new Debugger::Internal::CdbOptions);
+    QSharedPointer<CdbOptions> options(new CdbOptions);
     options->fromSettings(Core::ICore::instance()->settings());
-    Debugger::Internal::CdbOptionsPage *optionsPage = new Debugger::Internal::CdbOptionsPage(options);
+    CdbOptionsPage *optionsPage = new CdbOptionsPage(options);
     opts->push_back(optionsPage);
     if (!cmdLineEnabled || !options->enabled)
         return 0;
     // Create engine
     QString errorMessage;
-    Debugger::Internal::IDebuggerEngine *engine =
-            Debugger::Internal::CdbDebugEngine::create(parent, options, &errorMessage);
+    IDebuggerEngine *engine = CdbDebugEngine::create(parent, options, &errorMessage);
     if (!engine) {
         optionsPage->setFailureMessage(errorMessage);
         qWarning("%s\n" ,qPrintable(errorMessage));
@@ -1711,3 +1707,7 @@ Debugger::Internal::IDebuggerEngine *createWinEngine(Debugger::Internal::Debugge
     QObject::connect(optionsPage, SIGNAL(debuggerPathsChanged()), engine, SLOT(syncDebuggerPaths()));
     return engine;
 }
+
+} // namespace Internal
+} // namespace Debugger
+

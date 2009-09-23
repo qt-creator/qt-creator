@@ -82,11 +82,17 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QToolTip>
 
+namespace Debugger {
+namespace Internal {
 
-// The creation functions take a list of options pages they can add to.
-// This allows for having a "enabled" toggle on the page indepently
-// of the engine.
-using namespace Debugger::Internal;
+IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
+IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
+IDebuggerEngine *createTcfEngine(DebuggerManager *parent);
+
+// The createWinEngine function takes a list of options pages it can add to.
+// This allows for having a "enabled" toggle on the page independently
+// of the engine. That's good for not enabling the related ActiveX control
+// unnecessarily.
 
 IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineEnabled */, QList<Core::IOptionsPage*> *)
 #ifdef CDB_ENABLED
@@ -94,14 +100,6 @@ IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineEnabled */, Q
 #else
 { return 0; }
 #endif
-IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
-IDebuggerEngine *createTcfEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
-
-
-namespace Debugger {
-namespace Internal {
-
-IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
 
 
 QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
@@ -443,15 +441,24 @@ void DebuggerManager::init()
 QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTypeFlags)
 {
     QList<Core::IOptionsPage*> rc;
+
     if (enabledTypeFlags & GdbEngineType) {
         gdbEngine = createGdbEngine(this);
         gdbEngine->addOptionPages(&rc);
     }
+
     winEngine = createWinEngine(this, (enabledTypeFlags & CdbEngineType), &rc);
-    if (enabledTypeFlags & ScriptEngineType)
-        scriptEngine = createScriptEngine(this, &rc);
-    if (enabledTypeFlags & TcfEngineType)
-        tcfEngine = createTcfEngine(this, &rc);
+
+    if (enabledTypeFlags & ScriptEngineType) {
+        scriptEngine = createScriptEngine(this);
+        scriptEngine->addOptionPages(&rc);
+    }
+
+    if (enabledTypeFlags & TcfEngineType) {
+        tcfEngine = createTcfEngine(this);
+        tcfEngine->addOptionPages(&rc);
+    }
+
     m_engine = 0;
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine << rc.size();
