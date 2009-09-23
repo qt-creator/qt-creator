@@ -702,7 +702,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         }
 
         case Qt::ToolTipRole:
-            return data.toToolTip();
+            return theDebuggerBoolSetting(UseToolTipsInLocalsView)
+                ? data.toToolTip() : QVariant();
 
         case Qt::ForegroundRole: {
             static const QVariant red(QColor(200, 0, 0));

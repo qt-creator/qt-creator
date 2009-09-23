@@ -100,7 +100,8 @@ enum DebuggerActionCode
     WatchExpressionInWindow,
     RemoveWatchExpression,
     WatchPoint,
-    UseToolTips,
+    UseToolTipsInMainEditor,
+    UseToolTipsInLocalsView,
     AssignValue,
     AssignType,
 

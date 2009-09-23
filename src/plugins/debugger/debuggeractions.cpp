@@ -254,10 +254,17 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTips"));
-    item->setText(tr("Use tooltips when debugging"));
+    item->setText(tr("Use tooltips in main editor when debugging"));
     item->setCheckable(true);
     item->setDefaultValue(false);
-    instance->insertItem(UseToolTips, item);
+    instance->insertItem(UseToolTipsInMainEditor, item);
+
+    item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInLocalsView"));
+    item->setText(tr("Use tooltips in locals view when debugging"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    instance->insertItem(UseToolTipsInLocalsView, item);
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("ListSourceFiles"));
