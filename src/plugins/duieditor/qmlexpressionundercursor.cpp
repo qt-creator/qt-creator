@@ -65,9 +65,14 @@ bool QmlExpressionUnderCursor::visit(QmlJS::AST::IdentifierExpression *ast)
 
 bool QmlExpressionUnderCursor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
+    Node::accept(ast->qualifiedId, this);
+    Node::accept(ast->qualifiedTypeNameId, this);
+
     _scopes.push(ast);
 
-    return true;
+    Node::accept(ast->initializer, this);
+
+    return false;
 }
 
 void QmlExpressionUnderCursor::endVisit(QmlJS::AST::UiObjectBinding *)
@@ -77,12 +82,43 @@ void QmlExpressionUnderCursor::endVisit(QmlJS::AST::UiObjectBinding *)
 
 bool QmlExpressionUnderCursor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    Node::accept(ast->qualifiedTypeNameId, this);
+
     _scopes.push(ast);
 
-    return true;
+    Node::accept(ast->initializer, this);
+
+    return false;
 }
 
 void QmlExpressionUnderCursor::endVisit(QmlJS::AST::UiObjectDefinition *)
 {
     _scopes.pop();
+}
+
+bool QmlExpressionUnderCursor::visit(QmlJS::AST::UiQualifiedId *ast)
+{
+    if (ast->identifierToken.offset <= _pos) {
+        for (UiQualifiedId *iter = ast; iter; iter = iter->next) {
+            if (_pos <= iter->identifierToken.end()) {
+                // found it
+                _expressionNode = ast;
+                _expressionOffset = ast->identifierToken.offset;
+
+                for (UiQualifiedId *iter2 = ast; iter2; iter2 = iter2->next) {
+                    _expressionLength = iter2->identifierToken.end() - _expressionOffset;
+                }
+
+                _expressionScopes = _scopes;
+                break;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool QmlExpressionUnderCursor::visit(QmlJS::AST::UiImport * /*ast*/)
+{
+    return false;
 }

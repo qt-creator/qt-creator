@@ -16,16 +16,22 @@ public:
     QmlLookupContext(const QStack<QmlJS::AST::Node *> &scopes,
                      const DuiDocument::Ptr &doc,
                      const Snapshot &snapshot);
+    ~QmlLookupContext();
 
-    QmlSymbol *resolve(const QString &name) const;
+    QmlSymbol *resolve(const QString &name);
+    QmlSymbol *resolveType(const QString &name);
 
     DuiDocument::Ptr document() const
     { return _doc; }
 
 private:
+    QmlSymbol *createSymbol(const QString &fileName, QmlJS::AST::UiObjectMember *node);
+
+private:
     QStack<QmlJS::AST::Node *> _scopes;
     DuiDocument::Ptr _doc;
     Snapshot _snapshot;
+    QList<QmlSymbol*> _temporarySymbols;
 };
 
 } // namespace Internal

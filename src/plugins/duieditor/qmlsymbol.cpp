@@ -15,10 +15,16 @@ bool QmlSymbol::isBuildInSymbol() const
 bool QmlSymbol::isSymbolFromFile() const
 { return asSymbolFromFile() != 0; }
 
+bool QmlSymbol::isIdSymbol() const
+{ return asIdSymbol() != 0; }
+
 QmlBuildInSymbol const *QmlSymbol::asBuildInSymbol() const
 { return 0; }
 
 QmlSymbolFromFile const *QmlSymbol::asSymbolFromFile() const
+{ return 0; }
+
+QmlIdSymbol const *QmlSymbol::asIdSymbol() const
 { return 0; }
 
 QmlBuildInSymbol::~QmlBuildInSymbol()
@@ -52,11 +58,14 @@ QmlIdSymbol::QmlIdSymbol(const QString &fileName, QmlJS::AST::UiScriptBinding *i
 QmlIdSymbol::~QmlIdSymbol()
 {}
 
+QmlIdSymbol const *QmlIdSymbol::asIdSymbol() const
+{ return this; }
+
 int QmlIdSymbol::line() const
 { return idNode()->statement->firstSourceLocation().startLine; }
 
 int QmlIdSymbol::column() const
-{ return idNode()->statement->firstSourceLocation().startColumn - 1; }
+{ return idNode()->statement->firstSourceLocation().startColumn; }
 
 QmlJS::AST::UiScriptBinding *QmlIdSymbol::idNode() const
 { return cast<UiScriptBinding*>(node()); }

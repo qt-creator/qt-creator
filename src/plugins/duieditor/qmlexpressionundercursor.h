@@ -32,8 +32,10 @@ protected:
     virtual bool visit(QmlJS::AST::Block *ast);
     virtual bool visit(QmlJS::AST::FieldMemberExpression *ast);
     virtual bool visit(QmlJS::AST::IdentifierExpression *ast);
+    virtual bool visit(QmlJS::AST::UiImport *ast);
     virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
+    virtual bool visit(QmlJS::AST::UiQualifiedId *ast);
 
     virtual void endVisit(QmlJS::AST::Block *);
     virtual void endVisit(QmlJS::AST::UiObjectBinding *);

@@ -721,8 +721,6 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
     QmlResolveExpression resolve(context);
     QmlSymbol *symbol = resolve(expressionUnderCursor.expressionNode());
 
-    qDebug() << "*** Searching for node" << expressionUnderCursor.expressionNode() << "returned symbol" << symbol;
-
     if (!symbol)
         return link;
 
@@ -732,6 +730,8 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
         link.fileName = target->fileName();
         link.line = target->line();
         link.column = target->column();
+        if (link.column > 0)
+            --link.column;
     }
 
     return link;

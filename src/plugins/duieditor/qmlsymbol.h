@@ -14,9 +14,11 @@ public:
 
     bool isBuildInSymbol() const;
     bool isSymbolFromFile() const;
+    bool isIdSymbol() const;
 
     virtual class QmlBuildInSymbol const *asBuildInSymbol() const;
     virtual class QmlSymbolFromFile const *asSymbolFromFile() const;
+    virtual class QmlIdSymbol const *asIdSymbol() const;
 };
 
 class QmlBuildInSymbol: public QmlSymbol
@@ -57,8 +59,13 @@ public:
     QmlIdSymbol(const QString &fileName, QmlJS::AST::UiScriptBinding *idNode, const QmlSymbolFromFile &parentNode);
     virtual ~QmlIdSymbol();
 
+    QmlIdSymbol const *asIdSymbol() const;
+
     virtual int line() const;
     virtual int column() const;
+
+    QmlSymbolFromFile const *parentNode() const
+    { return &_parentNode; }
 
 private:
     QmlJS::AST::UiScriptBinding *idNode() const;

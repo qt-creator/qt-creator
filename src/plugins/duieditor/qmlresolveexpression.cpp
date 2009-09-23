@@ -58,47 +58,76 @@ bool QmlResolveExpression::visit(FieldMemberExpression *ast)
 {
     const QString memberName = ast->name->asString();
 
-    if (QmlSymbol *base = typeOf(ast->base)) {
-        UiObjectMemberList *members = 0;
+    const QmlSymbol *base = typeOf(ast->base);
+    if (!base)
+        return false;
 
-        if (const QmlSymbolFromFile *symbol = base->asSymbolFromFile()) {
-            Node *node = symbol->node();
+    if (base->isIdSymbol())
+        base = base->asIdSymbol()->parentNode();
 
-            if (UiObjectBinding *binding = cast<UiObjectBinding*>(node)) {
-                if (binding->initializer)
-                    members = binding->initializer->members;
-            } else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(node)) {
-                if (definition->initializer)
-                    members = binding->initializer->members;
-            }
+    UiObjectMemberList *members = 0;
+
+    if (const QmlSymbolFromFile *symbol = base->asSymbolFromFile()) {
+        Node *node = symbol->node();
+
+        if (UiObjectBinding *binding = cast<UiObjectBinding*>(node)) {
+            if (binding->initializer)
+                members = binding->initializer->members;
+        } else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(node)) {
+            if (definition->initializer)
+                members = definition->initializer->members;
         }
+    }
 
-        for (UiObjectMemberList *it = members; it; it = it->next) {
-            UiObjectMember *member = it->member;
+    for (UiObjectMemberList *it = members; it; it = it->next) {
+        UiObjectMember *member = it->member;
 
-            if (UiPublicMember *publicMember = cast<UiPublicMember *>(member)) {
-                if (publicMember->name && publicMember->name->asString() == memberName) {
-                    _value = createPropertyDefinitionSymbol(publicMember);
-                    break; // we're done.
-                }
-            } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member)) {
-                if (matches(objectBinding->qualifiedId, memberName)) {
-                    _value = createSymbolFromFile(objectBinding);
-                    break; // we're done
-                }
-            } else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member)) {
-                if (matches(scriptBinding->qualifiedId, memberName)) {
-                    _value = createSymbolFromFile(scriptBinding);
-                    break; // we're done
-                }
-            } else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member)) {
-                if (matches(arrayBinding->qualifiedId, memberName)) {
-                    _value = createSymbolFromFile(arrayBinding);
-                    break; // we're done
-                }
+        if (UiPublicMember *publicMember = cast<UiPublicMember *>(member)) {
+            if (publicMember->name && publicMember->name->asString() == memberName) {
+                _value = createPropertyDefinitionSymbol(publicMember);
+                break; // we're done.
+            }
+        } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member)) {
+            if (matches(objectBinding->qualifiedId, memberName)) {
+                _value = createSymbolFromFile(objectBinding);
+                break; // we're done
+            }
+        } else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member)) {
+            if (matches(scriptBinding->qualifiedId, memberName)) {
+                _value = createSymbolFromFile(scriptBinding);
+                break; // we're done
+            }
+        } else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member)) {
+            if (matches(arrayBinding->qualifiedId, memberName)) {
+                _value = createSymbolFromFile(arrayBinding);
+                break; // we're done
             }
         }
     }
+
+    return false;
+}
+
+static inline QString toString(UiQualifiedId *id)
+{
+    QString str;
+
+    for (UiQualifiedId *iter = id; iter; iter = iter->next) {
+        if (!(iter->name))
+            continue;
+
+        str.append(iter->name->asString());
+
+        if (iter->next)
+            str.append('.');
+    }
+
+    return str;
+}
+
+bool QmlResolveExpression::visit(QmlJS::AST::UiQualifiedId *ast)
+{
+    _value = _context.resolveType(toString(ast));
 
     return false;
 }

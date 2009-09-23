@@ -23,8 +23,9 @@ protected:
     QmlSymbol *typeOf(QmlJS::AST::Node *node);
     QmlSymbol *switchValue(QmlSymbol *symbol);
 
-    virtual bool visit(QmlJS::AST::IdentifierExpression *ast);
     virtual bool visit(QmlJS::AST::FieldMemberExpression *ast);
+    virtual bool visit(QmlJS::AST::IdentifierExpression *ast);
+    virtual bool visit(QmlJS::AST::UiQualifiedId *ast);
 
 private:
     QmlPropertyDefinitionSymbol *createPropertyDefinitionSymbol(QmlJS::AST::UiPublicMember *ast);
