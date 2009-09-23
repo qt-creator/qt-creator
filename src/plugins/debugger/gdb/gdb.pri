@@ -7,6 +7,7 @@ HEADERS += \
     $$PWD/gdbengine.h \
     $$PWD/gdboptionspage.h \
     $$PWD/remotegdbadapter.h \
+    $$PWD/coregdbadapter.h \
     $$PWD/trkgdbadapter.h \
     $$PWD/trkoptions.h \
     $$PWD/trkoptionswidget.h \
@@ -18,6 +19,7 @@ SOURCES += \
     $$PWD/gdboptionspage.cpp \
     $$PWD/plaingdbadapter.cpp \
     $$PWD/remotegdbadapter.cpp \
+    $$PWD/coregdbadapter.cpp \
     $$PWD/trkoptions.cpp \
     $$PWD/trkoptionswidget.cpp \
     $$PWD/trkoptionspage.cpp \

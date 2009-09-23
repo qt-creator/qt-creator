@@ -68,6 +68,7 @@ class BreakpointData;
 class PlainGdbAdapter;
 class TrkGdbAdapter;
 class RemoteGdbAdapter;
+class CoreGdbAdapter;
 
 enum DebuggingHelperState
 {
@@ -94,6 +95,7 @@ private:
     friend class PlainGdbAdapter;
     friend class TrkGdbAdapter;
     friend class RemoteGdbAdapter;
+    friend class CoreGdbAdapter;
 
     //
     // IDebuggerEngine implementation
@@ -267,12 +269,12 @@ private:
     void handleShowVersion(const GdbResultRecord &response, const QVariant &);
     void handleQueryPwd(const GdbResultRecord &response, const QVariant &);
     void handleQuerySources(const GdbResultRecord &response, const QVariant &);
-    void handleTargetCore(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
     void handleDetach(const GdbResultRecord &, const QVariant &);
     //void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
     //void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void handleWatchPoint(const GdbResultRecord &, const QVariant &);
+    void handleTargetCore();
     bool showToolTip();
 
     // Convenience
@@ -292,8 +294,6 @@ private:
     QTextCodec::ConverterState m_outputCodecState;
 
     QByteArray m_inbuffer;
-
-    AbstractGdbAdapter *m_gdbAdapter;
 
     QHash<int, GdbCommand> m_cookieForToken;
     QHash<int, QByteArray> m_customOutputForToken;
@@ -442,10 +442,12 @@ private:
     DebuggerStartParametersPtr m_startParameters;
     // make sure to re-initialize new members in initializeVariables();
 
-    // only one of those is active at a given time
-    PlainGdbAdapter *m_plainAdapter;
-    TrkGdbAdapter *m_trkAdapter;
-    RemoteGdbAdapter *m_remoteAdapter;
+    // only one of those is active at a given time, available in m_gdbAdapter
+    AbstractGdbAdapter *m_gdbAdapter;  // pointer to one listed below
+    PlainGdbAdapter *m_plainAdapter;   // owned
+    TrkGdbAdapter *m_trkAdapter;       // owned
+    RemoteGdbAdapter *m_remoteAdapter; // owned
+    CoreGdbAdapter *m_coreAdapter;     // owned
     
 public:
     void showMessageBox(int icon, const QString &title, const QString &text);
