@@ -238,7 +238,6 @@ private:
 
     static QString qmakeVarName(ProjectExplorer::FileType type);
     void updateActiveRunConfiguration();
-    void updateToolChain(const QString &buildConfiguration) const;
 
     Qt4Manager *m_manager;
     Internal::Qt4ProFileNode *m_rootProjectNode;

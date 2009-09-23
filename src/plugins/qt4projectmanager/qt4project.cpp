@@ -268,7 +268,6 @@ void Qt4Project::qtVersionsChanged()
                 m_rootProjectNode->update();
         }
     }
-    updateToolChain(activeBuildConfiguration());
 }
 
 void Qt4Project::updateFileList()
@@ -387,14 +386,6 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
 
 ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
 {
-    if (!m_toolChain) {
-        updateToolChain(buildConfiguration);
-    }
-    return m_toolChain;
-}
-
-void Qt4Project::updateToolChain(const QString &buildConfiguration) const
-{
     ProjectExplorer::ToolChain *tempToolChain;
     tempToolChain = qtVersion(buildConfiguration)->createToolChain(toolChainType(buildConfiguration));
     if (!ProjectExplorer::ToolChain::equals(m_toolChain, tempToolChain)) {
@@ -404,6 +395,8 @@ void Qt4Project::updateToolChain(const QString &buildConfiguration) const
     } else {
         delete tempToolChain;
     }
+
+    return m_toolChain;
 }
 
 QString Qt4Project::makeCommand(const QString &buildConfiguration) const
@@ -891,7 +884,6 @@ void Qt4Project::setQtVersion(const QString &buildConfiguration, int id)
 void Qt4Project::setToolChainType(const QString &buildConfiguration, ProjectExplorer::ToolChain::ToolChainType type)
 {
     setValue(buildConfiguration, "ToolChain", (int)type);
-    updateToolChain(buildConfiguration);
     updateActiveRunConfiguration();
 }
 
