@@ -1229,7 +1229,7 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
     const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     sp->attachPID = pid;
     sp->crashParameter = crashParameter;
-    sp->startMode = crashParameter.isEmpty() ?  AttachExternal : AttachCrashedExternal;
+    sp->startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
     RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
         rc = DebuggerRunner::createDefaultRunConfiguration();

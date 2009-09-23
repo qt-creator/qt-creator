@@ -34,10 +34,11 @@
 #include "trkoptions.h"
 #include "trkoptionspage.h"
 
-#include "plaingdbadapter.h"
-#include "trkgdbadapter.h"
-#include "remotegdbadapter.h"
+#include "attachgdbadapter.h"
 #include "coregdbadapter.h"
+#include "plaingdbadapter.h"
+#include "remotegdbadapter.h"
+#include "trkgdbadapter.h"
 
 #include "watchutils.h"
 #include "debuggeractions.h"
@@ -46,7 +47,6 @@
 #include "debuggermanager.h"
 #include "debuggertooltip.h"
 #include "gdbmi.h"
-#include "procinterrupt.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -182,6 +182,7 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
     m_trkAdapter = new TrkGdbAdapter(this, options);
     m_remoteAdapter = new RemoteGdbAdapter(this);
     m_coreAdapter = new CoreGdbAdapter(this);
+    m_attachAdapter = new AttachGdbAdapter(this);
 
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
@@ -232,6 +233,7 @@ GdbEngine::~GdbEngine()
     delete m_trkAdapter;
     delete m_remoteAdapter;
     delete m_coreAdapter;
+    delete m_attachAdapter;
 }
 
 void GdbEngine::connectAdapter()
@@ -697,6 +699,7 @@ void GdbEngine::interruptInferior()
         return;
     }
 
+    debugMessage(_("TRYING TO INTERUPT INFERIOR"));
     m_gdbAdapter->interruptInferior();
 }
 
@@ -898,7 +901,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
     m_gdbAdapter->write(command.toLatin1() + "\r\n");
 }
 
-void GdbEngine::handleTargetCore()
+void GdbEngine::updateAll()
 {
     qq->notifyInferiorStopped();
     showStatusMessage(tr("Core file loaded."));
@@ -1505,7 +1508,9 @@ void GdbEngine::shutdown()
 
 void GdbEngine::detachDebugger()
 {
-    postCommand(_("detach"), CB(handleDetach));
+    //postCommand(_("detach"), CB(handleDetach));
+    QTC_ASSERT(startMode() == AttachExternal, /**/);
+    shutdown();
 }
 
 void GdbEngine::exitDebugger()
@@ -1514,11 +1519,6 @@ void GdbEngine::exitDebugger()
     m_outputCollector.shutdown();
     initializeVariables();
     m_gdbAdapter->shutdown();
-}
-
-void GdbEngine::handleDetach(const GdbResultRecord &, const QVariant &)
-{
-    exitDebugger();
 }
 
 int GdbEngine::currentFrame() const
@@ -1547,6 +1547,8 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
         m_gdbAdapter = m_coreAdapter;
     else if (sp->startMode == StartRemote)
         m_gdbAdapter = m_remoteAdapter;
+    else if (sp->startMode == AttachExternal)
+        m_gdbAdapter = m_attachAdapter;
     else 
         m_gdbAdapter = m_plainAdapter;
 
@@ -4081,7 +4083,7 @@ void GdbEngine::handleAdapterStarted()
 
 void GdbEngine::handleInferiorPreparationFailed(const QString &msg)
 {
-    debugMessage(_("INFERIOR PREPARATION FAILD"));
+    debugMessage(_("INFERIOR PREPARATION FAILED"));
     showMessageBox(QMessageBox::Critical,
         tr("Inferior start preparation failed"), msg);
     shutdown();

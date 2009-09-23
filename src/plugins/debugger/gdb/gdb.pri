@@ -1,29 +1,31 @@
 include(../../../shared/trk/trk.pri)
 
 HEADERS += \
-    $$PWD/abstractgdbadapter.h \
-    $$PWD/plaingdbadapter.h \
     $$PWD/gdbmi.h \
     $$PWD/gdbengine.h \
     $$PWD/gdboptionspage.h \
-    $$PWD/remotegdbadapter.h \
-    $$PWD/coregdbadapter.h \
-    $$PWD/trkgdbadapter.h \
     $$PWD/trkoptions.h \
     $$PWD/trkoptionswidget.h \
-    $$PWD/trkoptionspage.h
+    $$PWD/trkoptionspage.h \
+    $$PWD/abstractgdbadapter.h \
+    $$PWD/attachgdbadapter.h \
+    $$PWD/coregdbadapter.h \
+    $$PWD/plaingdbadapter.h \
+    $$PWD/remotegdbadapter.h \
+    $$PWD/trkgdbadapter.h \
 
 SOURCES += \
     $$PWD/gdbmi.cpp \
     $$PWD/gdbengine.cpp \
     $$PWD/gdboptionspage.cpp \
-    $$PWD/plaingdbadapter.cpp \
-    $$PWD/remotegdbadapter.cpp \
-    $$PWD/coregdbadapter.cpp \
     $$PWD/trkoptions.cpp \
     $$PWD/trkoptionswidget.cpp \
     $$PWD/trkoptionspage.cpp \
-    $$PWD/trkgdbadapter.cpp
+    $$PWD/attachgdbadapter.cpp \
+    $$PWD/coregdbadapter.cpp \
+    $$PWD/plaingdbadapter.cpp \
+    $$PWD/remotegdbadapter.cpp \
+    $$PWD/trkgdbadapter.cpp \
 
 FORMS +=  $$PWD/gdboptionspage.ui \
 $$PWD/trkoptionswidget.ui

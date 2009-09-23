@@ -62,13 +62,14 @@ class IDebuggerManagerAccessForEngines;
 class GdbResultRecord;
 class GdbMi;
 
-class WatchData;
 class BreakpointData;
+class WatchData;
 
-class PlainGdbAdapter;
-class TrkGdbAdapter;
-class RemoteGdbAdapter;
+class AttachGdbAdapter;
 class CoreGdbAdapter;
+class PlainGdbAdapter;
+class RemoteGdbAdapter;
+class TrkGdbAdapter;
 
 enum DebuggingHelperState
 {
@@ -92,10 +93,11 @@ signals:
     void applicationOutputAvailable(const QString &output);
 
 private:
-    friend class PlainGdbAdapter;
-    friend class TrkGdbAdapter;
-    friend class RemoteGdbAdapter;
+    friend class AttachGdbAdapter;
     friend class CoreGdbAdapter;
+    friend class PlainGdbAdapter;
+    friend class RemoteGdbAdapter;
+    friend class TrkGdbAdapter;
 
     //
     // IDebuggerEngine implementation
@@ -226,6 +228,7 @@ private:
     void postCommandHelper(const GdbCommand &cmd);
     void setTokenBarrier();
 
+    void updateAll();
     void updateLocals();
 
 private slots:
@@ -268,11 +271,9 @@ private:
     void handleQueryPwd(const GdbResultRecord &response, const QVariant &);
     void handleQuerySources(const GdbResultRecord &response, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleDetach(const GdbResultRecord &, const QVariant &);
     //void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
     //void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void handleWatchPoint(const GdbResultRecord &, const QVariant &);
-    void handleTargetCore();
     bool showToolTip();
 
     // Convenience
@@ -441,10 +442,11 @@ private:
 
     // only one of those is active at a given time, available in m_gdbAdapter
     AbstractGdbAdapter *m_gdbAdapter;  // pointer to one listed below
-    PlainGdbAdapter *m_plainAdapter;   // owned
-    TrkGdbAdapter *m_trkAdapter;       // owned
-    RemoteGdbAdapter *m_remoteAdapter; // owned
+    AttachGdbAdapter *m_attachAdapter; // owned
     CoreGdbAdapter *m_coreAdapter;     // owned
+    PlainGdbAdapter *m_plainAdapter;   // owned
+    RemoteGdbAdapter *m_remoteAdapter; // owned
+    TrkGdbAdapter *m_trkAdapter;       // owned
     
 public:
     void showMessageBox(int icon, const QString &title, const QString &text);

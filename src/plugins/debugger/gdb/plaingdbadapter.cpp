@@ -225,11 +225,6 @@ void PlainGdbAdapter::startInferior()
 void PlainGdbAdapter::interruptInferior()
 {
     debugMessage(_("TRYING TO INTERUPT INFERIOR"));
-    if (m_engine->startMode() == StartRemote) {
-        m_engine->postCommand(_("-exec-interrupt"));
-        return;
-    }
-
     const qint64 attachedPID = m_engine->inferiorPid();
     if (attachedPID <= 0) {
         debugMessage(_("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED"));
