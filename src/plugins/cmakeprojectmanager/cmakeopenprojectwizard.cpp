@@ -355,12 +355,11 @@ void CMakeRunPage::initializePage()
         QString cachedGenerator;
         // Try to find out generator from CMakeCachhe file, if it exists
 
-
         QFile fi(m_buildDirectory + "/CMakeCache.txt");
         if (fi.exists()) {
             // Cache exists, then read it...
             if (fi.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                while (fi.canReadLine()) {
+                while (!fi.atEnd()) {
                     QString line = fi.readLine();
                     if (line.startsWith("CMAKE_GENERATOR:INTERNAL=")) {
                         int splitpos = line.indexOf('=');
