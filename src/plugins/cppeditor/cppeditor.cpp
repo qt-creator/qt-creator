@@ -1726,6 +1726,11 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
     m_occurrencesUnusedFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_UNUSED));
     m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
+
+    // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
+    m_occurrencesFormat.clearForeground();
+    m_occurrencesUnusedFormat.clearForeground();
+    m_occurrenceRenameFormat.clearForeground();
 }
 
 void CPPEditor::unCommentSelection()
