@@ -190,7 +190,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
 
     Core::ActionManager *am = core->actionManager();
-    am->createMenu(CppEditor::Constants::M_CONTEXT);
+    Core::ActionContainer *contextMenu= am->createMenu(CppEditor::Constants::M_CONTEXT);
 
     Core::Command *cmd;
 
@@ -200,7 +200,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
     connect(jumpToDefinition, SIGNAL(triggered()),
             this, SLOT(jumpToDefinition()));
-    am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
+    contextMenu->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
     QAction *switchDeclarationDefinition = new QAction(tr("Switch between Method Declaration/Definition"), this);
@@ -209,7 +209,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cmd->setDefaultKeySequence(QKeySequence("Shift+F2"));
     connect(switchDeclarationDefinition, SIGNAL(triggered()),
             this, SLOT(switchDeclarationDefinition()));
-    am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
+    contextMenu->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
     QAction *renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol under Cursor"), this);
@@ -217,7 +217,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
         Constants::RENAME_SYMBOL_UNDER_CURSOR, context);
     cmd->setDefaultKeySequence(QKeySequence("CTRL+SHIFT+R"));
     connect(renameSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(renameSymbolUnderCursor()));
-    am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
+    contextMenu->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
     if (! qgetenv("QTCREATOR_REFERENCES").isEmpty()) {
@@ -225,7 +225,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
         cmd = am->registerAction(findReferencesAction,
                                  Constants::FIND_REFERENCES, context);
         connect(findReferencesAction, SIGNAL(triggered()), this, SLOT(findReferences()));
-        am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
+        contextMenu->addAction(cmd);
         am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
     }
 
@@ -235,12 +235,17 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
 
     m_actionHandler->initializeActions();
+    
+    QAction *separator = new QAction(this);
+    separator->setSeparator(true);
+    cmd = am->registerAction(separator, CppEditor::Constants::SEPARATOR, context);
+    contextMenu->addAction(cmd);
 
     cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
-    am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
+    contextMenu->addAction(cmd);
 
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
-    am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
+    contextMenu->addAction(cmd);
 
 
     readSettings();

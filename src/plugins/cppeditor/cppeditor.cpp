@@ -1569,12 +1569,15 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     // ### enable
     // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
-    QMenu *menu = createStandardContextMenu();
+    QMenu *menu = new QMenu();
 
-    // Remove insert unicode control character
-    QAction *lastAction = menu->actions().last();
-    if (lastAction->menu() && QLatin1String(lastAction->menu()->metaObject()->className()) == QLatin1String("QUnicodeControlCharacterMenu"))
-        menu->removeAction(lastAction);
+
+//    QMenu *menu = createStandardContextMenu();
+//
+//    // Remove insert unicode control character
+//    QAction *lastAction = menu->actions().last();
+//    if (lastAction->menu() && QLatin1String(lastAction->menu()->metaObject()->className()) == QLatin1String("QUnicodeControlCharacterMenu"))
+//        menu->removeAction(lastAction);
 
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::ActionContainer *mcontext = am->actionContainer(CppEditor::Constants::M_CONTEXT);

@@ -232,11 +232,13 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_gotoBlockStartAction, Constants::GOTO_BLOCK_START, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+[")));
     connect(m_gotoBlockStartAction, SIGNAL(triggered()), this, SLOT(gotoBlockStart()));
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
     m_gotoBlockEndAction = new QAction(tr("Goto Block End"), this);
     command = am->registerAction(m_gotoBlockEndAction, Constants::GOTO_BLOCK_END, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+]")));
     connect(m_gotoBlockEndAction, SIGNAL(triggered()), this, SLOT(gotoBlockEnd()));
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
     m_gotoBlockStartWithSelectionAction = new QAction(tr("Goto Block Start With Selection"), this);
     command = am->registerAction(m_gotoBlockStartWithSelectionAction, Constants::GOTO_BLOCK_START_WITH_SELECTION, m_contextId);
@@ -252,11 +254,13 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_selectBlockUpAction, Constants::SELECT_BLOCK_UP, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+U")));
     connect(m_selectBlockUpAction, SIGNAL(triggered()), this, SLOT(selectBlockUp()));
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
     m_selectBlockDownAction= new QAction(tr("Select Block Down"), this);
     command = am->registerAction(m_selectBlockDownAction, Constants::SELECT_BLOCK_DOWN, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
     connect(m_selectBlockDownAction, SIGNAL(triggered()), this, SLOT(selectBlockDown()));
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
     m_moveLineUpAction= new QAction(tr("Move Line Up"), this);
     command = am->registerAction(m_moveLineUpAction, Constants::MOVE_LINE_UP, m_contextId);
