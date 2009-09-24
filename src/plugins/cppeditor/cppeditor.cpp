@@ -538,6 +538,8 @@ CPPEditor::CPPEditor(QWidget *parent)
 {
     qRegisterMetaType<SemanticInfo>("SemanticInfo");
 
+    m_revision = 0;
+
     m_semanticHighlighter = new SemanticHighlighter(this);
     m_semanticHighlighter->start();
 
@@ -899,6 +901,8 @@ void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded
 {
     Q_UNUSED(position)
     Q_UNUSED(charsAdded)
+
+    ++m_revision;
 
     if (m_currentRenameSelection == -1)
         return;
@@ -1305,6 +1309,11 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
     }
 
     return 0;
+}
+
+unsigned CPPEditor::revision() const
+{
+    return m_revision;
 }
 
 SemanticInfo CPPEditor::semanticInfo() const
@@ -1763,7 +1772,7 @@ void CPPEditor::semanticRehighlight()
 
 void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 {
-    if (semanticInfo.revision != document()->revision()) {
+    if (semanticInfo.revision != m_revision) {
         // got outdated semantic info
         semanticRehighlight();
         return;
@@ -1807,10 +1816,10 @@ SemanticHighlighter::Source CPPEditor::currentSource()
     const QString fileName = file()->fileName();
 
     QString code;
-    if (m_lastSemanticInfo.revision != document()->revision())
+    if (m_lastSemanticInfo.revision != m_revision)
         code = toPlainText(); // get the source code only when needed.
 
-    const int revision = document()->revision();
+    const int revision = m_revision;
     const SemanticHighlighter::Source source(snapshot, fileName, code,
                                              line, column, revision);
     return source;
