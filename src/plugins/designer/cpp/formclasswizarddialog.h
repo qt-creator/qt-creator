@@ -62,8 +62,8 @@ public:
 public slots:
     void setPath(const QString &);
 
-private slots:
-    void slotCurrentIdChanged(int id);
+protected:
+    void initializePage(int id);
 
 private:
     FormTemplateWizardPage *m_formPage;

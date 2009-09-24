@@ -57,8 +57,6 @@ FormClassWizardDialog::FormClassWizardDialog(const WizardPageList &extensionPage
 
     foreach (QWizardPage *p, extensionPages)
         addPage(p);
-
-    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 }
 
 QString FormClassWizardDialog::path() const
@@ -76,8 +74,9 @@ bool FormClassWizardDialog::validateCurrentPage()
     return QWizard::validateCurrentPage();
 }
 
-void FormClassWizardDialog::slotCurrentIdChanged(int id)
+void FormClassWizardDialog::initializePage(int id)
 {
+    QWizard::initializePage(id);
     // Switching from form to class page: store XML template and set a suitable
     // class name in the class page based on the form base class
     if (id == ClassPageId) {
