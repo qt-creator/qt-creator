@@ -4475,7 +4475,38 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
         ensureCursorVisible();
         return;
     }
-    QPlainTextEdit::insertFromMimeData(source);
+
+    QString text = source->text();
+    if (text.isEmpty())
+        return;
+
+    const TabSettings &ts = d->m_document->tabSettings();
+    QTextCursor cursor = textCursor();
+    if (cursor.hasSelection() || !ts.m_autoIndent) {
+        cursor.beginEditBlock();
+        cursor.insertText(text);
+        cursor.endEditBlock();
+        setTextCursor(cursor);
+        return;
+    }
+
+    cursor.beginEditBlock();
+    int bpos = cursor.block().position();
+    int pos = cursor.position() - bpos;
+    int fns = ts.firstNonSpace(cursor.block().text());
+
+    cursor.insertText(text);
+
+    if (pos <= fns) { // cursor was at beginning of line, do reindent
+        pos = cursor.position();
+        cursor.setPosition(bpos);
+        cursor.setPosition(pos, QTextCursor::KeepAnchor);
+        indent(document(), cursor, QChar::Null);
+        cursor.clearSelection();
+    }
+
+    cursor.endEditBlock();
+    setTextCursor(cursor);
 }
 
 BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
