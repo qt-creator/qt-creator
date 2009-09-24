@@ -1294,6 +1294,7 @@ void DebuggerPlugin::startRemoteApplication()
     StartRemoteDialog dlg(m_manager->mainWindow());
     QStringList arches;
     arches.append(_("i386:x86-64:intel"));
+    arches.append(_("i386"));
     dlg.setRemoteArchitectures(arches);
     dlg.setRemoteChannel(
             configValue(_("LastRemoteChannel")).toString());

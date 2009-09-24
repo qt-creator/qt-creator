@@ -74,7 +74,8 @@ private:
     void handleFileExecAndSymbols(const GdbResultRecord &, const QVariant &);
     void handleKill(const GdbResultRecord &, const QVariant &);
     void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleExecRun(const GdbResultRecord &response, const QVariant &);
+    void handleTargetRemote(const GdbResultRecord &response, const QVariant &);
+    void handleFirstContinue(const GdbResultRecord &response, const QVariant &);
 
     void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);

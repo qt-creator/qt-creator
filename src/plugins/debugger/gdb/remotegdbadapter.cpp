@@ -99,11 +99,10 @@ void RemoteGdbAdapter::startAdapter()
 
     QString location = theDebuggerStringSetting(GdbLocation);
 
-/*  
-    // FIXME: make asynchroneouis
+    // FIXME: make asynchroneous
     // Start the remote server
     if (startParameters().serverStartScript.isEmpty()) {
-        showStatusMessage(_("No server start script given. "
+        m_engine->showStatusMessage(_("No server start script given. "
             "Assuming server runs already."));
     } else {
         if (!startParameters().workingDir.isEmpty())
@@ -113,7 +112,6 @@ void RemoteGdbAdapter::startAdapter()
         m_uploadProc.start(_("/bin/sh ") + startParameters().serverStartScript);
         m_uploadProc.waitForStarted();
     }
-*/
 
     // Start the debugger
     m_gdbProc.start(location, gdbArgs);
@@ -179,12 +177,28 @@ void RemoteGdbAdapter::prepareInferior()
 {
     QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
     setState(InferiorPreparing);
+
+    m_engine->postCommand(_("set architecture %1")
+        .arg(startParameters().remoteArchitecture));
+
     if (!startParameters().processArgs.isEmpty())
         m_engine->postCommand(_("-exec-arguments ")
             + startParameters().processArgs.join(_(" ")));
-    QFileInfo fi(m_engine->startParameters().executable);
-    m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fi.absoluteFilePath()),
+
+    //qq->breakHandler()->setAllPending();
+    QFileInfo fi(startParameters().executable);
+    QString fileName = fi.absoluteFilePath();
+    m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName),
         CB(handleFileExecAndSymbols));
+
+    // works only for > 6.8
+    //postCommand(_("set target-async on"), CB(handleSetTargetAsync));
+    // a typical response on "old" gdb is:
+    // &"set target-async on\n"
+    //&"No symbol table is loaded.  Use the \"file\" command.\n"
+    //^error,msg="No symbol table is loaded.  Use the \"file\" command."
+    //postCommand(_("detach"));
+    //emit inferiorPreparationFailed(msg);
 }
 
 void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &)
@@ -192,11 +206,27 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response,
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         //m_breakHandler->clearBreakMarkers();
+        QString channel = startParameters().remoteChannel;
+        m_engine->postCommand(_("target remote %1").arg(channel),
+            CB(handleTargetRemote));
+    } else if (response.resultClass == GdbResultError) {
+        QString msg = tr("Starting remote executable failed:\n");
+        msg += __(response.data.findChild("msg").data());
+        setState(InferiorPreparationFailed);
+        emit inferiorPreparationFailed(msg);
+    }
+}
+
+void RemoteGdbAdapter::handleTargetRemote(const GdbResultRecord &record, const QVariant &)
+{
+    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    if (record.resultClass == GdbResultDone) {
         setState(InferiorPrepared);
         emit inferiorPrepared();
-    } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Starting executable failed:\n") +
-            __(response.data.findChild("msg").data());
+    } else if (record.resultClass == GdbResultError) {
+        // 16^error,msg="hd:5555: Connection timed out."
+        QString msg = tr("Connecting to remote server failed:\n");
+        msg += __(record.data.findChild("msg").data());
         setState(InferiorPreparationFailed);
         emit inferiorPreparationFailed(msg);
     }
@@ -206,22 +236,22 @@ void RemoteGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
     setState(InferiorStarting);
-    m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
+    m_engine->postCommand(_("attach"), CB(handleFirstContinue));
+    // FIXME: Is there a way to properly recognize a successful start?
+    setState(InferiorStarted);
+    emit inferiorStarted();
 }
 
-void RemoteGdbAdapter::handleExecRun(const GdbResultRecord &response, const QVariant &)
+void RemoteGdbAdapter::handleFirstContinue(const GdbResultRecord &record, const QVariant &)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    if (response.resultClass == GdbResultRunning) {
-        setState(InferiorStarted);
-        emit inferiorStarted();
-    } else {
-        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
-        const QByteArray &msg = response.data.findChild("msg").data();
-        //QTC_ASSERT(status() == DebuggerInferiorRunning, /**/);
-        //interruptInferior();
-        setState(InferiorStartFailed);
-        emit inferiorStartFailed(msg);
+    //QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStarted, qDebug() << state());
+    if (record.resultClass == GdbResultDone) {
+        // inferiorStarted already emitted above, see FIXME
+    } else if (record.resultClass == GdbResultError) {
+        //QString msg = __(record.data.findChild("msg").data());
+        QString msg1 = tr("Connecting to remote server failed:\n");
+        emit inferiorStartFailed(msg1 + record.toString());
     }
 }
 
@@ -232,20 +262,27 @@ void RemoteGdbAdapter::interruptInferior()
 
 void RemoteGdbAdapter::shutdown()
 {
-    if (state() == InferiorStarted) {
+    switch (state()) {
+
+    case AdapterNotRunning:
+        return;
+
+    case InferiorStarted:
         setState(InferiorShuttingDown);
         m_engine->postCommand(_("kill"), CB(handleKill));
         return;
-    }
+    
+    default:
+        QTC_ASSERT(false, qDebug() << state());
+        // fall through
 
-    if (state() == InferiorShutDown) {
+    case InferiorPreparationFailed:
+    case InferiorShutDown:
         setState(AdapterShuttingDown);
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
-    }
 
-    // FIXME: handle other states, too.
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    }
 }
 
 void RemoteGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant &)
