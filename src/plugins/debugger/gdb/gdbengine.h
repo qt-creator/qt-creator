@@ -79,6 +79,26 @@ enum DebuggingHelperState
     DebuggingHelperUnavailable,
 };
 
+enum GdbAdapterState
+{
+    AdapterNotRunning,
+    AdapterStarting,
+    AdapterStarted,
+    AdapterStartFailed,
+    InferiorPreparing,
+    InferiorPrepared,
+    InferiorPreparationFailed,
+    InferiorStarting,
+    InferiorStarted,
+    InferiorStartFailed,
+    InferiorShuttingDown,
+    InferiorShutDown,
+    InferiorShutdownFailed,
+    AdapterShuttingDown,
+    //AdapterShutDown,  // use AdapterNotRunning
+    AdapterShutdownFailed,
+};
+
 class GdbEngine : public IDebuggerEngine
 {
     Q_OBJECT
@@ -201,7 +221,7 @@ private:
 
     // type and cookie are sender-internal data, opaque for the "event
     // queue". resultNeeded == true increments m_pendingResults on
-    // send and decrements on receipt, effectively preventing 
+    // send and decrements on receipt, effectively preventing
     // watch model updates before everything is finished.
     void flushCommand(const GdbCommand &cmd);
     void postCommand(const QString &command,
@@ -302,7 +322,7 @@ private:
     int m_oldestAcceptableToken;
 
     int m_gdbVersion; // 6.8.0 is 680
-    int m_gdbBuildVersion; // MAC only? 
+    int m_gdbBuildVersion; // MAC only?
 
     // awful hack to keep track of used files
     QMap<QString, QString> m_shortToFullName;
@@ -331,7 +351,7 @@ private:
 
     //
     // Register specific stuff
-    // 
+    //
     Q_SLOT void reloadRegisters();
     void setRegisterValue(int nr, const QString &value);
     void handleRegisterListNames(const GdbResponse &response);
@@ -339,12 +359,12 @@ private:
 
     //
     // Source file specific stuff
-    // 
+    //
     void reloadSourceFiles();
 
     //
     // Stack specific stuff
-    // 
+    //
     void handleStackListFrames(const GdbResponse &response);
     void handleStackSelectThread(const GdbResponse &response);
     void handleStackListThreads(const GdbResponse &response);
@@ -354,7 +374,7 @@ private:
 
     //
     // Tooltip specific stuff
-    // 
+    //
     void sendToolTipCommand(const QString &command, const QString &cookie);
 
 
@@ -401,15 +421,15 @@ private:
     void setLocals(const QList<GdbMi> &locals);
     void connectDebuggingHelperActions();
     void disconnectDebuggingHelperActions();
-   
+
     bool startModeAllowsDumpers() const;
     QString parseDisassembler(const GdbMi &lines);
 
     int m_pendingRequests;
-    QSet<QString> m_processedNames; 
+    QSet<QString> m_processedNames;
 
     QtDumperHelper m_dumperHelper;
-    
+
     DebuggingHelperState m_debuggingHelperState;
     QList<GdbMi> m_currentFunctionArgs;
     QString m_currentFrame;
@@ -436,7 +456,13 @@ private:
     PlainGdbAdapter *m_plainAdapter;   // owned
     RemoteGdbAdapter *m_remoteAdapter; // owned
     TrkGdbAdapter *m_trkAdapter;       // owned
-    
+
+    // State
+    friend class AbstractGdbAdapter;
+    GdbAdapterState m_state;
+    void setState(GdbAdapterState state);
+    GdbAdapterState state() const;
+
 public:
     void showMessageBox(int icon, const QString &title, const QString &text);
     void debugMessage(const QString &msg);

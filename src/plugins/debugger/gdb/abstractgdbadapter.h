@@ -38,28 +38,6 @@
 namespace Debugger {
 namespace Internal {
 
-class GdbEngine;
-
-enum GdbAdapterState 
-{
-    AdapterNotRunning,
-    AdapterStarting,
-    AdapterStarted,
-    AdapterStartFailed,
-    InferiorPreparing,
-    InferiorPrepared,
-    InferiorPreparationFailed,
-    InferiorStarting,
-    InferiorStarted,
-    InferiorStartFailed,
-    InferiorShuttingDown,
-    InferiorShutDown,
-    InferiorShutdownFailed,
-    AdapterShuttingDown,
-    //AdapterShutDown,  // use AdapterNotRunning 
-    AdapterShutdownFailed,
-};
-
 // AbstractGdbAdapter is inherited by PlainGdbAdapter used for local
 // debugging and TrkGdbAdapter used for on-device debugging.
 // In the PlainGdbAdapter case it's just a wrapper around a QProcess running
@@ -71,7 +49,7 @@ class AbstractGdbAdapter : public QObject
 
 public:
     AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0)
-        : QObject(parent), m_engine(engine), m_state(AdapterNotRunning)
+        : QObject(parent), m_engine(engine)
     {}
 
     virtual QByteArray readAllStandardError() = 0;
@@ -109,12 +87,9 @@ signals:
     void readyReadStandardOutput();
     void readyReadStandardError();
 
-public:
-    GdbAdapterState state() const { return m_state; }
-    // Called by GdbEngine::handleAsyncOutput
-    void notifyInferiorExited();
-
 protected:
+    GdbAdapterState state() const
+        { return m_engine->state(); }
     void setState(GdbAdapterState state);
     const DebuggerStartParameters &startParameters() const
         { return m_engine->startParameters(); }
@@ -122,7 +97,6 @@ protected:
         { m_engine->debugMessage(msg); }
 
     GdbEngine * const m_engine;
-    GdbAdapterState m_state;
 };
 
 } // namespace Internal

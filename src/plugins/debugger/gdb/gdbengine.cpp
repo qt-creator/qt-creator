@@ -176,6 +176,7 @@ GdbEngine::GdbEngine(DebuggerManager *parent) :
     qq(parent->engineInterface())
 {
     m_gdbAdapter = 0;
+    m_state = AdapterNotRunning;
     QSharedPointer<TrkOptions> options(new TrkOptions);
     options->fromSettings(Core::ICore::instance()->settings());
     m_plainAdapter = new PlainGdbAdapter(this);
@@ -659,7 +660,7 @@ void GdbEngine::interruptInferior()
 //    debugMessage(_("GDBENGINE INTERRUPT INFERIOR: %1").arg(m_gdbAdapter->state()));
     qq->notifyInferiorStopRequested();
 
-    if (m_gdbAdapter->state() == AdapterNotRunning) {
+    if (state() == AdapterNotRunning) {
         debugMessage(_("TRYING TO INTERRUPT INFERIOR WITHOUT RUNNING GDB"));
         shutdown();
         return;
@@ -725,7 +726,7 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
 
 void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 {
-    if (!stateAcceptsGdbCommands(m_gdbAdapter->state())) {
+    if (!stateAcceptsGdbCommands(state())) {
         PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
         debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
         return;
@@ -759,7 +760,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 void GdbEngine::flushCommand(const GdbCommand &cmd0)
 {
     GdbCommand cmd = cmd0;
-    if (m_gdbAdapter->state() == AdapterNotRunning) {
+    if (state() == AdapterNotRunning) {
         emit gdbInputAvailable(LogInput, cmd.command);
         debugMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + cmd.command);
         return;
@@ -862,7 +863,7 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
 
 void GdbEngine::executeDebuggerCommand(const QString &command)
 {
-    if (m_gdbAdapter->state() == AdapterNotRunning) {
+    if (state() == AdapterNotRunning) {
         debugMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
         return;
     }
@@ -1079,7 +1080,9 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 
     if (isExitedReason(reason)) {
         // Give adapter a chance to take notice of regular exits.
-        m_gdbAdapter->notifyInferiorExited();
+        QTC_ASSERT(state() == InferiorStarted, /**/);
+        setState(InferiorShuttingDown);
+        setState(InferiorShutDown);
 
         QString msg;
         if (reason == "exited") {
@@ -4217,10 +4220,6 @@ void GdbEngine::showMessageBox(int icon, const QString &title, const QString &te
     m_manager->showMessageBox(icon, title, text);
 }
 
-//
-// AbstractGdbAdapter
-//
-
 static bool isAllowedTransition(int from, int to)
 {
     return (from == -1)
@@ -4242,20 +4241,27 @@ static bool isAllowedTransition(int from, int to)
     ;
 }
 
-void AbstractGdbAdapter::setState(GdbAdapterState state)
+GdbAdapterState GdbEngine::state() const
+{
+    return m_state;
+}
+
+void GdbEngine::setState(GdbAdapterState state)
 {
     QString msg = _("Adapter state from %1 to state %2.").arg(m_state).arg(state);
     if (!isAllowedTransition(m_state, state))
         qDebug() << "UNEXPECTED ADAPTER TRANSITION: " << msg;
-    m_engine->debugMessage(msg);
+    debugMessage(msg);
     m_state = state;
 }
 
-void AbstractGdbAdapter::notifyInferiorExited()
+//
+// AbstractGdbAdapter
+//
+
+void AbstractGdbAdapter::setState(GdbAdapterState state)
 {
-    QTC_ASSERT(state() == InferiorStarted, /**/);
-    setState(InferiorShuttingDown);
-    setState(InferiorShutDown);
+    m_engine->setState(state);
 }
 
 //
