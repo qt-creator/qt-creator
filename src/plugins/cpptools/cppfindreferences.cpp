@@ -259,8 +259,15 @@ void CppFindReferences::findAll(const Snapshot &snapshot, Symbol *symbol)
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
+    // find the canonical symbol.
+    Symbol *canonicalSymbol = symbol;
+    for (; symbol; symbol = symbol->next()) {
+        if (symbol->name() == canonicalSymbol->name())
+            canonicalSymbol = symbol;
+    }
+
     QFuture<Core::Utils::FileSearchResult> result =
-            QtConcurrent::run(&find_helper, snapshot, symbol);
+            QtConcurrent::run(&find_helper, snapshot, canonicalSymbol);
 
     m_watcher.setFuture(result);
 
