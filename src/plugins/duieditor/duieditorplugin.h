@@ -33,13 +33,13 @@
 #include <extensionsystem/iplugin.h>
 
 namespace TextEditor {
-class TextFileWizard;
 class TextEditorActionHandler;
 } // namespace TextEditor
 
 namespace DuiEditor {
 
 class DuiModelManagerInterface;
+class QmlFileWizard;
 
 namespace Internal {
 
@@ -74,7 +74,7 @@ private:
     Context m_scriptcontext;
 
     DuiModelManagerInterface *m_modelManager;
-    TextEditor::TextFileWizard *m_wizard;
+    QmlFileWizard *m_wizard;
     DuiEditorFactory *m_editor;
     TextEditor::TextEditorActionHandler *m_actionHandler;
     DuiCodeCompletion *m_completion;

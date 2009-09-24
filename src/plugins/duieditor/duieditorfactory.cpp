@@ -44,7 +44,7 @@ using namespace DuiEditor::Constants;
 DuiEditorFactory::DuiEditorFactory(const Context &context, QObject *parent)
   : Core::IEditorFactory(parent),
     m_kind(QLatin1String(C_DUIEDITOR)),
-    m_mimeTypes(QLatin1String(DuiEditor::Constants::C_DUIEDITOR_MIMETYPE)),
+    m_mimeTypes(QLatin1String(DuiEditor::Constants::DUIEDITOR_MIMETYPE)),
     m_context(context),
     m_actionHandler(new DuiEditorActionHandler)
 {

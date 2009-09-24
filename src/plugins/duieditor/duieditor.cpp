@@ -379,7 +379,7 @@ ScriptEditor::ScriptEditor(const Context &context, QWidget *parent) :
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
-    setMimeType(DuiEditor::Constants::C_DUIEDITOR_MIMETYPE);
+    setMimeType(DuiEditor::Constants::DUIEDITOR_MIMETYPE);
 
     m_updateDocumentTimer = new QTimer(this);
     m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);

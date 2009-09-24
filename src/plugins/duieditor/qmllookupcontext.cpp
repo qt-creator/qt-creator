@@ -168,3 +168,40 @@ QString QmlLookupContext::toString(UiQualifiedId *id)
 
     return str;
 }
+
+QList<QmlSymbol*> QmlLookupContext::visibleSymbols(QmlJS::AST::Node *scope)
+{
+    // FIXME
+}
+
+QList<QmlSymbol*> QmlLookupContext::visibleTypes()
+{
+    QList<QmlSymbol*> result;
+
+    UiProgram *program = _doc->program();
+    if (!program)
+        return result;
+
+    for (UiImportList *iter = program->imports; iter; iter = iter->next) {
+        UiImport *import = iter->import;
+        if (!import)
+            continue;
+
+        if (!(import->fileName))
+            continue;
+        const QString path = import->fileName->asString();
+
+        // TODO: handle "import as".
+
+        const QMap<QString, DuiDocument::Ptr> types = _snapshot.componentsDefinedByImportedDocuments(_doc, path);
+        foreach (const DuiDocument::Ptr typeDoc, types) {
+            UiProgram *typeProgram = typeDoc->program();
+
+            if (typeProgram && typeProgram->members && typeProgram->members->member) {
+                result.append(createSymbol(typeDoc->fileName(), typeProgram->members->member));
+            }
+        }
+    }
+
+    return result;
+}

@@ -26,7 +26,8 @@ HEADERS += duieditor.h \
     qmlexpressionundercursor.h \
     qmllookupcontext.h \
     qmlresolveexpression.h \
-    qmlsymbol.h
+    qmlsymbol.h \
+    qmlfilewizard.h
 SOURCES += duieditor.cpp \
     duieditorfactory.cpp \
     duieditorplugin.cpp \
@@ -43,5 +44,6 @@ SOURCES += duieditor.cpp \
     qmlexpressionundercursor.cpp \
     qmllookupcontext.cpp \
     qmlresolveexpression.cpp \
-    qmlsymbol.cpp
+    qmlsymbol.cpp \
+    qmlfilewizard.cpp
 RESOURCES += duieditor.qrc

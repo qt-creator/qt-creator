@@ -27,6 +27,9 @@ public:
     DuiDocument::Ptr document() const
     { return _doc; }
 
+    QList<QmlSymbol*> visibleSymbols(QmlJS::AST::Node *scope);
+    QList<QmlSymbol*> visibleTypes();
+
 private:
     QmlSymbol *createSymbol(const QString &fileName, QmlJS::AST::UiObjectMember *node);
 

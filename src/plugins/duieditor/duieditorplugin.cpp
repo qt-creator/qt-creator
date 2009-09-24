@@ -36,6 +36,7 @@
 #include "duicodecompletion.h"
 #include "duihoverhandler.h"
 #include "duimodelmanager.h"
+#include "qmlfilewizard.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -57,6 +58,7 @@
 #include <QtCore/QSettings>
 #include <QtGui/QAction>
 
+using namespace DuiEditor;
 using namespace DuiEditor::Internal;
 using namespace DuiEditor::Constants;
 
@@ -75,7 +77,6 @@ DuiEditorPlugin::DuiEditorPlugin() :
 DuiEditorPlugin::~DuiEditorPlugin()
 {
     removeObject(m_editor);
-    removeObject(m_wizard);
     delete m_actionHandler;
     m_instance = 0;
 }
@@ -101,15 +102,11 @@ bool DuiEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setDescription(tr("Creates a Qt QML file."));
-    wizardParameters.setName(tr("Qt QML File"));
     wizardParameters.setCategory(QLatin1String("Qt"));
     wizardParameters.setTrCategory(tr("Qt"));
-    m_wizard = new TextEditor::TextFileWizard(QLatin1String(DuiEditor::Constants::C_DUIEDITOR_MIMETYPE),
-                                              QLatin1String(DuiEditor::Constants::C_DUIEDITOR),
-                                              QLatin1String("dui$"),
-                                              wizardParameters, this);
-    addObject(m_wizard);
+    wizardParameters.setDescription(tr("Creates a Qt QML file."));
+    wizardParameters.setName(tr("Qt QML File"));
+    addAutoReleasedObject(new QmlFileWizard(wizardParameters, core));
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(DuiEditor::Constants::C_DUIEDITOR,
           TextEditor::TextEditorActionHandler::Format
