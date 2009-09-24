@@ -172,6 +172,7 @@ QString QmlLookupContext::toString(UiQualifiedId *id)
 QList<QmlSymbol*> QmlLookupContext::visibleSymbols(QmlJS::AST::Node *scope)
 {
     // FIXME
+    return QList<QmlSymbol*>();
 }
 
 QList<QmlSymbol*> QmlLookupContext::visibleTypes()
