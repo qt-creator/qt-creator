@@ -71,10 +71,10 @@ public:
         unsigned length;
 
         Use()
-            : line(0), column(0), length(0) {}
+                : line(0), column(0), length(0) {}
 
         Use(unsigned line, unsigned column, unsigned length)
-            : line(line), column(column), length(length) {}
+                : line(line), column(column), length(length) {}
     };
 
     typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;
@@ -84,10 +84,10 @@ public:
     typedef QHashIterator<CPlusPlus::Identifier *, QList<Use> > ExternalUseIterator;
 
     SemanticInfo()
-        : revision(0)
+            : revision(-1)
     { }
 
-    unsigned revision;
+    int revision;
     CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;
     LocalUseMap localUses;
@@ -114,7 +114,7 @@ public:
         int revision;
 
         Source()
-            : line(0), column(0), revision(0)
+                : line(0), column(0), revision(0)
         { }
 
         Source(const CPlusPlus::Snapshot &snapshot,
@@ -190,7 +190,6 @@ public:
     void indentInsertedText(const QTextCursor &tc);
 
     SemanticInfo semanticInfo() const;
-    unsigned revision() const;
 
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -296,8 +295,6 @@ private:
 
     SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_lastSemanticInfo;
-
-    unsigned m_revision;
 };
 
 
