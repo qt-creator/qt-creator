@@ -1901,7 +1901,9 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         snapshot = m_lastSemanticInfo.snapshot;
         doc = m_lastSemanticInfo.doc;
         m_mutex.unlock();
-    } else {
+    }
+
+    if (!doc) {
         const QByteArray preprocessedCode = source.snapshot.preprocessedCode(source.code, source.fileName);
 
         doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
