@@ -252,6 +252,9 @@ private:
 
     SemanticHighlighter::Source currentSource();
 
+    void highlightUses(const QList<SemanticInfo::Use> &uses,
+                       QList<QTextEdit::ExtraSelection> *selections);
+
     void createToolBar(CPPEditorEditable *editable);
 
     enum EditOperation {

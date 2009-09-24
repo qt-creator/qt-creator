@@ -947,29 +947,27 @@ void CPPEditor::updateMethodBoxIndex()
     m_updateMethodBoxTimer->start(UPDATE_METHOD_BOX_INTERVAL);
 }
 
-static void highlightUses(QTextDocument *doc,
-                          const QTextCharFormat &format,
-                          const QTextCharFormat &unusedFormat,
-                          const QList<SemanticInfo::Use> &uses,
-                          QList<QTextEdit::ExtraSelection> *selections)
+void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
+                              QList<QTextEdit::ExtraSelection> *selections)
 {
     bool isUnused = false;
-    if (uses.size() == 1)
+    if (uses.size() == 1) {
         isUnused = true;
+        return; // ###
+    }
 
     foreach (const SemanticInfo::Use &use, uses) {
         QTextEdit::ExtraSelection sel;
 
         if (isUnused)
-            sel.format = unusedFormat;
+            sel.format = m_occurrencesUnusedFormat;
         else
-            sel.format = format;
+            sel.format = m_occurrencesFormat;
 
-        sel.cursor = QTextCursor(doc);
-
-        const int anchor = doc->findBlockByNumber(use.line - 1).position() + use.column - 1;
+        const int anchor = document()->findBlockByNumber(use.line - 1).position() + use.column - 1;
         const int position = anchor + use.length;
 
+        sel.cursor = QTextCursor(document());
         sel.cursor.setPosition(anchor);
         sel.cursor.setPosition(position, QTextCursor::KeepAnchor);
 
@@ -1794,8 +1792,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         }
 
         if (uses.size() == 1 || good)
-            highlightUses(document(), m_occurrencesFormat, m_occurrencesUnusedFormat,
-                          uses, &selections);
+            highlightUses(uses, &selections);
     }
 
     setExtraSelections(CodeSemanticsSelection, selections);
