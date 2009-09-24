@@ -486,6 +486,7 @@ public:
 signals:
     void error(const QString &);
     void dataReceived(char c);
+    void dataReceived(const QByteArray &data);
 
 public slots:
     void terminate();
@@ -514,11 +515,23 @@ WinReaderThread::~WinReaderThread()
 // Return 0 to continue or error code
 int WinReaderThread::tryRead()
 {
+    enum { BufSize = 1024 };
+    char buffer[BufSize];
+    // Check if there are already bytes waiting. If not, wait for first byte
+    COMSTAT comStat;
+    if (!ClearCommError(m_context->device, NULL, &comStat)){
+        emit error(QString::fromLatin1("ClearCommError failed: %1").arg(winErrorMessage(GetLastError())));
+        return -7;
+    }    
+    const DWORD bytesToRead = qMax(DWORD(1), qMin(comStat.cbInQue, DWORD(BufSize)));
     // Trigger read
-    char c;
     DWORD bytesRead = 0;
-    if (ReadFile(m_context->device, &c, 1, &bytesRead, &m_context->readOverlapped)) {
-        emit dataReceived(c);
+    if (ReadFile(m_context->device, &buffer, bytesToRead, &bytesRead, &m_context->readOverlapped)) {
+        if (bytesRead == 1) {
+            emit dataReceived(buffer[0]);
+        } else {
+            emit dataReceived(QByteArray(buffer, bytesRead));
+        }
         return 0;
     }
     const DWORD readError = GetLastError();
@@ -540,7 +553,11 @@ int WinReaderThread::tryRead()
         emit error(QString::fromLatin1("GetOverlappedResult failed: %1").arg(winErrorMessage(GetLastError())));
         return -3;
     }
-    emit dataReceived(c);
+    if (bytesRead == 1) {
+        emit dataReceived(buffer[0]);
+    } else {
+        emit dataReceived(QByteArray(buffer, bytesRead));
+    }
     return 0;
 }
 
@@ -787,10 +804,9 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
 #ifdef Q_OS_WIN
     connect(d->readerThread.data(), SIGNAL(dataReceived(char)),
             this, SLOT(dataReceived(char)), Qt::QueuedConnection);
-#else
+#endif
     connect(d->readerThread.data(), SIGNAL(dataReceived(QByteArray)),
             this, SLOT(dataReceived(QByteArray)), Qt::QueuedConnection);
-#endif
     d->readerThread->start();
 
     d->writerThread = QSharedPointer<WriterThread>(new WriterThread(d->deviceContext));
