@@ -228,7 +228,7 @@ bool BaseTextDocument::open(const QString &fileName)
             m_document->setPlainText(text);
         TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(m_document->documentLayout());
         QTC_ASSERT(documentLayout, return true);
-        documentLayout->lastSaveRevision = 0;
+        documentLayout->lastSaveRevision = m_document->revision();
         m_document->setModified(false);
         emit titleChanged(title);
         emit changed();
