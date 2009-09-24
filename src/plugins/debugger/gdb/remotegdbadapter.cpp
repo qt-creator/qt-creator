@@ -201,7 +201,7 @@ void RemoteGdbAdapter::prepareInferior()
     //emit inferiorPreparationFailed(msg);
 }
 
-void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &)
+void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
@@ -217,7 +217,7 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response,
     }
 }
 
-void RemoteGdbAdapter::handleTargetRemote(const GdbResultRecord &record, const QVariant &)
+void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
@@ -242,7 +242,7 @@ void RemoteGdbAdapter::startInferior()
     emit inferiorStarted();
 }
 
-void RemoteGdbAdapter::handleFirstContinue(const GdbResultRecord &record, const QVariant &)
+void RemoteGdbAdapter::handleFirstContinue(const GdbResponse &record)
 {
     //QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     QTC_ASSERT(state() == InferiorStarted, qDebug() << state());
@@ -285,7 +285,7 @@ void RemoteGdbAdapter::shutdown()
     }
 }
 
-void RemoteGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant &)
+void RemoteGdbAdapter::handleKill(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         setState(InferiorShutDown);
@@ -299,7 +299,7 @@ void RemoteGdbAdapter::handleKill(const GdbResultRecord &response, const QVarian
     }
 }
 
-void RemoteGdbAdapter::handleExit(const GdbResultRecord &response, const QVariant &)
+void RemoteGdbAdapter::handleExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()

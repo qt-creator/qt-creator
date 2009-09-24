@@ -142,7 +142,7 @@ void PlainGdbAdapter::prepareInferior()
         CB(handleFileExecAndSymbols));
 }
 
-void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &)
+void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
@@ -157,7 +157,7 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response, 
     }
 }
 
-void PlainGdbAdapter::handleInfoTarget(const GdbResultRecord &response, const QVariant &)
+void PlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
 {
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
 #if defined(Q_OS_MAC)
@@ -199,7 +199,7 @@ void PlainGdbAdapter::handleInfoTarget(const GdbResultRecord &response, const QV
 #endif
 }
 
-void PlainGdbAdapter::handleExecRun(const GdbResultRecord &response, const QVariant &)
+void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
@@ -270,7 +270,7 @@ void PlainGdbAdapter::shutdown()
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
 }
 
-void PlainGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant &)
+void PlainGdbAdapter::handleKill(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         setState(InferiorShutDown);
@@ -284,7 +284,7 @@ void PlainGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant
     }
 }
 
-void PlainGdbAdapter::handleExit(const GdbResultRecord &response, const QVariant &)
+void PlainGdbAdapter::handleExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()
@@ -309,12 +309,11 @@ void PlainGdbAdapter::stubStarted()
     m_engine->postCommand(_("attach %1").arg(attachedPID), CB(handleStubAttached));
 }
 
-void PlainGdbAdapter::handleStubAttached(const GdbResultRecord &, const QVariant &)
+void PlainGdbAdapter::handleStubAttached(const GdbResponse &)
 {
     qDebug() << "STUB ATTACHED, FIXME";
     //qq->notifyInferiorStopped();
     //handleAqcuiredInferior();
-    // FIXME: m_autoContinue = true;
 }
 
 void PlainGdbAdapter::stubError(const QString &msg)

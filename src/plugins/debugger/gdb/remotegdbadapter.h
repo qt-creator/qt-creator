@@ -71,13 +71,12 @@ private:
     Q_SLOT void readUploadStandardError();
     Q_SLOT void uploadProcError(QProcess::ProcessError error);
 
-    void handleFileExecAndSymbols(const GdbResultRecord &, const QVariant &);
-    void handleKill(const GdbResultRecord &, const QVariant &);
-    void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleTargetRemote(const GdbResultRecord &response, const QVariant &);
-    void handleFirstContinue(const GdbResultRecord &response, const QVariant &);
+    void handleFileExecAndSymbols(const GdbResponse &response);
+    void handleKill(const GdbResponse &response);
+    void handleExit(const GdbResponse &response);
+    void handleTargetRemote(const GdbResponse &response);
+    void handleFirstContinue(const GdbResponse &response);
 
-    void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
     Q_SLOT void handleGdbStarted();
 

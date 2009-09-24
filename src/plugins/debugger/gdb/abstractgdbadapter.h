@@ -118,6 +118,8 @@ protected:
     void setState(GdbAdapterState state);
     const DebuggerStartParameters &startParameters() const
         { return m_engine->startParameters(); }
+    void debugMessage(const QString &msg) const
+        { m_engine->debugMessage(msg); }
 
     GdbEngine * const m_engine;
     GdbAdapterState m_state;

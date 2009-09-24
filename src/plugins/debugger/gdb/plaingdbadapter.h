@@ -69,14 +69,13 @@ public:
     void shutdown();
 
 private:
-    void handleFileExecAndSymbols(const GdbResultRecord &, const QVariant &);
-    void handleKill(const GdbResultRecord &, const QVariant &);
-    void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleStubAttached(const GdbResultRecord &, const QVariant &);
-    void handleExecRun(const GdbResultRecord &response, const QVariant &);
-    void handleInfoTarget(const GdbResultRecord &response, const QVariant &);
+    void handleFileExecAndSymbols(const GdbResponse &response);
+    void handleKill(const GdbResponse &response);
+    void handleExit(const GdbResponse &response);
+    void handleStubAttached(const GdbResponse &response);
+    void handleExecRun(const GdbResponse &response);
+    void handleInfoTarget(const GdbResponse &response);
 
-    void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
     void emitAdapterStartFailed(const QString &msg);
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
     Q_SLOT void handleGdbStarted();

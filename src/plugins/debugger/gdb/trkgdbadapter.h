@@ -100,7 +100,6 @@ private:
     QProcess m_gdbProc;
     QProcess m_rfcommProc;
     bool m_running;
-    void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
 
 public:
     //
@@ -123,10 +122,10 @@ public:
     void shutdown();
 
     Q_SLOT void startInferiorEarly();
-    void handleKill(const GdbResultRecord &, const QVariant &);
-    void handleExit(const GdbResultRecord &, const QVariant &);
-    void handleTargetRemote(const GdbResultRecord &, const QVariant &);
-    void handleFirstContinue(const GdbResultRecord &, const QVariant &);
+    void handleKill(const GdbResponse &response);
+    void handleExit(const GdbResponse &response);
+    void handleTargetRemote(const GdbResponse &response);
+    void handleFirstContinue(const GdbResponse &response);
 
     //
     // TRK

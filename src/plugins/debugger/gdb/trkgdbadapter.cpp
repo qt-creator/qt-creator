@@ -1391,7 +1391,7 @@ void TrkGdbAdapter::prepareInferior()
         CB(handleTargetRemote));
 }
 
-void TrkGdbAdapter::handleTargetRemote(const GdbResultRecord &record, const QVariant &)
+void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
@@ -1414,7 +1414,7 @@ void TrkGdbAdapter::startInferior()
     emit inferiorStarted();
 }
 
-void TrkGdbAdapter::handleFirstContinue(const GdbResultRecord &record, const QVariant &)
+void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
 {
     //QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     QTC_ASSERT(state() == InferiorStarted, qDebug() << state());
@@ -1608,7 +1608,7 @@ void TrkGdbAdapter::shutdown()
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
 }
 
-void TrkGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant &)
+void TrkGdbAdapter::handleKill(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         setState(InferiorShutDown);
@@ -1622,7 +1622,7 @@ void TrkGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant &
     }
 }
 
-void TrkGdbAdapter::handleExit(const GdbResultRecord &response, const QVariant &)
+void TrkGdbAdapter::handleExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         qDebug() << "EXITED, NO MESSAGE...";

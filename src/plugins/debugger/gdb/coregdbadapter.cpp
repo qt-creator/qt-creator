@@ -112,7 +112,7 @@ void CoreGdbAdapter::prepareInferior()
         CB(handleFileExecAndSymbols));
 }
 
-void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &)
+void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
@@ -139,7 +139,7 @@ void CoreGdbAdapter::startInferior()
     m_engine->postCommand(_("target core ") + coreName, CB(handleTargetCore));
 }
 
-void CoreGdbAdapter::handleTargetCore(const GdbResultRecord &response, const QVariant &)
+void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
@@ -170,7 +170,7 @@ void CoreGdbAdapter::shutdown()
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
 }
 
-void CoreGdbAdapter::handleExit(const GdbResultRecord &response, const QVariant &)
+void CoreGdbAdapter::handleExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()

@@ -59,7 +59,7 @@ namespace Internal {
 class AbstractGdbAdapter;
 class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
-class GdbResultRecord;
+class GdbResponse;
 class GdbMi;
 
 class BreakpointData;
@@ -135,18 +135,15 @@ private:
     virtual QList<Symbol> moduleSymbols(const QString &moduleName);
 
     void fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length);
-    void handleFetchMemory(const GdbResultRecord &record, const QVariant &cookie);
+    void handleFetchMemory(const GdbResponse &response);
 
     void fetchDisassembler(DisassemblerViewAgent *agent,
         const StackFrame &frame);
     void fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
         bool useMixedMode);
-    void handleFetchDisassemblerByLine(const GdbResultRecord &record,
-        const QVariant &cookie);
-    void handleFetchDisassemblerByAddress1(const GdbResultRecord &record,
-        const QVariant &cookie);
-    void handleFetchDisassemblerByAddress0(const GdbResultRecord &record,
-        const QVariant &cookie);
+    void handleFetchDisassemblerByLine(const GdbResponse &response);
+    void handleFetchDisassemblerByAddress1(const GdbResponse &response);
+    void handleFetchDisassemblerByAddress0(const GdbResponse &response);
 
     Q_SLOT void setDebugDebuggingHelpers(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
@@ -167,7 +164,7 @@ private:
     // get one usable name out of these, try full names first
     QString fullName(const QStringList &candidates);
 
-    void handleResult(const GdbResultRecord &, int type, const QVariant &);
+    void handleResult(const GdbResponse &response);
 
 public: // otherwise the Qt flag macros are unhappy
     enum GdbCommandFlag {
@@ -183,9 +180,9 @@ public: // otherwise the Qt flag macros are unhappy
 
 private:
     typedef void (GdbEngine::*GdbCommandCallback)
-        (const GdbResultRecord &record, const QVariant &cookie);
+        (const GdbResponse &response);
     typedef void (AbstractGdbAdapter::*AdapterCallback)
-        (const GdbResultRecord &record, const QVariant &cookie);
+        (const GdbResponse &response);
 
     struct GdbCommand
     {
@@ -254,24 +251,24 @@ private slots:
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
-    void handleStart(const GdbResultRecord &response, const QVariant &);
+    void handleStart(const GdbResponse &response);
     void handleAqcuiredInferior();
     void handleAsyncOutput(const GdbMi &data);
-    void handleStop1(const GdbResultRecord &, const QVariant &cookie);
-    void handleStop2(const GdbResultRecord &, const QVariant &cookie);
+    void handleStop1(const GdbResponse &response);
+    void handleStop2(const GdbResponse &response);
     void handleStop2(const GdbMi &data);
-    void handleResultRecord(const GdbResultRecord &response);
-    void handleFileExecAndSymbols(const GdbResultRecord &response, const QVariant &);
-    void handleExecContinue(const GdbResultRecord &response, const QVariant &);
-    void handleExecJumpToLine(const GdbResultRecord &response, const QVariant &);
-    void handleExecRunToFunction(const GdbResultRecord &response, const QVariant &);
-    void handleInfoShared(const GdbResultRecord &response, const QVariant &);
-    void handleInfoProc(const GdbResultRecord &response, const QVariant &);
-    void handleInfoThreads(const GdbResultRecord &response, const QVariant &);
-    void handleShowVersion(const GdbResultRecord &response, const QVariant &);
-    void handleQueryPwd(const GdbResultRecord &response, const QVariant &);
-    void handleQuerySources(const GdbResultRecord &response, const QVariant &);
-    void handleWatchPoint(const GdbResultRecord &, const QVariant &);
+    void handleResultRecord(const GdbResponse &response);
+    void handleFileExecAndSymbols(const GdbResponse &response);
+    void handleExecContinue(const GdbResponse &response);
+    void handleExecJumpToLine(const GdbResponse &response);
+    void handleExecRunToFunction(const GdbResponse &response);
+    void handleInfoShared(const GdbResponse &response);
+    void handleInfoProc(const GdbResponse &response);
+    void handleInfoThreads(const GdbResponse &response);
+    void handleShowVersion(const GdbResponse &response);
+    void handleQueryPwd(const GdbResponse &response);
+    void handleQuerySources(const GdbResponse &response);
+    void handleWatchPoint(const GdbResponse &response);
     bool showToolTip();
 
     // Convenience
@@ -314,13 +311,13 @@ private:
     //
     // Breakpoint specific stuff
     //
-    void handleBreakList(const GdbResultRecord &record, const QVariant &);
+    void handleBreakList(const GdbResponse &response);
     void handleBreakList(const GdbMi &table);
-    void handleBreakIgnore(const GdbResultRecord &record, const QVariant &cookie);
-    void handleBreakInsert(const GdbResultRecord &record, const QVariant &cookie);
-    void handleBreakInsert1(const GdbResultRecord &record, const QVariant &cookie);
-    void handleBreakCondition(const GdbResultRecord &record, const QVariant &cookie);
-    void handleBreakInfo(const GdbResultRecord &record, const QVariant &cookie);
+    void handleBreakIgnore(const GdbResponse &response);
+    void handleBreakInsert(const GdbResponse &response);
+    void handleBreakInsert1(const GdbResponse &response);
+    void handleBreakCondition(const GdbResponse &response);
+    void handleBreakInfo(const GdbResponse &response);
     void extractDataFromInfoBreak(const QString &output, BreakpointData *data);
     void breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt);
     void sendInsertBreakpoint(int index);
@@ -329,7 +326,7 @@ private:
     // Modules specific stuff
     //
     void reloadModules();
-    void handleModulesList(const GdbResultRecord &record, const QVariant &);
+    void handleModulesList(const GdbResponse &response);
 
 
     //
@@ -337,8 +334,8 @@ private:
     // 
     Q_SLOT void reloadRegisters();
     void setRegisterValue(int nr, const QString &value);
-    void handleRegisterListNames(const GdbResultRecord &record, const QVariant &);
-    void handleRegisterListValues(const GdbResultRecord &record, const QVariant &);
+    void handleRegisterListNames(const GdbResponse &response);
+    void handleRegisterListValues(const GdbResponse &response);
 
     //
     // Source file specific stuff
@@ -348,9 +345,9 @@ private:
     //
     // Stack specific stuff
     // 
-    void handleStackListFrames(const GdbResultRecord &record, const QVariant &cookie);
-    void handleStackSelectThread(const GdbResultRecord &, const QVariant &);
-    void handleStackListThreads(const GdbResultRecord &record, const QVariant &cookie);
+    void handleStackListFrames(const GdbResponse &response);
+    void handleStackSelectThread(const GdbResponse &response);
+    void handleStackListThreads(const GdbResponse &response);
     Q_SLOT void reloadStack();
     Q_SLOT void reloadFullStack();
 
@@ -384,26 +381,19 @@ private:
     void runDirectDebuggingHelper(const WatchData &data, bool dumpChildren);
     bool hasDebuggingHelperForType(const QString &type) const;
 
-    void handleVarListChildren(const GdbResultRecord &record,
-        const QVariant &cookie);
-    void handleVarCreate(const GdbResultRecord &record,
-        const QVariant &cookie);
-    void handleVarAssign(const GdbResultRecord &, const QVariant &);
-    void handleEvaluateExpression(const GdbResultRecord &record,
-        const QVariant &cookie);
-    //void handleToolTip(const GdbResultRecord &record,
-    //    const QVariant &cookie);
-    void handleQueryDebuggingHelper(const GdbResultRecord &record, const QVariant &);
-    void handleDebuggingHelperValue1(const GdbResultRecord &record,
-        const QVariant &cookie);
-    void handleDebuggingHelperValue2(const GdbResultRecord &record,
-        const QVariant &cookie);
-    void handleDebuggingHelperValue3(const GdbResultRecord &record,
-        const QVariant &cookie);
-    void handleDebuggingHelperEditValue(const GdbResultRecord &record);
-    void handleDebuggingHelperSetup(const GdbResultRecord &record, const QVariant &);
-    void handleStackListLocals(const GdbResultRecord &record, const QVariant &);
-    void handleStackListArguments(const GdbResultRecord &record, const QVariant &);
+    void handleVarListChildren(const GdbResponse &response);
+    void handleVarCreate(const GdbResponse &response);
+    void handleVarAssign(const GdbResponse &response);
+    void handleEvaluateExpression(const GdbResponse &response);
+    //void handleToolTip(const GdbResponse &response);
+    void handleQueryDebuggingHelper(const GdbResponse &response);
+    void handleDebuggingHelperValue1(const GdbResponse &response);
+    void handleDebuggingHelperValue2(const GdbResponse &response);
+    void handleDebuggingHelperValue3(const GdbResponse &response);
+    void handleDebuggingHelperEditValue(const GdbResponse &response);
+    void handleDebuggingHelperSetup(const GdbResponse &response);
+    void handleStackListLocals(const GdbResponse &response);
+    void handleStackListArguments(const GdbResponse &response);
     void handleVarListChildrenHelper(const GdbMi &child,
         const WatchData &parent);
     void setWatchDataType(WatchData &data, const GdbMi &mi);

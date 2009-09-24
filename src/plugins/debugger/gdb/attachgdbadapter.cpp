@@ -102,16 +102,15 @@ void AttachGdbAdapter::handleGdbStarted()
 
 void AttachGdbAdapter::prepareInferior()
 {
-    const qint64 pid = startParameters().attachPID;
     QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
     setState(InferiorPreparing);
-    qDebug() << "USING " << pid;
+    const qint64 pid = startParameters().attachPID;
     m_engine->postCommand(_("attach %1").arg(pid), CB(handleAttach));
     // Task 254674 does not want to remove them
     //qq->breakHandler()->removeAllBreakpoints();
 }
 
-void AttachGdbAdapter::handleAttach(const GdbResultRecord &response, const QVariant &)
+void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
@@ -131,7 +130,7 @@ void AttachGdbAdapter::startInferior()
     m_engine->postCommand(_("-exec-continue"), CB(handleContinue));
 }
 
-void AttachGdbAdapter::handleContinue(const GdbResultRecord &response, const QVariant &)
+void AttachGdbAdapter::handleContinue(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
@@ -169,7 +168,7 @@ void AttachGdbAdapter::shutdown()
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
 }
 
-void AttachGdbAdapter::handleDetach(const GdbResultRecord &response, const QVariant &)
+void AttachGdbAdapter::handleDetach(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         setState(InferiorShutDown);
@@ -183,7 +182,7 @@ void AttachGdbAdapter::handleDetach(const GdbResultRecord &response, const QVari
     }
 }
 
-void AttachGdbAdapter::handleExit(const GdbResultRecord &response, const QVariant &)
+void AttachGdbAdapter::handleExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()

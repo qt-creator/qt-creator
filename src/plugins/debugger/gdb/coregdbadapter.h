@@ -67,11 +67,10 @@ private:
     void interruptInferior();
     void shutdown();
 
-    void handleFileExecAndSymbols(const GdbResultRecord &, const QVariant &);
-    void handleTargetCore(const GdbResultRecord &response, const QVariant &);
-    void handleExit(const GdbResultRecord &, const QVariant &);
+    void handleFileExecAndSymbols(const GdbResponse &response);
+    void handleTargetCore(const GdbResponse &response);
+    void handleExit(const GdbResponse &response);
 
-    void debugMessage(const QString &msg) { m_engine->debugMessage(msg); }
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
     Q_SLOT void handleGdbStarted();
 
