@@ -104,12 +104,16 @@ signals:
     void error(const QString &msg);
     void logMessage(const QString &msg);
 
-protected:
+private slots:
+    void dataReceived(char c);
+    void dataReceived(const QByteArray &a);
+
+protected slots:
     void emitError(const QString &msg);
     void emitLogMessage(const QString &msg);
-    virtual void timerEvent(QTimerEvent *ev);
 
 private:
+    void readMessages();
     TrkDevicePrivate *d;
 };
 
