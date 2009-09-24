@@ -54,12 +54,13 @@ MakeStep::~MakeStep()
 
 bool MakeStep::init(const QString &buildConfiguration)
 {
-    setBuildParser(m_pro->buildParser(buildConfiguration));
+    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfiguration);
+    setBuildParser(m_pro->buildParser(bc));
 
     setEnabled(buildConfiguration, true);
-    setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
+    setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(bc));
 
-    setCommand(buildConfiguration, m_pro->toolChain(buildConfiguration)->makeCommand());
+    setCommand(buildConfiguration, m_pro->toolChain(bc)->makeCommand());
 
     if (!value(buildConfiguration, "cleanConfig").isValid() &&value("clean").isValid() && value("clean").toBool()) {
         // Import old settings
@@ -70,7 +71,7 @@ bool MakeStep::init(const QString &buildConfiguration)
     QStringList arguments = value(buildConfiguration, "buildTargets").toStringList();
     arguments << additionalArguments(buildConfiguration);
     setArguments(buildConfiguration, arguments); // TODO
-    setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
+    setEnvironment(buildConfiguration, m_pro->environment(bc));
     setIgnoreReturnValue(buildConfiguration, value(buildConfiguration, "cleanConfig").isValid());
 
     return AbstractMakeStep::init(buildConfiguration);
@@ -225,7 +226,9 @@ void MakeStepConfigWidget::updateDetails()
     QStringList arguments = m_makeStep->value(m_buildConfiguration, "buildTargets").toStringList();
     arguments << m_makeStep->additionalArguments(m_buildConfiguration);
     m_summaryText = tr("<b>Make:</b> %1 %2")
-                    .arg(m_makeStep->project()->toolChain(m_buildConfiguration)->makeCommand(),
+                    .arg(m_makeStep->project()->toolChain(
+                            m_makeStep->project()->buildConfiguration(m_buildConfiguration))
+                            ->makeCommand(),
                          arguments.join(" "));
     emit updateSummary();
 }

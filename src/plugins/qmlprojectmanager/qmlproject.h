@@ -64,25 +64,25 @@ public:
     virtual QString name() const;
     virtual Core::IFile *file() const;
     virtual Manager *projectManager() const;
+    virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
     virtual QList<ProjectExplorer::Project *> dependsOn();
 
     virtual bool isApplication() const;
     virtual bool hasBuildSettings() const;
 
-    virtual ProjectExplorer::Environment environment(const QString &buildConfiguration) const;
-    virtual QString buildDirectory(const QString &buildConfiguration) const;
+    virtual ProjectExplorer::Environment environment(ProjectExplorer::BuildConfiguration *configuration) const;
+    virtual QString buildDirectory(ProjectExplorer::BuildConfiguration *configuration) const;
 
     virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
     virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
-    virtual bool newBuildConfiguration(const QString &buildConfiguration);
     virtual QmlProjectNode *rootProjectNode() const;
     virtual QStringList files(FilesMode fileMode) const;
 
     QStringList targets() const;
     QmlMakeStep *makeStep() const;
-    QString buildParser(const QString &buildConfiguration) const;
+    QString buildParser(ProjectExplorer::BuildConfiguration *configuration) const;
 
     enum RefreshOptions {
         Files         = 0x01,

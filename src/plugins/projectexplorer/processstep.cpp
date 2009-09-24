@@ -45,17 +45,18 @@ ProcessStep::ProcessStep(Project *pro)
 
 }
 
-bool ProcessStep::init(const QString &buildConfiguration)
+bool ProcessStep::init(const QString &buildConfigurationName)
 {
-    setEnvironment(buildConfiguration, project()->environment(buildConfiguration));
-    QVariant wd = value(buildConfiguration, "workingDirectory").toString();
+    BuildConfiguration *bc = project()->buildConfiguration(buildConfigurationName);
+    setEnvironment(buildConfigurationName, project()->environment(bc));
+    QVariant wd = value(buildConfigurationName, "workingDirectory").toString();
     QString workingDirectory;
     if (!wd.isValid() || wd.toString().isEmpty())
         workingDirectory = "$BUILDDIR";
     else
         workingDirectory = wd.toString();
-    setWorkingDirectory(buildConfiguration, workingDirectory.replace("$BUILDDIR", project()->buildDirectory(buildConfiguration)));
-    return AbstractProcessStep::init(buildConfiguration);
+    setWorkingDirectory(buildConfigurationName, workingDirectory.replace("$BUILDDIR", project()->buildDirectory(bc)));
+    return AbstractProcessStep::init(buildConfigurationName);
 }
 
 void ProcessStep::run(QFutureInterface<bool> & fi)

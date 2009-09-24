@@ -142,7 +142,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     vbox->addWidget(m_environmentWidget);
 
     changed();
-    
+
     connect(m_userName, SIGNAL(textEdited(QString)),
             this, SLOT(setUserName(QString)));
     connect(m_executableChooser, SIGNAL(changed(QString)),
@@ -314,7 +314,7 @@ QString CustomExecutableRunConfiguration::executable() const
         QString oldExecutable = m_executable;
         QString oldWorkingDirectory = m_workingDirectory;
         QStringList oldCmdArguments = m_cmdArguments;
-        
+
         if (dialog.exec()) {
             return executable();
         } else {
@@ -359,7 +359,6 @@ ProjectExplorer::Environment CustomExecutableRunConfiguration::baseEnvironment()
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::SystemEnvironmentBase) {
         env = ProjectExplorer::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
-        QString config = project()->activeBuildConfiguration();
         env = project()->environment(project()->activeBuildConfiguration());
     }
     return env;

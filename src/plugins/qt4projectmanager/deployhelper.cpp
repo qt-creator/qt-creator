@@ -50,8 +50,7 @@ DeployHelperRunStep::DeployHelperRunStep(Qt4Project *pro)
 
 bool DeployHelperRunStep::init(const QString &configuration)
 {
-    Q_UNUSED(configuration)
-    m_qtdir = m_pro->qtDir(configuration);
+    m_qtdir = m_pro->qtDir(m_pro->buildConfiguration(configuration));
     QFileInfo fi(m_pro->file()->fileName());
     m_appdir = fi.absolutePath();
     //find target

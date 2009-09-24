@@ -69,6 +69,7 @@ public:
     //shows with focus
     void gotoTaskWindow();
 
+    //TODO these should take buildconfiguration object
     void buildProject(Project *p, const QString &configuration);
     void buildProjects(const QList<Project *> &projects, const QList<QString> &configurations);
     void cleanProject(Project *p, const QString &configuration);

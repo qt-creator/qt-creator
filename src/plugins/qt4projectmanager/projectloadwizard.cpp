@@ -118,30 +118,25 @@ void ProjectLoadWizard::addBuildConfiguration(QString buildConfigurationName, Qt
     MakeStep *makeStep = m_project->makeStep();
 
     bool debug = qmakeBuildConfiguration & QtVersion::DebugBuild;
-    // Check that bc.name is not already in use
-    if (m_project->buildConfigurations().contains(buildConfigurationName)) {
-        int i =1;
-        do {
-            ++i;
-        } while (m_project->buildConfigurations().contains(buildConfigurationName + " " + QString::number(i)));
-        buildConfigurationName.append(" " + QString::number(i));
-    }
 
     // Add the buildconfiguration
-    m_project->addBuildConfiguration(buildConfigurationName);
-    qmakeStep->setValue(buildConfigurationName, "qmakeArgs", additionalArguments);
+    ProjectExplorer::BuildConfiguration *bc = new ProjectExplorer::BuildConfiguration(buildConfigurationName);
+    m_project->addBuildConfiguration(bc);
+    const QString &finalBuildConfigurationName = bc->name();
+    qmakeStep->setValue(finalBuildConfigurationName, "qmakeArgs", additionalArguments);
+
     // set some options for qmake and make
     if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
-        makeStep->setValue(buildConfigurationName, "makeargs", QStringList() << (debug ? "debug" : "release"));
+        makeStep->setValue(finalBuildConfigurationName, "makeargs", QStringList() << (debug ? "debug" : "release"));
 
-    m_project->setValue(buildConfigurationName, "buildConfiguration", int(qmakeBuildConfiguration));
+    bc->setValue("buildConfiguration", int(qmakeBuildConfiguration));
 
     // Finally set the qt version
     bool defaultQtVersion = (qtversion == 0);
     if (defaultQtVersion)
-        m_project->setQtVersion(buildConfigurationName, 0);
+        m_project->setQtVersion(bc, 0);
     else
-        m_project->setQtVersion(buildConfigurationName, qtversion->uniqueId());
+        m_project->setQtVersion(bc, qtversion->uniqueId());
 }
 
 void ProjectLoadWizard::done(int result)
@@ -176,7 +171,7 @@ void ProjectLoadWizard::done(int result)
         // Not importing
         if (m_temporaryVersion)
             delete m_importVersion;
-        // Create default   
+        // Create default
         bool buildAll = false;
         QtVersion *defaultVersion = vm->version(0);
         if (defaultVersion && defaultVersion->isValid() && (defaultVersion->defaultBuildConfig() & QtVersion::BuildAll))

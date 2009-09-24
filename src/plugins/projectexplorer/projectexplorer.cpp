@@ -1415,14 +1415,14 @@ void ProjectExplorerPlugin::buildProjectOnly()
         qDebug() << "ProjectExplorerPlugin::buildProjectOnly";
 
     if (saveModifiedFiles())
-        buildManager()->buildProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration());
+        buildManager()->buildProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration()->name());
 }
 
 static QStringList configurations(const QList<Project *> &projects)
 {
     QStringList result;
     foreach (const Project * pro, projects)
-        result << pro->activeBuildConfiguration();
+        result << pro->activeBuildConfiguration()->name();
     return result;
 }
 
@@ -1454,8 +1454,8 @@ void ProjectExplorerPlugin::rebuildProjectOnly()
         qDebug() << "ProjectExplorerPlugin::rebuildProjectOnly";
 
     if (saveModifiedFiles()) {
-        d->m_buildManager->cleanProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration());
-        d->m_buildManager->buildProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration());
+        d->m_buildManager->cleanProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration()->name());
+        d->m_buildManager->buildProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration()->name());
     }
 }
 
@@ -1493,7 +1493,7 @@ void ProjectExplorerPlugin::cleanProjectOnly()
         qDebug() << "ProjectExplorerPlugin::cleanProjectOnly";
 
     if (saveModifiedFiles())
-        d->m_buildManager->cleanProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration());
+        d->m_buildManager->cleanProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration()->name());
 }
 
 void ProjectExplorerPlugin::cleanProject()
@@ -1915,15 +1915,15 @@ void ProjectExplorerPlugin::populateBuildConfigurationMenu()
     d->m_buildConfigurationActionGroup = new QActionGroup(d->m_buildConfigurationMenu);
     d->m_buildConfigurationMenu->clear();
     if (Project *pro = d->m_currentProject) {
-        const QString &activeBuildConfiguration = pro->activeBuildConfiguration();
-        foreach (const QString &buildConfiguration, pro->buildConfigurations()) {
-            QString displayName = pro->buildConfiguration(buildConfiguration)->displayName();
+        const BuildConfiguration *activeBC = pro->activeBuildConfiguration();
+        foreach (const BuildConfiguration *bc, pro->buildConfigurations()) {
+            QString displayName = bc->displayName();
             QAction *act = new QAction(displayName, d->m_buildConfigurationActionGroup);
             if (debug)
-                qDebug() << "BuildConfiguration " << buildConfiguration << "active: " << activeBuildConfiguration;
+                qDebug() << "BuildConfiguration " << bc->name() << "active: " << activeBC->name();
             act->setCheckable(true);
-            act->setChecked(buildConfiguration == activeBuildConfiguration);
-            act->setData(buildConfiguration);
+            act->setChecked(bc == activeBC);
+            act->setData(bc->name());
             d->m_buildConfigurationMenu->addAction(act);
         }
         d->m_buildConfigurationMenu->setEnabled(true);
@@ -1937,7 +1937,8 @@ void ProjectExplorerPlugin::buildConfigurationMenuTriggered(QAction *action)
     if (debug)
         qDebug() << "ProjectExplorerPlugin::buildConfigurationMenuTriggered";
 
-    d->m_currentProject->setActiveBuildConfiguration(action->data().toString());
+    d->m_currentProject->setActiveBuildConfiguration(d->m_currentProject->buildConfiguration(
+            action->data().toString()));
 }
 
 void ProjectExplorerPlugin::populateRunConfigurationMenu()

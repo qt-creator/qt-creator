@@ -39,6 +39,7 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QObject>
@@ -116,6 +117,24 @@ private:
     QString m_filePath;
 };
 
+class Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    Qt4BuildConfigurationFactory(Qt4Project *project);
+    ~Qt4BuildConfigurationFactory();
+
+    QStringList availableCreationTypes() const;
+    QString displayNameForType(const QString &type) const;
+
+    QList<ProjectExplorer::BuildConfiguration *> create(const QString &type) const;
+    QList<ProjectExplorer::BuildConfiguration *> createDefaultConfigurations() const;
+
+private:
+    Qt4Project *m_project;
+};
+
 class Qt4Project : public ProjectExplorer::Project
 {
     Q_OBJECT
@@ -128,6 +147,7 @@ public:
     Core::IFile *file() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
+    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
     QList<Core::IFile *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();
@@ -139,38 +159,37 @@ public:
     virtual QStringList files(FilesMode fileMode) const;
 
     //building environment
-    ProjectExplorer::Environment environment(const QString &buildConfiguration) const;
-    ProjectExplorer::Environment baseEnvironment(const QString &buildConfiguration) const;
-    void setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff);
-    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges(const QString &buildConfig) const;
-    bool useSystemEnvironment(const QString &buildConfiguration) const;
-    void setUseSystemEnvironment(const QString &buildConfiguration, bool b);
+    ProjectExplorer::Environment environment(ProjectExplorer::BuildConfiguration *configuration) const;
+    ProjectExplorer::Environment baseEnvironment(ProjectExplorer::BuildConfiguration *configuration) const;
+    void setUserEnvironmentChanges(ProjectExplorer::BuildConfiguration *configuration, const QList<ProjectExplorer::EnvironmentItem> &diff);
+    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges(ProjectExplorer::BuildConfiguration *configuration) const;
+    bool useSystemEnvironment(ProjectExplorer::BuildConfiguration *configuration) const;
+    void setUseSystemEnvironment(ProjectExplorer::BuildConfiguration *configuration, bool b);
 
-    virtual QString buildDirectory(const QString &buildConfiguration) const;
+    virtual QString buildDirectory(ProjectExplorer::BuildConfiguration *configuration) const;
     // returns the CONFIG variable from the .pro file
     QStringList qmakeConfig() const;
     // returns the qtdir (depends on the current QtVersion)
-    QString qtDir(const QString &buildConfiguration) const;
+    QString qtDir(ProjectExplorer::BuildConfiguration *configuration) const;
     //returns the qtVersion, if the project is set to use the default qt version, then
     // that is returned
     // to check wheter the project uses the default qt version use qtVersionId
-    QtVersion *qtVersion(const QString &buildConfiguration) const;
+    QtVersion *qtVersion(ProjectExplorer::BuildConfiguration *configuration) const;
 
     // returns the id of the qt version, if the project is using the default qt version
     // this function returns 0
-    int qtVersionId(const QString &buildConfiguration) const;
+    int qtVersionId(ProjectExplorer::BuildConfiguration *configuration) const;
     //returns the name of the qt version, might be QString::Null, which means default qt version
     // qtVersion is in general the better method to use
-    QString qtVersionName(const QString &buildConfiguration) const;
-    ProjectExplorer::ToolChain *toolChain(const QString &buildConfiguration) const;
-    void setToolChainType(const QString &buildConfiguration, ProjectExplorer::ToolChain::ToolChainType type);
-    ProjectExplorer::ToolChain::ToolChainType toolChainType(const QString &buildConfiguration) const;
+    QString qtVersionName(ProjectExplorer::BuildConfiguration *configuration) const;
+    ProjectExplorer::ToolChain *toolChain(ProjectExplorer::BuildConfiguration *configuration) const;
+    void setToolChainType(ProjectExplorer::BuildConfiguration *configuration, ProjectExplorer::ToolChain::ToolChainType type);
+    ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
 
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
-    void setQtVersion(const QString &buildConfiguration, int id);
-    virtual bool newBuildConfiguration(const QString &buildConfiguration);
+    void setQtVersion(ProjectExplorer::BuildConfiguration *configuration, int id);
 
     QList<Internal::Qt4ProFileNode *> applicationProFiles() const;
 
@@ -184,8 +203,8 @@ public:
 
     void notifyChanged(const QString &name);
 
-    QString makeCommand(const QString &buildConfiguration) const;
-    QString defaultMakeTarget(const QString &buildConfiguration) const;
+    QString makeCommand(ProjectExplorer::BuildConfiguration *configuration) const;
+    QString defaultMakeTarget(ProjectExplorer::BuildConfiguration *configuration) const;
 
     // Is called by qmakestep qt4configurationwidget if the settings change
     // Informs all Qt4RunConfigurations that their cached values are now invalid
@@ -196,7 +215,7 @@ public:
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
 
-    bool compareBuildConfigurationToImportFrom(const QString &buildConfiguration, const QString &workingDirectory);
+    bool compareBuildConfigurationToImportFrom(ProjectExplorer::BuildConfiguration *configuration, const QString &workingDirectory);
 
     static QStringList removeSpecFromArgumentList(const QStringList &old);
     static QString extractSpecFromArgumentList(const QStringList &list);
@@ -242,6 +261,7 @@ private:
     Qt4Manager *m_manager;
     Internal::Qt4ProFileNode *m_rootProjectNode;
     Internal::Qt4NodesWatcher *m_nodesWatcher;
+    Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
 
     Qt4ProjectFile *m_fileInfo;
     bool m_isApplication;

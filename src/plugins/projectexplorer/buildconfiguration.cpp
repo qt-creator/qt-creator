@@ -29,6 +29,8 @@
 
 #include "buildconfiguration.h"
 
+#include <utils/qtcassert.h>
+
 using namespace ProjectExplorer;
 
 BuildConfiguration::BuildConfiguration()
@@ -46,20 +48,21 @@ BuildConfiguration::BuildConfiguration(const QString &name, BuildConfiguration *
 {
 }
 
+void BuildConfiguration::setName(const QString &name)
+{
+    m_name = name;
+}
+
 QString BuildConfiguration::name() const
 {
     return m_name;
 }
 
-QString BuildConfiguration::displayName()
+QString BuildConfiguration::displayName() const
 {
     QVariant v = value("ProjectExplorer.BuildConfiguration.DisplayName");
-    if (v.isValid()) {
-        return v.toString();
-    } else {
-        setDisplayName(m_name);
-        return m_name;
-    }
+    QTC_ASSERT(v.isValid(), return QString());
+    return v.toString();
 }
 
 void BuildConfiguration::setDisplayName(const QString &name)
@@ -97,4 +100,15 @@ QMap<QString, QVariant> BuildConfiguration::toMap() const
     for (it = m_values.constBegin(); it != end; ++it)
         result.insert(it.key(), it.value());
     return result;
+}
+
+
+IBuildConfigurationFactory::IBuildConfigurationFactory(QObject *parent)
+    : QObject(parent)
+{
+}
+
+IBuildConfigurationFactory::~IBuildConfigurationFactory()
+{
+
 }

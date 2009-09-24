@@ -57,6 +57,7 @@ class ProjectNode;
 class PersistentSettingsWriter;
 class PersistentSettingsReader;
 class BuildConfiguration;
+class IBuildConfigurationFactory;
 
 class PROJECTEXPLORER_EXPORT Project
     : public QObject
@@ -95,21 +96,21 @@ public:
     void moveCleanStepUp(int position);
 
     // Build configuration
-    void addBuildConfiguration(const QString &name);
-    void removeBuildConfiguration(const QString  &name);
+    void addBuildConfiguration(BuildConfiguration *configuration);
+    void removeBuildConfiguration(BuildConfiguration *configuration);
     void copyBuildConfiguration(const QString &source, const QString &dest);
     BuildConfiguration *buildConfiguration(const QString & name) const;
-    QStringList buildConfigurations() const;
+    QList<BuildConfiguration *> buildConfigurations() const;
     void setDisplayNameFor(const QString &buildConfiguration, const QString &displayName);
+    BuildConfiguration *activeBuildConfiguration() const;
+    void setActiveBuildConfiguration(BuildConfiguration *configuration);
+    void setValue(const QString &buildConfiguration, const QString &name, const QVariant &value);
+    QVariant value(const QString &buildConfiguration, const QString &name) const;
 
-    QString activeBuildConfiguration() const;
-    void setActiveBuildConfiguration(const QString& config);
+    virtual IBuildConfigurationFactory *buildConfigurationFactory() const = 0;
 
     void setValue(const QString &name, const QVariant &value);
     QVariant value(const QString &name) const;
-
-    void setValue(const QString &buildConfiguration, const QString &name, const QVariant &value);
-    QVariant value(const QString &buildConfiguration, const QString &name) const;
 
     // Running
     QList<QSharedPointer<RunConfiguration> > runConfigurations() const;
@@ -121,19 +122,14 @@ public:
 
     EditorConfiguration *editorConfiguration() const;
 
-    virtual Environment environment(const QString &buildConfiguration) const = 0;
-    virtual QString buildDirectory(const QString &buildConfiguration) const = 0;
+    virtual Environment environment(BuildConfiguration *configuration) const = 0;
+    virtual QString buildDirectory(BuildConfiguration *configuration) const = 0;
 
     void saveSettings();
     bool restoreSettings();
 
     virtual BuildConfigWidget *createConfigWidget() = 0;
     virtual QList<BuildConfigWidget*> subConfigWidgets();
-
-    /* This method is called for new build configurations. You should probably
-     * set some default values in this method.
-     */
-    virtual bool newBuildConfiguration(const QString &buildConfiguration) = 0;
 
     virtual ProjectNode *rootProjectNode() const = 0;
 

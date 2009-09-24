@@ -262,8 +262,7 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p)
         return;
     //found qmakeStep, now use it
     qs->setForced(true);
-    const QString &config = p->activeBuildConfiguration();
-    m_projectExplorer->buildManager()->appendStep(qs, config);
+    m_projectExplorer->buildManager()->appendStep(qs, p->activeBuildConfiguration()->name());
 }
 
 QString Qt4Manager::fileTypeId(ProjectExplorer::FileType type)

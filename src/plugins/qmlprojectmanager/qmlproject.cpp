@@ -59,6 +59,7 @@
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
+using namespace ProjectExplorer;
 
 ////////////////////////////////////////////////////////////////////////////////////
 // QmlProject
@@ -161,8 +162,9 @@ QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
 QStringList QmlProject::files() const
 { return m_files; }
 
-QString QmlProject::buildParser(const QString &) const
+QString QmlProject::buildParser(BuildConfiguration *configuration) const
 {
+    Q_UNUSED(configuration)
     return QString();
 }
 
@@ -196,13 +198,15 @@ bool QmlProject::hasBuildSettings() const
     return false;
 }
 
-ProjectExplorer::Environment QmlProject::environment(const QString &) const
+ProjectExplorer::Environment QmlProject::environment(BuildConfiguration *configuration) const
 {
+    Q_UNUSED(configuration)
     return ProjectExplorer::Environment::systemEnvironment();
 }
 
-QString QmlProject::buildDirectory(const QString &) const
+QString QmlProject::buildDirectory(BuildConfiguration *configuration) const
 {
+    Q_UNUSED(configuration)
     return QString();
 }
 
@@ -216,9 +220,9 @@ QList<ProjectExplorer::BuildConfigWidget*> QmlProject::subConfigWidgets()
     return QList<ProjectExplorer::BuildConfigWidget*>();
 }
 
-bool QmlProject::newBuildConfiguration(const QString &)
+ProjectExplorer::IBuildConfigurationFactory *QmlProject::buildConfigurationFactory() const
 {
-    return true;
+    return 0;
 }
 
 QmlProjectNode *QmlProject::rootProjectNode() const

@@ -171,7 +171,7 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
                              this, SLOT(cloneConfiguration()));
     m_addButton->setMenu(addButtonMenu);
 
-    m_buildConfiguration = m_project->activeBuildConfiguration();
+    m_buildConfiguration = m_project->activeBuildConfiguration()->name();
 
     connect(m_buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(currentIndexChanged(int)));
@@ -220,9 +220,9 @@ void BuildSettingsWidget::updateBuildSettings()
         m_subWidgets->addWidget(subConfigWidget->displayName(), subConfigWidget);
 
     // Add tree items
-    foreach (const QString &buildConfiguration, m_project->buildConfigurations()) {
-        m_buildConfigurationComboBox->addItem(m_project->buildConfiguration(buildConfiguration)->displayName(), buildConfiguration);
-        if (buildConfiguration == m_buildConfiguration)
+    foreach (const BuildConfiguration *bc, m_project->buildConfigurations()) {
+        m_buildConfigurationComboBox->addItem(bc->displayName(), bc->name());
+        if (bc->name() == m_buildConfiguration)
             m_buildConfigurationComboBox->setCurrentIndex(m_buildConfigurationComboBox->count() - 1);
     }
 
@@ -256,40 +256,40 @@ void BuildSettingsWidget::activeBuildConfigurationChanged()
 
 void BuildSettingsWidget::createConfiguration()
 {
-    bool ok;
-    QString newBuildConfiguration = QInputDialog::getText(this, tr("New configuration"), tr("New Configuration Name:"), QLineEdit::Normal, QString(), &ok);
-    if (!ok || newBuildConfiguration.isEmpty())
-        return;
-
-    QString newDisplayName = newBuildConfiguration;
-    // Check that the internal name is not taken and use a different one otherwise
-    const QStringList &buildConfigurations = m_project->buildConfigurations();
-    if (buildConfigurations.contains(newBuildConfiguration)) {
-        int i = 2;
-        while (buildConfigurations.contains(newBuildConfiguration + QString::number(i)))
-            ++i;
-        newBuildConfiguration += QString::number(i);
-    }
-
-    // Check that we don't have a configuration with the same displayName
-    QStringList displayNames;
-    foreach (const QString &bc, buildConfigurations)
-        displayNames << m_project->buildConfiguration(bc)->displayName();
-
-    if (displayNames.contains(newDisplayName)) {
-        int i = 2;
-        while (displayNames.contains(newDisplayName + QString::number(i)))
-            ++i;
-        newDisplayName += QString::number(i);
-    }
-
-    if (m_project->newBuildConfiguration(newBuildConfiguration)) {
-        m_project->addBuildConfiguration(newBuildConfiguration);
-        m_project->setDisplayNameFor(newBuildConfiguration, newDisplayName);
-        m_buildConfiguration = newBuildConfiguration;
-
-        updateBuildSettings();
-    }
+//    bool ok;
+//    QString newBuildConfiguration = QInputDialog::getText(this, tr("New configuration"), tr("New Configuration Name:"), QLineEdit::Normal, QString(), &ok);
+//    if (!ok || newBuildConfiguration.isEmpty())
+//        return;
+//
+//    QString newDisplayName = newBuildConfiguration;
+//    // Check that the internal name is not taken and use a different one otherwise
+//    const QStringList &buildConfigurations = m_project->buildConfigurations();
+//    if (buildConfigurations.contains(newBuildConfiguration)) {
+//        int i = 2;
+//        while (buildConfigurations.contains(newBuildConfiguration + QString::number(i)))
+//            ++i;
+//        newBuildConfiguration += QString::number(i);
+//    }
+//
+//    // Check that we don't have a configuration with the same displayName
+//    QStringList displayNames;
+//    foreach (const QString &bc, buildConfigurations)
+//        displayNames << m_project->buildConfiguration(bc)->displayName();
+//
+//    if (displayNames.contains(newDisplayName)) {
+//        int i = 2;
+//        while (displayNames.contains(newDisplayName + QString::number(i)))
+//            ++i;
+//        newDisplayName += QString::number(i);
+//    }
+//
+//    if (m_project->newBuildConfiguration(newBuildConfiguration)) {
+//        m_project->addBuildConfiguration(newBuildConfiguration);
+//        m_project->setDisplayNameFor(newBuildConfiguration, newDisplayName);
+//        m_buildConfiguration = newBuildConfiguration;
+//
+//        updateBuildSettings();
+//    }
 }
 
 void BuildSettingsWidget::cloneConfiguration()
@@ -315,18 +315,17 @@ void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
 
     QString newDisplayName = newBuildConfiguration;
     // Check that the internal name is not taken and use a different one otherwise
-    const QStringList &buildConfigurations = m_project->buildConfigurations();
-    if (buildConfigurations.contains(newBuildConfiguration)) {
+    if (m_project->buildConfiguration(newBuildConfiguration)) {
         int i = 2;
-        while (buildConfigurations.contains(newBuildConfiguration + QString::number(i)))
+        while (m_project->buildConfiguration(newBuildConfiguration + QString::number(i)))
             ++i;
         newBuildConfiguration += QString::number(i);
     }
 
     // Check that we don't have a configuration with the same displayName
     QStringList displayNames;
-    foreach (const QString &bc, buildConfigurations)
-        displayNames << m_project->buildConfiguration(bc)->displayName();
+    foreach (const BuildConfiguration *bc, m_project->buildConfigurations())
+        displayNames << bc->displayName();
 
     if (displayNames.contains(newDisplayName)) {
         int i = 2;
@@ -347,25 +346,25 @@ void BuildSettingsWidget::deleteConfiguration(const QString &deleteConfiguration
     if (deleteConfiguration.isEmpty() || m_project->buildConfigurations().size() <= 1)
         return;
 
-    if (m_project->activeBuildConfiguration() == deleteConfiguration) {
-        foreach (const QString &otherConfiguration, m_project->buildConfigurations()) {
-            if (otherConfiguration != deleteConfiguration) {
-                m_project->setActiveBuildConfiguration(otherConfiguration);
+    if (m_project->activeBuildConfiguration()->name() == deleteConfiguration) {
+        foreach (BuildConfiguration *bc, m_project->buildConfigurations()) {
+            if (bc->name() != deleteConfiguration) {
+                m_project->setActiveBuildConfiguration(bc);
                 break;
             }
         }
     }
 
     if (m_buildConfiguration == deleteConfiguration) {
-        foreach (const QString &otherConfiguration, m_project->buildConfigurations()) {
-            if (otherConfiguration != deleteConfiguration) {
-                m_buildConfiguration = otherConfiguration;
+        foreach (const BuildConfiguration *bc, m_project->buildConfigurations()) {
+            if (bc->name() != deleteConfiguration) {
+                m_buildConfiguration = bc->name();
                 break;
             }
         }
     }
 
-    m_project->removeBuildConfiguration(deleteConfiguration);
+    m_project->removeBuildConfiguration(m_project->buildConfiguration(deleteConfiguration));
 
     updateBuildSettings();
 }

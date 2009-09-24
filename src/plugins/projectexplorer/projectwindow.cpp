@@ -322,7 +322,7 @@ void RunConfigurationComboBox::activeRunConfigurationChanged()
     Project *startupProject = session->startupProject();
     if (startupProject) {
         int projectIndex = session->projects().indexOf(startupProject);
-        int runConfigurationIndex = startupProject->runConfigurations().indexOf(startupProject->activeRunConfiguration());        
+        int runConfigurationIndex = startupProject->runConfigurations().indexOf(startupProject->activeRunConfiguration());
         setCurrentIndex(convertTreeIndexToInt(projectIndex, runConfigurationIndex));
     } else {
         setCurrentIndex(-1);
@@ -401,7 +401,7 @@ void RunConfigurationComboBox::rebuildTree()
 {
     m_ignoreChange = true;
     clear();
-    
+
     SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
     Project *startupProject = session->startupProject();
     foreach(Project *p, session->projects()) {
@@ -435,10 +435,9 @@ BuildConfigurationComboBox::BuildConfigurationComboBox(Project *p, QWidget *pare
     addWidget(m_label);
 
     //m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    QStringList buildConfigurations = p->buildConfigurations();
-    foreach(const QString &buildConfiguration, buildConfigurations)
-        m_comboBox->addItem(p->buildConfiguration(buildConfiguration)->displayName(), buildConfiguration);
-    if (buildConfigurations.count() == 1) {
+    foreach(const BuildConfiguration *buildConfiguration, p->buildConfigurations())
+        m_comboBox->addItem(buildConfiguration->displayName(), buildConfiguration->name());
+    if (p->buildConfigurations().count() == 1) {
         m_label->setText(m_comboBox->itemText(0));
         setCurrentWidget(m_label);
     }
@@ -485,7 +484,7 @@ int BuildConfigurationComboBox::nameToIndex(const QString &buildConfiguration)
 
 void BuildConfigurationComboBox::activeConfigurationChanged()
 {
-    int index = nameToIndex(m_project->activeBuildConfiguration());
+    int index = nameToIndex(m_project->activeBuildConfiguration()->name());
     if (index == -1)
         return;
     ignoreIndexChange = true;
@@ -519,7 +518,8 @@ void BuildConfigurationComboBox::changedIndex(int newIndex)
 {
     if (newIndex == -1)
         return;
-    m_project->setActiveBuildConfiguration(m_comboBox->itemData(newIndex).toString());
+    m_project->setActiveBuildConfiguration(
+            m_project->buildConfiguration(m_comboBox->itemData(newIndex).toString()));
 }
 
 ///

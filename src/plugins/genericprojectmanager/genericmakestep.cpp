@@ -56,23 +56,24 @@ GenericMakeStep::~GenericMakeStep()
 {
 }
 
-bool GenericMakeStep::init(const QString &buildConfiguration)
+bool GenericMakeStep::init(const QString &buildConfigurationName)
 {
-    const QString buildParser = m_pro->buildParser(buildConfiguration);
+    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfigurationName);
+    const QString buildParser = m_pro->buildParser(bc);
     setBuildParser(buildParser);
     qDebug() << "*** build parser:" << buildParser;
 
-    setEnabled(buildConfiguration, true);
+    setEnabled(buildConfigurationName, true);
     Core::VariableManager *vm = Core::VariableManager::instance();
-    const QString rawBuildDir = m_pro->buildDirectory(buildConfiguration);
+    const QString rawBuildDir = m_pro->buildDirectory(bc);
     const QString buildDir = vm->resolve(rawBuildDir);
-    setWorkingDirectory(buildConfiguration, buildDir);
+    setWorkingDirectory(buildConfigurationName, buildDir);
 
-    setCommand(buildConfiguration, makeCommand(buildConfiguration));
-    setArguments(buildConfiguration, replacedArguments(buildConfiguration));
+    setCommand(buildConfigurationName, makeCommand(buildConfigurationName));
+    setArguments(buildConfigurationName, replacedArguments(buildConfigurationName));
 
-    setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
-    return AbstractMakeStep::init(buildConfiguration);
+    setEnvironment(buildConfigurationName, m_pro->environment(bc));
+    return AbstractMakeStep::init(buildConfigurationName);
 }
 
 QStringList GenericMakeStep::replacedArguments(const QString &buildConfiguration) const

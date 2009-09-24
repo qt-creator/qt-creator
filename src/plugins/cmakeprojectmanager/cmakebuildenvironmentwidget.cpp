@@ -69,16 +69,17 @@ QString CMakeBuildEnvironmentWidget::displayName() const
     return tr("Build Environment");
 }
 
-void CMakeBuildEnvironmentWidget::init(const QString &buildConfiguration)
+void CMakeBuildEnvironmentWidget::init(const QString &buildConfigurationName)
 {
     if (debug)
         qDebug() << "Qt4BuildConfigWidget::init()";
 
-    m_buildConfiguration = buildConfiguration;
+    m_buildConfiguration = buildConfigurationName;
 
-    m_clearSystemEnvironmentCheckBox->setChecked(!m_pro->useSystemEnvironment(buildConfiguration));
-    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(buildConfiguration));
-    m_buildEnvironmentWidget->setUserChanges(m_pro->userEnvironmentChanges(buildConfiguration));
+    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfigurationName);
+    m_clearSystemEnvironmentCheckBox->setChecked(!m_pro->useSystemEnvironment(bc));
+    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(bc));
+    m_buildEnvironmentWidget->setUserChanges(m_pro->userEnvironmentChanges(bc));
     m_buildEnvironmentWidget->updateButtons();
 }
 
@@ -89,6 +90,7 @@ void CMakeBuildEnvironmentWidget::environmentModelUserChangesUpdated()
 
 void CMakeBuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked(bool checked)
 {
-    m_pro->setUseSystemEnvironment(m_buildConfiguration, !checked);
-    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(m_buildConfiguration));
+    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(m_buildConfiguration);
+    m_pro->setUseSystemEnvironment(bc, !checked);
+    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(bc));
 }

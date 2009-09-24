@@ -35,6 +35,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
 
@@ -48,19 +49,38 @@ public:
     explicit BuildConfiguration();
     BuildConfiguration(const QString &name);
     BuildConfiguration(const QString &name, BuildConfiguration *source);
+    void setName(const QString &name);
     QString name() const;
-    QVariant value(const QString &key) const;
-    void setValue(const QString &key, QVariant value);
-
-    QString displayName();
+    QString displayName() const;
     void setDisplayName(const QString &name);
 
+    QVariant value(const QString &key) const;
+    void setValue(const QString &key, QVariant value);
     QMap<QString, QVariant> toMap() const;
     void setValuesFromMap(QMap<QString, QVariant> map);
 
 private:
     QHash<QString, QVariant> m_values;
     QString m_name;
+};
+
+class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject
+{
+    Q_OBJECT
+
+public:
+    IBuildConfigurationFactory(QObject *parent = 0);
+    virtual ~IBuildConfigurationFactory();
+
+    // used to show the list of possible additons to a project, returns a list of types
+    virtual QStringList availableCreationTypes() const = 0;
+    // used to translate the types to names to display to the user
+    virtual QString displayNameForType(const QString &type) const = 0;
+
+    virtual QList<BuildConfiguration *> create(const QString &type) const = 0;
+// restore
+// clone
+    virtual QList<BuildConfiguration *> createDefaultConfigurations() const = 0;
 };
 
 } // namespace ProjectExplorer
