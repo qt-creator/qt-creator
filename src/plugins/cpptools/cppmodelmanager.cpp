@@ -720,10 +720,8 @@ void CppModelManager::removeEditorSupport(AbstractEditorSupport *editorSupport)
 
 void CppModelManager::findReferences(CPlusPlus::Symbol *symbol)
 {
-    if (Identifier *id = symbol->identifier()) {
-        QString word = QString::fromLatin1(id->chars(), id->size());
-        m_findReferences->findAll(symbol->fileName(), word);
-    }
+    if (symbol->identifier())
+        m_findReferences->findAll(snapshot(), symbol);
 }
 
 QMap<QString, QString> CppModelManager::buildWorkingCopyList()

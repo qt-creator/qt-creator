@@ -37,8 +37,13 @@
 #include <utils/filesearch.h>
 
 namespace Find {
-class SearchResultWindow;
+    class SearchResultWindow;
 } // end of namespace Find
+
+namespace CPlusPlus {
+    class Snapshot;
+    class Symbol;
+} // end of namespace CPlusPlus
 
 namespace CppTools {
 namespace Internal {
@@ -57,7 +62,7 @@ Q_SIGNALS:
     void changed();
 
 public:
-    void findAll(const QString &fileName, const QString &text);
+    void findAll(const CPlusPlus::Snapshot &snapshot, CPlusPlus::Symbol *symbol);
 
 private Q_SLOTS:
     void displayResult(int);

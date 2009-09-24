@@ -211,19 +211,19 @@ CppFindReferences::~CppFindReferences()
 }
 
 static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
-                        QString word,
-                        QString fileName,
-                        Snapshot snapshot)
+                        Snapshot snapshot,
+                        Symbol *symbol)
 {
     QTime tm;
     tm.start();
+
+    const QString fileName = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
+
     QStringList files(fileName);
     files += snapshot.dependsOn(fileName);
     qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
 
     future.setProgressRange(0, files.size());
-
-    const QByteArray literal = word.toLatin1();
 
     tm.start();
     for (int i = 0; i < files.size(); ++i) {
@@ -238,8 +238,11 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
         Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, fn);
         doc->tokenize();
 
+        Identifier *symbolId = symbol->identifier();
+        Q_ASSERT(symbolId != 0);
+
         Control *control = doc->control();
-        if (Identifier *id = control->findIdentifier(literal.constData(), literal.size())) {
+        if (Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size())) {
             doc->check();
             TranslationUnit *unit = doc->translationUnit();
             Process process(future, doc, snapshot);
@@ -249,17 +252,15 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
     future.setProgressValue(files.size());
 }
 
-void CppFindReferences::findAll(const QString &fileName, const QString &text)
+void CppFindReferences::findAll(const Snapshot &snapshot, Symbol *symbol)
 {
     _resultWindow->clearContents();
     _resultWindow->popup(true);
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
-    const Snapshot snapshot = _modelManager->snapshot();
-
     QFuture<Core::Utils::FileSearchResult> result =
-            QtConcurrent::run(&find_helper, text, fileName, snapshot);
+            QtConcurrent::run(&find_helper, snapshot, symbol);
 
     m_watcher.setFuture(result);
 
