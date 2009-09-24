@@ -240,7 +240,7 @@ void TrkGdbAdapter::startInferiorEarly()
     if (!m_trkDevice.open(device, &errorMessage)) {
         logMessage(QString::fromLatin1("Waiting on %1 (%2)").arg(device, errorMessage));
         // Do not loop forever
-        if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 3 : 5)) {
+        if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 60 : 5)) {
             QTimer::singleShot(1000, this, SLOT(startInferiorEarly()));
         } else {
             QString msg = QString::fromLatin1("Failed to connect to %1 after "
@@ -1327,8 +1327,8 @@ void TrkGdbAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitSta
 {
     logMessage(QString("GDB: ProcessFinished %1 %2")
         .arg(exitCode).arg(exitStatus));
-    //setState(AdapterNotRunning);
-    //emit adapterShutDown();
+    setState(AdapterNotRunning);
+    emit adapterShutDown();
 }
 
 void TrkGdbAdapter::handleGdbStarted()
@@ -1395,14 +1395,12 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResultRecord &record, const QVar
 {
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        //postCommand(_("-exec-continue"), CB(handleExecContinue));
         setState(InferiorPrepared);
         emit inferiorPrepared();
     } else if (record.resultClass == GdbResultError) {
-        // 16^error,msg="hd:5555: Connection timed out."
-        QString msg = __(record.data.findChild("msg").data());
-        QString msg1 = tr("Connecting to remote server failed:");
-        emit inferiorPreparationFailed(msg1 + _c(' ') + msg);
+        QString msg = tr("Connecting to trk server adapter failed:\n")
+            + _(record.data.findChild("msg").data());
+        emit inferiorPreparationFailed(msg);
     }
 }
 
@@ -1411,14 +1409,17 @@ void TrkGdbAdapter::startInferior()
     QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
     setState(InferiorStarting);
     m_engine->postCommand(_("-exec-continue"), CB(handleFirstContinue));
+    // FIXME: Is there a way to properly recognize a successful start?
+    setState(InferiorStarted);
+    emit inferiorStarted();
 }
 
 void TrkGdbAdapter::handleFirstContinue(const GdbResultRecord &record, const QVariant &)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    //QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStarted, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        setState(InferiorStarted);
-        emit inferiorStarted();
+        // inferiorStarted already emitted above, see FIXME
     } else if (record.resultClass == GdbResultError) {
         //QString msg = __(record.data.findChild("msg").data());
         QString msg1 = tr("Connecting to remote server failed:");
@@ -1589,20 +1590,22 @@ void TrkGdbAdapter::setEnvironment(const QStringList &env)
 
 void TrkGdbAdapter::shutdown()
 {
+    qDebug() << "ADAPTER SHUTDOWN " << state();
     if (state() == InferiorStarted) {
         setState(InferiorShuttingDown);
+        qDebug() << "kill";
         m_engine->postCommand(_("kill"), CB(handleKill));
         return;
     }
 
     if (state() == InferiorShutDown) {
         setState(AdapterShuttingDown);
+        qDebug() << "gdb-exit";
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
     }
 
     QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
-    emit adapterShutDown();
 }
 
 void TrkGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant &)
@@ -1622,6 +1625,7 @@ void TrkGdbAdapter::handleKill(const GdbResultRecord &response, const QVariant &
 void TrkGdbAdapter::handleExit(const GdbResultRecord &response, const QVariant &)
 {
     if (response.resultClass == GdbResultDone) {
+        qDebug() << "EXITED, NO MESSAGE...";
         // don't set state here, this will be handled in handleGdbFinished()
     } else if (response.resultClass == GdbResultError) {
         QString msg = tr("Gdb process could not be stopped:\n") +

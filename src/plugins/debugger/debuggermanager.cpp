@@ -82,6 +82,16 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QToolTip>
 
+#define DEBUG_STATE 1
+#ifdef DEBUG_STATE
+// use  Q_FUNC_INFO?
+#   define STATE_DEBUG(s) \
+    { QString msg; QTextStream ts(&msg); ts << s; \
+      showDebuggerOutput(LogDebug, msg); }
+#else
+#   define STATE_DEBUG(s)
+#endif
+
 namespace Debugger {
 namespace Internal {
 
@@ -458,8 +468,7 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
     }
 
     m_engine = 0;
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine << rc.size();
+    STATE_DEBUG(gdbEngine << winEngine << scriptEngine << rc.size());
     return rc;
 }
 
@@ -526,8 +535,6 @@ void DebuggerManager::clearStatusMessage()
 void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
 {
     Q_UNUSED(timeout)
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << "STATUS MSG: " << msg;
     showDebuggerOutput(LogStatus, msg);
     m_statusLabel->setText(QLatin1String("   ") + msg);
     if (timeout > 0) {
@@ -572,8 +579,7 @@ void DebuggerManager::notifyInferiorExited()
 
 void DebuggerManager::notifyInferiorPidChanged(qint64 pid)
 {
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << m_inferiorPid << pid;
+    STATE_DEBUG(m_inferiorPid << pid);
 
     if (m_inferiorPid != pid) {
         m_inferiorPid = pid;
@@ -588,9 +594,7 @@ void DebuggerManager::showApplicationOutput(const QString &str)
 
 void DebuggerManager::shutdown()
 {
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << m_engine;
-
+    STATE_DEBUG(m_engine);
     if (m_engine)
         m_engine->shutdown();
     m_engine = 0;
@@ -643,9 +647,7 @@ void DebuggerManager::toggleBreakpoint()
 
 void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << fileName << lineNumber;
-
+    STATE_DEBUG(fileName << lineNumber);
     QTC_ASSERT(m_breakHandler, return);
     if (status() != DebuggerInferiorRunning
          && status() != DebuggerInferiorStopped
@@ -666,9 +668,7 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
 
 void DebuggerManager::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
 {
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << fileName << lineNumber;
-
+    STATE_DEBUG(fileName << lineNumber);
     QTC_ASSERT(m_breakHandler, return);
     if (status() != DebuggerInferiorRunning
          && status() != DebuggerInferiorStopped
@@ -726,8 +726,6 @@ static IDebuggerEngine *debuggerEngineForToolChain(ProjectExplorer::ToolChain::T
     default:
         break;
     }
-    if (Debugger::Constants::Internal::debug)
-        qDebug()  << "Toolchain" << tc << rc;
     return rc;
 }
 
@@ -819,9 +817,6 @@ static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
 void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 {
     m_startParameters = sp;
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << '\n' << *m_startParameters;
-
     m_inferiorPid = m_startParameters->attachPID > 0
         ? m_startParameters->attachPID : 0;
     const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChain::ToolChainType>(m_startParameters->toolChainType));
@@ -849,7 +844,7 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     }
 
     if (!m_engine) {
-        debuggingFinished();
+        emit debuggingFinished();
         // Create Message box with possibility to go to settings
         QAbstractButton *settingsButton = 0;
         QMessageBox msgBox(QMessageBox::Warning, tr("Warning"),
@@ -865,9 +860,7 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
         return;
     }
 
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << m_startParameters->executable << m_engine;
-
+    STATE_DEBUG(m_startParameters->executable << m_engine);
     setBusyCursor(false);
     setStatus(DebuggerProcessStartingUp);
     connect(m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
@@ -878,7 +871,7 @@ void DebuggerManager::startFailed()
 {
     disconnect(m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
     setStatus(DebuggerProcessNotReady);
-    debuggingFinished();
+    emit debuggingFinished();
 }
 
 void DebuggerManager::cleanupViews()
@@ -895,11 +888,17 @@ void DebuggerManager::cleanupViews()
 
 void DebuggerManager::exitDebugger()
 {
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO;
-
+    STATE_DEBUG("");
     if (m_engine)
         m_engine->exitDebugger();
+    cleanupViews();
+    setStatus(DebuggerProcessNotReady);
+    setBusyCursor(false);
+    emit debuggingFinished();
+}
+
+void DebuggerManager::notifyEngineFinished()
+{
     cleanupViews();
     setStatus(DebuggerProcessNotReady);
     setBusyCursor(false);
@@ -1004,9 +1003,7 @@ void DebuggerManager::executeDebuggerCommand()
 
 void DebuggerManager::executeDebuggerCommand(const QString &command)
 {
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO <<command;
-
+    STATE_DEBUG(command);
     QTC_ASSERT(m_engine, return);
     m_engine->executeDebuggerCommand(command);
 }
@@ -1074,9 +1071,7 @@ void DebuggerManager::addToWatchWindow()
 
 void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)
 {
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << fileName << lineNumber;
-
+    STATE_DEBUG(Q_FUNC_INFO << fileName << lineNumber);
     QTC_ASSERT(m_breakHandler, return);
     m_breakHandler->setBreakpoint(fileName, lineNumber);
     attemptBreakpointSynchronization();
@@ -1114,14 +1109,13 @@ static bool isAllowedTransition(int from, int to)
 
 void DebuggerManager::setStatus(int status)
 {
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << "STATUS CHANGE: from" << stateName(m_status)
-            << "to" << stateName(status);
+    STATE_DEBUG("STATUS CHANGE: FROM " << stateName(m_status)
+            << " TO " << stateName(status));
 
     if (status == m_status)
         return;
 
-    if (1 && !isAllowedTransition(m_status, status)) {
+    if (!isAllowedTransition(m_status, status)) {
         const QString msg = QString::fromLatin1("%1: UNEXPECTED TRANSITION: %2 -> %3")
             .arg(_(Q_FUNC_INFO), _(stateName(m_status)), _(stateName(status)));
         qWarning("%s", qPrintable(msg));
@@ -1138,6 +1132,10 @@ void DebuggerManager::setStatus(int status)
 
     const bool ready = status == DebuggerInferiorStopped
             && m_startParameters->startMode != AttachCore;
+
+    STATE_DEBUG("STARTED: " << started << " RUNNING: " << running
+        << " READY: " << ready);
+
     if (ready)
         QApplication::alert(mainWindow(), 3000);
 
@@ -1171,7 +1169,7 @@ void DebuggerManager::setStatus(int status)
 
 void DebuggerManager::setBusyCursor(bool busy)
 {
-    //qDebug() << "BUSY FROM: " << m_busy << " TO: " <<  m_busy;
+    //STATE_DEBUG("BUSY FROM: " << m_busy << " TO: " << m_busy);
     if (busy == m_busy)
         return;
     m_busy = busy;
@@ -1209,8 +1207,7 @@ void DebuggerManager::detachDebugger()
 
 void DebuggerManager::interruptDebuggingRequest()
 {
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << status();
+    STATE_DEBUG(status());
     if (!m_engine)
         return;
     bool interruptIsExit = (status() != DebuggerInferiorRunning);
@@ -1228,8 +1225,7 @@ void DebuggerManager::runToLineExec()
     int lineNumber = -1;
     emit currentTextEditorRequested(&fileName, &lineNumber, 0);
     if (m_engine && !fileName.isEmpty()) {
-        if (Debugger::Constants::Internal::debug)
-            qDebug() << Q_FUNC_INFO << fileName << lineNumber;
+        STATE_DEBUG(fileName << lineNumber);
         m_engine->runToLineExec(fileName, lineNumber);
     }
 }
@@ -1261,8 +1257,7 @@ void DebuggerManager::runToFunctionExec()
             }
         }
     }
-    if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << functionName;
+    STATE_DEBUG(functionName);
 
     if (m_engine && !functionName.isEmpty())
         m_engine->runToFunctionExec(functionName);
@@ -1274,8 +1269,7 @@ void DebuggerManager::jumpToLineExec()
     int lineNumber = -1;
     emit currentTextEditorRequested(&fileName, &lineNumber, 0);
     if (m_engine && !fileName.isEmpty()) {
-        if (Debugger::Constants::Internal::debug)
-            qDebug() << Q_FUNC_INFO << fileName << lineNumber;
+        STATE_DEBUG(fileName << lineNumber);
         m_engine->jumpToLineExec(fileName, lineNumber);
     }
 }
@@ -1412,8 +1406,10 @@ QString DebuggerManager::qtDumperLibraryName() const
 QStringList DebuggerManager::qtDumperLibraryLocations() const
 {
     if (theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool()) {
-        const QString customLocation = theDebuggerAction(CustomDebuggingHelperLocation)->value().toString();
-        const QString location = tr("%1 (explicitly set in the Debugger Options)").arg(customLocation);
+        const QString customLocation =
+            theDebuggerAction(CustomDebuggingHelperLocation)->value().toString();
+        const QString location =
+            tr("%1 (explicitly set in the Debugger Options)").arg(customLocation);
         return QStringList(location);
     }
     return m_startParameters->dumperLibraryLocations;
@@ -1422,9 +1418,12 @@ QStringList DebuggerManager::qtDumperLibraryLocations() const
 void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
 {
     QMessageBox dialog(mainWindow());
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt preferences"), QMessageBox::ActionRole);
-    QPushButton *helperOff = dialog.addButton(tr("Turn helper usage off"), QMessageBox::ActionRole);
-    QPushButton *justContinue = dialog.addButton(tr("Continue anyway"), QMessageBox::AcceptRole);
+    QPushButton *qtPref = dialog.addButton(tr("Open Qt preferences"),
+        QMessageBox::ActionRole);
+    QPushButton *helperOff = dialog.addButton(tr("Turn helper usage off"),
+        QMessageBox::ActionRole);
+    QPushButton *justContinue = dialog.addButton(tr("Continue anyway"),
+        QMessageBox::AcceptRole);
     dialog.setDefaultButton(justContinue);
     dialog.setWindowTitle(tr("Debugging helper missing"));
     dialog.setText(tr("The debugger did not find the debugging helper library."));

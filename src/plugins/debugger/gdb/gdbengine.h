@@ -247,6 +247,7 @@ private slots:
     void handleInferiorShutDown();
     void handleInferiorShutdownFailed(const QString &msg);
 
+    void handleAdapterCrashed();
     void handleAdapterShutDown();
     void handleAdapterShutdownFailed(const QString &msg);
 
@@ -270,9 +271,6 @@ private:
     void handleShowVersion(const GdbResultRecord &response, const QVariant &);
     void handleQueryPwd(const GdbResultRecord &response, const QVariant &);
     void handleQuerySources(const GdbResultRecord &response, const QVariant &);
-    void handleExit(const GdbResultRecord &, const QVariant &);
-    //void handleSetTargetAsync(const GdbResultRecord &, const QVariant &);
-    //void handleTargetRemote(const GdbResultRecord &, const QVariant &);
     void handleWatchPoint(const GdbResultRecord &, const QVariant &);
     bool showToolTip();
 

@@ -453,19 +453,19 @@ void DebuggerPlugin::shutdown()
     m_manager = 0;
 }
 
-static inline QString msgParameterMissing(const QString &a)
+static QString msgParameterMissing(const QString &a)
 {
     return DebuggerPlugin::tr("Option '%1' is missing the parameter.").arg(a);
 }
 
-static inline QString msgInvalidNumericParameter(const QString &a, const QString &number)
+static QString msgInvalidNumericParameter(const QString &a, const QString &number)
 {
     return DebuggerPlugin::tr("The parameter '%1' of option '%2' is not a number.").arg(number, a);
 }
 
 // Parse arguments
 bool DebuggerPlugin::parseArgument(QStringList::const_iterator &it,
-                                   const QStringList::const_iterator& cend,
+                                   const QStringList::const_iterator &cend,
                                    QString *errorMessage)
 {
     const QString &option = *it;
@@ -529,7 +529,9 @@ bool DebuggerPlugin::parseArguments(const QStringList &args, QString *errorMessa
         if (!parseArgument(it, cend, errorMessage))
             return false;
     if (Debugger::Constants::Internal::debug)
-        qDebug().nospace() << args << "engines=0x" << QString::number(m_cmdLineEnabledEngines, 16) << " pid" << m_cmdLineAttachPid << '\n';
+        qDebug().nospace() << args << "engines=0x"
+            << QString::number(m_cmdLineEnabledEngines, 16)
+            << " pid" << m_cmdLineAttachPid << '\n';
     return true;
 }
 
@@ -537,13 +539,15 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 {
     // Do not fail the whole plugin if something goes wrong here
     if (!parseArguments(arguments, errorMessage)) {
-        *errorMessage = tr("Error evaluating command line arguments: %1").arg(*errorMessage);
+        *errorMessage = tr("Error evaluating command line arguments: %1")
+            .arg(*errorMessage);
         qWarning("%s\n", qPrintable(*errorMessage));
         errorMessage->clear();
     }
 
     m_manager = new DebuggerManager;
-    const QList<Core::IOptionsPage *> engineOptionPages = m_manager->initializeEngines(m_cmdLineEnabledEngines);
+    const QList<Core::IOptionsPage *> engineOptionPages =
+        m_manager->initializeEngines(m_cmdLineEnabledEngines);
 
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
@@ -889,9 +893,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         this, SLOT(activatePreviousMode()));
     connect(m_manager, SIGNAL(debugModeRequested()),
         this, SLOT(activateDebugMode()));
-    connect(m_manager, SIGNAL(statusChanged(int)),
-        this, SLOT(updateActions(int)));
-
 
     connect(theDebuggerAction(SettingsDialog), SIGNAL(triggered()),
         this, SLOT(showSettingsDialog()));
@@ -1112,7 +1113,7 @@ void DebuggerPlugin::gotoLocation(const StackFrame &frame, bool setMarker)
 
 void DebuggerPlugin::changeStatus(int status)
 {
-    bool startIsContinue = (status == DebuggerInferiorStopped);
+    const bool startIsContinue = (status == DebuggerInferiorStopped);
     ICore *core = ICore::instance();
     if (startIsContinue) {
         core->addAdditionalContext(m_gdbRunningContext);
@@ -1121,6 +1122,27 @@ void DebuggerPlugin::changeStatus(int status)
         core->removeAdditionalContext(m_gdbRunningContext);
         core->updateContext();
     }
+
+    const bool started = status == DebuggerInferiorRunning
+        || status == DebuggerInferiorRunningRequested
+        || status == DebuggerInferiorStopRequested
+        || status == DebuggerInferiorStopped;
+
+    const bool starting = status == DebuggerProcessStartingUp;
+    //const bool running = status == DebuggerInferiorRunning;
+
+    const bool ready = status == DebuggerInferiorStopped
+            && m_manager->startParameters()->startMode != AttachCore;
+
+    m_startExternalAction->setEnabled(!started && !starting);
+    m_attachExternalAction->setEnabled(!started && !starting);
+#ifdef Q_OS_WIN
+    m_attachCoreAction->setEnabled(false);
+#else
+    m_attachCoreAction->setEnabled(!started && !starting);
+#endif
+    m_startRemoteAction->setEnabled(!started && !starting);
+    m_detachAction->setEnabled(ready);
 }
 
 void DebuggerPlugin::writeSettings() const
@@ -1335,29 +1357,6 @@ void DebuggerPlugin::attachRemoteTcf()
     if (RunControl *runControl = m_debuggerRunner
             ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
-}
-
-void DebuggerPlugin::updateActions(int status)
-{
-    const bool started = status == DebuggerInferiorRunning
-        || status == DebuggerInferiorRunningRequested
-        || status == DebuggerInferiorStopRequested
-        || status == DebuggerInferiorStopped;
-
-    const bool starting = status == DebuggerProcessStartingUp;
-    //const bool running = status == DebuggerInferiorRunning;
-
-    const bool ready = status == DebuggerInferiorStopped
-            && m_manager->startParameters()->startMode != AttachCore;
-    m_startExternalAction->setEnabled(!started && !starting);
-    m_attachExternalAction->setEnabled(!started && !starting);
-#ifdef Q_OS_WIN
-    m_attachCoreAction->setEnabled(false);
-#else
-    m_attachCoreAction->setEnabled(!started && !starting);
-#endif
-    m_startRemoteAction->setEnabled(!started && !starting);
-    m_detachAction->setEnabled(ready);
 }
 
 #include "debuggerplugin.moc"

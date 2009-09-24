@@ -114,6 +114,7 @@ public:
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
     bool isTrkAdapter() const { return true; }
+    bool dumpersAvailable() const { return false; }
 
     void startAdapter();
     void prepareInferior();

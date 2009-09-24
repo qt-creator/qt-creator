@@ -227,6 +227,7 @@ private:
     virtual void notifyInferiorRunning() = 0;
     virtual void notifyInferiorExited() = 0;
     virtual void notifyInferiorPidChanged(qint64) = 0;
+    virtual void notifyEngineFinished() {} // FIXME: make pure
 
     virtual ModulesHandler *modulesHandler() = 0;
     virtual BreakHandler *breakHandler() = 0;
@@ -374,6 +375,7 @@ private:
     void notifyInferiorRunning();
     void notifyInferiorExited();
     void notifyInferiorPidChanged(qint64);
+    void notifyEngineFinished();
 
     void cleanupViews();
 
@@ -395,9 +397,6 @@ public:
     // stuff in this block should be made private by moving it to
     // one of the interfaces
     int status() const { return m_status; }
-    // FIXME: hide this in the engines?
-    //DebuggerStartMode startMode() const;
-
     QList<Symbol> moduleSymbols(const QString &moduleName);
 
 signals:

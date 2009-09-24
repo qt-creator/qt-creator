@@ -94,7 +94,6 @@ private slots:
     void setConfigValue(const QString &name, const QVariant &value);
     void requestContextMenu(TextEditor::ITextEditor *editor,
         int lineNumber, QMenu *menu);
-    void updateActions(int status);
 
     void resetLocation();
     void gotoLocation(const StackFrame &frame, bool setMarker);

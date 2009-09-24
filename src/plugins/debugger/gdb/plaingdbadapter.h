@@ -60,6 +60,7 @@ public:
     void setWorkingDirectory(const QString &dir) { m_gdbProc.setWorkingDirectory(dir); }
     void setEnvironment(const QStringList &env) { m_gdbProc.setEnvironment(env); }
     bool isTrkAdapter() const { return false; }
+    bool dumpersAvailable() const { return true; }
 
     void startAdapter();
     void prepareInferior();

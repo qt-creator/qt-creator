@@ -87,8 +87,7 @@ public:
     virtual void interruptInferior() = 0;
     virtual void shutdown() = 0;
 
-    virtual const DebuggerStartParameters &startParameters() const
-        { return m_engine->startParameters(); }
+    virtual bool dumpersAvailable() const = 0;
 
 signals:
     void adapterStarted();
@@ -111,9 +110,14 @@ signals:
     void readyReadStandardError();
 
 public:
-    virtual GdbAdapterState state() const { return m_state; }
+    GdbAdapterState state() const { return m_state; }
+    // Called by GdbEngine::handleAsyncOutput
+    void notifyInferiorExited();
+
 protected:
-    virtual void setState(GdbAdapterState state) { m_state = state; }
+    void setState(GdbAdapterState state);
+    const DebuggerStartParameters &startParameters() const
+        { return m_engine->startParameters(); }
 
     GdbEngine * const m_engine;
     GdbAdapterState m_state;

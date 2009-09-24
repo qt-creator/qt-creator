@@ -271,45 +271,12 @@ void GdbEngine::connectAdapter()
         this, SLOT(handleInferiorShutdownFailed(QString)));
 
     connect(m_gdbAdapter, SIGNAL(adapterCrashed()),
-        m_manager, SLOT(exitDebugger()));
+        this, SLOT(handleAdapterCrashed()));
 }
-
 
 void GdbEngine::disconnectAdapter()
 {
-    // Gdb Process interaction
-    disconnect(m_gdbAdapter, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(gdbProcError(QProcess::ProcessError)));
-    disconnect(m_gdbAdapter, SIGNAL(readyReadStandardOutput()),
-        this, SLOT(readGdbStandardOutput()));
-    disconnect(m_gdbAdapter, SIGNAL(readyReadStandardError()),
-        this, SLOT(readGdbStandardError()));
-
-    disconnect(m_gdbAdapter, SIGNAL(adapterStarted()),
-        this, SLOT(handleAdapterStarted()));
-    disconnect(m_gdbAdapter, SIGNAL(adapterStartFailed(QString)),
-        this, SLOT(handleAdapterStartFailed(QString)));
-    disconnect(m_gdbAdapter, SIGNAL(adapterShutDown()),
-        this, SLOT(handleAdapterShutDown()));
-    disconnect(m_gdbAdapter, SIGNAL(adapterShutdownFailed(QString)),
-        this, SLOT(handleAdapterShutdownFailed(QString)));
-
-    disconnect(m_gdbAdapter, SIGNAL(inferiorPrepared()),
-        this, SLOT(handleInferiorPrepared()));
-    disconnect(m_gdbAdapter, SIGNAL(inferiorPreparationFailed(QString)),
-        this, SLOT(handleInferiorPreparationFailed(QString)));
-
-    disconnect(m_gdbAdapter, SIGNAL(inferiorStarted()),
-        this, SLOT(handleInferiorStarted()));
-    disconnect(m_gdbAdapter, SIGNAL(inferiorStartFailed(QString)),
-        this, SLOT(handleInferiorStartFailed(QString)));
-    disconnect(m_gdbAdapter, SIGNAL(inferiorShutDown()),
-        this, SLOT(handleInferiorShutDown()));
-    disconnect(m_gdbAdapter, SIGNAL(inferiorShutdownFailed(QString)),
-        this, SLOT(handleInferiorShutdownFailed(QString)));
-
-    disconnect(m_gdbAdapter, SIGNAL(adapterCrashed()),
-        m_manager, SLOT(exitDebugger()));
+    disconnect(m_gdbAdapter, 0, this, 0);
 }
 
 void GdbEngine::initializeVariables()
@@ -386,9 +353,7 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
 
     showStatusMessage(msg);
     showMessageBox(QMessageBox::Critical, tr("Error"), msg);
-    // act as if it was closed by the core
-    //if (kill)
-        m_manager->exitDebugger();
+    shutdown(); 
 }
 
 #if 0
@@ -696,7 +661,7 @@ void GdbEngine::interruptInferior()
 
     if (m_gdbAdapter->state() == AdapterNotRunning) {
         debugMessage(_("TRYING TO INTERRUPT INFERIOR WITHOUT RUNNING GDB"));
-        qq->notifyInferiorExited();
+        shutdown();
         return;
     }
 
@@ -833,7 +798,7 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
             showMessageBox(QMessageBox::Critical,
                 tr("Executable failed"), QString::fromLocal8Bit(msg));
             showStatusMessage(tr("Process failed to start."));
-            exitDebugger();
+            shutdown();
         }
         return;
     }
@@ -1100,7 +1065,7 @@ void GdbEngine::handleAqcuiredInferior()
     }
     #endif
 
-    // nicer to see a bit of the world we live in
+    // It's nicer to see a bit of the world we live in.
     reloadModules();
     attemptBreakpointSynchronization();
 }
@@ -1110,19 +1075,21 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     const QByteArray reason = data.findChild("reason").data();
 
     if (isExitedReason(reason)) {
-        qq->notifyInferiorExited();
+        // Give adapter a chance to take notice of regular exits.
+        m_gdbAdapter->notifyInferiorExited();
+
         QString msg;
         if (reason == "exited") {
-            msg = tr("Program exited with exit code %1")
+            msg = tr("Program exited with exit code %1.")
                 .arg(_(data.findChild("exit-code").toString()));
         } else if (reason == "exited-signalled" || reason == "signal-received") {
-            msg = tr("Program exited after receiving signal %1")
+            msg = tr("Program exited after receiving signal %1.")
                 .arg(_(data.findChild("signal-name").toString()));
         } else {
-            msg = tr("Program exited normally");
+            msg = tr("Program exited normally.");
         }
         showStatusMessage(msg);
-        postCommand(_("-gdb-exit"), CB(handleExit));
+        shutdown();
         return;
     }
 
@@ -1421,7 +1388,7 @@ void GdbEngine::handleFileExecAndSymbols(const GdbResultRecord &response, const 
         showMessageBox(QMessageBox::Critical, tr("Starting executable failed"), msg);
         QTC_ASSERT(status() == DebuggerInferiorRunning, /**/);
         //interruptInferior();
-        qq->notifyInferiorExited();
+        shutdown();
     }
 }
 
@@ -1441,7 +1408,7 @@ void GdbEngine::handleExecContinue(const GdbResultRecord &response, const QVaria
             showMessageBox(QMessageBox::Critical, tr("Error"),
                 tr("Starting executable failed:\n") + QString::fromLocal8Bit(msg));
             QTC_ASSERT(status() == DebuggerInferiorRunning, /**/);
-            qq->notifyInferiorExited();
+            shutdown();
         }
     }
 }
@@ -1484,6 +1451,7 @@ QString GdbEngine::fullName(const QStringList &candidates)
 
 void GdbEngine::shutdown()
 {
+    debugMessage(_("INITIATE GDBENGINE SHUTDOWN"));
     m_outputCollector.shutdown();
     initializeVariables();
     m_gdbAdapter->shutdown();
@@ -1495,7 +1463,7 @@ void GdbEngine::detachDebugger()
     shutdown();
 }
 
-void GdbEngine::exitDebugger()
+void GdbEngine::exitDebugger() // called from the manager
 {
     disconnectDebuggingHelperActions();
     m_outputCollector.shutdown();
@@ -1517,8 +1485,6 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     //QTC_ASSERT(m_gdbAdapter == 0, delete m_gdbAdapter; m_gdbAdapter = 0);
 
     m_startParameters = sp;
-    if (startModeAllowsDumpers())
-        connectDebuggingHelperActions();
 
     if (m_gdbAdapter)
         disconnectAdapter();
@@ -1533,6 +1499,9 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
         m_gdbAdapter = m_attachAdapter;
     else 
         m_gdbAdapter = m_plainAdapter;
+
+    if (startModeAllowsDumpers())
+        connectDebuggingHelperActions();
 
     initializeVariables();
     connectAdapter();
@@ -1619,11 +1588,6 @@ void GdbEngine::handleTargetRemote(const GdbResultRecord &record, const QVariant
     }
 }
 #endif
-
-void GdbEngine::handleExit(const GdbResultRecord &, const QVariant &)
-{
-    showStatusMessage(tr("Debugger exited."));
-}
 
 void GdbEngine::stepExec()
 {
@@ -2364,7 +2328,10 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record, const QVari
             gotoLocation(frame, true);
         }
     } else {
-        qDebug() << "LISTING STACK FAILED: " << record.toString();
+        // That always happens on symbian gdb with
+        // ^error,data={msg="Previous frame identical to this frame (corrupt stack?)"
+        // logstreamoutput="Previous frame identical to this frame (corrupt stack?)\n"
+        //qDebug() << "LISTING STACK FAILED: " << record.toString();
     }
 }
 
@@ -3062,22 +3029,25 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record, const 
     //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
 
     GdbMi contents;
-    QTC_ASSERT(parseConsoleStream(record, &contents), /**/);
-    const bool ok = m_dumperHelper.parseQuery(contents, QtDumperHelper::GdbDebugger) && m_dumperHelper.typeCount();
+    QTC_ASSERT(parseConsoleStream(record, &contents), qDebug() << record.toString());
+    const bool ok = m_dumperHelper.parseQuery(contents, QtDumperHelper::GdbDebugger)
+        && m_dumperHelper.typeCount();
     if (ok) {
         // Get version and sizes from dumpers. Expression cache
         // currently causes errors.
         const double dumperVersion = getDumperVersion(contents);
         if (dumperVersion < dumperVersionRequired) {
-            qq->showQtDumperLibraryWarning(QtDumperHelper::msgDumperOutdated(dumperVersionRequired, dumperVersion));
+            qq->showQtDumperLibraryWarning(
+                QtDumperHelper::msgDumperOutdated(dumperVersionRequired, dumperVersion));
             m_debuggingHelperState = DebuggingHelperUnavailable;
             return;
         }
         m_debuggingHelperState = DebuggingHelperAvailable;
-        const QString successMsg = tr("Dumper version %1, %n custom dumpers found.", 0, m_dumperHelper.typeCount()).arg(dumperVersion);
+        const QString successMsg = tr("Dumper version %1, %n custom dumpers found.",
+            0, m_dumperHelper.typeCount()).arg(dumperVersion);
         showStatusMessage(successMsg);
     } else {
-            if (!m_dumperInjectionLoad) // Retry if thread has not terminated yet.
+        if (!m_dumperInjectionLoad) // Retry if thread has not terminated yet.
             m_debuggingHelperState = DebuggingHelperUnavailable;
         showStatusMessage(tr("Debugging helpers not found."));
     }
@@ -3816,8 +3786,7 @@ void GdbEngine::recheckDebuggingHelperAvailability()
 
 bool GdbEngine::startModeAllowsDumpers() const
 {
-    const DebuggerStartMode m = startMode();
-    return m == StartInternal || m == StartExternal || m == AttachExternal;
+    return m_gdbAdapter->dumpersAvailable();
 }
 
 void GdbEngine::watchPoint(const QPoint &pnt)
@@ -4052,8 +4021,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg)
 {
     debugMessage(_("ADAPTER START FAILED"));
     showMessageBox(QMessageBox::Critical, tr("Adapter start failed"), msg);
-    qq->notifyInferiorExited();
-    m_manager->exitDebugger();
+    shutdown();
 }
 
 void GdbEngine::handleAdapterStarted()
@@ -4069,8 +4037,6 @@ void GdbEngine::handleInferiorPreparationFailed(const QString &msg)
     showMessageBox(QMessageBox::Critical,
         tr("Inferior start preparation failed"), msg);
     shutdown();
-    qq->notifyInferiorExited();
-    m_manager->exitDebugger();
 }
 
 void GdbEngine::handleInferiorPrepared()
@@ -4203,8 +4169,7 @@ void GdbEngine::handleInferiorStartFailed(const QString &msg)
 {
     debugMessage(_("INFERIOR START FAILED"));
     showMessageBox(QMessageBox::Critical, tr("Inferior start failed"), msg);
-    qq->notifyInferiorExited();
-    m_manager->exitDebugger();
+    shutdown();
 }
 
 void GdbEngine::handleInferiorStarted()
@@ -4221,24 +4186,28 @@ void GdbEngine::handleInferiorShutDown()
 void GdbEngine::handleInferiorShutdownFailed(const QString &msg)
 {
     debugMessage(_("INFERIOR SHUTDOWN FAILED"));
-    showMessageBox(QMessageBox::Critical,
-        tr("Inferior shutdown failed"), msg);
-    qq->notifyInferiorExited();
-    m_manager->exitDebugger();
+    showMessageBox(QMessageBox::Critical, tr("Inferior shutdown failed"), msg);
+    shutdown(); // continue with adapter shutdown
+}
+
+void GdbEngine::handleAdapterCrashed()
+{
+    debugMessage(_("ADAPTER CRASHED"));
+    showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), QString());
+    shutdown();
 }
 
 void GdbEngine::handleAdapterShutDown()
 {
     debugMessage(_("ADAPTER SUCCESSFULLY SHUT DOWN"));
-    qq->notifyInferiorExited();
+    qq->notifyEngineFinished();
 }
 
 void GdbEngine::handleAdapterShutdownFailed(const QString &msg)
 {
     debugMessage(_("ADAPTER SHUTDOWN FAILED"));
-    showMessageBox(QMessageBox::Critical,
-        tr("Inferior shutdown failed"), msg);
-    qq->notifyInferiorExited();
+    showMessageBox(QMessageBox::Critical, tr("Inferior shutdown failed"), msg);
+    qq->notifyEngineFinished();
 }
 
 void GdbEngine::addOptionPages(QList<Core::IOptionsPage*> *opts) const
@@ -4251,6 +4220,47 @@ void GdbEngine::addOptionPages(QList<Core::IOptionsPage*> *opts) const
 void GdbEngine::showMessageBox(int icon, const QString &title, const QString &text)
 {
     m_manager->showMessageBox(icon, title, text);
+}
+
+//
+// AbstractGdbAdapter
+//
+
+static bool isAllowedTransition(int from, int to)
+{
+    return (from == -1)
+      || (from == AdapterNotRunning && to == AdapterNotRunning)
+      || (from == AdapterNotRunning && to == AdapterStarting)
+      || (from == AdapterStarting && to == AdapterStarted)
+      || (from == AdapterStarting && to == AdapterStartFailed)
+      || (from == AdapterStarted && to == InferiorPreparing)
+      || (from == InferiorPreparing && to == InferiorPrepared)
+      || (from == InferiorPreparing && to == InferiorPreparationFailed)
+      || (from == InferiorPrepared && to == InferiorStarting)
+      || (from == InferiorStarting && to == InferiorStarted)
+      || (from == InferiorStarting && to == InferiorStartFailed)
+      || (from == InferiorStarted && to == InferiorShuttingDown)
+      || (from == InferiorShuttingDown && to == InferiorShutDown)
+      || (from == InferiorShuttingDown && to == InferiorShutdownFailed)
+      || (from == InferiorShutDown && to == AdapterShuttingDown)
+      || (from == AdapterShuttingDown && to == AdapterNotRunning)
+    ;
+}
+
+void AbstractGdbAdapter::setState(GdbAdapterState state)
+{
+    QString msg = _("Adapter state from %1 to state %2.").arg(m_state).arg(state);
+    if (!isAllowedTransition(m_state, state))
+        qDebug() << "UNEXPECTED ADAPTER TRANSITION: " << msg;
+    m_engine->debugMessage(msg);
+    m_state = state;
+}
+
+void AbstractGdbAdapter::notifyInferiorExited()
+{
+    QTC_ASSERT(state() == InferiorStarted, /**/);
+    setState(InferiorShuttingDown);
+    setState(InferiorShutDown);
 }
 
 //
