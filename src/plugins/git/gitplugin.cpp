@@ -524,8 +524,16 @@ void GitPlugin::undoFileChanges()
 
 void GitPlugin::undoProjectChanges()
 {
-    QString workingDirectory = getWorkingDirectory();
+    const QString workingDirectory = getWorkingDirectory();
     if (workingDirectory.isEmpty())
+        return;
+    const QMessageBox::StandardButton answer
+            = QMessageBox::question(m_core->mainWindow(),
+                                    tr("Revert"),
+                                    tr("Would you like to revert all pending changes to the project?"),
+                                    QMessageBox::Yes|QMessageBox::No,
+                                    QMessageBox::No);
+    if (answer == QMessageBox::No)
         return;
     m_gitClient->hardReset(workingDirectory, QString());
 }
