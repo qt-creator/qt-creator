@@ -928,16 +928,6 @@ void DebuggerManager::exitDebugger()
         m_engine->exitDebugger();
     cleanupViews();
     setState(DebuggerNotReady);
-    setBusyCursor(false);
-    emit debuggingFinished();
-}
-
-void DebuggerManager::notifyEngineFinished()
-{
-    cleanupViews();
-    setState(DebuggerNotReady);
-    setBusyCursor(false);
-    emit debuggingFinished();
 }
 
 DebuggerStartParametersPtr DebuggerManager::startParameters() const
@@ -1528,6 +1518,11 @@ void DebuggerManager::setState(DebuggerState state)
 
     if (m_state == InferiorStopped)
         resetLocation();
+
+    if (m_state == DebuggerNotReady) {
+        setBusyCursor(false);
+        emit debuggingFinished();
+    }
 
     const bool started = state == InferiorRunning
         || state == InferiorRunningRequested

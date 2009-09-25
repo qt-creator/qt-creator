@@ -256,7 +256,6 @@ private:
     void notifyInferiorRunning();
     void notifyInferiorExited();
     void notifyInferiorPidChanged(qint64);
-    void notifyEngineFinished();
 
     void cleanupViews();
 

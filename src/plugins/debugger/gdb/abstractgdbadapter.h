@@ -72,7 +72,7 @@ signals:
     void adapterStartFailed(const QString &msg);
     void adapterShutDown();
     void adapterShutdownFailed(const QString &msg);
-    void adapterCrashed();
+    void adapterCrashed(const QString &msg);
 
     void inferiorPrepared();
     void inferiorPreparationFailed(const QString &msg);
@@ -83,7 +83,6 @@ signals:
     
     void inferiorPidChanged(qint64 pid);
 
-    void error(QProcess::ProcessError);
     void readyReadStandardOutput();
     void readyReadStandardError();
 

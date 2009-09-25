@@ -242,8 +242,6 @@ GdbEngine::~GdbEngine()
 void GdbEngine::connectAdapter()
 {
     // Gdb Process interaction
-    connect(m_gdbAdapter, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(gdbProcError(QProcess::ProcessError)));
     connect(m_gdbAdapter, SIGNAL(readyReadStandardOutput()),
         this, SLOT(readGdbStandardOutput()));
     connect(m_gdbAdapter, SIGNAL(readyReadStandardError()),
@@ -272,8 +270,8 @@ void GdbEngine::connectAdapter()
     connect(m_gdbAdapter, SIGNAL(inferiorShutdownFailed(QString)),
         this, SLOT(handleInferiorShutdownFailed(QString)));
 
-    connect(m_gdbAdapter, SIGNAL(adapterCrashed()),
-        this, SLOT(handleAdapterCrashed()));
+    connect(m_gdbAdapter, SIGNAL(adapterCrashed(QString)),
+        this, SLOT(handleAdapterCrashed(QString)));
 }
 
 void GdbEngine::disconnectAdapter()
@@ -315,47 +313,31 @@ void GdbEngine::initializeVariables()
     //m_gdbAdapter;
 }
 
-void GdbEngine::gdbProcError(QProcess::ProcessError error)
+QString GdbEngine::errorMessage(QProcess::ProcessError error)
 {
-    QString msg;
-    bool kill = true;
     switch (error) {
         case QProcess::FailedToStart:
-            //kill = false;
-            msg = tr("The Gdb process failed to start. Either the "
+            return tr("The Gdb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program.")
                 .arg(theDebuggerStringSetting(GdbLocation));
-            //emit startFailed();
-            //shutdown();
-            break;
         case QProcess::Crashed:
-            kill = false;
-            msg = tr("The Gdb process crashed some time after starting "
+            return tr("The Gdb process crashed some time after starting "
                 "successfully.");
-            break;
         case QProcess::Timedout:
-            msg = tr("The last waitFor...() function timed out. "
+            return tr("The last waitFor...() function timed out. "
                 "The state of QProcess is unchanged, and you can try calling "
                 "waitFor...() again.");
-            break;
         case QProcess::WriteError:
-            msg = tr("An error occurred when attempting to write "
+            return tr("An error occurred when attempting to write "
                 "to the Gdb process. For example, the process may not be running, "
                 "or it may have closed its input channel.");
-            break;
         case QProcess::ReadError:
-            msg = tr("An error occurred when attempting to read from "
+            return tr("An error occurred when attempting to read from "
                 "the Gdb process. For example, the process may not be running.");
-            break;
         default:
-            msg = tr("An unknown error in the Gdb process occurred. "
-                "This is the default return value of error().");
+            return tr("An unknown error in the Gdb process occurred. ");
     }
-
-    showStatusMessage(msg);
-    showMessageBox(QMessageBox::Critical, tr("Error"), msg);
-    shutdown(); 
 }
 
 #if 0
@@ -1007,6 +989,7 @@ void GdbEngine::handleExecRunToFunction(const GdbResponse &response)
     // 14*stopped,thread-id="1",frame={addr="0x0000000000403ce4",
     // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
     // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
+    QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
     setState(InferiorStopped);
     showStatusMessage(tr("Function reached. Stopped."));
     GdbMi frame = response.data.findChild("frame");
@@ -1040,6 +1023,7 @@ static bool isStoppedReason(const QByteArray &reason)
     ;
 }
 
+#if 0
 void GdbEngine::handleAqcuiredInferior()
 {
     #ifdef Q_OS_WIN
@@ -1082,6 +1066,7 @@ void GdbEngine::handleAqcuiredInferior()
     reloadModules();
     attemptBreakpointSynchronization();
 }
+#endif
 
 void GdbEngine::handleAsyncOutput(const GdbMi &data)
 {
@@ -1144,11 +1129,11 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     //  signal-meaning="Trace/breakpoint trap",thread-id="2",
     //  frame={addr="0x7c91120f",func="ntdll!DbgUiConnectToDbg",
     //  args=[],from="C:\\WINDOWS\\system32\\ntdll.dll"}
-    if (reason == "signal-received"
-          && data.findChild("signal-name").toString() == "SIGTRAP") {
-        continueInferior();
-        return;
-    }
+    //if (reason == "signal-received"
+    //      && data.findChild("signal-name").data() == "SIGTRAP") {
+    //    continueInferior();
+    //    return;
+    //}
 
     // jump over well-known frames
     static int stepCounter = 0;
@@ -1181,8 +1166,16 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     }
 
     if (isStoppedReason(reason) || reason.isEmpty()) {
-         QVariant var = QVariant::fromValue<GdbMi>(data);
-        if (m_debuggingHelperState == DebuggingHelperUninitialized) {
+        QVariant var = QVariant::fromValue<GdbMi>(data);
+
+        // Don't load helpers on stops triggered by signals unless it's
+        // an intentional trap.
+        bool initHelpers = m_debuggingHelperState == DebuggingHelperUninitialized;
+        if (reason == "signal-received"
+                && data.findChild("signal-name").data() != "SIGTRAP")
+            initHelpers = false;
+            
+        if (initHelpers) {
             tryLoadDebuggingHelpers();
             postCommand(_("p 4"), CB(handleStop1), var);  // dummy
         } else {
@@ -4159,24 +4152,34 @@ void GdbEngine::handleInferiorShutdownFailed(const QString &msg)
     shutdown(); // continue with adapter shutdown
 }
 
-void GdbEngine::handleAdapterCrashed()
+void GdbEngine::handleAdapterCrashed(const QString &msg)
 {
     debugMessage(_("ADAPTER CRASHED"));
-    showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), QString());
-    shutdown();
+    switch (state()) {
+        // All fall-through.
+        case InferiorRunning:
+            setState(InferiorShuttingDown);
+        case InferiorShuttingDown:
+            setState(InferiorShutDown);
+        case InferiorShutDown:
+            setState(AdapterShuttingDown);
+        default:
+            setState(DebuggerNotReady);
+    }
+    showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);
 }
 
 void GdbEngine::handleAdapterShutDown()
 {
     debugMessage(_("ADAPTER SUCCESSFULLY SHUT DOWN"));
-    manager()->notifyEngineFinished();
+    setState(DebuggerNotReady);
 }
 
 void GdbEngine::handleAdapterShutdownFailed(const QString &msg)
 {
     debugMessage(_("ADAPTER SHUTDOWN FAILED"));
     showMessageBox(QMessageBox::Critical, tr("Inferior shutdown failed"), msg);
-    manager()->notifyEngineFinished();
+    setState(DebuggerNotReady);
 }
 
 void GdbEngine::addOptionPages(QList<Core::IOptionsPage*> *opts) const

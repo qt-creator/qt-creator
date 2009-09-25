@@ -77,7 +77,8 @@ private:
     void handleInfoTarget(const GdbResponse &response);
 
     void emitAdapterStartFailed(const QString &msg);
-    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
+    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus status);
+    Q_SLOT void handleGdbError(QProcess::ProcessError error);
     Q_SLOT void handleGdbStarted();
     Q_SLOT void stubStarted();
     Q_SLOT void stubError(const QString &msg);

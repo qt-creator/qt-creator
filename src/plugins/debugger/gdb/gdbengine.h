@@ -229,7 +229,7 @@ private:
     void updateLocals();
 
 private slots:
-    void gdbProcError(QProcess::ProcessError error);
+    QString errorMessage(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();
     void readDebugeeOutput(const QByteArray &data);
@@ -244,7 +244,7 @@ private slots:
     void handleInferiorShutDown();
     void handleInferiorShutdownFailed(const QString &msg);
 
-    void handleAdapterCrashed();
+    void handleAdapterCrashed(const QString &msg);
     void handleAdapterShutDown();
     void handleAdapterShutdownFailed(const QString &msg);
 
@@ -252,7 +252,6 @@ private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
     void handleStart(const GdbResponse &response);
-    void handleAqcuiredInferior();
     void handleAsyncOutput(const GdbMi &data);
     void handleStop1(const GdbResponse &response);
     void handleStop2(const GdbResponse &response);

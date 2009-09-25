@@ -59,7 +59,7 @@ PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
 {
     QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SIGNAL(error(QProcess::ProcessError)));
+        this, SLOT(handleGdbError(QProcess::ProcessError)));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
         this, SIGNAL(readyReadStandardOutput()));
     connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
@@ -118,9 +118,7 @@ void PlainGdbAdapter::startAdapter()
             setEnvironment(startParameters().environment);
     }
 
-    QString location = theDebuggerStringSetting(GdbLocation);
-    //showStatusMessage(tr("Starting Debugger: ") + loc + _c(' ') + gdbArgs.join(_(" ")));
-    m_gdbProc.start(location, gdbArgs);
+    m_gdbProc.start(theDebuggerStringSetting(GdbLocation), gdbArgs);
 }
 
 void PlainGdbAdapter::handleGdbStarted()
@@ -128,6 +126,12 @@ void PlainGdbAdapter::handleGdbStarted()
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     setState(AdapterStarted);
     emit adapterStarted();
+}
+
+void PlainGdbAdapter::handleGdbError(QProcess::ProcessError error)
+{
+    debugMessage(_("PLAIN ADAPTER, HANDLE GDB ERROR"));
+    emit adapterCrashed(m_engine->errorMessage(error));
 }
 
 void PlainGdbAdapter::prepareInferior()
@@ -238,6 +242,7 @@ void PlainGdbAdapter::interruptInferior()
 
 void PlainGdbAdapter::shutdown()
 {
+    debugMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
     switch (state()) {
     
     case InferiorRunningRequested:
@@ -275,6 +280,7 @@ void PlainGdbAdapter::shutdown()
 
 void PlainGdbAdapter::handleKill(const GdbResponse &response)
 {
+    debugMessage(_("PLAIN ADAPTER HANDLE KILL " + response.toString()));
     if (response.resultClass == GdbResultDone) {
         setState(InferiorShutDown);
         emit inferiorShutDown();
@@ -300,8 +306,7 @@ void PlainGdbAdapter::handleExit(const GdbResponse &response)
 
 void PlainGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
 {
-    debugMessage(_("GDB PROESS FINISHED"));
-    setState(DebuggerNotReady);
+    debugMessage(_("GDB PROCESS FINISHED"));
     emit adapterShutDown();
 }
 

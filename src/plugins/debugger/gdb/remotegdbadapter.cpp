@@ -57,7 +57,7 @@ RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, QObject *parent)
 {
     QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SIGNAL(error(QProcess::ProcessError)));
+        this, SLOT(handleGdbError(QProcess::ProcessError)));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
         this, SIGNAL(readyReadStandardOutput()));
     connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
@@ -122,6 +122,13 @@ void RemoteGdbAdapter::handleGdbStarted()
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     setState(AdapterStarted);
     emit adapterStarted();
+}
+
+void RemoteGdbAdapter::handleGdbError(QProcess::ProcessError error)
+{
+    debugMessage(_("ADAPTER, HANDLE GDB ERROR"));
+    emit adapterCrashed(m_engine->errorMessage(error));
+    shutdown();
 }
 
 void RemoteGdbAdapter::uploadProcError(QProcess::ProcessError error)

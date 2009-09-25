@@ -71,8 +71,9 @@ private:
     void handleTargetCore(const GdbResponse &response);
     void handleExit(const GdbResponse &response);
 
-    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
     Q_SLOT void handleGdbStarted();
+    Q_SLOT void handleGdbError(QProcess::ProcessError error);
+    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
 
     QProcess m_gdbProc;
 };
