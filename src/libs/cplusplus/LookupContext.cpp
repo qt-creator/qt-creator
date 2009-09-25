@@ -466,6 +466,14 @@ void LookupContext::expandFunction(Function *function,
     }
 }
 
+void LookupContext::expandObjCMethod(ObjCMethod *method,
+                                     const QList<Scope *> &visibleScopes,
+                                     QList<Scope *> *expandedScopes) const
+{
+    if (! expandedScopes->contains(method->arguments()))
+        expandedScopes->append(method->arguments());
+}
+
 void LookupContext::expand(Scope *scope,
                            const QList<Scope *> &visibleScopes,
                            QList<Scope *> *expandedScopes) const
@@ -483,5 +491,7 @@ void LookupContext::expand(Scope *scope,
         expandBlock(block, visibleScopes, expandedScopes);
     } else if (Function *fun = scope->owner()->asFunction()) {
         expandFunction(fun, visibleScopes, expandedScopes);
+    } else if (ObjCMethod *meth = scope->owner()->asObjCMethod()) {
+        expandObjCMethod(meth, visibleScopes, expandedScopes);
     }
 }

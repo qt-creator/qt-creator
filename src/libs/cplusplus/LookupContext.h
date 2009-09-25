@@ -114,6 +114,10 @@ public:
                         const QList<Scope *> &visibleScopes,
                         QList<Scope *> *expandedScopes) const;
 
+    void expandObjCMethod(ObjCMethod *method,
+                          const QList<Scope *> &visibleScopes,
+                          QList<Scope *> *expandedScopes) const;
+
     void expandEnumOrAnonymousSymbol(ScopedSymbol *scopedSymbol,
                                      QList<Scope *> *expandedScopes) const;
 
