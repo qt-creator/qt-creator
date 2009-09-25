@@ -131,7 +131,6 @@ protected:
     TextEditor::BaseTextEditorEditable *createEditableInterface();
     void createToolBar(ScriptEditorEditable *editable);
     TextEditor::BaseTextEditor::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true);
-    virtual void reformat(QTextDocument *doc, QTextBlock block);
 
 private:
     virtual bool isElectricCharacter(const QChar &ch) const;

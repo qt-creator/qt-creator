@@ -110,7 +110,6 @@ bool DuiEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(DuiEditor::Constants::C_DUIEDITOR,
           TextEditor::TextEditorActionHandler::Format
-        | TextEditor::TextEditorActionHandler::Reformat
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
     m_actionHandler->initializeActions();

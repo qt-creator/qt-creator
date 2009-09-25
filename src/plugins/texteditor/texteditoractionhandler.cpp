@@ -65,7 +65,6 @@ TextEditorActionHandler::TextEditorActionHandler(const QString &context,
     m_cleanWhitespaceAction(0),
     m_textWrappingAction(0),
     m_unCommentSelectionAction(0),
-    m_reformatAction(0),
     m_unCollapseAllAction(0),
     m_collapseAction(0),
     m_expandAction(0),
@@ -182,12 +181,6 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_unCommentSelectionAction, Constants::UN_COMMENT_SELECTION, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+/")));
     connect(m_unCommentSelectionAction, SIGNAL(triggered()), this, SLOT(unCommentSelection()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
-
-    m_reformatAction = new QAction(tr("&Reformat"), this);
-    command = am->registerAction(m_reformatAction, Constants::REFORMAT, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+F")));
-    connect(m_reformatAction, SIGNAL(triggered()), this, SLOT(reformatAction()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
 
     m_cutLineAction = new QAction(tr("Cut &Line"), this);
@@ -329,7 +322,6 @@ void TextEditorActionHandler::updateActions(UpdateMode um)
     m_pasteAction->setEnabled(um != ReadOnlyMode);
     m_formatAction->setEnabled((m_optionalActions & Format) && um != ReadOnlyMode);
     m_unCommentSelectionAction->setEnabled((m_optionalActions & UnCommentSelection) && um != ReadOnlyMode);
-    m_reformatAction->setEnabled((m_optionalActions & Reformat) && um != ReadOnlyMode);
     m_moveLineUpAction->setEnabled(um != ReadOnlyMode);
     m_moveLineDownAction->setEnabled(um != ReadOnlyMode);
 
@@ -418,7 +410,6 @@ FUNCTION2(copyAction, copy)
 FUNCTION2(cutAction, cut)
 FUNCTION2(pasteAction, paste)
 FUNCTION2(formatAction, format)
-FUNCTION2(reformatAction, reformat)
 FUNCTION2(rewrapParagraphAction, rewrapParagraph)
 FUNCTION2(selectAllAction, selectAll)
 FUNCTION(cleanWhitespace)

@@ -484,7 +484,6 @@ public:
 
 public slots:
     virtual void format();
-    virtual void reformat();
     virtual void rewrapParagraph();
     virtual void unCommentSelection();
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -517,11 +516,6 @@ protected:
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     // Indent at cursor. Calls indentBlock for selection or current line.
     virtual void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
-
-    // Reformats/prettyprints a text block based on previous line. Default does nothing
-    virtual void reformatBlock(QTextDocument *doc, QTextBlock block);
-    // Reformat/prettyprint the current document.
-    virtual void reformat(QTextDocument *doc, const QTextCursor &cursor);
 
     struct Link
     {

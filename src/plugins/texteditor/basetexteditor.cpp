@@ -3307,10 +3307,6 @@ void BaseTextEditor::indentBlock(QTextDocument *, QTextBlock, QChar)
 {
 }
 
-void BaseTextEditor::reformatBlock(QTextDocument *, QTextBlock)
-{
-}
-
 void BaseTextEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
 {
     if (cursor.hasSelection()) {
@@ -3322,20 +3318,6 @@ void BaseTextEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar
         } while (block.isValid() && block != end);
     } else {
         indentBlock(doc, cursor.block(), typedChar);
-    }
-}
-
-void BaseTextEditor::reformat(QTextDocument *doc, const QTextCursor &cursor)
-{
-    if (cursor.hasSelection()) {
-        QTextBlock block = doc->findBlock(qMin(cursor.selectionStart(), cursor.selectionEnd()));
-        const QTextBlock end = doc->findBlock(qMax(cursor.selectionStart(), cursor.selectionEnd())).next();
-        do {
-            reformatBlock(doc, block);
-            block = block.next();
-        } while (block.isValid() && block != end);
-    } else {
-        reformatBlock(doc, cursor.block());
     }
 }
 
@@ -4071,14 +4053,6 @@ void BaseTextEditor::format()
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
     indent(document(), cursor, QChar::Null);
-    cursor.endEditBlock();
-}
-
-void BaseTextEditor::reformat()
-{
-    QTextCursor cursor = textCursor();
-    cursor.beginEditBlock();
-    reformat(document(), cursor);
     cursor.endEditBlock();
 }
 

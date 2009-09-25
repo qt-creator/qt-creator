@@ -737,11 +737,6 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
     return link;
 }
 
-void ScriptEditor::reformat(QTextDocument *, QTextBlock)
-{
-    // TODO (EV)
-}
-
 void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = createStandardContextMenu();
