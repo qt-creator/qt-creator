@@ -161,7 +161,7 @@ struct CdbDebugEnginePrivate
     QString                 m_baseImagePath;
 
     CdbDebugEngine *m_engine;
-    DebuggerManager *manager() const { return m_engine->manager(); }
+    inline DebuggerManager *manager() const;
     CdbStackTraceContext *m_currentStackTrace;
     EditorToolTipCache m_editorToolTipCache;
 
