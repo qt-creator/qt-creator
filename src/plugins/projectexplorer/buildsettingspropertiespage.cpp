@@ -256,6 +256,7 @@ void BuildSettingsWidget::activeBuildConfigurationChanged()
 
 void BuildSettingsWidget::createConfiguration()
 {
+    // TODO!
 //    bool ok;
 //    QString newBuildConfiguration = QInputDialog::getText(this, tr("New configuration"), tr("New Configuration Name:"), QLineEdit::Normal, QString(), &ok);
 //    if (!ok || newBuildConfiguration.isEmpty())

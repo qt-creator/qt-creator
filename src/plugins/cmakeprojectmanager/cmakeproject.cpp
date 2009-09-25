@@ -586,10 +586,11 @@ QList<ProjectExplorer::EnvironmentItem> CMakeProject::userEnvironmentChanges(Bui
 
 void CMakeProject::setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff)
 {
+    ProjectExplorer::BuildConfiguration *bc = buildConfiguration(buildConfig);
     QStringList list = EnvironmentItem::toStringList(diff);
-    if (list == value(buildConfig, "userEnvironmentChanges"))
+    if (list == bc->value("userEnvironmentChanges"))
         return;
-    setValue(buildConfig, "userEnvironmentChanges", list);
+    bc->setValue("userEnvironmentChanges", list);
     emit environmentChanged(buildConfig);
 }
 
@@ -612,22 +613,6 @@ QList<ProjectExplorer::BuildConfigWidget*> CMakeProject::subConfigWidgets()
     list <<  new CMakeBuildEnvironmentWidget(this);
     return list;
 }
-
-// bool CMakeProject::newBuildConfiguration(const QString &buildConfiguration)
-// {
-//     // Default to all
-//     if (targets().contains("all"))
-//         makeStep()->setBuildTarget(buildConfiguration, "all", true);
-//
-//    CMakeOpenProjectWizard copw(projectManager(), sourceDirectory(), buildDirectory(buildConfiguration), environment(buildConfiguration));
-//    if (copw.exec() == QDialog::Accepted) {
-//        setValue(buildConfiguration, "buildDirectory", copw.buildDirectory());
-//        setValue(buildConfiguration, "msvcVersion", copw.msvcVersion());
-//        parseCMakeLists();
-//        return true;
-//    }
-//    return false;
-// }
 
 ProjectExplorer::ProjectNode *CMakeProject::rootProjectNode() const
 {
@@ -678,9 +663,9 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
 
         ProjectExplorer::BuildConfiguration *bc = new ProjectExplorer::BuildConfiguration("all");
         addBuildConfiguration(bc);
-        setValue(bc->name(), "msvcVersion", copw.msvcVersion());
+        bc->setValue("msvcVersion", copw.msvcVersion());
         if (!copw.buildDirectory().isEmpty())
-            setValue(bc->name(), "buildDirectory", copw.buildDirectory());
+            bc->setValue("buildDirectory", copw.buildDirectory());
         //TODO save arguments somewhere copw.arguments()
 
         MakeStep *cleanMakeStep = new MakeStep(this);

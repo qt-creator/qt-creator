@@ -239,11 +239,12 @@ void Qt4ProjectConfigWidget::shadowBuildCheckBoxClicked(bool checked)
     m_ui->shadowBuildDirEdit->setEnabled(checked);
     m_browseButton->setEnabled(checked);
     bool b = m_ui->shadowBuildCheckBox->isChecked();
-    m_pro->setValue(m_buildConfiguration, "useShadowBuild", b);
+    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(m_buildConfiguration);
+    bc->setValue("useShadowBuild", b);
     if (b)
-        m_pro->setValue(m_buildConfiguration, "buildDirectory", m_ui->shadowBuildDirEdit->path());
+        bc->setValue("buildDirectory", m_ui->shadowBuildDirEdit->path());
     else
-        m_pro->setValue(m_buildConfiguration, "buildDirectory", QVariant(QString::null));
+        bc->setValue("buildDirectory", QVariant(QString::null));
     updateDetails();
 }
 
@@ -276,9 +277,10 @@ void Qt4ProjectConfigWidget::updateImportLabel()
 
 void Qt4ProjectConfigWidget::shadowBuildLineEditTextChanged()
 {
-    if (m_pro->value(m_buildConfiguration, "buildDirectory").toString() == m_ui->shadowBuildDirEdit->path())
+    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(m_buildConfiguration);
+    if (bc->value("buildDirectory").toString() == m_ui->shadowBuildDirEdit->path())
         return;
-    m_pro->setValue(m_buildConfiguration, "buildDirectory", m_ui->shadowBuildDirEdit->path());
+    bc->setValue("buildDirectory", m_ui->shadowBuildDirEdit->path());
     // if the directory already exists
     // check if we have a build in there and
     // offer to import it

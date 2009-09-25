@@ -442,22 +442,6 @@ BuildConfiguration *Project::buildConfiguration(const QString &name) const
     return 0;
 }
 
-void Project::setValue(const QString &buildConfigurationName, const QString &name, const QVariant &value)
-{
-    BuildConfiguration *bc = buildConfiguration(buildConfigurationName);
-    Q_ASSERT(bc);
-    bc->setValue(name, value);
-}
-
-QVariant Project::value(const QString &buildConfigurationName, const QString &name) const
-{
-    BuildConfiguration *bc = buildConfiguration(buildConfigurationName);
-    if (bc)
-        return bc->value(name);
-    else
-        return QVariant();
-}
-
 BuildConfiguration *Project::activeBuildConfiguration() const
 {
     return buildConfiguration(m_activeBuildConfiguration); //TODO

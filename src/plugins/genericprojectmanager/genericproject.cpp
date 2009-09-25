@@ -132,6 +132,13 @@ QString GenericBuildConfigurationFactory::displayNameForType(const QString &type
 
 QList<BuildConfiguration *> GenericBuildConfigurationFactory::create(const QString &type) const
 {
+
+// bool GenericProject::newBuildConfiguration(const QString &buildConfiguration)
+// {
+//     makeStep()->setBuildTarget(buildConfiguration, "all", true);
+//     return true;
+// }
+
     return QList<BuildConfiguration *>() << new BuildConfiguration;
 }
 
@@ -480,12 +487,6 @@ QList<ProjectExplorer::BuildConfigWidget*> GenericProject::subConfigWidgets()
     return QList<ProjectExplorer::BuildConfigWidget*>();
 }
 
-// bool GenericProject::newBuildConfiguration(const QString &buildConfiguration)
-// {
-//     makeStep()->setBuildTarget(buildConfiguration, "all", true);
-//     return true;
-// }
-
 GenericProjectNode *GenericProject::rootProjectNode() const
 {
     return m_rootNode;
@@ -619,7 +620,7 @@ void GenericBuildSettingsWidget::init(const QString &buildConfigurationName)
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()
 {
-    m_project->setValue(m_buildConfiguration, "buildDirectory", m_pathChooser->path());
+    m_project->buildConfiguration(m_buildConfiguration)->setValue("buildDirectory", m_pathChooser->path());
 }
 
 void GenericBuildSettingsWidget::toolChainSelected(int index)

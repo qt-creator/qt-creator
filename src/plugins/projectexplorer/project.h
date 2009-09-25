@@ -104,8 +104,6 @@ public:
     void setDisplayNameFor(const QString &buildConfiguration, const QString &displayName);
     BuildConfiguration *activeBuildConfiguration() const;
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
-    void setValue(const QString &buildConfiguration, const QString &name, const QVariant &value);
-    QVariant value(const QString &buildConfiguration, const QString &name) const;
 
     virtual IBuildConfigurationFactory *buildConfigurationFactory() const = 0;
 

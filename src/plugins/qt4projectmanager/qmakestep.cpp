@@ -251,14 +251,15 @@ void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
 
 void QMakeStepConfigWidget::buildConfigurationChanged()
 {
-    QtVersion::QmakeBuildConfig buildConfiguration = QtVersion::QmakeBuildConfig(m_step->project()->value(m_buildConfiguration, "buildConfiguration").toInt());
+    ProjectExplorer::BuildConfiguration *bc = m_step->project()->buildConfiguration(m_buildConfiguration);
+    QtVersion::QmakeBuildConfig buildConfiguration = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt());
     if (m_ui.buildConfigurationComboBox->currentIndex() == 0) {
         // debug
         buildConfiguration = QtVersion::QmakeBuildConfig(buildConfiguration | QtVersion::DebugBuild);
     } else {
         buildConfiguration = QtVersion::QmakeBuildConfig(buildConfiguration & ~QtVersion::DebugBuild);
     }
-    m_step->project()->setValue(m_buildConfiguration, "buildConfiguration", int(buildConfiguration));
+    bc->setValue("buildConfiguration", int(buildConfiguration));
     static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
     updateTitleLabel();
     updateEffectiveQMakeCall();
@@ -279,7 +280,8 @@ void QMakeStepConfigWidget::init(const QString &buildConfiguration)
     m_buildConfiguration = buildConfiguration;
     QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->value(buildConfiguration, "qmakeArgs").toStringList());
     m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
-    bool debug = QtVersion::QmakeBuildConfig(m_step->project()->value(buildConfiguration, "buildConfiguration").toInt()) & QtVersion::DebugBuild;
+    ProjectExplorer::BuildConfiguration *bc = m_step->project()->buildConfiguration(buildConfiguration);
+    bool debug = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt()) & QtVersion::DebugBuild;
     m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
     updateTitleLabel();
     updateEffectiveQMakeCall();
