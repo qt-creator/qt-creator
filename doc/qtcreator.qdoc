@@ -1468,8 +1468,7 @@
     file. When you first create a generic project, Qt Creator will add any
     files it recognizes to your project. To add or remove files later, simply
     edit the \c{.files} file in Qt Creator. Your project tree will be refreshed
-    when you save this file. You can also add or remove files using the context
-    menu in the project tree.
+    when you save this file.
 
     If you frequently need to update the \c{.files} file, we recommend the use
     of a small script that will update the files for you. Currently, if the
