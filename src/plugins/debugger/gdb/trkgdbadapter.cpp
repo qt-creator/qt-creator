@@ -200,7 +200,7 @@ QByteArray TrkGdbAdapter::trkContinueMessage()
     return ba;
 }
 
-QByteArray TrkGdbAdapter::trkReadRegisterMessage()
+QByteArray TrkGdbAdapter::trkReadRegistersMessage()
 {
     QByteArray ba;
     appendByte(&ba, 0); // Register set, only 0 supported
@@ -208,6 +208,18 @@ QByteArray TrkGdbAdapter::trkReadRegisterMessage()
     appendShort(&ba, RegisterCount - 1); // last register
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid);
+    return ba;
+}
+
+QByteArray TrkGdbAdapter::trkWriteRegisterMessage(byte reg, uint value)
+{
+    QByteArray ba;
+    appendByte(&ba, 0); // ?
+    appendShort(&ba, reg);
+    appendShort(&ba, reg);
+    appendInt(&ba, m_session.pid);
+    appendInt(&ba, m_session.tid);
+    appendInt(&ba, value);
     return ba;
 }
 
@@ -575,6 +587,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             sendGdbServerMessage("E20", "Error " + cmd);
         }
     }
+
     else if (cmd.startsWith("p")) {
         logMessage(msgGdbPacket(QLatin1String("read register")));
         // 0xf == current instruction pointer?
@@ -598,6 +611,21 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                 + QByteArray::number(registerNumber));
             //sendGdbServerMessage("E01", "read single unknown register");
         }
+    }
+
+    else if (cmd.startsWith("P")) {
+        logMessage(msgGdbPacket(QLatin1String("write register")));
+        // $Pe=70f96678#d3
+        sendGdbServerAck();
+        int pos = cmd.indexOf('=');
+        QByteArray regName = cmd.mid(1, pos - 1);
+        QByteArray valueName = cmd.mid(pos + 1);
+        bool ok = false;
+        const uint registerNumber = regName.toInt(&ok, 16);
+        const uint value = swapEndian(valueName.toInt(&ok, 16));
+        QByteArray ba = trkWriteRegisterMessage(registerNumber, value);
+        sendTrkMessage(0x13, TrkCB(handleWriteRegister), ba, "Write register");
+        // Note that App TRK refuses to write registers 13 and 14
     }
 
     else if (cmd == "qAttached") {
@@ -862,7 +890,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             //sendGdbServerMessage("S05", "Target stopped");
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegistersAfterStop),
-                trkReadRegisterMessage());
+                trkReadRegistersMessage());
             break;
         }
         case 0x91: { // Notify Exception (obsolete)
@@ -1019,6 +1047,17 @@ void TrkGdbAdapter::handleReadRegisters(const TrkResult &result)
     const char *data = result.data.data() + 1; // Skip ok byte
     for (int i = 0; i < RegisterCount; ++i)
         m_snapshot.registers[i] = extractInt(data + 4 * i);
+} 
+
+void TrkGdbAdapter::handleWriteRegister(const TrkResult &result)
+{
+    logMessage("       RESULT: " + result.toString() + result.cookie.toString());
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString());
+        sendGdbServerMessage("E01");
+        return;
+    }
+    sendGdbServerMessage("OK");
 } 
 
 void TrkGdbAdapter::reportRegisters()

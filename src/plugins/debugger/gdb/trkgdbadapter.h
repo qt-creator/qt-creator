@@ -156,7 +156,8 @@ public:
     void reportRegisters();
     QByteArray memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const;
     QByteArray trkContinueMessage();
-    QByteArray trkReadRegisterMessage();
+    QByteArray trkReadRegistersMessage();
+    QByteArray trkWriteRegisterMessage(byte reg, uint value);
     QByteArray trkReadMemoryMessage(uint addr, uint len);
     QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
     QByteArray trkStepRangeMessage(byte option);
@@ -169,6 +170,7 @@ public:
     void handleStepOver2(const TrkResult &result);
     void handleReadRegisters(const TrkResult &result);
     void reportReadMemoryBuffered(const TrkResult &result);
+    void handleWriteRegister(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
 
     void readMemory(uint addr, uint len);
