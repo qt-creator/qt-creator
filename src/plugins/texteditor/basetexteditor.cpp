@@ -1528,6 +1528,18 @@ int TextBlockUserData::collapseAtPos() const
     return Parenthesis::collapseAtPos(m_parentheses);
 }
 
+int TextBlockUserData::braceDepthDelta() const
+{
+    int delta = 0;
+    for (int i = 0; i < m_parentheses.size(); ++i) {
+        switch (m_parentheses.at(i).chr.unicode()) {
+        case '{': case '+': ++delta; break;
+        case '}': case '-': --delta; break;
+        default: break;
+        }
+    }
+    return delta;
+}
 
 void TextEditDocumentLayout::setParentheses(const QTextBlock &block, const Parentheses &parentheses)
 {
@@ -1553,6 +1565,35 @@ bool TextEditDocumentLayout::hasParentheses(const QTextBlock &block)
     return false;
 }
 
+int TextEditDocumentLayout::braceDepthDelta(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = testUserData(block))
+        return userData->braceDepthDelta();
+    return 0;
+}
+
+int TextEditDocumentLayout::braceDepth(const QTextBlock &block)
+{
+    int state = block.userState();
+    if (state == -1)
+        return 0;
+    return state >> 8;
+}
+
+void TextEditDocumentLayout::setBraceDepth(QTextBlock &block, int depth)
+{
+    int state = block.userState();
+    if (state == -1)
+        state = 0;
+    state = state & 0xff;
+    block.setUserState((depth << 8) | state);
+}
+
+void TextEditDocumentLayout::changeBraceDepth(QTextBlock &block, int delta)
+{
+    if (delta)
+        setBraceDepth(block, braceDepth(block) + delta);
+}
 
 bool TextEditDocumentLayout::setIfdefedOut(const QTextBlock &block)
 {
@@ -2683,6 +2724,11 @@ void BaseTextEditor::updateCurrentLineHighlight()
 
 void BaseTextEditor::slotCursorPositionChanged()
 {
+#if 0
+    qDebug() << "block" << textCursor().blockNumber()+1
+            << "depth:" << TextEditDocumentLayout::braceDepth(textCursor().block())
+            << "/" << TextEditDocumentLayout::braceDepth(document()->lastBlock());
+#endif
     if (!d->m_contentsChanged && d->m_lastCursorChangeWasInteresting) {
         Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(editableInterface(), d->m_tempNavigationState);
         d->m_lastCursorChangeWasInteresting = false;
@@ -4026,20 +4072,35 @@ void BaseTextEditor::setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange>
     QTextBlock block = doc->firstBlock();
 
     int rangeNumber = 0;
+    int braceDepthDelta = 0;
     while (block.isValid()) {
+        bool cleared = false;
+        bool set = false;
         if (rangeNumber < blocks.size()) {
             const BlockRange &range = blocks.at(rangeNumber);
 
             if (block.position() >= range.first && (block.position() <= range.last || !range.last)) {
-                needUpdate |= TextEditDocumentLayout::setIfdefedOut(block);
+                set = TextEditDocumentLayout::setIfdefedOut(block);
             } else {
-                needUpdate |= TextEditDocumentLayout::clearIfdefedOut(block);
+                cleared = TextEditDocumentLayout::clearIfdefedOut(block);
             }
             if (block.contains(range.last))
                 ++rangeNumber;
         } else {
-            needUpdate |= TextEditDocumentLayout::clearIfdefedOut(block);
+            cleared = TextEditDocumentLayout::clearIfdefedOut(block);
         }
+
+        if (cleared || set) {
+            needUpdate = true;
+            int delta = TextEditDocumentLayout::braceDepthDelta(block);
+            if (cleared)
+                braceDepthDelta += delta;
+            else if (set)
+                braceDepthDelta -= delta;
+        }
+
+        if (braceDepthDelta)
+            TextEditDocumentLayout::changeBraceDepth(block,braceDepthDelta);
 
         block = block.next();
     }
