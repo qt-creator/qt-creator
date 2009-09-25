@@ -55,11 +55,10 @@ class QMainWindow;
 QT_END_NAMESPACE
 
 namespace Debugger {
+class DebuggerManager;
 namespace Internal {
 
 class AbstractGdbAdapter;
-class DebuggerManager;
-class IDebuggerManagerAccessForEngines;
 class GdbResponse;
 class GdbMi;
 

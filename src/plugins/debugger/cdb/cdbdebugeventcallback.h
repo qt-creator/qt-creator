@@ -35,8 +35,10 @@
 #include <QtCore/QStringList>
 
 namespace Debugger {
-namespace Internal {
 class DebuggerManager;
+
+namespace Internal {
+
 class CdbDebugEngine;
 
 // Base class for event callbacks that takes care

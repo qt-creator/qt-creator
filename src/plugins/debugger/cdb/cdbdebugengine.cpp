@@ -368,7 +368,7 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
     return true;
 }
 
-IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *manager,
+IDebuggerEngine *CdbDebugEngine::create(Debugger::DebuggerManager *manager,
                                         const QSharedPointer<CdbOptions> &options,
                                         QString *errorMessage)
 {

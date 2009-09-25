@@ -36,9 +36,10 @@
 #include <QtCore/QSharedPointer>
 
 namespace Debugger {
+class DebuggerManager;
+
 namespace Internal {
 
-class DebuggerManager;
 class DisassemblerViewAgent;
 class CdbDebugEventCallback;
 class CdbDebugOutput;

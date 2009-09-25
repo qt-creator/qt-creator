@@ -60,8 +60,6 @@ namespace Internal {
 }
 } // namespace Constants
 
-namespace Internal {
-
 enum DebuggerState
 {
     DebuggerNotReady,          // Debugger not started
@@ -118,7 +116,6 @@ enum LogChannel
     LogMisc    
 };
 
-} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGERCONSTANTS_H

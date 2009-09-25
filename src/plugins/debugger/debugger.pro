@@ -4,14 +4,12 @@ TARGET = Debugger
 # DEFINES += QT_USE_FAST_OPERATOR_PLUS
 # DEFINES += QT_USE_FAST_CONCATENATION
 # CONFIG += single
+
 include(../../qtcreatorplugin.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/cpptools/cpptools.pri)
-include(../../plugins/find/find.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../libs/cplusplus/cplusplus.pri)
-include(../../libs/utils/utils.pri)
+include(debugger_dependencies.pri)
+
+DEFINES += DEBUGGER_LIBRARY
+
 INCLUDEPATH += $$PWD/../../libs/utils
 QT += gui \
     network \
@@ -23,6 +21,7 @@ HEADERS += breakhandler.h \
     debuggerconstants.h \
     debuggerdialogs.h \
     debuggermanager.h \
+    debugger_global.h \
     debuggeroutputwindow.h \
     debuggerplugin.h \
     debuggerrunner.h \

@@ -33,6 +33,8 @@
 #include <QtGui/QTreeView>
 
 namespace Debugger {
+class DebuggerManager;
+
 namespace Internal {
 
 /////////////////////////////////////////////////////////////////////
@@ -40,8 +42,6 @@ namespace Internal {
 // WatchWindow
 //
 /////////////////////////////////////////////////////////////////////
-
-class DebuggerManager;
 
 class WatchWindow : public QTreeView
 {

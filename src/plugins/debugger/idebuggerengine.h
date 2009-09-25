@@ -50,22 +50,23 @@ class IOptionsPage;
 }
 
 namespace Debugger {
+class DebuggerManager;
+class DebuggerStartParameters;
 namespace Internal {
 
-class DebuggerStartParameters;
-class DebuggerManager;
 class DisassemblerViewAgent;
 class MemoryViewAgent;
 struct StackFrame;
 class Symbol;
 class WatchData;
-typedef QSharedPointer<DebuggerStartParameters> DebuggerStartParametersPtr;
 
 class IDebuggerEngine : public QObject
 {
     Q_OBJECT
 
 public:
+    typedef QSharedPointer<DebuggerStartParameters> DebuggerStartParametersPtr;
+
     IDebuggerEngine(DebuggerManager *manager, QObject *parent = 0)
         : QObject(parent), m_manager(manager)
     {}

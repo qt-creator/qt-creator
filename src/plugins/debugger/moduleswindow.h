@@ -33,9 +33,9 @@
 #include <QTreeView>
 
 namespace Debugger {
-namespace Internal {
-
 class DebuggerManager;
+
+namespace Internal {
 
 class ModulesWindow : public QTreeView
 {

@@ -42,9 +42,10 @@
 #include <QtCore/QMap>
 
 namespace Debugger {
+class DebuggerManager;
+
 namespace Internal {
 
-class DebuggerManager;
 class WatchHandler;
 class CdbStackFrameContext;
 class CdbStackTraceContext;

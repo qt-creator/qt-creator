@@ -33,6 +33,7 @@
 #include "debuggeractions.h"
 #include "debuggeragents.h"
 #include "debuggerdialogs.h"
+#include "debuggermanager.h"
 
 #include <utils/qtcassert.h>
 
@@ -50,6 +51,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
 
+using namespace Debugger;
 using namespace Debugger::Internal;
 
 /////////////////////////////////////////////////////////////////////

@@ -55,10 +55,11 @@ class BaseTextMark;
 }
 
 namespace Debugger {
+class DebuggerManager;
+
 namespace Internal {
 
 class BreakpointData;
-class DebuggerManager;
 class DebuggerRunControlFactory;
 class DebugMode;
 class DisassemblerViewAgent;
@@ -96,7 +97,7 @@ private slots:
         int lineNumber, QMenu *menu);
 
     void resetLocation();
-    void gotoLocation(const StackFrame &frame, bool setMarker);
+    void gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker);
 
     void breakpointSetRemoveMarginActionTriggered();
     void breakpointEnableDisableMarginActionTriggered();

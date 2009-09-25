@@ -39,9 +39,9 @@ class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Debugger {
-namespace Internal {
-
 class DebuggerManager;
+
+namespace Internal {
 class DisassemblerViewAgent;
     
 class StackWindow : public QTreeView

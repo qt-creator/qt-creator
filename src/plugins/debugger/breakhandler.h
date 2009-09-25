@@ -36,11 +36,11 @@
 #include <QtCore/QAbstractItemModel>
 
 namespace Debugger {
+class DebuggerManager;
 namespace Internal {
 
 class BreakpointMarker;
 class BreakHandler;
-class DebuggerManager;
 
 //////////////////////////////////////////////////////////////////
 //

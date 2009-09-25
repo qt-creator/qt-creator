@@ -155,8 +155,9 @@ IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineEnabled */, Q
 { return 0; }
 #endif
 
+} // namespace Internal
 
-QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
+DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
 {
     QDebug nospace = str.nospace();
     const QString sep = QString(QLatin1Char(','));
@@ -173,6 +174,7 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
 }
 
 using namespace Constants;
+using namespace Debugger::Internal;
 
 static const QString tooltipIName = "tooltip";
 
@@ -244,14 +246,16 @@ void DebuggerStartParameters::clear()
 //
 ///////////////////////////////////////////////////////////////////////
 
-static IDebuggerEngine *gdbEngine = 0;
-static IDebuggerEngine *scriptEngine = 0;
-static IDebuggerEngine *tcfEngine = 0;
-static IDebuggerEngine *winEngine = 0;
+static Debugger::Internal::IDebuggerEngine *gdbEngine = 0;
+static Debugger::Internal::IDebuggerEngine *scriptEngine = 0;
+static Debugger::Internal::IDebuggerEngine *tcfEngine = 0;
+static Debugger::Internal::IDebuggerEngine *winEngine = 0;
 
 struct DebuggerManagerPrivate {
 
     DebuggerManagerPrivate();
+
+    static DebuggerManager *instance;
 
     // FIXME: Remove engine-specific state
     DebuggerStartParametersPtr m_startParameters;
@@ -295,6 +299,8 @@ struct DebuggerManagerPrivate {
     DebuggerState m_state;
 };
 
+DebuggerManager *DebuggerManagerPrivate::instance = 0;
+
 DebuggerManagerPrivate::DebuggerManagerPrivate() :
     m_startParameters(new DebuggerStartParameters),
     m_inferiorPid(0)
@@ -303,6 +309,7 @@ DebuggerManagerPrivate::DebuggerManagerPrivate() :
 
 DebuggerManager::DebuggerManager() : d(new DebuggerManagerPrivate)
 {
+    DebuggerManagerPrivate::instance = this;
     init();
 }
 
@@ -314,7 +321,13 @@ DebuggerManager::~DebuggerManager()
     doDelete(tcfEngine);
     doDelete(winEngine);
     #undef doDelete
+    DebuggerManagerPrivate::instance = 0;
     delete d;
+}
+
+DebuggerManager *DebuggerManager::instance()
+{
+    return DebuggerManagerPrivate::instance;
 }
 
 void DebuggerManager::init()
@@ -337,7 +350,6 @@ void DebuggerManager::init()
     d->m_threadsWindow = new ThreadsWindow;
     d->m_localsWindow = new WatchWindow(WatchWindow::LocalsType, this);
     d->m_watchersWindow = new WatchWindow(WatchWindow::WatchersType, this);
-    //d->m_tooltipWindow = new WatchWindow(WatchWindow::TooltipType, this);
     d->m_statusTimer = new QTimer(this);
 
     d->m_mainWindow = new Core::Utils::FancyMainWindow;
@@ -430,10 +442,10 @@ void DebuggerManager::init()
     // Tooltip
     //QTreeView *tooltipView = qobject_cast<QTreeView *>(d->m_tooltipWindow);
     //tooltipView->setModel(d->m_watchHandler->model(TooltipsWatch));
-    //qRegisterMetaType<WatchData>("Debugger::Internal::WatchData");
+    //qRegisterMetaType<WatchData>("WatchData");
     qRegisterMetaType<WatchData>("WatchData");
-    connect(d->m_watchHandler, SIGNAL(watchDataUpdateNeeded(WatchData)),
-        this, SLOT(updateWatchData(WatchData)));
+    connect(d->m_watchHandler, SIGNAL(watchDataUpdateNeeded(Debugger::Internal::WatchData)),
+            this, SLOT(updateWatchData(Debugger::Internal::WatchData)));
 
     d->m_actions.continueAction = new QAction(tr("Continue"), this);
     d->m_actions.continueAction->setIcon(QIcon(":/debugger/images/debugger_continue_small.png"));
@@ -822,7 +834,7 @@ void DebuggerManager::setToolTipExpression(const QPoint &mousePos, TextEditor::I
         d->m_engine->setToolTipExpression(mousePos, editor, cursorPos);
 }
 
-void DebuggerManager::updateWatchData(const WatchData &data)
+void DebuggerManager::updateWatchData(const Debugger::Internal::WatchData &data)
 {
     if (d->m_engine)
         d->m_engine->updateWatchData(data);
@@ -1323,7 +1335,7 @@ void DebuggerManager::resetLocation()
     emit resetLocationRequested();
 }
 
-void DebuggerManager::gotoLocation(const StackFrame &frame, bool setMarker)
+void DebuggerManager::gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker)
 {
     // connected to the plugin
     emit gotoLocationRequested(frame, setMarker);
@@ -1697,6 +1709,5 @@ void DebuggerManager::runTest(const QString &fileName)
     //startNewDebugger(StartInternal);
 }
 
-} // namespace Internal
 } // namespace Debugger
 

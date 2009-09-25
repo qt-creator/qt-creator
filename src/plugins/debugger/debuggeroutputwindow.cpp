@@ -55,6 +55,7 @@ using namespace Find;
 
 #endif // GDBDEBUGGERLEAN
 
+using namespace Debugger;
 using namespace Debugger::Internal;
 
 static QChar charForChannel(int channel)

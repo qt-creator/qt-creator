@@ -887,8 +887,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     connect(m_manager, SIGNAL(resetLocationRequested()),
         this, SLOT(resetLocation()));
-    connect(m_manager, SIGNAL(gotoLocationRequested(StackFrame,bool)),
-        this, SLOT(gotoLocation(StackFrame,bool)));
+    connect(m_manager, SIGNAL(gotoLocationRequested(Debugger::Internal::StackFrame,bool)),
+        this, SLOT(gotoLocation(Debugger::Internal::StackFrame,bool)));
     connect(m_manager, SIGNAL(stateChanged(int)),
         this, SLOT(handleStateChanged(int)));
     connect(m_manager, SIGNAL(previousModeRequested()),
@@ -1090,7 +1090,7 @@ void DebuggerPlugin::resetLocation()
     m_locationMark = 0;
 }
 
-void DebuggerPlugin::gotoLocation(const StackFrame &frame, bool setMarker)
+void DebuggerPlugin::gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker)
 {
     if (theDebuggerBoolSetting(StepByInstruction) || !frame.isUsable()) {
         if (!m_disassemblerViewAgent)
