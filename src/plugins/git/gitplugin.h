@@ -145,7 +145,6 @@ private:
     QAction *m_showAction;
     Core::Utils::ParameterAction *m_stageAction;
     Core::Utils::ParameterAction *m_unstageAction;
-    Core::Utils::ParameterAction *m_revertAction;
     QAction *m_commitAction;
     QAction *m_pullAction;
     QAction *m_pushAction;
