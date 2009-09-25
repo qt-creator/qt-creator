@@ -5,6 +5,7 @@ language                = Cpp
 
 headerdirs              = . \
                           ../../src/libs/aggregation \
+                          ../../src/libs/cplusplus \
                           ../../src/libs/extensionsystem \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \
@@ -12,6 +13,7 @@ headerdirs              = . \
 
 sourcedirs              = . \
                           ../../src/libs/aggregation \
+                          ../../src/libs/cplusplus \
                           ../../src/libs/extensionsystem \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \
