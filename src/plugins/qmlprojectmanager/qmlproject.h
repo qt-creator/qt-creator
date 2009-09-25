@@ -141,7 +141,7 @@ private:
     QString m_fileName;
 };
 
-class QmlRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
+class QmlRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
 public:

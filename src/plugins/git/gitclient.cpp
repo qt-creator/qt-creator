@@ -48,9 +48,13 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
+#include <projectexplorer/environment.h>
+
 #include <QtCore/QRegExp>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QTime>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 #include <QtGui/QMainWindow> // for msg box parent
 #include <QtGui/QMessageBox>

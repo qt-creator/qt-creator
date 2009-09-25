@@ -29,6 +29,7 @@
 
 #include "projectfilewizardextension.h"
 #include "projectexplorer.h"
+#include "session.h"
 #include "projectnodes.h"
 #include "nodesvisitor.h"
 #include "projectwizardpage.h"

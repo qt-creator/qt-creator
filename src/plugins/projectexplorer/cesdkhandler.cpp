@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "cesdkhandler.h"
+#include "environment.h"
 
 #include <QtCore/QFile>
 #include <QtCore/QDebug>

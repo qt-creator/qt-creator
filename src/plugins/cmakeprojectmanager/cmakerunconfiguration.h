@@ -45,7 +45,7 @@ namespace Internal {
 
 class CMakeProject;
 
-class CMakeRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
+class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     friend class CMakeRunConfigurationWidget;
     Q_OBJECT

@@ -166,7 +166,7 @@ void DeployHelperRunStep::cleanup()
 
 void DeployHelperRunStep::readyRead()
 {
-    // TODO Unbreak the application output (this whole thing should be moved to a IRunConfigurationRunner)
+    // TODO Unbreak the application output (this whole thing should be moved to a IRunControlFactory)
     QProcess * proc = qobject_cast<QProcess *>(sender());
     while (proc->canReadLine()) {
         QString line = proc->readLine().trimmed();

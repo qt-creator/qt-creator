@@ -88,21 +88,21 @@ IRunConfigurationFactory::~IRunConfigurationFactory()
 {
 }
 
-IRunConfigurationRunner::IRunConfigurationRunner(QObject *parent)
+IRunControlFactory::IRunControlFactory(QObject *parent)
     : QObject(parent)
 {
 }
 
-IRunConfigurationRunner::~IRunConfigurationRunner()
+IRunControlFactory::~IRunControlFactory()
 {
 }
 
-RunControl::RunControl(QSharedPointer<RunConfiguration> runConfiguration)
+RunControl::RunControl(const QSharedPointer<RunConfiguration> &runConfiguration)
     : m_runConfiguration(runConfiguration)
 {
 }
 
-QSharedPointer<RunConfiguration> RunControl::runConfiguration()
+QSharedPointer<RunConfiguration> RunControl::runConfiguration() const
 {
     return m_runConfiguration;
 }

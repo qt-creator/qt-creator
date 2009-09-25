@@ -34,6 +34,7 @@
 #include "compileoutputwindow.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
+#include "projectexplorersettings.h"
 #include "taskwindow.h"
 
 #include <coreplugin/icore.h>

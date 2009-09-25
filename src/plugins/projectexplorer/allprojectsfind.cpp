@@ -30,6 +30,7 @@
 #include "allprojectsfind.h"
 
 #include "project.h"
+#include "session.h"
 #include "projectexplorer.h"
 
 #include <utils/qtcassert.h>

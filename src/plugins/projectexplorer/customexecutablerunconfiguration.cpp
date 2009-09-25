@@ -225,8 +225,8 @@ void CustomExecutableConfigurationWidget::setUserName(const QString &name)
 void CustomExecutableConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
-    m_runConfiguration->setRunMode(on ? ApplicationRunConfiguration::Console
-                                      : ApplicationRunConfiguration::Gui);
+    m_runConfiguration->setRunMode(on ? LocalApplicationRunConfiguration::Console
+                                      : LocalApplicationRunConfiguration::Gui);
     m_ignoreChange = false;
 }
 
@@ -246,12 +246,12 @@ void CustomExecutableConfigurationWidget::changed()
     m_executableChooser->setPath(executable);
     m_commandLineArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
-    m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == ApplicationRunConfiguration::Console);
+    m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
     m_userName->setText(m_runConfiguration->userName());
 }
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
-    : ApplicationRunConfiguration(pro),
+    : LocalApplicationRunConfiguration(pro),
       m_runMode(Gui),
       m_userSetName(false),
       m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
@@ -326,7 +326,7 @@ QString CustomExecutableRunConfiguration::executable() const
     return exec;
 }
 
-ApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runMode() const
+LocalApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runMode() const
 {
     return m_runMode;
 }
@@ -405,7 +405,7 @@ void CustomExecutableRunConfiguration::save(PersistentSettingsWriter &writer) co
     writer.saveValue("UserName", m_userName);
     writer.saveValue("UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     writer.saveValue("BaseEnvironmentBase", m_baseEnvironmentBase);
-    ApplicationRunConfiguration::save(writer);
+    LocalApplicationRunConfiguration::save(writer);
 }
 
 void CustomExecutableRunConfiguration::restore(const PersistentSettingsReader &reader)
@@ -417,7 +417,7 @@ void CustomExecutableRunConfiguration::restore(const PersistentSettingsReader &r
     m_userSetName = reader.restoreValue("UserSetName").toBool();
     m_userName = reader.restoreValue("UserName").toString();
     m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("UserEnvironmentChanges").toStringList());
-    ApplicationRunConfiguration::restore(reader);
+    LocalApplicationRunConfiguration::restore(reader);
     QVariant tmp = reader.restoreValue("BaseEnvironmentBase");
     m_baseEnvironmentBase = tmp.isValid() ? BaseEnvironmentBase(tmp.toInt()) : CustomExecutableRunConfiguration::BuildEnvironmentBase;
 }

@@ -52,12 +52,12 @@
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
-using ProjectExplorer::ApplicationRunConfiguration;
+using ProjectExplorer::LocalApplicationRunConfiguration;
 using ProjectExplorer::PersistentSettingsReader;
 using ProjectExplorer::PersistentSettingsWriter;
 
 Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath)
-    : ApplicationRunConfiguration(pro),
+    : LocalApplicationRunConfiguration(pro),
       m_proFilePath(proFilePath),
       m_runMode(Gui),
       m_userSetName(false),
@@ -152,7 +152,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
     m_useTerminalCheck = new QCheckBox(tr("Run in Terminal"));
-    m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::ApplicationRunConfiguration::Console);
+    m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
     toplayout->addRow(QString(), m_useTerminalCheck);
 
 #ifdef Q_OS_MAC
@@ -237,8 +237,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(commandLineArgumentsChanged(QString)));
     connect(qt4RunConfiguration, SIGNAL(nameChanged(QString)),
             this, SLOT(nameChanged(QString)));
-    connect(qt4RunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode)),
-            this, SLOT(runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode)));
+    connect(qt4RunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)),
+            this, SLOT(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)));
     connect(qt4RunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
             this, SLOT(usingDyldImageSuffixChanged(bool)));
     connect(qt4RunConfiguration, SIGNAL(effectiveTargetInformationChanged()),
@@ -263,7 +263,7 @@ void Qt4RunConfigurationWidget::updateSummary()
     QString text = tr("Running executable: <b>%1</b> %2 %3").arg(
             filename,
             arguments,
-            m_qt4RunConfiguration->runMode() == ApplicationRunConfiguration::Console ? tr("(in terminal)") : "");
+            m_qt4RunConfiguration->runMode() == LocalApplicationRunConfiguration::Console ? tr("(in terminal)") : "");
     m_summaryLabel->setText(text);
 }
 
@@ -332,8 +332,8 @@ void Qt4RunConfigurationWidget::nameEdited(const QString &name)
 void Qt4RunConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
-    m_qt4RunConfiguration->setRunMode(on ? ApplicationRunConfiguration::Console
-                                         : ApplicationRunConfiguration::Gui);
+    m_qt4RunConfiguration->setRunMode(on ? LocalApplicationRunConfiguration::Console
+                                         : LocalApplicationRunConfiguration::Gui);
     m_ignoreChange = false;
 }
 
@@ -364,11 +364,11 @@ void Qt4RunConfigurationWidget::nameChanged(const QString &name)
         m_nameLineEdit->setText(name);
 }
 
-void Qt4RunConfigurationWidget::runModeChanged(ApplicationRunConfiguration::RunMode runMode)
+void Qt4RunConfigurationWidget::runModeChanged(LocalApplicationRunConfiguration::RunMode runMode)
 {
     updateSummary();
     if (!m_ignoreChange)
-        m_useTerminalCheck->setChecked(runMode == ApplicationRunConfiguration::Console);
+        m_useTerminalCheck->setChecked(runMode == LocalApplicationRunConfiguration::Console);
 }
 
 void Qt4RunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
@@ -419,12 +419,12 @@ void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue("BaseEnvironmentBase", m_baseEnvironmentBase);
     writer.saveValue("UserSetWorkingDirectory", m_userSetWokingDirectory);
     writer.saveValue("UserWorkingDirectory", m_userWorkingDirectory);
-    ApplicationRunConfiguration::save(writer);
+    LocalApplicationRunConfiguration::save(writer);
 }
 
 void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
 {    
-    ApplicationRunConfiguration::restore(reader);
+    LocalApplicationRunConfiguration::restore(reader);
     const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
     m_commandLineArguments = reader.restoreValue("CommandLineArguments").toStringList();
     m_proFilePath = projectDir.filePath(reader.restoreValue("ProFile").toString());
@@ -450,7 +450,7 @@ QString Qt4RunConfiguration::executable() const
     return m_executable;
 }
 
-ApplicationRunConfiguration::RunMode Qt4RunConfiguration::runMode() const
+LocalApplicationRunConfiguration::RunMode Qt4RunConfiguration::runMode() const
 {
     return m_runMode;
 }

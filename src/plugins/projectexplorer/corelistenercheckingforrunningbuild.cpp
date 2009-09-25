@@ -27,29 +27,35 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROJECTCONSTANTS_H
-#define QMLPROJECTCONSTANTS_H
+#include "corelistenercheckingforrunningbuild.h"
+#include "buildmanager.h"
 
-namespace QmlProjectManager {
-namespace Constants {
+#include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
 
-const char *const PROJECTCONTEXT     = "QmlProject.ProjectContext";
-const char *const LANG_QML           = "QML";
-const char *const QMLMIMETYPE        = "text/x-qml-project"; // ### FIXME
+namespace ProjectExplorer {
+namespace Internal {
 
-const char *const QMLRUNCONFIGURATION = "QmlProject.QmlLocalApplicationRunConfiguration";
-const char *const MAKESTEP            = "QmlProject.QmlMakeStep";
+CoreListenerCheckingForRunningBuild::CoreListenerCheckingForRunningBuild(BuildManager *manager)
+    : Core::ICoreListener(0), m_manager(manager)
+{
+}
 
-// contexts
-const char *const C_FILESEDITOR      = ".files Editor";
+bool CoreListenerCheckingForRunningBuild::coreAboutToClose()
+{
+    if (m_manager->isBuilding()) {
+        QMessageBox box;
+        QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Close"), QMessageBox::AcceptRole);
+        QPushButton *cancelClose = box.addButton(tr("Don't Close"), QMessageBox::RejectRole);
+        box.setDefaultButton(cancelClose);
+        box.setWindowTitle(tr("Close Qt Creator?"));
+        box.setText(tr("A project is currently being built."));
+        box.setInformativeText(tr("Do you want to cancel the build process and close Qt Creator anyway?"));
+        box.exec();
+        return (box.clickedButton() == closeAnyway);
+    }
+    return true;
+}
 
-// kinds
-const char *const PROJECT_KIND       = "QML";
-
-const char *const FILES_EDITOR       = ".qmlproject Editor";
-const char *const FILES_MIMETYPE     = QMLMIMETYPE;
-
-} // namespace Constants
-} // namespace QmlProjectManager
-
-#endif // QMLPROJECTCONSTANTS_H
+}
+}

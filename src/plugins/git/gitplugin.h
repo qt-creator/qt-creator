@@ -35,7 +35,6 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icorelistener.h>
 #include <extensionsystem/iplugin.h>
-#include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
@@ -44,6 +43,7 @@
 QT_BEGIN_NAMESPACE
 class QFile;
 class QAction;
+class QFileInfo;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -87,8 +87,8 @@ public:
 
     static GitPlugin *instance();
 
-    bool initialize(const QStringList &arguments, QString *error_message);
-    void extensionsInitialized();
+    virtual bool initialize(const QStringList &arguments, QString *error_message);
+    virtual void extensionsInitialized();
 
     QString getWorkingDirectory();
 
@@ -160,7 +160,6 @@ private:
     QAction *m_stashListAction;
     QAction *m_branchListAction;
 
-    ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     GitClient                   *m_gitClient;
     ChangeSelectionDialog       *m_changeSelectionDialog;
     QString                     m_submitRepository;

@@ -21,6 +21,8 @@ HEADERS += projectexplorer.h \
     allprojectsfilter.h \
     buildparserinterface.h \
     projectexplorerconstants.h \
+    projectexplorersettings.h \
+    corelistenercheckingforrunningbuild.h \
     project.h \
     pluginfilefactory.h \
     iprojectmanager.h \
@@ -115,7 +117,9 @@ SOURCES += projectexplorer.cpp \
     abstractmakestep.cpp \
     projectexplorersettingspage.cpp \
     projectwelcomepage.cpp \
-    projectwelcomepagewidget.cpp
+    projectwelcomepagewidget.cpp \
+    corelistenercheckingforrunningbuild.cpp
+
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \

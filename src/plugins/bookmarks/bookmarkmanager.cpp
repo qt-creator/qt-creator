@@ -37,6 +37,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <texteditor/basetexteditor.h>
 #include <utils/qtcassert.h>
 

@@ -39,7 +39,7 @@ namespace ProjectExplorer {
 
 class Environment;
 
-class PROJECTEXPLORER_EXPORT ApplicationRunConfiguration : public RunConfiguration
+class PROJECTEXPLORER_EXPORT LocalApplicationRunConfiguration : public RunConfiguration
 {
     Q_OBJECT
 public:
@@ -48,8 +48,8 @@ public:
         Gui
     };
 
-    ApplicationRunConfiguration(Project *pro);
-    virtual ~ApplicationRunConfiguration();
+    LocalApplicationRunConfiguration(Project *pro);
+    virtual ~LocalApplicationRunConfiguration();
     virtual QString type() const;
     virtual QString executable() const = 0;
     virtual RunMode runMode() const = 0;
@@ -66,24 +66,24 @@ public:
 
 namespace Internal {
 
-class ApplicationRunConfigurationRunner : public IRunConfigurationRunner
+class LocalApplicationRunControlFactory : public IRunControlFactory
 {
     Q_OBJECT
 public:
-    ApplicationRunConfigurationRunner();
-    virtual ~ApplicationRunConfigurationRunner();
-    virtual bool canRun(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode);
+    LocalApplicationRunControlFactory ();
+    virtual ~LocalApplicationRunControlFactory();
+    virtual bool canRun(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode) const;
     virtual QString displayName() const;
-    virtual RunControl* run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode);
-    virtual QWidget *configurationWidget(QSharedPointer<RunConfiguration> runConfiguration);
+    virtual RunControl* create(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode);
+    virtual QWidget *configurationWidget(const QSharedPointer<RunConfiguration> &runConfiguration);
 };
 
-class ApplicationRunControl : public RunControl
+class LocalApplicationRunControl : public RunControl
 {
     Q_OBJECT
 public:
-    ApplicationRunControl(QSharedPointer<ApplicationRunConfiguration> runConfiguration);
-    virtual ~ApplicationRunControl();
+    LocalApplicationRunControl(const QSharedPointer<LocalApplicationRunConfiguration> &runConfiguration);
+    virtual ~LocalApplicationRunControl();
     virtual void start();
     virtual void stop();
     virtual bool isRunning() const;

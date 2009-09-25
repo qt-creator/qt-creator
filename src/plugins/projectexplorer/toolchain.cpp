@@ -29,6 +29,7 @@
 
 #include "toolchain.h"
 #include "cesdkhandler.h"
+#include "projectexplorersettings.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>

@@ -56,6 +56,9 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/project.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -138,7 +141,6 @@ GitPlugin::GitPlugin() :
     m_stashPopAction(0),
     m_stashListAction(0),
     m_branchListAction(0),
-    m_projectExplorer(0),
     m_gitClient(0),
     m_changeSelectionDialog(0),
     m_submitActionTriggered(false)
@@ -418,7 +420,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 void GitPlugin::extensionsInitialized()
 {
-    m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
 }
 
 void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList &staged)
@@ -452,9 +453,10 @@ QFileInfo GitPlugin::currentFile() const
 QString GitPlugin::getWorkingDirectory()
 {
     QString workingDirectory;
-    if (m_projectExplorer && m_projectExplorer->currentNode()) {
-        workingDirectory = QFileInfo(m_projectExplorer->currentNode()->path()).absolutePath();
-    }
+    if (const ProjectExplorer::ProjectExplorerPlugin *p = ProjectExplorer::ProjectExplorerPlugin::instance())
+        if (p && p->currentNode())
+            workingDirectory = QFileInfo(p->currentNode()->path()).absolutePath();
+
     if (Git::Constants::debug > 1)
         qDebug() << Q_FUNC_INFO << "Project" << workingDirectory;
 
@@ -795,11 +797,10 @@ void GitPlugin::updateActions()
 
     // We only know the file is in some repository, we do not know
     // anything about any project so far.
-    using namespace ProjectExplorer;
     QString project;
-    if (m_projectExplorer) {
-        if (const Node *node = m_projectExplorer->currentNode())
-            if (const Node *projectNode = node->projectNode())
+    if (const ProjectExplorer::ProjectExplorerPlugin *p = ProjectExplorer::ProjectExplorerPlugin::instance()) {
+        if (const ProjectExplorer::Node *node = p->currentNode())
+            if (const ProjectExplorer::Node *projectNode = node->projectNode())
                 project = QFileInfo(projectNode->path()).completeBaseName();
     }
 

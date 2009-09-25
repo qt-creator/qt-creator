@@ -48,6 +48,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/project.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>

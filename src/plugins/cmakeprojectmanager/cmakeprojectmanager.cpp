@@ -158,8 +158,7 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
 
 
 CMakeSettingsPage::CMakeSettingsPage()
-    : m_process(0),
-      m_pathchooser(0)
+    :  m_pathchooser(0), m_process(0)
 {
     Core::ICore *core = Core::ICore::instance();
     QSettings * settings = core->settings();

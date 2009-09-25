@@ -90,7 +90,7 @@ class S60EmulatorRunConfigurationFactory : public ProjectExplorer::IRunConfigura
 {
     Q_OBJECT
 public:
-    S60EmulatorRunConfigurationFactory(QObject *parent);
+    explicit S60EmulatorRunConfigurationFactory(QObject *parent);
     ~S60EmulatorRunConfigurationFactory();
     bool canRestore(const QString &type) const;
     QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
@@ -99,22 +99,22 @@ public:
     QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project, const QString &type);
 };
 
-class S60EmulatorRunConfigurationRunner : public ProjectExplorer::IRunConfigurationRunner
+class S60EmulatorRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 public:
-    S60EmulatorRunConfigurationRunner(QObject *parent = 0);
-    bool canRun(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration, const QString &mode);
-    ProjectExplorer::RunControl* run(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration, const QString &mode);
+    explicit S60EmulatorRunControlFactory(QObject *parent = 0);
+    bool canRun(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode) const;
+    ProjectExplorer::RunControl* create(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode);
     QString displayName() const;
-    QWidget *configurationWidget(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration);
+    QWidget *configurationWidget(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
 };
 
 class S60EmulatorRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    S60EmulatorRunControl(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration);
+    explicit S60EmulatorRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
     ~S60EmulatorRunControl() {}
     void start();
     void stop();

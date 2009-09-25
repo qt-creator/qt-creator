@@ -481,42 +481,39 @@ QSharedPointer<RunConfiguration> S60DeviceRunConfigurationFactory::create(Projec
     return rc;
 }
 
-// ======== S60DeviceRunConfigurationRunner
+// ======== S60DeviceRunControlFactory
 
-S60DeviceRunConfigurationRunner::S60DeviceRunConfigurationRunner(QObject *parent)
-    : IRunConfigurationRunner(parent)
+S60DeviceRunControlFactory::S60DeviceRunControlFactory(QObject *parent)
+    : IRunControlFactory(parent)
 {
 }
 
-bool S60DeviceRunConfigurationRunner::canRun(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
+bool S60DeviceRunControlFactory::canRun(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode) const
 {
     return (mode == ProjectExplorer::Constants::RUNMODE)
             && (!runConfiguration.objectCast<S60DeviceRunConfiguration>().isNull());
 }
 
-RunControl* S60DeviceRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
+RunControl* S60DeviceRunControlFactory::create(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode)
 {
     QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration.objectCast<S60DeviceRunConfiguration>();
-    Q_ASSERT(!rc.isNull());
-    Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE);
-
-    S60DeviceRunControl *runControl = new S60DeviceRunControl(rc);
-    return runControl;
+    QTC_ASSERT(!rc.isNull() && mode == ProjectExplorer::Constants::RUNMODE, return 0);
+    return new S60DeviceRunControl(rc);
 }
 
-QString S60DeviceRunConfigurationRunner::displayName() const
+QString S60DeviceRunControlFactory::displayName() const
 {
     return tr("Run on Device");
 }
 
-QWidget *S60DeviceRunConfigurationRunner::configurationWidget(QSharedPointer<ProjectExplorer::RunConfiguration>  /* runConfiguration */)
+QWidget *S60DeviceRunControlFactory::configurationWidget(const QSharedPointer<ProjectExplorer::RunConfiguration>  & /* runConfiguration */)
 {
     return 0;
 }
 
 // ======== S60DeviceRunControl
 
-S60DeviceRunControl::S60DeviceRunControl(QSharedPointer<RunConfiguration> runConfiguration)
+S60DeviceRunControl::S60DeviceRunControl(const QSharedPointer<RunConfiguration> &runConfiguration)
     : RunControl(runConfiguration), m_launcher(0)
 {
     m_makesis = new QProcess(this);

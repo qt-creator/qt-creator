@@ -773,8 +773,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     //addAutoReleasedObject(m_debugMode);
 
     // register factory of DebuggerRunControl
-    m_debuggerRunner = new DebuggerRunner(m_manager);
-    addAutoReleasedObject(m_debuggerRunner);
+    m_debuggerRunControlFactory = new DebuggerRunControlFactory(m_manager);
+    addAutoReleasedObject(m_debuggerRunControlFactory);
 
     QList<int> context;
     context.append(uidm->uniqueIdentifier(Core::Constants::C_EDITORMANAGER));
@@ -1231,10 +1231,10 @@ void DebuggerPlugin::startExternalApplication()
 
     RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
-        rc = DebuggerRunner::createDefaultRunConfiguration(sp->executable);
+        rc = DebuggerRunControlFactory::createDefaultRunConfiguration(sp->executable);
 
-    if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
+    if (RunControl *runControl = m_debuggerRunControlFactory
+            ->create(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
 }
 
@@ -1257,9 +1257,9 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
     sp->startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
     RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
-        rc = DebuggerRunner::createDefaultRunConfiguration();
-    if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
+        rc = DebuggerRunControlFactory::createDefaultRunConfiguration();
+    if (RunControl *runControl = m_debuggerRunControlFactory
+            ->create(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
 }
 
@@ -1282,9 +1282,9 @@ void DebuggerPlugin::attachCore()
     sp->startMode = AttachCore;
     RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
-        rc = DebuggerRunner::createDefaultRunConfiguration();
-    if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
+        rc = DebuggerRunControlFactory::createDefaultRunConfiguration();
+    if (RunControl *runControl = m_debuggerRunControlFactory
+            ->create(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
 }
 
@@ -1318,9 +1318,9 @@ void DebuggerPlugin::startRemoteApplication()
 
     RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
-        rc = DebuggerRunner::createDefaultRunConfiguration();
-    if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
+        rc = DebuggerRunControlFactory::createDefaultRunConfiguration();
+    if (RunControl *runControl = m_debuggerRunControlFactory
+            ->create(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
 }
 
@@ -1354,9 +1354,9 @@ void DebuggerPlugin::attachRemoteTcf()
 
     RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())
-        rc = DebuggerRunner::createDefaultRunConfiguration();
-    if (RunControl *runControl = m_debuggerRunner
-            ->run(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
+        rc = DebuggerRunControlFactory::createDefaultRunConfiguration();
+    if (RunControl *runControl = m_debuggerRunControlFactory
+            ->create(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
         runControl->start();
 }
 

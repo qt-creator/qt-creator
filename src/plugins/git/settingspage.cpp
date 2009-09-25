@@ -34,6 +34,7 @@
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtGui/QMessageBox>
 

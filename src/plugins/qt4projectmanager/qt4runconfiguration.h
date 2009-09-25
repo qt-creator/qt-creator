@@ -55,7 +55,7 @@ namespace Internal {
 
 class Qt4PriFileNode;
 
-class Qt4RunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
+class Qt4RunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
     // to change the name and arguments and set the userenvironmentchanges
@@ -97,7 +97,7 @@ signals:
     void nameChanged(const QString&);
     void commandLineArgumentsChanged(const QString&);
     void workingDirectoryChanged(const QString&);
-    void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
+    void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
     void usingDyldImageSuffixChanged(bool);
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
@@ -130,7 +130,7 @@ private:
     QStringList m_targets;
     QString m_executable;
     QString m_workingDir;
-    ProjectExplorer::ApplicationRunConfiguration::RunMode m_runMode;
+    ProjectExplorer::LocalApplicationRunConfiguration::RunMode m_runMode;
     bool m_userSetName;
     bool m_cachedTargetInformationValid;
     bool m_isUsingDyldImageSuffix;
@@ -158,7 +158,7 @@ private slots:
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
     void nameChanged(const QString &name);
-    void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
+    void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
     void baseEnvironmentChanged();
 

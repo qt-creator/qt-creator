@@ -52,6 +52,8 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>

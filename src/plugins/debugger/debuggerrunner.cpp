@@ -48,61 +48,61 @@ namespace Internal {
 
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::RunControl;
-using ProjectExplorer::ApplicationRunConfiguration;
+using ProjectExplorer::LocalApplicationRunConfiguration;
 
-DefaultApplicationRunConfiguration::DefaultApplicationRunConfiguration(const QString &executable) :
-    ProjectExplorer::ApplicationRunConfiguration(0),
+DefaultLocalApplicationRunConfiguration::DefaultLocalApplicationRunConfiguration(const QString &executable) :
+    ProjectExplorer::LocalApplicationRunConfiguration(0),
     m_executable(executable)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////
 //
-// DebuggerRunner
+// DebuggerRunControlFactory
 //
 ////////////////////////////////////////////////////////////////////////
 
 // A factory to create DebuggerRunControls
-DebuggerRunner::DebuggerRunner(DebuggerManager *manager)
+DebuggerRunControlFactory::DebuggerRunControlFactory(DebuggerManager *manager)
     : m_manager(manager)
 {}
 
-bool DebuggerRunner::canRun(RunConfigurationPtr runConfiguration, const QString &mode)
+bool DebuggerRunControlFactory::canRun(const RunConfigurationPtr &runConfiguration, const QString &mode) const
 {
     return mode == ProjectExplorer::Constants::DEBUGMODE
-       && !runConfiguration.objectCast<ApplicationRunConfiguration>().isNull();
+       && !runConfiguration.objectCast<LocalApplicationRunConfiguration>().isNull();
 }
 
-QString DebuggerRunner::displayName() const
+QString DebuggerRunControlFactory::displayName() const
 {
     return tr("Debug");
 }
 
-RunConfigurationPtr DebuggerRunner::createDefaultRunConfiguration(const QString &executable)
+RunConfigurationPtr DebuggerRunControlFactory::createDefaultRunConfiguration(const QString &executable)
 {
-    return RunConfigurationPtr(new DefaultApplicationRunConfiguration(executable));
+    return RunConfigurationPtr(new DefaultLocalApplicationRunConfiguration(executable));
 }
 
-RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
-                                const QString &mode,
-                                const DebuggerStartParametersPtr &sp)
+RunControl *DebuggerRunControlFactory::create(const RunConfigurationPtr &runConfiguration,
+                                              const QString &mode,
+                                              const DebuggerStartParametersPtr &sp)
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
-    ApplicationRunConfigurationPtr rc =
-        runConfiguration.objectCast<ApplicationRunConfiguration>();
+    LocalApplicationRunConfigurationPtr rc =
+        runConfiguration.objectCast<LocalApplicationRunConfiguration>();
     QTC_ASSERT(!rc.isNull(), return 0);
     return new DebuggerRunControl(m_manager, sp, rc);
 }
 
-RunControl *DebuggerRunner::run(RunConfigurationPtr runConfiguration,
-    const QString &mode)
+RunControl *DebuggerRunControlFactory::create(const RunConfigurationPtr &runConfiguration,
+                                              const QString &mode)
 {
     const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     sp->startMode = StartInternal;
-    return run(runConfiguration, mode, sp);
+    return create(runConfiguration, mode, sp);
 }
 
-QWidget *DebuggerRunner::configurationWidget(RunConfigurationPtr runConfiguration)
+QWidget *DebuggerRunControlFactory::configurationWidget(const RunConfigurationPtr &runConfiguration)
 {
     // NBS TODO: Add GDB-specific configuration widget
     Q_UNUSED(runConfiguration)
@@ -120,7 +120,7 @@ QWidget *DebuggerRunner::configurationWidget(RunConfigurationPtr runConfiguratio
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
        const DebuggerStartParametersPtr &startParameters,
-       QSharedPointer<ApplicationRunConfiguration> runConfiguration)
+       QSharedPointer<LocalApplicationRunConfiguration> runConfiguration)
   : RunControl(runConfiguration),
     m_startParameters(startParameters),
     m_manager(manager),
@@ -164,7 +164,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
             project->buildDirectory(project->activeBuildConfiguration());
     }
     m_startParameters->useTerminal =
-        runConfiguration->runMode() == ApplicationRunConfiguration::Console;
+        runConfiguration->runMode() == LocalApplicationRunConfiguration::Console;
     m_startParameters->dumperLibrary =
         runConfiguration->dumperLibrary();
     m_startParameters->dumperLibraryLocations =

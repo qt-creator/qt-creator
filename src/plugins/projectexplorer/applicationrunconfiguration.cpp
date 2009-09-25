@@ -42,64 +42,60 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-/// ApplicationRunConfiguration
+/// LocalApplicationRunConfiguration
 
-ApplicationRunConfiguration::ApplicationRunConfiguration(Project *pro)
+LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Project *pro)
     : RunConfiguration(pro)
 {
 }
 
-ApplicationRunConfiguration::~ApplicationRunConfiguration()
+LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
 {
 }
 
-QString ApplicationRunConfiguration::type() const
+QString LocalApplicationRunConfiguration::type() const
 {
-    return "ProjectExplorer.ApplicationRunConfiguration";
+    return "ProjectExplorer.LocalApplicationRunConfiguration";
 }
 
-void ApplicationRunConfiguration::save(PersistentSettingsWriter &writer) const
+void LocalApplicationRunConfiguration::save(PersistentSettingsWriter &writer) const
 {
     RunConfiguration::save(writer);
 }
 
-void ApplicationRunConfiguration::restore(const PersistentSettingsReader &reader)
+void LocalApplicationRunConfiguration::restore(const PersistentSettingsReader &reader)
 {
     RunConfiguration::restore(reader);
 }
 
-/// ApplicationRunConfigurationRunner
+/// LocalApplicationRunControlFactory
 
-ApplicationRunConfigurationRunner::ApplicationRunConfigurationRunner()
+LocalApplicationRunControlFactory::LocalApplicationRunControlFactory()
 {
 }
 
-ApplicationRunConfigurationRunner::~ApplicationRunConfigurationRunner()
+LocalApplicationRunControlFactory::~LocalApplicationRunControlFactory()
 {
 }
 
-bool ApplicationRunConfigurationRunner::canRun(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
+bool LocalApplicationRunControlFactory::canRun(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode) const
 {
     return (mode == ProjectExplorer::Constants::RUNMODE)
-            && (!runConfiguration.objectCast<ApplicationRunConfiguration>().isNull());
+            && (!runConfiguration.objectCast<LocalApplicationRunConfiguration>().isNull());
 }
 
-QString ApplicationRunConfigurationRunner::displayName() const
+QString LocalApplicationRunControlFactory::displayName() const
 {
     return tr("Run");
 }
 
-RunControl *ApplicationRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
+RunControl *LocalApplicationRunControlFactory::create(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode)
 {
-    QSharedPointer<ApplicationRunConfiguration> rc = runConfiguration.objectCast<ApplicationRunConfiguration>();
-    Q_ASSERT(!rc.isNull());
-    Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE);
-
-    ApplicationRunControl *runControl = new ApplicationRunControl(rc);
-    return runControl;
+    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
+    return new LocalApplicationRunControl(runConfiguration.objectCast<LocalApplicationRunConfiguration>());
 }
 
-QWidget *ApplicationRunConfigurationRunner::configurationWidget(QSharedPointer<RunConfiguration> runConfiguration)
+QWidget *LocalApplicationRunControlFactory::configurationWidget(const QSharedPointer<RunConfiguration> &runConfiguration)
 {
     Q_UNUSED(runConfiguration)
     return new QLabel("TODO add Configuration widget");
@@ -107,7 +103,7 @@ QWidget *ApplicationRunConfigurationRunner::configurationWidget(QSharedPointer<R
 
 // ApplicationRunControl
 
-ApplicationRunControl::ApplicationRunControl(QSharedPointer<ApplicationRunConfiguration> runConfiguration)
+LocalApplicationRunControl::LocalApplicationRunControl(const QSharedPointer<LocalApplicationRunConfiguration> &runConfiguration)
     : RunControl(runConfiguration)
 {
     connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
@@ -120,13 +116,13 @@ ApplicationRunControl::ApplicationRunControl(QSharedPointer<ApplicationRunConfig
             this, SLOT(bringApplicationToForeground(qint64)));
 }
 
-ApplicationRunControl::~ApplicationRunControl()
+LocalApplicationRunControl::~LocalApplicationRunControl()
 {
 }
 
-void ApplicationRunControl::start()
+void LocalApplicationRunControl::start()
 {
-    QSharedPointer<ApplicationRunConfiguration> rc = runConfiguration().objectCast<ApplicationRunConfiguration>();
+    QSharedPointer<LocalApplicationRunConfiguration> rc = runConfiguration().objectCast<LocalApplicationRunConfiguration>();
     Q_ASSERT(!rc.isNull());
 
     m_applicationLauncher.setEnvironment(rc->environment().toStringList());
@@ -141,28 +137,28 @@ void ApplicationRunControl::start()
     emit addToOutputWindow(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)));
 }
 
-void ApplicationRunControl::stop()
+void LocalApplicationRunControl::stop()
 {
     m_applicationLauncher.stop();
 }
 
-bool ApplicationRunControl::isRunning() const
+bool LocalApplicationRunControl::isRunning() const
 {
     return m_applicationLauncher.isRunning();
 }
 
-void ApplicationRunControl::slotError(const QString & err)
+void LocalApplicationRunControl::slotError(const QString & err)
 {
     emit error(this, err);
     emit finished();
 }
 
-void ApplicationRunControl::slotAddToOutputWindow(const QString &line)
+void LocalApplicationRunControl::slotAddToOutputWindow(const QString &line)
 {
     emit addToOutputWindowInline(this, line);
 }
 
-void ApplicationRunControl::processExited(int exitCode)
+void LocalApplicationRunControl::processExited(int exitCode)
 {
     emit addToOutputWindow(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode));
     emit finished();

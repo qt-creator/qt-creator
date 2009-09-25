@@ -41,6 +41,8 @@
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/project.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>

@@ -206,8 +206,8 @@ RunSettingsWidget::RunSettingsWidget(Project *project)
 
     // TODO: Add support for custom runner configuration widgets once we have some
     /*
-    QList<IRunConfigurationRunner *> runners = PluginManager::instance()->getObjects<IRunConfigurationRunner>();
-    foreach (IRunConfigurationRunner * runner, runners) {
+    QList<IRunControlFactory *> runners = PluginManager::instance()->getObjects<IRunControlFactory>();
+    foreach (IRunControlFactory * runner, runners) {
         if (runner->canRun(activeRunConfiguration))
             m_ui->layout->addWidget(runner->configurationWidget(activeRunConfiguration));
     }

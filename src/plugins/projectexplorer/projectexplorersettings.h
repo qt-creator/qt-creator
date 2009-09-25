@@ -27,29 +27,27 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROJECTCONSTANTS_H
-#define QMLPROJECTCONSTANTS_H
+#ifndef PROJECTEXPLORERSETTINGS_H
+#define PROJECTEXPLORERSETTINGS_H
 
-namespace QmlProjectManager {
-namespace Constants {
+namespace ProjectExplorer {
+namespace Internal {
 
-const char *const PROJECTCONTEXT     = "QmlProject.ProjectContext";
-const char *const LANG_QML           = "QML";
-const char *const QMLMIMETYPE        = "text/x-qml-project"; // ### FIXME
+struct ProjectExplorerSettings
+{
+    bool buildBeforeRun;
+    bool saveBeforeBuild;
+    bool showCompilerOutput;
+    bool useJom;
+    bool operator==(const ProjectExplorerSettings &other) const {
+        return this->buildBeforeRun == other.buildBeforeRun
+                && this->saveBeforeBuild == other.saveBeforeBuild
+                && this->showCompilerOutput == other.showCompilerOutput
+                && this->useJom == other.useJom;
+    }
+};
 
-const char *const QMLRUNCONFIGURATION = "QmlProject.QmlLocalApplicationRunConfiguration";
-const char *const MAKESTEP            = "QmlProject.QmlMakeStep";
+} // namespace ProjectExplorer
+} // namespace Internal
 
-// contexts
-const char *const C_FILESEDITOR      = ".files Editor";
-
-// kinds
-const char *const PROJECT_KIND       = "QML";
-
-const char *const FILES_EDITOR       = ".qmlproject Editor";
-const char *const FILES_MIMETYPE     = QMLMIMETYPE;
-
-} // namespace Constants
-} // namespace QmlProjectManager
-
-#endif // QMLPROJECTCONSTANTS_H
+#endif // PROJECTEXPLORERSETTINGS_H

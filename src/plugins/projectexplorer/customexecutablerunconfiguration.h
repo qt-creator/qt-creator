@@ -49,7 +49,7 @@ namespace Internal {
     class CustomExecutableConfigurationWidget;
 }
 
-class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public ApplicationRunConfiguration
+class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public LocalApplicationRunConfiguration
 {
     // the configuration widget needs to setExecutable setWorkingDirectory and setCommandLineArguments
     friend class Internal::CustomExecutableConfigurationWidget;    
@@ -78,7 +78,7 @@ public:
      */
     QString userName() const;
 
-    virtual ApplicationRunConfiguration::RunMode runMode() const;
+    virtual LocalApplicationRunConfiguration::RunMode runMode() const;
     virtual QString workingDirectory() const;
     QString baseWorkingDirectory() const;
     virtual QStringList commandLineArguments() const;

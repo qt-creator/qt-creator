@@ -53,6 +53,8 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/project.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>

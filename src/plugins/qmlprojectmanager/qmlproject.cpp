@@ -325,7 +325,7 @@ void QmlProjectFile::modified(ReloadBehavior *)
 }
 
 QmlRunConfiguration::QmlRunConfiguration(QmlProject *pro)
-    : ProjectExplorer::ApplicationRunConfiguration(pro),
+    : ProjectExplorer::LocalApplicationRunConfiguration(pro),
       m_project(pro),
       m_type(Constants::QMLRUNCONFIGURATION)
 {
@@ -455,7 +455,7 @@ void QmlRunConfiguration::onQmlViewerChanged()
 
 void QmlRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
 {
-    ProjectExplorer::ApplicationRunConfiguration::save(writer);
+    ProjectExplorer::LocalApplicationRunConfiguration::save(writer);
 
     writer.saveValue(QLatin1String("qmlviewer"), m_qmlViewer);
     writer.saveValue(QLatin1String("mainscript"), m_scriptFile);
@@ -463,7 +463,7 @@ void QmlRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer
 
 void QmlRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
 {
-    ProjectExplorer::ApplicationRunConfiguration::restore(reader);
+    ProjectExplorer::LocalApplicationRunConfiguration::restore(reader);
 
     m_qmlViewer = reader.restoreValue(QLatin1String("qmlviewer")).toString();
     m_scriptFile = reader.restoreValue(QLatin1String("mainscript")).toString();

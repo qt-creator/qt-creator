@@ -30,6 +30,8 @@
 #include "projecttreewidget.h"
 
 #include "projectexplorer.h"
+#include "project.h"
+#include "session.h"
 #include "projectexplorerconstants.h"
 #include "projectmodels.h"
 
@@ -44,6 +46,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QFocusEvent>
+#include <QtGui/QAction>
 #include <QtGui/QPalette>
 
 using namespace ProjectExplorer;

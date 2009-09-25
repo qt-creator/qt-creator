@@ -52,7 +52,7 @@ public:
         SignCustom
     };
 
-    S60DeviceRunConfiguration(ProjectExplorer::Project *project, const QString &proFilePath);
+    explicit S60DeviceRunConfiguration(ProjectExplorer::Project *project, const QString &proFilePath);
     ~S60DeviceRunConfiguration();
 
     QString type() const;
@@ -98,7 +98,7 @@ class S60DeviceRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
 public:
-    S60DeviceRunConfigurationWidget(S60DeviceRunConfiguration *runConfiguration,
+    explicit S60DeviceRunConfigurationWidget(S60DeviceRunConfiguration *runConfiguration,
                                       QWidget *parent = 0);
 
 private slots:
@@ -122,7 +122,7 @@ class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurati
 {
     Q_OBJECT
 public:
-    S60DeviceRunConfigurationFactory(QObject *parent);
+    explicit S60DeviceRunConfigurationFactory(QObject *parent);
     ~S60DeviceRunConfigurationFactory();
     bool canRestore(const QString &type) const;
     QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
@@ -131,22 +131,22 @@ public:
     QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project, const QString &type);
 };
 
-class S60DeviceRunConfigurationRunner : public ProjectExplorer::IRunConfigurationRunner
+class S60DeviceRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 public:
-    S60DeviceRunConfigurationRunner(QObject *parent = 0);
-    bool canRun(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration, const QString &mode);
-    ProjectExplorer::RunControl* run(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration, const QString &mode);
+    explicit S60DeviceRunControlFactory(QObject *parent = 0);
+    bool canRun(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode) const;
+    ProjectExplorer::RunControl* create(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode);
     QString displayName() const;
-    QWidget *configurationWidget(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration);
+    QWidget *configurationWidget(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
 };
 
 class S60DeviceRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    S60DeviceRunControl(QSharedPointer<ProjectExplorer::RunConfiguration> runConfiguration);
+    explicit S60DeviceRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
     ~S60DeviceRunControl() {}
     void start();
     void stop();

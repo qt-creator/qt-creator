@@ -59,7 +59,7 @@ namespace Internal {
 
 class BreakpointData;
 class DebuggerManager;
-class DebuggerRunner;
+class DebuggerRunControlFactory;
 class DebugMode;
 class DisassemblerViewAgent;
 struct StackFrame;
@@ -126,7 +126,7 @@ private:
 
     DebuggerManager *m_manager;
     DebugMode *m_debugMode;
-    DebuggerRunner *m_debuggerRunner;
+    DebuggerRunControlFactory *m_debuggerRunControlFactory;
 
     QString m_previousMode;
     TextEditor::BaseTextMark *m_locationMark;

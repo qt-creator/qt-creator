@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "projectexplorersettingspage.h"
+#include "projectexplorersettings.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 

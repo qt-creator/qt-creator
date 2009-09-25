@@ -27,29 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROJECTCONSTANTS_H
-#define QMLPROJECTCONSTANTS_H
+#ifndef CORELISTENERCHECKINGFORRUNNINGBUILD_H
+#define CORELISTENERCHECKINGFORRUNNINGBUILD_H
 
-namespace QmlProjectManager {
-namespace Constants {
+#include <coreplugin/icorelistener.h>
 
-const char *const PROJECTCONTEXT     = "QmlProject.ProjectContext";
-const char *const LANG_QML           = "QML";
-const char *const QMLMIMETYPE        = "text/x-qml-project"; // ### FIXME
+namespace ProjectExplorer {
 
-const char *const QMLRUNCONFIGURATION = "QmlProject.QmlLocalApplicationRunConfiguration";
-const char *const MAKESTEP            = "QmlProject.QmlMakeStep";
+class BuildManager;
 
-// contexts
-const char *const C_FILESEDITOR      = ".files Editor";
+namespace Internal {
 
-// kinds
-const char *const PROJECT_KIND       = "QML";
+class CoreListenerCheckingForRunningBuild : public Core::ICoreListener
+{
+    Q_OBJECT
+public:
+    explicit CoreListenerCheckingForRunningBuild(BuildManager *manager);
 
-const char *const FILES_EDITOR       = ".qmlproject Editor";
-const char *const FILES_MIMETYPE     = QMLMIMETYPE;
+    bool coreAboutToClose();
 
-} // namespace Constants
-} // namespace QmlProjectManager
+private:
+    BuildManager *m_manager;
+};
 
-#endif // QMLPROJECTCONSTANTS_H
+} // namespace Internal
+} // namespace ProjectExplorer
+
+#endif // CORELISTENERCHECKINGFORRUNNINGBUILD_H

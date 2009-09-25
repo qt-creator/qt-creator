@@ -254,42 +254,39 @@ QSharedPointer<RunConfiguration> S60EmulatorRunConfigurationFactory::create(Proj
     return rc;
 }
 
-// ======== S60EmulatorRunConfigurationRunner
+// ======== S60EmulatorRunControlFactory
 
-S60EmulatorRunConfigurationRunner::S60EmulatorRunConfigurationRunner(QObject *parent)
-    : IRunConfigurationRunner(parent)
+S60EmulatorRunControlFactory::S60EmulatorRunControlFactory(QObject *parent)
+    : IRunControlFactory(parent)
 {
 }
 
-bool S60EmulatorRunConfigurationRunner::canRun(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
+bool S60EmulatorRunControlFactory::canRun(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode) const
 {
     return (mode == ProjectExplorer::Constants::RUNMODE)
             && (!runConfiguration.objectCast<S60EmulatorRunConfiguration>().isNull());
 }
 
-RunControl* S60EmulatorRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
+RunControl* S60EmulatorRunControlFactory::create(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode)
 {
     QSharedPointer<S60EmulatorRunConfiguration> rc = runConfiguration.objectCast<S60EmulatorRunConfiguration>();
-    Q_ASSERT(!rc.isNull());
-    Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE);
-
-    S60EmulatorRunControl *runControl = new S60EmulatorRunControl(rc);
-    return runControl;
+    QTC_ASSERT(!rc.isNull() && mode == ProjectExplorer::Constants::RUNMODE, return 0);
+    return new S60EmulatorRunControl(rc);
 }
 
-QString S60EmulatorRunConfigurationRunner::displayName() const
+QString S60EmulatorRunControlFactory::displayName() const
 {
     return tr("Run in Emulator");
 }
 
-QWidget *S60EmulatorRunConfigurationRunner::configurationWidget(QSharedPointer<ProjectExplorer::RunConfiguration> /* runConfiguration */)
+QWidget *S60EmulatorRunControlFactory::configurationWidget(const QSharedPointer<ProjectExplorer::RunConfiguration> & /* runConfiguration */)
 {
     return 0;
 }
 
 // ======== S60EmulatorRunControl
 
-S60EmulatorRunControl::S60EmulatorRunControl(QSharedPointer<RunConfiguration> runConfiguration)
+S60EmulatorRunControl::S60EmulatorRunControl(const QSharedPointer<RunConfiguration> &runConfiguration)
     : RunControl(runConfiguration)
 {
     connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),

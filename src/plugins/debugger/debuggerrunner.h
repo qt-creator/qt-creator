@@ -36,7 +36,7 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 
 namespace ProjectExplorer {
-class ApplicationRunConfiguration;
+class LocalApplicationRunConfiguration;
 }
 
 namespace Debugger {
@@ -48,28 +48,28 @@ class StartData;
 typedef QSharedPointer<ProjectExplorer::RunConfiguration>
     RunConfigurationPtr;
 
-typedef QSharedPointer<ProjectExplorer::ApplicationRunConfiguration>
-    ApplicationRunConfigurationPtr;
+typedef QSharedPointer<ProjectExplorer::LocalApplicationRunConfiguration>
+    LocalApplicationRunConfigurationPtr;
 
-class DebuggerRunner
-    : public ProjectExplorer::IRunConfigurationRunner
+class DebuggerRunControlFactory
+    : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 
 public:
-    explicit DebuggerRunner(DebuggerManager *manager);
+    explicit DebuggerRunControlFactory(DebuggerManager *manager);
 
-    // ProjectExplorer::IRunConfigurationRunner
-    bool canRun(RunConfigurationPtr runConfiguration, const QString &mode);
-    virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration,
-                const QString &mode);
+    // ProjectExplorer::IRunControlFactory
+    bool canRun(const RunConfigurationPtr &runConfiguration, const QString &mode) const;
+    virtual ProjectExplorer::RunControl *create(const RunConfigurationPtr &runConfiguration,
+                                                const QString &mode);
     virtual QString displayName() const;
 
-    virtual QWidget *configurationWidget(RunConfigurationPtr runConfiguration);
+    virtual QWidget *configurationWidget(const RunConfigurationPtr &runConfiguration);
 
-    virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration,
-                 const QString &mode,
-                 const DebuggerStartParametersPtr &sp);
+    virtual ProjectExplorer::RunControl *create(const RunConfigurationPtr &runConfiguration,
+                                                const QString &mode,
+                                                const DebuggerStartParametersPtr &sp);
 
     static RunConfigurationPtr createDefaultRunConfiguration(const QString &executable = QString());
 
@@ -87,7 +87,7 @@ class DebuggerRunControl
 public:
     DebuggerRunControl(DebuggerManager *manager,
                        const DebuggerStartParametersPtr &startParamters,
-                       ApplicationRunConfigurationPtr runConfiguration);
+                       LocalApplicationRunConfigurationPtr runConfiguration);
 
     // ProjectExplorer::RunControl
     virtual void start();
@@ -111,12 +111,12 @@ private:
 
 // A default run configuration for external executables or attaching to
 // running processes by id.
-class DefaultApplicationRunConfiguration
-    : public ProjectExplorer::ApplicationRunConfiguration
+class DefaultLocalApplicationRunConfiguration
+    : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
 public:
-    explicit DefaultApplicationRunConfiguration(const QString &executable = QString());
+    explicit DefaultLocalApplicationRunConfiguration(const QString &executable = QString());
 
     virtual QString executable() const { return m_executable; }
     virtual RunMode runMode() const { return Gui; }

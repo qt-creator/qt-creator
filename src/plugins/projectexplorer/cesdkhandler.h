@@ -39,6 +39,7 @@
 #define VSINSTALL_MACRO "$(VSInstallDir)"
 
 namespace ProjectExplorer {
+class Environment;
 
 class PROJECTEXPLORER_EXPORT CeSdkInfo
 {
