@@ -247,7 +247,7 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
     const bool fatal = isFatalException(Exception->ExceptionCode);
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << "\nex=" << Exception->ExceptionCode << " fatal=" << fatal << msg;
-    m_pEngine->m_d->m_debuggerManagerAccess->showApplicationOutput(msg);
+    m_pEngine->manager()->showApplicationOutput(msg);
     if (fatal)
         m_pEngine->m_d->notifyCrashed();
     return S_OK;

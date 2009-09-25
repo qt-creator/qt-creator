@@ -904,8 +904,10 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
 
     if (!(flags & NoActivate)) {
         setCurrentEditor(editor, (flags & IgnoreNavigationHistory));
-        ensureEditorManagerVisible();
-        editor->widget()->setFocus();
+        if (!(flags & NoModeSwitch))
+            ensureEditorManagerVisible();
+        if (isVisible())
+            editor->widget()->setFocus();
     }
     return editor;
 }
