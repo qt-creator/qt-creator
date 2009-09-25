@@ -42,7 +42,7 @@ contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 
 CONFIG += plugin plugin_with_soname
 
-unix:!macx {
+!macx {
     target.path = /$$IDE_LIBRARY_BASENAME/qtcreator/plugins/$$PROVIDER
     pluginspec.files += $${TARGET}.pluginspec
     pluginspec.path = /$$IDE_LIBRARY_BASENAME/qtcreator/plugins/$$PROVIDER

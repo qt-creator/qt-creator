@@ -57,7 +57,7 @@ DATA_DIRS = \
     }
 }
 
-unix:!macx {
+!macx {
     for(data_dir, DATA_DIRS) {
         eval($${data_dir}.files = $$quote($$PWD/$$data_dir))
         eval($${data_dir}.path = /share/qtcreator)

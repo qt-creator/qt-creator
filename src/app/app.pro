@@ -14,6 +14,8 @@ win32 {
     else:LIBS *= -lExtensionSystem -lAggregation
 
     RC_FILE = qtcreator.rc
+    target.path = /bin
+    INSTALLS += target
 } else:macx {
     CONFIG(debug, debug|release):LIBS *= -lExtensionSystem_debug -lAggregation_debug
     else:LIBS *= -lExtensionSystem -lAggregation
