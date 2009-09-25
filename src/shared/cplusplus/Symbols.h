@@ -307,6 +307,9 @@ public:
     /** Convenience function that returns whether the function receives any arguments. */
     bool hasArguments() const;
 
+    bool isVirtual() const;
+    void setVirtual(bool isVirtual);
+
     bool isVariadic() const;
     void setVariadic(bool isVariadic);
 
@@ -348,6 +351,7 @@ private:
     TemplateParameters *_templateParameters;
     FullySpecifiedType _returnType;
     struct Flags {
+        unsigned _isVirtual: 1;
         unsigned _isVariadic: 1;
         unsigned _isPureVirtual: 1;
         unsigned _isConst: 1;
