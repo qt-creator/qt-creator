@@ -138,6 +138,18 @@ using namespace CPlusPlus;
 
 namespace {
 
+bool isMacroDefined(QByteArray name, unsigned offset, Environment *env, Client *client)
+{
+    Macro *m = env->resolve(name);
+    if (client) {
+        if (m)
+            client->passedMacroDefinitionCheck(offset, *m);
+        else
+            client->failedMacroDefinitionCheck(offset, name);
+    }
+    return m != 0;
+}
+
 class RangeLexer
 {
     const Token *first;
@@ -193,8 +205,8 @@ class ExpressionEvaluator
     void operator = (const ExpressionEvaluator &other);
 
 public:
-    ExpressionEvaluator(Environment *env)
-        : env(env), _lex(0)
+    ExpressionEvaluator(Client *client, Environment *env)
+        : client(client), env(env), _lex(0)
     { }
 
     Value operator()(const Token *firstToken, const Token *lastToken,
@@ -255,13 +267,13 @@ protected:
         } else if (isTokenDefined()) {
             ++(*_lex);
             if ((*_lex)->is(T_IDENTIFIER)) {
-                _value.set_long(env->resolve(tokenSpell()) != 0);
+                _value.set_long(isMacroDefined(tokenSpell(), (*_lex)->offset, env, client));
                 ++(*_lex);
                 return true;
             } else if ((*_lex)->is(T_LPAREN)) {
                 ++(*_lex);
                 if ((*_lex)->is(T_IDENTIFIER)) {
-                    _value.set_long(env->resolve(tokenSpell()) != 0);
+                    _value.set_long(isMacroDefined(tokenSpell(), (*_lex)->offset, env, client));
                     ++(*_lex);
                     if ((*_lex)->is(T_RPAREN)) {
                         ++(*_lex);
@@ -519,6 +531,7 @@ protected:
     }
 
 private:
+    Client *client;
     Environment *env;
     QByteArray source;
     RangeLexer *_lex;
@@ -983,7 +996,7 @@ void Preprocessor::expandObjectLikeMacro(TokenIterator identifierToken,
 {
     if (client)
         client->startExpandingMacro(identifierToken->offset,
-                                    *m, spell);
+                                    *m, spell, false);
 
     m->setHidden(true);
     expand(m->definition(), result);
@@ -1007,7 +1020,7 @@ void Preprocessor::expandFunctionLikeMacro(TokenIterator identifierToken,
                                         endOfText - beginOfText);
 
         client->startExpandingMacro(identifierToken->offset,
-                                    *m, text, actuals);
+                                    *m, text, false, actuals);
     }
 
     const bool was = markGeneratedTokens(true, identifierToken);
@@ -1253,7 +1266,7 @@ void Preprocessor::processIf(TokenIterator firstToken, TokenIterator lastToken)
         const char *first = startOfToken(*tk);
         const char *last = startOfToken(*lastToken);
 
-        MacroExpander expandCondition (env);
+        MacroExpander expandCondition (env, 0, client, tk.dot()->offset);
         QByteArray condition;
         condition.reserve(256);
         expandCondition(first, last, &condition);
@@ -1297,7 +1310,7 @@ void Preprocessor::processElif(TokenIterator firstToken, TokenIterator lastToken
         const char *first = startOfToken(*tk);
         const char *last = startOfToken(*lastToken);
 
-        MacroExpander expandCondition (env);
+        MacroExpander expandCondition (env, 0, client, tk.dot()->offset);
         QByteArray condition;
         condition.reserve(256);
         expandCondition(first, last, &condition);
@@ -1338,7 +1351,7 @@ void Preprocessor::processIfdef(bool checkUndefined,
     if (testIfLevel()) {
         if (tk->is(T_IDENTIFIER)) {
             const QByteArray macroName = tokenSpell(*tk);
-            bool value = env->resolve(macroName) != 0 || env->isBuiltinMacro(macroName);
+            bool value = isMacroDefined(macroName, tk->offset, env, client) || env->isBuiltinMacro(macroName);
 
             if (checkUndefined)
                 value = ! value;
@@ -1437,7 +1450,7 @@ int Preprocessor::skipping() const
 Value Preprocessor::evalExpression(TokenIterator firstToken, TokenIterator lastToken,
                                    const QByteArray &source) const
 {
-    ExpressionEvaluator eval(env);
+    ExpressionEvaluator eval(client, env);
     const Value result = eval(firstToken, lastToken, source);
     return result;
 }

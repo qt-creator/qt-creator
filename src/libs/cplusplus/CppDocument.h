@@ -70,7 +70,8 @@ public:
 
     void appendMacro(const Macro &macro);
     void addMacroUse(const Macro &macro, unsigned offset, unsigned length,
-                     const QVector<MacroArgumentReference> &range);
+                     const QVector<MacroArgumentReference> &range, bool inCondition);
+    void addUndefinedMacroUse(const QByteArray &name, unsigned offset);
 
     Control *control() const;
     TranslationUnit *translationUnit() const;
@@ -220,13 +221,15 @@ public:
     class MacroUse: public Block {
         Macro _macro;
         QVector<Block> _arguments;
+        bool _inCondition;
 
     public:
         inline MacroUse(const Macro &macro,
                         unsigned begin = 0,
                         unsigned end = 0)
             : Block(begin, end),
-              _macro(macro)
+              _macro(macro),
+              _inCondition(false)
         { }
 
         const Macro &macro() const
@@ -238,11 +241,37 @@ public:
         QVector<Block> arguments() const
         { return _arguments; }
 
+        bool isInCondition() const
+        { return _inCondition; }
+
+    private:
         void setArguments(const QVector<Block> &arguments)
         { _arguments = arguments; }
 
         void addArgument(const Block &block)
         { _arguments.append(block); }
+
+        void setInCondition(bool set)
+        { _inCondition = set; }
+
+        friend class Document;
+    };
+
+    class UndefinedMacroUse: public Block {
+        QByteArray _name;
+
+    public:
+        inline UndefinedMacroUse(
+                const QByteArray &name,
+                unsigned begin = 0)
+            : Block(begin, begin + name.length()),
+              _name(name)
+        { }
+
+        QByteArray name() const
+        {
+            return _name;
+        }
     };
 
     QList<Include> includes() const
@@ -253,6 +282,9 @@ public:
 
     QList<MacroUse> macroUses() const
     { return _macroUses; }
+
+    QList<UndefinedMacroUse> undefinedMacroUses() const
+    { return _undefinedMacroUses; }
 
 private:
     Symbol *findSymbolAt(unsigned line, unsigned column, Scope *scope) const;
@@ -267,6 +299,7 @@ private:
     QList<Macro> _definedMacros;
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;
+    QList<UndefinedMacroUse> _undefinedMacroUses;
     QByteArray _source;
     unsigned _revision;
 
