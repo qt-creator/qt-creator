@@ -127,6 +127,22 @@ Core::Utils::SavedAction *theDebuggerAction(int code);
 bool theDebuggerBoolSetting(int code);
 QString theDebuggerStringSetting(int code);
 
+struct DebuggerManagerActions {
+    QAction *continueAction;
+    QAction *stopAction;
+    QAction *resetAction; // FIXME: Should not be needed in a stable release
+    QAction *stepAction;
+    QAction *stepOutAction;
+    QAction *runToLineAction;
+    QAction *runToFunctionAction;
+    QAction *jumpToLineAction;
+    QAction *nextAction;
+    QAction *watchAction;
+    QAction *breakAction;
+    QAction *sepAction;
+    QAction *reverseDirectionAction;
+};
+
 } // namespace Internal
 } // namespace Debugger
 

@@ -32,6 +32,7 @@
 #include "debuggeractions.h"
 #include "gdbengine.h"
 #include "procinterrupt.h"
+#include "debuggerstringutils.h"
 
 #include <utils/qtcassert.h>
 

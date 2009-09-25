@@ -28,11 +28,12 @@
 **************************************************************************/
 
 #include "remotegdbadapter.h"
-
+#include "debuggerstringutils.h"
 #include "debuggeractions.h"
 #include "gdbengine.h"
 
 #include <utils/qtcassert.h>
+#include <utils/fancymainwindow.h>
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QMessageBox>

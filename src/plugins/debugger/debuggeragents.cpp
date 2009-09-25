@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "debuggeragents.h"
+#include "debuggerstringutils.h"
 #include "idebuggerengine.h"
 
 #include <coreplugin/coreconstants.h>

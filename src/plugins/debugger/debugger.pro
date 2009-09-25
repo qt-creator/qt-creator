@@ -27,6 +27,7 @@ HEADERS += breakhandler.h \
     debuggerplugin.h \
     debuggerrunner.h \
     debuggertooltip.h \
+    debuggerstringutils.h \
     watchutils.h \
     idebuggerengine.h \
     imports.h \

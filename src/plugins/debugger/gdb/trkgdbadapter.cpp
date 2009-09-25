@@ -29,6 +29,7 @@
 
 #include "trkgdbadapter.h"
 #include "trkoptions.h"
+#include "debuggerstringutils.h"
 #ifndef STANDALONE_RUNNER
 #include "gdbengine.h"
 #endif

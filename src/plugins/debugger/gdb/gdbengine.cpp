@@ -46,6 +46,7 @@
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggertooltip.h"
+#include "debuggerstringutils.h"
 #include "gdbmi.h"
 
 #include "breakhandler.h"
@@ -58,6 +59,7 @@
 #include "debuggerdialogs.h"
 
 #include <utils/qtcassert.h>
+#include <utils/fancymainwindow.h>
 #include <texteditor/itexteditor.h>
 #include <coreplugin/icore.h>
 
@@ -222,6 +224,11 @@ DebuggerStartMode GdbEngine::startMode() const
 {
     QTC_ASSERT(!m_startParameters.isNull(), return NoStartMode);
     return m_startParameters->startMode;
+}
+
+QMainWindow *GdbEngine::mainWindow() const
+{
+    return m_manager->mainWindow();
 }
 
 GdbEngine::~GdbEngine()

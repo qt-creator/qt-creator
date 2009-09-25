@@ -37,6 +37,7 @@
 #include "debuggermanager.h"
 #include "debuggerrunner.h"
 #include "stackframe.h"
+#include "debuggerstringutils.h"
 
 #include "ui_commonoptionspage.h"
 #include "ui_dumperoptionpage.h"
@@ -619,7 +620,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
 
     Core::Command *cmd = 0;
-    cmd = am->registerAction(m_manager->m_continueAction,
+    const DebuggerManagerActions actions = m_manager->debuggerManagerActions();
+    cmd = am->registerAction(actions.continueAction,
         ProjectExplorer::Constants::DEBUG, QList<int>() << m_gdbRunningContext);
     mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
@@ -648,7 +650,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         Constants::DETACH, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
-    cmd = am->registerAction(m_manager->m_stopAction,
+    cmd = am->registerAction(actions.stopAction,
         Constants::INTERRUPT, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setAttribute(Core::Command::CA_UpdateIcon);
@@ -656,7 +658,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd->setDefaultText(tr("Stop Debugger/Interrupt Debugger"));
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
-    cmd = am->registerAction(m_manager->m_resetAction,
+    cmd = am->registerAction(actions.resetAction,
         Constants::RESET, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
@@ -668,17 +670,17 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Step"), globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(m_manager->m_nextAction,
+    cmd = am->registerAction(actions.nextAction,
         Constants::NEXT, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::NEXT_KEY));
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(m_manager->m_stepAction,
+    cmd = am->registerAction(actions.stepAction,
         Constants::STEP, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEP_KEY));
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(m_manager->m_stepOutAction,
+    cmd = am->registerAction(actions.stepOutAction,
         Constants::STEPOUT, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
     mdebug->addAction(cmd);
@@ -687,22 +689,22 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         Constants::STEP_BY_INSTRUCTION, debuggercontext);
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(m_manager->m_runToLineAction,
+    cmd = am->registerAction(actions.runToLineAction,
         Constants::RUN_TO_LINE, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(m_manager->m_runToFunctionAction,
+    cmd = am->registerAction(actions.runToFunctionAction,
         Constants::RUN_TO_FUNCTION, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_FUNCTION_KEY));
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(m_manager->m_jumpToLineAction,
+    cmd = am->registerAction(actions.jumpToLineAction,
         Constants::JUMP_TO_LINE, debuggercontext);
     mdebug->addAction(cmd);
 
 #ifdef USE_REVERSE_DEBUGGING
-    cmd = am->registerAction(m_manager->m_reverseDirectionAction,
+    cmd = am->registerAction(actions.reverseDirectionAction,
         Constants::REVERSE, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::REVERSE_KEY));
     mdebug->addAction(cmd);
@@ -713,7 +715,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Break"), globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(m_manager->m_breakAction,
+    cmd = am->registerAction(actions.breakAction,
         Constants::TOGGLE_BREAK, cppeditorcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
     mdebug->addAction(cmd);
@@ -724,7 +726,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Watch"), globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(m_manager->m_watchAction,
+    cmd = am->registerAction(actions.watchAction,
         Constants::ADD_TO_WATCH, cppeditorcontext);
     //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
     mdebug->addAction(cmd);

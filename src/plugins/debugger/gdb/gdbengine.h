@@ -51,6 +51,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QAbstractItemModel;
 class QWidget;
+class QMainWindow;
 QT_END_NAMESPACE
 
 namespace Debugger {
@@ -271,7 +272,7 @@ private:
     bool showToolTip();
 
     // Convenience
-    QMainWindow *mainWindow() const { return m_manager->mainWindow(); }
+    QMainWindow *mainWindow() const;
     DebuggerStartMode startMode() const;
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
 
