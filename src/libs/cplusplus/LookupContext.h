@@ -56,6 +56,7 @@ public:
 
     static Symbol *canonicalSymbol(Symbol *symbol);
     static Symbol *canonicalSymbol(const QList<Symbol *> &candidates);
+    static Symbol *canonicalSymbol(const QList<QPair<FullySpecifiedType, Symbol *> > &candidates); // ### FIXME
 
     QList<Symbol *> resolve(Name *name) const
     { return resolve(name, visibleScopes()); }

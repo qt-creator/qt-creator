@@ -467,7 +467,7 @@ void LookupContext::expandFunction(Function *function,
 }
 
 void LookupContext::expandObjCMethod(ObjCMethod *method,
-                                     const QList<Scope *> &visibleScopes,
+                                     const QList<Scope *> &,
                                      QList<Scope *> *expandedScopes) const
 {
     if (! expandedScopes->contains(method->arguments()))
@@ -519,7 +519,7 @@ Symbol *LookupContext::canonicalSymbol(const QList<Symbol *> &candidates)
             Symbol *c = candidates.at(i);
 
             if (! c->scope()->isClassScope())
-                continue; // ### or break?
+                continue; 
 
             else if (Function *f = c->type()->asFunctionType()) {
                 if (f->isVirtual())
@@ -532,4 +532,14 @@ Symbol *LookupContext::canonicalSymbol(const QList<Symbol *> &candidates)
     }
 
     return canonicalSymbol(candidate);
+}
+
+Symbol *LookupContext::canonicalSymbol(const QList<QPair<FullySpecifiedType, Symbol *> > &results)
+{
+    QList<Symbol *> candidates;
+    QPair<FullySpecifiedType, Symbol *> result;
+    foreach (result, results) {
+        candidates.append(result.second); // ### not exacly.
+    }
+    return canonicalSymbol(candidates);
 }

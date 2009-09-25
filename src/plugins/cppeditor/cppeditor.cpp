@@ -857,22 +857,9 @@ void CPPEditor::findReferences()
                                                                      lastVisibleSymbol,
                                                                      TypeOfExpression::Preprocess);
 
-    if (! results.isEmpty()) {
-        TypeOfExpression::Result result = results.first();
-        Symbol *symbol = result.second;
-        qDebug() << "result:" << symbol->fileName() << symbol->line() << symbol->column();
-        m_modelManager->findReferences(symbol);
+    if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(results)) {
+        m_modelManager->findReferences(canonicalSymbol);
     }
-
-
-#if 0
-        LookupContext context(
-        Overview oo;
-        qDebug() << "==============> filename:" << symbol->fileName()
-                << "name:" << oo(symbol->name());
-        m_modelManager->findReferences(symbol);
-    }
-#endif
 }
 
 void CPPEditor::renameSymbolUnderCursor()
