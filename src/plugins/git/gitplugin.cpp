@@ -511,17 +511,11 @@ void GitPlugin::logProject()
 
 void GitPlugin::undoFileChanges()
 {
-    QFileInfo fileInfo = currentFile();
-    QString fileName = fileInfo.fileName();
-    QString workingDirectory = fileInfo.absolutePath();
-
+    const QFileInfo fileInfo = currentFile();
     Core::FileChangeBlocker fcb(fileInfo.filePath());
     fcb.setModifiedReload(true);
 
-    QString errorMessage;
-    if (!m_gitClient->synchronousCheckout(workingDirectory, QStringList() << fileName, &errorMessage))
-        VCSBase::VCSBaseOutputWindow::instance()->append(errorMessage);
-
+    m_gitClient->revert(QStringList(fileInfo.absoluteFilePath()));
 }
 
 void GitPlugin::undoProjectChanges()
@@ -554,15 +548,6 @@ void GitPlugin::unstageFile()
     const QString fileName = fileInfo.fileName();
     const QString workingDirectory = fileInfo.absolutePath();
     m_gitClient->synchronousReset(workingDirectory, QStringList(fileName));
-}
-
-void GitPlugin::revertFile()
-{
-    const QFileInfo fileInfo = currentFile();
-    Core::FileChangeBlocker fcb(fileInfo.filePath());
-    fcb.setModifiedReload(true);
-
-    m_gitClient->revert(QStringList(fileInfo.absoluteFilePath()));
 }
 
 void GitPlugin::startCommit()

@@ -115,7 +115,6 @@ private slots:
     void undoProjectChanges();
     void stageFile();
     void unstageFile();
-    void revertFile();
 
     void showCommit();
     void startCommit();
