@@ -59,6 +59,66 @@ namespace Internal {
     enum { debug = 0 };
 }
 } // namespace Constants
+
+namespace Internal {
+
+enum DebuggerState
+{
+    DebuggerNotReady,          // Debugger not started
+
+    EngineStarting,            // Engine starts
+
+    AdapterStarting,
+    AdapterStarted,
+    AdapterStartFailed,
+    InferiorPreparing,
+    InferiorPrepared,
+    InferiorPreparationFailed,
+    InferiorStarting,
+    // InferiorStarted,    // That's either InferiorRunningRequested or InferiorStopped
+    InferiorStartFailed,
+
+    InferiorRunningRequested,   // Debuggee requested to run
+    InferiorRunning,            // Debuggee running
+
+    InferiorStopping,      // Debuggee running, stop requested
+    InferiorStopped,            // Debuggee stopped
+    InferiorStopFailed,            // Debuggee stopped
+
+    InferiorShuttingDown,
+    InferiorShutDown,
+    InferiorShutdownFailed,
+
+    AdapterShuttingDown,
+    //AdapterShutDown,  // use DebuggerNotReady
+    AdapterShutdownFailed,
+};
+
+enum DebuggerStartMode
+{
+    NoStartMode,
+    StartInternal,         // Start current start project's binary
+    StartExternal,         // Start binary found in file system
+    AttachExternal,        // Attach to running process by process id
+    AttachCrashedExternal, // Attach to crashed process by process id
+    AttachTcf,             // Attach to a running Target Communication Framework agent
+    AttachCore,            // Attach to a core file
+    StartRemote            // Start and attach to a remote process
+};
+
+enum LogChannel
+{
+    LogInput,   // Used for user input
+    LogOutput,
+    LogWarning,
+    LogError,
+    LogStatus,  // Used for status changed messages
+    LogTime,  // Used for time stamp messages
+    LogDebug,
+    LogMisc    
+};
+
+} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGERCONSTANTS_H

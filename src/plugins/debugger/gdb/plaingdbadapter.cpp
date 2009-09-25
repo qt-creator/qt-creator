@@ -57,7 +57,7 @@ namespace Internal {
 PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
         this, SIGNAL(error(QProcess::ProcessError)));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
@@ -85,7 +85,7 @@ PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
 
 void PlainGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
 
@@ -159,7 +159,7 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 
 void PlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
 #if defined(Q_OS_MAC)
     Q_UNUSED(response)
 #else
@@ -187,6 +187,7 @@ void PlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
             //debugMessage(_("STREAM: ") + msg + " " + needle.cap(1));
             m_engine->postCommand(_("tbreak *") + needle.cap(1));
 // FIXME:            m_waitingForFirstBreakpointToBeHit = true;
+            setState(InferiorRunningRequested);
             m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
         } else {
             debugMessage(_("PARSING START ADDRESS FAILED: ") + msg);
@@ -201,14 +202,14 @@ void PlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
 
 void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        setState(InferiorStarted);
         emit inferiorStarted();
+        setState(InferiorRunning);
     } else {
         QTC_ASSERT(response.resultClass == GdbResultError, /**/);
         const QByteArray &msg = response.data.findChild("msg").data();
-        //QTC_ASSERT(status() == DebuggerInferiorRunning, /**/);
+        //QTC_ASSERT(status() == InferiorRunning, /**/);
         //interruptInferior();
         setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
@@ -217,8 +218,8 @@ void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
 
 void PlainGdbAdapter::startInferior()
 {
-    QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
-    setState(InferiorStarting);
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    setState(InferiorRunningRequested);
     m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
 }
 
@@ -237,26 +238,28 @@ void PlainGdbAdapter::interruptInferior()
 
 void PlainGdbAdapter::shutdown()
 {
-    if (state() == InferiorStarted) {
+    switch (state()) {
+    
+    case InferiorRunningRequested:
+    case InferiorRunning:
+    case InferiorStopping:
+    case InferiorStopped:
         setState(InferiorShuttingDown);
         m_engine->postCommand(_("kill"), CB(handleKill));
         return;
-    }
 
-    if (state() == InferiorShutDown) {
+    case InferiorShutDown:
         setState(AdapterShuttingDown);
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
-    }
 
 /*
-    if (state() == InferiorShutdownFailed) {
+    case InferiorShutdownFailed:
         m_gdbProc.terminate();
         // 20s can easily happen when loading webkit debug information
         m_gdbProc.waitForFinished(20000);
         setState(AdapterShuttingDown);
-        debugMessage(_("FORCING TERMINATION: %1")
-            .arg(state()));
+        debugMessage(_("FORCING TERMINATION: %1").arg(state()));
         if (state() != QProcess::NotRunning) {
             debugMessage(_("PROBLEM STOPPING DEBUGGER: STATE %1")
                 .arg(state()));
@@ -264,10 +267,10 @@ void PlainGdbAdapter::shutdown()
         }
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
-    }
-
 */
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    default:
+        QTC_ASSERT(false, qDebug() << state());
+    }
 }
 
 void PlainGdbAdapter::handleKill(const GdbResponse &response)
@@ -298,7 +301,7 @@ void PlainGdbAdapter::handleExit(const GdbResponse &response)
 void PlainGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
 {
     debugMessage(_("GDB PROESS FINISHED"));
-    setState(AdapterNotRunning);
+    setState(DebuggerNotReady);
     emit adapterShutDown();
 }
 

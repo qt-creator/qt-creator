@@ -54,7 +54,7 @@ namespace Internal {
 AttachGdbAdapter::AttachGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
         this, SIGNAL(error(QProcess::ProcessError)));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
@@ -69,7 +69,7 @@ AttachGdbAdapter::AttachGdbAdapter(GdbEngine *engine, QObject *parent)
 
 void AttachGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
 
@@ -125,16 +125,22 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 
 void AttachGdbAdapter::startInferior()
 {
-    QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
-    setState(InferiorStarting);
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+#if 0
+    // continue on attach
+    setState(InferiorRunningRequested);
     m_engine->postCommand(_("-exec-continue"), CB(handleContinue));
+#else
+    setState(InferiorStopped);
+    emit inferiorStarted();
+#endif
 }
 
 void AttachGdbAdapter::handleContinue(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        setState(InferiorStarted);
+        setState(InferiorRunning);
         emit inferiorStarted();
     } else {
         QTC_ASSERT(response.resultClass == GdbResultError, /**/);
@@ -154,18 +160,21 @@ void AttachGdbAdapter::interruptInferior()
 
 void AttachGdbAdapter::shutdown()
 {
-    if (state() == InferiorStarted) {
+    switch (state()) {
+    
+    case InferiorStopped:
         setState(InferiorShuttingDown);
         m_engine->postCommand(_("detach"), CB(handleDetach));
         return;
-    }
 
-    if (state() == InferiorShutDown) {
+    case InferiorShutDown:
         setState(AdapterShuttingDown);
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
+
+    default:
+        QTC_ASSERT(false, qDebug() << state());
     }
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
 }
 
 void AttachGdbAdapter::handleDetach(const GdbResponse &response)
@@ -196,7 +205,7 @@ void AttachGdbAdapter::handleExit(const GdbResponse &response)
 void AttachGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
 {
     debugMessage(_("GDB PROESS FINISHED"));
-    setState(AdapterNotRunning);
+    setState(DebuggerNotReady);
     emit adapterShutDown();
 }
 

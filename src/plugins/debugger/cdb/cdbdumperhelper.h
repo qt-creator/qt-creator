@@ -40,7 +40,6 @@ namespace Debugger {
 namespace Internal {
 
 struct CdbComInterfaces;
-class IDebuggerManagerAccessForEngines;
 class DebuggerManager;
 
 /* For code clarity, all the stuff related to custom dumpers goes here.
@@ -121,7 +120,6 @@ private:
     const bool m_tryInjectLoad;
     State m_state;
     DebuggerManager *m_manager;
-    IDebuggerManagerAccessForEngines *m_access;
     CdbComInterfaces *m_cif;
 
     QString m_library;

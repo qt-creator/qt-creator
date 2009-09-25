@@ -88,9 +88,10 @@ signals:
     void readyReadStandardError();
 
 protected:
-    GdbAdapterState state() const
+    DebuggerState state() const
         { return m_engine->state(); }
-    void setState(GdbAdapterState state);
+    void setState(DebuggerState state)
+        { m_engine->setState(state); }
     const DebuggerStartParameters &startParameters() const
         { return m_engine->startParameters(); }
     void debugMessage(const QString &msg) const

@@ -54,7 +54,7 @@ namespace Internal {
 CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
         this, SIGNAL(error(QProcess::ProcessError)));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
@@ -69,7 +69,7 @@ CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
 
 void CoreGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
 
@@ -129,8 +129,7 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 
 void CoreGdbAdapter::startInferior()
 {
-    QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
-    setState(InferiorStarting);
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     QFileInfo fi(startParameters().executable);
     QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
     QFileInfo fi2(startParameters().coreFile);
@@ -143,7 +142,7 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        setState(InferiorStarted);
+        setState(InferiorStopped);
         emit inferiorStarted();
         m_engine->updateAll();
     } else {
@@ -162,12 +161,12 @@ void CoreGdbAdapter::interruptInferior()
 
 void CoreGdbAdapter::shutdown()
 {
-    if (state() == InferiorStarted || state() == InferiorShutDown) {
+    if (state() == InferiorStopped || state() == InferiorShutDown) {
         setState(AdapterShuttingDown);
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
     }
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
 }
 
 void CoreGdbAdapter::handleExit(const GdbResponse &response)
@@ -184,7 +183,7 @@ void CoreGdbAdapter::handleExit(const GdbResponse &response)
 void CoreGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
 {
     debugMessage(_("GDB PROESS FINISHED"));
-    setState(AdapterNotRunning);
+    setState(DebuggerNotReady);
     emit adapterShutDown();
 }
 

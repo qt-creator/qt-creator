@@ -107,11 +107,9 @@ QString TcfEngine::TcfCommand::toString() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-TcfEngine::TcfEngine(DebuggerManager *parent)
+TcfEngine::TcfEngine(DebuggerManager *manager)
+    : IDebuggerEngine(manager)
 {
-    q = parent;
-    qq = parent->engineInterface();
-
     m_congestion = 0;
     m_inAir = 0;
 
@@ -136,13 +134,13 @@ TcfEngine::TcfEngine(DebuggerManager *parent)
     //    thism SLOT(socketStateChanged(QAbstractSocket::SocketState)));
 
     connect(this, SIGNAL(tcfOutputAvailable(int,QString)),
-        q, SLOT(showDebuggerOutput(int,QString)),
+        m_manager, SLOT(showDebuggerOutput(int,QString)),
         Qt::QueuedConnection);
     connect(this, SIGNAL(tcfInputAvailable(int,QString)),
-        q, SLOT(showDebuggerInput(int,QString)),
+        m_manager, SLOT(showDebuggerInput(int,QString)),
         Qt::QueuedConnection);
     connect(this, SIGNAL(applicationOutputAvailable(QString)),
-        q, SLOT(showApplicationOutput(QString)),
+        m_manager, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
 }
 
@@ -169,7 +167,7 @@ void TcfEngine::socketReadyRead()
 
 void TcfEngine::socketConnected()
 {
-    q->showStatusMessage("Socket connected.");
+    showStatusMessage("Socket connected.");
     m_socket->waitForConnected(2000);
     //sendCommand("Locator", "redirect", "ID");
 }
@@ -183,8 +181,8 @@ void TcfEngine::socketError(QAbstractSocket::SocketError)
 {
     QString msg = tr("%1.").arg(m_socket->errorString());
     //QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
-    q->showStatusMessage(msg);
-    qq->notifyInferiorExited();
+    showStatusMessage(msg);
+    manager()->notifyInferiorExited();
 }
 
 void TcfEngine::executeDebuggerCommand(const QString &command)
@@ -213,12 +211,13 @@ void TcfEngine::shutdown()
 void TcfEngine::exitDebugger()
 {
     SDEBUG("TcfEngine::exitDebugger()");
-    qq->notifyInferiorExited();
+    manager()->notifyInferiorExited();
 }
 
 void TcfEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 {
-    qq->notifyInferiorRunningRequested();
+    setState(InferiorRunningRequested);
+    showStatusMessage(tr("Running requested..."), 5000);
     const int pos = sp->remoteChannel.indexOf(QLatin1Char(':'));
     const QString host = sp->remoteChannel.left(pos);
     const quint16 port = sp->remoteChannel.mid(pos + 1).toInt();
@@ -558,7 +557,7 @@ void TcfEngine::updateLocals()
 void TcfEngine::updateWatchData(const WatchData &)
 {
     //qq->watchHandler()->rebuildModel();
-    q->showStatusMessage(tr("Stopped."), 5000);
+    showStatusMessage(tr("Stopped."), 5000);
 }
 
 void TcfEngine::updateSubItem(const WatchData &data0)
@@ -567,9 +566,9 @@ void TcfEngine::updateSubItem(const WatchData &data0)
     QTC_ASSERT(false, return);
 }
 
-IDebuggerEngine *createTcfEngine(DebuggerManager *parent)
+IDebuggerEngine *createTcfEngine(DebuggerManager *manager)
 {
-    return new TcfEngine(parent);
+    return new TcfEngine(manager);
 }
 
 } // namespace Internal

@@ -30,6 +30,8 @@
 #ifndef DEBUGGER_IDEBUGGERENGINE_H
 #define DEBUGGER_IDEBUGGERENGINE_H
 
+#include "debuggerconstants.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
@@ -51,6 +53,7 @@ namespace Debugger {
 namespace Internal {
 
 class DebuggerStartParameters;
+class DebuggerManager;
 class DisassemblerViewAgent;
 class MemoryViewAgent;
 struct StackFrame;
@@ -63,7 +66,9 @@ class IDebuggerEngine : public QObject
     Q_OBJECT
 
 public:
-    IDebuggerEngine(QObject *parent = 0) : QObject(parent) {}
+    IDebuggerEngine(DebuggerManager *manager, QObject *parent = 0)
+        : QObject(parent), m_manager(manager)
+    {}
 
     virtual void shutdown() = 0;
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos) = 0;
@@ -110,6 +115,13 @@ public:
         { Q_UNUSED(regnr); Q_UNUSED(value); }
 
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const {}
+
+protected:
+    void showStatusMessage(const QString &msg, int timeout = -1);
+    DebuggerState state() const;
+    void setState(DebuggerState state);
+    DebuggerManager *manager() const { return m_manager; }
+    DebuggerManager *m_manager;
 
 signals:
     void startSuccessful();

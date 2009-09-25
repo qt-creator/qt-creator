@@ -184,10 +184,9 @@ void ScriptAgent::scriptUnload(qint64 scriptId)
 //
 ///////////////////////////////////////////////////////////////////////
 
-ScriptEngine::ScriptEngine(DebuggerManager *parent)
+ScriptEngine::ScriptEngine(DebuggerManager *manager)
+    : IDebuggerEngine(manager)
 {
-    q = parent;
-    qq = parent->engineInterface();
     // created in startDebugger()
     m_scriptEngine = 0;
     m_scriptAgent = 0;
@@ -214,7 +213,7 @@ void ScriptEngine::exitDebugger()
     m_stopped = false;
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
-    qq->notifyInferiorExited();
+    manager()->notifyInferiorExited();
 }
 
 void ScriptEngine::startDebugger(const DebuggerStartParametersPtr &sp)
@@ -241,7 +240,8 @@ void ScriptEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     m_scriptContents = stream.readAll();
     scriptFile.close();
     attemptBreakpointSynchronization();
-    qq->notifyInferiorRunningRequested();
+    setState(InferiorRunningRequested);
+    showStatusMessage(tr("Running requested..."), 5000);
     QTimer::singleShot(0, this, SLOT(runInferior()));
     emit startSuccessful();
 }
@@ -381,7 +381,7 @@ void ScriptEngine::selectThread(int index)
 
 void ScriptEngine::attemptBreakpointSynchronization()
 {
-    BreakHandler *handler = qq->breakHandler();
+    BreakHandler *handler = manager()->breakHandler();
     bool updateNeeded = false;
     for (int index = 0; index != handler->size(); ++index) {
         BreakpointData *data = handler->at(index);
@@ -432,18 +432,20 @@ static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
 
-void ScriptEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
+void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
+    TextEditor::ITextEditor *editor, int cursorPos)
 {
     Q_UNUSED(mousePos)
     Q_UNUSED(editor)
     Q_UNUSED(cursorPos)
 
-    if (q->status() != DebuggerInferiorStopped) {
+    if (state() != InferiorStopped) {
         //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
         return;
     }
     // Check mime type and get expression (borrowing some C++ - functions)
-    const QString javaScriptMimeType = QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE);
+    const QString javaScriptMimeType =
+        QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE);
     if (!editor->file() || editor->file()->mimeType() != javaScriptMimeType)
         return;
 
@@ -493,7 +495,7 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITex
     }
 
 #if 0
-    //if (m_manager->status() != DebuggerInferiorStopped)
+    //if (m_manager->status() != InferiorStopped)
     //    return;
 
     // FIXME: 'exp' can contain illegal characters
@@ -534,7 +536,7 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
     if (byFunction)
         lineNumber = info.functionStartLineNumber();
 
-    BreakHandler *handler = qq->breakHandler();
+    BreakHandler *handler = manager()->breakHandler();
 
     if (m_stopOnNextLine) {
         m_stopOnNextLine = false;
@@ -567,18 +569,20 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
         data->updateMarker();
     }
 
-    qq->notifyInferiorStopped();
+    setState(InferiorStopped);
+    showStatusMessage(tr("Stopped."), 5000);
+
     StackFrame frame;
     frame.file = fileName;      
     frame.line = lineNumber;
-    q->gotoLocation(frame, true);
+    manager()->gotoLocation(frame, true);
     updateLocals();
 }
 
 void ScriptEngine::updateLocals()
 {
     QScriptContext *context = m_scriptEngine->currentContext();
-    qq->watchHandler()->beginCycle();
+    manager()->watchHandler()->beginCycle();
     //SDEBUG("UPDATE LOCALS");
 
     //
@@ -601,7 +605,7 @@ void ScriptEngine::updateLocals()
         //frame.address = ...;
         stackFrames.append(frame);
     }
-    qq->stackHandler()->setFrames(stackFrames);
+    manager()->stackHandler()->setFrames(stackFrames);
 
     //
     // Build locals
@@ -610,13 +614,13 @@ void ScriptEngine::updateLocals()
     data.iname = "local";
     data.name = "local";
     data.scriptValue = context->activationObject();
-    qq->watchHandler()->beginCycle();
+    manager()->watchHandler()->beginCycle();
     updateSubItem(data);
-    qq->watchHandler()->endCycle();
+    manager()->watchHandler()->endCycle();
 
     // FIXME: Use an extra thread. This here is evil
     m_stopped = true;
-    q->showStatusMessage(tr("Stopped."), 5000);
+    showStatusMessage(tr("Stopped."), 5000);
     while (m_stopped) {
         //SDEBUG("LOOPING");
         QApplication::processEvents();
@@ -627,7 +631,7 @@ void ScriptEngine::updateLocals()
 void ScriptEngine::updateWatchData(const WatchData &data)
 {
     updateSubItem(data);
-    //qq->watchHandler()->rebuildModel();
+    //manager()->watchHandler()->rebuildModel();
 }
 
 void ScriptEngine::updateSubItem(const WatchData &data0)
@@ -689,7 +693,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             data.setValue("<unknown>");
             data.setHasChildren(false);
         }
-        qq->watchHandler()->insertData(data);
+        manager()->watchHandler()->insertData(data);
         return;
     }
 
@@ -703,17 +707,17 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             data1.exp = it.name();
             data1.name = it.name();
             data1.scriptValue = it.value();
-            if (qq->watchHandler()->isExpandedIName(data1.iname))
+            if (manager()->watchHandler()->isExpandedIName(data1.iname))
                 data1.setChildrenNeeded();
             else
                 data1.setChildrenUnneeded();
-            qq->watchHandler()->insertData(data1);
+            manager()->watchHandler()->insertData(data1);
             ++numChild;
         }
         //SDEBUG("  ... CHILDREN: " << numChild);
         data.setHasChildren(numChild > 0);
         data.setChildrenUnneeded();
-        qq->watchHandler()->insertData(data);
+        manager()->watchHandler()->insertData(data);
         return;
     }
 
@@ -726,16 +730,16 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
         }
         data.setHasChildren(numChild > 0);
         //SDEBUG("  ... CHILDCOUNT: " << numChild);
-        qq->watchHandler()->insertData(data);
+        manager()->watchHandler()->insertData(data);
         return;
     }
 
     QTC_ASSERT(false, return);
 }
 
-IDebuggerEngine *createScriptEngine(DebuggerManager *parent)
+IDebuggerEngine *createScriptEngine(DebuggerManager *manager)
 {
-    return new ScriptEngine(parent);
+    return new ScriptEngine(manager);
 }
 
 } // namespace Internal

@@ -38,7 +38,6 @@ namespace Debugger {
 namespace Internal {
 
 class CdbDebugEngine;
-class IDebuggerManagerAccessForEngines;
 
 // Base class for event callbacks that takes care
 // Active X magic. Provides base implementations with
@@ -241,8 +240,7 @@ private:
 class CdbExceptionLoggerEventCallback : public CdbDebugEventCallbackBase
 {
 public:
-    explicit CdbExceptionLoggerEventCallback(int logChannel,
-                                             IDebuggerManagerAccessForEngines *access);
+    CdbExceptionLoggerEventCallback(int logChannel, DebuggerManager *access);
 
     STDMETHOD(GetInterestMask)(
         THIS_
@@ -261,7 +259,7 @@ public:
 
 private:
     const int m_logChannel;
-    IDebuggerManagerAccessForEngines *m_access;
+    DebuggerManager *m_manager;
     QList<ULONG> m_exceptionCodes;
     QStringList m_exceptionMessages;
 };

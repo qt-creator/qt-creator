@@ -54,8 +54,6 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
-class DebuggerManager;
-class IDebuggerManagerAccessForEngines;
 class ScriptAgent;
 class WatchData;
 
@@ -163,8 +161,6 @@ private:
     void acknowledgeResult();
     int m_inAir;
 
-    DebuggerManager *q;
-    IDebuggerManagerAccessForEngines *qq;
     QTcpSocket *m_socket;
     QByteArray m_inbuffer;
     QList<QByteArray> m_services;

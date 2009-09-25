@@ -85,7 +85,7 @@ private slots:
     void queryCurrentTextEditor(QString *fileName, int *line, QObject **object);
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
-    void changeStatus(int status);
+    void handleStateChanged(int state);
     void requestMark(TextEditor::ITextEditor *editor, int lineNumber);
     void showToolTip(TextEditor::ITextEditor *editor, const QPoint &pnt, int pos);
     void querySessionValue(const QString &name, QVariant *value);

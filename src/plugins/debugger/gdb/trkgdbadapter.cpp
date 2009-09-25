@@ -94,7 +94,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_bufferedMemoryRead(true),
     m_waitCount(0)
 {
-    setState(AdapterNotRunning);
+    setState(DebuggerNotReady);
 #ifdef Q_OS_WIN
     const DWORD portOffset = GetCurrentProcessId() % 100;
 #else
@@ -246,7 +246,7 @@ void TrkGdbAdapter::startInferiorEarly()
             QString msg = QString::fromLatin1("Failed to connect to %1 after "
                 "%2 attempts").arg(device).arg(m_waitCount);
             logMessage(msg);
-            setState(AdapterNotRunning);
+            setState(DebuggerNotReady);
             emit adapterStartFailed(msg);
         }
         return;
@@ -1327,7 +1327,7 @@ void TrkGdbAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitSta
 {
     logMessage(QString("GDB: ProcessFinished %1 %2")
         .arg(exitCode).arg(exitStatus));
-    setState(AdapterNotRunning);
+    setState(DebuggerNotReady);
     emit adapterShutDown();
 }
 
@@ -1346,7 +1346,7 @@ void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
 
 void TrkGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
@@ -1406,18 +1406,16 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 
 void TrkGdbAdapter::startInferior()
 {
-    QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
-    setState(InferiorStarting);
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    setState(InferiorRunningRequested);
     m_engine->postCommand(_("-exec-continue"), CB(handleFirstContinue));
     // FIXME: Is there a way to properly recognize a successful start?
-    setState(InferiorStarted);
     emit inferiorStarted();
 }
 
 void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
 {
-    //QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    QTC_ASSERT(state() == InferiorStarted, qDebug() << state());
+    QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
         // inferiorStarted already emitted above, see FIXME
     } else if (record.resultClass == GdbResultError) {
@@ -1457,7 +1455,7 @@ void TrkGdbAdapter::startGdb()
         QString msg = QString("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer.errorString());
         logMessage(msg);
-        setState(AdapterNotRunning);
+        setState(DebuggerNotReady);
         emit adapterStartFailed(msg); 
         return;
     }
@@ -1590,22 +1588,26 @@ void TrkGdbAdapter::setEnvironment(const QStringList &env)
 
 void TrkGdbAdapter::shutdown()
 {
-    qDebug() << "ADAPTER SHUTDOWN " << state();
-    if (state() == InferiorStarted) {
+    switch (state()) {
+
+    case InferiorStopped:
+    case InferiorStopping:
+    case InferiorRunningRequested:
+    case InferiorRunning:
         setState(InferiorShuttingDown);
         qDebug() << "kill";
         m_engine->postCommand(_("kill"), CB(handleKill));
         return;
-    }
 
-    if (state() == InferiorShutDown) {
+    case InferiorShutDown:
         setState(AdapterShuttingDown);
         qDebug() << "gdb-exit";
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
-    }
 
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    default:
+        QTC_ASSERT(false, qDebug() << state());
+    }
 }
 
 void TrkGdbAdapter::handleKill(const GdbResponse &response)

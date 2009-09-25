@@ -55,7 +55,7 @@ namespace Internal {
 RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
         this, SIGNAL(error(QProcess::ProcessError)));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
@@ -77,7 +77,7 @@ RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, QObject *parent)
 
 void RemoteGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == AdapterNotRunning, qDebug() << state());
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
 
@@ -234,20 +234,16 @@ void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
 
 void RemoteGdbAdapter::startInferior()
 {
-    QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
-    setState(InferiorStarting);
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     m_engine->postCommand(_("attach"), CB(handleFirstContinue));
-    // FIXME: Is there a way to properly recognize a successful start?
-    setState(InferiorStarted);
-    emit inferiorStarted();
 }
 
 void RemoteGdbAdapter::handleFirstContinue(const GdbResponse &record)
 {
-    //QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    QTC_ASSERT(state() == InferiorStarted, qDebug() << state());
+    QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        // inferiorStarted already emitted above, see FIXME
+        setState(InferiorStopped);
+        emit inferiorStarted();
     } else if (record.resultClass == GdbResultError) {
         //QString msg = __(record.data.findChild("msg").data());
         QString msg1 = tr("Connecting to remote server failed:\n");
@@ -264,10 +260,8 @@ void RemoteGdbAdapter::shutdown()
 {
     switch (state()) {
 
-    case AdapterNotRunning:
-        return;
-
-    case InferiorStarted:
+    case InferiorRunning:
+    case InferiorStopped:
         setState(InferiorShuttingDown);
         m_engine->postCommand(_("kill"), CB(handleKill));
         return;
@@ -313,7 +307,7 @@ void RemoteGdbAdapter::handleExit(const GdbResponse &response)
 void RemoteGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
 {
     debugMessage(_("GDB PROESS FINISHED"));
-    setState(AdapterNotRunning);
+    setState(DebuggerNotReady);
     emit adapterShutDown();
 }
 

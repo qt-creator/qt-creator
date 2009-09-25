@@ -887,8 +887,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         this, SLOT(resetLocation()));
     connect(m_manager, SIGNAL(gotoLocationRequested(StackFrame,bool)),
         this, SLOT(gotoLocation(StackFrame,bool)));
-    connect(m_manager, SIGNAL(statusChanged(int)),
-        this, SLOT(changeStatus(int)));
+    connect(m_manager, SIGNAL(stateChanged(int)),
+        this, SLOT(handleStateChanged(int)));
     connect(m_manager, SIGNAL(previousModeRequested()),
         this, SLOT(activatePreviousMode()));
     connect(m_manager, SIGNAL(debugModeRequested()),
@@ -1040,7 +1040,7 @@ void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
     const QPoint &point, int pos)
 {
     if (!theDebuggerBoolSetting(UseToolTipsInMainEditor)
-            || m_manager->status() == DebuggerProcessNotReady)
+            || m_manager->state() == DebuggerNotReady)
         return;
 
     m_manager->setToolTipExpression(point, editor, pos);
@@ -1111,9 +1111,9 @@ void DebuggerPlugin::gotoLocation(const StackFrame &frame, bool setMarker)
     }
 }
 
-void DebuggerPlugin::changeStatus(int status)
+void DebuggerPlugin::handleStateChanged(int state)
 {
-    const bool startIsContinue = (status == DebuggerInferiorStopped);
+    const bool startIsContinue = (state == InferiorStopped);
     ICore *core = ICore::instance();
     if (startIsContinue) {
         core->addAdditionalContext(m_gdbRunningContext);
@@ -1123,15 +1123,15 @@ void DebuggerPlugin::changeStatus(int status)
         core->updateContext();
     }
 
-    const bool started = status == DebuggerInferiorRunning
-        || status == DebuggerInferiorRunningRequested
-        || status == DebuggerInferiorStopRequested
-        || status == DebuggerInferiorStopped;
+    const bool started = state == InferiorRunning
+        || state == InferiorRunningRequested
+        || state == InferiorStopping
+        || state == InferiorStopped;
 
-    const bool starting = status == DebuggerProcessStartingUp;
-    //const bool running = status == DebuggerInferiorRunning;
+    const bool starting = state == EngineStarting;
+    //const bool running = state == InferiorRunning;
 
-    const bool ready = status == DebuggerInferiorStopped
+    const bool ready = state == InferiorStopped
             && m_manager->startParameters()->startMode != AttachCore;
 
     m_startExternalAction->setEnabled(!started && !starting);

@@ -92,6 +92,48 @@
 #   define STATE_DEBUG(s)
 #endif
 
+// Note: the Debugger process itself is referred to as 'Debugger',
+// whereas the debugged process is referred to as 'Inferior'.
+//
+// 0 == DebuggerNotReady
+//          |
+//     EngineStarting
+//          |
+//     AdapterStarting --> AdapterStartFailed --> 0
+//          |
+//     AdapterStarted
+//          |
+//     InferiorStarting --> InferiorStartFailed --> 0
+//          |          |
+//          |          |
+//     InferiorStopped |
+//          |          |
+//          | <--------
+//          |  .------------------------------------.
+//          |  v                                    |
+//     InferiorRunningRequested                     |
+//          |                                       |
+//     InferiorRunning  --> 1 (normal exit)         |
+//          |                                       |
+//     InferiorStopping                             |
+//          |                                       |
+//     InferiorStopped --> 1                        |
+//          |                                       |
+//          `---------------------------------------'
+//          
+// 1 == InferiorShuttingDown  -> InferiorShutdownFailed
+//          |
+//     InferiorShutDown
+//          |
+//     AdapterShuttingDown  -> AdapterShutdownFailed --> 0
+//          |
+//          0
+//
+// Allowed actions:
+//    [R] :  Run
+//    [C] :  Continue
+//    [N] :  Step, Next
+
 namespace Debugger {
 namespace Internal {
 
@@ -134,21 +176,31 @@ static const QString tooltipIName = "tooltip";
 
 static const char *stateName(int s)
 {
+    #define SN(x) case x: return #x;
     switch (s) {
-    case DebuggerProcessNotReady:
-        return "DebuggerProcessNotReady";
-    case DebuggerProcessStartingUp:
-        return "DebuggerProcessStartingUp";
-    case DebuggerInferiorRunningRequested:
-        return "DebuggerInferiorRunningRequested";
-    case DebuggerInferiorRunning:
-        return "DebuggerInferiorRunning";
-    case DebuggerInferiorStopRequested:
-        return "DebuggerInferiorStopRequested";
-    case DebuggerInferiorStopped:
-        return "DebuggerInferiorStopped";
+        SN(DebuggerNotReady)
+        SN(EngineStarting)
+        SN(AdapterStarting)
+        SN(AdapterStarted)
+        SN(AdapterStartFailed)
+        SN(InferiorPreparing)
+        SN(InferiorPrepared)
+        SN(InferiorPreparationFailed)
+        SN(InferiorStarting)
+        SN(InferiorStartFailed)
+        SN(InferiorRunningRequested)
+        SN(InferiorRunning)
+        SN(InferiorStopping)
+        SN(InferiorStopped)
+        SN(InferiorStopFailed)
+        SN(InferiorShuttingDown)
+        SN(InferiorShutDown)
+        SN(InferiorShutdownFailed)
+        SN(AdapterShuttingDown)
+        SN(AdapterShutdownFailed)
     }
     return "<unknown>";
+    #undef SN
 }
 
 
@@ -214,7 +266,7 @@ DebuggerManager::~DebuggerManager()
 
 void DebuggerManager::init()
 {
-    m_status = -1;
+    m_state = DebuggerState(-1);
     m_busy = false;
 
     m_modulesHandler = 0;
@@ -443,7 +495,7 @@ void DebuggerManager::init()
     localsAndWatchers->setStretchFactor(2, 1);
     m_watchDock = m_mainWindow->addDockForWidget(localsAndWatchers);
 
-    setStatus(DebuggerProcessNotReady);
+    setState(DebuggerNotReady);
 }
 
 QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTypeFlags)
@@ -475,11 +527,6 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
 IDebuggerEngine *DebuggerManager::engine()
 {
     return m_engine;
-}
-
-IDebuggerManagerAccessForEngines *DebuggerManager::engineInterface()
-{
-    return this;
 }
 
 void DebuggerManager::createNewDock(QWidget *widget)
@@ -546,34 +593,22 @@ void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
     }
 }
 
-void DebuggerManager::notifyInferiorStopRequested()
-{
-    setStatus(DebuggerInferiorStopRequested);
-    showStatusMessage(tr("Stop requested..."), 5000);
-}
-
 void DebuggerManager::notifyInferiorStopped()
 {
     resetLocation();
-    setStatus(DebuggerInferiorStopped);
+    setState(InferiorStopped);
     showStatusMessage(tr("Stopped."), 5000);
-}
-
-void DebuggerManager::notifyInferiorRunningRequested()
-{
-    setStatus(DebuggerInferiorRunningRequested);
-    showStatusMessage(tr("Running requested..."), 5000);
 }
 
 void DebuggerManager::notifyInferiorRunning()
 {
-    setStatus(DebuggerInferiorRunning);
+    setState(InferiorRunning);
     showStatusMessage(tr("Running..."), 5000);
 }
 
 void DebuggerManager::notifyInferiorExited()
 {
-    setStatus(DebuggerProcessNotReady);
+    setState(DebuggerNotReady);
     showStatusMessage(tr("Exited."), 5000);
 }
 
@@ -649,9 +684,9 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
     STATE_DEBUG(fileName << lineNumber);
     QTC_ASSERT(m_breakHandler, return);
-    if (status() != DebuggerInferiorRunning
-         && status() != DebuggerInferiorStopped
-         && status() != DebuggerProcessNotReady) {
+    if (state() != InferiorRunning
+         && state() != InferiorStopped
+         && state() != DebuggerNotReady) {
         showStatusMessage(tr("Changing breakpoint state requires either a "
             "fully running or fully stopped application."));
         return;
@@ -670,9 +705,9 @@ void DebuggerManager::toggleBreakpointEnabled(const QString &fileName, int lineN
 {
     STATE_DEBUG(fileName << lineNumber);
     QTC_ASSERT(m_breakHandler, return);
-    if (status() != DebuggerInferiorRunning
-         && status() != DebuggerInferiorStopped
-         && status() != DebuggerProcessNotReady) {
+    if (state() != InferiorRunning
+         && state() != InferiorStopped
+         && state() != DebuggerNotReady) {
         showStatusMessage(tr("Changing breakpoint state requires either a "
             "fully running or fully stopped application."));
         return;
@@ -862,7 +897,7 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 
     STATE_DEBUG(m_startParameters->executable << m_engine);
     setBusyCursor(false);
-    setStatus(DebuggerProcessStartingUp);
+    setState(EngineStarting);
     connect(m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
     m_engine->startDebugger(m_startParameters);
 }
@@ -870,7 +905,7 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 void DebuggerManager::startFailed()
 {
     disconnect(m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
-    setStatus(DebuggerProcessNotReady);
+    setState(DebuggerNotReady);
     emit debuggingFinished();
 }
 
@@ -892,7 +927,7 @@ void DebuggerManager::exitDebugger()
     if (m_engine)
         m_engine->exitDebugger();
     cleanupViews();
-    setStatus(DebuggerProcessNotReady);
+    setState(DebuggerNotReady);
     setBusyCursor(false);
     emit debuggingFinished();
 }
@@ -900,7 +935,7 @@ void DebuggerManager::exitDebugger()
 void DebuggerManager::notifyEngineFinished()
 {
     cleanupViews();
-    setStatus(DebuggerProcessNotReady);
+    setState(DebuggerNotReady);
     setBusyCursor(false);
     emit debuggingFinished();
 }
@@ -1011,7 +1046,7 @@ void DebuggerManager::executeDebuggerCommand(const QString &command)
 void DebuggerManager::sessionLoaded()
 {
     cleanupViews();
-    setStatus(DebuggerProcessNotReady);
+    setState(DebuggerNotReady);
     setBusyCursor(false);
     loadSessionData();
 }
@@ -1021,7 +1056,7 @@ void DebuggerManager::aboutToUnloadSession()
     cleanupViews();
     if (m_engine)
         m_engine->shutdown();
-    setStatus(DebuggerProcessNotReady);
+    setState(DebuggerNotReady);
     setBusyCursor(false);
 }
 
@@ -1094,79 +1129,6 @@ void DebuggerManager::breakByFunction(const QString &functionName)
     attemptBreakpointSynchronization();
 }
 
-static bool isAllowedTransition(int from, int to)
-{
-    return (from == -1)
-      || (from == DebuggerProcessNotReady && to == DebuggerProcessStartingUp)
-      || (from == DebuggerProcessStartingUp && to == DebuggerInferiorStopped)
-      || (from == DebuggerInferiorStopped && to == DebuggerInferiorRunningRequested)
-      || (from == DebuggerInferiorRunningRequested && to == DebuggerInferiorRunning)
-      || (from == DebuggerInferiorRunning && to == DebuggerInferiorStopRequested)
-      || (from == DebuggerInferiorRunning && to == DebuggerInferiorStopped)
-      || (from == DebuggerInferiorStopRequested && to == DebuggerInferiorStopped)
-      || (to == DebuggerProcessNotReady);
-}
-
-void DebuggerManager::setStatus(int status)
-{
-    STATE_DEBUG("STATUS CHANGE: FROM " << stateName(m_status)
-            << " TO " << stateName(status));
-
-    if (status == m_status)
-        return;
-
-    if (!isAllowedTransition(m_status, status)) {
-        const QString msg = QString::fromLatin1("%1: UNEXPECTED TRANSITION: %2 -> %3")
-            .arg(_(Q_FUNC_INFO), _(stateName(m_status)), _(stateName(status)));
-        qWarning("%s", qPrintable(msg));
-    }
-
-    m_status = status;
-
-    const bool started = status == DebuggerInferiorRunning
-        || status == DebuggerInferiorRunningRequested
-        || status == DebuggerInferiorStopRequested
-        || status == DebuggerInferiorStopped;
-
-    const bool running = status == DebuggerInferiorRunning;
-
-    const bool ready = status == DebuggerInferiorStopped
-            && m_startParameters->startMode != AttachCore;
-
-    STATE_DEBUG("STARTED: " << started << " RUNNING: " << running
-        << " READY: " << ready);
-
-    if (ready)
-        QApplication::alert(mainWindow(), 3000);
-
-    m_watchAction->setEnabled(ready);
-    m_breakAction->setEnabled(true);
-
-    bool interruptIsExit = !running;
-    if (interruptIsExit) {
-        m_stopAction->setIcon(QIcon(":/debugger/images/debugger_stop_small.png"));
-        m_stopAction->setText(tr("Stop Debugger"));
-    } else {
-        m_stopAction->setIcon(QIcon(":/debugger/images/debugger_interrupt_small.png"));
-        m_stopAction->setText(tr("Interrupt"));
-    }
-
-    m_stopAction->setEnabled(started);
-    m_resetAction->setEnabled(true);
-
-    m_stepAction->setEnabled(ready);
-    m_stepOutAction->setEnabled(ready);
-    m_runToLineAction->setEnabled(ready);
-    m_runToFunctionAction->setEnabled(ready);
-    m_jumpToLineAction->setEnabled(ready);
-    m_nextAction->setEnabled(ready);
-    //showStatusMessage(QString("started: %1, running: %2")
-    // .arg(started).arg(running));
-    emit statusChanged(m_status);
-    const bool notbusy = ready || status == DebuggerProcessNotReady;
-    setBusyCursor(!notbusy);
-}
-
 void DebuggerManager::setBusyCursor(bool busy)
 {
     //STATE_DEBUG("BUSY FROM: " << m_busy << " TO: " << m_busy);
@@ -1207,14 +1169,13 @@ void DebuggerManager::detachDebugger()
 
 void DebuggerManager::interruptDebuggingRequest()
 {
-    STATE_DEBUG(status());
+    STATE_DEBUG(state());
     if (!m_engine)
         return;
-    bool interruptIsExit = (status() != DebuggerInferiorRunning);
-    if (interruptIsExit)
+    bool interruptIsExit = (state() != InferiorRunning);
+    if (interruptIsExit) {
         exitDebugger();
-    else {
-        setStatus(DebuggerInferiorStopRequested);
+    } else {
         m_engine->interruptInferior();
     }
 }
@@ -1481,6 +1442,158 @@ void DebuggerManager::showMessageBox(int icon,
         title, text, QMessageBox::NoButton, mainWindow());
     mb->setAttribute(Qt::WA_DeleteOnClose);
     mb->show();
+}
+
+DebuggerState DebuggerManager::state() const
+{
+    return m_state;
+}
+
+static bool isAllowedTransition(int from, int to)
+{
+    switch (from) {
+    case -1:
+        return to == DebuggerNotReady;
+
+    case DebuggerNotReady:
+        return to == EngineStarting || to == DebuggerNotReady;
+
+    case EngineStarting:
+        return to == AdapterStarting || to == DebuggerNotReady;
+
+    case AdapterStarting:
+        return to == AdapterStarted || to == AdapterStartFailed;
+    case AdapterStarted:
+        return to == InferiorPreparing;
+    case AdapterStartFailed:
+        return to == DebuggerNotReady;
+
+    case InferiorPreparing:
+        return to == InferiorPrepared || to == InferiorPreparationFailed;
+    case InferiorPrepared:
+        return to == InferiorStarting;
+    case InferiorPreparationFailed:
+        return to == DebuggerNotReady;
+
+    case InferiorStarting:
+        return to == InferiorRunningRequested || to == InferiorStopped
+            || to == InferiorStartFailed;
+    case InferiorStartFailed:
+        return to == DebuggerNotReady;
+
+    case InferiorRunningRequested:
+        return to == InferiorRunning;
+    case InferiorRunning:
+        return to == InferiorStopping || to == InferiorShuttingDown;
+
+    case InferiorStopping:
+        return to == InferiorStopped || to == InferiorStopFailed;
+    case InferiorStopped:
+        return to == InferiorRunningRequested || to == InferiorShuttingDown;
+    case InferiorStopFailed:
+        return to == DebuggerNotReady;
+
+    case InferiorShuttingDown:
+        return to == InferiorShutDown || to == InferiorShutdownFailed;
+    case InferiorShutDown:
+        return to == AdapterShuttingDown;
+
+    case AdapterShuttingDown:
+        return to == DebuggerNotReady;
+
+    default:
+        qDebug() << "UNKNOWN STATE: " << from;
+    }
+    return false;
+}
+
+void DebuggerManager::setState(DebuggerState state)
+{
+    //STATE_DEBUG("STATUS CHANGE: FROM " << stateName(m_state)
+    //        << " TO " << stateName(state));
+
+    QString msg = _("State changed from %1(%2) to %3(%4).")
+        .arg(stateName(m_state)).arg(m_state).arg(stateName(state)).arg(state);
+    qDebug() << msg;
+    if (!isAllowedTransition(m_state, state))
+        qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
+
+    showDebuggerOutput(LogDebug, msg);
+
+    resetLocation();
+    if (state == m_state)
+        return;
+
+    m_state = state;
+
+    if (m_state == InferiorStopped)
+        resetLocation();
+
+    const bool started = state == InferiorRunning
+        || state == InferiorRunningRequested
+        || state == InferiorStopping
+        || state == InferiorStopped;
+
+    const bool running = state == InferiorRunning;
+
+    const bool ready = state == InferiorStopped
+            && m_startParameters->startMode != AttachCore;
+
+    if (ready)
+        QApplication::alert(mainWindow(), 3000);
+
+    m_watchAction->setEnabled(ready);
+    m_breakAction->setEnabled(true);
+
+    bool interruptIsExit = !running;
+    if (interruptIsExit) {
+        m_stopAction->setIcon(QIcon(":/debugger/images/debugger_stop_small.png"));
+        m_stopAction->setText(tr("Stop Debugger"));
+    } else {
+        m_stopAction->setIcon(QIcon(":/debugger/images/debugger_interrupt_small.png"));
+        m_stopAction->setText(tr("Interrupt"));
+    }
+
+    m_stopAction->setEnabled(started);
+    m_resetAction->setEnabled(true);
+
+    m_stepAction->setEnabled(ready);
+    m_stepOutAction->setEnabled(ready);
+    m_runToLineAction->setEnabled(ready);
+    m_runToFunctionAction->setEnabled(ready);
+    m_jumpToLineAction->setEnabled(ready);
+    m_nextAction->setEnabled(ready);
+    //showStatusMessage(QString("started: %1, running: %2")
+    // .arg(started).arg(running));
+    emit stateChanged(m_state);
+    const bool notbusy = ready || state == DebuggerNotReady;
+    setBusyCursor(!notbusy);
+}
+
+QDebug operator<<(QDebug d, DebuggerState state)
+{
+    return d << stateName(state) << '(' << int(state) << ')';
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// AbstractDebuggerEngine
+//
+//////////////////////////////////////////////////////////////////////
+
+void IDebuggerEngine::showStatusMessage(const QString &msg, int timeout)
+{
+    m_manager->showStatusMessage(msg, timeout);
+}
+
+DebuggerState IDebuggerEngine::state() const
+{
+    return m_manager->state();
+}
+
+void IDebuggerEngine::setState(DebuggerState state)
+{
+    m_manager->setState(state);
 }
 
 //////////////////////////////////////////////////////////////////////

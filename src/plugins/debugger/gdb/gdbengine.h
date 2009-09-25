@@ -79,32 +79,12 @@ enum DebuggingHelperState
     DebuggingHelperUnavailable,
 };
 
-enum GdbAdapterState
-{
-    AdapterNotRunning,
-    AdapterStarting,
-    AdapterStarted,
-    AdapterStartFailed,
-    InferiorPreparing,
-    InferiorPrepared,
-    InferiorPreparationFailed,
-    InferiorStarting,
-    InferiorStarted,
-    InferiorStartFailed,
-    InferiorShuttingDown,
-    InferiorShutDown,
-    InferiorShutdownFailed,
-    AdapterShuttingDown,
-    //AdapterShutDown,  // use AdapterNotRunning
-    AdapterShutdownFailed,
-};
-
 class GdbEngine : public IDebuggerEngine
 {
     Q_OBJECT
 
 public:
-    explicit GdbEngine(DebuggerManager *parent);
+    explicit GdbEngine(DebuggerManager *manager);
     ~GdbEngine();
 
 signals:
@@ -292,10 +272,6 @@ private:
     bool showToolTip();
 
     // Convenience
-    DebuggerManager *manager() { return m_manager; }
-    void showStatusMessage(const QString &msg, int timeout = -1)
-        { m_manager->showStatusMessage(msg, timeout); }
-    int status() const { return m_manager->status(); }
     QMainWindow *mainWindow() const { return m_manager->mainWindow(); }
     DebuggerStartMode startMode() const;
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
@@ -438,14 +414,12 @@ private:
     typedef void (GdbEngine::*Continuation)();
     // function called after all previous responses have been received
     Continuation m_continuationAfterDone;
-    void handleInitialBreakpointsSet();
+    void startInferior();
 
     bool m_modulesListOutdated;
 
     QList<GdbCommand> m_commandsToRunOnTemporaryBreak;
 
-    DebuggerManager * const m_manager;
-    IDebuggerManagerAccessForEngines * const qq;
     DebuggerStartParametersPtr m_startParameters;
     // make sure to re-initialize new members in initializeVariables();
 
@@ -457,11 +431,7 @@ private:
     RemoteGdbAdapter *m_remoteAdapter; // owned
     TrkGdbAdapter *m_trkAdapter;       // owned
 
-    // State
     friend class AbstractGdbAdapter;
-    GdbAdapterState m_state;
-    void setState(GdbAdapterState state);
-    GdbAdapterState state() const;
 
 public:
     void showMessageBox(int icon, const QString &title, const QString &text);

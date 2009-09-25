@@ -45,7 +45,6 @@ namespace Debugger {
 namespace Internal {
 
 class DebuggerManager;
-class IDebuggerManagerAccessForEngines;
 class WatchHandler;
 class CdbStackFrameContext;
 class CdbStackTraceContext;
@@ -161,9 +160,8 @@ struct CdbDebugEnginePrivate
     QSharedPointer<CdbDumperHelper> m_dumper;
     QString                 m_baseImagePath;
 
-    CdbDebugEngine* m_engine;
-    DebuggerManager *m_debuggerManager;
-    IDebuggerManagerAccessForEngines *m_debuggerManagerAccess;
+    CdbDebugEngine *m_engine;
+    DebuggerManager *manager() const { return m_engine->manager(); }
     CdbStackTraceContext *m_currentStackTrace;
     EditorToolTipCache m_editorToolTipCache;
 

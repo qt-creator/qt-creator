@@ -100,6 +100,10 @@ public:
     virtual void reloadSourceFiles();
     virtual void reloadFullStack() {}
 
+    DebuggerState state() const; 
+    void setState(DebuggerState state);
+    void showStatusMessage(const QString &msg, int timeout = -1);
+
 public slots:
     void syncDebuggerPaths();
 

@@ -52,8 +52,6 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
-class DebuggerManager;
-class IDebuggerManagerAccessForEngines;
 class ScriptAgent;
 class WatchData;
 
@@ -62,7 +60,7 @@ class ScriptEngine : public IDebuggerEngine
     Q_OBJECT
 
 public:
-    ScriptEngine(DebuggerManager *parent);
+    ScriptEngine(DebuggerManager *manager);
     ~ScriptEngine();
 
 private:
@@ -74,7 +72,8 @@ private:
     void nextIExec();
 
     void shutdown();
-    void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
+    void setToolTipExpression(const QPoint &mousePos,
+        TextEditor::ITextEditor *editor, int cursorPos);
     void startDebugger(const DebuggerStartParametersPtr &sp);
 
     void exitDebugger();
@@ -111,8 +110,6 @@ private:
 
 private:
     friend class ScriptAgent;
-    DebuggerManager *q;
-    IDebuggerManagerAccessForEngines *qq;
 
     QScriptEngine *m_scriptEngine;
     QString m_scriptContents;

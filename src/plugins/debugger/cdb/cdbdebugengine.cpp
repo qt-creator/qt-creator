@@ -286,19 +286,18 @@ CdbComInterfaces::CdbComInterfaces() :
 
 // --- CdbDebugEnginePrivate
 
-CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent,
+CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *manager,
                                              const QSharedPointer<CdbOptions> &options,
                                              CdbDebugEngine* engine) :
     m_options(options),
     m_hDebuggeeProcess(0),
     m_hDebuggeeThread(0),
     m_breakEventMode(BreakEventHandle),
-    m_dumper(new CdbDumperHelper(parent, &m_cif)),
+    m_dumper(new CdbDumperHelper(manager, &m_cif)),
     m_watchTimer(-1),
     m_debugEventCallBack(engine),
     m_engine(engine),
-    m_debuggerManager(parent),
-    m_debuggerManagerAccess(parent->engineInterface()),
+    m_debuggerManagerAccess(manager->engineInterface()),
     m_currentStackTrace(0),
     m_firstActivatedFrame(true),
     m_mode(AttachCore)
@@ -369,11 +368,11 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
     return true;
 }
 
-IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *parent,
+IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *manager,
                                         const QSharedPointer<CdbOptions> &options,
                                         QString *errorMessage)
 {
-    CdbDebugEngine *rc = new CdbDebugEngine(parent, options);
+    CdbDebugEngine *rc = new CdbDebugEngine(manager, options);
     if (rc->m_d->init(errorMessage)) {
         rc->syncDebuggerPaths();
         return rc;
@@ -446,7 +445,7 @@ void CdbDebugEnginePrivate::cleanStackTrace()
     }
 }
 
-CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent, const QSharedPointer<CdbOptions> &options) :
+CdbDebugEngine::CdbDebugEngine(DebuggerManager *manager, const QSharedPointer<CdbOptions> &options) :
     IDebuggerEngine(parent),
     m_d(new CdbDebugEnginePrivate(parent, options, this))
 {
@@ -455,13 +454,13 @@ CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent, const QSharedPointer<Cdb
     connect(&m_d->m_consoleStubProc, SIGNAL(processStarted()), this, SLOT(slotConsoleStubStarted()));
     connect(&m_d->m_consoleStubProc, SIGNAL(wrapperStopped()), this, SLOT(slotConsoleStubTerminated()));
     connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerOutput(int,QString)),
-            m_d->m_debuggerManager, SLOT(showDebuggerOutput(int,QString)));
+            manager(), SLOT(showDebuggerOutput(int,QString)));
     connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerInputPrompt(int,QString)),
-            m_d->m_debuggerManager, SLOT(showDebuggerInput(int,QString)));
+            manager(), SLOT(showDebuggerInput(int,QString)));
     connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggeeOutput(QString)),
-            m_d->m_debuggerManager, SLOT(showApplicationOutput(QString)));
+            manager(), SLOT(showApplicationOutput(QString)));
     connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggeeInputPrompt(QString)),
-            m_d->m_debuggerManager, SLOT(showApplicationOutput(QString)));
+            manager(), SLOT(showApplicationOutput(QString)));
 }
 
 CdbDebugEngine::~CdbDebugEngine()
@@ -588,7 +587,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
         }
     }
     m_d->m_dumper->reset(dumperLibName, dumperEnabled);
-    m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
+    showStatusMessage("Starting Debugger", -1);
     QString errorMessage;
     bool rc = false;
     bool needWatchTimer = false;
@@ -621,7 +620,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
         break;
     }
     if (rc) {
-        m_d->m_debuggerManager->showStatusMessage(tr("Debugger running"), -1);
+        showStatusMessage(tr("Debugger running"), -1);
         if (needWatchTimer)
             startWatchTimer();
     } else {
@@ -653,13 +652,13 @@ bool CdbDebugEngine::startAttachDebugger(qint64 pid, DebuggerStartMode sm, QStri
 
 bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *errorMessage)
 {
-    m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
+    showStatusMessage("Starting Debugger", -1);
 
     DEBUG_CREATE_PROCESS_OPTIONS dbgopts;
     memset(&dbgopts, 0, sizeof(dbgopts));
     dbgopts.CreateFlags = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS;
 
-    const QSharedPointer<DebuggerStartParameters> sp = m_d->m_debuggerManager->startParameters();
+    const QSharedPointer<DebuggerStartParameters> sp = manager()->startParameters();
     const QString filename(sp->executable);
     // Set image path
     const QFileInfo fi(filename);
@@ -728,7 +727,7 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
     // Attaching to crashed: This handshake (signalling an event) is required for
     // the exception to be delivered to the debugger
     if (m_mode == AttachCrashedExternal) {
-        const QString crashParameter = m_debuggerManager->startParameters()->crashParameter;
+        const QString crashParameter = manager()->startParameters()->crashParameter;
         if (!crashParameter.isEmpty()) {
             ULONG64 evtNr = crashParameter.toULongLong();
             const HRESULT hr = m_cif.debugControl->SetNotifyEventHandle(evtNr);
@@ -748,7 +747,7 @@ void CdbDebugEngine::processTerminated(unsigned long exitCode)
     m_d->clearForRun();
     m_d->setDebuggeeHandles(0, 0);
     m_d->m_debuggerManagerAccess->notifyInferiorExited();
-    m_d->m_debuggerManager->exitDebugger();
+    manager()->exitDebugger();
 }
 
 // End debugging using
@@ -1025,8 +1024,9 @@ bool CdbDebugEnginePrivate::continueInferior(QString *errorMessage)
     clearForRun();
     setCodeLevel();
     m_engine->killWatchTimer();
-    m_debuggerManager->resetLocation();
-    m_debuggerManagerAccess->notifyInferiorRunningRequested();
+    manager()->resetLocation();
+    setState(InferiorRunningRequested);
+    showStatusMessage(tr("Running requested..."), 5000);
 
     if (!continueInferiorProcess(errorMessage))
         return false;
@@ -1186,7 +1186,7 @@ void CdbDebugEngine::activateFrame(int frameIndex)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << frameIndex;
 
-    if (m_d->m_debuggerManager->status() != DebuggerInferiorStopped) {
+    if (state() != InferiorStopped) {
         qWarning("WARNING %s: invoked while debuggee is running\n", Q_FUNC_INFO);
         return;
     }
@@ -1215,7 +1215,7 @@ void CdbDebugEngine::activateFrame(int frameIndex)
             break;
         }
 
-        m_d->m_debuggerManager->gotoLocation(frame, true);
+        manager()->gotoLocation(frame, true);
 
         if (oldIndex != frameIndex || m_d->m_firstActivatedFrame) {
             watchHandler->beginCycle();
@@ -1235,7 +1235,7 @@ void CdbDebugEngine::selectThread(int index)
         qDebug() << Q_FUNC_INFO << index;
 
     //reset location arrow
-    m_d->m_debuggerManager->resetLocation();
+    manager()->resetLocation();
 
     ThreadsHandler *threadsHandler = m_d->m_debuggerManagerAccess->threadsHandler();
     threadsHandler->setCurrentThread(index);
@@ -1417,7 +1417,7 @@ void CdbDebugEngine::timerEvent(QTimerEvent* te)
     const HRESULT hr = m_d->m_cif.debugControl->WaitForEvent(0, 1);
     if (debugCDB)
         if (debugCDB > 1 || hr != S_FALSE)
-            qDebug() << Q_FUNC_INFO << "WaitForEvent" << m_d->m_debuggerManager->status() <<   msgDebugEngineComResult(hr);
+            qDebug() << Q_FUNC_INFO << "WaitForEvent" << state() << msgDebugEngineComResult(hr);
 
     switch (hr) {
         case S_OK:
@@ -1446,13 +1446,13 @@ void CdbDebugEngine::slotConsoleStubStarted()
         m_d->m_debuggerManagerAccess->notifyInferiorPidChanged(appPid);
         m_d->m_debuggerManagerAccess->notifyInferiorRunning();
     } else {
-        QMessageBox::critical(m_d->m_debuggerManager->mainWindow(), tr("Debugger Error"), errorMessage);
+        QMessageBox::critical(manager()->mainWindow(), tr("Debugger Error"), errorMessage);
     }
 }
 
 void CdbDebugEngine::slotConsoleStubError(const QString &msg)
 {
-    QMessageBox::critical(m_d->m_debuggerManager->mainWindow(), tr("Debugger Error"), msg);
+    QMessageBox::critical(manager()->mainWindow(), tr("Debugger Error"), msg);
 }
 
 void CdbDebugEngine::slotConsoleStubTerminated()
