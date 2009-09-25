@@ -148,6 +148,7 @@ public:
     friend class GdbEngine;
     friend class ScriptEngine;
     friend class TcfEngine;
+    friend class CdbDebugEngine;
     friend struct CdbDebugEnginePrivate;
 
     QList<Core::IOptionsPage*> initializeEngines(unsigned enabledTypeFlags);

@@ -52,6 +52,7 @@
 #include <utils/qtcassert.h>
 #include <utils/winutils.h>
 #include <utils/consoleprocess.h>
+#include <utils/fancymainwindow.h>
 #include <texteditor/itexteditor.h>
 
 #include <QtCore/QDebug>
