@@ -495,3 +495,41 @@ void LookupContext::expand(Scope *scope,
         expandObjCMethod(meth, visibleScopes, expandedScopes);
     }
 }
+
+Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
+{
+    Symbol *canonical = symbol;
+    for (; symbol; symbol = symbol->next()) {
+        if (symbol->name() == canonical->name())
+            canonical = symbol;
+    }
+    return canonical;
+}
+
+Symbol *LookupContext::canonicalSymbol(const QList<Symbol *> &candidates)
+{
+    if (candidates.isEmpty())
+        return 0;
+
+    Symbol *candidate = candidates.first();
+    if (candidate->scope()->isClassScope() && candidate->type()->isFunctionType()) {
+        Function *function = 0;
+
+        for (int i = 0; i < candidates.size(); ++i) {
+            Symbol *c = candidates.at(i);
+
+            if (! c->scope()->isClassScope())
+                continue; // ### or break?
+
+            else if (Function *f = c->type()->asFunctionType()) {
+                if (f->isVirtual())
+                    function = f;
+            }
+        }
+
+        if (function)
+            return canonicalSymbol(function);
+    }
+
+    return canonicalSymbol(candidate);
+}
