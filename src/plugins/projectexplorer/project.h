@@ -101,7 +101,7 @@ public:
     void copyBuildConfiguration(const QString &source, const QString &dest);
     BuildConfiguration *buildConfiguration(const QString & name) const;
     QList<BuildConfiguration *> buildConfigurations() const;
-    void setDisplayNameFor(const QString &buildConfiguration, const QString &displayName);
+    void setDisplayNameFor(BuildConfiguration *configuration, const QString &displayName);
     BuildConfiguration *activeBuildConfiguration() const;
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
 

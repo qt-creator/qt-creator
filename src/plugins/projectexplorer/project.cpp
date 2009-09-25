@@ -509,22 +509,22 @@ EditorConfiguration *Project::editorConfiguration() const
     return m_editorConfiguration;
 }
 
-void Project::setDisplayNameFor(const QString &buildConfigurationName, const QString &displayName)
+void Project::setDisplayNameFor(BuildConfiguration *configuration, const QString &displayName)
 {
     QStringList displayNames;
     foreach (BuildConfiguration *bc, m_buildConfigurationValues) {
-        if (bc->name() != buildConfigurationName)
+        if (bc != configuration)
             displayNames << bc->displayName();
     }
     if (displayNames.contains(displayName)) {
         int i = 2;
         while (displayNames.contains(displayName + QString::number(i)))
             ++i;
-        buildConfiguration(buildConfigurationName)->setDisplayName(displayName + QString::number(i));
+        configuration->setDisplayName(displayName + QString::number(i));
     } else {
-        buildConfiguration(buildConfigurationName)->setDisplayName(displayName);
+        configuration->setDisplayName(displayName);
     }
-    emit buildConfigurationDisplayNameChanged(buildConfigurationName);
+    emit buildConfigurationDisplayNameChanged(configuration->name());
 }
 
 QByteArray Project::predefinedMacros(const QString &) const

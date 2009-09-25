@@ -323,20 +323,8 @@ void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
         newBuildConfiguration += QString::number(i);
     }
 
-    // Check that we don't have a configuration with the same displayName
-    QStringList displayNames;
-    foreach (const BuildConfiguration *bc, m_project->buildConfigurations())
-        displayNames << bc->displayName();
-
-    if (displayNames.contains(newDisplayName)) {
-        int i = 2;
-        while (displayNames.contains(newDisplayName + QString::number(i)))
-            ++i;
-        newDisplayName += QString::number(i);
-    }
-
     m_project->copyBuildConfiguration(sourceConfiguration, newBuildConfiguration);
-    m_project->setDisplayNameFor(newBuildConfiguration, newDisplayName);
+    m_project->setDisplayNameFor(m_project->buildConfiguration(newBuildConfiguration), newDisplayName);
 
     m_buildConfiguration = newBuildConfiguration;
     updateBuildSettings();

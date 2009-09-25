@@ -101,7 +101,7 @@ public:
     //building environment
     ProjectExplorer::Environment environment(ProjectExplorer::BuildConfiguration *configuration) const;
     ProjectExplorer::Environment baseEnvironment(ProjectExplorer::BuildConfiguration *configuration) const;
-    void setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff);
+    void setUserEnvironmentChanges(ProjectExplorer::BuildConfiguration *configuration, const QList<ProjectExplorer::EnvironmentItem> &diff);
     QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges(ProjectExplorer::BuildConfiguration *configuration) const;
     bool useSystemEnvironment(ProjectExplorer::BuildConfiguration *configuration) const;
     void setUseSystemEnvironment(ProjectExplorer::BuildConfiguration *configuration, bool b);

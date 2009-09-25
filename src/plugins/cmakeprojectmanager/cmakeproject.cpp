@@ -584,14 +584,13 @@ QList<ProjectExplorer::EnvironmentItem> CMakeProject::userEnvironmentChanges(Bui
     return EnvironmentItem::fromStringList(configuration->value("userEnvironmentChanges").toStringList());
 }
 
-void CMakeProject::setUserEnvironmentChanges(const QString &buildConfig, const QList<ProjectExplorer::EnvironmentItem> &diff)
+void CMakeProject::setUserEnvironmentChanges(BuildConfiguration *configuration, const QList<ProjectExplorer::EnvironmentItem> &diff)
 {
-    ProjectExplorer::BuildConfiguration *bc = buildConfiguration(buildConfig);
     QStringList list = EnvironmentItem::toStringList(diff);
-    if (list == bc->value("userEnvironmentChanges"))
+    if (list == configuration->value("userEnvironmentChanges"))
         return;
-    bc->setValue("userEnvironmentChanges", list);
-    emit environmentChanged(buildConfig);
+    configuration->setValue("userEnvironmentChanges", list);
+    emit environmentChanged(configuration->name());
 }
 
 QString CMakeProject::buildDirectory(BuildConfiguration *configuration) const

@@ -85,7 +85,8 @@ void CMakeBuildEnvironmentWidget::init(const QString &buildConfigurationName)
 
 void CMakeBuildEnvironmentWidget::environmentModelUserChangesUpdated()
 {
-    m_pro->setUserEnvironmentChanges(m_buildConfiguration, m_buildEnvironmentWidget->userChanges());
+    m_pro->setUserEnvironmentChanges(
+            m_pro->buildConfiguration(m_buildConfiguration), m_buildEnvironmentWidget->userChanges());
 }
 
 void CMakeBuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked(bool checked)
