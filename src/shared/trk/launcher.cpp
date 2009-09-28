@@ -37,6 +37,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QQueue>
 #include <QtCore/QFile>
+#include <QtCore/QScopedPointer>
 
 namespace trk {
 
@@ -45,7 +46,7 @@ struct LauncherPrivate {
         QString sourceFileName;
         QString destinationFileName;
         uint copyFileHandle;
-        QByteArray *data;
+        QScopedPointer<QByteArray> data;
         int position;
     };
 
@@ -305,7 +306,7 @@ void Launcher::handleFileCreation(const TrkResult &result)
     d->m_copyState.copyFileHandle = extractInt(data + 2);
     QFile file(d->m_copyState.sourceFileName);
     file.open(QIODevice::ReadOnly);
-    d->m_copyState.data = new QByteArray(file.readAll());
+    d->m_copyState.data.reset(new QByteArray(file.readAll()));
     d->m_copyState.position = 0;
     file.close();
     continueCopying();
@@ -339,8 +340,7 @@ void Launcher::continueCopying()
         appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
         appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
         d->m_device.sendTrkMessage(TrkCloseFile, TrkCallback(this, &Launcher::handleFileCreated), ba);
-        delete d->m_copyState.data;
-        d->m_copyState.data = 0;
+        d->m_copyState.data.reset();
     }
 }
 
