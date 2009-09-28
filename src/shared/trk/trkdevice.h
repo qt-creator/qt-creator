@@ -105,8 +105,7 @@ signals:
     void logMessage(const QString &msg);
 
 private slots:
-    void dataReceived(char c);
-    void dataReceived(const QByteArray &a);
+    void slotMessageReceived(const trk::TrkResult &result, const QByteArray &a);
 
 protected slots:
     void emitError(const QString &msg);
