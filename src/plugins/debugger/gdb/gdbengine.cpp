@@ -524,7 +524,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             // Show some messages to give the impression something happens.
             if (data.startsWith("Reading symbols from "))
                 showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))), 1000);
-            if (data.startsWith("[New "))
+            if (data.endsWith('\n'))
+                data.chop(1);
+            if (data.startsWith("[New ") || data.startsWith("[Thread "))
                 showStatusMessage(_(data), 1000);
             break;
         }
@@ -3982,10 +3984,12 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
         else
             ac.agent->setContents(parseDisassembler(lines));
     } else if (response.resultClass == GdbResultError) {
-        //536^error,msg="mi_cmd_disassemble: Invalid line number"
+        // 536^error,msg="mi_cmd_disassemble: Invalid line number"
         QByteArray msg = response.data.findChild("msg").data();
         if (msg == "mi_cmd_disassemble: Invalid line number")
             fetchDisassemblerByAddress(ac.agent, true);
+        else
+            showStatusMessage(tr("Disassembler failed: %1").arg(_(msg)), 5000);
     }
 }
 
@@ -4000,6 +4004,10 @@ void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResponse &response)
             fetchDisassemblerByAddress(ac.agent, false);
         else
             ac.agent->setContents(parseDisassembler(lines));
+    } else {
+        // 26^error,msg="Cannot access memory at address 0x801ca308"
+        QByteArray msg = response.data.findChild("msg").data();
+        showStatusMessage(tr("Disassembler failed: %1").arg(_(msg)), 5000);
     }
 }
 
@@ -4011,6 +4019,9 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         GdbMi lines = response.data.findChild("asm_insns");
         ac.agent->setContents(parseDisassembler(lines));
+    } else {
+        QByteArray msg = response.data.findChild("msg").data();
+        showStatusMessage(tr("Disassembler failed: %1").arg(_(msg)), 5000);
     }
 }
 
