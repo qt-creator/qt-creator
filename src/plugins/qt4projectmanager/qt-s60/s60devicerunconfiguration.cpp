@@ -43,7 +43,12 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 
+#include <debugger/debuggermanager.h>
+
 #include <QtGui/QRadioButton>
+#include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
+#include <QtGui/QComboBox>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
@@ -83,14 +88,19 @@ S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
 
 QString S60DeviceRunConfiguration::type() const
 {
-    return "Qt4ProjectManager.DeviceRunConfiguration";
+    return QLatin1String("Qt4ProjectManager.DeviceRunConfiguration");
+}
+
+ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType() const
+{
+    if (const Qt4Project *pro = qobject_cast<const Qt4Project*>(project()))
+        return pro->toolChainType(pro->activeBuildConfiguration());
+    return ProjectExplorer::ToolChain::INVALID;
 }
 
 bool S60DeviceRunConfiguration::isEnabled() const
 {
-    Qt4Project *pro = qobject_cast<Qt4Project*>(project());
-    QTC_ASSERT(pro, return false);
-    ToolChain::ToolChainType type = pro->toolChainType(pro->activeBuildConfiguration());
+    const ToolChain::ToolChainType type = toolChainType();
     return type == ToolChain::GCCE || type == ToolChain::RVCT_ARMV5 || type == ToolChain::RVCT_ARMV6;
 }
 
@@ -481,42 +491,14 @@ QSharedPointer<RunConfiguration> S60DeviceRunConfigurationFactory::create(Projec
     return rc;
 }
 
-// ======== S60DeviceRunControlFactory
+// ======== S60DeviceRunControlBase
 
-S60DeviceRunControlFactory::S60DeviceRunControlFactory(QObject *parent)
-    : IRunControlFactory(parent)
-{
-}
-
-bool S60DeviceRunControlFactory::canRun(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode) const
-{
-    return (mode == ProjectExplorer::Constants::RUNMODE)
-            && (!runConfiguration.objectCast<S60DeviceRunConfiguration>().isNull());
-}
-
-RunControl* S60DeviceRunControlFactory::create(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode)
-{
-    QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration.objectCast<S60DeviceRunConfiguration>();
-    QTC_ASSERT(!rc.isNull() && mode == ProjectExplorer::Constants::RUNMODE, return 0);
-    return new S60DeviceRunControl(rc);
-}
-
-QString S60DeviceRunControlFactory::displayName() const
-{
-    return tr("Run on Device");
-}
-
-QWidget *S60DeviceRunControlFactory::configurationWidget(const QSharedPointer<ProjectExplorer::RunConfiguration>  & /* runConfiguration */)
-{
-    return 0;
-}
-
-// ======== S60DeviceRunControl
-
-S60DeviceRunControl::S60DeviceRunControl(const QSharedPointer<RunConfiguration> &runConfiguration)
-    : RunControl(runConfiguration), m_launcher(0)
-{
-    m_makesis = new QProcess(this);
+S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfiguration> &runConfiguration) :
+    RunControl(runConfiguration),    
+    m_makesis(new QProcess(this)),
+    m_signsis(new QProcess(this)),
+    m_launcher(0)
+{    
     connect(m_makesis, SIGNAL(readyReadStandardError()),
             this, SLOT(readStandardError()));
     connect(m_makesis, SIGNAL(readyReadStandardOutput()),
@@ -525,7 +507,7 @@ S60DeviceRunControl::S60DeviceRunControl(const QSharedPointer<RunConfiguration> 
             this, SLOT(makesisProcessFailed()));
     connect(m_makesis, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(makesisProcessFinished()));
-    m_signsis = new QProcess(this);
+
     connect(m_signsis, SIGNAL(readyReadStandardError()),
             this, SLOT(readStandardError()));
     connect(m_signsis, SIGNAL(readyReadStandardOutput()),
@@ -558,7 +540,7 @@ S60DeviceRunControl::S60DeviceRunControl(const QSharedPointer<RunConfiguration> 
     m_packageFile = QFileInfo(s60runConfig->packageFileName()).fileName();
 }
 
-void S60DeviceRunControl::start()
+void S60DeviceRunControlBase::start()
 {
     emit started();
 
@@ -571,7 +553,7 @@ void S60DeviceRunControl::start()
     m_makesis->start(m_makesisTool, QStringList(m_packageFile), QIODevice::ReadOnly);
 }
 
-void S60DeviceRunControl::stop()
+void S60DeviceRunControlBase::stop()
 {
     m_makesis->kill();
     m_signsis->kill();
@@ -579,31 +561,31 @@ void S60DeviceRunControl::stop()
         m_launcher->terminate();
 }
 
-bool S60DeviceRunControl::isRunning() const
+bool S60DeviceRunControlBase::isRunning() const
 {
     return m_makesis->state() != QProcess::NotRunning;
 }
 
-void S60DeviceRunControl::readStandardError()
+void S60DeviceRunControlBase::readStandardError()
 {
     QProcess *process = static_cast<QProcess *>(sender());
     QByteArray data = process->readAllStandardError();
     emit addToOutputWindowInline(this, QString::fromLocal8Bit(data.constData(), data.length()));
 }
 
-void S60DeviceRunControl::readStandardOutput()
+void S60DeviceRunControlBase::readStandardOutput()
 {
     QProcess *process = static_cast<QProcess *>(sender());
     QByteArray data = process->readAllStandardOutput();
     emit addToOutputWindowInline(this, QString::fromLocal8Bit(data.constData(), data.length()));
 }
 
-void S60DeviceRunControl::makesisProcessFailed()
+void S60DeviceRunControlBase::makesisProcessFailed()
 {
     processFailed("makesis.exe", m_makesis->error());
 }
 
-void S60DeviceRunControl::makesisProcessFinished()
+void S60DeviceRunControlBase::makesisProcessFinished()
 {
     if (m_makesis->exitCode() != 0) {
         error(this, tr("An error occurred while creating the package."));
@@ -626,12 +608,12 @@ void S60DeviceRunControl::makesisProcessFinished()
     m_signsis->start(signsisTool, arguments, QIODevice::ReadOnly);
 }
 
-void S60DeviceRunControl::signsisProcessFailed()
+void S60DeviceRunControlBase::signsisProcessFailed()
 {
     processFailed("signsis.exe", m_signsis->error());
 }
 
-void S60DeviceRunControl::signsisProcessFinished()
+void S60DeviceRunControlBase::signsisProcessFinished()
 {
     if (m_signsis->exitCode() != 0) {
         error(this, tr("An error occurred while creating the package."));
@@ -639,14 +621,10 @@ void S60DeviceRunControl::signsisProcessFinished()
         return;
     }
     m_launcher = new trk::Launcher;
-    connect(m_launcher, SIGNAL(finished()), this, SLOT(runFinished()));
+    connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
     connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
     connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
-    connect(m_launcher, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
-    connect(m_launcher, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
-    connect(m_launcher, SIGNAL(canNotRun(QString)), this, SLOT(printRunFailNotice(QString)));
-    connect(m_launcher, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
     connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
 
     //TODO sisx destination and file path user definable
@@ -656,7 +634,7 @@ void S60DeviceRunControl::signsisProcessFinished()
     const QString runFileName = QString("C:\\sys\\bin\\%1.exe").arg(m_targetName);
     m_launcher->setCopyFileName(copySrc, copyDst);
     m_launcher->setInstallFileName(copyDst);
-    m_launcher->setFileName(runFileName);
+    initLauncher(runFileName, m_launcher);
     emit addToOutputWindow(this, tr("Package: %1\nDeploying application to '%2'...").arg(lsFile(copySrc), m_serialPortFriendlyName));
     QString errorMessage;
     if (!m_launcher->startServer(&errorMessage)) {
@@ -668,26 +646,71 @@ void S60DeviceRunControl::signsisProcessFinished()
     }
 }
 
-void S60DeviceRunControl::printCopyingNotice()
+void S60DeviceRunControlBase::printCreateFileFailed(const QString &filename, const QString &errorMessage)
+{
+    emit addToOutputWindow(this, tr("Could not create file %1 on device: %2").arg(filename, errorMessage));
+}
+
+void S60DeviceRunControlBase::printCopyingNotice()
 {
     emit addToOutputWindow(this, tr("Copying install file..."));
     emit addToOutputWindow(this, tr("0% copied."));
 }
 
-void S60DeviceRunControl::printCreateFileFailed(const QString &filename, const QString &errorMessage)
-{
-    emit addToOutputWindow(this, tr("Could not create file %1 on device: %2").arg(filename, errorMessage));
-}
-
-void S60DeviceRunControl::printCopyProgress(int progress)
+void S60DeviceRunControlBase::printCopyProgress(int progress)
 {
     emit addToOutputWindow(this, tr("%1% copied.").arg(progress));
 }
 
-void S60DeviceRunControl::printInstallingNotice()
+void S60DeviceRunControlBase::printInstallingNotice()
 {
     emit addToOutputWindow(this, tr("Installing application..."));
 }
+
+void S60DeviceRunControlBase::launcherFinished()
+{
+    m_launcher->deleteLater();
+    m_launcher = 0;
+    handleLauncherFinished();
+}
+
+void S60DeviceRunControlBase::processFailed(const QString &program, QProcess::ProcessError errorCode)
+{
+    QString errorString;
+    switch (errorCode) {
+    case QProcess::FailedToStart:
+        errorString = tr("Failed to start %1.");
+        break;
+    case QProcess::Crashed:
+        errorString = tr("%1 has unexpectedly finished.");
+        break;
+    default:
+        errorString = tr("An error has occurred while running %1.");
+    }
+    error(this, errorString.arg(program));
+    emit finished();
+}
+
+// =============== S60DeviceRunControl
+S60DeviceRunControl::S60DeviceRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration) :
+    S60DeviceRunControlBase(runConfiguration)
+{
+}
+
+void S60DeviceRunControl::initLauncher(const QString &executable, trk::Launcher *launcher)
+{
+     connect(launcher, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
+     connect(launcher, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
+     connect(launcher, SIGNAL(canNotRun(QString)), this, SLOT(printRunFailNotice(QString)));
+     connect(launcher, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
+     launcher->setFileName(executable);
+}
+
+void S60DeviceRunControl::handleLauncherFinished()
+{
+     emit finished();
+     emit addToOutputWindow(this, tr("Finished."));
+ }
 
 void S60DeviceRunControl::printStartingNotice()
 {
@@ -708,27 +731,54 @@ void S60DeviceRunControl::printApplicationOutput(const QString &output)
     emit addToOutputWindowInline(this, output);
 }
 
-void S60DeviceRunControl::runFinished()
+// ======== S60DeviceDebugRunControl
+
+S60DeviceDebugRunControl::S60DeviceDebugRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration) :
+    S60DeviceRunControlBase(runConfiguration),
+    m_startParams(new Debugger::DebuggerStartParameters)
 {
-    m_launcher->deleteLater();
-    m_launcher = 0;
-    emit addToOutputWindow(this, tr("Finished."));
-    emit finished();
+    Debugger::DebuggerManager *dm = Debugger::DebuggerManager::instance();
+    const QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration.objectCast<S60DeviceRunConfiguration>();
+    QTC_ASSERT(dm && !rc.isNull(), return);
+
+    connect(dm, SIGNAL(debuggingFinished()),
+            this, SLOT(debuggingFinished()), Qt::QueuedConnection);
+    connect(dm, SIGNAL(applicationOutputAvailable(QString)),
+            this, SLOT(slotAddToOutputWindow(QString)),
+            Qt::QueuedConnection);
+
+    m_startParams->remoteChannel = rc->serialPortName();
+    m_startParams->startMode = Debugger::StartInternal;
+    m_startParams->toolChainType = rc->toolChainType();
 }
 
-void S60DeviceRunControl::processFailed(const QString &program, QProcess::ProcessError errorCode)
+void S60DeviceDebugRunControl::stop()
 {
-    QString errorString;
-    switch (errorCode) {
-    case QProcess::FailedToStart:
-        errorString = tr("Failed to start %1.");
-        break;
-    case QProcess::Crashed:
-        errorString = tr("%1 has unexpectedly finished.");
-        break;
-    default:
-        errorString = tr("An error has occurred while running %1.");
-    }
-    error(this, errorString.arg(program));
+    S60DeviceRunControlBase::stop();
+    Debugger::DebuggerManager *dm = Debugger::DebuggerManager::instance();
+    QTC_ASSERT(dm, return)
+    if (dm->state() == Debugger::DebuggerNotReady)
+        dm->exitDebugger();
+}
+
+S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
+{
+}
+
+void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Launcher *)
+{
+    // No setting an executable on the launcher causes it to deploy only
+    m_startParams->executable = executable;
+}
+
+void S60DeviceDebugRunControl::handleLauncherFinished()
+{
+    emit addToOutputWindow(this, tr("Launching debugger..."));
+    Debugger::DebuggerManager::instance()->startNewDebugger(m_startParams);
+}
+
+void S60DeviceDebugRunControl::debuggingFinished()
+{
+    emit addToOutputWindow(this, tr("Debugging finished."));
     emit finished();
 }

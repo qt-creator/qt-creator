@@ -99,17 +99,6 @@ public:
     QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project, const QString &type);
 };
 
-class S60EmulatorRunControlFactory : public ProjectExplorer::IRunControlFactory
-{
-    Q_OBJECT
-public:
-    explicit S60EmulatorRunControlFactory(QObject *parent = 0);
-    bool canRun(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode) const;
-    ProjectExplorer::RunControl* create(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode);
-    QString displayName() const;
-    QWidget *configurationWidget(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
-};
-
 class S60EmulatorRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT

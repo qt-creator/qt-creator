@@ -497,7 +497,11 @@ void Launcher::installRemotePackageSilently(const QString &fileName)
 
 void Launcher::handleInstallPackageFinished(const TrkResult &)
 {
-    startInferiorIfNeeded();
+    if (d->m_fileName.isEmpty()) {
+        emit finished();
+    } else {
+        startInferiorIfNeeded();
+    }
 }
 
 void Launcher::startInferiorIfNeeded()

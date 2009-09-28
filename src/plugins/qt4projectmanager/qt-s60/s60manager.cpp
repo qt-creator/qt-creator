@@ -39,10 +39,14 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <debugger/debuggermanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QMainWindow>
 
-using namespace Qt4ProjectManager::Internal;
+namespace Qt4ProjectManager {
+namespace Internal {
 
 S60Manager *S60Manager::m_instance = 0;
 
@@ -50,30 +54,72 @@ namespace {
 static const char *S60_AUTODETECTION_SOURCE = "QTS60";
 }
 
+// ======== Parametrizable Factory for RunControls, depending on the configuration
+// class and mode.
+
+template <class RunControl, class RunConfiguration>
+        class RunControlFactory : public ProjectExplorer::IRunControlFactory
+{
+public:
+    explicit RunControlFactory(const QString &mode,
+                               const QString &name,
+                               QObject *parent = 0) :
+    IRunControlFactory(parent), m_mode(mode), m_name(name) {}
+
+    bool canRun(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode) const {
+        return (mode == m_mode)
+                && (!runConfiguration.objectCast<RunConfiguration>().isNull());
+    }
+
+    ProjectExplorer::RunControl* create(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode) {
+        const QSharedPointer<RunConfiguration> rc = runConfiguration.objectCast<RunConfiguration>();
+        QTC_ASSERT(!rc.isNull() && mode == m_mode, return 0);
+        return new RunControl(rc);
+    }
+
+    QString displayName() const {
+        return m_name;
+    }
+
+    QWidget *configurationWidget(const QSharedPointer<ProjectExplorer::RunConfiguration> & /*runConfiguration */) {
+        return 0;
+    }
+
+private:
+    const QString m_mode;
+    const QString m_name;
+};
+
+// ======== S60Manager
+
 S60Manager *S60Manager::instance() { return m_instance; }
 
 S60Manager::S60Manager(QObject *parent)
         : QObject(parent),
         m_devices(new S60Devices(this)),
-        m_devicesPreferencePane(new S60DevicesPreferencePane(m_devices, this)),
-        m_s60EmulatorRunConfigurationFactory(new S60EmulatorRunConfigurationFactory(this)),
-        m_s60EmulatorRunConfigurationRunner(new S60EmulatorRunControlFactory(this)),
-        m_s60DeviceRunConfigurationFactory(new S60DeviceRunConfigurationFactory(this)),
-        m_s60DeviceRunConfigurationRunner(new S60DeviceRunControlFactory(this)),
         m_serialDeviceLister(new SerialDeviceLister(this))
 {
     m_instance = this;
-    m_devices->detectQtForDevices();
-    ExtensionSystem::PluginManager::instance()
-            ->addObject(m_devicesPreferencePane);
-    ExtensionSystem::PluginManager::instance()
-            ->addObject(m_s60EmulatorRunConfigurationFactory);
-    ExtensionSystem::PluginManager::instance()
-            ->addObject(m_s60EmulatorRunConfigurationRunner);
-    ExtensionSystem::PluginManager::instance()
-            ->addObject(m_s60DeviceRunConfigurationFactory);
-    ExtensionSystem::PluginManager::instance()
-            ->addObject(m_s60DeviceRunConfigurationRunner);
+ 
+    addAutoReleasedObject(new S60DevicesPreferencePane(m_devices, this));
+    m_devices->detectQtForDevices(); // Order!
+  
+    addAutoReleasedObject(new S60EmulatorRunConfigurationFactory(this));
+    addAutoReleasedObject(new RunControlFactory<S60EmulatorRunControl,
+                                                S60EmulatorRunConfiguration>
+                                                (QLatin1String(ProjectExplorer::Constants::RUNMODE),
+                                                 tr("Run in Emulator"), parent));
+    addAutoReleasedObject(new S60DeviceRunConfigurationFactory(this));
+    addAutoReleasedObject(new RunControlFactory<S60DeviceRunControl,
+                                                S60DeviceRunConfiguration>
+                                                (QLatin1String(ProjectExplorer::Constants::RUNMODE),
+                                                 tr("Run on Device"), parent));
+
+    if (Debugger::DebuggerManager::instance())
+        addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl,
+                                                S60DeviceRunConfiguration>
+                                                (QLatin1String(ProjectExplorer::Constants::DEBUGMODE),
+                                                 tr("Debug on Device"), parent));
     updateQtVersions();
     connect(m_devices, SIGNAL(qtVersionsChanged()),
             this, SLOT(updateQtVersions()));
@@ -83,23 +129,22 @@ S60Manager::S60Manager(QObject *parent)
 
 S60Manager::~S60Manager()
 {
-    ExtensionSystem::PluginManager::instance()
-            ->removeObject(m_s60DeviceRunConfigurationRunner);
-    ExtensionSystem::PluginManager::instance()
-            ->removeObject(m_s60DeviceRunConfigurationFactory);
-    ExtensionSystem::PluginManager::instance()
-            ->removeObject(m_s60EmulatorRunConfigurationRunner);
-    ExtensionSystem::PluginManager::instance()
-            ->removeObject(m_s60EmulatorRunConfigurationFactory);
-    ExtensionSystem::PluginManager::instance()
-            ->removeObject(m_devicesPreferencePane);
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    for (int i = m_pluginObjects.size() - 1; i >= 0; i--)
+        pm->removeObject(m_pluginObjects.at(i));
+}
+
+void S60Manager::addAutoReleasedObject(QObject *o)
+{
+    ExtensionSystem::PluginManager::instance()->addObject(o);
+    m_pluginObjects.push_back(o);
 }
 
 QString S60Manager::deviceIdFromDetectionSource(const QString &autoDetectionSource) const
 {
     if (autoDetectionSource.startsWith(S60_AUTODETECTION_SOURCE))
         return autoDetectionSource.mid(QString(S60_AUTODETECTION_SOURCE).length()+1);
-    return "";
+    return QString();
 }
 
 void S60Manager::updateQtVersions()
@@ -184,4 +229,7 @@ S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVer
         device = m_devices->deviceForId(deviceId);
     }
     return device;
+}
+
+}
 }

@@ -42,12 +42,6 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class S60DevicesPreferencePane;
-class S60EmulatorRunConfigurationFactory;
-class S60EmulatorRunControlFactory;
-class S60DeviceRunConfigurationFactory;
-class S60DeviceRunControlFactory;
-
 class S60Manager : public QObject
 {
     Q_OBJECT
@@ -71,13 +65,12 @@ private slots:
     void updateQtVersions();
 
 private:
+    void addAutoReleasedObject(QObject *p);
+
     static S60Manager *m_instance;
+
     S60Devices *m_devices;
-    S60DevicesPreferencePane *m_devicesPreferencePane;
-    S60EmulatorRunConfigurationFactory *m_s60EmulatorRunConfigurationFactory;
-    S60EmulatorRunControlFactory *m_s60EmulatorRunConfigurationRunner;
-    S60DeviceRunConfigurationFactory *m_s60DeviceRunConfigurationFactory;
-    S60DeviceRunControlFactory *m_s60DeviceRunConfigurationRunner;
+    QObjectList m_pluginObjects;
     SerialDeviceLister *m_serialDeviceLister;
 };
 

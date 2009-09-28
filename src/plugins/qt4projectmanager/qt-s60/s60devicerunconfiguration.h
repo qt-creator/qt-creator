@@ -33,12 +33,21 @@
 #include "launcher.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/toolchain.h>
+
+#include <QtGui/QWidget>
 
 #include <QtCore/QProcess>
-#include <QtGui/QWidget>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QComboBox>
+
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QLineEdit;
+class QComboBox;
+QT_END_NAMESPACE
+
+namespace Debugger {
+    class DebuggerStartParameters;
+}
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -74,6 +83,8 @@ public:
 
     QString packageFileName() const;
     QString executableFileName() const;
+
+    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 
 signals:
     void targetInformationChanged();
@@ -131,26 +142,23 @@ public:
     QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project, const QString &type);
 };
 
-class S60DeviceRunControlFactory : public ProjectExplorer::IRunControlFactory
-{
-    Q_OBJECT
-public:
-    explicit S60DeviceRunControlFactory(QObject *parent = 0);
-    bool canRun(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode) const;
-    ProjectExplorer::RunControl* create(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode);
-    QString displayName() const;
-    QWidget *configurationWidget(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
-};
+/* S60DeviceRunControlBase: Builds and signs package and starts launcher
+ * to deploy. Subclasses can configure the launcher to run or start a debugger. */
 
-class S60DeviceRunControl : public ProjectExplorer::RunControl
+class S60DeviceRunControlBase : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    explicit S60DeviceRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
-    ~S60DeviceRunControl() {}
-    void start();
-    void stop();
-    bool isRunning() const;
+    explicit S60DeviceRunControlBase(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
+    ~S60DeviceRunControlBase() {}
+    virtual void start();
+    virtual void stop();
+    virtual bool isRunning() const;
+
+protected:
+    virtual void initLauncher(const QString &executable, trk::Launcher *) = 0;
+    virtual void handleLauncherFinished() = 0;
+    void processFailed(const QString &program, QProcess::ProcessError errorCode);
 
 private slots:
     void readStandardError();
@@ -163,15 +171,9 @@ private slots:
     void printCreateFileFailed(const QString &filename, const QString &errorMessage);
     void printCopyProgress(int progress);
     void printInstallingNotice();
-    void printStartingNotice();
-    void printRunNotice(uint pid);
-    void printRunFailNotice(const QString &errorMessage);
-    void printApplicationOutput(const QString &output);
-    void runFinished();
+    void launcherFinished();
 
 private:
-    void processFailed(const QString &program, QProcess::ProcessError errorCode);
-
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
     QString m_targetName;
@@ -189,6 +191,46 @@ private:
     QString m_packageFile;
 
     trk::Launcher *m_launcher;
+};
+
+// Configure launcher to run the application
+class S60DeviceRunControl : public S60DeviceRunControlBase
+{
+    Q_OBJECT
+public:
+    explicit S60DeviceRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
+
+protected:
+    virtual void initLauncher(const QString &executable, trk::Launcher *);
+    virtual void handleLauncherFinished();
+
+private slots:
+    void printStartingNotice();
+    void printRunNotice(uint pid);
+    void printRunFailNotice(const QString &errorMessage);
+    void printApplicationOutput(const QString &output);
+
+private:
+};
+
+class S60DeviceDebugRunControl : public S60DeviceRunControlBase
+{
+    Q_DISABLE_COPY(S60DeviceDebugRunControl)
+    Q_OBJECT
+public:
+    explicit S60DeviceDebugRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
+    virtual ~S60DeviceDebugRunControl();
+
+    virtual void stop();
+
+protected:
+    virtual void initLauncher(const QString &executable, trk::Launcher *);
+    virtual void handleLauncherFinished();
+
+private slots:
+    void debuggingFinished();
+private:
+    QSharedPointer<Debugger::DebuggerStartParameters> m_startParams;
 };
 
 } // namespace Internal
