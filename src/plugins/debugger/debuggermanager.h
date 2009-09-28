@@ -162,6 +162,7 @@ public:
     friend class Internal::CdbDebugEngine;
     friend struct Internal::CdbDebugEnginePrivate;
 
+    DebuggerState state() const;
     QList<Core::IOptionsPage*> initializeEngines(unsigned enabledTypeFlags);
 
     Core::Utils::FancyMainWindow *mainWindow() const;
@@ -267,7 +268,6 @@ private:
 
     void cleanupViews();
 
-    DebuggerState state() const;
     void setState(DebuggerState state);
 
     //

@@ -30,7 +30,7 @@
 #ifndef DEBUGGERCONSTANTS_H
 #define DEBUGGERCONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include "debugger_global.h"
 
 namespace Debugger {
 namespace Constants {
@@ -60,7 +60,7 @@ namespace Internal {
 }
 } // namespace Constants
 
-enum DebuggerState
+enum DEBUGGER_EXPORT DebuggerState
 {
     DebuggerNotReady,          // Debugger not started
 
