@@ -80,8 +80,6 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    void gotoBookmark(const QModelIndex &);
-
     // this QItemSelectionModel is shared by all views
     QItemSelectionModel *selectionModel() const;
 
@@ -101,6 +99,7 @@ public slots:
     void prev();
     void moveUp();
     void moveDown();
+    bool gotoBookmark(Bookmark *bookmark);
 
 signals:
     void updateActions(int state);
@@ -108,7 +107,6 @@ signals:
 
 private slots:
     void updateActionStatus();
-    void gotoBookmark(Bookmark *bookmark);
     void loadBookmarks();
 
 private:
