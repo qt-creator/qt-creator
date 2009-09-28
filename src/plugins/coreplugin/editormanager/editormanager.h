@@ -205,9 +205,11 @@ public slots:
     bool closeAllEditors(bool askAboutModifiedEditors = true);
     void openInExternalEditor();
 
-private slots:
     bool saveFile(Core::IEditor *editor = 0);
     bool saveFileAs(Core::IEditor *editor = 0);
+    void revertToSaved();
+
+private slots:
     void closeEditor();
     void closeOtherEditors();
 
@@ -215,7 +217,6 @@ private slots:
     void gotoPreviousDocHistory();
     void handleContextChange(Core::IContext *context);
     void updateActions();
-    void revertToSaved();
     void makeCurrentEditorWritable();
 
 public slots:
