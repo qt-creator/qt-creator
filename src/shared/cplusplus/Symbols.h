@@ -472,14 +472,15 @@ private:
     Array<BaseClass *> _baseClasses;
 };
 
-class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration: public Symbol
+class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration: public Symbol, public Type
 {
 public:
     ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
     virtual ~ObjCForwardProtocolDeclaration();
 
-    // Symbol's interface
     virtual FullySpecifiedType type() const;
+
+    virtual bool isEqualTo(const Type *other) const;
 
     virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const
     { return this; }
@@ -487,8 +488,15 @@ public:
     virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration()
     { return this; }
 
+    virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() const
+    { return this; }
+
+    virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
+    virtual void accept0(TypeVisitor *visitor);
 
 private:
 };
@@ -525,14 +533,15 @@ private:
     Array<ObjCProtocol *> _protocols;
 };
 
-class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration: public Symbol
+class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration: public Symbol, public Type
 {
 public:
     ObjCForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
     virtual ~ObjCForwardClassDeclaration();
 
-    // Symbol's interface
     virtual FullySpecifiedType type() const;
+
+    virtual bool isEqualTo(const Type *other) const;
 
     virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const
     { return this; }
@@ -540,8 +549,15 @@ public:
     virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration()
     { return this; }
 
+    virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() const
+    { return this; }
+
+    virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
+    virtual void accept0(TypeVisitor *visitor);
 
 private:
 };
@@ -558,6 +574,20 @@ public:
     bool isCategory() const { return _categoryName != 0; }
     Name *categoryName() const { return _categoryName; }
     void setCategoryName(Name *categoryName) { _categoryName = categoryName; }
+
+    ObjCClass *baseClass() const
+    { return _baseClass; }
+    void setBaseClass(ObjCClass *baseClass)
+    { _baseClass = baseClass; }
+
+    unsigned protocolCount() const
+    { return _protocols.count(); }
+
+    ObjCProtocol *protocolAt(unsigned index) const
+    { return _protocols.at(index); }
+
+    void addProtocol(ObjCProtocol *protocol)
+    { _protocols.push_back(protocol); }
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
@@ -584,7 +614,7 @@ protected:
 private:
     bool _isInterface;
     Name *_categoryName;
-    Array<ObjCClass *> _baseClasses;
+    ObjCClass * _baseClass;
     Array<ObjCProtocol *> _protocols;
 };
 

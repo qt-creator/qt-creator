@@ -557,7 +557,8 @@ void Class::visitSymbol0(SymbolVisitor *visitor)
 
 ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
         ScopedSymbol(translationUnit, sourceLocation, name),
-        _categoryName(0)
+        _categoryName(0),
+        _baseClass(0)
 {
 }
 
@@ -584,10 +585,14 @@ bool ObjCClass::isEqualTo(const Type *other) const
 void ObjCClass::visitSymbol0(SymbolVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (unsigned i = 0; i < _baseClasses.size(); ++i)
-            visitSymbol(_baseClasses.at(i), visitor);
+        if (_baseClass)
+            visitSymbol(_baseClass, visitor);
+
         for (unsigned i = 0; i < _protocols.size(); ++i)
             visitSymbol(_protocols.at(i), visitor);
+
+        for (unsigned i = 0; i < memberCount(); ++i)
+            visitSymbol(memberAt(i), visitor);
     }
 }
 
@@ -641,7 +646,24 @@ ObjCForwardClassDeclaration::~ObjCForwardClassDeclaration()
 FullySpecifiedType ObjCForwardClassDeclaration::type() const
 { return FullySpecifiedType(); }
 
+bool ObjCForwardClassDeclaration::isEqualTo(const Type *other) const
+{
+    if (const ObjCForwardClassDeclaration *otherFwdClass = other->asObjCForwardClassDeclarationType()) {
+        if (name() == otherFwdClass->name())
+            return true;
+        else if (name() && otherFwdClass->name())
+            return name()->isEqualTo(otherFwdClass->name());
+        else
+            return false;
+    }
+
+    return false;
+}
+
 void ObjCForwardClassDeclaration::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+void ObjCForwardClassDeclaration::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
 ObjCForwardProtocolDeclaration::ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
@@ -655,7 +677,24 @@ ObjCForwardProtocolDeclaration::~ObjCForwardProtocolDeclaration()
 FullySpecifiedType ObjCForwardProtocolDeclaration::type() const
 { return FullySpecifiedType(); }
 
+bool ObjCForwardProtocolDeclaration::isEqualTo(const Type *other) const
+{
+    if (const ObjCForwardProtocolDeclaration *otherFwdProtocol = other->asObjCForwardProtocolDeclarationType()) {
+        if (name() == otherFwdProtocol->name())
+            return true;
+        else if (name() && otherFwdProtocol->name())
+            return name()->isEqualTo(otherFwdProtocol->name());
+        else
+            return false;
+    }
+
+    return false;
+}
+
 void ObjCForwardProtocolDeclaration::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+void ObjCForwardProtocolDeclaration::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
 ObjCMethod::ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)

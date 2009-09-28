@@ -110,6 +110,12 @@ bool Type::isObjCProtocolType() const
 bool Type::isObjCMethodType() const
 { return asObjCMethodType() != 0; }
 
+bool Type::isObjCForwardClassDeclarationType() const
+{ return asObjCForwardClassDeclarationType() != 0; }
+
+bool Type::isObjCForwardProtocolDeclarationType() const
+{ return asObjCForwardProtocolDeclarationType() != 0; }
+
 void Type::accept(TypeVisitor *visitor)
 {
     if (visitor->preVisit(this))

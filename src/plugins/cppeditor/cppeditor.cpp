@@ -1204,6 +1204,28 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
             }
         }
 
+        if (result.first->isObjCForwardClassDeclarationType()) {
+            while (! resolvedSymbols.isEmpty()) {
+                TypeOfExpression::Result r = resolvedSymbols.takeFirst();
+
+                if (! r.first->isObjCForwardClassDeclarationType()) {
+                    result = r;
+                    break;
+                }
+            }
+        }
+
+        if (result.first->isObjCForwardProtocolDeclarationType()) {
+            while (! resolvedSymbols.isEmpty()) {
+                TypeOfExpression::Result r = resolvedSymbols.takeFirst();
+
+                if (! r.first->isObjCForwardProtocolDeclarationType()) {
+                    result = r;
+                    break;
+                }
+            }
+        }
+
         if (Symbol *symbol = result.second) {
             Symbol *def = 0;
             if (resolveTarget && !lastSymbol->isFunction())
