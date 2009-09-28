@@ -641,6 +641,7 @@ void S60DeviceRunControl::signsisProcessFinished()
     m_launcher = new trk::Launcher;
     connect(m_launcher, SIGNAL(finished()), this, SLOT(runFinished()));
     connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
+    connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
     connect(m_launcher, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
     connect(m_launcher, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
@@ -671,6 +672,11 @@ void S60DeviceRunControl::printCopyingNotice()
 {
     emit addToOutputWindow(this, tr("Copying install file..."));
     emit addToOutputWindow(this, tr("0% copied."));
+}
+
+void S60DeviceRunControl::printCreateFileFailed(const QString &filename, const QString &errorMessage)
+{
+    emit addToOutputWindow(this, tr("Could not create file %1 on device: %2").arg(filename, errorMessage));
 }
 
 void S60DeviceRunControl::printCopyProgress(int progress)

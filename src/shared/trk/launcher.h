@@ -57,6 +57,7 @@ public:
 
 signals:
     void copyingStarted();
+    void canNotCreateFile(const QString &filename, const QString &errorMessage);
     void installingStarted();
     void startingApplication();
     void applicationRunning(uint pid);

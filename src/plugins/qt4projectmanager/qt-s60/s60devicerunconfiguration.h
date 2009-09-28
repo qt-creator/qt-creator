@@ -160,6 +160,7 @@ private slots:
     void signsisProcessFailed();
     void signsisProcessFinished();
     void printCopyingNotice();
+    void printCreateFileFailed(const QString &filename, const QString &errorMessage);
     void printCopyProgress(int progress);
     void printInstallingNotice();
     void printStartingNotice();
