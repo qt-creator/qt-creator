@@ -280,7 +280,7 @@ void Launcher::handleResult(const TrkResult &result)
 
 void Launcher::handleTrkVersion(const TrkResult &result)
 {
-    if (result.data.size() < 5)
+    if (result.errorCode() || result.data.size() < 5)
         return;
     const int trkMajor = result.data.at(1);
     const int trkMinor = result.data.at(2);
@@ -353,6 +353,8 @@ void Launcher::handleFileCreated(const TrkResult &result)
 void Launcher::handleCpuType(const TrkResult &result)
 {
     logMessage("HANDLE CPU TYPE: " + result.toString());
+    if(result.errorCode() || result.data.size() < 7)
+        return;
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
     //    Error: 0x00
@@ -402,6 +404,8 @@ void Launcher::handleWaitForFinished(const TrkResult &result)
 
 void Launcher::handleSupportMask(const TrkResult &result)
 {
+    if (result.errorCode() || result.data.size() < 32)
+        return;
     const char *data = result.data.data() + 1;
 
     QByteArray str;
