@@ -164,12 +164,7 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
     m_subWidgets = new BuildSettingsSubWidgets(this);
     vbox->addWidget(m_subWidgets);
 
-    QMenu *addButtonMenu = new QMenu(this);
-    addButtonMenu->addAction(tr("Create &New"),
-                             this, SLOT(createConfiguration()));
-    addButtonMenu->addAction(tr("&Clone Selected"),
-                             this, SLOT(cloneConfiguration()));
-    m_addButton->setMenu(addButtonMenu);
+    createAddButtonMenu();
 
     m_buildConfiguration = m_project->activeBuildConfiguration()->name();
 
@@ -183,6 +178,21 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
             this, SLOT(buildConfigurationDisplayNameChanged(const QString &)));
 
     updateBuildSettings();
+}
+
+void BuildSettingsWidget::createAddButtonMenu()
+{
+    QMenu *addButtonMenu = new QMenu(this);
+    addButtonMenu->addAction(tr("&Clone Selected"),
+                             this, SLOT(cloneConfiguration()));
+    IBuildConfigurationFactory *factory = m_project->buildConfigurationFactory();
+    if (factory) {
+        foreach (const QString &type, factory->availableCreationTypes()) {
+            QAction *action = addButtonMenu->addAction(factory->displayNameForType(type), this, SLOT(createConfiguration()));
+            action->setData(type);
+        }
+    }
+    m_addButton->setMenu(addButtonMenu);
 }
 
 void BuildSettingsWidget::buildConfigurationDisplayNameChanged(const QString &buildConfiguration)
@@ -256,41 +266,16 @@ void BuildSettingsWidget::activeBuildConfigurationChanged()
 
 void BuildSettingsWidget::createConfiguration()
 {
-    // TODO!
-//    bool ok;
-//    QString newBuildConfiguration = QInputDialog::getText(this, tr("New configuration"), tr("New Configuration Name:"), QLineEdit::Normal, QString(), &ok);
-//    if (!ok || newBuildConfiguration.isEmpty())
-//        return;
-//
-//    QString newDisplayName = newBuildConfiguration;
-//    // Check that the internal name is not taken and use a different one otherwise
-//    const QStringList &buildConfigurations = m_project->buildConfigurations();
-//    if (buildConfigurations.contains(newBuildConfiguration)) {
-//        int i = 2;
-//        while (buildConfigurations.contains(newBuildConfiguration + QString::number(i)))
-//            ++i;
-//        newBuildConfiguration += QString::number(i);
-//    }
-//
-//    // Check that we don't have a configuration with the same displayName
-//    QStringList displayNames;
-//    foreach (const QString &bc, buildConfigurations)
-//        displayNames << m_project->buildConfiguration(bc)->displayName();
-//
-//    if (displayNames.contains(newDisplayName)) {
-//        int i = 2;
-//        while (displayNames.contains(newDisplayName + QString::number(i)))
-//            ++i;
-//        newDisplayName += QString::number(i);
-//    }
-//
-//    if (m_project->newBuildConfiguration(newBuildConfiguration)) {
-//        m_project->addBuildConfiguration(newBuildConfiguration);
-//        m_project->setDisplayNameFor(newBuildConfiguration, newDisplayName);
-//        m_buildConfiguration = newBuildConfiguration;
-//
-//        updateBuildSettings();
-//    }
+    QAction *action = qobject_cast<QAction *>(sender());
+    const QString &type = action->data().toString();
+    QList<BuildConfiguration *> configurations = m_project->buildConfigurationFactory()->create(type);
+    if (!configurations.isEmpty()) {
+        foreach (BuildConfiguration *configuration, configurations) {
+            m_project->addBuildConfiguration(configuration);
+        }
+        m_buildConfiguration = configurations.first()->name();
+        updateBuildSettings();
+    }
 }
 
 void BuildSettingsWidget::cloneConfiguration()

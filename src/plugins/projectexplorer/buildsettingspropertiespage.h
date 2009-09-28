@@ -102,6 +102,7 @@ private slots:
 private:
     void cloneConfiguration(const QString &toClone);
     void deleteConfiguration(const QString &toDelete);
+    void createAddButtonMenu();
 
     Project *m_project;
     QPushButton *m_addButton;

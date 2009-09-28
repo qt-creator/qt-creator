@@ -242,17 +242,17 @@ Qt4BuildConfigurationFactory::~Qt4BuildConfigurationFactory()
 
 QStringList Qt4BuildConfigurationFactory::availableCreationTypes() const
 {
-    return QStringList() << "Create";
+    return QStringList() << "DefaultQt";
 }
 
 QString Qt4BuildConfigurationFactory::displayNameForType(const QString &type) const
 {
-    return tr("Create");
+    return tr("Using Default Qt Version");
 }
 
 QList<BuildConfiguration *> Qt4BuildConfigurationFactory::create(const QString &type) const
 {
-    QTC_ASSERT(type == "Create", return QList<BuildConfiguration*>());
+    QTC_ASSERT(type == "DefaultQt", return QList<BuildConfiguration*>());
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,
                           tr("New configuration"),
