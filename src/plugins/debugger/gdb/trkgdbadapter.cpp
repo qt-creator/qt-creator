@@ -1623,9 +1623,9 @@ QByteArray TrkGdbAdapter::readAllStandardOutput()
     return m_gdbProc.readAllStandardOutput();
 }
 
-qint64 TrkGdbAdapter::write(const char *data)
+void TrkGdbAdapter::write(const QByteArray &data)
 {
-    return m_gdbProc.write(data);
+    m_gdbProc.write(data, data.size());
 }
 
 void TrkGdbAdapter::setWorkingDirectory(const QString &dir)

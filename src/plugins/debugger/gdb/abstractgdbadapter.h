@@ -54,7 +54,7 @@ public:
 
     virtual QByteArray readAllStandardError() = 0;
     virtual QByteArray readAllStandardOutput() = 0;
-    virtual qint64 write(const char *data) = 0;
+    virtual void write(const QByteArray &data) = 0;
     virtual void setWorkingDirectory(const QString &dir) = 0;
     virtual void setEnvironment(const QStringList &env) = 0;
     virtual bool isTrkAdapter() const = 0;

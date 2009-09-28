@@ -56,7 +56,7 @@ public:
 
     QByteArray readAllStandardError() { return m_gdbProc.readAllStandardError(); }
     QByteArray readAllStandardOutput() { return m_gdbProc.readAllStandardOutput(); }
-    qint64 write(const char *data) { return m_gdbProc.write(data); }
+    void write(const QByteArray &data) { m_gdbProc.write(data, data.size()); }
     void setWorkingDirectory(const QString &dir) { m_gdbProc.setWorkingDirectory(dir); }
     void setEnvironment(const QStringList &env) { m_gdbProc.setEnvironment(env); }
     bool isTrkAdapter() const { return false; }

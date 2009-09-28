@@ -109,7 +109,7 @@ public:
         QIODevice::OpenMode mode = QIODevice::ReadWrite);
     QByteArray readAllStandardError();
     QByteArray readAllStandardOutput();
-    qint64 write(const char *data);
+    void write(const QByteArray &data);
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
     bool isTrkAdapter() const { return true; }
