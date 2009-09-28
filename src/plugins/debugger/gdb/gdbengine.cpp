@@ -790,15 +790,22 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
         // In theory this should not happen, in practice it does.
         debugMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN. "
             "TWO RESPONSES FOR ONE COMMAND?").arg(token));
-        // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
-        // with helpers enabled. In this case we get a second response with
-        // msg="Cannot find new threads: generic error"
         if (response.resultClass == GdbResultError) {
             QByteArray msg = response.data.findChild("msg").data();
             showMessageBox(QMessageBox::Critical,
                 tr("Executable failed"), QString::fromLocal8Bit(msg));
             showStatusMessage(tr("Process failed to start."));
-            shutdown();
+            // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
+            // with helpers enabled. In this case we get a second response with
+            // msg="Cannot find new threads: generic error"
+            if (msg == "Cannot find new threads: generic error")
+                shutdown();
+            // Handle a case known to appear on gdb 6.4 symbianelf when
+            // the stack is cut due to access to protected memory.
+            if (msg == "\"finish\" not meaningful in the outermost frame.") { 
+                setState(InferiorStopping);
+                setState(InferiorStopped);
+            }
         }
         return;
     }
