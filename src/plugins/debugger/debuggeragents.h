@@ -42,9 +42,9 @@
 
 
 namespace Debugger {
+class DebuggerManager;
 namespace Internal {
 
-class DebuggerManager;
 struct DisassemblerViewAgentPrivate;
 
 class MemoryViewAgent : public QObject

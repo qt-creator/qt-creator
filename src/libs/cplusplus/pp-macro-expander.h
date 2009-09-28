@@ -56,6 +56,7 @@
 namespace CPlusPlus {
 
 class Environment;
+class Client;
 
 struct pp_frame;
 
@@ -63,6 +64,8 @@ class MacroExpander
 {
     Environment *env;
     pp_frame *frame;
+    Client *client;
+    unsigned start_offset;
 
     pp_skip_number skip_number;
     pp_skip_identifier skip_identifier;
@@ -76,7 +79,7 @@ class MacroExpander
     const QByteArray *resolve_formal(const QByteArray &name);
 
 public:
-    MacroExpander(Environment *env, pp_frame *frame = 0);
+    MacroExpander(Environment *env, pp_frame *frame = 0, Client *client = 0, unsigned start_offset = 0);
 
     const char *operator()(const char *first, const char *last,
                              QByteArray *result);

@@ -129,7 +129,6 @@ GitPlugin::GitPlugin() :
     m_showAction(0),
     m_stageAction(0),
     m_unstageAction(0),
-    m_revertAction(0),
     m_commitAction(0),
     m_pullAction(0),
     m_pushAction(0),
@@ -296,12 +295,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = actionManager->registerAction(m_unstageAction, "Git.Unstage", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_unstageAction, SIGNAL(triggered()), this, SLOT(unstageFile()));
-    gitContainer->addAction(command);
-
-    m_revertAction = new Core::Utils::ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), Core::Utils::ParameterAction::AlwaysEnabled, this);
-    command = actionManager->registerAction(m_revertAction, "Git.Revert", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertFile()));
     gitContainer->addAction(command);
 
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Project"), this));
@@ -756,7 +749,6 @@ void GitPlugin::updateActions()
     m_undoFileAction->setParameter(fileName);
     m_stageAction->setParameter(fileName);
     m_unstageAction->setParameter(fileName);
-    m_revertAction->setParameter(fileName);
 
     bool enabled = !fileName.isEmpty() && !repository.isEmpty();
     m_diffAction->setEnabled(enabled);
@@ -766,7 +758,6 @@ void GitPlugin::updateActions()
     m_undoFileAction->setEnabled(enabled);
     m_stageAction->setEnabled(enabled);
     m_unstageAction->setEnabled(enabled);
-    m_revertAction->setEnabled(enabled);
 
     if (repository.isEmpty()) {
         // If the file is not in a repository, the corresponding project will

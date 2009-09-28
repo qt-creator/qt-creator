@@ -40,9 +40,9 @@ class LocalApplicationRunConfiguration;
 }
 
 namespace Debugger {
-namespace Internal {
-
 class DebuggerManager;
+
+namespace Internal {
 class StartData;
 
 typedef QSharedPointer<ProjectExplorer::RunConfiguration>

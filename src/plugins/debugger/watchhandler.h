@@ -262,7 +262,7 @@ public:
     static QString watcherEditPlaceHolder();
 
 signals:
-    void watchDataUpdateNeeded(const WatchData &data);
+    void watchDataUpdateNeeded(const Debugger::Internal::WatchData &data);
     void sessionValueRequested(const QString &name, QVariant *value);
     void setSessionValueRequested(const QString &name, const QVariant &value);
 

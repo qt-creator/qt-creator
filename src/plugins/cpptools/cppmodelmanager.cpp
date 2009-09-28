@@ -196,9 +196,12 @@ protected:
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
     virtual void macroAdded(const Macro &macro);
+    virtual void passedMacroDefinitionCheck(unsigned offset, const Macro &macro);
+    virtual void failedMacroDefinitionCheck(unsigned offset, const QByteArray &name);
     virtual void startExpandingMacro(unsigned offset,
                                      const Macro &macro,
                                      const QByteArray &originalText,
+                                     bool inCondition,
                                      const QVector<MacroArgumentReference> &actuals);
     virtual void stopExpandingMacro(unsigned offset, const Macro &macro);
     virtual void startSkippingBlocks(unsigned offset);
@@ -446,16 +449,34 @@ void CppPreprocessor::macroAdded(const Macro &macro)
     m_currentDoc->appendMacro(macro);
 }
 
+void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, const Macro &macro)
+{
+    if (! m_currentDoc)
+        return;
+
+    m_currentDoc->addMacroUse(macro, offset, macro.name().length(),
+                              QVector<MacroArgumentReference>(), true);
+}
+
+void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const QByteArray &name)
+{
+    if (! m_currentDoc)
+        return;
+
+    m_currentDoc->addUndefinedMacroUse(name, offset);
+}
+
 void CppPreprocessor::startExpandingMacro(unsigned offset,
                                           const Macro &macro,
                                           const QByteArray &originalText,
+                                          bool inCondition,
                                           const QVector<MacroArgumentReference> &actuals)
 {
     if (! m_currentDoc)
         return;
 
-    //qDebug() << "start expanding:" << macro.name << "text:" << originalText;
-    m_currentDoc->addMacroUse(macro, offset, originalText.length(), actuals);
+    //qDebug() << "start expanding:" << macro.name() << "text:" << originalText;
+    m_currentDoc->addMacroUse(macro, offset, originalText.length(), actuals, inCondition);
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)

@@ -368,6 +368,11 @@ void Launcher::handleCpuType(const TrkResult &result)
 
 void Launcher::handleCreateProcess(const TrkResult &result)
 {
+    if (result.errorCode()) {
+        emit canNotRun(errorMessage(result.errorCode()));
+        emit finished();
+        return;
+    }
     //  40 00 00]
     //logMessage("       RESULT: " + result.toString());
     // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]

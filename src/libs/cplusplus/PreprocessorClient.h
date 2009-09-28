@@ -75,12 +75,14 @@ public:
   virtual ~Client();
 
   virtual void macroAdded(const Macro &macro) = 0;
-  virtual void sourceNeeded(QString &fileName, IncludeType mode,
-                            unsigned line) = 0; // ### FIX the signature.
+
+  virtual void passedMacroDefinitionCheck(unsigned offset, const Macro &macro) = 0;
+  virtual void failedMacroDefinitionCheck(unsigned offset, const QByteArray &name) = 0;
 
   virtual void startExpandingMacro(unsigned offset,
                                    const Macro &macro,
                                    const QByteArray &originalText,
+                                   bool inCondition = false,
                                    const QVector<MacroArgumentReference> &actuals
                                             = QVector<MacroArgumentReference>()) = 0;
 
@@ -89,6 +91,9 @@ public:
 
   virtual void startSkippingBlocks(unsigned offset) = 0;
   virtual void stopSkippingBlocks(unsigned offset) = 0;
+
+  virtual void sourceNeeded(QString &fileName, IncludeType mode,
+                            unsigned line) = 0; // ### FIX the signature.
 };
 
 } // namespace CPlusPlus

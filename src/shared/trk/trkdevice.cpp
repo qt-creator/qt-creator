@@ -119,6 +119,7 @@ TrkMessage::TrkMessage(byte c, byte t, TrkCallback cb) :
 } // namespace trk
 
 Q_DECLARE_METATYPE(trk::TrkMessage)
+Q_DECLARE_METATYPE(trk::TrkResult)
 
 namespace trk {
 
@@ -408,7 +409,7 @@ static inline bool overlappedSyncWrite(HANDLE file, const char *data,
 
 bool WriterThread::write(const QByteArray &data, QString *errorMessage)
 {
-    QMutexLocker(&m_context->mutex);
+    QMutexLocker locker(&m_context->mutex);
 #ifdef Q_OS_WIN
     DWORD charsWritten;
     if (!overlappedSyncWrite(m_context->device, data.data(), data.size(), &charsWritten, &m_context->writeOverlapped)) {
@@ -465,6 +466,65 @@ void WriterThread::slotHandleResult(const TrkResult &result)
     tryWrite(); // Have messages been enqueued in-between?
 }
 
+///////////////////////////////////////////////////////////////////////
+//
+// ReaderThreadBase: Base class for a thread that reads data from
+// the device, decodes the messages and emit signals for the messages.
+// A Qt::BlockingQueuedConnection should be used for the message signal
+// to ensure messages are processed in the correct sequence.
+//
+///////////////////////////////////////////////////////////////////////
+
+class ReaderThreadBase : public QThread {
+    Q_OBJECT
+    Q_DISABLE_COPY(ReaderThreadBase)
+public:
+
+signals:
+    void messageReceived(const trk::TrkResult &result, const QByteArray &rawData);
+
+protected:
+    explicit ReaderThreadBase(const QSharedPointer<DeviceContext> &context);
+    void processData(const QByteArray &a);
+    void processData(char c);
+
+    const QSharedPointer<DeviceContext> m_context;
+
+private:
+    void readMessages();
+
+    QByteArray m_trkReadBuffer;
+};
+
+ReaderThreadBase::ReaderThreadBase(const QSharedPointer<DeviceContext> &context) :
+    m_context(context)
+{
+    static const int trkResultMetaId = qRegisterMetaType<trk::TrkResult>();
+    Q_UNUSED(trkResultMetaId)
+}
+
+void ReaderThreadBase::processData(const QByteArray &a)
+{
+    m_trkReadBuffer += a;
+    readMessages();
+}
+
+void ReaderThreadBase::processData(char c)
+{
+    m_trkReadBuffer += c;
+    if (m_trkReadBuffer.size() > 1)
+        readMessages();
+}
+
+void ReaderThreadBase::readMessages()
+{
+    TrkResult r;
+    QByteArray rawData;
+    while (extractResult(&m_trkReadBuffer, m_context->serialFrame, &r, &rawData)) {
+        emit messageReceived(r, rawData);
+    }
+}
+
 #ifdef Q_OS_WIN
 ///////////////////////////////////////////////////////////////////////
 //
@@ -474,7 +534,7 @@ void WriterThread::slotHandleResult(const TrkResult &result)
 //
 ///////////////////////////////////////////////////////////////////////
 
-class WinReaderThread : public QThread {
+class WinReaderThread : public ReaderThreadBase {
     Q_OBJECT
     Q_DISABLE_COPY(WinReaderThread)
 public:
@@ -485,8 +545,6 @@ public:
 
 signals:
     void error(const QString &);
-    void dataReceived(char c);
-    void dataReceived(const QByteArray &data);
 
 public slots:
     void terminate();
@@ -496,12 +554,11 @@ private:
 
     inline int tryRead();
 
-    const QSharedPointer<DeviceContext> m_context;
     HANDLE m_handles[HandleCount];
 };
 
 WinReaderThread::WinReaderThread(const QSharedPointer<DeviceContext> &context) :
-    m_context(context)
+    ReaderThreadBase(context)
 {
     m_handles[FileHandle] = NULL;
     m_handles[TerminateEventHandle] = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -528,9 +585,9 @@ int WinReaderThread::tryRead()
     DWORD bytesRead = 0;
     if (ReadFile(m_context->device, &buffer, bytesToRead, &bytesRead, &m_context->readOverlapped)) {
         if (bytesRead == 1) {
-            emit dataReceived(buffer[0]);
+            processData(buffer[0]);
         } else {
-            emit dataReceived(QByteArray(buffer, bytesRead));
+            processData(QByteArray(buffer, bytesRead));
         }
         return 0;
     }
@@ -554,9 +611,9 @@ int WinReaderThread::tryRead()
         return -3;
     }
     if (bytesRead == 1) {
-        emit dataReceived(buffer[0]);
+        processData(buffer[0]);
     } else {
-        emit dataReceived(QByteArray(buffer, bytesRead));
+        processData(QByteArray(buffer, bytesRead));
     }
     return 0;
 }
@@ -564,8 +621,7 @@ int WinReaderThread::tryRead()
 void WinReaderThread::run()
 {
     m_handles[FileHandle] = m_context->readOverlapped.hEvent;
-    int readResult;
-    while ( (readResult = tryRead()) == 0) ;
+    while ( tryRead() == 0) ;
 }
 
 void WinReaderThread::terminate()
@@ -593,7 +649,7 @@ static inline QString msgUnixCallFailedErrno(const char *func, int errorNumber)
     return QString::fromLatin1("Call to %1() failed: %2").arg(QLatin1String(func), QString::fromLocal8Bit(strerror(errorNumber)));
 }
 
-class UnixReaderThread : public QThread {
+class UnixReaderThread : public ReaderThreadBase {
     Q_OBJECT
     Q_DISABLE_COPY(UnixReaderThread)
 public:
@@ -604,7 +660,6 @@ public:
 
 signals:
     void error(const QString &);
-    void dataReceived(const QByteArray &);
 
 public slots:
     void terminate();
@@ -612,12 +667,11 @@ public slots:
 private:
     inline int tryRead();
 
-    const QSharedPointer<DeviceContext> m_context;
     int m_terminatePipeFileDescriptors[2];
 };
 
-UnixReaderThread::UnixReaderThread(const QSharedPointer<DeviceContext> &context) :
-    m_context(context)
+UnixReaderThread::UnixReaderThread(const QSharedPointer<DeviceContext> &context) : 
+    ReaderThreadBase(context)
 {
     m_terminatePipeFileDescriptors[0] = m_terminatePipeFileDescriptors[1] = -1;
     // Set up pipes for termination. Should not fail
@@ -675,15 +729,14 @@ int UnixReaderThread::tryRead()
     m_context->mutex.lock();
     const QByteArray data = m_context->file.read(numBytes);
     m_context->mutex.unlock();
-    emit dataReceived(data);
+    processData(data);
     return 0;
 }
 
 void UnixReaderThread::run()
 {
-    int readResult;
     // Read loop
-    while ( (readResult = tryRead()) == 0) ;
+    while ( tryRead() == 0) ;
 }
 
 void UnixReaderThread::terminate()
@@ -801,12 +854,9 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
     d->readerThread = QSharedPointer<ReaderThread>(new ReaderThread(d->deviceContext));
     connect(d->readerThread.data(), SIGNAL(error(QString)), this, SLOT(emitError(QString)),
             Qt::QueuedConnection);
-#ifdef Q_OS_WIN
-    connect(d->readerThread.data(), SIGNAL(dataReceived(char)),
-            this, SLOT(dataReceived(char)), Qt::QueuedConnection);
-#endif
-    connect(d->readerThread.data(), SIGNAL(dataReceived(QByteArray)),
-            this, SLOT(dataReceived(QByteArray)), Qt::QueuedConnection);
+    connect(d->readerThread.data(), SIGNAL(messageReceived(trk::TrkResult,QByteArray)),
+            this, SLOT(slotMessageReceived(trk::TrkResult,QByteArray)),
+            Qt::BlockingQueuedConnection);
     d->readerThread->start();
 
     d->writerThread = QSharedPointer<WriterThread>(new WriterThread(d->deviceContext));
@@ -872,30 +922,12 @@ void TrkDevice::setVerbose(int b)
     d->verbose = b;
 }
 
-void TrkDevice::dataReceived(char c)
+void TrkDevice::slotMessageReceived(const trk::TrkResult &result, const QByteArray &rawData)
 {
-    d->trkReadBuffer += c;
-    readMessages();
-}
-
-void TrkDevice::dataReceived(const QByteArray &data)
-{
-    d->trkReadBuffer += data;
-    readMessages();
-}
-
-void TrkDevice::readMessages()
-{
-    TrkResult r;
-    QByteArray rawData;
-    while (extractResult(&d->trkReadBuffer, d->deviceContext->serialFrame, &r, &rawData)) {
-        if (d->verbose > 1)
-            emitLogMessage("Read TrkResult " + r.data.toHex());
-        d->writerThread->slotHandleResult(r);
-        emit messageReceived(r);
-        if (!rawData.isEmpty())
-            emit rawDataReceived(rawData);
-    }
+    d->writerThread->slotHandleResult(result);
+    emit messageReceived(result);    
+    if (!rawData.isEmpty())
+        emit rawDataReceived(rawData);
 }
 
 void TrkDevice::emitError(const QString &s)
@@ -908,8 +940,11 @@ void TrkDevice::emitError(const QString &s)
 void TrkDevice::sendTrkMessage(byte code, TrkCallback callback,
      const QByteArray &data, const QVariant &cookie)
 {
-    if (!d->writerThread.isNull())
+    if (!d->writerThread.isNull()) {
+        if (d->verbose > 1)
+            qDebug() << "Sending " << code << data.toHex();
         d->writerThread->queueTrkMessage(code, callback, data, cookie);
+    }
 }
 
 void TrkDevice::sendTrkInitialPing()

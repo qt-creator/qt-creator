@@ -31,6 +31,7 @@
 
 #include "debuggeractions.h"
 #include "gdbengine.h"
+#include "debuggerstringutils.h"
 
 #include <utils/qtcassert.h>
 

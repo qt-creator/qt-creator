@@ -95,8 +95,6 @@ public:
     // Send an Ack synchronously, bypassing the queue
     bool sendTrkAck(unsigned char token);
 
-    void tryTrkRead(); // TODO: Why public?
-
 signals:
     void messageReceived(const trk::TrkResult &result);
     // Emitted with the contents of messages enclosed in 07e, not for log output
@@ -105,8 +103,7 @@ signals:
     void logMessage(const QString &msg);
 
 private slots:
-    void dataReceived(char c);
-    void dataReceived(const QByteArray &a);
+    void slotMessageReceived(const trk::TrkResult &result, const QByteArray &a);
 
 protected slots:
     void emitError(const QString &msg);

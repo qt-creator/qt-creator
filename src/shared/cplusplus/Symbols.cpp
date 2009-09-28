@@ -259,6 +259,12 @@ bool Function::hasArguments() const
               (argumentCount() == 1 && argumentAt(0)->type()->isVoidType()));
 }
 
+bool Function::isVirtual() const
+{ return f._isVirtual; }
+
+void Function::setVirtual(bool isVirtual)
+{ f._isVirtual = isVirtual; }
+
 bool Function::isVariadic() const
 { return f._isVariadic; }
 

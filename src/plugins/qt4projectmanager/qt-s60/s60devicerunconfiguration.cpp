@@ -644,6 +644,7 @@ void S60DeviceRunControl::signsisProcessFinished()
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
     connect(m_launcher, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
     connect(m_launcher, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
+    connect(m_launcher, SIGNAL(canNotRun(QString)), this, SLOT(printRunFailNotice(QString)));
     connect(m_launcher, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
     connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
 
@@ -690,6 +691,10 @@ void S60DeviceRunControl::printStartingNotice()
 void S60DeviceRunControl::printRunNotice(uint pid)
 {
     emit addToOutputWindow(this, tr("Application running with pid %1.").arg(pid));
+}
+
+void S60DeviceRunControl::printRunFailNotice(const QString &errorMessage) {
+    emit addToOutputWindow(this, tr("Could not start application: %1").arg(errorMessage));
 }
 
 void S60DeviceRunControl::printApplicationOutput(const QString &output)

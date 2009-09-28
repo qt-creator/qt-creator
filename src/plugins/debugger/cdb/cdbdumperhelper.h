@@ -37,10 +37,10 @@
 #include <QtCore/QMap>
 
 namespace Debugger {
-namespace Internal {
-
-struct CdbComInterfaces;
 class DebuggerManager;
+
+namespace Internal {
+struct CdbComInterfaces;
 
 /* For code clarity, all the stuff related to custom dumpers goes here.
  * "Custom dumper" is a library compiled against the current

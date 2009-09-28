@@ -29,6 +29,7 @@
 
 #include "tcfengine.h"
 
+#include "debuggerstringutils.h"
 #include "debuggerdialogs.h"
 #include "breakhandler.h"
 #include "debuggerconstants.h"

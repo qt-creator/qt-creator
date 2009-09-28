@@ -316,6 +316,7 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
                 translationUnit()->error(ast->ctor_initializer->firstToken(),
                                          "only constructors take base initializers");
             }
+            accept(ast->ctor_initializer);
         }
 
         const int previousVisibility = semantic()->switchVisibility(Symbol::Public);

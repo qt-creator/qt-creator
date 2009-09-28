@@ -128,6 +128,7 @@ public:
     inline void clearParentheses() { m_parentheses.clear(); }
     inline const Parentheses &parentheses() const { return m_parentheses; }
     inline bool hasParentheses() const { return !m_parentheses.isEmpty(); }
+    int braceDepthDelta() const;
 
     inline bool setIfdefedOut() { bool result = m_ifdefedOut; m_ifdefedOut = true; return !result; }
     inline bool clearIfdefedOut() { bool result = m_ifdefedOut; m_ifdefedOut = false; return result;}
@@ -215,6 +216,10 @@ public:
     static bool setIfdefedOut(const QTextBlock &block);
     static bool clearIfdefedOut(const QTextBlock &block);
     static bool ifdefedOut(const QTextBlock &block);
+    static int braceDepthDelta(const QTextBlock &block);
+    static int braceDepth(const QTextBlock &block);
+    static void setBraceDepth(QTextBlock &block, int depth);
+    static void changeBraceDepth(QTextBlock &block, int delta);
 
     static TextBlockUserData *testUserData(const QTextBlock &block) {
         return static_cast<TextBlockUserData*>(block.userData());

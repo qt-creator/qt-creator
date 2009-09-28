@@ -30,31 +30,29 @@
 #ifndef DEBUGGER_DEBUGGERMANAGER_H
 #define DEBUGGER_DEBUGGERMANAGER_H
 
+#include "debugger_global.h"
 #include "debuggerconstants.h"
 
-#include <utils/fancymainwindow.h>
-
-#include <QtCore/QByteArray>
 #include <QtCore/QObject>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
-#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QAbstractItemModel;
 class QDockWidget;
 class QLabel;
-class QMessageBox;
-class QModelIndex;
-class QPoint;
-class QTimer;
-class QWidget;
 class QDebug;
+class QAbstractItemModel;
+class QPoint;
+class QVariant;
 QT_END_NAMESPACE
 
 namespace Core {
 class IOptionsPage;
+namespace Utils {
+class FancyMainWindow;
+}
 } // namespace Core
 
 namespace TextEditor {
@@ -64,15 +62,8 @@ class ITextEditor;
 namespace Debugger {
 namespace Internal {
 
-typedef QLatin1Char _c;
-typedef QLatin1String __;
-inline QString _(const char *s) { return QString::fromLatin1(s); }
-inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
-
 class DebuggerOutputWindow;
-class DebuggerRunControl;
 class DebuggerPlugin;
-class DebugMode;
 
 class BreakHandler;
 class BreakpointData;
@@ -85,8 +76,23 @@ class Symbol;
 class ThreadsHandler;
 class WatchData;
 class WatchHandler;
+class IDebuggerEngine;
+class GdbEngine;
+class ScriptEngine;
+class CdbDebugEngine;
+struct CdbDebugEnginePrivate;
+struct DebuggerManagerActions;
+class DebuggerPlugin;
+class CdbDebugEventCallback;
+class CdbDumperHelper;
+class CdbExceptionLoggerEventCallback;
+class GdbEngine;
+class TcfEngine;
+class CdbDebugEngine;
+struct CdbDebugEnginePrivate;
+} // namespace Internal
 
-class DebuggerStartParameters
+class DEBUGGER_EXPORT DebuggerStartParameters
 {
 public:
     DebuggerStartParameters();
@@ -113,13 +119,8 @@ public:
 };
 
 typedef QSharedPointer<DebuggerStartParameters> DebuggerStartParametersPtr;
-QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 
-class IDebuggerEngine;
-class GdbEngine;
-class ScriptEngine;
-class CdbDebugEngine;
-struct CdbDebugEnginePrivate;
+DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 
 // Flags for initialization
 enum DebuggerEngineTypeFlags
@@ -140,7 +141,9 @@ QDebug operator<<(QDebug d, DebuggerState state);
 // DebuggerManager
 //
 
-class DebuggerManager : public QObject
+struct DebuggerManagerPrivate;
+
+class DEBUGGER_EXPORT DebuggerManager : public QObject
 {
     Q_OBJECT
 
@@ -148,25 +151,29 @@ public:
     DebuggerManager();
     ~DebuggerManager();
 
-    friend class CdbDebugEngine;
-    friend class CdbDebugEventCallback;
-    friend class CdbDumperHelper;
-    friend class CdbExceptionLoggerEventCallback;
-    friend class GdbEngine;
-    friend class ScriptEngine;
-    friend class TcfEngine;
-    friend struct CdbDebugEnginePrivate;
+    friend class Internal::IDebuggerEngine;
+    friend class Internal::DebuggerPlugin;
+    friend class Internal::CdbDebugEventCallback;
+    friend class Internal::CdbDumperHelper;
+    friend class Internal::CdbExceptionLoggerEventCallback;
+    friend class Internal::GdbEngine;
+    friend class Internal::ScriptEngine;
+    friend class Internal::TcfEngine;
+    friend class Internal::CdbDebugEngine;
+    friend struct Internal::CdbDebugEnginePrivate;
 
     QList<Core::IOptionsPage*> initializeEngines(unsigned enabledTypeFlags);
 
-    Core::Utils::FancyMainWindow *mainWindow() const { return m_mainWindow; }
-    QLabel *statusLabel() const { return m_statusLabel; }
-    IDebuggerEngine *currentEngine() const { return m_engine; }
+    Core::Utils::FancyMainWindow *mainWindow() const;
+    QLabel *statusLabel() const;
+    Internal::IDebuggerEngine *currentEngine() const;
 
-    virtual DebuggerStartParametersPtr startParameters() const;
-    virtual qint64 inferiorPid() const;
+    DebuggerStartParametersPtr startParameters() const;
+    qint64 inferiorPid() const;
 
     void showMessageBox(int icon, const QString &title, const QString &text);
+
+    static DebuggerManager *instance();
 
 public slots:
     void startNewDebugger(const DebuggerStartParametersPtr &sp);
@@ -177,7 +184,7 @@ public slots:
     void setBusyCursor(bool on);
     void queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **ed);
 
-    void gotoLocation(const StackFrame &frame, bool setLocationMarker);
+    void gotoLocation(const Debugger::Internal::StackFrame &frame, bool setLocationMarker);
     void fileOpen(const QString &file);
     void resetLocation();
 
@@ -200,7 +207,7 @@ public slots:
     void detachDebugger();
 
     void addToWatchWindow();
-    void updateWatchData(const WatchData &data);
+    void updateWatchData(const Debugger::Internal::WatchData &data);
 
     void sessionLoaded();
     void aboutToUnloadSession();
@@ -243,14 +250,15 @@ private slots:
     void startFailed();
 
 private:
-    ModulesHandler *modulesHandler() { return m_modulesHandler; }
-    BreakHandler *breakHandler() { return m_breakHandler; }
-    RegisterHandler *registerHandler() { return m_registerHandler; }
-    StackHandler *stackHandler() { return m_stackHandler; }
-    ThreadsHandler *threadsHandler() { return m_threadsHandler; }
-    WatchHandler *watchHandler() { return m_watchHandler; }
-    SourceFilesWindow *sourceFileWindow() { return m_sourceFilesWindow; }
-    QWidget *threadsWindow() const { return m_threadsWindow; }
+    Internal::ModulesHandler *modulesHandler() const;
+    Internal::BreakHandler *breakHandler() const;
+    Internal::RegisterHandler *registerHandler() const;
+    Internal::StackHandler *stackHandler() const;
+    Internal::ThreadsHandler *threadsHandler() const;
+    Internal::WatchHandler *watchHandler() const;
+    Internal::SourceFilesWindow *sourceFileWindow() const;
+    QWidget *threadsWindow() const;    
+    Internal::DebuggerManagerActions debuggerManagerActions() const;
 
     void notifyInferiorStopped();
     void notifyInferiorRunning();
@@ -261,7 +269,6 @@ private:
 
     DebuggerState state() const;
     void setState(DebuggerState state);
-    DebuggerState m_state;
 
     //
     // internal implementation
@@ -280,8 +287,7 @@ private:
 public:
     // stuff in this block should be made private by moving it to
     // one of the interfaces
-    int status() const { return m_status; }
-    QList<Symbol> moduleSymbols(const QString &moduleName);
+    QList<Internal::Symbol> moduleSymbols(const QString &moduleName);
 
 signals:
     void debuggingFinished();
@@ -290,7 +296,7 @@ signals:
     void debugModeRequested();
     void previousModeRequested();
     void statusMessageRequested(const QString &msg, int timeout); // -1 for 'forever'
-    void gotoLocationRequested(const StackFrame &frame, bool setLocationMarker);
+    void gotoLocationRequested(const Debugger::Internal::StackFrame &frame, bool setLocationMarker);
     void resetLocationRequested();
     void currentTextEditorRequested(QString *fileName, int *lineNumber, QObject **ob);
     void sessionValueRequested(const QString &name, QVariant *value);
@@ -308,71 +314,13 @@ private:
 
     void toggleBreakpoint(const QString &fileName, int lineNumber);
     void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
-    BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
+    Internal::BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
     void setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, int cursorPos);
 
-    // FIXME: Remove engine-specific state
-    DebuggerStartParametersPtr m_startParameters;
-    qint64 m_inferiorPid;
-
-
-    /// Views
-    Core::Utils::FancyMainWindow *m_mainWindow;
-    QLabel *m_statusLabel;
-    QDockWidget *m_breakDock;
-    QDockWidget *m_modulesDock;
-    QDockWidget *m_outputDock;
-    QDockWidget *m_registerDock;
-    QDockWidget *m_stackDock;
-    QDockWidget *m_sourceFilesDock;
-    QDockWidget *m_threadsDock;
-    QDockWidget *m_watchDock;
-
-    BreakHandler *m_breakHandler;
-    ModulesHandler *m_modulesHandler;
-    RegisterHandler *m_registerHandler;
-    StackHandler *m_stackHandler;
-    ThreadsHandler *m_threadsHandler;
-    WatchHandler *m_watchHandler;
-    SourceFilesWindow *m_sourceFilesWindow;
-
-    /// Actions
-    friend class DebuggerPlugin;
-    friend class IDebuggerEngine;
-    QAction *m_continueAction;
-    QAction *m_stopAction;
-    QAction *m_resetAction; // FIXME: Should not be needed in a stable release
-    QAction *m_stepAction;
-    QAction *m_stepOutAction;
-    QAction *m_runToLineAction;
-    QAction *m_runToFunctionAction;
-    QAction *m_jumpToLineAction;
-    QAction *m_nextAction;
-    QAction *m_watchAction;
-    QAction *m_breakAction;
-    QAction *m_sepAction;
-    QAction *m_reverseDirectionAction;
-
-    QWidget *m_breakWindow;
-    QWidget *m_localsWindow;
-    QWidget *m_registerWindow;
-    QWidget *m_modulesWindow;
-    QWidget *m_stackWindow;
-    QWidget *m_threadsWindow;
-    QWidget *m_watchersWindow;
-    DebuggerOutputWindow *m_outputWindow;
-
-    int m_status;
-    bool m_busy;
-    QTimer *m_statusTimer;
-    QString m_lastPermanentStatusMessage;
-
-    IDebuggerEngine *engine();
-    IDebuggerEngine *m_engine;
+    DebuggerManagerPrivate *d;
 };
 
-} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGER_DEBUGGERMANAGER_H

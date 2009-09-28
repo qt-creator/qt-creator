@@ -857,22 +857,9 @@ void CPPEditor::findReferences()
                                                                      lastVisibleSymbol,
                                                                      TypeOfExpression::Preprocess);
 
-    if (! results.isEmpty()) {
-        TypeOfExpression::Result result = results.first();
-        Symbol *symbol = result.second;
-        qDebug() << "result:" << symbol->fileName() << symbol->line() << symbol->column();
-        m_modelManager->findReferences(symbol);
+    if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(results)) {
+        m_modelManager->findReferences(canonicalSymbol);
     }
-
-
-#if 0
-        LookupContext context(
-        Overview oo;
-        qDebug() << "==============> filename:" << symbol->fileName()
-                << "name:" << oo(symbol->name());
-        m_modelManager->findReferences(symbol);
-    }
-#endif
 }
 
 void CPPEditor::renameSymbolUnderCursor()
@@ -1345,6 +1332,39 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
+
+static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen)
+{
+    if (c == open)
+        ++*stillopen;
+    else if (c == close)
+        --*stillopen;
+
+    if (*stillopen < 0) {
+        *errors += -1 * (*stillopen);
+        *stillopen = 0;
+    }
+}
+
+void countBrackets(QTextCursor cursor, int from, int end, QChar open, QChar close, int *errors, int *stillopen)
+{
+    cursor.setPosition(from);
+    QTextBlock block = cursor.block();
+    while (block.isValid() && block.position() < end) {
+        TextEditor::Parentheses parenList = TextEditor::TextEditDocumentLayout::parentheses(block);
+        if (!parenList.isEmpty() && !TextEditor::TextEditDocumentLayout::ifdefedOut(block)) {
+            for (int i = 0; i < parenList.count(); ++i) {
+                TextEditor::Parenthesis paren = parenList.at(i);
+                int position = block.position() + paren.pos;
+                if (position < from || position >= end)
+                    continue;
+                countBracket(open, close, paren.chr, errors, stillopen);
+            }
+        }
+        block = block.next();
+    }
+}
+
 QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
 {
     const bool checkBlockEnd = m_allowSkippingOfBlockEnd;
@@ -1355,6 +1375,33 @@ QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert
 
     QString text = textToInsert;
     const QChar lookAhead = characterAt(cursor.selectionEnd());
+
+    QChar character = textToInsert.at(0);
+    QString parentheses = QLatin1String("()");
+    QString brackets = QLatin1String("[]");
+    if (parentheses.contains(character) || brackets.contains(character)) {
+        QTextCursor tmp= cursor;
+        TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
+        int blockStart = tmp.isNull() ? 0 : tmp.position();
+        tmp = cursor;
+        TextEditor::TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
+        int blockEnd = tmp.isNull() ? (cursor.document()->characterCount()-1) : tmp.position();
+        QChar openChar = parentheses.contains(character) ? QLatin1Char('(') : QLatin1Char('[');
+        QChar closeChar = parentheses.contains(character) ? QLatin1Char(')') : QLatin1Char(']');
+
+        int errors = 0;
+        int stillopen = 0;
+        countBrackets(cursor, blockStart, blockEnd, openChar, closeChar, &errors, &stillopen);
+        int errorsBeforeInsertion = errors + stillopen;
+        errors = 0;
+        stillopen = 0;
+        countBrackets(cursor, blockStart, cursor.position(), openChar, closeChar, &errors, &stillopen);
+        countBracket(openChar, closeChar, character, &errors, &stillopen);
+        countBrackets(cursor, cursor.position(), blockEnd, openChar, closeChar, &errors, &stillopen);
+        int errorsAfterInsertion = errors + stillopen;
+        if (errorsAfterInsertion < errorsBeforeInsertion)
+            return QString(); // insertion fixes parentheses or bracket errors, do not auto complete
+    }
 
     MatchingText matchingText;
     int skippedChars = 0;
@@ -1392,6 +1439,32 @@ bool CPPEditor::autoBackspace(QTextCursor &cursor)
     QChar lookAhead = characterAt(pos);
     QChar lookBehind = characterAt(pos-1);
     QChar lookFurtherBehind = characterAt(pos-2);
+
+    QChar character = lookBehind;
+    if (character == QLatin1Char('(') || character == QLatin1Char('[')) {
+        QTextCursor tmp = cursor;
+        TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
+        int blockStart = tmp.isNull() ? 0 : tmp.position();
+        tmp = cursor;
+        TextEditor::TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
+        int blockEnd = tmp.isNull() ? (cursor.document()->characterCount()-1) : tmp.position();
+        QChar openChar = character;
+        QChar closeChar = (character == QLatin1Char('(')) ? QLatin1Char(')') : QLatin1Char(']');
+
+        int errors = 0;
+        int stillopen = 0;
+        countBrackets(cursor, blockStart, blockEnd, openChar, closeChar, &errors, &stillopen);
+        int errorsBeforeDeletion = errors + stillopen;
+        errors = 0;
+        stillopen = 0;
+        countBrackets(cursor, blockStart, pos - 1, openChar, closeChar, &errors, &stillopen);
+        countBrackets(cursor, pos, blockEnd, openChar, closeChar, &errors, &stillopen);
+        int errorsAfterDeletion = errors + stillopen;
+
+        if (errorsAfterDeletion < errorsBeforeDeletion)
+            return false; // insertion fixes parentheses or bracket errors, do not auto complete
+    }
+
     if    ((lookBehind == QLatin1Char('(') && lookAhead == QLatin1Char(')'))
         || (lookBehind == QLatin1Char('[') && lookAhead == QLatin1Char(']'))
         || (lookBehind == QLatin1Char('"') && lookAhead == QLatin1Char('"')

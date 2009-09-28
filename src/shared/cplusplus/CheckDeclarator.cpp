@@ -168,6 +168,9 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
     ast->symbol = fun;
     fun->setReturnType(_fullySpecifiedType);
 
+    if (_fullySpecifiedType.isVirtual())
+        fun->setVirtual(true);
+
     if (ast->parameters) {
         DeclarationListAST *parameter_declarations = ast->parameters->parameter_declarations;
         for (DeclarationListAST *decl = parameter_declarations; decl; decl = decl->next) {

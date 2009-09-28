@@ -44,10 +44,13 @@
 #include <Literals.h>
 #include <TranslationUnit.h>
 #include <Symbols.h>
+#include <Names.h>
+#include <Scope.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/ResolveExpression.h>
+#include <cplusplus/Overview.h>
 
 #include <QtCore/QTime>
 #include <QtCore/QtConcurrentRun>
@@ -69,13 +72,16 @@ public:
               _future(future),
               _doc(doc),
               _snapshot(snapshot),
-              _source(_doc->source())
-    { }
-
-    void operator()(Identifier *id, AST *ast)
+              _source(_doc->source()),
+              _sem(doc->control())
     {
+        _snapshot.insert(_doc);
+    }
+
+    void operator()(Symbol *symbol, Identifier *id, AST *ast)
+    {
+        _declSymbol = symbol;
         _id = id;
-        _currentSymbol = _doc->globalNamespace();
         _exprDoc = Document::create("<references>");
         accept(ast);
     }
@@ -122,55 +128,63 @@ protected:
                                                            line, lineText, col, len));
     }
 
-    LookupContext currentContext() const
+    bool checkCandidates(const QList<Symbol *> &candidates) const
     {
-        return LookupContext(_currentSymbol, _exprDoc, _doc, _snapshot);
-    }
-
-    virtual bool visit(ClassSpecifierAST *ast)
-    {
-        _currentSymbol = ast->symbol;
+        // ### FIXME return isDeclSymbol(LookupContext::canonicalSymbol(candidates));
         return true;
     }
 
-    virtual bool visit(NamespaceAST *ast)
+    bool isDeclSymbol(Symbol *symbol) const
     {
-        _currentSymbol = ast->symbol;
-        return true;
+        if (! symbol)
+            return false;
+
+        else if (symbol == _declSymbol)
+            return true;
+
+        else if (symbol->line() == _declSymbol->line() && symbol->column() == _declSymbol->column()) {
+            if (! qstrcmp(symbol->fileName(), _declSymbol->fileName()))
+                return true;
+        }
+
+        return false;
     }
 
-    virtual bool visit(CompoundStatementAST *ast)
+    LookupContext currentContext(AST *ast) const
     {
-        _currentSymbol = ast->symbol;
-        return true;
-    }
-
-    virtual bool visit(FunctionDefinitionAST *ast)
-    {
-        _currentSymbol = ast->symbol;
-        return true;
+        unsigned line, column;
+        getTokenStartPosition(ast->firstToken(), &line, &column);
+        Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
+        return LookupContext(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
     }
 
     virtual bool visit(QualifiedNameAST *ast)
     {
-        return true;
+        if (! ast->name) {
+            //qWarning() << "invalid AST at" << _doc->fileName() << line << column;
+            ast->name = _sem.check(ast, /*scope */ static_cast<Scope *>(0));
+        }
+
+        Q_ASSERT(ast->name != 0);
+        Identifier *id = ast->name->identifier();
+        if (id == _id && ast->unqualified_name) {
+            LookupContext context = currentContext(ast);
+            const QList<Symbol *> candidates = context.resolve(ast->name);
+            if (checkCandidates(candidates))
+                reportResult(ast->unqualified_name->firstToken());
+        }
+
+        return false;
     }
 
     virtual bool visit(SimpleNameAST *ast)
     {
         Identifier *id = identifier(ast->identifier_token);
         if (id == _id) {
-#if 0
-            LookupContext context = currentContext();
-            ResolveExpression resolveExpression(context);
-            QList<ResolveExpression::Result> results = resolveExpression(ast);
-            if (! results.isEmpty()) {
-                ResolveExpression::Result result = results.first();
-                Symbol *resolvedSymbol = result.second;
-                qDebug() << "resolves to:" << resolvedSymbol->fileName() << resolvedSymbol->line();
-            }
-#endif
-            reportResult(ast->identifier_token);
+            LookupContext context = currentContext(ast);
+            const QList<Symbol *> candidates = context.resolve(ast->name);
+            if (checkCandidates(candidates))
+                reportResult(ast->identifier_token);
         }
 
         return false;
@@ -179,20 +193,25 @@ protected:
     virtual bool visit(TemplateIdAST *ast)
     {
         Identifier *id = identifier(ast->identifier_token);
-        if (id == _id)
-            reportResult(ast->identifier_token);
+        if (id == _id) {
+            LookupContext context = currentContext(ast);
+            const QList<Symbol *> candidates = context.resolve(ast->name);
+            if (checkCandidates(candidates))
+                reportResult(ast->identifier_token);
+        }
 
-        return true;
+        return false;
     }
 
 private:
     QFutureInterface<Core::Utils::FileSearchResult> &_future;
-    Identifier *_id;
+    Identifier *_id; // ### remove me
+    Symbol *_declSymbol;
     Document::Ptr _doc;
     Snapshot _snapshot;
     QByteArray _source;
-    Symbol *_currentSymbol;
     Document::Ptr _exprDoc;
+    Semantic _sem;
 };
 
 } // end of anonymous namespace
@@ -217,6 +236,9 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
     QTime tm;
     tm.start();
 
+    Identifier *symbolId = symbol->identifier();
+    Q_ASSERT(symbolId != 0);
+
     const QString fileName = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
 
     QStringList files(fileName);
@@ -229,24 +251,30 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
     for (int i = 0; i < files.size(); ++i) {
         const QString &fn = files.at(i);
         future.setProgressValueAndText(i, QFileInfo(fn).fileName());
+
+        Document::Ptr previousDoc = snapshot.value(fn);
+        if (previousDoc) {
+            Control *control = previousDoc->control();
+            Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size());
+            if (! id)
+                continue; // skip this document, it's not using symbolId.
+        }
+
         QFile f(fn);
         if (! f.open(QFile::ReadOnly))
             continue;
 
-        const QString source = QTextStream(&f).readAll();
+        const QString source = QTextStream(&f).readAll(); // ### FIXME
         const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fn);
         Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, fn);
         doc->tokenize();
-
-        Identifier *symbolId = symbol->identifier();
-        Q_ASSERT(symbolId != 0);
 
         Control *control = doc->control();
         if (Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size())) {
             doc->check();
             TranslationUnit *unit = doc->translationUnit();
             Process process(future, doc, snapshot);
-            process(id, unit->ast());
+            process(symbol, id, unit->ast());
         }
     }
     future.setProgressValue(files.size());
@@ -259,9 +287,7 @@ void CppFindReferences::findAll(const Snapshot &snapshot, Symbol *symbol)
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
-    QFuture<Core::Utils::FileSearchResult> result =
-            QtConcurrent::run(&find_helper, snapshot, symbol);
-
+    QFuture<Core::Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, snapshot, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),

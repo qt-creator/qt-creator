@@ -52,6 +52,7 @@
 #include <utils/qtcassert.h>
 #include <utils/winutils.h>
 #include <utils/consoleprocess.h>
+#include <utils/fancymainwindow.h>
 #include <texteditor/itexteditor.h>
 
 #include <QtCore/QDebug>
@@ -367,7 +368,7 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
     return true;
 }
 
-IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *manager,
+IDebuggerEngine *CdbDebugEngine::create(Debugger::DebuggerManager *manager,
                                         const QSharedPointer<CdbOptions> &options,
                                         QString *errorMessage)
 {

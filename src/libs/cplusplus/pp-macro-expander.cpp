@@ -66,9 +66,11 @@ inline static bool comment_p (const char *__first, const char *__last)
     return (*__first == '/' || *__first == '*');
 }
 
-MacroExpander::MacroExpander(Environment *env, pp_frame *frame)
+MacroExpander::MacroExpander(Environment *env, pp_frame *frame, Client *client, unsigned start_offset)
     : env(env),
       frame(frame),
+      client(client),
+      start_offset(start_offset),
       lines(0)
 { }
 
@@ -97,6 +99,7 @@ const char *MacroExpander::operator()(const char *first, const char *last,
 const char *MacroExpander::expand(const char *__first, const char *__last,
                                   QByteArray *__result)
 {
+    const char *start = __first;
     __first = skip_blanks (__first, __last);
     lines = skip_blanks.lines;
 
@@ -284,6 +287,9 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
 
                 if (! macro->definition().isEmpty())
                 {
+                    if (client)
+                        client->startExpandingMacro(start_offset + (name_begin-start), *macro, fast_name, true);
+
                     macro->setHidden(true);
 
                     QByteArray __tmp;
@@ -310,6 +316,9 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
                     }
 
                     macro->setHidden(false);
+
+                    if (client)
+                        client->stopExpandingMacro(start_offset + (name_begin-start), *macro);
                 }
 
                 if (! m)
@@ -330,6 +339,7 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
             }
 
             QVector<QByteArray> actuals;
+            QVector<MacroArgumentReference> actuals_ref;
             actuals.reserve (5);
             ++arg_it; // skip '('
 
@@ -338,6 +348,7 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
             const char *arg_end = skip_argument_variadics (actuals, macro, arg_it, __last);
             if (arg_it != arg_end)
             {
+                actuals_ref.append(MacroArgumentReference(start_offset + (arg_it-start), arg_end - arg_it));
                 const QByteArray actual (arg_it, arg_end - arg_it);
                 QByteArray expanded;
                 expand_actual (actual.constBegin (), actual.constEnd (), &expanded);
@@ -350,6 +361,7 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
                 ++arg_it; // skip ','
 
                 arg_end = skip_argument_variadics (actuals, macro, arg_it, __last);
+                actuals_ref.append(MacroArgumentReference(start_offset + (arg_it-start), arg_end - arg_it));
                 const QByteArray actual (arg_it, arg_end - arg_it);
                 QByteArray expanded;
                 expand_actual (actual.constBegin (), actual.constEnd (), &expanded);
@@ -363,11 +375,17 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
             ++arg_it; // skip ')'
             __first = arg_it;
 
+            if (client)
+                client->startExpandingMacro(start_offset + (name_begin-start), *macro, fast_name, true, actuals_ref);
+
             pp_frame frame (macro, actuals);
             MacroExpander expand_macro (env, &frame);
             macro->setHidden(true);
             expand_macro (macro->definition(), __result);
             macro->setHidden(false);
+
+            if (client)
+                client->stopExpandingMacro(start_offset + (name_begin-start), *macro);
         }
         else
             __result->append(*__first++);

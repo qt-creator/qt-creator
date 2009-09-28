@@ -46,6 +46,7 @@
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggertooltip.h"
+#include "debuggerstringutils.h"
 #include "gdbmi.h"
 
 #include "breakhandler.h"
@@ -58,6 +59,7 @@
 #include "debuggerdialogs.h"
 
 #include <utils/qtcassert.h>
+#include <utils/fancymainwindow.h>
 #include <texteditor/itexteditor.h>
 #include <coreplugin/icore.h>
 
@@ -222,6 +224,11 @@ DebuggerStartMode GdbEngine::startMode() const
 {
     QTC_ASSERT(!m_startParameters.isNull(), return NoStartMode);
     return m_startParameters->startMode;
+}
+
+QMainWindow *GdbEngine::mainWindow() const
+{
+    return m_manager->mainWindow();
 }
 
 GdbEngine::~GdbEngine()
@@ -783,15 +790,22 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
         // In theory this should not happen, in practice it does.
         debugMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN. "
             "TWO RESPONSES FOR ONE COMMAND?").arg(token));
-        // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
-        // with helpers enabled. In this case we get a second response with
-        // msg="Cannot find new threads: generic error"
         if (response.resultClass == GdbResultError) {
             QByteArray msg = response.data.findChild("msg").data();
             showMessageBox(QMessageBox::Critical,
                 tr("Executable failed"), QString::fromLocal8Bit(msg));
             showStatusMessage(tr("Process failed to start."));
-            shutdown();
+            // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
+            // with helpers enabled. In this case we get a second response with
+            // msg="Cannot find new threads: generic error"
+            if (msg == "Cannot find new threads: generic error")
+                shutdown();
+            // Handle a case known to appear on gdb 6.4 symbianelf when
+            // the stack is cut due to access to protected memory.
+            if (msg == "\"finish\" not meaningful in the outermost frame.") { 
+                setState(InferiorStopping);
+                setState(InferiorStopped);
+            }
         }
         return;
     }
@@ -1303,6 +1317,11 @@ void GdbEngine::handleStop2(const GdbResponse &response)
 
 void GdbEngine::handleStop2(const GdbMi &data)
 {
+    if (state() == InferiorRunning) {
+        // Stop triggered by a breakpoint or otherwise not directly
+        // initiated by the user.
+        setState(InferiorStopping);
+    }
     setState(InferiorStopped);
     showStatusMessage(tr("Stopped."), 5000);
 
@@ -3808,7 +3827,7 @@ struct MemoryAgentCookie
     MemoryAgentCookie(MemoryViewAgent *agent_, quint64 address_)
         : agent(agent_), address(address_)
     {}
-    MemoryViewAgent *agent;
+    QPointer<MemoryViewAgent> agent;
     quint64 address;
 };
 
@@ -3851,7 +3870,7 @@ struct DisassemblerAgentCookie
     DisassemblerAgentCookie(DisassemblerViewAgent *agent_)
         : agent(agent_)
     {}
-    DisassemblerViewAgent *agent;
+    QPointer<DisassemblerViewAgent> agent;
 };
 
 void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent,

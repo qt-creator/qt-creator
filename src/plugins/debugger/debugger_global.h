@@ -27,45 +27,15 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_REGISTERWINDOW_H
-#define DEBUGGER_REGISTERWINDOW_H
+#ifndef DEBUGGERGLOBAL_H
+#define DEBUGGERGLOBAL_H
 
-#include <QtGui/QTreeView>
+#include <QtCore/QtGlobal>
 
-namespace Debugger {
-class DebuggerManager;
+#if defined(DEBUGGER_LIBRARY)
+#  define DEBUGGER_EXPORT Q_DECL_EXPORT
+#else
+#  define DEBUGGER_EXPORT Q_DECL_IMPORT
+#endif
 
-namespace Internal {
-class RegisterWindow : public QTreeView
-{
-    Q_OBJECT
-
-public:
-    explicit RegisterWindow(DebuggerManager *manager);
-    void setModel(QAbstractItemModel *model);
-
-signals:
-    void reloadRegisterRequested();
-
-public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
-    void reloadContents();
-    void setAlwaysReloadContents(bool on);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
-
-private:
-    void resizeEvent(QResizeEvent *ev);
-    void contextMenuEvent(QContextMenuEvent *ev);
-
-    DebuggerManager *m_manager;
-
-    bool m_alwaysResizeColumnsToContents;
-    bool m_alwaysReloadContents;
-};
-
-} // namespace Internal
-} // namespace Debugger
-
-#endif // DEBUGGER_REGISTERWINDOW_H
-
+#endif // DEBUGGERGLOBAL_H
