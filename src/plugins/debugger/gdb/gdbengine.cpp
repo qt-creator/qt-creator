@@ -3707,11 +3707,11 @@ void GdbEngine::tryLoadDebuggingHelpers()
     if (m_debuggingHelperState != DebuggingHelperUninitialized)
         return;
     if (!startModeAllowsDumpers()) {
-        // load gdb macro based dumpers at least 
+        // Load at least gdb macro based dumpers.
         QFile file(_(":/gdb/gdbmacros.txt"));
         file.open(QIODevice::ReadOnly);
         QByteArray contents = file.readAll(); 
-        //qDebug() << "CONTENTS: " << contents;
+        m_debuggingHelperState = DebuggingHelperLoadTried;
         postCommand(_(contents));
         return;
     }
