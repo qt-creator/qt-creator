@@ -133,8 +133,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     connect(&m_trkDevice, SIGNAL(error(QString)),
         this, SLOT(handleTrkError(QString)));
 
-    if (m_verbose > 1)
-        m_trkDevice.setVerbose(true);
+    m_trkDevice.setVerbose(m_verbose);
     m_trkDevice.setSerialFrame(m_options->mode != TrkOptions::BlueTooth);
 
     connect(&m_trkDevice, SIGNAL(logMessage(QString)),
@@ -1202,7 +1201,7 @@ void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
 void TrkGdbAdapter::handleStepInto(const TrkResult &result)
 {
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString() + "in handleStepInto");
+        logMessage("ERROR: " + result.errorString() + " in handleStepInto");
         // Try fallback with Step Over
         QByteArray ba = trkStepRangeMessage(0x11);  // options "step over"
         sendTrkMessage(0x19, TrkCB(handleStepInto2), ba, "Step range");
@@ -1215,7 +1214,7 @@ void TrkGdbAdapter::handleStepInto(const TrkResult &result)
 void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
 {
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString() + "in handleStepInto2");
+        logMessage("ERROR: " + result.errorString() + " in handleStepInto2");
         // Try fallback with Continue
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
         //sendGdbServerMessage("S05", "Stepping finished");
@@ -1625,7 +1624,20 @@ QByteArray TrkGdbAdapter::readAllStandardOutput()
 
 void TrkGdbAdapter::write(const QByteArray &data)
 {
+    // Write magic packets directly to TRK.
+    if (data.startsWith("@#")) {
+        QByteArray ba = QByteArray::fromHex(data.mid(2));
+        qDebug() << "Writing: " << quoteUnprintableLatin1(ba);
+        if (ba.size() >= 1)
+            sendTrkMessage(ba.at(0), TrkCB(handleDirectTrk), ba.mid(1));
+        return;
+    }
     m_gdbProc.write(data, data.size());
+}
+
+void TrkGdbAdapter::handleDirectTrk(const TrkResult &result)
+{
+    logMessage("HANDLE DIRECT TRK: " + stringFromArray(result.data));
 }
 
 void TrkGdbAdapter::setWorkingDirectory(const QString &dir)

@@ -150,6 +150,7 @@ public:
     void handleDisconnect(const TrkResult &result);
     void handleDeleteProcess(const TrkResult &result);
     void handleDeleteProcess2(const TrkResult &result);
+    void handleDirectTrk(const TrkResult &response);
 
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleAndReportReadRegistersAfterStop(const TrkResult &result);
