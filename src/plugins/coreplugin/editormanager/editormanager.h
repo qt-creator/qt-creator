@@ -208,11 +208,10 @@ public slots:
     bool saveFile(Core::IEditor *editor = 0);
     bool saveFileAs(Core::IEditor *editor = 0);
     void revertToSaved();
-
-private slots:
     void closeEditor();
     void closeOtherEditors();
 
+private slots:
     void gotoNextDocHistory();
     void gotoPreviousDocHistory();
     void handleContextChange(Core::IContext *context);
