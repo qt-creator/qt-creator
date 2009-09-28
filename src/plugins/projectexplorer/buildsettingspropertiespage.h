@@ -98,11 +98,11 @@ private slots:
     void createConfiguration();
     void cloneConfiguration();
     void deleteConfiguration();
+    void updateAddButtonMenu();
 
 private:
     void cloneConfiguration(const QString &toClone);
     void deleteConfiguration(const QString &toDelete);
-    void createAddButtonMenu();
 
     Project *m_project;
     QPushButton *m_addButton;
@@ -110,6 +110,7 @@ private:
     QComboBox *m_buildConfigurationComboBox;
     BuildSettingsSubWidgets *m_subWidgets;
     QString m_buildConfiguration;
+    QMenu *m_addButtonMenu;
 };
 
 } // namespace Internal

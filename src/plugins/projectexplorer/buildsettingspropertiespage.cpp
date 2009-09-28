@@ -164,7 +164,9 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
     m_subWidgets = new BuildSettingsSubWidgets(this);
     vbox->addWidget(m_subWidgets);
 
-    createAddButtonMenu();
+    m_addButtonMenu = new QMenu(this);
+    m_addButton->setMenu(m_addButtonMenu);
+    updateAddButtonMenu();
 
     m_buildConfiguration = m_project->activeBuildConfiguration()->name();
 
@@ -176,23 +178,24 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
 
     connect(m_project, SIGNAL(buildConfigurationDisplayNameChanged(const QString &)),
             this, SLOT(buildConfigurationDisplayNameChanged(const QString &)));
+    if (m_project->buildConfigurationFactory())
+        connect(m_project->buildConfigurationFactory(), SIGNAL(availableCreationTypesChanged()), SLOT(updateAddButtonMenu()));
 
     updateBuildSettings();
 }
 
-void BuildSettingsWidget::createAddButtonMenu()
+void BuildSettingsWidget::updateAddButtonMenu()
 {
-    QMenu *addButtonMenu = new QMenu(this);
-    addButtonMenu->addAction(tr("&Clone Selected"),
+    m_addButtonMenu->clear();
+    m_addButtonMenu->addAction(tr("&Clone Selected"),
                              this, SLOT(cloneConfiguration()));
     IBuildConfigurationFactory *factory = m_project->buildConfigurationFactory();
     if (factory) {
         foreach (const QString &type, factory->availableCreationTypes()) {
-            QAction *action = addButtonMenu->addAction(factory->displayNameForType(type), this, SLOT(createConfiguration()));
+            QAction *action = m_addButtonMenu->addAction(factory->displayNameForType(type), this, SLOT(createConfiguration()));
             action->setData(type);
         }
     }
-    m_addButton->setMenu(addButtonMenu);
 }
 
 void BuildSettingsWidget::buildConfigurationDisplayNameChanged(const QString &buildConfiguration)

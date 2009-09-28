@@ -46,6 +46,7 @@
 #include <QtCore/QList>
 #include <QtCore/QStringList>
 #include <QtCore/QPointer>
+#include <QtCore/QMap>
 #include <QtGui/QDirModel>
 #include "qtextended_integration.h"
 
@@ -131,8 +132,19 @@ public:
     QList<ProjectExplorer::BuildConfiguration *> create(const QString &type) const;
     QList<ProjectExplorer::BuildConfiguration *> createDefaultConfigurations() const;
 
+    void update();
+
 private:
+    struct VersionInfo {
+        VersionInfo() {}
+        VersionInfo(const QString &d, int v)
+            : displayName(d), versionId(v) { }
+        QString displayName;
+        int versionId;
+    };
+
     Qt4Project *m_project;
+    QMap<QString, VersionInfo> m_versions;
 };
 
 class Qt4Project : public ProjectExplorer::Project

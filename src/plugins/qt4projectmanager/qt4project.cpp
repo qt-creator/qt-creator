@@ -68,6 +68,10 @@ using namespace ProjectExplorer;
 
 enum { debug = 0 };
 
+namespace {
+    const char * const KEY_QT_VERSION_ID = "QtVersionId";
+}
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -234,25 +238,42 @@ Qt4BuildConfigurationFactory::Qt4BuildConfigurationFactory(Qt4Project *project)
     : IBuildConfigurationFactory(project),
     m_project(project)
 {
+    update();
 }
 
 Qt4BuildConfigurationFactory::~Qt4BuildConfigurationFactory()
 {
 }
 
+void Qt4BuildConfigurationFactory::update()
+{
+
+    m_versions.clear();
+    m_versions.insert(QLatin1String("DefaultQt"), VersionInfo(tr("Using Default Qt Version"), 0));
+    QtVersionManager *vm = QtVersionManager::instance();
+    foreach (const QtVersion *version, vm->versions()) {
+        m_versions.insert(QString::fromLatin1("Qt%1").arg(version->uniqueId()),
+                          VersionInfo(tr("Using Qt Version \"%1\"").arg(version->name()), version->uniqueId()));
+    }
+    emit availableCreationTypesChanged();
+}
+
 QStringList Qt4BuildConfigurationFactory::availableCreationTypes() const
 {
-    return QStringList() << "DefaultQt";
+    return m_versions.keys();
 }
 
 QString Qt4BuildConfigurationFactory::displayNameForType(const QString &type) const
 {
-    return tr("Using Default Qt Version");
+    if (m_versions.contains(type))
+        return m_versions.value(type).displayName;
+    return QString();
 }
 
 QList<BuildConfiguration *> Qt4BuildConfigurationFactory::create(const QString &type) const
 {
-    QTC_ASSERT(type == "DefaultQt", return QList<BuildConfiguration*>());
+    QTC_ASSERT(m_versions.contains(type), return QList<BuildConfiguration *>());
+    const VersionInfo &info = m_versions.value(type);
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,
                           tr("New configuration"),
@@ -263,6 +284,7 @@ QList<BuildConfiguration *> Qt4BuildConfigurationFactory::create(const QString &
     if (!ok || buildConfigurationName.isEmpty())
         return QList<BuildConfiguration *>();
     BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
+    bc->setValue(KEY_QT_VERSION_ID, info.versionId);
     return QList<BuildConfiguration *>() << bc;
 }
 
@@ -317,6 +339,7 @@ void Qt4Project::qtVersionsChanged()
                 m_rootProjectNode->update();
         }
     }
+    m_buildConfigurationFactory->update();
 }
 
 void Qt4Project::updateFileList()
@@ -891,13 +914,13 @@ int Qt4Project::qtVersionId(BuildConfiguration *configuration) const
     if (debug)
         qDebug()<<"Looking for qtVersion ID of "<<configuration->name();
     int id = 0;
-    QVariant vid = configuration->value("QtVersionId");
+    QVariant vid = configuration->value(KEY_QT_VERSION_ID);
     if (vid.isValid()) {
         id = vid.toInt();
         if (vm->version(id)->isValid()) {
             return id;
         } else {
-            configuration->setValue("QtVersionId", 0);
+            configuration->setValue(KEY_QT_VERSION_ID, 0);
             return 0;
         }
     } else {
@@ -911,7 +934,7 @@ int Qt4Project::qtVersionId(BuildConfiguration *configuration) const
                 if (version->name() == vname) {
                     if (debug)
                         qDebug()<<"found name in versions";
-                    configuration->setValue("QtVersionId", version->uniqueId());
+                    configuration->setValue(KEY_QT_VERSION_ID, version->uniqueId());
                     return version->uniqueId();
                 }
             }
@@ -920,13 +943,13 @@ int Qt4Project::qtVersionId(BuildConfiguration *configuration) const
     if (debug)
         qDebug()<<"  using qtversion with id ="<<id;
     // Nothing found, reset to default
-    configuration->setValue("QtVersionId", id);
+    configuration->setValue(KEY_QT_VERSION_ID, id);
     return id;
 }
 
 void Qt4Project::setQtVersion(BuildConfiguration *configuration, int id)
 {
-    configuration->setValue("QtVersionId", id);
+    configuration->setValue(KEY_QT_VERSION_ID, id);
     updateActiveRunConfiguration();
 }
 

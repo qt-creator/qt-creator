@@ -81,6 +81,9 @@ public:
 // restore
 // clone
     virtual QList<BuildConfiguration *> createDefaultConfigurations() const = 0;
+
+signals:
+    void availableCreationTypesChanged();
 };
 
 } // namespace ProjectExplorer
