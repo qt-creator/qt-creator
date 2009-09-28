@@ -3827,7 +3827,7 @@ struct MemoryAgentCookie
     MemoryAgentCookie(MemoryViewAgent *agent_, quint64 address_)
         : agent(agent_), address(address_)
     {}
-    MemoryViewAgent *agent;
+    QPointer<MemoryViewAgent> agent;
     quint64 address;
 };
 
@@ -3870,7 +3870,7 @@ struct DisassemblerAgentCookie
     DisassemblerAgentCookie(DisassemblerViewAgent *agent_)
         : agent(agent_)
     {}
-    DisassemblerViewAgent *agent;
+    QPointer<DisassemblerViewAgent> agent;
 };
 
 void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent,

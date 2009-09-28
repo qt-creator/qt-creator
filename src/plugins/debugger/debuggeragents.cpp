@@ -194,6 +194,7 @@ DisassemblerViewAgent::~DisassemblerViewAgent()
     if (d->editor)
         d->editor->deleteLater();
     delete d;
+    d = 0;
 }
 
 void DisassemblerViewAgent::setFrame(const StackFrame &frame)
@@ -207,11 +208,9 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame)
 
 void DisassemblerViewAgent::setContents(const QString &contents)
 {
+    QTC_ASSERT(d, return);
     using namespace Core;
     using namespace TextEditor;
-
-    if (!d->editor)
-        return;
 
     QPlainTextEdit *plainTextEdit = 0;
     EditorManager *editorManager = EditorManager::instance();
