@@ -1583,35 +1583,6 @@ void TrkGdbAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
 // AbstractGdbAdapter interface implementation
 //
 
-/*
-void TrkGdbAdapter::kill()
-{
-    if (m_options->mode == TrkOptions::BlueTooth
-            && m_rfcommProc.state() == QProcess::Running)
-        m_rfcommProc.kill();
-    m_gdbProc.kill();
-}
-
-void TrkGdbAdapter::terminate()
-{
-    m_rfcommProc.terminate();
-    m_gdbProc.terminate();
-}
-
-bool TrkGdbAdapter::waitForFinished(int msecs)
-{
-    QByteArray ba;
-    ba.append(0x03);
-    m_rfcommProc.write(ba);
-    m_rfcommProc.terminate();
-    m_rfcommProc.waitForFinished();
-    QProcess proc;
-    proc.start("rfcomm release " + m_options->blueToothDevice);
-    proc.waitForFinished();
-    return m_gdbProc.waitForFinished(msecs);
-}
-*/
-
 QByteArray TrkGdbAdapter::readAllStandardError()
 {
     return m_gdbProc.readAllStandardError();
@@ -1659,15 +1630,34 @@ void TrkGdbAdapter::shutdown()
     case InferiorRunningRequested:
     case InferiorRunning:
         setState(InferiorShuttingDown);
-        qDebug() << "kill";
         m_engine->postCommand(_("kill"), CB(handleKill));
         return;
 
     case InferiorShutDown:
         setState(AdapterShuttingDown);
-        qDebug() << "gdb-exit";
+        sendTrkMessage(0x02, TrkCB(handleDisconnect));
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
+
+/*
+    if (m_options->mode == TrkOptions::BlueTooth
+            && m_rfcommProc.state() == QProcess::Running)
+        m_rfcommProc.kill();
+    m_rfcommProc.terminate();
+    m_rfcommProc.write(ba);
+    m_rfcommProc.terminate();
+    m_rfcommProc.waitForFinished();
+
+    m_gdbProc.kill();
+    m_gdbProc.terminate();
+
+    QByteArray ba;
+    ba.append(0x03);
+    QProcess proc;
+    proc.start("rfcomm release " + m_options->blueToothDevice);
+    proc.waitForFinished();
+    m_gdbProc.waitForFinished(msecs);
+*/
 
     default:
         QTC_ASSERT(false, qDebug() << state());
