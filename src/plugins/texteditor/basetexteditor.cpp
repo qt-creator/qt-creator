@@ -4530,14 +4530,27 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
     int pos = cursor.position() - bpos;
     int fns = ts.firstNonSpace(cursor.block().text());
 
-    cursor.insertText(text);
+    if (pos <= fns) { // cursor is at beginning of line, we will reindent
 
-    if (pos <= fns) { // cursor was at beginning of line, do reindent
+        bool hasEndingNewline = (text.endsWith(QLatin1Char('\n'))
+                                 || text.endsWith(QChar::ParagraphSeparator)
+                                 || text.endsWith(QLatin1Char('\r')));
+
+        if (hasEndingNewline)
+            cursor.setPosition(bpos); // we'll add a final newline, preserve current line's indentation
+
+        cursor.insertText(text);
         pos = cursor.position();
         cursor.setPosition(bpos);
         cursor.setPosition(pos, QTextCursor::KeepAnchor);
+        if (hasEndingNewline)
+            cursor.setPosition(cursor.position()-1, QTextCursor::KeepAnchor);
         indent(document(), cursor, QChar::Null);
         cursor.clearSelection();
+        if (hasEndingNewline)
+            cursor.setPosition(cursor.position()+1);
+    } else {
+        cursor.insertText(text);
     }
 
     cursor.endEditBlock();

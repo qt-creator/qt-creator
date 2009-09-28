@@ -129,10 +129,10 @@ bool Launcher::startServer(QString *errorMessage)
     d->m_device.sendTrkMessage(TrkVersions, TrkCallback(this, &Launcher::handleTrkVersion));
     if (d->m_fileName.isEmpty())
         return true;
-    if (!d->m_copyState.sourceFileName.isEmpty() && !d->m_copyState.destinationFileName.isEmpty())
-        copyFileToRemote();
-    else
+    if (d->m_copyState.sourceFileName.isEmpty() || d->m_copyState.destinationFileName.isEmpty())
         installAndRun();
+    else
+        copyFileToRemote();
     return true;
 }
 
@@ -301,7 +301,11 @@ void Launcher::handleTrkVersion(const TrkResult &result)
 
 void Launcher::handleFileCreation(const TrkResult &result)
 {
-    // we don't do any error handling yet, which is bad
+    if (result.errorCode() || result.data.size() < 6) {
+        emit canNotCreateFile(d->m_copyState.destinationFileName, errorMessage(result.errorCode()));
+        emit finished();
+        return;
+    }
     const char *data = result.data.data();
     d->m_copyState.copyFileHandle = extractInt(data + 2);
     QFile file(d->m_copyState.sourceFileName);
@@ -493,7 +497,11 @@ void Launcher::installRemotePackageSilently(const QString &fileName)
 
 void Launcher::handleInstallPackageFinished(const TrkResult &)
 {
-    startInferiorIfNeeded();
+    if (d->m_fileName.isEmpty()) {
+        emit finished();
+    } else {
+        startInferiorIfNeeded();
+    }
 }
 
 void Launcher::startInferiorIfNeeded()

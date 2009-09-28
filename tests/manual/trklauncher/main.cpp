@@ -5,15 +5,19 @@
 #include <QtCore/QStringList>
 
 static const char *usageC =
-"\nUsage: %1 <trk_port_name> [-v] [-i remote_sis_file | -I local_sis_file remote_sis_file] <remote_executable_name>\n"
+"\nUsage: %1 <trk_port_name> [-v] [-i remote_sis_file | -I local_sis_file remote_sis_file] [<remote_executable_name>]\n"
 "\nOptions:\n    -v verbose\n"
             "    -f turn serial message frame off\n\n"
 "\nPing:\n"
 "%1 COM5\n"
 "\nRemote launch:\n"
 "%1 COM5 C:\\sys\\bin\\test.exe\n"
+"\nInstallation:\n"
+"%1 -i COM5 C:\\Data\\test_gcce_udeb.sisx\n"
 "\nInstallation and remote launch:\n"
 "%1 -i COM5 C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe\n"
+"\nCopy from local file, installation:\n"
+"%1 -I COM5 C:\\Projects\\test\\test_gcce_udeb.sisx C:\\Data\\test_gcce_udeb.sisx\n"
 "\nCopy from local file, installation and remote launch:\n"
 "%1 -I COM5 C:\\Projects\\test\\test_gcce_udeb.sisx C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe\n";
 
@@ -68,17 +72,19 @@ static bool parseArguments(const QStringList &arguments, trk::Launcher &launcher
         launcher.setFileName(arguments.at(a + 1));
         return true;
     }
-    if (remainingArgsCount == 3 && install && !customInstall) {
+    if ((remainingArgsCount == 3 || remainingArgsCount == 2) && install && !customInstall) {
         launcher.setTrkServerName(arguments.at(a)); // ping
         launcher.setInstallFileName(arguments.at(a + 1));
-        launcher.setFileName(arguments.at(a + 2));
+        if (remainingArgsCount == 3)
+            launcher.setFileName(arguments.at(a + 2));
         return true;
     }
-    if (remainingArgsCount == 4 && !install && customInstall) {
+    if ((remainingArgsCount == 4 || remainingArgsCount == 3) && !install && customInstall) {
         launcher.setTrkServerName(arguments.at(a)); // ping
         launcher.setCopyFileName(arguments.at(a + 1), arguments.at(a + 2));
         launcher.setInstallFileName(arguments.at(a + 2));
-        launcher.setFileName(arguments.at(a + 3));
+        if (remainingArgsCount == 4)
+            launcher.setFileName(arguments.at(a + 3));
         return true;
     }
     return false;
