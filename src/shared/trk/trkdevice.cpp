@@ -621,8 +621,7 @@ int WinReaderThread::tryRead()
 void WinReaderThread::run()
 {
     m_handles[FileHandle] = m_context->readOverlapped.hEvent;
-    int readResult;
-    while ( (readResult = tryRead()) == 0) ;
+    while ( tryRead() == 0) ;
 }
 
 void WinReaderThread::terminate()
@@ -736,9 +735,8 @@ int UnixReaderThread::tryRead()
 
 void UnixReaderThread::run()
 {
-    int readResult;
     // Read loop
-    while ( (readResult = tryRead()) == 0) ;
+    while ( tryRead() == 0) ;
 }
 
 void UnixReaderThread::terminate()

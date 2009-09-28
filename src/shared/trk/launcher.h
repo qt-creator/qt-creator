@@ -60,6 +60,7 @@ signals:
     void installingStarted();
     void startingApplication();
     void applicationRunning(uint pid);
+    void canNotRun(const QString &errorMessage);
     void finished();
     void applicationOutputReceived(const QString &output);
     void copyProgress(int percent);
@@ -71,8 +72,6 @@ private slots:
     void handleResult(const trk::TrkResult &data);
 
 private:
-    void tryTrkRead();
-
     // kill process and breakpoints
     void cleanUp();
 
@@ -89,7 +88,6 @@ private:
     void handleTrkVersion(const TrkResult &result);
     void waitForTrkFinished(const TrkResult &data);
 
-    void handleAndReportCreateProcess(const TrkResult &result);
     void copyFileToRemote();
     void installRemotePackageSilently(const QString &filename);
     void installAndRun();
