@@ -105,6 +105,10 @@ public:
         const QModelIndex &index) const
     {
         if (index.column() == 1) {
+            bool paintRed = index.data(RegisterChangedRole).toBool();
+            QPen oldPen = painter->pen();
+            if (paintRed)
+                painter->setPen(QColor(200, 0, 0));
             // FIXME: performance? this changes only on real font changes.
             QFontMetrics fm(option.font);
             int charWidth = fm.width(QLatin1Char('x'));
@@ -112,7 +116,7 @@ public:
                 charWidth = qMax(charWidth, fm.width(QLatin1Char(i)));
             for (int i = 'a'; i <= 'f'; ++i)
                 charWidth = qMax(charWidth, fm.width(QLatin1Char(i)));
-            QString str = index.model()->data(index, Qt::DisplayRole).toString();
+            QString str = index.data(Qt::DisplayRole).toString();
             int x = option.rect.x();
             for (int i = 0; i < str.size(); ++i) {
                 QRect r = option.rect;
@@ -121,6 +125,8 @@ public:
                 x += charWidth;
                 painter->drawText(r, Qt::AlignHCenter, QString(str.at(i)));
             }
+            if (paintRed)
+                painter->setPen(oldPen);
         } else {
             QItemDelegate::paint(painter, option, index);
         }

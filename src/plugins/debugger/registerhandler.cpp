@@ -67,8 +67,6 @@ int RegisterHandler::columnCount(const QModelIndex &parent) const
 
 QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 {
-    static const QVariant red = QColor(200, 0, 0);
-
     if (role == RegisterNumberBaseRole)
         return m_base;
 
@@ -78,7 +76,7 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
     const Register &reg = m_registers.at(index.row());
 
     if (role == RegisterAddressRole) {
-        // return some address associated with the register
+        // Return some address associated with the register.
         bool ok = true;
         qulonglong value = reg.value.toULongLong(&ok, 0);
         return ok ? QString::fromLatin1("0x") + QString::number(value, 16) : QVariant();
@@ -100,8 +98,8 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
     if (role == Qt::TextAlignmentRole && index.column() == 1)
         return Qt::AlignRight;
 
-    if (role == Qt::TextColorRole && reg.changed && index.column() == 1)
-        return red;
+    if (role == RegisterChangedRole)
+        return reg.changed;
     
     return QVariant();
 }

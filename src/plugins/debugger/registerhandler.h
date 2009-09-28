@@ -38,7 +38,8 @@ namespace Internal {
 enum RegisterRole
 {
     RegisterNumberBaseRole = Qt::UserRole, // Currently used number base
-    RegisterAddressRole                   // Start value for opening memory view
+    RegisterAddressRole,                   // Start value for opening memory view
+    RegisterChangedRole                    // Used for painting changed values 
 };
 
 class Register
