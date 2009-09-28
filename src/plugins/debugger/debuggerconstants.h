@@ -60,7 +60,7 @@ namespace Internal {
 }
 } // namespace Constants
 
-enum DEBUGGER_EXPORT DebuggerState
+enum DebuggerState
 {
     DebuggerNotReady,          // Debugger not started
 
