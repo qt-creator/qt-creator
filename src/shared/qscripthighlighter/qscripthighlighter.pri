@@ -1,4 +1,4 @@
 INCLUDEPATH *= $$PWD
 
-SOURCES += $$PWD/qscripthighlighter.cpp
-HEADERS += $$PWD/qscripthighlighter.h
+SOURCES += $$PWD/qscripthighlighter.cpp $$PWD/qscriptincrementalscanner.cpp
+HEADERS += $$PWD/qscripthighlighter.h $$PWD/qscriptincrementalscanner.h

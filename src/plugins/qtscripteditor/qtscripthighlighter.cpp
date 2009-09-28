@@ -35,7 +35,7 @@ namespace QtScriptEditor {
 namespace Internal {
 
 QtScriptHighlighter::QtScriptHighlighter(QTextDocument *parent) :
-     SharedTools::QScriptHighlighter(parent)
+     SharedTools::QScriptHighlighter(false, parent)
 {
     m_currentBlockParentheses.reserve(20);
     m_braceDepth = 0;

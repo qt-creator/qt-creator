@@ -30,6 +30,8 @@
 #ifndef QSCRIPTSYNTAXHIGHLIGHTER_H
 #define QSCRIPTSYNTAXHIGHLIGHTER_H
 
+#include "qscriptincrementalscanner.h"
+
 #include <QtCore/QVector>
 #include <QtCore/QSet>
 #include <QtGui/QSyntaxHighlighter>
@@ -40,7 +42,7 @@ class QScriptHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:
-    QScriptHighlighter(QTextDocument *parent = 0);
+    QScriptHighlighter(bool duiEnabled = false, QTextDocument *parent = 0);
     virtual void highlightBlock(const QString &text);
 
     enum { NumberFormat, StringFormat, TypeFormat,
@@ -48,7 +50,6 @@ public:
            NumFormats };
 
     bool isDuiEnabled() const;
-    void setDuiEnabled(bool enabled);
 
     // MS VC 6 compatible, still.
     void setFormats(const QVector<QTextCharFormat> &s);
@@ -57,8 +58,7 @@ public:
     QTextCharFormat labelTextCharFormat() const
     { return m_formats[LabelFormat]; }
 
-    const QSet<QString> &keywords() const
-    { return qscriptKeywords; }
+    static QSet<QString> keywords();
 
 protected:
     // The functions are notified whenever parentheses are encountered.
@@ -69,11 +69,13 @@ protected:
     // sets the enriched user state, or simply calls setCurrentBlockState(state);
     virtual void onBlockEnd(int state, int firstNonSpace);
 
-    void highlightKeyword(int currentPos, const QString &buffer);
+protected:
+    QScriptIncrementalScanner m_scanner;
 
+private:
+    static QSet<QString> m_keywords;
     bool m_duiEnabled;
     QTextCharFormat m_formats[NumFormats];
-    QSet<QString> qscriptKeywords;
 };
 
 } // namespace SharedTools

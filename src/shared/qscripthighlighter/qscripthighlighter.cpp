@@ -33,433 +33,161 @@
 #include <QtCore/QtAlgorithms>
 #include <QtCore/QDebug>
 
-namespace SharedTools {
+using namespace SharedTools;
 
-QScriptHighlighter::QScriptHighlighter(QTextDocument *parent)
-    : QSyntaxHighlighter(parent),
-      m_duiEnabled(false)
+QSet<QString> QScriptHighlighter::m_keywords;
+
+QScriptHighlighter::QScriptHighlighter(bool duiEnabled, QTextDocument *parent):
+        QSyntaxHighlighter(parent),
+        m_scanner(m_duiEnabled),
+        m_duiEnabled(duiEnabled)
 {
-    qscriptKeywords.insert(QLatin1String("Infinity"));
-    qscriptKeywords.insert(QLatin1String("NaN"));
-    qscriptKeywords.insert(QLatin1String("abstract"));
-    qscriptKeywords.insert(QLatin1String("boolean"));
-    qscriptKeywords.insert(QLatin1String("break"));
-    qscriptKeywords.insert(QLatin1String("byte"));
-    qscriptKeywords.insert(QLatin1String("case"));
-    qscriptKeywords.insert(QLatin1String("catch"));
-    qscriptKeywords.insert(QLatin1String("char"));
-    qscriptKeywords.insert(QLatin1String("class"));
-    qscriptKeywords.insert(QLatin1String("const"));
-    qscriptKeywords.insert(QLatin1String("constructor"));
-    qscriptKeywords.insert(QLatin1String("continue"));
-    qscriptKeywords.insert(QLatin1String("debugger"));
-    qscriptKeywords.insert(QLatin1String("default"));
-    qscriptKeywords.insert(QLatin1String("delete"));
-    qscriptKeywords.insert(QLatin1String("do"));
-    qscriptKeywords.insert(QLatin1String("double"));
-    qscriptKeywords.insert(QLatin1String("else"));
-    qscriptKeywords.insert(QLatin1String("enum"));
-    qscriptKeywords.insert(QLatin1String("export"));
-    qscriptKeywords.insert(QLatin1String("extends"));
-    qscriptKeywords.insert(QLatin1String("false"));
-    qscriptKeywords.insert(QLatin1String("final"));
-    qscriptKeywords.insert(QLatin1String("finally"));
-    qscriptKeywords.insert(QLatin1String("float"));
-    qscriptKeywords.insert(QLatin1String("for"));
-    qscriptKeywords.insert(QLatin1String("function"));
-    qscriptKeywords.insert(QLatin1String("goto"));
-    qscriptKeywords.insert(QLatin1String("if"));
-    qscriptKeywords.insert(QLatin1String("implements"));
-    qscriptKeywords.insert(QLatin1String("import"));
-    qscriptKeywords.insert(QLatin1String("in"));
-    qscriptKeywords.insert(QLatin1String("instanceof"));
-    qscriptKeywords.insert(QLatin1String("int"));
-    qscriptKeywords.insert(QLatin1String("interface"));
-    qscriptKeywords.insert(QLatin1String("long"));
-    qscriptKeywords.insert(QLatin1String("native"));
-    qscriptKeywords.insert(QLatin1String("new"));
-    qscriptKeywords.insert(QLatin1String("package"));
-    qscriptKeywords.insert(QLatin1String("private"));
-    qscriptKeywords.insert(QLatin1String("protected"));
-    qscriptKeywords.insert(QLatin1String("public"));
-    qscriptKeywords.insert(QLatin1String("return"));
-    qscriptKeywords.insert(QLatin1String("short"));
-    qscriptKeywords.insert(QLatin1String("static"));
-    qscriptKeywords.insert(QLatin1String("super"));
-    qscriptKeywords.insert(QLatin1String("switch"));
-    qscriptKeywords.insert(QLatin1String("synchronized"));
-    qscriptKeywords.insert(QLatin1String("this"));
-    qscriptKeywords.insert(QLatin1String("throw"));
-    qscriptKeywords.insert(QLatin1String("throws"));
-    qscriptKeywords.insert(QLatin1String("transient"));
-    qscriptKeywords.insert(QLatin1String("true"));
-    qscriptKeywords.insert(QLatin1String("try"));
-    qscriptKeywords.insert(QLatin1String("typeof"));
-    qscriptKeywords.insert(QLatin1String("undefined"));
-    qscriptKeywords.insert(QLatin1String("var"));
-    qscriptKeywords.insert(QLatin1String("void"));
-    qscriptKeywords.insert(QLatin1String("volatile"));
-    qscriptKeywords.insert(QLatin1String("while"));
-    qscriptKeywords.insert(QLatin1String("with"));    // end
-
     setFormats(defaultFormats());
+
+    m_scanner.setKeywords(keywords());
+}
+
+QSet<QString> QScriptHighlighter::keywords()
+{
+    if (m_keywords.isEmpty()) {
+        m_keywords << QLatin1String("Infinity");
+        m_keywords << QLatin1String("NaN");
+        m_keywords << QLatin1String("abstract");
+        m_keywords << QLatin1String("boolean");
+        m_keywords << QLatin1String("break");
+        m_keywords << QLatin1String("byte");
+        m_keywords << QLatin1String("case");
+        m_keywords << QLatin1String("catch");
+        m_keywords << QLatin1String("char");
+        m_keywords << QLatin1String("class");
+        m_keywords << QLatin1String("const");
+        m_keywords << QLatin1String("constructor");
+        m_keywords << QLatin1String("continue");
+        m_keywords << QLatin1String("debugger");
+        m_keywords << QLatin1String("default");
+        m_keywords << QLatin1String("delete");
+        m_keywords << QLatin1String("do");
+        m_keywords << QLatin1String("double");
+        m_keywords << QLatin1String("else");
+        m_keywords << QLatin1String("enum");
+        m_keywords << QLatin1String("export");
+        m_keywords << QLatin1String("extends");
+        m_keywords << QLatin1String("false");
+        m_keywords << QLatin1String("final");
+        m_keywords << QLatin1String("finally");
+        m_keywords << QLatin1String("float");
+        m_keywords << QLatin1String("for");
+        m_keywords << QLatin1String("function");
+        m_keywords << QLatin1String("goto");
+        m_keywords << QLatin1String("if");
+        m_keywords << QLatin1String("implements");
+        m_keywords << QLatin1String("import");
+        m_keywords << QLatin1String("in");
+        m_keywords << QLatin1String("instanceof");
+        m_keywords << QLatin1String("int");
+        m_keywords << QLatin1String("interface");
+        m_keywords << QLatin1String("long");
+        m_keywords << QLatin1String("native");
+        m_keywords << QLatin1String("new");
+        m_keywords << QLatin1String("package");
+        m_keywords << QLatin1String("private");
+        m_keywords << QLatin1String("protected");
+        m_keywords << QLatin1String("public");
+        m_keywords << QLatin1String("return");
+        m_keywords << QLatin1String("short");
+        m_keywords << QLatin1String("static");
+        m_keywords << QLatin1String("super");
+        m_keywords << QLatin1String("switch");
+        m_keywords << QLatin1String("synchronized");
+        m_keywords << QLatin1String("this");
+        m_keywords << QLatin1String("throw");
+        m_keywords << QLatin1String("throws");
+        m_keywords << QLatin1String("transient");
+        m_keywords << QLatin1String("true");
+        m_keywords << QLatin1String("try");
+        m_keywords << QLatin1String("typeof");
+        m_keywords << QLatin1String("undefined");
+        m_keywords << QLatin1String("var");
+        m_keywords << QLatin1String("void");
+        m_keywords << QLatin1String("volatile");
+        m_keywords << QLatin1String("while");
+        m_keywords << QLatin1String("with");
+    }
+
+    return m_keywords;
 }
 
 bool QScriptHighlighter::isDuiEnabled() const
 { return m_duiEnabled; }
 
-void QScriptHighlighter::setDuiEnabled(bool enabled)
-{ m_duiEnabled = enabled; }
-
 void QScriptHighlighter::highlightBlock(const QString &text)
 {
-    // states
-    enum {
-        StateStandard,
-        StateCommentStart1,
-        StateCCommentStart2,
-        StateCppCommentStart2,
-        StateCComment,
-        StateCppComment,
-        StateCCommentEnd1,
-        StateCCommentEnd2,
-        StateStringStart,
-        StateString,
-        StateStringEnd,
-        StateString2Start,
-        StateString2,
-        StateString2End,
-        StateNumber,
-        StatePreProcessor,
-        NumStates
-    };
-    // tokens
-    enum {
-        InputAlpha,
-        InputNumber,
-        InputAsterix,
-        InputSlash,
-        InputParen,
-        InputSpace,
-        InputHash,
-        InputQuotation,
-        InputApostrophe,
-        InputSep,
-        NumInputs
-    };
+    m_scanner(onBlockStart(), text);
 
-    static const uchar table[NumStates][NumInputs] = {
-        { StateStandard,      StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard }, // StateStandard
-        { StateStandard,      StateNumber,   StateCCommentStart2, StateCppCommentStart2, StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard }, // StateCommentStart1
-        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCComment,         StateCComment,   StateCComment,   StateCComment,     StateCComment,    StateCComment,     StateCComment }, // StateCCommentStart2
-        { StateCppComment,    StateCppComment, StateCppComment,     StateCppComment,       StateCppComment, StateCppComment, StateCppComment,   StateCppComment,  StateCppComment,   StateCppComment }, // CppCommentStart2
-        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCComment,         StateCComment,   StateCComment,   StateCComment,     StateCComment,    StateCComment,     StateCComment }, // StateCComment
-        { StateCppComment,    StateCppComment, StateCppComment,     StateCppComment,       StateCppComment, StateCppComment, StateCppComment,   StateCppComment,  StateCppComment,   StateCppComment }, // StateCppComment
-        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCCommentEnd2,     StateCComment,   StateCComment,   StateCComment,     StateCComment,    StateCComment,     StateCComment }, // StateCCommentEnd1
-        { StateStandard,      StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard }, // StateCCommentEnd2
-        { StateString,        StateString,     StateString,         StateString,           StateString,     StateString,     StateString,       StateStringEnd,   StateString,       StateString }, // StateStringStart
-        { StateString,        StateString,     StateString,         StateString,           StateString,     StateString,     StateString,       StateStringEnd,   StateString,       StateString }, // StateString
-        { StateStandard,      StateStandard,   StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard }, // StateStringEnd
-        { StateString2,       StateString2,    StateString2,        StateString2,          StateString2,    StateString2,    StateString2,      StateString2,     StateString2End,   StateString2 }, // StateString2Start
-        { StateString2,       StateString2,    StateString2,        StateString2,          StateString2,    StateString2,    StateString2,      StateString2,     StateString2End,   StateString2 }, // StateString2
-        { StateStandard,      StateStandard,   StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard }, // StateString2End
-        { StateNumber,        StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard }, // StateNumber
-        { StatePreProcessor,  StateStandard,   StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard } // StatePreProcessor
-    };
-
-    QString buffer;
-    buffer.reserve(text.length());
     QTextCharFormat emptyFormat;
+    foreach (const QScriptIncrementalScanner::Token &token, m_scanner.tokens()) {
+        switch (token.kind) {
+            case QScriptIncrementalScanner::Token::Keyword:
+                setFormat(token.offset, token.length, m_formats[KeywordFormat]);
+                break;
 
-    int state = onBlockStart();
-    if (text.isEmpty()) {
-        onBlockEnd(state, 0);
-        return;
-    }
+            case QScriptIncrementalScanner::Token::Type:
+                setFormat(token.offset, token.length, m_formats[TypeFormat]);
+                break;
 
-    int input = -1;
-    int i = 0;
-    bool lastWasBackSlash = false;
-    bool makeLastStandard = false;
+            case QScriptIncrementalScanner::Token::Label:
+                setFormat(token.offset, token.length, m_formats[LabelFormat]);
+                break;
 
-    static const QString alphabeth = QLatin1String("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    static const QString mathChars = QString::fromLatin1("xXeE");
-    static const QString numbers = QString::fromLatin1("0123456789");
-    bool questionMark = false;
-    QChar lastChar;
+            case QScriptIncrementalScanner::Token::String:
+                setFormat(token.offset, token.length, m_formats[StringFormat]);
+                break;
 
-    int firstNonSpace = -1;
-    int lastNonSpace = -1;
+            case QScriptIncrementalScanner::Token::Comment:
+                setFormat(token.offset, token.length, m_formats[CommentFormat]);
+                break;
 
-    forever {
-        const QChar c = text.at(i);
+            case QScriptIncrementalScanner::Token::Number:
+                setFormat(token.offset, token.length, m_formats[NumberFormat]);
+                break;
 
-        bool lookAtBinding = false;
+            case QScriptIncrementalScanner::Token::LeftParenthesis:
+                onOpeningParenthesis('(', token.offset);
+                break;
 
-        if (lastWasBackSlash) {
-            input = InputSep;
-        } else {
-            switch (c.toLatin1()) {
-                case '*':
-                    input = InputAsterix;
-                    break;
-                case '/':
-                    input = InputSlash;
-                    break;
-                case '(': case '[': case '{':
-                    input = InputParen;
-                    if (state == StateStandard
-                        || state == StateNumber
-                        || state == StatePreProcessor
-                        || state == StateCCommentEnd2
-                        || state == StateCCommentEnd1
-                        || state == StateString2End
-                        || state == StateStringEnd
-                       )
-                    onOpeningParenthesis(c, i);
-                    break;
-                case ')': case ']': case '}':
-                    input = InputParen;
-                    if (state == StateStandard
-                        || state == StateNumber
-                        || state == StatePreProcessor
-                        || state == StateCCommentEnd2
-                        || state == StateCCommentEnd1
-                        || state == StateString2End
-                        || state == StateStringEnd
-                       ) {
-                        onClosingParenthesis(c, i);
-                    }
-                    break;
-                case '#':
-                    input = InputHash;
-                    break;
-                case '"':
-                    input = InputQuotation;
-                    break;
-                case '\'':
-                    input = InputApostrophe;
-                    break;
-                case ' ':
-                    input = InputSpace;
-                    break;
-                case '1': case '2': case '3': case '4': case '5':
-                case '6': case '7': case '8': case '9': case '0':
-                    if (alphabeth.contains(lastChar)
-                        && (!mathChars.contains(lastChar) || !numbers.contains(text.at(i - 1)))) {
-                        input = InputAlpha;
-                    } else {
-                        if (input == InputAlpha && numbers.contains(lastChar))
-                            input = InputAlpha;
-                        else
-                            input = InputNumber;
-                    }
-                    break;
-                case ':': {
-                              input = InputSep;
-                              QChar nextChar = ' ';
-                              if (i < text.length() - 1)
-                                  nextChar = text.at(i + 1);
+            case QScriptIncrementalScanner::Token::RightParenthesis:
+                onClosingParenthesis(')', token.offset);
+                break;
 
-                              if (state == StateStandard && !questionMark &&
-                                  lastChar != ':' && nextChar != ':') {
-                                  int start = i - 1;
+            case QScriptIncrementalScanner::Token::LeftBrace:
+                onOpeningParenthesis('{', token.offset);
+                break;
 
-                                  // skip white spaces
-                                  for (; start != -1; --start) {
-                                      if (! text.at(start).isSpace())
-                                          break;
-                                  }
+            case QScriptIncrementalScanner::Token::RightBrace:
+                onClosingParenthesis('}', token.offset);
+                break;
 
-                                  int lastNonSpace = start + 1;
+            case QScriptIncrementalScanner::Token::LeftBracket:
+                onOpeningParenthesis('[', token.offset);
+                break;
 
-                                  for (; start != -1; --start) {
-                                      const QChar ch = text.at(start);
-                                      if (! (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char('.')))
-                                          break;
-                                  }
+            case QScriptIncrementalScanner::Token::RightBracket:
+                onClosingParenthesis(']', token.offset);
+                break;
 
-                                  ++start;
+            case QScriptIncrementalScanner::Token::PreProcessor:
+                setFormat(token.offset, token.length, m_formats[PreProcessorFormat]);
+                break;
 
-                                  lookAtBinding = true;
+            case QScriptIncrementalScanner::Token::Empty:
+            default:
+                setFormat(token.offset, token.length, emptyFormat);
+                break;
 
-                                  if (m_duiEnabled && text.midRef(start, lastNonSpace - start) == QLatin1String("id")) {
-                                      setFormat(start, i - start, m_formats[KeywordFormat]);
-                                  } else {
-                                      setFormat(start, i - start, m_formats[LabelFormat]);
-                                  }
-                              }
-                              break;
-                          }
-                default: {
-                             if (!questionMark && c == QLatin1Char('?'))
-                                 questionMark = true;
-                             if (c.isLetter() || c == QLatin1Char('_'))
-                                 input = InputAlpha;
-                             else
-                                 input = InputSep;
-                         } break;
-            }
         }
-
-        if (input != InputSpace) {
-            if (firstNonSpace < 0)
-                firstNonSpace = i;
-            lastNonSpace = i;
-        }
-
-        lastWasBackSlash = !lastWasBackSlash && c == QLatin1Char('\\');
-
-        if (input == InputAlpha)
-            buffer += c;
-
-        state = table[state][input];
-
-        switch (state) {
-            case StateStandard: {
-                                    setFormat(i, 1, emptyFormat);
-                                    if (makeLastStandard)
-                                        setFormat(i - 1, 1, emptyFormat);
-                                    makeLastStandard = false;
-                                    if (!buffer.isEmpty() && input != InputAlpha ) {
-                                        if (! lookAtBinding)
-                                            highlightKeyword(i, buffer);
-                                        buffer.clear();
-                                    }
-                                } break;
-            case StateCommentStart1:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = true;
-                                buffer.resize(0);
-                                break;
-            case StateCCommentStart2:
-                                setFormat(i - 1, 2, m_formats[CommentFormat]);
-                                makeLastStandard = false;
-                                buffer.resize(0);
-                                break;
-            case StateCppCommentStart2:
-                                setFormat(i - 1, 2, m_formats[CommentFormat]);
-                                makeLastStandard = false;
-                                buffer.resize(0);
-                                break;
-            case StateCComment:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, m_formats[CommentFormat]);
-                                buffer.resize(0);
-                                break;
-            case StateCppComment:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, m_formats[CommentFormat]);
-                                buffer.resize(0);
-                                break;
-            case StateCCommentEnd1:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, m_formats[CommentFormat]);
-                                buffer.resize(0);
-                                break;
-            case StateCCommentEnd2:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, m_formats[CommentFormat]);
-                                buffer.resize(0);
-                                break;
-            case StateStringStart:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, emptyFormat);
-                                buffer.resize(0);
-                                break;
-            case StateString:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, m_formats[StringFormat]);
-                                buffer.resize(0);
-                                break;
-            case StateStringEnd:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, emptyFormat);
-                                buffer.resize(0);
-                                break;
-            case StateString2Start:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, emptyFormat);
-                                buffer.resize(0);
-                                break;
-            case StateString2:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, m_formats[StringFormat]);
-                                buffer.resize(0);
-                                break;
-            case StateString2End:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, emptyFormat);
-                                buffer.resize(0);
-                                break;
-            case StateNumber:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat( i, 1, m_formats[NumberFormat]);
-                                buffer.resize(0);
-                                break;
-            case StatePreProcessor:
-                                if (makeLastStandard)
-                                    setFormat(i - 1, 1, emptyFormat);
-                                makeLastStandard = false;
-                                setFormat(i, 1, m_formats[PreProcessorFormat]);
-                                buffer.resize(0);
-                                break;
-        }
-
-        lastChar = c;
-        i++;
-        if (i >= text.length())
-            break;
     }
 
-    highlightKeyword(text.length(), buffer);
-
-    if (state == StateCComment
-        || state == StateCCommentEnd1
-        || state == StateCCommentStart2
-       ) {
-        state = StateCComment;
-    } else {
-        state = StateStandard;
-    }
-
-    onBlockEnd(state, firstNonSpace);
-}
-
-void QScriptHighlighter::highlightKeyword(int currentPos, const QString &buffer)
-{
-    if (buffer.isEmpty())
-        return;
-
-    if ((m_duiEnabled && buffer.at(0).isUpper()) || (! m_duiEnabled && buffer.at(0) == QLatin1Char('Q'))) {
-        setFormat(currentPos - buffer.length(), buffer.length(), m_formats[TypeFormat]);
-    } else {
-        if (qscriptKeywords.contains(buffer))
-            setFormat(currentPos - buffer.length(), buffer.length(), m_formats[KeywordFormat]);
-    }
+    onBlockEnd(m_scanner.endState(), m_scanner.firstNonSpace());
 }
 
 const QVector<QTextCharFormat> &QScriptHighlighter::defaultFormats()
@@ -495,6 +223,3 @@ int QScriptHighlighter::onBlockStart()
 void QScriptHighlighter::onOpeningParenthesis(QChar, int) {}
 void QScriptHighlighter::onClosingParenthesis(QChar, int) {}
 void QScriptHighlighter::onBlockEnd(int state, int) { return setCurrentBlockState(state); }
-
-} // namespace SharedTools
-

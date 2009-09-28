@@ -31,18 +31,19 @@
 
 #include <utils/qtcassert.h>
 
-namespace DuiEditor {
-namespace Internal {
+using namespace DuiEditor;
+using namespace DuiEditor::Internal;
 
 DuiHighlighter::DuiHighlighter(QTextDocument *parent) :
-     SharedTools::QScriptHighlighter(parent)
+     SharedTools::QScriptHighlighter(true, parent)
 {
-    setDuiEnabled(true);
     m_currentBlockParentheses.reserve(20);
     m_braceDepth = 0;
 
-    qscriptKeywords.insert(QLatin1String("property"));
-    qscriptKeywords.insert(QLatin1String("signal"));
+    QSet<QString> duiKeywords(keywords());
+    duiKeywords << QLatin1String("property");
+    duiKeywords << QLatin1String("signal");
+    m_scanner.setKeywords(duiKeywords);
 }
 
 int DuiHighlighter::onBlockStart()
@@ -108,6 +109,3 @@ void DuiHighlighter::onBlockEnd(int state, int firstNonSpace)
             blockData->setClosingCollapseMode(TextEditor::TextBlockUserData::NoClosingCollapse);
     }
 }
-
-} // namespace Internal
-} // namespace DuiEditor
