@@ -209,11 +209,11 @@ void PlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
 
 void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
+        QTC_ASSERT(state() == InferiorRunning, qDebug() << state());
         emit inferiorStarted();
-        setState(InferiorRunning);
     } else {
+        QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
         QTC_ASSERT(response.resultClass == GdbResultError, /**/);
         const QByteArray &msg = response.data.findChild("msg").data();
         //QTC_ASSERT(status() == InferiorRunning, /**/);

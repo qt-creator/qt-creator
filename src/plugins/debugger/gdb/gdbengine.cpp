@@ -555,18 +555,21 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     break;
 
             QByteArray resultClass = QByteArray::fromRawData(from, inner - from);
-            if (resultClass == "done")
+            if (resultClass == "done") {
                 response.resultClass = GdbResultDone;
-            else if (resultClass == "running")
+            } else if (resultClass == "running") {
+                setState(InferiorRunning);
+                showStatusMessage(tr("Running..."));
                 response.resultClass = GdbResultRunning;
-            else if (resultClass == "connected")
+            } else if (resultClass == "connected") {
                 response.resultClass = GdbResultConnected;
-            else if (resultClass == "error")
+            } else if (resultClass == "error") {
                 response.resultClass = GdbResultError;
-            else if (resultClass == "exit")
+            } else if (resultClass == "exit") {
                 response.resultClass = GdbResultExit;
-            else
+            } else {
                 response.resultClass = GdbResultUnknown;
+            }
 
             from = inner;
             if (from != to) {
@@ -1422,12 +1425,11 @@ void GdbEngine::handleFileExecAndSymbols(const GdbResponse &response)
 
 void GdbEngine::handleExecContinue(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorRunningRequested, /**/);
     if (response.resultClass == GdbResultRunning) {
-        setState(InferiorRunning);
-        showStatusMessage(tr("Running..."), 5000);
-    } else {
-        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
+        // The "running" state is picked up in handleResponse()
+        QTC_ASSERT(state() == InferiorRunning, /**/);
+    } else if (response.resultClass == GdbResultError) {
+        QTC_ASSERT(state() == InferiorRunningRequested, /**/);
         const QByteArray &msg = response.data.findChild("msg").data();
         if (msg == "Cannot find bounds of current function") {
             setState(InferiorStopped);
@@ -1441,6 +1443,8 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
             QTC_ASSERT(state() == InferiorRunning, /**/);
             shutdown();
         }
+    } else {
+        QTC_ASSERT(false, /**/);
     }
 }
 
@@ -4150,7 +4154,7 @@ void GdbEngine::handleInferiorStartFailed(const QString &msg)
 
 void GdbEngine::handleInferiorStarted()
 {
-    QTC_ASSERT(state() == InferiorRunningRequested
+    QTC_ASSERT(state() == InferiorRunning
         || state() == InferiorStopped, qDebug() << state());
     debugMessage(_("INFERIOR STARTED"));
     if (state() == InferiorStopped)
