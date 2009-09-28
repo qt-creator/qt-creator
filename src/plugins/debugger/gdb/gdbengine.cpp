@@ -1317,6 +1317,11 @@ void GdbEngine::handleStop2(const GdbResponse &response)
 
 void GdbEngine::handleStop2(const GdbMi &data)
 {
+    if (state() == InferiorRunning) {
+        // Stop triggered by a breakpoint or otherwise not directly
+        // initiated by the user.
+        setState(InferiorStopping);
+    }
     setState(InferiorStopped);
     showStatusMessage(tr("Stopped."), 5000);
 
