@@ -120,10 +120,10 @@ private:
                               QString *errorMessage);
     void attachExternalApplication(qint64 pid, const QString &crashParameter = QString());
 
-    friend class DebuggerManager;
+    friend class Debugger::DebuggerManager;
     friend class GdbOptionPage;
     friend class DebuggingHelperOptionPage;
-    friend class DebugMode; // FIXME: Just a hack now so that it can access the views
+    friend class Debugger::Internal::DebugMode; // FIXME: Just a hack now so that it can access the views
 
     DebuggerManager *m_manager;
     DebugMode *m_debugMode;
