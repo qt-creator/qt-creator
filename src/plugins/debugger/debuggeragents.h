@@ -85,6 +85,7 @@ public:
     void setFrame(const StackFrame &frame);
     Q_SLOT void setContents(const QString &contents);
     QString address() const;
+    void cleanup();
 
 private:
     DisassemblerViewAgentPrivate *d;

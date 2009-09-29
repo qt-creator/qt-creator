@@ -254,9 +254,9 @@ static Debugger::Internal::IDebuggerEngine *scriptEngine = 0;
 static Debugger::Internal::IDebuggerEngine *tcfEngine = 0;
 static Debugger::Internal::IDebuggerEngine *winEngine = 0;
 
-struct DebuggerManagerPrivate {
-
-    DebuggerManagerPrivate();
+struct DebuggerManagerPrivate
+{
+    DebuggerManagerPrivate(DebuggerManager *manager);
 
     static DebuggerManager *instance;
 
@@ -297,7 +297,7 @@ struct DebuggerManagerPrivate {
     bool m_busy;
     QTimer *m_statusTimer;
     QString m_lastPermanentStatusMessage;
-    DisassemblerViewAgent *m_disassemblerViewAgent;
+    DisassemblerViewAgent m_disassemblerViewAgent;
 
     IDebuggerEngine *m_engine;
     DebuggerState m_state;
@@ -305,14 +305,15 @@ struct DebuggerManagerPrivate {
 
 DebuggerManager *DebuggerManagerPrivate::instance = 0;
 
-DebuggerManagerPrivate::DebuggerManagerPrivate()
-  : m_startParameters(new DebuggerStartParameters)
+DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager)
+  : m_startParameters(new DebuggerStartParameters),
+    m_disassemblerViewAgent(manager)
 {
     m_inferiorPid = 0;
-    m_disassemblerViewAgent = 0;
 }
 
-DebuggerManager::DebuggerManager() : d(new DebuggerManagerPrivate)
+DebuggerManager::DebuggerManager()
+  : d(new DebuggerManagerPrivate(this))
 {
     DebuggerManagerPrivate::instance = this;
     init();
@@ -1034,6 +1035,7 @@ void DebuggerManager::cleanupViews()
     watchHandler()->cleanup();
     registerHandler()->removeAll();
     d->m_sourceFilesWindow->removeAll();
+    d->m_disassemblerViewAgent.cleanup();
 }
 
 void DebuggerManager::exitDebugger()
@@ -1342,9 +1344,7 @@ void DebuggerManager::resetLocation()
 void DebuggerManager::gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker)
 {
     if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
-        if (!d->m_disassemblerViewAgent)
-            d->m_disassemblerViewAgent = new DisassemblerViewAgent(this);
-        d->m_disassemblerViewAgent->setFrame(frame);
+        d->m_disassemblerViewAgent.setFrame(frame);
         if (setMarker)
             resetLocation();
     } else {
@@ -1627,8 +1627,8 @@ void DebuggerManager::setState(DebuggerState state)
 
     QString msg = _("State changed from %1(%2) to %3(%4).")
         .arg(stateName(d->m_state)).arg(d->m_state).arg(stateName(state)).arg(state);
-    if (!((d->m_state == -1 && state == 0) || (d->m_state == 0 && state == 0)))
-        qDebug() << msg << d->m_state << state;
+    //if (!((d->m_state == -1 && state == 0) || (d->m_state == 0 && state == 0)))
+    //    qDebug() << msg << d->m_state << state;
     if (!isAllowedTransition(d->m_state, state))
         qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
 

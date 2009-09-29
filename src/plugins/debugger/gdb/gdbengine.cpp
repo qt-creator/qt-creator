@@ -728,10 +728,9 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
 void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 {
     if (!stateAcceptsGdbCommands(state())) {
-        qDebug() << _("NO GDB PROCESS RUNNING, CMD IGNORED: ") << cmd.command
-            << state();
         PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
-        debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
+        debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: %1 %2")
+            .arg(cmd.command).arg(state()));
         return;
     }
 
@@ -1292,6 +1291,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
         f.file = QFile::decodeName(fullName.data());
         f.line = frame.findChild("line").data().toInt();
         f.address = _(frame.findChild("addr").data());
+        f.function = _(frame.findChild("func").data());
         gotoLocation(f, true);
     }
 
