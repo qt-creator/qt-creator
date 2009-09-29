@@ -195,6 +195,7 @@ static const char *stateName(int s)
         SN(InferiorStartFailed)
         SN(InferiorRunningRequested)
         SN(InferiorRunning)
+        SN(InferiorUnrunnable)
         SN(InferiorStopping)
         SN(InferiorStopped)
         SN(InferiorStopFailed)
@@ -1571,7 +1572,7 @@ static bool isAllowedTransition(int from, int to)
 
     case InferiorStarting:
         return to == InferiorRunningRequested || to == InferiorStopped
-            || to == InferiorStartFailed;
+            || to == InferiorStartFailed || to == InferiorUnrunnable;
     case InferiorStartFailed:
         return to == DebuggerNotReady;
 
@@ -1587,6 +1588,8 @@ static bool isAllowedTransition(int from, int to)
     case InferiorStopFailed:
         return to == DebuggerNotReady;
 
+    case InferiorUnrunnable:
+        return to == AdapterShuttingDown;
     case InferiorShuttingDown:
         return to == InferiorShutDown || to == InferiorShutdownFailed;
     case InferiorShutDown:
@@ -1630,44 +1633,45 @@ void DebuggerManager::setState(DebuggerState state)
         emit debuggingFinished();
     }
 
-    const bool started = state == InferiorRunning
+    const bool stoppable = state == InferiorRunning
         || state == InferiorRunningRequested
         || state == InferiorStopping
-        || state == InferiorStopped;
+        || state == InferiorStopped
+        || state == InferiorUnrunnable;
 
     const bool running = state == InferiorRunning;
+    const bool stopped = state == InferiorStopped;
 
-    const bool ready = state == InferiorStopped
-            && d->m_startParameters->startMode != AttachCore;
-
-    if (ready)
+    if (stopped)
         QApplication::alert(mainWindow(), 3000);
 
-    d->m_actions.watchAction->setEnabled(ready);
+    d->m_actions.watchAction->setEnabled(stopped);
     d->m_actions.breakAction->setEnabled(true);
 
     bool interruptIsExit = !running;
     if (interruptIsExit) {
-        d->m_actions.stopAction->setIcon(QIcon(":/debugger/images/debugger_stop_small.png"));
+        static QIcon icon(":/debugger/images/debugger_stop_small.png");
+        d->m_actions.stopAction->setIcon(icon);
         d->m_actions.stopAction->setText(tr("Stop Debugger"));
     } else {
-        d->m_actions.stopAction->setIcon(QIcon(":/debugger/images/debugger_interrupt_small.png"));
+        static QIcon icon(":/debugger/images/debugger_interrupt_small.png");
+        d->m_actions.stopAction->setIcon(icon);
         d->m_actions.stopAction->setText(tr("Interrupt"));
     }
 
-    d->m_actions.stopAction->setEnabled(started);
+    d->m_actions.stopAction->setEnabled(stoppable);
     d->m_actions.resetAction->setEnabled(true);
 
-    d->m_actions.stepAction->setEnabled(ready);
-    d->m_actions.stepOutAction->setEnabled(ready);
-    d->m_actions.runToLineAction->setEnabled(ready);
-    d->m_actions.runToFunctionAction->setEnabled(ready);
-    d->m_actions.jumpToLineAction->setEnabled(ready);
-    d->m_actions.nextAction->setEnabled(ready);
-    //showStatusMessage(QString("started: %1, running: %2")
-    // .arg(started).arg(running));
+    d->m_actions.stepAction->setEnabled(stopped);
+    d->m_actions.stepOutAction->setEnabled(stopped);
+    d->m_actions.runToLineAction->setEnabled(stopped);
+    d->m_actions.runToFunctionAction->setEnabled(stopped);
+    d->m_actions.jumpToLineAction->setEnabled(stopped);
+    d->m_actions.nextAction->setEnabled(stopped);
+    //showStatusMessage(QString("stoppable: %1, running: %2")
+    // .arg(stoppable).arg(running));
     emit stateChanged(d->m_state);
-    const bool notbusy = ready || state == DebuggerNotReady;
+    const bool notbusy = stopped || state == DebuggerNotReady;
     setBusyCursor(!notbusy);
 }
 

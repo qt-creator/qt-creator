@@ -150,8 +150,7 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        setState(InferiorStopped);
-        debugMessage(_("INFERIOR STARTED"));
+        setState(InferiorUnrunnable);
         showStatusMessage(tr("Attached to core."));
         m_engine->updateAll();
     } else {
@@ -170,7 +169,7 @@ void CoreGdbAdapter::interruptInferior()
 
 void CoreGdbAdapter::shutdown()
 {
-    if (state() == InferiorStopped || state() == InferiorShutDown) {
+    if (state() == InferiorUnrunnable || state() == InferiorShutDown) {
         setState(AdapterShuttingDown);
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;

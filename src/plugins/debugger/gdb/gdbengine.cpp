@@ -112,6 +112,7 @@ namespace Internal {
 static bool stateAcceptsGdbCommands(DebuggerState state)
 {
     return state == AdapterStarted
+        || state == InferiorUnrunnable
         || state == InferiorPreparing
         || state == InferiorPrepared
         || state == InferiorStarting
@@ -822,17 +823,9 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
     }
 
     if (response.token < m_oldestAcceptableToken && (cmd.flags & Discardable)) {
-        //qDebug() << "### SKIPPING OLD RESULT" << response.toString();
-        //showMessageBox(QMessageBox::Information(tr("Skipped"), "xxx"));
+        //debugMessage(_("### SKIPPING OLD RESULT") + response.toString());
         return;
     }
-
-#if 0
-    qDebug() << "# handleOutput,"
-        << "cmd name:" << cmd.callbackName
-        << " cmd synchronized:" << cmd.synchronized
-        << "\n response: " << response.toString();
-#endif
 
     GdbResponse responseWithCookie = response;
     responseWithCookie.cookie = cmd.cookie;
@@ -865,7 +858,7 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
         Continuation cont = m_continuationAfterDone;
         m_continuationAfterDone = 0;
         (this->*cont)();
-        //showStatusMessage(tr("Continuing after temporary stop."));
+        showStatusMessage(tr("Continuing after temporary stop."), 1000);
     } else {
         PENDING_DEBUG("MISSING TOKENS: " << m_cookieForToken.keys());
     }
@@ -881,10 +874,10 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
     m_gdbAdapter->write(command.toLatin1() + "\r\n");
 }
 
-// called from CoreAdapter and AttachAdapter
+// Called from CoreAdapter and AttachAdapter
 void GdbEngine::updateAll()
 {
-    QTC_ASSERT(state() == InferiorStopped, /**/);
+    QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
     manager()->resetLocation();
     tryLoadDebuggingHelpers();
     manager()->stackHandler()->setCurrentIndex(0);
