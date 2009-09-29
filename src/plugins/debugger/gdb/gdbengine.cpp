@@ -2304,7 +2304,10 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         theDebuggerAction(ExpandStack)->setEnabled(canExpand);
         manager()->stackHandler()->setFrames(stackFrames, canExpand);
 
-        if (topFrame != -1 || theDebuggerBoolSetting(OperateByInstruction)) {
+        if (topFrame != -1 && topFrame != 0) {
+            // For topFrame == -1 there is no frame at all, for topFrame == 0
+            // we already issued a 'gotoLocation' when reading the *stopped
+            // message.
             const StackFrame &frame = manager()->stackHandler()->currentFrame();
             gotoLocation(frame, true);
         }
