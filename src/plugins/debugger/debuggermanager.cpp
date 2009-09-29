@@ -1027,11 +1027,10 @@ void DebuggerManager::cleanupViews()
 
 void DebuggerManager::exitDebugger()
 {
-    STATE_DEBUG("");
-    if (d->m_engine)
+    // The engine will finally call setState(DebuggerNotReady) which
+    // in turn will handle the cleanup.
+    if (d->m_engine && state() != DebuggerNotReady)
         d->m_engine->exitDebugger();
-    cleanupViews();
-    setState(DebuggerNotReady);
 }
 
 DebuggerStartParametersPtr DebuggerManager::startParameters() const
@@ -1139,19 +1138,13 @@ void DebuggerManager::executeDebuggerCommand(const QString &command)
 
 void DebuggerManager::sessionLoaded()
 {
-    cleanupViews();
-    setState(DebuggerNotReady);
-    setBusyCursor(false);
     loadSessionData();
 }
 
 void DebuggerManager::aboutToUnloadSession()
 {
-    cleanupViews();
     if (d->m_engine)
         d->m_engine->shutdown();
-    setState(DebuggerNotReady);
-    setBusyCursor(false);
 }
 
 void DebuggerManager::aboutToSaveSession()
@@ -1626,6 +1619,7 @@ void DebuggerManager::setState(DebuggerState state)
 
     if (d->m_state == DebuggerNotReady) {
         setBusyCursor(false);
+        cleanupViews();
         emit debuggingFinished();
     }
 
