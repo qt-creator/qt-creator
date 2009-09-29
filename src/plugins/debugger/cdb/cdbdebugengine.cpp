@@ -455,9 +455,12 @@ CdbDebugEngine::CdbDebugEngine(DebuggerManager *manager, const QSharedPointer<Cd
     m_d(new CdbDebugEnginePrivate(manager, options, this))
 {
     m_d->m_consoleStubProc.setMode(Core::Utils::ConsoleProcess::Suspend);
-    connect(&m_d->m_consoleStubProc, SIGNAL(processError(QString)), this, SLOT(slotConsoleStubError(QString)));
-    connect(&m_d->m_consoleStubProc, SIGNAL(processStarted()), this, SLOT(slotConsoleStubStarted()));
-    connect(&m_d->m_consoleStubProc, SIGNAL(wrapperStopped()), this, SLOT(slotConsoleStubTerminated()));
+    connect(&m_d->m_consoleStubProc, SIGNAL(processError(QString)),
+            this, SLOT(slotConsoleStubError(QString)));
+    connect(&m_d->m_consoleStubProc, SIGNAL(processStarted()),
+            this, SLOT(slotConsoleStubStarted()));
+    connect(&m_d->m_consoleStubProc, SIGNAL(wrapperStopped()),
+            this, SLOT(slotConsoleStubTerminated()));
     connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerOutput(int,QString)),
             manager, SLOT(showDebuggerOutput(int,QString)));
     connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerInputPrompt(int,QString)),
