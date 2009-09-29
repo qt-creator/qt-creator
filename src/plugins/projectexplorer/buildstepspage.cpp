@@ -39,6 +39,7 @@
 
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
+#include <QtGui/QMenu>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

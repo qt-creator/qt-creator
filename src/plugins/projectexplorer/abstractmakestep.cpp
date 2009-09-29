@@ -30,6 +30,7 @@
 #include "abstractmakestep.h"
 
 #include "projectexplorerconstants.h"
+#include "project.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>

@@ -34,6 +34,7 @@
 #include "compileoutputwindow.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
+#include "project.h"
 #include "projectexplorersettings.h"
 #include "taskwindow.h"
 
@@ -45,6 +46,9 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
+
+#include <qtconcurrent/QtConcurrentTools>
+
 #include <QtGui/QHeaderView>
 #include <QtGui/QIcon>
 #include <QtGui/QLabel>

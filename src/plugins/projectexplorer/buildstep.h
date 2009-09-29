@@ -31,7 +31,6 @@
 #define BUILDSTEP_H
 
 #include "buildparserinterface.h"
-#include "project.h"
 #include "projectexplorer_export.h"
 
 #include <QtGui/QWidget>
@@ -39,6 +38,7 @@
 
 namespace ProjectExplorer {
 
+class Project;
 namespace Internal {
 class BuildConfiguration;
 }

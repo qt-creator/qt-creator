@@ -29,6 +29,10 @@
 
 #include "project.h"
 
+#include "persistentsettings.h"
+#include "buildconfiguration.h"
+#include "environment.h"
+#include "projectnodes.h"
 #include "buildstep.h"
 #include "projectexplorer.h"
 #include "runconfiguration.h"

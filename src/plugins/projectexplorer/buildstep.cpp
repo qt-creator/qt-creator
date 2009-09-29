@@ -29,6 +29,7 @@
 
 #include "buildstep.h"
 #include "buildconfiguration.h"
+#include "project.h"
 
 #include <utils/qtcassert.h>
 #include <QtGui/QLayout>

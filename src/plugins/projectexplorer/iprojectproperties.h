@@ -31,12 +31,11 @@
 #define IPROJECTPROPERTIES_H
 
 #include "projectexplorer_export.h"
-#include "project.h"
 
 #include <coreplugin/icontext.h>
 
 namespace ProjectExplorer {
-
+class Project;
 class PropertiesPanel;
 
 class PROJECTEXPLORER_EXPORT IPanelFactory : public QObject

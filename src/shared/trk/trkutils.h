@@ -153,6 +153,8 @@ struct Session
 
 struct Snapshot
 {
+    void reset();
+
     uint registers[RegisterCount];
     typedef QHash<uint, QByteArray> Memory;
     Memory memory;

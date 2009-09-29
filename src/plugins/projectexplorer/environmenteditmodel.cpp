@@ -34,6 +34,13 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QToolButton>
+#include <QtCore/QDebug>
+#include <QtGui/QWidget>
+#include <QtGui/QCheckBox>
+#include <QtGui/QTreeView>
+#include <QtGui/QPushButton>
+#include <QtGui/QLabel>
+#include <QtGui/QStackedWidget>
 
 using namespace ProjectExplorer;
 

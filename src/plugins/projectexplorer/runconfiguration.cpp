@@ -29,6 +29,7 @@
 
 #include "runconfiguration.h"
 #include "project.h"
+#include "persistentsettings.h"
 
 #include <QtCore/QTimer>
 

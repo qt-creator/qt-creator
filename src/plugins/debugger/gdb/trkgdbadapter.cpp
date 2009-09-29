@@ -95,7 +95,6 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_bufferedMemoryRead(true),
     m_waitCount(0)
 {
-    setState(DebuggerNotReady);
 #ifdef Q_OS_WIN
     const DWORD portOffset = GetCurrentProcessId() % 100;
 #else
@@ -133,8 +132,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     connect(&m_trkDevice, SIGNAL(error(QString)),
         this, SLOT(handleTrkError(QString)));
 
-    if (m_verbose > 1)
-        m_trkDevice.setVerbose(true);
+    m_trkDevice.setVerbose(m_verbose);
     m_trkDevice.setSerialFrame(m_options->mode != TrkOptions::BlueTooth);
 
     connect(&m_trkDevice, SIGNAL(logMessage(QString)),
@@ -623,6 +621,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         bool ok = false;
         const uint registerNumber = regName.toInt(&ok, 16);
         const uint value = swapEndian(valueName.toInt(&ok, 16));
+        // FIXME: Assume all goes well.
+        m_snapshot.registers[registerNumber] = value;
         QByteArray ba = trkWriteRegisterMessage(registerNumber, value);
         sendTrkMessage(0x13, TrkCB(handleWriteRegister), ba, "Write register");
         // Note that App TRK refuses to write registers 13 and 14
@@ -1155,7 +1155,11 @@ void TrkGdbAdapter::reportReadMemoryBuffered(const TrkResult &result)
     const qulonglong cookie = result.cookie.toULongLong();
     const uint addr = cookie >> 32;
     const uint len = uint(cookie);
+    reportReadMemoryBuffered(addr, len);
+}
 
+void TrkGdbAdapter::reportReadMemoryBuffered(uint addr, uint len)
+{
     // Gdb accepts less memory according to documentation.
     // Send E on complete failure.
     QByteArray ba;
@@ -1197,8 +1201,9 @@ void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
 
 void TrkGdbAdapter::handleStepInto(const TrkResult &result)
 {
+    m_snapshot.reset();
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString() + "in handleStepInto");
+        logMessage("ERROR: " + result.errorString() + " in handleStepInto");
         // Try fallback with Step Over
         QByteArray ba = trkStepRangeMessage(0x11);  // options "step over"
         sendTrkMessage(0x19, TrkCB(handleStepInto2), ba, "Step range");
@@ -1211,7 +1216,7 @@ void TrkGdbAdapter::handleStepInto(const TrkResult &result)
 void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
 {
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString() + "in handleStepInto2");
+        logMessage("ERROR: " + result.errorString() + " in handleStepInto2");
         // Try fallback with Continue
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
         //sendGdbServerMessage("S05", "Stepping finished");
@@ -1222,6 +1227,7 @@ void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
 
 void TrkGdbAdapter::handleStepOver(const TrkResult &result)
 {
+    m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + "in handleStepOver");
         // Try fallback with Step Into
@@ -1320,6 +1326,7 @@ void TrkGdbAdapter::readMemory(uint addr, uint len)
             .arg(len).arg(addr, 0, 16).arg(MemoryChunkSize));
 
     if (m_bufferedMemoryRead) {
+        uint requests = 0;
         uint blockaddr = (addr / MemoryChunkSize) * MemoryChunkSize;
         for (; blockaddr < addr + len; blockaddr += MemoryChunkSize) {
             if (!m_snapshot.memory.contains(blockaddr)) {
@@ -1330,12 +1337,19 @@ void TrkGdbAdapter::readMemory(uint addr, uint len)
                 sendTrkMessage(0x10, TrkCB(handleReadMemoryBuffered),
                     trkReadMemoryMessage(blockaddr, MemoryChunkSize),
                     QVariant(blockaddr));
+                requests++;
             }
         }
-        const qulonglong cookie = (qulonglong(addr) << 32) + len;
-        sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(reportReadMemoryBuffered),
-            QByteArray(), cookie);
-    } else {
+        // If requests have been sent: Sync
+        if (requests) {
+            const qulonglong cookie = (qulonglong(addr) << 32) + len;
+            sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(reportReadMemoryBuffered),
+                QByteArray(), cookie);
+        } else {
+            // Everything is already buffered: invoke callback directly
+            reportReadMemoryBuffered(addr, len);
+        }
+    } else { // Unbuffered, direct requests
         if (m_verbose)
             logMessage(QString::fromLatin1("Requesting unbuffered memory %1 "
                 "bytes from 0x%2").arg(len).arg(addr, 0, 16));
@@ -1449,15 +1463,14 @@ void TrkGdbAdapter::startInferior()
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     setState(InferiorRunningRequested);
     m_engine->postCommand(_("-exec-continue"), CB(handleFirstContinue));
-    // FIXME: Is there a way to properly recognize a successful start?
-    emit inferiorStarted();
 }
 
 void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
 {
     QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        // inferiorStarted already emitted above, see FIXME
+        debugMessage(_("INFERIOR STARTED"));
+        showStatusMessage(tr("Inferior running."));
     } else if (record.resultClass == GdbResultError) {
         //QString msg = __(record.data.findChild("msg").data());
         QString msg1 = tr("Connecting to remote server failed:");
@@ -1476,7 +1489,7 @@ static void setGdbCygwinEnvironment(const QString &cygwin, QProcess *process)
     QStringList env = process->environment();
     if (env.isEmpty())
         env = QProcess::systemEnvironment();
-    const QRegExp pathPattern(QLatin1String("^PATH=.*"));
+    const QRegExp pathPattern(QLatin1String("^PATH=.*"), Qt::CaseInsensitive);
     const int index = env.indexOf(pathPattern);
     if (index == -1)
         return;
@@ -1572,35 +1585,6 @@ void TrkGdbAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
 // AbstractGdbAdapter interface implementation
 //
 
-/*
-void TrkGdbAdapter::kill()
-{
-    if (m_options->mode == TrkOptions::BlueTooth
-            && m_rfcommProc.state() == QProcess::Running)
-        m_rfcommProc.kill();
-    m_gdbProc.kill();
-}
-
-void TrkGdbAdapter::terminate()
-{
-    m_rfcommProc.terminate();
-    m_gdbProc.terminate();
-}
-
-bool TrkGdbAdapter::waitForFinished(int msecs)
-{
-    QByteArray ba;
-    ba.append(0x03);
-    m_rfcommProc.write(ba);
-    m_rfcommProc.terminate();
-    m_rfcommProc.waitForFinished();
-    QProcess proc;
-    proc.start("rfcomm release " + m_options->blueToothDevice);
-    proc.waitForFinished();
-    return m_gdbProc.waitForFinished(msecs);
-}
-*/
-
 QByteArray TrkGdbAdapter::readAllStandardError()
 {
     return m_gdbProc.readAllStandardError();
@@ -1611,9 +1595,73 @@ QByteArray TrkGdbAdapter::readAllStandardOutput()
     return m_gdbProc.readAllStandardOutput();
 }
 
-qint64 TrkGdbAdapter::write(const char *data)
+void TrkGdbAdapter::write(const QByteArray &data)
 {
-    return m_gdbProc.write(data);
+    // Write magic packets directly to TRK.
+    if (data.startsWith("@#")) {
+        QByteArray ba = QByteArray::fromHex(data.mid(2));
+        qDebug() << "Writing: " << quoteUnprintableLatin1(ba);
+        if (ba.size() >= 1)
+            sendTrkMessage(ba.at(0), TrkCB(handleDirectTrk), ba.mid(1));
+        return;
+    }
+    if (data.startsWith("@@")) {
+        QByteArray data1 = data.mid(2);
+        if (data1.endsWith(char(10)))
+            data1.chop(1);
+        if (data1.endsWith(char(13)))
+            data1.chop(1);
+        if (data1.endsWith(' '))
+            data1.chop(1);
+        bool ok;
+        uint addr = data1.toInt(&ok, 0);
+        qDebug() << "Writing: " << quoteUnprintableLatin1(data1) << addr;
+        directStep(addr);
+        return;
+    }
+    m_gdbProc.write(data, data.size());
+}
+
+void TrkGdbAdapter::handleDirectTrk(const TrkResult &result)
+{
+    logMessage("HANDLE DIRECT TRK: " + stringFromArray(result.data));
+}
+
+uint oldPC;
+
+void TrkGdbAdapter::directStep(uint addr)
+{
+    // Write PC:
+    qDebug() << "ADDR: " << addr;
+    oldPC = m_snapshot.registers[RegisterPC];
+    m_snapshot.registers[RegisterPC] = addr;
+    QByteArray ba = trkWriteRegisterMessage(RegisterPC, addr);
+    sendTrkMessage(0x13, TrkCB(handleDirectStep1), ba, "Write PC");
+}
+
+void TrkGdbAdapter::handleDirectStep1(const TrkResult &result)
+{
+    logMessage("HANDLE DIRECT STEP1: " + stringFromArray(result.data));
+    QByteArray ba;
+    appendByte(&ba, 0x11); // options "step over"
+    appendInt(&ba, m_snapshot.registers[RegisterPC]);
+    appendInt(&ba, m_snapshot.registers[RegisterPC]);
+    appendInt(&ba, m_session.pid);
+    appendInt(&ba, m_session.tid);
+    sendTrkMessage(0x19, TrkCB(handleDirectStep2), ba, "Direct step");
+}
+
+void TrkGdbAdapter::handleDirectStep2(const TrkResult &result)
+{
+    logMessage("HANDLE DIRECT STEP2: " + stringFromArray(result.data));
+    m_snapshot.registers[RegisterPC] = oldPC;
+    QByteArray ba = trkWriteRegisterMessage(RegisterPC, oldPC);
+    sendTrkMessage(0x13, TrkCB(handleDirectStep3), ba, "Write PC");
+}
+
+void TrkGdbAdapter::handleDirectStep3(const TrkResult &result)
+{
+    logMessage("HANDLE DIRECT STEP2: " + stringFromArray(result.data));
 }
 
 void TrkGdbAdapter::setWorkingDirectory(const QString &dir)
@@ -1635,15 +1683,34 @@ void TrkGdbAdapter::shutdown()
     case InferiorRunningRequested:
     case InferiorRunning:
         setState(InferiorShuttingDown);
-        qDebug() << "kill";
         m_engine->postCommand(_("kill"), CB(handleKill));
         return;
 
     case InferiorShutDown:
         setState(AdapterShuttingDown);
-        qDebug() << "gdb-exit";
+        sendTrkMessage(0x02, TrkCB(handleDisconnect));
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
+
+/*
+    if (m_options->mode == TrkOptions::BlueTooth
+            && m_rfcommProc.state() == QProcess::Running)
+        m_rfcommProc.kill();
+    m_rfcommProc.terminate();
+    m_rfcommProc.write(ba);
+    m_rfcommProc.terminate();
+    m_rfcommProc.waitForFinished();
+
+    m_gdbProc.kill();
+    m_gdbProc.terminate();
+
+    QByteArray ba;
+    ba.append(0x03);
+    QProcess proc;
+    proc.start("rfcomm release " + m_options->blueToothDevice);
+    proc.waitForFinished();
+    m_gdbProc.waitForFinished(msecs);
+*/
 
     default:
         QTC_ASSERT(false, qDebug() << state());

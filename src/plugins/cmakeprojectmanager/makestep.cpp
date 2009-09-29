@@ -30,6 +30,8 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 
+#include <projectexplorer/projectexplorer.h>
+
 #include <QtGui/QFormLayout>
 #include <QtGui/QGroupBox>
 #include <QtGui/QCheckBox>

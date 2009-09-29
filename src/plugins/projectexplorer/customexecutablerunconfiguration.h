@@ -32,19 +32,24 @@
 
 #include "applicationrunconfiguration.h"
 
-#include <utils/pathchooser.h>
-#include <projectexplorer/environmenteditmodel.h>
-
-#include <QtGui/QToolButton>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QLineEdit;
 class QComboBox;
+class QLabel;
+class QAbstractButton;
 QT_END_NAMESPACE
 
+namespace Core {
+namespace Utils {
+class PathChooser;
+}
+}
+
 namespace ProjectExplorer {
-    
+class EnvironmentWidget;
 namespace Internal {
     class CustomExecutableConfigurationWidget;
 }

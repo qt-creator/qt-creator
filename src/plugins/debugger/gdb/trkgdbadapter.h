@@ -109,7 +109,7 @@ public:
         QIODevice::OpenMode mode = QIODevice::ReadWrite);
     QByteArray readAllStandardError();
     QByteArray readAllStandardOutput();
-    qint64 write(const char *data);
+    void write(const QByteArray &data);
     void setWorkingDirectory(const QString &dir);
     void setEnvironment(const QStringList &env);
     bool isTrkAdapter() const { return true; }
@@ -150,6 +150,12 @@ public:
     void handleDisconnect(const TrkResult &result);
     void handleDeleteProcess(const TrkResult &result);
     void handleDeleteProcess2(const TrkResult &result);
+    void handleDirectTrk(const TrkResult &response);
+
+    void directStep(uint addr);
+    void handleDirectStep1(const TrkResult &response);
+    void handleDirectStep2(const TrkResult &response);
+    void handleDirectStep3(const TrkResult &response);
 
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleAndReportReadRegistersAfterStop(const TrkResult &result);
@@ -170,6 +176,7 @@ public:
     void handleStepOver2(const TrkResult &result);
     void handleReadRegisters(const TrkResult &result);
     void reportReadMemoryBuffered(const TrkResult &result);
+    void reportReadMemoryBuffered(uint addr, uint len);
     void handleWriteRegister(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
 

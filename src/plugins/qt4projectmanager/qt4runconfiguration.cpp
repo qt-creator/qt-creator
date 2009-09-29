@@ -40,6 +40,7 @@
 #include <coreplugin/ifile.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/environmenteditmodel.h>
+#include <projectexplorer/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/detailsbutton.h>
 

@@ -34,6 +34,7 @@
 #include <utils/detailsbutton.h>
 
 #include <coreplugin/fileiconprovider.h>
+#include <coreplugin/ifile.h>
 
 #include <QtCore/QVector>
 #include <QtCore/QDebug>

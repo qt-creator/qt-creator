@@ -134,13 +134,14 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 void AttachGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-#if 0
+#if 1
+    setState(InferiorStopped);
+    debugMessage(_("INFERIOR STARTED"));
+    showStatusMessage(tr("Attached to stopped inferior."));
+#else
     // continue on attach
     setState(InferiorRunningRequested);
     m_engine->postCommand(_("-exec-continue"), CB(handleContinue));
-#else
-    setState(InferiorStopped);
-    emit inferiorStarted();
 #endif
 }
 
@@ -149,7 +150,8 @@ void AttachGdbAdapter::handleContinue(const GdbResponse &response)
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
         setState(InferiorRunning);
-        emit inferiorStarted();
+        debugMessage(_("INFERIOR STARTED"));
+        showStatusMessage(tr("Inferior running."));
     } else {
         QTC_ASSERT(response.resultClass == GdbResultError, /**/);
         const QByteArray &msg = response.data.findChild("msg").data();

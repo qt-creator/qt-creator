@@ -32,6 +32,8 @@
 
 #include <projectexplorer/environmenteditmodel.h>
 
+#include <QtGui/QCheckBox>
+
 namespace {
 bool debug = false;
 }

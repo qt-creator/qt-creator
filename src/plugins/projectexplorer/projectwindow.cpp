@@ -30,6 +30,7 @@
 #include "projectwindow.h"
 
 #include "project.h"
+#include "environment.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "iprojectproperties.h"
@@ -40,6 +41,7 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/ifile.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/styledbar.h>
 

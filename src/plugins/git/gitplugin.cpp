@@ -58,6 +58,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>

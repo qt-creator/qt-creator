@@ -34,6 +34,10 @@
 
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 namespace Internal {
 

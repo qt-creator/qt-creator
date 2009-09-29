@@ -268,8 +268,6 @@ void GdbEngine::connectAdapter()
     connect(m_gdbAdapter, SIGNAL(inferiorPreparationFailed(QString)),
         this, SLOT(handleInferiorPreparationFailed(QString)));
 
-    connect(m_gdbAdapter, SIGNAL(inferiorStarted()),
-        this, SLOT(handleInferiorStarted()));
     connect(m_gdbAdapter, SIGNAL(inferiorStartFailed(QString)),
         this, SLOT(handleInferiorStartFailed(QString)));
     connect(m_gdbAdapter, SIGNAL(inferiorShutDown()),
@@ -524,7 +522,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             // Show some messages to give the impression something happens.
             if (data.startsWith("Reading symbols from "))
                 showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))), 1000);
-            if (data.startsWith("[New "))
+            if (data.endsWith('\n'))
+                data.chop(1);
+            if (data.startsWith("[New ") || data.startsWith("[Thread "))
                 showStatusMessage(_(data), 1000);
             break;
         }
@@ -555,18 +555,21 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     break;
 
             QByteArray resultClass = QByteArray::fromRawData(from, inner - from);
-            if (resultClass == "done")
+            if (resultClass == "done") {
                 response.resultClass = GdbResultDone;
-            else if (resultClass == "running")
+            } else if (resultClass == "running") {
+                setState(InferiorRunning);
+                showStatusMessage(tr("Running..."));
                 response.resultClass = GdbResultRunning;
-            else if (resultClass == "connected")
+            } else if (resultClass == "connected") {
                 response.resultClass = GdbResultConnected;
-            else if (resultClass == "error")
+            } else if (resultClass == "error") {
                 response.resultClass = GdbResultError;
-            else if (resultClass == "exit")
+            } else if (resultClass == "exit") {
                 response.resultClass = GdbResultExit;
-            else
+            } else {
                 response.resultClass = GdbResultUnknown;
+            }
 
             from = inner;
             if (from != to) {
@@ -1422,12 +1425,11 @@ void GdbEngine::handleFileExecAndSymbols(const GdbResponse &response)
 
 void GdbEngine::handleExecContinue(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorRunningRequested, /**/);
     if (response.resultClass == GdbResultRunning) {
-        setState(InferiorRunning);
-        showStatusMessage(tr("Running..."), 5000);
-    } else {
-        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
+        // The "running" state is picked up in handleResponse()
+        QTC_ASSERT(state() == InferiorRunning, /**/);
+    } else if (response.resultClass == GdbResultError) {
+        QTC_ASSERT(state() == InferiorRunningRequested, /**/);
         const QByteArray &msg = response.data.findChild("msg").data();
         if (msg == "Cannot find bounds of current function") {
             setState(InferiorStopped);
@@ -1441,6 +1443,8 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
             QTC_ASSERT(state() == InferiorRunning, /**/);
             shutdown();
         }
+    } else {
+        QTC_ASSERT(false, /**/);
     }
 }
 
@@ -3701,11 +3705,11 @@ void GdbEngine::tryLoadDebuggingHelpers()
     if (m_debuggingHelperState != DebuggingHelperUninitialized)
         return;
     if (!startModeAllowsDumpers()) {
-        // load gdb macro based dumpers at least 
+        // Load at least gdb macro based dumpers.
         QFile file(_(":/gdb/gdbmacros.txt"));
         file.open(QIODevice::ReadOnly);
         QByteArray contents = file.readAll(); 
-        //qDebug() << "CONTENTS: " << contents;
+        m_debuggingHelperState = DebuggingHelperLoadTried;
         postCommand(_(contents));
         return;
     }
@@ -3978,10 +3982,12 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
         else
             ac.agent->setContents(parseDisassembler(lines));
     } else if (response.resultClass == GdbResultError) {
-        //536^error,msg="mi_cmd_disassemble: Invalid line number"
+        // 536^error,msg="mi_cmd_disassemble: Invalid line number"
         QByteArray msg = response.data.findChild("msg").data();
         if (msg == "mi_cmd_disassemble: Invalid line number")
             fetchDisassemblerByAddress(ac.agent, true);
+        else
+            showStatusMessage(tr("Disassembler failed: %1").arg(_(msg)), 5000);
     }
 }
 
@@ -3996,6 +4002,10 @@ void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResponse &response)
             fetchDisassemblerByAddress(ac.agent, false);
         else
             ac.agent->setContents(parseDisassembler(lines));
+    } else {
+        // 26^error,msg="Cannot access memory at address 0x801ca308"
+        QByteArray msg = response.data.findChild("msg").data();
+        showStatusMessage(tr("Disassembler failed: %1").arg(_(msg)), 5000);
     }
 }
 
@@ -4007,6 +4017,9 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         GdbMi lines = response.data.findChild("asm_insns");
         ac.agent->setContents(parseDisassembler(lines));
+    } else {
+        QByteArray msg = response.data.findChild("msg").data();
+        showStatusMessage(tr("Disassembler failed: %1").arg(_(msg)), 5000);
     }
 }
 
@@ -4146,17 +4159,6 @@ void GdbEngine::handleInferiorStartFailed(const QString &msg)
     debugMessage(_("INFERIOR START FAILED"));
     showMessageBox(QMessageBox::Critical, tr("Inferior start failed"), msg);
     shutdown();
-}
-
-void GdbEngine::handleInferiorStarted()
-{
-    QTC_ASSERT(state() == InferiorRunningRequested
-        || state() == InferiorStopped, qDebug() << state());
-    debugMessage(_("INFERIOR STARTED"));
-    if (state() == InferiorStopped)
-        showStatusMessage(tr("Inferior stopped."));
-    else
-        showStatusMessage(tr("Inferior started."));
 }
 
 void GdbEngine::handleInferiorShutDown()

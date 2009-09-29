@@ -30,9 +30,8 @@
 #ifndef ABSTRACTMAKESTEP_H
 #define ABSTRACTMAKESTEP_H
 
-#include "abstractprocessstep.h"
-#include "projectexplorer.h"
 #include "projectexplorer_export.h"
+#include "abstractprocessstep.h"
 
 namespace ProjectExplorer {
 class BuildStep;

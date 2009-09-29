@@ -36,9 +36,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QList>
 #include <QtCore/QHash>
-#include <QtCore/QtConcurrentRun>
 #include <QtCore/QFutureWatcher>
-#include <qtconcurrent/QtConcurrentTools>
 
 namespace ProjectExplorer {
 

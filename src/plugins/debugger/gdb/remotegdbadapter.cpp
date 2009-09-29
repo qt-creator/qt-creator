@@ -251,7 +251,8 @@ void RemoteGdbAdapter::handleFirstContinue(const GdbResponse &record)
     QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
         setState(InferiorStopped);
-        emit inferiorStarted();
+        debugMessage(_("INFERIOR STARTED"));
+        showStatusMessage(tr("Attached to stopped inferior."));
     } else if (record.resultClass == GdbResultError) {
         //QString msg = __(record.data.findChild("msg").data());
         QString msg1 = tr("Connecting to remote server failed:\n");

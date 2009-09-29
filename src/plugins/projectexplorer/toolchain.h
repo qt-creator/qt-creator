@@ -30,12 +30,17 @@
 #ifndef TOOLCHAIN_H
 #define TOOLCHAIN_H
 
+#include "projectexplorer_export.h"
 #include "environment.h"
-#include "project.h"
+
 #include <QtCore/QString>
 #include <QtCore/QPair>
+#include <QtCore/QMetaType>
 
 namespace ProjectExplorer {
+
+class Environment;
+class Project;
 
 class PROJECTEXPLORER_EXPORT HeaderPath
 {

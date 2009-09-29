@@ -29,6 +29,7 @@
 
 #include "editorsettingspropertiespage.h"
 #include "editorconfiguration.h"
+#include "project.h"
 
 #include <QtCore/QTextCodec>
 

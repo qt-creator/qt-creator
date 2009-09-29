@@ -362,5 +362,12 @@ QString TrkResult::errorString() const
     return errorMessage(data.at(0));
 }
 
+void Snapshot::reset()
+{
+    memory.clear();
+    for (int i = 0; i < RegisterCount; ++i)
+        registers[i] = 0;
+}
+
 } // namespace trk
 

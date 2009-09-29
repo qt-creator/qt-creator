@@ -40,6 +40,7 @@
 #include <utils/qtcassert.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/persistentsettings.h>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;

@@ -72,8 +72,8 @@ public:
     void unset(const QString &key);
     void modify(const QList<EnvironmentItem> & list);
 
-    void appendOrSet(const QString &key, const QString &value, const QString &sep = "");
-    void prependOrSet(const QString &key, const QString &value, const QString &sep = "");
+    void appendOrSet(const QString &key, const QString &value, const QString &sep = QString());
+    void prependOrSet(const QString &key, const QString &value, const QString &sep = QString());
 
     void appendOrSetPath(const QString &value);
     void prependOrSetPath(const QString &value);

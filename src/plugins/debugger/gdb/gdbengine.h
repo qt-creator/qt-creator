@@ -239,7 +239,6 @@ private slots:
 
     void handleInferiorPrepared();
     void handleInferiorPreparationFailed(const QString &msg);
-    void handleInferiorStarted();
     void handleInferiorStartFailed(const QString &msg);
     void handleInferiorShutDown();
     void handleInferiorShutdownFailed(const QString &msg);
