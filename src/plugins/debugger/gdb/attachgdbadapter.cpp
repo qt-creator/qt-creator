@@ -112,6 +112,13 @@ void AttachGdbAdapter::prepareInferior()
 {
     QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
     setState(InferiorPreparing);
+    setState(InferiorPrepared);
+    emit inferiorPrepared();
+}
+
+void AttachGdbAdapter::startInferior()
+{
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     const qint64 pid = startParameters().attachPID;
     m_engine->postCommand(_("attach %1").arg(pid), CB(handleAttach));
     // Task 254674 does not want to remove them
@@ -120,29 +127,17 @@ void AttachGdbAdapter::prepareInferior()
 
 void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        setState(InferiorPrepared);
-        emit inferiorPrepared();
+        setState(InferiorStopped);
+        debugMessage(_("INFERIOR STARTED"));
+        showStatusMessage(tr("Attached to stopped inferior."));
+        m_engine->updateAll();
     } else if (response.resultClass == GdbResultError) {
         QString msg = __(response.data.findChild("msg").data());
         setState(InferiorPreparationFailed);
-        emit inferiorPreparationFailed(msg);
+        emit inferiorStartFailed(msg);
     }
-}
-
-void AttachGdbAdapter::startInferior()
-{
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-#if 1
-    setState(InferiorStopped);
-    debugMessage(_("INFERIOR STARTED"));
-    showStatusMessage(tr("Attached to stopped inferior."));
-#else
-    // continue on attach
-    setState(InferiorRunningRequested);
-    m_engine->postCommand(_("-exec-continue"), CB(handleContinue));
-#endif
 }
 
 void AttachGdbAdapter::handleContinue(const GdbResponse &response)
