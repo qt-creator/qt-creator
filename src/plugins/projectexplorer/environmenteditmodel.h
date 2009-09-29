@@ -34,13 +34,15 @@
 
 #include <QtCore/QString>
 #include <QtCore/QAbstractItemModel>
-#include <QtCore/QDebug>
 #include <QtGui/QWidget>
-#include <QtGui/QCheckBox>
-#include <QtGui/QTreeView>
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QStackedWidget>
+
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QTreeView;
+class QPushButton;
+class QLabel;
+class QStackedWidget;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 

@@ -32,6 +32,7 @@
 #include "qmlmakestep.h"
 
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/persistentsettings.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/pathchooser.h>

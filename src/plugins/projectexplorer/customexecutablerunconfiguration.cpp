@@ -30,10 +30,13 @@
 #include "customexecutablerunconfiguration.h"
 #include "environment.h"
 #include "project.h"
+#include "persistentsettings.h"
+#include "environmenteditmodel.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/debugginghelper.h>
 #include <utils/detailsbutton.h>
+#include <utils/pathchooser.h>
 
 #include <QtGui/QCheckBox>
 #include <QtGui/QFormLayout>

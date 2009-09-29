@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "toolchain.h"
+#include "project.h"
 #include "cesdkhandler.h"
 #include "projectexplorersettings.h"
 

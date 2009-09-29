@@ -31,6 +31,7 @@
 
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectnodes.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <utils/qtcassert.h>

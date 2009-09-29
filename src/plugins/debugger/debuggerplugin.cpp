@@ -66,6 +66,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/project.h>
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>

@@ -34,6 +34,7 @@
 #include <QtCore/QVariant>
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomCDATASection>
+#include <QtXml/QDomElement>
 
 
 using namespace ProjectExplorer;

@@ -29,6 +29,7 @@
 
 #include "runsettingspropertiespage.h"
 #include "runconfiguration.h"
+#include "project.h"
 
 #include "ui_runsettingspropertiespage.h"
 
@@ -38,6 +39,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QPair>
+#include <QtGui/QMenu>
 
 namespace ProjectExplorer {
 namespace Internal {

@@ -48,6 +48,7 @@
 #include <QtGui/QFocusEvent>
 #include <QtGui/QAction>
 #include <QtGui/QPalette>
+#include <QtGui/QMenu>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

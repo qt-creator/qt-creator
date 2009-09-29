@@ -34,7 +34,10 @@
 
 #include <QtCore/QMap>
 #include <QtCore/QVariant>
-#include <QtXml/QDomElement>
+
+QT_BEGIN_NAMESPACE
+class QDomElement;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 

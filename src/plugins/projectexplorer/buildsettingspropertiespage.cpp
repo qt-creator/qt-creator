@@ -40,6 +40,7 @@
 #include <QtGui/QInputDialog>
 #include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QMenu>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

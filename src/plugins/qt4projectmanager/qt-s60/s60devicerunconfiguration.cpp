@@ -41,6 +41,7 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/persistentsettings.h>
 #include <projectexplorer/project.h>
 
 #include <debugger/debuggermanager.h>

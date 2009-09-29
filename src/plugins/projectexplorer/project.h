@@ -30,19 +30,15 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
-#include "persistentsettings.h"
 #include "projectexplorer_export.h"
-#include "buildconfiguration.h"
-#include "environment.h"
-#include "projectnodes.h"
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QObject>
-#include <QtCore/QModelIndex>
-#include <QtCore/QFileInfo>
 #include <QtGui/QFileSystemModel>
-#include <QtGui/QMenu>
-#include <QtGui/QIcon>
+
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
 
 namespace Core {
 class IFile;
@@ -56,6 +52,14 @@ class BuildConfigWidget;
 class IProjectManager;
 class RunConfiguration;
 class EditorConfiguration;
+class Environment;
+class ProjectNode;
+class PersistentSettingsWriter;
+class PersistentSettingsReader;
+
+namespace Internal {
+class BuildConfiguration;
+}
 
 class PROJECTEXPLORER_EXPORT Project
     : public QObject

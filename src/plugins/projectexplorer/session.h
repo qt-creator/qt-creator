@@ -33,19 +33,20 @@
 #include "projectexplorer_export.h"
 #include "projectnodes.h"
 
-#include <coreplugin/ifile.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QAbstractItemModel>
 #include <QtCore/QHash>
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
+QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
+QT_END_NAMESPACE
+
 namespace Core {
 class ICore;
 class IMode;
 class IEditor;
+class IFile;
 }
 
 namespace ProjectExplorer {

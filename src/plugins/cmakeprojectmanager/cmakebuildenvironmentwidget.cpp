@@ -31,6 +31,7 @@
 #include "cmakeproject.h"
 #include <projectexplorer/environmenteditmodel.h>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QCheckBox>
 
 namespace {
 bool debug = false;

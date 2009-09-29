@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "projectexplorer.h"
+#include "project.h"
 #include "projectexplorersettings.h"
 #include "applicationrunconfiguration.h"
 #include "allprojectsfilter.h"

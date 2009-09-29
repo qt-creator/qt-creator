@@ -33,6 +33,7 @@
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/persistentsettings.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/pathchooser.h>

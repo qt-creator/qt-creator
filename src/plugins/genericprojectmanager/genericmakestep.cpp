@@ -34,6 +34,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/variablemanager.h>
 

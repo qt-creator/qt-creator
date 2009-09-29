@@ -34,6 +34,7 @@
 #include "projectexplorerconstants.h"
 #include "nodesvisitor.h"
 #include "editorconfiguration.h"
+#include "persistentsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
