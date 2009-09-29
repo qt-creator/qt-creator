@@ -46,6 +46,17 @@ using namespace Find::Internal;
 static const QString SETTINGSKEYSECTIONNAME("SearchResults");
 static const QString SETTINGSKEYEXPANDRESULTS("ExpandResults");
 
+
+void ResultWindowItem::setData(const QVariant &data)
+{
+    m_data = data;
+}
+
+QVariant ResultWindowItem::data() const
+{
+    return m_data;
+}
+
 SearchResultWindow::SearchResultWindow()
     : m_isShowingReplaceUI(false)
 {

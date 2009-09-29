@@ -50,8 +50,15 @@ class FIND_EXPORT ResultWindowItem : public QObject
 {
     Q_OBJECT
 
+public:
+    void setData(const QVariant &data);
+    QVariant data() const;
+
 signals:
     void activated(const QString &fileName, int lineNumber, int column);
+
+private:
+    QVariant m_data;
 
     friend class SearchResultWindow;
 };
