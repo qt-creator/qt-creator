@@ -59,6 +59,8 @@ enum Kind {
     T_EOF_SYMBOL = 0,
     T_ERROR,
 
+    T_CPP_COMMENT,
+    T_CPP_DOXY_COMMENT,
     T_COMMENT,
     T_DOXY_COMMENT,
     T_IDENTIFIER,
@@ -297,7 +299,8 @@ public:
     { return f.kind >= T_FIRST_KEYWORD && f.kind < T_FIRST_QT_KEYWORD; }
 
     inline bool isComment() const
-    { return f.kind == T_COMMENT || f.kind == T_DOXY_COMMENT; }
+    { return f.kind == T_COMMENT || f.kind == T_DOXY_COMMENT ||
+      f.kind == T_CPP_COMMENT || f.kind == T_CPP_DOXY_COMMENT; }
 
     inline bool isObjCAtKeyword() const
     { return f.kind >= T_FIRST_OBJC_AT_KEYWORD && f.kind <= T_LAST_OBJC_AT_KEYWORD; }

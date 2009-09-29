@@ -428,7 +428,7 @@ void Lexer::scan_helper(Token *tok)
             if (! f._scanCommentTokens)
                 goto _Lagain;
 
-            tok->f.kind = doxy ? T_DOXY_COMMENT : T_COMMENT;
+            tok->f.kind = doxy ? T_CPP_DOXY_COMMENT : T_CPP_COMMENT;
 
         } else if (_yychar == '*') {
             yyinp();
