@@ -1155,7 +1155,11 @@ void TrkGdbAdapter::reportReadMemoryBuffered(const TrkResult &result)
     const qulonglong cookie = result.cookie.toULongLong();
     const uint addr = cookie >> 32;
     const uint len = uint(cookie);
+    reportReadMemoryBuffered(addr, len);
+}
 
+void TrkGdbAdapter::reportReadMemoryBuffered(uint addr, uint len)
+{
     // Gdb accepts less memory according to documentation.
     // Send E on complete failure.
     QByteArray ba;
@@ -1320,6 +1324,7 @@ void TrkGdbAdapter::readMemory(uint addr, uint len)
             .arg(len).arg(addr, 0, 16).arg(MemoryChunkSize));
 
     if (m_bufferedMemoryRead) {
+        uint requests = 0;
         uint blockaddr = (addr / MemoryChunkSize) * MemoryChunkSize;
         for (; blockaddr < addr + len; blockaddr += MemoryChunkSize) {
             if (!m_snapshot.memory.contains(blockaddr)) {
@@ -1330,12 +1335,19 @@ void TrkGdbAdapter::readMemory(uint addr, uint len)
                 sendTrkMessage(0x10, TrkCB(handleReadMemoryBuffered),
                     trkReadMemoryMessage(blockaddr, MemoryChunkSize),
                     QVariant(blockaddr));
+                requests++;
             }
         }
-        const qulonglong cookie = (qulonglong(addr) << 32) + len;
-        sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(reportReadMemoryBuffered),
-            QByteArray(), cookie);
-    } else {
+        // If requests have been sent: Sync
+        if (requests) {
+            const qulonglong cookie = (qulonglong(addr) << 32) + len;
+            sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(reportReadMemoryBuffered),
+                QByteArray(), cookie);
+        } else {
+            // Everything is already buffered: invoke callback directly
+            reportReadMemoryBuffered(addr, len);
+        }
+    } else { // Unbuffered, direct requests
         if (m_verbose)
             logMessage(QString::fromLatin1("Requesting unbuffered memory %1 "
                 "bytes from 0x%2").arg(len).arg(addr, 0, 16));

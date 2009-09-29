@@ -170,6 +170,7 @@ public:
     void handleStepOver2(const TrkResult &result);
     void handleReadRegisters(const TrkResult &result);
     void reportReadMemoryBuffered(const TrkResult &result);
+    void reportReadMemoryBuffered(uint addr, uint len);
     void handleWriteRegister(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
 
