@@ -787,8 +787,7 @@ bool PluginSpecPrivate::loadLibrary()
     PluginLoader loader(libName);
     if (!loader.load()) {
         hasError = true;
-        errorString = loader.errorString();
-        errorString.append(QCoreApplication::translate("PluginSpec", "\nLibrary base name: %1").arg(libName));
+        errorString = libName + QString::fromLatin1(": ") + loader.errorString();
         return false;
     }
     IPlugin *pluginObject = qobject_cast<IPlugin*>(loader.instance());
