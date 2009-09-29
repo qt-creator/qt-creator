@@ -30,6 +30,7 @@
 #include "debuggermanager.h"
 
 #include "debuggeractions.h"
+#include "debuggeragents.h"
 #include "debuggerrunner.h"
 #include "debuggerconstants.h"
 #include "idebuggerengine.h"
@@ -296,6 +297,7 @@ struct DebuggerManagerPrivate {
     bool m_busy;
     QTimer *m_statusTimer;
     QString m_lastPermanentStatusMessage;
+    DisassemblerViewAgent *m_disassemblerViewAgent;
 
     IDebuggerEngine *m_engine;
     DebuggerState m_state;
@@ -303,10 +305,11 @@ struct DebuggerManagerPrivate {
 
 DebuggerManager *DebuggerManagerPrivate::instance = 0;
 
-DebuggerManagerPrivate::DebuggerManagerPrivate() :
-    m_startParameters(new DebuggerStartParameters),
-    m_inferiorPid(0)
+DebuggerManagerPrivate::DebuggerManagerPrivate()
+  : m_startParameters(new DebuggerStartParameters)
 {
+    m_inferiorPid = 0;
+    m_disassemblerViewAgent = 0;
 }
 
 DebuggerManager::DebuggerManager() : d(new DebuggerManagerPrivate)
@@ -1338,17 +1341,30 @@ void DebuggerManager::resetLocation()
 
 void DebuggerManager::gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker)
 {
-    // connected to the plugin
-    emit gotoLocationRequested(frame, setMarker);
+    if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
+        if (!d->m_disassemblerViewAgent)
+            d->m_disassemblerViewAgent = new DisassemblerViewAgent(this);
+        d->m_disassemblerViewAgent->setFrame(frame);
+        if (setMarker)
+            resetLocation();
+    } else {
+        static QString lastFile;
+        static int lastLine;
+        if (frame.line != lastLine || frame.file != lastFile) {
+            lastLine = frame.line;
+            lastFile = frame.file;
+            // Connected to the plugin.
+            emit gotoLocationRequested(lastFile, lastLine, setMarker);
+        }
+    }
 }
 
 void DebuggerManager::fileOpen(const QString &fileName)
 {
-    // connected to the plugin
     StackFrame frame;
     frame.file = fileName;
     frame.line = -1;
-    emit gotoLocationRequested(frame, false);
+    gotoLocation(frame, false);
 }
 
 void DebuggerManager::operateByInstructionTriggered()

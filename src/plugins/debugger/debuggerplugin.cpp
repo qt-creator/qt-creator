@@ -31,12 +31,10 @@
 
 #include "breakhandler.h"
 #include "debuggeractions.h"
-#include "debuggeragents.h"
 #include "debuggerdialogs.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggerrunner.h"
-#include "stackframe.h"
 #include "debuggerstringutils.h"
 
 #include "ui_commonoptionspage.h"
@@ -420,7 +418,6 @@ DebuggerPlugin::DebuggerPlugin()
   : m_manager(0),
     m_debugMode(0),
     m_locationMark(0),
-    m_disassemblerViewAgent(0),
     m_gdbRunningContext(0),
     m_cmdLineEnabledEngines(AllEngineTypes),
     m_cmdLineAttachPid(0),
@@ -888,8 +885,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     connect(m_manager, SIGNAL(resetLocationRequested()),
         this, SLOT(resetLocation()));
-    connect(m_manager, SIGNAL(gotoLocationRequested(Debugger::Internal::StackFrame,bool)),
-        this, SLOT(gotoLocation(Debugger::Internal::StackFrame,bool)));
+    connect(m_manager, SIGNAL(gotoLocationRequested(QString,int,bool)),
+        this, SLOT(gotoLocation(QString,int,bool)));
     connect(m_manager, SIGNAL(stateChanged(int)),
         this, SLOT(handleStateChanged(int)));
     connect(m_manager, SIGNAL(previousModeRequested()),
@@ -1091,26 +1088,12 @@ void DebuggerPlugin::resetLocation()
     m_locationMark = 0;
 }
 
-void DebuggerPlugin::gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker)
+void DebuggerPlugin::gotoLocation(const QString &file, int line, bool setMarker)
 {
-    if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
-        if (!m_disassemblerViewAgent)
-            m_disassemblerViewAgent = new DisassemblerViewAgent(m_manager);
-        m_disassemblerViewAgent->setFrame(frame);
-        if (setMarker)
-            resetLocation();
-    } else {
-        static QString lastFile;
-        static int lastLine;
-        if (frame.line != lastLine || frame.file != lastFile) {
-            lastLine = frame.line;
-            lastFile = frame.file;
-            TextEditor::BaseTextEditor::openEditorAt(frame.file, frame.line);
-            if (setMarker) {
-                resetLocation();
-                m_locationMark = new LocationMark(frame.file, frame.line);
-            }
-        }
+    TextEditor::BaseTextEditor::openEditorAt(file, line);
+    if (setMarker) {
+        resetLocation();
+        m_locationMark = new LocationMark(file, line);
     }
 }
 

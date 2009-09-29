@@ -297,7 +297,7 @@ signals:
     void debugModeRequested();
     void previousModeRequested();
     void statusMessageRequested(const QString &msg, int timeout); // -1 for 'forever'
-    void gotoLocationRequested(const Debugger::Internal::StackFrame &frame, bool setLocationMarker);
+    void gotoLocationRequested(const QString &file, int line, bool setLocationMarker);
     void resetLocationRequested();
     void currentTextEditorRequested(QString *fileName, int *lineNumber, QObject **ob);
     void sessionValueRequested(const QString &name, QVariant *value);
