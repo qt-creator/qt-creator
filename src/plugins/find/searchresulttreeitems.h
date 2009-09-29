@@ -54,16 +54,24 @@ public:
 
     ItemType itemType() const;
     const SearchResultTreeItem *parent() const;
-    const SearchResultTreeItem *childAt(int index) const;
+    SearchResultTreeItem *childAt(int index) const;
     void appendChild(SearchResultTreeItem *child);
     int childrenCount() const;
     int rowOfItem() const;
     void clearChildren();
 
+    bool isUserCheckable() const;
+    void setIsUserCheckable(bool isUserCheckable);
+
+    Qt::CheckState checkState() const;
+    void setCheckState(Qt::CheckState checkState);
+
 private:
     ItemType m_type;
     const SearchResultTreeItem *m_parent;
     QList<SearchResultTreeItem *> m_children;
+    bool m_isUserCheckable;
+    Qt::CheckState m_checkState;
 };
 
 class SearchResultTextRow : public SearchResultTreeItem

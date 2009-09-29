@@ -109,6 +109,7 @@ SearchResultWindow::~SearchResultWindow()
 
 void SearchResultWindow::setShowReplaceUI(bool show)
 {
+    m_searchResultTreeView->model()->setShowReplaceUI(show);
     m_replaceLabel->setVisible(show);
     m_replaceTextEdit->setVisible(show);
     m_replaceButton->setVisible(show);

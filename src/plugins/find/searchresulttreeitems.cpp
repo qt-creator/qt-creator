@@ -32,13 +32,33 @@
 using namespace Find::Internal;
 
 SearchResultTreeItem::SearchResultTreeItem(SearchResultTreeItem::ItemType type, const SearchResultTreeItem *parent)
-  : m_type(type), m_parent(parent)
+  : m_type(type), m_parent(parent), m_isUserCheckable(false), m_checkState(Qt::Unchecked)
 {
 }
 
 SearchResultTreeItem::~SearchResultTreeItem()
 {
     clearChildren();
+}
+
+bool SearchResultTreeItem::isUserCheckable() const
+{
+    return m_isUserCheckable;
+}
+
+void SearchResultTreeItem::setIsUserCheckable(bool isUserCheckable)
+{
+    m_isUserCheckable = isUserCheckable;
+}
+
+Qt::CheckState SearchResultTreeItem::checkState() const
+{
+    return m_checkState;
+}
+
+void SearchResultTreeItem::setCheckState(Qt::CheckState checkState)
+{
+    m_checkState = checkState;
 }
 
 void SearchResultTreeItem::clearChildren()
@@ -62,7 +82,7 @@ int SearchResultTreeItem::rowOfItem() const
     return (m_parent ? m_parent->m_children.indexOf(const_cast<SearchResultTreeItem*>(this)):0);
 }
 
-const SearchResultTreeItem* SearchResultTreeItem::childAt(int index) const
+SearchResultTreeItem* SearchResultTreeItem::childAt(int index) const
 {
     return m_children.at(index);
 }
@@ -131,5 +151,9 @@ void SearchResultFile::appendResultLine(int index, int lineNumber, const QString
 {
     SearchResultTreeItem *child = new SearchResultTextRow(index, lineNumber, rowText,
                                                           searchTermStart, searchTermLength, this);
+    if (isUserCheckable()) {
+        child->setIsUserCheckable(true);
+        child->setCheckState(Qt::Checked);
+    }
     appendChild(child);
 }

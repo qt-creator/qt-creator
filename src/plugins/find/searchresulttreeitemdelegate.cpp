@@ -35,6 +35,7 @@
 #include <QPainter>
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
+#include <QDebug>
 
 #include <math.h>
 
@@ -66,6 +67,18 @@ void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionVi
         // Draw the text and focus/selection
         QItemDelegate::drawDisplay(painter, opt, resultRowRect, displayString);
         QItemDelegate::drawFocus(painter, opt, opt.rect);
+
+        QVariant value = index.data(Qt::CheckStateRole);
+        if (value.isValid()) {
+            Qt::CheckState checkState = Qt::Unchecked;
+            checkState = static_cast<Qt::CheckState>(value.toInt());
+            QRect checkRect = check(opt, opt.rect, value);
+
+            QRect emptyRect;
+            doLayout(opt, &checkRect, &emptyRect, &emptyRect, false);
+
+            QItemDelegate::drawCheck(painter, opt, opt.rect, checkState);
+        }
 
         painter->restore();
     }
