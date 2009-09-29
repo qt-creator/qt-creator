@@ -880,6 +880,9 @@ void CPPEditor::renameSymbolUnderCursor()
             break;
         }
     }
+
+    if (m_renameSelections.isEmpty())
+        findReferences();
 }
 
 void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded)
