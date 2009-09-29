@@ -38,6 +38,7 @@
 #include <QtCore/QDebug>
 #include <QtGui/QListWidget>
 #include <QtGui/QToolButton>
+#include <QtGui/QLineEdit>
 
 using namespace Find;
 using namespace Find::Internal;
@@ -46,6 +47,7 @@ static const QString SETTINGSKEYSECTIONNAME("SearchResults");
 static const QString SETTINGSKEYEXPANDRESULTS("ExpandResults");
 
 SearchResultWindow::SearchResultWindow()
+    : m_isShowingReplaceUI(false)
 {
     m_widget = new QStackedWidget;
     m_widget->setWindowTitle(name());
@@ -66,11 +68,22 @@ SearchResultWindow::SearchResultWindow()
     m_expandCollapseToolButton->setIcon(QIcon(":/find/images/expand.png"));
     m_expandCollapseToolButton->setToolTip(tr("Expand All"));
 
+    m_replaceLabel = new QLabel(tr("Replace with:"), m_widget);
+    m_replaceLabel->setContentsMargins(12, 0, 5, 0);
+    m_replaceTextEdit = new QLineEdit(m_widget);
+    m_replaceButton = new QToolButton(m_widget);
+    m_replaceButton->setToolTip(tr("Replace all occurances"));
+    m_replaceButton->setText(tr("Replace"));
+    m_replaceButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    m_replaceButton->setAutoRaise(true);
+
     connect(m_searchResultTreeView, SIGNAL(jumpToSearchResult(int,const QString&,int,int,int)),
             this, SLOT(handleJumpToSearchResult(int,const QString&,int,int,int)));
     connect(m_expandCollapseToolButton, SIGNAL(toggled(bool)), this, SLOT(handleExpandCollapseToolButton(bool)));
+    connect(m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
 
     readSettings();
+    setShowReplaceUI(false);
 }
 
 SearchResultWindow::~SearchResultWindow()
@@ -80,6 +93,36 @@ SearchResultWindow::~SearchResultWindow()
     m_widget = 0;
     qDeleteAll(m_items);
     m_items.clear();
+}
+
+void SearchResultWindow::setShowReplaceUI(bool show)
+{
+    m_replaceLabel->setVisible(show);
+    m_replaceTextEdit->setVisible(show);
+    m_replaceButton->setVisible(show);
+//  TODO  m_searchResultTreeView->setShowCheckboxes(show);
+    m_isShowingReplaceUI = show;
+}
+
+bool SearchResultWindow::isShowingReplaceUI() const
+{
+    return m_isShowingReplaceUI;
+}
+
+void SearchResultWindow::handleReplaceButton()
+{
+    emit replaceButtonClicked(m_replaceTextEdit->text());
+}
+
+QList<ResultWindowItem *> SearchResultWindow::selectedItems() const
+{
+    QList<ResultWindowItem *> items;
+    // TODO
+//    foreach (ResultWindowItem *item, m_items) {
+//        if (item->isSelected)
+//            items << item;
+//    }
+    return items;
 }
 
 void SearchResultWindow::visibilityChanged(bool /*visible*/)
@@ -93,7 +136,7 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return QList<QWidget*>() << m_expandCollapseToolButton;
+    return QList<QWidget*>() << m_expandCollapseToolButton << m_replaceLabel << m_replaceTextEdit << m_replaceButton;
 }
 
 void SearchResultWindow::clearContents()
