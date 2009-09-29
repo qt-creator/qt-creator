@@ -793,7 +793,7 @@ bool PluginSpecPrivate::loadLibrary()
     IPlugin *pluginObject = qobject_cast<IPlugin*>(loader.instance());
     if (!pluginObject) {
         hasError = true;
-        errorString = QCoreApplication::translate("PluginSpec", "Plugin is not valid (doesn't derive from IPlugin)");
+        errorString = QCoreApplication::translate("PluginSpec", "Plugin is not valid (does not derive from IPlugin)");
         loader.unload();
         return false;
     }
