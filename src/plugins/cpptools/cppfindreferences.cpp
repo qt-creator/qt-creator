@@ -204,71 +204,127 @@ protected:
 
     virtual bool visit(MemberAccessAST *ast)
     {
-        if (! ast->member_name)
-            return false;
+        if (ast->member_name) {
+            if (SimpleNameAST *simple = ast->member_name->asSimpleName()) {
+                if (identifier(simple->identifier_token) == _id) {
+                    Q_ASSERT(! _postfixExpressionStack.isEmpty());
 
-        SimpleNameAST *simple = ast->member_name->asSimpleName();
-        if (! simple)
-            return true; // ### TODO handle pseudo-destructors and qualified names.
+                    checkExpression(_postfixExpressionStack.last()->firstToken(),
+                                    simple->identifier_token);
 
-        Q_ASSERT(! _postfixExpressionStack.isEmpty());
-
-        if (identifier(simple->identifier_token) == _id) {
-            unsigned startOfPostfixExpression = _postfixExpressionStack.last()->firstToken();
-
-            unsigned begin = tokenAt(startOfPostfixExpression).begin();
-            unsigned end = tokenAt(ast->member_name->lastToken() - 1).end();
-
-            const QString expression = _source.mid(begin, end - begin);
-            // qDebug() << "*** expression:" << expression;
-
-            TypeOfExpression typeofExpression;
-            typeofExpression.setSnapshot(_snapshot);
-
-            unsigned line, column;
-            getTokenStartPosition(startOfPostfixExpression, &line, &column);
-            Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
-
-            const QList<TypeOfExpression::Result> results =
-                    typeofExpression(expression, _doc, lastVisibleSymbol,
-                                     TypeOfExpression::NoPreprocess);
-
-            QList<Symbol *> candidates;
-
-            foreach (TypeOfExpression::Result r, results) {
-                FullySpecifiedType ty = r.first;
-                Symbol *lastVisibleSymbol = r.second;
-
-                candidates.append(lastVisibleSymbol);
+                    return false;
+                }
             }
-
-            if (checkCandidates(candidates))
-                reportResult(simple->identifier_token);
         }
 
-        return false;
+        return true;
+    }
+
+    void checkExpression(unsigned startToken, unsigned endToken)
+    {
+        const unsigned begin = tokenAt(startToken).begin();
+        const unsigned end = tokenAt(endToken).end();
+
+        const QString expression = _source.mid(begin, end - begin);
+        // qDebug() << "*** expression:" << expression;
+
+        TypeOfExpression typeofExpression;
+        typeofExpression.setSnapshot(_snapshot);
+
+        unsigned line, column;
+        getTokenStartPosition(startToken, &line, &column);
+        Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
+
+        const QList<TypeOfExpression::Result> results =
+                typeofExpression(expression, _doc, lastVisibleSymbol,
+                                 TypeOfExpression::NoPreprocess);
+
+        QList<Symbol *> candidates;
+
+        foreach (TypeOfExpression::Result r, results) {
+            FullySpecifiedType ty = r.first;
+            Symbol *lastVisibleSymbol = r.second;
+
+            candidates.append(lastVisibleSymbol);
+        }
+
+        if (checkCandidates(candidates))
+            reportResult(endToken);
     }
 
     virtual bool visit(QualifiedNameAST *ast)
     {
-        if (! ast->name) {
-            //qWarning() << "invalid AST at" << _doc->fileName() << line << column;
-            ast->name = _sem.check(ast, /*scope */ static_cast<Scope *>(0));
+        for (NestedNameSpecifierAST *nested_name_specifier = ast->nested_name_specifier;
+             nested_name_specifier; nested_name_specifier = nested_name_specifier->next) {
+
+            if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) {
+                SimpleNameAST *simple_name = class_or_namespace_name->asSimpleName();
+
+                TemplateIdAST *template_id = 0;
+                if (! simple_name) {
+                    template_id = class_or_namespace_name->asTemplateId();
+
+                    if (template_id) {
+                        for (TemplateArgumentListAST *template_arguments = template_id->template_arguments;
+                             template_arguments; template_arguments = template_arguments->next) {
+                            accept(template_arguments->template_argument);
+                        }
+                    }
+                }
+
+                if (simple_name || template_id) {
+                    const unsigned identifier_token = simple_name
+                               ? simple_name->identifier_token
+                               : template_id->identifier_token;
+
+                    if (identifier(identifier_token) == _id)
+                        checkExpression(ast->firstToken(), identifier_token);
+                }
+            }
         }
 
-        Q_ASSERT(ast->name != 0);
-        Identifier *id = ast->name->identifier();
-        if (id == _id && ast->unqualified_name) {
-            LookupContext context = currentContext(ast);
-            const QList<Symbol *> candidates = context.resolve(ast->name);
-            if (checkCandidates(candidates))
-                reportResult(ast->unqualified_name->firstToken());
+        if (ast->unqualified_name) {
+            SimpleNameAST *simple_name = ast->unqualified_name->asSimpleName();
+
+            TemplateIdAST *template_id = 0;
+            if (! simple_name) {
+                template_id = ast->unqualified_name->asTemplateId();
+
+                if (template_id) {
+                    for (TemplateArgumentListAST *template_arguments = template_id->template_arguments;
+                         template_arguments; template_arguments = template_arguments->next) {
+                        accept(template_arguments->template_argument);
+                    }
+                }
+            }
+
+            if (simple_name || template_id) {
+                const unsigned identifier_token = simple_name
+                        ? simple_name->identifier_token
+                        : template_id->identifier_token;
+
+                if (identifier(identifier_token) == _id)
+                    checkExpression(ast->firstToken(), identifier_token);
+            }
         }
 
         return false;
     }
 
     virtual bool visit(SimpleNameAST *ast)
+    {
+        Identifier *id = identifier(ast->identifier_token);
+        if (id == _id) {
+            LookupContext context = currentContext(ast);
+            const QList<Symbol *> candidates = context.resolve(ast->name);
+            if (checkCandidates(candidates))
+                reportResult(ast->identifier_token);
+        }
+
+        return false;
+    }
+
+    virtual bool visit(DestructorNameAST *ast)
     {
         Identifier *id = identifier(ast->identifier_token);
         if (id == _id) {
@@ -304,6 +360,7 @@ private:
     Document::Ptr _exprDoc;
     Semantic _sem;
     QList<PostfixExpressionAST *> _postfixExpressionStack;
+    QList<QualifiedNameAST *> _qualifiedNameStack;
 };
 
 } // end of anonymous namespace
