@@ -51,6 +51,7 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/Overview.h>
+#include <cplusplus/TypeOfExpression.h>
 
 #include <QtCore/QTime>
 #include <QtCore/QtConcurrentRun>
@@ -130,8 +131,17 @@ protected:
 
     bool checkCandidates(const QList<Symbol *> &candidates) const
     {
-        // ### FIXME return isDeclSymbol(LookupContext::canonicalSymbol(candidates));
-        return true;
+        if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(candidates)) {
+#if 0
+            qDebug() << "*** canonical symbol:" << canonicalSymbol->fileName()
+                    << canonicalSymbol->line() << canonicalSymbol->column()
+                    << "candidates:" << candidates.size();
+#endif
+
+            return isDeclSymbol(canonicalSymbol);
+        }
+
+        return false;
     }
 
     bool isDeclSymbol(Symbol *symbol) const
@@ -156,6 +166,64 @@ protected:
         getTokenStartPosition(ast->firstToken(), &line, &column);
         Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
         return LookupContext(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
+    }
+
+    virtual bool visit(PostfixExpressionAST *ast)
+    {
+        _postfixExpressionStack.append(ast);
+        return true;
+    }
+
+    virtual void endVisit(PostfixExpressionAST *ast)
+    {
+        _postfixExpressionStack.removeLast();
+    }
+
+    virtual bool visit(MemberAccessAST *ast)
+    {
+        if (! ast->member_name)
+            return false;
+
+        SimpleNameAST *simple = ast->member_name->asSimpleName();
+        if (! simple)
+            return true; // ### TODO handle pseudo-destructors and qualified names.
+
+        Q_ASSERT(! _postfixExpressionStack.isEmpty());
+
+        if (identifier(simple->identifier_token) == _id) {
+            unsigned startOfPostfixExpression = _postfixExpressionStack.last()->firstToken();
+
+            unsigned begin = tokenAt(startOfPostfixExpression).begin();
+            unsigned end = tokenAt(ast->member_name->lastToken() - 1).end();
+
+            const QString expression = _source.mid(begin, end - begin);
+            // qDebug() << "*** expression:" << expression;
+
+            TypeOfExpression typeofExpression;
+            typeofExpression.setSnapshot(_snapshot);
+
+            unsigned line, column;
+            getTokenStartPosition(startOfPostfixExpression, &line, &column);
+            Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
+
+            const QList<TypeOfExpression::Result> results =
+                    typeofExpression(expression, _doc, lastVisibleSymbol,
+                                     TypeOfExpression::NoPreprocess);
+
+            QList<Symbol *> candidates;
+
+            foreach (TypeOfExpression::Result r, results) {
+                FullySpecifiedType ty = r.first;
+                Symbol *lastVisibleSymbol = r.second;
+
+                candidates.append(lastVisibleSymbol);
+            }
+
+            if (checkCandidates(candidates))
+                reportResult(simple->identifier_token);
+        }
+
+        return false;
     }
 
     virtual bool visit(QualifiedNameAST *ast)
@@ -212,6 +280,7 @@ private:
     QByteArray _source;
     Document::Ptr _exprDoc;
     Semantic _sem;
+    QList<PostfixExpressionAST *> _postfixExpressionStack;
 };
 
 } // end of anonymous namespace
