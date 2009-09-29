@@ -211,7 +211,8 @@ void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
         QTC_ASSERT(state() == InferiorRunning, qDebug() << state());
-        emit inferiorStarted();
+        debugMessage(_("INFERIOR STARTED"));
+        showStatusMessage(tr("Inferior started."));
     } else {
         QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
         QTC_ASSERT(response.resultClass == GdbResultError, /**/);

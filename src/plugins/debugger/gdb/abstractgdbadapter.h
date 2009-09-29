@@ -76,7 +76,6 @@ signals:
 
     void inferiorPrepared();
     void inferiorPreparationFailed(const QString &msg);
-    void inferiorStarted();
     void inferiorStartFailed(const QString &msg);
     void inferiorShutDown();
     void inferiorShutdownFailed(const QString &msg);
@@ -95,6 +94,8 @@ protected:
         { return m_engine->startParameters(); }
     void debugMessage(const QString &msg) const
         { m_engine->debugMessage(msg); }
+    void showStatusMessage(const QString &msg) const
+        { m_engine->showStatusMessage(msg); }
 
     GdbEngine * const m_engine;
 };

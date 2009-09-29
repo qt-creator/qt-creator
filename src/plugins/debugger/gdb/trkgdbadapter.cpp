@@ -1463,15 +1463,14 @@ void TrkGdbAdapter::startInferior()
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     setState(InferiorRunningRequested);
     m_engine->postCommand(_("-exec-continue"), CB(handleFirstContinue));
-    // FIXME: Is there a way to properly recognize a successful start?
-    emit inferiorStarted();
 }
 
 void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
 {
     QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        // inferiorStarted already emitted above, see FIXME
+        debugMessage(_("INFERIOR STARTED"));
+        showStatusMessage(tr("Inferior running."));
     } else if (record.resultClass == GdbResultError) {
         //QString msg = __(record.data.findChild("msg").data());
         QString msg1 = tr("Connecting to remote server failed:");

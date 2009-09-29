@@ -151,7 +151,8 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         setState(InferiorStopped);
-        emit inferiorStarted();
+        debugMessage(_("INFERIOR STARTED"));
+        showStatusMessage(tr("Attached to core."));
         m_engine->updateAll();
     } else {
         QTC_ASSERT(response.resultClass == GdbResultError, /**/);

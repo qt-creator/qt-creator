@@ -268,8 +268,6 @@ void GdbEngine::connectAdapter()
     connect(m_gdbAdapter, SIGNAL(inferiorPreparationFailed(QString)),
         this, SLOT(handleInferiorPreparationFailed(QString)));
 
-    connect(m_gdbAdapter, SIGNAL(inferiorStarted()),
-        this, SLOT(handleInferiorStarted()));
     connect(m_gdbAdapter, SIGNAL(inferiorStartFailed(QString)),
         this, SLOT(handleInferiorStartFailed(QString)));
     connect(m_gdbAdapter, SIGNAL(inferiorShutDown()),
@@ -4161,17 +4159,6 @@ void GdbEngine::handleInferiorStartFailed(const QString &msg)
     debugMessage(_("INFERIOR START FAILED"));
     showMessageBox(QMessageBox::Critical, tr("Inferior start failed"), msg);
     shutdown();
-}
-
-void GdbEngine::handleInferiorStarted()
-{
-    QTC_ASSERT(state() == InferiorRunning
-        || state() == InferiorStopped, qDebug() << state());
-    debugMessage(_("INFERIOR STARTED"));
-    if (state() == InferiorStopped)
-        showStatusMessage(tr("Inferior stopped."));
-    else
-        showStatusMessage(tr("Inferior started."));
 }
 
 void GdbEngine::handleInferiorShutDown()

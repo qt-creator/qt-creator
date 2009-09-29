@@ -73,22 +73,22 @@ enum DebuggerState
     InferiorPrepared,
     InferiorPreparationFailed,
     InferiorStarting,
-    // InferiorStarted,    // That's either InferiorRunningRequested or InferiorStopped
+    // InferiorStarted,         // Use InferiorRunningRequested or InferiorStopped
     InferiorStartFailed,
 
     InferiorRunningRequested,   // Debuggee requested to run
     InferiorRunning,            // Debuggee running
 
-    InferiorStopping,      // Debuggee running, stop requested
+    InferiorStopping,           // Debuggee running, stop requested
     InferiorStopped,            // Debuggee stopped
-    InferiorStopFailed,            // Debuggee stopped
+    InferiorStopFailed,         // Debuggee stopped
 
     InferiorShuttingDown,
     InferiorShutDown,
     InferiorShutdownFailed,
 
     AdapterShuttingDown,
-    //AdapterShutDown,  // use DebuggerNotReady
+    //AdapterShutDown,          // Use DebuggerNotReady instead
     AdapterShutdownFailed,
 };
 
@@ -106,12 +106,12 @@ enum DebuggerStartMode
 
 enum LogChannel
 {
-    LogInput,   // Used for user input
+    LogInput,               // Used for user input
     LogOutput,
     LogWarning,
     LogError,
-    LogStatus,  // Used for status changed messages
-    LogTime,  // Used for time stamp messages
+    LogStatus,              // Used for status changed messages
+    LogTime,                // Used for time stamp messages
     LogDebug,
     LogMisc    
 };
