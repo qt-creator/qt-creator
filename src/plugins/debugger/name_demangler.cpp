@@ -1482,6 +1482,7 @@ const NameDemanglerPrivate::Operator &NameDemanglerPrivate::parseOperatorName()
             static UnaryOperator castOp("cv", "");
             QString type = parseType();
             castOp.repr = "(" + type + ")";
+            op = &castOp;
         } else {
             op = ops.value(id);
             if (op == 0) {
