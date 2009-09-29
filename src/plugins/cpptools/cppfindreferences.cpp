@@ -168,13 +168,37 @@ protected:
         return LookupContext(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
     }
 
+    void ensureNameIsValid(NameAST *ast)
+    {
+        if (ast && ! ast->name)
+            ast->name = _sem.check(ast, /*scope = */ 0);
+    }
+
+    virtual bool visit(MemInitializerAST *ast)
+    {
+        if (ast->name && ast->name->asSimpleName() != 0) {
+            ensureNameIsValid(ast->name);
+
+            SimpleNameAST *simple = ast->name->asSimpleName();
+            qDebug() << identifier(simple->identifier_token) << _id;
+            if (identifier(simple->identifier_token) == _id) {
+                LookupContext context = currentContext(ast);
+                const QList<Symbol *> candidates = context.resolve(simple->name);
+                if (checkCandidates(candidates))
+                    reportResult(simple->identifier_token);
+            }
+        }
+        accept(ast->expression);
+        return false;
+    }
+
     virtual bool visit(PostfixExpressionAST *ast)
     {
         _postfixExpressionStack.append(ast);
         return true;
     }
 
-    virtual void endVisit(PostfixExpressionAST *ast)
+    virtual void endVisit(PostfixExpressionAST *)
     {
         _postfixExpressionStack.removeLast();
     }
