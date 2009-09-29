@@ -1543,7 +1543,16 @@ bool CPPEditor::isInComment(const QTextCursor &cursor) const
     const SimpleToken tk = tokenUnderCursor(cursor);
 
     if (tk.isComment()) {
-        const int pos = cursor.selectionEnd();
+        const int pos = cursor.selectionEnd() - cursor.block().position();
+
+        if (pos == tk.end()) {
+            if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
+                return true;
+
+            const int state = cursor.block().userState() & 0xFF;
+            if (state > 0)
+                return true;
+        }
 
         if (pos < tk.end())
             return true;

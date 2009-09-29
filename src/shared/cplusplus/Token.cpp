@@ -54,6 +54,7 @@ CPLUSPLUS_BEGIN_NAMESPACE
 static const char *token_names[] = {
     (""), ("<error>"),
 
+    ("<C++ comment>"), ("<C++ doxy comment>"),
     ("<comment>"), ("<doxy comment>"),
 
     ("<identifier>"), ("<numeric literal>"), ("<char literal>"),

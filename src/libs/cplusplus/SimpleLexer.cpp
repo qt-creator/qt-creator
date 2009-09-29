@@ -63,7 +63,8 @@ bool SimpleToken::isKeyword() const
 
 bool SimpleToken::isComment() const
 {
-    return _kind == T_COMMENT || _kind == T_DOXY_COMMENT;
+    return _kind == T_COMMENT || _kind == T_DOXY_COMMENT ||
+            _kind == T_CPP_COMMENT || _kind == T_CPP_DOXY_COMMENT;
 }
 
 bool SimpleToken::isObjCAtKeyword() const

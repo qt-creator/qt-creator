@@ -138,7 +138,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         else if (tk.isComment()) {
 
-            if (tk.is(T_COMMENT))
+            if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT))
                 setFormat(tk.position(), tk.length(), m_formats[CppCommentFormat]);
 
             else // a doxygen comment
