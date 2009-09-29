@@ -1488,7 +1488,7 @@ static void setGdbCygwinEnvironment(const QString &cygwin, QProcess *process)
     QStringList env = process->environment();
     if (env.isEmpty())
         env = QProcess::systemEnvironment();
-    const QRegExp pathPattern(QLatin1String("^PATH=.*"));
+    const QRegExp pathPattern(QLatin1String("^PATH=.*"), Qt::CaseInsensitive);
     const int index = env.indexOf(pathPattern);
     if (index == -1)
         return;
