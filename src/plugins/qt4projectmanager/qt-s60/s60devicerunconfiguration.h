@@ -82,7 +82,7 @@ public:
     void setCustomKeyPath(const QString &path);
 
     QString packageFileName() const;
-    QString executableFileName() const;
+    QString localExecutableFileName() const;
 
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 

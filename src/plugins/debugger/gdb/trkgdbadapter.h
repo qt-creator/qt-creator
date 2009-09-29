@@ -244,6 +244,8 @@ public:
     Q_SLOT void executeCommand(const QString &msg);
     trk::Session m_session; // global-ish data (process id, target information)
     trk::Snapshot m_snapshot; // local-ish data (memory and registers)
+    QString m_remoteExecutable;
+    QString m_symbolFile;
     int m_verbose;
     bool m_bufferedMemoryRead;
     int m_waitCount;

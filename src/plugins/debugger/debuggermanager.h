@@ -110,6 +110,7 @@ public:
     // for remote debugging
     QString remoteChannel;
     QString remoteArchitecture;
+    QString symbolFileName;
     QString serverStartScript;
     int toolChainType;
 

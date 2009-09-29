@@ -395,6 +395,7 @@ private:
     void setLocals(const QList<GdbMi> &locals);
     void connectDebuggingHelperActions();
     void disconnectDebuggingHelperActions();
+    AbstractGdbAdapter *determineAdapter(const DebuggerStartParametersPtr &dp) const;
 
     bool startModeAllowsDumpers() const;
     QString parseDisassembler(const GdbMi &lines);

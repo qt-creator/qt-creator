@@ -278,8 +278,7 @@ void TrkGdbAdapter::startInferiorEarly()
     appendByte(&ba, 0); // ?
     appendByte(&ba, 0); // ?
 
-    QByteArray file("C:\\sys\\bin\\filebrowseapp.exe");
-    appendString(&ba, file, TargetByteOrder);
+    appendString(&ba, m_remoteExecutable.toLatin1(), TargetByteOrder);
     sendTrkMessage(0x40, TrkCB(handleCreateProcess), ba); // Create Item
     //sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(startGdbServer));
 }
@@ -1400,6 +1399,17 @@ void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
 
 void TrkGdbAdapter::startAdapter()
 {
+    // Retrieve parameters
+    const DebuggerStartParameters &parameters = m_engine->startParameters();
+    setOverrideTrkDevice(parameters.remoteChannel);
+    m_remoteExecutable = parameters.executable;
+    m_symbolFile = parameters.symbolFileName;
+    // @todo: testing hack, remove!
+    if (m_remoteExecutable.endsWith(_(".sym"))) {
+        m_symbolFile = m_remoteExecutable;
+        m_remoteExecutable = QLatin1String("C:\\sys\\bin\\filebrowseapp.exe");
+    }
+    // Start
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
@@ -1437,10 +1447,14 @@ void TrkGdbAdapter::prepareInferior()
     // We already started the inferior process during the adapter start.
     // Now make gdb aware of it.
     setState(InferiorPreparing);
-    QString fileName = m_engine->startParameters().executable; 
-    m_engine->postCommand(_("add-symbol-file \"%1\" %2").arg(fileName)
-        .arg(m_session.codeseg));
-    m_engine->postCommand(_("symbol-file \"%1\"").arg(fileName));
+    const QString fileName = m_symbolFile;
+    if (m_symbolFile.isEmpty()) {
+        logMessage(QString::fromLatin1("WARNING: No symbol file available."));
+    } else {
+        m_engine->postCommand(_("add-symbol-file \"%1\" %2").arg(m_symbolFile)
+                              .arg(m_session.codeseg));
+        m_engine->postCommand(_("symbol-file \"%1\"").arg(m_symbolFile));
+    }
     m_engine->postCommand(_("target remote ") + gdbServerName(),
         CB(handleTargetRemote));
 }

@@ -168,6 +168,7 @@ DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
             << " attachPID=" << p.attachPID << " useTerminal=" << p.useTerminal
             << " remoteChannel=" << p.remoteChannel
             << " remoteArchitecture=" << p.remoteArchitecture
+            << " symbolFileName=" << p.symbolFileName
             << " serverStartScript=" << p.serverStartScript
             << " toolchain=" << p.toolChainType << '\n';
     return str;
@@ -858,6 +859,12 @@ static IDebuggerEngine *debuggerEngineForToolChain(ProjectExplorer::ToolChain::T
     case ProjectExplorer::ToolChain::MSVC:
     case ProjectExplorer::ToolChain::WINCE:
         rc = winEngine;
+        break;
+    case ProjectExplorer::ToolChain::WINSCW: // S60
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        rc = gdbEngine;
         break;
     case ProjectExplorer::ToolChain::OTHER:
     case ProjectExplorer::ToolChain::UNKNOWN:

@@ -61,6 +61,7 @@
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <texteditor/itexteditor.h>
+#include <projectexplorer/toolchain.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
@@ -1511,6 +1512,33 @@ int GdbEngine::currentFrame() const
     return manager()->stackHandler()->currentIndex();
 }
 
+AbstractGdbAdapter *GdbEngine::determineAdapter(const DebuggerStartParametersPtr &sp) const
+{
+    switch (sp->toolChainType) {
+    case ProjectExplorer::ToolChain::WINSCW: // S60
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        return m_trkAdapter;
+    default:
+        break;
+    }
+    // @todo: remove testing hack
+    if (sp->executable.endsWith(_(".sym")))
+        return m_trkAdapter;
+    switch (sp->startMode) {
+    case AttachCore:
+        return m_coreAdapter;
+    case StartRemote:
+        return m_remoteAdapter;
+    case AttachExternal:
+        return m_attachAdapter;
+    default:
+        break;
+    }
+    return m_plainAdapter;
+}
+
 void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
@@ -1525,16 +1553,7 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     if (m_gdbAdapter)
         disconnectAdapter();
 
-    if (sp->executable.endsWith(_(".sym")))
-        m_gdbAdapter = m_trkAdapter;
-    else if (sp->startMode == AttachCore)
-        m_gdbAdapter = m_coreAdapter;
-    else if (sp->startMode == StartRemote)
-        m_gdbAdapter = m_remoteAdapter;
-    else if (sp->startMode == AttachExternal)
-        m_gdbAdapter = m_attachAdapter;
-    else 
-        m_gdbAdapter = m_plainAdapter;
+    m_gdbAdapter = determineAdapter(sp);
 
     if (startModeAllowsDumpers())
         connectDebuggingHelperActions();
