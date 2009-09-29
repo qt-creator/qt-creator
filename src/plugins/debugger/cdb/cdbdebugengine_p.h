@@ -116,6 +116,7 @@ struct CdbDebugEnginePrivate
     bool isDebuggeeRunning() const { return m_watchTimer != -1; }
     void handleDebugEvent();
     ULONG updateThreadList();
+    bool setCDBThreadId(unsigned long threadId, QString *errorMessage);
     void updateStackTrace();
     void updateModules();
 

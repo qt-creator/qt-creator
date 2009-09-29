@@ -1201,8 +1201,8 @@ void CdbDebugEngine::activateFrame(int frameIndex)
 
     QString errorMessage;
     bool success = false;
-    do {
-        StackHandler *stackHandler = manager()->stackHandler();
+    StackHandler *stackHandler = manager()->stackHandler();
+    do {        
         WatchHandler *watchHandler = manager()->watchHandler();
         const int oldIndex = stackHandler->currentIndex();
         if (frameIndex >= stackHandler->stackSize()) {
@@ -1230,10 +1230,15 @@ void CdbDebugEngine::activateFrame(int frameIndex)
             if (CdbStackFrameContext *sgc = m_d->getStackFrameContext(frameIndex, &errorMessage))
                 success = sgc->populateModelInitially(watchHandler, &errorMessage);
             watchHandler->endCycle();
+        } else {
+            success = true;
         }
     } while (false);
-    if (!success)
-        warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
+    if (!success) {
+        const QString msg = QString::fromLatin1("Internal error: activateFrame() failed for frame #1 of %2, thread %3: %4").
+                            arg(frameIndex).arg(stackHandler->stackSize()).arg(m_d->m_currentThreadId).arg(errorMessage);
+        warning(msg);
+    }
     m_d->m_firstActivatedFrame = false;
 }
 
@@ -1536,6 +1541,28 @@ void CdbDebugEnginePrivate::setDebuggeeHandles(HANDLE hDebuggeeProcess,  HANDLE 
     m_hDebuggeeThread = hDebuggeeThread;
 }
 
+// Set thread in CDB engine
+bool CdbDebugEnginePrivate::setCDBThreadId(unsigned long threadId, QString *errorMessage)
+{
+    ULONG currentThreadId;
+    HRESULT hr = m_cif.debugSystemObjects->GetCurrentThreadId(&currentThreadId);
+    if (FAILED(hr)) {
+        *errorMessage = msgComFailed("GetCurrentThreadId", hr);
+        return false;
+    }
+    if (currentThreadId == threadId)
+        return true;
+    hr = m_cif.debugSystemObjects->SetCurrentThreadId(threadId);
+    if (FAILED(hr)) {
+        *errorMessage = QString::fromLatin1("Failed to change to from thread %1 to %2: SetCurrentThreadId() failed: %3").
+                        arg(currentThreadId).arg(threadId).arg(msgDebugEngineComResult(hr));
+        return false;
+    }
+    const QString msg = CdbDebugEngine::tr("Changing threads: %1 -> %2").arg(currentThreadId).arg(threadId);
+    m_engine->showStatusMessage(msg, 500);    
+    return true;
+}
+
 ULONG CdbDebugEnginePrivate::updateThreadList()
 {
     if (debugCDB)
@@ -1582,6 +1609,10 @@ void CdbDebugEnginePrivate::updateStackTrace()
     clearForRun();
     QString errorMessage;
     m_engine->reloadRegisters();
+    if (!setCDBThreadId(m_currentThreadId, &errorMessage)) {
+        m_engine->warning(errorMessage);
+        return;
+    }
     m_currentStackTrace =
             CdbStackTraceContext::create(m_dumper, m_currentThreadId, &errorMessage);
     if (!m_currentStackTrace) {

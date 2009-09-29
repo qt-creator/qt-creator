@@ -53,19 +53,10 @@ CdbStackTraceContext *CdbStackTraceContext::create(const QSharedPointer<CdbDumpe
 {    
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << threadId;
-    CdbComInterfaces *cif = dumper->comInterfaces();
-    HRESULT hr = cif->debugSystemObjects->SetCurrentThreadId(threadId);
-    if (FAILED(hr)) {
-        *errorMessage = QString::fromLatin1("%1: SetCurrentThreadId %2 failed: %3").
-                        arg(QString::fromLatin1(Q_FUNC_INFO)).
-                        arg(threadId).
-                        arg(msgDebugEngineComResult(hr));
-        return 0;
-    }
     // fill the DEBUG_STACK_FRAME array
     ULONG frameCount;
     CdbStackTraceContext *ctx = new CdbStackTraceContext(dumper);
-    hr = cif->debugControl->GetStackTrace(0, 0, 0, ctx->m_cdbFrames, CdbStackTraceContext::maxFrames, &frameCount);
+    const HRESULT hr = dumper->comInterfaces()->debugControl->GetStackTrace(0, 0, 0, ctx->m_cdbFrames, CdbStackTraceContext::maxFrames, &frameCount);
     if (FAILED(hr)) {
         delete ctx;
          *errorMessage = msgComFailed("GetStackTrace", hr);
