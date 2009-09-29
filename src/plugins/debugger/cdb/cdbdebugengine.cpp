@@ -389,7 +389,7 @@ static inline const char *codeLevelName(ULONG level)
 
 bool CdbDebugEnginePrivate::setCodeLevel()
 {
-    const ULONG codeLevel = theDebuggerBoolSetting(StepByInstruction) ?
+    const ULONG codeLevel = theDebuggerBoolSetting(OperateByInstruction) ?
                             DEBUG_LEVEL_ASSEMBLY : DEBUG_LEVEL_SOURCE;
     ULONG currentCodeLevel = DEBUG_LEVEL_ASSEMBLY;
     HRESULT hr = m_cif.debugControl->GetCodeLevel(&currentCodeLevel);
