@@ -1065,16 +1065,13 @@ static void qDumpInnerValueOrPointer(QDumper &d,
 #ifndef QT_BOOTSTRAPPED
 struct ModelIndex { int r; int c; void *p; void *m; };
 
-static inline void
-qDeserializeQModelIndex(const char *input, ModelIndex &mm)
-{
-    sscanf(input, "%d,%d,%p,%p", &mm.r, &mm.c, &mm.p, &mm.m);
-}
-
 static void qDumpQAbstractItem(QDumper &d)
 {
     QModelIndex mi;
-    qDeserializeQModelIndex(d.templateParameters[0], *reinterpret_cast<ModelIndex *>(&mi));
+    {
+       ModelIndex *mm = reinterpret_cast<ModelIndex *>(&mi);
+       sscanf(d.templateParameters[0], "%d,%d,%p,%p", &mm->r, &mm->c, &mm->p, &mm->m);
+    }
     const QAbstractItemModel *m = mi.model();
     const int rowCount = m->rowCount(mi);
     if (rowCount < 0)
