@@ -332,29 +332,25 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
     Identifier *symbolId = symbol->identifier();
     Q_ASSERT(symbolId != 0);
 
-    const QString fileName = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
+    const QString sourceFile = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
 
-    QStringList files(fileName);
-    files += snapshot.dependsOn(fileName);
+    QStringList files(sourceFile);
+    files += snapshot.dependsOn(sourceFile);
     qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
 
     future.setProgressRange(0, files.size());
 
     for (int i = 0; i < files.size(); ++i) {
-        const QString &fn = files.at(i);
-        future.setProgressValueAndText(i, QFileInfo(fn).fileName());
+        const QString &fileName = files.at(i);
+        future.setProgressValueAndText(i, QFileInfo(fileName).fileName());
 
-        Document::Ptr previousDoc = snapshot.value(fn);
+        Document::Ptr previousDoc = snapshot.value(fileName);
         if (previousDoc) {
             Control *control = previousDoc->control();
             Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size());
             if (! id)
                 continue; // skip this document, it's not using symbolId.
         }
-
-        QFile f(fn);
-        if (! f.open(QFile::ReadOnly))
-            continue;
 
         QByteArray source;
 
