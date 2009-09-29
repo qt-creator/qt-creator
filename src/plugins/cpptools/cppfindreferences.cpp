@@ -322,6 +322,7 @@ CppFindReferences::~CppFindReferences()
 }
 
 static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
+                        const QMap<QString, QString> wl,
                         Snapshot snapshot,
                         Symbol *symbol)
 {
@@ -339,7 +340,6 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
 
     future.setProgressRange(0, files.size());
 
-    tm.start();
     for (int i = 0; i < files.size(); ++i) {
         const QString &fn = files.at(i);
         future.setProgressValueAndText(i, QFileInfo(fn).fileName());
@@ -356,9 +356,20 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
         if (! f.open(QFile::ReadOnly))
             continue;
 
-        const QString source = QTextStream(&f).readAll(); // ### FIXME
-        const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fn);
-        Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, fn);
+        QByteArray source;
+
+        if (wl.contains(fileName))
+            source = snapshot.preprocessedCode(wl.value(fileName), fileName);
+        else {
+            QFile file(fileName);
+            if (! file.open(QFile::ReadOnly))
+                continue;
+
+            const QString contents = QTextStream(&file).readAll(); // ### FIXME
+            source = snapshot.preprocessedCode(contents, fileName);
+        }
+
+        Document::Ptr doc = snapshot.documentFromSource(source, fileName);
         doc->tokenize();
 
         Control *control = doc->control();
@@ -369,17 +380,21 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
             process(symbol, id, unit->ast());
         }
     }
+
     future.setProgressValue(files.size());
 }
 
-void CppFindReferences::findAll(const Snapshot &snapshot, Symbol *symbol)
+void CppFindReferences::findAll(Symbol *symbol)
 {
     _resultWindow->clearContents();
     _resultWindow->popup(true);
 
+    const Snapshot snapshot = _modelManager->snapshot();
+    const QMap<QString, QString> wl = _modelManager->buildWorkingCopyList();
+
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
-    QFuture<Core::Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, snapshot, symbol);
+    QFuture<Core::Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),
