@@ -10,7 +10,7 @@ Windows XP SP2, Windows Vista
 (K)Ubuntu Linux 5.04, (K)Ubuntu Linux 7.04 32bit and 64bit
 Mac OS 10.4 and later
 
-Building the sources requires Qt 4.5.0 or later.
+Building the sources requires Qt 4.6.0 or later.
 
 Third-party components
 ======================
@@ -23,7 +23,7 @@ we thank the authors who made this possible:
 
 Compiling Qt Creator
 ====================
-You need Qt 4.5 to build Qt Creator.
+You need Qt 4.6 to build Qt Creator.
 We recommend that you build Qt Creator not in the source directory, but in a separate directory.
 To do that, use the following commands:
 mkdir $BUILD_DIRECTORY
