@@ -87,6 +87,7 @@ SearchResultWindow::SearchResultWindow()
     m_replaceButton->setText(tr("Replace"));
     m_replaceButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_replaceButton->setAutoRaise(true);
+    m_replaceTextEdit->setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
 
     connect(m_searchResultTreeView, SIGNAL(jumpToSearchResult(int,const QString&,int,int,int)),
             this, SLOT(handleJumpToSearchResult(int,const QString&,int,int,int)));
@@ -152,6 +153,7 @@ QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 
 void SearchResultWindow::clearContents()
 {
+    setShowReplaceUI(false);
     m_widget->setCurrentWidget(m_searchResultTreeView);
     m_searchResultTreeView->clear();
     qDeleteAll(m_items);
@@ -176,7 +178,7 @@ int SearchResultWindow::numberOfResults() const
 
 bool SearchResultWindow::hasFocus()
 {
-    return m_searchResultTreeView->hasFocus();
+    return m_searchResultTreeView->hasFocus() || (m_isShowingReplaceUI && m_replaceTextEdit->hasFocus());
 }
 
 bool SearchResultWindow::canFocus()
@@ -186,8 +188,18 @@ bool SearchResultWindow::canFocus()
 
 void SearchResultWindow::setFocus()
 {
-    if (!m_items.isEmpty())
-        m_searchResultTreeView->setFocus();
+    if (!m_items.isEmpty()) {
+        if (!m_isShowingReplaceUI) {
+            m_searchResultTreeView->setFocus();
+        } else {
+            if (!m_widget->focusWidget()
+                    || m_widget->focusWidget() == m_replaceTextEdit) {
+                m_replaceTextEdit->setFocus();
+            } else {
+                m_searchResultTreeView->setFocus();
+            }
+        }
+    }
 }
 
 void SearchResultWindow::setTextEditorFont(const QFont &font)
@@ -214,7 +226,7 @@ ResultWindowItem *SearchResultWindow::addResult(const QString &fileName, int lin
     m_searchResultTreeView->appendResultLine(index, fileName, lineNumber, rowText, searchTermStart, searchTermLength);
     if (index == 0) {
         // We didn't have an item before, set the focus to the m_searchResultTreeView
-        m_searchResultTreeView->setFocus();
+        setFocus();
         m_searchResultTreeView->selectionModel()->select(m_searchResultTreeView->model()->index(0, 0, QModelIndex()), QItemSelectionModel::Select);
         emit navigateStateChanged();
     }
