@@ -817,11 +817,10 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     const Snapshot snapshot = m_manager->snapshot();
 
     if (Document::Ptr thisDocument = snapshot.value(fileName)) {
-        Symbol *symbol = thisDocument->findSymbolAt(line, column);
-
+        Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
         typeOfExpression.setSnapshot(m_manager->snapshot());
 
-        QList<TypeOfExpression::Result> resolvedTypes = typeOfExpression(expression, thisDocument, symbol,
+        QList<TypeOfExpression::Result> resolvedTypes = typeOfExpression(expression, thisDocument, lastVisibleSymbol,
                                                                          TypeOfExpression::Preprocess);
         LookupContext context = typeOfExpression.lookupContext();
 
@@ -847,7 +846,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                                         m_completionOperator == T_SLOT)) {
             // Apply signal/slot completion on 'this'
             expression = QLatin1String("this");
-            resolvedTypes = typeOfExpression(expression, thisDocument, symbol);
+            resolvedTypes = typeOfExpression(expression, thisDocument, lastVisibleSymbol);
             context = typeOfExpression.lookupContext();
         }
 
@@ -883,7 +882,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             // Resolve the type of this expression
             QList<TypeOfExpression::Result> results =
-                    typeOfExpression(baseExpression, thisDocument, symbol, TypeOfExpression::Preprocess);
+                    typeOfExpression(baseExpression, thisDocument, lastVisibleSymbol, TypeOfExpression::Preprocess);
 
             // If it's a class, add completions for the constructors
             foreach (const TypeOfExpression::Result &result, results) {
