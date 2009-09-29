@@ -1200,6 +1200,7 @@ void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
 
 void TrkGdbAdapter::handleStepInto(const TrkResult &result)
 {
+    m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto");
         // Try fallback with Step Over
@@ -1225,6 +1226,7 @@ void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
 
 void TrkGdbAdapter::handleStepOver(const TrkResult &result)
 {
+    m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + "in handleStepOver");
         // Try fallback with Step Into
